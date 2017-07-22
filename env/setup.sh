@@ -6,8 +6,15 @@ bes-dev-root()
 
 source $(bes-dev-root)/env/functions.sh
 
+bes-go()
+{
+  cd $(bes-dev-root)
+  return 0
+}
+
 bes-dev()
 {
   bes-setup $(bes-dev-root)
+  bes-go
   return 0
 }
