@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+#
+from bes.archive.archive_extension import archive_extension
+import unittest
+
+class Testarchive_extension(unittest.TestCase):
+
+  def test_write_format(self):
+    self.assertEqual( 'w:gz', archive_extension.write_format('gz') )
+    self.assertEqual( 'w:gz', archive_extension.write_format('tgz') )
+    self.assertEqual( 'w:gz', archive_extension.write_format('tar.gz') )
+    self.assertEqual( 'w', archive_extension.write_format('tar') )
+    self.assertEqual( 'w:bz2', archive_extension.write_format('tar.bz2') )
+    self.assertEqual( 'w:bz2', archive_extension.write_format('bz2') )
+    self.assertEqual( 'w', archive_extension.write_format('zip') )
+
+  def test_write_format_for_filename(self):
+    self.assertEqual( 'w:gz', archive_extension.write_format_for_filename('foo.gz') )
+    self.assertEqual( 'w:gz', archive_extension.write_format_for_filename('foo.tgz') )
+    self.assertEqual( 'w:gz', archive_extension.write_format_for_filename('foo.tar.gz') )
+    self.assertEqual( 'w', archive_extension.write_format_for_filename('foo.tar') )
+    self.assertEqual( 'w:bz2', archive_extension.write_format_for_filename('foo.tar.bz2') )
+    self.assertEqual( 'w:bz2', archive_extension.write_format_for_filename('foo.bz2') )
+    self.assertEqual( 'w', archive_extension.write_format_for_filename('foo.zip') )
+
+if __name__ == "__main__":
+  unittest.main()

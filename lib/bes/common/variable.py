@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+
+import re
+from string_util import string_util
+
+class variable(object):
+  'variable'
+
+  DOLLAR_ONLY_PATTERN = re.compile('\$[\w_][\w\n_]*')
+  DOLLAR_PARENTHESIS_PATTERN = re.compile('\$\([\w_][\w\n_]*\)')
+  DOLLAR_BRACKET_PATTERN = re.compile('\$\{[\w_][\w\n_]*\}')
+  AT_SIGN_PATTERN = re.compile('\@[\w_][\w\n_]*@')
+
+  VARIABLE_PATTERNS = [
+    DOLLAR_ONLY_PATTERN,
+    DOLLAR_PARENTHESIS_PATTERN,
+    DOLLAR_BRACKET_PATTERN,
+    AT_SIGN_PATTERN,
+  ]
+  
+  KEY_FORMATS = {
+    DOLLAR_ONLY_PATTERN: '$%s',
+    DOLLAR_PARENTHESIS_PATTERN: '$(%s)',
+    DOLLAR_BRACKET_PATTERN: '${%s}',
+    AT_SIGN_PATTERN: '@%s@',
+  }
+
+  @classmethod
+  def find_variables(clazz, s):
+    'Return a list of variables found in s.'
+    result = []
+    for pattern in clazz.VARIABLE_PATTERNS:
+      found = pattern.findall(s)
+      names = [ clazz.__var_to_name(v, pattern) for v in found ]
+      result.extend(names)
+    return sorted(list(set(result)))
+
+  @classmethod
+  def substitute(clazz, s, d):
+    'Substitute vars in s with d.'
+    replacements = {}
+
+    for key, value in d.items():
+      if not isinstance(key, basestring):
+        raise RuntimeError('key should be string instead of %s: %s' % (type(key), str(key)))
+      if not isinstance(value, basestring):
+        raise RuntimeError('value should be string instead of %s: %s' % (type(value), str(value)))
+      for pattern in clazz.VARIABLE_PATTERNS:
+        formatted_key = clazz.KEY_FORMATS[pattern] % (key)
+        replacements[formatted_key] = str(value)
+    return string_util.replace(s, replacements, word_boundary = True)
+
+  @classmethod
+  def has_rogue_dollar_signs(clazz, s):
+    'Return True of the string has rogue unescaped dollar signs.'
+    s = s.replace('\\$', '')
+    return '$' in s
+  
+  @classmethod
+  def __var_to_name(clazz, var, pattern):
+    'Convert a dollar sign variable into just the name.  $foo/${foo}/$(foo) => foo'
+    if pattern == clazz.DOLLAR_ONLY_PATTERN:
+      assert len(var) >= 2
+      assert var[0] == '$'
+      return var[1:]
+    elif pattern in [ clazz.DOLLAR_PARENTHESIS_PATTERN, clazz.DOLLAR_BRACKET_PATTERN ]:
+      assert len(var) >= 4
+      assert var[0] == '$'
+      return var[2:-1]
+    elif pattern == clazz.AT_SIGN_PATTERN:
+      assert len(var) >= 3
+      assert var[0] == '@'
+      assert var[-1] == '@'
+      return var[1:-1]
+    else:
+      raise RuntimeError('Unknown pattern: %s' % (pattern))
