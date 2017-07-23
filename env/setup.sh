@@ -1,19 +1,19 @@
-bes-root()
+bes-dev-root()
 {
   echo "$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
   return 0
 }
 
-source $(bes-root)/env/functions.sh
+source $(bes-dev-root)/env/functions.sh
 
-bes-go()
+bes-dev-go()
 {
-  cd $(bes-root)
+  cd $(bes-dev-root)
   return 0
 }
 
-bes-setup()
+bes-dev-setup()
 {
-  bes-setup-dir $(bes-root)
+  bes-setup $(bes-dev-root)
   return 0
 }

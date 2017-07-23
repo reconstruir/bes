@@ -13,7 +13,7 @@ bes-source()
   return 1
 }
 
-bes-setup-dir()
+bes-setup()
 {
   if [ $# -lt 1 ]; then
     printf "\nUsage: bes-setup root\n\n"
