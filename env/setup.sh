@@ -14,6 +14,6 @@ bes-dev-go()
 
 bes-dev-setup()
 {
-  bes-setup $(bes-dev-root) bes
+  bes-setup $(bes-dev-root)
   return 0
 }

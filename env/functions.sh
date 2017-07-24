@@ -16,12 +16,12 @@ bes-source()
 bes-setup()
 {
   if [ $# -lt 1 ]; then
-    printf "\nUsage: bes-setup root_dir module_dir\n\n"
+    printf "\nUsage: bes-setup root_dir\n\n"
     return 1
   fi
   local _root_dir=$1
   local _module_dir=$2
   export PATH=${_root_dir}/bin:${PATH}
-  export PYTHONPATH=${_root_dir}/${_module_dir}:${PYTHONPATH}
+  export PYTHONPATH=${_root_dir}:${PYTHONPATH}
   return 0
 }
