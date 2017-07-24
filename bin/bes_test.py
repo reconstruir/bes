@@ -296,11 +296,13 @@ def _python_call(python, filename, tests, dry_run, verbose,
     else:
       stderr_pipe = subprocess.STDOUT
 
+    env = _make_clean_env()
+    env['PYTHONDONTWRITEBYTECODE'] = 'x'
     process = subprocess.Popen(' '.join(cmd),
                                stdout = stdout_pipe,
                                stderr = stderr_pipe,
                                shell = True,
-                               env = _make_clean_env())
+                               env = env)
     output = process.communicate()
     exit_code = process.wait()
 
