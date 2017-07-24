@@ -5,6 +5,7 @@
 # A script to run python unit tests.  Does not use any bes code to avoid
 # chicken-and-egg issues.
 import argparse, ast, fnmatch, math, os, os.path as path, platform, random, re, subprocess, sys
+import glob, shutil, tempfile
 from collections import namedtuple
 
 # TODO:
@@ -89,6 +90,8 @@ def main():
   if filename_patterns:
     files = _match_filenames(files, filename_patterns)
 
+  files = [ path.abspath(f) for f in files ] 
+
   filtered_files = _filter_files(files, available_unit_tests, patterns)
   
   num_passed = 0
@@ -96,6 +99,7 @@ def main():
   num_executed = 0
   num_tests = len(filtered_files)
   failed_tests = []
+  os.chdir('/tmp')
   for i, f in enumerate(filtered_files):
     success = _python_call(args.python, f.filename, f.tests, args.dry_run, args.verbose,
                            args.stop, i + 1, len(filtered_files))
@@ -439,6 +443,18 @@ def _match_filenames(files, patterns):
       result.append(filename)
   return sorted(_unique_list(result))
 
+def _make_temp_egg(setup_dot_py):
+  assert path.isfile(setup_dot_py)
+  temp_dir = tempfile.mkdtemp()
+  src_dir = path.dirname(setup_dot_py)
+  shutil.rmtree(temp_dir)
+  shutil.copytree(src_dir, temp_dir, symlinks = True)
+  cmd = [ 'python', 'setup.py', 'bdist_egg' ]
+  subprocess.check_output(cmd, shell = False, cwd = temp_dir)
+  eggs = glob.glob('%s/dist/*.egg' % (temp_dir))
+  assert len(eggs) == 1
+  return eggs[0]
+  
 import unittest
 
 class test_bes_test(unittest.TestCase):
@@ -453,6 +469,9 @@ class test_bes_test(unittest.TestCase):
 if len(sys.argv) == 2 and sys.argv[1] in [ '--unit', '-u' ]:
   sys.argv = sys.argv[0:1]
   unittest.main()
+
+#egg = _make_temp_egg('/Users/ramiro/proj/bes/setup.py')
+#print "egg: ", egg              
   
 if __name__ == '__main__':
   raise SystemExit(main())
