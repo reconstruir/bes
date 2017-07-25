@@ -67,16 +67,28 @@ def main():
   args = parser.parse_args()
 
   files, filters = _separate_files_and_filters(args.files)
-  if not files:
-    files = []
+  print "files: ", files
 
+  files = _resolve_files(files)
+  print "resolved files: ", files
+  
   if args.git:
-    items = _git_status()
-    modified_files = [ item.filename for item in items if 'M' in item.modifier ]
-    modified_py_files = [ f for f in modified_files if f.endswith('.py') ]
-    files.extend(modified_py_files)
+    assert False
+    git_roots = git.roots_for_many_files(files)
+    git_modified = []
+    for root in git_roots:
+      git_modified.extend(_git_modified_python_files(root))
+    sgit = set(git_modified)
+    sfiles = set(files)
+    inter = sgit & sfiles
+    print "files: ", files
+    print "git_modified: ", git_modified
+    print "inter: ", inter
+    assert False
     
-  files = _resolve_files(_unique_list(files))
+#  files = _determine_tests_for_files(files)
+#  print "determined files: ", files
+#  assert False
   files = sorted(_unique_list(files))
 
   if args.randomize:
@@ -160,7 +172,7 @@ def _resolve_files(files):
     if path.isfile(f):
       result.append(path.abspath(path.normpath(f)))
     elif path.isdir(f):
-      result += _find_tests(f)
+      result += file_finder.find_tests(f)
   result = _unique_list(result)
   more_tests = []
   for r in result:
@@ -169,7 +181,15 @@ def _resolve_files(files):
   result = [ r for r in result if _file_has_tests(r) ]
   result = [ path.normpath(r) for r in result ]
   return sorted(result)
-  
+
+def _determine_tests_for_files(files):
+  result = []
+  for filename in files:
+    result.extend(_tests_for_file(filename))
+  result = [ r for r in result if _file_has_tests(r) ]
+  result = [ path.normpath(r) for r in result ]
+  return sorted(result)
+
 file_and_tests = namedtuple('file_and_tests', 'filename,tests')
 def _filter_files(files, available, patterns):
   if not patterns:
@@ -188,17 +208,14 @@ def _tests_for_file(filename):
   dirname = path.dirname(filename)
   name = path.splitext(basename)[0]
   test_filename = 'test_%s.py' % (name)
-  tests_dir = path.join(dirname, 'tests', test_filename)
-  if path.exists(tests_dir):
-    return [ tests_dir ]
+  test_full_path = path.join(dirname, 'tests', test_filename)
+  if path.exists(test_full_path):
+    return [ test_full_path ]
   return []
 
-def _file_read(filename):
-  with open(filename, 'r') as fin:
-    return fin.read()
-
 def _file_has_tests(filename):
-  content = _file_read(filename)
+  'FIXME ust ast for this.'
+  content = file_util.read(filename)
   if content.find('unittest.TestCase') >= 0:
     return True
   if content.find('unit_test_helper') >= 0:
@@ -212,7 +229,7 @@ def _available_unit_tests(filenames):
     available[filename] = []
               
   for filename in filenames:
-    code = _file_read(filename)
+    code = file_util.read(filename)
     tree = ast.parse(code)
     for node in tree.body:
       if isinstance(node, ast.ClassDef):
@@ -225,11 +242,6 @@ def _dump_available_unit_tests(available):
   for filename in sorted(available.keys()):
     for _, fixture, function in available[filename]:
       print '%s:%s.%s' % (filename, fixture, function)
-
-def _find_tests(d):
-  cmd = [ 'find', d, '-name', 'test_*.py' ]
-  result = subprocess.check_output(cmd, shell = False)
-  return [ f for f in result.strip().split('\n') if f ]
 
 def _filepath_normalize(filepath):
   f = path.abspath(path.normpath(filepath))
@@ -361,7 +373,7 @@ def _match_test(patterns, filename):
 
 def _search_for_tests(search_patterns, where):
   result = []
-  possible_tests = _find_tests(where)
+  possible_tests = file_finder.find_tests(where)
   for filename in possible_tests:
     if _match_test(search_patterns, filename):
       result.append(filename)
@@ -401,23 +413,6 @@ def _make_count_blurb(index, total):
   count_blurb = (' ' * (length - len(count))) + count
   return '[%s of %s]' % (index_blurb, count_blurb)
 
-git_status_item = namedtuple('git_status_item', 'modifier,filename')
-def _git_parse_status_line(line):
-  line = line.strip()
-  v = re.findall('\s*(\w+)\s+(.*)', line)
-  if len(v) != 1:
-    return None
-  assert len(v[0]) == 2
-  modifier = v[0][0]
-  filename = v[0][1]
-  return git_status_item(modifier, filename)
-
-def _git_status():
-  cmd = [ 'git', 'st', '--porcelain', '.' ]
-  result = subprocess.check_output(cmd, shell = False)
-  items = [ _git_parse_status_line(line) for line in result.split('\n') if line.strip() ]
-  return [ item for item in items if item ]
-
 def _parse_unit_test_desc(s):
   'Parse a unit test description in the form filename:fixutre.function'
   filename, _, right = s.partition(':')
@@ -439,10 +434,6 @@ def _separate_files_and_filters(args):
       files.append(f)
   filters = [ _parse_unit_test_desc(f) for f in (filter_descriptions or []) ]
   return files_and_filters(files, filters)
-
-  files, filters = _separate_files_and_filters(args.files)
-  if not files:
-    files = []
 
 def _make_filters_patterns(filters):
   patterns = []
@@ -477,25 +468,116 @@ def _make_temp_egg(setup_dot_py):
   eggs = glob.glob('%s/dist/*.egg' % (temp_dir))
   assert len(eggs) == 1
   return eggs[0]
+
+class util(object):
+
+  @classmethod
+  def unique_list(clazz, l):
+    return list(set(l))
+
+class file_util(object):
+
+  @classmethod
+  def read(clazz, filename):
+    with open(filename, 'r') as fin:
+      return fin.read()
+  
+class string_util(object):
+
+  @classmethod
+  def parse_list(clazz, s):
+    return [ x.strip() for x in s.strip().split('\n') if x.strip() ]
+  
+class file_finder(object):
+
+  @classmethod
+  def find_python_files(clazz, d):
+    cmd = [ 'find', d, '-name', '*.py' ]
+    result = subprocess.check_output(cmd, shell = False)
+    return string_util.parse_list(result)
+
+  @classmethod
+  def find_tests(clazz, d):
+    cmd = [ 'find', d, '-name', 'test_*.py' ]
+    result = subprocess.check_output(cmd, shell = False)
+    return string_util.parse_list(result)
+  
+class git(object):
+
+  status_item = namedtuple('status_item', 'modifier,filename')
+
+  @classmethod
+  def parse_status_line(clazz, root, line):
+    line = line.strip()
+    v = re.findall('\s*(\w+)\s+(.*)', line)
+    if len(v) != 1:
+      return None
+    assert len(v[0]) == 2
+    modifier = v[0][0]
+    filename = v[0][1]
+    return clazz.status_item(modifier, path.join(root, filename))
+
+  @classmethod
+  def status(clazz, root):
+    cmd = [ 'git', 'st', '--porcelain', '.' ]
+    result = subprocess.check_output(cmd, shell = False, cwd = root)
+    lines = string_util.parse_list(result)
+    items = [ clazz.parse_status_line(root, line) for line in lines ]
+    assert None not in items
+    return items
+
+  @classmethod
+  def modified_files(clazz, root):
+    items = clazz.status(root)
+    return [ item.filename for item in items if 'M' in item.modifier ]
+
+  @classmethod
+  def modified_python_files(clazz, root):
+    return [ f for f in clazz.modified_files(root) if f.endswith('.py') ]
+
+  @classmethod
+  def root(clazz, filename):
+    'Return the repo root for the given filename or raise and exception if not under git control.'
+    cmd = [ 'git', 'rev-parse', '--show-toplevel' ]
+    result = subprocess.check_output(cmd, shell = False, cwd = path.dirname(filename))
+    lines = string_util.parse_list(result)
+    assert len(lines) == 1
+    return lines[0]
+
+  @classmethod
+  def roots_for_many_files(clazz, files):
+    return util.unique_list([ clazz.root(filename) for filename in files ])
   
 import unittest
 
-class test_bes_test(unittest.TestCase):
+class test_bes_test_caca(unittest.TestCase):
 
   def test_parse_unit_test_desc(self):
-    
     self.assertEqual( ( 'foo.py', 'fix', 'func' ), _parse_unit_test_desc('foo.py:fix.func') )
     self.assertEqual( ( 'foo.py', None, None ), _parse_unit_test_desc('foo.py') )
     self.assertEqual( ( 'foo.py', None, None ), _parse_unit_test_desc('foo.py:') )
     self.assertEqual( ( 'foo.py', None, 'fix' ), _parse_unit_test_desc('foo.py:fix') )
 
-if len(sys.argv) == 2 and sys.argv[1] in [ '--unit', '-u' ]:
+class test_string_util(unittest.TestCase):
+  def test_parse_list(self):
+    self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('foo\nbar\n') )
+    self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('foo\nbar') )
+    self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('\nfoo\nbar') )
+    self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('\n foo\nbar') )
+    self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('\n foo\nbar ') )
+    self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('\n foo\nbar \n') )
+    self.assertEqual( [], string_util.parse_list('\n\n\n') )
+
+class test_git(unittest.TestCase):
+  def test_parse_status(self):
+    self.assertEqual( ('M', '/root/foo/bar/__init__.py'), git.parse_status_line('/root', ' M foo/bar/__init__.py') )
+    self.assertEqual( ('A', '/root/foo/bar/apple.py'), git.parse_status_line('/root', 'A  foo/bar/apple.py') )
+    self.assertEqual( ('D', '/root/foo/bar/orange.py'), git.parse_status_line('/root', ' D foo/bar/orange.py') )
+    
+if len(sys.argv) >= 2 and sys.argv[1] in [ '--unit' ]:
   sys.argv = sys.argv[0:1]
   unittest.main()
 
-#egg = _make_temp_egg('/Users/ramiro/proj/bes/setup.py')
-#print "egg: ", egg              
-  
 if __name__ == '__main__':
   raise SystemExit(main())
 
