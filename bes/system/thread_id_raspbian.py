@@ -6,11 +6,10 @@ import ctypes
 
 class thread_id_raspbian(thread_id_base):
 
-  def __init__(self):
-    super(thread_id_raspbian, self).__init__()
-    self._SYS_thread_id = 224
-    self._libc = ctypes.cdll.LoadLibrary('libc.so.6')
+  _SYS_thread_id = 224
+  _libc = ctypes.cdll.LoadLibrary('libc.so.6')
     
-  def thread_id(self):
+  @classmethod
+  def thread_id(clazz):
     'Return the current thread id.'
-    return self._libc.syscall(self._SYS_thread_id)
+    return clazz._libc.syscall(clazz._SYS_thread_id)

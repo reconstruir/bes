@@ -6,9 +6,7 @@ import threading
 
 class thread_id_macos(thread_id_base):
 
-  def __init__(self):
-    super(thread_id_macos, self).__init__()
-    
-  def thread_id(self):
+  @classmethod
+  def thread_id(clazz):
     'Return the current thread id.'
     return threading.current_thread().name
