@@ -115,7 +115,7 @@ def main():
     if not path.isfile(setup_dot_py):
       raise RuntimeError('No setup.py found in %s to make the egg.' % (cwd))
     egg = _make_temp_egg(setup_dot_py)
-    pythonpath = os.environ.get('PYTHONPATH', []).split(':')
+    pythonpath = os.environ.get('PYTHONPATH', '').split(':')
     if cwd in pythonpath:
       pythonpath.remove(cwd)
     pythonpath.insert(0, egg)
