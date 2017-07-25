@@ -69,7 +69,7 @@ def main():
   files, filters = _separate_files_and_filters(args.files)
   if not files:
     files = []
-    
+
   if args.git:
     items = _git_status()
     modified_files = [ item.filename for item in items if 'M' in item.modifier ]
@@ -97,7 +97,7 @@ def main():
   files = [ path.abspath(f) for f in files ] 
 
   filtered_files = _filter_files(files, available_unit_tests, patterns)
-  
+
   num_passed = 0
   num_failed = 0
   num_executed = 0
@@ -124,7 +124,7 @@ def main():
   os.chdir('/tmp')
   for i, f in enumerate(filtered_files):
     success = _python_call(args.python, f.filename, f.tests, args.dry_run, args.verbose,
-                           args.stop, i + 1, len(filtered_files))
+                           args.stop, i + 1, len(filtered_files), cwd)
     num_executed += 1
     if success:
       num_passed += 1
@@ -146,7 +146,7 @@ def main():
   print 'bes_test.py: %s' % (summary)
   if failed_tests:
     for f in failed_tests:
-      print 'bes_test.py: FAILED: %s' % (path.relpath(f.filename))
+      print 'bes_test.py: FAILED: %s' % (_short_filename(f.filename, cwd))
   
   if num_failed > 0:
     return 1
@@ -174,12 +174,6 @@ def _filter_files(files, available, patterns):
     return [ file_and_tests(filename, None) for filename in files ]
   result = []
   for filename in files:
-#    print "filename: ", filename
-#    print "available: "
-#    for k in sorted(available.keys()):
-#      print "  next: ", k
-#      for x in available[k]:
-#        print "    ", x
     assert filename in available
     available_for_filename = available[filename]
     matching_tests = _matching_tests(available_for_filename, patterns)
@@ -251,8 +245,8 @@ def _which(exe):
   except:
     return None
 
-def _short_filename(filename):
-  head = os.getcwd() + os.sep
+def _short_filename(filename, cwd):
+  head = cwd + os.sep
   if filename.startswith(head):
     return filename[len(head):]
   return filename
@@ -296,8 +290,8 @@ def _matching_tests(available, patterns):
   return result
 
 def _python_call(python, filename, tests, dry_run, verbose,
-                 stop_on_failure, index, total):
-  short_filename = _short_filename(filename)
+                 stop_on_failure, index, total, cwd):
+  short_filename = _short_filename(filename, cwd)
   cmd = [ python, '-B', filename ]
 
   if tests:
