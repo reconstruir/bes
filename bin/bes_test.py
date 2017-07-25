@@ -134,6 +134,8 @@ def main():
 
     if args.stop and not success:
       break
+  if args.dry_run:
+    return 0
   num_skipped = num_tests - num_executed
   summary_parts = []
   if num_failed > 0:
@@ -300,15 +302,20 @@ def _python_call(python, filename, tests, dry_run, verbose,
   try:
 #    if stop:
 #      cmd.append('--stop')
-    if dry_run:
-      print short_filename
-      return True
-
     if total > 1:
       count_blurb = ' ' + _make_count_blurb(index, total)
     else:
       count_blurb = ''
-    print('bes_test.py:%7s:%s %s' % ('testing', count_blurb, short_filename))
+
+    if dry_run:
+      label = 'dry-run'
+    else:
+      label = 'testing'
+
+    print('bes_test.py:%7s:%s %s' % (label, count_blurb, short_filename))
+
+    if dry_run:
+      return True
 
     stdout_pipe = subprocess.PIPE
     if not verbose:
