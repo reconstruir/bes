@@ -20,8 +20,17 @@ bes-setup()
     return 1
   fi
   local _root_dir=$1
-  local _module_dir=$2
+  local _chdir="False"
+  if [ $# -gt 1 ]; then
+    _chdir="True"
+  fi
+  
   export PATH=${_root_dir}/bin:${PATH}
   export PYTHONPATH=${_root_dir}:${PYTHONPATH}
+
+  if $_chdir = "True"; then
+    cd ${_root_dir}
+  fi
+  
   return 0
 }

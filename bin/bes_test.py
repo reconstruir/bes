@@ -60,6 +60,10 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Dump the list of unit tests [ False ]')
+  parser.add_argument('--egg',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Make an egg of the package and run the tests against that instead the live files. [ False ]')
   args = parser.parse_args()
 
   files, filters = _separate_files_and_filters(args.files)
@@ -99,6 +103,24 @@ def main():
   num_executed = 0
   num_tests = len(filtered_files)
   failed_tests = []
+
+  cwd = os.getcwd()
+
+  # Remove current dir from sys.path to avoid side effects
+  if cwd in sys.path:
+    sys.path.remove(cwd)
+  
+  if args.egg:
+    setup_dot_py = path.join(cwd, 'setup.py')
+    if not path.isfile(setup_dot_py):
+      raise RuntimeError('No setup.py found in %s to make the egg.' % (cwd))
+    egg = _make_temp_egg(setup_dot_py)
+    pythonpath = os.environ.get('PYTHONPATH', []).split(':')
+    if cwd in pythonpath:
+      pythonpath.remove(cwd)
+    pythonpath.insert(0, egg)
+    os.environ['PYTHONPATH'] = ':'.join(pythonpath)
+    
   os.chdir('/tmp')
   for i, f in enumerate(filtered_files):
     success = _python_call(args.python, f.filename, f.tests, args.dry_run, args.verbose,
