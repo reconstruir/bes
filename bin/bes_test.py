@@ -126,12 +126,9 @@ def main():
     setup_dot_py = path.join(cwd, 'setup.py')
     if not path.isfile(setup_dot_py):
       raise RuntimeError('No setup.py found in %s to make the egg.' % (cwd))
-    egg = _make_temp_egg(setup_dot_py)
-    pythonpath = os.environ.get('PYTHONPATH', '').split(':')
-    if cwd in pythonpath:
-      pythonpath.remove(cwd)
-    pythonpath.insert(0, egg)
-    os.environ['PYTHONPATH'] = ':'.join(pythonpath)
+    egg = egg_util.make(setup_dot_py)
+    environ_util.pythonpath_remove(cwd)
+    environ_util.pythonpath_prepend(egg)
     
   os.chdir('/tmp')
   for i, f in enumerate(filtered_files):
@@ -160,7 +157,7 @@ def main():
   print 'bes_test.py: %s' % (summary)
   if failed_tests:
     for f in failed_tests:
-      print 'bes_test.py: FAILED: %s' % (_short_filename(f.filename, cwd))
+      print 'bes_test.py: FAILED: %s' % (file_util.remove_head(f.filename, cwd))
   
   if num_failed > 0:
     return 1
@@ -259,36 +256,6 @@ def _which(exe):
   except:
     return None
 
-def _short_filename(filename, cwd):
-  head = cwd + os.sep
-  if filename.startswith(head):
-    return filename[len(head):]
-  return filename
-
-def __system():
-  return platform.system().lower()
-
-def __conditional_resolve(conditional):
-  s = __system()
-  replacements = {
-    '${system}': __system(),
-  }
-  cond_key = conditional.key
-  for replacement_key, replacement_value in replacements.items():
-    cond_key = cond_key.replace(replacement_key, replacement_value)
-  return Conditional(cond_key, conditional.operator, conditional.value)
-
-def __conditional_evaluate(conditional):
-  assert conditional.operator in [ '==', '!=' ]
-  if conditional.operator == '==':
-    return conditional.key == conditional.value
-  elif conditional.operator == '!=':
-    return conditional.key != conditional.value
-  assert False
-
-def __conditionals_evaluate(conditionals):
-  return not False in [ __conditional_evaluate(c) for c in conditionals ]
-
 def _matching_tests(available, patterns):
   result = []
   for test in available:
@@ -305,7 +272,7 @@ def _matching_tests(available, patterns):
 
 def _python_call(python, filename, tests, dry_run, verbose,
                  stop_on_failure, index, total, cwd):
-  short_filename = _short_filename(filename, cwd)
+  remove_head = file_util.remove_head(filename, cwd)
   cmd = [ python, '-B', filename ]
 
   if tests:
@@ -324,7 +291,7 @@ def _python_call(python, filename, tests, dry_run, verbose,
     else:
       label = 'testing'
 
-    print('bes_test.py:%7s:%s %s' % (label, count_blurb, short_filename))
+    print('bes_test.py:%7s:%s %s' % (label, count_blurb, remove_head))
 
     if dry_run:
       return True
@@ -354,7 +321,7 @@ def _python_call(python, filename, tests, dry_run, verbose,
     else:
       label = 'FAILED'
     if spew_output:
-      print 'bes_test.py: %7s: %s' % (label, short_filename)
+      print 'bes_test.py: %7s: %s' % (label, remove_head)
       sys.stdout.write(stdout_output)
       if not success:
         sys.stdout.write(stderr_output)
@@ -457,18 +424,6 @@ def _match_filenames(files, patterns):
       result.append(filename)
   return sorted(_unique_list(result))
 
-def _make_temp_egg(setup_dot_py):
-  assert path.isfile(setup_dot_py)
-  temp_dir = tempfile.mkdtemp()
-  src_dir = path.dirname(setup_dot_py)
-  shutil.rmtree(temp_dir)
-  shutil.copytree(src_dir, temp_dir, symlinks = True)
-  cmd = [ 'python', 'setup.py', 'bdist_egg' ]
-  subprocess.check_output(cmd, shell = False, cwd = temp_dir)
-  eggs = glob.glob('%s/dist/*.egg' % (temp_dir))
-  assert len(eggs) == 1
-  return eggs[0]
-
 class util(object):
 
   @classmethod
@@ -481,7 +436,38 @@ class file_util(object):
   def read(clazz, filename):
     with open(filename, 'r') as fin:
       return fin.read()
+
+  @classmethod
+  def remove_head(clazz, filename, head):
+    head = path.normpath(head) + os.sep
+    if filename.startswith(head):
+      return filename[len(head):]
+    return filename
+
+class environ_util(object):
+
+  @classmethod
+  def pythonpath_get(clazz):
+    return os.environ.get('PYTHONPATH', '').split(':')
   
+  @classmethod
+  def pythonpath_set(clazz, pythonpath):
+    assert isinstance(pythonpath, list)
+    os.environ['PYTHONPATH'] = ':'.join(pythonpath)
+
+  @classmethod
+  def pythonpath_remove(clazz, what):
+    pythonpath = clazz.pythonpath_get()
+    if what in pythonpath:
+      pythonpath.remove(what)
+    clazz.pythonpath_set(pythonpath)
+    
+  @classmethod
+  def pythonpath_prepend(clazz, what):
+    pythonpath = clazz.pythonpath_get()
+    pythonpath.insert(0, what)
+    clazz.pythonpath_set(pythonpath)
+    
 class string_util(object):
 
   @classmethod
@@ -518,11 +504,15 @@ class git(object):
     return clazz.status_item(modifier, path.join(root, filename))
 
   @classmethod
+  def parse_status(clazz, root, text):
+    lines = string_util.parse_list(text)
+    return [ clazz.parse_status_line(root, line) for line in lines ]
+
+  @classmethod
   def status(clazz, root):
     cmd = [ 'git', 'st', '--porcelain', '.' ]
     result = subprocess.check_output(cmd, shell = False, cwd = root)
-    lines = string_util.parse_list(result)
-    items = [ clazz.parse_status_line(root, line) for line in lines ]
+    items = clazz.parse_status(root, text)
     assert None not in items
     return items
 
@@ -547,10 +537,31 @@ class git(object):
   @classmethod
   def roots_for_many_files(clazz, files):
     return util.unique_list([ clazz.root(filename) for filename in files ])
+
+
+class egg_util(object):
+
+  @classmethod
+  def make(clazz, setup_dot_py):
+    assert path.isfile(setup_dot_py)
+    temp_dir = tempfile.mkdtemp()
+    src_dir = path.dirname(setup_dot_py)
+    shutil.rmtree(temp_dir)
+    shutil.copytree(src_dir, temp_dir, symlinks = True)
+    cmd = [ 'python', 'setup.py', 'bdist_egg' ]
+    subprocess.check_output(cmd, shell = False, cwd = temp_dir)
+    eggs = glob.glob('%s/dist/*.egg' % (temp_dir))
+    assert len(eggs) == 1
+    return eggs[0]
   
 import unittest
 
-class test_bes_test_caca(unittest.TestCase):
+class test_case(unittest.TestCase):
+  
+  def foo(self): 
+    assert False
+
+class test_bes_test_caca(test_case):
 
   def test_parse_unit_test_desc(self):
     self.assertEqual( ( 'foo.py', 'fix', 'func' ), _parse_unit_test_desc('foo.py:fix.func') )
@@ -558,7 +569,7 @@ class test_bes_test_caca(unittest.TestCase):
     self.assertEqual( ( 'foo.py', None, None ), _parse_unit_test_desc('foo.py:') )
     self.assertEqual( ( 'foo.py', None, 'fix' ), _parse_unit_test_desc('foo.py:fix') )
 
-class test_string_util(unittest.TestCase):
+class test_string_util(test_case):
   def test_parse_list(self):
     self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('foo\nbar\n') )
     self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('foo\nbar') )
@@ -568,11 +579,41 @@ class test_string_util(unittest.TestCase):
     self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('\n foo\nbar \n') )
     self.assertEqual( [], string_util.parse_list('\n\n\n') )
 
-class test_git(unittest.TestCase):
-  def test_parse_status(self):
+class test_file_util(test_case):
+
+  def test_remove_head(self):
+    self.assertEqual( 'foo/bar/foo.py', file_util.remove_head('/root/x/y/foo/bar/foo.py', '/root/x/y') )
+    self.assertEqual( 'foo/bar/foo.py', file_util.remove_head('/root/x/y/foo/bar/foo.py', '/root/x/y/') )
+    self.assertEqual( 'foo/bar/foo.py', file_util.remove_head('root/x/y/foo/bar/foo.py', 'root/x/y') )
+    self.assertEqual( 'foo/bar/foo.py', file_util.remove_head('root/x/y/foo/bar/foo.py', 'root/x/y/') )
+
+class test_git(test_case):
+
+  def test_parse_status_line(self):
     self.assertEqual( ('M', '/root/foo/bar/__init__.py'), git.parse_status_line('/root', ' M foo/bar/__init__.py') )
     self.assertEqual( ('A', '/root/foo/bar/apple.py'), git.parse_status_line('/root', 'A  foo/bar/apple.py') )
     self.assertEqual( ('D', '/root/foo/bar/orange.py'), git.parse_status_line('/root', ' D foo/bar/orange.py') )
+
+  def test_parse_status(self):
+    text = '''
+ M foo/bar/__init__.py
+A  foo/bar/apple.py
+ D foo/bar/orange.py
+A  foo/bar/tests/test_apple.py
+ D foo/bar/tests/test_orange.py
+ M foo/bar/pear.py
+ M bin/kiwi.py
+'''
+    self.assertEqual( [
+      ( 'M', '/root/foo/bar/__init__.py' ),
+      ( 'A', '/root/foo/bar/apple.py' ),
+      ( 'D', '/root/foo/bar/orange.py' ),
+      ( 'A', '/root/foo/bar/tests/test_apple.py' ),
+      ( 'D', '/root/foo/bar/tests/test_orange.py' ),
+      ( 'M', '/root/foo/bar/pear.py' ),
+      ( 'M', '/root/bin/kiwi.py' ),
+    ],
+                      git.parse_status('/root', text) )
     
 if len(sys.argv) >= 2 and sys.argv[1] in [ '--unit' ]:
   sys.argv = sys.argv[0:1]
