@@ -89,7 +89,7 @@ def main():
 #  files = _determine_tests_for_files(files)
 #  print "determined files: ", files
 #  assert False
-  files = sorted(_unique_list(files))
+  files = sorted(util.unique_list(files))
 
   if args.randomize:
     random.shuffle(files)
@@ -170,7 +170,7 @@ def _resolve_files(files):
       result.append(path.abspath(path.normpath(f)))
     elif path.isdir(f):
       result += file_finder.find_tests(f)
-  result = _unique_list(result)
+  result = util.unique_list(result)
   more_tests = []
   for r in result:
     more_tests.extend(_tests_for_file(r))
@@ -302,7 +302,7 @@ def _python_call(python, filename, tests, dry_run, verbose,
     else:
       stderr_pipe = subprocess.STDOUT
 
-    env = _make_clean_env()
+    env = environ_util.make_clean_env()
     env['PYTHONDONTWRITEBYTECODE'] = 'x'
     process = subprocess.Popen(' '.join(cmd),
                                stdout = stdout_pipe,
@@ -344,7 +344,7 @@ def _search_for_tests(search_patterns, where):
   for filename in possible_tests:
     if _match_test(search_patterns, filename):
       result.append(filename)
-  return sorted(_unique_list(result))
+  return sorted(util.unique_list(result))
 
 def _is_fnmatch_pattern(pattern):
   for c in [ '*', '?', '[', ']', '!' ]:
@@ -357,20 +357,6 @@ def _make_fnmatch_pattern(pattern):
   if _is_fnmatch_pattern(pattern):
     return pattern
   return '*%s*' % (pattern)
-
-def _unique_list(l):
-  return list(set(l))
-
-def _make_clean_env():
-  'Return a clean environment suitable for deterministic build related tasks.'
-  clean_path = '/bin:/usr/bin:/usr/sbin:/sbin'
-  clean_vars = [ 'BES_LOG', 'PYTHONPATH', 'DISPLAY', 'HOME', 'LANG', 'SHELL', 'TERM', 'TERM_PROGRAM', 'TMOUT', 'TMPDIR', 'USER', 'XAUTHORITY', '__CF_USER_TEXT_ENCODING' ]
-  clean_env = {}
-  for k, v in os.environ.items():
-    if k in clean_vars:
-      clean_env[k] = v
-  clean_env['PATH'] = clean_path
-  return clean_env
 
 def _make_count_blurb(index, total):
   length = int(math.log10(total)) + 1
@@ -422,7 +408,7 @@ def _match_filenames(files, patterns):
   for filename in files:
     if _match_test(patterns, filename):
       result.append(filename)
-  return sorted(_unique_list(result))
+  return sorted(util.unique_list(result))
 
 class util(object):
 
@@ -467,6 +453,18 @@ class environ_util(object):
     pythonpath = clazz.pythonpath_get()
     pythonpath.insert(0, what)
     clazz.pythonpath_set(pythonpath)
+
+  @classmethod
+  def make_clean_env(clazz):
+    'Return a clean environment suitable for deterministic build related tasks.'
+    clean_path = '/bin:/usr/bin:/usr/sbin:/sbin'
+    clean_vars = [ 'BES_LOG', 'PYTHONPATH', 'DISPLAY', 'HOME', 'LANG', 'SHELL', 'TERM', 'TERM_PROGRAM', 'TMOUT', 'TMPDIR', 'USER', 'XAUTHORITY', '__CF_USER_TEXT_ENCODING' ]
+    clean_env = {}
+    for k, v in os.environ.items():
+      if k in clean_vars:
+        clean_env[k] = v
+    clean_env['PATH'] = clean_path
+    return clean_env
     
 class string_util(object):
 
@@ -537,7 +535,6 @@ class git(object):
   @classmethod
   def roots_for_many_files(clazz, files):
     return util.unique_list([ clazz.root(filename) for filename in files ])
-
 
 class egg_util(object):
 
