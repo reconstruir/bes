@@ -96,7 +96,7 @@ def main():
     files = _match_filenames(files, filename_patterns)
 
   filtered_files = _filter_files(files, test_map, patterns)
-  
+
   num_passed = 0
   num_failed = 0
   num_executed = 0
@@ -116,6 +116,10 @@ def main():
     environ_util.pythonpath_prepend(egg)
     
   os.chdir('/tmp')
+
+  if args.randomize:
+    random.shuffle(filtered_files)
+  
   for i, f in enumerate(filtered_files):
     success = _python_call(args.python, f.filename, f.tests, args.dry_run, args.verbose,
                            args.stop, i + 1, len(filtered_files), cwd)
