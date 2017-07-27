@@ -52,6 +52,12 @@ def main():
                       action = 'store',
                       default = 'python',
                       help = 'Python executable to use [ python ]')
+  parser.add_argument('--iterations',
+                      '-i',
+                      action = 'store',
+                      default = 1,
+                      type = int,
+                      help = 'Python executable to use [ python ]')
   parser.add_argument('--git',
                       '-g',
                       action = 'store_true',
@@ -117,9 +123,12 @@ def main():
     
   os.chdir('/tmp')
 
+  if args.iterations > 1:
+    filtered_files = sorted(filtered_files * args.iterations)
+  
   if args.randomize:
     random.shuffle(filtered_files)
-  
+
   for i, f in enumerate(filtered_files):
     success = _python_call(args.python, f.filename, f.tests, args.dry_run, args.verbose,
                            args.stop, i + 1, len(filtered_files), cwd)
