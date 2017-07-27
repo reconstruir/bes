@@ -11,6 +11,8 @@ from collections import namedtuple
 # TODO:
 #  - figure out how to stop on first failure within one module
 #  - https://stackoverflow.com/questions/6813837/stop-testsuite-if-a-testcase-find-an-error
+# - cleanup egg dropping
+# - use AST for determining if a file has tests
 
 #class bes_test_command_line(object):
 #
@@ -66,62 +68,45 @@ def main():
                       help = 'Make an egg of the package and run the tests against that instead the live files. [ False ]')
   args = parser.parse_args()
 
+  cwd = os.getcwd()
+  
   files, filters = _separate_files_and_filters(args.files)
-  print "files: ", files
 
-  files = _resolve_files(files)
-  print "resolved files: ", files
+  files = file_resolve.resolve_files_and_dirs(files)
+
+  test_map = unit_test_inspect.inspect_map(files)
+
+  # We want only the files that have tests
+  files = sorted(test_map.keys())
   
   if args.git:
-    assert False
     git_roots = git.roots_for_many_files(files)
     git_modified = []
     for root in git_roots:
-      git_modified.extend(_git_modified_python_files(root))
-    sgit = set(git_modified)
-    sfiles = set(files)
-    inter = sgit & sfiles
-    print "files: ", files
-    print "git_modified: ", git_modified
-    print "inter: ", inter
-    assert False
-    
-#  files = _determine_tests_for_files(files)
-#  print "determined files: ", files
-#  assert False
-  files = sorted(util.unique_list(files))
-
-  if args.randomize:
-    random.shuffle(files)
-
-  available_unit_tests = _available_unit_tests(files)
+      git_modified.extend(git.modified_python_files(root))
+    files = git_modified
 
   if args.dump:
-    _dump_available_unit_tests(available_unit_tests)
+    unit_test_inspect.print_inspect_map(test_map, files, cwd)
     return 0
-  
+    
   patterns = _make_filters_patterns(filters)
-
   filename_patterns = [ p.filename for p in patterns if p.filename ]
   if filename_patterns:
     files = _match_filenames(files, filename_patterns)
 
-  files = [ path.abspath(f) for f in files ] 
-
-  filtered_files = _filter_files(files, available_unit_tests, patterns)
-
+  filtered_files = _filter_files(files, test_map, patterns)
+  
   num_passed = 0
   num_failed = 0
   num_executed = 0
   num_tests = len(filtered_files)
   failed_tests = []
 
-  cwd = os.getcwd()
-
   # Remove current dir from sys.path to avoid side effects
   if cwd in sys.path:
     sys.path.remove(cwd)
-  
+
   if args.egg:
     setup_dot_py = path.join(cwd, 'setup.py')
     if not path.isfile(setup_dot_py):
@@ -169,7 +154,7 @@ def _resolve_files(files):
     if path.isfile(f):
       result.append(path.abspath(path.normpath(f)))
     elif path.isdir(f):
-      result += file_finder.find_tests(f)
+      result += file_find.find_tests(f)
   result = util.unique_list(result)
   more_tests = []
   for r in result:
@@ -212,14 +197,17 @@ def _tests_for_file(filename):
 
 def _file_has_tests(filename):
   'FIXME ust ast for this.'
-  content = file_util.read(filename)
-  if content.find('unittest.TestCase') >= 0:
-    return True
-  if content.find('unit_test_helper') >= 0:
-    return True
+  try:
+    content = file_util.read(filename)
+  
+    if content.find('unittest.TestCase') >= 0:
+      return True
+    if content.find('unit_test_helper') >= 0:
+      return True
+  except:
+    pass
   return False
 
-unit_test_desc = namedtuple('unit_test_desc', 'filename,fixture,function')
 def _available_unit_tests(filenames):
   available = {}
   for filename in filenames:
@@ -334,13 +322,13 @@ def _python_call(python, filename, tests, dry_run, verbose,
 def _match_test(patterns, filename):
   filename = filename.lower()
   for pattern in patterns:
-    if fnmatch.fnmatch(s, pattern.lower()):
+    if fnmatch.fnmatch(filename, pattern.lower()):
       return True
   return False
 
 def _search_for_tests(search_patterns, where):
   result = []
-  possible_tests = file_finder.find_tests(where)
+  possible_tests = file_find.find_tests(where)
   for filename in possible_tests:
     if _match_test(search_patterns, filename):
       result.append(filename)
@@ -366,15 +354,6 @@ def _make_count_blurb(index, total):
   count_blurb = (' ' * (length - len(count))) + count
   return '[%s of %s]' % (index_blurb, count_blurb)
 
-def _parse_unit_test_desc(s):
-  'Parse a unit test description in the form filename:fixutre.function'
-  filename, _, right = s.partition(':')
-  if '.' in right:
-    fixture, _, function = right.partition('.')
-  else:
-    fixture, function = ( None, right )
-  return unit_test_desc(filename, fixture or None, function or None)
-
 files_and_filters = namedtuple('files_and_filters', 'files,filters')
 def _separate_files_and_filters(args):
   files = []
@@ -385,7 +364,7 @@ def _separate_files_and_filters(args):
       filter_descriptions.append(f)
     else:
       files.append(f)
-  filters = [ _parse_unit_test_desc(f) for f in (filter_descriptions or []) ]
+  filters = [ unit_test_desc.parse(f) for f in (filter_descriptions or []) ]
   return files_and_filters(files, filters)
 
 def _make_filters_patterns(filters):
@@ -429,7 +408,39 @@ class file_util(object):
     if filename.startswith(head):
       return filename[len(head):]
     return filename
+  
+  @classmethod
+  def mkdir(clazz, p):
+    if path.isdir(p):
+      return
+    os.makedirs(p)
 
+  @classmethod
+  def save(clazz, filename, content = None, mode = None):
+    'Atomically save content to filename using an intermediate temporary file.'
+    dirname, basename = os.path.split(filename)
+    clazz.mkdir(path.dirname(filename))
+    tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = 'w')
+    if content:
+      tmp.write(content)
+    tmp.flush()
+    os.fsync(tmp.fileno())
+    tmp.close()
+    if mode:
+      os.chmod(tmp.name, mode)
+    os.rename(tmp.name, filename)
+    return filename
+    
+  @classmethod
+  def remove(clazz, filename):
+    try:
+      if path.isdir(a):
+        shutil.rmtree(filename)
+      else:
+        os.remove(filename)
+    except Exception, ex:
+      pass
+      
 class environ_util(object):
 
   @classmethod
@@ -472,7 +483,7 @@ class string_util(object):
   def parse_list(clazz, s):
     return [ x.strip() for x in s.strip().split('\n') if x.strip() ]
   
-class file_finder(object):
+class file_find(object):
 
   @classmethod
   def find_python_files(clazz, d):
@@ -485,6 +496,47 @@ class file_finder(object):
     cmd = [ 'find', d, '-name', 'test_*.py' ]
     result = subprocess.check_output(cmd, shell = False)
     return string_util.parse_list(result)
+
+class file_resolve(object):
+
+  @classmethod
+  def resolve_files_and_dirs(clazz, files_and_dirs):
+    result = []
+    for f in files_and_dirs:
+      if path.isfile(f):
+        result.append(path.abspath(path.normpath(f)))
+      elif path.isdir(f):
+        result += file_find.find_python_files(f)
+    result += clazz.tests_for_many_files(result)
+    result = util.unique_list(result)
+    result = [ path.normpath(r) for r in result ]
+    return sorted(result)
+
+  @classmethod
+  def find_tests(clazz, d):
+    cmd = [ 'find', d, '-name', 'test_*.py' ]
+    result = subprocess.check_output(cmd, shell = False)
+    return string_util.parse_list(result)
+
+  @classmethod
+  def test_for_file(clazz, filename):
+    basename = path.basename(filename)
+    dirname = path.dirname(filename)
+    name = path.splitext(basename)[0]
+    test_filename = 'test_%s.py' % (name)
+    test_full_path = path.join(dirname, 'tests', test_filename)
+    if path.exists(test_full_path):
+      return test_full_path
+    return None
+
+  @classmethod
+  def tests_for_many_files(clazz, files):
+    result = []
+    for f in files:
+      test = clazz.test_for_file(f)
+      if test:
+        result.append(test)
+    return result
   
 class git(object):
 
@@ -504,13 +556,14 @@ class git(object):
   @classmethod
   def parse_status(clazz, root, text):
     lines = string_util.parse_list(text)
-    return [ clazz.parse_status_line(root, line) for line in lines ]
+    result = [ clazz.parse_status_line(root, line) for line in lines ]
+    return [ item for item in result if item ]
 
   @classmethod
   def status(clazz, root):
     cmd = [ 'git', 'st', '--porcelain', '.' ]
     result = subprocess.check_output(cmd, shell = False, cwd = root)
-    items = clazz.parse_status(root, text)
+    items = clazz.parse_status(root, result)
     assert None not in items
     return items
 
@@ -527,7 +580,8 @@ class git(object):
   def root(clazz, filename):
     'Return the repo root for the given filename or raise and exception if not under git control.'
     cmd = [ 'git', 'rev-parse', '--show-toplevel' ]
-    result = subprocess.check_output(cmd, shell = False, cwd = path.dirname(filename))
+    cwd = path.dirname(filename)
+    result = subprocess.check_output(cmd, shell = False, cwd = cwd)
     lines = string_util.parse_list(result)
     assert len(lines) == 1
     return lines[0]
@@ -550,21 +604,101 @@ class egg_util(object):
     eggs = glob.glob('%s/dist/*.egg' % (temp_dir))
     assert len(eggs) == 1
     return eggs[0]
+
+class unit_test_desc(namedtuple('unit_test_desc', 'filename,fixture,function')):
+
+  def __new__(clazz, filename, fixture, function):
+    return clazz.__bases__[0].__new__(clazz, filename, fixture, function)
+
+  @classmethod
+  def parse(clazz, s):
+    'Parse a unit test description in the form filename:fixutre.function'
+    filename, _, right = s.partition(':')
+    if '.' in right:
+      fixture, _, function = right.partition('.')
+    else:
+      fixture, function = ( None, right )
+    return clazz(filename, fixture or None, function or None)
+  
+class unit_test_inspect(object):
+  unit_test = namedtuple('unit_test', 'filename,fixture,function')
+
+  @classmethod
+  def inspect_file(clazz, filename):
+    code = file_util.read(filename)
+    tree = ast.parse(code)
+    s = ast.dump(tree, annotate_fields = True, include_attributes = True)
+    result = []
+    for node in tree.body:
+      if clazz._node_is_unit_test_class(node):
+        for statement in node.body:
+          if isinstance(statement, ast.FunctionDef):
+            result.append(clazz.unit_test(filename, node.name, statement.name))
+    return result
+
+  @classmethod
+  def _node_is_unit_test_class(clazz, node):
+    if not isinstance(node, ast.ClassDef):
+      return False
+    for i, base in enumerate(node.bases):
+      base_class_name = clazz._base_class_name(base)
+      if base_class_name in [ 'unittest.TestCase', 'unit_test_helper' ]:
+        return True
+    return False
+    
+  @classmethod
+  def _base_class_name(clazz, base):
+    result = []
+    for field in base._fields:
+      value = getattr(base, field)
+      if isinstance(value, ast.Name):
+        result.append(value.id)
+      elif isinstance(value, ( str, unicode)):
+        result.append(value)
+    return '.'.join(result)
+    
+  @classmethod
+  def inspect_map(clazz, files):
+    result = {}
+    for f in files:
+      f_path = path.abspath(f)
+      try:
+        tests = clazz.inspect_file(f_path)
+        if tests:
+          result[f_path] = clazz.inspect_file(f_path)
+      except Exception, ex:
+        print('Failed to inspect: %s - %s' % (f, str(ex)))
+    return result
+
+  @classmethod
+  def print_inspect_map(clazz, inspect_map, files, cwd):
+    for filename in sorted(inspect_map.keys()):
+      if filename in files:
+        print('%s:' % (file_util.remove_head(filename, cwd)))
+        for _, fixture, function in inspect_map[filename]:
+          print('  %s.%s' % (fixture, function))
   
 import unittest
 
 class test_case(unittest.TestCase):
+
+  @classmethod
+  def make_tmp_file(clazz, content, mode = None):
+    content = content or ''
+    _, filename = tempfile.mkstemp()
+    file_util.save(filename, content = content, mode = mode)
+    return filename
   
   def foo(self): 
     assert False
 
-class test_bes_test_caca(test_case):
+class test_unit_test_desc(test_case):
 
-  def test_parse_unit_test_desc(self):
-    self.assertEqual( ( 'foo.py', 'fix', 'func' ), _parse_unit_test_desc('foo.py:fix.func') )
-    self.assertEqual( ( 'foo.py', None, None ), _parse_unit_test_desc('foo.py') )
-    self.assertEqual( ( 'foo.py', None, None ), _parse_unit_test_desc('foo.py:') )
-    self.assertEqual( ( 'foo.py', None, 'fix' ), _parse_unit_test_desc('foo.py:fix') )
+  def test_parse(self):
+    self.assertEqual( ( 'foo.py', 'fix', 'func' ), unit_test_desc.parse('foo.py:fix.func') )
+    self.assertEqual( ( 'foo.py', None, None ), unit_test_desc.parse('foo.py') )
+    self.assertEqual( ( 'foo.py', None, None ), unit_test_desc.parse('foo.py:') )
+    self.assertEqual( ( 'foo.py', None, 'fix' ), unit_test_desc.parse('foo.py:fix') )
 
 class test_string_util(test_case):
   def test_parse_list(self):
@@ -611,6 +745,85 @@ A  foo/bar/tests/test_apple.py
       ( 'M', '/root/bin/kiwi.py' ),
     ],
                       git.parse_status('/root', text) )
+    
+class test_unit_test_inspect(test_case):
+
+  def test_inspect_file(self):
+    content = '''
+import unittest
+class test_apple_fixture(unittest.TestCase):
+
+  def test_foo(self):
+    self.assertEqual( 6, 3 + 3 )
+
+  def test_bar(self):
+    self.assertEqual( 7, 3 + 4 )
+'''
+    filename = self.make_tmp_file(content)
+    self.assertEqual( [
+      ( filename, 'test_apple_fixture', 'test_foo' ),
+      ( filename, 'test_apple_fixture', 'test_bar' ),
+    ],
+                      unit_test_inspect.inspect_file(filename) )
+    file_util.remove(filename)
+
+  def test_inspect_file_not_unit_test(self):
+    content = '''
+class test_apple_fixture(object):
+
+  def test_foo(self):
+    pass
+
+  def test_bar(self):
+    pass
+'''
+    filename = self.make_tmp_file(content)
+    self.assertEqual( [], unit_test_inspect.inspect_file(filename) )
+    file_util.remove(filename)
+
+  def doesnt_work_test_inspect_file_TestCase_subclass(self):
+    content = '''
+import unittest
+class unit_super(unittest.TestCase):
+  _x = 5
+class test_apple_fixture(unit_super):
+
+  def test_foo(self):
+    self.assertEqual( 6, 3 + 3 )
+
+  def test_bar(self):
+    self.assertEqual( 7, 3 + 4 )
+
+
+class somthing(unittest.TestCase):
+  pass
+'''
+    filename = self.make_tmp_file(content)
+    self.assertEqual( [
+      ( filename, 'test_apple_fixture', 'test_foo' ),
+      ( filename, 'test_apple_fixture', 'test_bar' ),
+    ],
+                      unit_test_inspect.inspect_file(filename) )
+    file_util.remove(filename)
+    
+  def test_inspect_file_unit_test_helper(self):
+    content = '''
+from bes.test import unit_test_helper
+class test_apple_fixture(unit_test_helper):
+
+  def test_foo(self):
+    self.assertEqual( 6, 3 + 3 )
+
+  def test_bar(self):
+    self.assertEqual( 7, 3 + 4 )
+'''
+    filename = self.make_tmp_file(content)
+    self.assertEqual( [
+      ( filename, 'test_apple_fixture', 'test_foo' ),
+      ( filename, 'test_apple_fixture', 'test_bar' ),
+    ],
+                      unit_test_inspect.inspect_file(filename) )
+    file_util.remove(filename)
     
 if len(sys.argv) >= 2 and sys.argv[1] in [ '--unit' ]:
   sys.argv = sys.argv[0:1]
