@@ -3,7 +3,7 @@
 
 from host import host
 
-class impl_loader(object):
+class impl_import(object):
   'Import a platform specific implementation of an abstract class.'
   
   __IMPL_ORDER = {

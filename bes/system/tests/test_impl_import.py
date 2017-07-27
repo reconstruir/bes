@@ -4,15 +4,15 @@
 import unittest
 
 from bes.system import host
-from bes.system import impl_loader
+from bes.system import impl_import
 from bes.test.unit_test_skip import skip_if
 
 def _load(impl_name):
-  clazz = impl_loader.load('something', globals())
+  clazz = impl_import.load('something', globals())
   obj = clazz()
   return obj
 
-class test_impl_loader(unittest.TestCase):
+class test_impl_import(unittest.TestCase):
 
   @skip_if(not host.is_macos(), 'not macos')
   def test_something_macos(self):
@@ -29,7 +29,7 @@ class test_impl_loader(unittest.TestCase):
   from something_base import something_base
   class something(something_base):
     def __init__(self):
-      self.__impl = _load(test_impl_loader.something)
+      self.__impl = _load(test_impl_import.something)
     def creator(self):
       return self.__impl.creator()
     def suck_level(self):
@@ -47,14 +47,14 @@ class test_impl_loader(unittest.TestCase):
 
   @skip_if(not host.is_macos(), 'not macos')
   def test_something_macos_reference_wrapper(self):
-    obj = test_impl_loader.something()
+    obj = test_impl_import.something()
     self.assertEqual( 'steve', obj.creator() )
     self.assertEqual( 9, obj.suck_level() )
 
   @skip_if(not host.is_macos(), 'not macos')
   def test_something_macos_reference_wrapper_static(self):
-    self.assertEqual( 'steve', test_impl_loader.something_static.creator() )
-    self.assertEqual( 9, test_impl_loader.something_static.suck_level() )
+    self.assertEqual( 'steve', test_impl_import.something_static.creator() )
+    self.assertEqual( 9, test_impl_import.something_static.suck_level() )
 
 if __name__ == "__main__":
   unittest.main()

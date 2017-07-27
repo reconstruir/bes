@@ -4,7 +4,7 @@
 import unittest
 from bes.common import algorithm
 
-class Testalgorithm(unittest.TestCase):
+class test_algorithm(unittest.TestCase):
 
   def test_remove_empties(self):
     self.assertEqual( [ 'x' ], algorithm.remove_empties([ 'x', ]) )
@@ -19,7 +19,6 @@ class Testalgorithm(unittest.TestCase):
     self.assertEqual( [ 'a', 'b', 'c' ], algorithm.unique([ 'a', 'b', 'c' ]) )
     self.assertEqual( [ 'a', 'b', 'c' ], algorithm.unique([ 'a', 'b', 'c', 'c' ]) )
     self.assertEqual( [ 'c', 'a', 'b' ], algorithm.unique([ 'c', 'a', 'b', 'c' ]) )
-
 
 if __name__ == "__main__":
   unittest.main()
