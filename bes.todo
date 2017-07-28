@@ -1,1 +1,4 @@
-jul 26
+jul 28
+- fix file_find.fnmatch_find to work more like /bin/find in that it stops when it finds what it wants
+- also rename find_fnmatch to find_name
+
