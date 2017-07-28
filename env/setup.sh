@@ -6,7 +6,7 @@ bes-dev-root()
 
 source $(bes-dev-root)/env/functions.sh
 
-bes-dev-go()
+bes-go()
 {
   cd $(bes-dev-root)
   return 0
