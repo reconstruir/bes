@@ -81,10 +81,11 @@ def main():
   
   files, filters = _separate_files_and_filters(args.files)
 
-  print "b4 files: ", files, os.getcwd()
   files = file_resolve.resolve_files_and_dirs(files)
-  print "af files: ", files, os.getcwd()
 
+  # Don't include this script in the list since it needs to be run bes_test.py --unit to work
+  files = [ f for f in files if not f.endswith('bes_test.py') ]
+  
   test_map = unit_test_inspect.inspect_map(files)
 
   # We want only the files that have tests
