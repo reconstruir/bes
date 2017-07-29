@@ -52,6 +52,13 @@ class test_string_util(unittest.TestCase):
     self.assertEqual( False, string_util.is_string(['foo']) )
     self.assertEqual( False, string_util.is_string(False) )
 
+  def test_is_char(self):
+    self.assertEqual( True, string_util.is_char('a') )
+    self.assertEqual( True, string_util.is_char(u'a') )
+    self.assertEqual( False, string_util.is_char('foo') )
+    self.assertEqual( False, string_util.is_char('') )
+    self.assertEqual( False, string_util.is_char(1) )
+
   def test_unquote(self):
     self.assertEqual( 'foo', string_util.unquote('\'foo\'') )
     self.assertEqual( 'foo', string_util.unquote('\"foo\"') )

@@ -83,6 +83,11 @@ class string_util(object):
     return isinstance(s, basestring)
 
   @classmethod
+  def is_char(clazz, s):
+    'Return True if s is 1 line character.'
+    return clazz.is_string(s) and len(s) == 1
+
+  @classmethod
   def flatten(clazz, s, delimiter = ' '):
     'Flatten the given collection to a string.'
     'If s is already a string just return it.'

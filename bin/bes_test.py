@@ -161,30 +161,6 @@ def main():
     return 1
   return 0
 
-def _resolve_files(files):
-  result = []
-  for f in files:
-    if path.isfile(f):
-      result.append(path.abspath(path.normpath(f)))
-    elif path.isdir(f):
-      result += file_find.find_tests(f)
-  result = util.unique_list(result)
-  more_tests = []
-  for r in result:
-    more_tests.extend(_tests_for_file(r))
-  result.extend(more_tests)
-  result = [ r for r in result if _file_has_tests(r) ]
-  result = [ path.normpath(r) for r in result ]
-  return sorted(result)
-
-def _determine_tests_for_files(files):
-  result = []
-  for filename in files:
-    result.extend(_tests_for_file(filename))
-  result = [ r for r in result if _file_has_tests(r) ]
-  result = [ path.normpath(r) for r in result ]
-  return sorted(result)
-
 file_and_tests = namedtuple('file_and_tests', 'filename,tests')
 def _filter_files(files, available, patterns):
   if not patterns:
