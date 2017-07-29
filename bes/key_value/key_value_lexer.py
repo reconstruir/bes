@@ -191,9 +191,11 @@ class key_value_lexer(object):
   ESCAPE_QUOTES = 0x02
   IGNORE_COMMENTS = 0x04
 
-  def __init__(self, delimiter, options = 0):
+  def __init__(self, delimiter, options):
     log.add_logging(self, tag = 'key_value_lexer')
-    options = options or 0
+
+    if delimiter != None and not string_util.is_char(delimiter):
+      raise RuntimeError('delimiter should be either None or a single character instead of: \"%s\"' % (delimiter))
     
     self._delimiter = delimiter
     self._keep_quotes = (options & self.KEEP_QUOTES) != 0
@@ -225,7 +227,7 @@ class key_value_lexer(object):
   def has_delimiter(self):
     return self._delimiter != None
 
-  def run(self, text):
+  def _run(self, text):
     self.log_d('tokenize(%s)' % (text))
     assert self.EOS not in text
     self.line_number = 1
@@ -244,7 +246,8 @@ class key_value_lexer(object):
       
   @classmethod
   def tokenize(clazz, text, delimiter, options = 0):
-    return clazz(delimiter, options = options).run(text)
+    options = options or 0
+    return clazz(delimiter, options)._run(text)
 
   @classmethod
   def char_to_string(clazz, c):
