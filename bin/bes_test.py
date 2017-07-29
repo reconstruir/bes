@@ -73,14 +73,17 @@ def main():
                       default = False,
                       help = 'Make an egg of the package and run the tests against that instead the live files. [ False ]')
   args = parser.parse_args()
-  if not args.files:
-    args.files = ['.']
   
   cwd = os.getcwd()
+
+  if not args.files:
+    args.files = [ cwd ]
   
   files, filters = _separate_files_and_filters(args.files)
 
+  print "b4 files: ", files, os.getcwd()
   files = file_resolve.resolve_files_and_dirs(files)
+  print "af files: ", files, os.getcwd()
 
   test_map = unit_test_inspect.inspect_map(files)
 
@@ -282,6 +285,9 @@ def _python_call(python, filename, tests, dry_run, verbose,
     else:
       stderr_pipe = subprocess.STDOUT
 
+#    if verbose:
+#      print('%s: %s' % (filename, tests))
+      
     env = environ_util.make_clean_env()
     env['PYTHONDONTWRITEBYTECODE'] = 'x'
     process = subprocess.Popen(' '.join(cmd),
