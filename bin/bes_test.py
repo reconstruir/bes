@@ -90,7 +90,8 @@ def main():
     git_modified = []
     for root in git_roots:
       git_modified.extend(git.modified_python_files(root))
-    files = git_modified
+    files = file_resolve.resolve_files_and_dirs(git_modified)
+    files = [ f for f in files if f in test_map ]
 
   if args.dump:
     unit_test_inspect.print_inspect_map(test_map, files, cwd)
