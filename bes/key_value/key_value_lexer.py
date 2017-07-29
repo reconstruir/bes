@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import string
 from collections import namedtuple
 from StringIO import StringIO
+from bes.common import string_util
 from bes.system import log
 
 class _state(object):
@@ -191,13 +193,17 @@ class key_value_lexer(object):
   ESCAPE_QUOTES = 0x02
   IGNORE_COMMENTS = 0x04
 
-  def __init__(self, delimiter, options):
+  DEFAULT_OPTIONS = 0x00
+  DEFAULT_KV_DELIMITERS = string.whitespace
+  
+  def __init__(self, delimiter, kv_delimiters, options):
     log.add_logging(self, tag = 'key_value_lexer')
 
     if delimiter != None and not string_util.is_char(delimiter):
       raise RuntimeError('delimiter should be either None or a single character instead of: \"%s\"' % (delimiter))
     
     self._delimiter = delimiter
+    self._kv_delimiters = kv_delimiters
     self._keep_quotes = (options & self.KEEP_QUOTES) != 0
 
     self._escape_quotes = (options & self.ESCAPE_QUOTES) != 0
@@ -245,9 +251,10 @@ class key_value_lexer(object):
     yield self.token(self.DONE, None, self.line_number)
       
   @classmethod
-  def tokenize(clazz, text, delimiter, options = 0):
-    options = options or 0
-    return clazz(delimiter, options)._run(text)
+  def tokenize(clazz, text, delimiter, kv_delimiters = None, options = None):
+    options = options or clazz.DEFAULT_OPTIONS
+    kv_delimiters = kv_delimiters or clazz.DEFAULT_KV_DELIMITERS
+    return clazz(delimiter, kv_delimiters, options)._run(text)
 
   @classmethod
   def char_to_string(clazz, c):
