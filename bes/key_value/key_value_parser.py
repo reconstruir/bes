@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system import log
+from bes.text import line_numbers
 from key_value_lexer import key_value_lexer as lexer
 from key_value import key_value
 
@@ -30,12 +31,12 @@ class _state_expecting_key(_state):
     elif token.type == lexer.SPACE:
       new_state = self.parser.STATE_EXPECTING_KEY
     elif token.type == lexer.DELIMITER:
-      raise RuntimeError('unexpected equal instead of key: %s' % (self.parser.text))
+      raise RuntimeError('unexpected delimiter instead of key: %s' % (self.parser.text))
     elif token.type == lexer.DONE:
       new_state = self.parser.STATE_DONE
     elif token.type == lexer.STRING:
       self.parser.key = token.value
-      new_state = self.parser.STATE_EXPECTING_EQUAL
+      new_state = self.parser.STATE_EXPECTING_DELIMITER
     self.change_state(new_state, token)
     
 class _state_done(_state):
@@ -48,9 +49,9 @@ class _state_done(_state):
       raise RuntimeError('unexpected token in done state: %s' % (str(token)))
     self.change_state(self.parser.STATE_DONE, token)
   
-class _state_expecting_equal(_state):
+class _state_expecting_delimiter(_state):
   def __init__(self, parser):
-    super(_state_expecting_equal, self).__init__(parser)
+    super(_state_expecting_delimiter, self).__init__(parser)
 
   def handle_token(self, token):
     self.log_d('handle_token(%s)' % (str(token)))
@@ -60,13 +61,15 @@ class _state_expecting_equal(_state):
       key_value_result = key_value(self.parser.key, self.parser.DEFAULT_EMPTY_VALUE)
       new_state = self.parser.STATE_DONE
     elif token.type == lexer.SPACE:
-      raise RuntimeError('unexpected space instead of equal: %s' % (self.parser.text))
+      raise RuntimeError('unexpected space instead of \"%s\" at line %d:\n%s' % (self.parser.delimiter,
+                                                                                 token.line_number,
+                                                                                 line_numbers.add_line_numbers(self.parser.text)))
     elif token.type == lexer.DELIMITER:
       new_state = self.parser.STATE_EXPECTING_VALUE
     elif token.type == lexer.DONE:
-      raise RuntimeError('unexpected done instead of equal: %s' % (self.parser.text))
+      raise RuntimeError('unexpected done instead of delimiter: %s' % (self.parser.text))
     elif token.type == lexer.STRING:
-      raise RuntimeError('unexpected string instead of equal: %s' % (self.parser.text))
+      raise RuntimeError('unexpected string instead of delimiter: %s' % (self.parser.text))
     self.change_state(new_state, token)
     return key_value_result
 
@@ -85,7 +88,7 @@ class _state_expecting_value(_state):
       key_value_result = key_value(self.parser.key, self.parser.DEFAULT_EMPTY_VALUE)
       new_state = self.parser.STATE_EXPECTING_KEY
     elif token.type == lexer.DELIMITER:
-      raise RuntimeError('unexpected equal instead of string: %s' % (self.parser.text))
+      raise RuntimeError('unexpected delimiter instead of string: %s' % (self.parser.text))
     elif token.type == lexer.DONE:
       key_value_result = key_value(self.parser.key, self.parser.DEFAULT_EMPTY_VALUE)
       new_state = self.parser.STATE_DONE
@@ -103,12 +106,13 @@ class key_value_parser(object):
   ESCAPE_QUOTES = lexer.ESCAPE_QUOTES
   IGNORE_COMMENTS = lexer.IGNORE_COMMENTS
 
-  def __init__(self, options = 0):
+  def __init__(self, options, delimiter):
     log.add_logging(self, tag = 'key_value_parser')
     self._options = options
+    self.delimiter = delimiter
 
     self.STATE_EXPECTING_KEY = _state_expecting_key(self)
-    self.STATE_EXPECTING_EQUAL = _state_expecting_equal(self)
+    self.STATE_EXPECTING_DELIMITER = _state_expecting_delimiter(self)
     self.STATE_EXPECTING_VALUE = _state_expecting_value(self)
     self.STATE_DONE = _state_done(self)
     self.state = self.STATE_EXPECTING_KEY
@@ -118,7 +122,7 @@ class key_value_parser(object):
     self.log_d('run(%s)' % (text))
     self.text = text
 
-    for token in lexer.tokenize(text, '=', options = self._options):
+    for token in lexer.tokenize(text, self.delimiter, options = self._options):
       key_value = self.state.handle_token(token)
       if key_value:
         self.log_i('parse: new key_value: %s' % (str(key_value)))
@@ -126,8 +130,8 @@ class key_value_parser(object):
     assert self.state == self.STATE_DONE
       
   @classmethod
-  def parse(clazz, text, options = 0):
-    return clazz(options = options).run(text)
+  def parse(clazz, text, options = 0, delimiter = '='):
+    return clazz(options, delimiter).run(text)
 
   @classmethod
   def parse_to_dict(clazz, text, options = 0):

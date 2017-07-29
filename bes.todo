@@ -1,8 +1,5 @@
 jul 28
 - fix file_find.fnmatch_find to work more like /bin/find in that it stops when it finds what it wants
 - also rename find_fnmatch to find_name
-
-f
-g
-h
-z
+- key_valaue_lexer and parser run/parse dont work with multiple invocations
+- key value lexer parser tests for exception states

@@ -185,7 +185,7 @@ class key_value_lexer(object):
   DOUBLE_QUOTE_CHAR = "\""
   COMMENT_CHAR = '#'
 
-  token = namedtuple('token', 'type,value')
+  token = namedtuple('token', 'type,value,line_number')
 
   KEEP_QUOTES = 0x01
   ESCAPE_QUOTES = 0x02
@@ -211,6 +211,7 @@ class key_value_lexer(object):
     self.STATE_SINGLE_QUOTED_STRING = _state_single_quoted_string(self)
     self.STATE_DOUBLE_QUOTED_STRING = _state_double_quoted_string(self)
     self.STATE_COMMENT = _state_comment(self)
+
     self.state = self.STATE_BEGIN
 
   @property
@@ -227,6 +228,7 @@ class key_value_lexer(object):
   def run(self, text):
     self.log_d('tokenize(%s)' % (text))
     assert self.EOS not in text
+    self.line_number = 1
     for c in self.__chars_plus_eos(text):
       self._is_escaping = self._last_char == '\\'
       if c != '\\':
@@ -235,8 +237,10 @@ class key_value_lexer(object):
           self.log_i('tokenize: new token: %s' % (str(token)))
           yield token
       self._last_char = c
+      if c == '\n':
+        self.line_number += 1
     assert self.state == self.STATE_DONE
-    yield self.token(self.DONE, None)
+    yield self.token(self.DONE, None, self.line_number)
       
   @classmethod
   def tokenize(clazz, text, delimiter, options = 0):
@@ -266,16 +270,16 @@ class key_value_lexer(object):
     yield self.EOS
 
   def make_token_delimiter(self):
-    return self.token(self.DELIMITER, self.delimiter)
+    return self.token(self.DELIMITER, self.delimiter, self.line_number)
       
   def make_token_string(self):
-    return self.token(self.STRING, self._buffer.getvalue())
+    return self.token(self.STRING, self._buffer.getvalue(), self.line_number)
 
   def make_token_space(self):
-    return self.token(self.SPACE, self._buffer.getvalue())
+    return self.token(self.SPACE, self._buffer.getvalue(), self.line_number)
       
   def make_token_comment(self):
-    return self.token(self.COMMENT, self._buffer.getvalue())
+    return self.token(self.COMMENT, self._buffer.getvalue(), self.line_number)
       
   def buffer_reset(self, c = None):
     self._buffer = StringIO()
