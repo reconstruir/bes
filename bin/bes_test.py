@@ -73,7 +73,9 @@ def main():
                       default = False,
                       help = 'Make an egg of the package and run the tests against that instead the live files. [ False ]')
   args = parser.parse_args()
-
+  if not args.files:
+    args.files = ['.']
+  
   cwd = os.getcwd()
   
   files, filters = _separate_files_and_filters(args.files)
