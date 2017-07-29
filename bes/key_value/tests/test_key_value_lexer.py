@@ -152,6 +152,7 @@ class test_key_value_lexer(unittest.TestCase):
                         (STRING, 'c', 4), TDELIMITER(4), (STRING, '7', 4), (SPACE, '\n', 5), 
                         TDONE(5) ],
                       self.__tokenize('a=5\nb=6\n\nc=7\n') )
+
   @classmethod
   def __tokenize(self, text, delimiter = '=',
                  keep_quotes = False,

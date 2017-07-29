@@ -105,12 +105,12 @@ class key_value_parser(object):
   KEEP_QUOTES = lexer.KEEP_QUOTES
   ESCAPE_QUOTES = lexer.ESCAPE_QUOTES
   IGNORE_COMMENTS = lexer.IGNORE_COMMENTS
-
+  
   def __init__(self, options, delimiter):
     log.add_logging(self, tag = 'key_value_parser')
     self._options = options
     self.delimiter = delimiter
-
+    
     self.STATE_EXPECTING_KEY = _state_expecting_key(self)
     self.STATE_EXPECTING_DELIMITER = _state_expecting_delimiter(self)
     self.STATE_EXPECTING_VALUE = _state_expecting_value(self)
