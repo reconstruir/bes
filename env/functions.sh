@@ -42,11 +42,42 @@ bes-setup()
   fi
   
   export PATH=${_root_dir}/bin:${PATH}
+  bes-path-dedup PATH
+
   export PYTHONPATH=${_root_dir}:${PYTHONPATH}
+  bes-path-dedup PYTHONPATH
 
   if [ $_chdir -eq 1 ]; then
     cd $_root_dir
   fi
   
+  return 0
+}
+
+# https://unix.stackexchange.com/questions/40749/remove-duplicate-path-entries-with-awk-command
+bes-path-remove-dups()
+{
+  local _var_name="$1"
+  local _result="$(printf %s $_var_name | awk -v RS=: -v ORS=: '!arr[$0]++')"
+  echo $_result
+  return 0
+}
+
+# Deduplicate path variables
+bes-var-get()
+{
+  eval 'printf "%s\n" "${'"$1"'}"'
+}
+
+bes-var-set()
+{
+  eval "$1=\"\$2\""
+}
+
+bes-path-dedup()
+{
+  local _var_name="$1"
+  local _value=$(bes-var-get $_var_name)
+  bes-var-set $_var_name $(bes-path-remove-dups "$_value")
   return 0
 }

@@ -180,8 +180,4 @@ class file_util(object):
       return p
     return [ _make_abs(p) for p in paths ]
 
-  @classmethod
-  def is_exe(clazz, filename):
-    return path.isfile(filename) and os.access(filename, os.X_OK)
-
 log.add_logging(file_util, 'file_util')
