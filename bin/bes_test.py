@@ -48,10 +48,18 @@ def main():
                       default = False,
                       help = 'Randomize the order in which unit tests run. [ False ]')
   parser.add_argument('--python',
-                      '-p',
                       action = 'store',
                       default = 'python',
                       help = 'Python executable to use [ python ]')
+  parser.add_argument('--page',
+                      '-p',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Page output with $PAGER [ False ]')
+  parser.add_argument('--pager',
+                      action = 'store',
+                      default = os.environ.get('PAGER', 'more'),
+                      help = 'Pager to use when paging [ %s ]' % (os.environ.get('PAGER', 'more')))
   parser.add_argument('--iterations',
                       '-i',
                       action = 'store',
@@ -136,6 +144,9 @@ def main():
   if args.randomize:
     random.shuffle(filtered_files)
 
+  if not args.dry_run and args.page:
+    printer.OUTPUT = tempfile.NamedTemporaryFile(prefix = 'bes_test', delete = True, mode = 'w')
+    
   for i, f in enumerate(filtered_files):
     success = _python_call(args.python, f.filename, f.tests, args.dry_run, args.verbose,
                            args.stop, i + 1, len(filtered_files), cwd)
@@ -159,14 +170,19 @@ def main():
     summary_parts.append('%d of %d skipped' % (num_skipped, num_tests))
 
   summary = '; '.join(summary_parts)
-  print 'bes_test.py: %s' % (summary)
+  printer.spew('bes_test.py: %s' % (summary))
   if failed_tests:
     for f in failed_tests:
-      print 'bes_test.py: FAILED: %s' % (file_util.remove_head(f.filename, cwd))
-  
+      printer.spew('bes_test.py: FAILED: %s' % (file_util.remove_head(f.filename, cwd)))
+
   if num_failed > 0:
-    return 1
-  return 0
+    rv = 1
+  else:
+    rv = 0
+  if args.page:
+    subprocess.call([ args.pager, printer.OUTPUT.name ])
+    
+  return rv
 
 file_and_tests = namedtuple('file_and_tests', 'filename,tests')
 def _filter_files(files, available, patterns):
@@ -222,7 +238,7 @@ def _available_unit_tests(filenames):
 def _dump_available_unit_tests(available):
   for filename in sorted(available.keys()):
     for _, fixture, function in available[filename]:
-      print '%s:%s.%s' % (filename, fixture, function)
+      printer.spew('%s:%s.%s' % (filename, fixture, function))
 
 def _filepath_normalize(filepath):
   f = path.abspath(path.normpath(filepath))
@@ -275,32 +291,21 @@ def _python_call(python, filename, tests, dry_run, verbose,
     else:
       label = 'testing'
 
-    print('bes_test.py:%7s:%s %s' % (label, count_blurb, remove_head))
+    printer.spew('bes_test.py:%7s:%s %s' % (label, count_blurb, remove_head))
 
     if dry_run:
       return True
 
-    stdout_pipe = subprocess.PIPE
-    if not verbose:
-      stderr_pipe = subprocess.PIPE
-    else:
-      stderr_pipe = subprocess.STDOUT
-
-#    if verbose:
-#      print('%s: %s' % (filename, tests))
-      
     env = environ_util.make_clean_env()
     env['PYTHONDONTWRITEBYTECODE'] = 'x'
     process = subprocess.Popen(' '.join(cmd),
-                               stdout = stdout_pipe,
-                               stderr = stderr_pipe,
+                               stdout = subprocess.PIPE,
+                               stderr = subprocess.STDOUT,
                                shell = True,
                                env = env)
     output = process.communicate()
     exit_code = process.wait()
-
-    stdout_output = output[0]
-    stderr_output = output[1]
+    output = output[0]
     success = exit_code == 0
     spew_output = not success or verbose
     if success:
@@ -308,14 +313,11 @@ def _python_call(python, filename, tests, dry_run, verbose,
     else:
       label = 'FAILED'
     if spew_output:
-      print 'bes_test.py: %7s: %s' % (label, remove_head)
-      sys.stdout.write(stdout_output)
-      if not success:
-        sys.stdout.write(stderr_output)
-      sys.stdout.flush()
+      printer.spew('bes_test.py: %7s: %s' % (label, remove_head))
+      printer.spew(output)
     return success
   except Exception, ex:
-    print 'bes_test.py: Caught exception on %s: %s' % (filename, str(ex))
+    printer.spew('bes_test.py: Caught exception on %s: %s' % (filename, str(ex)))
     return False
 
 def _match_test(patterns, filename):
@@ -666,17 +668,27 @@ class unit_test_inspect(object):
         if tests:
           result[f_path] = clazz.inspect_file(f_path)
       except Exception, ex:
-        print('Failed to inspect: %s - %s' % (f, str(ex)))
+        printer.spew('Failed to inspect: %s - %s' % (f, str(ex)))
     return result
 
   @classmethod
   def print_inspect_map(clazz, inspect_map, files, cwd):
     for filename in sorted(inspect_map.keys()):
       if filename in files:
-        print('%s:' % (file_util.remove_head(filename, cwd)))
+        printer.spew('%s:' % (file_util.remove_head(filename, cwd)))
         for _, fixture, function in inspect_map[filename]:
-          print('  %s.%s' % (fixture, function))
-  
+          printer.spew('  %s.%s' % (fixture, function))
+
+
+class printer(object):
+  OUTPUT = sys.stdout
+
+  @classmethod
+  def spew(clazz, s):
+    clazz.OUTPUT.write(s)
+    clazz.OUTPUT.write('\n')
+    clazz.OUTPUT.flush()
+          
 import unittest
 
 class test_case(unittest.TestCase):
