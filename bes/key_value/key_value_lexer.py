@@ -2,24 +2,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import string
-from collections import namedtuple
 from StringIO import StringIO
 from bes.common import string_util
-from bes.system import log
-
 from bes.text.string_lexer import *
 
-class _state(object):
-
-  def __init__(self, lexer):
-    self.name = self.__class__.__name__[1:]
-    log.add_logging(self, tag = '%s.%s' % (lexer.__class__.__name__, self.name))
-    self.lexer = lexer
-  
-  def handle_char(self, c):
-    raise RuntimeError('unhandled handle_char(%c) in state %s' % (self.name))
-
-class _state_begin(_state):
+class _state_begin(string_lexer_state):
   def __init__(self, lexer):
     super(_state_begin, self).__init__(lexer)
 
@@ -30,7 +17,7 @@ class _state_begin(_state):
     if not self.lexer.is_escaping and c.isspace():
       self.lexer.buffer_reset(c)
       new_state = self.lexer.STATE_SPACE
-    elif self.lexer.has_delimiter() and not self.lexer.is_escaping and c == self.lexer.delimiter:
+    elif not self.lexer.is_escaping and c == self.lexer.delimiter:
       tokens.append(self.lexer.make_token_delimiter())
       new_state = self.lexer.STATE_BEGIN
     elif not self.lexer.is_escaping and c == self.lexer.COMMENT_CHAR:
@@ -50,7 +37,7 @@ class _state_begin(_state):
     self.lexer.change_state(new_state, c)
     return tokens
     
-class _state_space(_state):
+class _state_space(string_lexer_state):
   def __init__(self, lexer):
     super(_state_space, self).__init__(lexer)
 
@@ -61,7 +48,7 @@ class _state_space(_state):
     if c.isspace():
       self.lexer.buffer_write(c)
       new_state = self.lexer.STATE_SPACE
-    elif self.lexer.has_delimiter() and not self.lexer.is_escaping and c == self.lexer.delimiter:
+    elif not self.lexer.is_escaping and c == self.lexer.delimiter:
       tokens.append(self.lexer.make_token_space())
       tokens.append(self.lexer.make_token_delimiter())
       new_state = self.lexer.STATE_BEGIN
@@ -87,7 +74,7 @@ class _state_space(_state):
     self.lexer.change_state(new_state, c)
     return tokens
 
-class _state_string(_state):
+class _state_string(string_lexer_state):
   def __init__(self, lexer):
     super(_state_string, self).__init__(lexer)
 
@@ -99,7 +86,7 @@ class _state_string(_state):
       tokens.append(self.lexer.make_token_string())
       self.lexer.buffer_reset(c)
       new_state = self.lexer.STATE_SPACE
-    elif self.lexer.has_delimiter() and not self.lexer.is_escaping and c == self.lexer.delimiter:
+    elif not self.lexer.is_escaping and c == self.lexer.delimiter:
       tokens.append(self.lexer.make_token_string())
       tokens.append(self.lexer.make_token_delimiter())
       new_state = self.lexer.STATE_BEGIN
@@ -157,9 +144,6 @@ class key_value_lexer(string_lexer):
   def delimiter(self):
     return self._delimiter
     
-  def has_delimiter(self):
-    return self._delimiter != None
-      
   @classmethod
   def tokenize(clazz, text, delimiter, kv_delimiters = None, options = None):
     options = options or clazz.DEFAULT_OPTIONS
