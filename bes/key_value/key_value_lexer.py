@@ -199,6 +199,7 @@ class key_value_lexer(object):
   def __init__(self, delimiter, kv_delimiters, options):
     log.add_logging(self, tag = 'key_value_lexer')
 
+    assert delimiter
     if delimiter != None and not string_util.is_char(delimiter):
       raise RuntimeError('delimiter should be either None or a single character instead of: \"%s\"' % (delimiter))
     
@@ -225,6 +226,12 @@ class key_value_lexer(object):
   @property
   def is_escaping(self):
     return self._is_escaping
+
+  @property
+  def is_kv_delimiter(self, c):
+    'Return True if c is a valid kv_delimiter.'
+    assert string_util.is_char(c)
+    return c in self._kv_delimiters
 
   @property
   def delimiter(self):

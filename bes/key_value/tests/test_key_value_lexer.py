@@ -108,16 +108,6 @@ class test_key_value_lexer(unittest.TestCase):
     self.assertEqual( [ (STRING, 'a', 1), TDELIMITER(1), (STRING, 'b ', 1), TDONE(1) ],
                       self.__tokenize(r'a=b\ ') )
 
-  def test_delimiter_is_none(self):
-    self.assertEqual( [ (STRING, 'a =b', 1), TDONE(1) ],
-                      self.__tokenize(r'a\ =b', delimiter = None) )
-    self.assertEqual( [ (STRING, 'a=b', 1), TDONE(1) ],
-                      self.__tokenize(r'a=b', delimiter = None) )
-    self.assertEqual( [ (STRING, 'a', 1), TSPACE(1), (STRING, '=b', 1), TDONE(1) ],
-                      self.__tokenize(r'a =b', delimiter = None) )
-    self.assertEqual( [ (STRING, 'a', 1), TSPACE(1), (STRING, '=', 1), TSPACE(1), (STRING, 'b', 1), TDONE(1) ],
-                      self.__tokenize(r'a = b', delimiter = None) )
-
   def test_new_line(self):
     self.assertEqual( [ (STRING, 'a', 1), TDELIMITER(1), (STRING, 'foo', 1), (SPACE, ' \n ', 2), (STRING, 'b', 2), TDELIMITER(2), (STRING, 'bar', 2), T(DONE, None, 2) ],
                       self.__tokenize('a=foo \n b=bar') )
