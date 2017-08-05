@@ -162,12 +162,19 @@ class string_lexer_state_comment(string_lexer_state):
     self.lexer.change_state(new_state, c)
     return tokens
 
-class string_lexer(object):
+class string_lexer_options(object):
+  KEEP_QUOTES = 0x01
+  ESCAPE_QUOTES = 0x02
+  IGNORE_COMMENTS = 0x04
+  DEFAULT_OPTIONS = 0x00
 
-  COMMENT = 'comment'
-  DONE = 'done'
-  SPACE = 'space'
-  STRING = 'string'
+  
+class string_lexer(string_lexer_options):
+
+  TOKEN_COMMENT = 'comment'
+  TOKEN_DONE = 'done'
+  TOKEN_SPACE = 'space'
+  TOKEN_STRING = 'string'
 
   EOS = '\0'
 
@@ -177,11 +184,6 @@ class string_lexer(object):
 
   token = namedtuple('token', 'type,value,line_number')
 
-  KEEP_QUOTES = 0x01
-  ESCAPE_QUOTES = 0x02
-  IGNORE_COMMENTS = 0x04
-  DEFAULT_OPTIONS = 0x00
-  
   def __init__(self, log_tag, options):
     log.add_logging(self, tag = log_tag)
 
@@ -221,7 +223,7 @@ class string_lexer(object):
       if c == '\n':
         self.line_number += 1
     assert self.state == self.STATE_DONE
-    yield self.token(self.DONE, None, self.line_number)
+    yield self.token(self.TOKEN_DONE, None, self.line_number)
       
   @classmethod
   def tokenize(clazz, text, log_tag, options = None):
@@ -252,13 +254,13 @@ class string_lexer(object):
     yield self.EOS
 
   def make_token_string(self):
-    return self.token(self.STRING, self._buffer.getvalue(), self.line_number)
+    return self.token(self.TOKEN_STRING, self._buffer.getvalue(), self.line_number)
 
   def make_token_space(self):
-    return self.token(self.SPACE, self._buffer.getvalue(), self.line_number)
+    return self.token(self.TOKEN_SPACE, self._buffer.getvalue(), self.line_number)
       
   def make_token_comment(self):
-    return self.token(self.COMMENT, self._buffer.getvalue(), self.line_number)
+    return self.token(self.TOKEN_COMMENT, self._buffer.getvalue(), self.line_number)
       
   def buffer_reset(self, c = None):
     self._buffer = StringIO()

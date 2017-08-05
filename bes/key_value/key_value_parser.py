@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system import log
-from bes.text import line_numbers
+from bes.text import line_numbers, string_lexer_options
 from key_value_lexer import key_value_lexer as lexer
 from key_value import key_value
 
@@ -26,15 +26,15 @@ class _state_expecting_key(_state):
   def handle_token(self, token):
     self.log_d('handle_token(%s)' % (str(token)))
     new_state = None
-    if token.type == lexer.COMMENT:
+    if token.type == lexer.TOKEN_COMMENT:
       new_state = self.parser.STATE_DONE
-    elif token.type == lexer.SPACE:
+    elif token.type == lexer.TOKEN_SPACE:
       new_state = self.parser.STATE_EXPECTING_KEY
-    elif token.type == lexer.DELIMITER:
+    elif token.type == lexer.TOKEN_DELIMITER:
       raise RuntimeError('unexpected delimiter instead of key: %s' % (self.parser.text))
-    elif token.type == lexer.DONE:
+    elif token.type == lexer.TOKEN_DONE:
       new_state = self.parser.STATE_DONE
-    elif token.type == lexer.STRING:
+    elif token.type == lexer.TOKEN_STRING:
       self.parser.key = token.value
       new_state = self.parser.STATE_EXPECTING_DELIMITER
     self.change_state(new_state, token)
@@ -45,7 +45,7 @@ class _state_done(_state):
 
   def handle_token(self, token):
     self.log_d('handle_token(%s)' % (str(token)))
-    if token.type != lexer.DONE:
+    if token.type != lexer.TOKEN_DONE:
       raise RuntimeError('unexpected token in done state: %s' % (str(token)))
     self.change_state(self.parser.STATE_DONE, token)
   
@@ -57,18 +57,18 @@ class _state_expecting_delimiter(_state):
     self.log_d('handle_token(%s)' % (str(token)))
     new_state = None
     key_value_result = None
-    if token.type == lexer.COMMENT:
+    if token.type == lexer.TOKEN_COMMENT:
       key_value_result = key_value(self.parser.key, self.parser.DEFAULT_EMPTY_VALUE)
       new_state = self.parser.STATE_DONE
-    elif token.type == lexer.SPACE:
+    elif token.type == lexer.TOKEN_SPACE:
       raise RuntimeError('unexpected space instead of \"%s\" at line %d:\n%s' % (self.parser.delimiter,
                                                                                  token.line_number,
                                                                                  line_numbers.add_line_numbers(self.parser.text)))
-    elif token.type == lexer.DELIMITER:
+    elif token.type == lexer.TOKEN_DELIMITER:
       new_state = self.parser.STATE_EXPECTING_VALUE
-    elif token.type == lexer.DONE:
+    elif token.type == lexer.TOKEN_DONE:
       raise RuntimeError('unexpected done instead of delimiter: %s' % (self.parser.text))
-    elif token.type == lexer.STRING:
+    elif token.type == lexer.TOKEN_STRING:
       raise RuntimeError('unexpected string instead of delimiter: %s' % (self.parser.text))
     self.change_state(new_state, token)
     return key_value_result
@@ -81,31 +81,27 @@ class _state_expecting_value(_state):
     self.log_d('handle_token(%s)' % (str(token)))
     new_state = None
     key_value_result = None
-    if token.type == lexer.COMMENT:
+    if token.type == lexer.TOKEN_COMMENT:
       key_value_result = key_value(self.parser.key, self.parser.DEFAULT_EMPTY_VALUE)
       new_state = self.parser.STATE_DONE
-    elif token.type == lexer.SPACE:
+    elif token.type == lexer.TOKEN_SPACE:
       key_value_result = key_value(self.parser.key, self.parser.DEFAULT_EMPTY_VALUE)
       new_state = self.parser.STATE_EXPECTING_KEY
-    elif token.type == lexer.DELIMITER:
+    elif token.type == lexer.TOKEN_DELIMITER:
       raise RuntimeError('unexpected delimiter instead of string: %s' % (self.parser.text))
-    elif token.type == lexer.DONE:
+    elif token.type == lexer.TOKEN_DONE:
       key_value_result = key_value(self.parser.key, self.parser.DEFAULT_EMPTY_VALUE)
       new_state = self.parser.STATE_DONE
-    elif token.type == lexer.STRING:
+    elif token.type == lexer.TOKEN_STRING:
       key_value_result = key_value(self.parser.key, token.value)
       new_state = self.parser.STATE_EXPECTING_KEY
     self.change_state(new_state, token)
     return key_value_result
     
-class key_value_parser(object):
+class key_value_parser(string_lexer_options):
 
   DEFAULT_EMPTY_VALUE = None
 
-  KEEP_QUOTES = lexer.KEEP_QUOTES
-  ESCAPE_QUOTES = lexer.ESCAPE_QUOTES
-  IGNORE_COMMENTS = lexer.IGNORE_COMMENTS
-  
   def __init__(self, options, delimiter):
     log.add_logging(self, tag = 'key_value_parser')
     self._options = options

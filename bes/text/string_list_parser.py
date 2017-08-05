@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system import log
-from string_lexer import string_lexer as lexer
+from string_lexer import string_lexer, string_lexer_options
 
 class _state(object):
 
@@ -28,14 +28,14 @@ class _state_expecting_string(_state):
     self.log_d('handle_token(%s)' % (str(token)))
     new_state = None
     strings = []
-    if token.type == lexer.COMMENT:
+    if token.type == string_lexer.TOKEN_COMMENT:
       new_state = self.parser.STATE_DONE
-    elif token.type == lexer.SPACE:
+    elif token.type == string_lexer.TOKEN_SPACE:
       new_state = self.parser.STATE_EXPECTING_STRING
-    elif token.type == lexer.DONE:
+    elif token.type == string_lexer.TOKEN_DONE:
       new_state = self.parser.STATE_DONE
       pass
-    elif token.type == lexer.STRING:
+    elif token.type == string_lexer.TOKEN_STRING:
       strings = [ token.value ]
       new_state = self.parser.STATE_EXPECTING_STRING
     else:
@@ -49,17 +49,13 @@ class _state_done(_state):
 
   def handle_token(self, token):
     self.log_d('handle_token(%s)' % (str(token)))
-    if token.type != lexer.DONE:
+    if token.type != string_lexer.DONE:
       self.unexpected_token(token)
     self.change_state(self.parser.STATE_DONE, token)
     return []
   
-class string_list_parser(object):
+class string_list_parser(string_lexer_options):
 
-  KEEP_QUOTES = lexer.KEEP_QUOTES
-  ESCAPE_QUOTES = lexer.ESCAPE_QUOTES
-  IGNORE_COMMENTS = lexer.IGNORE_COMMENTS
-  
   def __init__(self, options = 0):
     log.add_logging(self, tag = 'string_list_parser')
 
@@ -72,7 +68,7 @@ class string_list_parser(object):
     self.log_d('run(%s)' % (text))
     self.text = text
 
-    for token in lexer.tokenize(text, 'string_list_parser', options = self._options):
+    for token in string_lexer.tokenize(text, 'string_list_parser', options = self._options):
       strings = self.state.handle_token(token)
       if strings:
         for s in strings:

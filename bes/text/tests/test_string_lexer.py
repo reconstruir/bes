@@ -5,10 +5,10 @@ import unittest
 from bes.text import string_lexer as L
 
 T = L.token
-COMMENT = L.COMMENT
-DONE = L.DONE
-SPACE = L.SPACE
-STRING = L.STRING
+COMMENT = L.TOKEN_COMMENT
+DONE = L.TOKEN_DONE
+SPACE = L.TOKEN_SPACE
+STRING = L.TOKEN_STRING
 
 def TSPACE(line_number): return T(SPACE, ' ', line_number)
 def TDONE(line_number): return T(DONE, None, line_number)

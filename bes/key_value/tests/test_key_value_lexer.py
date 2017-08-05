@@ -5,11 +5,11 @@ import unittest
 from bes.key_value import key_value_lexer as L
 
 T = L.token
-COMMENT = L.COMMENT
-DONE = L.DONE
-DELIMITER = L.DELIMITER
-SPACE = L.SPACE
-STRING = L.STRING
+COMMENT = L.TOKEN_COMMENT
+DONE = L.TOKEN_DONE
+DELIMITER = L.TOKEN_DELIMITER
+SPACE = L.TOKEN_SPACE
+STRING = L.TOKEN_STRING
 
 def TSPACE(line_number): return T(SPACE, ' ', line_number)
 def TDELIMITER(line_number): return T(DELIMITER, '=', line_number)
