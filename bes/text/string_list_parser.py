@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system import log
-from bes.key_value import key_value_lexer as lexer
+from string_lexer import string_lexer as lexer
 
 class _state(object):
 
@@ -72,7 +72,7 @@ class string_list_parser(object):
     self.log_d('run(%s)' % (text))
     self.text = text
 
-    for token in lexer.tokenize(text, None, options = self._options):
+    for token in lexer.tokenize(text, 'string_list_parser', options = self._options):
       strings = self.state.handle_token(token)
       if strings:
         for s in strings:

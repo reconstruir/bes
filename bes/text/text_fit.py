@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from bes.key_value import key_value_lexer as lexer
+from string_lexer import string_lexer as lexer
 from StringIO import StringIO
 
 class text_fit(object):
@@ -20,7 +20,7 @@ class text_fit(object):
     lines = []
     buf = StringIO()
     
-    for token in lexer.tokenize(text, None, options = lexer.KEEP_QUOTES | lexer.IGNORE_COMMENTS):
+    for token in lexer.tokenize(text, 'text_fit', options = lexer.KEEP_QUOTES | lexer.IGNORE_COMMENTS):
       if token.type == lexer.SPACE:
         if (buf.tell() + len(token.value)) > width:
           lines.append(buf.getvalue().strip())
