@@ -4,7 +4,7 @@
 import unittest
 from bes.text import string_list_parser as P
 
-class test_key_value_parser(unittest.TestCase):
+class test_string_list_parser(unittest.TestCase):
 
   def test_empty(self):
     self.assertEqual( [], self.__parse('') )
