@@ -7,7 +7,7 @@ from StringIO import StringIO
 from bes.common import string_util
 from bes.system import log
 
-class _state(object):
+class string_lexer_state(object):
 
   def __init__(self, lexer):
     self.name = self.__class__.__name__[1:]
@@ -17,9 +17,9 @@ class _state(object):
   def handle_char(self, c):
     raise RuntimeError('unhandled handle_char(%c) in state %s' % (self.name))
 
-class _state_begin(_state):
+class string_lexer_state_begin(string_lexer_state):
   def __init__(self, lexer):
-    super(_state_begin, self).__init__(lexer)
+    super(string_lexer_state_begin, self).__init__(lexer)
 
   def handle_char(self, c):
     self.log_d('handle_char(%s)' % (self.lexer.char_to_string(c)))
@@ -45,16 +45,16 @@ class _state_begin(_state):
     self.lexer.change_state(new_state, c)
     return tokens
     
-class _state_done(_state):
+class string_lexer_state_done(string_lexer_state):
   def __init__(self, lexer):
-    super(_state_done, self).__init__(lexer)
+    super(string_lexer_state_done, self).__init__(lexer)
 
   def handle_char(self, c):
     self.log_d('handle_char(%s)' % (self.lexer.char_to_string(c)))
   
-class _state_space(_state):
+class string_lexer_state_space(string_lexer_state):
   def __init__(self, lexer):
-    super(_state_space, self).__init__(lexer)
+    super(string_lexer_state_space, self).__init__(lexer)
 
   def handle_char(self, c):
     self.log_d('handle_char(%s)' % (self.lexer.char_to_string(c)))
@@ -85,9 +85,9 @@ class _state_space(_state):
     self.lexer.change_state(new_state, c)
     return tokens
 
-class _state_string(_state):
+class string_lexer_state_string(string_lexer_state):
   def __init__(self, lexer):
-    super(_state_string, self).__init__(lexer)
+    super(string_lexer_state_string, self).__init__(lexer)
 
   def handle_char(self, c):
     self.log_d('handle_char(%s)' % (self.lexer.char_to_string(c)))
@@ -116,7 +116,7 @@ class _state_string(_state):
     self.lexer.change_state(new_state, c)
     return tokens
 
-class _state_quoted_string_base(_state):
+class _state_quoted_string_base(string_lexer_state):
   def __init__(self, lexer, quote_char):
     super(_state_quoted_string_base, self).__init__(lexer)
     self.quote_char = quote_char
@@ -137,17 +137,17 @@ class _state_quoted_string_base(_state):
     self.lexer.change_state(new_state, c)
     return tokens
 
-class _state_single_quoted_string(_state_quoted_string_base):
+class string_lexer_state_single_quoted_string(_state_quoted_string_base):
   def __init__(self, lexer):
-    super(_state_single_quoted_string, self).__init__(lexer, lexer.SINGLE_QUOTE_CHAR)
+    super(string_lexer_state_single_quoted_string, self).__init__(lexer, lexer.SINGLE_QUOTE_CHAR)
 
-class _state_double_quoted_string(_state_quoted_string_base):
+class string_lexer_state_double_quoted_string(_state_quoted_string_base):
   def __init__(self, lexer):
-    super(_state_double_quoted_string, self).__init__(lexer, lexer.DOUBLE_QUOTE_CHAR)
+    super(string_lexer_state_double_quoted_string, self).__init__(lexer, lexer.DOUBLE_QUOTE_CHAR)
 
-class _state_comment(_state):
+class string_lexer_state_comment(string_lexer_state):
   def __init__(self, lexer):
-    super(_state_comment, self).__init__(lexer)
+    super(string_lexer_state_comment, self).__init__(lexer)
 
   def handle_char(self, c):
     self.log_d('handle_char(%s)' % (self.lexer.char_to_string(c)))
@@ -192,13 +192,13 @@ class string_lexer(object):
     self._is_escaping = False
     self._last_char = None
     
-    self.STATE_BEGIN = _state_begin(self)
-    self.STATE_DONE = _state_done(self)
-    self.STATE_STRING = _state_string(self)
-    self.STATE_SPACE = _state_space(self)
-    self.STATE_SINGLE_QUOTED_STRING = _state_single_quoted_string(self)
-    self.STATE_DOUBLE_QUOTED_STRING = _state_double_quoted_string(self)
-    self.STATE_COMMENT = _state_comment(self)
+    self.STATE_BEGIN = string_lexer_state_begin(self)
+    self.STATE_DONE = string_lexer_state_done(self)
+    self.STATE_STRING = string_lexer_state_string(self)
+    self.STATE_SPACE = string_lexer_state_space(self)
+    self.STATE_SINGLE_QUOTED_STRING = string_lexer_state_single_quoted_string(self)
+    self.STATE_DOUBLE_QUOTED_STRING = string_lexer_state_double_quoted_string(self)
+    self.STATE_COMMENT = string_lexer_state_comment(self)
 
     self.state = self.STATE_BEGIN
 
