@@ -146,10 +146,15 @@ def main():
 
   if not args.dry_run and args.page:
     printer.OUTPUT = tempfile.NamedTemporaryFile(prefix = 'bes_test', delete = True, mode = 'w')
-    
+
+  total_tests = _count_tests(test_map, filtered_files)
+  total_files = len(filtered_files)
+
+  total_num_tests = 0
   for i, f in enumerate(filtered_files):
-    success = _python_call(args.python, f.filename, f.tests, args.dry_run, args.verbose,
-                           args.stop, i + 1, len(filtered_files), cwd)
+    success, num_tests_run = _python_call(args.python, test_map, f.filename, f.tests, args.dry_run, args.verbose,
+                                      args.stop, i + 1, total_files, cwd)
+    total_num_tests += num_tests_run
     num_executed += 1
     if success:
       num_passed += 1
@@ -163,9 +168,17 @@ def main():
     return 0
   num_skipped = num_tests - num_executed
   summary_parts = []
+
+  if total_num_tests == total_tests:
+    function_summary = '(%d %s)' % (total_tests, _make_test_string(total_tests))
+  else:
+    function_summary = '(%d of %d)' % (total_num_tests, total_tests)
+    
+
+  
   if num_failed > 0:
     summary_parts.append('%d of %d FAILED' % (num_failed, num_tests))
-  summary_parts.append('%d of %d passed' % (num_passed, num_tests))
+  summary_parts.append('%d of %d passed %s' % (num_passed, num_tests, function_summary))
   if num_skipped > 0:
     summary_parts.append('%d of %d skipped' % (num_skipped, num_tests))
 
@@ -197,49 +210,6 @@ def _filter_files(files, available, patterns):
       result.append(file_and_tests(filename, matching_tests))
   return result
     
-def _tests_for_file(filename):
-  basename = path.basename(filename)
-  dirname = path.dirname(filename)
-  name = path.splitext(basename)[0]
-  test_filename = 'test_%s.py' % (name)
-  test_full_path = path.join(dirname, 'tests', test_filename)
-  if path.exists(test_full_path):
-    return [ test_full_path ]
-  return []
-
-def _file_has_tests(filename):
-  'FIXME ust ast for this.'
-  try:
-    content = file_util.read(filename)
-  
-    if content.find('unittest.TestCase') >= 0:
-      return True
-    if content.find('unit_test_helper') >= 0:
-      return True
-  except:
-    pass
-  return False
-
-def _available_unit_tests(filenames):
-  available = {}
-  for filename in filenames:
-    available[filename] = []
-              
-  for filename in filenames:
-    code = file_util.read(filename)
-    tree = ast.parse(code)
-    for node in tree.body:
-      if isinstance(node, ast.ClassDef):
-        for statement in node.body:
-          if isinstance(statement, ast.FunctionDef):
-            available[filename].append(unit_test_desc(filename, node.name, statement.name))
-  return available
-
-def _dump_available_unit_tests(available):
-  for filename in sorted(available.keys()):
-    for _, fixture, function in available[filename]:
-      printer.spew('%s:%s.%s' % (filename, fixture, function))
-
 def _filepath_normalize(filepath):
   f = path.abspath(path.normpath(filepath))
   if path.exists(f):
@@ -270,31 +240,42 @@ def _matching_tests(available, patterns):
         result.append(test)
   return result
 
-def _python_call(python, filename, tests, dry_run, verbose,
-                 stop_on_failure, index, total, cwd):
-  remove_head = file_util.remove_head(filename, cwd)
+def _python_call(python, test_map, filename, tests, dry_run, verbose,
+                 stop_on_failure, index, total_files, cwd):
+  short_filename = file_util.remove_head(filename, cwd)
   cmd = [ python, '-B', filename ]
 
+  total_unit_tests = len(test_map[filename])
+  
   if tests:
     cmd.extend([ '%s.%s' % (test.fixture, test.function) for test in tests ])
-  
+    wanted_unit_tests = len([ test for test in tests if test.filename == filename ])
+  else:
+    wanted_unit_tests = total_unit_tests
+
+  if wanted_unit_tests == total_unit_tests:
+    function_count_blurb = '(%d %s)' % (total_unit_tests, _make_test_string(total_unit_tests))
+  else:
+    function_count_blurb = '(%d of %d)' % (wanted_unit_tests, total_unit_tests)
+    
   try:
 #    if stop:
 #      cmd.append('--stop')
-    if total > 1:
-      count_blurb = ' ' + _make_count_blurb(index, total)
+    
+    if total_files > 1:
+      filename_count_blurb = ' ' + _make_count_blurb(index, total_files)
     else:
-      count_blurb = ''
+      filename_count_blurb = ''
 
     if dry_run:
       label = 'dry-run'
     else:
       label = 'testing'
 
-    printer.spew('bes_test.py:%7s:%s %s' % (label, count_blurb, remove_head))
+    printer.spew('bes_test.py:%7s:%s %s - %s' % (label, filename_count_blurb, short_filename, function_count_blurb))
 
     if dry_run:
-      return True
+      return True, 0
 
     env = environ_util.make_clean_env()
     env['PYTHONDONTWRITEBYTECODE'] = 'x'
@@ -313,13 +294,19 @@ def _python_call(python, filename, tests, dry_run, verbose,
     else:
       label = 'FAILED'
     if spew_output:
-      printer.spew('bes_test.py: %7s: %s' % (label, remove_head))
+      printer.spew('bes_test.py: %7s: %s' % (label, short_filename))
       printer.spew(output)
-    return success
+    return success, wanted_unit_tests
   except Exception, ex:
     printer.spew('bes_test.py: Caught exception on %s: %s' % (filename, str(ex)))
-    return False
+    return False, wanted_unit_tests
 
+def _count_tests(test_map, tests):
+  total = 0
+  for test in tests:
+    total += len(test_map[test.filename])
+  return total
+  
 def _match_test(patterns, filename):
   filename = filename.lower()
   for pattern in patterns:
@@ -346,6 +333,12 @@ def _make_fnmatch_pattern(pattern):
   if _is_fnmatch_pattern(pattern):
     return pattern
   return '*%s*' % (pattern)
+
+def _make_test_string(total):
+  if total == 1:
+    return 'test'
+  else:
+    return 'tests'
 
 def _make_count_blurb(index, total):
   length = int(math.log10(total)) + 1
