@@ -187,6 +187,8 @@ class string_lexer(string_lexer_options):
   def __init__(self, log_tag, options):
     log.add_logging(self, tag = log_tag)
 
+    options = options or self.DEFAULT_OPTIONS
+
     self._keep_quotes = (options & self.KEEP_QUOTES) != 0
     self._escape_quotes = (options & self.ESCAPE_QUOTES) != 0
     self._ignore_comments = (options & self.IGNORE_COMMENTS) != 0
@@ -214,12 +216,14 @@ class string_lexer(string_lexer_options):
     self.line_number = 1
     for c in self.__chars_plus_eos(text):
       self._is_escaping = self._last_char == '\\'
-      if c != '\\':
+      should_handle_char = (self._is_escaping and c == '\\') or (c != '\\')
+      if should_handle_char:
         tokens = self.state.handle_char(c)
         for token in tokens:
           self.log_i('tokenize: new token: %s' % (str(token)))
           yield token
       self._last_char = c
+              
       if c == '\n':
         self.line_number += 1
     assert self.state == self.STATE_DONE
@@ -227,7 +231,6 @@ class string_lexer(string_lexer_options):
       
   @classmethod
   def tokenize(clazz, text, log_tag, options = None):
-    options = options or clazz.DEFAULT_OPTIONS
     return clazz(log_tag, options)._run(text)
 
   @classmethod

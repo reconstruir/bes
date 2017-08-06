@@ -15,6 +15,22 @@ def TDONE(line_number): return T(DONE, None, line_number)
 
 class test_string_lexer(unittest.TestCase):
 
+  def test_empty_string(self):
+    self.assertEqual( [ TDONE(1) ],
+                      self.__tokenize(r'') )
+
+  def test_single_char(self):
+    self.assertEqual( [ (STRING, 'a', 1), TDONE(1) ],
+                      self.__tokenize(r'a') )
+    
+  def test_one_escape(self):
+    self.assertEqual( [ (STRING, 'a', 1), TDONE(1) ],
+                      self.__tokenize(r'\a') )
+    
+  def test_escape_backslash(self):
+    self.assertEqual( [ (STRING, r'\a', 1), TDONE(1) ],
+                      self.__tokenize(r'\\a') )
+
   def test_simple(self):
     self.maxDiff = None
     self.assertEqual( [ TSPACE(1), (STRING, 'foo', 1), TSPACE(1), TDONE(1) ],
