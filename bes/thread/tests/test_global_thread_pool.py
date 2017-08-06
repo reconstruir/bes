@@ -24,7 +24,7 @@ class test_global_thread_pool(unittest.TestCase):
       test_case.count_lock.acquire()
       test_case.count += 1
       if self.DEBUG:
-        print('CACA: count: %d of %d' % (test_case.count, num_tasks))
+        print('count: %d of %d' % (test_case.count, num_tasks))
       test_case.count_lock.release()
 
     for i in range(0, num_tasks):
