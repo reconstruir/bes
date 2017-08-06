@@ -25,18 +25,21 @@ class string_lexer_state_begin(string_lexer_state):
     self.log_d('handle_char(%s)' % (self.lexer.char_to_string(c)))
     new_state = None
     tokens = []
-    if not self.lexer.is_escaping and c.isspace():
+    if self.lexer.is_escaping:
+      self.lexer.buffer_reset(c)
+      new_state = self.lexer.STATE_STRING
+    elif c.isspace():
       self.lexer.buffer_reset(c)
       new_state = self.lexer.STATE_SPACE
-    elif not self.lexer.is_escaping and c == self.lexer.COMMENT_CHAR:
+    elif c == self.lexer.COMMENT_CHAR:
       self.lexer.buffer_reset(c)
       new_state = self.lexer.STATE_COMMENT
     elif c == self.lexer.EOS:
       new_state = self.lexer.STATE_DONE
-    elif not self.lexer.is_escaping and c == self.lexer.SINGLE_QUOTE_CHAR:
+    elif c == self.lexer.SINGLE_QUOTE_CHAR:
       self.lexer.buffer_reset_with_quote(c)
       new_state = self.lexer.STATE_SINGLE_QUOTED_STRING
-    elif not self.lexer.is_escaping and c == self.lexer.DOUBLE_QUOTE_CHAR:
+    elif c == self.lexer.DOUBLE_QUOTE_CHAR:
       self.lexer.buffer_reset_with_quote(c)
       new_state = self.lexer.STATE_DOUBLE_QUOTED_STRING
     else:
@@ -93,21 +96,24 @@ class string_lexer_state_string(string_lexer_state):
     self.log_d('handle_char(%s)' % (self.lexer.char_to_string(c)))
     new_state = None
     tokens = []
-    if not self.lexer.is_escaping and c.isspace():
+    if c == self.lexer.EOS:
+      tokens.append(self.lexer.make_token_string())
+      new_state = self.lexer.STATE_DONE
+    elif self.lexer.is_escaping:
+      self.lexer.buffer_write(c)
+      new_state = self.lexer.STATE_STRING
+    elif c.isspace():
       tokens.append(self.lexer.make_token_string())
       self.lexer.buffer_reset(c)
       new_state = self.lexer.STATE_SPACE
-    elif not self.lexer.is_escaping and c == self.lexer.COMMENT_CHAR:
+    elif c == self.lexer.COMMENT_CHAR:
       tokens.append(self.lexer.make_token_string())
       self.lexer.buffer_reset(c)
       new_state = self.lexer.STATE_COMMENT
-    elif c == self.lexer.EOS:
-      tokens.append(self.lexer.make_token_string())
-      new_state = self.lexer.STATE_DONE
-    elif not self.lexer.is_escaping and c == self.lexer.SINGLE_QUOTE_CHAR:
+    elif c == self.lexer.SINGLE_QUOTE_CHAR:
       self.lexer.buffer_write_quote(c)
       new_state = self.lexer.STATE_SINGLE_QUOTED_STRING
-    elif not self.lexer.is_escaping and c == self.lexer.DOUBLE_QUOTE_CHAR:
+    elif c == self.lexer.DOUBLE_QUOTE_CHAR:
       self.lexer.buffer_write_quote(c)
       new_state = self.lexer.STATE_DOUBLE_QUOTED_STRING
     else:
@@ -167,7 +173,6 @@ class string_lexer_options(object):
   ESCAPE_QUOTES = 0x02
   IGNORE_COMMENTS = 0x04
   DEFAULT_OPTIONS = 0x00
-
   
 class string_lexer(string_lexer_options):
 
@@ -276,6 +281,7 @@ class string_lexer(string_lexer_options):
     self.buffer_write_quote(c)
       
   def buffer_write(self, c):
+    assert c != self.EOS
     self._buffer.write(c)
 
   def buffer_write_quote(self, c):

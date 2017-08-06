@@ -17,6 +17,26 @@ def TDONE(line_number): return T(DONE, None, line_number)
 
 class test_key_value_lexer(unittest.TestCase):
 
+  def test_empty_string(self):
+    self.assertEqual( [ TDONE(1) ],
+                      self.__tokenize(r'') )
+
+  def test_single_char(self):
+    self.assertEqual( [ (STRING, 'a', 1), TDONE(1) ],
+                      self.__tokenize(r'a') )
+    
+  def test_one_escape(self):
+    self.assertEqual( [ (STRING, 'a', 1), TDONE(1) ],
+                      self.__tokenize(r'\a') )
+    
+  def test_escape_backslash(self):
+    self.assertEqual( [ (STRING, r'\a', 1), TDONE(1) ],
+                      self.__tokenize(r'\\a') )
+
+  def test_eos_when_escaping(self):
+    self.assertEqual( [ (STRING, 'a', 1), TDONE(1) ],
+                      self.__tokenize('a\\') )
+    
   def test_simple(self):
     self.maxDiff = None
     self.assertEqual( [ TSPACE(1), (STRING, 'foo', 1), TSPACE(1), TDONE(1) ],
@@ -143,11 +163,19 @@ class test_key_value_lexer(unittest.TestCase):
                         TDONE(5) ],
                       self.__tokenize('a=5\nb=6\n\nc=7\n') )
 
+  def xtest_kv_delimiter(self):
+    self.assertEqual( [ (STRING, 'a b ', 1), TDELIMITER(1), (STRING, ' 5 6', 1), (SPACE, '\n', 2),
+                        (STRING, 'c d  ', 2), TDELIMITER(2), (STRING, ' 7 8', 2), TDONE(2) ],
+                      self.__tokenize('a b = 5 6\nc d = 7 8', ignore_spaces = True, kv_delimiters = '\n') )
+
   @classmethod
-  def __tokenize(self, text, delimiter = '=',
+  def __tokenize(self, text,
+                 delimiter = '=',
+                 kv_delimiters = None,
                  keep_quotes = False,
                  escape_quotes = False,
-                 ignore_comments = False):
+                 ignore_comments = False,
+                 ignore_spaces = False):
     options = 0
     if keep_quotes:
       options |= L.KEEP_QUOTES
@@ -155,6 +183,8 @@ class test_key_value_lexer(unittest.TestCase):
       options |= L.ESCAPE_QUOTES
     if ignore_comments:
       options |= L.IGNORE_COMMENTS
+    if ignore_spaces:
+      options |= L.IGNORE_SPACES
     return [ token for token in L.tokenize(text, delimiter, options = options) ]
 
   def assertEqual(self, expected, actual):

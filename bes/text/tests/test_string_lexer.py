@@ -31,6 +31,10 @@ class test_string_lexer(unittest.TestCase):
     self.assertEqual( [ (STRING, r'\a', 1), TDONE(1) ],
                       self.__tokenize(r'\\a') )
 
+  def test_eos_when_escaping(self):
+    self.assertEqual( [ (STRING, 'a', 1), TDONE(1) ],
+                      self.__tokenize('a\\') )
+    
   def test_simple(self):
     self.maxDiff = None
     self.assertEqual( [ TSPACE(1), (STRING, 'foo', 1), TSPACE(1), TDONE(1) ],
