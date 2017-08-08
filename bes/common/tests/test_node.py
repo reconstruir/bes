@@ -48,5 +48,26 @@ class test_node(unittest.TestCase):
 '''
     self.assertEqual( expected, str(n) )
 
+  def test_ensure_path(self):
+    n = node('root')
+    n.ensure_path([ 'fruits', 'kiwi' ])
+    n.ensure_path([ 'fruits', 'strawberry' ])
+    n.ensure_path([ 'fruits', 'melons', 'watermelon' ])
+    n.ensure_path([ 'fruits', 'melons', 'canteloupe' ])
+    n.ensure_path([ 'cheeses', 'gouda' ])
+    n.ensure_path([ 'cheeses', 'brie' ])
+
+    expected='''root
+  fruits
+    kiwi
+    strawberry
+    melons
+      watermelon
+      canteloupe
+  cheeses
+    gouda
+    brie
+'''
+    self.assertEqual( expected, str(n) )
 if __name__ == "__main__":
   unittest.main()

@@ -16,7 +16,12 @@ class node(object):
     return self.to_string(0)
 
   def add_child(self, data):
-    self.children.append(node(data))
+    n = node(data)
+    self.children.append(n)
+    return n
+
+  def ensure_child(self, data):
+    return self.find_child(data) or self.add_child(data)
 
   def num_children(self):
     return len(self.children)
@@ -31,7 +36,9 @@ class node(object):
     return self.find_child(data) != None
 
   def ensure_path(self, path):
-    pass
+    current_node = self
+    for next in path:
+      current_node = current_node.ensure_child(next)
   
   def to_string(self, depth, indent = 2):
     buf = StringIO.StringIO()
