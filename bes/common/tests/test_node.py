@@ -20,5 +20,33 @@ class test_node(unittest.TestCase):
     self.assertEqual( node('fruits'), n.find_child('fruits') )
     self.assertTrue( n.has_child('fruits') )
 
+  def test_to_string(self):
+    n = node('root')
+    n.add_child('fruits')
+    fruits = n.find_child('fruits')
+    fruits.add_child('kiwi')
+    fruits.add_child('strawberry')
+    fruits.add_child('melons')
+    melons = fruits.find_child('melons')
+    melons.add_child('watermelon')
+    melons.add_child('canteloupe')
+    n.add_child('cheeses')
+    cheeses = n.find_child('cheeses')
+    cheeses.add_child('gouda')
+    cheeses.add_child('brie')
+
+    expected='''root
+  fruits
+    kiwi
+    strawberry
+    melons
+      watermelon
+      canteloupe
+  cheeses
+    gouda
+    brie
+'''
+    self.assertEqual( expected, str(n) )
+
 if __name__ == "__main__":
   unittest.main()
