@@ -39,6 +39,12 @@ class node(object):
   def find_children(self, func):
     return self._find_children(func, 0)
 
+  def find_child(self, func):
+    found = self._find_children(func, 0)
+    if not found:
+      return None
+    return found[0].child
+
   def _find_children(self, func, depth):
     result = []
     for child in self.children:

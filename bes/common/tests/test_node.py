@@ -103,6 +103,19 @@ class test_node(unittest.TestCase):
     self.assertEqual( 1, found[0].depth )
     self.assertEqual( 'brie', found[1].child.data )
     self.assertEqual( 1, found[1].depth )
-      
+
+  def test_find_child(self):
+    n = self._make_tree([
+      'fruits/kiwi',
+      'fruits/strawberry',
+      'fruits/melons/watermelon',
+      'fruits/melons/canteloupe',
+      'cheeses/gouda',
+      'cheeses/brie',
+    ])
+    func = lambda node: node.data.startswith('gouda') or node.data.startswith('brie')
+    found = n.find_child(func)
+    self.assertEqual( 'gouda', found.data )
+    
 if __name__ == "__main__":
   unittest.main()
