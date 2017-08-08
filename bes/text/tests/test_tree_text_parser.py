@@ -2,9 +2,9 @@
 #-*- coding:utf-8 -*-
 #
 import unittest
-from bes.text import spaced_structured_text_parser as P
+from bes.text import tree_text_parser as P
 
-class test_spaced_structured_text_parser(unittest.TestCase):
+class test_tree_text_parser(unittest.TestCase):
 
   def test_simple(self):
     text = '''

@@ -38,10 +38,10 @@ class stack(object):
       buf.write(item.line)
     return buf.getvalue()
   
-class spaced_structured_text_parser(object):
+class tree_text_parser(object):
 
   def __init__(self, options = 0):
-    log.add_logging(self, tag = 'spaced_structured_text_parser')
+    log.add_logging(self, tag = 'tree_text_parser')
 
     self._options = options
     
