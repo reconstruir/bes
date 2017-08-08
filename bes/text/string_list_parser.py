@@ -66,7 +66,6 @@ class string_list_parser(string_lexer_options):
     
   def run(self, text):
     self.log_d('run(%s)' % (text))
-    self.text = text
 
     for token in string_lexer.tokenize(text, 'string_list_parser', options = self._options):
       strings = self.state.handle_token(token)
