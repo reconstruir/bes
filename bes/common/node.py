@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import StringIO
+from collections import namedtuple
 
 class node(object):
 
@@ -22,19 +23,33 @@ class node(object):
     return n
 
   def ensure_child(self, data):
-    return self.find_child(data) or self.add_child(data)
+    return self.caca_find_child(data) or self.add_child(data)
 
   def num_children(self):
     return len(self.children)
     
-  def find_child(self, data):
+  def caca_find_child(self, data):
     for child in self.children:
       if child.data == data:
         return child
     return None
 
-  def has_child(self, data):
-    return self.find_child(data) != None
+  find_result = namedtuple('find_result', 'depth,child')
+
+  def find_children(self, func):
+    return self._find_children(func, 0)
+
+  def _find_children(self, func, depth):
+    result = []
+    for child in self.children:
+      if func(child):
+        result.append(self.find_result(depth, child))
+    for child in self.children:
+      result += child._find_children(func, depth + 1)
+    return result
+
+#  def has_child(self, data):
+#    return self.caca_find_child(data) != None
 
   def ensure_path(self, path):
     current_node = self
