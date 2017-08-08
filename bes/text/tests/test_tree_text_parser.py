@@ -3,6 +3,7 @@
 #
 import unittest
 from bes.text import tree_text_parser as P
+from bes.common import node
 
 class test_tree_text_parser(unittest.TestCase):
 
@@ -19,7 +20,15 @@ cheeses
   parmessan
   asiago
 '''
-    self.assertEqual( [], self.__parse(text) )
+    expected = node('root')
+    expected.ensure_path([ 'fruits', 'apple' ])
+    expected.ensure_path([ 'fruits', 'berries', 'blueberries' ])
+    expected.ensure_path([ 'fruits', 'berries', 'strawberries' ])
+    expected.ensure_path([ 'fruits', 'melons', 'watermelon' ])
+    expected.ensure_path([ 'cheeses', 'parmessan' ])
+    expected.ensure_path([ 'cheeses', 'asiago' ])
+    
+    self.assertEqual( expected, self.__parse(text) )
     
   @classmethod
   def __parse(self, text):

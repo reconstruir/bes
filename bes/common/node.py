@@ -10,6 +10,7 @@ class node(object):
     self.children = []
 
   def __eq__(self, other):
+    assert isinstance(other, node)
     return self.__dict__ == other.__dict__
 
   def __str__(self):

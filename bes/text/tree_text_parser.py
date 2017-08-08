@@ -7,14 +7,15 @@ from bes.common import node
 from string_lexer import string_lexer, string_lexer_options
 from collections import namedtuple
 
-caca = namedtuple('caca', 'depth,line')
 
 class stack(object):
+  item = namedtuple('item', 'depth,line')
+
   def __init__(self):
     self._stack = []
 
   def push(self, depth, line):
-    self._stack.append(caca(depth, line))
+    self._stack.append(self.item(depth, line))
 
   def pop(self):
     return self._stack.pop()
