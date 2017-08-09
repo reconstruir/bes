@@ -53,9 +53,6 @@ class node(object):
         result += child._find_children(func, depth + 1, recurse)
     return result
 
-#  def has_child(self, data):
-#    return self.caca_find_child(data) != None
-
   def ensure_path(self, path):
     current_node = self
     for next in path:
