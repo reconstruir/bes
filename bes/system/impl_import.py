@@ -27,7 +27,6 @@ class impl_import(object):
       exec(code, xglobals)
       return xglobals[impl_name]
     except ImportError, ex:
-      print "EX: ", ex
       return None
 
   @classmethod
