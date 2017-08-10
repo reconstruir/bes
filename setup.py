@@ -7,5 +7,5 @@ setup(
   zip_safe = True,
   author = 'Ramiro Estrugo',
   author_email = 'bes@fateware.com',
-  scripts = [ 'bin/bes_archive_tool.py', 'bin/bes_mac_address_cache.py', 'bin/bes_test.py' ],
+  scripts = [ 'bin/bes_test.py' ],
 )
