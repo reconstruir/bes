@@ -5,7 +5,7 @@
 # A script to run python unit tests.  Does not use any bes code to avoid
 # chicken-and-egg issues.
 import argparse, ast, fnmatch, math, os, os.path as path, platform, random, re, subprocess, sys
-import glob, shutil, tempfile
+import exceptions, glob, shutil, tempfile
 from collections import namedtuple
 
 # TODO:
@@ -660,8 +660,11 @@ class unit_test_inspect(object):
         tests = clazz.inspect_file(f_path)
         if tests:
           result[f_path] = clazz.inspect_file(f_path)
-      except Exception, ex:
+      except exceptions.SyntaxError, ex:
         printer.spew('Failed to inspect: %s - %s' % (f, str(ex)))
+        raise
+      except Exception, ex:
+        printer.spew('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
     return result
 
   @classmethod
