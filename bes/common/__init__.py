@@ -4,6 +4,7 @@
 from Script import Script
 from Shell import Shell
 from algorithm import algorithm
+from bit_reader import bit_reader
 from command_line import command_line
 from dict_util import dict_util
 from json_util import json_util
