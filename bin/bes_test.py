@@ -5,7 +5,7 @@
 # A script to run python unit tests.  Does not use any bes code to avoid
 # chicken-and-egg issues.
 import argparse, ast, fnmatch, math, os, os.path as path, platform, random, re, subprocess, sys
-import exceptions, glob, shutil, tempfile
+import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
 # TODO:
@@ -32,11 +32,16 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Only print what files will get tests [ False ]')
+  parser.add_argument('--timing',
+                      '-t',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Show the amount of time it takes to run tests [ False ]')
   parser.add_argument('--verbose',
                       '-v',
                       action = 'store_true',
                       default = False,
-                      help = 'Verbose debug spew [ False ]')
+                      help = 'Verbose debug output [ False ]')
   parser.add_argument('--stop',
                       '-s',
                       action = 'store_true',
@@ -151,18 +156,24 @@ def main():
   total_files = len(filtered_files)
 
   total_num_tests = 0
+  options = test_options(args.dry_run, args.verbose, args.stop, args.timing)
+
+  timings = {}
+  
   for i, f in enumerate(filtered_files):
-    success, num_tests_run = _python_call(args.python, test_map, f.filename, f.tests, args.dry_run, args.verbose,
-                                      args.stop, i + 1, total_files, cwd)
-    total_num_tests += num_tests_run
+    if not f.filename in timings:
+      timings[f.filename] = []
+    result = _test_execute(args.python, test_map, f.filename, f.tests, options, i + 1, total_files, cwd)
+    timings[f.filename].append(result.elapsed_time)
+    total_num_tests += result.num_tests_run
     num_executed += 1
-    if success:
+    if result.success:
       num_passed += 1
     else:
       num_failed += 1
       failed_tests.append(f)
 
-    if args.stop and not success:
+    if args.stop and not result.success:
       break
   if args.dry_run:
     return 0
@@ -174,8 +185,6 @@ def main():
   else:
     function_summary = '(%d of %d)' % (total_num_tests, total_tests)
     
-
-  
   if num_failed > 0:
     summary_parts.append('%d of %d FAILED' % (num_failed, num_tests))
   summary_parts.append('%d of %d passed %s' % (num_passed, num_tests, function_summary))
@@ -183,19 +192,42 @@ def main():
     summary_parts.append('%d of %d skipped' % (num_skipped, num_tests))
 
   summary = '; '.join(summary_parts)
-  printer.spew('bes_test.py: %s' % (summary))
+  printer.writeln('bes_test.py: %s' % (summary))
   if failed_tests:
     for f in failed_tests:
-      printer.spew('bes_test.py: FAILED: %s' % (file_util.remove_head(f.filename, cwd)))
+      printer.writeln('bes_test.py: FAILED: %s' % (file_util.remove_head(f.filename, cwd)))
 
   if num_failed > 0:
     rv = 1
   else:
     rv = 0
+
+  if args.timing:
+    filenames = sorted(timings.keys())
+    num_filenames = len(filenames)
+    for i, filename in zip(range(0, num_filenames), filenames):
+      short_filename = file_util.remove_head(filename, cwd)
+      all_timings = timings[filename]
+      num_timings = len(all_timings)
+      avg_ms = _timing_average(all_timings) * 1000.0
+      if num_timings > 1:
+        run_blurb = '(average of %d runs)' % (num_timings)
+      else:
+        run_blurb = ''
+      if num_filenames > 1:
+        count_blurb = '[%s of %s] ' % (i + 1, num_filenames)
+      else:
+        count_blurb = ''
+        
+      printer.writeln('bes_test.py: timing: %s%s - %2.2f ms %s' % (count_blurb, short_filename, avg_ms, run_blurb))
+    
   if args.page:
     subprocess.call([ args.pager, printer.OUTPUT.name ])
     
   return rv
+
+def _timing_average(l):
+  return float(sum(l)) / float(len(l))
 
 file_and_tests = namedtuple('file_and_tests', 'filename,tests')
 def _filter_files(files, available, patterns):
@@ -240,8 +272,10 @@ def _matching_tests(available, patterns):
         result.append(test)
   return result
 
-def _python_call(python, test_map, filename, tests, dry_run, verbose,
-                 stop_on_failure, index, total_files, cwd):
+test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing')
+test_result = namedtuple('test_result', 'success,num_tests_run,elapsed_time')
+
+def _test_execute(python, test_map, filename, tests, options, index, total_files, cwd):
   short_filename = file_util.remove_head(filename, cwd)
   cmd = [ python, '-B', filename ]
 
@@ -259,7 +293,7 @@ def _python_call(python, test_map, filename, tests, dry_run, verbose,
     function_count_blurb = '(%d of %d)' % (wanted_unit_tests, total_unit_tests)
     
   try:
-#    if stop:
+#    if options.stop:
 #      cmd.append('--stop')
     
     if total_files > 1:
@@ -267,18 +301,20 @@ def _python_call(python, test_map, filename, tests, dry_run, verbose,
     else:
       filename_count_blurb = ''
 
-    if dry_run:
+    if options.dry_run:
       label = 'dry-run'
     else:
       label = 'testing'
 
-    printer.spew('bes_test.py:%7s:%s %s - %s' % (label, filename_count_blurb, short_filename, function_count_blurb))
+    blurb = 'bes_test.py:%7s:%s %s - %s ' % (label, filename_count_blurb, short_filename, function_count_blurb)
+    printer.writeln(blurb)
 
-    if dry_run:
-      return True, 0
+    if options.dry_run:
+      return test_result(True, 0, 0.0)
 
     env = environ_util.make_clean_env()
     env['PYTHONDONTWRITEBYTECODE'] = 'x'
+    time_start = time.time()
     process = subprocess.Popen(' '.join(cmd),
                                stdout = subprocess.PIPE,
                                stderr = subprocess.STDOUT,
@@ -286,20 +322,21 @@ def _python_call(python, test_map, filename, tests, dry_run, verbose,
                                env = env)
     output = process.communicate()
     exit_code = process.wait()
+    elapsed_time = time.time() - time_start
     output = output[0]
     success = exit_code == 0
-    spew_output = not success or verbose
+    writeln_output = not success or options.verbose
     if success:
       label = 'passed'
     else:
       label = 'FAILED'
-    if spew_output:
-      printer.spew('bes_test.py: %7s: %s' % (label, short_filename))
-      printer.spew(output)
-    return success, wanted_unit_tests
+    if writeln_output:
+      printer.writeln('bes_test.py: %7s: %s' % (label, short_filename))
+      printer.writeln(output)
+    return test_result(success, wanted_unit_tests, elapsed_time)
   except Exception, ex:
-    printer.spew('bes_test.py: Caught exception on %s: %s' % (filename, str(ex)))
-    return False, wanted_unit_tests
+    printer.writeln('bes_test.py: Caught exception on %s: %s' % (filename, str(ex)))
+    return test_result(False, wanted_unit_tests, elapsed_time)
 
 def _count_tests(test_map, tests):
   total = 0
@@ -661,28 +698,38 @@ class unit_test_inspect(object):
         if tests:
           result[f_path] = clazz.inspect_file(f_path)
       except exceptions.SyntaxError, ex:
-        printer.spew('Failed to inspect: %s - %s' % (f, str(ex)))
+        printer.writeln('Failed to inspect: %s - %s' % (f, str(ex)))
         raise
       except Exception, ex:
-        printer.spew('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
+        printer.writeln('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
     return result
 
   @classmethod
   def print_inspect_map(clazz, inspect_map, files, cwd):
     for filename in sorted(inspect_map.keys()):
       if filename in files:
-        printer.spew('%s:' % (file_util.remove_head(filename, cwd)))
+        printer.writeln('%s:' % (file_util.remove_head(filename, cwd)))
         for _, fixture, function in inspect_map[filename]:
-          printer.spew('  %s.%s' % (fixture, function))
+          printer.writeln('  %s.%s' % (fixture, function))
 
 
 class printer(object):
   OUTPUT = sys.stdout
 
   @classmethod
-  def spew(clazz, s):
+  def writeln(clazz, s):
+    clazz.write(s)
+    clazz.write('\n')
+    clazz.flush()
+          
+  @classmethod
+  def write(clazz, s, flush = False):
     clazz.OUTPUT.write(s)
-    clazz.OUTPUT.write('\n')
+    if flush:
+      clazz.flush()
+          
+  @classmethod
+  def flush(clazz):
     clazz.OUTPUT.flush()
           
 import unittest
