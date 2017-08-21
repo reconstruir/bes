@@ -2,13 +2,24 @@
 #-*- coding:utf-8 -*-
 
 from collections import OrderedDict
-import logging
 import time
+from bes.system import log
 
 # From: https://www.darklaunch.com/2012/09/14/python-measure-elapsed-execution-time-timer-class
 
 class debug_timer(object):
-  def __init__(self):
+
+  if False:
+    BOX_VERTICAL = u'\u2502'
+    BOX_DOWN_AND_RIGHT = u'\u250c'
+    BOX_UP_AND_RIGHT = u'\u2514'
+  else:
+    BOX_VERTICAL = u'|'
+    BOX_DOWN_AND_RIGHT = u'|'
+    BOX_UP_AND_RIGHT = u'L'
+
+  def __init__(self, tag):
+    log.add_logging(self, tag)
     self.starts = OrderedDict()
     self.starts['start'] = time.time()
  
@@ -16,13 +27,13 @@ class debug_timer(object):
     return '{0:>5} {1}'.format(int(number * 1000), 'ms')
  
   def columns(self, count):
-    return u'{0}  '.format(u'\u2502') * count
+    return u'{0}  '.format(self.BOX_VERTICAL) * count
  
   def start(self, thing):
     self.starts[thing] = time.time()
-    logging.debug(u'{0} {1}{2} {3}'.format(' ' * 8, self.columns(len(self.starts) - 2), u'\u250c', thing))
+    self.log_d(u'{0} {1}{2} {3}'.format(' ' * 8, self.columns(len(self.starts) - 2), self.BOX_DOWN_AND_RIGHT, thing))
  
   def stop(self):
     thing, started = self.starts.popitem()
     elapsed = self.round(time.time() - started)
-    logging.debug(u'{0} {1}{2} {3}'.format(elapsed, self.columns(len(self.starts) - 1), u'\u2514', thing))
+    self.log_d(u'{0} {1}{2} {3}'.format(elapsed, self.columns(len(self.starts) - 1), self.BOX_UP_AND_RIGHT, thing))
