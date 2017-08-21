@@ -160,8 +160,12 @@ def main():
   total_files = len(filtered_files)
 
   total_num_tests = 0
-  options = test_options(args.dry_run, args.verbose, args.stop, args.timing, args.profile)
 
+  if args.profile:
+    args.profile = path.abspath(args.profile)
+  
+  options = test_options(args.dry_run, args.verbose, args.stop, args.timing, args.profile)
+  
   timings = {}
   
   for i, f in enumerate(filtered_files):
@@ -283,15 +287,14 @@ def _test_execute(python, test_map, filename, tests, options, index, total_files
   short_filename = file_util.remove_head(filename, cwd)
 
   cmd = [ python, '-B' ]
-  
-  if test_options.profile_output:
-    print "test_options.profile_output: ", test_options.profile_output, type(test_options.profile_output)
-    cmd.extend(['-m', 'cProfile', '-o', test_options.profile_output ])
 
-  print "CMD: ", cmd
+  if options.profile_output:
+    cmd.extend(['-m', 'cProfile', '-o', options.profile_output ])
 
   cmd.append(filename)
     
+  print "CMD: ", cmd
+
   total_unit_tests = len(test_map[filename])
   
   if tests:
