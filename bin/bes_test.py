@@ -61,6 +61,10 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Page output with $PAGER [ False ]')
+  parser.add_argument('--profile',
+                      action = 'store',
+                      default = None,
+                      help = 'Profile the code with cProfile and store the output in the given argument [ None ]')
   parser.add_argument('--pager',
                       action = 'store',
                       default = os.environ.get('PAGER', 'more'),
@@ -156,7 +160,7 @@ def main():
   total_files = len(filtered_files)
 
   total_num_tests = 0
-  options = test_options(args.dry_run, args.verbose, args.stop, args.timing)
+  options = test_options(args.dry_run, args.verbose, args.stop, args.timing, args.profile)
 
   timings = {}
   
@@ -272,13 +276,22 @@ def _matching_tests(available, patterns):
         result.append(test)
   return result
 
-test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing')
+test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing,profile_output')
 test_result = namedtuple('test_result', 'success,num_tests_run,elapsed_time')
 
 def _test_execute(python, test_map, filename, tests, options, index, total_files, cwd):
   short_filename = file_util.remove_head(filename, cwd)
-  cmd = [ python, '-B', filename ]
 
+  cmd = [ python, '-B' ]
+  
+  if test_options.profile_output:
+    print "test_options.profile_output: ", test_options.profile_output, type(test_options.profile_output)
+    cmd.extend(['-m', 'cProfile', '-o', test_options.profile_output ])
+
+  print "CMD: ", cmd
+
+  cmd.append(filename)
+    
   total_unit_tests = len(test_map[filename])
   
   if tests:
@@ -336,7 +349,7 @@ def _test_execute(python, test_map, filename, tests, options, index, total_files
     return test_result(success, wanted_unit_tests, elapsed_time)
   except Exception, ex:
     printer.writeln('bes_test.py: Caught exception on %s: %s' % (filename, str(ex)))
-    return test_result(False, wanted_unit_tests, elapsed_time)
+    return test_result(False, wanted_unit_tests, 0.0)
 
 def _count_tests(test_map, tests):
   total = 0
