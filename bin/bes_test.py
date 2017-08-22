@@ -293,8 +293,6 @@ def _test_execute(python, test_map, filename, tests, options, index, total_files
 
   cmd.append(filename)
     
-  print "CMD: ", cmd
-
   total_unit_tests = len(test_map[filename])
   
   if tests:
