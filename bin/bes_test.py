@@ -678,7 +678,8 @@ class unit_test_inspect(object):
       if clazz._node_is_unit_test_class(node):
         for statement in node.body:
           if isinstance(statement, ast.FunctionDef):
-            result.append(clazz.unit_test(filename, node.name, statement.name))
+            if statement.name.startswith('test_'):
+              result.append(clazz.unit_test(filename, node.name, statement.name))
     return result
 
   @classmethod
@@ -849,6 +850,25 @@ class test_apple_fixture(object):
     self.assertEqual( [], unit_test_inspect.inspect_file(filename) )
     file_util.remove(filename)
 
+  def test_inspect_file_disbled(self):
+    content = '''
+import unittest
+class test_apple_fixture(unittest.TestCase):
+
+  def xtest_foo(self):
+    self.assertEqual( 6, 3 + 3 )
+
+  def xtest_bar(self):
+    self.assertEqual( 7, 3 + 4 )
+'''
+    filename = self.make_tmp_file(content)
+    self.assertEqual( [
+    ],
+                      unit_test_inspect.inspect_file(filename) )
+    file_util.remove(filename)
+
+
+    
   def doesnt_work_test_inspect_file_TestCase_subclass(self):
     content = '''
 import unittest
