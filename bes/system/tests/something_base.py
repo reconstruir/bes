@@ -19,3 +19,8 @@ class something_base(object):
   def suck_level(self):
     'Return a number between 0 and 10 indicating how much this something sucks.'
     pass
+  
+#  @abstractmethod
+  def caca(self):
+    'Return a number between 0 and 10 indicating how much this something sucks.'
+    pass
