@@ -7,7 +7,7 @@ from bes.common import Shell
 
 class test_functions(unit_test_helper):
 
-  def xtest_function(self):
+  def test_function(self):
     script = '%s.sh' % (path.splitext(__file__)[0])
     print "running: %s" % (script)
     rv = Shell.execute(script, shell = False, stderr_to_stdout = True, raise_error = False)
