@@ -31,7 +31,7 @@ class algorithm(object):
   @classmethod
   def binary_search(clazz, array, target, comparator):
     assert isinstance(array, list)
-    assert target
+    assert target is not None
     assert callable(comparator)
     lower = 0
     upper = len(array)
