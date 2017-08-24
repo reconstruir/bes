@@ -55,10 +55,18 @@ bes-setup()
 }
 
 # https://unix.stackexchange.com/questions/40749/remove-duplicate-path-entries-with-awk-command
-bes-path-remove-dups()
+bes_path_remove_dups()
 {
   local _var_name="$1"
   local _result="$(printf %s $_var_name | awk -v RS=: -v ORS=: '!arr[$0]++')"
+  echo $_result
+  return 0
+}
+
+bes_path_remove_trailing_colon()
+{
+  local _var_name="$1"
+  local _result=$(printf %s "$_var_name" | awk -v RS=: '{ if (!arr[$0]++) {printf("%s%s",!ln++?"":":",$0)}}')
   echo $_result
   return 0
 }
@@ -78,21 +86,17 @@ bes-path-dedup()
 {
   local _var_name="$1"
   local _value=$(bes-var-get $_var_name)
-  bes-var-set $_var_name $(bes-path-remove-dups "$_value")
+  bes-var-set $_var_name $(bes_path_remove_dups "$_value")
   return 0
 }
 
-bes-path-remove-trailing-colon()
+bes_path_cleanup()
 {
   local _var_name="$1"
   local _value=$(bes-var-get $_var_name)
-  bes-var-set $_var_name $(bes-path-remove-dups "$_value")
+  _value=$(bes_path_remove_dups "$_value")
+  _value=$(bes_path_remove_trailing_colon "$_value")
+  bes-var-set $_var_name "$_value"
   return 0
 }
 
-function num_chars
-{
-  echo "${1}" | wc -c
-}
-
-#PATH=`printf %s "$PATH" | awk -v RS=: '{ if (!arr[$0]++) {printf("%s%s",!ln++?"":":",$0)}}'`

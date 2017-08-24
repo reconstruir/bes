@@ -34,7 +34,7 @@ function bes_assert()
 {
  eval "${1}"
  if [[ $? -ne 0 ]]; then
-   echo "${FUNCNAME[1]}: failed"
+   echo "${FUNCNAME[1]}: failed: " ${1}
   _caca_exit_code=1
  else
    echo "${FUNCNAME[1]}: passed"
