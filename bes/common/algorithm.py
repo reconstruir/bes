@@ -27,3 +27,24 @@ class algorithm(object):
         seen.add(i)
     return result
 
+  #: from https://stackoverflow.com/questions/9501337/binary-search-algorithm-in-python
+  @classmethod
+  def binary_search(clazz, array, target, comparator):
+    assert isinstance(array, list)
+    assert target
+    assert callable(comparator)
+    lower = 0
+    upper = len(array)
+    while lower < upper:   # use < instead of <=
+      x = lower + (upper - lower) // 2
+      val = array[x]
+      rv = comparator(val, target)
+      if rv == 0:
+        return x
+      elif rv < 0:
+        if lower == x:   # this two are the actual lines
+          break    # you're looking for
+        lower = x
+      elif rv > 0:
+        upper = x
+    return -1
