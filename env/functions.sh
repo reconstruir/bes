@@ -81,3 +81,18 @@ bes-path-dedup()
   bes-var-set $_var_name $(bes-path-remove-dups "$_value")
   return 0
 }
+
+bes-path-remove-trailing-colon()
+{
+  local _var_name="$1"
+  local _value=$(bes-var-get $_var_name)
+  bes-var-set $_var_name $(bes-path-remove-dups "$_value")
+  return 0
+}
+
+function num_chars
+{
+  echo "${1}" | wc -c
+}
+
+#PATH=`printf %s "$PATH" | awk -v RS=: '{ if (!arr[$0]++) {printf("%s%s",!ln++?"":":",$0)}}'`
