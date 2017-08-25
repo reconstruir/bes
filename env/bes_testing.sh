@@ -14,7 +14,7 @@ function bes_testing_print_unit_tests()
   return 0
 }
 
-_caca_exit_code=0
+_bes_testing_exit_code=0
 
 # Run all the unit tests found in this script environment
 function bes_testing_run_unit_tests()
@@ -23,20 +23,19 @@ function bes_testing_run_unit_tests()
   local _test
   local _rv
   for _test in $_tests; do
-    echo "running: $_test"
     ${_test}
   done
-  exit $_caca_exit_code
+  exit $_bes_testing_exit_code
 }
 
 # Run that an expression argument is true and print that
 function bes_assert()
 {
- eval "${1}"
- if [[ $? -ne 0 ]]; then
-   echo "${FUNCNAME[1]}: failed: " ${1}
-  _caca_exit_code=1
- else
-   echo "${FUNCNAME[1]}: passed"
- fi
+  eval "${1}"
+  if [[ $? -ne 0 ]]; then
+    echo "${FUNCNAME[1]}: failed: " ${1}
+    _bes_testing_exit_code=1
+   else
+     echo "${FUNCNAME[1]}: passed"
+  fi
 }

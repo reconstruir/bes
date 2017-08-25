@@ -1,27 +1,19 @@
 #!/bin/bash
 
-source $BES_ROOT/env/functions.sh
-source $BES_ROOT/env/bes_testing.sh
+source $_BES_ROOT/env/functions.sh
+source $_BES_ROOT/env/bes_testing.sh
 
-function test_bes_path_dedup
+function test_bes_var_set()
 {
-  local P="foo:bar:foo:bar"
-  bes_path_dedup P
-  bes_assert "[ ${P} = foo:bar: ]"
+  bes_var_set FOO 666
+  bes_assert "[ $FOO = 666 ]"
 }
 
-function test_bes_path_remove_trailing_colon
+function test_bes_var_get()
 {
-  local P="foo:bar:"
-  result=$(bes_path_remove_trailing_colon "foo:bar:")
-  bes_assert "[ $result = foo:bar ]"
-}
-
-function test_bes_path_cleanup
-{
-  local P="foo:bar:foo:bar"
-  bes_path_cleanup P
-  bes_assert "[ ${P} = foo:bar ]"
+  BAR=667
+  v=$(bes_var_get BAR)
+  bes_assert "[ $v = 667 ]"
 }
 
 bes_testing_run_unit_tests

@@ -28,6 +28,11 @@ def main():
   cleanup_parser = subparsers.add_parser('cleanup', help = 'Cleanup path into parts.')
   cleanup_parser.add_argument('path', type = str, action = 'store', help = 'The path to cleanup.')
 
+  # Print
+  print_parser = subparsers.add_parser('print', help = 'Print path into parts.')
+  print_parser.add_argument('path', type = str, action = 'store', help = 'The path to print.')
+  print_parser.add_argument('-l', '--line', action = 'store_true', help = 'Print each path part in its own line.')
+
   args = parser.parse_args()
 
   if args.command == 'append':
@@ -36,6 +41,8 @@ def main():
     return _command_prepend(args.path, args.parts)
   elif args.command == 'cleanup':
     return _command_cleanup(args.path)
+  elif args.command == 'print':
+    return _command_print(args.path, args.line)
 
   return 0
 
@@ -59,16 +66,25 @@ def _command_append(p, parts):
   return 0
 
 def _command_prepend(p, parts):
-  p =  _path_split(p)
-  for part in parts:
-    p.append(part)
-  p = _path_cleanup(_path_join(p))
+  l =  _path_split(p)
+  l = parts + l
+  p = _path_cleanup(_path_join(l))
   sys.stdout.write('%s\n' % (p))
   return 0
 
 def _command_cleanup(p):
   p = _path_cleanup(p)
   sys.stdout.write('%s\n' % (p))
+  return 0
+
+def _command_print(p, line):
+  l = _path_split(p)
+  if line:
+    delimiter = '\n'
+  else:
+    delimiter = ' '
+  s = delimiter.join(l)
+  sys.stdout.write('%s' % (s))
   return 0
 
 if __name__ == '__main__':
