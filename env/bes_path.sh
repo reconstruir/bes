@@ -1,8 +1,5 @@
-_bes_path_root()
-{
-  echo "$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-  return 0
-}
+
+if [ -n "$_BES_TRACE" ]; then echo "bes_path.sh begin"; fi
 
 function bes_path_append()
 {
@@ -10,7 +7,7 @@ function bes_path_append()
     echo "usage: bes_path_append path part1 part2 ... parnN"
     return 1
   fi
-  $(_bes_path_root)/bin/bes_path.py append "$@"
+  $_BES_DEV_ROOT/bin/bes_path.py append "$@"
   return $?
 }
 
@@ -20,7 +17,7 @@ function bes_path_prepend()
     echo "usage: bes_path_prepend path part1 part2 ... parnN"
     return 1
   fi
-  $(_bes_path_root)/bin/bes_path.py prepend "$@"
+  $_BES_DEV_ROOT/bin/bes_path.py prepend "$@"
   return $?
 }
 
@@ -30,7 +27,7 @@ function bes_path_cleanup()
     echo "usage: bes_path_cleanup path"
     return 1
   fi
-  $(_bes_path_root)/bin/bes_path.py cleanup "$@"
+  $_BES_DEV_ROOT/bin/bes_path.py cleanup "$@"
   return $?
 }
 
@@ -40,14 +37,17 @@ function bes_path_print()
     echo "usage: bes_path_print path"
     return 1
   fi
-  $(_bes_path_root)/bin/bes_path.py print -l "$@"
+  $_BES_DEV_ROOT/bin/bes_path.py print -l "$@"
   return $?
 }
 
 function bes_env_path_cleanup()
 {
   local _var_name="$1"
-  local _result=$(_bes_path_root)/bin/bes_path.py cleanup $_var_name)
-  echo $_result
+  local _value=$(bes_var_get $_var_name)
+  local _clean_value=$(bes_path_cleanup "$_value")
+  bes_var_set $_var_name "$_clean_value"
   return 0
 }
+
+if [ -n "$_BES_TRACE" ]; then echo "bes_path.sh end"; fi

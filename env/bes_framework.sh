@@ -1,5 +1,7 @@
 
-#source $_BES_DEV_ROOT/env/bes_path.sh
+if [ -n "$_BES_TRACE" ]; then echo "bes_framework.sh begin"; fi
+
+source $_BES_DEV_ROOT/env/bes_path.sh
 
 # Source a shell file if it exists
 bes-source()
@@ -44,32 +46,15 @@ bes-setup()
   fi
   
   export PATH=${_root_dir}/bin:${PATH}
-  bes_path_dedup PATH
+  bes_env_path_cleanup PATH
 
   export PYTHONPATH=${_root_dir}:${PYTHONPATH}
-  bes_path_dedup PYTHONPATH
+  bes_env_path_cleanup PYTHONPATH
 
   if [ $_chdir -eq 1 ]; then
     cd $_root_dir
   fi
   
-  return 0
-}
-
-# https://unix.stackexchange.com/questions/40749/remove-duplicate-path-entries-with-awk-command
-bes_path_remove_dups()
-{
-  local _var_name="$1"
-  local _result="$(printf %s $_var_name | awk -v RS=: -v ORS=: '!arr[$0]++')"
-  echo $_result
-  return 0
-}
-
-bes_path_remove_trailing_colon()
-{
-  local _var_name="$1"
-  local _result=$(printf %s "$_var_name" | awk -v RS=: '{ if (!arr[$0]++) {printf("%s%s",!ln++?"":":",$0)}}')
-  echo $_result
   return 0
 }
 
@@ -85,21 +70,4 @@ bes_var_set()
   eval "$1=\"\$2\""
 }
 
-bes_path_dedup()
-{
-  local _var_name="$1"
-  local _value=$(bes_var_get $_var_name)
-  bes_var_set $_var_name $(bes_path_remove_dups "$_value")
-  return 0
-}
-
-bes_path_cleanup()
-{
-  local _var_name="$1"
-  local _value=$(bes_var_get $_var_name)
-  _value=$(bes_path_remove_dups "$_value")
-  _value=$(bes_path_remove_trailing_colon "$_value")
-  bes_var_set $_var_name "$_value"
-  return 0
-}
-
+if [ -n "$_BES_TRACE" ]; then echo "bes_framework.sh end"; fi

@@ -1,3 +1,5 @@
+if [ -n "$_BES_TRACE" ]; then echo "bes_setup.sh begin"; fi
+
 _bes_dev_root()
 {
   echo "$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
@@ -19,3 +21,5 @@ bes-dev-setup()
   bes-setup $_BES_DEV_ROOT ${1+"$@"}
   return 0
 }
+
+if [ -n "$_BES_TRACE" ]; then echo "bes_setup.sh end"; fi
