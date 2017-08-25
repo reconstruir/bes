@@ -1,4 +1,6 @@
 
+#source $_BES_DEV_ROOT/env/bes_path.sh
+
 # Source a shell file if it exists
 bes-source()
 {

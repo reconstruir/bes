@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source $_BES_ROOT/env/bes_path.sh
-source $_BES_ROOT/env/bes_testing.sh
+source $_BES_DEV_ROOT/env/bes_path.sh
+source $_BES_DEV_ROOT/env/bes_testing.sh
 
 function test_bes_path_append()
 {

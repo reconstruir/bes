@@ -28,7 +28,7 @@ class test_bash_scripts(unit_test_helper):
   @classmethod
   def _make_env(clazz):
     env = copy.deepcopy(os.environ)
-    env['_BES_ROOT'] = clazz._root_dir()
+    env['_BES_DEV_ROOT'] = clazz._root_dir()
     return env
     
   @classmethod

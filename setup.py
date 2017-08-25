@@ -7,5 +7,8 @@ setup(
   zip_safe = True,
   author = 'Ramiro Estrugo',
   author_email = 'bes@fateware.com',
-  scripts = [ 'bin/bes_test.py' ],
+  scripts = [
+    'bin/bes_test.py',
+    'bin/bes_path.py',
+  ],
 )
