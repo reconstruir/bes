@@ -45,8 +45,32 @@ function bes_env_path_cleanup()
 {
   local _var_name="$1"
   local _value=$(bes_var_get $_var_name)
-  local _clean_value=$(bes_path_cleanup "$_value")
-  bes_var_set $_var_name "$_clean_value"
+  local _new_value=$(bes_path_cleanup "$_value")
+  bes_var_set $_var_name "$_new_value"
+  return 0
+}
+
+function bes_env_path_append()
+{
+  local _var_name="$1"
+  shift
+  local _parts="$@"
+  local _value=$(bes_var_get $_var_name)
+  local _new_value=$(bes_path_append "$_value" "$_parts")
+  bes_var_set $_var_name "$_new_value"
+  export $_var_name
+  return 0
+}
+
+function bes_env_path_prepend()
+{
+  local _var_name="$1"
+  shift
+  local _parts="$@"
+  local _value=$(bes_var_get $_var_name)
+  local _new_value=$(bes_path_prepend "$_value" "$_parts")
+  bes_var_set $_var_name "$_new_value"
+  export $_var_name
   return 0
 }
 

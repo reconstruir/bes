@@ -10,15 +10,9 @@ _BES_DEV_ROOT=$(_bes_dev_root)
 
 source $_BES_DEV_ROOT/env/bes_framework.sh
 
-bes-go()
+bes_dev()
 {
-  cd $_BES_DEV_ROOT
-  return 0
-}
-
-bes-dev-setup()
-{
-  bes-setup $_BES_DEV_ROOT ${1+"$@"}
+  bes_setup $_BES_DEV_ROOT ${1+"$@"}
   return 0
 }
 

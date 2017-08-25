@@ -4,10 +4,10 @@ if [ -n "$_BES_TRACE" ]; then echo "bes_framework.sh begin"; fi
 source $_BES_DEV_ROOT/env/bes_path.sh
 
 # Source a shell file if it exists
-bes-source()
+bes_source()
 {
   if [ $# -lt 1 ]; then
-    printf "\nUsage: bes-source filename\n\n"
+    printf "\nUsage: bes_source filename\n\n"
     return 1
   fi
   local _filename=$1
@@ -18,10 +18,10 @@ bes-source()
   return 1
 }
 
-bes-invoke()
+bes_invoke()
 {
   if [ $# -lt 1 ]; then
-    printf "\nUsage: bes-invoke function\n\n"
+    printf "\nUsage: bes_invoke function\n\n"
     return 1
   fi
   local _function=$1
@@ -33,10 +33,10 @@ bes-invoke()
   return $_rv
 }
 
-bes-setup()
+bes_setup()
 {
   if [ $# -lt 1 ]; then
-    printf "\nUsage: bes-setup root_dir\n\n"
+    printf "\nUsage: bes_setup root_dir\n\n"
     return 1
   fi
   local _root_dir=$1
@@ -44,12 +44,9 @@ bes-setup()
   if [ $# -gt 1 ]; then
     _chdir=1
   fi
-  
-  export PATH=${_root_dir}/bin:${PATH}
-  bes_env_path_cleanup PATH
 
-  export PYTHONPATH=${_root_dir}:${PYTHONPATH}
-  bes_env_path_cleanup PYTHONPATH
+  bes_env_path_prepend PATH ${_root_dir}/bin
+  bes_env_path_prepend PYTHONPATH ${_root_dir}
 
   if [ $_chdir -eq 1 ]; then
     cd $_root_dir
