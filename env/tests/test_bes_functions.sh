@@ -1,13 +1,7 @@
 #!/bin/bash
 
-root()
-{
-  echo "$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-  return 0
-}
-
-source $(root)/functions.sh
-source $(root)/bes_testing.sh
+source $BES_ROOT/env/functions.sh
+source $BES_ROOT/env/bes_testing.sh
 
 function test_bes_path_dedup
 {
@@ -31,5 +25,4 @@ function test_bes_path_cleanup
 }
 
 bes_testing_run_unit_tests
-exit $?
 
