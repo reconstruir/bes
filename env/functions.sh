@@ -42,10 +42,10 @@ bes-setup()
   fi
   
   export PATH=${_root_dir}/bin:${PATH}
-  bes-path-dedup PATH
+  bes_path_dedup PATH
 
   export PYTHONPATH=${_root_dir}:${PYTHONPATH}
-  bes-path-dedup PYTHONPATH
+  bes_path_dedup PYTHONPATH
 
   if [ $_chdir -eq 1 ]; then
     cd $_root_dir
@@ -71,32 +71,33 @@ bes_path_remove_trailing_colon()
   return 0
 }
 
-# Deduplicate path variables
-bes-var-get()
+# Get a var value
+bes_var_get()
 {
   eval 'printf "%s\n" "${'"$1"'}"'
 }
 
-bes-var-set()
+# Set a var value
+bes_var_set()
 {
   eval "$1=\"\$2\""
 }
 
-bes-path-dedup()
+bes_path_dedup()
 {
   local _var_name="$1"
-  local _value=$(bes-var-get $_var_name)
-  bes-var-set $_var_name $(bes_path_remove_dups "$_value")
+  local _value=$(bes_var_get $_var_name)
+  bes_var_set $_var_name $(bes_path_remove_dups "$_value")
   return 0
 }
 
 bes_path_cleanup()
 {
   local _var_name="$1"
-  local _value=$(bes-var-get $_var_name)
+  local _value=$(bes_var_get $_var_name)
   _value=$(bes_path_remove_dups "$_value")
   _value=$(bes_path_remove_trailing_colon "$_value")
-  bes-var-set $_var_name "$_value"
+  bes_var_set $_var_name "$_value"
   return 0
 }
 

@@ -12,7 +12,7 @@ source $(root)/bes_testing.sh
 function test_bes_path_dedup
 {
   local P="foo:bar:foo:bar"
-  bes-path-dedup P
+  bes_path_dedup P
   bes_assert "[ ${P} = foo:bar: ]"
 }
 
