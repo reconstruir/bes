@@ -7,8 +7,8 @@ from bes.common import Shell
 
 class test_bash_scripts(unit_test_helper):
 
-  def test_bes_functions_sh(self):
-    self.assertEqual( 0, self._run_test('test_bes_functions.sh') )
+  def test_bes_framework_sh(self):
+    self.assertEqual( 0, self._run_test('test_bes_framework.sh') )
     
   def test_bes_path_sh(self):
     self.assertEqual( 0, self._run_test('test_bes_path.sh') )

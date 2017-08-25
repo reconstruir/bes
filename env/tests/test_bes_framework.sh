@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $_BES_ROOT/env/functions.sh
+source $_BES_ROOT/env/bes_framework.sh
 source $_BES_ROOT/env/bes_testing.sh
 
 function test_bes_var_set()

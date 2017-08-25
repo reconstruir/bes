@@ -4,7 +4,7 @@ bes-dev-root()
   return 0
 }
 
-source $(bes-dev-root)/env/functions.sh
+source $(bes-dev-root)/env/bes_functions.sh
 
 bes-go()
 {
