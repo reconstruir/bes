@@ -77,14 +77,15 @@ def _command_cleanup(p):
   sys.stdout.write('%s\n' % (p))
   return 0
 
+def _path_part_make_nice(part):
+  part = part.replace(path.expanduser('~/'), '~/')
+  return part
+
 def _command_print(p, line):
   l = _path_split(p)
-  if line:
-    delimiter = '\n'
-  else:
-    delimiter = ' '
-  s = delimiter.join(l)
-  sys.stdout.write('%s' % (s))
+  l = [ _path_part_make_nice(part) for part in l ]
+  for part in l:
+    sys.stdout.write('%s\n' % (part))
   return 0
 
 if __name__ == '__main__':
