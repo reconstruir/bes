@@ -37,6 +37,11 @@ class unit_test_helper(unittest.TestCase):
     left = path.dirname(inspect.getfile(clazz))
     return path.join(left, right)
 
+  def assert_bit_string_equal(self, b1, b2, size):
+    bs1 = bin(b1)[2:].zfill(size)
+    bs2 = bin(b2)[2:].zfill(size)
+    self.assertEqual( bs1, bs2 )
+
   @staticmethod
   def main(): 
     unittest.main()
