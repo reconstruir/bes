@@ -74,4 +74,12 @@ function bes_env_path_prepend()
   return 0
 }
 
+function bes_env_path_clear()
+{
+  local _var_name="$1"
+  bes_var_set $_var_name ""
+  export $_var_name
+  return 0
+}
+
 if [ -n "$_BES_TRACE" ]; then echo "bes_path.sh end"; fi

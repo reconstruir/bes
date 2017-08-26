@@ -97,6 +97,16 @@ function bes_PATH_append()
   bes_env_path_append PATH "$@"
 }
 
+function bes_PATH_append_cwd()
+{
+  bes_PATH_append $(pwd)
+}
+
+function bes_PATH_prepend_cwd()
+{
+  bes_PATH_prepend $(pwd)
+}
+
 function bes_PATH()
 {
   bes_path_print $PATH
@@ -110,6 +120,16 @@ function bes_PYTHONPATH_prepend()
 function bes_PYTHONPATH_append()
 {
   bes_env_path_append PYTHONPATH "$@"
+}
+
+function bes_PYTHONPATH_append_cwd()
+{
+  bes_PYTHONPATH_append $(pwd)
+}
+
+function bes_PYTHONPATH_prepend_cwd()
+{
+  bes_PYTHONPATH_prepend $(pwd)
 }
 
 function bes_PYTHONPATH()
@@ -141,6 +161,21 @@ function bes_LD_LIBRARY_PATH_prepend()
 function bes_LD_LIBRARY_PATH_append()
 {
   bes_env_path_append $(LD_LIBRARY_PATH_var_name) "$@"
+}
+
+function bes_LD_LIBRARY_PATH_append_cwd()
+{
+  bes_LD_LIBRARY_PATH_append $(pwd)
+}
+
+function bes_LD_LIBRARY_PATH_prepend_cwd()
+{
+  bes_LD_LIBRARY_PATH_prepend $(pwd)
+}
+
+function bes_LD_LIBRARY_PATH_clear()
+{
+  bes_env_path_clear $(LD_LIBRARY_PATH_var_name)
 }
 
 function bes_LD_LIBRARY_PATH()
