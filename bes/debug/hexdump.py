@@ -9,8 +9,8 @@ def hexdump_stream(stream, wordsize = 4, columns = 8, delimiter = ' '):
   v = []
   i = 0
   for chunk in iter(lambda: stream.read(wordsize), b''):
-    print "   chunk: '%s'" % (chunk)
-    print "hexified: '%s'" % (binascii.hexlify(chunk))
+#    print "   chunk: '%s'" % (chunk)
+#    print "hexified: '%s'" % (binascii.hexlify(chunk))
     v.append(binascii.hexlify(chunk))
     i += 1
     if (i % columns) == 0:

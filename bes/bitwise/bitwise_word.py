@@ -3,25 +3,10 @@
 
 import struct
 
+# FIXME use slice
+
 class bitwise_word(object):
 
-  ENDIAN_LE = '<'
-  ENDIAN_BE = '>'
-  _STRUCT_FORMATS = {
-    ENDIAN_LE: {
-      1: '<B',
-      2: '<H',
-      4: '<I',
-      8: '<Q',
-    },
-    ENDIAN_BE    : {
-      1: '>B',
-      2: '>H',
-      4: '>I',
-      8: '>Q',
-    },
-  }
-  
   def __init__(self, word, size):
     assert size in [ 8, 16, 24, 32, 40, 48, 56, 64 ]
     self._word = word
@@ -86,7 +71,8 @@ class bitwise_word(object):
       assert self.slice_in_range(i.start, i.stop)
       return self.get_slice(self._word, i.start, i.stop)
     else:
-      assert self.in_range(i)
+      if not self.in_range(i):
+        raise RuntimeError('Index out of range.  Should be (%d, %d): %d' % (0, self._size, i))
       return self.get_bit(self._word, i)
 
   def __setitem__(self, i, v):
