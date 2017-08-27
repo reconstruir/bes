@@ -9,7 +9,7 @@ class bitwise_io(object):
     self._endian = endian
     self._stream = stream
 
-  def skip(self, num_bytes):
+  def read_bytes(self, num_bytes):
     self._stream.read(num_bytes)
     
   def read(self, size):
