@@ -9,7 +9,7 @@ class bitwise_unpack(object):
   LE = '<'
   BE = '>'
   
-  FORMATS = {
+  _UNPACK_FORMATS = {
     LE: {
       1: '<B',
       2: '<H',
@@ -24,13 +24,30 @@ class bitwise_unpack(object):
     },
   }
 
+  _PACK_FORMATS = {
+    LE: {
+      1: '< B',
+      2: '< H',
+      4: '< I',
+      8: '< Q',
+    },
+    BE: {
+      1: '> B',
+      2: '> H',
+      4: '> I',
+      8: '> Q',
+    },
+  }
+
+  DEFAULT_ENDIAN = LE
+  
   @classmethod
-  def unpack(clazz, data, size, endian = LE):
+  def unpack(clazz, data, size, endian = DEFAULT_ENDIAN):
     assert size in [ 1, 2, 4, 8 ]
-    return struct.unpack(clazz.FORMATS[endian][size], data)[0]
+    return struct.unpack(clazz._UNPACK_FORMATS[endian][size], data)[0]
 
   @classmethod
-  def unpack_bits(clazz, data, size, slices, endian = LE):
+  def unpack_bits(clazz, data, size, slices, endian = DEFAULT_ENDIAN):
     assert size in [ 1, 2, 4, 8 ]
     num_bits = size * 8
     validated_slices = clazz.validate_slices(slices, num_bits)
@@ -43,37 +60,90 @@ class bitwise_unpack(object):
     return tuple(result)
 
   @classmethod
-  def unpack_u8(clazz, data, endian = LE):
+  def pack(clazz, i, size, endian = DEFAULT_ENDIAN):
+    assert size in [ 1, 2, 4, 8 ]
+    struct.Struct(clazz._PACK_FORMATS[endian][size]).pack(i)
+
+  @classmethod
+  def pack_bits(clazz, i, size, slices, values, endian = DEFAULT_ENDIAN):
+    assert size in [ 1, 2, 4, 8 ]
+    num_bits = size * 8
+    validated_slices = clazz.validate_slices(slices, num_bits)
+    if not validated_slices:
+      raise RuntimeError('Invalid slice sequence: %s' % (str(slices)))
+    if not isinstance(value, ( list, tuple )):
+      raise RuntimeError('values should be a list or tuple: ' % (str(values)))
+    if len(values) != len(slices):
+      raise RuntimeError('values and slices should be the same length')
+    word = bitwise_word(i)
+    for s, value in zip(validated_slices, values):
+      word[s] = value
+    self.pack(word.word, size, endian = endian)
+    
+  @classmethod
+  def unpack_u8(clazz, data, endian = DEFAULT_ENDIAN):
     return clazz.unpack(data, 1, endian = endian)
   
   @classmethod
-  def unpack_u16(clazz, data, endian = LE):
+  def unpack_u16(clazz, data, endian = DEFAULT_ENDIAN):
     return clazz.unpack(data, 2, endian = endian)
   
   @classmethod
-  def unpack_u32(clazz, data, endian = LE):
+  def unpack_u32(clazz, data, endian = DEFAULT_ENDIAN):
     return clazz.unpack(data, 4, endian = endian)
   
   @classmethod
-  def unpack_u64(clazz, data, endian = LE):
+  def unpack_u64(clazz, data, endian = DEFAULT_ENDIAN):
     return clazz.unpack(data, 64, endian = endian)
   
   @classmethod
-  def unpack_u8_bits(clazz, data, slices, endian = LE):
+  def unpack_u8_bits(clazz, data, slices, endian = DEFAULT_ENDIAN):
     return clazz.unpack_bits(data, 1, slices, endian = endian)
 
   @classmethod
-  def unpack_u16_bits(clazz, data, slices, endian = LE):
+  def unpack_u16_bits(clazz, data, slices, endian = DEFAULT_ENDIAN):
     return clazz.unpack_bits(data, 2, slices, endian = endian)
 
   @classmethod
-  def unpack_u32_bits(clazz, data, slices, endian = LE):
+  def unpack_u32_bits(clazz, data, slices, endian = DEFAULT_ENDIAN):
     return clazz.unpack_bits(data, 4, slices, endian = endian)
 
   @classmethod
-  def unpack_u64_bits(clazz, data, slices, endian = LE):
+  def unpack_u64_bits(clazz, data, slices, endian = DEFAULT_ENDIAN):
     return clazz.unpack_bits(data, 8, slices, endian = endian)
 
+  @classmethod
+  def pack_u8(clazz, i, endian = DEFAULT_ENDIAN):
+    clazz.pack(i, 1, endian = endian)
+  
+  @classmethod
+  def pack_u16(clazz, i, endian = DEFAULT_ENDIAN):
+    clazz.pack(i, 2, endian = endian)
+  
+  @classmethod
+  def pack_u32(clazz, i, endian = DEFAULT_ENDIAN):
+    clazz.pack(i, 4, endian = endian)
+  
+  @classmethod
+  def pack_u64(clazz, i, endian = DEFAULT_ENDIAN):
+    clazz.pack(i, 8, endian = endian)
+
+  @classmethod
+  def pack_u8_bits(clazz, i, slices, values, endian = DEFAULT_ENDIAN):
+    return self.pack_bits(i, 1, slices, values, endian = endian)
+    
+  @classmethod
+  def pack_u16_bits(clazz, i, slices, values, endian = DEFAULT_ENDIAN):
+    return self.pack_bits(i, 2, slices, values, endian = endian)
+    
+  @classmethod
+  def pack_u32_bits(clazz, i, slices, values, endian = DEFAULT_ENDIAN):
+    return self.pack_bits(i, 4, slices, values, endian = endian)
+    
+  @classmethod
+  def pack_u64_bits(clazz, i, slices, values, endian = DEFAULT_ENDIAN):
+    return self.pack_bits(i, 8, slices, values, endian = endian)
+    
   # FIXME: move validation methods to bitwise_word
   @classmethod
   def validate_slice(clazz, s, size):
