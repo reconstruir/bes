@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import inspect, os.path as path, re, unittest
-
+from StringIO import StringIO
 from bes.system import host
 
 class unit_test_helper(unittest.TestCase):
@@ -40,8 +40,33 @@ class unit_test_helper(unittest.TestCase):
   def assert_bit_string_equal(self, b1, b2, size):
     bs1 = bin(b1)[2:].zfill(size)
     bs2 = bin(b2)[2:].zfill(size)
-    self.assertEqual( bs1, bs2 )
+    self.assertEqual( bs1, bs2)
 
+  def assert_bytes_equal(self, expected, actual):
+    expected = self.bytes_to_string(expected)
+    actual = self.bytes_to_string(actual)
+    msg = '\nexpected: %s\n  actual: %s\n' % (expected, actual)
+    self.assertEqual( expected, actual, msg = msg)
+
+  @classmethod
+  def bytes_to_string(clazz, b):
+    s = b.encode('hex')
+    assert (len(s) % 2) == 0
+    buf = StringIO()
+    for i in range(0, len(s), 2):
+      buf.write(s[i])
+      buf.write(s[i + 1])
+      buf.write(' ')
+    return buf.getvalue()
+
+  @classmethod
+  def decode_hex(clazz, s):
+    buf = StringIO()
+    for c in s:
+      if not c.isspace():
+        buf.write(c)
+    return buf.getvalue().decode('hex')
+  
   @staticmethod
   def main(): 
     unittest.main()
