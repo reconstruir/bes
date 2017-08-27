@@ -3,7 +3,7 @@
 
 from bitwise_unpack import bitwise_unpack
 
-class bitwise_reader(object):
+class bitwise_io(object):
 
   def __init__(self, stream, endian = bitwise_unpack.LE):
     self._endian = endian
