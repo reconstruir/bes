@@ -54,9 +54,10 @@ class unit_test_helper(unittest.TestCase):
     assert (len(s) % 2) == 0
     buf = StringIO()
     for i in range(0, len(s), 2):
+      if i != 0:
+        buf.write(' ')
       buf.write(s[i])
       buf.write(s[i + 1])
-      buf.write(' ')
     return buf.getvalue()
 
   @classmethod
