@@ -44,6 +44,12 @@ class bitwise_io(object):
   def read_u64_bits(self, slices):
     return self.read_bits(8, slices)
 
+  def write_string(self, num_bytes, s):
+    self.write(s.ljust(num_bytes))
+  
+  def write_bytes(self, num_bytes, data):
+    self._stream.write(data[0:num_bytes])
+  
   def write(self, i, size):
     assert size in [ 1, 2, 4, 8]
     self._stream.write(bitwise_unpack.pack(i, size, endian = self._endian))
