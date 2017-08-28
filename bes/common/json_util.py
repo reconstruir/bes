@@ -33,8 +33,8 @@ class json_util(object):
     return None
     
   @classmethod
-  def save_file(clazz, filename, o, indent = None):
-    content = clazz.to_json(o, indent = indent)
+  def save_file(clazz, filename, o, indent = None, sort_keys = False):
+    content = clazz.to_json(o, indent = indent, sort_keys = sort_keys)
     with open(filename, 'w') as f:
       f.write(content)
 
