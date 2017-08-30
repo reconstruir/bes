@@ -10,6 +10,7 @@ class fruit(bitwise_enum):
   PEAR = 1
   APPLE = 2
   KIWI = 3
+  KIWI_CLONE = KIWI
     
   DEFAULT = PEAR
   
@@ -38,8 +39,18 @@ class test_bitwise_enum(unit_test_helper):
       fruit().value = 666
     
   def test___str__(self):
+    self.assertEqual( 'PEAR', str(fruit()) )
+    self.assertEqual( 'KIWI', str(fruit(fruit.KIWI)) )
+    self.assertEqual( 'KIWI', str(fruit(fruit.KIWI_CLONE)) )
+
+  def test_set_name(self):
+    f = fruit()
+    f.name = 'PEAR'
+    self.assertEqual( f.value, fruit.PEAR )
+    
+  def test_set_name_invalid(self):
     with self.assertRaises(ValueError) as context:
-      fruit().value = 666
+      fruit().name = 'NOTHERE'
     
 if __name__ == "__main__":
   unit_test_helper.main()

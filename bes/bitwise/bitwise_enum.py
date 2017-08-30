@@ -81,10 +81,23 @@ class bitwise_enum(object):
   @value.setter
   def value(self, value):
     if not self.value_is_valid(value):
-      choices = ' '.join([ '%s(%s)' % (name, value) for name, value in self._NAME_VALUES ])
-      raise ValueError('Invalid value: %s - should be one of %s' % (value, choices))
+      raise ValueError('Invalid value: %s - should be one of %s' % (value, self._make_choices_blurb()))
     self._value = value
-  
+
+  @property
+  def name(self):
+    return self._VALUE_TO_NAME[self._value][0]
+
+  @name.setter
+  def name(self, name):
+    if not self.name_is_valid(name):
+      raise ValueError('Invalid name: %s - should be one of %s' % (name, self._make_choices_blurb()))
+    self.value = self._NAME_TO_VALUE[name]
+
+  @classmethod
+  def _make_choices_blurb(clazz):
+    return ' '.join([ '%s(%s)' % (name, value) for name, value in clazz._NAME_VALUES ])
+    
   @classmethod
   def parse(clazz, s):
     if not s in clazz._NAMES:
