@@ -61,7 +61,7 @@ class bitwise_enum(object):
   def __init__(self, value = None):
     if value is None:
       value = self.DEFAULT
-    self._value = value
+    self.assign(value)
 
   def __str__(self):
     return self._VALUE_TO_NAME[self._value][0]
@@ -74,6 +74,16 @@ class bitwise_enum(object):
   def name_is_valid(clazz, name):
     return name in clazz._NAMES
 
+  def assign(self, something):
+    if isinstance(something, self.__class__):
+      self.value = something.value
+    elif isinstance(something, ( str, unicode )):
+      self.value = self.parse(something)
+    elif isinstance(something, int):
+      self.value = something
+    else:
+      raise ValueError('invalid value: %s' % (str(something)))
+  
   @property
   def value(self):
     return self._value
@@ -100,9 +110,11 @@ class bitwise_enum(object):
     
   @classmethod
   def parse(clazz, s):
+    if not isinstance(s, ( str, unicode )):
+      raise TypeError('Value to parse should be a string instead of: %s - %s' % (str(s), type(s)))
     if not s in clazz._NAMES:
-      return None
-    return self._NAME_TO_VALUE[s]
+      raise ValueError('Value invalid: %s' % (str(s)))
+    return clazz._NAME_TO_VALUE[s]
   
   def write_to_io(self, io):
     io.write(self._value, self.SIZE)

@@ -45,7 +45,7 @@ class bitwise_io(object):
     return self.read_bits(8, slices)
 
   def write_string(self, num_bytes, s, fillchar):
-    self.write(s.ljust(num_bytes, fillchar))
+    self.write_bytes(num_bytes, s.ljust(num_bytes, fillchar))
   
   def write_bytes(self, num_bytes, data):
     self._stream.write(data[0:num_bytes])

@@ -52,5 +52,20 @@ class test_bitwise_enum(unit_test_helper):
     with self.assertRaises(ValueError) as context:
       fruit().name = 'NOTHERE'
     
+  def test_assign(self):
+    f = fruit()
+    f.assign('KIWI')
+    self.assertEqual( 'KIWI', f.name )
+    f.assign(2)
+    self.assertEqual( 'APPLE', f.name )
+    f.assign(fruit('APPLE'))
+    self.assertEqual( 'APPLE', f.name )
+
+    with self.assertRaises(ValueError) as context:
+      f.assign('NOTHERE')
+
+    with self.assertRaises(ValueError) as context:
+      f.assign(666)
+    
 if __name__ == "__main__":
   unit_test_helper.main()
