@@ -10,7 +10,7 @@ class bitwise_io(object):
     self._stream = stream
 
   def read_bytes(self, num_bytes):
-    self._stream.read(num_bytes)
+    return self._stream.read(num_bytes)
     
   def read(self, size):
     assert size in [ 1, 2, 4, 8]

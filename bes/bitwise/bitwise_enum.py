@@ -107,5 +107,5 @@ class bitwise_enum(object):
   def write_to_io(self, io):
     io.write(self._value, self.SIZE)
     
-  def read_from_io(self):
+  def read_from_io(self, io):
     self.value = io.read(self.SIZE)
