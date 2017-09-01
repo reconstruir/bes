@@ -9,8 +9,14 @@ class bitwise_io(object):
     self._endian = endian
     self._stream = stream
 
+  def read_to_end(self):
+    return self._stream.read()
+    
   def read_bytes(self, num_bytes):
     return self._stream.read(num_bytes)
+    
+  def read_string(self, num_bytes):
+    return self.read_bytes(num_bytes)
     
   def read(self, size):
     assert size in [ 1, 2, 4, 8]

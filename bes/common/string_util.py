@@ -88,6 +88,15 @@ class string_util(object):
     return clazz.is_string(s) and len(s) == 1
 
   @classmethod
+  def is_ascii(clazz, s):
+    'Return True if s is ascii.'
+    try:
+      s.decode('ascii')
+      return True
+    except:
+      return False
+
+  @classmethod
   def flatten(clazz, s, delimiter = ' '):
     'Flatten the given collection to a string.'
     'If s is already a string just return it.'
