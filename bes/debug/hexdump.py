@@ -43,7 +43,7 @@ class hexdump(object):
     return '\n'.join(lines)
 
   @classmethod
-  def bytes(clazz, data, wordsize = 4, columns = 8, delimiter = ' ', show_ascii = False, show_offset = False):
+  def data(clazz, data, wordsize = 4, columns = 8, delimiter = ' ', show_ascii = False, show_offset = False):
     'hexdump bytes to a string.'
     return clazz.stream(StringIO(data),
                         wordsize = wordsize,
@@ -53,7 +53,7 @@ class hexdump(object):
                         show_offset = show_offset)
 
   @classmethod
-  def file(clazz, filename, wordsize = 4, columns = 8, delimiter = ' ', show_ascii = False, show_offset = False):
+  def filename(clazz, filename, wordsize = 4, columns = 8, delimiter = ' ', show_ascii = False, show_offset = False):
     'hexdump bytes to a string.'
     with open(filename, 'r') as stream:
        return clazz.stream(stream,
