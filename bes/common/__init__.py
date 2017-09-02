@@ -13,7 +13,7 @@ from object_util import object_util
 from size import size
 from string_list import string_list
 from string_util import string_util
+from table import table
 from time_util import time_util
 from tuple_util import tuple_util
 from variable import variable
-
