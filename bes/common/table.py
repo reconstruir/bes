@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-#from string_lexer import string_lexer as lexer
-#from StringIO import StringIO
-
 from size import size
 
 class table(object):
@@ -36,6 +33,7 @@ class table(object):
     new_table = self._make_table(new_size)
     self._copy_table(self._table, new_table)
     self._table = new_table
+    self._size = new_size
 
   def set(self, x, y, value):
     if not self.xy_valid(x, y):
@@ -91,10 +89,9 @@ class table(object):
 
   @classmethod
   def _make_table(clazz, size):
-    row = [ None ] * size.width
     rows = [ None ] * size.height
     for i in range(0, size.height):
-      rows[i] = row
+      rows[i] = [ None ] * size.width
     return rows
 
   @classmethod
