@@ -40,14 +40,19 @@ class table(object):
       raise ValueError('Invalid cell: (%s, %s)' % (str(x), str(y)))
     self._table[y][x] = value
 
+  def get(self, x, y):
+    if not self.xy_valid(x, y):
+      raise ValueError('Invalid cell: (%s, %s)' % (str(x), str(y)))
+    return self._table[y][x]
+    
   def set_row(self, y, row):
     if not isinstance(row, tuple):
       raise TypeError('row needs to be a tuple instead of: %s' % (type(row)))
     if not self.y_valid(y):
       raise ValueError('Invalid y: %s' % (str(y)))
-    if len(row) != self._width:
+    if len(row) != self._size.width:
       raise ValueError('Row should be %d wide instead of: ' % (self._width, len(row)))
-    for x in range(0, self._width):
+    for x in range(0, self._size.width):
       self._table[y][x] = row[x]
     
   def set_column(self, x, column):
@@ -55,15 +60,15 @@ class table(object):
       raise TypeError('column needs to be a tuple instead of: %s' % (type(column)))
     if not self.x_valid(x):
       raise ValueError('Invalid x: %s' % (str(x)))
-    if len(column) != self._height:
+    if len(column) != self._size.height:
       raise ValueError('Column should be %d high instead of: ' % (self._height, len(column)))
-    for y in range(0, self._height):
+    for y in range(0, self._size.height):
       self._table[y][x] = column[y]
-    
-  def get(self, x, y):
-    if not self.xy_valid(x, y):
-      raise ValueError('Invalid cell: (%s, %s)' % (str(x), str(y)))
-    return self._table[y][x]
+   
+  def sort_by_column(self, x):
+    if not self.x_valid(x):
+      raise ValueError('Invalid x: %s' % (str(x)))
+    self._table = sorted(self._table, key = lambda row: row[x])
 
   def row(self, y):
     if not self.y_valid(y):
@@ -71,10 +76,10 @@ class table(object):
     return self._table[y]
   
   def column(self, x):
-    if not self.x_valid(y):
+    if not self.x_valid(x):
       raise ValueError('Invalid x: %s' % (str(x)))
     col = []
-    for y in range(0, self._height):
+    for y in range(0, self._size.height):
       col.append(self._table[y][x])
     return col
   
