@@ -36,20 +36,17 @@ class table(object):
     self._size = new_size
 
   def set(self, x, y, value):
-    if not self.xy_valid(x, y):
-      raise ValueError('Invalid cell: (%s, %s)' % (str(x), str(y)))
+    self.check_xy(x, y)
     self._table[y][x] = value
 
   def get(self, x, y):
-    if not self.xy_valid(x, y):
-      raise ValueError('Invalid cell: (%s, %s)' % (str(x), str(y)))
+    self.check_xy(x, y)
     return self._table[y][x]
     
   def set_row(self, y, row):
     if not isinstance(row, tuple):
       raise TypeError('row needs to be a tuple instead of: %s' % (type(row)))
-    if not self.y_valid(y):
-      raise ValueError('Invalid y: %s' % (str(y)))
+    self.check_y(y)
     if len(row) != self._size.width:
       raise ValueError('Row should be %d wide instead of: ' % (self._width, len(row)))
     for x in range(0, self._size.width):
@@ -58,26 +55,22 @@ class table(object):
   def set_column(self, x, column):
     if not isinstance(column, tuple):
       raise TypeError('column needs to be a tuple instead of: %s' % (type(column)))
-    if not self.x_valid(x):
-      raise ValueError('Invalid x: %s' % (str(x)))
+    self.check_x(x)
     if len(column) != self._size.height:
       raise ValueError('Column should be %d high instead of: ' % (self._height, len(column)))
     for y in range(0, self._size.height):
       self._table[y][x] = column[y]
    
   def sort_by_column(self, x):
-    if not self.x_valid(x):
-      raise ValueError('Invalid x: %s' % (str(x)))
+    self.check_x(x)
     self._table = sorted(self._table, key = lambda row: row[x])
 
   def row(self, y):
-    if not self.y_valid(y):
-      raise ValueError('Invalid y: %s' % (str(y)))
+    self.check_y(y)
     return self._table[y]
   
   def column(self, x):
-    if not self.x_valid(x):
-      raise ValueError('Invalid x: %s' % (str(x)))
+    self.check_x(x)
     col = []
     for y in range(0, self._size.height):
       col.append(self._table[y][x])
@@ -91,6 +84,18 @@ class table(object):
     
   def xy_valid(self, x, y):
     return self.x_valid(x) and self.y_valid(y)
+
+  def check_x(self, x):
+    if not self.x_valid(x):
+      raise ValueError('Invalid x: %s' % (str(x)))
+
+  def check_y(self, y):
+    if not self.y_valid(y):
+      raise ValueError('Invalid y: %s' % (str(y)))
+
+  def check_xy(self, x, y):
+    if not self.xy_valid(x, y):
+      raise ValueError('Invalid x, y: %s, %s' % (str(x), str(y)))
 
   @classmethod
   def _make_table(clazz, size):

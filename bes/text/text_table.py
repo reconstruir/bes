@@ -4,7 +4,7 @@
 from bes.common import object_util, table, size
 from cStringIO import StringIO
 
-class cell_style(object):
+class text_table_cell_style(object):
 
   JUST_LEFT = 'left'
   JUST_RIGHT = 'right'
@@ -17,7 +17,7 @@ class cell_style(object):
     width = width or self.width or 0
     if self.just == self.JUST_LEFT:
       value = value.ljust(width)
-    elif self.just == self.JUST_LEFT:
+    elif self.just == self.JUST_RIGHT:
       value = value.rjust(width)
     else:
       raise ValueError('Invalid just: %s' % (self.just))
@@ -26,13 +26,14 @@ class cell_style(object):
 
 class text_table(object):
   'A table of strings.'
-
-  def __init__(self, width, height, column_delimiter = ' | '):
+  def __init__(self, width, height, column_delimiter = ' │ '):
     self._labels = None
     self._table = table(width, height)
     self._column_delimiter = column_delimiter
     self._row_styles = {}
     self._col_styles = {}
+    self._cell_styles = {}
+    self._default_cell_style = text_table_cell_style()
     
   def set_labels(self, labels):
     assert isinstance(labels, tuple)
@@ -49,26 +50,45 @@ class text_table(object):
 
   def __str__(self):
     buf = StringIO()
-    column_widths = [ self._column_width(x) for x in range(0, self._table.width) ]
+    col_widths = [ self._column_width(x) for x in range(0, self._table.width) ]
     for y in range(0, self._table.height):
       row = self._table.row(y)
-      assert len(row) == len(column_widths)
+      assert len(row) == len(col_widths)
       for x in range(0, self._table.width):
         value = str(self._table.get(x, y)) or ''
-        buf.write(value.ljust(column_widths[x]))
+        style = self.get_cell_style(x, y)
+        assert style
+        value = style.format(value, width = col_widths[x])
+        buf.write(value)
         buf.write(self._column_delimiter)
       buf.write('\n')
     buf.write('\n')
     return buf.getvalue()
 
   def _column_width(self, x):
+    self._table.check_x(x)
     return max([len(str(s)) for s in self._table.column(x)])
   
   def sort_by_column(self, x):
+    self._table.check_x(x)
     self._table.sort_by_column(x)
 
   def set_row(self, y, row):
+    self._table.check_y(y)
     self._table.set_row(y, row)
 
-  def set_row_style(self, y, s):
-    self._table.set_row(y, row)
+  def set_row_style(self, y, style):
+    self._table.check_y(y)
+    self._row_styles[y] = style
+
+  def set_col_style(self, x, style):
+    self._table.check_x(x)
+    self._col_styles[x] = style
+    
+  def set_cell_style(self, x, y, style):
+    self._table.check_xy(x, y)
+    self._cell_styles[(x, y)] = style
+    
+  def get_cell_style(self, x, y):
+    self._table.check_xy(x, y)
+    return self._cell_styles.get((x, y), None) or self._col_styles.get(x, self._default_cell_style)
