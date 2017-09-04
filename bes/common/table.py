@@ -48,7 +48,7 @@ class table(object):
       raise TypeError('row needs to be a tuple instead of: %s' % (type(row)))
     self.check_y(y)
     if len(row) != self._size.width:
-      raise ValueError('Row should be %d wide instead of: ' % (self._width, len(row)))
+      raise ValueError('Row should be %d wide instead of: %s' % (self._size.width, len(row)))
     for x in range(0, self._size.width):
       self._table[y][x] = row[x]
     
@@ -57,7 +57,7 @@ class table(object):
       raise TypeError('column needs to be a tuple instead of: %s' % (type(column)))
     self.check_x(x)
     if len(column) != self._size.height:
-      raise ValueError('Column should be %d high instead of: ' % (self._height, len(column)))
+      raise ValueError('Column should be %d high instead of: %s' % (self._size.height, len(column)))
     for y in range(0, self._size.height):
       self._table[y][x] = column[y]
    
@@ -85,6 +85,12 @@ class table(object):
   def xy_valid(self, x, y):
     return self.x_valid(x) and self.y_valid(y)
 
+  def width_valid(self, width):
+    return isinstance(width, int) and width == self.size.width
+
+  def height_valid(self, height):
+    return isinstance(height, int) and height == self.size.height
+
   def check_x(self, x):
     if not self.x_valid(x):
       raise ValueError('Invalid x: %s' % (str(x)))
@@ -96,6 +102,14 @@ class table(object):
   def check_xy(self, x, y):
     if not self.xy_valid(x, y):
       raise ValueError('Invalid x, y: %s, %s' % (str(x), str(y)))
+
+  def check_width(self, width):
+    if not self.width_valid(width):
+      raise ValueError('Invalid width: %s' % (str(width)))
+
+  def check_height(self, height):
+    if not self.height_valid(height):
+      raise ValueError('Invalid height: %s' % (str(height)))
 
   @classmethod
   def _make_table(clazz, size):

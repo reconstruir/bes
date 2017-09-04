@@ -36,9 +36,9 @@ class text_table(object):
     self._default_cell_style = text_table_cell_style()
     
   def set_labels(self, labels):
+    self._table.check_width(len(labels))
     assert isinstance(labels, tuple)
-    assert len(labels) == self.table.width
-    self._labels = labels
+    self._labels = labels[:]
 
   def set(self, x, y, s):
     if not isinstance(s, ( str, unicode )):
@@ -51,23 +51,40 @@ class text_table(object):
   def __str__(self):
     buf = StringIO()
     col_widths = [ self._column_width(x) for x in range(0, self._table.width) ]
+    if self._labels:
+      for x in range(0, self._table.width):
+        self._write_label(x, buf, col_widths)
+      buf.write('\n')
     for y in range(0, self._table.height):
       row = self._table.row(y)
       assert len(row) == len(col_widths)
       for x in range(0, self._table.width):
-        value = str(self._table.get(x, y)) or ''
-        style = self.get_cell_style(x, y)
-        assert style
-        value = style.format(value, width = col_widths[x])
-        buf.write(value)
-        buf.write(self._column_delimiter)
+        self._write_cell(x, y, buf, col_widths)
       buf.write('\n')
-    buf.write('\n')
     return buf.getvalue()
 
+  def _write_cell(self, x, y, stream, col_widths):
+    value = str(self._table.get(x, y)) or ''
+    style = self.get_cell_style(x, y)
+    assert style
+    value = style.format(value, width = col_widths[x])
+    stream.write(value)
+    stream.write(self._column_delimiter)
+  
+  def _write_label(self, x, stream, col_widths):
+    value = str(self._labels[x])
+    style = self.get_cell_style(x, 0)
+    assert style
+    value = style.format(value, width = col_widths[x])
+    stream.write(value)
+    stream.write(self._column_delimiter)
+  
   def _column_width(self, x):
     self._table.check_x(x)
-    return max([len(str(s)) for s in self._table.column(x)])
+    max_col_width = max([len(str(s)) for s in self._table.column(x)])
+    if self._labels:
+      max_col_width = max(max_col_width, len(self._labels[x]))
+    return max_col_width
   
   def sort_by_column(self, x):
     self._table.check_x(x)
