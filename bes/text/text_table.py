@@ -61,7 +61,7 @@ class text_table(object):
       for x in range(0, self._table.width):
         self._write_cell(x, y, buf, col_widths)
       buf.write('\n')
-    return buf.getvalue()
+    return buf.getvalue().strip()
 
   def _write_cell(self, x, y, stream, col_widths):
     value = str(self._table.get(x, y)) or ''
