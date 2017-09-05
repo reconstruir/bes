@@ -1,9 +1,21 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import inspect, os.path as path, re, unittest
+import inspect, os, os.path as path, re, unittest
 from StringIO import StringIO
 from bes.system import host
+
+# FIXME: dont import bes stuff here 
+FOO='''
+platform
+    __system = platform.system()
+    if __system == 'Linux':
+      return 'linux'
+    elif __system == 'Darwin':
+      return 'macos'
+    else:
+      raise RuntimeError('Unknown system: %s' % (__system))
+'''
 
 class unit_test_helper(unittest.TestCase):
   'Helper for writing unit tests.'
@@ -71,3 +83,13 @@ class unit_test_helper(unittest.TestCase):
   @staticmethod
   def main(): 
     unittest.main()
+
+  @classmethod
+  def file_path(clazz, unit_test_filename, filename):
+    'Return an absolute normalized path for a file relative to this unit test.'
+    p = path.abspath(path.normpath(path.join(path.dirname(unit_test_filename), filename)))
+    if not path.exists(p):
+      raise RuntimeError('file not found: %s' % (p))
+    if not os.access(p, os.X_OK):
+      raise RuntimeError('file not executable: %s' % (p))
+    return p
