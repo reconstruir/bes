@@ -365,14 +365,6 @@ def _match_test(patterns, filename):
       return True
   return False
 
-def _search_for_tests(search_patterns, where):
-  result = []
-  possible_tests = file_find.find_tests(where)
-  for filename in possible_tests:
-    if _match_test(search_patterns, filename):
-      result.append(filename)
-  return sorted(util.unique_list(result))
-
 def _is_fnmatch_pattern(pattern):
   for c in [ '*', '?', '[', ']', '!' ]:
     if pattern.count(c) > 0:
@@ -549,20 +541,37 @@ class file_resolve(object):
     result = []
     for f in files_and_dirs:
       if path.isfile(f):
-        result.append(path.abspath(path.normpath(f)))
+        result += clazz._resolve_file(f)
       elif path.isdir(f):
-        result += file_find.find_python_files(f)
+        result += clazz._resolve_dir(f)
     result += clazz.tests_for_many_files(result)
     result = util.unique_list(result)
     result = [ path.normpath(r) for r in result ]
     return sorted(result)
 
   @classmethod
-  def find_tests(clazz, d):
-    cmd = [ 'find', d, '-name', 'test_*.py' ]
-    result = subprocess.check_output(cmd, shell = False)
-    return string_util.parse_list(result)
+  def _resolve_dir(clazz, d):
+    assert path.isdir(d)
+    config = clazz._read_config_file(d)
+    if config is None:
+      return file_find.find_python_files(d)
+    return clazz.resolve_files_and_dirs(config)
+    
+  @classmethod
+  def _resolve_file(clazz, f):
+    assert path.isfile(f)
+    return [ path.abspath(path.normpath(f)) ]
 
+  @classmethod
+  def _read_config_file(clazz, d):
+    p = path.join(d, '.bes_test_dirs')
+    if not path.exists(p):
+      return None
+    content = file_util.read(p)
+    lines = [ f for f in content.split('\n') if f ]
+    files = [ path.join(d, f) for f in lines ]
+    return sorted(util.unique_list(files))
+  
   @classmethod
   def test_for_file(clazz, filename):
     basename = path.basename(filename)
@@ -671,6 +680,8 @@ class unit_test_inspect(object):
   @classmethod
   def inspect_file(clazz, filename):
     code = file_util.read(filename)
+    if 'bes:skip_unit_test=1' in code:
+      return []
     tree = ast.parse(code)
     s = ast.dump(tree, annotate_fields = True, include_attributes = True)
     result = []

@@ -18,8 +18,9 @@ class debug_timer(object):
     BOX_DOWN_AND_RIGHT = u'|'
     BOX_UP_AND_RIGHT = u'L'
 
-  def __init__(self, tag):
+  def __init__(self, tag, level = 'debug'):
     log.add_logging(self, tag)
+    self._level = log.parse_level(level)
     self.starts = OrderedDict()
     self.starts['start'] = time.time()
  
@@ -31,9 +32,9 @@ class debug_timer(object):
  
   def start(self, thing):
     self.starts[thing] = time.time()
-    self.log_d(u'{0} {1}{2} {3}'.format(' ' * 8, self.columns(len(self.starts) - 2), self.BOX_DOWN_AND_RIGHT, thing))
+    self.log(self._level, u'{0} {1}{2} {3}'.format(' ' * 8, self.columns(len(self.starts) - 2), self.BOX_DOWN_AND_RIGHT, thing))
  
   def stop(self):
     thing, started = self.starts.popitem()
     elapsed = self.round(time.time() - started)
-    self.log_d(u'{0} {1}{2} {3}'.format(elapsed, self.columns(len(self.starts) - 1), self.BOX_UP_AND_RIGHT, thing))
+    self.log(self._level, u'{0} {1}{2} {3}'.format(elapsed, self.columns(len(self.starts) - 1), self.BOX_UP_AND_RIGHT, thing))
