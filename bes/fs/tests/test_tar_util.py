@@ -3,10 +3,10 @@
 #
 
 import os, os.path as path
-from bes.test import unit_test_helper
+from bes.test import unit_test
 from bes.fs import file_find, file_util, tar_util, temp_file
 
-class test_tar_util(unit_test_helper):
+class test_tar_util(unit_test):
 
   __unit_test_data_dir__ = 'test_data/tar_util'
 
@@ -36,4 +36,4 @@ class test_tar_util(unit_test_helper):
     self.assertEqual( expected_files, actual_files )
     
 if __name__ == '__main__':
-  unit_test_helper.main()
+  unit_test.main()

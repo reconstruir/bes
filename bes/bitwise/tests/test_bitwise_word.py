@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 #
-from bes.test import unit_test_helper
+from bes.test import unit_test
 from bes.bitwise import bitwise_word as W
 
-class test_bitwise_word(unit_test_helper):
+class test_bitwise_word(unit_test):
 
   def test_get_bit(self):
     self.assert_bit_string_equal( 0, W.get_bit(0b10000000, 0), 8 )
@@ -64,4 +64,4 @@ class test_bitwise_word(unit_test_helper):
     self.assert_bit_string_equal( 0b11111000, W.set_slice(0b11110000, 0, 4, 0b1000), 8 )
     
 if __name__ == "__main__":
-  unit_test_helper.main()
+  unit_test.main()

@@ -2,11 +2,11 @@
 #-*- coding:utf-8 -*-
 #
 
-from bes.test import unit_test_helper
+from bes.test import unit_test
 from bes.key_value import key_value_list as KVL
 from bes.key_value import key_value as KV
 
-class test_key_value_list(unit_test_helper):
+class test_key_value_list(unit_test):
 
   def test_append(self):
     l = KVL()
@@ -151,4 +151,4 @@ class test_key_value_list(unit_test_helper):
     self.assertEqual( [ KV('foo', 'hi'), KV('foo', 'hi2') ], found )
     
 if __name__ == "__main__":
-  unit_test_helper.main()
+  unit_test.main()

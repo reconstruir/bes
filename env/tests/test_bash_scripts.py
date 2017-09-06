@@ -2,10 +2,10 @@
 #-*- coding:utf-8 -*-
 #
 import copy, os, os.path as path
-from bes.test import unit_test_helper
+from bes.test import unit_test
 from bes.common import Shell
 
-class test_bash_scripts(unit_test_helper):
+class test_bash_scripts(unit_test):
 
   def test_bes_framework_sh(self):
     self.assertEqual( 0, self._run_test('test_bes_framework.sh') )
@@ -40,4 +40,4 @@ class test_bash_scripts(unit_test_helper):
     return path.abspath(path.join(clazz._this_dir(), '../..'))
 
 if __name__ == "__main__":
-  unit_test_helper.main()
+  unit_test.main()

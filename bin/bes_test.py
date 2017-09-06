@@ -688,7 +688,7 @@ class unit_test_inspect(object):
       return False
     for i, base in enumerate(node.bases):
       base_class_name = clazz._base_class_name(base)
-      if base_class_name in [ 'unittest.TestCase', 'unit_test_helper' ]:
+      if base_class_name in [ 'unittest.TestCase', 'unit_test', 'script_tester' ]:
         return True
     return False
     
@@ -894,10 +894,10 @@ class somthing(unittest.TestCase):
                       unit_test_inspect.inspect_file(filename) )
     file_util.remove(filename)
     
-  def test_inspect_file_unit_test_helper(self):
+  def test_inspect_file_unit_test(self):
     content = '''
-from bes.test import unit_test_helper
-class test_apple_fixture(unit_test_helper):
+from bes.test import unit_test
+class test_apple_fixture(unit_test):
 
   def test_foo(self):
     self.assertEqual( 6, 3 + 3 )

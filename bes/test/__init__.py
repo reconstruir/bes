@@ -1,4 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from unit_test_helper import unit_test_helper
+from .script_tester import script_tester
+from .unit_test import unit_test
+

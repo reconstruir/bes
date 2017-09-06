@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 #
-from bes.test import unit_test_helper
+from bes.test import unit_test
 from bes.bitwise import bitwise_enum
 
 class fruit(bitwise_enum):
@@ -14,7 +14,7 @@ class fruit(bitwise_enum):
     
   DEFAULT = PEAR
   
-class test_bitwise_enum(unit_test_helper):
+class test_bitwise_enum(unit_test):
 
   def test_default_value(self):
     self.assertEqual( fruit.PEAR, fruit().value )
@@ -68,4 +68,4 @@ class test_bitwise_enum(unit_test_helper):
       f.assign(666)
     
 if __name__ == "__main__":
-  unit_test_helper.main()
+  unit_test.main()

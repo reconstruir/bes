@@ -2,10 +2,10 @@
 #-*- coding:utf-8 -*-
 #
 
-from bes.test import unit_test_helper
+from bes.test import unit_test
 from bes.match import matcher_util
 
-class TestMatcher(unit_test_helper):
+class TestMatcher(unit_test):
 
   __TEST_FILENAMES = [
     '/foo/bar/good.txt',
@@ -54,4 +54,4 @@ class TestMatcher(unit_test_helper):
     self.assertEquals( self.__TEST_FILENAMES, matcher_util.match_filenames(self.__TEST_FILENAMES, None, None) )
 
 if __name__ == "__main__":
-  unit_test_helper.main()
+  unit_test.main()
