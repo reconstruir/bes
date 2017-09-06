@@ -89,6 +89,10 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Make an egg of the package and run the tests against that instead the live files. [ False ]')
+  parser.add_argument('--save-egg',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Save the egg in the current directory. [ False ]')
   args = parser.parse_args()
   
   cwd = os.getcwd()
@@ -144,6 +148,8 @@ def main():
     egg = egg_util.make(setup_dot_py)
     environ_util.pythonpath_remove(cwd)
     environ_util.pythonpath_prepend(egg)
+    if args.save_egg:
+      file_util.copy(egg, path.join(cwd, path.basename(egg)))
     
   os.chdir('/tmp')
 
@@ -452,6 +458,11 @@ class file_util(object):
       return
     os.makedirs(p)
 
+  @classmethod
+  def copy(clazz, src, dst):
+    clazz.mkdir(path.dirname(dst))
+    shutil.copy(src, dst)
+    
   @classmethod
   def save(clazz, filename, content = None, mode = None):
     'Atomically save content to filename using an intermediate temporary file.'
