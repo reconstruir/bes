@@ -2,8 +2,6 @@ from setuptools import setup, find_packages
 
 import fnmatch, os, subprocess
 
-assert caca
-
 _WANT_TESTS = bool(os.environ.get('BES_EGG_INCLUDE_TESTS', None))
 
 def _find_tests(d):
