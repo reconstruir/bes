@@ -1,21 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import inspect, os, os.path as path, re, unittest
+import inspect, os, os.path as path, platform, re, unittest
 from StringIO import StringIO
-from bes.system import host
-
-# FIXME: dont import bes stuff here 
-FOO='''
-platform
-    __system = platform.system()
-    if __system == 'Linux':
-      return 'linux'
-    elif __system == 'Darwin':
-      return 'macos'
-    else:
-      raise RuntimeError('Unknown system: %s' % (__system))
-'''
 
 class unit_test(unittest.TestCase):
   'Helper for writing unit tests.'
@@ -30,7 +17,7 @@ class unit_test(unittest.TestCase):
   def data_dir(self, platform_specific = False): 
     parts = [ self.__class__._get_data_dir() ]
     if platform_specific:
-      parts.append(host.SYSTEM)
+      parts.append(self._HOST)
     return path.join(*parts)
 
   def platform_data_dir(self): 
@@ -112,3 +99,14 @@ class unit_test(unittest.TestCase):
     if not os.access(p, os.X_OK):
       raise RuntimeError('file not executable: %s' % (p))
     return p
+
+  def _host():
+    s = platform.system()
+    if s == 'Linux':
+      return 'linux'
+    elif s == 'Darwin':
+      return 'macos'
+    else:
+      raise RuntimeError('Unknown system: %s' % (s))
+    
+  _HOST = _host()
