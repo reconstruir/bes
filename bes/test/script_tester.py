@@ -3,7 +3,6 @@
 
 from .unit_test import unit_test
 from bes.common import Shell
-from collections import namedtuple
 
 class script_tester(unit_test):
 
