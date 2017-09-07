@@ -2,7 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .unit_test import unit_test
-from bes.common import Shell
+from collections import namedtuple
+import subprocess
 
 class script_tester(unit_test):
 
@@ -23,8 +24,12 @@ class script_tester(unit_test):
 
   def run_command(self, *args):
     cmd = self.make_command(*args)
-    rv = Shell.execute(cmd, raise_error = False)
-    if rv.exit_code != 0:
-      print rv.stdout
-      print rv.stderr
-    return Shell.Result(rv.stdout.strip(), rv.stderr.strip(), rv.exit_code)
+    return self._exec(cmd)
+
+  exec_result = namedtuple('exec_result', 'exit_code,stdout,stderr')
+  @classmethod
+  def _exec(clazz, cmd):
+    process = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
+    stdout, stderr = process.communicate()
+    exit_code = process.wait()
+    return clazz.exec_result(exit_code, stdout.strip(), stderr.strip())
