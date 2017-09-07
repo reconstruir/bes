@@ -1,9 +1,19 @@
 from setuptools import setup, find_packages
+import os, subprocess
 
-print "caca"
+_WANT_TESTS = bool(os.environ.get('BES_EGG_INCLUDE_TESTS', None))
 
-def find_tests():
-  return [ 'bes/common/tests/test_string_util.py' ]
+def _find_tests(d):
+  cmd = [ 'find', d, '-name', 'test_*.py' ]
+  result = subprocess.check_output(cmd, shell = False)
+  tests = [ test.strip() for test in result.strip().split('\n') if test.strip() ]
+  tests = [ test[len(d)+1:] for test in tests ]
+  return sorted(tests)
+
+def find_tests(d):
+  if not _WANT_TESTS:
+    return []
+  return _find_tests(d)
 
 setup(
   name = 'bes',
@@ -12,10 +22,10 @@ setup(
   zip_safe = True,
   author = 'Ramiro Estrugo',
   author_email = 'bes@fateware.com',
-#  include_package_data = True,
-#  package_data = {
-#    '': ['test_*.py'],
-#  },
+  include_package_data = True,
+  package_data = {
+    'bes': find_tests('bes'),
+  },
   scripts = [
     'bin/bes_test.py',
     'bin/bes_path.py',
