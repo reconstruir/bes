@@ -13,15 +13,11 @@ def _find_tests(d):
     if fnmatch.fnmatch(f, '*/tests/test_*.py*') or fnmatch.fnmatch(f, '*/test_data/*'):
       result.append(f)
   tests = [ f[len(d)+1:] for f in result ]
-  for t in tests:
-    print "TEST: ", t
   return sorted(tests)
 
 def find_tests(d):
   if not _WANT_TESTS:
     return []
-  for x in _find_tests(d):
-    print "CACA: ", x
   return _find_tests(d)
 
 setup(
