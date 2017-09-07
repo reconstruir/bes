@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 #
 import copy, os, os.path as path
-from bes.unit_test import unit_test
+from bes.testing.unit_test import unit_test
 from bes.common import Shell
 
 class test_bash_scripts(unit_test):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 #
-from bes.unit_test import unit_test
+from bes.testing.unit_test import unit_test
 from bes.bitwise import bitwise_word as W
 
 class test_bitwise_word(unit_test):

@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 #
 
-from bes.unit_test import unit_test
+from bes.testing.unit_test import unit_test
 #from bes.common import bit_reader
 
 class test_bit_reader(unit_test):
