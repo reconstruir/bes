@@ -5,7 +5,7 @@ from .unit_test import unit_test
 from collections import namedtuple
 import subprocess
 
-class script_tester(unit_test):
+class script_unit_test(unit_test):
 
   @classmethod
   def _resolve_script(clazz):
