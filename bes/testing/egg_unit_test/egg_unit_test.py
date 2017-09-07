@@ -1,21 +1,25 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import inspect, os.path as path
+import fnmatch, inspect, os, os.path as path, zipfile
 
 from bes.testing.unit_test import unit_test
-from bes.fs import file_path
+from bes.fs import file_path, file_util
 
+# FIXME: figure out hot to unpack and egg such that permissions and links are correct
+#        and dont need to be hacked by hand
 class egg_unit_test(unit_test):
 
   @classmethod
   def egg_for_module(clazz, mod):
+    'Return the egg for mod or None if not inside and egg.'
     assert isinstance(mod, module)
     filename = inspect.getfile(mod)
-    p = file_path.split(filename)
+    return module_file_to_egg(filename)
     
   @classmethod
   def module_file_to_egg(clazz, filename):
+    'Return the egg for a file inside an egg.  /fruits/kiwi.egg/mod/__init__.pyc => /fruits/kiwi.egg'
     p = file_path.split(filename)
     while True:
       possible_egg = file_path.join(p)
@@ -25,35 +29,29 @@ class egg_unit_test(unit_test):
         break
       p.pop()
     return None
-    
-  '''
 
-/Users/ramiro/proj/software/tmp/builds/macos/release/bes-1.0.0_2017-09-06-21-36-16-271537/test/reb-bes-test/requirements/installation/lib/python/bes-1.0.0-py2.7.egg/bes/__init__.pyc
-class reb_bes_test(unittest.TestCase):
+  _TEST_FILE_PATTERNS = [ '*/tests/*.py*', '*/test_data/*', '*/bes_test.py' ]
+  @classmethod
+  def is_test_file(clazz, filename):
+    'Return True if a file is either a unit test or test data.'
+    for pattern in clazz._TEST_FILE_PATTERNS:
+      if fnmatch.fnmatch(filename, pattern):
+        return True
+    return False
 
-  def test_bes(self):
-    import sys
-    import bes
-    suffix = '/bes/__init__.pyc'
-    init = inspect.getfile(bes)
-    egg = init[0:-len(suffix)]
-    with zipfile.ZipFile(file = egg, mode = 'r') as zegg:
-      members = zegg.infolist()
-      f = []
-      for m in members:
-        if fnmatch.fnmatch(m.filename, '*/tests/*.py*') or fnmatch.fnmatch(m.filename, '*/test_data/*') or fnmatch.fnmatch(m.filename, '*/bes_test.py'):
-          f.append(m)
-      tmp_dir = tempfile.mkdtemp()
-      for m in f:
-        zegg.extract(m, path = tmp_dir)
-        extracted_filename = path.join(tmp_dir, m.filename)
+  @classmethod
+  def extract_egg_test_files(clazz, egg, dst):
+    with zipfile.ZipFile(file = egg, mode = 'r') as zf:
+      members = clazz.filter_test_file_members(zf.infolist())
+      file_util.mkdir(dst)
+      for membmer in members:
+        zf.extract(member, path = dst)
+        extracted_filename = path.join(dst, m.filename)
         ext = path.splitext(extracted_filename)[1]
         if ext in [ '.py', '.sh' ]:
           os.chmod(extracted_filename, 0755)
-      bes_test = path.join(tmp_dir, 'EGG-INFO/scripts/bes_test.py')
-      tests_dir = path.join(tmp_dir, 'bes')
-      cmd = [ bes_test, tests_dir ]
-      exit_code = subprocess.call(cmd, shell = False)
-      self.assertEqual( 0, exit_code )
 
-'''
+  @classmethod
+  def filter_test_file_members(clazz, members):
+    result = [ member for memeber in members if clazz.is_test_file(member.filename) ]
+    return result

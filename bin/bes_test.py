@@ -3,7 +3,7 @@
 #
 
 # A script to run python unit tests.  Does not use any bes code to avoid
-# chicken-and-egg issues.
+# chicken-and-egg issues and to be standalone
 import argparse, ast, fnmatch, math, os, os.path as path, platform, random, re, subprocess, sys
 import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
