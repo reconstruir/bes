@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 #
 
-import os, os.path as path
+import os, os.path as path, tarfile
 from bes.test import unit_test
 from bes.fs import file_find, file_util, tar_util, temp_file
 
@@ -15,8 +15,11 @@ class test_tar_util(unit_test):
 
   def test_copy_tree_with_tar(self):
     self.maxDiff = None
-    tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
-    tar_util.copy_tree_with_tar(self.data_dir(), tmp_dir)
+    src_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
+    dst_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
+    with tarfile.open(self.data_path('test.tar'), mode = 'r') as f:
+      f.extractall(path = src_tmp_dir)
+    tar_util.copy_tree_with_tar(src_tmp_dir, dst_tmp_dir)
     
     expected_files = [
       '1',
@@ -31,9 +34,7 @@ class test_tar_util(unit_test):
       'foo.txt',
       'kiwi_link.txt',
     ]
-    actual_files = file_find.find(tmp_dir, file_type = file_find.ALL)
-    for a in actual_files:
-      print "A: ", a
+    actual_files = file_find.find(dst_tmp_dir, file_type = file_find.ALL)
     self.assertEqual( expected_files, actual_files )
     
 if __name__ == '__main__':
