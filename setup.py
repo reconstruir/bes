@@ -6,17 +6,15 @@ _WANT_TESTS = bool(os.environ.get('BES_EGG_INCLUDE_TESTS', None))
 
 def _find_tests(d):
   cmd = [ 'find', d, '-type', 'f' ]
-  print "CMD: ", cmd
   rv = subprocess.check_output(cmd, shell = False)
-  print "RV: ", rv
   files = [ f.strip() for f in rv.split('\n') if f.strip() ]
   result = []
-  for f in files:
-    print "FILE: ", f
   for f in files:
     if fnmatch.fnmatch(f, '*/tests/test_*.py*') or fnmatch.fnmatch(f, '*/test_data/*'):
       result.append(f)
   tests = [ f[len(d)+1:] for f in result ]
+  for t in tests:
+    print "TEST: ", t
   return sorted(tests)
 
 def find_tests(d):
