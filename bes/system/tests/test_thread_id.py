@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 #
 
-from bes.test import unit_test
+from bes.unit_test import unit_test
 from bes.system import thread_id
 
 class test_thread_id(unit_test):

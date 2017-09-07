@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 #
-from bes.test import unit_test
+from bes.unit_test import unit_test
 from bes.bitwise import bitwise_enum
 
 class fruit(bitwise_enum):

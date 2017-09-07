@@ -918,7 +918,7 @@ class somthing(unittest.TestCase):
     
   def test_inspect_file_unit_test(self):
     content = '''
-from bes.test import unit_test
+from bes.unit_test import unit_test
 class test_apple_fixture(unit_test):
 
   def test_foo(self):
