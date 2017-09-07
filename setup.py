@@ -10,7 +10,7 @@ def _find_tests(d):
   files = [ f.strip() for f in rv.split('\n') if f.strip() ]
   result = []
   for f in files:
-    if fnmatch.fnmatch(f, '*/tests/test_*.py*') or fnmatch.fnmatch(f, '*/test_data/*'):
+    if fnmatch.fnmatch(f, '*/tests/*.py*') or fnmatch.fnmatch(f, '*/test_data/*'):
       result.append(f)
   tests = [ f[len(d)+1:] for f in result ]
   return sorted(tests)
