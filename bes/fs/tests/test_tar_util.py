@@ -14,7 +14,7 @@ class test_tar_util(unit_test):
   #DEBUG = True
 
   def test_copy_tree_with_tar(self):
-    self.maxDiff = True
+    self.maxDiff = None
     tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
     tar_util.copy_tree_with_tar(self.data_dir(), tmp_dir)
     
