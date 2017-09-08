@@ -26,4 +26,4 @@ class tools(object):
   def find_tests_if_wanted(clazz, d):
     if not clazz.want_tests():
       return []
-    return self.find_tests(d)
+    return clazz.find_tests(d)
