@@ -47,7 +47,7 @@ class egg_unit_test(unit_test):
       file_util.mkdir(dst)
       for member in members:
         zf.extract(member, path = dst)
-        extracted_filename = path.join(dst, m.filename)
+        extracted_filename = path.join(dst, member.filename)
         ext = path.splitext(extracted_filename)[1]
         if ext in [ '.py', '.sh' ]:
           os.chmod(extracted_filename, 0755)
