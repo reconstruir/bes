@@ -54,5 +54,5 @@ class egg_unit_test(unit_test):
 
   @classmethod
   def filter_test_file_members(clazz, members):
-    result = [ member for memeber in members if clazz.is_test_file(member.filename) ]
+    result = [ member for member in members if clazz.is_test_file(member.filename) ]
     return result
