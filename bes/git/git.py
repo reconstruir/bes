@@ -141,13 +141,11 @@ class git(object):
       clazz.clone(address, dest_dir, enforce_empty_dir = enforce_empty_dir)
 
   @classmethod
-  def download_tarball(clazz, name, tag, address, archive_filename, revision = None):
+  def download_tarball(clazz, name, tag, address, archive_filename):
     'Download address to archive_filename.'
     archive_filename = path.abspath(archive_filename)
     tmp_dir = temp_file.make_temp_dir()
     clazz.clone(address, tmp_dir)
-    if revision:
-      clazz.reset_to_revision(tmp_dir, revision)
     flags = []
     args = [
       'archive',
