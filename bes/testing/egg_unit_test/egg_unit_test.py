@@ -45,7 +45,7 @@ class egg_unit_test(unit_test):
     with zipfile.ZipFile(file = egg, mode = 'r') as zf:
       members = clazz.filter_test_file_members(zf.infolist())
       file_util.mkdir(dst)
-      for membmer in members:
+      for member in members:
         zf.extract(member, path = dst)
         extracted_filename = path.join(dst, m.filename)
         ext = path.splitext(extracted_filename)[1]
