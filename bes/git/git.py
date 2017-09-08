@@ -27,18 +27,18 @@ class git(object):
     filenames = object_util.listify(filenames)
     flags = [ '--porcelain' ]
     args = [ 'status' ] + flags + filenames
-    rv = clazz.__call_git(root, args)
+    rv = clazz._call_git(root, args)
     return clazz.__parse_status_output(rv.stdout)
 
   @classmethod
   def branch_status(clazz, root):
-    rv = clazz.__call_git(root, [ 'status', '-b', '--porcelain' ])
+    rv = clazz._call_git(root, [ 'status', '-b', '--porcelain' ])
     ahead, behind = clazz._parse_branch_status_output(root, rv.stdout)
     return clazz.branch_status_t(ahead, behind)
 
   @classmethod
   def remote_update(clazz, root):
-    clazz.__call_git(root, [ 'remote', 'update' ])
+    clazz._call_git(root, [ 'remote', 'update' ])
 
   @classmethod
   def _parse_branch_status_output(clazz, root, s):
@@ -60,19 +60,19 @@ class git(object):
     filenames = object_util.listify(filenames)
     flags = []
     args = [ 'add' ] + flags + filenames
-    rv = clazz.__call_git(root, args)
+    rv = clazz._call_git(root, args)
     return rv
 
   @classmethod
   def move(clazz, root, src, dst):
     args = [ 'mv', src, dst ]
-    rv = clazz.__call_git(root, args)
+    rv = clazz._call_git(root, args)
     return rv
 
   @classmethod
   def init(clazz, root):
     args = [ 'init', '.' ]
-    rv = clazz.__call_git(root, args)
+    rv = clazz._call_git(root, args)
     return rv
 
   @classmethod
@@ -84,7 +84,7 @@ class git(object):
     return True
 
   @classmethod
-  def __call_git(clazz, root, args):
+  def _call_git(clazz, root, args):
     cmd = [ clazz.GIT_EXE ] + args
     #print "cmd: ", cmd
     return Shell.execute(cmd, cwd = root)
@@ -112,24 +112,24 @@ class git(object):
     else:
       file_util.mkdir(dest_dir)
     args = [ 'clone', address, dest_dir ]
-    clazz.__call_git(os.getcwd(), args)
+    clazz._call_git(os.getcwd(), args)
 
   @classmethod
   def pull(clazz, root):
     args = [ 'pull', '--verbose' ]
-    clazz.__call_git(root, args)
+    clazz._call_git(root, args)
 
   @classmethod
   def push(clazz, root):
     args = [ 'push', '--verbose' ]
-    clazz.__call_git(root, args)
+    clazz._call_git(root, args)
 
   @classmethod
   def commit(clazz, root, message, filenames):
     filenames = object_util.listify(filenames)
     message_filename = temp_file.make_temp_file(content = message)
     args = [ 'commit', '-F', message_filename ] + filenames
-    clazz.__call_git(root, args)
+    clazz._call_git(root, args)
 
   @classmethod
   def clone_or_update(clazz, address, dest_dir, enforce_empty_dir = True):
@@ -141,11 +141,13 @@ class git(object):
       clazz.clone(address, dest_dir, enforce_empty_dir = enforce_empty_dir)
 
   @classmethod
-  def download_tarball(clazz, name, tag, address, archive_filename):
+  def download_tarball(clazz, name, tag, address, archive_filename, revision = None):
     'Download address to archive_filename.'
     archive_filename = path.abspath(archive_filename)
     tmp_dir = temp_file.make_temp_dir()
     clazz.clone(address, tmp_dir)
+    if revision:
+      clazz.reset_to_revision(tmp_dir, revision)
     flags = []
     args = [
       'archive',
@@ -156,5 +158,22 @@ class git(object):
       tag
     ]
     file_util.mkdir(path.dirname(archive_filename))
-    rv = clazz.__call_git(tmp_dir, args)
+    rv = clazz._call_git(tmp_dir, args)
     file_util.remove(tmp_dir)
+
+  @classmethod
+  def short_hash(clazz, root, long_hash):
+    args = [ 'rev-parse', '--short', long_hash ]
+    rv = clazz._call_git(root, args)
+    return rv.stdout.strip()
+
+  @classmethod
+  def long_hash(clazz, root, short_hash):
+    args = [ 'rev-parse', short_hash ]
+    rv = clazz._call_git(root, args)
+    return rv.stdout.strip()
+  
+  @classmethod
+  def reset_to_revision(clazz, root, revision):
+    args = [ 'reset', '--hard', revision ]
+    clazz._call_git(root, args)
