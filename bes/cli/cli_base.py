@@ -3,16 +3,44 @@
 
 import argparse, os, os.path as path
 
-#from bes_network.device import device, device_type
-#from bes_network.wireless import wireless#
-
-#from bes_network.address import mac_address_lookup
+from bes.fs import file_util
 
 from abc import abstractmethod, ABCMeta
 
-
 class cli_base(object):
 
+  def __init__(self):
+    pass
+
+  @classmethod
+  def check_file_exists(clazz, filename, label = 'file'):
+    if not path.isfile(filename):
+      raise RuntimeError('%s not found: %s' % (label, filename))
+
+  @classmethod
+  def check_dir_exists(clazz, d, label = 'dir'):
+    if not path.isdir(d):
+      raise RuntimeError('%s not found: %s' % (label, d))
+
+  @classmethod
+  def resolve_filename(clazz, filename):
+    return file_util.ensure_abspath(filename)
+
+  @classmethod
+  def relocate_file(clazz, filename, dst_dir):
+    new_filename = path.join(dst_dir, path.basename(filename))
+    file_util.rename(filename, new_filename)
+    return new_filename
+
+  @classmethod
+  def add_verbose_option(clazz, parser):
+    parser.add_argument('-v',
+                        '--verbose',
+                        action = 'store_true',
+                        default = False,
+                        help = 'Be verbose about what is happening [ False ]')
+    
+'''  
   __metaclass__ = ABCMeta
   
   def __init__(self):
@@ -50,3 +78,4 @@ class cli_base(object):
     elif args.command == 'list':
       return self._command_list()
     
+'''

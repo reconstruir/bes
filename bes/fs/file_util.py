@@ -172,12 +172,13 @@ class file_util(object):
   @classmethod
   def make_paths_absolute(clazz, paths):
     paths = object_util.listify(paths)
+    return [ clazz.ensure_abspath(p) for p in paths ]
 
-    def _make_abs(p):
-      assert p
-      if not path.isabs(p):
-        return path.abspath(p)
+  @classmethod
+  def ensure_abspath(clazz, p):
+    assert p
+    if path.isabs(p):
       return p
-    return [ _make_abs(p) for p in paths ]
+    return path.abspath(p)
 
 log.add_logging(file_util, 'file_util')

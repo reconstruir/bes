@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import inspect
 from bitwise_unpack import bitwise_unpack
 
 class _bitwise_enum_meta(type):
