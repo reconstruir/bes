@@ -3,6 +3,3 @@ jul 28
 - also rename find_fnmatch to find_name
 - key_valaue_lexer and parser run/parse dont work with multiple invocations
 - key value lexer parser tests for exception states
-
-aug 24
-- rename bes.test to bes.unit_testing or testing
