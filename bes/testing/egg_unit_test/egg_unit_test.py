@@ -13,7 +13,8 @@ class egg_unit_test(unit_test):
   @classmethod
   def egg_for_module(clazz, mod):
     'Return the egg for mod or None if not inside and egg.'
-    assert isinstance(mod, module)
+    if not inspect.ismodule(mod):
+      raise TypeError('not a module: %s' % (str(mod)))
     filename = inspect.getfile(mod)
     return module_file_to_egg(filename)
     
