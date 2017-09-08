@@ -16,7 +16,7 @@ class egg_unit_test(unit_test):
     if not inspect.ismodule(mod):
       raise TypeError('not a module: %s' % (str(mod)))
     filename = inspect.getfile(mod)
-    return module_file_to_egg(filename)
+    return clazz.module_file_to_egg(filename)
     
   @classmethod
   def module_file_to_egg(clazz, filename):
