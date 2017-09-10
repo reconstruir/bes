@@ -3,9 +3,10 @@
 #
 import os.path as path, unittest
 from bes.fs import file_util, temp_file
-from bes.git import git
 
-class TestGit(unittest.TestCase):
+from bes.git import git, status
+
+class test_git(unittest.TestCase):
 
   def __create_tmp_repo(self):
     tmp_repo = temp_file.make_temp_dir()
@@ -23,7 +24,7 @@ class TestGit(unittest.TestCase):
     tmp_repo = self.__create_tmp_repo()
     new_files = self.__create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
-    expected_status = [ git.status_item(git.ADDED, f) for f in new_files ]
+    expected_status = [ status(status.ADDED, f) for f in new_files ]
     actual_status = git.status(tmp_repo, '.')
     self.assertEqual( expected_status, actual_status )
 

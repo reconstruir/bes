@@ -6,20 +6,13 @@ from collections import namedtuple
 from bes.common import object_util, Shell, string_util
 from bes.fs import dir_util, file_util, temp_file
 
+from .status import status
+
 class git(object):
   'A class to deal with git.'
 
   GIT_EXE = 'git'
 
-  MODIFIED = 'M'
-  ADDED = 'A'
-  DELETED = 'D'
-  RENAMED = 'R'
-  COPIED = 'C'
-  UNMERGED = 'U'
-  UNKNOWN = '??'
-
-  status_item = namedtuple('status_item', 'action,filename')
   branch_status_t = namedtuple('branch_status', 'ahead,behind')
   
   @classmethod
@@ -28,7 +21,7 @@ class git(object):
     flags = [ '--porcelain' ]
     args = [ 'status' ] + flags + filenames
     rv = clazz._call_git(root, args)
-    return clazz.__parse_status_output(rv.stdout)
+    return status.parse(rv.stdout)
 
   @classmethod
   def branch_status(clazz, root):
@@ -88,18 +81,6 @@ class git(object):
     cmd = [ clazz.GIT_EXE ] + args
     #print "cmd: ", cmd
     return Shell.execute(cmd, cwd = root)
-
-  @classmethod
-  def __parse_status_output(clazz, s):
-    lines = [ line.strip() for line in s.split('\n') ]
-    lines = [ line for line in lines if line ]
-    return [ clazz.__parse_status_line(line) for line in lines  ]
-
-  @classmethod
-  def __parse_status_line(clazz, s):
-    v = string_util.split_by_white_space(s)
-    assert len(v) == 2
-    return clazz.status_item(v[0], v[1])
 
   @classmethod
   def clone(clazz, address, dest_dir, enforce_empty_dir = True):
