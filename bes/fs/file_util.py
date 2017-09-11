@@ -10,10 +10,12 @@ from collections import namedtuple
 class file_util(object):
 
   @classmethod
-  def mkdir(clazz, p):
+  def mkdir(clazz, p, mode = None):
     if path.isdir(p):
       return
     os.makedirs(p)
+    if mode:
+      os.chmod(p, mode)
                   
   @classmethod
   def remove(clazz, files):
@@ -150,10 +152,6 @@ class file_util(object):
   def copy_mode(clazz, src, dst):
     shutil.copymode(src, dst)
 
-  @classmethod
-  def copy_mode(clazz, src, dst):
-    shutil.copymode(src, dst)
-    
   @classmethod
   def read(clazz, filename):
     'Read a file into a string.'

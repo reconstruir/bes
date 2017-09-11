@@ -76,5 +76,5 @@ class temp_file(object):
     for item in items:
       item.write(root_dir)
       
-log.add_logging(temp_file, 'temp_file_util')
-#log.configure('temp_file_util=debug')
+log.add_logging(temp_file, 'temp_file')
+#log.configure('temp_file=debug')
