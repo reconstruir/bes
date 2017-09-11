@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path, tempfile
-from bes.fs import file_util
+import os, os.path as path, tempfile
 from bes.text import string_list_parser
 from collections import namedtuple
 
@@ -81,7 +80,8 @@ class temp_item(namedtuple('temp_item', 'item_type,filename,content,mode')):
     else:
       content = None
     if content and path.isfile(content):
-      content = file_util.read(content)
+      with open(content, 'r') as fin:
+        content = fin.read()
     if len(t) > 3:
       mode = clazz.parse_mode(t[3])
     else:
@@ -91,12 +91,23 @@ class temp_item(namedtuple('temp_item', 'item_type,filename,content,mode')):
   def write(self, root_dir):
     p = path.join(root_dir, self.filename)
     if self.item_type == self.DIR:
-      file_util.mkdir(p, mode = self.mode)
+      clazz.mkdir(p, mode = self.mode)
     elif self.item_type == self.FILE:
-      file_util.save(p, content = self.content, mode = self.mode)
+      with open(p, 'w') as fout:
+        fout.write(self.content or '')
+      if self.mode:
+        os.chmod(p, self.mode)
     else:
       assert False
 
+  @classmethod
+  def _mkdir(clazz, p, mode = None):
+    if path.isdir(p):
+      return
+    os.makedirs(p)
+    if mode:
+      os.chmod(p, mode)
+      
   @classmethod
   def parse_sequence(clazz, seq):
     l =  [ i for i in seq ]
