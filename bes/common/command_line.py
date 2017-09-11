@@ -16,8 +16,8 @@ class command_line(object):
       desc = command[1]
       argspec = inspect.getargspec(desc)
 #      help(desc)
-      print "desc: ", desc, type(desc)
-      print "args: ", argspec, type(argspec)
+      print("desc: ", desc, type(desc))
+      print("args: ", argspec, type(argspec))
       
     return 0
 

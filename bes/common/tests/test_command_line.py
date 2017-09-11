@@ -16,11 +16,11 @@ class test_command_line(unittest.TestCase):
         super(food, self).__init__('foods')
 
       def command_foo(self, what):
-        print "command_foo(%s)" % (what)
+        print("command_foo(%s)" % (what))
         return 0
       
       def command_bar(self, what):
-        print "command_bar(%s)" % (what)
+        print("command_bar(%s)" % (what))
         return 0
       
     f = food()

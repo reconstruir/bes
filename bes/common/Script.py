@@ -21,7 +21,7 @@ class Script(object):
   @classmethod
   def blurb(clazz, message):
     'Print a blurb prefixed by the script name.'
-    print '%s: %s' % (Script.name(), message)
+    print('%s: %s' % (Script.name(), message))
 
   @classmethod
   def spew_blurb(clazz, message):
@@ -36,7 +36,7 @@ class Script(object):
     with the same blurb.
     '''
     msg = '%s: %s' % (Script.name(), message)
-    print msg
+    print(msg)
     raise RuntimeError(msg)
 
   @classmethod
@@ -49,7 +49,7 @@ class Script(object):
   @classmethod
   def usage(clazz, message, bail = False):
     'Print a usage blurb.'
-    print 'Usage: %s %s' % (Script.name(), message)
+    print('Usage: %s %s' % (Script.name(), message))
     if bail:
       sys.exit(1)
 

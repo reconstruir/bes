@@ -36,7 +36,7 @@ class Ftdi(object):
   @classmethod
   def find_devices(clazz, vendor_string = None):
     if not _have_udev:
-      print 'This system does not have pyudev'
+      print('This system does not have pyudev')
       return []
     context = pyudev.Context()
     ftdi_devices = list(context.list_devices())
@@ -55,8 +55,8 @@ class Ftdi(object):
       if not skip:
         result.append( ( info[0], info[1], str(device.device_node) ) )
         if info[0] == 'Serial':
-          print " INFO: ", pprint.pformat(info)
-          print "ITEMS: ", pprint.pformat(device.items())
+          print(" INFO: ", pprint.pformat(info))
+          print("ITEMS: ", pprint.pformat(device.items()))
     return result
 
 

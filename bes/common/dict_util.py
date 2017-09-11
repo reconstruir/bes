@@ -27,7 +27,7 @@ class dict_util(object):
     longest_key = max([ len(key) for key in d.keys() ])
     fmt = '%%%ds: %%s' % (longest_key)
     for k, v in sorted(d.items()):
-      print fmt % (k, v)
+      print(fmt % (k, v))
 
   @staticmethod
   def filter_with_keys(d, keys):
