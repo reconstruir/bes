@@ -10,7 +10,7 @@ class Testfile_find(unittest.TestCase):
   Item = namedtuple('Item', [ 'filename', 'content', 'isdir' ])
 
   @classmethod
-  def __parse_item(clazz, item):
+  def _parse_item(clazz, item):
     if isinstance(item, basestring):
       item = ( item, None )
     assert isinstance(item, tuple)
@@ -26,12 +26,12 @@ class Testfile_find(unittest.TestCase):
     return clazz.Item(filename, content, isdir)
 
   @classmethod
-  def __make_temp_items(clazz, items):
-    return [ clazz.__parse_item(item) for item in items ]
+  def _make_temp_items(clazz, items):
+    return [ clazz._parse_item(item) for item in items ]
 
   @classmethod
-  def __write_temp_content(clazz, root_dir, items):
-    items = clazz.__make_temp_items(items)
+  def _write_temp_content(clazz, root_dir, items):
+    items = clazz._make_temp_items(items)
     for item in items:
       filename = path.join(root_dir, item.filename)
       if item.isdir:
@@ -40,13 +40,13 @@ class Testfile_find(unittest.TestCase):
         file_util.save(filename, item.content)
 
   @classmethod
-  def __make_temp_content(clazz, items):
+  def _make_temp_content(clazz, items):
     tmp_dir = temp_file.make_temp_dir()
-    clazz.__write_temp_content(tmp_dir, items)
+    clazz._write_temp_content(tmp_dir, items)
     return tmp_dir
 
   def test_file_find(self):
-    tmp_dir = self.__make_temp_content([
+    tmp_dir = self._make_temp_content([
       ( 'foo.txt', 'foo.txt\n' ),
       ( 'subdir/bar.txt', 'bar.txt\n' ),
       ( 'subdir/subberdir/baz.txt', 'baz.txt\n' ),
@@ -64,7 +64,7 @@ class Testfile_find(unittest.TestCase):
     self.assertEqual( expected_relative, file_find.find(tmp_dir, relative = True) )
 
   def test_file_find_absolute(self):
-    tmp_dir = self.__make_temp_content([
+    tmp_dir = self._make_temp_content([
       ( 'foo.txt', 'foo.txt\n' ),
       ( 'subdir/bar.txt', 'bar.txt\n' ),
       ( 'subdir/subberdir/baz.txt', 'baz.txt\n' ),
@@ -84,7 +84,7 @@ class Testfile_find(unittest.TestCase):
 
   def test_file_find_max_depth(self):
     self.maxDiff = None
-    tmp_dir = self.__make_temp_content([
+    tmp_dir = self._make_temp_content([
       ( '1a.f' ),
       ( '1b.f' ),
       ( '1.d/2a.f' ),
@@ -106,7 +106,7 @@ class Testfile_find(unittest.TestCase):
 
   def test_file_find_min_depth(self):
     self.maxDiff = None
-    tmp_dir = self.__make_temp_content([
+    tmp_dir = self._make_temp_content([
       ( '1a.f' ),
       ( '1b.f' ),
       ( '1.d/2a.f' ),
@@ -128,7 +128,7 @@ class Testfile_find(unittest.TestCase):
 
   def test_file_find_min_and_max_depth(self):
     self.maxDiff = None
-    tmp_dir = self.__make_temp_content([
+    tmp_dir = self._make_temp_content([
       ( '1a.f' ),
       ( '1b.f' ),
       ( '1.d/2a.f' ),

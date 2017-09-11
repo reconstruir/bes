@@ -10,10 +10,10 @@ from temp_file import temp_file
 
 class file_find(object):
 
-  FILE = 0x01
-  DIR = 0x02
-  LINK = 0x04
-  DEVICE = 0x08
+  FILE = 0x02
+  DIR = 0x04
+  LINK = 0x08
+  DEVICE = 0x10
 
   ALL = FILE | DIR | LINK
   
@@ -45,9 +45,9 @@ class file_find(object):
     for dirpath, dirnames, filenames in os.walk(root_dir, topdown = True):
       depth = dirpath[len(root_dir) + len(path.sep):].count(path.sep) + 1
       to_check = []
-      if clazz.__want_file_type(file_type, clazz.FILE | clazz.LINK | clazz.DEVICE):
+      if clazz._want_file_type(file_type, clazz.FILE | clazz.LINK | clazz.DEVICE):
         to_check += filenames
-      if clazz.__want_file_type(file_type, clazz.DIR):
+      if clazz._want_file_type(file_type, clazz.DIR):
         to_check += dirnames
       else:
         links = [ d for d in dirnames if path.islink(path.normpath(path.join(dirpath, d))) ]
@@ -57,7 +57,7 @@ class file_find(object):
         depth = f.count(os.sep) - root_dir_count
         if _in_range(depth, min_depth, max_depth):
           #if path.isfile(f):
-          if clazz.__match_file_type(f, file_type):
+          if clazz._match_file_type(f, file_type):
             if relative:
               result.append(file_util.remove_head(f, root_dir))
             else:
@@ -65,15 +65,15 @@ class file_find(object):
     return sorted(result)
 
   @classmethod
-  def __want_file_type(clazz, file_type, mask):
+  def _want_file_type(clazz, file_type, mask):
     return (file_type & mask) != 0
 
   @classmethod
-  def __match_file_type(clazz, filename, file_type):
-    want_file = clazz.__want_file_type(file_type, clazz.FILE)
-    want_dir = clazz.__want_file_type(file_type, clazz.DIR)
-    want_link = clazz.__want_file_type(file_type, clazz.LINK)
-    want_device = clazz.__want_file_type(file_type, clazz.DEVICE)
+  def _match_file_type(clazz, filename, file_type):
+    want_file = clazz._want_file_type(file_type, clazz.FILE)
+    want_dir = clazz._want_file_type(file_type, clazz.DIR)
+    want_link = clazz._want_file_type(file_type, clazz.LINK)
+    want_device = clazz._want_file_type(file_type, clazz.DEVICE)
     try:
       st = os.lstat(filename)
     except OSError, ex:

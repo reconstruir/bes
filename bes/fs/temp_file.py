@@ -12,7 +12,6 @@ class temp_item(object):
     self.filename = filename
     self.content = content
     self.mode = mode
-    self.filename = filename
 
   def write(self, root_dir):
     p = path.join(root_dir, self.filename)
