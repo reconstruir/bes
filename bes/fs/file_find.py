@@ -14,8 +14,7 @@ class file_find(object):
   DIR = 0x04
   LINK = 0x08
   DEVICE = 0x10
-
-  ALL = FILE | DIR | LINK
+  ANY = FILE|DIR|LINK|DEVICE
   
   @classmethod
   def find(clazz, root_dir, relative = True, min_depth = None, max_depth = None, file_type = FILE):

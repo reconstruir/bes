@@ -34,7 +34,7 @@ class test_string_list_parser(unittest.TestCase):
       options |= P.ESCAPE_QUOTES
     if ignore_comments:
       options |= P.IGNORE_COMMENTS
-    return [ s for s in P.parse(text, options = options) ]
+    return P.parse_to_list(text, options = options)
 
 if __name__ == "__main__":
   unittest.main()

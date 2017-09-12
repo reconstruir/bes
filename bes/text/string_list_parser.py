@@ -75,12 +75,16 @@ class string_list_parser(string_lexer_options):
         yield s
     assert self.state == self.STATE_DONE
       
-  @classmethod
-  def parse(clazz, text, options = 0):
-    return clazz(options = options).run(text)
-
   def change_state(self, new_state, msg):
     assert new_state
     if new_state != self.state:
       self.log_d('transition: %20s -> %-20s; %s'  % (self.state.__class__.__name__, new_state.__class__.__name__, msg))
       self.state = new_state
+
+  @classmethod
+  def parse(clazz, text, options = 0):
+    return clazz(options = options).run(text)
+
+  @classmethod
+  def parse_to_list(clazz, text, options = 0):
+    return [ x for x in clazz.parse(text, options = options) ]

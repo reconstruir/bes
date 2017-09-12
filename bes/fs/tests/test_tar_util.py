@@ -34,7 +34,7 @@ class test_tar_util(unit_test):
       'foo.txt',
       'kiwi_link.txt',
     ]
-    actual_files = file_find.find(dst_tmp_dir, file_type = file_find.ALL)
+    actual_files = file_find.find(dst_tmp_dir, file_type = file_find.ANY)
     self.assertEqual( expected_files, actual_files )
     
 if __name__ == '__main__':
