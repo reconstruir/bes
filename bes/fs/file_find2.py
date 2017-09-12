@@ -39,12 +39,7 @@ class file_find2(object):
     root_dir = path.normpath(root_dir)
     root_dir_count = root_dir.count(os.sep)
 
-
-    #walklevel(clazz, some_dir, level = 1):
-    
-    # FIXME: it should be possibe to improve the performance of this
-    # algorithm if we stop recursing once we reach the optional target depth
-    for root, dirs, files in os.walk(root_dir, topdown = True):
+    for root, dirs, files in clazz._walk_with_depth(root_dir, max_depth = max_depth):
       depth = root[len(root_dir) + len(path.sep):].count(path.sep) + 1
       to_check = []
       if clazz._want_file_type(file_type, clazz.FILE | clazz.LINK | clazz.DEVICE):
@@ -69,15 +64,16 @@ class file_find2(object):
 
   #: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
   @classmethod
-  def walklevel(clazz, some_dir, level = 1):
+  def _walk_with_depth(clazz, some_dir, max_depth = None):
     some_dir = some_dir.rstrip(os.path.sep)
     assert os.path.isdir(some_dir)
     num_sep = some_dir.count(os.path.sep)
     for root, dirs, files in os.walk(some_dir, topdown = True):
       yield root, dirs, files
       num_sep_this = root.count(os.path.sep)
-      if num_sep + level <= num_sep_this:
-        del dirs[:]
+      if max_depth is not None:
+        if num_sep + max_depth <= num_sep_this:
+          del dirs[:]
   
   @classmethod
   def _want_file_type(clazz, file_type, mask):
