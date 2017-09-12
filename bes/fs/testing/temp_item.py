@@ -91,8 +91,9 @@ class temp_item(namedtuple('temp_item', 'item_type,filename,content,mode')):
   def write(self, root_dir):
     p = path.join(root_dir, self.filename)
     if self.item_type == self.DIR:
-      clazz.mkdir(p, mode = self.mode)
+      self._mkdir(p, mode = self.mode)
     elif self.item_type == self.FILE:
+      self._mkdir(path.dirname(p))
       with open(p, 'w') as fout:
         fout.write(self.content or '')
       if self.mode:
@@ -112,3 +113,8 @@ class temp_item(namedtuple('temp_item', 'item_type,filename,content,mode')):
   def parse_sequence(clazz, seq):
     l =  [ i for i in seq ]
     return tuple([ clazz.parse(i) for i in l ])
+
+  @classmethod
+  def write_items(clazz, items, root_dir):
+    for item in items:
+      item.write(root_dir)
