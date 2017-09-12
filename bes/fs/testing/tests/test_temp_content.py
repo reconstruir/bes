@@ -3,9 +3,9 @@
 
 import os, os.path as path, shutil, tempfile
 from bes.testing.unit_test import unit_test
-from bes.fs.testing import temp_item as I
+from bes.fs.testing import temp_content as I
 
-class test_temp_item(unit_test):
+class test_temp_content(unit_test):
 
   def test_parse_string(self):
     self.assertEqual( I( I.FILE, 'foo.txt', 'this is foo\nhaha', None ), I.parse('file foo.txt "this is foo\nhaha"') )

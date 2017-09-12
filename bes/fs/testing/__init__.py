@@ -1,4 +1,4 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from .temp_item import temp_item
+from .temp_content import temp_content

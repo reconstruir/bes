@@ -5,7 +5,7 @@ import os, os.path as path, tempfile
 from bes.text import string_list_parser
 from collections import namedtuple
 
-class temp_item(namedtuple('temp_item', 'item_type,filename,content,mode')):
+class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')):
 
   FILE = 'file'
   DIR = 'dir'
@@ -18,13 +18,14 @@ class temp_item(namedtuple('temp_item', 'item_type,filename,content,mode')):
   
   @classmethod
   def parse_item_type(clazz, s):
-    if not isinstance(s, basestring):
-      return None
-    s = s.lower()
-    if s in [ 'file', 'f' ]:
-      return clazz.FILE
-    elif s in [ 'dir', 'd' ]:
-      return clazz.DIR
+    if isinstance(s, temp_content):
+      return s
+    elif isinstance(s, basestring):
+      s = s.lower()
+      if s in [ 'file', 'f' ]:
+        return clazz.FILE
+      elif s in [ 'dir', 'd' ]:
+        return clazz.DIR
     return None
     
   @classmethod
