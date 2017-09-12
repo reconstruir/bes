@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.fs import file_find2, temp_file
