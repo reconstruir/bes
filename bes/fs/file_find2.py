@@ -1,0 +1,135 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+
+import errno, os.path as path, os, stat
+
+from bes.system import log
+from file_util import file_util
+from file_match import file_match
+from temp_file import temp_file
+
+class file_find2(object):
+
+  FILE = 0x02
+  DIR = 0x04
+  LINK = 0x08
+  DEVICE = 0x10
+
+  ALL = FILE | DIR | LINK
+  
+  @classmethod
+  def find(clazz, root_dir, relative = True, min_depth = None, max_depth = None, file_type = FILE):
+    if max_depth and min_depth and not (max_depth >= min_depth):
+      raise RuntimeError('max_depth needs to be >= min_depth.')
+
+    if min_depth and min_depth < 1:
+      raise RuntimeError('min_depth needs to be >= 1.')
+
+    def _in_range(depth, min_depth, max_depth):
+      if min_depth and max_depth:
+        return depth >= min_depth and depth <= max_depth
+      elif min_depth:
+        return depth >= min_depth
+      elif max_depth:
+        return depth <= max_depth
+      else:
+        return True
+      
+    result = []
+
+    root_dir = path.normpath(root_dir)
+    root_dir_count = root_dir.count(os.sep)
+
+    # FIXME: it should be possibe to improve the performance of this
+    # algorithm if we stop recursing once we reach the optional target depth
+    for dirpath, dirnames, filenames in os.walk(root_dir, topdown = True):
+      depth = dirpath[len(root_dir) + len(path.sep):].count(path.sep) + 1
+      to_check = []
+      if clazz._want_file_type(file_type, clazz.FILE | clazz.LINK | clazz.DEVICE):
+        to_check += filenames
+      if clazz._want_file_type(file_type, clazz.DIR):
+        to_check += dirnames
+      else:
+        links = [ d for d in dirnames if path.islink(path.normpath(path.join(dirpath, d))) ]
+        to_check += links
+      for name in to_check:
+        f = path.normpath(path.join(dirpath, name))
+        depth = f.count(os.sep) - root_dir_count
+        if _in_range(depth, min_depth, max_depth):
+          #if path.isfile(f):
+          if clazz._match_file_type(f, file_type):
+            if relative:
+              result.append(file_util.remove_head(f, root_dir))
+            else:
+              result.append(f)
+    return sorted(result)
+
+  @classmethod
+  def _want_file_type(clazz, file_type, mask):
+    return (file_type & mask) != 0
+
+  @classmethod
+  def _match_file_type(clazz, filename, file_type):
+    want_file = clazz._want_file_type(file_type, clazz.FILE)
+    want_dir = clazz._want_file_type(file_type, clazz.DIR)
+    want_link = clazz._want_file_type(file_type, clazz.LINK)
+    want_device = clazz._want_file_type(file_type, clazz.DEVICE)
+    try:
+      st = os.lstat(filename)
+    except OSError, ex:
+      if ex.errno == errno.EBADF:
+        # Some devices on macos result in bad access when trying to stat so ignore them
+        return False
+      else:
+        raise
+    is_file = stat.S_ISREG(st.st_mode)
+    is_dir = stat.S_ISDIR(st.st_mode)
+    is_device = stat.S_ISBLK(st.st_mode) or stat.S_ISCHR(st.st_mode)
+    is_link = stat.S_ISLNK(st.st_mode)
+    return (want_file and is_file) or (want_dir and is_dir) or (want_link and is_link) or (want_device and is_device)
+    
+  @classmethod
+  def find_function(clazz, root_dir, function,
+                    relative = True, min_depth = None, max_depth = None,
+                    file_type = FILE):
+    assert function
+    result = clazz.find(root_dir, relative = relative, min_depth = min_depth,
+                        max_depth = max_depth, file_type = file_type)
+    return [ f for f in result if function(f) ]
+
+  @classmethod
+  def find_fnmatch(clazz, root_dir, patterns, match_type = file_match.ANY,
+                   relative = True, min_depth = None, max_depth = None,
+                   file_type = FILE):
+    assert patterns
+    assert match_type
+    result = clazz.find(root_dir, 
+                        relative = relative,
+                        min_depth = min_depth,
+                        max_depth = max_depth,
+                        file_type = file_type)
+    if not patterns:
+      return result
+    return file_match.match_fnmatch(result, patterns, match_type)
+
+  @classmethod
+  def find_re(clazz, root_dir, expressions, match_type,
+              relative = True, min_depth = None, max_depth = None,
+              file_type = FILE):
+    assert expressions
+    assert match_type
+    assert key
+    result = clazz.find(root_dir,
+                        relative = relative,
+                        min_depth = min_depth,
+                        max_depth = max_depth,
+                        file_type = file_type)
+    if not expressions:
+      return result
+    return file_match.match_re(result, expressions, match_type)
+
+  @classmethod
+  def find_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None):
+    return clazz.find(root_dir, relative = relative, min_depth = min_depth,  max_depth = max_depth, file_type = clazz.DIR)
+
+log.add_logging(file_find2, 'file_find2')
