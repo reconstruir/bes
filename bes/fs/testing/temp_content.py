@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os, os.path as path, tempfile
+import os, os.path as path
 from bes.text import string_list_parser
 from collections import namedtuple
 
 class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')):
-
+  'Temporary files, directories and content for easier testing.'
+  
   FILE = 'file'
   DIR = 'dir'
 
@@ -117,5 +118,7 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
 
   @classmethod
   def write_items(clazz, items, root_dir):
+    'Write temp content items to root_dir can be a sequence of strings to parse or temp_item objects.'
     for item in items:
+      item = clazz.parse(item)
       item.write(root_dir)

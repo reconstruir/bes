@@ -46,7 +46,7 @@ class test_temp_content(unit_test):
       'dir  baz     ""            700',
     ]) )
 
-  def test_write_items(self):
+  def test_write_items_with_parse(self):
     items = I.parse_sequence([
       'file a/b/c/foo.txt "foo content" 755',
       'file d/e/bar.txt "bar content" 644',
@@ -54,6 +54,18 @@ class test_temp_content(unit_test):
     ])
     tmp_dir = tempfile.mkdtemp()
     I.write_items(items, tmp_dir)
+    self.assertTrue( path.isfile(path.join(tmp_dir, 'a/b/c/foo.txt')) )
+    self.assertTrue( path.isfile(path.join(tmp_dir, 'd/e/bar.txt')) )
+    self.assertTrue( path.isdir(path.join(tmp_dir, 'baz')) )
+    shutil.rmtree(tmp_dir)
+
+  def test_write_items_with_parse(self):
+    tmp_dir = tempfile.mkdtemp()
+    I.write_items([
+      'file a/b/c/foo.txt "foo content" 755',
+      'file d/e/bar.txt "bar content" 644',
+      'dir  baz     ""            700',
+    ], tmp_dir)
     self.assertTrue( path.isfile(path.join(tmp_dir, 'a/b/c/foo.txt')) )
     self.assertTrue( path.isfile(path.join(tmp_dir, 'd/e/bar.txt')) )
     self.assertTrue( path.isdir(path.join(tmp_dir, 'baz')) )
