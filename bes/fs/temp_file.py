@@ -62,6 +62,20 @@ class temp_file(object):
     return tmp_dir
 
   @classmethod
+  def poto_make_temp_dir(clazz, prefix = None, suffix = None, dir = None, delete = True, items = None):
+    'Make a temporary directory.'
+    prefix = prefix or clazz._DEFAULT_PREFIX
+    suffix = suffix or clazz._DEFAULT_DIR_SUFFIX
+    tmp_dir = tempfile.mkdtemp(prefix = prefix, suffix = suffix, dir = dir)
+    assert path.isdir(tmp_dir)
+    if items:
+      clazz.write_temp_files(tmp_dir, items)
+      
+    if delete:
+      clazz.atexit_delete(tmp_dir)
+    return tmp_dir
+  
+  @classmethod
   def atexit_delete(clazz, filename):
     'Delete filename atexit time.'
     def _delete_file(*args, **kargs):

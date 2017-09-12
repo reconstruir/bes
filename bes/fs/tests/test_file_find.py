@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 #
-import os, os.path as path, unittest
+import os, os.path as path
 from collections import namedtuple
+from bes.testing.unit_test import unit_test
 from bes.fs import file_find, file_util, temp_file
 
-class Testfile_find(unittest.TestCase):
+class test_file_find(unit_test):
 
   Item = namedtuple('Item', [ 'filename', 'content', 'isdir' ])
 
@@ -147,4 +148,4 @@ class Testfile_find(unittest.TestCase):
     self.assertEqual( sorted([ '1a.f', '1b.f' ]), file_find.find(tmp_dir, min_depth = 1, max_depth = 1) )
 
 if __name__ == "__main__":
-  unittest.main()
+  unit_test.main()
