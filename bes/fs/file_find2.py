@@ -39,30 +39,46 @@ class file_find2(object):
     root_dir = path.normpath(root_dir)
     root_dir_count = root_dir.count(os.sep)
 
+
+    #walklevel(clazz, some_dir, level = 1):
+    
     # FIXME: it should be possibe to improve the performance of this
     # algorithm if we stop recursing once we reach the optional target depth
-    for dirpath, dirnames, filenames in os.walk(root_dir, topdown = True):
-      depth = dirpath[len(root_dir) + len(path.sep):].count(path.sep) + 1
+    for root, dirs, files in os.walk(root_dir, topdown = True):
+      depth = root[len(root_dir) + len(path.sep):].count(path.sep) + 1
       to_check = []
       if clazz._want_file_type(file_type, clazz.FILE | clazz.LINK | clazz.DEVICE):
-        to_check += filenames
+        to_check += files
       if clazz._want_file_type(file_type, clazz.DIR):
-        to_check += dirnames
+        to_check += dirs
       else:
-        links = [ d for d in dirnames if path.islink(path.normpath(path.join(dirpath, d))) ]
+        links = [ d for d in dirs if path.islink(path.normpath(path.join(root, d))) ]
         to_check += links
       for name in to_check:
-        f = path.normpath(path.join(dirpath, name))
+        f = path.normpath(path.join(root, name))
         depth = f.count(os.sep) - root_dir_count
         if _in_range(depth, min_depth, max_depth):
-          #if path.isfile(f):
           if clazz._match_file_type(f, file_type):
             if relative:
               result.append(file_util.remove_head(f, root_dir))
             else:
               result.append(f)
+        else:
+          pass #dirs.remove(root)
     return sorted(result)
 
+  #: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
+  @classmethod
+  def walklevel(clazz, some_dir, level = 1):
+    some_dir = some_dir.rstrip(os.path.sep)
+    assert os.path.isdir(some_dir)
+    num_sep = some_dir.count(os.path.sep)
+    for root, dirs, files in os.walk(some_dir, topdown = True):
+      yield root, dirs, files
+      num_sep_this = root.count(os.path.sep)
+      if num_sep + level <= num_sep_this:
+        del dirs[:]
+  
   @classmethod
   def _want_file_type(clazz, file_type, mask):
     return (file_type & mask) != 0
