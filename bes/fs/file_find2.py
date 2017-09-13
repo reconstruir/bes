@@ -18,6 +18,8 @@ class file_find2(object):
   
   @classmethod
   def find(clazz, root_dir, relative = True, min_depth = None, max_depth = None, file_type = FILE):
+    print("find2: root_dir=%s  min=%s  max=%s  type=%d" % (root_dir, min_depth, max_depth, file_type))
+
     if max_depth and min_depth and not (max_depth >= min_depth):
       raise RuntimeError('max_depth needs to be >= min_depth.')
 
@@ -34,13 +36,22 @@ class file_find2(object):
       else:
         return True
       
+    def _in_range(depth, min_depth, max_depth):
+      if min_depth and max_depth:
+        return depth >= min_depth and depth <= max_depth
+      elif min_depth:
+        return depth >= min_depth
+      elif max_depth:
+        return depth <= max_depth
+      else:
+        return True
+      
     result = []
 
     root_dir = path.normpath(root_dir)
     root_dir_count = root_dir.count(os.sep)
 
     for root, dirs, files in clazz._walk_with_depth(root_dir, max_depth = max_depth):
-      depth = root[len(root_dir) + len(path.sep):].count(path.sep) + 1
       to_check = []
       if clazz._want_file_type(file_type, clazz.FILE | clazz.LINK | clazz.DEVICE):
         to_check += files
@@ -58,23 +69,22 @@ class file_find2(object):
               result.append(file_util.remove_head(f, root_dir))
             else:
               result.append(f)
-        else:
-          pass #dirs.remove(root)
     return sorted(result)
 
   #: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
   @classmethod
-  def _walk_with_depth(clazz, some_dir, max_depth = None):
-    some_dir = some_dir.rstrip(os.path.sep)
-    assert os.path.isdir(some_dir)
-    num_sep = some_dir.count(os.path.sep)
-    for root, dirs, files in os.walk(some_dir, topdown = True):
+  def _walk_with_depth(clazz, root_dir, max_depth = None):
+    root_dir = root_dir.rstrip(path.sep)
+    if not path.isdir(root_dir):
+      raise RuntimeError('not a directory: %s' % (root_dir))
+    num_sep = root_dir.count(path.sep)
+    for root, dirs, files in os.walk(root_dir, topdown = True):
       yield root, dirs, files
-      num_sep_this = root.count(os.path.sep)
+      num_sep_this = root.count(path.sep)
       if max_depth is not None:
-        if num_sep + max_depth <= num_sep_this:
+        if num_sep + max_depth - 1 <= num_sep_this:
           del dirs[:]
-  
+
   @classmethod
   def _want_file_type(clazz, file_type, mask):
     return (file_type & mask) != 0

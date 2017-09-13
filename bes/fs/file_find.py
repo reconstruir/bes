@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import errno, os.path as path, os, stat
 
@@ -39,29 +39,66 @@ class file_find(object):
     root_dir = path.normpath(root_dir)
     root_dir_count = root_dir.count(os.sep)
 
-    # FIXME: it should be possibe to improve the performance of this
-    # algorithm if we stop recursing once we reach the optional target depth
-    for dirpath, dirnames, filenames in os.walk(root_dir, topdown = True):
-      depth = dirpath[len(root_dir) + len(path.sep):].count(path.sep) + 1
+    for root, dirs, files in clazz.walk_with_depth(root_dir, max_depth = max_depth):
       to_check = []
       if clazz._want_file_type(file_type, clazz.FILE | clazz.LINK | clazz.DEVICE):
-        to_check += filenames
+        to_check += files
       if clazz._want_file_type(file_type, clazz.DIR):
-        to_check += dirnames
+        to_check += dirs
       else:
-        links = [ d for d in dirnames if path.islink(path.normpath(path.join(dirpath, d))) ]
+        links = [ d for d in dirs if path.islink(path.normpath(path.join(root, d))) ]
         to_check += links
       for name in to_check:
-        f = path.normpath(path.join(dirpath, name))
+        f = path.normpath(path.join(root, name))
         depth = f.count(os.sep) - root_dir_count
         if _in_range(depth, min_depth, max_depth):
-          #if path.isfile(f):
           if clazz._match_file_type(f, file_type):
             if relative:
               result.append(file_util.remove_head(f, root_dir))
             else:
               result.append(f)
     return sorted(result)
+
+  #: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
+  @classmethod
+  def walk_with_depth(clazz, root_dir, max_depth = None):
+    root_dir = root_dir.rstrip(path.sep)
+    if not path.isdir(root_dir):
+      raise RuntimeError('not a directory: %s' % (root_dir))
+    num_sep = root_dir.count(path.sep)
+    for root, dirs, files in os.walk(root_dir, topdown = True):
+      print " root: %s" % (root)
+      print " dirs: %s" % (' '.join(dirs))
+      print "files: %s" % (' '.join(files))
+      print ""
+      yield root, dirs, files
+      num_sep_this = root.count(path.sep)
+      if max_depth is not None:
+        if num_sep + max_depth - 1 <= num_sep_this:
+          del dirs[:]
+
+  #: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
+  @classmethod
+  def walk_with_poto(clazz, root_dir, max_depth = None):
+    root_dir = path.normpath(root_dir)
+    if not path.isdir(root_dir):
+      raise RuntimeError('not a directory: %s' % (root_dir))
+    root_dir_depth = root_dir.count(os.sep)
+    for next_dir, dirs, files in os.walk(root_dir, topdown = True):
+      next_dir_depth = next_dir.count(os.sep) - root_dir_depth
+      if False:
+      #if True:
+        print "       next_dir: %s" % (next_dir)
+        print " root_dir_depth: %s" % (root_dir_depth)
+        print "           dirs: %s" % (' '.join(dirs))
+        print "          files: %s" % (' '.join(files))
+        print " next_dir_depth: %s" % (next_dir_depth)
+        print "      max_depth: %s" % (max_depth)
+        print ""
+      yield next_dir, dirs, files
+      if max_depth is not None:
+        if next_dir_depth > max_depth:
+          del dirs[:]
 
   @classmethod
   def _want_file_type(clazz, file_type, mask):
