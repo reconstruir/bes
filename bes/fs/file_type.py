@@ -1,60 +1,41 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common import Shell
-
-import string
+import errno, os, stat
 
 class file_type(object):
 
-  TEXT = 'text'
-
-  BINARY_TYPES = [
-    'application/octet-stream; charset=binary',
-    'application/x-executable; charset=binary',
-    'application/x-mach-binary; charset=binary', # This is new in macos sierra
-  ]
-
-  # FIXME: some illegal seuqences cause this to choke: /Users/ramiro/software/tmp/builds/flex-2.6.0_rev1_2016-02-07-05-14-52-769130/deps/installation/share/gettext/po/boldquot.sed 
-
+  BLOCK = 0x01
+  CHAR = 0x02
+  DIR = 0x04
+  FILE = 0x08
+  LINK = 0x10
+  FIFO = 0x20
+  SOCKET = 0x40
+  DEVICE = BLOCK | CHAR
+  ANY = BLOCK | CHAR | DIR | FILE | LINK | FIFO | SOCKET
   
   @classmethod
-  def mime_type(clazz, filename):
-    cmd = 'file --brief --mime %s' % (filename)
-    rv = Shell.execute(cmd, raise_error = False)
-    if rv.exit_code != 0:
-      return ''
-    return rv.stdout.strip()
+  def _want_file_type(clazz, file_type, mask):
+    return (file_type & mask) != 0
 
   @classmethod
-  def is_text(clazz, filename):
-    return clazz.mime_type_is_text(filename) or clazz.content_is_text(filename)
+  def match(clazz, filename, mask):
+    try:
+      st = os.lstat(filename)
+    except OSError, ex:
+      if ex.errno == errno.EBADF:
+        # Some devices on macos result in bad access when trying to stat so ignore them
+        return False
+      else:
+        raise
+      
+    match_block = clazz._want_file_type(mask, clazz.BLOCK) and stat.S_ISBLK(st.st_mode)
+    match_char = clazz._want_file_type(mask, clazz.CHAR) and stat.S_ISCHR(st.st_mode)
+    match_dir = clazz._want_file_type(mask, clazz.DIR) and stat.S_ISDIR(st.st_mode)
+    match_fifo = clazz._want_file_type(mask, clazz.FIFO) and stat.S_ISFIFO(st.st_mode)
+    match_file = clazz._want_file_type(mask, clazz.FILE) and stat.S_ISREG(st.st_mode)
+    match_link = clazz._want_file_type(mask, clazz.LINK) and stat.S_ISLNK(st.st_mode)
+    match_socket = clazz._want_file_type(mask, clazz.SOCKET) and stat.S_ISSOCK(st.st_mode)
 
-  @classmethod
-  def mime_type_is_text(clazz, filename):
-    return clazz.mime_type(filename).startswith(clazz.TEXT)
-
-  @classmethod
-  def is_binary(clazz, filename):
-    return clazz.mime_type(filename) in clazz.BINARY_TYPES
-
-  # From http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
-  @classmethod
-  def content_is_text(clazz, filename):
-      s=open(filename).read(512)
-      text_characters = "".join(map(chr, range(32, 127)) + list("\n\r\t\b"))
-      _null_trans = string.maketrans("", "")
-      if not s:
-          # Empty files are considered text
-          return True
-      if "\0" in s:
-          # Files with null bytes are likely binary
-          return False
-      # Get the non-text characters (maps a character to itself then
-      # use the 'remove' option to get rid of the text characters.)
-      t = s.translate(_null_trans, text_characters)
-      # If more than 30% non-text characters, then
-      # this is considered a binary file
-      if float(len(t))/float(len(s)) > 0.30:
-          return False
-      return True  
+    return match_block or match_char or match_dir or match_fifo or match_file or match_link or match_socket

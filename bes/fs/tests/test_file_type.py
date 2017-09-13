@@ -1,29 +1,15 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import unittest
-from bes.fs import file_type
 
-class test_file_type(unittest.TestCase):
+from bes.testing.unit_test import unit_test
+from bes.fs import file_type, temp_file
 
-  # Darwin and Linux are different
-  EXECUTABLE_TYPES = [
-    'application/octet-stream; charset=binary',
-    'application/x-executable; charset=binary',
-  ]
+class test_file_type(unit_test):
   
-  def test_mime_type(self):
-    self.assertEqual( 'text/plain; charset=us-ascii', file_type.mime_type('/etc/passwd') )
-    self.assertTrue( file_type.mime_type('/bin/ls') in file_type.BINARY_TYPES )
+  def test_file(self):
+    tmp = temp_file.make_temp_file()
+    self.assertTrue( file_type.match(tmp, file_type.FILE) )
 
-  def test_is_text(self):
-    self.assertTrue( file_type.is_text('/etc/passwd') )
-    self.assertFalse( file_type.is_text('/bin/ls') )
-
-  def test_is_binary(self):
-    self.assertFalse( file_type.is_binary('/etc/passwd') )
-    self.assertTrue( file_type.is_binary('/bin/ls') )
-
-if __name__ == "__main__":
-  unittest.main()
+if __name__ == '__main__':
+  unit_test.main()
