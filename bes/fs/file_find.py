@@ -67,10 +67,10 @@ class file_find(object):
       raise RuntimeError('not a directory: %s' % (root_dir))
     num_sep = root_dir.count(path.sep)
     for root, dirs, files in os.walk(root_dir, topdown = True):
-      print " root: %s" % (root)
-      print " dirs: %s" % (' '.join(dirs))
-      print "files: %s" % (' '.join(files))
-      print ""
+#      print " root: %s" % (root)
+#      print " dirs: %s" % (' '.join(dirs))
+#      print "files: %s" % (' '.join(files))
+#      print ""
       yield root, dirs, files
       num_sep_this = root.count(path.sep)
       if max_depth is not None:
