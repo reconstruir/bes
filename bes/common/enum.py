@@ -1,6 +1,68 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
+from collections import namedtuple
+
+class enum(object):
+
+  _name_value = namedtuple('_name_value', 'name,value')
+  
+  def __init__(self):
+    self._default_value = None
+    self._values = []
+    self._names = []
+    self._name_values = []
+    self._name_to_value = {}
+#    self._value_to_name = {}
+  
+  def add_value(self, name, value):
+    if not isinstance(name, basestring):
+      raise TypeError('name should be an string instead of: %s - %s' % (str(name), type(name)))
+    if not isinstance(value, int):
+      raise TypeError('value should be an int instead of: %s - %s' % (str(value), type(value)))
+    name = name.lower()
+    self._values.append(value)
+    self._names.append(name)
+    self._name_values.append(self._name_value(name, value))
+    self._name_to_value[name] = value
+    
+  @property
+  def default_value(self):
+    return self._default_value
+
+  @default_value.setter
+  def default_value(self, default_value):
+    if not self.value_is_valid(default_value):
+      raise ValueError('Invalid value: %s - should be one of %s' % (default_value, self._make_choices_blurb()))
+    self._default_value = default_value
+    
+  def value_is_valid(self, value):
+    return value in self._values
+
+  def name_is_valid(self, name):
+    name = name.lower()
+    return name in self._names
+
+  def _make_choices_blurb(self):
+    return ' '.join([ '%s(%s)' % (x.name, x.value) for x in self._name_values ])
+
+  def parse_name(self, name):
+    if not isinstance(name, basestring):
+      raise TypeError('name to parse should be a string instead of: %s - %s' % (str(name), type(name)))
+    name = name.lower()
+    if not name in self._names:
+      return None
+    return self._name_to_value[name]
+  
+  def parse_name(self, name):
+    if not isinstance(name, basestring):
+      raise TypeError('name to parse should be a string instead of: %s - %s' % (str(name), type(name)))
+    name = name.lower()
+    if not name in self._names:
+      return None
+    return self._name_to_value[name]
+  
+'''
 class _enum_meta_class(type):
   'Cheesy enum.  Id rather use the one in python3 but i want to support python 2.7 with no exta deps.'
   
@@ -103,8 +165,9 @@ class enum(object):
     
   @classmethod
   def parse(clazz, s):
-    if not isinstance(s, ( str, unicode )):
+    if not isinstance(s, basestring):
       raise TypeError('Value to parse should be a string instead of: %s - %s' % (str(s), type(s)))
     if not s in clazz._NAMES:
       raise ValueError('Value invalid: %s' % (str(s)))
     return clazz._NAME_TO_VALUE[s]
+'''
