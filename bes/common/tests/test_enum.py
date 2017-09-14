@@ -73,6 +73,22 @@ class test_enum(unit_test):
     self.assertEqual( 2, e.parse_name('APPLE') )
     self.assertEqual( 3, e.parse_name('KIWI') )
     self.assertEqual( 3, e.parse_name('ALSO_KIWI') )
-      
+
+  def test_multiple_names(self):
+    e = enum()
+    e.add_value('PEAR', 1)
+    e.add_value('APPLE', 2)
+    e.add_value('KIWI', 3)
+    e.add_value('P', 1)
+    e.add_value('A', 2)
+    e.add_value('K', 3)
+    self.assertTrue( e.name_is_valid('PEAR') )
+    self.assertTrue( e.name_is_valid('APPLE') )
+    self.assertTrue( e.name_is_valid('KIWI') )
+    self.assertTrue( e.name_is_valid('P') )
+    self.assertTrue( e.name_is_valid('A') )
+    self.assertTrue( e.name_is_valid('K') )
+
+    
 if __name__ == '__main__':
   unit_test.main()
