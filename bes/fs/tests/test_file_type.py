@@ -8,20 +8,20 @@ class test_file_type(unit_test):
   
   def test_file(self):
     tmp_file = temp_file.make_temp_file()
-    self.assertTrue( file_type.match(tmp_file, file_type.FILE) )
+    self.assertTrue( file_type.matches(tmp_file, file_type.FILE) )
 
   def test_dir(self):
     tmp_dir = temp_file.make_temp_dir()
-    self.assertTrue( file_type.match(tmp_dir, file_type.DIR) )
+    self.assertTrue( file_type.matches(tmp_dir, file_type.DIR) )
 
   def test_file_or_dir(self):
     tmp_file = temp_file.make_temp_dir()
     tmp_dir = temp_file.make_temp_dir()
-    self.assertTrue( file_type.match(tmp_file, file_type.DIR | file_type.FILE) )
-    self.assertTrue( file_type.match(tmp_dir, file_type.DIR | file_type.FILE) )
+    self.assertTrue( file_type.matches(tmp_file, file_type.DIR | file_type.FILE) )
+    self.assertTrue( file_type.matches(tmp_dir, file_type.DIR | file_type.FILE) )
 
   def test_char(self):
-    self.assertTrue( file_type.match('/dev/null', file_type.CHAR) )
+    self.assertTrue( file_type.matches('/dev/null', file_type.CHAR) )
 
 if __name__ == '__main__':
   unit_test.main()

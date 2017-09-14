@@ -14,13 +14,36 @@ class file_type(object):
   SOCKET = 0x40
   DEVICE = BLOCK | CHAR
   ANY = BLOCK | CHAR | DIR | FILE | LINK | FIFO | SOCKET
+
+  _NAME_TO_TYPE = {
+    'block': BLOCK,
+    'char': CHAR,
+    'dir': DIR,
+    'file': FILE,
+    'link': LINK,
+    'fifo': FIFO,
+    'socket': SOCKET,
+    'device': DEVICE,
+    'any': ANY,
+  }
+
+  # These match those used by find -type X
+  _SHORT_NAME_TO_TYPE = {
+    'b': BLOCK,
+    'c': CHAR,
+    'd': DIR,
+    'f': FILE,
+    'l': LINK,
+    'p': FIFO,
+    's': SOCKET,
+  }
   
   @classmethod
   def _want_file_type(clazz, file_type, mask):
     return (file_type & mask) != 0
 
   @classmethod
-  def match(clazz, filename, mask):
+  def matches(clazz, filename, mask):
     try:
       st = os.lstat(filename)
     except OSError, ex:
@@ -39,3 +62,19 @@ class file_type(object):
     match_socket = clazz._want_file_type(mask, clazz.SOCKET) and stat.S_ISSOCK(st.st_mode)
 
     return match_block or match_char or match_dir or match_fifo or match_file or match_link or match_socket
+
+  @classmethod
+  def parse_file_type(clazz, s):
+    if not isinstance(s, basestring):
+      return None
+    t = clazz._NAME_TO_TYPE.get(s, None)
+    if t:
+      return t
+    return clazz._SHORT_NAME_TO_TYPE.get(s, None)
+
+  @classmethod
+  def validate_file_type(clazz, s):
+    t = clazz.parse_file_type(s)
+    if t is None:
+      raise ValueError('invalid file type: %s' % (s))
+    return t
