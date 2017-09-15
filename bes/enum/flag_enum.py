@@ -74,5 +74,14 @@ class flag_enum(object):
   
   @classmethod
   def parse_mask(clazz, s):
-    return clazz(clazz._ENUM.parse_mask(s))
-  
+    if not isinstance(s, basestring):
+      raise TypeError('mask to parse should be a string instead of: %s - %s' % (str(s), type(s)))
+    names = s.split(clazz.DELIMITER)
+    names = [ n.strip() for n in names if n.strip() ]
+    result = 0
+    for name in names:
+      v = clazz.parse(name)
+      if not v:
+        return None
+      result |= v.value
+    return result
