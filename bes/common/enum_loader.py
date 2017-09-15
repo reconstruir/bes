@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import inspect
 from .enum_manager import enum_manager
 
 class enum_loader(object):
 
   @classmethod
   def load(clazz, target):
-    size = clazz.load_size(target)
     name_values = clazz.load_name_values(target)
+    if not name_values:
+      return None
+    size = clazz.load_size(target)
     default_value = clazz.load_default_value(target)
     if not default_value:
       default_value = min([ x[1] for x in name_values])
@@ -32,6 +35,12 @@ class enum_loader(object):
 
   @classmethod
   def load_name_values(clazz, target):
+
+    members = inspect.getmembers(target)
+    int_members = [ member for member in members if isinstance(member[1], int) ]
+    if not int_members:
+      return None
+
     names = [ f for f in target.__dict__ if not f.startswith('_') ]
     names = [ f for f in names if f not in [ 'SIZE', 'DEFAULT' ] ]
     values = [ getattr(target, name) for name in names ]
