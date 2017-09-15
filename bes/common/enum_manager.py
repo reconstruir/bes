@@ -14,7 +14,11 @@ class enum_manager(object):
     self._name_values = []
     self._name_to_value = {}
     self._value_to_name = {}
-  
+
+  @property
+  def name_values(self):
+    return self._name_values
+
   def add_value(self, name, value):
     if not isinstance(name, basestring):
       raise TypeError('name should be an string instead of: %s - %s' % (str(name), type(name)))
@@ -81,3 +85,16 @@ class enum_manager(object):
     if not self.name_is_valid(name):
       raise ValueError('Invalid name: %s - should be one of %s' % (name, self._make_choices_blurb()))
     return name
+
+  def parse_mask(self, smask, delimiter = '|'):
+    if not isinstance(smask, basestring):
+      raise TypeError('mask to parse should be a string instead of: %s - %s' % (str(smask), type(smask)))
+    names = smask.split(delimiter)
+    names = [ n.strip() for n in names if n.strip() ]
+    result = 0
+    for name in names:
+      value = self.parse_name(name)
+      if not value:
+        return None
+      result |= value
+    return result

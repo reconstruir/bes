@@ -8,7 +8,8 @@ from .bool_util import bool_util
 from .command_line import command_line
 from .dict_util import dict_util
 from .enum import enum
-from .enum_loader import enum_loader
+from .flag_enum import flag_enum
+from .enum_loader import enum_loader, enum_loader_meta_class
 from .enum_manager import enum_manager
 from .json_util import json_util
 from .math_util import math_util

@@ -3,16 +3,24 @@
 
 from .enum_loader import enum_loader, enum_loader_meta_class
 
-class enum(object):
+class flag_enum(object):
 
+  DELIMITER = '|'
+  
   __metaclass__ = enum_loader_meta_class
 
-  def __init__(self, value = None):
-    value = value or self.DEFAULT
+  def __init__(self, value = 0):
     self.assign(value)
 
+  def matches(self, mask):
+    return (self.value & mask) != 0
+    
   def __str__(self):
-    return self._ENUM.value_to_name(self._value)
+    v = []
+    for n in self._ENUM.name_values:
+      if self.matches(n.value):
+        v.append(n.name)
+    return self.DELIMITER.join(v)
     
   def __eq__(self, other):
     if isinstance(other, self.__class__):
@@ -63,3 +71,8 @@ class enum(object):
   @classmethod
   def parse(clazz, s):
     return clazz(clazz._ENUM.parse_name(s))
+  
+  @classmethod
+  def parse_mask(clazz, s):
+    return clazz(clazz._ENUM.parse_mask(s))
+  

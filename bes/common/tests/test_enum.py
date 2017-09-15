@@ -83,5 +83,5 @@ class test_enum(unit_test):
       ROMANO = 130
     self.assertEqual( 4, cheese.SIZE )
     
-if __name__ == "__main__":
+if __name__ == '__main__':
   unit_test.main()

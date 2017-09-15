@@ -4,8 +4,20 @@
 import inspect
 from .enum_manager import enum_manager
 
-class enum_loader(object):
+class enum_loader_meta_class(type):
+  'cheesy enum.  Id rather use the one in python3 but i want to support python 2.7 with no exta deps.'
+  
+  def __new__(meta, name, bases, class_dict):
+    clazz = type.__new__(meta, name, bases, class_dict)
+    if hasattr(clazz, '_ENUM'):
+      raise RuntimeError('subclassing %s not allowed.' % (bases[-1]))
+    e = enum_loader.load(clazz)
+    if e:
+      clazz._ENUM = e
+    return clazz
 
+class enum_loader(object):
+  
   @classmethod
   def load(clazz, target):
     name_values = clazz.load_name_values(target)
