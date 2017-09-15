@@ -10,7 +10,6 @@ class _enum_loader_meta(type):
     clazz = type.__new__(meta, name, bases, class_dict)
     assert getattr(clazz, '_ENUM', None) == None
     e = enum_loader.load(clazz)
-    print "__new__(name=%s, e=%s)" % (name, e)
     if e:
       clazz._ENUM = e
     return clazz
