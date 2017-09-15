@@ -8,7 +8,8 @@ class _enum_loader_meta(type):
   
   def __new__(meta, name, bases, class_dict):
     clazz = type.__new__(meta, name, bases, class_dict)
-    assert getattr(clazz, '_ENUM', None) == None
+    if hasattr(clazz, '_ENUM'):
+      raise RuntimeError('subclassing %s not allowed.' % (bases[-1]))
     e = enum_loader.load(clazz)
     if e:
       clazz._ENUM = e
@@ -28,9 +29,9 @@ class enum(object):
   def __eq__(self, other):
     if isinstance(other, self.__class__):
       return self.value == other.value
-    elif isinstance(what, basestring):
+    elif isinstance(other, basestring):
       return self.value == self.parse(other)
-    elif isinstance(what, int):
+    elif isinstance(other, int):
       return self.value == other
     else:
       raise TypeError('invalid other: %s - %s' % (str(other), type(other)))

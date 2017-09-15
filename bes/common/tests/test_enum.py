@@ -19,10 +19,15 @@ class test_enum(unit_test):
   def test_default_value(self):
     self.assertEqual( fruit.PEAR, fruit().value )
     
-  def test_init_value(self):
+  def test__init___value(self):
     self.assertEqual( fruit.APPLE, fruit(fruit.APPLE).value )
     self.assertEqual( fruit.KIWI, fruit(fruit.KIWI).value )
     self.assertEqual( fruit.KIWI, fruit(fruit.KIWI).value )
+
+  def test___init___from_string(self):
+    self.assertEqual( fruit.APPLE, fruit('APPLE') )
+    self.assertEqual( fruit.KIWI, fruit('KIWI') )
+    self.assertEqual( fruit.KIWI, fruit('KIWI_CLONE') )
     
   def test_set_value(self):
     f = fruit()
@@ -69,6 +74,14 @@ class test_enum(unit_test):
     
   def test_parse(self):
     self.assertEqual( fruit('KIWI'), fruit.parse('KIWI') )
+    
+  def test_size(self):
+    class cheese(enum):
+      SIZE = 4
+      GOUDA = 110
+      BLUE = 120
+      ROMANO = 130
+    self.assertEqual( 4, cheese.SIZE )
     
 if __name__ == "__main__":
   unit_test.main()
