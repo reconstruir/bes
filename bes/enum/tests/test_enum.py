@@ -83,5 +83,11 @@ class test_enum(unit_test):
       ROMANO = 130
     self.assertEqual( 4, cheese.SIZE )
     
+  def test_default_size(self):
+    class foo(enum):
+      A = 1
+      B = 2
+    self.assertEqual( 1, foo.SIZE )
+    
 if __name__ == '__main__':
   unit_test.main()

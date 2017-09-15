@@ -14,6 +14,9 @@ class ftype(flag_enum):
   
 class test_enum(unit_test):
 
+  def xtest___str__(self):
+    self.assertEqual( 'DEVICE|SOCKET', str(ftype(ftype.DEVICE|ftype.SOCKET)) )
+    
   def test_parse_mask(self):
     self.assertEqual( ftype.FILE, ftype.DEFAULT )
     self.assertEqual( ftype.DEVICE|ftype.SOCKET, ftype.parse_mask('DEVICE|SOCKET') )

@@ -4,18 +4,6 @@
 import inspect
 from .enum_manager import enum_manager
 
-class enum_loader_meta_class(type):
-  'cheesy enum.  Id rather use the one in python3 but i want to support python 2.7 with no exta deps.'
-  
-  def __new__(meta, name, bases, class_dict):
-    clazz = type.__new__(meta, name, bases, class_dict)
-    if hasattr(clazz, '_ENUM'):
-      raise RuntimeError('subclassing %s not allowed.' % (bases[-1]))
-    e = enum_loader.load(clazz)
-    if e:
-      clazz._ENUM = e
-    return clazz
-
 class enum_loader(object):
   
   @classmethod
@@ -36,7 +24,10 @@ class enum_loader(object):
     
   @classmethod
   def load_size(clazz, target):
-    size = getattr(target, 'SIZE', 1)
+    size = getattr(target, 'SIZE', None)
+    if size is None:
+      size = 1
+      setattr(target, 'SIZE', size)
     if not size in [ 1, 2, 4, 8 ]:
       raise TypeError('Invalid SIZE.  Should be 1, 2, 4 or 8 instead of: %s' % (size))
     return size

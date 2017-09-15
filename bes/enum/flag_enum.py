@@ -1,13 +1,25 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from .enum_loader import enum_loader, enum_loader_meta_class
+from .enum_loader import enum_loader
+
+class _flag_enum_meta_class(type):
+  'cheesy enum.  Id rather use the one in python3 but i want to support python 2.7 with no exta deps.'
+  
+  def __new__(meta, name, bases, class_dict):
+    clazz = type.__new__(meta, name, bases, class_dict)
+    if hasattr(clazz, '_ENUM'):
+      raise RuntimeError('subclassing %s not allowed.' % (bases[-1]))
+    e = enum_loader.load(clazz)
+    if e:
+      clazz._ENUM = e
+    return clazz
 
 class flag_enum(object):
 
   DELIMITER = '|'
   
-  __metaclass__ = enum_loader_meta_class
+  __metaclass__ = _flag_enum_meta_class
 
   def __init__(self, value = 0):
     self.assign(value)
@@ -56,7 +68,7 @@ class flag_enum(object):
 
   @value.setter
   def value(self, value):
-    self._ENUM.check_value(value)
+#    self._ENUM.check_value(value)
     self._value = value
 
   @property
