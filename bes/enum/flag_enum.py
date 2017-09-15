@@ -13,6 +13,10 @@ class _flag_enum_meta_class(type):
     e = enum_loader.load(clazz)
     if e:
       clazz._ENUM = e
+      masks = []
+      for i in range(0, clazz.SIZE * 8):
+        masks.append(0x1 << i)
+      setattr(clazz, 'MASKS', masks)
     return clazz
 
 class flag_enum(object):
@@ -30,9 +34,10 @@ class flag_enum(object):
   def __str__(self):
     v = []
     for n in self._ENUM.name_values:
-      if self.matches(n.value):
-        v.append(n.name)
-    return self.DELIMITER.join(v)
+      if n.value in self.MASKS:
+        if self.matches(n.value):
+          v.append(n.name)
+    return self.DELIMITER.join(sorted(v))
     
   def __eq__(self, other):
     if isinstance(other, self.__class__):
@@ -56,7 +61,7 @@ class flag_enum(object):
     if isinstance(what, self.__class__):
       self.value = what.value
     elif isinstance(what, basestring):
-      self.value = self._ENUM.parse_name(what)
+      self.value = self.parse(what)
     elif isinstance(what, int):
       self.value = what
     else:
@@ -68,7 +73,7 @@ class flag_enum(object):
 
   @value.setter
   def value(self, value):
-#    self._ENUM.check_value(value)
+    assert isinstance(value, int)
     self._value = value
 
   @property
@@ -79,21 +84,17 @@ class flag_enum(object):
   def name(self, name):
     self._ENUM.check_name(name)
     self.value = self._ENUM.name_to_value(name)
-
-  @classmethod
-  def parse(clazz, s):
-    return clazz(clazz._ENUM.parse_name(s))
   
   @classmethod
-  def parse_mask(clazz, s):
+  def parse(clazz, s):
     if not isinstance(s, basestring):
       raise TypeError('mask to parse should be a string instead of: %s - %s' % (str(s), type(s)))
     names = s.split(clazz.DELIMITER)
     names = [ n.strip() for n in names if n.strip() ]
     result = 0
     for name in names:
-      v = clazz.parse(name)
-      if not v:
-        return None
-      result |= v.value
+      value = clazz._ENUM.parse_name(name)
+      if value == None:
+        raise ValueError('invalid value: %s' % (name))
+      result |= value
     return result

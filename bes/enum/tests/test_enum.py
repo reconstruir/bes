@@ -18,6 +18,7 @@ class test_enum(unit_test):
 
   def test_default_value(self):
     self.assertEqual( fruit.PEAR, fruit().value )
+    self.assertEqual( fruit.PEAR, fruit('DEFAULT').value )
     
   def test__init___value(self):
     self.assertEqual( fruit.APPLE, fruit(fruit.APPLE).value )

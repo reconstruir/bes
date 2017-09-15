@@ -64,6 +64,8 @@ class enum_manager(object):
   def parse_name(self, name):
     if not isinstance(name, basestring):
       raise TypeError('name to parse should be a string instead of: %s - %s' % (str(name), type(name)))
+    if name == 'DEFAULT':
+      return self.default_value
     if not name in self._names:
       return None
     return self._name_to_value[name]

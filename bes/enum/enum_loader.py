@@ -44,7 +44,7 @@ class enum_loader(object):
     if not int_members:
       return None
 
-    names = [ f for f in target.__dict__ if not f.startswith('_') ]
+    names = [ member[0] for member in int_members ]
     names = [ f for f in names if f not in [ 'SIZE', 'DEFAULT' ] ]
     values = [ getattr(target, name) for name in names ]
     for value in values:
