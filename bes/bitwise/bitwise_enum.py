@@ -5,26 +5,27 @@ from bes.common import enum
 
 class _enum_loader(object):
 
-  @staticmethod
-  def load_size(target):
-    return getattr(target, 'SIZE', 1)
+  @classmethod
+  def load_size(clazz, target):
+    size = getattr(target, 'SIZE', 1)
+    if not size in [ 1, 2, 4, 8 ]:
+      raise TypeError('Invalid SIZE.  Should be 1, 2, 4 or 8 instead of: %s' % (size))
+    return size
 
-  @staticmethod
-  def load_default_value(target):
+  @classmethod
+  def load_default_value(clazz, target):
     return getattr(target, 'DEFAULT', None)
 
-  @staticmethod
-  def size_is_valid(size):
-    return size in [ 1, 2, 4, 8 ]
-  
-  @staticmethod
-  def load_name_values(target):
+  @classmethod
+  def load_name_values(clazz, target):
     names = [ f for f in target.__dict__ if not f.startswith('_') ]
     names = [ f for f in names if f not in [ 'SIZE', 'DEFAULT' ] ]
     values = [ getattr(target, name) for name in names ]
+    for value in values:
+      if not isinstance(value, int):
+        raise TypeError('Value should be of type int instead of %s: %s' % (type(value), str(value)))
     assert len(names) == len(values)
     return zip(names, values)
-
   
 class _bitwise_enum_meta(type):
   'Cheesy enum.  Id rather use the one in python3 but i want to support python 2.7 with no exta deps.'
@@ -33,13 +34,7 @@ class _bitwise_enum_meta(type):
     clazz = type.__new__(meta, name, bases, class_dict)
     if clazz.__name__ != 'bitwise_enum':
       size = _enum_loader.load_size(clazz)
-      if not _enum_loader.size_is_valid(size):
-        raise TypeError('Invalid SIZE.  Should be 1, 2, 4 or 8 instead of: %s' % (size))
-
       name_values = _enum_loader.load_name_values(clazz)
-      for name, value in name_values:
-        if not isinstance(value, int):
-          raise TypeError('Value should be of type int instead of %s: %s' % (type(value), str(value)))
 
       setattr(clazz, '_NAME_VALUES', sorted(name_values))
       setattr(clazz, '_NAMES', sorted([ x[0] for x in name_values]))
