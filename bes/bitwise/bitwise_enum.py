@@ -1,33 +1,54 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
+from bes.common import enum
+
+class _enum_loader(object):
+
+  @staticmethod
+  def load_size(target):
+    return getattr(target, 'SIZE', 1)
+
+  @staticmethod
+  def load_default_value(target):
+    return getattr(target, 'DEFAULT', None)
+
+  @staticmethod
+  def size_is_valid(size):
+    return size in [ 1, 2, 4, 8 ]
+  
+  @staticmethod
+  def load_name_values(target):
+    names = [ f for f in target.__dict__ if not f.startswith('_') ]
+    names = [ f for f in names if f not in [ 'SIZE', 'DEFAULT' ] ]
+    values = [ getattr(target, name) for name in names ]
+    assert len(names) == len(values)
+    return zip(names, values)
+
+  
 class _bitwise_enum_meta(type):
   'Cheesy enum.  Id rather use the one in python3 but i want to support python 2.7 with no exta deps.'
   
   def __new__(meta, name, bases, class_dict):
     clazz = type.__new__(meta, name, bases, class_dict)
     if clazz.__name__ != 'bitwise_enum':
-      size = getattr(clazz, 'SIZE', 1)
-      if size not in [ 1, 2, 4, 8 ]:
-        raise TypeError('Invalid SIZE.  Should be 1, 2, 4 or 8: %s' % (size))
+      size = _enum_loader.load_size(clazz)
+      if not _enum_loader.size_is_valid(size):
+        raise TypeError('Invalid SIZE.  Should be 1, 2, 4 or 8 instead of: %s' % (size))
 
-      names = [ f for f in clazz.__dict__ if not f.startswith('_') ]
-      names = [ f for f in names if f not in [ 'SIZE', 'DEFAULT' ] ]
-      values = [ getattr(clazz, name) for name in names ]
-
-      for value in values:
+      name_values = _enum_loader.load_name_values(clazz)
+      for name, value in name_values:
         if not isinstance(value, int):
           raise TypeError('Value should be of type int instead of %s: %s' % (type(value), str(value)))
 
-      names_values = zip(names, values)
-      setattr(clazz, '_NAME_VALUES', sorted(names_values))
-      setattr(clazz, '_NAMES', sorted(names))
-      setattr(clazz, '_VALUES', sorted(values))
+      setattr(clazz, '_NAME_VALUES', sorted(name_values))
+      setattr(clazz, '_NAMES', sorted([ x[0] for x in name_values]))
+      setattr(clazz, '_VALUES', sorted([ x[1] for x in name_values]))
       
       name_to_value = {}
       min_value = None
       value_to_name = {}
-      for name in names:
+      for name, value in name_values:
         value = getattr(clazz, name)
         name_to_value[name] = getattr(clazz, name)
         if min_value is None:
@@ -46,7 +67,7 @@ class _bitwise_enum_meta(type):
       default = getattr(clazz, 'DEFAULT')
       if not isinstance(default, int):
         raise TypeError('DEFAULT should be of type int instead of %s: %s' % (type(default), str(default)))
-      if not default in values:
+      if not default in [ x[1] for x in name_values]:
         raise ValueError('DEFAULT invalid: %d' % (default))
       
     return clazz

@@ -13,7 +13,6 @@ class enum(object):
     self._names = []
     self._name_values = []
     self._name_to_value = {}
-#    self._value_to_name = {}
   
   def add_value(self, name, value):
     if not isinstance(name, basestring):
@@ -32,6 +31,9 @@ class enum(object):
 
   @default_value.setter
   def default_value(self, default_value):
+    if default_value is None:
+      self._default_value = None
+      return
     if not self.value_is_valid(default_value):
       raise ValueError('Invalid value: %s - should be one of %s' % (default_value, self._make_choices_blurb()))
     self._default_value = default_value
