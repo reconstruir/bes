@@ -13,21 +13,31 @@ class enum(object):
     self._names = []
     self._name_values = []
     self._name_to_value = {}
+    self._value_to_name = {}
   
   def add_value(self, name, value):
     if not isinstance(name, basestring):
       raise TypeError('name should be an string instead of: %s - %s' % (str(name), type(name)))
     if not isinstance(value, int):
       raise TypeError('value should be an int instead of: %s - %s' % (str(value), type(value)))
-    name = name.lower()
+
+    duplicate_name = name in self._names
+    duplicate_value = value in self._values
+
     self._values.append(value)
     self._names.append(name)
     self._name_values.append(self._name_value(name, value))
     self._name_to_value[name] = value
+    if not duplicate_value:
+      self._value_to_name[value] = name
     
   @property
   def default_value(self):
     return self._default_value
+
+  @property
+  def has_default_value(self):
+    return self._default_value != None
 
   @default_value.setter
   def default_value(self, default_value):
@@ -42,7 +52,6 @@ class enum(object):
     return value in self._values
 
   def name_is_valid(self, name):
-    name = name.lower()
     return name in self._names
 
   def _make_choices_blurb(self):
@@ -51,18 +60,28 @@ class enum(object):
   def parse_name(self, name):
     if not isinstance(name, basestring):
       raise TypeError('name to parse should be a string instead of: %s - %s' % (str(name), type(name)))
-    name = name.lower()
     if not name in self._names:
       return None
     return self._name_to_value[name]
   
-  def parse_name(self, name):
-    if not isinstance(name, basestring):
-      raise TypeError('name to parse should be a string instead of: %s - %s' % (str(name), type(name)))
-    name = name.lower()
-    if not name in self._names:
-      return None
+  def value_to_name(self, value):
+    self.check_value(value)
+    return self._value_to_name[value]
+  
+  def name_to_value(self, name):
+    self.check_name(name)
     return self._name_to_value[name]
+
+  def check_value(self, value):
+    if not self.value_is_valid(value):
+      raise ValueError('Invalid value: %s - should be one of %s' % (value, self._make_choices_blurb()))
+    return value
+  
+  def check_name(self, name):
+    if not self.name_is_valid(name):
+      raise ValueError('Invalid name: %s - should be one of %s' % (name, self._make_choices_blurb()))
+    return name
+  
   
 '''
 class _enum_meta_class(type):

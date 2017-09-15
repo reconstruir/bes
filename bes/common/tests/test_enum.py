@@ -27,18 +27,6 @@ class test_enum(unit_test):
     self.assertTrue( e.name_is_valid('ALSO_KIWI') )
     self.assertFalse( e.name_is_valid('MELON') )
 
-  def test_name_is_valid_lower_case(self):
-    e = enum()
-    e.add_value('PEAR', 1)
-    e.add_value('APPLE', 2)
-    e.add_value('KIWI', 3)
-    e.add_value('ALSO_KIWI', 3)
-    self.assertTrue( e.name_is_valid('pear') )
-    self.assertTrue( e.name_is_valid('apple') )
-    self.assertTrue( e.name_is_valid('kiwi') )
-    self.assertTrue( e.name_is_valid('also_kiwi') )
-    self.assertFalse( e.name_is_valid('melon') )
-
   def test_value_is_valid(self):
     e = enum()
     e.add_value('PEAR', 1)

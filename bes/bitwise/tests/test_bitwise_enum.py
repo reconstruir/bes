@@ -67,5 +67,8 @@ class test_bitwise_enum(unit_test):
     with self.assertRaises(ValueError) as context:
       f.assign(666)
     
+  def test_parse(self):
+    self.assertEqual( fruit('KIWI'), fruit.parse('KIWI') )
+    
 if __name__ == "__main__":
   unit_test.main()

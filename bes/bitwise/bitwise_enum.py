@@ -6,6 +6,20 @@ from bes.common import enum
 class _enum_loader(object):
 
   @classmethod
+  def load(clazz, target):
+    size = clazz.load_size(target)
+    name_values = clazz.load_name_values(target)
+    default_value = clazz.load_default_value(target)
+    if not default_value:
+      default_value = min([ x[1] for x in name_values])
+      setattr(target, 'DEFAULT', default_value)
+    e = enum()
+    for name, value in name_values:
+      e.add_value(name, value)
+    e.default_value = default_value
+    return e
+    
+  @classmethod
   def load_size(clazz, target):
     size = getattr(target, 'SIZE', 1)
     if not size in [ 1, 2, 4, 8 ]:
@@ -14,7 +28,7 @@ class _enum_loader(object):
 
   @classmethod
   def load_default_value(clazz, target):
-    return getattr(target, 'DEFAULT', None)
+    getattr(target, 'DEFAULT', None)
 
   @classmethod
   def load_name_values(clazz, target):
@@ -26,45 +40,14 @@ class _enum_loader(object):
         raise TypeError('Value should be of type int instead of %s: %s' % (type(value), str(value)))
     assert len(names) == len(values)
     return zip(names, values)
-  
+
 class _bitwise_enum_meta(type):
   'Cheesy enum.  Id rather use the one in python3 but i want to support python 2.7 with no exta deps.'
   
   def __new__(meta, name, bases, class_dict):
     clazz = type.__new__(meta, name, bases, class_dict)
     if clazz.__name__ != 'bitwise_enum':
-      size = _enum_loader.load_size(clazz)
-      name_values = _enum_loader.load_name_values(clazz)
-
-      setattr(clazz, '_NAME_VALUES', sorted(name_values))
-      setattr(clazz, '_NAMES', sorted([ x[0] for x in name_values]))
-      setattr(clazz, '_VALUES', sorted([ x[1] for x in name_values]))
-      
-      name_to_value = {}
-      min_value = None
-      value_to_name = {}
-      for name, value in name_values:
-        value = getattr(clazz, name)
-        name_to_value[name] = getattr(clazz, name)
-        if min_value is None:
-          min_value = value
-        else:
-          min_value = min(min_value, value)
-        if not value_to_name.has_key(value):
-          value_to_name[value] = []
-        value_to_name[value].append(name)
-          
-      setattr(clazz, '_NAME_TO_VALUE', name_to_value)
-      setattr(clazz, '_VALUE_TO_NAME', value_to_name)
-
-      if not hasattr(clazz, 'DEFAULT'):
-        setattr(clazz, 'DEFAULT', min_value)
-      default = getattr(clazz, 'DEFAULT')
-      if not isinstance(default, int):
-        raise TypeError('DEFAULT should be of type int instead of %s: %s' % (type(default), str(default)))
-      if not default in [ x[1] for x in name_values]:
-        raise ValueError('DEFAULT invalid: %d' % (default))
-      
+      clazz._ENUM = _enum_loader.load(clazz)
     return clazz
 
 class bitwise_enum(object):
@@ -72,30 +55,39 @@ class bitwise_enum(object):
   __metaclass__ = _bitwise_enum_meta
 
   def __init__(self, value = None):
-    if value is None:
-      value = self.DEFAULT
+    value = value or self.DEFAULT
     self.assign(value)
 
   def __str__(self):
-    return self._VALUE_TO_NAME[self._value][0]
+    return self._ENUM.value_to_name(self._value)
+    
+  def __eq__(self, other):
+    if isinstance(other, self.__class__):
+      return self.value == other.value
+    elif isinstance(what, basestring):
+      return self.value == self.parse(other)
+    elif isinstance(what, int):
+      return self.value == other
+    else:
+      raise TypeError('invalid other: %s - %s' % (str(other), type(other)))
     
   @classmethod
   def value_is_valid(clazz, value):
-    return value in clazz._VALUES
+    return self._ENUM.value_is_valid(value)
 
   @classmethod
   def name_is_valid(clazz, name):
-    return name in clazz._NAMES
+    return self._ENUM.name_is_valid(name)
 
-  def assign(self, something):
-    if isinstance(something, self.__class__):
-      self.value = something.value
-    elif isinstance(something, ( str, unicode )):
-      self.value = self.parse(something)
-    elif isinstance(something, int):
-      self.value = something
+  def assign(self, what):
+    if isinstance(what, self.__class__):
+      self.value = what.value
+    elif isinstance(what, basestring):
+      self.value = self._ENUM.parse_name(what)
+    elif isinstance(what, int):
+      self.value = what
     else:
-      raise ValueError('invalid value: %s' % (str(something)))
+      raise TypeError('invalid value: %s' % (str(what)))
   
   @property
   def value(self):
@@ -103,31 +95,21 @@ class bitwise_enum(object):
 
   @value.setter
   def value(self, value):
-    if not self.value_is_valid(value):
-      raise ValueError('Invalid value: %s - should be one of %s' % (value, self._make_choices_blurb()))
+    self._ENUM.check_value(value)
     self._value = value
 
   @property
   def name(self):
-    return self._VALUE_TO_NAME[self._value][0]
+    return self._ENUM.value_to_name(self._value)
 
   @name.setter
   def name(self, name):
-    if not self.name_is_valid(name):
-      raise ValueError('Invalid name: %s - should be one of %s' % (name, self._make_choices_blurb()))
-    self.value = self._NAME_TO_VALUE[name]
+    self._ENUM.check_name(name)
+    self.value = self._ENUM.name_to_value(name)
 
   @classmethod
-  def _make_choices_blurb(clazz):
-    return ' '.join([ '%s(%s)' % (name, value) for name, value in clazz._NAME_VALUES ])
-    
-  @classmethod
   def parse(clazz, s):
-    if not isinstance(s, ( str, unicode )):
-      raise TypeError('Value to parse should be a string instead of: %s - %s' % (str(s), type(s)))
-    if not s in clazz._NAMES:
-      raise ValueError('Value invalid: %s' % (str(s)))
-    return clazz._NAME_TO_VALUE[s]
+    return clazz(clazz._ENUM.parse_name(s))
   
   def write_to_io(self, io):
     io.write(self._value, self.SIZE)
