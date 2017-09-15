@@ -67,7 +67,6 @@ class test_enum_manager(unit_test):
     self.assertTrue( e.name_is_valid('P') )
     self.assertTrue( e.name_is_valid('A') )
     self.assertTrue( e.name_is_valid('K') )
-
     
 if __name__ == '__main__':
   unit_test.main()
