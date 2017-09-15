@@ -2,9 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.bitwise import bitwise_enum
+from bes.common import enum
 
-class fruit(bitwise_enum):
+class fruit(enum):
   SIZE = 1
 
   PEAR = 1
@@ -14,7 +14,7 @@ class fruit(bitwise_enum):
     
   DEFAULT = PEAR
   
-class test_bitwise_enum(unit_test):
+class test_enum(unit_test):
 
   def test_default_value(self):
     self.assertEqual( fruit.PEAR, fruit().value )

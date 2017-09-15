@@ -7,6 +7,7 @@ from .algorithm import algorithm
 from .bool_util import bool_util
 from .command_line import command_line
 from .dict_util import dict_util
+from .enum import enum
 from .enum_loader import enum_loader
 from .enum_manager import enum_manager
 from .json_util import json_util
