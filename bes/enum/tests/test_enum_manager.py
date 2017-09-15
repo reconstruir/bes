@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 #
 from bes.testing.unit_test import unit_test
-from bes.common import enum_manager as EM
+from bes.enum import enum_manager as EM
 
 class test_enum_manager(unit_test):
 
@@ -68,21 +68,5 @@ class test_enum_manager(unit_test):
     self.assertTrue( e.name_is_valid('A') )
     self.assertTrue( e.name_is_valid('K') )
 
-
-  def test_mask(self):
-    e = EM()
-    e.add_value('FILE', 0x01)
-    e.add_value('DIR', 0x02)
-    e.add_value('DEVICE', 0x04)
-    e.add_value('SOCKET', 0x08)
-    e.add_value('NORMAL', 0x01 | 0x02)
-    e.add_value('ANY', 0x01 | 0x02)
-    self.assertTrue( e.name_is_valid('PEAR') )
-    self.assertTrue( e.name_is_valid('APPLE') )
-    self.assertTrue( e.name_is_valid('KIWI') )
-    self.assertTrue( e.name_is_valid('ALSO_KIWI') )
-    self.assertFalse( e.name_is_valid('MELON') )
-
-    
 if __name__ == '__main__':
   unit_test.main()
