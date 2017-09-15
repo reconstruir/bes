@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from bes.common import enum, enum_loader
+from bes.common import enum_loader
 
 class _bitwise_enum_meta(type):
   'Cheesy enum.  Id rather use the one in python3 but i want to support python 2.7 with no exta deps.'

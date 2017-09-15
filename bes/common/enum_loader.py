@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from .enum import enum
+from .enum_manager import enum_manager
 
 class enum_loader(object):
 
@@ -13,7 +13,7 @@ class enum_loader(object):
     if not default_value:
       default_value = min([ x[1] for x in name_values])
       setattr(target, 'DEFAULT', default_value)
-    e = enum()
+    e = enum_manager()
     for name, value in name_values:
       e.add_value(name, value)
     e.default_value = default_value

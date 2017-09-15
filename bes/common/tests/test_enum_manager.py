@@ -2,21 +2,12 @@
 #-*- coding:utf-8 -*-
 #
 from bes.testing.unit_test import unit_test
-from bes.common import enum
+from bes.common import enum_manager as EM
 
-'''
-class fruit(enum):
-  PEAR = 1
-  APPLE = 2
-  KIWI = 3
-  KIWI_CLONE = KIWI
-  DEFAULT = PEAR
-'''
-
-class test_enum(unit_test):
+class test_enum_manager(unit_test):
 
   def test_name_is_valid(self):
-    e = enum()
+    e = EM()
     e.add_value('PEAR', 1)
     e.add_value('APPLE', 2)
     e.add_value('KIWI', 3)
@@ -28,7 +19,7 @@ class test_enum(unit_test):
     self.assertFalse( e.name_is_valid('MELON') )
 
   def test_value_is_valid(self):
-    e = enum()
+    e = EM()
     e.add_value('PEAR', 1)
     e.add_value('APPLE', 2)
     e.add_value('KIWI', 3)
@@ -38,21 +29,21 @@ class test_enum(unit_test):
     self.assertFalse( e.value_is_valid(4) )
     
   def test_default_value(self):
-    e = enum()
+    e = EM()
     e.add_value('PEAR', 1)
     e.add_value('APPLE', 2)
     e.default_value = 2
     self.assertEqual( 2, e.default_value )
     
   def test_default_value_invalid(self):
-    e = enum()
+    e = EM()
     e.add_value('PEAR', 1)
     e.add_value('APPLE', 2)
     with self.assertRaises(ValueError) as context:
       e.default_value = 666
 
   def test_parse_name(self):
-    e = enum()
+    e = EM()
     e.add_value('PEAR', 1)
     e.add_value('APPLE', 2)
     e.add_value('KIWI', 3)
@@ -63,7 +54,7 @@ class test_enum(unit_test):
     self.assertEqual( 3, e.parse_name('ALSO_KIWI') )
 
   def test_multiple_names(self):
-    e = enum()
+    e = EM()
     e.add_value('PEAR', 1)
     e.add_value('APPLE', 2)
     e.add_value('KIWI', 3)

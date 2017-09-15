@@ -3,7 +3,7 @@
 
 from collections import namedtuple
 
-class enum(object):
+class enum_manager(object):
 
   _name_value = namedtuple('_name_value', 'name,value')
   

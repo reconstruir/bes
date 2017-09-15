@@ -7,8 +7,8 @@ from .algorithm import algorithm
 from .bool_util import bool_util
 from .command_line import command_line
 from .dict_util import dict_util
-from .enum import enum
 from .enum_loader import enum_loader
+from .enum_manager import enum_manager
 from .json_util import json_util
 from .math_util import math_util
 from .node import node
@@ -21,4 +21,3 @@ from .table import table
 from .time_util import time_util
 from .tuple_util import tuple_util
 from .variable import variable
-
