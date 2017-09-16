@@ -75,11 +75,11 @@ class object_util(object):
       return False
 
   @classmethod
-  def is_homogeneous(clazz, l, type):
+  def is_homogeneous(clazz, l, t):
     'Return True if l is iterable and all its items are of a given type.'
     try:
       for x in iter(l):
-        if not isinstance(x, type):
+        if not isinstance(x, t):
           return False
       return True
     except:
