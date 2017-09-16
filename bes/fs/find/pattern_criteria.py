@@ -7,8 +7,8 @@ import fnmatch
 class pattern_criteria(criteria):
   'match the file type.'
 
-  def __init__(self, pattern):
-    super(pattern_criteria, self).__init__(action = self.FILTER, target = self.ANY)
+  def __init__(self, pattern, action = criteria.FILTER):
+    super(pattern_criteria, self).__init__(action = action, target = self.ANY)
     self.pattern = pattern
   
   def matches(self, variables):

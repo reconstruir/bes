@@ -43,22 +43,28 @@ class finder(object):
     root_dir_depth = self.root_dir.count(os.sep)
 
     for x in self._match_file(self.root_dir, dir_criteria, 0, '', self.root_dir):
-      yield x
+      yield x.filepath
+      if x.action == criteria.STOP:
+        return
       
     for next_dir, dirs, files in os.walk(self.root_dir, topdown = True):
       next_dir_depth = next_dir.count(os.sep) - root_dir_depth
 
-      if False:
-        mv = match_variables(next_dir_depth, self.root_dir, path.basename(next_dir), next_dir)
-        for c in dir_criteria:
-          if c.matches(mv):
-            yield next_dir
+#      if False:
+#        mv = match_variables(next_dir_depth, self.root_dir, path.basename(next_dir), next_dir)
+#        for c in dir_criteria:
+#          if c.matches(mv):
+#            yield next_dir
 
       for x in self._match_files(files, file_criteria, next_dir_depth, next_dir, self.root_dir):
-        yield x
+        yield x.filepath
+        if x.action == criteria.STOP:
+          return
 
       for x in self._match_files(dirs, dir_criteria, next_dir_depth, next_dir, self.root_dir):
-        yield x
+        yield x.filepath
+        if x.action == criteria.STOP:
+          return
         
       if False:
       #if True:
@@ -73,20 +79,23 @@ class finder(object):
 #        if next_dir_depth > max_depth:
 #          del dirs[:]
 
+  _match_result = namedtuple('_match_result', 'filepath,action')
+
   @classmethod
   def _match_file(clazz, filename, criteria, depth, next_dir, root_dir):
     filepath = path.join(next_dir, filename)
     mv = match_variables(depth, root_dir, filename, filepath)
     if not criteria:
-      yield filepath
+      yield clazz._match_result(filepath, None)
     for c in criteria:
       import sys
-      sys.stderr.write("MATCHING %s with %s\n" % (filename, c))
+#      sys.stderr.write("MATCHING %s with %s\n" % (filename, c))
       if c.matches(mv):
-        yield filepath
+        yield clazz._match_result(filepath, c.action)
 
   @classmethod
   def _match_files(clazz, files, criteria, depth, next_dir, root_dir):
     for filename in files:
       for x in clazz._match_file(filename, criteria, depth, next_dir, root_dir):
+        assert isinstance(x, clazz._match_result)
         yield x
