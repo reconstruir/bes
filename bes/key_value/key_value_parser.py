@@ -136,6 +136,13 @@ class key_value_parser(string_lexer_options):
       result[kv.key] = kv.value
     return result
 
+  @classmethod
+  def parse_to_list(clazz, text, options = 0):
+    result = []
+    for kv in clazz.parse(text, options = options):
+      result.append(kv)
+    return result
+
   def change_state(self, new_state, msg):
     assert new_state
     if new_state != self.state:
