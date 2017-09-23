@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import os.path as path, pipes, re, shlex, subprocess, sys
+import os, os.path as path, pipes, re, shlex, subprocess, sys, tempfile
 from collections import namedtuple
 
 class Shell(object):
@@ -73,3 +73,21 @@ class Shell(object):
       return command
     else:
       return shlex.split(str(command))
+
+  @classmethod
+  def execute_from_string(clazz, content, raise_error = True, non_blocking = False, stderr_to_stdout = False,
+                          cwd = None, env = None, shell = False, input_data = None, universal_newlines = True):
+    assert isinstance(content, basestring)
+    tmp = tempfile.mktemp()
+    with open(tmp, 'w') as fout:
+      fout.write(content)
+      os.chmod(tmp, 0755)
+    try:
+      return clazz.execute(tmp, raise_error = raise_error, non_blocking = non_blocking,
+                           stderr_to_stdout = stderr_to_stdout, cwd = cwd,
+                           env = env, shell = shell, input_data = input_data,
+                           universal_newlines = universal_newlines)
+    except:
+      raise
+    finally:
+      os.remove(tmp)
