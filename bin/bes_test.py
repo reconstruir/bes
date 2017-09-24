@@ -142,7 +142,7 @@ def main():
     sys.path.remove(cwd)
 
   if args.egg:
-    setup_dot_py = path.join(cwd, 'setup.py')
+    setup_dot_py = path.join(cwd, 'lib', 'setup.py')
     if not path.isfile(setup_dot_py):
       raise RuntimeError('No setup.py found in %s to make the egg.' % (cwd))
     egg = egg_util.make(setup_dot_py)
@@ -661,12 +661,13 @@ class egg_util(object):
   def make(clazz, setup_dot_py):
     assert path.isfile(setup_dot_py)
     temp_dir = tempfile.mkdtemp()
-    src_dir = path.dirname(setup_dot_py)
+    src_dir = path.join(path.dirname(setup_dot_py), '..')
     shutil.rmtree(temp_dir)
     shutil.copytree(src_dir, temp_dir, symlinks = True)
     cmd = [ 'python', 'setup.py', 'bdist_egg' ]
-    subprocess.check_output(cmd, shell = False, cwd = temp_dir)
-    eggs = glob.glob('%s/dist/*.egg' % (temp_dir))
+    build_dir = path.join(temp_dir, 'lib')
+    subprocess.check_output(cmd, shell = False, cwd = build_dir)
+    eggs = glob.glob('%s/dist/*.egg' % (build_dir))
     assert len(eggs) == 1
     return eggs[0]
 

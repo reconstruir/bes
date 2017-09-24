@@ -32,7 +32,7 @@ setup(
     'bes': find_tests('bes'),
   },
   scripts = [
-    'bin/bes_test.py',
-    'bin/bes_path.py',
+    '../bin/bes_test.py',
+    '../bin/bes_path.py',
   ],
 )

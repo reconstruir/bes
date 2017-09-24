@@ -66,7 +66,7 @@ function bes_setup()
   fi
 
   bes_env_path_prepend PATH ${_root_dir}/bin
-  bes_env_path_prepend PYTHONPATH ${_root_dir}
+  bes_env_path_prepend PYTHONPATH ${_root_dir}/lib
 
   if [ $_chdir -eq 1 ]; then
     cd $_root_dir
