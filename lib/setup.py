@@ -34,5 +34,6 @@ setup(
   scripts = [
     '../bin/bes_test.py',
     '../bin/bes_path.py',
+    '../bin/bes_refactor.py',
   ],
 )
