@@ -3,8 +3,7 @@
 #
 from bes.testing.unit_test import unit_test
 from bes.fs import file_match
-
-from refactor import files
+from bes.refactor import files
 
 class test_files(unit_test):
 
