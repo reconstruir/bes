@@ -1,0 +1,15 @@
+name: bes
+PATH: ${root}/bin
+PYTHONPATH: ${root}/bin
+
+prefix=/Users/ramiro/.rebuild/kontrol-deps/installation
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/libpng16
+
+Name: libpng
+Description: Loads and saves PNG files
+Version: 1.6.28
+Libs: -L${libdir} -lpng16
+Libs.private: -lz
+Cflags: -I${includedir}
