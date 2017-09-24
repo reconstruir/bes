@@ -103,7 +103,7 @@ def main():
   files, filters = _separate_files_and_filters(args.files)
 
   files = file_resolve.resolve_files_and_dirs(files)
-
+  
   # Don't include this script in the list since it needs to be run bes_test.py --unit to work
   files = [ f for f in files if not f.endswith('bes_test.py') ]
   
@@ -129,8 +129,13 @@ def main():
   if filename_patterns:
     files = _match_filenames(files, filename_patterns)
 
-  filtered_files = _filter_files(files, test_map, patterns)
+  filtered_files = file_filter.filter_files(files, test_map, patterns)
 
+  env_dirs = file_filter.env_dirs(filtered_files)
+  python_lib_dirs = file_filter.python_lib_dirs(env_dirs)
+  for d in reversed(python_lib_dirs):
+    environ_util.pythonpath_prepend(d)
+   
   num_passed = 0
   num_failed = 0
   num_executed = 0
@@ -173,7 +178,7 @@ def main():
   options = test_options(args.dry_run, args.verbose, args.stop, args.timing, args.profile)
   
   timings = {}
-  
+
   for i, f in enumerate(filtered_files):
     if not f.filename in timings:
       timings[f.filename] = []
@@ -243,19 +248,52 @@ def main():
 def _timing_average(l):
   return float(sum(l)) / float(len(l))
 
-file_and_tests = namedtuple('file_and_tests', 'filename,tests')
-def _filter_files(files, available, patterns):
-  if not patterns:
-    return [ file_and_tests(filename, None) for filename in files ]
-  result = []
-  for filename in files:
-    assert filename in available
-    available_for_filename = available[filename]
-    matching_tests = _matching_tests(available_for_filename, patterns)
-    if matching_tests:
-      result.append(file_and_tests(filename, matching_tests))
-  return result
-    
+class file_filter(object):
+  file_and_tests = namedtuple('file_and_tests', 'filename,tests')
+
+  @classmethod
+  def filter_files(clazz, files, available, patterns):
+    if not patterns:
+      return [ clazz.file_and_tests(filename, None) for filename in files ]
+    result = []
+    for filename in files:
+      assert filename in available
+      available_for_filename = available[filename]
+      matching_tests = _matching_tests(available_for_filename, patterns)
+      if matching_tests:
+        result.append(clazz.file_and_tests(filename, matching_tests))
+    return result
+
+  @classmethod
+  def env_dirs(clazz, filtered_files):
+    filenames = [ f.filename for f in filtered_files ]
+    roots = [ clazz._test_file_get_root(f) for f in filenames ]
+    roots = util.unique_list(roots)
+    roots = [ f for f in roots if f ]
+    result = []
+    for root in roots:
+      env_dir = path.join(root, 'env')
+      if path.isdir(env_dir):
+        result.append(env_dir)
+    return result
+  
+  @classmethod
+  def python_lib_dirs(clazz, env_dirs):
+    result = []
+    for env_dir in env_dirs:
+      python_lib_dir = path.normpath(path.join(env_dir, '../lib'))
+      result.append(python_lib_dir)
+    return result
+  
+  @classmethod
+  def _test_file_get_root(clazz, filename):
+    if '/lib/' in filename:
+      return filename.partition('/lib')[0]
+    elif '/bin/' in filename:
+      return filename.partition('/bin')[0]
+    else:
+      return None
+  
 def _filepath_normalize(filepath):
   f = path.abspath(path.normpath(filepath))
   if path.exists(f):
@@ -512,6 +550,11 @@ class environ_util(object):
     pythonpath = clazz.pythonpath_get()
     pythonpath.insert(0, what)
     clazz.pythonpath_set(pythonpath)
+
+  @classmethod
+  def pythonpath_contains(clazz, what):
+    pythonpath = clazz.pythonpath_get()
+    return what in clazz.pythonpath_get()
 
   @classmethod
   def make_clean_env(clazz):
