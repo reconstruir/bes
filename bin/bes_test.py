@@ -4,7 +4,7 @@
 
 # A script to run python unit tests.  Does not use any bes code to avoid
 # chicken-and-egg issues and to be standalone
-import argparse, ast, fnmatch, math, os, os.path as path, platform, random, re, subprocess, sys
+import argparse, ast, copy, fnmatch, math, os, os.path as path, platform, random, re, subprocess, sys
 import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
@@ -131,7 +131,25 @@ def main():
 
   filtered_files = file_filter.filter_files(files, test_map, patterns)
 
+  config_files = config_file.find_config_files('.')
+  if False:
+    for f in config_files:
+      config = config_file.read_config_file(f)
+      print "CONFIG: ", f
+      for k, v in sorted(config.items()):
+        print "  %s: %s" % (k, v)
+    
   env_dirs = file_filter.env_dirs(filtered_files)
+  if False:
+    for f in env_dirs:
+      print "ENV: ", f
+
+#  import sys
+#  sys.stdout.flush()
+#  import time
+#  time.sleep(5)
+#  assert False
+
   python_lib_dirs = file_filter.python_lib_dirs(env_dirs)
   for d in reversed(python_lib_dirs):
     environ_util.pythonpath_prepend(d)
@@ -476,6 +494,14 @@ class util(object):
   def unique_list(clazz, l):
     return list(set(l))
 
+  @classmethod
+  def listify(clazz, o):
+    'Return a list version of o whether its iterable or not.'
+    if isinstance(o, list): #clazz.is_iterable(o):
+      return [ x for x in o ]
+    else:
+      return [ o ]
+
 class file_util(object):
 
   @classmethod
@@ -573,6 +599,15 @@ class string_util(object):
   @classmethod
   def parse_list(clazz, s):
     return [ x.strip() for x in s.strip().split('\n') if x.strip() ]
+
+  @classmethod
+  def split_by_white_space(clazz, s):
+    tokens = [ token.strip() for token in re.split('\s+', s) ]
+    return [ token for token in tokens if token ]
+
+  @classmethod
+  def remove_comments(clazz, s):
+    return re.sub('#.*', '', s)
   
 class file_find(object):
 
@@ -585,6 +620,12 @@ class file_find(object):
   @classmethod
   def find_tests(clazz, d):
     cmd = [ 'find', d, '-name', 'test_*.py' ]
+    result = subprocess.check_output(cmd, shell = False)
+    return string_util.parse_list(result)
+
+  @classmethod
+  def find(clazz, d, *args):
+    cmd = [ 'find', d ] + list(args)
     result = subprocess.check_output(cmd, shell = False)
     return string_util.parse_list(result)
 
@@ -812,7 +853,234 @@ class printer(object):
   @classmethod
   def flush(clazz):
     clazz.OUTPUT.flush()
-          
+
+class config_file(object):
+  
+  @classmethod
+  def find_config_files(clazz, d):
+    return file_find.find(d, '-name', '*.bescfg', '-maxdepth', '4')
+
+  @classmethod
+  def read_config_file(clazz, filename):
+    filename = path.abspath(filename)
+    root = path.normpath(path.join(path.dirname(filename), '..'))
+    content = file_util.read(filename)
+    config = clazz.parse(content)
+    variables = { 'root': root }
+    config = clazz.substitute_variables(config, variables)
+    config['filename'] = filename
+    return config
+    
+  @classmethod
+  def parse(clazz, s):
+    result = {}
+    lines = s.split('\n')
+    lines = [ string_util.remove_comments(line) for line in lines ]
+    lines = [ line.strip() for line in lines ]
+    lines = [ line for line in lines if line ]
+    for line in lines:
+      key, sep, value = line.partition(':')
+      assert sep == ':'
+      key = key.strip()
+      value = value.strip()
+      if key == 'requires':
+        value = tuple(sorted(string_util.split_by_white_space(value)))
+      assert key not in result
+      result[key] = value
+    return result
+
+  @classmethod
+  def substitute_variables(clazz, config, variables):
+    assert isinstance(config, dict)
+    assert isinstance(variables, dict)
+    result = copy.deepcopy(config)
+    for key in config.keys():
+      clazz._sub_one(result, key, variables)
+    return result
+    
+  @classmethod
+  def _sub_one(clazz, config, key, variables):
+    assert isinstance(config, dict)
+    assert isinstance(key, basestring)
+    assert isinstance(variables, dict)
+    value = config[key]
+    for var_name, var_value in variables.items():
+      sub_key = '${%s}' % (var_name)
+      value = clazz._replace_value(value, sub_key, var_value)
+    config[key] = value
+    
+  @classmethod
+  def _replace_value(clazz, value, sub_key, sub_value):
+    assert isinstance(value, ( basestring, tuple ) )
+    assert isinstance(sub_key, basestring)
+    assert isinstance(sub_value, basestring)
+    if isinstance(value, basestring):
+      return value.replace(sub_key, sub_value)
+    elif isinstance(value, tuple):
+      return tuple([ x.replace(sub_key, sub_value) for x in value ])
+
+class toposort(object):    
+  #######################################################################
+  # Implements a topological sort algorithm.
+  #
+  # Copyright 2014 True Blade Systems, Inc.
+  #
+  # Licensed under the Apache License, Version 2.0 (the "License");
+  # you may not use this file except in compliance with the License.
+  # You may obtain a copy of the License at
+  #
+  # http://www.apache.org/licenses/LICENSE-2.0
+  #
+  # Unless required by applicable law or agreed to in writing, software
+  # distributed under the License is distributed on an "AS IS" BASIS,
+  # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  # See the License for the specific language governing permissions and
+  # limitations under the License.
+  #
+  # Notes:
+  #  Based on http://code.activestate.com/recipes/578272-topological-sort
+  #   with these major changes:
+  #    Added unittests.
+  #    Deleted doctests (maybe not the best idea in the world, but it cleans
+  #     up the docstring).
+  #    Moved functools import to the top of the file.
+  #    Changed assert to a ValueError.
+  #    Changed iter[items|keys] to [items|keys], for python 3
+  #     compatibility. I don't think it matters for python 2 these are
+  #     now lists instead of iterables.
+  #    Copy the input so as to leave it unmodified.
+  #    Renamed function from toposort2 to toposort.
+  #    Handle empty input.
+  #    Switch tests to use set literals.
+  #
+  ########################################################################
+
+    @classmethod
+    def toposort(clazz, data):
+        """Dependencies are expressed as a dictionary whose keys are items
+    and whose values are a set of dependent items. Output is a list of
+    sets in topological order. The first set consists of items with no
+    dependences, each subsequent set consists of items that depend upon
+    items in the preceeding sets.
+    """
+  
+        from functools import reduce as _reduce
+        
+        # Special case empty input.
+        if len(data) == 0:
+            return
+    
+        # Copy the input so as to leave it unmodified.
+        data = data.copy()
+    
+        # Ignore self dependencies.
+        for k, v in data.items():
+            v.discard(k)
+        # Find all items that don't depend on anything.
+        extra_items_in_deps = _reduce(set.union, data.values()) - set(data.keys())
+        # Add empty dependences where needed.
+        data.update({item:set() for item in extra_items_in_deps})
+        while True:
+            ordered = set(item for item, dep in data.items() if len(dep) == 0)
+            if not ordered:
+                break
+            yield ordered
+            data = {item: (dep - ordered)
+                    for item, dep in data.items()
+                        if item not in ordered}
+        if len(data) != 0:
+            ex = ValueError('Cyclic dependencies exist among these items: {}'.format(', '.join(repr(x) for x in data.items())))
+            setattr(ex, 'cyclic_deps', data)
+            raise ex
+    
+    @classmethod
+    def toposort_flatten(clazz, data, sort=True):
+        """Returns a single list of dependencies. For any set returned by
+    toposort(), those items are sorted and appended to the result (just to
+    make the results deterministic)."""
+    
+        result = []
+        for d in clazz.toposort(data):
+            result.extend((sorted if sort else list)(d))
+        return result
+
+class cyclic_dependency_error(Exception):
+  def __init__(self, message, cyclic_deps):
+    super(cyclic_dependency_error, self).__init__(message)
+    self.cyclic_deps = cyclic_deps
+
+class missing_dependency_error(Exception):
+  def __init__(self, message, missing_deps):
+    super(missing_dependency_error, self).__init__(message)
+    self.missing_deps = missing_deps
+      
+class dependency_resolver(object):
+
+  @classmethod
+  def build_order_flat(clazz, dep_map):
+    'Return the build order for the given map of scripts.'
+    return toposort.toposort_flatten(dep_map, sort = True)
+
+  @classmethod
+  def build_order(clazz, dep_map):
+    'Return the build order for the given map of scripts.'
+    return [ d for d in toposort.toposort(dep_map) ]
+
+  @classmethod
+  def check_missing(clazz, available, wanted):
+    'Return a list of packages wanted but missing in available.'
+    assert isinstance(available, ( list, set ))
+    assert isinstance(wanted, ( list, set ))
+    missing_set = set(wanted) - set(available)
+    return sorted(list(missing_set))
+
+  @classmethod
+  def is_cyclic(clazz, dep_map):
+    'Return True if the map has an cyclycal dependencies.'
+    return len(clazz.cyclic_deps(dep_map)) > 0
+
+  @classmethod
+  def cyclic_deps(clazz, dep_map):
+    'Return a list of dependencies in dep_map that that are cyclic.'
+    try:
+      clazz.build_order_flat(dep_map)
+      return []
+    except ValueError, ex:
+      cyclic_deps = getattr(ex, 'cyclic_deps')
+      return sorted(cyclic_deps.keys())
+
+  @classmethod
+  def resolve_deps(clazz, dep_map, names):
+    '''
+    Return a set of resolved dependencies for the given name or names.
+    Sorted alphabetically, not in build order.
+    '''
+
+    cyclic_deps = clazz.cyclic_deps(dep_map)
+    if len(cyclic_deps) > 0:
+      raise cyclic_dependency_error('Cyclic dependencies found: %s' % (' '.join(cyclic_deps)), cyclic_deps)
+
+    order = clazz.build_order_flat(dep_map)
+    names = util.listify(names)
+    result = set(names)
+    for name in names:
+      result |= clazz.__resolve_deps(dep_map, name)
+    return sorted(list(result))
+
+  @classmethod
+  def __resolve_deps(clazz, dep_map, name):
+    'Return a set of resolved dependencies for the given name.  Not in build order.'
+    assert isinstance(name, basestring)
+    if name not in dep_map:
+      raise missing_dependency_error('Missing dependency: %s' % (name), [ name ])
+    result = set()
+    deps = dep_map[name]
+    assert isinstance(deps, set)
+    result |= deps
+    for dep in deps:
+      result |= clazz.__resolve_deps(dep_map, dep)
+    return result
+      
 import unittest
 
 class test_case(unittest.TestCase):
@@ -824,9 +1092,6 @@ class test_case(unittest.TestCase):
     file_util.save(filename, content = content, mode = mode)
     return filename
   
-  def foo(self): 
-    assert False
-
 class test_unit_test_desc(test_case):
 
   def test_parse(self):
@@ -836,6 +1101,7 @@ class test_unit_test_desc(test_case):
     self.assertEqual( ( 'foo.py', None, 'fix' ), unit_test_desc.parse('foo.py:fix') )
 
 class test_string_util(test_case):
+  
   def test_parse_list(self):
     self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('foo\nbar\n') )
     self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('foo\nbar') )
@@ -845,6 +1111,9 @@ class test_string_util(test_case):
     self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('\n foo\nbar \n') )
     self.assertEqual( [], string_util.parse_list('\n\n\n') )
 
+  def test_split_by_white_space(self):
+    self.assertEqual( [ 'foo', 'bar' ], string_util.split_by_white_space('    foo  bar   ') )
+    
 class test_file_util(test_case):
 
   def test_remove_head(self):
@@ -978,6 +1247,120 @@ class test_apple_fixture(unit_test):
     ],
                       unit_test_inspect.inspect_file(filename) )
     file_util.remove(filename)
+
+class test_config_file(test_case):
+
+  def test_parse(self):
+    text = '''
+# foo
+name: foo
+PATH: ${root}/bin
+PYTHONPATH: ${root}/lib
+requires: bar baz
+'''
+    
+    self.assertEqual( {
+      'name': 'foo',
+      'PATH': '${root}/bin',
+      'PYTHONPATH': '${root}/lib',
+      'requires': ( 'bar', 'baz' ),
+    }, config_file.parse(text) )
+
+  def test_substitute_variables(self):
+    config = {
+      'name': 'foo',
+      'PATH': '${root}/bin',
+      'PYTHONPATH': '${root}/lib',
+      'requires': ( 'bar', 'baz' ),
+    }
+    variables = { 'root': '/home/pato' }
+    self.assertEqual( {
+      'name': 'foo',
+      'PATH': '/home/pato/bin',
+      'PYTHONPATH': '/home/pato/lib',
+      'requires': ( 'bar', 'baz' ),
+    }, config_file.substitute_variables(config, variables) )
+
+class test_dependency_resolver(test_case):
+
+  def test_resolve_deps(self):
+    dep_map = {
+      'foo': set(),
+      'bar': set(),
+      'kiwi': set( [ 'foo' ] ),
+      'cheese': set( [ 'kiwi', 'bar' ] ),
+    }
+    self.assertEqual( [ 'foo' ], dependency_resolver.resolve_deps(dep_map, 'foo') )
+    self.assertEqual( [ 'bar' ], dependency_resolver.resolve_deps(dep_map, 'bar') )
+    self.assertEqual( [ 'foo', 'kiwi' ], dependency_resolver.resolve_deps(dep_map, [ 'foo', 'kiwi' ]) )
+    self.assertEqual( [ 'foo' ], dependency_resolver.resolve_deps(dep_map, [ 'foo', 'foo' ]) )
+
+  def test_resolve_deps_cyclic(self):
+    cycle_dep_map = {
+      'c1': set( [ 'c2' ] ),
+      'c2': set( [ 'c1' ] ),
+      'c3': set( [ 'c4' ] ),
+      'c4': set( [ 'c3' ] ),
+      'f1': set( [ 'f2' ] ),
+      'f2': set( [ 'f3' ] ),
+      'f3': set( [ 'f1' ] ),
+      'n1': set( [] ),
+      'n2': set( [ 'n1' ] ),
+    }
+    with self.assertRaises(cyclic_dependency_error) as context:
+      dependency_resolver.resolve_deps(cycle_dep_map, [ 'c1' ])
+    self.assertEquals( [ 'c1', 'c2', 'c3', 'c4', 'f1', 'f2', 'f3' ], context.exception.cyclic_deps )
+
+  def test_resolve_deps_missing(self):
+    missing_dep_map = {
+      'c1': set( [ 'x1' ] ),
+      'c2': set( [ 'x2' ] ),
+    }
+    with self.assertRaises(missing_dependency_error) as context:
+      dependency_resolver.resolve_deps(missing_dep_map, [ 'c1' ])
+    self.assertEquals( [ 'x1' ], context.exception.missing_deps )
+
+  def test_is_cyclic(self):
+    cycle_dep_map = {
+      'c1': set( [ 'c2' ] ),
+      'c2': set( [ 'c1' ] ),
+      'c3': set( [ 'c4' ] ),
+      'c4': set( [ 'c3' ] ),
+      'f1': set( [ 'f2' ] ),
+      'f2': set( [ 'f3' ] ),
+      'f3': set( [ 'f1' ] ),
+    }
+    no_cycle_dep_map = {
+      'f1': set( [ 'f3' ] ),
+      'f2': set( [ 'f3' ] ),
+    }
+    self.assertEqual( True, dependency_resolver.is_cyclic(cycle_dep_map) )
+    self.assertEqual( False, dependency_resolver.is_cyclic(no_cycle_dep_map) )
+
+  def test_cyclic_deps(self):
+    cycle_dep_map = {
+      'c1': set( [ 'c2' ] ),
+      'c2': set( [ 'c1' ] ),
+      'c3': set( [ 'c4' ] ),
+      'c4': set( [ 'c3' ] ),
+      'f1': set( [ 'f2' ] ),
+      'f2': set( [ 'f3' ] ),
+      'f3': set( [ 'f1' ] ),
+    }
+    self.assertEqual( [ 'c1', 'c2', 'c3', 'c4', 'f1', 'f2', 'f3' ], dependency_resolver.cyclic_deps(cycle_dep_map) )
+
+  def test_check_missing(self):
+    available = [
+      'd1',
+      'd2',
+      'd3',
+    ]
+    self.assertEqual( [], dependency_resolver.check_missing(available, [ 'd1' ]) )
+    self.assertEqual( [], dependency_resolver.check_missing(available, [ 'd1', 'd2', 'd3' ]) )
+    self.assertEqual( [ 'n1' ], dependency_resolver.check_missing(available, [ 'd1', 'd2', 'd3', 'n1' ]) )
+    self.assertEqual( [ 'n1' ], dependency_resolver.check_missing(available, [ 'n1' ]) )
+    self.assertEqual( [ 'n1', 'n2' ], dependency_resolver.check_missing(available, [ 'd1', 'd2', 'd3', 'n1', 'n2' ]) )
+    self.assertEqual( [ 'n1', 'n2' ], dependency_resolver.check_missing(available, [ 'n1', 'n2' ]) )
     
 if len(sys.argv) >= 2 and sys.argv[1] in [ '--unit' ]:
   sys.argv = sys.argv[0:1]
