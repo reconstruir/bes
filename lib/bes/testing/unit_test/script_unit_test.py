@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import sys
 from .unit_test import unit_test
 from collections import namedtuple
 import subprocess
@@ -29,7 +30,16 @@ class script_unit_test(unit_test):
   exec_result = namedtuple('exec_result', 'exit_code,stdout,stderr')
   @classmethod
   def _exec(clazz, cmd):
-    process = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
+    process = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell = False)
     stdout, stderr = process.communicate()
+    stderr = ''
     exit_code = process.wait()
     return clazz.exec_result(exit_code, stdout.strip(), stderr.strip())
+
+  def assert_rv_success(self, rv):
+    if rv.exit_code != 0:
+      sys.stdout.write(rv.stdout)
+      sys.stdout.flush()
+    self.assertEqual( 0, rv.exit_code )
+
+  
