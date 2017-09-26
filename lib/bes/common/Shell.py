@@ -81,7 +81,7 @@ class Shell(object):
     tmp = tempfile.mktemp()
     with open(tmp, 'w') as fout:
       fout.write(content)
-      os.chmod(tmp, 0755)
+      os.chmod(tmp, 0o755)
     try:
       return clazz.execute(tmp, raise_error = raise_error, non_blocking = non_blocking,
                            stderr_to_stdout = stderr_to_stdout, cwd = cwd,

@@ -2,8 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import json
-from object_util import object_util
-
+from .object_util import object_util
 
 class json_util(object):
   'Json util'
@@ -14,7 +13,7 @@ class json_util(object):
     try:
       clazz.to_json(o)
       return True
-    except Exception, ex:
+    except Exception as ex:
       return False
 
   @classmethod

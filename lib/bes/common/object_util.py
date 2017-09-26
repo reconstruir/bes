@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import json, inspect, new
+import json, inspect
 from itertools import chain
 
 class object_util(object):
