@@ -93,6 +93,10 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Save the egg in the current directory. [ False ]')
+  parser.add_argument('--ignore',
+                      action = 'append',
+                      default = [],
+                      help = 'Patterns of filenames to ignore []')
   args = parser.parse_args()
   
   cwd = os.getcwd()
@@ -106,7 +110,7 @@ def main():
   
   # Don't include this script in the list since it needs to be run bes_test.py --unit to work
   files = [ f for f in files if not f.endswith('bes_test.py') ]
-  
+  files = [ f for f in files if f.lower().endswith('.py') ]
   test_map = unit_test_inspect.inspect_map(files)
 
   # We want only the files that have tests
@@ -130,29 +134,15 @@ def main():
     files = _match_filenames(files, filename_patterns)
 
   filtered_files = file_filter.filter_files(files, test_map, patterns)
-
-  config_files = config_file.find_config_files('.')
-  if False:
-    for f in config_files:
-      config = config_file.read_config_file(f)
-      print "CONFIG: ", f
-      for k, v in sorted(config.items()):
-        print "  %s: %s" % (k, v)
-    
+  filtered_files = file_filter.ignore_files(filtered_files, args.ignore)
+  
+  bescfg = config_file.load_configs('.')
   env_dirs = file_filter.env_dirs(filtered_files)
-  if False:
-    for f in env_dirs:
-      print "ENV: ", f
-
-#  import sys
-#  sys.stdout.flush()
-#  import time
-#  time.sleep(5)
-#  assert False
-
-  python_lib_dirs = file_filter.python_lib_dirs(env_dirs)
-  for d in reversed(python_lib_dirs):
-    environ_util.pythonpath_prepend(d)
+  names = [ bescfg.env_dirs[env_dir]['name'] for env_dir in env_dirs ]
+  resolved_deps = dependency_resolver.resolve_deps(bescfg.dep_map, names)
+  for name in resolved_deps:
+    config = bescfg.configs[name]
+    environ_util.pythonpath_prepend(':'.join(config['PYTHONPATH']))
    
   num_passed = 0
   num_failed = 0
@@ -283,6 +273,17 @@ class file_filter(object):
     return result
 
   @classmethod
+  def ignore_files(clazz, filtered_files, ignore_patterns):
+    return [ f for f in filtered_files if not clazz.filename_matches_any_pattern(f.filename, ignore_patterns) ]
+
+  @classmethod
+  def filename_matches_any_pattern(clazz, filename, patterns):
+    for pattern in patterns:
+      if fnmatch.fnmatch(filename, pattern):
+        return True
+    return False
+  
+  @classmethod
   def env_dirs(clazz, filtered_files):
     filenames = [ f.filename for f in filtered_files ]
     roots = [ clazz._test_file_get_root(f) for f in filenames ]
@@ -293,14 +294,6 @@ class file_filter(object):
       env_dir = path.join(root, 'env')
       if path.isdir(env_dir):
         result.append(env_dir)
-    return result
-  
-  @classmethod
-  def python_lib_dirs(clazz, env_dirs):
-    result = []
-    for env_dir in env_dirs:
-      python_lib_dir = path.normpath(path.join(env_dir, '../lib'))
-      result.append(python_lib_dir)
     return result
   
   @classmethod
@@ -855,7 +848,29 @@ class printer(object):
     clazz.OUTPUT.flush()
 
 class config_file(object):
-  
+
+  bescfg = namedtuple('bescfg', 'root_dir,configs,dep_map,env_dirs')
+
+  @classmethod
+  def load_configs(clazz, d):
+    root_dir = path.abspath(d)
+    configs = {}
+    config_files = config_file.find_config_files(root_dir)
+    env_dirs = {}
+    for f in config_files:
+      config = config_file.read_config_file(f)
+      configs[config['name']] = config
+      env_dirs[path.join(config['root_dir'], 'env')] = config
+    dep_map = clazz._make_dep_map(configs)
+    return clazz.bescfg(root_dir, configs, dep_map, env_dirs)
+    
+  @classmethod
+  def _make_dep_map(clazz, configs):
+    dep_map = {}
+    for name, config in configs.items():
+      dep_map[name] = set(config.get('requires', []))
+    return dep_map
+    
   @classmethod
   def find_config_files(clazz, d):
     return file_find.find(d, '-name', '*.bescfg', '-maxdepth', '4')
@@ -866,9 +881,13 @@ class config_file(object):
     root = path.normpath(path.join(path.dirname(filename), '..'))
     content = file_util.read(filename)
     config = clazz.parse(content)
-    variables = { 'root': root }
+    variables = {
+      'root': root,
+      'rebuild_dir': path.expanduser('~/.rebuild'),
+    }
     config = clazz.substitute_variables(config, variables)
     config['filename'] = filename
+    config['root_dir'] = root
     return config
     
   @classmethod
@@ -885,6 +904,8 @@ class config_file(object):
       value = value.strip()
       if key == 'requires':
         value = tuple(sorted(string_util.split_by_white_space(value)))
+      elif key in [ 'PATH', 'PYTHONPATH' ]:
+        value = value.split(':')
       assert key not in result
       result[key] = value
     return result
@@ -911,13 +932,15 @@ class config_file(object):
     
   @classmethod
   def _replace_value(clazz, value, sub_key, sub_value):
-    assert isinstance(value, ( basestring, tuple ) )
+    assert isinstance(value, ( basestring, tuple, list ) )
     assert isinstance(sub_key, basestring)
     assert isinstance(sub_value, basestring)
     if isinstance(value, basestring):
       return value.replace(sub_key, sub_value)
     elif isinstance(value, tuple):
       return tuple([ x.replace(sub_key, sub_value) for x in value ])
+    elif isinstance(value, list):
+      return [ x.replace(sub_key, sub_value) for x in value ]
 
 class toposort(object):    
   #######################################################################
@@ -1261,23 +1284,23 @@ requires: bar baz
     
     self.assertEqual( {
       'name': 'foo',
-      'PATH': '${root}/bin',
-      'PYTHONPATH': '${root}/lib',
+      'PATH': [ '${root}/bin' ],
+      'PYTHONPATH': [ '${root}/lib' ],
       'requires': ( 'bar', 'baz' ),
     }, config_file.parse(text) )
 
   def test_substitute_variables(self):
     config = {
       'name': 'foo',
-      'PATH': '${root}/bin',
-      'PYTHONPATH': '${root}/lib',
+      'PATH': [ '${root}/bin' ],
+      'PYTHONPATH': [ '${root}/lib' ],
       'requires': ( 'bar', 'baz' ),
     }
     variables = { 'root': '/home/pato' }
     self.assertEqual( {
       'name': 'foo',
-      'PATH': '/home/pato/bin',
-      'PYTHONPATH': '/home/pato/lib',
+      'PATH': [ '/home/pato/bin' ],
+      'PYTHONPATH': [ '/home/pato/lib' ],
       'requires': ( 'bar', 'baz' ),
     }, config_file.substitute_variables(config, variables) )
 
