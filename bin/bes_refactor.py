@@ -116,7 +116,7 @@ def _command_unit_process_one_file(filename, dry_run, make_backup):
     print('bes_refactor.py: test module already exists for %s: %s' % (filename, test_module_path))
     return False
   lines = content.split('\n')
-  span = _file_find_unit_tests_span(lines)
+  span = _file_find_unit_tests_span(filename, lines)
   if span:
     commented_lines = _comment_span(lines, span)
     commented_content = '\n'.join(commented_lines)
@@ -170,9 +170,11 @@ UNIT_TESTS_MARKER = 'unittest.TestCase'
 def _file_has_unit_tests(content):
   return content.find(UNIT_TESTS_MARKER) >= 0
 
-def _file_find_unit_tests_span(lines):
+def _file_find_unit_tests_span(filename, lines):
   unit_test_lines = _file_lines_find_unit_tests_instances(lines)
-  assert len(unit_test_lines) == 1
+  if len(unit_test_lines) != 1:
+    print('bes_refactor.py: %s: too many tests.  fix it by hand.' % (filename))
+    
 
   unit_test_line_number = unit_test_lines[0]
   assert unit_test_line_number >= 0
@@ -285,7 +287,7 @@ if __name__ == "__main__":
 '''
     expected_span = ( 7, 21 )
     lines = content.split('\n')
-    actual_span = _file_find_unit_tests_span(lines)
+    actual_span = _file_find_unit_tests_span('', lines)
     self.assertEqual( expected_span, actual_span )
 
   def test_parse_def_indent(self):
