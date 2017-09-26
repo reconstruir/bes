@@ -3,7 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 from bes.bitwise import bitwise_enum, bitwise_io
-from cStringIO import StringIO
+from StringIO import StringIO
 
 class fruit(bitwise_enum):
   SIZE = 1

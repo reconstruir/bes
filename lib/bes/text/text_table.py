@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 from bes.common import object_util, table, size
-from cStringIO import StringIO
+from StringIO import StringIO
 
 class text_table_cell_style(object):
 

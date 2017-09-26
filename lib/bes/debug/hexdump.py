@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import binascii
-from cStringIO import StringIO
+from StringIO import StringIO
 from collections import namedtuple
 
 class hexdump(object):

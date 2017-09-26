@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.common import string_util
-from cStringIO import StringIO
+from StringIO import StringIO
 import copy
 
 class status(object):
