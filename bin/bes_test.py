@@ -80,11 +80,14 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Use git status to figure out what has changed to test [ False ]')
-  parser.add_argument('--dump',
-                      '-d',
+  parser.add_argument('--dump-tests',
                       action = 'store_true',
                       default = False,
                       help = 'Dump the list of unit tests [ False ]')
+  parser.add_argument('--dump-files',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Dump the list of unit files [ False ]')
   parser.add_argument('--egg',
                       action = 'store_true',
                       default = False,
@@ -124,7 +127,7 @@ def main():
     files = file_resolve.resolve_files_and_dirs(git_modified)
     files = [ f for f in files if f in test_map ]
 
-  if args.dump:
+  if args.dump_tests:
     unit_test_inspect.print_inspect_map(test_map, files, cwd)
     return 0
     
@@ -135,8 +138,18 @@ def main():
 
   filtered_files = file_filter.filter_files(files, test_map, patterns)
   filtered_files = file_filter.ignore_files(filtered_files, args.ignore)
+  if not filtered_files:
+    return 1
+
+  if args.dump_files:
+    for f in filtered_files:
+      print(f.filename)
+    return 0
   
-  bescfg = config_file.load_configs('.')
+  any_git_root = git.root(filtered_files[0].filename)
+  config_find_root = file_util.parent_dir(any_git_root)
+  
+  bescfg = config_file.load_configs(config_find_root)
   env_dirs = file_filter.env_dirs(filtered_files)
   names = [ bescfg.env_dirs[env_dir]['name'] for env_dir in env_dirs ]
   resolved_deps = dependency_resolver.resolve_deps(bescfg.dep_map, names)
@@ -277,6 +290,10 @@ class file_filter(object):
     return [ f for f in filtered_files if not clazz.filename_matches_any_pattern(f.filename, ignore_patterns) ]
 
   @classmethod
+  def common_prefix(clazz, filtered_files):
+    return path.commonprefix([f.filename for f in filtered_files]).rpartition(os.sep)[0]
+  
+  @classmethod
   def filename_matches_any_pattern(clazz, filename, patterns):
     for pattern in patterns:
       if fnmatch.fnmatch(filename, pattern):
@@ -304,7 +321,7 @@ class file_filter(object):
       return filename.partition('/bin')[0]
     else:
       return None
-  
+
 def _filepath_normalize(filepath):
   f = path.abspath(path.normpath(filepath))
   if path.exists(f):
@@ -545,7 +562,11 @@ class file_util(object):
         os.remove(filename)
     except Exception, ex:
       pass
-      
+
+  @classmethod
+  def parent_dir(clazz, d):
+    return path.normpath(path.join(d, os.pardir))
+                 
 class environ_util(object):
 
   @classmethod
@@ -873,7 +894,7 @@ class config_file(object):
     
   @classmethod
   def find_config_files(clazz, d):
-    return file_find.find(d, '-name', '*.bescfg', '-maxdepth', '4')
+    return file_find.find(d, '-maxdepth', '4', '-name', '*.bescfg')
 
   @classmethod
   def read_config_file(clazz, filename):
