@@ -80,14 +80,14 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Use git status to figure out what has changed to test [ False ]')
-  parser.add_argument('--dump-tests',
+  parser.add_argument('--print-tests',
                       action = 'store_true',
                       default = False,
-                      help = 'Dump the list of unit tests [ False ]')
-  parser.add_argument('--dump-files',
+                      help = 'Print the list of unit tests [ False ]')
+  parser.add_argument('--print-files',
                       action = 'store_true',
                       default = False,
-                      help = 'Dump the list of unit files [ False ]')
+                      help = 'Print the list of unit files [ False ]')
   parser.add_argument('--egg',
                       action = 'store_true',
                       default = False,
@@ -127,7 +127,7 @@ def main():
     files = file_resolve.resolve_files_and_dirs(git_modified)
     files = [ f for f in files if f in test_map ]
 
-  if args.dump_tests:
+  if args.print_tests:
     unit_test_inspect.print_inspect_map(test_map, files, cwd)
     return 0
     
@@ -141,9 +141,9 @@ def main():
   if not filtered_files:
     return 1
 
-  if args.dump_files:
-    for f in filtered_files:
-      print(f.filename)
+  if args.print_files:
+    for filename in file_filter.filenames(filtered_files):
+      print(path.relpath(filename))
     return 0
   
   any_git_root = git.root(filtered_files[0].filename)
@@ -288,6 +288,10 @@ class file_filter(object):
   @classmethod
   def ignore_files(clazz, filtered_files, ignore_patterns):
     return [ f for f in filtered_files if not clazz.filename_matches_any_pattern(f.filename, ignore_patterns) ]
+
+  @classmethod
+  def filenames(clazz, filtered_files):
+    return sorted([ f.filename for f in filtered_files ])
 
   @classmethod
   def common_prefix(clazz, filtered_files):
