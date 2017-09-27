@@ -17,5 +17,7 @@ class compat(object):
 
   if IS_PYTHON3:
     STRING_TYPES = str,
+    INTEGER_TYPES = int,
   else:
     STRING_TYPES = basestring,
+    INTEGER_TYPES = (int, long)

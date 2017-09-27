@@ -5,6 +5,7 @@
 from bes.testing.unit_test import unit_test
 from bes.key_value import key_value_list as KVL
 from bes.key_value import key_value as KV
+from bes.compat import compat
 
 class test_key_value_list(unit_test):
 
@@ -149,6 +150,19 @@ class test_key_value_list(unit_test):
 
     found = l.find_all_key('foo')
     self.assertEqual( [ KV('foo', 'hi'), KV('foo', 'hi2') ], found )
+    
+  def test_is_homogeneous(self):
+    l1 = KVL()
+    l1.append(KV('foo', 666))
+    l1.append(KV('bar', 667))
+    l1.append(KV('foo', 668))
+    self.assertEqual( True, l1.is_homogeneous(compat.STRING_TYPES, compat.INTEGER_TYPES) )
+
+    l2 = KVL()
+    l2.append(KV('foo', 666))
+    l2.append(KV('bar', '667'))
+    l2.append(KV('foo', 668))
+    self.assertEqual( False, l2.is_homogeneous(compat.STRING_TYPES, compat.INTEGER_TYPES) )
     
 if __name__ == "__main__":
   unit_test.main()
