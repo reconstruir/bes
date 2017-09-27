@@ -117,7 +117,7 @@ class key_value_list(object):
   def is_homogeneous(self, key_type, value_type):
     'Return True if all items in d are of the given key_type and value_type.'
     for kv in self._values:
-      if not kv.is_homogeneous(key_type, value_type):
+      if not kv.is_instance(key_type, value_type):
         return False
     return True
 

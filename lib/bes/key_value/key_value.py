@@ -19,7 +19,7 @@ class key_value(namedtuple('key_value', 'key,value')):
     buf.write(unicode(self.value))
     return buf.getvalue()
 
-  def is_homogeneous(self, key_type, value_type):
+  def is_instance(self, key_type, value_type):
     'Return True if the key and value types are instance of the key_type and value_type.'
     if not isinstance(self.key, key_type):
       return False
