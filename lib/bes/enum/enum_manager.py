@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
+from bes.common import string_util
 
 class enum_manager(object):
 
@@ -20,7 +21,7 @@ class enum_manager(object):
     return self._name_values
 
   def add_value(self, name, value):
-    if not isinstance(name, basestring):
+    if not string_util.is_string(name):
       raise TypeError('name should be an string instead of: %s - %s' % (str(name), type(name)))
     if not isinstance(value, int):
       raise TypeError('value should be an int instead of: %s - %s' % (str(value), type(value)))
@@ -62,7 +63,7 @@ class enum_manager(object):
     return ' '.join([ '%s(%s)' % (x.name, x.value) for x in self._name_values ])
 
   def parse_name(self, name):
-    if not isinstance(name, basestring):
+    if not string_util.is_string(name):
       raise TypeError('name to parse should be a string instead of: %s - %s' % (str(name), type(name)))
     if name == 'DEFAULT':
       return self.default_value

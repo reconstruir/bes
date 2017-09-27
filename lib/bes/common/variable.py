@@ -42,9 +42,9 @@ class variable(object):
     replacements = {}
 
     for key, value in d.items():
-      if not isinstance(key, basestring):
+      if not string_util.is_string(key):
         raise RuntimeError('key should be string instead of %s: %s' % (type(key), str(key)))
-      if not isinstance(value, basestring):
+      if not string_util.is_string(value):
         raise RuntimeError('value should be string instead of %s: %s' % (type(value), str(value)))
       for pattern in clazz.VARIABLE_PATTERNS:
         formatted_key = clazz.KEY_FORMATS[pattern] % (key)

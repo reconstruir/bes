@@ -3,7 +3,7 @@
 
 import argparse, os, os.path as path, re, sys
 
-from bes.common import algorithm, json_util
+from bes.common import algorithm, json_util, string_util
 from bes.fs import file_find, file_match, file_replace, file_search, file_util, file_mime, file_path
 from bes.git import git
 
@@ -26,7 +26,7 @@ class files(object):
   @classmethod
   def _resolve_one(clazz, filename):
     'Resolve a mixed list of files and directories into a sorted list of files.'
-    if not isinstance(filename, basestring):
+    if not string_util.is_string(filename):
       raise RuntimeError('Not a string: %s' % (filename))
     if not path.exists(filename):
       raise RuntimeError('Not found: %s' % (filename))

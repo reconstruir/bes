@@ -3,6 +3,7 @@
 #
 import unittest
 from bes.common import dict_util
+from bes.system import compat
 
 class Testobject_util(unittest.TestCase):
 
@@ -20,9 +21,9 @@ class Testobject_util(unittest.TestCase):
     self.assertEqual( { 'flavor': 'vanilla', 'greeting': 'hi' }, r )
 
   def test_is_homogeneous(self):
-    self.assertTrue( dict_util.is_homogeneous({ 'a': '5', 'b': 'hi' }, basestring, basestring) )
-    self.assertFalse( dict_util.is_homogeneous({ 'a': 5, 'b': 'hi' }, basestring, basestring) )
-    self.assertFalse( dict_util.is_homogeneous({ 5: '5', 'b': 'hi' }, basestring, basestring) )
+    self.assertTrue( dict_util.is_homogeneous({ 'a': '5', 'b': 'hi' }, compat.STRING_TYPES, compat.STRING_TYPES) )
+    self.assertFalse( dict_util.is_homogeneous({ 'a': 5, 'b': 'hi' }, compat.STRING_TYPES, compat.STRING_TYPES) )
+    self.assertFalse( dict_util.is_homogeneous({ 5: '5', 'b': 'hi' }, compat.STRING_TYPES, compat.STRING_TYPES) )
 
 if __name__ == '__main__':
   unittest.main()

@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .enum_loader import enum_loader
+from bes.common import string_util
 
 class _flag_enum_meta_class(type):
   'cheesy enum.  Id rather use the one in python3 but i want to support python 2.7 with no exta deps.'
@@ -42,7 +43,7 @@ class flag_enum(object):
   def __eq__(self, other):
     if isinstance(other, self.__class__):
       return self.value == other.value
-    elif isinstance(other, basestring):
+    elif string_util.is_string(other):
       return self.value == self.parse(other)
     elif isinstance(other, int):
       return self.value == other
@@ -60,7 +61,7 @@ class flag_enum(object):
   def assign(self, what):
     if isinstance(what, self.__class__):
       self.value = what.value
-    elif isinstance(what, basestring):
+    elif string_util.is_string(what):
       self.value = self.parse(what)
     elif isinstance(what, int):
       self.value = what
@@ -87,7 +88,7 @@ class flag_enum(object):
   
   @classmethod
   def parse(clazz, s):
-    if not isinstance(s, basestring):
+    if not string_util.is_string(s):
       raise TypeError('mask to parse should be a string instead of: %s - %s' % (str(s), type(s)))
     names = s.split(clazz.DELIMITER)
     names = [ n.strip() for n in names if n.strip() ]

@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import errno, os, stat
+from bes.common import string_util
 
 class file_type(object):
 
@@ -65,7 +66,7 @@ class file_type(object):
 
   @classmethod
   def parse_file_type(clazz, s):
-    if not isinstance(s, basestring):
+    if not string_util.is_string(s):
       return None
     t = clazz._NAME_TO_TYPE.get(s, None)
     if t:

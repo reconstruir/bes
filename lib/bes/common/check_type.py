@@ -2,10 +2,10 @@
 #-*- coding:utf-8 -*-
 
 import inspect
+from .string_util import string_util
 
 def check_type(o, t, name):
-
-  assert isinstance(name, basestring)
+  assert string_util.is_string(name)
   success = isinstance(o, t)
   if success:
     return o

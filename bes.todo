@@ -6,3 +6,6 @@ jul 28
 
 sep 23
 - add refactor unit tests
+
+sep 27
+- number_util.is_int() semanitcs are screwy

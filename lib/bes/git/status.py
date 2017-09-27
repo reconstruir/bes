@@ -30,7 +30,7 @@ class status(object):
     for i, arg in enumerate(self.args):
       if i == 0:
         buf.write(u' ')
-      assert isinstance(arg, basestring)
+      assert string_util.is_string(arg)
       buf.write(unicode(arg))
     return buf.getvalue()
     

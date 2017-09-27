@@ -2,6 +2,8 @@
 #-*- coding:utf-8 -*-
 
 import unittest
+from bes.system import compat
+from .string_util import string_util
 
 class number_util(object):
   'Number util'
@@ -27,10 +29,9 @@ class number_util(object):
   @classmethod
   def is_int(clazz, x):
     'Return True if x is an int.'
-    if isinstance(x, (int, long)):
+    if isinstance(x, compat.INTEGER_TYPES):
       return True
-
-    if isinstance(x, basestring):
+    if string_util.is_string(x):
       try:
         int(x)
         return True

@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path, os
+from bes.common import string_util
 
 class file_path(object):
   'file_path'
@@ -36,7 +37,7 @@ class file_path(object):
     if p == '/':
       return [ '' ]
     p = path.normpath(p)
-    assert isinstance(p, basestring)
+    assert string_util.is_string(p)
     return p.split(os.sep)
 
   @classmethod

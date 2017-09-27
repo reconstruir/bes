@@ -3,6 +3,7 @@
 
 import os, os.path as path, pipes, re, shlex, subprocess, sys, tempfile
 from collections import namedtuple
+from bes.common import string_util
 
 class Shell(object):
   'Shell'
@@ -77,7 +78,7 @@ class Shell(object):
   @classmethod
   def execute_from_string(clazz, content, raise_error = True, non_blocking = False, stderr_to_stdout = False,
                           cwd = None, env = None, shell = False, input_data = None, universal_newlines = True):
-    assert isinstance(content, basestring)
+    assert string_util.is_string(content)
     tmp = tempfile.mktemp()
     with open(tmp, 'w') as fout:
       fout.write(content)

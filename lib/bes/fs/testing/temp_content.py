@@ -3,6 +3,7 @@
 
 import os, os.path as path
 from bes.text import string_list_parser
+from bes.common import string_util
 from collections import namedtuple
 
 class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')):
@@ -21,7 +22,7 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
   def parse_item_type(clazz, s):
     if isinstance(s, temp_content):
       return s
-    elif isinstance(s, basestring):
+    elif string_util.is_string(s):
       s = s.lower()
       if s in [ 'file', 'f' ]:
         return clazz.FILE
@@ -31,7 +32,7 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
     
   @classmethod
   def parse_mode(clazz, m):
-    if isinstance(m, basestring):
+    if string_util.is_string(m):
       return int(m, 8)
     if isinstance(m, int):
       return m
@@ -53,7 +54,7 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
     
   @classmethod
   def parse(clazz, item):
-    if isinstance(item, basestring):
+    if string_util.is_string(item):
       return clazz._parse_string(item)
     elif isinstance(item, list):
       return clazz._parse_tuple(tuple(item))
@@ -64,7 +65,7 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
 
   @classmethod
   def _parse_string(clazz, s):
-    assert isinstance(s, basestring)
+    assert string_util.is_string(s)
     parts = string_list_parser.parse_to_list(s)
     return clazz._parse_tuple(tuple(parts))
 
