@@ -121,6 +121,6 @@ class files(object):
   def refactor(clazz, src, dst, dirs, word_boundary = False):
     assert isinstance(dirs, list)
     if src == dst:
-      return 0
+      raise RuntimeError('src and dst are the same: %s' % (src))
     for d in dirs:
       clazz._refactor_one_dir(src, dst, d, word_boundary = word_boundary)
