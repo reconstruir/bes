@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from object_util import object_util
+from .object_util import object_util
 
 class string_list(object):
   'string list helpers'

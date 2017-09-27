@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import re
-from string_util import string_util
+from .string_util import string_util
 
 class variable(object):
   'variable'

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from size import size
+from .size import size
 
 class table(object):
   'A 2 dimensional table table.'

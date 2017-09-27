@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import re, StringIO
+import re, sys
+
+from bes.compat import StringIO
 
 class string_util(object):
   'String util'
@@ -9,7 +11,7 @@ class string_util(object):
   @classmethod
   def replace_white_space(clazz, s, replacement):
     'Replace white space sequences in s with replacement.'
-    buf = StringIO.StringIO()
+    buf = StringIO()
     STATE_CHAR = 1
     STATE_SPACE = 2
 
@@ -78,10 +80,22 @@ class string_util(object):
     return s
 
   @classmethod
-  def is_string(clazz, s):
-    'Return True if s is a string.'
+  def _is_string3(clazz, s):
+    'Return True if s is a string for python 3.'
+    return isinstance(s, str)
+
+  @classmethod
+  def _is_string2(clazz, s):
+    'Return True if s is a string for python 2'
     return isinstance(s, basestring)
 
+  if sys.version_info.major == 2:
+    is_string = _is_string2
+  elif sys.version_info.major == 3:
+    is_string = _is_string3
+  else:
+    raise RuntimeError('unknown python version: %s' % (sys.version_info.major))
+    
   @classmethod
   def is_char(clazz, s):
     'Return True if s is 1 line character.'

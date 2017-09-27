@@ -16,7 +16,7 @@ class number_util(object):
   def int_to_base2(clazz, n, min_num_digits = 0):
     result = ''
     if n < 0:
-      raise ValueError, 'n must be positive'
+      raise ValueError('n must be positive')
     if n == 0:
       return '0'.zfill(min_num_digits)
     while n > 0:
