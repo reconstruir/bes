@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import sys
+from .compat import compat
 
-if sys.version_info.major == 2:
-  from cStringIO import StringIO as StringIO
-elif sys.version_info.major == 3:
+if compat.IS_PYTHON3:
   from io import StringIO as StringIO
 else:
-  raise RuntimeError('unknown python version: %s' % (sys.version_info.major))
+  from cStringIO import StringIO as StringIO

@@ -3,7 +3,7 @@
 
 import re, sys
 
-from bes.compat import StringIO
+from bes.compat import compat, StringIO
 
 class string_util(object):
   'String util'
@@ -80,21 +80,9 @@ class string_util(object):
     return s
 
   @classmethod
-  def _is_string3(clazz, s):
+  def is_string(clazz, s):
     'Return True if s is a string for python 3.'
-    return isinstance(s, str)
-
-  @classmethod
-  def _is_string2(clazz, s):
-    'Return True if s is a string for python 2'
-    return isinstance(s, basestring)
-
-  if sys.version_info.major == 2:
-    is_string = _is_string2
-  elif sys.version_info.major == 3:
-    is_string = _is_string3
-  else:
-    raise RuntimeError('unknown python version: %s' % (sys.version_info.major))
+    return isinstance(s, compat.STRING_TYPES)
     
   @classmethod
   def is_char(clazz, s):
