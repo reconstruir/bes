@@ -3,7 +3,8 @@
 
 import re, sys
 
-from bes.compat import compat, StringIO
+from bes.compat import StringIO
+from bes.system import compat
 
 class string_util(object):
   'String util'

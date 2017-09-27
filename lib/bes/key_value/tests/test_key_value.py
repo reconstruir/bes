@@ -3,7 +3,7 @@
 #
 import unittest
 from bes.key_value import key_value as KV
-from bes.compat import compat
+from bes.system import compat
 
 class test_key_value(unittest.TestCase):
 

@@ -5,7 +5,7 @@
 from bes.testing.unit_test import unit_test
 from bes.key_value import key_value_list as KVL
 from bes.key_value import key_value as KV
-from bes.compat import compat
+from bes.system import compat
 
 class test_key_value_list(unit_test):
 

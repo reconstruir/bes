@@ -6,8 +6,9 @@ import fnmatch, os, os.path as path, re, sys, syslog, traceback
 from datetime import datetime
 import threading
 
-from thread_id import thread_id
-from add_method import add_method
+from .thread_id import thread_id
+from .add_method import add_method
+from .compat import compat
 
 import logging as pylog
 
@@ -174,7 +175,7 @@ class log(object):
   def configure(clazz, args):
     'Configure levels.'
     clazz._log_lock.acquire()
-    if isinstance(args, basestring):
+    if isinstance(args, compat.STRING_TYPES):
       if args in clazz._string_to_level.keys():
         args = 'all=%s level=%s' % (args, args)
     args = clazz.__flatten(args)
@@ -192,7 +193,7 @@ class log(object):
   def __flatten(clazz, s, delimiter = ' '):
     'Flatten the given collection to a string.'
     'If s is already a string just return it.'
-    if isinstance(s, basestring):
+    if isinstance(s, compat.STRING_TYPES):
       return s
     if isinstance(s, list):
       return delimiter.join(s)
