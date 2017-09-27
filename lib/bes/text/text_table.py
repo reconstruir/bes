@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 from bes.common import object_util, table, size
-from StringIO import StringIO
+from io import StringIO
 
 class text_table_cell_style(object):
 
@@ -54,13 +54,13 @@ class text_table(object):
     if self._labels:
       for x in range(0, self._table.width):
         self._write_label(x, buf, col_widths)
-      buf.write('\n')
+      buf.write(u'\n')
     for y in range(0, self._table.height):
       row = self._table.row(y)
       assert len(row) == len(col_widths)
       for x in range(0, self._table.width):
         self._write_cell(x, y, buf, col_widths)
-      buf.write('\n')
+      buf.write(u'\n')
     value = buf.getvalue()
     # remove the trailing new line
     return value[0:-1]
@@ -70,16 +70,16 @@ class text_table(object):
     style = self.get_cell_style(x, y)
     assert style
     value = style.format(value, width = col_widths[x])
-    stream.write(value)
-    stream.write(self._column_delimiter)
+    stream.write(unicode(value))
+    stream.write(unicode(self._column_delimiter))
   
   def _write_label(self, x, stream, col_widths):
     value = str(self._labels[x])
     style = self.get_cell_style(x, 0)
     assert style
     value = style.format(value, width = col_widths[x])
-    stream.write(value)
-    stream.write(self._column_delimiter)
+    stream.write(unicode(value))
+    stream.write(unicode(self._column_delimiter))
   
   def _column_width(self, x):
     self._table.check_x(x)

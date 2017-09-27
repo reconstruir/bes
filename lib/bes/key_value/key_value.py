@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple, OrderedDict
-from StringIO import StringIO
+from io import StringIO
 
 class key_value(namedtuple('key_value', 'key,value')):
 
@@ -14,9 +14,9 @@ class key_value(namedtuple('key_value', 'key,value')):
 
   def to_string(self, delimiter = '='):
     buf = StringIO()
-    buf.write(self.key)
-    buf.write(delimiter)
-    buf.write(self.value)
+    buf.write(unicode(self.key))
+    buf.write(unicode(delimiter))
+    buf.write(unicode(self.value))
     return buf.getvalue()
 
   def is_homogeneous(self, key_type, value_type):

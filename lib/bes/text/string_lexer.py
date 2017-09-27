@@ -3,7 +3,7 @@
 
 import string
 from collections import namedtuple
-from StringIO import StringIO
+from io import StringIO
 from bes.common import string_util
 from bes.system import log
 
@@ -262,18 +262,18 @@ class string_lexer(string_lexer_options):
     yield self.EOS
 
   def make_token_string(self):
-    return self.token(self.TOKEN_STRING, self._buffer.getvalue(), self.line_number)
+    return self.token(self.TOKEN_STRING, self.buffer_value(), self.line_number)
 
   def make_token_space(self):
-    return self.token(self.TOKEN_SPACE, self._buffer.getvalue(), self.line_number)
+    return self.token(self.TOKEN_SPACE, self.buffer_value(), self.line_number)
       
   def make_token_comment(self):
-    return self.token(self.TOKEN_COMMENT, self._buffer.getvalue(), self.line_number)
+    return self.token(self.TOKEN_COMMENT, self.buffer_value(), self.line_number)
       
   def buffer_reset(self, c = None):
     self._buffer = StringIO()
     if c:
-      self._buffer.write(c)
+      self.buffer_write(c)
       
   def buffer_reset_with_quote(self, c):
     assert c in [ self.SINGLE_QUOTE_CHAR, self.DOUBLE_QUOTE_CHAR ]
@@ -282,8 +282,11 @@ class string_lexer(string_lexer_options):
       
   def buffer_write(self, c):
     assert c != self.EOS
-    self._buffer.write(c)
+    self._buffer.write(unicode(c))
 
+  def buffer_value(self):
+    return self._buffer.getvalue()
+    
   def buffer_write_quote(self, c):
     assert c in [ self.SINGLE_QUOTE_CHAR, self.DOUBLE_QUOTE_CHAR ]
     if self._keep_quotes:

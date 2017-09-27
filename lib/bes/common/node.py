@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import StringIO
+from io import StringIO
 from collections import namedtuple
 
 class node(object):
@@ -59,10 +59,10 @@ class node(object):
       current_node = current_node.ensure_child(next)
   
   def to_string(self, depth, indent = 2):
-    buf = StringIO.StringIO()
-    buf.write(' ' * depth)
-    buf.write(str(self.data))
-    buf.write('\n')
+    buf = StringIO()
+    buf.write(u' ' * depth)
+    buf.write(unicode(self.data))
+    buf.write(u'\n')
     for child in self.children:
-      buf.write(child.to_string(depth + indent))
+      buf.write(unicode(child.to_string(depth + indent)))
     return buf.getvalue()

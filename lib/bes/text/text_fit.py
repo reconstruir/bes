@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 from string_lexer import string_lexer as lexer
-from StringIO import StringIO
+from io import StringIO
 
 class text_fit(object):
   'Fit text into bounded areas.'
@@ -26,12 +26,12 @@ class text_fit(object):
           lines.append(buf.getvalue().strip())
           buf = StringIO()
         else:
-          buf.write(token.value)
+          buf.write(unicode(token.value))
       if token.type == lexer.TOKEN_STRING:
         if (buf.tell() + len(token.value)) > width:
           lines.append(buf.getvalue().strip())
           buf = StringIO()
-        buf.write(token.value)
+        buf.write(unicode(token.value))
       elif token.type == lexer.TOKEN_DONE:
         if buf.tell() > 0:
           lines.append(buf.getvalue().strip())
