@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import math
-from StringIO import StringIO
+from io import StringIO
 
 class line_numbers(object):
   'Add line numbers to text.'
@@ -14,8 +14,8 @@ class line_numbers(object):
     format  = '%%%dd' % (width)
     buf = StringIO()
     for line_number, line in zip(range(1, 1 + len(lines)), lines):
-      buf.write(format % (line_number))
-      buf.write(delimiter)
-      buf.write(line)
-      buf.write('\n')
+      buf.write(unicode(format % (line_number)))
+      buf.write(unicode(delimiter))
+      buf.write(unicode(line))
+      buf.write(u'\n')
     return buf.getvalue()

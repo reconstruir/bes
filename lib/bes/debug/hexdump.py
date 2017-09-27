@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import binascii
-from StringIO import StringIO
+from io import BytesIO
 from collections import namedtuple
 
 class hexdump(object):
@@ -45,7 +45,7 @@ class hexdump(object):
   @classmethod
   def data(clazz, data, wordsize = 4, columns = 8, delimiter = ' ', show_ascii = False, show_offset = False):
     'hexdump bytes to a string.'
-    return clazz.stream(StringIO(data),
+    return clazz.stream(BytesIO(data),
                         wordsize = wordsize,
                         columns = columns,
                         delimiter = delimiter,

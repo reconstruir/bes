@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.common import string_util
-from StringIO import StringIO
+from io import StringIO
 import copy
 
 class status(object):
@@ -24,14 +24,14 @@ class status(object):
     
   def __str__(self):
     buf = StringIO()
-    buf.write(self.action.rjust(2))
-    buf.write(' ')
-    buf.write(self.filename)
+    buf.write(unicode(self.action.rjust(2)))
+    buf.write(u' ')
+    buf.write(unicode(self.filename))
     for i, arg in enumerate(self.args):
       if i == 0:
-        buf.write(' ')
-      assert isinstance(arg, ( str, unicode ))
-      buf.write(arg)
+        buf.write(u' ')
+      assert isinstance(arg, basestring)
+      buf.write(unicode(arg))
     return buf.getvalue()
     
   def __eq__(self, other):

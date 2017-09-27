@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import inspect, os, os.path as path, platform, re, unittest
-from StringIO import StringIO
+from io import BytesIO
 
 class unit_test(unittest.TestCase):
   'Helper for writing unit tests.'
@@ -70,7 +70,7 @@ class unit_test(unittest.TestCase):
   def bytes_to_string(clazz, b):
     s = b.encode('hex')
     assert (len(s) % 2) == 0
-    buf = StringIO()
+    buf = BytesIO()
     for i in range(0, len(s), 2):
       if i != 0:
         buf.write(' ')
@@ -80,7 +80,7 @@ class unit_test(unittest.TestCase):
 
   @classmethod
   def decode_hex(clazz, s):
-    buf = StringIO()
+    buf = BytesIO()
     for c in s:
       if not c.isspace():
         buf.write(c)
