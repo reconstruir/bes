@@ -3,7 +3,7 @@
 
 import os, select
 import threading
-from decorators import synchronized_method
+from .decorators import synchronized_method
 
 class InterruptibleSelect(object):
   'An interruptible version of select'

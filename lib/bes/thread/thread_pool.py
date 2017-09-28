@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from Queue import Queue
+from bes.compat.Queue import Queue
 from threading import Lock, Thread
 from bes.system import log
 
@@ -21,7 +21,7 @@ class thread_pool_worker(Thread):
       self.log_d('Executing task %s(%s, %s)' % (func, str(args), str(kargs)))
       try:
         func(*args, **kargs)
-      except Exception, ex:
+      except Exception as ex:
         self.log_exception(ex)
       self.tasks.task_done()
       self.log_d('Done executing task %s' % (func))

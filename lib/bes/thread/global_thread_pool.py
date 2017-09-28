@@ -3,7 +3,7 @@
 
 import atexit
 from threading import Lock
-from thread_pool import thread_pool
+from .thread_pool import thread_pool
 from bes.system import log
 
 class global_thread_pool(object):

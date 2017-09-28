@@ -3,12 +3,12 @@
 
 from threading import Thread
 from threading import Lock
-from Queue import Queue
-from Queue import Empty as QueueEmptyException
+from bes.compat.Queue import Queue
+from bes.compat.Queue import Empty as QueueEmptyException
 
-from interruptible_select import InterruptibleSelect
+from .interruptible_select import InterruptibleSelect
 from bes.system import log
-from decorators import synchronized_method
+from .decorators import synchronized_method
 
 class ReaderThread(Thread):
   'A thread to read from a file descriptor using select to wait for data'
@@ -82,5 +82,5 @@ class ReaderThread(Thread):
       response = self.response_queue.get(block = True, timeout = timeout)
       self.response_queue.task_done()
       return response
-    except QueueEmptyException, ex:
+    except QueueEmptyException as ex:
       return None

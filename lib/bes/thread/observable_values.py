@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import unittest
-
-from scheduler import Scheduler
-from functools import partial
+from .scheduler import Scheduler
 
 class ObservableValues(object):
   """A dictionary with notifications for changes."""
@@ -18,7 +15,7 @@ class ObservableValues(object):
     return self._dict.get(key, None)
   
   def __setitem__(self, key, value):
-    if self._dict.has_key(key) and self._dict[key] == value:
+    if key in self._dict and self._dict[key] == value:
       return
     self._dict[key] = value
     self.__call_observers(key, value)
@@ -36,6 +33,6 @@ class ObservableValues(object):
       Scheduler.call_in_global_thread_pool(observer, key, value)
 
   def add_property(self, name, setter, getter):
-    assert not self._dict.has_key(name) 
+    assert not name in self._dict
     prop = property(setter, getter)
     self.__setattr__(name, prop)

@@ -3,7 +3,7 @@
 
 from threading import Thread
 from threading import Lock
-from Queue import Queue
+from bes.compat import Queue
 from bes.system import log
 import pprint
 

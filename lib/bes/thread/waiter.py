@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from decorators import synchronized_method
+from .decorators import synchronized_method
 from threading import Lock
-from Queue import Queue, Empty as QueueEmptyException
+from bes.compat.Queue import Queue, Empty as QueueEmptyException
 
 class Waiter(object):
 
@@ -20,7 +20,7 @@ class Waiter(object):
       self._queue.get(block = True, timeout = timeout)
       self._queue.task_done()
       return True
-    except QueueEmptyException, ex:
+    except QueueEmptyException as ex:
       return False
 
   def notify(self):

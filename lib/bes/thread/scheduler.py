@@ -2,9 +2,8 @@
 #-*- coding:utf-8 -*-
 
 from bes.system import log
-from global_thread_pool import global_thread_pool
+from .global_thread_pool import global_thread_pool
 from functools import partial
-import types
 
 class UiThreadCaller(object):
   def __init__(self):
