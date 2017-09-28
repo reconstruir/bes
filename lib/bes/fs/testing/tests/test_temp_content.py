@@ -11,19 +11,19 @@ class test_temp_content(unit_test):
     self.assertEqual( I( I.FILE, 'foo.txt', 'this is foo\nhaha', None ), I.parse('file foo.txt "this is foo\nhaha"') )
     self.assertEqual( ( I.FILE, 'foo.txt', None, None ), I.parse('file foo.txt') )
     self.assertEqual( ( I.DIR, 'foo', None, None ), I.parse('dir foo') )
-    self.assertEqual( ( I.FILE, 'foo.txt', None, 0755 ), I.parse('file foo.txt "" 755') )
+    self.assertEqual( ( I.FILE, 'foo.txt', None, 0o755 ), I.parse('file foo.txt "" 755') )
 
   def test_parse_tuple(self):
     self.assertEqual( ( I.FILE, 'foo.txt', None, None ), I.parse( ('file', 'foo.txt' ) ) )
     self.assertEqual( ( I.FILE, 'foo.txt', 'this is foo\nhaha', None ), I.parse( ('file', 'foo.txt', 'this is foo\nhaha') ) )
 
   def test_write(self):
-    i = I(I.FILE, 'foo.txt', 'this is foo\nhaha', 0644)
+    i = I(I.FILE, 'foo.txt', 'this is foo\nhaha', 0o644)
     tmp_dir = tempfile.mkdtemp()
     i.write(tmp_dir)
     p = path.join(tmp_dir, 'foo.txt')
     self.assertTrue( path.exists(p) )
-    self.assertEqual( 0644, os.stat(p).st_mode & 0777 )
+    self.assertEqual( 0o644, os.stat(p).st_mode & 0o777 )
     with open(p, 'r') as fin:
       self.assertEqual( 'this is foo\nhaha', fin.read() )
     shutil.rmtree(tmp_dir)
@@ -36,9 +36,9 @@ class test_temp_content(unit_test):
 
   def test_parse_sequence(self):
     expected = (
-      ( 'file', 'foo.txt', 'foo content', 0755 ),
-      ( 'file', 'bar.txt', 'bar content', 0644 ),
-      ( 'dir', 'baz', None, 0700 ),
+      ( 'file', 'foo.txt', 'foo content', 0o755 ),
+      ( 'file', 'bar.txt', 'bar content', 0o644 ),
+      ( 'dir', 'baz', None, 0o700 ),
     )
     self.assertEqual( expected, I.parse_sequence([
       'file foo.txt "foo content" 755',
