@@ -44,7 +44,7 @@ class Testtemp_archive(unittest.TestCase):
       archive.extractall(path = tmp_dir)
       tmp_member_path = path.join(tmp_dir, 'foo.txt')
       self.assertTrue( path.isfile(tmp_member_path) )
-      self.assertEqual( 'foo.txt\n', file_util.read(tmp_member_path) )
+      self.assertEqual( b'foo.txt\n', file_util.read(tmp_member_path) )
     
 if __name__ == "__main__":
   unittest.main()

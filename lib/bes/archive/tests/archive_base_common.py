@@ -286,8 +286,8 @@ class archive_base_common(object):
       ( 'metadata/db.json', '{}\n' ),
     ])
     tmp_archive = self.make_temp_archive_for_reading(items)
-    self.assertEqual( 'apple.txt\n', tmp_archive.extract_member_to_string('foo/apple.txt') )
-    self.assertEqual( '{}\n', tmp_archive.extract_member_to_string('metadata/db.json') )
+    self.assertEqual( b'apple.txt\n', tmp_archive.extract_member_to_string('foo/apple.txt') )
+    self.assertEqual( b'{}\n', tmp_archive.extract_member_to_string('metadata/db.json') )
 
   def __test_extract_with_members(self, items, members,
                                   base_dir = None,
