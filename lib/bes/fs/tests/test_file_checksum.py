@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 #
-import unittest
+from bes.testing.unit_test import unit_test
 from bes.fs import file_checksum, file_util, temp_file
 
-class Testfile_checksum(unittest.TestCase):
+class test_file_checksum(unit_test):
 
   def test_checksum(self):
     tmp_file = temp_file.make_temp_file(content = 'foo\n')
@@ -46,9 +46,10 @@ class Testfile_checksum(unittest.TestCase):
   ]
 ]''' % (expected_checksums[0].filename, expected_checksums[1].filename)
 
+    import codecs
     actual_json = file_util.read(tmp_checksums_filename)
-
-    self.assertEqual( expected_json, actual_json )
+    actual_json = codecs.decode(actual_json, 'utf-8')
+    self.assert_string_equal_ws( expected_json, actual_json )
 
   def test_load_checksums(self):
     json = '''[
@@ -79,5 +80,5 @@ class Testfile_checksum(unittest.TestCase):
     checksum = file_checksum.checksum(tmp_file)
     self.assertTrue( file_checksum.verify(checksum) )
 
-if __name__ == "__main__":
-  unittest.main()
+if __name__ == '__main__':
+  unit_test.main()

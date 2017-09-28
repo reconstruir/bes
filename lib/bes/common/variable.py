@@ -32,7 +32,7 @@ class variable(object):
     result = []
     for pattern in clazz.VARIABLE_PATTERNS:
       found = pattern.findall(s)
-      names = [ clazz.__var_to_name(v, pattern) for v in found ]
+      names = [ clazz._var_to_name(v, pattern) for v in found ]
       result.extend(names)
     return sorted(list(set(result)))
 
@@ -43,12 +43,12 @@ class variable(object):
 
     for key, value in d.items():
       if not string_util.is_string(key):
-        raise RuntimeError('key should be string instead of %s: %s' % (type(key), str(key)))
+        raise RuntimeError('key should be string instead of %s: %s' % (str(key), type(key)))
       if not string_util.is_string(value):
-        raise RuntimeError('value should be string instead of %s: %s' % (type(value), str(value)))
+        raise RuntimeError('value should be string instead of %s: %s' % (str(value), type(value)))
       for pattern in clazz.VARIABLE_PATTERNS:
         formatted_key = clazz.KEY_FORMATS[pattern] % (key)
-        replacements[formatted_key] = str(value)
+        replacements[formatted_key] = value
     return string_util.replace(s, replacements, word_boundary = True)
 
   @classmethod
@@ -58,7 +58,7 @@ class variable(object):
     return '$' in s
   
   @classmethod
-  def __var_to_name(clazz, var, pattern):
+  def _var_to_name(clazz, var, pattern):
     'Convert a dollar sign variable into just the name.  $foo/${foo}/$(foo) => foo'
     if pattern == clazz.DOLLAR_ONLY_PATTERN:
       assert len(var) >= 2

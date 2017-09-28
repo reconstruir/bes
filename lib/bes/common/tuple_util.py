@@ -2,6 +2,7 @@
 #-*- coding:utf-8 -*-
 
 from collections import namedtuple
+from functools import reduce
 
 class tuple_util(object):
   'Tuple util'
