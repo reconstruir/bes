@@ -10,7 +10,6 @@ class enum_loader(object):
   @classmethod
   def load(clazz, target):
     name_values = clazz.load_name_values(target)
-    print("name_values: %s" % (type(name_values)))
     if not name_values:
       return None
     size = clazz.load_size(target)
