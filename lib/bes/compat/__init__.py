@@ -3,5 +3,3 @@
 
 from .StringIO import StringIO
 from .cmp import cmp
-
-
