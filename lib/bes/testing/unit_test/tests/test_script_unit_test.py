@@ -9,7 +9,7 @@ class test_script_unit_test_true(script_unit_test):
 
   def test_true(self):
     rv = self.run_command('foo', 'bar')
-    expected = 'foo bar'
+    expected = b'foo bar'
     self.assertEqual( 0, rv.exit_code )
     self.assert_string_equal_strip( expected, rv.stdout )
 
@@ -19,7 +19,7 @@ class test_script_unit_test_false(script_unit_test):
 
   def test_false(self):
     rv = self.run_command('foo', 'bar')
-    expected = 'foo bar'
+    expected = b'foo bar'
     self.assertEqual( 1, rv.exit_code )
     self.assert_string_equal_strip( expected, rv.stdout )
 
