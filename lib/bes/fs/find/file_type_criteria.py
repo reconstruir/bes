@@ -17,7 +17,7 @@ class file_type_criteria(criteria):
   def matches(self, variables):
     try:
       return file_type.matches(variables.filename, self.file_type_mask)
-    except OSError, ex:
+    except OSError as ex:
       # Sometimes os.walk() will find things that later are mysteriously missing - maybe races
       if ex.errno == errno.ENOENT:
         return False

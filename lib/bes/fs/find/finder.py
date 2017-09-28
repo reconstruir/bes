@@ -68,12 +68,12 @@ class finder(object):
         
       if False:
       #if True:
-        print "       next_dir: %s" % (next_dir)
-        print " root_dir_depth: %s" % (root_dir_depth)
-        print "           dirs: %s" % (' '.join(dirs))
-        print "          files: %s" % (' '.join(files))
-        print " next_dir_depth: %s" % (next_dir_depth)
-        print ""
+        print("       next_dir: %s" % (next_dir))
+        print(" root_dir_depth: %s" % (root_dir_depth))
+        print("           dirs: %s" % (' '.join(dirs)))
+        print("          files: %s" % (' '.join(files)))
+        print(" next_dir_depth: %s" % (next_dir_depth))
+        print("")
 #      yield clazz.walk_item(next_dir_depth, next_dir, dirs, files)
 #      if max_depth is not None:
 #        if next_dir_depth > max_depth:
