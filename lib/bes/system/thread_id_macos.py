@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from thread_id_base import thread_id_base
+from .thread_id_base import thread_id_base
 import threading
 
 class thread_id_macos(thread_id_base):

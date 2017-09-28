@@ -3,6 +3,7 @@
 
 from .enum_loader import enum_loader
 from bes.common import string_util
+from bes.system.compat import with_metaclass
 
 class _flag_enum_meta_class(type):
   'cheesy enum.  Id rather use the one in python3 but i want to support python 2.7 with no exta deps.'
@@ -20,7 +21,7 @@ class _flag_enum_meta_class(type):
       setattr(clazz, 'MASKS', masks)
     return clazz
 
-class flag_enum(object):
+class flag_enum(with_metaclass(_flag_enum_meta_class, object)):
 
   DELIMITER = '|'
   

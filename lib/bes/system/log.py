@@ -213,7 +213,7 @@ class log(object):
       clazz.__configure_i('all', clazz._level)
       clazz.__configure_i('file', clazz.DEFAULT_LOG_FP)
     elif key == 'file':
-      if isinstance(value, file):
+      if compat.is_file(value):
         clazz._log_fp = value
       else:
         clazz._log_fp = open(value, 'wa')

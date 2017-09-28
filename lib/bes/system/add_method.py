@@ -10,7 +10,7 @@ class _transplanter(object):
    def __call__(self, *args, **kwargs):
       nargs = [self.host]
       nargs.extend(args)
-      return apply(self.method, nargs, kwargs)
+      return self.method(*nargs, **kwargs)
 
 def add_method(method, obj, method_name = None):
   'Add a method to an existing object.'

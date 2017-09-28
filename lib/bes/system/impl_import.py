@@ -23,10 +23,11 @@ class impl_import(object):
   @classmethod
   def _try_load(clazz, impl_class_name, impl_name, xglobals):
     try:
-      code = 'from %s import %s as %s' % (impl_class_name, impl_class_name, impl_name)
+      code = 'from .%s import %s as %s' % (impl_class_name, impl_class_name, impl_name)
       exec(code, xglobals)
       return xglobals[impl_name]
     except ImportError as ex:
+      print("CAUGHT: %s" % (str(ex)))
       return None
 
   @classmethod

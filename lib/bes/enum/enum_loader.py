@@ -3,12 +3,14 @@
 
 import inspect
 from .enum_manager import enum_manager
+import itertools
 
 class enum_loader(object):
   
   @classmethod
   def load(clazz, target):
     name_values = clazz.load_name_values(target)
+    print("name_values: %s" % (type(name_values)))
     if not name_values:
       return None
     size = clazz.load_size(target)
@@ -51,4 +53,4 @@ class enum_loader(object):
       if not isinstance(value, int):
         raise TypeError('Value should be of type int instead of %s: %s' % (type(value), str(value)))
     assert len(names) == len(values)
-    return zip(names, values)
+    return list(zip(names, values))
