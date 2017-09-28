@@ -106,9 +106,9 @@ class refactor_cli(script_base):
       new_content = clazz.NEW_CONTENT_HEADER + '\n'.join(new_content_lines)
       if make_backup:
         file_util.backup(filename)
-      file_util.save(filename, content = commented_content, mode = 0755)
+      file_util.save(filename, content = commented_content, mode = 0o755)
       _span_save(span, filename + '.span')
-      file_util.save(test_module_path, content = new_content, mode = 0755)
+      file_util.save(test_module_path, content = new_content, mode = 0o755)
       git.add(os.getcwd(), test_module_path)
       return True
     return False
@@ -137,7 +137,7 @@ class refactor_cli(script_base):
     new_content_lines = lines[:]
     new_content_lines[span[0]:span[1]] = []
     new_content = '\n'.join(new_content_lines)
-    file_util.save(filename, content = new_content, mode = 0755)
+    file_util.save(filename, content = new_content, mode = 0o755)
     file_util.remove(span_filename)
     return True
     
