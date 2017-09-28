@@ -10,7 +10,7 @@ class setup_tools(object):
   @classmethod
   def read_easy_install_pth(clazz, filename):
     content = file_util.read(filename).strip()
-    lines = content.split('\n')
+    lines = content.decode('utf-8').split('\n')
     if len(lines) < 2:
       raise RuntimeError('Invalid easy-install.pth(1): %s' % (filename))
     if not lines[0].startswith('import sys'):

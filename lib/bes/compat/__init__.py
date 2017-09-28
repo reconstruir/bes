@@ -3,3 +3,4 @@
 
 from .StringIO import StringIO
 from .cmp import cmp
+from .map import map

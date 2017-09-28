@@ -33,7 +33,7 @@ class test_setup_tools(unittest.TestCase):
     tmp_dir = temp_file.make_temp_dir()
     setup_tools.update_site_dot_py(tmp_dir)
     site_py_path = path.join(tmp_dir, setup_tools.SITE_DOT_PY_FILENAME)
-    self.assertEqual( setup_tools.SITE_DOT_PY_CONTENT, file_util.read(site_py_path) )
+    self.assertEqual( setup_tools.SITE_DOT_PY_CONTENT.encode('utf-8'), file_util.read(site_py_path) )
 
   def test_update_site_dot_py_empty_dir(self):
     tmp_dir = temp_file.make_temp_dir()

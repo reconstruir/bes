@@ -39,6 +39,8 @@ class temp_file(object):
                                       mode = mode,
                                       delete = False)
     if content:
+      if not isinstance(content, bytes):
+        content = content.encode('utf-8')
       tmp.write(content)
     tmp.flush()
     os.fsync(tmp.fileno())

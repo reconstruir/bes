@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from __future__ import division
 from bes.common import Shell
-
-import string
+from bes.compat import map
+from bes.system import compat
 
 class file_mime(object):
 
@@ -40,20 +41,26 @@ class file_mime(object):
   # From http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
   @classmethod
   def content_is_text(clazz, filename):
-      s=open(filename).read(512)
-      text_characters = "".join(map(chr, range(32, 127)) + list("\n\r\t\b"))
-      _null_trans = string.maketrans("", "")
+    with open(filename, 'rb') as fin:
+      s = fin.read(512)
+      text_characters = ''.join(list(map(chr, range(32, 127))) + list('\n\r\t\b'))
+      if compat.IS_PYTHON2:
+        import string
+        _null_trans = string.maketrans('', '')
+      else:
+        _null_trans = bytes.maketrans(b'', b'')
+        
       if not s:
-          # Empty files are considered text
-          return True
-      if "\0" in s:
-          # Files with null bytes are likely binary
-          return False
+        # Empty files are considered text
+        return True
+      if b'\0' in s:
+        # Files with null bytes are likely binary
+        return False
       # Get the non-text characters (maps a character to itself then
       # use the 'remove' option to get rid of the text characters.)
       t = s.translate(_null_trans, text_characters)
       # If more than 30% non-text characters, then
       # this is considered a binary file
       if float(len(t))/float(len(s)) > 0.30:
-          return False
+        return False
       return True  
