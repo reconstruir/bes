@@ -3,7 +3,7 @@
 
 import os, stat
 from collections import namedtuple
-from file_find import file_find
+from .file_find import file_find
 
 class device_info(object):
 

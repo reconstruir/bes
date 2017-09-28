@@ -4,9 +4,9 @@
 import os.path as path, re
 
 from bes.common import algorithm, object_util, string_util
-from file_find import file_find
-from file_replace import file_replace
-from file_util import file_util
+from .file_find import file_find
+from .file_replace import file_replace
+from .file_util import file_util
 from collections import namedtuple
 
 class file_search(object):

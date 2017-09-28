@@ -4,7 +4,7 @@
 import json, os.path as path, hashlib
 from collections import namedtuple
 from bes.common import json_util, object_util
-from file_util import file_util
+from .file_util import file_util
 
 class file_checksum(object):
 
@@ -33,7 +33,7 @@ class file_checksum(object):
   def load_checksums(clazz, filename):
     try:
       content = file_util.read(filename)
-    except IOError, ex:
+    except IOError as ex:
       return None
     o = json.loads(content)
     assert isinstance(o, list)

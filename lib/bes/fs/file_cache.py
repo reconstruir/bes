@@ -5,9 +5,9 @@ import os.path as path
 from multiprocessing import Lock
 from collections import namedtuple
 
-from file_checksum import file_checksum
-from file_util import file_util
-from temp_file import temp_file
+from .file_checksum import file_checksum
+from .file_util import file_util
+from .temp_file import temp_file
 
 from abc import abstractmethod
 

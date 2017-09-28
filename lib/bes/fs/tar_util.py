@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import os.path as path, os, platform
-from file_util import file_util
+from .file_util import file_util
 
 class tar_util(object):
 

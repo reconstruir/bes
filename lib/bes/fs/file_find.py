@@ -4,9 +4,9 @@
 import errno, os.path as path, os, stat
 
 from bes.system import log
-from file_util import file_util
-from file_match import file_match
-from temp_file import temp_file
+from .file_util import file_util
+from .file_match import file_match
+from .temp_file import temp_file
 
 class file_find(object):
 
@@ -88,13 +88,13 @@ class file_find(object):
       next_dir_depth = next_dir.count(os.sep) - root_dir_depth
       if False:
       #if True:
-        print "       next_dir: %s" % (next_dir)
-        print " root_dir_depth: %s" % (root_dir_depth)
-        print "           dirs: %s" % (' '.join(dirs))
-        print "          files: %s" % (' '.join(files))
-        print " next_dir_depth: %s" % (next_dir_depth)
-        print "      max_depth: %s" % (max_depth)
-        print ""
+        print("       next_dir: %s" % (next_dir))
+        print(" root_dir_depth: %s" % (root_dir_depth))
+        print("           dirs: %s" % (' '.join(dirs)))
+        print("          files: %s" % (' '.join(files)))
+        print(" next_dir_depth: %s" % (next_dir_depth))
+        print("      max_depth: %s" % (max_depth))
+        print("")
       yield next_dir, dirs, files
       if max_depth is not None:
         if next_dir_depth > max_depth:
@@ -112,7 +112,7 @@ class file_find(object):
     want_device = clazz._want_file_type(file_type, clazz.DEVICE)
     try:
       st = os.lstat(filename)
-    except OSError, ex:
+    except OSError as ex:
       if ex.errno == errno.EBADF:
         # Some devices on macos result in bad access when trying to stat so ignore them
         return False

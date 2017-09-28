@@ -3,7 +3,7 @@
 
 import os.path as path
 from bes.common import string_util, variable
-from file_util import file_util
+from .file_util import file_util
 from collections import namedtuple
 
 class file_replace(object):

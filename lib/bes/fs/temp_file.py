@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import atexit, os, os.path as path, sys, tempfile
-from file_util import file_util
+from .file_util import file_util
 from bes.system import log
 
 class temp_item(object):

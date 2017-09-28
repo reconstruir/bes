@@ -3,7 +3,7 @@
 
 import os, os.path as path
 
-from file_match import file_match
+from .file_match import file_match
 
 class dir_util(object):
     

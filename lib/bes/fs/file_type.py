@@ -47,7 +47,7 @@ class file_type(object):
   def matches(clazz, filename, mask):
     try:
       st = os.lstat(filename)
-    except OSError, ex:
+    except OSError as ex:
       if ex.errno == errno.EBADF:
         # Some devices on macos result in bad access when trying to stat so ignore them
         return False

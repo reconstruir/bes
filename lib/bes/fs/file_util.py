@@ -26,7 +26,7 @@ class file_util(object):
           shutil.rmtree(f)
         else:
           os.remove(f)
-      except Exception, ex:
+      except Exception as ex:
         clazz.log_d('Caught exception %s removing %s' % (ex, f))
         pass
 
@@ -142,7 +142,7 @@ class file_util(object):
   @classmethod
   def mode(clazz, filename):
     'Return only the lower bits of a inode mode (permissions)'
-    return os.stat(filename).st_mode & 0777
+    return os.stat(filename).st_mode & 0o777
 
   @classmethod
   def size(clazz, filename):
