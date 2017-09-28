@@ -43,7 +43,7 @@ class file_search(object):
         original_patterns = patterns[:]
         patterns = [ p.lower() for p in patterns ]
     original_patterns = original_patterns or patterns
-    patterns = zip(patterns, original_patterns)
+    patterns = list(zip(patterns, original_patterns))
     for line_number, line in enumerate(content.split('\n'), 1):
       if word_boundary:
         result += clazz._search_line_with_re(line, patterns, '<unknown>', line_number)
