@@ -27,7 +27,6 @@ class impl_import(object):
       exec(code, xglobals)
       return xglobals[impl_name]
     except ImportError as ex:
-      print("CAUGHT: %s" % (str(ex)))
       return None
 
   @classmethod
