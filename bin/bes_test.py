@@ -604,7 +604,7 @@ class environ_util(object):
   def make_clean_env(clazz):
     'Return a clean environment suitable for deterministic build related tasks.'
     clean_path = '/bin:/usr/bin:/usr/sbin:/sbin'
-    clean_vars = [ 'BES_LOG', 'PYTHONPATH', 'DISPLAY', 'HOME', 'LANG', 'SHELL', 'TERM', 'TERM_PROGRAM', 'TMOUT', 'TMPDIR', 'USER', 'XAUTHORITY', '__CF_USER_TEXT_ENCODING' ]
+    clean_vars = [ 'BES_LOG', 'PYTHONPATH', 'DISPLAY', 'HOME', 'LANG', 'SHELL', 'TERM', 'TERM_PROGRAM', 'TMOUT', 'TMPDIR', 'USER', 'XAUTHORITY', '__CF_USER_TEXT_ENCODING', 'LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH' ]
     clean_env = {}
     for k, v in os.environ.items():
       if k in clean_vars:
