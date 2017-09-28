@@ -3,7 +3,7 @@
 
 import re
 
-from matcher_base import matcher_base
+from .matcher_base import matcher_base
 
 class matcher_always_false(matcher_base):
   'A matcher that always returns False.'

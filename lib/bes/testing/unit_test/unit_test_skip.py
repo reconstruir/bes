@@ -4,7 +4,7 @@
 # Borrowed from: http://stackoverflow.com/questions/21936292/conditional-skip-testcase-decorator-in-nosetests
 
 import functools, unittest, types
-from bes.system import host
+from bes.system import host, compat
 
 def _id(obj):
   return obj
@@ -12,7 +12,7 @@ def _id(obj):
 def skip(reason):
   """Unconditionally skip a test."""
   def decorator(test_item):
-    if not isinstance(test_item, (type, types.ClassType)):
+    if not isinstance(test_item, compat.CLASS_TYPES):
       @functools.wraps(test_item)
       def skip_wrapper(*args, **kwargs):
         raise unittest.SkipTest(reason)

@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import fnmatch
-from matcher_base import matcher_base
+from .matcher_base import matcher_base
 from bes.common import object_util
 
 class matcher_filename(matcher_base):

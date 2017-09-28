@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from bitwise_unpack import bitwise_unpack
+from .bitwise_unpack import bitwise_unpack
 
 class bitwise_io(object):
 

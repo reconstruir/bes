@@ -6,6 +6,7 @@ from bes.testing.unit_test import unit_test
 from bes.key_value import key_value_list as KVL
 from bes.key_value import key_value as KV
 from bes.system import compat
+from bes.compat import cmp
 
 class test_key_value_list(unit_test):
 
@@ -50,10 +51,10 @@ class test_key_value_list(unit_test):
     c = a + b
     self.assertEqual( 4, len(c) )
     it = iter(c)
-    self.assertEqual( KV('foo', 'hi'), it.next() )
-    self.assertEqual( KV('bar', '666'), it.next() )
-    self.assertEqual( KV('apple', '6'), it.next() )
-    self.assertEqual( KV('kiwi', '7'), it.next() )
+    self.assertEqual( KV('foo', 'hi'), next(it) )
+    self.assertEqual( KV('bar', '666'), next(it) )
+    self.assertEqual( KV('apple', '6'), next(it) )
+    self.assertEqual( KV('kiwi', '7'), next(it) )
     
   def test___eq__(self):
     a = KVL()

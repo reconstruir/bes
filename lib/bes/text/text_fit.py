@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from string_lexer import string_lexer as lexer
+from .string_lexer import string_lexer as lexer
 from bes.compat import StringIO
 
 class text_fit(object):

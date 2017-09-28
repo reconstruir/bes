@@ -3,8 +3,8 @@
 
 import copy
 from bes.compat import StringIO
-from key_value_parser import key_value_parser
-from key_value import key_value
+from .key_value_parser import key_value_parser
+from .key_value import key_value
 from bes.common import object_util
 from bes.common.check_type import check_type
 
@@ -29,15 +29,27 @@ class key_value_list(object):
 
   def __eq__(self, other):
     if isinstance(other, key_value_list):
-      return cmp(self._values, other._values) == 0
-    elif self.is_key_value_list(other):
-      return cmp(self._values, other) == 0
+      return self._values == other._values
+    elif isinstance(other, list):
+      return self._values == other
     else:
       raise TypeError('other should be of key_value_list type instead of %s' % (type(other)))
 
-  def __cmp__(self, other):
-    return cmp(self._values, other._values)
+  def __ne__(self, other):
+    return self._values != other._values
 
+  def __lt__(self, other):
+    return self._values < other._values
+
+  def __le__(self, other):
+    return self._values <= other._values
+
+  def __gt__(self, other):
+    return self._values > other._values
+
+  def __ge__(self, other):
+    return self._values >= other._values
+    
   def __len__(self):
     return len(self._values)
 
@@ -126,7 +138,7 @@ class key_value_list(object):
     'Return True if o is either a key_value_list or a python iterable of key_values.'
     if isinstance(o, key_value_list):
       return True
-    return object_util.is_homogeneous(o, key_value)
+    return isinstance(o, (list, tuple)) and object_util.is_homogeneous(o, key_value)
 
   @classmethod
   def verify_key_value_list(clazz, o):

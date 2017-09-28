@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from matcher_filename import matcher_multiple_filename
-from matcher_always_true import matcher_always_true
-from matcher_always_false import matcher_always_false
+from .matcher_filename import matcher_multiple_filename
+from .matcher_always_true import matcher_always_true
+from .matcher_always_false import matcher_always_false
 
 class matcher_util(object):
   'Some nice matching utilities.'

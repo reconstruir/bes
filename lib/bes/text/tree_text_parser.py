@@ -4,7 +4,7 @@
 from bes.system import log
 from bes.common import node
 from bes.compat import StringIO
-from string_lexer import string_lexer, string_lexer_options
+from .string_lexer import string_lexer, string_lexer_options
 from collections import namedtuple
 
 class stack(object):

@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import struct
-from bitwise_word import bitwise_word
+from .bitwise_word import bitwise_word
 
 class bitwise_unpack(object):
 

@@ -50,7 +50,7 @@ class egg_unit_test(unit_test):
         extracted_filename = path.join(dst, member.filename)
         ext = path.splitext(extracted_filename)[1]
         if ext in [ '.py', '.sh' ]:
-          os.chmod(extracted_filename, 0755)
+          os.chmod(extracted_filename, 0o755)
 
   @classmethod
   def filter_test_file_members(clazz, members):

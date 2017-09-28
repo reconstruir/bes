@@ -3,8 +3,8 @@
 
 from bes.system import log
 from bes.text import line_numbers, string_lexer_options
-from key_value_lexer import key_value_lexer as lexer
-from key_value import key_value
+from .key_value_lexer import key_value_lexer as lexer
+from .key_value import key_value
 
 class _state(object):
 

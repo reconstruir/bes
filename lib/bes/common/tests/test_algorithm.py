@@ -3,6 +3,7 @@
 #
 import unittest
 from bes.common import algorithm
+from bes.compat import cmp
 
 class test_algorithm(unittest.TestCase):
 

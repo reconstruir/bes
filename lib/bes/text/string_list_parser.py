@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system import log
-from string_lexer import string_lexer, string_lexer_options
+from .string_lexer import string_lexer, string_lexer_options
 
 class _state(object):
 

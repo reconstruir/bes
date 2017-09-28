@@ -3,6 +3,7 @@
 #
 import unittest
 from bes.common import number_util
+from bes.system import compat
 
 class Testnumber_util(unittest.TestCase):
 
@@ -41,8 +42,9 @@ class Testnumber_util(unittest.TestCase):
     self.assertEqual( True, number_util.is_int(u'5') )
     self.assertEqual( False, number_util.is_int(u'5.5') )
     self.assertEqual( True, number_util.is_int(u'-5') )
-    self.assertEqual( True, number_util.is_int(long(5)) )
-    self.assertEqual( True, number_util.is_int(long(-5)) )
+    if compat.IS_PYTHON2:
+      self.assertEqual( True, number_util.is_int(long(5)) )
+      self.assertEqual( True, number_util.is_int(long(-5)) )
 
   def test_to_int(self):
     self.assertEqual( 5, number_util.to_int(5) )
@@ -54,8 +56,9 @@ class Testnumber_util(unittest.TestCase):
     self.assertEqual( 5, number_util.to_int(u'5') )
     self.assertEqual( None, number_util.to_int(u'5.5') )
     self.assertEqual( -5, number_util.to_int(u'-5') )
-    self.assertEqual( 5, number_util.to_int(long(5)) )
-    self.assertEqual( -5, number_util.to_int(long(-5)) )
+    if compat.IS_PYTHON2:
+      self.assertEqual( 5, number_util.to_int(long(5)) )
+      self.assertEqual( -5, number_util.to_int(long(-5)) )
 
 if __name__ == "__main__":
   unittest.main()

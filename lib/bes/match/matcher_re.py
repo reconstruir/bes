@@ -3,7 +3,7 @@
 
 import re
 
-from matcher_base import matcher_base
+from .matcher_base import matcher_base
 
 class matcher_re(matcher_base):
   'Regular expression matcher.'
