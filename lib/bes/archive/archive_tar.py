@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from archive import archive
-from archive_extension import archive_extension
+from .archive import archive
+from .archive_extension import archive_extension
 
 import os.path as path, tarfile
 

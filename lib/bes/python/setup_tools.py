@@ -36,7 +36,7 @@ class setup_tools(object):
     eggs_content = '\n'.join(eggs)
     easy_install_dot_pth = path.join(d, clazz.EASY_INSTALL_DOT_PTH_FILENAME)
     easy_install_dot_pth_content = clazz.EASY_INSTALL_DOT_PTH_TEMPLATE % (eggs_content)
-    file_util.save(easy_install_dot_pth, content = easy_install_dot_pth_content, mode = 0644)
+    file_util.save(easy_install_dot_pth, content = easy_install_dot_pth_content, mode = 0o644)
     clazz.update_site_dot_py(d)
     
   @classmethod
@@ -53,7 +53,7 @@ class setup_tools(object):
       old_content = file_util.read(site_py_path)
     if old_content == clazz.SITE_DOT_PY_CONTENT:
       return
-    file_util.save(site_py_path, content = clazz.SITE_DOT_PY_CONTENT, mode = 0644)
+    file_util.save(site_py_path, content = clazz.SITE_DOT_PY_CONTENT, mode = 0o644)
     
   EASY_INSTALL_DOT_PTH_FILENAME = 'easy-install.pth'
   SITE_DOT_PY_FILENAME = 'site.py'

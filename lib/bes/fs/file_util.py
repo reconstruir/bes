@@ -37,7 +37,7 @@ class file_util(object):
     clazz.mkdir(path.dirname(filename))
     tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = 'w')
     if content:
-      tmp.write(content)
+      tmp.write(str(content))
     tmp.flush()
     os.fsync(tmp.fileno())
     tmp.close()

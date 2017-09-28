@@ -3,9 +3,9 @@
 
 import os.path as path
 from bes.fs import file_cache
-from archive_tar import archive_tar
-from archive_zip import archive_zip
-from archive_extension import archive_extension
+from .archive_tar import archive_tar
+from .archive_zip import archive_zip
+from .archive_extension import archive_extension
 
 class archiver(object):
   'Class to deal with archives.'

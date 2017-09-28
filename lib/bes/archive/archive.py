@@ -155,7 +155,7 @@ class archive(object):
   def _filter_for_extract(clazz, members, include, exclude):
     return matcher_util.match_filenames(members, include, exclude)
 
-from temp_archive import temp_archive
+from .temp_archive import temp_archive
 from bes.fs import temp_file
 
 class archive_base_common(object):

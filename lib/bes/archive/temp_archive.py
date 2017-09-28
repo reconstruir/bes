@@ -4,7 +4,7 @@
 import os.path as path, tarfile, tempfile, zipfile
 from bes.fs import file_util, temp_file
 from collections import namedtuple
-from archive_extension import archive_extension
+from .archive_extension import archive_extension
 
 class temp_archive(object):
   'A class to deal with temporary archives mostly for unit tests.'
