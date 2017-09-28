@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from io import StringIO
 from bes.system import log
 from bes.common import node
+from bes.compat import StringIO
 from string_lexer import string_lexer, string_lexer_options
 from collections import namedtuple
 
@@ -32,10 +32,10 @@ class stack(object):
     buf = StringIO()
     for i, item in enumerate(self._stack):
       if i != 0:
-        buf.write(u'/')
-      buf.write(unicode(item.depth or 0))
-      buf.write(u':')
-      buf.write(unicode(item.line))
+        buf.write('/')
+      buf.write(str(item.depth or 0))
+      buf.write(':')
+      buf.write(item.line)
     return buf.getvalue()
   
 class tree_text_parser(object):

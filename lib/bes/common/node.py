@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from io import StringIO
 from collections import namedtuple
+from bes.compat import StringIO
 
 class node(object):
 
@@ -60,9 +60,9 @@ class node(object):
   
   def to_string(self, depth, indent = 2):
     buf = StringIO()
-    buf.write(u' ' * depth)
-    buf.write(unicode(self.data))
-    buf.write(u'\n')
+    buf.write(' ' * depth)
+    buf.write(str(self.data))
+    buf.write('\n')
     for child in self.children:
-      buf.write(unicode(child.to_string(depth + indent)))
+      buf.write(child.to_string(depth + indent))
     return buf.getvalue()

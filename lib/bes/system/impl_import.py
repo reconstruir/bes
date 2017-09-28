@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from host import host
+from .host import host
 
 class impl_import(object):
   'Import a platform specific implementation of an abstract class.'
@@ -26,7 +26,7 @@ class impl_import(object):
       code = 'from %s import %s as %s' % (impl_class_name, impl_class_name, impl_name)
       exec(code, xglobals)
       return xglobals[impl_name]
-    except ImportError, ex:
+    except ImportError as ex:
       return None
 
   @classmethod

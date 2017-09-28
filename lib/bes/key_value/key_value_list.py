@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import copy
-from io import StringIO
+from bes.compat import StringIO
 from key_value_parser import key_value_parser
 from key_value import key_value
 from bes.common import object_util
@@ -19,9 +19,9 @@ class key_value_list(object):
     first = True
     for kv in iter(self):
       if not first:
-        buf.write(unicode(value_delimiter))
+        buf.write(value_delimiter)
       first = False
-      buf.write(unicode(kv.to_string(delimiter = delimiter)))
+      buf.write(kv.to_string(delimiter = delimiter))
     return buf.getvalue()
     
   def __str__(self):

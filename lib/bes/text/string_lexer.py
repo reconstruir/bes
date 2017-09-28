@@ -3,7 +3,7 @@
 
 import string
 from collections import namedtuple
-from io import StringIO
+from bes.compat import StringIO
 from bes.common import string_util
 from bes.system import log
 
@@ -282,7 +282,7 @@ class string_lexer(string_lexer_options):
       
   def buffer_write(self, c):
     assert c != self.EOS
-    self._buffer.write(unicode(c))
+    self._buffer.write(c)
 
   def buffer_value(self):
     return self._buffer.getvalue()
