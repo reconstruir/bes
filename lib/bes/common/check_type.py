@@ -3,6 +3,7 @@
 
 import inspect
 from .string_util import string_util
+from bes.system import compat
 
 def check_type(o, t, name):
   assert string_util.is_string(name)
@@ -23,3 +24,5 @@ def check_type(o, t, name):
                                                                                    type(o).__name__,
                                                                                    filename,
                                                                                    line_number))
+def check_is_string(o, name):
+  return check_type(o, compat.STRING_TYPES, name)
