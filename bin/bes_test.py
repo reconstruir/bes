@@ -53,9 +53,13 @@ def main():
                       default = False,
                       help = 'Randomize the order in which unit tests run. [ False ]')
   parser.add_argument('--python',
-                      action = 'store',
-                      default = 'python',
-                      help = 'Python executable to use [ python ]')
+                      action = 'append',
+                      default = [],
+                      help = 'Python executable) to use.  Multiple flags can be used for running with mutiple times with different python versions [ python ]')
+#  parser.add_argument('--ignore',
+#                      action = 'append',
+#                      default = [],
+#                      help = 'Patterns of filenames to ignore []')
   parser.add_argument('--page',
                       '-p',
                       action = 'store_true',
@@ -196,25 +200,29 @@ def main():
   if args.profile:
     args.profile = path.abspath(args.profile)
   
-  options = test_options(args.dry_run, args.verbose, args.stop, args.timing, args.profile)
+  options = test_options(args.dry_run, args.verbose, args.stop, args.timing,
+                         args.profile, args.python)
   
   timings = {}
 
+  if not args.python:
+    args.python = [ 'python' ]
+  
   for i, f in enumerate(filtered_files):
     if not f.filename in timings:
       timings[f.filename] = []
-    result = _test_execute(args.python, test_map, f.filename, f.tests, options, i + 1, total_files, cwd)
-    timings[f.filename].append(result.elapsed_time)
-    total_num_tests += result.num_tests_run
-    num_executed += 1
-    if result.success:
-      num_passed += 1
-    else:
-      num_failed += 1
-      failed_tests.append(f)
-
-    if args.stop and not result.success:
-      break
+    for python_exe in args.python:
+      result = _test_execute(python_exe, test_map, f.filename, f.tests, options, i + 1, total_files, cwd)
+      timings[f.filename].append(result.elapsed_time)
+      total_num_tests += result.num_tests_run
+      num_executed += 1
+      if result.success:
+        num_passed += 1
+      else:
+        num_failed += 1
+        failed_tests.append(( python_exe, f ))
+      if args.stop and not result.success:
+        break
   if args.dry_run:
     return 0
   num_skipped = num_tests - num_executed
@@ -234,8 +242,10 @@ def main():
   summary = '; '.join(summary_parts)
   printer.writeln('bes_test.py: %s' % (summary))
   if failed_tests:
-    for f in failed_tests:
-      printer.writeln('bes_test.py: FAILED: %s' % (file_util.remove_head(f.filename, cwd)))
+    longest_python_exe = max([len(path.basename(p)) for p in options.interpreters])
+    for python_exe, f in failed_tests:
+      python_exe_blurb = path.basename(python_exe).rjust(longest_python_exe)
+      printer.writeln('bes_test.py: FAILED: %s %s' % (python_exe_blurb, file_util.remove_head(f.filename, cwd)))
 
   if num_failed > 0:
     rv = 1
@@ -356,13 +366,13 @@ def _matching_tests(available, patterns):
         result.append(test)
   return result
 
-test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing,profile_output')
+test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing,profile_output,interpreters')
 test_result = namedtuple('test_result', 'success,num_tests_run,elapsed_time')
 
-def _test_execute(python, test_map, filename, tests, options, index, total_files, cwd):
+def _test_execute(python_exe, test_map, filename, tests, options, index, total_files, cwd):
   short_filename = file_util.remove_head(filename, cwd)
 
-  cmd = [ python, '-B' ]
+  cmd = [ python_exe, '-B' ]
 
   if options.profile_output:
     cmd.extend(['-m', 'cProfile', '-o', options.profile_output ])
@@ -395,8 +405,9 @@ def _test_execute(python, test_map, filename, tests, options, index, total_files
       label = 'dry-run'
     else:
       label = 'testing'
-
-    blurb = 'bes_test.py:%7s:%s %s - %s ' % (label, filename_count_blurb, short_filename, function_count_blurb)
+    longest_python_exe = max([len(path.basename(p)) for p in options.interpreters])
+    python_exe_blurb = path.basename(python_exe).rjust(longest_python_exe)
+    blurb = 'bes_test.py:%7s:%s %s %s - %s ' % (label, filename_count_blurb, python_exe_blurb, short_filename, function_count_blurb)
     printer.writeln(blurb)
 
     if options.dry_run:
