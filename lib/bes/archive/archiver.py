@@ -66,7 +66,7 @@ class archiver(object):
 
   @classmethod
   def extract_member_to_string_cached(clazz, archive, member, root_dir = None):
-    from archive_member_cache_item import archive_member_cache_item
+    from .archive_member_cache_item import archive_member_cache_item
     item = archive_member_cache_item(archive, member)
     return file_cache.cached_item(item, root_dir)
   

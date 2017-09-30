@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import os.path as path
-from archiver import archiver
+from .archiver import archiver
 from bes.fs import file_checksum, file_cacheItemInterface, file_util
 
 class archive_member_cache_item(file_cacheItemInterface):
