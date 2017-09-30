@@ -9,3 +9,6 @@ sep 23
 
 sep 27
 - number_util.is_int() semanitcs are screwy
+
+sep 30
+- add unit test for extract_member_to_string_cached

@@ -27,6 +27,8 @@ class impl_import(object):
       exec(code, xglobals)
       return xglobals[impl_name]
     except ImportError as ex:
+      import traceback
+      traceback.print_exc()
       return None
 
   @classmethod

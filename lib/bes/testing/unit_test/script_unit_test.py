@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import sys
+import codecs, sys
 from .unit_test import unit_test
 from collections import namedtuple
 import subprocess
@@ -27,6 +27,18 @@ class script_unit_test(unit_test):
     cmd = self.make_command(*args)
     return self._exec(cmd)
 
+  def run_utf8(self, *args):
+    rv = self.run_command(*args)
+    if isinstance(rv.stdout, bytes):
+      stdout = codecs.decode(rv.stdout, 'utf-8')
+    else:
+      stdout = rv.stdout
+    if isinstance(rv.stderr, bytes):
+      stderr = codecs.decode(rv.stderr, 'utf-8')
+    else:
+      stderr = rv.stderr
+    return self.exec_result(rv.exit_code, stdout, stderr)
+  
   exec_result = namedtuple('exec_result', 'exit_code,stdout,stderr')
   @classmethod
   def _exec(clazz, cmd):
