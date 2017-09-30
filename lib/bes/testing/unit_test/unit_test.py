@@ -25,7 +25,7 @@ class unit_test(unittest.TestCase):
 
   def data(self, filename, platform_specific = False):
     data_path = self.data_path(filename, platform_specific = platform_specific)
-    with open(data_path, 'r') as fin:
+    with open(data_path, 'rb') as fin:
       return fin.read()
 
   def assert_string_equal_ws(self, s1, s2):
@@ -40,7 +40,7 @@ class unit_test(unittest.TestCase):
 
   def assert_file_content_equal(self, expected, filename, strip = True):
     self.maxDiff = None
-    with open(filename, 'r') as fin:
+    with open(filename, 'rb') as fin:
       content = fin.read()
       if strip:
         expected = expected.strip()
