@@ -23,12 +23,8 @@ class script_unit_test(unit_test):
     cmd = [ self._resolve_script() ] + list(args)
     return cmd
 
-  def run_command(self, *args):
-    cmd = self.make_command(*args)
-    return self._exec(cmd)
-
-  def run_utf8(self, *args):
-    rv = self.run_command(*args)
+  def run_script(self, *args):
+    rv = self.run_script_raw(*args)
     if isinstance(rv.stdout, bytes):
       stdout = codecs.decode(rv.stdout, 'utf-8')
     else:
@@ -38,6 +34,10 @@ class script_unit_test(unit_test):
     else:
       stderr = rv.stderr
     return self.exec_result(rv.exit_code, stdout, stderr)
+  
+  def run_script_raw(self, *args):
+    cmd = self.make_command(*args)
+    return self._exec(cmd)
   
   exec_result = namedtuple('exec_result', 'exit_code,stdout,stderr')
   @classmethod

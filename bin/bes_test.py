@@ -199,15 +199,15 @@ def main():
 
   if args.profile:
     args.profile = path.abspath(args.profile)
+
+  if not args.python:
+    args.python = [ 'python' ]
   
   options = test_options(args.dry_run, args.verbose, args.stop, args.timing,
                          args.profile, args.python)
   
   timings = {}
 
-  if not args.python:
-    args.python = [ 'python' ]
-  
   for i, f in enumerate(filtered_files):
     if not f.filename in timings:
       timings[f.filename] = []
