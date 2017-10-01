@@ -9,6 +9,14 @@ class check_type(object):
 
   @classmethod
   def check(clazz, o, t, name):
+    return clazz._check(o, t, name, 2)
+  
+  @classmethod
+  def check_string(clazz, o, name):
+    return clazz._check(o, compat.STRING_TYPES, name, 2)
+
+  @classmethod
+  def _check(clazz, o, t, name, depth):
     assert string_util.is_string(name)
     success = isinstance(o, t)
     if success:
@@ -21,14 +29,11 @@ class check_type(object):
       type_blurb = ', '.join(names) + ' or ' + last
     else:
       raise TypeError('t should be a type or tuple of types instead of \"%s\"' % (str(t)))
-    _, filename, line_number, _, _, _ = inspect.stack()[1]
+    _, filename, line_number, _, _, _ = inspect.stack()[depth]
     raise TypeError('\"%s\" should be of type \"%s\" instead of \"%s\" at %s line %d' % (name,
                                                                                          type_blurb,
                                                                                          type(o).__name__,
                                                                                          filename,
                                                                                          line_number))
-  @classmethod
-  def check_string(clazz, o, name):
-    return clazz.check(o, compat.STRING_TYPES, name)
-
+  
 
