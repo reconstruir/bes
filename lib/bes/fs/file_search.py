@@ -17,6 +17,7 @@ class file_search(object):
 
   @classmethod
   def search(clazz, root_dir, text, relative = True, min_depth = None, max_depth = None):
+#    assert string_util.is_string(text)
     files = file_find.find(root_dir, relative = relative, min_depth = min_depth, max_depth = max_depth)
     result = []
     for f in files:
@@ -27,6 +28,7 @@ class file_search(object):
 
   @classmethod
   def search_file(clazz, filename, text, word_boundary = False, ignore_case = False):
+#    assert string_util.is_string(text)
     try:
       content = file_util.read(filename, 'utf-8')
     except UnicodeDecodeError as ex:
@@ -100,7 +102,7 @@ class file_search(object):
   @classmethod
   def search_replace(clazz, root_dir, replacements, backup = True, test_func = None):
     assert isinstance(replacements, dict)
-    text = replacements.keys()
+    text = [ str(x) for x in replacements.keys() ]
     items = clazz.search(root_dir, text)
     filenames = algorithm.unique([ item.filename for item in items ])
     return file_replace.replace_many(filenames, replacements, backup = backup, test_func = test_func)

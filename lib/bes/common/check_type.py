@@ -2,7 +2,6 @@
 #-*- coding:utf-8 -*-
 
 import inspect
-from .string_util import string_util
 from bes.system import compat
 
 class check_type(object):
@@ -16,8 +15,12 @@ class check_type(object):
     return clazz._check(o, compat.STRING_TYPES, name, 2)
 
   @classmethod
+  def check_dict(clazz, o, name):
+    return clazz._check(o, dict, name, 2)
+
+  @classmethod
   def _check(clazz, o, t, name, depth):
-    assert string_util.is_string(name)
+    assert isinstance(name, compat.STRING_TYPES)
     success = isinstance(o, t)
     if success:
       return o
