@@ -42,11 +42,11 @@ class file_replace(object):
   @classmethod
   def copy_with_substitute(clazz, src, dst, replacements, backup = True):
     assert isinstance(replacements, dict)
-    content = file_util.read(src)
+    content = file_util.read(src, 'utf-8')
     new_content = variable.substitute(content, replacements)
     old_content = None
     if path.exists(dst):
-      old_content = file_util.read(dst)
+      old_content = file_util.read(dst, 'utf-8')
       if old_content == new_content:
         return False
     if backup:

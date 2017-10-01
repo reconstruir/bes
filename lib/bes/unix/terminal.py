@@ -22,7 +22,7 @@ class terminal(object):
   def size(clazz):
     'Return the size of the current terminal.  Must be running under a tty.'
     tty = clazz.tty()
-    with open(tty, 'rw') as f:
+    with open(tty, 'r') as f:
       if not os.isatty(f.fileno()):
         raise RuntimeError('not a terminal: %s' % (tty))
       s = os.popen('stty size < %s' % (tty), 'r').read().split()
