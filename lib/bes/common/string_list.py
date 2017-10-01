@@ -2,6 +2,7 @@
 #-*- coding:utf-8 -*-
 
 from .object_util import object_util
+from bes.system import compat
 
 class string_list(object):
   'string list helpers'
@@ -19,4 +20,4 @@ class string_list(object):
   @classmethod
   def is_string_list(clazz, l):
     'Return True if l is a homogenous string list.'
-    return object_util.is_homogeneous(l, ( str, unicode ))
+    return object_util.is_homogeneous(l, compat.STRING_TYPES)

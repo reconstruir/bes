@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import gzip
+import codecs, gzip
 
 class compressed_file(object):
 
   @classmethod
-  def read(clazz, filename):
+  def read(clazz, filename, codec = None):
     'Read a comprssed file into a string.'
     with gzip.open(filename, 'rb') as f:
-      return f.read()
+      content = f.read()
+      if codec:
+        return codecs.decode(content, codec)
+      else:
+        return content
 
   @classmethod
   def uncompress(clazz, filename, output):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import os, os.path as path, pipes, re, shlex, subprocess, sys, tempfile
+import codecs, os, os.path as path, pipes, re, shlex, subprocess, sys, tempfile
 from collections import namedtuple
 from bes.common import string_util
 
@@ -12,7 +12,8 @@ class Shell(object):
 
   @classmethod
   def execute(clazz, command, raise_error = True, non_blocking = False, stderr_to_stdout = False,
-              cwd = None, env = None, shell = False, input_data = None, universal_newlines = True):
+              cwd = None, env = None, shell = False, input_data = None, universal_newlines = True,
+              codec = None):
     'Execute a command'
 
     def __make_args(command):
@@ -53,7 +54,15 @@ class Shell(object):
 
     output = process.communicate(input_data)
     exit_code = process.wait()
-    rv = clazz.Result(output[0], output[1], exit_code)
+
+    if codec:
+      stdout = codecs.decode(output[0], codec)
+      stderr = codecs.decode(output[1], codec)
+    else:
+      stdout = output[0]
+      stderr = output[1]
+    
+    rv = clazz.Result(stdout, stderr, exit_code)
     if raise_error:
       if rv.exit_code != 0:
         raise RuntimeError(str(rv))
@@ -77,7 +86,8 @@ class Shell(object):
 
   @classmethod
   def execute_from_string(clazz, content, raise_error = True, non_blocking = False, stderr_to_stdout = False,
-                          cwd = None, env = None, shell = False, input_data = None, universal_newlines = True):
+                          cwd = None, env = None, shell = False, input_data = None, universal_newlines = True,
+                          codec = None):
     assert string_util.is_string(content)
     tmp = tempfile.mktemp()
     with open(tmp, 'w') as fout:
@@ -87,7 +97,7 @@ class Shell(object):
       return clazz.execute(tmp, raise_error = raise_error, non_blocking = non_blocking,
                            stderr_to_stdout = stderr_to_stdout, cwd = cwd,
                            env = env, shell = shell, input_data = input_data,
-                           universal_newlines = universal_newlines)
+                           universal_newlines = universal_newlines, codec = codec)
     except:
       raise
     finally:

@@ -34,6 +34,8 @@ class script_unit_test(unit_test):
     else:
       stderr = rv.stderr
     return self.exec_result(rv.exit_code, stdout, stderr)
+
+  run_command = run_script
   
   def run_script_raw(self, *args):
     cmd = self.make_command(*args)

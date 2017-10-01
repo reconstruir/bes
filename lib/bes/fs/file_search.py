@@ -4,6 +4,7 @@
 import os.path as path, re
 
 from bes.common import algorithm, object_util, string_util
+from bes.common.check_type import check_type, check_is_string
 from .file_find import file_find
 from .file_replace import file_replace
 from .file_util import file_util
@@ -26,12 +27,16 @@ class file_search(object):
 
   @classmethod
   def search_file(clazz, filename, text, word_boundary = False, ignore_case = False):
-    content = file_util.read(filename)
+    try:
+      content = file_util.read(filename, 'utf-8')
+    except UnicodeDecodeError as ex:
+      return []
     result = clazz.search_string(content, text, word_boundary = word_boundary, ignore_case = ignore_case)
     return [ clazz.search_item(filename, item.line_number, item.pattern, item.line, item.span) for item in result ]
 
   @classmethod
   def search_string(clazz, content, patterns, word_boundary = False, ignore_case = False):
+    assert string_util.is_string(content)
     patterns = object_util.listify(patterns)
     result = []
     original_patterns = None
@@ -60,12 +65,16 @@ class file_search(object):
 
   @classmethod
   def _search_line_with_find(clazz, line, patterns, filename, line_number, ignore_case):
+    check_type(patterns, list, 'patterns')
     assert len(patterns) > 0
+    
     result = []
     original_line = line
     if ignore_case:
       line = line.lower()
     for pattern, original_pattern in patterns:
+      check_is_string(pattern, 'pattern')
+      check_is_string(original_pattern, 'original_pattern')
       index = line.find(pattern)
       if index >= 0:
         span = clazz.span(index, index + len(pattern))

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
+import codecs
 import os.path as path, os, platform, shutil, tempfile
 from bes.common import object_util, Shell, string_util
 from bes.system import log
@@ -153,10 +154,14 @@ class file_util(object):
     shutil.copymode(src, dst)
 
   @classmethod
-  def read(clazz, filename):
+  def read(clazz, filename, codec = None):
     'Read a file into a string.'
     with open(filename, 'rb') as f:
-      return f.read()
+      content = f.read()
+      if codec:
+        return codecs.decode(content, codec)
+      else:
+        return content
 
   @classmethod
   def read_as_lines(clazz, filename, ignore_empty = True):
