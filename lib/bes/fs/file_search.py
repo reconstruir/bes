@@ -4,7 +4,7 @@
 import os.path as path, re
 
 from bes.common import algorithm, object_util, string_util
-from bes.common.check_type import check_type, check_is_string
+from bes.common import check_type
 from .file_find import file_find
 from .file_replace import file_replace
 from .file_util import file_util
@@ -65,7 +65,7 @@ class file_search(object):
 
   @classmethod
   def _search_line_with_find(clazz, line, patterns, filename, line_number, ignore_case):
-    check_type(patterns, list, 'patterns')
+    check_type.check(patterns, list, 'patterns')
     assert len(patterns) > 0
     
     result = []
@@ -73,8 +73,8 @@ class file_search(object):
     if ignore_case:
       line = line.lower()
     for pattern, original_pattern in patterns:
-      check_is_string(pattern, 'pattern')
-      check_is_string(original_pattern, 'original_pattern')
+      check_type.check_string(pattern, 'pattern')
+      check_type.check_string(original_pattern, 'original_pattern')
       index = line.find(pattern)
       if index >= 0:
         span = clazz.span(index, index + len(pattern))

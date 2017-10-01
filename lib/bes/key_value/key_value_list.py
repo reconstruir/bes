@@ -6,7 +6,6 @@ from bes.compat import StringIO
 from .key_value_parser import key_value_parser
 from .key_value import key_value
 from bes.common import object_util
-from bes.common.check_type import check_type
 
 class key_value_list(object):
 

@@ -5,24 +5,30 @@ import inspect
 from .string_util import string_util
 from bes.system import compat
 
-def check_type(o, t, name):
-  assert string_util.is_string(name)
-  success = isinstance(o, t)
-  if success:
-    return o
-  if isinstance(t, type):
-    type_blurb = t.__name__
-  elif isinstance(t, tuple):
-    names = [ i.__name__ for i in t ]
-    last = names.pop(-1)
-    type_blurb = ', '.join(names) + ' or ' + last
-  else:
-    raise TypeError('t should be a type or tuple of types instead of \"%s\"' % (str(t)))
-  _, filename, line_number, _, _, _ = inspect.stack()[1]
-  raise TypeError('\"%s\" should be of type \"%s\" instead of \"%s\" at %s line %d' % (name,
-                                                                                   type_blurb,
-                                                                                   type(o).__name__,
-                                                                                   filename,
-                                                                                   line_number))
-def check_is_string(o, name):
-  return check_type(o, compat.STRING_TYPES, name)
+class check_type(object):
+
+  @classmethod
+  def check(clazz, o, t, name):
+    assert string_util.is_string(name)
+    success = isinstance(o, t)
+    if success:
+      return o
+    if isinstance(t, type):
+      type_blurb = t.__name__
+    elif isinstance(t, tuple):
+      names = [ i.__name__ for i in t ]
+      last = names.pop(-1)
+      type_blurb = ', '.join(names) + ' or ' + last
+    else:
+      raise TypeError('t should be a type or tuple of types instead of \"%s\"' % (str(t)))
+    _, filename, line_number, _, _, _ = inspect.stack()[1]
+    raise TypeError('\"%s\" should be of type \"%s\" instead of \"%s\" at %s line %d' % (name,
+                                                                                         type_blurb,
+                                                                                         type(o).__name__,
+                                                                                         filename,
+                                                                                         line_number))
+  @classmethod
+  def check_string(clazz, o, name):
+    return clazz.check(o, compat.STRING_TYPES, name)
+
+
