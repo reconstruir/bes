@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import inspect, os, os.path as path, platform, re, unittest
+import codecs, inspect, os, os.path as path, platform, re, unittest
+from bes.compat import StringIO
 from io import BytesIO
+
+from .hexdata import hexdata
 
 class unit_test(unittest.TestCase):
   'Helper for writing unit tests.'
@@ -61,30 +64,14 @@ class unit_test(unittest.TestCase):
     self.assertEqual( bs1, bs2)
 
   def assert_bytes_equal(self, expected, actual):
-    expected = self.bytes_to_string(expected)
-    actual = self.bytes_to_string(actual)
+    expected = hexdata.bytes_to_string(expected)
+    actual = hexdata.bytes_to_string(actual)
     msg = '\nexpected: %s\n  actual: %s\n' % (expected, actual)
     self.assertEqual( expected, actual, msg = msg)
 
   @classmethod
-  def bytes_to_string(clazz, b):
-    s = b.encode('hex')
-    assert (len(s) % 2) == 0
-    buf = BytesIO()
-    for i in range(0, len(s), 2):
-      if i != 0:
-        buf.write(' ')
-      buf.write(s[i])
-      buf.write(s[i + 1])
-    return buf.getvalue()
-
-  @classmethod
   def decode_hex(clazz, s):
-    buf = BytesIO()
-    for c in s:
-      if not c.isspace():
-        buf.write(c)
-    return buf.getvalue().decode('hex')
+    return hexdata.decode_hex(s)
   
   @staticmethod
   def main(): 

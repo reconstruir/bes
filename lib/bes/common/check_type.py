@@ -15,6 +15,10 @@ class check_type(object):
     return clazz._check(o, compat.STRING_TYPES, name, 2)
 
   @classmethod
+  def check_int(clazz, o, name):
+    return clazz._check(o, compat.INTEGER_TYPES, name, 2)
+
+  @classmethod
   def check_dict(clazz, o, name):
     return clazz._check(o, dict, name, 2)
 
