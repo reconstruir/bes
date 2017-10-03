@@ -5,9 +5,11 @@ from bes.testing.unit_test import unit_test, hexdata
 
 class test_hex_data(unit_test):
 
-  def test_caca(self):
-    data = '86 00 00 34'
-    #self.assertEqual( '', hexdata.string_to_bytes(data) )
+  def xtest_string_to_bytes(self):
+    self.assertEqual( b'\x86\xff\x00T', hexdata.string_to_bytes('86 ff 00 54') )
+    
+  def test_bytes_to_string(self):
+    self.assertEqual( '86 ff 00 54', hexdata.bytes_to_string(b'\x86\xff\x00T') )
     
 if __name__ == '__main__':
   unit_test.main()
