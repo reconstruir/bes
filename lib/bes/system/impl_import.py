@@ -24,7 +24,7 @@ class impl_import(object):
       exec(code, xglobals)
       impl_clazz = xglobals[impl_name]
       # instanciate one to make sure no abstract methods are missing
-      #dummy = impl_clazz()
+      dummy = impl_clazz()
       return impl_clazz
     except ImportError as ex:
       print('Error importing %s from .%s in %s' % (class_name, class_name, package))
