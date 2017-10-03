@@ -2,15 +2,34 @@
 #-*- coding:utf-8 -*-
 
 from .host import host
+import pkgutil, traceback
+from collections import namedtuple
 
 class impl_import(object):
   'Import a platform specific implementation of an abstract class.'
   
   _IMPL_ORDER = {
-    host.LINUX: [  host.FAMILY,  host.DISTRO, host.LINUX ],
+    host.LINUX: [ host.FAMILY,  host.DISTRO, host.LINUX ],
     host.MACOS: [ host.MACOS ],
   }
   
+  @classmethod
+  def load(clazz, package, impl_name, xglobals):
+    possible = clazz._possible_impl_module_data(package, impl_name)
+    if not possible:
+      raise ImportError('Could not find any implementation for %s in %s' % (impl_name, package))
+    class_name = possible[0].impl_class_name
+    try:
+      code = 'from .%s import %s as %s' % (class_name, class_name, impl_name)
+      exec(code, xglobals)
+      impl_clazz = xglobals[impl_name]
+      # instanciate one to make sure no abstract methods are missing
+      #dummy = impl_clazz()
+      return impl_clazz
+    except ImportError as ex:
+      print('Error importing %s from .%s in %s' % (class_name, class_name, package))
+      raise
+
   @classmethod
   def _possible_impl_class_names(clazz, impl_name):
     result = []
@@ -20,40 +39,32 @@ class impl_import(object):
       result.append(impl_class_name)
     return result
 
+  _impl_file = namedtuple('_impl_file', 'impl_class_name,filename')
   @classmethod
-  def _try_load(clazz, impl_class_name, impl_name, xglobals):
+  def _possible_impl_module_files(clazz, impl_name):
+    result = []
+    for class_name in clazz._possible_impl_class_names(impl_name):
+      result.append(clazz._impl_file(class_name, '%s.py' % (class_name)))
+      result.append(clazz._impl_file(class_name, '%s.pyc' % (class_name)))
+    return result
+
+  _impl_data = namedtuple('_impl_data', 'impl_class_name,filename,data')
+  @classmethod
+  def _possible_impl_module_data(clazz, package, impl_name):
+    result = []
+    for impl_class_name, filename in clazz._possible_impl_module_files(impl_name):
+      data = clazz._get_impl_data(package, filename)
+      if data:
+        result.append(clazz._impl_data(impl_class_name, filename, data))
+    return result
+
+  @classmethod
+  def _get_impl_data(clazz, package, filename):
     try:
-      code = 'from .%s import %s as %s' % (impl_class_name, impl_class_name, impl_name)
-      #print("TRY: %s" % (code))
-      exec(code, xglobals)
-      return xglobals[impl_name]
-    except ImportError as ex:
-      #print("EX: %s" % (str(ex)))
-      #import traceback
-      #traceback.print_exc()
+      return pkgutil.get_data(package, filename)
+    except IOError as ex:
+      # Caught when poking in the filesystem
       return None
-
-  @classmethod
-  def load(clazz, impl_name, xglobals):
-    possible_impl_class_names = clazz._possible_impl_class_names(impl_name)
-    for impl_class_name in possible_impl_class_names:
-      result = clazz._try_load(impl_class_name, impl_name, xglobals)
-      if result:
-        return result
-    raise ImportError('Could not find any implementation for %s' % (impl_name))
-
-  @classmethod
-  def load_caca(clazz, name, impl_name, xglobals):
-    import pkgutil
-    possible = clazz._possible_impl_class_names(impl_name)
-    print("load_caca(%s, %s) possible=%s" % (name, impl_name, possible))
-    for p in possible:
-      f = '%s.py' % (p)
-      try:
-        data = pkgutil.get_data(name, f)
-      except FileNotFoundError as ex:
-        data = None
-      except OSError as ex:
-        data = None
-      print("%s: %s" % (f, type(data)))
-    return clazz.load(impl_name, xglobals)
+    except OSError as ex:
+      # Caught when poking in an egg
+      return None

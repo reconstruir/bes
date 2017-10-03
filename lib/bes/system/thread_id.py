@@ -3,4 +3,4 @@
 
 from .impl_import import impl_import
 
-thread_id = impl_import.load('thread_id', globals())
+thread_id = impl_import.load(__name__, 'thread_id', globals())

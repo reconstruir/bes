@@ -8,7 +8,7 @@ from bes.system import impl_import
 from bes.testing.unit_test.unit_test_skip import skip_if
 
 def _load(impl_name):
-  clazz = impl_import.load('something', globals())
+  clazz = impl_import.load(__name__, 'something', globals())
   obj = clazz()
   return obj
 
