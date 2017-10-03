@@ -180,6 +180,7 @@ def main():
     environ_util.pythonpath_prepend(egg)
     if args.save_egg:
       file_util.copy(egg, path.join(cwd, path.basename(egg)))
+    #print('PYTHONPATH: %s' % (':'.join(environ_util.pythonpath_get())))
     
   os.chdir('/tmp')
 
