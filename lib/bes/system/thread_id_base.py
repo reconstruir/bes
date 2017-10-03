@@ -2,10 +2,9 @@
 #-*- coding:utf-8 -*-
 
 from abc import abstractmethod, ABCMeta
+from bes.system.compat import with_metaclass
 
-class thread_id_base(object):
-
-  __metaclass__ = ABCMeta
+class thread_id_base(with_metaclass(ABCMeta, object)):
   
   def __init__(self):
     pass

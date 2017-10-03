@@ -5,6 +5,7 @@ from .Queue import Queue, Empty
 from .StringIO import StringIO
 from .cmp import cmp
 from .map import map
+from .input import input
 from .urlopen import urlopen
 from .ConfigParser import ConfigParser
 

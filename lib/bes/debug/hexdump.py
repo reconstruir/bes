@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import binascii
+import binascii, codecs
 from io import BytesIO
 from collections import namedtuple
 
@@ -72,10 +72,12 @@ class hexdump(object):
 
   @classmethod
   def _make_item(clazz, b):
-    hexlified = binascii.hexlify(b)
+    hexlified = binascii.hexlify(b).decode('utf-8')
     value = int(hexlified, 16)
     if value >= 33 and value <= 127:
-      printable = hexlified.decode('hex')
+      printable = codecs.encode(binascii.hexlify(b), 'hex').decode('utf-8')
     else:
       printable = '.'
-    return clazz._item(b, hexlified, printable)
+    item = clazz._item(b, hexlified, printable)
+    #print("CACA: item=%s" % (str(item)))
+    return item

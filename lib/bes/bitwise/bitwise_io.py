@@ -51,7 +51,6 @@ class bitwise_io(object):
     return self.read_bits(8, slices)
 
   def write_bytes(self, data, num_bytes):
-#    check_type.check_string(data, 'data')
     check_type.check_int(num_bytes, 'num_bytes')
     if len(data) < num_bytes:
       raise ValueError('data should be at least %d bytes long instead of %d' % (num_bytes, len(data)))
@@ -88,3 +87,25 @@ class bitwise_io(object):
   def write_u64_bits(self, slices, values):
     self.write_bits(slices, values, 8)
 
+  def write_variable_length_string(self, s, codec = 'utf-8'):
+    bytes_s = s.encode(codec)
+    self.write_u8(len(bytes_s))
+    self.write_bytes(bytes_s, len(bytes_s))
+
+  def read_variable_length_string(self, codec = 'utf-8'):
+    s_len = self.read_u8()
+    s_bytes = self.read_bytes(s_len)
+    return s_bytes.decode(codec)
+  
+  def read_fixed_length_string(self, length, codec = 'utf-8'):
+    data = self.read_bytes(length)
+    data = data.replace(b'\x00', b'')
+    return data.decode(codec)
+    
+  def write_fixed_length_string(self, s, length, codec = 'utf-8'):
+    data = s.encode(codec)
+    if len(data) > length:
+      raise ValueError('Encoded data is too long - %d instead of %d bytes: %s' % (len(data), length, s))
+    data = data.ljust(length, b'\x00')
+    assert len(data) == length
+    self.write_bytes(data, length)

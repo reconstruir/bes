@@ -25,8 +25,6 @@ class flag_enum(with_metaclass(_flag_enum_meta_class, object)):
 
   DELIMITER = '|'
   
-  __metaclass__ = _flag_enum_meta_class
-
   def __init__(self, value = 0):
     self.assign(value)
 

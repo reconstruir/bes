@@ -71,7 +71,7 @@ class unit_test(unittest.TestCase):
 
   @classmethod
   def decode_hex(clazz, s):
-    return hexdata.decode_hex(s)
+    return hexdata.string_to_bytes(s)
   
   @staticmethod
   def main(): 
