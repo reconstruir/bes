@@ -19,7 +19,7 @@ class file_replace(object):
       return False
     if backup:
       file_util.backup(filename)
-    file_util.save(filename, content = new_content, mode = file_util.mode(filename))
+    file_util.save(filename, content = new_content.encode('utf-8'), mode = file_util.mode(filename))
     return True
 
   @classmethod
