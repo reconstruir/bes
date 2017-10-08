@@ -17,12 +17,31 @@ class string_lexer_state(object):
   def handle_char(self, c):
     raise RuntimeError('unhandled handle_char(%c) in state %s' % (self.name))
 
+  def log_handle_char(self, c):
+    try:
+      buffer_value = string_util.quote(self.lexer.buffer_value())
+    except AttributeError as ex:
+      buffer_value = 'None'
+    self.log_d('handle_char() %s' % (self._make_log_attributes(c)))
+  
+  def _make_log_attributes(self, c, include_state = True):
+    attributes = []
+    if include_state:
+      attributes.append('state=%s' % (self.name))
+    attributes.append('c=|%s|' % (self.lexer.char_to_string(c)))
+    try:
+      attributes.append('buffer=%s' % (string_util.quote(self.lexer.buffer_value())))
+    except AttributeError as ex:
+      attributes.append('buffer=None')
+    attributes.append('is_escaping=%s' % (self.lexer.is_escaping))
+    return ' '.join(attributes)
+  
 class string_lexer_state_begin(string_lexer_state):
   def __init__(self, lexer):
     super(string_lexer_state_begin, self).__init__(lexer)
 
   def handle_char(self, c):
-    self.log_d('handle_char(%s)' % (self.lexer.char_to_string(c)))
+    self.log_handle_char(c)
     new_state = None
     tokens = []
     if self.lexer.is_escaping:
@@ -53,14 +72,14 @@ class string_lexer_state_done(string_lexer_state):
     super(string_lexer_state_done, self).__init__(lexer)
 
   def handle_char(self, c):
-    self.log_d('handle_char(%s)' % (self.lexer.char_to_string(c)))
+    self.log_handle_char(c)
   
 class string_lexer_state_space(string_lexer_state):
   def __init__(self, lexer):
     super(string_lexer_state_space, self).__init__(lexer)
 
   def handle_char(self, c):
-    self.log_d('handle_char(%s)' % (self.lexer.char_to_string(c)))
+    self.log_handle_char(c)
     new_state = None
     tokens = []
     if c.isspace():
@@ -93,7 +112,7 @@ class string_lexer_state_string(string_lexer_state):
     super(string_lexer_state_string, self).__init__(lexer)
 
   def handle_char(self, c):
-    self.log_d('handle_char(%s)' % (self.lexer.char_to_string(c)))
+    self.log_handle_char(c)
     new_state = None
     tokens = []
     if c == self.lexer.EOS:
@@ -128,7 +147,7 @@ class _state_quoted_string_base(string_lexer_state):
     self.quote_char = quote_char
 
   def handle_char(self, c):
-    self.log_d('handle_char(%s)' % (self.lexer.char_to_string(c)))
+    self.log_handle_char(c)
     new_state = None
     tokens = []
     if c == self.lexer.EOS:
@@ -156,7 +175,7 @@ class string_lexer_state_comment(string_lexer_state):
     super(string_lexer_state_comment, self).__init__(lexer)
 
   def handle_char(self, c):
-    self.log_d('handle_char(%s)' % (self.lexer.char_to_string(c)))
+    self.log_handle_char(c)
     new_state = None
     tokens = []
     if c == self.lexer.EOS:
@@ -249,10 +268,9 @@ class string_lexer(string_lexer_options):
     assert new_state
     if new_state == self.state:
       return
-    self.log_d('transition: %20s -> %-20s; c="%s"; is_escaping=%s'  % (self.state.__class__.__name__,
-                                                                       new_state.__class__.__name__,
-                                                                       self.char_to_string(c),
-                                                                       self._is_escaping))
+    self.log_d('transition: %20s -> %-20s; %s'  % (self.state.__class__.__name__,
+                                                   new_state.__class__.__name__,
+                                                   new_state._make_log_attributes(c, include_state = False)))
     self.state = new_state
 
   @classmethod

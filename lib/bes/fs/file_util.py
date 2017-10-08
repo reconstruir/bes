@@ -3,7 +3,7 @@
 
 import codecs
 import os.path as path, os, platform, shutil, tempfile
-from bes.common import object_util, Shell, string_util
+from bes.common import check_type, object_util, Shell, string_util
 from bes.system import log
 
 from collections import namedtuple
@@ -32,13 +32,17 @@ class file_util(object):
         pass
 
   @classmethod
-  def save(clazz, filename, content = None, mode = None):
+  def save(clazz, filename, content = None, mode = None, codec = 'utf-8'):
     'Atomically save content to filename using an intermediate temporary file.'
     dirname, basename = os.path.split(filename)
     clazz.mkdir(path.dirname(filename))
-    tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = 'w')
+    tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = 'wb')
     if content:
-      tmp.write(str(content))
+      if string_util.is_string(content):
+        content_data = codecs.encode(content, codec)
+      else:
+        content_data = content
+      tmp.write(content_data)
     tmp.flush()
     os.fsync(tmp.fileno())
     tmp.close()
