@@ -98,7 +98,7 @@ class _state_expecting_value(_state):
     self.change_state(new_state, token)
     return key_value_result
     
-class key_value_parser(string_lexer_options):
+class key_value_parser(string_lexer_options.CONSTANTS):
 
   DEFAULT_EMPTY_VALUE = None
 
