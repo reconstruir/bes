@@ -1,5 +1,5 @@
 diff --git a/lib/bes/key_value/key_value_parser.py b/lib/bes/key_value/key_value_parser.py
-index 7501ec2..e433b05 100644
+index 8032d0f..e433b05 100644
 --- a/lib/bes/key_value/key_value_parser.py
 +++ b/lib/bes/key_value/key_value_parser.py
 @@ -1,9 +1,9 @@
@@ -82,16 +82,7 @@ index 7501ec2..e433b05 100644
      elif token.type == lexer.TOKEN_DONE:
        key_value_result = key_value(self.parser.key, self.parser.DEFAULT_EMPTY_VALUE)
        new_state = self.parser.STATE_DONE
-@@ -98,7 +106,7 @@ class _state_expecting_value(_state):
-     self.change_state(new_state, token)
-     return key_value_result
-     
--class key_value_parser(string_lexer_options):
-+class key_value_parser(string_lexer_options.CONSTANTS):
- 
-   DEFAULT_EMPTY_VALUE = None
- 
-@@ -115,10 +123,10 @@ class key_value_parser(string_lexer_options):
+@@ -115,10 +123,10 @@ class key_value_parser(string_lexer_options.CONSTANTS):
      self.key = None
      
    def run(self, text):
@@ -120,3 +111,130 @@ index 15649ad..50ecf69 100644
      
    @classmethod
    def __parse(self, text,
+diff --git a/patches/key_value.patch b/patches/key_value.patch
+index 96a5ce8..1a02edb 100644
+--- a/patches/key_value.patch
++++ b/patches/key_value.patch
+@@ -1,122 +0,0 @@
+-diff --git a/lib/bes/key_value/key_value_parser.py b/lib/bes/key_value/key_value_parser.py
+-index 7501ec2..e433b05 100644
+---- a/lib/bes/key_value/key_value_parser.py
+-+++ b/lib/bes/key_value/key_value_parser.py
+-@@ -1,9 +1,9 @@
+- #!/usr/bin/env python
+- #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+- 
+-+# FIXME: add an exception class that handles all the state info attributes
+- from bes.system import log
+--from bes.text import line_numbers, string_lexer_options
+--from .key_value_lexer import key_value_lexer as lexer
+-+from bes.text import line_numbers, string_lexer_options, sentence_lexer as lexer
+- from .key_value import key_value
+- 
+- class _state(object):
+-@@ -19,6 +19,14 @@ class _state(object):
+-   def change_state(self, new_state, token):
+-     self.parser.change_state(new_state, 'token="%s:%s"'  % (token.type, token.value))
+- 
+-+  def unexpected_token(self, token, expected_label):
+-+    text_blurb = line_numbers.add_line_numbers(self.parser.text)
+-+    raise RuntimeError('unexpected token \"%s:%s\" instead of \"%s\" at line %d:\n%s' % (token.type,
+-+                                                                                         token.value,
+-+                                                                                         expected_label,
+-+                                                                                         token.line_number,
+-+                                                                                         text_blurb))
+-+  
+- class _state_expecting_key(_state):
+-   def __init__(self, parser):
+-     super(_state_expecting_key, self).__init__(parser)
+-@@ -30,8 +38,8 @@ class _state_expecting_key(_state):
+-       new_state = self.parser.STATE_DONE
+-     elif token.type == lexer.TOKEN_SPACE:
+-       new_state = self.parser.STATE_EXPECTING_KEY
+--    elif token.type == lexer.TOKEN_DELIMITER:
+--      raise RuntimeError('unexpected delimiter instead of key: %s' % (self.parser.text))
+-+    elif token.type == lexer.TOKEN_PUNCTUATION:
+-+      self.unexpected_token(token, 'key')
+-     elif token.type == lexer.TOKEN_DONE:
+-       new_state = self.parser.STATE_DONE
+-     elif token.type == lexer.TOKEN_STRING:
+-@@ -46,7 +54,7 @@ class _state_done(_state):
+-   def handle_token(self, token):
+-     self.log_d('handle_token(%s)' % (str(token)))
+-     if token.type != lexer.TOKEN_DONE:
+--      raise RuntimeError('unexpected token in done state: %s' % (str(token)))
+-+      self.unexpected_token(token, 'done')
+-     self.change_state(self.parser.STATE_DONE, token)
+-   
+- class _state_expecting_delimiter(_state):
+-@@ -61,15 +69,15 @@ class _state_expecting_delimiter(_state):
+-       key_value_result = key_value(self.parser.key, self.parser.DEFAULT_EMPTY_VALUE)
+-       new_state = self.parser.STATE_DONE
+-     elif token.type == lexer.TOKEN_SPACE:
+--      raise RuntimeError('unexpected space instead of \"%s\" at line %d:\n%s' % (self.parser.delimiter,
+--                                                                                 token.line_number,
+--                                                                                 line_numbers.add_line_numbers(self.parser.text)))
+--    elif token.type == lexer.TOKEN_DELIMITER:
+-+      self.unexpected_token(token, 'delimiter')
+-+    elif token.type == lexer.TOKEN_PUNCTUATION:
+-+      if token.value != self.parser.delimiter:
+-+        self.unexpected_token(token, 'delimiter:%s' % (self.parser.delimiter))
+-       new_state = self.parser.STATE_EXPECTING_VALUE
+-     elif token.type == lexer.TOKEN_DONE:
+--      raise RuntimeError('unexpected done instead of delimiter: %s' % (self.parser.text))
+-+      self.unexpected_token(token, 'delimiter:%s' % (self.parser.delimiter))
+-     elif token.type == lexer.TOKEN_STRING:
+--      raise RuntimeError('unexpected string instead of delimiter: %s' % (self.parser.text))
+-+      self.unexpected_token(token, 'delimiter:%s' % (self.parser.delimiter))
+-     self.change_state(new_state, token)
+-     return key_value_result
+- 
+-@@ -87,8 +95,8 @@ class _state_expecting_value(_state):
+-     elif token.type == lexer.TOKEN_SPACE:
+-       key_value_result = key_value(self.parser.key, self.parser.DEFAULT_EMPTY_VALUE)
+-       new_state = self.parser.STATE_EXPECTING_KEY
+--    elif token.type == lexer.TOKEN_DELIMITER:
+--      raise RuntimeError('unexpected delimiter instead of string: %s' % (self.parser.text))
+-+    elif token.type == lexer.TOKEN_PUNCTUATION:
+-+      self.unexpected_token(token, 'value')
+-     elif token.type == lexer.TOKEN_DONE:
+-       key_value_result = key_value(self.parser.key, self.parser.DEFAULT_EMPTY_VALUE)
+-       new_state = self.parser.STATE_DONE
+-@@ -98,7 +106,7 @@ class _state_expecting_value(_state):
+-     self.change_state(new_state, token)
+-     return key_value_result
+-     
+--class key_value_parser(string_lexer_options):
+-+class key_value_parser(string_lexer_options.CONSTANTS):
+- 
+-   DEFAULT_EMPTY_VALUE = None
+- 
+-@@ -115,10 +123,10 @@ class key_value_parser(string_lexer_options):
+-     self.key = None
+-     
+-   def run(self, text):
+--    self.log_d('run(%s)' % (text))
+-+    self.log_d('run() text=\"%s\" options=%s)' % (text, str(string_lexer_options(self._options))))
+-     self.text = text
+- 
+--    for token in lexer.tokenize(text, self.delimiter, options = self._options):
+-+    for token in lexer.tokenize(text, options = self._options):
+-       key_value = self.state.handle_token(token)
+-       if key_value:
+-         self.log_i('parse: new key_value: %s' % (str(key_value)))
+-diff --git a/lib/bes/key_value/tests/test_key_value_parser.py b/lib/bes/key_value/tests/test_key_value_parser.py
+-index 15649ad..50ecf69 100644
+---- a/lib/bes/key_value/tests/test_key_value_parser.py
+-+++ b/lib/bes/key_value/tests/test_key_value_parser.py
+-@@ -68,8 +68,9 @@ class test_key_value_parser(unittest.TestCase):
+-     self.assertEqual( { 'foo': '""a b c""' }, P.parse_to_dict(r'foo=\""a b c\""', options = P.KEEP_QUOTES) )
+-     self.assertEqual( { 'foo': 'abc' }, P.parse_to_dict('foo=abc', options = P.KEEP_QUOTES) )
+-     self.assertEqual( { 'foo': None }, P.parse_to_dict('foo=', options = P.KEEP_QUOTES) )
+--    self.assertEqual( { 'foo': 'bar:"a b"' }, P.parse_to_dict(r'foo=bar:"a b"', options = P.KEEP_QUOTES) )
+--    self.assertEqual( { 'foo': 'bar:\\"a b\\"' }, P.parse_to_dict(r'foo=bar:"a b"', options = P.KEEP_QUOTES | P.ESCAPE_QUOTES) )
+-+    self.assertEqual( { 'foo': 'bar:"a b"' }, P.parse_to_dict(r'foo=bar\:"a b"', options = P.KEEP_QUOTES) )
+-+    self.assertEqual( { 'foo': 'bar:\\"a b\\"' }, P.parse_to_dict(r'foo=bar\:"a b"', options = P.KEEP_QUOTES | P.ESCAPE_QUOTES) )
+-+    pass
+-     
+-   @classmethod
+-   def __parse(self, text,
