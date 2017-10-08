@@ -6,6 +6,7 @@ from collections import namedtuple
 from bes.compat import StringIO
 from bes.common import string_util
 from bes.system import log
+from bes.enum import flag_enum
 
 class string_lexer_state(object):
 
@@ -187,14 +188,13 @@ class string_lexer_state_comment(string_lexer_state):
     self.lexer.change_state(new_state, c)
     return tokens
 
-class string_lexer_options(object):
+class string_lexer_options(flag_enum):
   KEEP_QUOTES = 0x01
   ESCAPE_QUOTES = 0x02
   IGNORE_COMMENTS = 0x04
   DEFAULT_OPTIONS = 0x00
   
-class string_lexer(string_lexer_options):
-
+class string_lexer(string_lexer_options.CONSTANTS):
   TOKEN_COMMENT = 'comment'
   TOKEN_DONE = 'done'
   TOKEN_SPACE = 'space'
@@ -211,11 +211,10 @@ class string_lexer(string_lexer_options):
   def __init__(self, log_tag, options):
     log.add_logging(self, tag = log_tag)
 
-    options = options or self.DEFAULT_OPTIONS
-
-    self._keep_quotes = (options & self.KEEP_QUOTES) != 0
-    self._escape_quotes = (options & self.ESCAPE_QUOTES) != 0
-    self._ignore_comments = (options & self.IGNORE_COMMENTS) != 0
+    self._options = options or self.DEFAULT_OPTIONS
+    self._keep_quotes = (self._options & self.KEEP_QUOTES) != 0
+    self._escape_quotes = (self._options & self.ESCAPE_QUOTES) != 0
+    self._ignore_comments = (self._options & self.IGNORE_COMMENTS) != 0
     self._buffer = None
     self._is_escaping = False
     self._last_char = None
@@ -235,7 +234,7 @@ class string_lexer(string_lexer_options):
     return self._is_escaping
 
   def _run(self, text):
-    self.log_d('tokenize(%s)' % (text))
+    self.log_d('_run() text=\"%s\" options=%s)' % (text, str(string_lexer_options(self._options))))
     assert self.EOS not in text
     self.line_number = 1
     for c in self.__chars_plus_eos(text):
@@ -244,7 +243,7 @@ class string_lexer(string_lexer_options):
       if should_handle_char:
         tokens = self.state.handle_char(c)
         for token in tokens:
-          self.log_i('tokenize: new token: %s' % (str(token)))
+          self.log_d('tokenize: new token: %s' % (str(token)))
           yield token
       self._last_char = c
               

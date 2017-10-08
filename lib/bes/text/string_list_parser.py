@@ -54,7 +54,7 @@ class _state_done(_state):
     self.change_state(self.parser.STATE_DONE, token)
     return []
   
-class string_list_parser(string_lexer_options):
+class string_list_parser(string_lexer_options.CONSTANTS):
 
   def __init__(self, options = 0):
     log.add_logging(self, tag = 'string_list_parser')

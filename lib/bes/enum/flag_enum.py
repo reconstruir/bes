@@ -19,12 +19,17 @@ class _flag_enum_meta_class(type):
       for i in range(0, clazz.SIZE * 8):
         masks.append(0x1 << i)
       setattr(clazz, 'MASKS', masks)
+      class constants(object):
+        pass
+      for n in clazz._ENUM.name_values:
+        setattr(constants, n.name, n.value)
+      clazz.CONSTANTS = constants
     return clazz
 
 class flag_enum(with_metaclass(_flag_enum_meta_class, object)):
 
   DELIMITER = '|'
-  
+
   def __init__(self, value = 0):
     self.assign(value)
 
