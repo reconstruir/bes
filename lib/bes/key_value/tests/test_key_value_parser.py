@@ -68,8 +68,9 @@ class test_key_value_parser(unittest.TestCase):
     self.assertEqual( { 'foo': '""a b c""' }, P.parse_to_dict(r'foo=\""a b c\""', options = P.KEEP_QUOTES) )
     self.assertEqual( { 'foo': 'abc' }, P.parse_to_dict('foo=abc', options = P.KEEP_QUOTES) )
     self.assertEqual( { 'foo': None }, P.parse_to_dict('foo=', options = P.KEEP_QUOTES) )
-    self.assertEqual( { 'foo': 'bar:"a b"' }, P.parse_to_dict(r'foo=bar:"a b"', options = P.KEEP_QUOTES) )
-    self.assertEqual( { 'foo': 'bar:\\"a b\\"' }, P.parse_to_dict(r'foo=bar:"a b"', options = P.KEEP_QUOTES | P.ESCAPE_QUOTES) )
+    self.assertEqual( { 'foo': 'bar:"a b"' }, P.parse_to_dict(r'foo=bar\:"a b"', options = P.KEEP_QUOTES) )
+    self.assertEqual( { 'foo': 'bar:\\"a b\\"' }, P.parse_to_dict(r'foo=bar\:"a b"', options = P.KEEP_QUOTES | P.ESCAPE_QUOTES) )
+    pass
     
   @classmethod
   def __parse(self, text,
