@@ -158,6 +158,13 @@ class test_sentence_lexer(unit_test):
                         TDONE(5) ],
                       self.__tokenize('a=5\nb=6\n\nc=7\n') )
 
+  def test_punctuation(self):
+    self.assertEqual( [ TSTRING('a'), TPUNCT('&'), TSTRING('b'), TDONE() ],
+                      self.__tokenize('a&b') )
+
+    self.assertEqual( [ TSTRING('a'), TPUNCT('&'), TPUNCT('&'), TSTRING('b'), TDONE() ],
+                      self.__tokenize('a&&b') )
+    
   @classmethod
   def __tokenize(self, text,
                  keep_quotes = False,

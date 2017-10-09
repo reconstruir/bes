@@ -30,8 +30,8 @@ class _state_begin(string_lexer_state):
       self.lexer.buffer_reset_with_quote(c)
       new_state = self.lexer.STATE_DOUBLE_QUOTED_STRING
     elif c in string.punctuation:
-      self.lexer.buffer_reset(c)
-      new_state = self.lexer.STATE_PUNCTUATION
+      tokens.append(self.lexer.make_token_punctuation(c))
+      new_state = self.lexer.STATE_BEGIN
     else:
       self.lexer.buffer_reset(c)
       new_state = self.lexer.STATE_STRING
@@ -67,8 +67,9 @@ class _state_space(string_lexer_state):
       new_state = self.lexer.STATE_DOUBLE_QUOTED_STRING
     elif not self.lexer.is_escaping and c in string.punctuation:
       tokens.append(self.lexer.make_token_space())
-      self.lexer.buffer_reset(c)
-      new_state = self.lexer.STATE_PUNCTUATION
+      tokens.append(self.lexer.make_token_punctuation(c))
+      self.lexer.buffer_reset()
+      new_state = self.lexer.STATE_BEGIN
     else:
       tokens.append(self.lexer.make_token_space())
       self.lexer.buffer_reset(c)
@@ -105,16 +106,18 @@ class _state_string(string_lexer_state):
     elif c == self.lexer.DOUBLE_QUOTE_CHAR:
       self.lexer.buffer_write_quote(c)
       new_state = self.lexer.STATE_DOUBLE_QUOTED_STRING
-    elif c in string.punctuation:
+    elif not self.lexer.is_escaping and c in string.punctuation:
       tokens.append(self.lexer.make_token_string())
-      self.lexer.buffer_reset(c)
-      new_state = self.lexer.STATE_PUNCTUATION
+      tokens.append(self.lexer.make_token_punctuation(c))
+      self.lexer.buffer_reset()
+      new_state = self.lexer.STATE_BEGIN
     else:
       self.lexer.buffer_write(c)
       new_state = self.lexer.STATE_STRING
     self.lexer.change_state(new_state, c)
     return tokens
 
+'''  
 class _state_punctuation(string_lexer_state):
   def __init__(self, lexer):
     super(_state_punctuation, self).__init__(lexer)
@@ -155,7 +158,8 @@ class _state_punctuation(string_lexer_state):
       new_state = self.lexer.STATE_STRING
     self.lexer.change_state(new_state, c)
     return tokens
-  
+'''
+
 class sentence_lexer(string_lexer):
 
   TOKEN_PUNCTUATION = 'punctuation'
@@ -170,7 +174,7 @@ class sentence_lexer(string_lexer):
     self.STATE_SINGLE_QUOTED_STRING = string_lexer_state_single_quoted_string(self)
     self.STATE_DOUBLE_QUOTED_STRING = string_lexer_state_double_quoted_string(self)
     self.STATE_COMMENT = string_lexer_state_comment(self)
-    self.STATE_PUNCTUATION = _state_punctuation(self)
+#    self.STATE_PUNCTUATION = _state_punctuation(self)
 
     self.state = self.STATE_BEGIN
 
@@ -178,5 +182,5 @@ class sentence_lexer(string_lexer):
   def tokenize(clazz, text, options = None):
     return clazz(options)._run(text)
 
-  def make_token_punctuation(self):
-    return self.token(self.TOKEN_PUNCTUATION, self.buffer_value(), self.line_number)
+  def make_token_punctuation(self, c):
+    return self.token(self.TOKEN_PUNCTUATION, c, self.line_number)
