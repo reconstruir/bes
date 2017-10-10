@@ -15,7 +15,7 @@ class _state(object):
     raise RuntimeError('unhandled handle_token(%c) in state %s' % (self.name))
 
   def change_state(self, new_state, token):
-    self.parser.change_state(new_state, 'token="%s:%s"'  % (token.type, token.value))
+    self.parser.change_state(new_state, 'token="%s:%s"'  % (token.token_type, token.value))
 
   def unexpected_token(self, token):
     raise RuntimeError('unexpected token in %s state: %s' % (self.name, str(token)))
@@ -28,14 +28,14 @@ class _state_expecting_string(_state):
     self.log_d('handle_token(%s)' % (str(token)))
     new_state = None
     strings = []
-    if token.type == string_lexer.TOKEN_COMMENT:
+    if token.token_type == string_lexer.TOKEN_COMMENT:
       new_state = self.parser.STATE_DONE
-    elif token.type == string_lexer.TOKEN_SPACE:
+    elif token.token_type == string_lexer.TOKEN_SPACE:
       new_state = self.parser.STATE_EXPECTING_STRING
-    elif token.type == string_lexer.TOKEN_DONE:
+    elif token.token_type == string_lexer.TOKEN_DONE:
       new_state = self.parser.STATE_DONE
       pass
-    elif token.type == string_lexer.TOKEN_STRING:
+    elif token.token_type == string_lexer.TOKEN_STRING:
       strings = [ token.value ]
       new_state = self.parser.STATE_EXPECTING_STRING
     else:
@@ -49,7 +49,7 @@ class _state_done(_state):
 
   def handle_token(self, token):
     self.log_d('handle_token(%s)' % (str(token)))
-    if token.type != string_lexer.DONE:
+    if token.token_type != string_lexer.DONE:
       self.unexpected_token(token)
     self.change_state(self.parser.STATE_DONE, token)
     return []

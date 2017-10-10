@@ -2,11 +2,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import string
-from collections import namedtuple
 from bes.compat import StringIO
-from bes.common import string_util
+from bes.common import string_util, point
 from bes.system import log
 from bes.enum import flag_enum
+from .lexer_token import lexer_token
 
 class string_lexer_state(object):
 
@@ -206,8 +206,6 @@ class string_lexer(string_lexer_options.CONSTANTS):
   DOUBLE_QUOTE_CHAR = "\""
   COMMENT_CHAR = '#'
 
-  token = namedtuple('token', 'type,value,line_number')
-
   def __init__(self, log_tag, options):
     log.add_logging(self, tag = log_tag)
 
@@ -236,7 +234,7 @@ class string_lexer(string_lexer_options.CONSTANTS):
   def _run(self, text):
     self.log_d('_run() text=\"%s\" options=%s)' % (text, str(string_lexer_options(self._options))))
     assert self.EOS not in text
-    self.line_number = 1
+    self.position = point(1, 1)
     for c in self.__chars_plus_eos(text):
       self._is_escaping = self._last_char == '\\'
       should_handle_char = (self._is_escaping and c == '\\') or (c != '\\')
@@ -248,9 +246,12 @@ class string_lexer(string_lexer_options.CONSTANTS):
       self._last_char = c
               
       if c == '\n':
-        self.line_number += 1
+        self.position = point(1, self.position.y + 1)
+      else:
+        self.position = point(self.position.x + 0, self.position.y)
+        
     assert self.state == self.STATE_DONE
-    yield self.token(self.TOKEN_DONE, None, self.line_number)
+    yield lexer_token(self.TOKEN_DONE, None, self.position)
       
   @classmethod
   def tokenize(clazz, text, log_tag, options = None):
@@ -279,13 +280,13 @@ class string_lexer(string_lexer_options.CONSTANTS):
     yield self.EOS
 
   def make_token_string(self):
-    return self.token(self.TOKEN_STRING, self.buffer_value(), self.line_number)
+    return lexer_token(self.TOKEN_STRING, self.buffer_value(), self.position)
 
   def make_token_space(self):
-    return self.token(self.TOKEN_SPACE, self.buffer_value(), self.line_number)
+    return lexer_token(self.TOKEN_SPACE, self.buffer_value(), self.position)
       
   def make_token_comment(self):
-    return self.token(self.TOKEN_COMMENT, self.buffer_value(), self.line_number)
+    return lexer_token(self.TOKEN_COMMENT, self.buffer_value(), self.position)
       
   def buffer_reset(self, c = None):
     self._buffer = StringIO()

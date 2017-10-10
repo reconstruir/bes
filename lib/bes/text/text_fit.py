@@ -21,18 +21,18 @@ class text_fit(object):
     buf = StringIO()
     
     for token in lexer.tokenize(text, 'text_fit', options = lexer.KEEP_QUOTES | lexer.IGNORE_COMMENTS):
-      if token.type == lexer.TOKEN_SPACE:
+      if token.token_type == lexer.TOKEN_SPACE:
         if (buf.tell() + len(token.value)) > width:
           lines.append(buf.getvalue().strip())
           buf = StringIO()
         else:
           buf.write(token.value)
-      if token.type == lexer.TOKEN_STRING:
+      if token.token_type == lexer.TOKEN_STRING:
         if (buf.tell() + len(token.value)) > width:
           lines.append(buf.getvalue().strip())
           buf = StringIO()
         buf.write(token.value)
-      elif token.type == lexer.TOKEN_DONE:
+      elif token.token_type == lexer.TOKEN_DONE:
         if buf.tell() > 0:
           lines.append(buf.getvalue().strip())
     return lines

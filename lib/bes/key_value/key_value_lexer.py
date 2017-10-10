@@ -4,6 +4,7 @@
 import string
 from bes.common import string_util
 from bes.text.string_lexer import *
+from bes.text import lexer_token
 
 class _state_begin(string_lexer_state):
   def __init__(self, lexer):
@@ -167,4 +168,4 @@ class key_value_lexer(string_lexer):
     return clazz(delimiter, kv_delimiters, options)._run(text)
 
   def make_token_delimiter(self):
-    return self.token(self.TOKEN_DELIMITER, self.delimiter, self.line_number)
+    return lexer_token(self.TOKEN_DELIMITER, self.delimiter, self.position)

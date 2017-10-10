@@ -14,6 +14,7 @@ from .node import node
 from .number_util import number_util
 from .object_util import object_util
 from .size import size
+from .point import point
 from .string_list import string_list
 from .string_util import string_util
 from .table import table

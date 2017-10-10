@@ -2,13 +2,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.text import sentence_lexer as L
+from bes.text import sentence_lexer as L, lexer_token
+from token_test_helper import *
 
-def TCOMMENT(s, line_number = 1): return L.token(L.TOKEN_COMMENT, s, line_number)
-def TDONE(line_number = 1): return L.token(L.TOKEN_DONE, None, line_number)
-def TPUNCT(s, line_number = 1): return L.token(L.TOKEN_PUNCTUATION, s, line_number)
-def TSPACE(s = ' ', line_number = 1): return L.token(L.TOKEN_SPACE, s, line_number)
-def TSTRING(s, line_number = 1): return L.token(L.TOKEN_STRING, s, line_number)
+def TPUNCT(s, x = 1, y = 1): return lexer_token(L.TOKEN_PUNCTUATION, s, (x, y))
 
 class test_sentence_lexer(unit_test):
 
@@ -124,11 +121,11 @@ class test_sentence_lexer(unit_test):
                       self.__tokenize(r'a=b\ ') )
 
   def test_new_line(self):
-    self.assertEqual( [ TSTRING('a'), TPUNCT('='), TSTRING('foo'), TSPACE(' \n ', 2), TSTRING('b', 2), TPUNCT('=', 2), TSTRING('bar', 2), TDONE(2) ],
+    self.assertEqual( [ TSTRING('a'), TPUNCT('='), TSTRING('foo'), TSPACE(' \n ', y = 2), TSTRING('b', y = 2), TPUNCT('=', y = 2), TSTRING('bar', y = 2), TDONE(y = 2) ],
                       self.__tokenize('a=foo \n b=bar') )
 
   def test_escaped_new_line(self):
-    self.assertEqual( [ TSTRING('a'), TPUNCT('='), TSTRING('f\no', 2), TDONE(2) ],
+    self.assertEqual( [ TSTRING('a'), TPUNCT('='), TSTRING('f\no', y = 2), TDONE(y = 2) ],
                       self.__tokenize('a=f\\\no') )
 
   def test_keep_quotes(self):
@@ -151,11 +148,11 @@ class test_sentence_lexer(unit_test):
     4: c=7
     5:
     '''
-    self.assertEqual( [ TSTRING('a'), TPUNCT('='), TSTRING('5'), TSPACE('\n', 2), 
-                        TSTRING('b', 2), TPUNCT('=', 2), TSTRING('6', 2), TSPACE('\n\n', 4),
-#                        TSPACE('\n\n', 4), 
-                        TSTRING('c', 4), TPUNCT('=', 4), TSTRING('7', 4), TSPACE('\n', 5), 
-                        TDONE(5) ],
+    self.assertEqual( [ TSTRING('a'), TPUNCT('='), TSTRING('5'), TSPACE('\n', y = 2), 
+                        TSTRING('b', y = 2), TPUNCT('=', y = 2), TSTRING('6', y = 2), TSPACE('\n\n', y = 4),
+#                        TSPACE('\n\n', y = 4), 
+                        TSTRING('c', y = 4), TPUNCT('=', y = 4), TSTRING('7', y = 4), TSPACE('\n', y = 5), 
+                        TDONE(y = 5) ],
                       self.__tokenize('a=5\nb=6\n\nc=7\n') )
 
   def test_punctuation(self):
@@ -184,7 +181,7 @@ class test_sentence_lexer(unit_test):
 
   def assertEqual(self, expected, actual):
     assert isinstance(expected, list)
-    expected = [ L.token(*t) for t in expected ]
+    expected = [ lexer_token(*t) for t in expected ]
     super(test_sentence_lexer, self).assertEqual(expected, actual)
 
 if __name__ == '__main__':
