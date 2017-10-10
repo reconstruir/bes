@@ -25,7 +25,7 @@ class _state(object):
     raise RuntimeError('unexpected token \"%s:%s\" instead of \"%s\" at line %d:\n%s' % (token.token_type,
                                                                                          token.value,
                                                                                          expected_label,
-                                                                                         token.line_number,
+                                                                                         token.position.y,
                                                                                          text_blurb))
   
 class _state_expecting_key(_state):

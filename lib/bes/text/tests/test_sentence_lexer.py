@@ -161,6 +161,10 @@ class test_sentence_lexer(unit_test):
 
     self.assertEqual( [ TSTRING('a'), TPUNCT('&'), TPUNCT('&'), TSTRING('b'), TDONE() ],
                       self.__tokenize('a&&b') )
+
+  def test_underscore(self):
+    self.assertEqual( [ TSPACE(), TSTRING('foo_bar'), TSPACE(), TDONE() ],
+                      self.__tokenize(r' foo_bar ') )
     
   @classmethod
   def __tokenize(self, text,

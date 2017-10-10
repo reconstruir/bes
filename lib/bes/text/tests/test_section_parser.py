@@ -10,7 +10,7 @@ class test_entry_parser(unit_test):
   def test_empty(self):
     self.assertEqual( [], self._parse('') )
     
-  def test_parse_simple(self):
+  def xtest_parse_simple(self):
     self.assertEqual( [], self._parse('foo="BAR BAZ"') )
 
   def xtest_parse_single_quoted(self):
