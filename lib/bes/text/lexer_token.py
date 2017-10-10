@@ -9,4 +9,4 @@ class lexer_token(namedtuple('lexer_token', 'token_type,value,position')):
     return clazz.__bases__[0].__new__(clazz, token_type, value, position)
 
   def __str__(self):
-    return '%s:%s:%s' % (self.token_type, self.value, self.position)
+    return '%s,%s,%s' % (self.token_type, self.value, self.position)
