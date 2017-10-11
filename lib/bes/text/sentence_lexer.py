@@ -122,8 +122,7 @@ class sentence_lexer(string_lexer):
 
   TOKEN_PUNCTUATION = 'punctuation'
 
-  _NOT_PUNCTUATION_CHARS = [ '_' ]
-  _PUNCTUATION_CHARS = [ c for c in string.punctuation if c not in _NOT_PUNCTUATION_CHARS ]
+  _PUNCTUATION_CHARS = [ c for c in string.punctuation if c not in [ '_' ] ]
   
   def __init__(self, log_tag, options):
     super(sentence_lexer, self).__init__(log_tag, options)
