@@ -2,3 +2,5 @@
 #-*- coding:utf-8 -*-
 
 from .setup_tools import setup_tools
+from .code import code
+
