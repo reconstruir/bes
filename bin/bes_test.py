@@ -149,17 +149,20 @@ def main():
     for filename in file_filter.filenames(filtered_files):
       print(path.relpath(filename))
     return 0
-  
-  any_git_root = git.root(filtered_files[0].filename)
-  config_find_root = file_util.parent_dir(any_git_root)
-  
-  bescfg = config_file.load_configs(config_find_root)
-  env_dirs = file_filter.env_dirs(filtered_files)
-  names = [ bescfg.env_dirs[env_dir]['name'] for env_dir in env_dirs ]
-  resolved_deps = dependency_resolver.resolve_deps(bescfg.dep_map, names)
-  for name in resolved_deps:
-    config = bescfg.configs[name]
-    environ_util.pythonpath_prepend(':'.join(config['PYTHONPATH']))
+
+  try:
+    any_git_root = git.root(filtered_files[0].filename)
+  except subprocess.CalledProcessError as ex:
+    any_git_root = None
+  if any_git_root:
+    config_find_root = file_util.parent_dir(any_git_root)
+    bescfg = config_file.load_configs(config_find_root)
+    env_dirs = file_filter.env_dirs(filtered_files)
+    names = [ bescfg.env_dirs[env_dir]['name'] for env_dir in env_dirs ]
+    resolved_deps = dependency_resolver.resolve_deps(bescfg.dep_map, names)
+    for name in resolved_deps:
+      config = bescfg.configs[name]
+      environ_util.pythonpath_prepend(':'.join(config['PYTHONPATH']))
    
   num_passed = 0
   num_failed = 0
