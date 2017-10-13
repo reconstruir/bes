@@ -4,7 +4,7 @@
 import codecs
 import os.path as path, os, platform, shutil, tempfile
 from bes.common import check_type, object_util, Shell, string_util
-from bes.system import log
+from bes.system import compat, log
 
 from collections import namedtuple
 
@@ -38,7 +38,7 @@ class file_util(object):
     clazz.mkdir(path.dirname(filename))
     tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = 'wb')
     if content:
-      if string_util.is_string(content):
+      if compat.IS_PYTHON3 and string_util.is_string(content):
         content_data = codecs.encode(content, codec)
       else:
         content_data = content
