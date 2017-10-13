@@ -16,7 +16,10 @@ class git_download_cache(object):
     
   def has_tarball(self, address, revision):
     'Return True if the tarball with address and revision is in the cache.'
-    return False
+    local_address_path = self._address_path(address)
+    tarball_filename = '%s.tar.gz' % (revision)
+    tarball_path = path.join(local_address_path, tarball_filename)
+    return path.exists(tarball_path)
 
   def get_tarball(self, address, revision):
     'Return the local filesystem path to the tarball with address and revision.'
