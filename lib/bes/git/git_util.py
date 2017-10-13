@@ -55,3 +55,9 @@ class git_util(object):
       buf.write(c)
     last_part = string_util.reverse(buf.getvalue())
     return string_util.remove_tail(last_part, '.git')
+
+  @classmethod
+  def sanitize_address(clazz, address):
+    'Return path for local tarball.'
+    return string_util.replace(address, { ':': '_', '/': '_' })
+  

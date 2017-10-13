@@ -37,9 +37,4 @@ class git_download_cache(object):
     
   def _address_path(self, address):
     'Return path for local tarball.'
-    return path.join(self.root_dir, self._sanitize_address(address))
-
-  @classmethod
-  def _sanitize_address(clazz, address):
-    'Return path for local tarball.'
-    return string_util.replace(address, { ':': '_', '/': '_' })
+    return path.join(self.root_dir, git_util.sanitize_address(address))
