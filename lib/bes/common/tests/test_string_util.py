@@ -107,5 +107,8 @@ class test_string_util(unittest.TestCase):
     self.assertEqual( True, string_util.has_white_space('f oo ') )
     self.assertEqual( True, string_util.has_white_space('f\ oo') )
 
+  def test_reversed(self):
+    self.assertEqual( 'oof', string_util.reverse('foo') )
+
 if __name__ == "__main__":
   unittest.main()

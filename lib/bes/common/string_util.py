@@ -223,3 +223,7 @@ class string_util(object):
       if c.isspace():
         return True
     return False
+
+  @classmethod
+  def reverse(clazz, s):
+    return ''.join(reversed(s))
