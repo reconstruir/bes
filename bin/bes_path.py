@@ -24,6 +24,11 @@ def main():
   prepend_parser.add_argument('path', type = str, action = 'store', help = 'The path to prepend.')
   prepend_parser.add_argument('parts', nargs = '+', type = str, action = 'store', help = 'One or more parts to prepend.')
 
+  # remove
+  remove_parser = subparsers.add_parser('remove', help = 'Remove path into parts.')
+  remove_parser.add_argument('path', type = str, action = 'store', help = 'The path to remove.')
+  remove_parser.add_argument('parts', nargs = '+', type = str, action = 'store', help = 'One or more parts to remove.')
+
   # Cleanup
   cleanup_parser = subparsers.add_parser('cleanup', help = 'Cleanup path into parts.')
   cleanup_parser.add_argument('path', type = str, action = 'store', help = 'The path to cleanup.')
@@ -43,6 +48,8 @@ def main():
     return _command_cleanup(args.path)
   elif args.command == 'print':
     return _command_print(args.path, args.line)
+  elif args.command == 'remove':
+    return _command_remove(args.path, args.parts)
 
   return 0
 
@@ -86,6 +93,15 @@ def _command_print(p, line):
   l = [ _path_part_make_nice(part) for part in l ]
   for part in l:
     sys.stdout.write('%s\n' % (part))
+  return 0
+
+def _command_remove(p, parts):
+  l =  _path_split(p)
+  for part in parts:
+    if part in l:
+      l.remove(part)
+  p = _path_cleanup(_path_join(l))
+  sys.stdout.write('%s\n' % (p))
   return 0
 
 if __name__ == '__main__':

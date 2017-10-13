@@ -21,5 +21,11 @@ function test_bes_path_cleanup()
   bes_assert "[ $(bes_path_cleanup a:b:c:a:b:c) = a:b:c ]"
 }
 
+function test_bes_path_remove()
+{
+  bes_assert "[ $(bes_path_remove foo:bar bar) = foo ]"
+  bes_assert "[ $(bes_path_remove foo:bar bar foo) = ]"
+}
+
 bes_testing_run_unit_tests
 

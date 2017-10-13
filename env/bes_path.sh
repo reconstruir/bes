@@ -21,6 +21,16 @@ function bes_path_prepend()
   return $?
 }
 
+function bes_path_remove()
+{
+  if [ $# -lt 2 ]; then
+    echo "usage: bes_path_remove path part1 part2 ... parnN"
+    return 1
+  fi
+  $_BES_DEV_ROOT/bin/bes_path.py remove "$@"
+  return $?
+}
+
 function bes_path_cleanup()
 {
   if [ $# -lt 1 ]; then
@@ -69,6 +79,18 @@ function bes_env_path_prepend()
   local _parts="$@"
   local _value=$(bes_var_get $_var_name)
   local _new_value=$(bes_path_prepend "$_value" "$_parts")
+  bes_var_set $_var_name "$_new_value"
+  export $_var_name
+  return 0
+}
+
+function bes_env_path_remove()
+{
+  local _var_name="$1"
+  shift
+  local _parts="$@"
+  local _value=$(bes_var_get $_var_name)
+  local _new_value=$(bes_path_remove "$_value" "$_parts")
   bes_var_set $_var_name "$_new_value"
   export $_var_name
   return 0

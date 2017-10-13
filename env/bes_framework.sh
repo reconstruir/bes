@@ -87,6 +87,11 @@ function bes_var_set()
   eval "$1=\"\$2\""
 }
 
+function bes_PATH_cleanup()
+{
+  bes_env_path_cleanup PATH
+}
+
 function bes_PATH_prepend()
 {
   bes_env_path_prepend PATH "$@"
