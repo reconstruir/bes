@@ -30,7 +30,6 @@ class git_download_cache(object):
     tmp_full_path = path.join(tmp_dir, tarball_filename)
     git.download_tarball(name, revision, address, tmp_full_path)
     file_util.rename(tmp_full_path, tarball_path)
-    print('write to: %s' % (tarball_path))
     return tarball_path
     
   def _address_path(self, address):
@@ -41,4 +40,3 @@ class git_download_cache(object):
   def _sanitize_address(clazz, address):
     'Return path for local tarball.'
     return string_util.replace(address, { ':': '_', '/': '_' })
-  
