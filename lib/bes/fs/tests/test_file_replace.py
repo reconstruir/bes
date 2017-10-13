@@ -19,13 +19,13 @@ class test_file_replace(unit_test):
     file_replace.replace(tmp_file, replacements, backup = False, word_boundary = True)
     self.assertEqual('That is bar.\n', file_util.read(tmp_file, codec = 'utf-8'))
     
-  def xtest_file_replace_utf8(self):
+  def test_file_replace_utf8(self):
     tmp_file = self._make_temp_replace_file('utf8.txt')
     replacements = {
       'This': 'That',
     }
     file_replace.replace(tmp_file, replacements, backup = False, word_boundary = True)
-    self.assertEqual('That is bér.\n', file_util.read(tmp_file, codec = 'utf-8'))
+    self.assertEqual(u'That is bér.\n', file_util.read(tmp_file, codec = 'utf-8'))
     
   def _make_temp_replace_file(self, filename):
     src_file = self.data_path(filename)

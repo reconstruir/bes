@@ -13,7 +13,7 @@ class file_replace(object):
   @classmethod
   def replace(clazz, filename, replacements, backup = True, word_boundary = False):
     assert isinstance(replacements, dict)
-    content = file_util.read(filename, 'utf-8')
+    content = file_util.read(filename, codec = 'utf-8')
     new_content = string_util.replace(content, replacements, word_boundary = word_boundary)
     if content == new_content:
       return False
