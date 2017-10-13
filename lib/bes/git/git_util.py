@@ -4,6 +4,8 @@
 import os.path as path
 from bes.fs import file_type, file_util
 from bes.fs.find import finder, criteria, file_type_criteria, max_depth_criteria, pattern_criteria
+from bes.compat import StringIO
+from bes.common import string_util
 
 class git_util(object):
   'git util.'
@@ -41,3 +43,15 @@ class git_util(object):
     if ft:
       crit_list.append(file_type_criteria(ft))
     return finder(d, criteria = crit_list)
+
+  @classmethod
+  def name_from_address(clazz, address):
+    if not address.endswith('.git'):
+      raise ValueError('not a git address: %s' % (address))
+    buf = StringIO()
+    for c in string_util.reverse(address):
+      if c in ':/':
+        break
+      buf.write(c)
+    last_part = string_util.reverse(buf.getvalue())
+    return string_util.remove_tail(last_part, '.git')

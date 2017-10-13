@@ -12,3 +12,6 @@ sep 27
 
 sep 30
 - add unit test for extract_member_to_string_cached
+
+oct 13
+- get rid of PYTHON3 check in file_util.py by providing and 'encode' wrapper.
