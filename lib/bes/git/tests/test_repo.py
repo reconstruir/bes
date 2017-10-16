@@ -4,7 +4,6 @@
 import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.fs import temp_file
-from bes.fs.testing import temp_content
 from bes.git import git, repo, status
 
 class test_repo(unit_test):
