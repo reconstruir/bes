@@ -141,6 +141,10 @@ def main():
     files = _match_filenames(files, filename_patterns)
 
   filtered_files = file_filter.filter_files(files, test_map, patterns)
+  if patterns and not filtered_files:
+    printer.writeln('bes_test.py: No matches for: %s' % (' '.join([ str(p) for p in patterns])))
+    return 1
+    
   filtered_files = file_filter.ignore_files(filtered_files, args.ignore)
   if not filtered_files:
     return 1
@@ -802,6 +806,18 @@ class unit_test_desc(namedtuple('unit_test_desc', 'filename,fixture,function')):
     else:
       fixture, function = ( None, right )
     return clazz(filename, fixture or None, function or None)
+
+  def __str__(self):
+    v = []
+    if self.filename:
+      v.append(self.filename)
+      v.append('.')
+    if self.fixture:
+      v.append(self.fixture)
+    v.append(':')
+    if self.function:
+      v.append(self.function)
+    return ''.join(v)
   
 class unit_test_inspect(object):
   unit_test = namedtuple('unit_test', 'filename,fixture,function')
