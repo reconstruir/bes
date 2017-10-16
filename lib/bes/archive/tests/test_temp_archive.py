@@ -6,7 +6,7 @@ import os.path as path, tarfile, unittest, zipfile
 from bes.fs import file_util, temp_file
 from bes.archive.temp_archive import temp_archive
 
-class Testtemp_archive(unittest.TestCase):
+class test_temp_archive(unittest.TestCase):
 
   def test_make_temp_archive_tgz(self):
     a = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], 'tgz')
