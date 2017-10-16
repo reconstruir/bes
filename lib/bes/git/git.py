@@ -115,7 +115,7 @@ class git(object):
     return clazz._call_git(root, args)
 
   @classmethod
-  def clone_or_update(clazz, address, dest_dir, enforce_empty_dir = True):
+  def clone_or_pull(clazz, address, dest_dir, enforce_empty_dir = True):
     if clazz.is_repo(dest_dir):
       if clazz.has_changes(dest_dir):
         raise RuntimeError('dest_dir %s has changes.' % (dest_dir))

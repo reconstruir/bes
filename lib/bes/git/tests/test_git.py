@@ -48,7 +48,7 @@ class test_git(unittest.TestCase):
     for f in expected_cloned_files:
       self.assertTrue( path.exists(f) )
 
-  def test_clone_or_update(self):
+  def test_clone_or_pull(self):
     tmp_repo = self.__create_tmp_repo()
     new_files = self.__create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
