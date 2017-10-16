@@ -15,3 +15,6 @@ sep 30
 
 oct 13
 - get rid of PYTHON3 check in file_util.py by providing and 'encode' wrapper.
+
+oct 15
+- fix Archive.py to be more abs
