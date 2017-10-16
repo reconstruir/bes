@@ -5,6 +5,7 @@ import os, os.path as path
 from bes.text import string_list_parser
 from bes.common import string_util
 from collections import namedtuple
+from bes.fs import temp_file
 
 class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')):
   'Temporary files, directories and content for easier testing.'
@@ -123,3 +124,10 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
     for item in items:
       item = clazz.parse(item)
       item.write(root_dir)
+
+  @classmethod
+  def write_items_to_temp_dir(clazz, items):
+    'Write temp content items to a temporary dir.'
+    root_dir = temp_file.make_temp_dir()
+    clazz.write_items(items, root_dir)
+    return root_dir
