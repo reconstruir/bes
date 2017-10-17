@@ -24,5 +24,14 @@ class Testarchive_extension(unittest.TestCase):
     self.assertEqual( 'w:bz2', archive_extension.write_format_for_filename('foo.bz2') )
     self.assertEqual( 'w', archive_extension.write_format_for_filename('foo.zip') )
 
+  def test_extension_for_filename(self):
+    self.assertEqual( 'tar.gz', archive_extension.extension_for_filename('foo.tar.gz') )
+    self.assertEqual( 'gz', archive_extension.extension_for_filename('foo.gz') )
+    self.assertEqual( 'zip', archive_extension.extension_for_filename('foo.zip') )
+    self.assertEqual( 'tgz', archive_extension.extension_for_filename('foo.tgz') )
+    self.assertEqual( 'bz2', archive_extension.extension_for_filename('foo.bz2') )
+    self.assertEqual( 'tar.bz2', archive_extension.extension_for_filename('foo.tar.bz2') )
+    self.assertEqual( None, archive_extension.extension_for_filename('foo.xz') )
+
 if __name__ == "__main__":
   unittest.main()

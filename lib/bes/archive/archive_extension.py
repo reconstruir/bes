@@ -59,3 +59,11 @@ class archive_extension(object):
   @classmethod
   def is_valid_tar_filename(clazz, filename):
     return clazz.is_valid_tar_ext(file_util.extension(filename))
+
+  @classmethod
+  def extension_for_filename(clazz, filename):
+    filename = filename.lower()
+    for ext in [ clazz.TAR_BZ2, clazz.TAR_GZ, clazz.TAR, clazz.BZ2, clazz.GZ, clazz.TAR, clazz.TGZ, clazz.ZIP ]:
+      if filename.endswith('.' + ext):
+        return ext
+    return None
