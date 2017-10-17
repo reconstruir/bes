@@ -72,13 +72,50 @@ class test_repo(unit_test):
     self.assertFalse( path.exists(new_stuff_path) )
     r2.pull()
     self.assertTrue( path.exists(new_stuff_path) )
-    
+
+  def test_clone_or_pull(self):
+    r1 = self._make_tmp_repo()
+    r1.write_temp_content([
+      'file a/b/c/foo.txt "foo content" 755',
+      'file d/e/bar.txt "bar content" 644',
+      'dir  baz     ""            700',
+    ])
+    r1.add('.')
+    r1.commit('foo', '.')
+
+    tmp_dir = temp_file.make_temp_dir()
+    r2 = repo(tmp_dir, address = r1.root)
+    r2.clone_or_pull()
+    self.assertEqual( [], r2.status('.') )
+
+    '''
+    r1.write_temp_content([ 'file new/stuff.txt "some stuff" 644' ])
+    r1.add('new/stuff.txt')
+    r1.commit('foo', 'new/stuff.txt')
+
+    new_stuff_path = path.join(r2.root, 'new/stuff.txt')
+    self.assertFalse( path.exists(new_stuff_path) )
+    r2.pull()
+    self.assertTrue( path.exists(new_stuff_path) )
+'''    
   @classmethod
   def _make_tmp_repo(clazz, address = None):
     tmp_dir = temp_file.make_temp_dir()
     r = repo(tmp_dir, address = address)
     r.init()
     return r
+
+  def test_find_all_files(self):
+    r = self._make_tmp_repo()
+    self.assertEqual([], r.find_all_files() )
+    r.write_temp_content([
+      'file a/b/c/foo.txt "foo content" 755',
+      'file d/e/bar.txt "bar content" 644',
+      'dir  baz     ""            700',
+    ])
+    r.add('.')
+    r.commit('foo', '.')
+    self.assertEqual([ 'a/b/c/foo.txt', 'd/e/bar.txt'], r.find_all_files() )
     
 if __name__ == '__main__':
   unit_test.main()

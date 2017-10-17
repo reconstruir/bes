@@ -2,8 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
-from bes.fs import temp_file
+from bes.fs import file_type, file_find, temp_file
 from bes.fs.testing import temp_content
+#from bes.fs.find import finder, criteria, file_type_criteria, max_depth_criteria, pattern_criteria
 
 from .git import git
 from .git_util import git_util
@@ -56,3 +57,12 @@ class repo(object):
       r.commit('add temp content', '.')
     return r
   
+  def find_all_files(self):
+    #crit = [
+    #  file_type_criteria(file_type.DIR | file_type.FILE | file_type.LINK),
+    #]
+    #ff = finder(self.root, criteria = crit, relative = True)
+    #return [ f for f in ff.find() ]
+    files = file_find.find(self.root, relative = True, file_type = file_find.FILE|file_find.LINK)
+    files = [ f for f in files if not f.startswith('.git') ]
+    return files

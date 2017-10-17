@@ -126,8 +126,8 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
       item.write(root_dir)
 
   @classmethod
-  def write_items_to_temp_dir(clazz, items):
+  def write_items_to_temp_dir(clazz, items, delete = True):
     'Write temp content items to a temporary dir.'
-    root_dir = temp_file.make_temp_dir()
+    root_dir = temp_file.make_temp_dir(delete = delete)
     clazz.write_items(items, root_dir)
     return root_dir

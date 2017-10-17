@@ -14,14 +14,14 @@ from collections import namedtuple
 
 class finder(object):
 
-  BLOCK = 0x01
-  CHAR = 0x02
-  DIR = 0x04
-  FILE = 0x08
-  LINK = 0x10
-  FIFO = 0x20
-  SOCKET = 0x40
-  ANY = BLOCK | CHAR | DIR | FILE | LINK | FIFO | SOCKET
+#  BLOCK = 0x01
+#  CHAR = 0x02
+#  DIR = 0x04
+#  FILE = 0x08
+#  LINK = 0x10
+#  FIFO = 0x20
+#  SOCKET = 0x40
+#  ANY = BLOCK | CHAR | DIR | FILE | LINK | FIFO | SOCKET
   
   def __init__(self, root_dir, criteria = None, relative = True):
     self.root_dir = path.normpath(root_dir)
