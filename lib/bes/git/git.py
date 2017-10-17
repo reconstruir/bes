@@ -5,6 +5,7 @@ import os, os.path as path, re
 from collections import namedtuple
 from bes.common import object_util, Shell, string_util
 from bes.fs import dir_util, file_util, temp_file
+from bes.fs import dir_util, file_util, temp_file
 
 from .status import status
 
@@ -76,8 +77,10 @@ class git(object):
   @classmethod
   def _call_git(clazz, root, args):
     cmd = [ clazz.GIT_EXE ] + args
-    #print "cmd: ", cmd
-    return Shell.execute(cmd, cwd = root)
+    rv = Shell.execute(cmd, cwd = root)
+    #print(cmd)
+    #print(rv.stdout)
+    return rv
 
   @classmethod
   def clone(clazz, address, dest_dir, enforce_empty_dir = True):
