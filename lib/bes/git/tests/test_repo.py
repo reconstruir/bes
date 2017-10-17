@@ -86,8 +86,17 @@ class test_repo(unit_test):
     tmp_dir = temp_file.make_temp_dir()
     r2 = repo(tmp_dir, address = r1.root)
     r2.clone_or_pull()
-    self.assertEqual( [], r2.status('.') )
+    self.assertEqual([ 'a/b/c/foo.txt', 'd/e/bar.txt'], r2.find_all_files() )
 
+    r1.write_temp_content([
+      'file kiwi.txt "kiwi" 644',
+    ])
+    r1.add('kiwi.txt')
+    r1.commit('foo', 'kiwi.txt')
+    r2.pull()
+    self.assertEqual([ 'a/b/c/foo.txt', 'd/e/bar.txt', 'kiwi.txt' ], r2.find_all_files() )
+    
+    
     '''
     r1.write_temp_content([ 'file new/stuff.txt "some stuff" 644' ])
     r1.add('new/stuff.txt')
