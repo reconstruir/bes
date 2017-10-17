@@ -19,6 +19,9 @@ class repo(object):
   def clone_or_pull(self):
     return git.clone_or_pull(self.address, self.root)
 
+  def clone(self):
+    return git.clone(self.address, self.root)
+
   def init(self):
     return git.init(self.root)
 
