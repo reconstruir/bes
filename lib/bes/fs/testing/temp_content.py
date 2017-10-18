@@ -84,7 +84,7 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
     else:
       content = None
     if content and path.isfile(content):
-      with open(content, 'r') as fin:
+      with open(content, 'rb') as fin:
         content = fin.read()
     if len(t) > 3:
       mode = clazz.parse_mode(t[3])
@@ -98,8 +98,11 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
       self._mkdir(p, mode = self.mode)
     elif self.item_type == self.FILE:
       self._mkdir(path.dirname(p))
-      with open(p, 'w') as fout:
-        fout.write(self.content or '')
+      with open(p, 'wb') as fout:
+        content = self.content or b''
+        if not isinstance(content, bytes):
+          content = content.encode('utf-8')
+        fout.write(content)
       if self.mode:
         os.chmod(p, self.mode)
     else:
