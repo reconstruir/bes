@@ -11,7 +11,7 @@ from bes.script import script_base
 #from bes.fs import file_find, file_match, file_replace, file_util, file_path
 #from bes.archive import archiver
 #from bes.git import git
-#from bes.refactor import files as refactor_files
+from bes.refactor import files as refactor_files
 #from bes.script import script_base
 
 class refactor_cli(script_base):

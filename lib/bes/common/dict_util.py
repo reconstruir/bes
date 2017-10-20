@@ -2,6 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import copy
+from bes.compat import StringIO
 
 class dict_util(object):
   'Dict util'
@@ -24,10 +25,17 @@ class dict_util(object):
 
   @staticmethod
   def dump(d):
+    print(dict_util.dumps(d))
+
+  @staticmethod
+  def dumps(d):
+    buf = StringIO()
     longest_key = max([ len(key) for key in d.keys() ])
     fmt = '%%%ds: %%s' % (longest_key)
     for k, v in sorted(d.items()):
-      print(fmt % (k, v))
+      buf.write(fmt % (k, v))
+      buf.write('\n')
+    return buf.getvalue()
 
   @staticmethod
   def filter_with_keys(d, keys):

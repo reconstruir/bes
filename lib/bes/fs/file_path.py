@@ -2,7 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path, os
-from bes.common import string_util
+from bes.common import algorithm, string_util
+from .file_util import file_util
 
 class file_path(object):
   'file_path'
