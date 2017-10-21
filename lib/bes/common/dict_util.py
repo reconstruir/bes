@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import copy
 from bes.compat import StringIO
@@ -28,13 +28,15 @@ class dict_util(object):
     print(dict_util.dumps(d))
 
   @staticmethod
-  def dumps(d):
+  def dumps(d, delimiter = '\n'):
+    if not d:
+      return ''
     buf = StringIO()
     longest_key = max([ len(key) for key in d.keys() ])
     fmt = '%%%ds: %%s' % (longest_key)
     for k, v in sorted(d.items()):
       buf.write(fmt % (k, v))
-      buf.write('\n')
+      buf.write(delimiter)
     return buf.getvalue()
 
   @staticmethod

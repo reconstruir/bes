@@ -25,5 +25,11 @@ class Testobject_util(unittest.TestCase):
     self.assertFalse( dict_util.is_homogeneous({ 'a': 5, 'b': 'hi' }, compat.STRING_TYPES, compat.STRING_TYPES) )
     self.assertFalse( dict_util.is_homogeneous({ 5: '5', 'b': 'hi' }, compat.STRING_TYPES, compat.STRING_TYPES) )
 
+  def test_dumps(self):
+    self.assertEqual( '', dict_util.dumps({}) )
+
+  def test_dumps(self):
+    self.assertEqual( 'a: 5\nb: 6\n', dict_util.dumps({ 'a': 5, 'b': 6 }) )
+
 if __name__ == '__main__':
   unittest.main()
