@@ -27,6 +27,10 @@ class check_type(object):
     return clazz._check(o, dict, name, 2)
 
   @classmethod
+  def check_class(clazz, o, name):
+    return clazz._check(o, compat.CLASS_TYPES, name, 2)
+
+  @classmethod
   def _check(clazz, o, t, name, depth):
     assert isinstance(name, compat.STRING_TYPES)
     success = isinstance(o, t)

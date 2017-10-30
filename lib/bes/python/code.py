@@ -11,4 +11,5 @@ class code(object):
         content = f.read()
     except Exeption as ex:
       raise
-    exec(content, xglobals, xlocals)
+    c = compile(content, filename, 'exec')
+    exec(c, xglobals, xlocals)
