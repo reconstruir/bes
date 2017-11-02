@@ -827,7 +827,7 @@ class unit_test_inspect(object):
     code = file_util.read(filename)
     if 'bes:skip_unit_test=1' in code:
       return []
-    tree = ast.parse(code)
+    tree = ast.parse(code, filename = filename)
     s = ast.dump(tree, annotate_fields = True, include_attributes = True)
     result = []
     for node in tree.body:
