@@ -142,8 +142,9 @@ class archive(object):
         file_util.remove(from_dir)
     if strip_head:
       from_dir = path.join(dest_dir, strip_head)
-      tar_util.copy_tree_with_tar(from_dir, dest_dir)
-      file_util.remove(from_dir)
+      if path.isdir(from_dir):
+        tar_util.copy_tree_with_tar(from_dir, dest_dir)
+        file_util.remove(from_dir)
       
   def _pre_create(self):
     'Setup some stuff before create() is called.'
