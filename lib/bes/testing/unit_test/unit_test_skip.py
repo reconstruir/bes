@@ -28,9 +28,11 @@ def skip(reason):
     return test_item
   return decorator
 
-def skip_if(condition, reason):
+def skip_if(condition, reason, warning = False):
   """Skip a test if the condition is true."""
   if condition:
+    if warning:
+      print('SKIPPED: %s' % (reason))
     return skip(reason)
   return _id
 
