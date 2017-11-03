@@ -626,7 +626,7 @@ class environ_util(object):
     clean_vars = [ 'BES_LOG', 'PYTHONPATH', 'DISPLAY', 'HOME', 'LANG', 'SHELL', 'TERM', 'TERM_PROGRAM', 'TMOUT', 'TMPDIR', 'USER', 'XAUTHORITY', '__CF_USER_TEXT_ENCODING', 'LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH' ]
     clean_env = {}
     for k, v in os.environ.items():
-      if k in clean_vars:
+      if k in clean_vars or k.startswith('REBUILD'):
         clean_env[k] = v
     clean_env['PATH'] = clean_path
     return clean_env
