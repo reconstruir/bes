@@ -3,6 +3,7 @@
 
 import copy
 from bes.compat import StringIO
+from .string_util import string_util
 
 class dict_util(object):
   'Dict util'
@@ -53,3 +54,17 @@ class dict_util(object):
       if not isinstance(value, value_type):
         return False
     return True
+
+  @staticmethod
+  def del_keys(d, *keys):
+    'Delete all the given keys from d if present.'
+    for key in keys:
+      if key in d:
+        del d[key]
+
+  @staticmethod
+  def unquote_strings(d):
+    for k, v in d.items():
+      if string_util.is_string(v):
+        d[k] = string_util.unquote(v)
+        
