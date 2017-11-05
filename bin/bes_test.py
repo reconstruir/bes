@@ -252,7 +252,10 @@ def main():
   if failed_tests:
     longest_python_exe = max([len(path.basename(p)) for p in options.interpreters])
     for python_exe, f in failed_tests:
-      python_exe_blurb = path.basename(python_exe).rjust(longest_python_exe)
+      if len(options.interpreters) > 1:
+        python_exe_blurb = path.basename(python_exe).rjust(longest_python_exe)
+      else:
+        python_exe_blurb = ''
       printer.writeln('bes_test.py: FAILED: %s %s' % (python_exe_blurb, file_util.remove_head(f.filename, cwd)))
 
   if num_failed > 0:
@@ -414,8 +417,13 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     else:
       label = 'testing'
     longest_python_exe = max([len(path.basename(p)) for p in options.interpreters])
-    python_exe_blurb = path.basename(python_exe).rjust(longest_python_exe)
-    blurb = 'bes_test.py:%7s:%s %s %s - %s ' % (label, filename_count_blurb, python_exe_blurb, short_filename, function_count_blurb)
+    if len(options.interpreters) > 1:
+      python_exe_blurb = path.basename(python_exe).rjust(longest_python_exe)
+      python_exe_blurb_sep = ' '
+    else:
+      python_exe_blurb = ''
+      python_exe_blurb_sep = ''
+    blurb = 'bes_test.py:%7s:%s%s%s %s - %s ' % (label, filename_count_blurb, python_exe_blurb_sep, python_exe_blurb, short_filename, function_count_blurb)
     printer.writeln(blurb)
 
     if options.dry_run:
@@ -998,6 +1006,12 @@ class config_file(object):
     elif isinstance(value, list):
       return [ x.replace(sub_key, sub_value) for x in value ]
 
+def _python_exe_blurb(python_exe, interpreters):
+  if len(interpreters) <= 1:
+    return ''
+  longest_python_exe = max([len(path.basename(p)) for p in options.interpreters])
+  return path.basename(python_exe).rjust(longest_python_exe)
+    
 class toposort(object):    
   #######################################################################
   # Implements a topological sort algorithm.
