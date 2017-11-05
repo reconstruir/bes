@@ -56,7 +56,7 @@ class unit_test(unittest.TestCase):
     if not right:
       raise RuntimeError('%s does not have a __unit_test_data_dir__ attribute.' % (clazz))
     left = path.dirname(inspect.getfile(clazz))
-    return path.join(left, right)
+    return path.abspath(path.normpath(path.join(left, right)))
 
   def assert_bit_string_equal(self, b1, b2, size):
     bs1 = bin(b1)[2:].zfill(size)
