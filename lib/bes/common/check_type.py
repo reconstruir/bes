@@ -70,3 +70,29 @@ class check_type(object):
         type_blurb = ', '.join(names) + ' or ' + last
       return type_blurb
     return None
+
+  @staticmethod
+  def _transplant_check_type(o, t, name, type_blurb = None):
+    check_type._check(o, t, name, 3, type_blurb = type_blurb)
+
+  class _checker(object):
+    def __init__(self, clazz, method_name, t):
+      self.clazz = clazz
+      self.t = t
+      setattr(clazz, method_name, self)
+
+    def __call__(self, *args, **kwargs):
+      assert len(args) == 2
+      o = args[0]
+      name = args[1]
+      type_blurb = kwargs.get('type_blurb', None)
+      check_type._check(o, self.t, name, 2, type_blurb = type_blurb)
+    
+  @classmethod
+  def add_check(clazz, t, name):
+    'Add a check method to check_type for type t with name.'
+    clazz.check_string(name, 'name')
+    method_name = 'check_%s' % (name)
+    if getattr(clazz, method_name, None):
+      raise RuntimeError('check_type already has a method named \"%s\"' % (method_name))
+    clazz._checker(clazz, method_name, t)

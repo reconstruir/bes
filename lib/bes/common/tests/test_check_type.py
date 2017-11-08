@@ -25,5 +25,13 @@ class test_check_type(unit_test):
       C.check_string_list(6, 'n')
       C.check_string(6, 'n')
 
+  def test_add_check(self):
+    class foo(object): pass
+    C.add_check(foo, 'foo')
+    C.check_foo(foo(), 'n')
+    
+    with self.assertRaises(TypeError) as context:
+      C.check_foo(6, 'n')
+
 if __name__ == '__main__':
   unit_test.main()
