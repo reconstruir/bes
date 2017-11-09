@@ -58,11 +58,15 @@ class node(object):
     for next in path:
       current_node = current_node.ensure_child(next)
   
-  def to_string(self, depth, indent = 2):
+  def to_string(self, depth = 0, indent = 2, data_func = None):
     buf = StringIO()
     buf.write(' ' * depth)
-    buf.write(str(self.data))
+    if data_func:
+      data_str = data_func(self.data)
+    else:
+      data_str = str(self.data)
+    buf.write(data_str)
     buf.write('\n')
     for child in self.children:
-      buf.write(child.to_string(depth + indent))
+      buf.write(child.to_string(depth + indent, data_func = data_func))
     return buf.getvalue()
