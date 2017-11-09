@@ -30,3 +30,7 @@ nov 2
 - testing hierarchy might be too deep
 - add a archiver test of permissions preservation
 - add a better warning when unit tests are skipped
+
+nov 8
+- tree text parser isspace might be wrong maybe should be == ' ' instead
+- maybe use TestLoader.discover() instead of custom discovery
