@@ -28,12 +28,7 @@ cheeses
     expected.ensure_path([ 'cheeses', 'parmessan' ])
     expected.ensure_path([ 'cheeses', 'asiago' ])
     
-    self.assertEqual( expected, self.__parse(text) )
+    self.assertEqual( expected, P.parse(text) )
     
-  @classmethod
-  def __parse(self, text):
-    options = 0
-    return P.parse(text, options = options)
-
 if __name__ == "__main__":
   unittest.main()
