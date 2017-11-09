@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 from bes.testing.unit_test import unit_test
 from bes.common import check_type as C
 
@@ -32,6 +31,12 @@ class test_check_type(unit_test):
     
     with self.assertRaises(TypeError) as context:
       C.check_foo(6, 'n')
+
+  def test_add_check_duplicate(self):
+    class bar(object): pass
+    C.add_check(bar, 'bar')
+    with self.assertRaises(RuntimeError) as context:
+      C.add_check(bar, 'bar')
 
 if __name__ == '__main__':
   unit_test.main()

@@ -71,11 +71,8 @@ class check_type(object):
       return type_blurb
     return None
 
-  @staticmethod
-  def _transplant_check_type(o, t, name, type_blurb = None):
-    check_type._check(o, t, name, 3, type_blurb = type_blurb)
-
   class _checker(object):
+    'Helper class to make add_check work.'
     def __init__(self, clazz, method_name, t):
       self.clazz = clazz
       self.t = t
@@ -89,8 +86,10 @@ class check_type(object):
       check_type._check(o, self.t, name, 2, type_blurb = type_blurb)
     
   @classmethod
-  def add_check(clazz, t, name):
+  def add_check(clazz, t, name = None):
     'Add a check method to check_type for type t with name.'
+    clazz.check_class(t, 'type')
+    name = name or t.__name__
     clazz.check_string(name, 'name')
     method_name = 'check_%s' % (name)
     if getattr(clazz, method_name, None):
