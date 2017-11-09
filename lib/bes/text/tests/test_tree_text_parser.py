@@ -3,11 +3,32 @@
 #
 import unittest
 from bes.text import tree_text_parser as P
+from bes.text.tree_text_parser import stack
 from bes.common import node
+PI = stack.path_item
 
 class test_tree_text_parser(unittest.TestCase):
 
-  def test_simple(self):
+  @staticmethod
+  def _data_func(data):
+    return str(data) # data.line
+
+  def test_simple1(self):
+    self.maxDiff = None
+    text = '''
+fruits
+  apple
+  kiwi
+'''
+    expected = node(PI('root', 0))
+    expected.ensure_path([ PI('fruits', 2), PI('apple', 3) ])
+    expected.ensure_path([ PI('fruits', 2), PI('kiwi', 4) ])
+
+    self.assertMultiLineEqual( expected.to_string(data_func = self._data_func), self._parse(text) )
+    
+  
+  def test_simple2(self):
+    self.maxDiff = None
     text = '''
 fruits
   apple
@@ -20,15 +41,88 @@ cheeses
   parmessan
   asiago
 '''
-    expected = node('root')
-    expected.ensure_path([ 'fruits', 'apple' ])
-    expected.ensure_path([ 'fruits', 'berries', 'blueberries' ])
-    expected.ensure_path([ 'fruits', 'berries', 'strawberries' ])
-    expected.ensure_path([ 'fruits', 'melons', 'watermelon' ])
-    expected.ensure_path([ 'cheeses', 'parmessan' ])
-    expected.ensure_path([ 'cheeses', 'asiago' ])
+    expected = node(PI('root', 0))
+    expected.ensure_path([ PI('fruits', 2), PI('apple', 3) ])
+    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('blueberries', 5) ])
+    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('strawberries', 6) ])
+    expected.ensure_path([ PI('fruits', 2), PI('melons', 7), PI('watermelon', 8) ])
+    expected.ensure_path([ PI('cheeses', 9), PI('parmessan', 10) ])
+    expected.ensure_path([ PI('cheeses', 9), PI('asiago', 11) ])
+
+    self.assertMultiLineEqual( expected.to_string(data_func = self._data_func), self._parse(text) )
     
-    self.assertEqual( expected, P.parse(text) )
+  def test_inconsistent_indent(self):
+    text = '''
+fruits
+    apple
+    berries
+      blueberries
+      strawberries
+    melons
+      watermelon
+cheeses
+    parmessan
+    asiago
+'''
+    expected = node(PI('root', 0))
+    expected.ensure_path([ PI('fruits', 2), PI('apple', 3) ])
+    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('blueberries', 5) ])
+    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('strawberries', 6) ])
+    expected.ensure_path([ PI('fruits', 2), PI('melons', 7), PI('watermelon', 8) ])
+    expected.ensure_path([ PI('cheeses', 9), PI('parmessan', 10) ])
+    expected.ensure_path([ PI('cheeses', 9), PI('asiago', 11) ])
+    
+    self.assertMultiLineEqual( str(expected), self._parse(text) )
+    
+  def test_indent_tabs(self):
+    text = '''
+fruits
+\t\tapple
+\t\tberries
+\t\t\tblueberries
+\t\t\tstrawberries
+\t\tmelons
+\t\t\twatermelon
+cheeses
+\t\tparmessan
+\t\tasiago
+'''
+    expected = node(PI('root', 0))
+    expected.ensure_path([ PI('fruits', 2), PI('apple', 3) ])
+    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('blueberries', 5) ])
+    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('strawberries', 6) ])
+    expected.ensure_path([ PI('fruits', 2), PI('melons', 7), PI('watermelon', 8) ])
+    expected.ensure_path([ PI('cheeses', 9), PI('parmessan', 10) ])
+    expected.ensure_path([ PI('cheeses', 9), PI('asiago', 11) ])
+    
+    self.assertMultiLineEqual( str(expected), self._parse(text) )
+    
+  def test_indent_mixed_tabs_spaces(self):
+    text = '''
+fruits
+  apple
+  berries
+  \tblueberries
+  \tstrawberries
+  melons
+  \twatermelon
+cheeses
+  parmessan
+  asiago
+'''
+    expected = node(PI('root', 0))
+    expected.ensure_path([ PI('fruits', 2), PI('apple', 3) ])
+    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('blueberries', 5) ])
+    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('strawberries', 6) ])
+    expected.ensure_path([ PI('fruits', 2), PI('melons', 7), PI('watermelon', 8) ])
+    expected.ensure_path([ PI('cheeses', 9), PI('parmessan', 10) ])
+    expected.ensure_path([ PI('cheeses', 9), PI('asiago', 11) ])
+    
+    self.assertMultiLineEqual( str(expected), self._parse(text) )
+
+  @classmethod
+  def _parse(clazz, text):
+    return P.parse(text).to_string(data_func = clazz._data_func)
     
 if __name__ == "__main__":
   unittest.main()
