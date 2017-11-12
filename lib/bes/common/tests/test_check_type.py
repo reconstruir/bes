@@ -24,19 +24,19 @@ class test_check_type(unit_test):
       C.check_string_list(6, 'n')
       C.check_string(6, 'n')
 
-  def test_add_check(self):
+  def test_register_class(self):
     class foo(object): pass
-    C.add_check(foo, 'foo')
+    C.register_class(foo, 'foo')
     C.check_foo(foo(), 'n')
     
     with self.assertRaises(TypeError) as context:
       C.check_foo(6, 'n')
 
-  def test_add_check_duplicate(self):
+  def test_register_class_duplicate(self):
     class bar(object): pass
-    C.add_check(bar, 'bar')
+    C.register_class(bar, 'bar')
     with self.assertRaises(RuntimeError) as context:
-      C.add_check(bar, 'bar')
+      C.register_class(bar, 'bar')
 
 if __name__ == '__main__':
   unit_test.main()

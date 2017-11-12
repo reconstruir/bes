@@ -2,7 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .enum_loader import enum_loader
-from bes.common import string_util
+from bes.common import check_type, string_util
+from bes.system import compat
 from bes.system.compat import with_metaclass
 
 class _enum_meta_class(type):
@@ -15,7 +16,14 @@ class _enum_meta_class(type):
     e = enum_loader.load(clazz)
     if e:
       clazz._ENUM = e
+    check_type.register_class(clazz, name = name, cast_func = _enum_meta_class._check_cast_func)
     return clazz
+
+  @staticmethod
+  def _check_cast_func(clazz, obj):
+    if isinstance(obj, compat.INTEGER_TYPES):
+      return clazz(obj)
+    return obj
 
 class enum(with_metaclass(_enum_meta_class, object)):
 

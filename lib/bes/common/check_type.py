@@ -72,21 +72,24 @@ class check_type(object):
     return None
 
   class _checker(object):
-    'Helper class to make add_check work.'
-    def __init__(self, clazz, method_name, t):
+    'Helper class to make register_class work.'
+    def __init__(self, clazz, method_name, t, cast_func):
       self.clazz = clazz
       self.t = t
+      self.cast_func = cast_func
       setattr(clazz, method_name, self)
 
     def __call__(self, *args, **kwargs):
       assert len(args) == 2
-      o = args[0]
+      obj = args[0]
+      if self.cast_func:
+        obj = self.cast_func(self.t, obj)
       name = args[1]
       type_blurb = kwargs.get('type_blurb', None)
-      check_type._check(o, self.t, name, 2, type_blurb = type_blurb)
+      check_type._check(obj, self.t, name, 2, type_blurb = type_blurb)
     
   @classmethod
-  def add_check(clazz, t, name = None):
+  def register_class(clazz, t, name = None, cast_func = None):
     'Add a check method to check_type for type t with name.'
     clazz.check_class(t, 'type')
     name = name or t.__name__
@@ -94,4 +97,4 @@ class check_type(object):
     method_name = 'check_%s' % (name)
     if getattr(clazz, method_name, None):
       raise RuntimeError('check_type already has a method named \"%s\"' % (method_name))
-    clazz._checker(clazz, method_name, t)
+    clazz._checker(clazz, method_name, t, cast_func)

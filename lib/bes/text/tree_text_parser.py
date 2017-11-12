@@ -4,8 +4,9 @@
 from bes.common import node
 from bes.compat import StringIO
 from collections import namedtuple
-
+  
 class stack(object):
+
   path_item = namedtuple('path_item', 'text,line_number')
   item = namedtuple('item', 'depth,path_item')
 
