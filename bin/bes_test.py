@@ -216,6 +216,7 @@ def main():
   
   timings = {}
 
+  stopped = False
   for i, f in enumerate(filtered_files):
     if not f.filename in timings:
       timings[f.filename] = []
@@ -230,7 +231,9 @@ def main():
         num_failed += 1
         failed_tests.append(( python_exe, f ))
       if args.stop and not result.success:
-        break
+        stopped = True
+    if stopped:
+      break
   if args.dry_run:
     return 0
   num_skipped = num_tests - num_executed
@@ -239,7 +242,7 @@ def main():
   if total_num_tests == total_tests:
     function_summary = '(%d %s)' % (total_tests, _make_test_string(total_tests))
   else:
-    function_summary = '(%d of %d)' % (total_num_tests, total_tests)
+    function_summary = '(%d of %d %s)' % (total_num_tests, total_tests, _make_test_string(total_tests))
     
   if num_failed > 0:
     summary_parts.append('%d of %d FAILED' % (num_failed, num_tests))
