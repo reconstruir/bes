@@ -68,3 +68,8 @@ class dict_util(object):
       if string_util.is_string(v):
         d[k] = string_util.unquote(v)
         
+  @staticmethod
+  def quote_strings(d):
+    for k, v in d.items():
+      if string_util.is_string(v):
+        d[k] = string_util.quote(v)
