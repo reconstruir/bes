@@ -24,7 +24,7 @@ class host(object):
   FAMILIES = [ FAMILY_DEBIAN, FAMILY_REDHAT ]
 
   # distro versions
-  __DISTRO_VERSIONS = {
+  _DISTRO_VERSIONS = {
     RASPBIAN: {
       '8': 'jessie',
       '7': 'wheezy',
@@ -41,18 +41,18 @@ class host(object):
    }
 
   @classmethod
-  def __determine_system(clazz):
+  def _determine_system(clazz):
     'Determine the current system using the python platorm module.'
-    __system = platform.system()
-    if __system == 'Linux':
+    _system = platform.system()
+    if _system == 'Linux':
       return 'linux'
-    elif __system == 'Darwin':
+    elif _system == 'Darwin':
       return 'macos'
     else:
-      raise RuntimeError('Unknown system: %s' % (__system))
+      raise RuntimeError('Unknown system: %s' % (_system))
 
   @classmethod
-  def __parse_linux_issue(clazz):
+  def _parse_linux_issue(clazz):
     'Parse /etc/issue and return a list of its parts.'
     try:
       with open('/etc/issue', 'r') as fin:
@@ -63,7 +63,7 @@ class host(object):
     return [ p.lower() for p in parts if p ]
 
   @classmethod
-  def __determine_distro_version(clazz, distro, tentative_version, known_versions):
+  def _determine_distro_version(clazz, distro, tentative_version, known_versions):
     version = None
     codename = None
     for v in known_versions:
@@ -76,30 +76,30 @@ class host(object):
     return ( version, codename )
 
   @classmethod
-  def __determine_distro_linux(clazz):
-    issue = clazz.__parse_linux_issue()
+  def _determine_distro_linux(clazz):
+    issue = clazz._parse_linux_issue()
     distro = issue[0]
     version = None
     codename = None
     family = None
     if distro == clazz.RASPBIAN:
-      version, codename = clazz.__determine_distro_version(distro, issue[2], clazz.__DISTRO_VERSIONS[distro])
+      version, codename = clazz._determine_distro_version(distro, issue[2], clazz._DISTRO_VERSIONS[distro])
       family = clazz.FAMILY_DEBIAN
     elif distro == clazz.UBUNTU:
-      version, codename = clazz.__determine_distro_version(distro, issue[1], clazz.__DISTRO_VERSIONS[distro])
+      version, codename = clazz._determine_distro_version(distro, issue[1], clazz._DISTRO_VERSIONS[distro])
       family = clazz.FAMILY_DEBIAN
     return ( distro, family, version, codename )
 
   @classmethod
   def init(clazz):
-    clazz.SYSTEM = clazz.__determine_system()
+    clazz.SYSTEM = clazz._determine_system()
     if clazz.SYSTEM == clazz.LINUX:
-      clazz.DISTRO, clazz.FAMILY, clazz.VERSION, clazz.CODENAME = clazz.__determine_distro_linux()
+      clazz.DISTRO, clazz.FAMILY, clazz.VERSION, clazz.CODENAME = clazz._determine_distro_linux()
     elif clazz.SYSTEM == clazz.MACOS:
       clazz.DISTRO = clazz.MACOS
-      clazz.VERSION, clazz.CODENAME = clazz.__determine_distro_version(clazz.MACOS,
-                                                                       platform.mac_ver()[0],
-                                                                       clazz.__DISTRO_VERSIONS[clazz.MACOS])
+      clazz.VERSION, clazz.CODENAME = clazz._determine_distro_version(clazz.MACOS,
+                                                                      platform.mac_ver()[0],
+                                                                      clazz._DISTRO_VERSIONS[clazz.MACOS])
       clazz.FAMILY = clazz.MACOS
     else:
       assert False

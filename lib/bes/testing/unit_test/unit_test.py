@@ -87,6 +87,10 @@ class unit_test(unittest.TestCase):
       raise RuntimeError('file not executable: %s' % (p))
     return p
 
+  @classmethod
+  def raise_skip(clazz, message):
+    raise unittest.SkipTest(message)
+  
   def _host():
     s = platform.system()
     if s == 'Linux':
@@ -95,5 +99,4 @@ class unit_test(unittest.TestCase):
       return 'macos'
     else:
       raise RuntimeError('Unknown system: %s' % (s))
-    
   _HOST = _host()
