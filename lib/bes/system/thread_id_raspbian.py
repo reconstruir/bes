@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from thread_id_base import thread_id_base
+from .thread_id_base import thread_id_base
 import ctypes
 
 class thread_id_raspbian(thread_id_base):
