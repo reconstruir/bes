@@ -85,8 +85,8 @@ class string_util(object):
 
   @classmethod
   def is_string(clazz, s):
-    'Return True if s is a string for python 3.'
-    return isinstance(s, compat.STRING_TYPES)
+    'Return True if s is a string.'
+    return compat.is_string(s)
     
   @classmethod
   def is_char(clazz, s):

@@ -52,6 +52,21 @@ class compat(object):
     else:
       return isinstance(o, file)
 
+  @classmethod
+  def is_int(clazz, o):
+    'Return True if o is an int.'
+    return isinstance(o, clazz.INTEGER_TYPES)
+    
+  @classmethod
+  def is_string(clazz, o):
+    'Return True if o is an string.'
+    return isinstance(o, clazz.STRING_TYPES)
+    
+  @classmethod
+  def is_class(clazz, o):
+    'Return True if o is a class.'
+    return isinstance(o, clazz.CLASS_TYPES)
+    
 def with_metaclass(meta, *bases):
     """Create a base class with a metaclass."""
     # This requires a bit of explanation: the basic idea is to make a dummy

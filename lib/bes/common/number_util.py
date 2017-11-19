@@ -29,7 +29,7 @@ class number_util(object):
   @classmethod
   def is_int(clazz, x):
     'Return True if x is an int.'
-    if isinstance(x, compat.INTEGER_TYPES):
+    if compat.is_int(x):
       return True
     if string_util.is_string(x):
       try:
