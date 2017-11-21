@@ -6,21 +6,22 @@ from bes.compat import StringIO
 from .key_value_parser import key_value_parser
 from .key_value import key_value
 from bes.common import object_util
+from bes.text import string_lexer_options
 
-class key_value_list(object):
+class key_value_list(string_lexer_options.CONSTANTS):
 
   def __init__(self, values = None):
     values = values or []
     self._values = [ value for value in values ]
 
-  def to_string(self, delimiter = '=', value_delimiter = ';'):
+  def to_string(self, delimiter = '=', value_delimiter = ';', quote = False):
     buf = StringIO()
     first = True
     for kv in iter(self):
       if not first:
         buf.write(value_delimiter)
       first = False
-      buf.write(kv.to_string(delimiter = delimiter))
+      buf.write(kv.to_string(delimiter = delimiter, quote_value = quote))
     return buf.getvalue()
     
   def __str__(self):
@@ -119,9 +120,9 @@ class key_value_list(object):
     self._values = [ kv for kv in self._values if kv.key != key ]
 
   @classmethod
-  def parse(clazz, text):
+  def parse(clazz, text, options = 0):
     result = clazz()
-    for kv in key_value_parser.parse(text):
+    for kv in key_value_parser.parse(text, options = options):
       result.append(kv)
     return result
 

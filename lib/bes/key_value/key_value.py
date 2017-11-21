@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from collections import namedtuple, OrderedDict
+from collections import namedtuple
 from bes.compat import StringIO
+from bes.common import string_util
 
 class key_value(namedtuple('key_value', 'key,value')):
 
@@ -12,11 +13,14 @@ class key_value(namedtuple('key_value', 'key,value')):
   def __str__(self):
     return self.to_string()
 
-  def to_string(self, delimiter = '='):
+  def to_string(self, delimiter = '=', quote_value = False):
     buf = StringIO()
     buf.write(str(self.key))
     buf.write(delimiter)
-    buf.write(str(self.value))
+    value = str(self.value)
+    if quote_value:
+      value = string_util.quote_if_needed(value)
+    buf.write(value)
     return buf.getvalue()
 
   def is_instance(self, key_type, value_type):

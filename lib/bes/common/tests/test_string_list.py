@@ -12,5 +12,11 @@ class test_string_list(unittest.TestCase):
     self.assertEqual( [], f( [ 'a', 'b', 'c' ], [ 'a', 'b', 'c' ] ) )
     self.assertEqual( [ 'a' ], f( [ 'a', 'b', 'c' ], [ 'b', 'c' ] ) )
 
+  def test_to_string(self):
+    f = string_list.to_string
+    self.assertEqual( 'a;b;c', f([ 'a', 'b', 'c' ]) )
+    self.assertEqual( 'a b c', f([ 'a', 'b', 'c' ], delimiter = ' ') )
+    self.assertEqual( '"a x" b c', f([ 'a x', 'b', 'c' ], delimiter = ' ', quote = True) )
+    
 if __name__ == "__main__":
   unittest.main()

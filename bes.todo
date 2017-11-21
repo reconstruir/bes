@@ -34,3 +34,6 @@ nov 2
 nov 8
 - tree text parser isspace might be wrong maybe should be == ' ' instead
 - maybe use TestLoader.discover() instead of custom discovery
+
+nov 20
+- add check_type support for custom list types like key_value_list
