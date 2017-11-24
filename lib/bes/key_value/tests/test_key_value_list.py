@@ -10,6 +10,14 @@ from bes.compat import cmp
 
 class test_key_value_list(unit_test):
 
+  def test___init__with_tuples(self):
+    l = KVL( [ ( 'foo', 'hi' ), ( 'bar', 666 ) ] )
+    self.assertEqual( 2, len(l) )
+    self.assertTrue( isinstance(l[0], KV) )
+    self.assertEqual( KV('foo', 'hi'), l[0] )
+    self.assertTrue( isinstance(l[1], KV) )
+    self.assertEqual( KV('bar', 666), l[1] )
+    
   def test_append(self):
     l = KVL()
     l.append(KV('foo', 'hi'))

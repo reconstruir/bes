@@ -11,8 +11,14 @@ from bes.text import string_lexer_options
 class key_value_list(string_lexer_options.CONSTANTS):
 
   def __init__(self, values = None):
-    values = values or []
-    self._values = [ value for value in values ]
+    self._assign(values)
+
+  def _assign(self, values):
+    self._values = []
+    for v in values or []:
+      if not isinstance(v, key_value):
+        v = key_value(*v)
+      self._values.append(v)
 
   def to_string(self, delimiter = '=', value_delimiter = ';', quote = False):
     buf = StringIO()
