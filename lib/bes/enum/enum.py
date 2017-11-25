@@ -16,7 +16,12 @@ class _enum_meta_class(type):
     e = enum_loader.load(clazz)
     if e:
       clazz._ENUM = e
-    check_type.register_class(clazz, name = name, cast_func = _enum_meta_class._check_cast_func)
+      check_type.register_class(clazz, name = name, cast_func = _enum_meta_class._check_cast_func)
+      class constants(object):
+        pass
+      for n in clazz._ENUM.name_values:
+        setattr(constants, n.name, n.value)
+      clazz.CONSTANTS = constants
     return clazz
 
   @staticmethod

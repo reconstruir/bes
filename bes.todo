@@ -37,3 +37,6 @@ nov 8
 
 nov 20
 - add check_type support for custom list types like key_value_list
+
+nov 23
+- check_type for flag_enum
