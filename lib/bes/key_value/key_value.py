@@ -30,3 +30,10 @@ class key_value(namedtuple('key_value', 'key,value')):
     if not isinstance(self.value, value_type):
       return False
     return True
+
+  @classmethod
+  def parse(clazz, text, delimiter = '='):
+    key, actual_delimiter, value = text.partition(delimiter)
+    if actual_delimiter != delimiter:
+      raise ValueError('invalid key value: %s' % (text))
+    return clazz(key.strip(), value.strip())

@@ -40,3 +40,5 @@ nov 20
 
 nov 23
 - check_type for flag_enum
+
+node.add_child() should be node.add_child_with_data()
