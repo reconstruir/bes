@@ -19,12 +19,12 @@ class script_unit_test(unit_test):
       raise TypeError('__script__ should be a 2 tuple instead of: %s - %s' % (str(script), type(script)))
     return clazz.file_path(script[0], script[1])
   
-  def make_command(self, *args):
+  def make_command(self, args):
     cmd = [ self._resolve_script() ] + list(args)
     return cmd
 
-  def run_script(self, *args):
-    rv = self.run_script_raw(*args)
+  def run_script(self, args, cwd = None):
+    rv = self.run_script_raw(args, cwd = cwd)
     if isinstance(rv.stdout, bytes):
       stdout = codecs.decode(rv.stdout, 'utf-8')
     else:
@@ -35,16 +35,14 @@ class script_unit_test(unit_test):
       stderr = rv.stderr
     return self.exec_result(rv.exit_code, stdout, stderr)
 
-  run_command = run_script
-  
-  def run_script_raw(self, *args):
-    cmd = self.make_command(*args)
-    return self._exec(cmd)
+  def run_script_raw(self, args, cwd = None):
+    cmd = self.make_command(args)
+    return self._exec(cmd, cwd)
   
   exec_result = namedtuple('exec_result', 'exit_code,stdout,stderr')
   @classmethod
-  def _exec(clazz, cmd):
-    process = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell = False)
+  def _exec(clazz, cmd, cwd):
+    process = subprocess.Popen(cmd, cwd = cwd, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell = False)
     stdout, stderr = process.communicate()
     stderr = ''
     exit_code = process.wait()
@@ -55,5 +53,3 @@ class script_unit_test(unit_test):
       sys.stdout.write(rv.stdout)
       sys.stdout.flush()
     self.assertEqual( 0, rv.exit_code )
-
-  
