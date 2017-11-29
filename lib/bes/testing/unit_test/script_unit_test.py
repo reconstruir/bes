@@ -8,6 +8,10 @@ import subprocess
 
 class script_unit_test(unit_test):
 
+  @property
+  def script(self):
+    return self._resolve_script()
+  
   @classmethod
   def _resolve_script(clazz):
     script = getattr(clazz, '__script__', None)
