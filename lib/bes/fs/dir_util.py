@@ -2,6 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import os, os.path as path
+import datetime
 
 from .file_match import file_match
 
@@ -40,3 +41,22 @@ class dir_util(object):
         break
       d = parent
     return sorted(result)
+
+  @classmethod
+  def older_dirs(clazz, dirs, days = 0, seconds = 0, microseconds = 0,
+                 milliseconds = 0, minutes = 0, hours = 0, weeks = 0):
+    delta = datetime.timedelta(days = days,
+                               seconds = seconds,
+                               microseconds = microseconds,
+                               milliseconds = milliseconds,
+                               minutes = minutes,
+                               hours = hours,
+                               weeks = weeks)
+    now = datetime.datetime.now()
+    ago = now - delta
+    result = []
+    for d in dirs:
+      mtime = datetime.datetime.fromtimestamp(os.stat(d).st_mtime)
+      if mtime <= ago:
+        result.append(d)
+    return result
