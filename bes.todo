@@ -42,3 +42,6 @@ nov 23
 - check_type for flag_enum
 
 node.add_child() should be node.add_child_with_data()
+
+dec 3
+- retire object_util.is_homogenous() and replace with check_type.is_seq()

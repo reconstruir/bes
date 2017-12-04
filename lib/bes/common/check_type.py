@@ -7,6 +7,41 @@ from bes.system import compat
 class check_type(object):
 
   @classmethod
+  def is_string(clazz, o):
+    return isinstance(o, compat.STRING_TYPES)
+
+  @classmethod
+  def is_string_list(clazz, o):
+    return clazz.is_seq(o, compat.STRING_TYPES)
+
+  @classmethod
+  def is_int(clazz, o):
+    return isinstance(o, compat.INTEGER_TYPES)
+
+  @classmethod
+  def is_bool(clazz, o):
+    return isinstance(o, bool)
+
+  @classmethod
+  def is_dict(clazz, o):
+    return isinstance(o, dict)
+
+  @classmethod
+  def is_class(clazz, o):
+    return isinstance(o, compat.CLASS_TYPES)
+
+  @classmethod
+  def is_seq(clazz, o, t):
+    'Return True if l is iterable and all its items are of a given type.'
+    try:
+      for x in iter(o):
+        if not isinstance(x, t):
+          return False
+      return True
+    except:
+      return False
+  
+  @classmethod
   def check(clazz, o, t, name):
     return clazz._check(o, t, name, 2)
   
@@ -107,14 +142,7 @@ class check_type(object):
     def __call__(self, *args, **kwargs):
       assert len(args) == 1
       obj = args[0]
-      #return isinstance(obj, self.object_type)
-      try:
-        for x in iter(obj):
-          if not isinstance(x, self.object_type):
-            return False
-        return True
-      except Exception, ex:
-        return False
+      return check_type.is_seq(obj, self.object_type)
       
   @classmethod
   def register_class(clazz, object_type, name = None, cast_func = None, include_seq = True):
