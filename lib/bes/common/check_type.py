@@ -71,11 +71,10 @@ class check_type(object):
       return type_blurb
     return None
 
-  class _checker(object):
-    'Helper class to make register_class work.'
-    def __init__(self, clazz, method_name, t, cast_func):
-      self.clazz = clazz
-      self.t = t
+  class _check_type_helper(object):
+    'Helper class to make check_type.check_foo() methods work.'
+    def __init__(self, clazz, method_name, object_type, cast_func):
+      self.object_type = object_type
       self.cast_func = cast_func
       setattr(clazz, method_name, self)
 
@@ -83,18 +82,36 @@ class check_type(object):
       assert len(args) == 2
       obj = args[0]
       if self.cast_func:
-        obj = self.cast_func(self.t, obj)
+        obj = self.cast_func(self.object_type, obj)
       name = args[1]
       type_blurb = kwargs.get('type_blurb', None)
-      check_type._check(obj, self.t, name, 2, type_blurb = type_blurb)
+      check_type._check(obj, self.object_type, name, 2, type_blurb = type_blurb)
+    
+  class _is_type_helper(object):
+    'Helper class to make check_type.is_foo() methods work.'
+    def __init__(self, clazz, method_name, object_type):
+      self.object_type = object_type
+      setattr(clazz, method_name, self)
+
+    def __call__(self, *args, **kwargs):
+      assert len(args) == 1
+      obj = args[0]
+      return isinstance(obj, self.object_type)
     
   @classmethod
-  def register_class(clazz, t, name = None, cast_func = None):
-    'Add a check method to check_type for type t with name.'
-    clazz.check_class(t, 'type')
-    name = name or t.__name__
+  def register_class(clazz, object_type, name = None, cast_func = None, incldue_list = True):
+    'Add a check method to check_type for object type with name.'
+    clazz.check_class(object_type, 'type')
+    name = name or object_type.__name__
     clazz.check_string(name, 'name')
-    method_name = 'check_%s' % (name)
-    if getattr(clazz, method_name, None):
-      raise RuntimeError('check_type already has a method named \"%s\"' % (method_name))
-    clazz._checker(clazz, method_name, t, cast_func)
+
+    check_method_name = 'check_%s' % (name)
+    if getattr(clazz, check_method_name, None):
+      raise RuntimeError('check_type already has a method named \"%s\"' % (check_method_name))
+    clazz._check_type_helper(clazz, check_method_name, object_type, cast_func)
+    
+    is_method_name = 'is_%s' % (name)
+    if getattr(clazz, is_method_name, None):
+      raise RuntimeError('check_type already has a method named \"%s\"' % (is_method_name))
+    clazz._is_type_helper(clazz, is_method_name, object_type)
+    

@@ -38,5 +38,11 @@ class test_check_type(unit_test):
     with self.assertRaises(RuntimeError) as context:
       C.register_class(bar, 'bar')
 
+  def test_is(self):
+    class baz(object): pass
+    C.register_class(baz, 'baz')
+    self.assertTrue( C.is_baz(baz()) )
+    self.assertFalse( C.is_baz(int(6)) )
+
 if __name__ == '__main__':
   unit_test.main()

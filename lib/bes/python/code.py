@@ -9,7 +9,7 @@ class code(object):
     try:      
       with open(filename, 'r') as f:
         content = f.read()
-    except Exeption as ex:
+    except Exception as ex:
       raise
     c = compile(content, filename, 'exec')
     exec(c, xglobals, xlocals)
