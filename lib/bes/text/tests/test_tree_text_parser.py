@@ -26,7 +26,6 @@ fruits
 
     self.assertMultiLineEqual( expected.to_string(data_func = self._data_func), self._parse(text) )
     
-  
   def test_simple2(self):
     self.maxDiff = None
     text = '''
@@ -120,9 +119,26 @@ cheeses
     
     self.assertMultiLineEqual( str(expected), self._parse(text) )
 
+  def test_strip_comments(self):
+    self.maxDiff = None
+    text = '''
+# comment
+fruits # comment
+  # comment
+  apple
+  # comment
+  kiwi
+# comment
+'''
+    expected = node(PI('root', 0))
+    expected.ensure_path([ PI('fruits', 3), PI('apple', 5) ])
+    expected.ensure_path([ PI('fruits', 3), PI('kiwi', 7) ])
+
+    self.assertMultiLineEqual( expected.to_string(data_func = self._data_func), self._parse(text, strip_comments = True) )
+    
   @classmethod
-  def _parse(clazz, text):
-    return P.parse(text).to_string(data_func = clazz._data_func)
+  def _parse(clazz, text, strip_comments = False):
+    return P.parse(text, strip_comments = strip_comments).to_string(data_func = clazz._data_func)
     
 if __name__ == "__main__":
   unittest.main()

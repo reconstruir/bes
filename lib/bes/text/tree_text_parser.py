@@ -43,12 +43,14 @@ class stack(object):
 class tree_text_parser(object):
 
   @classmethod
-  def parse(clazz, text):
+  def parse(clazz, text, strip_comments = False):
     result = node(stack.path_item('root', 0))
     st = stack()
     current_indent = None
     for i, line in enumerate(text.split('\n')):
-      if not line:
+      if strip_comments:
+        line = clazz.strip_comments(line)
+      if not line or line.isspace():
         continue
       line_number = i + 1
       indent = clazz._count_indent(line)
@@ -75,3 +77,10 @@ class tree_text_parser(object):
         break
     return count
 
+  @classmethod
+  def strip_comments(clazz, s):
+    i = s.find('#')
+    if i >= 0:
+      return s[0:i]
+    return s
+    
