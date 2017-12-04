@@ -98,8 +98,26 @@ class check_type(object):
       obj = args[0]
       return isinstance(obj, self.object_type)
     
+  class _is_seq_helper(object):
+    'Helper class to make check_type.is_foo_list() methods work.'
+    def __init__(self, clazz, method_name, object_type):
+      self.object_type = object_type
+      setattr(clazz, method_name, self)
+
+    def __call__(self, *args, **kwargs):
+      assert len(args) == 1
+      obj = args[0]
+      #return isinstance(obj, self.object_type)
+      try:
+        for x in iter(obj):
+          if not isinstance(x, self.object_type):
+            return False
+        return True
+      except Exception, ex:
+        return False
+      
   @classmethod
-  def register_class(clazz, object_type, name = None, cast_func = None, incldue_list = True):
+  def register_class(clazz, object_type, name = None, cast_func = None, include_seq = True):
     'Add a check method to check_type for object type with name.'
     clazz.check_class(object_type, 'type')
     name = name or object_type.__name__
@@ -114,4 +132,9 @@ class check_type(object):
     if getattr(clazz, is_method_name, None):
       raise RuntimeError('check_type already has a method named \"%s\"' % (is_method_name))
     clazz._is_type_helper(clazz, is_method_name, object_type)
-    
+
+    if include_seq:
+      is_seq_method_name = 'is_%s_seq' % (name)
+      if getattr(clazz, is_seq_method_name, None):
+        raise RuntimeError('check_type already has a method named \"%s\"' % (is_seq_method_name))
+      clazz._is_seq_helper(clazz, is_seq_method_name, object_type)

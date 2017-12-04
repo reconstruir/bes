@@ -44,5 +44,17 @@ class test_check_type(unit_test):
     self.assertTrue( C.is_baz(baz()) )
     self.assertFalse( C.is_baz(int(6)) )
 
+  def test_is_seq(self):
+    class kiwi(object): pass
+    C.register_class(kiwi, 'kiwi')
+    self.assertTrue( C.is_kiwi_seq([ kiwi(), kiwi() ]) )
+    self.assertFalse( C.is_kiwi_seq([ kiwi(), int(6) ]) )
+
+  def test_is_seq_not_registered(self):
+    class apple(object): pass
+    C.register_class(apple, 'apple', include_seq = False)
+    with self.assertRaises(AttributeError) as context:
+      self.assertTrue( C.is_apple_seq([ apple(), apple() ]) )
+
 if __name__ == '__main__':
   unit_test.main()
