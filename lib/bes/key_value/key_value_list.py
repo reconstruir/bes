@@ -5,7 +5,7 @@ import copy
 from bes.compat import StringIO
 from .key_value_parser import key_value_parser
 from .key_value import key_value
-from bes.common import object_util
+from bes.common import check_type, object_util
 from bes.text import string_lexer_options
 
 class key_value_list(string_lexer_options.CONSTANTS):
@@ -159,3 +159,4 @@ class key_value_list(string_lexer_options.CONSTANTS):
     for next_kv in self._values:
       result[next_kv.key] = next_kv.value
     return result
+check_type.register_class(key_value_list, include_seq = False)
