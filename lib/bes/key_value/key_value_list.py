@@ -160,3 +160,4 @@ class key_value_list(string_lexer_options.CONSTANTS):
       result[next_kv.key] = next_kv.value
     return result
 check_type.register_class(key_value_list, include_seq = False)
+

@@ -66,6 +66,10 @@ class check_type(object):
     return clazz._check(o, dict, name, 2)
 
   @classmethod
+  def check_list(clazz, o, name):
+    return clazz._check(o, list, name, 2)
+
+  @classmethod
   def check_class(clazz, o, name):
     return clazz._check(o, compat.CLASS_TYPES, name, 2)
 
