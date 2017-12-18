@@ -78,8 +78,8 @@ bar_ has under
     ]
     self.assertEqual( expected, actual )
     
-  def test_search(self):
-    actual = file_search.search(self.data_dir(), 'this')
+  def test_search_relative(self):
+    actual = file_search.search(unicode(self.data_dir()), 'this', relative = True)
     expected = [
       ( 'apple.txt', 1, 'this', 'this is apple', ( 0, 4 ) ),
       ( 'kiwi.txt', 1, 'this', 'this is kiwi', ( 0, 4 ) ),

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.common import object_util, table, size
+from bes.system import compat
 from bes.compat import StringIO
 
 class text_table_cell_style(object):
@@ -41,7 +42,7 @@ class text_table(object):
     self._labels = labels[:]
 
   def set(self, x, y, s):
-    if not isinstance(s, ( str, unicode )):
+    if not compat.is_string(s):
       raise ValueError('s should be a string instead of: %s' % (type(s)))
     self._table.set(x, y, s)
     

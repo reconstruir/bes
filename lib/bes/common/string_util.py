@@ -42,7 +42,7 @@ class string_util(object):
 
   @classmethod
   def remove_head(clazz, s, head):
-    if isinstance(head, str):
+    if compat.is_string(head):
       if s.startswith(head):
         return s[len(head):]
       return s
@@ -53,7 +53,7 @@ class string_util(object):
 
   @classmethod
   def remove_tail(clazz, s, tail):
-    if isinstance(tail, str):
+    if compat.is_string(tail):
       if s.endswith(tail):
         return s[0:-len(tail)]
       return s
