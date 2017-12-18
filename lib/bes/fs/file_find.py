@@ -55,14 +55,9 @@ class file_find(object):
         depth = f.count(os.sep) - root_dir_count
         if _in_range(depth, min_depth, max_depth):
           if clazz._match_file_type(f, file_type):
-            print('DUCK: root_dir=%s - %s' % (root_dir, type(root_dir)))
             if relative:
-              x = file_util.remove_head(f, root_dir)
-              print('DUCK: f=%s - %s' % (f, type(f)))
-              print('DUCK: x=%s - %s' % (x, type(x)))
               result.append(file_util.remove_head(f, root_dir))
             else:
-              print('DUCK: f=%s - %s' % (f, f))
               result.append(f)
     return sorted(result)
 

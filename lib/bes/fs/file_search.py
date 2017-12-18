@@ -113,6 +113,6 @@ class file_search(object):
   def search_replace(clazz, root_dir, replacements, backup = True, test_func = None):
     assert isinstance(replacements, dict)
     text = [ str(x) for x in replacements.keys() ]
-    items = clazz.search(root_dir, text)
+    items = clazz.search(root_dir, text, relative = False)
     filenames = algorithm.unique([ item.filename for item in items ])
     return file_replace.replace_many(filenames, replacements, backup = backup, test_func = test_func)
