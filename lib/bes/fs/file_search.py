@@ -12,19 +12,33 @@ from collections import namedtuple
 
 class file_search(object):
 
-  search_item = namedtuple('search_item', 'filename,line_number,pattern,line,span')
+  class search_item(namedtuple('search_item', 'filename,line_number,pattern,line,span')):
+
+    def __new__(clazz, filename, line_number, pattern, line,span):
+      return clazz.__bases__[0].__new__(clazz, filename, line_number, pattern, line, span)
+
+    def become_relative(self, root_dir):
+      return self.__class__(file_util.remove_head(self.filename, root_dir),
+                            self.line_number, self.pattern, self.line, self.span)
   span = namedtuple('span', 'start,end')
 
   @classmethod
   def search(clazz, root_dir, text, relative = True, min_depth = None, max_depth = None):
 #    assert string_util.is_string(text)
     files = file_find.find(root_dir, relative = relative, min_depth = min_depth, max_depth = max_depth)
-    result = []
+#    print('FUCK:        files: %s - %s' % (files, type(files)))
+#    print('FUCK:     COCO root_dir: %s - %s' % (root_dir, type(root_dir)))
+    items = []
     for f in files:
+      #print('FUCK:        f: %s - %s' % (f, type(f)))
+      #print('FUCK: root_dir: %s - %s' % (root_dir, type(root_dir)))
       fpath = path.join(root_dir, f)
-      next_result = clazz.search_file(fpath, text)
-      result += next_result
-    return result
+#      print('FUCK: fpath: %s - %s' % (fpath, type(fpath)))
+      next_items = clazz.search_file(fpath, text)
+      items += next_items
+    if relative:
+      return [ item.become_relative(root_dir) for item in items ]
+    return items
 
   @classmethod
   def search_file(clazz, filename, text, word_boundary = False, ignore_case = False):
@@ -103,6 +117,8 @@ class file_search(object):
   def search_replace(clazz, root_dir, replacements, backup = True, test_func = None):
     assert isinstance(replacements, dict)
     text = [ str(x) for x in replacements.keys() ]
+    from bes.debug import dump
+    dump(text, 'text')
     items = clazz.search(root_dir, text)
     filenames = algorithm.unique([ item.filename for item in items ])
     return file_replace.replace_many(filenames, replacements, backup = backup, test_func = test_func)

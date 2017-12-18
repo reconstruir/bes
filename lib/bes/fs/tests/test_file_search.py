@@ -1,11 +1,14 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
-import unittest
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+import os.path as path
+from bes.testing.unit_test import unit_test
 from bes.fs import file_search
 
-class test_file_search(unittest.TestCase):
+class test_file_search(unit_test):
 
+  __unit_test_data_dir__ = 'test_data/file_search'
+  
   def test_search_string(self):
     content = '''\
 this is foo
@@ -75,5 +78,24 @@ bar_ has under
     ]
     self.assertEqual( expected, actual )
     
-if __name__ == "__main__":
-  unittest.main()
+  def test_search(self):
+    actual = file_search.search(self.data_dir(), 'this')
+    expected = [
+      ( 'apple.txt', 1, 'this', 'this is apple', ( 0, 4 ) ),
+      ( 'kiwi.txt', 1, 'this', 'this is kiwi', ( 0, 4 ) ),
+      ( 'orange.txt', 1, 'this', 'this is orange', ( 0, 4 ) ),
+    ]
+    self.assertEqual( expected, actual )
+    
+  def test_search_not_relative(self):
+    r = self.data_dir()
+    actual = file_search.search(r, 'this', relative = False)
+    expected = [
+      ( path.join(r, 'apple.txt'), 1, 'this', 'this is apple', ( 0, 4 ) ),
+      ( path.join(r, 'kiwi.txt'), 1, 'this', 'this is kiwi', ( 0, 4 ) ),
+      ( path.join(r, 'orange.txt'), 1, 'this', 'this is orange', ( 0, 4 ) ),
+    ]
+    self.assertEqual( expected, actual )
+    
+if __name__ == '__main__':
+  unit_test.main()
