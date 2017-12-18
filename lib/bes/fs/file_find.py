@@ -36,9 +36,7 @@ class file_find(object):
       
     result = []
 
-    print('1 root_dir: %s' % (root_dir))
     root_dir = path.normpath(root_dir)
-    print('2 root_dir: %s' % (root_dir))
     root_dir_count = root_dir.count(os.sep)
 
     for root, dirs, files in clazz.walk_with_depth(root_dir, max_depth = max_depth):
