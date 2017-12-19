@@ -29,7 +29,12 @@ class number_util(object):
   @classmethod
   def is_int(clazz, x):
     'Return True if x is an int.'
-    if compat.is_int(x):
+    return compat.is_int(x)
+
+  @classmethod
+  def string_is_int(clazz, x):
+    'Return True if x is either an int or a string that can cast to int.'
+    if clazz.is_int(x):
       return True
     if string_util.is_string(x):
       try:
@@ -42,7 +47,7 @@ class number_util(object):
   @classmethod
   def to_int(clazz, x):
     'Return x as an int or None if x is not an int.'
-    if not clazz.is_int(x):
+    if not clazz.string_is_int(x):
       return None
     return int(x)
   

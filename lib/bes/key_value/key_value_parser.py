@@ -18,7 +18,7 @@ class _state(object):
     raise RuntimeError('unhandled handle_token(%c) in state %s' % (self.name))
 
   def change_state(self, new_state, token):
-    self.parser.change_state(new_state, 'token="%s:%s"'  % (token.token_type, token.value))
+    self.parser._change_state(new_state, 'token="%s:%s"'  % (token.token_type, token.value))
 
   def unexpected_token(self, token, expected_label):
     text_blurb = line_numbers.add_line_numbers(self.parser.text)
@@ -74,7 +74,7 @@ class _state_expecting_delimiter(_state):
     elif token.token_type == lexer.TOKEN_SPACE:
       self.unexpected_token(token, 'delimiter')
     elif token.token_type == lexer.TOKEN_PUNCTUATION:
-      if not self.parser.token_is_delimiter(token):
+      if not self.parser._token_is_delimiter(token):
         self.unexpected_token(token, 'delimiter:%s' % (self.parser.delimiter))
       new_state = self.parser.STATE_VALUE
     elif token.token_type == lexer.TOKEN_DONE:
@@ -93,28 +93,28 @@ class _state_value(_state):
     new_state = None
     key_value_result = None
     if token.token_type == lexer.TOKEN_COMMENT:
-      key_value_result = key_value(self.parser.key, self.parser.buffer_value())
+      key_value_result = key_value(self.parser.key, self.parser._buffer_value())
       new_state = self.parser.STATE_DONE
     elif token.token_type == lexer.TOKEN_SPACE:
-      key_value_result = key_value(self.parser.key, self.parser.buffer_value())
+      key_value_result = key_value(self.parser.key, self.parser._buffer_value())
       self.parser._buffer = None
       new_state = self.parser.STATE_EXPECTING_KEY
     elif token.token_type == lexer.TOKEN_PUNCTUATION:
-      if self.parser.token_is_delimiter(token):
+      if self.parser._token_is_delimiter(token):
         self.unexpected_token(token, 'value')
       else:
         if not self.parser._buffer:
-          self.parser.buffer_reset()
-        self.parser.buffer_write(token.value)
+          self.parser._buffer_reset()
+        self.parser._buffer_write(token.value)
       new_state = self.parser.STATE_VALUE
     elif token.token_type == lexer.TOKEN_DONE:
-      key_value_result = key_value(self.parser.key, self.parser.buffer_value())
+      key_value_result = key_value(self.parser.key, self.parser._buffer_value())
       new_state = self.parser.STATE_DONE
     elif token.token_type == lexer.TOKEN_STRING:
 #      key_value_result = key_value(self.parser.key, token.value)
       if not self.parser._buffer:
-        self.parser.buffer_reset()
-      self.parser.buffer_write(token.value)
+        self.parser._buffer_reset()
+      self.parser._buffer_write(token.value)
       new_state = self.parser.STATE_VALUE
     self.change_state(new_state, token)
     return key_value_result
@@ -136,8 +136,8 @@ class key_value_parser(string_lexer_options.CONSTANTS):
     self.state = self.STATE_EXPECTING_KEY
     self.key = None
     
-  def run(self, text):
-    self.log_d('run() text=\"%s\" options=%s)' % (text, str(string_lexer_options(self._options))))
+  def _run(self, text):
+    self.log_d('_run() text=\"%s\" options=%s)' % (text, str(string_lexer_options(self._options))))
     self.text = text
 
     for token in lexer.tokenize(text, 'key_value_lexer', options = self._options):
@@ -147,9 +147,34 @@ class key_value_parser(string_lexer_options.CONSTANTS):
         yield key_value
     assert self.state == self.STATE_DONE
       
+  def _change_state(self, new_state, msg):
+    assert new_state
+    if new_state != self.state:
+      self.log_d('transition: %20s -> %-20s; %s'  % (self.state.__class__.__name__, new_state.__class__.__name__, msg))
+      self.state = new_state
+
+  def _token_is_delimiter(self, token):
+    assert token.token_type == lexer.TOKEN_PUNCTUATION
+    return token.value == self.delimiter
+
+  def _buffer_reset(self, text = None):
+    self._buffer = StringIO()
+    if text:
+      self._buffer_write(text)
+  
+  def _buffer_write(self, text):
+    assert text is not None
+    assert self._buffer
+    self._buffer.write(text)
+
+  def _buffer_value(self):
+    if not self._buffer:
+      return None
+    return self._buffer.getvalue()
+
   @classmethod
   def parse(clazz, text, options = 0, delimiter = '='):
-    return clazz(options, delimiter).run(text)
+    return clazz(options, delimiter)._run(text)
 
   @classmethod
   def parse_to_dict(clazz, text, options = 0):
@@ -164,28 +189,3 @@ class key_value_parser(string_lexer_options.CONSTANTS):
     for kv in clazz.parse(text, options = options):
       result.append(kv)
     return result
-
-  def change_state(self, new_state, msg):
-    assert new_state
-    if new_state != self.state:
-      self.log_d('transition: %20s -> %-20s; %s'  % (self.state.__class__.__name__, new_state.__class__.__name__, msg))
-      self.state = new_state
-
-  def token_is_delimiter(self, token):
-    assert token.token_type == lexer.TOKEN_PUNCTUATION
-    return token.value == self.delimiter
-
-  def buffer_reset(self, text = None):
-    self._buffer = StringIO()
-    if text:
-      self.buffer_write(text)
-  
-  def buffer_write(self, text):
-    assert text is not None
-    assert self._buffer
-    self._buffer.write(text)
-
-  def buffer_value(self):
-    if not self._buffer:
-      return None
-    return self._buffer.getvalue()

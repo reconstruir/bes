@@ -15,7 +15,7 @@ class _state(object):
     raise RuntimeError('unhandled handle_token(%c) in state %s' % (self.name))
 
   def change_state(self, new_state, token):
-    self.parser.change_state(new_state, 'token="%s:%s"'  % (token.token_type, token.value))
+    self.parser._change_state(new_state, 'token="%s:%s"'  % (token.token_type, token.value))
 
   def unexpected_token(self, token):
     raise RuntimeError('unexpected token in %s state: %s' % (self.name, str(token)))
@@ -64,8 +64,8 @@ class string_list_parser(string_lexer_options.CONSTANTS):
     self.STATE_DONE = _state_done(self)
     self.state = self.STATE_EXPECTING_STRING
     
-  def run(self, text):
-    self.log_d('run(%s)' % (text))
+  def _run(self, text):
+    self.log_d('_run(%s)' % (text))
 
     for token in string_lexer.tokenize(text, 'string_list_parser', options = self._options):
       strings = self.state.handle_token(token)
@@ -75,7 +75,7 @@ class string_list_parser(string_lexer_options.CONSTANTS):
         yield s
     assert self.state == self.STATE_DONE
       
-  def change_state(self, new_state, msg):
+  def _change_state(self, new_state, msg):
     assert new_state
     if new_state != self.state:
       self.log_d('transition: %20s -> %-20s; %s'  % (self.state.__class__.__name__, new_state.__class__.__name__, msg))
@@ -83,7 +83,7 @@ class string_list_parser(string_lexer_options.CONSTANTS):
 
   @classmethod
   def parse(clazz, text, options = 0):
-    return clazz(options = options).run(text)
+    return clazz(options = options)._run(text)
 
   @classmethod
   def parse_to_list(clazz, text, options = 0):
