@@ -4,6 +4,7 @@
 from bes.common import node
 from bes.compat import StringIO
 from collections import namedtuple
+from .comments import comments
   
 class stack(object):
 
@@ -49,7 +50,7 @@ class tree_text_parser(object):
     current_indent = None
     for i, line in enumerate(text.split('\n')):
       if strip_comments:
-        line = clazz.strip_comments(line)
+        line = comments.strip_line(line)
       if not line or line.isspace():
         continue
       line_number = i + 1
@@ -76,11 +77,3 @@ class tree_text_parser(object):
       else:
         break
     return count
-
-  @classmethod
-  def strip_comments(clazz, s):
-    i = s.find('#')
-    if i >= 0:
-      return s[0:i]
-    return s
-    

@@ -23,7 +23,7 @@ oct 27
 - gpush doesnt output what it pushes unlike gpull
 
 nov 2
-- testing hierarchy might be too deep
+- bes.testing. hierarchy might be too deep
 - add a archiver test of permissions preservation
 - add a better warning when unit tests are skipped
 
