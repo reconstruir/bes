@@ -41,3 +41,6 @@ node.add_child() should be node.add_child_with_data()
 
 dec 3
 - retire object_util.is_homogenous() and replace with check_type.is_seq()
+
+dec 20
+- decide if enums are case insensitive look at python 3

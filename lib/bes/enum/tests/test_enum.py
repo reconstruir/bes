@@ -84,6 +84,14 @@ class test_enum(unit_test):
     
   def test_parse(self):
     self.assertEqual( fruit('KIWI'), fruit.parse('KIWI') )
+
+  def test_name_is_valid(self):
+    self.assertTrue( fruit.name_is_valid('PEAR') )
+    self.assertFalse( fruit.name_is_valid('NOTTHERE') )
+    
+  def test_value_is_valid(self):
+    self.assertTrue( fruit.value_is_valid(1) )
+    self.assertFalse( fruit.value_is_valid(666) )
     
   def test_size(self):
     class cheese(enum):

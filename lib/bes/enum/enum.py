@@ -51,11 +51,11 @@ class enum(with_metaclass(_enum_meta_class, object)):
     
   @classmethod
   def value_is_valid(clazz, value):
-    return self._ENUM.value_is_valid(value)
+    return clazz._ENUM.value_is_valid(value)
 
   @classmethod
   def name_is_valid(clazz, name):
-    return self._ENUM.name_is_valid(name)
+    return clazz._ENUM.name_is_valid(name)
 
   def assign(self, what):
     if isinstance(what, self.__class__):
