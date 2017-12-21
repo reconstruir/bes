@@ -126,5 +126,11 @@ class test_enum(unit_test):
     with self.assertRaises(ValueError) as _:
       check_type.check_bar3(666, 'value')
     
+  def test_check_type_string_cast(self):
+    class bar4(enum):
+      A = 1
+      B = 2
+    check_type.check_bar4('A', 'value')
+
 if __name__ == '__main__':
   unit_test.main()

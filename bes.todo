@@ -44,3 +44,6 @@ dec 3
 
 dec 20
 - decide if enums are case insensitive look at python 3
+
+dec 21
+- maybe change check_type to just check

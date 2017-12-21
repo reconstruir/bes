@@ -26,7 +26,7 @@ class _enum_meta_class(type):
 
   @staticmethod
   def _check_cast_func(clazz, obj):
-    if isinstance(obj, compat.INTEGER_TYPES):
+    if compat.is_int(obj) or compat.is_string(obj):
       return clazz(obj)
     return obj
 
