@@ -57,6 +57,14 @@ class enum(with_metaclass(_enum_meta_class, object)):
   def name_is_valid(clazz, name):
     return clazz._ENUM.name_is_valid(name)
 
+  @classmethod
+  def value_to_name(clazz, value):
+    return clazz._ENUM.value_to_name(value)
+  
+  @classmethod
+  def name_to_value(clazz, name):
+    return clazz._ENUM.name_to_value(name)
+  
   def assign(self, what):
     if isinstance(what, self.__class__):
       self.value = what.value
