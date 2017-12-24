@@ -47,3 +47,5 @@ dec 20
 
 dec 21
 - maybe change check_type to just check
+- check_type.is_string_list -> check_type.is_string_seq
+- check_type.check_string_list -> check_type.check_string_seq

@@ -138,7 +138,7 @@ class check_type(object):
       return isinstance(obj, self.object_type)
     
   class _is_seq_helper(object):
-    'Helper class to make check_type.is_foo_list() methods work.'
+    'Helper class to make check_type.is_foo_seq() methods work.'
     def __init__(self, clazz, method_name, object_type):
       self.object_type = object_type
       setattr(clazz, method_name, self)

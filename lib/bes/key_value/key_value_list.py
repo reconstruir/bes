@@ -159,5 +159,15 @@ class key_value_list(string_lexer_options.CONSTANTS):
     for next_kv in self._values:
       result[next_kv.key] = next_kv.value
     return result
+
+  @classmethod
+  def from_dict(clazz, d):
+    check_type.check_dict(d, 'd')
+    result = clazz()
+    for key, value in sorted(d.items()):
+      check_type.check_string(key, 'key')
+      result.append(key_value(key, value))
+    return result
+  
 check_type.register_class(key_value_list, include_seq = False)
 

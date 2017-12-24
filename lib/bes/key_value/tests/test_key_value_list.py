@@ -173,5 +173,8 @@ class test_key_value_list(unit_test):
     l2.append(KV('foo', 668))
     self.assertEqual( False, l2.is_homogeneous(compat.STRING_TYPES, compat.INTEGER_TYPES) )
     
+  def test_from_dict(self):
+    self.assertEqual( KVL([ KV('a', 5), KV('b', 6) ]), KVL.from_dict({ 'a': 5, 'b': 6 }) )
+    
 if __name__ == "__main__":
   unit_test.main()
