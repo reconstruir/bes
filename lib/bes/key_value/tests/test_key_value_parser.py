@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import unittest
 from bes.key_value import key_value_parser as P
 from bes.key_value import key_value as KV
@@ -8,23 +8,23 @@ from bes.key_value import key_value as KV
 class test_key_value_parser(unittest.TestCase):
 
   def test_empty(self):
-    self.assertEqual( [ ], self.__parse('') )
+    self.assertEqual( [ ], self._parse('') )
     
   def test_parse_key_values(self):
-    self.assertEqual( [ KV('foo', '123'), KV('bar', 'hello') ], self.__parse('foo=123  bar=hello') )
-    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self.__parse('foo=\"1 2 3\" bar=hello') )
-    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self.__parse(' foo=\"1 2 3\" bar=hello ') )
-    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self.__parse(' foo=\"1 2 3\" bar=hello ') )
-    self.assertEqual( [ KV('f oo', '1 2 3'), KV('bar', 'hello') ], self.__parse(' f\ oo=\"1 2 3\" bar=hello ') )
-    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self.__parse(' foo=1\ 2\ 3 bar=hello ') )
+    self.assertEqual( [ KV('foo', '123'), KV('bar', 'hello') ], self._parse('foo=123  bar=hello') )
+    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse('foo=\"1 2 3\" bar=hello') )
+    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(' foo=\"1 2 3\" bar=hello ') )
+    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(' foo=\"1 2 3\" bar=hello ') )
+    self.assertEqual( [ KV('f oo', '1 2 3'), KV('bar', 'hello') ], self._parse(' f\ oo=\"1 2 3\" bar=hello ') )
+    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(' foo=1\ 2\ 3 bar=hello ') )
 
   def test_empty_value(self):
     self.maxDiff = None
-    self.assertEqual( [ KV('foo', None) ], self.__parse('foo=') )
-    self.assertEqual( [ KV('foo', None) ], self.__parse('foo= ') )
-    self.assertEqual( [ KV('foo', None) ], self.__parse(' foo= ') )
-    self.assertEqual( [ KV('foo', None), KV('bar', None) ], self.__parse('foo= bar=') )
-    self.assertEqual( [ KV('foo', None), KV('bar', None) ], self.__parse('foo=    bar=') )
+    self.assertEqual( [ KV('foo', None) ], self._parse('foo=') )
+    self.assertEqual( [ KV('foo', None) ], self._parse('foo= ') )
+    self.assertEqual( [ KV('foo', None) ], self._parse(' foo= ') )
+    self.assertEqual( [ KV('foo', None), KV('bar', None) ], self._parse('foo= bar=') )
+    self.assertEqual( [ KV('foo', None), KV('bar', None) ], self._parse('foo=    bar=') )
 
   def test_more(self):
     self.assertEqual( { 'foo': '123', 'bar': 'hello' }, P.parse_to_dict('foo=123\t\nbar=hello') )
@@ -76,10 +76,10 @@ class test_key_value_parser(unittest.TestCase):
     self.assertEqual( { 'foo': 'a #b c' }, P.parse_to_dict('foo=\'a #b c\'') )
     
   @classmethod
-  def __parse(self, text,
-              keep_quotes = False,
-              escape_quotes = False,
-              ignore_comments = False):
+  def _parse(self, text,
+             keep_quotes = False,
+             escape_quotes = False,
+             ignore_comments = False):
     options = 0
     if keep_quotes:
       options |= P.KEEP_QUOTES
