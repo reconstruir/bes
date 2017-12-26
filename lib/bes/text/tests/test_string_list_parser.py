@@ -22,6 +22,9 @@ class test_string_list_parser(unittest.TestCase):
     self.assertEqual( [ '-DNAME="foo bar"' ], self.__parse('-DNAME="foo bar"', keep_quotes = True) )
     self.assertEqual( [ '-DNAME=\\"foo bar\\"' ], self.__parse('-DNAME="foo bar"', keep_quotes = True, escape_quotes = True) )
 
+  def test_comment_in_quote(self):
+    self.assertEqual( [ '"foo #bar"', '"kiwi #apple"' ], self.__parse('"foo #bar" "kiwi #apple"', keep_quotes = True) )
+    
   @classmethod
   def __parse(self, text,
               keep_quotes = False,

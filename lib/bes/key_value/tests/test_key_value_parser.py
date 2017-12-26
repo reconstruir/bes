@@ -70,7 +70,10 @@ class test_key_value_parser(unittest.TestCase):
     self.assertEqual( { 'foo': None }, P.parse_to_dict('foo=', options = P.KEEP_QUOTES) )
     self.assertEqual( { 'foo': 'bar:"a b"' }, P.parse_to_dict(r'foo=bar\:"a b"', options = P.KEEP_QUOTES) )
     self.assertEqual( { 'foo': 'bar:\\"a b\\"' }, P.parse_to_dict(r'foo=bar\:"a b"', options = P.KEEP_QUOTES | P.ESCAPE_QUOTES) )
-    pass
+
+  def test_comment_in_quote(self):
+    self.assertEqual( { 'foo': 'a #b c' }, P.parse_to_dict('foo="a #b c"') )
+    self.assertEqual( { 'foo': 'a #b c' }, P.parse_to_dict('foo=\'a #b c\'') )
     
   @classmethod
   def __parse(self, text,
