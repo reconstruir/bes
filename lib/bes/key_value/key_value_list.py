@@ -5,7 +5,7 @@ import copy
 from bes.compat import StringIO
 from .key_value_parser import key_value_parser
 from .key_value import key_value
-from bes.common import check_type, object_util
+from bes.common import check_type, object_util, string_util
 from bes.text import string_lexer_options
 
 class key_value_list(string_lexer_options.CONSTANTS):
@@ -168,6 +168,16 @@ class key_value_list(string_lexer_options.CONSTANTS):
       check_type.check_string(key, 'key')
       result.append(key_value(key, value))
     return result
+
+  def quote_strings(self):
+    for i, kv in enumerate(self._values):
+      if string_util.is_string(kv.value):
+        self._values[i] = key_value(kv.key, string_util.quote(kv.value))
+  
+  def unquote_strings(self):
+    for i, kv in enumerate(self._values):
+      if string_util.is_string(kv.value):
+        self._values[i] = key_value(kv.key, string_util.unquote(kv.value))
   
 check_type.register_class(key_value_list, include_seq = False)
 
