@@ -162,6 +162,10 @@ class test_string_lexer(unittest.TestCase):
                         TDONE(y = 5) ],
                       self._tokenize('a=5\nb=6\n\nc=7\n') )
 
+  def test_ignore_comments(self):
+    self.assertEqual( [ TSTRING('foo'), TSPACE(), TSTRING('#bar'), TDONE() ],
+                      self._tokenize('foo #bar', ignore_comments = True) )
+    
   @classmethod
   def _tokenize(self, text, delimiter = '=',
                  keep_quotes = False,
