@@ -75,6 +75,9 @@ class test_key_value_parser(unittest.TestCase):
     self.assertEqual( { 'foo': 'a #b c' }, P.parse_to_dict('foo="a #b c"') )
     self.assertEqual( { 'foo': 'a #b c' }, P.parse_to_dict('foo=\'a #b c\'') )
     
+  def test_ignore_comments(self):
+    self.assertEqual( [ KV('foo', '#bar'), KV('fruit', '#orange') ] , self._parse('foo=#bar fruit=#orange', ignore_comments = True) )
+    
   @classmethod
   def _parse(self, text,
              keep_quotes = False,

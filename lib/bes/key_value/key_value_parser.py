@@ -135,7 +135,7 @@ class key_value_parser(string_lexer_options.CONSTANTS):
     self.STATE_DONE = _state_done(self)
     self.state = self.STATE_EXPECTING_KEY
     self.key = None
-    
+
   def _run(self, text):
     self.log_d('_run() text=\"%s\" options=%s)' % (text, str(string_lexer_options(self._options))))
     self.text = text

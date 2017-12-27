@@ -25,6 +25,12 @@ class test_string_list_parser(unittest.TestCase):
   def test_comment_in_quote(self):
     self.assertEqual( [ '"foo #bar"', '"kiwi #apple"' ], self._parse('"foo #bar" "kiwi #apple"', keep_quotes = True) )
     
+  def test_comment(self):
+    self.assertEqual( [], self._parse('#comment') )
+    
+  def test_ignore_comments(self):
+    self.assertEqual( ['#foo', '#bar' ], self._parse('#foo  #bar', ignore_comments = True) )
+    
   @classmethod
   def _parse(self, text,
              keep_quotes = False,

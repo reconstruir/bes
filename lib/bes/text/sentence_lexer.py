@@ -19,7 +19,7 @@ class _state_begin(string_lexer_state):
     elif c.isspace():
       self.lexer.buffer_reset(c)
       new_state = self.lexer.STATE_SPACE
-    elif c == self.lexer.COMMENT_CHAR:
+    elif c == self.lexer.COMMENT_CHAR and not self.lexer.ignore_comments:
       self.lexer.buffer_reset(c)
       new_state = self.lexer.STATE_COMMENT
     elif c == self.lexer.EOS:
@@ -51,7 +51,7 @@ class _state_space(string_lexer_state):
     if c.isspace():
       self.lexer.buffer_write(c)
       new_state = self.lexer.STATE_SPACE
-    elif not self.lexer.is_escaping and c == self.lexer.COMMENT_CHAR:
+    elif not self.lexer.is_escaping and (c == self.lexer.COMMENT_CHAR and not self.lexer.ignore_comments):
       tokens.append(self.lexer.make_token_space())
       self.lexer.buffer_reset(c)
       new_state = self.lexer.STATE_COMMENT
@@ -97,7 +97,7 @@ class _state_string(string_lexer_state):
       tokens.append(self.lexer.make_token_string())
       self.lexer.buffer_reset(c)
       new_state = self.lexer.STATE_SPACE
-    elif c == self.lexer.COMMENT_CHAR:
+    elif c == self.lexer.COMMENT_CHAR and not self.lexer.ignore_comments:
       tokens.append(self.lexer.make_token_string())
       self.lexer.buffer_reset(c)
       new_state = self.lexer.STATE_COMMENT

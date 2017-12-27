@@ -49,7 +49,7 @@ class _state_done(_state):
 
   def handle_token(self, token):
     self.log_d('handle_token(%s)' % (str(token)))
-    if token.token_type != string_lexer.DONE:
+    if token.token_type != string_lexer.TOKEN_DONE:
       self.unexpected_token(token)
     self.change_state(self.parser.STATE_DONE, token)
     return []
@@ -63,7 +63,7 @@ class string_list_parser(string_lexer_options.CONSTANTS):
     self.STATE_EXPECTING_STRING = _state_expecting_string(self)
     self.STATE_DONE = _state_done(self)
     self.state = self.STATE_EXPECTING_STRING
-    
+
   def _run(self, text):
     self.log_d('_run(%s)' % (text))
 

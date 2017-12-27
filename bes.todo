@@ -49,3 +49,7 @@ dec 21
 - maybe change check_type to just check
 - check_type.is_string_list -> check_type.is_string_seq
 - check_type.check_string_list -> check_type.check_string_seq
+
+dec 26
+- section and section_parser appear to be unused
+- also recipe_section and recipe_section_parser unused
