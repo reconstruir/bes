@@ -51,7 +51,7 @@ class check_type(object):
 
   @classmethod
   def check_string_list(clazz, o, name):
-    return clazz._check_homogeneous(o, compat.STRING_TYPES, name, 2)
+    return clazz.check_seq(o, compat.STRING_TYPES, name, 2)
 
   @classmethod
   def check_int(clazz, o, name):
@@ -88,7 +88,7 @@ class check_type(object):
                                                                                          path.abspath(filename),
                                                                                          line_number))
   @classmethod
-  def _check_homogeneous(clazz, o, t, name, depth, type_blurb = None):
+  def check_seq(clazz, o, t, name, depth, type_blurb = None):
     try:
       it = enumerate(o)
     except:
@@ -136,6 +136,22 @@ class check_type(object):
       assert len(args) == 1
       obj = args[0]
       return isinstance(obj, self.object_type)
+    
+  class _check_seq_helper(object):
+    'Helper class to make check_type.check_foo_seq() methods work.'
+    def __init__(self, clazz, method_name, object_type):
+      self.object_type = object_type
+      self.cast_func = cast_func
+      setattr(clazz, method_name, self)
+
+    def __call__(self, *args, **kwargs):
+      assert len(args) == 2
+      obj = args[0]
+      if self.cast_func:
+        obj = self.cast_func(self.object_type, obj)
+      name = args[1]
+      type_blurb = kwargs.get('type_blurb', None)
+      check_type._check(obj, self.object_type, name, 2, type_blurb = type_blurb)
     
   class _is_seq_helper(object):
     'Helper class to make check_type.is_foo_seq() methods work.'

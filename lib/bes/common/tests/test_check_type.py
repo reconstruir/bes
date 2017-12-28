@@ -56,5 +56,11 @@ class test_check_type(unit_test):
     with self.assertRaises(AttributeError) as context:
       self.assertTrue( C.is_apple_seq([ apple(), apple() ]) )
 
+  def test_is_seq_without_reigstration(self):
+    self.assertTrue( C.is_seq([ 1, 2, 3, 4 ], int) )
+    self.assertFalse( C.is_seq([ '1', 2, 3, 4 ], int ) )
+    self.assertTrue( C.is_seq([ '1', 2, 3, 4 ], ( int, str )) )
+    self.assertFalse( C.is_seq(False, bool) )
+      
 if __name__ == '__main__':
   unit_test.main()
