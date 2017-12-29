@@ -54,3 +54,7 @@ dec 26
 - section and section_parser appear to be unused
 - also recipe_section and recipe_section_parser unused
 - verify_key_value_list and is_key_value_list might not be needed
+
+dec 29
+- change check.py __call__ methods to do more sanity checking on args and raise appropiate exceptions
+
