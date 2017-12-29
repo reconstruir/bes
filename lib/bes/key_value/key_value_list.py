@@ -5,7 +5,7 @@ import copy
 from bes.compat import StringIO
 from .key_value_parser import key_value_parser
 from .key_value import key_value
-from bes.common import check_type, object_util, string_util
+from bes.common import check, object_util, string_util
 from bes.text import string_lexer_options
 
 class key_value_list(string_lexer_options.CONSTANTS):
@@ -162,10 +162,10 @@ class key_value_list(string_lexer_options.CONSTANTS):
 
   @classmethod
   def from_dict(clazz, d):
-    check_type.check_dict(d, 'd')
+    check.check_dict(d, 'd')
     result = clazz()
     for key, value in sorted(d.items()):
-      check_type.check_string(key, 'key')
+      check.check_string(key, 'key')
       result.append(key_value(key, value))
     return result
 
@@ -179,5 +179,5 @@ class key_value_list(string_lexer_options.CONSTANTS):
       if string_util.is_string(kv.value):
         self._values[i] = key_value(kv.key, string_util.unquote(kv.value))
   
-check_type.register_class(key_value_list, include_seq = False)
+check.register_class(key_value_list, include_seq = False)
 

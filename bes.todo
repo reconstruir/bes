@@ -32,23 +32,23 @@ nov 8
 - maybe use TestLoader.discover() instead of custom discovery
 
 nov 20
-- add check_type support for custom list types like key_value_list
+- add check support for custom list types like key_value_list
 
 nov 23
-- check_type for flag_enum
+- check for flag_enum
 
 node.add_child() should be node.add_child_with_data()
 
 dec 3
-- retire object_util.is_homogenous() and replace with check_type.is_seq()
+- retire object_util.is_homogenous() and replace with check.is_seq()
 
 dec 20
 - decide if enums are case insensitive look at python 3
 
 dec 21
-- maybe change check_type to just check
-- check_type.is_string_list -> check_type.is_string_seq
-- check_type.check_string_list -> check_type.check_string_seq
+- maybe change check to just check
+- check.is_string_list -> check.is_string_seq
+- check.check_string_list -> check.check_string_seq
 
 dec 26
 - section and section_parser appear to be unused

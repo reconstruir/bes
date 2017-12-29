@@ -4,7 +4,7 @@
 import codecs
 
 from .bitwise_unpack import bitwise_unpack
-from bes.common import check_type
+from bes.common import check
 
 class bitwise_io(object):
 
@@ -51,7 +51,7 @@ class bitwise_io(object):
     return self.read_bits(8, slices)
 
   def write_bytes(self, data, num_bytes):
-    check_type.check_int(num_bytes, 'num_bytes')
+    check.check_int(num_bytes, 'num_bytes')
     if len(data) < num_bytes:
       raise ValueError('data should be at least %d bytes long instead of %d' % (num_bytes, len(data)))
     self._stream.write(data[0:num_bytes])

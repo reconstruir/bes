@@ -3,7 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 from bes.enum import enum
-from bes.common import check_type
+from bes.common import check
 
 class fruit(enum):
   SIZE = 1
@@ -107,30 +107,30 @@ class test_enum(unit_test):
       B = 2
     self.assertEqual( 1, foo.SIZE )
     
-  def test_check_type(self):
+  def test_check(self):
     class bar1(enum):
       A = 1
       B = 2
-    check_type.check_bar1(bar1(2), 'value')
+    check.check_bar1(bar1(2), 'value')
 
-  def test_check_type_int_cast(self):
+  def test_check_int_cast(self):
     class bar2(enum):
       A = 1
       B = 2
-    check_type.check_bar2(2, 'value')
+    check.check_bar2(2, 'value')
 
-  def test_check_type_invalid_value(self):
+  def test_check_invalid_value(self):
     class bar3(enum):
       A = 1
       B = 2
     with self.assertRaises(ValueError) as _:
-      check_type.check_bar3(666, 'value')
+      check.check_bar3(666, 'value')
     
-  def test_check_type_string_cast(self):
+  def test_check_string_cast(self):
     class bar4(enum):
       A = 1
       B = 2
-    check_type.check_bar4('A', 'value')
+    check.check_bar4('A', 'value')
 
 if __name__ == '__main__':
   unit_test.main()

@@ -5,7 +5,7 @@ import re, sys
 
 from bes.compat import StringIO
 from bes.system import compat
-from .check_type import check_type
+from .check import check
 
 class string_util(object):
   'String util'
@@ -65,8 +65,8 @@ class string_util(object):
   @classmethod
   def replace(clazz, s, replacements, word_boundary = True):
     'Replace all instances of dict d in string s.'
-    check_type.check_string(s, 's')
-    check_type.check_dict(replacements, 'replacements')
+    check.check_string(s, 's')
+    check.check_dict(replacements, 'replacements')
     assert clazz.is_string(s)
     for key, value in replacements.items():
       assert key

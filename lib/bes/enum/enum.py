@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .enum_loader import enum_loader
-from bes.common import check_type, string_util
+from bes.common import check, string_util
 from bes.system import compat
 from bes.system.compat import with_metaclass
 
@@ -16,7 +16,7 @@ class _enum_meta_class(type):
     e = enum_loader.load(clazz)
     if e:
       clazz._ENUM = e
-      check_type.register_class(clazz, name = name, cast_func = _enum_meta_class._check_cast_func)
+      check.register_class(clazz, name = name, cast_func = _enum_meta_class._check_cast_func)
       class constants(object):
         pass
       for n in clazz._ENUM.name_values:

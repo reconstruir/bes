@@ -3,7 +3,7 @@
 
 import codecs
 import os.path as path, os, platform, shutil, tempfile
-from bes.common import check_type, object_util, Shell, string_util
+from bes.common import check, object_util, Shell, string_util
 from bes.system import compat, log
 
 from collections import namedtuple
