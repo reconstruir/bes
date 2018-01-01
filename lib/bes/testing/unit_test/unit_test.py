@@ -35,7 +35,7 @@ class unit_test(unittest.TestCase):
     self.maxDiff = None
     s1 = re.sub('\s+', ' ', s1)
     s2 = re.sub('\s+', ' ', s2)
-    self.assertEqual( s1, s2 )
+    self.assertMultiLineEqual( s1, s2 )
 
   def assert_string_equal_strip(self, s1, s2):
     self.maxDiff = None
