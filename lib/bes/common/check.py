@@ -27,6 +27,10 @@ class check(object):
     return isinstance(o, dict)
 
   @classmethod
+  def is_set(clazz, o):
+    return isinstance(o, set)
+
+  @classmethod
   def is_class(clazz, o):
     return isinstance(o, compat.CLASS_TYPES)
 
@@ -64,6 +68,10 @@ class check(object):
   @classmethod
   def check_dict(clazz, o, name):
     return clazz._check(o, dict, name, 2)
+
+  @classmethod
+  def check_set(clazz, o, name):
+    return clazz._check(o, set, name, 2)
 
   @classmethod
   def check_list(clazz, o, name):
