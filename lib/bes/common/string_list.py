@@ -3,7 +3,6 @@
 
 from bes.system import compat
 from bes.compat import StringIO
-from .object_util import object_util
 from .string_util import string_util
 
 class string_list(object):
@@ -18,11 +17,6 @@ class string_list(object):
       if x not in blacklist_set:
         result.append(x)
     return result
-
-  @classmethod
-  def is_string_list(clazz, l):
-    'Return True if l is a homogenous string list.'
-    return object_util.is_homogeneous(l, compat.STRING_TYPES)
 
   @classmethod
   def to_string(clazz, l, delimiter = ';', quote = False):

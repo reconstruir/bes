@@ -17,11 +17,11 @@ class test_check(unit_test):
     with self.assertRaises(TypeError) as context:
       C.check_string(6, 'n')
 
-  def test_string_list(self):
-    C.check_string_list(['x'], 'n')
+  def test_string_seq(self):
+    C.check_string_seq(['x'], 'n')
 
     with self.assertRaises(TypeError) as context:
-      C.check_string_list(6, 'n')
+      C.check_string_seq(6, 'n')
       C.check_string(6, 'n')
 
   def test_register_class(self):

@@ -11,7 +11,7 @@ class check(object):
     return isinstance(o, compat.STRING_TYPES)
 
   @classmethod
-  def is_string_list(clazz, o):
+  def is_string_seq(clazz, o):
     return clazz.is_seq(o, compat.STRING_TYPES)
 
   @classmethod
@@ -50,7 +50,7 @@ class check(object):
     return clazz._check(o, compat.STRING_TYPES, name, 2)
 
   @classmethod
-  def check_string_list(clazz, o, name):
+  def check_string_seq(clazz, o, name):
     return clazz._check_seq(o, compat.STRING_TYPES, name, 2)
 
   @classmethod

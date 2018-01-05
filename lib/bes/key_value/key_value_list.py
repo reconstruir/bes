@@ -180,4 +180,3 @@ class key_value_list(string_lexer_options.CONSTANTS):
         self._values[i] = key_value(kv.key, string_util.unquote(kv.value))
   
 check.register_class(key_value_list, include_seq = False)
-
