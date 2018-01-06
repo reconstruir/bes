@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 from bes.testing.unit_test import unit_test
 from bes.common import check as C
+from bes.system import compat
 
 class test_check(unit_test):
 
@@ -72,6 +73,21 @@ class test_check(unit_test):
     C.register_class(potato, 'potato', include_seq = False)
     with self.assertRaises(AttributeError) as context:
       C.check_potato_seq([ potato(), potato() ], 'n')
+      
+  def test_check_dict(self):
+    C.check_dict({ 'a': 5 }, 'n')
+    with self.assertRaises(TypeError) as context:
+      C.check_dict(True, 'n')
+      
+  def test_check_dict_and_key(self):
+    C.check_dict({ 'a': 5, 'b': 6 }, 'n', key_type = compat.STRING_TYPES)
+    with self.assertRaises(TypeError) as context:
+      C.check_dict({ 'a': 5, 6: 'b' }, 'n', key_type = compat.STRING_TYPES)
+      
+  def test_check_dict_and_value(self):
+    C.check_dict({ 'a': 5, 'b': 6 }, 'n', value_type = compat.INTEGER_TYPES)
+    with self.assertRaises(TypeError) as context:
+      C.check_dict({ 'a': 5, 6: 'b' }, 'n', value_type = compat.INTEGER_TYPES)
       
 if __name__ == '__main__':
   unit_test.main()

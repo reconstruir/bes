@@ -36,7 +36,7 @@ class check(object):
 
   @classmethod
   def is_seq(clazz, o, t):
-    'Return True if l is iterable and all its items are of a given type.'
+    'Return True if l is iterable and all its entries are of a given type.'
     try:
       for x in iter(o):
         if not isinstance(x, t):
@@ -47,39 +47,49 @@ class check(object):
   
   @classmethod
   def check(clazz, o, t, name):
-    return clazz._check(o, t, name, 2)
+    clazz._check(o, t, name, 2)
   
   @classmethod
   def check_string(clazz, o, name):
-    return clazz._check(o, compat.STRING_TYPES, name, 2)
+    clazz._check(o, compat.STRING_TYPES, name, 2)
 
   @classmethod
   def check_string_seq(clazz, o, name):
-    return clazz._check_seq(o, compat.STRING_TYPES, name, 2)
+    clazz._check_seq(o, compat.STRING_TYPES, name, 2)
 
   @classmethod
   def check_int(clazz, o, name):
-    return clazz._check(o, compat.INTEGER_TYPES, name, 2)
+    clazz._check(o, compat.INTEGER_TYPES, name, 2)
 
   @classmethod
   def check_bool(clazz, o, name):
-    return clazz._check(o, bool, name, 2)
+    clazz._check(o, bool, name, 2)
 
   @classmethod
-  def check_dict(clazz, o, name):
-    return clazz._check(o, dict, name, 2)
+  def check_dict(clazz, o, name, key_type = None, value_type = None):
+    clazz._check(o, dict, name, 2)
+    if key_type or value_type:
+      for key, value in o.items():
+        if key_type:
+          clazz._check(key, key_type, name + '-key', 2)
+        if value_type:
+          clazz._check(value, value_type, name + '-value', 2)
 
   @classmethod
-  def check_set(clazz, o, name):
-    return clazz._check(o, set, name, 2)
+  def check_set(clazz, o, name, entry_type = None):
+    clazz._check(o, set, name, 2)
+    if entry_type:
+      clazz._check_seq(o, entry_type, name + '-entry', 2)
 
   @classmethod
-  def check_list(clazz, o, name):
-    return clazz._check(o, list, name, 2)
+  def check_list(clazz, o, name, entry_type = None):
+    clazz._check(o, list, name, 2)
+    if entry_type:
+      clazz._check_seq(o, entry_type, name + '-entry', 2)
 
   @classmethod
   def check_class(clazz, o, name):
-    return clazz._check(o, compat.CLASS_TYPES, name, 2)
+    clazz._check(o, compat.CLASS_TYPES, name, 2)
 
   @classmethod
   def _check(clazz, o, t, name, depth, type_blurb = None):
@@ -105,8 +115,8 @@ class check(object):
       it = enumerate(o)
     except:
       raise TypeError('t should be iterable instead of \"%s\"' % (str(t)))
-    for index, item in it:
-      clazz._check(item, t, name, depth + 1, type_blurb = type_blurb)
+    for index, entry in it:
+      clazz._check(entry, t, name, depth + 1, type_blurb = type_blurb)
 
   @classmethod
   def _make_type_blurb(clazz, t):
