@@ -16,7 +16,7 @@ from .object_util import object_util
 from .point import point
 from .read_only_dict import read_only_dict
 from .size import size
-from .string_list import string_list
+from .string_list_util import string_list_util
 from .string_util import string_util
 from .table import table
 from .time_util import time_util

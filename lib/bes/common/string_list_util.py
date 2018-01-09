@@ -5,7 +5,7 @@ from bes.system import compat
 from bes.compat import StringIO
 from .string_util import string_util
 
-class string_list(object):
+class string_list_util(object):
   'string list helpers'
 
   @classmethod
