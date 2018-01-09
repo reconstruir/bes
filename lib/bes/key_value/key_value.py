@@ -3,7 +3,7 @@
 
 from collections import namedtuple
 from bes.compat import StringIO
-from bes.common import string_util
+from bes.common import check, string_util
 
 class key_value(namedtuple('key_value', 'key,value')):
 
@@ -37,3 +37,5 @@ class key_value(namedtuple('key_value', 'key,value')):
     if actual_delimiter != delimiter:
       raise ValueError('invalid key value: %s' % (text))
     return clazz(key.strip(), value.strip())
+
+check.register_class(key_value, include_seq = False)

@@ -70,6 +70,10 @@ class check(object):
     clazz._check(o, bool, name, 2)
 
   @classmethod
+  def check_tuple(clazz, o, name):
+    clazz._check(o, tuple, name, 2)
+
+  @classmethod
   def check_dict(clazz, o, name, key_type = None, value_type = None):
     clazz._check(o, dict, name, 2)
     if key_type or value_type:

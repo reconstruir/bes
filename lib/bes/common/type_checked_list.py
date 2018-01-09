@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import itertools
-from bes.compat import cmp, StringIO
+from bes.compat import cmp, zip, StringIO
 from bes.common import check
 
 
@@ -13,12 +13,17 @@ class type_checked_list(object):
     self._entry_type = entry_type
     self._assign(values)
 
+  @classmethod
+  def cast_entry(clazz, entry):
+    return entry
+    
   def __repr__(self):
     return repr(self._values)
     
   def _assign(self, values):
     self._values = []
     for v in values or []:
+      v = self.cast_entry(v)
       check.check(v, self._entry_type, 'v')
       self._values.append(v)
 
@@ -28,7 +33,7 @@ class type_checked_list(object):
     if len_cmp != 0:
       return len_cmp
     other_values = self._get_values(other)
-    for a, b in itertools.izip(self._values, other_values):
+    for a, b in zip(self._values, other_values):
       next_cmp = cmp(a, b)
       if next_cmp != 0:
         return next_cmp

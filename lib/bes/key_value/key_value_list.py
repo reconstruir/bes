@@ -1,25 +1,34 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import copy
 from bes.compat import StringIO
 from .key_value_parser import key_value_parser
 from .key_value import key_value
-from bes.common import check, object_util, string_util
+from bes.common import check, object_util, string_util, type_checked_list
 from bes.text import string_lexer_options
 
-class key_value_list(string_lexer_options.CONSTANTS):
+class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
 
   def __init__(self, values = None):
-    self._assign(values)
+    super(key_value_list, self).__init__(key_value, values = values)
 
-  def _assign(self, values):
-    self._values = []
-    for v in values or []:
-      if not isinstance(v, key_value):
-        v = key_value(*v)
-      self._values.append(v)
+  @classmethod
+  def cast_entry(clazz, entry):
+    if isinstance(entry, tuple):
+      return key_value(*entry)
+    return entry
 
+  def __contains__(self, v):
+    if check.is_string(v):
+      return self.contains_key(v)
+    return super(key_value_list, self).__contains__(v)
+  
+  def contains_key(self, key):
+    for v in self._values:
+      if v.key == key:
+        return True
+    return False
+  
   def to_string(self, delimiter = '=', value_delimiter = ';', quote = False):
     buf = StringIO()
     first = True
@@ -33,77 +42,8 @@ class key_value_list(string_lexer_options.CONSTANTS):
   def __str__(self):
     return self.to_string()
 
-  def __eq__(self, other):
-    if isinstance(other, key_value_list):
-      return self._values == other._values
-    elif isinstance(other, list):
-      return self._values == other
-    else:
-      raise TypeError('other should be of key_value_list type instead of %s' % (type(other)))
-
-  def __ne__(self, other):
-    return self._values != other._values
-
-  def __lt__(self, other):
-    return self._values < other._values
-
-  def __le__(self, other):
-    return self._values <= other._values
-
-  def __gt__(self, other):
-    return self._values > other._values
-
-  def __ge__(self, other):
-    return self._values >= other._values
-    
-  def __len__(self):
-    return len(self._values)
-
-  def __iter__(self):
-    return iter(self._values)
-
-  def __getitem__(self, i):
-    return self._values[i]
-  
-  def __setitem__(self, i, kv):
-    if not isinstance(kv, key_value):
-      raise TypeError('kv should be of key_value type instead of %s' % (type(kv)))
-    self._values[i] = kv
-
-  def __contains__(self, what):
-    if isinstance(what, key_value):
-      return what in self._values
-    for kv in self._values:
-      if kv.key == what:
-        return True
-    return False
-    
-  def __add__(self, other):
-    if not isinstance(other, key_value_list):
-      raise TypeError('other should be of key_value_list type instead of %s' % (type(other)))
-    result = key_value_list()
-    result._values = copy.deepcopy(self._values)
-    result._values.extend(copy.deepcopy(other._values))
-    return result
-    
-  def extend(self, other):
-    if not isinstance(other, key_value_list):
-      raise TypeError('other should be of key_value_list type instead of %s' % (type(other)))
-    self._values.extend(other)
-
-  def append(self, kv):
-    if not isinstance(kv, key_value):
-      raise TypeError('kv should be of key_value type instead of %s' % (type(kv)))
-    self._values.append(kv)
-
-  def remove(self, kv):
-    if not isinstance(kv, key_value):
-      raise TypeError('kv should be of key_value type instead of %s' % (type(kv)))
-    self._values.remove(kv)
-
   def find_key_value(self, kv):
-    if not isinstance(kv, key_value):
-      raise TypeError('kv should be of key_value type instead of %s' % (type(kv)))
+    check.check_key_value(kv, 'kv')
     for next_kv in self._values:
       if next_kv == kv:
         return next_kv
@@ -127,6 +67,7 @@ class key_value_list(string_lexer_options.CONSTANTS):
 
   @classmethod
   def parse(clazz, text, options = 0):
+    check.check_string(text, 'text')
     result = clazz()
     for kv in key_value_parser.parse(text, options = options):
       result.append(kv)
