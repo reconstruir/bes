@@ -21,4 +21,5 @@ from .string_util import string_util
 from .table import table
 from .time_util import time_util
 from .tuple_util import tuple_util
+from .type_checked_list import type_checked_list
 from .variable import variable

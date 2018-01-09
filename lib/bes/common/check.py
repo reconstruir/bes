@@ -6,17 +6,21 @@ from bes.system import compat
 
 class check(object):
 
+  STRING_TYPES = compat.STRING_TYPES
+  INTEGER_TYPES = compat.INTEGER_TYPES
+  CLASS_TYPES = compat.CLASS_TYPES
+  
   @classmethod
   def is_string(clazz, o):
-    return isinstance(o, compat.STRING_TYPES)
+    return isinstance(o, clazz.STRING_TYPES)
 
   @classmethod
   def is_string_seq(clazz, o):
-    return clazz.is_seq(o, compat.STRING_TYPES)
+    return clazz.is_seq(o, clazz.STRING_TYPES)
 
   @classmethod
   def is_int(clazz, o):
-    return isinstance(o, compat.INTEGER_TYPES)
+    return isinstance(o, clazz.INTEGER_TYPES)
 
   @classmethod
   def is_bool(clazz, o):
@@ -32,7 +36,7 @@ class check(object):
 
   @classmethod
   def is_class(clazz, o):
-    return isinstance(o, compat.CLASS_TYPES)
+    return isinstance(o, clazz.CLASS_TYPES)
 
   @classmethod
   def is_seq(clazz, o, t):
@@ -51,15 +55,15 @@ class check(object):
   
   @classmethod
   def check_string(clazz, o, name):
-    clazz._check(o, compat.STRING_TYPES, name, 2)
+    clazz._check(o, clazz.STRING_TYPES, name, 2)
 
   @classmethod
   def check_string_seq(clazz, o, name):
-    clazz._check_seq(o, compat.STRING_TYPES, name, 2)
+    clazz._check_seq(o, clazz.STRING_TYPES, name, 2)
 
   @classmethod
   def check_int(clazz, o, name):
-    clazz._check(o, compat.INTEGER_TYPES, name, 2)
+    clazz._check(o, clazz.INTEGER_TYPES, name, 2)
 
   @classmethod
   def check_bool(clazz, o, name):
@@ -89,11 +93,11 @@ class check(object):
 
   @classmethod
   def check_class(clazz, o, name):
-    clazz._check(o, compat.CLASS_TYPES, name, 2)
+    clazz._check(o, clazz.CLASS_TYPES, name, 2)
 
   @classmethod
   def _check(clazz, o, t, name, depth, type_blurb = None):
-    assert isinstance(name, compat.STRING_TYPES)
+    assert isinstance(name, clazz.STRING_TYPES)
     if isinstance(o, t):
       return o
     type_blurb = type_blurb or clazz._make_type_blurb(t)
