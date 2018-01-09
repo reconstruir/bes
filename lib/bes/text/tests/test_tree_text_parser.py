@@ -3,9 +3,9 @@
 #
 import unittest
 from bes.text import tree_text_parser as P
-from bes.text.tree_text_parser import stack
+from bes.text.tree_text_parser import _text_stack
 from bes.common import node
-PI = stack.path_item
+PI = _text_stack.path_item
 
 class test_tree_text_parser(unittest.TestCase):
 

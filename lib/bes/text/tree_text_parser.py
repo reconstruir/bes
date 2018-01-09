@@ -6,7 +6,7 @@ from bes.compat import StringIO
 from collections import namedtuple
 from .comments import comments
   
-class stack(object):
+class _text_stack(object):
 
   path_item = namedtuple('path_item', 'text,line_number')
   item = namedtuple('item', 'depth,path_item')
@@ -45,8 +45,8 @@ class tree_text_parser(object):
 
   @classmethod
   def parse(clazz, text, strip_comments = False):
-    result = node(stack.path_item('root', 0))
-    st = stack()
+    result = node(_text_stack.path_item('root', 0))
+    st = _text_stack()
     current_indent = None
     for i, line in enumerate(text.split('\n')):
       if strip_comments:
