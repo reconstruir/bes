@@ -136,13 +136,13 @@ fruits # comment
 
     self.assertMultiLineEqual( expected.to_string(data_func = self._data_func), self._parse(text, strip_comments = True) )
 
-  def test_node_text_recursive_one_node(self):
+  def test_node_text_flat_one_node(self):
     text = '''
 fruits
 '''
-    self.assertEqual( 'root fruits', P.node_text_recursive(P.parse(text)) )
+    self.assertEqual( 'root fruits', P.node_text_flat(P.parse(text)) )
 
-  def test_node_text_recursive_two_nodes(self):
+  def test_node_text_flat_two_nodes(self):
     text = '''
 fruits
   apple
@@ -150,7 +150,7 @@ fruits
     blueberries
       strawberries
 '''
-    self.assertEqual( 'root fruits apple berries blueberries strawberries', P.node_text_recursive(P.parse(text)) )
+    self.assertEqual( 'root fruits apple berries blueberries strawberries', P.node_text_flat(P.parse(text)) )
 
 
   @classmethod

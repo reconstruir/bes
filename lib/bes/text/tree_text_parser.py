@@ -79,11 +79,23 @@ class tree_text_parser(object):
     return count
 
   @classmethod
-  def node_text_recursive(clazz, node):
+  def node_text(clazz, node, include_root = False):
+    if include_root:
+      return child.to_string(data_func = lambda item: item.text)
+    else:
+      return '\n'.join([ child.to_string(data_func = lambda item: item.text) for child in node.children ])
+  
+  @classmethod
+  def node_text_flat(clazz, node):
     buf = StringIO()
     clazz._node_text_collect(node, ' ', buf)
     return buf.getvalue().strip()
 
+  @classmethod
+  def node_children_text_flat(clazz, node):
+    texts = [ clazz.node_text_flat(child) for child in node.children ]
+    return ' '.join(texts)
+  
   @classmethod
   def _node_text_collect(clazz, node, delimiter, buf):
     buf.write(node.data.text)
