@@ -3,8 +3,7 @@
 
 import itertools
 from bes.compat import cmp, zip, StringIO
-from bes.common import check
-
+from bes.common import algorithm, check
 
 class type_checked_list(object):
 
@@ -101,3 +100,15 @@ class type_checked_list(object):
   def remove(self, v):
     check.check(v, self._entry_type, 'v')
     self._values.remove(v)
+
+  def remove_dups(self):
+    self._values = algorithm.unique(self._values)
+
+  def to_list(self):
+    return self._values[:]
+  
+  def to_set(self):
+    result = set()
+    for s in self._values:
+      result.add(s)
+    return result
