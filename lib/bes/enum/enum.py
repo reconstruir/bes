@@ -48,6 +48,15 @@ class enum(with_metaclass(_enum_meta_class, object)):
       return self.value == other
     else:
       raise TypeError('invalid other: %s - %s' % (str(other), type(other)))
+
+  @classmethod
+  def is_valid(clazz, value):
+    if compat.is_int(value):
+      return clazz.value_is_valid(value)
+    elif compat.is_string(value):
+      return clazz.name_is_valid(value)
+    else:
+      raise TypeError('invalid type for value: %s - %s' % (str(value), type(value)))
     
   @classmethod
   def value_is_valid(clazz, value):
