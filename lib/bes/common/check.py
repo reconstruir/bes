@@ -50,27 +50,27 @@ class check(object):
       return False
   
   @classmethod
-  def check(clazz, o, t, name):
+  def check(clazz, o, t, name = None):
     clazz._check(o, t, name, 2)
   
   @classmethod
-  def check_string(clazz, o, name):
+  def check_string(clazz, o, name = None):
     clazz._check(o, clazz.STRING_TYPES, name, 2)
 
   @classmethod
-  def check_string_seq(clazz, o, name):
+  def check_string_seq(clazz, o, name = None):
     clazz._check_seq(o, clazz.STRING_TYPES, name, 2)
 
   @classmethod
-  def check_int(clazz, o, name):
+  def check_int(clazz, o, name = None):
     clazz._check(o, clazz.INTEGER_TYPES, name, 2)
 
   @classmethod
-  def check_bool(clazz, o, name):
+  def check_bool(clazz, o, name = None):
     clazz._check(o, bool, name, 2)
 
   @classmethod
-  def check_tuple(clazz, o, name):
+  def check_tuple(clazz, o, name = None):
     clazz._check(o, tuple, name, 2)
 
   @classmethod
@@ -96,25 +96,27 @@ class check(object):
       clazz._check_seq(o, entry_type, name + '-entry', 2)
 
   @classmethod
-  def check_class(clazz, o, name):
+  def check_class(clazz, o, name = None):
     clazz._check(o, clazz.CLASS_TYPES, name, 2)
 
   @classmethod
   def _check(clazz, o, t, name, depth, type_blurb = None):
-    assert isinstance(name, clazz.STRING_TYPES)
+    if name:
+      assert isinstance(name, clazz.STRING_TYPES)
     if isinstance(o, t):
       return o
     type_blurb = type_blurb or clazz._make_type_blurb(t)
     if not type_blurb:
       raise TypeError('t should be a type or tuple of types instead of \"%s\"' % (str(t)))
     _, filename, line_number, _, _, _ = inspect.stack()[depth]
+    name = name or clazz._previous_frame_object_name(o, depth)
     raise TypeError('\"%s\" should be of type \"%s\" instead of \"%s\" at %s line %d' % (name,
                                                                                          type_blurb,
                                                                                          type(o).__name__,
                                                                                          path.abspath(filename),
                                                                                          line_number))
   @classmethod
-  def check_seq(clazz, o, t, name):
+  def check_seq(clazz, o, t, name = None):
     clazz._check_seq(o, t, name, 2)
 
   @classmethod
@@ -217,4 +219,20 @@ class check(object):
       if getattr(clazz, check_seq_method_name, None):
         raise RuntimeError('check already has a method named \"%s\"' % (check_seq_method_name))
       clazz._check_seq_helper(clazz, check_seq_method_name, object_type)
+
+  @classmethod
+  def _previous_frame_object_name(clazz, obj, depth):
+    'Return the name for obj in the previous frame.'
+    frame = clazz._crawl_frames(depth + 1)
+    for k, v in frame.f_locals.items():
+      if id(v) == id(obj):
+        return k
+    return None
       
+  @classmethod
+  def _crawl_frames(clazz, depth):
+    'Return the name for obj in the previous frame.'
+    frame = inspect.currentframe()
+    for i in range(0, depth + 1):
+      frame = frame.f_back
+    return frame
