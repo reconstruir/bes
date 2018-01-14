@@ -65,8 +65,8 @@ class string_util(object):
   @classmethod
   def replace(clazz, s, replacements, word_boundary = True):
     'Replace all instances of dict d in string s.'
-    check.check_string(s, 's')
-    check.check_dict(replacements, 'replacements')
+    check.check_string(s)
+    check.check_dict(replacements)
     assert clazz.is_string(s)
     for key, value in replacements.items():
       assert key

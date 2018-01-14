@@ -117,26 +117,26 @@ class test_enum(unit_test):
     class bar1(enum):
       A = 1
       B = 2
-    check.check_bar1(bar1(2), 'value')
+    check.check_bar1(bar1(2))
 
   def test_check_int_cast(self):
     class bar2(enum):
       A = 1
       B = 2
-    check.check_bar2(2, 'value')
+    check.check_bar2(2)
 
   def test_check_invalid_value(self):
     class bar3(enum):
       A = 1
       B = 2
     with self.assertRaises(ValueError) as _:
-      check.check_bar3(666, 'value')
+      check.check_bar3(666)
     
   def test_check_string_cast(self):
     class bar4(enum):
       A = 1
       B = 2
-    check.check_bar4('A', 'value')
+    check.check_bar4('A')
 
 if __name__ == '__main__':
   unit_test.main()

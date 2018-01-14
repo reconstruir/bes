@@ -8,7 +8,7 @@ from bes.common import algorithm, check
 class type_checked_list(object):
 
   def __init__(self, entry_type, values = None):
-    check.check(entry_type, ( type, tuple ), 'entry_type')
+    check.check(entry_type, ( type, tuple ))
     self._entry_type = entry_type
     self._assign(values)
 
@@ -23,11 +23,11 @@ class type_checked_list(object):
     self._values = []
     for v in values or []:
       v = self.cast_entry(v)
-      check.check(v, self._entry_type, 'v')
+      check.check(v, self._entry_type)
       self._values.append(v)
 
   def compare(self, other):
-    check.check(other, ( type_checked_list, list, tuple ), 'other')
+    check.check(other, ( type_checked_list, list, tuple ))
     len_cmp = cmp(len(self), len(other))
     if len_cmp != 0:
       return len_cmp
@@ -43,7 +43,7 @@ class type_checked_list(object):
     if isinstance(obj, type_checked_list):
       return obj._values
     else:
-      check.check(obj, ( list, tuple ), 'obj')
+      check.check(obj, ( list, tuple ))
       return obj
   
   def __eq__(self, other):
@@ -74,14 +74,14 @@ class type_checked_list(object):
     return self._values[i]
   
   def __setitem__(self, i, v):
-    check.check(v, self._entry_type, 'v')
+    check.check(v, self._entry_type)
     self._values[i] = v
 
   def __contains__(self, v):
     return v in self._values
     
   def __add__(self, other):
-    check.check(other, ( type_checked_list, list, tuple ), 'other')
+    check.check(other, ( type_checked_list, list, tuple ))
     result = self.__class__()
     for s in self._values:
       result.append(s)
@@ -90,15 +90,15 @@ class type_checked_list(object):
     return result
     
   def extend(self, other):
-    check.check(other, ( type_checked_list, list, tuple ), 'other')
+    check.check(other, ( type_checked_list, list, tuple ))
     self._values.extend(self._get_values(other))
 
   def append(self, v):
-    check.check(v, self._entry_type, 'v')
+    check.check(v, self._entry_type)
     self._values.append(v)
 
   def remove(self, v):
-    check.check(v, self._entry_type, 'v')
+    check.check(v, self._entry_type)
     self._values.remove(v)
 
   def remove_dups(self):

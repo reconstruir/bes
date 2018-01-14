@@ -24,7 +24,7 @@ class file_search(object):
 
   @classmethod
   def search(clazz, root_dir, text, relative = True, min_depth = None, max_depth = None):
-    check.check_string(root_dir, 'root_dir')
+    check.check_string(root_dir)
     #assert string_util.is_string(text)
     files = file_find.find(root_dir, relative = relative, min_depth = min_depth, max_depth = max_depth)
     items = []
@@ -77,7 +77,7 @@ class file_search(object):
 
   @classmethod
   def _search_line_with_find(clazz, line, patterns, filename, line_number, ignore_case):
-    check.check(patterns, list, 'patterns')
+    check.check_list(patterns)
     assert len(patterns) > 0
     
     result = []
@@ -85,8 +85,8 @@ class file_search(object):
     if ignore_case:
       line = line.lower()
     for pattern, original_pattern in patterns:
-      check.check_string(pattern, 'pattern')
-      check.check_string(original_pattern, 'original_pattern')
+      check.check_string(pattern)
+      check.check_string(original_pattern)
       index = line.find(pattern)
       if index >= 0:
         span = clazz.span(index, index + len(pattern))

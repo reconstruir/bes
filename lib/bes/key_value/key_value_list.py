@@ -43,7 +43,7 @@ class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
     return self.to_string()
 
   def find_key_value(self, kv):
-    check.check_key_value(kv, 'kv')
+    check.check_key_value(kv)
     for next_kv in self._values:
       if next_kv == kv:
         return next_kv
@@ -67,7 +67,7 @@ class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
 
   @classmethod
   def parse(clazz, text, options = 0):
-    check.check_string(text, 'text')
+    check.check_string(text)
     result = clazz()
     for kv in key_value_parser.parse(text, options = options):
       result.append(kv)
@@ -103,10 +103,10 @@ class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
 
   @classmethod
   def from_dict(clazz, d):
-    check.check_dict(d, 'd')
+    check.check_dict(d)
     result = clazz()
     for key, value in sorted(d.items()):
-      check.check_string(key, 'key')
+      check.check_string(key)
       result.append(key_value(key, value))
     return result
 
