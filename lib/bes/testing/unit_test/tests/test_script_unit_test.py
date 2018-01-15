@@ -5,7 +5,7 @@ from bes.testing.unit_test import script_unit_test
 
 class test_script_unit_test_true(script_unit_test):
 
-  __script__ = __file__, 'test_data/script_unit_test/true.sh'
+  __script__ = __file__, '../../../../../test_data/bes.testing/unit_test/script_unit_test/true.sh'
 
   def test_true(self):
     rv = self.run_script([ 'foo', 'bar' ])
@@ -19,7 +19,7 @@ class test_script_unit_test_true(script_unit_test):
 
 class test_script_unit_test_false(script_unit_test):
 
-  __script__ = __file__, 'test_data/script_unit_test/false.sh'
+  __script__ = __file__, '../../../../../test_data/bes.testing/unit_test/script_unit_test/false.sh'
 
   def test_false(self):
     rv = self.run_script([ 'foo', 'bar' ])

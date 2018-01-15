@@ -2,9 +2,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import codecs, sys
+import subprocess
+import os.path as path
 from .unit_test import unit_test
 from collections import namedtuple
-import subprocess
 
 class script_unit_test(unit_test):
 
