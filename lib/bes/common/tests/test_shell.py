@@ -7,7 +7,7 @@ from bes.common import Shell
 
 class test_shell(unit_test):
 
-  __unit_test_data_dir__ = '${test_data_dir}/bes.common/shell'
+  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.common/shell'
 
   def test_true(self):
     script = self.data_path('shell_script_true.sh')

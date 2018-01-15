@@ -8,7 +8,7 @@ import os.path as path
 
 class test_file_replace(unit_test):
 
-  __unit_test_data_dir__ = '${test_data_dir}/bes.fs/file_replace'
+  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.fs/file_replace'
 
   def test_file_replace_ascii(self):
     tmp_file = self._make_temp_replace_file('ascii.txt')

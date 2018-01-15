@@ -119,5 +119,5 @@ class unit_test(unittest.TestCase):
     test_data_dir = os.environ.get('BES_TEST_DATA_DIR', None)
     if not test_data_dir:
       raise RuntimeError('BES_TEST_DATA_DIR not defined in environment.')
-    return clazz._var_replace(s, 'test_data_dir', test_data_dir)
+    return clazz._var_replace(s, 'BES_TEST_DATA_DIR', test_data_dir)
       
