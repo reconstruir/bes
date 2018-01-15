@@ -395,9 +395,7 @@ def _test_data_dir(filename):
   data_dir = os.environ.get('BES_TEST_DATA_DIR', None)
   if not data_dir:
     data_dir = file_find.find_in_ancestors(path.dirname(filename), 'test_data')
-  if not data_dir:
-    raise RuntimeError('Could not determine test_data_dir for %s.' % (filename))
-  return data_dir
+  return data_dir or ''
 
 def _test_execute(python_exe, test_map, filename, tests, options, index, total_files, cwd):
   short_filename = file_util.remove_head(filename, cwd)
