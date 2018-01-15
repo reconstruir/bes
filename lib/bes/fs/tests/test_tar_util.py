@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os, os.path as path, tarfile
 from bes.testing.unit_test import unit_test
@@ -8,7 +7,7 @@ from bes.fs import file_find, file_util, tar_util, temp_file
 
 class test_tar_util(unit_test):
 
-  __unit_test_data_dir__ = 'test_data/tar_util'
+  __unit_test_data_dir__ = '../../../../test_data/bes.fs/tar_util'
 
   DEBUG = False
   #DEBUG = True
