@@ -100,3 +100,18 @@ class unit_test(unittest.TestCase):
     else:
       raise RuntimeError('Unknown system: %s' % (s))
   _HOST = _host()
+
+  @classmethod
+  def _var_replace(clazz, s, var, replacement):
+    return re.sub('\$\{%s\}' % (var), replacement, s)
+
+  @classmethod
+  def _find_project_root(clazz):
+    parent = path.dirname(__file__)
+    while True:
+      project_file = path.join(parent, '.bes_project_root')
+      if path.isfile(project_file):
+        return parent
+      parent = path.normpath(path.join(parent, path.pardir))
+      if parent == '/':
+        return None

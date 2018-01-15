@@ -216,6 +216,8 @@ def main():
   
   timings = {}
 
+  total_time_start = time.time()
+  
   stopped = False
   for i, f in enumerate(filtered_files):
     if not f.filename in timings:
@@ -234,6 +236,8 @@ def main():
         stopped = True
     if stopped:
       break
+  total_elapsed_time = 1000 * (time.time() - total_time_start)
+    
   if args.dry_run:
     return 0
   num_skipped = num_tests - num_executed
@@ -284,7 +288,11 @@ def main():
         count_blurb = ''
         
       printer.writeln('bes_test.py: timing: %s%s - %2.2f ms %s' % (count_blurb, short_filename, avg_ms, run_blurb))
-    
+    if total_elapsed_time >= 1000.0:
+      printer.writeln('bes_test.py: total time: %2.2f s' % (total_elapsed_time / 1000.0))
+    else:
+      printer.writeln('bes_test.py: total time: %2.2f ms' % (total_elapsed_time))
+      
   if args.page:
     subprocess.call([ args.pager, printer.OUTPUT.name ])
     

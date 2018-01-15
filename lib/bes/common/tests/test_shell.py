@@ -7,6 +7,7 @@ from bes.common import Shell
 
 class test_shell(unit_test):
 
+  #__unit_test_data_dir__ = '${test_data}/test_data/bes.common/shell'
   __unit_test_data_dir__ = '../../../../test_data/bes.common/shell'
 
   def test_true(self):
