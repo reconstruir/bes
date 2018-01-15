@@ -162,3 +162,12 @@ class git(object):
   def reset_to_revision(clazz, root, revision):
     args = [ 'reset', '--hard', revision ]
     return clazz._call_git(root, args)
+
+  @classmethod
+  def last_commit_hash(clazz, root, short_hash = False):
+    args = [ 'log', '--format=%H', '-n', '1' ]
+    rv = clazz._call_git(root, args)
+    long_hash = rv.stdout.strip()
+    if not short_hash:
+      return long_hash
+    return clazz.short_hash(root, long_hash)
