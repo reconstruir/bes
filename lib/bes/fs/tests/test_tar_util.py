@@ -7,7 +7,7 @@ from bes.fs import file_find, file_util, tar_util, temp_file
 
 class test_tar_util(unit_test):
 
-  __unit_test_data_dir__ = '../../../../test_data/bes.fs/tar_util'
+  __unit_test_data_dir__ = '${test_data_dir}/bes.fs/tar_util'
 
   DEBUG = False
   #DEBUG = True
