@@ -7,7 +7,6 @@ from bes.refactor import files
 
 class test_files(unit_test):
 
-  __unit_test_data_dir__ = 'test_data/files'
   def test_foo(self):
     pass
     
