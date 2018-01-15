@@ -5,7 +5,7 @@ from bes.testing.unit_test import unit_test
 import os.path as path
 from bes.common import Shell
 
-class test_Shell(unit_test):
+class test_shell(unit_test):
 
   __unit_test_data_dir__ = '../../../../test_data/bes.common/shell'
 
