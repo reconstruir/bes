@@ -18,7 +18,7 @@ class unit_test(unittest.TestCase):
     return self.data_path(filename, platform_specific = True)
 
   def data_dir(self, platform_specific = False): 
-    parts = [ self.__class__._get_data_dir() ]
+    parts = [ self._get_data_dir() ]
     if platform_specific:
       parts.append(self._HOST)
     return path.join(*parts)
@@ -55,7 +55,7 @@ class unit_test(unittest.TestCase):
     right = getattr(clazz, '__unit_test_data_dir__', None)
     if not right:
       raise RuntimeError('%s does not have a __unit_test_data_dir__ attribute.' % (clazz))
-    right = clazz._substitue_project_root(right)
+    right = clazz._substitute_test_data_dir(right)
     if path.isabs(right):
       return right
     left = path.dirname(inspect.getfile(clazz))
@@ -82,8 +82,8 @@ class unit_test(unittest.TestCase):
 
   @classmethod
   def file_path(clazz, unit_test_filename, filename):
-    'Return an absolute normalized path for a file relative to this unit test.'
-    filename = clazz._substitue_project_root(filename)
+    'return an absolute normalized path for a file relative to this unit test.'
+    filename = clazz._substitute_test_data_dir(filename)
     if path.isabs(filename):
       return filename
     
@@ -111,33 +111,13 @@ class unit_test(unittest.TestCase):
   @classmethod
   def _var_replace(clazz, s, var, replacement):
     return re.sub('\$\{%s\}' % (var), replacement, s)
-
-  @classmethod
-  def _project_root(clazz):
-    project_root = getattr(clazz, '__project_root__', None)
-    if not project_root:
-      project_root = clazz._find_project_root()
-      if not project_root:
-        raise RuntimeError('no .bes_project_root found for %s' % (__file__))
-      setattr(clazz, '__project_root__', project_root)
-    return project_root
-
-  @classmethod
-  def _find_project_root(clazz):
-    parent = path.dirname(__file__)
-    while True:
-      project_file = path.join(parent, '.bes_project_root')
-      if path.isfile(project_file):
-        return parent
-      parent = path.normpath(path.join(parent, path.pardir))
-      if parent == '/':
-        return None
       
   @classmethod
-  def _substitue_project_root(clazz, s):
+  def _substitute_test_data_dir(clazz, s):
     if not '$' in s:
       return s
-    project_root = clazz._project_root()
-    test_data_dir = path.join(project_root, 'test_data')
+    test_data_dir = os.environ.get('BES_TEST_DATA_DIR', None)
+    if not test_data_dir:
+      raise RuntimeError('BES_TEST_DATA_DIR not defined in environment.')
     return clazz._var_replace(s, 'test_data_dir', test_data_dir)
       

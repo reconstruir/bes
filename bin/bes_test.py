@@ -391,6 +391,14 @@ def _matching_tests(available, patterns):
 test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing,profile_output,interpreters')
 test_result = namedtuple('test_result', 'success,num_tests_run,elapsed_time')
 
+def _test_data_dir(filename):
+  data_dir = os.environ.get('BES_TEST_DATA_DIR', None)
+  if not data_dir:
+    data_dir = file_find.find_in_ancestors(path.dirname(filename), 'test_data')
+  if not data_dir:
+    raise RuntimeError('Could not determine test_data_dir for %s.' % (filename))
+  return data_dir
+
 def _test_execute(python_exe, test_map, filename, tests, options, index, total_files, cwd):
   short_filename = file_util.remove_head(filename, cwd)
 
@@ -442,6 +450,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
 
     env = environ_util.make_clean_env()
     env['PYTHONDONTWRITEBYTECODE'] = 'x'
+    env['BES_TEST_DATA_DIR'] = _test_data_dir(filename)
     time_start = time.time()
     process = subprocess.Popen(' '.join(cmd),
                                stdout = subprocess.PIPE,
@@ -608,7 +617,7 @@ class file_util(object):
   @classmethod
   def parent_dir(clazz, d):
     return path.normpath(path.join(d, os.pardir))
-                 
+  
 class environ_util(object):
 
   @classmethod
@@ -685,6 +694,18 @@ class file_find(object):
     result = subprocess.check_output(cmd, shell = False)
     return string_util.parse_list(result)
 
+  @classmethod
+  def find_in_ancestors(clazz, where, filename):
+    assert path.isdir(where)
+    parent = where
+    while True:
+      what = path.join(parent, filename)
+      if path.exists(what):
+        return what
+      parent = file_util.parent_dir(parent)
+      if parent == '/':
+        return None
+  
 class file_resolve(object):
 
   @classmethod
