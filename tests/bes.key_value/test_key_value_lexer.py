@@ -3,7 +3,11 @@
 #
 import unittest
 from bes.key_value import key_value_lexer as L
-from bes.text.tests.token_test_helper import *
+
+import os.path as path, sys
+sys.path.append(path.join(path.dirname(__file__), '../bes.text'))
+print(sys.path)
+from helpers.token_test_helper import *
 
 def TDELIM(x = 1, y = 1): return lexer_token(L.TOKEN_DELIMITER, '=', (x, y))
 

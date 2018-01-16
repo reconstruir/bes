@@ -3,7 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 from bes.text import sentence_lexer as L, lexer_token
-from token_test_helper import *
+from helpers.token_test_helper import *
 
 def TPUNCT(s, x = 1, y = 1): return lexer_token(L.TOKEN_PUNCTUATION, s, (x, y))
 

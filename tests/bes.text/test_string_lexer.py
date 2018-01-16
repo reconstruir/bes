@@ -3,7 +3,7 @@
 #
 import unittest
 from bes.text import lexer_token, string_lexer as L
-from token_test_helper import *
+from helpers.token_test_helper import *
 
 class test_string_lexer(unittest.TestCase):
 
