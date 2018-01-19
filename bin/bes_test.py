@@ -8,6 +8,8 @@ import argparse, ast, copy, fnmatch, math, os, os.path as path, platform, random
 import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
+_NAME = path.basename(sys.argv[0])
+
 # TODO:
 #  - figure out how to stop on first failure within one module
 #  - https://stackoverflow.com/questions/6813837/stop-testsuite-if-a-testcase-find-an-error
@@ -142,7 +144,7 @@ def main():
 
   filtered_files = file_filter.filter_files(files, test_map, patterns)
   if patterns and not filtered_files:
-    printer.writeln('bes_test.py: No matches for: %s' % (' '.join([ str(p) for p in patterns])))
+    printer.writeln_name('No matches for: %s' % (' '.join([ str(p) for p in patterns])))
     return 1
     
   filtered_files = file_filter.ignore_files(filtered_files, args.ignore)
@@ -255,7 +257,7 @@ def main():
     summary_parts.append('%d of %d skipped' % (num_skipped, num_tests))
 
   summary = '; '.join(summary_parts)
-  printer.writeln('bes_test.py: %s' % (summary))
+  printer.writeln_name('%s' % (summary))
   if failed_tests:
     longest_python_exe = max([len(path.basename(p)) for p in options.interpreters])
     for python_exe, f in failed_tests:
@@ -263,7 +265,7 @@ def main():
         python_exe_blurb = path.basename(python_exe).rjust(longest_python_exe)
       else:
         python_exe_blurb = ''
-      printer.writeln('bes_test.py: FAILED: %s %s' % (python_exe_blurb, file_util.remove_head(f.filename, cwd)))
+      printer.writeln_name('FAILED: %s %s' % (python_exe_blurb, file_util.remove_head(f.filename, cwd)))
 
   if num_failed > 0:
     rv = 1
@@ -287,11 +289,11 @@ def main():
       else:
         count_blurb = ''
         
-      printer.writeln('bes_test.py: timing: %s%s - %2.2f ms %s' % (count_blurb, short_filename, avg_ms, run_blurb))
+      printer.writeln_name('timing: %s%s - %2.2f ms %s' % (count_blurb, short_filename, avg_ms, run_blurb))
     if total_elapsed_time >= 1000.0:
-      printer.writeln('bes_test.py: total time: %2.2f s' % (total_elapsed_time / 1000.0))
+      printer.writeln_name('total time: %2.2f s' % (total_elapsed_time / 1000.0))
     else:
-      printer.writeln('bes_test.py: total time: %2.2f ms' % (total_elapsed_time))
+      printer.writeln_name('total time: %2.2f ms' % (total_elapsed_time))
       
   if args.page:
     subprocess.call([ args.pager, printer.OUTPUT.name ])
@@ -440,8 +442,8 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     else:
       python_exe_blurb = ''
       python_exe_blurb_sep = ''
-    blurb = 'bes_test.py:%7s:%s%s%s %s - %s ' % (label, filename_count_blurb, python_exe_blurb_sep, python_exe_blurb, short_filename, function_count_blurb)
-    printer.writeln(blurb)
+    blurb = '%7s:%s%s%s %s - %s ' % (label, filename_count_blurb, python_exe_blurb_sep, python_exe_blurb, short_filename, function_count_blurb)
+    printer.writeln_name(blurb)
 
     if options.dry_run:
       return test_result(True, 0, 0.0)
@@ -466,11 +468,11 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     else:
       label = 'FAILED'
     if writeln_output:
-      printer.writeln('bes_test.py: %7s: %s' % (label, short_filename))
+      printer.writeln_name('%7s: %s' % (label, short_filename))
       printer.writeln(output)
     return test_result(success, wanted_unit_tests, elapsed_time)
   except Exception, ex:
-    printer.writeln('bes_test.py: Caught exception on %s: %s' % (filename, str(ex)))
+    printer.writeln_name('Caught exception on %s: %s' % (filename, str(ex)))
     return test_result(False, wanted_unit_tests, 0.0)
 
 def _count_tests(test_map, tests):
@@ -927,6 +929,14 @@ class printer(object):
 
   @classmethod
   def writeln(clazz, s):
+    clazz.write(s)
+    clazz.write('\n')
+    clazz.flush()
+          
+  @classmethod
+  def writeln_name(clazz, s):
+    clazz.write(_NAME)
+    clazz.write(': ')
     clazz.write(s)
     clazz.write('\n')
     clazz.flush()
