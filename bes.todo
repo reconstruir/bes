@@ -47,3 +47,5 @@ dec 26
 dec 29
 - change check.py __call__ methods to do more sanity checking on args and raise appropiate exceptions
 
+jan 18
+- s/Shell/shell

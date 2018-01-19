@@ -168,4 +168,17 @@ class file_find(object):
   def find_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None):
     return clazz.find(root_dir, relative = relative, min_depth = min_depth,  max_depth = max_depth, file_type = clazz.DIR)
 
+  @classmethod
+  def find_in_ancestors(clazz, start_dir, filename):
+    if path.isfile(start_dir):
+      start_dir = path.dirname(start_dir)
+    assert path.isdir(start_dir)
+    while True:
+      what = path.join(start_dir, filename)
+      if path.exists(what):
+        return what
+      start_dir = file_util.parent_dir(start_dir)
+      if start_dir == '/':
+        return None
+  
 log.add_logging(file_find, 'file_find')

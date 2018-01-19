@@ -193,4 +193,8 @@ class file_util(object):
       return p
     return path.abspath(p)
 
+  @classmethod
+  def parent_dir(clazz, d):
+    return path.normpath(path.join(d, os.pardir))
+  
 log.add_logging(file_util, 'file_util')
