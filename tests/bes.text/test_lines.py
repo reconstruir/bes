@@ -37,6 +37,16 @@ class test_lines(unit_test):
     l = lines('foo bar\napple kiwi')
     with self.assertRaises(RuntimeError) as context:
       l[0] = 'foo'
-    
+
+  def test_add_line_numbers(self):
+    l = lines('foo\nbar\n')
+    l.add_line_numbers()
+    self.assertEqual(
+      '''1|foo
+2|bar
+3|
+''',
+      str(l) )
+      
 if __name__ == '__main__':
   unit_test.main()

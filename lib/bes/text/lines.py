@@ -22,6 +22,16 @@ class lines(object):
     self._continuation = continuation
     self._lines = self._parse(self._original_text, self._delimiter, self._continuation)
     self._ends_with_delimiter = text and text[-1] == self._delimiter
+
+  def __str__(self):
+    buf = StringIO()
+    for line in self._lines:
+      buf.write(line.text)
+      buf.write(self._delimiter)
+    v = buf.getvalue()
+    if self._ends_with_delimiter and v and v[-1] != self._delimiter:
+      buf.write(self._delimiter)
+    return buf.getvalue()
     
   def __len__(self):
     return len(self._lines)
@@ -71,17 +81,13 @@ class lines(object):
         result[i] = _line(i + 1, '')
     return result
 
-  '''
-  def add_line_numbers(clazz, text, delimiter = '|'):
-    lines = text.split('\n')
-    width = math.trunc(math.log10(len(lines)) + 1)
+  def add_line_numbers(self, delimiter = '|'):
+    width = math.trunc(math.log10(len(self._lines)) + 1)
     fmt  = '%%%dd' % (width)
     buf = StringIO()
-    for line_number, line in zip(range(1, 1 + len(lines)), lines):
-      buf.write(fmt % (line_number))
-      buf.write(delimiter)
-      buf.write(str(line))
-      buf.write('\n')
+    for line in self._lines:
+      buf.write(fmt % (line.line_number))
+      line_number_text = fmt % line.line_number
+      line.text = '%s%s%s' % (line_number_text, delimiter, line.text)
     return buf.getvalue()
-'''
   
