@@ -33,5 +33,10 @@ class test_lines(unit_test):
     self.assertEqual( 'foo bar', l[0] )
     self.assertEqual( 'apple kiwi', l[1] )
     
+  def test___setitem__(self):
+    l = lines('foo bar\napple kiwi')
+    with self.assertRaises(RuntimeError) as context:
+      l[0] = 'foo'
+    
 if __name__ == '__main__':
   unit_test.main()

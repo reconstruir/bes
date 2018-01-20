@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import math
 from bes.compat import StringIO
@@ -29,11 +29,7 @@ class lines(object):
   def __getitem__(self, n):
     if not self._line_number_is_valid(n):
       raise IndexError('line number should be [%s to %s] instead of: %s' % (1, self._num_lines + 1, n))
-    line = self._lines[n]
-    if line:
-      return self._lines[n].text
-    else:
-      return ''
+    return self._lines[n].text
 
   def __setitem__(self, n, v):
     raise RuntimeError('lines are read only.')
@@ -67,12 +63,12 @@ class lines(object):
       assert line_number not in lines
       lines[line_number] = _line(line_number, last_value)
     max_line_number = max(max_line_number, 1)
-    print('lines: %s' % (str(lines)))
-    print('max_line_number: %s' % (max_line_number))
     result = [ None ] * max_line_number
-    print('result: %s' % (str(result)))
     for line in lines.values():
       result[line.line_number - 1] = line
+    for i, line in enumerate(result):
+      if not line:
+        result[i] = _line(i + 1, '')
     return result
 
   '''
