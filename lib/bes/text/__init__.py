@@ -4,6 +4,7 @@
 from .comments import comments
 from .lexer_token import lexer_token
 from .line_numbers import line_numbers
+from .lines import lines
 from .section_parser import section_parser
 from .sentence_lexer import sentence_lexer
 from .string_lexer import string_lexer, string_lexer_options
