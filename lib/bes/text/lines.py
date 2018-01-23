@@ -54,14 +54,15 @@ class lines(object):
   def add_line_numbers(self, delimiter = '|'):
     width = math.trunc(math.log10(len(self._lines)) + 1)
     fmt  = '%%%dd' % (width)
-    buf = StringIO()
     for i, line in enumerate(self._lines):
-      buf.write(fmt % (line.line_number))
       line_number_text = fmt % line.line_number
       text = '%s%s%s' % (line_number_text, delimiter, line.text)
       self._lines[i] = line_token(line.line_number, text)
-    return buf.getvalue()
   
   def merge_continuations(self):
     self._lines = line_continuation_merger.merge_to_list(self._lines)
-  
+
+  @classmethod
+  def read_file(clazz, filename):
+    with open(filename, 'r') as f:
+      return clazz(f.read())
