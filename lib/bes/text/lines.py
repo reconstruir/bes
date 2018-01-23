@@ -22,7 +22,7 @@ class lines(object):
   def to_string(self, strip_comments = False):
     buf = StringIO()
     for line in self._lines:
-      buf.write(line.get_text(strip_comments = strip_comments))
+      buf.write(line.text_no_comments)
       buf.write(self._delimiter)
     v = buf.getvalue()
     if self._ends_with_delimiter and v and v[-1] != self._delimiter:
@@ -33,19 +33,10 @@ class lines(object):
     return len(self._lines)
 
   def __getitem__(self, n):
-    if not self._line_number_is_valid(n):
-      raise IndexError('line number should be [%s to %s] instead of: %s' % (1, self._num_lines + 1, n))
-    return self._lines[n].text
+    return self._lines[n]
 
   def __setitem__(self, n, v):
     raise RuntimeError('lines are read only.')
-
-  def _line_number_is_valid(self, n):
-    if n < 0:
-      return False
-    if n > len(self._lines):
-      return False
-    return True
 
   @classmethod
   def _parse(clazz, text, delimiter):

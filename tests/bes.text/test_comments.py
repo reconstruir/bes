@@ -11,7 +11,7 @@ class test_comments(unit_test):
     self.assertEqual( 'foo', comments.strip_line('foo#comment') )
     
   def test_strip_line_with_strip(self):
-    self.assertEqual( 'foo', comments.strip_line('foo #comment', strip = True) )
+    self.assertEqual( 'foo', comments.strip_line('foo #comment', strip_tail = True) )
 
   def test_strip_strip_multi_line(self):
     text = '''
@@ -37,7 +37,7 @@ foo
 
 bar
 '''
-    self.assertEqual( expected, comments.strip_multi_line(text, strip = True) )
+    self.assertEqual( expected, comments.strip_multi_line(text, strip_tail = True) )
 
   def test_strip_strip_multi_line_remove_empties(self):
     text = '''
@@ -57,7 +57,7 @@ bar
 '''
     expected = '''foo
 bar'''
-    self.assertEqual( expected, comments.strip_multi_line(text, strip = True, remove_empties = True) )
+    self.assertEqual( expected, comments.strip_multi_line(text, strip_tail = True, remove_empties = True) )
     
 if __name__ == '__main__':
   unit_test.main()

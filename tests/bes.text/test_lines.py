@@ -13,25 +13,25 @@ class test_lines(unit_test):
   def test_1_line(self):
     l = lines('foo')
     self.assertEqual( 1, len(l) )
-    self.assertEqual( 'foo', l[0] )
+    self.assertEqual( 'foo', l[0].text )
     
   def test_1_line_with_newline(self):
     l = lines('foo\n')
     self.assertEqual( 2, len(l) )
-    self.assertEqual( 'foo', l[0] )
-    self.assertEqual( '', l[1] )
+    self.assertEqual( 'foo', l[0].text )
+    self.assertEqual( '', l[1].text )
     
   def test_1_empty_line(self):
     l = lines('\n')
     self.assertEqual( 2, len(l) )
-    self.assertEqual( '', l[0] )
-    self.assertEqual( '', l[1] )
+    self.assertEqual( '', l[0].text )
+    self.assertEqual( '', l[1].text )
     
   def test_basic(self):
     l = lines('foo bar\napple kiwi')
     self.assertEqual( 2, len(l) )
-    self.assertEqual( 'foo bar', l[0] )
-    self.assertEqual( 'apple kiwi', l[1] )
+    self.assertEqual( 'foo bar', l[0].text )
+    self.assertEqual( 'apple kiwi', l[1].text )
     
   def test___setitem__(self):
     l = lines('foo bar\napple kiwi')

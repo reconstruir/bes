@@ -23,10 +23,9 @@ class line_token(namedtuple('line_token', 'line_number,text')):
   def has_continuation(self):
     return self.text.strip().endswith(self.CONTINUATION_CHAR)
   
-  def get_text(self, strip_comments = False):
-    if not strip_comments:
-      return self.text
-    return comments.strip_line(self.text, strip = True)
+  @property
+  def text_no_comments(self):
+    return comments.strip_line(self.text, strip_tail = True)
 
   @classmethod
   def merge(clazz, lines):

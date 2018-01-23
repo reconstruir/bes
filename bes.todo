@@ -53,3 +53,6 @@ jan 18
 
 jan 21
 - class _state(object) error messages are fucked up
+
+jan 23
+- reorg tests
