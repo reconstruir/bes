@@ -116,7 +116,7 @@ def main():
   files, filters = _separate_files_and_filters(args.files)
 
   files = file_resolve.resolve_files_and_dirs(files)
-  
+
   # Don't include this script in the list since it needs to be run bes_test.py --unit to work
   files = [ f for f in files if not f.endswith('bes_test.py') ]
   files = [ f for f in files if f.lower().endswith('.py') ]
