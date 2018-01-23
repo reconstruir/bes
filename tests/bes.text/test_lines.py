@@ -47,6 +47,23 @@ class test_lines(unit_test):
 3|
 ''',
       str(l) )
-      
+
+  def test_continuation(self):
+    text = r'''foo bar
+kiwi \
+apple
+pear \
+orange
+almond \
+peanut \
+walnut \
+rum
+coke
+'''
+    l = lines(text)
+#    self.assertEqual( 2, len(l) )
+#    self.assertEqual( 'foo bar', l[0] )
+#    self.assertEqual( 'apple kiwi', l[1] )
+    
 if __name__ == '__main__':
   unit_test.main()

@@ -3,15 +3,20 @@
 
 import math
 from bes.compat import StringIO
+from collections import namedtuple
 
 class _line(object):
   
-  def __init__(self, line_number = None, text = None):
+  def __init__(self, line_number = None, text = None, continuation = '\\'):
     self.line_number = line_number
     self.text = text
+    self.has_continuation = text.strip().endswith(continuation)
 
   def __str__(self):
     return '%s:%s' % (self.line_number, self.text)
+    
+  def __repr__(self):
+    return str(self)
     
 class lines(object):
   'Manage text as lines.'
@@ -50,37 +55,40 @@ class lines(object):
     if n > len(self._lines):
       return False
     return True
-  
+
   @classmethod
   def _parse(clazz, text, delimiter, continuation):
-    lines = {}
-    buf = StringIO()
-    line_number = 1
-    max_line_number = 0
-    for c in text:
-      if c == delimiter:
-        assert line_number not in lines
-        lines[line_number] = _line(line_number, buf.getvalue())
-        buf = StringIO()
-        line_number = line_number + 1
-        max_line_number = max(max_line_number, line_number)
-      elif c == continuation:
-        assert False
-      else:
-        buf.write(c)
-    last_value = buf.getvalue()
-    if last_value:
-      assert line_number not in lines
-      lines[line_number] = _line(line_number, last_value)
-    max_line_number = max(max_line_number, 1)
-    result = [ None ] * max_line_number
-    for line in lines.values():
-      result[line.line_number - 1] = line
-    for i, line in enumerate(result):
-      if not line:
-        result[i] = _line(i + 1, '')
-    return result
+    lines = text.split(delimiter)
+    range(1, len(lines) + 1)
+    lines = [ _line(*item) for item in zip(range(1, len(lines) + 1), lines) ]
+    conts = clazz._find_conts(lines)
+    for cont in conts:
+      print('CONT: %s' % (conts))
+    return lines
 
+  _conts = namedtuple('_conts', 'line_number,lines')
+  @classmethod
+  def _find_conts(clazz, lines):
+    conts = []
+    cont_lines = [ line for line in lines if line.has_continuation ]
+    for cont_line in cont_lines:
+      conts.append(clazz._find_cont_lines(lines, cont_line))
+    return conts
+
+  @classmethod
+  def _find_cont_lines(clazz, lines, line):
+    result = []
+    assert line.has_continuation
+    index = line.line_number - 1
+    while line.has_continuation:
+      result.append(line)
+      index = index + 1
+      if index == len(lines):
+        break
+      line = lines[index]
+    result.append(line)
+    return result
+  
   def add_line_numbers(self, delimiter = '|'):
     width = math.trunc(math.log10(len(self._lines)) + 1)
     fmt  = '%%%dd' % (width)

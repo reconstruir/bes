@@ -3,7 +3,9 @@
 
 from .comments import comments
 from .lexer_token import lexer_token
+from .line_continuation_merger import line_continuation_merger
 from .line_numbers import line_numbers
+from .line_token import line_token
 from .lines import lines
 from .section_parser import section_parser
 from .sentence_lexer import sentence_lexer

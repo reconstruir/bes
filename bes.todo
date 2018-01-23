@@ -50,3 +50,6 @@ dec 29
 jan 18
 - s/Shell/shell
 - retire egg unit test
+
+jan 21
+- class _state(object) error messages are fucked up
