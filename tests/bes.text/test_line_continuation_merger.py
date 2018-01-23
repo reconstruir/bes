@@ -12,12 +12,10 @@ class test_line_continuation_merger(unit_test):
 
   def test_no_continuation(self):
     text=r'''foo
-bar
-'''
+bar'''
     self.assertEqual( [
       ( 1, 'foo'),
       ( 2, 'bar'),
-      ( 3, ''),
     ], self._merge(text) )
     
   def test_complete(self):
@@ -29,8 +27,7 @@ pineapple
 almond \
 walnut \
 peanut \
-pecan
-'''
+pecan'''
     self.assertEqual( [
       ( 1, 'foo bar'),
       ( 2, 'pear kiwi'),
@@ -41,17 +38,14 @@ pecan
       ( 7, ''),
       ( 8, ''),
       ( 9, ''),
-      ( 10, ''),
     ], self._merge(text) )
     
   def test_one_continuation(self):
     text=r'''pear \
-kiwi
-'''
+kiwi'''
     self.assertEqual( [
       ( 1, 'pear kiwi'),
       ( 2, ''),
-      ( 3, ''),
     ], self._merge(text) )
     
   @classmethod
