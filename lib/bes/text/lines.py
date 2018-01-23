@@ -4,20 +4,8 @@
 import math
 from bes.compat import StringIO
 from collections import namedtuple
+from .line_token import line_token
 
-class _line(object):
-  
-  def __init__(self, line_number = None, text = None, continuation = '\\'):
-    self.line_number = line_number
-    self.text = text
-    self.has_continuation = text.strip().endswith(continuation)
-
-  def __str__(self):
-    return '%s:%s' % (self.line_number, self.text)
-    
-  def __repr__(self):
-    return str(self)
-    
 class lines(object):
   'Manage text as lines.'
 
@@ -60,7 +48,7 @@ class lines(object):
   def _parse(clazz, text, delimiter, continuation):
     lines = text.split(delimiter)
     range(1, len(lines) + 1)
-    lines = [ _line(*item) for item in zip(range(1, len(lines) + 1), lines) ]
+    lines = [ line_token(*item) for item in zip(range(1, len(lines) + 1), lines) ]
     conts = clazz._find_conts(lines)
     for cont in conts:
       print('CONT: %s' % (conts))
@@ -93,9 +81,10 @@ class lines(object):
     width = math.trunc(math.log10(len(self._lines)) + 1)
     fmt  = '%%%dd' % (width)
     buf = StringIO()
-    for line in self._lines:
+    for i, line in enumerate(self._lines):
       buf.write(fmt % (line.line_number))
       line_number_text = fmt % line.line_number
-      line.text = '%s%s%s' % (line_number_text, delimiter, line.text)
+      text = '%s%s%s' % (line_number_text, delimiter, line.text)
+      self._lines[i] = line_token(line.line_number, text)
     return buf.getvalue()
   
