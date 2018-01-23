@@ -17,9 +17,12 @@ class lines(object):
     self._ends_with_delimiter = text and text[-1] == self._delimiter
 
   def __str__(self):
+    return self.to_string()
+    
+  def to_string(self, strip_comments = False):
     buf = StringIO()
     for line in self._lines:
-      buf.write(line.text)
+      buf.write(line.get_text(strip_comments = strip_comments))
       buf.write(self._delimiter)
     v = buf.getvalue()
     if self._ends_with_delimiter and v and v[-1] != self._delimiter:

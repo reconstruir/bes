@@ -75,6 +75,32 @@ coke'''
 10|coke
 ''',
       str(l) )
+
+  def test_strip_comments(self):
+    text = r'''foo bar # comment
+kiwi # comment
+apple
+pear # comment
+orange
+almond # comment
+peanut # comment
+walnut # comment
+rum
+coke'''
+    l = lines(text)
+    self.assertMultiLineEqual(
+      '''foo bar
+kiwi
+apple
+pear
+orange
+almond
+peanut
+walnut
+rum
+coke
+''',
+      l.to_string(strip_comments = True) )
     
 if __name__ == '__main__':
   unit_test.main()

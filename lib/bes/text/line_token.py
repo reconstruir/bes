@@ -4,6 +4,7 @@
 from collections import namedtuple
 from bes.common import string_util
 from bes.compat import StringIO
+from .comments import comments
 
 class line_token(namedtuple('line_token', 'line_number,text,has_continuation')):
 
@@ -19,6 +20,11 @@ class line_token(namedtuple('line_token', 'line_number,text,has_continuation')):
   def __repr__(self):
     return '%s,%s,%s' % (self.line_number, self.text, self.has_continuation)
 
+  def get_text(self, strip_comments = False):
+    if not strip_comments:
+      return self.text
+    return comments.strip_line(self.text, strip = True)
+
   @classmethod
   def merge(clazz, lines):
     'Merge a sequence of lines into one.  Continuation flags are cleared'
@@ -27,4 +33,3 @@ class line_token(namedtuple('line_token', 'line_number,text,has_continuation')):
       text = string_util.remove_tail(line.text, clazz.CONTINUATION_CHAR)
       buf.write(text)
     return clazz(lines[0].line_number, buf.getvalue())
-  
