@@ -41,7 +41,7 @@ class test_lines(unit_test):
   def test_add_line_numbers(self):
     l = lines('foo\nbar\n')
     l.add_line_numbers()
-    self.assertEqual(
+    self.assertMultiLineEqual(
       '''1|foo
 2|bar
 3|
@@ -58,12 +58,23 @@ almond \
 peanut \
 walnut \
 rum
-coke
-'''
+coke'''
     l = lines(text)
-#    self.assertEqual( 2, len(l) )
-#    self.assertEqual( 'foo bar', l[0] )
-#    self.assertEqual( 'apple kiwi', l[1] )
+    l.merge_continuations()
+    l.add_line_numbers()
+    self.assertMultiLineEqual(
+      ''' 1|foo bar
+ 2|kiwi apple
+ 3|
+ 4|pear orange
+ 5|
+ 6|almond peanut walnut rum
+ 7|
+ 8|
+ 9|
+10|coke
+''',
+      str(l) )
     
 if __name__ == '__main__':
   unit_test.main()

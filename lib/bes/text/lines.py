@@ -5,15 +5,15 @@ import math
 from bes.compat import StringIO
 from collections import namedtuple
 from .line_token import line_token
+from .line_continuation_merger import line_continuation_merger
 
 class lines(object):
   'Manage text as lines.'
 
-  def __init__(self, text, delimiter = '\n', continuation = '\\'):
+  def __init__(self, text, delimiter = '\n'):
     self._original_text = text
     self._delimiter = delimiter
-    self._continuation = continuation
-    self._lines = self._parse(self._original_text, self._delimiter, self._continuation)
+    self._lines = self._parse(self._original_text, self._delimiter)
     self._ends_with_delimiter = text and text[-1] == self._delimiter
 
   def __str__(self):
@@ -45,38 +45,12 @@ class lines(object):
     return True
 
   @classmethod
-  def _parse(clazz, text, delimiter, continuation):
+  def _parse(clazz, text, delimiter):
     lines = text.split(delimiter)
     range(1, len(lines) + 1)
     lines = [ line_token(*item) for item in zip(range(1, len(lines) + 1), lines) ]
-    conts = clazz._find_conts(lines)
-    for cont in conts:
-      print('CONT: %s' % (conts))
     return lines
 
-  _conts = namedtuple('_conts', 'line_number,lines')
-  @classmethod
-  def _find_conts(clazz, lines):
-    conts = []
-    cont_lines = [ line for line in lines if line.has_continuation ]
-    for cont_line in cont_lines:
-      conts.append(clazz._find_cont_lines(lines, cont_line))
-    return conts
-
-  @classmethod
-  def _find_cont_lines(clazz, lines, line):
-    result = []
-    assert line.has_continuation
-    index = line.line_number - 1
-    while line.has_continuation:
-      result.append(line)
-      index = index + 1
-      if index == len(lines):
-        break
-      line = lines[index]
-    result.append(line)
-    return result
-  
   def add_line_numbers(self, delimiter = '|'):
     width = math.trunc(math.log10(len(self._lines)) + 1)
     fmt  = '%%%dd' % (width)
@@ -87,4 +61,7 @@ class lines(object):
       text = '%s%s%s' % (line_number_text, delimiter, line.text)
       self._lines[i] = line_token(line.line_number, text)
     return buf.getvalue()
+  
+  def merge_continuations(self):
+    self._lines = line_continuation_merger.merge_to_list(self._lines)
   
