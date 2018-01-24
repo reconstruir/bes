@@ -19,6 +19,9 @@ class lines(object):
   def __str__(self):
     return self.to_string()
     
+  def __repr__(self):
+    return str(self)
+    
   def to_string(self, strip_comments = False):
     buf = StringIO()
     for line in self._lines:

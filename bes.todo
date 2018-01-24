@@ -56,3 +56,7 @@ jan 21
 
 jan 23
 - reorg tests
+
+fix bes_test.py to ignore such files:
+readlink /Users/ramiro/proj/rebuild/lib/.#setup.py
+ramiro@queequeg.local.212

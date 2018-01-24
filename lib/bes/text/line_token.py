@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
-from bes.common import string_util
+from bes.common import check, string_util
 from bes.compat import StringIO
 from .comments import comments
 
@@ -35,3 +35,4 @@ class line_token(namedtuple('line_token', 'line_number,text')):
       text = string_util.remove_tail(line.text, clazz.CONTINUATION_CHAR)
       buf.write(text)
     return clazz(lines[0].line_number, buf.getvalue())
+check.register_class(line_token)
