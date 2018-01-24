@@ -116,10 +116,11 @@ def main():
   files, filters = _separate_files_and_filters(args.files)
 
   files = file_resolve.resolve_files_and_dirs(files)
-
+  
   # Don't include this script in the list since it needs to be run bes_test.py --unit to work
   files = [ f for f in files if not f.endswith('bes_test.py') ]
   files = [ f for f in files if f.lower().endswith('.py') ]
+  files = [ f for f in files if not file_util.is_broken_link(f) ]
   test_map = unit_test_inspect.inspect_map(files)
 
   # We want only the files that have tests
@@ -617,6 +618,10 @@ class file_util(object):
   @classmethod
   def parent_dir(clazz, d):
     return path.normpath(path.join(d, os.pardir))
+
+  @classmethod
+  def is_broken_link(clazz, filename):
+    return path.islink(filename) and not path.isfile(os.readlink(filename))
   
 class environ_util(object):
 
