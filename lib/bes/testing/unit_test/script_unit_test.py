@@ -28,30 +28,27 @@ class script_unit_test(unit_test):
     cmd = [ self._resolve_script() ] + list(args)
     return cmd
 
-  def run_script(self, args, cwd = None):
-    rv = self.run_script_raw(args, cwd = cwd)
+  def run_script(self, args, cwd = None, env = None):
+    rv = self.run_script_raw(args, cwd = cwd, env = env)
     if isinstance(rv.stdout, bytes):
       stdout = codecs.decode(rv.stdout, 'utf-8')
     else:
       stdout = rv.stdout
-    if isinstance(rv.stderr, bytes):
-      stderr = codecs.decode(rv.stderr, 'utf-8')
-    else:
-      stderr = rv.stderr
-    return self.exec_result(rv.exit_code, stdout, stderr)
+    if rv.exit_code != 0:
+      print(rv.stdout)
+    return self.exec_result(rv.exit_code, stdout)
 
-  def run_script_raw(self, args, cwd = None):
+  def run_script_raw(self, args, cwd = None, env = None):
     cmd = self.make_command(args)
-    return self._exec(cmd, cwd)
+    return self._exec(cmd, cwd, env)
   
-  exec_result = namedtuple('exec_result', 'exit_code,stdout,stderr')
+  exec_result = namedtuple('exec_result', 'exit_code,stdout')
   @classmethod
-  def _exec(clazz, cmd, cwd):
-    process = subprocess.Popen(cmd, cwd = cwd, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell = False)
-    stdout, stderr = process.communicate()
-    stderr = ''
+  def _exec(clazz, cmd, cwd, env):
+    process = subprocess.Popen(cmd, cwd = cwd, env = env, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell = False)
+    stdout, _ = process.communicate()
     exit_code = process.wait()
-    return clazz.exec_result(exit_code, stdout.strip(), stderr.strip())
+    return clazz.exec_result(exit_code, stdout.strip())
 
   def assert_rv_success(self, rv):
     if rv.exit_code != 0:
