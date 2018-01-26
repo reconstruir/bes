@@ -5,7 +5,7 @@ from .check import check
 from .size import size
 
 class table(object):
-  'A 2 dimensional table table.'
+  'A 2 dimensional table.'
 
   def __init__(self, width = None, height = None, data = None):
     if data is not None and width is not None and width != len(data[0]):
@@ -15,9 +15,13 @@ class table(object):
       raise ValueError('height should be %d instead of %d' % (len(data), height))
 
     if data is not None:
-      width = len(data[0])
-      height = len(data)
-      
+      if len(data) > 0:
+        width = len(data[0])
+        height = len(data)
+      else:
+        width = 0
+        height = 0
+        
     check.check_int(width)
     check.check_int(height)
     self._size = size(width, height)
