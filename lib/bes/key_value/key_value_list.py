@@ -123,5 +123,12 @@ class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
   def substitute_variables(self, d):
     for i, kv in enumerate(self._values):
       self._values[i] = key_value(kv.key, variable.substitute(kv.value, d))
-        
+
+  def replace(self, key, new_kv):
+    check.check_string(key)
+    check.check_key_value(new_kv)
+    for i, next_kv in enumerate(self._values):
+      if next_kv.key == key:
+        self._values[i] = new_kv
+      
 check.register_class(key_value_list, include_seq = False)
