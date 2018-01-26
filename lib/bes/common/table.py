@@ -21,7 +21,11 @@ class table(object):
       else:
         width = 0
         height = 0
-        
+
+    if width is None or height is None:
+      width = 0
+      height = 0
+      
     check.check_int(width)
     check.check_int(height)
     self._size = size(width, height)
