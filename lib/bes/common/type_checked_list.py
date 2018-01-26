@@ -71,6 +71,8 @@ class type_checked_list(object):
     return iter(self._values)
 
   def __getitem__(self, i):
+    if isinstance(i, slice):
+      return self.__class__(self._values[i])
     return self._values[i]
   
   def __setitem__(self, i, v):
