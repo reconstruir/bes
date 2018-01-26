@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
-import os.path as path, unittest
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+from bes.testing.unit_test import unit_test
+import os.path as path
 from bes.common import variable
 
-class test_variable(unittest.TestCase):
+class test_variable(unit_test):
 
   def test_find_variables(self):
     self.assertEqual( [], variable.find_variables('No vars here') )
@@ -91,5 +92,8 @@ class test_variable(unittest.TestCase):
     with self.assertRaises(TypeError) as context:
       variable.substitute('$foo and $bar', { 'foo': [ 'x' ], 'bar': 'Y' })
 
+  def test_substitute_nested(self):
+    self.assertEqual( 'X and ZY and Z', variable.substitute('${foo} and ${bar} and ${kiwi}', { 'foo': 'X', 'bar': '${kiwi}Y', 'kiwi': 'Z' }) )
+      
 if __name__ == '__main__':
-  unittest.main()
+  unit_test.main()

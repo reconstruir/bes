@@ -47,7 +47,15 @@ class variable(object):
       for pattern in clazz.VARIABLE_PATTERNS:
         formatted_key = clazz.KEY_FORMATS[pattern] % (key)
         replacements[formatted_key] = value
-    return string_util.replace(s, replacements, word_boundary = True)
+    old_result = s
+    new_result = None
+    while True:
+      new_result = string_util.replace(old_result, replacements, word_boundary = True)
+      changed = new_result != old_result
+      if not changed:
+        break
+      old_result = new_result
+    return new_result
 
   @classmethod
   def has_rogue_dollar_signs(clazz, s):
