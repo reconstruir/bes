@@ -28,9 +28,13 @@ class lines(object):
       buf.write(line.text_no_comments)
       buf.write(self._delimiter)
     v = buf.getvalue()
-    if self._ends_with_delimiter and v and v[-1] != self._delimiter:
-      buf.write(self._delimiter)
-    return buf.getvalue()
+    if self._ends_with_delimiter:
+      if v and v[-1] != self._delimiter:
+        buf.write(self._delimiter)
+    else:
+      if v and v[-1] == self._delimiter:
+        v = v[0:-1]
+    return v
     
   def __len__(self):
     return len(self._lines)
@@ -63,3 +67,13 @@ class lines(object):
   def read_file(clazz, filename):
     with open(filename, 'r') as f:
       return clazz(f.read())
+
+  def texts(self, strip_head = False, strip_tail = False):
+    def _do_strip(s):
+      if strip_head and strip_tail:
+        return s.strip()
+      elif strip_head:
+        return s.lstrip()
+      elif strip_tail:
+        return s.rstrip()
+    return [ _do_strip(line.text) for line in self._lines ]

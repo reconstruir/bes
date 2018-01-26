@@ -72,8 +72,7 @@ coke'''
  7|
  8|
  9|
-10|coke
-''',
+10|coke''',
       str(l) )
 
   def test_strip_comments(self):
@@ -98,8 +97,7 @@ almond
 peanut
 walnut
 rum
-coke
-''',
+coke''',
       l.to_string(strip_comments = True) )
     
 if __name__ == '__main__':
