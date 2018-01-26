@@ -4,7 +4,7 @@
 from bes.compat import StringIO
 from .key_value_parser import key_value_parser
 from .key_value import key_value
-from bes.common import check, object_util, string_util, type_checked_list
+from bes.common import check, object_util, string_util, type_checked_list, variable
 from bes.text import string_lexer_options
 
 class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
@@ -119,5 +119,9 @@ class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
     for i, kv in enumerate(self._values):
       if string_util.is_string(kv.value):
         self._values[i] = key_value(kv.key, string_util.unquote(kv.value))
-  
+
+  def substitute_variables(self, d):
+    for i, kv in enumerate(self._values):
+      self._values[i] = key_value(kv.key, variable.substitute(kv.value, d))
+        
 check.register_class(key_value_list, include_seq = False)

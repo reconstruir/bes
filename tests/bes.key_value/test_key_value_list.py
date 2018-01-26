@@ -175,6 +175,11 @@ class test_key_value_list(unit_test):
     
   def test_from_dict(self):
     self.assertEqual( KVL([ KV('a', 5), KV('b', 6) ]), KVL.from_dict({ 'a': 5, 'b': 6 }) )
-    
+
+  def test_substitute_variables(self):
+    l = KVL([( 'a', 'a is ${foo}' ), ( 'b', 'b is ${bar}' ) ])
+    l.substitute_variables({ 'foo': 'apple', 'bar': 'kiwi' })
+    self.assertEqual( KVL([ KV('a', 'a is apple'), KV('b', 'b is kiwi') ]), l )
+
 if __name__ == "__main__":
   unit_test.main()
