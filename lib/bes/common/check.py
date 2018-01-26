@@ -62,6 +62,10 @@ class check(object):
     clazz._check_seq(o, clazz.STRING_TYPES, 2)
 
   @classmethod
+  def check_tuple_seq(clazz, o):
+    clazz._check_seq(o, tuple, 2)
+
+  @classmethod
   def check_int(clazz, o):
     clazz._check(o, clazz.INTEGER_TYPES, 2)
 

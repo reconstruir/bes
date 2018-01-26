@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common import object_util, table, size
-from bes.system import compat
+from bes.common import check, object_util, table, size
 from bes.compat import StringIO
 
 class text_table_cell_style(object):
@@ -27,9 +26,9 @@ class text_table_cell_style(object):
 
 class text_table(object):
   'A table of strings.'
-  def __init__(self, width, height, column_delimiter = ' │ '):
+  def __init__(self, width = None, height = None, data = None, column_delimiter = ' │ '):
     self._labels = None
-    self._table = table(width, height)
+    self._table = table(width = width, height = height, data = data)
     self._column_delimiter = column_delimiter
     self._row_styles = {}
     self._col_styles = {}
@@ -37,13 +36,12 @@ class text_table(object):
     self._default_cell_style = text_table_cell_style()
     
   def set_labels(self, labels):
+    check.check_tuple(labels)
     self._table.check_width(len(labels))
-    assert isinstance(labels, tuple)
     self._labels = labels[:]
 
   def set(self, x, y, s):
-    if not compat.is_string(s):
-      raise ValueError('s should be a string instead of: %s' % (type(s)))
+    check.check_string(s)
     self._table.set(x, y, s)
     
   def get(self, x, y):
@@ -112,3 +110,7 @@ class text_table(object):
   def get_cell_style(self, x, y):
     self._table.check_xy(x, y)
     return self._cell_styles.get((x, y), None) or self._col_styles.get(x, self._default_cell_style)
+
+  def set_data(self, data):
+    check.check_tuple_seq(data)
+    self._table.set_data(data)

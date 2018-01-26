@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
-import unittest
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+from bes.testing.unit_test import unit_test
 from bes.common import table
 
-class test_table(unittest.TestCase):
+class test_table(unit_test):
 
   def test_empty(self):
     t = table()
@@ -81,5 +81,37 @@ class test_table(unittest.TestCase):
     self.assertEqual( 6, t.get(1, 2) )
     self.assertEqual( None, t.get(1, 3) )
 
-if __name__ == "__main__":
-  unittest.main()
+  def test_set_data(self):
+    t = table(3, 3)
+    data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ]
+    t.set_data(data)
+    self.assertEqual( ( 1, 2, 3 ), t.row(0) )
+    self.assertEqual( ( 4, 5, 6 ), t.row(1) )
+    self.assertEqual( ( 7, 8, 9 ), t.row(2) )
+    
+  def test_row(self):
+    t = table(3, 3, [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ])
+    self.assertEqual( ( 1, 2, 3 ), t.row(0) )
+    self.assertEqual( ( 4, 5, 6 ), t.row(1) )
+    self.assertEqual( ( 7, 8, 9 ), t.row(2) )
+    
+  def test_col(self):
+    t = table(3, 3, [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ])
+    self.assertEqual( ( 1, 4, 7 ), t.column(0) )
+    self.assertEqual( ( 2, 5, 8 ), t.column(1) )
+    self.assertEqual( ( 3, 6, 9 ), t.column(2) )
+    
+if __name__ == '__main__':
+  unit_test.main()

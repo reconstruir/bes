@@ -1,17 +1,30 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from .check import check
 from .size import size
 
 class table(object):
   'A 2 dimensional table table.'
 
-  def __init__(self, width = 0, height = 0):
-    assert width >= 0
-    assert height >= 0
+  def __init__(self, width = None, height = None, data = None):
+    if data is not None and width is not None and width != len(data[0]):
+      raise ValueError('width should be %d instead of %d' % (len(data[0]), width))
+      
+    if data is not None and height is not None and height != len(data):
+      raise ValueError('height should be %d instead of %d' % (len(data), height))
+
+    if data is not None:
+      width = len(data[0])
+      height = len(data)
+      
+    check.check_int(width)
+    check.check_int(height)
     self._size = size(width, height)
     self._table = self._make_table(self._size)
-
+    if data:
+      self.set_data(data)
+    
   @property
   def width(self):
     return self._size.width
@@ -25,8 +38,8 @@ class table(object):
     return self._size
 
   def resize(self, width, height):
-    assert isinstance(width, int)
-    assert isinstance(height, int)
+    check.check_int(width)
+    check.check_int(height)
     new_size = size(width, height)
     if new_size == self._size:
       return
@@ -44,8 +57,7 @@ class table(object):
     return self._table[y][x]
     
   def set_row(self, y, row):
-    if not isinstance(row, tuple):
-      raise TypeError('row needs to be a tuple instead of: %s' % (type(row)))
+    check.check_tuple(row)
     self.check_y(y)
     if len(row) != self._size.width:
       raise ValueError('Row should be %d wide instead of: %s' % (self._size.width, len(row)))
@@ -53,8 +65,7 @@ class table(object):
       self._table[y][x] = row[x]
     
   def set_column(self, x, column):
-    if not isinstance(column, tuple):
-      raise TypeError('column needs to be a tuple instead of: %s' % (type(column)))
+    check.check_tuple(column)
     self.check_x(x)
     if len(column) != self._size.height:
       raise ValueError('Column should be %d high instead of: %s' % (self._size.height, len(column)))
@@ -67,29 +78,29 @@ class table(object):
 
   def row(self, y):
     self.check_y(y)
-    return self._table[y]
+    return tuple(self._table[y])
   
   def column(self, x):
     self.check_x(x)
     col = []
     for y in range(0, self._size.height):
       col.append(self._table[y][x])
-    return col
+    return tuple(col)
   
   def x_valid(self, x):
-    return isinstance(x, int) and x >= 0 and x < self.size.width
+    return check.is_int(x) and x >= 0 and x < self.size.width
     
   def y_valid(self, y):
-    return isinstance(y, int) and y >= 0 and y < self.size.height
+    return check.is_int(y) and y >= 0 and y < self.size.height
     
   def xy_valid(self, x, y):
     return self.x_valid(x) and self.y_valid(y)
 
   def width_valid(self, width):
-    return isinstance(width, int) and width == self.size.width
+    return check.is_int(width) and width == self.size.width
 
   def height_valid(self, height):
-    return isinstance(height, int) and height == self.size.height
+    return check.is_int(height) and height == self.size.height
 
   def check_x(self, x):
     if not self.x_valid(x):
@@ -130,3 +141,10 @@ class table(object):
     for y in range(0, min(len(src), len(dst))):
       for x in range(0, min(len(src[y]), len(dst[y]))):
         dst[y][x] = src[y][x]
+
+  def set_data(self, data):
+    check.check_tuple_seq(data)
+    if len(data) != self.height:
+      raise ValueError('Length of data should be %d instead of %d' % (self.height, len(data)))
+    for i, row in enumerate(data):
+      self.set_row(i, row)
