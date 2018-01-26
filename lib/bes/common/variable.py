@@ -3,6 +3,7 @@
 
 import re
 from .string_util import string_util
+from .check import check
 
 class variable(object):
   'variable'
@@ -40,12 +41,9 @@ class variable(object):
   def substitute(clazz, s, d):
     'Substitute vars in s with d.'
     replacements = {}
-
     for key, value in d.items():
-      if not string_util.is_string(key):
-        raise RuntimeError('key should be string instead of %s: %s' % (str(key), type(key)))
-      if not string_util.is_string(value):
-        raise RuntimeError('value should be string instead of %s: %s' % (str(value), type(value)))
+      check.check_string(key)
+      check.check_string(value)
       for pattern in clazz.VARIABLE_PATTERNS:
         formatted_key = clazz.KEY_FORMATS[pattern] % (key)
         replacements[formatted_key] = value

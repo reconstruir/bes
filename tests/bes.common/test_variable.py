@@ -88,7 +88,7 @@ class test_variable(unittest.TestCase):
     self.assertFalse( variable.has_rogue_dollar_signs('\$foo') )
 
   def test_invalid_key(self):
-    with self.assertRaises(RuntimeError) as context:
+    with self.assertRaises(TypeError) as context:
       variable.substitute('$foo and $bar', { 'foo': [ 'x' ], 'bar': 'Y' })
 
 if __name__ == '__main__':
