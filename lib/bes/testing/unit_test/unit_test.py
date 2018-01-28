@@ -17,11 +17,15 @@ class unit_test(unittest.TestCase):
   def platform_data_path(self, filename): 
     return self.data_path(filename, platform_specific = True)
 
-  def data_dir(self, platform_specific = False): 
+  def data_dir(self, platform_specific = False, where = None): 
     parts = [ self._get_data_dir() ]
     if platform_specific:
       parts.append(self._HOST)
-    return path.join(*parts)
+    result = path.join(*parts)
+    if where:
+      return path.join(result, where)
+    else:
+      return result
 
   def platform_data_dir(self): 
     return self.data_dir(platform_specific = True)
