@@ -5,7 +5,7 @@ import unittest
 from bes.common import size
 from bes.text import text_canvas
 
-class Testtext_canvas(unittest.TestCase):
+class test_text_canvas(unittest.TestCase):
 
   @classmethod
   def decorate_text(clazz, text):

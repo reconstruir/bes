@@ -48,6 +48,9 @@ class text_table(object):
     return self._table.get(x, y)
 
   def __str__(self):
+    return self.to_string()
+
+  def to_string(self, strip_rows = True):
     buf = StringIO()
     col_widths = [ self._column_width(x) for x in range(0, self._table.width) ]
     if self._labels:
@@ -57,8 +60,13 @@ class text_table(object):
     for y in range(0, self._table.height):
       row = self._table.row(y)
       assert len(row) == len(col_widths)
+      row_buf = StringIO()
       for x in range(0, self._table.width):
-        self._write_cell(x, y, buf, col_widths)
+        self._write_cell(x, y, row_buf, col_widths)
+      row_str = row_buf.getvalue()
+      if strip_rows:
+        row_str = row_str.strip()
+      buf.write(row_str)
       buf.write('\n')
     value = buf.getvalue()
     # remove the trailing new line

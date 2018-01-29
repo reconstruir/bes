@@ -6,12 +6,29 @@ from bes.common import table
 
 class test_table(unit_test):
 
-  def test_empty(self):
+  def test___init__empty(self):
     t = table()
     self.assertEqual( 0, t.width )
     self.assertEqual( 0, t.height )
 
-  def test_not_empty(self):
+  def test___init__with_data(self):
+    t =  table(data = [
+      ( 1, 2 ),
+      ( 3, 4 ),
+    ])
+    self.assertEqual( 2, t.width )
+    self.assertEqual( 2, t.height )
+    
+  def test___init__with_table_data(self):
+    t1 = table(data = [
+      ( 1, 2 ),
+      ( 3, 4 ),
+    ])
+    t2 =  table(data = t1)
+    self.assertEqual( ( 1, 2 ), t2.row(0 ) )
+    self.assertEqual( ( 3, 4 ), t2.row(1 ) )
+    
+  def test___init__with_dimensions(self):
     t = table(10, 10)
     self.assertEqual( 10, t.width )
     self.assertEqual( 10, t.height )
@@ -112,6 +129,39 @@ class test_table(unit_test):
     self.assertEqual( ( 1, 4, 7 ), t.column(0) )
     self.assertEqual( ( 2, 5, 8 ), t.column(1) )
     self.assertEqual( ( 3, 6, 9 ), t.column(2) )
+
+  def test__eq__(self):
+    t1 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ])
+    t2 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ])
+    t3 = table(data = [
+      ( 99, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ])
+    self.assertTrue( t1 == t2 )
+    self.assertFalse( t1 == t3 )
+    
+  def test_insert_column(self):
+    t1 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ], default_value = 0)
+    t2 = table(data = [
+      ( 1, 9, 2, 3 ),
+      ( 4, 8, 5, 6 ),
+      ( 7, 7, 8, 9 ),
+    ])
+    t1.insert_column(1, column = ( 9, 8, 7 ))
+    self.assertEqual( t1, t2 )
     
 if __name__ == '__main__':
   unit_test.main()
