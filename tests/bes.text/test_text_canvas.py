@@ -88,7 +88,7 @@ class test_text_canvas(unittest.TestCase):
 
       def __unexpected_char(self, c):
         'Raise a useful exception when an unexpected char is encountered by the state machine.'
-        text = Testtext_canvas.decorate_text(self._text)
+        text = test_text_canvas.decorate_text(self._text)
         line_number = len(self._lines or []) + 1
         raise RuntimeError('Unexpected input "%s" at (%s, %s) in state %s: \n%s\n' % (self.__escape_char(c),
                                                                                       self._x,

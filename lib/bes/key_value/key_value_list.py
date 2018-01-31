@@ -80,21 +80,6 @@ class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
         return False
     return True
 
-  @classmethod
-  def is_key_value_list(clazz, o):
-    'Return True if o is either a key_value_list or a python iterable of key_values.'
-    if isinstance(o, key_value_list):
-      return True
-    return isinstance(o, (list, tuple)) and object_util.is_homogeneous(o, key_value)
-
-  @classmethod
-  def verify_key_value_list(clazz, o):
-    if isinstance(o, key_value_list):
-      return o
-    if not object_util.is_homogeneous(o, key_value):
-      return None
-    return clazz([ v for v in o ])
-
   def to_dict(self):
     result = {}
     for next_kv in self._values:
