@@ -5,6 +5,7 @@ from bes.testing.unit_test import unit_test
 from bes.common import type_checked_list
 from bes.system import compat
 from bes.compat import cmp
+from collections import namedtuple
 
 class IL(type_checked_list):
 
@@ -106,6 +107,21 @@ class test_type_checked_list(unit_test):
 
     self.assertEqual( 1, len(l) )
     self.assertEqual( 6, l[0] )
+    
+  def test_sort(self):
+    T = namedtuple('T', 'a,b')
+    class TL(type_checked_list):
+      def __init__(self, values = None):
+        super(TL, self).__init__(T, values = values)
+    l = TL([ T('apple', 6), T('pear', 1), T('kiwi', 7) ])
+    self.assertEqual( [ T('apple', 6), T('pear', 1), T('kiwi', 7) ], [ x for x in l ] )
+    l.sort()
+    self.assertEqual( [ T('apple', 6), T('kiwi', 7), T('pear', 1) ], [ x for x in l ] )
+    l.sort(key = lambda x: x.b)
+    self.assertEqual( [ T('pear', 1), T('apple', 6), T('kiwi', 7) ], [ x for x in l ] )
+    l = TL([ T('apple', 6), T('pear', 1), T('kiwi', 7) ])
+    l.sort(cmp = lambda a, b: cmp(a.a[-1], b.a[-1]))
+    self.assertEqual( [ T('apple', 6), T('kiwi', 7), T('pear', 1) ], [ x for x in l ] )
     
 if __name__ == "__main__":
   unit_test.main()
