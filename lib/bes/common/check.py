@@ -16,7 +16,7 @@ class check(object):
 
   @classmethod
   def is_string_seq(clazz, o):
-    return clazz.is_seq(o, clazz.STRING_TYPES)
+    return not clazz.is_string(o) and clazz.is_seq(o, clazz.STRING_TYPES)
 
   @classmethod
   def is_int(clazz, o):
