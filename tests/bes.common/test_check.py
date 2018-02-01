@@ -89,6 +89,14 @@ class test_check(unit_test):
     C.check_dict({ 'a': 5, 'b': 6 }, value_type = compat.INTEGER_TYPES)
     with self.assertRaises(TypeError) as context:
       C.check_dict({ 'a': 5, 6: 'b' }, value_type = compat.INTEGER_TYPES)
+
+  def test_is_string_seq(self):
+    self.assertFalse( C.is_string([ 'foo' ]) )
+    self.assertTrue( C.is_string('foo') )
+      
+  def test_is_string_seq(self):
+    self.assertTrue( C.is_string_seq([ 'foo' ]) )
+    self.assertFalse( C.is_string_seq('foo') )
       
 if __name__ == '__main__':
   unit_test.main()
