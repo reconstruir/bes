@@ -37,6 +37,7 @@ class host(object):
       '10.10': 'yosemite',
       '10.11': 'el_capitan',
       '10.12': 'sierra',
+      '10.13': 'high_sierra',
     },
    }
 
