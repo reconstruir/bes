@@ -5,7 +5,7 @@ import unittest
 from bes.key_value import key_value_lexer as L
 
 import os.path as path, sys
-sys.path.append(path.join(path.dirname(__file__), '../bes.text'))
+sys.path.append(path.join(path.dirname(__file__), '../text'))
 print(sys.path)
 from helpers.token_test_helper import *
 
