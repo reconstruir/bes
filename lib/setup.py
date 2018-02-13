@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from setuptools import setup, find_packages
+
 setup(
   name = 'bes',
   version = '1.0.0',
