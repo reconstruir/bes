@@ -60,6 +60,14 @@ class lines(object):
       text = '%s%s%s' % (line_number_text, delimiter, line.text)
       self._lines[i] = line_token(line.line_number, text)
   
+  def prepend(self, s):
+    for i, line in enumerate(self._lines):
+      self._lines[i] = line_token(line.line_number, '%s%s' % (s, line.text))
+  
+  def append(self, s):
+    for i, line in enumerate(self._lines):
+      self._lines[i] = line_token(line.line_number, '%s%s' % (line.text, s))
+  
   def merge_continuations(self):
     self._lines = line_continuation_merger.merge_to_list(self._lines)
 

@@ -48,6 +48,26 @@ class test_lines(unit_test):
 ''',
       str(l) )
 
+  def test_prepend(self):
+    l = lines('foo\nbar\n')
+    l.prepend('ABC: ')
+    self.assertMultiLineEqual(
+      '''ABC: foo
+ABC: bar
+ABC:
+''',
+      str(l) )
+
+  def test_append(self):
+    l = lines('foo\nbar\n')
+    l.append(':ABC')
+    self.assertMultiLineEqual(
+      '''foo:ABC
+bar:ABC
+:ABC
+''',
+      str(l) )
+
   def test_continuation(self):
     text = r'''foo bar
 kiwi \

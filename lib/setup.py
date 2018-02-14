@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
   name = 'bes',
-  version = '1.0.0',
+  version = '@VERSION@',
   packages = find_packages(include = ['bes*']),
   zip_safe = True,
   author = 'Ramiro Estrugo',
