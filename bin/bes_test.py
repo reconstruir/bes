@@ -119,7 +119,7 @@ def main():
   
   cwd = os.getcwd()
 
-  if not args.version:
+  if args.version:
     import bes
     print('%s %s' % (bes.__version__, bes.__bes_tag__))
     return 0
