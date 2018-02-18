@@ -6,7 +6,7 @@ import json
 
 setup(
   name = 'bes',
-  version = json.loads(open('version.txt', 'r').read())['version'],
+  version = json.loads(open('bes/version.txt', 'r').read())['version'],
   packages = find_packages(include = ['bes*']),
   include_package_data = True,
   zip_safe = True,
