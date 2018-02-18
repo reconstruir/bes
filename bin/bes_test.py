@@ -136,12 +136,9 @@ def main():
     git_modified = []
     for root in git_roots:
       modified_py_files = [ f for f in git.modified_files(root) if f.endswith('.py') ]
-      print('modified_py_files: %s' % (modified_py_files))
       git_modified.extend(modified_py_files)
-    print('git_modified: %s' % (git_modified))
     files = file_resolve.resolve_files_and_dirs(git_modified)
     files = [ f for f in files if f in test_map ]
-  print('files: %s' % (files))
   if args.print_tests:
     unit_test_inspect.print_inspect_map(test_map, files, cwd)
     return 0
