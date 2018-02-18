@@ -49,6 +49,10 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Verbose debug output [ False ]')
+  parser.add_argument('--version',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Show version [ False ]')
   parser.add_argument('--stop',
                       '-s',
                       action = 'store_true',
@@ -115,6 +119,11 @@ def main():
   
   cwd = os.getcwd()
 
+  if not args.version:
+    import bes
+    print('%s %s' % (bes.__version__, bes.__bes_tag__))
+    return 0
+  
   if not args.files:
     args.files = [ cwd ]
   
