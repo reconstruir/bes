@@ -7,8 +7,8 @@ import argparse, ast, copy, fnmatch, math, os, os.path as path, platform, random
 import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
-from bes.common import algorithm, object_util #, string_util
-from bes.text import lines
+from bes.common import algorithm, object_util, string_util
+from bes.text import comments, lines
 from bes.fs import file_util
 from bes.dependency import dependency_resolver
 
@@ -628,18 +628,6 @@ class environ_util(object):
     clean_env['PATH'] = clean_path
     return clean_env
     
-class string_util(object):
-
-  @classmethod
-  def split_by_white_space(clazz, s):
-    tokens = [ token.strip() for token in re.split('\s+', s) ]
-    return [ token for token in tokens if token ]
-
-  @classmethod
-  def remove_comments(clazz, s):
-    x = re.sub('#.*', '', s)
-    return x
-  
 class file_find(object):
 
   @classmethod
@@ -964,7 +952,7 @@ class config_file(object):
   def parse(clazz, s):
     result = {}
     lines = s.split('\n')
-    lines = [ string_util.remove_comments(line) for line in lines ]
+    lines = [ comments.strip_line(line) for line in lines ]
     lines = [ line.strip() for line in lines ]
     lines = [ line for line in lines if line ]
     for line in lines:
@@ -1037,11 +1025,6 @@ class test_unit_test_desc(test_case):
     self.assertEqual( ( 'foo.py', None, None ), unit_test_desc.parse('foo.py:') )
     self.assertEqual( ( 'foo.py', None, 'fix' ), unit_test_desc.parse('foo.py:fix') )
 
-class test_string_util(test_case):
-  
-  def test_split_by_white_space(self):
-    self.assertEqual( [ 'foo', 'bar' ], string_util.split_by_white_space('    foo  bar   ') )
-    
 class test_git(test_case):
 
   def test_parse_status_line(self):
