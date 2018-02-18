@@ -3,10 +3,14 @@
 
 from setuptools import setup, find_packages
 
+import os
+print('fuck: pwd=%s' % (os.getcwd()))
+
 setup(
   name = 'bes',
   version = '@VERSION@',
   packages = find_packages(include = ['bes*']),
+  include_package_data = True,
   zip_safe = True,
   author = 'Ramiro Estrugo',
   author_email = 'bes@fateware.com',
