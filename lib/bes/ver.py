@@ -4,5 +4,5 @@
 BES_VERSION = u'1.0.0'
 BES_AUTHOR_NAME = u'Ramiro Estrugo'
 BES_AUTHOR_EMAIL = u'bes@fateware.com'
-BES_TAG = ''
-BES_ADDRESS = ''
+BES_ADDRESS = u''
+BES_TAG = u''

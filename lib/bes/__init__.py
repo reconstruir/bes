@@ -3,3 +3,5 @@
 
 from .ver import BES_VERSION as __version__
 from .ver import BES_AUTHOR_EMAIL as __author__
+from .ver import BES_ADDRESS as __bes_address__
+from .ver import BES_TAG as __bes_tag__
