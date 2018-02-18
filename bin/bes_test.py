@@ -7,7 +7,7 @@ import argparse, ast, copy, fnmatch, math, os, os.path as path, platform, random
 import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
-from bes.common import algorithm, object_util
+from bes.common import algorithm, object_util #, string_util
 from bes.text import lines
 from bes.fs import file_util
 from bes.dependency import dependency_resolver
