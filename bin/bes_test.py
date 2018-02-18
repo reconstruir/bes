@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 # A script to run python unit tests.  Does not use any bes code to avoid
 # chicken-and-egg issues and to be standalone
@@ -8,7 +7,7 @@ import argparse, ast, copy, fnmatch, math, os, os.path as path, platform, random
 import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
-from bes.common import object_util
+from bes.common import algorithm, object_util
 from bes.fs import file_util
 from bes.dependency import dependency_resolver
 
@@ -353,7 +352,7 @@ class file_filter(object):
   def env_dirs(clazz, filtered_files):
     filenames = [ f.filename for f in filtered_files ]
     roots = [ clazz._test_file_get_root(f) for f in filenames ]
-    roots = util.unique_list(roots)
+    roots = algorithm.unique(roots)
     roots = [ f for f in roots if f ]
     result = []
     for root in roots:
@@ -558,13 +557,7 @@ def _match_filenames(files, patterns):
   for filename in files:
     if _match_test(patterns, filename):
       result.append(filename)
-  return sorted(util.unique_list(result))
-
-class util(object):
-
-  @classmethod
-  def unique_list(clazz, l):
-    return list(set(l))
+  return sorted(algorithm.unique(result))
 
 class environ_util(object):
 
@@ -692,7 +685,7 @@ class file_resolve(object):
       elif path.isdir(f):
         result += clazz._resolve_dir(f)
     result += clazz.tests_for_many_files(result)
-    result = util.unique_list(result)
+    result = algorithm.unique(result)
     result = [ path.normpath(r) for r in result ]
     return sorted(result)
 
@@ -717,7 +710,7 @@ class file_resolve(object):
     content = file_util.read(p)
     lines = [ f for f in content.split('\n') if f ]
     files = [ path.join(d, f) for f in lines ]
-    return sorted(util.unique_list(files))
+    return sorted(algorithm.unique(files))
   
   @classmethod
   def test_for_file(clazz, filename):
@@ -789,7 +782,7 @@ class git(object):
 
   @classmethod
   def roots_for_many_files(clazz, files):
-    return util.unique_list([ clazz.root(filename) for filename in files ])
+    return algorithm.unique([ clazz.root(filename) for filename in files ])
 
 class egg_util(object):
 
