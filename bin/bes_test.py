@@ -164,12 +164,18 @@ def main():
   if any_git_root:
     config_find_root = file_util.parent_dir(any_git_root)
     bescfg = config_file.load_configs(config_find_root)
+#    print('bescfg: %s' % (str(bescfg)))
     env_dirs = file_filter.env_dirs(filtered_files)
     names = [ bescfg.env_dirs[env_dir]['name'] for env_dir in env_dirs ]
     resolved_deps = dependency_resolver.resolve_deps(bescfg.dep_map, names)
+#    print('env_dirs=%s' % (env_dirs))
+#    print('names=%s' % (names))
+#    print('resolved_deps=%s' % (str(resolved_deps)))
     for name in resolved_deps:
       config = bescfg.configs[name]
-      environ_util.pythonpath_prepend(':'.join(config['PYTHONPATH']))
+      pythonpath = config.get('PYTHONPATH', None)
+#      print('name=%s; pythonpath=%s' % (name, pythonpath))
+      environ_util.pythonpath_prepend(':'.join(pythonpath))
    
   num_passed = 0
   num_failed = 0
@@ -651,6 +657,33 @@ class environ_util(object):
   def pythonpath_contains(clazz, what):
     pythonpath = clazz.pythonpath_get()
     return what in clazz.pythonpath_get()
+
+  @classmethod
+  def unixpath_get(clazz):
+    return os.environ.get('PATH', '').split(':')
+  
+  @classmethod
+  def unixpath_set(clazz, unixpath):
+    assert isinstance(unixpath, list)
+    os.environ['PATH'] = ':'.join(unixpath)
+
+  @classmethod
+  def unixpath_remove(clazz, what):
+    unixpath = clazz.unixpath_get()
+    if what in unixpath:
+      unixpath.remove(what)
+    clazz.unixpath_set(unixpath)
+    
+  @classmethod
+  def unixpath_prepend(clazz, what):
+    unixpath = clazz.unixpath_get()
+    unixpath.insert(0, what)
+    clazz.unixpath_set(unixpath)
+
+  @classmethod
+  def unixpath_contains(clazz, what):
+    unixpath = clazz.unixpath_get()
+    return what in clazz.unixpath_get()
 
   @classmethod
   def make_clean_env(clazz):
