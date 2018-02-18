@@ -119,6 +119,63 @@ walnut
 rum
 coke''',
       l.to_string(strip_comments = True) )
+
+  def test_to_string_list(self):
+    text = r'''foo bar # comment
+kiwi # comment
+apple
+pear # comment
+orange
+almond # comment
+peanut # comment
+walnut # comment
+rum
+coke'''
+    self.assertEqual( [
+      'foo bar # comment',
+      'kiwi # comment',
+      'apple',
+      'pear # comment',
+      'orange',
+      'almond # comment',
+      'peanut # comment',
+      'walnut # comment',
+      'rum',
+      'coke'
+    ], lines(text).to_string_list() )
+    
+  def test_to_string_list_strip_comments(self):
+    text = r'''foo bar # comment
+kiwi # comment
+apple
+pear # comment
+orange
+almond # comment
+peanut # comment
+walnut # comment
+rum
+coke'''
+    self.assertEqual( [
+      'foo bar',
+      'kiwi',
+      'apple',
+      'pear',
+      'orange',
+      'almond',
+      'peanut',
+      'walnut',
+      'rum',
+      'coke'
+    ], lines(text).to_string_list(strip_comments = True) )
+
+  def test_parse_lines(self):
+    self.assertEqual( [ 'foo', 'bar' ], lines.parse_lines('foo\nbar\n') )
+    self.assertEqual( [ 'foo', 'bar' ], lines.parse_lines('foo\nbar') )
+    self.assertEqual( [ 'foo', 'bar' ], lines.parse_lines('\nfoo\nbar') )
+    self.assertEqual( [ 'foo', 'bar' ], lines.parse_lines('\n foo\nbar') )
+    self.assertEqual( [ 'foo', 'bar' ], lines.parse_lines('\n foo\nbar ') )
+    self.assertEqual( [ 'foo', 'bar' ], lines.parse_lines('\n foo\nbar \n') )
+    self.assertEqual( [], lines.parse_lines('\n\n\n') )
     
 if __name__ == '__main__':
   unit_test.main()

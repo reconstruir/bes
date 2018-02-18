@@ -8,6 +8,7 @@ import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
 from bes.common import algorithm, object_util
+from bes.text import lines
 from bes.fs import file_util
 from bes.dependency import dependency_resolver
 
@@ -630,10 +631,6 @@ class environ_util(object):
 class string_util(object):
 
   @classmethod
-  def parse_list(clazz, s):
-    return [ x.strip() for x in s.strip().split('\n') if x.strip() ]
-
-  @classmethod
   def split_by_white_space(clazz, s):
     tokens = [ token.strip() for token in re.split('\s+', s) ]
     return [ token for token in tokens if token ]
@@ -648,19 +645,19 @@ class file_find(object):
   def find_python_files(clazz, d):
     cmd = [ 'find', d, '-name', '*.py' ]
     result = subprocess.check_output(cmd, shell = False)
-    return string_util.parse_list(result)
+    return lines.parse_lines(result)
 
   @classmethod
   def find_tests(clazz, d):
     cmd = [ 'find', d, '-name', 'test_*.py' ]
     result = subprocess.check_output(cmd, shell = False)
-    return string_util.parse_list(result)
+    return lines.parse_lines(result)
 
   @classmethod
   def find(clazz, d, *args):
     cmd = [ 'find', d ] + list(args)
     result = subprocess.check_output(cmd, shell = False)
-    return string_util.parse_list(result)
+    return lines.parse_lines(result)
 
   @classmethod
   def find_in_ancestors(clazz, where, filename):
@@ -749,8 +746,8 @@ class git(object):
 
   @classmethod
   def parse_status(clazz, root, text):
-    lines = string_util.parse_list(text)
-    result = [ clazz.parse_status_line(root, line) for line in lines ]
+    l = lines.parse_lines(text)
+    result = [ clazz.parse_status_line(root, line) for line in l ]
     return [ item for item in result if item ]
 
   @classmethod
@@ -776,9 +773,9 @@ class git(object):
     cmd = [ 'git', 'rev-parse', '--show-toplevel' ]
     cwd = path.dirname(filename)
     result = subprocess.check_output(cmd, shell = False, cwd = cwd)
-    lines = string_util.parse_list(result)
-    assert len(lines) == 1
-    return lines[0]
+    l = lines.parse_lines(result)
+    assert len(l) == 1
+    return l[0]
 
   @classmethod
   def roots_for_many_files(clazz, files):
@@ -1041,15 +1038,6 @@ class test_unit_test_desc(test_case):
 
 class test_string_util(test_case):
   
-  def test_parse_list(self):
-    self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('foo\nbar\n') )
-    self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('foo\nbar') )
-    self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('\nfoo\nbar') )
-    self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('\n foo\nbar') )
-    self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('\n foo\nbar ') )
-    self.assertEqual( [ 'foo', 'bar' ], string_util.parse_list('\n foo\nbar \n') )
-    self.assertEqual( [], string_util.parse_list('\n\n\n') )
-
   def test_split_by_white_space(self):
     self.assertEqual( [ 'foo', 'bar' ], string_util.split_by_white_space('    foo  bar   ') )
     

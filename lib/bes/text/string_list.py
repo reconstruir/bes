@@ -40,4 +40,10 @@ class string_list(type_checked_list, string_lexer_options.CONSTANTS):
   def unquote(self):
     self._values = [ string_util.unquote(s) for s in self._values ]
   
+  def strip(self):
+    self._values = [ s.strip() for s in self._values ]
+  
+  def remove_empties(self):
+    self._values = [ s for s in self._values if s ]
+  
 check.register_class(string_list, include_seq = False)

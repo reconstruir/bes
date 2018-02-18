@@ -6,6 +6,7 @@ from bes.compat import StringIO
 from collections import namedtuple
 from .line_token import line_token
 from .line_continuation_merger import line_continuation_merger
+from .string_list import string_list
 
 class lines(object):
   'Manage text as lines.'
@@ -35,6 +36,15 @@ class lines(object):
       if v and v[-1] == self._delimiter:
         v = v[0:-1]
     return v
+    
+  def to_string_list(self, strip_comments = False):
+    sl = string_list()
+    for line in self._lines:
+      if strip_comments:
+        sl.append(line.text_no_comments)
+      else:
+        sl.append(line.text)
+    return sl
     
   def __len__(self):
     return len(self._lines)
@@ -71,11 +81,6 @@ class lines(object):
   def merge_continuations(self):
     self._lines = line_continuation_merger.merge_to_list(self._lines)
 
-  @classmethod
-  def read_file(clazz, filename):
-    with open(filename, 'r') as f:
-      return clazz(f.read())
-
   def texts(self, strip_head = False, strip_tail = False):
     def _do_strip(s):
       if strip_head and strip_tail:
@@ -85,3 +90,19 @@ class lines(object):
       elif strip_tail:
         return s.rstrip()
     return [ _do_strip(line.text) for line in self._lines ]
+
+  @classmethod
+  def read_file(clazz, filename):
+    with open(filename, 'r') as f:
+      return clazz(f.read())
+
+  @classmethod
+  def parse_lines(clazz, s, strip_comments = True, strip_text = True, remove_empties = True):
+    l = lines(s).to_string_list(strip_comments = strip_comments)
+    if strip_text:
+      l.strip()
+    if remove_empties:
+      l.remove_empties()
+    return l
+
+  
