@@ -69,3 +69,6 @@ class repo(object):
     files = file_find.find(self.root, relative = True, file_type = file_find.FILE|file_find.LINK)
     files = [ f for f in files if not f.startswith('.git') ]
     return files
+
+  def last_commit_hash(self, short_hash = False):
+    return git.last_commit_hash(self.root, short_hash = short_hash)
