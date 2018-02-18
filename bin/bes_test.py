@@ -8,6 +8,9 @@ import argparse, ast, copy, fnmatch, math, os, os.path as path, platform, random
 import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
+from bes.common import object_util
+from bes.fs import file_util
+
 _NAME = path.basename(sys.argv[0])
 
 # TODO:
@@ -562,73 +565,6 @@ class util(object):
   def unique_list(clazz, l):
     return list(set(l))
 
-  @classmethod
-  def listify(clazz, o):
-    'Return a list version of o whether its iterable or not.'
-    if isinstance(o, list): #clazz.is_iterable(o):
-      return [ x for x in o ]
-    else:
-      return [ o ]
-
-class file_util(object):
-
-  @classmethod
-  def read(clazz, filename):
-    with open(filename, 'r') as fin:
-      return fin.read()
-
-  @classmethod
-  def remove_head(clazz, filename, head):
-    head = path.normpath(head) + os.sep
-    if filename.startswith(head):
-      return filename[len(head):]
-    return filename
-  
-  @classmethod
-  def mkdir(clazz, p):
-    if path.isdir(p):
-      return
-    os.makedirs(p)
-
-  @classmethod
-  def copy(clazz, src, dst):
-    clazz.mkdir(path.dirname(dst))
-    shutil.copy(src, dst)
-    
-  @classmethod
-  def save(clazz, filename, content = None, mode = None):
-    'Atomically save content to filename using an intermediate temporary file.'
-    dirname, basename = os.path.split(filename)
-    clazz.mkdir(path.dirname(filename))
-    tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = 'w')
-    if content:
-      tmp.write(content)
-    tmp.flush()
-    os.fsync(tmp.fileno())
-    tmp.close()
-    if mode:
-      os.chmod(tmp.name, mode)
-    os.rename(tmp.name, filename)
-    return filename
-    
-  @classmethod
-  def remove(clazz, filename):
-    try:
-      if path.isdir(a):
-        shutil.rmtree(filename)
-      else:
-        os.remove(filename)
-    except Exception, ex:
-      pass
-
-  @classmethod
-  def parent_dir(clazz, d):
-    return path.normpath(path.join(d, os.pardir))
-
-  @classmethod
-  def is_broken_link(clazz, filename):
-    return path.islink(filename) and not path.isfile(os.readlink(filename))
-  
 class environ_util(object):
 
   @classmethod
@@ -1232,7 +1168,7 @@ class dependency_resolver(object):
       raise cyclic_dependency_error('Cyclic dependencies found: %s' % (' '.join(cyclic_deps)), cyclic_deps)
 
     order = clazz.build_order_flat(dep_map)
-    names = util.listify(names)
+    names = object_util.listify(names)
     result = set(names)
     for name in names:
       result |= clazz.__resolve_deps(dep_map, name)
@@ -1285,14 +1221,6 @@ class test_string_util(test_case):
   def test_split_by_white_space(self):
     self.assertEqual( [ 'foo', 'bar' ], string_util.split_by_white_space('    foo  bar   ') )
     
-class test_file_util(test_case):
-
-  def test_remove_head(self):
-    self.assertEqual( 'foo/bar/foo.py', file_util.remove_head('/root/x/y/foo/bar/foo.py', '/root/x/y') )
-    self.assertEqual( 'foo/bar/foo.py', file_util.remove_head('/root/x/y/foo/bar/foo.py', '/root/x/y/') )
-    self.assertEqual( 'foo/bar/foo.py', file_util.remove_head('root/x/y/foo/bar/foo.py', 'root/x/y') )
-    self.assertEqual( 'foo/bar/foo.py', file_util.remove_head('root/x/y/foo/bar/foo.py', 'root/x/y/') )
-
 class test_git(test_case):
 
   def test_parse_status_line(self):
