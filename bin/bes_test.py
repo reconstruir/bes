@@ -638,7 +638,6 @@ class string_util(object):
   @classmethod
   def remove_comments(clazz, s):
     x = re.sub('#.*', '', s)
-    assert False
     return x
   
 class file_find(object):
