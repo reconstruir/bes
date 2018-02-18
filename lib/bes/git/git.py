@@ -3,6 +3,7 @@
 
 import os, os.path as path, re
 from collections import namedtuple
+from bes.text import lines
 from bes.common import object_util, Shell, string_util
 from bes.fs import dir_util, file_util, temp_file
 from bes.fs import dir_util, file_util, temp_file
@@ -171,3 +172,18 @@ class git(object):
     if not short_hash:
       return long_hash
     return clazz.short_hash(root, long_hash)
+
+  @classmethod
+  def root(clazz, filename):
+    'Return the repo root for the given filename or raise and exception if not under git control.'
+    cmd = [ 'git', 'rev-parse', '--show-toplevel' ]
+    cwd = path.dirname(filename)
+    rv = Shell.execute(cmd, cwd = cwd)
+    l = lines.parse_lines(rv.stdout)
+    assert len(l) == 1
+    return l[0]
+  
+  @classmethod
+  def modified_files(clazz, root):
+    items = clazz.status(root, '.')
+    return [ item.filename for item in items if 'M' in item.action ]

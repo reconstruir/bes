@@ -8,6 +8,7 @@ import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
 from bes.common import algorithm, object_util, string_util
+from bes.git import git
 from bes.text import comments, lines
 from bes.fs import file_util
 from bes.dependency import dependency_resolver
@@ -131,13 +132,16 @@ def main():
   files = sorted(test_map.keys())
   
   if args.git:
-    git_roots = git.roots_for_many_files(files)
+    git_roots = algorithm.unique([ git.root(f) for f in files ])
     git_modified = []
     for root in git_roots:
-      git_modified.extend(git.modified_python_files(root))
+      modified_py_files = [ f for f in git.modified_files(root) if f.endswith('.py') ]
+      print('modified_py_files: %s' % (modified_py_files))
+      git_modified.extend(modified_py_files)
+    print('git_modified: %s' % (git_modified))
     files = file_resolve.resolve_files_and_dirs(git_modified)
     files = [ f for f in files if f in test_map ]
-
+  print('files: %s' % (files))
   if args.print_tests:
     unit_test_inspect.print_inspect_map(test_map, files, cwd)
     return 0
@@ -718,58 +722,6 @@ class file_resolve(object):
         result.append(test)
     return result
   
-class git(object):
-
-  status_item = namedtuple('status_item', 'modifier,filename')
-
-  @classmethod
-  def parse_status_line(clazz, root, line):
-    line = line.strip()
-    v = re.findall('\s*(\w+)\s+(.*)', line)
-    if len(v) != 1:
-      return None
-    assert len(v[0]) == 2
-    modifier = v[0][0]
-    filename = v[0][1]
-    return clazz.status_item(modifier, path.join(root, filename))
-
-  @classmethod
-  def parse_status(clazz, root, text):
-    l = lines.parse_lines(text)
-    result = [ clazz.parse_status_line(root, line) for line in l ]
-    return [ item for item in result if item ]
-
-  @classmethod
-  def status(clazz, root):
-    cmd = [ 'git', 'st', '--porcelain', '.' ]
-    result = subprocess.check_output(cmd, shell = False, cwd = root)
-    items = clazz.parse_status(root, result)
-    assert None not in items
-    return items
-
-  @classmethod
-  def modified_files(clazz, root):
-    items = clazz.status(root)
-    return [ item.filename for item in items if 'M' in item.modifier ]
-
-  @classmethod
-  def modified_python_files(clazz, root):
-    return [ f for f in clazz.modified_files(root) if f.endswith('.py') ]
-
-  @classmethod
-  def root(clazz, filename):
-    'Return the repo root for the given filename or raise and exception if not under git control.'
-    cmd = [ 'git', 'rev-parse', '--show-toplevel' ]
-    cwd = path.dirname(filename)
-    result = subprocess.check_output(cmd, shell = False, cwd = cwd)
-    l = lines.parse_lines(result)
-    assert len(l) == 1
-    return l[0]
-
-  @classmethod
-  def roots_for_many_files(clazz, files):
-    return algorithm.unique([ clazz.root(filename) for filename in files ])
-
 class egg_util(object):
 
   @classmethod
@@ -1025,34 +977,6 @@ class test_unit_test_desc(test_case):
     self.assertEqual( ( 'foo.py', None, None ), unit_test_desc.parse('foo.py:') )
     self.assertEqual( ( 'foo.py', None, 'fix' ), unit_test_desc.parse('foo.py:fix') )
 
-class test_git(test_case):
-
-  def test_parse_status_line(self):
-    self.assertEqual( ('M', '/root/foo/bar/__init__.py'), git.parse_status_line('/root', ' M foo/bar/__init__.py') )
-    self.assertEqual( ('A', '/root/foo/bar/apple.py'), git.parse_status_line('/root', 'A  foo/bar/apple.py') )
-    self.assertEqual( ('D', '/root/foo/bar/orange.py'), git.parse_status_line('/root', ' D foo/bar/orange.py') )
-
-  def test_parse_status(self):
-    text = '''
- M foo/bar/__init__.py
-A  foo/bar/apple.py
- D foo/bar/orange.py
-A  foo/bar/tests/test_apple.py
- D foo/bar/tests/test_orange.py
- M foo/bar/pear.py
- M bin/kiwi.py
-'''
-    self.assertEqual( [
-      ( 'M', '/root/foo/bar/__init__.py' ),
-      ( 'A', '/root/foo/bar/apple.py' ),
-      ( 'D', '/root/foo/bar/orange.py' ),
-      ( 'A', '/root/foo/bar/tests/test_apple.py' ),
-      ( 'D', '/root/foo/bar/tests/test_orange.py' ),
-      ( 'M', '/root/foo/bar/pear.py' ),
-      ( 'M', '/root/bin/kiwi.py' ),
-    ],
-                      git.parse_status('/root', text) )
-    
 class test_unit_test_inspect(test_case):
 
   def test_inspect_file(self):

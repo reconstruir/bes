@@ -60,3 +60,6 @@ jan 23
 fix bes_test.py to ignore such files:
 readlink /Users/ramiro/proj/rebuild/lib/.#setup.py
 ramiro@queequeg.local.212
+
+feb 18
+- bes_test.py --git is fucked

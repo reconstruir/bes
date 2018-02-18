@@ -6,6 +6,7 @@ from bes.common import string_util
 
 class test_string_util(unittest.TestCase):
 
+  
   def test_replace_white_space(self):
     self.assertEqual( 'a b c', string_util.replace_white_space('a   b   c', ' ') )
     self.assertEqual( 'a b c', string_util.replace_white_space('a b c', ' ') )
