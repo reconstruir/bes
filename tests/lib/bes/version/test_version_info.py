@@ -27,7 +27,6 @@ BES_AUTHOR_EMAIL = u'sally@bar.com'
 BES_ADDRESS = u''
 BES_TAG = u''
 '''
-
     self.assertMultiLineEqual( expected, str(version_info(u'1.0', u'Sally Bar', u'sally@bar.com', u'', u'')) )
     
   def test_change(self):

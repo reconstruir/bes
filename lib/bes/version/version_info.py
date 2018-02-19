@@ -43,7 +43,7 @@ class version_info(namedtuple('version_info', 'version,author_name,author_email,
     exec(s, {}, ver)
     return clazz(ver['BES_VERSION'], ver['BES_AUTHOR_NAME'], ver['BES_AUTHOR_EMAIL'], ver['BES_TAG'], ver['BES_ADDRESS'])
 
-  def write_file(self, filename):
+  def save_file(self, filename):
     check.check_string(filename)
     with open(filename, 'w') as f:
       f.write(str(self))
