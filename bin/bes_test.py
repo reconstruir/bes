@@ -121,7 +121,7 @@ def main():
 
   if args.version:
     import bes
-    print('%s %s %s' % (bes.__version__, bes.__bes_address__, bes.__bes_tag__))
+    print('%s %s - %s' % (bes.__version__, bes.__bes_address__, bes.__bes_tag__))
     return 0
   
   if not args.files:
