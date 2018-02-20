@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import copy
+import copy, os.path as path
 from collections import namedtuple
 from bes.common import string_util
 from bes.text import comments, lines
