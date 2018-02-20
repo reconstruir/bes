@@ -8,4 +8,4 @@ set - e
 
 ./make_egg.sh
 
-PYTHONPATH=$PYTHONPATH:$egg pyinstaller --log INFO --clean -F ./bin/foo_prog.py
+PYTHONPATH=$PYTHONPATH:$egg pyinstaller --hidden-import=foo.color --log INFO --clean -F ./bin/foo_prog.py

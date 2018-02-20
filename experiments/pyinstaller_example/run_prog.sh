@@ -1,5 +1,5 @@
 #!/bin/bash
 
-PYTHONPATH=lib ./bin/foo_prog.py
+PYTHONPATH=lib python -v ./bin/foo_prog.py
 rv=$?
 exit $rv

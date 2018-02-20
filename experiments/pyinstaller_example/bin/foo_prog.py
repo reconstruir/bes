@@ -2,6 +2,6 @@
 
 from foo import thing
 
-t = thing('red')
+t = thing('green')
 print(t)
 raise SystemExit(0)
