@@ -9,14 +9,14 @@ from bes.fs import file_util
 class egg(object):
 
   @classmethod
-  def make(clazz, setup_dot_py):
-    assert path.isfile(setup_dot_py)
+  def make(clazz, setup_filename):
+    assert path.isfile(setup_filename)
     temp_dir = tempfile.mkdtemp()
-    src_dir = path.dirname(setup_dot_py)
+    src_dir = path.dirname(setup_filename)
     assert path.isdir(src_dir)
     shutil.rmtree(temp_dir)
     shutil.copytree(src_dir, temp_dir, symlinks = True)
-    cmd = [ 'python', 'setup.py', 'bdist_egg' ]
+    cmd = [ 'python', path.basename(setup_filename), 'bdist_egg' ]
     env = copy.deepcopy(os.environ)
     env['PYTHONDONTWRITEBYTECODE'] = '1'
     Shell.execute(cmd, shell = False, cwd = temp_dir, env = env)

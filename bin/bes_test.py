@@ -11,7 +11,7 @@ from bes.testing.framework import config_file
 from bes.common import algorithm, object_util, string_util
 from bes.git import git
 from bes.text import comments, lines
-from bes.fs import file_util
+from bes.fs import file_find, file_util
 from bes.dependency import dependency_resolver
 
 _NAME = path.basename(sys.argv[0])
@@ -640,7 +640,7 @@ class environ_util(object):
     clean_env['PATH'] = clean_path
     return clean_env
     
-class file_find(object):
+class caca_file_find(object):
 
   @classmethod
   def find_python_files(clazz, d):
@@ -660,18 +660,6 @@ class file_find(object):
     result = subprocess.check_output(cmd, shell = False)
     return lines.parse_lines(result)
 
-  @classmethod
-  def find_in_ancestors(clazz, where, filename):
-    assert path.isdir(where)
-    parent = where
-    while True:
-      what = path.join(parent, filename)
-      if path.exists(what):
-        return what
-      parent = file_util.parent_dir(parent)
-      if parent == '/':
-        return None
-  
 class file_resolve(object):
 
   @classmethod
@@ -692,7 +680,7 @@ class file_resolve(object):
     assert path.isdir(d)
     config = clazz._read_config_file(d)
     if config is None:
-      return file_find.find_python_files(d)
+      return caca_file_find.find_python_files(d)
     return clazz.resolve_files_and_dirs(config)
     
   @classmethod
