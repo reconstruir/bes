@@ -53,7 +53,7 @@ class impl_import(object):
   def _possible_impl_module_data(clazz, package, impl_name):
     result = []
     possible_files = clazz._possible_impl_module_files(impl_name)
-    print('CACA: possible_files=%s' % (possible_files))
+    #print('CACA: possible_files=%s' % (possible_files))
     for impl_class_name, filename in clazz._possible_impl_module_files(impl_name):
       data = clazz._get_impl_data(package, filename)
       if data:
@@ -63,13 +63,13 @@ class impl_import(object):
   @classmethod
   def _get_impl_data(clazz, package, filename):
     try:
-      print('CACA: pkgutil.get_data(%s, %s)' % (package, filename))
+      #print('CACA: pkgutil.get_data(%s, %s)' % (package, filename))
       return pkgutil.get_data(package, filename)
     except IOError as ex:
-      print('CACA: 1 CAUGHT: %s' % (str(ex)))
+      #print('CACA: 1 CAUGHT: %s' % (str(ex)))
       # Caught when poking in the filesystem
       return None
     except OSError as ex:
-      print('CACA: 2 CAUGHT: %s' % (str(ex)))
+      #print('CACA: 2 CAUGHT: %s' % (str(ex)))
       # Caught when poking in an egg
       return None
