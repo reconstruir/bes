@@ -13,6 +13,7 @@ from bes.git import git
 from bes.text import comments, lines
 from bes.fs import file_find, file_util
 from bes.dependency import dependency_resolver
+from bes.egg import egg
 
 _NAME = path.basename(sys.argv[0])
 
@@ -180,7 +181,7 @@ def main():
   if any_git_root:
     config_find_root = file_util.parent_dir(any_git_root)
     bescfg = config_file.load_configs(config_find_root)
-    print('bescfg: %s' % (str(bescfg)))
+    #print('bescfg: %s' % (str(bescfg)))
     env_dirs = file_filter.env_dirs(filtered_files)
     names = [ bescfg.env_dirs[env_dir]['name'] for env_dir in env_dirs ]
     resolved_deps = dependency_resolver.resolve_deps(bescfg.dep_map, names)
@@ -204,14 +205,14 @@ def main():
     sys.path.remove(cwd)
 
   if args.egg:
-    setup_dot_py = path.join(cwd, 'lib', 'setup.py')
+    setup_dot_py = path.join(cwd, 'setup.py')
     if not path.isfile(setup_dot_py):
       raise RuntimeError('No setup.py found in %s to make the egg.' % (cwd))
-    egg = egg_util.make(setup_dot_py)
+    egg_zip = egg.make(setup_dot_py)
     environ_util.pythonpath_remove(cwd)
-    environ_util.pythonpath_prepend(egg)
+    environ_util.pythonpath_prepend(egg_zip)
     if args.save_egg:
-      file_util.copy(egg, path.join(cwd, path.basename(egg)))
+      file_util.copy(egg_zip, path.join(cwd, path.basename(egg_zip)))
     #print('PYTHONPATH: %s' % (':'.join(environ_util.pythonpath_get())))
     
   os.chdir('/tmp')
@@ -718,22 +719,6 @@ class file_resolve(object):
         result.append(test)
     return result
   
-class egg_util(object):
-
-  @classmethod
-  def make(clazz, setup_dot_py):
-    assert path.isfile(setup_dot_py)
-    temp_dir = tempfile.mkdtemp()
-    src_dir = path.join(path.dirname(setup_dot_py), '..')
-    shutil.rmtree(temp_dir)
-    shutil.copytree(src_dir, temp_dir, symlinks = True)
-    cmd = [ 'python', 'setup.py', 'bdist_egg' ]
-    build_dir = path.join(temp_dir, 'lib')
-    subprocess.check_output(cmd, shell = False, cwd = build_dir)
-    eggs = glob.glob('%s/dist/*.egg' % (build_dir))
-    assert len(eggs) == 1
-    return eggs[0]
-
 class unit_test_desc(namedtuple('unit_test_desc', 'filename,fixture,function')):
 
   def __new__(clazz, filename, fixture, function):
