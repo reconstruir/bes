@@ -5,6 +5,7 @@ import copy, os.path as path
 from collections import namedtuple
 from bes.common import string_util
 from bes.text import comments, lines
+from bes.fs import file_find
 
 class config_file(object):
 
@@ -32,8 +33,8 @@ class config_file(object):
     
   @classmethod
   def find_config_files(clazz, d):
-    return file_find.find(d, '-maxdepth', '4', '-name', '*.bescfg')
-
+    return file_find.find_fnmatch(d, [ '*.bescfg' ], relative = False, min_depth = None, max_depth = 4):
+  
   @classmethod
   def read_config_file(clazz, filename):
     filename = path.abspath(filename)
