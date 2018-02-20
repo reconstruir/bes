@@ -7,6 +7,7 @@ import argparse, ast, copy, fnmatch, math, os, os.path as path, platform, random
 import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
+from bes.testing.framework import algorithm, object_util, string_util
 from bes.common import algorithm, object_util, string_util
 from bes.git import git
 from bes.text import comments, lines
