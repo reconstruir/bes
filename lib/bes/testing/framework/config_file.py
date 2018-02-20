@@ -5,7 +5,7 @@ import copy, os.path as path
 from collections import namedtuple
 from bes.common import string_util
 from bes.text import comments, lines
-from bes.fs import file_find
+from bes.fs import file_find, file_util
 
 class config_file(object):
 
