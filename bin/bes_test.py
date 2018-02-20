@@ -7,7 +7,7 @@ import argparse, ast, copy, fnmatch, math, os, os.path as path, platform, random
 import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
-from bes.testing.framework import config_file
+from bes.testing.framework import config_file_caca
 from bes.common import algorithm, object_util, string_util
 from bes.git import git
 from bes.text import comments, lines
@@ -180,7 +180,7 @@ def main():
     any_git_root = None
   if any_git_root:
     config_find_root = file_util.parent_dir(any_git_root)
-    bescfg = config_file.load_configs(config_find_root)
+    bescfg = config_file_caca.load_configs(config_find_root)
     #print('bescfg: %s' % (str(bescfg)))
     env_dirs = file_filter.env_dirs(filtered_files)
     names = [ bescfg.env_dirs[env_dir]['name'] for env_dir in env_dirs ]

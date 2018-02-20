@@ -7,7 +7,7 @@ from bes.common import string_util
 from bes.text import comments, lines
 from bes.fs import file_find, file_util
 
-class config_file(object):
+class config_file_caca(object):
 
   bescfg = namedtuple('bescfg', 'root_dir,configs,dep_map,env_dirs')
 
@@ -15,10 +15,10 @@ class config_file(object):
   def load_configs(clazz, d):
     root_dir = path.abspath(d)
     configs = {}
-    config_files = config_file.find_config_files(root_dir)
+    config_files = clazz.find_config_files(root_dir)
     env_dirs = {}
     for f in config_files:
-      config = config_file.read_config_file(f)
+      config = clazz.read_config_file(f)
       configs[config['name']] = config
       env_dirs[path.join(config['root_dir'], 'env')] = config
     dep_map = clazz._make_dep_map(configs)
