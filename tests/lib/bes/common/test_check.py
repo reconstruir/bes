@@ -19,12 +19,18 @@ class test_check(unit_test):
     with self.assertRaises(TypeError) as context:
       C.check_string(6)
 
+    with self.assertRaises(TypeError) as context:
+      C.check_string([ 'a '])
+      
   def test_string_seq(self):
     C.check_string_seq(['x'])
 
     with self.assertRaises(TypeError) as context:
       C.check_string_seq(6)
       C.check_string(6)
+
+    with self.assertRaises(TypeError) as context:
+      C.check_string_seq('a')
 
   def test_register_class(self):
     class foo(object): pass

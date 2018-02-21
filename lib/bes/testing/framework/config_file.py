@@ -3,10 +3,67 @@
 
 import copy, os.path as path
 from collections import namedtuple
-from bes.common import string_util
+from bes.compat import StringIO
+from bes.common import check, string_util
 from bes.text import comments, lines
 from bes.fs import file_find, file_util
 
+## bes_network
+#name: bes_network
+#path: ${root}/bin
+#pythonpath: ${root}/lib:${rebuild_dir}/bes_network_deps/installation/lib/python
+#requires: bes
+
+class config_file(namedtuple('config_file', 'name,unixpath,pythonpath,requires')):
+
+  def __new__(clazz, name, unixpath, pythonpath, requires):
+    check.check_string(name)
+    unixpath = unixpath or []
+    if check.is_string(unixpath):
+      unixpath = unixpath.split(':')
+    check.check_string_seq(unixpath)
+    pythonpath = pythonpath or []
+    if check.is_string(pythonpath):
+      pythonpath = pythonpath.split(':')
+    check.check_string_seq(pythonpath)
+    requires = requires or set()
+    check.check_set(requires)
+    return clazz.__bases__[0].__new__(clazz, name, unixpath, pythonpath, requires)
+
+  def to_string(self):
+    buf = StringIO()
+    buf.write('# %s\n' % (self.name))
+    buf.write('name: %s\n' % (self.name))
+    buf.write('unixpath: %s\n' % (':'.join(self.unixpath)))
+    buf.write('pythonpath: %s\n' % (':'.join(self.pythonpath)))
+    buf.write('requires: %s\n' % (' '.join(sorted([ r for r in self.requires ]))))
+    return buf.getvalue()
+
+  @classmethod
+  def parse(clazz, text):
+    lines = text.split('\n')
+    lines = [ comments.strip_line(line) for line in lines ]
+    lines = [ line.strip() for line in lines ]
+    lines = [ line for line in lines if line ]
+    name = None
+    unixpath = None
+    pythonpath = None
+    requires = None
+    for line in lines:
+      key, sep, value = line.partition(':')
+      assert sep == ':'
+      key = key.strip()
+      value = value.strip()
+      if key == 'name':
+        name = value
+      elif key == 'unixpath':
+        unixpath = value.split(':')
+      elif key == 'pythonpath':
+        pythonpath = value.split(':')
+      elif key == 'requires':
+        requires = set(string_util.split_by_white_space(value))
+    return clazz(name, unixpath, pythonpath, requires)
+  
 class config_file_caca(object):
 
   bescfg = namedtuple('bescfg', 'root_dir,configs,dep_map,env_dirs')
