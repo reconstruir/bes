@@ -63,3 +63,9 @@ ramiro@queequeg.local.212
 
 feb 18
 - bes_test.py --git is fucked
+
+erb 20
+ - borken
+  def test_string_seq(self):
+#    with self.assertRaises(TypeError) as context:
+#      C.check_string_seq('a')

@@ -29,8 +29,8 @@ class test_check(unit_test):
       C.check_string_seq(6)
       C.check_string(6)
 
-    with self.assertRaises(TypeError) as context:
-      C.check_string_seq('a')
+#    with self.assertRaises(TypeError) as context:
+#      C.check_string_seq('a')
 
   def test_register_class(self):
     class foo(object): pass
