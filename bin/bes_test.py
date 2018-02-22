@@ -7,7 +7,7 @@ import argparse, ast, copy, fnmatch, math, os, os.path as path, platform, random
 import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
-from bes.testing.framework import config_file_caca
+from bes.testing.framework import config_file_caca, file_filter
 from bes.common import algorithm, object_util, string_util
 from bes.git import git
 from bes.text import comments, lines
@@ -345,62 +345,6 @@ def main():
 def _timing_average(l):
   return float(sum(l)) / float(len(l))
 
-class file_filter(object):
-  file_and_tests = namedtuple('file_and_tests', 'filename,tests')
-
-  @classmethod
-  def filter_files(clazz, files, available, patterns):
-    if not patterns:
-      return [ clazz.file_and_tests(filename, None) for filename in files ]
-    result = []
-    for filename in files:
-      assert filename in available
-      available_for_filename = available[filename]
-      matching_tests = _matching_tests(available_for_filename, patterns)
-      if matching_tests:
-        result.append(clazz.file_and_tests(filename, matching_tests))
-    return result
-
-  @classmethod
-  def ignore_files(clazz, filtered_files, ignore_patterns):
-    return [ f for f in filtered_files if not clazz.filename_matches_any_pattern(f.filename, ignore_patterns) ]
-
-  @classmethod
-  def filenames(clazz, filtered_files):
-    return sorted([ f.filename for f in filtered_files ])
-
-  @classmethod
-  def common_prefix(clazz, filtered_files):
-    return path.commonprefix([f.filename for f in filtered_files]).rpartition(os.sep)[0]
-  
-  @classmethod
-  def filename_matches_any_pattern(clazz, filename, patterns):
-    for pattern in patterns:
-      if fnmatch.fnmatch(filename, pattern):
-        return True
-    return False
-  
-  @classmethod
-  def env_dirs(clazz, filtered_files):
-    filenames = [ f.filename for f in filtered_files ]
-    roots = [ clazz._test_file_get_root(f) for f in filenames ]
-    roots = algorithm.unique(roots)
-    roots = [ f for f in roots if f ]
-    result = []
-    for root in roots:
-      env_dir = path.join(root, 'env')
-      if path.isdir(env_dir):
-        result.append(env_dir)
-    return result
-  
-  @classmethod
-  def _test_file_get_root(clazz, filename):
-    if '/lib/' in filename:
-      return filename.partition('/lib')[0]
-    elif '/bin/' in filename:
-      return filename.partition('/bin')[0]
-    else:
-      return None
 
 def _filepath_normalize(filepath):
   f = path.abspath(path.normpath(filepath))
@@ -417,20 +361,6 @@ def _which(exe):
     return subprocess.check_output(cmd, shell = False).strip()
   except:
     return None
-
-def _matching_tests(available, patterns):
-  result = []
-  for test in available:
-    for pattern in patterns:
-      fixture_matches = True
-      if pattern.fixture:
-        fixture_matches = fnmatch.fnmatch(test.fixture.lower(), pattern.fixture.lower())
-      function_matches = True
-      if pattern.function:
-        function_matches = fnmatch.fnmatch(test.function.lower(), pattern.function.lower())
-      if fixture_matches and function_matches:
-        result.append(test)
-  return result
 
 test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing,profile_output,interpreters')
 test_result = namedtuple('test_result', 'success,num_tests_run,elapsed_time')
