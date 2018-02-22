@@ -8,26 +8,19 @@ from bes.common import check, string_util
 from bes.text import comments, lines
 from bes.fs import file_find, file_util
 
-from .config_data import config_data
+from .config_file import config_file
 
-class config_file(namedtuple('config_file', 'root_dir,filename,data')):
+class config_env(object):
 
-  def __new__(clazz, filename):
-    filename = path.abspath(filename)
-    check.check_string(filename)
-    if not path.isfile(filename):
-      raise RuntimeError('Config file not found: %s' % (filename))
-    content = file_util.read(filename)
-    root_dir = path.normpath(path.join(path.dirname(filename), '..'))
-    data = config_data.parse(content, filename = filename)
-    return clazz.__bases__[0].__new__(clazz, root_dir, filename, data)
-
-  def substitute(self, variables):
-    return self.__class__.__bases__[0].__new__(self.__class__,
-                                               self.root_dir,
-                                               self.filename,
-                                               self.data.substitute(variables))
-
+  def __init__(self, root_dir):
+    self.root_dir = path.abspath(root_dir)
+    config_filenames = self.find_config_files(self.root_dir)
+    self.config_files = [ config_file(f) for f in config_filenames ]
+  
+  @classmethod
+  def find_config_files(clazz, d):
+    return file_find.find_fnmatch(d, [ '*.bescfg' ], relative = False, min_depth = None, max_depth = 4)
+  
 class config_file_caca(object):
 
   bescfg = namedtuple('bescfg', 'root_dir,configs,dep_map,env_dirs')

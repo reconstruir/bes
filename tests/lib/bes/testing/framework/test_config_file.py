@@ -23,19 +23,6 @@ class test_config_file(unit_test):
                         self.data_path('fruit/env/fruit.bescfg'),
                         ( 'fruit', [ '/tmp/bin' ], [ '/tmp/lib' ], { 'water' } ) ), b )
 
-  def test_find_config_files(self):
-    expected_files = [
-      'citrus/env/citrus.bescfg',
-      'fiber/env/fiber.bescfg',
-      'fruit/env/fruit.bescfg',
-      'kiwi/env/kiwi.bescfg',
-      'orange/env/orange.bescfg',
-      'water/env/water.bescfg'
-    ]
-    files = CF.find_config_files(self.data_dir())
-    self.assertEqual( [ path.join(self.data_dir(), x) for x in expected_files ],
-                      files )
-
 class xtest_config_file_xcaca(unit_test):
 
   def test_parse(self):
