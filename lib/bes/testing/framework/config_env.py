@@ -16,7 +16,27 @@ class config_env(object):
     self.root_dir = path.abspath(root_dir)
     config_filenames = self.find_config_files(self.root_dir)
     self.config_files = [ config_file(f) for f in config_filenames ]
+    self.config_map = self._make_config_map(self.config_files)
+    self.dependency_map = self._make_dep_map(self.config_map)
+
+  @classmethod
+  def _make_config_map(clazz, config_files):
+    config_map = {}
+    for cf in config_files:
+      name = cf.data.name
+      if name in config_map:
+        raise RuntimeError('Duplicate project \"%s\": %s %s' % (name, path.relpath(cf.filename),
+                                                                path.relpath(config_map[name].filename)))
+      config_map[name] = cf
+    return config_map
   
+  @classmethod
+  def _make_dep_map(clazz, configs):
+    dep_map = {}
+    for name, cf in configs.items():
+      dep_map[name] = cf.data.requires
+    return dep_map
+
   @classmethod
   def find_config_files(clazz, d):
     return file_find.find_fnmatch(d, [ '*.bescfg' ], relative = False, min_depth = None, max_depth = 4)

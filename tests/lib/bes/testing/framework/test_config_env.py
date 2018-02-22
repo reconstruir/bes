@@ -11,7 +11,7 @@ class test_config_env(unit_test):
   
   def test_complete(self):
     a = CE(self.data_dir())
-    print(a.config_files)
+    print(a.dependency_map)
 
   def test_find_config_files(self):
     expected_files = [
