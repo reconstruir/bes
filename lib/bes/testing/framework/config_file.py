@@ -27,6 +27,10 @@ class config_file(namedtuple('config_file', 'root_dir,filename,data')):
                                                self.root_dir,
                                                self.filename,
                                                self.data.substitute(variables))
+
+  @classmethod
+  def find_config_files(clazz, d):
+    return file_find.find_fnmatch(d, [ '*.bescfg' ], relative = False, min_depth = None, max_depth = 4)
   
 class config_file_caca(object):
 
