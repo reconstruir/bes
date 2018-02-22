@@ -1,5 +1,6 @@
-# foo
-name: foo
+# fruit
+name: fruit
 unixpath: ${root}/bin
 pythonpath: ${root}/lib
-requires: bar baz
+requires: water
+

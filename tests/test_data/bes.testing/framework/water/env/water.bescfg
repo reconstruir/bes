@@ -1,0 +1,5 @@
+# water
+name: water
+unixpath: ${root}/bin
+pythonpath: ${root}/lib
+requires:

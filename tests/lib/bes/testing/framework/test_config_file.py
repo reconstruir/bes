@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.testing.framework import config_file as CF
 from bes.testing.framework import config_file_caca
@@ -10,17 +11,17 @@ class test_config_file(unit_test):
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.testing/framework'
   
   def test_parse(self):
-    a = CF(self.data_path('env/foo.bescfg'))
-    self.assertEqual( ( self.data_dir(),
-                        self.data_path('env/foo.bescfg'),
-                        ( 'foo', [ '${root}/bin' ], [ '${root}/lib' ], set([ 'bar', 'baz' ]) ) ), a )
+    a = CF(self.data_path('fruit/env/fruit.bescfg'))
+    self.assertEqual( ( path.join(self.data_dir(), 'fruit'),
+                        self.data_path('fruit/env/fruit.bescfg'),
+                        ( 'fruit', [ '${root}/bin' ], [ '${root}/lib' ], { 'water' } ) ), a )
 
   def test_substitute(self):
-    a = CF(self.data_path('env/foo.bescfg'))
+    a = CF(self.data_path('fruit/env/fruit.bescfg'))
     b = a.substitute({ 'root': '/tmp' })
-    self.assertEqual( ( self.data_dir(),
-                        self.data_path('env/foo.bescfg'),
-                        ( 'foo', [ '/tmp/bin' ], [ '/tmp/lib' ], set([ 'bar', 'baz' ]) ) ), b )
+    self.assertEqual( ( path.join(self.data_dir(), 'fruit'),
+                        self.data_path('fruit/env/fruit.bescfg'),
+                        ( 'fruit', [ '/tmp/bin' ], [ '/tmp/lib' ], { 'water' } ) ), b )
 
 class xtest_config_file_xcaca(unit_test):
 

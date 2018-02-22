@@ -1,0 +1,6 @@
+# orange
+name: orange
+unixpath: ${root}/bin
+pythonpath: ${root}/lib
+requires: fruit citrus
+

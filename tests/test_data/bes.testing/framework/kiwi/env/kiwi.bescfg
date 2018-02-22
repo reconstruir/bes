@@ -1,0 +1,5 @@
+# kiwi
+name: kiwi
+unixpath: ${root}/bin
+pythonpath: ${root}/lib
+requires: fruit

@@ -1,0 +1,5 @@
+# citrus
+name: citrus
+unixpath: ${root}/bin
+pythonpath: ${root}/lib
+requires:
