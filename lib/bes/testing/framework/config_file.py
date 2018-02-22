@@ -7,7 +7,19 @@ from bes.compat import StringIO
 from bes.common import check, string_util
 from bes.text import comments, lines
 from bes.fs import file_find, file_util
-  
+
+class config_file(namedtuple('config_file', 'root_dir,filename,data')):
+
+  def __new__(clazz, filename):
+    filename = path.abspath(filename)
+    check.check_string(filename)
+    if not path.isfile(filename):
+      raise RuntimeError('Config file not found: %s' % (filename))
+    content = file_util.read(filename)
+    root_dir = path.normpath(path.join(path.dirname(filename), '..'))
+    data = config_data.parse(content, filename = filename)
+    return clazz.__bases__[0].__new__(clazz, root_dir, filename, data)
+
 class config_file_caca(object):
 
   bescfg = namedtuple('bescfg', 'root_dir,configs,dep_map,env_dirs')
