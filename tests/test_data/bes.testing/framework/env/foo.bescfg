@@ -1,0 +1,5 @@
+# foo
+name: foo
+unixpath: ${root}/bin
+pythonpath: ${root}/lib
+requires: bar baz

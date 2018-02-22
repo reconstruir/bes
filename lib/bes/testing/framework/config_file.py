@@ -8,6 +8,8 @@ from bes.common import check, string_util
 from bes.text import comments, lines
 from bes.fs import file_find, file_util
 
+from .config_data import config_data
+
 class config_file(namedtuple('config_file', 'root_dir,filename,data')):
 
   def __new__(clazz, filename):
@@ -20,6 +22,12 @@ class config_file(namedtuple('config_file', 'root_dir,filename,data')):
     data = config_data.parse(content, filename = filename)
     return clazz.__bases__[0].__new__(clazz, root_dir, filename, data)
 
+  def substitute(self, variables):
+    return self.__class__.__bases__[0].__new__(self.__class__,
+                                               self.root_dir,
+                                               self.filename,
+                                               self.data.substitute(variables))
+  
 class config_file_caca(object):
 
   bescfg = namedtuple('bescfg', 'root_dir,configs,dep_map,env_dirs')

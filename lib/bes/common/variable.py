@@ -40,6 +40,7 @@ class variable(object):
   @classmethod
   def substitute(clazz, s, d):
     'Substitute vars in s with d.'
+    check.check_dict(d, key_type = check.STRING_TYPES, value_type = check.STRING_TYPES)
     replacements = {}
     for key, value in d.items():
       check.check_string(key)
