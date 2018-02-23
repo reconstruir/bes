@@ -4,6 +4,7 @@
 import os.path as path
 from bes.common import algorithm
 from bes.fs import file_path
+from bes.git import git
 from .file_finder import file_finder
 
 from .unit_test_description import unit_test_description
@@ -14,11 +15,18 @@ class argument_resolver(object):
     self.root_dir = path.abspath(root_dir)
     self.arguments = arguments
     self.files, self.filters = self._separate_files_and_filters(self.root_dir, self.arguments)
-    print('files: %s' % (self.files))
-    print('filters: %s' % (self.filters))
+#    print('files: %s' % (self.files))
+#    print('filters: %s' % (self.filters))
     self.resolved_files = self._resolve_files_and_dirs(self.root_dir, self.files)
-    print('resolved_files: %s' % (self.resolved_files))
     
+#    print('resolved_files: %s' % (self.resolved_files))
+
+  @classmethod
+  def _git_roots(clazz, files):
+    roots = [ git.root(f) for f in files ]
+    roots = [ r for r in roots if r ]
+    return algorithm.unique(roots)
+
   @classmethod
   def _separate_files_and_filters(clazz, root_dir, arguments):
     files = []

@@ -14,7 +14,7 @@ class status(object):
   RENAMED = 'R'
   COPIED = 'C'
   UNMERGED = 'U'
-  UNKNOWN = '??'
+  UNTRACKED = '??'
 
   def __init__(self, action, filename, *args):
     args = args or ()

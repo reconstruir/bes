@@ -69,3 +69,7 @@ erb 20
   def test_string_seq(self):
 #    with self.assertRaises(TypeError) as context:
 #      C.check_string_seq('a')
+
+
+feb 22
+- make sure new bes_test framework finds FOO.PY files (upper case0

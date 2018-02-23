@@ -13,16 +13,19 @@ class test_argument_resolver(unit_test):
     a = AR(self.data_dir(), [ '.' ])
     self.assertEqual( [ '.' ], a.files )
     self.assertEqual( [], a.filters )
+#    self.assertEqual( [], a.resolved_files )
 
   def test_one_file(self):
     a = AR(self.data_dir(), [ 'lib/orange/common/orange_util.py' ])
     self.assertEqual( [ 'lib/orange/common/orange_util.py' ], a.files )
     self.assertEqual( [], a.filters )
+    self.assertEqual( [ self.data_path('lib/orange/common/orange_util.py') ], a.resolved_files )
     
   def test_basic(self):
     a = AR(self.data_dir(), [ '.', ':test_orange_func_one' ])
     self.assertEqual( [ '.' ], a.files )
     self.assertEqual( [ ( None, None, 'test_orange_func_one' ) ], a.filters )
+#    self.assertEqual( [], a.resolved_files )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -184,6 +184,11 @@ class git(object):
     return l[0]
   
   @classmethod
+  def is_tracked(clazz, root, filename):
+    'Return True if the filename is tracked by a git repo.'
+    return clazz.status(root, filename).action != status.UNTRACKED
+  
+  @classmethod
   def modified_files(clazz, root):
     items = clazz.status(root, '.')
     return [ item.filename for item in items if 'M' in item.action ]
