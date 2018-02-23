@@ -7,7 +7,8 @@ import argparse, ast, copy, fnmatch, math, os, os.path as path, platform, random
 import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
-from bes.testing.framework import argument_resolver, config_file_caca, file_filter
+from bes.testing.framework import argument_resolver, config_file_caca, file_filter, unit_test_inspect
+from bes.testing.framework import unit_test_description
 from bes.common import algorithm, object_util, string_util
 from bes.git import git
 from bes.text import comments, lines
@@ -154,7 +155,7 @@ def main():
     for root in git_roots:
       modified_py_files = [ f for f in git.modified_files(root) if f.endswith('.py') ]
       git_modified.extend(modified_py_files)
-    files = file_resolve.resolve_files_and_dirs(git_modified)
+      files = file_resolve.resolve_files_and_dirs(git_modified)
     files = [ f for f in files if f in test_map ]
   if args.print_tests:
     unit_test_inspect.print_inspect_map(test_map, files, cwd)
@@ -482,7 +483,7 @@ def _make_filters_patterns(filters):
       fixture_pattern = _make_fnmatch_pattern(f.fixture)
     if f.function:
       function_pattern = _make_fnmatch_pattern(f.function)
-    patterns.append(unit_test_desc(filename_pattern, fixture_pattern, function_pattern))
+    patterns.append(unit_test_description(filename_pattern, fixture_pattern, function_pattern))
   return patterns
 
 def _match_filenames(files, patterns):
@@ -638,98 +639,6 @@ class file_resolve(object):
         result.append(test)
     return result
   
-class unit_test_desc(namedtuple('unit_test_desc', 'filename,fixture,function')):
-
-  def __new__(clazz, filename, fixture, function):
-    return clazz.__bases__[0].__new__(clazz, filename, fixture, function)
-
-  @classmethod
-  def parse(clazz, s):
-    'Parse a unit test description in the form filename:fixutre.function'
-    filename, _, right = s.partition(':')
-    if '.' in right:
-      fixture, _, function = right.partition('.')
-    else:
-      fixture, function = ( None, right )
-    return clazz(filename, fixture or None, function or None)
-
-  def __str__(self):
-    v = []
-    if self.filename:
-      v.append(self.filename)
-      v.append('.')
-    if self.fixture:
-      v.append(self.fixture)
-    v.append(':')
-    if self.function:
-      v.append(self.function)
-    return ''.join(v)
-  
-class unit_test_inspect(object):
-  unit_test = namedtuple('unit_test', 'filename,fixture,function')
-
-  @classmethod
-  def inspect_file(clazz, filename):
-    code = file_util.read(filename)
-    if 'bes:skip_unit_test=1' in code:
-      return []
-    tree = ast.parse(code, filename = filename)
-    s = ast.dump(tree, annotate_fields = True, include_attributes = True)
-    result = []
-    for node in tree.body:
-      if clazz._node_is_unit_test_class(node):
-        for statement in node.body:
-          if isinstance(statement, ast.FunctionDef):
-            if statement.name.startswith('test_'):
-              result.append(clazz.unit_test(filename, node.name, statement.name))
-    return result
-
-  @classmethod
-  def _node_is_unit_test_class(clazz, node):
-    if not isinstance(node, ast.ClassDef):
-      return False
-    for i, base in enumerate(node.bases):
-      base_class_name = clazz._base_class_name(base)
-      if base_class_name in [ 'unittest.TestCase', 'unit_test', 'script_unit_test' ]:
-        return True
-    return False
-    
-  @classmethod
-  def _base_class_name(clazz, base):
-    result = []
-    for field in base._fields:
-      value = getattr(base, field)
-      if isinstance(value, ast.Name):
-        result.append(value.id)
-      elif isinstance(value, ( str, unicode)):
-        result.append(value)
-    return '.'.join(result)
-    
-  @classmethod
-  def inspect_map(clazz, files):
-    result = {}
-    for f in files:
-      f_path = path.abspath(f)
-      try:
-        tests = clazz.inspect_file(f_path)
-        if tests:
-          result[f_path] = clazz.inspect_file(f_path)
-      except exceptions.SyntaxError, ex:
-        printer.writeln('Failed to inspect: %s - %s' % (f, str(ex)))
-        raise
-      except Exception, ex:
-        printer.writeln('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
-    return result
-
-  @classmethod
-  def print_inspect_map(clazz, inspect_map, files, cwd):
-    for filename in sorted(inspect_map.keys()):
-      if filename in files:
-        printer.writeln('%s:' % (file_util.remove_head(filename, cwd)))
-        for _, fixture, function in inspect_map[filename]:
-          printer.writeln('  %s.%s' % (fixture, function))
-
-
 class printer(object):
   OUTPUT = sys.stdout
 
@@ -774,112 +683,6 @@ class test_case(unittest.TestCase):
     file_util.save(filename, content = content, mode = mode)
     return filename
   
-class test_unit_test_desc(test_case):
-
-  def test_parse(self):
-    self.assertEqual( ( 'foo.py', 'fix', 'func' ), unit_test_desc.parse('foo.py:fix.func') )
-    self.assertEqual( ( 'foo.py', None, None ), unit_test_desc.parse('foo.py') )
-    self.assertEqual( ( 'foo.py', None, None ), unit_test_desc.parse('foo.py:') )
-    self.assertEqual( ( 'foo.py', None, 'fix' ), unit_test_desc.parse('foo.py:fix') )
-
-class test_unit_test_inspect(test_case):
-
-  def test_inspect_file(self):
-    content = '''
-import unittest
-class test_apple_fixture(unittest.TestCase):
-
-  def test_foo(self):
-    self.assertEqual( 6, 3 + 3 )
-
-  def test_bar(self):
-    self.assertEqual( 7, 3 + 4 )
-'''
-    filename = self.make_tmp_file(content)
-    self.assertEqual( [
-      ( filename, 'test_apple_fixture', 'test_foo' ),
-      ( filename, 'test_apple_fixture', 'test_bar' ),
-    ],
-                      unit_test_inspect.inspect_file(filename) )
-    file_util.remove(filename)
-
-  def test_inspect_file_not_unit_test(self):
-    content = '''
-class test_apple_fixture(object):
-
-  def test_foo(self):
-    pass
-
-  def test_bar(self):
-    pass
-'''
-    filename = self.make_tmp_file(content)
-    self.assertEqual( [], unit_test_inspect.inspect_file(filename) )
-    file_util.remove(filename)
-
-  def test_inspect_file_disbled(self):
-    content = '''
-import unittest
-class test_apple_fixture(unittest.TestCase):
-
-  def xtest_foo(self):
-    self.assertEqual( 6, 3 + 3 )
-
-  def xtest_bar(self):
-    self.assertEqual( 7, 3 + 4 )
-'''
-    filename = self.make_tmp_file(content)
-    self.assertEqual( [
-    ],
-                      unit_test_inspect.inspect_file(filename) )
-    file_util.remove(filename)
-
-
-    
-  def doesnt_work_test_inspect_file_TestCase_subclass(self):
-    content = '''
-import unittest
-class unit_super(unittest.TestCase):
-  _x = 5
-class test_apple_fixture(unit_super):
-
-  def test_foo(self):
-    self.assertEqual( 6, 3 + 3 )
-
-  def test_bar(self):
-    self.assertEqual( 7, 3 + 4 )
-
-
-class somthing(unittest.TestCase):
-  pass
-'''
-    filename = self.make_tmp_file(content)
-    self.assertEqual( [
-      ( filename, 'test_apple_fixture', 'test_foo' ),
-      ( filename, 'test_apple_fixture', 'test_bar' ),
-    ],
-                      unit_test_inspect.inspect_file(filename) )
-    file_util.remove(filename)
-    
-  def test_inspect_file_unit_test(self):
-    content = '''
-from bes.testing.unit_test import unit_test
-class test_apple_fixture(unit_test):
-
-  def test_foo(self):
-    self.assertEqual( 6, 3 + 3 )
-
-  def test_bar(self):
-    self.assertEqual( 7, 3 + 4 )
-'''
-    filename = self.make_tmp_file(content)
-    self.assertEqual( [
-      ( filename, 'test_apple_fixture', 'test_foo' ),
-      ( filename, 'test_apple_fixture', 'test_bar' ),
-    ],
-                      unit_test_inspect.inspect_file(filename) )
-    file_util.remove(filename)
-
 if len(sys.argv) >= 2 and sys.argv[1] in [ '--unit' ]:
   sys.argv = sys.argv[0:1]
   unittest.main()
