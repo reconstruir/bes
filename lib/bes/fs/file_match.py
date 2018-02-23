@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import fnmatch, re
+import fnmatch, re, os.path as path
 
 from bes.common import algorithm, object_util
 
@@ -48,7 +48,7 @@ class file_match(object):
 
     result = []
     for filename in filenames:
-      if func(match_func, filename, patterns):
+      if func(match_func, path.basename(filename), patterns):
         result.append(filename)
     return sorted(algorithm.unique(result))
 
