@@ -7,7 +7,7 @@ import argparse, ast, copy, fnmatch, math, os, os.path as path, platform, random
 import exceptions, glob, shutil, time, tempfile
 from collections import namedtuple
 
-from bes.testing.framework import config_file_caca, file_filter
+from bes.testing.framework import argument_resolver, config_file_caca, file_filter
 from bes.common import algorithm, object_util, string_util
 from bes.git import git
 from bes.text import comments, lines
@@ -133,13 +133,10 @@ def main():
   
   if not args.files:
     args.files = [ cwd ]
+
+  ar = argument_resolver(cwd, args.files)
   
-  files, filters = _separate_files_and_filters(args.files)
-#  print('arguments: %s' % (args.files))
-#  print('files: %s' % (files))
-#  print('filters: %s' % (filters))
-  
-  files = file_resolve.resolve_files_and_dirs(files)
+  files = file_resolve.resolve_files_and_dirs(ar.files)
   
   # Don't include this script in the list since it needs to be run bes_test.py --unit to work
   files = [ f for f in files if not f.endswith('bes_test.py') ]
@@ -163,7 +160,7 @@ def main():
     unit_test_inspect.print_inspect_map(test_map, files, cwd)
     return 0
     
-  patterns = _make_filters_patterns(filters)
+  patterns = _make_filters_patterns(ar.filters)
   filename_patterns = [ p.filename for p in patterns if p.filename ]
   if filename_patterns:
     files = _match_filenames(files, filename_patterns)
@@ -472,19 +469,6 @@ def _make_count_blurb(index, total):
   index_blurb = (' ' * (length - len(index))) + index
   count_blurb = (' ' * (length - len(count))) + count
   return '[%s of %s]' % (index_blurb, count_blurb)
-
-files_and_filters = namedtuple('files_and_filters', 'files,filters')
-def _separate_files_and_filters(args):
-  files = []
-  filter_descriptions = []
-  for f in args:
-    normalized_path = file_path.normalize(f)
-    if not path.exists(normalized_path):
-      filter_descriptions.append(f)
-    else:
-      files.append(f)
-  filters = [ unit_test_desc.parse(f) for f in (filter_descriptions or []) ]
-  return files_and_filters(files, filters)
 
 def _make_filters_patterns(filters):
   patterns = []
