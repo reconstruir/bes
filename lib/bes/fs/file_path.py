@@ -72,3 +72,7 @@ class file_path(object):
   def depth(clazz, p):
     'Return the depth of p.'
     return len(clazz.split(p))
+
+  @classmethod
+  def normalize(clazz, p):
+    return path.abspath(path.normpath(p))

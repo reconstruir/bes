@@ -11,7 +11,7 @@ from bes.testing.framework import config_file_caca, file_filter
 from bes.common import algorithm, object_util, string_util
 from bes.git import git
 from bes.text import comments, lines
-from bes.fs import file_find, file_util
+from bes.fs import file_find, file_path, file_util
 from bes.dependency import dependency_resolver
 from bes.egg import egg
 
@@ -135,11 +135,15 @@ def main():
     args.files = [ cwd ]
   
   files, filters = _separate_files_and_filters(args.files)
-
+  print('arguments: %s' % (args.files))
+  print('files: %s' % (files))
+  print('filters: %s' % (filters))
+  
   files = file_resolve.resolve_files_and_dirs(files)
   
   # Don't include this script in the list since it needs to be run bes_test.py --unit to work
   files = [ f for f in files if not f.endswith('bes_test.py') ]
+  files = [ f for f in files if 'test_data/bes.testing' not in f ]
   files = [ f for f in files if f.lower().endswith('.py') ]
   files = [ f for f in files if not file_util.is_broken_link(f) ]
   test_map = unit_test_inspect.inspect_map(files)
@@ -345,23 +349,6 @@ def main():
 def _timing_average(l):
   return float(sum(l)) / float(len(l))
 
-
-def _filepath_normalize(filepath):
-  f = path.abspath(path.normpath(filepath))
-  if path.exists(f):
-    return f
-  return None
-
-def _filepaths_normalize(files):
-  return [ _filepath_normalize(f) for f in files ]
-
-def _which(exe):
-  cmd = [ 'which', exe ]
-  try:
-    return subprocess.check_output(cmd, shell = False).strip()
-  except:
-    return None
-
 test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing,profile_output,interpreters')
 test_result = namedtuple('test_result', 'success,num_tests_run,elapsed_time')
 
@@ -491,8 +478,8 @@ def _separate_files_and_filters(args):
   files = []
   filter_descriptions = []
   for f in args:
-    normalized_path = _filepath_normalize(f)
-    if not normalized_path:
+    normalized_path = file_path.normalize(f)
+    if not path.exists(normalized_path):
       filter_descriptions.append(f)
     else:
       files.append(f)
