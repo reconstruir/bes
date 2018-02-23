@@ -3,24 +3,14 @@
 
 import subprocess
 from bes.text import lines
-#from bes.fs import file_find, file_util
+from bes.fs import file_find
 
 class file_finder(object):
 
   @classmethod
   def find_python_files(clazz, d):
-    cmd = [ 'find', d, '-name', '*.py' ]
-    result = subprocess.check_output(cmd, shell = False)
-    return lines.parse_lines(result)
+    return file_find.find_fnmatch(d, [ '*.py' ], relative = False)
 
   @classmethod
   def find_tests(clazz, d):
-    cmd = [ 'find', d, '-name', 'test_*.py' ]
-    result = subprocess.check_output(cmd, shell = False)
-    return lines.parse_lines(result)
-
-#  @classmethod
-#  def find(clazz, d, *args):
-#    cmd = [ 'find', d ] + list(args)
-#    result = subprocess.check_output(cmd, shell = False)
-#    return lines.parse_lines(result)
+    return file_find.find_fnmatch(d, [ '*test_*.py' ], relative = False)
