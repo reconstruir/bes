@@ -135,9 +135,9 @@ def main():
     args.files = [ cwd ]
   
   files, filters = _separate_files_and_filters(args.files)
-  print('arguments: %s' % (args.files))
-  print('files: %s' % (files))
-  print('filters: %s' % (filters))
+#  print('arguments: %s' % (args.files))
+#  print('files: %s' % (files))
+#  print('filters: %s' % (filters))
   
   files = file_resolve.resolve_files_and_dirs(files)
   

@@ -9,6 +9,16 @@ class test_argument_resolver(unit_test):
 
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.testing/framework/orange'
   
+  def test_dot_dir(self):
+    a = AR(self.data_dir(), [ '.' ])
+    self.assertEqual( [ '.' ], a.files )
+    self.assertEqual( [], a.filters )
+
+  def test_one_file(self):
+    a = AR(self.data_dir(), [ 'lib/orange/common/orange_util.py' ])
+    self.assertEqual( [ 'lib/orange/common/orange_util.py' ], a.files )
+    self.assertEqual( [], a.filters )
+    
   def test_basic(self):
     a = AR(self.data_dir(), [ '.', ':test_orange_func_one' ])
     self.assertEqual( [ '.' ], a.files )
