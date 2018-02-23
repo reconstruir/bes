@@ -32,11 +32,6 @@ _NAME = path.basename(sys.argv[0])
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('files', action = 'store', nargs = '*', help = 'Files or directories to rename')
-  parser.add_argument('--unit',
-                      '-u',
-                      action = 'store_true',
-                      default = False,
-                      help = 'Just run unit tests [ False ]')
   parser.add_argument('--dry-run',
                       '-n',
                       action = 'store_true',
@@ -672,21 +667,6 @@ def _python_exe_blurb(python_exe, interpreters):
   longest_python_exe = max([len(path.basename(p)) for p in options.interpreters])
   return path.basename(python_exe).rjust(longest_python_exe)
       
-import unittest
-
-class test_case(unittest.TestCase):
-
-  @classmethod
-  def make_tmp_file(clazz, content, mode = None):
-    content = content or ''
-    _, filename = tempfile.mkstemp()
-    file_util.save(filename, content = content, mode = mode)
-    return filename
-  
-if len(sys.argv) >= 2 and sys.argv[1] in [ '--unit' ]:
-  sys.argv = sys.argv[0:1]
-  unittest.main()
-
 if __name__ == '__main__':
   raise SystemExit(main())
 
