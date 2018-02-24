@@ -48,6 +48,12 @@ class test_file_ignore(unit_test):
     self.assertTrue( a.should_ignore(self.data_path('a/b/c/d/bar.ttt')) )
     self.assertTrue( a.should_ignore(self.data_path('a/b/c/d2/never.txt')) )
   
+  def test_should_ignore_always_false(self):
+    a = FI(None)
+    self.assertFalse( a.should_ignore(self.data_path('a/b/c/d/foo.txt')) )
+    self.assertFalse( a.should_ignore(self.data_path('a/b/c/d/bar.ttt')) )
+    self.assertFalse( a.should_ignore(self.data_path('a/b/c/d2/never.txt')) )
+  
 if __name__ == '__main__':
   unit_test.main()
     

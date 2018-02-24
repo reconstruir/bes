@@ -43,6 +43,8 @@ class file_ignore(object):
   def should_ignore(self, ford):
     if not path.exists(ford):
       raise IOError('not a file or directory: %s' % (ford))
+    if not self._ignore_filename:
+      return False
     parents = self._decompose_parents(ford)
     for parent_dir, parent_base in parents:
       data = self._get_data(parent_dir)
