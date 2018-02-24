@@ -15,14 +15,14 @@ class test_file_info(unit_test):
     ce = config_env(self.data_dir())
     a = FI(ce, self.data_path('orange/lib/orange/common/orange_util.py'))
     self.assertEqual( git.root(self.data_path('orange/lib/orange/common/orange_util.py')), a.git_root )
-    self.assertEqual( True, a.git_tracked )
+#    self.assertEqual( True, a.git_tracked )
     self.assertEqual( ce.config_for_name('orange'), a.config )
     
   def test_no_git_root(self):
     ce = config_env(self.data_dir())
     a = FI(ce, temp_file.make_temp_file(content = 'def foo(): return 666\n'))
     self.assertEqual( None, a.git_root )
-    self.assertEqual( False, a.git_tracked )
+#    self.assertEqual( False, a.git_tracked )
     self.assertEqual( None, a.config )
     
 if __name__ == '__main__':
