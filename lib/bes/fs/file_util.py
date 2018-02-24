@@ -194,10 +194,6 @@ class file_util(object):
     return path.abspath(p)
 
   @classmethod
-  def parent_dir(clazz, d):
-    return path.normpath(path.join(d, os.pardir))
-
-  @classmethod
   def is_broken_link(clazz, filename):
     return path.islink(filename) and not path.isfile(os.readlink(filename))
   

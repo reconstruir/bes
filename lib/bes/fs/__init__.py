@@ -7,6 +7,7 @@ from .dir_util import dir_util
 from .file_cache import file_cache, file_cacheItemInterface
 from .file_checksum import file_checksum
 from .file_find import file_find
+from .file_ignore import file_ignore
 from .file_match import file_match
 from .file_mime import file_mime
 from .file_path import file_path

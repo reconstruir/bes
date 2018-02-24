@@ -16,10 +16,10 @@ class test_argument_resolver(unit_test):
 #    self.assertEqual( [], a.resolved_files )
 
   def test_one_file(self):
-    a = AR(self.data_dir(), [ 'lib/orange/common/orange_util.py' ])
-    self.assertEqual( [ 'lib/orange/common/orange_util.py' ], a.files )
+    a = AR(self.data_dir(), [ 'tests/lib/orange/common/test_orange_util.py' ])
+    self.assertEqual( [ 'tests/lib/orange/common/test_orange_util.py' ], a.files )
     self.assertEqual( [], a.filters )
-    self.assertEqual( [ self.data_path('lib/orange/common/orange_util.py') ], a.resolved_files )
+    self.assertEqual( [ self.data_path('tests/lib/orange/common/test_orange_util.py') ], a.resolved_files )
     
   def test_basic(self):
     a = AR(self.data_dir(), [ '.', ':test_orange_func_one' ])

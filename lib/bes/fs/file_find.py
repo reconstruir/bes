@@ -4,8 +4,9 @@
 import errno, os.path as path, os, stat
 
 from bes.system import log
-from .file_util import file_util
 from .file_match import file_match
+from .file_path import file_path
+from .file_util import file_util
 from .temp_file import temp_file
 
 class file_find(object):
@@ -177,7 +178,7 @@ class file_find(object):
       what = path.join(start_dir, filename)
       if path.exists(what):
         return what
-      start_dir = file_util.parent_dir(start_dir)
+      start_dir = file_path.parent_dir(start_dir)
       if start_dir == '/':
         return None
   

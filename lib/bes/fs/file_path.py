@@ -76,3 +76,11 @@ class file_path(object):
   @classmethod
   def normalize(clazz, p):
     return path.abspath(path.normpath(p))
+
+  @classmethod
+  def parent_dir(clazz, d):
+    d = path.normpath(d)
+    if d == '/':
+      return None
+    return path.normpath(path.join(d, os.pardir))
+  

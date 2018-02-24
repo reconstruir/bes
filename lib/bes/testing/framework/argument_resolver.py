@@ -3,11 +3,12 @@
 
 import os.path as path
 from bes.common import algorithm
-from bes.fs import file_path
+from bes.fs import file_path, file_util
 from bes.git import git
 from .file_finder import file_finder
 
 from .unit_test_description import unit_test_description
+from .unit_test_inspect import unit_test_inspect
 
 class argument_resolver(object):
 
@@ -17,9 +18,9 @@ class argument_resolver(object):
     self.files, self.filters = self._separate_files_and_filters(self.root_dir, self.arguments)
 #    print('files: %s' % (self.files))
 #    print('filters: %s' % (self.filters))
-    self.resolved_files = self._resolve_files_and_dirs(self.root_dir, self.files)
-    
-#    print('resolved_files: %s' % (self.resolved_files))
+    resolved_files = self._resolve_files_and_dirs(self.root_dir, self.files)
+    self.resolved_files = self._apply_exclusions(resolved_files)
+    self.inspect_map = unit_test_inspect.inspect_map(resolved_files)
 
   @classmethod
   def _git_roots(clazz, files):
@@ -97,3 +98,14 @@ class argument_resolver(object):
       if test:
         result.append(test)
     return result
+
+  @classmethod
+  def _apply_exclusions(clazz, files):
+#    print('1 files: %s' % (files))
+#    files = [ f for f in files if not f.endswith('bes_test.py') ]
+#    print('2 files: %s' % (files))
+#    files = [ f for f in files if 'test_data/bes.testing' not in f ]
+#    print('3 files: %s' % (files))
+#    files = [ f for f in files if not file_util.is_broken_link(f) ]
+#    print('4 files: %s' % (files))
+    return files

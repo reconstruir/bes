@@ -1,19 +1,11 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-# A script to run python unit tests.  Does not use any bes code to avoid
-# chicken-and-egg issues and to be standalone
-import argparse, ast, copy, fnmatch, math, os, os.path as path, platform, random, re, subprocess, sys
-import exceptions, glob, shutil, time, tempfile
+import ast, os.path as path
+import exceptions
 from collections import namedtuple
 
-from bes.testing.framework import argument_resolver, config_file_caca, file_filter
-from bes.common import algorithm, object_util, string_util
-from bes.git import git
-from bes.text import comments, lines
-from bes.fs import file_find, file_path, file_util
-from bes.dependency import dependency_resolver
-from bes.egg import egg
+from bes.fs import file_util
 
 class unit_test_inspect(object):
   unit_test = namedtuple('unit_test', 'filename,fixture,function')
@@ -65,10 +57,12 @@ class unit_test_inspect(object):
         if tests:
           result[f_path] = clazz.inspect_file(f_path)
       except exceptions.SyntaxError, ex:
-        printer.writeln('Failed to inspect: %s - %s' % (f, str(ex)))
+        #printer.writeln('Failed to inspect: %s - %s' % (f, str(ex)))
+        print('Failed to inspect: %s - %s' % (f, str(ex)))
         raise
       except Exception, ex:
-        printer.writeln('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
+        #printer.writeln('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
+        print('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
     return result
 
   @classmethod

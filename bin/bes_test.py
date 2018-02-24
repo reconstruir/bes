@@ -180,7 +180,7 @@ def main():
   except subprocess.CalledProcessError as ex:
     any_git_root = None
   if any_git_root:
-    config_find_root = file_util.parent_dir(any_git_root)
+    config_find_root = file_path.parent_dir(any_git_root)
     bescfg = config_file_caca.load_configs(config_find_root)
     #print('bescfg: %s' % (str(bescfg)))
     env_dirs = file_filter.env_dirs(filtered_files)
