@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
 from collections import namedtuple
 from bes.common import check
+from bes.git import git
 
 class file_info(namedtuple('file_info', 'filename')):
 

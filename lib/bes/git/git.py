@@ -76,9 +76,9 @@ class git(object):
     return True
 
   @classmethod
-  def _call_git(clazz, root, args):
+  def _call_git(clazz, root, args, raise_error = True):
     cmd = [ clazz.GIT_EXE ] + args
-    rv = Shell.execute(cmd, cwd = root)
+    rv = Shell.execute(cmd, cwd = root, raise_error = raise_error)
     #print(cmd)
     #print(rv.stdout)
     return rv
@@ -186,7 +186,8 @@ class git(object):
   @classmethod
   def is_tracked(clazz, root, filename):
     'Return True if the filename is tracked by a git repo.'
-    return clazz.status(root, filename).action != status.UNTRACKED
+    args = [ 'ls-files', '--error-unmatch', filename ]
+    return clazz._call_git(root, args, raise_error = False).exit_code == 0
   
   @classmethod
   def modified_files(clazz, root):
