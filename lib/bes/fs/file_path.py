@@ -83,4 +83,3 @@ class file_path(object):
     if d == '/':
       return None
     return path.normpath(path.join(d, os.pardir))
-  

@@ -91,10 +91,10 @@ class lines(object):
         return s.rstrip()
     return [ _do_strip(line.text) for line in self._lines ]
 
-  @classmethod
-  def read_file(clazz, filename):
-    with open(filename, 'r') as f:
-      return clazz(f.read())
+#  @classmethod
+#  def read_file(clazz, filename):
+#    with open(filename, 'r') as f:
+#      return clazz(f.read())
 
   @classmethod
   def parse_lines(clazz, s, strip_comments = True, strip_text = True, remove_empties = True):
