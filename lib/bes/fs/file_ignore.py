@@ -14,7 +14,8 @@ class ignore_file_data(namedtuple('ignore_file_data', 'directory,patterns')):
 
   def __new__(clazz, directory, patterns):
     check.check_string(directory)
-    check.check_string_seq(patterns)
+    if patterns:
+      check.check_string_seq(patterns)
     return clazz.__bases__[0].__new__(clazz, directory, patterns)
 
   @classmethod
@@ -27,6 +28,8 @@ class ignore_file_data(namedtuple('ignore_file_data', 'directory,patterns')):
     return clazz(path.dirname(filename), patterns)
   
   def should_ignore(self, filename):
+    if not self.patterns:
+      return False
     filename = path.basename(filename)
     return file_match.match_fnmatch(filename, self.patterns, file_match.ANY)
   
@@ -35,19 +38,45 @@ class file_ignore(object):
   
   def __init__(self, ignore_filename):
     self._ignore_filename = ignore_filename
-
-  def ignore(self, filename):
-    if not path.isfile(filename):
-      raise IOError('not a file: %s' % (filename))
-    parents = self._parents(filename)
-      
-  def _parents(self, filename):
-    result = []
-    parent = file_path.parent_dir(filename)
-    while True:
-      result.append(parent)
-      parent = file_path.parent_dir(parent)
-      if not parent:
-        break
-    return result
+    self._data = {}
     
+  def should_ignore(self, ford):
+    if not path.exists(ford):
+      raise IOError('not a file or directory: %s' % (ford))
+    parents = self._decompose_parents(ford)
+    for parent_dir, parent_base in parents:
+      data = self._get_data(parent_dir)
+      if data.should_ignore(parent_base):
+        return True
+    return False
+  
+  def _decompose_parents(self, filename):
+    'Return a revered list of tuples of parent basenames and dirnames.'
+    assert path.isfile(filename)
+    assert path.isabs(filename)
+    result = []
+    f = path.basename(filename)
+    d = path.dirname(filename)
+    while True:
+      if d == '/':
+        break
+      result.append( ( d, f ) )
+      f = path.basename(d)
+      d = path.dirname(d)
+    return [ x for x in reversed(result) ]
+
+  def _get_data(self, d):
+    if not path.isdir(d):
+      raise IOError('not a directory: %s' % (d))
+    d = path.abspath(d)
+    if d not in self._data:
+      self._data[d] = self._load_data(d)
+    return self._data[d]
+    
+  def _load_data(self, d):
+    assert path.isdir(d)
+    assert path.isabs(d)
+    ignore_filename = path.join(d, self._ignore_filename)
+    if not path.isfile(ignore_filename):
+      return ignore_file_data(d, None)
+    return ignore_file_data.read_file(ignore_filename)

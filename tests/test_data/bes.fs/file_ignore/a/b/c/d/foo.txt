@@ -1,1 +1,2 @@
-this is foo
+this is foo.bar
+
