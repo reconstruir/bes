@@ -125,7 +125,7 @@ def main():
 
   if args.version:
     import bes
-    print(version_info.version_info_for_module(bes).version_string())
+    print(version_info.version_info_for_module(bes).version_string(delimiter = ' '))
     return 0
   
   if not args.files:
