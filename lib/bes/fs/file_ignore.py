@@ -82,3 +82,7 @@ class file_ignore(object):
     if not path.isfile(ignore_filename):
       return ignore_file_data(d, None)
     return ignore_file_data.read_file(ignore_filename)
+
+  def filter_files(self, files):
+    check.check_string_seq(files)
+    return [ f for f in files if not self.should_ignore(f) ]

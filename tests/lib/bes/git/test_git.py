@@ -8,12 +8,12 @@ from bes.git import git, status
 
 class test_git(unittest.TestCase):
 
-  def __create_tmp_repo(self):
+  def _create_tmp_repo(self):
     tmp_repo = temp_file.make_temp_dir()
     git.init(tmp_repo)
     return tmp_repo
 
-  def __create_tmp_files(self, tmp_repo):
+  def _create_tmp_files(self, tmp_repo):
     foo = path.join(tmp_repo, 'foo.txt')
     bar = path.join(tmp_repo, 'bar.txt')
     file_util.save(foo, content = 'foo.txt\n')
@@ -21,22 +21,22 @@ class test_git(unittest.TestCase):
     return [ 'bar.txt', 'foo.txt' ]
 
   def test_add(self):
-    tmp_repo = self.__create_tmp_repo()
-    new_files = self.__create_tmp_files(tmp_repo)
+    tmp_repo = self._create_tmp_repo()
+    new_files = self._create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
     expected_status = [ status(status.ADDED, f) for f in new_files ]
     actual_status = git.status(tmp_repo, '.')
     self.assertEqual( expected_status, actual_status )
 
   def test_commit(self):
-    tmp_repo = self.__create_tmp_repo()
-    new_files = self.__create_tmp_files(tmp_repo)
+    tmp_repo = self._create_tmp_repo()
+    new_files = self._create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
     git.commit(tmp_repo, 'nomsg\n', '.')
 
   def test_clone(self):
-    tmp_repo = self.__create_tmp_repo()
-    new_files = self.__create_tmp_files(tmp_repo)
+    tmp_repo = self._create_tmp_repo()
+    new_files = self._create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
     git.commit(tmp_repo, 'nomsg\n', '.')
 
@@ -49,8 +49,8 @@ class test_git(unittest.TestCase):
       self.assertTrue( path.exists(f) )
 
   def test_clone_or_pull(self):
-    tmp_repo = self.__create_tmp_repo()
-    new_files = self.__create_tmp_files(tmp_repo)
+    tmp_repo = self._create_tmp_repo()
+    new_files = self._create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
     git.commit(tmp_repo, 'nomsg\n', '.')
 

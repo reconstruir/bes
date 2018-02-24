@@ -178,7 +178,9 @@ class git(object):
     'Return the repo root for the given filename or raise and exception if not under git control.'
     cmd = [ 'git', 'rev-parse', '--show-toplevel' ]
     cwd = path.dirname(filename)
-    rv = Shell.execute(cmd, cwd = cwd)
+    rv = Shell.execute(cmd, cwd = cwd, raise_error = False)
+    if rv.exit_code != 0:
+      return None
     l = lines.parse_lines(rv.stdout)
     assert len(l) == 1
     return l[0]

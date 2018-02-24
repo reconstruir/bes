@@ -13,11 +13,17 @@ from .config_file import config_file
 class config_env(object):
 
   def __init__(self, root_dir):
-    self.root_dir = path.abspath(root_dir)
-    config_filenames = self.find_config_files(self.root_dir)
-    self.config_files = [ config_file(f) for f in config_filenames ]
-    self.config_map = self._make_config_map(self.config_files)
-    self.dependency_map = self._make_dep_map(self.config_map)
+    if not root_dir:
+      self.root_dir = None
+      self.config_files = []
+      self.config_map = {}
+      self.dependency_map = {}
+    else:
+      self.root_dir = path.abspath(root_dir)
+      config_filenames = self.find_config_files(self.root_dir)
+      self.config_files = [ config_file(f) for f in config_filenames ]
+      self.config_map = self._make_config_map(self.config_files)
+      self.dependency_map = self._make_dep_map(self.config_map)
 
   def config_for_name(self, name):
     return self.config_map.get(name, None)

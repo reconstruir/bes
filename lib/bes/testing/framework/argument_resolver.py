@@ -3,23 +3,27 @@
 
 import os.path as path
 from bes.common import algorithm
-from bes.fs import file_path, file_util
+from bes.fs import file_ignore, file_path, file_util
 from bes.git import git
-from .file_finder import file_finder
 
+from .config_env import config_env
+from .file_finder import file_finder
 from .unit_test_description import unit_test_description
 from .unit_test_inspect import unit_test_inspect
 
 class argument_resolver(object):
 
-  def __init__(self, root_dir, arguments):
-    self.root_dir = path.abspath(root_dir)
+  FILE_IGNORE_FILENAME = '.bes_test_ignore'
+  
+  def __init__(self, working_dir, arguments):
+    self.working_dir = path.abspath(working_dir)
     self.arguments = arguments
-    self.files, self.filters = self._separate_files_and_filters(self.root_dir, self.arguments)
-#    print('files: %s' % (self.files))
-#    print('filters: %s' % (self.filters))
-    resolved_files = self._resolve_files_and_dirs(self.root_dir, self.files)
-    self.resolved_files = self._apply_exclusions(resolved_files)
+    self.file_ignore = file_ignore(self.FILE_IGNORE_FILENAME)
+    self.files, self.filters = self._separate_files_and_filters(self.working_dir, self.arguments)
+    resolved_files = self._resolve_files_and_dirs(self.working_dir, self.files)
+    self.root_of_roots = self._find_root_of_roots(resolved_files)
+    self.config_env = config_env(self.root_of_roots)
+    resolved_files = self.file_ignore.filter_files(resolved_files)
     self.inspect_map = unit_test_inspect.inspect_map(resolved_files)
 
   @classmethod
@@ -29,11 +33,11 @@ class argument_resolver(object):
     return algorithm.unique(roots)
 
   @classmethod
-  def _separate_files_and_filters(clazz, root_dir, arguments):
+  def _separate_files_and_filters(clazz, working_dir, arguments):
     files = []
     filter_descriptions = []
     for arg in arguments:
-      normalized_path = file_path.normalize(path.join(root_dir, arg))
+      normalized_path = file_path.normalize(path.join(working_dir, arg))
       if not path.exists(normalized_path):
         filter_descriptions.append(arg)
       else:
@@ -42,10 +46,10 @@ class argument_resolver(object):
     return files, filters
 
   @classmethod
-  def _resolve_files_and_dirs(clazz, root_dir, files_and_dirs):
+  def _resolve_files_and_dirs(clazz, working_dir, files_and_dirs):
     result = []
     for f in files_and_dirs:
-      f = file_path.normalize(path.join(root_dir, f))
+      f = file_path.normalize(path.join(working_dir, f))
       print('F: %s' % (f))
       if path.isfile(f):
         result += clazz._resolve_file(f)
@@ -109,3 +113,12 @@ class argument_resolver(object):
 #    files = [ f for f in files if not file_util.is_broken_link(f) ]
 #    print('4 files: %s' % (files))
     return files
+
+  @classmethod
+  def _find_root_of_roots(clazz, files):
+    if not files:
+      return None
+    any_git_root = git.root(files[0])
+    if any_git_root:
+      return file_path.parent_dir(any_git_root)
+    return False
