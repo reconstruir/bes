@@ -13,8 +13,9 @@ BES_AUTHOR_NAME = u'Sally Foo'
 BES_AUTHOR_EMAIL = u'sally@foo.com'
 BES_ADDRESS = u''
 BES_TAG = u''
+BES_TIMESTAMP = u''
 '''
-    self.assertEqual( (u'1.0.0', u'Sally Foo', u'sally@foo.com', u'', u''), version_info.read_string(text) )
+    self.assertEqual( (u'1.0.0', u'Sally Foo', u'sally@foo.com', u'', u'', u''), version_info.read_string(text) )
     
   def test___str__(self):
     expected = '''\
@@ -26,12 +27,13 @@ BES_AUTHOR_NAME = u'Sally Bar'
 BES_AUTHOR_EMAIL = u'sally@bar.com'
 BES_ADDRESS = u''
 BES_TAG = u''
+BES_TIMESTAMP = u''
 '''
-    self.assertMultiLineEqual( expected, str(version_info(u'1.0', u'Sally Bar', u'sally@bar.com', u'', u'')) )
+    self.assertMultiLineEqual( expected, str(version_info(u'1.0', u'Sally Bar', u'sally@bar.com', u'', u'', u'')) )
     
   def test_change(self):
-    vi = version_info(u'1.0', u'Sally Bar', u'sally@bar.com', u'', u'')
-    self.assertEqual( (u'1.0', u'Sally Bar', u'sally@bar.com', u'', u'666'), vi.change(tag = u'666') )
+    vi = version_info(u'1.0', u'Sally Bar', u'sally@bar.com', u'', u'', u'')
+    self.assertEqual( (u'1.0', u'Sally Bar', u'sally@bar.com', u'', u'666', u'123'), vi.change(tag = u'666', timestamp = u'123') )
     
 if __name__ == '__main__':
   unit_test.main()
