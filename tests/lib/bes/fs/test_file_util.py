@@ -5,9 +5,10 @@
 #log.configure('file_util=debug')
 
 import unittest
+import os, os.path as path, tempfile
 from bes.fs import file_util
 
-class Testfile_util(unittest.TestCase):
+class test_file_util(unittest.TestCase):
 
   def test_lstrip_sep(self):
     self.assertEqual( 'foo', file_util.lstrip_sep('foo') )
@@ -61,6 +62,21 @@ class Testfile_util(unittest.TestCase):
 
   def test_remove_head_unicode(self):
     self.assertEqual( u'bar', file_util.remove_head(u'foo/bar', u'foo') )
+
+  def test_is_broken_link_true(self):
+    tmp = tempfile.NamedTemporaryFile()
+    file_util.remove(tmp.name)
+    os.symlink('/somethingnotthere', tmp.name)
+    self.assertEqual( True, path.islink(tmp.name) )
+    self.assertEqual( True, file_util.is_broken_link(tmp.name) )
+
+  def test_is_broken_link_false(self):
+    tmp1 = tempfile.NamedTemporaryFile()
+    tmp2 = tempfile.NamedTemporaryFile()
+    file_util.remove(tmp1.name)
+    os.symlink(tmp2.name, tmp1.name)
+    self.assertEqual( True, path.islink(tmp1.name) )
+    self.assertEqual( False, file_util.is_broken_link(tmp1.name) )
 
 if __name__ == "__main__":
   unittest.main()
