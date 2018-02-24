@@ -124,7 +124,8 @@ def main():
   cwd = os.getcwd()
 
   if args.version:
-    print(version_info.version_info_for_module('bes').version_string())
+    import bes
+    print(version_info.version_info_for_module(bes).version_string())
     return 0
   
   if not args.files:

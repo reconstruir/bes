@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import inspect, os.path as path
+import inspect, os.path as path, types
 from bes.system import compat
 
 class check(object):
@@ -9,7 +9,7 @@ class check(object):
   STRING_TYPES = compat.STRING_TYPES
   INTEGER_TYPES = compat.INTEGER_TYPES
   CLASS_TYPES = compat.CLASS_TYPES
-  
+
   @classmethod
   def is_string(clazz, o):
     return isinstance(o, clazz.STRING_TYPES)
@@ -53,6 +53,10 @@ class check(object):
   def check(clazz, o, t):
     clazz._check(o, t, 2)
   
+  @classmethod
+  def check_module(clazz, o):
+    clazz._check(o, types.ModuleType, 2)
+
   @classmethod
   def check_string(clazz, o):
     clazz._check(o, clazz.STRING_TYPES, 2)

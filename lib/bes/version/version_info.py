@@ -82,9 +82,9 @@ class version_info(namedtuple('version_info', 'version,author_name,author_email,
     return self.__class__(version, author_name, author_email, address, tag, timestamp)
 
   @classmethod
-  def version_info_for_module(clazz, module_name):
-    m = __import__(module_name)
-    return clazz(m.__version__, m.__bes_author_name__, m.__author__, m.__bes_address__, m.__bes_tag__, m.__bes_timestamp__)
+  def version_info_for_module(clazz, mod):
+    check.check_module(mod)
+    return clazz(mod.__version__, mod.__bes_author_name__, mod.__author__, mod.__bes_address__, mod.__bes_tag__, mod.__bes_timestamp__)
     
 check.register_class(version_info)
 
