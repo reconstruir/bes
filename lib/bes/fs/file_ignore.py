@@ -8,11 +8,11 @@ from bes.text import lines
 
 from .file_path import file_path
 from .file_util import file_util
+from .file_match import file_match
 
 class ignore_file_data(namedtuple('ignore_file_data', 'directory,patterns')):
 
   def __new__(clazz, directory, patterns):
-#    directory = path.abspath(directory)
     check.check_string(directory)
     check.check_string_seq(patterns)
     return clazz.__bases__[0].__new__(clazz, directory, patterns)
@@ -23,8 +23,12 @@ class ignore_file_data(namedtuple('ignore_file_data', 'directory,patterns')):
     if not path.isfile(filename):
       raise IOError('not a file: %s' % (filename))
     text = file_util.read(filename)
-    patterns = lines.parse_lines(text)
+    patterns = lines.parse_lines(text).to_list()
     return clazz(path.dirname(filename), patterns)
+  
+  def should_ignore(self, filename):
+    filename = path.basename(filename)
+    return file_match.match_fnmatch(filename, self.patterns, file_match.ANY)
   
 class file_ignore(object):
   'Decide whether to ignore a file based on scheme similar to .gitignore'
@@ -36,7 +40,6 @@ class file_ignore(object):
     if not path.isfile(filename):
       raise IOError('not a file: %s' % (filename))
     parents = self._parents(filename)
-    print('parents: %s' % (parents))
       
   def _parents(self, filename):
     result = []

@@ -22,6 +22,22 @@ foobar # comment
     tmp = temp_file.make_temp_file(content = content)
     self.assertEqual( ( path.dirname(tmp), [ '*.txt', '*.png', 'foobar' ] ), IFD.read_file(tmp) )
   
+  def test_should_ignore(self):
+    content = '''
+# comment
+*.txt
+*.png
+foobar # comment
+'''
+    tmp = temp_file.make_temp_file(content = content)
+    a = IFD.read_file(tmp)
+    self.assertTrue( a.should_ignore('ppp.txt') )
+    self.assertTrue( a.should_ignore('foo.png') )
+    self.assertTrue( a.should_ignore('foobar') )
+    self.assertFalse( a.should_ignore('ppp.pdf') )
+    self.assertFalse( a.should_ignore('foo.jpg') )
+    self.assertFalse( a.should_ignore('foobarx') )
+  
 class test_file_ignore(unit_test):
 
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.fs/file_ignore'
