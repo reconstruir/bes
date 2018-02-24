@@ -6,15 +6,16 @@ from collections import namedtuple
 from bes.common import check
 from bes.git import git
 
-class file_info(namedtuple('file_info', 'filename')):
+class file_info(namedtuple('file_info', 'filename,config')):
 
-  def __new__(clazz, filename):
+  def __new__(clazz, config_env, filename):
     if filename is not None:
       check.check_string(filename)
     if not path.isfile(filename):
       raise IOError('File not found: %s' % (filename))
     filename = path.abspath(filename)
-    return clazz.__bases__[0].__new__(clazz, filename)
+    config = config_env.config_for_filename(filename)
+    return clazz.__bases__[0].__new__(clazz, filename,config)
 
   @property
   def git_root(self):
