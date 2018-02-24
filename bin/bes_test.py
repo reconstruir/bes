@@ -10,6 +10,7 @@ from collections import namedtuple
 from bes.testing.framework import argument_resolver, config_file_caca, file_filter, unit_test_inspect
 from bes.testing.framework import unit_test_description
 from bes.common import algorithm, object_util, string_util
+from bes.version import version_info
 from bes.git import git
 from bes.text import comments, lines
 from bes.fs import file_find, file_path, file_util
@@ -123,8 +124,7 @@ def main():
   cwd = os.getcwd()
 
   if args.version:
-    import bes
-    print('%s %s %s' % (bes.__version__, bes.__bes_address__, bes.__bes_tag__))
+    print(version_info.version_info_for_module('bes').version_string())
     return 0
   
   if not args.files:

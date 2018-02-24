@@ -33,6 +33,10 @@ class version_info(namedtuple('version_info', 'version,author_name,author_email,
     buf.write('BES_TIMESTAMP = u\'%s\'\n' % (self.timestamp))
     return buf.getvalue()
 
+  def version_string(self, delimiter = ':'):
+    parts = [ self.version, self.address, self.tag, self.timestamp ]
+    return delimiter.join(parts)
+  
   @classmethod
   def read_file(clazz, filename):
     check.check_string(filename)
@@ -77,5 +81,10 @@ class version_info(namedtuple('version_info', 'version,author_name,author_email,
       timestamp = self.timestamp
     return self.__class__(version, author_name, author_email, address, tag, timestamp)
 
+  @classmethod
+  def version_info_for_module(clazz, module_name):
+    m = __import__(module_name)
+    return clazz(m.__version__, m.__bes_author_name__, m.__author__, m.__bes_address__, m.__bes_tag__, m.__bes_timestamp__)
+    
 check.register_class(version_info)
 

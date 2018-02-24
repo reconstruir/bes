@@ -35,5 +35,8 @@ BES_TIMESTAMP = u''
     vi = version_info(u'1.0', u'Sally Bar', u'sally@bar.com', u'', u'', u'')
     self.assertEqual( (u'1.0', u'Sally Bar', u'sally@bar.com', u'', u'666', u'123'), vi.change(tag = u'666', timestamp = u'123') )
     
+  def test_version_string(self):
+    self.assertEqual(u'1.0:foo@bar:123:abc', version_info(u'1.0', u'Sally Bar', u'sally@bar.com', u'foo@bar', u'123', u'abc').version_string() )
+    
 if __name__ == '__main__':
   unit_test.main()
