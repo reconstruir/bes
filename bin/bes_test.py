@@ -163,6 +163,7 @@ def main():
   if filename_patterns:
     files = _match_filenames(files, filename_patterns)
 
+  print('patterns: %s' % (patterns))
   filtered_files = file_filter.caca_filter_files(files, test_map, patterns)
   if patterns and not filtered_files:
     printer.writeln_name('No matches for: %s' % (' '.join([ str(p) for p in patterns])))

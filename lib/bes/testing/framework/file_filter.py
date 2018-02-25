@@ -16,22 +16,10 @@ class file_filter(object):
     for filename in files:
       assert filename in test_map
       test_map_for_filename = test_map[filename]
+      print('XXX: filename=%s; test_map_for_filename=%s' % (filename, test_map_for_filename))
       matching_tests = clazz._matching_tests(test_map_for_filename, patterns)
       if matching_tests:
         result.append(clazz.file_and_tests(filename, matching_tests))
-    return result
-
-  @classmethod
-  def filter_files(clazz, finfos, test_map, patterns):
-    if not patterns:
-      return [ clazz.file_and_tests(finfo, None) for finfo in finfos ]
-    result = []
-    for finfo in finfos:
-      assert finfo.filename in test_map
-      test_map_for_finfo = test_map[finfo.filename]
-      matching_tests = clazz._matching_tests(test_map_for_finfo, patterns)
-      if matching_tests:
-        result.append(clazz.file_and_tests(finfo, matching_tests))
     return result
 
   @classmethod
