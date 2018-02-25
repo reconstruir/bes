@@ -9,22 +9,35 @@ class file_filter(object):
   file_and_tests = namedtuple('file_and_tests', 'filename,tests')
 
   @classmethod
-  def filter_files(clazz, files, available, patterns):
+  def caca_filter_files(clazz, files, test_map, patterns):
     if not patterns:
       return [ clazz.file_and_tests(filename, None) for filename in files ]
     result = []
     for filename in files:
-      assert filename in available
-      available_for_filename = available[filename]
-      matching_tests = clazz._matching_tests(available_for_filename, patterns)
+      assert filename in test_map
+      test_map_for_filename = test_map[filename]
+      matching_tests = clazz._matching_tests(test_map_for_filename, patterns)
       if matching_tests:
         result.append(clazz.file_and_tests(filename, matching_tests))
     return result
 
   @classmethod
-  def _matching_tests(clazz, available, patterns):
+  def filter_files(clazz, finfos, test_map, patterns):
+    if not patterns:
+      return [ clazz.file_and_tests(finfo, None) for finfo in finfos ]
     result = []
-    for test in available:
+    for finfo in finfos:
+      assert finfo.filename in test_map
+      test_map_for_finfo = test_map[finfo.filename]
+      matching_tests = clazz._matching_tests(test_map_for_finfo, patterns)
+      if matching_tests:
+        result.append(clazz.file_and_tests(finfo, matching_tests))
+    return result
+
+  @classmethod
+  def _matching_tests(clazz, test_map, patterns):
+    result = []
+    for test in test_map:
       for pattern in patterns:
         fixture_matches = True
         if pattern.fixture:

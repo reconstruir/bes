@@ -78,14 +78,4 @@ class file_info(namedtuple('file_info', 'filename,relative_filename,config')):
   def is_broken_link(self):
     return file_util.is_broken_link(self.filename)
   
-  @classmethod
-  def unique_list(clazz, infos):
-    'Return a list of file infos with duplicates removed.'
-    check.check_list(infos, file_info)
-    result = []
-    seen = set()
-    for info in infos:
-      if info.filename not in seen:
-        seen.add(info.filename)
-        result.append(info)
-    return result
+check.register_class(file_info, include_seq = False)

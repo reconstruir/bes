@@ -134,7 +134,7 @@ def main():
   ar = argument_resolver(cwd, args.files)
   
   files = file_resolve.resolve_files_and_dirs(ar.files)
-  print('files: %s' % (files))
+  #print('files: %s' % (files))
   
   # Don't include this script in the list since it needs to be run bes_test.py --unit to work
   files = [ f for f in files if not f.endswith('bes_test.py') ]
@@ -163,7 +163,7 @@ def main():
   if filename_patterns:
     files = _match_filenames(files, filename_patterns)
 
-  filtered_files = file_filter.filter_files(files, test_map, patterns)
+  filtered_files = file_filter.caca_filter_files(files, test_map, patterns)
   if patterns and not filtered_files:
     printer.writeln_name('No matches for: %s' % (' '.join([ str(p) for p in patterns])))
     return 1

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path
+import fnmatch, os.path as path
 from bes.common import algorithm
 from bes.fs import file_ignore, file_path, file_util
 from bes.git import git
@@ -10,6 +10,7 @@ from .config_env import config_env
 from .file_filter import file_filter
 from .file_finder import file_finder
 from .file_info import file_info
+from .file_info_list import file_info_list
 from .unit_test_description import unit_test_description
 from .unit_test_inspect import unit_test_inspect
 
@@ -27,11 +28,11 @@ class argument_resolver(object):
     self.root_of_roots = self._find_root_of_roots(files)
     self.config_env = config_env(self.root_of_roots)
     files = self.file_ignore.filter_files(files)
-    file_infos = [ file_info(self.config_env, f) for f in files ]
+    file_infos = file_info_list([ file_info(self.config_env, f) for f in files ])
     file_infos += self._tests_for_many_files(file_infos)
-    file_infos = file_info.unique_list(file_infos)
+    file_infos.remove_dups()
     self.inspect_map = self._make_inspect_map(file_infos)
-    self.resolved_files = [ f for f in file_infos if f.filename in self.inspect_map ]
+    self.resolved_files = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])
     for p in self.filter_patterns:
       print('PATTERN: %s' % (str(p)))
 #    for f in self.resolved_files:
@@ -40,10 +41,12 @@ class argument_resolver(object):
 #      print('INSPECT: %s %s' % (k, v))
 
     #patterns = _make_filters_patterns(ar.filters)
-    filename_patterns = [ p.filename for p in self.patterns if p.filename ]
+    filename_patterns = [ p.filename for p in self.filter_patterns if p.filename ]
+    print('filename_patterns: %s' % (filename_patterns))
     if filename_patterns:
-      matching_files = _match_filenames(files, filename_patterns)
-
+      matching_files = self.resolved_files.match_filenames(filename_patterns)
+      for x in matching_files:
+        print('MATCHING: %s' % (x.filename))
 
 
   @classmethod
@@ -101,7 +104,7 @@ class argument_resolver(object):
     return None
 
   def _tests_for_many_files(self, finfos):
-    result = []
+    result = file_info_list()
     for finfo in finfos:
       test = self._test_for_file(finfo)
       if test:
@@ -164,19 +167,3 @@ class argument_resolver(object):
       if pattern.count(c) > 0:
         return True
     return False
-
-  @classmethod
-  def _match_test(clazz, patterns, filename):
-    filename = filename.lower()
-    for pattern in patterns:
-      if fnmatch.fnmatch(filename, pattern.lower()):
-        return True
-    return False
-
-  @classmethod
-  def _match_filenames(clazz, finfos, patterns):
-    result = []
-    for finfo in finfos:
-      if clazz._match_test(patterns, finfo.filename):
-        result.append(finfo)
-    return file_info.unique_list(result)
