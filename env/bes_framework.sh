@@ -60,15 +60,15 @@ function bes_setup()
     return 1
   fi
   local _root_dir=$1
-  local _chdir=0
+  local _dont_chdir=0
   if [ $# -gt 1 ]; then
-    _chdir=1
+    _dont_chdir=1
   fi
 
   bes_env_path_prepend PATH ${_root_dir}/bin
   bes_env_path_prepend PYTHONPATH ${_root_dir}/lib
 
-  if [ $_chdir -eq 1 ]; then
+  if [ $_dont_chdir -eq 0 ]; then
     cd $_root_dir
   fi
   

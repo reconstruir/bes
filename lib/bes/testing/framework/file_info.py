@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path
+import exceptions, os.path as path
 from collections import namedtuple
 from bes.common import check
+from bes.fs import file_util
 from bes.git import git
 
-class file_info(namedtuple('file_info', 'filename,config')):
+from .unit_test_inspect import unit_test_inspect
+
+class file_info(namedtuple('file_info', 'filename,relative_filename,config')):
 
   def __new__(clazz, config_env, filename):
     if filename is not None:
@@ -15,7 +18,11 @@ class file_info(namedtuple('file_info', 'filename,config')):
       raise IOError('File not found: %s' % (filename))
     filename = path.abspath(filename)
     config = config_env.config_for_filename(filename)
-    return clazz.__bases__[0].__new__(clazz, filename,config)
+    if config:
+      relative_filename = file_util.remove_head(filename, config.root_dir)
+    else:
+      relative_filename = None
+    return clazz.__bases__[0].__new__(clazz, filename, relative_filename, config)
 
   @property
   def git_root(self):
@@ -24,17 +31,6 @@ class file_info(namedtuple('file_info', 'filename,config')):
       setattr(self, '_git_root', self._compute_git_root())
     return getattr(self, '_git_root')
 
-  @property
-  def git_tracked(self):
-    'Return True if the file is tracked by the git repo.'
-    if not hasattr(self, '_git_tracked'):
-      setattr(self, '_git_tracked', self._compute_git_tracked())
-    return getattr(self, '_git_tracked')
-
-  @property
-  def is_broken_link(self):
-    return file_util.is_broken_link(self.filename)
-  
   def _compute_git_root(self):
     'Compute the git root.'
     try:
@@ -44,9 +40,52 @@ class file_info(namedtuple('file_info', 'filename,config')):
     except Exception as ex:
       raise
     
+  @property
+  def git_tracked(self):
+    'Return True if the file is tracked by the git repo.'
+    if not hasattr(self, '_git_tracked'):
+      setattr(self, '_git_tracked', self._compute_git_tracked())
+    return getattr(self, '_git_tracked')
+
   def _compute_git_tracked(self):
     'Compute the git tracked.'
     root = self.git_root
     if not root:
       return False
     return git.is_tracked(root, self.filename)
+
+  @property
+  def inspection(self):
+    'Return the git root for this file or None if not within a git repo.'
+    if not hasattr(self, '_inspection'):
+      setattr(self, '_inspection', self._compute_inspection())
+    return getattr(self, '_inspection')
+
+  def _compute_inspection(self):
+    'Compute the git root.'
+    try:
+      return unit_test_inspect.inspect_file(self.filename)
+    except exceptions.SyntaxError, ex:
+      #printer.writeln('Failed to inspect: %s - %s' % (f, str(ex)))
+      print('1 Failed to inspect: %s - %s' % (self.filename, str(ex)))
+      return None
+    except Exception, ex:
+      #printer.writeln('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
+      print('2 Failed to inspect: %s - %s:%s' % (self.filename, type(ex), str(ex)))
+      raise
+  
+  @property
+  def is_broken_link(self):
+    return file_util.is_broken_link(self.filename)
+  
+  @classmethod
+  def unique_list(clazz, infos):
+    'Return a list of file infos with duplicates removed.'
+    check.check_list(infos, file_info)
+    result = []
+    seen = set()
+    for info in infos:
+      if info.filename not in seen:
+        seen.add(info.filename)
+        result.append(info)
+    return result

@@ -24,6 +24,14 @@ class test_file_info(unit_test):
     self.assertEqual( None, a.git_root )
 #    self.assertEqual( False, a.git_tracked )
     self.assertEqual( None, a.config )
+
+  def test_inspection(self):
+    a = self._make_file_info('orange/tests/lib/orange/common/test_orange_util.py')
+    for x in a.inspection:
+      print ('INSP: %s' % (str(x)))
+    
+  def _make_file_info(self, filename):
+    return FI(config_env(self.data_dir()), self.data_path(filename))
     
 if __name__ == '__main__':
   unit_test.main()

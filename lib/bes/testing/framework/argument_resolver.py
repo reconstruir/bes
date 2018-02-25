@@ -7,7 +7,9 @@ from bes.fs import file_ignore, file_path, file_util
 from bes.git import git
 
 from .config_env import config_env
+from .file_filter import file_filter
 from .file_finder import file_finder
+from .file_info import file_info
 from .unit_test_description import unit_test_description
 from .unit_test_inspect import unit_test_inspect
 
@@ -20,11 +22,29 @@ class argument_resolver(object):
     self.arguments = arguments
     self.file_ignore = file_ignore(self.FILE_IGNORE_FILENAME)
     self.files, self.filters = self._separate_files_and_filters(self.working_dir, self.arguments)
-    resolved_files = self._resolve_files_and_dirs(self.working_dir, self.files)
-    self.root_of_roots = self._find_root_of_roots(resolved_files)
+    self.filter_patterns = self._make_filters_patterns(self.filters)
+    files = self._resolve_files_and_dirs(self.working_dir, self.files)
+    self.root_of_roots = self._find_root_of_roots(files)
     self.config_env = config_env(self.root_of_roots)
-    resolved_files = self.file_ignore.filter_files(resolved_files)
-    self.inspect_map = unit_test_inspect.inspect_map(resolved_files)
+    files = self.file_ignore.filter_files(files)
+    file_infos = [ file_info(self.config_env, f) for f in files ]
+    file_infos += self._tests_for_many_files(file_infos)
+    file_infos = file_info.unique_list(file_infos)
+    self.inspect_map = self._make_inspect_map(file_infos)
+    self.resolved_files = [ f for f in file_infos if f.filename in self.inspect_map ]
+    for p in self.filter_patterns:
+      print('PATTERN: %s' % (str(p)))
+#    for f in self.resolved_files:
+#      print('RESOLVED: %s' % (str(f)))
+#    for k, v in sorted(self.inspect_map.items()):
+#      print('INSPECT: %s %s' % (k, v))
+
+    #patterns = _make_filters_patterns(ar.filters)
+    filename_patterns = [ p.filename for p in self.patterns if p.filename ]
+    if filename_patterns:
+      matching_files = _match_filenames(files, filename_patterns)
+
+
 
   @classmethod
   def _git_roots(clazz, files):
@@ -50,12 +70,10 @@ class argument_resolver(object):
     result = []
     for f in files_and_dirs:
       f = file_path.normalize(path.join(working_dir, f))
-      print('F: %s' % (f))
       if path.isfile(f):
         result += clazz._resolve_file(f)
       elif path.isdir(f):
         result += clazz._resolve_dir(f)
-    result += clazz.tests_for_many_files(result)
     result = algorithm.unique(result)
     result = [ path.normpath(r) for r in result ]
     return sorted(result)
@@ -63,8 +81,6 @@ class argument_resolver(object):
   @classmethod
   def _resolve_dir(clazz, d):
     assert path.isdir(d)
-#    config = clazz._read_config_file(d)
-#    if config is None:
     return file_finder.find_python_files(d)
 #    return clazz._resolve_files_and_dirs(config)
     
@@ -73,46 +89,33 @@ class argument_resolver(object):
     assert path.isfile(f)
     return [ path.abspath(path.normpath(f)) ]
 
-  @classmethod
-  def _read_config_file(clazz, d):
-    p = path.join(d, '.bes_test_dirs')
-    if not path.exists(p):
+  def _test_for_file(self, finfo):
+    if finfo.relative_filename.startswith('tests/'):
       return None
-    content = file_util.read(p)
-    lines = [ f for f in content.split('\n') if f ]
-    files = [ path.join(d, f) for f in lines ]
-    return sorted(algorithm.unique(files))
-  
-  @classmethod
-  def test_for_file(clazz, filename):
-    basename = path.basename(filename)
-    dirname = path.dirname(filename)
-    name = path.splitext(basename)[0]
-    test_filename = 'test_%s.py' % (name)
-    test_full_path = path.join(dirname, 'tests', test_filename)
-    if path.exists(test_full_path):
-      return test_full_path
+    name = path.splitext(path.basename(finfo.filename))[0]
+    test_basename = 'test_%s.py' % (name)
+    test_fragment = path.dirname(finfo.relative_filename)
+    test_full_path = path.join(finfo.config.root_dir, 'tests', test_fragment, test_basename)
+    if path.isfile(test_full_path):
+      return file_info(self.config_env, test_full_path)
     return None
 
+  def _tests_for_many_files(self, finfos):
+    result = []
+    for finfo in finfos:
+      test = self._test_for_file(finfo)
+      if test:
+        result.append(test)
+    return result
+
   @classmethod
-  def tests_for_many_files(clazz, files):
+  def _resolve_tests_for_files(clazz, file_infos):
     result = []
     for f in files:
       test = clazz.test_for_file(f)
       if test:
         result.append(test)
     return result
-
-  @classmethod
-  def _apply_exclusions(clazz, files):
-#    print('1 files: %s' % (files))
-#    files = [ f for f in files if not f.endswith('bes_test.py') ]
-#    print('2 files: %s' % (files))
-#    files = [ f for f in files if 'test_data/bes.testing' not in f ]
-#    print('3 files: %s' % (files))
-#    files = [ f for f in files if not file_util.is_broken_link(f) ]
-#    print('4 files: %s' % (files))
-    return files
 
   @classmethod
   def _find_root_of_roots(clazz, files):
@@ -122,3 +125,58 @@ class argument_resolver(object):
     if any_git_root:
       return file_path.parent_dir(any_git_root)
     return False
+
+  @classmethod
+  def _make_inspect_map(clazz, finfos):
+    result = {}
+    for finfo in finfos:
+      assert finfo.filename not in result
+      if finfo.inspection:
+        result[finfo.filename] = finfo.inspection
+    return result
+
+  @classmethod
+  def _make_filters_patterns(clazz, filters):
+    patterns = []
+    for f in filters:
+      filename_pattern = None
+      fixture_pattern = None
+      function_pattern = None
+      if f.filename:
+        filename_pattern = clazz._make_fnmatch_pattern(f.filename)
+      if f.fixture:
+        fixture_pattern = clazz._make_fnmatch_pattern(f.fixture)
+      if f.function:
+        function_pattern = clazz._make_fnmatch_pattern(f.function)
+      patterns.append(unit_test_description(filename_pattern, fixture_pattern, function_pattern))
+    return patterns
+
+  @classmethod
+  def _make_fnmatch_pattern(clazz, pattern):
+    pattern = pattern.lower()
+    if clazz._is_fnmatch_pattern(pattern):
+      return pattern
+    return '*%s*' % (pattern)
+
+  @classmethod
+  def _is_fnmatch_pattern(clazz, pattern):
+    for c in [ '*', '?', '[', ']', '!' ]:
+      if pattern.count(c) > 0:
+        return True
+    return False
+
+  @classmethod
+  def _match_test(clazz, patterns, filename):
+    filename = filename.lower()
+    for pattern in patterns:
+      if fnmatch.fnmatch(filename, pattern.lower()):
+        return True
+    return False
+
+  @classmethod
+  def _match_filenames(clazz, finfos, patterns):
+    result = []
+    for finfo in finfos:
+      if clazz._match_test(patterns, finfo.filename):
+        result.append(finfo)
+    return file_info.unique_list(result)

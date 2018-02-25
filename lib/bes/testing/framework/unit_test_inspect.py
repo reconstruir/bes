@@ -3,18 +3,16 @@
 
 import ast, os.path as path
 import exceptions
-from collections import namedtuple
 
 from bes.fs import file_util
 
+from .unit_test_description import unit_test_description
+
 class unit_test_inspect(object):
-  unit_test = namedtuple('unit_test', 'filename,fixture,function')
 
   @classmethod
   def inspect_file(clazz, filename):
     code = file_util.read(filename)
-    if 'bes:skip_unit_test=1' in code:
-      return []
     tree = ast.parse(code, filename = filename)
     s = ast.dump(tree, annotate_fields = True, include_attributes = True)
     result = []
@@ -23,7 +21,7 @@ class unit_test_inspect(object):
         for statement in node.body:
           if isinstance(statement, ast.FunctionDef):
             if statement.name.startswith('test_'):
-              result.append(clazz.unit_test(filename, node.name, statement.name))
+              result.append(unit_test_description(filename, node.name, statement.name))
     return result
 
   @classmethod
