@@ -31,7 +31,7 @@ class argument_resolver(object):
     file_infos = file_info_list([ file_info(self.config_env, f) for f in files ])
     file_infos += self._tests_for_many_files(file_infos)
     file_infos.remove_dups()
-    self.inspect_map = self._make_inspect_map(file_infos)
+    self.inspect_map = file_infos.make_inspect_map()
     self.resolved_files = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])
     for p in self.filter_patterns:
       print('PATTERN: %s' % (str(p)))
@@ -128,15 +128,6 @@ class argument_resolver(object):
     if any_git_root:
       return file_path.parent_dir(any_git_root)
     return False
-
-  @classmethod
-  def _make_inspect_map(clazz, finfos):
-    result = {}
-    for finfo in finfos:
-      assert finfo.filename not in result
-      if finfo.inspection:
-        result[finfo.filename] = finfo.inspection
-    return result
 
   @classmethod
   def _make_filters_patterns(clazz, filters):
