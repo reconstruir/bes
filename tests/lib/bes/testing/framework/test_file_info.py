@@ -5,7 +5,7 @@ import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.testing.framework import config_env, file_info as FI
 from bes.fs import temp_file
-from bes.git import git
+from bes.git import git, repo
   
 class test_file_info(unit_test):
 
@@ -17,8 +17,16 @@ class test_file_info(unit_test):
     self.assertEqual( git.root(self.data_path('orange/lib/orange/common/orange_util.py')), a.git_root )
 #    self.assertEqual( True, a.git_tracked )
     self.assertEqual( ce.config_for_name('orange'), a.config )
+
+  def test_git_tracked(self):
     
-  def test_no_git_root(self):
+    ce = config_env(self.data_dir())
+    a = FI(ce, self.data_path('orange/lib/orange/common/orange_util.py'))
+    self.assertEqual( git.root(self.data_path('orange/lib/orange/common/orange_util.py')), a.git_root )
+#    self.assertEqual( True, a.git_tracked )
+    self.assertEqual( ce.config_for_name('orange'), a.config )
+    
+  def test_not_git_tracked(self):
     ce = config_env(self.data_dir())
     a = FI(ce, temp_file.make_temp_file(content = 'def foo(): return 666\n'))
     self.assertEqual( None, a.git_root )

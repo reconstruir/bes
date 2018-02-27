@@ -4,12 +4,12 @@
 import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.fs import temp_file
-from bes.git import git, repo, status
+from bes.git import git, repo, status, temp_git_repo
 
 class test_repo(unit_test):
 
   def test_init(self):
-    r = self._make_tmp_repo()
+    r = temp_git_repo.make_temp_repo()
     self.assertEqual( [], r.status('.') )
 
   def test_exists_false(self):
@@ -18,11 +18,11 @@ class test_repo(unit_test):
     self.assertFalse( r.exists() )
 
   def test_exists_true(self):
-    r = self._make_tmp_repo()
+    r = temp_git_repo.make_temp_repo()
     self.assertTrue( r.exists() )
 
   def test_add(self):
-    r = self._make_tmp_repo()
+    r = temp_git_repo.make_temp_repo()
     r.write_temp_content([
       'file a/b/c/foo.txt "foo content" 755',
       'file d/e/bar.txt "bar content" 644',
@@ -35,7 +35,7 @@ class test_repo(unit_test):
     ], r.status('.') )
     
   def test_commit(self):
-    r = self._make_tmp_repo()
+    r = temp_git_repo.make_temp_repo()
     r.write_temp_content([
       'file a/b/c/foo.txt "foo content" 755',
       'file d/e/bar.txt "bar content" 644',
@@ -50,7 +50,7 @@ class test_repo(unit_test):
     self.assertEqual( [], r.status('.') )
 
   def test_pull(self):
-    r1 = self._make_tmp_repo()
+    r1 = temp_git_repo.make_temp_repo()
     r1.write_temp_content([
       'file a/b/c/foo.txt "foo content" 755',
       'file d/e/bar.txt "bar content" 644',
@@ -74,7 +74,7 @@ class test_repo(unit_test):
     self.assertTrue( path.exists(new_stuff_path) )
 
   def test_pull2(self):
-    r1 = self._make_tmp_repo()
+    r1 = temp_git_repo.make_temp_repo()
     r1.write_temp_content([
       'file a/b/c/foo.txt "foo content" 755',
       'file d/e/bar.txt "bar content" 644',
@@ -98,7 +98,7 @@ class test_repo(unit_test):
     self.assertEqual([ 'a/b/c/foo.txt', 'd/e/bar.txt', 'kiwi.txt' ], r2.find_all_files() )
 
   def test_clone_or_pull(self):
-    r1 = self._make_tmp_repo()
+    r1 = temp_git_repo.make_temp_repo()
     r1.write_temp_content([
       'file a/b/c/foo.txt "foo content" 755',
       'file d/e/bar.txt "bar content" 644',
@@ -120,16 +120,8 @@ class test_repo(unit_test):
     r2.pull()
     self.assertEqual([ 'a/b/c/foo.txt', 'd/e/bar.txt', 'kiwi.txt' ], r2.find_all_files() )
     
-    
-  @classmethod
-  def _make_tmp_repo(clazz, address = None):
-    tmp_dir = temp_file.make_temp_dir()
-    r = repo(tmp_dir, address = address)
-    r.init()
-    return r
-
   def test_find_all_files(self):
-    r = self._make_tmp_repo()
+    r = temp_git_repo.make_temp_repo()
     self.assertEqual([], r.find_all_files() )
     r.write_temp_content([
       'file a/b/c/foo.txt "foo content" 755',

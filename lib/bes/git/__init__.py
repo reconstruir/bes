@@ -3,6 +3,8 @@
 
 from .git import git
 from .git_download_cache import git_download_cache
-from .repo import repo
 from .git_util import git_util
+from .repo import repo
 from .status import status
+from .temp_git_repo import temp_git_repo
+
