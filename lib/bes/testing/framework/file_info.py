@@ -27,9 +27,7 @@ class file_info(namedtuple('file_info', 'filename,relative_filename,config')):
   @property
   def git_root(self):
     'Return the git root for this file or None if not within a git repo.'
-    if not hasattr(self, '_git_root'):
-      setattr(self, '_git_root', self._compute_git_root())
-    return getattr(self, '_git_root')
+    return self._get_or_compute_property('_git_root', self._compute_git_root)
 
   def _compute_git_root(self):
     'Compute the git root.'
@@ -43,9 +41,7 @@ class file_info(namedtuple('file_info', 'filename,relative_filename,config')):
   @property
   def git_tracked(self):
     'Return True if the file is tracked by the git repo.'
-    if not hasattr(self, '_git_tracked'):
-      setattr(self, '_git_tracked', self._compute_git_tracked())
-    return getattr(self, '_git_tracked')
+    return self._get_or_compute_property('_git_tracked', self._compute_git_tracked)
 
   def _compute_git_tracked(self):
     'Compute the git tracked.'
@@ -57,9 +53,7 @@ class file_info(namedtuple('file_info', 'filename,relative_filename,config')):
   @property
   def inspection(self):
     'Return the git root for this file or None if not within a git repo.'
-    if not hasattr(self, '_inspection'):
-      setattr(self, '_inspection', self._compute_inspection())
-    return getattr(self, '_inspection')
+    return self._get_or_compute_property('_inspection', self._compute_inspection)
 
   def _compute_inspection(self):
     'Compute the git root.'
@@ -77,5 +71,10 @@ class file_info(namedtuple('file_info', 'filename,relative_filename,config')):
   @property
   def is_broken_link(self):
     return file_util.is_broken_link(self.filename)
+
+  def _get_or_compute_property(self, name, compute_func):
+    if not hasattr(self, name):
+      setattr(self, name, compute_func())
+    return getattr(self, name)
   
 check.register_class(file_info, include_seq = False)
