@@ -3,13 +3,12 @@
 
 # A script to run python unit tests.  Does not use any bes code to avoid
 # chicken-and-egg issues and to be standalone
-import argparse, ast, copy, fnmatch, math, os, os.path as path, platform, random, re, subprocess, sys
-import exceptions, glob, shutil, time, tempfile
+import argparse, math, os, os.path as path, subprocess, sys
+import time, tempfile
 from collections import namedtuple
 
 from bes.testing.framework import argument_resolver, config_file_caca, file_filter, unit_test_inspect
 from bes.testing.framework import unit_test_description
-from bes.common import algorithm, object_util, string_util
 from bes.version import version_info
 from bes.git import git
 from bes.text import comments, lines
@@ -23,12 +22,6 @@ _NAME = path.basename(sys.argv[0])
 #  - figure out how to stop on first failure within one module
 #  - https://stackoverflow.com/questions/6813837/stop-testsuite-if-a-testcase-find-an-error
 # - cleanup egg dropping
-# - use AST for determining if a file has tests
-
-#class bes_test_command_line(object):
-#
-#  def __init__(self):
-#    pass
 
 def main():
   parser = argparse.ArgumentParser()
@@ -131,16 +124,19 @@ def main():
   if not args.files:
     args.files = [ cwd ]
 
-  ar = argument_resolver(cwd, args.files, args.ignore, '.bes_test_ignore')
+  ar = argument_resolver(cwd, args.files, '.bes_test_ignore')
+  ar.num_iterations = args.iterations
+  ar.randomize = args.randomize
 
-  filtered_files = ar.files_and_tests
+  ar.ignore_with_patterns(args.ignore)
+
+  filtered_files = ar.files
 
   if not filtered_files:
     return 1
 
   if args.print_files:
-    for f in filtered_files:
-      print(path.relpath(f.filename))
+    ar.print_files()
     return 0
 
 ###  try:
@@ -199,12 +195,6 @@ def main():
       return 1
     
   os.chdir('/tmp')
-
-  if args.iterations > 1:
-    filtered_files = sorted(filtered_files * args.iterations)
-  
-  if args.randomize:
-    random.shuffle(filtered_files)
 
   if not args.dry_run and args.page:
     printer.OUTPUT = tempfile.NamedTemporaryFile(prefix = 'bes_test', delete = True, mode = 'w')

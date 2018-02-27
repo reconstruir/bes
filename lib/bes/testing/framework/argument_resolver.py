@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import fnmatch, os.path as path
-from bes.common import algorithm
+import fnmatch, os.path as path, random
+from bes.common import algorithm, check
 from bes.fs import file_ignore, file_path, file_util
 from bes.git import git
 
@@ -16,14 +16,16 @@ from .unit_test_inspect import unit_test_inspect
 
 class argument_resolver(object):
 
-  def __init__(self, working_dir, arguments, ignore_patterns, file_ignore_filename = None):
+  def __init__(self, working_dir, arguments, file_ignore_filename = None):
+    self._num_iterations = 1
+    self._randomize = False
+
     self.working_dir = path.abspath(working_dir)
     self.arguments = arguments
-    self.ignore_patterns = ignore_patterns
     self.file_ignore = file_ignore(file_ignore_filename)
-    self.files, self.filters = self._separate_files_and_filters(self.working_dir, self.arguments)
+    self.original_files, self.filters = self._separate_files_and_filters(self.working_dir, self.arguments)
     self.filter_patterns = self._make_filters_patterns(self.filters)
-    files = self._resolve_files_and_dirs(self.working_dir, self.files)
+    files = self._resolve_files_and_dirs(self.working_dir, self.original_files)
     self.root_of_roots = self._find_root_of_roots(files)
     self.config_env = config_env(self.root_of_roots)
     files = self.file_ignore.filter_files(files)
@@ -35,10 +37,35 @@ class argument_resolver(object):
     file_infos = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])
     # FIXME: change to filter_with_patterns_tests()
     file_infos = file_infos.filter_by_filenames(self.filter_patterns)
-    self.files_and_tests = file_filter.poto_filter_files(file_infos, self.filter_patterns)
-    if self.ignore_patterns:
-      self.files_and_tests = file_filter.ignore_files(self.files_and_tests, self.ignore_patterns)
+    self._files_and_tests = file_filter.poto_filter_files(file_infos, self.filter_patterns)
+
+  @property
+  def num_iterations(self):
+    return self._num_iterations
     
+  @num_iterations.setter
+  def num_iterations(self, n):
+    check.check_int(n)
+    if not n in range(1, 110):
+      raise ValueError('Iterations needs to be between 1 and 10: %d' % (n))
+    self._num_iterations = n
+
+  @property
+  def randomize(self):
+    return self._randomize
+    
+  @randomize.setter
+  def randomize(self, randomize):
+    check.check_bool(randomize)
+    self._randomize = randomize
+    
+  @property
+  def files(self):
+    f = sorted(self._files_and_tests * self._num_iterations)
+    if self._randomize:
+      random.shuffle(f)
+    return f
+      
   @classmethod
   def _git_roots(clazz, files):
     roots = [ git.root(f) for f in files ]
@@ -150,3 +177,11 @@ class argument_resolver(object):
       if pattern.count(c) > 0:
         return True
     return False
+
+  def print_files(self):
+    for f in self._files_and_tests:
+      print(path.relpath(f.filename))
+
+  def ignore_with_patterns(self, patterns):
+    if patterns:
+      self._files_and_tests = file_filter.ignore_files(self._files_and_tests, patterns)
