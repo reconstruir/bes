@@ -11,14 +11,14 @@ class test_file_info(unit_test):
 
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.testing/framework'
   
-  def test_basic(self):
+  def xtest_basic(self):
     ce = config_env(self.data_dir())
     a = FI(ce, self.data_path('orange/lib/orange/common/orange_util.py'))
     self.assertEqual( git.root(self.data_path('orange/lib/orange/common/orange_util.py')), a.git_root )
     self.assertEqual( True, a.git_tracked )
     self.assertEqual( ce.config_for_name('orange'), a.config )
 
-  def xtest_git_tracked(self):
+  def test_git_tracked(self):
     r = temp_git_repo.make_temp_repo(content = [ 'file lib/foo/foo.py "def foo(): return 666\n" 644' ])
     ce = config_env(r.root)
     a = FI(ce, path.join(r.root, 'lib/foo/foo.py'))
