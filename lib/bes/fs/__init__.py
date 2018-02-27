@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .compressed_file import compressed_file
 from .device_info import device_info
 from .dir_util import dir_util
 from .file_cache import file_cache, file_cacheItemInterface
+from .file_check import file_check
 from .file_checksum import file_checksum
 from .file_find import file_find
 from .file_ignore import file_ignore, ignore_file_data

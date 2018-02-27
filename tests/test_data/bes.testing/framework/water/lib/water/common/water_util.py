@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-class orange_util(object):
+class water_util(object):
   
   @classmethod
-  def orange_func_one(clazz, x):
+  def water_func_one(clazz, x):
     return x
 
   @classmethod
-  def orange_func_two(clazz, x):
+  def water_func_two(clazz, x):
     return x
 
   @classmethod
-  def orange_util_a(clazz, x):
+  def water_util_a(clazz, x):
     return x
 
   @classmethod
-  def orange_util_b(clazz, x):
+  def water_util_b(clazz, x):
     return x

@@ -4,7 +4,6 @@
 import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.testing.framework import config_file as CF
-from bes.testing.framework import config_file_caca
   
 class test_config_file(unit_test):
 
@@ -22,39 +21,6 @@ class test_config_file(unit_test):
     self.assertEqual( ( path.join(self.data_dir(), 'fruit'),
                         self.data_path('fruit/env/fruit.bescfg'),
                         ( 'fruit', [ '/tmp/bin' ], [ '/tmp/lib' ], { 'water' } ) ), b )
-
-class xtest_config_file_xcaca(unit_test):
-
-  def test_parse(self):
-    text = '''
-# foo
-name: foo
-PATH: ${root}/bin
-PYTHONPATH: ${root}/lib
-requires: bar baz
-'''
-    
-    self.assertEqual( {
-      'name': 'foo',
-      'PATH': [ '${root}/bin' ],
-      'PYTHONPATH': [ '${root}/lib' ],
-      'requires': ( 'bar', 'baz' ),
-    }, config_file_caca.parse(text) )
-
-  def test_substitute_variables(self):
-    config = {
-      'name': 'foo',
-      'PATH': [ '${root}/bin' ],
-      'PYTHONPATH': [ '${root}/lib' ],
-      'requires': ( 'bar', 'baz' ),
-    }
-    variables = { 'root': '/home/pato' }
-    self.assertEqual( {
-      'name': 'foo',
-      'PATH': [ '/home/pato/bin' ],
-      'PYTHONPATH': [ '/home/pato/lib' ],
-      'requires': ( 'bar', 'baz' ),
-    }, config_file_caca.substitute_variables(config, variables) )
     
 if __name__ == '__main__':
   unit_test.main()

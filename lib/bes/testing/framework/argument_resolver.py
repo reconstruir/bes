@@ -3,7 +3,7 @@
 
 import fnmatch, os.path as path, random
 from bes.common import algorithm, check
-from bes.fs import file_ignore, file_path, file_util
+from bes.fs import file_check, file_ignore, file_path, file_util
 from bes.git import git
 
 from .config_env import config_env
@@ -16,18 +16,22 @@ from .unit_test_inspect import unit_test_inspect
 
 class argument_resolver(object):
 
-  def __init__(self, working_dir, arguments, file_ignore_filename = None):
+  def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None):
     self._num_iterations = 1
     self._randomize = False
-
+    file_check.check_dir(working_dir)
+    if root_dir:
+      file_check.check_dir(root_dir)
     self.working_dir = path.abspath(working_dir)
-    self.arguments = arguments
     self.file_ignore = file_ignore(file_ignore_filename)
-    self.original_files, self.filters = self._separate_files_and_filters(self.working_dir, self.arguments)
+    self.original_files, self.filters = self._separate_files_and_filters(self.working_dir, arguments)
     self.filter_patterns = self._make_filters_patterns(self.filters)
     files = self._resolve_files_and_dirs(self.working_dir, self.original_files)
-    self.root_of_roots = self._find_root_of_roots(files)
-    self.config_env = config_env(self.root_of_roots)
+    if not root_dir:
+      root_dir = self._find_root_dir_with_git(files)
+      if not root_dir:
+        raise RuntimeError('Failed to determine root dir.')
+    self.config_env = config_env(root_dir)
     files = self.file_ignore.filter_files(files)
     file_infos = file_info_list([ file_info(self.config_env, f) for f in files ])
     file_infos += self._tests_for_many_files(file_infos)
@@ -140,7 +144,7 @@ class argument_resolver(object):
     return result
 
   @classmethod
-  def _find_root_of_roots(clazz, files):
+  def _find_root_dir_with_git(clazz, files):
     if not files:
       return None
     any_git_root = git.root(files[0])

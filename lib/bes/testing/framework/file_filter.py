@@ -6,18 +6,18 @@ from collections import namedtuple
 from bes.common import algorithm, check
 
 class file_filter(object):
-  file_and_tests = namedtuple('file_and_tests', 'filename,tests')
+  test_descriptor = namedtuple('test_descriptor', 'file_info,tests')
 
   @classmethod
   def poto_filter_files(clazz, finfos, patterns):
     check.check_file_info_list(finfos)
     if not patterns:
-      return [ clazz.file_and_tests(finfo, None) for finfo in finfos ]
+      return [ clazz.test_descriptor(finfo, None) for finfo in finfos ]
     result = []
     for finfo in finfos:
       matching_tests = clazz._matching_tests(finfo.inspection, patterns)
       if matching_tests:
-        result.append(clazz.file_and_tests(finfo, matching_tests))
+        result.append(clazz.test_descriptor(finfo, matching_tests))
     return result
   
   @classmethod
@@ -37,15 +37,15 @@ class file_filter(object):
 
   @classmethod
   def ignore_files(clazz, filtered_files, ignore_patterns):
-    return [ f for f in filtered_files if not clazz.filename_matches_any_pattern(f.filename.filename, ignore_patterns) ]
+    return [ f for f in filtered_files if not clazz.filename_matches_any_pattern(f.file_info.filename, ignore_patterns) ]
 
-  @classmethod
-  def filenames(clazz, filtered_files):
-    return sorted([ f.filename for f in filtered_files ])
+#  @classmethod
+#  def filenames(clazz, filtered_files):
+#    return sorted([ f.file_info for f in filtered_files ])
 
-  @classmethod
-  def common_prefix(clazz, filtered_files):
-    return path.commonprefix([f.filename for f in filtered_files]).rpartition(os.sep)[0]
+#  @classmethod
+#  def common_prefix(clazz, filtered_files):
+#    return path.commonprefix([f.filename for f in filtered_files]).rpartition(os.sep)[0]
   
   @classmethod
   def filename_matches_any_pattern(clazz, filename, patterns):

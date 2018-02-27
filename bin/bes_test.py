@@ -7,7 +7,7 @@ import argparse, math, os, os.path as path, subprocess, sys
 import time, tempfile
 from collections import namedtuple
 
-from bes.testing.framework import argument_resolver, config_file_caca, file_filter, unit_test_inspect
+from bes.testing.framework import argument_resolver, file_filter, unit_test_inspect
 from bes.testing.framework import unit_test_description
 from bes.version import version_info
 from bes.git import git
@@ -124,7 +124,7 @@ def main():
   if not args.files:
     args.files = [ cwd ]
 
-  ar = argument_resolver(cwd, args.files, '.bes_test_ignore')
+  ar = argument_resolver(cwd, args.files, file_ignore_filename = '.bes_test_ignore')
   ar.num_iterations = args.iterations
   ar.randomize = args.randomize
 
@@ -182,8 +182,8 @@ def main():
 
   if args.check_pre_commit:
     missing_from_git = []
-    for f in filtered_files:
-      filename = f.filename
+    for finfo in filtered_files:
+      filename = finfo.filename
       st = git.status(git.root(filename), filename)
       if st:
         assert len(st) == 1
@@ -218,19 +218,21 @@ def main():
   total_time_start = time.time()
   
   stopped = False
-  for i, f in enumerate(filtered_files):
-    if not f.filename.filename in timings:
-      timings[f.filename.filename] = []
+  for i, test_desc in enumerate(filtered_files):
+    file_info = test_desc.file_info
+    filename = file_info.filename
+    if not filename in timings:
+      timings[filename] = []
     for python_exe in args.python:
-      result = _test_execute(python_exe, ar.inspect_map, f.filename.filename, f.tests, options, i + 1, total_files, cwd)
-      timings[f.filename.filename].append(result.elapsed_time)
+      result = _test_execute(python_exe, ar.inspect_map, filename, test_desc.tests, options, i + 1, total_files, cwd)
+      timings[filename].append(result.elapsed_time)
       total_num_tests += result.num_tests_run
       num_executed += 1
       if result.success:
         num_passed += 1
       else:
         num_failed += 1
-        failed_tests.append(( python_exe, f ))
+        failed_tests.append(( python_exe, filename ))
       if args.stop and not result.success:
         stopped = True
     if stopped:
@@ -257,12 +259,12 @@ def main():
   printer.writeln_name('%s' % (summary))
   if failed_tests:
     longest_python_exe = max([len(path.basename(p)) for p in options.interpreters])
-    for python_exe, f in failed_tests:
+    for python_exe, filename in failed_tests:
       if len(options.interpreters) > 1:
         python_exe_blurb = path.basename(python_exe).rjust(longest_python_exe)
       else:
         python_exe_blurb = ''
-      printer.writeln_name('FAILED: %s %s' % (python_exe_blurb, file_util.remove_head(f.filename.filename, cwd)))
+      printer.writeln_name('FAILED: %s %s' % (python_exe_blurb, file_util.remove_head(filename, cwd)))
 
   if num_failed > 0:
     rv = 1
@@ -388,7 +390,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
 def _count_tests(test_map, tests):
   total = 0
   for test in tests:
-    total += len(test_map[test.filename.filename])
+    total += len(test_map[test.file_info.filename])
   return total
   
 def _make_test_string(total):
