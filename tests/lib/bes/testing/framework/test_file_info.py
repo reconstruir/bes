@@ -11,6 +11,16 @@ class test_file_info(unit_test):
 
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.testing/framework'
 
+  def test_filename(self):
+    ce = config_env(self.data_dir())
+    a = FI(ce, self.data_path('orange/lib/orange/common/orange_util.py'))
+    self.assertEqual( self.data_path('orange/lib/orange/common/orange_util.py'), a.filename )
+  
+  def test_relative_filename(self):
+    ce = config_env(self.data_dir())
+    a = FI(ce, self.data_path('orange/lib/orange/common/orange_util.py'))
+    self.assertEqual( 'lib/orange/common/orange_util.py', a.relative_filename )
+  
   def test_config(self):
     ce = config_env(self.data_dir())
     a = FI(ce, self.data_path('orange/lib/orange/common/orange_util.py'))
