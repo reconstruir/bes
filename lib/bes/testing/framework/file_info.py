@@ -9,7 +9,7 @@ from bes.git import git
 
 from .unit_test_inspect import unit_test_inspect
 
-class file_info(namedtuple('file_info', 'filename,relative_filename,config')):
+class file_info(namedtuple('file_info', 'filename,config')):
 
   def __new__(clazz, config_env, filename):
     if filename is not None:
@@ -18,11 +18,15 @@ class file_info(namedtuple('file_info', 'filename,relative_filename,config')):
       raise IOError('File not found: %s' % (filename))
     filename = path.abspath(filename)
     config = config_env.config_for_filename(filename)
-    if config:
-      relative_filename = file_util.remove_head(filename, config.root_dir)
+    return clazz.__bases__[0].__new__(clazz, filename, config)
+
+  @property
+  def relative_filename(self):
+    'Return the filename relative to the config root_dir or None if no config was found.'
+    if self.config:
+      return file_util.remove_head(self.filename, self.config.root_dir)
     else:
-      relative_filename = None
-    return clazz.__bases__[0].__new__(clazz, filename, relative_filename, config)
+      return None
 
   @property
   def git_root(self):
