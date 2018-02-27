@@ -22,7 +22,7 @@ class test_file_info(unit_test):
     ce = config_env(self.data_dir())
     a = FI(ce, temp_file.make_temp_file(content = 'def foo(): return 666\n'))
     self.assertEqual( None, a.git_root )
-#    self.assertEqual( False, a.git_tracked )
+    self.assertEqual( False, a.git_tracked )
     self.assertEqual( None, a.config )
 
   def test_inspection(self):

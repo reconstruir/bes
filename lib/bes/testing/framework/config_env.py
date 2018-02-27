@@ -55,4 +55,3 @@ class config_env(object):
   @classmethod
   def find_config_files(clazz, d):
     return file_find.find_fnmatch(d, [ '*.bescfg' ], relative = False, min_depth = None, max_depth = 4)
-  

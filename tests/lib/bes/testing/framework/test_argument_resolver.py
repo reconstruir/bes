@@ -9,7 +9,7 @@ class test_argument_resolver(unit_test):
 
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.testing/framework'
 
-  def test_config(self):
+  def xtest_config(self):
     ar = self._make_test_argument_resolver([ 'water/tests/lib/water/common/test_water_util.py' ])
     files = ar.files
     self.assertEqual( 1, len(files) )
