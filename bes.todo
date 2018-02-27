@@ -77,3 +77,8 @@ feb 22
 
 feb 23
 - add git.root test
+
+feb 26
+- fix bes_test.py --ignore so that pattners are automati ally created 'foo' => '*foo*' i guess check whether pattern is patterns first
+
+

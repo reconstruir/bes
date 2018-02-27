@@ -36,3 +36,5 @@ class unit_test_description(namedtuple('unit_test_description', 'filename,fixtur
     if self.function:
       v.append(self.function)
     return ''.join(v)
+
+check.register_class(unit_test_description)

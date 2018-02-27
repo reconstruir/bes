@@ -43,7 +43,7 @@ class test_file_ignore(unit_test):
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.fs/file_ignore'
   
   def test_should_ignore(self):
-    a = FI('.bes_test_ignore')
+    a = FI('.testing_test_ignore')
     self.assertFalse( a.should_ignore(self.data_path('a/b/c/d/foo.txt')) )
     self.assertTrue( a.should_ignore(self.data_path('a/b/c/d/bar.ttt')) )
     self.assertTrue( a.should_ignore(self.data_path('a/b/c/d2/never.txt')) )

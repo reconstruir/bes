@@ -9,19 +9,17 @@ class file_filter(object):
   file_and_tests = namedtuple('file_and_tests', 'filename,tests')
 
   @classmethod
-  def caca_filter_files(clazz, files, test_map, patterns):
+  def poto_filter_files(clazz, finfos, patterns):
+    check.check_file_info_list(finfos)
     if not patterns:
-      return [ clazz.file_and_tests(filename, None) for filename in files ]
+      return [ clazz.file_and_tests(finfo, None) for finfo in finfos ]
     result = []
-    for filename in files:
-      assert filename in test_map
-      test_map_for_filename = test_map[filename]
-      print('XXX: filename=%s; test_map_for_filename=%s' % (filename, test_map_for_filename))
-      matching_tests = clazz._matching_tests(test_map_for_filename, patterns)
+    for finfo in finfos:
+      matching_tests = clazz._matching_tests(finfo.inspection, patterns)
       if matching_tests:
-        result.append(clazz.file_and_tests(filename, matching_tests))
+        result.append(clazz.file_and_tests(finfo, matching_tests))
     return result
-
+  
   @classmethod
   def _matching_tests(clazz, test_map, patterns):
     result = []
@@ -39,7 +37,7 @@ class file_filter(object):
 
   @classmethod
   def ignore_files(clazz, filtered_files, ignore_patterns):
-    return [ f for f in filtered_files if not clazz.filename_matches_any_pattern(f.filename, ignore_patterns) ]
+    return [ f for f in filtered_files if not clazz.filename_matches_any_pattern(f.filename.filename, ignore_patterns) ]
 
   @classmethod
   def filenames(clazz, filtered_files):

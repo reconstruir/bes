@@ -16,12 +16,11 @@ from .unit_test_inspect import unit_test_inspect
 
 class argument_resolver(object):
 
-  FILE_IGNORE_FILENAME = '.bes_test_ignore'
-  
-  def __init__(self, working_dir, arguments):
+  def __init__(self, working_dir, arguments, ignore_patterns, file_ignore_filename = None):
     self.working_dir = path.abspath(working_dir)
     self.arguments = arguments
-    self.file_ignore = file_ignore(self.FILE_IGNORE_FILENAME)
+    self.ignore_patterns = ignore_patterns
+    self.file_ignore = file_ignore(file_ignore_filename)
     self.files, self.filters = self._separate_files_and_filters(self.working_dir, self.arguments)
     self.filter_patterns = self._make_filters_patterns(self.filters)
     files = self._resolve_files_and_dirs(self.working_dir, self.files)
@@ -32,23 +31,14 @@ class argument_resolver(object):
     file_infos += self._tests_for_many_files(file_infos)
     file_infos.remove_dups()
     self.inspect_map = file_infos.make_inspect_map()
-    self.resolved_files = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])
-    for p in self.filter_patterns:
-      print('PATTERN: %s' % (str(p)))
-#    for f in self.resolved_files:
-#      print('RESOLVED: %s' % (str(f)))
-#    for k, v in sorted(self.inspect_map.items()):
-#      print('INSPECT: %s %s' % (k, v))
-
-    #patterns = _make_filters_patterns(ar.filters)
-    filename_patterns = [ p.filename for p in self.filter_patterns if p.filename ]
-    print('filename_patterns: %s' % (filename_patterns))
-    if filename_patterns:
-      matching_files = self.resolved_files.match_filenames(filename_patterns)
-      for x in matching_files:
-        print('MATCHING: %s' % (x.filename))
-
-
+    # FIXME: change to ignore_without_tests()
+    file_infos = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])
+    # FIXME: change to filter_with_patterns_tests()
+    file_infos = file_infos.filter_by_filenames(self.filter_patterns)
+    self.files_and_tests = file_filter.poto_filter_files(file_infos, self.filter_patterns)
+    if self.ignore_patterns:
+      self.files_and_tests = file_filter.ignore_files(self.files_and_tests, self.ignore_patterns)
+    
   @classmethod
   def _git_roots(clazz, files):
     roots = [ git.root(f) for f in files ]

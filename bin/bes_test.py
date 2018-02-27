@@ -131,72 +131,37 @@ def main():
   if not args.files:
     args.files = [ cwd ]
 
-  ar = argument_resolver(cwd, args.files)
-  
-  files = file_resolve.resolve_files_and_dirs(ar.files)
-  #print('files: %s' % (files))
-  
-  # Don't include this script in the list since it needs to be run bes_test.py --unit to work
-  files = [ f for f in files if not f.endswith('bes_test.py') ]
-  files = [ f for f in files if 'test_data/bes.testing' not in f ]
-  files = [ f for f in files if f.lower().endswith('.py') ]
-  files = [ f for f in files if not file_util.is_broken_link(f) ]
-  test_map = unit_test_inspect.inspect_map(files)
+  ar = argument_resolver(cwd, args.files, args.ignore, '.bes_test_ignore')
 
-  # We want only the files that have tests
-  files = sorted(test_map.keys())
-  
-  if args.git:
-    git_roots = algorithm.unique([ git.root(f) for f in files ])
-    git_modified = []
-    for root in git_roots:
-      modified_py_files = [ f for f in git.modified_files(root) if f.endswith('.py') ]
-      git_modified.extend(modified_py_files)
-      files = file_resolve.resolve_files_and_dirs(git_modified)
-    files = [ f for f in files if f in test_map ]
-  if args.print_tests:
-    unit_test_inspect.print_inspect_map(test_map, files, cwd)
-    return 0
-    
-  patterns = _make_filters_patterns(ar.filters)
-  filename_patterns = [ p.filename for p in patterns if p.filename ]
-  if filename_patterns:
-    files = _match_filenames(files, filename_patterns)
+  filtered_files = ar.files_and_tests
 
-  print('patterns: %s' % (patterns))
-  filtered_files = file_filter.caca_filter_files(files, test_map, patterns)
-  if patterns and not filtered_files:
-    printer.writeln_name('No matches for: %s' % (' '.join([ str(p) for p in patterns])))
-    return 1
-    
-  filtered_files = file_filter.ignore_files(filtered_files, args.ignore)
   if not filtered_files:
     return 1
 
   if args.print_files:
-    for filename in file_filter.filenames(filtered_files):
-      print(path.relpath(filename))
+    for f in filtered_files:
+      print(path.relpath(f.filename))
     return 0
 
-  try:
-    any_git_root = git.root(filtered_files[0].filename)
-  except subprocess.CalledProcessError as ex:
-    any_git_root = None
-  if any_git_root:
-    config_find_root = file_path.parent_dir(any_git_root)
-    bescfg = config_file_caca.load_configs(config_find_root)
-    #print('bescfg: %s' % (str(bescfg)))
-    env_dirs = file_filter.env_dirs(filtered_files)
-    names = [ bescfg.env_dirs[env_dir]['name'] for env_dir in env_dirs ]
-    resolved_deps = dependency_resolver.resolve_deps(bescfg.dep_map, names)
-#    print('env_dirs=%s' % (env_dirs))
-#    print('names=%s' % (names))
-#    print('resolved_deps=%s' % (str(resolved_deps)))
-    for name in resolved_deps:
-      config = bescfg.configs[name]
-      pythonpath = config.get('PYTHONPATH', None)
-#      print('name=%s; pythonpath=%s' % (name, pythonpath))
-      environ_util.pythonpath_prepend(':'.join(pythonpath))
+###  try:
+###    any_git_root = git.root(filtered_files[0].filename)
+###  except subprocess.CalledProcessError as ex:
+###    any_git_root = None
+###  if any_git_root:
+###    config_find_root = file_path.parent_dir(any_git_root)
+###    bescfg = config_file_caca.load_configs(config_find_root)
+###    #print('bescfg: %s' % (str(bescfg)))
+###    env_dirs = file_filter.env_dirs(filtered_files)
+###    names = [ bescfg.env_dirs[env_dir]['name'] for env_dir in env_dirs ]
+###    resolved_deps = dependency_resolver.resolve_deps(bescfg.dep_map, names)
+####    print('env_dirs=%s' % (env_dirs))
+####    print('names=%s' % (names))
+####    print('resolved_deps=%s' % (str(resolved_deps)))
+###    for name in resolved_deps:
+###      config = bescfg.configs[name]
+###      pythonpath = config.get('PYTHONPATH', None)
+####      print('name=%s; pythonpath=%s' % (name, pythonpath))
+###      environ_util.pythonpath_prepend(':'.join(pythonpath))
    
   num_passed = 0
   num_failed = 0
@@ -244,7 +209,7 @@ def main():
   if not args.dry_run and args.page:
     printer.OUTPUT = tempfile.NamedTemporaryFile(prefix = 'bes_test', delete = True, mode = 'w')
 
-  total_tests = _count_tests(test_map, filtered_files)
+  total_tests = _count_tests(ar.inspect_map, filtered_files)
   total_files = len(filtered_files)
 
   total_num_tests = 0
@@ -264,11 +229,11 @@ def main():
   
   stopped = False
   for i, f in enumerate(filtered_files):
-    if not f.filename in timings:
-      timings[f.filename] = []
+    if not f.filename.filename in timings:
+      timings[f.filename.filename] = []
     for python_exe in args.python:
-      result = _test_execute(python_exe, test_map, f.filename, f.tests, options, i + 1, total_files, cwd)
-      timings[f.filename].append(result.elapsed_time)
+      result = _test_execute(python_exe, ar.inspect_map, f.filename.filename, f.tests, options, i + 1, total_files, cwd)
+      timings[f.filename.filename].append(result.elapsed_time)
       total_num_tests += result.num_tests_run
       num_executed += 1
       if result.success:
@@ -307,7 +272,7 @@ def main():
         python_exe_blurb = path.basename(python_exe).rjust(longest_python_exe)
       else:
         python_exe_blurb = ''
-      printer.writeln_name('FAILED: %s %s' % (python_exe_blurb, file_util.remove_head(f.filename, cwd)))
+      printer.writeln_name('FAILED: %s %s' % (python_exe_blurb, file_util.remove_head(f.filename.filename, cwd)))
 
   if num_failed > 0:
     rv = 1
@@ -433,28 +398,9 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
 def _count_tests(test_map, tests):
   total = 0
   for test in tests:
-    total += len(test_map[test.filename])
+    total += len(test_map[test.filename.filename])
   return total
   
-def _match_test(patterns, filename):
-  filename = filename.lower()
-  for pattern in patterns:
-    if fnmatch.fnmatch(filename, pattern.lower()):
-      return True
-  return False
-
-def _is_fnmatch_pattern(pattern):
-  for c in [ '*', '?', '[', ']', '!' ]:
-    if pattern.count(c) > 0:
-      return True
-  return False
-
-def _make_fnmatch_pattern(pattern):
-  pattern = pattern.lower()
-  if _is_fnmatch_pattern(pattern):
-    return pattern
-  return '*%s*' % (pattern)
-
 def _make_test_string(total):
   if total == 1:
     return 'test'
@@ -468,28 +414,6 @@ def _make_count_blurb(index, total):
   index_blurb = (' ' * (length - len(index))) + index
   count_blurb = (' ' * (length - len(count))) + count
   return '[%s of %s]' % (index_blurb, count_blurb)
-
-def _make_filters_patterns(filters):
-  patterns = []
-  for f in filters:
-    filename_pattern = None
-    fixture_pattern = None
-    function_pattern = None
-    if f.filename:
-      filename_pattern = _make_fnmatch_pattern(f.filename)
-    if f.fixture:
-      fixture_pattern = _make_fnmatch_pattern(f.fixture)
-    if f.function:
-      function_pattern = _make_fnmatch_pattern(f.function)
-    patterns.append(unit_test_description(filename_pattern, fixture_pattern, function_pattern))
-  return patterns
-
-def _match_filenames(files, patterns):
-  result = []
-  for filename in files:
-    if _match_test(patterns, filename):
-      result.append(filename)
-  return sorted(algorithm.unique(result))
 
 class environ_util(object):
 
@@ -559,84 +483,6 @@ class environ_util(object):
     clean_env['PATH'] = clean_path
     return clean_env
     
-class caca_file_find(object):
-
-  @classmethod
-  def find_python_files(clazz, d):
-    cmd = [ 'find', d, '-name', '*.py' ]
-    result = subprocess.check_output(cmd, shell = False)
-    return lines.parse_lines(result)
-
-  @classmethod
-  def find_tests(clazz, d):
-    cmd = [ 'find', d, '-name', 'test_*.py' ]
-    result = subprocess.check_output(cmd, shell = False)
-    return lines.parse_lines(result)
-
-  @classmethod
-  def find(clazz, d, *args):
-    cmd = [ 'find', d ] + list(args)
-    result = subprocess.check_output(cmd, shell = False)
-    return lines.parse_lines(result)
-
-class file_resolve(object):
-
-  @classmethod
-  def resolve_files_and_dirs(clazz, files_and_dirs):
-    result = []
-    for f in files_and_dirs:
-      if path.isfile(f):
-        result += clazz._resolve_file(f)
-      elif path.isdir(f):
-        result += clazz._resolve_dir(f)
-    result += clazz.tests_for_many_files(result)
-    result = algorithm.unique(result)
-    result = [ path.normpath(r) for r in result ]
-    return sorted(result)
-
-  @classmethod
-  def _resolve_dir(clazz, d):
-    assert path.isdir(d)
-    config = clazz._read_config_file(d)
-    if config is None:
-      return caca_file_find.find_python_files(d)
-    return clazz.resolve_files_and_dirs(config)
-    
-  @classmethod
-  def _resolve_file(clazz, f):
-    assert path.isfile(f)
-    return [ path.abspath(path.normpath(f)) ]
-
-  @classmethod
-  def _read_config_file(clazz, d):
-    p = path.join(d, '.bes_test_dirs')
-    if not path.exists(p):
-      return None
-    content = file_util.read(p)
-    lines = [ f for f in content.split('\n') if f ]
-    files = [ path.join(d, f) for f in lines ]
-    return sorted(algorithm.unique(files))
-  
-  @classmethod
-  def test_for_file(clazz, filename):
-    basename = path.basename(filename)
-    dirname = path.dirname(filename)
-    name = path.splitext(basename)[0]
-    test_filename = 'test_%s.py' % (name)
-    test_full_path = path.join(dirname, 'tests', test_filename)
-    if path.exists(test_full_path):
-      return test_full_path
-    return None
-
-  @classmethod
-  def tests_for_many_files(clazz, files):
-    result = []
-    for f in files:
-      test = clazz.test_for_file(f)
-      if test:
-        result.append(test)
-    return result
-  
 class printer(object):
   OUTPUT = sys.stdout
 

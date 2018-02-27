@@ -59,12 +59,19 @@ class file_info_list(type_checked_list):
         return True
     return False
 
-  def match_filenames(self, patterns):
+  def _match_filenames(self, patterns):
     result = file_info_list()
     for finfo in iter(self):
       if self._match_test(patterns, finfo.filename):
         result.append(finfo)
     result.remove_dups()
     return result
+
+  def filter_by_filenames(self, patterns):
+    check.check_unit_test_description_seq(patterns)
+    filename_patterns = [ p.filename for p in patterns if p.filename ]
+    if not filename_patterns:
+      return file_info_list(self._values)
+    return self._match_filenames(filename_patterns)
   
 check.register_class(file_info_list, include_seq = False)
