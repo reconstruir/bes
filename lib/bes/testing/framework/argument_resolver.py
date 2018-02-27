@@ -83,6 +83,8 @@ class argument_resolver(object):
     return [ path.abspath(path.normpath(f)) ]
 
   def _test_for_file(self, finfo):
+    if not finfo.relative_filename:
+      return None
     if finfo.relative_filename.startswith('tests/'):
       return None
     name = path.splitext(path.basename(finfo.filename))[0]
