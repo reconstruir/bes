@@ -23,16 +23,16 @@ class argument_resolver(object):
     if root_dir:
       file_check.check_dir(root_dir)
     self.working_dir = path.abspath(working_dir)
-    self.file_ignore = file_ignore(file_ignore_filename)
+    ignore = file_ignore(file_ignore_filename)
     self.original_files, self.filters = self._separate_files_and_filters(self.working_dir, arguments)
-    self.filter_patterns = self._make_filters_patterns(self.filters)
+    filter_patterns = self._make_filters_patterns(self.filters)
     files = self._resolve_files_and_dirs(self.working_dir, self.original_files)
     if not root_dir:
       root_dir = self._find_root_dir_with_git(files)
       if not root_dir:
         raise RuntimeError('Failed to determine root dir.')
     self.config_env = config_env(root_dir)
-    files = self.file_ignore.filter_files(files)
+    files = ignore.filter_files(files)
     file_infos = file_info_list([ file_info(self.config_env, f) for f in files ])
     file_infos += self._tests_for_many_files(file_infos)
     file_infos.remove_dups()
@@ -40,8 +40,8 @@ class argument_resolver(object):
     # FIXME: change to ignore_without_tests()
     file_infos = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])
     # FIXME: change to filter_with_patterns_tests()
-    file_infos = file_infos.filter_by_filenames(self.filter_patterns)
-    self._files_and_tests = file_filter.poto_filter_files(file_infos, self.filter_patterns)
+    file_infos = file_infos.filter_by_filenames(filter_patterns)
+    self._files_and_tests = file_filter.poto_filter_files(file_infos, filter_patterns)
 
   @property
   def num_iterations(self):
