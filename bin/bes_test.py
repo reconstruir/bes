@@ -57,10 +57,6 @@ def main():
                       action = 'append',
                       default = [],
                       help = 'Python executable) to use.  Multiple flags can be used for running with mutiple times with different python versions [ python ]')
-#  parser.add_argument('--ignore',
-#                      action = 'append',
-#                      default = [],
-#                      help = 'Patterns of filenames to ignore []')
   parser.add_argument('--page',
                       '-p',
                       action = 'store_true',
@@ -109,6 +105,14 @@ def main():
                       action = 'append',
                       default = [],
                       help = 'Patterns of filenames to ignore []')
+  parser.add_argument('--root-dir',
+                      action = 'store',
+                      default = None,
+                      help = 'The root directory for all your projets.  By default its computed from your git struture.  [ None ]')
+  parser.add_argument('--dont-hack-env',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Dont hack PATH and PYTHONPATH. [ False ]')
   args = parser.parse_args()
   
   cwd = os.getcwd()
@@ -121,7 +125,7 @@ def main():
   if not args.files:
     args.files = [ cwd ]
 
-  ar = argument_resolver(cwd, args.files, file_ignore_filename = '.bes_test_ignore')
+  ar = argument_resolver(cwd, args.files, root_dir = args.root_dir, file_ignore_filename = '.bes_test_ignore')
   ar.num_iterations = args.iterations
   ar.randomize = args.randomize
 
@@ -137,7 +141,12 @@ def main():
   # Start with a clean environment so unit testing can be deterministic and not subject
   # to whatever the user happened to have exported.  PYTHONPATH and PATH for dependencies
   # are set below by iterating the configs 
-  env = os_env.make_clean_env()
+  if args.dont_hack_env:
+    keep_keys = [ 'PATH', 'PYTHONPATH' ]
+  else:
+    keep_keys = None
+    
+  env = os_env.make_clean_env(keep_keys = keep_keys)
   env['PYTHONDONTWRITEBYTECODE'] = 'x'
   
   deps = ar.dependencies()
@@ -145,10 +154,11 @@ def main():
   variables = {
     'rebuild_dir': path.expanduser('~/.rebuild'),
   }
-  for c in configs:
-    substituted = c.substitute(variables)
-    env_var(env, 'PATH').append(substituted.data.unixpath)
-    env_var(env, 'PYTHONPATH').append(substituted.data.pythonpath)
+  if not args.dont_hack_env:
+    for c in configs:
+      substituted = c.substitute(variables)
+      env_var(env, 'PATH').append(substituted.data.unixpath)
+      env_var(env, 'PYTHONPATH').append(substituted.data.pythonpath)
     
   num_passed = 0
   num_failed = 0
