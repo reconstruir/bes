@@ -12,7 +12,7 @@ class test_argument_resolver(unit_test):
   def test_config(self):
     ar = self._make_test_argument_resolver([ 'water/tests/lib/water/common/test_water_util.py' ])
     self.assertEqual( 1, len(ar.resolved_files) )
-    self.assertEqual( ( self.data_path('water'), self.data_path('water/env/water.bescfg'), ( 'water', ['${root}/bin'], ['${root}/lib'], set() ) ),
+    self.assertEqual( ( self.data_path('water'), self.data_path('water/env/water.bescfg'), ( 'water', ['${root_dir}/bin'], ['${root_dir}/lib'], set() ) ),
                       ar.resolved_files[0].file_info.config )
   
   def test_dot_dir_water(self):
