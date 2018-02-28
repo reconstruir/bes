@@ -140,11 +140,13 @@ def main():
     ar.print_files()
     return 0
 
+  '''
   deps = ar.dependencies()
   configs = ar.configs(deps)
   for i, c in enumerate(configs):
     print('CONFIG: %s: %s\n' % (i, str(c)))
   raise SystemExit(1)
+'''
 #  configs = algorithm.unique([ f.file_info.config for f in filtered_files])
 #  for c in configs:
 #    print('FUCK: %s' % (config.data.name))

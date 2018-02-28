@@ -42,6 +42,7 @@ class argument_resolver(object):
     # FIXME: change to filter_with_patterns_tests()
     file_infos = file_infos.filter_by_filenames(filter_patterns)
     self._files_and_tests = file_filter.poto_filter_files(file_infos, filter_patterns)
+    self.resolved_files = self._compute_resolved_files()
 
   @property
   def num_iterations(self):
@@ -53,7 +54,7 @@ class argument_resolver(object):
     if not n in range(1, 110):
       raise ValueError('Iterations needs to be between 1 and 10: %d' % (n))
     self._num_iterations = n
-    self.resolved_files = self._compute_files()
+    self.resolved_files = self._compute_resolved_files()
 
   @property
   def randomize(self):
@@ -63,9 +64,9 @@ class argument_resolver(object):
   def randomize(self, randomize):
     check.check_bool(randomize)
     self._randomize = randomize
-    self.resolved_files = self._compute_files()
+    self.resolved_files = self._compute_resolved_files()
     
-  def _compute_files(self):
+  def _compute_resolved_files(self):
     f = sorted(self._files_and_tests * self._num_iterations)
     if self._randomize:
       random.shuffle(f)
