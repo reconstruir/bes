@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-'''
 import copy, os, os.path as path
 
 from .host import host
 from .env_var import os_env_var
 from .execute import execute
-from bes.common import dict_util, variable
 
 class os_env(object):
 
@@ -66,7 +64,7 @@ class os_env(object):
   def make_clean_env(clazz, keep_keys = None, update = None, prepend = True):
     'Return a clean environment suitable for deterministic build related tasks.'
     keep_keys = keep_keys or []
-    env = dict_util.filter_with_keys(os.environ, clazz.CLEAN_ENV_VARS)
+    env = { k: v for k,v in os.environ.items() if k in clazz.CLEAN_ENV_VARS }
     env['PATH'] = os.pathsep.join(clazz._CLEAN_PATH)
     for key in keep_keys:
       if key in os.environ:
@@ -127,21 +125,9 @@ class os_env(object):
     env[key] = os_env_var.path_join(os_env_var.path_cleanup(new_value))
     
   @classmethod
-  def key_is_path(clazz, variable):
-    'Return True if the given variable is a list.'
-    return variable in clazz.KEYS_THAT_ARE_PATHS
-
-  @classmethod
-  def env_find_roque_dollar_sign(clazz, env):
-    for key in sorted(env.keys()):
-      if variable.has_rogue_dollar_signs(env[key]):
-        return key
-    return None
-
-  @classmethod
-  def env_substitite(clazz, env):
-    for key in sorted(env.keys()):
-      env[key] = variable.substitute(str(env[key]), env)
+  def key_is_path(clazz, key):
+    'Return True if the given key is a list.'
+    return key in clazz.KEYS_THAT_ARE_PATHS
 
   @classmethod
   def call_python_script(clazz, cmd):
@@ -150,4 +136,3 @@ class os_env(object):
     env['PYTHONDONTWRITEBYTECODE'] = '1'
     env['PYTHONPATH'] = env['PYTHONPATH'] + ':' + fallback_python_path
     return execute.execute(cmd, env = env, raise_error = False, stderr_to_stdout = True)
-'''
