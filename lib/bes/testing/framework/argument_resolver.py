@@ -14,6 +14,8 @@ from .file_info_list import file_info_list
 from .unit_test_description import unit_test_description
 from .unit_test_inspect import unit_test_inspect
 
+print('FUCK YOU')
+
 class argument_resolver(object):
 
   def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None):
