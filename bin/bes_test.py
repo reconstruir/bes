@@ -139,8 +139,11 @@ def main():
 
   deps = ar.dependencies()
   configs = ar.configs(deps)
+  variables = {
+    'rebuild_dir': path.expanduser('~/.rebuild'),
+  }
   for c in configs:
-    x = c.substitute()
+    x = c.substitute(variables)
     os_env_var('PYTHONPATH').append(x.data.pythonpath)
     os_env_var('PATH').append(x.data.unixpath)
    

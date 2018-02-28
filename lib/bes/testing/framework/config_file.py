@@ -21,8 +21,9 @@ class config_file(namedtuple('config_file', 'root_dir,filename,data')):
     data = config_data.parse(content, filename = filename)
     return clazz.__bases__[0].__new__(clazz, root_dir, filename, data)
 
-  def substitute(self):
-    variables = { 'root': self.root_dir } 
+  def substitute(self, variables):
+    variables = copy.deepcopy(variables)
+    variables['root'] = self.root_dir
     return self.__class__.__bases__[0].__new__(self.__class__,
                                                self.root_dir,
                                                self.filename,
