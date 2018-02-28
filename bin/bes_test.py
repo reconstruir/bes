@@ -7,14 +7,11 @@ import argparse, math, os, os.path as path, subprocess, sys
 import time, tempfile
 from collections import namedtuple
 
-#from bes.common import algorithm
-from bes.testing.framework import argument_resolver, file_filter, unit_test_inspect
-from bes.testing.framework import unit_test_description
+from bes.testing.framework import argument_resolver
 from bes.version import version_info
+from bes.system import os_env_var
 from bes.git import git
-from bes.text import comments, lines
-from bes.fs import file_find, file_path, file_util
-from bes.dependency import dependency_resolver
+from bes.fs import file_find, file_util
 from bes.egg import egg
 
 _NAME = path.basename(sys.argv[0])
@@ -140,36 +137,12 @@ def main():
     ar.print_files()
     return 0
 
-  '''
   deps = ar.dependencies()
   configs = ar.configs(deps)
-  for i, c in enumerate(configs):
-    print('CONFIG: %s: %s\n' % (i, str(c)))
-  raise SystemExit(1)
-'''
-#  configs = algorithm.unique([ f.file_info.config for f in filtered_files])
-#  for c in configs:
-#    print('FUCK: %s' % (config.data.name))
-
-###  try:
-###    any_git_root = git.root(filtered_files[0].filename)
-###  except subprocess.CalledProcessError as ex:
-###    any_git_root = None
-###  if any_git_root:
-###    config_find_root = file_path.parent_dir(any_git_root)
-###    bescfg = config_file_caca.load_configs(config_find_root)
-###    #print('bescfg: %s' % (str(bescfg)))
-###    env_dirs = file_filter.env_dirs(filtered_files)
-###    names = [ bescfg.env_dirs[env_dir]['name'] for env_dir in env_dirs ]
-###    resolved_deps = dependency_resolver.resolve_deps(bescfg.dep_map, names)
-####    print('env_dirs=%s' % (env_dirs))
-####    print('names=%s' % (names))
-####    print('resolved_deps=%s' % (str(resolved_deps)))
-###    for name in resolved_deps:
-###      config = bescfg.configs[name]
-###      pythonpath = config.get('PYTHONPATH', None)
-####      print('name=%s; pythonpath=%s' % (name, pythonpath))
-###      environ_util.pythonpath_prepend(':'.join(pythonpath))
+  for c in configs:
+    x = c.substitute()
+    os_env_var('PYTHONPATH').append(x.data.pythonpath)
+    os_env_var('PATH').append(x.data.unixpath)
    
   num_passed = 0
   num_failed = 0
@@ -186,11 +159,11 @@ def main():
     if not path.isfile(setup_dot_py):
       raise RuntimeError('No setup.py found in %s to make the egg.' % (cwd))
     egg_zip = egg.make(setup_dot_py)
-    environ_util.pythonpath_remove(cwd)
-    environ_util.pythonpath_prepend(egg_zip)
+    p = os_env_var('PYTHONPATH')
+    p.remove(cwd)
+    p.prepend(egg_zip)
     if args.save_egg:
       file_util.copy(egg_zip, path.join(cwd, path.basename(egg_zip)))
-    #print('PYTHONPATH: %s' % (':'.join(environ_util.pythonpath_get())))
 
   if args.check_pre_commit:
     missing_from_git = []
@@ -420,60 +393,6 @@ def _make_count_blurb(index, total):
   return '[%s of %s]' % (index_blurb, count_blurb)
 
 class environ_util(object):
-
-  @classmethod
-  def pythonpath_get(clazz):
-    return os.environ.get('PYTHONPATH', '').split(':')
-  
-  @classmethod
-  def pythonpath_set(clazz, pythonpath):
-    assert isinstance(pythonpath, list)
-    os.environ['PYTHONPATH'] = ':'.join(pythonpath)
-
-  @classmethod
-  def pythonpath_remove(clazz, what):
-    pythonpath = clazz.pythonpath_get()
-    if what in pythonpath:
-      pythonpath.remove(what)
-    clazz.pythonpath_set(pythonpath)
-    
-  @classmethod
-  def pythonpath_prepend(clazz, what):
-    pythonpath = clazz.pythonpath_get()
-    pythonpath.insert(0, what)
-    clazz.pythonpath_set(pythonpath)
-
-  @classmethod
-  def pythonpath_contains(clazz, what):
-    pythonpath = clazz.pythonpath_get()
-    return what in clazz.pythonpath_get()
-
-  @classmethod
-  def unixpath_get(clazz):
-    return os.environ.get('PATH', '').split(':')
-  
-  @classmethod
-  def unixpath_set(clazz, unixpath):
-    assert isinstance(unixpath, list)
-    os.environ['PATH'] = ':'.join(unixpath)
-
-  @classmethod
-  def unixpath_remove(clazz, what):
-    unixpath = clazz.unixpath_get()
-    if what in unixpath:
-      unixpath.remove(what)
-    clazz.unixpath_set(unixpath)
-    
-  @classmethod
-  def unixpath_prepend(clazz, what):
-    unixpath = clazz.unixpath_get()
-    unixpath.insert(0, what)
-    clazz.unixpath_set(unixpath)
-
-  @classmethod
-  def unixpath_contains(clazz, what):
-    unixpath = clazz.unixpath_get()
-    return what in clazz.unixpath_get()
 
   @classmethod
   def make_clean_env(clazz):
