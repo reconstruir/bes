@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-# A script to run python unit tests.  Does not use any bes code to avoid
-# chicken-and-egg issues and to be standalone
+# A script to run python unit tests.  Depends on bes which as bit of a chicken-and-egg
+# problem when unit testing bes itself.  Use the standalone bes_test version to avoid
+# the issue.
 import argparse, copy, math, os, os.path as path, subprocess, sys
 import time, tempfile
 from collections import namedtuple
@@ -126,9 +127,7 @@ def main():
 
   ar.ignore_with_patterns(args.ignore)
 
-  filtered_files = ar.resolved_files
-
-  if not filtered_files:
+  if not ar.resolved_files:
     return 1
 
   if args.print_files:
@@ -154,7 +153,7 @@ def main():
   num_passed = 0
   num_failed = 0
   num_executed = 0
-  num_tests = len(filtered_files)
+  num_tests = len(ar.resolved_files)
   failed_tests = []
 
   # Remove current dir from sys.path to avoid side effects
@@ -174,7 +173,7 @@ def main():
 
   if args.check_pre_commit:
     missing_from_git = []
-    for finfo in filtered_files:
+    for finfo in ar.resolved_files:
       filename = finfo.filename
       st = git.status(git.root(filename), filename)
       if st:
@@ -191,8 +190,8 @@ def main():
   if not args.dry_run and args.page:
     printer.OUTPUT = tempfile.NamedTemporaryFile(prefix = 'bes_test', delete = True, mode = 'w')
 
-  total_tests = _count_tests(ar.inspect_map, filtered_files)
-  total_files = len(filtered_files)
+  total_tests = _count_tests(ar.inspect_map, ar.resolved_files)
+  total_files = len(ar.resolved_files)
 
   total_num_tests = 0
 
@@ -210,7 +209,7 @@ def main():
   total_time_start = time.time()
   
   stopped = False
-  for i, test_desc in enumerate(filtered_files):
+  for i, test_desc in enumerate(ar.resolved_files):
     file_info = test_desc.file_info
     filename = file_info.filename
     if not filename in timings:
