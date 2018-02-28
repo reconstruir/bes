@@ -1,6 +1,6 @@
 # fruit
 name: fruit
-unixpath: ${root}/bin
-pythonpath: ${root}/lib
+unixpath: ${root_dir}/bin
+pythonpath: ${root_dir}/lib
 requires: water
 
