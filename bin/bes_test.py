@@ -122,6 +122,7 @@ def main():
     args.files = [ cwd ]
 
   ar = argument_resolver(cwd, args.files, file_ignore_filename = '.bes_test_ignore')
+  print("CACA: config_env: %s" % (str(ar.config_env)))
   ar.num_iterations = args.iterations
   ar.randomize = args.randomize
 
