@@ -4,6 +4,7 @@
 # A script to run python unit tests.  Depends on bes which as bit of a chicken-and-egg
 # problem when unit testing bes itself.  Use the standalone bes_test version to avoid
 # the issue.
+# FOO
 import argparse, copy, math, os, os.path as path, subprocess, sys
 import time, tempfile
 from collections import namedtuple
