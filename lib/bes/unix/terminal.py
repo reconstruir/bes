@@ -3,7 +3,8 @@
 
 import os, sys
 from collections import namedtuple
-from bes.common import size as bes_size, Shell
+from bes.common import size as bes_size
+from bes.system import execute
 
 class terminal(object):
   'Stuff to deal with unix terminals'
@@ -31,4 +32,4 @@ class terminal(object):
   @classmethod
   def tty(clazz):
     'Return the current tty for this process.'
-    return Shell.execute('tty').stdout.strip()
+    return execute.execute('tty').stdout.strip()

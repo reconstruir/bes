@@ -4,8 +4,8 @@
 import os, os.path as path, re
 from collections import namedtuple
 from bes.text import lines
-from bes.common import object_util, Shell, string_util
-from bes.fs import dir_util, file_util, temp_file
+from bes.common import object_util, string_util
+from bes.system import execute
 from bes.fs import dir_util, file_util, temp_file
 
 from .status import status
@@ -78,7 +78,7 @@ class git(object):
   @classmethod
   def _call_git(clazz, root, args, raise_error = True):
     cmd = [ clazz.GIT_EXE ] + args
-    rv = Shell.execute(cmd, cwd = root, raise_error = raise_error)
+    rv = execute.execute(cmd, cwd = root, raise_error = raise_error)
     #print(cmd)
     #print(rv.stdout)
     return rv
@@ -178,7 +178,7 @@ class git(object):
     'Return the repo root for the given filename or raise and exception if not under git control.'
     cmd = [ 'git', 'rev-parse', '--show-toplevel' ]
     cwd = path.dirname(filename)
-    rv = Shell.execute(cmd, cwd = cwd, raise_error = False)
+    rv = execute.execute(cmd, cwd = cwd, raise_error = False)
     if rv.exit_code != 0:
       return None
     l = lines.parse_lines(rv.stdout)

@@ -4,8 +4,8 @@
 import codecs, os, os.path as path, pipes, re, shlex, subprocess, sys, tempfile
 from collections import namedtuple
 
-class Shell(object):
-  'Shell'
+class execute(object):
+  'execute'
 
   Result = namedtuple('Result', [ 'stdout', 'stderr', 'exit_code' ])
 

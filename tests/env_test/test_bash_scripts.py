@@ -3,7 +3,7 @@
 #
 import copy, os, os.path as path
 from bes.testing.unit_test import unit_test
-from bes.common import Shell
+from bes.system import execute
 
 class test_bash_scripts(unit_test):
 
@@ -17,11 +17,11 @@ class test_bash_scripts(unit_test):
     script = path.join(path.dirname(__file__), script_name)
     print("python: running: %s" % (script))
     env = self._make_env()
-    rv = Shell.execute(script,
-                       shell = False,
-                       stderr_to_stdout = True,
-                       raise_error = False,
-                       env = env)
+    rv = execute.execute(script,
+                         shell = False,
+                         stderr_to_stdout = True,
+                         raise_error = False,
+                         env = env)
     print(rv.stdout)
     return rv.exit_code
     

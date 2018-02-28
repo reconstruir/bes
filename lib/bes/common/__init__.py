@@ -2,7 +2,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .Script import Script
-from .Shell import Shell
 from .algorithm import algorithm
 from .bool_util import bool_util
 from .check import check

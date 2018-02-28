@@ -3,20 +3,20 @@
 
 from bes.testing.unit_test import unit_test
 import os.path as path
-from bes.common import Shell
+from bes.system import execute
 
-class test_shell(unit_test):
+class test_execute(unit_test):
 
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.common/shell'
 
   def test_true(self):
     script = self.data_path('shell_script_true.sh')
-    rv = Shell.execute(script)
+    rv = execute.execute(script)
     self.assertEqual( 0, rv.exit_code )
 
   def test_false(self):
     script = self.data_path('shell_script_false.sh')
-    rv = Shell.execute(script, raise_error = False)
+    rv = execute.execute(script, raise_error = False)
     self.assertEqual( 1, rv.exit_code )
 
   def test_args(self):
@@ -29,7 +29,7 @@ class test_shell(unit_test):
       'three',
     ]
 
-    rv = Shell.execute(cmd)
+    rv = execute.execute(cmd)
 
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( [ 'one', 'two', 'three' ], rv.stdout.strip().split(' ') )
@@ -38,19 +38,19 @@ class test_shell(unit_test):
     script = self.data_path('shell_script_true.sh')
 
     cmd = '%s one two three' % (script)
-    rv = Shell.execute(cmd)
+    rv = execute.execute(cmd)
 
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( [ 'one', 'two', 'three' ], rv.stdout.strip().split(' ') )
 
   def test_true_with_shell(self):
     script = self.data_path('shell_script_true.sh')
-    rv = Shell.execute(script, shell = True)
+    rv = execute.execute(script, shell = True)
     self.assertEqual( 0, rv.exit_code )
 
   def test_false_with_shell(self):
     script = self.data_path('shell_script_false.sh')
-    rv = Shell.execute(script, raise_error = False, shell = True)
+    rv = execute.execute(script, raise_error = False, shell = True)
     self.assertEqual( 1, rv.exit_code )
 
   def test_args_with_shell(self):
@@ -63,7 +63,7 @@ class test_shell(unit_test):
       'three',
     ]
 
-    rv = Shell.execute(cmd, shell = True)
+    rv = execute.execute(cmd, shell = True)
 
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( [ 'one', 'two', 'three' ], rv.stdout.strip().split(' ') )
@@ -72,7 +72,7 @@ class test_shell(unit_test):
     script = self.data_path('shell_script_true.sh')
 
     cmd = '%s one two three' % (script)
-    rv = Shell.execute(cmd, shell = True)
+    rv = execute.execute(cmd, shell = True)
 
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( [ 'one', 'two', 'three' ], rv.stdout.strip().split(' ') )

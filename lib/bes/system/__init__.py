@@ -3,10 +3,11 @@
 
 from .compat import compat
 from .env_var import env_var, os_env_var
-#from .os_env import os_env
+from .execute import execute
 from .host import host
 from .impl_import import impl_import
 from .log import log, log_filter
+#from .os_env import os_env
 from .thread_id import thread_id
 from .user import user
 

@@ -2,9 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from __future__ import division
-from bes.common import Shell
 from bes.compat import map
-from bes.system import compat
+from bes.system import compat, execute
 
 class file_mime(object):
 
@@ -21,7 +20,7 @@ class file_mime(object):
   @classmethod
   def mime_type(clazz, filename):
     cmd = 'file --brief --mime %s' % (filename)
-    rv = Shell.execute(cmd, raise_error = False)
+    rv = execute.execute(cmd, raise_error = False)
     if rv.exit_code != 0:
       return ''
     return rv.stdout.strip()

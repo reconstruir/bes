@@ -3,7 +3,7 @@
 
 import copy, glob, os, os.path as path, shutil, tempfile
 from bes.archive import archiver
-from bes.common import Shell
+from bes.system import execute
 from bes.fs import file_util
 
 class egg(object):
@@ -19,7 +19,7 @@ class egg(object):
     cmd = [ 'python', path.basename(setup_filename), 'bdist_egg' ]
     env = copy.deepcopy(os.environ)
     env['PYTHONDONTWRITEBYTECODE'] = '1'
-    Shell.execute(cmd, shell = False, cwd = temp_dir, env = env)
+    execute.execute(cmd, shell = False, cwd = temp_dir, env = env)
     eggs = glob.glob('%s/dist/*.egg' % (temp_dir))
     assert len(eggs) == 1
     return eggs[0]

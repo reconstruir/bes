@@ -6,7 +6,8 @@ import copy, os, os.path as path
 
 from .host import host
 from .env_var import os_env_var
-from bes.common import dict_util, variable, Shell
+from .execute import execute
+from bes.common import dict_util, variable
 
 class os_env(object):
 
@@ -148,5 +149,5 @@ class os_env(object):
     env = clazz.make_clean_env(keep_keys = [ 'PYTHONPATH' ])
     env['PYTHONDONTWRITEBYTECODE'] = '1'
     env['PYTHONPATH'] = env['PYTHONPATH'] + ':' + fallback_python_path
-    return Shell.execute(cmd, env = env, raise_error = False, stderr_to_stdout = True)
+    return execute.execute(cmd, env = env, raise_error = False, stderr_to_stdout = True)
 '''
