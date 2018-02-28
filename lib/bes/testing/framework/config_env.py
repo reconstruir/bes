@@ -14,7 +14,6 @@ from .config_file import config_file
 class config_env(object):
 
   def __init__(self, root_dir):
-    print('FUCK: root_dir=%s' % (root_dir))
     if not root_dir:
       self.root_dir = None
       self.config_files = []
@@ -23,7 +22,6 @@ class config_env(object):
     else:
       self.root_dir = path.abspath(root_dir)
       config_filenames = self.find_config_files(self.root_dir)
-      print('FUCK: config_filenames=%s' % (config_filenames))
       self.config_files = [ config_file(f) for f in config_filenames ]
       self.config_map = self._make_config_map(self.config_files)
       self.dependency_map = self._make_dep_map(self.config_map)
