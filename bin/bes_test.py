@@ -7,6 +7,7 @@ import argparse, math, os, os.path as path, subprocess, sys
 import time, tempfile
 from collections import namedtuple
 
+#from bes.common import algorithm
 from bes.testing.framework import argument_resolver, file_filter, unit_test_inspect
 from bes.testing.framework import unit_test_description
 from bes.version import version_info
@@ -130,7 +131,7 @@ def main():
 
   ar.ignore_with_patterns(args.ignore)
 
-  filtered_files = ar.files
+  filtered_files = ar.resolved_files
 
   if not filtered_files:
     return 1
@@ -138,6 +139,15 @@ def main():
   if args.print_files:
     ar.print_files()
     return 0
+
+  deps = ar.dependencies()
+  configs = ar.configs(deps)
+  for i, c in enumerate(configs):
+    print('CONFIG: %s: %s\n' % (i, str(c)))
+  raise SystemExit(1)
+#  configs = algorithm.unique([ f.file_info.config for f in filtered_files])
+#  for c in configs:
+#    print('FUCK: %s' % (config.data.name))
 
 ###  try:
 ###    any_git_root = git.root(filtered_files[0].filename)

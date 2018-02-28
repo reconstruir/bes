@@ -3,7 +3,6 @@
 
 import codecs, os, os.path as path, pipes, re, shlex, subprocess, sys, tempfile
 from collections import namedtuple
-from bes.common import string_util
 
 class Shell(object):
   'Shell'

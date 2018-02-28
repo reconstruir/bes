@@ -3,10 +3,11 @@
 
 import copy, os.path as path
 from collections import namedtuple
-from bes.compat import StringIO
 from bes.common import check, string_util
-from bes.text import comments, lines
+from bes.compat import StringIO
+from bes.dependency import dependency_resolver
 from bes.fs import file_find, file_util
+from bes.text import comments, lines
 
 from .config_file import config_file
 
@@ -55,3 +56,6 @@ class config_env(object):
   @classmethod
   def find_config_files(clazz, d):
     return file_find.find_fnmatch(d, [ '*.bescfg' ], relative = False, min_depth = None, max_depth = 4)
+
+  def resolve_deps(self, names):
+    return dependency_resolver.resolve_deps(self.dependency_map, names)

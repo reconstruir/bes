@@ -53,6 +53,7 @@ class argument_resolver(object):
     if not n in range(1, 110):
       raise ValueError('Iterations needs to be between 1 and 10: %d' % (n))
     self._num_iterations = n
+    self.resolved_files = self._compute_files()
 
   @property
   def randomize(self):
@@ -62,9 +63,9 @@ class argument_resolver(object):
   def randomize(self, randomize):
     check.check_bool(randomize)
     self._randomize = randomize
+    self.resolved_files = self._compute_files()
     
-  @property
-  def files(self):
+  def _compute_files(self):
     f = sorted(self._files_and_tests * self._num_iterations)
     if self._randomize:
       random.shuffle(f)
@@ -189,3 +190,10 @@ class argument_resolver(object):
   def ignore_with_patterns(self, patterns):
     if patterns:
       self._files_and_tests = file_filter.ignore_files(self._files_and_tests, patterns)
+    
+  def dependencies(self):
+    config_names = algorithm.unique([ f.file_info.config.data.name for f in self.resolved_files ])
+    return self.config_env.resolve_deps(config_names)
+
+  def configs(self, names):
+    return [ self.config_env.config_for_name(name) for name in names ]
