@@ -7,14 +7,12 @@ import argparse, copy, math, os, os.path as path, subprocess, sys
 import time, tempfile
 from collections import namedtuple
 
-from bes.testing.framework import argument_resolver
+from bes.testing.framework import argument_resolver, printer
 from bes.version import version_info
-from bes.system import env_var
+from bes.system import env_var, os_env
 from bes.git import git
 from bes.fs import file_find, file_util
 from bes.egg import egg
-
-_NAME = path.basename(sys.argv[0])
 
 # TODO:
 #  - figure out how to stop on first failure within one module
@@ -137,7 +135,10 @@ def main():
     ar.print_files()
     return 0
 
-  env = environ_util.make_clean_env()
+  # Start with a clean environment so unit testing can be deterministic and not subject
+  # to whatever the user happened to have exported.  PYTHONPATH and PATH for dependencies
+  # are set below by iterating the configs 
+  env = os_env.make_clean_env()
   env['PYTHONDONTWRITEBYTECODE'] = 'x'
   
   deps = ar.dependencies()
@@ -146,9 +147,9 @@ def main():
     'rebuild_dir': path.expanduser('~/.rebuild'),
   }
   for c in configs:
-    x = c.substitute(variables)
-    env_var(env, 'PATH').append(x.data.unixpath)
-    env_var(env, 'PYTHONPATH').append(x.data.pythonpath)
+    substituted = c.substitute(variables)
+    env_var(env, 'PATH').append(substituted.data.unixpath)
+    env_var(env, 'PYTHONPATH').append(substituted.data.pythonpath)
     
   num_passed = 0
   num_failed = 0
@@ -396,47 +397,6 @@ def _make_count_blurb(index, total):
   index_blurb = (' ' * (length - len(index))) + index
   count_blurb = (' ' * (length - len(count))) + count
   return '[%s of %s]' % (index_blurb, count_blurb)
-
-class environ_util(object):
-
-  @classmethod
-  def make_clean_env(clazz):
-    'Return a clean environment suitable for deterministic build related tasks.'
-    clean_path = '/bin:/usr/bin:/usr/sbin:/sbin'
-    clean_vars = [ 'BES_LOG', 'PYTHONPATH', 'DISPLAY', 'HOME', 'LANG', 'SHELL', 'TERM', 'TERM_PROGRAM', 'TMOUT', 'TMPDIR', 'USER', 'XAUTHORITY', '__CF_USER_TEXT_ENCODING', 'LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH' ]
-    clean_env = {}
-    for k, v in os.environ.items():
-      if k in clean_vars or k.startswith('REBUILD'):
-        clean_env[k] = v
-    clean_env['PATH'] = clean_path
-    return clean_env
-    
-class printer(object):
-  OUTPUT = sys.stdout
-
-  @classmethod
-  def writeln(clazz, s):
-    clazz.write(s)
-    clazz.write('\n')
-    clazz.flush()
-          
-  @classmethod
-  def writeln_name(clazz, s):
-    clazz.write(_NAME)
-    clazz.write(': ')
-    clazz.write(s)
-    clazz.write('\n')
-    clazz.flush()
-          
-  @classmethod
-  def write(clazz, s, flush = False):
-    clazz.OUTPUT.write(s)
-    if flush:
-      clazz.flush()
-          
-  @classmethod
-  def flush(clazz):
-    clazz.OUTPUT.flush()
 
 def _python_exe_blurb(python_exe, interpreters):
   if len(interpreters) <= 1:

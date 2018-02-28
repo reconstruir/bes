@@ -9,5 +9,6 @@ from .file_filter import file_filter
 from .file_finder import file_finder
 from .file_info import file_info
 from .file_info_list import file_info_list
+from .printer import printer
 from .unit_test_description import unit_test_description
 from .unit_test_inspect import unit_test_inspect

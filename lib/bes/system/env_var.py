@@ -68,6 +68,9 @@ class env_var(object):
     assert isinstance(l, list)
     return os.pathsep.join(l)
 
+  def get(self, name, default_value = None):
+    return self._target.get(name, default_value)
+  
 class os_env_var(env_var):
   def __init__(self, name):
     super(os_env_var, self).__init__(os.environ, name)
