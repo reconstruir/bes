@@ -193,8 +193,14 @@ class argument_resolver(object):
       self._files_and_tests = file_filter.ignore_files(self._files_and_tests, patterns)
     
   def dependencies(self):
-    config_names = algorithm.unique([ f.file_info.config.data.name for f in self.resolved_files ])
-    return self.config_env.resolve_deps(config_names)
+    return self.config_env.resolve_deps(self._config_name())
 
+  def _config_names(self):
+    result = []
+    for f in self.resolved_files:
+      if f.file_info.config:
+        result.append(f.file_info.config.data.name)
+    return algorithm.unique(result)
+  
   def configs(self, names):
     return [ self.config_env.config_for_name(name) for name in names ]
