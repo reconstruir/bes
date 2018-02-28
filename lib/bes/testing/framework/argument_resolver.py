@@ -193,7 +193,7 @@ class argument_resolver(object):
       self._files_and_tests = file_filter.ignore_files(self._files_and_tests, patterns)
     
   def dependencies(self):
-    return self.config_env.resolve_deps(self._config_name())
+    return self.config_env.resolve_deps(self._config_names())
 
   def _config_names(self):
     result = []
