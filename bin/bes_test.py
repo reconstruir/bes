@@ -3,13 +3,13 @@
 
 # A script to run python unit tests.  Does not use any bes code to avoid
 # chicken-and-egg issues and to be standalone
-import argparse, math, os, os.path as path, subprocess, sys
+import argparse, copy, math, os, os.path as path, subprocess, sys
 import time, tempfile
 from collections import namedtuple
 
 from bes.testing.framework import argument_resolver
 from bes.version import version_info
-from bes.system import os_env_var
+from bes.system import env_var
 from bes.git import git
 from bes.fs import file_find, file_util
 from bes.egg import egg
@@ -137,6 +137,9 @@ def main():
     ar.print_files()
     return 0
 
+  env = environ_util.make_clean_env()
+  env['PYTHONDONTWRITEBYTECODE'] = 'x'
+  
   deps = ar.dependencies()
   configs = ar.configs(deps)
   variables = {
@@ -144,9 +147,9 @@ def main():
   }
   for c in configs:
     x = c.substitute(variables)
-    os_env_var('PYTHONPATH').append(x.data.pythonpath)
-    os_env_var('PATH').append(x.data.unixpath)
-   
+    env_var(env, 'PATH').append(x.data.unixpath)
+    env_var(env, 'PYTHONPATH').append(x.data.pythonpath)
+    
   num_passed = 0
   num_failed = 0
   num_executed = 0
@@ -162,7 +165,7 @@ def main():
     if not path.isfile(setup_dot_py):
       raise RuntimeError('No setup.py found in %s to make the egg.' % (cwd))
     egg_zip = egg.make(setup_dot_py)
-    p = os_env_var('PYTHONPATH')
+    p = env_var(env, 'PYTHONPATH')
     p.remove(cwd)
     p.prepend(egg_zip)
     if args.save_egg:
@@ -212,7 +215,7 @@ def main():
     if not filename in timings:
       timings[filename] = []
     for python_exe in args.python:
-      result = _test_execute(python_exe, ar.inspect_map, filename, test_desc.tests, options, i + 1, total_files, cwd)
+      result = _test_execute(python_exe, ar.inspect_map, filename, test_desc.tests, options, i + 1, total_files, cwd, env)
       timings[filename].append(result.elapsed_time)
       total_num_tests += result.num_tests_run
       num_executed += 1
@@ -299,7 +302,7 @@ def _test_data_dir(filename):
     data_dir = file_find.find_in_ancestors(path.dirname(filename), 'test_data')
   return data_dir or ''
 
-def _test_execute(python_exe, test_map, filename, tests, options, index, total_files, cwd):
+def _test_execute(python_exe, test_map, filename, tests, options, index, total_files, cwd, env):
   short_filename = file_util.remove_head(filename, cwd)
 
   cmd = [ python_exe, '-B' ]
@@ -348,8 +351,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     if options.dry_run:
       return test_result(True, 0, 0.0)
 
-    env = environ_util.make_clean_env()
-    env['PYTHONDONTWRITEBYTECODE'] = 'x'
+    env = copy.deepcopy(env)
     env['BES_TEST_DATA_DIR'] = _test_data_dir(filename)
     time_start = time.time()
     process = subprocess.Popen(' '.join(cmd),
