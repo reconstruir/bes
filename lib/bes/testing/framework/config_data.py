@@ -48,9 +48,9 @@ class config_data(namedtuple('config_data', 'name,unixpath,pythonpath,requires')
         value = value.strip()
         if key == 'name':
           name = value
-        elif key in [ 'unixpath', 'PATH' ]:
+        elif key in [ 'unixpath' ]:
           unixpath = value.split(':')
-        elif key in [ 'pythonpath', 'PYTHONPATH' ]:
+        elif key in [ 'pythonpath' ]:
           pythonpath = value.split(':')
         elif key == 'requires':
           requires = set(string_util.split_by_white_space(value))

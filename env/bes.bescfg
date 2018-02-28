@@ -1,4 +1,4 @@
 # bes
 name: bes
-PATH: ${root}/bin
-PYTHONPATH: ${root}/lib
+unixpath: ${root}/bin
+pythonpath: ${root}/lib
