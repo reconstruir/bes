@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 from datetime import datetime
-from pytz import reference
+import time
 
 class time_util(object):
   'Time util'
@@ -16,5 +16,10 @@ class time_util(object):
     if milliseconds:
       fmt.append('%f')
     if timezone:
-      fmt.append(reference.LocalTimezone().tzname(now))
+      fmt.append(clazz.timezone())
     return now.strftime(delimiter.join(fmt))
+
+  @classmethod
+  def timezone(clazz):
+    'Return the current timezone (ie PST).'
+    return time.strftime('%Z')

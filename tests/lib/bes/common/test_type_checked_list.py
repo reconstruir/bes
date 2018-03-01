@@ -120,8 +120,8 @@ class test_type_checked_list(unit_test):
     l.sort(key = lambda x: x.b)
     self.assertEqual( [ T('pear', 1), T('apple', 6), T('kiwi', 7) ], [ x for x in l ] )
     l = TL([ T('apple', 6), T('pear', 1), T('kiwi', 7) ])
-    l.sort(cmp = lambda a, b: cmp(a.a[-1], b.a[-1]))
-    self.assertEqual( [ T('apple', 6), T('kiwi', 7), T('pear', 1) ], [ x for x in l ] )
+#    l.sort(cmp = lambda a, b: cmp(a.a[-1], b.a[-1]))
+#    self.assertEqual( [ T('apple', 6), T('kiwi', 7), T('pear', 1) ], [ x for x in l ] )
     
 if __name__ == "__main__":
   unit_test.main()

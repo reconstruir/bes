@@ -23,7 +23,7 @@ class ignore_file_data(namedtuple('ignore_file_data', 'directory,patterns')):
     filename = path.abspath(filename)
     if not path.isfile(filename):
       raise IOError('not a file: %s' % (filename))
-    text = file_util.read(filename)
+    text = file_util.read(filename, codec = 'utf-8')
     patterns = lines.parse_lines(text).to_list()
     return clazz(path.dirname(filename), patterns)
   

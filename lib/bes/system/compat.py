@@ -6,12 +6,12 @@ from io import IOBase
 
 class compat(object):
   'Hackery to help write code that works on both python 2 and 3.'
-
-  IS_PYTHON3 = False
-  IS_PYTHON2 = False
+  
   if sys.version_info.major == 2:
     IS_PYTHON2 = True
+    IS_PYTHON3 = False
   elif sys.version_info.major == 3:
+    IS_PYTHON2 = False
     IS_PYTHON3 = True
   else:
     raise RuntimeError('unknown python version: %s' % (sys.version_info.major))

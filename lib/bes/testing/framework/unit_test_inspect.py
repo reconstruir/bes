@@ -2,11 +2,13 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import ast, os.path as path
-import exceptions
-
 from bes.fs import file_util
-
+from bes.compat import import_exceptions
+from bes.system import compat
 from .unit_test_description import unit_test_description
+
+import_exceptions()
+
 
 class unit_test_inspect(object):
 
@@ -41,7 +43,7 @@ class unit_test_inspect(object):
       value = getattr(base, field)
       if isinstance(value, ast.Name):
         result.append(value.id)
-      elif isinstance(value, ( str, unicode)):
+      elif compat.is_string(value):
         result.append(value)
     return '.'.join(result)
     
@@ -54,11 +56,11 @@ class unit_test_inspect(object):
         tests = clazz.inspect_file(f_path)
         if tests:
           result[f_path] = clazz.inspect_file(f_path)
-      except exceptions.SyntaxError, ex:
+      except exceptions.SyntaxError as ex:
         #printer.writeln('Failed to inspect: %s - %s' % (f, str(ex)))
         print('Failed to inspect: %s - %s' % (f, str(ex)))
         raise
-      except Exception, ex:
+      except Exception as ex:
         #printer.writeln('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
         print('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
     return result

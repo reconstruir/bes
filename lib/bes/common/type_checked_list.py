@@ -115,5 +115,5 @@ class type_checked_list(object):
       result.add(s)
     return result
 
-  def sort(self, cmp = None, key = None, reverse = False):
-    self._values = sorted(self._values, cmp = cmp, key = key, reverse = reverse)
+  def sort(self, key = None, reverse = False):
+    self._values = sorted(self._values, key = key, reverse = reverse)

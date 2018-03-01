@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import exceptions, os.path as path
+import os.path as path
 from collections import namedtuple
 from bes.common import check
 from bes.fs import file_util
 from bes.git import git
+from bes.compat import import_exceptions
+
+import_exceptions()
 
 from .unit_test_inspect import unit_test_inspect
 
@@ -63,11 +66,11 @@ class file_info(namedtuple('file_info', 'filename,config')):
     'Compute the git root.'
     try:
       return unit_test_inspect.inspect_file(self.filename)
-    except exceptions.SyntaxError, ex:
+    except exceptions.SyntaxError as ex:
       #printer.writeln('Failed to inspect: %s - %s' % (f, str(ex)))
       print('1 Failed to inspect: %s - %s' % (self.filename, str(ex)))
       return None
-    except Exception, ex:
+    except Exception as ex:
       #printer.writeln('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
       print('2 Failed to inspect: %s - %s:%s' % (self.filename, type(ex), str(ex)))
       raise
