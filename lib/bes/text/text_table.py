@@ -52,7 +52,7 @@ class text_table(object):
 
   def to_string(self, strip_rows = True):
     buf = StringIO()
-    col_widths = [ self._column_width(x) for x in range(0, self._table.width) ]
+    col_widths = self.column_widths()
     if self._labels:
       for x in range(0, self._table.width):
         self._write_label(x, buf, col_widths)
@@ -122,3 +122,6 @@ class text_table(object):
   def set_data(self, data):
     check.check_tuple_seq(data)
     self._table.set_data(data)
+
+  def column_widths(self):
+    return tuple([ self._column_width(x) for x in range(0, self._table.width) ])

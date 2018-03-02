@@ -100,7 +100,7 @@ class table(object):
     check.check_tuple(row)
     self.check_y(y)
     if len(row) != self._size.width:
-      raise ValueError('Row should be %d wide instead of: %s' % (self._size.width, len(row)))
+      raise ValueError('Row should be %d wide instead of %d: \"%s\"' % (self._size.width, len(row), str(row)))
     for x in range(0, self._size.width):
       self._table[y][x] = row[x]
     
@@ -108,7 +108,7 @@ class table(object):
     check.check_tuple(column)
     self.check_x(x)
     if len(column) != self._size.height:
-      raise ValueError('Column should be %d high instead of: %s' % (self._size.height, len(column)))
+      raise ValueError('Column should be %d high instead of %d: \"%s\"' % (self._size.height, len(column), str(column)))
     for y in range(0, self._size.height):
       self._table[y][x] = column[y]
    
