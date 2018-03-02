@@ -7,7 +7,7 @@ from bes.common import table
 
 class test_text_table_parser(unit_test):
 
-  def test_parse(self):
+  def test_parse_basic(self):
     text = '''
 FRUIT       FAVORITE   COLOR    YUMMINESS   CITRUS   PRICE  
 kiwi        YES        green    5           5        2.5    
@@ -21,6 +21,25 @@ lemon                  yellow   2           10       1.0
       ( 'banana', None, 'yellow', '2', '1', '1.0' ),
       ( 'blueberry', 'YES', 'purple', '9', '4', '3.0' ),
       ( 'lemon', None, 'yellow', '2', '10', '1.0' ),
+    ])
+    column_widths = ( 12, 10, 8, 12, 9, 7 )
+    t = TTP(text, column_widths)
+    self.assertEqual( expected, t.table )
+    
+  def test_parse_uneven_rows(self):
+    text = '''
+FRUIT       FAVORITE   COLOR    YUMMINESS   CITRUS   PRICE  
+kiwi        YES        green    5
+banana                 yellow   2           1        1.0    BONUS
+blueberry   YES        purple   9           4        3.0    
+lemon
+'''
+    expected = table(data = [
+      ( 'FRUIT', 'FAVORITE', 'COLOR', 'YUMMINESS', 'CITRUS', 'PRICE' ),
+      ( 'kiwi', 'YES', 'green', '5', None, None ),
+      ( 'banana', None, 'yellow', '2', '1', '1.0' ),
+      ( 'blueberry', 'YES', 'purple', '9', '4', '3.0' ),
+      ( 'lemon', None, None, None, None, None ),
     ])
     column_widths = ( 12, 10, 8, 12, 9, 7 )
     t = TTP(text, column_widths)
