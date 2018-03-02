@@ -96,12 +96,16 @@ class text_line_parser(object):
 #      return clazz(f.read())
 
   @classmethod
-  def parse_lines(clazz, s, strip_comments = True, strip_text = True, remove_empties = True):
-    l = text_line_parser(s).to_string_list(strip_comments = strip_comments)
+  def parse_lines(clazz, text, strip_comments = True, strip_text = True, remove_empties = True):
+    l = text_line_parser(text).to_string_list(strip_comments = strip_comments)
     if strip_text:
       l.strip()
     if remove_empties:
       l.remove_empties()
     return l
 
-  
+#  @classmethod
+#  def add_line_numbers(clazz, text, delimiter = '|'):
+#    l = text_line_parser(text)
+#    l.add_line_numbers(delimiter = delimiter)
+#    return str(l)
