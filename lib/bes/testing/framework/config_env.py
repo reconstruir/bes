@@ -2,12 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import copy, os.path as path
-from collections import namedtuple
-from bes.common import check, string_util
-from bes.compat import StringIO
 from bes.dependency import dependency_resolver
-from bes.fs import file_find, file_util
-from bes.text import comments, lines
+from bes.fs import file_find
 
 from .config_file import config_file
 

@@ -8,7 +8,7 @@ from .line_token import line_token
 from .line_continuation_merger import line_continuation_merger
 from .string_list import string_list
 
-class lines(object):
+class text_line_parser(object):
   'Manage text as lines.'
 
   def __init__(self, text, delimiter = '\n'):
@@ -98,7 +98,7 @@ class lines(object):
 
   @classmethod
   def parse_lines(clazz, s, strip_comments = True, strip_text = True, remove_empties = True):
-    l = lines(s).to_string_list(strip_comments = strip_comments)
+    l = text_line_parser(s).to_string_list(strip_comments = strip_comments)
     if strip_text:
       l.strip()
     if remove_empties:

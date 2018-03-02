@@ -4,7 +4,7 @@
 import os.path as path
 from collections import namedtuple
 from bes.common import check
-from bes.text import lines
+from bes.text import text_line_parser
 
 from .file_path import file_path
 from .file_util import file_util
@@ -24,7 +24,7 @@ class ignore_file_data(namedtuple('ignore_file_data', 'directory,patterns')):
     if not path.isfile(filename):
       raise IOError('not a file: %s' % (filename))
     text = file_util.read(filename, codec = 'utf-8')
-    patterns = lines.parse_lines(text).to_list()
+    patterns = text_line_parser.parse_lines(text).to_list()
     return clazz(path.dirname(filename), patterns)
   
   def should_ignore(self, filename):

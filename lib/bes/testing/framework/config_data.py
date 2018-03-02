@@ -5,7 +5,7 @@ import copy, os.path as path
 from collections import namedtuple
 from bes.compat import StringIO
 from bes.common import check, variable, string_util
-from bes.text import lines
+from bes.text import text_line_parser
 
 class config_data(namedtuple('config_data', 'name,unixpath,pythonpath,requires')):
 
@@ -38,7 +38,7 @@ class config_data(namedtuple('config_data', 'name,unixpath,pythonpath,requires')
     unixpath = None
     pythonpath = None
     requires = None
-    for line in lines(text):
+    for line in text_line_parser(text):
       text = line.text_no_comments.strip()
       if text:
         key, sep, value = text.partition(':')

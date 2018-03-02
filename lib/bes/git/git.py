@@ -3,7 +3,7 @@
 
 import os, os.path as path, re
 from collections import namedtuple
-from bes.text import lines
+from bes.text import text_line_parser
 from bes.common import object_util, string_util
 from bes.system import execute
 from bes.fs import dir_util, file_util, temp_file
@@ -181,7 +181,7 @@ class git(object):
     rv = execute.execute(cmd, cwd = cwd, raise_error = False)
     if rv.exit_code != 0:
       return None
-    l = lines.parse_lines(rv.stdout)
+    l = text_line_parser.parse_lines(rv.stdout)
     assert len(l) == 1
     return l[0]
   

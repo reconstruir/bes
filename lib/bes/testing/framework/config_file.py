@@ -3,10 +3,8 @@
 
 import copy, os.path as path
 from collections import namedtuple
-from bes.compat import StringIO
-from bes.common import check, string_util
-from bes.text import comments, lines
-from bes.fs import file_check, file_find, file_util
+from bes.common import check
+from bes.fs import file_check, file_util
 
 from .config_data import config_data
 
