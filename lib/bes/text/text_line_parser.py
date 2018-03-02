@@ -12,9 +12,8 @@ class text_line_parser(object):
   'Manage text as lines.'
 
   def __init__(self, text, delimiter = '\n'):
-    self._original_text = text
     self._delimiter = delimiter
-    self._lines = self._parse(self._original_text, self._delimiter)
+    self._lines = self._parse(text, self._delimiter)
     self._ends_with_delimiter = text and text[-1] == self._delimiter
 
   def __str__(self):

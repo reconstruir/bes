@@ -7,7 +7,8 @@ from bes.compat import StringIO
 from .comments import comments
 
 class line_token(namedtuple('line_token', 'line_number,text')):
-
+  'Token used for line oriented text parser.  Keeps track of line text and line_number for error reporting.'
+  
   CONTINUATION_CHAR = '\\'
   
   def __new__(clazz, line_number, text):
