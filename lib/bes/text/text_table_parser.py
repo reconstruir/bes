@@ -24,7 +24,7 @@ class text_table_parser(object):
     lines = text_line_parser(text)
     data = []
     for line in lines:
-      ltext = line.text.strip()
+      ltext = line.text
       if ltext:
         row = clazz._line_to_columns(ltext, column_widths)
         data.append(tuple(row))

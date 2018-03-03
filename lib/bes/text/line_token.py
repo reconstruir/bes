@@ -36,4 +36,11 @@ class line_token(namedtuple('line_token', 'line_number,text')):
       text = string_util.remove_tail(line.text, clazz.CONTINUATION_CHAR)
       buf.write(text)
     return clazz(lines[0].line_number, buf.getvalue())
+
+  def get_text(self, no_comments = False):
+    if no_comments:
+      return self.text_no_comments
+    else
+      return self.text
+  
 check.register_class(line_token)

@@ -25,7 +25,7 @@ class text_line_parser(object):
   def to_string(self, strip_comments = False):
     buf = StringIO()
     for line in self._lines:
-      buf.write(line.text_no_comments)
+      buf.write(line.get_text(no_comments = strip_comments))
       buf.write(self._delimiter)
     v = buf.getvalue()
     if self._ends_with_delimiter:
@@ -39,10 +39,7 @@ class text_line_parser(object):
   def to_string_list(self, strip_comments = False):
     sl = string_list()
     for line in self._lines:
-      if strip_comments:
-        sl.append(line.text_no_comments)
-      else:
-        sl.append(line.text)
+      sl.append(line.get_text(no_comments = strip_comments))
     return sl
     
   def __len__(self):
@@ -109,3 +106,10 @@ class text_line_parser(object):
 #    l = text_line_parser(text)
 #    l.add_line_numbers(delimiter = delimiter)
 #    return str(l)
+
+  @classmethod
+  def find_line_with_re(clazz, expression, no_comments = False):
+    for line in self._lines:
+      if re.match(expression, line.get_text(no_comments = no_comments)):
+        return line
+    return None

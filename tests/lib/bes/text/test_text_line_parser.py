@@ -177,5 +177,14 @@ coke'''
     self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\n foo\nbar \n') )
     self.assertEqual( [], LTP.parse_lines('\n\n\n') )
     
+  def find_line_with_re(self):
+    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('foo\nbar\n') )
+    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('foo\nbar') )
+    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\nfoo\nbar') )
+    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\n foo\nbar') )
+    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\n foo\nbar ') )
+    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\n foo\nbar \n') )
+    self.assertEqual( [], LTP.parse_lines('\n\n\n') )
+    
 if __name__ == '__main__':
   unit_test.main()
