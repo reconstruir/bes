@@ -17,6 +17,9 @@ class text_line_parser(object):
     self._lines = self._parse(text, self._delimiter)
     self._ends_with_delimiter = text and text[-1] == self._delimiter
 
+  def __iter__(self):
+    return iter(self._lines)
+    
   def __str__(self):
     return self.to_string()
     

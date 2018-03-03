@@ -80,3 +80,6 @@ feb 23
 feb 26
 - fix bes_test.py --ignore so that pattners are automati ally created 'foo' => '*foo*' i guess check whether pattern is patterns first
 - write egg.py unit tests
+
+mar 2
+- text_line_parser append and prepend are very dumbly named
