@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import math
+import math, re
+from bes.common import object_util
 from bes.compat import StringIO
 from collections import namedtuple
 from .line_token import line_token
@@ -107,9 +108,11 @@ class text_line_parser(object):
 #    l.add_line_numbers(delimiter = delimiter)
 #    return str(l)
 
-  @classmethod
-  def find_line_with_re(clazz, expression, no_comments = False):
+  def find_line_with_re(self, expressions, no_comments = False):
+    expressions = object_util.listify(expressions)
     for line in self._lines:
-      if re.match(expression, line.get_text(no_comments = no_comments)):
-        return line
+      text = line.get_text(no_comments = no_comments)
+      for expression in expressions:
+        if re.match(expression, text):
+          return line
     return None

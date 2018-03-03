@@ -54,7 +54,7 @@ class test_text_line_parser(unit_test):
     self.assertMultiLineEqual(
       '''ABC: foo
 ABC: bar
-ABC:
+ABC: 
 ''',
       str(l) )
 
@@ -177,14 +177,18 @@ coke'''
     self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\n foo\nbar \n') )
     self.assertEqual( [], LTP.parse_lines('\n\n\n') )
     
-  def find_line_with_re(self):
-    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('foo\nbar\n') )
-    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('foo\nbar') )
-    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\nfoo\nbar') )
-    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\n foo\nbar') )
-    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\n foo\nbar ') )
-    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\n foo\nbar \n') )
-    self.assertEqual( [], LTP.parse_lines('\n\n\n') )
+  def test_find_line_with_re(self):
+    text = '''
+    Health ID: 8573008129436468
+  Test Name                                              Results                               Reference Range               Lab
+     CHLORIDE                                                                      101                   98-110 mmol/L
+'''
+    l = LTP(text)
+    patterns = [
+      '^\s*Test\s+Name\s\s+Result\s\s+Flag\s\s+Reference\s+Range\s\s+Lab\s*$',
+      '^\s*Test\s+Name\s\s+Results\s\s+Reference\s+Range\s\s+Lab\s*$',
+    ]
+    self.assertEqual( 3, l.find_line_with_re(patterns).line_number )
     
 if __name__ == '__main__':
   unit_test.main()
