@@ -40,7 +40,7 @@ class line_token(namedtuple('line_token', 'line_number,text')):
   def get_text(self, no_comments = False):
     if no_comments:
       return self.text_no_comments
-    else
+    else:
       return self.text
   
 check.register_class(line_token)
