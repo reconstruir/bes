@@ -205,3 +205,12 @@ class table(object):
     self._table = new_table._table
     if column:
       self.set_column(col_x, column)
+
+  def insert_row(self, row_y, row = None):
+    self.check_y(row_y)
+    new_row = [ self._default_value ] * self._size.width
+    self._table.insert(row_y, new_row)
+    self._size = size(self.width, self.height + 1)
+    if row:
+      self.set_row(row_y, row)
+      
