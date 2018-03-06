@@ -21,7 +21,8 @@ class text_table_cell_style(object):
       value = value.rjust(width)
     else:
       raise ValueError('Invalid just: %s' % (self.just))
-      
+    if value is None:
+      value = ''
     return value
 
 class text_table(object):

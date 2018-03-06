@@ -3,12 +3,8 @@
 
 import ast, os.path as path
 from bes.fs import file_util
-from bes.compat import import_exceptions
 from bes.system import compat
 from .unit_test_description import unit_test_description
-
-import_exceptions()
-
 
 class unit_test_inspect(object):
 
@@ -56,7 +52,7 @@ class unit_test_inspect(object):
         tests = clazz.inspect_file(f_path)
         if tests:
           result[f_path] = clazz.inspect_file(f_path)
-      except exceptions.SyntaxError as ex:
+      except SyntaxError as ex:
         #printer.writeln('Failed to inspect: %s - %s' % (f, str(ex)))
         print('Failed to inspect: %s - %s' % (f, str(ex)))
         raise

@@ -112,9 +112,9 @@ class table(object):
     for y in range(0, self._size.height):
       self._table[y][x] = column[y]
    
-  def sort_by_column(self, x):
+  def sort_by_column(self, x, key = None):
     self.check_x(x)
-    self._table = sorted(self._table, key = lambda row: row[x])
+    self._table = sorted(self._table, key = key or (lambda row: row[x]))
 
   def row(self, y):
     self.check_y(y)

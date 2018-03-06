@@ -111,7 +111,7 @@ class text_line_parser(object):
 #    l.add_line_numbers(delimiter = delimiter)
 #    return str(l)
 
-  def find_line_with_re(self, expressions, no_comments = False):
+  def match_line_with_re(self, expressions, no_comments = False):
     expressions = object_util.listify(expressions)
     for line in self._lines:
       text = line.get_text(no_comments = no_comments)
@@ -119,3 +119,14 @@ class text_line_parser(object):
         if re.match(expression, text):
           return line
     return None
+
+  def find_line_with_re(self, expressions, no_comments = False):
+    expressions = object_util.listify(expressions)
+    for line in self._lines:
+      text = line.get_text(no_comments = no_comments)
+      for expression in expressions:
+        f = re.findall(expression, text)
+        if f:
+          return f
+    return None
+  

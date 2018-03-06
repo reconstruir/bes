@@ -6,9 +6,6 @@ from collections import namedtuple
 from bes.common import check
 from bes.fs import file_util
 from bes.git import git
-from bes.compat import import_exceptions
-
-import_exceptions()
 
 from .unit_test_inspect import unit_test_inspect
 
@@ -66,7 +63,7 @@ class file_info(namedtuple('file_info', 'filename,config')):
     'Compute the git root.'
     try:
       return unit_test_inspect.inspect_file(self.filename)
-    except exceptions.SyntaxError as ex:
+    except SyntaxError as ex:
       #printer.writeln('Failed to inspect: %s - %s' % (f, str(ex)))
       print('1 Failed to inspect: %s - %s' % (self.filename, str(ex)))
       return None

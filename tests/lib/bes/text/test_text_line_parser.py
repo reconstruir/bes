@@ -188,7 +188,7 @@ coke'''
       '^\s*Test\s+Name\s\s+Result\s\s+Flag\s\s+Reference\s+Range\s\s+Lab\s*$',
       '^\s*Test\s+Name\s\s+Results\s\s+Reference\s+Range\s\s+Lab\s*$',
     ]
-    self.assertEqual( 3, l.find_line_with_re(patterns).line_number )
+    self.assertEqual( 3, l.match_line_with_re(patterns).line_number )
     
 if __name__ == '__main__':
   unit_test.main()
