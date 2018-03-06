@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs, inspect, os, os.path as path, platform, re, unittest
+import codecs, inspect, os, os.path as path, platform, re, sys, unittest
 from bes.compat import StringIO
 from io import BytesIO
 
@@ -128,3 +128,8 @@ class unit_test(unittest.TestCase):
       raise RuntimeError('BES_TEST_DATA_DIR not defined in environment and tests/test_data not found.')
     return clazz._var_replace(s, 'BES_TEST_DATA_DIR', test_data_dir)
       
+  @classmethod
+  def spew(self, s):
+    sys.stdout.write(s)
+    sys.stdout.write('\n')
+    sys.stdout.flush()
