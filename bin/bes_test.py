@@ -134,9 +134,13 @@ def main():
 
   if not ar.resolved_files:
     return 1
-
+  
   if args.print_files:
     ar.print_files()
+    return 0
+
+  if args.print_tests:
+    ar.print_tests()
     return 0
 
   # Start with a clean environment so unit testing can be deterministic and not subject

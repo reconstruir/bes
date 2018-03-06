@@ -83,3 +83,7 @@ feb 26
 
 mar 2
 - text_line_parser append and prepend are very dumbly named
+
+mar 3
+- args.git broken in bes_test
+

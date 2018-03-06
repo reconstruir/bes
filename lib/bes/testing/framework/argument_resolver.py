@@ -186,8 +186,16 @@ class argument_resolver(object):
 
   def print_files(self):
     for f in self._files_and_tests:
-      print(path.relpath(f.filename))
+      print(path.relpath(f.file_info.filename))
 
+  def print_tests(self):
+    longest_file_name = max([ len(path.relpath(f.file_info.filename)) for f in self._files_and_tests ])
+    for f in self._files_and_tests:
+      inspection = f.file_info.inspection
+      for i in inspection:
+        filename = path.relpath(i.filename).rjust(longest_file_name)
+        print('%s %s.%s' % (filename, i.fixture, i.function))
+      
   def ignore_with_patterns(self, patterns):
     if patterns:
       self._files_and_tests = file_filter.ignore_files(self._files_and_tests, patterns)

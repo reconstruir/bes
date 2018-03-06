@@ -61,3 +61,12 @@ class git_util(object):
     'Return path for local tarball.'
     return string_util.replace(address, { ':': '_', '/': '_' })
   
+  @classmethod
+  def is_long_hash(clazz, h):
+    'Return True if h is a long hash.  Only checks length not string validity.'
+    return len(h) == 40
+
+  @classmethod
+  def is_short_hash(clazz, h):
+    'Return True if h is a short hash.  Only checks length not string validity.'
+    return len(h) == 7

@@ -60,11 +60,3 @@ class unit_test_inspect(object):
         #printer.writeln('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
         print('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
     return result
-
-  @classmethod
-  def print_inspect_map(clazz, inspect_map, files, cwd):
-    for filename in sorted(inspect_map.keys()):
-      if filename in files:
-        printer.writeln('%s:' % (file_util.remove_head(filename, cwd)))
-        for _, fixture, function in inspect_map[filename]:
-          printer.writeln('  %s.%s' % (fixture, function))

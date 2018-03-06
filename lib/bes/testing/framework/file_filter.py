@@ -21,9 +21,9 @@ class file_filter(object):
     return result
   
   @classmethod
-  def _matching_tests(clazz, test_map, patterns):
+  def _matching_tests(clazz, inspection, patterns):
     result = []
-    for test in test_map:
+    for test in inspection:
       for pattern in patterns:
         fixture_matches = True
         if pattern.fixture:
