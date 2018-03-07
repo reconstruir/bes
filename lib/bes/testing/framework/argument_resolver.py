@@ -2,9 +2,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import fnmatch, os.path as path, random
+from collections import namedtuple
 from bes.common import algorithm, check
 from bes.fs import file_check, file_ignore, file_path, file_util
 from bes.git import git
+
 
 from .config_env import config_env
 from .file_filter import file_filter
@@ -26,6 +28,8 @@ class argument_resolver(object):
     ignore = file_ignore(file_ignore_filename)
     self.original_files, self.filters = self._separate_files_and_filters(self.working_dir, arguments)
     filter_patterns = self._make_filters_patterns(self.filters)
+    caca = self._split_files_and_dirs(self.working_dir, self.original_files)
+    print('CACA: dirs=%s' % (str(caca.dirs)))
     files = self._resolve_files_and_dirs(self.working_dir, self.original_files)
     if not root_dir:
       root_dir = self._find_root_dir_with_git(files)
@@ -103,6 +107,23 @@ class argument_resolver(object):
     result = algorithm.unique(result)
     result = [ path.normpath(r) for r in result ]
     return sorted(result)
+
+  _split_files_result = namedtuple('_splitresult', 'files,dirs')
+  @classmethod
+  def _split_files_and_dirs(clazz, working_dir, files_and_dirs):
+    files = []
+    dirs = []
+    for f in files_and_dirs:
+      f = file_path.normalize(path.join(working_dir, f))
+      if path.isfile(f):
+        files += f
+      elif path.isdir(f):
+        dirs += [ f ]
+      else:
+        raise ValueError('not a file or directory: %s' % (str(f)))
+    files = sorted(algorithm.unique(files))
+    dirs = sorted(algorithm.unique(dirs))
+    return clazz._split_files_result(files, dirs)
 
   @classmethod
   def _resolve_dir(clazz, d):
