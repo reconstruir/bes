@@ -65,8 +65,8 @@ class file_info(namedtuple('file_info', 'filename,config')):
       return unit_test_inspect.inspect_file(self.filename)
     except SyntaxError as ex:
       #printer.writeln('Failed to inspect: %s - %s' % (f, str(ex)))
-      print('1 Failed to inspect: %s - %s' % (self.filename, str(ex)))
-      return None
+      print('syntax error inspecting: %s - %s' % (self.filename, str(ex)))
+      raise
     except Exception as ex:
       #printer.writeln('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
       print('2 Failed to inspect: %s - %s:%s' % (self.filename, type(ex), str(ex)))
