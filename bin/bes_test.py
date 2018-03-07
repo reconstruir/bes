@@ -131,7 +131,9 @@ def main():
   if not args.files:
     args.files = [ cwd ]
 
-  ar = argument_resolver(cwd, args.files, root_dir = args.root_dir, file_ignore_filename = '.bes_test_ignore')
+  ar = argument_resolver(cwd, args.files, root_dir = args.root_dir,
+                         file_ignore_filename = '.bes_test_ignore',
+                         check_git = args.git)
   ar.num_iterations = args.iterations
   ar.randomize = args.randomize
 

@@ -18,12 +18,16 @@ class git(object):
   branch_status_t = namedtuple('branch_status', 'ahead,behind')
   
   @classmethod
-  def status(clazz, root, filenames):
+  def status(clazz, root, filenames, abspath = False):
     filenames = object_util.listify(filenames)
     flags = [ '--porcelain' ]
     args = [ 'status' ] + flags + filenames
     rv = clazz._call_git(root, args)
-    return status.parse(rv.stdout)
+    result = status.parse(rv.stdout)
+    if abspath:
+      for r in result:
+        r.filename = path.join(root, r.filename)
+    return result
 
   @classmethod
   def branch_status(clazz, root):
@@ -177,7 +181,10 @@ class git(object):
   def root(clazz, filename):
     'Return the repo root for the given filename or raise and exception if not under git control.'
     cmd = [ 'git', 'rev-parse', '--show-toplevel' ]
-    cwd = path.dirname(filename)
+    if path.isdir(filename):
+      cwd = filename
+    else:
+      cwd = path.dirname(filename)
     rv = execute.execute(cmd, cwd = cwd, raise_error = False)
     if rv.exit_code != 0:
       return None

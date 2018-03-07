@@ -2,8 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import fnmatch, os.path as path, random
-from collections import namedtuple
-from bes.common import algorithm, check
+from bes.common import algorithm, check, object_util
 from bes.fs import file_check, file_ignore, file_path, file_util
 from bes.git import git
 
@@ -17,7 +16,7 @@ from .unit_test_inspect import unit_test_inspect
 
 class argument_resolver(object):
 
-  def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None):
+  def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None, check_git = False):
     self._num_iterations = 1
     self._randomize = False
     file_check.check_dir(working_dir)
@@ -25,10 +24,13 @@ class argument_resolver(object):
       file_check.check_dir(root_dir)
     working_dir = path.abspath(working_dir)
     ignore = file_ignore(file_ignore_filename)
-    arguments_just_files, arguments_just_filters = self._separate_files_and_filters(working_dir, arguments)
+    arguments_just_files, arguments_just_filters = self._split_files_and_filters(working_dir, arguments)
     filter_patterns = self._make_filters_patterns(arguments_just_filters)
-    caca = self._split_files_and_dirs(working_dir, arguments_just_files)
-    files = self._resolve_files_and_dirs(working_dir, arguments_just_files)
+    unresolved_files, unresolved_dirs = self._split_files_and_dirs(working_dir, arguments_just_files)
+    if check_git:
+      files = self._git_tracked_modified_files(unresolved_dirs + unresolved_files)
+    else:
+      files = self._resolve_files_and_dirs(working_dir, arguments_just_files)
     if not root_dir:
       root_dir = self._find_root_dir_with_git(files)
       if not root_dir:
@@ -74,12 +76,13 @@ class argument_resolver(object):
       
   @classmethod
   def _git_roots(clazz, files):
+    files = object_util.listify(files)
     roots = [ git.root(f) for f in files ]
     roots = [ r for r in roots if r ]
     return algorithm.unique(roots)
 
   @classmethod
-  def _separate_files_and_filters(clazz, working_dir, arguments):
+  def _split_files_and_filters(clazz, working_dir, arguments):
     files = []
     filter_descriptions = []
     for arg in arguments:
@@ -104,7 +107,6 @@ class argument_resolver(object):
     result = [ path.normpath(r) for r in result ]
     return sorted(result)
 
-  _split_files_result = namedtuple('_splitresult', 'files,dirs')
   @classmethod
   def _split_files_and_dirs(clazz, working_dir, files_and_dirs):
     files = []
@@ -119,7 +121,7 @@ class argument_resolver(object):
         raise ValueError('not a file or directory: %s' % (str(f)))
     files = sorted(algorithm.unique(files))
     dirs = sorted(algorithm.unique(dirs))
-    return clazz._split_files_result(files, dirs)
+    return files, dirs
 
   @classmethod
   def _resolve_dir(clazz, d):
@@ -193,7 +195,7 @@ class argument_resolver(object):
     if clazz._is_fnmatch_pattern(pattern):
       return pattern
     return '*%s*' % (pattern)
-
+  
   @classmethod
   def _is_fnmatch_pattern(clazz, pattern):
     for c in [ '*', '?', '[', ']', '!' ]:
@@ -229,3 +231,15 @@ class argument_resolver(object):
   
   def configs(self, names):
     return [ self.config_env.config_for_name(name) for name in names ]
+
+  @classmethod
+  def _git_tracked_modified_files(clazz, unresolved_files):
+    roots = clazz._git_roots(unresolved_files)
+    statuses = [ git.status(root, '.', abspath = True) for root in roots ]
+    result = []
+    for s in statuses:
+      for x in s:
+        if x.action in [ 'M', 'A', 'D' ]:
+          result.append(x.filename)
+    return result
+  
