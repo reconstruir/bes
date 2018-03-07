@@ -12,5 +12,3 @@ from .file_info_list import file_info_list
 from .printer import printer
 from .unit_test_description import unit_test_description
 from .unit_test_inspect import unit_test_inspect
-from .util import util
-
