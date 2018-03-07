@@ -178,5 +178,27 @@ class test_table(unit_test):
     t1.insert_row(1, row = ( 11, 12, 13 ))
     self.assertEqual( t1, t2 )
     
+  def test_append_rows(self):
+    t1 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ], default_value = 0)
+    t2 = table(data = [
+      ( 10, 11, 12 ),
+      ( 13, 14, 15 ),
+      ( 16, 17, 18 ),
+    ])
+    t1.append_rows(t2)
+    t3 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+      ( 10, 11, 12 ),
+      ( 13, 14, 15 ),
+      ( 16, 17, 18 ),
+    ])
+    self.assertEqual( t3, t1 )
+    
 if __name__ == '__main__':
   unit_test.main()

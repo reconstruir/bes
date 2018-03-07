@@ -213,3 +213,11 @@ class table(object):
     if row:
       self.set_row(row_y, row)
       
+  def append_rows(self, rows):
+    if isinstance(rows, table):
+      rows = rows._table
+    check.check_list(rows)
+    rows_width = len(rows[0])
+    if len(rows[0]) != self.width:
+      raise ValueError('rows width should be %d instead of %d' % (self.width, rows_width))
+    self._table.extend(rows[:])
