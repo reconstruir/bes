@@ -43,7 +43,7 @@ class argument_resolver(object):
     file_infos = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])
     # FIXME: change to filter_with_patterns_tests()
     file_infos = file_infos.filter_by_filenames(filter_patterns)
-    self._files_and_tests = file_filter.filter_files(file_infos, filter_patterns)
+    self._raw_test_descriptions = file_filter.filter_files(file_infos, filter_patterns)
 
   @property
   def num_iterations(self):
@@ -67,7 +67,7 @@ class argument_resolver(object):
 
   @property
   def test_descriptions(self):
-    descriptions = sorted(self._files_and_tests * self._num_iterations)
+    descriptions = sorted(self._raw_test_descriptions * self._num_iterations)
     if self._randomize:
       random.shuffle(descriptions)
     return descriptions
@@ -202,20 +202,20 @@ class argument_resolver(object):
     return False
 
   def print_files(self):
-    for f in self._files_and_tests:
-      print(path.relpath(f.file_info.filename))
+    for desc in self._raw_test_descriptions:
+      print(path.relpath(desc.file_info.filename))
 
   def print_tests(self):
-    longest_file_name = max([ len(path.relpath(f.file_info.filename)) for f in self._files_and_tests ])
-    for f in self._files_and_tests:
-      inspection = f.file_info.inspection
+    longest_file_name = max([ len(path.relpath(desc.file_info.filename)) for desc in self._raw_test_descriptions ])
+    for desc in self._raw_test_descriptions:
+      inspection = desc.file_info.inspection
       for i in inspection:
         filename = path.relpath(i.filename).rjust(longest_file_name)
         print('%s %s.%s' % (filename, i.fixture, i.function))
       
   def ignore_with_patterns(self, patterns):
     if patterns:
-      self._files_and_tests = file_filter.ignore_files(self._files_and_tests, patterns)
+      self._raw_test_descriptions = file_filter.ignore_files(self._raw_test_descriptions, patterns)
     
   def dependencies(self):
     return self.config_env.resolve_deps(self._config_names())
