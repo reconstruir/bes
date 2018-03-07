@@ -9,7 +9,7 @@ class file_filter(object):
   test_descriptor = namedtuple('test_descriptor', 'file_info,tests')
 
   @classmethod
-  def poto_filter_files(clazz, finfos, patterns):
+  def filter_files(clazz, finfos, patterns):
     check.check_file_info_list(finfos)
     if not patterns:
       return [ clazz.test_descriptor(finfo, None) for finfo in finfos ]

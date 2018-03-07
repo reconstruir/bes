@@ -86,3 +86,6 @@ mar 2
 
 mar 3
 - args.git broken in bes_test
+
+mar 6 - figure out why such droppings collect /tmp/test_archive_tar-tmp-5h87Js.tar
+

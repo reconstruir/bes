@@ -148,7 +148,7 @@ def main():
       py_compile.compile(f, cfile = tmp, doraise = True)
     return 0
   
-  if not ar.resolved_files:
+  if not ar.test_descriptions:
     return 1
   
   if args.print_files:
@@ -184,7 +184,7 @@ def main():
   num_passed = 0
   num_failed = 0
   num_executed = 0
-  num_tests = len(ar.resolved_files)
+  num_tests = len(ar.test_descriptions)
   failed_tests = []
 
   # Remove current dir from sys.path to avoid side effects
@@ -204,7 +204,7 @@ def main():
 
   if args.check_pre_commit:
     missing_from_git = []
-    for finfo in ar.resolved_files:
+    for finfo in ar.test_descriptions:
       filename = finfo.filename
       st = git.status(git.root(filename), filename)
       if st:
@@ -221,8 +221,8 @@ def main():
   if not args.dry_run and args.page:
     printer.OUTPUT = tempfile.NamedTemporaryFile(prefix = 'bes_test', delete = True, mode = 'w')
 
-  total_tests = _count_tests(ar.inspect_map, ar.resolved_files)
-  total_files = len(ar.resolved_files)
+  total_tests = _count_tests(ar.inspect_map, ar.test_descriptions)
+  total_files = len(ar.test_descriptions)
 
   total_num_tests = 0
 
@@ -240,7 +240,7 @@ def main():
   total_time_start = time.time()
   
   stopped = False
-  for i, test_desc in enumerate(ar.resolved_files):
+  for i, test_desc in enumerate(ar.test_descriptions):
     file_info = test_desc.file_info
     filename = file_info.filename
     if not filename in timings:
