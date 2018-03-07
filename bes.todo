@@ -84,8 +84,5 @@ feb 26
 mar 2
 - text_line_parser append and prepend are very dumbly named
 
-mar 3
-- args.git broken in bes_test
-
 mar 6 - figure out why such droppings collect /tmp/test_archive_tar-tmp-5h87Js.tar
 
