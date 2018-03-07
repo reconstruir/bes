@@ -7,7 +7,6 @@ from bes.common import algorithm, check
 from bes.fs import file_check, file_ignore, file_path, file_util
 from bes.git import git
 
-
 from .config_env import config_env
 from .file_filter import file_filter
 from .file_finder import file_finder
@@ -29,15 +28,14 @@ class argument_resolver(object):
     self.original_files, self.filters = self._separate_files_and_filters(self.working_dir, arguments)
     filter_patterns = self._make_filters_patterns(self.filters)
     caca = self._split_files_and_dirs(self.working_dir, self.original_files)
-    print('CACA: dirs=%s' % (str(caca.dirs)))
     files = self._resolve_files_and_dirs(self.working_dir, self.original_files)
     if not root_dir:
       root_dir = self._find_root_dir_with_git(files)
       if not root_dir:
         raise RuntimeError('Failed to determine root dir.')
     self.config_env = config_env(root_dir)
-    files = ignore.filter_files(files)
-    file_infos = file_info_list([ file_info(self.config_env, f) for f in files ])
+    self.all_files = ignore.filter_files(files)
+    file_infos = file_info_list([ file_info(self.config_env, f) for f in self.all_files ])
     file_infos += self._tests_for_many_files(file_infos)
     file_infos.remove_dups()
     self.inspect_map = file_infos.make_inspect_map()
@@ -101,7 +99,7 @@ class argument_resolver(object):
     for f in files_and_dirs:
       f = file_path.normalize(path.join(working_dir, f))
       if path.isfile(f):
-        result += clazz._resolve_file(f)
+        result += [ f ]
       elif path.isdir(f):
         result += clazz._resolve_dir(f)
     result = algorithm.unique(result)

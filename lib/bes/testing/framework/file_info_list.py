@@ -73,5 +73,10 @@ class file_info_list(type_checked_list):
     if not filename_patterns:
       return file_info_list(self._values)
     return self._match_filenames(filename_patterns)
+
+#    # FIXME: change to ignore_without_tests()
+#    file_infos = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])
+#    # FIXME: change to filter_with_patterns_tests()
+#    file_infos = file_infos.filter_by_filenames(filter_patterns)
   
 check.register_class(file_info_list, include_seq = False)

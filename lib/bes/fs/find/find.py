@@ -65,10 +65,10 @@ class find(object):
       raise RuntimeError('not a directory: %s' % (root_dir))
     num_sep = root_dir.count(path.sep)
     for root, dirs, files in os.walk(root_dir, topdown = True):
-      print " root: %s" % (root)
-      print " dirs: %s" % (' '.join(dirs))
-      print "files: %s" % (' '.join(files))
-      print ""
+      print(" root: %s" % (root))
+      print(" dirs: %s" % (' '.join(dirs)))
+      print("files: %s" % (' '.join(files)))
+      print("")
       yield root, dirs, files
       num_sep_this = root.count(path.sep)
       if max_depth is not None:
@@ -86,13 +86,13 @@ class find(object):
       next_dir_depth = next_dir.count(os.sep) - root_dir_depth
       if False:
       #if True:
-        print "       next_dir: %s" % (next_dir)
-        print " root_dir_depth: %s" % (root_dir_depth)
-        print "           dirs: %s" % (' '.join(dirs))
-        print "          files: %s" % (' '.join(files))
-        print " next_dir_depth: %s" % (next_dir_depth)
-        print "      max_depth: %s" % (max_depth)
-        print ""
+        print("       next_dir: %s" % (next_dir))
+        print(" root_dir_depth: %s" % (root_dir_depth))
+        print("           dirs: %s" % (' '.join(dirs)))
+        print("          files: %s" % (' '.join(files)))
+        print(" next_dir_depth: %s" % (next_dir_depth))
+        print("      max_depth: %s" % (max_depth))
+        print("")
       yield next_dir, dirs, files
       if max_depth is not None:
         if next_dir_depth > max_depth:
@@ -110,7 +110,7 @@ class find(object):
     want_device = clazz._want_file_type(file_type, clazz.DEVICE)
     try:
       st = os.lstat(filename)
-    except OSError, ex:
+    except OSError as ex:
       if ex.errno == errno.EBADF:
         # Some devices on macos result in bad access when trying to stat so ignore them
         return False

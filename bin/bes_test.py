@@ -5,7 +5,7 @@
 # problem when unit testing bes itself.  Use the standalone bes_test version to avoid
 # the issue.
 # FOO
-import argparse, copy, math, os, os.path as path, subprocess, sys
+import argparse, copy, math, os, os.path as path, py_compile, subprocess, sys
 import time, tempfile
 from collections import namedtuple
 
@@ -13,7 +13,7 @@ from bes.testing.framework import argument_resolver, printer
 from bes.version import version_info
 from bes.system import env_var, os_env
 from bes.git import git
-from bes.fs import file_find, file_util
+from bes.fs import file_find, file_util, temp_file
 from bes.egg import egg
 
 # TODO:
@@ -114,6 +114,11 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Dont hack PATH and PYTHONPATH. [ False ]')
+  parser.add_argument('--compile-only',
+                      '-c',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Just compile the files to verify syntax [ False ]')
   args = parser.parse_args()
   
   cwd = os.getcwd()
@@ -132,6 +137,17 @@ def main():
 
   ar.ignore_with_patterns(args.ignore)
 
+  if args.compile_only:
+    total_files = len(ar.all_files)
+    for i, f in enumerate(ar.all_files):
+      tmp = temp_file.make_temp_file()
+      filename_count_blurb = ' ' + _make_count_blurb(i + 1, total_files)
+      short_filename = file_util.remove_head(f, cwd)
+      blurb = '%7s:%s %s ' % ('compile', filename_count_blurb, short_filename)
+      printer.writeln_name(blurb)
+      py_compile.compile(f, cfile = tmp, doraise = True)
+    return 0
+  
   if not ar.resolved_files:
     return 1
   
@@ -388,7 +404,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
       printer.writeln_name('%7s: %s' % (label, short_filename))
       printer.writeln(output)
     return test_result(success, wanted_unit_tests, elapsed_time)
-  except Exception, ex:
+  except Exception as ex:
     printer.writeln_name('Caught exception on %s: %s' % (filename, str(ex)))
     return test_result(False, wanted_unit_tests, 0.0)
 

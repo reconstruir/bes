@@ -42,21 +42,3 @@ class unit_test_inspect(object):
       elif compat.is_string(value):
         result.append(value)
     return '.'.join(result)
-    
-  @classmethod
-  def inspect_map(clazz, files):
-    result = {}
-    for f in files:
-      f_path = path.abspath(f)
-      try:
-        tests = clazz.inspect_file(f_path)
-        if tests:
-          result[f_path] = clazz.inspect_file(f_path)
-      except SyntaxError as ex:
-        #printer.writeln('Failed to inspect: %s - %s' % (f, str(ex)))
-        print('Failed to inspect: %s - %s' % (f, str(ex)))
-        raise
-      except Exception as ex:
-        #printer.writeln('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
-        print('Failed to inspect: %s - %s:%s' % (f, type(ex), str(ex)))
-    return result

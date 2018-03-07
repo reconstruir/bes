@@ -97,7 +97,7 @@ class file_find2(object):
     want_device = clazz._want_file_type(file_type, clazz.DEVICE)
     try:
       st = os.lstat(filename)
-    except OSError, ex:
+    except OSError as ex:
       if ex.errno == errno.EBADF:
         # Some devices on macos result in bad access when trying to stat so ignore them
         return False
