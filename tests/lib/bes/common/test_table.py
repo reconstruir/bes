@@ -154,7 +154,7 @@ class test_table(unit_test):
       ( 1, 2, 3 ),
       ( 4, 5, 6 ),
       ( 7, 8, 9 ),
-    ], default_value = 0)
+    ])
     t2 = table(data = [
       ( 1, 9, 2, 3 ),
       ( 4, 8, 5, 6 ),
@@ -183,7 +183,7 @@ class test_table(unit_test):
       ( 1, 2, 3 ),
       ( 4, 5, 6 ),
       ( 7, 8, 9 ),
-    ], default_value = 0)
+    ])
     t2 = table(data = [
       ( 10, 11, 12 ),
       ( 13, 14, 15 ),
@@ -200,5 +200,30 @@ class test_table(unit_test):
     ])
     self.assertEqual( t3, t1 )
     
+  def test_concatenate_vertical(self):
+    t1 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ])
+    t2 = table(data = [
+      ( 10, 11, 12 ),
+      ( 13, 14, 15 ),
+      ( 16, 17, 18 ),
+    ])
+    t3 = table(data = [
+      ( 99, 98, 97 ),
+    ])
+    t4 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+      ( 10, 11, 12 ),
+      ( 13, 14, 15 ),
+      ( 16, 17, 18 ),
+      ( 99, 98, 97 ),
+    ])
+    self.assertEqual( t4, table.concatenate_vertical([ t1, t2, t3 ]) )
+
 if __name__ == '__main__':
   unit_test.main()

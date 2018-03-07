@@ -214,10 +214,26 @@ class table(object):
       self.set_row(row_y, row)
       
   def append_rows(self, rows):
-    if isinstance(rows, table):
+    if check.is_table(rows):
       rows = rows._table
     check.check_list(rows)
     rows_width = len(rows[0])
     if len(rows[0]) != self.width:
       raise ValueError('rows width should be %d instead of %d' % (self.width, rows_width))
     self._table.extend(rows[:])
+
+  @classmethod
+  def concatenate_vertical(clazz, tables):
+    'Concatenate a sequence of tables vertically.  The column width for all tables must match the first table.'
+    check.check_table_seq(tables)
+    result = None
+    for i, t in enumerate(tables):
+      if not result:
+        result = t
+      else:
+        if t.width != result.width:
+          raise ValueError('table %d - width should be %d instead of %d' % (result.width, t.width))
+        result.append_rows(t)
+    return result
+  
+check.register_class(table)
