@@ -35,23 +35,26 @@ class table(object):
       
     check.check_int(width)
     check.check_int(height)
-    self._size = size(width, height)
-    self._table = self._make_table(self._size, self._default_value)
+    self._table = self._make_table(width, height, self._default_value)
     if data:
       self.set_data(data)
     
   @property
   def width(self):
-    return self._size.width
+    if not self._table:
+      return 0
+    return len(self._table[0])
 
   @property
   def height(self):
-    return self._size.height
+    if not self._table:
+      return 0
+    return len(self._table)
 
-  @property
-  def size(self):
-    return self._size
-
+  def __iter__(self):
+    'Iterate through the table rows'
+    return iter(self._table)
+  
   def __str__(self):
     max_len = 0
     for y in range(0, self.height):
@@ -69,7 +72,7 @@ class table(object):
     return str(self)
   
   def __eq__(self, other):
-    if self.size != other.size:
+    if self.width != other.width or self.height != other.height:
       return False
     for y in range(0, self.height):
       for x in range(0, self.width):
@@ -80,13 +83,11 @@ class table(object):
   def resize(self, width, height):
     check.check_int(width)
     check.check_int(height)
-    new_size = size(width, height)
-    if new_size == self._size:
+    if width == self.width and height == self.height:
       return
-    new_table = self._make_table(new_size, self._default_value)
+    new_table = self._make_table(width, height, self._default_value)
     self._copy_table(self._table, new_table, self._default_value)
     self._table = new_table
-    self._size = new_size
 
   def set(self, x, y, value):
     self.check_xy(x, y)
@@ -99,17 +100,17 @@ class table(object):
   def set_row(self, y, row):
     check.check_tuple(row)
     self.check_y(y)
-    if len(row) != self._size.width:
-      raise ValueError('Row should be %d wide instead of %d: \"%s\"' % (self._size.width, len(row), str(row)))
-    for x in range(0, self._size.width):
+    if len(row) != self.width:
+      raise ValueError('Row should be %d wide instead of %d: \"%s\"' % (self.width, len(row), str(row)))
+    for x in range(0, self.width):
       self._table[y][x] = row[x]
     
   def set_column(self, x, column):
     check.check_tuple(column)
     self.check_x(x)
-    if len(column) != self._size.height:
-      raise ValueError('Column should be %d high instead of %d: \"%s\"' % (self._size.height, len(column), str(column)))
-    for y in range(0, self._size.height):
+    if len(column) != self.height:
+      raise ValueError('Column should be %d high instead of %d: \"%s\"' % (self.height, len(column), str(column)))
+    for y in range(0, self.height):
       self._table[y][x] = column[y]
    
   def sort_by_column(self, x, key = None):
@@ -123,24 +124,24 @@ class table(object):
   def column(self, x):
     self.check_x(x)
     col = []
-    for y in range(0, self._size.height):
+    for y in range(0, self.height):
       col.append(self._table[y][x])
     return tuple(col)
   
   def x_valid(self, x):
-    return check.is_int(x) and x >= 0 and x < self.size.width
+    return check.is_int(x) and x >= 0 and x < self.width
     
   def y_valid(self, y):
-    return check.is_int(y) and y >= 0 and y < self.size.height
+    return check.is_int(y) and y >= 0 and y < self.height
     
   def xy_valid(self, x, y):
     return self.x_valid(x) and self.y_valid(y)
 
   def width_valid(self, width):
-    return check.is_int(width) and width == self.size.width
+    return check.is_int(width) and width == self.width
 
   def height_valid(self, height):
-    return check.is_int(height) and height == self.size.height
+    return check.is_int(height) and height == self.height
 
   def check_x(self, x):
     if not self.x_valid(x):
@@ -163,10 +164,10 @@ class table(object):
       raise ValueError('Invalid height: %s' % (str(height)))
 
   @classmethod
-  def _make_table(clazz, size, default_value):
-    rows = [ default_value ] * size.height
-    for i in range(0, size.height):
-      rows[i] = [ default_value ] * size.width
+  def _make_table(clazz, width, height, default_value):
+    rows = [ default_value ] * height
+    for i in range(0, height):
+      rows[i] = [ default_value ] * width
     return rows
 
   @classmethod
@@ -201,16 +202,14 @@ class table(object):
     for x in range(col_x, self.width):
       new_table.set_column(new_col_x, self.column(x))
       new_col_x = new_col_x + 1
-    self._size = new_table._size
     self._table = new_table._table
     if column:
       self.set_column(col_x, column)
 
   def insert_row(self, row_y, row = None):
     self.check_y(row_y)
-    new_row = [ self._default_value ] * self._size.width
+    new_row = [ self._default_value ] * self.width
     self._table.insert(row_y, new_row)
-    self._size = size(self.width, self.height + 1)
     if row:
       self.set_row(row_y, row)
       
