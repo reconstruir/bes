@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
 from multiprocessing import Lock
@@ -9,11 +9,12 @@ from .file_checksum import file_checksum
 from .file_util import file_util
 from .temp_file import temp_file
 
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
+from bes.system.compat import with_metaclass
 
-CacheInfo = namedtuple('CacheInfo', 'cached_filename,checksum_filename,cached_checksum')
+cache_info = namedtuple('cache_info', 'cached_filename,checksum_filename,cached_checksum')
 
-class file_cacheItemInterface(object):
+class file_cache_item_base(with_metaclass(ABCMeta, object)):
 
   @abstractmethod
   def __init__(self):
@@ -35,9 +36,9 @@ class file_cacheItemInterface(object):
   def checksum(self):
     assert False, 'not implemented'
 
-class file_cacheItem(file_cacheItemInterface):
+class file_cache_item(file_cache_item_base):
   def __init__(self, filename):
-    super(file_cacheItem, self).__init__()
+    super(file_cache_item, self).__init__()
     self.filename = path.abspath(path.normpath(filename))
     self._checksum = file_checksum.checksum(self.filename).checksum
     
@@ -52,9 +53,9 @@ class file_cacheItem(file_cacheItemInterface):
   def name(self):
     return self.filename
 
-class FileFilenameCacheItem(file_cacheItem):
+class file_filename_cache_item(file_cache_item):
   def __init__(self, filename):
-    super(FileFilenameCacheItem, self).__init__(filename)
+    super(file_filename_cache_item, self).__init__(filename)
 
   def load(self, cached_filename):
     assert path.isfile(cached_filename)
@@ -62,9 +63,9 @@ class FileFilenameCacheItem(file_cacheItem):
     file_util.copy(cached_filename, tmp_copy)
     return tmp_copy
 
-class FileContentCacheItem(file_cacheItem):
+class file_content_cache_item(file_cache_item):
   def __init__(self, filename):
-    super(FileContentCacheItem, self).__init__(filename)
+    super(file_content_cache_item, self).__init__(filename)
 
   def load(self, cached_filename):
     return file_util.read(cached_filename)
@@ -79,13 +80,13 @@ class file_cache(object):
   @classmethod
   def cached_content(clazz, filename, root_dir = None):
     'Return the cached content.'
-    item = FileContentCacheItem(filename)
+    item = file_content_cache_item(filename)
     return clazz.cached_item(item, root_dir)
 
   @classmethod
   def cached_filename(clazz, filename, root_dir = None):
     'Return a temp file copy of filename.  It will delete when the process exits.'
-    item = FileFilenameCacheItem(filename)
+    item = file_filename_cache_item(filename)
     return clazz.cached_item(item, root_dir)
 
   @classmethod
@@ -93,7 +94,7 @@ class file_cache(object):
     root_dir = root_dir or clazz._ROOT_DIR
     try:
       clazz._lock.acquire()
-      info = clazz.__make_info(item, root_dir)
+      info = clazz._make_info(item, root_dir)
       if info.cached_checksum != item.checksum():
         item.save(info)
       return item.load(info.cached_filename)
@@ -101,7 +102,7 @@ class file_cache(object):
       clazz._lock.release()
 
   @classmethod
-  def __save(clazz, args, info, saver_func):
+  def _save(clazz, args, info, saver_func):
     try:
       saver_func(args, info)
     except IOError:
@@ -109,22 +110,22 @@ class file_cache(object):
       file_util.remove([ info.cached_filename, info.checksum_filename ])
 
   @classmethod
-  def __content_saver_func(clazz, args, info):
+  def _content_saver_func(clazz, args, info):
     filename = args[0]
     file_util.copy(filename, info.cached_filename)
     file_util.save(info.checksum_filename, info.checksum + '\n')
 
   @classmethod
-  def __make_info(clazz, item, root_dir):
+  def _make_info(clazz, item, root_dir):
     name = item.name()
     filename_not_abs = name[1:]
     cached_filename = path.join(root_dir, clazz._FILES_DIR_NAME, filename_not_abs)
     checksum_filename = path.join(root_dir, clazz._CHECKSUMS_DIR_NAME, filename_not_abs)
-    cached_checksum = clazz.__cached_checksum(checksum_filename)
-    return CacheInfo(cached_filename, checksum_filename, cached_checksum)
+    cached_checksum = clazz._cached_checksum(checksum_filename)
+    return cache_info(cached_filename, checksum_filename, cached_checksum)
 
   @classmethod
-  def __cached_checksum(clazz, checksum_filename):
+  def _cached_checksum(clazz, checksum_filename):
     if path.exists(checksum_filename):
       return file_util.read(checksum_filename).strip()
     return None
