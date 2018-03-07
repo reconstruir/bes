@@ -44,7 +44,6 @@ class argument_resolver(object):
     # FIXME: change to filter_with_patterns_tests()
     file_infos = file_infos.filter_by_filenames(filter_patterns)
     self._files_and_tests = file_filter.filter_files(file_infos, filter_patterns)
-    self.test_descriptions = self._compute_test_descriptions()
 
   @property
   def num_iterations(self):
@@ -56,7 +55,6 @@ class argument_resolver(object):
     if not n in range(1, 110):
       raise ValueError('Iterations needs to be between 1 and 10: %d' % (n))
     self._num_iterations = n
-    self.test_descriptions = self._compute_test_descriptions()
 
   @property
   def randomize(self):
@@ -66,13 +64,13 @@ class argument_resolver(object):
   def randomize(self, randomize):
     check.check_bool(randomize)
     self._randomize = randomize
-    self.test_descriptions = self._compute_test_descriptions()
-    
-  def _compute_test_descriptions(self):
-    f = sorted(self._files_and_tests * self._num_iterations)
+
+  @property
+  def test_descriptions(self):
+    descriptions = sorted(self._files_and_tests * self._num_iterations)
     if self._randomize:
-      random.shuffle(f)
-    return f
+      random.shuffle(descriptions)
+    return descriptions
       
   @classmethod
   def _git_roots(clazz, files):
