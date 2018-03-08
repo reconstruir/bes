@@ -29,7 +29,7 @@ class text_line_parser(object):
   def to_string(self, strip_comments = False):
     buf = StringIO()
     for line in self._lines:
-      buf.write(line.get_text(no_comments = strip_comments))
+      buf.write(line.get_text(strip_comments = strip_comments))
       buf.write(self._delimiter)
     v = buf.getvalue()
     if self._ends_with_delimiter:
@@ -40,10 +40,10 @@ class text_line_parser(object):
         v = v[0:-1]
     return v
     
-  def to_string_list(self, strip_comments = False):
+  def to_string_list(self, strip_comments = False, strip_text = False):
     sl = string_list()
     for line in self._lines:
-      sl.append(line.get_text(no_comments = strip_comments))
+      sl.append(line.get_text(strip_comments = strip_comments, strip_text = strip_text))
     return sl
     
   def __len__(self):
@@ -96,11 +96,12 @@ class text_line_parser(object):
 #    with open(filename, 'r') as f:
 #      return clazz(f.read())
 
+  def remove_empties(self):
+    self._lines = [ line for line in self._lines if not line.text_is_empty() ]
+
   @classmethod
   def parse_lines(clazz, text, strip_comments = True, strip_text = True, remove_empties = True):
-    l = text_line_parser(text).to_string_list(strip_comments = strip_comments)
-    if strip_text:
-      l.strip()
+    l = text_line_parser(text).to_string_list(strip_comments = strip_comments, strip_text = strip_text)
     if remove_empties:
       l.remove_empties()
     return l
@@ -111,19 +112,19 @@ class text_line_parser(object):
 #    l.add_line_numbers(delimiter = delimiter)
 #    return str(l)
 
-  def match_line_with_re(self, expressions, no_comments = False):
+  def match_line_with_re(self, expressions, strip_comments = False):
     expressions = object_util.listify(expressions)
     for line in self._lines:
-      text = line.get_text(no_comments = no_comments)
+      text = line.get_text(strip_comments = strip_comments)
       for expression in expressions:
         if re.match(expression, text):
           return line
     return None
 
-  def find_line_with_re(self, expressions, no_comments = False):
+  def find_line_with_re(self, expressions, strip_comments = False):
     expressions = object_util.listify(expressions)
     for line in self._lines:
-      text = line.get_text(no_comments = no_comments)
+      text = line.get_text(strip_comments = strip_comments)
       for expression in expressions:
         f = re.findall(expression, text)
         if f:

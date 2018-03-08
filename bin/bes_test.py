@@ -206,8 +206,9 @@ def main():
 
   if args.check_pre_commit:
     missing_from_git = []
-    for finfo in ar.test_descriptions:
-      filename = finfo.filename
+    for desc in ar.test_descriptions:
+      filename = desc.file_info.filename
+      print('filename: %s' % (filename))
       st = git.status(git.root(filename), filename)
       if st:
         assert len(st) == 1
@@ -217,6 +218,7 @@ def main():
       for f in missing_from_git:
         printer.writeln_name('PRE_COMMIT: missing from git: %s' % (path.relpath(f)))
       return 1
+    return 0
     
   os.chdir('/tmp')
 

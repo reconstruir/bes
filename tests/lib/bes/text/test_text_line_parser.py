@@ -190,5 +190,20 @@ coke'''
     ]
     self.assertEqual( 3, l.match_line_with_re(patterns).line_number )
     
+  def test_remove_empties(self):
+    text = '''
+    foo
+
+    bar
+
+
+    baz
+
+
+'''
+    l = LTP(text)
+    l.remove_empties()
+    self.assertEqual( [ 'foo', 'bar', 'baz' ], l.to_string_list(strip_text = True) )
+    
 if __name__ == '__main__':
   unit_test.main()

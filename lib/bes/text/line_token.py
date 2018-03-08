@@ -37,10 +37,16 @@ class line_token(namedtuple('line_token', 'line_number,text')):
       buf.write(text)
     return clazz(lines[0].line_number, buf.getvalue())
 
-  def get_text(self, no_comments = False):
-    if no_comments:
-      return self.text_no_comments
+  def get_text(self, strip_comments = False, strip_text = False):
+    if strip_comments:
+      text = self.text_no_comments
     else:
-      return self.text
+      text = self.text
+    if strip_text:
+      text = text.strip()
+    return text
+  
+  def text_is_empty(self):
+    return self.get_text(strip_text = True) == ''
   
 check.register_class(line_token)
