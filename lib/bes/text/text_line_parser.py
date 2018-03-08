@@ -130,3 +130,13 @@ class text_line_parser(object):
           return f
     return None
   
+  def cut_out_lines(self, start_pattern, end_pattern):
+    head = self.match_line_with_re(start_pattern)
+    if not head:
+      return None
+    tail = self.match_line_with_re(end_pattern)
+    if not tail:
+      return None
+    new_lines = text_line_parser('')
+    new_lines._lines = [ line for line in self._lines if line.line_number > head.line_number and line.line_number < tail.line_number ]
+    return new_lines
