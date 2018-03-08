@@ -9,12 +9,12 @@ import argparse, copy, math, os, os.path as path, py_compile, subprocess, sys
 import time, tempfile
 from collections import namedtuple
 
+from bes.egg import egg
+from bes.fs import file_find, file_util, temp_file
+from bes.git import git
+from bes.system import env_var, os_env
 from bes.testing.framework import argument_resolver, printer
 from bes.version import version_info
-from bes.system import env_var, os_env
-from bes.git import git
-from bes.fs import file_find, file_util, temp_file
-from bes.egg import egg
 
 # TODO:
 #  - figure out how to stop on first failure within one module
@@ -82,7 +82,7 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Use git status to figure out what has changed to test [ False ]')
-  parser.add_argument('--check-pre-commit',
+  parser.add_argument('--pre-commit',
                       action = 'store_true',
                       default = False,
                       help = 'Run pre commit checks [ False ]')
@@ -119,6 +119,10 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Just compile the files to verify syntax [ False ]')
+  parser.add_argument('--print-deps',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Print python dependencies for test files [ False ]')
   args = parser.parse_args()
   
   cwd = os.getcwd()
@@ -161,6 +165,14 @@ def main():
     ar.print_tests()
     return 0
 
+  if args.print_deps:
+    dep_files = ar.test_dependency_files()
+    for filename in sorted(dep_files.keys()):
+      print(filename)
+      for dep_file in dep_files[filename]:
+        print('  %s' % (dep_file.filename))
+    return 0
+  
   # Start with a clean environment so unit testing can be deterministic and not subject
   # to whatever the user happened to have exported.  PYTHONPATH and PATH for dependencies
   # are set below by iterating the configs 
@@ -204,16 +216,12 @@ def main():
     if args.save_egg:
       file_util.copy(egg_zip, path.join(cwd, path.basename(egg_zip)))
 
-  if args.check_pre_commit:
+  if args.pre_commit:
     missing_from_git = []
-    for desc in ar.test_descriptions:
-      filename = desc.file_info.filename
-      print('filename: %s' % (filename))
-      st = git.status(git.root(filename), filename)
-      if st:
-        assert len(st) == 1
-        if st[0].action == '??':
-          missing_from_git.append(filename)
+    for filename, dep_files in ar.test_dependency_files().items():
+      for dep_file in dep_files:
+        if dep_file.config and not dep_file.git_tracked:
+          missing_from_git.append(dep_file.filename)
     if missing_from_git:
       for f in missing_from_git:
         printer.writeln_name('PRE_COMMIT: missing from git: %s' % (path.relpath(f)))

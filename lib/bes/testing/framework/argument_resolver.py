@@ -5,6 +5,7 @@ import fnmatch, os.path as path, random
 from bes.common import algorithm, check, object_util
 from bes.fs import file_check, file_ignore, file_path, file_util
 from bes.git import git
+from bes.python import dependencies
 
 from .config_env import config_env
 from .file_filter import file_filter
@@ -243,3 +244,14 @@ class argument_resolver(object):
           result.append(x.filename)
     return result
   
+  def test_dependency_files(self):
+    result = {}
+    for desc in self.test_descriptions:
+      filename = desc.file_info.filename
+      assert filename not in result
+      result[filename] = []
+      deps = dependencies.dependencies(filename)
+      for d in deps:
+        fi = file_info(self.config_env, d)
+        result[filename].append(fi)
+    return result
