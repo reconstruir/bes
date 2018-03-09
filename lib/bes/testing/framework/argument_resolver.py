@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import fnmatch, os.path as path, random
+import fnmatch, os.path as path, random, re
 
 from bes.common import algorithm, check, object_util
 from bes.fs import file_check, file_multi_ignore, file_path, file_util
 from bes.git import git
 from bes.python import dependencies
 from bes.system import env_var
+from bes.text import text_line_parser
+from bes.system import execute
 
 from .config_env import config_env
 from .file_filter import file_filter
@@ -253,6 +255,18 @@ class argument_resolver(object):
         result[filename].append(fi)
     return result
 
+  def caca_test_dependency_files(self):
+    result = {}
+    for desc in self.test_descriptions:
+      filename = desc.file_info.filename
+      assert filename not in result
+      result[filename] = []
+      deps = self.poto_dependencies(filename, 'python')
+      for d in deps:
+        fi = file_info(self.config_env, d)
+        result[filename].append(fi)
+    return result
+
   def update_environment(self, env, variables):
     for config in self._env_dependencies_configs:
       substituted = config.substitute(variables)
@@ -263,3 +277,24 @@ class argument_resolver(object):
     root_dirs = [ config.root_dir for config in self._env_dependencies_configs ]
     pyc_files = file_finder.find_python_compiled_files(root_dirs)
     file_util.remove(pyc_files)
+
+  _IMPORT_PATTERN = re.compile('^\s*import\s+(.+)\s+#\s+(from|precompiled\s+from)\s(.+)\s*$')
+  def poto_dependencies(self, filename, python_exe):
+    'Return list of files filename depends on or None if snakefood is not found.'
+    rv = execute.execute('%s -v %s' % (python_exe, filename), raise_error = False)
+    parser = text_line_parser(rv.stderr)
+    parser.remove_empties()
+    for line in parser:
+      found = self._IMPORT_PATTERN.findall(line.text)
+      if found and len(found) == 1:
+        filename = found[0][2]
+        if self._file_is_managed(filename):
+          print(filename)
+    return None
+
+  def _file_is_managed(self, filename):
+    'Return True if filename is managed by the environment.'
+    for config in self._env_dependencies_configs:
+      if filename.startswith(config.root_dir):
+        return True
+    return False
