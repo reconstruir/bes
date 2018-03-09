@@ -189,5 +189,16 @@ class text_line_parser(object):
       return result
     return None
       
-#self._lines = [ line for line in self._lines if not line.text_is_empty() ]
-#i = algorithm.binary_search(clazz._db, tuple(mac[0:3]), _oui_item.mac_comparator)
+  def combine_lines(self, line_number1, line_number2, delimiter = ' '):
+    index1 = self.find_by_line_number(line_number1)
+    if index1 < 0:
+      raise IndexError('invalid line number 1: %s' % (line_number1))
+    line1 = self._lines[index1]
+    index2 = self.find_by_line_number(line_number2)
+    if index2 < 0:
+      raise IndexError('invalid line number 2: %s' % (line_numdber2))
+    line2 = self._lines[index2]
+    del self._lines[index2]
+    new_text = '%s%s%s' % (line1.text, delimiter, line2.text)
+    new_line = line_token(line1.line_number, new_text)
+    self._lines[index1] = new_line
