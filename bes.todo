@@ -86,3 +86,5 @@ mar 2
 
 mar 6 - figure out why such droppings collect /tmp/test_archive_tar-tmp-5h87Js.tar
 
+mar 8
+- when no files are given on command line shit happnes (especially wiht -g flag)
