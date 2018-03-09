@@ -99,6 +99,9 @@ class text_line_parser(object):
   def remove_empties(self):
     self._lines = [ line for line in self._lines if not line.text_is_empty() ]
 
+  def strip(self):
+    self._lines = [ line.clone_stripped() for line in self._lines ]
+
   @classmethod
   def parse_lines(clazz, text, strip_comments = True, strip_text = True, remove_empties = True):
     l = text_line_parser(text).to_string_list(strip_comments = strip_comments, strip_text = strip_text)
@@ -131,7 +134,35 @@ class text_line_parser(object):
           return f
     return None
   
-  def cut_out_lines(self, start_pattern, end_pattern):
+  def cut_lines(self, start_pattern, end_pattern):
+    if not start_pattern and not end_pattern:
+      raise ValueError('one or both of start_pattern and end_pattern need to be valid.')
+    if start_pattern and end_pattern:
+      return self._cut_lines_between(start_pattern, end_pattern)
+    elif start_pattern:
+      return self._cut_lines_after(start_pattern)
+    elif end_pattern:
+      return self._cut_lines_before(end_pattern)
+    else:
+      assert False
+
+  def _cut_lines_after(self, start_pattern):
+    head = self.match_line_with_re(start_pattern)
+    if not head:
+      return None
+    new_lines = text_line_parser('')
+    new_lines._lines = [ line for line in self._lines if line.line_number > head.line_number ]
+    return new_lines
+  
+  def _cut_lines_before(self, end_pattern):
+    tail = self.match_line_with_re(end_pattern)
+    if not tail:
+      return None
+    new_lines = text_line_parser('')
+    new_lines._lines = [ line for line in self._lines if line.line_number < tail.line_number ]
+    return new_lines
+
+  def _cut_lines_between(self, start_pattern, end_pattern):
     head = self.match_line_with_re(start_pattern)
     if not head:
       return None

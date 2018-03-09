@@ -204,6 +204,29 @@ coke'''
     l = LTP(text)
     l.remove_empties()
     self.assertEqual( [ 'foo', 'bar', 'baz' ], l.to_string_list(strip_text = True) )
+
+  def test_strip(self):
+    text = '''
+    apple
+    kiwi
+    orange
+    '''
+    l = LTP(text)
+    l.strip()
+    self.assertEqual( [ '', 'apple', 'kiwi', 'orange', '' ], l.to_string_list() )
+    
+  def xtest_cut_lines(self):
+    text = '''
+    apple
+    kiwi
+    orange
+    apricot
+    banana
+    watermelon
+    '''
+    l = LTP(text)
+    l.remove_empties()
+    #self.assertEqual( [3, l.cut_lines('match_line_with_re(patterns).line_number )
     
 if __name__ == '__main__':
   unit_test.main()
