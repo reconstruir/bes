@@ -177,7 +177,7 @@ coke'''
     self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\n foo\nbar \n') )
     self.assertEqual( [], LTP.parse_lines('\n\n\n') )
     
-  def test_find_line_with_re(self):
+  def test_match_first(self):
     text = '''
     Health ID: 8573008129436468
   Test Name                                              Results                               Reference Range               Lab
@@ -188,7 +188,7 @@ coke'''
       '^\s*Test\s+Name\s\s+Result\s\s+Flag\s\s+Reference\s+Range\s\s+Lab\s*$',
       '^\s*Test\s+Name\s\s+Results\s\s+Reference\s+Range\s\s+Lab\s*$',
     ]
-    self.assertEqual( 3, l.match_line_with_re(patterns).line_number )
+    self.assertEqual( 3, l.match_first(patterns).line_number )
     
   def test_remove_empties(self):
     text = '''

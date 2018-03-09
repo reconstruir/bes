@@ -2,8 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import math, re
-from bes.common import object_util
-from bes.compat import StringIO
+from bes.common import algorithm, object_util
+from bes.compat import StringIO, cmp
 from collections import namedtuple
 from .line_token import line_token
 from .line_continuation_merger import line_continuation_merger
@@ -115,7 +115,7 @@ class text_line_parser(object):
 #    l.add_line_numbers(delimiter = delimiter)
 #    return str(l)
 
-  def match_line_with_re(self, expressions, strip_comments = False):
+  def match_first(self, expressions, strip_comments = False):
     expressions = object_util.listify(expressions)
     for line in self._lines:
       text = line.get_text(strip_comments = strip_comments)
@@ -147,7 +147,7 @@ class text_line_parser(object):
       assert False
 
   def _cut_lines_after(self, start_pattern):
-    head = self.match_line_with_re(start_pattern)
+    head = self.match_first(start_pattern)
     if not head:
       return None
     new_lines = text_line_parser('')
@@ -155,7 +155,7 @@ class text_line_parser(object):
     return new_lines
   
   def _cut_lines_before(self, end_pattern):
-    tail = self.match_line_with_re(end_pattern)
+    tail = self.match_first(end_pattern)
     if not tail:
       return None
     new_lines = text_line_parser('')
@@ -163,12 +163,25 @@ class text_line_parser(object):
     return new_lines
 
   def _cut_lines_between(self, start_pattern, end_pattern):
-    head = self.match_line_with_re(start_pattern)
+    head = self.match_first(start_pattern)
     if not head:
       return None
-    tail = self.match_line_with_re(end_pattern)
+    tail = self.match_first(end_pattern)
     if not tail:
       return None
     new_lines = text_line_parser('')
     new_lines._lines = [ line for line in self._lines if line.line_number > head.line_number and line.line_number < tail.line_number ]
     return new_lines
+
+  def find_by_line_number(self, line_number):
+    target = line_token(line_number, '')
+    return algorithm.binary_search(self._lines, target, self._line_number_comparator)
+  
+  @staticmethod
+  def _line_number_comparator(line1, line2):
+    return cmp(line1.line_number, line2.line_number)
+    
+  def remove_line(self, line_number):
+    pass
+#self._lines = [ line for line in self._lines if not line.text_is_empty() ]
+#i = algorithm.binary_search(clazz._db, tuple(mac[0:3]), _oui_item.mac_comparator)
