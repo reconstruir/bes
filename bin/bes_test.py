@@ -190,17 +190,12 @@ def main():
     
   env = os_env.make_clean_env(keep_keys = keep_keys)
   env['PYTHONDONTWRITEBYTECODE'] = 'x'
-  
-  deps = ar.dependencies()
-  configs = ar.configs(deps)
+
   variables = {
     'rebuild_dir': path.expanduser('~/.rebuild'),
   }
   if not args.dont_hack_env:
-    for c in configs:
-      substituted = c.substitute(variables)
-      env_var(env, 'PATH').append(substituted.data.unixpath)
-      env_var(env, 'PYTHONPATH').append(substituted.data.pythonpath)
+    ar.update_environment(env, variables)
     
   num_passed = 0
   num_failed = 0

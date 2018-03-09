@@ -2,10 +2,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import fnmatch, os.path as path, random
+
 from bes.common import algorithm, check, object_util
 from bes.fs import file_check, file_multi_ignore, file_path, file_util
 from bes.git import git
 from bes.python import dependencies
+from bes.system import env_var
 
 from .config_env import config_env
 from .file_filter import file_filter
@@ -255,3 +257,12 @@ class argument_resolver(object):
         fi = file_info(self.config_env, d)
         result[filename].append(fi)
     return result
+
+  def update_environment(self, env, variables):
+    deps = self.dependencies()
+    configs = self.configs(deps)
+    for config in configs:
+      substituted = config.substitute(variables)
+      env_var(env, 'PATH').append(substituted.data.unixpath)
+      env_var(env, 'PYTHONPATH').append(substituted.data.pythonpath)
+  
