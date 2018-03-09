@@ -231,5 +231,19 @@ coke'''
     self.assertEqual( [ 'banana', 'watermelon' ], l.cut_lines('^apr.*$', None).to_string_list() )
     self.assertEqual( [ 'apple', 'kiwi' ], l.cut_lines(None, '^or.*$').to_string_list() )
     
+  def test_find_by_line_number(self):
+    text = '''apple
+    kiwi
+    orange
+    apricot
+    banana
+    watermelon'''
+    l = LTP(text)
+    l.strip()
+    self.assertEqual( ( 1, 'apple' ), l.find_by_line_number(1) )
+    self.assertEqual( ( 4, 'apricot' ), l.find_by_line_number(4) )
+    self.assertEqual( ( 6, 'watermelon' ), l.find_by_line_number(6) )
+    self.assertEqual( None, l.find_by_line_number(666) )
+    
 if __name__ == '__main__':
   unit_test.main()
