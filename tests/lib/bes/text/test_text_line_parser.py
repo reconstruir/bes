@@ -6,6 +6,13 @@ from bes.text import text_line_parser as LTP
 
 class test_text_line_parser(unit_test):
 
+  def test___init__invalid_text(self):
+    with self.assertRaises(TypeError) as ex:
+      l = LTP(None)
+
+    with self.assertRaises(TypeError) as ex:
+      l = LTP(5)
+      
   def test_empty(self):
     l = LTP('')
     self.assertEqual( 1, len(l) )

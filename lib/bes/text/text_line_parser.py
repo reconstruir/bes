@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import math, re
-from bes.common import algorithm, object_util
+from bes.common import algorithm, check, object_util
 from bes.compat import StringIO, cmp
 from collections import namedtuple
 from .line_token import line_token
@@ -18,6 +18,7 @@ class text_line_parser(object):
       self._lines = text._lines[:]
       self._ends_with_delimiter = False
     else:
+      check.check_string(text)
       self._lines = self._parse(text, self._delimiter)
       self._ends_with_delimiter = text and text[-1] == self._delimiter
 
