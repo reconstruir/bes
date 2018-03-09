@@ -17,6 +17,12 @@ class text_line_parser(object):
     if isinstance(text, text_line_parser):
       self._lines = text._lines[:]
       self._ends_with_delimiter = False
+    elif check.is_line_token_seq(text):
+      self._lines = [ line for line in text ]
+      self._ends_with_delimiter = False
+    elif check.is_seq(text, tuple):
+      self._lines = [ line_token(*line) for line in text ]
+      self._ends_with_delimiter = False
     else:
       check.check_string(text)
       self._lines = self._parse(text, self._delimiter)
