@@ -12,6 +12,8 @@ class line_token(namedtuple('line_token', 'line_number,text')):
   CONTINUATION_CHAR = '\\'
   
   def __new__(clazz, line_number, text):
+    check.check_int(line_number)
+    check.check_string(text)
     return clazz.__bases__[0].__new__(clazz, line_number, text)
 
   def __str__(self):

@@ -18,15 +18,26 @@ class text_line_parser(object):
       self._lines = text._lines[:]
       self._ends_with_delimiter = False
     elif check.is_line_token_seq(text):
-      self._lines = [ line for line in text ]
-      self._ends_with_delimiter = False
+      self._assign_line_token_seq(text)
     elif check.is_seq(text, tuple):
-      self._lines = [ line_token(*line) for line in text ]
-      self._ends_with_delimiter = False
+      tokens = [ line_token(*line) for line in text ]
+      self._assign_line_token_seq(tokens)
     else:
       check.check_string(text)
       self._lines = self._parse(text, self._delimiter)
       self._ends_with_delimiter = text and text[-1] == self._delimiter
+
+  def _assign_line_token_seq(self, tokens):
+    check.check_line_token_seq(tokens)
+    self._lines = []
+    line_number = None
+    for line in tokens:
+      if line_number is not None:
+        if line.line_number <= line_number:
+          raise ValueError('line_number should be %d or greater instead of %d: \"%s\"' % (line_number + 1, line.line_number, line.text))
+      self._lines.append(line)
+      line_number = line.line_number
+    self._ends_with_delimiter = False
 
   def __iter__(self):
     return iter(self._lines)
@@ -36,7 +47,17 @@ class text_line_parser(object):
     
   def __repr__(self):
     return str(self)
-    
+
+  def __eq__(self, other):
+    if isinstance(other, text_line_parser):
+      return self._lines == other._lines
+    elif check.is_line_token_seq(other):
+      return self._lines == other
+    elif check.is_seq(other, tuple):
+      return self._lines == other
+    else:
+      raise TypeError('invalid type for __eq__: %s' % (type(other)))
+  
   def to_string(self, strip_comments = False):
     buf = StringIO()
     for line in self._lines:
@@ -156,7 +177,7 @@ class text_line_parser(object):
       for expression in expressions:
         if re.match(expression, text):
           result.append(line)
-    return result
+    return text_line_parser(result)
 
   def find_line_with_re(self, expressions, strip_comments = False):
     expressions = object_util.listify(expressions)
@@ -184,17 +205,13 @@ class text_line_parser(object):
     head = self.match_first(start_pattern)
     if not head:
       return None
-    new_lines = text_line_parser('')
-    new_lines._lines = [ line for line in self._lines if line.line_number > head.line_number ]
-    return new_lines
+    return text_line_parser([ line for line in self._lines if line.line_number > head.line_number ])
   
   def _cut_lines_before(self, end_pattern):
     tail = self.match_first(end_pattern)
     if not tail:
       return None
-    new_lines = text_line_parser('')
-    new_lines._lines = [ line for line in self._lines if line.line_number < tail.line_number ]
-    return new_lines
+    return text_line_parser([ line for line in self._lines if line.line_number < tail.line_number ])
 
   def _cut_lines_between(self, start_pattern, end_pattern):
     head = self.match_first(start_pattern)
@@ -203,9 +220,7 @@ class text_line_parser(object):
     tail = self.match_first(end_pattern)
     if not tail:
       return None
-    new_lines = text_line_parser('')
-    new_lines._lines = [ line for line in self._lines if line.line_number > head.line_number and line.line_number < tail.line_number ]
-    return new_lines
+    return text_line_parser([ line for line in self._lines if line.line_number > head.line_number and line.line_number < tail.line_number ])
 
   def find_by_line_number(self, line_number):
     target = line_token(line_number, '')

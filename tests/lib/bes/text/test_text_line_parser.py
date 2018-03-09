@@ -9,14 +9,14 @@ class test_text_line_parser(unit_test):
 
   def test___init__invalid_text(self):
     with self.assertRaises(TypeError) as ex:
-      l = LTP(None)
+      LTP(None)
 
     with self.assertRaises(TypeError) as ex:
-      l = LTP(5)
+      LTP(5)
       
-  def test_empty(self):
+  def test___init__empty(self):
     l = LTP('')
-    self.assertEqual( 1, len(l) )
+    self.assertEqual( 0, len(l) )
 
   def test___init__with_lines(self):
     l1 = LTP('apple\nkiwi\npear\nmelon')
@@ -28,7 +28,7 @@ class test_text_line_parser(unit_test):
     self.assertEqual( ( 3, 'pear' ), l2[2] )
     self.assertEqual( ( 4, 'melon' ), l2[3] )
     
-  def test___init__with_line_seq(self):
+  def test___init__with_line_token_seq(self):
     lines = [ LT( 1, 'apple' ), LT( 2, 'kiwi' ), LT( 3, 'pear' ), LT( 4, 'melon' ) ]
     l = LTP(lines)
     self.assertEqual( 4, len(l) )
@@ -45,6 +45,10 @@ class test_text_line_parser(unit_test):
     self.assertEqual( ( 2, 'kiwi' ), l[1] )
     self.assertEqual( ( 3, 'pear' ), l[2] )
     self.assertEqual( ( 4, 'melon' ), l[3] )
+
+  def test___init__with_line_token_seq_invalid_line_number(self):
+    with self.assertRaises(ValueError) as ex:
+      LTP([ LT( 1, 'apple' ), LT( 1, 'kiwi' ) ])
     
   def test_1_line(self):
     l = LTP('foo')
@@ -332,14 +336,7 @@ coke'''
     self.assertEqual( [ ( 1, 'apple' ) ], l.match_all('^app.*$') )
 
   def test_match_backwards(self):
-    text = '''apple
-    kiwi
-    orange
-    apricot
-    banana
-    watermelon'''
-    l = LTP(text)
-    l.strip()
+    l = LTP([ ( 1, 'apple' ), ( 2, 'kiwi' ), ( 3, 'orange' ), ( 4, 'apricot' ), ( 5, 'banana' ), ( 6, 'watermelon' ) ])
     self.assertEqual( ( 2, 'kiwi' ), l.match_backwards(5, '^ki.*$') )
     
 if __name__ == '__main__':
