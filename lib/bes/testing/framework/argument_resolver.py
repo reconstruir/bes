@@ -37,6 +37,7 @@ class argument_resolver(object):
     else:
       files = self._resolve_files_and_dirs(working_dir, arguments_just_files)
     if not root_dir:
+      print('FUCK: %s' % (files))
       root_dir = self._find_root_dir_with_git(files)
       if not root_dir:
         raise RuntimeError('Failed to determine root dir.')
