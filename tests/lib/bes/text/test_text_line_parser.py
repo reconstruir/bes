@@ -293,6 +293,7 @@ coke'''
     l.strip()
     self.assertEqual( [ ( 1, 'apple' ), ( 4, 'apricot' ) ], l.match_all('^a.*$') )
     self.assertEqual( [], l.match_all('^nothere.*$') )
+    self.assertEqual( [ ( 1, 'apple' ) ], l.match_all('^app.*$') )
     
 if __name__ == '__main__':
   unit_test.main()
