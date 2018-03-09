@@ -10,6 +10,16 @@ class test_text_line_parser(unit_test):
     l = LTP('')
     self.assertEqual( 1, len(l) )
 
+  def test___init__with_lines(self):
+    l1 = LTP('apple\nkiwi\npear\nmelon')
+    self.assertEqual( 4, len(l1) )
+    l2 = LTP(l1)
+    self.assertEqual( 4, len(l2) )
+    self.assertEqual( ( 1, 'apple' ), l2[0] )
+    self.assertEqual( ( 2, 'kiwi' ), l2[1] )
+    self.assertEqual( ( 3, 'pear' ), l2[2] )
+    self.assertEqual( ( 4, 'melon' ), l2[3] )
+    
   def test_1_line(self):
     l = LTP('foo')
     self.assertEqual( 1, len(l) )
@@ -294,6 +304,17 @@ coke'''
     self.assertEqual( [ ( 1, 'apple' ), ( 4, 'apricot' ) ], l.match_all('^a.*$') )
     self.assertEqual( [], l.match_all('^nothere.*$') )
     self.assertEqual( [ ( 1, 'apple' ) ], l.match_all('^app.*$') )
+
+  def test_match_backwards(self):
+    text = '''apple
+    kiwi
+    orange
+    apricot
+    banana
+    watermelon'''
+    l = LTP(text)
+    l.strip()
+    self.assertEqual( ( 2, 'kiwi' ), l.match_backwards(5, '^ki.*$') )
     
 if __name__ == '__main__':
   unit_test.main()

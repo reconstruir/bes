@@ -14,8 +14,12 @@ class text_line_parser(object):
 
   def __init__(self, text, delimiter = '\n'):
     self._delimiter = delimiter
-    self._lines = self._parse(text, self._delimiter)
-    self._ends_with_delimiter = text and text[-1] == self._delimiter
+    if isinstance(text, text_line_parser):
+      self._lines = text._lines[:]
+      self._ends_with_delimiter = False
+    else:
+      self._lines = self._parse(text, self._delimiter)
+      self._ends_with_delimiter = text and text[-1] == self._delimiter
 
   def __iter__(self):
     return iter(self._lines)
@@ -124,6 +128,19 @@ class text_line_parser(object):
           return line
     return None
 
+  def match_backwards(self, line_number, expressions, strip_comments = False):
+    expressions = object_util.listify(expressions)
+    start_index = self.find_by_line_number(line_number) - 1
+    if start_index < 0:
+      return None
+    for i in range(start_index, -1, -1):
+      line = self._lines[i]
+      text = line.get_text(strip_comments = strip_comments)
+      for expression in expressions:
+        if re.match(expression, text):
+          return line
+    return None
+  
   def match_all(self, expressions, strip_comments = False):
     expressions = object_util.listify(expressions)
     result = []
