@@ -123,6 +123,10 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Print python dependencies for test files [ False ]')
+  parser.add_argument('--dont-use-bes_test_ignore',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Do not use .bes_test_ignore files to ignore files to test [ False ]')
   args = parser.parse_args()
   
   cwd = os.getcwd()
@@ -135,8 +139,13 @@ def main():
   if not args.files:
     args.files = [ cwd ]
 
+  if not args.dont_use_bes_test_ignore:
+    file_ignore_filename = '.bes_test_ignore'
+  else:
+    file_ignore_filename = None
+    
   ar = argument_resolver(cwd, args.files, root_dir = args.root_dir,
-                         file_ignore_filename = '.bes_test_ignore',
+                         file_ignore_filename = file_ignore_filename,
                          check_git = args.git)
   ar.num_iterations = args.iterations
   ar.randomize = args.randomize
@@ -228,8 +237,6 @@ def main():
       return 1
     return 0
 
-  print('FUCK in bes_test')
-  
   os.chdir('/tmp')
 
   if not args.dry_run and args.page:
