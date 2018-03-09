@@ -3,7 +3,7 @@
 
 import fnmatch, os.path as path, random
 from bes.common import algorithm, check, object_util
-from bes.fs import file_check, file_ignore, file_path, file_util
+from bes.fs import file_check, file_multi_ignore, file_path, file_util
 from bes.git import git
 from bes.python import dependencies
 
@@ -24,7 +24,7 @@ class argument_resolver(object):
     if root_dir:
       file_check.check_dir(root_dir)
     working_dir = path.abspath(working_dir)
-    ignore = file_ignore(file_ignore_filename)
+    ignore = file_multi_ignore(file_ignore_filename)
     arguments_just_files, arguments_just_filters = self._split_files_and_filters(working_dir, arguments)
     filter_patterns = self._make_filters_patterns(arguments_just_filters)
     unresolved_files, unresolved_dirs = self._split_files_and_dirs(working_dir, arguments_just_files)

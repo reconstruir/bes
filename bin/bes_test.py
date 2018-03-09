@@ -123,10 +123,10 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Print python dependencies for test files [ False ]')
-  parser.add_argument('--dont-use-bes_test_ignore',
-                      action = 'store_true',
-                      default = False,
-                      help = 'Do not use .bes_test_ignore files to ignore files to test [ False ]')
+  parser.add_argument('--file-ignore-file',
+                      action = 'append',
+                      default = [],
+                      help = 'List of file ignore files. [ .bes_test_ignore .bes_test_internal_ignore ]')
   args = parser.parse_args()
   
   cwd = os.getcwd()
@@ -139,13 +139,11 @@ def main():
   if not args.files:
     args.files = [ cwd ]
 
-  if not args.dont_use_bes_test_ignore:
-    file_ignore_filename = '.bes_test_ignore'
-  else:
-    file_ignore_filename = None
+  if not args.file_ignore_file:
+    args.file_ignore_file = [ '.bes_test_ignore', '.bes_test_internal_ignore' ]
     
   ar = argument_resolver(cwd, args.files, root_dir = args.root_dir,
-                         file_ignore_filename = file_ignore_filename,
+                         file_ignore_filename = args.file_ignore_file,
                          check_git = args.git)
   ar.num_iterations = args.iterations
   ar.randomize = args.randomize

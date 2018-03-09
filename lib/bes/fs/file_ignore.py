@@ -3,7 +3,7 @@
 
 import os.path as path
 from collections import namedtuple
-from bes.common import check
+from bes.common import check, object_util
 from bes.text import text_line_parser
 
 from .file_path import file_path
@@ -84,5 +84,22 @@ class file_ignore(object):
     return ignore_file_data.read_file(ignore_filename)
 
   def filter_files(self, files):
+    check.check_string_seq(files)
+    return [ f for f in files if not self.should_ignore(f) ]
+
+class file_multi_ignore(object):
+
+  def __init__(self, ignore_filenames):
+    ignore_filenames = object_util.listify(ignore_filenames)
+    self._ignorers = [ file_ignore(f) for f in ignore_filenames ]
+    
+  def should_ignore(self, ford):
+    for ignorer in self._ignorers:
+      if ignorer.should_ignore(ford):
+        return True
+    return False
+
+  def filter_files(self, files):
+    check.check_string_seq(files)
     check.check_string_seq(files)
     return [ f for f in files if not self.should_ignore(f) ]

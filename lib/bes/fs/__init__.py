@@ -8,7 +8,7 @@ from .file_cache import file_cache, file_cache_item_base
 from .file_check import file_check
 from .file_checksum import file_checksum
 from .file_find import file_find
-from .file_ignore import file_ignore, ignore_file_data
+from .file_ignore import file_ignore, file_multi_ignore
 from .file_match import file_match
 from .file_mime import file_mime
 from .file_path import file_path

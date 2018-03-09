@@ -3,7 +3,8 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from bes.fs import file_ignore as FI, ignore_file_data as IFD, temp_file
+from bes.fs import file_ignore as FI, temp_file
+from bes.fs.file_ignore import ignore_file_data as IFD
 
 class test_ignore_file_data(unit_test):
 
