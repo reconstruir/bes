@@ -7,8 +7,13 @@ from bes.address import address as A
 class test_address(unit_test):
 
   def test_parse_city_and_state(self):
-    pass #self.assertEqual( ( 'Foo', 'CA', comments.strip_line('Foo, CA') )
-  #self.assertEqual( 'foo', comments.strip_line('foo#comment') )
+    self.assertEqual( ( 'Foo Bar', 'CA' ), A.parse_city_and_state('Foo Bar, CA') )
+    self.assertEqual( ( 'Foo Bar', 'CA' ), A.parse_city_and_state('CA, Foo Bar') )
+    self.assertEqual( ( 'Foo Bar', 'CA' ), A.parse_city_and_state('Foo Bar CA') )
+    self.assertEqual( ( 'Foo Bar', 'CA' ), A.parse_city_and_state('CA Foo Bar') )
+    self.assertEqual( ( 'Foo-Bar', 'CA' ), A.parse_city_and_state('Foo-Bar, CA') )
+    self.assertEqual( ( 'Foo-Bar', 'CA' ), A.parse_city_and_state('CA, Foo-Bar') )
+    self.assertEqual( None, A.parse_city_and_state('IRACK, Baddad') )
     
   def test_state_is_valid(self):
     self.assertTrue( A.state_is_valid('CA') )

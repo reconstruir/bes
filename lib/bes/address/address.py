@@ -16,13 +16,27 @@ class address(object):
     or None if the state or format cannot be determined.
     '''
     if ',' in s:
-      v = s.split(',')
+      parts = s.split(',')
     else:
-      v = string_util.split_by_white_space(s)
-    print v
-    return None
+      parts = string_util.split_by_white_space(s)
+    state_index = clazz._find_state_index(parts)
+    if state_index < 0:
+      return None
+    state = parts[state_index].strip()
+    parts[state_index] = ''
+    city = ' '.join(parts).strip()
+    return clazz._city_state(city, state)
 
   @classmethod
   def state_is_valid(clazz, s):
     'Return True if s is a valid state.  Ignores case.'
     return s.upper() in USA_STATES
+
+  @classmethod
+  def _find_state_index(clazz, parts):
+    for i, possible_state in enumerate(parts):
+      if clazz.state_is_valid(possible_state.strip()):
+        return i
+    return -1
+      
+  
