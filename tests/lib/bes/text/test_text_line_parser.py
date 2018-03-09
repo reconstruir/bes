@@ -282,5 +282,16 @@ coke'''
     l.combine_lines(1, 5)
     self.assertEqual( [ 'apple kiwi orange apricot banana watermelon' ], l.to_string_list() )
     
+  def test_match_all(self):
+    text = '''apple
+    kiwi
+    orange
+    apricot
+    banana
+    watermelon'''
+    l = LTP(text)
+    l.strip()
+    self.assertEqual( [ ( 1, 'apple' ), ( 4, 'apricot' ) ], l.match_all('^a.*$') )
+    
 if __name__ == '__main__':
   unit_test.main()

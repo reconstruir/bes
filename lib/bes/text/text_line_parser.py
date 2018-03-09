@@ -124,6 +124,16 @@ class text_line_parser(object):
           return line
     return None
 
+  def match_all(self, expressions, strip_comments = False):
+    expressions = object_util.listify(expressions)
+    result = []
+    for line in self._lines:
+      text = line.get_text(strip_comments = strip_comments)
+      for expression in expressions:
+        if re.match(expression, text):
+          result.append(line)
+    return result
+
   def find_line_with_re(self, expressions, strip_comments = False):
     expressions = object_util.listify(expressions)
     for line in self._lines:
