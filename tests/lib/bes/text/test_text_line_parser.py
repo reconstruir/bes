@@ -292,6 +292,7 @@ coke'''
     l = LTP(text)
     l.strip()
     self.assertEqual( [ ( 1, 'apple' ), ( 4, 'apricot' ) ], l.match_all('^a.*$') )
+    self.assertEqual( [], l.match_all('^nothere.*$') )
     
 if __name__ == '__main__':
   unit_test.main()
