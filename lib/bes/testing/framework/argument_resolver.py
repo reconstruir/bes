@@ -24,6 +24,7 @@ class argument_resolver(object):
   def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None, check_git = False):
     self._num_iterations = 1
     self._randomize = False
+    self._raw_test_descriptions = []
     file_check.check_dir(working_dir)
     if root_dir:
       file_check.check_dir(root_dir)
