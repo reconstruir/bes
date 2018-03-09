@@ -245,5 +245,21 @@ coke'''
     self.assertEqual( 5, l.find_by_line_number(6) )
     self.assertEqual( -1, l.find_by_line_number(666) )
     
+  def test_remove_line_number(self):
+    text = '''apple
+    kiwi
+    orange
+    apricot
+    banana
+    watermelon'''
+    l = LTP(text)
+    l.strip()
+    l.remove_line_number(1)
+    self.assertEqual( [ 'kiwi', 'orange', 'apricot', 'banana', 'watermelon' ], l.to_string_list() )
+    l.remove_line_number(6)
+    self.assertEqual( [ 'kiwi', 'orange', 'apricot', 'banana' ], l.to_string_list() )
+    l.remove_line_number(4)
+    self.assertEqual( [ 'kiwi', 'orange', 'banana' ], l.to_string_list() )
+    
 if __name__ == '__main__':
   unit_test.main()

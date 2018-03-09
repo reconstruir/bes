@@ -181,7 +181,9 @@ class text_line_parser(object):
   def _line_number_comparator(line1, line2):
     return cmp(line1.line_number, line2.line_number)
     
-  def remove_line(self, line_number):
-    pass
+  def remove_line_number(self, line_number):
+    i = self.find_by_line_number(line_number)
+    if i >= 0:
+      del self._lines[i]
 #self._lines = [ line for line in self._lines if not line.text_is_empty() ]
 #i = algorithm.binary_search(clazz._db, tuple(mac[0:3]), _oui_item.mac_comparator)
