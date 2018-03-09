@@ -241,8 +241,9 @@ class argument_resolver(object):
     result = []
     for s in statuses:
       for x in s:
-        if x.action in [ 'M', 'A', 'D' ]:
-          result.append(x.filename)
+        if x.filename.lower().endswith('.py'):
+          if x.action in [ 'M', 'A', 'D' ]:
+            result.append(x.filename)
     return result
   
   def test_dependency_files(self):
