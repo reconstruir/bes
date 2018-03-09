@@ -240,10 +240,10 @@ coke'''
     watermelon'''
     l = LTP(text)
     l.strip()
-    self.assertEqual( ( 1, 'apple' ), l.find_by_line_number(1) )
-    self.assertEqual( ( 4, 'apricot' ), l.find_by_line_number(4) )
-    self.assertEqual( ( 6, 'watermelon' ), l.find_by_line_number(6) )
-    self.assertEqual( None, l.find_by_line_number(666) )
+    self.assertEqual( 0, l.find_by_line_number(1) )
+    self.assertEqual( 3, l.find_by_line_number(4) )
+    self.assertEqual( 5, l.find_by_line_number(6) )
+    self.assertEqual( -1, l.find_by_line_number(666) )
     
 if __name__ == '__main__':
   unit_test.main()

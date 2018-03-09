@@ -175,10 +175,7 @@ class text_line_parser(object):
 
   def find_by_line_number(self, line_number):
     target = line_token(line_number, '')
-    index = algorithm.binary_search(self._lines, target, self._line_number_comparator)
-    if index < 0:
-      return None
-    return self._lines[index]
+    return algorithm.binary_search(self._lines, target, self._line_number_comparator)
   
   @staticmethod
   def _line_number_comparator(line1, line2):
