@@ -215,7 +215,7 @@ coke'''
     l.strip()
     self.assertEqual( [ '', 'apple', 'kiwi', 'orange', '' ], l.to_string_list() )
     
-  def xtest_cut_lines(self):
+  def test_cut_lines(self):
     text = '''
     apple
     kiwi
@@ -226,7 +226,10 @@ coke'''
     '''
     l = LTP(text)
     l.remove_empties()
-    #self.assertEqual( [3, l.cut_lines('match_line_with_re(patterns).line_number )
+    l.strip()
+    self.assertEqual( [ 'kiwi', 'orange', 'apricot' ], l.cut_lines('^ap.*$', '^ba.*$').to_string_list() )
+    self.assertEqual( [ 'banana', 'watermelon' ], l.cut_lines('^apr.*$', None).to_string_list() )
+    self.assertEqual( [ 'apple', 'kiwi' ], l.cut_lines(None, '^or.*$').to_string_list() )
     
 if __name__ == '__main__':
   unit_test.main()
