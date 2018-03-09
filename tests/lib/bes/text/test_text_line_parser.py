@@ -254,11 +254,12 @@ coke'''
     watermelon'''
     l = LTP(text)
     l.strip()
-    l.remove_line_number(1)
+    self.assertEqual( None, l.remove_line_number(666) )
+    self.assertEqual( ( 1, 'apple' ), l.remove_line_number(1) )
     self.assertEqual( [ 'kiwi', 'orange', 'apricot', 'banana', 'watermelon' ], l.to_string_list() )
-    l.remove_line_number(6)
+    self.assertEqual( ( 6, 'watermelon' ), l.remove_line_number(6) )
     self.assertEqual( [ 'kiwi', 'orange', 'apricot', 'banana' ], l.to_string_list() )
-    l.remove_line_number(4)
+    self.assertEqual( ( 4, 'apricot' ), l.remove_line_number(4) )
     self.assertEqual( [ 'kiwi', 'orange', 'banana' ], l.to_string_list() )
     
 if __name__ == '__main__':

@@ -184,6 +184,10 @@ class text_line_parser(object):
   def remove_line_number(self, line_number):
     i = self.find_by_line_number(line_number)
     if i >= 0:
+      result = self._lines[i]
       del self._lines[i]
+      return result
+    return None
+      
 #self._lines = [ line for line in self._lines if not line.text_is_empty() ]
 #i = algorithm.binary_search(clazz._db, tuple(mac[0:3]), _oui_item.mac_comparator)
