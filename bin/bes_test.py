@@ -227,7 +227,9 @@ def main():
         printer.writeln_name('PRE_COMMIT: missing from git: %s' % (path.relpath(f)))
       return 1
     return 0
-    
+
+  print('FUCK in bes_test')
+  
   os.chdir('/tmp')
 
   if not args.dry_run and args.page:
