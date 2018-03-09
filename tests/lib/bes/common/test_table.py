@@ -11,6 +11,15 @@ class test_table(unit_test):
     self.assertEqual( 0, t.width )
     self.assertEqual( 0, t.height )
 
+  def test___init__empty_with_width(self):
+    t = table()
+    t.append_row( ( 'cherry', 'red' ) )
+    self.assertEqual( 2, t.width )
+    self.assertEqual( 1, t.height )
+    t.append_row( ( 'lemon', 'yellow' ) )
+    self.assertEqual( 2, t.width )
+    self.assertEqual( 2, t.height )
+
   def test___init__with_data(self):
     t =  table(data = [
       ( 1, 2 ),
@@ -248,6 +257,6 @@ class test_table(unit_test):
 
     with self.assertRaises(ValueError) as ex:
       t[0].nothere
-    
+
 if __name__ == '__main__':
   unit_test.main()

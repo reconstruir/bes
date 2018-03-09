@@ -230,12 +230,23 @@ class table(object):
       self.set_column(col_x, column)
 
   def insert_row(self, row_y, row = None):
-    self.check_y(row_y)
-    new_row = table_row([ self._default_value ] * self.width)
-    new_row._column_names = self._column_names
-    self._table.insert(row_y, new_row)
-    if row:
-      self.set_row(row_y, row)
+    if self._table == []:
+      if row is None:
+        raise ValueError('The first row cannot be None')
+      #check.check_seq(row)
+      new_row = table_row([ item for item in row ])
+      new_row._column_names = self._column_names
+      self._table = [ new_row ]
+    else:
+      self.check_y(row_y)
+      new_row = table_row([ self._default_value ] * self.width)
+      new_row._column_names = self._column_names
+      self._table.insert(row_y, new_row)
+      if row:
+        self.set_row(row_y, row)
+      
+  def append_row(self, row = None):
+    return self.insert_row(0, row = row)
       
   def append_rows(self, rows):
     if check.is_table(rows):
