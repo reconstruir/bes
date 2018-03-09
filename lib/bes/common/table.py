@@ -6,11 +6,30 @@ from .size import size
 from .string_util import string_util
 from bes.compat import StringIO
 
+class table_row(list):
+
+  def __init__(self, *args, **kwargs):
+    list.__init__(self, *args, **kwargs)
+    self._column_names = None
+    
+  def __getattr__(self, key):
+    if not self._column_names:
+      raise ValueError('column names are empty.')
+    try:
+      return self[self._column_names.index(key)]
+    except ValueError as ex:
+      raise ValueError('unknown field: \"%s\"' % (key))
+  
 class table(object):
   'A 2 dimensional table.'
 
-  def __init__(self, width = None, height = None, data = None, default_value = None):
+  def __init__(self, width = None, height = None, data = None, default_value = None, column_names = None):
     self._default_value = default_value
+
+    if column_names:
+      check.check_tuple(column_names)
+      
+    self._column_names = column_names
     if data is not None and width is not None and width != len(data[0]):
       raise ValueError('width should be %d instead of %d' % (len(data[0]), width))
       
@@ -38,7 +57,11 @@ class table(object):
     self._table = self._make_table(width, height, self._default_value)
     if data:
       self.set_data(data)
-    
+
+  def __getitem__(self, y):
+    self.check_y(y)
+    return self._table[y]
+      
   @property
   def width(self):
     if not self._table:
@@ -163,11 +186,11 @@ class table(object):
     if not self.height_valid(height):
       raise ValueError('Invalid height: %s' % (str(height)))
 
-  @classmethod
-  def _make_table(clazz, width, height, default_value):
+  def _make_table(self, width, height, default_value):
     rows = [ default_value ] * height
     for i in range(0, height):
-      rows[i] = [ default_value ] * width
+      rows[i] = table_row([ default_value ] * width)
+      rows[i]._column_names = self._column_names
     return rows
 
   @classmethod
@@ -208,7 +231,8 @@ class table(object):
 
   def insert_row(self, row_y, row = None):
     self.check_y(row_y)
-    new_row = [ self._default_value ] * self.width
+    new_row = table_row([ self._default_value ] * self.width)
+    new_row._column_names = self._column_names
     self._table.insert(row_y, new_row)
     if row:
       self.set_row(row_y, row)
@@ -220,7 +244,7 @@ class table(object):
     rows_width = len(rows[0])
     if len(rows[0]) != self.width:
       raise ValueError('rows width should be %d instead of %d' % (self.width, rows_width))
-    self._table.extend(rows[:])
+    self._table.extend([ table_row(row) for row in rows[:] ])
 
   @classmethod
   def concatenate_vertical(clazz, tables):

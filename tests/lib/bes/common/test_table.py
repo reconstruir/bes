@@ -225,5 +225,29 @@ class test_table(unit_test):
     ])
     self.assertEqual( t4, table.concatenate_vertical([ t1, t2, t3 ]) )
 
+  def test_column_names(self):
+    column_names = ( 'fruit', 'color', 'sweetness' )
+    t = table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ], column_names = column_names)
+    self.assertEqual( 'cherry', t[0].fruit )
+    self.assertEqual( 'lemon', t[1].fruit )
+    self.assertEqual( 'orange', t[2].fruit )
+    self.assertEqual( 'mango', t[3].fruit )
+    self.assertEqual( 'red', t[0].color )
+    self.assertEqual( 'yellow', t[1].color )
+    self.assertEqual( 'orange', t[2].color )
+    self.assertEqual( 'orange', t[3].color )
+    self.assertEqual( 4, t[0].sweetness )
+    self.assertEqual( 2, t[1].sweetness )
+    self.assertEqual( 8, t[2].sweetness )
+    self.assertEqual( 10, t[3].sweetness )
+
+    with self.assertRaises(ValueError) as ex:
+      t[0].nothere
+    
 if __name__ == '__main__':
   unit_test.main()
