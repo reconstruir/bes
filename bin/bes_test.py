@@ -12,7 +12,7 @@ from collections import namedtuple
 from bes.egg import egg
 from bes.fs import file_find, file_util, temp_file
 from bes.git import git
-from bes.system import env_var, os_env
+from bes.system import execute, env_var, os_env
 from bes.testing.framework import argument_resolver, printer
 from bes.version import version_info
 
@@ -230,6 +230,8 @@ def main():
       return 1
     return 0
 
+  ar.cleanup_python_compiled_files()
+  
   os.chdir('/tmp')
 
   if not args.dry_run and args.page:

@@ -49,7 +49,9 @@ class argument_resolver(object):
     # FIXME: change to filter_with_patterns_tests()
     file_infos = file_infos.filter_by_filenames(filter_patterns)
     self._raw_test_descriptions = file_filter.filter_files(file_infos, filter_patterns)
-
+    self._env_dependencies = self.config_env.resolve_deps(self._config_names())
+    self._env_dependencies_configs = [ self.config_env.config_for_name(name) for name in self._env_dependencies ]
+    
   @property
   def num_iterations(self):
     return self._num_iterations
@@ -222,9 +224,6 @@ class argument_resolver(object):
     if patterns:
       self._raw_test_descriptions = file_filter.ignore_files(self._raw_test_descriptions, patterns)
     
-  def dependencies(self):
-    return self.config_env.resolve_deps(self._config_names())
-
   def _config_names(self):
     result = []
     for desc in self.test_descriptions:
@@ -232,9 +231,6 @@ class argument_resolver(object):
         result.append(desc.file_info.config.data.name)
     return algorithm.unique(result)
   
-  def configs(self, names):
-    return [ self.config_env.config_for_name(name) for name in names ]
-
   @classmethod
   def _git_tracked_modified_files(clazz, unresolved_files):
     roots = clazz._git_roots(unresolved_files)
@@ -259,10 +255,12 @@ class argument_resolver(object):
     return result
 
   def update_environment(self, env, variables):
-    deps = self.dependencies()
-    configs = self.configs(deps)
-    for config in configs:
+    for config in self._env_dependencies_configs:
       substituted = config.substitute(variables)
       env_var(env, 'PATH').append(substituted.data.unixpath)
       env_var(env, 'PYTHONPATH').append(substituted.data.pythonpath)
-  
+
+  def cleanup_python_compiled_files(self):
+    root_dirs = [ config.root_dir for config in self._env_dependencies_configs ]
+    pyc_files = file_finder.find_python_compiled_files(root_dirs)
+    file_util.remove(pyc_files)
