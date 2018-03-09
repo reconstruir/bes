@@ -132,7 +132,6 @@ class argument_resolver(object):
   def _resolve_dir(clazz, d):
     assert path.isdir(d)
     return file_finder.find_python_files(d)
-#    return clazz._resolve_files_and_dirs(config)
     
   @classmethod
   def _resolve_file(clazz, f):
