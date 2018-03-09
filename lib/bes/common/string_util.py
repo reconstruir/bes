@@ -3,7 +3,6 @@
 
 import re, sys
 
-
 from bes.compat import StringIO
 from bes.system import compat
 from .check import check

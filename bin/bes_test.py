@@ -172,6 +172,10 @@ def main():
     ar.print_tests()
     return 0
 
+  if args.print_deps or args.pre_commit and not ar.supports_test_dependency_files():
+    printer.writeln_name('ERROR: Cannot figure out dependencies.  snakefood missing.')
+    return 1
+
   if args.print_deps:
     dep_files = ar.test_dependency_files()
     for filename in sorted(dep_files.keys()):

@@ -10,6 +10,11 @@ class dependencies(object):
   'Class to deal with python dependencies.'
 
   @classmethod
+  def is_supported(clazz):
+    'Return True if this environment supports figuring out python file dependencies.'
+    return file_path.which('sfood') is not None
+  
+  @classmethod
   def dependencies(clazz, filename):
     'Return list of files filename depends on or None if snakefood is not found.'
     try:

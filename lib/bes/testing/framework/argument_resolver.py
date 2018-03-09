@@ -246,6 +246,9 @@ class argument_resolver(object):
           if x.action in [ 'M', 'A', 'D' ]:
             result.append(x.filename)
     return result
+
+  def supports_test_dependency_files(self):
+    return dependencies.is_supported()
   
   def test_dependency_files(self):
     result = {}
