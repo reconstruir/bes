@@ -171,16 +171,6 @@ class text_line_parser(object):
           result.append(line)
     return text_line_parser(result)
 
-  def find_line_with_re(self, expressions, strip_comments = False):
-    expressions = object_util.listify(expressions)
-    for line in self._lines:
-      text = line.get_text(strip_comments = strip_comments)
-      for expression in expressions:
-        f = re.findall(expression, text)
-        if f:
-          return f
-    return None
-  
   def cut_lines(self, start_pattern, end_pattern):
     if not start_pattern and not end_pattern:
       raise ValueError('one or both of start_pattern and end_pattern need to be valid.')
