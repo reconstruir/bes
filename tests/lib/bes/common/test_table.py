@@ -371,6 +371,31 @@ class test_table(unit_test):
       ( 'orange', 'orange', 8 ),
       ( 'mango', 'orange', 10 ),
     ]), t )
-      
+
+  def test_concatenate_vertical_with_empty_table(self):
+    t1 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ])
+    t2 = table()
+    t3 = table(data = [
+      ( 99, 98, 97 ),
+    ])
+    t4 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+      ( 99, 98, 97 ),
+    ])
+    self.assertEqual( t4, table.concatenate_vertical([ t1, t2, t3 ]) )
+    
+  def test_concatenate_vertical_all_empty(self):
+    t1 = table()
+    t2 = table()
+    t3 = table()
+    t4 = table()
+    self.assertEqual( t4, table.concatenate_vertical([ t1, t2, t3 ]) )
+    
 if __name__ == '__main__':
   unit_test.main()

@@ -61,7 +61,10 @@ class table(object):
   def __getitem__(self, y):
     self.check_y(y)
     return self._table[y]
-      
+
+  def empty(self):
+    return self.width == 0 or self.height == 0
+  
   @property
   def width(self):
     if not self._table:
@@ -267,6 +270,7 @@ class table(object):
   def concatenate_vertical(clazz, tables):
     'Concatenate a sequence of tables vertically.  The column width for all tables must match the first table.'
     check.check_table_seq(tables)
+    tables = [ t for t in tables if not t.empty() ]
     result = None
     for i, t in enumerate(tables):
       if not result:
@@ -275,7 +279,7 @@ class table(object):
         if t.width != result.width:
           raise ValueError('table %d - width should be %d instead of %d' % (result.width, t.width))
         result.append_rows(t)
-    return result
+    return result or table()
 
   def filter_rows(self, filter_func):
     'Filter rows with filter_func.'
