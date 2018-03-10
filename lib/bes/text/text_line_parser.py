@@ -123,11 +123,6 @@ class text_line_parser(object):
         return s.rstrip()
     return [ _do_strip(line.text) for line in self._lines ]
 
-#  @classmethod
-#  def read_file(clazz, filename):
-#    with open(filename, 'r') as f:
-#      return clazz(f.read())
-
   def remove_empties(self):
     self._lines = [ line for line in self._lines if not line.text_is_empty() ]
 
@@ -141,12 +136,7 @@ class text_line_parser(object):
       l.remove_empties()
     return l
 
-#  @classmethod
-#  def add_line_numbers(clazz, text, delimiter = '|'):
-#    l = text_line_parser(text)
-#    l.add_line_numbers(delimiter = delimiter)
-#    return str(l)
-
+  _match_result = namedtuple('_match_result', 'expression,match,line')
   def match_first(self, expressions, strip_comments = False):
     expressions = object_util.listify(expressions)
     for line in self._lines:
