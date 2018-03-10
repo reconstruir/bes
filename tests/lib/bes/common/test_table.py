@@ -258,5 +258,119 @@ class test_table(unit_test):
     with self.assertRaises(ValueError) as ex:
       t[0].nothere
 
+  def test_concatenate_vertical_with_column_names(self):
+    column_names = ( 'one', 'two', 'three' )
+    t1 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ], column_names = column_names)
+    t2 = table(data = [
+      ( 10, 11, 12 ),
+      ( 13, 14, 15 ),
+      ( 16, 17, 18 ),
+    ])
+    t3 = table(data = [
+      ( 99, 98, 97 ),
+    ], column_names = column_names)
+    actual = table.concatenate_vertical([ t1, t2, t3 ])
+    expected = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+      ( 10, 11, 12 ),
+      ( 13, 14, 15 ),
+      ( 16, 17, 18 ),
+      ( 99, 98, 97 ),
+    ])
+    self.assertEqual( 1, t1[0].one )
+    self.assertEqual( 2, t1[0].two )
+    self.assertEqual( 3, t1[0].three )
+    self.assertEqual( 1, actual[0].one )
+    self.assertEqual( 2, actual[0].two )
+    self.assertEqual( 3, actual[0].three )
+    self.assertEqual( expected, actual )
+
+  def test_concatenate_vertical_one_table_with_column_names(self):
+    column_names = ( 'one', 'two', 'three' )
+    t1 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ], column_names = column_names)
+    actual = table.concatenate_vertical([ t1 ])
+    expected = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ])
+    self.assertEqual( 1, t1[0].one )
+    self.assertEqual( 2, t1[0].two )
+    self.assertEqual( 3, t1[0].three )
+    self.assertEqual( 1, actual[0].one )
+    self.assertEqual( 2, actual[0].two )
+    self.assertEqual( 3, actual[0].three )
+    self.assertEqual( expected, actual )
+
+  def test_sort_by_column(self):
+    column_names = ( 'fruit', 'color', 'sweetness' )
+    t = table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ], column_names = column_names)
+    t.sort_by_column(0)
+    self.assertEqual( table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'mango', 'orange', 10 ),
+      ( 'orange', 'orange', 8 ),
+    ]), t )
+    t.sort_by_column(1)
+    self.assertEqual( table(data = [
+      ( 'mango', 'orange', 10 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+    ]), t )
+    t.sort_by_column(2)
+    self.assertEqual( table(data = [
+      ( 'lemon', 'yellow', 2 ),
+      ( 'cherry', 'red', 4 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ]), t )
+      
+  def test_sort_by_key(self):
+    column_names = ( 'fruit', 'color', 'sweetness' )
+    t = table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ], column_names = column_names)
+    t.sort_by_key((lambda row: row.fruit))
+    self.assertEqual( table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'mango', 'orange', 10 ),
+      ( 'orange', 'orange', 8 ),
+    ]), t )
+    t.sort_by_key((lambda row: row.color))
+    self.assertEqual( table(data = [
+      ( 'mango', 'orange', 10 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+    ]), t )
+    t.sort_by_key((lambda row: row.sweetness))
+    self.assertEqual( table(data = [
+      ( 'lemon', 'yellow', 2 ),
+      ( 'cherry', 'red', 4 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ]), t )
+      
 if __name__ == '__main__':
   unit_test.main()

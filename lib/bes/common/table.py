@@ -121,7 +121,7 @@ class table(object):
     return self._table[y][x]
     
   def set_row(self, y, row):
-    check.check_tuple(row)
+    check.check(row, ( tuple, list ))
     self.check_y(y)
     if len(row) != self.width:
       raise ValueError('Row should be %d wide instead of %d: \"%s\"' % (self.width, len(row), str(row)))
@@ -136,9 +136,12 @@ class table(object):
     for y in range(0, self.height):
       self._table[y][x] = column[y]
    
-  def sort_by_column(self, x, key = None):
+  def sort_by_column(self, x, reverse = False):
     self.check_x(x)
-    self._table = sorted(self._table, key = key or (lambda row: row[x]))
+    self.sort_by_key((lambda row: row[x]), reverse = reverse)
+
+  def sort_by_key(self, key, reverse = False):
+    self._table = sorted(self._table, key = key, reverse = reverse)
 
   def row(self, y):
     self.check_y(y)
@@ -218,7 +221,7 @@ class table(object):
 
   def insert_column(self, col_x, column = None):
     self.check_x(col_x)
-    new_table = table(self.width + 1, self.height, default_value = self._default_value)
+    new_table = table(self.width + 1, self.height, default_value = self._default_value, column_names = self._column_names)
     for x in range(0, col_x):
       new_table.set_column(x, self.column(x))
     new_col_x = col_x + 1
@@ -270,5 +273,14 @@ class table(object):
           raise ValueError('table %d - width should be %d instead of %d' % (result.width, t.width))
         result.append_rows(t)
     return result
+
+  def filter_rows(self, filter_func):
+    'Filter rows with filter_func.'
+    assert callable(filter_func)
+    new_table = table(column_names = self._column_names)
+    for row in self._table:
+      if filter_func(row):
+        new_table.append_row(row)
+    return new_table
   
 check.register_class(table)
