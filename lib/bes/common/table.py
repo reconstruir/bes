@@ -233,7 +233,7 @@ class table(object):
     if self._table == []:
       if row is None:
         raise ValueError('The first row cannot be None')
-      #check.check_seq(row)
+      check.check(row, ( list, tuple ))
       new_row = table_row([ item for item in row ])
       new_row._column_names = self._column_names
       self._table = [ new_row ]
