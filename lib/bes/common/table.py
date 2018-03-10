@@ -258,7 +258,10 @@ class table(object):
     rows_width = len(rows[0])
     if len(rows[0]) != self.width:
       raise ValueError('rows width should be %d instead of %d' % (self.width, rows_width))
-    self._table.extend([ table_row(row) for row in rows[:] ])
+    for row in rows:
+      new_row = table_row(row)
+      new_row._column_names = self._column_names
+      self._table.append(new_row)
 
   @classmethod
   def concatenate_vertical(clazz, tables):
