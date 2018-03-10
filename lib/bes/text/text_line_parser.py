@@ -156,8 +156,9 @@ class text_line_parser(object):
       line = self._lines[i]
       text = line.get_text(strip_comments = strip_comments)
       for expression in expressions:
-        if re.match(expression, text):
-          return line
+        match = re.findall(expression, text)
+        if match:
+          return self._match_result(expression, match, line)
     return None
   
   def match_all(self, expressions, strip_comments = False):
