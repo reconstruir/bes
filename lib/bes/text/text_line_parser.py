@@ -142,8 +142,9 @@ class text_line_parser(object):
     for line in self._lines:
       text = line.get_text(strip_comments = strip_comments)
       for expression in expressions:
-        if re.match(expression, text):
-          return line
+        match = re.findall(expression, text)
+        if match:
+          return self._match_result(expression, match, line)
     return None
 
   def match_backwards(self, line_number, expressions, strip_comments = False):
@@ -195,13 +196,13 @@ class text_line_parser(object):
     head = self.match_first(start_pattern)
     if not head:
       return None
-    return text_line_parser([ line for line in self._lines if line.line_number > head.line_number ])
+    return text_line_parser([ line for line in self._lines if line.line_number > head.line.line_number ])
   
   def _cut_lines_before(self, end_pattern):
     tail = self.match_first(end_pattern)
     if not tail:
       return None
-    return text_line_parser([ line for line in self._lines if line.line_number < tail.line_number ])
+    return text_line_parser([ line for line in self._lines if line.line_number < tail.line.line_number ])
 
   def _cut_lines_between(self, start_pattern, end_pattern):
     head = self.match_first(start_pattern)
@@ -210,7 +211,7 @@ class text_line_parser(object):
     tail = self.match_first(end_pattern)
     if not tail:
       return None
-    return text_line_parser([ line for line in self._lines if line.line_number > head.line_number and line.line_number < tail.line_number ])
+    return text_line_parser([ line for line in self._lines if line.line_number > head.line.line_number and line.line_number < tail.line.line_number ])
 
   def find_by_line_number(self, line_number):
     target = line_token(line_number, '')

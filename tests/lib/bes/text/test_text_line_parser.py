@@ -228,7 +228,7 @@ coke'''
       '^\s*Test\s+Name\s\s+Result\s\s+Flag\s\s+Reference\s+Range\s\s+Lab\s*$',
       '^\s*Test\s+Name\s\s+Results\s\s+Reference\s+Range\s\s+Lab\s*$',
     ]
-    self.assertEqual( 3, l.match_first(patterns).line_number )
+    self.assertEqual( 3, l.match_first(patterns).line.line_number )
     
   def test_remove_empties(self):
     text = '''
