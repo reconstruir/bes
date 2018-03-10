@@ -337,7 +337,7 @@ coke'''
 
   def test_match_backwards(self):
     l = LTP([ ( 1, 'apple' ), ( 2, 'kiwi' ), ( 3, 'orange' ), ( 4, 'apricot' ), ( 5, 'banana' ), ( 6, 'watermelon' ) ])
-    self.assertEqual( ( 2, 'kiwi' ), l.match_backwards(5, '^ki.*$') )
+    self.assertEqual( ( 2, 'kiwi' ), l.match_backwards(5, '^ki.*$').line )
     
 if __name__ == '__main__':
   unit_test.main()
