@@ -64,7 +64,9 @@ class execute(object):
     rv = clazz.Result(stdout, stderr, exit_code)
     if raise_error:
       if rv.exit_code != 0:
-        raise RuntimeError(str(rv))
+        ex = RuntimeError(rv.stdout)
+        setattr(ex, 'execute_result', rv)
+        raise ex
     return rv
 
   @classmethod
