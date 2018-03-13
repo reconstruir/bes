@@ -27,16 +27,19 @@ class text_cell_renderer(object):
       raise ValueError('Invalid just: %s' % (self.just))
     return vs
 
+  def compute_width(self, value):
+    return len(self.render(value, width = None))
+  
 class text_table(object):
   'A table of strings.'
   def __init__(self, width = None, height = None, data = None, column_delimiter = ' │ '):
     self._labels = None
     self._table = table(width = width, height = height, data = data)
     self._column_delimiter = column_delimiter
-    self._row_styles = {}
-    self._col_styles = {}
-    self._cell_styles = {}
-    self._default_cell_style = text_cell_renderer()
+    self._row_renderers = {}
+    self._col_renderers = {}
+    self._cell_renderers = {}
+    self._default_cell_renderer = text_cell_renderer()
     
   def set_labels(self, labels):
     check.check_tuple(labels)
@@ -77,26 +80,35 @@ class text_table(object):
 
   def _write_cell(self, x, y, stream, col_widths):
     value = self._table.get(x, y)
-    style = self.get_cell_style(x, y)
-    assert style
-    value_string = style.render(value, width = col_widths[x])
+    renderer = self.get_cell_renderer(x, y)
+    assert renderer
+    value_string = renderer.render(value, width = col_widths[x])
     stream.write(value_string)
     stream.write(self._column_delimiter)
   
   def _write_label(self, x, stream, col_widths):
     value = self._labels[x]
-    style = self.get_cell_style(x, 0)
-    assert style
-    value = style.render(value, width = col_widths[x])
+    renderer = self.get_cell_renderer(x, 0)
+    assert renderer
+    value = renderer.render(value, width = col_widths[x])
     stream.write(value)
     stream.write(self._column_delimiter)
   
   def _column_width(self, x):
     self._table.check_x(x)
-    max_col_width = max([len(str(s)) for s in self._table.column(x)])
+    max_col_width = self._max_column_width(x)
     if self._labels:
       max_col_width = max(max_col_width, len(self._labels[x]))
     return max_col_width
+  
+  def _max_column_width(self, x):
+    self._table.check_x(x)
+    max_width = 0
+    for y in range(0, self._table.height):
+      renderer = self.get_cell_renderer(x, y)
+      value = self._table.get(x, y)
+      max_width = max(max_width, renderer.compute_width(value))
+    return max_width
   
   def sort_by_column(self, x):
     self._table.check_x(x)
@@ -106,21 +118,21 @@ class text_table(object):
     self._table.check_y(y)
     self._table.set_row(y, row)
 
-  def set_row_style(self, y, style):
+  def set_row_renderer(self, y, renderer):
     self._table.check_y(y)
-    self._row_styles[y] = style
+    self._row_renderers[y] = renderer
 
-  def set_col_style(self, x, style):
+  def set_col_renderer(self, x, renderer):
     self._table.check_x(x)
-    self._col_styles[x] = style
+    self._col_renderers[x] = renderer
     
-  def set_cell_style(self, x, y, style):
+  def set_cell_renderer(self, x, y, renderer):
     self._table.check_xy(x, y)
-    self._cell_styles[(x, y)] = style
+    self._cell_renderers[(x, y)] = renderer
     
-  def get_cell_style(self, x, y):
+  def get_cell_renderer(self, x, y):
     self._table.check_xy(x, y)
-    return self._cell_styles.get((x, y), None) or self._col_styles.get(x, self._default_cell_style)
+    return self._cell_renderers.get((x, y), None) or self._col_renderers.get(x, self._default_cell_renderer)
 
   def set_data(self, data):
     check.check_tuple_seq(data)
@@ -130,13 +142,14 @@ class text_table(object):
     return tuple([ self._column_width(x) for x in range(0, self._table.width) ])
 
   @property
-  def default_cell_style(self):
-    return self._default_cell_style
+  def default_cell_renderer(self):
+    return self._default_cell_renderer
   
-  @default_cell_style.setter
-  def default_cell_style(self, style):
-    if style:
-      assert isinstance(style, text_cell_renderer)
+  @default_cell_renderer.setter
+  def default_cell_renderer(self, renderer):
+    if renderer:
+      assert isinstance(renderer, text_cell_renderer)
     else:
-      style = text_cell_renderer()
-    self._default_cell_style = style
+      renderer = text_cell_renderer()
+    self._default_cell_renderer = renderer
+    print('default renderer changed from %s to %s' % (self._default_cell_renderer, renderer))
