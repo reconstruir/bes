@@ -262,18 +262,10 @@ class argument_resolver(object):
         result[filename].append(fi)
     return result
 
-  def caca_test_dependency_files(self):
-    result = {}
-    for desc in self.test_descriptions:
-      filename = desc.file_info.filename
-      assert filename not in result
-      result[filename] = []
-      deps = self.poto_dependencies(filename, 'python')
-      for d in deps:
-        fi = file_info(self.config_env, d)
-        result[filename].append(fi)
-    return result
-
+  @property
+  def env_dependencies_configs(self):
+    return self._env_dependencies_configs
+  
   def update_environment(self, env, variables):
     for config in self._env_dependencies_configs:
       substituted = config.substitute(variables)
