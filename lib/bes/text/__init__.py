@@ -14,7 +14,7 @@ from .string_list_parser import string_list_parser
 from .text_canvas import text_canvas
 from .text_fit import text_fit
 from .text_line_parser import text_line_parser
-from .text_table import text_table, text_table_cell_style
+from .text_table import text_table, text_cell_renderer
 from .text_table_parser import text_table_parser
 from .tree_text_parser import tree_text_parser
 from .white_space import white_space

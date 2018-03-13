@@ -4,7 +4,7 @@
 from bes.common import check, object_util, table, size
 from bes.compat import StringIO
 
-class text_table_cell_style(object):
+class text_cell_renderer(object):
 
   JUST_LEFT = 'left'
   JUST_RIGHT = 'right'
@@ -13,17 +13,19 @@ class text_table_cell_style(object):
     self.just = just or self.JUST_LEFT
     self.width = width or 0
 
-  def format(self, value, width = None):
+  def render(self, value, width = None):
+    if value:
+      vs = str(value)
+    else:
+      vs = ''
     width = width or self.width or 0
     if self.just == self.JUST_LEFT:
-      value = value.ljust(width)
+      vs = vs.ljust(width)
     elif self.just == self.JUST_RIGHT:
-      value = value.rjust(width)
+      vs = vs.rjust(width)
     else:
       raise ValueError('Invalid just: %s' % (self.just))
-    if value is None:
-      value = ''
-    return value
+    return vs
 
 class text_table(object):
   'A table of strings.'
@@ -34,7 +36,7 @@ class text_table(object):
     self._row_styles = {}
     self._col_styles = {}
     self._cell_styles = {}
-    self._default_cell_style = text_table_cell_style()
+    self._default_cell_style = text_cell_renderer()
     
   def set_labels(self, labels):
     check.check_tuple(labels)
@@ -74,18 +76,18 @@ class text_table(object):
     return value[0:-1]
 
   def _write_cell(self, x, y, stream, col_widths):
-    value = str(self._table.get(x, y)) or ''
+    value = self._table.get(x, y)
     style = self.get_cell_style(x, y)
     assert style
-    value = style.format(value, width = col_widths[x])
-    stream.write(value)
+    value_string = style.render(value, width = col_widths[x])
+    stream.write(value_string)
     stream.write(self._column_delimiter)
   
   def _write_label(self, x, stream, col_widths):
-    value = str(self._labels[x])
+    value = self._labels[x]
     style = self.get_cell_style(x, 0)
     assert style
-    value = style.format(value, width = col_widths[x])
+    value = style.render(value, width = col_widths[x])
     stream.write(value)
     stream.write(self._column_delimiter)
   
@@ -126,3 +128,15 @@ class text_table(object):
 
   def column_widths(self):
     return tuple([ self._column_width(x) for x in range(0, self._table.width) ])
+
+  @property
+  def default_cell_style(self):
+    return self._default_cell_style
+  
+  @default_cell_style.setter
+  def default_cell_style(self, style):
+    if style:
+      assert isinstance(style, text_cell_renderer)
+    else:
+      style = text_cell_renderer()
+    self._default_cell_style = style
