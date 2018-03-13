@@ -212,15 +212,16 @@ def main():
     sys.path.remove(cwd)
 
   if args.egg:
-    setup_dot_py = path.join(cwd, 'setup.py')
-    if not path.isfile(setup_dot_py):
-      raise RuntimeError('No setup.py found in %s to make the egg.' % (cwd))
-    egg_zip = egg.make(setup_dot_py)
-    p = env_var(env, 'PYTHONPATH')
-    p.remove(cwd)
-    p.prepend(egg_zip)
-    if args.save_egg:
-      file_util.copy(egg_zip, path.join(cwd, path.basename(egg_zip)))
+    pythonpath = env_var(env, 'PYTHONPATH')
+    pythonpath.remove(cwd)
+    for config in ar.env_dependencies_configs:
+      setup_dot_py = path.join(config.root_dir, 'setup.py')
+      if not path.isfile(setup_dot_py):
+        raise RuntimeError('No setup.py found in %s to make the egg.' % (cwd))
+      egg_zip = egg.make(setup_dot_py)
+      pythonpath.prepend(egg_zip)
+      if args.save_egg:
+        file_util.copy(egg_zip, path.join(cwd, path.basename(egg_zip)))
 
   if args.pre_commit:
     missing_from_git = []
