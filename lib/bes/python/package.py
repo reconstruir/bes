@@ -9,16 +9,28 @@ class package(object):
 
   @classmethod
   def get_data_program_exe(clazz, program_path, filename, module_name):
-    if path.isabs(program_path):
-      raise ValueError('program_path should be relative instead of absolute: %s' % (program_path))
-    program_path_abs = path.normpath(path.join(path.dirname(filename), program_path))
-    if path.exists(program_path_abs):
-      if not file_path.is_executable(program_path_abs):
-        raise RuntimeError('not an executable program: %s' % (program_path_abs))
-      return program_path_abs
-    exe_data = pkgutil.get_data(module_name, program_path)
-    if not exe_data:
-      raise RuntimeError('data for program_path \"%s\" not found in module_name \"%s\"' % (program_path, module_name))
-    exe_tmp = temp_file.make_temp_file(content = exe_data, prefix = path.basename(program_path_abs) + '-')
+    inside_egg, exe_data = clazz._resolve_data(program_path, filename, module_name)
+    if not inside_egg:
+      if not file_path.is_executable(exe_data):
+        raise RuntimeError('not an executable program: %s' % (exe_data))
+      return exe_data
+    exe_tmp = temp_file.make_temp_file(content = exe_data, prefix = path.basename(program_path) + '-')
     os.chmod(exe_tmp, 0o755)
     return exe_tmp
+
+  @classmethod
+  def is_inside_egg(clazz, data_path, filename, module_name):
+    inside_egg, _ = clazz._resolve_data(data_path, filename, module_name)
+    return inside_egg
+  
+  @classmethod
+  def _resolve_data(clazz, data_path, filename, module_name):
+    if path.isabs(data_path):
+      raise ValueError('data_path should be relative instead of absolute: %s' % (data_path))
+    data_path_abs = path.normpath(path.join(path.dirname(filename), data_path))
+    if path.exists(data_path_abs):
+      return False, data_path_abs
+    data = pkgutil.get_data(module_name, data_path)
+    if not data:
+      raise RuntimeError('data for data_path \"%s\" not found in module_name \"%s\"' % (data_path, module_name))
+    return True, data
