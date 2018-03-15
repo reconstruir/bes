@@ -62,6 +62,9 @@ class table(object):
     self.check_y(y)
     return self._rows[y]
 
+  def __setitem__(self, y, row):
+    self.set_row(y, row)
+
   @property
   def empty(self):
     return self.width == 0 or self.height == 0
