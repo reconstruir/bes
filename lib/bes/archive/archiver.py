@@ -18,7 +18,7 @@ class archiver(object):
       return False
     archive_class = clazz.__determine_type(filename)
     if not archive_class:
-      raise RuntimeError('Unknown archive type for %s' % (filename))
+      return False
     return archive_class(filename).is_valid()
   
   @classmethod
