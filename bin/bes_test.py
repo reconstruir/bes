@@ -10,7 +10,7 @@ import time, tempfile
 from collections import namedtuple
 
 from bes.egg import egg
-from bes.fs import file_find, file_util, temp_file
+from bes.fs import file_find, file_path, file_util, temp_file
 from bes.git import git
 from bes.system import execute, env_var, os_env
 from bes.testing.framework import argument_resolver, printer
@@ -67,6 +67,10 @@ def main():
                       action = 'store',
                       default = None,
                       help = 'Profile the code with cProfile and store the output in the given argument [ None ]')
+  parser.add_argument('--coverage',
+                      action = 'store',
+                      default = None,
+                      help = 'Run coverage on the code and store the output in the given argument [ None ]')
   parser.add_argument('--pager',
                       action = 'store',
                       default = os.environ.get('PAGER', 'more'),
@@ -247,14 +251,27 @@ def main():
 
   total_num_tests = 0
 
-  if args.profile:
-    args.profile = path.abspath(args.profile)
-
   if not args.python:
     args.python = [ 'python' ]
   
+  if args.profile:
+    args.profile = path.abspath(args.profile)
+    if not _check_program('cprofilev'):
+      return 1
+    
+  if args.coverage:
+    args.coverage = path.abspath(args.coverage)
+    coverage_exe = _check_program('coverage')
+    if not coverage_exe:
+      return 1
+    args.python = [ coverage_exe ]
+
+  if args.profile and args.coverage:
+    printer.writeln_name('ERROR: --profile and --coverage are mutually exclusive.')
+    return 1
+    
   options = test_options(args.dry_run, args.verbose, args.stop, args.timing,
-                         args.profile, args.python)
+                         args.profile, args.coverage, args.python)
   
   timings = {}
 
@@ -345,7 +362,7 @@ def main():
 def _timing_average(l):
   return float(sum(l)) / float(len(l))
 
-test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing,profile_output,interpreters')
+test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing,profile_output,coverage_output,interpreters')
 test_result = namedtuple('test_result', 'success,num_tests_run,elapsed_time')
 
 def _test_data_dir(filename):
@@ -357,7 +374,10 @@ def _test_data_dir(filename):
 def _test_execute(python_exe, test_map, filename, tests, options, index, total_files, cwd, env):
   short_filename = file_util.remove_head(filename, cwd)
 
-  cmd = [ python_exe, '-B' ]
+  if options.coverage_output:
+    cmd = [ python_exe, 'run', 'a' ]
+  else:
+    cmd = [ python_exe, '-B' ]
 
   if options.profile_output:
     cmd.extend(['-m', 'cProfile', '-o', options.profile_output ])
@@ -406,6 +426,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     env = copy.deepcopy(env)
     env['BES_TEST_DATA_DIR'] = _test_data_dir(filename)
     time_start = time.time()
+    print('cmd: %s' % (cmd))
     process = subprocess.Popen(' '.join(cmd),
                                stdout = subprocess.PIPE,
                                stderr = subprocess.STDOUT,
@@ -449,12 +470,13 @@ def _make_count_blurb(index, total):
   count_blurb = (' ' * (length - len(count))) + count
   return '[%s of %s]' % (index_blurb, count_blurb)
 
-def _python_exe_blurb(python_exe, interpreters):
-  if len(interpreters) <= 1:
-    return ''
-  longest_python_exe = max([len(path.basename(p)) for p in options.interpreters])
-  return path.basename(python_exe).rjust(longest_python_exe)
-      
+def _check_program(program_name):
+  exe = file_path.which(program_name)
+  if not file_path.which(program_name):
+    printer.writeln_name('ERROR: %s not found.' % (program_name))
+    return None
+  return exe
+
 if __name__ == '__main__':
   raise SystemExit(main())
 
