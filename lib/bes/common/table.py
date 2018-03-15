@@ -176,14 +176,29 @@ class table(object):
   def check_x(self, x):
     if not self.x_valid(x):
       raise ValueError('Invalid x: %s' % (str(x)))
+    return x
+
+  def resolve_x(self, x):
+    if check.is_int(x):
+      pass
+    elif check.is_string(x):
+      try:
+        x = self._column_names.index(x)
+      except ValueError:
+        raise ValueError('Invalid x: %s' % (str(x)))
+    else:
+      raise ValueError('Invalid x: %s' % (str(x)))
+    return self.check_x(x)
 
   def check_y(self, y):
     if not self.y_valid(y):
       raise ValueError('Invalid y: %s' % (str(y)))
+    return y
 
   def check_xy(self, x, y):
     if not self.xy_valid(x, y):
       raise ValueError('Invalid x, y: %s, %s' % (str(x), str(y)))
+    return x, y
 
   def check_width(self, width):
     if not self.width_valid(width):
@@ -257,20 +272,7 @@ class table(object):
       self.set_column(col_x, column)
 
   def remove_column(self, col_x):
-    self.check_x(col_x)
-    new_table = table(self.width - 1, self.height, default_value = self._default_value, column_names = self._column_names)
-    for x in range(0, col_x):
-      new_table.set_column(x, self.column(x))
-    new_x = col_x + 1
-    for old_x in range(col_x, self.width):
-      new_table.set_column(new_x, self.column(old_x))
-      new_x = new_x + 1
-    self._rows = new_table._rows
-    if column:
-      self.set_column(col_x, column)
-
-  def remove_column(self, col_x):
-    self.check_x(col_x)
+    col_x = self.resolve_x(col_x)
     new_column_names = self._remove_column_name(self._column_names, col_x)
     new_table = table(self.width - 1, self.height, default_value = self._default_value, column_names = new_column_names)
     for x in range(0, col_x):

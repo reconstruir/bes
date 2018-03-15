@@ -468,6 +468,47 @@ class test_table(unit_test):
       ( 'mango', 'orange', 10 ),
     ], column_names = column_names)
     self.assertEqual( t1, t2 )
+
+  def test_resolve_x(self):
+    column_names = ( 'fruit', 'color', 'sweetness' )
+    t = table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ], column_names = column_names)
+    
+    self.assertEqual( 0, t.resolve_x(0) )
+    self.assertEqual( 1, t.resolve_x(1) )
+    self.assertEqual( 2, t.resolve_x(2) )
+    with self.assertRaises(ValueError) as ex:
+      t.resolve_x(3)
+    
+    self.assertEqual( 0, t.resolve_x('fruit') )
+    self.assertEqual( 1, t.resolve_x('color') )
+    self.assertEqual( 2, t.resolve_x('sweetness') )
+    with self.assertRaises(ValueError) as ex:
+      t.resolve_x('notthere')
+    
+  def test_remove_column_with_name(self):
+    column_names = ( 'fruit', 'color', 'sweetness' )
+    t1 = table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ], column_names = column_names)
+    t1.remove_column('color')
+    t2 = table(data = [
+      ( 'cherry', 4),
+      ( 'lemon', 2 ),
+      ( 'orange', 8 ),
+      ( 'mango', 10 ),
+    ], column_names = column_names)
+    self.assertEqual( t1, t2 )
+
+    with self.assertRaises(ValueError) as ex:
+      t1.remove_column('notthere')
     
 if __name__ == '__main__':
   unit_test.main()
