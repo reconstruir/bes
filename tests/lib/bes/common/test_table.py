@@ -451,6 +451,23 @@ class test_table(unit_test):
     ])
     t1.remove_column(0)
     self.assertEqual( t1, t3 )
+
+  def test_insert_column_with_names(self):
+    column_names = ( 'fruit', 'sweetness' )
+    t1 = table(data = [
+      ( 'cherry', 4),
+      ( 'lemon', 2 ),
+      ( 'orange', 8 ),
+      ( 'mango', 10 ),
+    ], column_names = column_names)
+    t1.insert_column(1, column = ( 'red', 'yellow', 'orange', 'orange' ), name = 'color')
+    t2 = table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ], column_names = column_names)
+    self.assertEqual( t1, t2 )
     
 if __name__ == '__main__':
   unit_test.main()

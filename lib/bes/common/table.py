@@ -256,7 +256,6 @@ class table(object):
     if column:
       self.set_column(col_x, column)
 
-    
   def remove_column(self, col_x):
     self.check_x(col_x)
     new_table = table(self.width - 1, self.height, default_value = self._default_value, column_names = self._column_names)
