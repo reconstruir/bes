@@ -54,13 +54,13 @@ class table(object):
       
     check.check_int(width)
     check.check_int(height)
-    self._table = self._make_table(width, height, self._default_value)
+    self._rows = self._make_table(width, height, self._default_value)
     if data:
       self.set_data(data)
 
   def __getitem__(self, y):
     self.check_y(y)
-    return self._table[y]
+    return self._rows[y]
 
   @property
   def empty(self):
@@ -68,29 +68,29 @@ class table(object):
   
   @property
   def width(self):
-    if not self._table:
+    if not self._rows:
       return 0
-    return len(self._table[0])
+    return len(self._rows[0])
 
   @property
   def height(self):
-    if not self._table:
+    if not self._rows:
       return 0
-    return len(self._table)
+    return len(self._rows)
 
   def __iter__(self):
     'Iterate through the table rows'
-    return iter(self._table)
+    return iter(self._rows)
   
   def __str__(self):
     max_len = 0
     for y in range(0, self.height):
       for x in range(0, self.width):
-        max_len = max(len(str(self._table[y][x])), max_len)
+        max_len = max(len(str(self._rows[y][x])), max_len)
     buf = StringIO()
     for y in range(0, self.height):
       for x in range(0, self.width):
-        buf.write(string_util.right_justify(str(self._table[y][x]), max_len))
+        buf.write(string_util.right_justify(str(self._rows[y][x]), max_len))
         buf.write(' ')
       buf.write('\n')
     return buf.getvalue()
@@ -103,7 +103,7 @@ class table(object):
       return False
     for y in range(0, self.height):
       for x in range(0, self.width):
-        if self._table[y][x] != other._table[y][x]:
+        if self._rows[y][x] != other._rows[y][x]:
           return False
     return True
     
@@ -113,16 +113,16 @@ class table(object):
     if width == self.width and height == self.height:
       return
     new_table = self._make_table(width, height, self._default_value)
-    self._copy_table(self._table, new_table, self._default_value)
-    self._table = new_table
+    self._copy_table(self._rows, new_table, self._default_value)
+    self._rows = new_table
 
   def set(self, x, y, value):
     self.check_xy(x, y)
-    self._table[y][x] = value
+    self._rows[y][x] = value
 
   def get(self, x, y):
     self.check_xy(x, y)
-    return self._table[y][x]
+    return self._rows[y][x]
     
   def set_row(self, y, row):
     check.check(row, ( tuple, list ))
@@ -130,7 +130,7 @@ class table(object):
     if len(row) != self.width:
       raise ValueError('Row should be %d wide instead of %d: \"%s\"' % (self.width, len(row), str(row)))
     for x in range(0, self.width):
-      self._table[y][x] = row[x]
+      self._rows[y][x] = row[x]
     
   def set_column(self, x, column):
     check.check_tuple(column)
@@ -138,24 +138,24 @@ class table(object):
     if len(column) != self.height:
       raise ValueError('Column should be %d high instead of %d: \"%s\"' % (self.height, len(column), str(column)))
     for y in range(0, self.height):
-      self._table[y][x] = column[y]
+      self._rows[y][x] = column[y]
    
   def sort_by_column(self, x, reverse = False):
     self.check_x(x)
     self.sort_by_key((lambda row: row[x]), reverse = reverse)
 
   def sort_by_key(self, key, reverse = False):
-    self._table = sorted(self._table, key = key, reverse = reverse)
+    self._rows = sorted(self._rows, key = key, reverse = reverse)
 
   def row(self, y):
     self.check_y(y)
-    return tuple(self._table[y])
+    return tuple(self._rows[y])
   
   def column(self, x):
     self.check_x(x)
     col = []
     for y in range(0, self.height):
-      col.append(self._table[y][x])
+      col.append(self._rows[y][x])
     return tuple(col)
   
   def x_valid(self, x):
@@ -215,7 +215,7 @@ class table(object):
 
   def set_data(self, data):
     if isinstance(data, table):
-      self._table = data._table
+      self._rows = data._rows
     else:
       check.check_tuple_seq(data)
       if len(data) != self.height:
@@ -241,7 +241,7 @@ class table(object):
     else:
       new_column_names = None
     new_table = table(1, len(column), default_value = self._default_value, column_names = new_column_names)
-    self._table = new_table._table
+    self._rows = new_table._rows
     self.set_column(0, column)
 
   def _insert_column_not_empty(self, col_x, column = None, name = None):
@@ -252,7 +252,7 @@ class table(object):
     for x in range(col_x, self.width):
       new_table.set_column(new_col_x, self.column(x))
       new_col_x = new_col_x + 1
-    self._table = new_table._table
+    self._rows = new_table._rows
     if column:
       self.set_column(col_x, column)
 
@@ -266,7 +266,7 @@ class table(object):
     for old_x in range(col_x, self.width):
       new_table.set_column(new_x, self.column(old_x))
       new_x = new_x + 1
-    self._table = new_table._table
+    self._rows = new_table._rows
     if column:
       self.set_column(col_x, column)
 
@@ -280,7 +280,7 @@ class table(object):
     for old_x in range(col_x + 1, self.width):
       new_table.set_column(new_x, self.column(old_x))
       new_x = new_x + 1
-    self._table = new_table._table
+    self._rows = new_table._rows
     self._column_names = new_column_names
 
   def _remove_column_name(clazz, column_names, x):
@@ -292,18 +292,18 @@ class table(object):
     return tuple(l)
       
   def insert_row(self, row_y, row = None):
-    if self._table == []:
+    if self._rows == []:
       if row is None:
         raise ValueError('The first row cannot be None')
       check.check(row, ( list, tuple ))
       new_row = table_row([ item for item in row ])
       new_row._column_names = self._column_names
-      self._table = [ new_row ]
+      self._rows = [ new_row ]
     else:
       self.check_y(row_y)
       new_row = table_row([ self._default_value ] * self.width)
       new_row._column_names = self._column_names
-      self._table.insert(row_y, new_row)
+      self._rows.insert(row_y, new_row)
       if row:
         self.set_row(row_y, row)
       
@@ -312,7 +312,7 @@ class table(object):
       
   def append_rows(self, rows):
     if check.is_table(rows):
-      rows = rows._table
+      rows = rows._rows
     check.check_list(rows)
     rows_width = len(rows[0])
     if len(rows[0]) != self.width:
@@ -320,7 +320,7 @@ class table(object):
     for row in rows:
       new_row = table_row(row)
       new_row._column_names = self._column_names
-      self._table.append(new_row)
+      self._rows.append(new_row)
 
   @classmethod
   def concatenate_vertical(clazz, tables):
@@ -341,7 +341,7 @@ class table(object):
     'Filter rows with filter_func.'
     assert callable(filter_func)
     new_table = table(column_names = self._column_names)
-    for row in self._table:
+    for row in self._rows:
       if filter_func(row):
         new_table.append_row(row)
     return new_table
