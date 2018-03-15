@@ -54,7 +54,7 @@ class table(object):
       
     check.check_int(width)
     check.check_int(height)
-    self._rows = self._make_table(width, height, self._default_value)
+    self._rows = self._make_rows(width, height, self._default_value)
     if data:
       self.set_data(data)
 
@@ -112,7 +112,7 @@ class table(object):
     check.check_int(height)
     if width == self.width and height == self.height:
       return
-    new_table = self._make_table(width, height, self._default_value)
+    new_table = self._make_rows(width, height, self._default_value)
     self._copy_table(self._rows, new_table, self._default_value)
     self._rows = new_table
 
@@ -193,7 +193,7 @@ class table(object):
     if not self.height_valid(height):
       raise ValueError('Invalid height: %s' % (str(height)))
 
-  def _make_table(self, width, height, default_value):
+  def _make_rows(self, width, height, default_value):
     rows = [ default_value ] * height
     for i in range(0, height):
       rows[i] = table_row([ default_value ] * width)
