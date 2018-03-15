@@ -62,6 +62,7 @@ class table(object):
     self.check_y(y)
     return self._table[y]
 
+  @property
   def empty(self):
     return self.width == 0 or self.height == 0
   
@@ -222,8 +223,28 @@ class table(object):
       for i, row in enumerate(data):
         self.set_row(i, row)
 
-  def insert_column(self, col_x, column = None):
-    self.check_x(col_x)
+  def insert_column(self, col_x, column = None, name = None):
+    if self.empty:
+      if not column:
+        raise ValueError('first column cannot be None.')
+      if col_x != 0:
+        raise ValueError('first column should be 0 instead of %d' % (col_x))
+      self._insert_column_empty(column, name = name)
+    else:
+      self.check_x(col_x)
+      self._insert_column_not_empty(col_x, column = column, name = name)
+
+  def _insert_column_empty(self, column, name = None):
+    if name:
+      check.check_string(name)
+      new_column_names = [ name ]
+    else:
+      new_column_names = None
+    new_table = table(1, len(column), default_value = self._default_value, column_names = new_column_names)
+    self._table = new_table._table
+    self.set_column(0, column)
+
+  def _insert_column_not_empty(self, col_x, column = None, name = None):
     new_table = table(self.width + 1, self.height, default_value = self._default_value, column_names = self._column_names)
     for x in range(0, col_x):
       new_table.set_column(x, self.column(x))
@@ -235,6 +256,41 @@ class table(object):
     if column:
       self.set_column(col_x, column)
 
+    
+  def remove_column(self, col_x):
+    self.check_x(col_x)
+    new_table = table(self.width - 1, self.height, default_value = self._default_value, column_names = self._column_names)
+    for x in range(0, col_x):
+      new_table.set_column(x, self.column(x))
+    new_x = col_x + 1
+    for old_x in range(col_x, self.width):
+      new_table.set_column(new_x, self.column(old_x))
+      new_x = new_x + 1
+    self._table = new_table._table
+    if column:
+      self.set_column(col_x, column)
+
+  def remove_column(self, col_x):
+    self.check_x(col_x)
+    new_column_names = self._remove_column_name(self._column_names, col_x)
+    new_table = table(self.width - 1, self.height, default_value = self._default_value, column_names = new_column_names)
+    for x in range(0, col_x):
+      new_table.set_column(x, self.column(x))
+    new_x = col_x
+    for old_x in range(col_x + 1, self.width):
+      new_table.set_column(new_x, self.column(old_x))
+      new_x = new_x + 1
+    self._table = new_table._table
+    self._column_names = new_column_names
+
+  def _remove_column_name(clazz, column_names, x):
+    if not column_names:
+      return None
+    assert x >= 0 and x < len(column_names)
+    l = list(column_names)
+    l.pop(x)
+    return tuple(l)
+      
   def insert_row(self, row_y, row = None):
     if self._table == []:
       if row is None:
@@ -270,7 +326,7 @@ class table(object):
   def concatenate_vertical(clazz, tables):
     'Concatenate a sequence of tables vertically.  The column width for all tables must match the first table.'
     check.check_table_seq(tables)
-    tables = [ t for t in tables if not t.empty() ]
+    tables = [ t for t in tables if not t.empty ]
     result = None
     for i, t in enumerate(tables):
       if not result:

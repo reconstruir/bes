@@ -11,6 +11,15 @@ class test_table(unit_test):
     self.assertEqual( 0, t.width )
     self.assertEqual( 0, t.height )
 
+  def test_empty(self):
+    t1 = table()
+    self.assertTrue( t1.empty )
+    t2 =  table(data = [
+      ( 1, 2 ),
+      ( 3, 4 ),
+    ])
+    self.assertFalse( t2.empty )
+
   def test___init__empty_with_width(self):
     t = table()
     t.append_row( ( 'cherry', 'red' ) )
@@ -27,6 +36,13 @@ class test_table(unit_test):
     ])
     self.assertEqual( 2, t.width )
     self.assertEqual( 2, t.height )
+
+  def test___init__with_one_row(self):
+    t =  table(data = [
+      ( 1, 2, 3 ),
+    ])
+    self.assertEqual( 3, t.width )
+    self.assertEqual( 1, t.height )
     
   def test___init__with_table_data(self):
     t1 = table(data = [
@@ -185,6 +201,24 @@ class test_table(unit_test):
       ( 7, 8, 9 ),
     ])
     t1.insert_row(1, row = ( 11, 12, 13 ))
+    self.assertEqual( t1, t2 )
+
+  def test_insert_column_empty_table(self):
+    t1 = table()
+    t2 = table(data = [
+      ( 1, ),
+      ( 2, ),
+      ( 3, ),
+    ])
+    t1.insert_column(0, column = ( 1, 2, 3 ))
+    self.assertEqual( t1, t2 )
+    
+  def test_insert_row_empty_table(self):
+    t1 = table()
+    t2 = table(data = [
+      ( 1, 2, 3 ),
+    ])
+    t1.insert_row(0, row = ( 1, 2, 3 ))
     self.assertEqual( t1, t2 )
     
   def test_append_rows(self):
@@ -396,6 +430,27 @@ class test_table(unit_test):
     t3 = table()
     t4 = table()
     self.assertEqual( t4, table.concatenate_vertical([ t1, t2, t3 ]) )
+
+  def test_remove_column(self):
+    t1 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ])
+    t2 = table(data = [
+      ( 1, 3 ),
+      ( 4, 6 ),
+      ( 7, 9 ),
+    ])
+    t1.remove_column(1)
+    self.assertEqual( t1, t2 )
+    t3 = table(data = [
+      ( 3, ),
+      ( 6, ),
+      ( 9, ),
+    ])
+    t1.remove_column(0)
+    self.assertEqual( t1, t3 )
     
 if __name__ == '__main__':
   unit_test.main()
