@@ -42,9 +42,9 @@ class enum(with_metaclass(_enum_meta_class, object)):
   def __eq__(self, other):
     if isinstance(other, self.__class__):
       return self.value == other.value
-    elif string_util.is_string(other):
-      return self.value == self.parse(other)
-    elif isinstance(other, int):
+    elif check.is_string(other):
+      return self.name == other
+    elif check.is_int(other):
       return self.value == other
     else:
       raise TypeError('invalid other: %s - %s' % (str(other), type(other)))
