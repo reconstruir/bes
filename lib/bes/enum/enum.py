@@ -49,6 +49,9 @@ class enum(with_metaclass(_enum_meta_class, object)):
     else:
       raise TypeError('invalid other: %s - %s' % (str(other), type(other)))
 
+  def __hash__(self):
+    return self.value
+    
   @classmethod
   def is_valid(clazz, value):
     if compat.is_int(value):
