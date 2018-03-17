@@ -30,6 +30,7 @@ class package(object):
     data_path_abs = path.normpath(path.join(path.dirname(filename), data_path))
     if path.exists(data_path_abs):
       return False, data_path_abs
+    print('module_name=%s; data_path=%s' % (module_name, data_path))
     data = pkgutil.get_data(module_name, data_path)
     if not data:
       raise RuntimeError('data for data_path \"%s\" not found in module_name \"%s\"' % (data_path, module_name))
