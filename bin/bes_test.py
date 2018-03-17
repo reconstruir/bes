@@ -426,7 +426,6 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     env = copy.deepcopy(env)
     env['BES_TEST_DATA_DIR'] = _test_data_dir(filename)
     time_start = time.time()
-    print('cmd: %s' % (cmd))
     process = subprocess.Popen(' '.join(cmd),
                                stdout = subprocess.PIPE,
                                stderr = subprocess.STDOUT,
