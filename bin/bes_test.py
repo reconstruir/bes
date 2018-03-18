@@ -420,6 +420,11 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     blurb = '%7s:%s%s%s %s - %s ' % (label, filename_count_blurb, python_exe_blurb_sep, python_exe_blurb, short_filename, function_count_blurb)
     printer.writeln_name(blurb)
 
+    if options.verbose and tests:
+      for i, test in enumerate(tests):
+        blurb = '%7s:   %s.%s' % ('tests', test.fixture, test.function)
+        printer.writeln_name(blurb)
+    
     if options.dry_run:
       return test_result(True, 0, 0.0)
 
