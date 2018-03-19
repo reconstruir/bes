@@ -40,7 +40,6 @@ class file_mime(object):
   # From http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
   @classmethod
   def content_is_text(clazz, filename):
-    print('content_is_text(%s)' % (filename))
     with open(filename, 'rb') as fin:
       s = fin.read(512)
       text_characters = ''.join(list(map(chr, range(32, 127))) + list('\n\r\t\b'))

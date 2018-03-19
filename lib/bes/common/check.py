@@ -23,6 +23,10 @@ class check(object):
     return isinstance(o, clazz.INTEGER_TYPES)
 
   @classmethod
+  def is_int_seq(clazz, o):
+    return not clazz.is_int(o) and clazz.is_seq(o, clazz.INTEGER_TYPES)
+  
+  @classmethod
   def is_bool(clazz, o):
     return isinstance(o, bool)
 
