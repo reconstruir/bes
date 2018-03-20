@@ -9,6 +9,15 @@ class test_comments(unit_test):
   def test_strip_line(self):
     self.assertEqual( 'foo ', comments.strip_line('foo #comment') )
     self.assertEqual( 'foo', comments.strip_line('foo#comment') )
+    self.assertEqual( 'foo', comments.strip_line('foo #comment', strip_tail = True) )
+    self.assertEqual( ' foo', comments.strip_line(' foo #comment', strip_tail = True) )
+    self.assertEqual( 'foo ', comments.strip_line(' foo #comment', strip_head = True) )
+    
+  def test_strip_line_with_quoted_hash(self):
+    self.assertEqual( 'ab "cd # ef"', comments.strip_line('ab "cd # ef"') )
+    self.assertEqual( 'ab "cd # ef"', comments.strip_line('ab "cd # ef"#comment') )
+    self.assertEqual( '', comments.strip_line('#ab "cd # ef"') )
+    self.assertEqual( '"#"', comments.strip_line('"#"') )
     
   def test_strip_line_with_strip(self):
     self.assertEqual( 'foo', comments.strip_line('foo #comment', strip_tail = True) )
