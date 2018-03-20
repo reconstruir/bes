@@ -5,6 +5,36 @@ import string
 from .string_lexer import *
 from .lexer_token import lexer_token
 
+class sentence_lexer(string_lexer):
+
+  TOKEN_PUNCTUATION = 'punctuation'
+
+  _PUNCTUATION_CHARS = [ c for c in string.punctuation if c not in [ '_', '#' ] ]
+  
+  def __init__(self, log_tag, options):
+    super(sentence_lexer, self).__init__(log_tag, options)
+
+    self.STATE_BEGIN = _state_begin(self)
+    self.STATE_DONE = string_lexer_state_done(self)
+    self.STATE_STRING = _state_string(self)
+    self.STATE_SPACE = _state_space(self)
+    self.STATE_SINGLE_QUOTED_STRING = string_lexer_state_single_quoted_string(self)
+    self.STATE_DOUBLE_QUOTED_STRING = string_lexer_state_double_quoted_string(self)
+    self.STATE_COMMENT = string_lexer_state_comment(self)
+
+    self.state = self.STATE_BEGIN
+
+  @classmethod
+  def tokenize(clazz, text, log_tag = 'sentence_lexer', options = None):
+    return clazz(log_tag, options)._run(text)
+
+  def make_token_punctuation(self, c):
+    return lexer_token(self.TOKEN_PUNCTUATION, c, self.position)
+
+  @classmethod
+  def is_punctuation(clazz, c):
+    return c in clazz._PUNCTUATION_CHARS
+  
 class _state_begin(string_lexer_state):
   def __init__(self, lexer):
     super(_state_begin, self).__init__(lexer)
@@ -117,34 +147,3 @@ class _state_string(string_lexer_state):
       new_state = self.lexer.STATE_STRING
     self.lexer.change_state(new_state, c)
     return tokens
-
-class sentence_lexer(string_lexer):
-
-  TOKEN_PUNCTUATION = 'punctuation'
-
-  _PUNCTUATION_CHARS = [ c for c in string.punctuation if c not in [ '_', '#' ] ]
-  
-  def __init__(self, log_tag, options):
-    super(sentence_lexer, self).__init__(log_tag, options)
-
-    self.STATE_BEGIN = _state_begin(self)
-    self.STATE_DONE = string_lexer_state_done(self)
-    self.STATE_STRING = _state_string(self)
-    self.STATE_SPACE = _state_space(self)
-    self.STATE_SINGLE_QUOTED_STRING = string_lexer_state_single_quoted_string(self)
-    self.STATE_DOUBLE_QUOTED_STRING = string_lexer_state_double_quoted_string(self)
-    self.STATE_COMMENT = string_lexer_state_comment(self)
-
-    self.state = self.STATE_BEGIN
-
-  @classmethod
-  def tokenize(clazz, text, log_tag = 'sentence_lexer', options = None):
-    return clazz(log_tag, options)._run(text)
-
-  def make_token_punctuation(self, c):
-    return lexer_token(self.TOKEN_PUNCTUATION, c, self.position)
-
-  @classmethod
-  def is_punctuation(clazz, c):
-    return c in clazz._PUNCTUATION_CHARS
-  
