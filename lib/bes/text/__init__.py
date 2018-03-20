@@ -6,7 +6,6 @@ from .lexer_token import lexer_token
 from .line_continuation_merger import line_continuation_merger
 from .line_numbers import line_numbers
 from .line_token import line_token
-from .section_parser import section_parser
 from .sentence_lexer import sentence_lexer
 from .string_lexer import string_lexer, string_lexer_options
 from .string_list import string_list
