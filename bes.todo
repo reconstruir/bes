@@ -40,8 +40,6 @@ dec 20
 - decide if enums are case insensitive look at python 3
 
 dec 26
-- section and section_parser appear to be unused
-- also recipe_section and recipe_section_parser unused
 - verify_key_value_list and is_key_value_list might not be needed
 
 dec 29
