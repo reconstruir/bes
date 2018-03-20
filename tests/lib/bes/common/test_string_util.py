@@ -110,5 +110,11 @@ class test_string_util(unittest.TestCase):
   def test_reversed(self):
     self.assertEqual( 'oof', string_util.reverse('foo') )
 
+  def test_strip_ends(self):
+    self.assertEqual( ' foo ', string_util.strip_ends(' foo ') )
+    self.assertEqual( 'foo ', string_util.strip_ends(' foo ', strip_head = True) )
+    self.assertEqual( ' foo', string_util.strip_ends(' foo ', strip_tail = True) )
+    self.assertEqual( 'foo', string_util.strip_ends(' foo ', strip_head = True, strip_tail = True) )
+
 if __name__ == "__main__":
   unittest.main()

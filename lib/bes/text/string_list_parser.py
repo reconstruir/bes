@@ -4,6 +4,41 @@
 from bes.system import log
 from .string_lexer import string_lexer, string_lexer_options
 
+class string_list_parser(string_lexer_options.CONSTANTS):
+
+  def __init__(self, options = 0):
+    log.add_logging(self, tag = 'string_list_parser')
+
+    self._options = options
+    self.STATE_EXPECTING_STRING = _state_expecting_string(self)
+    self.STATE_DONE = _state_done(self)
+    self.state = self.STATE_EXPECTING_STRING
+
+  def _run(self, text):
+    self.log_d('_run(%s)' % (text))
+
+    for token in string_lexer.tokenize(text, 'string_list_parser', options = self._options):
+      strings = self.state.handle_token(token)
+      if strings:
+        for s in strings:
+          self.log_i('parse: new string: \"%s\"' % (s))
+        yield s
+    assert self.state == self.STATE_DONE
+      
+  def _change_state(self, new_state, msg):
+    assert new_state
+    if new_state != self.state:
+      self.log_d('transition: %20s -> %-20s; %s'  % (self.state.__class__.__name__, new_state.__class__.__name__, msg))
+      self.state = new_state
+
+  @classmethod
+  def parse(clazz, text, options = 0):
+    return clazz(options = options)._run(text)
+
+  @classmethod
+  def parse_to_list(clazz, text, options = 0):
+    return [ x for x in clazz.parse(text, options = options) ]
+
 class _state(object):
 
   def __init__(self, parser):
@@ -54,37 +89,3 @@ class _state_done(_state):
     self.change_state(self.parser.STATE_DONE, token)
     return []
   
-class string_list_parser(string_lexer_options.CONSTANTS):
-
-  def __init__(self, options = 0):
-    log.add_logging(self, tag = 'string_list_parser')
-
-    self._options = options
-    self.STATE_EXPECTING_STRING = _state_expecting_string(self)
-    self.STATE_DONE = _state_done(self)
-    self.state = self.STATE_EXPECTING_STRING
-
-  def _run(self, text):
-    self.log_d('_run(%s)' % (text))
-
-    for token in string_lexer.tokenize(text, 'string_list_parser', options = self._options):
-      strings = self.state.handle_token(token)
-      if strings:
-        for s in strings:
-          self.log_i('parse: new string: \"%s\"' % (s))
-        yield s
-    assert self.state == self.STATE_DONE
-      
-  def _change_state(self, new_state, msg):
-    assert new_state
-    if new_state != self.state:
-      self.log_d('transition: %20s -> %-20s; %s'  % (self.state.__class__.__name__, new_state.__class__.__name__, msg))
-      self.state = new_state
-
-  @classmethod
-  def parse(clazz, text, options = 0):
-    return clazz(options = options)._run(text)
-
-  @classmethod
-  def parse_to_list(clazz, text, options = 0):
-    return [ x for x in clazz.parse(text, options = options) ]

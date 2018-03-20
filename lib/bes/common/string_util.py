@@ -227,3 +227,13 @@ class string_util(object):
   @classmethod
   def reverse(clazz, s):
     return ''.join(reversed(s))
+
+  @classmethod
+  def strip_ends(clazz, s, strip_head = False, strip_tail = False):
+    if strip_head and strip_tail:
+      return s.strip()
+    elif strip_head:
+      return s.lstrip()
+    elif strip_tail:
+      return s.rstrip()
+    return s
