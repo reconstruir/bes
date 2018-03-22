@@ -5,7 +5,7 @@
 # problem when unit testing bes itself.  Use the standalone bes_test version to avoid
 # the issue.
 # FOO
-import argparse, copy, math, os, os.path as path, py_compile, subprocess, sys
+import argparse, copy, math, os, os.path as path, py_compile, re, subprocess, sys
 import time, tempfile
 from collections import namedtuple
 
@@ -324,7 +324,8 @@ def main():
         python_exe_blurb = path.basename(python_exe).rjust(longest_python_exe)
       else:
         python_exe_blurb = ''
-      printer.writeln_name('FAILED: %s %s' % (python_exe_blurb, file_util.remove_head(filename, cwd)))
+      last_error = _find_unit_test_last_error(result.output) or ''
+      printer.writeln_name('FAILED: %s %s%s' % (python_exe_blurb, file_util.remove_head(filename, cwd), last_error))
 
   if num_failed > 0:
     rv = 1
@@ -363,7 +364,7 @@ def _timing_average(l):
   return float(sum(l)) / float(len(l))
 
 test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing,profile_output,coverage_output,interpreters')
-test_result = namedtuple('test_result', 'success,num_tests_run,elapsed_time')
+test_result = namedtuple('test_result', 'success,num_tests_run,elapsed_time,output')
 
 def _test_data_dir(filename):
   data_dir = os.environ.get('BES_TEST_DATA_DIR', None)
@@ -426,7 +427,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
         printer.writeln_name(blurb)
     
     if options.dry_run:
-      return test_result(True, 0, 0.0)
+      return test_result(True, 0, 0.0, None)
 
     env = copy.deepcopy(env)
     env['BES_TEST_DATA_DIR'] = _test_data_dir(filename)
@@ -449,10 +450,10 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     if writeln_output:
       printer.writeln_name('%7s: %s' % (label, short_filename))
       printer.writeln(output)
-    return test_result(success, wanted_unit_tests, elapsed_time)
+    return test_result(success, wanted_unit_tests, elapsed_time, output)
   except Exception as ex:
     printer.writeln_name('Caught exception on %s: %s' % (filename, str(ex)))
-    return test_result(False, wanted_unit_tests, 0.0)
+    return test_result(False, wanted_unit_tests, 0.0, output)
 
 def _count_tests(test_map, tests):
   total = 0
@@ -480,6 +481,13 @@ def _check_program(program_name):
     printer.writeln_name('ERROR: %s not found.' % (program_name))
     return None
   return exe
+
+def _find_unit_test_last_error(output):
+  for line in reversed(output.split('\n')):
+    r = re.findall('^\s*FAIL:\s+(.+)\s+\(__main__\.(.+)\)\s*$', line)
+    if r:
+      return ':%s.%s' % (r[0][1], r[0][0])
+  return None
 
 if __name__ == '__main__':
   raise SystemExit(main())
