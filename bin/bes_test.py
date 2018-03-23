@@ -128,6 +128,14 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Print python dependencies for test files [ False ]')
+  parser.add_argument('--print-configs',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Print testing configs found [ False ]')
+  parser.add_argument('--print-path',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Print sys.path [ False ]')
   parser.add_argument('--file-ignore-file',
                       action = 'append',
                       default = [],
@@ -175,6 +183,15 @@ def main():
   
   if not ar.test_descriptions:
     return 1
+
+  if args.print_path:
+    for p in sys.path:
+      print(p)
+    return 0
+  
+  if args.print_configs:
+    ar.print_configs()
+    return 0
   
   if args.print_files:
     ar.print_files()

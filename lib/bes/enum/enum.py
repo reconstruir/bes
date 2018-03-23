@@ -58,7 +58,7 @@ class enum(with_metaclass(_enum_meta_class, object)):
       return clazz.value_is_valid(value)
     elif compat.is_string(value):
       return clazz.name_is_valid(value)
-    elif isinstance(value, self.__class__):
+    elif isinstance(value, clazz):
       return True
     else:
       raise TypeError('invalid type for value: %s - %s' % (str(value), type(value)))

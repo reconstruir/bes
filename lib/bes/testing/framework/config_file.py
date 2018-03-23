@@ -26,4 +26,8 @@ class config_file(namedtuple('config_file', 'root_dir,filename,data')):
                                                self.root_dir,
                                                self.filename,
                                                self.data.substitute(variables))
-  
+
+  @property
+  def nice_filename(self):
+    home = path.expanduser('~/')
+    return self.filename.replace(home, '~/')
