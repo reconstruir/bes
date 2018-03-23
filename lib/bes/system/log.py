@@ -385,6 +385,7 @@ class log_filter(pylog.Filter):
     log.log(record.module, self.__class__.pylog_to_fateware_log[record.levelno], message)
     return 0
 
-__config = os.environ.get('BES_LOG', None)
-if __config:
-  log.configure(__config)
+_config = os.environ.get('BES_LOG', None)
+if _config:
+  log.configure(_config)
+del _config

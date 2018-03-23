@@ -26,6 +26,14 @@ class test_key_value_parser(unittest.TestCase):
     self.assertEqual( [ KV('foo', None), KV('bar', None) ], self._parse('foo= bar=') )
     self.assertEqual( [ KV('foo', None), KV('bar', None) ], self._parse('foo=    bar=') )
 
+  def test_empty_value_not_default(self):
+    self.maxDiff = None
+    self.assertEqual( [ KV('foo', 'X') ], self._parse('foo=', empty_value = 'X') )
+    self.assertEqual( [ KV('foo', 'X') ], self._parse('foo= ', empty_value = 'X') )
+    self.assertEqual( [ KV('foo', 'X') ], self._parse(' foo= ', empty_value = 'X') )
+    self.assertEqual( [ KV('foo', 'X'), KV('bar', 'X') ], self._parse('foo= bar=', empty_value = 'X') )
+    self.assertEqual( [ KV('foo', 'X'), KV('bar', 'X') ], self._parse('foo=    bar=', empty_value = 'X') )
+
   def test_more(self):
     self.assertEqual( { 'foo': '123', 'bar': 'hello' }, P.parse_to_dict('foo=123\t\nbar=hello') )
     self.assertEqual( { 'foo': None }, P.parse_to_dict('foo=') )
@@ -82,7 +90,8 @@ class test_key_value_parser(unittest.TestCase):
   def _parse(self, text,
              keep_quotes = False,
              escape_quotes = False,
-             ignore_comments = False):
+             ignore_comments = False,
+             empty_value = None):
     options = 0
     if keep_quotes:
       options |= P.KEEP_QUOTES
@@ -90,7 +99,7 @@ class test_key_value_parser(unittest.TestCase):
       options |= P.ESCAPE_QUOTES
     if ignore_comments:
       options |= P.IGNORE_COMMENTS
-    return [ kv for kv in P.parse(text, options = options) ]
+    return P.parse_to_list(text, options = options, empty_value = empty_value, log_tag = 'test_key_value_parser')
 
 if __name__ == "__main__":
   unittest.main()

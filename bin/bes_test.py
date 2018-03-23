@@ -9,6 +9,7 @@ import argparse, copy, math, os, os.path as path, py_compile, re, subprocess, sy
 import time, tempfile
 from collections import namedtuple
 
+from bes.key_value import key_value_list
 from bes.egg import egg
 from bes.fs import file_find, file_path, file_util, temp_file
 from bes.git import git
@@ -131,7 +132,12 @@ def main():
                       action = 'append',
                       default = [],
                       help = 'List of file ignore files. [ .bes_test_ignore .bes_test_internal_ignore ]')
+  parser.add_argument('--env',
+                      action = 'append',
+                      default = [],
+                      help = 'Environment variables to set [ None ]')
   args = parser.parse_args()
+
   
   cwd = os.getcwd()
 
@@ -139,6 +145,8 @@ def main():
     import bes
     print(version_info.version_info_for_module(bes).version_string(delimiter = ' '))
     return 0
+
+  args.env = _parse_args_env(args.env)
   
   if not args.files:
     args.files = [ cwd ]
@@ -192,9 +200,9 @@ def main():
   # to whatever the user happened to have exported.  PYTHONPATH and PATH for dependencies
   # are set below by iterating the configs 
   if args.dont_hack_env:
-    keep_keys = [ 'PATH', 'PYTHONPATH' ]
+    keep_keys = [ 'PATH', 'PYTHONPATH', 'BES_LOG' ]
   else:
-    keep_keys = None
+    keep_keys = [ 'BES_LOG' ]
     
   env = os_env.make_clean_env(keep_keys = keep_keys)
   env['PYTHONDONTWRITEBYTECODE'] = 'x'
@@ -204,6 +212,8 @@ def main():
   }
   if not args.dont_hack_env:
     ar.update_environment(env, variables)
+
+  env.update(args.env)
     
   num_passed = 0
   num_failed = 0
@@ -397,7 +407,8 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     function_count_blurb = '(%d %s)' % (total_unit_tests, _make_test_string(total_unit_tests))
   else:
     function_count_blurb = '(%d of %d)' % (wanted_unit_tests, total_unit_tests)
-    
+
+  output = ''
   try:
 #    if options.stop:
 #      cmd.append('--stop')
@@ -488,6 +499,16 @@ def _find_unit_test_last_error(output):
     if r:
       return ':%s.%s' % (r[0][1], r[0][0])
   return None
+
+def _parse_args_env(env):
+  if not env:
+    return {}
+  env = env[:]
+  for i, e in enumerate(env):
+    if not '=' in e:
+      assert ' ' not in e
+      env[i] = env[i] + '='
+  kv = key_value_list.parse(' '.join(env), empty_value = '', log_tag = 'bes_test')
 
 if __name__ == '__main__':
   raise SystemExit(main())
