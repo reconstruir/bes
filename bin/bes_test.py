@@ -213,6 +213,7 @@ def main():
   if not args.dont_hack_env:
     ar.update_environment(env, variables)
 
+  # Update env with whatever was given in --env
   env.update(args.env)
     
   num_passed = 0
@@ -507,9 +508,10 @@ def _parse_args_env(env):
   for i, e in enumerate(env):
     if not '=' in e:
       assert ' ' not in e
-      env[i] = env[i] + '='
+      env[i] = env[i] + '=1'
   kv = key_value_list.parse(' '.join(env), empty_value = '', log_tag = 'bes_test')
-
+  return kv.to_dict()
+  
 if __name__ == '__main__':
   raise SystemExit(main())
 

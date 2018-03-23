@@ -10,7 +10,7 @@ from .hexdata import hexdata
 class unit_test(unittest.TestCase):
   'Helper for writing unit tests.'
 
-  DEBUG = os.environ.get('DEBUG', False)
+  DEBUG = os.environ.get('DEBUG', '').lower() in [ 't', 'true', 'y', 'yes', '1' ]
   
   def data_path(self, filename, platform_specific = False): 
     assert filename
