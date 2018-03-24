@@ -24,13 +24,9 @@ class web_server(with_metaclass(ABCMeta, object)):
     
   def _server_process(self):
 
-    self._num_requests_handled = 0
-    
     def _handler(environ, start_response):
       self.log_i('calling handle_request()')
       result = self.handle_request(environ, start_response)
-      self._num_requests_handled += 1
-      self.log_i('num_requests_handled: %d' % (self._num_requests_handled))
       return result
     httpd = make_server('', self._requested_port or 0, _handler)
     httpd.allow_reuse_address = True
