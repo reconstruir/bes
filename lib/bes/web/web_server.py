@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import multiprocessing
-from wsgiref.simple_server import make_server
+from wsgiref import simple_server
 
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
@@ -10,6 +10,18 @@ from bes.system import log
 
 class web_server(with_metaclass(ABCMeta, object)):
 
+  class handler(simple_server.WSGIRequestHandler):
+
+    def __init__(self, request, client_address, server):
+      log.add_logging(self, 'web_server_handler')
+      simple_server.WSGIRequestHandler.__init__(self, request, client_address, server)
+      
+    def log_message(self, format, *args):
+      m = "%s - - [%s] %s\n" % (self.client_address[0],
+                                self.log_date_time_string(),
+                                format % args)
+      self.log_i(m)
+      
   def __init__(self, port, log_tag = None):
     log.add_logging(self, tag = log_tag or 'web_server')
     self.log_i('web_server(port=%s)' % (port))
@@ -28,7 +40,7 @@ class web_server(with_metaclass(ABCMeta, object)):
       self.log_i('calling handle_request()')
       result = self.handle_request(environ, start_response)
       return result
-    httpd = make_server('', self._requested_port or 0, _handler)
+    httpd = simple_server.make_server('', self._requested_port or 0, _handler, handler_class = self.handler)
     httpd.allow_reuse_address = True
     address = httpd.socket.getsockname()
     self.log_i('notifying that port is known')
