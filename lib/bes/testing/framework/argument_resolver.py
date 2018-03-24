@@ -40,9 +40,10 @@ class argument_resolver(object):
     if not files:
       return
     if not root_dir:
-      root_dir = self._find_root_dir_with_git(files)
+      root_dir = self._find_root_dir(files)
       if not root_dir:
         raise RuntimeError('Failed to determine root dir.')
+    self.root_dir = root_dir
     self.config_env = config_env(root_dir)
     self.all_files = ignore.filter_files(files)
     file_infos = file_info_list([ file_info(self.config_env, f) for f in self.all_files ])
@@ -184,12 +185,23 @@ class argument_resolver(object):
 
   @classmethod
   def _find_root_dir_with_file_marker(clazz, files):
-    if not files:
+    common_ancestor = file_path.common_ancestor(files)
+    if not common_ancestor:
       return None
-    any_git_root = git.root(files[0])
-    if any_git_root:
-      return file_path.parent_dir(any_git_root)
-    return False
+    marker = file_util.find_in_ancestors(common_ancestor, '.bes_test_root')
+    if not marker:
+      return None
+    return path.dirname(marker)
+
+  @classmethod
+  def _find_root_dir(clazz, files):
+    root_dir = clazz._find_root_dir_with_file_marker(files)
+    if root_dir:
+      return root_dir
+    root_dir = clazz._find_root_dir_with_git(files)
+    if root_dir:
+      return root_dir
+    return None
 
   @classmethod
   def _make_filters_patterns(clazz, filters):

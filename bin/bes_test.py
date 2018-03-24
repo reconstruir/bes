@@ -132,6 +132,10 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Print testing configs found [ False ]')
+  parser.add_argument('--print-root-dir',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Print the root dir [ False ]')
   parser.add_argument('--print-path',
                       action = 'store_true',
                       default = False,
@@ -193,6 +197,10 @@ def main():
     ar.print_configs()
     return 0
   
+  if args.print_root_dir:
+    print(ar.root_dir)
+    return 0
+  
   if args.print_files:
     ar.print_files()
     return 0
@@ -216,10 +224,9 @@ def main():
   # Start with a clean environment so unit testing can be deterministic and not subject
   # to whatever the user happened to have exported.  PYTHONPATH and PATH for dependencies
   # are set below by iterating the configs 
+  keep_keys = [ 'BES_LOG', 'BESCFG_PATH' ]
   if args.dont_hack_env:
-    keep_keys = [ 'PATH', 'PYTHONPATH', 'BES_LOG' ]
-  else:
-    keep_keys = [ 'BES_LOG' ]
+    keep_keys.extend([ 'PATH', 'PYTHONPATH'])
     
   env = os_env.make_clean_env(keep_keys = keep_keys)
   env['PYTHONDONTWRITEBYTECODE'] = 'x'

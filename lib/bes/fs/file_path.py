@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path, os
-from bes.common import algorithm, string_util
+import glob, os.path as path, os
+from bes.common import algorithm, object_util, string_util
 from .file_util import file_util
 
 class file_path(object):
@@ -95,3 +95,12 @@ class file_path(object):
       return common_ancestor[0] or None
     return None
   
+  @classmethod
+  def glob(clazz, paths, glob_expression):
+    'Return a common ancestor for all the given filenames or None if there is not one.'
+    paths = object_util.listify(paths)
+    paths = [ path.join(p, glob_expression) for p in paths ]
+    result = []
+    for p in paths:
+      result.extend(glob.glob(p))
+    return sorted(algorithm.unique(result))
