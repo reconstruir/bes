@@ -11,11 +11,11 @@ class web_server_controller(object):
     self._server = None
     self.address = None
     
-  def start(self, port = None):
+  def start(self, port):
     if self._server:
       return
     self.log_i('controller port = %s' % (port))
-    self._server = self._server_class(port = port)
+    self._server = self._server_class(port)
     self.log_i('starting server.')
     self._server.start()
     self.address = self._server.address

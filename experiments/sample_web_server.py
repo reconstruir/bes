@@ -15,8 +15,7 @@ class sample_web_server(web_server):
     path_info = environ['PATH_INFO']
     self.log_i('handle_request(%s)' % (path_info))
     start_response('200 OK', [('Content-Type', 'text/html')])
-    return [b'nice server: %s\n' % (path_info)]
-
+    return ['nice server: %s\n' % (path_info)]
 
 class app(object):
 
