@@ -183,6 +183,15 @@ class argument_resolver(object):
     return False
 
   @classmethod
+  def _find_root_dir_with_file_marker(clazz, files):
+    if not files:
+      return None
+    any_git_root = git.root(files[0])
+    if any_git_root:
+      return file_path.parent_dir(any_git_root)
+    return False
+
+  @classmethod
   def _make_filters_patterns(clazz, filters):
     patterns = []
     for f in filters:

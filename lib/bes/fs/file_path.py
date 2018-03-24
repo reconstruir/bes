@@ -83,3 +83,15 @@ class file_path(object):
     if d == '/':
       return None
     return path.normpath(path.join(d, os.pardir))
+
+  @classmethod
+  def common_ancestor(clazz, filenames):
+    'Return a common ancestor for all the given filenames or None if there is not one.'
+    def _path_base(p):
+      return file_util.strip_sep(path.normpath(p).split(os.sep)[0])
+    ancestors = [ _path_base(f) for f in filenames ]
+    common_ancestor = algorithm.unique(ancestors)
+    if len(common_ancestor) == 1:
+      return common_ancestor[0] or None
+    return None
+  

@@ -34,6 +34,33 @@ class test_path(unittest.TestCase):
     self.assertEqual( '/foo', FP.parent_dir('/foo/bar') )
     self.assertEqual( '/', FP.parent_dir('/foo') )
     self.assertEqual( None, FP.parent_dir('/') )
+
+  def test_common_ancestor(self):
+    self.assertEqual( 'base-1.2.3', FP.common_ancestor([
+      'base-1.2.3/foo.txt',
+      'base-1.2.3/bar.txt',
+      'base-1.2.3/baz.txt',
+    ]) )
+    self.assertEqual( 'base-1.2.3', FP.common_ancestor([
+      'base-1.2.3/foo.txt',
+      'base-1.2.3/bar.txt',
+      'base-1.2.3/here/baz.txt',
+    ]) )
+    self.assertEqual( 'base-1.2.3', FP.common_ancestor([
+      'base-1.2.3/foo.txt',
+      'base-1.2.3/bar.txt',
+      'base-1.2.3',
+    ]) )
+    self.assertEqual( 'base-1.2.3', FP.common_ancestor([
+      'base-1.2.3/foo.txt',
+      'base-1.2.3/bar.txt',
+      'base-1.2.3/',
+    ]) )
+    self.assertEqual( None, FP.common_ancestor([
+      'base-1.2.3/foo.txt',
+      'base-1.2.3/bar.txt',
+      'base-1.2.4/baz.txt',
+    ]) )
     
-if __name__ == "__main__":
+if __name__ == '__main__':
   unittest.main()

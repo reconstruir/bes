@@ -6,7 +6,7 @@ from abc import abstractmethod
 from collections import namedtuple
 
 from bes.common import algorithm
-from bes.fs import file_find, file_util, tar_util, temp_file
+from bes.fs import file_find, file_path, file_util, tar_util, temp_file
 from bes.match import matcher_multiple_filename, matcher_always_false, matcher_always_true, matcher_util
 
 class archive(object):
@@ -85,14 +85,8 @@ class archive(object):
   @classmethod
   def _common_base_for_members(clazz, members):
     'Return a common base dir for the given members or None if no common base exists.'
-    def _path_base(p):
-      return file_util.strip_sep(path.normpath(p).split(os.sep)[0])
-    bases = [ _path_base(member) for member in members if member not in clazz.COMMON_BASE_MEMBERS_EXCLUDE ]
-
-    common_base = algorithm.unique(bases)
-    if len(common_base) == 1:
-      return common_base[0] or None
-    return None
+    members = [ m for m in members if m not in clazz.COMMON_BASE_MEMBERS_EXCLUDE ]
+    return file_path.common_ancestor(members)
 
   @classmethod
   def _find(clazz, root_dir, base_dir, extra_items, include, exclude):
