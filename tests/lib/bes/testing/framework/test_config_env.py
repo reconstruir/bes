@@ -22,7 +22,7 @@ class test_config_env(unit_test):
       'orange/env/orange.bescfg',
       'water/env/water.bescfg'
     ]
-    files = CE.find_config_files(self.data_dir())
+    files = CE._find_config_files(self.data_dir())
     self.assertEqual( [ path.join(self.data_dir(), x) for x in expected_files ],
                       files )
     
