@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 from bes.compat.Queue import Queue
-from threading import Lock, Thread
+from threading import Thread
 from bes.system import log
 
 # From http://code.activestate.com/recipes/577187-python-thread-pool/
