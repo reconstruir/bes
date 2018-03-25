@@ -275,8 +275,12 @@ def main():
     return 0
 
   ar.cleanup_python_compiled_files()
-  
-  os.chdir('/tmp')
+
+  # Do all our work with a temporary working directory to be able to check for side effects
+  tmp_cwd = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.dir', delete = False)
+  os.chdir(tmp_cwd)
+  # Use what the OS thinks the path is (to deal with symlinks and virtual tmpfs things)
+  tmp_cwd = os.getcwd()
 
   if not args.dry_run and args.page:
     printer.OUTPUT = tempfile.NamedTemporaryFile(prefix = 'bes_test', delete = True, mode = 'w')
@@ -392,6 +396,16 @@ def main():
       
   if args.page:
     subprocess.call([ args.pager, printer.OUTPUT.name ])
+
+  current_cwd = os.getcwd()
+  if current_cwd != tmp_cwd:
+    printer.writeln_name('SIDE EFFECT: working directory was changed from %s to %s' % (tmp_cwd, current_cwd))
+  droppings = file_find.find(current_cwd, relative = False, file_type = file_find.ANY)
+  for dropping in droppings:
+    printer.writeln_name('SIDE EFFECT: dropping found: %s' % (droppping))
+  if not droppings:
+    os.chdir('/tmp')
+    file_util.remove(tmp_cwd)
     
   return rv
 
@@ -538,5 +552,3 @@ def _parse_args_env(env):
   
 if __name__ == '__main__':
   raise SystemExit(main())
-
-    
