@@ -35,10 +35,12 @@ class file_util(object):
   def save(clazz, filename, content = None, mode = None, codec = 'utf-8'):
     'Atomically save content to filename using an intermediate temporary file.'
     dirname, basename = os.path.split(filename)
-    clazz.mkdir(path.dirname(filename))
+    dirname = dirname or None
+    if dirname:
+      clazz.mkdir(path.dirname(filename))
     tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = 'wb')
     if content:
-      if compat.IS_PYTHON3 and string_util.is_string(content):
+      if compat.IS_PYTHON3 and string_util.is_string(content) and codec is not None:
         content_data = codecs.encode(content, codec)
       else:
         content_data = content

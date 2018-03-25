@@ -135,3 +135,9 @@ class unit_test(unittest.TestCase):
     sys.stdout.write(s)
     sys.stdout.write('\n')
     sys.stdout.flush()
+
+  @classmethod
+  def dump(self, filename, text):
+    with open(filename, 'w') as fout:
+      fout.write(text)
+      fout.close()

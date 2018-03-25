@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import csv
+
 from .check import check
 from .size import size
 from .string_util import string_util
@@ -349,5 +351,13 @@ class table(object):
       if filter_func(row):
         new_table.append_row(row)
     return new_table
+  
+  def to_csv(self, delimiter = ','):
+    'Return the table as Filter rows with filter_func.'
+    buf = StringIO()
+    writer = csv.writer(buf, delimiter = delimiter, quotechar = '|', quoting = csv.QUOTE_MINIMAL)
+    for row in self._rows:
+      writer.writerow(list(row))
+    return buf.getvalue()
   
 check.register_class(table)
