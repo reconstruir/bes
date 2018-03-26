@@ -83,6 +83,23 @@ class table(object):
       return 0
     return len(self._rows)
 
+  @property
+  def column_names(self):
+    return self._column_names
+
+  @column_names.setter
+  def column_names(self, value):
+    if not value:
+      self._column_names = None
+    else:
+      check.check_tuple(value)
+      if self.width:
+        if len(value) != self.width:
+          raise ValueError('column_names length should be %d instead of %d' % (self.width, len(value)))
+      self._column_names = value
+    for row in self._rows:
+      row._column_names = self._column_names
+    
   def __iter__(self):
     'Iterate through the table rows'
     return iter(self._rows)

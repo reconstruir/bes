@@ -537,6 +537,37 @@ mango,orange,10
       ( 'mango', 'orange', '10' ),
     ], column_names = column_names)
     self.assertEqual( t1, t2 )
-      
+
+  def test_get_column_names(self):
+    column_names = ( 'fruit', 'color', 'sweetness' )
+    t = table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+    ], column_names = column_names)
+    self.assertEqual( column_names, t.column_names )
+    
+  def test_set_column_names(self):
+    t = table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ], column_names = ( 'fruit', 'color', 'sweetness' ))
+    self.assertEqual( 'cherry', t[0].fruit )
+    self.assertEqual( 'red', t[0].color )
+    self.assertEqual( 4, t[0].sweetness )
+    t.column_names = ( 'fruit2', 'color2', 'sweetness2' )
+
+    with self.assertRaises(ValueError) as ex:
+      t[0].fruit
+    with self.assertRaises(ValueError) as ex:
+      t[0].color
+    with self.assertRaises(ValueError) as ex:
+      t[0].sweetness
+
+    self.assertEqual( 'cherry', t[0].fruit2 )
+    self.assertEqual( 'red', t[0].color2 )
+    self.assertEqual( 4, t[0].sweetness2 )
+    
 if __name__ == '__main__':
   unit_test.main()
