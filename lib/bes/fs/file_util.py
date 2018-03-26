@@ -143,7 +143,9 @@ class file_util(object):
 
   @classmethod
   def copy(clazz, src, dst):
-    clazz.mkdir(path.dirname(dst))
+    dirname = path.dirname(dst)
+    if dirname:
+      clazz.mkdir(dirname)
     shutil.copy(src, dst)
 
   @classmethod

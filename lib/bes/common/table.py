@@ -236,7 +236,7 @@ class table(object):
     elif check.is_string(x):
       try:
         x = self._column_names.index(x)
-      except ValueError:
+      except ValueError as ex:
         raise ValueError('Invalid x: %s' % (str(x)))
     else:
       raise ValueError('Invalid x: %s' % (str(x)))
