@@ -103,9 +103,16 @@ class string_util(object):
       return False
 
   @classmethod
-  def remove_punctuation(clazz, s):
-    'Return True if s is ascii.'
-    return ''.join([ c for c in s if not c in string.punctuation ])
+  def replace_punctuation(clazz, s, replacement):
+    'Replace punctuation in s with replacement.'
+    buf = StringIO()
+    for c in s:
+      if c in string.punctuation:
+        if replacement:
+          buf.write(replacement)
+      else:
+        buf.write(c)
+    return buf.getvalue()
 
   @classmethod
   def flatten(clazz, s, delimiter = ' '):

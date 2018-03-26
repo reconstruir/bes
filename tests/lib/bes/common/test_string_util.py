@@ -116,5 +116,12 @@ class test_string_util(unittest.TestCase):
     self.assertEqual( ' foo', string_util.strip_ends(' foo ', strip_tail = True) )
     self.assertEqual( 'foo', string_util.strip_ends(' foo ', strip_head = True, strip_tail = True) )
 
+  def test_replace_punctuation(self):
+    f = string_util.replace_punctuation
+    self.assertEqual( 'foo', f('foo', None) )
+    self.assertEqual( 'foo', f('foo!', None) )
+    self.assertEqual( 'foo1', f('foo!', '1') )
+    self.assertEqual( 'foo bar', f('foo,bar', ' ') )
+
 if __name__ == "__main__":
   unittest.main()
