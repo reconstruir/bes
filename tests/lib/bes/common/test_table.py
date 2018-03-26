@@ -568,6 +568,75 @@ mango,orange,10
     self.assertEqual( 'cherry', t[0].fruit2 )
     self.assertEqual( 'red', t[0].color2 )
     self.assertEqual( 4, t[0].sweetness2 )
+
+  def test_to_json(self):
+    t = table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ])
+    expected = '''
+[
+  [
+    "cherry",
+    "red",
+    4
+  ],
+  [
+    "lemon",
+    "yellow",
+    2
+  ],
+  [
+    "orange",
+    "orange",
+    8
+  ],
+  [
+    "mango",
+    "orange",
+    10
+  ]
+]
+'''
+    self.assert_string_equal_ws( expected, t.to_json() )
+
+  def test_from_json(self):
+    text = '''
+[
+  [
+    "cherry",
+    "red",
+    4
+  ],
+  [
+    "lemon",
+    "yellow",
+    2
+  ],
+  [
+    "orange",
+    "orange",
+    8
+  ],
+  [
+    "mango",
+    "orange",
+    10
+  ]
+]
+'''
+
+    t = table.from_json(text)
+    
+    expected = table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ])
+    self.assertEqual( expected, t )
     
 if __name__ == '__main__':
   unit_test.main()

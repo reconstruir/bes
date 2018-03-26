@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import csv
+import csv, json
 
 from .check import check
 from .size import size
@@ -379,10 +379,22 @@ class table(object):
 
   @classmethod
   def from_csv(clazz, text, delimiter = ',', quotechar = '|'):
-    'Return a table from the csv text.'
+    'Make a table out of csv text.'
     buf = StringIO(text)
     reader = csv.reader(buf, delimiter = delimiter, quotechar = quotechar)
     rows = [ tuple(row) for row in reader if row ]
     return clazz(data = rows)
+
+  def to_json(self, indent = 2):
+    'Return the table as json text.'
+    return json.dumps(self._rows, indent = indent)
   
+  @classmethod
+  def from_json(clazz, text):
+    'Make a table out of json test.'
+    rows = json.loads(text)
+    check.check_list(rows)
+    rows = [ tuple(row) for row in rows ]
+    return clazz(data = rows)
+
 check.register_class(table)
