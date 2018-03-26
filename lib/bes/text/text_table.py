@@ -123,7 +123,7 @@ class text_table(object):
     self._row_renderers[y] = renderer
 
   def set_col_renderer(self, x, renderer):
-    self._table.check_x(x)
+    x = self._table.resolve_x(x)
     self._col_renderers[x] = renderer
     
   def set_cell_renderer(self, x, y, renderer):
