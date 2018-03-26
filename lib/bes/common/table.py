@@ -12,13 +12,24 @@ class table_row(list):
 
   def __init__(self, *args, **kwargs):
     list.__init__(self, *args, **kwargs)
-    self._column_names = None
+    self.__dict__['_column_names'] = None
     
   def __getattr__(self, key):
     if not self._column_names:
       raise ValueError('column names are empty.')
     try:
       return self[self._column_names.index(key)]
+    except ValueError as ex:
+      raise ValueError('unknown field: \"%s\"' % (key))
+  
+  def __setattr__(self, key, value):
+    if key == '_column_names':
+      self.__dict__['_column_names'] = value
+      return
+    if not self._column_names:
+      raise ValueError('column names are empty.')
+    try:
+      self[self._column_names.index(key)] = value
     except ValueError as ex:
       raise ValueError('unknown field: \"%s\"' % (key))
   

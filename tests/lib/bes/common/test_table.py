@@ -292,6 +292,21 @@ class test_table(unit_test):
     with self.assertRaises(ValueError) as ex:
       t[0].nothere
 
+  def test_column_names_setter(self):
+    column_names = ( 'fruit', 'color', 'sweetness' )
+    t = table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ], column_names = column_names)
+    self.assertEqual( 'red', t[0].color )
+    t[0].color = 'purple'
+    self.assertEqual( 'purple', t[0].color )
+
+    with self.assertRaises(ValueError) as ex:
+      t[0].nothere = 666
+    
   def test_concatenate_vertical_with_column_names(self):
     column_names = ( 'one', 'two', 'three' )
     t1 = table(data = [
