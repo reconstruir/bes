@@ -173,6 +173,37 @@ class test_table(unit_test):
     ])
     self.assertTrue( t1 == t2 )
     self.assertFalse( t1 == t3 )
+
+  def test__eq__seq(self):
+    t1 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ])
+    t2 = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ]
+    t3 = [
+      [ 1, 2, 3 ],
+      [ 4, 5, 6 ],
+      [ 7, 8, 9 ],
+    ]
+    t4 = (
+      [ 1, 2, 3 ],
+      [ 4, 5, 6 ],
+      [ 7, 8, 9 ],
+    )
+    t5 = [
+      ( 99, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ]
+    self.assertTrue( t1 == t2 )
+    self.assertTrue( t1 == t3 )
+    self.assertTrue( t1 == t4 )
+    self.assertFalse( t1 == t5 )
     
   def test_insert_column(self):
     t1 = table(data = [
@@ -652,6 +683,44 @@ mango,orange,10
       ( 'mango', 'orange', 10 ),
     ])
     self.assertEqual( expected, t )
+
+  def test_remove_row(self):
+    t1 = table(data = [
+      ( 1, 2, 3 ),
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ])
+    t2 = table(data = [
+      ( 4, 5, 6 ),
+      ( 7, 8, 9 ),
+    ])
+    t3 = table(data = [
+      ( 4, 5, 6 ),
+    ])
+    t4 = table(data = [])
+
+    t1.remove_row(0)
+    self.assertEqual( t1, t2 )
+
+    t1.remove_row(1)
+    self.assertEqual( t1, t3 )
+
+    t1.remove_row(0)
+    self.assertEqual( t1, t4 )
+
+  def test_remove_row_with_key(self):
+    self.maxDiff = None
+    t = table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ], column_names = ( 'fruit', 'color', 'sweetness' ))
+    t.remove_row_with_key(lambda row: row.color == 'orange')
+    self.assertEqual( [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+    ], t )
     
 if __name__ == '__main__':
   unit_test.main()

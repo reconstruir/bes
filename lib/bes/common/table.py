@@ -132,6 +132,14 @@ class table(object):
     return str(self)
   
   def __eq__(self, other):
+    if isinstance(other, table):
+      return self.__eq___table(other)
+    elif isinstance(other, (list, tuple)):
+      return self.__eq___seq(other)
+    else:
+      raise TypeError('unknown other type to compare to: %s - %s' % (str(other), type(other)))
+
+  def __eq___table(self, other):
     if self.width != other.width or self.height != other.height:
       return False
     for y in range(0, self.height):
@@ -139,7 +147,18 @@ class table(object):
         if self._rows[y][x] != other._rows[y][x]:
           return False
     return True
-    
+
+  def __eq___seq(self, other):
+    if self.height != len(other):
+      return False
+    for self_row, other_row in zip(self._rows, other):
+      if len(self_row) != len(other_row):
+        return False
+      for self_field, other_field in zip(self_row, other_row):
+        if not self_field == other_field:
+          return False
+    return True
+  
   def resize(self, width, height):
     check.check_int(width)
     check.check_int(height)
@@ -317,6 +336,18 @@ class table(object):
     self._rows = new_table._rows
     self._column_names = new_column_names
 
+  def remove_row(self, row_y):
+    self.check_y(row_y)
+    return self._rows.pop(row_y)
+
+  def remove_row_with_key(self, key):
+    assert callable(key)
+    result = []
+    for row in self._rows:
+      if not key(row):
+        result.append(row)
+    self._rows = result
+  
   def _remove_column_name(clazz, column_names, x):
     if not column_names:
       return None
