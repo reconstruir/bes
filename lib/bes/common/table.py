@@ -352,12 +352,20 @@ class table(object):
         new_table.append_row(row)
     return new_table
   
-  def to_csv(self, delimiter = ','):
+  def to_csv(self, delimiter = ',', quotechar = '|'):
     'Return the table as Filter rows with filter_func.'
     buf = StringIO()
-    writer = csv.writer(buf, delimiter = delimiter, quotechar = '|', quoting = csv.QUOTE_MINIMAL)
+    writer = csv.writer(buf, delimiter = delimiter, quotechar = quotechar, quoting = csv.QUOTE_MINIMAL)
     for row in self._rows:
       writer.writerow(list(row))
     return buf.getvalue()
+
+  @classmethod
+  def from_csv(clazz, text, delimiter = ',', quotechar = '|'):
+    'Return a table from the csv text.'
+    buf = StringIO(text)
+    reader = csv.reader(buf, delimiter = delimiter, quotechar = quotechar)
+    rows = [ tuple(row) for row in reader if row ]
+    return clazz(data = rows)
   
 check.register_class(table)

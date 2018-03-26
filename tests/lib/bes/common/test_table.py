@@ -520,5 +520,23 @@ class test_table(unit_test):
     ], column_names = column_names)
     self.assertEqual( 'cherry,red,4\r\nlemon,yellow,2\r\norange,orange,8\r\nmango,orange,10\r\n', t1.to_csv() )
       
+  def test_from_csv(self):
+    text = '''
+cherry,red,4
+lemon,yellow,2
+orange,orange,8
+mango,orange,10
+'''      
+
+    t1 = table.from_csv(text)
+    column_names = ( 'fruit', 'color', 'sweetness' )
+    t2 = table(data = [
+      ( 'cherry', 'red', '4' ),
+      ( 'lemon', 'yellow', '2' ),
+      ( 'orange', 'orange', '8' ),
+      ( 'mango', 'orange', '10' ),
+    ], column_names = column_names)
+    self.assertEqual( t1, t2 )
+      
 if __name__ == '__main__':
   unit_test.main()
