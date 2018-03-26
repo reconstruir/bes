@@ -92,3 +92,11 @@ mar 14
 
 march 24
 - move string_util.split_by_whitespace to white_space maybe
+
+this should be allowed
+    l = key_value_list()
+    l.append(( 'cli', '10' ))
+    l.append(( 'dat', 'snbamz' ))
+    l.append(( 'url', urllib.quote(url) ))
+
+table add append_col() also allow -1 when adding a row or -3 or whatever same as getitem

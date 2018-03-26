@@ -515,6 +515,37 @@ class test_table(unit_test):
     ], column_names = column_names)
     self.assertEqual( t1, t2 )
 
+  def test_append_column_with_names(self):
+    t = table(data = [
+      ( 'cherry', 4),
+      ( 'lemon', 2 ),
+      ( 'orange', 8 ),
+      ( 'mango', 10 ),
+    ], column_names = ( 'fruit', 'sweetness' ))
+    t.insert_column(2, name = 'color')
+#    t2 = table(data = [
+#      ( 'cherry', 'red', 4 ),
+#      ( 'lemon', 'yellow', 2 ),
+#      ( 'orange', 'orange', 8 ),
+#      ( 'mango', 'orange', 10 ),
+#    ], column_names = column_names)
+    self.assertEqual( [
+      ( 'cherry', 4, None ),
+      ( 'lemon', 2, None ),
+      ( 'orange', 8, None ),
+      ( 'mango', 10, None ),
+    ], t )
+    t[0].color = 'red'
+    t[1].color = 'yellow'
+    t[2].color = 'orange'
+    t[3].color = 'orange'
+    self.assertEqual( [
+      ( 'cherry', 4, 'red' ),
+      ( 'lemon', 2, 'yellow' ),
+      ( 'orange', 8, 'orange' ),
+      ( 'mango', 10, 'orange' ),
+    ], t )
+    
   def test_resolve_x(self):
     column_names = ( 'fruit', 'color', 'sweetness' )
     t = table(data = [

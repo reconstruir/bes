@@ -298,7 +298,8 @@ class table(object):
         raise ValueError('first column should be 0 instead of %d' % (col_x))
       self._insert_column_empty(column, name = name)
     else:
-      self.check_x(col_x)
+      if not col_x >= 0 and col_x <= self.width:
+        raise ValueError('Invalid x: %s' % (str(col_x)))
       self._insert_column_not_empty(col_x, column = column, name = name)
 
   def _insert_column_empty(self, column, name = None):
@@ -312,7 +313,8 @@ class table(object):
     self.set_column(0, column)
 
   def _insert_column_not_empty(self, col_x, column = None, name = None):
-    new_table = table(self.width + 1, self.height, default_value = self._default_value, column_names = self._column_names)
+    new_column_names = self._insert_column_name(self._column_names, col_x, name)
+    new_table = table(self.width + 1, self.height, default_value = self._default_value, column_names = new_column_names)
     for x in range(0, col_x):
       new_table.set_column(x, self.column(x))
     new_col_x = col_x + 1
@@ -347,13 +349,23 @@ class table(object):
       if not key(row):
         result.append(row)
     self._rows = result
-  
+
+  @classmethod
   def _remove_column_name(clazz, column_names, x):
     if not column_names:
       return None
     assert x >= 0 and x < len(column_names)
     l = list(column_names)
     l.pop(x)
+    return tuple(l)
+      
+  @classmethod
+  def _insert_column_name(clazz, column_names, x, new_name):
+    if not column_names:
+      return None
+    assert x >= 0 and x <= len(column_names)
+    l = list(column_names)
+    l.insert(x, new_name)
     return tuple(l)
       
   def insert_row(self, row_y, row = None):
