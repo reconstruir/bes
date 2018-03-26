@@ -82,9 +82,16 @@ class git(object):
   @classmethod
   def _call_git(clazz, root, args, raise_error = True):
     cmd = [ clazz.GIT_EXE ] + args
-    rv = execute.execute(cmd, cwd = root, raise_error = raise_error)
-    #print(cmd)
-    #print(rv.stdout)
+    save_raise_error = raise_error
+    rv = execute.execute(cmd, cwd = root, raise_error = False)
+    if rv.exit_code != 0 and save_raise_error:
+      message = 'git command failed: %s in %s\n' % (' '.join(cmd), root)
+      message += rv.stderr
+      message += rv.stdout
+      print(message)
+      ex = RuntimeError(message)
+      setattr(ex, 'execute_result', rv)
+      raise ex
     return rv
 
   @classmethod

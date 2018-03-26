@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import re, sys
+import re, string, sys
 
 from bes.compat import StringIO
 from bes.system import compat
@@ -101,6 +101,11 @@ class string_util(object):
       return True
     except:
       return False
+
+  @classmethod
+  def remove_punctuation(clazz, s):
+    'Return True if s is ascii.'
+    return [ c for c in s if not c in string.punctuation ]
 
   @classmethod
   def flatten(clazz, s, delimiter = ' '):

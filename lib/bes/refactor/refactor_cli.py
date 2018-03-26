@@ -32,6 +32,16 @@ class refactor_cli(script_base):
     rename_parser.add_argument('--word-boundary', '-w', action = 'store_true', default = False,
                                help = 'Respect word boundaries [ False ]')
 
+    # Rename dirs
+    rename_dirs_parser = subparsers.add_parser('rename_dirs', help = 'Rename_Dirs a module')
+    rename_dirs_parser.add_argument('src', action = 'store', type = str, help = 'Source string.')
+    rename_dirs_parser.add_argument('dst', action = 'store', type = str, help = 'Destination string.')
+    rename_dirs_parser.add_argument('dir', action = 'store', help = 'Directory tree to rename.')
+    rename_dirs_parser.add_argument('--dry-run', '-n', action = 'store_true', default = False,
+                                    help = 'Only print what would happen without doing it [ False ]')
+    rename_dirs_parser.add_argument('--word-boundary', '-w', action = 'store_true', default = False,
+                                    help = 'Respect word boundaries [ False ]')
+
     # Unit
     unit_parser = subparsers.add_parser('unit', help = 'Ensure unit tests are in their own modules.')
     unit_parser.add_argument('files', action = 'store', nargs = '*', help = 'Files or directories to unit')
@@ -72,6 +82,8 @@ class refactor_cli(script_base):
     args = self._parser.parse_args()
     if args.command == 'rename':
       return self._command_rename(args.src, args.dst, args.dirs, args.dry_run, args.word_boundary)
+    if args.command == 'rename_dirs':
+      return self._command_rename_dirs(args.src, args.dst, args.dir, args.dry_run, args.word_boundary)
     elif args.command == 'unit':
       return self._command_unit(self.filepaths_normalize(args.files), args.dry_run, args.limit, args.backup)
     elif args.command == 'unit_cleanup':
@@ -257,3 +269,10 @@ class refactor_cli(script_base):
     assert isinstance(o, ( tuple, list ))
     assert len(o) == 2
     return tuple(o)
+
+  def _command_rename_dirs(self, src, dst, d, dry_run, word_boundary):
+    print('_command_rename_dirs(%s, %s, %s, %s, %s)' % (src, dst, d, dry_run, word_boundary))
+    refactor_files.rename_dirs(src, dst, d, word_boundary = word_boundary)
+    #refactor_files.refactor(src, dst, dirs, word_boundary = word_boundary)
+    
+  

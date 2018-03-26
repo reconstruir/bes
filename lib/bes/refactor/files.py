@@ -4,7 +4,7 @@
 import argparse, os, os.path as path, re, sys
 
 from bes.common import algorithm, json_util, string_util
-from bes.fs import file_find, file_match, file_replace, file_search, file_util, file_mime, file_path
+from bes.fs import file_check, file_find, file_match, file_path, file_replace, file_search, file_util, file_mime, file_path
 from bes.git import git
 
 class files(object):
@@ -124,3 +124,36 @@ class files(object):
       raise RuntimeError('src and dst are the same: %s' % (src))
     for d in dirs:
       clazz._refactor_one_dir(src, dst, d, word_boundary = word_boundary)
+
+  @classmethod
+  def rename_dirs(clazz, src_pattern, dst_pattern, root_dir, word_boundary = False):
+    assert src_pattern
+    assert dst_pattern
+    assert not src_pattern in dst_pattern
+    assert not dst_pattern in src_pattern
+    
+    root_dir = path.abspath(root_dir)
+    file_check.check_dir(root_dir)
+    while True:
+      dirs = file_find.find(root_dir, relative = True, file_type = file_find.DIR)
+      dirs = [ d for d in dirs if src_pattern in d ]
+      dirs = clazz._minimum_paths(dirs, src_pattern)
+      if not dirs:
+        return
+      src_dir = dirs[0]
+      dst_dir = src_dir.replace(src_pattern, dst_pattern)
+      file_util.rename(src_dir, dst_dir)
+
+  @classmethod
+  def _minimum_path(clazz, p, src_pattern):
+    v = file_path.split(p)
+    result = []
+    for x in v:
+      result.append(x)
+      if src_pattern in x:
+        break
+    return file_path.join(result)
+
+  @classmethod
+  def _minimum_paths(clazz, paths, src_pattern):
+    return algorithm.unique([ clazz._minimum_path(p, src_pattern) for p in paths ])
