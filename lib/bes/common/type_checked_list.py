@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import itertools
+from bes.compat import StringIO
 from bes.compat import cmp, zip, StringIO
 from bes.common import algorithm, check
 
@@ -117,3 +118,13 @@ class type_checked_list(object):
 
   def sort(self, key = None, reverse = False):
     self._values = sorted(self._values, key = key, reverse = reverse)
+
+  def to_string(self, delimiter = ' '):
+    buf = StringIO()
+    first = True
+    for item in iter(self):
+      if not first:
+        buf.write(delimiter)
+      first = False
+      buf.write(str(item))
+    return buf.getvalue()

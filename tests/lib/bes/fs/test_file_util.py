@@ -31,6 +31,7 @@ class test_file_util(unittest.TestCase):
 
   def test_remove_extension(self):
     self.assertEqual( 'foo', file_util.remove_extension('foo.zip') )
+    self.assertEqual( '/foo/bar/kiwi', file_util.remove_extension('/foo/bar/kiwi.zip') )
 
   def test_ensure_rsep(self):
     self.assertEqual( 'bar/', file_util.ensure_rsep('bar') )

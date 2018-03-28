@@ -51,7 +51,6 @@ def main():
                       default = False,
                       help = 'Stop right after the first failure. [ False ]')
   parser.add_argument('--randomize',
-                      '-r',
                       action = 'store_true',
                       default = False,
                       help = 'Randomize the order in which unit tests run. [ False ]')
