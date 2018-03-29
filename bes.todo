@@ -103,3 +103,6 @@ table add append_col() also allow -1 when adding a row or -3 or whatever same as
 
 march 28
 - add --read-file to best tests to read tests from file.  also save list of failed to test to best_test_failed.txt
+
+march 29
+- change key_value_list parser exception to be a subclass of value_error
