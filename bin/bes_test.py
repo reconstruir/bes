@@ -223,7 +223,7 @@ def main():
   # Start with a clean environment so unit testing can be deterministic and not subject
   # to whatever the user happened to have exported.  PYTHONPATH and PATH for dependencies
   # are set below by iterating the configs 
-  keep_keys = [ 'BES_LOG', 'BESCFG_PATH' ]
+  keep_keys = [ 'BES_LOG', 'BESCFG_PATH', 'DEBUG' ]
   if args.dont_hack_env:
     keep_keys.extend([ 'PATH', 'PYTHONPATH'])
     
