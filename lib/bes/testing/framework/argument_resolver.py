@@ -264,7 +264,7 @@ class argument_resolver(object):
     for s in statuses:
       for x in s:
         if x.filename.lower().endswith('.py'):
-          if x.action in [ 'M', 'A', 'D' ]:
+          if x.action in [ 'M', 'A' ]:
             result.append(x.filename)
     return result
 
