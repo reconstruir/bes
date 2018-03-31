@@ -36,6 +36,9 @@ def skip_if(condition, reason, warning = False):
     return skip(reason)
   return _id
 
+def raise_skip(message):
+  raise unittest.SkipTest(message)
+
 def raise_skip_if(conditional, message):
   if not conditional:
     raise unittest.SkipTest(message)

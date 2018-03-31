@@ -102,6 +102,11 @@ function bes_PATH_append()
   bes_env_path_append PATH "$@"
 }
 
+function bes_PATH_remove()
+{
+  bes_env_path_remove PATH "$@"
+}
+
 function bes_PATH_append_cwd()
 {
   bes_PATH_append $(pwd)
@@ -114,7 +119,7 @@ function bes_PATH_prepend_cwd()
 
 function bes_PATH()
 {
-  bes_path_print $PATH
+  bes_path_print "$PATH"
 }
 
 function bes_PYTHONPATH_prepend()
@@ -125,6 +130,11 @@ function bes_PYTHONPATH_prepend()
 function bes_PYTHONPATH_append()
 {
   bes_env_path_append PYTHONPATH "$@"
+}
+
+function bes_PYTHONPATH_remove()
+{
+  bes_env_path_remove PYTHONPATH "$@"
 }
 
 function bes_PYTHONPATH_append_cwd()
@@ -168,6 +178,11 @@ function bes_LD_LIBRARY_PATH_append()
   bes_env_path_append $(LD_LIBRARY_PATH_var_name) "$@"
 }
 
+function bes_LD_LIBRARY_PATH_remove()
+{
+  bes_env_path_remove $(LD_LIBRARY_PATH_var_name) "$@"
+}
+
 function bes_LD_LIBRARY_PATH_append_cwd()
 {
   bes_LD_LIBRARY_PATH_append $(pwd)
@@ -186,6 +201,36 @@ function bes_LD_LIBRARY_PATH_clear()
 function bes_LD_LIBRARY_PATH()
 {
   bes_path_print $(bes_var_get $(LD_LIBRARY_PATH_var_name))
+}
+
+function bes_MANPATH_prepend()
+{
+  bes_env_path_prepend MANPATH "$@"
+}
+
+function bes_MANPATH_append()
+{
+  bes_env_path_append MANPATH "$@"
+}
+
+function bes_MANPATH_remove()
+{
+  bes_env_path_remove MANPATH "$@"
+}
+
+function bes_MANPATH_append_cwd()
+{
+  bes_MANPATH_append $(pwd)
+}
+
+function bes_MANPATH_prepend_cwd()
+{
+  bes_MANPATH_prepend $(pwd)
+}
+
+function bes_MANPATH()
+{
+  bes_path_print $MANPATH
 }
 
 if [ -n "$_BES_TRACE" ]; then echo "bes_framework.sh end"; fi
