@@ -35,6 +35,7 @@ class sqlite(object):
     
   @fetch_namedtuples.setter
   def fetch_namedtuples(self, value):
+    check.check_bool(value)
     if value == self.fetch_namedtuples:
       return
     if value:
@@ -74,3 +75,6 @@ class sqlite(object):
   def fetchall(self):
     return self._cursor.fetchall()
   
+  def select(self, sql, *args, **kwargs):
+    self.execute(sql, *args, **kwargs)
+    return self.fetchall()
