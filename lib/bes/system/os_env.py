@@ -53,6 +53,7 @@ class os_env(object):
     'CLASSPATH',
     'DYLD_LIBRARY_PATH',
     'LD_LIBRARY_PATH',
+    'MANPATH',
     'PATH',
     'PERL5LIB',
     'PERL_LIB',
