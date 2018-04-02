@@ -55,61 +55,64 @@ class check(object):
   
   @classmethod
   def check(clazz, o, t):
-    clazz._check(o, t, 2)
+    return clazz._check(o, t, 2)
   
   @classmethod
   def check_module(clazz, o):
-    clazz._check(o, types.ModuleType, 2)
+    return clazz._check(o, types.ModuleType, 2)
 
   @classmethod
   def check_string(clazz, o):
-    clazz._check(o, clazz.STRING_TYPES, 2)
+    return clazz._check(o, clazz.STRING_TYPES, 2)
 
   @classmethod
   def check_string_seq(clazz, o):
-    clazz._check_seq(o, clazz.STRING_TYPES, 2)
+    return clazz._check_seq(o, clazz.STRING_TYPES, 2)
 
   @classmethod
   def check_tuple_seq(clazz, o):
-    clazz._check_seq(o, tuple, 2)
+    return clazz._check_seq(o, tuple, 2)
 
   @classmethod
   def check_int(clazz, o):
-    clazz._check(o, clazz.INTEGER_TYPES, 2)
+    return clazz._check(o, clazz.INTEGER_TYPES, 2)
 
   @classmethod
   def check_bool(clazz, o):
-    clazz._check(o, bool, 2)
+    return clazz._check(o, bool, 2)
 
   @classmethod
   def check_tuple(clazz, o):
-    clazz._check(o, tuple, 2)
+    return clazz._check(o, tuple, 2)
 
   @classmethod
   def check_dict(clazz, o, key_type = None, value_type = None):
-    clazz._check(o, dict, 2)
+    o = clazz._check(o, dict, 2)
     if key_type or value_type:
       for key, value in o.items():
         if key_type:
           clazz._check(key, key_type, 2)
         if value_type:
           clazz._check(value, value_type, 2)
-
+    return o
+  
   @classmethod
   def check_set(clazz, o, entry_type = None):
-    clazz._check(o, set, 2)
+    o = clazz._check(o, set, 2)
     if entry_type:
       clazz._check_seq(o, entry_type, 2)
+    return o
 
   @classmethod
   def check_list(clazz, o, entry_type = None):
-    clazz._check(o, list, 2)
+    o = clazz._check(o, list, 2)
     if entry_type:
       clazz._check_seq(o, entry_type, 2)
+    return o
 
   @classmethod
   def check_class(clazz, o):
-    clazz._check(o, clazz.CLASS_TYPES, 2)
+    return clazz._check(o, clazz.CLASS_TYPES, 2)
 
   @classmethod
   def _check(clazz, o, t, depth, type_blurb = None):
@@ -127,7 +130,7 @@ class check(object):
                                                                                          line_number))
   @classmethod
   def check_seq(clazz, o, t):
-    clazz._check_seq(o, t, 2)
+    return clazz._check_seq(o, t, 2)
 
   @classmethod
   def _check_seq(clazz, o, t, depth, type_blurb = None):
@@ -137,6 +140,7 @@ class check(object):
       raise TypeError('t should be iterable instead of \"%s\"' % (str(t)))
     for index, entry in it:
       clazz._check(entry, t, depth + 1, type_blurb = type_blurb)
+    return o
 
   @classmethod
   def _make_type_blurb(clazz, t):
@@ -162,10 +166,10 @@ class check(object):
     def __call__(self, *args, **kwargs):
       assert len(args) == 1
       obj = args[0]
-      if self.cast_func:
+      if not isinstance(obj, self.object_type) and self.cast_func:
         obj = self.cast_func(self.object_type, obj)
       type_blurb = kwargs.get('type_blurb', None)
-      check._check(obj, self.object_type, 2, type_blurb = type_blurb)
+      return check._check(obj, self.object_type, 2, type_blurb = type_blurb)
     
   class _is_type_helper(object):
     'Helper class to make check.is_foo() methods work.'
