@@ -147,6 +147,10 @@ def main():
                       action = 'append',
                       default = [],
                       help = 'Environment variables to set [ None ]')
+
+  for g in parser._action_groups:
+    g._group_actions.sort(key = lambda x: x.dest)
+  
   args = parser.parse_args()
 
   
@@ -401,7 +405,7 @@ def main():
     printer.writeln_name('SIDE EFFECT: working directory was changed from %s to %s' % (tmp_cwd, current_cwd))
   droppings = file_find.find(current_cwd, relative = False, file_type = file_find.ANY)
   for dropping in droppings:
-    printer.writeln_name('SIDE EFFECT: dropping found: %s' % (droppping))
+    printer.writeln_name('SIDE EFFECT: dropping found: %s' % (dropping))
   if not droppings:
     os.chdir('/tmp')
     file_util.remove(tmp_cwd)

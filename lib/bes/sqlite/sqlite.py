@@ -21,7 +21,7 @@ class sqlite(object):
   def __init__(self, filename, log_tag = None):
     log.add_logging(self, tag = log_tag or 'sqlite')
     self.log_i('sqlite(filename=%s)' % (filename))
-    self._filename = path.abspath(filename)
+    self._filename = filename
     self._connection = sqlite3.connect(self._filename)
     self._cursor = self._connection.cursor()
 
@@ -78,3 +78,13 @@ class sqlite(object):
   def select(self, sql, *args, **kwargs):
     self.execute(sql, *args, **kwargs)
     return self.fetchall()
+
+  def select_namedtuples(self, sql, *args, **kwargs):
+    save_fetch_namedtuples = self.fetch_namedtuples
+    self.fetch_namedtuples = True
+    try:
+      self.execute(sql, *args, **kwargs)
+      return self.fetchall()
+    finally:
+      self.fetch_namedtuples = save_fetch_namedtuples
+  
