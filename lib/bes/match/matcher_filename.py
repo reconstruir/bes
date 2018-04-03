@@ -21,7 +21,7 @@ class matcher_filename(matcher_base):
       return fnmatch.fnmatchcase(text, self._pattern)
 
   def __str__(self):
-    return 'matcher_filename(pattern=%s; ignore_case=%s)' % (self._pattern, self._ignore_case)
+    return '(%s, %s)' % (self._pattern, self._ignore_case)
 
 class matcher_multiple_filename(matcher_base):
   'Filename matcher using multiple filename matchers.'

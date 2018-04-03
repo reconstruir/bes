@@ -20,6 +20,13 @@ class test_file_checksum(unit_test):
       ( 'b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d' ),
     ], FCL.from_files([ 'a.txt', 'b.txt' ], root_dir = self.data_dir()) )
 
+  def test_list_from_tuples(self):
+    l = FCL([
+      ( 'a.txt', '9124d0084fc1decd361e82332f535e6371496ceb' ),
+      ( 'b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d' ),
+    ])
+    self.assertEqual( l, FCL.from_files([ 'a.txt', 'b.txt' ], root_dir = self.data_dir()))
+    
   def test_to_json(self):
     expected = '''\
 [
@@ -95,7 +102,7 @@ class test_file_checksum(unit_test):
     b = FCL([ FC('a.txt', '9124d0084fc1decd361e82332f535e6371496ceb'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
     self.assertTrue( a == b )
     
-  def test_verify_falsetrue(self):
+  def test_verify_false(self):
     a = FCL([ FC('a.txt', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
     b = FCL([ FC('a.txt', '9124d0084fc1decd361e82332f535e6371496ceb'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
     self.assertFalse( a == b )

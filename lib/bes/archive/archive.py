@@ -110,8 +110,8 @@ class archive(object):
       else:
         arcname = f
 
-      should_include = include_matcher.match(arcname)
-      should_exclude = exclude_matcher.match(arcname)
+      should_include = include_matcher.match(f)
+      should_exclude = exclude_matcher.match(f)
 
       if should_include and not should_exclude:
         items.append(clazz.Item(filename, arcname))

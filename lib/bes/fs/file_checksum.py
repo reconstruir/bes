@@ -20,29 +20,50 @@ class file_checksum(namedtuple('file_checksum', 'filename,checksum')):
       filepath = path.join(root_dir, filename)
     else:
       filepath = filename
-    file_check.check_file(filepath)
-    content = file_util.read(filepath)
-    checksum = hashlib.sha1(content).hexdigest()
+    if path.islink(filepath):
+      checksum = ''
+    else:
+      file_check.check_file(filepath)
+      content = file_util.read(filepath)
+      checksum = hashlib.sha1(content).hexdigest()
     return clazz(filename, checksum)
 
   @classmethod
   def file_checksum(clazz, filename):
     return clazz.from_file(filename).checksum
 
+  def to_list(self):
+    return [ self.filename, self.checksum ]
+  
 class file_checksum_list(type_checked_list):
 
   def __init__(self, values = None):
     super(file_checksum_list, self).__init__(file_checksum, values = values)
 
+  @classmethod
+  def cast_entry(clazz, entry):
+    if isinstance(entry, ( tuple, list )):
+      return file_checksum(*entry)
+    return entry
+    
   def to_json(self):
+    return json_util.to_json(self._values, indent = 2)
+    
+  def to_simple_list(self):
+    return [ x.to_list() for x in self ]
     return json_util.to_json(self._values, indent = 2)
     
   @classmethod
   def from_json(clazz, text):
     o = json.loads(text)
     check.check_list(o)
+    return clazz.from_simple_list(o)
+    
+  @classmethod
+  def from_simple_list(clazz, l):
+    check.check_list(l)
     result = clazz()
-    for item in o:
+    for item in l:
       check.check_list(item, check.STRING_TYPES)
       assert len(item) == 2
       result.append(file_checksum(item[0], item[1]))
@@ -80,3 +101,5 @@ class file_checksum_list(type_checked_list):
     current = self[:]
     current.reload(root_dir = root_dir)
     return self == current
+
+check.register_class(file_checksum_list, include_seq = False)

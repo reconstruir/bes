@@ -106,3 +106,8 @@ march 28
 
 march 29
 - change key_value_list parser exception to be a subclass of value_error
+
+s/matcher_multiple_filename/matcher_multiple_patterns/
+
+change file_checksum hash from sha1 to sha256 but measure
+

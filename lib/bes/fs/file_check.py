@@ -11,7 +11,10 @@ class file_check(object):
     check.check_string(filename)
     if not path.exists(filename):
       raise IOError('File not found: %s' % (filename))
-    if not path.isfile(filename):
+    if path.isfile(filename):
+      return
+    if path.islink(filename):
+      return
       raise IOError('Not a file: %s' % (filename))
 
   @classmethod

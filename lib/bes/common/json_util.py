@@ -18,6 +18,11 @@ class json_util(object):
 
   @classmethod
   def to_json(clazz, o, indent = None, sort_keys = False):
+    '''
+    Like json.dumps plus the following:
+     - same white space results on both python 2 and 3
+     - __dict__ is used when object is not json encodable
+    '''
     def default(o): return o.__dict__
     return json.dumps(o, indent = indent, default = default, sort_keys = sort_keys, separators = (', ', ': '))
 
