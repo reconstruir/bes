@@ -102,4 +102,9 @@ class file_checksum_list(type_checked_list):
     current.reload(root_dir = root_dir)
     return self == current
 
+  def has_filename(self, filename):
+    current = self[:]
+    current.reload(root_dir = root_dir)
+    return self == current
+
 check.register_class(file_checksum_list, include_seq = False)

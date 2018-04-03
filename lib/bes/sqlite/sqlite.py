@@ -6,6 +6,7 @@ import os.path as path
 from collections import namedtuple
 
 from bes.common import check
+from bes.fs import file_util
 from bes.system import log
 
 class sqlite(object):
@@ -22,6 +23,8 @@ class sqlite(object):
     log.add_logging(self, tag = log_tag or 'sqlite')
     self.log_i('sqlite(filename=%s)' % (filename))
     self._filename = filename
+    if self._filename != ':memory:':
+      file_util.mkdir(path.dirname(self._filename))
     self._connection = sqlite3.connect(self._filename)
     self._cursor = self._connection.cursor()
 
