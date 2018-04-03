@@ -49,6 +49,10 @@ class test_file_checksum(unit_test):
 ]'''
     self.assertEqual( expected, FCL.from_json(json) )
     
+  def test_filenames(self):
+    a = FCL([ FC('a.txt', '9124d0084fc1decd361e82332f535e6371496ceb'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
+    self.assertEqual( [ 'a.txt', 'b.txt' ], a.filenames() )
+    
 if __name__ == '__main__':
   unit_test.main()
     

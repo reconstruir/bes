@@ -51,28 +51,47 @@ class file_checksum_list(type_checked_list):
     for filename in filenames:
       result.append(new_file_checksum.from_file(filename, root_dir = root_dir))
     return result
+
+  def save_checksums_file(clazz, filename):
+    file_util.save(filename, content = self.to_json())
+
+  @classmethod
+  def from_checksums_file(clazz, filename):
+    try:
+      content = file_util.read(filename)
+    except IOError as ex:
+      return None
+    return clazz.from_json(content)
+  
+  def filenames(self):
+    return [ c.filename for c in self ]
+
+  def verify(clazz, root_dir = None):
+    checksums = object_util.listify(checksums)
+    for checksum in checksums:
+      if checksum != clazz.checksum(checksum.filename):
+        return False
+    return True
   
 checksum_item = namedtuple('checksum_item', 'filename,checksum')
 
 class file_checksum(object):
 
-  @classmethod
-  def checksum(clazz, filename, root_dir = None):
-    if root_dir:
-      f = path.join(root_dir, filename)
-    else:
-      f = filename
-    content = file_util.read(f)
-    checksum = hashlib.sha1(content).hexdigest()
-    return checksum_item(filename, checksum)
+  Item = namedtuple('Item', 'filename,checksum')
 
   @classmethod
-  def checksums(clazz, filenames, root_dir = None):
-    result = checksum_item_list()
+  def checksum(clazz, filename):
+    content = file_util.read(filename)
+    checksum = hashlib.sha1(content).hexdigest()
+    return clazz.Item(filename, checksum)
+
+  @classmethod
+  def checksums(clazz, filenames):
+    results = []
     filenames = object_util.listify(filenames)
     for filename in filenames:
-      result.append(clazz.checksum(filename))
-    return result
+      results.append(clazz.checksum(filename))
+    return results
 
   @classmethod
   def save_checksums(clazz, filename, checksums):
@@ -87,11 +106,11 @@ class file_checksum(object):
       return None
     o = json.loads(content)
     assert isinstance(o, list)
-    result = checksum_item_list()
+    result = []
     for item in o:
       assert isinstance(item, list)
       assert len(item) == 2
-      result.append(checksum_item(str(item[0]), str(item[1])))
+      result.append(clazz.Item(str(item[0]), str(item[1])))
     return result
 
   @classmethod
