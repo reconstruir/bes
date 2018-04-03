@@ -28,8 +28,12 @@ class test_web_server(unit_test):
         'payload': 'nice server: %s\n' % (path_info),
         'count': self._count,
       }
-      start_response('200 OK', [ ('Content-Type', 'text/html; charset=utf-8') ])
-      return [ json.dumps(response, indent = 2).encode('utf8') ]
+      content = json.dumps(response, indent = 2).encode('utf8')
+      start_response('200 OK', [
+        ( 'Content-Type', 'text/html; charset=utf-8' ),
+        ( 'Content-Length', str(len(content)) ),
+      ])
+      return [ content ]
 
   def test_basic(self):
     server = web_server_controller(self.test_web_server)
