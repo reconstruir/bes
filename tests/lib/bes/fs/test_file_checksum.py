@@ -1,84 +1,105 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
-from bes.testing.unit_test import unit_test
-from bes.fs import file_checksum, file_util, temp_file
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
+from bes.testing.unit_test import unit_test
+from bes.fs.file_checksum import file_checksum as FC, file_checksum_list as FCL
+from bes.fs import file_checksum, file_util, temp_file
+  
 class test_file_checksum(unit_test):
 
-  def test_checksum(self):
-    tmp_file = temp_file.make_temp_file(content = 'foo\n')
-    self.assertEqual( file_checksum.Item(tmp_file, 'f1d2d2f924e986ac86fdf7b36c94bcdf32beec15'), file_checksum.checksum(tmp_file) )
+  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.fs/file_checksum'
 
-  def test_checksums(self):
-    tmp_files = [
-      temp_file.make_temp_file(content = 'foo\n'),
-      temp_file.make_temp_file(content = 'bar\n'),
-    ]
-    expected_checksums = [
-      file_checksum.Item(tmp_files[0], 'f1d2d2f924e986ac86fdf7b36c94bcdf32beec15'),
-      file_checksum.Item(tmp_files[1], 'e242ed3bffccdf271b7fbaf34ed72d089537b42f'),
-    ]
-    self.assertEqual( expected_checksums, file_checksum.checksums(tmp_files) )
+  def test_from_file(self):
+    self.assertEqual( ( 'a.txt', '9124d0084fc1decd361e82332f535e6371496ceb' ), FC.from_file('a.txt', root_dir = self.data_dir()) )
+    self.assertEqual( ( 'b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d' ), FC.from_file('b.txt', root_dir = self.data_dir()) )
+    
+  def test_from_files(self):
+    self.assertEqual( [
+      ( 'a.txt', '9124d0084fc1decd361e82332f535e6371496ceb' ),
+      ( 'b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d' ),
+    ], FCL.from_files([ 'a.txt', 'b.txt' ], root_dir = self.data_dir()) )
 
-  def test_save_checksums(self):
-    self.maxDiff = None
-    tmp_files = [
-      temp_file.make_temp_file(content = 'foo\n'),
-      temp_file.make_temp_file(content = 'bar\n'),
-    ]
-    expected_checksums = [
-      file_checksum.Item(tmp_files[0], 'f1d2d2f924e986ac86fdf7b36c94bcdf32beec15'),
-      file_checksum.Item(tmp_files[1], 'e242ed3bffccdf271b7fbaf34ed72d089537b42f'),
-    ]
-    checksums = file_checksum.checksums(tmp_files)
-    tmp_checksums_filename = temp_file.make_temp_file()
-    file_checksum.save_checksums(tmp_checksums_filename, checksums)
-
-    expected_json = '''[
+  def test_to_json(self):
+    expected = '''\
+[
   [
-    "%s", 
-    "f1d2d2f924e986ac86fdf7b36c94bcdf32beec15"
+    "a.txt", 
+    "9124d0084fc1decd361e82332f535e6371496ceb"
   ], 
   [
-    "%s", 
-    "e242ed3bffccdf271b7fbaf34ed72d089537b42f"
-  ]
-]''' % (expected_checksums[0].filename, expected_checksums[1].filename)
-
-    import codecs
-    actual_json = file_util.read(tmp_checksums_filename)
-    actual_json = codecs.decode(actual_json, 'utf-8')
-    self.assertEqualIgnoreWhiteSpace( expected_json, actual_json )
-
-  def test_load_checksums(self):
-    json = '''[
-  [
-    "/foo/bar/something.txt", 
-    "f1d2d2f924e986ac86fdf7b36c94bcdf32beec15"
-  ], 
-  [
-    "/foo/bar/nothing.txt", 
-    "e242ed3bffccdf271b7fbaf34ed72d089537b42f"
+    "b.txt", 
+    "fad3eb80ab58ca9a60249700b85aacf727395e1d"
   ]
 ]'''
+    self.assertEqualIgnoreWhiteSpace( expected, FCL.from_files([ 'a.txt', 'b.txt' ], root_dir = self.data_dir()).to_json() )
+    
+  def test_from_json(self):
+    expected = FCL([ FC('a.txt', '9124d0084fc1decd361e82332f535e6371496ceb'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
+    json = '''\
+[
+  [
+    "a.txt", 
+    "9124d0084fc1decd361e82332f535e6371496ceb"
+  ], 
+  [
+    "b.txt", 
+    "fad3eb80ab58ca9a60249700b85aacf727395e1d"
+  ]
+]'''
+    self.assertEqual( expected, FCL.from_json(json) )
+    
+  def test_filenames(self):
+    a = FCL([ FC('a.txt', '9124d0084fc1decd361e82332f535e6371496ceb'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
+    self.assertEqual( [ 'a.txt', 'b.txt' ], a.filenames() )
+    
+  def test_file_checksum(self):
+    self.assertEqual( '9124d0084fc1decd361e82332f535e6371496ceb', FC.file_checksum(self.data_path('a.txt')) )
+    self.assertEqual( 'fad3eb80ab58ca9a60249700b85aacf727395e1d', FC.file_checksum(self.data_path('b.txt')) )
 
-    tmp_json_filename = temp_file.make_temp_file(content = json)
+  def test_save_checksums_file(self):
+    tmp_file = temp_file.make_temp_file()
+    a = FCL.from_files([ 'a.txt', 'b.txt' ], root_dir = self.data_dir())
+    a.save_checksums_file(tmp_file)
+    expected = '''\
+[
+  [
+    "a.txt", 
+    "9124d0084fc1decd361e82332f535e6371496ceb"
+  ], 
+  [
+    "b.txt", 
+    "fad3eb80ab58ca9a60249700b85aacf727395e1d"
+  ]
+]'''
+    self.assertEqual( expected, file_util.read(tmp_file, codec = 'utf8') )
 
-    expected_checksums = [
-      file_checksum.Item('/foo/bar/something.txt', 'f1d2d2f924e986ac86fdf7b36c94bcdf32beec15'),
-      file_checksum.Item('/foo/bar/nothing.txt', 'e242ed3bffccdf271b7fbaf34ed72d089537b42f'),
-    ]
-    actual_checksums = file_checksum.load_checksums(tmp_json_filename)
-    self.assertEqual( expected_checksums, actual_checksums )
+  def test_load_checksums_file(self):
+    content = '''\
+[
+  [
+    "a.txt", 
+    "9124d0084fc1decd361e82332f535e6371496ceb"
+  ], 
+  [
+    "b.txt", 
+    "fad3eb80ab58ca9a60249700b85aacf727395e1d"
+  ]
+]'''
+    tmp_file = temp_file.make_temp_file(content = content)
+    expected = FCL.from_files([ 'a.txt', 'b.txt' ], root_dir = self.data_dir())
+    self.assertEqual( expected, FCL.load_checksums_file(tmp_file) )
 
-  def test_load_checksums_missing_filename(self):
-    self.assertEqual( None, file_checksum.load_checksums('/notthereihopeitaint') )
-
-  def test_verify(self):
-    tmp_file = temp_file.make_temp_file(content = 'foo\n')
-    checksum = file_checksum.checksum(tmp_file)
-    self.assertTrue( file_checksum.verify(checksum) )
-
+  def test_verify_true(self):
+    a = FCL([ FC('a.txt', '9124d0084fc1decd361e82332f535e6371496ceb'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
+    b = FCL([ FC('a.txt', '9124d0084fc1decd361e82332f535e6371496ceb'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
+    self.assertTrue( a == b )
+    
+  def test_verify_falsetrue(self):
+    a = FCL([ FC('a.txt', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
+    b = FCL([ FC('a.txt', '9124d0084fc1decd361e82332f535e6371496ceb'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
+    self.assertFalse( a == b )
+    
 if __name__ == '__main__':
   unit_test.main()
+    
