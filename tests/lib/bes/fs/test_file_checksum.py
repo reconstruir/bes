@@ -49,7 +49,7 @@ class test_file_checksum(unit_test):
     import codecs
     actual_json = file_util.read(tmp_checksums_filename)
     actual_json = codecs.decode(actual_json, 'utf-8')
-    self.assert_string_equal_ws( expected_json, actual_json )
+    self.assertEqualIgnoreWhiteSpace( expected_json, actual_json )
 
   def test_load_checksums(self):
     json = '''[

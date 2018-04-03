@@ -677,7 +677,7 @@ mango,orange,10
   ]
 ]
 '''
-    self.assert_string_equal_ws( expected, t.to_json() )
+    self.assertEqualIgnoreWhiteSpace( expected, t.to_json() )
 
   def test_from_json(self):
     text = '''

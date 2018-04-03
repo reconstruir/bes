@@ -19,7 +19,7 @@ class json_util(object):
   @classmethod
   def to_json(clazz, o, indent = None, sort_keys = False):
     def default(o): return o.__dict__
-    return json.dumps(o, indent = indent, default = default, sort_keys = sort_keys)
+    return json.dumps(o, indent = indent, default = default, sort_keys = sort_keys, separators = (', ', ': '))
 
   @classmethod
   def normalize(clazz, o):

@@ -25,6 +25,10 @@ class new_file_checksum(namedtuple('new_file_checksum', 'filename,checksum')):
     checksum = hashlib.sha1(content).hexdigest()
     return clazz(filename, checksum)
 
+  @classmethod
+  def file_checksum(clazz, filename):
+    return clazz.from_file(filename).checksum
+
 class file_checksum_list(type_checked_list):
 
   def __init__(self, values = None):

@@ -37,7 +37,8 @@ class unit_test(unittest.TestCase):
     with open(data_path, 'rb') as fin:
       return fin.read()
 
-  def assert_string_equal_ws(self, s1, s2):
+  def assertEqualIgnoreWhiteSpace(self, s1, s2):
+    'Assert s1 equals s2 ignoreing minor white space differences.'
     self.maxDiff = None
     s1 = re.sub('\s+', ' ', s1).strip()
     s2 = re.sub('\s+', ' ', s2).strip()

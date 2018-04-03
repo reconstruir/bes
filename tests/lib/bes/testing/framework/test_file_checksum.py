@@ -32,7 +32,7 @@ class test_file_checksum(unit_test):
     "fad3eb80ab58ca9a60249700b85aacf727395e1d"
   ]
 ]'''
-    self.assertMultiLineEqual( expected, FCL.from_files([ 'a.txt', 'b.txt' ], root_dir = self.data_dir()).to_json() )
+    self.assertEqualIgnoreWhiteSpace( expected, FCL.from_files([ 'a.txt', 'b.txt' ], root_dir = self.data_dir()).to_json() )
     
   def test_from_json(self):
     expected = FCL([ FC('a.txt', '9124d0084fc1decd361e82332f535e6371496ceb'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
@@ -53,6 +53,10 @@ class test_file_checksum(unit_test):
     a = FCL([ FC('a.txt', '9124d0084fc1decd361e82332f535e6371496ceb'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
     self.assertEqual( [ 'a.txt', 'b.txt' ], a.filenames() )
     
+  def test_file_checksum(self):
+    self.assertEqual( '9124d0084fc1decd361e82332f535e6371496ceb', FC.file_checksum(self.data_path('a.txt')) )
+    self.assertEqual( 'fad3eb80ab58ca9a60249700b85aacf727395e1d', FC.file_checksum(self.data_path('b.txt')) )
+
 if __name__ == '__main__':
   unit_test.main()
     

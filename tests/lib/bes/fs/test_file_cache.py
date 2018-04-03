@@ -4,7 +4,7 @@
 import unittest
 from bes.fs import file_cache, file_util, temp_file
 
-class Testfile_cache(unittest.TestCase):
+class test_file_cache(unittest.TestCase):
 
   DEBUG = False
   #DEBUG = True
