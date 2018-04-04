@@ -107,4 +107,5 @@ class file_checksum_list(type_checked_list):
     current.reload(root_dir = root_dir)
     return self == current
 
+check.register_class(file_checksum, include_seq = False)
 check.register_class(file_checksum_list, include_seq = False)
