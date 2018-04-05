@@ -13,11 +13,16 @@ class archive_extension(object):
   TAR_GZ = 'tar.gz'
   TGZ = 'tgz'
   ZIP = 'zip'
+  DMG = 'dmg'
 
   VALID_ZIP_TYPES = frozenset([ ZIP ])
   VALID_TAR_TYPES = frozenset([ BZ2, GZ, TAR, TAR_BZ2, TAR_GZ, TGZ ])
-  VALID_TYPES = frozenset(list(VALID_ZIP_TYPES) + list(VALID_TAR_TYPES))
+  VALID_DMG_TYPES = frozenset([ DMG ])
+  VALID_TYPES = frozenset(list(VALID_ZIP_TYPES) + list(VALID_TAR_TYPES) + list(VALID_DMG_TYPES))
 
+  # Check order needs to have the compound tar.foo extensions first
+  CHECK_ORDER = [ TAR_BZ2, TAR_GZ, BZ2, GZ, TAR, TGZ, ZIP, DMG ]
+  
   WRITE_FORMAT_MAP = {
     BZ2 : 'w:bz2',
     GZ : 'w:gz',
@@ -26,6 +31,7 @@ class archive_extension(object):
     TAR_GZ : 'w:gz',
     TGZ : 'w:gz',
     ZIP : 'w',
+    DMG : 'w',
   }
 
   @classmethod
@@ -41,16 +47,16 @@ class archive_extension(object):
     return extension.lower() in clazz.VALID_TAR_TYPES
 
   @classmethod
+  def is_valid_dmg_ext(clazz, extension):
+    return extension.lower() in clazz.VALID_DMG_TYPES
+
+  @classmethod
   def write_format(clazz, extension):
     return clazz.WRITE_FORMAT_MAP[extension.lower()]
 
   @classmethod
   def write_format_for_filename(clazz, filename):
     return clazz.write_format(file_util.extension(filename))
-
-  @classmethod
-  def is_valid_filename(clazz, filename):
-    return clazz.is_valid_zip_filename(filename) or clazz.clazz.is_valid_tar_ext(filename)
 
   @classmethod
   def is_valid_zip_filename(clazz, filename):
@@ -63,7 +69,7 @@ class archive_extension(object):
   @classmethod
   def extension_for_filename(clazz, filename):
     filename = filename.lower()
-    for ext in [ clazz.TAR_BZ2, clazz.TAR_GZ, clazz.TAR, clazz.BZ2, clazz.GZ, clazz.TAR, clazz.TGZ, clazz.ZIP ]:
+    for ext in clazz.CHECK_ORDER:
       if filename.endswith('.' + ext):
         return ext
     return None

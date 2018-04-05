@@ -23,6 +23,9 @@ class test_dmg(unit_test):
     self.assertEqual( expected, actual )
     self.assertEqual( info1, info2 )
 
+  def test_is_dmg_file(self):
+    self.assertTrue( dmg.is_dmg_file(self.data_path('example.dmg')) )
+
   def test_extract(self):
     tmp_dir = temp_file.make_temp_dir()
     info1 = dmg.info()

@@ -5,6 +5,7 @@ import os.path as path
 from bes.fs import file_cache
 from .archive_tar import archive_tar
 from .archive_zip import archive_zip
+from .archive_dmg import archive_dmg
 from .archive_extension import archive_extension
 
 class archiver(object):
@@ -16,14 +17,14 @@ class archiver(object):
       return False
     if not path.isfile(filename):
       return False
-    archive_class = clazz.__determine_type(filename)
+    archive_class = clazz._determine_type(filename)
     if not archive_class:
       return False
     return archive_class(filename).is_valid()
   
   @classmethod
   def members(clazz, filename):
-    archive_class = clazz.__determine_type(filename)
+    archive_class = clazz._determine_type(filename)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
     return archive_class(filename).members()
@@ -32,7 +33,7 @@ class archiver(object):
   def extract(clazz, filename, dest_dir, base_dir = None,
               strip_common_base = False, strip_head = None,
               include = None, exclude = None):
-    archive_class = clazz.__determine_type(filename)
+    archive_class = clazz._determine_type(filename)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
     return archive_class(filename).extract(dest_dir,
@@ -46,7 +47,7 @@ class archiver(object):
   def extract_members(clazz, filename, members, dest_dir, base_dir = None,
                       strip_common_base = False, strip_head = None,
                       include = None, exclude = None):
-    archive_class = clazz.__determine_type(filename)
+    archive_class = clazz._determine_type(filename)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
     return archive_class(filename).extract_members(members,
@@ -59,7 +60,7 @@ class archiver(object):
 
   @classmethod
   def extract_member_to_string(clazz, archive, member):
-    archive_class = clazz.__determine_type(archive)
+    archive_class = clazz._determine_type(archive)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (archive))
     return archive_class(archive).extract_member_to_string(member)
@@ -72,7 +73,7 @@ class archiver(object):
   
   @classmethod
   def extract_member_to_file(clazz, archive, member, filename):
-    archive_class = clazz.__determine_type(archive)
+    archive_class = clazz._determine_type(archive)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (archive))
     return archive_class(archive).extract_member_to_file(member, filename)
@@ -81,7 +82,7 @@ class archiver(object):
   def create(clazz, filename, root_dir, base_dir = None,
              extra_items = None,
              include = None, exclude = None):
-    archive_class = clazz.__determine_type_for_create(filename)
+    archive_class = clazz._determine_type_for_create(filename)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
     return archive_class(filename).create(root_dir,
@@ -92,21 +93,21 @@ class archiver(object):
 
   @classmethod
   def common_base(clazz, filename):
-    archive_class = clazz.__determine_type(filename)
+    archive_class = clazz._determine_type(filename)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
     return archive_class(filename).common_base()
 
   @classmethod
-  def __determine_type(clazz, filename):
-    if archive_tar(filename).is_valid():
-      return archive_tar
-    elif archive_zip(filename).is_valid():
-      return archive_zip
+  def _determine_type(clazz, filename):
+    possible = [ archive_tar, archive_zip, archive_dmg ]
+    for p in possible:
+      if p(filename).is_valid():
+        return p
     return None
 
   @classmethod
-  def __determine_type_for_create(clazz, filename):
+  def _determine_type_for_create(clazz, filename):
     if archive_extension.is_valid_tar_filename(filename):
       return archive_tar
     elif archive_extension.is_valid_zip_filename(filename):

@@ -8,12 +8,26 @@ from bes.system import execute, log
 
 from collections import namedtuple
 
-#log.configure('dmg=info format=brief')
+log.configure('dmg=info format=brief')
 
 class dmg(object):
   'Class to deal with dmg files on macos.'
 
   mount_info = namedtuple('mount_info', 'filename, mount_point, entries')
+
+  @classmethod
+  def is_dmg_file(clazz, filename):
+    '''
+    Return True if file is a valid DMG file by checking the magic at the begging of the trailing 512 bytes
+    From http://newosxbook.com/DMG.html
+    '''
+    with open(filename, 'rb') as fin:
+      try:
+        fin.seek(-512, os.SEEK_END)
+        trailer = fin.read(512)
+        return trailer[0:4] == 'koly'
+      except IOError as ex:
+        return False
 
   @classmethod
   def info(clazz):
