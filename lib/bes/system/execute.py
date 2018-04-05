@@ -67,6 +67,7 @@ class execute(object):
         ex = RuntimeError(rv.stdout)
         setattr(ex, 'execute_result', rv)
         print(rv.stdout)
+        print(rv.stderr)
         raise ex
     return rv
 
