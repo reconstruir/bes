@@ -107,6 +107,10 @@ class test_file_checksum(unit_test):
     b = FCL([ FC('a.txt', '9124d0084fc1decd361e82332f535e6371496ceb'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
     self.assertFalse( a == b )
     
+  def test_checksum(self):
+    a = FCL([ FC('a.txt', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), FC('b.txt', 'fad3eb80ab58ca9a60249700b85aacf727395e1d') ])
+    self.assertEqual( 'aa0471313f63b9968b6268c2b3e1bfc6f982ac80', a.checksum() )
+    
 if __name__ == '__main__':
   unit_test.main()
     

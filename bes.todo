@@ -110,4 +110,5 @@ march 29
 s/matcher_multiple_filename/matcher_multiple_patterns/
 
 change file_checksum hash from sha1 to sha256 but measure
+change file_checksum hash from reading file into memory to using streams
 

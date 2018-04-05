@@ -4,6 +4,7 @@
 import json, os.path as path, hashlib
 from collections import namedtuple
 from bes.common import check, json_util, object_util, type_checked_list
+from bes.compat import StringIO
 from .file_check import file_check
 from .file_util import file_util
 
@@ -106,6 +107,19 @@ class file_checksum_list(type_checked_list):
     current = self[:]
     current.reload(root_dir = root_dir)
     return self == current
+
+  def has_filename(self, filename):
+    current = self[:]
+    current.reload(root_dir = root_dir)
+    return self == current
+
+  def checksum(self):
+    'Return a checksum of the files and file checksums themselves.'
+    buf = StringIO()
+    for value in self:
+      buf.write(value.filename)
+      buf.write(value.checksum)
+    return hashlib.sha1(buf.getvalue()).hexdigest()
 
 check.register_class(file_checksum, include_seq = False)
 check.register_class(file_checksum_list, include_seq = False)
