@@ -112,5 +112,6 @@ class archiver(object):
       return archive_tar
     elif archive_extension.is_valid_zip_filename(filename):
       return archive_zip
-    return None
-  
+    elif archive_extension.is_valid_dmg_filename(filename):
+      return archive_zip
+    return archive_dmg
