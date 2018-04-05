@@ -38,3 +38,15 @@ class debug_timer(object):
     thing, started = self.starts.popitem()
     elapsed = self.round(time.time() - started)
     self.log(self._level, u'{0} {1}{2} {3}'.format(elapsed, self.columns(len(self.starts) - 1), self.BOX_UP_AND_RIGHT, thing))
+
+class noop_debug_timer(object):
+  'A debug timer class that does nothing.'
+  
+  def __init__(self, tag, level = 'debug'):
+    pass
+ 
+  def start(self, thing):
+    pass
+ 
+  def stop(self):
+    pass
