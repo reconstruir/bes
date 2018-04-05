@@ -8,7 +8,7 @@ from bes.system import execute, log
 
 from collections import namedtuple
 
-log.configure('dmg=info format=brief')
+#log.configure('dmg=info format=brief')
 
 class dmg(object):
   'Class to deal with dmg files on macos.'
