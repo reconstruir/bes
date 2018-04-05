@@ -127,12 +127,14 @@ class temp_archive(object):
   @classmethod
   def write_temp_items(clazz, items):
     'Write the temp item content to disk.  Return the tmp_dir where the items are written.'
-
     tmp_dir = temp_file.make_temp_dir()
+    clazz.write_items(tmp_dir, items)
+    return tmp_dir
 
+  @classmethod
+  def write_items(clazz, root_dir, items):
+    'Write the content to disk.'
     for item in items:
       assert item
       assert item.arcname
-      file_util.save(path.join(tmp_dir, item.arcname), item.content)
-
-    return tmp_dir
+      file_util.save(path.join(root_dir, item.arcname), item.content)
