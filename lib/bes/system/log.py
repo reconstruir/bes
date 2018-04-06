@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import fnmatch, os, os.path as path, re, sys, syslog, traceback
+import fnmatch, os, os.path as path, re, sys, syslog, time, traceback
 
 from datetime import datetime
 import threading
@@ -25,10 +25,10 @@ class log(object):
   DEFAULT_LOG_FP = sys.stdout
 
   FORMAT_FULL = '${timestamp}${space}[${process_id}.${thread_id}]${space}(${tag}.${level})${padding}${space}${message}'
-  FORMAT_BRIEF = '(${tag}.${level})${padding}${space}${message}'
+  FORMAT_BRIEF = '${timestamp_brief}${space}(${tag}.${level})${padding}${space}${message}'
 
   __PADDING_CHAR = ' '
-  __DEFAULT_FORMAT = FORMAT_FULL
+  _DEFAULT_FORMAT = FORMAT_FULL
   __FORMATS = {
     'full': FORMAT_FULL,
     'brief': FORMAT_BRIEF,
@@ -48,19 +48,20 @@ class log(object):
   _level = DEFAULT_LEVEL
   _log_fp = DEFAULT_LOG_FP
   _log_lock = threading.Lock()
-  _format = __DEFAULT_FORMAT
+  _format = _DEFAULT_FORMAT
   _log_config_patterns = {}
   _longest_tag_length = 0
+  _tag_width = None
   
   @classmethod
   def log(clazz, tag, level, message):
     'log'
     clazz._log_lock.acquire()
-    tag_level = clazz.__get_tag_level(tag)
+    tag_level = clazz._get_tag_level(tag)
     if level > tag_level:
       clazz._log_lock.release()
       return
-    m = clazz.__make_message_i(tag, level, message)
+    m = clazz._make_message_i(tag, level, message)
     clazz._log_fp.write(m + '\n')
     clazz._log_fp.flush()
     clazz._log_lock.release()
@@ -91,14 +92,16 @@ class log(object):
     clazz.log(tag, clazz.DEBUG, message)
 
   @classmethod
-  def __make_message_i(clazz, tag, level, message):
+  def _make_message_i(clazz, tag, level, message):
     level = clazz.level_to_string(level).upper()
     current_width = len(tag) + len(level)
-    max_width = clazz._longest_level_length + clazz._longest_tag_length
+    longest_tag_length = clazz._tag_width or clazz._longest_tag_length
+    max_width = clazz._longest_level_length + longest_tag_length
     delta = max_width - current_width
-    
+    now = datetime.now()    
     values = {
-      'timestamp': str(datetime.now()),
+      'timestamp': clazz._timestamp(now),
+      'timestamp_brief': clazz._timestamp_brief(now),
       'process_id': str(os.getpid()),
       'thread_id': str(thread_id.thread_id()),
       'tag': tag,
@@ -112,7 +115,22 @@ class log(object):
       var = '${%s}' % (key)
       result = result.replace(var, value)
     return result
- 
+
+  @classmethod
+  def _timestamp(clazz, now):
+    fmt = '%Y_%m_%d-%H:%M:%S-{TZ}'.format(TZ = time.strftime('%Z'))
+    return now.strftime(fmt)
+
+  @classmethod
+  def _timestamp_brief(clazz, now):
+    fmt = '%H:%M:%S'
+    return now.strftime(fmt)
+
+  @classmethod
+  def timezone(clazz):
+    'Return the current timezone (ie PST).'
+    return time.strftime('%Z')
+  
   @classmethod
   def parse_level(clazz, level):
     'Parse the level string and returns its integer value.'
@@ -129,12 +147,12 @@ class log(object):
   def get_tag_level(clazz, tag):
     'Return the level for a tag with synchronization.'
     clazz._log_lock.acquire()
-    rv = clazz.__get_tag_level(tag)
+    rv = clazz._get_tag_level(tag)
     clazz._log_lock.release()
     return rv
 
   @classmethod
-  def __get_tag_level(clazz, tag):
+  def _get_tag_level(clazz, tag):
     'Return the level for a tag.'
     level = clazz._tag_levels.get(tag, None)
     if not level:
@@ -146,14 +164,14 @@ class log(object):
   def set_tag_level(clazz, tag, level):
     'Set the level for the given tag.'
     clazz._log_lock.acquire()
-    clazz.__configure_i(tag, level)
+    clazz._configure_i(tag, level)
     clazz._log_lock.release()
 
   @classmethod
   def set_tag_level_all(clazz, level):
     'Set the level for all the tag.'
     clazz._log_lock.acquire()
-    clazz.__configure_i('all', level)
+    clazz._configure_i('all', level)
     clazz._log_lock.release()
 
   @classmethod
@@ -178,7 +196,7 @@ class log(object):
     if isinstance(args, compat.STRING_TYPES):
       if args in clazz._string_to_level.keys():
         args = 'all=%s level=%s' % (args, args)
-    args = clazz.__flatten(args)
+    args = clazz._flatten(args)
     # remove white spaces around the equal sign: 'foo  =  bar' => 'foo=bar'
     flat = re.sub('\s*=\s*', '=', args)
     # coalesce multiple white spaces into just one space 
@@ -186,11 +204,11 @@ class log(object):
     parts = flat.split(' ')
     for part in parts:
       kv = part.partition('=')
-      clazz.__configure_i(kv[0], kv[2])
+      clazz._configure_i(kv[0], kv[2])
     clazz._log_lock.release()
 
   @classmethod
-  def __flatten(clazz, s, delimiter = ' '):
+  def _flatten(clazz, s, delimiter = ' '):
     'Flatten the given collection to a string.'
     'If s is already a string just return it.'
     if isinstance(s, compat.STRING_TYPES):
@@ -200,7 +218,7 @@ class log(object):
     raise RuntimeError('Not a string or list')
 
   @classmethod
-  def __configure_i(clazz, key, value):
+  def _configure_i(clazz, key, value):
     'Configure levels.'
     if key == 'level':
       clazz._level = clazz.parse_level(value)
@@ -209,9 +227,9 @@ class log(object):
       for key in clazz._tag_levels.keys():
         clazz._tag_levels[key] = level
     elif key == 'reset':
-      clazz.__configure_i('level', clazz.DEFAULT_LEVEL)
-      clazz.__configure_i('all', clazz._level)
-      clazz.__configure_i('file', clazz.DEFAULT_LOG_FP)
+      clazz._configure_i('level', clazz.DEFAULT_LEVEL)
+      clazz._configure_i('all', clazz._level)
+      clazz._configure_i('file', clazz.DEFAULT_LOG_FP)
     elif key == 'file':
       if compat.is_file(value):
         clazz._log_fp = value
@@ -220,37 +238,39 @@ class log(object):
     elif key == 'dump':
       lines = [ '%s: %s' % (key, clazz._level_to_string.get(level)) for key, level in sorted(clazz._tag_levels.items()) ]
       message = '\n'.join(lines) + '\n'
-      clazz.__console_output(message)
+      clazz._console_output(message)
     elif key == 'format':
       clazz._format = clazz.__FORMATS.get(value, value)
+    elif key == 'width':
+      clazz._tag_width = int(value)
     else:
-      if clazz.__key_is_fnmatch_pattern(key):
+      if clazz._key_is_fnmatch_pattern(key):
         clazz._log_config_patterns[key] = clazz.parse_level(value)
-        clazz.__update_levels_from_patterns()
+        clazz._update_levels_from_patterns()
       else:
         clazz._tag_levels[key] = clazz.parse_level(value)
 
   @classmethod
-  def __update_levels_from_patterns(clazz):
+  def _update_levels_from_patterns(clazz):
     for pattern, level in clazz._log_config_patterns.items():
       for key in clazz._tag_levels.keys():
         if fnmatch.fnmatch(key, pattern):
           clazz._tag_levels[key] = level
         
   @classmethod
-  def __update_longest_tag_length(clazz):
+  def _update_longest_tag_length(clazz):
     clazz._longest_tag_length = max(len(key) for key in clazz._tag_levels.keys())
     
   __FNMATCH_CHARS = '.*?[]!'
   @classmethod
-  def __key_is_fnmatch_pattern(clazz, key):
+  def _key_is_fnmatch_pattern(clazz, key):
     for c in key:
       if c in clazz.__FNMATCH_CHARS:
         return True
     return False
 
   @classmethod
-  def __console_output(clazz, message):
+  def _console_output(clazz, message):
     with open('/dev/tty', 'w') as fout:
       fout.write(message)
       fout.flush()
@@ -260,14 +280,14 @@ class log(object):
   def set_log_file(clazz, f):
     'Set the log file to be f.  f can be a filename or a file object.'
     clazz._log_lock.acquire()
-    clazz.__configure_i('file', f)
+    clazz._configure_i('file', f)
     clazz._log_lock.release()
 
   @classmethod
   def reset(clazz):
     'Parse the level string and returns its integer value.'
     clazz._log_lock.acquire()
-    clazz.__configure_i('reset', None)
+    clazz._configure_i('reset', None)
     clazz._log_lock.release()
 
   @staticmethod
@@ -333,11 +353,11 @@ class log(object):
     if tag not in clazz._tag_levels:
       clazz._tag_levels[tag] = clazz.DEFAULT_LEVEL
 
-    clazz.__update_levels_from_patterns()
-    clazz.__update_longest_tag_length()
+    clazz._update_levels_from_patterns()
+    clazz._update_longest_tag_length()
     
   @classmethod
-  def __default_tag(clazz, obj):
+  def _default_tag(clazz, obj):
     'Return the default tag for obj.'
     assert obj
     if type(obj) == type:
