@@ -5,11 +5,17 @@ from bes.testing.unit_test import unit_test
 
 import os.path as path, pprint
 from bes.fs import file_find, file_util, temp_file
+from bes.system import host
 from bes.archive.macos import dmg
+from bes.testing.unit_test.unit_test_skip import raise_skip_if_not_platform
 
 class test_dmg(unit_test):
 
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/archive/dmg'
+
+  @classmethod
+  def setUpClass(clazz):
+    raise_skip_if_not_platform(host.MACOS)
 
   def test_info(self):
     info = dmg.info()

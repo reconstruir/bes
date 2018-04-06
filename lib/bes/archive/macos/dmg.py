@@ -4,7 +4,7 @@ import os, os.path as path
 from bes.compat.plistlib import plistlib_loads
 
 from bes.fs import file_check, file_find, file_util, tar_util, temp_file
-from bes.system import execute, log
+from bes.system import execute, host, log
 
 from collections import namedtuple
 

@@ -5,8 +5,10 @@
 import os.path as path, tarfile, zipfile
 from bes.testing.unit_test import unit_test
 from bes.fs import file_util, temp_file
+from bes.system import host
 from bes.archive.temp_archive import temp_archive
 from bes.archive.macos import dmg
+from bes.testing.unit_test.unit_test_skip import skip_if
 
 class test_temp_archive(unit_test):
 
@@ -31,6 +33,7 @@ class test_temp_archive(unit_test):
     self.assertTrue( tarfile.is_tarfile(a.filename) )
     self.assertFalse( zipfile.is_zipfile(a.filename) )
 
+  @skip_if(not host.is_macos(), 'dmg is only supported on macos')
   def test_make_temp_archive_dmg(self):
     a = self._make_temp_archive('dmg')
     self.assertTrue( path.isfile(a.filename) )

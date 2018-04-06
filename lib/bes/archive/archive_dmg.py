@@ -2,7 +2,7 @@
 
 import os, os.path as path, tarfile
 from bes.fs import file_util, temp_file
-from bes.system import execute
+from bes.system import execute, host
 
 from .archive import archive
 from .archive_extension import archive_extension
@@ -13,6 +13,8 @@ class archive_dmg(archive):
   'A class to deal with dmg archives.  http://newosxbook.com/DMG.html.'
 
   def __init__(self, filename):
+    if host.SYSTEM != host.MACOS:
+      raise RuntimeError('archive_dmg is only supported on macos')
     super(archive_dmg, self).__init__(filename)
 
   def is_valid(self):
