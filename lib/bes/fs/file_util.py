@@ -19,6 +19,12 @@ class file_util(object):
       os.chmod(p, mode)
                   
   @classmethod
+  def ensure_file_dir(clazz, p, mode = None):
+    d = path.dirname(p)
+    if d:
+      clazz.mkdir(d, mode = mode)
+      
+  @classmethod
   def remove(clazz, files):
     files = object_util.listify(files)
     for f in files:

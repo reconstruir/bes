@@ -22,7 +22,7 @@ class test_sqlite(unit_test):
     db.execute('''insert into fruits (name, version) values ('apple', '2.3.4')''')
     db.commit()
     
-    actual = db.select('''select * from fruits''')
+    actual = db.select_all('''select * from fruits''')
     expected = [
       ( 'kiwi', '1.2.3' ),
       ( 'apple', '2.3.4' ),
@@ -33,7 +33,7 @@ class test_sqlite(unit_test):
 
     db.fetch_namedtuples = True
 
-    actual = db.select('''select * from fruits''')
+    actual = db.select_all('''select * from fruits''')
     self.assertTrue( type(actual[0]) != tuple )
     self.assertTrue( type(actual[1]) != tuple )
     self.assertEqual( 'kiwi', actual[0].name )
@@ -43,7 +43,7 @@ class test_sqlite(unit_test):
 
     db.fetch_namedtuples = False
     
-    actual = db.select('''select * from fruits''')
+    actual = db.select_all('''select * from fruits''')
     expected = [
       ( 'kiwi', '1.2.3' ),
       ( 'apple', '2.3.4' ),

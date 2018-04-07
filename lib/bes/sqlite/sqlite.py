@@ -24,7 +24,7 @@ class sqlite(object):
     self.log_i('sqlite(filename=%s)' % (filename))
     self._filename = filename
     if self._filename != ':memory:':
-      file_util.mkdir(path.dirname(self._filename))
+      file_util.ensure_file_dir(path.dirname(self._filename))
     self._connection = sqlite3.connect(self._filename)
     self._cursor = self._connection.cursor()
 
@@ -78,9 +78,13 @@ class sqlite(object):
   def fetchall(self):
     return self._cursor.fetchall()
   
-  def select(self, sql, *args, **kwargs):
+  def select_all(self, sql, *args, **kwargs):
     self.execute(sql, *args, **kwargs)
     return self.fetchall()
+
+  def select_one(self, sql, *args, **kwargs):
+    self.execute(sql, *args, **kwargs)
+    return self.fetchone()
 
   def select_namedtuples(self, sql, *args, **kwargs):
     save_fetch_namedtuples = self.fetch_namedtuples
