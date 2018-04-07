@@ -1,9 +1,9 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .Script import Script
 from .algorithm import algorithm
 from .bool_util import bool_util
+from .cached_property import cached_property
 from .check import check
 from .command_line import command_line
 from .dict_util import dict_util
@@ -22,3 +22,4 @@ from .time_util import time_util
 from .tuple_util import tuple_util
 from .type_checked_list import type_checked_list
 from .variable import variable
+

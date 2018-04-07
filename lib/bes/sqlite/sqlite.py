@@ -24,7 +24,7 @@ class sqlite(object):
     self.log_i('sqlite(filename=%s)' % (filename))
     self._filename = filename
     if self._filename != ':memory:':
-      file_util.ensure_file_dir(path.dirname(self._filename))
+      file_util.ensure_file_dir(self._filename)
     self._connection = sqlite3.connect(self._filename)
     self._cursor = self._connection.cursor()
 
