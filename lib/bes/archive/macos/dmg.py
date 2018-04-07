@@ -25,14 +25,14 @@ class dmg(object):
       try:
         fin.seek(-512, os.SEEK_END)
         trailer = fin.read(512)
-        return trailer[0:4] == 'koly'
+        return trailer[0:4].decode('ascii') == 'koly'
       except IOError as ex:
         return False
 
   @classmethod
   def info(clazz):
     rv = clazz._execute_cmd('hdiutil', 'info', '-plist')
-    return plistlib_loads(rv.stdout).get('images', [])
+    return plistlib_loads(rv.stdout.encode('utf-8')).get('images', [])
 
   @classmethod
   def contents(clazz, dmg):
@@ -55,7 +55,7 @@ class dmg(object):
     file_check.check_file(dmg)
     tmp_dir = temp_file.make_temp_dir()
     rv = clazz._execute_cmd('hdiutil', 'attach', '-mountpoint', tmp_dir, '-plist', dmg)
-    entries = plistlib_loads(rv.stdout)
+    entries = plistlib_loads(rv.stdout.encode('utf-8'))
     return clazz.mount_info(dmg, tmp_dir, entries.get('system-entities', []))
 
   @classmethod
