@@ -119,7 +119,7 @@ class file_checksum_list(type_checked_list):
     for value in self:
       buf.write(value.filename)
       buf.write(value.checksum)
-    return hashlib.sha1(buf.getvalue()).hexdigest()
+    return hashlib.sha1(buf.getvalue().encode('utf-8')).hexdigest()
 
 check.register_class(file_checksum, include_seq = False)
 check.register_class(file_checksum_list, include_seq = False)
