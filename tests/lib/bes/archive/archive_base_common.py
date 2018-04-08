@@ -29,6 +29,19 @@ class archive_base_common(object):
     tmp_tar = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], self.default_archive_type)
     self.assertEqual( [ 'foo.txt' ], self.make_archive(tmp_tar.filename).members() )
 
+  def test_has_member(self):
+    assert self.default_archive_type
+
+    items = temp_archive.make_temp_item_list([
+      ( 'foo/apple.txt', 'apple.txt\n' ),
+      ( 'foo/durian.txt', 'durian.txt\n' ),
+      ( 'foo/kiwi.txt', 'kiwi.txt\n' ),
+      ( 'metadata/db.json', '{}\n' ),
+    ])
+    tmp_archive = self.make_temp_archive_for_reading(items)
+    self.assertTrue( self.make_archive(tmp_archive.filename).has_member('foo/apple.txt') )
+    self.assertFalse( self.make_archive(tmp_archive.filename).has_member('nothere.txt') )
+
   def test_extract(self):
     assert self.default_archive_type
     items = temp_archive.make_temp_item_list([

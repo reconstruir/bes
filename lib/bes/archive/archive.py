@@ -2,14 +2,15 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os, os.path as path
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
+from bes.system.compat import with_metaclass
 from collections import namedtuple
 
 from bes.common import algorithm
 from bes.fs import file_find, file_path, file_util, tar_util, temp_file
 from bes.match import matcher_multiple_filename, matcher_always_false, matcher_always_true, matcher_util
 
-class archive(object):
+class archive(with_metaclass(ABCMeta, object)):
   'An archive interface.'
 
   Item = namedtuple('Item', [ 'filename', 'arcname' ])
@@ -23,6 +24,10 @@ class archive(object):
 
   @abstractmethod
   def members(self):
+    pass
+
+  @abstractmethod
+  def has_member(self, arcname):
     pass
 
   @abstractmethod

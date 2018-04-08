@@ -21,6 +21,14 @@ class archive_zip(archive):
       members = [ member.filename for member in archive.infolist() ]
       return self._normalize_members(members)
 
+  def has_member(self, arcname):
+    with zipfile.ZipFile(file = self.filename, mode = 'r') as archive:
+      try:
+        archive.getinfo(arcname)
+        return True
+      except KeyError as ex:
+        return False
+    
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_base = False, strip_head = None,
                       include = None, exclude = None):

@@ -20,6 +20,14 @@ class archive_tar(archive):
       members = [ member.path for member in archive.getmembers() ]
       return self._normalize_members(members)
 
+  def has_member(self, arcname):
+    with tarfile.open(self.filename, mode = 'r') as archive:
+      try:
+        archive.getmember(arcname)
+        return True
+      except KeyError as ex:
+        return False
+    
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_base = False, strip_head = None,
                       include = None, exclude = None):

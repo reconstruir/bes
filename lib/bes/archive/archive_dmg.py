@@ -24,6 +24,9 @@ class archive_dmg(archive):
     members = dmg.contents(self.filename)
     return self._normalize_members(members)
 
+  def has_member(self, arcname):
+    return arcname in self.members()
+  
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_base = False, strip_head = None,
                       include = None, exclude = None):
