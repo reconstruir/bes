@@ -28,6 +28,8 @@ class dmg(object):
         return trailer[0:4].decode('ascii') == 'koly'
       except IOError as ex:
         return False
+      except UnicodeDecodeError as ex:
+        return False
 
   @classmethod
   def info(clazz):
