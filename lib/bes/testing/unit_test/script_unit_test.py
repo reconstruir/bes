@@ -30,7 +30,6 @@ class script_unit_test(unit_test):
 
   def run_script(self, args, cwd = None, env = None):
     rv = self.run_script_raw(args, cwd = cwd, env = env)
-    print('FUCK: stdout=%s' % (rv.stdout))
     if isinstance(rv.stdout, bytes):
       stdout = codecs.decode(rv.stdout, 'utf-8')
     else:
