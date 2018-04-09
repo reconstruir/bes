@@ -3,6 +3,7 @@
 
 import os.path as path
 from bes.fs import file_cache
+from bes.system import host
 from .archive_tar import archive_tar
 from .archive_zip import archive_zip
 from .archive_dmg import archive_dmg
@@ -107,7 +108,10 @@ class archiver(object):
 
   @classmethod
   def _determine_type(clazz, filename):
-    possible = [ archive_tar, archive_zip, archive_dmg ]
+    possible = [ archive_tar, archive_zip ] 
+    if host.SYSTEM == host.MACOS:
+      possible.append(archive_dmg)
+
     for p in possible:
       if p(filename).is_valid():
         return p
