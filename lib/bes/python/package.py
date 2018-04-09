@@ -9,14 +9,17 @@ class package(object):
 
   @classmethod
   def get_data_program_exe(clazz, program_path, filename, module_name):
-    inside_egg, exe_data = clazz._resolve_data(program_path, filename, module_name)
-    if not inside_egg:
-      if not file_path.is_executable(exe_data):
-        raise RuntimeError('not an executable program: %s' % (exe_data))
-      return exe_data
-    exe_tmp = temp_file.make_temp_file(content = exe_data, prefix = path.basename(program_path) + '-')
-    os.chmod(exe_tmp, 0o755)
-    return exe_tmp
+    try:
+      inside_egg, exe_data = clazz._resolve_data(program_path, filename, module_name)
+      if not inside_egg:
+        if not file_path.is_executable(exe_data):
+          return None
+        return exe_data
+      exe_tmp = temp_file.make_temp_file(content = exe_data, prefix = path.basename(program_path) + '-')
+      os.chmod(exe_tmp, 0o755)
+      return exe_tmp
+    except Exception as ex:
+      return None
 
   @classmethod
   def is_inside_egg(clazz, data_path, filename, module_name):
