@@ -42,7 +42,7 @@ class debug_timer(object):
 class noop_debug_timer(object):
   'A debug timer class that does nothing.'
   
-  def __init__(self, tag, level = 'debug'):
+  def __init__(self, tag = 'noop', level = 'debug'):
     pass
  
   def start(self, thing):

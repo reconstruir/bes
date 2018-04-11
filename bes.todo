@@ -112,3 +112,5 @@ s/matcher_multiple_filename/matcher_multiple_patterns/
 change file_checksum hash from sha1 to sha256 but measure
 change file_checksum hash from reading file into memory to using streams
 
+april 11
+get rid of noop_debug_timer and just make debug_timer support being disabled.  rename it timing_measure or some such
