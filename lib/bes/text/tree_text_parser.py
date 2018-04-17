@@ -104,4 +104,3 @@ class tree_text_parser(object):
     for i, child in enumerate(node.children):
       clazz._node_text_collect(child, delimiter, buf)
       buf.write(delimiter)
-  
