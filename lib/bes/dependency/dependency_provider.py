@@ -3,7 +3,7 @@
 
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
-from bes.common import check, object_util
+from bes.common import check
 
 class dependency_provider(with_metaclass(ABCMeta, object)):
   
@@ -21,6 +21,7 @@ class dependency_provider(with_metaclass(ABCMeta, object)):
     if check.is_dependency_provider(o):
       return o.provided()
     elif check.is_dependency_provider_seq(o):
+      #assert False
       result = []
       for item in o:
         result.extend(item.provided())

@@ -44,5 +44,3 @@ class git_download_cache(object):
     local_address_path = self.path_for_address(address)
     tarball_filename = '%s.tar.gz' % (revision)
     return path.join(local_address_path, tarball_filename)
-
-  
