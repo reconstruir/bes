@@ -70,6 +70,7 @@ function bes_setup()
 
   if [ $_dont_chdir -eq 0 ]; then
     cd $_root_dir
+    bes_tab_title $(basename $_root_dir)
   fi
   
   return 0
@@ -231,6 +232,13 @@ function bes_MANPATH_prepend_cwd()
 function bes_MANPATH()
 {
   bes_path_print $MANPATH
+}
+
+function bes_tab_title()
+{
+  echo -ne "\033]0;"$*"\007"
+  local _prompt=$(echo -ne "\033]0;"$*"\007")
+  export PROMPT_COMMAND='${_prompt}'
 }
 
 if [ -n "$_BES_TRACE" ]; then echo "bes_framework.sh end"; fi
