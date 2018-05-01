@@ -32,6 +32,7 @@ class host(object):
     UBUNTU: {
       '14.04': 'trusty',
       '16.04': 'xenial',
+      '18.04': 'bionic',
     },
     MACOS: {
       '10.10': 'yosemite',
