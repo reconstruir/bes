@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
-from bes.common import string_util
+from bes.common import check, string_util
 from bes.fs import file_util, temp_file
 
 from .git import git
@@ -44,3 +44,5 @@ class git_download_cache(object):
     local_address_path = self.path_for_address(address)
     tarball_filename = '%s.tar.gz' % (revision)
     return path.join(local_address_path, tarball_filename)
+  
+check.register_class(git_download_cache, include_seq = False)
