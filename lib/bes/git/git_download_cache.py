@@ -29,7 +29,10 @@ class git_download_cache(object):
     if path.exists(tarball_path):
       return tarball_path
     tmp_dir = temp_file.make_temp_dir()
-    name = git_util.name_from_address(address)
+    if path.isdir(address):
+      name = path.basename(address)
+    else:
+      name = git_util.name_from_address(address)
     tmp_full_path = path.join(tmp_dir, tarball_filename)
     git.download_tarball(name, revision, address, tmp_full_path)
     file_util.rename(tmp_full_path, tarball_path)
