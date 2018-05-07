@@ -118,3 +118,7 @@ get rid of noop_debug_timer and just make debug_timer support being disabled.  r
 2018-05-06
  - when best test fails print a report of all the failed tests
  
+2018-05-06
+ - change type_checked_list to use a class attribute __value_type__ instead of argument in __init__
+ - type_checked_list entry vs value naming
+ 

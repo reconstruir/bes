@@ -16,7 +16,14 @@ class type_checked_list(object):
   @classmethod
   def cast_entry(clazz, entry):
     return entry
-    
+
+  @classmethod
+  def entry_type(clazz):
+    et = getattr(clazz, '__value_type__', None)
+    if not et:
+      raise TypeError('No __value_type__ attribute found in %s' % (str(clazz)))
+    return et
+  
   def __repr__(self):
     return repr(self._values)
     
