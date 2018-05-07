@@ -9,11 +9,13 @@ from bes.text import string_lexer_options
 
 class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
 
+  __value_type__ = key_value
+  
   def __init__(self, values = None):
-    super(key_value_list, self).__init__(key_value, values = values)
+    super(key_value_list, self).__init__(values = values)
 
   @classmethod
-  def cast_entry(clazz, entry):
+  def cast_value(clazz, entry):
     if isinstance(entry, tuple):
       return key_value(*entry)
     return entry

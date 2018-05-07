@@ -9,8 +9,10 @@ from .string_lexer import string_lexer_options
 
 class string_list(type_checked_list, string_lexer_options.CONSTANTS):
 
+  __value_type__ = compat.STRING_TYPES
+  
   def __init__(self, values = None):
-    super(string_list, self).__init__(compat.STRING_TYPES, values = values)
+    super(string_list, self).__init__(values = values)
     
   def to_string(self, delimiter = ';', quote = False):
     buf = StringIO()

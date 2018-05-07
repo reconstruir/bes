@@ -8,20 +8,23 @@ from bes.common import algorithm, check
 
 class type_checked_list(object):
 
-  def __init__(self, entry_type, values = None):
-    check.check(entry_type, ( type, tuple ))
-    self._entry_type = entry_type
+  value_type = None
+  
+  def __init__(self, values = None):
+    if not self.value_type:
+      self.value_type = self._determine_value_type()
     self._assign(values)
 
   @classmethod
-  def cast_entry(clazz, entry):
-    return entry
+  def cast_value(clazz, value):
+    return value
 
   @classmethod
-  def entry_type(clazz):
+  def _determine_value_type(clazz):
     et = getattr(clazz, '__value_type__', None)
     if not et:
       raise TypeError('No __value_type__ attribute found in %s' % (str(clazz)))
+    check.check(et, ( type, tuple ))
     return et
   
   def __repr__(self):
@@ -30,8 +33,8 @@ class type_checked_list(object):
   def _assign(self, values):
     self._values = []
     for v in values or []:
-      v = self.cast_entry(v)
-      check.check(v, self._entry_type)
+      v = self.cast_value(v)
+      check.check(v, self.value_type)
       self._values.append(v)
 
   def compare(self, other):
@@ -84,7 +87,7 @@ class type_checked_list(object):
     return self._values[i]
   
   def __setitem__(self, i, v):
-    check.check(v, self._entry_type)
+    check.check(v, self.value_type)
     self._values[i] = v
 
   def __contains__(self, v):
@@ -104,11 +107,11 @@ class type_checked_list(object):
     self._values.extend(self._get_values(other))
 
   def append(self, v):
-    check.check(v, self._entry_type)
+    check.check(v, self.value_type)
     self._values.append(v)
 
   def remove(self, v):
-    check.check(v, self._entry_type)
+    check.check(v, self.value_type)
     self._values.remove(v)
 
   def remove_dups(self):

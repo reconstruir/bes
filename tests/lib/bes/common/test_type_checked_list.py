@@ -9,8 +9,10 @@ from collections import namedtuple
 
 class IL(type_checked_list):
 
+  __value_type__ = compat.INTEGER_TYPES
+  
   def __init__(self, values = None):
-    super(IL, self).__init__(compat.INTEGER_TYPES, values = values)
+    super(IL, self).__init__(values = values)
 
 class test_type_checked_list(unit_test):
 
@@ -111,8 +113,9 @@ class test_type_checked_list(unit_test):
   def test_sort(self):
     T = namedtuple('T', 'a,b')
     class TL(type_checked_list):
+      __value_type__ = T
       def __init__(self, values = None):
-        super(TL, self).__init__(T, values = values)
+        super(TL, self).__init__(values = values)
     l = TL([ T('apple', 6), T('pear', 1), T('kiwi', 7) ])
     self.assertEqual( [ T('apple', 6), T('pear', 1), T('kiwi', 7) ], [ x for x in l ] )
     l.sort()

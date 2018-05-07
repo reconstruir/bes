@@ -38,11 +38,13 @@ class file_checksum(namedtuple('file_checksum', 'filename,checksum')):
   
 class file_checksum_list(type_checked_list):
 
+  __value_type__ = file_checksum
+  
   def __init__(self, values = None):
-    super(file_checksum_list, self).__init__(file_checksum, values = values)
+    super(file_checksum_list, self).__init__(values = values)
 
   @classmethod
-  def cast_entry(clazz, entry):
+  def cast_value(clazz, entry):
     if isinstance(entry, ( tuple, list )):
       return file_checksum(*entry)
     return entry
