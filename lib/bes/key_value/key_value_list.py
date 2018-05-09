@@ -1,11 +1,11 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.compat import StringIO
-from .key_value_parser import key_value_parser
-from .key_value import key_value
 from bes.common import check, object_util, string_util, type_checked_list, variable
 from bes.text import string_lexer_options
+
+from .key_value_parser import key_value_parser
+from .key_value import key_value
 
 class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
 
@@ -108,9 +108,9 @@ class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
       if string_util.is_string(kv.value):
         self._values[i] = key_value(kv.key, string_util.unquote(kv.value))
 
-  def substitute_variables(self, d):
+  def substitute_variables(self, d, word_boundary = True):
     for i, kv in enumerate(self._values):
-      self._values[i] = key_value(kv.key, variable.substitute(kv.value, d))
+      self._values[i] = key_value(kv.key, variable.substitute(kv.value, d, word_boundary = word_boundary))
 
   def replace(self, key, new_kv):
     check.check_string(key)
