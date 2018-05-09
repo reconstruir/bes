@@ -8,8 +8,8 @@ from .comments import comments
   
 class _text_stack(object):
 
-  path_item = namedtuple('path_item', 'text,line_number')
-  item = namedtuple('item', 'depth,path_item')
+  path_item = namedtuple('path_item', 'text, line_number')
+  item = namedtuple('item', 'depth, path_item')
 
   def __init__(self):
     self._stack = []
