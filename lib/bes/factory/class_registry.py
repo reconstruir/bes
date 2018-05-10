@@ -1,7 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.common import string_util
-from collections import namedtuple
 
 class class_registry(object):
 
@@ -10,7 +9,7 @@ class class_registry(object):
     self._raise_on_existing = raise_on_existing
     self._registry = {}
   
-  def register_class(self, registree):
+  def register(self, registree):
     name = registree.__name__
     existing = self._registry.get(name, None)
     if existing:
@@ -22,7 +21,6 @@ class class_registry(object):
       name_no_prefix = string_util.remove_head(name, self._class_name_prefix)
       self._registry[name_no_prefix] = registree
     
-  @classmethod
   def get(self, class_name):
     return self._registry.get(class_name, None)
 
