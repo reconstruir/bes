@@ -46,6 +46,11 @@ class dict_util(object):
     return { k: v for k,v in d.items() if k in keys }
 
   @staticmethod
+  def filter_without_keys(d, keys):
+    'Return a dict with only keys.'
+    return { k: v for k,v in d.items() if k not in keys }
+
+  @staticmethod
   def is_homogeneous(d, key_type, value_type):
     'Return True if all items in d are of the given key_type and value_type.'
     for key, value in d.items():
