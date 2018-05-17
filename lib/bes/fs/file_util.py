@@ -206,5 +206,9 @@ class file_util(object):
   @classmethod
   def is_broken_link(clazz, filename):
     return path.islink(filename) and not path.isfile(os.readlink(filename))
+
+  @classmethod
+  def is_empty(clazz, filename):
+    return clazz.size(filename) == 0
   
 log.add_logging(file_util, 'file_util')
