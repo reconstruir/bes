@@ -57,6 +57,12 @@ class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
         return next_kv
     return None
 
+  def find_by_last_key(self, key):
+    for next_kv in reversed(self._values):
+      if next_kv.key == key:
+        return next_kv
+    return None
+
   def find_all_key(self, key):
     result = []
     for next_kv in self._values:
