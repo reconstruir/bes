@@ -7,7 +7,7 @@ from bes.archive.temp_archive import temp_archive
 from bes.archive.archive_xz import archive_xz
 from archive_base_common import archive_base_common
 
-class test_archive_xz(unittest.TestCase): #, archive_base_common):
+class test_archive_xz(unittest.TestCase, archive_base_common):
 
   def __init__(self, methodName = 'runTest'):
     super(test_archive_xz, self).__init__(methodName)

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path, tarfile, tempfile, zipfile
@@ -112,7 +111,9 @@ class temp_archive(object):
       assert item.arcname
       file_util.save(path.join(tmp_dir, item.arcname), content = item.content)
     tmp_xz = temp_file.make_temp_file()
-    cmd = 'tar Jcf %s -C %s .' % (filename, tmp_dir)
+    manifest_content = '\n'.join([ item.arcname for item in items ])
+    manifest = temp_file.make_temp_file(content = manifest_content)
+    cmd = 'tar Jcf %s -C %s -T %s' % (filename, tmp_dir, manifest)
     execute.execute(cmd)
     file_util.remove(tmp_dir)
     
