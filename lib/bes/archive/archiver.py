@@ -7,6 +7,7 @@ from bes.system import host
 from .archive_tar import archive_tar
 from .archive_zip import archive_zip
 from .archive_dmg import archive_dmg
+from .archive_xz import archive_xz
 from .archive_extension import archive_extension
 
 class archiver(object):
@@ -108,7 +109,7 @@ class archiver(object):
 
   @classmethod
   def _determine_type(clazz, filename):
-    possible = [ archive_tar, archive_zip ] 
+    possible = [ archive_tar, archive_zip, archive_xz ] 
     if host.SYSTEM == host.MACOS:
       possible.append(archive_dmg)
 
@@ -123,6 +124,8 @@ class archiver(object):
       return archive_tar
     elif archive_extension.is_valid_zip_filename(filename):
       return archive_zip
+    elif archive_extension.is_valid_xz_filename(filename):
+      return archive_xz
     elif archive_extension.is_valid_dmg_filename(filename):
-      return archive_zip
-    return archive_dmg
+      return archive_dmg
+    return None
