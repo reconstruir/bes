@@ -35,6 +35,8 @@ class temp_archive(object):
       return 'tar'
     elif archive_extension.is_valid_dmg_ext(extension):
       return 'dmg'
+    elif archive_extension.is_valid_xz_ext(extension):
+      return 'xz'
     else:
       return None
         
@@ -54,6 +56,8 @@ class temp_archive(object):
       clazz._make_temp_archive_tar(items, temp_archive_filename, archive_mode)
     elif ext_type == 'dmg':
       clazz._make_temp_archive_dmg(items, temp_archive_filename, archive_mode)
+    elif ext_type == 'xz':
+      clazz._make_temp_archive_xz(items, temp_archive_filename, archive_mode)
 
     if delete:
       temp_file.atexit_delete(temp_archive_filename)
@@ -97,6 +101,18 @@ class temp_archive(object):
       file_util.save(path.join(tmp_dir, item.arcname), content = item.content)
     tmp_dmg = temp_file.make_temp_file()
     cmd = 'hdiutil create -srcfolder %s -ov -format UDZO %s' % (tmp_dir, filename)
+    execute.execute(cmd)
+    file_util.remove(tmp_dir)
+    
+  @classmethod
+  def _make_temp_archive_xz(clazz, items, filename, mode):
+    tmp_dir = temp_file.make_temp_dir()
+    for item in items:
+      assert item
+      assert item.arcname
+      file_util.save(path.join(tmp_dir, item.arcname), content = item.content)
+    tmp_xz = temp_file.make_temp_file()
+    cmd = 'tar Jcf %s -C %s .' % (filename, tmp_dir)
     execute.execute(cmd)
     file_util.remove(tmp_dir)
     

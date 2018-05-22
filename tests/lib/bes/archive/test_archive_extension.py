@@ -32,7 +32,8 @@ class test_archive_extension(unit_test):
     self.assertEqual( 'bz2', archive_extension.extension_for_filename('foo.bz2') )
     self.assertEqual( 'tar.bz2', archive_extension.extension_for_filename('foo.tar.bz2') )
     self.assertEqual( 'dmg', archive_extension.extension_for_filename('foo.dmg') )
-    self.assertEqual( None, archive_extension.extension_for_filename('foo.xz') )
+    self.assertEqual( 'xz', archive_extension.extension_for_filename('foo.xz') )
+    self.assertEqual( None, archive_extension.extension_for_filename('foo.7zip') )
 
 if __name__ == "__main__":
   unit_test.main()
