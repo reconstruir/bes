@@ -204,7 +204,7 @@ class table(object):
     return tuple(self._rows[y])
   
   def column(self, x):
-    self.check_x(x)
+    x = self.resolve_x(x)
     col = []
     for y in range(0, self.height):
       col.append(self._rows[y][x])

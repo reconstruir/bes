@@ -155,6 +155,18 @@ class test_table(unit_test):
     self.assertEqual( ( 2, 5, 8 ), t.column(1) )
     self.assertEqual( ( 3, 6, 9 ), t.column(2) )
 
+  def test_col_with_name(self):
+    column_names = ( 'fruit', 'color', 'sweetness' )
+    t = table(data = [
+      ( 'cherry', 'red', 4 ),
+      ( 'lemon', 'yellow', 2 ),
+      ( 'orange', 'orange', 8 ),
+      ( 'mango', 'orange', 10 ),
+    ], column_names = column_names)
+    self.assertEqual( ( 'cherry', 'lemon', 'orange', 'mango' ), t.column('fruit') )
+    self.assertEqual( ( 'red', 'yellow', 'orange', 'orange' ), t.column('color') )
+    self.assertEqual( ( 4, 2, 8, 10 ), t.column('sweetness') )
+    
   def test__eq__(self):
     t1 = table(data = [
       ( 1, 2, 3 ),
