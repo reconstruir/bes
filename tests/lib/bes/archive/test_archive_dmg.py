@@ -45,6 +45,8 @@ class test_archive_dmg(unit_test):
     tmp_tar_gz = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR_GZ)
     self.assertFalse( archive_dmg(tmp_tar_gz.filename).is_valid() )
 
+    self.assertFalse( archive_dmg(temp_file.make_temp_file(content = 'junk\n')).is_valid() )
+    
   def test_members(self):
     self.assertEqual( [ 'foo.txt', 'link_to_foo.sh', 'subdir/bar.txt' ], archive_dmg(self.data_path('example.dmg')).members() )
     

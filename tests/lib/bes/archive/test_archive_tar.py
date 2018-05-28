@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import unittest
+from bes.fs import temp_file
 from bes.archive.archive_extension import archive_extension
 from bes.archive.temp_archive import temp_archive
 from bes.archive.archive_tar import archive_tar
@@ -32,5 +33,7 @@ class test_archive_tar(unittest.TestCase, archive_base_common):
     tmp_zip = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], archive_extension.ZIP)
     self.assertFalse( archive_tar(tmp_zip.filename).is_valid() )
 
+    self.assertFalse( archive_tar(temp_file.make_temp_file(content = 'junk\n')).is_valid() )
+    
 if __name__ == "__main__":
   unittest.main()
