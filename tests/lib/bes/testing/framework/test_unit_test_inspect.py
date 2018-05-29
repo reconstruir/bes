@@ -19,7 +19,7 @@ class test_apple_fixture(unittest.TestCase):
   def test_bar(self):
     self.assertEqual( 7, 3 + 4 )
 '''
-    filename = temp_file.make_temp_file(content = content)
+    filename = temp_file.make_temp_file(content = content, suffix = '.py')
     self.assertEqual( [
       ( filename, 'test_apple_fixture', 'test_foo' ),
       ( filename, 'test_apple_fixture', 'test_bar' ),
@@ -37,7 +37,7 @@ class test_apple_fixture(object):
   def test_bar(self):
     pass
 '''
-    filename = temp_file.make_temp_file(content = content)
+    filename = temp_file.make_temp_file(content = content, suffix = '.py')
     self.assertEqual( [], UTI.inspect_file(filename) )
     file_util.remove(filename)
 
@@ -52,7 +52,7 @@ class test_apple_fixture(unittest.TestCase):
   def xtest_bar(self):
     self.assertEqual( 7, 3 + 4 )
 '''
-    filename = temp_file.make_temp_file(content = content)
+    filename = temp_file.make_temp_file(content = content, suffix = '.py')
     self.assertEqual( [
     ],
                       UTI.inspect_file(filename) )
@@ -77,7 +77,7 @@ class test_apple_fixture(unit_super):
 class somthing(unittest.TestCase):
   pass
 '''
-    filename = temp_file.make_temp_file(content = content)
+    filename = temp_file.make_temp_file(content = content, suffix = '.py')
     self.assertEqual( [
       ( filename, 'test_apple_fixture', 'test_foo' ),
       ( filename, 'test_apple_fixture', 'test_bar' ),
@@ -96,7 +96,7 @@ class test_apple_fixture(unit_test):
   def test_bar(self):
     self.assertEqual( 7, 3 + 4 )
 '''
-    filename = temp_file.make_temp_file(content = content)
+    filename = temp_file.make_temp_file(content = content, suffix = '.py')
     self.assertEqual( [
       ( filename, 'test_apple_fixture', 'test_foo' ),
       ( filename, 'test_apple_fixture', 'test_bar' ),
