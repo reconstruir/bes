@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path, unittest
+import os.path as path
 from abc import abstractmethod
 from bes.fs import file_find, file_util, temp_file
 from bes.match import matcher_multiple_filename, matcher_always_false, matcher_always_true
