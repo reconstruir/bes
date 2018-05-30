@@ -15,7 +15,7 @@ from bes.fs import file_find, file_path, file_util, temp_file
 from bes.git import git
 from bes.system import execute, env_var, os_env
 from bes.testing.framework import argument_resolver, printer
-from bes.version import version_info
+from bes.version import version_cli
 
 # TODO:
 #  - figure out how to stop on first failure within one module
@@ -23,8 +23,11 @@ from bes.version import version_info
 # - cleanup egg dropping
 
 def main():
+  import bes
+  vcli = version_cli(bes)
   parser = argparse.ArgumentParser()
   parser.add_argument('files', action = 'store', nargs = '*', help = 'Files or directories to rename')
+  vcli.version_add_arguments(parser)
   parser.add_argument('--dry-run',
                       '-n',
                       action = 'store_true',
@@ -40,11 +43,6 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Verbose debug output [ False ]')
-  parser.add_argument('--version',
-                      '-V',
-                      action = 'store_true',
-                      default = False,
-                      help = 'Show version [ False ]')
   parser.add_argument('--stop',
                       '-s',
                       action = 'store_true',
@@ -157,8 +155,7 @@ def main():
   cwd = os.getcwd()
 
   if args.version:
-    import bes
-    print(version_info.version_info_for_module(bes).version_string(delimiter = ' '))
+    vcli.version_print_version()
     return 0
 
   args.env = _parse_args_env(args.env)
