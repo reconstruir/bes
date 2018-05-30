@@ -34,6 +34,6 @@ class test_archive_zip(unittest.TestCase, archive_base_common):
     self.assertFalse( archive_zip(tmp_tar_gz.filename).is_valid() )
 
     self.assertFalse( archive_zip(temp_file.make_temp_file(content = 'junk\n')).is_valid() )
-    
+
 if __name__ == "__main__":
   unittest.main()

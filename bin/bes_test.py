@@ -168,7 +168,7 @@ def main():
 
   if not args.file_ignore_file:
     args.file_ignore_file = [ '.bes_test_ignore', '.bes_test_internal_ignore' ]
-    
+
   ar = argument_resolver(cwd, args.files, root_dir = args.root_dir,
                          file_ignore_filename = args.file_ignore_file,
                          check_git = args.git)

@@ -3,7 +3,7 @@
 
 import os.path as path
 from collections import namedtuple
-from bes.common import check
+from bes.common import cached_property, check
 from bes.fs import file_util
 from bes.git import git
 
@@ -20,7 +20,7 @@ class file_info(namedtuple('file_info', 'filename,config')):
     config = config_env.config_for_filename(filename)
     return clazz.__bases__[0].__new__(clazz, filename, config)
 
-  @property
+  @cached_property
   def relative_filename(self):
     'Return the filename relative to the config root_dir or None if no config was found.'
     if self.config:
@@ -28,13 +28,9 @@ class file_info(namedtuple('file_info', 'filename,config')):
     else:
       return None
 
-  @property
+  @cached_property
   def git_root(self):
     'Return the git root for this file or None if not within a git repo.'
-    return self._get_or_compute_property('_git_root', self._compute_git_root)
-
-  def _compute_git_root(self):
-    'Compute the git root.'
     try:
       return git.root(self.filename)
     except RuntimeError as ex:
@@ -42,25 +38,16 @@ class file_info(namedtuple('file_info', 'filename,config')):
     except Exception as ex:
       raise
     
-  @property
+  @cached_property
   def git_tracked(self):
     'Return True if the file is tracked by the git repo.'
-    return self._get_or_compute_property('_git_tracked', self._compute_git_tracked)
-
-  def _compute_git_tracked(self):
-    'Compute the git tracked.'
-    root = self.git_root
-    if not root:
+    if not self.git_root:
       return False
-    return git.is_tracked(root, self.filename)
+    return git.is_tracked(self.git_root, self.filename)
 
-  @property
+  @cached_property
   def inspection(self):
     'Return the git root for this file or None if not within a git repo.'
-    return self._get_or_compute_property('_inspection', self._compute_inspection)
-
-  def _compute_inspection(self):
-    'Compute the git root.'
     try:
       return unit_test_inspect.inspect_file(self.filename)
     except SyntaxError as ex:
@@ -76,9 +63,4 @@ class file_info(namedtuple('file_info', 'filename,config')):
   def is_broken_link(self):
     return file_util.is_broken_link(self.filename)
 
-  def _get_or_compute_property(self, name, compute_func):
-    if not hasattr(self, name):
-      setattr(self, name, compute_func())
-    return getattr(self, name)
-  
 check.register_class(file_info, include_seq = False)

@@ -123,3 +123,9 @@ get rid of noop_debug_timer and just make debug_timer support being disabled.  r
 
 2018-05-28
  - bes_test.py cleanup poto_dependencies
+
+2018-05-30
+ - fix test_archive_unix_tar.py
+ - unit_test_skip stuff is confusing because some are for skipping a function vs some are for skipping a testcase
+ - fix broken unt tests: test_unit_test_inspect, test_argument_resolver, test_file_info
+ 

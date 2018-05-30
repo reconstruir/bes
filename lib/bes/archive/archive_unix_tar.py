@@ -2,6 +2,7 @@
 
 import os.path as path, tarfile
 from bes.system import execute
+from bes.fs import file_util, temp_file
 
 from .archive import archive
 from .archive_extension import archive_extension
@@ -21,27 +22,19 @@ class archive_unix_tar(archive):
       pass
     return False
 
-  def _cached_members(self):
-    cmd = 'tar tf %s' % (self.filename)
-    rv = execute.execute(cmd)
-    return [ m for m in rv.stdout.split('\n') if self._is_member(m) ]
-  
   def members(self):
-    cmd = 'tar tf %s' % (self.filename)
-    rv = execute.execute(cmd)
-    return [ m for m in rv.stdout.split('\n') if self._is_member(m) ]
+    if not self._members:
+      cmd = 'tar tf %s' % (self.filename)
+      rv = execute.execute(cmd)
+      self._members = [ m for m in rv.stdout.split('\n') if self._is_member(m) ]
+    return self._members
 
   @classmethod
   def _is_member(clazz, m):
     return m and not m.endswith('/')
   
   def has_member(self, arcname):
-    with tarfile.open(self.filename, mode = 'r') as archive:
-      try:
-        archive.getmember(arcname)
-        return True
-      except KeyError as ex:
-        return False
+    return arcname in self.members()
     
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_base = False, strip_head = None,
@@ -59,9 +52,16 @@ class archive_unix_tar(archive):
   def create(self, root_dir, base_dir = None,
              extra_items = None,
              include = None, exclude = None):
-    self._pre_create()
     items = self._find(root_dir, base_dir, extra_items, include, exclude)
+    ext = archive_extension.extension_for_filename(self.filename)
     mode = archive_extension.write_format_for_filename(self.filename)
-    with tarfile.open(self.filename, mode = mode) as archive:
-      for item in items:
-        archive.add(item.filename, arcname = item.arcname)
+    print('FUCK: ext=%s' % (ext))
+    print('FUCK: mode=%s' % (mode))
+    tmp_dir = temp_file.make_temp_dir()
+    for item in items:
+      file_util.copy(item.filename, path.join(tmp_dir, item.arcname))
+    manifest_content = '\n'.join([ item.arcname for item in items ])
+    manifest = temp_file.make_temp_file(content = manifest_content)
+    cmd = 'tar Jcf %s -C %s -T %s' % (self.filename, tmp_dir, manifest)
+    execute.execute(cmd)
+    file_util.remove(tmp_dir)
