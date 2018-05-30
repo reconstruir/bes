@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import fnmatch, os.path as path, random, re
@@ -48,11 +47,12 @@ class argument_resolver(object):
     file_infos = file_info_list([ file_info(self.config_env, f) for f in self.all_files ])
     file_infos += self._tests_for_many_files(file_infos)
     file_infos.remove_dups()
+    file_infos = file_infos.filter_by_filenames(filter_patterns)
+    file_infos = file_infos.filter_by_test_filename_only()
     self.inspect_map = file_infos.make_inspect_map()
     # FIXME: change to ignore_without_tests()
     file_infos = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])
     # FIXME: change to filter_with_patterns_tests()
-    file_infos = file_infos.filter_by_filenames(filter_patterns)
     self._raw_test_descriptions = file_filter.filter_files(file_infos, filter_patterns)
     self._env_dependencies = self.config_env.resolve_deps(self._config_names())
     self._env_dependencies_configs = [ self.config_env.config_for_name(name) for name in self._env_dependencies ]
