@@ -19,7 +19,7 @@ class file_find(object):
   FILE_OR_LINK = FILE | LINK
   
   @classmethod
-  def find(clazz, root_dir, relative = True, min_depth = None, max_depth = None, file_type = FILE):
+  def find(clazz, root_dir, relative = True, min_depth = None, max_depth = None, file_type = FILE, follow_links = False):
     if max_depth and min_depth and not (max_depth >= min_depth):
       raise RuntimeError('max_depth needs to be >= min_depth.')
 
@@ -41,7 +41,7 @@ class file_find(object):
     root_dir = path.normpath(root_dir)
     root_dir_count = root_dir.count(os.sep)
 
-    for root, dirs, files in clazz.walk_with_depth(root_dir, max_depth = max_depth):
+    for root, dirs, files in clazz.walk_with_depth(root_dir, max_depth = max_depth, follow_links = follow_links):
       to_check = []
       if clazz._want_file_type(file_type, clazz.FILE | clazz.LINK | clazz.DEVICE):
         to_check += files
@@ -63,12 +63,12 @@ class file_find(object):
 
   #: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
   @classmethod
-  def walk_with_depth(clazz, root_dir, max_depth = None):
+  def walk_with_depth(clazz, root_dir, max_depth = None, follow_links = False):
     root_dir = root_dir.rstrip(path.sep)
     if not path.isdir(root_dir):
       raise RuntimeError('not a directory: %s' % (root_dir))
     num_sep = root_dir.count(path.sep)
-    for root, dirs, files in os.walk(root_dir, topdown = True):
+    for root, dirs, files in os.walk(root_dir, topdown = True, followlinks = follow_links):
 #      print " root: %s" % (root)
 #      print " dirs: %s" % (' '.join(dirs))
 #      print "files: %s" % (' '.join(files))
@@ -81,12 +81,12 @@ class file_find(object):
 
   #: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
   @classmethod
-  def walk_with_poto(clazz, root_dir, max_depth = None):
+  def walk_with_poto(clazz, root_dir, max_depth = None, follow_links = False):
     root_dir = path.normpath(root_dir)
     if not path.isdir(root_dir):
       raise RuntimeError('not a directory: %s' % (root_dir))
     root_dir_depth = root_dir.count(os.sep)
-    for next_dir, dirs, files in os.walk(root_dir, topdown = True):
+    for next_dir, dirs, files in os.walk(root_dir, topdown = True, followlinks = follow_links):
       next_dir_depth = next_dir.count(os.sep) - root_dir_depth
       if False:
       #if True:
@@ -129,23 +129,21 @@ class file_find(object):
   @classmethod
   def find_function(clazz, root_dir, function,
                     relative = True, min_depth = None, max_depth = None,
-                    file_type = FILE):
+                    file_type = FILE, follow_links = False):
     assert function
     result = clazz.find(root_dir, relative = relative, min_depth = min_depth,
-                        max_depth = max_depth, file_type = file_type)
+                        max_depth = max_depth, file_type = file_type, follow_links = follow_links)
     return [ f for f in result if function(f) ]
 
   @classmethod
   def find_fnmatch(clazz, root_dir, patterns, match_type = file_match.ANY,
                    relative = True, min_depth = None, max_depth = None,
-                   file_type = FILE):
+                   file_type = FILE, follow_links = False):
     assert patterns
     assert match_type
-    result = clazz.find(root_dir, 
-                        relative = relative,
-                        min_depth = min_depth,
-                        max_depth = max_depth,
-                        file_type = file_type)
+    result = clazz.find(root_dir, relative = relative,
+                        min_depth = min_depth, max_depth = max_depth,
+                        file_type = file_type, follow_links = follow_links)
     if not patterns:
       return result
     return file_match.match_fnmatch(result, patterns, match_type)
@@ -153,22 +151,20 @@ class file_find(object):
   @classmethod
   def find_re(clazz, root_dir, expressions, match_type,
               relative = True, min_depth = None, max_depth = None,
-              file_type = FILE):
+              file_type = FILE, follow_links = False):
     assert expressions
     assert match_type
     assert key
-    result = clazz.find(root_dir,
-                        relative = relative,
-                        min_depth = min_depth,
-                        max_depth = max_depth,
-                        file_type = file_type)
+    result = clazz.find(root_dir, relative = relative,
+                        min_depth = min_depth, max_depth = max_depth,
+                        file_type = file_type, follow_links = follow_links)
     if not expressions:
       return result
     return file_match.match_re(result, expressions, match_type)
 
   @classmethod
-  def find_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None):
-    return clazz.find(root_dir, relative = relative, min_depth = min_depth,  max_depth = max_depth, file_type = clazz.DIR)
+  def find_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None, follow_links = False):
+    return clazz.find(root_dir, relative = relative, min_depth = min_depth,  max_depth = max_depth, file_type = clazz.DIR, follow_links = follow_links)
 
   @classmethod
   def find_in_ancestors(clazz, start_dir, filename):
