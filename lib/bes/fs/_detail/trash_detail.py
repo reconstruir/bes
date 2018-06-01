@@ -50,46 +50,58 @@ class trash_process(object):
   TERMINATE = { 'command': 'terminate' }
   WAKE_UP = { 'command': 'wakeup' }
   
-  def __init__(self, location, niceness_level, deleter):
-    log.add_logging(self)
+  def __init__(self, location, niceness_level, timeout, deleter):
+    log.add_logging(self, 'trash_process')
+    self.log_i('trash_process init with location=%s niceness_level=%s timeout=%s' % (location, niceness_level, timeout))
+    assert path.isdir(location)
     self._location = location
     self._niceness_level = niceness_level
+    self._timeout = timeout
     self._location_lock = Lock()
     self._process = None
     self._queue = Queue()
     
-  def _process_main(self, location, niceness_level):
+  def _process_main(self, location, niceness_level, timeout):
     #os.nice(20)
     terminated = False
+    self.log_i('trash process starts')
     while True:
       if terminated:
         break
       self._delete_one()
       try:
-        payload = self._queue.get(timeout = 0.500)
+        payload = self._queue.get(timeout = timeout)
         check.check_dict(payload)
         command = payload['command']
         if command == 'terminate':
+          self.log_i('got terminate command')
           terminated = True
         elif command == 'wakeup':
+          self.log_i('got wakeup command')
           pass
       except QueueEmpty as ex:
+        self.log_d('caught QueueEmpty exception')
         pass
+    self.log_i('trash process ends')
     return 0
 
   @synchronized_method('_location_lock')
   def _list_trash(self):
-    assert path.isdir(self._location)
+    if not path.isdir(self._location):
+      print('WARNING: location disappeared: %s' % (self._location))
+      return []
     return dir_util.list(self._location)
 
   @synchronized_method('_location_lock')
   def trash(self, what):
+    self.log_i('trash(what %s)' % (what))
     trash_path = tempfile.mkdtemp(prefix = path.basename(what) + '.', dir = self._location)
     shutil.move(what, trash_path)
     self._queue.put(self.WAKE_UP)
   
   def _delete_one(self):
     files = self._list_trash()
+    self.log_i('_delete_one(files = %s)' % (files))
     if not files:
       return False
     to_delete = files.pop(0)
@@ -100,9 +112,10 @@ class trash_process(object):
     self.log_i('start()')
     if self._process:
       raise RuntimeError('process already started.')
-    args = ( self._location, self._niceness_level )
+    args = ( self._location, self._niceness_level, self._timeout )
     self._process = Process(name = 'deleter', target = self._process_main, args = args)
-#    self._process.daemon = True
+    # Daemonize it so that if the user never calls stop() the parent process can stil process exit
+    self._process.daemon = True
     self._process.start()
   
   def stop(self):

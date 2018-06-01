@@ -13,12 +13,19 @@ from ._detail.trash_detail import fast_deleter, trash_process
 
 class file_trash(object):
 
-  def __init__(self, location, niceness_level = 0, deleter = None):
-    log.add_logging(self)
+  DEFAULT_NICENESS = 0
+  DEFAULT_TIMEOUT = 0.500
+  
+  def __init__(self, location, niceness_level = None, timeout = None, deleter = None):
+    log.add_logging(self, 'file_trash')
+    niceness_level = niceness_level or self.DEFAULT_NICENESS
+    timeout = timeout or self.DEFAULT_TIMEOUT
+    deleter = deleter or fast_deleter()
     file_util.mkdir(location)
+    assert path.isdir(location)
     self._location = location
     self._location_device_id = self._device_id(self._location)
-    self.trash_process = trash_process(self._location, niceness_level, deleter or fast_deleter())
+    self.trash_process = trash_process(self._location, niceness_level, timeout, deleter)
     
   def trash(self, what):
     check.check_string(what)
