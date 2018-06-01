@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import multiprocessing, os.path as path, os, shutil, tempfile
+import os.path as path, os, shutil, tempfile
+from multiprocessing import Lock, Queue, Process
+from Queue import Empty as QueueEmpty
 from abc import abstractmethod, ABCMeta
 from bes.common import check
 from bes.system import log
@@ -45,15 +47,16 @@ class slow_deleter(deleter):
 
 class trash_process(object):
 
-  class terminate(object):
-    pass
+  TERMINATE = { 'command': 'terminate' }
+  WAKE_UP = { 'command': 'wakeup' }
   
-  def __init__(self, location, deleter):
+  def __init__(self, location, niceness_level, deleter):
     log.add_logging(self)
     self._location = location
-    self._location_lock = multiprocessing.Lock()
+    self._niceness_level = niceness_level
+    self._location_lock = Lock()
     self._process = None
-    self._queue = multiprocessing.Queue()
+    self._queue = Queue()
     
   def _process_main(self, location, niceness_level):
     #os.nice(20)
@@ -63,10 +66,14 @@ class trash_process(object):
         break
       self._delete_one()
       try:
-        what = self._queue.get(timeout = 0.500)
-        if isinstance(what, self.terminated):
+        payload = self._queue.get(timeout = 0.500)
+        check.check_dict(payload)
+        command = payload['command']
+        if command == 'terminate':
           terminated = True
-      except multiprocessing.Queue.Empty as ex:
+        elif command == 'wakeup':
+          pass
+      except QueueEmpty as ex:
         pass
     return 0
 
@@ -79,7 +86,7 @@ class trash_process(object):
   def trash(self, what):
     trash_path = tempfile.mkdtemp(prefix = path.basename(what) + '.', dir = self._location)
     shutil.move(what, trash_path)
-    self._queue.put(None)
+    self._queue.put(self.WAKE_UP)
   
   def _delete_one(self):
     files = self._list_trash()
@@ -93,7 +100,8 @@ class trash_process(object):
     self.log_i('start()')
     if self._process:
       raise RuntimeError('process already started.')
-    self._process = multiprocessing.Process(name = 'deleter', target = self._process_main, args=('bob',))
+    args = ( self._location, self._niceness_level )
+    self._process = Process(name = 'deleter', target = self._process_main, args = args)
 #    self._process.daemon = True
     self._process.start()
   
@@ -101,7 +109,7 @@ class trash_process(object):
     self.log_i('stop()')
     if not self._process:
       raise RuntimeError('process not started.')
-    self._queue.put(self.terminate())
+    self._queue.put(self.TERMINATE)
     self._process.join()
     #self._process.terminate()
     self._process = None
