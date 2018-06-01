@@ -10,10 +10,10 @@ from bes.fs import dir_util
 from bes.thread.decorators import synchronized_method
 from bes.system.compat import with_metaclass
 
-from bes.fs import file_util
+from bes.fs.file_util import file_util
 
 class deleter(with_metaclass(ABCMeta, object)):
-
+  
   @abstractmethod
   def delete_file(self, filename):
     'Delete a file or directory.'
@@ -21,26 +21,35 @@ class deleter(with_metaclass(ABCMeta, object)):
 
 class fast_deleter(deleter):
 
+  def __init__(self):
+    log.add_logging(self, 'fast_deleter')
+  
   #@abstractmethod
   def delete_file(self, filename):
     'Delete a file or directory.'
+    self.log_i('deleting %s' % (filename))
     file_util.remove(filename)
 
 class slow_deleter(deleter):
   'Delete files slowly by sleeping between deletes for files in directories.'
   
   def __init__(self, sleep_time):
+    log.add_logging(self, 'slow_deleter')
     self._sleep_time = sleep_time
   
   #@abstractmethod
   def delete_file(self, filename):
     'Delete a file or directory.'
     if path.isfile(filename):
+      self.log_i('deleting single file %s' % (filename))
       file_util.remove(filename)
     elif path.isdir(filename):
       files = dir_util.list(filename)
+      self.log_i('deleting many files: %s' % (files))
       for f in files:
+        self.log_i('deleting next file %s' % (f))
         file_util.remove(f)
+        self.log_i('sleeping for %f seconds' % (self._sleep_time))
         time.sleep(self._sleep_time)
     else:
       raise RuntimeError('invalid file type: %s' % (filename))
@@ -97,6 +106,7 @@ class trash_process(object):
     self.log_i('trash(what %s)' % (what))
     trash_path = tempfile.mkdtemp(prefix = path.basename(what) + '.', dir = self._location)
     shutil.move(what, trash_path)
+    self.log_i('trash() move %s to %s' % (what, trash_path))
     self._queue.put(self.WAKE_UP)
   
   def _delete_one(self):
