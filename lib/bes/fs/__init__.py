@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .compressed_file import compressed_file
@@ -14,6 +13,7 @@ from .file_mime import file_mime
 from .file_path import file_path
 from .file_replace import file_replace
 from .file_search import file_search
+from .file_trash import file_trash
 from .file_type import file_type
 from .file_util import file_util
 from .tar_util import tar_util

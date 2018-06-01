@@ -4,7 +4,7 @@
 import os.path as path, unittest
 from bes.fs import dir_util, file_util, temp_file
 
-class Testdir_util(unittest.TestCase):
+class test_dir_util(unittest.TestCase):
 
   def __make_tmp_files(self):
     tmp_dir = temp_file.make_temp_dir()
