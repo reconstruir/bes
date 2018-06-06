@@ -2,7 +2,6 @@
 
 import os.path as path, os, shutil, tempfile
 from multiprocessing import Lock, Queue, Process
-from Queue import Empty as QueueEmpty
 from abc import abstractmethod, ABCMeta
 from bes.common import check
 from bes.system import log
@@ -88,8 +87,8 @@ class trash_process(object):
         elif command == 'wakeup':
           self.log_i('got wakeup command')
           pass
-      except QueueEmpty as ex:
-        self.log_d('caught QueueEmpty exception')
+      except Queue.Empty as ex:
+        self.log_d('caught Queue.Empty exception')
         pass
     self.log_i('trash process ends')
     return 0
