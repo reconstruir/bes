@@ -145,6 +145,10 @@ def main():
                       action = 'append',
                       default = [],
                       help = 'Environment variables to set [ None ]')
+  parser.add_argument('--no-env-deps',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Dont use env deps. [ False ]')
 
   for g in parser._action_groups:
     g._group_actions.sort(key = lambda x: x.dest)
@@ -168,7 +172,8 @@ def main():
 
   ar = argument_resolver(cwd, args.files, root_dir = args.root_dir,
                          file_ignore_filename = args.file_ignore_file,
-                         check_git = args.git)
+                         check_git = args.git,
+                         use_env_deps = not args.no_env_deps)
   ar.num_iterations = args.iterations
   ar.randomize = args.randomize
 

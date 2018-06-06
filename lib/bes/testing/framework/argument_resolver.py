@@ -19,7 +19,7 @@ from .unit_test_description import unit_test_description
 
 class argument_resolver(object):
 
-  def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None, check_git = False):
+  def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None, check_git = False, use_env_deps = True):
     self._num_iterations = 1
     self._randomize = False
     self._raw_test_descriptions = []
@@ -54,9 +54,12 @@ class argument_resolver(object):
     file_infos = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])
     # FIXME: change to filter_with_patterns_tests()
     self._raw_test_descriptions = file_filter.filter_files(file_infos, filter_patterns)
-    self._env_dependencies = self.config_env.resolve_deps(self._config_names())
+    if use_env_deps:
+      self._env_dependencies = self.config_env.resolve_deps(self._config_names())
+    else:
+      self._env_dependencies = []
     self._env_dependencies_configs = [ self.config_env.config_for_name(name) for name in self._env_dependencies ]
-    
+      
   @property
   def num_iterations(self):
     return self._num_iterations
