@@ -259,6 +259,7 @@ def main():
         raise RuntimeError('No setup.py found in %s to make the egg.' % (cwd))
       egg_zip = egg.make(setup_dot_py)
       pythonpath.prepend(egg_zip)
+      printer.writeln_name('using tmp egg: %s' % (egg_zip))
       if args.save_egg:
         file_util.copy(egg_zip, path.join(cwd, path.basename(egg_zip)))
 
