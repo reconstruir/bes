@@ -12,6 +12,23 @@ class unit_test_inspect(object):
 
   @classmethod
   def inspect_file(clazz, filename):
+    old = []
+    new = []
+    try:
+      old = clazz.inspect_file_old(filename)
+    except Exception as ex:
+      print('WARNING: failed to inspect unit test %s: %s' % (path.relpath(filename), str(ex)))
+      #return None
+    try:
+      new = clazz.inspect_file_new(filename)
+    except Exception as ex:
+      #print('WARNING: failed to inspect unit test %s: %s' % (path.relpath(filename), str(ex)))
+      #return None
+      pass
+    return sorted(algorithm.unique(old + new), key = lambda x: x.function)
+    
+  @classmethod
+  def inspect_file_caca(clazz, filename):
     try:
       return clazz.inspect_file_old(filename)
     #return clazz.inspect_file_new(filename)
@@ -19,6 +36,7 @@ class unit_test_inspect(object):
       print('WARNING: failed to inspect unit test %s: %s' % (path.relpath(filename), str(ex)))
       return None
   
+    
   @classmethod
   def inspect_file_new(clazz, filename):
     loader = unittest.TestLoader()

@@ -13,6 +13,7 @@ class test_archive_unix_tar(unittest.TestCase, archive_base_common):
 
   @classmethod
   def setUpClass(clazz):
+    pass
     raise_skip('broken')
   
   def __init__(self, methodName = 'runTest'):
