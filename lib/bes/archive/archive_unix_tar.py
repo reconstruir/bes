@@ -1,8 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path, tarfile
+import os.path as path
 from bes.system import execute
-from bes.fs import file_util, temp_file
+from bes.fs import file_util, temp_file, tar_util
 
 from .archive import archive
 from .archive_extension import archive_extension
@@ -24,9 +24,7 @@ class archive_unix_tar(archive):
 
   def members(self):
     if not self._members:
-      cmd = 'tar tf %s' % (self.filename)
-      rv = execute.execute(cmd)
-      self._members = [ m for m in rv.stdout.split('\n') if self._is_member(m) ]
+      self._members = [ m for m in tar_util.contents(self.filename) ]
     return self._members
 
   @classmethod
@@ -39,31 +37,16 @@ class archive_unix_tar(archive):
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_base = False, strip_head = None,
                       include = None, exclude = None):
-    print('extract_member() dest_dir=%s' % (dest_dir))
-    print('extract_member() base_dir=%s' % (base_dir))
-    print('extract_member() strip_common_base=%s' % (strip_common_base))
-    print('extract_member() strip_head=%s' % (strip_head))
-    print('extract_member() include=%s' % (include))
-    print('extract_member() exclude=%s' % (exclude))
     dest_dir = self._determine_dest_dir(dest_dir, base_dir)
     filtered_members = self._filter_for_extract(members, include, exclude)
-    print('extract_member() dest_dir=%s' % (dest_dir))
-    print('extract_member() filtered_members=%s' % (filtered_members))
     if filtered_members == self.members():
       cmd = 'tar xf %s -C %s' % (self.filename, dest_dir)
       rv = execute.execute(cmd)
     else:
-      assert False
-      
-#    with tarfile.open(self.filename, mode = 'r') as archive:
-#      dest_dir = self._determine_dest_dir(dest_dir, base_dir)
-#      filtered_members = self._filter_for_extract(members, include, exclude)
-#      if filtered_members == self.members():
-#        archive.extractall(path = dest_dir)
-#      else:
-#        for member in filtered_members:
-#          archive.extract(member, path = dest_dir)
-#      self._handle_extract_strip_common_base(members, strip_common_base, strip_head, dest_dir)
+      manifest = temp_file.make_temp_file(content = '\n'.join(filtered_members))
+      cmd = 'tar xf %s -C %s -T %s' % (self.filename, dest_dir, manifest)
+      rv = execute.execute(cmd)
+    self._handle_extract_strip_common_base(members, strip_common_base, strip_head, dest_dir)
 
   def create(self, root_dir, base_dir = None,
              extra_items = None,

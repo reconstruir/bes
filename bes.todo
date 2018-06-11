@@ -133,4 +133,5 @@ get rid of noop_debug_timer and just make debug_timer support being disabled.  r
 archive:
 make members() be a cached property and chance members() method to compute_members() or so
 add extract_all()
+add contents() and file_contents() and dir_contents()
 

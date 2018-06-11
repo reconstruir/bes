@@ -1,19 +1,20 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path, os, platform
+import os.path as path, os
+from bes.system import execute, host
+
 from .file_util import file_util
 
 class tar_util(object):
 
   def _find_tar_exe_tar():
-    system = platform.system()
-    if system == 'Linux':
+    'Find the tar executable explicitly in the system default place in case the user aliased it somehow'
+    if host.is_linux():
       return '/bin/tar'
-    elif system == 'Darwin':
+    elif host.is_macos():
       return '/usr/bin/tar'
     else:
-      assert False, 'Dunno'
+      raise RuntimeError('Unknown host system')
 
   TAR_EXE = _find_tar_exe_tar()
       
@@ -26,3 +27,9 @@ class tar_util(object):
     with os.popen(cmd) as pipe:
       pipe.read()
       pipe.close()
+
+  @classmethod
+  def contents(clazz, filename):
+    cmd = 'tar tf %s' % (filename)
+    rv = execute.execute(cmd)
+    return [ i for i in rv.stdout.split('\n') if i ]

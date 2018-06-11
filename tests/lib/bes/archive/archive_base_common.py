@@ -42,7 +42,7 @@ class archive_base_common(object):
     self.assertTrue( self.make_archive(tmp_archive.filename).has_member('foo/apple.txt') )
     self.assertFalse( self.make_archive(tmp_archive.filename).has_member('nothere.txt') )
 
-  def test_xextract(self):
+  def test_extract(self):
     assert self.default_archive_type
     items = temp_archive.make_temp_item_list([
       ( 'foo.txt', 'foo.txt\n' ),
