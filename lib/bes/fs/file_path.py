@@ -97,7 +97,7 @@ class file_path(object):
   
   @classmethod
   def glob(clazz, paths, glob_expression):
-    'Return a common ancestor for all the given filenames or None if there is not one.'
+    'Like glob but handles a single path or a sequence of paths'
     paths = object_util.listify(paths)
     paths = [ path.join(p, glob_expression) for p in paths ]
     result = []
