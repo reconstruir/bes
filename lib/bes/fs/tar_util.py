@@ -33,3 +33,14 @@ class tar_util(object):
     cmd = 'tar tf %s' % (filename)
     rv = execute.execute(cmd)
     return [ i for i in rv.stdout.split('\n') if i ]
+
+  @classmethod
+  def has_content(clazz, filename):
+    'Return True if filename is in the tar contents.'
+    with tarfile.open(filename, mode = 'r') as archive:
+      try:
+        archive.getmember(filename)
+        return True
+      except KeyError as ex:
+        pass
+      return False
