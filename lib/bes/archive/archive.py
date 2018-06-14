@@ -28,10 +28,6 @@ class archive(archive_base):
     return self._normalize_members(self._get_members())
     
   @abstractmethod
-  def has_member(self, arcname):
-    pass
-
-  @abstractmethod
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_ancestor = False, strip_head = None,
                       include = None, exclude = None):

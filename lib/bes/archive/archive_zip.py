@@ -21,14 +21,17 @@ class archive_zip(archive):
   def _get_members(self):
     with zipfile.ZipFile(file = self.filename, mode = 'r') as archive:
       return self._normalize_members([ m.filename for m in archive.infolist() ])
-  
-  def has_member(self, arcname):
+
+  #@abstractmethod
+  def has_member(self, filename):
+    '''Return True if filename is part of members.  Note that directories should end in "/" '''
     with zipfile.ZipFile(file = self.filename, mode = 'r') as archive:
       try:
-        archive.getinfo(arcname)
+        archive.getinfo(filename)
         return True
       except KeyError as ex:
-        return False
+        pass
+      return False
     
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_ancestor = False, strip_head = None,

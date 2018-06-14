@@ -1,9 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path, tarfile
+
+from bes.fs import tar_util
+
 from .archive import archive
 from .archive_extension import archive_extension
-
-import os.path as path, tarfile
 
 class archive_tar(archive):
   'A Tar archive class.'
@@ -20,14 +22,11 @@ class archive_tar(archive):
   def _get_members(self):
     with tarfile.open(self.filename, mode = 'r') as archive:
       return self._normalize_members([ member.path for member in archive.getmembers() ])
-  
-  def has_member(self, arcname):
-    with tarfile.open(self.filename, mode = 'r') as archive:
-      try:
-        archive.getmember(arcname)
-        return True
-      except KeyError as ex:
-        return False
+
+  #@abstractmethod
+  def has_member(self, filename):
+    '''Return True if filename is part of members.  Note that directories should end in "/" '''
+    return tar_util.has_member(self.filename, filename)
     
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_ancestor = False, strip_head = None,

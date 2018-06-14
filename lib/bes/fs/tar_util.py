@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path, os
+import os.path as path, os, tarfile
 from bes.system import execute, host
 
 from .file_util import file_util
@@ -29,17 +29,17 @@ class tar_util(object):
       pipe.close()
 
   @classmethod
-  def contents(clazz, filename):
+  def members(clazz, filename):
     cmd = 'tar tf %s' % (filename)
     rv = execute.execute(cmd)
     return [ i for i in rv.stdout.split('\n') if i ]
 
   @classmethod
-  def has_content(clazz, filename):
-    'Return True if filename is in the tar contents.'
+  def has_member(clazz, filename, member):
+    'Return True if filename is in the tar members.'
     with tarfile.open(filename, mode = 'r') as archive:
       try:
-        archive.getmember(filename)
+        archive.getmember(member)
         return True
       except KeyError as ex:
         pass

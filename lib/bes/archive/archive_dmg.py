@@ -27,8 +27,9 @@ class archive_dmg(archive):
   def file_is_valid(clazz, filename):
     return dmg.is_dmg_file(filename)
   
-  def has_member(self, arcname):
-    return arcname in self.members()
+  #@abstractmethod
+  def has_member(self, filename):
+    return filename in self.members
   
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_ancestor = False, strip_head = None,

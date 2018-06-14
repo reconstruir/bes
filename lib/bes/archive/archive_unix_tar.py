@@ -19,7 +19,7 @@ class archive_unix_tar(archive):
   def file_is_valid(clazz, filename):
     'Return True if filename is a valid file supported by this archive format.'
     try:
-      tar_util.contents(self.filename)
+      tar_util.members(self.filename)
       return True
     except Exception as ex:
       pass
@@ -27,15 +27,17 @@ class archive_unix_tar(archive):
 
   #@abstractmethod
   def _get_members(self):
-    return tar_util.contents(self.filename)
+    return tar_util.members(self.filename)
   
   @classmethod
   def _is_member(clazz, m):
     return m and not m.endswith('/')
   
-  def has_member(self, arcname):
-    return arcname in self.members()
-    
+  #@abstractmethod
+  def has_member(self, filename):
+    '''Return True if filename is part of members.  Note that directories should end in "/" '''
+    return filename in self.members
+  
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_ancestor = False, strip_head = None,
                       include = None, exclude = None):

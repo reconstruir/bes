@@ -2,7 +2,7 @@
 
 import os, os.path as path, stat, tarfile
 
-from bes.fs import file_util, temp_file
+from bes.fs import file_util, temp_file, tar_util
 from bes.system import execute
 
 from .archive import archive
@@ -34,8 +34,10 @@ class archive_xz(archive):
   def _is_member(clazz, m):
     return m and not m.endswith('/')
   
-  def has_member(self, arcname):
-    return arcname in self.members
+  #@abstractmethod
+  def has_member(self, filename):
+    '''Return True if filename is part of members.  Note that directories should end in "/" '''
+    return tar_util.has_member(self.filename, filename)
     
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_ancestor = False, strip_head = None,

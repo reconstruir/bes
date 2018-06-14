@@ -72,6 +72,13 @@ class archive_base(with_metaclass(ABCMeta, object)):
     This is usually an expensive operation so users should cache the results.
     '''
     raise NotImplementedError()
+
+  @abstractmethod
+  def has_member(self, filename):
+    '''
+    Return True if filename is part of members.  Note that directories should end in '/'
+    '''
+    raise NotImplementedError()
   
   @abstractmethod
   def create(self, root_dir, base_dir = None,
