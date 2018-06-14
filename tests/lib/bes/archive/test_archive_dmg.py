@@ -50,9 +50,9 @@ class test_archive_dmg(unit_test):
   def test_members(self):
     self.assertEqual( [ 'foo.txt', 'link_to_foo.sh', 'subdir/bar.txt' ], archive_dmg(self.data_path('example.dmg')).members() )
     
-  def test_extract(self):
+  def test_extract_all(self):
     tmp_dir = temp_file.make_temp_dir(delete = False)
-    archive_dmg(self.data_path('example.dmg')).extract(tmp_dir)
+    archive_dmg(self.data_path('example.dmg')).extract_all(tmp_dir)
     self.assertTrue( path.isfile(path.join(tmp_dir, 'foo.txt')) )
 #    self.assertTrue( path.islink(path.join(tmp_dir, 'link_to_foo.sh')) )
     self.assertTrue( path.isfile(path.join(tmp_dir, 'subdir/bar.txt')) )

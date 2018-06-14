@@ -30,12 +30,6 @@ class xarchive_base(with_metaclass(ABCMeta, object)):
     '''
     raise NotImplementedError()
 
-  @abstractmethod
-  def create(self, root_dir, base_dir = None,
-             extra_items = None,
-             include = None, exclude = None):
-    raise NotImplementedError()
-
 class archive_base(with_metaclass(ABCMeta, object)):
   'An archive interface.'
 

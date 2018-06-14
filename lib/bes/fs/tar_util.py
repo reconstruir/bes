@@ -36,5 +36,5 @@ class tar_util(object):
 
   @classmethod
   def extract(clazz, filename, dest_dir):
-    execute.execute('tar xf {filename} -C {dest_dir}'.format(filename, dest_dir))
+    execute.execute('tar xf {filename} -C {dest_dir}'.format(filename = filename, dest_dir = dest_dir))
   

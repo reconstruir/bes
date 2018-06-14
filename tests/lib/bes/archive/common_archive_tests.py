@@ -51,17 +51,17 @@ class common_archive_tests(object):
     self.assertTrue( self.make_archive(tmp_archive.filename).has_member('foo/apple.txt') )
     self.assertFalse( self.make_archive(tmp_archive.filename).has_member('nothere.txt') )
 
-  def test_extract(self):
+  def test_extract_all(self):
     assert self.default_archive_type
     items = temp_archive.make_temp_item_list([
       ( 'foo.txt', 'foo.txt\n' ),
     ])
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
-    tmp_archive.extract(tmp_dir)
+    tmp_archive.extract_all(tmp_dir)
     self.assertTrue( path.isfile(path.join(tmp_dir, 'foo.txt')) )
 
-  def test_extract_with_base_dir(self):
+  def test_extract_all_with_base_dir(self):
     assert self.default_archive_type
     items = temp_archive.make_temp_item_list([
       ( 'foo.txt', 'foo.txt\n' ),
@@ -69,10 +69,10 @@ class common_archive_tests(object):
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
     base_dir = 'base-1.2.3'
-    tmp_archive.extract(tmp_dir, base_dir = base_dir)
+    tmp_archive.extract_all(tmp_dir, base_dir = base_dir)
     self.assertTrue( path.isfile(path.join(tmp_dir, base_dir, 'foo.txt')) )
 
-  def test_extract_with_strip_common_ancestor(self):
+  def test_extract_all_with_strip_common_ancestor(self):
     assert self.default_archive_type
     base_dir_to_strip = 'base-1.2.3'
 
@@ -82,10 +82,10 @@ class common_archive_tests(object):
     items = temp_archive.add_base_dir(items, base_dir_to_strip)
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
-    tmp_archive.extract(tmp_dir, strip_common_ancestor = True)
+    tmp_archive.extract_all(tmp_dir, strip_common_ancestor = True)
     self.assertTrue( path.isfile(path.join(tmp_dir, 'foo.txt')) )
 
-  def test_extract_with_base_dir_and_strip_common_ancestor(self):
+  def test_extract_all_with_base_dir_and_strip_common_ancestor(self):
     assert self.default_archive_type
     base_dir_to_strip = 'base-1.2.3'
     items = temp_archive.make_temp_item_list([
@@ -95,10 +95,10 @@ class common_archive_tests(object):
     base_dir_to_add = 'added-6.6.6'
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
-    tmp_archive.extract(tmp_dir, base_dir = base_dir_to_add, strip_common_ancestor = True)
+    tmp_archive.extract_all(tmp_dir, base_dir = base_dir_to_add, strip_common_ancestor = True)
     self.assertTrue( path.isfile(path.join(tmp_dir, base_dir_to_add, 'foo.txt')) )
 
-  def test_extract_with_strip_head(self):
+  def test_extract_all_with_strip_head(self):
     assert self.default_archive_type
 
     items = temp_archive.make_temp_item_list([
@@ -109,7 +109,7 @@ class common_archive_tests(object):
     ])
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
-    tmp_archive.extract(tmp_dir, strip_head = 'foo')
+    tmp_archive.extract_all(tmp_dir, strip_head = 'foo')
 
     actual_files = file_find.find(tmp_dir, relative = True)
 
@@ -122,7 +122,7 @@ class common_archive_tests(object):
 
     self.assertEqual( expected_files, actual_files )
 
-  def test_extract_with_strip_common_ancestor_and_strip_head(self):
+  def test_extract_all_with_strip_common_ancestor_and_strip_head(self):
     assert self.default_archive_type
 
     items = temp_archive.make_temp_item_list([
@@ -133,7 +133,7 @@ class common_archive_tests(object):
     ])
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
-    tmp_archive.extract(tmp_dir, strip_common_ancestor = True, strip_head = 'foo')
+    tmp_archive.extract_all(tmp_dir, strip_common_ancestor = True, strip_head = 'foo')
 
     actual_files = file_find.find(tmp_dir, relative = True)
 
@@ -146,7 +146,7 @@ class common_archive_tests(object):
 
     self.assertEqual( expected_files, actual_files )
 
-  def test_extract_overlap(self):
+  def test_extract_all_overlap(self):
     assert self.default_archive_type
 
     items1 = temp_archive.make_temp_item_list([
@@ -163,8 +163,8 @@ class common_archive_tests(object):
     tmp_archive2 = self.make_temp_archive_for_reading(items2)
 
     tmp_dir = temp_file.make_temp_dir()
-    tmp_archive1.extract(tmp_dir)
-    tmp_archive2.extract(tmp_dir)
+    tmp_archive1.extract_all(tmp_dir)
+    tmp_archive2.extract_all(tmp_dir)
 
     actual_files = file_find.find(tmp_dir, relative = True)
 
@@ -177,7 +177,7 @@ class common_archive_tests(object):
 
     self.assertEqual( expected_files, actual_files )
 
-  def test_extract_overlap_with_base_dir(self):
+  def test_extract_all_overlap_with_base_dir(self):
     assert self.default_archive_type
 
     items1 = temp_archive.make_temp_item_list([
@@ -195,8 +195,8 @@ class common_archive_tests(object):
 
     tmp_dir = temp_file.make_temp_dir()
     base_dir = 'foo-6.6.6'
-    tmp_archive1.extract(tmp_dir, base_dir = base_dir)
-    tmp_archive2.extract(tmp_dir, base_dir = base_dir)
+    tmp_archive1.extract_all(tmp_dir, base_dir = base_dir)
+    tmp_archive2.extract_all(tmp_dir, base_dir = base_dir)
 
     actual_files = file_find.find(tmp_dir, relative = True)
 
@@ -209,7 +209,7 @@ class common_archive_tests(object):
 
     self.assertEqual( expected_files, actual_files )
 
-  def test_extract_overlap_with_base_dir_and_strip_common_ancestor(self):
+  def test_extract_all_overlap_with_base_dir_and_strip_common_ancestor(self):
     assert self.default_archive_type
 
     items1 = temp_archive.make_temp_item_list([
@@ -227,8 +227,8 @@ class common_archive_tests(object):
 
     tmp_dir = temp_file.make_temp_dir()
     base_dir = 'foo-6.6.6'
-    tmp_archive1.extract(tmp_dir, base_dir = base_dir, strip_common_ancestor = True)
-    tmp_archive2.extract(tmp_dir, base_dir = base_dir, strip_common_ancestor = True)
+    tmp_archive1.extract_all(tmp_dir, base_dir = base_dir, strip_common_ancestor = True)
+    tmp_archive2.extract_all(tmp_dir, base_dir = base_dir, strip_common_ancestor = True)
 
     actual_files = file_find.find(tmp_dir, relative = True)
     expected_files = [
@@ -249,7 +249,7 @@ class common_archive_tests(object):
     ])
     include = [ '*.txt' ]
     exclude = None
-    actual_files = self.__test_extract_with_include_exclude(items, include, exclude)
+    actual_files = self._test_extract_with_include_exclude(items, include, exclude)
     expected_files = [
       'foo/apple.txt',
       'foo/durian.txt',
@@ -267,7 +267,7 @@ class common_archive_tests(object):
     ])
     include = None
     exclude = [ '*.txt' ]
-    actual_files = self.__test_extract_with_include_exclude(items, include, exclude)
+    actual_files = self._test_extract_with_include_exclude(items, include, exclude)
     expected_files = [
       'metadata/db.json',
     ]
@@ -283,7 +283,7 @@ class common_archive_tests(object):
     ])
     include = [ '*.txt' ]
     exclude = [ '*durian*' ]
-    actual_files = self.__test_extract_with_include_exclude(items, include, exclude)
+    actual_files = self._test_extract_with_include_exclude(items, include, exclude)
 
     expected_files = [
       'foo/apple.txt',
@@ -291,7 +291,7 @@ class common_archive_tests(object):
     ]
     self.assertEqual( expected_files, actual_files )
 
-  def __test_extract_with_include_exclude(self, items, include, exclude):
+  def _test_extract_with_include_exclude(self, items, include, exclude):
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
     tmp_archive.extract(tmp_dir, include = include, exclude = exclude)
@@ -311,7 +311,7 @@ class common_archive_tests(object):
     self.assertEqual( b'apple.txt\n', tmp_archive.extract_member_to_string('foo/apple.txt') )
     self.assertEqual( b'{}\n', tmp_archive.extract_member_to_string('metadata/db.json') )
 
-  def __test_extract_with_members(self, items, members,
+  def _test_extract_with_members(self, items, members,
                                   base_dir = None,
                                   strip_common_ancestor = False,
                                   strip_head = None,
@@ -342,7 +342,7 @@ class common_archive_tests(object):
       'foo/apple.txt',
       'foo/durian.txt',
     ]
-    actual_files = self.__test_extract_with_members(items, members)
+    actual_files = self._test_extract_with_members(items, members)
     expected_files = members
     self.assertEqual( expected_files, actual_files )
 
@@ -403,7 +403,7 @@ class common_archive_tests(object):
     self.assertTrue( path.isfile(archive.filename) )
 
     tmp_extract_dir = temp_file.make_temp_dir()
-    archive.extract(tmp_extract_dir)
+    archive.extract_all(tmp_extract_dir)
 
     self._compare_dirs(tmp_dir, tmp_extract_dir)
 
@@ -427,7 +427,7 @@ class common_archive_tests(object):
     self.assertTrue( path.isfile(archive.filename) )
 
     tmp_extract_dir = temp_file.make_temp_dir()
-    archive.extract(tmp_extract_dir)
+    archive.extract_all(tmp_extract_dir)
 
     def _remove_base_dir(f):
       return file_util.remove_head(f, base_dir)
@@ -453,7 +453,7 @@ class common_archive_tests(object):
       'bar.txt',
       'foo.txt',
     ]
-    actual_files = self.__test_create_with_include_exclude(items, include, exclude)
+    actual_files = self._test_create_with_include_exclude(items, include, exclude)
     self.assertEqual( expected_files, actual_files )
 
   def test_create_with_multiple_include(self):
@@ -475,7 +475,7 @@ class common_archive_tests(object):
       'baz2.png',
       'foo.txt',
     ]
-    actual_files = self.__test_create_with_include_exclude(items, include, exclude)
+    actual_files = self._test_create_with_include_exclude(items, include, exclude)
     self.assertEqual( expected_files, actual_files )
 
   def test_create_with_exclude(self):
@@ -498,7 +498,7 @@ class common_archive_tests(object):
       'durian.pdf',
       'kiwi.pdf',
     ]
-    actual_files = self.__test_create_with_include_exclude(items, include, exclude)
+    actual_files = self._test_create_with_include_exclude(items, include, exclude)
     self.assertEqual( expected_files, actual_files )
 
   def test_create_with_multiple_exclude(self):
@@ -519,7 +519,7 @@ class common_archive_tests(object):
       'durian.pdf',
       'kiwi.pdf',
     ]
-    actual_files = self.__test_create_with_include_exclude(items, include, exclude)
+    actual_files = self._test_create_with_include_exclude(items, include, exclude)
     self.assertEqual( expected_files, actual_files )
 
   def test_create_with_include_and_exclude(self):
@@ -539,10 +539,10 @@ class common_archive_tests(object):
       'base-1.2.3/apple.pdf',
       'base-1.2.3/durian.pdf',
     ]
-    actual_files = self.__test_create_with_include_exclude(items, include, exclude)
+    actual_files = self._test_create_with_include_exclude(items, include, exclude)
     self.assertEqual( expected_files, actual_files )
 
-  def __test_create_with_include_exclude(self, items, include, exclude):
+  def _test_create_with_include_exclude(self, items, include, exclude):
     tmp_dir = temp_archive.write_temp_items(items)
     archive = self.make_temp_archive_for_writing()
     archive.create(tmp_dir, include = include, exclude = exclude)

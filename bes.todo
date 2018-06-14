@@ -146,3 +146,5 @@ use xz command line tool if available for archive_xz deps
 probe to figure out what formats command line tar supports
 add validation that include and exclude lists dont clash
 add validation that include and exclude lists dont clash
+
+move test_extract_all from test_archive_dmg to common
