@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .archive import archive
@@ -13,8 +12,10 @@ class archive_zip(archive):
   def __init__(self, filename):
     super(archive_zip, self).__init__(filename)
 
-  def is_valid(self):
-    return zipfile.is_zipfile(self.filename)
+  @classmethod
+  #@abstractmethod
+  def file_is_valid(clazz, filename):
+    return zipfile.is_zipfile(filename)
 
   def members(self):
     with zipfile.ZipFile(file = self.filename, mode = 'r') as archive:
@@ -30,7 +31,7 @@ class archive_zip(archive):
         return False
     
   def extract_members(self, members, dest_dir, base_dir = None,
-                      strip_common_base = False, strip_head = None,
+                      strip_common_ancestor = False, strip_head = None,
                       include = None, exclude = None):
     with zipfile.ZipFile(file = self.filename, mode = 'r') as archive:
       dest_dir = self._determine_dest_dir(dest_dir, base_dir)
@@ -40,7 +41,7 @@ class archive_zip(archive):
         extracted = archive.extract(zip_info, path = dest_dir)
         self._fix_permissions(extracted, zip_info)
         
-      self._handle_extract_strip_common_base(members, strip_common_base, strip_head, dest_dir)
+      self._handle_extract_strip_common_ancestor(members, strip_common_ancestor, strip_head, dest_dir)
 
   def create(self, root_dir, base_dir = None,
              extra_items = None,

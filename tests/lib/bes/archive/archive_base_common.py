@@ -63,7 +63,7 @@ class archive_base_common(object):
     tmp_archive.extract(tmp_dir, base_dir = base_dir)
     self.assertTrue( path.isfile(path.join(tmp_dir, base_dir, 'foo.txt')) )
 
-  def test_extract_with_strip_common_base(self):
+  def test_extract_with_strip_common_ancestor(self):
     assert self.default_archive_type
     base_dir_to_strip = 'base-1.2.3'
 
@@ -73,10 +73,10 @@ class archive_base_common(object):
     items = temp_archive.add_base_dir(items, base_dir_to_strip)
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
-    tmp_archive.extract(tmp_dir, strip_common_base = True)
+    tmp_archive.extract(tmp_dir, strip_common_ancestor = True)
     self.assertTrue( path.isfile(path.join(tmp_dir, 'foo.txt')) )
 
-  def test_extract_with_base_dir_and_strip_common_base(self):
+  def test_extract_with_base_dir_and_strip_common_ancestor(self):
     assert self.default_archive_type
     base_dir_to_strip = 'base-1.2.3'
     items = temp_archive.make_temp_item_list([
@@ -86,7 +86,7 @@ class archive_base_common(object):
     base_dir_to_add = 'added-6.6.6'
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
-    tmp_archive.extract(tmp_dir, base_dir = base_dir_to_add, strip_common_base = True)
+    tmp_archive.extract(tmp_dir, base_dir = base_dir_to_add, strip_common_ancestor = True)
     self.assertTrue( path.isfile(path.join(tmp_dir, base_dir_to_add, 'foo.txt')) )
 
   def test_extract_with_strip_head(self):
@@ -113,7 +113,7 @@ class archive_base_common(object):
 
     self.assertEqual( expected_files, actual_files )
 
-  def test_extract_with_strip_common_base_and_strip_head(self):
+  def test_extract_with_strip_common_ancestor_and_strip_head(self):
     assert self.default_archive_type
 
     items = temp_archive.make_temp_item_list([
@@ -124,7 +124,7 @@ class archive_base_common(object):
     ])
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
-    tmp_archive.extract(tmp_dir, strip_common_base = True, strip_head = 'foo')
+    tmp_archive.extract(tmp_dir, strip_common_ancestor = True, strip_head = 'foo')
 
     actual_files = file_find.find(tmp_dir, relative = True)
 
@@ -200,7 +200,7 @@ class archive_base_common(object):
 
     self.assertEqual( expected_files, actual_files )
 
-  def test_extract_overlap_with_base_dir_and_strip_common_base(self):
+  def test_extract_overlap_with_base_dir_and_strip_common_ancestor(self):
     assert self.default_archive_type
 
     items1 = temp_archive.make_temp_item_list([
@@ -218,8 +218,8 @@ class archive_base_common(object):
 
     tmp_dir = temp_file.make_temp_dir()
     base_dir = 'foo-6.6.6'
-    tmp_archive1.extract(tmp_dir, base_dir = base_dir, strip_common_base = True)
-    tmp_archive2.extract(tmp_dir, base_dir = base_dir, strip_common_base = True)
+    tmp_archive1.extract(tmp_dir, base_dir = base_dir, strip_common_ancestor = True)
+    tmp_archive2.extract(tmp_dir, base_dir = base_dir, strip_common_ancestor = True)
 
     actual_files = file_find.find(tmp_dir, relative = True)
     expected_files = [
@@ -304,7 +304,7 @@ class archive_base_common(object):
 
   def __test_extract_with_members(self, items, members,
                                   base_dir = None,
-                                  strip_common_base = False,
+                                  strip_common_ancestor = False,
                                   strip_head = None,
                                   include = None,
                                   exclude = None):
@@ -313,7 +313,7 @@ class archive_base_common(object):
     tmp_archive.extract_members(members,
                                 tmp_dir,
                                 base_dir = base_dir,
-                                strip_common_base = strip_common_base,
+                                strip_common_ancestor = strip_common_ancestor,
                                 strip_head = strip_head,
                                 include = include,
                                 exclude = exclude)

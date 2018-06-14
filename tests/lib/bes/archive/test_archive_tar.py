@@ -20,20 +20,20 @@ class test_archive_tar(unittest.TestCase, archive_base_common):
   def test_init(self):
     self.assertEqual( 'foo.tar', archive_tar('foo.tar').filename )
 
-  def test_is_valid(self):
+  def test_file_is_valid(self):
     tmp_tar = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR)
-    self.assertTrue( archive_tar(tmp_tar.filename).is_valid() )
+    self.assertTrue( archive_tar.file_is_valid(tmp_tar.filename) )
 
     tmp_tgz = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], archive_extension.TGZ)
-    self.assertTrue( archive_tar(tmp_tgz.filename).is_valid() )
+    self.assertTrue( archive_tar.file_is_valid(tmp_tgz.filename) )
 
     tmp_tar_gz = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR_GZ)
-    self.assertTrue( archive_tar(tmp_tar_gz.filename).is_valid() )
+    self.assertTrue( archive_tar.file_is_valid(tmp_tar_gz.filename) )
 
     tmp_zip = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], archive_extension.ZIP)
-    self.assertFalse( archive_tar(tmp_zip.filename).is_valid() )
+    self.assertFalse( archive_tar.file_is_valid(tmp_zip.filename) )
 
-    self.assertFalse( archive_tar(temp_file.make_temp_file(content = 'junk\n')).is_valid() )
+    self.assertFalse( archive_tar.file_is_valid(temp_file.make_temp_file(content = 'junk\n')) )
     
 if __name__ == "__main__":
   unittest.main()

@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
 from bes.fs import file_cache
@@ -22,7 +21,7 @@ class archiver(object):
     archive_class = clazz._determine_type(filename)
     if not archive_class:
       return False
-    return archive_class(filename).is_valid()
+    return archive_class.file_is_valid(filename)
   
   @classmethod
   def members(clazz, filename):
@@ -40,21 +39,21 @@ class archiver(object):
 
   @classmethod
   def extract(clazz, filename, dest_dir, base_dir = None,
-              strip_common_base = False, strip_head = None,
+              strip_common_ancestor = False, strip_head = None,
               include = None, exclude = None):
     archive_class = clazz._determine_type(filename)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
     return archive_class(filename).extract(dest_dir,
                                            base_dir = base_dir,
-                                           strip_common_base = strip_common_base,
+                                           strip_common_ancestor = strip_common_ancestor,
                                            strip_head = strip_head,
                                            include = include,
                                            exclude = exclude)
 
   @classmethod
   def extract_members(clazz, filename, members, dest_dir, base_dir = None,
-                      strip_common_base = False, strip_head = None,
+                      strip_common_ancestor = False, strip_head = None,
                       include = None, exclude = None):
     archive_class = clazz._determine_type(filename)
     if not archive_class:
@@ -62,7 +61,7 @@ class archiver(object):
     return archive_class(filename).extract_members(members,
                                                   dest_dir,
                                                   base_dir = base_dir,
-                                                  strip_common_base = strip_common_base,
+                                                  strip_common_ancestor = strip_common_ancestor,
                                                   strip_head = strip_head,
                                                   include = include,
                                                   exclude = exclude)
@@ -114,7 +113,7 @@ class archiver(object):
       possible.append(archive_dmg)
 
     for p in possible:
-      if p(filename).is_valid():
+      if p.file_is_valid(filename):
         return p
     return None
 

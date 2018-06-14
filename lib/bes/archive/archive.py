@@ -9,17 +9,15 @@ from bes.common import algorithm
 from bes.fs import file_find, file_path, file_util, tar_util, temp_file
 from bes.match import matcher_multiple_filename, matcher_always_false, matcher_always_true, matcher_util
 
-class archive(with_metaclass(ABCMeta, object)):
+from .archive_base import archive_base
+
+class archive(archive_base):
   'An archive interface.'
 
   Item = namedtuple('Item', [ 'filename', 'arcname' ])
 
   def __init__(self, filename):
     self.filename = filename
-
-  @abstractmethod
-  def is_valid(self):
-    pass
 
   @abstractmethod
   def members(self):
@@ -31,23 +29,17 @@ class archive(with_metaclass(ABCMeta, object)):
 
   @abstractmethod
   def extract_members(self, members, dest_dir, base_dir = None,
-                      strip_common_base = False, strip_head = None,
+                      strip_common_ancestor = False, strip_head = None,
                       include = None, exclude = None):
     pass
 
-  @abstractmethod
-  def create(self, root_dir, base_dir = None,
-             extra_items = None,
-             include = None, exclude = None):
-    pass
-
   def extract(self, dest_dir, base_dir = None,
-              strip_common_base = False, strip_head = None,
+              strip_common_ancestor = False, strip_head = None,
               include = None, exclude = None):
     return self.extract_members(self.members(),
                                 dest_dir,
                                 base_dir = base_dir,
-                                strip_common_base = strip_common_base,
+                                strip_common_ancestor = strip_common_ancestor,
                                 strip_head = strip_head,
                                 include = include, exclude = exclude)
 
@@ -131,8 +123,8 @@ class archive(with_metaclass(ABCMeta, object)):
     file_util.mkdir(dest_dir)
     return dest_dir
 
-  def _handle_extract_strip_common_base(self, members, strip_common_base, strip_head, dest_dir):
-    if strip_common_base:
+  def _handle_extract_strip_common_ancestor(self, members, strip_common_ancestor, strip_head, dest_dir):
+    if strip_common_ancestor:
       common_base = self._common_base_for_members(members)
       if common_base:
         from_dir = path.join(dest_dir, common_base)

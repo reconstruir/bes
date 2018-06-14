@@ -14,9 +14,12 @@ class archive_unix_tar(archive):
     super(archive_unix_tar, self).__init__(filename)
     self._members = None
 
-  def is_valid(self):
+  @classmethod
+  #@abstractmethod
+  def file_is_valid(clazz, filename):
+    'Return True if filename is a valid file supported by this archive format.'
     try:
-      self.members()
+      tar_util.contents(self.filename)
       return True
     except Exception as ex:
       pass
@@ -35,7 +38,7 @@ class archive_unix_tar(archive):
     return arcname in self.members()
     
   def extract_members(self, members, dest_dir, base_dir = None,
-                      strip_common_base = False, strip_head = None,
+                      strip_common_ancestor = False, strip_head = None,
                       include = None, exclude = None):
     dest_dir = self._determine_dest_dir(dest_dir, base_dir)
     filtered_members = self._filter_for_extract(members, include, exclude)
@@ -46,7 +49,7 @@ class archive_unix_tar(archive):
       manifest = temp_file.make_temp_file(content = '\n'.join(filtered_members))
       cmd = 'tar xf %s -C %s -T %s' % (self.filename, dest_dir, manifest)
       rv = execute.execute(cmd)
-    self._handle_extract_strip_common_base(members, strip_common_base, strip_head, dest_dir)
+    self._handle_extract_strip_common_ancestor(members, strip_common_ancestor, strip_head, dest_dir)
 
   def create(self, root_dir, base_dir = None,
              extra_items = None,

@@ -4,7 +4,7 @@ from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 from collections import namedtuple
 
-class archive_base(with_metaclass(ABCMeta, object)):
+class xarchive_base(with_metaclass(ABCMeta, object)):
   'An archive interface.'
 
   Item = namedtuple('Item', [ 'filename', 'arcname' ])
@@ -60,6 +60,23 @@ class archive_base(with_metaclass(ABCMeta, object)):
     Returns:
         None
     '''
+    raise NotImplementedError()
+
+  @abstractmethod
+  def create(self, root_dir, base_dir = None,
+             extra_items = None,
+             include = None, exclude = None):
+    raise NotImplementedError()
+
+class archive_base(with_metaclass(ABCMeta, object)):
+  'An archive interface.'
+
+  Item = namedtuple('Item', [ 'filename', 'arcname' ])
+
+  @classmethod
+  @abstractmethod
+  def file_is_valid(clazz, filename):
+    'Return True if filename is a valid file supported by this archive format.'
     raise NotImplementedError()
 
   @abstractmethod

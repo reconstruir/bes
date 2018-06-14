@@ -16,10 +16,12 @@ class archive_xz(archive):
   def __init__(self, filename):
     super(archive_xz, self).__init__(filename)
 
-  def is_valid(self):
-    with open(self.filename, 'rb') as fin:
+  @classmethod
+  #@abstractmethod
+  def file_is_valid(clazz, filename):
+    with open(filename, 'rb') as fin:
       magic = fin.read(6)
-      return magic == self._MAGIC
+      return magic == clazz._MAGIC
 
   def members(self):
     cmd = 'tar tf %s' % (self.filename)
@@ -34,7 +36,7 @@ class archive_xz(archive):
     return arcname in self.members()
     
   def extract_members(self, members, dest_dir, base_dir = None,
-                      strip_common_base = False, strip_head = None,
+                      strip_common_ancestor = False, strip_head = None,
                       include = None, exclude = None):
     # Cheat by using a temporary zip file to do the actual work.  Super innefecient but
     # easy since theres no library to extract just some stuff from dmg files.
@@ -45,7 +47,7 @@ class archive_xz(archive):
     az = archive_zip(tmp_zip)
     az.create(tmp_dir)
     az.extract_members(members, dest_dir, base_dir = base_dir,
-                       strip_common_base = strip_common_base, strip_head = strip_head,
+                       strip_common_ancestor = strip_common_ancestor, strip_head = strip_head,
                        include = include, exclude = exclude)
     file_util.remove(tmp_zip)
     file_util.remove(tmp_dir)
