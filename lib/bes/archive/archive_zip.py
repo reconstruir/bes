@@ -17,11 +17,11 @@ class archive_zip(archive):
   def file_is_valid(clazz, filename):
     return zipfile.is_zipfile(filename)
 
-  def members(self):
+  #@abstractmethod
+  def _get_members(self):
     with zipfile.ZipFile(file = self.filename, mode = 'r') as archive:
-      members = [ member.filename for member in archive.infolist() ]
-      return self._normalize_members(members)
-
+      return self._normalize_members([ m.filename for m in archive.infolist() ])
+  
   def has_member(self, arcname):
     with zipfile.ZipFile(file = self.filename, mode = 'r') as archive:
       try:

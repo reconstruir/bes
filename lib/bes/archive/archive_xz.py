@@ -1,12 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os, os.path as path, stat, tarfile
+
 from bes.fs import file_util, temp_file
 from bes.system import execute
+
 from .archive import archive
 from .archive_extension import archive_extension
 from .archive_zip import archive_zip
 
-import os, os.path as path, stat
 
 class archive_xz(archive):
   'XZ archive.'
@@ -23,17 +25,17 @@ class archive_xz(archive):
       magic = fin.read(6)
       return magic == clazz._MAGIC
 
-  def members(self):
-    cmd = 'tar tf %s' % (self.filename)
-    rv = execute.execute(cmd)
-    return [ m for m in rv.stdout.split('\n') if self._is_member(m) ]
-
+  #@abstractmethod
+  def _get_members(self):
+    with tarfile.open(self.filename, mode = 'r') as archive:
+      return self._normalize_members([ member.path for member in archive.getmembers() ])
+    
   @classmethod
   def _is_member(clazz, m):
     return m and not m.endswith('/')
   
   def has_member(self, arcname):
-    return arcname in self.members()
+    return arcname in self.members
     
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_ancestor = False, strip_head = None,

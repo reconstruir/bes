@@ -2,12 +2,12 @@
 
 import os, os.path as path
 from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
 from collections import namedtuple
 
-from bes.common import algorithm
+from bes.common import algorithm, cached_property
 from bes.fs import file_find, file_path, file_util, tar_util, temp_file
 from bes.match import matcher_multiple_filename, matcher_always_false, matcher_always_true, matcher_util
+from bes.system.compat import with_metaclass
 
 from .archive_base import archive_base
 
@@ -19,10 +19,14 @@ class archive(archive_base):
   def __init__(self, filename):
     self.filename = filename
 
-  @abstractmethod
+  @cached_property
   def members(self):
-    pass
-
+    '''
+    Return cached members.  Note that unless the underlying filename is intentionally
+    hacked, the cached members are valid forever.
+    '''
+    return self._normalize_members(self._get_members())
+    
   @abstractmethod
   def has_member(self, arcname):
     pass
@@ -36,7 +40,7 @@ class archive(archive_base):
   def extract(self, dest_dir, base_dir = None,
               strip_common_ancestor = False, strip_head = None,
               include = None, exclude = None):
-    return self.extract_members(self.members(),
+    return self.extract_members(self.members,
                                 dest_dir,
                                 base_dir = base_dir,
                                 strip_common_ancestor = strip_common_ancestor,
@@ -68,7 +72,7 @@ class archive(archive_base):
 
   def common_base(self):
     'Return a common base dir for the archive or None if no common base exists.'
-    return self._common_base_for_members(self.members())
+    return self._common_base_for_members(self.members)
 
   @classmethod
   def _normalize_members(clazz, members):

@@ -25,11 +25,10 @@ class archive_unix_tar(archive):
       pass
     return False
 
-  def members(self):
-    if not self._members:
-      self._members = [ m for m in tar_util.contents(self.filename) ]
-    return self._members
-
+  #@abstractmethod
+  def _get_members(self):
+    return tar_util.contents(self.filename)
+  
   @classmethod
   def _is_member(clazz, m):
     return m and not m.endswith('/')

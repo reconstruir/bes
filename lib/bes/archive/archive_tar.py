@@ -16,11 +16,11 @@ class archive_tar(archive):
   def file_is_valid(clazz, filename):
     return tarfile.is_tarfile(filename)
 
-  def members(self):
+  #@abstractmethod
+  def _get_members(self):
     with tarfile.open(self.filename, mode = 'r') as archive:
-      members = [ member.path for member in archive.getmembers() ]
-      return self._normalize_members(members)
-
+      return self._normalize_members([ member.path for member in archive.getmembers() ])
+  
   def has_member(self, arcname):
     with tarfile.open(self.filename, mode = 'r') as archive:
       try:
@@ -35,7 +35,7 @@ class archive_tar(archive):
     with tarfile.open(self.filename, mode = 'r') as archive:
       dest_dir = self._determine_dest_dir(dest_dir, base_dir)
       filtered_members = self._filter_for_extract(members, include, exclude)
-      if filtered_members == self.members():
+      if filtered_members == self.members:
         archive.extractall(path = dest_dir)
       else:
         for member in filtered_members:

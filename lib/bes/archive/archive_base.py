@@ -9,20 +9,6 @@ class xarchive_base(with_metaclass(ABCMeta, object)):
 
   Item = namedtuple('Item', [ 'filename', 'arcname' ])
 
-  @classmethod
-  @abstractmethod
-  def file_is_valid(clazz, filename):
-    'Return True if filename is a valid file supported by this archive format.'
-    raise NotImplementedError()
-
-  @abstractmethod
-  def _get_contents(self):
-    '''
-    Return the list of raw file and dir contents in the archive.
-    This is usually an expensive operation so users should cache the results.
-    '''
-    raise NotImplementedError()
-
   @abstractmethod
   def extract_all(self, dest_dir, base_dir = None,
                   strip_common_ancestor = False, strip_head = None):
@@ -79,6 +65,14 @@ class archive_base(with_metaclass(ABCMeta, object)):
     'Return True if filename is a valid file supported by this archive format.'
     raise NotImplementedError()
 
+  @abstractmethod
+  def _get_members(self):
+    '''
+    Return the list of raw file and dir contents in the archive.
+    This is usually an expensive operation so users should cache the results.
+    '''
+    raise NotImplementedError()
+  
   @abstractmethod
   def create(self, root_dir, base_dir = None,
              extra_items = None,

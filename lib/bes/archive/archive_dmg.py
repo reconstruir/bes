@@ -22,10 +22,11 @@ class archive_dmg(archive):
   def file_is_valid(clazz, filename):
     return dmg.is_dmg_file(filename)
 
-  def members(self):
-    members = dmg.contents(self.filename)
-    return self._normalize_members(members)
-
+  @classmethod
+  #@abstractmethod
+  def file_is_valid(clazz, filename):
+    return dmg.is_dmg_file(filename)
+  
   def has_member(self, arcname):
     return arcname in self.members()
   
