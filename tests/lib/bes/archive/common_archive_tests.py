@@ -294,7 +294,7 @@ class common_archive_tests(object):
   def _test_extract_with_include_exclude(self, items, include, exclude):
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
-    tmp_archive.extract(tmp_dir, include = include, exclude = exclude)
+    tmp_archive.extract_members(tmp_archive.members, tmp_dir, include = include, exclude = exclude)
     actual_files = file_find.find(tmp_dir, relative = True)
     file_util.remove(tmp_dir)
     return actual_files
@@ -548,7 +548,7 @@ class common_archive_tests(object):
     archive.create(tmp_dir, include = include, exclude = exclude)
     self.assertTrue( path.isfile(archive.filename) )
     tmp_extract_dir = temp_file.make_temp_dir()
-    archive.extract(tmp_extract_dir)
+    archive.extract_all(tmp_extract_dir)
     actual_files = file_find.find(tmp_extract_dir, relative = True)
     file_util.remove([ tmp_dir, tmp_extract_dir])
     return actual_files

@@ -33,16 +33,6 @@ class archive(archive_base):
                       include = None, exclude = None):
     pass
 
-  def extract(self, dest_dir, base_dir = None,
-              strip_common_ancestor = False, strip_head = None,
-              include = None, exclude = None):
-    return self.extract_members(self.members,
-                                dest_dir,
-                                base_dir = base_dir,
-                                strip_common_ancestor = strip_common_ancestor,
-                                strip_head = strip_head,
-                                include = include, exclude = exclude)
-
   def extract_member_to_string(self, member):
     tmp_dir = temp_file.make_temp_dir()
     tmp_member = path.join(tmp_dir, member)

@@ -44,12 +44,14 @@ class archiver(object):
     archive_class = clazz._determine_type(filename)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
-    return archive_class(filename).extract(dest_dir,
-                                           base_dir = base_dir,
-                                           strip_common_ancestor = strip_common_ancestor,
-                                           strip_head = strip_head,
-                                           include = include,
-                                           exclude = exclude)
+    archive = archive_class(filename)
+    return archive.extract_members(archive.members,
+                                   dest_dir,
+                                   base_dir = base_dir,
+                                   strip_common_ancestor = strip_common_ancestor,
+                                   strip_head = strip_head,
+                                   include = include,
+                                   exclude = exclude)
 
   @classmethod
   def extract_members(clazz, filename, members, dest_dir, base_dir = None,
