@@ -18,7 +18,7 @@ class archive_unix_tar(archive):
   def file_is_valid(clazz, filename):
     'Return True if filename is a valid file supported by this archive format.'
     try:
-      tar_util.contents(self.filename)
+      tar_util.members(self.filename)
       return True
     except Exception as ex:
       pass
@@ -26,12 +26,12 @@ class archive_unix_tar(archive):
 
   #@abstractmethod
   def _get_members(self):
-    return tar_util.contents(self.filename)
+    return tar_util.members(self.filename)
 
   #@abstractmethod
   def has_member(self, filename):
-    '''Return True if filename is part of contents.  Note that directories should end in "/" '''
-    return filename in self.contents
+    '''Return True if filename is part of members.  Note that directories should end in "/" '''
+    return filename in self.members
   
   #@abstractmethod
   def extract_all(self, dest_dir, base_dir = None,
@@ -39,22 +39,22 @@ class archive_unix_tar(archive):
     dest_dir = self._determine_dest_dir(dest_dir, base_dir)
     cmd = 'tar xf %s -C %s' % (self.filename, dest_dir)
     execute.execute(cmd)
-    self._handle_extract_strip_common_ancestor(self.contents, strip_common_ancestor, strip_head, dest_dir)
+    self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
   
   #@abstractmethod
   def extract(self, dest_dir, base_dir = None,
               strip_common_ancestor = False, strip_head = None,
               include = None, exclude = None):
     dest_dir = self._determine_dest_dir(dest_dir, base_dir)
-    filtered_contents = self._filter_for_extract(self.contents, include, exclude)
-    if filtered_contents == self.contents:
+    filtered_members = self._filter_for_extract(self.members, include, exclude)
+    if filtered_members == self.members:
       self.extract_all(dest_dir, base_dir = base_dir, strip_common_ancestor = strip_common_ancestor,
                        strip_head = strip_head)
       return
-    manifest = temp_file.make_temp_file(content = '\n'.join(filtered_contents))
+    manifest = temp_file.make_temp_file(content = '\n'.join(filtered_members))
     cmd = 'tar xf %s -C %s -T %s' % (self.filename, dest_dir, manifest)
     execute.execute(cmd)
-    self._handle_extract_strip_common_ancestor(filtered_contents, strip_common_ancestor, strip_head, dest_dir)
+    self._handle_extract_strip_common_ancestor(filtered_members, strip_common_ancestor, strip_head, dest_dir)
 
   #@abstractmethod
   def create(self, root_dir, base_dir = None, extra_items = None,

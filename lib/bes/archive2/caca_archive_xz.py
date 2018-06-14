@@ -25,11 +25,11 @@ class archive_xz(archive):
   #@abstractmethod
   def _get_members(self):
     with tarfile.open(self.filename, mode = 'r') as archive:
-      return self._normalize_contents([ member.path for member in archive.getmembers() ])
+      return self._normalize_members([ member.path for member in archive.getmembers() ])
 
   #@abstractmethod
   def has_member(self, filename):
-    '''Return True if filename is part of contents.  Note that directories should end in "/" '''
+    '''Return True if filename is part of members.  Note that directories should end in "/" '''
     with tarfile.open(self.filename, mode = 'r') as archive:
       try:
         archive.getmember(filename)

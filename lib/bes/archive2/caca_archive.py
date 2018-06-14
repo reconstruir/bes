@@ -29,22 +29,22 @@ class archive(archive_base):
     raise AttributeError('filename is read-only.')
   
   @cached_property
-  def contents(self):
+  def members(self):
     '''
-    Return cached contents.  Note that unless the underlying filename is intentionally
-    hacked, the cached contents are valid forever.
+    Return cached members.  Note that unless the underlying filename is intentionally
+    hacked, the cached members are valid forever.
     '''
-    return self._normalize_contents(self._get_members())
+    return self._normalize_members(self._get_members())
 
   @cached_property
-  def file_contents(self):
-    '''Return contents that are files only.'''
-    return [ f for f in self.contents if self.content_is_file(f) ]
+  def file_members(self):
+    '''Return members that are files only.'''
+    return [ f for f in self.members if self.content_is_file(f) ]
 
   @cached_property
-  def dir_contents(self):
-    '''Return contents that are dirs only.'''
-    return [ f for f in self.contents if self.content_is_dir(f) ]
+  def dir_members(self):
+    '''Return members that are dirs only.'''
+    return [ f for f in self.members if self.content_is_dir(f) ]
 
   @classmethod
   def content_is_file(clazz, filename):
@@ -81,12 +81,12 @@ class archive(archive_base):
 
   def common_ancestor(self):
     'Return a common ancestor dir for the archive or None if no common base exists.'
-    return self._common_ancestor_for_members(self.contents)
+    return self._common_ancestor_for_members(self.members)
 
   @classmethod
-  def _normalize_contents(clazz, contents):
-    'Normalize the archive contents to be unique and sorted.'
-    return sorted(algorithm.unique(contents))
+  def _normalize_members(clazz, members):
+    'Normalize the archive members to be unique and sorted.'
+    return sorted(algorithm.unique(members))
 
   # Some archives have some dumb members that are immaterial to common base
   COMMON_BASE_MEMBERS_EXCLUDE = [ '.' ]

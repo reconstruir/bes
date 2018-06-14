@@ -18,7 +18,7 @@ class archive_base(with_metaclass(ABCMeta, object)):
   @abstractmethod
   def _get_members(self):
     '''
-    Return the list of raw file and dir contents in the archive.
+    Return the list of raw file and dir members in the archive.
     This is usually an expensive operation so users should cache the results.
     '''
     raise NotImplementedError()
@@ -26,7 +26,7 @@ class archive_base(with_metaclass(ABCMeta, object)):
   @abstractmethod
   def has_member(self, filename):
     '''
-    Return True if filename is part of contents.  Note that directories should end in '/'
+    Return True if filename is part of members.  Note that directories should end in '/'
     '''
     raise NotImplementedError()
   
@@ -34,7 +34,7 @@ class archive_base(with_metaclass(ABCMeta, object)):
   def extract_all(self, dest_dir, base_dir = None,
                   strip_common_ancestor = False, strip_head = None):
     '''
-    Extract all contents.
+    Extract all members.
     
     Args:
       dest_dir: The destiation directory where to extract files to.
@@ -53,7 +53,7 @@ class archive_base(with_metaclass(ABCMeta, object)):
               strip_common_ancestor = False, strip_head = None,
               include = None, exclude = None):
     '''
-    Extract only some contents.
+    Extract only some members.
     
     Args:
       dest_dir: The destiation directory where to extract files to.

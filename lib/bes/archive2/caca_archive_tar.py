@@ -21,10 +21,10 @@ class archive_tar(archive):
   #@abstractmethod
   def _get_members(self):
     with tarfile.open(self.filename, mode = 'r') as archive:
-      return self._normalize_contents([ member.path for member in archive.getmembers() ])
+      return self._normalize_members([ member.path for member in archive.getmembers() ])
     
   def has_member(self, filename):
-    '''Return True if filename is part of contents.  Note that directories should end in "/" '''
+    '''Return True if filename is part of members.  Note that directories should end in "/" '''
     return tar_util.has_member(filename)
 
   #@abstractmethod
@@ -33,22 +33,22 @@ class archive_tar(archive):
     with tarfile.open(self.filename, mode = 'r') as archive:
       dest_dir = self._determine_dest_dir(dest_dir, base_dir)
       archive.extractall(path = dest_dir)
-      self._handle_extract_strip_common_ancestor(self.contents, strip_common_ancestor, strip_head, dest_dir)
+      self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
       
   #@abstractmethod
   def extract(self, dest_dir, base_dir = None,
               strip_common_ancestor = False, strip_head = None,
               include = None, exclude = None):
     dest_dir = self._determine_dest_dir(dest_dir, base_dir)
-    filtered_contents = self._filter_for_extract(self.contents, include, exclude)
-    if filtered_contents == self.contents:
+    filtered_members = self._filter_for_extract(self.members, include, exclude)
+    if filtered_members == self.members:
       self.extract_all(dest_dir, base_dir = base_dir, strip_common_ancestor = strip_common_ancestor,
                        strip_head = strip_head)
       return
     with tarfile.open(self.filename, mode = 'r') as archive:
-      for filename in filtered_contents:
+      for filename in filtered_members:
         archive.extract(filename, path = dest_dir)
-      self._handle_extract_strip_common_ancestor(filtered_contents, strip_common_ancestor, strip_head, dest_dir)
+      self._handle_extract_strip_common_ancestor(filtered_members, strip_common_ancestor, strip_head, dest_dir)
 
   def create(self, root_dir, base_dir = None,
              extra_items = None,

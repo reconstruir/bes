@@ -24,18 +24,18 @@ class archive_dmg(archive):
 
   #@abstractmethod
   def _get_members(self):
-    return self._normalize_members(dmg.contents(self.filename))
+    return self._normalize_members(dmg.members(self.filename))
 
   #@abstractmethod
   def has_member(self, filename):
-    return filename in self.contents
+    return filename in self.members
 
   #@abstractmethod
   def extract_all(self, dest_dir, base_dir = None,
                   strip_common_ancestor = False, strip_head = None):
     dest_dir = self._determine_dest_dir(dest_dir, base_dir)
     dmg.extract(self.filename, dest_dir)
-    self._handle_extract_strip_common_ancestor(self.contents, strip_common_ancestor, strip_head, dest_dir)
+    self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
 
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_ancestor = False, strip_head = None,
