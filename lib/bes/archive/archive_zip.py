@@ -32,6 +32,14 @@ class archive_zip(archive):
       except KeyError as ex:
         pass
       return False
+
+  #@abstractmethod
+  def extract_all(self, dest_dir, base_dir = None,
+                  strip_common_ancestor = False, strip_head = None):
+    with zipfile.ZipFile(file = self.filename, mode = 'r') as archive:
+      dest_dir = self._determine_dest_dir(dest_dir, base_dir)
+      archive.extractall(path = dest_dir)
+    self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
     
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_ancestor = False, strip_head = None,

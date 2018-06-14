@@ -37,6 +37,14 @@ class archive_unix_tar(archive):
   def has_member(self, filename):
     '''Return True if filename is part of members.  Note that directories should end in "/" '''
     return filename in self.members
+
+  #@abstractmethod
+  def extract_all(self, dest_dir, base_dir = None,
+                  strip_common_ancestor = False, strip_head = None):
+    dest_dir = self._determine_dest_dir(dest_dir, base_dir)
+    cmd = 'tar xf %s -C %s' % (self.filename, dest_dir)
+    execute.execute(cmd)
+    self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
   
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_ancestor = False, strip_head = None,

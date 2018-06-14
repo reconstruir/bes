@@ -30,6 +30,13 @@ class archive_dmg(archive):
   #@abstractmethod
   def has_member(self, filename):
     return filename in self.members
+
+  #@abstractmethod
+  def extract_all(self, dest_dir, base_dir = None,
+                  strip_common_ancestor = False, strip_head = None):
+    dest_dir = self._determine_dest_dir(dest_dir, base_dir)
+    dmg.extract(self.filename, dest_dir)
+    self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
   
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_ancestor = False, strip_head = None,

@@ -27,7 +27,15 @@ class archive_tar(archive):
   def has_member(self, filename):
     '''Return True if filename is part of members.  Note that directories should end in "/" '''
     return tar_util.has_member(self.filename, filename)
-    
+
+  #@abstractmethod
+  def extract_all(self, dest_dir, base_dir = None,
+                  strip_common_ancestor = False, strip_head = None):
+    with tarfile.open(self.filename, mode = 'r') as archive:
+      dest_dir = self._determine_dest_dir(dest_dir, base_dir)
+      archive.extractall(path = dest_dir)
+      self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
+  
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_ancestor = False, strip_head = None,
                       include = None, exclude = None):
