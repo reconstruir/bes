@@ -14,7 +14,7 @@ class test_archive_xz(unittest.TestCase, common_archive_tests):
   @classmethod
   def setUpClass(clazz):
     pass
-    raise_skip('broken')
+    #raise_skip('broken')
   
   def __init__(self, methodName = 'runTest'):
     super(test_archive_xz, self).__init__(methodName)
@@ -32,7 +32,7 @@ class test_archive_xz(unittest.TestCase, common_archive_tests):
 
     tmp_tar = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR)
     self.assertFalse( archive_xz.file_is_valid(tmp_tar.filename) )
-archive
+
     tmp_tgz = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], archive_extension.TGZ)
     self.assertFalse( archive_xz.file_is_valid(tmp_tgz.filename) )
 

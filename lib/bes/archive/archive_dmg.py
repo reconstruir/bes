@@ -28,8 +28,8 @@ class archive_dmg(archive):
     return dmg.is_dmg_file(filename)
   
   #@abstractmethod
-  def has_member(self, filename):
-    return filename in self.members
+  def has_member(self, member):
+    return member in self.members
 
   #@abstractmethod
   def extract_all(self, dest_dir, base_dir = None,

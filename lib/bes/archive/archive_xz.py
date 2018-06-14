@@ -26,25 +26,23 @@ class archive_xz(archive):
 
   #@abstractmethod
   def _get_members(self):
-    with tarfile.open(self.filename, mode = 'r') as archive:
-      return self._normalize_members([ member.path for member in archive.getmembers() ])
+    return tar_util.members(self.filename)
     
   @classmethod
   def _is_member(clazz, m):
     return m and not m.endswith('/')
   
   #@abstractmethod
-  def has_member(self, filename):
+  def has_member(self, member):
     '''Return True if filename is part of members.  Note that directories should end in "/" '''
-    return tar_util.has_member(self.filename, filename)
+    return member in self.members
 
   #@abstractmethod
   def extract_all(self, dest_dir, base_dir = None,
                   strip_common_ancestor = False, strip_head = None):
-    with tarfile.open(self.filename, mode = 'r') as archive:
-      dest_dir = self._determine_dest_dir(dest_dir, base_dir)
-      archive.extractall(path = dest_dir)
-      self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
+    dest_dir = self._determine_dest_dir(dest_dir, base_dir)
+    tar_util.extract(self.filename, dest_dir)
+    self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
   
   def extract_members(self, members, dest_dir, base_dir = None,
                       strip_common_ancestor = False, strip_head = None,

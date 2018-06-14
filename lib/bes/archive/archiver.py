@@ -31,11 +31,11 @@ class archiver(object):
     return archive_class(filename).members
 
   @classmethod
-  def has_member(clazz, filename, arcname):
+  def has_member(clazz, filename, member):
     archive_class = clazz._determine_type(filename)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
-    return archive_class(filename).has_member(arcname)
+    return archive_class(filename).has_member(member)
 
   @classmethod
   def extract(clazz, filename, dest_dir, base_dir = None,

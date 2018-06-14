@@ -35,12 +35,6 @@ class tar_util(object):
     return [ i for i in rv.stdout.split('\n') if i ]
 
   @classmethod
-  def has_member(clazz, filename, member):
-    'Return True if filename is in the tar members.'
-    with tarfile.open(filename, mode = 'r') as archive:
-      try:
-        archive.getmember(member)
-        return True
-      except KeyError as ex:
-        pass
-      return False
+  def extract(clazz, filename, dest_dir):
+    execute.execute('tar xf {filename} -C {dest_dir}'.format(filename, dest_dir))
+  

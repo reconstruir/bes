@@ -56,7 +56,7 @@ class archive_base(with_metaclass(ABCMeta, object)):
     raise NotImplementedError()
 
   @abstractmethod
-  def has_member(self, filename):
+  def has_member(self, member):
     '''
     Return True if filename is part of members.  Note that directories should end in '/'
     '''

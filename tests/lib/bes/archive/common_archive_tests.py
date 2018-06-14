@@ -20,13 +20,13 @@ class common_archive_tests(object):
   def make_archive(self, filename):
     archive = self._make_archive(filename)
     if self.DEBUG:
-      print("archive: ", archive)
+      print("archive: ", archive.filename)
     return archive
   
   def make_temp_archive_for_reading(self, items, archive_type = None):
     archive_type = archive_type or self.default_archive_type
     assert archive_type
-    tmp_archive = temp_archive.make_temp_archive(items, archive_type)
+    tmp_archive = temp_archive.make_temp_archive(items, archive_type, delete = not self.DEBUG)
     return self.make_archive(tmp_archive.filename)
 
   def make_temp_archive_for_writing(self):
@@ -35,7 +35,7 @@ class common_archive_tests(object):
 
   def test_members(self):
     assert self.default_archive_type
-    tmp_tar = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], self.default_archive_type)
+    tmp_tar = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], self.default_archive_type, delete = not self.DEBUG)
     self.assertEqual( [ 'foo.txt' ], self.make_archive(tmp_tar.filename).members )
 
   def test_has_member(self):

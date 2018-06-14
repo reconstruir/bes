@@ -23,11 +23,11 @@ class archive_zip(archive):
       return self._normalize_members([ m.filename for m in archive.infolist() ])
 
   #@abstractmethod
-  def has_member(self, filename):
+  def has_member(self, member):
     '''Return True if filename is part of members.  Note that directories should end in "/" '''
     with zipfile.ZipFile(file = self.filename, mode = 'r') as archive:
       try:
-        archive.getinfo(filename)
+        archive.getinfo(member)
         return True
       except KeyError as ex:
         pass

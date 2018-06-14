@@ -24,9 +24,15 @@ class archive_tar(archive):
       return self._normalize_members([ member.path for member in archive.getmembers() ])
 
   #@abstractmethod
-  def has_member(self, filename):
+  def has_member(self, member):
     '''Return True if filename is part of members.  Note that directories should end in "/" '''
-    return tar_util.has_member(self.filename, filename)
+    with tarfile.open(self.filename, mode = 'r') as archive:
+      try:
+        archive.getmember(member)
+        return True
+      except KeyError as ex:
+        pass
+    return False
 
   #@abstractmethod
   def extract_all(self, dest_dir, base_dir = None,
