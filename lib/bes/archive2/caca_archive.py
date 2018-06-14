@@ -34,7 +34,7 @@ class archive(archive_base):
     Return cached contents.  Note that unless the underlying filename is intentionally
     hacked, the cached contents are valid forever.
     '''
-    return self._normalize_contents(self._get_contents())
+    return self._normalize_contents(self._get_members())
 
   @cached_property
   def file_contents(self):

@@ -23,7 +23,7 @@ class archive_dmg(archive):
     return dmg.is_dmg_file(filename)
 
   #@abstractmethod
-  def _get_contents(self):
+  def _get_members(self):
     return self._normalize_members(dmg.contents(self.filename))
 
   #@abstractmethod

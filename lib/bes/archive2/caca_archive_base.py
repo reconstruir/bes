@@ -16,7 +16,7 @@ class archive_base(with_metaclass(ABCMeta, object)):
     raise NotImplementedError()
 
   @abstractmethod
-  def _get_contents(self):
+  def _get_members(self):
     '''
     Return the list of raw file and dir contents in the archive.
     This is usually an expensive operation so users should cache the results.

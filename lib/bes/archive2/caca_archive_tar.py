@@ -19,7 +19,7 @@ class archive_tar(archive):
     return tarfile.is_tarfile(filename)
 
   #@abstractmethod
-  def _get_contents(self):
+  def _get_members(self):
     with tarfile.open(self.filename, mode = 'r') as archive:
       return self._normalize_contents([ member.path for member in archive.getmembers() ])
     

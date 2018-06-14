@@ -25,7 +25,7 @@ class archive_unix_tar(archive):
     return False
 
   #@abstractmethod
-  def _get_contents(self):
+  def _get_members(self):
     return tar_util.contents(self.filename)
 
   #@abstractmethod

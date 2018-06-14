@@ -18,7 +18,7 @@ class archive_zip(archive):
     return zipfile.is_zipfile(filename)
 
   #@abstractmethod
-  def _get_contents(self):
+  def _get_members(self):
     with zipfile.ZipFile(file = self.filename, mode = 'r') as archive:
       return self._normalize_contents([ m.filename for m in archive.infolist() ])
   
