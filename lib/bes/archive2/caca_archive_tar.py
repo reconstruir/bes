@@ -23,9 +23,9 @@ class archive_tar(archive):
     with tarfile.open(self.filename, mode = 'r') as archive:
       return self._normalize_contents([ member.path for member in archive.getmembers() ])
     
-  def has_content(self, filename):
+  def has_member(self, filename):
     '''Return True if filename is part of contents.  Note that directories should end in "/" '''
-    return tar_util.has_content(filename)
+    return tar_util.has_member(filename)
 
   #@abstractmethod
   def extract_all(self, dest_dir, base_dir = None,

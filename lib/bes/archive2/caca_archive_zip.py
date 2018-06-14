@@ -23,7 +23,7 @@ class archive_zip(archive):
       return self._normalize_contents([ m.filename for m in archive.infolist() ])
   
   #@abstractmethod
-  def has_content(self, filename):
+  def has_member(self, filename):
     '''Return True if filename is part of contents.  Note that directories should end in "/" '''
     with zipfile.ZipFile(file = self.filename, mode = 'r') as archive:
       try:

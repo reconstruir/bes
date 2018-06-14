@@ -29,7 +29,7 @@ class archive_unix_tar(archive):
     return tar_util.contents(self.filename)
 
   #@abstractmethod
-  def has_content(self, filename):
+  def has_member(self, filename):
     '''Return True if filename is part of contents.  Note that directories should end in "/" '''
     return filename in self.contents
   

@@ -28,7 +28,7 @@ class archive_xz(archive):
       return self._normalize_contents([ member.path for member in archive.getmembers() ])
 
   #@abstractmethod
-  def has_content(self, filename):
+  def has_member(self, filename):
     '''Return True if filename is part of contents.  Note that directories should end in "/" '''
     with tarfile.open(self.filename, mode = 'r') as archive:
       try:

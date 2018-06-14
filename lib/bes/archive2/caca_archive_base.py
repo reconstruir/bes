@@ -24,7 +24,7 @@ class archive_base(with_metaclass(ABCMeta, object)):
     raise NotImplementedError()
 
   @abstractmethod
-  def has_content(self, filename):
+  def has_member(self, filename):
     '''
     Return True if filename is part of contents.  Note that directories should end in '/'
     '''

@@ -27,7 +27,7 @@ class archive_dmg(archive):
     return self._normalize_members(dmg.contents(self.filename))
 
   #@abstractmethod
-  def has_content(self, filename):
+  def has_member(self, filename):
     return filename in self.contents
 
   #@abstractmethod
