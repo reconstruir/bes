@@ -11,7 +11,7 @@ from bes.archive.archive_dmg import archive_dmg
 from bes.archive.temp_archive import temp_archive
 from bes.testing.unit_test.unit_test_skip import raise_skip_if_not_platform
 
-#class test_archive_dmg(unit_test, archive_base_common): # too slow
+#class test_archive_dmg(unit_test, common_archive_tests): # too slow
 class test_archive_dmg(unit_test):
 
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/archive/dmg'
@@ -24,7 +24,7 @@ class test_archive_dmg(unit_test):
     super(test_archive_dmg, self).__init__(methodName)
     self.default_archive_type = archive_extension.DMG
 
-  def make_archive(self, filename):
+  def _make_archive(self, filename):
     return archive_dmg(filename)
 
   def test_init(self):

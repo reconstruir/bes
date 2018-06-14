@@ -6,9 +6,9 @@ from bes.fs import temp_file
 from bes.caca_archive.caca_archive_extension import caca_archive_extension
 from bes.caca_archive.temp_caca_archive import temp_caca_archive
 from bes.caca_archive.caca_archive_xz import caca_archive_xz
-from caca_caca_archive_base_common import caca_caca_archive_base_common
+from caca_caca_common_archive_tests import caca_caca_common_archive_tests
 
-class test_caca_archive_xz(unittest.TestCase, caca_caca_archive_base_common):
+class test_caca_archive_xz(unittest.TestCase, caca_caca_common_archive_tests):
 
   def __init__(self, methodName = 'runTest'):
     super(test_caca_archive_xz, self).__init__(methodName)

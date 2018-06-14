@@ -7,7 +7,7 @@ from bes.fs import file_find, file_util, temp_file
 from bes.match import matcher_multiple_filename, matcher_always_false, matcher_always_true
 from bes.caca_archive.temp_caca_archive import temp_caca_archive
 
-class caca_caca_archive_base_common(object):
+class caca_caca_common_archive_tests(object):
   'Superclass for caca_archive unit tests for which logic is shared regardless of the caca_archive type.'
 
   @abstractmethod

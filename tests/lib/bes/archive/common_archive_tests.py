@@ -2,16 +2,26 @@
 
 import os.path as path
 from abc import abstractmethod
+
 from bes.fs import file_find, file_util, temp_file
 from bes.match import matcher_multiple_filename, matcher_always_false, matcher_always_true
 from bes.archive.temp_archive import temp_archive
+from bes.testing.unit_test import unit_test
 
-class archive_base_common(object):
+class common_archive_tests(object):
   'Superclass for archive unit tests for which logic is shared regardless of the archive type.'
 
+  DEBUG = unit_test.DEBUG
+
   @abstractmethod
-  def make_archive(self, filename):
+  def _make_archive(self, filename):
     pass
+
+  def make_archive(self, filename):
+    archive = self._make_archive(filename)
+    if self.DEBUG:
+      print("archive: ", archive)
+    return archive
   
   def make_temp_archive_for_reading(self, items, archive_type = None):
     archive_type = archive_type or self.default_archive_type

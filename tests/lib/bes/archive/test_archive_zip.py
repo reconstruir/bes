@@ -6,15 +6,15 @@ from bes.fs import temp_file
 from bes.archive.archive_extension import archive_extension
 from bes.archive.temp_archive import temp_archive
 from bes.archive.archive_zip import archive_zip
-from archive_base_common import archive_base_common
+from common_archive_tests import common_archive_tests
 
-class test_archive_zip(unittest.TestCase, archive_base_common):
+class test_archive_zip(unittest.TestCase, common_archive_tests):
 
   def __init__(self, methodName = 'runTest'):
     super(test_archive_zip, self).__init__(methodName)
     self.default_archive_type = archive_extension.ZIP
 
-  def make_archive(self, filename):
+  def _make_archive(self, filename):
     return archive_zip(filename)
 
   def test_init(self):

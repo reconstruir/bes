@@ -9,7 +9,6 @@ from .archive import archive
 from .archive_extension import archive_extension
 from .archive_zip import archive_zip
 
-
 class archive_xz(archive):
   'XZ archive.'
 
