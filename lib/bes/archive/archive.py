@@ -26,20 +26,7 @@ class archive(archive_base):
     hacked, the cached members are valid forever.
     '''
     return self._normalize_members(self._get_members())
-    
-  def extract_member_to_string(self, member):
-    tmp_dir = temp_file.make_temp_dir()
-    tmp_member = path.join(tmp_dir, member)
-    self.extract(tmp_dir, include = [ member ])
-    if not path.exists(tmp_member):
-      raise RuntimeError('Failed to extract member: %s' % (member))
-    if not path.isfile(tmp_member):
-      raise RuntimeError('Member is not a file: %s' % (member))
-    result = file_util.read(tmp_member)
-    file_util.remove(tmp_dir)
-    return result
 
-  # FIXME: cut-n-paste with above
   def extract_member_to_file(self, member, filename):
     tmp_dir = temp_file.make_temp_dir()
     tmp_member = path.join(tmp_dir, member)
@@ -50,6 +37,13 @@ class archive(archive_base):
       raise RuntimeError('Member is not a file: %s' % (member))
     file_util.rename(tmp_member, filename)
 
+  def extract_member_to_string(self, member):
+    tmp_file = temp_file.make_temp_file()
+    self.extract_member_to_file(member, tmp_file)
+    result = file_util.read(tmp_file)
+    file_util.remove(tmp_file)
+    return result
+    
   def common_base(self):
     'Return a common base dir for the archive or None if no common base exists.'
     return self._common_base_for_members(self.members)
@@ -113,11 +107,13 @@ class archive(archive_base):
       common_base = clazz._common_base_for_members(members)
       if common_base:
         from_dir = path.join(dest_dir, common_base)
+        print('FUCK: 1 copy from %s to %s' % (from_dir, dest_dir))
         tar_util.copy_tree_with_tar(from_dir, dest_dir)
         file_util.remove(from_dir)
     if strip_head:
       from_dir = path.join(dest_dir, strip_head)
       if path.isdir(from_dir):
+        print('FUCK: 2 copy from %s to %s' % (from_dir, dest_dir))
         tar_util.copy_tree_with_tar(from_dir, dest_dir)
         file_util.remove(from_dir)
       
@@ -130,3 +126,12 @@ class archive(archive_base):
   @classmethod
   def _filter_for_extract(clazz, members, include, exclude):
     return matcher_util.match_filenames(members, include, exclude)
+
+  @classmethod
+  def _handle_post_extract(clazz, dest_dir, include, exclude):
+    all_files = file_find.find(dest_dir, relative = True, file_type = file_find.FILE | file_find.LINK)
+    wanted_files = self._find(dest_dir, None, None, include, exclude)
+    delta = set(all_files) - set(wanted_files)
+    for f in delta:
+      print('clobber: %s' % (f))
+  
