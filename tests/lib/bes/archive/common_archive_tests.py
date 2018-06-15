@@ -311,6 +311,19 @@ class common_archive_tests(object):
     self.assertEqual( b'apple.txt\n', tmp_archive.extract_member_to_string('foo/apple.txt') )
     self.assertEqual( b'{}\n', tmp_archive.extract_member_to_string('metadata/db.json') )
 
+  def test_extract_member_to_file(self):
+    assert self.default_archive_type
+    items = temp_archive.make_temp_item_list([
+      ( 'foo/apple.txt', 'apple.txt\n' ),
+      ( 'foo/durian.txt', 'durian.txt\n' ),
+      ( 'foo/kiwi.txt', 'kiwi.txt\n' ),
+      ( 'metadata/db.json', '{}\n' ),
+    ])
+    tmp_archive = self.make_temp_archive_for_reading(items)
+    tmp_file = temp_file.make_temp_file()
+    tmp_archive.extract_member_to_file('foo/apple.txt', tmp_file)
+    self.assertEqual( b'apple.txt\n', file_util.read(tmp_file) )
+    
   def _test_extract_with_members(self, items, members,
                                  base_dir = None,
                                  strip_common_ancestor = False,
