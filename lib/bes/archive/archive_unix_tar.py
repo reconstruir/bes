@@ -12,7 +12,6 @@ class archive_unix_tar(archive):
 
   def __init__(self, filename):
     super(archive_unix_tar, self).__init__(filename)
-    self._members = None
 
   @classmethod
   #@abstractmethod
