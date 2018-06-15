@@ -294,7 +294,7 @@ class common_archive_tests(object):
   def _test_extract_with_include_exclude(self, items, include, exclude):
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
-    tmp_archive.extract_members(tmp_archive.members, tmp_dir, include = include, exclude = exclude)
+    tmp_archive.extract(tmp_dir, include = include, exclude = exclude)
     actual_files = file_find.find(tmp_dir, relative = True)
     file_util.remove(tmp_dir)
     return actual_files
@@ -312,20 +312,16 @@ class common_archive_tests(object):
     self.assertEqual( b'{}\n', tmp_archive.extract_member_to_string('metadata/db.json') )
 
   def _test_extract_with_members(self, items, members,
-                                  base_dir = None,
-                                  strip_common_ancestor = False,
-                                  strip_head = None,
-                                  include = None,
-                                  exclude = None):
+                                 base_dir = None,
+                                 strip_common_ancestor = False,
+                                 strip_head = None):
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
-    tmp_archive.extract_members(members,
-                                tmp_dir,
-                                base_dir = base_dir,
-                                strip_common_ancestor = strip_common_ancestor,
-                                strip_head = strip_head,
-                                include = include,
-                                exclude = exclude)
+    tmp_archive.extract(tmp_dir,
+                        base_dir = base_dir,
+                        strip_common_ancestor = strip_common_ancestor,
+                        strip_head = strip_head,
+                        include = members)
     actual_files = file_find.find(tmp_dir, relative = True)
     file_util.remove(tmp_dir)
     return actual_files

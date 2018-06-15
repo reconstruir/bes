@@ -37,10 +37,18 @@ class archive_dmg(archive):
     dest_dir = self._determine_dest_dir(dest_dir, base_dir)
     dmg.extract(self.filename, dest_dir)
     self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
-  
-  def extract_members(self, members, dest_dir, base_dir = None,
-                      strip_common_ancestor = False, strip_head = None,
-                      include = None, exclude = None):
+
+  #@abstractmethod
+  def extract(self, dest_dir, base_dir = None,
+              strip_common_ancestor = False, strip_head = None,
+              include = None, exclude = None):
+    dest_dir = self._determine_dest_dir(dest_dir, base_dir)
+    filtered_members = self._filter_for_extract(self.members, include, exclude)
+    if filtered_members == self.members:
+      return self.extract_all(dest_dir,
+                              base_dir = base_dir,
+                              strip_common_ancestor = strip_common_ancestor,
+                              strip_head = strip_head)
     # Cheat by using a temporary zip file to do the actual work.  Super innefecient but
     # easy since theres no library to extract just some stuff from dmg files.
     tmp_dir = temp_file.make_temp_dir()
@@ -48,9 +56,11 @@ class archive_dmg(archive):
     tmp_zip = temp_file.make_temp_file(suffix = '.zip')
     az = archive_zip(tmp_zip)
     az.create(tmp_dir)
-    az.extract_members(members, dest_dir, base_dir = base_dir,
-                       strip_common_ancestor = strip_common_ancestor, strip_head = strip_head,
-                       include = include, exclude = exclude)
+    az.extract(dest_dir,
+               base_dir = base_dir,
+               strip_common_ancestor = strip_common_ancestor,
+               strip_head = strip_head,
+               include = include, exclude = exclude)
     file_util.remove(tmp_zip)
     file_util.remove(tmp_dir)
 

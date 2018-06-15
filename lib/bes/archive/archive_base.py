@@ -4,32 +4,6 @@ from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 from collections import namedtuple
 
-class xarchive_base(with_metaclass(ABCMeta, object)):
-  'An archive interface.'
-
-  Item = namedtuple('Item', [ 'filename', 'arcname' ])
-
-  @abstractmethod
-  def extract(self, dest_dir, base_dir = None,
-              strip_common_ancestor = False, strip_head = None,
-              include = None, exclude = None):
-    '''
-    Extract only some contents.
-    
-    Args:
-      dest_dir: The destiation directory where to extract files to.
-      base_dir: A base directory to append to the dest_dir or None (optional)
-      strip_common_ancestor: If True and *all* filenames have a common ancestor
-        the common ancestor will be stripped from each filename.
-      strip_head: If given, this string will be stripped from the head of each filename
-      include: Optional list of filenames to explicitly include in the extraction.
-      exclude: Optional list of filenames to explicitly exclude in the extraction.
-
-    Returns:
-        None
-    '''
-    raise NotImplementedError()
-
 class archive_base(with_metaclass(ABCMeta, object)):
   'An archive interface.'
 
@@ -73,7 +47,28 @@ class archive_base(with_metaclass(ABCMeta, object)):
         None
     '''
     raise NotImplementedError()
-  
+
+  @abstractmethod
+  def extract(self, dest_dir, base_dir = None,
+              strip_common_ancestor = False, strip_head = None,
+              include = None, exclude = None):
+    '''
+    Extract only some contents.
+    
+    Args:
+      dest_dir: The destiation directory where to extract files to.
+      base_dir: A base directory to append to the dest_dir or None (optional)
+      strip_common_ancestor: If True and *all* filenames have a common ancestor
+        the common ancestor will be stripped from each filename.
+      strip_head: If given, this string will be stripped from the head of each filename
+      include: Optional list of filenames to explicitly include in the extraction.
+      exclude: Optional list of filenames to explicitly exclude in the extraction.
+
+    Returns:
+        None
+    '''
+    raise NotImplementedError()
+
   @abstractmethod
   def create(self, root_dir, base_dir = None,
              extra_items = None,

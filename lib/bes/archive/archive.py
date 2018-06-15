@@ -27,16 +27,10 @@ class archive(archive_base):
     '''
     return self._normalize_members(self._get_members())
     
-  @abstractmethod
-  def extract_members(self, members, dest_dir, base_dir = None,
-                      strip_common_ancestor = False, strip_head = None,
-                      include = None, exclude = None):
-    pass
-
   def extract_member_to_string(self, member):
     tmp_dir = temp_file.make_temp_dir()
     tmp_member = path.join(tmp_dir, member)
-    self.extract_members([ member ], tmp_dir)
+    self.extract(tmp_dir, include = [ member ])
     if not path.exists(tmp_member):
       raise RuntimeError('Failed to extract member: %s' % (member))
     if not path.isfile(tmp_member):
@@ -49,7 +43,7 @@ class archive(archive_base):
   def extract_member_to_file(self, member, filename):
     tmp_dir = temp_file.make_temp_dir()
     tmp_member = path.join(tmp_dir, member)
-    self.extract_members([ member ], tmp_dir)
+    self.extract(tmp_dir, include = [ member ])
     if not path.exists(tmp_member):
       raise RuntimeError('Failed to extract member: %s' % (member))
     if not path.isfile(tmp_member):
@@ -113,9 +107,10 @@ class archive(archive_base):
     file_util.mkdir(dest_dir)
     return dest_dir
 
-  def _handle_extract_strip_common_ancestor(self, members, strip_common_ancestor, strip_head, dest_dir):
+  @classmethod
+  def _handle_extract_strip_common_ancestor(clazz, members, strip_common_ancestor, strip_head, dest_dir):
     if strip_common_ancestor:
-      common_base = self._common_base_for_members(members)
+      common_base = clazz._common_base_for_members(members)
       if common_base:
         from_dir = path.join(dest_dir, common_base)
         tar_util.copy_tree_with_tar(from_dir, dest_dir)

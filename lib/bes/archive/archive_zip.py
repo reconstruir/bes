@@ -40,19 +40,24 @@ class archive_zip(archive):
       dest_dir = self._determine_dest_dir(dest_dir, base_dir)
       archive.extractall(path = dest_dir)
     self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
-    
-  def extract_members(self, members, dest_dir, base_dir = None,
-                      strip_common_ancestor = False, strip_head = None,
-                      include = None, exclude = None):
+
+  #@abstractmethod
+  def extract(self, dest_dir, base_dir = None,
+              strip_common_ancestor = False, strip_head = None,
+              include = None, exclude = None):
+    dest_dir = self._determine_dest_dir(dest_dir, base_dir)
+    filtered_members = self._filter_for_extract(self.members, include, exclude)
+    if filtered_members == self.members:
+      return self.extract_all(dest_dir,
+                              base_dir = base_dir,
+                              strip_common_ancestor = strip_common_ancestor,
+                              strip_head = strip_head)
     with zipfile.ZipFile(file = self.filename, mode = 'r') as archive:
-      dest_dir = self._determine_dest_dir(dest_dir, base_dir)
-      filtered_filenames = self._filter_for_extract(members, include, exclude)
-      zip_infos = self._infos_for_files(archive, filtered_filenames)
+      zip_infos = self._infos_for_files(archive, filtered_members)
       for zip_info in zip_infos:
         extracted = archive.extract(zip_info, path = dest_dir)
         self._fix_permissions(extracted, zip_info)
-        
-      self._handle_extract_strip_common_ancestor(members, strip_common_ancestor, strip_head, dest_dir)
+      self._handle_extract_strip_common_ancestor(filtered_members, strip_common_ancestor, strip_head, dest_dir)
 
   def create(self, root_dir, base_dir = None,
              extra_items = None,
