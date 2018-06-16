@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs, inspect, os, os.path as path, platform, re, sys, unittest
+import codecs, copy, inspect, os, os.path as path, platform, re, sys, unittest
 from bes.compat import StringIO
 from io import BytesIO
 
@@ -11,6 +10,7 @@ class unit_test(unittest.TestCase):
   'Helper for writing unit tests.'
 
   DEBUG = os.environ.get('DEBUG', '').lower() in [ 't', 'true', 'y', 'yes', '1' ]
+  BES_VERBOSE = os.environ.get('BES_VERBOSE', '').lower() in [ 't', 'true', 'y', 'yes', '1' ]
   
   def data_path(self, filename, platform_specific = False): 
     assert filename
@@ -84,8 +84,11 @@ class unit_test(unittest.TestCase):
     return hexdata.string_to_bytes(s)
   
   @staticmethod
-  def main(): 
-    unittest.main()
+  def main(*args, **kargs):
+    if unit_test.BES_VERBOSE:
+      kargs = copy.deepcopy(kargs)
+      kargs['verbosity'] = 2
+    unittest.main(*args, **kargs)
 
   @classmethod
   def file_path(clazz, unit_test_filename, filename):

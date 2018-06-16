@@ -229,7 +229,7 @@ def main():
   # Start with a clean environment so unit testing can be deterministic and not subject
   # to whatever the user happened to have exported.  PYTHONPATH and PATH for dependencies
   # are set below by iterating the configs 
-  keep_keys = [ 'BES_LOG', 'BESCFG_PATH', 'DEBUG' ]
+  keep_keys = [ 'BES_LOG', 'BES_VERBOSE', 'BESCFG_PATH', 'DEBUG' ]
   if args.dont_hack_env:
     keep_keys.extend([ 'PATH', 'PYTHONPATH'])
     
@@ -487,6 +487,8 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
 
     env = copy.deepcopy(env)
     env['BES_TEST_DATA_DIR'] = _test_data_dir(filename)
+    if options.verbose:
+      env['BES_VERBOSE'] = '1'
     time_start = time.time()
     process = subprocess.Popen(' '.join(cmd),
                                stdout = subprocess.PIPE,
