@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import unittest
+from bes.testing.unit_test import unit_test
 from bes.fs import temp_file
 from bes.archive.archive_extension import archive_extension
 from bes.archive.temp_archive import temp_archive
 from bes.archive.archive_zip import archive_zip
 from common_archive_tests import common_archive_tests
 
-class test_archive_zip(unittest.TestCase, common_archive_tests):
+class test_archive_zip(unit_test, common_archive_tests):
 
   def __init__(self, methodName = 'runTest'):
     super(test_archive_zip, self).__init__(methodName)
@@ -35,5 +35,5 @@ class test_archive_zip(unittest.TestCase, common_archive_tests):
 
     self.assertFalse( archive_zip.file_is_valid(temp_file.make_temp_file(content = 'junk\n')) )
 
-if __name__ == "__main__":
-  unittest.main()
+if __name__ == '__main__':
+  unit_test.main()

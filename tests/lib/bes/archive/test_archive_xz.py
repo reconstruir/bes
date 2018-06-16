@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import unittest
+from bes.testing.unit_test import unit_test
 from bes.fs import temp_file
 from bes.archive.archive_extension import archive_extension
 from bes.archive.temp_archive import temp_archive
@@ -9,7 +9,7 @@ from bes.archive.archive_xz import archive_xz
 from common_archive_tests import common_archive_tests
 from bes.testing.unit_test.unit_test_skip import raise_skip
 
-class test_archive_xz(unittest.TestCase, common_archive_tests):
+class test_archive_xz(unit_test, common_archive_tests):
 
   @classmethod
   def setUpClass(clazz):
@@ -44,5 +44,5 @@ class test_archive_xz(unittest.TestCase, common_archive_tests):
 
     self.assertFalse( archive_xz.file_is_valid(temp_file.make_temp_file(content = 'junk\n')) )
     
-if __name__ == "__main__":
-  unittest.main()
+if __name__ == '__main__':
+  unit_test.main()
