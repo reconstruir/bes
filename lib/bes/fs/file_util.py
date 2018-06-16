@@ -210,5 +210,9 @@ class file_util(object):
   @classmethod
   def is_empty(clazz, filename):
     return clazz.size(filename) == 0
+
+  @classmethod
+  def device_id(clazz, filename):
+    return os.stat(filename).st_dev
   
 log.add_logging(file_util, 'file_util')

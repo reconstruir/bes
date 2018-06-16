@@ -24,14 +24,14 @@ class file_trash(object):
     file_util.mkdir(location)
     assert path.isdir(location)
     self._location = location
-    self._location_device_id = self._device_id(self._location)
+    self._location_device_id = file_util.device_id(self._location)
     self.trash_process = trash_process(self._location, niceness_level, timeout, deleter)
     
   def trash(self, what):
     check.check_string(what)
     if not self._valid_type(what):
       raise RuntimeError('Invalid file type: %s' % (what))
-    if self._device_id(what) != self._location_device_id:
+    if file_util.device_id(what) != self._location_device_id:
       raise RuntimeError('%s is not in the save filesystem as %s' % (what, self._location))
     self.trash_process.trash(what)
     
@@ -39,10 +39,6 @@ class file_trash(object):
   def _valid_type(clazz, p):
     return path.isfile(p) or path.isdir(p) or path.islink(p)
                   
-  @classmethod
-  def _device_id(clazz, p):
-    return os.stat(p).st_dev
-
   def start(self):
     self.trash_process.start()
   
