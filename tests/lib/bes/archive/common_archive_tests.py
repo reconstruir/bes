@@ -35,7 +35,7 @@ class common_archive_tests(object):
 
   def test_members(self):
     assert self.default_archive_type
-    tmp_tar = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], self.default_archive_type, delete = not self.DEBUG)
+    tmp_tar = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], self.default_archive_type, delete = not self.DEBUG)
     self.assertEqual( [ 'foo.txt' ], self.make_archive(tmp_tar.filename).members )
 
   def test_has_member(self):

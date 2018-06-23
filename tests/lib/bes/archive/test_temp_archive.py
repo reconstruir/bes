@@ -50,7 +50,7 @@ class test_temp_archive(unit_test):
 
   def test_make_temp_archive_from_file(self):
     tmp_file = temp_file.make_temp_file(content = 'foo.txt\n', suffix = '.foo.txt')
-    tmp_archive = self._make_temp_archive('tgz', items = [ temp_archive.Item('foo.txt', filename = tmp_file) ])
+    tmp_archive = self._make_temp_archive('tgz', items = [ temp_archive.item('foo.txt', filename = tmp_file) ])
     self.assertTrue( path.isfile(tmp_archive.filename) )
     self.assertTrue( tarfile.is_tarfile(tmp_archive.filename) )
     self.assertFalse( zipfile.is_zipfile(tmp_archive.filename) )
@@ -63,7 +63,7 @@ class test_temp_archive(unit_test):
       self.assertEqual( b'foo.txt\n', file_util.read(tmp_member_path) )
 
   def _make_temp_archive(self, extension, items = None):
-    items = items or [ temp_archive.Item('foo.txt', content = 'foo.txt\n') ]
+    items = items or [ temp_archive.item('foo.txt', content = 'foo.txt\n') ]
     ta = temp_archive.make_temp_archive(items, extension, delete = not self.DEBUG)
     if self.DEBUG:
       self.spew('temp_archive(%s): %s' % (extension, ta))

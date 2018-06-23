@@ -1,11 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os, os.path as path
+import os, os.path as path, shutil, sys
 from abc import abstractmethod, ABCMeta
 from collections import namedtuple
 
 from bes.common import algorithm, cached_property
-from bes.fs import file_find, file_path, file_util, tar_util, temp_file
+from bes.fs import dir_util, file_find, file_path, file_util, tar_util, temp_file
 from bes.match import matcher_multiple_filename, matcher_always_false, matcher_always_true, matcher_util
 from bes.system.compat import with_metaclass
 
@@ -13,8 +13,6 @@ from .archive_base import archive_base
 
 class archive(archive_base):
   'An archive interface.'
-
-  Item = namedtuple('Item', [ 'filename', 'arcname' ])
 
   def __init__(self, filename):
     self.filename = filename
@@ -88,7 +86,7 @@ class archive(archive_base):
       should_exclude = exclude_matcher.match(f)
 
       if should_include and not should_exclude:
-        items.append(clazz.Item(filename, arcname))
+        items.append(clazz.item(filename, arcname))
 
     return items + (extra_items or [])
 
@@ -107,16 +105,29 @@ class archive(archive_base):
       common_base = clazz._common_base_for_members(members)
       if common_base:
         from_dir = path.join(dest_dir, common_base)
-        print('FUCK: 1 copy from %s to %s' % (from_dir, dest_dir))
-        tar_util.copy_tree_with_tar(from_dir, dest_dir)
-        file_util.remove(from_dir)
+        sys.stdout.write('\nFOO: 1 copy from %s to %s\n' % (from_dir, dest_dir))
+        sys.stdout.flush()
+        clazz._move_dir(from_dir, dest_dir)
     if strip_head:
       from_dir = path.join(dest_dir, strip_head)
       if path.isdir(from_dir):
-        print('FUCK: 2 copy from %s to %s' % (from_dir, dest_dir))
-        tar_util.copy_tree_with_tar(from_dir, dest_dir)
-        file_util.remove(from_dir)
-      
+        sys.stdout.write('FOO: 2 copy from %s to %s\n' % (from_dir, dest_dir))
+        sys.stdout.flush()
+        clazz._move_dir(from_dir, dest_dir)
+
+  @classmethod
+  def _move_dir(clazz, from_dir, dest_dir):
+    print('FOO: from_dir: %s' % (from_dir))
+    print('FOO: dest_dir: %s' % (dest_dir))
+    file_util.mkdir(dest_dir)
+#    if file_util.same_device_id(from_dir, dest_dir):
+#      print('FOO: calling shutil.move(%s, %s)' % (from_dir, dest_dir))
+#      assert False
+#      shutil.move(from_dir, dest_dir)
+#      return
+    tar_util.copy_tree_with_tar(from_dir, dest_dir)
+    file_util.remove(from_dir)
+        
   def _pre_create(self):
     'Setup some stuff before create() is called.'
     d = path.dirname(self.filename)

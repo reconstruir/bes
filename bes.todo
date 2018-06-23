@@ -131,12 +131,7 @@ get rid of noop_debug_timer and just make debug_timer support being disabled.  r
  
 
 archive:
-make members() be a cached property and chance members() method to compute_members() or so
-add extract_all()
-add contents() and file_contents() and dir_contents()
-rename archive archive_base
 create for archive_unix_tar not working for all formats plus unit tests
-
 
 archive_base: rename Item to item
 add interface for extract_content to string instead of doing it to disk first

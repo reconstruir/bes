@@ -13,7 +13,7 @@ from bes.key_value import key_value_list
 from bes.egg import egg
 from bes.fs import file_find, file_path, file_util, temp_file
 from bes.git import git
-from bes.system import execute, env_var, os_env
+from bes.system import execute, env_var, host, os_env
 from bes.testing.framework import argument_resolver, printer
 from bes.version import version_cli
 
@@ -238,6 +238,7 @@ def main():
 
   variables = {
     'rebuild_dir': path.expanduser('~/.rebuild'),
+    'system': host.SYSTEM,
   }
   if not args.dont_hack_env:
     ar.update_environment(env, variables)

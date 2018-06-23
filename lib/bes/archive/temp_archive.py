@@ -11,7 +11,7 @@ class temp_archive(object):
 
   Result = namedtuple('Result', 'file,filename')
 
-  class Item(object):
+  class item(object):
     'Description of an item for a temp tarball.'
 
     def __init__(self, arcname, content = None, filename = None):
@@ -129,7 +129,7 @@ class temp_archive(object):
       if len(item) > 1:
         content = item[1]
       
-      temp_items.append(clazz.Item(arcname, content = content))
+      temp_items.append(clazz.item(arcname, content = content))
     return temp_items
 
   @classmethod
@@ -138,7 +138,7 @@ class temp_archive(object):
     if not base_dir:
       return items
     def _add_base_dir(item, base_dir):
-      return clazz.Item(path.join(path.normpath(base_dir), item.arcname), content = item.content)
+      return clazz.item(path.join(path.normpath(base_dir), item.arcname), content = item.content)
     return [ _add_base_dir(item, base_dir) for item in items ]
 
   @classmethod

@@ -7,7 +7,7 @@ from collections import namedtuple
 class archive_base(with_metaclass(ABCMeta, object)):
   'An archive interface.'
 
-  Item = namedtuple('Item', [ 'filename', 'arcname' ])
+  item = namedtuple('item', [ 'filename', 'arcname' ])
 
   @classmethod
   @abstractmethod

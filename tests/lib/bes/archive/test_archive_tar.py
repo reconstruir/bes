@@ -21,16 +21,16 @@ class test_archive_tar(unit_test, common_archive_tests):
     self.assertEqual( 'foo.tar', archive_tar('foo.tar').filename )
 
   def test_file_is_valid(self):
-    tmp_tar = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR)
+    tmp_tar = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR)
     self.assertTrue( archive_tar.file_is_valid(tmp_tar.filename) )
 
-    tmp_tgz = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], archive_extension.TGZ)
+    tmp_tgz = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TGZ)
     self.assertTrue( archive_tar.file_is_valid(tmp_tgz.filename) )
 
-    tmp_tar_gz = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR_GZ)
+    tmp_tar_gz = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR_GZ)
     self.assertTrue( archive_tar.file_is_valid(tmp_tar_gz.filename) )
 
-    tmp_zip = temp_archive.make_temp_archive([ temp_archive.Item('foo.txt', content = 'foo.txt\n') ], archive_extension.ZIP)
+    tmp_zip = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.ZIP)
     self.assertFalse( archive_tar.file_is_valid(tmp_zip.filename) )
 
     self.assertFalse( archive_tar.file_is_valid(temp_file.make_temp_file(content = 'junk\n')) )

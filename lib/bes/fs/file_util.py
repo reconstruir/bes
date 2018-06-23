@@ -75,6 +75,10 @@ class file_util(object):
     if not clazz.same_device_id(src, dst):
       raise IOError('%s and %s cannot be in different filesystems.' % (src, dst))
     clazz.ensure_file_dir(dst)
+    if path.exists(dst):
+      if path.isdir(dst):
+        raise IOError('dst exists and is a directory: %s' % (dst))
+      clazz.remove(dst)
     os.link(src, dst)
     
   @classmethod

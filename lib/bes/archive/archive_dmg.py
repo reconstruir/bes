@@ -49,6 +49,12 @@ class archive_dmg(archive):
                               base_dir = base_dir,
                               strip_common_ancestor = strip_common_ancestor,
                               strip_head = strip_head)
+    return self.extract_all(dest_dir,
+                            base_dir = base_dir,
+                            strip_common_ancestor = strip_common_ancestor,
+                            strip_head = strip_head)
+    self._handle_post_extract(dest_dir, include, exclude)
+    return
     # Cheat by using a temporary zip file to do the actual work.  Super innefecient but
     # easy since theres no library to extract just some stuff from dmg files.
     tmp_dir = temp_file.make_temp_dir()
