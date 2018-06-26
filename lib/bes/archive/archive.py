@@ -105,20 +105,20 @@ class archive(archive_base):
       common_base = clazz._common_base_for_members(members)
       if common_base:
         from_dir = path.join(dest_dir, common_base)
-        sys.stdout.write('\nFOO: 1 copy from %s to %s\n' % (from_dir, dest_dir))
-        sys.stdout.flush()
+        #sys.stdout.write('\nFOO: 1 copy from %s to %s\n' % (from_dir, dest_dir))
+        #sys.stdout.flush()
         clazz._move_dir(from_dir, dest_dir)
     if strip_head:
       from_dir = path.join(dest_dir, strip_head)
       if path.isdir(from_dir):
-        sys.stdout.write('FOO: 2 copy from %s to %s\n' % (from_dir, dest_dir))
-        sys.stdout.flush()
+        #sys.stdout.write('FOO: 2 copy from %s to %s\n' % (from_dir, dest_dir))
+        #sys.stdout.flush()
         clazz._move_dir(from_dir, dest_dir)
 
   @classmethod
   def _move_dir(clazz, from_dir, dest_dir):
-    print('FOO: from_dir: %s' % (from_dir))
-    print('FOO: dest_dir: %s' % (dest_dir))
+    #print('FOO: from_dir: %s' % (from_dir))
+    #print('FOO: dest_dir: %s' % (dest_dir))
     file_util.mkdir(dest_dir)
 #    if file_util.same_device_id(from_dir, dest_dir):
 #      print('FOO: calling shutil.move(%s, %s)' % (from_dir, dest_dir))

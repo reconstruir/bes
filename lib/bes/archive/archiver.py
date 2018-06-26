@@ -126,3 +126,9 @@ class archiver(object):
     elif archive_extension.is_valid_dmg_filename(filename):
       return archive_dmg
     return None
+
+  @classmethod
+  def common_files(clazz, archives):
+    'Return a list of files common to 2 or more archives.' 
+    sets = [ set(clazz.members(a)) for a in archives ]
+    return list(set.intersection(*sets))
