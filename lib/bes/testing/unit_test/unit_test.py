@@ -135,13 +135,13 @@ class unit_test(unittest.TestCase):
     return clazz._var_replace(s, 'BES_TEST_DATA_DIR', test_data_dir)
       
   @classmethod
-  def spew(self, s):
+  def spew(clazz, s):
     sys.stdout.write(s)
     sys.stdout.write('\n')
     sys.stdout.flush()
 
   @classmethod
-  def dump(self, filename, text):
+  def dump(clazz, filename, text):
     with open(filename, 'w') as fout:
       fout.write(text)
       fout.close()
