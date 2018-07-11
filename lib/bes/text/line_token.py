@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
@@ -20,7 +19,7 @@ class line_token(namedtuple('line_token', 'line_number,text')):
     return '%s,%s' % (self.line_number, self.text)
   
   def __repr__(self):
-    return '%s,%s' % (self.line_number, self.text)
+    return str(self)
 
   @property
   def has_continuation(self):

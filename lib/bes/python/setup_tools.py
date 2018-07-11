@@ -22,7 +22,7 @@ class setup_tools(object):
     
   @classmethod
   def list_eggs(clazz, d):
-    return dir_util.list(d, patterns = [ '*.egg' ], relative = True)
+    return dir_util.list(d, patterns = [ '*.egg', '*.egg-info' ], relative = True)
 
   @classmethod
   def update_egg_directory(clazz, d):

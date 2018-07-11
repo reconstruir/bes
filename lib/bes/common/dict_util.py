@@ -4,6 +4,7 @@
 import copy
 from bes.compat import StringIO
 from .string_util import string_util
+from .variable import variable
 
 class dict_util(object):
   'Dict util'
@@ -46,6 +47,11 @@ class dict_util(object):
     return { k: v for k,v in d.items() if k in keys }
 
   @staticmethod
+  def filter_without_keys(d, keys):
+    'Return a dict with only keys.'
+    return { k: v for k,v in d.items() if k not in keys }
+
+  @staticmethod
   def is_homogeneous(d, key_type, value_type):
     'Return True if all items in d are of the given key_type and value_type.'
     for key, value in d.items():
@@ -73,3 +79,8 @@ class dict_util(object):
     for k, v in d.items():
       if string_util.is_string(v):
         d[k] = string_util.quote(v)
+
+  @staticmethod
+  def substitute_variables(d, substitutions, word_boundary = True):
+    for key in d.iterkeys():
+      d[key] = variable.substitute(d[key], substitutions, word_boundary = word_boundary)

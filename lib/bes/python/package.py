@@ -1,8 +1,7 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os, os.path as path, pkgutil
-from bes.fs import file_path, temp_file
+from bes.fs import file_path, file_util, temp_file
 
 class package(object):
   'Class to deal with python packages.'
@@ -21,6 +20,18 @@ class package(object):
     except Exception as ex:
       return None
 
+  @classmethod
+  def get_data_content(clazz, data_path, filename, module_name):
+    try:
+      inside_egg, data = clazz._resolve_data(data_path, filename, module_name)
+      if not inside_egg:
+        if not path.isfile(data):
+          raise RuntimeError('Not a file: %s' % (data))
+        return file_util.read(data)
+      return data
+    except Exception as ex:
+      return None
+    
   @classmethod
   def is_inside_egg(clazz, data_path, filename, module_name):
     inside_egg, _ = clazz._resolve_data(data_path, filename, module_name)

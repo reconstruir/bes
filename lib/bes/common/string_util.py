@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import re, string, sys
@@ -39,6 +38,23 @@ class string_util(object):
       return [ token.strip() for token in tokens if token ]
     else:
       return [ token for token in tokens if token ]
+
+  @classmethod
+  def partition_by_white_space(clazz, s, strip = False):
+    'Split the string into tokens by white space.'
+    found = re.search('\s+', s)
+    if not found:
+      if strip:
+        s = s.strip()
+      return ( s, '', '' )
+    head = s[0:found.start()]
+    delimiter = s[found.start():found.end()]
+    tail = s[found.end():]
+    if strip:
+      head = head.strip()
+    if strip:
+      tail = tail.strip()
+    return ( head, delimiter, tail )
 
   @classmethod
   def remove_head(clazz, s, head):

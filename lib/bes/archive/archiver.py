@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
 from bes.fs import file_cache
@@ -7,6 +6,7 @@ from bes.system import host
 from .archive_tar import archive_tar
 from .archive_zip import archive_zip
 from .archive_dmg import archive_dmg
+from .archive_xz import archive_xz
 from .archive_extension import archive_extension
 
 class archiver(object):
@@ -21,50 +21,48 @@ class archiver(object):
     archive_class = clazz._determine_type(filename)
     if not archive_class:
       return False
-    return archive_class(filename).is_valid()
+    return archive_class.file_is_valid(filename)
   
   @classmethod
   def members(clazz, filename):
     archive_class = clazz._determine_type(filename)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
-    return archive_class(filename).members()
+    return archive_class(filename).members
 
   @classmethod
-  def has_member(clazz, filename, arcname):
+  def has_member(clazz, filename, member):
     archive_class = clazz._determine_type(filename)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
-    return archive_class(filename).has_member(arcname)
+    return archive_class(filename).has_member(member)
+
+  @classmethod
+  def extract_all(clazz, filename, dest_dir, base_dir = None,
+                  strip_common_ancestor = False, strip_head = None):
+    archive_class = clazz._determine_type(filename)
+    if not archive_class:
+      raise RuntimeError('Unknown archive type for %s' % (filename))
+    archive = archive_class(filename)
+    return archive.extract_all(dest_dir,
+                               base_dir = base_dir,
+                               strip_common_ancestor = strip_common_ancestor,
+                               strip_head = strip_head)
 
   @classmethod
   def extract(clazz, filename, dest_dir, base_dir = None,
-              strip_common_base = False, strip_head = None,
+              strip_common_ancestor = False, strip_head = None,
               include = None, exclude = None):
     archive_class = clazz._determine_type(filename)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
-    return archive_class(filename).extract(dest_dir,
-                                           base_dir = base_dir,
-                                           strip_common_base = strip_common_base,
-                                           strip_head = strip_head,
-                                           include = include,
-                                           exclude = exclude)
-
-  @classmethod
-  def extract_members(clazz, filename, members, dest_dir, base_dir = None,
-                      strip_common_base = False, strip_head = None,
-                      include = None, exclude = None):
-    archive_class = clazz._determine_type(filename)
-    if not archive_class:
-      raise RuntimeError('Unknown archive type for %s' % (filename))
-    return archive_class(filename).extract_members(members,
-                                                  dest_dir,
-                                                  base_dir = base_dir,
-                                                  strip_common_base = strip_common_base,
-                                                  strip_head = strip_head,
-                                                  include = include,
-                                                  exclude = exclude)
+    archive = archive_class(filename)
+    return archive.extract(dest_dir,
+                           base_dir = base_dir,
+                           strip_common_ancestor = strip_common_ancestor,
+                           strip_head = strip_head,
+                           include = include,
+                           exclude = exclude)
 
   @classmethod
   def extract_member_to_string(clazz, archive, member):
@@ -108,12 +106,12 @@ class archiver(object):
 
   @classmethod
   def _determine_type(clazz, filename):
-    possible = [ archive_tar, archive_zip ] 
+    possible = [ archive_tar, archive_zip, archive_xz ] 
     if host.SYSTEM == host.MACOS:
       possible.append(archive_dmg)
 
     for p in possible:
-      if p(filename).is_valid():
+      if p.file_is_valid(filename):
         return p
     return None
 
@@ -123,6 +121,14 @@ class archiver(object):
       return archive_tar
     elif archive_extension.is_valid_zip_filename(filename):
       return archive_zip
+    elif archive_extension.is_valid_xz_filename(filename):
+      return archive_xz
     elif archive_extension.is_valid_dmg_filename(filename):
-      return archive_zip
-    return archive_dmg
+      return archive_dmg
+    return None
+
+  @classmethod
+  def common_files(clazz, archives):
+    'Return a list of files common to 2 or more archives.' 
+    sets = [ set(clazz.members(a)) for a in archives ]
+    return list(set.intersection(*sets))

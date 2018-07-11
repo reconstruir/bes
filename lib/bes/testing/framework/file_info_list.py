@@ -1,19 +1,16 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import fnmatch
+import fnmatch, os.path as path
 from .file_info import file_info
+from bes.compat import StringIO
 from bes.common import algorithm, check, type_checked_list
 
 class file_info_list(type_checked_list):
 
+  __value_type__ = file_info
+  
   def __init__(self, values = None):
-    super(file_info_list, self).__init__(file_info, values = values)
-
-#  def __contains__(self, v):
-#    if check.is_string(v):
-#      return self.contains_key(v)
-#    return super(file_info_list, self).__contains__(v)
+    super(file_info_list, self).__init__(values = values)
   
   def to_string(self):
     buf = StringIO()
@@ -55,7 +52,10 @@ class file_info_list(type_checked_list):
   def _match_test(clazz, patterns, filename):
     filename = filename.lower()
     for pattern in patterns:
-      if fnmatch.fnmatch(filename, pattern.lower()):
+      pattern = pattern.lower()
+      if fnmatch.fnmatch(filename, pattern):
+        return True
+      if fnmatch.fnmatch(path.basename(filename), pattern):
         return True
     return False
 
@@ -73,6 +73,15 @@ class file_info_list(type_checked_list):
     if not filename_patterns:
       return file_info_list(self._values)
     return self._match_filenames(filename_patterns)
+
+  def filter_by_test_filename_only(self):
+    result = file_info_list()
+    for finfo in iter(self):
+      filename = path.basename(finfo.filename).lower()
+      if filename.startswith('test_')  and filename.endswith('.py'):
+        result.append(finfo)
+    result.remove_dups()
+    return result
 
 #    # FIXME: change to ignore_without_tests()
 #    file_infos = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])

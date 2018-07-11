@@ -186,7 +186,7 @@ class table(object):
     
   def set_column(self, x, column):
     check.check_tuple(column)
-    self.check_x(x)
+    x = self.resolve_x(x)
     if len(column) != self.height:
       raise ValueError('Column should be %d high instead of %d: \"%s\"' % (self.height, len(column), str(column)))
     for y in range(0, self.height):
@@ -204,11 +204,17 @@ class table(object):
     return tuple(self._rows[y])
   
   def column(self, x):
-    self.check_x(x)
+    x = self.resolve_x(x)
     col = []
     for y in range(0, self.height):
       col.append(self._rows[y][x])
     return tuple(col)
+
+  def modify_column(self, x, modifier):
+    assert callable(modifier)
+    x = self.resolve_x(x)
+    for y in range(0, self.height):
+      self._rows[y][x] = modifier(self._rows[y][x])
   
   def x_valid(self, x):
     return check.is_int(x) and x >= 0 and x < self.width

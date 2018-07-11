@@ -1,16 +1,18 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system import compat
 from bes.compat import StringIO
+from bes.common import check, string_util, type_checked_list, variable
+
 from .string_list_parser import string_list_parser
-from bes.common import check, string_util, type_checked_list
 from .string_lexer import string_lexer_options
 
 class string_list(type_checked_list, string_lexer_options.CONSTANTS):
 
+  __value_type__ = compat.STRING_TYPES
+  
   def __init__(self, values = None):
-    super(string_list, self).__init__(compat.STRING_TYPES, values = values)
+    super(string_list, self).__init__(values = values)
     
   def to_string(self, delimiter = ';', quote = False):
     buf = StringIO()
@@ -45,5 +47,8 @@ class string_list(type_checked_list, string_lexer_options.CONSTANTS):
   
   def remove_empties(self):
     self._values = [ s for s in self._values if s ]
-  
+
+  def substitute_variables(self, d, word_boundary = True):
+    self._values = [ variable.substitute(s, d, word_boundary = word_boundary) for s in self._values ]
+    
 check.register_class(string_list, include_seq = False)

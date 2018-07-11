@@ -29,4 +29,4 @@ class egg(object):
     if not archiver.is_valid(egg_filename):
       raise RuntimeError('not a valid egg: ' % (egg_filename))
     file_util.mkdir(output_dir)
-    archiver.extract(egg_filename, output_dir)
+    archiver.extract_all(egg_filename, output_dir)

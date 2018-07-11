@@ -50,8 +50,8 @@ class repo(object):
     return path.join(self.root, '.git')
 
   @classmethod
-  def make_temp_repo(clazz, address = None, content = None):
-    tmp_dir = temp_file.make_temp_dir()
+  def make_temp_repo(clazz, address = None, content = None, delete = True):
+    tmp_dir = temp_file.make_temp_dir(delete = delete)
     r = repo(tmp_dir, address = address)
     r.init()
     if content:

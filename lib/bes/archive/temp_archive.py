@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path, tarfile, tempfile, zipfile
@@ -12,7 +11,7 @@ class temp_archive(object):
 
   Result = namedtuple('Result', 'file,filename')
 
-  class Item(object):
+  class item(object):
     'Description of an item for a temp tarball.'
 
     def __init__(self, arcname, content = None, filename = None):
@@ -35,6 +34,8 @@ class temp_archive(object):
       return 'tar'
     elif archive_extension.is_valid_dmg_ext(extension):
       return 'dmg'
+    elif archive_extension.is_valid_xz_ext(extension):
+      return 'xz'
     else:
       return None
         
@@ -54,6 +55,8 @@ class temp_archive(object):
       clazz._make_temp_archive_tar(items, temp_archive_filename, archive_mode)
     elif ext_type == 'dmg':
       clazz._make_temp_archive_dmg(items, temp_archive_filename, archive_mode)
+    elif ext_type == 'xz':
+      clazz._make_temp_archive_xz(items, temp_archive_filename, archive_mode)
 
     if delete:
       temp_file.atexit_delete(temp_archive_filename)
@@ -101,6 +104,20 @@ class temp_archive(object):
     file_util.remove(tmp_dir)
     
   @classmethod
+  def _make_temp_archive_xz(clazz, items, filename, mode):
+    tmp_dir = temp_file.make_temp_dir()
+    for item in items:
+      assert item
+      assert item.arcname
+      file_util.save(path.join(tmp_dir, item.arcname), content = item.content)
+    tmp_xz = temp_file.make_temp_file()
+    manifest_content = '\n'.join([ item.arcname for item in items ])
+    manifest = temp_file.make_temp_file(content = manifest_content)
+    cmd = 'tar Jcf %s -C %s -T %s' % (filename, tmp_dir, manifest)
+    execute.execute(cmd)
+    file_util.remove(tmp_dir)
+    
+  @classmethod
   def make_temp_item_list(clazz, items):
     'Make a list of items from a list of tuples.'
 
@@ -112,7 +129,7 @@ class temp_archive(object):
       if len(item) > 1:
         content = item[1]
       
-      temp_items.append(clazz.Item(arcname, content = content))
+      temp_items.append(clazz.item(arcname, content = content))
     return temp_items
 
   @classmethod
@@ -121,7 +138,7 @@ class temp_archive(object):
     if not base_dir:
       return items
     def _add_base_dir(item, base_dir):
-      return clazz.Item(path.join(path.normpath(base_dir), item.arcname), content = item.content)
+      return clazz.item(path.join(path.normpath(base_dir), item.arcname), content = item.content)
     return [ _add_base_dir(item, base_dir) for item in items ]
 
   @classmethod

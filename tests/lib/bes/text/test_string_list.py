@@ -97,6 +97,11 @@ class test_string_list(unit_test):
 
     self.assertEqual( 1, len(l) )
     self.assertEqual( 'foo', l[0] )
+
+  def test_substitute_variables(self):
+    l = SL([ 'a', 'a is ${foo}', 'b', 'b is ${bar}' ])
+    l.substitute_variables({ 'foo': 'apple', 'bar': 'kiwi' })
+    self.assertEqual( SL([ 'a', 'a is apple', 'b', 'b is kiwi' ]), l )
     
 if __name__ == "__main__":
   unit_test.main()

@@ -17,19 +17,44 @@ class archive_dmg(archive):
       raise RuntimeError('archive_dmg is only supported on macos')
     super(archive_dmg, self).__init__(filename)
 
-  def is_valid(self):
-    return dmg.is_dmg_file(self.filename)
+  @classmethod
+  #@abstractmethod
+  def file_is_valid(clazz, filename):
+    return dmg.is_dmg_file(filename)
 
-  def members(self):
-    members = dmg.contents(self.filename)
-    return self._normalize_members(members)
-
-  def has_member(self, arcname):
-    return arcname in self.members()
+  @classmethod
+  #@abstractmethod
+  def file_is_valid(clazz, filename):
+    return dmg.is_dmg_file(filename)
   
-  def extract_members(self, members, dest_dir, base_dir = None,
-                      strip_common_base = False, strip_head = None,
-                      include = None, exclude = None):
+  #@abstractmethod
+  def has_member(self, member):
+    return member in self.members
+
+  #@abstractmethod
+  def extract_all(self, dest_dir, base_dir = None,
+                  strip_common_ancestor = False, strip_head = None):
+    dest_dir = self._determine_dest_dir(dest_dir, base_dir)
+    dmg.extract(self.filename, dest_dir)
+    self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
+
+  #@abstractmethod
+  def extract(self, dest_dir, base_dir = None,
+              strip_common_ancestor = False, strip_head = None,
+              include = None, exclude = None):
+    dest_dir = self._determine_dest_dir(dest_dir, base_dir)
+    filtered_members = self._filter_for_extract(self.members, include, exclude)
+    if filtered_members == self.members:
+      return self.extract_all(dest_dir,
+                              base_dir = base_dir,
+                              strip_common_ancestor = strip_common_ancestor,
+                              strip_head = strip_head)
+    return self.extract_all(dest_dir,
+                            base_dir = base_dir,
+                            strip_common_ancestor = strip_common_ancestor,
+                            strip_head = strip_head)
+    self._handle_post_extract(dest_dir, include, exclude)
+    return
     # Cheat by using a temporary zip file to do the actual work.  Super innefecient but
     # easy since theres no library to extract just some stuff from dmg files.
     tmp_dir = temp_file.make_temp_dir()
@@ -37,9 +62,11 @@ class archive_dmg(archive):
     tmp_zip = temp_file.make_temp_file(suffix = '.zip')
     az = archive_zip(tmp_zip)
     az.create(tmp_dir)
-    az.extract_members(members, dest_dir, base_dir = base_dir,
-                       strip_common_base = strip_common_base, strip_head = strip_head,
-                       include = include, exclude = exclude)
+    az.extract(dest_dir,
+               base_dir = base_dir,
+               strip_common_ancestor = strip_common_ancestor,
+               strip_head = strip_head,
+               include = include, exclude = exclude)
     file_util.remove(tmp_zip)
     file_util.remove(tmp_dir)
 

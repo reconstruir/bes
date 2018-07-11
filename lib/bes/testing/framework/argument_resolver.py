@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import fnmatch, os.path as path, random, re
@@ -17,11 +16,10 @@ from .file_finder import file_finder
 from .file_info import file_info
 from .file_info_list import file_info_list
 from .unit_test_description import unit_test_description
-from .unit_test_inspect import unit_test_inspect
 
 class argument_resolver(object):
 
-  def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None, check_git = False):
+  def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None, check_git = False, use_env_deps = True):
     self._num_iterations = 1
     self._randomize = False
     self._raw_test_descriptions = []
@@ -49,15 +47,19 @@ class argument_resolver(object):
     file_infos = file_info_list([ file_info(self.config_env, f) for f in self.all_files ])
     file_infos += self._tests_for_many_files(file_infos)
     file_infos.remove_dups()
+    file_infos = file_infos.filter_by_filenames(filter_patterns)
+    file_infos = file_infos.filter_by_test_filename_only()
     self.inspect_map = file_infos.make_inspect_map()
     # FIXME: change to ignore_without_tests()
     file_infos = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])
     # FIXME: change to filter_with_patterns_tests()
-    file_infos = file_infos.filter_by_filenames(filter_patterns)
     self._raw_test_descriptions = file_filter.filter_files(file_infos, filter_patterns)
-    self._env_dependencies = self.config_env.resolve_deps(self._config_names())
+    if use_env_deps:
+      self._env_dependencies = self.config_env.resolve_deps(self._config_names())
+    else:
+      self._env_dependencies = []
     self._env_dependencies_configs = [ self.config_env.config_for_name(name) for name in self._env_dependencies ]
-    
+      
   @property
   def num_iterations(self):
     return self._num_iterations

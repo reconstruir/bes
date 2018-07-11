@@ -1,10 +1,11 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+import os.path as path, tarfile
+
+from bes.fs import tar_util
 
 from .archive import archive
 from .archive_extension import archive_extension
-
-import os.path as path, tarfile
 
 class archive_tar(archive):
   'A Tar archive class.'
@@ -12,34 +13,50 @@ class archive_tar(archive):
   def __init__(self, filename):
     super(archive_tar, self).__init__(filename)
 
-  def is_valid(self):
-    return tarfile.is_tarfile(self.filename)
+  @classmethod
+  #@abstractmethod
+  def file_is_valid(clazz, filename):
+    return tarfile.is_tarfile(filename)
 
-  def members(self):
+  #@abstractmethod
+  def _get_members(self):
     with tarfile.open(self.filename, mode = 'r') as archive:
-      members = [ member.path for member in archive.getmembers() ]
-      return self._normalize_members(members)
+      return self._normalize_members([ member.path for member in archive.getmembers() ])
 
-  def has_member(self, arcname):
+  #@abstractmethod
+  def has_member(self, member):
+    '''Return True if filename is part of members.  Note that directories should end in "/" '''
     with tarfile.open(self.filename, mode = 'r') as archive:
       try:
-        archive.getmember(arcname)
+        archive.getmember(member)
         return True
       except KeyError as ex:
-        return False
-    
-  def extract_members(self, members, dest_dir, base_dir = None,
-                      strip_common_base = False, strip_head = None,
-                      include = None, exclude = None):
+        pass
+    return False
+
+  #@abstractmethod
+  def extract_all(self, dest_dir, base_dir = None,
+                  strip_common_ancestor = False, strip_head = None):
     with tarfile.open(self.filename, mode = 'r') as archive:
       dest_dir = self._determine_dest_dir(dest_dir, base_dir)
-      filtered_members = self._filter_for_extract(members, include, exclude)
-      if filtered_members == self.members():
-        archive.extractall(path = dest_dir)
-      else:
-        for member in filtered_members:
-          archive.extract(member, path = dest_dir)
-      self._handle_extract_strip_common_base(members, strip_common_base, strip_head, dest_dir)
+      archive.extractall(path = dest_dir)
+      self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
+
+  #@abstractmethod
+  def extract(self, dest_dir, base_dir = None,
+              strip_common_ancestor = False, strip_head = None,
+              include = None, exclude = None):
+    dest_dir = self._determine_dest_dir(dest_dir, base_dir)
+    filtered_members = self._filter_for_extract(self.members, include, exclude)
+    if filtered_members == self.members:
+      return self.extract_all(dest_dir,
+                              base_dir = base_dir,
+                              strip_common_ancestor = strip_common_ancestor,
+                              strip_head = strip_head)
+    with tarfile.open(self.filename, mode = 'r') as archive:
+      for member in filtered_members:
+        archive.extract(member, path = dest_dir)
+      self._handle_extract_strip_common_ancestor(filtered_members, strip_common_ancestor, strip_head, dest_dir)
 
   def create(self, root_dir, base_dir = None,
              extra_items = None,

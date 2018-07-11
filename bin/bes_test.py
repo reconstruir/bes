@@ -13,9 +13,9 @@ from bes.key_value import key_value_list
 from bes.egg import egg
 from bes.fs import file_find, file_path, file_util, temp_file
 from bes.git import git
-from bes.system import execute, env_var, os_env
+from bes.system import execute, env_var, host, os_env
 from bes.testing.framework import argument_resolver, printer
-from bes.version import version_info
+from bes.version import version_cli
 
 # TODO:
 #  - figure out how to stop on first failure within one module
@@ -23,8 +23,11 @@ from bes.version import version_info
 # - cleanup egg dropping
 
 def main():
+  import bes
+  vcli = version_cli(bes)
   parser = argparse.ArgumentParser()
   parser.add_argument('files', action = 'store', nargs = '*', help = 'Files or directories to rename')
+  vcli.version_add_arguments(parser)
   parser.add_argument('--dry-run',
                       '-n',
                       action = 'store_true',
@@ -40,11 +43,6 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Verbose debug output [ False ]')
-  parser.add_argument('--version',
-                      '-V',
-                      action = 'store_true',
-                      default = False,
-                      help = 'Show version [ False ]')
   parser.add_argument('--stop',
                       '-s',
                       action = 'store_true',
@@ -147,6 +145,10 @@ def main():
                       action = 'append',
                       default = [],
                       help = 'Environment variables to set [ None ]')
+  parser.add_argument('--no-env-deps',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Dont use env deps. [ False ]')
 
   for g in parser._action_groups:
     g._group_actions.sort(key = lambda x: x.dest)
@@ -157,8 +159,7 @@ def main():
   cwd = os.getcwd()
 
   if args.version:
-    import bes
-    print(version_info.version_info_for_module(bes).version_string(delimiter = ' '))
+    vcli.version_print_version()
     return 0
 
   args.env = _parse_args_env(args.env)
@@ -168,10 +169,11 @@ def main():
 
   if not args.file_ignore_file:
     args.file_ignore_file = [ '.bes_test_ignore', '.bes_test_internal_ignore' ]
-    
+
   ar = argument_resolver(cwd, args.files, root_dir = args.root_dir,
                          file_ignore_filename = args.file_ignore_file,
-                         check_git = args.git)
+                         check_git = args.git,
+                         use_env_deps = not args.no_env_deps)
   ar.num_iterations = args.iterations
   ar.randomize = args.randomize
 
@@ -227,7 +229,7 @@ def main():
   # Start with a clean environment so unit testing can be deterministic and not subject
   # to whatever the user happened to have exported.  PYTHONPATH and PATH for dependencies
   # are set below by iterating the configs 
-  keep_keys = [ 'BES_LOG', 'BESCFG_PATH', 'DEBUG' ]
+  keep_keys = [ 'BES_LOG', 'BES_VERBOSE', 'BESCFG_PATH', 'DEBUG' ]
   if args.dont_hack_env:
     keep_keys.extend([ 'PATH', 'PYTHONPATH'])
     
@@ -236,6 +238,7 @@ def main():
 
   variables = {
     'rebuild_dir': path.expanduser('~/.rebuild'),
+    'system': host.SYSTEM,
   }
   if not args.dont_hack_env:
     ar.update_environment(env, variables)
@@ -262,6 +265,7 @@ def main():
         raise RuntimeError('No setup.py found in %s to make the egg.' % (cwd))
       egg_zip = egg.make(setup_dot_py)
       pythonpath.prepend(egg_zip)
+      printer.writeln_name('using tmp egg: %s' % (egg_zip))
       if args.save_egg:
         file_util.copy(egg_zip, path.join(cwd, path.basename(egg_zip)))
 
@@ -484,6 +488,8 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
 
     env = copy.deepcopy(env)
     env['BES_TEST_DATA_DIR'] = _test_data_dir(filename)
+    if options.verbose:
+      env['BES_VERBOSE'] = '1'
     time_start = time.time()
     process = subprocess.Popen(' '.join(cmd),
                                stdout = subprocess.PIPE,

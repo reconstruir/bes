@@ -1,12 +1,9 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import codecs
 import os.path as path, os, platform, shutil, tempfile
 from bes.common import check, object_util, string_util
 from bes.system import compat, log
-
-from collections import namedtuple
 
 class file_util(object):
 
@@ -73,6 +70,30 @@ class file_util(object):
     clazz.remove(dst)
     os.symlink(src, dst)
 
+  @classmethod
+  def hard_link(clazz, src, dst):
+    if not clazz.same_device_id(src, dst):
+      raise IOError('%s and %s cannot be in different filesystems.' % (src, dst))
+    clazz.ensure_file_dir(dst)
+    if path.exists(dst):
+      if path.isdir(dst):
+        raise IOError('dst exists and is a directory: %s' % (dst))
+      clazz.remove(dst)
+    os.link(src, dst)
+    
+  @classmethod
+  def same_device_id(clazz, src, dst):
+    'Return True if src and dst have the same device id.'
+    dst_dir = path.dirname(dst)
+    created_dst_dir = False
+    if not path.exists(dst_dir):
+      created_dst_dir = True
+      clazz.mkdir(dst_dir)
+    result = clazz.device_id(src) == clazz.device_id(dst_dir)
+    if created_dst_dir:
+      os.removedirs(dst_dir)
+    return result
+    
   @classmethod
   def extension(clazz, filename):
     'Return the extension for filename.'
@@ -148,10 +169,13 @@ class file_util(object):
     shutil.move(src, dst)
 
   @classmethod
-  def copy(clazz, src, dst):
+  def copy(clazz, src, dst, use_hard_link = False):
     dirname = path.dirname(dst)
     if dirname:
       clazz.mkdir(dirname)
+    if use_hard_link and clazz.same_device_id(src, dst):
+      clazz.hard_link(src, dst)
+      return
     shutil.copy(src, dst)
 
   @classmethod
@@ -206,5 +230,13 @@ class file_util(object):
   @classmethod
   def is_broken_link(clazz, filename):
     return path.islink(filename) and not path.isfile(os.readlink(filename))
+
+  @classmethod
+  def is_empty(clazz, filename):
+    return clazz.size(filename) == 0
+
+  @classmethod
+  def device_id(clazz, filename):
+    return os.stat(filename).st_dev
   
 log.add_logging(file_util, 'file_util')

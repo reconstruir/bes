@@ -38,7 +38,7 @@ class variable(object):
     return sorted(list(set(result)))
 
   @classmethod
-  def substitute(clazz, s, d):
+  def substitute(clazz, s, d, word_boundary = True):
     'Substitute vars in s with d.'
     check.check_dict(d, key_type = check.STRING_TYPES, value_type = check.STRING_TYPES)
     replacements = {}
@@ -51,7 +51,7 @@ class variable(object):
     old_result = s
     new_result = None
     while True:
-      new_result = string_util.replace(old_result, replacements, word_boundary = True)
+      new_result = string_util.replace(old_result, replacements, word_boundary = word_boundary)
       changed = new_result != old_result
       if not changed:
         break
