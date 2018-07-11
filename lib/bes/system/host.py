@@ -2,6 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import re, platform
+from collections import namedtuple
+from .host_info import host_info
 
 class host(object):
 
@@ -104,12 +106,13 @@ class host(object):
       clazz.FAMILY = clazz.MACOS
     else:
       assert False
-
+    clazz.ARCH = platform.machine()
     assert clazz.SYSTEM
     assert clazz.DISTRO
     assert clazz.FAMILY
     assert clazz.VERSION
     assert clazz.CODENAME
+    clazz.HOST_INFO = host_info(clazz.SYSTEM, clazz.VERSION, clazz.ARCH, clazz.DISTRO, clazz.FAMILY, clazz.CODENAME)
     del clazz.init
     
   @classmethod
