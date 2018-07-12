@@ -48,7 +48,7 @@ class test_archive_dmg(unit_test):
     self.assertFalse( archive_dmg.file_is_valid(temp_file.make_temp_file(content = 'junk\n')) )
     
   def test_members(self):
-    self.assertEqual( [ 'foo.txt', 'link_to_foo.sh', 'subdir/bar.txt' ], archive_dmg(self.data_path('example.dmg')).members() )
+    self.assertEqual( [ 'foo.txt', 'link_to_foo.sh', 'subdir/bar.txt' ], archive_dmg(self.data_path('example.dmg')).members )
     
   def test_extract_all(self):
     tmp_dir = temp_file.make_temp_dir(delete = False)

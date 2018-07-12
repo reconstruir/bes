@@ -35,7 +35,7 @@ class test_dmg(unit_test):
   def test_extract_all(self):
     tmp_dir = temp_file.make_temp_dir()
     info1 = dmg.info()
-    dmg.extract_all(self.data_path('example.dmg'), tmp_dir)
+    dmg.extract(self.data_path('example.dmg'), tmp_dir)
     info2 = dmg.info()
     files = file_find.find(tmp_dir, relative = True, file_type = file_find.FILE_OR_LINK)
     self.assertEqual( [ 'foo.txt', 'link_to_foo.sh', 'subdir/bar.txt' ], files )
