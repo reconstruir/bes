@@ -26,6 +26,10 @@ class archive_dmg(archive):
   #@abstractmethod
   def file_is_valid(clazz, filename):
     return dmg.is_dmg_file(filename)
+
+  #@abstractmethod
+  def _get_members(self):
+    return dmg.contents(self.filename)
   
   #@abstractmethod
   def has_member(self, member):
