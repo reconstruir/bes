@@ -144,3 +144,5 @@ add validation that include and exclude lists dont clash
 
 move test_extract_all from test_archive_dmg to common
 archiver unit tests
+
+text table issue swith utf8

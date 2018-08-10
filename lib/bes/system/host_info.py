@@ -2,6 +2,8 @@
 
 from collections import namedtuple
 
+#    ( 'linux', 'debian', 'ubuntu',   'xenial',      '16.04', [ 'i386', 'x86_64' ] ),
+
 class host_info(namedtuple('host_info', 'system, version, arch, distro, distro_family, codename')):
 
   def __new__(clazz, system, version, arch, distro = None, distro_family = None, codename = None):
