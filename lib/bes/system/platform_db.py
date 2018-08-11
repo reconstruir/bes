@@ -117,6 +117,7 @@ class _platform_determiner_linux(_platform_determiner_base):
   FAMILIES = {
     'debian': 'debian',
     'ubuntu': 'debian',
+    'raspbian': 'debian',
     'mint': 'debian',
     'arch': 'arch',
     'fedora': 'redhat',
@@ -146,7 +147,10 @@ class _platform_determiner_linux(_platform_determiner_base):
   #@abstractmethod
   def arch(self):
     'arch.'
-    return self._platform.machine()
+    arch = self._platform.machine()
+    if arch.startswith('armv7'):
+      return 'armv7'
+    return arch
 
   @classmethod
   def parse_lsb_release(clazz, lsb_release):
