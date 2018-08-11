@@ -133,8 +133,6 @@ get rid of noop_debug_timer and just make debug_timer support being disabled.  r
 archive:
 create for archive_unix_tar not working for all formats plus unit tests
 
-archive_base: rename Item to item
-add interface for extract_content to string instead of doing it to disk first
 rewrite _handle_extract_strip_common_ancestor to be more effecient when the tar
 contents match the expectations of the interface
 use xz command line tool if available for archive_xz deps

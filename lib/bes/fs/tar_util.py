@@ -4,6 +4,7 @@ import os.path as path, os, tarfile
 from bes.system import execute, host
 
 from .file_util import file_util
+from .temp_file import temp_file
 
 class tar_util(object):
 
@@ -37,4 +38,12 @@ class tar_util(object):
   @classmethod
   def extract(clazz, filename, dest_dir):
     execute.execute('tar xf {filename} -C {dest_dir}'.format(filename = filename, dest_dir = dest_dir))
-  
+
+  @classmethod
+  def supported_formats(clazz):
+    'Return a list of names of the formats the tar command line util supports'
+    tmp_dir = temp_file.make_temp_dir()
+    file_util.save(path.join(tmp_dir, 'x.txt', content = 'x'))
+    cmd = 'tar Jcf foo.tar -C %s x.txt' % (tmp_dir)
+    rv = execute.execute(cmd, cwd = tmp_dir, raise_error = False)
+    
