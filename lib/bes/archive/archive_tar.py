@@ -46,13 +46,13 @@ class archive_tar(archive):
   def extract(self, dest_dir, base_dir = None,
               strip_common_ancestor = False, strip_head = None,
               include = None, exclude = None):
-    dest_dir = self._determine_dest_dir(dest_dir, base_dir)
     filtered_members = self._filter_for_extract(self.members, include, exclude)
     if filtered_members == self.members:
       return self.extract_all(dest_dir,
                               base_dir = base_dir,
                               strip_common_ancestor = strip_common_ancestor,
                               strip_head = strip_head)
+    dest_dir = self._determine_dest_dir(dest_dir, base_dir)
     with tarfile.open(self.filename, mode = 'r') as archive:
       for member in filtered_members:
         archive.extract(member, path = dest_dir)
