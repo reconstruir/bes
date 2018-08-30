@@ -51,6 +51,13 @@ BANANA    │          │ YELLOW │ 2         │ 1      │ 1.0   │
 BLUEBERRY │ YES      │ PURPLE │ 9         │ 4      │ 3.0   │
 LEMON     │          │ YELLOW │ 2         │ 10     │ 1.0   │'''
     self.assertMultiLineEqual( expected, str(t) )
+
+  def xtest_unicode(self):
+    data = [
+      ( u'mine\u2019s', ),
+    ]
+    t = TT(data = data)
+    print(t)
     
 if __name__ == '__main__':
   unit_test.main()

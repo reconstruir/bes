@@ -1,8 +1,8 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.common import check, object_util, table, size
 from bes.compat import StringIO
+from io import BytesIO
 
 class text_cell_renderer(object):
 
@@ -15,9 +15,9 @@ class text_cell_renderer(object):
 
   def render(self, value, width = None):
     if value:
-      vs = str(value)
+      vs = self._value_to_string(value)
     else:
-      vs = ''
+      vs = u''
     width = width or self.width or 0
     if self.just == self.JUST_LEFT:
       vs = vs.ljust(width)
@@ -29,6 +29,13 @@ class text_cell_renderer(object):
 
   def compute_width(self, value):
     return len(self.render(value, width = None))
+
+  @classmethod
+  def _value_to_string(self, value):
+    if check.is_string(value):
+      return value
+    else:
+      return str(value)
   
 class text_table(object):
   'A table of strings.'
@@ -83,6 +90,8 @@ class text_table(object):
     renderer = self.get_cell_renderer(x, y)
     assert renderer
     value_string = renderer.render(value, width = col_widths[x])
+#    print('WRITING: %s - %s' % (value_string, type(value_string)))
+#    import sys
     stream.write(value_string)
     stream.write(self._column_delimiter)
   
