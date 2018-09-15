@@ -10,6 +10,7 @@ class file_mime(object):
   TEXT = 'text'
 
   BINARY_TYPES = [
+    'application/x-sharedlib; charset=binary', # -pie vs -no-pie issue in gcc 7.3
     'application/octet-stream; charset=binary',
     'application/x-executable; charset=binary',
     'application/x-mach-binary; charset=binary', # This is new in macos sierra
