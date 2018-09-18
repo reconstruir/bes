@@ -61,6 +61,12 @@ class test_path(unittest.TestCase):
       'base-1.2.3/bar.txt',
       'base-1.2.4/baz.txt',
     ]) )
+
+  def test_decompose(self):
+    self.assertEqual( [ '/foo', '/foo/bar', '/foo/bar/baz' ], FP.decompose('/foo/bar/baz') )
+    self.assertEqual( [ '/foo', '/foo/bar' ], FP.decompose('/foo/bar') )
+    self.assertEqual( [ '/foo', ], FP.decompose('/foo') )
+    self.assertEqual( [], FP.decompose('/') )
     
 if __name__ == '__main__':
   unittest.main()

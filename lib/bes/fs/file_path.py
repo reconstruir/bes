@@ -104,3 +104,19 @@ class file_path(object):
     for p in paths:
       result.extend(glob.glob(p))
     return sorted(algorithm.unique(result))
+
+  @classmethod
+  def decompose(clazz, p):
+    'Decompose a path into a list of paths starting with the root'
+    if not path.isabs(p):
+      raise ValueError('path needs to be absolute: %s' % (p))
+    if p == '/':
+      return []
+    result = []
+    while True:
+      result.append(p)
+      p = path.dirname(p)
+      if p == '/':
+        break
+    return [ x for x in reversed(result) ]
+  
