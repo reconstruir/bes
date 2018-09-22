@@ -14,11 +14,11 @@ class text_cell_renderer(object):
     self.width = width or 0
 
   def render(self, value, width = None):
+    width = width or self.width or 0
     if value:
       vs = self._value_to_string(value)
     else:
       vs = u''
-    width = width or self.width or 0
     if self.just == self.JUST_LEFT:
       vs = vs.ljust(width)
     elif self.just == self.JUST_RIGHT:
@@ -39,14 +39,14 @@ class text_cell_renderer(object):
   
 class text_table(object):
   'A table of strings.'
-  def __init__(self, width = None, height = None, data = None, column_delimiter = ' │ '):
+  def __init__(self, width = None, height = None, data = None, column_delimiter = ' │ ', cell_renderer = None):
     self._labels = None
     self._table = table(width = width, height = height, data = data)
     self._column_delimiter = column_delimiter
     self._row_renderers = {}
     self._col_renderers = {}
     self._cell_renderers = {}
-    self._default_cell_renderer = text_cell_renderer()
+    self._default_cell_renderer = cell_renderer or text_cell_renderer()
     
   def set_labels(self, labels):
     check.check_tuple(labels)
@@ -63,7 +63,7 @@ class text_table(object):
   def __str__(self):
     return self.to_string()
 
-  def to_string(self, strip_rows = True):
+  def to_string(self, strip_rows = False):
     buf = StringIO()
     col_widths = self.column_widths()
     if self._labels:
@@ -90,8 +90,7 @@ class text_table(object):
     renderer = self.get_cell_renderer(x, y)
     assert renderer
     value_string = renderer.render(value, width = col_widths[x])
-#    print('WRITING: %s - %s' % (value_string, type(value_string)))
-#    import sys
+    #print('WRITING: %s - %s' % (value_string, type(value_string)))
     stream.write(value_string)
     stream.write(self._column_delimiter)
   
@@ -161,4 +160,4 @@ class text_table(object):
     else:
       renderer = text_cell_renderer()
     self._default_cell_renderer = renderer
-    print('default renderer changed from %s to %s' % (self._default_cell_renderer, renderer))
+    #print('default renderer changed from %s to %s' % (self._default_cell_renderer, renderer))

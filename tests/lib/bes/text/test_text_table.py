@@ -21,7 +21,7 @@ kiwi      │ YES      │ green  │ 5         │ 5      │ 2.5   │
 banana    │          │ yellow │ 2         │ 1      │ 1.0   │
 blueberry │ YES      │ purple │ 9         │ 4      │ 3.0   │
 lemon     │          │ yellow │ 2         │ 10     │ 1.0   │'''
-    self.assertEqual( expected, str(t) )
+    self.assertEqual( expected, t.to_string(strip_rows = True) )
     
   def test_cell_style(self):
     self.maxDiff = None
@@ -50,7 +50,7 @@ KIWI      │ YES      │ GREEN  │ 5         │ 5      │ 2.5   │
 BANANA    │          │ YELLOW │ 2         │ 1      │ 1.0   │
 BLUEBERRY │ YES      │ PURPLE │ 9         │ 4      │ 3.0   │
 LEMON     │          │ YELLOW │ 2         │ 10     │ 1.0   │'''
-    self.assertMultiLineEqual( expected, str(t) )
+    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
 
   def xtest_unicode(self):
     data = [
@@ -58,6 +58,23 @@ LEMON     │          │ YELLOW │ 2         │ 10     │ 1.0   │'''
     ]
     t = TT(data = data)
     print(t)
+
+  def test_blanks(self):
+    data = [
+      ( 'FRUIT', 'FAVORITE', 'COLOR' ),
+      ( 'kiwi', 'YES', 'green' ),
+      ( 'banana', '', 'yellow' ),
+      ( 'blueberry', 'YES', 'purple' ),
+      ( 'lemon', '', 'yellow' ),
+    ]
+    t = TT(data = data)
+    expected = '''\
+FRUIT     │ FAVORITE │ COLOR  │
+kiwi      │ YES      │ green  │
+banana    │          │ yellow │
+blueberry │ YES      │ purple │
+lemon     │          │ yellow │'''
+    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
     
 if __name__ == '__main__':
   unit_test.main()
