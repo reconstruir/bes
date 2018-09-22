@@ -16,7 +16,7 @@ class file_checksum(namedtuple('file_checksum', 'filename,checksum')):
     return clazz.__bases__[0].__new__(clazz, filename, checksum)
 
   @classmethod
-  def from_file(clazz, filename, root_dir = None):
+  def from_file(clazz, filename, root_dir = None, function_name = None):
     if root_dir:
       filepath = path.join(root_dir, filename)
     else:
@@ -25,13 +25,12 @@ class file_checksum(namedtuple('file_checksum', 'filename,checksum')):
       checksum = ''
     else:
       file_check.check_file(filepath)
-      content = file_util.read(filepath)
-      checksum = hashlib.sha256(content).hexdigest()
+      checksum = file_util.checksum(function_name or 'sha256', filepath)
     return clazz(filename, checksum)
 
   @classmethod
-  def file_checksum(clazz, filename):
-    return clazz.from_file(filename).checksum
+  def file_checksum(clazz, filename, function_name):
+    return clazz.from_file(filename, function_name = function_name).checksum
 
   def to_list(self):
     return [ self.filename, self.checksum ]
@@ -73,11 +72,11 @@ class file_checksum_list(type_checked_list):
     return result
     
   @classmethod
-  def from_files(clazz, filenames, root_dir = None):
+  def from_files(clazz, filenames, root_dir = None, function_name = None):
     filenames = object_util.listify(filenames)
     result = clazz()
     for filename in filenames:
-      result.append(file_checksum.from_file(filename, root_dir = root_dir))
+      result.append(file_checksum.from_file(filename, root_dir = root_dir, function_name = function_name))
     return result
 
   def save_checksums_file(self, filename):
@@ -94,10 +93,10 @@ class file_checksum_list(type_checked_list):
   def filenames(self):
     return [ c.filename for c in self ]
 
-  def reload(self, root_dir = None):
+  def reload(self, root_dir = None, function_name = None):
     new_values = []
     for value in self:
-      new_values.append(file_checksum.from_file(value.filename, root_dir = root_dir))
+      new_values.append(file_checksum.from_file(value.filename, root_dir = root_dir, function_name = function_name))
     self._values = new_values
   
   def verify(self, root_dir = None):

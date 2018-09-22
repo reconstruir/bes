@@ -40,7 +40,7 @@ class file_cache_item(file_cache_item_base):
   def __init__(self, filename):
     super(file_cache_item, self).__init__()
     self.filename = path.abspath(path.normpath(filename))
-    self._checksum = file_checksum.file_checksum(self.filename)
+    self._checksum = file_checksum.file_checksum(self.filename, 'sha256')
     
   def save(self, info):
     assert path.isfile(self.filename)

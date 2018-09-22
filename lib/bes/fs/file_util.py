@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs
+import codecs, hashlib
 import os.path as path, os, platform, shutil, tempfile
 from bes.common import check, object_util, string_util
 from bes.system import compat, log
@@ -247,5 +247,15 @@ class file_util(object):
         return "%3.1f%s%s" % (num, unit, suffix)
       num /= 1024.0
     return "%.1f%s%s" % (num, 'Yi', suffix)
+
+  # https://stackoverflow.com/questions/1131220/get-md5-hash-of-big-files-in-python
+  @classmethod
+  def checksum(clazz, function_name, filename, chunk_size = 1024 * 1204):
+    hasher = hashlib.new(function_name)
+    with open(filename, 'rb') as fin: 
+      for chunk in iter(lambda: fin.read(chunk_size), b''): 
+        hasher.update(chunk)
+    return hasher.hexdigest()
+
   
 log.add_logging(file_util, 'file_util')
