@@ -76,7 +76,7 @@ class node(object):
   def _flatten(clazz, result, stack, n):
     stack.append(n)
     if not n.children:
-      p = '/'.join([ n.data for n in stack])
+      p = [ n.data for n in stack]
       result.append(clazz.flat_result(p, n))
       stack.pop()
     else:
