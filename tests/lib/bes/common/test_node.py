@@ -130,6 +130,32 @@ class test_node(unittest.TestCase):
     func = lambda node: node.data.startswith('gouda') or node.data.startswith('brie')
     found = n.find_child(func)
     self.assertEqual( 'gouda', found.data )
+
+  def test_flat_paths(self):
+    r = node('root')
+    r.ensure_path([ 'fruit', 'kiwi' ])
+    r.ensure_path([ 'fruit', 'apple' ])
+    r.ensure_path([ 'fruit', 'melon', 'watermelon' ])
+    r.ensure_path([ 'fruit', 'melon', 'canteloupe' ])
+    r.ensure_path([ 'cheese', 'gouda' ])
+    r.ensure_path([ 'cheese', 'brie' ])
+    r.ensure_path([ 'cheese', 'blue' ])
+    r.ensure_path([ 'foo' ])
+    r.ensure_path([ 'wine', 'chianti' ])
+    r.ensure_path([ 'wine', 'sancere' ])
+    paths = r.flat_paths()
+    self.assertEqual( [
+      'root/foo',
+      'root/cheese/blue',
+      'root/cheese/brie',
+      'root/cheese/gouda',
+      'root/fruit/apple',
+      'root/fruit/kiwi',
+      'root/wine/chianti',
+      'root/wine/sancere',
+      'root/fruit/melon/canteloupe',
+      'root/fruit/melon/watermelon',
+    ], [ x.path for x in paths ] )
     
 if __name__ == "__main__":
   unittest.main()

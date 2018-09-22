@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
@@ -70,3 +69,24 @@ class node(object):
     for child in self.children:
       buf.write(child.to_string(depth + indent, data_func = data_func))
     return buf.getvalue()
+
+  flat_result = namedtuple('flat_result', 'path, node')
+      
+  @classmethod
+  def _flatten(clazz, result, stack, n):
+    stack.append(n)
+    if not n.children:
+      p = '/'.join([ n.data for n in stack])
+      result.append(clazz.flat_result(p, n))
+      stack.pop()
+    else:
+      for child in n.children:
+        clazz._flatten(result, stack, child)
+      stack.pop()
+
+  def flat_paths(self):
+    'Return a list of ( path, node ) tuples for all leaf nodes.'
+    stack = []
+    result = []
+    self._flatten(result, stack, self)
+    return sorted(result, key = lambda x: ( x.path.count('/'), x.path ))
