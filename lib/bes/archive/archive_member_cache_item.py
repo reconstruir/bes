@@ -10,7 +10,7 @@ class archive_member_cache_item(file_cache_item_base):
     super(archive_member_cache_item, self).__init__()
     self._archive = path.abspath(path.normpath(archive))
     self._member = member
-    self._checksum = file_checksum.file_checksum(self._archive)
+    self._checksum = file_checksum.file_checksum(self._archive, 'sha256')
     
   def save(self, info):
     assert archiver.is_valid(self._archive)
