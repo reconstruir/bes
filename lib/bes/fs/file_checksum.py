@@ -122,5 +122,12 @@ class file_checksum_list(type_checked_list):
       buf.write(value.checksum)
     return hashlib.sha256(buf.getvalue().encode('utf-8')).hexdigest()
 
+  def to_dict(self):
+    'Return a dictionary of filenames to checksums.'
+    result = {}
+    for value in self:
+      result[value.filename] = value.checksum
+    return result
+
 check.register_class(file_checksum, include_seq = False)
 check.register_class(file_checksum_list, include_seq = False)
