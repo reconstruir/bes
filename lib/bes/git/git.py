@@ -40,6 +40,11 @@ class git(object):
     return clazz._call_git(root, [ 'remote', 'update' ])
 
   @classmethod
+  def remote_origin_url(clazz, root):
+    rv = clazz._call_git(root, [ 'remote', 'get-url', '--push', 'origin' ])
+    return rv.stdout.strip()
+
+  @classmethod
   def _parse_branch_status_output(clazz, root, s):
     lines = [ line.strip() for line in s.split('\n') ]
     ahead = re.findall('.*\[ahead\s+(\d+).*', lines[0])

@@ -72,3 +72,6 @@ class repo(object):
 
   def last_commit_hash(self, short_hash = False):
     return git.last_commit_hash(self.root, short_hash = short_hash)
+
+  def remote_origin_url(self):
+    return git.remote_origin_url(selfroot)
