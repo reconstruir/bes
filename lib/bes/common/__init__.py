@@ -8,6 +8,7 @@ from .check import check
 from .command_line import command_line
 from .dict_util import dict_util
 from .json_util import json_util
+from .json_util import json_util
 from .math_util import math_util
 from .node import node
 from .number_util import number_util

@@ -144,17 +144,20 @@ class test_node(unittest.TestCase):
     r.ensure_path([ 'wine', 'chianti' ])
     r.ensure_path([ 'wine', 'sancere' ])
     paths = r.flat_paths()
+    for x in paths:
+      print('CACA: %s' % (str(x)))
+
     self.assertEqual( [
-      'root/foo',
-      'root/cheese/blue',
-      'root/cheese/brie',
-      'root/cheese/gouda',
-      'root/fruit/apple',
-      'root/fruit/kiwi',
-      'root/wine/chianti',
-      'root/wine/sancere',
-      'root/fruit/melon/canteloupe',
-      'root/fruit/melon/watermelon',
+      [ 'root', 'foo' ],
+      [ 'root', 'cheese', 'blue' ],
+      [ 'root', 'cheese', 'brie' ],
+      [ 'root', 'cheese', 'gouda' ],
+      [ 'root', 'fruit', 'apple' ],
+      [ 'root', 'fruit', 'kiwi' ],
+      [ 'root', 'fruit', 'melon', 'canteloupe' ],
+      [ 'root', 'fruit', 'melon', 'watermelon' ],
+      [ 'root', 'wine', 'chianti' ],
+      [ 'root', 'wine', 'sancere' ],
     ], [ x.path for x in paths ] )
     
 if __name__ == "__main__":

@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import codecs
 from bes.compat import StringIO
-from io import BytesIO
 
 class hexdata(object):
 
