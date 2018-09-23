@@ -182,10 +182,14 @@ class file_util(object):
   def mode(clazz, filename):
     'Return only the lower bits of a inode mode (permissions)'
     return os.stat(filename).st_mode & 0o777
-
+  
   @classmethod
   def size(clazz, filename):
     return os.stat(filename).st_size
+
+  @classmethod
+  def mtime(clazz, filename):
+    return os.stat(filename).st_mtime
 
   @classmethod
   def copy_mode(clazz, src, dst):
