@@ -137,9 +137,12 @@ class text_line_parser(object):
     return l
 
   _match_result = namedtuple('_match_result', 'expression,match,line')
-  def match_first(self, expressions, strip_comments = False):
+  def match_first(self, expressions, strip_comments = False, line_number = None):
     expressions = object_util.listify(expressions)
     for line in self._lines:
+      if line_number is not None:
+        if line.line_number < line_number:
+          continue
       text = line.get_text(strip_comments = strip_comments)
       for expression in expressions:
         match = re.findall(expression, text)
@@ -171,38 +174,72 @@ class text_line_parser(object):
           result.append(line)
     return text_line_parser(result)
 
-  def cut_lines(self, start_pattern, end_pattern):
+  def cut_lines(self, start_pattern, end_pattern, include_pattern = False, line_number = None):
     if not start_pattern and not end_pattern:
       raise ValueError('one or both of start_pattern and end_pattern need to be valid.')
     if start_pattern and end_pattern:
-      return self._cut_lines_between(start_pattern, end_pattern)
+      return self._cut_lines_between(start_pattern, end_pattern, include_pattern, line_number)
     elif start_pattern:
-      return self._cut_lines_after(start_pattern)
+      return self._cut_lines_after(start_pattern, include_pattern)
     elif end_pattern:
-      return self._cut_lines_before(end_pattern)
+      return self._cut_lines_before(end_pattern, include_pattern)
     else:
       assert False
 
-  def _cut_lines_after(self, start_pattern):
-    head = self.match_first(start_pattern)
-    if not head:
-      return None
-    return text_line_parser([ line for line in self._lines if line.line_number > head.line.line_number ])
+  @classmethod
+  def GE(clazz, a, b):
+    return a >= b
   
-  def _cut_lines_before(self, end_pattern):
-    tail = self.match_first(end_pattern)
-    if not tail:
-      return None
-    return text_line_parser([ line for line in self._lines if line.line_number < tail.line.line_number ])
+  @classmethod
+  def LE(clazz, a, b):
+    return a <= b
 
-  def _cut_lines_between(self, start_pattern, end_pattern):
-    head = self.match_first(start_pattern)
+  @classmethod
+  def GT(clazz, a, b):
+    return a > b
+  
+  @classmethod
+  def LT(clazz, a, b):
+    return a < b
+
+  @classmethod
+  def _start_comparator(clazz, include_pattern):
+    if include_pattern:
+      return clazz.GE
+    else:
+      return clazz.GT
+
+  @classmethod
+  def _end_comparator(clazz, include_pattern):
+    if include_pattern:
+      return clazz.LE
+    else:
+      return clazz.LT
+    
+  def _cut_lines_after(self, start_pattern, include_pattern, line_number):
+    head = self.match_first(start_pattern, line_number = line_number)
     if not head:
       return None
-    tail = self.match_first(end_pattern)
+    comp = self._start_comparator(include_pattern)
+    return text_line_parser([ line for line in self._lines if comp(line.line_number, head.line.line_number) ])
+  
+  def _cut_lines_before(self, end_pattern, include_pattern, line_number):
+    tail = self.match_first(end_pattern, line_number = line_number)
     if not tail:
       return None
-    return text_line_parser([ line for line in self._lines if line.line_number > head.line.line_number and line.line_number < tail.line.line_number ])
+    comp = self._end_comparator(include_pattern)
+    return text_line_parser([ line for line in self._lines if comp(line.line_number, tail.line.line_number) ])
+
+  def _cut_lines_between(self, start_pattern, end_pattern, include_pattern, line_number):
+    head = self.match_first(start_pattern, line_number = line_number)
+    if not head:
+      return None
+    tail = self.match_first(end_pattern, line_number = head.line.line_number)
+    if not tail:
+      return None
+    start_comp = self._start_comparator(include_pattern)
+    end_comp = self._end_comparator(include_pattern)
+    return text_line_parser([ line for line in self._lines if start_comp(line.line_number, head.line.line_number) and end_comp(line.line_number, tail.line.line_number) ])
 
   def find_by_line_number(self, line_number):
     target = line_token(line_number, '')
@@ -233,3 +270,15 @@ class text_line_parser(object):
     new_text = '%s%s%s' % (line1.text, delimiter, line2.text)
     new_line = line_token(line1.line_number, new_text)
     self._lines[index1] = new_line
+
+  def cut_sections(self, start_pattern, end_pattern, include_pattern = False, line_number = None):
+    result = []
+    text = str(self)
+    line_number = line_number or 1
+    while True:
+      lines = self.cut_lines(start_pattern, end_pattern, include_pattern = include_pattern, line_number = line_number)
+      if not lines:
+        break
+      result.append(lines)
+      line_number = lines[-1].line_number + 1
+    return result

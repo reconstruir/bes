@@ -230,6 +230,21 @@ coke'''
     ]
     self.assertEqual( 3, l.match_first(patterns).line.line_number )
     
+  def test_match_first_with_line_number(self):
+    text = '''\
+apple1
+kiwi
+apple2
+strawberry
+banana
+kiwi2
+'''
+    l = LTP(text)
+    self.assertEqual( 1, l.match_first([ '^apple.*$' ]).line.line_number )
+    self.assertEqual( 'apple1', l.match_first([ '^apple.*$' ]).line.text )
+    self.assertEqual( 3, l.match_first([ '^apple.*$' ], line_number = 2).line.line_number )
+    self.assertEqual( 'apple2', l.match_first([ '^apple.*$' ], line_number = 2).line.text )
+    
   def test_remove_empties(self):
     text = '''
     foo
@@ -270,6 +285,22 @@ coke'''
     self.assertEqual( [ 'kiwi', 'orange', 'apricot' ], l.cut_lines('^ap.*$', '^ba.*$').to_string_list() )
     self.assertEqual( [ 'banana', 'watermelon' ], l.cut_lines('^apr.*$', None).to_string_list() )
     self.assertEqual( [ 'apple', 'kiwi' ], l.cut_lines(None, '^or.*$').to_string_list() )
+
+  def test_cut_lines_include_pattern(self):
+    text = '''
+    apple
+    kiwi
+    orange
+    apricot
+    banana
+    watermelon
+    '''
+    l = LTP(text)
+    l.remove_empties()
+    l.strip()
+    self.assertEqual( [ 'apple', 'kiwi', 'orange', 'apricot', 'banana' ], l.cut_lines('^ap.*$', '^ba.*$', include_pattern = True).to_string_list() )
+    self.assertEqual( [ 'apricot', 'banana', 'watermelon' ], l.cut_lines('^apr.*$', None, include_pattern = True).to_string_list() )
+    self.assertEqual( [ 'apple', 'kiwi', 'orange' ], l.cut_lines(None, '^or.*$', include_pattern = True).to_string_list() )
     
   def test_find_by_line_number(self):
     text = '''apple
@@ -338,6 +369,41 @@ coke'''
   def test_match_backwards(self):
     l = LTP([ ( 1, 'apple' ), ( 2, 'kiwi' ), ( 3, 'orange' ), ( 4, 'apricot' ), ( 5, 'banana' ), ( 6, 'watermelon' ) ])
     self.assertEqual( ( 2, 'kiwi' ), l.match_backwards(5, '^ki.*$').line )
+
+  def test_cut_sections(self):
+    text = '''\
+section:1
+a
+b
+c
+
+section:2
+d
+e
+f
+
+section:3
+g
+h
+i
+'''
+    l = LTP(text)
+    sections = l.cut_sections('^section\:.*$', '^\s*$', include_pattern = True)
+    self.assertEqual( 3, len(sections) )
+    self.assertEqual( ( 1, 'section:1' ), sections[0][0] )
+    self.assertEqual( ( 2, 'a' ), sections[0][1] )
+    self.assertEqual( ( 3, 'b' ), sections[0][2] )
+    self.assertEqual( ( 4, 'c' ), sections[0][3] )
+
+    self.assertEqual( ( 6, 'section:2' ), sections[1][0] )
+    self.assertEqual( ( 7, 'd' ), sections[1][1] )
+    self.assertEqual( ( 8, 'e' ), sections[1][2] )
+    self.assertEqual( ( 9, 'f' ), sections[1][3] )
+
+    self.assertEqual( ( 11, 'section:3' ), sections[2][0] )
+    self.assertEqual( ( 12, 'g' ), sections[2][1] )
+    self.assertEqual( ( 13, 'h' ), sections[2][2] )
+    self.assertEqual( ( 14, 'i' ), sections[2][3] )
     
 if __name__ == '__main__':
   unit_test.main()
