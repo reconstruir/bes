@@ -16,6 +16,9 @@ class repo(object):
     self.root = path.abspath(root)
     self.address = address
     
+  def __str__(self):
+    return '%s@%s' % (self.root, self.address)
+    
   def clone_or_pull(self):
     return git.clone_or_pull(self.address, self.root)
 
