@@ -133,25 +133,22 @@ class test_node(unittest.TestCase):
 
   def test_flat_paths(self):
     r = node('root')
-    r.ensure_path([ 'fruit', 'kiwi' ])
-    r.ensure_path([ 'fruit', 'apple' ])
-    r.ensure_path([ 'fruit', 'melon', 'watermelon' ])
-    r.ensure_path([ 'fruit', 'melon', 'canteloupe' ])
-    r.ensure_path([ 'cheese', 'gouda' ])
-    r.ensure_path([ 'cheese', 'brie' ])
     r.ensure_path([ 'cheese', 'blue' ])
+    r.ensure_path([ 'cheese', 'brie' ])
+    r.ensure_path([ 'cheese', 'gouda' ])
     r.ensure_path([ 'foo' ])
+    r.ensure_path([ 'fruit', 'apple' ])
+    r.ensure_path([ 'fruit', 'kiwi' ])
+    r.ensure_path([ 'fruit', 'melon', 'canteloupe' ])
+    r.ensure_path([ 'fruit', 'melon', 'watermelon' ])
     r.ensure_path([ 'wine', 'chianti' ])
     r.ensure_path([ 'wine', 'sancere' ])
-    paths = r.flat_paths()
-    for x in paths:
-      print('CACA: %s' % (str(x)))
-
+    paths = sorted(r.flat_paths())
     self.assertEqual( [
-      [ 'root', 'foo' ],
       [ 'root', 'cheese', 'blue' ],
       [ 'root', 'cheese', 'brie' ],
       [ 'root', 'cheese', 'gouda' ],
+      [ 'root', 'foo' ],
       [ 'root', 'fruit', 'apple' ],
       [ 'root', 'fruit', 'kiwi' ],
       [ 'root', 'fruit', 'melon', 'canteloupe' ],
