@@ -180,9 +180,9 @@ class text_line_parser(object):
     if start_pattern and end_pattern:
       return self._cut_lines_between(start_pattern, end_pattern, include_pattern, line_number)
     elif start_pattern:
-      return self._cut_lines_after(start_pattern, include_pattern)
+      return self._cut_lines_after(start_pattern, include_pattern, line_number)
     elif end_pattern:
-      return self._cut_lines_before(end_pattern, include_pattern)
+      return self._cut_lines_before(end_pattern, include_pattern, line_number)
     else:
       assert False
 
