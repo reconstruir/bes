@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs, copy, inspect, os, os.path as path, platform, re, sys, unittest
+import codecs, copy, json, inspect, os, os.path as path, platform, re, sys, unittest
 from bes.compat import StringIO
 from io import BytesIO
 
@@ -78,6 +78,15 @@ class unit_test(unittest.TestCase):
     actual = hexdata.bytes_to_string(actual)
     msg = '\nexpected: %s\n  actual: %s\n' % (expected, actual)
     self.assertEqual( expected, actual, msg = msg)
+
+  @classmethod
+  def _json_normalize(clazz, s):
+    return json.dumps(json.loads(s), indent = 2)
+    
+  def assert_json_equal(self, expected, actual):
+    self.assertMultiLineEqual(self._json_normalize(expected),
+                              self._json_normalize(actual))
+                               
 
   @classmethod
   def decode_hex(clazz, s):
