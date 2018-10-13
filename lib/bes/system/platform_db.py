@@ -2,7 +2,6 @@
 
 import platform
 from collections import namedtuple
-#from .host_info import host_info
 
 from abc import abstractmethod, ABCMeta
 from .compat import with_metaclass
@@ -24,6 +23,11 @@ class _platform_determiner_base(with_metaclass(ABCMeta, object)):
   @abstractmethod
   def family(self):
     'distro family.'
+    pass
+
+  @abstractmethod
+  def distributor(self):
+    'the distro distributor.'
     pass
 
   @abstractmethod
@@ -61,6 +65,11 @@ class _platform_determiner_macos(_platform_determiner_base):
   def family(self):
     'distro family.'
     return None
+
+  #@abstractmethod
+  def distributor(self):
+    'the distro distributor.'
+    return 'apple'
 
   CODENAMES = {
     '10.10': 'yosemite',
@@ -103,6 +112,9 @@ class _platform_determiner_linux(_platform_determiner_base):
     self._version = parsed_lsb_release.get('Release', None).lower()
     if not self._version:
       raise RuntimeError('lsb_release missing valid "Release"').lower()
+    self._distributor = parsed_lsb_release.get('Distributor ID', None).lower()
+    if not self._distributor:
+      raise RuntimeError('lsb_release missing valid "Distributor ID"').lower()
   
   #@abstractmethod
   def system(self):
@@ -134,6 +146,11 @@ class _platform_determiner_linux(_platform_determiner_base):
       raise RuntimeError('Unknown linux distro: %s' % (distro))
     return None
 
+  #@abstractmethod
+  def distributor(self):
+    'the distro distributor.'
+    return self._distributor
+  
   #@abstractmethod
   def codename(self):
     'distro codename.'
@@ -204,6 +221,11 @@ class platform_determiner(_platform_determiner_base):
     'distro family.'
     return self._impl.family()
 
+  #@abstractmethod
+  def distributor(self):
+    'the distro distributor.'
+    return self._impl.distributor()
+  
   #@abstractmethod
   def codename(self):
     'distro codename.'

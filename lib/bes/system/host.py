@@ -29,10 +29,12 @@ class host(object):
     clazz.SYSTEM = determiner.system()
     clazz.DISTRO = determiner.distro()
     clazz.FAMILY = determiner.family()
+    clazz.DISTRIBUTOR = determiner.distributor()
     clazz.VERSION = determiner.version()
     clazz.CODENAME = determiner.codename()
     clazz.ARCH = determiner.arch()
-    clazz.HOST_INFO = host_info(clazz.SYSTEM, clazz.VERSION, clazz.ARCH, clazz.DISTRO, clazz.FAMILY, clazz.CODENAME)
+    clazz.HOST_INFO = host_info(clazz.SYSTEM, clazz.VERSION, clazz.ARCH, clazz.DISTRO,
+                                clazz.FAMILY, clazz.DISTRIBUTOR, clazz.CODENAME)
     del clazz.init
     
   @classmethod
