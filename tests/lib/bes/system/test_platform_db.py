@@ -45,6 +45,7 @@ class test_platform_db(unittest.TestCase):
       return self._arch
     
   def test__platform_determiner_linux(self):
+    D = PDMACOS
     PLAT = self.fake_linux_platform
 
     UBUNTU_16_04_LSB_RELEASE = '''Distributor ID:	Ubuntu
@@ -58,6 +59,7 @@ Codename:	xenial
     self.assertEqual( 'debian', PDLINUX(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).family() )
     self.assertEqual( '16.04', PDLINUX(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).version() )
     self.assertEqual( 'ubuntu', PDLINUX(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).distributor() )
+    self.assertEqual( 'x86_64', PDLINUX(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).arch() )
 
     RASPBIAN_9_4_LSB_RELEASE = '''Distributor ID: Raspbian
 Description:    Raspbian GNU/Linux 9.4 (stretch)
@@ -70,6 +72,7 @@ Codename:   stretch
     self.assertEqual( 'debian', PDLINUX(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).family() )
     self.assertEqual( '9.4', PDLINUX(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).version() )
     self.assertEqual( 'raspbian', PDLINUX(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).distributor() )
+    self.assertEqual( 'x86_64', PDLINUX(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).arch() )
     
 if __name__ == '__main__':
   unittest.main()
