@@ -28,12 +28,6 @@ class cli_base(object):
     return file_util.ensure_abspath(filename)
 
   @classmethod
-  def relocate_file(clazz, filename, dst_dir):
-    new_filename = path.join(dst_dir, path.basename(filename))
-    file_util.rename(filename, new_filename)
-    return new_filename
-
-  @classmethod
   def add_verbose_option(clazz, parser):
     parser.add_argument('-v',
                         '--verbose',

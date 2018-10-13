@@ -261,5 +261,10 @@ class file_util(object):
         hasher.update(chunk)
     return hasher.hexdigest()
 
+  @classmethod
+  def relocate_file(clazz, filename, dst_dir):
+    new_filename = path.join(dst_dir, path.basename(filename))
+    file_util.rename(filename, new_filename)
+    return new_filename
   
 log.add_logging(file_util, 'file_util')

@@ -58,7 +58,7 @@ class egg_tool_cli(cli_base):
     self.check_file_exists(setup_filename, label = 'setup file')
     self.check_dir_exists(output_dir, label = 'output dir')
     tmp_egg = egg.make(setup_filename)
-    dst_egg = self.relocate_file(tmp_egg, output_dir)
+    dst_egg = file_util.relocate_file(tmp_egg, output_dir)
     if self.verbose:
       print(dst_egg)
     return 0
