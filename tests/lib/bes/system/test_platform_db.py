@@ -2,8 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import unittest
-from bes.system.platform_db import _platform_determiner_macos
-from bes.system.platform_db import _platform_determiner_linux
+from bes.system.platform_db import _platform_determiner_macos as PDMACOS
+from bes.system.platform_db import _platform_determiner_linux as PDLINUX
 
 class test_platform_db(unittest.TestCase):
 
@@ -21,21 +21,20 @@ class test_platform_db(unittest.TestCase):
       return self._arch
   
   def test__platform_determiner_macos(self):
-    D = _platform_determiner_macos
     P = self.fake_macos_platform
 
-    self.assertEqual( 'macos', D(P('10.13', 'x86_64')).system() )
-    self.assertEqual( 'macos', D(P('10.13.5', 'x86_64')).system() )
+    self.assertEqual( 'macos', PDMACOS(P('10.13', 'x86_64')).system() )
+    self.assertEqual( 'macos', PDMACOS(P('10.13.5', 'x86_64')).system() )
 
-    self.assertEqual( 'yosemite', D(P('10.10.1', 'x86_64')).codename() )
-    self.assertEqual( 'el_capitan', D(P('10.11.1', 'x86_64')).codename() )
-    self.assertEqual( 'sierra', D(P('10.12.1', 'x86_64')).codename() )
-    self.assertEqual( 'high_sierra', D(P('10.13.5', 'x86_64')).codename() )
+    self.assertEqual( 'yosemite', PDMACOS(P('10.10.1', 'x86_64')).codename() )
+    self.assertEqual( 'el_capitan', PDMACOS(P('10.11.1', 'x86_64')).codename() )
+    self.assertEqual( 'sierra', PDMACOS(P('10.12.1', 'x86_64')).codename() )
+    self.assertEqual( 'high_sierra', PDMACOS(P('10.13.5', 'x86_64')).codename() )
 
-    self.assertEqual( 'x86_64', D(P('10.13', 'x86_64')).arch() )
+    self.assertEqual( 'x86_64', PDMACOS(P('10.13', 'x86_64')).arch() )
 
-    self.assertEqual( None, D(P('10.13', 'x86_64')).distro() )
-    self.assertEqual( None, D(P('10.13', 'x86_64')).family() )
+    self.assertEqual( None, PDMACOS(P('10.13', 'x86_64')).distro() )
+    self.assertEqual( None, PDMACOS(P('10.13', 'x86_64')).family() )
 
   class fake_linux_platform(object):
 
@@ -46,7 +45,6 @@ class test_platform_db(unittest.TestCase):
       return self._arch
     
   def test__platform_determiner_linux(self):
-    D = _platform_determiner_linux
     P = self.fake_linux_platform
 
     UBUNTU_16_04_LSB_RELEASE = '''Distributor ID:	Ubuntu
@@ -55,23 +53,23 @@ Release:	16.04
 Codename:	xenial
 '''
     
-    self.assertEqual( 'linux', D(P('x86_64'), UBUNTU_16_04_LSB_RELEASE).system() )
-    self.assertEqual( 'xenial', D(P('x86_64'), UBUNTU_16_04_LSB_RELEASE).codename() )
-    self.assertEqual( 'debian', D(P('x86_64'), UBUNTU_16_04_LSB_RELEASE).family() )
-    self.assertEqual( '16.04', D(P('x86_64'), UBUNTU_16_04_LSB_RELEASE).version() )
-    self.assertEqual( 'ubuntu', D(P('x86_64'), UBUNTU_16_04_LSB_RELEASE).distributor() )
+    self.assertEqual( 'linux', PDLINUX(P('x86_64'), UBUNTU_16_04_LSB_RELEASE).system() )
+    self.assertEqual( 'xenial', PDLINUX(P('x86_64'), UBUNTU_16_04_LSB_RELEASE).codename() )
+    self.assertEqual( 'debian', PDLINUX(P('x86_64'), UBUNTU_16_04_LSB_RELEASE).family() )
+    self.assertEqual( '16.04', PDLINUX(P('x86_64'), UBUNTU_16_04_LSB_RELEASE).version() )
+    self.assertEqual( 'ubuntu', PDLINUX(P('x86_64'), UBUNTU_16_04_LSB_RELEASE).distributor() )
 
     RASPBIAN_9_4_LSB_RELEASE = '''Distributor ID: Raspbian
 Description:    Raspbian GNU/Linux 9.4 (stretch)
 Release:    9.4
 Codename:   stretch
 '''
-    d = D(P('x86_64'), RASPBIAN_9_4_LSB_RELEASE)
-    self.assertEqual( 'linux', D(P('x86_64'), RASPBIAN_9_4_LSB_RELEASE).system() )
-    self.assertEqual( 'stretch', D(P('x86_64'), RASPBIAN_9_4_LSB_RELEASE).codename() )
-    self.assertEqual( 'debian', D(P('x86_64'), RASPBIAN_9_4_LSB_RELEASE).family() )
-    self.assertEqual( '9.4', D(P('x86_64'), RASPBIAN_9_4_LSB_RELEASE).version() )
-    self.assertEqual( 'raspbian', D(P('x86_64'), RASPBIAN_9_4_LSB_RELEASE).distributor() )
+    d = PDLINUX(P('x86_64'), RASPBIAN_9_4_LSB_RELEASE)
+    self.assertEqual( 'linux', PDLINUX(P('x86_64'), RASPBIAN_9_4_LSB_RELEASE).system() )
+    self.assertEqual( 'stretch', PDLINUX(P('x86_64'), RASPBIAN_9_4_LSB_RELEASE).codename() )
+    self.assertEqual( 'debian', PDLINUX(P('x86_64'), RASPBIAN_9_4_LSB_RELEASE).family() )
+    self.assertEqual( '9.4', PDLINUX(P('x86_64'), RASPBIAN_9_4_LSB_RELEASE).version() )
+    self.assertEqual( 'raspbian', PDLINUX(P('x86_64'), RASPBIAN_9_4_LSB_RELEASE).distributor() )
     
 if __name__ == '__main__':
   unittest.main()
