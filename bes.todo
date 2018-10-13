@@ -115,9 +115,6 @@ get rid of noop_debug_timer and just make debug_timer support being disabled.  r
 2018-05-06
  - when best test fails print a report of all the failed tests
  
-2018-05-06
- - key_value_list find_key -> find_by_key
-
 2018-05-28
  - bes_test.py cleanup poto_dependencies
 

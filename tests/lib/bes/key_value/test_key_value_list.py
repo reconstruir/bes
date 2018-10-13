@@ -140,15 +140,15 @@ class test_key_value_list(unit_test):
     found = l.find_key_value(KV('foo', 'not'))
     self.assertEqual( None, found )
     
-  def test_find_key(self):
+  def test_find_by_key(self):
     l = KVL()
     l.append(KV('foo', 'hi'))
     l.append(KV('bar', '666'))
 
-    found = l.find_key('foo')
+    found = l.find_by_key('foo')
     self.assertEqual( KV('foo', 'hi'), found )
     
-    found = l.find_key('not')
+    found = l.find_by_key('not')
     self.assertEqual( None, found )
     
   def test_find_all_key(self):
