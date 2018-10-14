@@ -2,10 +2,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import unittest
-from bes.system.platform_db import _platform_determiner_macos as PDMACOS
-from bes.system.platform_db import _platform_determiner_linux as PDLINUX
+from bes.system.platform_determiner import _platform_determiner_macos as PDMACOS
+from bes.system.platform_determiner import _platform_determiner_linux as PDLINUX
 
-class test_platform_db(unittest.TestCase):
+class test_platform_determiner(unittest.TestCase):
 
   class fake_macos_platform(object):
     'A fake version of the standard python module platform with enough support for macos unit tests.'

@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .host_info import host_info
-from .platform_db import platform_determiner
+from .platform_determiner import platform_determiner
 
 class host(object):
 

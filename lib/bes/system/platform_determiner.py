@@ -240,8 +240,10 @@ class platform_determiner(_platform_determiner_base):
   def arch(self):
     'arch.'
     return self._impl.arch()
-    
-#class platform_db(object):
+
+#class host_info(namedtuple('host_info', 'system, version, arch, distro, family, distributor, codename')):
+  
+#class platform_determiner(object):
 #
 #  DB = [
 #    ( 'linux', 'debian', 'ubuntu',   'xenial',      '16.04', [ 'i386', 'x86_64' ] ),
