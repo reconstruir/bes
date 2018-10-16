@@ -112,6 +112,7 @@ class _platform_determiner_linux(_platform_determiner_base):
     self._version = parsed_lsb_release.get('Release', None).lower()
     if not self._version:
       raise RuntimeError('lsb_release missing valid "Release"').lower()
+    self._version = self._version.split('.')[0]
     self._distributor = parsed_lsb_release.get('Distributor ID', None).lower()
     if not self._distributor:
       raise RuntimeError('lsb_release missing valid "Distributor ID"').lower()

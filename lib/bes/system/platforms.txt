@@ -1,0 +1,14 @@
+
+#  system   version  arch        distro    family  distributor  codename
+  linux    14       i386,x86_64  ubuntu    debian  ubuntu       trusty 
+  linux    16       i386,x86_64  ubuntu    debian  ubuntu       xenial 
+  linux    18       i386,x86_64  ubuntu    debian  ubuntu       bionic 
+
+  linux    7        armv7        raspbian  debian  raspbian     wheezy 
+  linux    8        armv7        raspbian  debian  raspbian     jessie 
+  linux    9        armv7        raspbian  debian  raspbian     stretch 
+  
+  macos    10.10    x86_64       none      none    apple        yosemite
+  macos    10.11    x86_64       none      none    apple        el_capitan
+  macos    10.12    x86_64       none      none    apple        sierra
+  macos    10.13    x86_64       none      none    apple        high_sierra
