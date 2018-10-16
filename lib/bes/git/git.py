@@ -214,3 +214,25 @@ class git(object):
   def modified_files(clazz, root):
     items = clazz.status(root, '.')
     return [ item.filename for item in items if 'M' in item.action ]
+
+  _branch_list_item = namedtuple('_branch_list_item', 'name, active, commit')
+  @classmethod
+  def branch_list(clazz, root):
+    rv = clazz._call_git(root, [ 'branch', '-v' ])
+    return [ clazz._parse_branch_list_line(line) for line in text_line_parser.parse_lines(rv.stdout) ]
+
+  @classmethod
+  def _parse_branch_list_line(clazz, s):
+    parts = string_util.split_by_white_space(s, strip = True)
+    active = False
+    if parts[0] == '*':
+      active = True
+      parts.pop(0)
+    assert len(parts) > 2
+    name = parts[0]
+    commit = parts[1]
+    return clazz._branch_list_item(name, active, commit)
+
+  @classmethod
+  def active_branch(clazz, root):
+    return [ i for i in clazz.branch_list(root) if i.active ][0].name
