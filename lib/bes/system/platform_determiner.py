@@ -59,7 +59,7 @@ class _platform_determiner_macos(_platform_determiner_base):
   #@abstractmethod
   def distro(self):
     'distro.'
-    return None
+    return 'macos'
   
   #@abstractmethod
   def family(self):
