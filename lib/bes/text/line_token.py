@@ -29,6 +29,10 @@ class line_token(namedtuple('line_token', 'line_number,text')):
   def text_no_comments(self):
     return comments.strip_line(self.text, strip_tail = True)
 
+  @property
+  def stripped_text(self):
+    return self.text.strip()
+  
   @classmethod
   def merge(clazz, lines):
     'Merge a sequence of lines into one.  Continuation flags are cleared'

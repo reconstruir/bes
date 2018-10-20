@@ -125,4 +125,10 @@ class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
       if next_kv.key == key:
         self._values[i] = new_kv
       
+  def keys(self):
+    return [ kv.key for kv in self ]
+      
+  def values(self):
+    return [ kv.value for kv in self ]
+      
 check.register_class(key_value_list, include_seq = False)
