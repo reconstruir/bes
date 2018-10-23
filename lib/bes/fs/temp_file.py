@@ -1,17 +1,17 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+from collections import namedtuple
 
 import atexit, os, os.path as path, sys, tempfile
 from .file_util import file_util
+from bes.common import check
 from bes.system import log
 
-class temp_item(object):
+class temp_item(namedtuple('temp_item', 'filename, content, mode')):
   'Description of an temp item.'
 
-  def __init__(self, filename, content = None, mode = None):
-    self.filename = filename
-    self.content = content
-    self.mode = mode
+  def __new__(clazz, filename, content = None, mode = None):
+    return clazz.__bases__[0].__new__(clazz, filename, content, mode)
 
   def write(self, root_dir):
     p = path.join(root_dir, self.filename)
@@ -20,7 +20,9 @@ class temp_item(object):
     else:
       content = self.content
     file_util.save(p, content = content, mode = self.mode)
-
+    
+check.register_class(temp_item)
+    
 class temp_file(object):
 
   _DEFAULT_PREFIX = file_util.remove_extension(path.basename(sys.argv[0])) + '-tmp-'
@@ -63,20 +65,6 @@ class temp_file(object):
       clazz.atexit_delete(tmp_dir)
     return tmp_dir
 
-  @classmethod
-  def poto_make_temp_dir(clazz, prefix = None, suffix = None, dir = None, delete = True, items = None):
-    'Make a temporary directory.'
-    prefix = prefix or clazz._DEFAULT_PREFIX
-    suffix = suffix or clazz._DEFAULT_DIR_SUFFIX
-    tmp_dir = tempfile.mkdtemp(prefix = prefix, suffix = suffix, dir = dir)
-    assert path.isdir(tmp_dir)
-    if items:
-      clazz.write_temp_files(tmp_dir, items)
-      
-    if delete:
-      clazz.atexit_delete(tmp_dir)
-    return tmp_dir
-  
   @classmethod
   def atexit_delete(clazz, filename):
     'Delete filename atexit time.'
