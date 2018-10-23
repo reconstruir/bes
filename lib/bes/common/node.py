@@ -8,7 +8,20 @@ class node(object):
   def __init__(self, data):
     self.data = data
     self.children = []
+    self._child_class = self.__class__
 
+  @property
+  def child_class(self):
+    return self._child_class
+
+  @child_class.setter
+  def child_class(self, clazz):
+    self._child_class = clazz
+    
+  @property
+  def node_class(self, clazz):
+    self._node_class = clazz
+    
   def __eq__(self, other):
     assert isinstance(other, node)
     return self.__dict__ == other.__dict__
@@ -17,7 +30,7 @@ class node(object):
     return self.to_string(0)
 
   def add_child(self, data):
-    n = node(data)
+    n = self._child_class(data)
     self.children.append(n)
     return n
 
