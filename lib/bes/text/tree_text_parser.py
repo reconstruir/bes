@@ -1,11 +1,18 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.common import node
 from bes.compat import StringIO
 from collections import namedtuple
 from .comments import comments
-  
+
+class _text_node(node):
+
+  def __init__(self, data):
+    super(_text_node, self).__init__(data)
+
+  def find_child_by_text(self, text):
+    return self.find_child(lambda node: node.data.text == text)
+    
 class _text_stack(object):
 
   path_item = namedtuple('path_item', 'text, line_number')
@@ -45,7 +52,8 @@ class tree_text_parser(object):
 
   @classmethod
   def parse(clazz, text, strip_comments = False):
-    result = node(_text_stack.path_item('root', 0))
+    result = _text_node(_text_stack.path_item('root', 0))
+    result.child_class = _text_node
     st = _text_stack()
     current_indent = None
     for i, line in enumerate(text.split('\n')):
