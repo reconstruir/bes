@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .argument_resolver import argument_resolver
@@ -12,3 +11,4 @@ from .file_info_list import file_info_list
 from .printer import printer
 from .unit_test_description import unit_test_description
 from .unit_test_inspect import unit_test_inspect
+from .unit_test_output import unit_test_output

@@ -14,7 +14,7 @@ from bes.egg import egg
 from bes.fs import file_find, file_path, file_util, temp_file
 from bes.git import git
 from bes.system import execute, env_var, host, os_env
-from bes.testing.framework import argument_resolver, printer
+from bes.testing.framework import argument_resolver, printer, unit_test_output
 from bes.version import version_cli
 
 # TODO:
@@ -338,7 +338,7 @@ def main():
         num_passed += 1
       else:
         num_failed += 1
-        failed_tests.append(( python_exe, filename ))
+        failed_tests.append(( python_exe, filename, result ))
       if args.stop and not result.success:
         stopped = True
     if stopped:
@@ -356,22 +356,29 @@ def main():
     function_summary = '(%d of %d %s)' % (total_num_tests, total_tests, _make_test_string(total_tests))
     
   if num_failed > 0:
-    summary_parts.append('%d of %d FAILED' % (num_failed, num_tests))
+    summary_parts.append('%d of %d fixtures FAILED' % (num_failed, num_tests))
   summary_parts.append('%d of %d passed %s' % (num_passed, num_tests, function_summary))
   if num_skipped > 0:
     summary_parts.append('%d of %d skipped' % (num_skipped, num_tests))
 
+  
+    
   summary = '; '.join(summary_parts)
   printer.writeln_name('%s' % (summary))
   if failed_tests:
     longest_python_exe = max([len(path.basename(p)) for p in options.interpreters])
-    for python_exe, filename in failed_tests:
+    for python_exe, filename, result in failed_tests:
       if len(options.interpreters) > 1:
         python_exe_blurb = path.basename(python_exe).rjust(longest_python_exe)
       else:
         python_exe_blurb = ''
-      last_error = _find_unit_test_last_error(result.output) or ''
-      printer.writeln_name('FAILED: %s %s%s' % (python_exe_blurb, file_util.remove_head(filename, cwd), last_error))
+      error_status = unit_test_output.error_status(result.output)
+      for error in error_status.errors:
+        printer.writeln_name('%5s: %s %s:%s.%s' % (error.error_type,
+                                                  python_exe_blurb,
+                                                  file_util.remove_head(filename, cwd),
+                                                  error.fixture,
+                                                  error.function))
 
   if num_failed > 0:
     rv = 1
@@ -540,13 +547,6 @@ def _check_program(program_name):
     printer.writeln_name('ERROR: %s not found.' % (program_name))
     return None
   return exe
-
-def _find_unit_test_last_error(output):
-  for line in reversed(output.split('\n')):
-    r = re.findall('^\s*FAIL:\s+(.+)\s+\(__main__\.(.+)\)\s*$', line)
-    if r:
-      return ':%s.%s' % (r[0][1], r[0][0])
-  return None
 
 def _parse_args_env(env):
   if not env:

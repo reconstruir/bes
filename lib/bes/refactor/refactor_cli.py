@@ -41,6 +41,8 @@ class refactor_cli(script_base):
                                     help = 'Only print what would happen without doing it [ False ]')
     rename_dirs_parser.add_argument('--word-boundary', '-w', action = 'store_true', default = False,
                                     help = 'Respect word boundaries [ False ]')
+    rename_dirs_parser.add_argument('--content-only', action = 'store_true', default = False,
+                                    help = 'Rename content of files only [ False ]')
 
     # Unit
     unit_parser = subparsers.add_parser('unit', help = 'Ensure unit tests are in their own modules.')
