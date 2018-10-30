@@ -10,3 +10,13 @@ class white_space(object):
       if line.isspace():
         lines[i] = ''
     return '\n'.join(lines)
+
+  @classmethod
+  def count_leading_spaces(self, text):
+    count = 0
+    for c in text:
+      if c.isspace():
+        count += 1
+      else:
+        break
+    return count

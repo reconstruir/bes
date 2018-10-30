@@ -9,6 +9,10 @@ from .hexdata import hexdata
 class unit_test(unittest.TestCase):
   'Helper for writing unit tests.'
 
+  def __init__(self, *args, **kargs):
+    self.maxDiff = None
+    super(unit_test, self).__init__(*args, **kargs)
+  
   DEBUG = os.environ.get('DEBUG', '').lower() in [ 't', 'true', 'y', 'yes', '1' ]
   BES_VERBOSE = os.environ.get('BES_VERBOSE', '').lower() in [ 't', 'true', 'y', 'yes', '1' ]
   

@@ -4,6 +4,7 @@ from bes.common import node
 from bes.compat import StringIO
 from collections import namedtuple
 from .comments import comments
+from .white_space import white_space
 
 class _text_node(node):
 
@@ -12,7 +13,23 @@ class _text_node(node):
 
   def find_child_by_text(self, text):
     return self.find_child(lambda node: node.data.text == text)
-    
+
+  def get_children_indented_text(self, indent = '  '):
+    lines = []
+    self._visit_node_text(0, True, indent, lines)
+    if not lines:
+      return []
+    count = white_space.count_leading_spaces(lines[0])
+    lines = [ line[count:] for line in lines ]
+    return '\n'.join(lines) + '\n'
+  
+  def _visit_node_text(self, depth, children_only, indent, result):
+    if not children_only:
+      result.append('%s%s' % (indent * depth, self.data.text))
+    for child in self.children:
+      child._visit_node_text(depth + 1, False, indent, result)
+    return result
+  
 class _text_stack(object):
 
   path_item = namedtuple('path_item', 'text, line_number')
@@ -94,15 +111,15 @@ class tree_text_parser(object):
       return '\n'.join([ child.to_string(data_func = lambda item: item.text) for child in node.children ])
   
   @classmethod
-  def node_text_flat(clazz, node):
+  def node_text_flat(clazz, node, delimiter = ' '):
     buf = StringIO()
-    clazz._node_text_collect(node, ' ', buf)
+    clazz._node_text_collect(node, delimiter, buf)
     return buf.getvalue().strip()
 
   @classmethod
-  def node_children_text_flat(clazz, node):
+  def node_children_text_flat(clazz, node, delimiter = ' '):
     texts = [ clazz.node_text_flat(child) for child in node.children ]
-    return ' '.join(texts)
+    return delimiter.join(texts)
   
   @classmethod
   def _node_text_collect(clazz, node, delimiter, buf):

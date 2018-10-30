@@ -245,14 +245,6 @@ class string_util(object):
     return False
 
   @classmethod
-  def has_white_space(clazz, s):
-    'Return True if s has any white space.'
-    for c in s:
-      if c.isspace():
-        return True
-    return False
-
-  @classmethod
   def reverse(clazz, s):
     return ''.join(reversed(s))
 

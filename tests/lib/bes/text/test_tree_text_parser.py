@@ -136,6 +136,20 @@ fruits # comment
 
     self.assertMultiLineEqual( expected.to_string(data_func = self._data_func), self._parse(text, strip_comments = True) )
 
+  def test_strip_quote_in_comments(self):
+    self.maxDiff = None
+    text = '''
+fruits
+  apple
+  kiwi
+###              fprintf(stderr, "Usage: cut.exe args\\n");
+'''
+    expected = node(PI('root', 0))
+    expected.ensure_path([ PI('fruits', 2), PI('apple', 3) ])
+    expected.ensure_path([ PI('fruits', 2), PI('kiwi', 4) ])
+
+    self.assertMultiLineEqual( expected.to_string(data_func = self._data_func), self._parse(text, strip_comments = True) )
+    
   def test_node_text_flat_one_node(self):
     text = '''
 fruits
@@ -152,6 +166,30 @@ fruits
 '''
     self.assertEqual( 'root fruits apple berries blueberries strawberries', P.node_text_flat(P.parse(text)) )
 
+  def test_node_text_indented_text(self):
+    text = '''
+c_program
+  bin/cut.exe
+    sources
+      main.c
+        int main(int argc, char* argv[]) {
+        char* arg;
+        if (argc < 2) {
+          fprintf(stderr, "Usage: cut.exe args\\n");
+          return 1;
+        }
+        return 0;
+'''
+    expected = '''int main(int argc, char* argv[]) {
+char* arg;
+if (argc < 2) {
+  fprintf(stderr, "Usage: cut.exe args\\n");
+  return 1;
+}
+return 0;
+'''
+    n = P.parse(text).find_child_by_text('main.c')
+    self.assertMultiLineEqual( expected, n.get_children_indented_text() )
 
   @classmethod
   def _parse(clazz, text, strip_comments = False):
