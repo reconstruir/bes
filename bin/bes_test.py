@@ -374,11 +374,11 @@ def main():
         python_exe_blurb = ''
       error_status = unit_test_output.error_status(result.output)
       for error in error_status.errors:
-        printer.writeln_name('%5s: %s %s:%s.%s' % (error.error_type,
-                                                  python_exe_blurb,
-                                                  file_util.remove_head(filename, cwd),
-                                                  error.fixture,
-                                                  error.function))
+        printer.writeln_name('%5s: %s %s: %s.%s' % (error.error_type,
+                                                    python_exe_blurb,
+                                                    file_util.remove_head(filename, cwd),
+                                                    error.fixture,
+                                                    error.function))
 
   if num_failed > 0:
     rv = 1
