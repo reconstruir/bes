@@ -1,8 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common import node
+from bes.common import node, string_util
 from bes.compat import StringIO
 from collections import namedtuple
+
 from .comments import comments
 from .white_space import white_space
 
@@ -29,6 +30,12 @@ class _text_node(node):
     for child in self.children:
       child._visit_node_text(depth + 1, False, indent, result)
     return result
+
+  def replace_text(self, replacements):
+    'Travese the tree and replace text in each node.'
+    self.data = self.data.__class__(string_util.replace(self.data.text, replacements), self.data.line_number)
+    for child in self.children:
+      child.replace_text(replacements)
   
 class _text_stack(object):
 
