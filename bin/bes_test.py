@@ -361,8 +361,6 @@ def main():
   if num_skipped > 0:
     summary_parts.append('%d of %d skipped' % (num_skipped, num_tests))
 
-  
-    
   summary = '; '.join(summary_parts)
   printer.writeln_name('%s' % (summary))
   if failed_tests:
@@ -374,7 +372,7 @@ def main():
         python_exe_blurb = ''
       error_status = unit_test_output.error_status(result.output)
       for error in error_status.errors:
-        printer.writeln_name('%5s: %s %s: %s.%s' % (error.error_type,
+        printer.writeln_name('%5s: %s %s :%s.%s' % (error.error_type,
                                                     python_exe_blurb,
                                                     file_util.remove_head(filename, cwd),
                                                     error.fixture,
