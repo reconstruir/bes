@@ -84,3 +84,9 @@ class dict_util(object):
   def substitute_variables(d, substitutions, word_boundary = True):
     for key in d.iterkeys():
       d[key] = variable.substitute(d[key], substitutions, word_boundary = word_boundary)
+
+  @staticmethod
+  def replace_values(d, replacements, word_boundary = True):
+    for key in d.iterkeys():
+      d[key] = string_util.replace(d[key], replacements)
+      
