@@ -113,7 +113,7 @@ class os_env(object):
 
   @classmethod
   def clone_current_env(clazz):
-    return copy.deepcopy(os.environ)
+    return copy.deepcopy(dict(os.environ))
   
   @classmethod
   def _env_path_update(clazz, env, d, key, prepend = False):
