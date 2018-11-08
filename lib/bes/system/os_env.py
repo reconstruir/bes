@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import copy, os, os.path as path
+import copy, os, os.path as path, tempfile
 
 from .host import host
 from .env_var import os_env_var
@@ -11,7 +10,8 @@ class os_env(object):
 
   # The cleanest possible unix PATH
   CLEAN_PATH_MAP = {
-    host.LINUX: [ '/usr/bin', '/bin', '/usr/sbin', '/sbin' ],
+    host.LINUX: [ '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/caca/bin' ],
+    # Not sure if macos has some other special bin dirs
     host.MACOS: [ '/usr/bin', '/bin', '/usr/sbin', '/sbin' ],
   }
 
@@ -137,3 +137,9 @@ class os_env(object):
     env['PYTHONDONTWRITEBYTECODE'] = '1'
     env['PYTHONPATH'] = env['PYTHONPATH'] + ':' + fallback_python_path
     return execute.execute(cmd, env = env, raise_error = False, stderr_to_stdout = True)
+
+  @classmethod
+  def default_system_value(clazz, key):
+    rv = execute.execute([ 'env', '-i', 'bash', '-c', 'echo ${key}'.format(key = key) ], raise_error = True, shell = False)
+    return rv.stdout.strip()
+      
