@@ -144,3 +144,5 @@ text table issue swith utf8
 
 2018-10-21
 - move string_util from bes.text to bes.common
+
+replace os_env: CLEAN_PATH_MAP with default_system_value('PATH')
