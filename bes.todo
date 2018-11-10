@@ -146,3 +146,6 @@ text table issue swith utf8
 - move string_util from bes.text to bes.common
 
 replace os_env: CLEAN_PATH_MAP with default_system_value('PATH')
+
+theres a confusing comlfict between items in make_temp_dir and temp_content.  clarify it
+temp_content parsing should deal with the fact DIR requires and empty "" content string
