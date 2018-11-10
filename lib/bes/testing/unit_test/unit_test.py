@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs, copy, json, inspect, os, os.path as path, platform, re, sys, unittest
+import codecs, copy, json, inspect, os, os.path as path, platform, pprint, re, sys, unittest
 from bes.compat import StringIO
 from io import BytesIO
 
@@ -51,6 +51,9 @@ class unit_test(unittest.TestCase):
   def assert_string_equal_strip(self, s1, s2):
     self.maxDiff = None
     self.assertEqual( s1.strip(), s2.strip() )
+
+  def assert_dict_equal(self, d1, d2):
+    self.assertMultiLineEqual( pprint.pformat(d1, indent = 2), pprint.pformat(d2, indent = 2) )
 
   def assert_file_content_equal(self, expected, filename, strip = True):
     self.maxDiff = None
