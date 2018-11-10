@@ -6,8 +6,14 @@ from .host import host
 from .env_var import os_env_var
 from .execute import execute
 
+def _default_system_value(key):
+  rv = execute.execute([ 'env', '-i', 'bash', '-c', 'echo ${key}'.format(key = key) ], raise_error = True, shell = False)
+  return rv.stdout.strip()
+
 class os_env(object):
 
+  DEFAULT_SYSTEM_PATH = _default_system_value('PATH')
+  
   # The cleanest possible unix PATH
   CLEAN_PATH_MAP = {
     host.LINUX: [ '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/caca/bin' ],
@@ -140,6 +146,4 @@ class os_env(object):
 
   @classmethod
   def default_system_value(clazz, key):
-    rv = execute.execute([ 'env', '-i', 'bash', '-c', 'echo ${key}'.format(key = key) ], raise_error = True, shell = False)
-    return rv.stdout.strip()
-      
+    return _default_system_value(key)
