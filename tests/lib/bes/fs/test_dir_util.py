@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import os.path as path, unittest
-from bes.fs import dir_util, file_util, temp_file
+from bes.fs import dir_util, file_find, file_util, temp_file
+from bes.fs.testing import temp_content
 
 class test_dir_util(unittest.TestCase):
 
@@ -46,5 +47,33 @@ class test_dir_util(unittest.TestCase):
   def test_all_parents(self):
     self.assertEqual( [ '/', '/usr', '/usr/lib' ], dir_util.all_parents('/usr/lib/foo' ) )
 
+  def test_move_files(self):
+    tmp_dir = temp_file.make_temp_dir()
+    src_dir = path.join(tmp_dir, 'src')
+    dst_dir = path.join(tmp_dir, 'dst')
+    file_util.mkdir(dst_dir)
+    temp_content.write_items([
+      'file foo.txt "This is foo.txt\n" 644',
+      'file bar.txt "This is bar.txt\n" 644',
+      'file sub1/sub2/baz.txt "This is baz.txt\n" 644',
+      'file yyy/zzz/vvv.txt "This is vvv.txt\n" 644',
+      'file .hidden "this is .hidden\n" 644',
+      'file script.sh "#!/bin/bash\necho script.sh\nexit 0\n" 755',
+      'file .hushlogin "" 644',
+    ], src_dir)
+    expected = [
+      '.hidden',
+      '.hushlogin',
+      'bar.txt',
+      'foo.txt',
+      'script.sh',
+      'sub1/sub2/baz.txt',
+      'yyy/zzz/vvv.txt',
+    ]
+    self.assertEqual( expected, file_find.find(src_dir, relative = True))
+    dir_util.move_files(src_dir, dst_dir)
+    self.assertEqual( expected, file_find.find(dst_dir, relative = True))
+    self.assertEqual( [], file_find.find(src_dir, relative = True))
+    
 if __name__ == "__main__":
   unittest.main()

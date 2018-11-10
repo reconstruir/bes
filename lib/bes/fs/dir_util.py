@@ -59,3 +59,14 @@ class dir_util(object):
       if mtime <= ago:
         result.append(d)
     return result
+
+  @classmethod
+  def move_files(clazz, src_dir, dst_dir):
+    if not path.isdir(src_dir):
+      raise IOError('Not a directory: %s' % (src_dir))
+    if not path.isdir(dst_dir):
+      raise IOError('Not a directory: %s' % (dst_dir))
+    for f in clazz.list(src_dir, relative = True):
+      src_file = path.join(src_dir, f)
+      dst_file = path.join(dst_dir, f)
+      os.rename(src_file, dst_file)
