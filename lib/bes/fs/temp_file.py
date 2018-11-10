@@ -34,7 +34,8 @@ class temp_file(object):
     'Write content to a temporary file.  Returns the file object.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or clazz._DEFAULT_SUFFIX
-    
+    if dir and not path.isdir(dir):
+      file_util.mkdir(dir)
     tmp = tempfile.NamedTemporaryFile(prefix = prefix,
                                       suffix = suffix,
                                       dir = dir,
@@ -56,6 +57,8 @@ class temp_file(object):
     'Make a temporary directory.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or clazz._DEFAULT_DIR_SUFFIX
+    if dir and not path.isdir(dir):
+      file_util.mkdir(dir)
     tmp_dir = tempfile.mkdtemp(prefix = prefix, suffix = suffix, dir = dir)
     assert path.isdir(tmp_dir)
     if items:
