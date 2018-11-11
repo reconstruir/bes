@@ -160,6 +160,7 @@ def main():
   args = parser.parse_args()
 
   if args.temp_dir:
+    file_util.mkdir(args.temp_dir)
     tempfile.tempdir = args.temp_dir
 
   if os.environ.get('DEBUG', False):
