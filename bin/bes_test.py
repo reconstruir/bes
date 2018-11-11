@@ -149,13 +149,22 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Dont use env deps. [ False ]')
+  parser.add_argument('--temp-dir',
+                      action = 'store',
+                      default = None,
+                      help = 'The directory to use for tmp files overriding the system default.  [ None ]')
 
   for g in parser._action_groups:
     g._group_actions.sort(key = lambda x: x.dest)
   
   args = parser.parse_args()
 
-  
+  if args.temp_dir:
+    tempfile.tempdir = args.temp_dir
+
+  if os.environ.get('DEBUG', False):
+    args.verbose = True
+    
   cwd = os.getcwd()
 
   if args.version:
@@ -229,7 +238,7 @@ def main():
   # Start with a clean environment so unit testing can be deterministic and not subject
   # to whatever the user happened to have exported.  PYTHONPATH and PATH for dependencies
   # are set below by iterating the configs 
-  keep_keys = [ 'BES_LOG', 'BES_VERBOSE', 'BESCFG_PATH', 'DEBUG' ]
+  keep_keys = [ 'BES_LOG', 'BES_VERBOSE', 'BESCFG_PATH', 'DEBUG', 'BES_TEMP_DIR' ]
   if args.dont_hack_env:
     keep_keys.extend([ 'PATH', 'PYTHONPATH'])
     
@@ -317,7 +326,7 @@ def main():
     return 1
     
   options = test_options(args.dry_run, args.verbose, args.stop, args.timing,
-                         args.profile, args.coverage, args.python)
+                         args.profile, args.coverage, args.python, args.temp_dir)
   
   timings = {}
 
@@ -424,7 +433,7 @@ def main():
 def _timing_average(l):
   return float(sum(l)) / float(len(l))
 
-test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing,profile_output,coverage_output,interpreters')
+test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing,profile_output,coverage_output,interpreters,temp_dir')
 test_result = namedtuple('test_result', 'success,num_tests_run,elapsed_time,output')
 
 def _test_data_dir(filename):
@@ -495,6 +504,8 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     env['BES_TEST_DATA_DIR'] = _test_data_dir(filename)
     if options.verbose:
       env['BES_VERBOSE'] = '1'
+    if options.temp_dir:
+      env['BES_TEMP_DIR'] = options.temp_dir
     time_start = time.time()
     process = subprocess.Popen(' '.join(cmd),
                                stdout = subprocess.PIPE,

@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs, copy, json, inspect, os, os.path as path, platform, pprint, re, sys, unittest
+import codecs, copy, json, inspect, os, os.path as path, platform, pprint, re, sys, tempfile, unittest
 from bes.compat import StringIO
 from io import BytesIO
 
@@ -15,6 +15,13 @@ class unit_test(unittest.TestCase):
   
   DEBUG = os.environ.get('DEBUG', '').lower() in [ 't', 'true', 'y', 'yes', '1' ]
   BES_VERBOSE = os.environ.get('BES_VERBOSE', '').lower() in [ 't', 'true', 'y', 'yes', '1' ]
+  
+  _temp_dir = os.environ.get('BES_TEMP_DIR', None)
+  if _temp_dir:
+    if not path.isdir(_temp_dir):
+      os.makedirs(_temp_dir)
+    tempfile.tempdir = _temp_dir
+  del _temp_dir
   
   def data_path(self, filename, platform_specific = False): 
     assert filename
