@@ -10,9 +10,6 @@ class test_bash_scripts(unit_test):
   def test_bes_framework_sh(self):
     self.assertEqual( 0, self._run_test('test_bes_framework.sh') )
     
-  def test_bes_path_sh(self):
-    self.assertEqual( 0, self._run_test('test_bes_path.sh') )
-    
   def _run_test(self, script_name):
     script = path.join(path.dirname(__file__), script_name)
     print("python: running: %s" % (script))
