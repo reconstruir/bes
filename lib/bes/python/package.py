@@ -22,14 +22,20 @@ class package(object):
 
   @classmethod
   def get_data_content(clazz, data_path, filename, module_name):
+    import sys
     try:
       inside_egg, data = clazz._resolve_data(data_path, filename, module_name)
       if not inside_egg:
         if not path.isfile(data):
           raise RuntimeError('Not a file: %s' % (data))
-        return file_util.read(data)
+        result = file_util.read(data)
+        if not result:
+          raise RuntimeError('Failed to read: %s' % (data))
+        return result
       return data
     except Exception as ex:
+      sys.stderr.write('package: caught exception: %s\n' % (str(ex)))
+      sys.stdout.flush()
       return None
     
   @classmethod
