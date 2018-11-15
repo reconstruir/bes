@@ -1,7 +1,6 @@
 #!/bin/bash
 
 source $_BES_DEV_ROOT/env/bes_framework.sh
-source $_BES_DEV_ROOT/env/bes_testing.sh
 
 function test_bes_var_set()
 {
@@ -69,4 +68,3 @@ function test_bes_path_remove()
 }
 
 bes_testing_run_unit_tests
-
