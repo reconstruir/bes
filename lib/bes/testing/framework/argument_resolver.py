@@ -300,20 +300,6 @@ class argument_resolver(object):
     pyc_files = file_finder.find_python_compiled_files(root_dirs)
     file_util.remove(pyc_files)
 
-  _IMPORT_PATTERN = re.compile('^\s*import\s+(.+)\s+#\s+(from|precompiled\s+from)\s(.+)\s*$')
-  def poto_dependencies(self, filename, python_exe):
-    'Return list of files filename depends on or None if snakefood is not found.'
-    rv = execute.execute('%s -v %s' % (python_exe, filename), raise_error = False)
-    parser = text_line_parser(rv.stderr)
-    parser.remove_empties()
-    for line in parser:
-      found = self._IMPORT_PATTERN.findall(line.text)
-      if found and len(found) == 1:
-        filename = found[0][2]
-        if self._file_is_managed(filename):
-          print(filename)
-    return None
-
   def _file_is_managed(self, filename):
     'Return True if filename is managed by the environment.'
     for config in self._env_dependencies_configs:

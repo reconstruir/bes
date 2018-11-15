@@ -115,9 +115,6 @@ get rid of noop_debug_timer and just make debug_timer support being disabled.  r
 2018-05-06
  - when best test fails print a report of all the failed tests
  
-2018-05-28
- - bes_test.py cleanup poto_dependencies
-
 2018-05-30
  - fix test_archive_unix_tar.py
  - unit_test_skip stuff is confusing because some are for skipping a function vs some are for skipping a testcase
@@ -149,3 +146,7 @@ replace os_env: CLEAN_PATH_MAP with default_system_value('PATH')
 
 theres a confusing comlfict between items in make_temp_dir and temp_content.  clarify it
 temp_content parsing should deal with the fact DIR requires and empty "" content string
+
+audit os_env to make sure there is no os.environ usage and put anything that uses environ in a system_os_env kind of thing
+
+fix bes_path.sh tp print ~/ instead of $HOME
