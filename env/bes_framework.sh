@@ -1,3 +1,4 @@
+#-*- coding:utf-8; mode:shell-script; indent-tabs-mode: nil; sh-basic-offset: 2; tab-width: 2 -*-
 
 if [ -n "$_BES_TRACE" ]; then echo "bes_framework.sh begin"; fi
 
@@ -6,7 +7,7 @@ source $_BES_DEV_ROOT/env/bes_path.sh
 # Return system host name.  linux or macos same is bes/system/host.py
 _bes_host()
 {
-  local _name=$(uname -s)
+  local _name=$(PATH=/usr/bin:/usr/sbin:/bin:/sbin uname -s)
   local _host='unknown'
   case $_name in
     Linux)
@@ -240,5 +241,5 @@ function bes_tab_title()
   local _prompt=$(echo -ne "\033]0;"$*"\007")
   export PROMPT_COMMAND='${_prompt}'
 }
-
+  
 if [ -n "$_BES_TRACE" ]; then echo "bes_framework.sh end"; fi

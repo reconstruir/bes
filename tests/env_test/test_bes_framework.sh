@@ -16,5 +16,11 @@ function test_bes_var_get()
   bes_assert "[ $v = 667 ]"
 }
 
+function xtest_bes_array_to_string()
+{
+  v=$(bes_array_to_string "foo" "bar" "apple and kiwi")
+  bes_assert '[ $v = ([0]="foo" [1]="bar" [2]="apple and kiwi") ]'
+}
+
 bes_testing_run_unit_tests
 
