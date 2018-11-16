@@ -116,7 +116,7 @@ function bes_path_print()
   fi
   local pa=(`set -f; IFS=:; printf "%s\n" $PATH`)
   for item in ${pa[@]}; do
-    echo "${item}"
+    echo "${item/$HOME/\~}"
   done
   return 0
 }
