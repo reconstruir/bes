@@ -140,13 +140,9 @@ text table issue swith utf8
 - check.check_string_seq() returns true for strings need to fix this
 
 2018-10-21
-- move string_util from bes.text to bes.common
-
-replace os_env: CLEAN_PATH_MAP with default_system_value('PATH')
+- move string_list from bes.text to bes.common
 
 theres a confusing comlfict between items in make_temp_dir and temp_content.  clarify it
 temp_content parsing should deal with the fact DIR requires and empty "" content string
 
 audit os_env to make sure there is no os.environ usage and put anything that uses environ in a system_os_env kind of thing
-
-fix bes_path.sh tp print ~/ instead of $HOME
