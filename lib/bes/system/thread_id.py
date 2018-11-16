@@ -22,7 +22,7 @@ class thread_id(object):
     return libc.syscall(186)
 
   @classmethod
-  def _thread_id_raspbian(clazz):
+  def _thread_id_linux_arm(clazz):
     libc = clazz._thread_id_linux_libc()
     return libc.syscall(224)
 
@@ -30,8 +30,8 @@ class thread_id(object):
   if host.SYSTEM == host.MACOS:
     thread_id = _thread_id_macos
   elif host.SYSTEM == host.LINUX:
-    if host.DISTRO == host.RASPBIAN:
-      thread_id = _thread_id_raspbian
+    if host.ARCH.startswith('arm'):
+      thread_id = _thread_id_linux_arm
     else:
       thread_id = _thread_id_linux
   assert thread_id
