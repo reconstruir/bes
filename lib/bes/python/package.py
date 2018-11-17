@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os, os.path as path, pkgutil
+import os, os.path as path, pkgutil, sys
 from bes.fs import file_path, file_util, temp_file
 
 class package(object):
@@ -22,9 +22,10 @@ class package(object):
 
   @classmethod
   def get_data_content(clazz, data_path, filename, module_name):
-    import sys
     try:
+      print('data_path=%s, filename=%s, module_name=%s' % (data_path, filename, module_name))
       inside_egg, data = clazz._resolve_data(data_path, filename, module_name)
+      print('inside_egg=%s, data=%s' % (inside_egg, data))
       if not inside_egg:
         if not path.isfile(data):
           raise RuntimeError('Not a file: %s' % (data))
