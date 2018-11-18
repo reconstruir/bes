@@ -39,6 +39,9 @@ class archive_zip(archive):
     with zipfile.ZipFile(file = self.filename, mode = 'r') as archive:
       dest_dir = self._determine_dest_dir(dest_dir, base_dir)
       archive.extractall(path = dest_dir)
+      for info in archive.infolist():
+        p = path.join(dest_dir, info.filename)
+        self._fix_permissions(p, info)
     self._handle_extract_strip_common_ancestor(self.members, strip_common_ancestor, strip_head, dest_dir)
 
   #@abstractmethod
