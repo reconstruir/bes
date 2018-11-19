@@ -109,9 +109,6 @@ march 29
 
 s/matcher_multiple_filename/matcher_multiple_patterns/
 
-april 11
-get rid of noop_debug_timer and just make debug_timer support being disabled.  rename it timing_measure or some such
-
 2018-05-06
  - when best test fails print a report of all the failed tests
  
@@ -148,3 +145,5 @@ temp_content parsing should deal with the fact DIR requires and empty "" content
 audit os_env to make sure there is no os.environ usage and put anything that uses environ in a system_os_env kind of thing
 
 consider the locations of os_env env_var might be bes.env
+
+fix bes_env_path_append and friends to check the first argument to be a good shell var name
