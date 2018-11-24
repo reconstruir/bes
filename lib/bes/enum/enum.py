@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .enum_loader import enum_loader
@@ -30,6 +29,9 @@ class _enum_meta_class(type):
       return clazz(obj)
     return obj
 
+  def __iter__(clazz):
+    return iter(clazz._ENUM)
+  
 class enum(with_metaclass(_enum_meta_class, object)):
 
   def __init__(self, value = None):
@@ -38,6 +40,9 @@ class enum(with_metaclass(_enum_meta_class, object)):
 
   def __str__(self):
     return self._ENUM.value_to_name(self._value)
+    
+  def __iter__(self):
+    return iter(self._ENUM)
     
   def __eq__(self, other):
     if isinstance(other, self.__class__):

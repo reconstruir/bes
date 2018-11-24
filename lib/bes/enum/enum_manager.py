@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
@@ -15,6 +14,9 @@ class enum_manager(object):
     self._name_values = []
     self._name_to_value = {}
     self._value_to_name = {}
+
+  def __iter__(self):
+    return iter(self.name_values)
 
   @property
   def name_values(self):

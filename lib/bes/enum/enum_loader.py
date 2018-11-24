@@ -1,9 +1,7 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import inspect
 from .enum_manager import enum_manager
-import itertools
 
 class enum_loader(object):
   
@@ -39,7 +37,6 @@ class enum_loader(object):
 
   @classmethod
   def load_name_values(clazz, target):
-
     members = inspect.getmembers(target)
     int_members = [ member for member in members if isinstance(member[1], int) ]
     if not int_members:
