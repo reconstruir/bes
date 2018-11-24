@@ -2,20 +2,49 @@
 
 from bes.common import node, string_util
 from bes.compat import StringIO
+from bes.enum import enum
 from collections import namedtuple
 
 from .comments import comments
 from .white_space import white_space
 
+class text_traversal(enum):
+  NODE = 1
+  NODE_FLAT = 2
+  CHILDREN_FLAT = 3
+  CHILDREN_INLINE = 4
+    
 class _text_node(node):
 
   def __init__(self, data):
+    self._ensure_enum()
     super(_text_node, self).__init__(data)
+
+  @classmethod
+  def _ensure_enum(clazz):
+    if hasattr(clazz, '__enum_present'):
+      return
+    for name, value in text_traversal:
+      setattr(clazz, name, value)
+    setattr(clazz, '__enum_present', True)
 
   def find_child_by_text(self, text):
     return self.find_child(lambda node: node.data.text == text)
 
-  def get_children_indented_text(self, indent = '  '):
+  def get_text(self, traversal, indent = None, delimiter = None):
+    indent = indent or '  '
+    delimiter = delimiter or ' '
+    if traversal == self.NODE:
+      result = self.data.text
+    elif traversal == self.NODE_FLAT:
+      result = self._get_text_node_flat(delimiter)
+    elif traversal == self.CHILDREN_FLAT:
+      result = self._get_text_children_flat(delimiter)
+    elif traversal == self.CHILDREN_INLINE:
+      result = self._get_text_children_inline(indent)
+    return result
+  
+  def _get_text_children_inline(self, indent):
     lines = []
     self._visit_node_text(0, True, indent, lines)
     if not lines:
@@ -23,6 +52,24 @@ class _text_node(node):
     count = white_space.count_leading_spaces(lines[0])
     lines = [ line[count:] for line in lines ]
     return '\n'.join(lines) + '\n'
+
+  def _get_text_node_flat(self, delimiter):
+    buf = StringIO()
+    self._node_text_collect(self, delimiter, buf)
+    return buf.getvalue().strip()
+
+  def _get_text_children_flat(self, delimiter):
+    texts = [ child._get_text_node_flat(delimiter) for child in self.children ]
+    return delimiter.join(texts)
+  
+  @classmethod
+  def _node_text_collect(clazz, node, delimiter, buf):
+    buf.write(node.data.text)
+    if node.children:
+      buf.write(delimiter)
+    for i, child in enumerate(node.children):
+      clazz._node_text_collect(child, delimiter, buf)
+      buf.write(delimiter)
   
   def _visit_node_text(self, depth, children_only, indent, result):
     if not children_only:
@@ -33,7 +80,8 @@ class _text_node(node):
 
   def replace_text(self, replacements):
     'Travese the tree and replace text in each node.'
-    self.data = self.data.__class__(string_util.replace(self.data.text, replacements), self.data.line_number)
+    new_text = string_util.replace(self.data.text, replacements)
+    self.data = self.data.__class__(new_text, self.data.line_number)
     for child in self.children:
       child.replace_text(replacements)
   
@@ -75,8 +123,8 @@ class _text_stack(object):
 class tree_text_parser(object):
 
   @classmethod
-  def parse(clazz, text, strip_comments = False):
-    result = _text_node(_text_stack.path_item('root', 0))
+  def parse(clazz, text, strip_comments = False, root_name = 'root'):
+    result = _text_node(_text_stack.path_item(root_name, 0))
     result.child_class = _text_node
     st = _text_stack()
     current_indent = None
@@ -109,30 +157,3 @@ class tree_text_parser(object):
       else:
         break
     return count
-
-  @classmethod
-  def node_text(clazz, node, include_root = False):
-    if include_root:
-      return child.to_string(data_func = lambda item: item.text)
-    else:
-      return '\n'.join([ child.to_string(data_func = lambda item: item.text) for child in node.children ])
-  
-  @classmethod
-  def node_text_flat(clazz, node, delimiter = ' '):
-    buf = StringIO()
-    clazz._node_text_collect(node, delimiter, buf)
-    return buf.getvalue().strip()
-
-  @classmethod
-  def node_children_text_flat(clazz, node, delimiter = ' '):
-    texts = [ clazz.node_text_flat(child) for child in node.children ]
-    return delimiter.join(texts)
-  
-  @classmethod
-  def _node_text_collect(clazz, node, delimiter, buf):
-    buf.write(node.data.text)
-    if node.children:
-      buf.write(delimiter)
-    for i, child in enumerate(node.children):
-      clazz._node_text_collect(child, delimiter, buf)
-      buf.write(delimiter)

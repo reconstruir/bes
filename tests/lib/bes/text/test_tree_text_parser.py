@@ -149,25 +149,34 @@ fruits
     expected.ensure_path([ PI('fruits', 2), PI('kiwi', 4) ])
 
     self.assertMultiLineEqual( expected.to_string(data_func = self._data_func), self._parse(text, strip_comments = True) )
-    
-  def test_node_text_flat_one_node(self):
-    text = '''
+
+  def test_get_text_node(self):
+    tree_text = '''
 fruits
 '''
-    self.assertEqual( 'root fruits', P.node_text_flat(P.parse(text)) )
-
-  def test_node_text_flat_two_nodes(self):
-    text = '''
+    root = P.parse(tree_text)
+    self.assertEqual( 'root', root.get_text(root.NODE) )
+    
+  def test_get_text_node_flat(self):
+    tree_text = '''
+fruits
+'''
+    root = P.parse(tree_text)
+    self.assertEqual( 'root fruits', root.get_text(root.NODE_FLAT) )
+    
+  def test_get_text_node_flat_three_nodes(self):
+    tree_text = '''
 fruits
   apple
   berries
     blueberries
       strawberries
 '''
-    self.assertEqual( 'root fruits apple berries blueberries strawberries', P.node_text_flat(P.parse(text)) )
-
-  def test_node_text_indented_text(self):
-    text = '''
+    root = P.parse(tree_text)
+    self.assertEqual( 'root fruits apple berries blueberries strawberries', root.get_text(root.NODE_FLAT) )
+    
+  def test_get_text_children_inline(self):
+    tree_text = '''
 c_program
   bin/cut.exe
     sources
@@ -188,12 +197,28 @@ if (argc < 2) {
 }
 return 0;
 '''
-    n = P.parse(text).find_child_by_text('main.c')
-    self.assertMultiLineEqual( expected, n.get_children_indented_text() )
+    root = P.parse(tree_text)
+    child = root.find_child_by_text('main.c')
+    self.assertMultiLineEqual( expected, child.get_text(child.CHILDREN_INLINE) )
 
+  def test_get_text_children_flat_three_nodes(self):
+    tree_text = '''
+fruits
+  apple
+  berries
+    blueberries
+      strawberries
+        organic
+        conventional
+'''
+    root = P.parse(tree_text)
+    child = root.find_child_by_text('blueberries')
+    self.assertEqual( 'strawberries organic conventional', child.get_text(root.CHILDREN_FLAT) )
+    
   @classmethod
-  def _parse(clazz, text, strip_comments = False):
-    return P.parse(text, strip_comments = strip_comments).to_string(data_func = clazz._data_func)
+  def _parse(clazz, text, strip_comments = False, root_name = 'root'):
+    root = P.parse(text, strip_comments = strip_comments, root_name = root_name)
+    return root.to_string(data_func = clazz._data_func)
     
 if __name__ == "__main__":
   unittest.main()
