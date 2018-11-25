@@ -22,7 +22,7 @@ class test_comments(unit_test):
   def test_strip_line_with_strip(self):
     self.assertEqual( 'foo', comments.strip_line('foo #comment', strip_tail = True) )
 
-  def test_strip_strip_multi_line(self):
+  def test_strip_strip_in_lines(self):
     text = '''
 foo_# comment
 # comment
@@ -33,9 +33,9 @@ foo_
 
 bar
 '''
-    self.assertEqual( expected, comments.strip_multi_line(text) )
+    self.assertEqual( expected, comments.strip_in_lines(text) )
 
-  def test_strip_strip_multi_line_with_strip(self):
+  def test_strip_strip_in_lines_with_strip(self):
     text = '''
 foo # comment
 # comment
@@ -46,9 +46,9 @@ foo
 
 bar
 '''
-    self.assertEqual( expected, comments.strip_multi_line(text, strip_tail = True) )
+    self.assertEqual( expected, comments.strip_in_lines(text, strip_tail = True) )
 
-  def test_strip_strip_multi_line_remove_empties(self):
+  def test_strip_strip_in_lines_remove_empties(self):
     text = '''
 foo_# comment
 # comment
@@ -56,9 +56,9 @@ bar
 '''
     expected = '''foo_
 bar'''
-    self.assertEqual( expected, comments.strip_multi_line(text, remove_empties = True) )
+    self.assertEqual( expected, comments.strip_in_lines(text, remove_empties = True) )
     
-  def test_strip_strip_multi_line_with_strip_and_remove_empties(self):
+  def test_strip_strip_in_lines_with_strip_and_remove_empties(self):
     text = '''
 foo # comment
 # comment
@@ -66,7 +66,7 @@ bar
 '''
     expected = '''foo
 bar'''
-    self.assertEqual( expected, comments.strip_multi_line(text, strip_tail = True, remove_empties = True) )
+    self.assertEqual( expected, comments.strip_in_lines(text, strip_tail = True, remove_empties = True) )
     
 if __name__ == '__main__':
   unit_test.main()
