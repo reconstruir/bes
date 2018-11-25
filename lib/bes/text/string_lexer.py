@@ -314,5 +314,3 @@ class string_lexer_state_comment(string_lexer_state):
       new_state = self.lexer.STATE_COMMENT
     self.lexer.change_state(new_state, c)
     return tokens
-
-      
