@@ -2,6 +2,7 @@
 
 from collections import namedtuple
 from bes.compat import StringIO
+from bes.common import check
 
 class node(object):
 
@@ -103,3 +104,5 @@ class node(object):
     result = []
     self._flatten(result, stack, self)
     return sorted(result, key = lambda x: ( x.path.count('/'), x.path ))
+
+check.register_class(node)
