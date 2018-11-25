@@ -33,7 +33,7 @@ foo_
 
 bar
 '''
-    self.assertEqual( expected, comments.strip_in_lines(text) )
+    self.assertMultiLineEqual( expected, comments.strip_in_lines(text) )
 
   def test_strip_strip_in_lines_with_strip(self):
     text = '''
@@ -46,7 +46,7 @@ foo
 
 bar
 '''
-    self.assertEqual( expected, comments.strip_in_lines(text, strip_tail = True) )
+    self.assertMultiLineEqual( expected, comments.strip_in_lines(text, strip_tail = True) )
 
   def test_strip_strip_in_lines_remove_empties(self):
     text = '''
@@ -56,17 +56,114 @@ bar
 '''
     expected = '''foo_
 bar'''
-    self.assertEqual( expected, comments.strip_in_lines(text, remove_empties = True) )
+    self.assertMultiLineEqual( expected, comments.strip_in_lines(text, remove_empties = True) )
     
-  def test_strip_strip_in_lines_with_strip_and_remove_empties(self):
-    text = '''
-foo # comment
-# comment
+  def test_strip_muti_line_comment(self):
+    text = '''foo
 bar
+baz##[apple 
+kiwi
+melon
+lemon
+]##peach
+orange
 '''
     expected = '''foo
-bar'''
-    self.assertEqual( expected, comments.strip_in_lines(text, strip_tail = True, remove_empties = True) )
+bar
+bazpeach
+orange
+'''
+    self.assertMultiLineEqual( expected, comments.strip_muti_line_comment(text, '##[', ']##') )
+    
+  def test_strip_muti_line_replace(self):
+    text = '''foo
+bar
+baz##[apple 
+kiwi
+melon
+lemon
+]##peach
+orange
+'''
+    expected = '''foo
+bar
+baz         
+    
+     
+     
+   peach
+orange
+'''
+    self.assertMultiLineEqual( expected, comments.strip_muti_line_comment(text, '##[', ']##', replace = True) )
+
+  def test_strip_muti_line_comment_multiple_comments(self):
+    text = '''foo
+bar
+baz##[apple 
+kiwi
+melon
+lemon
+]##peach
+orange
+cheese
+##[burger
+bacon
+salad
+wine
+]##
+hot dog
+fries
+'''
+    expected = '''foo
+bar
+bazpeach
+orange
+cheese
+
+hot dog
+fries
+'''
+    actual = comments.strip_muti_line_comment(text, '##[', ']##')
+    self.assertMultiLineEqual( expected, actual )
+
+  def test_strip_muti_line_comment_replace_multiple_comments(self):
+    text = '''foo
+bar
+baz##[apple 
+kiwi
+melon
+lemon
+]##peach
+orange
+cheese
+##[burger
+bacon
+salad
+wine
+]##
+hot dog
+fries
+'''
+    expected = '''foo
+bar
+baz         
+    
+     
+     
+   peach
+orange
+cheese
+         
+     
+     
+    
+   
+hot dog
+fries
+'''
+    actual = comments.strip_muti_line_comment(text, '##[', ']##', replace = True)
+    self.assertMultiLineEqual( expected, actual )
+    self.assertEqual( expected.count('\n'), actual.count('\n') )
     
 if __name__ == '__main__':
   unit_test.main()

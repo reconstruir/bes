@@ -128,6 +128,7 @@ class tree_text_parser(object):
     result.child_class = _text_node
     st = _text_stack()
     current_indent = None
+    text = comments.strip_muti_line_comment(text, '##[', ']##', replace = True)
     for i, line in enumerate(text.split('\n')):
       if strip_comments:
         line = comments.strip_line(line)

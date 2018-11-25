@@ -2,6 +2,7 @@
 
 from bes.common import string_util
 from bes.compat import StringIO
+
 from .string_lexer import string_lexer
 
 class comments(object):
@@ -24,4 +25,34 @@ class comments(object):
       stripped_lines = [ line for line in stripped_lines if line ]
     return '\n'.join(stripped_lines)
 
-#re.compile(r"^(.+)\n((?:\n.+)+)", re.MULTILINE)  
+  @classmethod
+  def strip_muti_line_comment(clazz, s, comment_head, comment_tail, replace = False):
+    'Strip multi line spanning comments.'
+    result = s
+    while True:
+      #print('result1: %s' % (result))
+      start = result.find(comment_head)
+      #print('start: %s' % (start))
+      if start < 0:
+        break
+      end = result.find(comment_tail, start + len(comment_head))
+      if end < 0:
+        raise ValueError('Missing comment_tail')
+      if replace:
+        part = result[start:end + len(comment_tail)]
+        spacified_part = clazz._spacify(part)
+        result = result[0:start] + spacified_part + result[end + len(comment_tail):]
+      else:
+        result = result[0:start] + result[end + len(comment_tail):]
+      #print('result2: %s' % (result))
+    return result
+
+  @classmethod
+  def _spacify(clazz, s):
+    buf = StringIO()
+    for c in s:
+      if c == '\n':
+        buf.write(c)
+      else:
+        buf.write(' ')
+    return buf.getvalue()
