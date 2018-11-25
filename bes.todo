@@ -147,3 +147,6 @@ audit os_env to make sure there is no os.environ usage and put anything that use
 consider the locations of os_env env_var might be bes.env
 
 fix bes_env_path_append and friends to check the first argument to be a good shell var name
+
+tree text parser - tests for get_text()
+enum SIZE is weird
