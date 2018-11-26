@@ -1,11 +1,9 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 import unittest
 from bes.text import tree_text_parser as P
-from bes.text.tree_text_parser import _text_stack
+from bes.text.tree_text_parser import _text_node_data as TDATA
 from bes.common import node
-PI = _text_stack.path_item
 
 class test_tree_text_parser(unittest.TestCase):
 
@@ -20,9 +18,9 @@ fruits
   apple
   kiwi
 '''
-    expected = node(PI('root', 0))
-    expected.ensure_path([ PI('fruits', 2), PI('apple', 3) ])
-    expected.ensure_path([ PI('fruits', 2), PI('kiwi', 4) ])
+    expected = node(TDATA('root', 0))
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('apple', 3) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('kiwi', 4) ])
 
     self.assertMultiLineEqual( expected.to_string(data_func = self._data_func), self._parse(text) )
     
@@ -40,13 +38,13 @@ cheeses
   parmessan
   asiago
 '''
-    expected = node(PI('root', 0))
-    expected.ensure_path([ PI('fruits', 2), PI('apple', 3) ])
-    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('blueberries', 5) ])
-    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('strawberries', 6) ])
-    expected.ensure_path([ PI('fruits', 2), PI('melons', 7), PI('watermelon', 8) ])
-    expected.ensure_path([ PI('cheeses', 9), PI('parmessan', 10) ])
-    expected.ensure_path([ PI('cheeses', 9), PI('asiago', 11) ])
+    expected = node(TDATA('root', 0))
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('apple', 3) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('berries', 4), TDATA('blueberries', 5) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('berries', 4), TDATA('strawberries', 6) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('melons', 7), TDATA('watermelon', 8) ])
+    expected.ensure_path([ TDATA('cheeses', 9), TDATA('parmessan', 10) ])
+    expected.ensure_path([ TDATA('cheeses', 9), TDATA('asiago', 11) ])
 
     self.assertMultiLineEqual( expected.to_string(data_func = self._data_func), self._parse(text) )
     
@@ -63,13 +61,13 @@ cheeses
     parmessan
     asiago
 '''
-    expected = node(PI('root', 0))
-    expected.ensure_path([ PI('fruits', 2), PI('apple', 3) ])
-    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('blueberries', 5) ])
-    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('strawberries', 6) ])
-    expected.ensure_path([ PI('fruits', 2), PI('melons', 7), PI('watermelon', 8) ])
-    expected.ensure_path([ PI('cheeses', 9), PI('parmessan', 10) ])
-    expected.ensure_path([ PI('cheeses', 9), PI('asiago', 11) ])
+    expected = node(TDATA('root', 0))
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('apple', 3) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('berries', 4), TDATA('blueberries', 5) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('berries', 4), TDATA('strawberries', 6) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('melons', 7), TDATA('watermelon', 8) ])
+    expected.ensure_path([ TDATA('cheeses', 9), TDATA('parmessan', 10) ])
+    expected.ensure_path([ TDATA('cheeses', 9), TDATA('asiago', 11) ])
     
     self.assertMultiLineEqual( str(expected), self._parse(text) )
     
@@ -86,13 +84,13 @@ cheeses
 \t\tparmessan
 \t\tasiago
 '''
-    expected = node(PI('root', 0))
-    expected.ensure_path([ PI('fruits', 2), PI('apple', 3) ])
-    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('blueberries', 5) ])
-    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('strawberries', 6) ])
-    expected.ensure_path([ PI('fruits', 2), PI('melons', 7), PI('watermelon', 8) ])
-    expected.ensure_path([ PI('cheeses', 9), PI('parmessan', 10) ])
-    expected.ensure_path([ PI('cheeses', 9), PI('asiago', 11) ])
+    expected = node(TDATA('root', 0))
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('apple', 3) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('berries', 4), TDATA('blueberries', 5) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('berries', 4), TDATA('strawberries', 6) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('melons', 7), TDATA('watermelon', 8) ])
+    expected.ensure_path([ TDATA('cheeses', 9), TDATA('parmessan', 10) ])
+    expected.ensure_path([ TDATA('cheeses', 9), TDATA('asiago', 11) ])
     
     self.assertMultiLineEqual( str(expected), self._parse(text) )
     
@@ -109,13 +107,13 @@ cheeses
   parmessan
   asiago
 '''
-    expected = node(PI('root', 0))
-    expected.ensure_path([ PI('fruits', 2), PI('apple', 3) ])
-    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('blueberries', 5) ])
-    expected.ensure_path([ PI('fruits', 2), PI('berries', 4), PI('strawberries', 6) ])
-    expected.ensure_path([ PI('fruits', 2), PI('melons', 7), PI('watermelon', 8) ])
-    expected.ensure_path([ PI('cheeses', 9), PI('parmessan', 10) ])
-    expected.ensure_path([ PI('cheeses', 9), PI('asiago', 11) ])
+    expected = node(TDATA('root', 0))
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('apple', 3) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('berries', 4), TDATA('blueberries', 5) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('berries', 4), TDATA('strawberries', 6) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('melons', 7), TDATA('watermelon', 8) ])
+    expected.ensure_path([ TDATA('cheeses', 9), TDATA('parmessan', 10) ])
+    expected.ensure_path([ TDATA('cheeses', 9), TDATA('asiago', 11) ])
     
     self.assertMultiLineEqual( str(expected), self._parse(text) )
 
@@ -130,9 +128,9 @@ fruits # comment
   kiwi
 # comment
 '''
-    expected = node(PI('root', 0))
-    expected.ensure_path([ PI('fruits', 3), PI('apple', 5) ])
-    expected.ensure_path([ PI('fruits', 3), PI('kiwi', 7) ])
+    expected = node(TDATA('root', 0))
+    expected.ensure_path([ TDATA('fruits', 3), TDATA('apple', 5) ])
+    expected.ensure_path([ TDATA('fruits', 3), TDATA('kiwi', 7) ])
 
     self.assertMultiLineEqual( expected.to_string(data_func = self._data_func), self._parse(text, strip_comments = True) )
 
@@ -144,9 +142,9 @@ fruits
   kiwi
 ###              fprintf(stderr, "Usage: cut.exe args\\n");
 '''
-    expected = node(PI('root', 0))
-    expected.ensure_path([ PI('fruits', 2), PI('apple', 3) ])
-    expected.ensure_path([ PI('fruits', 2), PI('kiwi', 4) ])
+    expected = node(TDATA('root', 0))
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('apple', 3) ])
+    expected.ensure_path([ TDATA('fruits', 2), TDATA('kiwi', 4) ])
 
     self.assertMultiLineEqual( expected.to_string(data_func = self._data_func), self._parse(text, strip_comments = True) )
 

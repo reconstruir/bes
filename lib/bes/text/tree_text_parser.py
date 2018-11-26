@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common import node, string_util
+from bes.common import check, node, string_util
 from bes.compat import StringIO
 from bes.enum import enum
 from collections import namedtuple
@@ -13,7 +13,16 @@ class text_traversal(enum):
   NODE_FLAT = 2
   CHILDREN_FLAT = 3
   CHILDREN_INLINE = 4
-    
+
+class _text_node_data(namedtuple('_text_node_data', 'text, line_number')):
+  def __new__(clazz, text, line_number):
+    check.check_string(text)
+    check.check_int(line_number)
+    return clazz.__bases__[0].__new__(clazz, text, line_number)
+
+  def clone_mutate_text(self, new_text):
+    return self.__class__(new_text, self.line_number)
+  
 class _text_node(node):
 
   def __init__(self, data):
@@ -42,6 +51,8 @@ class _text_node(node):
       result = self._get_text_children_flat(delimiter)
     elif traversal == self.CHILDREN_INLINE:
       result = self._get_text_children_inline(indent)
+    else:
+      raise ValueError('Invalid traversal: %s' % (str(traversal)))
     return result
   
   def _get_text_children_inline(self, indent):
@@ -87,14 +98,13 @@ class _text_node(node):
   
 class _text_stack(object):
 
-  path_item = namedtuple('path_item', 'text, line_number')
-  item = namedtuple('item', 'depth, path_item')
+  item = namedtuple('item', 'depth, data')
 
   def __init__(self):
     self._stack = []
 
   def push(self, depth, text, line_number):
-    self._stack.append(self.item(depth, self.path_item(text, line_number)))
+    self._stack.append(self.item(depth, _text_node_data(text, line_number)))
 
   def pop(self):
     return self._stack.pop()
@@ -106,7 +116,7 @@ class _text_stack(object):
     return len(self._stack) == 0
 
   def path(self):
-    return [ i.path_item for i in self._stack ]
+    return [ i.data for i in self._stack ]
 
   def __str__(self):
     buf = StringIO()
@@ -115,16 +125,16 @@ class _text_stack(object):
         buf.write('/')
       buf.write(str(item.depth or 0))
       buf.write(':')
-      buf.write(item.path_item.text)
+      buf.write(item.data.text)
       buf.write(':')
-      buf.write(item.path_item.line_number)
+      buf.write(item.data.line_number)
     return buf.getvalue()
   
 class tree_text_parser(object):
 
   @classmethod
   def parse(clazz, text, strip_comments = False, root_name = 'root'):
-    result = _text_node(_text_stack.path_item(root_name, 0))
+    result = _text_node(_text_node_data(root_name, 0))
     result.child_class = _text_node
     st = _text_stack()
     current_indent = None
@@ -158,3 +168,8 @@ class tree_text_parser(object):
       else:
         break
     return count
+
+  @classmethod
+  def make_node(clazz, text, line_number):
+    return _text_node(_text_node_data(text, line_number))
+  
