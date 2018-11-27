@@ -22,6 +22,10 @@ class _text_node_data(namedtuple('_text_node_data', 'text, line_number')):
 
   def clone_mutate_text(self, new_text):
     return self.__class__(new_text, self.line_number)
+
+  @property
+  def text_no_comments(self):
+    return comments.strip_line(self.text, strip_head = True, strip_tail = True)
   
 class _text_node(node):
 
