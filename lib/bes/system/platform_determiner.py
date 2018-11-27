@@ -76,6 +76,7 @@ class _platform_determiner_macos(_platform_determiner_base):
     '10.11': 'el_capitan',
     '10.12': 'sierra',
     '10.13': 'high_sierra',
+    '10.14': 'mojave',
   }
   
   #@abstractmethod
