@@ -10,3 +10,5 @@ class git_address(namedtuple('git_address', 'address, revision')):
     check.check_string(address)
     check.check_string(revision)
     return clazz.__bases__[0].__new__(clazz, address, revision)
+
+check.register_class(git_address)
