@@ -26,7 +26,7 @@ class shell_framework(object):
       new_filename = string_util.replace(old_filename, replacements, word_boundary = True)
       content = pkgutil.get_data('bes', old_filename)
       content = string_util.replace(content, replacements, word_boundary = True)
-      dst_path = path.join(where, new_filename)
+      dst_path = path.join(where, path.basename(new_filename))
       file_util.save(dst_path, content = content, mode = 0o755)
       if file_util.read(dst_path) != content:
         raise RuntimeError('Failed to save %s to %s.' % (filename, dst_path))
