@@ -10,6 +10,7 @@ _BES_SED_EXE=$(PATH=$_BES_BASIC_PATH which sed)
 _BES_REV_EXE=$(PATH=$_BES_BASIC_PATH which rev)
 _BES_TR_EXE=$(PATH=$_BES_BASIC_PATH which tr)
 _BES_UNAME_EXE=$(PATH=$_BES_BASIC_PATH which uname)
+_BES_BASENAME_EXE=$(PATH=$_BES_BASIC_PATH which basename)
 _BES_DEFAULTS_EXE=$(PATH=$_BES_BASIC_PATH which defaults)
 _BES_LSB_RELEASE_EXE=$(PATH=$_BES_BASIC_PATH which lsb_release)
 
@@ -247,7 +248,7 @@ function bes_setup()
 
   if [ $_dont_chdir -eq 0 ]; then
     cd $_root_dir
-    bes_tab_title $(basename $_root_dir)
+    bes_tab_title $($_BES_BASENAME_EXE $_root_dir)
   fi
   
   return 0
@@ -369,7 +370,7 @@ function bes_testing_run_unit_tests()
 # Run that an expression argument is true and print that
 function bes_assert()
 {
-  local _filename=$(basename ${BASH_SOURCE[1]})
+  local _filename=$($_BES_BASENAME_EXE ${BASH_SOURCE[1]})
   local _line=${BASH_LINENO[0]}
   local _function=${FUNCNAME[1]}
   

@@ -67,4 +67,13 @@ function test_bes_path_remove()
   bes_assert "[ $(bes_path_remove foo:bar bar foo) = ]"
 }
 
+function test_bes_env_path_append()
+{
+  local _SAVE_PATH="${PATH}"
+  PATH=/foo ; bes_env_path_append PATH /bar ; bes_assert "[ ${PATH} = /foo:/bar ]"
+  PATH=/foo ; bes_env_path_prepend PATH /bar ; bes_assert "[ ${PATH} = /bar:/foo ]"
+  PATH=/foo:/bar ; bes_env_path_remove PATH /bar ; bes_assert "[ ${PATH} = /foo ]"
+  PATH="${_SAVE_PATH}"
+}
+
 bes_testing_run_unit_tests
