@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import copy, difflib, os, os.path as path
+import copy, difflib, os, os.path as path, sys
 from bes.compat import StringIO
 from bes.fs import dir_util, file_util, temp_file
 from bes.system import execute, env_var, os_env
@@ -77,7 +77,8 @@ class env_dir(object):
     buf.write('echo "----4----"\n')
     script = temp_file.make_temp_file(content = buf.getvalue(), delete = not self.DEBUG)
     if self.DEBUG:
-      print('env_dir: script=%s' % (script))
+      sys.stdout.write('env_dir: script=%s\n' % (script))
+      sys.stdout.flush()
     os.chmod(script, 0o755)
     try:
       rv = execute.execute(script, raise_error = True, shell = True, env = env)
@@ -85,6 +86,11 @@ class env_dir(object):
       if not self.DEBUG:
         file_util.remove(script)
     parser = text_line_parser(rv.stdout)
+    if self.DEBUG:
+      sys.stdout.write('env_dir: stdout=%s\n' % (rv.stdout))
+      sys.stdout.write('env_dir: stderr=%s\n' % (rv.stderr))
+      sys.stdout.flush()
+      
     if rv.stderr:
       raise RuntimeError(rv.stderr)
     env1 = self._parse_env_lines(parser.cut_lines('----1----', '----2----'))

@@ -152,9 +152,18 @@ class test_env_dir(unit_test):
       print('tmp_dir:\n%s' % (tmp_dir))
     return env_dir(tmp_dir, files = files)
 
+  def test_transform_env_empty(self):
+    current_env = {}
+    current_env_save = copy.deepcopy(current_env)
+    ed = self._make_temp_env_dir([])
+    transformed_env = ed.transform_env(current_env)
+    self.assertEqual( current_env_save, current_env )
+    expected = {
+    }
+    self.assert_dict_as_text_equal( expected, transformed_env )
+  
   def test_transform_env_append(self):
     current_env = {
-      os_env.LD_LIBRARY_PATH_VAR_NAME: '/p/lib',
       'PYTHONPATH': '/p/lib/python',
       'PATH': '/p/bin',
     }
@@ -162,15 +171,12 @@ class test_env_dir(unit_test):
     ed = self._make_temp_env_dir([
       'file 1.sh "export PATH=$PATH:/foo/bin\n" 644',
       'file 2.sh "export PYTHONPATH=$PYTHONPATH:/foo/lib/python\n" 644',
-      'file 3.sh "export %s=$%s:/foo/lib\n" 644' % (os_env.LD_LIBRARY_PATH_VAR_NAME,
-                                                    os_env.LD_LIBRARY_PATH_VAR_NAME),
     ])
     transformed_env = ed.transform_env(current_env)
     self.assertEqual( current_env_save, current_env )
     expected = {
       'PATH': '/p/bin:/foo/bin',
       'PYTHONPATH': '/p/lib/python:/foo/lib/python',
-      os_env.LD_LIBRARY_PATH_VAR_NAME: '/p/lib:/foo/lib',
     }
     self.assert_dict_as_text_equal( expected, transformed_env )
     
