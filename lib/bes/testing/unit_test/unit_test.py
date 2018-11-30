@@ -62,6 +62,13 @@ class unit_test(unittest.TestCase):
   def assert_dict_equal(self, d1, d2):
     self.assertMultiLineEqual( pprint.pformat(d1, indent = 2), pprint.pformat(d2, indent = 2) )
 
+  def assert_dict_as_text_equal(self, d1, d2):
+    self.assertMultiLineEqual( self._dict_to_str(d1), self._dict_to_str(d2) )
+
+  @classmethod
+  def _dict_to_str(clazz, d):
+    return '\n'.join([ '%s=%s' % x for x in sorted(d.items()) ])
+
   def assert_file_content_equal(self, expected, filename, strip = True):
     self.maxDiff = None
     with open(filename, 'rb') as fin:
