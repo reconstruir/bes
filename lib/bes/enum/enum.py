@@ -54,6 +54,9 @@ class enum(with_metaclass(_enum_meta_class, object)):
     else:
       raise TypeError('invalid other: %s - %s' % (str(other), type(other)))
 
+  def __gt__(self, other):
+    return self.value > other.value
+    
   def __hash__(self):
     return self.value
     
