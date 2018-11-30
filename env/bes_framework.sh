@@ -4,14 +4,14 @@ if [ -n "$_BES_TRACE" ]; then echo "bes_framework.sh begin"; fi
 
 _BES_BASIC_PATH=$(env -i bash -c "echo ${PATH}")
 
-_BES_AWK=$(PATH=$_BES_BASIC_PATH which awk)
-_BES_CUT=$(PATH=$_BES_BASIC_PATH which cut)
-_BES_SED=$(PATH=$_BES_BASIC_PATH which sed)
-_BES_REV=$(PATH=$_BES_BASIC_PATH which rev)
-_BES_TR=$(PATH=$_BES_BASIC_PATH which tr)
-
-_BES_UNAME=$(PATH=$_BES_BASIC_PATH which uname)
-_BES_SYSTEM=$($_BES_UNAME | $_BES_TR '[:upper:]' '[:lower:]' | $_BES_SED 's/darwin/macos/')
+_BES_AWK_EXE=$(PATH=$_BES_BASIC_PATH which awk)
+_BES_CUT_EXE=$(PATH=$_BES_BASIC_PATH which cut)
+_BES_SED_EXE=$(PATH=$_BES_BASIC_PATH which sed)
+_BES_REV_EXE=$(PATH=$_BES_BASIC_PATH which rev)
+_BES_TR_EXE=$(PATH=$_BES_BASIC_PATH which tr)
+_BES_UNAME_EXE=$(PATH=$_BES_BASIC_PATH which uname)
+_BES_DEFAULTS_EXE=$(PATH=$_BES_BASIC_PATH which defaults)
+_BES_LSB_RELEASE_EXE=$(PATH=$_BES_BASIC_PATH which lsb_release)
 
 # remove duplicates from a path
 # from: https://unix.stackexchange.com/questions/14895/duplicate-entries-in-path-a-problem
@@ -22,7 +22,7 @@ function bes_path_dedup()
     return 1
   fi
   local path="$1"
-  path=$(printf "%s" "${path}" | $_BES_AWK -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')
+  path=$(printf "%s" "${path}" | $_BES_AWK_EXE -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')
   echo "${path}"
   return 0
 }
@@ -35,14 +35,14 @@ function bes_path_sanitize()
     return 1
   fi
   local path=$(bes_path_dedup "$1")
-  local first=$(printf "%s" "${path}" | $_BES_CUT -c 1)
+  local first=$(printf "%s" "${path}" | $_BES_CUT_EXE -c 1)
   if [[ "${first}" == ":" ]]; then
-    path=$(printf "%s" "${path}" | $_BES_CUT -b 2-)
+    path=$(printf "%s" "${path}" | $_BES_CUT_EXE -b 2-)
   fi
-  local reversed=$(printf "%s" "${path}" | $_BES_REV)
-  local last=$(printf "%s" "${reversed}" | $_BES_CUT -c 1)
+  local reversed=$(printf "%s" "${path}" | $_BES_REV_EXE)
+  local last=$(printf "%s" "${reversed}" | $_BES_CUT_EXE -c 1)
   if [[ "${last}" == ":" ]]; then
-    path=$(printf "%s" "${reversed}" | $_BES_CUT -b 2- | $_BES_REV)
+    path=$(printf "%s" "${reversed}" | $_BES_CUT_EXE -b 2- | $_BES_REV_EXE)
   fi
   echo "${path}"
   return 0
@@ -61,7 +61,7 @@ function bes_path_remove()
   while [[ $# > 0 ]]; do
     what="$1"
     result="${what}":"${result}"
-    result=$(printf "%s" "${result}" | $_BES_AWK -v RS=: -v ORS=: -v what="^${what}$" '$0~what {next} {print}')
+    result=$(printf "%s" "${result}" | $_BES_AWK_EXE -v RS=: -v ORS=: -v what="^${what}$" '$0~what {next} {print}')
     shift
   done
   echo $(bes_path_sanitize "${result}")
@@ -175,22 +175,9 @@ function bes_env_path_clear()
 }
 
 # Return system host name.  linux or macos same is bes/system/host.py
-_bes_host()
+function bes_system()
 {
-  local _name=$(PATH=/usr/bin:/usr/sbin:/bin:/sbin uname -s)
-  local _host='unknown'
-  case $_name in
-    Linux)
-      _host='linux'
-      ;;
-    Darwin)
-      _host='macos'
-      ;;
-  esac
-  echo $_host
-  if [ $_host = 'unknown' ]; then
-     return 1
-  fi
+  echo $($_BES_UNAME_EXE | $_BES_TR_EXE '[:upper:]' '[:lower:]' | $_BES_SED_EXE 's/darwin/macos/')
   return 0
 }
 
@@ -209,7 +196,7 @@ function bes_source()
   return 1
 }
 
-bes_invoke()
+function bes_invoke()
 {
   if [ $# -lt 1 ]; then
     printf "\nUsage: bes_invoke function\n\n"
@@ -222,6 +209,25 @@ bes_invoke()
     _rv=$?
   fi
   return $_rv
+}
+
+# Source all the *.sh files in a directory
+function bes_source_all_sh_files()
+{
+  if [ $# -lt 1 ]; then
+    printf "\nUsage: bes_source_all_sh_files dir\n\n"
+    return 1
+  fi
+  local _dir=$1
+  if [ ! -d $_dir ]; then
+    return 0
+  fi
+  local _files=$(find $_dir -maxdepth 1 -name "*.sh")
+  local _file
+  for _file in $_files; do
+      source "$file"
+  done
+  return 0
 }
 
 function bes_setup()
@@ -244,6 +250,19 @@ function bes_setup()
     bes_tab_title $(basename $_root_dir)
   fi
   
+  return 0
+}
+
+function bes_unsetup()
+{
+  if [ $# -lt 1 ]; then
+    printf "\nUsage: bes_unsetup root_dir\n\n"
+    return 1
+  fi
+  local _root_dir=$1
+  bes_env_path_remove PATH ${_root_dir}/bin
+  bes_env_path_remove PYTHONPATH ${_root_dir}/lib
+  bes_tab_title ""
   return 0
 }
 
@@ -271,9 +290,9 @@ function bes_PYTHONPATH()
 
 function LD_LIBRARY_PATH_var_name()
 {
-  local _host=$(_bes_host)
+  local _system=$(bes_system)
   local _rv=
-  case "$_host" in
+  case ${_system} in
     macos)
       _rv=DYLD_LIBRARY_PATH
       ;;

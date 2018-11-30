@@ -49,14 +49,22 @@ class dmg(object):
     file_check.check_file(dmg)
     file_util.mkdir(dst_dir)
     mnt = clazz._mount_at_temp_dir(dmg)
+    #clazz._fix_extracted_dir_permissions(mnt.mount_point)
     tar_util.copy_tree_with_tar(mnt.mount_point, dst_dir)
     clazz._eject(mnt.mount_point)
+
+  @classmethod
+  def _fix_extracted_dir_permissions(clazz, d):
+    'Sometimes when a dmg is extracted, there will be directories with messed up permissions.'
+    dirs = file_find.find(d, relative = False, file_type = file_find.DIR)
+    for d in dirs:
+      os.chmod(d, 0o755)
 
   @classmethod
   def _mount_at_temp_dir(clazz, dmg):
     file_check.check_file(dmg)
     tmp_dir = temp_file.make_temp_dir()
-    rv = clazz._execute_cmd('hdiutil', 'attach', '-mountpoint', tmp_dir, '-plist', dmg)
+    rv = clazz._execute_cmd('hdiutil', 'attach', '-mountpoint', tmp_dir, '-plist', '-readonly', dmg)
     entries = plistlib_loads(rv.stdout.encode('utf-8'))
     return clazz.mount_info(dmg, tmp_dir, entries.get('system-entities', []))
 

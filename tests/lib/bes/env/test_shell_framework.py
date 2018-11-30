@@ -11,17 +11,20 @@ from bes.fs.testing import temp_content
 
 class test_shell_framework(unit_test):
 
+  DEBUG = unit_test.DEBUG
+  
   def test_extract(self):
-    tmp_dir = temp_file.make_temp_dir(delete = False)
+    tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
     ef = shell_framework()
-    ef.extract(tmp_dir)
-    self.assertTrue( path.exists(path.join(tmp_dir, 'env/bes_framework.sh')) )
+    ef.extract(tmp_dir, 'myfoo')
+    self.assertTrue( path.exists(path.join(tmp_dir, 'myfoo_framework.sh')) )
     
   def test_use_framework(self):
-    tmp_dir = temp_file.make_temp_dir(delete = False)
+    tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
+    if self.DEBUG:
+      print('tmp_dir: %s' % (tmp_dir))
     ef = shell_framework()
-    ef.extract(tmp_dir)
-    env_path = path.join(tmp_dir, 'env')
+    ef.extract(tmp_dir, 'myfoo')
 
     my_script_content = '''
 _this_file="$( command readlink "$BASH_SOURCE" )" || _this_file="$BASH_SOURCE"
@@ -29,16 +32,16 @@ _root="${_this_file%/*}"
 if [ "$_root" == "$_this_file" ]; then
   _root=.
 fi
-_FOO="$( command cd -P "$_root" > /dev/null && command pwd -P )"
+_WHERE="$( command cd -P "$_root" > /dev/null && command pwd -P )"
 unset _this_file
 unset _root
-source ${_FOO}/bes_framework.sh
-bes_env_path_append PATH /foo/bin
+source ${_WHERE}/myfoo_framework.sh
+myfoo_env_path_append PATH /foo/bin
 '''
-    my_script_path = path.join(env_path, 'my_script.sh')
-    file_util.save(my_script_path, content = my_script_content)
+    my_script_path = path.join(tmp_dir, 'my_script.sh')
+    file_util.save(my_script_path, content = my_script_content, mode = 0o755)
     
-    ed = env_dir(env_path, files = [ 'my_script.sh' ])
+    ed = env_dir(tmp_dir, files = [ 'my_script.sh' ])
     expected = {
       'PATH': '%s:/foo/bin' % (os_env.DEFAULT_SYSTEM_PATH),
     }
