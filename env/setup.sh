@@ -8,11 +8,17 @@ _bes_dev_root()
 
 _BES_DEV_ROOT=$(_bes_dev_root)
 
-source $_BES_DEV_ROOT/env/bes_framework.sh
+source ${_BES_DEV_ROOT}/env/bes_framework.sh
 
 bes_dev()
 {
-  bes_setup $_BES_DEV_ROOT ${1+"$@"}
+  bes_setup ${_BES_DEV_ROOT} ${1+"$@"}
+  return 0
+}
+
+bes_undev()
+{
+  bes_unsetup ${_BES_DEV_ROOT}
   return 0
 }
 
