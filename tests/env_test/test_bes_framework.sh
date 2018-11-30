@@ -71,7 +71,19 @@ function test_bes_env_path_append()
 {
   local _SAVE_PATH="${PATH}"
   PATH=/foo ; bes_env_path_append PATH /bar ; bes_assert "[ ${PATH} = /foo:/bar ]"
+  PATH="${_SAVE_PATH}"
+}
+
+function test_bes_env_path_prepend()
+{
+  local _SAVE_PATH="${PATH}"
   PATH=/foo ; bes_env_path_prepend PATH /bar ; bes_assert "[ ${PATH} = /bar:/foo ]"
+  PATH="${_SAVE_PATH}"
+}
+
+function test_bes_env_path_remove()
+{
+  local _SAVE_PATH="${PATH}"
   PATH=/foo:/bar ; bes_env_path_remove PATH /bar ; bes_assert "[ ${PATH} = /foo ]"
   PATH="${_SAVE_PATH}"
 }
