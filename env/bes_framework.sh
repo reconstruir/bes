@@ -282,12 +282,65 @@ function bes_var_set()
 
 function bes_PATH()
 {
-  bes_path_print "$PATH"
+  bes_path_print "${PATH}"
 }
 
 function bes_PYTHONPATH()
 {
-  bes_path_print $PYTHONPATH
+  bes_path_print "${PYTHONPATH}"
+}
+
+function _bes_variable_map_macos()
+{
+  local _var_name=$1
+  local _rv
+  case ${_var_name} in
+    LD_LIBRARY_PATH)
+      _rv=DYLD_LIBRARY_PATH
+      ;;
+    *)
+      _rv=${_var_name}
+      ;;
+  esac
+  echo ${_rv}
+  return 0
+}
+
+function _bes_variable_map_linux()
+{
+  local _var_name=$1
+  local _rv
+  case ${_var_name} in
+    DYLD_LIBRARY_PATH)
+      _rv=LD_LIBRARY_PATH
+      ;;
+    *)
+      _rv=${_var_name}
+      ;;
+  esac
+  echo ${_rv}
+  return 0
+}
+
+function bes_variable_map()
+{
+  if [ $# -lt 1 ]; then
+    echo "Usage: bes_variable_map var_name"
+    return 1
+  fi
+  local _system=$(bes_system)
+  local _var_name=$1
+  local _rv
+  case ${_system} in
+    macos)
+      _rv=$(_bes_variable_map_macos ${_var_name})
+      ;;
+    linux|*)
+      _rv=$(_bes_variable_map_linux ${_var_name})
+      ;;
+  esac
+  echo ${_rv}
+  return 0
 }
 
 function LD_LIBRARY_PATH_var_name()

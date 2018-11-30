@@ -88,4 +88,26 @@ function test_bes_env_path_remove()
   PATH="${_SAVE_PATH}"
 }
 
+function test_bes_variable_map_linux()
+{
+  if [[ $(bes_system) != 'linux' ]]; then
+    return 0
+  fi
+  bes_assert "[ $(bes_variable_map PATH) = PATH ]"
+  bes_assert "[ $(bes_variable_map PYTHONPATH) = PYTHONPATH ]"
+  bes_assert "[ $(bes_variable_map LD_LIBRARY_PATH) = LD_LIBRARY_PATH ]"
+  bes_assert "[ $(bes_variable_map DYLD_LIBRARY_PATH) = LD_LIBRARY_PATH ]"
+}
+
+function test_bes_variable_map_macos()
+{
+  if [[ $(bes_system) != 'macos' ]]; then
+    return 0
+  fi
+  bes_assert "[ $(bes_variable_map PATH) = PATH ]"
+  bes_assert "[ $(bes_variable_map PYTHONPATH) = PYTHONPATH ]"
+  bes_assert "[ $(bes_variable_map LD_LIBRARY_PATH) = DYLD_LIBRARY_PATH ]"
+  bes_assert "[ $(bes_variable_map DYLD_LIBRARY_PATH) = DYLD_LIBRARY_PATH ]"
+}
+
 bes_testing_run_unit_tests
