@@ -156,6 +156,8 @@ packaged a bad one say read only which apears to happen with the oracle java jdk
 
 tar_util.copy_tree_with_tar() has no error checking and causes errors to be spewed to stdout instead
 of rasing a python exception
+see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-commands-with-pipe
+
 
 2018-10-29
 - audit all shell functions in bes_framework.sh maybe they should be () instead if {}
