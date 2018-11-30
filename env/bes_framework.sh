@@ -13,6 +13,7 @@ _BES_UNAME_EXE=$(PATH=$_BES_BASIC_PATH which uname)
 _BES_BASENAME_EXE=$(PATH=$_BES_BASIC_PATH which basename)
 _BES_DEFAULTS_EXE=$(PATH=$_BES_BASIC_PATH which defaults)
 _BES_LSB_RELEASE_EXE=$(PATH=$_BES_BASIC_PATH which lsb_release)
+_BES_SYSTEM=$($_BES_UNAME_EXE | $_BES_TR_EXE '[:upper:]' '[:lower:]' | $_BES_SED_EXE 's/darwin/macos/')
 
 # remove duplicates from a path
 # from: https://unix.stackexchange.com/questions/14895/duplicate-entries-in-path-a-problem
@@ -178,7 +179,7 @@ function bes_env_path_clear()
 # Return system host name.  linux or macos same is bes/system/host.py
 function bes_system()
 {
-  echo $($_BES_UNAME_EXE | $_BES_TR_EXE '[:upper:]' '[:lower:]' | $_BES_SED_EXE 's/darwin/macos/')
+  echo ${_BES_SYSTEM}
   return 0
 }
 
