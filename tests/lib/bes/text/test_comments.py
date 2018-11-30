@@ -164,6 +164,21 @@ fries
     actual = comments.strip_muti_line_comment(text, '##[', ']##', replace = True)
     self.assertMultiLineEqual( expected, actual )
     self.assertEqual( expected.count('\n'), actual.count('\n') )
+
+  def test_strip_muti_line_comment_commented_out(self):
+    text = '''foo
+bar
+baz
+###[apple 
+kiwi
+melon
+lemon
+#]##
+peach
+orange
+'''
+    expected = text
+    self.assertMultiLineEqual( expected, comments.strip_muti_line_comment(text, '##[', ']##') )
     
 if __name__ == '__main__':
   unit_test.main()

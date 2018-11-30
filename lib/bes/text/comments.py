@@ -29,12 +29,14 @@ class comments(object):
   def strip_muti_line_comment(clazz, s, comment_head, comment_tail, replace = False):
     'Strip multi line spanning comments.'
     result = s
+    find_start_index = 0
     while True:
-      #print('result1: %s' % (result))
-      start = result.find(comment_head)
-      #print('start: %s' % (start))
+      start = result.find(comment_head, find_start_index)
       if start < 0:
         break
+      if start > 0 and s[start - 1] == '#':
+        find_start_index = start + len(comment_head) + 1
+        continue
       end = result.find(comment_tail, start + len(comment_head))
       if end < 0:
         raise ValueError('Missing comment_tail')
