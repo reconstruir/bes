@@ -126,9 +126,11 @@ function bes_path_print()
     echo "Usage: bes_path_print path"
     return 1
   fi
-  local pa=(`set -f; IFS=:; printf "%s\n" $PATH`)
-  for item in ${pa[@]}; do
-    echo "${item/$HOME/\~}"
+  set -f # Disable glob expansion
+  local _pa=( $(echo $1 | tr ':' ' ') )
+  set +f
+  for item in ${_pa[*]}; do
+    echo "${item/$HOME/~}"
   done
   return 0
 }
@@ -188,6 +190,15 @@ function bes_env_path_clear()
   local _var_name=$(bes_variable_map $1)
   bes_var_set $_var_name ""
   export $_var_name
+  return 0
+}
+
+function bes_env_path_print()
+{
+  _bes_trace_function $*
+  local _var_name=$(bes_variable_map $1)
+  local _value=$(bes_var_get $_var_name)
+  bes_path_print $_value
   return 0
 }
 
@@ -303,12 +314,17 @@ function bes_var_set()
 
 function bes_PATH()
 {
-  bes_path_print "${PATH}"
+  bes_env_path_print PATH
 }
 
 function bes_PYTHONPATH()
 {
-  bes_path_print "${PYTHONPATH}"
+  bes_env_path_print PYTHONPATH
+}
+
+function bes_LD_LIBRARY_PATH()
+{
+  bes_env_path_print LD_LIBRARY_PATH
 }
 
 function _bes_variable_map_macos()
@@ -378,31 +394,6 @@ function LD_LIBRARY_PATH_var_name()
   esac
   echo $_rv
   return 0
-}
-
-function bes_LD_LIBRARY_PATH_prepend()
-{
-  bes_env_path_prepend $(LD_LIBRARY_PATH_var_name) "$@"
-}
-
-function bes_LD_LIBRARY_PATH_append()
-{
-  bes_env_path_append $(LD_LIBRARY_PATH_var_name) "$@"
-}
-
-function bes_LD_LIBRARY_PATH_remove()
-{
-  bes_env_path_remove $(LD_LIBRARY_PATH_var_name) "$@"
-}
-
-function bes_LD_LIBRARY_PATH_clear()
-{
-  bes_env_path_clear $(LD_LIBRARY_PATH_var_name)
-}
-
-function bes_LD_LIBRARY_PATH()
-{
-  bes_path_print $(bes_var_get $(LD_LIBRARY_PATH_var_name))
 }
 
 function bes_tab_title()
