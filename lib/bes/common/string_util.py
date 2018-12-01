@@ -257,3 +257,8 @@ class string_util(object):
     elif strip_tail:
       return s.rstrip()
     return s
+
+  @classmethod
+  def insert(clazz, s, what, index):
+    'Insert what into s at index'
+    return s[:index] + what + s[index:]

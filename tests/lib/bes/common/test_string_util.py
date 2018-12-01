@@ -132,5 +132,24 @@ class test_string_util(unittest.TestCase):
     self.assertEqual( ( 'a', ' ', 'b  c ' ), f('a b  c ') )
     self.assertEqual( ( 'a', ' ', 'b  c' ), f('a b  c ', strip = True) )
 
+  def test_insert(self):
+    f = SU.insert
+    self.assertEqual( 'foo', f('foo', '', 0) )
+    self.assertEqual( 'foo', f('foo', '', 1) )
+    self.assertEqual( 'foo', f('foo', '', 2) )
+    self.assertEqual( 'foo', f('foo', '', 3) )
+    self.assertEqual( 'foo', f('foo', '', 4) )
+
+    self.assertEqual( '_foo', f('foo', '_', 0) )
+    self.assertEqual( 'f_oo', f('foo', '_', 1) )
+    self.assertEqual( 'fo_o', f('foo', '_', 2) )
+    self.assertEqual( 'foo_', f('foo', '_', 3) )
+    self.assertEqual( 'foo_', f('foo', '_', 4) )
+
+    self.assertEqual( 'fo_o', f('foo', '_', -1) )
+    self.assertEqual( 'f_oo', f('foo', '_', -2) )
+    self.assertEqual( '_foo', f('foo', '_', -3) )
+    self.assertEqual( '_foo', f('foo', '_', -4) )
+    
 if __name__ == "__main__":
   unittest.main()
