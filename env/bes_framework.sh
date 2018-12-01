@@ -1,6 +1,10 @@
 #-*- coding:utf-8; mode:shell-script; indent-tabs-mode: nil; sh-basic-offset: 2; tab-width: 2 -*-
 
-if [ -n "$_BES_TRACE" ]; then echo "bes_framework.sh begin"; fi
+function _bes_trace() ( if [[ "$_BES_TRACE" == "1" ]]; then printf '_BES_TRACE: %s\n' "$*"; fi )
+function _bes_trace_function() ( _bes_trace "func: ${FUNCNAME[1]}($*)" )
+function _bes_trace_file() ( _bes_trace "file: ${BASH_SOURCE}: $*" )
+
+_bes_trace_file "begin"
 
 _BES_BASIC_PATH=$(env -i bash -c "echo ${PATH}")
 
@@ -19,6 +23,7 @@ _BES_SYSTEM=$($_BES_UNAME_EXE | $_BES_TR_EXE '[:upper:]' '[:lower:]' | $_BES_SED
 # from: https://unix.stackexchange.com/questions/14895/duplicate-entries-in-path-a-problem
 function bes_path_dedup()
 {
+  _bes_trace_function $*
   if [ $# -ne 1 ]; then
     echo "Usage: bes_path_dedup path"
     return 1
@@ -32,6 +37,7 @@ function bes_path_dedup()
 # sanitize a path by deduping entries and stripping leading or trailing colons
 function bes_path_sanitize()
 {
+  _bes_trace_function $*
   if [ $# -ne 1 ]; then
     echo "Usage: bes_path_dedup path"
     return 1
@@ -52,6 +58,7 @@ function bes_path_sanitize()
 
 function bes_path_remove()
 {
+  _bes_trace_function $*
   if [ $# -lt 2 ]; then
     echo "Usage: bes_path_remove path p1 p2 ... pN"
     return 1
@@ -72,6 +79,7 @@ function bes_path_remove()
 
 function bes_path_append()
 {
+  _bes_trace_function $*
   if [ $# -lt 2 ]; then
     echo "Usage: bes_path_append path p1 p2 ... pN"
     return 1
@@ -93,6 +101,7 @@ function bes_path_append()
 
 function bes_path_prepend()
 {
+  _bes_trace_function $*
   if [ $# -lt 2 ]; then
     echo "Usage: bes_path_prepend path p1 p2 ... pN"
     return 1
@@ -112,6 +121,7 @@ function bes_path_prepend()
 
 function bes_path_print()
 {
+  _bes_trace_function $*
   if [[ $# != 1 ]]; then
     echo "Usage: bes_path_print path"
     return 1
@@ -125,6 +135,8 @@ function bes_path_print()
 
 function bes_env_path_sanitize()
 {
+  _bes_trace_function $*
+  #bes_variable_map
   local _var_name="$1"
   local _value=$(bes_var_get $_var_name)
   local _new_value=$(bes_path_sanitize "$_value")
@@ -134,6 +146,7 @@ function bes_env_path_sanitize()
 
 function bes_env_path_append()
 {
+  _bes_trace_function $*
   local _var_name="$1"
   shift
   local _parts="$@"
@@ -146,6 +159,7 @@ function bes_env_path_append()
 
 function bes_env_path_prepend()
 {
+  _bes_trace_function $*
   local _var_name="$1"
   shift
   local _parts="$@"
@@ -158,6 +172,7 @@ function bes_env_path_prepend()
 
 function bes_env_path_remove()
 {
+  _bes_trace_function $*
   local _var_name="$1"
   shift
   local _parts="$@"
@@ -170,6 +185,7 @@ function bes_env_path_remove()
 
 function bes_env_path_clear()
 {
+  _bes_trace_function $*
   local _var_name="$1"
   bes_var_set $_var_name ""
   export $_var_name
@@ -179,6 +195,7 @@ function bes_env_path_clear()
 # Return system host name.  linux or macos same is bes/system/host.py
 function bes_system()
 {
+  _bes_trace_function $*
   echo ${_BES_SYSTEM}
   return 0
 }
@@ -186,6 +203,7 @@ function bes_system()
 # Source a shell file if it exists
 function bes_source()
 {
+  _bes_trace_function $*
   if [ $# -lt 1 ]; then
     printf "\nUsage: bes_source filename\n\n"
     return 1
@@ -200,6 +218,7 @@ function bes_source()
 
 function bes_invoke()
 {
+  _bes_trace_function $*
   if [ $# -lt 1 ]; then
     printf "\nUsage: bes_invoke function\n\n"
     return 1
@@ -213,11 +232,12 @@ function bes_invoke()
   return $_rv
 }
 
-# Source all the *.sh files in a directory
-function bes_source_all_sh_files()
+# Source all the *.sh files in a dir if it exists and has such files
+function bes_source_dir()
 {
+  _bes_trace_function $*
   if [ $# -lt 1 ]; then
-    printf "\nUsage: bes_source_all_sh_files dir\n\n"
+    printf "\nUsage: bes_source_dir dir\n\n"
     return 1
   fi
   local _dir=$1
@@ -227,13 +247,14 @@ function bes_source_all_sh_files()
   local _files=$(find $_dir -maxdepth 1 -name "*.sh")
   local _file
   for _file in $_files; do
-      source "$file"
+    source "$_file"
   done
   return 0
 }
 
 function bes_setup()
 {
+  _bes_trace_function $*
   if [ $# -lt 1 ]; then
     printf "\nUsage: bes_setup root_dir\n\n"
     return 1
@@ -257,6 +278,7 @@ function bes_setup()
 
 function bes_unsetup()
 {
+  _bes_trace_function $*
   if [ $# -lt 1 ]; then
     printf "\nUsage: bes_unsetup root_dir\n\n"
     return 1
@@ -437,4 +459,4 @@ function bes_assert()
   fi
 }
 
-if [ -n "$_BES_TRACE" ]; then echo "bes_framework.sh end"; fi
+_bes_trace_file "end"
