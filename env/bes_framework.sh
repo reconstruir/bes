@@ -24,7 +24,7 @@ _BES_SYSTEM=$($_BES_UNAME_EXE | $_BES_TR_EXE '[:upper:]' '[:lower:]' | $_BES_SED
 function bes_path_dedup()
 {
   _bes_trace_function $*
-  if [ $# -ne 1 ]; then
+  if [[ $# != 1 ]]; then
     echo "Usage: bes_path_dedup path"
     return 1
   fi
@@ -38,7 +38,7 @@ function bes_path_dedup()
 function bes_path_sanitize()
 {
   _bes_trace_function $*
-  if [ $# -ne 1 ]; then
+  if [[ $# -ne 1 ]]; then
     echo "Usage: bes_path_dedup path"
     return 1
   fi
@@ -59,7 +59,7 @@ function bes_path_sanitize()
 function bes_path_remove()
 {
   _bes_trace_function $*
-  if [ $# -lt 2 ]; then
+  if [[ $# < 2 ]]; then
     echo "Usage: bes_path_remove path p1 p2 ... pN"
     return 1
   fi
@@ -80,7 +80,7 @@ function bes_path_remove()
 function bes_path_append()
 {
   _bes_trace_function $*
-  if [ $# -lt 2 ]; then
+  if [[ $# < 2 ]]; then
     echo "Usage: bes_path_append path p1 p2 ... pN"
     return 1
   fi
@@ -102,7 +102,7 @@ function bes_path_append()
 function bes_path_prepend()
 {
   _bes_trace_function $*
-  if [ $# -lt 2 ]; then
+  if [[ $# < 2 ]]; then
     echo "Usage: bes_path_prepend path p1 p2 ... pN"
     return 1
   fi
@@ -136,8 +136,7 @@ function bes_path_print()
 function bes_env_path_sanitize()
 {
   _bes_trace_function $*
-  #bes_variable_map
-  local _var_name="$1"
+  local _var_name=$(bes_variable_map $1)
   local _value=$(bes_var_get $_var_name)
   local _new_value=$(bes_path_sanitize "$_value")
   bes_var_set $_var_name "$_new_value"
@@ -147,7 +146,7 @@ function bes_env_path_sanitize()
 function bes_env_path_append()
 {
   _bes_trace_function $*
-  local _var_name="$1"
+  local _var_name=$(bes_variable_map $1)
   shift
   local _parts="$@"
   local _value=$(bes_var_get $_var_name)
@@ -160,7 +159,7 @@ function bes_env_path_append()
 function bes_env_path_prepend()
 {
   _bes_trace_function $*
-  local _var_name="$1"
+  local _var_name=$(bes_variable_map $1)
   shift
   local _parts="$@"
   local _value=$(bes_var_get $_var_name)
@@ -173,7 +172,7 @@ function bes_env_path_prepend()
 function bes_env_path_remove()
 {
   _bes_trace_function $*
-  local _var_name="$1"
+  local _var_name=$(bes_variable_map $1)
   shift
   local _parts="$@"
   local _value=$(bes_var_get $_var_name)
@@ -186,7 +185,7 @@ function bes_env_path_remove()
 function bes_env_path_clear()
 {
   _bes_trace_function $*
-  local _var_name="$1"
+  local _var_name=$(bes_variable_map $1)
   bes_var_set $_var_name ""
   export $_var_name
   return 0
@@ -204,12 +203,12 @@ function bes_system()
 function bes_source()
 {
   _bes_trace_function $*
-  if [ $# -lt 1 ]; then
+  if [[ $# < 1 ]]; then
     printf "\nUsage: bes_source filename\n\n"
     return 1
   fi
   local _filename=$1
-  if [ -f $_filename ]; then
+  if [[ -f $_filename ]]; then
      source $_filename
      return 0
   fi
@@ -219,7 +218,7 @@ function bes_source()
 function bes_invoke()
 {
   _bes_trace_function $*
-  if [ $# -lt 1 ]; then
+  if [[ $# < 1 ]]; then
     printf "\nUsage: bes_invoke function\n\n"
     return 1
   fi
@@ -236,12 +235,12 @@ function bes_invoke()
 function bes_source_dir()
 {
   _bes_trace_function $*
-  if [ $# -lt 1 ]; then
+  if [[ $# < 1 ]]; then
     printf "\nUsage: bes_source_dir dir\n\n"
     return 1
   fi
   local _dir=$1
-  if [ ! -d $_dir ]; then
+  if [[ ! -d $_dir ]]; then
     return 0
   fi
   local _files=$(find $_dir -maxdepth 1 -name "*.sh")
@@ -255,20 +254,20 @@ function bes_source_dir()
 function bes_setup()
 {
   _bes_trace_function $*
-  if [ $# -lt 1 ]; then
+  if [[ $# < 1 ]]; then
     printf "\nUsage: bes_setup root_dir\n\n"
     return 1
   fi
   local _root_dir=$1
   local _dont_chdir=0
-  if [ $# -gt 1 ]; then
+  if [[ $# < 1 ]]; then
     _dont_chdir=1
   fi
 
   bes_env_path_prepend PATH ${_root_dir}/bin
   bes_env_path_prepend PYTHONPATH ${_root_dir}/lib
 
-  if [ $_dont_chdir -eq 0 ]; then
+  if [[ $_dont_chdir == 0 ]]; then
     cd $_root_dir
     bes_tab_title $($_BES_BASENAME_EXE $_root_dir)
   fi
@@ -279,7 +278,7 @@ function bes_setup()
 function bes_unsetup()
 {
   _bes_trace_function $*
-  if [ $# -lt 1 ]; then
+  if [[ $# < 1 ]]; then
     printf "\nUsage: bes_unsetup root_dir\n\n"
     return 1
   fi
@@ -346,7 +345,7 @@ function _bes_variable_map_linux()
 
 function bes_variable_map()
 {
-  if [ $# -lt 1 ]; then
+  if [[ $# < 1 ]]; then
     echo "Usage: bes_variable_map var_name"
     return 1
   fi

@@ -161,8 +161,6 @@ see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-com
 
 2018-10-29
 - audit all shell functions in bes_framework.sh maybe they should be () instead if {}
-- deal with LD_LIBRARY_PATH bes_env_path_* func in the basic function without need for bes_LD_LIBRARY_PATH
-- figure out why test_transform_env_append() LD_LIBRARY_PATH thing is broken
 - bes_framework.sh tests that use dirs with spaces in them
 - env_dir tests that use dirs with spaces in them
 
