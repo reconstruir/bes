@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import math, re
-from bes.common import algorithm, check, object_util
+from bes.common import algorithm, check, object_util, string_util
 from bes.compat import StringIO, cmp
 from collections import namedtuple
 from .line_token import line_token
@@ -102,10 +102,20 @@ class text_line_parser(object):
       text = '%s%s%s' % (line_number_text, delimiter, line.text)
       self._lines[i] = line_token(line.line_number, text)
   
-  def prepend(self, s):
+  def prepend(self, s, index = 0):
     for i, line in enumerate(self._lines):
-      self._lines[i] = line_token(line.line_number, '%s%s' % (s, line.text))
-  
+      new_text = string_util.insert(line.text, s, index)
+      self._lines[i] = line_token(line.line_number, new_text)
+
+  def annotate_line(self, annotation, indent, line_number, index = 0):
+    'annotate a line with annotation.  all other lines are indented with indent.'
+    if len(annotation) != len(indent):
+      raise ValueError('annotation \"%s\" and indent \"%s\" should be the same length' % (annotation, indent))
+    for i, line in enumerate(self._lines):
+      s = annotation if line.line_number == line_number else indent
+      new_text = string_util.insert(line.text, s, index)
+      self._lines[i] = line_token(line.line_number, new_text)
+      
   def append(self, s):
     for i, line in enumerate(self._lines):
       self._lines[i] = line_token(line.line_number, '%s%s' % (line.text, s))

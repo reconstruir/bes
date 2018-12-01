@@ -98,6 +98,23 @@ ABC:
 ''',
       str(l) )
 
+  def test_prepend_with_index(self):
+    l = LTP('1234\n5678')
+    l.prepend('_', index = 1)
+    self.assertMultiLineEqual(
+      '''1_234
+5_678''',
+      str(l) )
+
+  def test_prepend_with_negative_index(self):
+    l = LTP('1234\n5678')
+    l.prepend('_', index = -2)
+    self.assertMultiLineEqual(
+      '''12_34
+56_78''',
+      str(l) )
+
+    
   def test_append(self):
     l = LTP('foo\nbar\n')
     l.append(':ABC')
@@ -404,6 +421,32 @@ i
     self.assertEqual( ( 12, 'g' ), sections[2][1] )
     self.assertEqual( ( 13, 'h' ), sections[2][2] )
     self.assertEqual( ( 14, 'i' ), sections[2][3] )
+
+  def test_annotate_line(self):
+    l = LTP('01234\n56789\nabcde')
+    l.annotate_line('-> ', '   ', 1, index = 0)
+    self.assertMultiLineEqual(
+      '''-> 01234
+   56789
+   abcde''',
+      str(l) )
+    
+    l = LTP('01234\n56789\nabcde')
+    l.annotate_line('-> ', '   ', 2, index = 0)
+    self.assertMultiLineEqual(
+      '''   01234
+-> 56789
+   abcde''',
+      str(l) )
+
+    l = LTP('01234\n56789\nabcde')
+    l.annotate_line('-> ', '   ', 3, index = 0)
+    self.assertMultiLineEqual(
+      '''   01234
+   56789
+-> abcde''',
+      str(l) )
+    
     
 if __name__ == '__main__':
   unit_test.main()
