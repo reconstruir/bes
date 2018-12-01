@@ -29,6 +29,7 @@ function test_bes_path_dedup()
   bes_assert "[ $(bes_path_dedup /bin::/bin:/bin:::) = /bin: ]"
   bes_assert "[ $(bes_path_dedup \"\") = \"\" ]"
   bes_assert "[ $(bes_path_dedup /bin:/foo/bin:/bin) = /bin:/foo/bin ]"
+#  bes_assert "[ $(bes_path_dedup /bin:/foo/bin:/bin:/a\ b) = /bin:/foo/bin:/a\ b ]"
 }
 
 function test_bes_path_sanitize()
@@ -40,6 +41,7 @@ function test_bes_path_sanitize()
   bes_assert "[ $(bes_path_sanitize \"\") = \"\" ]"
   bes_assert "[ $(bes_path_sanitize :a::::b:) = a:b ]"
   bes_assert "[ $(bes_path_sanitize a:b:c:a:b:c) = a:b:c ]"
+#  bes_assert "[ $(bes_path_sanitize a\ b:c\ d) = a\ b:c\ d ]"
 }
 
 function test_bes_path_append()
@@ -50,6 +52,7 @@ function test_bes_path_append()
   bes_assert "[ $(bes_path_append /bin:/foo/bin /bin) = /foo/bin:/bin ]"
   bes_assert "[ $(bes_path_append foo bar) = foo:bar ]"
   bes_assert "[ $(bes_path_append foo bar bar foo) = bar:foo ]"
+#  bes_assert "[ $(bes_path_append /bin:/foo/bin '/a b') = '/foo/bin:/bin:/a b' ]"
 }
 
 function test_bes_path_prepend()
@@ -57,6 +60,7 @@ function test_bes_path_prepend()
   bes_assert "[ $(bes_path_prepend /bin /foo/bin) = /foo/bin:/bin ]"
   bes_assert "[ $(bes_path_prepend /foo/bin:/bin /foo/bin) = /foo/bin:/bin ]"
   bes_assert "[ $(bes_path_prepend /foo/bin:/bin /bin) = /bin:/foo/bin ]"
+#  bes_assert "[ $(bes_path_prepend /foo/bin:/bin /a\ b) = /a\ b:/foo/bin:/bin ]"
 }
 
 function test_bes_path_remove()
@@ -65,6 +69,7 @@ function test_bes_path_remove()
   bes_assert "[ $(bes_path_remove /bin:/foo/bin foo/bin) = /bin:/foo/bin ]"
   bes_assert "[ $(bes_path_remove foo:bar bar) = foo ]"
   bes_assert "[ $(bes_path_remove foo:bar bar foo) = ]"
+  bes_assert "[ $(bes_path_remove "foo:a b:bar" bar = "foo:a b") ]"
 }
 
 function test_bes_env_path_append()
