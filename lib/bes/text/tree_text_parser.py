@@ -20,6 +20,8 @@ class tree_text_parser(object):
   @classmethod
   def parse(clazz, text, strip_comments = False, root_name = 'root'):
     result = _text_node(_text_node_data(root_name, 0))
+    if not text:
+      return result
     result.child_class = _text_node
     st = _text_stack()
     current_indent_length = None

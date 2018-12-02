@@ -319,6 +319,18 @@ child2
 """
     self.maxDiff = None
     self.assertMultiLineEqual( expected, root.to_string() )
+
+  def test_empty(self):
+    root = P.parse('')
+    self.assertMultiLineEqual( """_text_node_data(text='root', line_number=0)""", root.to_string().strip() )
+    
+  def test_empty_one_space(self):
+    root = P.parse(' ')
+    self.assertMultiLineEqual( r"""_text_node_data(text='root', line_number=0)""", root.to_string().strip() )
+    
+  def test_empty_one_line(self):
+    root = P.parse('\n')
+    self.assertMultiLineEqual( r"""_text_node_data(text='root', line_number=0)""", root.to_string().strip() )
     
 if __name__ == "__main__":
   unittest.main()
