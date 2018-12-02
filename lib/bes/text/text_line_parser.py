@@ -4,7 +4,7 @@ import math, re
 from bes.common import algorithm, check, object_util, string_util
 from bes.compat import StringIO, cmp
 from collections import namedtuple
-from .line_token import line_token
+from .text_line import text_line
 from .line_continuation_merger import line_continuation_merger
 from .string_list import string_list
 
@@ -16,18 +16,18 @@ class text_line_parser(object):
     if isinstance(text, text_line_parser):
       self._lines = text._lines[:]
       self._ends_with_delimiter = False
-    elif check.is_line_token_seq(text):
-      self._assign_line_token_seq(text)
+    elif check.is_text_line_seq(text):
+      self._assign_text_line_seq(text)
     elif check.is_seq(text, tuple):
-      tokens = [ line_token(*line) for line in text ]
-      self._assign_line_token_seq(tokens)
+      tokens = [ text_line(*line) for line in text ]
+      self._assign_text_line_seq(tokens)
     else:
       check.check_string(text)
       self._lines = self._parse(text, self._delimiter)
       self._ends_with_delimiter = text and text[-1] == self._delimiter
 
-  def _assign_line_token_seq(self, tokens):
-    check.check_line_token_seq(tokens)
+  def _assign_text_line_seq(self, tokens):
+    check.check_text_line_seq(tokens)
     self._lines = []
     line_number = None
     for line in tokens:
@@ -50,7 +50,7 @@ class text_line_parser(object):
   def __eq__(self, other):
     if isinstance(other, text_line_parser):
       return self._lines == other._lines
-    elif check.is_line_token_seq(other):
+    elif check.is_text_line_seq(other):
       return self._lines == other
     elif check.is_seq(other, tuple):
       return self._lines == other
@@ -92,7 +92,7 @@ class text_line_parser(object):
   def _parse(clazz, text, delimiter):
     lines = text.split(delimiter)
     range(1, len(lines) + 1)
-    lines = [ line_token(*item) for item in zip(range(1, len(lines) + 1), lines) ]
+    lines = [ text_line(*item) for item in zip(range(1, len(lines) + 1), lines) ]
     return lines
 
   def add_line_numbers(self, delimiter = '|'):
@@ -101,12 +101,12 @@ class text_line_parser(object):
     for i, line in enumerate(self._lines):
       line_number_text = fmt % line.line_number
       text = '%s%s%s' % (line_number_text, delimiter, line.text)
-      self._lines[i] = line_token(line.line_number, text)
+      self._lines[i] = text_line(line.line_number, text)
   
   def prepend(self, s, index = 0):
     for i, line in enumerate(self._lines):
       new_text = string_util.insert(line.text, s, index)
-      self._lines[i] = line_token(line.line_number, new_text)
+      self._lines[i] = text_line(line.line_number, new_text)
 
   def annotate_line(self, annotation, indent, line_number, index = 0):
     'annotate a line with annotation.  all other lines are indented with indent.'
@@ -115,11 +115,11 @@ class text_line_parser(object):
     for i, line in enumerate(self._lines):
       s = annotation if line.line_number == line_number else indent
       new_text = string_util.insert(line.text, s, index)
-      self._lines[i] = line_token(line.line_number, new_text)
+      self._lines[i] = text_line(line.line_number, new_text)
       
   def append(self, s):
     for i, line in enumerate(self._lines):
-      self._lines[i] = line_token(line.line_number, '%s%s' % (line.text, s))
+      self._lines[i] = text_line(line.line_number, '%s%s' % (line.text, s))
   
   def merge_continuations(self):
     self._lines = line_continuation_merger.merge_to_list(self._lines)
@@ -253,7 +253,7 @@ class text_line_parser(object):
     return text_line_parser([ line for line in self._lines if start_comp(line.line_number, head.line.line_number) and end_comp(line.line_number, tail.line.line_number) ])
 
   def find_by_line_number(self, line_number):
-    target = line_token(line_number, '')
+    target = text_line(line_number, '')
     return algorithm.binary_search(self._lines, target, self._line_number_comparator)
   
   @staticmethod
@@ -279,7 +279,7 @@ class text_line_parser(object):
     line2 = self._lines[index2]
     del self._lines[index2]
     new_text = '%s%s%s' % (line1.text, delimiter, line2.text)
-    new_line = line_token(line1.line_number, new_text)
+    new_line = text_line(line1.line_number, new_text)
     self._lines[index1] = new_line
 
   def cut_sections(self, start_pattern, end_pattern, include_pattern = False, line_number = None):
@@ -321,7 +321,7 @@ class text_line_parser(object):
     max_index = len(self._lines) - 1
     if end_index > max_index:
       raise IndexError('end_index %d should be <= %d' % (end_index, max_index))
-    folded_line = line_token(self._lines[start_index].line_number, text)
+    folded_line = text_line(self._lines[start_index].line_number, text)
     if start_index != end_index:
       self._remove_range(start_index + 1, end_index)
     self._lines[start_index] = folded_line
@@ -332,4 +332,4 @@ class text_line_parser(object):
     if index < 0:
       raise IndexError('no line_number %d found' % (line_number))
     old_line = self._lines[index]
-    self._lines[index] = line_token(old_line.line_number, new_text)
+    self._lines[index] = text_line(old_line.line_number, new_text)

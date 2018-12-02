@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system import log
-from .line_token import line_token
+from .text_line import text_line
 
 class _state(object):
 
@@ -34,7 +34,7 @@ class _state_expecting_line(_state):
       assert not self.parser._buffer
       self.parser._buffer = [ token ]
       assert not self.parser._blank_buffer
-      self.parser._blank_buffer = [ line_token(token.line_number + 1, '') ]
+      self.parser._blank_buffer = [ text_line(token.line_number + 1, '') ]
     else:
       new_state = self.parser.STATE_EXPECTING_LINE
       yield [ token ]
@@ -53,7 +53,7 @@ class _state_continuation(_state):
       raise RuntimeError('Unexpected end of tokens expecting a continuation in state %s' % (self.name))
     elif token.has_continuation:
       new_state = self.parser.STATE_CONTINUATION
-      self.parser._blank_buffer.append(line_token(token.line_number + 1, ''))
+      self.parser._blank_buffer.append(text_line(token.line_number + 1, ''))
     else:
       new_state = self.parser.STATE_EXPECTING_LINE
       yield self.parser._buffer
@@ -94,7 +94,7 @@ class line_continuation_merger(object):
           self.log_i('parse: new untouched line: \"%s\"' % (str(line)))
           yield line
         else:
-          merged_line = line_token.merge(result)
+          merged_line = text_line.merge(result)
           self.log_i('parse: new merged line: \"%s\"' % (str(merged_line)))
           yield merged_line
     assert self.state == self.STATE_DONE
@@ -107,7 +107,7 @@ class line_continuation_merger(object):
 
   @classmethod
   def merge(clazz, tokens):
-    'Merge a sequence of line_token objects. Yield a sequence with line'
+    'Merge a sequence of text_line objects. Yield a sequence with line'
     'continuations merged into one.  The resulting empty lines are kept with'
     'empty text.'
     return clazz()._run(tokens)

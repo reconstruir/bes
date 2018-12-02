@@ -3,7 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 from bes.text import text_line_parser as LTP
-from bes.text import line_token as LT
+from bes.text import text_line as LT
 
 class test_text_line_parser(unit_test):
 
@@ -28,7 +28,7 @@ class test_text_line_parser(unit_test):
     self.assertEqual( ( 3, 'pear' ), l2[2] )
     self.assertEqual( ( 4, 'melon' ), l2[3] )
     
-  def test___init__with_line_token_seq(self):
+  def test___init__with_text_line_seq(self):
     lines = [ LT( 1, 'apple' ), LT( 2, 'kiwi' ), LT( 3, 'pear' ), LT( 4, 'melon' ) ]
     l = LTP(lines)
     self.assertEqual( 4, len(l) )
@@ -46,7 +46,7 @@ class test_text_line_parser(unit_test):
     self.assertEqual( ( 3, 'pear' ), l[2] )
     self.assertEqual( ( 4, 'melon' ), l[3] )
 
-  def test___init__with_line_token_seq_invalid_line_number(self):
+  def test___init__with_text_line_seq_invalid_line_number(self):
     with self.assertRaises(ValueError) as ex:
       LTP([ LT( 1, 'apple' ), LT( 1, 'kiwi' ) ])
     

@@ -163,4 +163,4 @@ see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-com
 - bes_framework.sh tests that use dirs with spaces in them (broken)
 - env_dir tests that use dirs with spaces in them
 - tar_util copy with tar needs to check dest to make sure all dirs are ok
-- s/line_token/text_line/
+- s/text_line/text_line/
