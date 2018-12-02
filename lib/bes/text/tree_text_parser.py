@@ -22,21 +22,20 @@ class tree_text_parser(object):
     result = _text_node(_text_node_data(root_name, 0))
     result.child_class = _text_node
     st = _text_stack()
-    current_indent = None
+    current_indent_length = None
     text = comments.strip_muti_line_comment(text, '##[', ']##', replace = True)
     for line in text_line_parser(text):
       if line.text_is_empty(strip_comments = strip_comments):
         continue
-      indent = clazz._count_indent(line.text)
       line_text = line.get_text(strip_comments = strip_comments, strip_text = True)
-      if current_indent is None or indent > current_indent:
-        st.push(indent, line_text, line.line_number)
+      if current_indent_length is None or line.indent_length > current_indent_length:
+        st.push(line.indent_length, line_text, line.line_number)
       else:
-        while not st.empty() and st.peek().depth >= indent:
+        while not st.empty() and st.peek().depth >= line.indent_length:
           st.pop()
-        st.push(indent, line_text, line.line_number)
+        st.push(line.indent_length, line_text, line.line_number)
       result.ensure_path(st.path())
-      current_indent = indent
+      current_indent_length = line.indent_length
     return result
   
   @classmethod

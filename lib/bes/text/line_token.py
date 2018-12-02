@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
-from bes.common import check, string_util
+from bes.common import cached_property, check, string_util
 from bes.compat import StringIO
 from .comments import comments
 
@@ -56,5 +56,17 @@ class line_token(namedtuple('line_token', 'line_number, text')):
   
   def clone_stripped(self):
     return line_token(self.line_number, self.text.strip())
+
+  @cached_property
+  def indent_length(self):
+    count = 0
+    for c in self.text:
+      if c == ' ':
+        count += 1
+      elif c == '\t':
+        count += 2
+      else:
+        break
+    return count
   
 check.register_class(line_token)
