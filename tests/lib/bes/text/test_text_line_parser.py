@@ -583,5 +583,19 @@ wine
 milk
 eggs''', str(l) )
 
+  def test_replace_line_text(self):
+    text = '''\
+kiwi
+apple
+melon
+eggs'''
+    l = LTP(text)
+    l.replace_line_text(3, 'whiskey')
+    self.assertMultiLineEqual( '''\
+kiwi
+apple
+whiskey
+eggs''', str(l) )
+
 if __name__ == '__main__':
   unit_test.main()

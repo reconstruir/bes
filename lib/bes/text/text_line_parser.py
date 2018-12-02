@@ -325,3 +325,11 @@ class text_line_parser(object):
     if start_index != end_index:
       self._remove_range(start_index + 1, end_index)
     self._lines[start_index] = folded_line
+
+  def replace_line_text(self, line_number, new_text):
+    'Replace the text at line_number with new_text.'
+    index = self.find_by_line_number(line_number)
+    if index < 0:
+      raise IndexError('no line_number %d found' % (line_number))
+    old_line = self._lines[index]
+    self._lines[index] = line_token(old_line.line_number, new_text)
