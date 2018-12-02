@@ -218,7 +218,7 @@ fruits
     root = P.parse(text, strip_comments = strip_comments, root_name = root_name)
     return root.to_string(data_func = clazz._data_func)
 
-  def test_find_literals(self):
+  def test__fold_literals(self):
     text = '''\
 child1
 
@@ -233,8 +233,104 @@ child2
   sub2c
     foo
   sub2d
-'''
-    l = P.find_literals(text)
+    >this is a another multi
+     #
+     line literal
+
+
+  sub2e
+    >    this is yet another multi
+
+         #
+         line literal
+         foo
+  sub3d'''
+    from bes.text import text_line_parser
+    parser = text_line_parser(text)
+    literals = P._fold_literals(parser)
+    expected = '''\
+child1
+
+child2
+  sub2a
+    sub2a1
+  sub2b
+    @@tree_text_literal:0@@
+  sub2c
+    foo
+  sub2d
+    @@tree_text_literal:1@@
+  sub2e
+    @@tree_text_literal:2@@
+  sub3d'''
+    self.assertMultiLineEqual( expected, str(parser) )
+
+    self.assertEqual( [ '@@tree_text_literal:0@@', '@@tree_text_literal:1@@', '@@tree_text_literal:2@@' ],
+                      sorted(literals.keys()) )
+    self.assertEqual( "this is a multi\nline literal\nthat includes '''whatever'''",
+                      literals['@@tree_text_literal:0@@'].text )
+    self.assertEqual( "this is a another multi\n#\nline literal\n",
+                      literals['@@tree_text_literal:1@@'].text )
+    self.assertEqual( "this is yet another multi\n\n#\nline literal",
+                      literals['@@tree_text_literal:2@@'].text )
+
+  def xtest_literals(self):
+    tree_text = '''\
+child1
+
+child2
+  sub2a
+    sub2a1
+  sub2b
+    > this is a multi
+      line literal
+      that includes \'\'\'whatever\'\'\'
+
+  sub2c
+    foo
+  sub2d
+    >this is a another multi
+     #
+     line literal
+
+
+  sub2e
+    >    this is yet another multi
+
+         #
+         line literal
+         foo
+  sub3d'''
+    root = P.parse(tree_text)
+    expected = '''\
+child1
+
+child2
+  sub2a
+    sub2a1
+  sub2b
+    > this is a multi
+      line literal
+      that includes \'\'\'whatever\'\'\'
+
+  sub2c
+    foo
+  sub2d
+    >this is a another multi
+     #
+     line literal
+
+
+  sub2e
+    >    this is yet another multi
+
+         #
+         line literal
+         foo
+  sub3d'''
+
+    child = root.find_child_by_text('blueberries')
+    self.assertEqual( 'strawberries organic conventional', child.get_text(root.CHILDREN_FLAT) )
     
 if __name__ == "__main__":
   unittest.main()

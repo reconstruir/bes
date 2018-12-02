@@ -21,15 +21,15 @@ class line_token(namedtuple('line_token', 'line_number, text')):
   def __repr__(self):
     return str(self)
 
-  @property
+  @cached_property
   def has_continuation(self):
     return self.text.strip().endswith(self.CONTINUATION_CHAR)
   
-  @property
+  @cached_property
   def text_no_comments(self):
     return comments.strip_line(self.text, strip_tail = True)
 
-  @property
+  @cached_property
   def stripped_text(self):
     return self.text.strip()
   
@@ -50,6 +50,14 @@ class line_token(namedtuple('line_token', 'line_number, text')):
     if strip_text:
       text = text.strip()
     return text
+
+  @cached_property
+  def empty(self):
+    return self.text_is_empty(strip_comments = False)
+  
+  @cached_property
+  def empty_no_comments(self):
+    return self.text_is_empty(strip_comments = True)
   
   def text_is_empty(self, strip_comments = False):
     return self.get_text(strip_comments = strip_comments, strip_text = True) == ''

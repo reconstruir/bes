@@ -447,6 +447,141 @@ i
 -> abcde''',
       str(l) )
     
+  def test__remove_range(self):
+    text = '''\
+kiwi
+apple
+melon
+cheese
+wine
+milk
+eggs'''
+
+    l = LTP(text)
+    l._remove_range(0, 0)
+    self.assertMultiLineEqual( '''\
+apple
+melon
+cheese
+wine
+milk
+eggs''', str(l) )
+
+    l = LTP(text)
+    l._remove_range(0, 1)
+    self.assertMultiLineEqual( '''\
+melon
+cheese
+wine
+milk
+eggs''', str(l) )
+
+    l = LTP(text)
+    l._remove_range(0, 2)
+    self.assertMultiLineEqual( '''\
+cheese
+wine
+milk
+eggs''', str(l) )
     
+    l = LTP(text)
+    l._remove_range(0, 1)
+    self.assertMultiLineEqual( '''\
+melon
+cheese
+wine
+milk
+eggs''', str(l) )
+    
+    
+    l = LTP(text)
+    l._remove_range(1, 1)
+    self.assertMultiLineEqual( '''\
+kiwi
+melon
+cheese
+wine
+milk
+eggs''', str(l) )
+    
+    l = LTP(text)
+    l._remove_range(1, 2)
+    self.assertMultiLineEqual( '''\
+kiwi
+cheese
+wine
+milk
+eggs''', str(l) )
+    
+    l = LTP(text)
+    l._remove_range(6, 6)
+    self.assertMultiLineEqual( '''\
+kiwi
+apple
+melon
+cheese
+wine
+milk''', str(l) )
+
+    l = LTP(text)
+    l._remove_range(5, 6)
+    self.assertMultiLineEqual( '''\
+kiwi
+apple
+melon
+cheese
+wine''', str(l) )
+
+    l = LTP(text)
+    l._remove_range(4, 6)
+    self.assertMultiLineEqual( '''\
+kiwi
+apple
+melon
+cheese''', str(l) )
+
+    l = LTP(text)
+    l._remove_range(4, 5)
+    self.assertMultiLineEqual( '''\
+kiwi
+apple
+melon
+cheese
+eggs''', str(l) )
+
+
+    l = LTP(text)
+    l._remove_range(4, 4)
+    self.assertMultiLineEqual( '''\
+kiwi
+apple
+melon
+cheese
+milk
+eggs''', str(l) )
+
+    l = LTP(text)
+    l._remove_range(0, 6)
+    self.assertMultiLineEqual( '''''', str(l) )
+
+  def test_fold_by_lines(self):
+    text = '''\
+kiwi
+apple
+melon
+cheese
+wine
+milk
+eggs'''
+    l = LTP(text)
+    l.fold_by_lines(1, 2, 'cream')
+    self.assertMultiLineEqual( '''\
+cream
+melon
+cheese
+wine
+milk
+eggs''', str(l) )
+
 if __name__ == '__main__':
   unit_test.main()

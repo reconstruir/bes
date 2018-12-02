@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import math, re
@@ -81,8 +80,10 @@ class text_line_parser(object):
   def __len__(self):
     return len(self._lines)
 
-  def __getitem__(self, n):
-    return self._lines[n]
+  def __getitem__(self, i):
+    if isinstance(i, slice):
+      return self.__class__(self._lines[i])
+    return self._lines[i]
 
   def __setitem__(self, n, v):
     raise RuntimeError('lines are read only.')
@@ -134,7 +135,7 @@ class text_line_parser(object):
     return [ _do_strip(line.text) for line in self._lines ]
 
   def remove_empties(self):
-    self._lines = [ line for line in self._lines if not line.text_is_empty() ]
+    self._lines = [ line for line in self._lines if not line.empty ]
 
   def strip(self):
     self._lines = [ line.clone_stripped() for line in self._lines ]
@@ -292,3 +293,35 @@ class text_line_parser(object):
       result.append(lines)
       line_number = lines[-1].line_number + 1
     return result
+
+  def _remove_range(self, index1, index2):
+    'Remove a range of lines by index (not line number)'
+    self._lines = self._lines[0:index1] + self._lines[index2 + 1:]
+  
+  def fold_by_lines(self, start_line_number, end_line_number, text):
+    'Fold all lines from start_line_number to end_line_number into one line with text.'
+    if start_line_number < 1:
+      raise IndexError('invalid start_line_number: %s' % (start_line_number))
+    if end_line_number < start_line_number:
+      raise IndexError('end_line_number %d should be greater than start_line_number %d' % (end_line_number, start_line_number))
+    start_index = self.find_by_line_number(start_line_number)
+    if start_index < 0:
+      raise IndexError('invalid start_line_number: %s' % (start_line_number))
+    end_index = self.find_by_line_number(end_line_number)
+    if end_index < 0:
+      raise IndexError('invalid end_line_number: %s' % (line_numdber2))
+    self.fold_by_indeces(start_index, end_index, text)
+
+  def fold_by_indeces(self, start_index, end_index, text):
+    'Fold all lines from start_index to end_index into one line with text.'
+    if start_index < 0:
+      raise IndexError('invalid start_index: %s' % (start_index))
+    if end_index < start_index:
+      raise IndexError('end_index %d should be greater than start_index %d' % (end_index, start_index))
+    max_index = len(self._lines) - 1
+    if end_index > max_index:
+      raise IndexError('end_index %d should be <= %d' % (end_index, max_index))
+    folded_line = line_token(self._lines[start_index].line_number, text)
+    if start_index != end_index:
+      self._remove_range(start_index + 1, end_index)
+    self._lines[start_index] = folded_line

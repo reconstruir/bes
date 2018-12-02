@@ -24,7 +24,9 @@ class tree_text_parser(object):
     st = _text_stack()
     current_indent_length = None
     text = comments.strip_muti_line_comment(text, '##[', ']##', replace = True)
-    for line in text_line_parser(text):
+    parser = text_line_parser(text)
+    #literals = clazz._fold_literals(parser)
+    for line in parser:
       if line.text_is_empty(strip_comments = strip_comments):
         continue
       line_text = line.get_text(strip_comments = strip_comments, strip_text = True)
@@ -39,36 +41,86 @@ class tree_text_parser(object):
     return result
   
   @classmethod
-  def _count_indent(clazz, s):
-    count = 0
-    for c in s:
-      if c == ' ':
-        count += 1
-      elif c == '\t':
-        count += 2
-      else:
-        break
-    return count
-
-  @classmethod
   def make_node(clazz, text, line_number):
     return _text_node(_text_node_data(text, line_number))
 
-  
+  _literal = namedtuple('_literal', 'id, text, line_number')
   @classmethod
-  def find_literals(clazz, text):
-    lp = text_line_parser(text)
-    for line in lp:
-      marker = clazz._find_literal_marker(line)
-      print('%s' % (str(line)))
+  def _fold_literals(clazz, parser):
+    'Fold all the lines in each literal into just one line with a literal id for text.'
+    index = 0
+    literal_index = 0
+    result = {}
+    while True:
+      literal = clazz._find_next_literal(parser, index)
+      if not literal:
+        break
+      literal_indent = ' ' * literal.marker_x
+      literal_id = '@@tree_text_literal:%d@@' % (literal_index)
+      indented_literal_id = '%s%s' % (literal_indent, literal_id)
+      literal_lines = parser[literal.start_index : literal.end_index]
+      literal_lines = [ line.text[literal.text_x:] for line in literal_lines ]
+      literal_text = '\n'.join(literal_lines)
+      result[literal_id] = clazz._literal(literal_id, literal_text, parser[literal.start_index].line_number)
+      parser.fold_by_indeces(literal.start_index, literal.end_index, indented_literal_id)
+      index = literal.start_index + 1
+      if index == len(parser):
+        break
+      literal_index += 1
+    return result
+
+  _literal_location = namedtuple('_literal_location', 'start_index, end_index, marker_x, text_x')
+  @classmethod
+  def _find_next_literal(clazz, parser, index):
+    location = clazz._find_first_literal_start(parser, index)
+    if not location:
+      return None
+    end_index = clazz._find_literal_end(parser, location)
+    # FIXME >= should be for 1 line literals
+    assert end_index > location.start_index
+    return clazz._literal_location(location.start_index, end_index, location.marker_x, location.text_x)
 
   @classmethod
-  def _find_literal_marker(clazz, line):
-    indent = clazz._count_indent(line.text)
-#    if not line.text_is_empty(
-#    print('CHECKING: %s' % (str(line)))
-#    if line.text[indent] == '>':
-#      print('FOUND: %s' % (str(line)))
+  def _find_first_literal_start(clazz, parser, index):
+    assert index >= 0
+    assert index < len(parser)
+    for i in range(index, len(parser)):
+      line = parser[i]
+      marker_x = clazz._find_literal_offset(line)
+      if marker_x >= 0:
+        # Find where the actual text begins following the ">" marker
+        text_x = marker_x + 1
+        for c in line.text[text_x:]:
+          if not c.isspace():
+            break
+          text_x += 1
+        return clazz._literal_location(i, None, marker_x, text_x)
+    return None
+
+  @classmethod
+  def _find_literal_end(clazz, parser, location):
+    'Find the line index for where a literal ends'
+    # Iterate through lines starting with the line after the indent marker start.
+    # compare the indent for each line against the text indent in the literal marker line
+    # and if it fits include it in the literal until we run out of such lines.
+    result = None
+    for i in range(location.start_index + 1, len(parser)):
+      line = parser[i]
+      if not line.empty:
+        text_indent = location.text_x - 1
+        if line.indent_length <= text_indent:
+          break
+      result = i
+    if result is None:
+      result = len(parser) - 1
+    return result
+      
+  @classmethod
+  def _find_literal_offset(clazz, line):
+    if not line.empty_no_comments:
+      if line.text[line.indent_length] == '>':
+        return line.indent_length
+    return -1
       
 class _text_node_data(namedtuple('_text_node_data', 'text, line_number')):
   def __new__(clazz, text, line_number):
