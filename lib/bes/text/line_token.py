@@ -51,8 +51,8 @@ class line_token(namedtuple('line_token', 'line_number, text')):
       text = text.strip()
     return text
   
-  def text_is_empty(self):
-    return self.get_text(strip_text = True) == ''
+  def text_is_empty(self, strip_comments = False):
+    return self.get_text(strip_comments = strip_comments, strip_text = True) == ''
   
   def clone_stripped(self):
     return line_token(self.line_number, self.text.strip())

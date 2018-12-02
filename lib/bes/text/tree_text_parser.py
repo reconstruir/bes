@@ -24,20 +24,17 @@ class tree_text_parser(object):
     st = _text_stack()
     current_indent = None
     text = comments.strip_muti_line_comment(text, '##[', ']##', replace = True)
-    for i, line in enumerate(text.split('\n')):
-      if strip_comments:
-        line = comments.strip_line(line)
-      if not line or line.isspace():
+    for line in text_line_parser(text):
+      if line.text_is_empty(strip_comments = strip_comments):
         continue
-      line_number = i + 1
-      indent = clazz._count_indent(line)
-      line = line.strip()
+      indent = clazz._count_indent(line.text)
+      line_text = line.get_text(strip_comments = strip_comments, strip_text = True)
       if current_indent is None or indent > current_indent:
-        st.push(indent, line, line_number)
+        st.push(indent, line_text, line.line_number)
       else:
         while not st.empty() and st.peek().depth >= indent:
           st.pop()
-        st.push(indent, line, line_number)
+        st.push(indent, line_text, line.line_number)
       result.ensure_path(st.path())
       current_indent = indent
     return result
@@ -63,13 +60,16 @@ class tree_text_parser(object):
   def find_literals(clazz, text):
     lp = text_line_parser(text)
     for line in lp:
+      marker = clazz._find_literal_marker(line)
       print('%s' % (str(line)))
 
   @classmethod
   def _find_literal_marker(clazz, line):
-    lp = text_line_parser(text)
-    for line in lp:
-      print('%s' % (str(line)))
+    indent = clazz._count_indent(line.text)
+#    if not line.text_is_empty(
+#    print('CHECKING: %s' % (str(line)))
+#    if line.text[indent] == '>':
+#      print('FOUND: %s' % (str(line)))
       
 class _text_node_data(namedtuple('_text_node_data', 'text, line_number')):
   def __new__(clazz, text, line_number):
