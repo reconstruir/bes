@@ -3,6 +3,7 @@
 from bes.common import check, node, string_util
 from bes.compat import StringIO
 from bes.enum import enum
+from bes.text import text_line_parser
 from collections import namedtuple
 
 from .comments import comments
@@ -13,7 +14,63 @@ class text_traversal(enum):
   NODE_FLAT = 2
   CHILDREN_FLAT = 3
   CHILDREN_INLINE = 4
+  
+class tree_text_parser(object):
 
+  @classmethod
+  def parse(clazz, text, strip_comments = False, root_name = 'root'):
+    result = _text_node(_text_node_data(root_name, 0))
+    result.child_class = _text_node
+    st = _text_stack()
+    current_indent = None
+    text = comments.strip_muti_line_comment(text, '##[', ']##', replace = True)
+    for i, line in enumerate(text.split('\n')):
+      if strip_comments:
+        line = comments.strip_line(line)
+      if not line or line.isspace():
+        continue
+      line_number = i + 1
+      indent = clazz._count_indent(line)
+      line = line.strip()
+      if current_indent is None or indent > current_indent:
+        st.push(indent, line, line_number)
+      else:
+        while not st.empty() and st.peek().depth >= indent:
+          st.pop()
+        st.push(indent, line, line_number)
+      result.ensure_path(st.path())
+      current_indent = indent
+    return result
+  
+  @classmethod
+  def _count_indent(clazz, s):
+    count = 0
+    for c in s:
+      if c == ' ':
+        count += 1
+      elif c == '\t':
+        count += 2
+      else:
+        break
+    return count
+
+  @classmethod
+  def make_node(clazz, text, line_number):
+    return _text_node(_text_node_data(text, line_number))
+
+  
+  @classmethod
+  def find_literals(clazz, text):
+    lp = text_line_parser(text)
+    for line in lp:
+      print('%s' % (str(line)))
+
+  @classmethod
+  def _find_literal_marker(clazz, line):
+    lp = text_line_parser(text)
+    for line in lp:
+      print('%s' % (str(line)))
+      
 class _text_node_data(namedtuple('_text_node_data', 'text, line_number')):
   def __new__(clazz, text, line_number):
     check.check_string(text)
@@ -133,47 +190,3 @@ class _text_stack(object):
       buf.write(':')
       buf.write(item.data.line_number)
     return buf.getvalue()
-  
-class tree_text_parser(object):
-
-  @classmethod
-  def parse(clazz, text, strip_comments = False, root_name = 'root'):
-    result = _text_node(_text_node_data(root_name, 0))
-    result.child_class = _text_node
-    st = _text_stack()
-    current_indent = None
-    text = comments.strip_muti_line_comment(text, '##[', ']##', replace = True)
-    for i, line in enumerate(text.split('\n')):
-      if strip_comments:
-        line = comments.strip_line(line)
-      if not line or line.isspace():
-        continue
-      line_number = i + 1
-      indent = clazz._count_indent(line)
-      line = line.strip()
-      if current_indent is None or indent > current_indent:
-        st.push(indent, line, line_number)
-      else:
-        while not st.empty() and st.peek().depth >= indent:
-          st.pop()
-        st.push(indent, line, line_number)
-      result.ensure_path(st.path())
-      current_indent = indent
-    return result
-  
-  @classmethod
-  def _count_indent(clazz, s):
-    count = 0
-    for c in s:
-      if c == ' ':
-        count += 1
-      elif c == '\t':
-        count += 2
-      else:
-        break
-    return count
-
-  @classmethod
-  def make_node(clazz, text, line_number):
-    return _text_node(_text_node_data(text, line_number))
-  

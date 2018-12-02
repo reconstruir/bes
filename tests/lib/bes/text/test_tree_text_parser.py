@@ -217,6 +217,24 @@ fruits
   def _parse(clazz, text, strip_comments = False, root_name = 'root'):
     root = P.parse(text, strip_comments = strip_comments, root_name = root_name)
     return root.to_string(data_func = clazz._data_func)
+
+  def test_find_literals(self):
+    text = '''\
+child1
+
+child2
+  sub2a
+    sub2a1
+  sub2b
+    > this is a multi
+      line literal
+      that includes \'\'\'whatever\'\'\'
+
+  sub2c
+    foo
+  sub2d
+'''
+    l = P.find_literals(text)
     
 if __name__ == "__main__":
   unittest.main()
