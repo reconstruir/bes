@@ -25,11 +25,12 @@ class tree_text_parser(object):
     current_indent_length = None
     text = comments.strip_muti_line_comment(text, '##[', ']##', replace = True)
     parser = text_line_parser(text)
-    #literals = clazz._fold_literals(parser)
+    literals = clazz._fold_literals(parser)
     for line in parser:
       if line.text_is_empty(strip_comments = strip_comments):
         continue
       line_text = line.get_text(strip_comments = strip_comments, strip_text = True)
+      line_text = clazz._resolve_literal(literals, line_text)
       if current_indent_length is None or line.indent_length > current_indent_length:
         st.push(line.indent_length, line_text, line.line_number)
       else:
@@ -39,6 +40,12 @@ class tree_text_parser(object):
       result.ensure_path(st.path())
       current_indent_length = line.indent_length
     return result
+
+  @classmethod
+  def _resolve_literal(clazz, literals, text):
+    if text in literals:
+      return literals[text].text
+    return text
   
   @classmethod
   def make_node(clazz, text, line_number):

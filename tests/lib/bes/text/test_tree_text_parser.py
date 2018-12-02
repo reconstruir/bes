@@ -274,7 +274,7 @@ child2
     self.assertEqual( "this is yet another multi\n\n#\nline literal",
                       literals['@@tree_text_literal:2@@'].text )
 
-  def xtest_literals(self):
+  def test_literals(self):
     tree_text = '''\
 child1
 
@@ -302,35 +302,23 @@ child2
          foo
   sub3d'''
     root = P.parse(tree_text)
-    expected = '''\
-child1
-
-child2
-  sub2a
-    sub2a1
-  sub2b
-    > this is a multi
-      line literal
-      that includes \'\'\'whatever\'\'\'
-
-  sub2c
-    foo
-  sub2d
-    >this is a another multi
-     #
-     line literal
-
-
-  sub2e
-    >    this is yet another multi
-
-         #
-         line literal
-         foo
-  sub3d'''
-
-    child = root.find_child_by_text('blueberries')
-    self.assertEqual( 'strawberries organic conventional', child.get_text(root.CHILDREN_FLAT) )
+    expected = r"""_text_node_data(text='root', line_number=0)
+  _text_node_data(text='child1', line_number=1)
+  _text_node_data(text='child2', line_number=3)
+    _text_node_data(text='sub2a', line_number=4)
+      _text_node_data(text='sub2a1', line_number=5)
+    _text_node_data(text='sub2b', line_number=6)
+      _text_node_data(text="this is a multi\nline literal\nthat includes '''whatever'''", line_number=7)
+    _text_node_data(text='sub2c', line_number=11)
+      _text_node_data(text='foo', line_number=12)
+    _text_node_data(text='sub2d', line_number=13)
+      _text_node_data(text='this is a another multi\n#\nline literal\n', line_number=14)
+    _text_node_data(text='sub2e', line_number=19)
+      _text_node_data(text='this is yet another multi\n\n#\nline literal', line_number=20)
+    _text_node_data(text='sub3d', line_number=25)
+"""
+    self.maxDiff = None
+    self.assertMultiLineEqual( expected, root.to_string() )
     
 if __name__ == "__main__":
   unittest.main()
