@@ -15,8 +15,6 @@ _BES_REV_EXE=$(PATH=$_BES_BASIC_PATH which rev)
 _BES_TR_EXE=$(PATH=$_BES_BASIC_PATH which tr)
 _BES_UNAME_EXE=$(PATH=$_BES_BASIC_PATH which uname)
 _BES_BASENAME_EXE=$(PATH=$_BES_BASIC_PATH which basename)
-_BES_DEFAULTS_EXE=$(PATH=$_BES_BASIC_PATH which defaults)
-_BES_LSB_RELEASE_EXE=$(PATH=$_BES_BASIC_PATH which lsb_release)
 _BES_SYSTEM=$($_BES_UNAME_EXE | $_BES_TR_EXE '[:upper:]' '[:lower:]' | $_BES_SED_EXE 's/darwin/macos/')
 
 # remove duplicates from a path
