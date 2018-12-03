@@ -342,6 +342,7 @@ class log(object):
     'Add logging capabilities to obj via its class.'
     if type(obj) == type:
       object_class = obj
+      tag = object_class.__name__
     else:
       object_class = obj.__class__
 
@@ -353,6 +354,7 @@ class log(object):
     
     if getattr(obj, 'log', None):
       raise RuntimeError('Object already has a "log" method attribute: %s' % (obj))
+    
     tag = tag or object_class.__class__.__name__
     setattr(object_class, 'bes_log_tag__', tag)
     add_method(clazz._transplant_log, object_class, 'log')
