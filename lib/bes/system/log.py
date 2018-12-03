@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import fnmatch, os, os.path as path, re, sys, syslog, time, traceback
 
@@ -13,7 +12,7 @@ from .compat import compat
 import logging as pylog
 
 class log(object):
-  'log'
+  'Alternative to python logging.'
 
   CRITICAL = 2
   ERROR = 3
@@ -52,56 +51,72 @@ class log(object):
   _log_config_patterns = {}
   _longest_tag_length = 0
   _tag_width = None
+
+  _log_fp.write('\n')
   
   @classmethod
-  def log(clazz, tag, level, message):
+  def log(clazz, tag, level, message, multi_line = False):
     'log'
     clazz._log_lock.acquire()
-    tag_level = clazz._get_tag_level(tag)
-    if level > tag_level:
-      clazz._log_lock.release()
-      return
-    m = clazz._make_message_i(tag, level, message)
-    clazz._log_fp.write(m + '\n')
-    clazz._log_fp.flush()
+    try:
+      clazz._do_log_i(tag, level, message, multi_line)
+    except Exception as ex:
+      clazz._log_fp.write('Unexpected logging error: %s\n' % (str(ex)))
+      clazz._log_fp.flush()
     clazz._log_lock.release()
 
   @classmethod
-  def log_c(clazz, tag, message):
+  def _do_log_i(clazz, tag, level, message, multi_line):
+    'Do the logging work.'
+    tag_level = clazz._get_tag_level(tag)
+    if level > tag_level:
+      return
+    timestamp = datetime.now()
+    if multi_line:
+      lines = message.split('\n')
+      messages = [ clazz._make_message_i(tag, level, line, timestamp) for line in lines ]
+    else:
+      messages = [ clazz._make_message_i(tag, level, message, timestamp) ]
+    for m in messages:
+      clazz._log_fp.write(m + '\n')
+    clazz._log_fp.flush()
+      
+  @classmethod
+  def log_c(clazz, tag, message, multi_line = False):
     'Log and CRITICAL message.'
-    clazz.log(tag, clazz.CRITICAL, message)
+    clazz.log(tag, clazz.CRITICAL, message, multi_line = multi_line)
 
   @classmethod
-  def log_e(clazz, tag, message):
+  def log_e(clazz, tag, message, multi_line = False):
     'Log and ERROR message.'
-    clazz.log(tag, clazz.ERROR, message)
+    clazz.log(tag, clazz.ERROR, message, multi_line = multi_line)
 
   @classmethod
-  def log_w(clazz, tag, message):
+  def log_w(clazz, tag, message, multi_line = False):
     'Log and WARNING message.'
-    clazz.log(tag, clazz.WARNING, message)
+    clazz.log(tag, clazz.WARNING, message, multi_line = multi_line)
 
   @classmethod
-  def log_i(clazz, tag, message):
+  def log_i(clazz, tag, message, multi_line = False):
     'Log and INFO message.'
-    clazz.log(tag, clazz.INFO, message)
+    clazz.log(tag, clazz.INFO, message, multi_line = multi_line)
 
   @classmethod
-  def log_d(clazz, tag, message):
+  def log_d(clazz, tag, message, multi_line = False):
     'Log and DEBUG message.'
-    clazz.log(tag, clazz.DEBUG, message)
+    clazz.log(tag, clazz.DEBUG, message, multi_line = multi_line)
 
   @classmethod
-  def _make_message_i(clazz, tag, level, message):
+  def _make_message_i(clazz, tag, level, message, timestamp):
     level = clazz.level_to_string(level).upper()
     current_width = len(tag) + len(level)
     longest_tag_length = clazz._tag_width or clazz._longest_tag_length
     max_width = clazz._longest_level_length + longest_tag_length
     delta = max_width - current_width
-    now = datetime.now()    
+    delta = 1
     values = {
-      'timestamp': clazz._timestamp(now),
-      'timestamp_brief': clazz._timestamp_brief(now),
+      'timestamp': clazz._format_timestamp(timestamp),
+      'timestamp_brief': clazz._format_timestamp_brief(timestamp),
       'process_id': str(os.getpid()),
       'thread_id': str(thread_id.thread_id()),
       'tag': tag,
@@ -117,14 +132,14 @@ class log(object):
     return result
 
   @classmethod
-  def _timestamp(clazz, now):
+  def _format_timestamp(clazz, timestamp):
     fmt = '%Y_%m_%d-%H:%M:%S-{TZ}'.format(TZ = time.strftime('%Z'))
-    return now.strftime(fmt)
+    return timestamp.strftime(fmt)
 
   @classmethod
-  def _timestamp_brief(clazz, now):
+  def _format_timestamp_brief(clazz, timestamp):
     fmt = '%H:%M:%S'
-    return now.strftime(fmt)
+    return timestamp.strftime(fmt)
 
   @classmethod
   def timezone(clazz):
@@ -291,28 +306,28 @@ class log(object):
     clazz._log_lock.release()
 
   @staticmethod
-  def _transplant_log(obj, level, message):
-    log.log(obj.bes_log_tag__, level, message)
+  def _transplant_log(obj, level, message, multi_line = False):
+    log.log(obj.bes_log_tag__, level, message, multi_line = multi_line)
 
   @staticmethod
-  def _transplant_log_c(obj, message):
-    log.log_c(obj.bes_log_tag__, message)
+  def _transplant_log_c(obj, message, multi_line = False):
+    log.log_c(obj.bes_log_tag__, message, multi_line = multi_line)
 
   @staticmethod
-  def _transplant_log_e(obj, message):
-    log.log_e(obj.bes_log_tag__, message)
+  def _transplant_log_e(obj, message, multi_line = False):
+    log.log_e(obj.bes_log_tag__, message, multi_line = multi_line)
 
   @staticmethod
-  def _transplant_log_w(obj, message):
-    log.log_w(obj.bes_log_tag__, message)
+  def _transplant_log_w(obj, message, multi_line = False):
+    log.log_w(obj.bes_log_tag__, message, multi_line = multi_line)
 
   @staticmethod
-  def _transplant_log_i(obj, message):
-    log.log_i(obj.bes_log_tag__, message)
+  def _transplant_log_i(obj, message, multi_line = False):
+    log.log_i(obj.bes_log_tag__, message, multi_line = multi_line)
 
   @staticmethod
-  def _transplant_log_d(obj, message):
-    log.log_d(obj.bes_log_tag__, message)
+  def _transplant_log_d(obj, message, multi_line = False):
+    log.log_d(obj.bes_log_tag__, message, multi_line = multi_line)
 
   @staticmethod
   def _transplant_log_traceback(obj):
