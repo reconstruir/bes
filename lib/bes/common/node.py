@@ -71,7 +71,7 @@ class node(object):
     for next in path:
       current_node = current_node.ensure_child(next)
   
-  def to_string(self, depth = 0, indent = 2, data_func = None):
+  def to_string(self, depth = 0, indent = 2, data_func = None, rstrip = True):
     buf = StringIO()
     buf.write(' ' * depth)
     if data_func:
@@ -81,8 +81,11 @@ class node(object):
     buf.write(data_str)
     buf.write('\n')
     for child in self.children:
-      buf.write(child.to_string(depth + indent, data_func = data_func))
-    return buf.getvalue()
+      buf.write(child.to_string(depth + indent, data_func = data_func, rstrip = False))
+    result = buf.getvalue()
+    if rstrip:
+      result = result.rstrip()
+    return result
 
   flat_result = namedtuple('flat_result', 'path, node')
       
