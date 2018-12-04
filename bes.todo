@@ -151,16 +151,11 @@ fix bes_env_path_append and friends to check the first argument to be a good she
 tree text parser - tests for get_text()
 enum SIZE is weird
 
-when archive_dmg extracts it needs to deal with unreadable directories gracefully in case someone
-packaged a bad one say read only which apears to happen with the oracle java jdk.
-
 tar_util.copy_tree_with_tar() has no error checking and causes errors to be spewed to stdout instead
 of rasing a python exception
 see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-commands-with-pipe
 
-
 2018-10-29
 - bes_framework.sh tests that use dirs with spaces in them (broken)
 - env_dir tests that use dirs with spaces in them
-- tar_util copy with tar needs to check dest to make sure all dirs are ok
 - s/text_line/text_line/

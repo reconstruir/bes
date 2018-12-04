@@ -177,5 +177,19 @@ class file_find(object):
       start_dir = file_path.parent_dir(start_dir)
       if start_dir == '/':
         return None
-  
+
+  @classmethod
+  def find_unreadable(clazz, d, relative = True):
+    'Return files and dirs that are unreadable.'
+    files = clazz.find(d, relative = relative, file_type = file_find.ANY)
+    result = []
+    for filename in files:
+      if relative:
+        filename_abs = path.join(d, filename)
+      else:
+        filename_abs = filename
+      if not os.access(filename_abs, os.R_OK):
+        result.append(filename)
+    return result
+      
 log.add_logging(file_find, 'file_find')
