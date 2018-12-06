@@ -8,7 +8,6 @@ from .check import check
 from .command_line import command_line
 from .dict_util import dict_util
 from .json_util import json_util
-from .json_util import json_util
 from .math_util import math_util
 from .node import node
 from .number_util import number_util
@@ -22,5 +21,5 @@ from .table import table
 from .time_util import time_util
 from .tuple_util import tuple_util
 from .type_checked_list import type_checked_list
+from .url_util import url_util
 from .variable import variable
-
