@@ -1,8 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from os import path
 from collections import namedtuple
 
-from bes.compat.url_compat import urljoin, urlopen, urlencode, Request
+from bes.compat.url_compat import urljoin, urlopen, urlencode, urlparse, Request
 from bes.fs import file_util, temp_file
 
 class url_util(object):
@@ -26,13 +27,19 @@ class url_util(object):
   @classmethod
   def download_to_file(clazz, url, filename, chunk_size = None):
     'Download url to filename.'
+    tmp = clazz.download_to_temp_file(url, chunk_size = chunk_size)
+    file_util.copy(tmp, filename)
+    file_util.remove(tmp)
+
+  @classmethod
+  def download_to_temp_file(clazz, url, chunk_size = None):
+    'Download url to a temporary file.'
     tmp = temp_file.make_temp_file(suffix = '.download')
     with open(tmp, 'wb') as fout:
       result = clazz.download_to_stream(url, fout, chunk_size = chunk_size)
       fout.close()
-      file_util.copy(tmp, filename)
-      file_util.remove(tmp)
-
+    return tmp
+      
   _response = namedtuple('_response', 'status_code, content')
   @classmethod
   def get(clazz, url, params = None):
@@ -45,3 +52,8 @@ class url_util(object):
     content = response.read()
     status_code = response.getcode()
     return clazz._response(status_code, content)
+
+  @classmethod
+  def url_path_baename(clazz, url):
+    return path.basename(urlparse(url).path)
+  
