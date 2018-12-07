@@ -30,8 +30,8 @@ credential
 
     sections = s.find_sections('credential')
     self.assertEqual( 2, len(sections) )
-    self.assertEqual( 'download', sections[0].find_by_key('type').value )
-    self.assertEqual( 'upload', sections[1].find_by_key('type').value )
+    self.assertEqual( 'download', sections[0].find_by_key('type') )
+    self.assertEqual( 'upload', sections[1].find_by_key('type') )
     self.assertEqual( {
       'provider': 'pcloud',
       'type': 'download',
