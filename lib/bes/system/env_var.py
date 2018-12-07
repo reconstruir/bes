@@ -71,6 +71,10 @@ class env_var(object):
   def get(self, name, default_value = None):
     return self._target.get(name, default_value)
   
+  @property
+  def is_set(self):
+    return self._name in self._target
+  
 class os_env_var(env_var):
   def __init__(self, name):
     super(os_env_var, self).__init__(os.environ, name)
