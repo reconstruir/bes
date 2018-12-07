@@ -94,9 +94,12 @@ class simple_config(object):
     check.check_section(section)
     self.sections.append(section)
 
-  def find_sections(self, name):
+  def find_sections(self, name, raise_error = True):
     check.check_string(name)
-    return [ section for section in self.sections if section.name == name ]
+    result = [ section for section in self.sections if section.name == name ]
+    if not result and raise_error:
+      raise error('no sections found: %s' % (name), self.origin)
+    return result
 
   @classmethod
   def from_file(clazz, filename):
