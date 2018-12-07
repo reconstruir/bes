@@ -6,18 +6,20 @@ from bes.config import simple_config as SC
 
 class test_simple_config(unit_test):
 
-  def test_foo(self):
+  def test_basic(self):
     text = '''\
+# This is one
 credential
   provider: pcloud
   type: download
-  email: email1@bar.com
+  email: email1@bar.com # one
   password: sekret1
 
+# This is two
 credential
   provider: pcloud
   type: upload
-  email: email2@bar.com
+  email: email2@bar.com # two
   password: sekret2
 '''
     

@@ -9,6 +9,15 @@ from bes.text import tree_text_parser
 
 from collections import namedtuple
 
+class error(Exception):
+  def __init__(self, message, origin):
+    super(error, self).__init__()
+    self.message = message
+    self.origin = origin
+
+  def __str__(self):
+    return '%s:%s: %s' % (self.origin.source, self.origin.line_number, self.message)
+
 class origin(namedtuple('origin', 'source, line_number')):
 
   def __new__(clazz, source, line_number):
@@ -49,10 +58,12 @@ class section(namedtuple('section', 'name, entries, origin')):
       buf.write(str(entry))
     return buf.getvalue()
 
-  def find_by_key(self, key):
+  def find_by_key(self, key, raise_error = True):
     for entry in self.entries:
       if entry.value.key == key:
-        return entry.value
+        return entry.value.value
+    if raise_error:
+      raise error('%s not found' % (key), self.origin)
     return None
   
   def to_key_value_list(self):
@@ -69,7 +80,7 @@ class simple_config(object):
   def __init__(self, sections = None):
     sections = sections or []
     log.add_logging(self, 'simple_config')
-    self._sections = sections[:]
+    self.sections = sections[:]
     
   def __str__(self):
     buf = StringIO()
@@ -81,11 +92,11 @@ class simple_config(object):
 
   def add_section(self, section):
     check.check_section(section)
-    self._sections.append(section)
+    self.sections.append(section)
 
   def find_sections(self, name):
     check.check_string(name)
-    return [ section for section in self._sections if section.name == name ]
+    return [ section for section in self.sections if section.name == name ]
 
   @classmethod
   def from_file(clazz, filename):
