@@ -8,10 +8,13 @@ from .archive_zip import archive_zip
 from .archive_dmg import archive_dmg
 from .archive_xz import archive_xz
 from .archive_extension import archive_extension
+from .archive_base import archive_base
 
 class archiver(object):
   'Class to deal with archives.'
 
+  item = archive_base.item
+  
   @classmethod
   def is_valid(clazz, filename):
     if not path.exists(filename):

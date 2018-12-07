@@ -2,7 +2,6 @@
 
 import os, os.path as path, shutil, sys
 from abc import abstractmethod, ABCMeta
-from collections import namedtuple
 
 from bes.common import algorithm, cached_property
 from bes.fs import dir_util, file_find, file_path, file_util, tar_util, temp_file

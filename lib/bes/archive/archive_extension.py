@@ -42,6 +42,10 @@ class archive_extension(object):
     return extension.lower() in clazz.VALID_TYPES
 
   @classmethod
+  def is_valid_filename(clazz, filename):
+    return clazz.extension_for_filename(filename) != None
+
+  @classmethod
   def is_valid_zip_ext(clazz, extension):
     return extension.lower() in clazz.VALID_ZIP_TYPES
 
