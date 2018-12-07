@@ -315,8 +315,7 @@ child2
       _text_node_data(text='this is a another multi\n#\nline literal\n', line_number=14)
     _text_node_data(text='sub2e', line_number=19)
       _text_node_data(text='this is yet another multi\n\n#\nline literal', line_number=20)
-    _text_node_data(text='sub3d', line_number=25)
-"""
+    _text_node_data(text='sub3d', line_number=25)"""
     self.maxDiff = None
     self.assertMultiLineEqual( expected, root.to_string() )
 
