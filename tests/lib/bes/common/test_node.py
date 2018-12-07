@@ -44,9 +44,8 @@ class test_node(unittest.TestCase):
       canteloupe
   cheeses
     gouda
-    brie
-'''
-    self.assertEqual( expected, str(n) )
+    brie'''
+    self.assertMultiLineEqual( expected, str(n) )
 
   def test_ensure_path(self):
     n = self._make_tree([
@@ -67,9 +66,8 @@ class test_node(unittest.TestCase):
       canteloupe
   cheeses
     gouda
-    brie
-'''
-    self.assertEqual( expected, str(n) )
+    brie'''
+    self.assertMultiLineEqual( expected, str(n) )
     
   def _make_tree(self, paths):
     n = node('root')
