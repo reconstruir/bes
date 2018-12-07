@@ -165,7 +165,9 @@ class file_util(object):
 
   @classmethod
   def rename(clazz, src, dst):
-    clazz.mkdir(path.dirname(dst))
+    d = path.dirname(dst)
+    if d:
+      clazz.mkdir(path.dirname(dst))
     shutil.move(src, dst)
 
   @classmethod
