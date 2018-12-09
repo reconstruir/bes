@@ -24,8 +24,3 @@ class singleton_class_registry(object):
   @classmethod
   def get(clazz, class_name):
     return clazz._get_registry().get(class_name)
-
-  @classmethod
-  def make(clazz, class_name):
-    return clazz._get_registry().get(class_name)
-  
