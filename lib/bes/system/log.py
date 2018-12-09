@@ -52,8 +52,6 @@ class log(object):
   _longest_tag_length = 0
   _tag_width = None
 
-  _log_fp.write('\n')
-  
   @classmethod
   def log(clazz, tag, level, message, multi_line = False):
     'log'
