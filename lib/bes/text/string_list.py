@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import json
 from bes.system import compat
 from bes.compat import StringIO
 from bes.common import check, string_util, type_checked_list, variable
@@ -50,5 +51,12 @@ class string_list(type_checked_list, string_lexer_options.CONSTANTS):
 
   def substitute_variables(self, d, word_boundary = True):
     self._values = [ variable.substitute(s, d, word_boundary = word_boundary) for s in self._values ]
+
+  def to_json(self, indent = 2):
+    return json.dumps(self._values, indent = indent)
+
+  @classmethod
+  def from_json(clazz, text):
+    return string_list(json.loads(text))
     
 check.register_class(string_list, include_seq = False)
