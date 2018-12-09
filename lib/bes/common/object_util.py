@@ -1,7 +1,6 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import json, inspect
+import inspect
 from itertools import chain
 
 class object_util(object):
