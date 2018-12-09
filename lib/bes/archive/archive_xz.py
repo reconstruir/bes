@@ -12,6 +12,7 @@ from .archive_zip import archive_zip
 class archive_xz(archive):
   'XZ archive.'
 
+  # https://tukaani.org/xz/xz-file-format.txt
   _MAGIC = b'\xfd\x37\x7a\x58\x5a\x00'
   
   def __init__(self, filename):

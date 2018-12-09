@@ -561,3 +561,24 @@ class common_archive_tests(object):
     actual_files = file_find.find(tmp_extract_dir, relative = True)
     file_util.remove([ tmp_dir, tmp_extract_dir])
     return actual_files
+
+  def xtest_checksum(self):
+    items = temp_archive.make_temp_item_list([
+      ( 'foo.txt', 'foo.txt\n' ),
+      ( 'bar.txt', 'bar.txt\n' ),
+      ( 'baz.png', 'baz.png\n' ),
+      ( 'baz2.png', 'baz2.png\n' ),
+      ( 'apple.pdf', 'apple.pdf\n' ),
+      ( 'kiwi.pdf', 'kiwi.pdf\n' ),
+      ( 'durian.pdf', 'durian.pdf\n' ),
+    ])
+    tmp_dir = temp_archive.write_temp_items(items)
+    archive1 = self.make_temp_archive_for_writing()
+    archive1.create(tmp_dir)
+    checksum1 = file_util.checksum('sha256', archive1.filename)
+    
+    archive2 = self.make_temp_archive_for_writing()
+    archive2.create(tmp_dir)
+    checksum2 = file_util.checksum('sha256', archive2.filename)
+
+    self.assertEqual( checksum1, checksum2 )
