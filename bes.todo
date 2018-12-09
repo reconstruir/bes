@@ -159,3 +159,7 @@ see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-com
 - bes_framework.sh tests that use dirs with spaces in them (broken)
 - env_dir tests that use dirs with spaces in them
 - s/text_line/text_line/
+
+2018-12-09
+- archive_base.item should have a mode field
+

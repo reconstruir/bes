@@ -79,5 +79,12 @@ class test_file_util(unittest.TestCase):
     self.assertEqual( True, path.islink(tmp1.name) )
     self.assertEqual( False, file_util.is_broken_link(tmp1.name) )
 
+  def test_is_basename(self):
+    self.assertEqual( True, file_util.is_basename('foo.txt') )
+    self.assertEqual( False, file_util.is_basename('/foo.txt') )
+    self.assertEqual( False, file_util.is_basename('a/foo.txt') )
+    self.assertEqual( False, file_util.is_basename('a/b/c') )
+    self.assertEqual( True, file_util.is_basename('') )
+
 if __name__ == "__main__":
   unittest.main()

@@ -269,4 +269,8 @@ class file_util(object):
     file_util.rename(filename, new_filename)
     return new_filename
   
+  @classmethod
+  def is_basename(clazz, filename):
+    return path.basename(filename) == filename
+  
 log.add_logging(file_util, 'file_util')
