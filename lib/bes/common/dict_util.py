@@ -1,10 +1,10 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import copy
 from bes.compat import StringIO
 from .string_util import string_util
 from .variable import variable
+from .object_util import object_util
 
 class dict_util(object):
   'Dict util'
@@ -90,3 +90,9 @@ class dict_util(object):
     for key in d.iterkeys():
       d[key] = string_util.replace(d[key], replacements)
       
+  @staticmethod
+  def del_keys(d, keys):
+    keys = object_util.listify(keys)
+    for key in keys:
+      if key in d:
+        del d[key]
