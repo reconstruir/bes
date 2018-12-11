@@ -3,10 +3,12 @@
 import os.path as path, os, re, tarfile
 from collections import namedtuple
 
-from bes.system import execute, host
+from bes.common import check
+from bes.system import execute, host, os_env_var
 
 from .file_util import file_util
 from .file_find import file_find
+from .file_path import file_path
 from .temp_file import temp_file
 
 class tar_util(object):
@@ -80,3 +82,20 @@ class tar_util(object):
       r = re.findall(r'^bsdtar\s+([0-9\.]+)\s+.*$', version_text)
       return r[0] if r and len(r) == 1 else None
     return None
+
+  _POSSIBLE_TARS = [ 'tar', 'gtar', 'gnutar', 'bsdtar' ]
+  @classmethod
+  def find_tar(clazz, shell_path, flavor):
+    check.check_string_seq(shell_path)
+    for p in shell_path:
+      for possible_tar in clazz._POSSIBLE_TARS:
+        exe_file = path.join(p, possible_tar)
+        if file_path.is_executable(exe_file):
+          info = clazz.tar_exe_info(exe_file)
+          if info and info.flavor == flavor:
+            return exe_file
+    return None
+
+  @classmethod
+  def find_tar_in_env_path(clazz, flavor):
+    return clazz.find_tar(os_env_var('PATH').path, flavor)
