@@ -55,8 +55,8 @@ class tar_util(object):
 
   _tar_info = namedtuple('_tar_exe_info', 'flavor, version')
   @classmethod
-  def tar_exe_info(clazz, filename):
-    rv = execute.execute('tar --version', raise_error = False)
+  def tar_exe_info(clazz, exe):
+    rv = execute.execute('{exe} --version'.format(exe = exe), raise_error = False)
     flavor = clazz._tar_flavor(rv.stdout)
     version = clazz._tar_version(flavor, rv.stdout)
     return clazz._tar_info(flavor, version)
