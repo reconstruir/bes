@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path, os, tarfile
+import os.path as path, os, re, tarfile
+from collections import namedtuple
+
 from bes.system import execute, host
 
 from .file_util import file_util
@@ -48,3 +50,33 @@ class tar_util(object):
   @classmethod
   def extract(clazz, filename, dest_dir):
     execute.execute('tar xf {filename} -C {dest_dir}'.format(filename = filename, dest_dir = dest_dir))
+
+  _tar_info = namedtuple('_tar_exe_info', 'flavor, version')
+  @classmethod
+  def tar_exe_info(clazz, filename):
+    rv = execute.execute('tar --version', raise_error = False)
+    flavor = clazz._tar_flavor(rv.stdout)
+    version = clazz._tar_version(flavor, rv.stdout)
+    return clazz._tar_info(flavor, version)
+
+  @classmethod
+  def extract(clazz, filename, dest_dir):
+    execute.execute('tar xf {filename} -C {dest_dir}'.format(filename = filename, dest_dir = dest_dir))
+
+  @classmethod
+  def _tar_flavor(clazz, version_text):
+    if 'GNU tar' in version_text:
+      return 'gnu'
+    if 'bsdtar' in version_text:
+      return 'bsd'
+    return 'unknown'
+  
+  @classmethod
+  def _tar_version(clazz, flavor, version_text):
+    if flavor == 'gnu':
+      r = re.findall('^tar\s+\(GNU\s+tar\)\s+([0-9\.]+)', version_text)
+      return r[0] if r and len(r) == 1 else None
+    elif flavor == 'bsd':
+      r = re.findall(r'^bsdtar\s+([0-9\.]+)\s+.*$', version_text)
+      return r[0] if r and len(r) == 1 else None
+    return None
