@@ -12,9 +12,13 @@ class unit_test(unittest.TestCase):
   def __init__(self, *args, **kargs):
     self.maxDiff = None
     super(unit_test, self).__init__(*args, **kargs)
-  
-  DEBUG = os.environ.get('DEBUG', '').lower() in [ 't', 'true', 'y', 'yes', '1' ]
-  BES_VERBOSE = os.environ.get('BES_VERBOSE', '').lower() in [ 't', 'true', 'y', 'yes', '1' ]
+
+  def _is_true(x):
+    return x.lower() in [ 't', 'true', 'y', 'yes', '1' ]
+    
+  DEBUG = _is_true(os.environ.get('DEBUG', ''))
+  BES_VERBOSE = _is_true(os.environ.get('BES_VERBOSE', ''))
+  BES_DONET = _is_true(os.environ.get('BES_DONET', ''))
   
   _temp_dir = os.environ.get('BES_TEMP_DIR', None)
   if _temp_dir:

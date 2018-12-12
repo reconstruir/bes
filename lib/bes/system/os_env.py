@@ -68,7 +68,7 @@ class os_env(object):
    ]
 
   @classmethod
-  def make_clean_env(clazz, keep_keys = None, update = None, prepend = True):
+  def make_clean_env(clazz, keep_keys = None, update = None, prepend = True, keep_func = None):
     'Return a clean environment suitable for deterministic build related tasks.'
     keep_keys = keep_keys or []
     env = { k: v for k,v in os.environ.items() if k in clazz.CLEAN_ENV_VARS }
@@ -76,6 +76,10 @@ class os_env(object):
     for key in keep_keys:
       if key in os.environ:
         env[key] = os.environ[key]
+    if keep_func:
+      for key, value in os.environ.items():
+        if keep_func(key):
+          env[key] = value
     if update:
       assert isinstance(update, dict)
       clazz.update(env, update, prepend = prepend)
