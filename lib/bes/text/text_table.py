@@ -15,7 +15,7 @@ class text_cell_renderer(object):
 
   def render(self, value, width = None):
     width = width or self.width or 0
-    if value:
+    if value is not None:
       vs = self._value_to_string(value)
     else:
       vs = u''
