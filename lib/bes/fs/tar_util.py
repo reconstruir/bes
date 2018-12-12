@@ -4,7 +4,7 @@ import os.path as path, os, re, tarfile
 from collections import namedtuple
 
 from bes.common import check
-from bes.system import execute, host, os_env_var
+from bes.system import execute, host, os_env, os_env_var
 
 from .file_util import file_util
 from .file_find import file_find
@@ -98,4 +98,41 @@ class tar_util(object):
 
   @classmethod
   def find_tar_in_env_path(clazz, flavor):
-    return clazz.find_tar(os_env_var('PATH').path, flavor)
+    # Always include the DEFAULT_SYSTEM_PATH to gurantee checking the usual dirs.
+    env_path = os_env.DEFAULT_SYSTEM_PATH.split(os.pathsep) + os_env_var('PATH').path
+    return clazz.find_tar(env_path, flavor)
+  
+  @classmethod
+  def find_tar_or_raise(clazz, flavor, why_msg):
+    'Either find flavor of tar or raise an error with why_msg as the message.'
+    tar = clazz.find_tar_in_env_path(flavor)
+    if not tar:
+      msg = 'you need gnu tar in your path to archive the binary.\n{why_msg}'.format(why_msg = why_msg)
+      raise RuntimeError(msg)
+    return tar
+
+  @classmethod
+  def create_deterministic_tarball_with_manifest(clazz, filename, files_dir, manifest_filename, mtime):
+    'Create a deterministic tarball with a hard coded mtime.  For the same contents, the checksum will not change.'
+    gnu_tar = clazz.find_tar_or_raise('gnu', 'bsd tar is not deterministic about archive checksum for the same contents.')
+    file_util.mkdir(path.dirname(filename))
+    template = '{gnu_tar} --mtime={mtime} -cf - -C {files_dir} -T {manifest_filename} | gzip -n > {filename}'
+    tar_cmd = template.format(gnu_tar = gnu_tar,
+                              mtime = mtime,
+                              files_dir = files_dir,
+                              manifest_filename = manifest_filename,
+                              filename = filename)
+    execute.execute(tar_cmd, shell = True)
+
+  @classmethod
+  def create_deterministic_tarball(clazz, filename, files_dir, what, mtime):
+    'Create a deterministic tarball with a hard coded mtime.  For the same contents, the checksum will not change.'
+    gnu_tar = clazz.find_tar_or_raise('gnu', 'bsd tar is not deterministic about archive checksum for the same contents.')
+    file_util.mkdir(path.dirname(filename))
+    template = '{gnu_tar} --mtime={mtime} -cf - -C {files_dir} {what} | gzip -n > {filename}'
+    tar_cmd = template.format(gnu_tar = gnu_tar,
+                              mtime = mtime,
+                              files_dir = files_dir,
+                              what = what,
+                              filename = filename)
+    execute.execute(tar_cmd, shell = True)
