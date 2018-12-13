@@ -244,7 +244,7 @@ def main():
   if args.dont_hack_env:
     keep_keys.extend([ 'PATH', 'PYTHONPATH'])
     
-  env = os_env.make_clean_env(keep_keys = keep_keys, keep_func = lambda key: key.startswith('BES'))
+  env = os_env.make_clean_env(keep_keys = keep_keys, keep_func = lambda key: key.startswith('BES') or key.startswith('_BES'))
   env['PYTHONDONTWRITEBYTECODE'] = 'x'
 
   variables = {
