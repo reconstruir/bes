@@ -94,11 +94,12 @@ class _state(object):
 
   def unexpected_token(self, token, expected_label):
     text_blurb = line_numbers.add_line_numbers(self.parser.text)
-    raise RuntimeError('unexpected token \"%s:%s\" instead of \"%s\" at line %d:\n%s' % (token.token_type,
-                                                                                         token.value,
-                                                                                         expected_label,
-                                                                                         token.position.y,
-                                                                                         text_blurb))
+    raise RuntimeError('unexpected token \"%s:%s\" instead of \"%s\" at position %d:%d:\n%s' % (token.token_type,
+                                                                                                token.value,
+                                                                                                expected_label,
+                                                                                                token.position.x,
+                                                                                                token.position.y,
+                                                                                                text_blurb))
   
 class _state_expecting_key(_state):
   def __init__(self, parser):
