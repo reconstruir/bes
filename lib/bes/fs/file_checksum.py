@@ -53,7 +53,6 @@ class file_checksum_list(type_checked_list):
     
   def to_simple_list(self):
     return [ x.to_list() for x in self ]
-    return json_util.to_json(self._values, indent = 2)
     
   @classmethod
   def from_json(clazz, text):
