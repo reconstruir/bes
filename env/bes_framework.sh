@@ -260,23 +260,51 @@ function bes_source_dir()
   return 0
 }
 
+# Convert a single argument string to lower case
+function bes_to_lower()
+{
+  local _result=$( echo "$@" | $_BES_TR_EXE '[:upper:]' '[:lower:]' )
+  echo ${_result}
+  return 0
+}
+
+# Return an exit code of 0 if the argument is "true."  true is one of: true, 1, t, yes, y
+function bes_is_true()
+{
+  if [[ $# < 1 ]]; then
+    printf "\nUsage: bes_is_true what\n\n"
+    return 1
+  fi
+  local _what=$( bes_to_lower "$1" )
+  local _rv
+  case "${_what}" in
+    true|1|t|y|yes)
+      _rv=0
+      ;;
+    *)
+      _rv=1
+      ;;
+  esac
+  return ${_rv}
+}
+
 function bes_setup()
 {
   _bes_trace_function $*
   if [[ $# < 1 ]]; then
-    printf "\nUsage: bes_setup root_dir\n\n"
+    printf "\nUsage: bes_setup root_dir [go_there]\n\n"
     return 1
   fi
   local _root_dir=$1
-  local _dont_chdir=0
-  if [[ $# < 1 ]]; then
-    _dont_chdir=1
+  local _go_there=true
+  if [[ $# > 1 ]]; then
+    _go_there=$2
   fi
 
   bes_env_path_prepend PATH ${_root_dir}/bin
   bes_env_path_prepend PYTHONPATH ${_root_dir}/lib
 
-  if [[ $_dont_chdir == 0 ]]; then
+  if $(bes_is_true $_go_there); then
     cd $_root_dir
     bes_tab_title $($_BES_BASENAME_EXE $_root_dir)
   fi

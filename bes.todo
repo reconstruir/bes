@@ -163,3 +163,4 @@ see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-com
 2018-12-09
 - archive_base.item should have a mode field
 - the archive test hierarchy does not compute with bes_test.py
+- test_bes_framework.sh should use [[ ]] consistently

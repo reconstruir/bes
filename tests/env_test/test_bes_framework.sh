@@ -132,4 +132,25 @@ function test_bes_source_dir()
   rm -rf ${_tmp}
 }  
 
+function test_bes_to_lower()
+{
+  bes_assert "[[ $(bes_to_lower FoO) == foo ]]"
+  bes_assert "[[ $(bes_to_lower FOO) == foo ]]"
+  bes_assert "[[ $(bes_to_lower foo) == foo ]]"
+}  
+
+function test_bes_is_true()
+{
+  function _call_is_true() ( if $(bes_is_true $*); then echo yes; else echo no; fi )
+  bes_assert "[[ $(_call_is_true true) == yes ]]"
+  bes_assert "[[ $(_call_is_true True) == yes ]]"
+  bes_assert "[[ $(_call_is_true TRUE) == yes ]]"
+  bes_assert "[[ $(_call_is_true tRuE) == yes ]]"
+  bes_assert "[[ $(_call_is_true 1) == yes ]]"
+  bes_assert "[[ $(_call_is_true t) == yes ]]"
+  bes_assert "[[ $(_call_is_true too) == no ]]"
+  bes_assert "[[ $(_call_is_true false) == no ]]"
+  bes_assert "[[ $(_call_is_true 0) == no ]]"
+}  
+
 bes_testing_run_unit_tests
