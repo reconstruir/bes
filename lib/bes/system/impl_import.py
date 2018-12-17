@@ -15,6 +15,7 @@ class impl_import(object):
   
   @classmethod
   def load(clazz, package, impl_name, xglobals):
+    assert False
     possible = clazz._possible_impl_module_data(package, impl_name)
     if not possible:
       raise ImportError('Could not find any implementation for %s in %s' % (impl_name, package))
