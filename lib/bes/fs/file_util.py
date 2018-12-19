@@ -256,7 +256,8 @@ class file_util(object):
 
   # https://stackoverflow.com/questions/1131220/get-md5-hash-of-big-files-in-python
   @classmethod
-  def checksum(clazz, function_name, filename, chunk_size = 1024 * 1204):
+  def checksum(clazz, function_name, filename, chunk_size = None):
+    chunk_size = chunk_size or (1024 * 1024)
     hasher = hashlib.new(function_name)
     with open(filename, 'rb') as fin: 
       for chunk in iter(lambda: fin.read(chunk_size), b''): 
