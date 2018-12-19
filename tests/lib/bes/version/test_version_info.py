@@ -7,7 +7,7 @@ from bes.version import version_info
 class test_version_info(unit_test):
 
   def test_read_string(self):
-    text = '''#!/usr/bin/env python
+    text = '''\
 BES_VERSION = u'1.0.0'
 BES_AUTHOR_NAME = u'Sally Foo'
 BES_AUTHOR_EMAIL = u'sally@foo.com'
@@ -19,7 +19,6 @@ BES_TIMESTAMP = u''
     
   def test___str__(self):
     expected = '''\
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 BES_VERSION = u'1.0'

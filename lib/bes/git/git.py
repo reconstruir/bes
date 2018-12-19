@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os, os.path as path, re
@@ -7,6 +6,7 @@ from bes.text import text_line_parser
 from bes.common import object_util, string_util
 from bes.system import execute
 from bes.fs import dir_util, file_util, temp_file
+from bes.version.version_compare import version_compare
 
 from .status import status
 
@@ -236,3 +236,28 @@ class git(object):
   @classmethod
   def active_branch(clazz, root):
     return [ i for i in clazz.branch_list(root) if i.active ][0].name
+
+  @classmethod
+  def tag(clazz, root, tag):
+    clazz._call_git(root, [ 'tag', tag ])
+
+  @classmethod
+  def list_tags(clazz, root, lexical = False, reverse = False):
+    if lexical:
+      sort_arg = '--sort={reverse}refname'.format(reverse = '-' if reverse else '')
+    else:
+      sort_arg = '--sort={reverse}version:refname'.format(reverse = '-' if reverse else '')
+    rv = clazz._call_git(root, [ 'tag', '-l', sort_arg ])
+    lines = [ line.strip() for line in rv.stdout.split('\n') if line.strip() ]
+    return lines
+  
+  @classmethod
+  def last_tag(clazz, root):
+    tags = clazz.list_tags(root)
+    if not tags:
+      return None
+    return tags[-1]
+
+  @classmethod
+  def push_tag(clazz, root, tag):
+    clazz._call_git(root, [ 'push', 'origin', tag ])
