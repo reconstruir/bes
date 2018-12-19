@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os, os.path as path, re
@@ -7,6 +6,7 @@ from bes.text import text_line_parser
 from bes.common import object_util, string_util
 from bes.system import execute
 from bes.fs import dir_util, file_util, temp_file
+from bes.version.version_compare import version_compare
 
 from .status import status
 
@@ -46,7 +46,7 @@ class git(object):
 
   @classmethod
   def _parse_branch_status_output(clazz, root, s):
-    lines = [ line.strip() for line in s.split('\n') ]
+    lines = clazz._split_lines(s)
     ahead = re.findall('.*\[ahead\s+(\d+).*', lines[0])
     if ahead:
       ahead = int(ahead[0])
@@ -236,3 +236,45 @@ class git(object):
   @classmethod
   def active_branch(clazz, root):
     return [ i for i in clazz.branch_list(root) if i.active ][0].name
+
+  @classmethod
+  def tag(clazz, root, tag):
+    clazz._call_git(root, [ 'tag', tag ])
+
+  @classmethod
+  def list_tags(clazz, root, lexical = False, reverse = False):
+    if lexical:
+      sort_arg = '--sort={reverse}refname'.format(reverse = '-' if reverse else '')
+    else:
+      sort_arg = '--sort={reverse}version:refname'.format(reverse = '-' if reverse else '')
+    rv = clazz._call_git(root, [ 'tag', '-l', sort_arg ])
+    return clazz._split_lines(rv.stdout)
+  
+  @classmethod
+  def last_tag(clazz, root):
+    tags = clazz.list_tags(root)
+    if not tags:
+      return None
+    return tags[-1]
+
+  @classmethod
+  def list_remote_tags(clazz, root, lexical = False, reverse = False):
+    rv = clazz._call_git(root, [ 'ls-remote', '--tags' ])
+    lines = clazz._split_lines(rv.stdout)
+    tags = [ clazz._parse_remote_tag_line(line) for line in lines ]
+    if lexical:
+      return sorted(tags, reverse = reverse)
+    else:
+      return version_compare.sort_versions(tags, reverse = reverse)
+    return tags
+
+  @classmethod
+  def _parse_remote_tag_line(clazz, s):
+    f = re.findall('^[0-9a-f]{40}\s+refs/tags/(.+)$', s)
+    if f and len(f) == 1:
+      return f[0]
+    return None
+
+  @classmethod
+  def _split_lines(clazz, s):
+    return [ line.strip() for line in s.split('\n') if line.strip() ]

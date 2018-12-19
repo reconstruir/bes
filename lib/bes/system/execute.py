@@ -68,6 +68,7 @@ class execute(object):
         setattr(ex, 'execute_result', rv)
         print(rv.stdout)
         print(rv.stderr)
+        print(str(ex))
         raise ex
     return rv
 
