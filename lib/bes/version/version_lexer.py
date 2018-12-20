@@ -42,7 +42,7 @@ class version_lexer(object):
     self.position = point(1, 1)
     for c in self._chars_plus_eos(text):
       cr = self._char_type(c)
-      if cr.ctype == self._char_types.UNKNOWN:
+      if cr.ctype == self._lexer_char_types.UNKNOWN:
         raise RuntimeError('unknown character: \"%s\"' % (c))
       tokens = self.state.handle_char(cr)
       for token in tokens:
@@ -111,7 +111,7 @@ class version_lexer(object):
         self.buffer_write('\\')
       self.buffer_write(c)
 
-  class _char_types(enum):
+  class _lexer_char_types(enum):
     EOS = 1
     NUMBER = 2
     PUNCTUATION = 3
@@ -123,15 +123,15 @@ class version_lexer(object):
   @classmethod
   def _char_type(clazz, c):
     if c in string.punctuation:
-      return clazz._char_result(clazz._char_to_string(c), clazz._char_types.PUNCTUATION)
+      return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.PUNCTUATION)
     elif c.isdigit():
-      return clazz._char_result(clazz._char_to_string(c), clazz._char_types.NUMBER)
+      return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.NUMBER)
     elif c.isalpha():
-      return clazz._char_result(clazz._char_to_string(c), clazz._char_types.TEXT)
+      return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.TEXT)
     elif c == clazz.EOS:
-      return clazz._char_result(clazz._char_to_string(c), clazz._char_types.EOS)
+      return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.EOS)
     else:
-      return clazz._char_result(clazz._char_to_string(c), clazz._char_types.UNKNOWN)
+      return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.UNKNOWN)
       
 class _state(object):
 
@@ -154,7 +154,7 @@ class _state(object):
     attributes = []
     if include_state:
       attributes.append('state=%s' % (self.name))
-    attributes.append('c=|%s(%s)|' % (cr.char, self.lexer._char_types.value_to_name(cr.ctype)))
+    attributes.append('c=|%s(%s)|' % (cr.char, self.lexer._lexer_char_types.value_to_name(cr.ctype)))
     try:
       attributes.append('buffer=%s' % (string_util.quote(self.lexer.buffer_value())))
     except AttributeError as ex:
@@ -169,16 +169,16 @@ class _state_begin(_state):
     self.log_handle_char(cr)
     new_state = None
     tokens = []
-    if cr.ctype == self.lexer._char_types.TEXT:
+    if cr.ctype == self.lexer._lexer_char_types.TEXT:
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_TEXT
-    elif cr.ctype == self.lexer._char_types.NUMBER:
+    elif cr.ctype == self.lexer._lexer_char_types.NUMBER:
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_NUMBER
-    elif cr.ctype == self.lexer._char_types.PUNCTUATION:
+    elif cr.ctype == self.lexer._lexer_char_types.PUNCTUATION:
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_PUNCTUATION
-    elif cr.ctype == self.lexer._char_types.EOS:
+    elif cr.ctype == self.lexer._lexer_char_types.EOS:
       new_state = self.lexer.STATE_DONE
     else:
       raise RuntimeError('unexpected char %s in state %s' % (cr, self.lexer.state))
@@ -193,18 +193,18 @@ class _state_number(_state):
     self.log_handle_char(cr)
     new_state = None
     tokens = []
-    if cr.ctype == self.lexer._char_types.TEXT:
+    if cr.ctype == self.lexer._lexer_char_types.TEXT:
       tokens.append(self.lexer.make_token_number())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_TEXT
-    elif cr.ctype == self.lexer._char_types.NUMBER:
+    elif cr.ctype == self.lexer._lexer_char_types.NUMBER:
       self.lexer.buffer_write(cr.char)
       new_state = self.lexer.STATE_NUMBER
-    elif cr.ctype == self.lexer._char_types.PUNCTUATION:
+    elif cr.ctype == self.lexer._lexer_char_types.PUNCTUATION:
       tokens.append(self.lexer.make_token_number())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_PUNCTUATION
-    elif cr.ctype == self.lexer._char_types.EOS:
+    elif cr.ctype == self.lexer._lexer_char_types.EOS:
       tokens.append(self.lexer.make_token_number())
       new_state = self.lexer.STATE_DONE
     else:
@@ -220,18 +220,18 @@ class _state_text(_state):
     self.log_handle_char(cr)
     new_state = None
     tokens = []
-    if cr.ctype == self.lexer._char_types.TEXT:
+    if cr.ctype == self.lexer._lexer_char_types.TEXT:
       self.lexer.buffer_write(cr.char)
       new_state = self.lexer.STATE_TEXT
-    elif cr.ctype == self.lexer._char_types.NUMBER:
+    elif cr.ctype == self.lexer._lexer_char_types.NUMBER:
       tokens.append(self.lexer.make_token_text())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_NUMBER
-    elif cr.ctype == self.lexer._char_types.PUNCTUATION:
+    elif cr.ctype == self.lexer._lexer_char_types.PUNCTUATION:
       tokens.append(self.lexer.make_token_text())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_PUNCTUATION
-    elif cr.ctype == self.lexer._char_types.EOS:
+    elif cr.ctype == self.lexer._lexer_char_types.EOS:
       tokens.append(self.lexer.make_token_text())
       new_state = self.lexer.STATE_DONE
     else:
@@ -247,18 +247,18 @@ class _state_punctuation(_state):
     self.log_handle_char(cr)
     new_state = None
     tokens = []
-    if cr.ctype == self.lexer._char_types.TEXT:
+    if cr.ctype == self.lexer._lexer_char_types.TEXT:
       tokens.append(self.lexer.make_token_punctuation())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_TEXT
-    elif cr.ctype == self.lexer._char_types.NUMBER:
+    elif cr.ctype == self.lexer._lexer_char_types.NUMBER:
       tokens.append(self.lexer.make_token_punctuation())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_NUMBER
-    elif cr.ctype == self.lexer._char_types.PUNCTUATION:
+    elif cr.ctype == self.lexer._lexer_char_types.PUNCTUATION:
       self.lexer.buffer_write(cr.char)
       new_state = self.lexer.STATE_PUNCTUATION
-    elif cr.ctype == self.lexer._char_types.EOS:
+    elif cr.ctype == self.lexer._lexer_char_types.EOS:
       tokens.append(self.lexer.make_token_punctuation())
       new_state = self.lexer.STATE_DONE
     else:

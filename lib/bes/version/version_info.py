@@ -17,7 +17,6 @@ class version_info(namedtuple('version_info', 'version,author_name,author_email,
     return clazz.__bases__[0].__new__(clazz, version, author_name, author_email, address, tag, timestamp)
 
   HEADER = '''\
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 '''
