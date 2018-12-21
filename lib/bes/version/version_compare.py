@@ -42,7 +42,7 @@ class version_compare(object):
     for token in tokens:
       if token.token_type == version_lexer.TOKEN_NUMBER:
         try:
-          delta = delta_iter.next()
+          delta = next(delta_iter)
           new_token = lexer_token(token.token_type, token.value + delta, token.position)
         except StopIteration as ex:
           new_token = token
