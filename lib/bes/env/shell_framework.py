@@ -25,9 +25,9 @@ class shell_framework(object):
       replacements[old.upper()] = new.upper()
     for old_filename in self._FILES:
       new_filename = string_util.replace(old_filename, replacements, word_boundary = True)
-      content = pkgutil.get_data(python_module_name, old_filename)
+      content = pkgutil.get_data(python_module_name, old_filename).decode('utf-8')
       content = string_util.replace(content, replacements, word_boundary = True)
       dst_path = path.join(where, path.basename(new_filename))
       file_util.save(dst_path, content = content, mode = 0o755)
-      if file_util.read(dst_path) != content:
-        raise RuntimeError('Failed to save %s to %s.' % (filename, dst_path))
+      if file_util.read(dst_path, codec = 'utf8') != content:
+        raise RuntimeError('Failed to save %s to %s.' % (new_filename, dst_path))
