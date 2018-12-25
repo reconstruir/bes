@@ -153,4 +153,13 @@ function test_bes_is_true()
   bes_assert "[[ $(_call_is_true 0) == no ]]"
 }  
 
+function xtest_bes_dirname()
+{
+  bes_assert "[[ $(bes_dirname foo) == foo ]]"
+  bes_assert "[[ $(bes_dirname foo/bar) == foo ]]"
+  bes_assert "[[ $(bes_dirname foo/bar.png) == foo ]]"
+  bes_assert "[[ $(bes_dirname /foo/bar.png) == foo ]]"
+  bes_assert "[[ $(bes_dirname /) == / ]]"
+}  
+
 bes_testing_run_unit_tests

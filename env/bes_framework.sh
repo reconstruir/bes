@@ -17,6 +17,21 @@ _BES_UNAME_EXE=$(PATH=$_BES_BASIC_PATH which uname)
 _BES_BASENAME_EXE=$(PATH=$_BES_BASIC_PATH which basename)
 _BES_SYSTEM=$($_BES_UNAME_EXE | $_BES_TR_EXE '[:upper:]' '[:lower:]' | $_BES_SED_EXE 's/darwin/macos/')
 
+### function bes_dirname()
+### {
+###   _bes_trace_function $*
+###   if [[ $# != 1 ]]; then
+###     echo "Usage: bes_dirname what"
+###     return 1
+###   fi
+###   local _what="$1"
+###   if [[ "$_what" == "/" ]]; then
+###     return "/"
+###   fi
+###   echo ${_what%/*}
+###   return 0
+### }
+
 # remove duplicates from a path
 # from: https://unix.stackexchange.com/questions/14895/duplicate-entries-in-path-a-problem
 function bes_path_dedup()
