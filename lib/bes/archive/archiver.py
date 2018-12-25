@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
-from bes.fs import file_cache
+from bes.fs import file_cache, file_find
 from bes.system import host
 from .archive_tar import archive_tar
 from .archive_zip import archive_zip
@@ -135,3 +135,13 @@ class archiver(object):
     'Return a list of files common to 2 or more archives.' 
     sets = [ set(clazz.members(a)) for a in archives ]
     return list(set.intersection(*sets))
+
+  @classmethod
+  def find_archives(clazz, where, relative = True):
+    'Return valid archives found recursively in where.' 
+    files = file_find.find(where, relative = relative, file_type = file_find.FILE)
+    if relative:
+      files = [ f for f in files if archiver.is_valid(path.join(where, f)) ]
+    else:
+      files = [ f for f in files if archiver.is_valid(f) ]
+    return files
