@@ -42,7 +42,7 @@ class test_web_server(unit_test):
 
   def test_json(self):
     server = web_server_controller(self._json_web_server)
-    server.start(None)
+    server.start()
     port = server.address[1]
 
     url = self._make_url(port, 'foo')
@@ -69,6 +69,7 @@ class test_web_server(unit_test):
       self._known_tarballs = {
         '/sources/foo/foo-1.2.3.tar.gz',
         '/sources/bar/bar-1.2.3.zip',
+        '/sources/large/large-1.2.3.tar.gz',
       }
       self.error_404_html = '''
 <html>
@@ -92,10 +93,15 @@ class test_web_server(unit_test):
         return iter([ self.error_404_html ])
 
       extension = file_util.extension(path_info)
-      items = [
-        temp_archive.item('apple.txt', content = 'apple.txt\n'),
-        temp_archive.item('orange.txt', content = 'orange.txt\n'),
-      ]
+      if 'large' in path_info:
+        items = [
+          temp_archive.item('kiwi.bin', content = self._make_large_content()),
+        ]
+      else:
+        items = [
+          temp_archive.item('apple.txt', content = 'apple.txt\n'),
+          temp_archive.item('orange.txt', content = 'orange.txt\n'),
+        ]
       tmp_archive = temp_archive.make_temp_archive(items, extension)
       tmp_mime_type = file_mime.mime_type(tmp_archive.filename)
       content = file_util.read(tmp_archive.filename)
@@ -105,9 +111,14 @@ class test_web_server(unit_test):
       ])
       return iter([ content ])
 
+    _LARGE_CONTENT_SIZE = 1024 * 1024 * 10 # 10M
+    @classmethod
+    def _make_large_content(clazz):
+      return open('/dev/random', 'r').read(clazz._LARGE_CONTENT_SIZE)
+    
   def test_tarball(self):
     server = web_server_controller(self._tarball_web_server)
-    server.start(None)
+    server.start()
     port = server.address[1]
 
     url = self._make_url(port, 'sources/foo/foo-1.2.3.tar.gz')
@@ -122,6 +133,19 @@ class test_web_server(unit_test):
     self.assertEqual( [ 'apple.txt', 'orange.txt' ], archiver.members(tmp) )
     self.assertEqual( 'application/zip', file_mime.mime_type(tmp).mime_type )
     
+    server.stop()
+    
+  def test_tarball_large(self):
+    server = web_server_controller(self._tarball_web_server)
+    server.start()
+    port = server.address[1]
+
+    url = self._make_url(port, 'sources/large/large-1.2.3.tar.gz')
+    tmp = url_util.download_to_temp_file(url, basename = 'large-1.2.3.tar.gz')
+    self.debug_spew_filename('tmp', tmp)
+    self.assertEqual( [ 'kiwi.bin' ], archiver.members(tmp) )
+    self.assertEqual( 'application/x-gzip', file_mime.mime_type(tmp).mime_type )
+
     server.stop()
     
 if __name__ == '__main__':

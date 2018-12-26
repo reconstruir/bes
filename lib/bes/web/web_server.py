@@ -22,7 +22,7 @@ class web_server(with_metaclass(ABCMeta, object)):
                                 format % args)
       self.log_i(m)
       
-  def __init__(self, port, log_tag = None):
+  def __init__(self, port = None, log_tag = None):
     log.add_logging(self, tag = log_tag or 'web_server')
     self.log_i('web_server(port=%s)' % (port))
     self._requested_port = port

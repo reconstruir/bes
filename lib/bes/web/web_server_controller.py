@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system import log
@@ -11,11 +10,11 @@ class web_server_controller(object):
     self._server = None
     self.address = None
     
-  def start(self, port):
+  def start(self, *args, **kargs):
     if self._server:
       return
-    self.log_i('controller port = %s' % (port))
-    self._server = self._server_class(port)
+    self.log_i('controller start: args=%s; kargs=%s' % (str(args), str(kargs)))
+    self._server = self._server_class(*args, **kargs)
     self.log_i('starting server.')
     self._server.start()
     self.address = self._server.address
