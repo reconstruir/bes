@@ -3,9 +3,18 @@
 from bes.system import host
 
 from bes.system import host
-if host.SYSTEM == 'macos':
-#  from ._file_attributes_macos import _file_attributes_macos as _file_attributes_super_class
+
+_has_xattr=False
+try:
+  import xattr
+  _has_xattr=True
+except ImportError as ex:
+  pass
+
+if _has_xattr:
   from ._file_attributes_xattr import _file_attributes_xattr as _file_attributes_super_class
+elif host.SYSTEM == 'macos':
+  from ._file_attributes_macos import _file_attributes_macos as _file_attributes_super_class
 elif host.SYSTEM == 'linux':
   from ._file_attributes_linux import _file_attributes_linux as _file_attributes_super_class
 else:
