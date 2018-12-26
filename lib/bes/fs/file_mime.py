@@ -1,42 +1,55 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from __future__ import division
 from bes.compat import map
 from bes.system import compat, execute
+from bes.key_value import key_value_list
+from collections import namedtuple
 
 class file_mime(object):
 
   TEXT = 'text'
 
   BINARY_TYPES = [
-    'application/x-sharedlib; charset=binary', # -pie vs -no-pie issue in gcc 7.3
-    'application/octet-stream; charset=binary',
-    'application/x-executable; charset=binary',
-    'application/x-mach-binary; charset=binary', # This is new in macos sierra
+    'application/x-sharedlib', # -pie vs -no-pie issue in gcc 7.3
+    'application/octet-stream',
+    'application/x-executable',
+    'application/x-mach-binary', # This is new in macos sierra
   ]
 
   # FIXME: some illegal seuqences cause this to choke: /Users/ramiro/software/tmp/builds/flex-2.6.0_rev1_2016-02-07-05-14-52-769130/deps/installation/share/gettext/po/boldquot.sed 
 
+  class _mime_type(namedtuple('_mime_type', 'mime_type, values')):
+
+    def __new__(clazz, mime_type, values):
+      return clazz.__bases__[0].__new__(clazz, mime_type, values)
+  
+    def __str__(self):
+      return '%s; %s' % (self.mime_type, self.values.to_string())
+  
   @classmethod
   def mime_type(clazz, filename):
     cmd = 'file --brief --mime %s' % (filename)
     rv = execute.execute(cmd, raise_error = False)
     if rv.exit_code != 0:
-      return ''
-    return rv.stdout.strip()
-
+      return clazz._mime_type(None, None)
+    text = rv.stdout.strip()
+    mime_type, delimiter, values = text.partition(';')
+    mime_type = mime_type.strip()
+    values = key_value_list.parse(values, delimiter = '=')
+    return clazz._mime_type(mime_type, values)
+    
   @classmethod
   def is_text(clazz, filename):
     return clazz.mime_type_is_text(filename) or clazz.content_is_text(filename)
 
   @classmethod
   def mime_type_is_text(clazz, filename):
-    return clazz.mime_type(filename).startswith(clazz.TEXT)
+    return clazz.mime_type(filename).mime_type.startswith(clazz.TEXT)
 
   @classmethod
   def is_binary(clazz, filename):
-    return clazz.mime_type(filename) in clazz.BINARY_TYPES
+    return clazz.mime_type(filename).mime_type in clazz.BINARY_TYPES
 
   # From http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
   @classmethod

@@ -6,15 +6,13 @@ from bes.fs import file_mime
 
 class test_file_mime(unittest.TestCase):
 
-  # Darwin and Linux are different
-  EXECUTABLE_TYPES = [
-    'application/octet-stream; charset=binary',
-    'application/x-executable; charset=binary',
-  ]
-  
   def test_mime_type(self):
-    self.assertEqual( 'text/plain; charset=us-ascii', file_mime.mime_type('/etc/passwd') )
-    self.assertTrue( file_mime.mime_type('/bin/ls') in file_mime.BINARY_TYPES )
+    mt = file_mime.mime_type('/etc/passwd')
+    self.assertEqual( ( 'text/plain', [ ( 'charset', 'us-ascii' ) ] ), mt )
+    self.assertEqual( 'text/plain; charset=us-ascii', str(mt) )
+
+  def test_ls_is_binary(self):
+    self.assertTrue( file_mime.mime_type('/bin/ls').mime_type in file_mime.BINARY_TYPES )
 
   def test_is_text(self):
     self.assertTrue( file_mime.is_text('/etc/passwd') )
