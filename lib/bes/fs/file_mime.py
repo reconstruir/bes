@@ -1,9 +1,13 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from __future__ import division
+import re
+
 from bes.compat import map
 from bes.system import compat, execute
 from bes.key_value import key_value_list
+from bes.text import text_line_parser
+from bes.common import algorithm
 from collections import namedtuple
 
 class file_mime(object):
@@ -26,7 +30,10 @@ class file_mime(object):
   
     def __str__(self):
       return '%s; %s' % (self.mime_type, self.values.to_string())
-  
+
+    def __hash__(self):
+      return hash(str(self))
+    
   @classmethod
   def mime_type(clazz, filename):
     cmd = 'file --brief --mime %s' % (filename)
@@ -34,10 +41,7 @@ class file_mime(object):
     if rv.exit_code != 0:
       return clazz._mime_type(None, None)
     text = rv.stdout.strip()
-    mime_type, delimiter, values = text.partition(';')
-    mime_type = mime_type.strip()
-    values = key_value_list.parse(values, delimiter = '=')
-    return clazz._mime_type(mime_type, values)
+    return clazz._parse_file_output(text)
     
   @classmethod
   def is_text(clazz, filename):
@@ -77,3 +81,38 @@ class file_mime(object):
       if float(len(t))/float(len(s)) > 0.30:
         return False
       return True  
+
+  @classmethod
+  def _parse_file_output(clazz, text):
+    'Parse the output of file --brief --mime {filename}'
+    lines = text_line_parser.parse_lines(text, strip_text = True, remove_empties = True)
+    if len(lines) == 1:
+      return clazz._parse_non_fat_file_output_line(lines[0])
+    entries = [ clazz._parse_fat_file_output_line(line) for line in lines ]
+    entries = algorithm.unique(entries)
+    if len(entries) == 1:
+      return entries[0]
+    return entries
+
+  @classmethod
+  def _parse_non_fat_file_output_line(clazz, line):
+    'Parse one line of output from file --brief --mime {filename} for non fat failes'
+    parts = line.split(';')
+    parts = [ part.strip() for part in parts if part.strip() ]
+    mime_type = None
+    values = key_value_list()
+    if len(parts) > 0:
+      mime_type = parts.pop(0).strip()
+    for part in parts:
+      values.extend(key_value_list.parse(part, delimiter = '='))
+    values.remove_dups()
+    return clazz._mime_type(mime_type, values)
+
+  @classmethod
+  def _parse_fat_file_output_line(clazz, line):
+    'Parse one line of output from file --brief --mime {filename} for fat files'
+    r = re.findall('^.*\s\(for\sarchitecture\s(.+)\)\:\s+(.*)$', line)
+    if len(r) == 1:
+      arch, text = r[0]
+      return clazz._parse_non_fat_file_output_line(text)
+    return None
