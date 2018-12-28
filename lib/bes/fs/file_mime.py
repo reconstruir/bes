@@ -23,13 +23,13 @@ class file_mime(object):
 
   # FIXME: some illegal seuqences cause this to choke: /Users/ramiro/software/tmp/builds/flex-2.6.0_rev1_2016-02-07-05-14-52-769130/deps/installation/share/gettext/po/boldquot.sed 
 
-  class _mime_type(namedtuple('_mime_type', 'mime_type, values')):
+  class _mime_type_and_charset(namedtuple('_mime_type_and_charset', 'mime_type, charset')):
 
-    def __new__(clazz, mime_type, values):
-      return clazz.__bases__[0].__new__(clazz, mime_type, values)
+    def __new__(clazz, mime_type, charset):
+      return clazz.__bases__[0].__new__(clazz, mime_type, charset)
   
     def __str__(self):
-      return '%s; %s' % (self.mime_type, self.values.to_string())
+      return '%s; charset=%s' % (self.mime_type, self.charset)
 
     def __hash__(self):
       return hash(str(self))
@@ -39,7 +39,7 @@ class file_mime(object):
     cmd = 'file --brief --mime %s' % (filename)
     rv = execute.execute(cmd, raise_error = False)
     if rv.exit_code != 0:
-      return clazz._mime_type(None, None)
+      return clazz._mime_type_and_charset(None, None)
     text = rv.stdout.strip()
     return clazz._parse_file_output(text)
     
@@ -89,6 +89,7 @@ class file_mime(object):
     if len(lines) == 1:
       return clazz._parse_non_fat_file_output_line(lines[0])
     entries = [ clazz._parse_fat_file_output_line(line) for line in lines ]
+    entries = [ entry for entry in entries if entry ]
     entries = algorithm.unique(entries)
     if len(entries) == 1:
       return entries[0]
@@ -106,7 +107,9 @@ class file_mime(object):
     for part in parts:
       values.extend(key_value_list.parse(part, delimiter = '='))
     values.remove_dups()
-    return clazz._mime_type(mime_type, values)
+    kv = values.find_by_key('charset')
+    charset = kv.value if kv else None
+    return clazz._mime_type_and_charset(mime_type, charset)
 
   @classmethod
   def _parse_fat_file_output_line(clazz, line):
@@ -115,4 +118,5 @@ class file_mime(object):
     if len(r) == 1:
       arch, text = r[0]
       return clazz._parse_non_fat_file_output_line(text)
+    assert len(r) == 0
     return None
