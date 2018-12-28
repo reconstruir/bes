@@ -36,7 +36,7 @@ class url_util(object):
     'Download url to a temporary file.'
     if basename:
       assert file_util.is_basename(basename)
-      tmp = path.join(temp_file.make_temp_dir(), basename, delete = delete)
+      tmp = path.join(temp_file.make_temp_dir(delete = delete), basename)
     else:  
       tmp = temp_file.make_temp_file(suffix = '.download')
     with open(tmp, 'wb') as fout:
