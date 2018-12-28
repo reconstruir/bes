@@ -3,8 +3,9 @@
 #
 import unittest
 from bes.common import tuple_util
+from collections import namedtuple
 
-class Testobject_util(unittest.TestCase):
+class test_tuple_util(unittest.TestCase):
 
   def test_dict_to_named_tuple(self):
     d = { 'f': 5,
@@ -20,6 +21,17 @@ class Testobject_util(unittest.TestCase):
     }
     t = tuple_util.dict_to_named_tuple('n', d)
     self.assertEqual( sorted([ 'caca', 'bar', 'foo', 'foo1', 'foo_', 'f' ]), sorted(list(t._fields)) )
+
+  def test_clone(self):
+    T = namedtuple('T', 'foo, bar')
+    a = T(5, 'hello')
+    self.assertEqual( ( 5, 'hello' ), tuple_util.clone(a) )
+
+  def test_clone_with_mutations(self):
+    T = namedtuple('T', 'foo, bar')
+    a = T(5, 'hello')
+    self.assertEqual( ( 5, 'bye' ), tuple_util.clone(a, mutations = { 'bar': 'bye' }) )
+    self.assertEqual( ( 9, 'bye2' ), tuple_util.clone(a, mutations = { 'foo': 9, 'bar': 'bye2' }) )
 
 if __name__ == '__main__':
   unittest.main()
