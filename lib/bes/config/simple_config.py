@@ -43,7 +43,7 @@ class entry(namedtuple('entry', 'value, origin')):
   
 check.register_class(entry)
 
-class section(namedtuple('section', 'name, entries, origin')):
+class config_section(namedtuple('config_section', 'name, entries, origin')):
 
   def __new__(clazz, name, entries, origin):
     check.check_string(name)
@@ -106,7 +106,7 @@ class section(namedtuple('section', 'name, entries, origin')):
       result[var] = os_var.value
     return result
   
-check.register_class(section)
+check.register_class(config_section)
 
 class simple_config(object):
   'A very simple config file'
@@ -130,7 +130,7 @@ class simple_config(object):
     return buf.getvalue()
 
   def add_section(self, section):
-    check.check_section(section)
+    check.check_config_section(section)
     self.sections.append(section)
 
   def find_sections(self, name, raise_error = True):
@@ -161,7 +161,7 @@ class simple_config(object):
     check.check_string(source)
     name = node.data.text
     entries = clazz._parse_section_entries(node, source)
-    return section(name, entries, origin(source, node.data.line_number))
+    return config_section(name, entries, origin(source, node.data.line_number))
     
   @classmethod
   def _parse_section_entries(clazz, node, source):
