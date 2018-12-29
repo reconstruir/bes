@@ -8,12 +8,8 @@ _bes_trace_file "begin"
 
 _BES_BASIC_PATH=$(PATH=/bin:/usr/bin env -i bash -c "echo ${PATH}")
 
-_BES_AWK_EXE=$(PATH=$_BES_BASIC_PATH which awk)
-_BES_SED_EXE=$(PATH=$_BES_BASIC_PATH which sed)
 _BES_TR_EXE=$(PATH=$_BES_BASIC_PATH which tr)
-_BES_UNAME_EXE=$(PATH=$_BES_BASIC_PATH which uname)
 _BES_BASENAME_EXE=$(PATH=$_BES_BASIC_PATH which basename)
-_BES_SYSTEM=$($_BES_UNAME_EXE | $_BES_TR_EXE '[:upper:]' '[:lower:]' | $_BES_SED_EXE 's/darwin/macos/')
 
 # return a colon separated path without the head item
 function bes_path_without_head()
@@ -72,23 +68,8 @@ function bes_path_strip_colon()
   return 0
 }
 
-### function bes_dirname()
-### {
-###   _bes_trace_function $*
-###   if [[ $# != 1 ]]; then
-###     echo "Usage: bes_dirname what"
-###     return 1
-###   fi
-###   local _what="$1"
-###   if [[ "$_what" == "/" ]]; then
-###     return "/"
-###   fi
-###   echo ${_what%/*}
-###   return 0
-### }
-
 # remove duplicates from a path
-# from: https://unix.stackexchange.com/questions/14895/duplicate-entries-in-path-a-problem
+# from https://unix.stackexchange.com/questions/14895/duplicate-entries-in-path-a-problem
 function bes_path_dedup()
 {
   _bes_trace_function $*
@@ -96,9 +77,18 @@ function bes_path_dedup()
     echo "Usage: bes_path_dedup path"
     return 1
   fi
-  local path="$1"
-  path=$(printf "%s" "${path}" | $_BES_AWK_EXE -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')
-  echo "${path}"
+  local _tmp="$*"
+  local _head
+  local _result=""
+  while [[ -n "$_tmp" ]]; do
+    _head=$(bes_path_head "${_tmp}")
+    _tmp=$(bes_path_without_head "${_tmp}")
+    case ":${_result}:" in
+      *":${_head}:"*) :;; # already there
+      *) _result="${_result}:${_head}";;
+    esac
+  done
+  echo $(bes_path_strip_colon "${_result}")
   return 0
 }
 
@@ -115,27 +105,6 @@ function bes_path_sanitize()
 }
 
 function bes_path_remove()
-{
-  _bes_trace_function $*
-  if [[ $# < 2 ]]; then
-    echo "Usage: bes_path_remove path p1 p2 ... pN"
-    return 1
-  fi
-  local path="$1"
-  shift
-  local what
-  local result="${path}"
-  while [[ $# > 0 ]]; do
-    what="$1"
-    result="${what}":"${result}"
-    result=$(printf "%s" "${result}" | $_BES_AWK_EXE -v RS=: -v ORS=: -v what="^${what}$" '$0~what {next} {print}')
-    shift
-  done
-  echo $(bes_path_sanitize "${result}")
-  return 0
-}
-
-function bes_path_remove2()
 {
   _bes_trace_function $*
   if [[ $# < 2 ]]; then
@@ -183,28 +152,6 @@ function bes_path_append()
   return 0
 }
 
-function bes_path_append2()
-{
-  _bes_trace_function $*
-  if [[ $# < 2 ]]; then
-    echo "Usage: bes_path_append path p1 p2 ... pN"
-    return 1
-  fi
-  local path="$1"
-  shift
-  local what
-  local result="${path}"
-  while [[ $# > 0 ]]; do
-    what="$1"
-    result=$(bes_path_remove2 "${result}" "${what}")
-    result="${result}":"${what}"
-    shift
-  done
-  #result=$(bes_path_sanitize "${result}")
-  echo "${result}"
-  return 0
-}
-
 function bes_path_prepend()
 {
   _bes_trace_function $*
@@ -212,16 +159,16 @@ function bes_path_prepend()
     echo "Usage: bes_path_prepend path p1 p2 ... pN"
     return 1
   fi
-  local path="$1"
+  local _path="$1"
   shift
-  local what
-  local result="${path}"
+  local _what
+  local _result="${_path}"
   while [[ $# > 0 ]]; do
-    what="$1"
-    result="${what}":"${result}"
+    _what="$1"
+    _result="${_what}":"${_result}"
     shift
   done
-  echo $(bes_path_sanitize "${result}")
+  echo $(bes_path_sanitize "${_result}")
   return 0
 }
 
@@ -308,11 +255,25 @@ function bes_env_path_print()
   return 0
 }
 
-# Return system host name.  linux or macos same is bes/system/host.py
+# Return system host name.  linux or macos same as bes/system/host.py
 function bes_system()
 {
   _bes_trace_function $*
-  echo ${_BES_SYSTEM}
+  local _uname_exe=$(PATH=${_BES_BASIC_PATH} which uname)
+  local _uname=$(${_uname_exe})
+  local _result
+  case "${_uname}" in
+    Linux)
+      _result="linux"
+      ;;
+    Darwin)
+      _result="macos"
+      ;;
+    *)
+      _result="unknown"
+      ;;
+  esac
+  echo "${_result}"
   return 0
 }
 
@@ -383,7 +344,7 @@ function bes_is_true()
     printf "\nUsage: bes_is_true what\n\n"
     return 1
   fi
-  local _what=$( bes_to_lower "$1" )
+  local _what=$(bes_to_lower "$1")
   local _rv
   case "${_what}" in
     true|1|t|y|yes)
