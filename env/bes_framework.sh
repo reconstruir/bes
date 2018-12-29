@@ -6,7 +6,7 @@ function _bes_trace_file() ( _bes_trace "file: ${BASH_SOURCE}: $*" )
 
 _bes_trace_file "begin"
 
-_BES_BASIC_PATH=$(PATH=/bin:/usr/bin env -i bash -c "echo ${PATH}")
+_BES_BASIC_PATH=$(PATH=/bin:/usr/bin env -i bash -c "echo \"${PATH}\"")
 
 _BES_TR_EXE=$(PATH=$_BES_BASIC_PATH which tr)
 _BES_BASENAME_EXE=$(PATH=$_BES_BASIC_PATH which basename)
