@@ -33,5 +33,11 @@ class test_tuple_util(unittest.TestCase):
     self.assertEqual( ( 5, 'bye' ), tuple_util.clone(a, mutations = { 'bar': 'bye' }) )
     self.assertEqual( ( 9, 'bye2' ), tuple_util.clone(a, mutations = { 'foo': 9, 'bar': 'bye2' }) )
 
+  def test_clone_with_mutations_invalid_field(self):
+    T = namedtuple('T', 'foo, bar')
+    a = T(5, 'hello')
+    with self.assertRaises(ValueError) as ctx:
+      tuple_util.clone(a, mutations = { 'kiwi': 'hi' })
+
 if __name__ == '__main__':
   unittest.main()

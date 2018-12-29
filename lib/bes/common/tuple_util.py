@@ -37,13 +37,16 @@ class tuple_util(object):
   @staticmethod
   def clone(t, mutations = None):
     mutations = mutations or {}
-    'Clone a namedtuple with optional mutations.'
+    'Clone a namedtuple with optional field mutations.'
     if not tuple_util.is_named_tuple(t):
       raise TypeError('not a namedtuple: %s - %s' % (str(t), type(t)))
     check.check_dict(mutations, key_type = check.STRING_TYPES)
     l = list(t)
+    tuple_fields = t._fields
     for field, value in mutations.items():
-      index = t._fields.index(field)
+      if field not in tuple_fields:
+        raise ValueError('field \"%s\" not in tuple \"%s\"' % (field, str(t)))
+      index = tuple_fields.index(field)
       l[index] = value
     return t.__class__(*l)
   
