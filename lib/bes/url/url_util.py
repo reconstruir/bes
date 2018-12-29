@@ -32,11 +32,11 @@ class url_util(object):
     file_util.remove(tmp)
 
   @classmethod
-  def download_to_temp_file(clazz, url, chunk_size = None, basename = None):
+  def download_to_temp_file(clazz, url, chunk_size = None, basename = None, delete = True):
     'Download url to a temporary file.'
     if basename:
       assert file_util.is_basename(basename)
-      tmp = path.join(temp_file.make_temp_dir(), basename)
+      tmp = path.join(temp_file.make_temp_dir(delete = delete), basename)
     else:  
       tmp = temp_file.make_temp_file(suffix = '.download')
     with open(tmp, 'wb') as fout:

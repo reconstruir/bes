@@ -217,6 +217,15 @@ function test_bes_path_strip_colon()
   bes_assert "[[ $(bes_path_strip_colon :foo::) == foo ]]"
   bes_assert "[[ $(bes_path_strip_colon ::foo:) == foo ]]"
   bes_assert "[[ $(bes_path_strip_colon :f:) == f ]]"
+}
+    
+function xtest_bes_dirname()
+{
+  bes_assert "[[ $(bes_dirname foo) == foo ]]"
+  bes_assert "[[ $(bes_dirname foo/bar) == foo ]]"
+  bes_assert "[[ $(bes_dirname foo/bar.png) == foo ]]"
+  bes_assert "[[ $(bes_dirname /foo/bar.png) == foo ]]"
+  bes_assert "[[ $(bes_dirname /) == / ]]"
 }  
 
 bes_testing_run_unit_tests

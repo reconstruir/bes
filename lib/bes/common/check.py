@@ -43,6 +43,10 @@ class check(object):
     return isinstance(o, clazz.CLASS_TYPES)
 
   @classmethod
+  def is_tuple(clazz, o):
+    return isinstance(o, tuple)
+  
+  @classmethod
   def is_seq(clazz, o, t):
     'Return True if l is iterable and all its entries are of a given type.'
     try:

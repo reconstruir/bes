@@ -6,6 +6,7 @@ from bes.common import check, json_util, object_util, type_checked_list
 from bes.compat import StringIO
 from .file_check import file_check
 from .file_util import file_util
+from .fast_checksum import fast_checksum
 
 class file_checksum(namedtuple('file_checksum', 'filename,checksum')):
 
@@ -24,7 +25,8 @@ class file_checksum(namedtuple('file_checksum', 'filename,checksum')):
       checksum = ''
     else:
       file_check.check_file(filepath)
-      checksum = file_util.checksum(function_name or 'sha256', filepath)
+      #checksum = file_util.checksum(function_name or 'sha256', filepath)
+      checksum = fast_checksum.checksum(function_name or 'sha256', filepath)
     return clazz(filename, checksum)
 
   @classmethod

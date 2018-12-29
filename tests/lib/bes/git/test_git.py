@@ -62,5 +62,21 @@ class test_git(unittest.TestCase):
     for f in expected_cloned_files:
       self.assertTrue( path.exists(f) )
 
+  def test_tag(self):
+    tmp_repo = self._create_tmp_repo()
+    new_files = self._create_tmp_files(tmp_repo)
+    git.add(tmp_repo, new_files)
+    git.commit(tmp_repo, 'nomsg\n', '.')
+    git.tag(tmp_repo, '1.0.0')
+    self.assertEqual( [ '1.0.0' ], git.list_tags(tmp_repo) )
+    git.tag(tmp_repo, '1.0.1')
+    self.assertEqual( [ '1.0.0', '1.0.1' ], git.list_tags(tmp_repo) )
+    git.tag(tmp_repo, '1.0.9')
+    git.tag(tmp_repo, '1.0.10')
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.9', '1.0.10' ], git.list_tags(tmp_repo) )
+    self.assertEqual( '1.0.10', git.last_tag(tmp_repo) )
+    self.assertEqual( ['1.0.0', '1.0.1', '1.0.10', '1.0.9'], git.list_tags(tmp_repo, lexical = True) )
+    self.assertEqual( [ '1.0.10', '1.0.9', '1.0.1', '1.0.0' ], git.list_tags(tmp_repo, reverse = True) )
+    
 if __name__ == "__main__":
   unittest.main()

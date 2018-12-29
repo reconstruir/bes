@@ -175,6 +175,12 @@ class unit_test(unittest.TestCase):
     sys.stdout.flush()
 
   @classmethod
+  def debug_spew_filename(clazz, label, f):
+    if not clazz.DEBUG:
+      return
+    clazz.spew('%s: %s' % (label, f))
+    
+  @classmethod
   def dump(clazz, filename, text):
     with open(filename, 'w') as fout:
       fout.write(text)

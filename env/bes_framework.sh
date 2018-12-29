@@ -72,6 +72,21 @@ function bes_path_strip_colon()
   return 0
 }
 
+### function bes_dirname()
+### {
+###   _bes_trace_function $*
+###   if [[ $# != 1 ]]; then
+###     echo "Usage: bes_dirname what"
+###     return 1
+###   fi
+###   local _what="$1"
+###   if [[ "$_what" == "/" ]]; then
+###     return "/"
+###   fi
+###   echo ${_what%/*}
+###   return 0
+### }
+
 # remove duplicates from a path
 # from: https://unix.stackexchange.com/questions/14895/duplicate-entries-in-path-a-problem
 function bes_path_dedup()

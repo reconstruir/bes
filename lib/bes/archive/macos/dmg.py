@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os, os.path as path
+import copy, os, os.path as path
 from bes.compat.plistlib import plistlib_loads
 
 from bes.fs import file_check, file_find, file_util, tar_util, temp_file
@@ -15,18 +15,21 @@ class dmg(object):
 
   mount_info = namedtuple('mount_info', 'filename, mount_point, entries')
 
+  _DEBUG = False
+  
   @classmethod
   def is_dmg_file(clazz, filename):
     '''
     Return True if file is a valid DMG file by checking the magic at the begging of the trailing 512 bytes
     From http://newosxbook.com/DMG.html
     '''
+    print('checking: %s' % (filename))
     with open(filename, 'rb') as fin:
       try:
         fin.seek(-512, os.SEEK_END)
         trailer = fin.read(512)
         return trailer[0:4].decode('ascii') == 'koly'
-      except IOError as ex:
+      except IOError:
         return False
       except UnicodeDecodeError as ex:
         return False
@@ -36,6 +39,10 @@ class dmg(object):
     rv = clazz._execute_cmd('hdiutil', 'info', '-plist')
     return plistlib_loads(rv.stdout.encode('utf-8')).get('images', [])
 
+  @classmethod
+  def is_mounted(clazz, filename):
+    pass
+  
   @classmethod
   def contents(clazz, dmg):
     file_check.check_file(dmg)
@@ -74,8 +81,17 @@ class dmg(object):
   
   @classmethod
   def _execute_cmd(clazz, *args):
+    args = copy.deepcopy(list(args))
+#    if clazz._DEBUG:
+#      args.append('-debug')
     cmd = ' '.join(args)
     clazz.log_i('executing: "%s"' % (cmd))
+    if clazz._DEBUG:
+      print('DMG: executing: %s' % (cmd))
     return execute.execute(cmd)
 
+  @classmethod
+  def set_debug(clazz, debug):
+    clazz._DEBUG = debug
+  
 log.add_logging(dmg, 'dmg')

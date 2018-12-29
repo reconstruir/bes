@@ -3,7 +3,7 @@
 
 from collections import namedtuple
 
-class lexer_token(namedtuple('lexer_token', 'token_type,value,position')):
+class lexer_token(namedtuple('lexer_token', 'token_type, value, position')):
 
   def __new__(clazz, token_type = None, value = None, position = (1, 1)):
     return clazz.__bases__[0].__new__(clazz, token_type, value, position)
