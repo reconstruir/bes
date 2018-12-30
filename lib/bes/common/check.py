@@ -58,40 +58,40 @@ class check(object):
       return False
   
   @classmethod
-  def check(clazz, o, t):
-    return clazz._check(o, t, 2)
+  def check(clazz, o, t, allow_none = False):
+    return clazz._check(o, t, 2, allow_none = allow_none)
   
   @classmethod
-  def check_module(clazz, o):
-    return clazz._check(o, types.ModuleType, 2)
+  def check_module(clazz, o, allow_none = False):
+    return clazz._check(o, types.ModuleType, 2, allow_none = allow_none)
 
   @classmethod
-  def check_string(clazz, o):
-    return clazz._check(o, clazz.STRING_TYPES, 2)
+  def check_string(clazz, o, allow_none = False):
+    return clazz._check(o, clazz.STRING_TYPES, 2, allow_none = allow_none)
 
   @classmethod
-  def check_string_seq(clazz, o):
-    return clazz._check_seq(o, clazz.STRING_TYPES, 2)
+  def check_string_seq(clazz, o, allow_none = False):
+    return clazz._check_seq(o, clazz.STRING_TYPES, 2, allow_none = allow_none)
 
   @classmethod
-  def check_tuple_seq(clazz, o):
-    return clazz._check_seq(o, tuple, 2)
+  def check_tuple_seq(clazz, o, allow_none = False):
+    return clazz._check_seq(o, tuple, 2, allow_none = allow_none)
 
   @classmethod
-  def check_int(clazz, o):
-    return clazz._check(o, clazz.INTEGER_TYPES, 2)
+  def check_int(clazz, o, allow_none = False):
+    return clazz._check(o, clazz.INTEGER_TYPES, 2, allow_none = allow_none)
 
   @classmethod
-  def check_bool(clazz, o):
-    return clazz._check(o, bool, 2)
+  def check_bool(clazz, o, allow_none = False):
+    return clazz._check(o, bool, 2, allow_none = allow_none)
 
   @classmethod
-  def check_tuple(clazz, o):
-    return clazz._check(o, tuple, 2)
+  def check_tuple(clazz, o, allow_none = False):
+    return clazz._check(o, tuple, 2, allow_none = allow_none)
 
   @classmethod
-  def check_dict(clazz, o, key_type = None, value_type = None):
-    o = clazz._check(o, dict, 2)
+  def check_dict(clazz, o, key_type = None, value_type = None, allow_none = False):
+    o = clazz._check(o, dict, 2, allow_none = allow_none)
     if key_type or value_type:
       for key, value in o.items():
         if key_type:
@@ -101,25 +101,27 @@ class check(object):
     return o
   
   @classmethod
-  def check_set(clazz, o, entry_type = None):
-    o = clazz._check(o, set, 2)
+  def check_set(clazz, o, entry_type = None, allow_none = False):
+    o = clazz._check(o, set, 2, allow_none = allow_none)
     if entry_type:
       clazz._check_seq(o, entry_type, 2)
     return o
 
   @classmethod
-  def check_list(clazz, o, entry_type = None):
-    o = clazz._check(o, list, 2)
+  def check_list(clazz, o, entry_type = None, allow_none = False):
+    o = clazz._check(o, list, 2, allow_none = allow_none)
     if entry_type:
       clazz._check_seq(o, entry_type, 2)
     return o
 
   @classmethod
-  def check_class(clazz, o):
-    return clazz._check(o, clazz.CLASS_TYPES, 2)
+  def check_class(clazz, o, allow_none = False):
+    return clazz._check(o, clazz.CLASS_TYPES, 2, allow_none = allow_none)
 
   @classmethod
-  def _check(clazz, o, t, depth, type_blurb = None):
+  def _check(clazz, o, t, depth, type_blurb = None, allow_none = False):
+    if allow_none and o is None:
+      return o
     if isinstance(o, t):
       return o
     type_blurb = type_blurb or clazz._make_type_blurb(t)
@@ -133,11 +135,13 @@ class check(object):
                                                                                          path.abspath(filename),
                                                                                          line_number))
   @classmethod
-  def check_seq(clazz, o, t):
-    return clazz._check_seq(o, t, 2)
+  def check_seq(clazz, o, t, allow_none = False):
+    return clazz._check_seq(o, t, 2, allow_none = allow_none)
 
   @classmethod
-  def _check_seq(clazz, o, t, depth, type_blurb = None):
+  def _check_seq(clazz, o, t, depth, type_blurb = None, allow_none = False):
+    if allow_none and o is None:
+      return o
     try:
       it = enumerate(o)
     except:
@@ -173,7 +177,8 @@ class check(object):
       if not isinstance(obj, self.object_type) and self.cast_func:
         obj = self.cast_func(self.object_type, obj)
       type_blurb = kwargs.get('type_blurb', None)
-      return check._check(obj, self.object_type, 2, type_blurb = type_blurb)
+      allow_none = kwargs.get('allow_none', False)
+      return check._check(obj, self.object_type, 2, type_blurb = type_blurb, allow_none = allow_none)
     
   class _is_type_helper(object):
     'Helper class to make check.is_foo() methods work.'
@@ -195,7 +200,8 @@ class check(object):
     def __call__(self, *args, **kwargs):
       assert len(args) == 1
       obj = args[0]
-      return check._check_seq(obj, self.object_type, 2, type_blurb = None)
+      allow_none = kwargs.get('allow_none', False)
+      return check._check_seq(obj, self.object_type, 2, type_blurb = None, allow_none = allow_none)
     
   class _is_seq_helper(object):
     'Helper class to make check.is_foo_seq() methods work.'

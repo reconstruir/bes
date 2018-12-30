@@ -104,5 +104,16 @@ class test_check(unit_test):
     self.assertTrue( C.is_string_seq([ 'foo' ]) )
     self.assertFalse( C.is_string_seq('foo') )
       
+  def test_string_allow_none(self):
+    self.assertEqual( None, C.check_string(None, allow_none = True) )
+
+  def test_custom_class_allow_none(self):
+    class wine(object): pass
+    C.register_class(wine, 'wine')
+    C.check_wine(wine())
+    C.check_wine(None, allow_none = True)
+    C.check_wine_seq([ wine(), wine() ])
+    C.check_wine_seq(None, allow_none = True)
+    
 if __name__ == '__main__':
   unit_test.main()
