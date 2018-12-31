@@ -6,34 +6,70 @@ function _bes_trace_file() ( _bes_trace "file: ${BASH_SOURCE}: $*" )
 
 _bes_trace_file "begin"
 
-_BES_BASIC_PATH=$(env -i bash -c "echo ${PATH}")
+_BES_BASIC_PATH=$(PATH=/bin:/usr/bin env -i bash -c "echo \"${PATH}\"")
 
-_BES_AWK_EXE=$(PATH=$_BES_BASIC_PATH which awk)
-_BES_CUT_EXE=$(PATH=$_BES_BASIC_PATH which cut)
-_BES_SED_EXE=$(PATH=$_BES_BASIC_PATH which sed)
-_BES_REV_EXE=$(PATH=$_BES_BASIC_PATH which rev)
 _BES_TR_EXE=$(PATH=$_BES_BASIC_PATH which tr)
-_BES_UNAME_EXE=$(PATH=$_BES_BASIC_PATH which uname)
 _BES_BASENAME_EXE=$(PATH=$_BES_BASIC_PATH which basename)
-_BES_SYSTEM=$($_BES_UNAME_EXE | $_BES_TR_EXE '[:upper:]' '[:lower:]' | $_BES_SED_EXE 's/darwin/macos/')
 
-### function bes_dirname()
-### {
-###   _bes_trace_function $*
-###   if [[ $# != 1 ]]; then
-###     echo "Usage: bes_dirname what"
-###     return 1
-###   fi
-###   local _what="$1"
-###   if [[ "$_what" == "/" ]]; then
-###     return "/"
-###   fi
-###   echo ${_what%/*}
-###   return 0
-### }
+# return a colon separated path without the head item
+function bes_path_without_head()
+{
+  local _path="$*"
+  local _head=${_path%%:*}
+  local _without_head=${_path#*:}
+  if [[ "${_without_head}" == "${_head}" ]]; then
+    _without_head=""
+  fi
+  echo ${_without_head}
+  return 0
+}
+
+# return just the head item of a colon separated path
+function bes_path_head()
+{
+  local _path="$*"
+  local _head=${_path%%:*}
+  echo ${_head}
+  return 0
+}
+
+# Strip rogue colon(s) from head of path
+function bes_path_head_strip_colon()
+{
+  local _path="$*"
+  local _result="${_path#:}"
+  while [[ "${_result}" != "${_path}" ]]; do
+    _path="${_result}"
+    _result="${_path#:}"
+  done
+  echo "${_result}"
+  return 0
+}
+
+# Strip rogue colon(s) from tail of path
+function bes_path_tail_strip_colon()
+{
+  local _path="$*"
+  local _result="${_path%:}"
+  while [[ "${_result}" != "${_path}" ]]; do
+    _path="${_result}"
+    _result="${_path%:}"
+  done
+  echo "${_result}"
+  return 0
+}
+
+# Strip rogue colon(s) from head and tail of path
+function bes_path_strip_colon()
+{
+  local _path="$*"
+  local _result=$(bes_path_head_strip_colon "${_path}")
+  echo $(bes_path_tail_strip_colon "${_result}")
+  return 0
+}
 
 # remove duplicates from a path
-# from: https://unix.stackexchange.com/questions/14895/duplicate-entries-in-path-a-problem
+# from https://unix.stackexchange.com/questions/14895/duplicate-entries-in-path-a-problem
 function bes_path_dedup()
 {
   _bes_trace_function $*
@@ -41,31 +77,30 @@ function bes_path_dedup()
     echo "Usage: bes_path_dedup path"
     return 1
   fi
-  local path="$1"
-  path=$(printf "%s" "${path}" | $_BES_AWK_EXE -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')
-  echo "${path}"
+  local _tmp="$*"
+  local _head
+  local _result=""
+  while [[ -n "$_tmp" ]]; do
+    _head=$(bes_path_head "${_tmp}")
+    _tmp=$(bes_path_without_head "${_tmp}")
+    case ":${_result}:" in
+      *":${_head}:"*) :;; # already there
+      *) _result="${_result}:${_head}";;
+    esac
+  done
+  echo $(bes_path_strip_colon "${_result}")
   return 0
 }
 
 # sanitize a path by deduping entries and stripping leading or trailing colons
 function bes_path_sanitize()
 {
-  _bes_trace_function $*
   if [[ $# -ne 1 ]]; then
-    echo "Usage: bes_path_dedup path"
+    echo "Usage: bes_path_sanitize path"
     return 1
   fi
-  local path=$(bes_path_dedup "$1")
-  local first=$(printf "%s" "${path}" | $_BES_CUT_EXE -c 1)
-  if [[ "${first}" == ":" ]]; then
-    path=$(printf "%s" "${path}" | $_BES_CUT_EXE -b 2-)
-  fi
-  local reversed=$(printf "%s" "${path}" | $_BES_REV_EXE)
-  local last=$(printf "%s" "${reversed}" | $_BES_CUT_EXE -c 1)
-  if [[ "${last}" == ":" ]]; then
-    path=$(printf "%s" "${reversed}" | $_BES_CUT_EXE -b 2- | $_BES_REV_EXE)
-  fi
-  echo "${path}"
+  local _path=$(bes_path_dedup "$1")
+  echo $(bes_path_strip_colon "${_path}")
   return 0
 }
 
@@ -76,17 +111,22 @@ function bes_path_remove()
     echo "Usage: bes_path_remove path p1 p2 ... pN"
     return 1
   fi
-  local path="$1"
+  local _tmp="$1"
   shift
-  local what
-  local result="${path}"
-  while [[ $# > 0 ]]; do
-    what="$1"
-    result="${what}":"${result}"
-    result=$(printf "%s" "${result}" | $_BES_AWK_EXE -v RS=: -v ORS=: -v what="^${what}$" '$0~what {next} {print}')
-    shift
+  local _head
+  local _result=""
+  while [[ -n "$_tmp" ]]; do
+    _head=$(bes_path_head "${_tmp}")
+    _tmp=$(bes_path_without_head "${_tmp}")
+    if ! bes_is_in_list "$_head" "$@"; then
+      if [[ -z ${_result} ]]; then
+        _result="${_head}"
+      else
+        _result="${_result}:${_head}"
+      fi
+    fi
   done
-  echo $(bes_path_sanitize "${result}")
+  echo "${_result}"
   return 0
 }
 
@@ -119,31 +159,31 @@ function bes_path_prepend()
     echo "Usage: bes_path_prepend path p1 p2 ... pN"
     return 1
   fi
-  local path="$1"
+  local _path="$1"
   shift
-  local what
-  local result="${path}"
+  local _what
+  local _result="${_path}"
   while [[ $# > 0 ]]; do
-    what="$1"
-    result="${what}":"${result}"
+    _what="$1"
+    _result="${_what}":"${_result}"
     shift
   done
-  echo $(bes_path_sanitize "${result}")
+  echo $(bes_path_sanitize "${_result}")
   return 0
 }
 
 function bes_path_print()
 {
-  _bes_trace_function $*
   if [[ $# != 1 ]]; then
     echo "Usage: bes_path_print path"
     return 1
   fi
-  set -f # Disable glob expansion
-  local _pa=( $(echo $1 | tr ':' ' ') )
-  set +f
-  for item in ${_pa[*]}; do
-    echo "${item/$HOME/~}"
+  local _tmp="$*"
+  local _head
+  while [[ -n "$_tmp" ]]; do
+    _head=$(bes_path_head "${_tmp}")
+    _tmp=$(bes_path_without_head "${_tmp}")
+    echo ${_head/$HOME/\~}
   done
   return 0
 }
@@ -215,11 +255,25 @@ function bes_env_path_print()
   return 0
 }
 
-# Return system host name.  linux or macos same is bes/system/host.py
+# Return system host name.  linux or macos same as bes/system/host.py
 function bes_system()
 {
   _bes_trace_function $*
-  echo ${_BES_SYSTEM}
+  local _uname_exe=$(PATH=${_BES_BASIC_PATH} which uname)
+  local _uname=$(${_uname_exe})
+  local _result
+  case "${_uname}" in
+    Linux)
+      _result="linux"
+      ;;
+    Darwin)
+      _result="macos"
+      ;;
+    *)
+      _result="unknown"
+      ;;
+  esac
+  echo "${_result}"
   return 0
 }
 
@@ -290,7 +344,7 @@ function bes_is_true()
     printf "\nUsage: bes_is_true what\n\n"
     return 1
   fi
-  local _what=$( bes_to_lower "$1" )
+  local _what=$(bes_to_lower "$1")
   local _rv
   case "${_what}" in
     true|1|t|y|yes)
@@ -301,6 +355,26 @@ function bes_is_true()
       ;;
   esac
   return ${_rv}
+}
+
+# Return 0 if the first argument is in any of the following arguments
+function bes_is_in_list()
+{
+  if [[ $# < 1 ]]; then
+    printf "\nUsage: bes_is_in_list what l1 l2 ... lN\n\n"
+    return 1
+  fi
+  local _what="$1"
+  shift
+  local _next
+  while [[ $# > 0 ]]; do
+    _next="$1"
+    if [[ "$_what" == "$_next" ]]; then
+      return 0
+    fi
+    shift
+  done
+  return 1
 }
 
 function bes_setup()

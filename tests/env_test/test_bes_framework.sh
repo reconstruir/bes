@@ -15,21 +15,16 @@ function test_bes_var_get()
   bes_assert "[ $v = 667 ]"
 }
 
-function xtest_bes_array_to_string()
-{
-  v=$(bes_array_to_string "foo" "bar" "apple and kiwi")
-  bes_assert '[ $v = ([0]="foo" [1]="bar" [2]="apple and kiwi") ]'
-}
-
 function test_bes_path_dedup()
 {
   bes_assert "[ $(bes_path_dedup /bin:/foo:/bin) = /bin:/foo ]"
   bes_assert "[ $(bes_path_dedup /bin:/bin:/bin) = /bin ]"
-  bes_assert "[ $(bes_path_dedup /bin::/bin:/bin) = /bin: ]"
-  bes_assert "[ $(bes_path_dedup /bin::/bin:/bin:::) = /bin: ]"
+  bes_assert "[ $(bes_path_dedup /bin::/bin:/bin) = /bin ]"
+  bes_assert "[ $(bes_path_dedup /bin::/bin:/bin:::) = /bin ]"
   bes_assert "[ $(bes_path_dedup \"\") = \"\" ]"
   bes_assert "[ $(bes_path_dedup /bin:/foo/bin:/bin) = /bin:/foo/bin ]"
-#  bes_assert "[ $(bes_path_dedup /bin:/foo/bin:/bin:/a\ b) = /bin:/foo/bin:/a\ b ]"
+  bes_assert "[ $(bes_path_dedup /bin:/foo/bin:/bin:/a\ b | tr ' ' '_') = /bin:/foo/bin:/a_b ]"
+  bes_assert "[ $(bes_path_dedup /bin\ foo:/bin\ foo:/bin\ foo | tr ' ' '_') = /bin_foo ]"
 }
 
 function test_bes_path_sanitize()
@@ -41,7 +36,10 @@ function test_bes_path_sanitize()
   bes_assert "[ $(bes_path_sanitize \"\") = \"\" ]"
   bes_assert "[ $(bes_path_sanitize :a::::b:) = a:b ]"
   bes_assert "[ $(bes_path_sanitize a:b:c:a:b:c) = a:b:c ]"
-#  bes_assert "[ $(bes_path_sanitize a\ b:c\ d) = a\ b:c\ d ]"
+  bes_assert "[ $(bes_path_sanitize a\ b:c\ d | tr ' ' '_') = a_b:c_d ]"
+  bes_assert "[ $(bes_path_sanitize :a\ b:c\ d | tr ' ' '_') = a_b:c_d ]"
+  bes_assert "[ $(bes_path_sanitize a\ b:c\ d: | tr ' ' '_') = a_b:c_d ]"
+  bes_assert "[ $(bes_path_sanitize :a\ b:c\ d:a\ b: | tr ' ' '_') = a_b:c_d ]"
 }
 
 function test_bes_path_append()
@@ -52,7 +50,8 @@ function test_bes_path_append()
   bes_assert "[ $(bes_path_append /bin:/foo/bin /bin) = /foo/bin:/bin ]"
   bes_assert "[ $(bes_path_append foo bar) = foo:bar ]"
   bes_assert "[ $(bes_path_append foo bar bar foo) = bar:foo ]"
-#  bes_assert "[ $(bes_path_append /bin:/foo/bin '/a b') = '/foo/bin:/bin:/a b' ]"
+  bes_assert "[ $(bes_path_append /bin:/foo/bin /a\ b | tr ' ' '_') = /bin:/foo/bin:/a_b ]"
+  bes_assert "[ $(bes_path_append : /bin/foo) = /bin/foo ]"
 }
 
 function test_bes_path_prepend()
@@ -60,7 +59,7 @@ function test_bes_path_prepend()
   bes_assert "[ $(bes_path_prepend /bin /foo/bin) = /foo/bin:/bin ]"
   bes_assert "[ $(bes_path_prepend /foo/bin:/bin /foo/bin) = /foo/bin:/bin ]"
   bes_assert "[ $(bes_path_prepend /foo/bin:/bin /bin) = /bin:/foo/bin ]"
-#  bes_assert "[ $(bes_path_prepend /foo/bin:/bin /a\ b) = /a\ b:/foo/bin:/bin ]"
+  bes_assert "[ $(bes_path_prepend /foo/bin:/bin /a\ b | tr ' ' '_') = /a_b:/foo/bin:/bin ]"
 }
 
 function test_bes_path_remove()
@@ -69,7 +68,7 @@ function test_bes_path_remove()
   bes_assert "[ $(bes_path_remove /bin:/foo/bin foo/bin) = /bin:/foo/bin ]"
   bes_assert "[ $(bes_path_remove foo:bar bar) = foo ]"
   bes_assert "[ $(bes_path_remove foo:bar bar foo) = ]"
-  bes_assert "[ $(bes_path_remove "foo:a b:bar" bar = "foo:a b") ]"
+  bes_assert "[ $(bes_path_remove foo:a\ b:bar bar | tr ' ' '_') = foo:a_b ]"
 }
 
 function test_bes_env_path_append()
@@ -153,13 +152,51 @@ function test_bes_is_true()
   bes_assert "[[ $(_call_is_true 0) == no ]]"
 }  
 
-function xtest_bes_dirname()
+function test_bes_is_in_list()
 {
-  bes_assert "[[ $(bes_dirname foo) == foo ]]"
-  bes_assert "[[ $(bes_dirname foo/bar) == foo ]]"
-  bes_assert "[[ $(bes_dirname foo/bar.png) == foo ]]"
-  bes_assert "[[ $(bes_dirname /foo/bar.png) == foo ]]"
-  bes_assert "[[ $(bes_dirname /) == / ]]"
+  function _call_bes_is_in_list() ( bes_is_in_list "$@"; echo $? )
+  bes_assert "[[ $(_call_bes_is_in_list foo foo bar) == 0 ]]"
+  bes_assert "[[ $(_call_bes_is_in_list kiwi foo bar) == 1 ]]"
+  bes_assert "[[ $(_call_bes_is_in_list "foo " foo bar) == 1 ]]"
+  bes_assert "[[ $(_call_bes_is_in_list "foo " "foo " bar) == 0 ]]"
+  bes_assert "[[ $(_call_bes_is_in_list foo foo) == 0 ]]"
+  bes_assert "[[ $(_call_bes_is_in_list foo bar) == 1 ]]"
 }  
 
+function test_bes_path_head_strip_colon()
+{
+  bes_assert "[[ $(bes_path_head_strip_colon foo) == foo ]]"
+  bes_assert "[[ $(bes_path_head_strip_colon :foo) == foo ]]"
+  bes_assert "[[ $(bes_path_head_strip_colon ::foo) == foo ]]"
+  bes_assert "[[ $(bes_path_head_strip_colon :::foo) == foo ]]"
+  bes_assert "[[ $(bes_path_head_strip_colon :) == ]]"
+  bes_assert "[[ $(bes_path_head_strip_colon ::) == ]]"
+  bes_assert "[[ $(bes_path_head_strip_colon :foo:) == foo: ]]"
+}  
+
+function test_bes_path_tail_strip_colon()
+{
+  bes_assert "[[ $(bes_path_tail_strip_colon foo) == foo ]]"
+  bes_assert "[[ $(bes_path_tail_strip_colon foo:) == foo ]]"
+  bes_assert "[[ $(bes_path_tail_strip_colon foo::) == foo ]]"
+  bes_assert "[[ $(bes_path_tail_strip_colon foo:::) == foo ]]"
+  bes_assert "[[ $(bes_path_tail_strip_colon :) == ]]"
+  bes_assert "[[ $(bes_path_tail_strip_colon ::) == ]]"
+  bes_assert "[[ $(bes_path_tail_strip_colon :foo:) == :foo ]]"
+}  
+
+function test_bes_path_strip_colon()
+{
+  bes_assert "[[ $(bes_path_strip_colon foo) == foo ]]"
+  bes_assert "[[ $(bes_path_strip_colon foo:) == foo ]]"
+  bes_assert "[[ $(bes_path_strip_colon foo::) == foo ]]"
+  bes_assert "[[ $(bes_path_strip_colon foo:::) == foo ]]"
+  bes_assert "[[ $(bes_path_strip_colon :) == ]]"
+  bes_assert "[[ $(bes_path_strip_colon ::) == ]]"
+  bes_assert "[[ $(bes_path_strip_colon :foo:) == foo ]]"
+  bes_assert "[[ $(bes_path_strip_colon :foo::) == foo ]]"
+  bes_assert "[[ $(bes_path_strip_colon ::foo:) == foo ]]"
+  bes_assert "[[ $(bes_path_strip_colon :f:) == f ]]"
+}
+    
 bes_testing_run_unit_tests

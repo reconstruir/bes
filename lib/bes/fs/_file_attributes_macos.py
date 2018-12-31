@@ -13,7 +13,6 @@ class _file_attributes_macos(_file_attributes_base):
     'Return the attribute value with key for filename.'
     check.check_string(filename)
     check.check_string(key)
-    
     rv = clazz._call_xattr('-p', key, filename)
     if rv.exit_code == 0:
       return rv.stdout.strip()
@@ -29,7 +28,6 @@ class _file_attributes_macos(_file_attributes_base):
     check.check_string(filename)
     check.check_string(key)
     check.check_string(value)
-    
     if ' ' in key:
       raise ValueError('space not supported in key: \"%s\"' % (key))
     rv = clazz._call_xattr('-w', key, value, filename)
@@ -42,7 +40,6 @@ class _file_attributes_macos(_file_attributes_base):
     'Remove the attirbute with key from filename.'
     check.check_string(filename)
     check.check_string(key)
-    
     clazz._call_xattr('-d', key, filename)
   
   @classmethod
@@ -50,7 +47,6 @@ class _file_attributes_macos(_file_attributes_base):
   def keys(clazz, filename):
     'Return all the keys set for filename.'
     check.check_string(filename)
-    
     rv = clazz._call_xattr('-l', filename)
     if rv.exit_code != 0:
       raise RuntimeError('error getting keys for %s: %s' % (filename, rv.stdout.strip()))
@@ -64,12 +60,11 @@ class _file_attributes_macos(_file_attributes_base):
   def clear(clazz, filename):
     'Create all attributes.'
     check.check_string(filename)
-    
     clazz._call_xattr('-c', filename)
   
   @classmethod
   def _call_xattr(clazz, *args):
-    'Call attr with args.'
+    'Call xattr with args.'
     cmd = [ 'xattr' ] + list(args or [])
     return execute.execute(cmd, shell = False, raise_error = False)
 
