@@ -23,7 +23,6 @@ class dmg(object):
     Return True if file is a valid DMG file by checking the magic at the begging of the trailing 512 bytes
     From http://newosxbook.com/DMG.html
     '''
-    print('checking: %s' % (filename))
     with open(filename, 'rb') as fin:
       try:
         fin.seek(-512, os.SEEK_END)
