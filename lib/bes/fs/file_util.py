@@ -101,7 +101,7 @@ class file_util(object):
 
   @classmethod
   def remove_extension(clazz, filename):
-    'Return the root of filename withouth extension.'
+    'Return the root of filename without extension.'
     return path.splitext(filename)[0]
 
   @classmethod
