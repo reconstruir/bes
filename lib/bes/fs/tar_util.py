@@ -98,7 +98,7 @@ class tar_util(object):
 
   @classmethod
   def find_tar_in_env_path(clazz, flavor):
-    # Always include the DEFAULT_SYSTEM_PATH to gurantee checking the usual dirs.
+    # Always include the DEFAULT_SYSTEM_PATH to guarantee checking the usual dirs.
     env_path = os_env.DEFAULT_SYSTEM_PATH.split(os.pathsep) + os_env_var('PATH').path
     return clazz.find_tar(env_path, flavor)
   
