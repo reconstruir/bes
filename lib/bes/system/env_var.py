@@ -75,6 +75,10 @@ class env_var(object):
   def is_set(self):
     return self._name in self._target
   
+  def unset(self):
+    if self._name in self._target:
+      del self._target[self._name]
+  
 class os_env_var(env_var):
   def __init__(self, name):
     super(os_env_var, self).__init__(os.environ, name)
