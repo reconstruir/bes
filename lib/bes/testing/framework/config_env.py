@@ -23,13 +23,13 @@ class config_env(object):
       self.config_files = [ config_file(f) for f in config_filenames ]
       self.config_map = self._make_config_map(self.config_files)
       self.dependency_map = self._make_dep_map(self.config_map)
-
+      
   def config_for_name(self, name):
     return self.config_map.get(name, None)
     
   def config_for_filename(self, filename):
     for name, config in self.config_map.items():
-      if filename.startswith(config.root_dir):
+      if filename.startswith(config.root_dir + '/'):
         return config
     return None
     
