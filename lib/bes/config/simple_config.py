@@ -149,12 +149,18 @@ class simple_config(object):
     check.check_string(s)
     source = source or '<unknown>'
     root = tree_text_parser.parse(s, strip_comments = True, root_name = 'root')
+    return clazz.from_node(root, source = source)
+
+  @classmethod
+  def from_node(clazz, node, source = None):
+    check.check_node(node)
+    source = source or '<unknown>'
     sections = []
-    for child in root.children:
+    for child in node.children:
       section = clazz._parse_section(child, source)
       sections.append(section)
     return simple_config(sections = sections, source = source)
-
+  
   @classmethod
   def _parse_section(clazz, node, source):
     check.check_node(node)

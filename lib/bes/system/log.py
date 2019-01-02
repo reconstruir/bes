@@ -247,7 +247,7 @@ class log(object):
       if compat.is_file(value):
         clazz._log_fp = value
       else:
-        clazz._log_fp = open(value, 'wa')
+        clazz._log_fp = open(path.expanduser(value), 'wa')
     elif key == 'dump':
       lines = [ '%s: %s' % (key, clazz._level_to_string.get(level)) for key, level in sorted(clazz._tag_levels.items()) ]
       message = '\n'.join(lines) + '\n'

@@ -27,7 +27,14 @@ class comments(object):
 
   @classmethod
   def strip_muti_line_comment(clazz, s, comment_head, comment_tail, replace = False):
-    'Strip multi line spanning comments.'
+    '''
+    Strip multi line spanning comments with the form:
+    ##[apple 
+    kiwi
+    melon
+    lemon
+    ]##
+    '''
     result = s
     find_start_index = 0
     while True:

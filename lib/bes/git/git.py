@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os, os.path as path, re
+from datetime import datetime
 from collections import namedtuple
 from bes.text import text_line_parser
 from bes.common import object_util, string_util
@@ -280,5 +281,7 @@ class git(object):
     return [ line.strip() for line in s.split('\n') if line.strip() ]
 
   @classmethod
-  def push_tag(clazz, root, tag):
-    clazz._call_git(root, [ 'push', 'origin', tag ])
+  def commit_timestamp(clazz, root, commit):
+    rv = clazz._call_git(root, [ 'show', '-s', '--format=%ct', commit ])
+    ts = float(rv.stdout.strip())
+    return datetime.fromtimestamp(ts)
