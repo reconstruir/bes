@@ -427,6 +427,18 @@ function bes_var_set()
   eval "$1=\"\$2\""
 }
 
+# Unset a var value
+function bes_var_unset()
+{
+  eval "unset $1"
+}
+
+# Export a var value
+function bes_var_export()
+{
+  eval "export $1=\"\$2\""
+}
+
 function bes_PATH()
 {
   bes_env_path_print PATH
