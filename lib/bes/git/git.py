@@ -243,6 +243,10 @@ class git(object):
     clazz._call_git(root, [ 'tag', tag ])
 
   @classmethod
+  def push_tag(clazz, root, tag):
+    clazz._call_git(root, [ 'push', 'origin', tag ])
+
+  @classmethod
   def list_tags(clazz, root, lexical = False, reverse = False):
     if lexical:
       sort_arg = '--sort={reverse}refname'.format(reverse = '-' if reverse else '')
