@@ -3,6 +3,7 @@
 from .compressed_file import compressed_file
 from .device_info import device_info
 from .dir_util import dir_util
+from .fast_checksum import fast_checksum
 from .file_attributes import file_attributes
 from .file_cache import file_cache, file_cache_item_base
 from .file_check import file_check
@@ -14,9 +15,9 @@ from .file_mime import file_mime
 from .file_path import file_path
 from .file_replace import file_replace
 from .file_search import file_search
+from .file_sync import file_sync
 from .file_trash import file_trash
 from .file_type import file_type
 from .file_util import file_util
 from .tar_util import tar_util
 from .temp_file import temp_file, temp_item
-from .fast_checksum import fast_checksum

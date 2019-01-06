@@ -10,9 +10,7 @@ class test_file_find(unit_test):
 
   @classmethod
   def _make_temp_content(clazz, items):
-    tmp_dir = temp_file.make_temp_dir()
-    temp_content.write_items(items, tmp_dir)
-    return tmp_dir
+    return temp_content.write_items_to_temp_dir(items, delete = not clazz.DEBUG)
 
   def test_file_find(self):
     tmp_dir = self._make_temp_content([
