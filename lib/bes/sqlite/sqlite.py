@@ -25,6 +25,7 @@ class sqlite(object):
     self._filename = filename
     if self._filename != ':memory:':
       file_util.ensure_file_dir(self._filename)
+    self._filename_log_label = path.basename(self._filename)
     self._connection = sqlite3.connect(self._filename)
     self._cursor = self._connection.cursor()
 
@@ -48,15 +49,19 @@ class sqlite(object):
     self._cursor = self._connection.cursor()
       
   def execute(self, sql, *args, **kwargs):
-    self.log_i('execute(%s)' % (sql))
+    self.log_i('%s: execute(%s)' % (self._filename_log_label, sql))
     self._cursor.execute(sql, *args, **kwargs)
    
+  def begin(self):
+    self.log_i('%s: begin()' % (self._filename_log_label))
+    self._cursor.execute('begin transaction')
+   
   def commit(self):
-    self.log_i('commit()')
+    self.log_i('%s: commit()' % (self._filename_log_label))
     self._connection.commit()
    
   def executescript(self, sql, *args, **kwargs):
-    self.log_i('executescript(%s)' % (sql))
+    self.log_i('%s: executescript(%s)' % (self._filename_log_label, sql))
     self._cursor.executescript(sql, *args, **kwargs)
 
   def has_table(self, table_name):
