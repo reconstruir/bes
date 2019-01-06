@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs, copy, json, inspect, os, os.path as path, platform, pprint, re, sys, tempfile, unittest
+import codecs, copy, json, inspect, os, os.path as path, platform, pprint, re, sys, subprocess, tempfile, unittest
 from bes.compat import StringIO
 from io import BytesIO
 
@@ -185,3 +185,17 @@ class unit_test(unittest.TestCase):
     with open(filename, 'w') as fout:
       fout.write(text)
       fout.close()
+
+  @classmethod
+  def spew_console(clazz, s):
+    c = clazz._console()
+    c.write(s)
+    c.write('\n')
+    c.flush()
+
+  @classmethod
+  def _console(clazz):
+    if not hasattr(clazz, '_console_fp'):
+      tty = subprocess.check_output('tty').strip()
+      setattr(clazz, '_console_fp', open(tty, 'w'))
+    return getattr(clazz, '_console_fp')
