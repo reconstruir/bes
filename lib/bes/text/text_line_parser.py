@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import math, re
+from bes.system import log
 from bes.common import algorithm, check, object_util, string_util
 from bes.compat import StringIO, cmp
 from collections import namedtuple
@@ -12,6 +13,7 @@ class text_line_parser(object):
   'Manage text as lines.'
 
   def __init__(self, text, delimiter = '\n'):
+    log.add_logging(self, 'text_line_parser')
     self._delimiter = delimiter
     if isinstance(text, text_line_parser):
       self._lines = text._lines[:]
@@ -181,6 +183,8 @@ class text_line_parser(object):
     for line in self._lines:
       text = line.get_text(strip_comments = strip_comments)
       for expression in expressions:
+        match_rv = re.match(expression, text)
+        self.log_d('match_all: match(\"%s\", \"%s\") => %s' % (expression, text, match_rv))
         if re.match(expression, text):
           result.append(line)
     return text_line_parser(result)
@@ -268,6 +272,13 @@ class text_line_parser(object):
       return result
     return None
       
+  def remove_lines(self, line_numbers):
+    check.check_int_seq(line_numbers)
+    result = []
+    for line_number in line_numbers:
+      result.append(self.remove_line_number(line_number))
+    return result
+      
   def combine_lines(self, line_number1, line_number2, delimiter = ' '):
     index1 = self.find_by_line_number(line_number1)
     if index1 < 0:
@@ -333,3 +344,12 @@ class text_line_parser(object):
       raise IndexError('no line_number %d found' % (line_number))
     old_line = self._lines[index]
     self._lines[index] = text_line(old_line.line_number, new_text)
+
+  def append_line(self, text):
+    'Remove a range of lines by index (not line number)'
+    if self._lines:
+      new_line_number = self._lines[-1].line_number
+    else:
+      new_line_number = 1
+    self._lines.append(text_line(new_line_number, text))
+

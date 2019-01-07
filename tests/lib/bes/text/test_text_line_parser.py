@@ -597,5 +597,57 @@ apple
 whiskey
 eggs''', str(l) )
 
+  def test_append_line(self):
+    text = '''\
+kiwi
+apple
+melon
+eggs'''
+    l = LTP(text)
+    l.append_line('wine')
+    self.assertMultiLineEqual( '''\
+kiwi
+apple
+melon
+eggs
+wine''', str(l) )
+
+  def test_remove_lines(self):
+    text = '''\
+1 kiwi
+2 apple
+3 melon
+4 eggs
+5 wine'''
+    l = LTP(text)
+    l.remove_lines([ 1 ])
+    self.assertMultiLineEqual( '''\
+2 apple
+3 melon
+4 eggs
+5 wine''', str(l) )
+    
+    l = LTP(text)
+    l.remove_lines([ 2 ])
+    self.assertMultiLineEqual( '''\
+1 kiwi
+3 melon
+4 eggs
+5 wine''', str(l) )
+
+    l = LTP(text)
+    l.remove_lines([  5 ])
+    self.assertMultiLineEqual( '''\
+1 kiwi
+2 apple
+3 melon
+4 eggs''', str(l) )
+    
+    l = LTP(text)
+    l.remove_lines([ 1, 3, 5 ])
+    self.assertMultiLineEqual( '''\
+2 apple
+4 eggs''', str(l) )
+    
 if __name__ == '__main__':
   unit_test.main()
