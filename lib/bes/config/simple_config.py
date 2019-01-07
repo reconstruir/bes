@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system import log
-from bes.common import check
+from bes.common import bool_util, check
 from bes.compat import StringIO
 from bes.key_value import key_value, key_value_list
 from bes.fs import file_util
@@ -11,9 +11,9 @@ from bes.system import os_env_var
 
 from collections import namedtuple
 
-class error(Exception):
+class config_error(Exception):
   def __init__(self, message, origin):
-    super(error, self).__init__()
+    super(config_error, self).__init__()
     self.message = message
     self.origin = origin
 
@@ -22,34 +22,37 @@ class error(Exception):
     line_number = '<unknown>' if not self.origin else self.origin.line_number
     return '%s:%s: %s' % (source, line_number, self.message)
 
-class origin(namedtuple('origin', 'source, line_number')):
+class config_origin(namedtuple('config_origin', 'source, line_number')):
 
   def __new__(clazz, source, line_number):
     check.check_string(source)
     check.check_int(line_number)
     return clazz.__bases__[0].__new__(clazz, source, line_number)
 
-check.register_class(origin)
+check.register_class(config_origin)
   
-class entry(namedtuple('entry', 'value, origin')):
+class config_entry(object):
 
-  def __new__(clazz, value, origin):
+  def __init__(self, value, origin):
     check.check_key_value(value)
-    check.check_origin(origin)
-    return clazz.__bases__[0].__new__(clazz, value, origin)
+    check.check_config_origin(origin)
+    self.value = value
+    self.origin = origin
 
   def __str__(self):
-    return self.value.to_string(delimiter = ':', quote_value = False)
+    return self.value.to_string(delimiter = ': ', quote_value = False)
   
-check.register_class(entry)
+check.register_class(config_entry)
 
-class config_section(namedtuple('config_section', 'name, entries, origin')):
+class config_section(object):
 
-  def __new__(clazz, name, entries, origin):
+  def __init__(self, name, entries, origin):
     check.check_string(name)
-    check.check_entry_seq(entries)
-    check.check_origin(origin)
-    return clazz.__bases__[0].__new__(clazz, name, entries, origin)
+    check.check_config_entry_seq(entries)
+    check.check_config_origin(origin)
+    self.name = name
+    self.entries = entries
+    self.origin = origin
 
   def __str__(self):
     buf = StringIO()
@@ -70,9 +73,40 @@ class config_section(namedtuple('config_section', 'name, entries, origin')):
           value = self._resolve_variable(value, entry.origin)
         return value
     if raise_error:
-      raise error('%s not found' % (key), self.origin)
+      raise config_error('%s not found' % (key), self.origin)
     return None
-  
+
+  def find_entry(self, key):
+    for entry in self.entries:
+      if entry.value.key == key:
+        return entry
+    return None
+
+  def set_value(self, key, value):
+    check.check_string(key)
+    check.check_string(value)
+
+    entry = self.find_entry(key)
+    if entry:
+      assert entry.value.key == key
+      entry.value = key_value(key, value)
+      return
+    
+    if self.entries:
+      last_origin = self.entries[-1].origin
+    else:
+      last_origin = self.origin
+    new_origin = config_origin(last_origin.source, last_origin.line_number + 1)
+    new_entry = config_entry(key_value(key, value), new_origin)
+    self.entries.append(new_entry)
+
+  def get_bool(self, key, default = False):
+    value = self.find_by_key(key, raise_error = False, resolve_env_vars = False)
+    if value is not None:
+      return bool_util.parse_bool(value)
+    else:
+      return default
+    
   def to_key_value_list(self, resolve_env_vars = False):
     'Return values as a key_value_list optionally resolving environment variables.'
     result = key_value_list()
@@ -102,7 +136,7 @@ class config_section(namedtuple('config_section', 'name, entries, origin')):
     for var in variables:
       os_var = os_env_var(var)
       if not os_var.is_set:
-        raise error('Not set in the current environment: %s' % (v), origin)
+        raise config_error('Not set in the current environment: %s' % (v), origin)
       result[var] = os_var.value
     return result
   
@@ -112,13 +146,13 @@ class simple_config(object):
   'A very simple config file'
 
   # Convenience reference so users dont need to import error to catch it
-  error = error
+  error = config_error
   
   def __init__(self, sections = None, source = None):
     sections = sections or []
     source = source or '<unknown>'
     log.add_logging(self, 'simple_config')
-    self.origin = origin(source, 1)
+    self.origin = config_origin(source, 1)
     self.sections = sections[:]
     
   def __str__(self):
@@ -137,7 +171,7 @@ class simple_config(object):
     check.check_string(name)
     result = [ section for section in self.sections if section.name == name ]
     if not result and raise_error:
-      raise error('no sections found: %s' % (name), self.origin)
+      raise config_error('no sections found: %s' % (name), self.origin)
     return result
 
   @classmethod
@@ -167,7 +201,7 @@ class simple_config(object):
     check.check_string(source)
     name = node.data.text
     entries = clazz._parse_section_entries(node, source)
-    return config_section(name, entries, origin(source, node.data.line_number))
+    return config_section(name, entries, config_origin(source, node.data.line_number))
     
   @classmethod
   def _parse_section_entries(clazz, node, source):
@@ -176,7 +210,7 @@ class simple_config(object):
     result = []
     for child in node.children:
       entry_value = key_value.parse(child.data.text, delimiter = ':')
-      entry_origin = origin(source, child.data.line_number)
-      new_entry = entry(entry_value, entry_origin)
+      entry_origin = config_origin(source, child.data.line_number)
+      new_entry = config_entry(entry_value, entry_origin)
       result.append(new_entry)
     return result
