@@ -82,6 +82,10 @@ class check(object):
     return clazz._check(o, clazz.INTEGER_TYPES, 2, allow_none = allow_none)
 
   @classmethod
+  def check_int_seq(clazz, o, allow_none = False):
+    return clazz._check_seq(o, clazz.INTEGER_TYPES, 2, allow_none = allow_none)
+
+  @classmethod
   def check_bool(clazz, o, allow_none = False):
     return clazz._check(o, bool, 2, allow_none = allow_none)
 
