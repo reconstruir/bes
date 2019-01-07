@@ -167,4 +167,4 @@ see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-com
 
 2018-12-21
 - file_find s/find_function/find_by_function/
-
+- way to disble all checks in check. for speed but measure first
