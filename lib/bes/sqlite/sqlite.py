@@ -49,7 +49,7 @@ class sqlite(object):
     self._cursor = self._connection.cursor()
       
   def execute(self, sql, *args, **kwargs):
-    self.log_i('%s: execute(%s)' % (self._filename_log_label, sql))
+    self.log_i('%s: execute(%s, %s, %s)' % (self._filename_log_label, sql, args, kwargs))
     self._cursor.execute(sql, *args, **kwargs)
    
   def begin(self):
@@ -59,6 +59,10 @@ class sqlite(object):
   def commit(self):
     self.log_i('%s: commit()' % (self._filename_log_label))
     self._connection.commit()
+   
+  def rollback(self):
+    self.log_i('%s: rollback()' % (self._filename_log_label))
+    self._cursor.execute('rollback')
    
   def executescript(self, sql, *args, **kwargs):
     self.log_i('%s: executescript(%s)' % (self._filename_log_label, sql))

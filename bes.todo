@@ -169,4 +169,5 @@ see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-com
 - file_find s/find_function/find_by_function/
 - way to disble all checks in check. for speed but measure first
 
-foo
+2019-01-08
+- bes_test.py should write a retry.sh script that retries just the failed tests.
