@@ -5,7 +5,6 @@ import os.path as path
 from multiprocessing import Lock
 from collections import namedtuple
 
-from .file_checksum import file_checksum
 from .file_util import file_util
 from .temp_file import temp_file
 
@@ -40,7 +39,7 @@ class file_cache_item(file_cache_item_base):
   def __init__(self, filename):
     super(file_cache_item, self).__init__()
     self.filename = path.abspath(path.normpath(filename))
-    self._checksum = file_checksum.file_checksum(self.filename, 'sha256')
+    self._checksum = file_util.checksum('sha256', self.filename)
     
   def save(self, info):
     assert path.isfile(self.filename)

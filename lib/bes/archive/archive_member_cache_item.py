@@ -3,14 +3,14 @@
 
 import os.path as path
 from .archiver import archiver
-from bes.fs import file_checksum, file_cache_item_base, file_util
+from bes.fs import file_cache_item_base, file_util
 
 class archive_member_cache_item(file_cache_item_base):
   def __init__(self, archive, member):
     super(archive_member_cache_item, self).__init__()
     self._archive = path.abspath(path.normpath(archive))
     self._member = member
-    self._checksum = file_checksum.file_checksum(self._archive, 'sha256')
+    self._checksum = file_util.checksum('sha256', self._archive)
     
   def save(self, info):
     assert archiver.is_valid(self._archive)

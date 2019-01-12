@@ -63,10 +63,6 @@ class test_file_checksum(unit_test):
     a = FCL([ FC('a.txt', self.A_CHK), FC('b.txt', self.B_CHK) ])
     self.assertEqual( [ 'a.txt', 'b.txt' ], a.filenames() )
     
-  def test_file_checksum(self):
-    self.assertEqual( self.A_CHK, FC.file_checksum(self.data_path('a.txt'), 'sha256') )
-    self.assertEqual( self.B_CHK, FC.file_checksum(self.data_path('b.txt'), 'sha256') )
-
   def test_save_checksums_file(self):
     tmp_file = temp_file.make_temp_file()
     a = FCL.from_files([ 'a.txt', 'b.txt' ], root_dir = self.data_dir())

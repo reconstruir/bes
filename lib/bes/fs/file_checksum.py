@@ -6,17 +6,22 @@ from bes.common import check, json_util, object_util, type_checked_list
 from bes.compat import StringIO
 from .file_check import file_check
 from .file_util import file_util
-from .file_checksum_attributes import file_checksum_attributes
+from .file_checksum_getter_raw import file_checksum_getter_raw
 
 class file_checksum(namedtuple('file_checksum', 'filename, checksum')):
 
+  _DEFAULT_GETTER = file_checksum_getter_raw()
+  
   def __new__(clazz, filename, checksum):
     check.check_string(filename)
     check.check_string(checksum)
     return clazz.__bases__[0].__new__(clazz, filename, checksum)
 
   @classmethod
-  def from_file(clazz, filename, root_dir = None, function_name = None):
+  def from_file(clazz, filename, root_dir = None, function_name = None, getter = None):
+    check.check_file_checksum_getter(getter, allow_none = True)
+    function_name = function_name or 'sha256'
+    getter = getter or clazz._DEFAULT_GETTER
     if root_dir:
       filepath = path.join(root_dir, filename)
     else:
@@ -25,13 +30,8 @@ class file_checksum(namedtuple('file_checksum', 'filename, checksum')):
       checksum = ''
     else:
       file_check.check_file(filepath)
-      #checksum = file_util.checksum(function_name or 'sha256', filepath)
-      checksum = file_checksum_attributes.checksum(function_name or 'sha256', filepath)
+      checksum = getter.checksum(function_name, filepath)
     return clazz(filename, checksum)
-
-  @classmethod
-  def file_checksum(clazz, filename, function_name):
-    return clazz.from_file(filename, function_name = function_name).checksum
 
   def to_list(self):
     return [ self.filename, self.checksum ]
@@ -72,11 +72,14 @@ class file_checksum_list(type_checked_list):
     return result
     
   @classmethod
-  def from_files(clazz, filenames, root_dir = None, function_name = None):
+  def from_files(clazz, filenames, root_dir = None, function_name = None, getter = None):
     filenames = object_util.listify(filenames)
     result = clazz()
     for filename in filenames:
-      result.append(file_checksum.from_file(filename, root_dir = root_dir, function_name = function_name))
+      result.append(file_checksum.from_file(filename,
+                                            root_dir = root_dir,
+                                            function_name = function_name,
+                                            getter = getter))
     return result
 
   def save_checksums_file(self, filename):
@@ -93,15 +96,18 @@ class file_checksum_list(type_checked_list):
   def filenames(self):
     return [ c.filename for c in self ]
 
-  def reload(self, root_dir = None, function_name = None):
+  def reload(self, root_dir = None, function_name = None, getter = None):
     new_values = []
     for value in self:
-      new_values.append(file_checksum.from_file(value.filename, root_dir = root_dir, function_name = function_name))
+      new_values.append(file_checksum.from_file(value.filename,
+                                                root_dir = root_dir,
+                                                function_name = function_name,
+                                                getter = getter))
     self._values = new_values
   
-  def verify(self, root_dir = None):
+  def verify(self, root_dir = None, getter = None):
     current = self[:]
-    current.reload(root_dir = root_dir)
+    current.reload(root_dir = root_dir, getter = getter)
     return self == current
 
   def has_filename(self, filename):
