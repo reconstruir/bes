@@ -3,6 +3,7 @@
 from collections import namedtuple
 
 from bes.common import check
+from bes.git import git
 
 class git_address(namedtuple('git_address', 'address, revision')):
 
@@ -11,4 +12,10 @@ class git_address(namedtuple('git_address', 'address, revision')):
     check.check_string(revision)
     return clazz.__bases__[0].__new__(clazz, address, revision)
 
+  @property
+  def resolved_revision(self):
+    if self.revision == 'HEAD':
+      return git.last_commit_hash(self.address, short_hash = True)
+    return self.revision
+  
 check.register_class(git_address)
