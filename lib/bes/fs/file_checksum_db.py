@@ -2,7 +2,7 @@
 
 from bes.common import check
 from .file_util import file_util
-from .fast_checksum import fast_checksum
+from .file_checksum_attributes import file_checksum_attributes
 
 from .file_metadata import file_metadata
 

@@ -3,7 +3,6 @@
 from .compressed_file import compressed_file
 from .device_info import device_info
 from .dir_util import dir_util
-from .fast_checksum import fast_checksum
 from .file_attributes import file_attributes
 from .file_cache import file_cache, file_cache_item_base
 from .file_check import file_check

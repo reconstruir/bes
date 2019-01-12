@@ -3,7 +3,7 @@
 from .file_util import file_util
 from .file_attributes import file_attributes
 
-class fast_checksum(object):
+class file_checksum_attributes(object):
 
   _KEY_BES_MTIME = 'bes.mtime'
   _KEY_BES_CHECKSUM_MD5 = 'bes.checksum.md5'
