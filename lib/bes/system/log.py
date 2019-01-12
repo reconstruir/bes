@@ -424,3 +424,9 @@ _config = os.environ.get('BES_LOG', None)
 if _config:
   log.configure(_config)
 del _config
+
+class logger(object):
+
+  def __init__(self, tag):
+    log.add_logging(self, tag)
+    
