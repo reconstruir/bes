@@ -2,10 +2,13 @@
 
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
+from bes.common import check
 
-class file_checksum_getter(with_metaclass(ABCMeta, object)):
+class file_checksum_getter_base(with_metaclass(ABCMeta, object)):
 
   @abstractmethod
   def checksum(self, algorithm, filename):
     'Return the checksum for filename using algorithm.'
     pass
+
+check.register_class(file_checksum_getter_base, 'file_checksum_getter')

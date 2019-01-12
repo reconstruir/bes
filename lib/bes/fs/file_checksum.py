@@ -8,7 +8,7 @@ from .file_check import file_check
 from .file_util import file_util
 from .file_checksum_attributes import file_checksum_attributes
 
-class file_checksum(namedtuple('file_checksum', 'filename,checksum')):
+class file_checksum(namedtuple('file_checksum', 'filename, checksum')):
 
   def __new__(clazz, filename, checksum):
     check.check_string(filename)
