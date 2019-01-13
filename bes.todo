@@ -171,3 +171,4 @@ see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-com
 
 2019-01-08
 - bes_test.py should write a retry.sh script that retries just the failed tests.
+- s/bes_source/bes_source_if

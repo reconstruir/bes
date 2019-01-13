@@ -5,20 +5,19 @@ from .string_util import string_util
 from .check import check
 
 class variable(object):
-  'variable'
+  'Class to find an substitute shell style variabels in the forms $foo, ${foo}, $(foo) and @FOO@'
 
+  DOLLAR_ONLY = 0x01
+  PARENTHESIS = 0x02
+  BRACKET = 0x04
+  AT_SIGN = 0x08
+  ALL = DOLLAR_ONLY | PARENTHESIS | BRACKET | AT_SIGN
+  
   DOLLAR_ONLY_PATTERN = re.compile('\$[\w_][\w\n_]*')
   DOLLAR_PARENTHESIS_PATTERN = re.compile('\$\([\w_][\w\n_]*\)')
   DOLLAR_BRACKET_PATTERN = re.compile('\$\{[\w_][\w\n_]*\}')
   AT_SIGN_PATTERN = re.compile('\@[\w_][\w\n_]*@')
 
-  VARIABLE_PATTERNS = [
-    DOLLAR_ONLY_PATTERN,
-    DOLLAR_PARENTHESIS_PATTERN,
-    DOLLAR_BRACKET_PATTERN,
-    AT_SIGN_PATTERN,
-  ]
-  
   KEY_FORMATS = {
     DOLLAR_ONLY_PATTERN: '$%s',
     DOLLAR_PARENTHESIS_PATTERN: '$(%s)',
@@ -27,24 +26,37 @@ class variable(object):
   }
 
   @classmethod
-  def find_variables(clazz, s):
+  def _mask_to_patterns(clazz, mask):
+    result = []
+    if (mask & clazz.DOLLAR_ONLY) != 0:
+      result.append(clazz.DOLLAR_ONLY_PATTERN)
+    if (mask & clazz.PARENTHESIS) != 0:
+      result.append(clazz.DOLLAR_PARENTHESIS_PATTERN)
+    if (mask & clazz.BRACKET) != 0:
+      result.append(clazz.DOLLAR_BRACKET_PATTERN)
+    if (mask & clazz.AT_SIGN) != 0:
+      result.append(clazz.AT_SIGN_PATTERN)
+    return result
+  
+  @classmethod
+  def find_variables(clazz, s, patterns = ALL):
     'Return a list of variables found in s.'
     result = []
-    for pattern in clazz.VARIABLE_PATTERNS:
+    for pattern in clazz._mask_to_patterns(patterns):
       found = pattern.findall(s)
       names = [ clazz._var_to_name(v, pattern) for v in found ]
       result.extend(names)
     return sorted(list(set(result)))
 
   @classmethod
-  def substitute(clazz, s, d, word_boundary = True):
+  def substitute(clazz, s, d, word_boundary = True, patterns = ALL):
     'Substitute vars in s with d.'
     check.check_dict(d, key_type = check.STRING_TYPES, value_type = check.STRING_TYPES)
     replacements = {}
     for key, value in d.items():
       check.check_string(key)
       check.check_string(value)
-      for pattern in clazz.VARIABLE_PATTERNS:
+      for pattern in clazz._mask_to_patterns(patterns):
         formatted_key = clazz.KEY_FORMATS[pattern] % (key)
         replacements[formatted_key] = value
     old_result = s

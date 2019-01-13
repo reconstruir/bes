@@ -142,7 +142,7 @@ class _text_node_data(namedtuple('_text_node_data', 'text, line_number')):
 
   @property
   def text_no_comments(self):
-    return comments.strip_line(self.text, strip_head = True, strip_tail = True)
+    return comments.strip_line(self.text, allow_quoted = False, strip_head = True, strip_tail = True)
   
 class _text_node(node):
 
