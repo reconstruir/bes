@@ -7,17 +7,29 @@ from bes.text import comments
 class test_comments(unit_test):
 
   def test_strip_line(self):
-    self.assertEqual( 'foo ', comments.strip_line('foo #comment') )
+    self.assertEqual( 'foo ', comments.strip_line('foo #comment', ) )
     self.assertEqual( 'foo', comments.strip_line('foo#comment') )
     self.assertEqual( 'foo', comments.strip_line('foo #comment', strip_tail = True) )
     self.assertEqual( ' foo', comments.strip_line(' foo #comment', strip_tail = True) )
     self.assertEqual( 'foo ', comments.strip_line(' foo #comment', strip_head = True) )
     
-  def test_strip_line_with_quoted_hash(self):
-    self.assertEqual( 'ab "cd # ef"', comments.strip_line('ab "cd # ef"') )
-    self.assertEqual( 'ab "cd # ef"', comments.strip_line('ab "cd # ef"#comment') )
-    self.assertEqual( '', comments.strip_line('#ab "cd # ef"') )
-    self.assertEqual( '"#"', comments.strip_line('"#"') )
+  def test_strip_line_allow_quoted(self):
+    self.assertEqual( 'ab "cd # ef"', comments.strip_line('ab "cd # ef"', allow_quoted = True) )
+    self.assertEqual( 'ab "cd # ef"', comments.strip_line('ab "cd # ef"#comment', allow_quoted = True) )
+    self.assertEqual( '', comments.strip_line('#ab "cd # ef"', allow_quoted = True) )
+    self.assertEqual( '"#"', comments.strip_line('"#"', allow_quoted = True) )
+    
+  def test_strip_line_disallow_quoted(self):
+    self.assertEqual( 'ab "cd ', comments.strip_line('ab "cd # ef"', allow_quoted = False) )
+    self.assertEqual( 'ab "cd ', comments.strip_line('ab "cd # ef"#comment', allow_quoted = False) )
+    self.assertEqual( '', comments.strip_line('#ab "cd # ef"', allow_quoted = False) )
+    self.assertEqual( '"', comments.strip_line('"#"', allow_quoted = False) )
+    
+  def test_strip_line_disallow_quoted_escaped(self):
+    self.assertEqual( 'ab "cd # ef"', comments.strip_line('ab "cd \# ef"', allow_quoted = False) )
+    self.assertEqual( 'ab "cd # ef"', comments.strip_line('ab "cd \# ef"#comment', allow_quoted = False) )
+    self.assertEqual( '', comments.strip_line('#ab "cd # ef"', allow_quoted = False) )
+    self.assertEqual( '"#"', comments.strip_line('"\#"', allow_quoted = False) )
     
   def test_strip_line_with_strip(self):
     self.assertEqual( 'foo', comments.strip_line('foo #comment', strip_tail = True) )

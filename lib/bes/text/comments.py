@@ -8,13 +8,38 @@ from .string_lexer import string_lexer
 class comments(object):
 
   @classmethod
-  def strip_line(clazz, text, strip_head = False, strip_tail = False):
+  def strip_line(clazz, text, allow_quoted = True, strip_head = False, strip_tail = False):
     'Strip comments from one line.'
+    if allow_quoted:
+      return clazz._strip_line_allow_quoted(text, strip_head = strip_head, strip_tail = strip_tail)
+    else:
+      return clazz._strip_line_disallow_quoted(text, strip_head = strip_head, strip_tail = strip_tail)
+
+  @classmethod
+  def _strip_line_allow_quoted(clazz, text, strip_head = False, strip_tail = False):
+    'Strip comments from one line allowing for # to appear in quoted strings .'
     buf = StringIO()
     for token in string_lexer.tokenize(text, 'comments_strip_line', options = string_lexer.KEEP_QUOTES):
       if token.token_type not in [ string_lexer.TOKEN_DONE, string_lexer.TOKEN_COMMENT ]:
         buf.write(token.value)
     return string_util.strip_ends(buf.getvalue(), strip_head = strip_head, strip_tail = strip_tail)
+
+  @classmethod
+  def _strip_line_disallow_quoted(clazz, text, strip_head = False, strip_tail = False):
+    'Strip comments from one line disallowing # to appear in quoted strings but much faster.'
+    last_char = None
+    buf = StringIO()
+    found = False
+    for c in text:
+      is_escaping = last_char == '\\'
+      if c == '#' and not is_escaping:
+        found = True
+        break
+      if c != '\\':
+        buf.write(c)
+      last_char = c
+    text = buf.getvalue()
+    return string_util.strip_ends(text, strip_head = strip_head, strip_tail = strip_tail)
 
   @classmethod
   def strip_in_lines(clazz, s, strip_head = False, strip_tail = False, remove_empties = False):
