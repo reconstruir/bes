@@ -83,7 +83,7 @@ class dependency_resolver(object):
     'Return a set of resolved dependencies for the given name.  Not in build order.'
     assert string_util.is_string(name)
     if name not in dep_map:
-      raise missing_dependency_error('Missing dependency: %s' % (name), [ name ])
+      raise missing_dependency_error('Missing dependency for %s: %s' % (clazz._dependent_for_name(dep_map, name), name), [ name ])
     result = set()
     deps = dep_map[name]
     assert isinstance(deps, set)
@@ -91,6 +91,14 @@ class dependency_resolver(object):
     for dep in deps:
       result |= clazz._resolve_deps(dep_map, dep)
     return result
+
+  @classmethod
+  def _dependent_for_name(clazz, dep_map, name):
+    'Return a set of resolved dependencies for the given name.  Not in build order.'
+    for key, value in dep_map.items():
+      if name in value:
+        return key
+    return None
 
   @classmethod
   def resolve_and_order_deps(clazz, names, descriptor_map, dependency_map):
