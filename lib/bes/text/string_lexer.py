@@ -58,7 +58,7 @@ class string_lexer(string_lexer_options.CONSTANTS):
     self.log_d('_run() text=\"%s\" options=%s)' % (text, str(string_lexer_options(self._options))))
     assert self.EOS not in text
     self.position = point(1, 1)
-    for c in self.__chars_plus_eos(text):
+    for c in self._chars_plus_eos(text):
       self._is_escaping = self._last_char == '\\'
       should_handle_char = (self._is_escaping and c == '\\') or (c != '\\')
       if should_handle_char:
@@ -97,7 +97,7 @@ class string_lexer(string_lexer_options.CONSTANTS):
     self.state = new_state
 
   @classmethod
-  def __chars_plus_eos(self, text):
+  def _chars_plus_eos(self, text):
     for c in text:
       yield c
     yield self.EOS
