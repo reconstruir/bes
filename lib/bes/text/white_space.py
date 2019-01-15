@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from bes.compat import StringIO
+
 class white_space(object):
   'Deal with white spaces.'
       
@@ -20,3 +22,15 @@ class white_space(object):
       else:
         break
     return count
+
+  @classmethod
+  def escape_white_space(self, text):
+    last_char = None
+    buf = StringIO()
+    for c in text:
+      is_escaping = last_char == '\\'
+      if c.isspace() and not is_escaping:
+        buf.write('\\')
+      buf.write(c)
+      last_char = c
+    return buf.getvalue()
