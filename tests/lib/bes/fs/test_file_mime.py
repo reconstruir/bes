@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 import unittest
 from bes.fs import file_mime
 
@@ -12,11 +13,11 @@ class test_file_mime(unittest.TestCase):
     self.assertEqual( 'text/plain; charset=us-ascii', str(mt) )
 
   def test_ls_is_binary(self):
-    self.assertTrue( file_mime.mime_type('/bin/ls').mime_type in file_mime.BINARY_TYPES )
+    self.assertTrue( file_mime.mime_type(os.environ['SHELL']).mime_type in file_mime.BINARY_TYPES )
 
   def test_is_text(self):
     self.assertTrue( file_mime.is_text('/etc/passwd') )
-    self.assertFalse( file_mime.is_text('/bin/ls') )
+    self.assertFalse( file_mime.is_text(os.environ['SHELL']) )
 
   def test__parse_file_output_fat(self):
     text = '''\
