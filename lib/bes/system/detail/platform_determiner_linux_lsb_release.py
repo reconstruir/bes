@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .platform_determiner_base import platform_determiner_base
+from .linux_os_release import linux_os_release
 
 class platform_determiner_linux_lsb_release(platform_determiner_base):
   'linux platform determiner that uses lsb_release -v -a'
@@ -11,10 +12,9 @@ class platform_determiner_linux_lsb_release(platform_determiner_base):
     self._distro = parsed_lsb_release.get('Distributor ID', None).lower()
     if not self._distro:
       raise RuntimeError('lsb_release missing valid "Distributor ID"')
-    self._version = parsed_lsb_release.get('Release', None).lower()
-    if not self._version:
+    self._version_major, self._version_minor = linux_os_release.parse_version_major_minor(parsed_lsb_release.get('Release', ''))
+    if not self._version_major:
       raise RuntimeError('lsb_release missing valid "Release"').lower()
-    self._version = self._version.split('.')[0]
   
   #@abstractmethod
   def system(self):
@@ -47,10 +47,15 @@ class platform_determiner_linux_lsb_release(platform_determiner_base):
     return None
 
   #@abstractmethod
-  def version(self):
-    'distro version.'
-    return self._version
+  def version_major(self):
+    'distro version major.'
+    return self._version_major
 
+  #@abstractmethod
+  def version_minor(self):
+    'distro version minor.'
+    return self._version_minor
+  
   #@abstractmethod
   def arch(self):
     'arch.'

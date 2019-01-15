@@ -8,7 +8,7 @@ class linux_os_release(object):
 
   OS_RELEASE = '/etc/os-release'
   
-  _parse_result = namedtuple('_parse_result', 'distro, version, family')
+  _parse_result = namedtuple('_parse_result', 'distro, version_major, version_minor, family')
   @classmethod
   def parse_os_release(clazz, text, filename):
     'Parse the os-release content and return a namedtuple of the values.'
@@ -20,12 +20,12 @@ class linux_os_release(object):
     distro = clazz._parse_distro(d['ID'])
     if 'VERSION_ID' not in d:
       raise ValueError('No VERSION_ID found in os-release: %s' % (filename))
-    version = clazz._parse_version(distro, d['VERSION_ID'], filename)
+    version_major, version_minor = clazz._parse_version(distro, d['VERSION_ID'], filename)
     if 'ID_LIKE' in d:
       family = clazz._parse_family(d['ID_LIKE'])
     else:
       family = clazz._guess_family(distro)
-    return clazz._parse_result(distro, version, family)
+    return clazz._parse_result(distro, version_major, version_minor, family)
 
   @classmethod
   def has_os_release(clazz):
@@ -57,13 +57,7 @@ class linux_os_release(object):
       version = version[1:]
     if version[-1] in [ '"', "'" ]:
       version = version[0:-1]
-    return clazz._version_major(version)
-  
-  @classmethod
-  def _version_major(clazz, version):
-    'Return just the major part of the version.'
-    parts = version.split('.')
-    return parts[0]
+    return clazz.parse_version_major_minor(version)
   
   @classmethod
   def _parse_distro(clazz, text):
@@ -89,4 +83,16 @@ class linux_os_release(object):
     if arch.startswith('armv7'):
       return 'armv7'
     return arch
+  
+  @classmethod
+  def parse_version_major_minor(clazz, version):
+    version_major = None
+    version_minor = None
+    version_parts = version.split('.')
+    if version_parts:
+      version_major = version_parts.pop(0)
+    if version_parts:
+      version_minor = version_parts.pop(0)
+    return version_major, version_minor
+
   

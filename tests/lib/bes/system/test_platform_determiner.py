@@ -49,7 +49,8 @@ Codename:	xenial
     
     self.assertEqual( 'linux', LINUX_LSB_REL(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).system() )
     self.assertEqual( 'debian', LINUX_LSB_REL(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).family() )
-    self.assertEqual( '16', LINUX_LSB_REL(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).version() )
+    self.assertEqual( '16', LINUX_LSB_REL(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).version_major() )
+    self.assertEqual( '04', LINUX_LSB_REL(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).version_minor() )
     self.assertEqual( 'x86_64', LINUX_LSB_REL(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).arch() )
 
     RASPBIAN_9_4_LSB_RELEASE = '''Distributor ID: Raspbian
@@ -60,7 +61,8 @@ Codename:   stretch
     d = LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE)
     self.assertEqual( 'linux', LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).system() )
     self.assertEqual( 'debian', LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).family() )
-    self.assertEqual( '9', LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).version() )
+    self.assertEqual( '9', LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).version_major() )
+    self.assertEqual( '4', LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).version_minor() )
     self.assertEqual( 'x86_64', LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).arch() )
 
   def test_platform_determiner_linux_os(self):
@@ -82,7 +84,8 @@ UBUNTU_CODENAME=xenial
     
     self.assertEqual( 'linux', LINUX_OS_REL(PLAT('x86_64'), UBUNTU_16_04_OS_RELEASE, '<unittest>').system() )
     self.assertEqual( 'debian', LINUX_OS_REL(PLAT('x86_64'), UBUNTU_16_04_OS_RELEASE, '<unittest>').family() )
-    self.assertEqual( '16', LINUX_OS_REL(PLAT('x86_64'), UBUNTU_16_04_OS_RELEASE, '<unittest>').version() )
+    self.assertEqual( '16', LINUX_OS_REL(PLAT('x86_64'), UBUNTU_16_04_OS_RELEASE, '<unittest>').version_major() )
+    self.assertEqual( '04', LINUX_OS_REL(PLAT('x86_64'), UBUNTU_16_04_OS_RELEASE, '<unittest>').version_minor() )
     self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), UBUNTU_16_04_OS_RELEASE, '<unittest>').arch() )
 
     return
@@ -94,7 +97,8 @@ Codename:   stretch
     d = LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE)
     self.assertEqual( 'linux', LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).system() )
     self.assertEqual( 'debian', LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).family() )
-    self.assertEqual( '9', LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).version() )
+    self.assertEqual( '9', LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).version_major() )
+    self.assertEqual( '4', LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).version_minor() )
     self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).arch() )
     
     

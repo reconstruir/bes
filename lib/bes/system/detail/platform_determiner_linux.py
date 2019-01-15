@@ -61,9 +61,14 @@ class platform_determiner_linux(platform_determiner_base):
     return self._impl.family()
 
   #@abstractmethod
-  def version(self):
-    'distro version.'
-    return self._impl.version()
+  def version_major(self):
+    'distro version major.'
+    return self._impl.version_major()
+
+  #@abstractmethod
+  def version_minor(self):
+    'distro version minor.'
+    return self._impl.version_minor()
 
   #@abstractmethod
   def arch(self):

@@ -22,7 +22,7 @@ VERSION_CODENAME=bionic
 UBUNTU_CODENAME=bionic
 '''
 
-    self.assertEqual( ( 'ubuntu', '18', 'debian' ), P.parse_os_release(text, '<unittest>') )
+    self.assertEqual( ( 'ubuntu', '18', '04', 'debian' ), P.parse_os_release(text, '<unittest>') )
     
   def test_alpine(self):
     text = '''\NAME="Alpine Linux"
@@ -32,7 +32,7 @@ PRETTY_NAME="Alpine Linux v3.8"
 HOME_URL="http://alpinelinux.org"
 BUG_REPORT_URL="http://bugs.alpinelinux.org"'''
 
-    self.assertEqual( ( 'alpine', '3', 'alpine' ), P.parse_os_release(text, '<unittest>') )
+    self.assertEqual( ( 'alpine', '3', '8', 'alpine' ), P.parse_os_release(text, '<unittest>') )
 
   def test_raspbian(self):
     text = '''\PRETTY_NAME="Raspbian GNU/Linux 8 (jessie)"
@@ -45,7 +45,7 @@ HOME_URL="http://www.raspbian.org/"
 SUPPORT_URL="http://www.raspbian.org/RaspbianForums"
 BUG_REPORT_URL="http://www.raspbian.org/RaspbianBugs"
 '''
-    self.assertEqual( ( 'raspbian', '8', 'debian' ), P.parse_os_release(text, '<unittest>') )
+    self.assertEqual( ( 'raspbian', '8', None, 'debian' ), P.parse_os_release(text, '<unittest>') )
     
 if __name__ == '__main__':
   unittest.main()

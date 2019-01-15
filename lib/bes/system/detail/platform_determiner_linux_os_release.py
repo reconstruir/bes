@@ -39,10 +39,15 @@ class platform_determiner_linux_os_release(platform_determiner_base):
     return 'dunno'
 
   #@abstractmethod
-  def version(self):
-    'distro version.'
-    return self._os_release.version
+  def version_major(self):
+    'distro version major.'
+    return self._os_release.version_major
 
+  #@abstractmethod
+  def version_minor(self):
+    'distro version minor.'
+    return self._os_release.version_minor
+  
   #@abstractmethod
   def arch(self):
     'arch.'
