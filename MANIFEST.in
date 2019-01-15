@@ -1,5 +1,1 @@
-include lib/bes/env/bes_framework.sh
-
-
-
-
+include lib/bes/env/bes_shell.sh
