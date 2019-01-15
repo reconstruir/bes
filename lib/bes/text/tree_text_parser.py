@@ -3,7 +3,7 @@
 from bes.common import check, node, string_util
 from bes.compat import StringIO
 from bes.enum import enum
-from bes.text import text_line_parser
+from bes.text import string_list, text_line_parser
 from collections import namedtuple
 
 from .comments import comments
@@ -216,7 +216,11 @@ class _text_node(node):
     self.data = self.data.__class__(new_text, self.data.line_number)
     for child in self.children:
       child.replace_text(replacements)
-  
+
+  def get_text_children_as_string_list(self):
+    text = self.get_text(self.CHILDREN_FLAT)
+    return string_list(string_util.split_by_white_space(text, strip = True))
+      
 class _text_stack(object):
 
   item = namedtuple('item', 'depth, data')
