@@ -61,16 +61,6 @@ class platform_determiner_linux(platform_determiner_base):
     return self._impl.family()
 
   #@abstractmethod
-  def distributor(self):
-    'the distro distributor.'
-    return self._impl.distributor()
-  
-  #@abstractmethod
-  def codename(self):
-    'distro codename.'
-    return self._impl.codename()
-
-  #@abstractmethod
   def version(self):
     'distro version.'
     return self._impl.version()

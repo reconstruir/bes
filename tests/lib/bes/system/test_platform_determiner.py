@@ -26,14 +26,7 @@ class test_platform_determiner(unittest.TestCase):
 
     self.assertEqual( 'macos', PDMACOS(PLAT('10.13', 'x86_64')).system() )
     self.assertEqual( 'macos', PDMACOS(PLAT('10.13.5', 'x86_64')).system() )
-
-    self.assertEqual( 'yosemite', PDMACOS(PLAT('10.10.1', 'x86_64')).codename() )
-    self.assertEqual( 'el_capitan', PDMACOS(PLAT('10.11.1', 'x86_64')).codename() )
-    self.assertEqual( 'sierra', PDMACOS(PLAT('10.12.1', 'x86_64')).codename() )
-    self.assertEqual( 'high_sierra', PDMACOS(PLAT('10.13.5', 'x86_64')).codename() )
-
     self.assertEqual( 'x86_64', PDMACOS(PLAT('10.13', 'x86_64')).arch() )
-
     self.assertEqual( 'macos', PDMACOS(PLAT('10.13', 'x86_64')).distro() )
     self.assertEqual( None, PDMACOS(PLAT('10.13', 'x86_64')).family() )
 
@@ -55,10 +48,8 @@ Codename:	xenial
 '''
     
     self.assertEqual( 'linux', LINUX_LSB_REL(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).system() )
-    self.assertEqual( 'xenial', LINUX_LSB_REL(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).codename() )
     self.assertEqual( 'debian', LINUX_LSB_REL(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).family() )
     self.assertEqual( '16', LINUX_LSB_REL(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).version() )
-    self.assertEqual( 'ubuntu', LINUX_LSB_REL(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).distributor() )
     self.assertEqual( 'x86_64', LINUX_LSB_REL(PLAT('x86_64'), UBUNTU_16_04_LSB_RELEASE).arch() )
 
     RASPBIAN_9_4_LSB_RELEASE = '''Distributor ID: Raspbian
@@ -68,10 +59,8 @@ Codename:   stretch
 '''
     d = LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE)
     self.assertEqual( 'linux', LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).system() )
-    self.assertEqual( 'stretch', LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).codename() )
     self.assertEqual( 'debian', LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).family() )
     self.assertEqual( '9', LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).version() )
-    self.assertEqual( 'raspbian', LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).distributor() )
     self.assertEqual( 'x86_64', LINUX_LSB_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).arch() )
 
   def test_platform_determiner_linux_os(self):
@@ -94,7 +83,6 @@ UBUNTU_CODENAME=xenial
     self.assertEqual( 'linux', LINUX_OS_REL(PLAT('x86_64'), UBUNTU_16_04_OS_RELEASE, '<unittest>').system() )
     self.assertEqual( 'debian', LINUX_OS_REL(PLAT('x86_64'), UBUNTU_16_04_OS_RELEASE, '<unittest>').family() )
     self.assertEqual( '16', LINUX_OS_REL(PLAT('x86_64'), UBUNTU_16_04_OS_RELEASE, '<unittest>').version() )
-    self.assertEqual( 'ubuntu', LINUX_OS_REL(PLAT('x86_64'), UBUNTU_16_04_OS_RELEASE, '<unittest>').distributor() )
     self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), UBUNTU_16_04_OS_RELEASE, '<unittest>').arch() )
 
     return
@@ -105,10 +93,8 @@ Codename:   stretch
 '''
     d = LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE)
     self.assertEqual( 'linux', LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).system() )
-    self.assertEqual( 'stretch', LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).codename() )
     self.assertEqual( 'debian', LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).family() )
     self.assertEqual( '9', LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).version() )
-    self.assertEqual( 'raspbian', LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).distributor() )
     self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), RASPBIAN_9_4_LSB_RELEASE).arch() )
     
     

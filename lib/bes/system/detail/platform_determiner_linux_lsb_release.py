@@ -11,16 +11,10 @@ class platform_determiner_linux_lsb_release(platform_determiner_base):
     self._distro = parsed_lsb_release.get('Distributor ID', None).lower()
     if not self._distro:
       raise RuntimeError('lsb_release missing valid "Distributor ID"')
-    self._codename = parsed_lsb_release.get('Codename', None).lower()
-    if not self._codename:
-      raise RuntimeError('lsb_release missing valid "Codename"')
     self._version = parsed_lsb_release.get('Release', None).lower()
     if not self._version:
       raise RuntimeError('lsb_release missing valid "Release"').lower()
     self._version = self._version.split('.')[0]
-    self._distributor = parsed_lsb_release.get('Distributor ID', None).lower()
-    if not self._distributor:
-      raise RuntimeError('lsb_release missing valid "Distributor ID"').lower()
   
   #@abstractmethod
   def system(self):
@@ -51,16 +45,6 @@ class platform_determiner_linux_lsb_release(platform_determiner_base):
     except Exception as ex:
       raise RuntimeError('Unknown linux distro: %s' % (distro))
     return None
-
-  #@abstractmethod
-  def distributor(self):
-    'the distro distributor.'
-    return self._distributor
-  
-  #@abstractmethod
-  def codename(self):
-    'distro codename.'
-    return self._codename
 
   #@abstractmethod
   def version(self):

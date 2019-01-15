@@ -22,16 +22,6 @@ class platform_determiner_base(with_metaclass(ABCMeta, object)):
     pass
 
   @abstractmethod
-  def distributor(self):
-    'the distro distributor.'
-    pass
-
-  @abstractmethod
-  def codename(self):
-    'distro codename.'
-    pass
-
-  @abstractmethod
   def version(self):
     'distro version.'
     pass
