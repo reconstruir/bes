@@ -156,14 +156,11 @@ of rasing a python exception
 see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-commands-with-pipe
 
 2018-10-29
-- bes_framework.sh tests that use dirs with spaces in them (broken)
 - env_dir tests that use dirs with spaces in them
-- s/text_line/text_line/
 
 2018-12-09
 - archive_base.item should have a mode field
 - the archive test hierarchy does not compute with bes_test.py
-- test_bes_framework.sh should use [[ ]] consistently
 
 2018-12-21
 - file_find s/find_function/find_by_function/
