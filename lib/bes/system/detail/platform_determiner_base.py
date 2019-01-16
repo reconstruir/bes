@@ -22,10 +22,15 @@ class platform_determiner_base(with_metaclass(ABCMeta, object)):
     pass
 
   @abstractmethod
-  def version(self):
-    'distro version.'
+  def version_major(self):
+    'distro version major number.'
     pass
 
+  @abstractmethod
+  def version_minor(self):
+    'distro version minor number.'
+    pass
+  
   @abstractmethod
   def arch(self):
     'arch.'

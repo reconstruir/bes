@@ -50,8 +50,12 @@ class sqlite(object):
       
   def execute(self, sql, *args, **kwargs):
     self.log_i('%s: execute(%s, %s, %s)' % (self._filename_log_label, sql, args, kwargs))
-    self._cursor.execute(sql, *args, **kwargs)
-   
+    try:
+      self._cursor.execute(sql, *args, **kwargs)
+    except Exception as ex:
+      print('Failed SQL: %s' % (sql))
+      raise
+      
   def begin(self):
     self.log_i('%s: begin()' % (self._filename_log_label))
     self._cursor.execute('begin transaction')

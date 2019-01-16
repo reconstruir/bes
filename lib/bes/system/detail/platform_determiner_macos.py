@@ -27,8 +27,18 @@ class platform_determiner_macos(platform_determiner_base):
   #@abstractmethod
   def version(self):
     'distro version.'
-    return '.'.join(self._platform.mac_ver()[0].split('.')[0:2])
+    return '.'.join(self._platform.mac_ver()[0].split('.')[0])
 
+  #@abstractmethod
+  def version_major(self):
+    'distro version major number.'
+    return self._platform.mac_ver()[0].split('.')[0]
+
+  #@abstractmethod
+  def version_minor(self):
+    'distro version minor number.'
+    return self._platform.mac_ver()[0].split('.')[1]
+  
   #@abstractmethod
   def arch(self):
     'arch.'
