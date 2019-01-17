@@ -121,10 +121,19 @@ class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
   def replace(self, key, new_kv):
     check.check_string(key)
     check.check_key_value(new_kv)
+    result = False
     for i, next_kv in enumerate(self._values):
       if next_kv.key == key:
         self._values[i] = new_kv
-      
+        result = True
+    return result
+
+  def update(self, kvl):
+    check.check_key_value_list(kvl)
+    for kv in kvl:
+      if not self.replace(kv.key, kv):
+        self._values.append(kv)
+        
   def all_keys(self):
     return [ kv.key for kv in self ]
       
