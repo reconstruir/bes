@@ -8,6 +8,9 @@ class version_cli(object):
   def __init__(self, mod):
     self._info = version_info.version_info_for_module(mod)
 
+  def __str__(self):
+    return self._info.version_string(delimiter = ' ')
+    
   def version_add_arguments(self, parser):
     parser.add_argument('--version',
                         '-V',
