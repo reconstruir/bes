@@ -217,10 +217,6 @@ class _text_node(node):
     for child in self.children:
       child.replace_text(replacements)
 
-  def get_text_children_as_string_list(self):
-    text = self.get_text(self.CHILDREN_FLAT)
-    return string_list(string_util.split_by_white_space(text, strip = True))
-      
 class _text_stack(object):
 
   item = namedtuple('item', 'depth, data')
