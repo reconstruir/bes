@@ -58,5 +58,8 @@ class string_list(type_checked_list, string_lexer_options.CONSTANTS):
   @classmethod
   def from_json(clazz, text):
     return string_list(json.loads(text))
+  
+  def pop(self, *args):
+    return self._values.pop(*args)
     
 check.register_class(string_list, include_seq = False)
