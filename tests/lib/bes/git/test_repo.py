@@ -3,7 +3,7 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from bes.fs import temp_file
+from bes.fs import file_util, temp_file
 from bes.git import git, repo, status, temp_git_repo
 
 class test_repo(unit_test):
@@ -131,6 +131,26 @@ class test_repo(unit_test):
     r.add('.')
     r.commit('foo', '.')
     self.assertEqual([ 'a/b/c/foo.txt', 'd/e/bar.txt'], r.find_all_files() )
+   
+  def test_push(self):
+    r1 = temp_git_repo.make_temp_repo(init_args = [ '--bare', '--shared' ])
+    
+    r2 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r2.write_temp_content([
+      'file foo.txt "this is foo" 644',
+    ])
+    r2.add([ 'foo.txt' ])
+    r2.commit('add foo.txt', [ 'foo.txt' ])
+    r2.push('origin', 'master')
+
+    r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    self.assertEqual( 'this is foo', file_util.read(path.join(r3.root, 'foo.txt')) )
+    
+  def _make_temp_dir(self):
+    tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
+    if self.DEBUG:
+      pritn('tmp_dir: %s' % (tmp_dir))
+    return tmp_dir
     
 if __name__ == '__main__':
   unit_test.main()

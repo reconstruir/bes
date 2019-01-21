@@ -73,8 +73,8 @@ class git(object):
     return clazz._call_git(root, args)
 
   @classmethod
-  def init(clazz, root):
-    args = [ 'init', '.' ]
+  def init(clazz, root, *args):
+    args = [ 'init', '.' ] + list(args or [])
     return clazz._call_git(root, args)
 
   @classmethod
@@ -119,8 +119,13 @@ class git(object):
     return clazz._call_git(root, args)
 
   @classmethod
-  def push(clazz, root):
-    args = [ 'push', '--verbose' ]
+  def checkout(clazz, root, revision):
+    args = [ 'checkout', 'rebision' ]
+    return clazz._call_git(root, args)
+
+  @classmethod
+  def push(clazz, root, *args):
+    args = [ 'push', '--verbose' ] + list(args or [])
     return clazz._call_git(root, args)
 
   @classmethod
