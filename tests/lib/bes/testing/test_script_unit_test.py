@@ -10,12 +10,12 @@ class test_script_unit_test_true(script_unit_test):
   def test_true(self):
     rv = self.run_script([ 'foo', 'bar' ])
     self.assertEqual( 0, rv.exit_code )
-    self.assert_string_equal_strip( 'foo bar', rv.stdout )
+    self.assert_string_equal_strip( 'foo bar', rv.output )
 
   def test_true_raw(self):
     rv = self.run_script_raw([ 'foo', 'bar' ])
     self.assertEqual( 0, rv.exit_code )
-    self.assert_string_equal_strip( b'foo bar', rv.stdout )
+    self.assert_string_equal_strip( b'foo bar', rv.output )
 
 class test_script_unit_test_false(script_unit_test):
 
@@ -24,12 +24,12 @@ class test_script_unit_test_false(script_unit_test):
   def test_false(self):
     rv = self.run_script([ 'foo', 'bar' ])
     self.assertEqual( 1, rv.exit_code )
-    self.assert_string_equal_strip( 'foo bar', rv.stdout )
+    self.assert_string_equal_strip( 'foo bar', rv.output )
 
   def test_false_raw(self):
     rv = self.run_script_raw([ 'foo', 'bar' ])
     self.assertEqual( 1, rv.exit_code )
-    self.assert_string_equal_strip( b'foo bar', rv.stdout )
+    self.assert_string_equal_strip( b'foo bar', rv.output )
 
 if __name__ == '__main__':
   script_unit_test.main()
