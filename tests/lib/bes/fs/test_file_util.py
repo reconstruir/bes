@@ -61,6 +61,11 @@ class test_file_util(unittest.TestCase):
     self.assertEqual( 'foo', file_util.remove_head('foo', 'foo') )
     self.assertEqual( '', file_util.remove_head('foo/', 'foo/') )
 
+  def test_remove_tail(self):
+    self.assertEqual( '/foo', file_util.remove_tail('/foo/bar', 'bar') )
+    self.assertEqual( 'foo', file_util.remove_tail('foo/bar', 'bar') )
+    self.assertEqual( 'foo', file_util.remove_tail('foo/bar', '/bar') )
+    
   def test_remove_head_unicode(self):
     self.assertEqual( u'bar', file_util.remove_head(u'foo/bar', u'foo') )
 

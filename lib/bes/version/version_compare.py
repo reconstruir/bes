@@ -50,3 +50,19 @@ class version_compare(object):
           new_token = token
       new_tokens.append(new_token)
     return ''.join([ str(token.value) for token in new_tokens ])
+
+  @classmethod
+  def version_range(clazz, start_version, end_version, deltas):
+    if clazz.compare(start_version, end_version) > 0:
+      raise ValueError('start_version \"%s\" should be smaller than end_version \"%s\"' % (start_version, end_version))
+    result = []
+    version = start_version
+    result.append(version)
+    while True:
+      version = clazz.change_version(version, deltas)
+      rv = clazz.compare(version, end_version)
+      if rv <= 0:
+        result.append(version)
+      if rv >= 0:
+        break
+    return result

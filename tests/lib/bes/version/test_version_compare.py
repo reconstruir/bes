@@ -56,5 +56,11 @@ class test_version_compare(unit_test):
     self.assertEqual( '2.3.4.0', VC.change_version('1.2.3.0', [ 1, 1, 1 ]) )
     self.assertEqual( '2.2.3.0', VC.change_version('1.2.3.0', [ 1 ]) )
  
+  def test_version_range(self):
+    self.assertEqual( [ '1.0.1', '1.0.2', '1.0.3' ], VC.version_range('1.0.1', '1.0.3', [ 0, 0, 1 ]) )
+    self.assertEqual( [ '1.0.1' ], VC.version_range('1.0.1', '1.0.1', [ 0, 0, 1 ]) )
+    self.assertEqual( [ '1.0.1', '1.0.2' ], VC.version_range('1.0.1', '1.0.2', [ 0, 0, 1 ]) )
+    self.assertEqual( [ '1.0.8', '1.0.9', '1.0.10', '1.0.11' ], VC.version_range('1.0.8', '1.0.11', [ 0, 0, 1 ]) )
+ 
 if __name__ == "__main__":
   unit_test.main()
