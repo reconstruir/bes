@@ -294,3 +294,12 @@ class git(object):
     rv = clazz._call_git(root, [ 'show', '-s', '--format=%ct', commit ])
     ts = float(rv.stdout.strip())
     return datetime.fromtimestamp(ts)
+
+  @classmethod
+  def commit_for_tag(clazz, root, tag, short_hash = False):
+    args = [ 'rev-list', '-n', '1', tag ]
+    rv = clazz._call_git(root, args)
+    long_hash = rv.stdout.strip()
+    if not short_hash:
+      return long_hash
+    return clazz.short_hash(root, long_hash)
