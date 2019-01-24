@@ -81,5 +81,22 @@ class test_file_find(unit_test):
     self.assertEqual( expected, file_find.find(tmp_dst_dir, relative = True) )
     self.assertEqual( 'second foo.txt\n', file_util.read(path.join(tmp_dst_dir, 'foo.txt')) )
 
+  def test_file_sync_with_exclude(self):
+    tmp_src_dir = self._make_temp_content([
+      'file foo.txt "foo.txt\n"',
+      'file subdir/bar.txt "bar.txt\n"',
+      'file subdir/subberdir/baz.txt "baz.txt\n"',
+      'file emptyfile.txt',
+      'dir emptydir',
+    ])
+    tmp_dst_dir = temp_file.make_temp_dir()
+    file_sync.sync(tmp_src_dir, tmp_dst_dir, exclude = [ 'foo.txt', 'subdir/subberdir/baz.txt' ])
+    expected = [
+      'emptyfile.txt',
+      'subdir/bar.txt',
+    ]
+    self.assertEqual( expected, file_find.find(tmp_dst_dir, relative = True) )
+
+    
 if __name__ == "__main__":
   unit_test.main()

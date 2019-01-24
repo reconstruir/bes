@@ -9,8 +9,10 @@ from .file_util import file_util
 class file_sync(object):
 
   @classmethod
-  def sync(clazz, src_dir, dst_dir):
+  def sync(clazz, src_dir, dst_dir, exclude = None):
+    exclude = set(exclude or [])
     src_files = set(file_find.find(src_dir, relative = True, file_type = file_find.FILE))
+    src_files = src_files - exclude
     src_dirs = set(file_find.find(src_dir, relative = True, file_type = file_find.DIR))
 
     dst_files = set(file_find.find(dst_dir, relative = True, file_type = file_find.FILE))
