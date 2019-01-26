@@ -7,9 +7,9 @@ from bes.compat import StringIO
 from bes.common import check, variable, string_util
 from bes.text import text_line_parser
 
-class config_data(namedtuple('config_data', 'name,unixpath,pythonpath,requires')):
+class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, requires, variables')):
 
-  def __new__(clazz, name, unixpath, pythonpath, requires):
+  def __new__(clazz, name, unixpath, pythonpath, requires, variables):
     check.check_string(name)
     unixpath = unixpath or []
     if check.is_string(unixpath):
@@ -21,12 +21,13 @@ class config_data(namedtuple('config_data', 'name,unixpath,pythonpath,requires')
     check.check_string_seq(pythonpath)
     requires = requires or set()
     check.check_set(requires)
-    return clazz.__bases__[0].__new__(clazz, name, unixpath, pythonpath, requires)
+    return clazz.__bases__[0].__new__(clazz, name, unixpath, pythonpath, requires, variables)
 
   def to_string(self):
     buf = StringIO()
     buf.write('# %s\n' % (self.name))
     buf.write('name: %s\n' % (self.name))
+    buf.write('variables: %s\n' % (' '.join(self.variables)))
     buf.write('unixpath: %s\n' % (':'.join(self.unixpath)))
     buf.write('pythonpath: %s\n' % (':'.join(self.pythonpath)))
     buf.write('requires: %s\n' % (' '.join(sorted([ r for r in self.requires ]))))
@@ -38,6 +39,7 @@ class config_data(namedtuple('config_data', 'name,unixpath,pythonpath,requires')
     unixpath = None
     pythonpath = None
     requires = None
+    variables = []
     for line in text_line_parser(text):
       text = line.text_no_comments.strip()
       if text:
@@ -49,14 +51,16 @@ class config_data(namedtuple('config_data', 'name,unixpath,pythonpath,requires')
         if key == 'name':
           name = value
         elif key in [ 'unixpath' ]:
-          unixpath = value.split(':')
+          unixpath = [ path.expanduser(p) for p in value.split(':') ]
         elif key in [ 'pythonpath' ]:
-          pythonpath = value.split(':')
+          pythonpath = [ path.expanduser(p) for p in value.split(':') ]
         elif key == 'requires':
           requires = set(string_util.split_by_white_space(value))
+        elif key == 'variables':
+          variables = string_util.split_by_white_space(value)
         else:
           raise ValueError('Invalid config value \"%s\" at %s:%s' % (line.text, filename, line.line_number))
-    return clazz(name, unixpath, pythonpath, requires)
+    return clazz(name, unixpath, pythonpath, requires, variables)
   
   def substitute(self, variables):
     unixpath = []
@@ -68,4 +72,4 @@ class config_data(namedtuple('config_data', 'name,unixpath,pythonpath,requires')
       pythonpath.append(variable.substitute(p, variables))
     for p in self.requires:
       requires.add(variable.substitute(p, variables))
-    return config_data(self.name, unixpath, pythonpath, requires)
+    return config_data(self.name, unixpath, pythonpath, requires, self.variables)
