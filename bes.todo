@@ -172,3 +172,7 @@ see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-com
 
 2019-01-14
 - execute exception should have the command somehow
+
+2019-02-02
+- s/repo/git_repo/
+- git: s/download/archive

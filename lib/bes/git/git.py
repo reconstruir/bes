@@ -120,7 +120,7 @@ class git(object):
 
   @classmethod
   def checkout(clazz, root, revision):
-    args = [ 'checkout', 'rebision' ]
+    args = [ 'checkout', revision ]
     return clazz._call_git(root, args)
 
   @classmethod
