@@ -32,7 +32,9 @@ class version_info(namedtuple('version_info', 'version,author_name,author_email,
     buf.write('BES_TIMESTAMP = u\'%s\'\n' % (self.timestamp))
     return buf.getvalue()
 
-  def version_string(self, delimiter = ':'):
+  def version_string(self, delimiter = ':', brief = False):
+    if brief:
+      return self.version
     parts = [ self.version, self.address, self.tag, self.timestamp ]
     return delimiter.join(parts)
   
