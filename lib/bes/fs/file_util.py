@@ -219,19 +219,12 @@ class file_util(object):
   @classmethod
   def make_paths_absolute(clazz, paths):
     paths = object_util.listify(paths)
-    return [ clazz.ensure_abspath(p) for p in paths ]
+    return [ path.abspath(p) for p in paths ]
 
   @classmethod
   def make_paths_relative(clazz, paths):
     paths = object_util.listify(paths)
     return [ path.relpath(p) for p in paths ]
-
-  @classmethod
-  def ensure_abspath(clazz, p):
-    assert p
-    if path.isabs(p):
-      return p
-    return path.abspath(p)
 
   @classmethod
   def is_broken_link(clazz, filename):
