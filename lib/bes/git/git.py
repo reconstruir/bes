@@ -6,7 +6,8 @@ from collections import namedtuple
 from bes.text import text_line_parser
 from bes.common import object_util, string_util
 from bes.system import execute
-from bes.fs import dir_util, file_util, temp_file
+from bes.fs import dir_util, file_ignore, file_util, tar_util, temp_file
+from bes.fs.file_ignore import ignore_file_data
 from bes.version.version_compare import version_compare
 
 from .status import status
@@ -86,6 +87,11 @@ class git(object):
     return True
 
   @classmethod
+  def check_is_git_repo(clazz, d):
+    if not clazz.is_repo(d):
+      raise RuntimeError('Not a git repo: %s' % (d))
+  
+  @classmethod
   def _call_git(clazz, root, args, raise_error = True):
     cmd = [ clazz.GIT_EXE ] + args
     save_raise_error = raise_error
@@ -134,6 +140,17 @@ class git(object):
     return clazz._call_git(root, args)
 
   @classmethod
+  def patch_apply(clazz, root, patch_file):
+    args = [ 'apply', patch_file ]
+    return clazz._call_git(root, args)
+
+  @classmethod
+  def patch_make(clazz, root, patch_file):
+    args = [ 'diff', '--patch' ]
+    rv = clazz._call_git(root, args)
+    file_util.save(patch_file, content = rv.stdout)
+
+  @classmethod
   def commit(clazz, root, message, filenames):
     filenames = object_util.listify(filenames)
     message_filename = temp_file.make_temp_file(content = message)
@@ -150,25 +167,33 @@ class git(object):
       return clazz.clone(address, dest_dir, enforce_empty_dir = enforce_empty_dir)
 
   @classmethod
-  def download_tarball(clazz, name, tag, address, archive_filename):
-    'Download address to archive_filename.'
+  def archive(clazz, address, revision, base_name, archive_filename, untracked = False):
+    'git archive with additional support to include untracked files for local repos.'
+    tmp_repo_dir = temp_file.make_temp_dir()
+    if path.isdir(address):
+      tar_util.copy_tree_with_tar(address, tmp_repo_dir, excludes = clazz.read_gitignore(address))
+      if untracked:
+        clazz._call_git(tmp_repo_dir, [ 'add', '-A' ])
+        clazz._call_git(tmp_repo_dir, [ 'commit', '-m', 'add untracked files just for tmp repo' ])
+    else:
+      if untracked:
+        raise RuntimeError('untracked can only be True for local repos.')
+      clazz.clone(address, tmp_repo_dir)
     archive_filename = path.abspath(archive_filename)
-    tmp_dir = temp_file.make_temp_dir()
-    clazz.clone(address, tmp_dir)
+    file_util.mkdir(path.dirname(archive_filename))
     flags = []
     args = [
       'archive',
       '--format=tgz',
-      '--prefix=%s-%s/' % (name, tag),
+      '--prefix=%s-%s/' % (base_name, revision),
       '-o',
       archive_filename,
-      tag
+      revision
     ]
-    file_util.mkdir(path.dirname(archive_filename))
-    rv = clazz._call_git(tmp_dir, args)
-    file_util.remove(tmp_dir)
+    print('args: %s' % (' '.join(args)))
+    rv = clazz._call_git(tmp_repo_dir, args)
     return rv
-
+  
   @classmethod
   def short_hash(clazz, root, long_hash):
     args = [ 'rev-parse', '--short', long_hash ]
@@ -303,3 +328,11 @@ class git(object):
     if not short_hash:
       return long_hash
     return clazz.short_hash(root, long_hash)
+
+  @classmethod
+  def read_gitignore(clazz, root):
+    'Return the contents of .gitignore with comments stripped.'
+    p = path.join(root, '.gitignore')
+    if not path.isfile(p):
+      return None
+    return ignore_file_data.read_file(p).patterns

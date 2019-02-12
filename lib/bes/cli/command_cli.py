@@ -6,6 +6,7 @@ from os import path
 from bes.common import check
 from bes.fs import file_util
 from bes.system import log
+from bes.git import git
 
 class _command(object):
 
@@ -24,9 +25,12 @@ class _command(object):
     
 class command_cli(object):
 
-  def __init__(self, log_tag, description):
+  def __init__(self, log_tag, description, parser = None):
     log.add_logging(self, tag = log_tag)
-    self._parser = argparse.ArgumentParser(description = description)
+    if parser:
+      self._parser = parser
+    else:
+      self._parser = argparse.ArgumentParser(description = description)
     self._command_parser = self._parser.add_subparsers(help = 'commands', dest = 'command')
     self._commands = {}
     
@@ -75,3 +79,27 @@ class command_cli(object):
   def check_dir_exists(clazz, d, label = 'dir'):
     if not path.isdir(d):
       raise RuntimeError('%s not found: %s' % (label, d))
+
+  @classmethod
+  def check_dir_is_git_repo(clazz, d):
+    git.check_is_git_repo(d)
+
+  @classmethod
+  def resolve_filename(clazz, f, root_dir = None):
+    '''
+    Resolve a filename as follows:
+     . expand ~ to $HOME
+     . make it an absolute path
+    '''
+    if root_dir:
+      f = path.join(root_dir, f)
+    else:
+      if '~' in f:
+        f = path.expanduser(f)
+      if not path.isabs(f):
+        f = path.abspath(f)
+    return f
+
+  @classmethod
+  def resolve_dir(clazz, f, root_dir = None):
+    return clazz.resolve_filename(f, root_dir = root_dir)

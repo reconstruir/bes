@@ -2,6 +2,7 @@
 
 import argparse, os, os.path as path
 
+from bes.fs import file_util
 from bes.cli.command_cli import command_cli
 
 from .egg import egg
@@ -9,13 +10,21 @@ from .egg import egg
 class egg_tool_cli(command_cli):
 
   def __init__(self):
-    super(build_list_cli, self).__init__('egg_tool_cli', 'Tool to deal with build lists.')
+    super(egg_tool_cli, self).__init__('egg_tool_cli', 'Tool to deal with build lists.')
 
     # make
     self.add_command('make', 'Make an egg.')
+    self.add_argument('make', 'root_dir',
+                      action = 'store',
+                      help = 'GIT repo root.')
     self.add_argument('make', 'setup_filename',
                       action = 'store',
-                      help = 'egg description file (usually setup.py)')
+                      help = 'egg description file relative to the root_dir (usually setup.py) ')
+    self.add_argument('make', '-r',
+                      '--revision',
+                      action = 'store',
+                      default = 'master',
+                      help = 'Output directory [ master ]')
     
     default_output_dir = os.getcwd()
     self.add_argument('make', '-o',
@@ -23,11 +32,21 @@ class egg_tool_cli(command_cli):
                       action = 'store',
                       default = default_output_dir,
                       help = 'Output directory [ %s ]' % (default_output_dir))
+    self.add_argument('make', '-u',
+                      '--untracked',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Include untracked git files in the egg. [ False ]')
     self.add_argument('make', '-v',
                       '--verbose',
                       action = 'store_true',
                       default = False,
                       help = 'Be verbose about what is happening [ False ]')
+    self.add_argument('make', '-d',
+                      '--debug',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Debug mode.  Save tmp files for inspection [ False ]')
   
     # unpack
     self.add_command('unpack', 'Unpack an egg.')
@@ -45,11 +64,13 @@ class egg_tool_cli(command_cli):
                       default = False,
                       help = 'Be verbose about what is happening [ False ]')
  
-  def _command_make(self, setup_filename, output_dir, verbose):
-    setup_filename = self.resolve_filename(setup_filename)
-    self.check_file_exists(setup_filename, label = 'setup file')
-    self.check_dir_exists(output_dir, label = 'output dir')
-    tmp_egg = egg.make(setup_filename)
+  def _command_make(self, root_dir, setup_filename, revision, output_dir, untracked, verbose, debug):
+    root_dir = self.resolve_dir(root_dir)
+    resolved_setup_filename = self.resolve_filename(setup_filename, root_dir = root_dir)
+    self.check_dir_exists(root_dir, label = 'root_dir')
+    self.check_file_exists(resolved_setup_filename, label = 'setup_filename')
+    self.check_dir_exists(output_dir, label = 'output_dir')
+    tmp_egg = egg.make(root_dir, revision, setup_filename, untracked = untracked, debug = debug)
     dst_egg = file_util.relocate_file(tmp_egg, output_dir)
     if verbose:
       print(dst_egg)
