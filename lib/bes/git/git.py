@@ -190,7 +190,6 @@ class git(object):
       archive_filename,
       revision
     ]
-    print('args: %s' % (' '.join(args)))
     rv = clazz._call_git(tmp_repo_dir, args)
     return rv
   
