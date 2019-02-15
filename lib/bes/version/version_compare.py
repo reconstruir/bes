@@ -66,3 +66,10 @@ class version_compare(object):
       if rv >= 0:
         break
     return result
+
+  @classmethod
+  def version_to_tuple(clazz, version):
+    'Parse the version and return a tuple of the numeric compoents.  Ppunctuation is stripped.'
+    tokens = [ token for token in version_lexer.tokenize(version, 'compare') ]
+    number_tokens = [ token for token in tokens if token.token_type == version_lexer.TOKEN_NUMBER ]
+    return tuple([token.value for token in number_tokens])

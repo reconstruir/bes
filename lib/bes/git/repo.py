@@ -1,7 +1,7 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
+from bes.common import check
 from bes.fs import file_type, file_util, file_find, temp_file
 from bes.fs.testing import temp_content
 
@@ -93,3 +93,5 @@ class repo(object):
 
   def read_file(self, filename):
     return file_util.read(path.join(self.root, filename))
+
+check.register_class(repo, name = 'git_repo')

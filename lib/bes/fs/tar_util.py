@@ -23,15 +23,17 @@ class tar_util(object):
       raise RuntimeError('Unknown host system')
 
   TAR_EXE = _find_tar_exe_tar()
-      
+
   @classmethod
-  def copy_tree_with_tar(clazz, src_dir, dst_dir):
+  def copy_tree_with_tar(clazz, src_dir, dst_dir, excludes = None):
+    excludes = excludes or []
     if not path.isdir(src_dir):
       raise RuntimeError('src_dir is not a directory: %s' % (src_dir))
     file_util.mkdir(dst_dir)
     unreadable = file_find.find_unreadable(src_dir)
+    excludes = excludes + unreadable
     exclude_flags = []
-    for filename in unreadable:
+    for filename in excludes:
       exclude_flags.append('--exclude \"%s\"' % (filename))
     if exclude_flags:
       exclude_flags_flat = ' '.join(exclude_flags)
