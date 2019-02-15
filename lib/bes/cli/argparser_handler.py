@@ -10,36 +10,60 @@ from bes.git import git
 
 class argparser_handler(object):
   'A class to simplify the process of calling functions to handler argparser command'
-  
-  def __init__(self, parser, log_tag):
-    self._log_tag = log_tag
-    self._parser = parser
 
-  def main(self):
-    log = logger(self._log_tag)
-    args = self._parser.parse_args()
-    if hasattr(args, 'sub_command'):
-      command = '%s_%s' % (args.command, args.sub_command)
-    else:
-      command = args.command
-    log.log_d('command=%s' % (command))
-    method_name = '_command_%s' % (command)
-    handler = getattr(self, method_name, None)
+  @classmethod
+  def main(clazz, log_tag, parser, handler_object, command_group = None):
+    log = logger(log_tag)
+    args = parser.parse_args()
+    command_group = getattr(args, 'command_group', command_group)
+    command = getattr(args, 'command', None)
+    possible_names = clazz._possible_method_names(command_group, command)
+    handler = clazz._find_handler(handler_object, possible_names)
     if not handler:
-      raise RuntimeError('No method found for command: %s' % (method_name))
+      raise RuntimeError('No method found for command: %s' % (' '.join(possible_names)))
     arg_names = inspect.getargspec(handler).args
     if arg_names[0] != 'self':
       raise RuntimeError('First argument should be \"self\": %s' (method_name))
     arg_names.pop(0)
     args = [ getattr(args, arg_name) for arg_name in arg_names ]
     args_blurb = '; '.join([ '%s=%s' % (key, value) for ( key, value ) in zip(arg_names, args) ])
-    log.log_d('calling %s(%s)' % (method_name, args_blurb))
+    log.log_d('calling %s(%s)' % (handler.__name__, args_blurb))
     exit_code = handler(*args)
     if not isinstance(exit_code, int):
       raise RuntimeError('Handler should return an int exit_code: %s' % (handler))
-    log.log_d('%s() returns %d' % (method_name, exit_code))
+    log.log_d('%s() returns %d' % (handler.__name__, exit_code))
     return exit_code
 
+  @classmethod
+  def _possible_method_names(clazz, command_group, command):
+    if not command:
+      assert command_group
+      return [ clazz._handler_method_name(command_group, None) ]
+    names = [ clazz._handler_method_name(None, command) ]
+    if command_group:
+      names.append(clazz._handler_method_name(command_group, command))
+    return names
+  
+  @classmethod
+  def _find_handler(clazz, handler_object, names):
+    for name in names:
+      handler = getattr(handler_object, name, None)
+      if handler:
+        return handler
+    return None
+  
+  @classmethod
+  def _handler_method_name(clazz, command_group, command):
+    if command_group and command:
+      name = '%s_%s' % (command_group, command)
+    elif command_group:
+      name = command_group
+    elif command:
+      name = command
+    else:
+      assert False
+    return '_command_%s' % (name)
+  
   @classmethod
   def check_file(clazz, filename):
     file_check.check_file(filename)
