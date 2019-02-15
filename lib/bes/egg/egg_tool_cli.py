@@ -66,10 +66,10 @@ class egg_tool_cli(command_cli):
  
   def _command_make(self, root_dir, setup_filename, revision, output_dir, untracked, verbose, debug):
     root_dir = self.resolve_dir(root_dir)
-    resolved_setup_filename = self.resolve_filename(setup_filename, root_dir = root_dir)
-    self.check_dir_exists(root_dir, label = 'root_dir')
-    self.check_file_exists(resolved_setup_filename, label = 'setup_filename')
-    self.check_dir_exists(output_dir, label = 'output_dir')
+    resolved_setup_filename = self.resolve_file(setup_filename, root_dir = root_dir)
+    self.check_dir(root_dir)
+    self.check_file(resolved_setup_filename)
+    self.check_dir(output_dir)
     tmp_egg = egg.make(root_dir, revision, setup_filename, untracked = untracked, debug = debug)
     dst_egg = file_util.relocate_file(tmp_egg, output_dir)
     if verbose:
@@ -77,8 +77,8 @@ class egg_tool_cli(command_cli):
     return 0
 
   def _command_unpack(self, egg_filename, output_dir, verbose):
-    egg_filename = self.resolve_filename(egg_filename)
-    self.check_file_exists(egg_filename, label = 'egg')
-    self.check_dir_exists(output_dir, label = 'output dir')
+    egg_filename = self.resolve_file(egg_filename)
+    self.check_file(egg_filename)
+    self.check_dir(output_dir)
     egg.unpack(egg_filename, output_dir)
     return 0

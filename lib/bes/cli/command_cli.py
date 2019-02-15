@@ -26,12 +26,13 @@ class _command(object):
 class command_cli(argparser_handler):
 
   def __init__(self, log_tag, description, parser = None):
+    self._log_tag = log_tag
     log.add_logging(self, tag = log_tag)
     if parser:
       self._parser = parser
     else:
       self._parser = argparse.ArgumentParser(description = description)
-    super(command_cli, self).__init__(self._parser, log_tag)
+#    super(command_cli, self).__init__(self._parser, log_tag)
     self._command_parser = self._parser.add_subparsers(help = 'commands', dest = 'command')
     self._commands = {}
     
@@ -46,6 +47,9 @@ class command_cli(argparser_handler):
       
     command = self._commands[name]
     command.add_argument(*args, **kargs)
+
+  def main(self):
+    return argparser_handler.main(self._log_tag, self._parser, self)
     
   @classmethod
   def run(clazz):
