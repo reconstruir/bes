@@ -27,6 +27,17 @@ class algorithm(object):
         seen.add(i)
     return result
 
+  @classmethod
+  def not_unique(clazz, l):
+    'Return a list of the non unique elements in l.'
+    result = []
+    seen = set()
+    for i in l:
+      if i in seen:
+        result.append(i)
+      seen.add(i)
+    return result
+  
   #: from https://stackoverflow.com/questions/9501337/binary-search-algorithm-in-python
   @classmethod
   def binary_search(clazz, array, target, comparator):

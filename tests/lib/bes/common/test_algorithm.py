@@ -21,6 +21,11 @@ class test_algorithm(unittest.TestCase):
     self.assertEqual( [ 'a', 'b', 'c' ], algorithm.unique([ 'a', 'b', 'c', 'c' ]) )
     self.assertEqual( [ 'c', 'a', 'b' ], algorithm.unique([ 'c', 'a', 'b', 'c' ]) )
 
+  def test_not_unique(self):
+    self.assertEqual( [], algorithm.not_unique([ 'a', 'b', 'c' ]) )
+    self.assertEqual( [ 'c' ], algorithm.not_unique([ 'a', 'b', 'c', 'c' ]) )
+    self.assertEqual( [ 'c' ], algorithm.not_unique([ 'c', 'a', 'b', 'c' ]) )
+
   def test_binary_search(self):
     a = [ 1, 5, 7, 9, 20, 1000, 1001, 1002, 3000 ]
     comp = lambda a, b: cmp(a, b)
