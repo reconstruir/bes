@@ -12,6 +12,7 @@ class test_version_compare(unit_test):
     self.assertEqual( -1, VC.compare('1.2.8', '1.2.9') )
     self.assertEqual( -1, VC.compare('1.2.10', '1.2.11') )
     self.assertEqual( -1, VC.compare('1.2.9', '1.2.10') )
+    self.assertEqual( -1, VC.compare('3.0.4', '3.3') )
     
     self.assertEqual(  1, VC.compare('1:1.2.3', '1.2.4') )
     self.assertEqual( -1, VC.compare('0:1.2.3', '1.2.4') )
