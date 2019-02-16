@@ -335,3 +335,8 @@ class git(object):
     if not path.isfile(p):
       return None
     return ignore_file_data.read_file(p).patterns
+
+  @classmethod
+  def config_set_identity(clazz, name, email):
+    clazz._call_git('/tmp', [ 'config', '--global', 'user.name', '"%s"' % (name) ])
+    clazz._call_git('/tmp', [ 'config', '--global', 'user.email', '"%s"' % (email) ])
