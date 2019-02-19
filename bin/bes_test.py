@@ -281,7 +281,7 @@ def main():
       setup_dot_py = path.join(config.root_dir, 'setup.py')
       if not path.isfile(setup_dot_py):
         raise RuntimeError('No setup.py found in %s to make the egg.' % (cwd))
-      egg_zip = egg.make(setup_dot_py)
+      egg_zip = egg.make(config.root_dir, 'master', setup_dot_py, untracked = False)
       pythonpath.prepend(egg_zip)
       printer.writeln_name('using tmp egg: %s' % (egg_zip))
       if args.save_egg:
