@@ -5,7 +5,7 @@ from datetime import datetime
 from collections import namedtuple
 from bes.text import text_line_parser
 from bes.common import object_util, string_util
-from bes.system import execute
+from bes.system import execute, logger
 from bes.fs import dir_util, file_util, temp_file
 from bes.version.version_compare import version_compare
 
@@ -14,10 +14,12 @@ from .status import status
 class git(object):
   'A class to deal with git.'
 
+  _LOG = logger('git')
+  
   GIT_EXE = 'git'
 
   branch_status_t = namedtuple('branch_status', 'ahead,behind')
-  
+
   @classmethod
   def status(clazz, root, filenames, abspath = False):
     filenames = object_util.listify(filenames)
@@ -88,6 +90,7 @@ class git(object):
   @classmethod
   def _call_git(clazz, root, args, raise_error = True):
     cmd = [ clazz.GIT_EXE ] + args
+    clazz._LOG.log_d('root=%s; cmd=%s' % (root, ' '.join(cmd)))
     save_raise_error = raise_error
     rv = execute.execute(cmd, cwd = root, raise_error = False)
     if rv.exit_code != 0 and save_raise_error:
