@@ -13,7 +13,7 @@ class web_server(with_metaclass(ABCMeta, object)):
   class handler(simple_server.WSGIRequestHandler):
 
     def __init__(self, request, client_address, server):
-      log.add_logging(self, 'web_server_handler')
+      log.add_logging(self, 'web_server')
       simple_server.WSGIRequestHandler.__init__(self, request, client_address, server)
       
     def log_message(self, format, *args):
