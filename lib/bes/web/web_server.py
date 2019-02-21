@@ -38,6 +38,7 @@ class web_server(with_metaclass(ABCMeta, object)):
 
     def _handler(environ, start_response):
       self.log_i('calling handle_request()')
+      self.headers = self._get_headers(environ)
       result = self.handle_request(environ, start_response)
       return result
     httpd = simple_server.make_server('', self._requested_port or 0, _handler, handler_class = self.handler)
@@ -58,3 +59,12 @@ class web_server(with_metaclass(ABCMeta, object)):
   def stop(self):
     self._process.terminate()
     self._process.join()
+
+  @classmethod
+  def _get_headers(clazz, environ):
+    headers = {}
+    for key, value in sorted(environ.items()):
+      if key.startswith('HTTP_'):
+        headers[key[5:].lower()] = value
+    return headers
+    
