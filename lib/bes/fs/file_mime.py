@@ -18,6 +18,7 @@ class file_mime(object):
     'application/x-sharedlib', # -pie vs -no-pie issue in gcc 7.3
     'application/octet-stream',
     'application/x-executable',
+    'application/x-pie-executable',
     'application/x-mach-binary', # This is new in macos sierra
   ]
 

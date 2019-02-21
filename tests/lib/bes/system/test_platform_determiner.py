@@ -27,7 +27,7 @@ class test_platform_determiner(unittest.TestCase):
     self.assertEqual( 'macos', PDMACOS(PLAT('10.13', 'x86_64')).system() )
     self.assertEqual( 'macos', PDMACOS(PLAT('10.13.5', 'x86_64')).system() )
     self.assertEqual( 'x86_64', PDMACOS(PLAT('10.13', 'x86_64')).arch() )
-    self.assertEqual( 'macos', PDMACOS(PLAT('10.13', 'x86_64')).distro() )
+    self.assertEqual( '', PDMACOS(PLAT('10.13', 'x86_64')).distro() )
     self.assertEqual( None, PDMACOS(PLAT('10.13', 'x86_64')).family() )
 
   class fake_linux_platform(object):

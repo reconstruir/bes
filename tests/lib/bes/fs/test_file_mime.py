@@ -12,7 +12,7 @@ class test_file_mime(unittest.TestCase):
     self.assertEqual( ( 'text/plain', 'us-ascii' ), mt )
     self.assertEqual( 'text/plain; charset=us-ascii', str(mt) )
 
-  def test_ls_is_binary(self):
+  def test_shell_is_binary(self):
     self.assertTrue( file_mime.mime_type(os.environ['SHELL']).mime_type in file_mime.BINARY_TYPES )
 
   def test_is_text(self):

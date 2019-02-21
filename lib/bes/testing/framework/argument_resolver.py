@@ -288,6 +288,12 @@ class argument_resolver(object):
   @property
   def env_dependencies_configs(self):
     return self._env_dependencies_configs
+
+  def env_dependencies_variables(self):
+    variables = []
+    for config in self._env_dependencies_configs:
+      variables.extend(config.data.variables)
+    return variables
   
   def update_environment(self, env, variables):
     for config in self._env_dependencies_configs:

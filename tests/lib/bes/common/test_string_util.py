@@ -29,6 +29,11 @@ class test_string_util(unittest.TestCase):
   def test_remove_tail(self):
     self.assertEqual( 'fo', SU.remove_tail('foobar', [ 'bar', 'o' ]) )
 
+  def test_remove_tail(self):
+    self.assertEqual( 'foo', SU.remove_tail('foo.tar.gz', [ '.tar.gz' ]) )
+    self.assertEqual( 'foo', SU.remove_tail('foo.tar.gz', '.tar.gz') )
+    self.assertEqual( 'foo', SU.remove_tail('foo.tar.gz', [ '.gz', '.tar' ]) )
+
   def test_remove_head(self):
     self.assertEqual( 'ar', SU.remove_head('foobar', [ 'foo', 'b' ]) )
 

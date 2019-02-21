@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
-from bes.fs import file_type, file_find, temp_file
+from bes.common import check
+from bes.fs import file_type, file_util, file_find, temp_file
 from bes.fs.testing import temp_content
-#from bes.fs.find import finder, criteria, file_type_criteria, max_depth_criteria, pattern_criteria
 
 from .git import git
 from .git_util import git_util
@@ -25,8 +24,8 @@ class repo(object):
   def clone(self):
     return git.clone(self.address, self.root)
 
-  def init(self):
-    return git.init(self.root)
+  def init(self, *args):
+    return git.init(self.root, *args)
 
   def add(self, filenames):
     return git.add(self.root, filenames)
@@ -34,8 +33,14 @@ class repo(object):
   def pull(self):
     return git.pull(self.root)
 
+  def push(self, *args):
+    return git.push(self.root, *args)
+
   def commit(self, message, filenames):
     return git.commit(self.root, message, filenames)
+    
+  def checkout(self, revision):
+    return git.checkout(self.root, revision)
     
   def status(self, filenames):
     return git.status(self.root, filenames)
@@ -78,3 +83,15 @@ class repo(object):
 
   def remote_origin_url(self):
     return git.remote_origin_url(selfroot)
+
+  def add_file(self, filename, content):
+    p = path.join(self.root, filename)
+    assert not path.isfile(p)
+    file_util.save(p, content = content)
+    self.add( [ filename ])
+    self.commit('add %s' % (filename), [ filename ])
+
+  def read_file(self, filename):
+    return file_util.read(path.join(self.root, filename))
+
+check.register_class(repo, name = 'git_repo')

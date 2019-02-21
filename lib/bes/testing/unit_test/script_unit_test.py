@@ -30,19 +30,19 @@ class script_unit_test(unit_test):
 
   def run_script(self, args, cwd = None, env = None):
     rv = self.run_script_raw(args, cwd = cwd, env = env)
-    if isinstance(rv.stdout, bytes):
-      stdout = codecs.decode(rv.stdout, 'utf-8')
+    if isinstance(rv.output, bytes):
+      output = codecs.decode(rv.output, 'utf-8')
     else:
-      stdout = rv.stdout
+      output = rv.output
     if rv.exit_code != 0:
-      print(rv.stdout)
-    return self.exec_result(rv.exit_code, stdout)
+      print(rv.output)
+    return self.exec_result(rv.exit_code, output)
 
   def run_script_raw(self, args, cwd = None, env = None):
     cmd = self.make_command(args)
     return self._exec(cmd, cwd, env)
   
-  exec_result = namedtuple('exec_result', 'exit_code,stdout')
+  exec_result = namedtuple('exec_result', 'exit_code, output')
   @classmethod
   def _exec(clazz, cmd, cwd, env):
     process = subprocess.Popen(cmd, cwd = cwd, env = env, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell = False)

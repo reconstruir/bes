@@ -8,9 +8,12 @@ _bes_trace_file "begin"
 
 _BES_BASIC_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/usr/bin:/bin
 
-_BES_AWK_EXE=$(PATH=${_BES_BASIC_PATH} which awk)
-_BES_TR_EXE=$(PATH=${_BES_BASIC_PATH} which tr)
-_BES_BASENAME_EXE=$(PATH=${_BES_BASIC_PATH} which basename)
+_BES_WHICH_EXE=/usr/bin/which
+_BES_AWK_EXE=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} awk)
+_BES_TR_EXE=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} tr)
+_BES_BASENAME_EXE=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} basename)
+_BES_GREP_EXE=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} grep)
+_BES_CAT_EXE=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} cat)
 
 # return a colon separated path without the head item
 function bes_path_without_head()
@@ -260,7 +263,7 @@ function bes_env_path_print()
 function bes_system()
 {
   _bes_trace_function $*
-  local _uname_exe=$(PATH=${_BES_BASIC_PATH} which uname)
+  local _uname_exe=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} uname)
   local _uname=$(${_uname_exe})
   local _result
   case "${_uname}" in
@@ -292,22 +295,6 @@ function bes_source()
      return 0
   fi
   return 1
-}
-
-function bes_invoke()
-{
-  _bes_trace_function $*
-  if [[ $# < 1 ]]; then
-    printf "\nUsage: bes_invoke function\n\n"
-    return 1
-  fi
-  local _function=$1
-  local _rv=1
-  if type $_function >& /dev/null; then
-    eval $_function
-    _rv=$?
-  fi
-  return $_rv
 }
 
 # Source all the *.sh files in a dir if it exists and has such files
@@ -531,15 +518,20 @@ function bes_tab_title()
   export PROMPT_COMMAND='${_prompt}'
 }
 
-# Mostly borrowed from https://unwiredcouch.com/2016/04/13/bash-unit-testing-101.html
+# Unit testing code mostly borrowed from:
+#   https://unwiredcouch.com/2016/04/13/bash-unit-testing-101.html
 
 # Print all the unit tests defined in this script environment (functions starting with test_)
 function bes_testing_print_unit_tests()
 {
+  if [[ ${BES_UNIT_TEST_LIST} ]]; then
+    echo "${BES_UNIT_TEST_LIST}"
+    return 0
+  fi
   local _result
   declare -a _result
   i=$(( 0 ))
-  for unit_test in $(declare -f | grep -o "^test_[a-zA-Z_0-9]*"); do
+  for unit_test in $(declare -f | ${_BES_GREP_EXE} -o "^test_[a-zA-Z_0-9]*"); do
     _result[$i]=$unit_test
     i=$(( $i + 1 ))
   done
@@ -579,7 +571,7 @@ function bes_assert()
 
 function bes_system_info()
 {
-  local _uname_exe=$(PATH=${_BES_BASIC_PATH} which uname)
+  local _uname_exe=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} uname)
   local _uname=$(${_uname_exe})
   local _system='unknown'
   local _arch=$(${_uname_exe} -m)
@@ -598,11 +590,10 @@ function bes_system_info()
       ;;
 	  Linux)
       _system='linux'
-        
-      _version=$(cat /etc/os-release | grep VERSION_ID= | ${_BES_AWK_EXE} -F"=" '{ print $2; }' | ${_BES_AWK_EXE} -F"." '{ printf("%s.%s\n", $1, $2); }' | ${_BES_TR_EXE} -d '\"')
+      _version=$(${_BES_CAT_EXE} /etc/os-release | ${_BES_GREP_EXE} VERSION_ID= | ${_BES_AWK_EXE} -F"=" '{ print $2; }' | ${_BES_AWK_EXE} -F"." '{ printf("%s.%s\n", $1, $2); }' | ${_BES_TR_EXE} -d '\"')
       _major=$(echo ${_version} | ${_BES_AWK_EXE} -F"." '{ print $1; }')
       _minor=$(echo ${_version} | ${_BES_AWK_EXE} -F"." '{ print $2; }')
-      _distro=$(cat /etc/os-release | grep -e '^ID=' | ${_BES_AWK_EXE} -F"=" '{ print $2; }')
+      _distro=$(${_BES_CAT_EXE} /etc/os-release | ${_BES_GREP_EXE} -e '^ID=' | ${_BES_AWK_EXE} -F"=" '{ print $2; }')
       _path=${_system}-${_distro}-${_major}/${_arch}
       ;;
 	esac
@@ -622,6 +613,357 @@ function bes_system_path()
   local _path=$(bes_system_info | ${_BES_AWK_EXE} -F":" '{ print $6 }')
   echo ${_path}
   return 0
+}
+
+function bes_script_name()
+{
+  if [[ -n "${_BES_SCRIPT_NAME}"  ]]; then
+    echo "${_BES_SCRIPT_NAME}"
+    return 0
+  fi
+  if [[ ${0} =~ .+bash$ ]]; then
+    echo "bes_shell"
+    return 0
+  fi
+  echo $(basename "${0}")
+  return 0
+}
+
+function bes_message()
+{
+  local _script_name=$(bes_script_name)
+  echo ${_script_name}: ${1+"$@"}
+  return 0
+}
+
+function bes_debug_message()
+{
+  if [[ -z "${BES_DEBUG}" ]]; then
+    return 0
+  fi
+  local _output=""
+  if [[ -n "${BES_LOG_FILE}" ]]; then
+    _output="${BES_LOG_FILE}"
+  else
+    if [[ -t 1 ]]; then
+      _output=$(tty)
+    fi
+  fi
+  local _script_name=$(bes_script_name)
+  local _pid=$$
+  local _message=$(printf "%s(%s): %s\n" ${_script_name} ${_pid} ${1+"$@"})
+  if [[ -n "${_output}" ]]; then
+    echo ${_message} >> ${_output}
+  else
+    echo ${_message}
+  fi
+  return 0
+}
+
+function _bes_checksum_text_macos()
+{
+  if [[ $# != 2 ]]; then
+    echo "Usage: _bes_checksum_text_macos algorithm text"
+    return 1
+  fi
+  local _algorithm="${1}"
+  local _text="${2}"
+  local _result
+  case "${_algorithm}" in
+    md5)
+      _result=$(echo "${_text}" | md5)
+      ;;
+    sha1)
+      _result=$(echo "${_text}" | shasum -a 1 | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    sha256)
+      _result=$(echo "${_text}" | shasum -a 256 | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    sha512)
+      _result=$(echo "${_text}" | shasum -a 512 | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    *)
+      echo "unknown algorithm: ${_algorithm}"
+      return 1
+      ;;
+  esac
+  echo ${_result}
+  return 0
+}
+
+function _bes_checksum_file_macos()
+{
+  if [[ $# != 2 ]]; then
+    echo "Usage: _bes_checksum_file_macos algorithm filename"
+    return 1
+  fi
+  local _algorithm="${1}"
+  local _filename="${2}"
+  local _result
+  case "${_algorithm}" in
+    md5)
+      _result=$(md5 -q "${_filename}")
+      ;;
+    sha1)
+      _result=$(shasum -a 1 "${_filename}" | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    sha256)
+      _result=$(shasum -a 256 "${_filename}" | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    sha512)
+      _result=$(shasum -a 512 "${_filename}" | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    *)
+      echo "unknown algorithm: ${_algorithm}"
+      return 1
+      ;;
+  esac
+  echo ${_result}
+  return 0
+}
+
+function _bes_checksum_file_linux()
+{
+  if [[ $# != 2 ]]; then
+    echo "Usage: _bes_checksum_file_linux algorithm filename"
+    return 1
+  fi
+  local _algorithm="${1}"
+  local _filename="${2}"
+  local _result
+  case "${_algorithm}" in
+    md5)
+      _result=$(md5sum "${_filename}" | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    sha1)
+      _result=$(sha1sum "${_filename}" | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    sha256)
+      _result=$(sha256sum "${_filename}" | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    sha512)
+      _result=$(sha512sum "${_filename}" | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    *)
+      echo "unknown algorithm: ${_algorithm}"
+      return 1
+      ;;
+  esac
+  echo ${_result}
+  return 0
+}
+
+function _bes_checksum_text_linux()
+{
+  if [[ $# != 2 ]]; then
+    echo "Usage: _bes_checksum_file_linux algorithm text"
+    return 1
+  fi
+  local _algorithm="${1}"
+  local _text="${2}"
+  local _result
+  case "${_algorithm}" in
+    md5)
+      _result=$(echo "${_text}" | md5sum | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    sha1)
+      _result=$(echo "${_text}" | sha1sum | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    sha256)
+      _result=$(echo "${_text}" | sha256sum | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    sha512)
+      _result=$(echo "${_text}" | sha512sum | ${_BES_AWK_EXE} '{ print($1); }')
+      ;;
+    *)
+      echo "unknown algorithm: ${_algorithm}"
+      return 1
+      ;;
+  esac
+  echo ${_result}
+  return 0
+}
+
+# Checksum file using algorithm
+function bes_checksum_file()
+{
+  if [[ $# != 2 ]]; then
+    echo "Usage: bes_checksum_file algorithm filename"
+    return 1
+  fi
+  local _algorithm="${1}"
+  local _filename="${2}"
+  local _system=$(bes_system)
+  local _result
+  local _rv
+  case "${_system}" in
+    linux)
+      _result=$(_bes_checksum_file_linux ${_algorithm}  "${_filename}")
+      _rv=$?
+      ;;
+    macos)
+      _result=$(_bes_checksum_file_macos ${_algorithm}  "${_filename}")
+      _rv=$?
+      ;;
+    *)
+      echo "unknown system: ${_system}"
+      return 1
+      ;;
+  esac
+  echo ${_result}
+  return ${_rv}
+}
+
+# Checksum text using algorithm
+function bes_checksum_text()
+{
+  if [[ $# != 2 ]]; then
+    echo "Usage: bes_checksum_text algorithm text"
+    return 1
+  fi
+  local _algorithm="${1}"
+  local _text="${2}"
+  local _system=$(bes_system)
+  local _result
+  local _rv
+  case "${_system}" in
+    linux)
+      _result=$(_bes_checksum_text_linux ${_algorithm}  "${_text}")
+      _rv=$?
+      ;;
+    macos)
+      _result=$(_bes_checksum_text_macos ${_algorithm}  "${_text}")
+      _rv=$?
+      ;;
+    *)
+      echo "unknown system: ${_system}"
+      return 1
+      ;;
+  esac
+  echo ${_result}
+  return ${_rv}
+}
+
+# Checksum only the files in a directory.  Empty directories are ignored.
+function bes_checksum_dir_files()
+{
+  if [[ $# != 2 ]]; then
+    echo "Usage: bes_checksum_dir_files algorithm dir"
+    return 1
+  fi
+  local _algorithm="${1}"
+  local _dir="${2}"
+  local _file
+  local _checksum
+  local _checksums=$(cd ${_dir} && find . -type f -print0 | while read -d $'\0' _file; do
+    _checksum=$(bes_checksum_file ${_algorithm} "${_file}")
+    printf "%s %s\n" "${_file}" "${_checksum}" | $_BES_TR_EXE ' ' '_'
+  done | sort)
+  local _result=$(bes_checksum_text ${_algorithm} "${_checksums}")
+  echo ${_result}
+  return 0
+}
+
+# Checksum a manifest of files
+function bes_checksum_manifest()
+{
+  if [[ $# != 3 ]]; then
+    echo "Usage: bes_checksum_manifest algorithm dir manifest"
+    return 1
+  fi
+  local _algorithm="${1}"
+  local _dir="${2}"
+  local _manifest="${3}"
+  if [[ ! -f "${_manifest}" ]]; then
+    echo "bes_checksum_manifest: manifest not found: ${_manifest}"
+    return 1
+  fi
+  local _file
+  local _checksum
+  local _saveIFS="${IFS}"
+  IFS=''
+  local _checksums=$(while read _file; do
+    _checksum=$(bes_checksum_file ${_algorithm} "${_dir}/${_file}")
+    printf "%s %s\n" "${_file}" "${_checksum}" | $_BES_TR_EXE ' ' '_'
+  done < "${_manifest}" | sort)
+  IFS="${_saveIFS}"
+  local _result=$(bes_checksum_text ${_algorithm} "${_checksums}")
+  echo ${_result}
+  return 0
+}
+
+function bes_function_exists()
+{
+  local _name=${1}
+  local _type=$(type -t ${_name})
+  if [[ "${_type}" == "function" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function _bes_function_invoke()
+{
+  _bes_trace_function $*
+  if [[ $# < 2 ]]; then
+    printf "\nUsage: _bes_function_invoke function default_rv args\n\n"
+    return 1
+  fi
+  local _function=${1}
+  shift
+  local _default_rv=${1}
+  shift
+  local _rv=${_default_rv}
+  if bes_function_exists ${_function}; then
+    eval ${_function} ${1+"$@"}
+    _rv=$?
+  fi
+  return ${_rv}
+}
+
+# invoke a function if it exists.  returns exit code of function or 1 if the function does not exist.
+function bes_function_invoke()
+{
+  _bes_trace_function $*
+  if [[ $# < 1 ]]; then
+    printf "\nUsage: bes_function_invoke_if function args\n\n"
+    return 1
+  fi
+  local _function=${1}
+  shift
+  _bes_function_invoke ${_function} 1 ${1+"$@"}
+  local _rv=$?
+  return ${_rv}
+}
+
+# invoke a function if it exists.  returns exit code of function or 0 if the function does not exist.
+function bes_function_invoke_if()
+{
+  _bes_trace_function $*
+  if [[ $# < 1 ]]; then
+    printf "\nUsage: bes_function_invoke_if function args\n\n"
+    return 1
+  fi
+  local _function=${1}
+  shift
+  _bes_function_invoke ${_function} 0 ${1+"$@"}
+  local _rv=$?
+  return ${_rv}
+}
+
+# FIXME: retire this one
+function bes_invoke()
+{
+  bes_function_invoke_if ${1+"$@"}
+}
+
+function bes_has_program()
+{
+  local _program="$1"
+  $(${_BES_WHICH_EXE} "${_program}" >& /dev/null)
+  local _rv=$?
+  return ${_rv}
 }
 
 _bes_trace_file "end"

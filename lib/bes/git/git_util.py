@@ -15,7 +15,7 @@ class git_util(object):
     'Return the first .git dir found in any dir in dirs.'
     dirs = [ d for d in dirs if path.isdir(d) ]
     possible = []
-    result = clazz._find(dirs, '.git', None, None, True)
+    result = clazz._find(dirs, '.git', None, None, False)
     result = [ file_util.remove_tail(d, '.git') for d in result ]
     return sorted(result)
 

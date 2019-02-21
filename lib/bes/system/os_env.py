@@ -126,6 +126,12 @@ class os_env(object):
     return copy.deepcopy(dict(os.environ))
   
   @classmethod
+  def set_current_env(clazz, d):
+    assert isinstance(d, dict)
+    os.environ.clear()
+    os.environ.update(copy.deepcopy(d))
+  
+  @classmethod
   def _env_path_update(clazz, env, d, key, prepend = False):
     current_value = os_env_var.path_split(env.get(key, ''))
     additional_value = os_env_var.path_split(d[key])

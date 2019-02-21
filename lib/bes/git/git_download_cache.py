@@ -33,7 +33,7 @@ class git_download_cache(object):
     else:
       name = git_util.name_from_address(address)
     tmp_full_path = path.join(tmp_dir, tarball_filename)
-    git.download_tarball(name, revision, address, tmp_full_path)
+    git.archive(address, revision, name, tmp_full_path)
     file_util.rename(tmp_full_path, tarball_path)
     return tarball_path
     

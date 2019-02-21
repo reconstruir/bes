@@ -4,24 +4,38 @@
 import copy, glob, os, os.path as path, shutil, tempfile
 from bes.archive import archiver
 from bes.system import execute
-from bes.fs import file_util
+from bes.fs import file_util, temp_file
+from bes.git import git 
 
 class egg(object):
 
   @classmethod
-  def make(clazz, setup_filename):
-    assert path.isfile(setup_filename)
-    temp_dir = tempfile.mkdtemp()
-    src_dir = path.dirname(setup_filename)
-    assert path.isdir(src_dir)
-    shutil.rmtree(temp_dir)
-    shutil.copytree(src_dir, temp_dir, symlinks = True)
-    cmd = [ 'python', path.basename(setup_filename), 'bdist_egg' ]
+  def make(clazz, root_dir, revision, setup_filename, untracked = False, debug = False):
+    'Make an egg from a git root_dir.  setup_filename is relative to that root'
+    git.check_is_git_repo(root_dir)
+    base_name = path.basename(root_dir)
+    tmp_archive_filename = temp_file.make_temp_file(delete = not debug,
+                                                    prefix = '%s.egg.' % (base_name),
+                                                    suffix = '.tar.gz')
+    if debug:
+      print('tmp_archive_filename: %s' % (tmp_archive_filename))
+    git.archive(root_dir, revision, base_name, tmp_archive_filename, untracked = untracked)
+      
+    tmp_extract_dir = temp_file.make_temp_dir(delete = not debug)
+    if debug:
+      print('tmp_extract_dir: %s' % (tmp_extract_dir))
+    archiver.extract_all(tmp_archive_filename, tmp_extract_dir, strip_common_ancestor = True)
+
+    cmd = [ 'python', setup_filename, 'bdist_egg' ]
     env = copy.deepcopy(os.environ)
     env['PYTHONDONTWRITEBYTECODE'] = '1'
-    execute.execute(cmd, shell = False, cwd = temp_dir, env = env)
-    eggs = glob.glob('%s/dist/*.egg' % (temp_dir))
-    assert len(eggs) == 1
+    #print('cmd=%s; cwd=%s; evn=%s' % (cmd, tmp_extract_dir, env))
+    execute.execute(cmd, shell = False, cwd = tmp_extract_dir, env = env, non_blocking = debug)
+    eggs = glob.glob('%s/dist/*.egg' % (tmp_extract_dir))
+    if len(eggs) == 0:
+      raise RuntimeError('no egg got laid: %s - %s' % (root_dir, setup_filename))
+    if len(eggs) > 1:
+      raise RuntimeError('too many eggs got laid (probably downloaded requirements): %s - %s' % (root_dir, setup_filename))
     return eggs[0]
 
   @classmethod

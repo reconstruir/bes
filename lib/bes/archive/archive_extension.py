@@ -74,6 +74,14 @@ class archive_extension(object):
     return clazz.is_valid_zip_ext(file_util.extension(filename))
 
   @classmethod
+  def is_valid_xz_filename(clazz, filename):
+    return clazz.is_valid_xz_ext(file_util.extension(filename))
+
+  @classmethod
+  def is_valid_dmg_filename(clazz, filename):
+    return clazz.is_valid_dmg_ext(file_util.extension(filename))
+
+  @classmethod
   def is_valid_tar_filename(clazz, filename):
     return clazz.is_valid_tar_ext(file_util.extension(filename))
 

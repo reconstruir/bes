@@ -13,7 +13,7 @@ from bes.key_value import key_value_list
 from bes.egg import egg
 from bes.fs import file_find, file_path, file_util, temp_file
 from bes.git import git
-from bes.system import execute, env_var, host, os_env
+from bes.system import execute, env_var, host, os_env, os_env_var
 from bes.testing.framework import argument_resolver, printer, unit_test_output
 from bes.version import version_cli
 
@@ -250,9 +250,17 @@ def main():
     'rebuild_dir': path.expanduser('~/.rebuild'),
     'system': host.SYSTEM,
   }
-  if not args.dont_hack_env:
-    ar.update_environment(env, variables)
 
+  if not args.dont_hack_env:
+    for var in ar.env_dependencies_variables():
+      ov = os_env_var(var)
+      if ov.is_set:
+        value = ov.value
+      else:
+        value = ''
+      variables[var] = value
+    ar.update_environment(env, variables)
+   
   # Update env with whatever was given in --env
   env.update(args.env)
     
@@ -273,7 +281,7 @@ def main():
       setup_dot_py = path.join(config.root_dir, 'setup.py')
       if not path.isfile(setup_dot_py):
         raise RuntimeError('No setup.py found in %s to make the egg.' % (cwd))
-      egg_zip = egg.make(setup_dot_py)
+      egg_zip = egg.make(config.root_dir, 'master', setup_dot_py, untracked = False)
       pythonpath.prepend(egg_zip)
       printer.writeln_name('using tmp egg: %s' % (egg_zip))
       if args.save_egg:

@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from os import path
+import os
 from bes.common import check
 from bes.system import execute
 
@@ -16,10 +18,11 @@ class _file_attributes_linux(_file_attributes_base):
     rv = clazz._call_attr('-q', '-g', key, filename)
     if rv.exit_code == 0:
       return rv.stdout.strip()
-    elif 'No data available' in rv.stderr:
-      return None
     else:
-      raise RuntimeError('error getting \"%s\" for %s' % (key, filename))
+      if path.exists(filename) and os.access(filename, os.R_OK):
+        return None
+      else:
+        raise RuntimeError('error getting \"%s\" for %s' % (key, filename))
 
   @classmethod
   #@abstractmethod
