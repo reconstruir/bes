@@ -31,5 +31,11 @@ class Testobject_util(unittest.TestCase):
   def test_dumps(self):
     self.assertEqual( 'a: 5\nb: 6\n', dict_util.dumps({ 'a': 5, 'b': 6 }) )
 
+  def test_replace_values(self):
+    d = { 'foo': '@FOO@', 'bar': '@BAR@' }
+    r = { '@FOO@': 'hi', '@BAR@': 'bye' }
+    dict_util.replace_values(d, r)
+    self.assertEqual( { 'foo': 'hi', 'bar': 'bye' }, d )
+    
 if __name__ == '__main__':
   unittest.main()

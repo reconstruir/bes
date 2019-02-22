@@ -87,7 +87,7 @@ class dict_util(object):
 
   @staticmethod
   def replace_values(d, replacements, word_boundary = True):
-    for key in d.iterkeys():
+    for key in d.keys():
       d[key] = string_util.replace(d[key], replacements)
       
   @staticmethod
