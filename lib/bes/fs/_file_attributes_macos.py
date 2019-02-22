@@ -11,7 +11,6 @@ class _file_attributes_macos(_file_attributes_base):
   #@abstractmethod
   def get(clazz, filename, key):
     'Return the attribute value with key for filename.'
-    assert False
     check.check_string(filename)
     check.check_string(key)
     rv = clazz._call_xattr('-p', key, filename)
@@ -26,7 +25,6 @@ class _file_attributes_macos(_file_attributes_base):
   #@abstractmethod
   def set(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
-    assert False
     check.check_string(filename)
     check.check_string(key)
     check.check_string(value)

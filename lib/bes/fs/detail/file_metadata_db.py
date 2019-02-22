@@ -29,7 +29,7 @@ create table {table_name}(
   @classmethod
   def _unsigned_hash(clazz, filename):
     check.check_string(filename)
-    return hash(filename) + sys.maxint
+    return hash(filename) + sys.maxsize
     
   @classmethod
   def _table_name(clazz, filename):

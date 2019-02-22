@@ -144,7 +144,7 @@ class test_repo(unit_test):
     r2.push('origin', 'master')
 
     r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
-    self.assertEqual( 'this is foo', file_util.read(path.join(r3.root, 'foo.txt')) )
+    self.assertEqual( 'this is foo', file_util.read(path.join(r3.root, 'foo.txt'), codec = 'utf8') )
     
   def _make_temp_dir(self):
     tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)

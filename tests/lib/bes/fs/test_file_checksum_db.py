@@ -38,7 +38,7 @@ class test_file_metadata_db(unit_test):
     self.assertEqual( file_util.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
     self.assertEqual( 1, db.count )
     time.sleep(0.100) # need to sleep to let the mtime change
-    with open(tmp_file, 'wa') as fout:
+    with open(tmp_file, 'a') as fout:
       fout.write('changed')
       fout.flush()
     self.assertEqual( file_util.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
