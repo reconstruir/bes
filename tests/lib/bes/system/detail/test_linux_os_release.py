@@ -8,7 +8,8 @@ from bes.system.detail.linux_os_release import linux_os_release as P
 class test_linux_os_release(unittest.TestCase):
 
   def test_ubuntu(self):
-    text = '''\NAME="Ubuntu"
+    text = '''\
+NAME="Ubuntu"
 VERSION="18.04.1 LTS (Bionic Beaver)"
 ID=ubuntu
 ID_LIKE=debian
@@ -25,7 +26,8 @@ UBUNTU_CODENAME=bionic
     self.assertEqual( ( 'ubuntu', '18', '04', 'debian' ), P.parse_os_release(text, '<unittest>') )
     
   def test_alpine(self):
-    text = '''\NAME="Alpine Linux"
+    text = '''\
+NAME="Alpine Linux"
 ID=alpine
 VERSION_ID=3.8.2
 PRETTY_NAME="Alpine Linux v3.8"
@@ -35,7 +37,8 @@ BUG_REPORT_URL="http://bugs.alpinelinux.org"'''
     self.assertEqual( ( 'alpine', '3', '8', 'alpine' ), P.parse_os_release(text, '<unittest>') )
 
   def test_raspbian(self):
-    text = '''\PRETTY_NAME="Raspbian GNU/Linux 8 (jessie)"
+    text = '''\
+PRETTY_NAME="Raspbian GNU/Linux 8 (jessie)"
 NAME="Raspbian GNU/Linux"
 VERSION_ID="8"
 VERSION="8 (jessie)"
