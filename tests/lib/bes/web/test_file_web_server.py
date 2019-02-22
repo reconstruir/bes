@@ -6,7 +6,7 @@ from bes.system import compat
 if compat.IS_PYTHON3:
   import urllib.request as urlopener
   import urllib.parse as urlparser
-  from urllib.error import HTTPError
+  from http.client import RemoteDisconnected as HTTPError
 else:
   import urllib2 as urlopener
   import urlparse as urlparser
