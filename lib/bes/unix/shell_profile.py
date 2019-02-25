@@ -11,4 +11,10 @@ class shell_profile(object):
   @classmethod
   def shell_is_bash(clazz):
     'Return True if the current shell is bash.'
-    return 'bash' in os_env_var('SHELL').value
+    v = os_env_var('SHELL')
+    if v.is_set:
+      return 'bash' in v.value
+    v = os_env_var('BASH')
+    if v.is_set:
+      return 'bash' in v.value
+    return False
