@@ -8,6 +8,15 @@ from bes.git import git, repo, status, temp_git_repo
 
 class test_repo(unit_test):
 
+  @classmethod
+  def setUpClass(clazz):
+    assert not path.exists(path.expanduser('~/.gitconfig'))
+    git.config_set_identity('Foo Bar', 'foo@bar.com')
+
+  @classmethod
+  def tearDownClass(clazz):
+    file_util.remove(path.expanduser('~/.gitconfig'))
+
   def test_init(self):
     r = temp_git_repo.make_temp_repo()
     self.assertEqual( [], r.status('.') )

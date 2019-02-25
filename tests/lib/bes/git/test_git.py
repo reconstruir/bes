@@ -9,6 +9,15 @@ from bes.git import git, status
 
 class test_git(unittest.TestCase):
 
+  @classmethod
+  def setUpClass(clazz):
+    assert not path.exists(path.expanduser('~/.gitconfig'))
+    git.config_set_identity('Foo Bar', 'foo@bar.com')
+
+  @classmethod
+  def tearDownClass(clazz):
+    file_util.remove(path.expanduser('~/.gitconfig'))
+
   def _create_tmp_repo(self):
     tmp_repo = temp_file.make_temp_dir()
     git.init(tmp_repo)
