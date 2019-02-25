@@ -9,9 +9,9 @@ project bes
     rebuild_recipes
 
   variables
-    BES_VERSION=1.0.35
-    BES_REPO=git@gitlab.com:rebuilder/bes.git
-    BES_TAG=${EGO_BES_VERSION}
+    BES_VERSION=0.0.0
+    BES_REPO=https://gitlab.com/rebuilder/bes.git
+    BES_TAG=${BES_VERSION}
 
   recipes
     recipes/bes/bes.recipe

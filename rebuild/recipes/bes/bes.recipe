@@ -27,5 +27,5 @@ package bes ${BES_VERSION}
         all: ${BES_REPO} ${BES_TAG} dest=${REBUILD_BUILD_DIR}
 
       tests
-        desktop: test_unit_tests.sh
-        desktop: test_version.sh
+        desktop: reb-bes-test-unit-tests.sh
+        desktop: reb-bes-test-version.sh
