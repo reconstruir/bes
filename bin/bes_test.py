@@ -303,7 +303,10 @@ def main():
 
   # Do all our work with a temporary working directory to be able to check for side effects
   tmp_cwd = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.dir', delete = False)
+  tmp_home = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.home.dir', delete = False)
+  os.environ['HOME'] = tmp_home
   os.chdir(tmp_cwd)
+  
   # Use what the OS thinks the path is (to deal with symlinks and virtual tmpfs things)
   tmp_cwd = os.getcwd()
 
@@ -335,7 +338,7 @@ def main():
     return 1
     
   options = test_options(args.dry_run, args.verbose, args.stop, args.timing,
-                         args.profile, args.coverage, args.python, args.temp_dir)
+                         args.profile, args.coverage, args.python, args.temp_dir, tmp_home)
   
   timings = {}
 
@@ -430,19 +433,25 @@ def main():
   current_cwd = os.getcwd()
   if current_cwd != tmp_cwd:
     printer.writeln_name('SIDE EFFECT: working directory was changed from %s to %s' % (tmp_cwd, current_cwd))
-  droppings = file_find.find(current_cwd, relative = False, file_type = file_find.ANY)
-  for dropping in droppings:
-    printer.writeln_name('SIDE EFFECT: dropping found: %s' % (dropping))
-  if not droppings:
-    os.chdir('/tmp')
-    file_util.remove(tmp_cwd)
+  cwd_droppings = file_find.find(current_cwd, relative = False, file_type = file_find.ANY)
+  for cwd_dropping in cwd_droppings:
+    printer.writeln_name('SIDE EFFECT: cwd dropping found: %s' % (cwd_dropping))
+
+  home_droppings = file_find.find(tmp_home, relative = False, file_type = file_find.ANY)
+  for home_dropping in home_droppings:
+    printer.writeln_name('SIDE EFFECT: home dropping found: %s' % (home_dropping))
+
+  os.chdir('/tmp')
     
+  file_util.remove(tmp_cwd)
+  file_util.remove(tmp_home)
+
   return rv
 
 def _timing_average(l):
   return float(sum(l)) / float(len(l))
 
-test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing,profile_output,coverage_output,interpreters,temp_dir')
+test_options = namedtuple('test_options', 'dry_run,verbose,stop_on_failure,timing,profile_output,coverage_output,interpreters,temp_dir,home_dir')
 test_result = namedtuple('test_result', 'success,num_tests_run,elapsed_time,output')
 
 def _test_data_dir(filename):
@@ -515,6 +524,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
       env['BES_VERBOSE'] = '1'
     if options.temp_dir:
       env['BES_TEMP_DIR'] = options.temp_dir
+    env['HOME'] = options.home_dir
     time_start = time.time()
     process = subprocess.Popen(' '.join(cmd),
                                stdout = subprocess.PIPE,
