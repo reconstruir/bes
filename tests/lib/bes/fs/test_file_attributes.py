@@ -32,7 +32,7 @@ class test_file_attributes(unit_test):
     FA.set(tmp, 'bar', '99')
     self.assertEqual( [ 'bar', 'foo' ], self._munge_attr_keys(FA.keys(tmp)) )
     FA.clear(tmp)
-    self.assertEqual( [], FA.keys(tmp) )
+    self.assertEqual( [], self._munge_attr_keys(FA.keys(tmp)) )
 
   @classmethod
   def _munge_attr_keys(clazz, keys):
