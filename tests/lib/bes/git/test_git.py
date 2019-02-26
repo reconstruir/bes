@@ -1,22 +1,22 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 #
 import os.path as path, unittest
 from bes.fs import file_util, temp_file
 from bes.archive import archiver
 
 from bes.git import git, status
+from bes.git.git_unit_test import git_unit_test
 
 class test_git(unittest.TestCase):
 
   @classmethod
   def setUpClass(clazz):
-    assert not path.exists(path.expanduser('~/.gitconfig'))
-    git.config_set_identity('Foo Bar', 'foo@bar.com')
+    git_unit_test.set_identity()
 
   @classmethod
   def tearDownClass(clazz):
-    file_util.remove(path.expanduser('~/.gitconfig'))
+    git_unit_test.unset_identity()
 
   def _create_tmp_repo(self):
     tmp_repo = temp_file.make_temp_dir()

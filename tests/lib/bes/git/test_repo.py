@@ -5,18 +5,18 @@ import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.fs import file_util, temp_file
 from bes.git import git, repo, status, temp_git_repo
+from bes.git.git_unit_test import git_unit_test
 
 class test_repo(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    assert not path.exists(path.expanduser('~/.gitconfig'))
-    git.config_set_identity('Foo Bar', 'foo@bar.com')
+    git_unit_test.set_identity()
 
   @classmethod
   def tearDownClass(clazz):
-    file_util.remove(path.expanduser('~/.gitconfig'))
-
+    git_unit_test.unset_identity()
+ 
   def test_init(self):
     r = temp_git_repo.make_temp_repo()
     self.assertEqual( [], r.status('.') )
