@@ -75,10 +75,10 @@ class archiver(object):
     return archive_class(archive).extract_member_to_string(member)
 
   @classmethod
-  def extract_member_to_string_cached(clazz, archive, member, root_dir = None):
+  def extract_member_to_string_cached(clazz, archive, member, cache_dir = None):
     from .archive_member_cache_item import archive_member_cache_item
     item = archive_member_cache_item(archive, member)
-    return file_cache.cached_item(item, root_dir)
+    return file_cache.cached_item(item, cache_dir)
   
   @classmethod
   def extract_member_to_file(clazz, archive, member, filename):

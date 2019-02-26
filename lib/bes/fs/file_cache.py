@@ -71,29 +71,29 @@ class file_content_cache_item(file_cache_item):
   
 class file_cache(object):
 
-  _ROOT_DIR = path.expanduser('~/.bes/fs/cached_read')
+  _CACHE_DIR = path.expanduser('~/.bes/fs/cached_read')
   _CHECKSUMS_DIR_NAME = 'checksums'
   _FILES_DIR_NAME = 'files'
   _lock = Lock()
 
   @classmethod
-  def cached_content(clazz, filename, root_dir = None):
+  def cached_content(clazz, filename, cache_dir = None):
     'Return the cached content.'
     item = file_content_cache_item(filename)
-    return clazz.cached_item(item, root_dir)
+    return clazz.cached_item(item, cache_dir)
 
   @classmethod
-  def cached_filename(clazz, filename, root_dir = None):
+  def cached_filename(clazz, filename, cache_dir = None):
     'Return a temp file copy of filename.  It will delete when the process exits.'
     item = file_filename_cache_item(filename)
-    return clazz.cached_item(item, root_dir)
+    return clazz.cached_item(item, cache_dir)
 
   @classmethod
-  def cached_item(clazz, item, root_dir = None):
-    root_dir = root_dir or clazz._ROOT_DIR
+  def cached_item(clazz, item, cache_dir = None):
+    cache_dir = cache_dir or clazz._CACHE_DIR
     try:
       clazz._lock.acquire()
-      info = clazz._make_info(item, root_dir)
+      info = clazz._make_info(item, cache_dir)
       if info.cached_checksum != item.checksum():
         item.save(info)
       return item.load(info.cached_filename)
@@ -115,11 +115,11 @@ class file_cache(object):
     file_util.save(info.checksum_filename, info.checksum + '\n')
 
   @classmethod
-  def _make_info(clazz, item, root_dir):
+  def _make_info(clazz, item, cache_dir):
     name = item.name()
     filename_not_abs = name[1:]
-    cached_filename = path.join(root_dir, clazz._FILES_DIR_NAME, filename_not_abs)
-    checksum_filename = path.join(root_dir, clazz._CHECKSUMS_DIR_NAME, filename_not_abs)
+    cached_filename = path.join(cache_dir, clazz._FILES_DIR_NAME, filename_not_abs)
+    checksum_filename = path.join(cache_dir, clazz._CHECKSUMS_DIR_NAME, filename_not_abs)
     cached_checksum = clazz._cached_checksum(checksum_filename)
     return cache_info(cached_filename, checksum_filename, cached_checksum)
 
