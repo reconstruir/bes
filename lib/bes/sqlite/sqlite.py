@@ -108,3 +108,6 @@ class sqlite(object):
     finally:
       self.fetch_namedtuples = save_fetch_namedtuples
   
+  def create_function(self, name, num_params, func):
+    self.log_i('%s: create_function(%s, %s, %s)' % (self._filename_log_label, name, num_params, func))
+    self._connection.create_function(name, num_params, func)
