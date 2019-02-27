@@ -6,7 +6,7 @@ project bes
     Rebuild project for building https://gitlab.com/rebuilder/bes
 
   imports
-    rebuild_recipes
+    rebuild_base_recipes
 
   variables
     BES_VERSION=0.0.0
