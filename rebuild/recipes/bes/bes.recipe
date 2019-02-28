@@ -29,3 +29,6 @@ package bes ${BES_VERSION}
       tests
         desktop: reb-bes-test-unit-tests.sh
         desktop: reb-bes-test-version.sh
+
+      env_files
+        all: bes_recipe_env.sh
