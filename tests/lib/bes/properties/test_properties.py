@@ -66,5 +66,16 @@ version: '1.2.3'
     a.bump_version('version', component = P.MINOR )
     self.assertEqual( '1.3.0', a.get_value('version') )
     
+  def test_properties(self):
+    a = P()
+    a.set_value('version', '1.2.3')
+    a.set_value('status', 'doomed')
+    a.set_value('fruit', 'kiwi')
+    self.assertEqual( {
+      'version': '1.2.3',
+      'status': 'doomed',
+      'fruit': 'kiwi',
+    }, a.properties() )
+    
 if __name__ == '__main__':
   unit_test.main()

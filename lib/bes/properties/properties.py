@@ -59,6 +59,9 @@ class properties(object):
   def keys(self):
     return sorted(self._properties.keys())
 
+  def properties(self):
+    return copy.deepcopy(self._properties)
+
   MAJOR = version_compare.MAJOR
   MINOR = version_compare.MINOR
   REVISION = version_compare.REVISION

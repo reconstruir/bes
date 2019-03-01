@@ -47,7 +47,13 @@ class properties_editor(object):
     props = self._load_or_initialize()
     props.bump_version(key, component = component)
     props.save_to_yaml_file(self._filename)
-  
+
+  def properties(self):
+    check.check_string(key)
+    self._check_file_exists()
+    props = properties.load_from_yaml_file(self._filename)
+    return props.properties()
+    
   def _check_file_exists(self):
     if not path.exists(self._filename):
       raise IOError('properties file not found: %s' % (self._filename))
