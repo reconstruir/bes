@@ -77,6 +77,19 @@ class version_compare(object):
   MAJOR = 0
   MINOR = 1
   REVISION = 2
+
+  _COMPONENT_MAP = {
+    'major': MAJOR,
+    'minor': MINOR,
+    'revision': REVISION,
+    'MAJOR': MAJOR,
+    'MINOR': MINOR,
+    'REVISION': REVISION,
+    MAJOR: MAJOR,
+    MINOR: MINOR,
+    REVISION: REVISION,
+  }
+
   @classmethod
   def bump_version(clazz, version, component = None, delimiter = '.'):
     '''
@@ -90,6 +103,7 @@ class version_compare(object):
     t = list(clazz.version_to_tuple(version))
     if component is None:
       component = clazz.REVISION
+    component = clazz._COMPONENT_MAP[component]
     if len(t) < 3:
       raise ValueError('version \"%s\" should have at least 3 components' % (version))
     if component == clazz.MAJOR:
