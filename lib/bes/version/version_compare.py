@@ -73,3 +73,35 @@ class version_compare(object):
     tokens = [ token for token in version_lexer.tokenize(version, 'compare') ]
     number_tokens = [ token for token in tokens if token.token_type == version_lexer.TOKEN_NUMBER ]
     return tuple([token.value for token in number_tokens])
+
+  MAJOR = 0
+  MINOR = 1
+  REVISION = 2
+  @classmethod
+  def bump_version(clazz, version, component = None, delimiter = '.'):
+    '''
+    Bump a version.  If component is MAJOR or MINOR the less significant components
+    will be reset to zero:
+
+    component=REVISION 1.0.0 -> 1.0.1
+    component=MINOR 1.2.3 -> 1.3.0
+    component=MAJOR 1.2.3 -> 2.0.0
+    '''
+    t = list(clazz.version_to_tuple(version))
+    if component is None:
+      component = clazz.REVISION
+    if len(t) < 3:
+      raise ValueError('version \"%s\" should have at least 3 components' % (version))
+    if component == clazz.MAJOR:
+      t[clazz.MINOR] = 0
+      t[clazz.REVISION] = 0
+      deltas = [ 1, 0, 0 ]
+    elif component == clazz.MINOR:
+      t[clazz.REVISION] = 0
+      deltas = [ 0, 1, 0 ]
+    elif component == clazz.REVISION:
+      deltas = [ 0, 0, 1 ]
+    else:
+      raise ValueError('Invalid component: %s' % (component))
+    rounded_version = delimiter.join([ str(c) for c in t ])
+    return version_compare.change_version(rounded_version, deltas)

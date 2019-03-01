@@ -72,5 +72,23 @@ class test_version_compare(unit_test):
     self.assertEqual( ( 1, 0, 2, 3 ), VC.version_to_tuple('1.0.2.3') )
     self.assertEqual( ( 1, 0, 11 ), VC.version_to_tuple('1.0.11') )
  
+  def test_bump_version(self):
+    self.assertEqual( '1.0.1', VC.bump_version('1.0.0') )
+ 
+  def test_bump_version_major(self):
+    self.assertEqual( '2.0.0', VC.bump_version('1.0.0', component = VC.MAJOR) )
+    self.assertEqual( '2.0.0', VC.bump_version('1.0.1', component = VC.MAJOR) )
+    self.assertEqual( '2.0.0', VC.bump_version('1.1.0', component = VC.MAJOR) )
+    self.assertEqual( '2.0.0', VC.bump_version('1.1.1', component = VC.MAJOR) )
+ 
+  def test_bump_version_minor(self):
+    self.assertEqual( '1.1.0', VC.bump_version('1.0.0', component = VC.MINOR) )
+    self.assertEqual( '1.1.0', VC.bump_version('1.0.1', component = VC.MINOR) )
+    self.assertEqual( '1.2.0', VC.bump_version('1.1.1', component = VC.MINOR) )
+ 
+  def test_bump_version_revision(self):
+    self.assertEqual( '1.0.1', VC.bump_version('1.0.0', component = VC.REVISION) )
+    self.assertEqual( '1.1.1', VC.bump_version('1.1.0', component = VC.REVISION) )
+ 
 if __name__ == "__main__":
   unit_test.main()
