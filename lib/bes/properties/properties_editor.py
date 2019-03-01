@@ -49,7 +49,6 @@ class properties_editor(object):
     props.save_to_yaml_file(self._filename)
 
   def properties(self):
-    check.check_string(key)
     self._check_file_exists()
     props = properties.load_from_yaml_file(self._filename)
     return props.properties()
