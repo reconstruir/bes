@@ -66,3 +66,14 @@ class properties_editor(object):
       return properties.load_from_yaml_file(self._filename)
     else:
       return properties()
+
+  @classmethod
+  def read_properties_file(clazz, filename, throw_error = True):
+    if not filename:
+      return {}
+    filename = path.abspath(filename)
+    if not path.exists(filename):
+      raise IOError('properties file not found: %s' % (filename))
+    editor = properties_editor(filename)
+    return editor.properties()
+    
