@@ -30,7 +30,7 @@ class temp_file(object):
   _DEFAULT_DIR_SUFFIX = '.dir'
 
   @classmethod
-  def make_temp_file(clazz, content = None, prefix = None, suffix = None, dir = None, mode = 'w+b', delete = True):
+  def make_temp_file(clazz, content = None, prefix = None, suffix = None, dir = None, mode = 'w+b', delete = True, perm = None):
     'Write content to a temporary file.  Returns the file object.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or clazz._DEFAULT_SUFFIX
@@ -46,6 +46,8 @@ class temp_file(object):
         content = content.encode('utf-8')
       tmp.write(content)
     tmp.flush()
+    if perm:
+      os.chmod(tmp.name, perm)
     os.fsync(tmp.fileno())
     if delete:
       clazz.atexit_delete(tmp.name)
