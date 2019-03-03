@@ -50,6 +50,20 @@ version: '1.2.3'
     tmp = temp_file.make_temp_file()
     TC = namedtuple('TC', 'fruit, status, version')
     self.assertEqual( ( None, None, None ), PF.read_to_tuple(tmp, TC) )
+
+  def test_read_indent(self):
+    text = """\
+  fruit: 'kiwi'
+ status: 'doomed'
+version: '1.2.3'
+"""
+    tmp = temp_file.make_temp_file(content = text)
+    self.assertEqual( {
+      'fruit': 'kiwi',
+      'status': 'doomed',
+      'version': '1.2.3',
+    }, PF.read(tmp) )
+    
     
 if __name__ == '__main__':
   unit_test.main()
