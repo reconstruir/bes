@@ -1,6 +1,5 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from collections import namedtuple
 from os import path
 from bes.common import check
 
@@ -67,25 +66,3 @@ class properties_editor(object):
       return properties.load_from_yaml_file(self._filename)
     else:
       return properties()
-
-  @classmethod
-  def read_properties_file(clazz, filename, throw_error = True):
-    if not filename:
-      return {}
-    filename = path.abspath(filename)
-    if not path.exists(filename):
-      raise IOError('properties file not found: %s' % (filename))
-    editor = properties_editor(filename)
-    return editor.properties()
-    
-  @classmethod
-  def read_properties_file_tu(clazz, filename, throw_error = True):
-    if not filename:
-      return {}
-    filename = path.abspath(filename)
-    if not path.exists(filename):
-      raise IOError('properties file not found: %s' % (filename))
-    editor = properties_editor(filename)
-    return editor.properties()
-    
-namedtuple

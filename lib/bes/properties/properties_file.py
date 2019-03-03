@@ -20,3 +20,9 @@ class properties_file(object):
       raise IOError('properties file not found: %s' % (filename))
     editor = properties_editor(filename)
     return editor.properties()
+
+  @classmethod
+  def read_to_tuple(clazz, filename, tuple_class, throw_error = True):
+    d = clazz.read(filename, throw_error = throw_error)
+    values = [ d.get(field, None) for field in tuple_class._fields ]
+    return tuple_class(*values)

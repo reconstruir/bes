@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+
 from os import path
 from bes.git import git, temp_git_repo
 from bes.fs import file_util, temp_file
@@ -22,6 +24,17 @@ version: '1.2.3'
       'status': 'doomed',
       'version': '1.2.3',
     }, PF.read(tmp) )
+    
+  def test_read_to_tuple(self):
+    text = """\
+fruit: 'kiwi'
+status: 'doomed'
+version: '1.2.3'
+"""
+    tmp = temp_file.make_temp_file(content = text)
+
+    TC = namedtuple('TC', 'fruit, status, version')
+    self.assertEqual( ( 'kiwi', 'doomed', '1.2.3' ), PF.read_to_tuple(tmp, TC) )
     
 if __name__ == '__main__':
   unit_test.main()
