@@ -46,5 +46,10 @@ version: '1.2.3'
     TC = namedtuple('TC', 'fruit, status, version')
     self.assertEqual( ( 'kiwi', None, '1.2.3' ), PF.read_to_tuple(tmp, TC) )
     
+  def test_read_to_tuple_empty(self):
+    tmp = temp_file.make_temp_file()
+    TC = namedtuple('TC', 'fruit, status, version')
+    self.assertEqual( ( None, None, None ), PF.read_to_tuple(tmp, TC) )
+    
 if __name__ == '__main__':
   unit_test.main()
