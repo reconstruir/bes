@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 #
-import os.path as path, unittest
+import os.path as path, os, unittest
 from bes.fs import file_util, temp_file
 from bes.archive import archiver
 
@@ -150,6 +150,35 @@ class test_git(unittest.TestCase):
       'foo-master/foo.txt',
       'foo-master/kiwi.txt',
     ], archiver.members(tmp_archive) )
-    
+
+  def test_config(self):
+    tmp_home = temp_file.make_temp_dir()
+    save_home = os.environ['HOME']
+    os.environ['HOME'] = tmp_home
+
+    try:
+      self.assertEqual( None, git.config_get_value('user.name') )
+      self.assertEqual( None, git.config_get_value('user.email') )
+
+      git.config_set_value('user.name', 'foo bar')
+      self.assertEqual( 'foo bar', git.config_get_value('user.name') )
+      
+      git.config_set_value('user.email', 'foo@example.com')
+      self.assertEqual( 'foo@example.com', git.config_get_value('user.email') )
+
+      self.assertEqual( ( 'foo bar', 'foo@example.com' ), git.config_get_identity() )
+
+      git.config_set_identity('green kiwi', 'kiwi@example.com')
+      self.assertEqual( ( 'green kiwi', 'kiwi@example.com' ), git.config_get_identity() )
+
+      git.config_unset_value('user.email')
+      self.assertEqual( ( 'green kiwi', None ), git.config_get_identity() )
+
+      git.config_unset_value('user.name')
+      self.assertEqual( ( None, None ), git.config_get_identity() )
+      
+    finally:
+      os.environ['HOME'] = save_home
+      
 if __name__ == "__main__":
   unittest.main()

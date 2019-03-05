@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
 import os, os.path as path, re
 from datetime import datetime
 from collections import namedtuple
@@ -340,6 +341,29 @@ class git(object):
     return ignore_file_data.read_file(p).patterns
 
   @classmethod
+  def config_set_value(clazz, key, value):
+    clazz._call_git('/tmp', [ 'config', '--global', key, value ], raise_error = False)
+    
+  @classmethod
+  def config_unset_value(clazz, key):
+    clazz._call_git('/tmp', [ 'config', '--global', '--unset', key ], raise_error = False)
+    
+  @classmethod
+  def config_get_value(clazz, key):
+    rv = clazz._call_git('/tmp', [ 'config', '--global', key ], raise_error = False)
+    if rv.exit_code == 0:
+      return string_util.unquote(rv.stdout.strip())
+    else:
+      return None
+  
+  @classmethod
   def config_set_identity(clazz, name, email):
     clazz._call_git('/tmp', [ 'config', '--global', 'user.name', '"%s"' % (name) ])
     clazz._call_git('/tmp', [ 'config', '--global', 'user.email', '"%s"' % (email) ])
+
+  _identity = namedtuple('_identity', 'name, email')
+  @classmethod
+  def config_get_identity(clazz):
+    return clazz._identity(clazz.config_get_value('user.name'),
+                           clazz.config_get_value('user.email'))
+    
