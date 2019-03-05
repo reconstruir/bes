@@ -94,4 +94,7 @@ class repo(object):
   def read_file(self, filename):
     return file_util.read(path.join(self.root, filename))
 
+  def last_tag(self):
+    return git.last_tag(self.root)
+  
 check.register_class(repo, name = 'git_repo')
