@@ -16,7 +16,7 @@ class test_properties_editor(unit_test):
     file_util.remove(tmp)
     e = PE(tmp)
     e.set_value('fruit', 'kiwi')
-    expected = """fruit: 'kiwi'\n"""
+    expected = """fruit: kiwi\n"""
     self.assertMultiLineEqual(expected, file_util.read(tmp) )
     
   def test_set_value_empty_file(self):
@@ -24,7 +24,7 @@ class test_properties_editor(unit_test):
     tmp = temp_file.make_temp_file(content = '')
     e = PE(tmp)
     e.set_value('fruit', 'kiwi')
-    expected = """fruit: 'kiwi'\n"""
+    expected = """fruit: kiwi\n"""
     self.assertMultiLineEqual(expected, file_util.read(tmp) )
     
   def test_replace_value(self):
@@ -32,11 +32,11 @@ class test_properties_editor(unit_test):
     tmp = temp_file.make_temp_file(content = '')
     e = PE(tmp)
     e.set_value('fruit', 'kiwi')
-    expected = """fruit: 'kiwi'\n"""
+    expected = """fruit: kiwi\n"""
     self.assertMultiLineEqual(expected, file_util.read(tmp) )
 
     e.set_value('fruit', 'orange')
-    expected = """fruit: 'orange'\n"""
+    expected = """fruit: orange\n"""
     self.assertMultiLineEqual(expected, file_util.read(tmp) )
     
   def test_set_value_many_values(self):
@@ -47,9 +47,9 @@ class test_properties_editor(unit_test):
     e.set_value('version', '1.2.3')
     e.set_value('status', 'doomed')
     expected = """\
-fruit: 'kiwi'
-status: 'doomed'
-version: '1.2.3'
+fruit: kiwi
+status: doomed
+version: 1.2.3
 """
     self.assertMultiLineEqual(expected, file_util.read(tmp) )
     
@@ -63,15 +63,15 @@ fruit: 'kiwi'
     self.assertMultiLineEqual(content, file_util.read(tmp) )
     e.set_value('status', 'doomed')
     expected = """\
-fruit: 'kiwi'
-status: 'doomed'
+fruit: kiwi
+status: doomed
 """
     self.assertMultiLineEqual(expected, file_util.read(tmp) )
 
   def test_keys(self):
     'Get all the keys.'
     content = """\
-fruit: 'kiwi'
+fruit: kiwi
 """
     tmp = temp_file.make_temp_file(content = content)
     e = PE(tmp)

@@ -35,7 +35,22 @@ class properties(object):
 
   @classmethod 
   def _key_value_to_yaml(clazz, key, value):
-    return """{key}: '{value}'""".format(key = key, value = value)
+    return """{key}: {value}""".format(key = key,
+                                       value = clazz._value_to_yaml_string(value))
+  
+  @classmethod 
+  def _value_to_yaml_string(clazz, value):
+    if clazz._value_is_number(value):
+      return string_util.quote(value)
+    return value
+  
+  @classmethod 
+  def _value_is_number(clazz, value):
+    try:
+      float(value)
+      return True
+    except:
+      return False
   
   def save_to_yaml_file(self, filename):
     content = self.to_yaml_text()

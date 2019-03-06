@@ -33,9 +33,9 @@ status: 'doomed'
     a.set_value('status', 'doomed')
     
     expected = '''\
-fruit: 'kiwi'
-status: 'doomed'
-version: '1.2.3'
+fruit: kiwi
+status: doomed
+version: 1.2.3
 '''
     self.assertMultiLineEqual( expected, a.to_yaml_text() )
     
