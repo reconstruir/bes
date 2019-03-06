@@ -160,6 +160,87 @@ class test_repo(unit_test):
     if self.DEBUG:
       pritn('tmp_dir: %s' % (tmp_dir))
     return tmp_dir
+
+  def test_delete_remote_tags(self):
+    r1 = temp_git_repo.make_temp_repo([ '--bare', '--shared' ])
+    r2 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r2.add_file('readme.txt', 'readme is good')
+    r2.push('origin', 'master')
+    r2.tag('1.0.0')
+    r2.push_tag('1.0.0')
+    r2.tag('1.0.1')
+    r2.push_tag('1.0.1')
+    self.assertEqual( [ '1.0.0', '1.0.1' ], r3.list_remote_tags() )
+    r2.delete_tag('1.0.1')
+    r2.delete_remote_tag('1.0.1')
+    self.assertEqual( [ '1.0.0' ], r3.list_remote_tags() )
+
+  def test_list_remote_tags(self):
+    r1 = temp_git_repo.make_temp_repo([ '--bare', '--shared' ])
+    r2 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r2.add_file('readme.txt', 'readme is good')
+    r2.push('origin', 'master')
+    r2.tag('1.0.0')
+    r2.push_tag('1.0.0')
+    r2.tag('1.0.1')
+    r2.push_tag('1.0.1')
+    self.assertEqual( [ '1.0.0', '1.0.1' ], r3.list_remote_tags() )
+
+  def test_bump_tag(self):
+    r1 = temp_git_repo.make_temp_repo([ '--bare', '--shared' ])
+    r2 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r2.add_file('readme.txt', 'readme is good')
+    r2.push('origin', 'master')
+    r2.tag('1.0.0')
+    r2.push_tag('1.0.0')
+    self.assertEqual( '1.0.0', r2.last_tag() )
+    r2.bump_tag()
+
+    r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    self.assertEqual( '1.0.1', r3.last_tag() )
+
+  def test_bump_tag_empty(self):
+    r1 = temp_git_repo.make_temp_repo([ '--bare', '--shared' ])
+    r2 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r2.add_file('readme.txt', 'readme is good')
+    r2.push('origin', 'master')
+    self.assertEqual( None, r2.last_tag() )
+    r2.bump_tag()
+
+    r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    self.assertEqual( '1.0.0', r3.last_tag() )
+
+  def test_list_tags_by_version(self):
+    r = temp_git_repo.make_temp_repo()
+    r.add_file('readme.txt', 'readme is good')
+    r.tag('1.0.0')
+    r.tag('1.0.1')
+    r.tag('1.0.4')
+    r.tag('1.0.5')
+    r.tag('1.0.9')
+    r.tag('1.0.11')
+    self.assertEqual( [ '1.0.9', '1.0.11' ], r.list_tags_gt('1.0.5') )
+    self.assertEqual( [ '1.0.5', '1.0.9', '1.0.11' ], r.list_tags_ge('1.0.5') )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4' ], r.list_tags_lt('1.0.5') )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4', '1.0.5' ], r.list_tags_le('1.0.5') )
+    
+  def test_list_remote_tags_by_version(self):
+    r1 = temp_git_repo.make_temp_repo([ '--bare', '--shared' ])
+    r2 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r2.add_file('readme.txt', 'readme is good')
+    r2.push('origin', 'master')
+    all_tags = [ '1.0.0', '1.0.1','1.0.4','1.0.5','1.0.9','1.0.11' ]
+    for tag in all_tags:
+      r2.tag(tag)
+      r2.push_tag(tag)
+    self.assertEqual( all_tags, r3.list_remote_tags() )
+    self.assertEqual( [ '1.0.9', '1.0.11' ], r3.list_remote_tags_gt('1.0.5') )
+    self.assertEqual( [ '1.0.5', '1.0.9', '1.0.11' ], r3.list_remote_tags_ge('1.0.5') )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4' ], r3.list_remote_tags_lt('1.0.5') )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4', '1.0.5' ], r3.list_remote_tags_le('1.0.5') )
     
 if __name__ == '__main__':
   unit_test.main()
