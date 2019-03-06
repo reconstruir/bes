@@ -23,9 +23,13 @@ class git(object):
   branch_status_t = namedtuple('branch_status', 'ahead,behind')
 
   @classmethod
-  def status(clazz, root, filenames, abspath = False):
+  def status(clazz, root, filenames, abspath = False, untracked_files = True):
     filenames = object_util.listify(filenames)
     flags = [ '--porcelain' ]
+    if untracked_files:
+      flags.append('--untracked-files=normal')
+    else:
+      flags.append('--untracked-files=no')
     args = [ 'status' ] + flags + filenames
     rv = clazz._call_git(root, args)
     result = status.parse(rv.stdout)
@@ -61,8 +65,8 @@ class git(object):
     return ( ahead or 0, behind or 0 )
     
   @classmethod
-  def has_changes(clazz, root):
-    return clazz.status(root, '.') != []
+  def has_changes(clazz, root, untracked_files = False):
+    return clazz.status(root, '.', untracked_files = untracked_files) != []
 
   @classmethod
   def add(clazz, root, filenames):
@@ -282,6 +286,14 @@ class git(object):
   @classmethod
   def push_tag(clazz, root, tag):
     clazz._call_git(root, [ 'push', 'origin', tag ])
+
+  @classmethod
+  def delete_tag(clazz, root, tag):
+    clazz._call_git(root, [ 'tag', '--delete', tag ])
+
+  @classmethod
+  def delete_remote_tag(clazz, root, tag):
+    clazz._call_git(root, [ 'push', '--delete', 'origin', tag ])
 
   @classmethod
   def list_tags(clazz, root, lexical = False, reverse = False):

@@ -59,8 +59,8 @@ class repo(object):
     if commit:
       if self.has_changes():
         raise RuntimeError('You need a clean tree with no changes to add temp content.')
-      r.add('.')
-      r.commit('add temp content', '.')
+      self.add('.')
+      self.commit('add temp content', '.')
 
   def _dot_git_path(self):
     return path.join(self.root, '.git')
@@ -105,8 +105,20 @@ class repo(object):
   def last_tag(self):
     return git.last_tag(self.root)
 
+  def list_tags(self, lexical = False, reverse = False):
+    return git.list_tags(self.root, lexical = lexical, reverse = reverse)
+
+  def list_remote_tags(self, lexical = False, reverse = False):
+    return git.list_remote_tags(self.root, lexical = lexical, reverse = reverse)
+  
   def tag(self, tag, allow_downgrade = True):
     git.tag(self.root, tag, allow_downgrade = allow_downgrade)
+
+  def delete_tag(self, tag):
+    git.delete_tag(self.root, tag)
+
+  def delete_remote_tag(self, tag):
+    git.delete_remote_tag(self.root, tag)
 
   def push_tag(self, tag):
     git.push_tag(self.root, tag)

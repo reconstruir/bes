@@ -89,6 +89,53 @@ class test_git(unittest.TestCase):
     self.assertEqual( ['1.0.0', '1.0.1', '1.0.10', '1.0.9'], git.list_tags(tmp_repo, lexical = True) )
     self.assertEqual( [ '1.0.10', '1.0.9', '1.0.1', '1.0.0' ], git.list_tags(tmp_repo, reverse = True) )
 
+  def test_delete_tag(self):
+    tmp_repo = self._create_tmp_repo()
+    new_files = self._create_tmp_files(tmp_repo)
+    git.add(tmp_repo, new_files)
+    git.commit(tmp_repo, 'nomsg\n', '.')
+    git.tag(tmp_repo, '1.0.0')
+    git.tag(tmp_repo, '1.0.1')
+    git.tag(tmp_repo, '1.0.9')
+    git.tag(tmp_repo, '1.0.10')
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.9', '1.0.10' ], git.list_tags(tmp_repo) )
+    git.delete_tag(tmp_repo, '1.0.9')
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.10' ], git.list_tags(tmp_repo) )
+    git.delete_tag(tmp_repo, '1.0.0')
+    self.assertEqual( [ '1.0.1', '1.0.10' ], git.list_tags(tmp_repo) )
+    git.delete_tag(tmp_repo, '1.0.10')
+    self.assertEqual( [ '1.0.1' ], git.list_tags(tmp_repo) )
+    git.delete_tag(tmp_repo, '1.0.1')
+    self.assertEqual( [], git.list_tags(tmp_repo) )
+
+  def test_delete_remote_tags(self):
+    r1 = temp_git_repo.make_temp_repo([ '--bare', '--shared' ])
+    r2 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r2.add_file('readme.txt', 'readme is good')
+    r2.push('origin', 'master')
+    r2.tag('1.0.0')
+    r2.push_tag('1.0.0')
+    r2.tag('1.0.1')
+    r2.push_tag('1.0.1')
+    self.assertEqual( [ '1.0.0', '1.0.1' ], r3.list_remote_tags() )
+    r2.delete_tag('1.0.1')
+    r2.delete_remote_tag('1.0.1')
+    self.assertEqual( [ '1.0.0' ], r3.list_remote_tags() )
+    
+    
+  def test_list_remote_tags(self):
+    r1 = temp_git_repo.make_temp_repo([ '--bare', '--shared' ])
+    r2 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r2.add_file('readme.txt', 'readme is good')
+    r2.push('origin', 'master')
+    r2.tag('1.0.0')
+    r2.push_tag('1.0.0')
+    r2.tag('1.0.1')
+    r2.push_tag('1.0.1')
+    self.assertEqual( [ '1.0.0', '1.0.1' ], r3.list_remote_tags() )
+    
   def test_tag_allow_downgrade_error(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
@@ -225,6 +272,16 @@ class test_git(unittest.TestCase):
 
     r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
     self.assertEqual( '1.0.0', r3.last_tag() )
+    
+  def test_has_changes(self):
+    tmp_repo = self._create_tmp_repo()
+    self.assertFalse( git.has_changes(tmp_repo) )
+    new_files = self._create_tmp_files(tmp_repo)
+    self.assertFalse( git.has_changes(tmp_repo) )
+    git.add(tmp_repo, new_files)
+    self.assertTrue( git.has_changes(tmp_repo) )
+    git.commit(tmp_repo, 'nomsg\n', '.')
+    self.assertFalse( git.has_changes(tmp_repo) )
     
 if __name__ == "__main__":
   unittest.main()
