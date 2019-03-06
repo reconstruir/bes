@@ -17,7 +17,10 @@ class repo(object):
     
   def __str__(self):
     return '%s@%s' % (self.root, self.address)
-    
+
+  def has_changes(self):
+    return git.has_changes(self.root)
+  
   def clone_or_pull(self):
     return git.clone_or_pull(self.address, self.root)
 
@@ -51,8 +54,13 @@ class repo(object):
   def branch_status(self):
     return git.branch_status(self.root)
 
-  def write_temp_content(self, items):
+  def write_temp_content(self, items, commit = False):
     temp_content.write_items(items, self.root)
+    if commit:
+      if self.has_changes():
+        raise RuntimeError('You need a clean tree with no changes to add temp content.')
+      r.add('.')
+      r.commit('add temp content', '.')
 
   def _dot_git_path(self):
     return path.join(self.root, '.git')
@@ -96,5 +104,14 @@ class repo(object):
 
   def last_tag(self):
     return git.last_tag(self.root)
-  
+
+  def tag(self, tag, allow_downgrade = True):
+    git.tag(self.root, tag, allow_downgrade = allow_downgrade)
+
+  def push_tag(self, tag):
+    git.push_tag(self.root, tag)
+    
+  def bump_tag(self, part = 'revision', push = True, dry_run = False):
+    git.bump_tag(self.root, part = part, push = push, dry_run = dry_run)
+    
 check.register_class(repo, name = 'git_repo')

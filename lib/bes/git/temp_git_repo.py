@@ -18,9 +18,7 @@ class temp_git_repo(object):
     r.init(*init_args)
     if content:
       check.check_string_seq(content)
-      r.write_temp_content(content)
-      r.add('.')
-      r.commit('add temp repo content', '.')
+      r.write_temp_content(content, commit = True)
     return r
 
   @classmethod

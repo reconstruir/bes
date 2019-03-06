@@ -7,6 +7,7 @@ from bes.archive import archiver
 
 from bes.git import git, status
 from bes.git.git_unit_test import git_unit_test
+from bes.git.temp_git_repo import temp_git_repo
 
 class test_git(unittest.TestCase):
 
@@ -88,6 +89,27 @@ class test_git(unittest.TestCase):
     self.assertEqual( ['1.0.0', '1.0.1', '1.0.10', '1.0.9'], git.list_tags(tmp_repo, lexical = True) )
     self.assertEqual( [ '1.0.10', '1.0.9', '1.0.1', '1.0.0' ], git.list_tags(tmp_repo, reverse = True) )
 
+  def test_tag_allow_downgrade_error(self):
+    tmp_repo = self._create_tmp_repo()
+    new_files = self._create_tmp_files(tmp_repo)
+    git.add(tmp_repo, new_files)
+    git.commit(tmp_repo, 'nomsg\n', '.')
+    git.tag(tmp_repo, '1.0.100')
+    self.assertEqual( '1.0.100', git.last_tag(tmp_repo) )
+    with self.assertRaises(ValueError) as ctx:
+      git.tag(tmp_repo, '1.0.99')
+    
+  def test_tag_allow_downgradex(self):
+    tmp_repo = self._create_tmp_repo()
+    new_files = self._create_tmp_files(tmp_repo)
+    git.add(tmp_repo, new_files)
+    git.commit(tmp_repo, 'nomsg\n', '.')
+    git.tag(tmp_repo, '1.0.100')
+    self.assertEqual( '1.0.100', git.last_tag(tmp_repo) )
+    git.tag(tmp_repo, '1.0.99', allow_downgrade = True)
+    self.assertEqual( '1.0.100', git.last_tag(tmp_repo) )
+    self.assertEqual( [ '1.0.99', '1.0.100' ], git.list_tags(tmp_repo) )
+    
   def test_read_gitignore(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
@@ -179,6 +201,30 @@ class test_git(unittest.TestCase):
       
     finally:
       os.environ['HOME'] = save_home
-      
+
+  def test_bump_tag(self):
+    r1 = temp_git_repo.make_temp_repo([ '--bare', '--shared' ])
+    r2 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r2.add_file('readme.txt', 'readme is good')
+    r2.push('origin', 'master')
+    r2.tag('1.0.0')
+    r2.push_tag('1.0.0')
+    self.assertEqual( '1.0.0', r2.last_tag() )
+    r2.bump_tag()
+
+    r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    self.assertEqual( '1.0.1', r3.last_tag() )
+
+  def test_bump_tag_empty(self):
+    r1 = temp_git_repo.make_temp_repo([ '--bare', '--shared' ])
+    r2 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r2.add_file('readme.txt', 'readme is good')
+    r2.push('origin', 'master')
+    self.assertEqual( None, r2.last_tag() )
+    r2.bump_tag()
+
+    r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    self.assertEqual( '1.0.0', r3.last_tag() )
+    
 if __name__ == "__main__":
   unittest.main()

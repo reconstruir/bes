@@ -272,8 +272,13 @@ class git(object):
     return [ i for i in clazz.branch_list(root) if i.active ][0].name
 
   @classmethod
-  def tag(clazz, root, tag):
-    clazz._call_git(root, [ 'tag', tag ])
+  def tag(clazz, root_dir, tag, allow_downgrade = False):
+    print(allow_downgrade)
+    last_tag = git.last_tag(root_dir)
+    if last_tag and not allow_downgrade:
+      if version_compare.compare(last_tag, tag) >= 0:
+        raise ValueError('new tag \"%s\" is older than \"%s\".  Use allow_downgrade to force it.' % (tag, last_tag))
+    clazz._call_git(root_dir, [ 'tag', tag ])
 
   @classmethod
   def push_tag(clazz, root, tag):
@@ -367,3 +372,21 @@ class git(object):
     return clazz._identity(clazz.config_get_value('user.name'),
                            clazz.config_get_value('user.email'))
     
+  _DELTA_MAP = {
+    'major': [ 1, 0, 0 ],
+    'minor': [ 0, 1, 0 ],
+    'revision': [ 0, 0, 1 ],
+  }
+  @classmethod
+  def bump_tag(clazz, root_dir, part, push, dry_run):
+    last_tag = git.last_tag(root_dir)
+    if last_tag:
+      new_tag = version_compare.change_version(last_tag, clazz._DELTA_MAP[part])
+    else:
+      new_tag = '1.0.0'
+    if dry_run:
+      return new_tag
+    git.tag(root_dir, new_tag)
+    if push:
+      git.push_tag(root_dir, new_tag)
+    return new_tag
