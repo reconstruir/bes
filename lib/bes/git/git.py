@@ -273,7 +273,6 @@ class git(object):
 
   @classmethod
   def tag(clazz, root_dir, tag, allow_downgrade = False):
-    print(allow_downgrade)
     last_tag = git.last_tag(root_dir)
     if last_tag and not allow_downgrade:
       if version_compare.compare(last_tag, tag) >= 0:
