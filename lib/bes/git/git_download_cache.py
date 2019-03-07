@@ -8,7 +8,7 @@ from .git import git
 from .git_util import git_util
 
 class git_download_cache(object):
-  'A git download cache.'
+  'A git download by revision cache.'
 
   def __init__(self, root_dir):
     self.root_dir = root_dir

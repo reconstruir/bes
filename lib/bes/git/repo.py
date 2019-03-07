@@ -7,7 +7,6 @@ from bes.fs.testing import temp_content
 from bes.version.version_compare import version_compare
 
 from .git import git
-from .git_util import git_util
 
 class repo(object):
   'A mini git repo abstraction.'
