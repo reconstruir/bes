@@ -42,25 +42,30 @@ class execute(object):
                                universal_newlines = universal_newlines)
 
     # http://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
+    stdout_lines = []
     if non_blocking:
       # Poll process for new output until finished
       while True:
         nextline = process.stdout.readline()
         if nextline == '' and process.poll() != None:
             break
+        stdout_lines.append(nextline)
         sys.stdout.write(nextline)
         sys.stdout.flush()
 
     output = process.communicate(input_data)
     exit_code = process.wait()
 
+    if stdout_lines:
+      output = ( '\n'.join(stdout_lines), output[1] )
+    
     if codec:
       stdout = codecs.decode(output[0], codec)
       stderr = codecs.decode(output[1], codec)
     else:
       stdout = output[0]
       stderr = output[1]
-    
+
     rv = clazz.Result(stdout, stderr, exit_code)
     if raise_error:
       if rv.exit_code != 0:
