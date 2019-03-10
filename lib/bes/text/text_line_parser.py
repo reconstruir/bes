@@ -353,3 +353,12 @@ class text_line_parser(object):
       new_line_number = 1
     self._lines.append(text_line(new_line_number, text))
 
+  def add_empty_lines(self):
+    'Add an empty line between every line.  This will renumber line numbers.'
+    new_lines = []
+    for i, line in enumerate(self._lines):
+      line_number = i + 1
+      if i > 0:
+        new_lines.append(text_line(line_number, ''))
+      new_lines.append(line)
+    self._lines = new_lines

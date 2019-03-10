@@ -648,6 +648,23 @@ wine''', str(l) )
     self.assertMultiLineEqual( '''\
 2 apple
 4 eggs''', str(l) )
+
+  def test_add_empty_lines(self):
+    text = '''\
+kiwi
+apple
+melon
+cheese'''
+    l = LTP(text)
+    l.add_empty_lines()
+    self.assertMultiLineEqual( '''\
+kiwi
+
+apple
+
+melon
+
+cheese''', str(l) )
     
 if __name__ == '__main__':
   unit_test.main()
