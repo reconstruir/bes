@@ -80,7 +80,7 @@ class git_util(object):
     tmp_dir = temp_file.make_temp_dir()
     r = repo(tmp_dir, address = address)
     r.clone()
-    last_tag = r.last_tag()
+    last_tag = r.last_local_tag()
     file_util.remove(tmp_dir)
     return last_tag
   
