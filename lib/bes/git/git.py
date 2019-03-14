@@ -383,21 +383,16 @@ class git(object):
     return clazz._identity(clazz.config_get_value('user.name'),
                            clazz.config_get_value('user.email'))
     
-  _DELTA_MAP = {
-    'major': [ 1, 0, 0 ],
-    'minor': [ 0, 1, 0 ],
-    'revision': [ 0, 0, 1 ],
-  }
+  _bump_tag_result = namedtuple('_bump_tag_result', 'old_tag, new_tag')
   @classmethod
-  def bump_tag(clazz, root_dir, part, push, dry_run):
-    last_tag = git.last_tag(root_dir)
-    if last_tag:
-      new_tag = version_compare.change_version(last_tag, clazz._DELTA_MAP[part])
+  def bump_tag(clazz, root_dir, component, push, dry_run):
+    old_tag = git.last_tag(root_dir)
+    if old_tag:
+      new_tag = version_compare.bump_version(old_tag, component = component, delimiter = '.')
     else:
       new_tag = '1.0.0'
-    if dry_run:
-      return new_tag
-    git.tag(root_dir, new_tag)
-    if push:
-      git.push_tag(root_dir, new_tag)
-    return new_tag
+    if not dry_run:
+      git.tag(root_dir, new_tag)
+      if push:
+        git.push_tag(root_dir, new_tag)
+    return clazz._bump_tag_result(old_tag, new_tag)
