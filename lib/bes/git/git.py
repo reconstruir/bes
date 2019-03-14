@@ -277,7 +277,7 @@ class git(object):
 
   @classmethod
   def tag(clazz, root_dir, tag, allow_downgrade = False):
-    last_tag = git.last_tag(root_dir)
+    last_tag = git.last_local_tag(root_dir)
     if last_tag and not allow_downgrade:
       if version_compare.compare(last_tag, tag) >= 0:
         raise ValueError('new tag \"%s\" is older than \"%s\".  Use allow_downgrade to force it.' % (tag, last_tag))
@@ -288,7 +288,7 @@ class git(object):
     clazz._call_git(root, [ 'push', 'origin', tag ])
 
   @classmethod
-  def delete_tag(clazz, root, tag):
+  def delete_local_tag(clazz, root, tag):
     clazz._call_git(root, [ 'tag', '--delete', tag ])
 
   @classmethod
@@ -296,7 +296,25 @@ class git(object):
     clazz._call_git(root, [ 'push', '--delete', 'origin', tag ])
 
   @classmethod
-  def list_tags(clazz, root, lexical = False, reverse = False):
+  def delete_tag(clazz, root, tag, where, dry_run):
+    assert where in [ 'local', 'remote', 'both' ]
+    if where in [ 'local', 'both' ]:
+      local_tags = git.list_local_tags(root)
+      if tag in local_tags:
+        if dry_run:
+          print('would delete local tag \"{tag}\"'.format(tag = tag))
+        else:
+          clazz.delete_local_tag(root, tag)
+    if where in [ 'remote', 'both' ]:
+      remote_tags = git.list_remote_tags(root)
+      if tag in remote_tags:
+        if dry_run:
+          print('would delete remote tag \"{tag}\"'.format(tag = tag))
+        else:
+          clazz.delete_remote_tag(root, tag)
+
+  @classmethod
+  def list_local_tags(clazz, root, lexical = False, reverse = False):
     if lexical:
       sort_arg = '--sort={reverse}refname'.format(reverse = '-' if reverse else '')
     else:
@@ -305,8 +323,8 @@ class git(object):
     return clazz._split_lines(rv.stdout)
   
   @classmethod
-  def last_tag(clazz, root):
-    tags = clazz.list_tags(root)
+  def last_local_tag(clazz, root):
+    tags = clazz.list_local_tags(root)
     if not tags:
       return None
     return tags[-1]
@@ -386,7 +404,7 @@ class git(object):
   _bump_tag_result = namedtuple('_bump_tag_result', 'old_tag, new_tag')
   @classmethod
   def bump_tag(clazz, root_dir, component, push, dry_run):
-    old_tag = git.last_tag(root_dir)
+    old_tag = git.last_local_tag(root_dir)
     if old_tag:
       new_tag = version_compare.bump_version(old_tag, component = component, delimiter = '.')
     else:

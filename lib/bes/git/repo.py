@@ -102,30 +102,30 @@ class repo(object):
   def read_file(self, filename):
     return file_util.read(path.join(self.root, filename))
 
-  def last_tag(self):
-    return git.last_tag(self.root)
+  def last_local_tag(self):
+    return git.last_local_tag(self.root)
 
-  def list_tags(self, lexical = False, reverse = False):
-    return git.list_tags(self.root, lexical = lexical, reverse = reverse)
+  def list_local_tags(self, lexical = False, reverse = False):
+    return git.list_local_tags(self.root, lexical = lexical, reverse = reverse)
 
-  def list_tags_gt(self, tag, lexical = False, reverse = False):
+  def list_local_tags_gt(self, tag, lexical = False, reverse = False):
     'List tags greater than tag'
-    tags = self.list_tags(lexical = lexical, reverse = reverse)
+    tags = self.list_local_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if version_compare.compare(t, tag) > 0 ]
     
-  def list_tags_ge(self, tag, lexical = False, reverse = False):
+  def list_local_tags_ge(self, tag, lexical = False, reverse = False):
     'List tags greater or equal to tag'
-    tags = self.list_tags(lexical = lexical, reverse = reverse)
+    tags = self.list_local_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if version_compare.compare(t, tag) >= 0 ]
     
-  def list_tags_le(self, tag, lexical = False, reverse = False):
+  def list_local_tags_le(self, tag, lexical = False, reverse = False):
     'List tags lesser or equal to tag'
-    tags = self.list_tags(lexical = lexical, reverse = reverse)
+    tags = self.list_local_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if version_compare.compare(t, tag) <= 0 ]
     
-  def list_tags_lt(self, tag, lexical = False, reverse = False):
+  def list_local_tags_lt(self, tag, lexical = False, reverse = False):
     'List tags lesser than tag'
-    tags = self.list_tags(lexical = lexical, reverse = reverse)
+    tags = self.list_local_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if version_compare.compare(t, tag) < 0 ]
     
   def list_remote_tags(self, lexical = False, reverse = False):
@@ -154,12 +154,16 @@ class repo(object):
   def tag(self, tag, allow_downgrade = True):
     git.tag(self.root, tag, allow_downgrade = allow_downgrade)
 
-  def delete_tag(self, tag):
-    git.delete_tag(self.root, tag)
+  def delete_local_tag(self, tag):
+    git.delete_local_tag(self.root, tag)
 
   def delete_remote_tag(self, tag):
     git.delete_remote_tag(self.root, tag)
 
+  @classmethod
+  def delete_tag(clazz, root, tag, where, dry_run):
+    return git.delete_tag(self.root, tag, where, dry_run)
+    
   def push_tag(self, tag):
     git.push_tag(self.root, tag)
     
