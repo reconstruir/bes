@@ -100,22 +100,39 @@ class version_compare(object):
     component=MINOR 1.2.3 -> 1.3.0
     component=MAJOR 1.2.3 -> 2.0.0
     '''
-    t = list(clazz.version_to_tuple(version))
+    version_tuple = list(clazz.version_to_tuple(version))
     if component is None:
       component = clazz.REVISION
     component = clazz._COMPONENT_MAP[component]
-    if len(t) < 3:
-      raise ValueError('version \"%s\" should have at least 3 components' % (version))
+    if len(version_tuple) == 3:
+      return clazz._bump_version_three_components(version_tuple, component, delimiter)
+    elif len(version_tuple) == 2:
+      return clazz._bump_version_two_components(version_tuple, component, delimiter)
+    elif len(version_tuple) == 1:
+      return clazz._bump_version_one_component(version_tuple, component, delimiter)
+    else:
+      raise ValueError('version \"%s\" should have at least 1, 2, or 3 components' % (version))
+
+  @classmethod
+  def _bump_version_three_components(clazz, version_tuple, component, delimiter):
+    '''
+    Bump a 3 component version.
+    component=REVISION 1.0.0 -> 1.0.1
+    component=MINOR 1.2.3 -> 1.3.0
+    component=MAJOR 1.2.3 -> 2.0.0
+    '''
+    assert len(version_tuple) == 3
     if component == clazz.MAJOR:
-      t[clazz.MINOR] = 0
-      t[clazz.REVISION] = 0
+      version_tuple[clazz.MINOR] = 0
+      version_tuple[clazz.REVISION] = 0
       deltas = [ 1, 0, 0 ]
     elif component == clazz.MINOR:
-      t[clazz.REVISION] = 0
+      version_tuple[clazz.REVISION] = 0
       deltas = [ 0, 1, 0 ]
     elif component == clazz.REVISION:
       deltas = [ 0, 0, 1 ]
     else:
       raise ValueError('Invalid component: %s' % (component))
-    rounded_version = delimiter.join([ str(c) for c in t ])
-    return version_compare.change_version(rounded_version, deltas)
+    string_version = delimiter.join([ str(c) for c in version_tuple ])
+    return version_compare.change_version(string_version, deltas)
+  

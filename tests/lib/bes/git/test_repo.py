@@ -212,6 +212,19 @@ class test_repo(unit_test):
     r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
     self.assertEqual( '1.0.0', r3.last_local_tag() )
 
+  def xtest_bump_two_components(self):
+    r1 = temp_git_repo.make_temp_repo([ '--bare', '--shared' ])
+    r2 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    r2.add_file('readme.txt', 'readme is good')
+    r2.push('origin', 'master')
+    r2.tag('1.0')
+    r2.push_tag('1.0')
+    self.assertEqual( '1.0', r2.last_local_tag() )
+    r2.bump_tag()
+
+    r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
+    self.assertEqual( '1.1', r3.last_local_tag() )
+    
   def test_list_local_tags_by_version(self):
     r = temp_git_repo.make_temp_repo()
     r.add_file('readme.txt', 'readme is good')
