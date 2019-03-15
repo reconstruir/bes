@@ -341,6 +341,13 @@ class git(object):
     return tags
 
   @classmethod
+  def last_remote_tag(clazz, root):
+    tags = clazz.list_remote_tags(root)
+    if not tags:
+      return None
+    return tags[-1]
+
+  @classmethod
   def _parse_remote_tag_line(clazz, s):
     f = re.findall('^[0-9a-f]{40}\s+refs/tags/(.+)$', s)
     if f and len(f) == 1:
@@ -403,12 +410,12 @@ class git(object):
     
   _bump_tag_result = namedtuple('_bump_tag_result', 'old_tag, new_tag')
   @classmethod
-  def bump_tag(clazz, root_dir, component, push, dry_run):
+  def bump_tag(clazz, root_dir, component = None, push = True, dry_run = False, default_tag = None):
     old_tag = git.last_local_tag(root_dir)
     if old_tag:
       new_tag = version_compare.bump_version(old_tag, component = component, delimiter = '.')
     else:
-      new_tag = '1.0.0'
+      new_tag = default_tag or '1.0.0'
     if not dry_run:
       git.tag(root_dir, new_tag)
       if push:

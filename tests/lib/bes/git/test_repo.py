@@ -212,7 +212,7 @@ class test_repo(unit_test):
     r3 = temp_git_repo.make_temp_cloned_repo(r1.root)
     self.assertEqual( '1.0.0', r3.last_local_tag() )
 
-  def xtest_bump_two_components(self):
+  def test_bump_two_components(self):
     r1 = temp_git_repo.make_temp_repo([ '--bare', '--shared' ])
     r2 = temp_git_repo.make_temp_cloned_repo(r1.root)
     r2.add_file('readme.txt', 'readme is good')

@@ -80,9 +80,9 @@ class properties(object):
   MAJOR = version_compare.MAJOR
   MINOR = version_compare.MINOR
   REVISION = version_compare.REVISION
-  def bump_version(self, key, component = None):
+  def bump_version(self, key, component = None, default_value = None):
     if not self.has_value(key):
-      self.set_value(key, '1.0.0')
+      self.set_value(key, default_value or '1.0.0')
       return
     old_version = self.get_value(key)
     new_version = version_compare.bump_version(old_version, component = component, delimiter = '.')

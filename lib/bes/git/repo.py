@@ -105,6 +105,9 @@ class repo(object):
   def last_local_tag(self):
     return git.last_local_tag(self.root)
 
+  def last_remote_tag(self):
+    return git.last_remote_tag(self.root)
+
   def list_local_tags(self, lexical = False, reverse = False):
     return git.list_local_tags(self.root, lexical = lexical, reverse = reverse)
 
@@ -167,7 +170,8 @@ class repo(object):
   def push_tag(self, tag):
     git.push_tag(self.root, tag)
     
-  def bump_tag(self, component = 'revision', push = True, dry_run = False):
-    git.bump_tag(self.root, component = component, push = push, dry_run = dry_run)
+  def bump_tag(self, component = None, push = True, dry_run = False, default_tag = None):
+    git.bump_tag(self.root, component = component, push = push,
+                 dry_run = dry_run, default_tag = default_tag)
     
 check.register_class(repo, name = 'git_repo')
