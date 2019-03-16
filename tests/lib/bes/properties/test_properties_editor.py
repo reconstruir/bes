@@ -2,7 +2,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
-from bes.git import git, temp_git_repo
 from bes.fs import file_util, temp_file
 
 from bes.testing.unit_test import unit_test

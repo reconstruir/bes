@@ -3,8 +3,6 @@
 
 from collections import namedtuple
 import os.path as path
-from bes.git import temp_git_repo
-from bes.fs import temp_file
 
 from bes.testing.unit_test import script_unit_test
 

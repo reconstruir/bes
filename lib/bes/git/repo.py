@@ -2,7 +2,7 @@
 
 import os.path as path
 from bes.common import check
-from bes.fs import file_type, file_util, file_find, temp_file
+from bes.fs import file_type, file_util, file_find
 from bes.fs.testing import temp_content
 from bes.version.version_compare import version_compare
 
@@ -65,17 +65,6 @@ class repo(object):
   def _dot_git_path(self):
     return path.join(self.root, '.git')
 
-  @classmethod
-  def make_temp_repo(clazz, address = None, content = None, delete = True):
-    tmp_dir = temp_file.make_temp_dir(delete = delete)
-    r = repo(tmp_dir, address = address)
-    r.init()
-    if content:
-      r.write_temp_content(content)
-      r.add('.')
-      r.commit('add temp content', '.')
-    return r
-  
   def find_all_files(self):
     #crit = [
     #  file_type_criteria(file_type.DIR | file_type.FILE | file_type.LINK),
@@ -99,8 +88,8 @@ class repo(object):
     self.add( [ filename ])
     self.commit('add %s' % (filename), [ filename ])
 
-  def read_file(self, filename):
-    return file_util.read(path.join(self.root, filename))
+  def read_file(self, filename, codec = None):
+    return file_util.read(path.join(self.root, filename), codec = codec)
 
   def last_local_tag(self):
     return git.last_local_tag(self.root)
@@ -163,8 +152,7 @@ class repo(object):
   def delete_remote_tag(self, tag):
     git.delete_remote_tag(self.root, tag)
 
-  @classmethod
-  def delete_tag(clazz, root, tag, where, dry_run):
+  def delete_tag(clazz, tag, where, dry_run):
     return git.delete_tag(self.root, tag, where, dry_run)
     
   def push_tag(self, tag):

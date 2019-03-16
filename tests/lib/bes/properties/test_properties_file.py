@@ -4,8 +4,7 @@
 from collections import namedtuple
 
 from os import path
-from bes.git import git, temp_git_repo
-from bes.fs import file_util, temp_file
+from bes.fs import temp_file
 
 from bes.testing.unit_test import unit_test
 from bes.properties.properties_file import properties_file as PF
