@@ -6,6 +6,7 @@ from bes.fs import file_type, file_util, temp_file
 from bes.fs.find import finder, criteria, file_type_criteria, max_depth_criteria, pattern_criteria
 from bes.compat import StringIO
 from bes.common import string_util
+
 from .repo import repo
 
 class git_util(object):
@@ -83,4 +84,3 @@ class git_util(object):
     last_tag = r.last_local_tag()
     file_util.remove(tmp_dir)
     return last_tag
-  
