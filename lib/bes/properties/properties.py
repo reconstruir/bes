@@ -20,8 +20,10 @@ class properties(object):
     properties = properties or {}
     self._properties = copy.deepcopy(properties)
 
-  def add(self, property):
-    self._properties.append(property)
+  def add(self, key, value):
+    check.check_string(key)
+    check.check_string(value)
+    self._properties[key] = value
     
   def to_yaml_text(self):
     buf = StringIO()
