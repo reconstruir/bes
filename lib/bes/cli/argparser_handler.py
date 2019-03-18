@@ -10,7 +10,7 @@ from bes.fs import file_check
 from bes.git import git
 
 class argparser_handler(object):
-  'A class to simplify the process of calling functions to handler argparser command'
+  'A class to simplify the process of calling functions to handle argparser commands'
 
   @classmethod
   def main(clazz, log_tag, parser, handler_object, command_group = None):
