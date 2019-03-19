@@ -39,8 +39,8 @@ class tar_util(object):
       exclude_flags_flat = ' '.join(exclude_flags)
     else:
       exclude_flags_flat = ''
-    cmd = '%s %s -C %s -pcf - . | ( cd %s ; %s -pxf - )' % (clazz.TAR_EXE, exclude_flags_flat,
-                                                            src_dir, dst_dir, clazz.TAR_EXE)
+    cmd = '%s %s -C \"%s\" -pcf - . | ( cd \"%s\" ; %s -pxf - )' % (clazz.TAR_EXE, exclude_flags_flat,
+                                                                    src_dir, dst_dir, clazz.TAR_EXE)
     with os.popen(cmd) as pipe:
       pipe.read()
       pipe.close()
