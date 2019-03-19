@@ -95,6 +95,8 @@ class check(object):
 
   @classmethod
   def check_dict(clazz, o, key_type = None, value_type = None, allow_none = False):
+    if allow_none and o is None:
+      return o
     o = clazz._check(o, dict, 2, allow_none = allow_none)
     if key_type or value_type:
       for key, value in o.items():
