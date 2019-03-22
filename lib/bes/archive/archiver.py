@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
-from bes.fs import file_cache, file_find
+from bes.fs import file_cache, file_find, temp_file
 from bes.system import host
 from .archive_tar import archive_tar
 from .archive_zip import archive_zip
@@ -94,12 +94,24 @@ class archiver(object):
     archive_class = clazz._determine_type_for_create(filename)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
-    return archive_class(filename).create(root_dir,
-                                          base_dir = base_dir,
-                                          extra_items = extra_items,
-                                          include = include,
-                                          exclude = exclude)
+    archive_class(filename).create(root_dir,
+                                   base_dir = base_dir,
+                                   extra_items = extra_items,
+                                   include = include,
+                                   exclude = exclude)
 
+  @classmethod
+  def create_temp_file(clazz, extension, root_dir, base_dir = None,
+                       extra_items = None,
+                       include = None, exclude = None):
+    if not archive_extension.is_valid_ext(extension):
+      raise ValueError('invalid extension: {}'.format(extension))
+    tmp_archive = temp_file.make_temp_file(suffix = '.' + extension)
+    archiver.create(tmp_archive, root_dir, base_dir = base_dir,
+                    extra_items = extra_items,
+                    include = include, exclude = exclude)
+    return tmp_archive
+  
   @classmethod
   def common_base(clazz, filename):
     archive_class = clazz._determine_type(filename)
