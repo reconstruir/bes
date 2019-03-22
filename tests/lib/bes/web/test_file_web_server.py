@@ -14,7 +14,7 @@ else:
   
 from bes.testing.unit_test import unit_test
 from bes.web import file_web_server, web_server_controller
-from bes.archive import archiver, temp_archive
+from bes.archive import archiver
 from bes.fs import file_mime, file_util, temp_file
 from bes.url import url_util
 from bes.fs.testing import temp_content

@@ -42,6 +42,8 @@ class test_http_download_cache(unit_test):
     self.assertFalse( cache.has_url(url) )
     self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url)) )
     self.assertTrue( cache.has_url(url) )
+
+    
     
     server.stop()
 
