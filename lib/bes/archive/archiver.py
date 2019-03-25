@@ -85,7 +85,13 @@ class archiver(object):
     archive_class = clazz._determine_type(archive)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (archive))
-    return archive_class(archive).extract_member_to_file(member, filename)
+    archive_class(archive).extract_member_to_file(member, filename)
+
+  @classmethod
+  def extract_member_to_temp_file(clazz, archive, member):
+    tmp_filename = temp_file.make_temp_file(suffix = '-' + path.basename(member))
+    clazz.extract_member_to_file(archive, member, tmp_filename)
+    return tmp_filename
 
   @classmethod
   def create(clazz, filename, root_dir, base_dir = None,
