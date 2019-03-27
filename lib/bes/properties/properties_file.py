@@ -12,13 +12,13 @@ class properties_file(object):
   '''
 
   @classmethod
-  def read_to_editor(clazz, filename, throw_error = True):
+  def read_to_editor(clazz, filename, throw_error = True, style = None):
     if not filename:
       return None
     filename = path.abspath(filename)
     if not path.exists(filename):
       raise IOError('properties file not found: %s' % (filename))
-    return properties_editor(filename)
+    return properties_editor(filename, style = style)
   
   @classmethod
   def read(clazz, filename, throw_error = True):

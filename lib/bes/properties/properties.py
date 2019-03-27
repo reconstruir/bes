@@ -31,36 +31,37 @@ class properties(object):
     check.check_string(key)
     check.check_string(value)
     self._properties[key] = value
+
+  @classmethod
+  def _check_style(clazz, style):
+    if style not in [ 'java', 'yaml' ]:
+      raise ValueError('invalid style \"{}\".  should be java or yaml.'.format(style))
+    
+  def to_text(self, style):
+    self._check_style(style)
+    buf = StringIO()
+    for key, value in sorted(self._properties.items()):
+      buf.write(self._key_value_to_str(style, key, value))
+      buf.write('\n')
+    value = buf.getvalue().strip() + '\n'
+    if value == '\n':
+      value = ''
+    return value
     
   def to_yaml_text(self):
-    buf = StringIO()
-    for key, value in sorted(self._properties.items()):
-      buf.write(self._key_value_to_yaml(key, value))
-      buf.write('\n')
-    value = buf.getvalue().strip() + '\n'
-    if value == '\n':
-      value = ''
-    return value
+    return self.to_text('yaml')
 
   def to_java_text(self):
-    buf = StringIO()
-    for key, value in sorted(self._properties.items()):
-      buf.write(self._key_value_to_java(key, value))
-      buf.write('\n')
-    value = buf.getvalue().strip() + '\n'
-    if value == '\n':
-      value = ''
-    return value
+    return self.to_text('java')
 
   @classmethod 
-  def _key_value_to_yaml(clazz, key, value):
-    return """{key}: {value}""".format(key = key,
-                                       value = clazz._value_to_yaml_string(value))
-  
-  @classmethod 
-  def _key_value_to_java(clazz, key, value):
-    return """{key}={value}""".format(key = key,
-                                      value = clazz._value_to_java_string(value))
+  def _key_value_to_str(clazz, style, key, value):
+    if style == 'yaml':
+      return """{key}: {value}""".format(key = key,
+                                         value = clazz._value_to_yaml_string(value))
+    else:
+      return """{key}={value}""".format(key = key,
+                                        value = clazz._value_to_java_string(value))
   
   @classmethod 
   def _value_to_yaml_string(clazz, value):
@@ -79,12 +80,16 @@ class properties(object):
       return True
     except:
       return False
-  
+
+  def save(self, style, filename):
+    self._check_style(style)
+    file_util.save(filename, content = self.to_text(style))
+
   def save_to_yaml_file(self, filename):
-    file_util.save(filename, content = self.to_yaml_text())
+    self.save('yaml', filename)
 
   def save_to_java_file(self, filename):
-    file_util.save(filename, content = self.to_java_text())
+    self.save('java', filename)
 
   def has_value(self, key):
     return key in self._properties
@@ -119,16 +124,6 @@ class properties(object):
     self.set_value(key, new_version)
 
   @classmethod
-  def _from_text(clazz, text, filename, delimiter):
-    check.check_string(text)
-    if not text:
-      return properties()
-    doc = clazz._parse_text(text, filename, delimiter)
-    if not check.is_dict(doc):
-      raise ValueError('not a yaml properties file: %s' % (filename))
-    return properties(properties = doc)
-
-  @classmethod
   def _parse_text(clazz, text, filename, delimiter):
     check.check_string(text)
     lines = text_line_parser.parse_lines(text, strip_comments = True, strip_text = True, remove_empties = True)
@@ -139,20 +134,39 @@ class properties(object):
     return result
 
   @classmethod
+  def from_text(clazz, style, text, filename):
+    clazz._check_style(style)
+    check.check_string(text)
+    if not text:
+      return properties()
+    if style == 'yaml':
+      delimiter = ':'
+    else:
+      delimiter = '='
+    doc = clazz._parse_text(text, filename, delimiter)
+    if not check.is_dict(doc):
+      raise ValueError('not a yaml properties file: %s' % (filename))
+    return properties(properties = doc)
+  
+  @classmethod
   def from_yaml_text(clazz, text, filename):
-    return clazz._from_text(text, filename, ':')
+    return clazz.from_text('yaml', text, filename)
 
   @classmethod
   def from_java_text(clazz, text, filename):
-    return clazz._from_text(text, filename, '=')
+    return clazz.from_text('java', text, filename)
+
+  @classmethod
+  def load(clazz, style, filename):
+    text = file_util.read(filename)
+    return clazz.from_text(style, text, filename)
   
   @classmethod
   def load_from_yaml_file(clazz, filename):
-    text = file_util.read(filename)
-    return clazz.from_yaml_text(text, filename)
+    assert False
+    return clazz.load('yaml', filename)
 
   @classmethod
   def load_from_java_file(clazz, filename):
-    text = file_util.read(filename)
-    return clazz.from_java_text(text, filename)
+    return clazz.load('java', filename)
   
