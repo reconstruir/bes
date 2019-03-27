@@ -2,7 +2,6 @@
 
 from os import path
 import copy
-#import yaml
 
 from bes.common import check, string_util
 from bes.compat import StringIO
@@ -13,7 +12,15 @@ from bes.version.version_compare import version_compare
 
 class properties(object):
   '''
-  A class to manage build properties.
+  A class to manage build properties.  Using either "java" or "yaml" style.
+
+  yaml:
+  foo: hi
+  bar: 123
+
+  java:
+  foo=hi
+  bar=123
   '''
 
   def __init__(self, properties = None):
@@ -35,15 +42,34 @@ class properties(object):
       value = ''
     return value
 
+  def to_java_text(self):
+    buf = StringIO()
+    for key, value in sorted(self._properties.items()):
+      buf.write(self._key_value_to_java(key, value))
+      buf.write('\n')
+    value = buf.getvalue().strip() + '\n'
+    if value == '\n':
+      value = ''
+    return value
+
   @classmethod 
   def _key_value_to_yaml(clazz, key, value):
     return """{key}: {value}""".format(key = key,
                                        value = clazz._value_to_yaml_string(value))
   
   @classmethod 
+  def _key_value_to_java(clazz, key, value):
+    return """{key}={value}""".format(key = key,
+                                      value = clazz._value_to_java_string(value))
+  
+  @classmethod 
   def _value_to_yaml_string(clazz, value):
     if clazz._value_is_number(value):
       return string_util.quote(value)
+    return value
+
+  @classmethod 
+  def _value_to_java_string(clazz, value):
     return value
   
   @classmethod 
@@ -55,8 +81,10 @@ class properties(object):
       return False
   
   def save_to_yaml_file(self, filename):
-    content = self.to_yaml_text()
-    file_util.save(filename, content = content)
+    file_util.save(filename, content = self.to_yaml_text())
+
+  def save_to_java_file(self, filename):
+    file_util.save(filename, content = self.to_java_text())
 
   def has_value(self, key):
     return key in self._properties
@@ -91,27 +119,40 @@ class properties(object):
     self.set_value(key, new_version)
 
   @classmethod
-  def from_yaml_text(clazz, text, filename):
+  def _from_text(clazz, text, filename, delimiter):
     check.check_string(text)
     if not text:
       return properties()
-    doc = clazz._parse_text(text, filename)
-    #doc = yaml.load(text)
+    doc = clazz._parse_text(text, filename, delimiter)
     if not check.is_dict(doc):
       raise ValueError('not a yaml properties file: %s' % (filename))
     return properties(properties = doc)
 
   @classmethod
-  def _parse_text(clazz, text, filename):
+  def _parse_text(clazz, text, filename, delimiter):
     check.check_string(text)
     lines = text_line_parser.parse_lines(text, strip_comments = True, strip_text = True, remove_empties = True)
     result = {}
     for line in lines:
-      kv = key_value.parse(line, delimiter = ':')
+      kv = key_value.parse(line, delimiter = delimiter)
       result[kv.key] = string_util.unquote(kv.value)
     return result
+
+  @classmethod
+  def from_yaml_text(clazz, text, filename):
+    return clazz._from_text(text, filename, ':')
+
+  @classmethod
+  def from_java_text(clazz, text, filename):
+    return clazz._from_text(text, filename, '=')
   
   @classmethod
   def load_from_yaml_file(clazz, filename):
     text = file_util.read(filename)
     return clazz.from_yaml_text(text, filename)
+
+  @classmethod
+  def load_from_java_file(clazz, filename):
+    text = file_util.read(filename)
+    return clazz.from_java_text(text, filename)
+  

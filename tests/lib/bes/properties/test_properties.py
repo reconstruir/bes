@@ -76,6 +76,38 @@ version: 1.2.3
       'status': 'doomed',
       'fruit': 'kiwi',
     }, a.properties() )
+
+  def test_load_from_empty_java(self):
+    text = ''
+    a = P.from_java_text('', '<unitest>')
+    self.assertEqual( [], a.keys() )
+  
+  def test_load_from_java(self):
+    text = '''\
+fruit=kiwi
+version=1.2.3
+status=doomed
+'''
+    a = P.from_java_text(text, '<unitest>')
+    self.assertEqual( 'kiwi', a.get_value('fruit') )
+    self.assertEqual( [ 'fruit', 'status', 'version' ], a.keys() )
     
+  def test_to_java_text(self):
+    a = P()
+    a.set_value('fruit', 'kiwi')
+    a.set_value('version', '1.2.3')
+    a.set_value('status', 'doomed')
+    
+    expected = '''\
+fruit=kiwi
+status=doomed
+version=1.2.3
+'''
+    self.assertMultiLineEqual( expected, a.to_java_text() )
+    
+  def test_to_java_text_empty(self):
+    a = P()
+    self.assertMultiLineEqual( '', a.to_java_text() )
+
 if __name__ == '__main__':
   unit_test.main()
