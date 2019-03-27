@@ -21,8 +21,8 @@ class properties_file(object):
     return properties_editor(filename, style = style)
   
   @classmethod
-  def read(clazz, filename, throw_error = True):
-    editor = clazz.read_to_editor(filename, throw_error = throw_error)
+  def read(clazz, filename, throw_error = True, style = None):
+    editor = clazz.read_to_editor(filename, throw_error = throw_error, style = style)
     if not editor:
       return {}
     return editor.properties()
