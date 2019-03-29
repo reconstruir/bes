@@ -47,10 +47,17 @@ class archiver(object):
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
     archive = archive_class(filename)
-    return archive.extract_all(dest_dir,
-                               base_dir = base_dir,
-                               strip_common_ancestor = strip_common_ancestor,
-                               strip_head = strip_head)
+    archive.extract_all(dest_dir,
+                        base_dir = base_dir,
+                        strip_common_ancestor = strip_common_ancestor,
+                        strip_head = strip_head)
+    
+  @classmethod
+  def extract_all_temp_dir(clazz, filename, base_dir = None,
+                           strip_common_ancestor = False, strip_head = None):
+    tmp_dir = temp_file.make_temp_dir()
+    clazz.extract_all(filename, tmp_dir, base_dir = base_dir,
+                      strip_common_ancestor = strip_common_ancestor, strip_head = strip_head)
 
   @classmethod
   def extract(clazz, filename, dest_dir, base_dir = None,
