@@ -107,6 +107,19 @@ class archiver(object):
                                    exclude = exclude)
 
   @classmethod
+  def recreate(clazz, archive, output_archive, base_dir):
+    'Recreate the archive with the new a base_dir.  output_archive can be same as archive.'
+    tmp_archive = clazz.recreate_temp_file(archive, base_dir)
+    file_util.rename(tmp_archive, output_archive)
+    
+  @classmethod
+  def recreate_temp_file(clazz, archive, base_dir):
+    'Recreate the archive to a temp file.'
+    tmp_dir = temp_file.make_temp_dir()
+    clazz.extract_all(archive, tmp_dir)
+    return clazz.create_temp_file(archive_extension.extension_for_filename(archive), tmp_dir, base_dir = base_dir)
+    
+  @classmethod
   def create_temp_file(clazz, extension, root_dir, base_dir = None,
                        extra_items = None,
                        include = None, exclude = None):
@@ -117,7 +130,7 @@ class archiver(object):
                     extra_items = extra_items,
                     include = include, exclude = exclude)
     return tmp_archive
-  
+
   @classmethod
   def common_base(clazz, filename):
     archive_class = clazz._determine_type(filename)

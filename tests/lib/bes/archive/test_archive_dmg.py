@@ -8,7 +8,6 @@ from bes.system import host
 from bes.archive.archive_extension import archive_extension
 from bes.archive.temp_archive import temp_archive
 from bes.archive.archive_dmg import archive_dmg
-from bes.archive.temp_archive import temp_archive
 from bes.testing.unit_test.unit_test_skip import raise_skip_if_not_platform
 
 #class test_archive_dmg(unit_test, common_archive_tests): # too slow
