@@ -4,7 +4,7 @@ import inspect
 
 from bes.common import check
 from bes.fs import temp_file
-from .repo import repo as git_repo
+from .git_repo import git_repo
 
 class _method_caller(object):
 
@@ -18,7 +18,7 @@ class _method_caller(object):
     assert callable(method)
     return method(*args, **kargs)
 
-class temp_git_repo(object):
+class git_temp_repo(object):
   '''
   A temp git repo for unit testing that is backed by a fake "remote" repo such
   that all operations mimic the behavior of working with a cloned repo.
@@ -36,7 +36,7 @@ class temp_git_repo(object):
                                              debug = self._debug)
     tmp_dir = temp_file.make_temp_dir(delete = not self._debug)
     if self._debug:
-      print('temp_git_repo: tmp_dir: %s' % (tmp_dir))
+      print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     self._local_repo = git_repo(tmp_dir, address = self._remote_repo.root)
     self._local_repo.clone()
     
@@ -50,7 +50,7 @@ class temp_git_repo(object):
   def _init_local(self, content):
     tmp_dir = temp_file.make_temp_dir(delete = not self._debug)
     if self._debug:
-      print('temp_git_repo: tmp_dir: %s' % (tmp_dir))
+      print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     self._local_repo = git_repo(tmp_dir, address = None)
     self._local_repo.init()
     if content:
@@ -70,7 +70,7 @@ class temp_git_repo(object):
   def make_temp_cloned_repo(self):
     tmp_dir = temp_file.make_temp_dir(delete = not self._debug)
     if self._debug:
-      print('temp_git_repo: tmp_dir: %s' % (tmp_dir))
+      print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     r = git_repo(tmp_dir, address = self._remote_repo.root)
     r.clone()
     return r
@@ -79,7 +79,7 @@ class temp_git_repo(object):
   def _make_temp_repo(clazz, init_args = None, content = None, debug = False):
     tmp_dir = temp_file.make_temp_dir(delete = not debug)
     if debug:
-      print('temp_git_repo: tmp_dir: %s' % (tmp_dir))
+      print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     r = git_repo(tmp_dir, address = None)
     init_args = init_args or []
     r.init(*init_args)

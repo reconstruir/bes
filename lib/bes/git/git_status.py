@@ -5,7 +5,7 @@ from bes.common import string_util
 from bes.compat import StringIO
 import copy
 
-class status(object):
+class git_status(object):
   'Git status of changes.'
 
   MODIFIED = 'M'
@@ -35,7 +35,7 @@ class status(object):
     return buf.getvalue()
     
   def __eq__(self, other):
-    if isinstance(other, status):
+    if isinstance(other, git_status):
       return self.__dict__ == other.__dict__
     elif isinstance(other, ( tuple, list )):
       return tuple(other) == self.as_tuple()

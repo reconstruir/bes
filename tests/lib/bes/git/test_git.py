@@ -5,7 +5,8 @@ import os.path as path, os, unittest
 from bes.fs import file_util, temp_file
 from bes.archive import archiver
 
-from bes.git import git, status
+from bes.git import git
+from bes.git.git_status import git_status
 from bes.git.git_unit_test import git_unit_test
 
 class test_git(unittest.TestCase):
@@ -34,7 +35,7 @@ class test_git(unittest.TestCase):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
-    expected_status = [ status(status.ADDED, f) for f in new_files ]
+    expected_status = [ git_status(git_status.ADDED, f) for f in new_files ]
     actual_status = git.status(tmp_repo, '.')
     self.assertEqual( expected_status, actual_status )
 
@@ -84,7 +85,7 @@ class test_git(unittest.TestCase):
     git.tag(tmp_repo, '1.0.9')
     git.tag(tmp_repo, '1.0.10')
     self.assertEqual( [ '1.0.0', '1.0.1', '1.0.9', '1.0.10' ], git.list_local_tags(tmp_repo) )
-    self.assertEqual( '1.0.10', git.last_local_tag(tmp_repo) )
+    self.assertEqual( '1.0.10', git.greatest_local_tag(tmp_repo) )
     self.assertEqual( ['1.0.0', '1.0.1', '1.0.10', '1.0.9'], git.list_local_tags(tmp_repo, lexical = True) )
     self.assertEqual( [ '1.0.10', '1.0.9', '1.0.1', '1.0.0' ], git.list_local_tags(tmp_repo, reverse = True) )
 
@@ -113,7 +114,7 @@ class test_git(unittest.TestCase):
     git.add(tmp_repo, new_files)
     git.commit(tmp_repo, 'nomsg\n', '.')
     git.tag(tmp_repo, '1.0.100')
-    self.assertEqual( '1.0.100', git.last_local_tag(tmp_repo) )
+    self.assertEqual( '1.0.100', git.greatest_local_tag(tmp_repo) )
     with self.assertRaises(ValueError) as ctx:
       git.tag(tmp_repo, '1.0.99')
     
@@ -123,9 +124,9 @@ class test_git(unittest.TestCase):
     git.add(tmp_repo, new_files)
     git.commit(tmp_repo, 'nomsg\n', '.')
     git.tag(tmp_repo, '1.0.100')
-    self.assertEqual( '1.0.100', git.last_local_tag(tmp_repo) )
+    self.assertEqual( '1.0.100', git.greatest_local_tag(tmp_repo) )
     git.tag(tmp_repo, '1.0.99', allow_downgrade = True)
-    self.assertEqual( '1.0.100', git.last_local_tag(tmp_repo) )
+    self.assertEqual( '1.0.100', git.greatest_local_tag(tmp_repo) )
     self.assertEqual( [ '1.0.99', '1.0.100' ], git.list_local_tags(tmp_repo) )
     
   def test_read_gitignore(self):

@@ -7,7 +7,7 @@ from bes.fs.find import finder, criteria, file_type_criteria, max_depth_criteria
 from bes.compat import StringIO
 from bes.common import string_util
 
-from .repo import repo
+from .git_repo import git_repo
 
 class git_util(object):
   'git util.'
@@ -74,12 +74,12 @@ class git_util(object):
     return len(h) == 7
 
   @classmethod
-  def repo_last_tag(clazz, address):
-    'Return the latest tag of a git project.'
+  def repo_greatest_tag(clazz, address):
+    'Return the greatest numeric tag of a git project by address.'
     tmp_dir, repo = clazz._clone_to_temp_dir(address)
-    last_tag = repo.last_local_tag()
+    greatest_tag = repo.greatest_local_tag()
     file_util.remove(tmp_dir)
-    return last_tag
+    return greatest_tag
 
   @classmethod
   def repo_bump_tag(clazz, address, component, dry_run):
@@ -92,7 +92,7 @@ class git_util(object):
   def _clone_to_temp_dir(clazz, address):
     'Clone a git address to a temp dir'
     tmp_dir = temp_file.make_temp_dir()
-    r = repo(tmp_dir, address = address)
+    r = git_repo(tmp_dir, address = address)
     r.clone()
     return tmp_dir, r
   

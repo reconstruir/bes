@@ -33,13 +33,20 @@ class execute(object):
       args = ' '.join(args)
       # FIXME: quoting ?
 
-    process = subprocess.Popen(args,
-                               stdout = stdout_pipe,
-                               stderr = stderr_pipe,
-                               shell = shell,
-                               cwd = cwd,
-                               env = env,
-                               universal_newlines = universal_newlines)
+    try:
+      process = subprocess.Popen(args,
+                                 stdout = stdout_pipe,
+                                 stderr = stderr_pipe,
+                                 shell = shell,
+                                 cwd = cwd,
+                                 env = env,
+                                 universal_newlines = universal_newlines)
+    except OSError as ex:
+      message = 'failed: {} - {}'.format(str(args), str(ex))
+      sys.stderr.write(message)
+      sys.stderr.write('\n')
+      sys.stderr.flush()
+      raise
 
     # http://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
     stdout_lines = []

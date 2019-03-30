@@ -7,7 +7,7 @@ from bes.fs import file_util, temp_file
 from .git import git
 from .git_util import git_util
 
-class git_download_cache(object):
+class git_archive_cache(object):
   'A git download by revision cache.'
 
   def __init__(self, root_dir):
@@ -47,4 +47,4 @@ class git_download_cache(object):
     tarball_filename = '%s.tar.gz' % (revision)
     return path.join(local_address_path, tarball_filename)
   
-check.register_class(git_download_cache, include_seq = False)
+check.register_class(git_archive_cache, include_seq = False)

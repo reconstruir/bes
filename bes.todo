@@ -170,14 +170,6 @@ see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-com
 - bes_test.py should write a retry.sh script that retries just the failed tests.
 - s/bes_source/bes_source_if
 
-2019-01-14
-- execute exception should have the command somehow
-
 2019-02-02
-- s/repo/git_repo/
-- git: s/download/archive
 - file_cache grows unbounded
 - use checksum_getter for file_cache
-
-2019-03-06
-- git: s/last_tag/greatest_tag/

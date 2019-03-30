@@ -8,7 +8,7 @@ from bes.version.version_compare import version_compare
 
 from .git import git
 
-class repo(object):
+class git_repo(object):
   'A mini git repo abstraction.'
 
   def __init__(self, root, address = None):
@@ -91,11 +91,11 @@ class repo(object):
   def read_file(self, filename, codec = None):
     return file_util.read(path.join(self.root, filename), codec = codec)
 
-  def last_local_tag(self):
-    return git.last_local_tag(self.root)
+  def greatest_local_tag(self):
+    return git.greatest_local_tag(self.root)
 
-  def last_remote_tag(self):
-    return git.last_remote_tag(self.root)
+  def greatest_remote_tag(self):
+    return git.greatest_remote_tag(self.root)
 
   def list_local_tags(self, lexical = False, reverse = False):
     return git.list_local_tags(self.root, lexical = lexical, reverse = reverse)
@@ -162,4 +162,4 @@ class repo(object):
     git.bump_tag(self.root, component = component, push = push,
                  dry_run = dry_run, default_tag = default_tag)
     
-check.register_class(repo, name = 'git_repo')
+check.register_class(git_repo)

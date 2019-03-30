@@ -11,7 +11,7 @@ from bes.fs import dir_util, file_ignore, file_util, tar_util, temp_file
 from bes.fs.file_ignore import ignore_file_data
 from bes.version.version_compare import version_compare
 
-from .status import status
+from .git_status import git_status
 
 class git(object):
   'A class to deal with git.'
@@ -32,7 +32,7 @@ class git(object):
       flags.append('--untracked-files=no')
     args = [ 'status' ] + flags + filenames
     rv = clazz._call_git(root, args)
-    result = status.parse(rv.stdout)
+    result = git_status.parse(rv.stdout)
     if abspath:
       for r in result:
         r.filename = path.join(root, r.filename)
@@ -277,10 +277,10 @@ class git(object):
 
   @classmethod
   def tag(clazz, root_dir, tag, allow_downgrade = False):
-    last_tag = git.last_local_tag(root_dir)
-    if last_tag and not allow_downgrade:
-      if version_compare.compare(last_tag, tag) >= 0:
-        raise ValueError('new tag \"%s\" is older than \"%s\".  Use allow_downgrade to force it.' % (tag, last_tag))
+    greatest_tag = git.greatest_local_tag(root_dir)
+    if greatest_tag and not allow_downgrade:
+      if version_compare.compare(greatest_tag, tag) >= 0:
+        raise ValueError('new tag \"%s\" is older than \"%s\".  Use allow_downgrade to force it.' % (tag, greatest_tag))
     clazz._call_git(root_dir, [ 'tag', tag ])
 
   @classmethod
@@ -323,7 +323,7 @@ class git(object):
     return clazz._split_lines(rv.stdout)
   
   @classmethod
-  def last_local_tag(clazz, root):
+  def greatest_local_tag(clazz, root):
     tags = clazz.list_local_tags(root)
     if not tags:
       return None
@@ -341,7 +341,7 @@ class git(object):
     return tags
 
   @classmethod
-  def last_remote_tag(clazz, root):
+  def greatest_remote_tag(clazz, root):
     tags = clazz.list_remote_tags(root)
     if not tags:
       return None
@@ -411,7 +411,7 @@ class git(object):
   _bump_tag_result = namedtuple('_bump_tag_result', 'old_tag, new_tag')
   @classmethod
   def bump_tag(clazz, root_dir, component = None, push = True, dry_run = False, default_tag = None):
-    old_tag = git.last_local_tag(root_dir)
+    old_tag = git.greatest_local_tag(root_dir)
     if old_tag:
       new_tag = version_compare.bump_version(old_tag, component = component, delimiter = '.')
     else:
