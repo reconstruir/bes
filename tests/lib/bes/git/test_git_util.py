@@ -37,18 +37,32 @@ class test_git_util(unit_test):
     r1.add_file('readme.txt', 'readme is good')
     r1.push('origin', 'master')
 
-    git_util.repo_bump_tag(r1.address, None, False)
+    rv = git_util.repo_bump_tag(r1.address, None, False)
+    self.assertEqual( ( None, '1.0.0' ), rv )
     r2.pull()
     self.assertEqual( '1.0.0', r2.greatest_local_tag() )
 
-    git_util.repo_bump_tag(r1.address, None, False)
+    rv = git_util.repo_bump_tag(r1.address, None, False)
+    self.assertEqual( ( '1.0.0', '1.0.1' ), rv )
     r2.pull()
     self.assertEqual( '1.0.1', r2.greatest_local_tag() )
 
-    git_util.repo_bump_tag(r1.address, None, False)
+    rv = git_util.repo_bump_tag(r1.address, None, False)
+    self.assertEqual( ( '1.0.1', '1.0.2' ), rv )
     r2.pull()
     self.assertEqual( '1.0.2', r2.greatest_local_tag() )
-  
+
+  def test_repo_bump_tag_dry_run(self):
+    r1 = git_temp_repo()
+    r2 = r1.make_temp_cloned_repo()
+    r1.add_file('readme.txt', 'readme is good')
+    r1.push('origin', 'master')
+
+    rv = git_util.repo_bump_tag(r1.address, None, True)
+    self.assertEqual( ( None, '1.0.0' ), rv )
+    r2.pull()
+    self.assertEqual( None, r2.greatest_local_tag() )
+
   def test_repo_bump_tag_single_number(self):
     r1 = git_temp_repo()
     r2 = r1.make_temp_cloned_repo()

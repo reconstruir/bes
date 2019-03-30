@@ -159,7 +159,7 @@ class git_repo(object):
     git.push_tag(self.root, tag)
     
   def bump_tag(self, component = None, push = True, dry_run = False, default_tag = None):
-    git.bump_tag(self.root, component = component, push = push,
-                 dry_run = dry_run, default_tag = default_tag)
+    return git.bump_tag(self.root, component = component, push = push,
+                        dry_run = dry_run, default_tag = default_tag)
     
 check.register_class(git_repo)

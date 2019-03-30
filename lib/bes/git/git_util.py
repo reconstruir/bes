@@ -85,8 +85,9 @@ class git_util(object):
   def repo_bump_tag(clazz, address, component, dry_run):
     'Bump the tag of a repo by address.'
     tmp_dir, repo = clazz._clone_to_temp_dir(address)
-    repo.bump_tag(component = component, push = True, dry_run = dry_run)
+    result = repo.bump_tag(component = component, push = True, dry_run = dry_run)
     file_util.remove(tmp_dir)
+    return result
   
   @classmethod
   def _clone_to_temp_dir(clazz, address):
