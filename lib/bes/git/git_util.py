@@ -74,13 +74,25 @@ class git_util(object):
     return len(h) == 7
 
   @classmethod
-  def latest_tag(clazz, address):
-    '''
-    Return the latest tag of a git project.
-    '''
+  def repo_last_tag(clazz, address):
+    'Return the latest tag of a git project.'
+    tmp_dir, repo = clazz._clone_to_temp_dir(address)
+    last_tag = repo.last_local_tag()
+    file_util.remove(tmp_dir)
+    return last_tag
+
+  @classmethod
+  def repo_bump_tag(clazz, address, component, dry_run):
+    'Bump the tag of a repo by address.'
+    tmp_dir, repo = clazz._clone_to_temp_dir(address)
+    repo.bump_tag(component = component, push = True, dry_run = dry_run)
+    file_util.remove(tmp_dir)
+  
+  @classmethod
+  def _clone_to_temp_dir(clazz, address):
+    'Clone a git address to a temp dir'
     tmp_dir = temp_file.make_temp_dir()
     r = repo(tmp_dir, address = address)
     r.clone()
-    last_tag = r.last_local_tag()
-    file_util.remove(tmp_dir)
-    return last_tag
+    return tmp_dir, r
+  
