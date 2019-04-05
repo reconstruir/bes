@@ -49,4 +49,9 @@ class tuple_util(object):
       index = tuple_fields.index(field)
       l[index] = value
     return t.__class__(*l)
-  
+
+  @staticmethod
+  def to_key_value_list(t):
+    if not tuple_util.is_named_tuple(t):
+      raise TypeError('not a namedtuple: %s - %s' % (str(t), type(t)))
+    return [ ( key, value ) for ( key, value ) in zip(t._fields, list(t)) ]
