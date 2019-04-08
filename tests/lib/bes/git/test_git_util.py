@@ -78,6 +78,21 @@ class test_git_util(unit_test):
     git_util.repo_bump_tag(r1.address, None, False)
     r2.pull()
     self.assertEqual( '668', r2.greatest_local_tag() )
-  
+
+  def test_repo_run_script(self):
+    r = git_temp_repo()
+    content = '''\
+#!/bin/bash
+echo kiwi.sh ${1+"$@"}
+exit 0
+'''
+    r.add_file('fruits/kiwi.sh', content, mode = 0o0755)
+    r.push('origin', 'master')
+    r.tag('1.0.0')
+    r.push_tag('1.0.0')
+    rv = git_util.repo_run_script(r.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], False)
+    self.assertEqual( 0, rv.exit_code )
+    self.assertEqual( 'kiwi.sh arg1 arg2', rv.stdout.strip() )
+    
 if __name__ == '__main__':
   unit_test.main()

@@ -81,15 +81,18 @@ class git_repo(object):
   def remote_origin_url(self):
     return git.remote_origin_url(selfroot)
 
-  def add_file(self, filename, content):
+  def add_file(self, filename, content, mode = None):
     p = path.join(self.root, filename)
     assert not path.isfile(p)
-    file_util.save(p, content = content)
+    file_util.save(p, content = content, mode = mode)
     self.add( [ filename ])
     self.commit('add %s' % (filename), [ filename ])
 
   def read_file(self, filename, codec = None):
     return file_util.read(path.join(self.root, filename), codec = codec)
+
+  def has_file(self, filename):
+    return path.exists(path.join(self.root, filename))
 
   def greatest_local_tag(self):
     return git.greatest_local_tag(self.root)

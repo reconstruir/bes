@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
@@ -6,6 +5,7 @@ from bes.fs import file_type, file_util, temp_file
 from bes.fs.find import finder, criteria, file_type_criteria, max_depth_criteria, pattern_criteria
 from bes.compat import StringIO
 from bes.common import string_util
+from bes.system import execute
 
 from .git_repo import git_repo
 
@@ -97,3 +97,15 @@ class git_util(object):
     r.clone()
     return tmp_dir, r
   
+  @classmethod
+  def repo_run_script(clazz, address, script, args, dry_run):
+    tmp_dir, repo = clazz._clone_to_temp_dir(address)
+    if not repo.has_file(script):
+      raise IOError('script not found in {}/{}'.format(address, script))
+    if dry_run:
+      print('would run {}/{} {}'.format(address, script, args or ''))
+      return None
+    cmd = [ script ]
+    if args:
+      cmd.extend(args)
+    return execute.execute(cmd, cwd = repo.root)
