@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path
-from bes.fs import file_type, file_util, temp_file
+import os, os.path as path
+from bes.fs import file_find, file_type, file_util, temp_file
 from bes.fs.find import finder, criteria, file_type_criteria, max_depth_criteria, pattern_criteria
 from bes.compat import StringIO
 from bes.common import string_util
@@ -109,3 +109,10 @@ class git_util(object):
     if args:
       cmd.extend(args)
     return execute.execute(cmd, cwd = repo.root)
+
+  @classmethod
+  def find_root_dir(clazz, start_dir = None):
+    'Find the root of a git repo starting at start_dir or None if not found.'
+    start_dir = start_dir or os.getcwd()
+    return file_find.find_in_ancestors(start_dir, '.git')
+  
