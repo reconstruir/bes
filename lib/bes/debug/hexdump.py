@@ -7,8 +7,8 @@ from collections import namedtuple
 
 class hexdump(object):
 
-  _item = namedtuple('_item', 'value,hexlified,printable')
-  _word = namedtuple('_word', 'hexlified,asciified')
+  _item = namedtuple('_item', 'value, hexlified, printable')
+  _word = namedtuple('_word', 'hexlified, asciified')
 
   @classmethod
   def stream(clazz, stream, wordsize = 4, columns = 8, delimiter = ' ', show_ascii = False, show_offset = False):
@@ -75,9 +75,8 @@ class hexdump(object):
     hexlified = binascii.hexlify(b).decode('utf-8')
     value = int(hexlified, 16)
     if value >= 33 and value <= 127:
-      printable = codecs.encode(binascii.hexlify(b), 'hex').decode('utf-8')
+      printable = chr(value)
     else:
       printable = '.'
     item = clazz._item(b, hexlified, printable)
-    #print("CACA: item=%s" % (str(item)))
     return item
