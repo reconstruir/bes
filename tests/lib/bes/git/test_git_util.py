@@ -90,9 +90,43 @@ exit 0
     r.push('origin', 'master')
     r.tag('1.0.0')
     r.push_tag('1.0.0')
-    rv = git_util.repo_run_script(r.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], False)
+    rv = git_util.repo_run_script(r.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], False, False)
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( 'kiwi.sh arg1 arg2', rv.stdout.strip() )
+    
+  def test_repo_run_script_dry_run(self):
+    r = git_temp_repo()
+    content = '''\
+#!/bin/bash
+echo kiwi.sh ${1+"$@"}
+exit 0
+'''
+    r.add_file('fruits/kiwi.sh', content, mode = 0o0755)
+    r.push('origin', 'master')
+    r.tag('1.0.0')
+    r.push_tag('1.0.0')
+    rv = git_util.repo_run_script(r.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], False, True)
+    self.assertEqual( None, rv )
+
+  def test_repo_run_script(self):
+    r1 = git_temp_repo()
+    content = '''\
+#!/bin/bash
+echo yellow > color.txt
+git add color.txt
+git commit -madd color.txt
+exit 0
+'''
+    r1.add_file('fruits/kiwi.sh', content, mode = 0o0755)
+    r1.push('origin', 'master')
+    r1.tag('1.0.0')
+    r1.push_tag('1.0.0')
+    rv = git_util.repo_run_script(r1.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], True, False)
+    self.assertEqual( 0, rv.exit_code )
+    #self.assertEqual( 'kiwi.sh arg1 arg2', rv.stdout.strip() )
+
+    r2 = r1.make_temp_cloned_repo()
+    self.assertEqual( 'yellow', r2.read_file('color.txt').strip() )
     
 if __name__ == '__main__':
   unit_test.main()

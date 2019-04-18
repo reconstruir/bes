@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import struct
 from .bitwise_word import bitwise_word
@@ -9,7 +8,7 @@ class bitwise_unpack(object):
   LE = '<'
   BE = '>'
   
-  _UNPACK_FORMATS = {
+  _INT_UNPACK_FORMATS = {
     LE: {
       1: '<B',
       2: '<H',
@@ -24,7 +23,7 @@ class bitwise_unpack(object):
     },
   }
 
-  _PACK_FORMATS = {
+  _INT_PACK_FORMATS = {
     LE: {
       1: '< B',
       2: '< H',
@@ -39,13 +38,48 @@ class bitwise_unpack(object):
     },
   }
 
+  _REAL_UNPACK_FORMATS = {
+    LE: {
+      4: '<f',
+      8: '<d',
+    },
+    BE: {
+      4: '>f',
+      8: '>d',
+    },
+  }
+
+  _REAL_PACK_FORMATS = {
+    LE: {
+      4: '< f',
+      8: '< d',
+    },
+    BE: {
+      4: '> f',
+      8: '> d',
+    },
+  }
+
   DEFAULT_ENDIAN = LE
   
   @classmethod
   def unpack(clazz, data, size, endian = DEFAULT_ENDIAN):
     assert size in [ 1, 2, 4, 8 ]
-    return struct.unpack(clazz._UNPACK_FORMATS[endian][size], data)[0]
+    return struct.unpack(clazz._INT_UNPACK_FORMATS[endian][size], data)[0]
 
+  @classmethod
+  def unpack_real(clazz, data, size, endian = DEFAULT_ENDIAN):
+    assert size in [ 4, 8 ]
+    return struct.unpack(clazz._REAL_UNPACK_FORMATS[endian][size], data)[0]
+
+  @classmethod
+  def unpack_float(clazz, data, endian = DEFAULT_ENDIAN):
+    return clazz.unpack_real(data, 4, endian = endian)
+  
+  @classmethod
+  def unpack_double(clazz, data, endian = DEFAULT_ENDIAN):
+    return clazz.unpack_real(data, 8, endian = endian)
+  
   @classmethod
   def unpack_bits(clazz, data, size, slices, endian = DEFAULT_ENDIAN):
     assert size in [ 1, 2, 4, 8 ]
@@ -76,6 +110,10 @@ class bitwise_unpack(object):
     return clazz.unpack(data, 64, endian = endian)
   
   @classmethod
+  def unpack_float(clazz, data, endian = DEFAULT_ENDIAN):
+    return clazz.unpack(data, 64, endian = endian)
+  
+  @classmethod
   def unpack_u8_bits(clazz, data, slices, endian = DEFAULT_ENDIAN):
     return clazz.unpack_bits(data, 1, slices, endian = endian)
 
@@ -94,8 +132,15 @@ class bitwise_unpack(object):
   @classmethod
   def pack(clazz, i, size, endian = DEFAULT_ENDIAN):
     assert size in [ 1, 2, 4, 8 ]
-    format = clazz._PACK_FORMATS[endian][size]
+    format = clazz._INT_PACK_FORMATS[endian][size]
     result = struct.Struct(format).pack(i)
+    return result
+
+  @classmethod
+  def pack_real(clazz, r, size, endian = DEFAULT_ENDIAN):
+    assert size in [ 4, 8 ]
+    format = clazz._REAL_PACK_FORMATS[endian][size]
+    result = struct.Struct(format).pack(r)
     return result
 
   @classmethod

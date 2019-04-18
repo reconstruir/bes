@@ -98,17 +98,20 @@ class git_util(object):
     return tmp_dir, r
   
   @classmethod
-  def repo_run_script(clazz, address, script, args, dry_run):
+  def repo_run_script(clazz, address, script, args, push, dry_run):
     tmp_dir, repo = clazz._clone_to_temp_dir(address)
     if not repo.has_file(script):
       raise IOError('script not found in {}/{}'.format(address, script))
     if dry_run:
-      print('would run {}/{} {}'.format(address, script, args or ''))
+      print('would run {}/{} {} push={}'.format(address, script, args or '', push))
       return None
     cmd = [ script ]
     if args:
       cmd.extend(args)
-    return execute.execute(cmd, cwd = repo.root)
+    rv = execute.execute(cmd, cwd = repo.root)
+    if push:
+      repo.push()
+    return rv
 
   @classmethod
   def find_root_dir(clazz, start_dir = None):
