@@ -4,7 +4,7 @@
 from os import path
 
 from bes.testing.unit_test import unit_test
-from bes.properties.properties import properties as P
+from bes.properties_file.properties import properties as P
 
 class test_properties(unit_test):
 

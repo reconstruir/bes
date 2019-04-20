@@ -5,7 +5,7 @@ from os import path
 from bes.fs import file_util, temp_file
 
 from bes.testing.unit_test import unit_test
-from bes.properties.properties_editor import properties_editor as PE
+from bes.properties_file.properties_editor import properties_editor as PE
 
 class test_properties_editor(unit_test):
 

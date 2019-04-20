@@ -7,7 +7,7 @@ from os import path
 from bes.fs import temp_file
 
 from bes.testing.unit_test import unit_test
-from bes.properties.properties_file import properties_file as PF
+from bes.properties_file.properties_file import properties_file as PF
 
 class test_properties_file(unit_test):
 
