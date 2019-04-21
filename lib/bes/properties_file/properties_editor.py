@@ -1,7 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
-from bes.common import cached_property, check
+from bes.common import check
+from bes.property.cached_property import cached_property
 from bes.fs import file_util
 
 from .properties import properties

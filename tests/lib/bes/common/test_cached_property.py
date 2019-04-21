@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import unittest
-from bes.common import cached_property
+from bes.property.cached_property import cached_property
 
 class test_cached_property(unittest.TestCase):
 

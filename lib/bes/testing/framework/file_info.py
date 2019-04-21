@@ -1,9 +1,9 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
 from collections import namedtuple
-from bes.common import cached_property, check
+from bes.common import check
+from bes.property.cached_property import cached_property
 from bes.fs import file_util
 from bes.git import git
 

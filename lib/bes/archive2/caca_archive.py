@@ -5,7 +5,8 @@ from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 from collections import namedtuple
 
-from bes.common import algorithm, cached_property
+from bes.common import algorithm
+from bes.property.cached_property import cached_property
 from bes.fs import file_find, file_path, file_util, tar_util, temp_file
 from bes.match import matcher_multiple_filename, matcher_always_false, matcher_always_true, matcher_util
 
