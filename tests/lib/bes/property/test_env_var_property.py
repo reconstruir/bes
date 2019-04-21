@@ -51,5 +51,11 @@ class test_env_var_property(unit_test):
       self.assertEqual( 'yellow', f.color )
       self.assertEqual( '/tmp/foo/tart', f.flavor )
     
+  def test_env_var_tilde_and_var(self):
+    f = self.fruit('yellow', '~/${FLAVOR}')
+    with env_override( { 'HOME': '/tmp/foo/', 'FLAVOR': 'tart' }) as env:
+      self.assertEqual( 'yellow', f.color )
+      self.assertEqual( '/tmp/foo/tart', f.flavor )
+    
 if __name__ == '__main__':
   unit_test.main()
