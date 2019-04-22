@@ -22,25 +22,44 @@ class web_server(with_metaclass(ABCMeta, object)):
                                 format % args)
       self.log_i(m)
       
-  def __init__(self, port = None, log_tag = None):
+  def __init__(self, port = None, log_tag = None, users = None):
     log.add_logging(self, tag = log_tag or 'web_server')
     self.log_i('web_server(port=%s)' % (port))
     self._requested_port = port
     self.address = None
     self._process = None
     self._port_queue = multiprocessing.Queue()
+    self._users = users or {}
     
   @abstractmethod
   def handle_request(self, environ, start_response):
     pass
-    
+
+  _ERROR_403_HTML = '''
+<html>
+  <head>
+    <title>403 - Wrong username or password</title>
+  </head>
+  <body>
+    <h1>403 - Wrong username or password</h1>
+  </body>
+</html>
+'''
+  
   def _server_process(self):
 
     def _handler(environ, start_response):
       self.log_i('calling handle_request()')
       self.headers = self._get_headers(environ)
-      result = self.handle_request(environ, start_response)
-      return result
+
+      auth = environ.get('HTTP_AUTHORIZATION')
+      if auth:
+        scheme, data = auth.split(None, 1)
+        assert scheme.lower() == 'basic'
+        username, password = data.decode('base64').split(':', 1)
+        if not username in self._users:
+          return self.response_error(start_response, '403 Not supported', self._ERROR_403_HTML)
+      return self.handle_request(environ, start_response)
     httpd = simple_server.make_server('', self._requested_port or 0, _handler, handler_class = self.handler)
     httpd.allow_reuse_address = True
     address = httpd.socket.getsockname()
@@ -48,6 +67,13 @@ class web_server(with_metaclass(ABCMeta, object)):
     self._port_queue.put(address)
     self.log_i('calling serve_forever()')
     httpd.serve_forever()
+
+  def response_error(self, start_response, blurb, html_error):
+    start_response(blurb, [
+      ( 'Content-Type', 'text/html' ),
+      ( 'Content-Length', str(len(html_error)) ),
+    ])
+    return iter([ html_error ])
     
   def start(self):
     self._process = multiprocessing.Process(name = 'web_server', target = self._server_process)
