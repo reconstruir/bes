@@ -21,15 +21,13 @@ from bes.fs.testing import temp_content
 
 class test_file_web_server(unit_test):
 
-  DEBUG = unit_test.DEBUG
-
   @classmethod
   def _make_temp_content(clazz, items):
     tmp_dir = temp_file.make_temp_dir()
     temp_content.write_items(items, tmp_dir)
     return tmp_dir
   
-  def test_tarball_server(self):
+  def test_download(self):
     tmp_dir = self._make_temp_content([
       'file foo.txt "this is foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
@@ -40,6 +38,35 @@ class test_file_web_server(unit_test):
 
     server = web_server_controller(file_web_server)
     server.start(root_dir = tmp_dir)
+    port = server.address[1]
+
+    url = self._make_url(port, 'foo.txt')
+    tmp = url_util.download_to_temp_file(url)
+    self.assertEqual( 'text/plain', file_mime.mime_type(tmp).mime_type )
+    self.assertEqual( 'this is foo.txt\n', file_util.read(tmp, codec = 'utf8') )
+
+    url = self._make_url(port, 'subdir/subberdir/baz.txt')
+    tmp = url_util.download_to_temp_file(url)
+    self.assertEqual( 'text/plain', file_mime.mime_type(tmp).mime_type )
+    self.assertEqual( 'this is baz.txt\n', file_util.read(tmp, codec = 'utf8') )
+
+    with self.assertRaises(HTTPError) as ctx:
+      url = self._make_url(port, 'notthere.txt')
+      tmp = url_util.download_to_temp_file(url)
+
+    server.stop()
+
+  def test_download_with_auth(self):
+    tmp_dir = self._make_temp_content([
+      'file foo.txt "this is foo.txt\n"',
+      'file subdir/bar.txt "bar.txt\n"',
+      'file subdir/subberdir/baz.txt "this is baz.txt\n"',
+      'file emptyfile.txt',
+      'dir emptydir',
+    ])
+
+    server = web_server_controller(file_web_server)
+    server.start(root_dir = tmp_dir, users = { 'fred': 'flintpass' })
     port = server.address[1]
 
     url = self._make_url(port, 'foo.txt')

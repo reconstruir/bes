@@ -7,6 +7,7 @@ from wsgiref import simple_server
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 from bes.system import log
+from bes.fs import file_mime, file_util
 
 class web_server(with_metaclass(ABCMeta, object)):
 
@@ -35,16 +36,24 @@ class web_server(with_metaclass(ABCMeta, object)):
   def handle_request(self, environ, start_response):
     pass
 
-  _ERROR_403_HTML = '''
+  ERROR_HTML_TEMPLATE = '''
 <html>
   <head>
-    <title>403 - Wrong username or password</title>
+    <title>{blurb}</title>
   </head>
   <body>
-    <h1>403 - Wrong username or password</h1>
+    <h1>{blurb}</h1>
   </body>
 </html>
 '''
+
+  SUCCESS_200_BLURB = '200 OK'
+  
+  ERROR_403_BLURB = '403 - Wrong username or password'
+  ERROR_404_BLURB = '404 Not Found'
+
+  ERROR_403_HTML = ERROR_HTML_TEMPLATE.format(blurb = ERROR_403_BLURB)
+  ERROR_404_HTML = ERROR_HTML_TEMPLATE.format(blurb = ERROR_404_BLURB)
   
   def _server_process(self):
 
@@ -58,7 +67,7 @@ class web_server(with_metaclass(ABCMeta, object)):
         assert scheme.lower() == 'basic'
         username, password = data.decode('base64').split(':', 1)
         if not username in self._users:
-          return self.response_error(start_response, '403 Not supported', self._ERROR_403_HTML)
+          return self.response_error(start_response, self.ERROR_403_BLURB, self.ERROR_403_HTML)
       return self.handle_request(environ, start_response)
     httpd = simple_server.make_server('', self._requested_port or 0, _handler, handler_class = self.handler)
     httpd.allow_reuse_address = True
@@ -74,6 +83,15 @@ class web_server(with_metaclass(ABCMeta, object)):
       ( 'Content-Length', str(len(html_error)) ),
     ])
     return iter([ html_error ])
+    
+  def response_success_file(self, start_response, filename):
+    mime_type = file_mime.mime_type(filename)
+    content = file_util.read(filename)
+    start_response(self.SUCCESS_200_BLURB, [
+      ( 'Content-Type', str(mime_type) ),
+      ( 'Content-Length', str(len(content)) ),
+    ])
+    return iter([ content ])
     
   def start(self):
     self._process = multiprocessing.Process(name = 'web_server', target = self._server_process)

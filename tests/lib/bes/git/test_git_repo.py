@@ -243,6 +243,46 @@ class test_git_repo(unit_test):
     self.assertEqual( [ '1.0.5', '1.0.9', '1.0.11' ], r2.list_remote_tags_ge('1.0.5') )
     self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4' ], r2.list_remote_tags_lt('1.0.5') )
     self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4', '1.0.5' ], r2.list_remote_tags_le('1.0.5') )
+
+  def test_save_file_first_time(self):
+    r1 = git_temp_repo()
+    r2 = r1.make_temp_cloned_repo()
+    r1.save_file('readme.txt', 'readme is good')
+    r1.push('origin', 'master')
+    r2.pull()
+    self.assertEqual( 'readme is good', r2.read_file('readme.txt') )
     
+  def test_save_file_modify(self):
+    r1 = git_temp_repo()
+    r2 = r1.make_temp_cloned_repo()
+    r1.save_file('readme.txt', 'readme is good')
+    r1.save_file('readme.txt', 'readme is bad')
+    r1.push('origin', 'master')
+    r2.pull()
+    self.assertEqual( 'readme is bad', r2.read_file('readme.txt') )
+    
+  def test_reset_to_revision(self):
+    r1 = git_temp_repo()
+    r1.add_file('readme.txt', 'readme is good')
+    r1.push('origin', 'master')
+
+    r2 = r1.make_temp_cloned_repo()
+    r3 = r1.make_temp_cloned_repo()
+
+    r2.pull()
+    r3.pull()
+
+    r2.save_file('readme.txt', 'readme 2')
+    r2.push()
+    
+    r3.save_file('readme.txt', 'conflicted 1')
+    with self.assertRaises(RuntimeError) as ctx:
+      r3.push()
+      
+    r3.reset_to_revision('@{u}')
+    r3.pull()
+    r3.save_file('readme.txt', 'conflicted 1')
+    r3.push()
+      
 if __name__ == '__main__':
   unit_test.main()

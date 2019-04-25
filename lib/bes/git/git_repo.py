@@ -81,18 +81,29 @@ class git_repo(object):
   def remote_origin_url(self):
     return git.remote_origin_url(selfroot)
 
-  def add_file(self, filename, content, mode = None):
-    p = path.join(self.root, filename)
+  def add_file(self, filename, content, codec = None, mode = None):
+    p = self.file_path(filename)
     assert not path.isfile(p)
-    file_util.save(p, content = content, mode = mode)
+    file_util.save(p, content = content, codec = codec, mode = mode)
     self.add( [ filename ])
     self.commit('add %s' % (filename), [ filename ])
 
+  def save_file(self, filename, content, codec = None, mode = None):
+    if not self.has_file(filename):
+      self.add_file(filename, content, codec = codec, mode = mode)
+      return
+    p = self.file_path(filename)
+    file_util.save(p, content = content, mode = mode)
+    self.commit('modify %s' % (filename), [ filename ])
+  
   def read_file(self, filename, codec = None):
-    return file_util.read(path.join(self.root, filename), codec = codec)
+    return file_util.read(self.file_path(filename), codec = codec)
 
   def has_file(self, filename):
-    return path.exists(path.join(self.root, filename))
+    return path.exists(self.file_path(filename))
+
+  def file_path(self, filename):
+    return path.join(self.root, filename)
 
   def greatest_local_tag(self):
     return git.greatest_local_tag(self.root)
@@ -164,5 +175,8 @@ class git_repo(object):
   def bump_tag(self, component = None, push = True, dry_run = False, default_tag = None):
     return git.bump_tag(self.root, component = component, push = push,
                         dry_run = dry_run, default_tag = default_tag)
-    
+
+  def reset_to_revision(self, revision):
+    git.reset_to_revision(self.root, revision)
+  
 check.register_class(git_repo)

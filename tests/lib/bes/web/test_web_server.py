@@ -19,8 +19,6 @@ from bes.system import host
 
 class test_web_server(unit_test):
 
-  DEBUG = unit_test.DEBUG
-  
   class _json_web_server(web_server):
 
     def __init__(self, port = None):

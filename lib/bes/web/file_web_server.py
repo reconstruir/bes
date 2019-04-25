@@ -8,20 +8,9 @@ from bes.fs import file_mime, file_util
 class file_web_server(web_server):
   'A simple web server that serves whatever files are found in its root dir'
 
-  def __init__(self, port = None, root_dir = None):
-    super(file_web_server, self).__init__(port = port, log_tag = 'file_web_server')
-    self._root_dir = root_dir or os.getcwd()
-
-  _ERROR_404_HTML = '''
-<html>
-  <head>
-    <title>404 - Not Found</title>
-  </head>
-  <body>
-    <h1>404 - Not Found</h1>
-  </body>
-</html>
-'''
+  def __init__(self, root_dir, *args, **kargs):
+    super(file_web_server, self).__init__(log_tag = 'file_web_server', *args, **kargs)
+    self._root_dir = root_dir
       
   def handle_request(self, environ, start_response):
     filename = environ['PATH_INFO']
@@ -29,16 +18,5 @@ class file_web_server(web_server):
     file_path = path.join(self._root_dir, file_util.lstrip_sep(filename))
     self.log_d('handle_request: file_path=%s' % (file_path))
     if not path.isfile(file_path):
-      start_response('404 Not Found', [
-        ( 'Content-Type', 'text/html' ),
-        ( 'Content-Length', str(len(self._ERROR_404_HTML)) ),
-      ])
-      return iter([ self._ERROR_404_HTML ])
-
-    mime_type = file_mime.mime_type(file_path)
-    content = file_util.read(file_path)
-    start_response('200 OK', [
-      ( 'Content-Type', str(mime_type) ),
-      ( 'Content-Length', str(len(content)) ),
-    ])
-    return iter([ content ])
+      return self.response_error(start_response, self.ERROR_404_BLURB, self.ERROR_404_HTML)
+    return self.response_success_file(start_response, file_path)
