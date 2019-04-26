@@ -18,5 +18,11 @@ class file_web_server(web_server):
     file_path = path.join(self._root_dir, file_util.lstrip_sep(filename))
     self.log_d('handle_request: file_path=%s' % (file_path))
     if not path.isfile(file_path):
-      return self.response_error(start_response, self.ERROR_404_BLURB, self.ERROR_404_HTML)
-    return self.response_success_file(start_response, file_path)
+      return self.response_error(start_response, 404)
+    mime_type = file_mime.mime_type(file_path)
+    content = file_util.read(file_path)
+    headers = [
+      ( 'Content-Type', str(mime_type) ),
+      ( 'Content-Length', str(len(content)) ),
+    ]
+    return self.response_success(start_response, 200, [ content ], headers)

@@ -70,12 +70,12 @@ class test_file_web_server(unit_test):
     port = server.address[1]
 
     url = self._make_url(port, 'foo.txt')
-    tmp = url_util.download_to_temp_file(url)
+    tmp = url_util.download_to_temp_file(url, auth = ('fred', 'flintpass'))
     self.assertEqual( 'text/plain', file_mime.mime_type(tmp).mime_type )
     self.assertEqual( 'this is foo.txt\n', file_util.read(tmp, codec = 'utf8') )
 
     url = self._make_url(port, 'subdir/subberdir/baz.txt')
-    tmp = url_util.download_to_temp_file(url)
+    tmp = url_util.download_to_temp_file(url, auth = ('fred', 'flintpass'))
     self.assertEqual( 'text/plain', file_mime.mime_type(tmp).mime_type )
     self.assertEqual( 'this is baz.txt\n', file_util.read(tmp, codec = 'utf8') )
 
