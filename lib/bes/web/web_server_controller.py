@@ -27,3 +27,8 @@ class web_server_controller(object):
     self._server.stop()
     self._server = None
     
+  def fail_next_request(self, status_code):
+    if not self._server:
+      raise RuntimeError('server not running.')
+    self.log_e('FUCK: server={}'.format(self._server))
+    self._server.fail_next_request(status_code)

@@ -27,13 +27,13 @@ class web_server(with_metaclass(ABCMeta, object)):
       
   def __init__(self, port = None, log_tag = None, users = None):
     log.add_logging(self, tag = log_tag or 'web_server')
-    self.log_i('web_server(self={}, port={})'.format(self, port))
+    self.log_i('web_server(id={} self={}, port={})'.format(id(self), self, port))
     self._users = users or {}
     self._requested_port = port
     self.address = None
     self._process = None
     self._port_queue = multiprocessing.Queue()
-    self._fail_next_request = None
+    self._fail_next_request = multiprocessing.Value('i', 0)
     
   @abstractmethod
   def handle_request(self, environ, start_response):
@@ -76,11 +76,15 @@ class web_server(with_metaclass(ABCMeta, object)):
   def _server_process(self):
 
     def _handler(environ, start_response):
-      self.log_i('calling handle_request()')
+      self.log_d('_handler: id={} self={} _fail_next_request={}'.format(id(self), self, self._fail_next_request))
       self.headers = self._get_headers(environ)
       auth = self._decode_auth(environ)
       if not self._validate_auth(auth):
         return self.response_error(start_response, 403)
+      if self._fail_next_request.value is not 0:
+        code = self._fail_next_request.value
+        self._fail_next_request.value = 0
+        return self.response_error(start_response, code)
       return self.handle_request(environ, start_response)
     httpd = simple_server.make_server('', self._requested_port or 0, _handler, handler_class = self.handler)
     httpd.allow_reuse_address = True
@@ -150,4 +154,5 @@ class web_server(with_metaclass(ABCMeta, object)):
     
   def fail_next_request(self, status_code):
     'Fail the next request with the given status_code.'
-    self._fail_next_request = status_code
+    self.log_d('fail_next_request: id={} self={} status_code={}'.format(id(self), self, status_code))
+    self._fail_next_request.value = status_code

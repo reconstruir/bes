@@ -55,7 +55,7 @@ class test_file_web_server(unit_test):
       tmp = url_util.download_to_temp_file(url)
 
     server.stop()
-
+    
   def test_download_with_auth(self):
     tmp_dir = self._make_temp_content([
       'file foo.txt "this is foo.txt\n"',

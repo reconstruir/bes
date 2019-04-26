@@ -6,9 +6,11 @@ from bes.system import compat
 if compat.IS_PYTHON3:
   import urllib.request as urlopener
   import urllib.parse as urlparser
+  from http.client import RemoteDisconnected as HTTPError
 else:
   import urllib2 as urlopener
   import urlparse as urlparser
+  from urllib2 import HTTPError
 from bes.testing.unit_test import unit_test
 from bes.web import web_server, web_server_controller
 from bes.archive import archiver, temp_archive
@@ -71,27 +73,12 @@ class test_web_server(unit_test):
         '/sources/bar/bar-1.2.3.zip',
         '/sources/large/large-1.2.3.tar.gz',
       }
-      self.error_404_html = '''
-<html>
-  <head>
-    <title>404 - Not Found</title>
-  </head>
-  <body>
-    <h1>404 - Not Found</h1>
-  </body>
-</html>
-'''
       
     def handle_request(self, environ, start_response):
       path_info = environ['PATH_INFO']
       self.log_i('handle_request(%s)' % (path_info))
       if path_info not in self._known_tarballs:
-        start_response('404 Not Found', [
-          ( 'Content-Type', 'text/html' ),
-          ( 'Content-Length', str(len(self.error_404_html)) ),
-        ])
-        return iter([ self.error_404_html ])
-
+        return self.response_error(start_response, 404)
       extension = file_util.extension(path_info)
       if 'large' in path_info:
         items = [
@@ -105,11 +92,11 @@ class test_web_server(unit_test):
       tmp_archive = temp_archive.make_temp_archive(items, extension)
       tmp_mime_type = file_mime.mime_type(tmp_archive.filename)
       content = file_util.read(tmp_archive.filename)
-      start_response('200 OK', [
+      headers = [
         ( 'Content-Type', str(tmp_mime_type) ),
         ( 'Content-Length', str(len(content)) ),
-      ])
-      return iter([ content ])
+      ]
+      return self.response_success(start_response, 200, [ content ], headers)
 
     _LARGE_CONTENT_SIZE = 1024 * 1024 * 10 # 10M
     @classmethod
@@ -133,6 +120,25 @@ class test_web_server(unit_test):
     self.assertEqual( [ 'apple.txt', 'orange.txt' ], archiver.members(tmp) )
     self.assertEqual( 'application/zip', file_mime.mime_type(tmp).mime_type )
     
+    server.stop()
+    
+  def test_fail_next_request(self):
+    server = web_server_controller(self._tarball_web_server)
+    server.start()
+    port = server.address[1]
+
+    url = self._make_url(port, 'sources/foo/foo-1.2.3.tar.gz')
+    tmp = url_util.download_to_temp_file(url, basename = 'foo-1.2.3.tar.gz')
+    self.assertEqual( [ 'apple.txt', 'orange.txt' ], archiver.members(tmp) )
+
+    server.fail_next_request(40)4
+
+    with self.assertRaises(HTTPError) as ctx:
+      url_util.download_to_temp_file(url, basename = 'foo-1.2.3.tar.gz')
+
+    tmp = url_util.download_to_temp_file(url, basename = 'foo-1.2.3.tar.gz')
+    self.assertEqual( [ 'apple.txt', 'orange.txt' ], archiver.members(tmp) )
+      
     server.stop()
     
   @skip_if(host.DISTRO == 'fedora', 'FIXME: this test fails on fedora')
