@@ -2,6 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
+from bes.system.env_override import env_override
+
 from bes.testing.unit_test import unit_test
 from bes.testing.framework import config_env as CE
   
@@ -22,9 +24,17 @@ class test_config_env(unit_test):
       'orange/env/orange.bescfg',
       'water/env/water.bescfg'
     ]
-    files = CE._find_config_files(self.data_dir())
-    self.assertEqual( [ path.join(self.data_dir(), x) for x in expected_files ],
-                      files )
+    with env_override.clean_env() as ctx:
+      actual = CE._find_config_files(self.data_dir())
+      expected = [ path.join(self.data_dir(), x) for x in expected_files ]
+
+      for x in expected:
+        print('EXPECTED: {}'.format(x))
+
+      for x in actual:
+        print('  ACTUAL: {}'.format(x))
+      
+      self.assertEqual( expected, actual )
     
 if __name__ == '__main__':
   unit_test.main()
