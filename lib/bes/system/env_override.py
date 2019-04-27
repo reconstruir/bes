@@ -41,3 +41,8 @@ class env_override(object):
     'Return an env_override object with a temporary HOME'
     tmp_dir = tempfile.mkdtemp(suffix = '.home')
     return env_override(env = { 'HOME': tempfile.mkdtemp(suffix = '.home') })
+
+  @classmethod
+  def clean_env(clazz):
+    'Return a clean env useful for testing where a determintate clean environment is needed.'
+    return env_override(env = os_env.make_clean_env())
