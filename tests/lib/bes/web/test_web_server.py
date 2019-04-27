@@ -131,7 +131,7 @@ class test_web_server(unit_test):
     tmp = url_util.download_to_temp_file(url, basename = 'foo-1.2.3.tar.gz')
     self.assertEqual( [ 'apple.txt', 'orange.txt' ], archiver.members(tmp) )
 
-    server.fail_next_request(40)4
+    server.fail_next_request(404)
 
     with self.assertRaises(HTTPError) as ctx:
       url_util.download_to_temp_file(url, basename = 'foo-1.2.3.tar.gz')
