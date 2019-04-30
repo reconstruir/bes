@@ -58,6 +58,7 @@ class archiver(object):
     tmp_dir = temp_file.make_temp_dir()
     clazz.extract_all(filename, tmp_dir, base_dir = base_dir,
                       strip_common_ancestor = strip_common_ancestor, strip_head = strip_head)
+    return tmp_dir
 
   @classmethod
   def extract(clazz, filename, dest_dir, base_dir = None,
