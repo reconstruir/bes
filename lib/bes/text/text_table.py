@@ -107,10 +107,10 @@ class text_table(object):
 
     box_style = self._style.box_style()
     
-    v_char = box_style.v
-    h_char = box_style.h
-    tl_char = box_style.tl
-    tr_char = box_style.tr
+    v_char = box_style.v_bar
+    h_char = box_style.h_bar
+    tl_char = box_style.tl_corner
+    tr_char = box_style.tr_corner
     
     total_cols_width = sum(col_widths_with_spacing)
     h_middle_width = total_cols_width + (num_cols - 1) * v_char.width
