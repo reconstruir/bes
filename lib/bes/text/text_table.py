@@ -89,14 +89,9 @@ class text_table(object):
 
     box = self._style.box
     
-    v_char = box.v_bar
-    h_char = box.h_bar
-    tl_char = box.tl_corner
-    tr_char = box.tr_corner
-    
     total_cols_width = sum(col_widths_with_spacing)
-    h_middle_width = total_cols_width + (num_cols - 1) * v_char.width
-    h_width = tl_char.width + h_middle_width + tr_char.width
+    h_middle_width = total_cols_width + (num_cols - 1) * box.v_bar.width
+    h_width = box.tl_corner.width + h_middle_width + box.tr_corner.width
 
     buf = StringIO()
     
@@ -112,12 +107,12 @@ class text_table(object):
     if self._labels:
       box.write_middle(buf, h_width)
       buf.write('\n')
-      buf.write(v_char.char)
+      buf.write(box.v_bar.char)
       for x in range(0, self._table.width):
         buf.write(column_spacing)
-        self._write_label(x, buf, col_widths)
+        self._write_label(x, buf, col_widths[x])
         buf.write(column_spacing)
-        buf.write(v_char.char)
+        buf.write(box.v_bar.char)
       buf.write('\n')
       box.write_middle(buf, h_width)
       buf.write('\n')
@@ -130,12 +125,15 @@ class text_table(object):
       row = self._table.row(y)
       assert len(row) == num_cols
       row_buf = StringIO()
-      row_buf.write(v_char.char)
+      row_buf.write(box.l_bar.char)
       for x in range(0, self._table.width):
         row_buf.write(column_spacing)
-        self._write_cell(x, y, row_buf, col_widths)
-        row_buf.write(column_spacing)
-        row_buf.write(v_char.char)
+        if x > 0:
+          row_buf.write(box.v_bar.char)
+          row_buf.write(column_spacing)
+        self._write_cell(x, y, row_buf, col_widths[x])
+      row_buf.write(column_spacing)
+      row_buf.write(box.r_bar.char)
       row_str = row_buf.getvalue()
       if strip_rows:
         row_str = row_str.strip()
@@ -147,19 +145,18 @@ class text_table(object):
     # remove the trailing new line
     return value[0:-1]
 
-  def _write_cell(self, x, y, stream, col_widths):
+  def _write_cell(self, x, y, stream, width):
     value = self._table.get(x, y)
     renderer = self.get_cell_renderer(x, y)
     assert renderer
-    value_string = renderer.render(value, width = col_widths[x])
-    #print('WRITING: %s - %s' % (value_string, type(value_string)))
+    value_string = renderer.render(value, width = width)
     stream.write(value_string)
   
-  def _write_label(self, x, stream, col_widths):
+  def _write_label(self, x, stream, width):
     value = self._labels[x]
     renderer = self.get_cell_renderer(x, 0)
     assert renderer
-    value = renderer.render(value, width = col_widths[x], is_label = True)
+    value = renderer.render(value, width = width, is_label = True)
     stream.write(value)
   
   def _column_width(self, x):
