@@ -3,13 +3,13 @@
 
 from bes.testing.unit_test import unit_test
 from bes.text import text_table as TT, text_cell_renderer
-from bes.text.text_table import text_table as TT, text_cell_renderer, text_table_style_basic
+from bes.text.text_table import text_table as TT, text_cell_renderer, text_table_style
 from bes.text.text_table import text_table as TT
 from bes.text.text_box import text_box_ascii
 
 class test_text_table(unit_test):
 
-  _STYLE = text_table_style_basic(spacing = 1, box_style = text_box_ascii())
+  _STYLE = text_table_style(spacing = 1, box = text_box_ascii())
   
   def test_basic(self):
     data = [

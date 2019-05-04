@@ -62,7 +62,11 @@ class text_box_unicode(text_box):
   def __init__(self):
     super(text_box_unicode, self).__init__([
       text_box_char('v_bar', '\xe2\x94\x82', 1),
+      text_box_char('l_bar', '\xe2\x94\x82', 1),
+      text_box_char('r_bar', '\xe2\x94\x82', 1),
       text_box_char('h_bar', '\xe2\x94\x80', 1),
+      text_box_char('t_bar', '\xe2\x94\x80', 1),
+      text_box_char('b_bar', '\xe2\x94\x80', 1),
       text_box_char('tl_corner', '\xe2\x94\x8c', 1),
       text_box_char('tr_corner', '\xe2\x94\x90', 1),
       text_box_char('bl_corner', '\xe2\x94\x94', 1),
@@ -73,9 +77,28 @@ class text_box_ascii(text_box):
   def __init__(self):
     super(text_box_ascii, self).__init__([
       text_box_char('v_bar', '|', 1),
+      text_box_char('l_bar', '|', 1),
+      text_box_char('r_bar', '|', 1),
       text_box_char('h_bar', '-', 1),
+      text_box_char('t_bar', '-', 1),
+      text_box_char('b_bar', '-', 1),
       text_box_char('tl_corner', '+', 1),
       text_box_char('tr_corner', '+', 1),
       text_box_char('bl_corner', '+', 1),
       text_box_char('br_corner', '+', 1),
+    ])
+    
+class text_box_colon(text_box):
+  def __init__(self):
+    super(text_box_colon, self).__init__([
+      text_box_char('v_bar', ':', 1),
+      text_box_char('l_bar', '', 0),
+      text_box_char('r_bar', '', 0),
+      text_box_char('h_bar', '', 0),
+      text_box_char('t_bar', '', 0),
+      text_box_char('b_bar', '', 0),
+      text_box_char('tl_corner', '', 0),
+      text_box_char('tr_corner', '', 0),
+      text_box_char('bl_corner', '', 0),
+      text_box_char('br_corner', '', 0),
     ])

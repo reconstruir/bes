@@ -1,35 +1,17 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
-
 from bes.common import check, object_util, table, size
 from bes.compat import StringIO
 
 from .text_box import text_box_unicode
+  
+class text_table_style(object):
 
-class text_table_style_base(with_metaclass(ABCMeta, object)):
-  
-  @abstractmethod
-  def spacing(self):
-    pass
-  
-  @abstractmethod
-  def box_style(self):
-    pass
-check.register_class(text_table_style_base, name = 'text_table_style')
-  
-class text_table_style_basic(text_table_style_base):
-
-  def __init__(self, spacing = None, box_style = None):
-    self._spacing = check.check_int(spacing if spacing is not None else 1)
-    self._box_style = check.check_text_box(box_style or text_box_unicode())
+  def __init__(self, spacing = None, box = None):
+    self.spacing = check.check_int(spacing if spacing is not None else 1)
+    self.box = check.check_text_box(box or text_box_unicode())
     
-  def spacing(self):
-    return self._spacing
-    
-  def box_style(self):
-    return self._box_style
+check.register_class(text_table_style)
     
 class text_cell_renderer(object):
 
@@ -98,19 +80,19 @@ class text_table(object):
     return self.to_string()
 
   def to_string(self, strip_rows = False):
-    spacing = self._style.spacing()
+    spacing = self._style.spacing
     column_spacing = ' ' * spacing
 
     col_widths = self.column_widths()
     col_widths_with_spacing = [ (col + 2 * spacing) for col in col_widths ]
     num_cols = len(col_widths)
 
-    box_style = self._style.box_style()
+    box = self._style.box
     
-    v_char = box_style.v_bar
-    h_char = box_style.h_bar
-    tl_char = box_style.tl_corner
-    tr_char = box_style.tr_corner
+    v_char = box.v_bar
+    h_char = box.h_bar
+    tl_char = box.tl_corner
+    tr_char = box.tr_corner
     
     total_cols_width = sum(col_widths_with_spacing)
     h_middle_width = total_cols_width + (num_cols - 1) * v_char.width
@@ -119,16 +101,16 @@ class text_table(object):
     buf = StringIO()
     
     if self._title:
-      box_style.write_top(buf, h_width)
+      box.write_top(buf, h_width)
       buf.write('\n')
-      box_style.write_centered_text(buf, h_width, self._title)
+      box.write_centered_text(buf, h_width, self._title)
       buf.write('\n')
       if not self._labels:
-        box_style.write_bottom(buf, h_width)
+        box.write_bottom(buf, h_width)
         buf.write('\n')
     
     if self._labels:
-      box_style.write_middle(buf, h_width)
+      box.write_middle(buf, h_width)
       buf.write('\n')
       buf.write(v_char.char)
       for x in range(0, self._table.width):
@@ -137,11 +119,11 @@ class text_table(object):
         buf.write(column_spacing)
         buf.write(v_char.char)
       buf.write('\n')
-      box_style.write_middle(buf, h_width)
+      box.write_middle(buf, h_width)
       buf.write('\n')
 
     if not self._title or self._labels:
-      box_style.write_top(buf, h_width)
+      box.write_top(buf, h_width)
       buf.write('\n')
       
     for y in range(0, self._table.height):
@@ -159,7 +141,7 @@ class text_table(object):
         row_str = row_str.strip()
       buf.write(row_str)
       buf.write('\n')
-    box_style.write_bottom(buf, h_width)
+    box.write_bottom(buf, h_width)
     buf.write('\n')
     value = buf.getvalue()
     # remove the trailing new line
