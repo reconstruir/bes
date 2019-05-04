@@ -283,6 +283,84 @@ class test_git_repo(unit_test):
     r3.pull()
     r3.save_file('readme.txt', 'conflicted 1')
     r3.push()
-      
+
+  def test_list_branches_just_master(self):
+    r1 = git_temp_repo()
+    commit = r1.add_file('readme.txt', 'readme is good')
+    r1.push('origin', 'master')
+
+    r2 = r1.make_temp_cloned_repo()
+    self.assertEqual( (
+      [ ( 'master', True, commit, 'add readme.txt' ) ],
+      [ ( 'master', False, commit, 'add readme.txt' ) ],
+    ), r2.list_branches('both') )
+
+  def test_list_branches_create_inactive(self):
+    r1 = git_temp_repo()
+    commit = r1.add_file('readme.txt', 'readme is good')
+    r1.push('origin', 'master')
+
+    r2 = r1.make_temp_cloned_repo()
+    self.assertEqual( (
+      [ ( 'master', True, commit, 'add readme.txt' ) ],
+      [ ( 'master', False, commit, 'add readme.txt' ) ],
+    ), r2.list_branches('both') )
+
+    r2.branch_create('b1', checkout = False)
+    self.assertEqual( (
+      [
+        ( 'b1', False, commit, 'add readme.txt' ),
+        ( 'master', True, commit, 'add readme.txt' ),
+      ],
+      [
+        ( 'master', False, commit, 'add readme.txt' ),
+      ],
+    ), r2.list_branches('both') )
+    
+  def test_list_branches_create_active(self):
+    r1 = git_temp_repo()
+    commit = r1.add_file('readme.txt', 'readme is good')
+    r1.push('origin', 'master')
+
+    r2 = r1.make_temp_cloned_repo()
+    self.assertEqual( (
+      [ ( 'master', True, commit, 'add readme.txt' ) ],
+      [ ( 'master', False, commit, 'add readme.txt' ) ],
+    ), r2.list_branches('both') )
+
+    r2.branch_create('b1', checkout = True)
+    self.assertEqual( (
+      [
+        ( 'b1', True, commit, 'add readme.txt' ),
+        ( 'master', False, commit, 'add readme.txt' ),
+      ],
+      [
+        ( 'master', False, commit, 'add readme.txt' ),
+      ],
+    ), r2.list_branches('both') )
+    
+  def test_list_branches_create_push(self):
+    r1 = git_temp_repo()
+    commit = r1.add_file('readme.txt', 'readme is good')
+    r1.push('origin', 'master')
+
+    r2 = r1.make_temp_cloned_repo()
+    self.assertEqual( (
+      [ ( 'master', True, commit, 'add readme.txt' ) ],
+      [ ( 'master', False, commit, 'add readme.txt' ) ],
+    ), r2.list_branches('both') )
+
+    r2.branch_create('b1', checkout = True, push = True)
+    self.assertEqual( (
+      [
+        ( 'b1', True, commit, 'add readme.txt' ),
+        ( 'master', False, commit, 'add readme.txt' ),
+      ],
+      [
+        ( 'b1', False, commit, 'add readme.txt' ),
+        ( 'master', False, commit, 'add readme.txt' ),
+      ],
+    ), r2.list_branches('both') )
+    
 if __name__ == '__main__':
   unit_test.main()

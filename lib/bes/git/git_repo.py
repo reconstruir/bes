@@ -87,6 +87,7 @@ class git_repo(object):
     file_util.save(p, content = content, codec = codec, mode = mode)
     self.add( [ filename ])
     self.commit('add %s' % (filename), [ filename ])
+    return self.last_commit_hash(short_hash = True)
 
   def save_file(self, filename, content, codec = None, mode = None):
     if not self.has_file(filename):
@@ -178,5 +179,14 @@ class git_repo(object):
 
   def reset_to_revision(self, revision):
     git.reset_to_revision(self.root, revision)
+  
+  def list_branches(self, where):
+    return git.list_branches(self.root, where)
+
+  def branch_create(self, branch_name, checkout = False, push = False):
+    git.branch_create(self.root, branch_name, checkout = checkout, push = push)
+  
+  def branch_push(self, branch_name):
+    git.branch_push(self.root, branch_name)
   
 check.register_class(git_repo)
