@@ -4,6 +4,7 @@
 import os.path as path, os, unittest
 from bes.fs import file_util, temp_file
 from bes.archive import archiver
+from bes.system.env_override import env_override
 
 from bes.git import git
 from bes.git.git_status import git_status
@@ -193,11 +194,7 @@ class test_git(unittest.TestCase):
     ], archiver.members(tmp_archive) )
 
   def test_config(self):
-    tmp_home = temp_file.make_temp_dir()
-    save_home = os.environ['HOME']
-    os.environ['HOME'] = tmp_home
-
-    try:
+    with env_override.temp_home() as env:
       self.assertEqual( None, git.config_get_value('user.name') )
       self.assertEqual( None, git.config_get_value('user.email') )
 
@@ -218,9 +215,16 @@ class test_git(unittest.TestCase):
       git.config_unset_value('user.name')
       self.assertEqual( ( None, None ), git.config_get_identity() )
       
-    finally:
-      os.environ['HOME'] = save_home
-
+  def test_has_changes(self):
+    tmp_repo = self._create_tmp_repo()
+    self.assertFalse( git.has_changes(tmp_repo) )
+    new_files = self._create_tmp_files(tmp_repo)
+    self.assertFalse( git.has_changes(tmp_repo) )
+    git.add(tmp_repo, new_files)
+    self.assertTrue( git.has_changes(tmp_repo) )
+    git.commit(tmp_repo, 'nomsg\n', '.')
+    self.assertFalse( git.has_changes(tmp_repo) )
+    
   def test_has_changes(self):
     tmp_repo = self._create_tmp_repo()
     self.assertFalse( git.has_changes(tmp_repo) )
