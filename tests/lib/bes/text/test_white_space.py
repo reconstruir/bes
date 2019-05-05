@@ -15,5 +15,29 @@ class test_white_space(unit_test):
     self.assertEqual( 'foo\\\nbar', WS.escape_white_space('foo\nbar') )
     self.assertEqual( 'foo\\\tbar', WS.escape_white_space('foo\tbar') )
     
+  def test_strip_head_new_lines(self):
+    self.assertEqual( '', WS.strip_head_new_lines('') )
+    self.assertEqual( '', WS.strip_head_new_lines('\n') )
+    self.assertEqual( '', WS.strip_head_new_lines('\n\n') )
+    self.assertEqual( 'foo', WS.strip_head_new_lines('\nfoo') )
+    self.assertEqual( 'foo\n', WS.strip_head_new_lines('\nfoo\n') )
+    self.assertEqual( 'foo\n', WS.strip_head_new_lines('foo\n') )
+    
+  def test_strip_tail_new_lines(self):
+    self.assertEqual( '', WS.strip_tail_new_lines('') )
+    self.assertEqual( '', WS.strip_tail_new_lines('\n') )
+    self.assertEqual( '', WS.strip_tail_new_lines('\n\n') )
+    self.assertEqual( 'foo', WS.strip_tail_new_lines('foo\n') )
+    self.assertEqual( '\nfoo', WS.strip_tail_new_lines('\nfoo') )
+    self.assertEqual( '\nfoo', WS.strip_tail_new_lines('\nfoo\n') )
+    
+  def test_strip_new_lines(self):
+    self.assertEqual( '', WS.strip_new_lines('') )
+    self.assertEqual( '', WS.strip_new_lines('\n') )
+    self.assertEqual( '', WS.strip_new_lines('\n\n') )
+    self.assertEqual( 'foo', WS.strip_new_lines('foo\n') )
+    self.assertEqual( 'foo', WS.strip_new_lines('\nfoo') )
+    self.assertEqual( 'foo', WS.strip_new_lines('\nfoo\n') )
+    
 if __name__ == "__main__":
   unit_test.main()
