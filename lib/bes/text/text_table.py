@@ -120,8 +120,6 @@ class text_table(object):
         buf.write(column_spacing)
         buf.write(box.v_bar.char)
       buf.write('\n')
-      box.write_middle(buf, h_width)
-      buf.write('\n')
 
     if not self._title or self._labels:
       box.write_top(buf, h_width)
