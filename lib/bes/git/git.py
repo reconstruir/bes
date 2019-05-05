@@ -5,12 +5,14 @@ from datetime import datetime
 from collections import namedtuple
 
 from bes.text import text_line_parser
-from bes.common import object_util, string_util
+from bes.common import algorithm, object_util, string_util
 from bes.system import execute, logger
 from bes.fs import dir_util, file_ignore, file_util, tar_util, temp_file
 from bes.fs.file_ignore import ignore_file_data
 from bes.version.version_compare import version_compare
 
+from .git_branch import git_branch, git_branch_status
+from .git_branch_list import git_branch_list
 from .git_status import git_status
 
 class git(object):
@@ -41,7 +43,7 @@ class git(object):
   @classmethod
   def branch_status(clazz, root):
     rv = clazz._call_git(root, [ 'status', '-b', '--porcelain' ])
-    ahead, behind = clazz._parse_branch_status_output(root, rv.stdout)
+    ahead, behind = clazz._parse_branch_status_output(rv.stdout)
     return clazz.branch_status_t(ahead, behind)
 
   @classmethod
@@ -54,15 +56,15 @@ class git(object):
     return rv.stdout.strip()
 
   @classmethod
-  def _parse_branch_status_output(clazz, root, s):
+  def _parse_branch_status_output(clazz, s):
     lines = clazz._parse_lines(s)
     ahead = re.findall('.*\[ahead\s+(\d+).*', lines[0])
     if ahead:
       ahead = int(ahead[0])
-    behind = re.findall('.*behind\s+(\d+).*', lines[0])
+    behind = re.findall('.*behind\s+(\d+)\].*', lines[0])
     if behind:
       behind = int(behind[0])
-    return ( ahead or 0, behind or 0 )
+    return clazz.branch_status_t(ahead or 0, behind or 0)
     
   @classmethod
   def has_changes(clazz, root, untracked_files = False):
@@ -414,11 +416,13 @@ class git(object):
   def determine_where(clazz, local, remote, default_value = 'both'):
     if local is None and remote is None:
       return default_value
-    if local is not None and remote is not None:
+    local = bool(local)
+    remote = bool(remote)
+    if local and remote:
       return 'both'
-    if local is not None:
+    elif local:
       return 'local'
-    if remote is not None:
+    elif remote:
       return 'remote'
     assert False
 
@@ -426,75 +430,61 @@ class git(object):
   def active_branch(clazz, root):
     return [ i for i in clazz.branch_list(root) if i.active ][0].name
 
-  class _list_branches_result(namedtuple('_list_branches_result', 'local, remote')):
-    def __new__(clazz, local, remote):
-      return clazz.__bases__[0].__new__(clazz, local, remote)
-
-    @property
-    def local_names(self):
-      return sorted([ b.name for b in (self.local or []) ])
-    
-    @property
-    def remote_names(self):
-      return sorted([ b.name for b in (self.remote or []) ])
-    
-    @property
-    def names(self):
-      return sorted(list(set(self.local_names + self.remote_names)))
-
-    @property
-    def longest_name(self):
-      return max([ len(name) for name in self.names ])
-
-    @property
-    def comments(self):
-      return sorted(list(set([ b.comment for b in (self.local or []) + (self.remote or []) ])))
-
-    @property
-    def longest_comment(self):
-      return max([ len(comment) for comment in self.comments ])
-
-    @property
-    def difference(self):
-      'Return remote branches not local.'
-      remote_set = set(self.remote_names)
-      local_set = set(self.local_names)
-      return sorted(list(remote_set - local_set))
-
-    def has_local(self, name):
-      return name in self.local_names
-
-    def has_remote(self, name):
-      return name in self.remote_names
-
   @classmethod
   def list_branches(clazz, root, where):
     clazz.check_where(where)
-    local_branches = None
-    remote_branches = None
-    if where in [ 'local', 'both' ]:
+    if where == 'local':
+      branches = clazz._list_local_branches(root)
+    elif where == 'remote':
+      branches = clazz._list_remote_branches(root)
+    else:
       local_branches = clazz._list_local_branches(root)
-    if where in [ 'remote', 'both' ]:
       remote_branches = clazz._list_remote_branches(root)
-    return clazz._list_branches_result(local_branches, remote_branches)
-
+      all_branches = clazz._list_both_branches(root)
+      unique_branches = all_branches.mutated_values({ 'where': None, 'active': None, 'ahead': None, 'behind': None })
+      unique_branches.remove_dups()
+      branches = git_branch_list()
+      for b in unique_branches:
+        local_branch = local_branches.find_by_name(b.name)
+        remote_branch = remote_branches.find_by_name(b.name)
+        if local_branch and remote_branch:
+          where = 'both'
+        elif local_branch:
+          where = 'local'
+        else:
+          where = 'remote'
+        active = local_branch.active if local_branch and where in [ 'local', 'both' ] else False
+        ahead = local_branch.ahead if local_branch else 0
+        behind = local_branch.behind if local_branch else 0
+        branch = git_branch(b.name, where, active, ahead, behind, b.commit, b.comment)
+        branches.append(branch)
+    return git_branch_list(branches)
+  
   @classmethod
   def _list_remote_branches(clazz, root):
     rv = clazz._call_git(root, [ 'branch', '--verbose', '--list', '--no-color', '--remote' ])
     lines = clazz._parse_lines(rv.stdout)
     lines = [ line for line in lines if not ' -> ' in line ]
     lines = [ string_util.remove_head(line, 'origin/') for line in lines ]
-    return [ clazz._parse_branch_list_line(line) for line in lines ]
+    return git_branch_list([ git_branch.parse_branch(line, 'remote') for line in lines ])
 
   @classmethod
   def _list_local_branches(clazz, root):
     rv = clazz._call_git(root, [ 'branch', '--verbose', '--list', '--no-color' ])
     lines = clazz._parse_lines(rv.stdout)
-    return [ clazz._parse_branch_list_line(line) for line in lines ]
+    return git_branch_list([ git_branch.parse_branch(line, 'local') for line in lines ])
 
-  _branch_list_item = namedtuple('_branch_list_item', 'name, active, commit, comment')
   @classmethod
-  def _parse_branch_list_line(clazz, s):
+  def _list_both_branches(clazz, root):
+    branches = git_branch_list()
+    branches += clazz._list_local_branches(root)
+    branches += clazz._list_remote_branches(root)
+    branches.sort()
+    return branches
+  
+  _branch_list_item = namedtuple('_branch_list_item', 'name, where, active, ahead, behind, commit, comment')
+  @classmethod
+  def _parse_branch_list_line(clazz, s, where):
     parts = string_util.split_by_white_space(s, strip = True)
     active = False
     if parts[0] == '*':
@@ -504,7 +494,8 @@ class git(object):
     name = parts[0]
     commit = parts[1]
     comment = ' '.join(parts[2:])
-    return clazz._branch_list_item(name, active, commit, comment)
+    ahead, behind = clazz._parse_branch_status_output(comment)
+    return clazz._branch_list_item(name, where, active, ahead, behind, commit, comment)
 
   @classmethod
   def branch_create(clazz, root, branch_name, checkout = False, push = False):
@@ -522,3 +513,7 @@ class git(object):
   @classmethod
   def branch_push(clazz, root, branch_name):
     clazz._call_git(root, [ 'push', '--set-upstream', 'origin', branch_name ])
+
+  @classmethod
+  def fetch(clazz, root):
+    clazz._call_git(root, [ 'fetch', '--all' ])

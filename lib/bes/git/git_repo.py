@@ -189,4 +189,7 @@ class git_repo(object):
   def branch_push(self, branch_name):
     git.branch_push(self.root, branch_name)
   
+  def fetch(self):
+    git.fetch(self.root)
+  
 check.register_class(git_repo)

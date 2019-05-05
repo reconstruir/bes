@@ -240,6 +240,8 @@ class table(object):
     if check.is_int(x):
       pass
     elif check.is_string(x):
+      if not self._column_names:
+        raise ValueError('no column_names set')
       try:
         x = self._column_names.index(x)
       except ValueError as ex:

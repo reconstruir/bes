@@ -64,6 +64,12 @@ class text_table(object):
     check.check_tuple(labels)
     self._table.check_width(len(labels))
     self._labels = labels[:]
+    self.set_column_names(labels)
+
+  def set_column_names(self, names):
+    check.check_tuple(names)
+    self._table.check_width(len(names))
+    self._table.column_names = names
 
   def set_title(self, title):
     check.check_string(title)

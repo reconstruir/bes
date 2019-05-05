@@ -234,6 +234,12 @@ class test_git(unittest.TestCase):
     self.assertTrue( git.has_changes(tmp_repo) )
     git.commit(tmp_repo, 'nomsg\n', '.')
     self.assertFalse( git.has_changes(tmp_repo) )
+
+  def test_has_determine_where(self):
+    self.assertEqual( 'both', git.determine_where(True, True) )
+    self.assertEqual( 'local', git.determine_where(True, False) )
+    self.assertEqual( 'remote', git.determine_where(False, True) )
+    self.assertEqual( 'both', git.determine_where(None, None) )
     
 if __name__ == "__main__":
   unittest.main()
