@@ -1,11 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import re
-#from datetime import datetime
 from collections import namedtuple
 
 from bes.text import text_line_parser
-from bes.common import string_util, tuple_util
+from bes.common import check, string_util, tuple_util
+from bes.compat import cmp
 
 git_branch_status = namedtuple('git_branch_status', 'ahead, behind')
 
@@ -50,3 +50,15 @@ class git_branch(namedtuple('git_branch', 'name, where, active, ahead, behind, c
 
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
+
+  def compare(self, other, remote_only = False):
+    check.check_git_branch(other)
+    if remote_only:
+      t1 = ( self.name, self.commit, self.comment )
+      t2 = ( other.name, other.commit, other.comment )
+    else:
+      t1 = self
+      t2 = other
+    return cmp(t1, t2)
+
+check.register_class(git_branch)

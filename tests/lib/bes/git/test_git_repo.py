@@ -330,5 +330,22 @@ class test_git_repo(unit_test):
       ( 'master', 'both', False, 0, 0, commit, 'add readme.txt' ),
     ], r2.list_branches('both') )
     
+  def test_branch_status(self):
+    r1 = git_temp_repo()
+    r1.add_file('readme.txt', 'readme is good')
+    r1.push('origin', 'master')
+
+    r2 = r1.make_temp_cloned_repo()
+    r3 = r1.make_temp_cloned_repo()
+    self.assertEqual( ( 0, 0 ), r2.branch_status() )
+    r2.add_file('foo.txt', 'foo.txt')
+    self.assertEqual( ( 1, 0 ), r2.branch_status() )
+    r2.add_file('bar.txt', 'bar.txt')
+
+    self.assertEqual( ( 0, 0 ), r3.branch_status() )
+    r2.push()
+    r3.fetch()
+    self.assertEqual( ( 0, 2 ), r3.branch_status() )
+    
 if __name__ == '__main__':
   unit_test.main()
