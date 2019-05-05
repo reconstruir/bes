@@ -26,11 +26,14 @@ class git_branch(namedtuple('git_branch', 'name, where, active, ahead, behind, c
     commit = parts[1]
     comment = ' '.join(parts[2:])
     ahead, behind = clazz.parse_branch_status(comment)
+    comment = clazz.strip_branch_status(comment).strip()
     return git_branch(name, where, active, ahead, behind, commit, comment)
 
   @classmethod
   def parse_branch_status(clazz, s):
     lines = text_line_parser.parse_lines(s, strip_comments = False, strip_text = True, remove_empties = True)
+    if not lines:
+      return git_branch_status(0, 0)
     ahead = re.findall('.*\[ahead\s+(\d+).*', lines[0])
     if ahead:
       ahead = int(ahead[0])
@@ -38,6 +41,12 @@ class git_branch(namedtuple('git_branch', 'name, where, active, ahead, behind, c
     if behind:
       behind = int(behind[0])
     return git_branch_status(ahead or 0, behind or 0)
-  
+
+  @classmethod
+  def strip_branch_status(clazz, s):
+    s = re.sub('\[ahead.*\]', '', s)
+    s = re.sub('\[behind.*\]', '', s)
+    return s
+
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
