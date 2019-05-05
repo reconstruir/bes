@@ -41,8 +41,8 @@ class table(object):
 
     if column_names:
       check.check_tuple(column_names)
-      
-    self._column_names = column_names
+
+    self._column_names = column_names[:] if column_names else None
     if data is not None and width is not None and width != len(data[0]):
       raise ValueError('width should be %d instead of %d' % (len(data[0]), width))
       
@@ -53,6 +53,8 @@ class table(object):
       if isinstance(data, table):
         width = data.width
         height = data.height
+        if not self._column_names and data._column_names:
+          self._column_names = data._column_names[:]
       else:
         if len(data) > 0:
           width = len(data[0])
