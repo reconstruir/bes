@@ -4,6 +4,7 @@ from bes.common import check, object_util, table, size
 from bes.compat import StringIO
 
 from .text_box import text_box_unicode
+from .white_space import white_space
   
 class text_table_style(object):
 
@@ -146,8 +147,8 @@ class text_table(object):
     box.write_bottom(buf, h_width)
     buf.write('\n')
     value = buf.getvalue()
-    # remove the trailing new line
-    return value[0:-1]
+    # strip head and tail newlines
+    return white_space.strip_new_lines(value)
 
   def _write_cell(self, x, y, stream, width):
     value = self._table.get(x, y)
