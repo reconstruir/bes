@@ -291,7 +291,7 @@ class test_git_repo(unit_test):
 
     r2 = r1.make_temp_cloned_repo()
     self.assertEqual( [
-      ( 'master', 'both', True, 0, 0, commit, 'add readme.txt' ),
+      ( 'master', 'both', True, 0, 0, commit, 'unittest@example.com', 'add readme.txt' ),
     ], r2.list_branches('both') )
 
   def test_list_branches_create_inactive(self):
@@ -302,8 +302,8 @@ class test_git_repo(unit_test):
     r2 = r1.make_temp_cloned_repo()
     r2.branch_create('b1', checkout = False)
     self.assertEqual( [
-      ( 'b1', 'local', False, 0, 0, commit, 'add readme.txt' ),
-      ( 'master', 'both', True, 0, 0, commit, 'add readme.txt' ),
+      ( 'b1', 'local', False, 0, 0, commit, 'unittest@example.com', 'add readme.txt' ),
+      ( 'master', 'both', True, 0, 0, commit, 'unittest@example.com', 'add readme.txt' ),
     ], r2.list_branches('both') )
     
   def test_list_branches_create_active(self):
@@ -314,8 +314,8 @@ class test_git_repo(unit_test):
     r2 = r1.make_temp_cloned_repo()
     r2.branch_create('b1', checkout = True)
     self.assertEqual( [
-      ( 'b1', 'local', True, 0, 0, commit, 'add readme.txt' ),
-      ( 'master', 'both', False, 0, 0, commit, 'add readme.txt' ),
+      ( 'b1', 'local', True, 0, 0, commit, 'unittest@example.com', 'add readme.txt' ),
+      ( 'master', 'both', False, 0, 0, commit, 'unittest@example.com', 'add readme.txt' ),
     ], r2.list_branches('both') )
     
   def test_list_branches_create_push(self):
@@ -326,8 +326,8 @@ class test_git_repo(unit_test):
     r2 = r1.make_temp_cloned_repo()
     r2.branch_create('b1', checkout = True, push = True)
     self.assertEqual( [
-      ( 'b1', 'both', True, 0, 0, commit, 'add readme.txt' ),
-      ( 'master', 'both', False, 0, 0, commit, 'add readme.txt' ),
+      ( 'b1', 'both', True, 0, 0, commit, 'unittest@example.com', 'add readme.txt' ),
+      ( 'master', 'both', False, 0, 0, commit, 'unittest@example.com', 'add readme.txt' ),
     ], r2.list_branches('both') )
     
   def test_branch_status(self):

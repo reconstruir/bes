@@ -9,10 +9,10 @@ from bes.compat import cmp
 
 git_branch_status = namedtuple('git_branch_status', 'ahead, behind')
 
-class git_branch(namedtuple('git_branch', 'name, where, active, ahead, behind, commit, comment')):
+class git_branch(namedtuple('git_branch', 'name, where, active, ahead, behind, commit, author, comment')):
 
-  def __new__(clazz, name, where, active, ahead, behind, commit, comment):
-    return clazz.__bases__[0].__new__(clazz, name, where, active, ahead, behind, commit, comment)
+  def __new__(clazz, name, where, active, ahead, behind, commit, author, comment):
+    return clazz.__bases__[0].__new__(clazz, name, where, active, ahead, behind, commit, author, comment)
 
   @classmethod
   def parse_branch(clazz, s, where):
@@ -27,7 +27,7 @@ class git_branch(namedtuple('git_branch', 'name, where, active, ahead, behind, c
     comment = ' '.join(parts[2:])
     ahead, behind = clazz.parse_branch_status(comment)
     comment = clazz.strip_branch_status(comment).strip()
-    return git_branch(name, where, active, ahead, behind, commit, comment)
+    return git_branch(name, where, active, ahead, behind, commit, None, comment)
 
   @classmethod
   def parse_branch_status(clazz, s):

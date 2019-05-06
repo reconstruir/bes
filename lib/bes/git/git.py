@@ -426,6 +426,13 @@ class git(object):
     else:
       branches = clazz._list_both_branches(root)
     return git_branch_list(branches)
+
+  @classmethod
+  def _branch_list_determine_authors(clazz, root, branches):
+    result = git_branch_list()
+    for branch in branches:
+      result.append(branch.clone({ 'author': git.author(root, branch.commit, brief = True) }))
+    return result
   
   @classmethod
   def _list_remote_branches(clazz, root):
@@ -433,13 +440,15 @@ class git(object):
     lines = clazz._parse_lines(rv.stdout)
     lines = [ line for line in lines if not ' -> ' in line ]
     lines = [ string_util.remove_head(line, 'origin/') for line in lines ]
-    return git_branch_list([ git_branch.parse_branch(line, 'remote') for line in lines ])
+    branches = git_branch_list([ git_branch.parse_branch(line, 'remote') for line in lines ])
+    return clazz._branch_list_determine_authors(root, branches)
 
   @classmethod
   def _list_local_branches(clazz, root):
     rv = clazz._call_git(root, [ 'branch', '--verbose', '--list', '--no-color' ])
     lines = clazz._parse_lines(rv.stdout)
-    return git_branch_list([ git_branch.parse_branch(line, 'local') for line in lines ])
+    branches = git_branch_list([ git_branch.parse_branch(line, 'local') for line in lines ])
+    return clazz._branch_list_determine_authors(root, branches)
 
   @classmethod
   def _list_both_branches(clazz, root):
@@ -465,7 +474,7 @@ class git(object):
     for _, branches in branch_map.items():
       result.extend(branches)
     result.sort()
-    return result
+    return clazz._branch_list_determine_authors(root, result)
   
   @classmethod
   def branch_create(clazz, root, branch_name, checkout = False, push = False):
@@ -487,3 +496,17 @@ class git(object):
   @classmethod
   def fetch(clazz, root):
     clazz._call_git(root, [ 'fetch', '--all' ])
+
+  @classmethod
+  def author(clazz, root, commit, brief = False):
+    rv = clazz._call_git(root, [ 'show', '--no-patch', '--pretty=%ae', commit ])
+    author = rv.stdout.strip()
+    if brief:
+      i = author.find('@')
+      if i > 0:
+        author = author[0:i]
+        i = author.find('.')
+        if i > 0:
+          author = author[0:i]
+    return author
+    

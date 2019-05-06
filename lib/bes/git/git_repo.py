@@ -192,4 +192,7 @@ class git_repo(object):
   def fetch(self):
     git.fetch(self.root)
   
+  def author(self, commit):
+    git.author(self.root, commit)
+  
 check.register_class(git_repo)
