@@ -156,13 +156,15 @@ class text_table(object):
     assert renderer
     value_string = renderer.render(value, width = width)
     stream.write(value_string)
+    return value_string
   
   def _write_label(self, x, stream, width):
     value = self._labels[x]
     renderer = self.get_cell_renderer(x, 0)
     assert renderer
-    value = renderer.render(value, width = width, is_label = True)
-    stream.write(value)
+    value_string = renderer.render(value, width = width, is_label = True)
+    stream.write(value_string)
+    return value_string
   
   def _column_width(self, x):
     self._table.check_x(x)
