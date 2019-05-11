@@ -66,8 +66,8 @@ class archive_unix_tar(archive):
     items = self._find(root_dir, base_dir, extra_items, include, exclude)
     ext = archive_extension.extension_for_filename(self.filename)
     mode = archive_extension.write_format_for_filename(self.filename)
-#    print('FUCK: ext=%s' % (ext))
-#    print('FUCK: mode=%s' % (mode))
+#    print('ext=%s' % (ext))
+#    print('mode=%s' % (mode))
     tmp_dir = temp_file.make_temp_dir()
     for item in items:
       file_util.copy(item.filename, path.join(tmp_dir, item.arcname))
