@@ -54,7 +54,7 @@ class text_table(object):
                style = None, column_spacing = None, cell_renderer = None):
     self._labels = None
     self._table = table(width = width, height = height, data = data)
-    self._style = check.check_text_table_style(style or text_table_style_basic())
+    self._style = check.check_text_table_style(style or text_table_style())
     self._row_renderers = {}
     self._col_renderers = {}
     self._cell_renderers = {}
