@@ -2,8 +2,9 @@
 
 import argparse
 from bes.web import web_server_controller
+from bes.web import file_web_server
 from bes.common import string_util
-from bes.compat import input
+from bes.compat.input import input
 from bes.system import log
 
 class web_server_app(object):
@@ -59,7 +60,7 @@ class web_server_app(object):
       port = int(cmd[1])
     else:
       port = None
-    self._controller.start(port = port)
+    self._controller.start(server_class = file_web_server, port = port)
     return True
 
   def _command_port(self, cmd):
