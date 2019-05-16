@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os, tempfile
-from os_env import os_env
+from .os_env import os_env
 
 class env_override(object):
 
