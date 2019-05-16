@@ -158,7 +158,7 @@ class properties(object):
 
   @classmethod
   def load(clazz, style, filename):
-    text = file_util.read(filename)
+    text = file_util.read(filename, codec = 'utf-8')
     return clazz.from_text(style, text, filename)
   
   @classmethod

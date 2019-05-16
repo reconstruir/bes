@@ -81,7 +81,7 @@ class git_repo(object):
   def remote_origin_url(self):
     return git.remote_origin_url(selfroot)
 
-  def add_file(self, filename, content, codec = None, mode = None):
+  def add_file(self, filename, content, codec = 'utf-8', mode = None):
     p = self.file_path(filename)
     assert not path.isfile(p)
     file_util.save(p, content = content, codec = codec, mode = mode)
@@ -89,7 +89,7 @@ class git_repo(object):
     self.commit('add %s' % (filename), [ filename ])
     return self.last_commit_hash(short_hash = True)
 
-  def save_file(self, filename, content, codec = None, mode = None):
+  def save_file(self, filename, content, codec = 'utf-8', mode = None):
     if not self.has_file(filename):
       self.add_file(filename, content, codec = codec, mode = mode)
       return
@@ -97,7 +97,7 @@ class git_repo(object):
     file_util.save(p, content = content, mode = mode)
     self.commit('modify %s' % (filename), [ filename ])
   
-  def read_file(self, filename, codec = None):
+  def read_file(self, filename, codec = 'utf-8'):
     return file_util.read(self.file_path(filename), codec = codec)
 
   def has_file(self, filename):
