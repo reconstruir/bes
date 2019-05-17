@@ -76,11 +76,11 @@ class archiver(object):
                            exclude = exclude)
 
   @classmethod
-  def extract_member_to_string(clazz, archive, member):
+  def extract_member_to_string(clazz, archive, member, codec = None):
     archive_class = clazz._determine_type(archive)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (archive))
-    return archive_class(archive).extract_member_to_string(member)
+    return archive_class(archive).extract_member_to_string(member, codec = codec)
 
   @classmethod
   def extract_member_to_string_cached(clazz, archive, member, cache_dir = None):

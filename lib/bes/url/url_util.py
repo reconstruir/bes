@@ -102,7 +102,7 @@ class url_util(object):
 
     if auth:
       colon_auth = '{}:{}'.format(*auth).encode('utf8')
-      auth_header = base64.encodestring(colon_auth).replace(b'\n', b'')
+      auth_header = base64.encodebytes(colon_auth).replace(b'\n', b'')
       auth_header = auth_header.decode('utf8')
       headers['Authorization'] = 'Basic {}'.format(auth_header)
     
