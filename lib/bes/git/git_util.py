@@ -48,6 +48,8 @@ class git_util(object):
 
   @classmethod
   def name_from_address(clazz, address):
+    if path.isdir(address):
+      return path.basename(address)
     if not address.endswith('.git'):
       raise ValueError('not a git address: %s' % (address))
     buf = StringIO()
