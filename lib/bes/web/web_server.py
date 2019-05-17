@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import multiprocessing
+import base64, multiprocessing
 from wsgiref import simple_server
 from collections import namedtuple
 
@@ -85,7 +84,8 @@ class web_server(with_metaclass(ABCMeta, object)):
         code = self._fail_next_request.value
         self._fail_next_request.value = 0
         return self.response_error(start_response, code)
-      return self.handle_request(environ, start_response)
+      result = self.handle_request(environ, start_response)
+      return result
     httpd = simple_server.make_server('', self._requested_port or 0, _handler, handler_class = self.handler)
     httpd.allow_reuse_address = True
     address = httpd.socket.getsockname()
@@ -103,7 +103,8 @@ class web_server(with_metaclass(ABCMeta, object)):
       return None
     scheme, data = auth.split(None, 1)
     assert scheme.lower() == 'basic'
-    username, password = data.decode('base64').split(':', 1)
+    decoded_data = base64.b64decode(data).decode('utf-8')
+    username, password = decoded_data.split(':', 1)
     return clazz._auth(username, password)
 
   def _validate_auth(self, auth):
@@ -126,9 +127,15 @@ class web_server(with_metaclass(ABCMeta, object)):
   def response_error(self, start_response, code):
     rc = self._RESPONSE_CODES[code]
     start_response(rc.status_message, rc.headers)
+    #return iter([ rc.html.encode('utf-8') ])
     return iter([ rc.html ])
     
   def response_success(self, start_response, code, content, headers):
+    check.check_list(content)
+#    for c in content:
+#      if not hasattr(c, 'decode'):
+#        raise RuntimeError('content should be bytes instead of: {} - "{}"'.format(type(c), str(c)))
+#      d = c.encode('utf-8')
     rc = self._RESPONSE_CODES[code]
     start_response(rc.status_message, headers)
     return iter(content)
