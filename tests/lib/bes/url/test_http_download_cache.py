@@ -40,7 +40,7 @@ class test_http_download_cache(unit_test):
     url = self._make_url(port, 'foo.txt')
 
     self.assertFalse( cache.has_url(url) )
-    self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url)) )
+    self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url), codec = 'utf-8') )
     self.assertTrue( cache.has_url(url) )
 
     

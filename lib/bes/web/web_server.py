@@ -127,8 +127,7 @@ class web_server(with_metaclass(ABCMeta, object)):
   def response_error(self, start_response, code):
     rc = self._RESPONSE_CODES[code]
     start_response(rc.status_message, rc.headers)
-    #return iter([ rc.html.encode('utf-8') ])
-    return iter([ rc.html ])
+    return iter([ rc.html.encode('utf-8') ])
     
   def response_success(self, start_response, code, content, headers):
     check.check_list(content)
