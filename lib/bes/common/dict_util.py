@@ -106,7 +106,7 @@ class dict_util(object):
     """
     fields_found = []
 
-    for key, value in search_dict.iteritems():
+    for key, value in search_dict.items():
 
         if key == field:
             fields_found.append(value)
