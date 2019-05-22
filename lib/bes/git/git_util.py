@@ -8,6 +8,7 @@ from bes.common import string_util
 from bes.system import execute
 
 from .git_repo import git_repo
+from .git import git
 
 class git_util(object):
   'git util.'
@@ -48,6 +49,7 @@ class git_util(object):
 
   @classmethod
   def name_from_address(clazz, address):
+    address = git.resolve_address(address)
     if path.isdir(address):
       return path.basename(address)
     if not address.endswith('.git'):

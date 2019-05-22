@@ -104,6 +104,7 @@ class git(object):
 
   @classmethod
   def clone(clazz, address, dest_dir, enforce_empty_dir = True):
+    address = clazz.resolve_address(address)
     if path.exists(dest_dir):
       if not path.isdir(dest_dir):
         raise RuntimeError('dest_dir %s is not a directory.' % (dest_dir))
@@ -510,3 +511,10 @@ class git(object):
           author = author[0:i]
     return author
     
+  @classmethod
+  def resolve_address(clazz, address):
+    'If address is a local dir, return its absolute path with ~ expanded.  Otherwise just return address.'
+    resolved_address = path.expanduser(address)
+    if path.isdir(resolved_address):
+      return resolved_address
+    return address

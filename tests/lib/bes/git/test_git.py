@@ -240,6 +240,15 @@ class test_git(unittest.TestCase):
     self.assertEqual( 'local', git.determine_where(True, False) )
     self.assertEqual( 'remote', git.determine_where(False, True) )
     self.assertEqual( 'both', git.determine_where(None, None) )
+
+  def test_resolve_address(self):
+    self.assertEqual( 'https://github.com/git/git.git', git.resolve_address('https://github.com/git/git.git') )
+    self.assertEqual( 'git@github.com/git/git.git', git.resolve_address('git@github.com/git/git.git') )
+    with env_override.temp_home() as env:
+      tmp_repo = path.expanduser('~/minerepo')
+      file_util.mkdir(tmp_repo)
+      git.init(tmp_repo)
+      self.assertEqual( tmp_repo, git.resolve_address('~/minerepo') )
     
 if __name__ == "__main__":
   unittest.main()

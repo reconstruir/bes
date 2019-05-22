@@ -17,6 +17,12 @@ class env_override(object):
   def __exit__(self, type, value, traceback):
     self.reset()
     
+  def __getitem__(self, key):
+    return os.environ.get(key)
+    
+  def __setitem__(self, key, value):
+    os.environ[key] = value
+    
   def reset(self):
     os_env.set_current_env(self._original_env)
 
