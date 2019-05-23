@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import json
+import codecs, json
+
 from .object_util import object_util
 
 class json_util(object):
@@ -30,9 +31,12 @@ class json_util(object):
     return json.loads(json_util.to_json(o, indent = 2))
 
   @classmethod
-  def read_file(clazz, filename):
+  def read_file(clazz, filename, codec = None):
     with open(filename, 'r') as f:
-      return json.loads(f.read())
+      content = f.read()
+      if codec:
+        content = codecs.decode(content, codec)
+      return json.loads(content)
     return None
     
   @classmethod
