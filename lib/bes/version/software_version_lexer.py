@@ -12,7 +12,7 @@ from bes.enum import enum
 
 from collections import namedtuple
 
-class version_lexer(object):
+class software_version_lexer(object):
 
   TOKEN_DONE = 'done'
   TOKEN_NUMBER = 'number'

@@ -4,9 +4,9 @@ from bes.common import check
 from bes.compat import cmp
 from bes.text import lexer_token
 
-from .version_lexer import version_lexer
-import functools
-import itertools
+from .software_version_lexer import software_version_lexer
+
+from collections import namedtuple
 
 class version_compare(object):
     
@@ -19,28 +19,28 @@ class version_compare(object):
     '''
     check.check_string(v1)
     check.check_string(v2)
-    tokens1 = [ token for token in version_lexer.tokenize(v1, 'compare') ]
-    tokens2 = [ token for token in version_lexer.tokenize(v2, 'compare') ]
+    tokens1 = [ token for token in software_version_lexer.tokenize(v1, 'compare') ]
+    tokens2 = [ token for token in software_version_lexer.tokenize(v2, 'compare') ]
     return cmp(tokens1, tokens2)
 
   @classmethod
   def sort_versions(clazz, versions, reverse = False):
-    tversions = [ ( index, version_lexer.tokenize(v, 'sort_versions') ) for index, v in enumerate(versions) ]
-    tversions = [ ( [ p for p in version_lexer.tokenize(v, 'sort') ], i ) for i, v in enumerate(versions) ]
+    tversions = [ ( index, software_version_lexer.tokenize(v, 'sort_versions') ) for index, v in enumerate(versions) ]
+    tversions = [ ( [ p for p in software_version_lexer.tokenize(v, 'sort') ], i ) for i, v in enumerate(versions) ]
     tsorted = sorted(tversions, reverse = reverse)
     return [ versions[i] for _, i in tsorted ]
 
   @classmethod
   def change_version(clazz, version, deltas):
-    tokens = version_lexer.tokenize(version, 'change_version')
-    tokens = [ t for t in tokens if t.token_type != version_lexer.TOKEN_DONE ]
-    number_tokens = [ token for token in tokens if token.token_type == version_lexer.TOKEN_NUMBER ]
+    tokens = software_version_lexer.tokenize(version, 'change_version')
+    tokens = [ t for t in tokens if t.token_type != software_version_lexer.TOKEN_DONE ]
+    number_tokens = [ token for token in tokens if token.token_type == software_version_lexer.TOKEN_NUMBER ]
     if len(deltas) > len(number_tokens):
       raise ValueError('Too many deltas (%s) for version: %s' % (str(deltas), version))
     delta_iter = iter(deltas)
     new_tokens = []
     for token in tokens:
-      if token.token_type == version_lexer.TOKEN_NUMBER:
+      if token.token_type == software_version_lexer.TOKEN_NUMBER:
         try:
           delta = next(delta_iter)
           new_token = lexer_token(token.token_type, token.value + delta, token.position)
@@ -67,13 +67,17 @@ class version_compare(object):
         break
     return result
 
+  _parsed_version = namedtuple('_parsed_version', 'parts, delimiter')
   @classmethod
-  def version_to_tuple(clazz, version):
-    'Parse the version and return a tuple of the numeric compoents.  Punctuation is stripped.'
-    tokens = [ token for token in version_lexer.tokenize(version, 'compare') ]
-    number_tokens = [ token for token in tokens if token.token_type == version_lexer.TOKEN_NUMBER ]
-    return tuple([token.value for token in number_tokens])
-
+  def parse_version(clazz, version):
+    'Parse the version and return the parts and delimiters in a _parsed_version tuple.'
+    tokens = [ token for token in software_version_lexer.tokenize(version, 'compare') ]
+    number_tokens = [ token for token in tokens if token.token_type == software_version_lexer.TOKEN_NUMBER ]
+    punctuation_tokens = [ token for token in tokens if token.token_type == software_version_lexer.TOKEN_PUNCTUATION ]
+    parts = tuple([token.value for token in number_tokens])
+    delimiters = tuple([token.value for token in punctuation_tokens])
+    return clazz._parsed_version(parts, delimiters[0] if delimiters else '')
+  
   MAJOR = 0
   MINOR = 1
   REVISION = 2
@@ -91,7 +95,7 @@ class version_compare(object):
   }
 
   @classmethod
-  def bump_version(clazz, version, component = None, delimiter = '.', reset_lower_components = False):
+  def bump_version(clazz, version, component, delimiter = '.', reset_lower_components = False):
     '''
     Bump a version.  If component is MAJOR or MINOR the less significant components
     will be reset to zero:
@@ -102,75 +106,76 @@ class version_compare(object):
     '''
     check.check_string(version)
     check.check_bool(reset_lower_components)
-    version_tuple = list(clazz.version_to_tuple(version))
-    if len(version_tuple) == 3:
-      return clazz._bump_version_three_components(version, version_tuple, component, delimiter, reset_lower_components)
-    elif len(version_tuple) == 2:
-      return clazz._bump_version_two_components(version, version_tuple, component, delimiter, reset_lower_components)
-    elif len(version_tuple) == 1:
-      return clazz._bump_version_one_component(version, version_tuple, component, delimiter)
+    parsed_version = clazz.parse_version(version)
+    parts = list(parsed_version.parts)
+    if len(parts) == 3:
+      return clazz._bump_version_three_components(version, parts, component, delimiter, reset_lower_components)
+    elif len(parts) == 2:
+      return clazz._bump_version_two_components(version, parts, component, delimiter, reset_lower_components)
+    elif len(parts) == 1:
+      return clazz._bump_version_one_component(version, parts, component, delimiter)
     else:
       raise ValueError('version \"%s\" should have at least 1, 2, or 3 components' % (version))
 
   @classmethod
-  def _bump_version_three_components(clazz, version_string, version_tuple, component, delimiter, reset_lower_components):
+  def _bump_version_three_components(clazz, version_string, parts, component, delimiter, reset_lower_components):
     '''
     Bump a 3 component version.
     component=REVISION 1.0.0 -> 1.0.1
     component=MINOR 1.2.3 -> 1.3.0
     component=MAJOR 1.2.3 -> 2.0.0
     '''
-    assert len(version_tuple) == 3
+    assert len(parts) == 3
     if component is None:
       component = clazz.REVISION
     component = clazz._COMPONENT_MAP.get(component, component)
     if component == clazz.MAJOR:
       if reset_lower_components:
-        version_tuple[clazz.MINOR] = 0
-        version_tuple[clazz.REVISION] = 0
+        parts[clazz.MINOR] = 0
+        parts[clazz.REVISION] = 0
       deltas = [ 1, 0, 0 ]
     elif component == clazz.MINOR:
       if reset_lower_components:
-        version_tuple[clazz.REVISION] = 0
+        parts[clazz.REVISION] = 0
       deltas = [ 0, 1, 0 ]
     elif component == clazz.REVISION:
       deltas = [ 0, 0, 1 ]
     else:
       raise ValueError('Invalid component \"{component}\" for \"{version}\"'.format(component = component,
                                                                                     version = version_string))
-    string_version = delimiter.join([ str(c) for c in version_tuple ])
+    string_version = delimiter.join([ str(c) for c in parts ])
     return version_compare.change_version(string_version, deltas)
   
   @classmethod
-  def _bump_version_two_components(clazz, version_string, version_tuple, component, delimiter, reset_lower_components):
+  def _bump_version_two_components(clazz, version_string, parts, component, delimiter, reset_lower_components):
     '''
     Bump a 2 component version.
     component=MINOR 1.2 -> 1.3
     component=MAJOR 1.2 -> 2.0
     '''
-    assert len(version_tuple) == 2
+    assert len(parts) == 2
     if component is None:
       component = clazz.MINOR
     component = clazz._COMPONENT_MAP.get(component, component)
     if component == clazz.MAJOR:
       if reset_lower_components:
-        version_tuple[clazz.MINOR] = 0
+        parts[clazz.MINOR] = 0
       deltas = [ 1, 0 ]
     elif component == clazz.MINOR:
       deltas = [ 0, 1 ]
     else:
       raise ValueError('Invalid component \"{component}\" for \"{version}\"'.format(component = component,
                                                                                     version = version_string))
-    string_version = delimiter.join([ str(c) for c in version_tuple ])
+    string_version = delimiter.join([ str(c) for c in parts ])
     return version_compare.change_version(string_version, deltas)
   
   @classmethod
-  def _bump_version_one_component(clazz, version_string, version_tuple, component, delimiter):
+  def _bump_version_one_component(clazz, version_string, parts, component, delimiter):
     '''
     Bump a 1 component version.
     component=MAJOR 1 -> 2
     '''
-    assert len(version_tuple) == 1
+    assert len(parts) == 1
     if component is None:
       component = clazz.MAJOR
     component = clazz._COMPONENT_MAP.get(component, component)
@@ -179,7 +184,7 @@ class version_compare(object):
     else:
       raise ValueError('Invalid component \"{component}\" for \"{version}\"'.format(component = component,
                                                                                     version = version_string))
-    string_version = delimiter.join([ str(c) for c in version_tuple ])
+    string_version = delimiter.join([ str(c) for c in parts ])
     return version_compare.change_version(string_version, deltas)
   
   @classmethod
@@ -187,9 +192,10 @@ class version_compare(object):
     'Change a component of a version to value.'
     check.check_string(version)
     component = clazz._COMPONENT_MAP.get(component, component)
-    version_tuple = list(clazz.version_to_tuple(version))
-    num_components = len(version_tuple)
+    parsed_version = clazz.parse_version(version)
+    parts = list(parsed_version.parts)
+    num_components = len(parts)
     if component >= num_components:
       raise ValueError('Invalid component \"{}\" for \"{}\"'.format(component, version))
-    version_tuple[component] = value
-    return delimiter.join([ str(c) for c in version_tuple ])
+    parts[component] = value
+    return delimiter.join([ str(c) for c in parts ])

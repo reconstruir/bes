@@ -87,6 +87,8 @@ class config(object):
     new_version = version_compare.bump_version(old_version, component = component, delimiter = '.')
     self.set_value(section, key, new_version)
 
+#  def change_version(clazz, section, key, component, value, delimiter = '.'):
+    
   @classmethod
   def load_from_text(clazz, text, filename):
     parser = clazz._make_parser_from_text(text)

@@ -5,14 +5,14 @@ from bes.testing.unit_test import unit_test
 from bes.text import lexer_token
 from bes.common import point
 
-from bes.version.version_lexer import version_lexer
+from bes.version.software_version_lexer import software_version_lexer
 
-def TDONE(x = 1, y = 1): return lexer_token(version_lexer.TOKEN_DONE, None, point(x, y))
-def TTEXT(s, x = 1, y = 1): return lexer_token(version_lexer.TOKEN_TEXT, s, point(x, y))
-def TPUNCT(s, x = 1, y = 1): return lexer_token(version_lexer.TOKEN_PUNCTUATION, s, point(x, y))
-def TNUM(s, x = 1, y = 1): return lexer_token(version_lexer.TOKEN_NUMBER, s, point(x, y))
+def TDONE(x = 1, y = 1): return lexer_token(software_version_lexer.TOKEN_DONE, None, point(x, y))
+def TTEXT(s, x = 1, y = 1): return lexer_token(software_version_lexer.TOKEN_TEXT, s, point(x, y))
+def TPUNCT(s, x = 1, y = 1): return lexer_token(software_version_lexer.TOKEN_PUNCTUATION, s, point(x, y))
+def TNUM(s, x = 1, y = 1): return lexer_token(software_version_lexer.TOKEN_NUMBER, s, point(x, y))
 
-class test_version_lexer(unit_test):
+class test_software_version_lexer(unit_test):
 
   def test_empty_string(self):
     self.assertEqual( [ TDONE() ],
@@ -64,12 +64,12 @@ class test_version_lexer(unit_test):
     
   @classmethod
   def _tokenize(self, text):
-    return [ token for token in version_lexer.tokenize(text, 'unit_test') ]
+    return [ token for token in software_version_lexer.tokenize(text, 'unit_test') ]
 
   def assertEqual(self, expected, actual):
     assert isinstance(expected, list)
     expected = [ lexer_token(*t) for t in expected ]
-    super(test_version_lexer, self).assertEqual(expected, actual)
+    super(test_software_version_lexer, self).assertEqual(expected, actual)
 
 if __name__ == '__main__':
   unit_test.main()

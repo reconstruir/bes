@@ -190,9 +190,9 @@ ver = 1.2.3
     c.bump_version('something', 'ver')
     self.assertEqual( '1.2.4', c.get_value('something', 'ver') )
     c.bump_version('something', 'ver', component = config.MAJOR)
-    self.assertEqual( '2.0.0', c.get_value('something', 'ver') )
+    self.assertEqual( '2.2.4', c.get_value('something', 'ver') )
     c.bump_version('something', 'ver', component = config.MAJOR)
-    self.assertEqual( '3.0.0', c.get_value('something', 'ver') )
+    self.assertEqual( '3.2.4', c.get_value('something', 'ver') )
     
 if __name__ == '__main__':
   unit_test.main()
