@@ -69,7 +69,7 @@ class version_compare(object):
 
   @classmethod
   def version_to_tuple(clazz, version):
-    'Parse the version and return a tuple of the numeric compoents.  Ppunctuation is stripped.'
+    'Parse the version and return a tuple of the numeric compoents.  Punctuation is stripped.'
     tokens = [ token for token in version_lexer.tokenize(version, 'compare') ]
     number_tokens = [ token for token in tokens if token.token_type == version_lexer.TOKEN_NUMBER ]
     return tuple([token.value for token in number_tokens])
@@ -91,7 +91,7 @@ class version_compare(object):
   }
 
   @classmethod
-  def bump_version(clazz, version, component = None, delimiter = '.'):
+  def bump_version(clazz, version, component = None, delimiter = '.', reset_lower_components = True):
     '''
     Bump a version.  If component is MAJOR or MINOR the less significant components
     will be reset to zero:
@@ -101,18 +101,19 @@ class version_compare(object):
     component=MAJOR 1.2.3 -> 2.0.0
     '''
     check.check_string(version)
+    check.check_bool(reset_lower_components)
     version_tuple = list(clazz.version_to_tuple(version))
     if len(version_tuple) == 3:
-      return clazz._bump_version_three_components(version, version_tuple, component, delimiter)
+      return clazz._bump_version_three_components(version, version_tuple, component, delimiter, reset_lower_components)
     elif len(version_tuple) == 2:
-      return clazz._bump_version_two_components(version, version_tuple, component, delimiter)
+      return clazz._bump_version_two_components(version, version_tuple, component, delimiter, reset_lower_components)
     elif len(version_tuple) == 1:
       return clazz._bump_version_one_component(version, version_tuple, component, delimiter)
     else:
       raise ValueError('version \"%s\" should have at least 1, 2, or 3 components' % (version))
 
   @classmethod
-  def _bump_version_three_components(clazz, version_string, version_tuple, component, delimiter):
+  def _bump_version_three_components(clazz, version_string, version_tuple, component, delimiter, reset_lower_components):
     '''
     Bump a 3 component version.
     component=REVISION 1.0.0 -> 1.0.1
@@ -124,11 +125,13 @@ class version_compare(object):
       component = clazz.REVISION
     component = clazz._COMPONENT_MAP.get(component, component)
     if component == clazz.MAJOR:
-      version_tuple[clazz.MINOR] = 0
-      version_tuple[clazz.REVISION] = 0
+      if reset_lower_components:
+        version_tuple[clazz.MINOR] = 0
+        version_tuple[clazz.REVISION] = 0
       deltas = [ 1, 0, 0 ]
     elif component == clazz.MINOR:
-      version_tuple[clazz.REVISION] = 0
+      if reset_lower_components:
+        version_tuple[clazz.REVISION] = 0
       deltas = [ 0, 1, 0 ]
     elif component == clazz.REVISION:
       deltas = [ 0, 0, 1 ]
@@ -139,7 +142,7 @@ class version_compare(object):
     return version_compare.change_version(string_version, deltas)
   
   @classmethod
-  def _bump_version_two_components(clazz, version_string, version_tuple, component, delimiter):
+  def _bump_version_two_components(clazz, version_string, version_tuple, component, delimiter, reset_lower_components):
     '''
     Bump a 2 component version.
     component=MINOR 1.2 -> 1.3
@@ -150,7 +153,8 @@ class version_compare(object):
       component = clazz.MINOR
     component = clazz._COMPONENT_MAP.get(component, component)
     if component == clazz.MAJOR:
-      version_tuple[clazz.MINOR] = 0
+      if reset_lower_components:
+        version_tuple[clazz.MINOR] = 0
       deltas = [ 1, 0 ]
     elif component == clazz.MINOR:
       deltas = [ 0, 1 ]
@@ -178,3 +182,14 @@ class version_compare(object):
     string_version = delimiter.join([ str(c) for c in version_tuple ])
     return version_compare.change_version(string_version, deltas)
   
+  @classmethod
+  def change_component(clazz, version, component, value, delimiter = '.'):
+    'Change a component of a version to value.'
+    check.check_string(version)
+    component = clazz._COMPONENT_MAP.get(component, component)
+    version_tuple = list(clazz.version_to_tuple(version))
+    num_components = len(version_tuple)
+    if component >= num_components:
+      raise ValueError('Invalid component \"{}\" for \"{}\"'.format(component, version))
+    version_tuple[component] = value
+    return delimiter.join([ str(c) for c in version_tuple ])

@@ -99,6 +99,30 @@ class test_version_compare(unit_test):
     self.assertEqual( '1.0.1', VC.bump_version('1.0.0', component = VC.REVISION) )
     self.assertEqual( '1.1.1', VC.bump_version('1.1.0', component = VC.REVISION) )
 
+  def test_bump_version_major_dont_reset_lower_components(self):
+    self.assertEqual( '2.0.0', VC.bump_version('1.0.0', component = VC.MAJOR, reset_lower_components = False) )
+    self.assertEqual( '2.0.1', VC.bump_version('1.0.1', component = VC.MAJOR, reset_lower_components = False) )
+    self.assertEqual( '2.1.0', VC.bump_version('1.1.0', component = VC.MAJOR, reset_lower_components = False) )
+    self.assertEqual( '2.1.1', VC.bump_version('1.1.1', component = VC.MAJOR, reset_lower_components = False) )
+    self.assertEqual( '2.0.0', VC.bump_version('1.0.0', component = VC.MAJOR, reset_lower_components = False) )
+    self.assertEqual( '2.0.1', VC.bump_version('1.0.1', component = VC.MAJOR, reset_lower_components = False) )
+    self.assertEqual( '2.1.0', VC.bump_version('1.1.0', component = VC.MAJOR, reset_lower_components = False) )
+    self.assertEqual( '2.1.1', VC.bump_version('1.1.1', component = VC.MAJOR, reset_lower_components = False) )
+ 
+  def test_bump_version_minor_dont_reset_lower_components(self):
+    self.assertEqual( '1.1.0', VC.bump_version('1.0.0', component = VC.MINOR, reset_lower_components = False) )
+    self.assertEqual( '1.1.1', VC.bump_version('1.0.1', component = VC.MINOR, reset_lower_components = False) )
+    self.assertEqual( '1.2.1', VC.bump_version('1.1.1', component = VC.MINOR, reset_lower_components = False) )
+    self.assertEqual( '1.1.0', VC.bump_version('1.0.0', component = VC.MINOR, reset_lower_components = False) )
+    self.assertEqual( '1.1.1', VC.bump_version('1.0.1', component = VC.MINOR, reset_lower_components = False) )
+    self.assertEqual( '1.2.1', VC.bump_version('1.1.1', component = VC.MINOR, reset_lower_components = False) )
+ 
+  def test_bump_version_revision_dont_reset_lower_components(self):
+    self.assertEqual( '1.0.1', VC.bump_version('1.0.0', component = VC.REVISION, reset_lower_components = False) )
+    self.assertEqual( '1.1.1', VC.bump_version('1.1.0', component = VC.REVISION, reset_lower_components = False) )
+    self.assertEqual( '1.0.1', VC.bump_version('1.0.0', component = VC.REVISION, reset_lower_components = False) )
+    self.assertEqual( '1.1.1', VC.bump_version('1.1.0', component = VC.REVISION, reset_lower_components = False) )
+
   def test_bump_version_invalid_component(self):
     with self.assertRaises(ValueError) as _:
       VC.bump_version('1.0.0', component = 3)
@@ -124,6 +148,20 @@ class test_version_compare(unit_test):
       VC.bump_version('1', component = VC.MINOR)
     with self.assertRaises(ValueError) as _:
       VC.bump_version('1', component = VC.REVISION)
-      
+
+  def test_change_component(self):
+    self.assertEqual( '1.2.3', VC.change_component('1.2.2', VC.REVISION, '3') )
+    self.assertEqual( '1.3.2', VC.change_component('1.2.2', VC.MINOR, '3') )
+    self.assertEqual( '3.2.2', VC.change_component('1.2.2', VC.MAJOR, '3') )
+    self.assertEqual( '1.2.3', VC.change_component('1.2.2', 'revision', '3') )
+    self.assertEqual( '1.3.2', VC.change_component('1.2.2', 'minor', '3') )
+    self.assertEqual( '3.2.2', VC.change_component('1.2.2', 'major', '3') )
+    self.assertEqual( '1.2.3', VC.change_component('1.2.2', 2, '3') )
+    self.assertEqual( '1.3.2', VC.change_component('1.2.2', 1, '3') )
+    self.assertEqual( '3.2.2', VC.change_component('1.2.2', 0, '3') )
+
+    with self.assertRaises(ValueError) as _:
+      VC.change_component('1.2.2', 4, '3')
+                      
 if __name__ == "__main__":
   unit_test.main()
