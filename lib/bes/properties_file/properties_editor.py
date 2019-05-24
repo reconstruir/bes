@@ -33,21 +33,18 @@ class properties_editor(object):
   def get_value(self, key):
     check.check_string(key)
     self._check_file_exists()
-    props = properties.load(self._style, self._filename)
     self._check_key(key)
     return self._properties.get_value(key)
 
   def remove_value(self, key):
     check.check_string(key)
     self._check_file_exists()
-    props = properties.load(self._style, self._filename)
     self._check_key(key)
     self._properties.remove_value(key)
     self._properties.save(self._style, self._filename)
 
   def keys(self):
     self._check_file_exists()
-    props = properties.load(self._style, self._filename)
     return self._properties.keys()
 
   def bump_version(self, key, component = None):
@@ -57,7 +54,6 @@ class properties_editor(object):
 
   def properties(self):
     self._check_file_exists()
-    props = properties.load(self._style, self._filename)
     return self._properties.properties()
     
   def _check_file_exists(self):

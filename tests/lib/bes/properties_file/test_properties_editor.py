@@ -75,6 +75,37 @@ fruit: kiwi
     tmp = temp_file.make_temp_file(content = content)
     e = PE(tmp)
     self.assertEqual( [ 'fruit' ], e.keys() )
+
+  def test_get_value(self):
+    content = """\
+color: 'green'
+fruit: 'kiwi'
+"""
+    tmp = temp_file.make_temp_file(content = content)
+    e = PE(tmp)
+    self.assertEqual( 'green', e.get_value('color') )
+    self.assertEqual( 'kiwi', e.get_value('fruit') )
+    
+  def test_remove_value(self):
+    content = """\
+color: 'green'
+fruit: 'kiwi'
+"""
+    tmp = temp_file.make_temp_file(content = content)
+    e = PE(tmp)
+    self.assertEqual( 'green', e.get_value('color') )
+    e.remove_value('color')
+    with self.assertRaises(KeyError) as ctx:
+      e.get_value('color')
+    
+  def test_properties(self):
+    content = """\
+color: 'green'
+fruit: 'kiwi'
+"""
+    tmp = temp_file.make_temp_file(content = content)
+    e = PE(tmp)
+    self.assertEqual( { 'color': 'green', 'fruit': 'kiwi' }, e.properties() )
     
 if __name__ == '__main__':
   unit_test.main()
