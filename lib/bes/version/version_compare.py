@@ -91,7 +91,7 @@ class version_compare(object):
   }
 
   @classmethod
-  def bump_version(clazz, version, component = None, delimiter = '.', reset_lower_components = True):
+  def bump_version(clazz, version, component = None, delimiter = '.', reset_lower_components = False):
     '''
     Bump a version.  If component is MAJOR or MINOR the less significant components
     will be reset to zero:
