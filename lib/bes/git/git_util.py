@@ -105,20 +105,10 @@ class git_util(object):
   
   @classmethod
   def repo_run_script(clazz, address, script, args, push, dry_run):
-    tmp_dir, repo = clazz._clone_to_temp_dir(address)
-    if not repo.has_file(script):
-      raise IOError('script not found in {}/{}'.format(address, script))
-    if dry_run:
-      print('would run {}/{} {} push={}'.format(address, script, args or '', push))
-      return None
-    cmd = [ script ]
-    if args:
-      cmd.extend(args)
-    rv = execute.execute(cmd, cwd = repo.root)
-    if push:
-      repo.push()
-    return rv
-
+    scripts = [ clazz.script(script, args or []) ]
+    results = clazz.repo_run_scripts(address, scripts, push, dry_run)
+    return results[0]
+                
   script = namedtuple('script', 'filename, args')
   @classmethod
   def repo_run_scripts(clazz, address, scripts, push, dry_run):
@@ -129,6 +119,7 @@ class git_util(object):
         raise IOError('script not found in {}/{}'.format(address, script.filename))
       if dry_run:
         print('would run {}/{} {} push={}'.format(address, script.filename, script.args or '', push))
+        results.append(None)
       else:
         cmd = [ script.filename ]
         if script.args:

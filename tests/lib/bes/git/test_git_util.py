@@ -155,9 +155,9 @@ exit 0
       git_util.script('scripts/script1.sh', [ 'yellow' ]),
       git_util.script('scripts/script2.sh', [ 'kiwi' ]),
     ]
-    rv = git_util.repo_run_scripts(r1.address, scripts, True, False)
-    self.assertEqual( 0, rv[0].exit_code )
-    self.assertEqual( 0, rv[1].exit_code )
+    results = git_util.repo_run_scripts(r1.address, scripts, True, False)
+    self.assertEqual( 0, results[0].exit_code )
+    self.assertEqual( 0, results[1].exit_code )
 
     r2 = r1.make_temp_cloned_repo()
     self.assertEqual( 'yellow', r2.read_file('color.txt').strip() )
