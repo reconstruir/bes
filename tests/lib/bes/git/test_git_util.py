@@ -98,7 +98,7 @@ exit 0
       r.push('origin', 'master')
       r.tag('1.0.0')
       r.push_tag('1.0.0')
-      rv = git_util.repo_run_script(r.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], False, False)
+      rv = git_util.repo_run_script(r.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], False, None, False)
       self.assertEqual( 0, rv.exit_code )
       self.assertEqual( 'kiwi.sh arg1 arg2', rv.stdout.strip() )
     
@@ -115,7 +115,7 @@ exit 0
       r.push('origin', 'master')
       r.tag('1.0.0')
       r.push_tag('1.0.0')
-      rv = git_util.repo_run_script(r.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], False, True)
+      rv = git_util.repo_run_script(r.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], False, None, True)
       self.assertEqual( None, rv )
 
   def test_repo_run_script_push(self):
@@ -133,7 +133,7 @@ exit 0
       r1.push('origin', 'master')
       r1.tag('1.0.0')
       r1.push_tag('1.0.0')
-      rv = git_util.repo_run_script(r1.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], True, False)
+      rv = git_util.repo_run_script(r1.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], True, None, False)
       self.assertEqual( 0, rv.exit_code )
 
       r2 = r1.make_temp_cloned_repo()
@@ -166,13 +166,35 @@ exit 0
         git_util.script('scripts/script1.sh', [ 'yellow' ]),
         git_util.script('scripts/script2.sh', [ 'kiwi' ]),
       ]
-      results = git_util.repo_run_scripts(r1.address, scripts, True, False)
+      results = git_util.repo_run_scripts(r1.address, scripts, True, None, False)
       self.assertEqual( 0, results[0].exit_code )
       self.assertEqual( 0, results[1].exit_code )
 
       r2 = r1.make_temp_cloned_repo()
       self.assertEqual( 'yellow', r2.read_file('color.txt').strip() )
       self.assertEqual( 'kiwi', r2.read_file('fruit.txt').strip() )
-    
+
+  def test_repo_run_script_bump_tag(self):
+    with env_override.temp_home() as env:
+      git_unit_test.set_identity()
+      r1 = git_temp_repo()
+      content = '''\
+#!/bin/bash
+exit 0
+'''
+      r1.add_file('scripts/nothing.sh', content, mode = 0o0755)
+      r1.push('origin', 'master')
+      r1.tag('1.0.0')
+      r1.push_tag('1.0.0')
+      rv = git_util.repo_run_script(r1.address, 'scripts/nothing.sh', [], False, 'revision', False)
+      self.assertEqual( 0, rv.exit_code )
+
+      r2 = r1.make_temp_cloned_repo()
+      self.assertEqual( '1.0.1', r2.greatest_local_tag() )
+
+      rv = git_util.repo_run_script(r1.address, 'scripts/nothing.sh', [], False, 'major', False)
+      self.assertEqual( 0, rv.exit_code )
+      self.assertEqual( '2.0.1', r2.greatest_remote_tag() )
+      
 if __name__ == '__main__':
   unit_test.main()

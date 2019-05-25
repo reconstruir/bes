@@ -104,14 +104,14 @@ class git_util(object):
     return tmp_dir, r
   
   @classmethod
-  def repo_run_script(clazz, address, script, args, push, dry_run):
+  def repo_run_script(clazz, address, script, args, push, bump_tag_component, dry_run):
     scripts = [ clazz.script(script, args or []) ]
-    results = clazz.repo_run_scripts(address, scripts, push, dry_run)
+    results = clazz.repo_run_scripts(address, scripts, push, bump_tag_component, dry_run)
     return results[0]
                 
   script = namedtuple('script', 'filename, args')
   @classmethod
-  def repo_run_scripts(clazz, address, scripts, push, dry_run):
+  def repo_run_scripts(clazz, address, scripts, push, bump_tag_component, dry_run):
     tmp_dir, repo = clazz._clone_to_temp_dir(address)
     results = []
     for script in scripts:
@@ -127,7 +127,15 @@ class git_util(object):
         rv = execute.execute(cmd, cwd = repo.root)
         results.append(rv)
     if push:
-      repo.push()
+      if dry_run:
+        print('would push to {}'.format(address))
+      else:
+        repo.push()
+    if bump_tag_component is not None:
+      if dry_run:
+        print('would bump tag to {}'.format(address))
+      else:
+        repo.bump_tag(bump_tag_component, push = True)
     return results
   
   @classmethod
