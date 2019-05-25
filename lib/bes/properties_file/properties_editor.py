@@ -52,6 +52,11 @@ class properties_editor(object):
     self._properties.bump_version(key, component, reset_lower = reset_lower)
     self._properties.save(self._style, self._filename)
 
+  def change_version(self, key, component, value):
+    check.check_string(key)
+    self._properties.change_version(key, component, value)
+    self._properties.save(self._style, self._filename)
+    
   def properties(self):
     self._check_file_exists()
     return self._properties.properties()

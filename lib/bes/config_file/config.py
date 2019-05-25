@@ -87,6 +87,14 @@ class config(object):
     new_version = software_version.bump_version(old_version, component, reset_lower = reset_lower)
     self.set_value(section, key, new_version)
 
+  def change_version(self, section, key, component, value):
+    if not self.has_value(section, key):
+      self.set_value(key, default_value or '1.0.0')
+      return
+    old_version = self.get_value(section, key)
+    new_version = software_version.change_component(old_version, component, value)
+    self.set_value(section, key, new_version)
+    
   @classmethod
   def load_from_text(clazz, text, filename):
     parser = clazz._make_parser_from_text(text)

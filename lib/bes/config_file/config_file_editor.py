@@ -44,6 +44,12 @@ class config_file_editor(object):
     self._config.bump_version(section, key, component, reset_lower = reset_lower)
     self._config.save(self._filename)
 
+  def change_version(self, section, key, component, value):
+    check.check_string(section)
+    check.check_string(key)
+    self._config.change_version(section, key, component, value)
+    self._config.save(self._filename)
+    
   def _check_file_exists(self):
     if not path.exists(self._filename):
       raise IOError('config file not found: {}'.format(self._filename))

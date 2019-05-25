@@ -107,5 +107,23 @@ fruit: 'kiwi'
     e = PE(tmp)
     self.assertEqual( { 'color': 'green', 'fruit': 'kiwi' }, e.properties() )
     
+  def test_bump_version(self):
+    content = """\
+version: 1.2.3
+"""
+    tmp = temp_file.make_temp_file(content = content)
+    e = PE(tmp)
+    e.bump_version('version', 'major')
+    self.assertEqual( '2.2.3', e.get_value('version') )
+    
+  def test_change_version(self):
+    content = """\
+version: 1.2.3
+"""
+    tmp = temp_file.make_temp_file(content = content)
+    e = PE(tmp)
+    e.change_version('version', 'major', 9)
+    self.assertEqual( '9.2.3', e.get_value('version') )
+    
 if __name__ == '__main__':
   unit_test.main()

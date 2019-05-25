@@ -66,5 +66,19 @@ ver = 1.2.3
     e.bump_version('something', 'ver', 'minor')
     self.assertEqual( '3.1.0', e.get_value('something', 'ver') )
     
+  def test_change_version(self):
+    content = '''\
+[something]
+ver = 1.2.3
+'''
+    e = CFE(temp_file.make_temp_file(content = content))
+    self.assertEqual( '1.2.3', e.get_value('something', 'ver') )
+    e.change_version('something', 'ver', 'major', 9)
+    self.assertEqual( '9.2.3', e.get_value('something', 'ver') )
+    e.change_version('something', 'ver', 'minor', 6)
+    self.assertEqual( '9.6.3', e.get_value('something', 'ver') )
+    e.change_version('something', 'ver', 'revision', 8)
+    self.assertEqual( '9.6.8', e.get_value('something', 'ver') )
+    
 if __name__ == '__main__':
   unit_test.main()

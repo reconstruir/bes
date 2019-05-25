@@ -181,18 +181,24 @@ fruit = durian
     self.assertMultiLineEqual( text, file_util.read(tmp, codec = 'utf-8') )
 
   def test_bump_version(self):
-    text = '''\
-[something]
-ver = 1.2.3
-'''
-    c = config.load_from_text(text, '<unittest>')
-    self.assertEqual( '1.2.3', c.get_value('something', 'ver') )
-    c.bump_version('something', 'ver', config.REVISION)
-    self.assertEqual( '1.2.4', c.get_value('something', 'ver') )
-    c.bump_version('something', 'ver', config.MAJOR)
-    self.assertEqual( '2.2.4', c.get_value('something', 'ver') )
-    c.bump_version('something', 'ver', config.MAJOR)
-    self.assertEqual( '3.2.4', c.get_value('something', 'ver') )
+    c = config.load_from_text('[something]\nversion = 1.2.3\n', '<unittest>')
+    self.assertEqual( '1.2.3', c.get_value('something', 'version') )
+    c.bump_version('something', 'version', config.REVISION)
+    self.assertEqual( '1.2.4', c.get_value('something', 'version') )
+    c.bump_version('something', 'version', config.MAJOR)
+    self.assertEqual( '2.2.4', c.get_value('something', 'version') )
+    c.bump_version('something', 'version', config.MAJOR)
+    self.assertEqual( '3.2.4', c.get_value('something', 'version') )
+    
+  def test_change_version(self):
+    c = config.load_from_text('[something]\nversion = 1.2.3\n', '<unittest>')
+    self.assertEqual( '1.2.3', c.get_value('something', 'version') )
+    c.change_version('something', 'version', config.MAJOR, 9)
+    self.assertEqual( '9.2.3', c.get_value('something', 'version') )
+    c.change_version('something', 'version', config.MINOR, 6)
+    self.assertEqual( '9.6.3', c.get_value('something', 'version') )
+    c.change_version('something', 'version', config.REVISION, 8)
+    self.assertEqual( '9.6.8', c.get_value('something', 'version') )
     
 if __name__ == '__main__':
   unit_test.main()

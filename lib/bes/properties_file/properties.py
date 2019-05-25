@@ -123,6 +123,14 @@ class properties(object):
     new_version = software_version.bump_version(old_version, component, reset_lower = reset_lower)
     self.set_value(key, new_version)
 
+  def change_version(self, key, component, value):
+    if not self.has_value(key):
+      self.set_value(key, default_value or '1.0.0')
+      return
+    old_version = self.get_value(key)
+    new_version = software_version.change_component(old_version, component, value)
+    self.set_value(key, new_version)
+    
   @classmethod
   def _parse_text(clazz, text, filename, delimiter):
     check.check_string(text)

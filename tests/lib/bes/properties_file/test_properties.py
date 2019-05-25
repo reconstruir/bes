@@ -106,5 +106,15 @@ version=1.2.3
     a = P()
     self.assertMultiLineEqual( '', a.to_java_text() )
 
+  def test_change_version(self):
+    a = P.from_yaml_text('version: 1.2.3\n', '<unitest>')
+    self.assertEqual( '1.2.3', a.get_value('version') )
+    a.change_version('version', P.MAJOR, 9)
+    self.assertEqual( '9.2.3', a.get_value('version') )
+    a.change_version('version', P.MINOR, 6)
+    self.assertEqual( '9.6.3', a.get_value('version') )
+    a.change_version('version', P.REVISION, 8)
+    self.assertEqual( '9.6.8', a.get_value('version') )
+    
 if __name__ == '__main__':
   unit_test.main()
