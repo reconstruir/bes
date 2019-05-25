@@ -111,7 +111,7 @@ exit 0
     rv = git_util.repo_run_script(r.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], False, True)
     self.assertEqual( None, rv )
 
-  def test_repo_run_script(self):
+  def test_repo_run_script_push(self):
     r1 = git_temp_repo()
     content = '''\
 #!/bin/bash
@@ -126,10 +126,42 @@ exit 0
     r1.push_tag('1.0.0')
     rv = git_util.repo_run_script(r1.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], True, False)
     self.assertEqual( 0, rv.exit_code )
-    #self.assertEqual( 'kiwi.sh arg1 arg2', rv.stdout.strip() )
 
     r2 = r1.make_temp_cloned_repo()
     self.assertEqual( 'yellow', r2.read_file('color.txt').strip() )
+
+  def test_repo_run_scripts_push1(self):
+    r1 = git_temp_repo()
+    content1 = '''\
+#!/bin/bash
+echo ${1} > color.txt
+git add color.txt
+git commit -madd color.txt
+exit 0
+'''
+    content2 = '''\
+#!/bin/bash
+echo ${1} > fruit.txt
+git add fruit.txt
+git commit -madd fruit.txt
+exit 0
+'''
+    r1.add_file('scripts/script1.sh', content1, mode = 0o0755)
+    r1.add_file('scripts/script2.sh', content2, mode = 0o0755)
+    r1.push('origin', 'master')
+    r1.tag('1.0.0')
+    r1.push_tag('1.0.0')
+    scripts = [
+      git_util.script('scripts/script1.sh', [ 'yellow' ]),
+      git_util.script('scripts/script2.sh', [ 'kiwi' ]),
+    ]
+    rv = git_util.repo_run_scripts(r1.address, scripts, True, False)
+    self.assertEqual( 0, rv[0].exit_code )
+    self.assertEqual( 0, rv[1].exit_code )
+
+    r2 = r1.make_temp_cloned_repo()
+    self.assertEqual( 'yellow', r2.read_file('color.txt').strip() )
+    self.assertEqual( 'kiwi', r2.read_file('fruit.txt').strip() )
     
 if __name__ == '__main__':
   unit_test.main()

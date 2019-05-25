@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os, os.path as path
+from collections import namedtuple
+
 from bes.fs import file_find, file_type, file_util, temp_file
 from bes.fs.find import finder, criteria, file_type_criteria, max_depth_criteria, pattern_criteria
 from bes.compat import StringIO
@@ -117,6 +119,26 @@ class git_util(object):
       repo.push()
     return rv
 
+  script = namedtuple('script', 'filename, args')
+  @classmethod
+  def repo_run_scripts(clazz, address, scripts, push, dry_run):
+    tmp_dir, repo = clazz._clone_to_temp_dir(address)
+    results = []
+    for script in scripts:
+      if not repo.has_file(script.filename):
+        raise IOError('script not found in {}/{}'.format(address, script.filename))
+      if dry_run:
+        print('would run {}/{} {} push={}'.format(address, script.filename, script.args or '', push))
+      else:
+        cmd = [ script.filename ]
+        if script.args:
+          cmd.extend(script.args)
+        rv = execute.execute(cmd, cwd = repo.root)
+        results.append(rv)
+    if push:
+      repo.push()
+    return results
+  
   @classmethod
   def find_root_dir(clazz, start_dir = None):
     'Find the root of a git repo starting at start_dir or None if not found.'
