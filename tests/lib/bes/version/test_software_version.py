@@ -153,6 +153,7 @@ class test_software_version(unit_test):
     self.assertEqual( '1.2.3', VC.change_component('1.2.2', 2, '3') )
     self.assertEqual( '1.3.2', VC.change_component('1.2.2', 1, '3') )
     self.assertEqual( '3.2.2', VC.change_component('1.2.2', 0, '3') )
+    self.assertEqual( '3-2-2', VC.change_component('1-2-2', 0, '3') )
 
     with self.assertRaises(ValueError) as _:
       VC.change_component('1.2.2', 4, '3')

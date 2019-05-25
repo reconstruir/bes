@@ -189,7 +189,7 @@ class software_version(object):
     return software_version.change_version(string_version, deltas)
   
   @classmethod
-  def change_component(clazz, version, component, value, delimiter = '.'):
+  def change_component(clazz, version, component, value):
     'Change a component of a version to value.'
     check.check_string(version)
     component = clazz._COMPONENT_MAP.get(component, component)
@@ -199,4 +199,4 @@ class software_version(object):
     if component >= num_components:
       raise ValueError('Invalid component \"{}\" for \"{}\"'.format(component, version))
     parts[component] = value
-    return delimiter.join([ str(c) for c in parts ])
+    return parsed_version.delimiter.join([ str(c) for c in parts ])
