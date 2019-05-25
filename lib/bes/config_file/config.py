@@ -9,7 +9,7 @@ from bes.compat import StringIO
 from bes.fs import file_util
 from bes.key_value import key_value
 from bes.text import text_line_parser
-from bes.version.version_compare import version_compare
+from bes.version.software_version import software_version
 from bes.system import log
 
 class config(object):
@@ -76,19 +76,17 @@ class config(object):
   def save(self, filename, codec = None):
     file_util.save(filename, content = str(self), codec = codec)
 
-  MAJOR = version_compare.MAJOR
-  MINOR = version_compare.MINOR
-  REVISION = version_compare.REVISION
-  def bump_version(self, section, key, component = None, default_value = None):
+  MAJOR = software_version.MAJOR
+  MINOR = software_version.MINOR
+  REVISION = software_version.REVISION
+  def bump_version(self, section, key, component, default_value = None, reset_lower = False):
     if not self.has_value(section, key):
       self.set_value(section, key, default_value or '1.0.0')
       return
     old_version = self.get_value(section, key)
-    new_version = version_compare.bump_version(old_version, component = component, delimiter = '.')
+    new_version = software_version.bump_version(old_version, component, reset_lower = reset_lower)
     self.set_value(section, key, new_version)
 
-#  def change_version(clazz, section, key, component, value, delimiter = '.'):
-    
   @classmethod
   def load_from_text(clazz, text, filename):
     parser = clazz._make_parser_from_text(text)

@@ -38,10 +38,10 @@ class config_file_editor(object):
     self._check_key(section, key)
     return self._config.get_value(section, key)
 
-  def bump_version(self, section, key, component = None):
+  def bump_version(self, section, key, component, reset_lower = False):
     check.check_string(section)
     check.check_string(key)
-    self._config.bump_version(section, key, component = component)
+    self._config.bump_version(section, key, component, reset_lower = reset_lower)
     self._config.save(self._filename)
 
   def _check_file_exists(self):

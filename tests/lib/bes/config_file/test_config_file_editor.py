@@ -50,5 +50,21 @@ fruit = kiwi
     self.assertMultiLineEqual(content, file_util.read(tmp, codec = 'utf-8') )
     self.assertEqual( 'kiwi', e.get_value('something', 'fruit') )
     
+  def test_bump_version(self):
+    content = '''\
+[something]
+ver = 1.2.3
+'''
+    e = CFE(temp_file.make_temp_file(content = content))
+    self.assertEqual( '1.2.3', e.get_value('something', 'ver') )
+    e.bump_version('something', 'ver', 'revision')
+    self.assertEqual( '1.2.4', e.get_value('something', 'ver') )
+    e.bump_version('something', 'ver', 'major')
+    self.assertEqual( '2.2.4', e.get_value('something', 'ver') )
+    e.bump_version('something', 'ver', 'major', reset_lower = True)
+    self.assertEqual( '3.0.0', e.get_value('something', 'ver') )
+    e.bump_version('something', 'ver', 'minor')
+    self.assertEqual( '3.1.0', e.get_value('something', 'ver') )
+    
 if __name__ == '__main__':
   unit_test.main()

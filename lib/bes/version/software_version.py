@@ -8,8 +8,9 @@ from .software_version_lexer import software_version_lexer
 
 from collections import namedtuple
 
-class version_compare(object):
-    
+class software_version(object):
+  'Class to manipulate, sort and compare softeware versions numerically.'
+  
   @classmethod
   def compare(clazz, v1, v2):
     '''
@@ -95,7 +96,7 @@ class version_compare(object):
   }
 
   @classmethod
-  def bump_version(clazz, version, component, delimiter = '.', reset_lower_components = False):
+  def bump_version(clazz, version, component, reset_lower = False):
     '''
     Bump a version.  If component is MAJOR or MINOR the less significant components
     will be reset to zero:
@@ -105,20 +106,20 @@ class version_compare(object):
     component=MAJOR 1.2.3 -> 2.0.0
     '''
     check.check_string(version)
-    check.check_bool(reset_lower_components)
+    check.check_bool(reset_lower)
     parsed_version = clazz.parse_version(version)
     parts = list(parsed_version.parts)
     if len(parts) == 3:
-      return clazz._bump_version_three_components(version, parts, component, delimiter, reset_lower_components)
+      return clazz._bump_version_three_components(version, parts, component, parsed_version.delimiter, reset_lower)
     elif len(parts) == 2:
-      return clazz._bump_version_two_components(version, parts, component, delimiter, reset_lower_components)
+      return clazz._bump_version_two_components(version, parts, component, parsed_version.delimiter, reset_lower)
     elif len(parts) == 1:
-      return clazz._bump_version_one_component(version, parts, component, delimiter)
+      return clazz._bump_version_one_component(version, parts, component, parsed_version.delimiter)
     else:
       raise ValueError('version \"%s\" should have at least 1, 2, or 3 components' % (version))
 
   @classmethod
-  def _bump_version_three_components(clazz, version_string, parts, component, delimiter, reset_lower_components):
+  def _bump_version_three_components(clazz, version_string, parts, component, delimiter, reset_lower):
     '''
     Bump a 3 component version.
     component=REVISION 1.0.0 -> 1.0.1
@@ -130,12 +131,12 @@ class version_compare(object):
       component = clazz.REVISION
     component = clazz._COMPONENT_MAP.get(component, component)
     if component == clazz.MAJOR:
-      if reset_lower_components:
+      if reset_lower:
         parts[clazz.MINOR] = 0
         parts[clazz.REVISION] = 0
       deltas = [ 1, 0, 0 ]
     elif component == clazz.MINOR:
-      if reset_lower_components:
+      if reset_lower:
         parts[clazz.REVISION] = 0
       deltas = [ 0, 1, 0 ]
     elif component == clazz.REVISION:
@@ -144,10 +145,10 @@ class version_compare(object):
       raise ValueError('Invalid component \"{component}\" for \"{version}\"'.format(component = component,
                                                                                     version = version_string))
     string_version = delimiter.join([ str(c) for c in parts ])
-    return version_compare.change_version(string_version, deltas)
+    return software_version.change_version(string_version, deltas)
   
   @classmethod
-  def _bump_version_two_components(clazz, version_string, parts, component, delimiter, reset_lower_components):
+  def _bump_version_two_components(clazz, version_string, parts, component, delimiter, reset_lower):
     '''
     Bump a 2 component version.
     component=MINOR 1.2 -> 1.3
@@ -158,7 +159,7 @@ class version_compare(object):
       component = clazz.MINOR
     component = clazz._COMPONENT_MAP.get(component, component)
     if component == clazz.MAJOR:
-      if reset_lower_components:
+      if reset_lower:
         parts[clazz.MINOR] = 0
       deltas = [ 1, 0 ]
     elif component == clazz.MINOR:
@@ -167,7 +168,7 @@ class version_compare(object):
       raise ValueError('Invalid component \"{component}\" for \"{version}\"'.format(component = component,
                                                                                     version = version_string))
     string_version = delimiter.join([ str(c) for c in parts ])
-    return version_compare.change_version(string_version, deltas)
+    return software_version.change_version(string_version, deltas)
   
   @classmethod
   def _bump_version_one_component(clazz, version_string, parts, component, delimiter):
@@ -185,7 +186,7 @@ class version_compare(object):
       raise ValueError('Invalid component \"{component}\" for \"{version}\"'.format(component = component,
                                                                                     version = version_string))
     string_version = delimiter.join([ str(c) for c in parts ])
-    return version_compare.change_version(string_version, deltas)
+    return software_version.change_version(string_version, deltas)
   
   @classmethod
   def change_component(clazz, version, component, value, delimiter = '.'):

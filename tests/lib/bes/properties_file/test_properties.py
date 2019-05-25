@@ -8,9 +8,6 @@ from bes.properties_file.properties import properties as P
 
 class test_properties(unit_test):
 
-  DEBUG = unit_test.DEBUG
-  #DEBUG = True
-
   def test_load_from_empty_yaml(self):
     text = ''
     a = P.from_yaml_text('', '<unitest>')
@@ -45,26 +42,26 @@ version: 1.2.3
 
   def test_bump_version_non_existent(self):
     a = P()
-    a.bump_version('version')
+    a.bump_version('version', P.REVISION)
     self.assertEqual( '1.0.0', a.get_value('version') )
     
   def test_bump_version_existing(self):
     a = P()
     a.set_value('version', '1.2.3')
-    a.bump_version('version')
+    a.bump_version('version', P.REVISION)
     self.assertEqual( '1.2.4', a.get_value('version') )
     
   def test_bump_version_with_major_component(self):
     a = P()
     a.set_value('version', '1.2.3')
-    a.bump_version('version', component = P.MAJOR )
-    self.assertEqual( '2.0.0', a.get_value('version') )
+    a.bump_version('version', P.MAJOR )
+    self.assertEqual( '2.2.3', a.get_value('version') )
     
   def test_bump_version_with_minor_component(self):
     a = P()
     a.set_value('version', '1.2.3')
-    a.bump_version('version', component = P.MINOR )
-    self.assertEqual( '1.3.0', a.get_value('version') )
+    a.bump_version('version', P.MINOR )
+    self.assertEqual( '1.3.3', a.get_value('version') )
     
   def test_properties(self):
     a = P()

@@ -4,7 +4,7 @@ import os.path as path
 from bes.common import check
 from bes.fs import file_type, file_util, file_find
 from bes.fs.testing import temp_content
-from bes.version.version_compare import version_compare
+from bes.version.software_version import software_version
 
 from .git import git
 
@@ -118,22 +118,22 @@ class git_repo(object):
   def list_local_tags_gt(self, tag, lexical = False, reverse = False):
     'List tags greater than tag'
     tags = self.list_local_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if version_compare.compare(t, tag) > 0 ]
+    return [ t for t in tags if software_version.compare(t, tag) > 0 ]
     
   def list_local_tags_ge(self, tag, lexical = False, reverse = False):
     'List tags greater or equal to tag'
     tags = self.list_local_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if version_compare.compare(t, tag) >= 0 ]
+    return [ t for t in tags if software_version.compare(t, tag) >= 0 ]
     
   def list_local_tags_le(self, tag, lexical = False, reverse = False):
     'List tags lesser or equal to tag'
     tags = self.list_local_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if version_compare.compare(t, tag) <= 0 ]
+    return [ t for t in tags if software_version.compare(t, tag) <= 0 ]
     
   def list_local_tags_lt(self, tag, lexical = False, reverse = False):
     'List tags lesser than tag'
     tags = self.list_local_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if version_compare.compare(t, tag) < 0 ]
+    return [ t for t in tags if software_version.compare(t, tag) < 0 ]
     
   def list_remote_tags(self, lexical = False, reverse = False):
     return git.list_remote_tags(self.root, lexical = lexical, reverse = reverse)
@@ -141,22 +141,22 @@ class git_repo(object):
   def list_remote_tags_gt(self, tag, lexical = False, reverse = False):
     'List tags greater than tag'
     tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if version_compare.compare(t, tag) > 0 ]
+    return [ t for t in tags if software_version.compare(t, tag) > 0 ]
     
   def list_remote_tags_ge(self, tag, lexical = False, reverse = False):
     'List tags greater or equal to tag'
     tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if version_compare.compare(t, tag) >= 0 ]
+    return [ t for t in tags if software_version.compare(t, tag) >= 0 ]
     
   def list_remote_tags_le(self, tag, lexical = False, reverse = False):
     'List tags lesser or equal to tag'
     tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if version_compare.compare(t, tag) <= 0 ]
+    return [ t for t in tags if software_version.compare(t, tag) <= 0 ]
     
   def list_remote_tags_lt(self, tag, lexical = False, reverse = False):
     'List tags lesser than tag'
     tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if version_compare.compare(t, tag) < 0 ]
+    return [ t for t in tags if software_version.compare(t, tag) < 0 ]
   
   def tag(self, tag, allow_downgrade = True):
     git.tag(self.root, tag, allow_downgrade = allow_downgrade)
@@ -173,9 +173,9 @@ class git_repo(object):
   def push_tag(self, tag):
     git.push_tag(self.root, tag)
     
-  def bump_tag(self, component = None, push = True, dry_run = False, default_tag = None):
-    return git.bump_tag(self.root, component = component, push = push,
-                        dry_run = dry_run, default_tag = default_tag)
+  def bump_tag(self, component, push = True, dry_run = False, default_tag = None, reset_lower = False):
+    return git.bump_tag(self.root, component, push = push, dry_run = dry_run,
+                        default_tag = default_tag, reset_lower = reset_lower)
 
   def reset_to_revision(self, revision):
     git.reset_to_revision(self.root, revision)

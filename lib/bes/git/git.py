@@ -9,7 +9,7 @@ from bes.common import algorithm, object_util, string_util
 from bes.system import execute, logger
 from bes.fs import dir_util, file_ignore, file_util, tar_util, temp_file
 from bes.fs.file_ignore import ignore_file_data
-from bes.version.version_compare import version_compare
+from bes.version.software_version import software_version
 
 from .git_branch import git_branch, git_branch_status
 from .git_branch_list import git_branch_list
@@ -246,7 +246,7 @@ class git(object):
   def tag(clazz, root_dir, tag, allow_downgrade = False):
     greatest_tag = git.greatest_local_tag(root_dir)
     if greatest_tag and not allow_downgrade:
-      if version_compare.compare(greatest_tag, tag) >= 0:
+      if software_version.compare(greatest_tag, tag) >= 0:
         raise ValueError('new tag \"%s\" is older than \"%s\".  Use allow_downgrade to force it.' % (tag, greatest_tag))
     clazz._call_git(root_dir, [ 'tag', tag ])
 
@@ -304,7 +304,7 @@ class git(object):
     if lexical:
       return sorted(tags, reverse = reverse)
     else:
-      return version_compare.sort_versions(tags, reverse = reverse)
+      return software_version.sort_versions(tags, reverse = reverse)
     return tags
 
   @classmethod
@@ -377,10 +377,10 @@ class git(object):
     
   _bump_tag_result = namedtuple('_bump_tag_result', 'old_tag, new_tag')
   @classmethod
-  def bump_tag(clazz, root_dir, component = None, push = True, dry_run = False, default_tag = None):
+  def bump_tag(clazz, root_dir, component, push = True, dry_run = False, default_tag = None, reset_lower = False):
     old_tag = git.greatest_local_tag(root_dir)
     if old_tag:
-      new_tag = version_compare.bump_version(old_tag, component = component, delimiter = '.')
+      new_tag = software_version.bump_version(old_tag, component, reset_lower = reset_lower)
     else:
       new_tag = default_tag or '1.0.0'
     if not dry_run:

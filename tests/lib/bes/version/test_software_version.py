@@ -1,9 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.version.version_compare import version_compare as VC
+from bes.version.software_version import software_version as VC
 
-class test_version_compare(unit_test):
+class test_software_version(unit_test):
 
   def test_compare(self):
     self.assertEqual( -1, VC.compare('1.2.3', '1.2.4') )
@@ -69,29 +69,29 @@ class test_version_compare(unit_test):
   def test_bump_version(self):
     self.assertEqual( '1.0.1', VC.bump_version('1.0.0', VC.REVISION) )
  
-  def test_bump_version_major_reset_lower_components(self):
-    self.assertEqual( '2.0.0', VC.bump_version('1.0.0', VC.MAJOR, reset_lower_components = True) )
-    self.assertEqual( '2.0.0', VC.bump_version('1.0.1', VC.MAJOR, reset_lower_components = True) )
-    self.assertEqual( '2.0.0', VC.bump_version('1.1.0', VC.MAJOR, reset_lower_components = True) )
-    self.assertEqual( '2.0.0', VC.bump_version('1.1.1', VC.MAJOR, reset_lower_components = True) )
-    self.assertEqual( '2.0.0', VC.bump_version('1.0.0', VC.MAJOR, reset_lower_components = True) )
-    self.assertEqual( '2.0.0', VC.bump_version('1.0.1', VC.MAJOR, reset_lower_components = True) )
-    self.assertEqual( '2.0.0', VC.bump_version('1.1.0', VC.MAJOR, reset_lower_components = True) )
-    self.assertEqual( '2.0.0', VC.bump_version('1.1.1', VC.MAJOR, reset_lower_components = True) )
+  def test_bump_version_major_reset_lower(self):
+    self.assertEqual( '2.0.0', VC.bump_version('1.0.0', VC.MAJOR, reset_lower = True) )
+    self.assertEqual( '2.0.0', VC.bump_version('1.0.1', VC.MAJOR, reset_lower = True) )
+    self.assertEqual( '2.0.0', VC.bump_version('1.1.0', VC.MAJOR, reset_lower = True) )
+    self.assertEqual( '2.0.0', VC.bump_version('1.1.1', VC.MAJOR, reset_lower = True) )
+    self.assertEqual( '2.0.0', VC.bump_version('1.0.0', VC.MAJOR, reset_lower = True) )
+    self.assertEqual( '2.0.0', VC.bump_version('1.0.1', VC.MAJOR, reset_lower = True) )
+    self.assertEqual( '2.0.0', VC.bump_version('1.1.0', VC.MAJOR, reset_lower = True) )
+    self.assertEqual( '2.0.0', VC.bump_version('1.1.1', VC.MAJOR, reset_lower = True) )
  
-  def test_bump_version_minor_reset_lower_components(self):
-    self.assertEqual( '1.1.0', VC.bump_version('1.0.0', VC.MINOR, reset_lower_components = True) )
-    self.assertEqual( '1.1.0', VC.bump_version('1.0.1', VC.MINOR, reset_lower_components = True) )
-    self.assertEqual( '1.2.0', VC.bump_version('1.1.1', VC.MINOR, reset_lower_components = True) )
-    self.assertEqual( '1.1.0', VC.bump_version('1.0.0', VC.MINOR, reset_lower_components = True) )
-    self.assertEqual( '1.1.0', VC.bump_version('1.0.1', VC.MINOR, reset_lower_components = True) )
-    self.assertEqual( '1.2.0', VC.bump_version('1.1.1', VC.MINOR, reset_lower_components = True) )
+  def test_bump_version_minor_reset_lower(self):
+    self.assertEqual( '1.1.0', VC.bump_version('1.0.0', VC.MINOR, reset_lower = True) )
+    self.assertEqual( '1.1.0', VC.bump_version('1.0.1', VC.MINOR, reset_lower = True) )
+    self.assertEqual( '1.2.0', VC.bump_version('1.1.1', VC.MINOR, reset_lower = True) )
+    self.assertEqual( '1.1.0', VC.bump_version('1.0.0', VC.MINOR, reset_lower = True) )
+    self.assertEqual( '1.1.0', VC.bump_version('1.0.1', VC.MINOR, reset_lower = True) )
+    self.assertEqual( '1.2.0', VC.bump_version('1.1.1', VC.MINOR, reset_lower = True) )
  
-  def test_bump_version_revision_reset_lower_components(self):
-    self.assertEqual( '1.0.1', VC.bump_version('1.0.0', VC.REVISION, reset_lower_components = True) )
-    self.assertEqual( '1.1.1', VC.bump_version('1.1.0', VC.REVISION, reset_lower_components = True) )
-    self.assertEqual( '1.0.1', VC.bump_version('1.0.0', VC.REVISION, reset_lower_components = True) )
-    self.assertEqual( '1.1.1', VC.bump_version('1.1.0', VC.REVISION, reset_lower_components = True) )
+  def test_bump_version_revision_reset_lower(self):
+    self.assertEqual( '1.0.1', VC.bump_version('1.0.0', VC.REVISION, reset_lower = True) )
+    self.assertEqual( '1.1.1', VC.bump_version('1.1.0', VC.REVISION, reset_lower = True) )
+    self.assertEqual( '1.0.1', VC.bump_version('1.0.0', VC.REVISION, reset_lower = True) )
+    self.assertEqual( '1.1.1', VC.bump_version('1.1.0', VC.REVISION, reset_lower = True) )
 
   def test_bump_version_major(self):
     self.assertEqual( '2.0.0', VC.bump_version('1.0.0', VC.MAJOR) )

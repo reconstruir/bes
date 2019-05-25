@@ -86,10 +86,10 @@ class git_util(object):
     return greatest_tag
 
   @classmethod
-  def repo_bump_tag(clazz, address, component, dry_run):
+  def repo_bump_tag(clazz, address, component, dry_run, reset_lower = False):
     'Bump the tag of a repo by address.'
     tmp_dir, repo = clazz._clone_to_temp_dir(address)
-    result = repo.bump_tag(component = component, push = True, dry_run = dry_run)
+    result = repo.bump_tag(component, push = True, dry_run = dry_run, reset_lower = reset_lower)
     file_util.remove(tmp_dir)
     return result
   
