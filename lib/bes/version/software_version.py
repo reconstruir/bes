@@ -93,6 +93,9 @@ class software_version(object):
     MAJOR: MAJOR,
     MINOR: MINOR,
     REVISION: REVISION,
+    str(MAJOR): MAJOR,
+    str(MINOR): MINOR,
+    str(REVISION): REVISION,
   }
 
   @classmethod
