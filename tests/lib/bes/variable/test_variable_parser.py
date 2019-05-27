@@ -62,6 +62,17 @@ class test_variable_parser(unittest.TestCase):
     self.assertEqual( [ V('foo', '$(foo)', None, point(1, 1), point(6, 1)) ], self._parse('$(foo) ') )
     self.assertEqual( [ V('foo', '$(foo)', None, point(2, 1), point(7, 1)) ], self._parse(' $(foo)') )
     self.assertEqual( [ V('foo', '$(foo)', None, point(2, 1), point(7, 1)) ], self._parse(' $(foo) ') )
+
+  def test_bracket_with_default(self):
+    self.assertEqual( [ V('foo', '${foo:-42}', '42', point(1, 1), point(10, 1)) ], self._parse('${foo:-42}') )
+    self.assertEqual( [ V('foo', '$(foo:-42)', '42', point(1, 1), point(10, 1)) ], self._parse('$(foo:-42)') )
+    
+  def test_bracket_with_default_only_dash(self):
+    self.assertEqual( [ V('foo', '${foo-42}', '42', point(1, 1), point(9, 1)) ], self._parse('${foo-42}') )
+#    self.assertEqual( [ V('foo', '$(foo-42)', '42', point(1, 1), point(9, 1)) ], self._parse('$(foo-42)') )
+    
+  def test_bracket_with_default_escaped_dollar(self):
+    pass #self.assertEqual( [ V('foo', '${foo:${bar}}', '42', point(1, 1), point(10, 1)) ], self._parse('${foo:-42}') )
     
   @classmethod
   def _parse(self, text):

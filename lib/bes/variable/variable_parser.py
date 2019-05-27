@@ -36,7 +36,9 @@ class variable_parser(object):
     log.add_logging(self, 'variable_parser')
 
     self._buffer = None
+    self._open_bracket = None
     self._close_bracket = None
+    self._default_delimiter = None
     self._is_escaping = False
     self._last_char = None
 
@@ -210,6 +212,11 @@ class _state_bracket_body(_state_base):
     elif c == ':':
       self.parser._value = self.parser.buffer_value()
       new_state = self.parser.STATE_BRACKET_EXPECTING_DASH
+    elif c == '-':
+      self.parser._value = self.parser.buffer_value()
+      self.parser.buffer_reset()
+      self.parser._default_delimiter = '-'
+      new_state = self.parser.STATE_DEFAULT_BODY
     self.parser.change_state(new_state, c)
     return result
   
@@ -222,6 +229,7 @@ class _state_bracket_expecting_dash(_state_base):
     new_state = None
     if c == '-':
       self.parser.buffer_reset()
+      self.parser._default_delimiter = ':-'
       new_state = self.parser.STATE_DEFAULT_BODY
     elif c == self.parser._close_bracket:
       value = self.parser.buffer_value()
@@ -241,7 +249,7 @@ class _state_default_body(_state_base):
     if c == self.parser._close_bracket:
       value = self.parser._value
       default_value = self.parser.buffer_value()
-      text = '${}{}:-{}{}'.format(self.parser._open_bracket, value, default_value, self.parser._close_bracket)
+      text = '${}{}{}{}{}'.format(self.parser._open_bracket, value, self.parser._default_delimiter, default_value, self.parser._close_bracket)
       result = variable_token(value, text, default_value, self.parser._start_pos, self.parser.position)
       new_state = self.parser.STATE_READY
     else:
