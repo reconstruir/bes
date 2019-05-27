@@ -19,6 +19,12 @@ class test_variable_parser(unittest.TestCase):
   def test_no_bracket_start(self):
     self.assertEqual( [ V('foo', 'foo', None, point(1, 1), point(4, 1)) ], self._parse('$foo bar') )
     
+  def test_no_bracket_doubles(self):
+    self.assertEqual( [
+      V('foo', 'foo', None, point(1, 1), point(4, 1)),
+      V('bar', 'bar', None, point(5, 1), point(8, 1)),
+    ], self._parse('$foo$bar') )
+    
   def test_no_bracket_end(self):
     self.assertEqual( [ V('bar', 'bar', None, point(5, 1), point(8, 1)) ], self._parse('foo $bar') )
     

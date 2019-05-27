@@ -41,7 +41,7 @@ class variable_parser(object):
     self._last_char = None
 
     self.STATE_READY = _state_ready(self)
-    self.STATE_VARIABLE_BODY = _state_variable_body(self)
+    self.STATE_NO_BRACKET_BODY = _state_no_bracket_body(self)
     self.STATE_VARIABLE_DEFAULT = _state_variable_default(self)
     self.STATE_BEGIN = _state_begin(self)
     self.STATE_BRACKET_EXPECTING_FIRST_CHAR = _state_bracket_expecting_first_char(self)
@@ -168,7 +168,7 @@ class _state_begin(_state_base):
     elif self.parser.is_valid_first_char(c):
       self.parser._expected_closing_bracket = None
       self.parser.buffer_reset(c)
-      new_state = self.parser.STATE_VARIABLE_BODY
+      new_state = self.parser.STATE_NO_BRACKET_BODY
     else:
       raise RuntimeError('{}: unexpected char: "{}"' % (self.name, c))
     self.parser.change_state(new_state, c)
@@ -247,9 +247,9 @@ class _state_default_body(_state_base):
     self.parser.change_state(new_state, c)
     return result
   
-class _state_variable_body(_state_base):
+class _state_no_bracket_body(_state_base):
   def __init__(self, parser):
-    super(_state_variable_body, self).__init__(parser)
+    super(_state_no_bracket_body, self).__init__(parser)
 
   def handle_char(self, c):
     self.log_handle_char(c)
@@ -257,11 +257,16 @@ class _state_variable_body(_state_base):
     result = None
     if self.parser.is_valid_body_char(c):
       self.parser.buffer_write(c)
-      new_state = self.parser.STATE_VARIABLE_BODY
+      new_state = self.parser.STATE_NO_BRACKET_BODY
     elif c == self.parser.EOS:
       value = self.parser.buffer_value()
       result = variable_token(value, value, None, self.parser._start_pos, self.parser.position.move(-1, 0))
       new_state = self.parser.STATE_DONE
+    elif c == '$' and not self.parser.is_escaping:
+      value = self.parser.buffer_value()
+      result = variable_token(value, value, None, self.parser._start_pos, self.parser.position.move(-1, 0))
+      self.parser._start_pos = self.parser.position
+      new_state = self.parser.STATE_BEGIN
     else:
       value = self.parser.buffer_value()
       result = variable_token(value, value, None, self.parser._start_pos, self.parser.position.move(-1, 0))
@@ -278,7 +283,7 @@ class _state_variable_default(_state_base):
     new_state = None
     if self.parser.is_valid_body_char(c):
       self.parser.buffer_write(c)
-      new_state = self.parser.STATE_VARIABLE_BODY
+      new_state = self.parser.STATE_NO_BRACKET_BODY
     elif c == self.parser._expected_closing_bracket:
       raise RuntimeError('{}: unexpected char: "{}"' % (self.name, c))
     self.parser.change_state(new_state, c)
