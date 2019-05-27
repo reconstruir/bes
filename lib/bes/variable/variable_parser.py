@@ -36,7 +36,7 @@ class variable_parser(object):
     log.add_logging(self, 'variable_parser')
 
     self._buffer = None
-    self._expected_closing_bracket = None
+    self._close_bracket = None
     self._is_escaping = False
     self._last_char = None
 
@@ -160,13 +160,15 @@ class _state_begin(_state_base):
     self.log_handle_char(c)
     new_state = None
     if c == '{':
-      self.parser._expected_closing_bracket = '}'
+      self.parser._open_bracket = '{'
+      self.parser._close_bracket = '}'
       new_state = self.parser.STATE_BRACKET_EXPECTING_FIRST_CHAR
     elif c == '(':
-      self.parser._expected_closing_bracket = ')'
+      self.parser._open_bracket = '('
+      self.parser._close_bracket = ')'
       new_state = self.parser.STATE_BRACKET_EXPECTING_FIRST_CHAR
     elif self.parser.is_valid_first_char(c):
-      self.parser._expected_closing_bracket = None
+      self.parser._close_bracket = None
       self.parser.buffer_reset(c)
       new_state = self.parser.STATE_NO_BRACKET_BODY
     else:
@@ -200,9 +202,10 @@ class _state_bracket_body(_state_base):
     if self.parser.is_valid_body_char(c):
       self.parser.buffer_write(c)
       new_state = self.parser.STATE_BRACKET_BODY
-    elif c == self.parser._expected_closing_bracket:
+    elif c == self.parser._close_bracket:
       value = self.parser.buffer_value()
-      result = variable_token(value, value, None, self.parser._start_pos, self.parser.position)
+      text = '${}{}{}'.format(self.parser._open_bracket, value, self.parser._close_bracket)
+      result = variable_token(value, text, None, self.parser._start_pos, self.parser.position)
       new_state = self.parser.STATE_READY
     elif c == ':':
       self.parser._value = self.parser.buffer_value()
@@ -220,7 +223,7 @@ class _state_bracket_expecting_dash(_state_base):
     if c == '-':
       self.parser.buffer_reset()
       new_state = self.parser.STATE_DEFAULT_BODY
-    elif c == self.parser._expected_closing_bracket:
+    elif c == self.parser._close_bracket:
       value = self.parser.buffer_value()
       print('3 value: {}'.format(value))
       new_state = self.parser.STATE_READY
@@ -235,10 +238,10 @@ class _state_default_body(_state_base):
     self.log_handle_char(c)
     new_state = None
     result = None
-    if c == self.parser._expected_closing_bracket:
+    if c == self.parser._close_bracket:
       value = self.parser._value
       default_value = self.parser.buffer_value()
-      text = '{}:-{}'.format(value, default_value)
+      text = '${}{}:-{}{}'.format(self.parser._open_bracket, value, default_value, self.parser._close_bracket)
       result = variable_token(value, text, default_value, self.parser._start_pos, self.parser.position)
       new_state = self.parser.STATE_READY
     else:
@@ -260,16 +263,20 @@ class _state_no_bracket_body(_state_base):
       new_state = self.parser.STATE_NO_BRACKET_BODY
     elif c == self.parser.EOS:
       value = self.parser.buffer_value()
-      result = variable_token(value, value, None, self.parser._start_pos, self.parser.position.move(-1, 0))
+      text = '${}'.format(value)
+      result = variable_token(value, text, None, self.parser._start_pos, self.parser.position.move(-1, 0))
       new_state = self.parser.STATE_DONE
     elif c == '$' and not self.parser.is_escaping:
       value = self.parser.buffer_value()
-      result = variable_token(value, value, None, self.parser._start_pos, self.parser.position.move(-1, 0))
+      text = '${}'.format(value)
+      result = variable_token(value, text, None, self.parser._start_pos, self.parser.position.move(-1, 0))
       self.parser._start_pos = self.parser.position
       new_state = self.parser.STATE_BEGIN
     else:
+      x_delta = -2 if self.parser.is_escaping else -1
       value = self.parser.buffer_value()
-      result = variable_token(value, value, None, self.parser._start_pos, self.parser.position.move(-1, 0))
+      text = '${}'.format(value)
+      result = variable_token(value, text, None, self.parser._start_pos, self.parser.position.move(x_delta, 0))
       new_state = self.parser.STATE_READY
     self.parser.change_state(new_state, c)
     return result
@@ -284,7 +291,7 @@ class _state_variable_default(_state_base):
     if self.parser.is_valid_body_char(c):
       self.parser.buffer_write(c)
       new_state = self.parser.STATE_NO_BRACKET_BODY
-    elif c == self.parser._expected_closing_bracket:
+    elif c == self.parser._close_bracket:
       raise RuntimeError('{}: unexpected char: "{}"' % (self.name, c))
     self.parser.change_state(new_state, c)
     return None
