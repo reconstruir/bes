@@ -71,9 +71,13 @@ class test_variable_parser(unittest.TestCase):
     self.assertEqual( [ V('foo', '${foo-42}', '42', point(1, 1), point(9, 1)) ], self._parse('${foo-42}') )
     self.assertEqual( [ V('foo', '$(foo-42)', '42', point(1, 1), point(9, 1)) ], self._parse('$(foo-42)') )
     
-  def test_error_variable_in_defaults(self):
+  def test_error_default_body_variable(self):
     with self.assertRaises(VPE) as _:
       self._parse('${foo:-$bar}')
+    
+  def test_error_default_body_missing_dash(self):
+    with self.assertRaises(VPE) as _:
+      self._parse('${foo:$bar}')
     
   @classmethod
   def _parse(self, text):
