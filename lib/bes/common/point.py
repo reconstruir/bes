@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
+from .check import check
 
 class point(namedtuple('point', 'x,y')):
 
@@ -15,3 +16,5 @@ class point(namedtuple('point', 'x,y')):
 
   def move(self, x, y):
     return point(self.x + x, self.y + y)
+
+check.register_class(point, 'point')

@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import unittest
-from bes.variable.variable_parser import variable_parser as P, variable_token as V
+from bes.variable.variable_parser import variable_parser as P, variable_token as V, variable_parser_error as VPE
 from bes.common import point
 
 class test_variable_parser(unittest.TestCase):
@@ -69,10 +69,11 @@ class test_variable_parser(unittest.TestCase):
     
   def test_bracket_with_default_only_dash(self):
     self.assertEqual( [ V('foo', '${foo-42}', '42', point(1, 1), point(9, 1)) ], self._parse('${foo-42}') )
-#    self.assertEqual( [ V('foo', '$(foo-42)', '42', point(1, 1), point(9, 1)) ], self._parse('$(foo-42)') )
+    self.assertEqual( [ V('foo', '$(foo-42)', '42', point(1, 1), point(9, 1)) ], self._parse('$(foo-42)') )
     
-  def test_bracket_with_default_escaped_dollar(self):
-    pass #self.assertEqual( [ V('foo', '${foo:${bar}}', '42', point(1, 1), point(10, 1)) ], self._parse('${foo:-42}') )
+  def test_error_variable_in_defaults(self):
+    with self.assertRaises(VPE) as _:
+      self._parse('${foo:-$bar}')
     
   @classmethod
   def _parse(self, text):

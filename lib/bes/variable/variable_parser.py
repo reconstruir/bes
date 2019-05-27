@@ -1,13 +1,37 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from os import path
 import string
 from collections import namedtuple
 
 from bes.compat import StringIO
-from bes.common import string_util, point
+from bes.common import check, string_util, point
 from bes.system import log
 
 variable_token = namedtuple('variable_token', 'name, text, default_value, start_pos, end_pos')
+
+class variable_parser_error(Exception):
+  def __init__(self, message, filename, position):
+    super(variable_parser_error, self).__init__()
+    check.check_point(position, allow_none = True)
+    self.message = message
+    self.filename = path.relpath(filename)
+    self.position = position
+
+  def __str__(self):
+    if not self.position:
+      return '%s: %s' % (self.filename, self.message)
+    else:
+      return '%s:%s: %s' % (self.filename, self.position, self.message)
+
+  @classmethod
+  def make_error(clazz, msg, filename, position = None, starting_line_number = 1):
+    check.check_point(position, allow_none = True)
+    if position:
+      position = position.move(0, starting_line_number)
+    else:
+      position = None
+    return variable_parser_error(msg, filename, position)
 
 class variable_parser(object):
   EOS = '\0'
@@ -32,9 +56,17 @@ class variable_parser(object):
         
     assert self.state == self.STATE_DONE
 
-  def __init__(self):
+  def _error(self, msg, position = None):
+    raise variable_parser_error.make_error(msg, self._filename,
+                                           position = position or self.position,
+                                           starting_line_number = self._starting_line_number)
+    
+  def __init__(self, filename = None, starting_line_number = None):
     log.add_logging(self, 'variable_parser')
 
+    self._filename = filename or '<unknown>'
+    self._starting_line_number = starting_line_number or 0
+        
     self._buffer = None
     self._open_bracket = None
     self._close_bracket = None
@@ -63,8 +95,8 @@ class variable_parser(object):
     return self._is_escaping
 
   @classmethod
-  def parse(clazz, text):
-    p = variable_parser()
+  def parse(clazz, text, filename = None, starting_line_number = None):
+    p = variable_parser(filename = filename, starting_line_number = starting_line_number)
     return p._run(text)
 
   @classmethod
@@ -235,6 +267,8 @@ class _state_bracket_expecting_dash(_state_base):
       value = self.parser.buffer_value()
       print('3 value: {}'.format(value))
       new_state = self.parser.STATE_READY
+    else:
+      self.parser._error('expecting \"-\" instead of: {}'.format(c))
     self.parser.change_state(new_state, c)
     return None
 
@@ -252,6 +286,8 @@ class _state_default_body(_state_base):
       text = '${}{}{}{}{}'.format(self.parser._open_bracket, value, self.parser._default_delimiter, default_value, self.parser._close_bracket)
       result = variable_token(value, text, default_value, self.parser._start_pos, self.parser.position)
       new_state = self.parser.STATE_READY
+    elif c == '$':
+      self.parser._error('variables not allowed in defaults')
     else:
       self.parser.buffer_write(c)
       new_state = self.parser.STATE_DEFAULT_BODY
