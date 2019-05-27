@@ -142,7 +142,7 @@ class _state_ready(_state_base):
   def handle_char(self, c):
     self.log_handle_char(c)
     new_state = None
-    if c == '$':
+    if c == '$' and not self.parser.is_escaping:
       self.parser._start_pos = self.parser.position
       new_state = self.parser.STATE_BEGIN
     elif c == self.parser.EOS:
