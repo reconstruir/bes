@@ -113,6 +113,27 @@ class test_variable_parser(unittest.TestCase):
     with self.assertRaises(VPE) as ctx:
       self._parse('${foo-')
     self.assertTrue( 'unexpected end of string' in ctx.exception.message )
+
+  def test_error_bracket_invalid_char(self):
+    with self.assertRaises(VPE) as ctx:
+      self._parse('${foo[}')
+    self.assertTrue( 'invalid char' in ctx.exception.message )
+
+    with self.assertRaises(VPE) as ctx:
+      self._parse('$(foo[)')
+    self.assertTrue( 'invalid char' in ctx.exception.message )
+    
+  def test_atsign_simple(self):
+    self.assertEqual( [ V('foo', '@foo@', None, point(1, 1), point(5, 1)) ], self._parse('@foo@') )
+    self.assertEqual( [ V('foo', '@foo@', None, point(5, 1), point(9, 1)) ], self._parse('kiwi@foo@melon') )
+
+  def test_atsign_escaped(self):
+    self.assertEqual( [], self._parse('\@foo\@') )
+    
+  def test_error_atsign_eos(self):
+    with self.assertRaises(VPE) as ctx:
+      self.assertEqual( [], self._parse('@foo') )
+    self.assertTrue( 'unexpected end of string' in ctx.exception.message )
     
   @classmethod
   def _parse(self, text):

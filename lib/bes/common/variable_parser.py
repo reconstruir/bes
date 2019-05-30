@@ -56,11 +56,6 @@ class variable_parser(object):
         
     assert self.state == self.STATE_DONE
 
-  def raise_error(self, msg, position = None):
-    raise variable_parser_error.make_error(msg, self._filename,
-                                           position = position or self.position,
-                                           starting_line_number = self._starting_line_number)
-    
   def __init__(self, filename = None, starting_line_number = None):
     log.add_logging(self, 'variable_parser')
 
@@ -78,6 +73,8 @@ class variable_parser(object):
     self.STATE_NO_BRACKET_BODY = _state_no_bracket_body(self)
     self.STATE_VARIABLE_DEFAULT = _state_variable_default(self)
     self.STATE_BEGIN = _state_begin(self)
+    self.STATE_ATSIGN_BEGIN = _state_atsign_begin(self)
+    self.STATE_ATSIGN_BODY = _state_atsign_body(self)
     self.STATE_BRACKET_EXPECTING_FIRST_CHAR = _state_bracket_expecting_first_char(self)
     self.STATE_BRACKET_BODY = _state_bracket_body(self)
     self.STATE_DEFAULT_BODY = _state_default_body(self)
@@ -86,6 +83,11 @@ class variable_parser(object):
 
     self.state = self.STATE_READY
 
+  def raise_error(self, msg, position = None):
+    raise variable_parser_error.make_error(msg, self._filename,
+                                           position = position or self.position,
+                                           starting_line_number = self._starting_line_number)
+    
   @property
   def ignore_comments(self):
     return self._ignore_comments
@@ -179,6 +181,9 @@ class _state_ready(_state_base):
     if c == '$' and not self.parser.is_escaping:
       self.parser._start_pos = self.parser.position
       new_state = self.parser.STATE_BEGIN
+    elif c == '@' and not self.parser.is_escaping:
+      self.parser._start_pos = self.parser.position
+      new_state = self.parser.STATE_ATSIGN_BEGIN
     elif c == self.parser.EOS:
       new_state = self.parser.STATE_DONE
     else:
@@ -212,6 +217,46 @@ class _state_begin(_state_base):
     self.parser.change_state(new_state, c)
     return None
 
+class _state_atsign_begin(_state_base):
+  def __init__(self, parser):
+    super(_state_atsign_begin, self).__init__(parser)
+
+  def handle_char(self, c):
+    self.log_handle_char(c)
+    new_state = None
+    if self.parser.is_valid_first_char(c):
+      self.parser.buffer_reset(c)
+      new_state = self.parser.STATE_ATSIGN_BODY
+    elif c == self.parser.EOS:
+      self.parser.raise_error('{}: unexpected end of string'.format(self.name))
+    else:
+      self.parser.raise_error('{}: unexpected char: "{}"'.format(self.name, c))
+    self.parser.change_state(new_state, c)
+    return None
+
+class _state_atsign_body(_state_base):
+  def __init__(self, parser):
+    super(_state_atsign_body, self).__init__(parser)
+
+  def handle_char(self, c):
+    self.log_handle_char(c)
+    new_state = None
+    result = None
+    if self.parser.is_valid_body_char(c):
+      self.parser.buffer_write(c)
+      new_state = self.parser.STATE_ATSIGN_BODY
+    elif c == '@':
+      value = self.parser.buffer_value()
+      text = '@{}@'.format(value)
+      result = variable_token(value, text, None, self.parser._start_pos, self.parser.position)
+      new_state = self.parser.STATE_READY
+    elif c == self.parser.EOS:
+      self.parser.raise_error('{}: unexpected end of string'.format(self.name))
+    else:
+      self.parser.raise_error('{}: unexpected char: "{}"'.format(self.name, c))
+    self.parser.change_state(new_state, c)
+    return result
+  
 class _state_bracket_expecting_first_char(_state_base):
   def __init__(self, parser):
     super(_state_bracket_expecting_first_char, self).__init__(parser)
@@ -253,6 +298,8 @@ class _state_bracket_body(_state_base):
       new_state = self.parser.STATE_DEFAULT_BODY
     elif c == self.parser.EOS:
       self.parser.raise_error('{}: unexpected end of string'.format(self.name))
+    else:
+      self.parser.raise_error('{}: invalid char: "{}"'.format(self.name, c))
     self.parser.change_state(new_state, c)
     return result
   
