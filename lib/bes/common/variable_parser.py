@@ -56,7 +56,7 @@ class variable_parser(object):
         
     assert self.state == self.STATE_DONE
 
-  def _error(self, msg, position = None):
+  def raise_error(self, msg, position = None):
     raise variable_parser_error.make_error(msg, self._filename,
                                            position = position or self.position,
                                            starting_line_number = self._starting_line_number)
@@ -205,8 +205,10 @@ class _state_begin(_state_base):
       self.parser._close_bracket = None
       self.parser.buffer_reset(c)
       new_state = self.parser.STATE_NO_BRACKET_BODY
+    elif c == self.parser.EOS:
+      self.parser.raise_error('{}: unexpected end of string'.format(self.name))
     else:
-      raise RuntimeError('{}: unexpected char: "{}"' % (self.name, c))
+      self.parser.raise_error('{}: unexpected char: "{}"'.format(self.name, c))
     self.parser.change_state(new_state, c)
     return None
 
@@ -221,7 +223,7 @@ class _state_bracket_expecting_first_char(_state_base):
       self.parser.buffer_reset(c)
       new_state = self.parser.STATE_BRACKET_BODY
     else:
-      raise RuntimeError('{}: unexpected char: "{}"' % (self.name, c))
+      self.parser.raise_error('{}: unexpected char: "{}"'.format(self.name, c))
     self.parser.change_state(new_state, c)
     return None
 
@@ -249,6 +251,8 @@ class _state_bracket_body(_state_base):
       self.parser.buffer_reset()
       self.parser._default_delimiter = '-'
       new_state = self.parser.STATE_DEFAULT_BODY
+    elif c == self.parser.EOS:
+      self.parser.raise_error('{}: unexpected end of string'.format(self.name))
     self.parser.change_state(new_state, c)
     return result
   
@@ -268,7 +272,7 @@ class _state_bracket_expecting_dash(_state_base):
       print('3 value: {}'.format(value))
       new_state = self.parser.STATE_READY
     else:
-      self.parser._error('expecting \"-\" instead of: {}'.format(c))
+      self.parser.raise_error('expecting \"-\" instead of: {}'.format(c))
     self.parser.change_state(new_state, c)
     return None
 
@@ -287,7 +291,9 @@ class _state_default_body(_state_base):
       result = variable_token(value, text, default_value, self.parser._start_pos, self.parser.position)
       new_state = self.parser.STATE_READY
     elif c == '$':
-      self.parser._error('variables not allowed in defaults')
+      self.parser.raise_error('variables not allowed in defaults')
+    elif c == self.parser.EOS:
+      self.parser.raise_error('{}: unexpected end of string'.format(self.name))
     else:
       self.parser.buffer_write(c)
       new_state = self.parser.STATE_DEFAULT_BODY
@@ -336,7 +342,7 @@ class _state_variable_default(_state_base):
       self.parser.buffer_write(c)
       new_state = self.parser.STATE_NO_BRACKET_BODY
     elif c == self.parser._close_bracket:
-      raise RuntimeError('{}: unexpected char: "{}"' % (self.name, c))
+      self.parser.raise_error('{}: unexpected char: "{}"'.format(self.name, c))
     self.parser.change_state(new_state, c)
     return None
 
