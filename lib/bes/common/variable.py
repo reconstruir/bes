@@ -3,15 +3,10 @@
 import re
 from .string_util import string_util
 from .check import check
+from .variable_pattern import variable_pattern
 
 class variable(object):
   'Class to find an substitute shell style variabels in the forms $foo, ${foo}, $(foo) and @FOO@'
-
-  DOLLAR_ONLY = 0x01
-  PARENTHESIS = 0x02
-  BRACKET = 0x04
-  AT_SIGN = 0x08
-  ALL = DOLLAR_ONLY | PARENTHESIS | BRACKET | AT_SIGN
   
   DOLLAR_ONLY_PATTERN = re.compile('\$[\w_][\w\n_]*')
   DOLLAR_PARENTHESIS_PATTERN = re.compile('\$\([\w_][\w\n_]*\)')
@@ -28,19 +23,20 @@ class variable(object):
   @classmethod
   def _mask_to_patterns(clazz, mask):
     result = []
-    if (mask & clazz.DOLLAR_ONLY) != 0:
+    if (mask & variable_pattern.DOLLAR_ONLY) != 0:
       result.append(clazz.DOLLAR_ONLY_PATTERN)
-    if (mask & clazz.PARENTHESIS) != 0:
+    if (mask & variable_pattern.PARENTHESIS) != 0:
       result.append(clazz.DOLLAR_PARENTHESIS_PATTERN)
-    if (mask & clazz.BRACKET) != 0:
+    if (mask & variable_pattern.BRACKET) != 0:
       result.append(clazz.DOLLAR_BRACKET_PATTERN)
-    if (mask & clazz.AT_SIGN) != 0:
+    if (mask & variable_pattern.AT_SIGN) != 0:
       result.append(clazz.AT_SIGN_PATTERN)
     return result
   
   @classmethod
-  def find_variables(clazz, s, patterns = ALL):
+  def find_variables(clazz, s, patterns = None):
     'Return a list of variables found in s.'
+    patterns = patterns or variable_pattern.ALL
     result = []
     for pattern in clazz._mask_to_patterns(patterns):
       found = pattern.findall(s)
@@ -49,9 +45,11 @@ class variable(object):
     return sorted(list(set(result)))
 
   @classmethod
-  def substitute(clazz, s, d, word_boundary = True, patterns = ALL):
+  def substitute(clazz, s, d, word_boundary = True, patterns = None):
     'Substitute vars in s with d.'
+    patterns = patterns or variable_pattern.ALL
     check.check_dict(d, key_type = check.STRING_TYPES, value_type = check.STRING_TYPES)
+    check.check_int(patterns, allow_none = True)
     replacements = {}
     for key, value in d.items():
       check.check_string(key)
