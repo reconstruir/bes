@@ -34,4 +34,7 @@ class thread_id(object):
       thread_id = _thread_id_linux_arm
     else:
       thread_id = _thread_id_linux
-  assert thread_id
+  elif host.SYSTEM == host.WINDOWS:
+    thread_id = "fuck"
+  else:
+    raise RuntimeError('Unknown system: %s' % (host.SYSTEM))

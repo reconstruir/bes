@@ -8,8 +8,9 @@ class host(object):
   # systems
   LINUX = 'linux'
   MACOS = 'macos'
+  WINDOWS = 'windows'
 
-  SYSTEMS = [ LINUX, MACOS ]
+  SYSTEMS = [ LINUX, MACOS, WINDOWS ]
 
   # distros
   RASPBIAN = 'raspbian'
@@ -45,6 +46,11 @@ class host(object):
   def is_linux(clazz):
     'Return True if current system is LINUX'
     return clazz.SYSTEM == clazz.LINUX
+    
+  @classmethod
+  def is_windows(clazz):
+    'Return True if current system is WINDOWS'
+    return clazz.SYSTEM == clazz.WINDOWS
     
 host.init()
 

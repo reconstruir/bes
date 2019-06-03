@@ -1,8 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import platform
+
 from .platform_determiner_base import platform_determiner_base
 
-class platform_determiner_macos(platform_determiner_base):
+class platform_determiner_windows(platform_determiner_base):
   'macos platform determiner.'
 
   def __init__(self, platform):
@@ -11,7 +13,7 @@ class platform_determiner_macos(platform_determiner_base):
   #@abstractmethod
   def system(self):
     'system.'
-    return 'macos'
+    return 'windows'
 
   #@abstractmethod
   def distro(self):
@@ -24,21 +26,16 @@ class platform_determiner_macos(platform_determiner_base):
     return None
 
   #@abstractmethod
-  def version(self):
-    'distro version.'
-    return '.'.join(self._platform.mac_ver()[0].split('.')[0])
-
-  #@abstractmethod
   def version_major(self):
     'distro version major number.'
-    return self._platform.mac_ver()[0].split('.')[0]
+    return platform.version().split('.')[0]
 
   #@abstractmethod
   def version_minor(self):
     'distro version minor number.'
-    return self._platform.mac_ver()[0].split('.')[1]
+    return platform.version().split('.')[1]
   
   #@abstractmethod
   def arch(self):
     'arch.'
-    return self._platform.machine()
+    return self._platform.machine().lower()

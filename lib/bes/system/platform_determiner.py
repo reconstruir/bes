@@ -15,6 +15,9 @@ class platform_determiner(platform_determiner_base):
     elif system == 'Darwin':
       from .detail.platform_determiner_macos import platform_determiner_macos
       self._impl = platform_determiner_macos(platform)
+    elif system == 'Windows':
+      from .detail.platform_determiner_windows import platform_determiner_windows
+      self._impl = platform_determiner_windows(platform)
     if not self._impl:
       raise RuntimeError('Unknown system: %s' % (system))
     
