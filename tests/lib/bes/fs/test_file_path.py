@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import os, os.path as path, unittest
-from bes.fs import file_path as FP
+from bes.fs.file_path import file_path as FP
 
 class test_path(unittest.TestCase):
 

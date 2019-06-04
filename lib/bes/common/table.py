@@ -6,7 +6,7 @@ import csv, json
 from .check import check
 from .size import size
 from .string_util import string_util
-from bes.compat import StringIO
+from bes.compat.StringIO import StringIO
 
 class table_row(list):
 

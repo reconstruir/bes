@@ -1,11 +1,12 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import copy, os.path as path
 from collections import namedtuple
-from bes.compat import StringIO
-from bes.common import check, variable, string_util
-from bes.text import text_line_parser
+from bes.compat.StringIO import StringIO
+from bes.common.check import check
+from bes.common.variable import variable
+from bes.common.string_util import string_util
+from bes.text.text_line_parser import text_line_parser
 
 class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, requires, variables')):
 

@@ -2,12 +2,12 @@
 
 from os import path
 import inspect
-from bes.system import logger
+from bes.system.log import logger
 
-from bes.common import check
-from bes.system import log
-from bes.fs import file_check
-from bes.git import git
+from bes.common.check import check
+from bes.system.log import log
+from bes.fs.file_check import file_check
+from bes.git.git import git
 
 class argparser_handler(object):
   'A class to simplify the process of calling functions to handle argparser commands'

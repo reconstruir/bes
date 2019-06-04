@@ -1,8 +1,7 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
-from bes.common import check
+from bes.common.check import check
 
 class unit_test_description(namedtuple('unit_test_description', 'filename,fixture,function')):
 

@@ -1,10 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import sys
+from bes.compat.StringIO import StringIO
+from bes.common.check import check
+from bes.python.code import code
+
 from .version_info import version_info
-from bes.compat import StringIO
-from bes.common import check
-from bes.python import code
 
 class version_cli(object):
   

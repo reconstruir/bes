@@ -1,8 +1,8 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.fs import file_find
-from bes.common import algorithm, object_util
+from bes.fs.file_find import file_find
+from bes.common.algorithm import algorithm
+from bes.common.object_util import object_util
 
 class file_finder(object):
 

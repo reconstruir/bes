@@ -2,8 +2,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path, unittest
-from bes.fs import dir_util, file_find, file_util, temp_file
-from bes.fs.testing import temp_content
+from bes.fs.dir_util import dir_util
+from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.fs.testing.temp_content import temp_content
 
 class test_dir_util(unittest.TestCase):
 

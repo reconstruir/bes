@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common import check
 from collections import namedtuple
-from bes.compat import StringIO
+
+from bes.common.check import check
+from bes.compat.StringIO import StringIO
 
 class version_info(namedtuple('version_info', 'version,author_name,author_email,address,tag,timestamp')):
 

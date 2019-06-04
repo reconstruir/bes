@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import unittest
-from bes.match import matcher_always_false
+from bes.match.matcher_always_false import matcher_always_false
 
 class TestMatcher(unittest.TestCase):
 

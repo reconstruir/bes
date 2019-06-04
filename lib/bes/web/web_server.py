@@ -5,10 +5,11 @@ from wsgiref import simple_server
 from collections import namedtuple
 
 from abc import abstractmethod, ABCMeta
-from bes.common import check
+from bes.common.check import check
 from bes.system.compat import with_metaclass
-from bes.system import log
-from bes.fs import file_mime, file_util
+from bes.system.log import log
+from bes.fs.file_mime import file_mime
+from bes.fs.file_util import file_util
 
 class web_server(with_metaclass(ABCMeta, object)):
 

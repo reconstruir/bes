@@ -3,7 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 import os.path as path
-from bes.common import variable
+from bes.common.variable import variable
 
 class test_variable(unit_test):
 

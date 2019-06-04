@@ -2,9 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path, re
-from bes.fs import file_path
-from bes.system import execute
-from bes.text import text_line_parser
+from bes.fs.file_path import file_path
+from bes.system.execute import execute
+from bes.text.text_line_parser import text_line_parser
 
 class dependencies(object):
   'Class to deal with python dependencies.'

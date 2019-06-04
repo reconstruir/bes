@@ -4,7 +4,7 @@
 import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.testing.framework import argument_resolver as AR
-from bes.testing.unit_test.unit_test_skip import raise_skip
+from bes.testing.unit_test_skip import raise_skip
   
 class test_argument_resolver(unit_test):
 

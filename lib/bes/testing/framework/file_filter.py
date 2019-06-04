@@ -1,9 +1,9 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import fnmatch, os.path as path
 from collections import namedtuple
-from bes.common import algorithm, check
+from bes.common.algorithm import algorithm
+from bes.common.check import check
 
 class file_filter(object):
   test_descriptor = namedtuple('test_descriptor', 'file_info,tests')

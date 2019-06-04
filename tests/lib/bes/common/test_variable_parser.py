@@ -3,7 +3,7 @@
 
 import unittest
 from bes.common.variable_parser import variable_parser as P, variable_token as V, variable_parser_error as VPE
-from bes.common import point
+from bes.common.point import point
 
 class test_variable_parser(unittest.TestCase):
 

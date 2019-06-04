@@ -3,9 +3,9 @@
 import os.path as path, os, shutil, tempfile
 from multiprocessing import Lock, Queue, Process
 from abc import abstractmethod, ABCMeta
-from bes.common import check
-from bes.system import log
-from bes.fs import dir_util
+from bes.common.check import check
+from bes.system.log import log
+from bes.fs.dir_util import dir_util
 from bes.thread.decorators import synchronized_method
 from bes.system.compat import with_metaclass
 

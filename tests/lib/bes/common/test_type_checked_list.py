@@ -2,9 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.common import type_checked_list
-from bes.system import compat
-from bes.compat import cmp
+from bes.common.type_checked_list import type_checked_list
+from bes.system.compat import compat
+from bes.compat.cmp import cmp
 from collections import namedtuple
 
 class IL(type_checked_list):

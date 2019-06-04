@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import unittest
-from bes.key_value import key_value_lexer as L
+from bes.key_value.key_value_lexer import key_value_lexer as L
 
 import os.path as path, sys
 sys.path.append(path.join(path.dirname(__file__), '../text'))

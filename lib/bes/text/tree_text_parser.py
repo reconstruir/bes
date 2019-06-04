@@ -1,9 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common import check, node, string_util
-from bes.compat import StringIO
-from bes.enum import enum
-from bes.text import string_list, text_line_parser
+from bes.common.check import check
+from bes.common.node import node
+from bes.common.string_util import string_util
+from bes.compat.StringIO import StringIO
+from bes.enum.enum import enum
+from bes.text.string_list import string_list
+from bes.text.text_line_parser import text_line_parser
 from collections import namedtuple
 
 from .comments import comments

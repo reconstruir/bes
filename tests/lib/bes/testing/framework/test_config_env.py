@@ -5,7 +5,7 @@ import os.path as path
 from bes.system.env_override import env_override
 
 from bes.testing.unit_test import unit_test
-from bes.testing.framework import config_env as CE
+from bes.testing.framework.config_env import config_env as CE
   
 class test_config_env(unit_test):
 

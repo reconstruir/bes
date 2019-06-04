@@ -1,12 +1,20 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+
 import copy, os, os.path as path
+
 from bes.compat.plistlib import plistlib_loads
 
-from bes.fs import file_check, file_find, file_util, tar_util, temp_file
-from bes.system import execute, host, log
+from bes.fs.file_check import file_check
+from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
+from bes.fs.tar_util import tar_util
+from bes.fs.temp_file import temp_file
 
-from collections import namedtuple
+from bes.system.execute import execute
+from bes.system.host import host
+from bes.system.log import log
 
 #log.configure('dmg=info format=brief')
 

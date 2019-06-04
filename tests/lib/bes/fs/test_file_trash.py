@@ -2,8 +2,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.fs import dir_util, file_trash, file_util, temp_file
-from bes.system import log
+from bes.fs.dir_util import dir_util
+from bes.fs.file_trash import file_trash
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.system.log import log
 import os.path as path
 from collections import namedtuple
 import time

@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import unittest
-from bes.text import lexer_token, string_lexer as L
+from bes.text.lexer_token import lexer_token
+from bes.text.string_lexer import string_lexer as L
 from helpers.token_test_helper import *
 
 class test_string_lexer(unittest.TestCase):

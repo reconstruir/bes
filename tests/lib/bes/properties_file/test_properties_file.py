@@ -4,7 +4,7 @@
 from collections import namedtuple
 
 from os import path
-from bes.fs import temp_file
+from bes.fs.temp_file import temp_file
 
 from bes.testing.unit_test import unit_test
 from bes.properties_file.properties_file import properties_file as PF

@@ -3,7 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 import os.path as path
-from bes.system import execute
+from bes.system.execute import execute
 
 class test_execute(unit_test):
 

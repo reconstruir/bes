@@ -1,8 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import sys
-from bes.common import check, string_util
-from bes.key_value import key_value, key_value_list
+from bes.common.check import check
+from bes.common.string_util import string_util
+from bes.key_value.key_value import key_value
+from bes.key_value.key_value_list import key_value_list
 
 class table_missing_error(Exception):
   

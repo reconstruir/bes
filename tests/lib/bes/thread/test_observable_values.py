@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import unittest
-from bes.thread import ObservableValues, thread_pool, Waiter
+from bes.thread.observable_values import ObservableValues
+from bes.thread.waiter import Waiter
 
 class test_observable_values(unittest.TestCase):
 

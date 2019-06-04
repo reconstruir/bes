@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 from bes.testing.unit_test import unit_test
-from bes.enum import enum_manager as EM
+from bes.enum.enum_manager import enum_manager as EM
 
 class test_enum_manager(unit_test):
 

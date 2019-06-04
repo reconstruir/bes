@@ -3,8 +3,8 @@
 import argparse
 from os import path
 
-from bes.common import check
-from bes.system import log
+from bes.common.check import check
+from bes.system.log import log
 
 from .argparser_handler import argparser_handler
 

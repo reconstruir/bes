@@ -2,12 +2,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.fs import temp_file
+from bes.fs.temp_file import temp_file
 from bes.archive.archive_extension import archive_extension
 from bes.archive.temp_archive import temp_archive
 from bes.archive.archive_unix_tar import archive_unix_tar
 from common_archive_tests import common_archive_tests
-from bes.testing.unit_test.unit_test_skip import raise_skip
+from bes.testing.unit_test_skip import raise_skip
 
 class test_archive_unix_tar(unit_test, common_archive_tests):
 

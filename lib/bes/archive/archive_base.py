@@ -1,8 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
-from collections import namedtuple
 
 class archive_base(with_metaclass(ABCMeta, object)):
   'An archive interface.'

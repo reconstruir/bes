@@ -1,8 +1,7 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from abc import abstractmethod
-from bes.common import object_util
+from bes.common.object_util import object_util
 
 class matcher_base(object):
   'Abstract base class for matcher.'

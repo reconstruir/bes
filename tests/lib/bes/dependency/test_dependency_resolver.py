@@ -3,7 +3,9 @@
 
 import unittest
 
-from bes.dependency import dependency_resolver, cyclic_dependency_error, missing_dependency_error
+from bes.dependency.dependency_resolver import dependency_resolver
+from bes.dependency.dependency_resolver import cyclic_dependency_error
+from bes.dependency.dependency_resolver import missing_dependency_error
 
 class test_dependency_resolver(unittest.TestCase):
 

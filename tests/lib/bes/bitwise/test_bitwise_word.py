@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 from bes.testing.unit_test import unit_test
-from bes.bitwise import bitwise_word as W
+from bes.bitwise.bitwise_word import bitwise_word as W
 
 class test_bitwise_word(unit_test):
 

@@ -1,9 +1,10 @@
 #!/usr/bin/env python#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.testing.unit_test import unit_test
-from bes.bitwise import bitwise_enum, bitwise_io
 from io import BytesIO
+from bes.testing.unit_test import unit_test
+from bes.bitwise.bitwise_enum import bitwise_enum
+from bes.bitwise.bitwise_io import bitwise_io
 
 class fruit(bitwise_enum):
   SIZE = 1

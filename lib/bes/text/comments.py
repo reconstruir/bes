@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common import string_util
-from bes.compat import StringIO
+from bes.common.string_util import string_util
+from bes.compat.StringIO import StringIO
 
 from .string_lexer import string_lexer
 

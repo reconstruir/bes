@@ -2,13 +2,13 @@
 
 from __future__ import division
 import re
-
-from bes.compat import map
-from bes.system import compat, execute
-from bes.key_value import key_value_list
-from bes.text import text_line_parser
-from bes.common import algorithm
 from collections import namedtuple
+from bes.compat.map import map
+from bes.system.compat import compat
+from bes.system.execute import execute
+from bes.key_value.key_value_list import key_value_list
+from bes.text.text_line_parser import text_line_parser
+from bes.common.algorithm import algorithm
 
 class file_mime(object):
 

@@ -4,10 +4,12 @@
 from bes.testing.unit_test import unit_test
 
 import os.path as path, pprint
-from bes.fs import file_find, file_util, temp_file
-from bes.system import host
-from bes.archive.macos import dmg
-from bes.testing.unit_test.unit_test_skip import raise_skip_if_not_platform
+from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.system.host import host
+from bes.archive.macos.dmg import dmg
+from bes.testing.unit_test_skip import raise_skip_if_not_platform
 
 class test_dmg(unit_test):
 

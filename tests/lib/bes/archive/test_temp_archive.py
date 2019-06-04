@@ -3,11 +3,12 @@
 
 import os.path as path, tarfile, zipfile
 from bes.testing.unit_test import unit_test
-from bes.fs import file_util, temp_file
-from bes.system import host
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.system.host import host
 from bes.archive.temp_archive import temp_archive
-from bes.archive.macos import dmg
-from bes.testing.unit_test.unit_test_skip import skip_if
+from bes.archive.macos.dmg import dmg
+from bes.testing.unit_test_skip import skip_if
 
 class test_temp_archive(unit_test):
 

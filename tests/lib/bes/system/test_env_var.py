@@ -3,7 +3,7 @@
 #
 import unittest
 
-from bes.system import env_var as ev
+from bes.system.env_var import env_var
 
 class test_env_var(unittest.TestCase):
 
@@ -13,47 +13,47 @@ class test_env_var(unittest.TestCase):
       'BAR': 'hello',
       'PATH': 'foo:bar:baz',
     }
-    self.assertEqual( '666', ev(d, 'FOO').value )
-    self.assertEqual( [ '666' ], ev(d, 'FOO').path )
+    self.assertEqual( '666', env_var(d, 'FOO').value )
+    self.assertEqual( [ '666' ], env_var(d, 'FOO').path )
 
-    e = ev(d, 'FOO')
+    e = env_var(d, 'FOO')
     e.value = '1000'
-    self.assertEqual( '1000', ev(d, 'FOO').value )
+    self.assertEqual( '1000', env_var(d, 'FOO').value )
 
   def test_path(self):
     d = {
       'PATH': 'foo:bar:baz',
     }
-    self.assertEqual( 'foo:bar:baz', ev(d, 'PATH').value )
-    self.assertEqual( [ 'foo', 'bar', 'baz' ], ev(d, 'PATH').path )
+    self.assertEqual( 'foo:bar:baz', env_var(d, 'PATH').value )
+    self.assertEqual( [ 'foo', 'bar', 'baz' ], env_var(d, 'PATH').path )
 
   def test_path_duplicates(self):
     d = {
       'PATH': 'foo:bar:baz:foo',
     }
-    self.assertEqual( 'foo:bar:baz:foo', ev(d, 'PATH').value )
-    self.assertEqual( [ 'foo', 'bar', 'baz' ], ev(d, 'PATH').path )
+    self.assertEqual( 'foo:bar:baz:foo', env_var(d, 'PATH').value )
+    self.assertEqual( [ 'foo', 'bar', 'baz' ], env_var(d, 'PATH').path )
 
   def test_path_append(self):
     d = {
       'PATH': 'foo:bar:baz',
     }
-    ev(d, 'PATH').append('apple')
-    self.assertEqual( [ 'foo', 'bar', 'baz', 'apple' ], ev(d, 'PATH').path )
+    env_var(d, 'PATH').append('apple')
+    self.assertEqual( [ 'foo', 'bar', 'baz', 'apple' ], env_var(d, 'PATH').path )
 
   def test_path_prepend(self):
     d = {
       'PATH': 'foo:bar:baz',
     }
-    ev(d, 'PATH').prepend('apple')
-    self.assertEqual( [ 'apple', 'foo', 'bar', 'baz' ], ev(d, 'PATH').path )
+    env_var(d, 'PATH').prepend('apple')
+    self.assertEqual( [ 'apple', 'foo', 'bar', 'baz' ], env_var(d, 'PATH').path )
 
   def test_path_remove(self):
     d = {
       'PATH': 'foo:bar:baz',
     }
-    ev(d, 'PATH').remove('bar')
-    self.assertEqual( [ 'foo', 'baz' ], ev(d, 'PATH').path )
+    env_var(d, 'PATH').remove('bar')
+    self.assertEqual( [ 'foo', 'baz' ], env_var(d, 'PATH').path )
 
 if __name__ == "__main__":
   unittest.main()

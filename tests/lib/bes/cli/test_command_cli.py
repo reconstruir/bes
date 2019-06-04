@@ -4,7 +4,7 @@
 from collections import namedtuple
 import os.path as path
 
-from bes.testing.unit_test import script_unit_test
+from bes.testing.script_unit_test import script_unit_test
 
 class test_command_cli(script_unit_test):
 

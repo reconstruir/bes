@@ -2,8 +2,8 @@
 #-*- coding:utf-8 -*-
 #
 import unittest
-from bes.common import dict_util
-from bes.system import compat
+from bes.common.dict_util import dict_util
+from bes.system.compat import compat
 
 class Testobject_util(unittest.TestCase):
 

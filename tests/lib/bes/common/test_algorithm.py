@@ -2,8 +2,8 @@
 #-*- coding:utf-8 -*-
 #
 import unittest
-from bes.common import algorithm
-from bes.compat import cmp
+from bes.common.algorithm import algorithm
+from bes.compat.cmp import cmp
 
 class test_algorithm(unittest.TestCase):
 

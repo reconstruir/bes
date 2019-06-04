@@ -3,7 +3,7 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from bes.testing.framework import file_finder as FF
+from bes.testing.framework.file_finder import file_finder as FF
   
 class test_file_finder(unit_test):
 

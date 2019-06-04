@@ -3,8 +3,11 @@
 import os.path as path, os, re, tarfile
 from collections import namedtuple
 
-from bes.common import check
-from bes.system import execute, host, os_env, os_env_var
+from bes.common.check import check
+from bes.system.execute import execute
+from bes.system.host import host
+from bes.system.os_env import os_env
+from bes.system.env_var import os_env_var
 
 from .file_util import file_util
 from .file_find import file_find

@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import unittest
-from bes.text import string_list_parser as P
+from bes.text.string_list_parser import string_list_parser as P
 
 class test_string_list_parser(unittest.TestCase):
 

@@ -5,7 +5,7 @@ import os.path as path
 from bes.fs import file_util, temp_file
 from bes.testing.unit_test import unit_test
 from bes.testing.framework import unit_test_inspect as UTI
-from bes.testing.unit_test.unit_test_skip import raise_skip
+from bes.testing.unit_test_skip import raise_skip
   
 class test_unit_test_inspect(unit_test):
 

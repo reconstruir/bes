@@ -2,8 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import unittest
-from bes.key_value import key_value_parser as P
-from bes.key_value import key_value as KV
+from bes.key_value.key_value_parser import key_value_parser as P
+from bes.key_value.key_value import key_value as KV
 
 class test_key_value_parser(unittest.TestCase):
 

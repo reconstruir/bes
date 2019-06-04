@@ -1,8 +1,7 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.system import log
-from bes.common import size
+from bes.system.log import log
+from bes.common.size import size
 
 class text_canvas(object):
   'text_canvas'

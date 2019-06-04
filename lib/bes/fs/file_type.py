@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import errno, os, stat
-from bes.common import string_util
+from bes.common.string_util import string_util
 
 class file_type(object):
 

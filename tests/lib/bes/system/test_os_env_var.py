@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os, unittest
 
-from bes.system import os_env_var
+from bes.system.env_var import os_env_var
 
 class test_os_env_var(unittest.TestCase):
 

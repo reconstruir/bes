@@ -5,7 +5,8 @@ import time
 from bes.testing.unit_test import unit_test
 import os, os.path as path, tempfile
 from bes.fs.file_checksum_db import file_checksum_db
-from bes.fs import file_util, temp_file
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
 
 class test_file_metadata_db(unit_test):
 

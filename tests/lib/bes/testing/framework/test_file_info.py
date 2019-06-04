@@ -3,11 +3,13 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from bes.testing.framework import config_env, file_info as FI
-from bes.fs import temp_file
-from bes.git import git
+from bes.testing.framework.config_env import config_env
+from bes.testing.framework.file_info import file_info as FI
+from bes.fs.temp_file import temp_file
+from bes.git.git import git
 from bes.git.git_temp_repo import git_temp_repo
-from bes.testing.unit_test.unit_test_skip import raise_skip
+from bes.testing.unit_test_skip import raise_skip
+
 class test_file_info(unit_test):
 
   @classmethod

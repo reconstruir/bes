@@ -2,7 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.text import text_line, line_continuation_merger as M
+from bes.text.text_line import text_line
+from bes.text.line_continuation_merger import line_continuation_merger as M
 
 class test_line_continuation_merger(unit_test):
 

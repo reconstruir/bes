@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path, pkgutil
-from bes.fs import file_util
+from bes.fs.file_util import file_util
 
 class shell_framework(object):
 

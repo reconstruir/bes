@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.key_value import key_value_list as KVL
-from bes.key_value import key_value as KV
-from bes.system import compat
-from bes.compat import cmp
+from bes.key_value.key_value_list import key_value_list as KVL
+from bes.key_value.key_value import key_value as KV
+from bes.system.compat import compat
+from bes.compat.cmp import cmp
 
 class test_key_value_list(unit_test):
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import unittest
-from bes.fs import file_match
+from bes.fs.file_match import file_match
 
 class test_file_match(unittest.TestCase):
 

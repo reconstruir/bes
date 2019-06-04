@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.testing.framework import config_data as CD
+from bes.testing.framework.config_data import config_data as CD
 
 class test_config_data(unit_test):
 

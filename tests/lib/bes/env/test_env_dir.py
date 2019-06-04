@@ -3,10 +3,12 @@
 
 import copy, os, os.path as path
 from bes.testing.unit_test import unit_test
-from bes.system import os_env
-from bes.fs import file_util, temp_file
-from bes.fs.testing import temp_content
-from bes.env.env_dir import env_dir, action
+from bes.system.os_env import os_env
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.fs.testing.temp_content import temp_content
+from bes.env.env_dir import env_dir
+from bes.env.env_dir import action
 
 class test_env_dir(unit_test):
 

@@ -1,9 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import ast, os.path as path
-from bes.common import algorithm
-from bes.fs import file_util
-from bes.system import compat
+from bes.common.algorithm import algorithm
+from bes.fs.file_util import file_util
+from bes.system.compat import compat
 from .unit_test_description import unit_test_description
 
 import unittest

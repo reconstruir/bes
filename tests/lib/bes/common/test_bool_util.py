@@ -3,7 +3,7 @@
 #
 
 from bes.testing.unit_test import unit_test
-from bes.common import bool_util
+from bes.common.bool_util import bool_util
 
 class test_bool_util(unit_test):
 

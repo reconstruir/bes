@@ -1,7 +1,1 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
-
-from .key_value import key_value
-from .key_value_lexer import key_value_lexer
-from .key_value_list import key_value_list
-from .key_value_parser import key_value_parser
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-

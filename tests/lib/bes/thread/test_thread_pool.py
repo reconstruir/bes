@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import unittest
 import random, time
-from bes.thread import thread_pool
+from bes.thread.thread_pool import thread_pool
 
 class test_thread_pool(unittest.TestCase):
 

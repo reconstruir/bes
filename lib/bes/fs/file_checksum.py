@@ -2,8 +2,11 @@
 
 import json, os.path as path, hashlib
 from collections import namedtuple
-from bes.common import check, json_util, object_util, type_checked_list
-from bes.compat import StringIO
+from bes.common.check import check
+from bes.common.json_util import json_util
+from bes.common.object_util import object_util
+from bes.common.type_checked_list import type_checked_list
+from bes.compat.StringIO import StringIO
 from .file_check import file_check
 from .file_util import file_util
 from .file_checksum_getter_raw import file_checksum_getter_raw

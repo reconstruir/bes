@@ -1,10 +1,9 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import atexit
 from threading import Lock
 from .thread_pool import thread_pool
-from bes.system import log
+from bes.system.log import log
 
 class global_thread_pool(object):
   'A global thread pool that can be used for misc async tasks that dont require oversight.'

@@ -1,9 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import json
-from bes.system import compat
-from bes.compat import StringIO
-from bes.common import check, string_util, type_checked_list, variable
+from bes.system.compat import compat
+from bes.compat.StringIO import StringIO
+from bes.common.check import check
+from bes.common.string_util import string_util
+from bes.common.type_checked_list import type_checked_list
+from bes.common.variable import variable
 
 from .string_list_parser import string_list_parser
 from .string_lexer import string_lexer_options

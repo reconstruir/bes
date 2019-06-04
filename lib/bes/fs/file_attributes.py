@@ -1,8 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.system import host
-
-from bes.system import host
+from bes.system.host import host
 
 _has_xattr=False
 try:

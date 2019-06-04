@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .enum_loader import enum_loader
-from bes.common import string_util
+from bes.common.string_util import string_util
 from bes.system.compat import with_metaclass
 
 class _flag_enum_meta_class(type):

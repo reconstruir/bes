@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.enum import flag_enum
+from bes.enum.flag_enum import flag_enum
 
 class ftype(flag_enum):
   FILE = 0x01

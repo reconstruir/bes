@@ -1,10 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import string
-from bes.compat import StringIO
-from bes.common import string_util, point
-from bes.system import log
-from bes.enum import flag_enum
+from bes.compat.StringIO import StringIO
+from bes.common.string_util import string_util
+from bes.common.point import point
+from bes.system.log import log
+from bes.enum.flag_enum import flag_enum
 from .lexer_token import lexer_token
 
 class string_lexer_options(flag_enum):

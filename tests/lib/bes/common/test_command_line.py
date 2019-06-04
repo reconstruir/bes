@@ -2,8 +2,7 @@
 #-*- coding:utf-8 -*-
 #
 import unittest
-from bes.common import command_line
-
+from bes.common.command_line import command_line
 
 class test_command_line(unittest.TestCase):
 

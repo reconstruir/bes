@@ -1,9 +1,8 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.compat.Queue import Queue
 from threading import Thread
-from bes.system import log
+from bes.system.log import log
 
 # From http://code.activestate.com/recipes/577187-python-thread-pool/
 class thread_pool_worker(Thread):

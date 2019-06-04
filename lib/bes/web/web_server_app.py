@@ -1,11 +1,13 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import argparse
-from bes.web import web_server_controller
-from bes.web import file_web_server
-from bes.common import string_util
+
+from bes.common.string_util import string_util
 from bes.compat.input import input
-from bes.system import log
+from bes.system.log import log
+
+from .web_server_controller web_server_controller
+from .file_web_server import file_web_server
 
 class web_server_app(object):
 

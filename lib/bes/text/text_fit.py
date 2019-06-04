@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from .string_lexer import string_lexer as lexer
-from bes.compat import StringIO
+from bes.compat.StringIO import StringIO
 
 class text_fit(object):
   'Fit text into bounded areas keeping words intact.'

@@ -1,8 +1,7 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.system import compat
-from bes.compat import StringIO
+from bes.system.compat import compat
+from bes.compat.StringIO import StringIO
 from .string_util import string_util
 
 class string_list_util(object):

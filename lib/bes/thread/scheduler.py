@@ -1,9 +1,10 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.system import log
-from .global_thread_pool import global_thread_pool
 from functools import partial
+
+from bes.system.log import log
+
+from .global_thread_pool import global_thread_pool
 
 class UiThreadCaller(object):
   def __init__(self):

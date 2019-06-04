@@ -2,8 +2,8 @@
 #-*- coding:utf-8 -*-
 #
 import unittest
-from bes.key_value import key_value as KV
-from bes.system import compat
+from bes.key_value.key_value import key_value as KV
+from bes.system.compat import compat
 
 class test_key_value(unittest.TestCase):
 

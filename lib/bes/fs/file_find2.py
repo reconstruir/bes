@@ -1,11 +1,10 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import errno, os.path as path, os, stat
 
-from bes.system import log
-from file_util import file_util
-from file_match import file_match
+from bes.system.log import log
+from file_util.file_util import file_util
+from file_match.file_match import file_match
 from temp_file import temp_file
 
 class file_find2(object):

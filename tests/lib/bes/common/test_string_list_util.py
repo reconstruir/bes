@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 #
 import unittest
-from bes.common import string_list_util
+from bes.common.string_list_util import string_list_util
 
 class test_string_list_util(unittest.TestCase):
 

@@ -2,8 +2,8 @@
 
 from os import path
 import os
-from bes.common import check
-from bes.system import execute
+from bes.common.check import check
+from bes.system.execute import execute
 
 from ._file_attributes_base import _file_attributes_base
 

@@ -2,11 +2,12 @@
 
 import shutil
 import os.path as path
-from bes.system import log
-from bes.common import check, string_util
-from bes.fs import file_util
-from bes.git import git_util
-from bes.url import url_util
+from bes.system.log import log
+from bes.common.check import check
+from bes.common.string_util import string_util
+from bes.fs.file_util import file_util
+from bes.git.git_util import git_util
+from bes.url.url_util import url_util
 
 class http_download_cache(object):
   'http url download cache.  Only for static content does not check server for updates.'

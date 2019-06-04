@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import unittest
-from bes.common import size
-from bes.text import text_canvas
+from bes.common.size import size
+from bes.text.text_canvas import text_canvas
 
 class test_text_canvas(unittest.TestCase):
 

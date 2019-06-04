@@ -2,8 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path, unittest
-from bes.fs import file_util, temp_file
-from bes.python import setup_tools
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.python.setup_tools import setup_tools
 
 class test_setup_tools(unittest.TestCase):
 

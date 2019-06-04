@@ -4,9 +4,11 @@ from os import path
 import string
 from collections import namedtuple
 
-from bes.compat import StringIO
-from bes.common import check, string_util, point
-from bes.system import log
+from bes.compat.StringIO import StringIO
+from bes.common.check import check
+from bes.common.string_util import string_util
+from bes.common.point import point
+from bes.system.log import log
 
 variable_token = namedtuple('variable_token', 'name, text, default_value, start_pos, end_pos')
 

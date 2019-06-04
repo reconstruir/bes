@@ -3,8 +3,10 @@
 
 import fnmatch, inspect, os, os.path as path, zipfile
 
-from bes.testing.unit_test import unit_test
-from bes.fs import file_path, file_util
+from .unit_test import unit_test
+
+from bes.fs.file_path import file_path
+from bes.fs.file_util import file_util
 
 # FIXME: figure out hot to unpack and egg such that permissions and links are correct
 #        and dont need to be hacked by hand

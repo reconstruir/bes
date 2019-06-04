@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import unittest
 import random, time, threading
-from bes.thread import global_thread_pool
+from bes.thread.global_thread_pool import global_thread_pool
 import atexit
 
 class test_global_thread_pool(unittest.TestCase):

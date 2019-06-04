@@ -1,11 +1,16 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import copy, difflib, os, os.path as path, sys
-from bes.compat import StringIO
-from bes.fs import dir_util, file_util, temp_file
-from bes.system import execute, env_var, os_env
-from bes.text import text_line_parser
-from bes.enum import enum
+from bes.compat.StringIO import StringIO
+from bes.fs.dir_util import dir_util
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.system.execute import execute
+from bes.system.env_var import env_var
+from bes.system.os_env import os_env
+from bes.text.text_line_parser import text_line_parser
+from bes.enum.enum import enum
+
 from collections import namedtuple
 
 class action(enum):

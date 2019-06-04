@@ -2,11 +2,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 #
 import os.path as path, os, unittest
-from bes.fs import file_util, temp_file
-from bes.archive import archiver
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.archive.archiver import archiver
 from bes.system.env_override import env_override
 
-from bes.git import git
+from bes.git.git import git
 from bes.git.git_status import git_status
 from bes.git.git_unit_test import git_unit_test
 

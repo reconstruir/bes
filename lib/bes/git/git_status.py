@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common import string_util
-from bes.compat import StringIO
+from bes.common.string_util import string_util
+from bes.compat.StringIO import StringIO
 import copy
 
 class git_status(object):

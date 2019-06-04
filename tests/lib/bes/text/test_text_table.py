@@ -2,9 +2,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.text import text_table as TT, text_cell_renderer
-from bes.text.text_table import text_table as TT, text_cell_renderer, text_table_style
+
 from bes.text.text_table import text_table as TT
+from bes.text.text_table import text_cell_renderer
+from bes.text.text_table import text_table_style
 from bes.text.text_box import text_box_ascii
 
 class test_text_table(unit_test):

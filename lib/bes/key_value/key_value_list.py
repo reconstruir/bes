@@ -1,8 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.compat import StringIO
-from bes.common import check, object_util, string_util, type_checked_list, variable
-from bes.text import string_lexer_options
+from bes.compat.StringIO import StringIO
+from bes.common.check import check
+from bes.common.object_util import object_util
+from bes.common.string_util import string_util
+from bes.common.type_checked_list import type_checked_list
+from bes.common.variable import variable
+from bes.text.string_lexer import string_lexer_options
 
 from .key_value_parser import key_value_parser
 from .key_value import key_value

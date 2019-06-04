@@ -3,7 +3,7 @@
 
 from os import path
 from bes.testing.unit_test import unit_test
-from bes.git import git_util
+from bes.git.git_util import git_util
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_unit_test
 from bes.system.env_override import env_override

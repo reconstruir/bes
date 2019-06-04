@@ -5,11 +5,12 @@ from collections import namedtuple
 
 import base64
 
-from bes.common import check
-from bes.system import compat
+from bes.common.check import check
+from bes.system.compat import compat
 from bes.compat.url_compat import urljoin, urlopen, urlencode, urlparse, Request
-from bes.fs import file_util, temp_file
-from bes.key_value import key_value
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.key_value.key_value import key_value
 
 class url_util(object):
   'Url util'

@@ -1,9 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
-from bes.common import check
-from bes.fs import file_type, file_util, file_find
-from bes.fs.testing import temp_content
+from bes.common.check import check
+from bes.fs.file_type import file_type
+from bes.fs.file_util import file_util
+from bes.fs.file_find import file_find
+from bes.fs.testing.temp_content import temp_content
 from bes.version.software_version import software_version
 
 from .git import git

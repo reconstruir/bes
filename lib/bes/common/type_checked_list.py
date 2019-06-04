@@ -1,9 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import itertools
-from bes.compat import StringIO
-from bes.compat import cmp, zip, StringIO
-from bes.common import algorithm, check
+from bes.compat.StringIO import StringIO
+from bes.compat.cmp import cmp
+from bes.compat.zip import zip
+from bes.common.algorithm import algorithm
+from bes.common.check import check
 
 class type_checked_list(object):
 

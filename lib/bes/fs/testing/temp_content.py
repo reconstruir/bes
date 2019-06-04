@@ -1,11 +1,10 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os, os.path as path
-from bes.text import string_list_parser
-from bes.common import string_util
 from collections import namedtuple
-from bes.fs import temp_file
+import os, os.path as path
+from bes.text.string_list_parser import string_list_parser
+from bes.common.string_util import string_util
+from bes.fs.temp_file import temp_file
 
 class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')):
   'Temporary files, directories and content for easier testing.'

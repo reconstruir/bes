@@ -2,8 +2,10 @@
 
 import os, os.path as path, stat, tarfile
 
-from bes.fs import file_util, temp_file, tar_util
-from bes.system import execute
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.fs.tar_util import tar_util
+from bes.system.execute import execute
 
 from .archive import archive
 from .archive_extension import archive_extension

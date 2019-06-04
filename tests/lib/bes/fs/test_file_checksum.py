@@ -3,8 +3,11 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from bes.fs.file_checksum import file_checksum as FC, file_checksum_list as FCL
-from bes.fs import file_checksum, file_util, temp_file
+from bes.fs.file_checksum import file_checksum as FC
+from bes.fs.file_checksum import file_checksum_list as FCL
+from bes.fs.file_checksum import file_checksum
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
   
 class test_file_checksum(unit_test):
 

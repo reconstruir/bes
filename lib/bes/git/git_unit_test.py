@@ -3,7 +3,7 @@
 import unittest
 from os import path
 
-from bes.fs import file_util
+from bes.fs.file_util import file_util
 from bes.testing.unit_test import unit_test
 
 from .git import git

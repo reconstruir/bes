@@ -2,8 +2,8 @@
 
 import inspect
 
-from bes.common import check
-from bes.fs import temp_file
+from bes.common.check import check
+from bes.fs.temp_file import temp_file
 from .git_repo import git_repo
 
 class _method_caller(object):

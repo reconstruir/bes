@@ -2,10 +2,10 @@
 
 import os.path as path
 from collections import namedtuple
-from bes.common import check
+from bes.common.check import check
 from bes.property.cached_property import cached_property
-from bes.fs import file_util
-from bes.git import git
+from bes.fs.file_util import file_util
+from bes.git.git import git
 
 from .unit_test_inspect import unit_test_inspect
 

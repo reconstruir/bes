@@ -2,9 +2,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 # FIXME: add an exception class that handles all the state info attributes
-from bes.compat import StringIO
-from bes.system import log
-from bes.text import line_numbers, string_lexer_options, sentence_lexer as lexer
+from bes.compat.StringIO import StringIO
+from bes.system.log import log
+from bes.text.line_numbers import line_numbers
+from bes.text.string_lexer import string_lexer_options
+from bes.text.sentence_lexer import sentence_lexer as lexer
 from .key_value import key_value
 
 class key_value_parser(string_lexer_options.CONSTANTS):

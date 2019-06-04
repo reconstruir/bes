@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import copy
-from bes.compat import StringIO
+from bes.compat.StringIO import StringIO
 from .string_util import string_util
 from .variable import variable
 from .object_util import object_util

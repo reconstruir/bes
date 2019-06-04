@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import unittest
-from bes.text import tree_text_parser as P
+from bes.text.tree_text_parser import tree_text_parser as P
 from bes.text.tree_text_parser import _text_node_data as TDATA
-from bes.common import node
+from bes.common.node import node
 
 class test_tree_text_parser(unittest.TestCase):
 
@@ -245,7 +246,7 @@ child2
          line literal
          foo
   sub3d'''
-    from bes.text import text_line_parser
+    from bes.text.text_line_parser import text_line_parser
     parser = text_line_parser(text)
     literals = P._fold_literals(parser)
     expected = '''\

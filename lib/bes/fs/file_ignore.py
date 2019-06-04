@@ -1,10 +1,10 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
 from collections import namedtuple
-from bes.common import check, object_util
-from bes.text import text_line_parser
+from bes.common.check import check
+from bes.common.object_util import object_util
+from bes.text.text_line_parser import text_line_parser
 
 from .file_path import file_path
 from .file_util import file_util

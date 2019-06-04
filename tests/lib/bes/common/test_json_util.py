@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import tempfile, unittest
 from collections import namedtuple
-from bes.common import json_util, tuple_util
+from bes.common.json_util import json_util
+from bes.common.tuple_util import tuple_util
 
 class Testjson_util(unittest.TestCase):
 

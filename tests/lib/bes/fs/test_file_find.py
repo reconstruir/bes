@@ -3,8 +3,9 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from bes.fs import file_find, temp_file
-from bes.fs.testing import temp_content
+from bes.fs.file_find import file_find
+from bes.fs.temp_file import temp_file
+from bes.fs.testing.temp_content import temp_content
 
 class test_file_find(unit_test):
 

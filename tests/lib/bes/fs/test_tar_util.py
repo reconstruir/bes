@@ -3,7 +3,10 @@
 
 import os, os.path as path, tarfile
 from bes.testing.unit_test import unit_test
-from bes.fs import file_find, file_util, tar_util, temp_file
+from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
+from bes.fs.tar_util import tar_util
+from bes.fs.temp_file import temp_file
 
 class test_tar_util(unit_test):
 

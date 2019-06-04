@@ -3,14 +3,15 @@
 from os import path
 import copy
 
-from bes.common import check, string_util
+from bes.common.check import check
+from bes.common.string_util import string_util
 from bes.compat.ConfigParser import ConfigParser, SafeConfigParser, NoOptionError
-from bes.compat import StringIO
-from bes.fs import file_util
-from bes.key_value import key_value
-from bes.text import text_line_parser
+from bes.compat.StringIO import StringIO
+from bes.fs.file_util import file_util
+from bes.key_value.key_value import key_value
+from bes.text.text_line_parser import text_line_parser
 from bes.version.software_version import software_version
-from bes.system import log
+from bes.system.log import log
 
 class config(object):
   '''

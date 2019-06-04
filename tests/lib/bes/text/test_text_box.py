@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.compat import StringIO
+from bes.compat.StringIO import StringIO
 
 from bes.testing.unit_test import unit_test
 from bes.text.text_box import text_box_ascii, text_box_unicode

@@ -4,10 +4,17 @@ import os, os.path as path, re
 from datetime import datetime
 from collections import namedtuple
 
-from bes.text import text_line_parser
-from bes.common import algorithm, object_util, string_util
-from bes.system import execute, logger
-from bes.fs import dir_util, file_ignore, file_util, tar_util, temp_file
+from bes.text.text_line_parser import text_line_parser
+from bes.common.algorithm import algorithm
+from bes.common.object_util import object_util
+from bes.common.string_util import string_util
+from bes.system.execute import execute
+from bes.system.log import logger
+from bes.fs.dir_util import dir_util
+from bes.fs.file_ignore import file_ignore
+from bes.fs.file_util import file_util
+from bes.fs.tar_util import tar_util
+from bes.fs.temp_file import temp_file
 from bes.fs.file_ignore import ignore_file_data
 from bes.version.software_version import software_version
 

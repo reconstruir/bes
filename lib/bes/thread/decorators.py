@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 #TODO: implement for class method http://blog.dscpl.com.au/2014/01/the-missing-synchronized-decorator.html
 

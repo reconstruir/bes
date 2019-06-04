@@ -1,13 +1,13 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from threading import Thread
 from threading import Lock
+
 from bes.compat.Queue import Queue
 from bes.compat.Queue import Empty as QueueEmptyException
+from bes.system.log import log
 
 from .interruptible_select import InterruptibleSelect
-from bes.system import log
 from .decorators import synchronized_method
 
 class ReaderThread(Thread):

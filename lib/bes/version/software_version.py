@@ -1,8 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common import check
-from bes.compat import cmp
-from bes.text import lexer_token
+from bes.common.check import check
+from bes.compat.cmp import cmp
+from bes.text.lexer_token import lexer_token
 
 from .software_version_lexer import software_version_lexer
 

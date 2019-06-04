@@ -2,7 +2,7 @@
 
 import os.path as path, tarfile
 
-from bes.fs import tar_util
+from bes.fs.tar_util import tar_util
 
 from .archive import archive
 from .archive_extension import archive_extension

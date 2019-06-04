@@ -1,10 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import math, re
-from bes.system import log
-from bes.common import algorithm, check, object_util, string_util
-from bes.compat import StringIO, cmp
 from collections import namedtuple
+import math, re
+from bes.system.log import log
+from bes.common.algorithm import algorithm
+from bes.common.check import check
+from bes.common.object_util import object_util
+from bes.common.string_util import string_util
+from bes.compat.StringIO import StringIO
+from bes.compat.cmp import cmp
 from .text_line import text_line
 from .line_continuation_merger import line_continuation_merger
 from .string_list import string_list

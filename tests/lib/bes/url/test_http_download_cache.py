@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.system import compat
+from bes.system.compat import compat
 
 if compat.IS_PYTHON3:
   import urllib.parse as urlparse
@@ -9,10 +9,12 @@ else:
   import urlparse as urlparse
   
 from bes.testing.unit_test import unit_test
-from bes.web import file_web_server, web_server_controller
-from bes.fs import file_util, temp_file
+from bes.web.file_web_server import file_web_server
+from bes.web.web_server_controller import web_server_controller
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
 from bes.url.http_download_cache import http_download_cache
-from bes.fs.testing import temp_content
+from bes.fs.testing.temp_content import temp_content
 
 class test_http_download_cache(unit_test):
 

@@ -3,7 +3,7 @@
 
 import os, os.path as path, shutil, tempfile
 from bes.testing.unit_test import unit_test
-from bes.fs.testing import temp_content as I
+from bes.fs.testing.temp_content import temp_content as I
 
 class test_temp_content(unit_test):
 

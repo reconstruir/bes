@@ -2,8 +2,9 @@
 
 from os import path
 from collections import namedtuple
-from bes.common import check, variable
-from bes.system import os_env_var
+from bes.common.check import check
+from bes.common.variable import variable
+from bes.system.env_var import os_env_var
 
 # From https://stackoverflow.com/questions/4037481/caching-attributes-of-classes-in-python
 class env_var_property(object):

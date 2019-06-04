@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.enum import enum
+from bes.enum.enum import enum
 
 class bitwise_enum(enum):
 

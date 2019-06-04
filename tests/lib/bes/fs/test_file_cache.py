@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import unittest
-from bes.fs import file_cache, file_util, temp_file
+from bes.fs.file_cache import file_cache
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
 
 class test_file_cache(unittest.TestCase):
 

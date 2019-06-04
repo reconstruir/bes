@@ -1,13 +1,17 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.system import log
-from bes.common import bool_util, check
-from bes.compat import StringIO
-from bes.key_value import key_value, key_value_list
-from bes.fs import file_util
-from bes.text import tree_text_parser
-from bes.common import check, dict_util, variable
-from bes.system import os_env_var
+from bes.system.log import log
+from bes.common.bool_util import bool_util
+from bes.common.check import check
+from bes.compat.StringIO import StringIO
+from bes.key_value.key_value import key_value
+from bes.key_value.key_value_list import key_value_list
+from bes.fs.file_util import file_util
+from bes.text.tree_text_parser import tree_text_parser
+from bes.common.check import check
+from bes.common.dict_util import dict_util
+from bes.common.variable import variable
+from bes.system.env_var import os_env_var
 
 from collections import namedtuple
 

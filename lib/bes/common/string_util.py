@@ -2,8 +2,8 @@
 
 import re, string, sys
 
-from bes.compat import StringIO
-from bes.system import compat
+from bes.compat.StringIO import StringIO
+from bes.system.compat import compat
 from .check import check
 
 class string_util(object):

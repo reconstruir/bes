@@ -2,13 +2,18 @@
 
 import fnmatch, os.path as path, random, re
 
-from bes.common import algorithm, check, object_util
-from bes.fs import file_check, file_multi_ignore, file_path, file_util
-from bes.git import git
-from bes.python import dependencies
-from bes.system import env_var
-from bes.text import text_line_parser
-from bes.system import execute
+from bes.common.algorithm import algorithm
+from bes.common.check import check
+from bes.common.object_util import object_util
+from bes.fs.file_check import file_check
+from bes.fs.file_ignore import file_multi_ignore
+from bes.fs.file_path import file_path
+from bes.fs.file_util import file_util
+from bes.git.git import git
+from bes.python.dependencies import dependencies
+from bes.system.env_var import env_var
+from bes.text.text_line_parser import text_line_parser
+from bes.system.execute import execute
 
 from .config_env import config_env
 from .file_filter import file_filter

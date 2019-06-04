@@ -4,8 +4,8 @@ from collections import namedtuple
 
 import atexit, os, os.path as path, sys, tempfile
 from .file_util import file_util
-from bes.common import check
-from bes.system import log
+from bes.common.check import check
+from bes.system.log import log
 
 class temp_item(namedtuple('temp_item', 'filename, content, mode')):
   'Description of an temp item.'

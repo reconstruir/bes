@@ -3,9 +3,11 @@
 
 from os import path
 from bes.testing.unit_test import unit_test
-from bes.fs import file_util, temp_file
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
 from bes.archive.temp_archive import temp_archive
-from bes.archive import archiver, archive_extension
+from bes.archive.archiver import archiver
+from bes.archive.archive_extension import archive_extension
 
 class test_archiver(unit_test):
 

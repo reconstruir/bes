@@ -4,7 +4,6 @@
 import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.unix.shell_profile import shell_profile as SP
-#from bes.fs import temp_file
 
 class test_shell_profile(unit_test):
 

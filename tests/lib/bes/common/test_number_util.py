@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import unittest
-from bes.common import number_util
-from bes.system import compat
+from bes.common.number_util import number_util
+from bes.system.compat import compat
 
 class Testnumber_util(unittest.TestCase):
 

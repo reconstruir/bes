@@ -3,9 +3,10 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from bes.fs import file_util, temp_file
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
 from bes.system.env_override import env_override
-from bes.git import git
+from bes.git.git import git
 from bes.git.git_repo import git_repo
 from bes.git.git_status import git_status
 from bes.git.git_temp_repo import git_temp_repo

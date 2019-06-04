@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.compat import StringIO
+from bes.compat.StringIO import StringIO
 
 class white_space(object):
   'Deal with white spaces.'

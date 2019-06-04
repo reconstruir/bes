@@ -1,14 +1,16 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+from collections import namedtuple
 
 import os.path as path, re
 
-from bes.common import algorithm, object_util, string_util
-from bes.common import check
+from bes.common.algorithm import algorithm
+from bes.common.object_util import object_util
+from bes.common.string_util import string_util
+from bes.common.check import check
 from .file_find import file_find
 from .file_replace import file_replace
 from .file_util import file_util
-from collections import namedtuple
 
 class file_search(object):
 

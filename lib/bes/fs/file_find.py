@@ -2,7 +2,7 @@
 
 import errno, os.path as path, os, stat
 
-from bes.system import log
+from bes.system.log import log
 from .file_match import file_match
 from .file_path import file_path
 from .file_util import file_util

@@ -2,8 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
-from bes.compat import StringIO
-from bes.common import check, string_util
+from bes.compat.StringIO import StringIO
+from bes.common.check import check
+from bes.common.string_util import string_util
 
 class key_value(namedtuple('key_value', 'key,value')):
 

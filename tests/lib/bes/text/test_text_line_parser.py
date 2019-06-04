@@ -2,9 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.text import text_line_parser as LTP
-from bes.text import text_line as LT
-from bes.text import string_list as SL
+from bes.text.text_line_parser import text_line_parser as LTP
+from bes.text.text_line import text_line as LT
+from bes.text.string_list import string_list as SL
 
 class test_text_line_parser(unit_test):
 

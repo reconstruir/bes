@@ -2,9 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import string
-from bes.common import string_util
+from bes.common.string_util import string_util
 from bes.text.string_lexer import *
-from bes.text import lexer_token
+from bes.text.lexer_token import lexer_token
 
 class _state_begin(string_lexer_state):
   def __init__(self, lexer):

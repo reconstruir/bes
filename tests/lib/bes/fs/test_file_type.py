@@ -2,7 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.fs import file_type, temp_file
+from bes.fs.file_type import file_type
+from bes.fs.temp_file import temp_file
 
 class test_file_type(unit_test):
   

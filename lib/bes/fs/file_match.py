@@ -1,9 +1,9 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import fnmatch, re, os.path as path
 
-from bes.common import algorithm, object_util
+from bes.common.algorithm import algorithm
+from bes.common.object_util import object_util
 
 class file_match(object):
 

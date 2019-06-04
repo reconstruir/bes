@@ -3,11 +3,18 @@
 import os, os.path as path
 from collections import namedtuple
 
-from bes.fs import file_find, file_type, file_util, temp_file
-from bes.fs.find import finder, criteria, file_type_criteria, max_depth_criteria, pattern_criteria
-from bes.compat import StringIO
-from bes.common import string_util
-from bes.system import execute
+from bes.fs.file_find import file_find
+from bes.fs.file_type import file_type
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.fs.find.finder import finder
+from bes.fs.find.criteria import criteria
+from bes.fs.find.file_type_criteria import file_type_criteria
+from bes.fs.find.max_depth_criteria import max_depth_criteria
+from bes.fs.find.pattern_criteria import pattern_criteria
+from bes.compat.StringIO import StringIO
+from bes.common.string_util import string_util
+from bes.system.execute import execute
 
 from .git_repo import git_repo
 from .git import git

@@ -2,8 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.text import text_table_parser as TTP
-from bes.common import table
+from bes.text.text_table_parser import text_table_parser as TTP
+from bes.common.table import table
 
 class test_text_table_parser(unit_test):
 

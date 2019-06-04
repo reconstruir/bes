@@ -1,13 +1,12 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import sqlite3
 import os.path as path
 from collections import namedtuple
 
-from bes.common import check
-from bes.fs import file_util
-from bes.system import log
+from bes.common.check import check
+from bes.fs.file_util import file_util
+from bes.system.log import log
 
 class sqlite(object):
 

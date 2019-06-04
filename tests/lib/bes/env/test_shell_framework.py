@@ -3,10 +3,11 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from bes.fs import file_util, temp_file
-from bes.env import shell_framework
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.env.shell_framework import shell_framework
 from bes.env.env_dir import env_dir
-from bes.system import os_env
+from bes.system.os_env import os_env
 from bes.fs.testing import temp_content
 
 class test_shell_framework(unit_test):

@@ -2,7 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.text import sentence_lexer as L, lexer_token
+from bes.text.sentence_lexer import sentence_lexer as L
+from bes.text.lexer_token import lexer_token
 from helpers.token_test_helper import *
 
 def TPUNCT(s, x = 1, y = 1): return lexer_token(L.TOKEN_PUNCTUATION, s, (x, y))

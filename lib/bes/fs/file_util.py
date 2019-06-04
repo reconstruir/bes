@@ -2,8 +2,12 @@
 
 import codecs, hashlib
 import os.path as path, os, platform, shutil, tempfile
-from bes.common import check, object_util, string_util
-from bes.system import compat, log
+from bes.common.check import check
+from bes.common.object_util import object_util
+from bes.common.string_util import string_util
+
+from bes.system.compat import compat
+from bes.system.log import log
 
 class file_util(object):
 

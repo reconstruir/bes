@@ -3,7 +3,7 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from bes.testing.framework import config_file as CF
+from bes.testing.framework.config_file import config_file as CF
   
 class test_config_file(unit_test):
 

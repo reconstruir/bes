@@ -2,7 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
-from bes.fs import dir_util, file_find, file_util
+from bes.fs.dir_util import dir_util
+from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
 
 class setup_tools(object):
   'Class to deal with setup_tools things.'

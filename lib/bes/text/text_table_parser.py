@@ -1,8 +1,8 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common import check, table
-from bes.compat import StringIO
+from bes.common.check import check
+from bes.common.table import table
+from bes.compat.StringIO import StringIO
 from .text_line_parser import text_line_parser
 
 class text_table_parser(object):

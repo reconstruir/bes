@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 #
 import unittest
-from bes.match import matcher_re
+from bes.match.matcher_re import matcher_re
 
 class Testmatcher_re(unittest.TestCase):
 

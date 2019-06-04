@@ -1,8 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path, tarfile, tempfile, zipfile
-from bes.fs import file_util, temp_file
-from bes.system import execute
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.system.execute import execute
 from collections import namedtuple
 from .archive_extension import archive_extension
 

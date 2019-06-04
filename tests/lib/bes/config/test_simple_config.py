@@ -3,7 +3,7 @@
 
 import os
 from bes.testing.unit_test import unit_test
-from bes.config import simple_config as SC
+from bes.config.simple_config import simple_config as SC
 
 class test_simple_config(unit_test):
 

@@ -1,10 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os, os.path as path, stat, zipfile
+
+from bes.fs.file_util import file_util
+
 from .archive import archive
 from .archive_extension import archive_extension
-from bes.fs import file_util
-
-import os, os.path as path, stat, zipfile
 
 class archive_zip(archive):
   'A Zip archive class.'

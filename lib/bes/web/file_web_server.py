@@ -3,7 +3,8 @@
 import os, os.path as path
 from .web_server import web_server
 
-from bes.fs import file_mime, file_util
+from bes.fs.file_mime import file_mime
+from bes.fs.file_util import file_util
 
 class file_web_server(web_server):
   'A simple web server that serves whatever files are found in its root dir'

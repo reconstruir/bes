@@ -1,10 +1,10 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 # Borrowed from: http://stackoverflow.com/questions/21936292/conditional-skip-testcase-decorator-in-nosetests
 
 import functools, unittest, types
-from bes.system import host, compat
+from bes.system.host import host
+from bes.system.compat import compat
 
 def _id(obj):
   return obj

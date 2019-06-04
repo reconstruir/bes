@@ -1,4 +1,4 @@
-jul 28
+>jul 28
 - fix file_find.fnmatch_find to work more like /bin/find in that it stops when it finds what it wants
 - also rename find_fnmatch to find_name
 - key value lexer parser tests for exception states
@@ -173,3 +173,11 @@ see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-com
 2019-02-02
 - file_cache grows unbounded
 - use checksum_getter for file_cache
+
+New 
+- there is not test for time_util.py instead a stub one is silly
+- move with_metaclass.py to its own module
+- s/ObservableValues/observable_values/
+- s/Waiter/waiter/
+- mv lib/bes/env to a unix only place
+- checks for compat.IS_PYTHON3 in http unit tests.

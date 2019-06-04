@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import json
-from bes.system import compat
+from bes.system.compat import compat
 if compat.IS_PYTHON3:
   import urllib.request as urlopener
   import urllib.parse as urlparser
@@ -13,11 +13,14 @@ else:
   from urllib2 import HTTPError
   
 from bes.testing.unit_test import unit_test
-from bes.web import file_web_server, web_server_controller
-from bes.archive import archiver
-from bes.fs import file_mime, file_util, temp_file
-from bes.url import url_util
-from bes.fs.testing import temp_content
+from bes.web.file_web_server import file_web_server
+from bes.web.web_server_controller import web_server_controller
+from bes.archive.archiver import archiver
+from bes.fs.file_mime import file_mime
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.url.url_util import url_util
+from bes.fs.testing.temp_content import temp_content
 
 class test_file_web_server(unit_test):
 

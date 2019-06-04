@@ -5,9 +5,9 @@ import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.fs.detail.file_metadata_db import file_metadata_db
 from bes.fs.file_metadata import file_metadata
-from bes.fs import file_util, temp_file
-from bes.sqlite import sqlite
-from bes.key_value import key_value_list
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.key_value.key_value_list import key_value_list
 
 class test_file_metadata(unit_test):
 

@@ -3,7 +3,7 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from bes.fs import file_search
+from bes.fs.file_search import file_search
 
 class test_file_search(unit_test):
 

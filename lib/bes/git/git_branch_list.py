@@ -3,7 +3,7 @@
 import os, os.path as path, re
 from collections import namedtuple
 
-from bes.common import type_checked_list
+from bes.common.type_checked_list import type_checked_list
 
 from .git_branch import git_branch 
 

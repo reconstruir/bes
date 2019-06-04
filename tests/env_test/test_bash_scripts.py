@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import copy, os, os.path as path
 from bes.testing.unit_test import unit_test
-from bes.system import execute
+from bes.system.execute import execute
 
 class test_bash_scripts(unit_test):
 

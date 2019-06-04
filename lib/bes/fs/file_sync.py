@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.system import log
+from bes.system.log import log
 from .file_find import file_find
 from .file_util import file_util
 

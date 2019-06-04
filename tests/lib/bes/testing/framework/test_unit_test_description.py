@@ -3,7 +3,7 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from bes.testing.framework import unit_test_description as UTD
+from bes.testing.framework.unit_test_description import unit_test_description as UTD
   
 class test_unit_test_description(unit_test):
 

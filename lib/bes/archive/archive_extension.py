@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.fs import file_util
+from bes.fs.file_util import file_util
 
 class archive_extension(object):
   'Constants for different archive types.'

@@ -4,7 +4,7 @@
 import os
 from os import path
 import unittest
-from bes.fs import file_mime
+from bes.fs.file_mime import file_mime
 
 class test_file_mime(unittest.TestCase):
 

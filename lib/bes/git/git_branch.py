@@ -3,9 +3,11 @@
 import re
 from collections import namedtuple
 
-from bes.text import text_line_parser
-from bes.common import check, string_util, tuple_util
-from bes.compat import cmp
+from bes.text.text_line_parser import text_line_parser
+from bes.common.check import check
+from bes.common.string_util import string_util
+from bes.common.tuple_util import tuple_util
+from bes.compat.cmp import cmp
 
 git_branch_status = namedtuple('git_branch_status', 'ahead, behind')
 

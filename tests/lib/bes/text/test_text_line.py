@@ -3,7 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 
-from bes.text import text_line as TL
+from bes.text.text_line import text_line as TL
 
 class test_text_line(unit_test):
 
