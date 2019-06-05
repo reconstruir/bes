@@ -388,6 +388,7 @@ class text_line_parser(object):
     return [ line.line_number for line in self._lines ]
 
   def renumber(self, starting_line = None):
+    'Renumber line numbers starting at starting_line or 1 if None.'
     starting_line = starting_line or 1
     check.check_int(starting_line)
     index = self._check_line_number_index(starting_line)
