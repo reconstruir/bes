@@ -4,6 +4,8 @@ from collections import namedtuple
 from bes.common import check, string_util
 from bes.compat import StringIO
 from bes.property.cached_property import cached_property
+from bes.common import tuple_util
+
 from .comments import comments
 
 class text_line(namedtuple('text_line', 'line_number, text')):
@@ -62,9 +64,15 @@ class text_line(namedtuple('text_line', 'line_number, text')):
   
   def text_is_empty(self, strip_comments = False):
     return self.get_text(strip_comments = strip_comments, strip_text = True) == ''
+
+  def clone(self, mutations = None):
+    return tuple_util.clone(self, mutations = mutations)
   
   def clone_stripped(self):
-    return text_line(self.line_number, self.text.strip())
+    return self.clone(mutations = { 'text': self.text.strip() })
+
+  def clone_line_number(self, line_number):
+    return self.clone(mutations = { 'line_number': line_number })
 
   @cached_property
   def indent_length(self):

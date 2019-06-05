@@ -714,6 +714,19 @@ pepper
 melon
 wine
 pepper''', str(l) )
+
+  def test_renumber(self):
+    text = '''\
+kiwi
+apple
+melon
+cheese'''
+    l = LTP(text)
+    self.assertEqual( [ 1, 2, 3, 4 ], l.line_numbers() )
+    l.remove_line_number(2)
+    self.assertEqual( [ 1, 3, 4 ], l.line_numbers() )
+    l.renumber()
+    self.assertEqual( [ 1, 2, 3 ], l.line_numbers() )
     
 if __name__ == '__main__':
   unit_test.main()

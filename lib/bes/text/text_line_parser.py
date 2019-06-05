@@ -28,6 +28,10 @@ class text_line_parser(object):
       self._lines = self._parse(text, self._delimiter)
       self._ends_with_delimiter = text and text[-1] == self._delimiter
 
+  @property
+  def lines(self):
+    return self._lines
+      
   def _assign_text_line_seq(self, tokens):
     check.check_text_line_seq(tokens)
     self._lines = []
@@ -358,9 +362,8 @@ class text_line_parser(object):
     new_lines = []
     for i, text in enumerate(texts):
       new_lines.append(text_line(old_line.line_number + i, text))
-    lines_after = self._lines[index + 1:]
-    renumbered_lines_after = self._renumber_lines(lines_after, len(texts) - 1)
-    self._lines = self._lines[0:index] + new_lines + renumbered_lines_after
+    self._lines = self._lines[0:index] + new_lines + self._lines[index + 1:]
+    self.renumber(starting_line = line_number)
 
   def append_line(self, text):
     'Remove a range of lines by index (not line number)'
@@ -380,14 +383,21 @@ class text_line_parser(object):
       new_lines.append(line)
     self._lines = new_lines
 
-  @classmethod
-  def _renumber_lines(clazz, lines, offset):
-    assert offset >= 1
-    result = []
-    for line in lines:
-      result.append(text_line(line.line_number + offset, line.text))
-    return result
-
   def line_numbers(self):
     'Return a list of just the line numbers.'
     return [ line.line_number for line in self._lines ]
+
+  def renumber(self, starting_line = None):
+    starting_line = starting_line or 1
+    check.check_int(starting_line)
+    index = self._check_line_number_index(starting_line)
+    line_number = self._lines[index].line_number
+    for i in range(index, len(self._lines)):
+      self._lines[i] = self._lines[i].clone_line_number(line_number)
+      line_number += 1
+    
+  def _check_line_number_index(self, line_number):
+    index = self.find_by_line_number(line_number)
+    if index < 0:
+      raise IndexError('no line_number found: {}'.format(line_number))
+    return index
