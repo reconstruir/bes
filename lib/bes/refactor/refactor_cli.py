@@ -5,6 +5,7 @@ import argparse, os.path as path
 from bes.script import script_base
 
 from .files import files as refactor_files
+from .import_expand import import_expand
 
 class refactor_cli(script_base):
 
@@ -279,5 +280,5 @@ class refactor_cli(script_base):
     #refactor_files.refactor(src, dst, dirs, word_boundary = word_boundary)
     
   def _command_expand_imports(self, namespace, dirs, dry_run):
-    refactor_files.expand_imports(namespace, dirs, dry_run)
+    import_expand.expand(namespace, dirs, dry_run)
     

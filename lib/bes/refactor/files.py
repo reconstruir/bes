@@ -6,7 +6,8 @@ import os, os.path as path, re, sys
 from bes.common import algorithm, json_util, string_util
 from bes.fs import file_check, file_find, file_match, file_path, file_replace, file_search, file_util, file_mime, file_path
 from bes.git import git
-from bes.text import text_line_parser
+from bes.text.string_list import string_list
+from bes.text.text_line_parser import text_line_parser
 
 class files(object):
 
@@ -163,44 +164,3 @@ class files(object):
   @classmethod
   def _minimum_paths(clazz, paths, src_pattern):
     return algorithm.unique([ clazz._minimum_path(p, src_pattern) for p in paths ])
-
-  @classmethod
-  def expand_imports(clazz, namespace, dirs, dry_run):
-    assert isinstance(dirs, list)
-    for d in dirs:
-      clazz._expand_imports_one_dir(namespace, d, dry_run)
-
-  @classmethod
-  def _expand_imports_one_dir(clazz, namespace, where, dry_run):
-    where = path.normpath(where)
-    if '..' in where:
-      raise RuntimeError('Invalid path - dont use \"..\" : %s' % (where))
-    abs_where = path.abspath(where)
-    py_files = clazz.find_python_files(abs_where)
-    for filename in py_files:
-      clazz._expand_imports_one_file(namespace, filename, dry_run)
-
-  @classmethod
-  def _expand_imports_one_file(clazz, namespace, filename, dry_run):
-    content = file_util.read(filename)
-    pattern = r'^\s*from\s+{}\.(.+)\s+import\s+(.+)\s*$'.format(namespace)
-    lines = text_line_parser(content)
-    for line in lines:
-      mi = clazz._parse_multi_imports_line(pattern, line, dry_run)
-      if mi and len(mi.modules) > 1:
-        texts = []
-        for mod in mi.modules:
-          texts.append('from {}.{} import {}'.format(namespace, mi.library, mod))
-        print('line={} num={}'.format(mi.line.line_number, len(texts)))
-
-  _multi_import = namedtuple('_multi_import', 'line, library, modules')
-  @classmethod
-  def _parse_multi_imports_line(clazz, pattern, line, dry_run):
-    x = re.findall(pattern, line.text)
-    if not x:
-      return None
-    assert len(x) == 1
-    assert len(x[0]) == 2
-    library = x[0][0]
-    modules = [ m.strip() for m in x[0][1].split(',') ]
-    return clazz._multi_import(line, library, modules)
