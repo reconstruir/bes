@@ -56,6 +56,38 @@ from fruit.citrus import lime
 from fruit.citrus import orange
 '''
     self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, True) )
+
+  def test_expand_multiple(self):
+    text = '''\
+
+import os.path as path, re
+
+from collections import namedtuple
+
+from fruit.citrus import lemon, orange, lime
+from fruit.sugar import fructose, xylitol, glucose
+
+class foo(object):
+  pass
+'''
+    expected = '''\
+
+import os.path as path, re
+
+from collections import namedtuple
+
+from fruit.citrus import lemon
+from fruit.citrus import orange
+from fruit.citrus import lime
+from fruit.sugar import fructose
+from fruit.sugar import xylitol
+from fruit.sugar import glucose
+
+class foo(object):
+  pass
+'''
+    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False) )
                       
+    
 if __name__ == "__main__":
   unit_test.main()
