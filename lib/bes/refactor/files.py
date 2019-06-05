@@ -1,10 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import argparse, os, os.path as path, re, sys
+from collections import namedtuple
+import os, os.path as path, re, sys
 
 from bes.common import algorithm, json_util, string_util
 from bes.fs import file_check, file_find, file_match, file_path, file_replace, file_search, file_util, file_mime, file_path
 from bes.git import git
+from bes.text import text_line_parser
 
 class files(object):
 
@@ -181,17 +183,24 @@ class files(object):
   @classmethod
   def _expand_imports_one_file(clazz, namespace, filename, dry_run):
     content = file_util.read(filename)
-    pattern = r'^\s*from\s+{}\\.(.*)\s+import\s+(.*)\s*$'
-    pattern = r'^\s*from\s+bes\.(.+)\s+import\s+(.+)\s*$'
-    lines = content.split('\n')
+    pattern = r'^\s*from\s+{}\.(.+)\s+import\s+(.+)\s*$'.format(namespace)
+    lines = text_line_parser(content)
     for line in lines:
-      clazz._expand_imports_one_line(pattern, line, dry_run)
+      mi = clazz._parse_multi_imports_line(pattern, line, dry_run)
+      if mi and len(mi.modules) > 1:
+        texts = []
+        for mod in mi.modules:
+          texts = 'from {}.{} import {}'.format(namespace, mi.library, mod)
+        print(mi)
 
+  _multi_import = namedtuple('_multi_import', 'line, library, modules')
   @classmethod
-  def _expand_imports_one_line(clazz, pattern, line, dry_run):
-#    print('pattern: "{}"'.format(pattern))
-#    print('line: "{}"'.format(line))
-    x = re.findall(pattern, line)
-    if x:
-      print('      x: {}'.format(str(x)))
-    
+  def _parse_multi_imports_line(clazz, pattern, line, dry_run):
+    x = re.findall(pattern, line.text)
+    if not x:
+      return None
+    assert len(x) == 1
+    assert len(x[0]) == 2
+    library = x[0][0]
+    modules = [ m.strip() for m in x[0][1].split(',') ]
+    return clazz._multi_import(line, library, modules)
