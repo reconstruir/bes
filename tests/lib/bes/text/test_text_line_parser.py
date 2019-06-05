@@ -4,6 +4,7 @@
 from bes.testing.unit_test import unit_test
 from bes.text import text_line_parser as LTP
 from bes.text import text_line as LT
+from bes.text import string_list as SL
 
 class test_text_line_parser(unit_test):
 
@@ -665,6 +666,54 @@ apple
 melon
 
 cheese''', str(l) )
+
+  def test_replace_line_with_lines(self):
+    text = '''\
+kiwi
+apple
+melon
+cheese'''
+    l = LTP(text)
+    self.assertEqual( [ 1, 2, 3, 4 ], l.line_numbers() )
+    l.replace_line_with_lines(2, SL(['wine', 'pepper']))
+    self.assertMultiLineEqual( '''\
+kiwi
+wine
+pepper
+melon
+cheese''', str(l) )
+    self.assertEqual( [ 1, 2, 3, 4, 5 ], l.line_numbers() )
+    return
+  
+    text = '''\
+kiwi
+apple
+melon
+cheese'''
+    l = LTP(text)
+    l.replace_line_with_lines(1, SL(['wine', 'pepper']))
+    self.assertMultiLineEqual( '''\
+wine
+pepper
+apple
+pepper
+melon
+cheese''', str(l) )
+
+    text = '''\
+kiwi
+apple
+melon
+cheese'''
+    l = LTP(text)
+    l.replace_line_with_lines(4, SL(['wine', 'pepper']))
+    self.assertMultiLineEqual( '''\
+kiwi
+apple
+pepper
+melon
+wine
+pepper''', str(l) )
     
 if __name__ == '__main__':
   unit_test.main()

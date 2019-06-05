@@ -345,6 +345,23 @@ class text_line_parser(object):
     old_line = self._lines[index]
     self._lines[index] = text_line(old_line.line_number, new_text)
 
+  def replace_line_with_lines(self, line_number, texts):
+    'Replace the text at line_number with new_text.'
+    check.check_int(line_number)
+    check.check_string_list(texts)
+    assert texts
+    
+    index = self.find_by_line_number(line_number)
+    if index < 0:
+      raise IndexError('no line_number %d found' % (line_number))
+    old_line = self._lines[index]
+    new_lines = []
+    for i, text in enumerate(texts):
+      new_lines.append(text_line(old_line.line_number + i, text))
+    lines_after = self._lines[index + 1:]
+    renumbered_lines_after = self._renumber_lines(lines_after, len(texts) - 1)
+    self._lines = self._lines[0:index] + new_lines + renumbered_lines_after
+
   def append_line(self, text):
     'Remove a range of lines by index (not line number)'
     if self._lines:
@@ -362,3 +379,15 @@ class text_line_parser(object):
         new_lines.append(text_line(line_number, ''))
       new_lines.append(line)
     self._lines = new_lines
+
+  @classmethod
+  def _renumber_lines(clazz, lines, offset):
+    assert offset >= 1
+    result = []
+    for line in lines:
+      result.append(text_line(line.line_number + offset, line.text))
+    return result
+
+  def line_numbers(self):
+    'Return a list of just the line numbers.'
+    return [ line.line_number for line in self._lines ]
