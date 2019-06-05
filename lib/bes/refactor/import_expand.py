@@ -12,23 +12,23 @@ from .files import files
 class import_expand(object):
 
   @classmethod
-  def expand(clazz, namespace, dirs, dry_run):
+  def expand(clazz, namespace, dirs, sort, dry_run):
     assert isinstance(dirs, list)
     for d in dirs:
-      clazz._expand_one_dir(namespace, d, dry_run)
+      clazz._expand_one_dir(namespace, d, sort, dry_run)
 
   @classmethod
-  def _expand_one_dir(clazz, namespace, where, dry_run):
+  def _expand_one_dir(clazz, namespace, where, sort, dry_run):
     where = path.normpath(where)
     if '..' in where:
       raise RuntimeError('Invalid path - dont use \"..\" : %s' % (where))
     abs_where = path.abspath(where)
     py_files = files.find_python_files(abs_where)
     for filename in py_files:
-      clazz._expand_one_file(namespace, filename, dry_run)
+      clazz._expand_one_file(namespace, filename, sort, dry_run)
 
   @classmethod
-  def expand_text(clazz, namespace, text):
+  def expand_text(clazz, namespace, text, sort):
     pattern = r'^\s*from\s+{}\.(.+)\s+import\s+(.+)\s*$'.format(namespace)
     lines = text_line_parser(text)
     mi_imports = clazz._parse_multi_imports(pattern, lines)
@@ -41,17 +41,24 @@ class import_expand(object):
 
     for line_number in line_numbers:
       mi = mi_imports[line_number]
-      texts = string_list()
-      for mod in mi.modules:
-        texts.append('from {}.{} import {}'.format(namespace, mi.library, mod))
+      texts = clazz._make_texts(namespace, mi, sort)
       lines.replace_line_with_lines(line_number, texts)
 
     return str(lines).rstrip() + '\n'
-      
+
   @classmethod
-  def _expand_one_file(clazz, namespace, filename, dry_run):
+  def _make_texts(clazz, namespace, mi, sort):
+    texts = string_list()
+    for mod in mi.modules:
+      texts.append('from {}.{} import {}'.format(namespace, mi.library, mod))
+    if sort:
+      texts.sort()
+    return texts
+  
+  @classmethod
+  def _expand_one_file(clazz, namespace, filename, sort, dry_run):
     content = file_util.read(filename)
-    new_content = clazz.expand_text(namespace, content)
+    new_content = clazz.expand_text(namespace, content, sort)
     if new_content == content:
       return
     if dry_run:

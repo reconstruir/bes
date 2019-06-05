@@ -31,6 +31,8 @@ class refactor_cli(script_base):
     p.add_argument('dirs', action = 'store', nargs = '+', help = 'Directories to refactor')
     p.add_argument('--dry-run', '-n', action = 'store_true', default = False,
                    help = 'Only print what would happen without doing it [ False ]')
+    p.add_argument('--sort', action = 'store_true', default = False,
+                   help = 'Sort the new list if imports [ False ]')
     
     # Rename dirs
     rename_dirs_parser = subparsers.add_parser('rename_dirs', help = 'Rename_Dirs a module')
@@ -93,7 +95,7 @@ class refactor_cli(script_base):
     elif args.command == 'list':
       return self._command_list(self.filepaths_normalize(args.files))
     elif args.command == 'expand_imports':
-      return self._command_expand_imports(args.namespace, args.dirs, args.dry_run)
+      return self._command_expand_imports(args.namespace, args.dirs, args.sort, args.dry_run)
 
   def _command_rename(self, src, dst, dirs, dry_run, word_boundary):
     refactor_files.refactor(src, dst, dirs, word_boundary = word_boundary)
@@ -279,6 +281,6 @@ class refactor_cli(script_base):
     refactor_files.rename_dirs(src, dst, d, word_boundary = word_boundary)
     #refactor_files.refactor(src, dst, dirs, word_boundary = word_boundary)
     
-  def _command_expand_imports(self, namespace, dirs, dry_run):
-    import_expand.expand(namespace, dirs, dry_run)
+  def _command_expand_imports(self, namespace, dirs, sort, dry_run):
+    import_expand.expand(namespace, dirs, sort, dry_run)
     

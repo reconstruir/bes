@@ -44,7 +44,18 @@ from fruit.citrus import lemon
 from fruit.citrus import orange
 from fruit.citrus import lime
 '''
-    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text) )
+    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False) )
+                      
+  def test_expand_text_with_sort(self):
+    text = '''\
+from fruit.citrus import lemon, orange, lime
+'''
+    expected = '''\
+from fruit.citrus import lemon
+from fruit.citrus import lime
+from fruit.citrus import orange
+'''
+    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, True) )
                       
 if __name__ == "__main__":
   unit_test.main()
