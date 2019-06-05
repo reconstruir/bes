@@ -190,8 +190,8 @@ class files(object):
       if mi and len(mi.modules) > 1:
         texts = []
         for mod in mi.modules:
-          texts = 'from {}.{} import {}'.format(namespace, mi.library, mod)
-        print(mi)
+          texts.append('from {}.{} import {}'.format(namespace, mi.library, mod))
+        print('line={} num={}'.format(mi.line.line_number, len(texts)))
 
   _multi_import = namedtuple('_multi_import', 'line, library, modules')
   @classmethod

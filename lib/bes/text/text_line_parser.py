@@ -387,6 +387,17 @@ class text_line_parser(object):
     'Return a list of just the line numbers.'
     return [ line.line_number for line in self._lines ]
 
+  def indeces(self, line_numbers):
+    'Return a dictionary of line_number to index .'
+    check.check_list(line_numbers)
+    result = {}
+    line_numbers_set = set(line_numbers)
+    for i, line in enumerate(self._lines):
+      line_number = self._lines[i].line_number
+      if line_number in line_numbers_set:
+        result[line_number] = i
+    return result
+
   def renumber(self, starting_line = None):
     'Renumber line numbers starting at starting_line or 1 if None.'
     starting_line = starting_line or 1

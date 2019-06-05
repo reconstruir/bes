@@ -728,5 +728,42 @@ cheese'''
     l.renumber()
     self.assertEqual( [ 1, 2, 3 ], l.line_numbers() )
     
+  def test_indeces(self):
+    text = '''\
+kiwi
+
+apple
+
+melon
+
+cheese'''
+    l = LTP(text)
+    self.assertEqual( [
+      ( 1, 'kiwi' ), 
+      ( 2, '' ), 
+      ( 3, 'apple' ), 
+      ( 4, '' ), 
+      ( 5, 'melon' ), 
+      ( 6, '' ), 
+      ( 7, 'cheese' ), 
+    ], l.lines )
+    self.assertEqual( { 7: 6, 5: 4, 3: 2 }, l.indeces([ 7, 5, 3 ]) )
+    l.remove_empties()
+    self.assertEqual( [
+      ( 1, 'kiwi' ), 
+      ( 3, 'apple' ), 
+      ( 5, 'melon' ), 
+      ( 7, 'cheese' ), 
+    ], l.lines )
+    self.assertEqual( { 7: 3, 5: 2, 3: 1 }, l.indeces([ 7, 5, 3 ]) )
+    l.renumber()
+    self.assertEqual( [
+      ( 1, 'kiwi' ), 
+      ( 2, 'apple' ), 
+      ( 3, 'melon' ), 
+      ( 4, 'cheese' ), 
+    ], l.lines )
+    self.assertEqual( { 3: 2 }, l.indeces([ 7, 5, 3 ]) )
+    
 if __name__ == '__main__':
   unit_test.main()
