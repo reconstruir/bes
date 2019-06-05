@@ -59,37 +59,57 @@ from fruit.citrus import orange
 
   def test_expand_multiple(self):
     text = '''\
-
-import os.path as path, re
-
-from collections import namedtuple
-
 from fruit.citrus import lemon, orange, lime
 from fruit.fiber import inulin
-from fruit.sugar import fructose, xylitol, glucose
-
-class foo(object):
-  pass
+from fruit.cover import peel, skin
+from fruit.sugar import fructose, xylitol
 '''
     expected = '''\
-
-import os.path as path, re
-
-from collections import namedtuple
-
 from fruit.citrus import lemon
 from fruit.citrus import orange
 from fruit.citrus import lime
 from fruit.fiber import inulin
+from fruit.cover import peel
+from fruit.cover import skin
 from fruit.sugar import fructose
 from fruit.sugar import xylitol
-from fruit.sugar import glucose
-
-class foo(object):
-  pass
 '''
     self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False) )
                       
-    
+  def test_expand_messier(self):
+    text = '''\
+import os.path as path, shutil
+from fruit.system import exfoo, sbar
+from collections import namedtuple
+from baking.tools.frypan import cast_iron
+from fruit.color import green, red, yellow
+'''
+    expected = '''\
+import os.path as path, shutil
+from fruit.system import exfoo
+from fruit.system import sbar
+from collections import namedtuple
+from baking.tools.frypan import cast_iron
+from fruit.color import green
+from fruit.color import red
+from fruit.color import yellow
+'''
+    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False) )
+
+  def test_expand_indentation(self):
+    text = '''\
+  class foo(object):
+    def f(self):
+      from fruit.color import green, red, yellow
+'''
+    expected = '''\
+  class foo(object):
+    def f(self):
+      from fruit.color import green
+      from fruit.color import red
+      from fruit.color import yellow
+'''
+    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False) )
+
 if __name__ == "__main__":
   unit_test.main()

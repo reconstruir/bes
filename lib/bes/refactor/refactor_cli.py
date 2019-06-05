@@ -28,11 +28,13 @@ class refactor_cli(script_base):
     # expand imports
     p = subparsers.add_parser('expand_imports', help = 'Example imports')
     p.add_argument('namespace', action = 'store', help = 'Namespace to expand')
-    p.add_argument('dirs', action = 'store', nargs = '+', help = 'Directories to refactor')
+    p.add_argument('files', action = 'store', nargs = '+', help = 'Files or directories to refactor')
     p.add_argument('--dry-run', '-n', action = 'store_true', default = False,
                    help = 'Only print what would happen without doing it [ False ]')
     p.add_argument('--sort', action = 'store_true', default = False,
                    help = 'Sort the new list if imports [ False ]')
+    p.add_argument('--verbose', action = 'store_true', default = False,
+                   help = 'Verbose spew about what the tool is doing. [ False ]')
     
     # Rename dirs
     rename_dirs_parser = subparsers.add_parser('rename_dirs', help = 'Rename_Dirs a module')
@@ -95,7 +97,7 @@ class refactor_cli(script_base):
     elif args.command == 'list':
       return self._command_list(self.filepaths_normalize(args.files))
     elif args.command == 'expand_imports':
-      return self._command_expand_imports(args.namespace, args.dirs, args.sort, args.dry_run)
+      return self._command_expand_imports(args.namespace, args.files, args.sort, args.dry_run, args.verbose)
 
   def _command_rename(self, src, dst, dirs, dry_run, word_boundary):
     refactor_files.refactor(src, dst, dirs, word_boundary = word_boundary)
@@ -281,6 +283,7 @@ class refactor_cli(script_base):
     refactor_files.rename_dirs(src, dst, d, word_boundary = word_boundary)
     #refactor_files.refactor(src, dst, dirs, word_boundary = word_boundary)
     
-  def _command_expand_imports(self, namespace, dirs, sort, dry_run):
-    import_expand.expand(namespace, dirs, sort, dry_run)
+  def _command_expand_imports(self, namespace, files, sort, dry_run, verbose):
+    files = self.resolve_files(files, patterns = '*.py')
+    import_expand.expand(namespace, files, sort, dry_run, verbose)
     

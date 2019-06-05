@@ -12,50 +12,48 @@ from .files import files
 class import_expand(object):
 
   @classmethod
-  def expand(clazz, namespace, dirs, sort, dry_run):
-    assert isinstance(dirs, list)
-    for d in dirs:
-      clazz._expand_one_dir(namespace, d, sort, dry_run)
-
-  @classmethod
-  def _expand_one_dir(clazz, namespace, where, sort, dry_run):
-    where = path.normpath(where)
-    if '..' in where:
-      raise RuntimeError('Invalid path - dont use \"..\" : %s' % (where))
-    abs_where = path.abspath(where)
-    py_files = files.find_python_files(abs_where)
-    for filename in py_files:
-      clazz._expand_one_file(namespace, filename, sort, dry_run)
+  def expand(clazz, namespace, files, sort, dry_run, verbose):
+    print('files: {}'.format(files))
+    for filename in files:
+      clazz._expand_one_file(namespace, filename, sort, dry_run, verbose)
 
   @classmethod
   def expand_text(clazz, namespace, text, sort):
-    pattern = r'^\s*from\s+{}\.(.+)\s+import\s+(.+)\s*$'.format(namespace)
+    pattern = r'^(\s*)from\s+{}\.(.+)\s+import\s+(.+)\s*$'.format(namespace)
     lines = text_line_parser(text)
     mi_imports = clazz._parse_multi_imports(pattern, lines)
     if not mi_imports:
       return text
-    # Reverse the line numbers so we work to expand imports backwards in
-    # order not to mess the order of things in the content
-    line_numbers = [ n for n in reversed(mi_imports.keys()) ]
-
-    for line_number in line_numbers:
-      mi = mi_imports[line_number]
+    line_numbers = sorted(mi_imports.keys())
+    offset = 0
+    for original_line_number in line_numbers:
+      line_number = original_line_number + offset
+      mi = mi_imports[original_line_number]
       texts = clazz._make_texts(namespace, mi, sort)
-      lines.replace_line_with_lines(line_number, texts, renumber = False)
-
+      #clazz._dump_lines(lines, 'RUN{} BEFORE '.format(original_line_number))
+      lines.replace_line_with_lines(line_number, texts, renumber = True)
+      #clazz._dump_lines(lines, 'RUN{}  AFTER '.format(original_line_number))
+      offset += (len(texts) - 1)
     return str(lines).rstrip() + '\n'
 
+  @classmethod
+  def _dump_lines(clazz, lines, blurb):
+    x = text_line_parser(lines)
+    x.prepend(blurb)
+    x.add_line_numbers()
+    print(str(x))
+  
   @classmethod
   def _make_texts(clazz, namespace, mi, sort):
     texts = string_list()
     for mod in mi.modules:
-      texts.append('from {}.{} import {}'.format(namespace, mi.library, mod))
+      texts.append('{}from {}.{} import {}'.format(mi.indent, namespace, mi.library, mod))
     if sort:
       texts.sort()
     return texts
   
   @classmethod
-  def _expand_one_file(clazz, namespace, filename, sort, dry_run):
+  def _expand_one_file(clazz, namespace, filename, sort, dry_run, verbose):
     content = file_util.read(filename)
     new_content = clazz.expand_text(namespace, content, sort)
     if new_content == content:
@@ -64,18 +62,21 @@ class import_expand(object):
       print('DRY_RUN: Would rewrite: {}'.format(filename))
       return
     file_util.save(filename, content = new_content)
+    if verbose:
+      print('Updated: {}'.format(filename))
     
-  _multi_import = namedtuple('_multi_import', 'line, library, modules')
+  _multi_import = namedtuple('_multi_import', 'line, indent, library, modules')
   @classmethod
   def _parse_multi_imports_line(clazz, pattern, line):
     x = re.findall(pattern, line.text)
     if not x:
       return None
     assert len(x) == 1
-    assert len(x[0]) == 2
-    library = x[0][0]
-    modules = [ m.strip() for m in x[0][1].split(',') ]
-    return clazz._multi_import(line, library, modules)
+    assert len(x[0]) == 3
+    indent = x[0][0]
+    library = x[0][1]
+    modules = [ m.strip() for m in x[0][2].split(',') ]
+    return clazz._multi_import(line, indent, library, modules)
 
   @classmethod
   def _parse_multi_imports(clazz, pattern, lines):

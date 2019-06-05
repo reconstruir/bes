@@ -370,6 +370,27 @@ class text_line_parser(object):
     if renumber:
       self.renumber(starting = line_number)
 
+  def replace_lines(self, replacements, renumber = True):
+    'Replace the text at line_number with new_text.'
+    check.check_int(line_number)
+    check.check_string_list(texts)
+    assert texts
+    
+    index = self.find_by_line_number(line_number)
+    if index < 0:
+      raise IndexError('no line_number %d found' % (line_number))
+    old_line = self._lines[index]
+    new_lines = []
+    for i, text in enumerate(texts):
+      if renumber:
+        new_line_number = old_line.line_number + i
+      else:
+        new_line_number = 0
+      new_lines.append(text_line(new_line_number, text))
+    self._lines = self._lines[0:index] + new_lines + self._lines[index + 1:]
+    if renumber:
+      self.renumber(starting = line_number)
+
   def append_line(self, text):
     'Remove a range of lines by index (not line number)'
     if self._lines:
