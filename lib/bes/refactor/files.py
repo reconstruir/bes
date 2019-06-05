@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import argparse, os, os.path as path, re, sys
@@ -45,6 +44,11 @@ class files(object):
   def find_text_files(clazz, d):
     'Find text files recurisively in directory d.'
     return file_find.find_function(d, file_mime.is_text, relative = False)
+
+  @classmethod
+  def find_python_files(clazz, d):
+    'Find python files recurisively in directory d.'
+    return [ f for f in clazz.find_text_files(d) if f.lower().endswith('.py') ]
 
   @classmethod
   def text_files(clazz, filenames):
@@ -157,3 +161,37 @@ class files(object):
   @classmethod
   def _minimum_paths(clazz, paths, src_pattern):
     return algorithm.unique([ clazz._minimum_path(p, src_pattern) for p in paths ])
+
+  @classmethod
+  def expand_imports(clazz, namespace, dirs, dry_run):
+    assert isinstance(dirs, list)
+    for d in dirs:
+      clazz._expand_imports_one_dir(namespace, d, dry_run)
+
+  @classmethod
+  def _expand_imports_one_dir(clazz, namespace, where, dry_run):
+    where = path.normpath(where)
+    if '..' in where:
+      raise RuntimeError('Invalid path - dont use \"..\" : %s' % (where))
+    abs_where = path.abspath(where)
+    py_files = clazz.find_python_files(abs_where)
+    for filename in py_files:
+      clazz._expand_imports_one_file(namespace, filename, dry_run)
+
+  @classmethod
+  def _expand_imports_one_file(clazz, namespace, filename, dry_run):
+    content = file_util.read(filename)
+    pattern = r'^\s*from\s+{}\\.(.*)\s+import\s+(.*)\s*$'
+    pattern = r'^\s*from\s+bes\.(.+)\s+import\s+(.+)\s*$'
+    lines = content.split('\n')
+    for line in lines:
+      clazz._expand_imports_one_line(pattern, line, dry_run)
+
+  @classmethod
+  def _expand_imports_one_line(clazz, pattern, line, dry_run):
+#    print('pattern: "{}"'.format(pattern))
+#    print('line: "{}"'.format(line))
+    x = re.findall(pattern, line)
+    if x:
+      print('      x: {}'.format(str(x)))
+    

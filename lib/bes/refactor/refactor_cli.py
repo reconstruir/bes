@@ -1,18 +1,10 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import argparse, os.path as path
 
 from bes.script import script_base
 
-#import argparse, os, os.path as path, re, sys
-#
-#from bes.common import algorithm, json_util
-#from bes.fs import file_find, file_match, file_replace, file_util, file_path
-#from bes.archive import archiver
-#from bes.git import git
-from bes.refactor import files as refactor_files
-#from bes.script import script_base
+from .files import files as refactor_files
 
 class refactor_cli(script_base):
 
@@ -32,6 +24,13 @@ class refactor_cli(script_base):
     rename_parser.add_argument('--word-boundary', '-w', action = 'store_true', default = False,
                                help = 'Respect word boundaries [ False ]')
 
+    # expand imports
+    p = subparsers.add_parser('expand_imports', help = 'Example imports')
+    p.add_argument('namespace', action = 'store', help = 'Namespace to expand')
+    p.add_argument('dirs', action = 'store', nargs = '+', help = 'Directories to refactor')
+    p.add_argument('--dry-run', '-n', action = 'store_true', default = False,
+                   help = 'Only print what would happen without doing it [ False ]')
+    
     # Rename dirs
     rename_dirs_parser = subparsers.add_parser('rename_dirs', help = 'Rename_Dirs a module')
     rename_dirs_parser.add_argument('src', action = 'store', type = str, help = 'Source string.')
@@ -92,6 +91,8 @@ class refactor_cli(script_base):
       return self._command_unit_cleanup(self.filepaths_normalize(args.files), args.dry_run)
     elif args.command == 'list':
       return self._command_list(self.filepaths_normalize(args.files))
+    elif args.command == 'expand_imports':
+      return self._command_expand_imports(args.namespace, args.dirs, args.dry_run)
 
   def _command_rename(self, src, dst, dirs, dry_run, word_boundary):
     refactor_files.refactor(src, dst, dirs, word_boundary = word_boundary)
@@ -277,4 +278,6 @@ class refactor_cli(script_base):
     refactor_files.rename_dirs(src, dst, d, word_boundary = word_boundary)
     #refactor_files.refactor(src, dst, dirs, word_boundary = word_boundary)
     
-  
+  def _command_expand_imports(self, namespace, dirs, dry_run):
+    refactor_files.expand_imports(namespace, dirs, dry_run)
+    
