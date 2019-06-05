@@ -65,6 +65,7 @@ import os.path as path, re
 from collections import namedtuple
 
 from fruit.citrus import lemon, orange, lime
+from fruit.fiber import inulin
 from fruit.sugar import fructose, xylitol, glucose
 
 class foo(object):
@@ -79,6 +80,7 @@ from collections import namedtuple
 from fruit.citrus import lemon
 from fruit.citrus import orange
 from fruit.citrus import lime
+from fruit.fiber import inulin
 from fruit.sugar import fructose
 from fruit.sugar import xylitol
 from fruit.sugar import glucose

@@ -349,7 +349,7 @@ class text_line_parser(object):
     old_line = self._lines[index]
     self._lines[index] = text_line(old_line.line_number, new_text)
 
-  def replace_line_with_lines(self, line_number, texts):
+  def replace_line_with_lines(self, line_number, texts, renumber = True):
     'Replace the text at line_number with new_text.'
     check.check_int(line_number)
     check.check_string_list(texts)
@@ -361,9 +361,14 @@ class text_line_parser(object):
     old_line = self._lines[index]
     new_lines = []
     for i, text in enumerate(texts):
-      new_lines.append(text_line(old_line.line_number + i, text))
+      if renumber:
+        new_line_number = old_line.line_number + i
+      else:
+        new_line_number = 0
+      new_lines.append(text_line(new_line_number, text))
     self._lines = self._lines[0:index] + new_lines + self._lines[index + 1:]
-    self.renumber(starting_line = line_number)
+    if renumber:
+      self.renumber(starting = line_number)
 
   def append_line(self, text):
     'Remove a range of lines by index (not line number)'
@@ -398,11 +403,11 @@ class text_line_parser(object):
         result[line_number] = i
     return result
 
-  def renumber(self, starting_line = None):
-    'Renumber line numbers starting at starting_line or 1 if None.'
-    starting_line = starting_line or 1
-    check.check_int(starting_line)
-    index = self._check_line_number_index(starting_line)
+  def renumber(self, starting = None):
+    'Renumber line numbers starting at starting or 1 if None.'
+    starting = starting or 1
+    check.check_int(starting)
+    index = self._check_line_number_index(starting)
     line_number = self._lines[index].line_number
     for i in range(index, len(self._lines)):
       self._lines[i] = self._lines[i].clone_line_number(line_number)

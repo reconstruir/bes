@@ -37,12 +37,11 @@ class import_expand(object):
     # Reverse the line numbers so we work to expand imports backwards in
     # order not to mess the order of things in the content
     line_numbers = [ n for n in reversed(mi_imports.keys()) ]
-    indeces = lines.indeces(line_numbers)
 
     for line_number in line_numbers:
       mi = mi_imports[line_number]
       texts = clazz._make_texts(namespace, mi, sort)
-      lines.replace_line_with_lines(line_number, texts)
+      lines.replace_line_with_lines(line_number, texts, renumber = False)
 
     return str(lines).rstrip() + '\n'
 
