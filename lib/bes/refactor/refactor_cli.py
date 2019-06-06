@@ -33,6 +33,8 @@ class refactor_cli(script_base):
                    help = 'Only print what would happen without doing it [ False ]')
     p.add_argument('--sort', action = 'store_true', default = False,
                    help = 'Sort the new list if imports [ False ]')
+    p.add_argument('--include-module', '-i', action = 'store_true', default = False,
+                   help = 'Include the module in the new import line. [ False ]')
     p.add_argument('--verbose', action = 'store_true', default = False,
                    help = 'Verbose spew about what the tool is doing. [ False ]')
     
@@ -97,7 +99,7 @@ class refactor_cli(script_base):
     elif args.command == 'list':
       return self._command_list(self.filepaths_normalize(args.files))
     elif args.command == 'expand_imports':
-      return self._command_expand_imports(args.namespace, args.files, args.sort, args.dry_run, args.verbose)
+      return self._command_expand_imports(args.namespace, args.files, args.include_module, args.sort, args.dry_run, args.verbose)
 
   def _command_rename(self, src, dst, dirs, dry_run, word_boundary):
     refactor_files.refactor(src, dst, dirs, word_boundary = word_boundary)
@@ -283,7 +285,7 @@ class refactor_cli(script_base):
     refactor_files.rename_dirs(src, dst, d, word_boundary = word_boundary)
     #refactor_files.refactor(src, dst, dirs, word_boundary = word_boundary)
     
-  def _command_expand_imports(self, namespace, files, sort, dry_run, verbose):
+  def _command_expand_imports(self, namespace, files, include_module, sort, dry_run, verbose):
     files = self.resolve_files(files, patterns = '*.py')
-    import_expand.expand(namespace, files, sort, dry_run, verbose)
+    import_expand.expand(namespace, files, include_module, sort, dry_run, verbose)
     

@@ -44,7 +44,7 @@ from fruit.citrus import lemon
 from fruit.citrus import orange
 from fruit.citrus import lime
 '''
-    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False) )
+    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False, False) )
                       
   def test_expand_text_with_sort(self):
     text = '''\
@@ -55,7 +55,7 @@ from fruit.citrus import lemon
 from fruit.citrus import lime
 from fruit.citrus import orange
 '''
-    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, True) )
+    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, True, False) )
 
   def test_expand_multiple(self):
     text = '''\
@@ -74,7 +74,7 @@ from fruit.cover import skin
 from fruit.sugar import fructose
 from fruit.sugar import xylitol
 '''
-    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False) )
+    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False, False) )
                       
   def test_expand_messier(self):
     text = '''\
@@ -94,7 +94,7 @@ from fruit.color import green
 from fruit.color import red
 from fruit.color import yellow
 '''
-    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False) )
+    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False, False) )
 
   def test_expand_indentation(self):
     text = '''\
@@ -109,7 +109,19 @@ from fruit.color import yellow
       from fruit.color import red
       from fruit.color import yellow
 '''
-    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False) )
+    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False, False) )
 
+  def test_expand_text_include_module(self):
+    text = '''\
+from fruit.citrus import lemon, orange, lime
+'''
+    expected = '''\
+from fruit.citrus.lemon import lemon
+from fruit.citrus.orange import orange
+from fruit.citrus.lime import lime
+'''
+    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False, True) )
+                      
+    
 if __name__ == "__main__":
   unit_test.main()

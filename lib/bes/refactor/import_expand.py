@@ -12,12 +12,12 @@ from .files import files
 class import_expand(object):
 
   @classmethod
-  def expand(clazz, namespace, files, sort, dry_run, verbose):
+  def expand(clazz, namespace, files, include_module, sort, dry_run, verbose):
     for filename in files:
-      clazz._expand_one_file(namespace, filename, sort, dry_run, verbose)
+      clazz._expand_one_file(namespace, filename, include_module, sort, dry_run, verbose)
 
   @classmethod
-  def expand_text(clazz, namespace, text, sort):
+  def expand_text(clazz, namespace, text, sort, include_module):
     pattern = r'^(\s*)from\s+{}\.(.+)\s+import\s+(.+)\s*$'.format(namespace)
     lines = text_line_parser(text)
     mi_imports = clazz._parse_multi_imports(pattern, lines)
@@ -28,7 +28,7 @@ class import_expand(object):
     for original_line_number in line_numbers:
       line_number = original_line_number + offset
       mi = mi_imports[original_line_number]
-      texts = clazz._make_texts(namespace, mi, sort)
+      texts = clazz._make_texts(namespace, mi, sort, include_module)
       #clazz._dump_lines(lines, 'RUN{} BEFORE '.format(original_line_number))
       lines.replace_line_with_lines(line_number, texts, renumber = True)
       #clazz._dump_lines(lines, 'RUN{}  AFTER '.format(original_line_number))
@@ -43,18 +43,25 @@ class import_expand(object):
     print(str(x))
   
   @classmethod
-  def _make_texts(clazz, namespace, mi, sort):
+  def _make_texts(clazz, namespace, mi, sort, include_module):
     texts = string_list()
     for mod in mi.modules:
-      texts.append('{}from {}.{} import {}'.format(mi.indent, namespace, mi.library, mod))
+      texts.append(clazz._make_new_import_line(mi.indent, namespace, mi.library, mod, include_module))
     if sort:
       texts.sort()
     return texts
   
   @classmethod
-  def _expand_one_file(clazz, namespace, filename, sort, dry_run, verbose):
+  def _make_new_import_line(clazz, indent, namespace, library, mod, include_module):
+    if include_module:
+      return '{}from {}.{}.{} import {}'.format(indent, namespace, library, mod, mod)
+    else:
+      return '{}from {}.{} import {}'.format(indent, namespace, library, mod)
+  
+  @classmethod
+  def _expand_one_file(clazz, namespace, filename, include_module, sort, dry_run, verbose):
     content = file_util.read(filename)
-    new_content = clazz.expand_text(namespace, content, sort)
+    new_content = clazz.expand_text(namespace, content, sort, include_module)
     if new_content == content:
       return
     if dry_run:
