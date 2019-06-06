@@ -147,6 +147,17 @@ from fruit.citrus.lime import lime
 from fruit.color import green, red, yellow
 '''
     self.assertMultiLineEqual( expected, import_expand.expand_text('fruit.citrus', text, False, True) )
+
+  def test_expand_text_with_aliases(self):
+    text = '''\
+from fruit.citrus import lemon, orange, lime as green_lemon
+'''
+    expected = '''\
+from fruit.citrus import lemon
+from fruit.citrus import lime as green_lemon
+from fruit.citrus import orange
+'''
+    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, True, False) )
     
 if __name__ == "__main__":
   unit_test.main()

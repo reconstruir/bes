@@ -55,20 +55,24 @@ class import_expand(object):
   
   @classmethod
   def _make_new_import_line(clazz, indent, namespace, library, mod, include_module):
+    if mod.alias:
+      alias_part = ' as {}'.format(mod.alias)
+    else:
+      alias_part = ''
     if include_module:
-      import_library = '{}.{}.{}'.format(namespace, library, mod)
+      import_library = '{}.{}.{}'.format(namespace, library, mod.name)
     else:
       import_library = '{}.{}'.format(namespace, library)
     import_library = string_util.remove_tail(import_library, '.')
     import_library = import_library.replace('..', '.')
-    #print('     namespace: {}'.format(namespace))
-    #print('       library: {}'.format(library))
-    #print('import_library: {}'.format(import_library))
-    return '{}from {} import {}'.format(indent, import_library, mod)
+    result = '{}from {} import {}{}'.format(indent, import_library, mod.name, alias_part)
+    return result
   
   @classmethod
   def _expand_one_file(clazz, namespace, filename, include_module, sort, dry_run, verbose):
     content = file_util.read(filename)
+#    if verbose:
+#      print('Trying: {}'.format(filename))
     new_content = clazz.expand_text(namespace, content, sort, include_module)
     if new_content == content:
       return
@@ -80,6 +84,7 @@ class import_expand(object):
       print('Updated: {}'.format(filename))
     
   _multi_import = namedtuple('_multi_import', 'line, indent, library, modules')
+  _module = namedtuple('_module', 'name, alias')
   @classmethod
   def _parse_multi_imports_line(clazz, pattern, namespace, line):
     x = re.findall(pattern, line.text)
@@ -93,9 +98,20 @@ class import_expand(object):
       return None
     library = string_util.remove_head(library_head, namespace)
     library = string_util.remove_head(library, '.')
-    modules = [ m.strip() for m in x[0][2].split(',') ]
+    modules = clazz._parse_modules(x[0][2])
     return clazz._multi_import(line, indent, library, modules)
 
+  @classmethod
+  def _parse_modules(clazz, modules):
+    return [ clazz._parse_module(m) for m in modules.split(',') ]
+  
+  @classmethod
+  def _parse_module(clazz, m):
+    name, delimiter, alias = m.partition(' as ')
+    name = name.strip()
+    alias = alias.strip() or None
+    return clazz._module(name, alias)
+  
   @classmethod
   def _parse_multi_imports(clazz, pattern, namespace, lines):
     result = {}
