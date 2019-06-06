@@ -13,7 +13,6 @@ class import_expand(object):
 
   @classmethod
   def expand(clazz, namespace, files, sort, dry_run, verbose):
-    print('files: {}'.format(files))
     for filename in files:
       clazz._expand_one_file(namespace, filename, sort, dry_run, verbose)
 
