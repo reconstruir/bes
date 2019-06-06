@@ -57,10 +57,13 @@ class import_expand(object):
   def _make_new_import_line(clazz, indent, namespace, library, mod, include_module):
     if include_module:
       import_library = '{}.{}.{}'.format(namespace, library, mod)
-      return '{}from {} import {}'.format(indent, import_library, mod)
     else:
       import_library = '{}.{}'.format(namespace, library)
     import_library = string_util.remove_tail(import_library, '.')
+    import_library = import_library.replace('..', '.')
+    #print('     namespace: {}'.format(namespace))
+    #print('       library: {}'.format(library))
+    #print('import_library: {}'.format(import_library))
     return '{}from {} import {}'.format(indent, import_library, mod)
   
   @classmethod
