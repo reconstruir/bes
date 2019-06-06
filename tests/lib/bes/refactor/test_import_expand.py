@@ -122,6 +122,19 @@ from fruit.citrus.lime import lime
 '''
     self.assertMultiLineEqual( expected, import_expand.expand_text('fruit', text, False, True) )
                       
+  def test_expand_text_with_submodule(self):
+    text = '''\
+from fruit.citrus import lemon, orange, lime
+from fruit.color import green, red, yellow
+'''
+    expected = '''\
+from fruit.citrus import lemon
+from fruit.citrus import orange
+from fruit.citrus import lime
+from fruit.color import green, red, yellow
+'''
+    self.assertMultiLineEqual( expected, import_expand.expand_text('fruit.citrus', text, False, False) )
+                      
     
 if __name__ == "__main__":
   unit_test.main()

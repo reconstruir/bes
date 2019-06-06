@@ -3,6 +3,7 @@
 from collections import namedtuple
 import os, os.path as path, re
 
+from bes.common import string_util
 from bes.fs import file_util
 from bes.text.string_list import string_list
 from bes.text.text_line_parser import text_line_parser
@@ -11,6 +12,8 @@ from .files import files
 
 class import_expand(object):
 
+  _PATTERN = r'^(\s*)from\s+([a-zA-Z_\.][a-zA-Z0-9_\.]+)\s+import\s+(.+)\s*$'
+  
   @classmethod
   def expand(clazz, namespace, files, include_module, sort, dry_run, verbose):
     for filename in files:
@@ -18,9 +21,8 @@ class import_expand(object):
 
   @classmethod
   def expand_text(clazz, namespace, text, sort, include_module):
-    pattern = r'^(\s*)from\s+{}\.(.+)\s+import\s+(.+)\s*$'.format(namespace)
     lines = text_line_parser(text)
-    mi_imports = clazz._parse_multi_imports(pattern, lines)
+    mi_imports = clazz._parse_multi_imports(clazz._PATTERN, namespace, lines)
     if not mi_imports:
       return text
     line_numbers = sorted(mi_imports.keys())
@@ -54,9 +56,12 @@ class import_expand(object):
   @classmethod
   def _make_new_import_line(clazz, indent, namespace, library, mod, include_module):
     if include_module:
-      return '{}from {}.{}.{} import {}'.format(indent, namespace, library, mod, mod)
+      import_library = '{}.{}.{}'.format(namespace, library, mod)
+      return '{}from {} import {}'.format(indent, import_library, mod)
     else:
-      return '{}from {}.{} import {}'.format(indent, namespace, library, mod)
+      import_library = '{}.{}'.format(namespace, library)
+    import_library = string_util.remove_tail(import_library, '.')
+    return '{}from {} import {}'.format(indent, import_library, mod)
   
   @classmethod
   def _expand_one_file(clazz, namespace, filename, include_module, sort, dry_run, verbose):
@@ -73,22 +78,26 @@ class import_expand(object):
     
   _multi_import = namedtuple('_multi_import', 'line, indent, library, modules')
   @classmethod
-  def _parse_multi_imports_line(clazz, pattern, line):
+  def _parse_multi_imports_line(clazz, pattern, namespace, line):
     x = re.findall(pattern, line.text)
     if not x:
       return None
-    assert len(x) == 1
-    assert len(x[0]) == 3
+    if len(x[0]) != 3:
+      return None
     indent = x[0][0]
-    library = x[0][1]
+    library_head = x[0][1]
+    if not library_head.startswith(namespace):
+      return None
+    library = string_util.remove_head(library_head, namespace)
+    library = string_util.remove_head(library, '.')
     modules = [ m.strip() for m in x[0][2].split(',') ]
     return clazz._multi_import(line, indent, library, modules)
 
   @classmethod
-  def _parse_multi_imports(clazz, pattern, lines):
+  def _parse_multi_imports(clazz, pattern, namespace, lines):
     result = {}
     for line in lines:
-      mi = clazz._parse_multi_imports_line(pattern, line)
+      mi = clazz._parse_multi_imports_line(pattern, namespace, line)
       if mi and len(mi.modules) > 1:
         result[mi.line.line_number] = mi
     return result
