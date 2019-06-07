@@ -3,8 +3,8 @@
 from collections import namedtuple
 import os, os.path as path, re
 
-from bes.common import string_util
-from bes.fs import file_util
+from bes.common.string_util import string_util
+from bes.fs.file_util import file_util
 from bes.text.string_list import string_list
 from bes.text.text_line_parser import text_line_parser
 

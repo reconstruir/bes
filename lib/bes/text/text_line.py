@@ -5,7 +5,7 @@ from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.compat.StringIO import StringIO
 from bes.property.cached_property import cached_property
-from bes.common import tuple_util
+from bes.common.tuple_util import tuple_util
 
 from .comments import comments
 
