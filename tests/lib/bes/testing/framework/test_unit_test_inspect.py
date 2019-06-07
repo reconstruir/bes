@@ -2,7 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
-from bes.fs import file_util, temp_file
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
 from bes.testing.unit_test import unit_test
 from bes.testing.framework import unit_test_inspect as UTI
 from bes.testing.unit_test_skip import raise_skip
@@ -111,4 +112,3 @@ class test_apple_fixture(unit_test):
     
 if __name__ == '__main__':
   unit_test.main()
-    

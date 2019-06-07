@@ -2,17 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
-#import argparse, os, os.path as path, re, sys
-#
-from bes.common import algorithm
-from bes.fs import file_find, file_match
-#from bes.archive import archiver
-#from bes.git import git
-#from bes.refactor import files as refactor_files
-
-#log.configure('file_find=debug')
-
-#COMMENTED_OUT_HEAD = '#####'
+from bes.common.algorithm import algorithm
+from bes.fs.file_find import file_find
+from bes.fs.file_match import file_match
 
 class script_base(object):
 

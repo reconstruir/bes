@@ -4,7 +4,8 @@
 import errno, os.path as path, os, stat
 
 from bes.system.log import log
-from bes.fs import file_util, file_match
+from bes.fs.file_match import file_match
+from bes.fs.file_util import file_util
 
 class find(object):
 

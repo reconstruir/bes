@@ -3,8 +3,18 @@
 from collections import namedtuple
 import os, os.path as path, re, sys
 
-from bes.common import algorithm, json_util, string_util
-from bes.fs import file_check, file_find, file_match, file_path, file_replace, file_search, file_util, file_mime, file_path
+from bes.common.algorithm import algorithm
+from bes.common.json_util import json_util
+from bes.common.string_util import string_util
+from bes.fs.file_check import file_check
+from bes.fs.file_find import file_find
+from bes.fs.file_match import file_match
+from bes.fs.file_mime import file_mime
+from bes.fs.file_path import file_path
+from bes.fs.file_path import file_path
+from bes.fs.file_replace import file_replace
+from bes.fs.file_search import file_search
+from bes.fs.file_util import file_util
 from bes.git import git
 from bes.text.string_list import string_list
 from bes.text.text_line_parser import text_line_parser

@@ -5,13 +5,15 @@ import copy
 
 from bes.common.check import check
 from bes.common.string_util import string_util
-from bes.compat.ConfigParser import ConfigParser, SafeConfigParser, NoOptionError
+from bes.compat.ConfigParser import ConfigParser
+from bes.compat.ConfigParser import NoOptionError
+from bes.compat.ConfigParser import SafeConfigParser
 from bes.compat.StringIO import StringIO
 from bes.fs.file_util import file_util
 from bes.key_value.key_value import key_value
+from bes.system.log import log
 from bes.text.text_line_parser import text_line_parser
 from bes.version.software_version import software_version
-from bes.system.log import log
 
 class config(object):
   '''
@@ -117,4 +119,3 @@ class config(object):
     stream = StringIO(text)
     parser.readfp(stream)
     return parser
-  

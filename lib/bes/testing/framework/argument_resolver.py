@@ -320,7 +320,8 @@ class argument_resolver(object):
 
   def print_configs(self):
     data = sorted([ ( c.data.name, c.nice_filename ) for c in self.config_env.config_map.values() ])
-    from bes.text import text_table, text_cell_renderer
+    from bes.text.text_cell_renderer import text_cell_renderer
+    from bes.text.text_table import text_table
     max_width = max([ len(row[0]) for row in data ])
     tt = text_table(data = data, column_delimiter = ' ')
     tt.set_col_renderer(0, text_cell_renderer(just = text_cell_renderer.JUST_LEFT, width = max_width))

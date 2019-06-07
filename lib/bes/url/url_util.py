@@ -7,7 +7,7 @@ import base64
 
 from bes.common.check import check
 from bes.system.compat import compat
-from bes.compat.url_compat import urljoin, urlopen, urlencode, urlparse, Request
+from bes.compat import url_compat
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.key_value.key_value import key_value
@@ -55,11 +55,11 @@ class url_util(object):
   @classmethod
   def get(clazz, url, params = None):
     if params:
-      data = urlencode(params).encode('utf-8')
+      data = url_compat.urlencode(params).encode('utf-8')
     else:
       data = None
-    req = Request(url, data = data)
-    response = urlopen(req)
+    req = url_compat.Request(url, data = data)
+    response = url_compat.urlopen(req)
     content = response.read()
     status_code = response.getcode()
     return clazz._response(status_code, content)
@@ -112,6 +112,6 @@ class url_util(object):
       flat_cookies = '; '.join('%s=%s' % (key, value) for key, value in cookies.items())
       headers['Cookie'] = flat_cookies
       
-    req = Request(url, headers = headers)
-    response = urlopen(req)
+    req = url_compat.Request(url, headers = headers)
+    response = url_compat.urlopen(req)
     return response

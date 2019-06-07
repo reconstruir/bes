@@ -2,7 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import unittest
-from bes.common.variable_parser import variable_parser as P, variable_token as V, variable_parser_error as VPE
+from bes.common.variable_parser import variable_parser as P
+from bes.common.variable_parser import variable_parser_error as VPE
+from bes.common.variable_parser import variable_token as V
 from bes.common.point import point
 
 class test_variable_parser(unittest.TestCase):

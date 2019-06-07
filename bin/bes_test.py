@@ -9,12 +9,21 @@ import argparse, copy, math, os, os.path as path, py_compile, re, subprocess, sy
 import time, tempfile
 from collections import namedtuple
 
-from bes.key_value import key_value_list
-from bes.egg import egg
-from bes.fs import file_find, file_path, file_util, temp_file
+from bes.key_value.key_value_list import key_value_list
+from bes.egg.egg import egg
+from bes.fs.file_find import file_find
+from bes.fs.file_path import file_path
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
 from bes.git import git
-from bes.system import execute, env_var, host, os_env, os_env_var
-from bes.testing.framework import argument_resolver, printer, unit_test_output
+from bes.system.env_var import env_var
+from bes.system.execute import execute
+from bes.system.host import host
+from bes.system.os_env import os_env
+from bes.system.os_env_var import os_env_var
+from bes.testing.framework.argument_resolver import argument_resolver
+from bes.testing.framework.printer import printer
+from bes.testing.framework.unit_test_output import unit_test_output
 from bes.version import version_cli
 
 # TODO:

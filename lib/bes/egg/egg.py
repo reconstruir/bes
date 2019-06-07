@@ -4,7 +4,8 @@
 import copy, glob, os, os.path as path, shutil, tempfile
 from bes.archive import archiver
 from bes.system import execute
-from bes.fs import file_util, temp_file
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
 from bes.git import git 
 
 class egg(object):

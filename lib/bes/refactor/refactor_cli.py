@@ -2,7 +2,7 @@
 
 import argparse, os.path as path
 
-from bes.script import script_base
+from bes.script.script_base import script_base
 
 from .import_expand import import_expand
 

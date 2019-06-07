@@ -2,7 +2,8 @@
 
 from .decorators import synchronized_method
 from threading import Lock
-from bes.compat.Queue import Queue, Empty as QueueEmptyException
+from bes.compat.Queue import Empty as QueueEmptyException
+from bes.compat.Queue import Queue
 
 class Waiter(object):
 

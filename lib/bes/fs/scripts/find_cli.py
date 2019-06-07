@@ -3,8 +3,13 @@
 
 import argparse, os, os.path as path
 
-from bes.fs import file_type, file_util
-from bes.fs.find import finder, criteria, file_type_criteria, max_depth_criteria, pattern_criteria
+from bes.fs.file_type import file_type
+from bes.fs.file_util import file_util
+from bes.fs.find.criteria import criteria
+from bes.fs.find.file_type_criteria import file_type_criteria
+from bes.fs.find.finder import finder
+from bes.fs.find.max_depth_criteria import max_depth_criteria
+from bes.fs.find.pattern_criteria import pattern_criteria
 
 class find_cli(object):
 

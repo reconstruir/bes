@@ -3,7 +3,8 @@
 
 import os.path as path
 from .archiver import archiver
-from bes.fs import file_cache_item_base, file_util
+from bes.fs.file_cache_item_base import file_cache_item_base
+from bes.fs.file_util import file_util
 
 class archive_member_cache_item(file_cache_item_base):
   def __init__(self, archive, member):

@@ -4,7 +4,8 @@
 from bes.compat.StringIO import StringIO
 
 from bes.testing.unit_test import unit_test
-from bes.text.text_box import text_box_ascii, text_box_unicode
+from bes.text.text_box import text_box_ascii
+from bes.text.text_box import text_box_unicode
 
 class test_text_box_writer(unit_test):
 

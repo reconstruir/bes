@@ -7,8 +7,15 @@ from collections import namedtuple
 
 from bes.common import algorithm
 from bes.property.cached_property import cached_property
-from bes.fs import file_find, file_path, file_util, tar_util, temp_file
-from bes.match import matcher_multiple_filename, matcher_always_false, matcher_always_true, matcher_util
+from bes.fs.file_find import file_find
+from bes.fs.file_path import file_path
+from bes.fs.file_util import file_util
+from bes.fs.tar_util import tar_util
+from bes.fs.temp_file import temp_file
+from bes.match.matcher_always_false import matcher_always_false
+from bes.match.matcher_always_true import matcher_always_true
+from bes.match.matcher_multiple_filename import matcher_multiple_filename
+from bes.match.matcher_util import matcher_util
 
 from .archive_base import archive_base
 
