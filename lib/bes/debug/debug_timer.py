@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 import time
-from bes.system import log
+from bes.system.log import log
 
 class debug_timer(object):
   '''

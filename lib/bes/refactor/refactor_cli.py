@@ -4,8 +4,9 @@ import argparse, os.path as path
 
 from bes.script import script_base
 
-from .files import files as refactor_files
 from .import_expand import import_expand
+
+from .files import files as refactor_files
 
 class refactor_cli(script_base):
 

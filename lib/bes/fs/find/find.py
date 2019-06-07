@@ -3,7 +3,7 @@
 
 import errno, os.path as path, os, stat
 
-from bes.system import log
+from bes.system.log import log
 from bes.fs import file_util, file_match
 
 class find(object):
