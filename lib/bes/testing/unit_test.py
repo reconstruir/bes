@@ -148,6 +148,8 @@ class unit_test(unittest.TestCase):
       return 'linux'
     elif s == 'Darwin':
       return 'macos'
+    elif s == 'Windows':
+      return 'windows'
     else:
       raise RuntimeError('Unknown system: %s' % (s))
   _HOST = _host()

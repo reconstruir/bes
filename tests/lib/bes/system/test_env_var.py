@@ -11,7 +11,7 @@ class test_env_var(unittest.TestCase):
     d = {
       'FOO': '666',
       'BAR': 'hello',
-      'PATH': 'foo:bar:baz',
+      'PATH': self._sep('foo:bar:baz'),
     }
     self.assertEqual( '666', env_var(d, 'FOO').value )
     self.assertEqual( [ '666' ], env_var(d, 'FOO').path )
@@ -22,14 +22,14 @@ class test_env_var(unittest.TestCase):
 
   def test_path(self):
     d = {
-      'PATH': 'foo:bar:baz',
+      'PATH': self._sep('foo:bar:baz'),
     }
-    self.assertEqual( self._sep('foo:bar:baz'), env_var(d, 'PATH').value )
+    self.assertEqual( self._sep('foo:bar:baz'), self._sep(env_var(d, 'PATH').value) )
     self.assertEqual( [ 'foo', 'bar', 'baz' ], env_var(d, 'PATH').path )
 
   def test_path_duplicates(self):
     d = {
-      'PATH': 'foo:bar:baz:foo',
+      'PATH': self._sep('foo:bar:baz:foo'),
     }
     self.assertEqual( self._sep('foo:bar:baz:foo'), env_var(d, 'PATH').value )
     self.assertEqual( [ 'foo', 'bar', 'baz' ], env_var(d, 'PATH').path )

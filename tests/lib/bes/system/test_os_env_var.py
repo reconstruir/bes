@@ -55,7 +55,7 @@ class test_os_env_var(unittest.TestCase):
 
   def test_get_environ_path(self):
     test_name = self.__test_name()
-    os.environ[test_name] = 'FOO:BAR'
+    os.environ[test_name] = self._sep('FOO:BAR')
     self.assertEqual( [ 'FOO', 'BAR' ], os_env_var(test_name).path )
 
   def test_set_path_with_cleanup(self):
