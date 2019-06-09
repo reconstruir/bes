@@ -4,10 +4,11 @@
 from os import path
 import os, unittest
 
+from bes.testing.unit_test import unit_test
 from bes.system.host import host
 from bes.system.os_env import os_env
 
-class test_os_env(unittest.TestCase):
+class test_os_env(unit_test):
 
   def test_path_reset(self):
     os_env.path_reset()
@@ -27,29 +28,23 @@ class test_os_env(unittest.TestCase):
 
   def test_update_empty(self):
     env = {}
-    d = { 'PATH': 'foo:bar' }
-    self.assertEqual( { 'PATH': self._sep('foo:bar') }, os_env.clone_and_update(env, d) )
-    self.assertEqual( { 'PATH': self._sep('foo:bar') }, os_env.clone_and_update(env, d, prepend = True) )
+    d = { 'PATH': self.xp_path('foo:bar') }
+    self.assertEqual( { 'PATH': self.xp_path('foo:bar') }, os_env.clone_and_update(env, d) )
+    self.assertEqual( { 'PATH': self.xp_path('foo:bar') }, os_env.clone_and_update(env, d, prepend = True) )
 
     self.assertEqual( {}, os_env.clone_and_update({}, {}) )
 
   def test_update(self):
-    env = { 'PATH': 'baz:biz', 'USER': 'me' }
-    d = { 'PATH': 'foo:bar' }
-    self.assertEqual( { 'PATH': self._sep('baz:biz:foo:bar'), 'USER': 'me' }, os_env.clone_and_update(env, d) )
-    self.assertEqual( { 'PATH': self._sep('foo:bar:baz:biz'), 'USER': 'me' }, os_env.clone_and_update(env, d, prepend = True) )
+    env = { 'PATH': self.xp_path('baz:biz'), 'USER': 'me' }
+    d = { 'PATH': self.xp_path('foo:bar') }
+    self.assertEqual( { 'PATH': self.xp_path('baz:biz:foo:bar'), 'USER': 'me' }, os_env.clone_and_update(env, d) )
+    self.assertEqual( { 'PATH': self.xp_path('foo:bar:baz:biz'), 'USER': 'me' }, os_env.clone_and_update(env, d, prepend = True) )
 
   def test_clone_and_update(self):
-    env = { 'foo': 666, 'bar': 'hi' }
-    d = { 'fruit': 'apple' }
+    env = { 'FOO': 666, 'BAR': 'hi' }
+    d = { 'FRUIT': 'apple' }
     new_env = os_env.clone_and_update(env, d)
-    #self.assertEqual( self._sep('foo:bar'), os_env_var.path_join([ 'foo', 'bar' ]) )
-    #self.assertEqual( self._sep('foo:bar:foo'), os_env_var.path_join([ 'foo', 'bar', 'foo' ]) )
-    #self.assertEqual( self._sep('foo:bar:bar'), os_env_var.path_join([ 'foo', 'bar', 'bar' ]) )
-
-  @classmethod
-  def _sep(clazz, s):
-    return s.replace(':', os.pathsep)
-  
-if __name__ == '__main__':
-  unittest.main()
+    self.assertEqual( { 'FOO': 666, 'BAR': 'hi', 'FRUIT': 'apple' }, new_env )
+    
+if __name__ == "__main__":
+  unit_test.main()

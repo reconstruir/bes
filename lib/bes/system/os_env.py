@@ -12,19 +12,24 @@ def _default_system_value(key):
 
 class os_env(object):
 
-  DEFAULT_SYSTEM_PATH = _default_system_value('PATH')
+  if host.SYSTEM in [ host.LINUX, host.MACOS ]:
+    DEFAULT_SYSTEM_PATH = _default_system_value('PATH')
+  else:
+    DEFAULT_SYSTEM_PATH = [ 'C:\WINDOWS\system32', 'C:\WINDOWS', 'C:\WINDOWS\System32\Wbem' ]
   
   # The cleanest possible unix PATH
   CLEAN_PATH_MAP = {
     host.LINUX: [ '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/caca/bin' ],
     # Not sure if macos has some other special bin dirs
     host.MACOS: [ '/usr/bin', '/bin', '/usr/sbin', '/sbin' ],
+    host.WINDOWS: DEFAULT_SYSTEM_PATH,
   }
 
   # Map of system to the runtime loader path
   LOADER_PATH_MAP = {
     host.LINUX: 'LD_LIBRARY_PATH',
     host.MACOS: 'DYLD_LIBRARY_PATH',
+    host.WINDOWS: None,
   }
 
   POSSIBLE_LD_LIBRARY_PATH_VAR_NAMES = [ 'LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH' ]

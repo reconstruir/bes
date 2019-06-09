@@ -11,28 +11,28 @@ class test_env_override(unit_test):
 
   def test_env_override_init(self):
     original_env = os_env.clone_current_env()
-    with env_override( { 'foo': '666', 'bar': 'hi' }) as env:
+    with env_override( { 'FOO': '666', 'BAR': 'hi' }) as env:
       pass
     self.assertEqual( original_env, os_env.clone_current_env() )
   
   def test_env_override_set(self):
     original_env = os_env.clone_current_env()
     with env_override() as env:
-      env.set('foo', '666')
-      env.set('bar', 'hi')
+      env.set('FOO', '666')
+      env.set('BAR', 'hi')
     self.assertEqual( original_env, os_env.clone_current_env() )
 
   def test_env_override_push_pop(self):
     original_env = os_env.clone_current_env()
     with env_override() as env:
       env.push()
-      env.set('foo', '666')
-      self.assertEqual( self._dict_combine(original_env, { 'foo': '666' }), os_env.clone_current_env() )
+      env.set('FOO', '666')
+      self.assertEqual( self._dict_combine(original_env, { 'FOO': '666' }), os_env.clone_current_env() )
       env.push()
-      env.set('bar', '667')
-      self.assertEqual( self._dict_combine(original_env, { 'foo': '666', 'bar': '667' }), os_env.clone_current_env() )
+      env.set('BAR', '667')
+      self.assertEqual( self._dict_combine(original_env, { 'FOO': '666', 'BAR': '667' }), os_env.clone_current_env() )
       env.pop()
-      self.assertEqual( self._dict_combine(original_env, { 'foo': '666' }), os_env.clone_current_env() )
+      self.assertEqual( self._dict_combine(original_env, { 'FOO': '666' }), os_env.clone_current_env() )
       env.pop()
       self.assertEqual( original_env, os_env.clone_current_env() )
       
