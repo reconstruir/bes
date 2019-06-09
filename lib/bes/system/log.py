@@ -1,10 +1,5 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-try:
-  import syslog
-except ModuleNotFoundError as ex:
-  from .detail import windows_syslog as syslog
-
 import fnmatch, os, os.path as path, re, sys, time, traceback
 
 from datetime import datetime
