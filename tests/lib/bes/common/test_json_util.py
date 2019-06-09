@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import tempfile, unittest
+import tempfile
 from collections import namedtuple
+
+from bes.testing.unit_test import unit_test
 from bes.common.json_util import json_util
 from bes.common.tuple_util import tuple_util
 
-class Testjson_util(unittest.TestCase):
+class test_json_util(unit_test):
 
   MyClass1 = namedtuple('MyClass1', [ 'foo', 'bar' ])
 
@@ -30,10 +32,10 @@ class Testjson_util(unittest.TestCase):
   def test_read_save(self):
     self.assertEqual( '[5, "hi"]', json_util.to_json(tuple_util.dict_to_named_tuple('MyClass4', { 'a': 5, 'b': 'hi' })) )
     expected_object = { 'a': 5, 'b': 'hi' }
-    tmp = tempfile.NamedTemporaryFile(mode = 'w')
+    tmp = tempfile.NamedTemporaryFile(mode = 'w', delete = False)
     json_util.save_file(tmp.name, expected_object, indent = 2)
     actual_object = json_util.read_file(tmp.name)
     self.assertEqual( expected_object, actual_object )
     
 if __name__ == "__main__":
-  unittest.main()
+  unit_test.main()

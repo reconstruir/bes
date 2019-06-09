@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os, unittest
+import os
 
+from bes.testing.unit_test import unit_test
 from bes.system.env_var import os_env_var
 
-class test_os_env_var(unittest.TestCase):
+class test_os_env_var(unit_test):
 
   TEST_NAME = 'NOTHEREIHOPEORELSETHISFAILS'
 
@@ -55,7 +56,7 @@ class test_os_env_var(unittest.TestCase):
 
   def test_get_environ_path(self):
     test_name = self.__test_name()
-    os.environ[test_name] = self._sep('FOO:BAR')
+    os.environ[test_name] = self.xp_path('FOO:BAR')
     self.assertEqual( [ 'FOO', 'BAR' ], os_env_var(test_name).path )
 
   def test_set_path_with_cleanup(self):
@@ -99,18 +100,14 @@ class test_os_env_var(unittest.TestCase):
     self.assertEqual( [ 'foo', 'bar' ], os_env_var.path_cleanup([ 'foo', '', 'bar' ]) )
 
   def test_path_split(self):
-    self.assertEqual( [ 'foo', 'bar' ], os_env_var.path_split(self._sep('foo:bar')) )
-    self.assertEqual( [ 'foo', 'bar', 'bar' ], os_env_var.path_split(self._sep('foo:bar:bar')) )
-    self.assertEqual( [ 'foo', 'bar', 'foo' ], os_env_var.path_split(self._sep('foo:bar:foo')) )
+    self.assertEqual( [ 'foo', 'bar' ], os_env_var.path_split(self.xp_path('foo:bar')) )
+    self.assertEqual( [ 'foo', 'bar', 'bar' ], os_env_var.path_split(self.xp_path('foo:bar:bar')) )
+    self.assertEqual( [ 'foo', 'bar', 'foo' ], os_env_var.path_split(self.xp_path('foo:bar:foo')) )
 
   def test_path_join(self):
-    self.assertEqual( self._sep('foo:bar'), os_env_var.path_join([ 'foo', 'bar' ]) )
-    self.assertEqual( self._sep('foo:bar:foo'), os_env_var.path_join([ 'foo', 'bar', 'foo' ]) )
-    self.assertEqual( self._sep('foo:bar:bar'), os_env_var.path_join([ 'foo', 'bar', 'bar' ]) )
+    self.assertEqual( self.xp_path('foo:bar'), os_env_var.path_join([ 'foo', 'bar' ]) )
+    self.assertEqual( self.xp_path('foo:bar:foo'), os_env_var.path_join([ 'foo', 'bar', 'foo' ]) )
+    self.assertEqual( self.xp_path('foo:bar:bar'), os_env_var.path_join([ 'foo', 'bar', 'bar' ]) )
 
-  @classmethod
-  def _sep(clazz, s):
-    return s.replace(':', os.pathsep)
-    
-if __name__ == '__main__':
-  unittest.main()
+if __name__ == "__main__":
+  unit_test.main()

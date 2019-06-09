@@ -1,9 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import codecs, copy, json, inspect, os, os.path as path, platform, pprint, re, sys, subprocess, tempfile, unittest
-from bes.compat import StringIO
-from io import BytesIO
-
 from .hexdata import hexdata
 
 class unit_test(unittest.TestCase):
@@ -201,3 +198,9 @@ class unit_test(unittest.TestCase):
       tty = subprocess.check_output('tty').strip()
       setattr(clazz, '_console_fp', open(tty, 'w'))
     return getattr(clazz, '_console_fp')
+
+  @classmethod
+  def xp_path(clazz, s, pathsep = ':', sep = '/'):
+    result = s.replace(pathsep, os.pathsep)
+    result = result.replace(sep, os.sep)
+    return result
