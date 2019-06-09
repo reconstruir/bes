@@ -10,6 +10,10 @@ class thread_id(object):
     return threading.current_thread().name
 
   @classmethod
+  def _thread_id_windows(clazz):
+    return threading.current_thread().ident
+
+  @classmethod
   def _thread_id_linux_libc(clazz):
     if not hasattr(clazz, '_libc'):
       import ctypes
@@ -35,6 +39,6 @@ class thread_id(object):
     else:
       thread_id = _thread_id_linux
   elif host.SYSTEM == host.WINDOWS:
-    thread_id = "fuck"
+    thread_id = _thread_id_windows
   else:
     raise RuntimeError('Unknown system: %s' % (host.SYSTEM))
