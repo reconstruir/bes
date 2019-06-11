@@ -22,6 +22,8 @@ class tar_util(object):
       return '/bin/tar'
     elif host.is_macos():
       return '/usr/bin/tar'
+    elif host.is_windows():
+      print('warning tar not a thing on windows') #return '/usr/bin/tar'
     else:
       raise RuntimeError('Unknown host system')
 
