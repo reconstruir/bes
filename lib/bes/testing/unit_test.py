@@ -84,23 +84,12 @@ class unit_test(unittest.TestCase):
     right = getattr(clazz, '__unit_test_data_dir__', None)
     if not right:
       raise RuntimeError('%s does not have a __unit_test_data_dir__ attribute.' % (clazz))
-    print('1right: {}'.format(right))
     right = clazz.xp_path(right)
     right = clazz._substitute_test_data_dir(right)
-    print('2right: {}'.format(right))
-    caca = right.split('\\')
-    poto = path.join('C:\\', 'Users', 'Chupacabra', 'proj', 'bes', 'tests', 'test_data', 'bes.common', 'shell')
-    print('poto: {}'.format(poto))
-    print('caca: {}'.format(caca))
-    print('3right: {}'.format(right))
-    print('isabs: {}'.format(path.isabs(right)))
     if path.isabs(right):
       result = path.join(right)
-      print('result: {}'.format(result))
       return result
     left = path.dirname(inspect.getfile(clazz))
-    print(' left: {}'.format(left))
-    print('right: {}'.format(right))
     return path.abspath(path.normpath(path.join(left, right)))
 
   def assert_bit_string_equal(self, b1, b2, size):
