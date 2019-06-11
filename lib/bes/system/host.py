@@ -51,6 +51,11 @@ class host(object):
   def is_windows(clazz):
     'Return True if current system is WINDOWS'
     return clazz.SYSTEM == clazz.WINDOWS
-    
+
+  @classmethod
+  def is_unix(clazz):
+    'Return True if current system is LINUX or MACOS'
+    return clazz.is_linux() or clazz.is_macos()
+  
 host.init()
 

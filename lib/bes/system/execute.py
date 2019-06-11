@@ -2,6 +2,8 @@
 
 import codecs, os, os.path as path, pipes, re, shlex, subprocess, sys, tempfile
 from collections import namedtuple
+from .compat import compat
+from .host import host
 
 class execute(object):
   'execute'
@@ -14,14 +16,12 @@ class execute(object):
               codec = None):
     'Execute a command'
 
-    def __make_args(command):
-      if isinstance(command, list):
-        return command
-      else:
-        return shlex.split(str(command))
+    print('EX: command: {} - {}'.format(command, type(command)))
+      
+    args = clazz.parse_args(command)
 
-    args = __make_args(command)
-
+    print('EX: args: {}'.format(args))
+    
     stdout_pipe = subprocess.PIPE
     if not stderr_to_stdout:
       stderr_pipe = subprocess.PIPE
@@ -83,6 +83,43 @@ class execute(object):
         raise ex
     return rv
 
+  @classmethod
+  def parse_args(clazz, args):
+    'Parse arguments to use for execute.'
+    if host.SYSTEM == host.WINDOWS:
+      return clazz._parse_args_windows(args)
+    else:
+      return clazz._parse_args_unix(args)
+    
+  @classmethod
+  def _parse_args_unix(clazz, args):
+    if compat.is_string(args):
+      return shlex.split(args)
+    elif isinstance(args, list):
+      return args
+    else:
+      raise TypeError('args should be a string or list of strings instead of: {}'.format(args))
+    
+  @classmethod
+  def _parse_args_windows(clazz, args):
+    if compat.is_string(args):
+      return clazz.win_CommandLineToArgvW(args)
+    elif isinstance(args, list):
+      return args
+    else:
+      raise TypeError('args should be a string or list of strings instead of: {}'.format(args))
+    
+  @classmethod
+  def win_CommandLineToArgvW(clazz, cmd):
+    import ctypes
+    nargs = ctypes.c_int()
+    ctypes.windll.shell32.CommandLineToArgvW.restype = ctypes.POINTER(ctypes.c_wchar_p)
+    lpargs = ctypes.windll.shell32.CommandLineToArgvW(cmd, ctypes.byref(nargs))
+    args = [lpargs[i] for i in range(nargs.value)]
+    if ctypes.windll.kernel32.LocalFree(lpargs):
+      raise AssertionError
+    return args
+  
   @classmethod
   def is_shell_script(clazz, filename):
     'Execute a command'
