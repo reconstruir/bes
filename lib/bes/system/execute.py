@@ -15,13 +15,7 @@ class execute(object):
               cwd = None, env = None, shell = False, input_data = None, universal_newlines = True,
               codec = None):
     'Execute a command'
-
-    print('EX: command: {} - {}'.format(command, type(command)))
-      
     args = clazz.parse_args(command)
-
-    print('EX: args: {}'.format(args))
-    
     stdout_pipe = subprocess.PIPE
     if not stderr_to_stdout:
       stderr_pipe = subprocess.PIPE
