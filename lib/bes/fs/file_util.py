@@ -45,7 +45,9 @@ class file_util(object):
     dirname = dirname or None
     if dirname:
       clazz.mkdir(path.dirname(filename))
-    tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = 'wb')
+    if path.exists(filename):
+      clazz.remove(filename)
+    tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = 'w+b')
     if content:
       if compat.IS_PYTHON3 and string_util.is_string(content) and codec is not None:
         content_data = codecs.encode(content, codec)
