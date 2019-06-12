@@ -107,7 +107,7 @@ class test_git_repo(unit_test):
       r2 = git_repo(tmp_dir, address = r1.root)
       r2.clone()
       r2.pull()
-      self.assertEqual([ 'a/b/c/foo.txt', 'd/e/bar.txt'], r2.find_all_files() )
+      self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt') ], r2.find_all_files() )
 
       r1.write_temp_content([
         'file kiwi.txt "kiwi" 644',
@@ -115,7 +115,7 @@ class test_git_repo(unit_test):
       r1.add('kiwi.txt')
       r1.commit('foo', 'kiwi.txt')
       r2.pull()
-      self.assertEqual([ 'a/b/c/foo.txt', 'd/e/bar.txt', 'kiwi.txt' ], r2.find_all_files() )
+      self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt'), 'kiwi.txt' ], r2.find_all_files() )
 
   def test_clone_or_pull(self):
     with env_override.temp_home() as env:
@@ -132,7 +132,7 @@ class test_git_repo(unit_test):
       tmp_dir = temp_file.make_temp_dir()
       r2 = git_repo(tmp_dir, address = r1.root)
       r2.clone_or_pull()
-      self.assertEqual([ 'a/b/c/foo.txt', 'd/e/bar.txt'], r2.find_all_files() )
+      self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt')], r2.find_all_files() )
 
       r1.write_temp_content([
         'file kiwi.txt "kiwi" 644',
@@ -140,7 +140,7 @@ class test_git_repo(unit_test):
       r1.add('kiwi.txt')
       r1.commit('foo', 'kiwi.txt')
       r2.pull()
-      self.assertEqual([ 'a/b/c/foo.txt', 'd/e/bar.txt', 'kiwi.txt' ], r2.find_all_files() )
+      self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt'), 'kiwi.txt' ], r2.find_all_files() )
     
   def test_find_all_files(self):
     with env_override.temp_home() as env:
@@ -154,7 +154,7 @@ class test_git_repo(unit_test):
       ])
       r.add('.')
       r.commit('foo', '.')
-      self.assertEqual([ 'a/b/c/foo.txt', 'd/e/bar.txt'], r.find_all_files() )
+      self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt')], r.find_all_files() )
    
   def test_push(self):
     with env_override.temp_home() as env:

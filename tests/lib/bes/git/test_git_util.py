@@ -7,6 +7,7 @@ from bes.git.git_util import git_util
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_unit_test
 from bes.system.env_override import env_override
+from bes.system.host import host
 
 class test_git_util(unit_test):
   
@@ -89,18 +90,30 @@ class test_git_util(unit_test):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
       r = git_temp_repo()
-      content = '''\
+      if host.is_windows():
+        content = '''\
+@echo off
+echo kiwi.bat %*
+exit 0
+'''
+        script = 'fruits/kiwi.bat'
+      elif host.is_unix():
+        content = '''\
 #!/bin/bash
 echo kiwi.sh ${1+"$@"}
 exit 0
 '''
-      r.add_file('fruits/kiwi.sh', content, mode = 0o0755)
+        script = 'fruits/kiwi.sh'
+      else:
+        assert False
+      xp_script = self.xp_path(script)
+      r.add_file(self.xp_path(xp_script), content, mode = 0o0755)
       r.push('origin', 'master')
       r.tag('1.0.0')
       r.push_tag('1.0.0')
-      rv = git_util.repo_run_script(r.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], False, None, False)
+      rv = git_util.repo_run_script(r.address, xp_script, [ 'arg1', 'arg2' ], False, None, False)
       self.assertEqual( 0, rv.exit_code )
-      self.assertEqual( 'kiwi.sh arg1 arg2', rv.stdout.strip() )
+      self.assertEqual( '{} arg1 arg2'.format(xp_script), rv.stdout.strip() )
     
   def test_repo_run_script_dry_run(self):
     with env_override.temp_home() as env:

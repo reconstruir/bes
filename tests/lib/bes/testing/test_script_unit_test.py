@@ -2,11 +2,17 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.script_unit_test import script_unit_test
+from bes.system.host import host
 
 class test_script_unit_test_true(script_unit_test):
 
-  __script__ = __file__, '${BES_TEST_DATA_DIR}/bes.testing/unit_test/script_unit_test/true.sh'
-
+  if host.is_windows():
+    __script__ = __file__, '${BES_TEST_DATA_DIR}/bes.testing/unit_test/script_unit_test/true.bat'
+  elif host.is_unix():
+    __script__ = __file__, '${BES_TEST_DATA_DIR}/bes.testing/unit_test/script_unit_test/true.sh'
+  else:
+    raise RuntimeError('unknown system')
+  
   def test_true(self):
     rv = self.run_script([ 'foo', 'bar' ])
     self.assertEqual( 0, rv.exit_code )
@@ -19,8 +25,13 @@ class test_script_unit_test_true(script_unit_test):
 
 class test_script_unit_test_false(script_unit_test):
 
-  __script__ = __file__, '${BES_TEST_DATA_DIR}/bes.testing/unit_test/script_unit_test/false.sh'
-
+  if host.is_windows():
+    __script__ = __file__, '${BES_TEST_DATA_DIR}/bes.testing/unit_test/script_unit_test/false.bat'
+  elif host.is_unix():
+    __script__ = __file__, '${BES_TEST_DATA_DIR}/bes.testing/unit_test/script_unit_test/false.sh'
+  else:
+    raise RuntimeError('unknown system')
+  
   def test_false(self):
     rv = self.run_script([ 'foo', 'bar' ])
     self.assertEqual( 1, rv.exit_code )
