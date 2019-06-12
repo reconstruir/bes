@@ -91,19 +91,19 @@ class test_git_util(unit_test):
       git_unit_test.set_identity()
       r = git_temp_repo()
       if host.is_windows():
+        script = 'fruits/kiwi.bat'
         content = '''\
 @echo off
-echo kiwi.bat %*
+echo {} %*
 exit 0
-'''
-        script = 'fruits/kiwi.bat'
+'''.format(script)
       elif host.is_unix():
+        script = 'fruits/kiwi.sh'
         content = '''\
 #!/bin/bash
-echo kiwi.sh ${1+"$@"}
+echo {} ${{1+"$@"}}
 exit 0
-'''
-        script = 'fruits/kiwi.sh'
+'''.format(script)
       else:
         assert False
       xp_script = self.xp_path(script)

@@ -131,7 +131,6 @@ class git_util(object):
         cmd = [ script.filename ]
         if script.args:
           cmd.extend(script.args)
-        print('cmd: {}'.format(cmd))
         rv = execute.execute(cmd, cwd = repo.root, shell = True)
         results.append(rv)
     if push:
