@@ -6,23 +6,21 @@ from bes.fs.temp_file import temp_file
 from bes.archive.archive_extension import archive_extension
 from bes.archive.temp_archive import temp_archive
 from bes.archive.archive_unix_tar import archive_unix_tar
-from common_archive_tests import common_archive_tests
 from bes.testing.unit_test_skip import raise_skip
 
-class test_archive_unix_tar(unit_test, common_archive_tests):
+from archive_tester import archive_tester
 
+class test_archive_unix_tar(unit_test):
+
+  @classmethod
+  def _make_archive_tester(clazz, o):
+    return archive_tester(o, archive_unix_tar, archive_extension.TAR, o.DEBUG)
+  
   @classmethod
   def setUpClass(clazz):
     pass
     raise_skip('broken')
   
-  def __init__(self, methodName = 'runTest'):
-    super(test_archive_unix_tar, self).__init__(methodName)
-    self.default_archive_type = archive_extension.TAR
-
-  def _make_archive(self, filename):
-    return archive_unix_tar(filename)
-
   def test_init(self):
     self.assertEqual( 'foo.tar', archive_unix_tar('foo.tar').filename )
 
@@ -41,5 +39,86 @@ class test_archive_unix_tar(unit_test, common_archive_tests):
 
     self.assertFalse( archive_unix_tar.file_is_valid(temp_file.make_temp_file(content = 'junk\n')) )
 
+  def test_members(self):
+    self._make_archive_tester(self).test_members()
+
+  def test_has_member(self):
+    return self._make_archive_tester(self).test_has_member()
+
+  def test_extract_all(self):
+    return self._make_archive_tester(self).test_extract_all()
+
+  def test_extract_all_with_base_dir(self):
+    return self._make_archive_tester(self).test_extract_all_with_base_dir()
+
+  def test_extract_all_with_strip_common_ancestor(self):
+    return self._make_archive_tester(self).test_extract_all_with_strip_common_ancestor()
+
+  def test_extract_all_with_base_dir_and_strip_common_ancestor(self):
+    return self._make_archive_tester(self).test_extract_all_with_base_dir_and_strip_common_ancestor()
+
+  def test_extract_all_with_strip_head(self):
+    return self._make_archive_tester(self).test_extract_all_with_strip_head()
+
+  def test_extract_all_with_strip_common_ancestor_and_strip_head(self):
+    return self._make_archive_tester(self).test_extract_all_with_strip_common_ancestor_and_strip_head()
+
+  def test_extract_all_overlap(self):
+    return self._make_archive_tester(self).test_extract_all_overlap()
+
+  def test_extract_all_overlap_with_base_dir(self):
+    return self._make_archive_tester(self).test_extract_all_overlap_with_base_dir()
+
+  def test_extract_all_overlap_with_base_dir_and_strip_common_ancestor(self):
+    return self._make_archive_tester(self).test_extract_all_overlap_with_base_dir_and_strip_common_ancestor()
+
+  def test_extract_with_include(self):
+    return self._make_archive_tester(self).test_extract_with_include()
+
+  def test_extract_with_exclude(self):
+    return self._make_archive_tester(self).test_extract_with_exclude()
+
+  def test_extract_with_include_and_exclude(self):
+    return self._make_archive_tester(self).test_extract_with_include_and_exclude()
+
+  def test_extract_member_to_string(self):
+    return self._make_archive_tester(self).test_extract_member_to_string()
+
+  def test_extract_member_to_file(self):
+    return self._make_archive_tester(self).test_extract_member_to_file()
+    
+  def test_extract_members(self):
+    return self._make_archive_tester(self).test_extract_members()
+
+  def test_common_base(self):
+    return self._make_archive_tester(self).test_common_base()
+
+  def test_common_base_none(self):
+    return self._make_archive_tester(self).test_common_base_none()
+
+  def test_create_basic(self):
+    return self._make_archive_tester(self).test_create_basic()
+    
+  def test_create_base_dir(self):
+    return self._make_archive_tester(self).test_create_base_dir()
+    
+  def test_create_with_include(self):
+    return self._make_archive_tester(self).test_create_with_include()
+
+  def test_create_with_multiple_include(self):
+    return self._make_archive_tester(self).test_create_with_multiple_include()
+
+  def test_create_with_exclude(self):
+    return self._make_archive_tester(self).test_create_with_exclude()
+
+  def test_create_with_multiple_exclude(self):
+    return self._make_archive_tester(self).test_create_with_multiple_exclude()
+
+  def test_create_with_include_and_exclude(self):
+    return self._make_archive_tester(self).test_create_with_include_and_exclude()
+
+  def xtest_checksum(self):
+    return self._make_archive_tester(self).test_checksum()
+    
 if __name__ == '__main__':
   unit_test.main()
