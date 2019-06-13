@@ -6,6 +6,7 @@ from bes.fs.temp_file import temp_file
 from bes.archive.archive_extension import archive_extension
 from bes.archive.temp_archive import temp_archive
 from bes.archive.archive_tar import archive_tar
+
 from archive_tester import archive_tester
 
 class test_archive_tar(unit_test):
