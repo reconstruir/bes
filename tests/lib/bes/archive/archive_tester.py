@@ -74,11 +74,12 @@ class archive_tester(object):
 
   def test_extract_all_with_strip_common_ancestor(self):
     base_dir_to_strip = self.xp_path('base-1.2.3')
-
     items = temp_archive.make_temp_item_list([
       ( self.xp_path('foo.txt'), 'foo.txt\n' ),
     ])
+    print('items: {}'.format(items))
     items = temp_archive.add_base_dir(items, base_dir_to_strip)
+    print('items: {}'.format(items))
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = temp_file.make_temp_dir()
     tmp_archive.extract_all(tmp_dir, strip_common_ancestor = True)

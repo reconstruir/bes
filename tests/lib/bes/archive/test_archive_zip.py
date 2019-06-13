@@ -33,19 +33,19 @@ class test_archive_zip(unit_test):
   def _make_archive_tester(clazz, o):
     return archive_tester(o, archive_zip, archive_extension.ZIP, o.DEBUG)
     
-  def xtest_members(self):
+  def test_members(self):
     self._make_archive_tester(self).test_members()
 
-  def xtest_has_member(self):
+  def test_has_member(self):
     return self._make_archive_tester(self).test_has_member()
 
-  def xtest_extract_all(self):
+  def test_extract_all(self):
     return self._make_archive_tester(self).test_extract_all()
 
-  def xtest_extract_all_with_base_dir(self):
+  def test_extract_all_with_base_dir(self):
     return self._make_archive_tester(self).test_extract_all_with_base_dir()
 
-  def xtest_extract_all_with_strip_common_ancestor(self):
+  def test_extract_all_with_strip_common_ancestor(self):
     return self._make_archive_tester(self).test_extract_all_with_strip_common_ancestor()
 
   def xtest_extract_all_with_base_dir_and_strip_common_ancestor(self):
@@ -57,10 +57,10 @@ class test_archive_zip(unit_test):
   def xtest_extract_all_with_strip_common_ancestor_and_strip_head(self):
     return self._make_archive_tester(self).test_extract_all_with_strip_common_ancestor_and_strip_head()
 
-  def xtest_extract_all_overlap(self):
+  def test_extract_all_overlap(self):
     return self._make_archive_tester(self).test_extract_all_overlap()
 
-  def xtest_extract_all_overlap_with_base_dir(self):
+  def test_extract_all_overlap_with_base_dir(self):
     return self._make_archive_tester(self).test_extract_all_overlap_with_base_dir()
 
   def xtest_extract_all_overlap_with_base_dir_and_strip_common_ancestor(self):

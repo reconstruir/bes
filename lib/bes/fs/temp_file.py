@@ -5,7 +5,6 @@ from collections import namedtuple
 import atexit, os, os.path as path, sys, tempfile
 from .file_util import file_util
 from bes.common.check import check
-from bes.system.log import log
 
 class temp_item(namedtuple('temp_item', 'filename, content, mode')):
   'Description of an temp item.'
@@ -75,7 +74,6 @@ class temp_file(object):
     'Delete filename atexit time.'
     def _delete_file(*args, **kargs):
       filename = args[0]
-      clazz.log_d('Removing %s atexit time.' % (filename))
       file_util.remove(filename)
     atexit.register(_delete_file, [ filename ])
 
@@ -84,6 +82,3 @@ class temp_file(object):
     'Write a sequence of temp files specified by items.'
     for item in items:
       item.write(root_dir)
-      
-log.add_logging(temp_file, 'temp_file')
-#log.configure('temp_file=debug')
