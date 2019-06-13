@@ -7,7 +7,6 @@ from bes.archive.temp_archive import temp_archive
 from bes.common.check import check
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
-from bes.fs.temp_file import temp_file
 from bes.match.matcher_always_false import matcher_always_false
 from bes.match.matcher_always_true import matcher_always_true
 from bes.match.matcher_filename import matcher_multiple_filename
@@ -34,7 +33,7 @@ class archive_tester(object):
     return self.make_archive(tmp_archive)
 
   def make_temp_archive_for_writing(self):
-    tmp_archive = temp_file.make_temp_file(suffix = '.' + self._archive_type, delete = not self._debug)
+    tmp_archive = self._unit_test.make_temp_file(suffix = '.' + self._archive_type)
     return self.make_archive(tmp_archive)
 
   def test_members(self):
@@ -58,7 +57,7 @@ class archive_tester(object):
       ( self.xp_path('foo.txt'), 'foo.txt\n' ),
     ])
     tmp_archive = self.make_temp_archive_for_reading(items)
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = self._unit_test.make_temp_dir()
     tmp_archive.extract_all(tmp_dir)
     self._unit_test.assertTrue( path.isfile(path.join(tmp_dir, self.xp_path('foo.txt'))) )
 
@@ -67,7 +66,7 @@ class archive_tester(object):
       ( self.xp_path('foo.txt'), 'foo.txt\n' ),
     ])
     tmp_archive = self.make_temp_archive_for_reading(items)
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = self._unit_test.make_temp_dir()
     base_dir = self.xp_path('base-1.2.3')
     tmp_archive.extract_all(tmp_dir, base_dir = base_dir)
     self._unit_test.assertTrue( path.isfile(path.join(tmp_dir, base_dir, self.xp_path('foo.txt'))) )
@@ -81,7 +80,7 @@ class archive_tester(object):
     items = temp_archive.add_base_dir(items, base_dir_to_strip)
     print('items: {}'.format(items))
     tmp_archive = self.make_temp_archive_for_reading(items)
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = self._unit_test.make_temp_dir()
     tmp_archive.extract_all(tmp_dir, strip_common_ancestor = True)
     self._unit_test.assertTrue( path.isfile(path.join(tmp_dir, self.xp_path('foo.txt'))) )
 
@@ -93,7 +92,7 @@ class archive_tester(object):
     items = temp_archive.add_base_dir(items, base_dir_to_strip)
     base_dir_to_add = self.xp_path('added-6.6.6')
     tmp_archive = self.make_temp_archive_for_reading(items)
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = self._unit_test.make_temp_dir()
     tmp_archive.extract_all(tmp_dir, base_dir = base_dir_to_add, strip_common_ancestor = True)
     self._unit_test.assertTrue( path.isfile(path.join(tmp_dir, base_dir_to_add, self.xp_path('foo.txt'))) )
 
@@ -106,7 +105,7 @@ class archive_tester(object):
       ( self.xp_path('metadata/db.json'), '{}\n' ),
     ])
     tmp_archive = self.make_temp_archive_for_reading(items)
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = self._unit_test.make_temp_dir()
     tmp_archive.extract_all(tmp_dir, strip_head = self.xp_path('foo'))
 
     actual_files = file_find.find(tmp_dir, relative = True)
@@ -129,7 +128,7 @@ class archive_tester(object):
       ( self.xp_path('base-1.2.3/metadata/db.json'), '{}\n' ),
     ])
     tmp_archive = self.make_temp_archive_for_reading(items)
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = self._unit_test.make_temp_dir()
     tmp_archive.extract_all(tmp_dir, strip_common_ancestor = True, strip_head = self.xp_path('foo'))
 
     actual_files = file_find.find(tmp_dir, relative = True)
@@ -158,7 +157,7 @@ class archive_tester(object):
     tmp_archive1 = self.make_temp_archive_for_reading(items1)
     tmp_archive2 = self.make_temp_archive_for_reading(items2)
 
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = self._unit_test.make_temp_dir()
     tmp_archive1.extract_all(tmp_dir)
     tmp_archive2.extract_all(tmp_dir)
 
@@ -188,7 +187,7 @@ class archive_tester(object):
     tmp_archive1 = self.make_temp_archive_for_reading(items1)
     tmp_archive2 = self.make_temp_archive_for_reading(items2)
 
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = self._unit_test.make_temp_dir()
     base_dir = self.xp_path('foo-6.6.6')
     tmp_archive1.extract_all(tmp_dir, base_dir = base_dir)
     tmp_archive2.extract_all(tmp_dir, base_dir = base_dir)
@@ -219,7 +218,7 @@ class archive_tester(object):
     tmp_archive1 = self.make_temp_archive_for_reading(items1)
     tmp_archive2 = self.make_temp_archive_for_reading(items2)
 
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = self._unit_test.make_temp_dir()
     base_dir = self.xp_path('foo-6.6.6')
     tmp_archive1.extract_all(tmp_dir, base_dir = base_dir, strip_common_ancestor = True)
     tmp_archive2.extract_all(tmp_dir, base_dir = base_dir, strip_common_ancestor = True)
@@ -284,7 +283,7 @@ class archive_tester(object):
 
   def _test_extract_with_include_exclude(self, items, include, exclude):
     tmp_archive = self.make_temp_archive_for_reading(items)
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = self._unit_test.make_temp_dir()
     tmp_archive.extract(tmp_dir, include = include, exclude = exclude)
     actual_files = file_find.find(tmp_dir, relative = True)
     file_util.remove(tmp_dir)
@@ -309,7 +308,7 @@ class archive_tester(object):
       ( self.xp_path('metadata/db.json'), '{}\n' ),
     ])
     tmp_archive = self.make_temp_archive_for_reading(items)
-    tmp_file = temp_file.make_temp_file()
+    tmp_file = self._unit_test.make_temp_file()
     tmp_archive.extract_member_to_file(self.xp_path('foo/apple.txt'), tmp_file)
     self._unit_test.assertEqual( b'apple.txt\n', file_util.read(tmp_file) )
     
@@ -318,7 +317,7 @@ class archive_tester(object):
                                  strip_common_ancestor = False,
                                  strip_head = None):
     tmp_archive = self.make_temp_archive_for_reading(items)
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = self._unit_test.make_temp_dir()
     tmp_archive.extract(tmp_dir,
                         base_dir = base_dir,
                         strip_common_ancestor = strip_common_ancestor,
@@ -399,7 +398,7 @@ class archive_tester(object):
 
     self._unit_test.assertTrue( path.isfile(archive.filename) )
 
-    tmp_extract_dir = temp_file.make_temp_dir()
+    tmp_extract_dir = self._unit_test.make_temp_dir()
     archive.extract_all(tmp_extract_dir)
 
     self._compare_dirs(tmp_dir, tmp_extract_dir)
@@ -423,7 +422,7 @@ class archive_tester(object):
 
     self._unit_test.assertTrue( path.isfile(archive.filename) )
 
-    tmp_extract_dir = temp_file.make_temp_dir()
+    tmp_extract_dir = self._unit_test.make_temp_dir()
     archive.extract_all(tmp_extract_dir)
 
     def _remove_base_dir(f):
@@ -544,7 +543,7 @@ class archive_tester(object):
     archive = self.make_temp_archive_for_writing()
     archive.create(tmp_dir, include = include, exclude = exclude)
     self._unit_test.assertTrue( path.isfile(archive.filename) )
-    tmp_extract_dir = temp_file.make_temp_dir()
+    tmp_extract_dir = self._unit_test.make_temp_dir()
     archive.extract_all(tmp_extract_dir)
     actual_files = file_find.find(tmp_extract_dir, relative = True)
     file_util.remove([ tmp_dir, tmp_extract_dir])

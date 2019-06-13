@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs, copy, json, inspect, os, os.path as path, platform, pprint, re, sys, shutil, subprocess, tempfile, unittest
+import atexit, codecs, copy, json, inspect, os, os.path as path
+import platform, pprint, re, sys, shutil, subprocess, tempfile, unittest
 from .hexdata import hexdata
 
 class unit_test(unittest.TestCase):
