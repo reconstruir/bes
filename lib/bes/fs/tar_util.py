@@ -16,19 +16,6 @@ from .temp_file import temp_file
 
 class tar_util(object):
 
-  def _find_tar_exe_tar():
-    'Find the tar executable explicitly in the system default place in case the user aliased it somehow'
-    if host.is_linux():
-      return '/bin/tar'
-    elif host.is_macos():
-      return '/usr/bin/tar'
-    elif host.is_windows():
-      print('warning tar not a thing on windows') #return '/usr/bin/tar'
-    else:
-      raise RuntimeError('Unknown host system')
-
-  TAR_EXE = _find_tar_exe_tar()
-
   @classmethod
   def copy_tree_with_tar(clazz, src_dir, dst_dir, excludes = None):
     excludes = excludes or []
@@ -44,8 +31,8 @@ class tar_util(object):
       exclude_flags_flat = ' '.join(exclude_flags)
     else:
       exclude_flags_flat = ''
-    cmd = '%s %s -C \"%s\" -pcf - . | ( cd \"%s\" ; %s -pxf - )' % (clazz.TAR_EXE, exclude_flags_flat,
-                                                                    src_dir, dst_dir, clazz.TAR_EXE)
+    cmd = '%s %s -C \"%s\" -pcf - . | ( cd \"%s\" ; %s -pxf - )' % (clazz._tar_exe(), exclude_flags_flat,
+                                                                    src_dir, dst_dir, clazz._tar_exe())
     with os.popen(cmd) as pipe:
       pipe.read()
       pipe.close()
@@ -143,3 +130,23 @@ class tar_util(object):
                               what = what,
                               filename = filename)
     execute.execute(tar_cmd, shell = True)
+
+  @classmethod
+  def _tar_exe(clazz):
+    'Find the tar executable explicitly in the system default place in case the user aliased it somehow'
+    if not hasattr(clazz, '_TAR_EXE'):
+      tar_exe = clazz._find_tar_exe_tar()
+      setattr(clazz, '_TAR_EXE', tar_exe)
+    return getattr(clazz, '_TAR_EXE')
+    
+  @classmethod
+  def _find_tar_exe_tar(clazz):
+    'Find the tar executable explicitly in the system default place in case the user aliased it somehow'
+    if host.is_linux():
+      return '/bin/tar'
+    elif host.is_macos():
+      return '/usr/bin/tar'
+    else:
+      raise RuntimeError('tar not supported on: {}'.format(host.SYSTEM))
+
+    
