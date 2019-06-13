@@ -6,20 +6,10 @@ from bes.fs.temp_file import temp_file
 from bes.archive.archive_extension import archive_extension
 from bes.archive.temp_archive import temp_archive
 from bes.archive.archive_zip import archive_zip
-from common_archive_tests import common_archive_tests
 
 from archive_tester import archive_tester
 
 class test_archive_zip(unit_test):
-
-#  default_archive_type = archive_extension.ZIP
-  
-#  def __init__(self, methodName = 'runTest'):
-#    super(test_archive_zip, self).__init__(methodName)
-#    self.default_archive_type = archive_extension.ZIP
-
-#  def _make_archive(self, filename):
-#    return archive_zip(filename)
 
   def test_init(self):
     self.assertEqual( 'foo.zip', archive_zip('foo.zip').filename )
@@ -46,8 +36,6 @@ class test_archive_zip(unit_test):
   def test_members(self):
     self._make_archive_tester(self).test_members()
 
-#assert self._archive_type
-    
   def test_has_member(self):
     return self._make_archive_tester(self).test_has_member()
 
