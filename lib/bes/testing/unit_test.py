@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs, copy, json, inspect, os, os.path as path, platform, pprint, re, sys, subprocess, tempfile, unittest
+import codecs, copy, json, inspect, os, os.path as path, platform, pprint, re, sys, shutil, subprocess, tempfile, unittest
 from .hexdata import hexdata
 
 class unit_test(unittest.TestCase):
@@ -211,3 +211,77 @@ class unit_test(unittest.TestCase):
   @classmethod
   def p(clazz, s, pathsep = ':', sep = '/'):
     return clazz.xp_path(s, pathsep = pathsep, sep = sep)
+
+  _DEFAULT_PREFIX = path.splitext(path.basename(sys.argv[0]))[0] + '-tmp-'
+
+  @classmethod
+  def make_temp_file(clazz, content = None, prefix = None, suffix = None, dir = None, mode = 'w+b', perm = None):
+    'Write content to a temporary file.  Returns the file object.'
+    prefix = prefix or clazz._DEFAULT_PREFIX
+    suffix = suffix or ''
+    if dir and not path.isdir(dir):
+      clazz.mkdir(dir)
+    tmp = tempfile.NamedTemporaryFile(prefix = prefix,
+                                      suffix = suffix,
+                                      dir = dir,
+                                      mode = mode,
+                                      delete = False)
+    if content:
+      if not isinstance(content, bytes):
+        content = content.encode('utf-8')
+      tmp.write(content)
+    tmp.flush()
+    if perm:
+      os.chmod(tmp.name, perm)
+    os.fsync(tmp.fileno())
+    if clazz.DEBUG:
+      print('temp_file: {}'.format(tmp.name))
+    else:
+      clazz._atexit_delete(tmp.name)
+    tmp.close()
+    return tmp.name
+
+  @classmethod
+  def make_temp_dir(clazz, prefix = None, suffix = None, dir = None):
+    'Make a temporary directory.'
+    prefix = prefix or clazz._DEFAULT_PREFIX
+    suffix = suffix or '.dir'
+    if dir and not path.isdir(dir):
+      clazz.mkdir(dir)
+    tmp_dir = tempfile.mkdtemp(prefix = prefix, suffix = suffix, dir = dir)
+    assert path.isdir(tmp_dir)
+    if clazz.DEBUG:
+      print('temp_dir: {}'.format(tmp_dir))
+    else:
+      clazz._atexit_delete(tmp_dir)
+    return tmp_dir
+
+  @classmethod
+  def _atexit_delete(clazz, filename):
+    'Delete filename atexit time.'
+    def _delete_file(*args, **kargs):
+      filename = args[0]
+      clazz.remove(filename)
+    atexit.register(_delete_file, [ filename ])
+  
+  @classmethod
+  def mkdir(clazz, p, mode = None):
+    if path.isdir(p):
+      return
+    os.makedirs(p)
+    if mode:
+      os.chmod(p, mode)
+
+  @classmethod
+  def remove(clazz, files):
+    if not isinstance(files, list):
+      files = [ files ]
+    assert isinstance(files, list)
+    for f in files:
+      try:
+        if path.isdir(f):
+          shutil.rmtree(f)
+        else:
+          os.remove(f)
+      except Exception as ex:
+        print('Caught exception {} removing {}'.format(ex, f))

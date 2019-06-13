@@ -4,7 +4,6 @@ from collections import namedtuple
 
 import atexit, os, os.path as path, sys, tempfile
 from .file_util import file_util
-from bes.common.check import check
 
 class temp_item(namedtuple('temp_item', 'filename, content, mode')):
   'Description of an temp item.'
@@ -20,19 +19,15 @@ class temp_item(namedtuple('temp_item', 'filename, content, mode')):
       content = self.content
     file_util.save(p, content = content, mode = self.mode)
     
-check.register_class(temp_item)
-    
 class temp_file(object):
 
-  _DEFAULT_PREFIX = file_util.remove_extension(path.basename(sys.argv[0])) + '-tmp-'
-  _DEFAULT_SUFFIX = ''
-  _DEFAULT_DIR_SUFFIX = '.dir'
+  _DEFAULT_PREFIX = path.splitext(path.basename(sys.argv[0]))[0] + '-tmp-'
 
   @classmethod
   def make_temp_file(clazz, content = None, prefix = None, suffix = None, dir = None, mode = 'w+b', delete = True, perm = None):
     'Write content to a temporary file.  Returns the file object.'
     prefix = prefix or clazz._DEFAULT_PREFIX
-    suffix = suffix or clazz._DEFAULT_SUFFIX
+    suffix = suffix or ''
     if dir and not path.isdir(dir):
       file_util.mkdir(dir)
     tmp = tempfile.NamedTemporaryFile(prefix = prefix,
@@ -57,7 +52,7 @@ class temp_file(object):
   def make_temp_dir(clazz, prefix = None, suffix = None, dir = None, delete = True, items = None):
     'Make a temporary directory.'
     prefix = prefix or clazz._DEFAULT_PREFIX
-    suffix = suffix or clazz._DEFAULT_DIR_SUFFIX
+    suffix = suffix or '.dir'
     if dir and not path.isdir(dir):
       file_util.mkdir(dir)
     tmp_dir = tempfile.mkdtemp(prefix = prefix, suffix = suffix, dir = dir)
