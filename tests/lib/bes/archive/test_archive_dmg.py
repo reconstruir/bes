@@ -34,16 +34,16 @@ class test_archive_dmg(unit_test):
     self.assertTrue( archive_dmg.file_is_valid(self.data_path('example.dmg')) )
 
     tmp_zip = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.ZIP)
-    self.assertFalse( archive_dmg.file_is_valid(tmp_zip.filename) )
+    self.assertFalse( archive_dmg.file_is_valid(tmp_zip) )
 
     tmp_tar = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR)
-    self.assertFalse( archive_dmg.file_is_valid(tmp_tar.filename) )
+    self.assertFalse( archive_dmg.file_is_valid(tmp_tar) )
 
     tmp_tgz = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TGZ)
-    self.assertFalse( archive_dmg.file_is_valid(tmp_tgz.filename) )
+    self.assertFalse( archive_dmg.file_is_valid(tmp_tgz) )
 
     tmp_tar_gz = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR_GZ)
-    self.assertFalse( archive_dmg.file_is_valid(tmp_tar_gz.filename) )
+    self.assertFalse( archive_dmg.file_is_valid(tmp_tar_gz) )
 
     self.assertFalse( archive_dmg.file_is_valid(temp_file.make_temp_file(content = 'junk\n')) )
     

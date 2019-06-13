@@ -3,6 +3,7 @@
 import os, os.path as path, shutil, sys
 from abc import abstractmethod, ABCMeta
 
+from bes.common.check import check
 from bes.common.algorithm import algorithm
 from bes.property.cached_property import cached_property
 from bes.fs.dir_util import dir_util
@@ -23,6 +24,7 @@ class archive(archive_base):
   'An archive interface.'
 
   def __init__(self, filename):
+    check.check_string(filename)
     self.filename = filename
 
   @cached_property

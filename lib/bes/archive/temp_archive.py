@@ -10,8 +10,6 @@ from .archive_extension import archive_extension
 class temp_archive(object):
   'A class to deal with temporary archives mostly for unit tests.'
 
-  Result = namedtuple('Result', 'file,filename')
-
   class item(object):
     'Description of an item for a temp tarball.'
 
@@ -62,7 +60,7 @@ class temp_archive(object):
     if delete:
       temp_file.atexit_delete(temp_archive_filename)
 
-    return clazz.Result(open(temp_archive_filename, 'rb'), temp_archive_filename)
+    return temp_archive_filename
 
   @classmethod
   def _make_temp_archive_zip(clazz, items, filename, mode):

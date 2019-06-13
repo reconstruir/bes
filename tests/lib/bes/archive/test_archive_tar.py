@@ -23,16 +23,16 @@ class test_archive_tar(unit_test):
 
   def test_file_is_valid(self):
     tmp_tar = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR)
-    self.assertTrue( archive_tar.file_is_valid(tmp_tar.filename) )
+    self.assertTrue( archive_tar.file_is_valid(tmp_tar) )
 
     tmp_tgz = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TGZ)
-    self.assertTrue( archive_tar.file_is_valid(tmp_tgz.filename) )
+    self.assertTrue( archive_tar.file_is_valid(tmp_tgz) )
 
     tmp_tar_gz = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR_GZ)
-    self.assertTrue( archive_tar.file_is_valid(tmp_tar_gz.filename) )
+    self.assertTrue( archive_tar.file_is_valid(tmp_tar_gz) )
 
     tmp_zip = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.ZIP)
-    self.assertFalse( archive_tar.file_is_valid(tmp_zip.filename) )
+    self.assertFalse( archive_tar.file_is_valid(tmp_zip) )
 
     self.assertFalse( archive_tar.file_is_valid(temp_file.make_temp_file(content = 'junk\n')) )
 

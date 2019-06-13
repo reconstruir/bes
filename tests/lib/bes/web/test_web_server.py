@@ -94,8 +94,8 @@ class test_web_server(unit_test):
           temp_archive.item('orange.txt', content = 'orange.txt\n'),
         ]
       tmp_archive = temp_archive.make_temp_archive(items, extension)
-      tmp_mime_type = file_mime.mime_type(tmp_archive.filename)
-      content = file_util.read(tmp_archive.filename)
+      tmp_mime_type = file_mime.mime_type(tmp_archive)
+      content = file_util.read(tmp_archive)
       headers = [
         ( 'Content-Type', str(tmp_mime_type) ),
         ( 'Content-Length', str(len(content)) ),

@@ -5,13 +5,14 @@ from abc import abstractmethod
 
 from bes.testing.unit_test import unit_test
 
+from bes.archive.temp_archive import temp_archive
+from bes.common.check import check
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
-from bes.match.matcher_filename import matcher_multiple_filename
 from bes.match.matcher_always_false import matcher_always_false
 from bes.match.matcher_always_true import matcher_always_true
-from bes.archive.temp_archive import temp_archive
+from bes.match.matcher_filename import matcher_multiple_filename
 from bes.testing.unit_test import unit_test
 
 class archive_tester(object):
@@ -23,33 +24,29 @@ class archive_tester(object):
     self._archive_type = archive_type
     self._debug = debug
 
-  def _make_archive(self, filename):
-    return self._archive_class(filename)
-
   def make_archive(self, filename):
-    archive = self._make_archive(filename)
+    check.check_string(filename)
+    archive = self._archive_class(filename)
     if self._debug:
-      print("archive: ", archive.filename)
+      print('archive: {}'.format(archive.filename))
     return archive
   
   def make_temp_archive_for_reading(self, items, archive_type = None):
     archive_type = archive_type or self._archive_type
     assert archive_type
     tmp_archive = temp_archive.make_temp_archive(items, archive_type, delete = not self._debug)
-    return self.make_archive(tmp_archive.filename)
+    return self.make_archive(tmp_archive)
 
   def make_temp_archive_for_writing(self):
-    tmp_archive = temp_file.make_temp_file(suffix = '.' + self._archive_type, delete = False)
+    tmp_archive = temp_file.make_temp_file(suffix = '.' + self._archive_type, delete = not self._debug)
     return self.make_archive(tmp_archive)
 
   def test_members(self):
     assert self._archive_type
     tmp_tar = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], self._archive_type, delete = not self._debug)
-    self._unit_test.assertEqual( [ 'foo.txt' ], self.make_archive(tmp_tar.filename).members )
+    self._unit_test.assertEqual( [ 'foo.txt' ], self.make_archive(tmp_tar).members )
 
   def test_has_member(self):
-    assert self._archive_type
-
     items = temp_archive.make_temp_item_list([
       ( 'foo/apple.txt', 'apple.txt\n' ),
       ( 'foo/durian.txt', 'durian.txt\n' ),
@@ -61,7 +58,6 @@ class archive_tester(object):
     self._unit_test.assertFalse( self.make_archive(tmp_archive.filename).has_member('nothere.txt') )
 
   def test_extract_all(self):
-    assert self._archive_type
     items = temp_archive.make_temp_item_list([
       ( 'foo.txt', 'foo.txt\n' ),
     ])
@@ -71,7 +67,6 @@ class archive_tester(object):
     self._unit_test.assertTrue( path.isfile(path.join(tmp_dir, 'foo.txt')) )
 
   def test_extract_all_with_base_dir(self):
-    assert self._archive_type
     items = temp_archive.make_temp_item_list([
       ( 'foo.txt', 'foo.txt\n' ),
     ])
@@ -82,7 +77,6 @@ class archive_tester(object):
     self._unit_test.assertTrue( path.isfile(path.join(tmp_dir, base_dir, 'foo.txt')) )
 
   def test_extract_all_with_strip_common_ancestor(self):
-    assert self._archive_type
     base_dir_to_strip = 'base-1.2.3'
 
     items = temp_archive.make_temp_item_list([
@@ -95,7 +89,6 @@ class archive_tester(object):
     self._unit_test.assertTrue( path.isfile(path.join(tmp_dir, 'foo.txt')) )
 
   def test_extract_all_with_base_dir_and_strip_common_ancestor(self):
-    assert self._archive_type
     base_dir_to_strip = 'base-1.2.3'
     items = temp_archive.make_temp_item_list([
       ( 'foo.txt', 'foo.txt\n' ),
@@ -108,7 +101,6 @@ class archive_tester(object):
     self._unit_test.assertTrue( path.isfile(path.join(tmp_dir, base_dir_to_add, 'foo.txt')) )
 
   def test_extract_all_with_strip_head(self):
-    assert self._archive_type
 
     items = temp_archive.make_temp_item_list([
       ( 'foo/apple.txt', 'apple.txt\n' ),
@@ -132,7 +124,6 @@ class archive_tester(object):
     self._unit_test.assertEqual( expected_files, actual_files )
 
   def test_extract_all_with_strip_common_ancestor_and_strip_head(self):
-    assert self._archive_type
 
     items = temp_archive.make_temp_item_list([
       ( 'base-1.2.3/foo/apple.txt', 'apple.txt\n' ),
@@ -156,7 +147,6 @@ class archive_tester(object):
     self._unit_test.assertEqual( expected_files, actual_files )
 
   def test_extract_all_overlap(self):
-    assert self._archive_type
 
     items1 = temp_archive.make_temp_item_list([
       ( 'base-1.2.3/foo.txt', 'foo.txt\n' ),
@@ -187,7 +177,6 @@ class archive_tester(object):
     self._unit_test.assertEqual( expected_files, actual_files )
 
   def test_extract_all_overlap_with_base_dir(self):
-    assert self._archive_type
 
     items1 = temp_archive.make_temp_item_list([
       ( 'base-1.2.3/foo.txt', 'foo.txt\n' ),
@@ -219,7 +208,6 @@ class archive_tester(object):
     self._unit_test.assertEqual( expected_files, actual_files )
 
   def test_extract_all_overlap_with_base_dir_and_strip_common_ancestor(self):
-    assert self._archive_type
 
     items1 = temp_archive.make_temp_item_list([
       ( 'base-1.2.3/foo.txt', 'foo.txt\n' ),
@@ -249,7 +237,6 @@ class archive_tester(object):
     self._unit_test.assertEqual( expected_files, actual_files )
 
   def test_extract_with_include(self):
-    assert self._archive_type
     items = temp_archive.make_temp_item_list([
       ( 'foo/apple.txt', 'apple.txt\n' ),
       ( 'foo/durian.txt', 'durian.txt\n' ),
@@ -267,7 +254,6 @@ class archive_tester(object):
     self._unit_test.assertEqual( expected_files, actual_files )
 
   def test_extract_with_exclude(self):
-    assert self._archive_type
     items = temp_archive.make_temp_item_list([
       ( 'foo/apple.txt', 'apple.txt\n' ),
       ( 'foo/durian.txt', 'durian.txt\n' ),
@@ -283,7 +269,6 @@ class archive_tester(object):
     self._unit_test.assertEqual( expected_files, actual_files )
 
   def test_extract_with_include_and_exclude(self):
-    assert self._archive_type
     items = temp_archive.make_temp_item_list([
       ( 'foo/apple.txt', 'apple.txt\n' ),
       ( 'foo/durian.txt', 'durian.txt\n' ),
@@ -309,7 +294,6 @@ class archive_tester(object):
     return actual_files
 
   def test_extract_member_to_string(self):
-    assert self._archive_type
     items = temp_archive.make_temp_item_list([
       ( 'foo/apple.txt', 'apple.txt\n' ),
       ( 'foo/durian.txt', 'durian.txt\n' ),
@@ -321,7 +305,6 @@ class archive_tester(object):
     self._unit_test.assertEqual( b'{}\n', tmp_archive.extract_member_to_string('metadata/db.json') )
 
   def test_extract_member_to_file(self):
-    assert self._archive_type
     items = temp_archive.make_temp_item_list([
       ( 'foo/apple.txt', 'apple.txt\n' ),
       ( 'foo/durian.txt', 'durian.txt\n' ),
@@ -349,7 +332,6 @@ class archive_tester(object):
     return actual_files
 
   def test_extract_members(self):
-    assert self._archive_type
     items = temp_archive.make_temp_item_list([
       ( 'foo/apple.txt', 'apple.txt\n' ),
       ( 'foo/durian.txt', 'durian.txt\n' ),

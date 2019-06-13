@@ -240,13 +240,13 @@ exit 0
       git_unit_test.set_identity()
       r1 = git_temp_repo()
       if host.is_windows():
-        script = self.xp_path('nothing.bat')
+        script = 'nothing.bat'
         content = '''\
 @echo off
 exit 0
 '''.format(script)
       elif host.is_unix():
-        script = self.xp_path('nothing.sh')
+        script = 'nothing.sh'
         content = '''\
 #!/bin/bash
 exit 0
