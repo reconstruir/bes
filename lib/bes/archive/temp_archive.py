@@ -12,20 +12,17 @@ from .archive_extension import archive_extension
 class temp_archive(object):
   'A class to deal with temporary archives mostly for unit tests.'
 
-  class item(object):
-    'Description of an item for a temp tarball.'
+  class item(namedtuple('item', 'arcname, content, filename')):
 
-    def __init__(self, arcname, content = None, filename = None):
+    def __new__(clazz, arcname, content = None, filename = None):
       assert content or filename
       if content:
         assert not filename
       if filename:
         assert not content
-      self.arcname = arcname
-      self.content = content
-      self.filename = filename
-      if self.filename:
-        self.content = file_util.read(self.filename)
+      if filename:
+        content = file_util.read(filename)
+      return clazz.__bases__[0].__new__(clazz, arcname, content, filename)
 
   @classmethod
   def _determine_type(clazz, extension):
