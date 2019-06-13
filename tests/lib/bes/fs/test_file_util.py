@@ -3,11 +3,11 @@
 
 # log.configure('file_util=debug')
 
-import unittest
 import os, os.path as path, tempfile
+from bes.testing.unit_test import unit_test
 from bes.fs.file_util import file_util
 
-class test_file_util(unittest.TestCase):
+class test_file_util(unit_test):
 
   def test_lstrip_sep(self):
     self.assertEqual( 'foo', file_util.lstrip_sep('foo') )
@@ -54,16 +54,16 @@ class test_file_util(unittest.TestCase):
     self.assertEqual( '/foo/bar/', file_util.ensure_lsep('foo/bar/') )
 
   def test_remove_head(self):
-    self.assertEqual( 'bar', file_util.remove_head('foo/bar', 'foo') )
-    self.assertEqual( 'bar/baz', file_util.remove_head('foo/bar/baz', 'foo') )
-    self.assertEqual( 'foo', file_util.remove_head('foo', 'foo/') )
-    self.assertEqual( 'foo', file_util.remove_head('foo', 'foo') )
-    self.assertEqual( '', file_util.remove_head('foo/', 'foo/') )
+    self.assertEqual( self.p('bar'), file_util.remove_head(self.p('foo/bar'), self.p('foo')) )
+    self.assertEqual( self.p('bar/baz'), file_util.remove_head(self.p('foo/bar/baz'), self.p('foo')) )
+    self.assertEqual( self.p('foo'), file_util.remove_head(self.p('foo'), self.p('foo/')) )
+    self.assertEqual( self.p('foo'), file_util.remove_head(self.p('foo'), self.p('foo')) )
+    self.assertEqual( self.p(''), file_util.remove_head(self.p('foo/'), self.p('foo/')) )
 
   def test_remove_tail(self):
-    self.assertEqual( '/foo', file_util.remove_tail('/foo/bar', 'bar') )
-    self.assertEqual( 'foo', file_util.remove_tail('foo/bar', 'bar') )
-    self.assertEqual( 'foo', file_util.remove_tail('foo/bar', '/bar') )
+    self.assertEqual( self.p('/foo'), file_util.remove_tail(self.p('/foo/bar'), self.p('bar')) )
+    self.assertEqual( self.p('foo'), file_util.remove_tail(self.p('foo/bar'), self.p('bar')) )
+    self.assertEqual( self.p('foo'), file_util.remove_tail(self.p('foo/bar'), self.p('/bar')) )
     
   def test_remove_head_unicode(self):
     self.assertEqual( u'bar', file_util.remove_head(u'foo/bar', u'foo') )
@@ -91,4 +91,4 @@ class test_file_util(unittest.TestCase):
     self.assertEqual( True, file_util.is_basename('') )
 
 if __name__ == "__main__":
-  unittest.main()
+  unit_test.main()

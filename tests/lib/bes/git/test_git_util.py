@@ -91,14 +91,14 @@ class test_git_util(unit_test):
       git_unit_test.set_identity()
       r = git_temp_repo()
       if host.is_windows():
-        script = 'fruits/kiwi.bat'
+        script = self.xp_path('fruits/kiwi.bat')
         content = '''\
 @echo off
 echo {} %*
 exit 0
 '''.format(script)
       elif host.is_unix():
-        script = 'fruits/kiwi.sh'
+        script = self.xp_path('fruits/kiwi.sh')
         content = '''\
 #!/bin/bash
 echo {} ${{1+"$@"}}
@@ -119,65 +119,113 @@ exit 0
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
       r = git_temp_repo()
-      content = '''\
-#!/bin/bash
-echo kiwi.sh ${1+"$@"}
+      if host.is_windows():
+        script = self.xp_path('fruits/kiwi.bat')
+        content = '''\
+@echo off
+echo {} %*
 exit 0
-'''
-      r.add_file('fruits/kiwi.sh', content, mode = 0o0755)
+'''.format(script)
+      elif host.is_unix():
+        script = self.xp_path('fruits/kiwi.sh')
+        content = '''\
+#!/bin/bash
+echo {} ${{1+"$@"}}
+exit 0
+'''.format(script)
+      else:
+        assert False
+      xp_script = self.xp_path(script)
+      r.add_file(self.xp_path(xp_script), content, mode = 0o0755)
       r.push('origin', 'master')
       r.tag('1.0.0')
       r.push_tag('1.0.0')
-      rv = git_util.repo_run_script(r.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], False, None, True)
+      rv = git_util.repo_run_script(r.address, xp_script, [ 'arg1', 'arg2' ], False, None, True)
       self.assertEqual( None, rv )
 
   def test_repo_run_script_push(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
       r1 = git_temp_repo()
-      content = '''\
+      if host.is_windows():
+        script = self.xp_path('fruits/kiwi.bat')
+        content = '''\
+@echo off
+echo yellow > color.txt
+git add color.txt
+git commit -madd color.txt
+exit 0
+'''
+      elif host.is_unix():
+        script = self.xp_path('fruits/kiwi.sh')
+        content = '''\
 #!/bin/bash
 echo yellow > color.txt
 git add color.txt
 git commit -madd color.txt
 exit 0
 '''
-      r1.add_file('fruits/kiwi.sh', content, mode = 0o0755)
+      else:
+        assert False
+      xp_script = self.xp_path(script)
+      r1.add_file(xp_script, content, mode = 0o0755)
       r1.push('origin', 'master')
       r1.tag('1.0.0')
       r1.push_tag('1.0.0')
-      rv = git_util.repo_run_script(r1.address, 'fruits/kiwi.sh', [ 'arg1', 'arg2' ], True, None, False)
+      rv = git_util.repo_run_script(r1.address, xp_script, [ 'arg1', 'arg2' ], True, None, False)
       self.assertEqual( 0, rv.exit_code )
 
       r2 = r1.make_temp_cloned_repo()
       self.assertEqual( 'yellow', r2.read_file('color.txt').strip() )
 
-  def test_repo_run_scripts_push1(self):
+  def test_repo_run_scripts_push(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
       r1 = git_temp_repo()
-      content1 = '''\
+      if host.is_windows():
+        script1 = self.xp_path('scripts/script1.bat')
+        script2 = self.xp_path('scripts/script2.bat')
+        content1 = '''\
+@echo off
+echo %1% > color.txt
+git add color.txt
+git commit -madd color.txt
+exit 0
+'''
+        content2 = '''\
+@echo off
+echo %1% > fruit.txt
+git add fruit.txt
+git commit -madd fruit.txt
+exit 0
+'''
+      elif host.is_unix():
+        script1 = self.xp_path('scripts/script1.sh')
+        script2 = self.xp_path('scripts/script2.sh')
+        content1 = '''\
 #!/bin/bash
 echo ${1} > color.txt
 git add color.txt
 git commit -madd color.txt
 exit 0
 '''
-      content2 = '''\
+        content2 = '''\
 #!/bin/bash
 echo ${1} > fruit.txt
 git add fruit.txt
 git commit -madd fruit.txt
 exit 0
 '''
-      r1.add_file('scripts/script1.sh', content1, mode = 0o0755)
-      r1.add_file('scripts/script2.sh', content2, mode = 0o0755)
+      else:
+        assert False
+      r1.add_file(script1, content1, mode = 0o0755)
+      r1.add_file(script2, content2, mode = 0o0755)
       r1.push('origin', 'master')
       r1.tag('1.0.0')
       r1.push_tag('1.0.0')
       scripts = [
-        git_util.script('scripts/script1.sh', [ 'yellow' ]),
-        git_util.script('scripts/script2.sh', [ 'kiwi' ]),
+        git_util.script(script1, [ 'yellow' ]),
+        git_util.script(script2, [ 'kiwi' ]),
       ]
       results = git_util.repo_run_scripts(r1.address, scripts, True, None, False)
       self.assertEqual( 0, results[0].exit_code )
@@ -191,21 +239,32 @@ exit 0
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
       r1 = git_temp_repo()
-      content = '''\
+      if host.is_windows():
+        script = self.xp_path('nothing.bat')
+        content = '''\
+@echo off
+exit 0
+'''.format(script)
+      elif host.is_unix():
+        script = self.xp_path('nothing.sh')
+        content = '''\
 #!/bin/bash
 exit 0
-'''
-      r1.add_file('scripts/nothing.sh', content, mode = 0o0755)
+'''.format(script)
+      else:
+        assert False
+      xp_script = self.xp_path(script)
+      r1.add_file(xp_script, content, mode = 0o0755)
       r1.push('origin', 'master')
       r1.tag('1.0.0')
       r1.push_tag('1.0.0')
-      rv = git_util.repo_run_script(r1.address, 'scripts/nothing.sh', [], False, 'revision', False)
+      rv = git_util.repo_run_script(r1.address, xp_script, [], False, 'revision', False)
       self.assertEqual( 0, rv.exit_code )
 
       r2 = r1.make_temp_cloned_repo()
       self.assertEqual( '1.0.1', r2.greatest_local_tag() )
 
-      rv = git_util.repo_run_script(r1.address, 'scripts/nothing.sh', [], False, 'major', False)
+      rv = git_util.repo_run_script(r1.address, xp_script, [], False, 'major', False)
       self.assertEqual( 0, rv.exit_code )
       self.assertEqual( '2.0.1', r2.greatest_remote_tag() )
       

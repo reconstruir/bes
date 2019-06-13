@@ -207,3 +207,7 @@ class unit_test(unittest.TestCase):
     result = s.replace(pathsep, os.pathsep)
     result = result.replace(sep, os.sep)
     return result
+
+  @classmethod
+  def p(clazz, s, pathsep = ':', sep = '/'):
+    return clazz.xp_path(s, pathsep = pathsep, sep = sep)
