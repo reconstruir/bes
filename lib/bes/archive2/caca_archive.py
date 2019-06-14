@@ -10,7 +10,7 @@ from bes.property.cached_property import cached_property
 from bes.fs.file_find import file_find
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
-from bes.fs.tar_util import tar_util
+from bes.fs.file_copy import file_copy
 from bes.fs.temp_file import temp_file
 from bes.match.matcher_always_false import matcher_always_false
 from bes.match.matcher_always_true import matcher_always_true
@@ -149,12 +149,12 @@ class archive(archive_base):
       common_ancestor = self._common_ancestor_for_members(members)
       if common_ancestor:
         from_dir = path.join(dest_dir, common_ancestor)
-        tar_util.copy_tree(from_dir, dest_dir)
+        file_copy.copy_tree(from_dir, dest_dir)
         file_util.remove(from_dir)
     if strip_head:
       from_dir = path.join(dest_dir, strip_head)
       if path.isdir(from_dir):
-        tar_util.copy_tree(from_dir, dest_dir)
+        file_copy.copy_tree(from_dir, dest_dir)
         file_util.remove(from_dir)
       
   def _pre_create(self):

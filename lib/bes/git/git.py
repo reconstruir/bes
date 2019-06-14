@@ -13,7 +13,7 @@ from bes.system.log import logger
 from bes.fs.dir_util import dir_util
 from bes.fs.file_ignore import file_ignore
 from bes.fs.file_util import file_util
-from bes.fs.tar_util import tar_util
+from bes.fs.file_copy import file_copy
 from bes.fs.temp_file import temp_file
 from bes.fs.file_ignore import ignore_file_data
 from bes.version.software_version import software_version
@@ -175,7 +175,7 @@ class git(object):
     'git archive with additional support to include untracked files for local repos.'
     tmp_repo_dir = temp_file.make_temp_dir()
     if path.isdir(address):
-      tar_util.copy_tree(address, tmp_repo_dir, excludes = clazz.read_gitignore(address))
+      file_copy.copy_tree(address, tmp_repo_dir, excludes = clazz.read_gitignore(address))
       if untracked:
         clazz._call_git(tmp_repo_dir, [ 'add', '-A' ])
         clazz._call_git(tmp_repo_dir, [ 'commit', '-m', 'add untracked files just for tmp repo' ])

@@ -44,7 +44,7 @@ class test_file_copy(unit_test):
     file_util.remove(dst_tmp_dir)
     with tarfile.open(self.data_path('test.tar'), mode = 'r') as f:
       f.extractall(path = src_tmp_dir)
-    file_copy.copy_tree(src_tmp_dir, dst_tmp_dir, excludes = [ 'bar.txt', 'foo.txt' ])
+      file_copy.copy_tree(src_tmp_dir, dst_tmp_dir, excludes = [ 'bar.txt', 'foo.txt' ])
     
     expected_files = [
       '1',

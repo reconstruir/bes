@@ -10,7 +10,7 @@ from bes.fs.dir_util import dir_util
 from bes.fs.file_find import file_find
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
-from bes.fs.tar_util import tar_util
+from bes.fs.file_copy import file_copy
 from bes.fs.temp_file import temp_file
 from bes.match.matcher_filename import matcher_multiple_filename
 from bes.match.matcher_always_false import matcher_always_false
@@ -135,7 +135,7 @@ class archive(archive_base):
 #      assert False
 #      shutil.move(from_dir, dest_dir)
 #      return
-    tar_util.copy_tree(from_dir, dest_dir)
+    file_copy.copy_tree(from_dir, dest_dir)
     file_util.remove(from_dir)
         
   def _pre_create(self):

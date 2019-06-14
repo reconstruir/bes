@@ -5,7 +5,7 @@ import datetime
 
 from .file_match import file_match
 from .file_util import file_util
-from .tar_util import tar_util
+from .file_copy import file_copy
 
 class dir_util(object):
     
@@ -75,7 +75,7 @@ class dir_util(object):
       dst_file = path.join(dst_dir, f)
       if path.isdir(src_file):
         if path.exists(dst_file):
-          tar_util.copy_tree(src_file, dst_file)
+          file_copy.copy_tree(src_file, dst_file)
           file_util.remove(src_file)
         else:
           shutil.move(src_file, dst_file)

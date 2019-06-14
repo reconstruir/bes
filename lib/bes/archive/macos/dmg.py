@@ -9,7 +9,7 @@ from bes.compat.plistlib import plistlib_loads
 from bes.fs.file_check import file_check
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
-from bes.fs.tar_util import tar_util
+from bes.fs.file_copy import file_copy
 from bes.fs.temp_file import temp_file
 
 from bes.system.execute import execute
@@ -64,7 +64,7 @@ class dmg(object):
     file_util.mkdir(dst_dir)
     mnt = clazz._mount_at_temp_dir(dmg)
     #clazz._fix_extracted_dir_permissions(mnt.mount_point)
-    tar_util.copy_tree(mnt.mount_point, dst_dir)
+    file_copy.copy_tree(mnt.mount_point, dst_dir)
     clazz._eject(mnt.mount_point)
 
   @classmethod
