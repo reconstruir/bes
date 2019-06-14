@@ -76,9 +76,7 @@ class archive_tester(object):
     items = temp_archive.make_temp_item_list([
       ( self.xp_path('foo.txt'), 'foo.txt\n' ),
     ])
-    print('items: {}'.format(items))
     items = temp_archive.add_base_dir(items, base_dir_to_strip)
-    print('items: {}'.format(items))
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_dir = self._unit_test.make_temp_dir()
     tmp_archive.extract_all(tmp_dir, strip_common_ancestor = True)
@@ -297,8 +295,8 @@ class archive_tester(object):
       ( self.xp_path('metadata/db.json'), '{}\n' ),
     ])
     tmp_archive = self.make_temp_archive_for_reading(items)
-    self._unit_test.assertEqual( b'apple.txt\n', tmp_archive.extract_member_to_string(self.xp_path('foo/apple.txt')) )
-    self._unit_test.assertEqual( b'{}\n', tmp_archive.extract_member_to_string(self.xp_path('metadata/db.json')) )
+    self._unit_test.assertEqual( b'apple.txt\n', tmp_archive.extract_member_to_string('foo/apple.txt') )
+    self._unit_test.assertEqual( b'{}\n', tmp_archive.extract_member_to_string('metadata/db.json') )
 
   def test_extract_member_to_file(self):
     items = temp_archive.make_temp_item_list([
@@ -309,7 +307,7 @@ class archive_tester(object):
     ])
     tmp_archive = self.make_temp_archive_for_reading(items)
     tmp_file = self._unit_test.make_temp_file()
-    tmp_archive.extract_member_to_file(self.xp_path('foo/apple.txt'), tmp_file)
+    tmp_archive.extract_member_to_file('foo/apple.txt', tmp_file)
     self._unit_test.assertEqual( b'apple.txt\n', file_util.read(tmp_file) )
     
   def _test_extract_with_members(self, items, members,
@@ -335,11 +333,11 @@ class archive_tester(object):
       ( self.xp_path('metadata/db.json'), '{}\n' ),
     ])
     members = [
-      self.xp_path('foo/apple.txt'),
-      self.xp_path('foo/durian.txt'),
+      'foo/apple.txt',
+      'foo/durian.txt',
     ]
     actual_files = self._test_extract_with_members(items, members)
-    expected_files = members
+    expected_files = [ self.xp_path(m) for m in members ]
     self._unit_test.assertEqual( expected_files, actual_files )
 
   def test_common_base(self):

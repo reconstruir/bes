@@ -11,7 +11,7 @@ from archive_tester import archive_tester
 
 class test_archive_zip(unit_test):
 
-  def xtest_init(self):
+  def test_init(self):
     self.assertEqual( 'foo.zip', archive_zip('foo.zip').filename )
 
   def test_file_is_valid(self):
@@ -75,13 +75,13 @@ class test_archive_zip(unit_test):
   def test_extract_with_include_and_exclude(self):
     return self._make_archive_tester(self).test_extract_with_include_and_exclude()
 
-  def xtest_extract_member_to_string(self):
+  def test_extract_member_to_string(self):
     return self._make_archive_tester(self).test_extract_member_to_string()
 
-  def xtest_extract_member_to_file(self):
+  def test_extract_member_to_file(self):
     return self._make_archive_tester(self).test_extract_member_to_file()
     
-  def xtest_extract_members(self):
+  def test_extract_members(self):
     return self._make_archive_tester(self).test_extract_members()
 
   def test_common_base(self):
