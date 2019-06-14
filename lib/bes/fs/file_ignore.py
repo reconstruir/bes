@@ -45,28 +45,15 @@ class file_ignore(object):
       raise IOError('not a file or directory: %s' % (ford))
     if not self._ignore_filename:
       return False
-    parents = self._decompose_parents(ford)
-    for parent_dir, parent_base in parents:
-      data = self._get_data(parent_dir)
-      if data.should_ignore(parent_base):
+    ancestors = file_path.decompose(ford)
+    for ancestor in ancestors:
+      ancestor_dirname = path.dirname(ancestor)
+      ancestor_basename = path.basename(ancestor)
+      data = self._get_data(ancestor_dirname)
+      if data.should_ignore(ancestor_basename):
         return True
     return False
   
-  def _decompose_parents(self, filename):
-    'Return a revered list of tuples of parent basenames and dirnames.'
-    assert path.isfile(filename)
-    assert path.isabs(filename)
-    result = []
-    f = path.basename(filename)
-    d = path.dirname(filename)
-    while True:
-      if d == '/':
-        break
-      result.append( ( d, f ) )
-      f = path.basename(d)
-      d = path.dirname(d)
-    return [ x for x in reversed(result) ]
-
   def _get_data(self, d):
     if not path.isdir(d):
       raise IOError('not a directory: %s' % (d))

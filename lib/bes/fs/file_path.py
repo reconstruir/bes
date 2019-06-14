@@ -120,4 +120,3 @@ class file_path(object):
       if p == '/':
         break
     return [ x for x in reversed(result) ]
-  
