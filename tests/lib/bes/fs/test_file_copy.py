@@ -7,6 +7,7 @@ from bes.fs.file_find import file_find
 from bes.fs.file_copy import file_copy
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
+from bes.fs.testing.temp_content import temp_content
 
 class test_file_copy(unit_test):
 
@@ -84,6 +85,34 @@ class test_file_copy(unit_test):
     ]
     actual_files = file_find.find(dst_tmp_dir, file_type = file_find.ANY)
     self.assertEqual( expected_files, actual_files )
+
+  def test_move_files(self):
+    tmp_dir = temp_file.make_temp_dir()
+    src_dir = path.join(tmp_dir, 'src')
+    dst_dir = path.join(tmp_dir, 'dst')
+    file_util.mkdir(dst_dir)
+    temp_content.write_items([
+      'file foo.txt "This is foo.txt\n" 644',
+      'file bar.txt "This is bar.txt\n" 644',
+      'file sub1/sub2/baz.txt "This is baz.txt\n" 644',
+      'file yyy/zzz/vvv.txt "This is vvv.txt\n" 644',
+      'file .hidden "this is .hidden\n" 644',
+      'file script.sh "#!/bin/bash\necho script.sh\nexit 0\n" 755',
+      'file .hushlogin "" 644',
+    ], src_dir)
+    expected = [
+      '.hidden',
+      '.hushlogin',
+      'bar.txt',
+      'foo.txt',
+      'script.sh',
+      'sub1/sub2/baz.txt',
+      'yyy/zzz/vvv.txt',
+    ]
+    self.assertEqual( expected, file_find.find(src_dir, relative = True))
+    file_copy.move_files(src_dir, dst_dir)
+    self.assertEqual( expected, file_find.find(dst_dir, relative = True))
+    self.assertEqual( [], file_find.find(src_dir, relative = True))
     
 if __name__ == '__main__':
   unit_test.main()
