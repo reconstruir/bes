@@ -175,7 +175,7 @@ class git(object):
     'git archive with additional support to include untracked files for local repos.'
     tmp_repo_dir = temp_file.make_temp_dir()
     if path.isdir(address):
-      tar_util.copy_tree_with_tar(address, tmp_repo_dir, excludes = clazz.read_gitignore(address))
+      tar_util.copy_tree(address, tmp_repo_dir, excludes = clazz.read_gitignore(address))
       if untracked:
         clazz._call_git(tmp_repo_dir, [ 'add', '-A' ])
         clazz._call_git(tmp_repo_dir, [ 'commit', '-m', 'add untracked files just for tmp repo' ])

@@ -151,7 +151,7 @@ fix bes_env_path_append and friends to check the first argument to be a good she
 tree text parser - tests for get_text()
 enum SIZE is weird
 
-tar_util.copy_tree_with_tar() has no error checking and causes errors to be spewed to stdout instead
+tar_util.copy_tree() has no error checking and causes errors to be spewed to stdout instead
 of rasing a python exception
 see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-commands-with-pipe
 

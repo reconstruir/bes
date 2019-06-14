@@ -135,7 +135,7 @@ class archive(archive_base):
 #      assert False
 #      shutil.move(from_dir, dest_dir)
 #      return
-    tar_util.copy_tree_with_tar(from_dir, dest_dir)
+    tar_util.copy_tree(from_dir, dest_dir)
     file_util.remove(from_dir)
         
   def _pre_create(self):

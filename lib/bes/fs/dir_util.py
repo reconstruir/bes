@@ -75,7 +75,7 @@ class dir_util(object):
       dst_file = path.join(dst_dir, f)
       if path.isdir(src_file):
         if path.exists(dst_file):
-          tar_util.copy_tree_with_tar(src_file, dst_file)
+          tar_util.copy_tree(src_file, dst_file)
           file_util.remove(src_file)
         else:
           shutil.move(src_file, dst_file)

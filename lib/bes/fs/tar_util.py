@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path, os, re, tarfile
+import os.path as path, os, re
 from collections import namedtuple
 
 from bes.common.check import check
@@ -17,7 +17,7 @@ from .temp_file import temp_file
 class tar_util(object):
 
   @classmethod
-  def copy_tree_with_tar(clazz, src_dir, dst_dir, excludes = None):
+  def copy_tree(clazz, src_dir, dst_dir, excludes = None):
     excludes = excludes or []
     if not path.isdir(src_dir):
       raise RuntimeError('src_dir is not a directory: %s' % (src_dir))

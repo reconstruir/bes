@@ -15,13 +15,13 @@ class test_tar_util(unit_test):
   DEBUG = False
   #DEBUG = True
 
-  def test_copy_tree_with_tar(self):
+  def test_copy_tree(self):
     self.maxDiff = None
     src_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
     dst_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
     with tarfile.open(self.data_path('test.tar'), mode = 'r') as f:
       f.extractall(path = src_tmp_dir)
-    tar_util.copy_tree_with_tar(src_tmp_dir, dst_tmp_dir)
+    tar_util.copy_tree(src_tmp_dir, dst_tmp_dir)
     
     expected_files = [
       '1',
@@ -39,13 +39,13 @@ class test_tar_util(unit_test):
     actual_files = file_find.find(dst_tmp_dir, file_type = file_find.ANY)
     self.assertEqual( expected_files, actual_files )
     
-  def test_copy_tree_with_tar_and_excludes(self):
+  def test_copy_tree_and_excludes(self):
     self.maxDiff = None
     src_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
     dst_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
     with tarfile.open(self.data_path('test.tar'), mode = 'r') as f:
       f.extractall(path = src_tmp_dir)
-    tar_util.copy_tree_with_tar(src_tmp_dir, dst_tmp_dir, excludes = [ 'bar.txt', 'foo.txt' ])
+    tar_util.copy_tree(src_tmp_dir, dst_tmp_dir, excludes = [ 'bar.txt', 'foo.txt' ])
     
     expected_files = [
       '1',
@@ -61,13 +61,13 @@ class test_tar_util(unit_test):
     actual_files = file_find.find(dst_tmp_dir, file_type = file_find.ANY)
     self.assertEqual( expected_files, actual_files )
 
-  def test_copy_tree_with_tar_spaces_in_filenames(self):
+  def test_copy_tree_spaces_in_filenames(self):
     self.maxDiff = None
     src_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG, suffix = '-has 2 spaces-')
     dst_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG, suffix = '-has 2 spaces-')
     with tarfile.open(self.data_path('test.tar'), mode = 'r') as f:
       f.extractall(path = src_tmp_dir)
-    tar_util.copy_tree_with_tar(src_tmp_dir, dst_tmp_dir)
+    tar_util.copy_tree(src_tmp_dir, dst_tmp_dir)
     
     expected_files = [
       '1',

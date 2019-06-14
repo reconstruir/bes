@@ -64,7 +64,7 @@ class dmg(object):
     file_util.mkdir(dst_dir)
     mnt = clazz._mount_at_temp_dir(dmg)
     #clazz._fix_extracted_dir_permissions(mnt.mount_point)
-    tar_util.copy_tree_with_tar(mnt.mount_point, dst_dir)
+    tar_util.copy_tree(mnt.mount_point, dst_dir)
     clazz._eject(mnt.mount_point)
 
   @classmethod
