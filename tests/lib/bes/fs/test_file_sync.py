@@ -26,10 +26,10 @@ class test_file_find(unit_test):
     tmp_dst_dir = temp_file.make_temp_dir()
     file_sync.sync(tmp_src_dir, tmp_dst_dir)
     expected = [
-      'emptyfile.txt',
-      'foo.txt',
-      'subdir/bar.txt',
-      'subdir/subberdir/baz.txt',
+      self.xp_path('emptyfile.txt'),
+      self.xp_path('foo.txt'),
+      self.xp_path('subdir/bar.txt'),
+      self.xp_path('subdir/subberdir/baz.txt'),
     ]
     self.assertEqual( expected, file_find.find(tmp_dst_dir, relative = True) )
 
@@ -51,9 +51,9 @@ class test_file_find(unit_test):
     file_sync.sync(tmp_src_dir1, tmp_dst_dir)
     file_sync.sync(tmp_src_dir2, tmp_dst_dir)
     expected = [
-      'emptyfile.txt',
-      'subdir/bar.txt',
-      'subdir/subberdir/baz.txt',
+      self.xp_path('emptyfile.txt'),
+      self.xp_path('subdir/bar.txt'),
+      self.xp_path('subdir/subberdir/baz.txt'),
     ]
     self.assertEqual( expected, file_find.find(tmp_dst_dir, relative = True) )
 
@@ -76,10 +76,10 @@ class test_file_find(unit_test):
     file_sync.sync(tmp_src_dir1, tmp_dst_dir)
     file_sync.sync(tmp_src_dir2, tmp_dst_dir)
     expected = [
-      'emptyfile.txt',
-      'foo.txt',
-      'subdir/bar.txt',
-      'subdir/subberdir/baz.txt',
+      self.xp_path('emptyfile.txt'),
+      self.xp_path('foo.txt'),
+      self.xp_path('subdir/bar.txt'),
+      self.xp_path('subdir/subberdir/baz.txt'),
     ]
     self.assertEqual( expected, file_find.find(tmp_dst_dir, relative = True) )
     self.assertEqual( 'second foo.txt\n', file_util.read(path.join(tmp_dst_dir, 'foo.txt'), codec = 'utf8') )
@@ -93,10 +93,13 @@ class test_file_find(unit_test):
       'dir emptydir',
     ])
     tmp_dst_dir = temp_file.make_temp_dir()
-    file_sync.sync(tmp_src_dir, tmp_dst_dir, exclude = [ 'foo.txt', 'subdir/subberdir/baz.txt' ])
+    file_sync.sync(tmp_src_dir, tmp_dst_dir, exclude = [
+      self.xp_path('foo.txt'),
+      self.xp_path('subdir/subberdir/baz.txt'),
+    ])
     expected = [
-      'emptyfile.txt',
-      'subdir/bar.txt',
+      self.xp_path('emptyfile.txt'),
+      self.xp_path('subdir/bar.txt'),
     ]
     self.assertEqual( expected, file_find.find(tmp_dst_dir, relative = True) )
 

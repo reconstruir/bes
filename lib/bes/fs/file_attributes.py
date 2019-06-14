@@ -11,10 +11,12 @@ except ImportError as ex:
 
 if _has_xattr:
   from ._file_attributes_xattr import _file_attributes_xattr as _file_attributes_super_class
-elif host.SYSTEM == 'macos':
+elif host.SYSTEM == host.MACOS:
   from ._file_attributes_macos import _file_attributes_macos as _file_attributes_super_class
-elif host.SYSTEM == 'linux':
+elif host.SYSTEM == host.LINUX:
   from ._file_attributes_linux import _file_attributes_linux as _file_attributes_super_class
+elif host.SYSTEM == host.WINDOWS:
+  from ._file_attributes_windows import _file_attributes_windows as _file_attributes_super_class
 else:
   raise RuntimeError('unsupported system: %s' % (host.SYSTEM))
 

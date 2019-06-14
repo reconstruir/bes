@@ -35,3 +35,8 @@ class _file_attributes_base(with_metaclass(ABCMeta, object)):
   def clear(clazz, filename):
     'Create all attributes.'
     pass
+
+  @classmethod
+  def _check_key(clazz, key):
+    if ' ' in key:
+      raise ValueError('space not supported in key: \"{}\"'.format(key))

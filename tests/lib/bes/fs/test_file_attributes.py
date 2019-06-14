@@ -5,7 +5,6 @@ import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.fs.file_attributes import file_attributes as FA
 from bes.fs.file_util import file_util
-from bes.fs.temp_file import temp_file
   
 class test_file_attributes(unit_test):
 
@@ -43,8 +42,10 @@ class test_file_attributes(unit_test):
     return [ key for key in keys if key != 'selinux' ]
 
   def _make_temp_file(self, content):
+    # Use a temporary directory in the same filesystem ad the code to avoid the
+    # issue that on some platforms the tmp dir filesystem might have attributes disabled.
     tmp_dir = path.join(path.dirname(__file__), '.tmp')
-    return temp_file.make_temp_file(content = content, dir = tmp_dir, delete = not self.DEBUG)
+    return self.make_temp_file(content = content, dir = tmp_dir, suffix = '.txt')
     
 if __name__ == '__main__':
   unit_test.main()
