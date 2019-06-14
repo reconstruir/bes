@@ -48,13 +48,13 @@ class test_archive_zip(unit_test):
   def test_extract_all_with_strip_common_ancestor(self):
     return self._make_archive_tester(self).test_extract_all_with_strip_common_ancestor()
 
-  def xtest_extract_all_with_base_dir_and_strip_common_ancestor(self):
+  def test_extract_all_with_base_dir_and_strip_common_ancestor(self):
     return self._make_archive_tester(self).test_extract_all_with_base_dir_and_strip_common_ancestor()
 
-  def xtest_extract_all_with_strip_head(self):
+  def test_extract_all_with_strip_head(self):
     return self._make_archive_tester(self).test_extract_all_with_strip_head()
 
-  def xtest_extract_all_with_strip_common_ancestor_and_strip_head(self):
+  def test_extract_all_with_strip_common_ancestor_and_strip_head(self):
     return self._make_archive_tester(self).test_extract_all_with_strip_common_ancestor_and_strip_head()
 
   def test_extract_all_overlap(self):
@@ -63,16 +63,16 @@ class test_archive_zip(unit_test):
   def test_extract_all_overlap_with_base_dir(self):
     return self._make_archive_tester(self).test_extract_all_overlap_with_base_dir()
 
-  def xtest_extract_all_overlap_with_base_dir_and_strip_common_ancestor(self):
+  def test_extract_all_overlap_with_base_dir_and_strip_common_ancestor(self):
     return self._make_archive_tester(self).test_extract_all_overlap_with_base_dir_and_strip_common_ancestor()
 
-  def xtest_extract_with_include(self):
+  def test_extract_with_include(self):
     return self._make_archive_tester(self).test_extract_with_include()
 
-  def xtest_extract_with_exclude(self):
+  def test_extract_with_exclude(self):
     return self._make_archive_tester(self).test_extract_with_exclude()
 
-  def xtest_extract_with_include_and_exclude(self):
+  def test_extract_with_include_and_exclude(self):
     return self._make_archive_tester(self).test_extract_with_include_and_exclude()
 
   def xtest_extract_member_to_string(self):
@@ -84,31 +84,31 @@ class test_archive_zip(unit_test):
   def xtest_extract_members(self):
     return self._make_archive_tester(self).test_extract_members()
 
-  def xtest_common_base(self):
+  def test_common_base(self):
     return self._make_archive_tester(self).test_common_base()
 
-  def xtest_common_base_none(self):
+  def test_common_base_none(self):
     return self._make_archive_tester(self).test_common_base_none()
 
-  def xtest_create_basic(self):
+  def test_create_basic(self):
     return self._make_archive_tester(self).test_create_basic()
     
-  def xtest_create_base_dir(self):
+  def test_create_base_dir(self):
     return self._make_archive_tester(self).test_create_base_dir()
     
-  def xtest_create_with_include(self):
+  def test_create_with_include(self):
     return self._make_archive_tester(self).test_create_with_include()
 
-  def xtest_create_with_multiple_include(self):
+  def test_create_with_multiple_include(self):
     return self._make_archive_tester(self).test_create_with_multiple_include()
 
-  def xtest_create_with_exclude(self):
+  def test_create_with_exclude(self):
     return self._make_archive_tester(self).test_create_with_exclude()
 
-  def xtest_create_with_multiple_exclude(self):
+  def test_create_with_multiple_exclude(self):
     return self._make_archive_tester(self).test_create_with_multiple_exclude()
 
-  def xtest_create_with_include_and_exclude(self):
+  def test_create_with_include_and_exclude(self):
     return self._make_archive_tester(self).test_create_with_include_and_exclude()
 
   def xxtest_checksum(self):
