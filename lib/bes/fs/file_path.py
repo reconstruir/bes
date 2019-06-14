@@ -81,7 +81,7 @@ class file_path(object):
   @classmethod
   def parent_dir(clazz, d):
     d = path.normpath(d)
-    if d == '/':
+    if d == path.sep:
       return None
     return path.normpath(path.join(d, os.pardir))
 
@@ -111,12 +111,12 @@ class file_path(object):
     'Decompose a path into a list of paths starting with the root'
     if not path.isabs(p):
       raise ValueError('path needs to be absolute: %s' % (p))
-    if p == '/':
+    if path.ismount(p):
       return []
     result = []
     while True:
       result.append(p)
       p = path.dirname(p)
-      if p == '/':
+      if path.ismount(p):
         break
     return [ x for x in reversed(result) ]

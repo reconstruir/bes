@@ -35,11 +35,15 @@ class file_cache_item_base(with_metaclass(ABCMeta, object)):
     assert False, 'not implemented'
 
 class file_cache_item(file_cache_item_base):
+  
   def __init__(self, filename):
     super(file_cache_item, self).__init__()
     self.filename = path.abspath(path.normpath(filename))
     self._checksum = file_util.checksum('sha256', self.filename)
-    
+
+  def __str__(self):
+    return '{}:{}'.format(self.filename, self._checksum)
+  
   def save(self, info):
     assert path.isfile(self.filename)
     file_util.copy(self.filename, info.cached_filename)
