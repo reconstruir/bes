@@ -15,79 +15,79 @@ class test_file_copy(unit_test):
 
   def test_copy_tree_basic(self):
     self.maxDiff = None
-    src_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
-    dst_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
+    src_tmp_dir = self.make_temp_dir(prefix = 'src-')
+    dst_tmp_dir = self.make_temp_dir(prefix = 'dst-')
     file_util.remove(dst_tmp_dir)
     with tarfile.open(self.data_path('test.tar'), mode = 'r') as f:
       f.extractall(path = src_tmp_dir)
     file_copy.copy_tree(src_tmp_dir, dst_tmp_dir)
     
     expected_files = [
-      '1',
-      '1/2',
-      '1/2/3',
-      '1/2/3/4',
-      '1/2/3/4/5',
-      '1/2/3/4/5/apple.txt',
-      '1/2/3/4/5/kiwi.txt',
-      'bar.txt',
-      'empty',
-      'foo.txt',
-      'kiwi_link.txt',
+      self.xp_path('1'),
+      self.xp_path('1/2'),
+      self.xp_path('1/2/3'),
+      self.xp_path('1/2/3/4'),
+      self.xp_path('1/2/3/4/5'),
+      self.xp_path('1/2/3/4/5/apple.txt'),
+      self.xp_path('1/2/3/4/5/kiwi.txt'),
+      self.xp_path('bar.txt'),
+      self.xp_path('empty'),
+      self.xp_path('foo.txt'),
+      self.xp_path('kiwi_link.txt'),
     ]
     actual_files = file_find.find(dst_tmp_dir, file_type = file_find.ANY)
     self.assertEqual( expected_files, actual_files )
     
-  def test_copy_tree_and_excludes(self):
+  def test_copy_tree_with_excludes(self):
     self.maxDiff = None
-    src_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
-    dst_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
+    src_tmp_dir = self.make_temp_dir(prefix = 'src-')
+    dst_tmp_dir = self.make_temp_dir(prefix = 'dst-')
     file_util.remove(dst_tmp_dir)
     with tarfile.open(self.data_path('test.tar'), mode = 'r') as f:
       f.extractall(path = src_tmp_dir)
       file_copy.copy_tree(src_tmp_dir, dst_tmp_dir, excludes = [ 'bar.txt', 'foo.txt' ])
     
     expected_files = [
-      '1',
-      '1/2',
-      '1/2/3',
-      '1/2/3/4',
-      '1/2/3/4/5',
-      '1/2/3/4/5/apple.txt',
-      '1/2/3/4/5/kiwi.txt',
-      'empty',
-      'kiwi_link.txt',
+      self.xp_path('1'),
+      self.xp_path('1/2'),
+      self.xp_path('1/2/3'),
+      self.xp_path('1/2/3/4'),
+      self.xp_path('1/2/3/4/5'),
+      self.xp_path('1/2/3/4/5/apple.txt'),
+      self.xp_path('1/2/3/4/5/kiwi.txt'),
+      self.xp_path('empty'),
+      self.xp_path('kiwi_link.txt'),
     ]
     actual_files = file_find.find(dst_tmp_dir, file_type = file_find.ANY)
     self.assertEqual( expected_files, actual_files )
 
   def test_copy_tree_spaces_in_filenames(self):
     self.maxDiff = None
-    src_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG, suffix = '-has 2 spaces-')
-    dst_tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG, suffix = '-has 2 spaces-')
+    src_tmp_dir = self.make_temp_dir(prefix = 'src-', suffix = '-has 2 spaces-')
+    dst_tmp_dir = self.make_temp_dir(prefix = 'dst-', suffix = '-has 2 spaces-')
     file_util.remove(dst_tmp_dir)
     with tarfile.open(self.data_path('test.tar'), mode = 'r') as f:
       f.extractall(path = src_tmp_dir)
     file_copy.copy_tree(src_tmp_dir, dst_tmp_dir)
     
     expected_files = [
-      '1',
-      '1/2',
-      '1/2/3',
-      '1/2/3/4',
-      '1/2/3/4/5',
-      '1/2/3/4/5/apple.txt',
-      '1/2/3/4/5/kiwi.txt',
-      'bar.txt',
-      'empty',
-      'foo.txt',
-      'kiwi_link.txt',
+      self.xp_path('1'),
+      self.xp_path('1/2'),
+      self.xp_path('1/2/3'),
+      self.xp_path('1/2/3/4'),
+      self.xp_path('1/2/3/4/5'),
+      self.xp_path('1/2/3/4/5/apple.txt'),
+      self.xp_path('1/2/3/4/5/kiwi.txt'),
+      self.xp_path('bar.txt'),
+      self.xp_path('empty'),
+      self.xp_path('foo.txt'),
+      self.xp_path('kiwi_link.txt'),
     ]
     actual_files = file_find.find(dst_tmp_dir, file_type = file_find.ANY)
     self.assertEqual( expected_files, actual_files )
 
   def test_move_files(self):
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = self.make_temp_dir()
     src_dir = path.join(tmp_dir, 'src')
     dst_dir = path.join(tmp_dir, 'dst')
     file_util.mkdir(dst_dir)
@@ -101,13 +101,13 @@ class test_file_copy(unit_test):
       'file .hushlogin "" 644',
     ], src_dir)
     expected = [
-      '.hidden',
-      '.hushlogin',
-      'bar.txt',
-      'foo.txt',
-      'script.sh',
-      'sub1/sub2/baz.txt',
-      'yyy/zzz/vvv.txt',
+      self.xp_path('.hidden'),
+      self.xp_path('.hushlogin'),
+      self.xp_path('bar.txt'),
+      self.xp_path('foo.txt'),
+      self.xp_path('script.sh'),
+      self.xp_path('sub1/sub2/baz.txt'),
+      self.xp_path('yyy/zzz/vvv.txt'),
     ]
     self.assertEqual( expected, file_find.find(src_dir, relative = True))
     file_copy.move_files(src_dir, dst_dir)
