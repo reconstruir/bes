@@ -43,19 +43,49 @@ class os_env(object):
   # variables to keep in a clean environment when wiping it to have deterministic results
   # FIXME: This list might have to be system specific.
   # FIXME: also i guessed these are important not sure what the real list is
-  CLEAN_ENV_VARS = [
-    'DISPLAY',
-    'HOME',
-    'LANG',
-    'SHELL',
-    'TERM',
-    'TERM_PROGRAM',
-    'TMOUT',
-    'TMPDIR',
-    'USER',
-    'XAUTHORITY',
-    '__CF_USER_TEXT_ENCODING',
-   ]
+  if host.is_unix():
+    CLEAN_ENV_VARS = [
+      'DISPLAY',
+      'HOME',
+      'LANG',
+      'SHELL',
+      'TERM',
+      'TERM_PROGRAM',
+      'TMOUT',
+      'TMPDIR',
+      'USER',
+      'XAUTHORITY',
+      '__CF_USER_TEXT_ENCODING',
+    ]
+  elif host.is_windows():
+    CLEAN_ENV_VARS = [
+      'ALLUSERSPROFILE',
+      'APPDATA',
+      'COMPUTERNAME',
+      'COMSPEC',
+      'DRIVERDATA',
+      'HOME',
+      'HOMEDRIVE',
+      'HOMEPATH',
+      'LOCALAPPDATA',
+      'LOGONSERVER',
+      'NUMBER_OF_PROCESSORS',
+      'OS',
+      'PATH',
+      'PATHEXT',
+      'PROCESSOR_ARCHITECTURE',
+      'PROCESSOR_IDENTIFIER',
+      'PROCESSOR_LEVEL',
+      'PROCESSOR_REVISION',
+      'SESSIONNAME',
+      'SYSTEMDRIVE',
+      'SYSTEMROOT',
+      'TEMP',
+      'TMP',
+      'USERNAME',
+      'USERPROFILE',
+      'WINDIR',
+    ]
 
   # variables to keep in a clean environment when wiping it to have deterministic results
   # FIXME: This list might have to be system specific.

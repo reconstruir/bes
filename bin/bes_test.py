@@ -328,7 +328,7 @@ def main():
   total_num_tests = 0
 
   if not args.python:
-    args.python = [ 'python' ]
+    args.python = [ sys.executable ]
   
   if args.profile:
     args.profile = path.abspath(args.profile)
@@ -472,10 +472,12 @@ def _test_data_dir(filename):
 def _test_execute(python_exe, test_map, filename, tests, options, index, total_files, cwd, env):
   short_filename = file_util.remove_head(filename, cwd)
 
+  cmd = [ '"{}"'.format(python_exe) ]
+  
   if options.coverage_output:
-    cmd = [ python_exe, 'run', 'a' ]
+    cmd.extend([ 'run', 'a' ])
   else:
-    cmd = [ python_exe, '-B' ]
+    cmd.append('-B')
 
   if options.profile_output:
     cmd.extend(['-m', 'cProfile', '-o', options.profile_output ])
@@ -543,7 +545,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     output = process.communicate()
     exit_code = process.wait()
     elapsed_time = time.time() - time_start
-    output = output[0]
+    output = output[0].decode('utf-8')
     success = exit_code == 0
     writeln_output = not success or options.verbose
     if success:

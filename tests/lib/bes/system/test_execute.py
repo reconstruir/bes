@@ -77,7 +77,6 @@ class test_execute(unit_test):
     rv = execute.execute(cmd, shell = True, raise_error = False)
     self.assertEqual( 1, rv.exit_code )
 
-  # FUCK
   @skip_if(not host.is_unix(), 'not unix')
   def test_unix_shell_script_success(self):
     bat = self.data_path('unix_shell_script_true.sh')

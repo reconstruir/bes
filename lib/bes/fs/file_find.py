@@ -175,7 +175,7 @@ class file_find(object):
       if path.exists(what):
         return what
       start_dir = file_path.parent_dir(start_dir)
-      if start_dir == '/':
+      if path.ismount(start_dir):
         return None
 
   @classmethod
