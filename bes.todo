@@ -49,7 +49,7 @@ jan 18
 - retire egg unit test
 
 jan 21
-- class _state(object) error messages are fucked up
+- class _state(object) error messages are messed up
 
 jan 23
 - reorg tests
@@ -59,7 +59,7 @@ readlink /Users/ramiro/proj/rebuild/lib/.#setup.py
 ramiro@queequeg.local.212
 
 feb 18
-- bes_test.py --git is fucked
+- bes_test.py --git is messed
 
 erb 20
  - borken
@@ -88,7 +88,7 @@ mar 8
 - when no files are given on command line shit happnes (especially wiht -g flag)
 
 mar 14
-- enum defaults seem to be fucked (requirement_hardness)
+- enum defaults seem to be messed (requirement_hardness)
 
 march 24
 - move string_util.split_by_whitespace to white_space maybe

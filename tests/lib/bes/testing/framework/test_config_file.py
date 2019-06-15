@@ -7,20 +7,31 @@ from bes.testing.framework.config_file import config_file as CF
   
 class test_config_file(unit_test):
 
-  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.testing/framework'
+  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/testing/framework'
   
   def test_parse(self):
     a = CF(self.data_path('fruit/env/fruit.bescfg'))
-    self.assertEqual( ( path.join(self.data_dir(), 'fruit'),
-                        self.data_path('fruit/env/fruit.bescfg'),
-                        ( 'fruit', [ '${root_dir}/bin' ], [ '${root_dir}/lib' ], { 'water' }, [] ) ), a )
+    expected_root_dir = path.join(self.data_dir(), 'fruit')
+    expected_filename = self.data_path(self.p('fruit/env/fruit.bescfg'))
+    expected_data = ( 'fruit', [ path.join('${root_dir}', 'bin') ], [ path.join('${root_dir}', 'lib') ], { 'water' }, [] )
+    self.assertEqual( ( expected_root_dir, expected_filename, expected_data ), a )
 
-  def xtest_substitute(self):
+  def test_substitute(self):
     a = CF(self.data_path('fruit/env/fruit.bescfg'))
-    b = a.substitute()
-    self.assertEqual( ( path.join(self.data_dir(), 'fruit'),
-                        self.data_path('fruit/env/fruit.bescfg'),
-                        ( 'fruit', [ path.join(self.data_dir(), 'bin') ], [ path.join(self.data_dir(), 'lib') ], { 'water' }, [] ) ), b )
+    b = a.substitute({})
+    expected_root_dir = path.join(self.data_dir(), 'fruit')
+    expected_filename = self.data_path(self.p('fruit/env/fruit.bescfg'))
+    expected_data_a = ( 'fruit', [ path.join('${root_dir}', 'bin') ], [ path.join('${root_dir}', 'lib') ], { 'water' }, [] )
+    self.assertEqual( ( expected_root_dir, expected_filename, expected_data_a ), a )
+    expected_unixpath = [ path.join(expected_root_dir, 'bin') ]
+    expected_pythonpath = [ path.join(expected_root_dir, 'lib') ]
+    expected_data_b = ( 'fruit', expected_unixpath, expected_pythonpath, { 'water' }, [] )
+    self.assertEqual( expected_root_dir, b.root_dir )
+    self.assertEqual( expected_filename, b.filename )
+    self.assertEqual( 'fruit', b.data.name )
+    self.assertEqual( expected_pythonpath, b.data.pythonpath )
+
+#    self.assertEqual( ( expected_root_dir, expected_filename, expected_data_b ), b )
     
 if __name__ == '__main__':
   unit_test.main()

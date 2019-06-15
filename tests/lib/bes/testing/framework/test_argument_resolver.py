@@ -12,7 +12,7 @@ class test_argument_resolver(unit_test):
   def setUpClass(clazz):
     raise_skip('broken')
   
-  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.testing/framework'
+  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/testing/framework'
 
   def test_config(self):
     ar = self._make_test_argument_resolver([ 'water/tests/lib/water/common/test_water_util.py' ])

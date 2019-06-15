@@ -69,6 +69,11 @@ class test_path(unit_test):
     self.assertEqual( [ self.p('/foo'), self.p('/foo/bar') ], FP.decompose(self.p('/foo/bar')) )
     self.assertEqual( [ self.p('/foo'), ], FP.decompose(self.p('/foo')) )
     self.assertEqual( [], FP.decompose(self.p('/')) )
+
+  def test_normalize_sep(self):
+    self.assertEqual( self.p('/foo/bar'), FP.normalize_sep('/foo/bar') )
+    self.assertEqual( self.p('/foo/bar'), FP.normalize_sep('/foo\\bar') )
+    self.assertEqual( self.p('/foo/bar'), FP.normalize_sep('\\foo\\bar') )
     
 if __name__ == "__main__":
   unit_test.main()

@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import glob, os.path as path, os
+import glob, os.path as path, os, re
 from bes.common.algorithm import algorithm
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
@@ -120,3 +120,7 @@ class file_path(object):
       if path.ismount(p):
         break
     return [ x for x in reversed(result) ]
+
+  @classmethod
+  def normalize_sep(clazz, p):
+    return path.normpath(os.sep.join(re.split(r'\\|/', p)))

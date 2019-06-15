@@ -9,7 +9,7 @@ from bes.testing.framework.config_env import config_env as CE
   
 class test_config_env(unit_test):
 
-  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.testing/framework'
+  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/testing/framework'
   
   def test_complete(self):
     a = CE(self.data_dir())
@@ -17,23 +17,16 @@ class test_config_env(unit_test):
 
   def test_find_config_files(self):
     expected_files = [
-      'citrus/env/citrus.bescfg',
-      'fiber/env/fiber.bescfg',
-      'fruit/env/fruit.bescfg',
-      'kiwi/env/kiwi.bescfg',
-      'orange/env/orange.bescfg',
-      'water/env/water.bescfg'
+      self.p('citrus/env/citrus.bescfg'),
+      self.p('fiber/env/fiber.bescfg'),
+      self.p('fruit/env/fruit.bescfg'),
+      self.p('kiwi/env/kiwi.bescfg'),
+      self.p('orange/env/orange.bescfg'),
+      self.p('water/env/water.bescfg')
     ]
     with env_override.clean_env() as ctx:
       actual = CE._find_config_files(self.data_dir())
       expected = [ path.join(self.data_dir(), x) for x in expected_files ]
-
-      for x in expected:
-        print('EXPECTED: {}'.format(x))
-
-      for x in actual:
-        print('  ACTUAL: {}'.format(x))
-      
       self.assertEqual( expected, actual )
     
 if __name__ == '__main__':

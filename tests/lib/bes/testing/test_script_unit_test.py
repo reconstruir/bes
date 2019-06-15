@@ -7,9 +7,9 @@ from bes.system.host import host
 class test_script_unit_test_true(script_unit_test):
 
   if host.is_windows():
-    __script__ = __file__, '${BES_TEST_DATA_DIR}/bes.testing/unit_test/script_unit_test/true.bat'
+    __script__ = __file__, '${BES_TEST_DATA_DIR}/lib/bes/testing/script_unit_test/true.bat'
   elif host.is_unix():
-    __script__ = __file__, '${BES_TEST_DATA_DIR}/bes.testing/unit_test/script_unit_test/true.sh'
+    __script__ = __file__, '${BES_TEST_DATA_DIR}/lib/bes/testing/script_unit_test/true.sh'
   else:
     raise RuntimeError('unknown system')
   
@@ -26,9 +26,9 @@ class test_script_unit_test_true(script_unit_test):
 class test_script_unit_test_false(script_unit_test):
 
   if host.is_windows():
-    __script__ = __file__, '${BES_TEST_DATA_DIR}/bes.testing/unit_test/script_unit_test/false.bat'
+    __script__ = __file__, '${BES_TEST_DATA_DIR}/lib/bes/testing/script_unit_test/false.bat'
   elif host.is_unix():
-    __script__ = __file__, '${BES_TEST_DATA_DIR}/bes.testing/unit_test/script_unit_test/false.sh'
+    __script__ = __file__, '${BES_TEST_DATA_DIR}/lib/bes/testing/script_unit_test/false.sh'
   else:
     raise RuntimeError('unknown system')
   

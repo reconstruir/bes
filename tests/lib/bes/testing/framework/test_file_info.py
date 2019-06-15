@@ -16,7 +16,7 @@ class test_file_info(unit_test):
   def setUpClass(clazz):
     raise_skip('broken')
   
-  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.testing/framework'
+  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/testing/framework'
 
   def test_filename(self):
     ce = config_env(self.data_dir())

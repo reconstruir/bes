@@ -46,6 +46,10 @@ class test_string_util(unittest.TestCase):
   def test_replace_dont_word_boundary(self):
     self.assertEqual( 'foo foond bar barut not foobarfoo', SU.replace('a and b but not aba', { 'a': 'foo', 'b': 'bar' }, word_boundary = False) )
 
+  def test_replace_escaped(self):
+    self.assertEqual( 'foo c:\\tmp bar', SU.replace('foo ${root_dir} bar', { '${root_dir}': 'c:\\tmp' }) )
+    self.assertEqual( 'fooc:\\tmpbar', SU.replace('foo${root_dir}bar', { '${root_dir}': 'c:\\tmp' }) )
+    
   def test_flatten(self):
     self.assertEqual( 'foo bar', SU.flatten('foo bar') )
     self.assertEqual( 'foo bar', SU.flatten(['foo', 'bar']) )

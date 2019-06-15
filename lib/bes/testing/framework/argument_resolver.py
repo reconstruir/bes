@@ -6,14 +6,15 @@ from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.common.object_util import object_util
 from bes.fs.file_check import file_check
+from bes.fs.file_find import file_find
 from bes.fs.file_ignore import file_multi_ignore
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.git.git import git
 from bes.python.dependencies import dependencies
 from bes.system.env_var import env_var
-from bes.text.text_line_parser import text_line_parser
 from bes.system.execute import execute
+from bes.text.text_line_parser import text_line_parser
 
 from .config_env import config_env
 from .file_filter import file_filter
@@ -195,7 +196,7 @@ class argument_resolver(object):
     common_ancestor = file_path.common_ancestor(files)
     if not common_ancestor:
       return None
-    marker = file_util.find_in_ancestors(common_ancestor, '.bes_test_root')
+    marker = file_find.find_in_ancestors(common_ancestor, '.bes_test_root')
     if not marker:
       return None
     return path.dirname(marker)

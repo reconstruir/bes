@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import copy, os.path as path
+import copy, os, os.path as path
 from collections import namedtuple
 from bes.common.check import check
 from bes.fs.file_check import file_check
@@ -8,7 +8,7 @@ from bes.fs.file_util import file_util
 
 from .config_data import config_data
 
-class config_file(namedtuple('config_file', 'root_dir,filename,data')):
+class config_file(namedtuple('config_file', 'root_dir, filename, data')):
 
   def __new__(clazz, filename):
     filename = path.abspath(filename)

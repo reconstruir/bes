@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import copy, glob, os.path as path
+import copy, glob, os, os.path as path
 from bes.dependency.dependency_resolver import dependency_resolver
 from bes.fs.file_find import file_find
 from bes.fs.file_path import file_path
@@ -29,7 +29,7 @@ class config_env(object):
     
   def config_for_filename(self, filename):
     for name, config in self.config_map.items():
-      if filename.startswith(config.root_dir + '/'):
+      if filename.startswith(config.root_dir + os.sep):
         return config
     return None
     

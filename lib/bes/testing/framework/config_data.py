@@ -1,11 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import copy, os.path as path
 from collections import namedtuple
-from bes.compat.StringIO import StringIO
+
+import copy, os, os.path as path
+
 from bes.common.check import check
-from bes.common.variable import variable
 from bes.common.string_util import string_util
+from bes.common.variable import variable
+from bes.compat.StringIO import StringIO
+from bes.fs.file_path import file_path
 from bes.text.text_line_parser import text_line_parser
 
 class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, requires, variables')):
@@ -22,15 +25,17 @@ class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, require
     check.check_string_seq(pythonpath)
     requires = requires or set()
     check.check_set(requires)
+    unixpath = [ file_path.normalize_sep(p) for p in unixpath ]
+    pythonpath = [ file_path.normalize_sep(p) for p in pythonpath ]
     return clazz.__bases__[0].__new__(clazz, name, unixpath, pythonpath, requires, variables)
-
+    
   def to_string(self):
     buf = StringIO()
     buf.write('# %s\n' % (self.name))
     buf.write('name: %s\n' % (self.name))
     buf.write('variables: %s\n' % (' '.join(self.variables)))
-    buf.write('unixpath: %s\n' % (':'.join(self.unixpath)))
-    buf.write('pythonpath: %s\n' % (':'.join(self.pythonpath)))
+    buf.write('unixpath: %s\n' % (os.pathsep.join(self.unixpath)))
+    buf.write('pythonpath: %s\n' % (os.pathsep.join(self.pythonpath)))
     buf.write('requires: %s\n' % (' '.join(sorted([ r for r in self.requires ]))))
     return buf.getvalue()
 
@@ -74,3 +79,9 @@ class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, require
     for p in self.requires:
       requires.add(variable.substitute(p, variables))
     return config_data(self.name, unixpath, pythonpath, requires, self.variables)
+
+  @classmethod
+  def _variables_substitute(clazz, s, variables):
+    for key, value in variables:
+      v = '{{{}}}'.format(key)
+  
