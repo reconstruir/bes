@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.system.execute import execute
+import subprocess
 
 from .platform_determiner_base import platform_determiner_base
 from .linux_os_release import linux_os_release
@@ -29,13 +29,13 @@ class platform_determiner_linux(platform_determiner_base):
   @classmethod
   def _lsb_release_exe(clazz):
     try:
-      return execute.execute('which lsb_release').stdout.strip()
+      return subprocess.check_output([ 'which', 'lsb_release' ]).strip()
     except Exception as ex:
       return None
     
   @classmethod
   def _lsb_release_output(clazz):
-    return execute.execute('lsb_release -v -a').stdout
+    return subprocess.check_output([ 'lsb_release', '-v', '-a' ])
     
   @classmethod
   def _etc_issue_content(clazz):
