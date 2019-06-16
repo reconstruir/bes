@@ -2,11 +2,10 @@
 
 from collections import namedtuple
 
-import copy, os, os.path as path
+import copy, os, os.path as path, string
 
 from bes.common.check import check
 from bes.common.string_util import string_util
-from bes.common.variable import variable
 from bes.compat.StringIO import StringIO
 from bes.fs.file_path import file_path
 from bes.text.text_line_parser import text_line_parser
@@ -73,15 +72,13 @@ class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, require
     pythonpath = []
     requires = set()
     for p in self.unixpath:
-      unixpath.append(variable.substitute(p, variables))
+      unixpath.append(self._substitute_string(p, variables))
     for p in self.pythonpath:
-      pythonpath.append(variable.substitute(p, variables))
+      pythonpath.append(self._substitute_string(p, variables))
     for p in self.requires:
-      requires.add(variable.substitute(p, variables))
+      requires.add(self._substitute_string(p, variables))
     return config_data(self.name, unixpath, pythonpath, requires, self.variables)
 
   @classmethod
-  def _variables_substitute(clazz, s, variables):
-    for key, value in variables:
-      v = '{{{}}}'.format(key)
-  
+  def _substitute_string(clazz, s, variables):
+    return string.Template(s).substitute(**variables)
