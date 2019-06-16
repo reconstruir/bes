@@ -94,7 +94,7 @@ class string_util(object):
         if key[-1].isalnum():
           pattern_parts.append(r'\b')
         pattern = ''.join(pattern_parts)
-        s = re.sub(pattern, re.escape(value), s)
+        s = re.sub(pattern, value, s)
       else:
         s = s.replace(key, value)
     return s
