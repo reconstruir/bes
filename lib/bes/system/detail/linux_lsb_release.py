@@ -1,8 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import subprocess
 from os import path
 from collections import namedtuple
-from bes.system.execute import execute
 
 class linux_lsb_release(object):
   'Parse /etc/os-release'
@@ -28,10 +28,11 @@ class linux_lsb_release(object):
   def lsb_release_exe(clazz):
     'Return the path to the lsb_release exe or None if not found.'
     try:
-      return execute.execute('which lsb_release').stdout.strip()
+      return subprocess.check_output([ 'which', 'lsb_release' ]).strip()
     except Exception as ex:
       return None
 
   @classmethod
   def lsb_release_output(clazz):
-    return execute.execute('lsb_release -v -a').stdout
+    return subprocess.check_output([ 'lsb_release', '-v', '-a' ])
+ 

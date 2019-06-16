@@ -25,18 +25,7 @@ class platform_determiner_linux(platform_determiner_base):
       return platform_determiner_linux_lsb_release(platform, lsb_release)
     else:
       return None
-    
-  @classmethod
-  def _lsb_release_exe(clazz):
-    try:
-      return subprocess.check_output([ 'which', 'lsb_release' ]).strip()
-    except Exception as ex:
-      return None
-    
-  @classmethod
-  def _lsb_release_output(clazz):
-    return subprocess.check_output([ 'lsb_release', '-v', '-a' ])
-    
+   
   @classmethod
   def _etc_issue_content(clazz):
     try:
