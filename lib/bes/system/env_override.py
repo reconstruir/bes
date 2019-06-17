@@ -1,7 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from os import path
 import os, tempfile
 from .os_env import os_env
+from .host import host
 
 class env_override(object):
 
@@ -46,7 +48,17 @@ class env_override(object):
   def temp_home(clazz):
     'Return an env_override object with a temporary HOME'
     tmp_dir = tempfile.mkdtemp(suffix = '.home')
-    return env_override(env = { 'HOME': tempfile.mkdtemp(suffix = '.home') })
+    if host.is_unix():
+      env = { 'HOME': tmp_dir }
+    elif host.is_windows():
+      homedrive, homepath = path.splitdrive(tmp_dir)
+      env = {
+        'HOME': tmp_dir,
+        'HOMEDRIVE': homedrive,
+        'HOMEPATH': homepath,
+        'APPDATA': path.join(tmp_dir, 'AppData\\Roaming')
+      }
+    return env_override(env = env)
 
   @classmethod
   def clean_env(clazz):
