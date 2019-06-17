@@ -21,29 +21,26 @@ class test_file_checksum(unit_test):
   _FILE_1 = 'a.data'
   _FILE_2 = 'b.data'
 
-  _CHK1 = '65ab12a8ff3263fbc257e5ddf0aa563c64573d0bab1f1115b9b107834cfa6971'
-  _CHK2 = '5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953'
-  
-  A_CHK = '65ab12a8ff3263fbc257e5ddf0aa563c64573d0bab1f1115b9b107834cfa6971'
-  B_CHK = '5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953'
+  _CHK_1 = '65ab12a8ff3263fbc257e5ddf0aa563c64573d0bab1f1115b9b107834cfa6971'
+  _CHK_2 = '5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953'
   
   def test_from_file(self):
     tmp_dir = self._make_test_data()
-    self.assertEqual( ( self._FILE_1, self.A_CHK ), FC.from_file(self._FILE_1, root_dir = tmp_dir) )
-    self.assertEqual( ( self._FILE_2, self.B_CHK ), FC.from_file(self._FILE_2, root_dir = tmp_dir) )
+    self.assertEqual( ( self._FILE_1, self._CHK_1 ), FC.from_file(self._FILE_1, root_dir = tmp_dir) )
+    self.assertEqual( ( self._FILE_2, self._CHK_2 ), FC.from_file(self._FILE_2, root_dir = tmp_dir) )
   
   def test_from_files(self):
     tmp_dir = self._make_test_data()
     self.assertEqual( [
-      ( self._FILE_1, self.A_CHK ),
-      ( self._FILE_2, self.B_CHK ),
+      ( self._FILE_1, self._CHK_1 ),
+      ( self._FILE_2, self._CHK_2 ),
     ], FCL.from_files([ self._FILE_1, self._FILE_2 ], root_dir = tmp_dir) )
 
   def test_list_from_tuples(self):
     tmp_dir = self._make_test_data()
     l = FCL([
-      ( self._FILE_1, self.A_CHK ),
-      ( self._FILE_2, self.B_CHK ),
+      ( self._FILE_1, self._CHK_1 ),
+      ( self._FILE_2, self._CHK_2 ),
     ])
     self.assertEqual( l, FCL.from_files([ self._FILE_1, self._FILE_2 ], root_dir = tmp_dir))
     
@@ -63,7 +60,7 @@ class test_file_checksum(unit_test):
     self.assertEqualIgnoreWhiteSpace( expected, FCL.from_files([ self._FILE_1, self._FILE_2 ], root_dir = tmp_dir).to_json() )
     
   def test_from_json(self):
-    expected = FCL([ FC(self._FILE_1, self.A_CHK), FC(self._FILE_2, self.B_CHK) ])
+    expected = FCL([ FC(self._FILE_1, self._CHK_1), FC(self._FILE_2, self._CHK_2) ])
     json = '''\
 [
   [
@@ -78,7 +75,7 @@ class test_file_checksum(unit_test):
     self.assertEqual( expected, FCL.from_json(json) )
     
   def test_filenames(self):
-    a = FCL([ FC(self._FILE_1, self.A_CHK), FC(self._FILE_2, self.B_CHK) ])
+    a = FCL([ FC(self._FILE_1, self._CHK_1), FC(self._FILE_2, self._CHK_2) ])
     self.assertEqual( [ self._FILE_1, self._FILE_2 ], a.filenames() )
     
   def test_save_checksums_file(self):
@@ -117,17 +114,17 @@ class test_file_checksum(unit_test):
     self.assertEqual( expected, FCL.load_checksums_file(tmp_file) )
 
   def test_verify_true(self):
-    a = FCL([ FC(self._FILE_1, self.A_CHK), FC(self._FILE_2, self.B_CHK) ])
-    b = FCL([ FC(self._FILE_1, self.A_CHK), FC(self._FILE_2, self.B_CHK) ])
+    a = FCL([ FC(self._FILE_1, self._CHK_1), FC(self._FILE_2, self._CHK_2) ])
+    b = FCL([ FC(self._FILE_1, self._CHK_1), FC(self._FILE_2, self._CHK_2) ])
     self.assertTrue( a == b )
     
   def test_verify_false(self):
-    a = FCL([ FC(self._FILE_1, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), FC(self._FILE_2, self.B_CHK) ])
-    b = FCL([ FC(self._FILE_1, self.A_CHK), FC(self._FILE_2, self.B_CHK) ])
+    a = FCL([ FC(self._FILE_1, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), FC(self._FILE_2, self._CHK_2) ])
+    b = FCL([ FC(self._FILE_1, self._CHK_1), FC(self._FILE_2, self._CHK_2) ])
     self.assertFalse( a == b )
     
   def test_checksum(self):
-    a = FCL([ FC(self._FILE_1, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), FC(self._FILE_2, self.B_CHK) ])
+    a = FCL([ FC(self._FILE_1, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), FC(self._FILE_2, self._CHK_2) ])
     self.assertEqual( '829e15ebdca05bd85f09b3b1eab5eafbde9832b72d403a5e465cb7d86d796f6a', a.checksum() )
 
   @classmethod
