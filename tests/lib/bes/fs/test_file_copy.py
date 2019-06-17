@@ -11,7 +11,7 @@ from bes.fs.testing.temp_content import temp_content
 
 class test_file_copy(unit_test):
 
-  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.fs/tar_util'
+  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/fs/tar_util'
 
   def test_copy_tree_basic(self):
     self.maxDiff = None

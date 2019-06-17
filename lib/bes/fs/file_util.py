@@ -72,11 +72,6 @@ class file_util(object):
         raise RuntimeError('Not a file: %s' % (filename))
 
   @classmethod
-  def symlink(clazz, src, dst):
-    clazz.remove(dst)
-    os.symlink(src, dst)
-
-  @classmethod
   def hard_link(clazz, src, dst):
     if not clazz.same_device_id(src, dst):
       raise IOError('%s and %s cannot be in different filesystems.' % (src, dst))
@@ -231,10 +226,6 @@ class file_util(object):
   def make_paths_relative(clazz, paths):
     paths = object_util.listify(paths)
     return [ path.relpath(p) for p in paths ]
-
-  @classmethod
-  def is_broken_link(clazz, filename):
-    return path.islink(filename) and not path.isfile(os.readlink(filename))
 
   @classmethod
   def is_empty(clazz, filename):

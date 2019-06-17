@@ -5,6 +5,7 @@ from collections import namedtuple
 from bes.common.check import check
 from bes.property.cached_property import cached_property
 from bes.fs.file_util import file_util
+from bes.fs.file_symlink import file_symlink
 from bes.git.git import git
 
 from .unit_test_inspect import unit_test_inspect
@@ -61,6 +62,6 @@ class file_info(namedtuple('file_info', 'filename,config')):
   
   @property
   def is_broken_link(self):
-    return file_util.is_broken_link(self.filename)
+    return file_symlink.is_broken(self.filename)
 
 check.register_class(file_info, include_seq = False)
