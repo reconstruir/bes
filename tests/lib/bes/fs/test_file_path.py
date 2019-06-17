@@ -5,8 +5,10 @@ import os, os.path as path, unittest
 
 from bes.testing.unit_test import unit_test
 from bes.fs.file_path import file_path as FP
+from bes.fs.file_util import file_util
+from bes.system.env_override import env_override
 
-class test_path(unit_test):
+class test_file_path(unit_test):
 
   def test_split(self):
     self.assertEqual( [ '', 'foo', 'bar' ], FP.split('/foo/bar') )
@@ -74,6 +76,16 @@ class test_path(unit_test):
     self.assertEqual( self.p('/foo/bar'), FP.normalize_sep('/foo/bar') )
     self.assertEqual( self.p('/foo/bar'), FP.normalize_sep('/foo\\bar') )
     self.assertEqual( self.p('/foo/bar'), FP.normalize_sep('\\foo\\bar') )
+    
+  def test_which_windows(self):
+    tmp_dir = self.make_temp_dir()
+    bin_dir = path.join(tmp_dir, 'bin')
+    content = '@echo off\n\recho kiwi\n\rexit 0\n\r'
+    temp_bat = file_util.save(path.join(bin_dir, 'kiwi_tool.bat'), content = content, mode = 0o0755)
+    self.assertEqual( None, FP.which('kiwi_tool.bat') )
+    with env_override.path_append(bin_dir) as env:
+      expected_path = path.join(bin_dir, 'kiwi_tool.bat')
+      self.assertEqual( expected_path, FP.which('kiwi_tool.bat') )
     
 if __name__ == "__main__":
   unit_test.main()
