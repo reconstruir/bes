@@ -29,5 +29,4 @@ class xcopy(object):
       content = '\r\n'.join(excludes)
       excludes_filename = temp_file.make_temp_file(content = content)
       cmd.append('/exclude:{}'.format(excludes_filename))
-    print('cmd: {}'.format(cmd))
     execute.execute(cmd, shell = True)
