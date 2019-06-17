@@ -9,7 +9,7 @@ import os.path as path
 
 class test_file_replace(unit_test):
 
-  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.fs/file_replace'
+  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/fs/file_replace'
 
   def test_file_replace_ascii(self):
     tmp_file = self._make_temp_replace_file('ascii.txt')
@@ -18,7 +18,7 @@ class test_file_replace(unit_test):
       'foo': 'bar',
     }
     file_replace.replace(tmp_file, replacements, backup = False, word_boundary = True)
-    self.assertEqual('That is bar.\n', file_util.read(tmp_file, codec = 'utf-8'))
+    self.assertEqualIgnoreWhiteSpace('That is bar.\n', file_util.read(tmp_file, codec = 'utf-8'))
     
   def test_file_replace_utf8(self):
     tmp_file = self._make_temp_replace_file('utf8.txt')
@@ -26,7 +26,7 @@ class test_file_replace(unit_test):
       'This': 'That',
     }
     file_replace.replace(tmp_file, replacements, backup = False, word_boundary = True)
-    self.assertEqual(u'That is bér.\n', file_util.read(tmp_file, codec = 'utf-8'))
+    self.assertEqualIgnoreWhiteSpace(u'That is bér.\n', file_util.read(tmp_file, codec = 'utf-8'))
     
   def _make_temp_replace_file(self, filename):
     src_file = self.data_path(filename)
