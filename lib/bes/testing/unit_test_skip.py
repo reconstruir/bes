@@ -44,4 +44,17 @@ def raise_skip_if(conditional, message):
     raise unittest.SkipTest(message)
 
 def raise_skip_if_not_platform(system):
-  raise_skip_if(not host.SYSTEM != system, 'not %s' % (system))
+  raise_skip_if(system == host.SYSTEM, 'not {}: {}'.format(system, host.SYSTEM))
+
+def raise_skip_if_not_unix():
+  raise_skip_if(host.is_unix(), 'not unix: {}'.format(host.SYSTEM))
+
+def raise_skip_if_not_windows():
+  raise_skip_if_not_platform(host.WINDOWS)
+
+def raise_skip_if_not_macos():
+  raise_skip_if_not_platform(host.MACOS)
+  
+def raise_skip_if_not_linux():
+  raise_skip_if_not_platform(host.LINUX)
+  
