@@ -77,7 +77,8 @@ class test_file_path(unit_test):
     self.assertEqual( self.p('/foo/bar'), FP.normalize_sep('/foo\\bar') )
     self.assertEqual( self.p('/foo/bar'), FP.normalize_sep('\\foo\\bar') )
     
-  def test_which_windows(self):
+  def test_which(self):
+    'Test which()  Looks like a windows only test but works on unix as well.'
     tmp_dir = self.make_temp_dir()
     bin_dir = path.join(tmp_dir, 'bin')
     content = '@echo off\n\recho kiwi\n\rexit 0\n\r'
