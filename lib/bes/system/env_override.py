@@ -4,6 +4,7 @@ from os import path
 import os, tempfile
 from .os_env import os_env
 from .host import host
+from .env_var import env_var
 
 class env_override(object):
 
@@ -64,3 +65,11 @@ class env_override(object):
   def clean_env(clazz):
     'Return a clean env useful for testing where a determintate clean environment is needed.'
     return env_override(env = os_env.make_clean_env())
+
+  @classmethod
+  def path_append(clazz, p):
+    'Return an env_override object with p appended to PATH'
+    v = env_var(os_env.clone_current_env(), 'PATH')
+    v.append(p)
+    env = { 'PATH': v.value }
+    return env_override(env = env)
