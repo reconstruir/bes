@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os
+from .compat import compat
 
 class env_var(object):
 
@@ -39,6 +40,7 @@ class env_var(object):
   def append(self, p):
     self.remove(p)
     if not isinstance(p, list):
+      assert compat.is_string(p)
       p = [ p ]
     self.path = self.path + p
 
