@@ -15,9 +15,7 @@ class test_tar_util(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    print('before')
     raise_skip_if_not_unix()
-    print('after')
   
   def test_copy_tree(self):
     self.maxDiff = None
