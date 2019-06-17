@@ -3,15 +3,8 @@
 
 import json
 from bes.system.compat import compat
-if compat.IS_PYTHON3:
-  import urllib.request as urlopener
-  import urllib.parse as urlparser
-  from http.client import RemoteDisconnected as HTTPError
-else:
-  import urllib2 as urlopener
-  import urlparse as urlparser
-  from urllib2 import HTTPError
-  
+from bes.compat import url_compat
+
 from bes.testing.unit_test import unit_test
 from bes.web.file_web_server import file_web_server
 from bes.web.web_server_controller import web_server_controller
@@ -53,7 +46,7 @@ class test_file_web_server(unit_test):
     self.assertEqual( 'text/plain', file_mime.mime_type(tmp).mime_type )
     self.assertEqual( 'this is baz.txt\n', file_util.read(tmp, codec = 'utf8') )
 
-    with self.assertRaises(HTTPError) as ctx:
+    with self.assertRaises(url_compat.HTTPError) as ctx:
       url = self._make_url(port, 'notthere.txt')
       tmp = url_util.download_to_temp_file(url)
 
@@ -82,7 +75,7 @@ class test_file_web_server(unit_test):
     self.assertEqual( 'text/plain', file_mime.mime_type(tmp).mime_type )
     self.assertEqual( 'this is baz.txt\n', file_util.read(tmp, codec = 'utf8') )
 
-    with self.assertRaises(HTTPError) as ctx:
+    with self.assertRaises(url_compat.HTTPError) as ctx:
       url = self._make_url(port, 'notthere.txt')
       tmp = url_util.download_to_temp_file(url)
 
@@ -91,7 +84,7 @@ class test_file_web_server(unit_test):
   @classmethod
   def _make_url(clazz, port, p):
     base = 'http://localhost:%d' % (port)
-    return urlparser.urljoin(base, p)
+    return url_compat.urljoin(base, p)
   
 if __name__ == '__main__':
   unit_test.main()
