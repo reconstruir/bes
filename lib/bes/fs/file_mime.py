@@ -70,7 +70,11 @@ class file_mime(object):
   def is_zip(clazz, filename):
     with open(filename, 'rb') as fin:
       data = fin.read(4)
-      magic = ( ord(data[0]), ord(data[1]), ord(data[2]), ord(data[3]) )
+      # FIXME: figure out this ridiculousness
+      if compat.IS_PYTHON2:
+        magic = ( ord(data[0]), ord(data[1]), ord(data[2]), ord(data[3]) )
+      else:
+        magic = ( data[0], data[1], data[2], data[3] )
       return magic in clazz._ZIP_MAGICS
 
   # From http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
