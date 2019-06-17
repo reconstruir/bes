@@ -63,14 +63,14 @@ class file_mime(object):
   _ZIP_MAGICS = {
     ( 0x50, 0x4B, 0x03, 0x04 ),
     ( 0x50, 0x4B, 0x05, 0x06 ),
-    ( 0x50, 0x4B, 0x07, 0x048),
+    ( 0x50, 0x4B, 0x07, 0x08 ),
   }
   
   @classmethod
   def is_zip(clazz, filename):
     with open(filename, 'rb') as fin:
       data = fin.read(4)
-      magic = ( data[0], data[1], data[2], data[3] )
+      magic = ( ord(data[0]), ord(data[1]), ord(data[2]), ord(data[3]) )
       return magic in clazz._ZIP_MAGICS
 
   # From http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
