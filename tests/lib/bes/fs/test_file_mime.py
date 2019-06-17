@@ -34,24 +34,5 @@ class test_file_mime(unittest.TestCase):
     f = self._find_binary_file()
     self.assertFalse( file_mime.is_text(f) )
 
-  def test__parse_file_output_fat(self):
-    text = '''\
-./tests/test_data/binary_objects/macos/fat_32_obj.o (for architecture i386):	application/x-mach-binary; charset=binary
-./tests/test_data/binary_objects/macos/fat_32_obj.o (for architecture armv7):	application/x-mach-binary; charset=binary; charset=binary
-'''
-    self.assertEqual( ( 'application/x-mach-binary', 'binary' ),
-                      file_mime._parse_file_output(text) )
-    
-  def test__parse_file_output_non_fat(self):
-    text = '''application/x-mach-binary; charset=binary'''
-    self.assertEqual( ( 'application/x-mach-binary', 'binary' ),
-                      file_mime._parse_file_output(text) )
-    
-  def test__parse_file_output_non_fatPdupl_charset(self):
-    text = '''application/x-mach-binary; charset=binary; charset=binary'''
-    self.assertEqual( ( 'application/x-mach-binary', 'binary' ),
-                      file_mime._parse_file_output(text) )
-    
-    
 if __name__ == "__main__":
   unittest.main()
