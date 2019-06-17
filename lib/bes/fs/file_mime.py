@@ -16,6 +16,7 @@ class file_mime(object):
     'application/x-executable',
     'application/x-pie-executable',
     'application/x-mach-binary', # This is new in macos sierra
+    'application/x-msdownload',
   ]
 
   # FIXME: some illegal seuqences cause this to choke: /Users/ramiro/software/tmp/builds/flex-2.6.0_rev1_2016-02-07-05-14-52-769130/deps/installation/share/gettext/po/boldquot.sed 

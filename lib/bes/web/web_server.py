@@ -87,6 +87,7 @@ class web_server(with_metaclass(ABCMeta, object)):
         return self.response_error(start_response, code)
       result = self.handle_request(environ, start_response)
       return result
+    log.add_logging(self, 'web_server')
     httpd = simple_server.make_server('', self._requested_port or 0, _handler, handler_class = self.handler)
     httpd.allow_reuse_address = True
     address = httpd.socket.getsockname()
