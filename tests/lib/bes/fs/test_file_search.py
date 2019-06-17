@@ -7,7 +7,7 @@ from bes.fs.file_search import file_search
 
 class test_file_search(unit_test):
 
-  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.fs/file_search'
+  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/fs/file_search'
   
   def test_search_string(self):
     content = '''\

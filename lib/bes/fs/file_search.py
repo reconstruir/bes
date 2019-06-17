@@ -14,7 +14,7 @@ from .file_util import file_util
 
 class file_search(object):
 
-  class search_item(namedtuple('search_item', 'filename,line_number,pattern,line,span')):
+  class search_item(namedtuple('search_item', 'filename, line_number, pattern, line, span')):
 
     def __new__(clazz, filename, line_number, pattern, line,span):
       return clazz.__bases__[0].__new__(clazz, filename, line_number, pattern, line, span)
@@ -22,7 +22,7 @@ class file_search(object):
     def become_relative(self, root_dir):
       return self.__class__(file_util.remove_head(self.filename, root_dir),
                             self.line_number, self.pattern, self.line, self.span)
-  span = namedtuple('span', 'start,end')
+  span = namedtuple('span', 'start, end')
 
   @classmethod
   def search(clazz, root_dir, text, relative = True, min_depth = None, max_depth = None):
@@ -63,7 +63,7 @@ class file_search(object):
         patterns = [ p.lower() for p in patterns ]
     original_patterns = original_patterns or patterns
     patterns = list(zip(patterns, original_patterns))
-    for line_number, line in enumerate(content.split('\n'), 1):
+    for line_number, line in enumerate(content.splitlines(), 1):
       if word_boundary:
         result += clazz._search_line_with_re(line, patterns, '<unknown>', line_number)
       else:
