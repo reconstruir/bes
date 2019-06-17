@@ -102,9 +102,6 @@ class test_web_server(unit_test):
     def _make_large_content(clazz):
       return b'x' * clazz._LARGE_CONTENT_SIZE
 
-  _VALID_TGZ_MIME_TYPES = [ 'application/x-gzip', 'application/gzip', 'application/x-tar' ]
-  _VALID_ZIP_MIME_TYPES = [ 'application/zip', 'application/x-zip-compressed' ]
-  
   def test_tarball(self):
     server = web_server_controller(self._tarball_web_server)
     server.start()
@@ -114,13 +111,13 @@ class test_web_server(unit_test):
     tmp = url_util.download_to_temp_file(url, basename = 'foo-1.2.3.tar.gz')
     self.debug_spew_filename('tmp', tmp)
     self.assertEqual( [ 'apple.txt', 'orange.txt' ], archiver.members(tmp) )
-    self.assertTrue( file_mime.mime_type(tmp).mime_type in self._VALID_TGZ_MIME_TYPES )
+    self.assertTrue( file_mime.is_gzip(tmp) )
 
     url = self._make_url(port, 'sources/bar/bar-1.2.3.zip')
     tmp = url_util.download_to_temp_file(url, basename = 'bar-1.2.3.zip')
     self.debug_spew_filename('tmp', tmp)
     self.assertEqual( [ 'apple.txt', 'orange.txt' ], archiver.members(tmp) )
-    self.assertTrue( file_mime.mime_type(tmp).mime_type in self._VALID_ZIP_MIME_TYPES )
+    self.assertTrue( file_mime.is_zip(tmp) )
     
     server.stop()
     
@@ -153,7 +150,7 @@ class test_web_server(unit_test):
     tmp = url_util.download_to_temp_file(url, basename = 'large-1.2.3.tar.gz')
     self.debug_spew_filename('tmp', tmp)
     self.assertEqual( [ 'kiwi.bin' ], archiver.members(tmp) )
-    self.assertTrue( file_mime.mime_type(tmp).mime_type in self._VALID_TGZ_MIME_TYPES )
+    self.assertTrue( file_mime.is_gzip(tmp) )
 
     server.stop()
     
