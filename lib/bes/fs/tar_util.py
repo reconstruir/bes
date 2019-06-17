@@ -9,9 +9,9 @@ from bes.system.host import host
 from bes.system.os_env import os_env
 from bes.system.env_var import os_env_var
 
-from .file_util import file_util
 from .file_find import file_find
 from .file_path import file_path
+from .file_util import file_util
 from .temp_file import temp_file
 
 class tar_util(object):
@@ -146,6 +146,13 @@ class tar_util(object):
       return '/bin/tar'
     elif host.is_macos():
       return '/usr/bin/tar'
+# because of the way copy_tree() used unix pipes to copy a dir tree it will take a lot of work
+# to make it work on windows
+#    elif host.is_windows():
+#      tar_exe = file_path.which('tar.exe')
+#      if not tar_exe:
+#        raise RuntimeError('tar.exe not found.  install it from http://gnuwin32.sourceforge.net/packages/gtar.htm.')
+#      return tar_exe
     else:
       raise RuntimeError('tar not supported on: {}'.format(host.SYSTEM))
 
