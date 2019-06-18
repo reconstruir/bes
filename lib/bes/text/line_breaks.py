@@ -1,10 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 class line_breaks(object):
-  'Add line numbers to text.'
+  'Deal with line breaks.'
 
-  # str.splitlines uses these are line break delimiters
-  DELIMITERS = { 
+  # str.splitlines() uses these as line break delimiters
+  LINE_BREAKS = { 
     '\n',      # Line Feed
     '\r',      # Carriage Return
     '\r\n',    # Carriage Return + Line Feed
@@ -21,4 +21,10 @@ class line_breaks(object):
   @classmethod
   def ends_with_line_break(clazz, s):
     'Return True if s ends with a line break'
-    return s[-1] in clazz.DELIMITERS
+    return s[-1] in clazz.LINE_BREAKS
+
+  @classmethod
+  def is_line_break(clazz, c):
+    'Return True if c is a line break'
+    return c in clazz.LINE_BREAKS
+  
