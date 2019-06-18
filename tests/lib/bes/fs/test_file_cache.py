@@ -13,9 +13,6 @@ class test_file_cache(unit_test):
     tmp_filename = self.make_temp_file(content = 'foo\n')
     expected_content = file_util.read(tmp_filename)
     cached_filename = file_cache.cached_filename(tmp_filename, cache_dir = tmp_cache_dir)
-    print('cached_filename: {}'.format(cached_filename))
-    assert False
-    return
     actual_content = file_util.read(cached_filename)
 
     self.assertEqual( expected_content, actual_content )
