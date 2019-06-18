@@ -268,11 +268,11 @@ child2
 
     self.assertEqual( [ '@@tree_text_literal:0@@', '@@tree_text_literal:1@@', '@@tree_text_literal:2@@' ],
                       sorted(literals.keys()) )
-    self.assertEqual( "this is a multi\nline literal\nthat includes '''whatever'''",
+    self.assertEqual( "this is a multi\nline literal\nthat includes '''whatever'''\n",
                       literals['@@tree_text_literal:0@@'].text )
-    self.assertEqual( "this is a another multi\n#\nline literal\n",
+    self.assertEqual( "this is a another multi\n#\nline literal\n\n",
                       literals['@@tree_text_literal:1@@'].text )
-    self.assertEqual( "this is yet another multi\n\n#\nline literal",
+    self.assertEqual( "this is yet another multi\n\n#\nline literal\nfoo",
                       literals['@@tree_text_literal:2@@'].text )
 
   def test_literals(self):
@@ -309,13 +309,13 @@ child2
     _text_node_data(text='sub2a', line_number=4)
       _text_node_data(text='sub2a1', line_number=5)
     _text_node_data(text='sub2b', line_number=6)
-      _text_node_data(text="this is a multi\nline literal\nthat includes '''whatever'''", line_number=7)
+      _text_node_data(text="this is a multi\nline literal\nthat includes '''whatever'''\n", line_number=7)
     _text_node_data(text='sub2c', line_number=11)
       _text_node_data(text='foo', line_number=12)
     _text_node_data(text='sub2d', line_number=13)
-      _text_node_data(text='this is a another multi\n#\nline literal\n', line_number=14)
+      _text_node_data(text='this is a another multi\n#\nline literal\n\n', line_number=14)
     _text_node_data(text='sub2e', line_number=19)
-      _text_node_data(text='this is yet another multi\n\n#\nline literal', line_number=20)
+      _text_node_data(text='this is yet another multi\n\n#\nline literal\nfoo', line_number=20)
     _text_node_data(text='sub3d', line_number=25)"""
     self.maxDiff = None
     self.assertMultiLineEqual( expected, root.to_string() )

@@ -70,7 +70,7 @@ class tree_text_parser(object):
       literal_indent = ' ' * literal.marker_x
       literal_id = '@@tree_text_literal:%d@@' % (literal_index)
       indented_literal_id = '%s%s' % (literal_indent, literal_id)
-      literal_lines = parser[literal.start_index : literal.end_index]
+      literal_lines = parser[literal.start_index : literal.end_index + 1]
       literal_lines = [ line.text[literal.text_x:] for line in literal_lines ]
       literal_text = '\n'.join(literal_lines)
       result[literal_id] = clazz._literal(literal_id, literal_text, parser[literal.start_index].line_number)
