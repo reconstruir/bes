@@ -9,7 +9,10 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.compat.StringIO import StringIO
 from bes.compat.cmp import cmp
+
 from .text_line import text_line
+from .line_breaks import line_breaks
+
 from .line_continuation_merger import line_continuation_merger
 from .string_list import string_list
 
@@ -18,10 +21,10 @@ class text_line_parser(object):
 
   def __init__(self, text, delimiter = '\n'):
     log.add_logging(self, 'text_line_parser')
-    self._delimiter = delimiter
+    self._line_break = line_breaks.guess_line_break(text) or line_breaks.DEFAULT_LINE_BREAK
     if isinstance(text, text_line_parser):
       self._lines = text._lines[:]
-      self._ends_with_delimiter = False
+      self._ends_with_line_break = False
     elif check.is_text_line_seq(text):
       self._assign_text_line_seq(text)
     elif check.is_seq(text, tuple):
@@ -29,8 +32,8 @@ class text_line_parser(object):
       self._assign_text_line_seq(tokens)
     else:
       check.check_string(text)
-      self._lines = self._parse(text, self._delimiter)
-      self._ends_with_delimiter = text and text[-1] == self._delimiter
+      self._lines = self._parse(text)
+      self._ends_with_line_break = text and line_breaks.ends_with_line_break(text)
 
   @property
   def lines(self):
@@ -46,7 +49,7 @@ class text_line_parser(object):
           raise ValueError('line_number should be %d or greater instead of %d: \"%s\"' % (line_number + 1, line.line_number, line.text))
       self._lines.append(line)
       line_number = line.line_number
-    self._ends_with_delimiter = False
+    self._ends_with_line_break = False
 
   def __iter__(self):
     return iter(self._lines)
@@ -71,13 +74,13 @@ class text_line_parser(object):
     buf = StringIO()
     for line in self._lines:
       buf.write(line.get_text(strip_comments = strip_comments))
-      buf.write(self._delimiter)
+      buf.write(self._line_break)
     v = buf.getvalue()
-    if self._ends_with_delimiter:
-      if v and v[-1] != self._delimiter:
-        buf.write(self._delimiter)
+    if self._ends_with_line_break:
+      if v and v[-1] != self._line_break:
+        buf.write(self._line_break)
     else:
-      if v and v[-1] == self._delimiter:
+      if v and v[-1] == self._line_break:
         v = v[0:-1]
     return v
     
@@ -99,8 +102,8 @@ class text_line_parser(object):
     raise RuntimeError('lines are read only.')
 
   @classmethod
-  def _parse(clazz, text, delimiter):
-    lines = text.split(delimiter)
+  def _parse(clazz, text):
+    lines = text.splitlines()
     range(1, len(lines) + 1)
     lines = [ text_line(*item) for item in zip(range(1, len(lines) + 1), lines) ]
     return lines

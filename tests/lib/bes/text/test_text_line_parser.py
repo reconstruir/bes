@@ -58,15 +58,21 @@ class test_text_line_parser(unit_test):
     
   def test_1_line_with_newline(self):
     l = LTP('foo\n')
-    self.assertEqual( 2, len(l) )
+    self.assertEqual( 1, len(l) )
     self.assertEqual( 'foo', l[0].text )
-    self.assertEqual( '', l[1].text )
+    self.assertMultiLineEqual(
+      '''foo
+''',
+      str(l) )
     
   def test_1_empty_line(self):
     l = LTP('\n')
-    self.assertEqual( 2, len(l) )
+    self.assertEqual( 1, len(l) )
     self.assertEqual( '', l[0].text )
-    self.assertEqual( '', l[1].text )
+    self.assertMultiLineEqual(
+      '''
+''',
+      str(l) )
     
   def test_basic(self):
     l = LTP('foo bar\napple kiwi')
@@ -85,17 +91,22 @@ class test_text_line_parser(unit_test):
     self.assertMultiLineEqual(
       '''1|foo
 2|bar
-3|
 ''',
       str(l) )
 
+    l = LTP('foo\nbar')
+    l.add_line_numbers()
+    self.assertMultiLineEqual(
+      '''1|foo
+2|bar''',
+      str(l) )
+    
   def test_prepend(self):
     l = LTP('foo\nbar\n')
     l.prepend('ABC: ')
     self.assertMultiLineEqual(
       '''ABC: foo
 ABC: bar
-ABC: 
 ''',
       str(l) )
 
@@ -122,7 +133,6 @@ ABC:
     self.assertMultiLineEqual(
       '''foo:ABC
 bar:ABC
-:ABC
 ''',
       str(l) )
 
@@ -295,6 +305,21 @@ kiwi2
     orange
     apricot
     banana
+    watermelon'''
+    l = LTP(text)
+    l.remove_empties()
+    l.strip()
+    self.assertEqual( [ 'kiwi', 'orange', 'apricot' ], l.cut_lines('^ap.*$', '^ba.*$').to_string_list() )
+    self.assertEqual( [ 'banana', 'watermelon' ], l.cut_lines('^apr.*$', None).to_string_list() )
+    self.assertEqual( [ 'apple', 'kiwi' ], l.cut_lines(None, '^or.*$').to_string_list() )
+
+  def test_cut_lines_ends_in_line_break(self):
+    text = '''
+    apple
+    kiwi
+    orange
+    apricot
+    banana
     watermelon
     '''
     l = LTP(text)
@@ -404,6 +429,7 @@ section:3
 g
 h
 i
+
 '''
     l = LTP(text)
     sections = l.cut_sections('^section\:.*$', '^\s*$', include_pattern = True)
@@ -764,6 +790,18 @@ cheese'''
       ( 4, 'cheese' ), 
     ], l.lines )
     self.assertEqual( { 3: 2 }, l.indeces([ 7, 5, 3 ]) )
+
+  def test_windows_line_breaks(self):
+    'Test that windows line breaks are interpreted and preserved correctly.'
+    text = '''kiwi\r\napple\r\nmelon\r\ncheese\r\n'''
+    l = LTP(text)
+    self.assertEqual( [
+      ( 1, 'kiwi' ), 
+      ( 2, 'apple' ), 
+      ( 3, 'melon' ), 
+      ( 4, 'cheese' ), 
+    ], l.lines )
+    self.assertMultiLineEqual( text, str(l) )
     
 if __name__ == '__main__':
   unit_test.main()
