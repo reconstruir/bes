@@ -21,5 +21,12 @@ class test_line_breaks(unittest.TestCase):
     self.assertFalse( line_breaks.is_line_break('\n\r') )
     self.assertTrue( line_breaks.is_line_break('\r\n') )
     
+  def test_guess_line_break(self):
+    self.assertEqual( '\n', line_breaks.guess_line_break('foo\nbar') )
+    self.assertEqual( '\r\n', line_breaks.guess_line_break('foo\r\nbar') )
+    self.assertEqual( '\n', line_breaks.guess_line_break('foo\n\rbar') )
+    self.assertEqual( '\r\n', line_breaks.guess_line_break('foo\r\nbar\nbaz') )
+    self.assertEqual( '\r\n', line_breaks.guess_line_break('foo\nbar\r\nbaz') )
+    
 if __name__ == '__main__':
   unittest.main()
