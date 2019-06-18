@@ -76,7 +76,7 @@ class config(object):
     check.check_string(key)
     return self._parser.has_option(section, key)
   
-  def save(self, filename, codec = None):
+  def save(self, filename, codec = 'utf-8'):
     file_util.save(filename, content = str(self), codec = codec)
 
   MAJOR = software_version.MAJOR
@@ -109,8 +109,8 @@ class config(object):
     return config(parser = parser)
   
   @classmethod
-  def _make_parser_from_file(clazz, filename, codec = None):
-    text = file_util.read(filename, codec = 'utf-8')
+  def _make_parser_from_file(clazz, filename, codec = 'utf-8'):
+    text = file_util.read(filename, codec = codec)
     return clazz._make_parser_from_text(text)
 
   @classmethod
