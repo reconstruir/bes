@@ -791,7 +791,7 @@ cheese'''
     ], l.lines )
     self.assertEqual( { 3: 2 }, l.indeces([ 7, 5, 3 ]) )
 
-  def test_windows_line_breaks(self):
+  def test_windows_line_break(self):
     'Test that windows line breaks are interpreted and preserved correctly.'
     text = '''kiwi\r\napple\r\nmelon\r\ncheese\r\n'''
     l = LTP(text)

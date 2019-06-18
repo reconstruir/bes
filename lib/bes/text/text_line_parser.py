@@ -11,7 +11,7 @@ from bes.compat.StringIO import StringIO
 from bes.compat.cmp import cmp
 
 from .text_line import text_line
-from .line_breaks import line_breaks
+from .line_break import line_break
 
 from .line_continuation_merger import line_continuation_merger
 from .string_list import string_list
@@ -21,7 +21,7 @@ class text_line_parser(object):
 
   def __init__(self, text, delimiter = '\n'):
     log.add_logging(self, 'text_line_parser')
-    self._line_break = line_breaks.guess_line_break(text) or line_breaks.DEFAULT_LINE_BREAK
+    self._line_break = line_break.guess_line_break(text) or line_break.DEFAULT_LINE_BREAK
     if isinstance(text, text_line_parser):
       self._lines = text._lines[:]
       self._ends_with_line_break = False
@@ -33,7 +33,7 @@ class text_line_parser(object):
     else:
       check.check_string(text)
       self._lines = self._parse(text)
-      self._ends_with_line_break = text and line_breaks.ends_with_line_break(text)
+      self._ends_with_line_break = text and line_break.ends_with_line_break(text)
 
   @property
   def lines(self):
