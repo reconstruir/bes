@@ -320,6 +320,31 @@ child2
     self.maxDiff = None
     self.assertMultiLineEqual( expected, root.to_string() )
 
+  def test_literal_single_line(self):
+    tree_text = '''\
+child
+  > this is a single line literal
+'''
+    root = P.parse(tree_text)
+    expected = r"""_text_node_data(text='root', line_number=0)
+  _text_node_data(text='child', line_number=1)
+    _text_node_data(text='this is a single line literal', line_number=2)"""
+    
+    self.maxDiff = None
+    self.assertMultiLineEqual( expected, root.to_string() )
+
+  def test_literal_single_line_no_line_break(self):
+    tree_text = '''\
+child
+  > this is a single line literal'''
+    root = P.parse(tree_text)
+    expected = r"""_text_node_data(text='root', line_number=0)
+  _text_node_data(text='child', line_number=1)
+    _text_node_data(text='this is a single line literal', line_number=2)"""
+    
+    self.maxDiff = None
+    self.assertMultiLineEqual( expected, root.to_string() )
+    
   def test_empty(self):
     root = P.parse('')
     self.assertMultiLineEqual( """_text_node_data(text='root', line_number=0)""", root.to_string().strip() )

@@ -88,8 +88,7 @@ class tree_text_parser(object):
     if not location:
       return None
     end_index = clazz._find_literal_end(parser, location)
-    # FIXME >= should be for 1 line literals
-    assert end_index > location.start_index
+    assert end_index >= location.start_index
     return clazz._literal_location(location.start_index, end_index, location.marker_x, location.text_x)
 
   @classmethod
