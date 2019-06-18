@@ -4,6 +4,7 @@
 import os, os.path as path, shutil, tempfile
 from bes.testing.unit_test import unit_test
 from bes.fs.testing.temp_content import temp_content as I
+from bes.testing.unit_test_skip import skip_if_not_unix
 
 class test_temp_content(unit_test):
 
@@ -23,11 +24,19 @@ class test_temp_content(unit_test):
     i.write(tmp_dir)
     p = path.join(tmp_dir, 'foo.txt')
     self.assertTrue( path.exists(p) )
-    self.assertEqual( 0o644, os.stat(p).st_mode & 0o777 )
     with open(p, 'r') as fin:
       self.assertEqual( 'this is foo\nhaha', fin.read() )
     shutil.rmtree(tmp_dir)
 
+  @skip_if_not_unix
+  def test_write_mode(self):
+    i = I(I.FILE, 'foo.txt', 'this is foo\nhaha', 0o644)
+    tmp_dir = tempfile.mkdtemp()
+    i.write(tmp_dir)
+    p = path.join(tmp_dir, 'foo.txt')
+    self.assertTrue( path.exists(p) )
+    self.assertEqual( 0o644, os.stat(p).st_mode & 0o777 )
+    
   def test_write_dir(self):
     tmp_dir = tempfile.mkdtemp()
     I.parse('d mydir').write(tmp_dir)
