@@ -36,6 +36,9 @@ def skip_if(condition, reason, warning = False):
     return skip(reason)
   return _id
 
+def skip_if_not_unix(warning = False):
+  return skip_if(not host.is_unix(), 'not unix', warning = warning)
+
 def raise_skip(message):
   raise unittest.SkipTest(message)
 

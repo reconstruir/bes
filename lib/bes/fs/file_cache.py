@@ -2,15 +2,17 @@
 
 import os.path as path
 from multiprocessing import Lock
+from abc import abstractmethod, ABCMeta
 from collections import namedtuple
+
+from bes.system.compat import with_metaclass
+from bes.system.host import host
+from bes.text.line_break import line_break
 
 from .file_util import file_util
 from .temp_file import temp_file
 
-from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
-
-cache_info = namedtuple('cache_info', 'cached_filename,checksum_filename,cached_checksum')
+cache_info = namedtuple('cache_info', 'cached_filename, checksum_filename, cached_checksum')
 
 class file_cache_item_base(with_metaclass(ABCMeta, object)):
 
@@ -47,7 +49,7 @@ class file_cache_item(file_cache_item_base):
   def save(self, info):
     assert path.isfile(self.filename)
     file_util.copy(self.filename, info.cached_filename)
-    file_util.save(info.checksum_filename, self._checksum + '\n')
+    file_util.save(info.checksum_filename, self._checksum + line_break.DEFAULT_LINE_BREAK)
 
   def checksum(self):
     return self._checksum
@@ -115,16 +117,27 @@ class file_cache(object):
   def _content_saver_func(clazz, args, info):
     filename = args[0]
     file_util.copy(filename, info.cached_filename)
-    file_util.save(info.checksum_filename, info.checksum + '\n')
+    file_util.save(info.checksum_filename, info.checksum + line_break.DEFAULT_LINE_BREAK)
 
   @classmethod
   def _make_info(clazz, item, cache_dir):
     name = item.name()
-    filename_not_abs = name[1:]
-    cached_filename = path.join(cache_dir, clazz._FILES_DIR_NAME, filename_not_abs)
-    checksum_filename = path.join(cache_dir, clazz._CHECKSUMS_DIR_NAME, filename_not_abs)
+    fragment_filename = clazz._make_fragement_filename(name)
+    cached_filename = path.join(cache_dir, clazz._FILES_DIR_NAME, fragment_filename)
+    checksum_filename = path.join(cache_dir, clazz._CHECKSUMS_DIR_NAME, fragment_filename)
     cached_checksum = clazz._cached_checksum(checksum_filename)
     return cache_info(cached_filename, checksum_filename, cached_checksum)
+
+  @classmethod
+  def _make_fragement_filename(clazz, name):
+    if host.is_unix():
+      assert name.startswith(path.sep)
+      return file_util.lstrip_sep(name)
+    elif host.is_windows():
+      drive, filename = path.splitdrive(name)
+      return path.join(drive.replace(':', ''), filename)
+    else:
+      raise RuntimeError('unsupported system: {}'.format(host.SYSTEM))
 
   @classmethod
   def _cached_checksum(clazz, checksum_filename):

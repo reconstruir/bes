@@ -28,10 +28,10 @@ class test_archiver(unit_test):
     file_util.save(path.join(tmp_dir, 'archives/tar_gz/fake_tar_gz.tar.gz'), content = 'not a tar.gz\n')
 
     self.assertEqual( [
-      'archives/tar/tmp_tar.tar',
-      'archives/tar_gz/tmp_tar_gz.tar.gz',
-      'archives/tgz/tmp_tgz.tgz',
-      'archives/zip/tmp_zip.zip',
+      self.p('archives/tar/tmp_tar.tar'),
+      self.p('archives/tar_gz/tmp_tar_gz.tar.gz'),
+      self.p('archives/tgz/tmp_tgz.tgz'),
+      self.p('archives/zip/tmp_zip.zip'),
     ], archiver.find_archives(tmp_dir) )
     
 if __name__ == '__main__':
