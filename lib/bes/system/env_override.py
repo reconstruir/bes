@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
-import os, tempfile
+import copy, os, tempfile
 from .os_env import os_env
 from .host import host
 from .env_var import env_var
@@ -44,6 +44,9 @@ class env_override(object):
     
   def update(self, d):
     os.environ.update(d)
+
+  def to_dict(self):
+    return copy.deepcopy(os.environ)
 
   @classmethod
   def temp_home(clazz):

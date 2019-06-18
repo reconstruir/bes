@@ -4,6 +4,7 @@
 import copy, os, os.path as path
 from bes.testing.unit_test import unit_test
 from bes.system.os_env import os_env
+from bes.system.env_override import env_override
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
@@ -11,16 +12,6 @@ from bes.env.env_dir import env_dir
 from bes.env.env_dir import action
 
 class test_env_dir(unit_test):
-
-  _save_environ = None
-    
-  @classmethod
-  def setUpClass(clazz):
-    clazz._save_environ = copy.deepcopy(os.environ)
-
-  @classmethod
-  def tearDownClass(clazz):
-    assert os.environ == clazz._save_environ
 
   _TEST_ITEMS = [
     'file 1.sh "export A=1\n" 644',
@@ -85,18 +76,14 @@ class test_env_dir(unit_test):
       ( 'PATH', '/my/path', action.PATH_REMOVE ),
     ], ed.instructions(env) )
   
-  def xtest_foo(self):
-    save_env = copy.deepcopy(os.environ)
-    
-    os.environ['SOMETHINGIMADEUP'] = 'GOOD'
-
-    save_path = os.environ['PATH']
-    test_path = '/bin:/usr/bin:/my/path:/sbin'
-    os.environ['PATH'] = test_path
-
-    try:
+  def test_foo(self):
+    env = {
+      'SOMETHINGIMADEUP': 'GOOD',
+      'PATH': '/bin:/usr/bin:/my/path:/sbin'
+    }
+    with env_override(env = env) as tmp_env:
       tmp_dir = self.make_temp_dir()
-      tmp_dir = temp_content.write_items([
+      temp_content.write_items([
         'file 1.sh "export PATH=/bin:/usr/bin:/sbin\n" 644',
         'file 2.sh "export BAR=orange\n" 644',
         'file 3.sh "export PATH=/a/bin:$PATH\nexport PATH=/b/bin:$PATH\n" 644',
@@ -105,7 +92,7 @@ class test_env_dir(unit_test):
         'file 6.sh "unset SOMETHINGIMADEUP\n" 644',
       ], tmp_dir)
       ed = env_dir(tmp_dir)
-      self.assertEqual( [ '1.sh', '2.sh', '3.sh', '4.sh', '5.sh', '6.sh' ], ed.files() )
+      self.assertEqual( [ '1.sh', '2.sh', '3.sh', '4.sh', '5.sh', '6.sh' ], ed.files )
       self.assertEqual( [
         ( 'BAR', 'orange', action.SET ),
         ( 'FOO', 'kiwi', action.SET ),
@@ -115,34 +102,29 @@ class test_env_dir(unit_test):
         ( 'PATH', '/x/bin', action.PATH_APPEND ),
         ( 'PATH', '/y/bin', action.PATH_APPEND ),
         ( 'SOMETHINGIMADEUP', None, action.UNSET ),
-      ], ed.instructions() )
+      ], ed.instructions(tmp_env.to_dict()) )
 
-      self.assertEqual( {
-        'BAR': 'orange',
-        'FOO': 'kiwi',
-        'PATH': '/b/bin:/a/bin:/x/bin:/y/bin',
-      }, ed.transform_env({}) )
+#      self.assertEqual( {
+#        'BAR': 'orange',
+#        'FOO': 'kiwi',
+#        'PATH': '/b/bin:/a/bin:/x/bin:/y/bin',
+#      }, ed.transform_env({}) )
         
-      self.assertEqual( {
-        'BAR': 'orange',
-        'FOO': 'kiwi',
-        'PATH': '/b/bin:/a/bin:/x/bin:/y/bin',
-      }, ed.transform_env({ 'SOMETHINGIMADEUP': 'yes' }) )
+#      self.assertEqual( {
+#        'BAR': 'orange',
+#        'FOO': 'kiwi',
+#        'PATH': '/b/bin:/a/bin:/x/bin:/y/bin',
+#      }, ed.transform_env({ 'SOMETHINGIMADEUP': 'yes' }) )
+#        
+#      self.assertEqual( {
+#        'BAR': 'orange',
+#        'FOO': 'kiwi',
+#        'PATH': '/b/bin:/a/bin:/usr/local/bin:/usr/foo/bin:/x/bin:/y/bin',
+#      }, ed.transform_env({ 'PATH': '/usr/local/bin:/usr/foo/bin' }) )
         
-      self.assertEqual( {
-        'BAR': 'orange',
-        'FOO': 'kiwi',
-        'PATH': '/b/bin:/a/bin:/usr/local/bin:/usr/foo/bin:/x/bin:/y/bin',
-      }, ed.transform_env({ 'PATH': '/usr/local/bin:/usr/foo/bin' }) )
-        
-    finally:
-#      assert save_env == os.environ
-      os.environ['PATH'] = save_path
-
   def _make_temp_env_dir(self, items, files = None):
-    tmp_dir = temp_content.write_items_to_temp_dir(items, delete = not self.DEBUG)
-    if self.DEBUG:
-      print('tmp_dir:\n%s' % (tmp_dir))
+    tmp_dir = self.make_temp_dir()
+    temp_content.write_items(items, tmp_dir)
     return env_dir(tmp_dir, files = files)
 
   def test_transform_env_empty(self):
