@@ -12,9 +12,6 @@ from bes.env.env_dir import action
 
 class test_env_dir(unit_test):
 
-  DEBUG = unit_test.DEBUG
-  #DEBUG = True
-  
   _save_environ = None
     
   @classmethod
@@ -98,21 +95,15 @@ class test_env_dir(unit_test):
     os.environ['PATH'] = test_path
 
     try:
-      tmp_dir = temp_content.write_items_to_temp_dir([
+      tmp_dir = self.make_temp_dir()
+      tmp_dir = temp_content.write_items([
         'file 1.sh "export PATH=/bin:/usr/bin:/sbin\n" 644',
         'file 2.sh "export BAR=orange\n" 644',
         'file 3.sh "export PATH=/a/bin:$PATH\nexport PATH=/b/bin:$PATH\n" 644',
         'file 4.sh "export FOO=kiwi\n" 644',
         'file 5.sh "export PATH=$PATH:/x/bin\nPATH=$PATH:/y/bin\n" 644',
         'file 6.sh "unset SOMETHINGIMADEUP\n" 644',
-      ])
-#      tmp_dir = temp_file.make_temp_dir()
-#      file_util.save(path.join(tmp_dir, '1.sh'), content = 'export PATH=/bin:/usr/bin:/sbin\n')
-#      file_util.save(path.join(tmp_dir, '2.sh'), content = 'export BAR=orange\n')
-#      file_util.save(path.join(tmp_dir, '3.sh'), content = 'export PATH=/a/bin:$PATH\nexport PATH=/b/bin:$PATH\n')
-#      file_util.save(path.join(tmp_dir, '4.sh'), content = 'export FOO=kiwi\n')
-#      file_util.save(path.join(tmp_dir, '5.sh'), content = 'export PATH=$PATH:/x/bin\nPATH=$PATH:/y/bin\n')
-#      file_util.save(path.join(tmp_dir, '6.sh'), content = 'unset SOMETHINGIMADEUP\n')
+      ], tmp_dir)
       ed = env_dir(tmp_dir)
       self.assertEqual( [ '1.sh', '2.sh', '3.sh', '4.sh', '5.sh', '6.sh' ], ed.files() )
       self.assertEqual( [
