@@ -56,6 +56,12 @@ class host(object):
   def is_unix(clazz):
     'Return True if current system is LINUX or MACOS'
     return clazz.is_linux() or clazz.is_macos()
+
+  @classmethod
+  def raise_unsupported_system(clazz, system = None):
+    'Raise a RuntimeError about the system being unsupported.  If system is None host.SYSTEM is used.'
+    system = system or host.SYSTEM
+    raise RuntimeError('unsupported system: {}'.format(system))
   
 host.init()
 
