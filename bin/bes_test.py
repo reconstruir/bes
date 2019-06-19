@@ -25,6 +25,7 @@ from bes.testing.framework.argument_resolver import argument_resolver
 from bes.testing.framework.printer import printer
 from bes.testing.framework.unit_test_output import unit_test_output
 from bes.version.version_cli import version_cli
+from bes.python.py_exe import py_exe
 
 # TODO:
 #  - figure out how to stop on first failure within one module
@@ -167,8 +168,11 @@ def main():
   if not git_exe:
     printer.writeln_name('ERROR: No git found.  Git is needed to run bes_test.')
     return 1
-  
-  git_exe_dir = path.dirname(git_exe)
+
+  python_exe = py_exe.find_python_exe()
+  if not python_exe:
+    printer.writeln_name('ERROR: No python found.  Python is needed to run bes_test.')
+    return 1
   
   for g in parser._action_groups:
     g._group_actions.sort(key = lambda x: x.dest)
@@ -260,9 +264,8 @@ def main():
     keep_keys.extend([ 'PATH', 'PYTHONPATH'])
     
   env = os_env.make_clean_env(keep_keys = keep_keys, keep_func = lambda key: key.startswith('BES') or key.startswith('_BES'))
-  env_var(env, 'PATH').append(git_exe_dir)
-
-  #print('CACA: PATH={}'.format(env['PATH']))
+  env_var(env, 'PATH').prepend(path.dirname(git_exe))
+  env_var(env, 'PATH').prepend(path.dirname(python_exe))
   env['PYTHONDONTWRITEBYTECODE'] = 'x'
 
   variables = {
@@ -338,7 +341,7 @@ def main():
   total_num_tests = 0
 
   if not args.python:
-    args.python = [ sys.executable ]
+    args.python = [ python_exe ]
   
   if args.profile:
     args.profile = path.abspath(args.profile)
