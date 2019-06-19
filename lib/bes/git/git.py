@@ -4,18 +4,20 @@ import os, os.path as path, re
 from datetime import datetime
 from collections import namedtuple
 
-from bes.text.text_line_parser import text_line_parser
 from bes.common.algorithm import algorithm
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
-from bes.system.execute import execute
-from bes.system.log import logger
 from bes.fs.dir_util import dir_util
-from bes.fs.file_ignore import file_ignore
-from bes.fs.file_util import file_util
 from bes.fs.file_copy import file_copy
-from bes.fs.temp_file import temp_file
+from bes.fs.file_ignore import file_ignore
 from bes.fs.file_ignore import ignore_file_data
+from bes.fs.file_path import file_path
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.system.execute import execute
+from bes.system.host import host
+from bes.system.log import logger
+from bes.text.text_line_parser import text_line_parser
 from bes.version.software_version import software_version
 
 from .git_branch import git_branch, git_branch_status
@@ -27,8 +29,6 @@ class git(object):
 
   _LOG = logger('git')
   
-  GIT_EXE = 'git'
-
   @classmethod
   def status(clazz, root, filenames, abspath = False, untracked_files = True):
     filenames = object_util.listify(filenames)
@@ -95,7 +95,13 @@ class git(object):
   
   @classmethod
   def _call_git(clazz, root, args, raise_error = True):
-    cmd = [ clazz.GIT_EXE ] + args
+    if not hasattr(clazz, '_git_exe'):
+      git_exe = clazz.find_git_exe()
+      if not git_exe:
+        raise RuntimeError('git exe not found.')
+      setattr(clazz, '_git_exe', git_exe)
+    git_exe = getattr(clazz, '_git_exe')
+    cmd = [ git_exe ] + args
     clazz._LOG.log_d('root=%s; cmd=%s' % (root, ' '.join(cmd)))
     save_raise_error = raise_error
     rv = execute.execute(cmd, cwd = root, raise_error = False)
@@ -525,3 +531,20 @@ class git(object):
     if path.isdir(resolved_address):
       return resolved_address
     return address
+
+  @classmethod
+  def find_git_exe(clazz):
+    'Return the full path to the git executable.'
+    exe_name = clazz._git_exe_name()
+    exe = file_path.which(exe_name)
+    return exe
+
+  @classmethod
+  def _git_exe_name(clazz):
+    'Return the platform specific name of the git exe.'
+    if host.is_unix():
+      return 'git'
+    elif host.is_windows():
+      return 'git.exe'
+    else:
+      host.raise_unsupported_system()
