@@ -4,11 +4,17 @@
 from collections import namedtuple
 import os.path as path
 
+from bes.system.host import host
 from bes.testing.script_unit_test import script_unit_test
 
 class test_argparser_handler(script_unit_test):
 
-  __script__ = __file__, 'farm.py'
+  if host.is_unix():
+    __script__ = __file__, 'farm.py'
+  elif host.is_windows():
+    __script__ = __file__, 'farm.bat'
+  else:
+    host.raise_unsupported_system()
 
   def test_fruit_order(self):
     rv = self.run_script([ 'fruit', 'order', 'kiwi', '10' ])
