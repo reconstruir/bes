@@ -15,8 +15,12 @@ class os_env(object):
   if host.SYSTEM in [ host.LINUX, host.MACOS ]:
     DEFAULT_SYSTEM_PATH = _default_system_value('PATH')
   else:
-    DEFAULT_SYSTEM_PATH = [ 'C:\WINDOWS\system32', 'C:\WINDOWS', 'C:\WINDOWS\System32\Wbem' ]
-  
+    DEFAULT_SYSTEM_PATH = [
+      'C:\WINDOWS\system32',
+      'C:\WINDOWS',
+      'C:\WINDOWS\System32\Wbem',
+    ]
+    
   # The cleanest possible unix PATH
   CLEAN_PATH_MAP = {
     host.LINUX: [ '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/caca/bin' ],
