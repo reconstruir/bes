@@ -38,4 +38,6 @@ class platform_determiner_windows(platform_determiner_base):
   #@abstractmethod
   def arch(self):
     'arch.'
-    return self._platform.machine().lower()
+    # this is broken for some reason
+    #return self._platform.machine().lower()
+    return 'amd64'
