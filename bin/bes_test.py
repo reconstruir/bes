@@ -14,7 +14,7 @@ from bes.fs.file_find import file_find
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
-from bes.git import git
+from bes.git.git import git
 from bes.key_value.key_value_list import key_value_list
 from bes.system.env_var import env_var
 from bes.system.env_var import os_env_var
@@ -163,6 +163,13 @@ def main():
                       default = None,
                       help = 'The directory to use for tmp files overriding the system default.  [ None ]')
 
+  git_exe = git.find_git_exe()
+  if not git_exe:
+    printer.writeln_name('ERROR: No git found.  Git is needed to run bes_test.')
+    return 1
+  
+  git_exe_dir = path.dirname(git_exe)
+  
   for g in parser._action_groups:
     g._group_actions.sort(key = lambda x: x.dest)
   
@@ -253,6 +260,9 @@ def main():
     keep_keys.extend([ 'PATH', 'PYTHONPATH'])
     
   env = os_env.make_clean_env(keep_keys = keep_keys, keep_func = lambda key: key.startswith('BES') or key.startswith('_BES'))
+  env_var(env, 'PATH').append(git_exe_dir)
+
+  #print('CACA: PATH={}'.format(env['PATH']))
   env['PYTHONDONTWRITEBYTECODE'] = 'x'
 
   variables = {
