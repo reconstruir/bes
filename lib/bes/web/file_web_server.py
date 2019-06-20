@@ -3,7 +3,6 @@
 import os, os.path as path
 from .web_server import web_server
 
-from bes.fs.file_mime import file_mime
 from bes.fs.file_util import file_util
 from bes.fs.file_path import file_path
 
@@ -15,15 +14,11 @@ class file_web_server(web_server):
     self._root_dir = root_dir
       
   def handle_request(self, environ, start_response):
-    filename = file_path.normalize_sep(environ['PATH_INFO'])
-    fragment = file_util.lstrip_sep(filename)
-    self.log_d('handle_request: filename={} fragment={} root_dir={}'.format(filename, fragment, self._root_dir))
-    filename_abs = path.join(self._root_dir, fragment)
-    self.log_i('handle_request: filename_abs={}'.format(filename_abs))
-    if not path.isfile(filename_abs):
+    path_info = self.path_info(environ)
+    if not path.isfile(path_info.rooted_filename):
       return self.response_error(start_response, 404)
-    mime_type = file_mime.mime_type(filename_abs)
-    content = file_util.read(filename_abs)
+    mime_type = self.mime_type(path_info.rooted_filename)
+    content = file_util.read(path_info.rooted_filename)
     headers = [
       ( 'Content-Type', str(mime_type) ),
       ( 'Content-Length', str(len(content)) ),

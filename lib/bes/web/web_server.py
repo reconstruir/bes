@@ -1,15 +1,18 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
 import base64, multiprocessing
 from wsgiref import simple_server
 from collections import namedtuple
 
 from abc import abstractmethod, ABCMeta
+
 from bes.common.check import check
+from bes.fs.file_mime import file_mime
+from bes.fs.file_path import file_path
+from bes.fs.file_util import file_util
 from bes.system.compat import with_metaclass
 from bes.system.log import log
-from bes.fs.file_mime import file_mime
-from bes.fs.file_util import file_util
 
 class web_server(with_metaclass(ABCMeta, object)):
 
@@ -164,3 +167,17 @@ class web_server(with_metaclass(ABCMeta, object)):
     'Fail the next request with the given status_code.'
     self.log_d('fail_next_request: id={} self={} status_code={}'.format(id(self), self, status_code))
     self._fail_next_request.value = status_code
+
+  _path_info = namedtuple('_path_info', 'path_info, filename, fragment, rooted_filename')
+  def path_info(self, environ, relative = True):
+    path_info = environ['PATH_INFO']
+    filename = file_path.normalize_sep(path_info)
+    fragment = file_util.lstrip_sep(filename)
+    rooted_filename = path.join(self._root_dir, fragment)
+    return self._path_info(path_info, filename, fragment, rooted_filename)
+
+  def mime_type(self, filename):
+    mime_type = file_mime.mime_type(filename)
+    if mime_type.mime_type == 'text/plain' and not mime_type.charset:
+      return file_mime._mime_type_and_charset('text/plain', 'us-ascii')
+    return mime_type
