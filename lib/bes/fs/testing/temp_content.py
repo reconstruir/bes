@@ -80,7 +80,6 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
     if not filename:
       raise ValueError('no filename given: {}'.format(str(t)))
     filename = file_path.normalize_sep(filename)
-    print('filename: {}'.format(filename))
     if len(t) > 2:
       content = t[2] or None
     else:
@@ -153,7 +152,6 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
   def write_items(clazz, items, root_dir):
     'Write temp content items to root_dir can be a sequence of strings to parse or temp_item objects.'
     for item in items:
-      print('item: "{}"'.format(str(item).replace('\n', '\\n')))
       item = clazz.parse(item)
       item.write(root_dir)
 
