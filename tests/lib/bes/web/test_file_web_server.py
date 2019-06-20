@@ -11,15 +11,13 @@ from bes.web.web_server_controller import web_server_controller
 from bes.archive.archiver import archiver
 from bes.fs.file_mime import file_mime
 from bes.fs.file_util import file_util
-from bes.fs.temp_file import temp_file
 from bes.url.url_util import url_util
 from bes.fs.testing.temp_content import temp_content
 
 class test_file_web_server(unit_test):
 
-  @classmethod
-  def _make_temp_content(clazz, items):
-    tmp_dir = temp_file.make_temp_dir()
+  def _make_temp_content(self, items):
+    tmp_dir = self.make_temp_dir()
     temp_content.write_items(items, tmp_dir)
     return tmp_dir
   
@@ -37,12 +35,16 @@ class test_file_web_server(unit_test):
     port = server.address[1]
 
     url = self._make_url(port, 'foo.txt')
-    tmp = url_util.download_to_temp_file(url)
+    download_tmp = url_util.download_to_temp_file(url)
+    tmp = self.make_temp_file(suffix = '.txt')
+    file_util.copy(download_tmp, tmp)
     self.assertEqual( 'text/plain', file_mime.mime_type(tmp).mime_type )
     self.assertEqual( 'this is foo.txt\n', file_util.read(tmp, codec = 'utf8') )
 
     url = self._make_url(port, 'subdir/subberdir/baz.txt')
-    tmp = url_util.download_to_temp_file(url)
+    download_tmp = url_util.download_to_temp_file(url)
+    tmp = self.make_temp_file(suffix = '.txt')
+    file_util.copy(download_tmp, tmp)
     self.assertEqual( 'text/plain', file_mime.mime_type(tmp).mime_type )
     self.assertEqual( 'this is baz.txt\n', file_util.read(tmp, codec = 'utf8') )
 
@@ -66,12 +68,16 @@ class test_file_web_server(unit_test):
     port = server.address[1]
 
     url = self._make_url(port, 'foo.txt')
-    tmp = url_util.download_to_temp_file(url, auth = ('fred', 'flintpass'))
+    download_tmp = url_util.download_to_temp_file(url, auth = ('fred', 'flintpass'))
+    tmp = self.make_temp_file(suffix = '.txt')
+    file_util.copy(download_tmp, tmp)
     self.assertEqual( 'text/plain', file_mime.mime_type(tmp).mime_type )
     self.assertEqual( 'this is foo.txt\n', file_util.read(tmp, codec = 'utf8') )
 
     url = self._make_url(port, 'subdir/subberdir/baz.txt')
-    tmp = url_util.download_to_temp_file(url, auth = ('fred', 'flintpass'))
+    download_tmp = url_util.download_to_temp_file(url, auth = ('fred', 'flintpass'))
+    tmp = self.make_temp_file(suffix = '.txt')
+    file_util.copy(download_tmp, tmp)
     self.assertEqual( 'text/plain', file_mime.mime_type(tmp).mime_type )
     self.assertEqual( 'this is baz.txt\n', file_util.read(tmp, codec = 'utf8') )
 

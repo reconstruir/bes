@@ -14,6 +14,7 @@ class test_file_util(unit_test):
     self.assertEqual( self.p('foo'), file_util.lstrip_sep(self.p('/foo')) )
     self.assertEqual( self.p('foo/'), file_util.lstrip_sep(self.p('/foo/')) )
     self.assertEqual( self.p(''), file_util.lstrip_sep(self.p('/')) )
+    self.assertEqual( self.p('foo.txt'), file_util.lstrip_sep(self.p('/foo.txt')) )
 
     self.assertEqual( self.p('foo'), file_util.rstrip_sep(self.p('foo')) )
     self.assertEqual( self.p('/foo'), file_util.rstrip_sep(self.p('/foo')) )
