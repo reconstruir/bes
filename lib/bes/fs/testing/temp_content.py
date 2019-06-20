@@ -5,6 +5,7 @@ import os, os.path as path
 from bes.text.string_list_parser import string_list_parser
 from bes.common.string_util import string_util
 from bes.fs.temp_file import temp_file
+from bes.fs.file_path import file_path
 
 class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')):
   'Temporary files, directories and content for easier testing.'
@@ -77,36 +78,64 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
     item_type = clazz.parse_item_type(t[0])
     filename = t[1]
     if not filename:
-      raise ValueError('not a valid filename: "%s"' % (filename))
+      raise ValueError('no filename given: {}'.format(str(t)))
+    filename = file_path.normalize_sep(filename)
+    print('filename: {}'.format(filename))
     if len(t) > 2:
       content = t[2] or None
     else:
       content = None
-    if content and path.isfile(content):
-      with open(content, 'rb') as fin:
-        content = fin.read()
     if len(t) > 3:
       mode = clazz.parse_mode(t[3])
     else:
       mode = None
     return clazz(item_type, filename, content = content, mode = mode)
 
-  def write(self, root_dir):
+  @classmethod
+  def _file_read(clazz, filename):
+    with open(filename, 'rb') as fin:
+      return fin.read()
+
+  @classmethod
+  def _file_write(clazz, filename, content):
+    content = content or b''
+    if not isinstance(content, bytes):
+      content = content.encode('utf-8')
+    clazz._mkdir(path.dirname(filename))
+    with open(filename, 'wb') as fout:
+      fout.write(content)
+
+  def _write_dir(self, root_dir):
     p = path.join(root_dir, self.filename)
+    self._mkdir(p, mode = self.mode)
+
+  def _write_file(self, root_dir):
+    content = self._determine_content()
+    p = path.join(root_dir, self.filename)
+    self._file_write(p, content)
+    if self.mode:
+      os.chmod(p, self.mode)
+
+  def _determine_content(self):
+    if not self.content:
+      return b''
+    if self.content.startswith('file:'):
+      _, _, source_filename = self.content.partition(':')
+      source_filename = source_filename.strip()
+      if not path.isfile(source_filename):
+        raise IOError('source file not found: {}'.format(source_filename))
+      return self._file_read(source_filename)
+    else:
+      return self.content
+      
+  def write(self, root_dir):
     if self.item_type == self.DIR:
-      self._mkdir(p, mode = self.mode)
+      self._write_dir(root_dir)
     elif self.item_type == self.FILE:
-      self._mkdir(path.dirname(p))
-      with open(p, 'wb') as fout:
-        content = self.content or b''
-        if not isinstance(content, bytes):
-          content = content.encode('utf-8')
-        fout.write(content)
-      if self.mode:
-        os.chmod(p, self.mode)
+      self._write_file(root_dir)
     else:
       assert False
-
+      
   @classmethod
   def _mkdir(clazz, p, mode = None):
     if path.isdir(p):
@@ -124,6 +153,7 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
   def write_items(clazz, items, root_dir):
     'Write temp content items to root_dir can be a sequence of strings to parse or temp_item objects.'
     for item in items:
+      print('item: "{}"'.format(str(item).replace('\n', '\\n')))
       item = clazz.parse(item)
       item.write(root_dir)
 
