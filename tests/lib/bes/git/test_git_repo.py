@@ -17,7 +17,7 @@ class test_git_repo(unit_test):
   def test_init(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r = git_temp_repo(remote = False)
+      r = self._make_repo(remote = False)
       self.assertEqual( [], r.status('.') )
 
   def test_exists_false(self):
@@ -30,13 +30,13 @@ class test_git_repo(unit_test):
   def test_exists_true(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r = git_temp_repo(remote = False)
+      r = self._make_repo(remote = False)
       self.assertTrue( r.exists() )
 
   def test_add(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r = git_temp_repo(remote = False)
+      r = self._make_repo(remote = False)
       r.write_temp_content([
         'file a/b/c/foo.txt "foo content" 755',
         'file d/e/bar.txt "bar content" 644',
@@ -51,7 +51,7 @@ class test_git_repo(unit_test):
   def test_commit(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r = git_temp_repo(remote = False)
+      r = self._make_repo(remote = False)
       r.write_temp_content([
         'file a/b/c/foo.txt "foo content" 755',
         'file d/e/bar.txt "bar content" 644',
@@ -68,7 +68,7 @@ class test_git_repo(unit_test):
   def test_pull(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo(remote = False)
+      r1 = self._make_repo(remote = False)
       r1.write_temp_content([
         'file a/b/c/foo.txt "foo content" 755',
         'file d/e/bar.txt "bar content" 644',
@@ -94,7 +94,7 @@ class test_git_repo(unit_test):
   def test_pull2(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo(remote = False)
+      r1 = self._make_repo(remote = False)
       r1.write_temp_content([
         'file a/b/c/foo.txt "foo content" 755',
         'file d/e/bar.txt "bar content" 644',
@@ -120,7 +120,7 @@ class test_git_repo(unit_test):
   def test_clone_or_pull(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo(remote = False)
+      r1 = self._make_repo(remote = False)
       r1.write_temp_content([
         'file a/b/c/foo.txt "foo content" 755',
         'file d/e/bar.txt "bar content" 644',
@@ -145,7 +145,7 @@ class test_git_repo(unit_test):
   def test_find_all_files(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r = git_temp_repo(remote = False)
+      r = self._make_repo(remote = False)
       self.assertEqual([], r.find_all_files() )
       r.write_temp_content([
         'file a/b/c/foo.txt "foo content" 755',
@@ -159,7 +159,7 @@ class test_git_repo(unit_test):
   def test_push(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       r1.write_temp_content([
         'file foo.txt "this is foo" 644',
       ])
@@ -173,7 +173,7 @@ class test_git_repo(unit_test):
   def test_delete_remote_tags(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       r2 = r1.make_temp_cloned_repo()
       r1.add_file('readme.txt', 'readme is good')
       r1.push('origin', 'master')
@@ -189,7 +189,7 @@ class test_git_repo(unit_test):
   def test_list_remote_tags(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       r2 = r1.make_temp_cloned_repo()
       r1.add_file('readme.txt', 'readme is good')
       r1.push('origin', 'master')
@@ -202,7 +202,7 @@ class test_git_repo(unit_test):
   def test_bump_tag(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       r1.add_file('readme.txt', 'readme is good')
       r1.push('origin', 'master')
       r1.tag('1.0.0')
@@ -216,7 +216,7 @@ class test_git_repo(unit_test):
   def test_bump_tag_empty(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       r1.add_file('readme.txt', 'readme is good')
       r1.push('origin', 'master')
       self.assertEqual( None, r1.greatest_local_tag() )
@@ -228,7 +228,7 @@ class test_git_repo(unit_test):
   def test_bump_two_components(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       r1.add_file('readme.txt', 'readme is good')
       r1.push('origin', 'master')
       r1.tag('1.0')
@@ -242,7 +242,7 @@ class test_git_repo(unit_test):
   def test_list_local_tags_by_version(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r = git_temp_repo(remote = False)
+      r = self._make_repo(remote = False)
       r.add_file('readme.txt', 'readme is good')
       r.tag('1.0.0')
       r.tag('1.0.1')
@@ -258,7 +258,7 @@ class test_git_repo(unit_test):
   def test_list_remote_tags_by_version(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       r2 = r1.make_temp_cloned_repo()
       r1.add_file('readme.txt', 'readme is good')
       r1.push('origin', 'master')
@@ -275,7 +275,7 @@ class test_git_repo(unit_test):
   def test_save_file_first_time(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       r2 = r1.make_temp_cloned_repo()
       r1.save_file('readme.txt', 'readme is good')
       r1.push('origin', 'master')
@@ -285,7 +285,7 @@ class test_git_repo(unit_test):
   def test_save_file_modify(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       r2 = r1.make_temp_cloned_repo()
       r1.add_file('readme.txt', 'readme is good')
 #      r1.save_file('readme.txt', 'readme is bad')
@@ -296,7 +296,7 @@ class test_git_repo(unit_test):
   def test_reset_to_revision(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       r1.add_file('readme.txt', 'readme is good')
       r1.push('origin', 'master')
 
@@ -321,7 +321,7 @@ class test_git_repo(unit_test):
   def test_list_branches_just_master(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       commit = r1.add_file('readme.txt', 'readme is good')
       r1.push('origin', 'master')
 
@@ -333,7 +333,7 @@ class test_git_repo(unit_test):
   def test_list_branches_create_inactive(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       commit = r1.add_file('readme.txt', 'readme is good')
       r1.push('origin', 'master')
 
@@ -347,7 +347,7 @@ class test_git_repo(unit_test):
   def test_list_branches_create_active(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       commit = r1.add_file('readme.txt', 'readme is good')
       r1.push('origin', 'master')
 
@@ -361,7 +361,7 @@ class test_git_repo(unit_test):
   def test_list_branches_create_push(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       commit = r1.add_file('readme.txt', 'readme is good')
       r1.push('origin', 'master')
 
@@ -375,7 +375,7 @@ class test_git_repo(unit_test):
   def test_branch_status(self):
     with env_override.temp_home() as env:
       git_unit_test.set_identity()
-      r1 = git_temp_repo()
+      r1 = self._make_repo()
       r1.add_file('readme.txt', 'readme is good')
       r1.push('origin', 'master')
 
@@ -390,6 +390,52 @@ class test_git_repo(unit_test):
       r2.push()
       r3.fetch()
       self.assertEqual( ( 0, 2 ), r3.branch_status() )
-    
+
+  def test_add_file_with_commit(self):
+    with env_override.temp_home() as env:
+      git_unit_test.set_identity()
+      r1 = self._make_repo(content = [ 'file readme.txt "readme is good" 644' ])
+      r2 = r1.make_temp_cloned_repo()
+      self.assertEqual( [ 'readme.txt' ], r2.find_all_files() )
+
+      commit1 = r1.last_commit_hash()
+      r1.add_file('orange.txt', 'orange is good', commit = True)
+      commit2 = r1.last_commit_hash()
+      self.assertNotEqual( commit1, commit2 )
+      r1.push()
+      r2.pull()
+      self.assertEqual( [ 'orange.txt', 'readme.txt' ], r2.find_all_files() )
+
+  def test_add_file_with_no_commit(self):
+    with env_override.temp_home() as env:
+      git_unit_test.set_identity()
+      r1 = self._make_repo(content = [ 'file readme.txt "readme is good" 644' ])
+      r2 = r1.make_temp_cloned_repo()
+      self.assertEqual( [ 'readme.txt' ], r2.find_all_files() )
+
+      commit1 = r1.last_commit_hash()
+      r1.add_file('orange.txt', 'orange is good', commit = False)
+      commit2 = r1.last_commit_hash()
+      self.assertEqual( commit1, commit2 )
+      r1.push()
+      r2.pull()
+      self.assertEqual( [ 'readme.txt' ], r2.find_all_files() )
+      
+  def test_files_for_commit(self):
+    with env_override.temp_home() as env:
+      git_unit_test.set_identity()
+      r1 = self._make_repo(content = [ 'file readme.txt "readme is good" 644' ], prefix = 'r1-')
+      r1.add_file('orange.txt', 'orange is good', commit = False)
+      r1.add_file('kiwi.txt', 'kiwi is good', commit = False)
+      r1.add([ 'orange.txt', 'kiwi.txt' ])
+      r1.commit('add stuff', [ 'orange.txt', 'kiwi.txt' ])
+      r1.push()
+      
+      r2 = r1.make_temp_cloned_repo(prefix = 'r2-')
+      self.assertEqual( [ 'kiwi.txt', 'orange.txt' ], r2.files_for_commit(r2.last_commit_hash()) )
+
+  def _make_repo(self, remote = True, content = None, prefix = None):
+    return git_temp_repo(remote = remote, content = content, prefix = prefix, debug = self.DEBUG)
+      
 if __name__ == '__main__':
   unit_test.main()

@@ -68,11 +68,6 @@ class git_repo(object):
     return path.join(self.root, '.git')
 
   def find_all_files(self):
-    #crit = [
-    #  file_type_criteria(file_type.DIR | file_type.FILE | file_type.LINK),
-    #]
-    #ff = finder(self.root, criteria = crit, relative = True)
-    #return [ f for f in ff.find() ]
     files = file_find.find(self.root, relative = True, file_type = file_find.FILE|file_find.LINK)
     files = [ f for f in files if not f.startswith('.git') ]
     return files
@@ -83,13 +78,15 @@ class git_repo(object):
   def remote_origin_url(self):
     return git.remote_origin_url(selfroot)
 
-  def add_file(self, filename, content, codec = 'utf-8', mode = None):
+  def add_file(self, filename, content, codec = 'utf-8', mode = None, commit = True):
     p = self.file_path(filename)
     assert not path.isfile(p)
     file_util.save(p, content = content, codec = codec, mode = mode)
     self.add( [ filename ])
-    self.commit('add %s' % (filename), [ filename ])
-    return self.last_commit_hash(short_hash = True)
+    if commit:
+      self.commit('add %s' % (filename), [ filename ])
+      return self.last_commit_hash(short_hash = True)
+    return None
 
   def save_file(self, filename, content, codec = 'utf-8', mode = None):
     if not self.has_file(filename):
@@ -196,5 +193,8 @@ class git_repo(object):
   
   def author(self, commit):
     git.author(self.root, commit)
-  
+
+  def files_for_commit(self, commit):
+    return git.files_for_commit(self.root, commit)
+    
 check.register_class(git_repo)

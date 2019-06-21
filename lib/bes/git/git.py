@@ -548,3 +548,10 @@ class git(object):
       return 'git.exe'
     else:
       host.raise_unsupported_system()
+
+  @classmethod
+  def files_for_commit(clazz, root, commit):
+    'Return a list of files affected by commit.'
+    args = [ 'diff-tree', '--no-commit-id', '--name-only', '-r', commit ]
+    rv = clazz._call_git(root, args)
+    return sorted(clazz._parse_lines(rv.stdout))

@@ -24,17 +24,25 @@ class git_temp_repo(object):
   that all operations mimic the behavior of working with a cloned repo.
   '''
   
-  def __init__(self, remote = True, content = None, debug = False):
+  def __init__(self, remote = True, content = None, debug = False, prefix = None):
     self._debug = debug
     if remote:
-      self._init_remote(content)
+      self._init_remote(content, prefix)
     else:
-      self._init_local(content)
+      self._init_local(content, prefix)
 
-  def _init_remote(self, content):
+  def _init_remote(self, content, prefix):
+    if prefix:
+      remote_prefix = '{}remote-'.format(prefix)
+    else:
+      remote_prefix = 'remote-'
     self._remote_repo = self._make_temp_repo(init_args = [ '--bare', '--shared' ],
-                                             debug = self._debug)
-    tmp_dir = temp_file.make_temp_dir(delete = not self._debug)
+                                             debug = self._debug, prefix = remote_prefix)
+    if prefix:
+      local_prefix = '{}local-'.format(prefix)
+    else:
+      local_prefix = 'local-'
+    tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = local_prefix)
     if self._debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     self._local_repo = git_repo(tmp_dir, address = self._remote_repo.root)
@@ -47,8 +55,8 @@ class git_temp_repo(object):
     self.address = self._remote_repo.root
     self._transplant_methods(self._local_repo)
 
-  def _init_local(self, content):
-    tmp_dir = temp_file.make_temp_dir(delete = not self._debug)
+  def _init_local(self, content, prefix):
+    tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = prefix)
     if self._debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     self._local_repo = git_repo(tmp_dir, address = None)
@@ -67,8 +75,8 @@ class git_temp_repo(object):
         raise RuntimeError('{} already has method \"{}\"'.format(self, method_name))
       setattr(self, method_name, _method_caller(target, method_name))
       
-  def make_temp_cloned_repo(self):
-    tmp_dir = temp_file.make_temp_dir(delete = not self._debug)
+  def make_temp_cloned_repo(self, prefix = None):
+    tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = prefix)
     if self._debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     r = git_repo(tmp_dir, address = self._remote_repo.root)
@@ -76,8 +84,8 @@ class git_temp_repo(object):
     return r
       
   @classmethod
-  def _make_temp_repo(clazz, init_args = None, content = None, debug = False):
-    tmp_dir = temp_file.make_temp_dir(delete = not debug)
+  def _make_temp_repo(clazz, init_args = None, content = None, debug = False, prefix = None):
+    tmp_dir = temp_file.make_temp_dir(delete = not debug, prefix = prefix)
     if debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     r = git_repo(tmp_dir, address = None)
