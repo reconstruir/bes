@@ -77,10 +77,10 @@ class test_log(unittest.TestCase):
       bar()
 
   def test_output(self):
-    log.output('foo')
+    log.output('output to stdout')
       
   def test_output_console(self):
-    log.output('foo', console = True)
+    log.output('output to console', console = True)
       
 if __name__ == "__main__":
   unittest.main()
