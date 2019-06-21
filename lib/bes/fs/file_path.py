@@ -123,5 +123,6 @@ class file_path(object):
     return [ x for x in reversed(result) ]
 
   @classmethod
-  def normalize_sep(clazz, p):
-    return path.normpath(os.sep.join(re.split(r'\\|/', p)))
+  def normalize_sep(clazz, p, sep = None):
+    sep = sep or os.sep
+    return path.normpath(sep.join(re.split(r'\\|/', p)))
