@@ -94,6 +94,12 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Use git status to figure out what has changed to test [ False ]')
+  parser.add_argument('--commit',
+                      '-c',
+                      action = 'store',
+                      type = str,
+                      default = None,
+                      help = 'Test only the files affected by the given git commit [ None ]')
   parser.add_argument('--pre-commit',
                       action = 'store_true',
                       default = False,
@@ -127,7 +133,6 @@ def main():
                       default = False,
                       help = 'Dont hack PATH and PYTHONPATH. [ False ]')
   parser.add_argument('--compile-only',
-                      '-c',
                       action = 'store_true',
                       default = False,
                       help = 'Just compile the files to verify syntax [ False ]')
@@ -179,6 +184,10 @@ def main():
   
   args = parser.parse_args()
 
+  if args.git and args.commit:
+    printer.writeln_name('ERROR: Only one of --git or --commit can be given.')
+    return 1
+  
   if args.temp_dir:
     file_util.mkdir(args.temp_dir)
     tempfile.tempdir = args.temp_dir
@@ -200,9 +209,14 @@ def main():
   if not args.file_ignore_file:
     args.file_ignore_file = [ '.bes_test_ignore', '.bes_test_internal_ignore' ]
 
+  if args.commit:
+    if args.commit in [ 'HEAD', 'last' ]:
+      args.commit = git.last_commit_hash('.')
+
   ar = argument_resolver(cwd, args.files, root_dir = args.root_dir,
                          file_ignore_filename = args.file_ignore_file,
                          check_git = args.git,
+                         git_commit = args.commit,
                          use_env_deps = not args.no_env_deps)
   ar.num_iterations = args.iterations
   ar.randomize = args.randomize

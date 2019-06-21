@@ -11,6 +11,7 @@ from bes.fs.file_ignore import file_multi_ignore
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.git.git import git
+from bes.git.git_util import git_util
 from bes.python.dependencies import dependencies
 from bes.system.env_var import env_var
 from bes.system.execute import execute
@@ -25,7 +26,8 @@ from .unit_test_description import unit_test_description
 
 class argument_resolver(object):
 
-  def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None, check_git = False, use_env_deps = True):
+  def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None,
+               check_git = False, git_commit = None, use_env_deps = True):
     self._num_iterations = 1
     self._randomize = False
     self._raw_test_descriptions = []
@@ -39,6 +41,8 @@ class argument_resolver(object):
     unresolved_files, unresolved_dirs = self._split_files_and_dirs(working_dir, arguments_just_files)
     if check_git:
       files = self._git_tracked_modified_files(unresolved_dirs + unresolved_files)
+    elif git_commit:
+      files = self._git_files_for_commit(git_commit)
     else:
       files = self._resolve_files_and_dirs(working_dir, arguments_just_files)
     if not files:
@@ -275,6 +279,14 @@ class argument_resolver(object):
           if x.action in [ 'M', 'A' ]:
             result.append(x.filename)
     return result
+
+  @classmethod
+  def _git_files_for_commit(clazz, commit):
+    git_dir = git_util.find_root_dir()
+    root = path.dirname(git_dir)
+    files = git.files_for_commit(root, commit)
+    files = [ path.join(root, f) for f in files ]
+    return files
 
   def supports_test_dependency_files(self):
     return dependencies.is_supported()
