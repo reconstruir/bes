@@ -59,23 +59,9 @@ class file_mime(object):
   def is_gzip(clazz, filename):
     return clazz.mime_type(filename).mime_type in clazz._GZIP_MIME_TYPES
 
-  # https://en.wikipedia.org/wiki/List_of_file_signatures
-  _ZIP_MAGICS = {
-    ( 0x50, 0x4B, 0x03, 0x04 ),
-    ( 0x50, 0x4B, 0x05, 0x06 ),
-    ( 0x50, 0x4B, 0x07, 0x08 ),
-  }
-  
   @classmethod
   def is_zip(clazz, filename):
-    with open(filename, 'rb') as fin:
-      data = fin.read(4)
-      # FIXME: figure out this ridiculousness
-      if compat.IS_PYTHON2:
-        magic = ( ord(data[0]), ord(data[1]), ord(data[2]), ord(data[3]) )
-      else:
-        magic = ( data[0], data[1], data[2], data[3] )
-      return magic in clazz._ZIP_MAGICS
+    return clazz.mime_type(filename).mime_type in clazz._ZIP_MIME_TYPES
 
   # From http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
   @classmethod

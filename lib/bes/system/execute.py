@@ -22,6 +22,13 @@ class execute(object):
     else:
       stderr_pipe = subprocess.STDOUT
 
+    # On windows run python scripts with python.exe
+    if host.SYSTEM == host.WINDOWS:
+      if path.exists(args[0]) and clazz.is_python_code(args[0]):
+        from bes.python.py_exe import py_exe
+        python_exe = py_exe.find_python_exe()
+        args.insert(0, python_exe)
+      
     if shell:
       args = ' '.join(args)
       # FIXME: quoting ?
@@ -148,3 +155,13 @@ class execute(object):
       raise
     finally:
       os.remove(tmp)
+
+  @classmethod
+  def is_python_code(clazz, filename):
+    if filename.lower().endswith('.py'):
+      return True
+    from bes.fs.file_mime import file_mime
+    mt = file_mime.mime_type(filename)
+    if mt.mime_type == 'text/x-python':
+      return True
+    return False

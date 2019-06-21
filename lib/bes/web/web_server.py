@@ -177,7 +177,4 @@ class web_server(with_metaclass(ABCMeta, object)):
     return self._path_info(path_info, filename, fragment, rooted_filename)
 
   def mime_type(self, filename):
-    mime_type = file_mime.mime_type(filename)
-    if mime_type.mime_type == 'text/plain' and not mime_type.charset:
-      return file_mime._mime_type_and_charset('text/plain', 'us-ascii')
-    return mime_type
+    return file_mime.mime_type(filename)
