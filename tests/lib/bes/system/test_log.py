@@ -75,6 +75,12 @@ class test_log(unittest.TestCase):
       
     with self.assertRaises(RuntimeError) as context:
       bar()
+
+  def test_output(self):
+    log.output('foo')
+      
+  def test_output_console(self):
+    log.output('foo', console = True)
       
 if __name__ == "__main__":
   unittest.main()

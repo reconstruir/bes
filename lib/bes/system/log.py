@@ -8,6 +8,7 @@ import threading
 from .thread_id import thread_id
 from .add_method import add_method
 from .compat import compat
+from .host import host
 
 import logging as pylog
 
@@ -251,7 +252,7 @@ class log(object):
     elif key == 'dump':
       lines = [ '%s: %s' % (key, clazz._level_to_string.get(level)) for key, level in sorted(clazz._tag_levels.items()) ]
       message = '\n'.join(lines) + '\n'
-      clazz._console_output(message)
+      clazz.output(message, console = True)
     elif key == 'format':
       clazz._format = clazz.__FORMATS.get(value, value)
     elif key == 'width':
@@ -281,14 +282,38 @@ class log(object):
       if c in clazz.__FNMATCH_CHARS:
         return True
     return False
+  
+  @classmethod
+  def output(clazz, message, console = False):
+    if console and host.is_unix():
+      clazz._output_console(message)
+    else:
+      clazz._output_stream(sys.stdout, message)
 
   @classmethod
-  def _console_output(clazz, message):
+  def _output_console(clazz, message):
+    assert host.is_unix()
     with open('/dev/tty', 'w') as fout:
-      fout.write(message)
-      fout.flush()
+      clazz._output_stream(fout, message)
       fout.close()
+      
+  @classmethod
+  def _output_stream(clazz, stream, message):
+    stream.write(message)
+    if not clazz._ends_with_line_break(message):
+      stream.write(clazz._DEFAULT_LINE_BREAK)
+    stream.flush()
 
+  _LINE_BREAKS = [ '\n', '\r\n' ]
+  _DEFAULT_LINE_BREAK = '\n' if host.is_unix() else '\r\n'
+    
+  @classmethod
+  def _ends_with_line_break(clazz, s):
+    for lb in clazz._LINE_BREAKS:
+      if s.endswith(lb):
+        return True
+    return False
+    
   @classmethod
   def set_log_file(clazz, f):
     'Set the log file to be f.  f can be a filename or a file object.'
