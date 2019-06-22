@@ -428,7 +428,7 @@ class git(object):
 
   @classmethod
   def active_branch(clazz, root):
-    return [ i for i in clazz.branch_list(root) if i.active ][0].name
+    return [ i for i in clazz.list_branches(root, 'local') if i.active ][0].name
 
   @classmethod
   def list_branches(clazz, root, where):

@@ -4,8 +4,7 @@
 import errno, os.path as path, os, stat
 
 from bes.system.log import log
-from bes.common import object_util
-#from bes.fs import file_util, file_match
+from bes.common.object_util import object_util
 
 from .match_variables import match_variables
 from .criteria import criteria

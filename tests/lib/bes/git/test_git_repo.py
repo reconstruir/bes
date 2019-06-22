@@ -434,6 +434,19 @@ class test_git_repo(unit_test):
       r2 = r1.make_temp_cloned_repo(prefix = 'r2-')
       self.assertEqual( [ 'kiwi.txt', 'orange.txt' ], r2.files_for_commit(r2.last_commit_hash()) )
 
+  def test_active_branch(self):
+    with env_override.temp_home() as env:
+      git_unit_test.set_identity()
+      r1 = self._make_repo(content = [ 'file readme.txt "readme is good" 644' ], prefix = 'r1-')
+      r1.branch_create('b1', checkout = False, push = True)
+      
+      r2 = r1.make_temp_cloned_repo(prefix = 'r2-')
+      self.assertEqual( 'master', r2.active_branch() )
+      r2.checkout('b1')
+      self.assertEqual( 'b1', r2.active_branch() )
+      r2.checkout('master')
+      self.assertEqual( 'master', r2.active_branch() )
+      
   def _make_repo(self, remote = True, content = None, prefix = None):
     return git_temp_repo(remote = remote, content = content, prefix = prefix, debug = self.DEBUG)
       

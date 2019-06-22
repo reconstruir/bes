@@ -197,4 +197,7 @@ class git_repo(object):
   def files_for_commit(self, commit):
     return git.files_for_commit(self.root, commit)
     
+  def active_branch(self):
+    return git.active_branch(self.root)
+    
 check.register_class(git_repo)
