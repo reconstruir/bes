@@ -1,11 +1,13 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import copy, glob, os, os.path as path
+
+from bes.common.algorithm import algorithm
 from bes.dependency.dependency_resolver import dependency_resolver
 from bes.fs.file_find import file_find
 from bes.fs.file_path import file_path
 from bes.system.env_var import os_env_var
-from bes.common.algorithm import algorithm
+from bes.system.host import host
 
 from .config_file import config_file
 
@@ -39,8 +41,8 @@ class config_env(object):
     for cf in config_files:
       name = cf.data.name
       if name in config_map:
-        raise RuntimeError('Duplicate project \"%s\": %s %s' % (name, path.relpath(cf.filename),
-                                                                path.relpath(config_map[name].filename)))
+        raise RuntimeError('Duplicate project \"%s\": %s %s' % (name, cf.filename,
+                                                                config_map[name].filename))
       config_map[name] = cf
     return config_map
   
@@ -53,7 +55,14 @@ class config_env(object):
 
   @classmethod
   def _find_config_files(clazz, d):
-    return algorithm.unique(sorted(clazz._find_config_files_in_root(d) + clazz._find_config_files_in_env()))
+    in_root = clazz._find_config_files_in_root(d)
+    in_env = clazz._find_config_files_in_env()
+    # On windows theres a silly bug in os.walk() that makes the directory names
+    # be lower case so normalize the case before making the list unique
+    if host.is_windows():
+      in_env_set = set([ f.lower() for f in in_env ])
+      in_root = [ f for f in in_root if f.lower() not in in_env_set ]
+    return algorithm.unique(sorted(in_root + in_env))
 
   @classmethod
   def _find_config_files_in_root(clazz, d):
