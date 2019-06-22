@@ -25,7 +25,7 @@ from bes.testing.framework.argument_resolver import argument_resolver
 from bes.testing.framework.printer import printer
 from bes.testing.framework.unit_test_output import unit_test_output
 from bes.version.version_cli import version_cli
-from bes.python.py_exe import py_exe
+from bes.system.python import python as python
 
 # TODO:
 #  - figure out how to stop on first failure within one module
@@ -174,7 +174,7 @@ def main():
     printer.writeln_name('ERROR: No git found.  Git is needed to run bes_test.')
     return 1
 
-  python_exe = py_exe.find_python_exe()
+  python_exe = python.find_python_exe()
   if not python_exe:
     printer.writeln_name('ERROR: No python found.  Python is needed to run bes_test.')
     return 1

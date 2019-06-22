@@ -1,9 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs, os, os.path as path, pipes, re, shlex, subprocess, sys, tempfile
+import codecs, os, os.path as path, re, shlex, subprocess, sys, tempfile
 from collections import namedtuple
 from .compat import compat
 from .host import host
+from .python import python
 
 class execute(object):
   'execute'
@@ -24,7 +25,7 @@ class execute(object):
 
     # On windows run python scripts with python.exe
     if host.SYSTEM == host.WINDOWS:
-      if path.exists(args[0]) and clazz.is_python_code(args[0]):
+      if path.exists(args[0]) and python.is_python_script(args[0]):
         from bes.python.py_exe import py_exe
         python_exe = py_exe.find_python_exe()
         args.insert(0, python_exe)
@@ -155,13 +156,3 @@ class execute(object):
       raise
     finally:
       os.remove(tmp)
-
-  @classmethod
-  def is_python_code(clazz, filename):
-    if filename.lower().endswith('.py'):
-      return True
-    from bes.fs.file_mime import file_mime
-    mt = file_mime.mime_type(filename)
-    if mt.mime_type == 'text/x-python':
-      return True
-    return False

@@ -5,11 +5,17 @@ from collections import namedtuple
 import os.path as path
 
 from bes.testing.script_unit_test import script_unit_test
+from bes.system.host import host
 
 class test_command_cli(script_unit_test):
 
-  __script__ = __file__, 'fake_script.py'
-
+  if host.is_unix():
+    __script__ = __file__, 'fake_script.py'
+  elif host.is_windows():
+    __script__ = __file__, 'fake_script.bat'
+  else:
+    host.raise_unsupported_system()
+  
   def test_foo(self):
     rv = self.run_script([ 'foo', 'address', 'version' ])
     self.assertEqual( 0, rv.exit_code )
