@@ -24,13 +24,11 @@ instruction = namedtuple('instruction', 'key,value,action')
   
 class env_dir(object):
 
-  DEBUG = False
-  #DEBUG = True
-  
-  def __init__(self, where, files = None):
+  def __init__(self, where, files = None, debug = False):
     self._where = path.abspath(where)
     self._files = self._determine_files(self._where, files)
-
+    self._debug = debug
+    
   @classmethod
   def _determine_files(clazz, where, files):
     if files:
@@ -80,18 +78,18 @@ class env_dir(object):
     buf.write('echo "----3----"\n')
     buf.write('declare -px\n')
     buf.write('echo "----4----"\n')
-    script = temp_file.make_temp_file(content = buf.getvalue(), delete = not self.DEBUG)
-    if self.DEBUG:
+    script = temp_file.make_temp_file(content = buf.getvalue(), delete = not self._debug)
+    if self._debug:
       sys.stdout.write('env_dir: script=%s\n' % (script))
       sys.stdout.flush()
     os.chmod(script, 0o755)
     try:
       rv = execute.execute(script, raise_error = True, shell = True, env = env)
     finally:
-      if not self.DEBUG:
+      if not self._debug:
         file_util.remove(script)
     parser = text_line_parser(rv.stdout)
-    if self.DEBUG:
+    if self._debug:
       sys.stdout.write('env_dir: stdout=%s\n' % (rv.stdout))
       sys.stdout.write('env_dir: stderr=%s\n' % (rv.stderr))
       sys.stdout.flush()
