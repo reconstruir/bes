@@ -130,7 +130,7 @@ class config_section(object):
     variables = variable.find_variables(value)
     if variables:
       substitutions = clazz._substitutions_for_value(value, origin)
-      return variable.substitute(value, substitutions, word_boundary = True)
+      return variable.substitute(value, substitutions)
     return value
   
   @classmethod

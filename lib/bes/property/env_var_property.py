@@ -54,4 +54,4 @@ class env_var_property(object):
       if not os_var.is_set:
         raise ValueError('%s not set in the current environment: \"%s\"' % (var, value))
       substitutions[var] = os_var.value
-    return variable.substitute(value, substitutions, word_boundary = False)
+    return variable.substitute(value, substitutions)

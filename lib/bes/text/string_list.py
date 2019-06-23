@@ -52,8 +52,8 @@ class string_list(type_checked_list, string_lexer_options.CONSTANTS):
   def remove_empties(self):
     self._values = [ s for s in self._values if s ]
 
-  def substitute_variables(self, d, word_boundary = True):
-    self._values = [ variable.substitute(s, d, word_boundary = word_boundary) for s in self._values ]
+  def substitute_variables(self, d):
+    self._values = [ variable.substitute(s, d) for s in self._values ]
 
   def to_json(self, indent = 2):
     return json.dumps(self._values, indent = indent)
