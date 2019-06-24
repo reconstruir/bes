@@ -15,6 +15,12 @@ class archive_tar(archive):
 
   @classmethod
   #@abstractmethod
+  def name(clazz):
+    'Name of this archive format.'
+    return 'tar'
+    
+  @classmethod
+  #@abstractmethod
   def file_is_valid(clazz, filename):
     return tarfile.is_tarfile(filename)
 
@@ -60,10 +66,11 @@ class archive_tar(archive):
 
   def create(self, root_dir, base_dir = None,
              extra_items = None,
-             include = None, exclude = None):
+             include = None, exclude = None,
+             extension = None):
     self._pre_create()
     items = self._find(root_dir, base_dir, extra_items, include, exclude)
-    mode = archive_extension.write_format_for_filename(self.filename)
+    mode = archive_extension.write_format_for_filename(extension or self.filename)
     with tarfile.open(self.filename, mode = mode) as archive:
       for item in items:
         archive.add(item.filename, arcname = item.arcname)

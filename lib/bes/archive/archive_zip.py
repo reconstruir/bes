@@ -5,7 +5,6 @@ import os, os.path as path, stat, zipfile
 from bes.fs.file_util import file_util
 
 from .archive import archive
-from .archive_extension import archive_extension
 
 class archive_zip(archive):
   'A Zip archive class.'
@@ -13,6 +12,12 @@ class archive_zip(archive):
   def __init__(self, filename):
     super(archive_zip, self).__init__(filename)
 
+  @classmethod
+  #@abstractmethod
+  def name(clazz):
+    'Name of this archive format.'
+    return 'zip'
+    
   @classmethod
   #@abstractmethod
   def file_is_valid(clazz, filename):
@@ -66,8 +71,8 @@ class archive_zip(archive):
 
   def create(self, root_dir, base_dir = None,
              extra_items = None,
-             include = None, exclude = None):
-    assert file_util.extension(self.filename).lower() == archive_extension.ZIP
+             include = None, exclude = None,
+             extension = None):
     self._pre_create()
     items = self._find(root_dir, base_dir, extra_items, include, exclude)
     with zipfile.ZipFile(file = self.filename, mode = 'w', compression = zipfile.ZIP_DEFLATED) as archive:

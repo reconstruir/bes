@@ -11,6 +11,12 @@ class archive_base(with_metaclass(ABCMeta, object)):
 
   @classmethod
   @abstractmethod
+  def name(clazz):
+    'Name of this archive format.'
+    raise NotImplementedError()
+  
+  @classmethod
+  @abstractmethod
   def file_is_valid(clazz, filename):
     'Return True if filename is a valid file supported by this archive format.'
     raise NotImplementedError()
@@ -72,5 +78,6 @@ class archive_base(with_metaclass(ABCMeta, object)):
   @abstractmethod
   def create(self, root_dir, base_dir = None,
              extra_items = None,
-             include = None, exclude = None):
+             include = None, exclude = None,
+             extension = None):
     raise NotImplementedError()

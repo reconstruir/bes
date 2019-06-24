@@ -17,6 +17,12 @@ class archive_unix_tar(archive):
 
   @classmethod
   #@abstractmethod
+  def name(clazz):
+    'Name of this archive format.'
+    return 'unix_tar'
+    
+  @classmethod
+  #@abstractmethod
   def file_is_valid(clazz, filename):
     'Return True if filename is a valid file supported by this archive format.'
     try:
@@ -64,10 +70,11 @@ class archive_unix_tar(archive):
 
   def create(self, root_dir, base_dir = None,
              extra_items = None,
-             include = None, exclude = None):
+             include = None, exclude = None,
+             extension = None):
     items = self._find(root_dir, base_dir, extra_items, include, exclude)
     ext = archive_extension.extension_for_filename(self.filename)
-    mode = archive_extension.write_format_for_filename(self.filename)
+    mode = archive_extension.write_format_for_filename(extension or self.filename)
 #    print('ext=%s' % (ext))
 #    print('mode=%s' % (mode))
     tmp_dir = temp_file.make_temp_dir()

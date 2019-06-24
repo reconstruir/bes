@@ -7,7 +7,6 @@ from bes.system.execute import execute
 from bes.system.host import host
 
 from .archive import archive
-from .archive_extension import archive_extension
 from .macos.dmg import dmg
 from .archive_zip import archive_zip
 
@@ -19,6 +18,12 @@ class archive_dmg(archive):
       raise RuntimeError('archive_dmg is only supported on macos')
     super(archive_dmg, self).__init__(filename)
 
+  @classmethod
+  #@abstractmethod
+  def name(clazz):
+    'Name of this archive format.'
+    return 'dmg'
+    
   @classmethod
   #@abstractmethod
   def file_is_valid(clazz, filename):
@@ -78,7 +83,8 @@ class archive_dmg(archive):
 
   def create(self, root_dir, base_dir = None,
              extra_items = None,
-             include = None, exclude = None):
+             include = None, exclude = None,
+             extension = None):
     self._pre_create()
     items = self._find(root_dir, base_dir, extra_items, include, exclude)
     tmp_dir = temp_file.make_temp_dir()

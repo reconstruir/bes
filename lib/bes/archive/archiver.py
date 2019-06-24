@@ -106,15 +106,20 @@ class archiver(object):
   @classmethod
   def create(clazz, filename, root_dir, base_dir = None,
              extra_items = None,
-             include = None, exclude = None):
-    archive_class = clazz._determine_type_for_create(filename)
+             include = None, exclude = None,
+             extension = None):
+    if extension:
+      archive_class = clazz._determine_type_for_ext(extension)
+    else:
+      archive_class = clazz._determine_type_for_create(filename)
     if not archive_class:
       raise RuntimeError('Unknown archive type for %s' % (filename))
     archive_class(filename).create(root_dir,
                                    base_dir = base_dir,
                                    extra_items = extra_items,
                                    include = include,
-                                   exclude = exclude)
+                                   exclude = exclude,
+                                   extension = extension)
 
   @classmethod
   def recreate(clazz, archive, output_archive, base_dir):
@@ -151,9 +156,8 @@ class archiver(object):
   @classmethod
   def _determine_type(clazz, filename):
     possible = [ archive_tar, archive_zip, archive_xz ] 
-    if host.SYSTEM == host.MACOS:
+    if host.is_macos():
       possible.append(archive_dmg)
-
     for p in possible:
       if p.file_is_valid(filename):
         return p
@@ -172,6 +176,18 @@ class archiver(object):
     return None
 
   @classmethod
+  def _determine_type_for_ext(clazz, ext):
+    if archive_extension.is_valid_tar_ext(ext):
+      return archive_tar
+    elif archive_extension.is_valid_zip_ext(ext):
+      return archive_zip
+    elif archive_extension.is_valid_xz_ext(ext):
+      return archive_xz
+    elif archive_extension.is_valid_dmg_ext(ext):
+      return archive_dmg
+    return None
+
+  @classmethod
   def common_files(clazz, archives):
     'Return a list of files common to 2 or more archives.' 
     sets = [ set(clazz.members(a)) for a in archives ]
@@ -186,3 +202,13 @@ class archiver(object):
     else:
       files = [ f for f in files if archiver.is_valid(f) ]
     return files
+
+  @classmethod
+  def format_name(clazz, filename):
+    'Return the name of the archive format.  zip, tar, dmg, xz or unix_tar.'
+    archive_class = clazz._determine_type(filename)
+    if not archive_class:
+      return None
+    return archive_class.name()
+  
+  

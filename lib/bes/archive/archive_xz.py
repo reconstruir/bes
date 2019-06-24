@@ -8,7 +8,6 @@ from bes.fs.tar_util import tar_util
 from bes.system.execute import execute
 
 from .archive import archive
-from .archive_extension import archive_extension
 from .archive_zip import archive_zip
 
 class archive_xz(archive):
@@ -20,6 +19,12 @@ class archive_xz(archive):
   def __init__(self, filename):
     super(archive_xz, self).__init__(filename)
 
+  @classmethod
+  #@abstractmethod
+  def name(clazz):
+    'Name of this archive format.'
+    return 'xz'
+    
   @classmethod
   #@abstractmethod
   def file_is_valid(clazz, filename):
@@ -65,7 +70,8 @@ class archive_xz(archive):
 
   def create(self, root_dir, base_dir = None,
              extra_items = None,
-             include = None, exclude = None):
+             include = None, exclude = None,
+             extension = None):
     self._pre_create()
     items = self._find(root_dir, base_dir, extra_items, include, exclude)
     tmp_dir = temp_file.make_temp_dir()
