@@ -16,26 +16,36 @@ class console(object):
   
   @classmethod
   def _output_console(clazz, message):
-    dev = clazz._console_device()
-    if not dev:
-      raise IOError('console device not found for: {}'.format(host.SYSTEM))
-    with open(dev, 'w') as fout:
-      clazz._output_stream(fout, message)
-      fout.close()
+    devices = clazz._possible_devices()
+    fout = clazz._open_console(devices)
+    if fout:
+      try:
+        clazz._output_stream(fout, message)
+      except Exception as ex:
+        pass
+      finally:
+        fout.close()
 
-  _WINDOWS_CONSOLE = 'con:'
+  _WINDOWS_DEVICES = [ 'con:' ]
   _UNIX_DEVICES = [ '/dev/console', '/dev/tty' ]
-      
   @classmethod
-  def _console_device(clazz):
+  def _possible_devices(clazz):
     if host.is_windows():
-      return clazz._WINDOWS_CONSOLE
+      return clazz._WINDOWS_DEVICES
     elif host.is_unix():
-      for dev in clazz._UNIX_DEVICES:
-        if path.exists(dev):
-          return dev
-    return None
+      return clazz._UNIX_DEVICES
+    return []
 
+  @classmethod
+  def _open_console(clazz, devices):
+    for dev in devices:
+      try:
+        f = open(dev, 'w')
+        return f
+      except Exception as ex:
+        pass
+    return None
+  
   @classmethod
   def _output_stream(clazz, stream, message):
     stream.write(message)
