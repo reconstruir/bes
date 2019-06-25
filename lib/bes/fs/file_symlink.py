@@ -28,3 +28,14 @@ class file_symlink(object):
   @classmethod
   def is_broken(clazz, filename):
     return path.islink(filename) and not path.exists(os.readlink(filename))
+
+  @classmethod
+  def resolve(clazz, filename):
+    if not path.exists(filename):
+      raise IOError('not found: {}'.format(filename))
+    if path.islink(filename):
+      target = os.readlink(filename)
+      if path.isabs(target):
+        return target
+      return path.join(path.dirname(filename), target)
+    return filename
