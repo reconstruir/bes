@@ -1,8 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
-import sys
+import os, sys
+
 from .host import host
+from .execute import execute
 
 class console(object):
   'Class to deal with the console in a cross platform manner.'
@@ -62,3 +64,50 @@ class console(object):
       if s.endswith(lb):
         return True
     return False
+
+  @classmethod
+  def terminal_device(clazz):
+    'Return the current terminal device or None if not a terminal.'
+    if host.is_windows():
+      return False
+    elif host.is_unix():
+      try:
+        dev = execute.execute('tty').stdout.strip()
+        with open(dev, 'r') as f:
+          if os.isatty(f.fileno()):
+            return dev
+          else:
+            return None
+      except Exception as ex:
+        print(ex)
+        return None
+    else:
+      host.raise_unsupported_system()
+
+  @classmethod
+  def terminal_size(clazz):
+    'Return a 2-tuple ( width, height ) size of the current terminal or None if not a terminal.'
+    dev = clazz.terminal_device()
+    if not dev:
+      return None
+    assert host.is_unix() # for now only unix
+    try:
+      with open(dev, 'r') as f:
+        cmd = 'stty size < {}'.format(dev)
+        s = os.popen(cmd, 'r').read().split()
+        return int(s[1]), int(s[0])
+    except Exception as ex:
+      print(ex)
+      return None
+
+  @classmethod
+  def terminal_width(clazz, default = 80):
+    'Return the terminal width or None if not a terminal'
+    s = clazz.terminal_size()
+    return s[0] if s else default
+
+  @classmethod
+  def terminal_heigh(clazz, default = 36):
+    'Return the terminal width or None if not a terminal'
+    s = clazz.terminal_size()
+    return s[1] if s else default
