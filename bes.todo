@@ -183,3 +183,4 @@ New
 - checks for compat.IS_PYTHON3 in http unit tests.
 
 archiver.format_name() returns tar for tgz
+cleanup git.archive
