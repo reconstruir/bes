@@ -250,6 +250,16 @@ class test_git(unittest.TestCase):
       file_util.mkdir(tmp_repo)
       git.init(tmp_repo)
       self.assertEqual( tmp_repo, git.resolve_address('~/minerepo') )
-    
+
+  def test_is_long_hash(self):
+    self.assertTrue( git.is_long_hash('cd138635e1a94a6f2da6acbce3e2f2d584121d28') )
+    self.assertFalse( git.is_long_hash('zd138635e1a94a6f2da6acbce3e2f2d584121d28') )
+    self.assertFalse( git.is_long_hash('cd13863') )
+
+  def test_is_short_hash(self):
+    self.assertTrue( git.is_short_hash('cd13863') )
+    self.assertFalse( git.is_short_hash('cd138635e1a94a6f2da6acbce3e2f2d584121d28') )
+    self.assertFalse( git.is_short_hash('zd13863') )
+      
 if __name__ == "__main__":
   unittest.main()

@@ -177,7 +177,7 @@ class git(object):
       return clazz.clone(address, dest_dir, enforce_empty_dir = enforce_empty_dir)
 
   @classmethod
-  def archive(clazz, address, revision, base_name, archive_filename, untracked = False):
+  def archive(clazz, address, revision, base_name, output_filename, untracked = False):
     'git archive with additional support to include untracked files for local repos.'
     tmp_repo_dir = temp_file.make_temp_dir()
     if path.isdir(address):
@@ -189,18 +189,40 @@ class git(object):
       if untracked:
         raise RuntimeError('untracked can only be True for local repos.')
       clazz.clone(address, tmp_repo_dir)
-    archive_filename = path.abspath(archive_filename)
-    file_util.mkdir(path.dirname(archive_filename))
+    output_filename = path.abspath(output_filename)
+    file_util.mkdir(path.dirname(output_filename))
     flags = []
     args = [
       'archive',
       '--format=tgz',
       '--prefix=%s-%s/' % (base_name, revision),
       '-o',
-      archive_filename,
+      output_filename,
       revision
     ]
     rv = clazz._call_git(tmp_repo_dir, args)
+    return rv
+
+  @classmethod
+  def archive_foo(clazz, root, base_name, revision, output_filename,
+                  archive_format = None, short_hash = True):
+    'git archive with additional support to include untracked files for local repos.'
+    archive_format = archive_format or 'tgz'
+    output_filename = path.abspath(output_filename)
+    file_util.ensure_file_dir(output_filename)
+    if short_hash:
+      if clazz.is_long_hash(revision):
+        revision = clazz.short_hash(root, long_hash)
+        
+    args = [
+      'archive',
+      '--format={}'.format(archive_format),
+      '--prefix={}-{}/'.format(base_name, revision),
+      '-o',
+      output_filename,
+      revision
+    ]
+    rv = clazz._call_git(root, args)
     return rv
   
   @classmethod
@@ -555,3 +577,27 @@ class git(object):
     args = [ 'diff-tree', '--no-commit-id', '--name-only', '-r', commit ]
     rv = clazz._call_git(root, args)
     return sorted(clazz._parse_lines(rv.stdout))
+
+
+  @classmethod
+  def _is_valid_hash_char(clazz, c):
+    'Return True if c is a valid git hash char.'
+    return (c >= 'a' and c <= 'f') or (c >= '0' and c <= '9')
+
+  @classmethod
+  def _is_valid_hash(clazz, h):
+    for c in h:
+      if not clazz._is_valid_hash_char(c):
+        return False
+    return True
+  
+  @classmethod
+  def is_long_hash(clazz, h):
+    'Return True if h is a long hash.'
+    return len(h) == 40 and clazz._is_valid_hash(h)
+
+  @classmethod
+  def is_short_hash(clazz, h):
+    'Return True if h is a short hash.'
+    return len(h) == 7 and clazz._is_valid_hash(h)
+  

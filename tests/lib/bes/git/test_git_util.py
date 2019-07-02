@@ -267,6 +267,6 @@ exit 0
       rv = git_util.repo_run_script(r1.address, xp_script, [], False, 'major', False)
       self.assertEqual( 0, rv.exit_code )
       self.assertEqual( '2.0.1', r2.greatest_remote_tag() )
-      
+    
 if __name__ == '__main__':
   unit_test.main()

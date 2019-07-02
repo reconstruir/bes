@@ -181,3 +181,5 @@ New
 - s/Waiter/waiter/
 - mv lib/bes/env to a unix only place
 - checks for compat.IS_PYTHON3 in http unit tests.
+
+archiver.format_name() returns tar for tgz
