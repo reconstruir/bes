@@ -9,10 +9,12 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_copy import file_copy
+from bes.fs.file_find import file_find
 from bes.fs.file_ignore import file_ignore
 from bes.fs.file_ignore import ignore_file_data
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
+from bes.fs.file_mime import file_mime
 from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
 from bes.system.host import host
@@ -600,4 +602,30 @@ class git(object):
   def is_short_hash(clazz, h):
     'Return True if h is a short hash.'
     return len(h) == 7 and clazz._is_valid_hash(h)
+
+  @classmethod
+  def files(clazz, root):
+    'Return a list of all the files in the repo.'
+    rv = clazz._call_git(root, [ 'ls-files' ])
+    return sorted(clazz._parse_lines(rv.stdout))
   
+  @classmethod
+  def lfs_files(clazz, root):
+    'Return a list of all the lfs files in the repo.'
+    rv = clazz._call_git(root, [ 'lfs', 'ls-files', '-n' ])
+    return sorted(clazz._parse_lines(rv.stdout))
+
+  @classmethod
+  def _lfs_file_needs_smudge(clazz, filename):
+    'Return True if filename needs smudge.'
+    file
+    
+  @classmethod
+  def lfs_files_need_smudge(clazz, root):
+    'Return a list of all the lfs files that need smudge.'
+    files = clazz.files(root)
+    lfs_files = clazz.lfs_files(root)
+    to_check = set(files) & set(lfs_files)
+    result = []
+    
+#    for f in files:
