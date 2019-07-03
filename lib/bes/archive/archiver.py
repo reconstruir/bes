@@ -36,6 +36,20 @@ class archiver(object):
     return archive_class(filename).members
 
   @classmethod
+  def file_members(clazz, filename):
+    archive_class = clazz._determine_type(filename)
+    if not archive_class:
+      raise RuntimeError('Unknown archive type for %s' % (filename))
+    return archive_class(filename).file_members
+
+  @classmethod
+  def dir_members(clazz, filename):
+    archive_class = clazz._determine_type(filename)
+    if not archive_class:
+      raise RuntimeError('Unknown archive type for %s' % (filename))
+    return archive_class(filename).dir_members
+
+  @classmethod
   def has_member(clazz, filename, member):
     archive_class = clazz._determine_type(filename)
     if not archive_class:

@@ -156,7 +156,7 @@ class test_git(unittest.TestCase):
     tmp_archive = temp_file.make_temp_file()
     git.archive(tmp_repo, 'master', 'foo', tmp_archive)
     self.assertEqual( [
-      'foo-master',
+      'foo-master/',
       'foo-master/bar.txt',
       'foo-master/foo.txt',
     ], archiver.members(tmp_archive) )
@@ -170,7 +170,7 @@ class test_git(unittest.TestCase):
     tmp_archive = temp_file.make_temp_file()
     git.archive(tmp_repo, 'master', 'foo', tmp_archive, untracked = True)
     self.assertEqual( [
-      'foo-master',
+      'foo-master/',
       'foo-master/bar.txt',
       'foo-master/foo.txt',
       'foo-master/kiwi.txt',
@@ -187,7 +187,7 @@ class test_git(unittest.TestCase):
     tmp_archive = temp_file.make_temp_file()
     git.archive(tmp_repo, 'master', 'foo', tmp_archive, untracked = True)
     self.assertEqual( [
-      'foo-master',
+      'foo-master/',
       'foo-master/.gitignore',
       'foo-master/bar.txt',
       'foo-master/foo.txt',

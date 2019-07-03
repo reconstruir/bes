@@ -35,6 +35,20 @@ class archive(archive_base):
     '''
     return self._normalize_members(self._get_members())
 
+  @cached_property
+  def file_members(self):
+    '''
+    Return just file members.  cached using same rules as members()
+    '''
+    return [ member for member in self.members() if not member.endswith('/') ]
+
+  @cached_property
+  def dir_members(self):
+    '''
+    Return just dir members.  cached using same rules as members()
+    '''
+    return [ member for member in self.members() if member.endswith('/') ]
+  
   def extract_member_to_file(self, member, filename):
     tmp_dir = temp_file.make_temp_dir()
     tmp_member = path.join(tmp_dir, member)

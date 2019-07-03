@@ -27,7 +27,13 @@ class archive_tar(archive):
   #@abstractmethod
   def _get_members(self):
     with tarfile.open(self.filename, mode = 'r') as archive:
-      return self._normalize_members([ member.path for member in archive.getmembers() ])
+      return self._normalize_members([ self._member_path(member) for member in archive.getmembers() ])
+
+  #@abstractmethod
+  def _member_path(clazz, member):
+    if member.isdir():
+      return '{}/'.format(member.path)
+    return member.path
 
   #@abstractmethod
   def has_member(self, member):
