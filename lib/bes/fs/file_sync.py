@@ -45,9 +45,13 @@ class file_sync(object):
       should_copy = False
       if path.isfile(dst_file_path):
         should_copy = file_util.checksum('sha1', src_file_path) != file_util.checksum('sha1', dst_file_path)
+        should_copy_mode = file_util.mode(src_file_path) != file_util.mode(dst_file_path)
       else:
         should_copy = True
+        should_copy_mode = True
       if should_copy:
         file_util.copy(src_file_path, dst_file_path)
+      if should_copy_mode:
+        file_util.copy_mode(src_file_path, dst_file_path)
     
 log.add_logging(file_sync, 'file_sync')
