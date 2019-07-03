@@ -20,7 +20,7 @@ class archive_dmg(archive):
 
   @classmethod
   #@abstractmethod
-  def name(clazz):
+  def name(clazz, filename):
     'Name of this archive format.'
     return 'dmg'
     

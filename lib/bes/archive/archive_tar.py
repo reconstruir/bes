@@ -3,6 +3,7 @@
 import os.path as path, tarfile
 
 from bes.fs.tar_util import tar_util
+from bes.fs.file_mime import file_mime
 
 from .archive import archive
 from .archive_extension import archive_extension
@@ -15,8 +16,11 @@ class archive_tar(archive):
 
   @classmethod
   #@abstractmethod
-  def name(clazz):
+  def name(clazz, filename):
     'Name of this archive format.'
+    mime_type = file_mime.mime_type(filename)
+    if 'gzip' in mime_type.mime_type:
+      return 'tgz'
     return 'tar'
     
   @classmethod

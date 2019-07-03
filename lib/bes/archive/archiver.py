@@ -223,6 +223,6 @@ class archiver(object):
     archive_class = clazz._determine_type(filename)
     if not archive_class:
       return None
-    return archive_class.name()
+    return archive_class.name(filename)
   
   

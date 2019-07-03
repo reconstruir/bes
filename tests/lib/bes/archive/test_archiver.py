@@ -47,8 +47,22 @@ class test_archiver(unit_test):
       'a/b/c/foo.txt',
       'd/e/bar.txt',
     ], archiver.members(tmp_archive) )
-    self.assertEqual( 'tar', archiver.format_name(tmp_archive) )
+    self.assertEqual( 'tgz', archiver.format_name(tmp_archive) )
 
+  def test_create_tar(self):
+    tmp_dir = temp_content.write_items_to_temp_dir([
+        'file a/b/c/foo.txt "foo content" 755',
+        'file d/e/bar.txt "bar content" 644',
+        'dir  baz     ""            700',
+    ])
+    tmp_archive = self.make_temp_file(suffix = '.tar')
+    archiver.create(tmp_archive, tmp_dir)
+    self.assertEqual( [
+      'a/b/c/foo.txt',
+      'd/e/bar.txt',
+    ], archiver.members(tmp_archive) )
+    self.assertEqual( 'tar', archiver.format_name(tmp_archive) )
+    
   def test_create_tgz(self):
     tmp_dir = temp_content.write_items_to_temp_dir([
         'file a/b/c/foo.txt "foo content" 755',
@@ -61,7 +75,7 @@ class test_archiver(unit_test):
       'a/b/c/foo.txt',
       'd/e/bar.txt',
     ], archiver.members(tmp_archive) )
-    self.assertEqual( 'tar', archiver.format_name(tmp_archive) )
+    self.assertEqual( 'tgz', archiver.format_name(tmp_archive) )
     
   def test_create_zip(self):
     tmp_dir = temp_content.write_items_to_temp_dir([
@@ -89,7 +103,7 @@ class test_archiver(unit_test):
       'a/b/c/foo.txt',
       'd/e/bar.txt',
     ], archiver.members(tmp_archive) )
-    self.assertEqual( 'tar', archiver.format_name(tmp_archive) )
+    self.assertEqual( 'tgz', archiver.format_name(tmp_archive) )
 
   def test_create_force_zip(self):
     tmp_dir = temp_content.write_items_to_temp_dir([

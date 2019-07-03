@@ -17,7 +17,7 @@ class archive_unix_tar(archive):
 
   @classmethod
   #@abstractmethod
-  def name(clazz):
+  def name(clazz, filename):
     'Name of this archive format.'
     return 'unix_tar'
     

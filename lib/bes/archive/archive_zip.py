@@ -14,7 +14,7 @@ class archive_zip(archive):
 
   @classmethod
   #@abstractmethod
-  def name(clazz):
+  def name(clazz, filename):
     'Name of this archive format.'
     return 'zip'
     

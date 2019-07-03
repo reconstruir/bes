@@ -11,7 +11,7 @@ class archive_base(with_metaclass(ABCMeta, object)):
 
   @classmethod
   @abstractmethod
-  def name(clazz):
+  def name(clazz, filename):
     'Name of this archive format.'
     raise NotImplementedError()
   
