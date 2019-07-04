@@ -2,6 +2,8 @@
 
 from os import path
 import copy, os, tempfile
+from functools import wraps
+
 from .os_env import os_env
 from .host import host
 from .env_var import env_var
@@ -76,3 +78,13 @@ class env_override(object):
     v.append(p)
     env = { 'PATH': v.value }
     return env_override(env = env)
+
+def env_override_temp_home_func():
+  'A decarator to override HOME for a function.'
+  def _wrap(func):
+    @wraps(func)
+    def _caller(self, *args, **kwargs):
+      with env_override.temp_home() as env:
+        return func(self, *args, **kwargs)
+    return _caller
+  return _wrap
