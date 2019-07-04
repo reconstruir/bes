@@ -181,6 +181,7 @@ class test_git(unit_test):
       'foo-master/kiwi.txt',
     ], archiver.members(tmp_archive) )
     
+  @git_temp_home_func()
   def test_archive_local_repo_untracked_gitignore(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
