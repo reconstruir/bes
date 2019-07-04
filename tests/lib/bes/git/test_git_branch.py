@@ -4,18 +4,11 @@
 import unittest
 
 from bes.git.git_branch import git_branch as GB
-from bes.git.git_unit_test import git_unit_test
+from bes.git.git_unit_test import git_temp_home_func
 
 class test_git_branch(unittest.TestCase):
 
-  @classmethod
-  def setUpClass(clazz):
-    git_unit_test.set_identity()
-
-  @classmethod
-  def tearDownClass(clazz):
-    git_unit_test.unset_identity()
-
+  @git_temp_home_func()
   def test_parse_branch_status(self):
     self.assertEqual( ( 1, 1 ), GB.parse_branch_status('[ahead 1, behind 1]') )
     self.assertEqual( ( 1, 0 ), GB.parse_branch_status('[ahead 1]') )
@@ -29,6 +22,7 @@ class test_git_branch(unittest.TestCase):
     self.assertEqual( ( 1, 0 ), GB.parse_branch_status('[ahead 1]this is foo') )
     self.assertEqual( ( 0, 1 ), GB.parse_branch_status('[behind 1]this is foo') )
     
+  @git_temp_home_func()
   def test_strip_branch_status(self):
     self.assertEqual( '', GB.strip_branch_status('[ahead 1, behind 1]') )
     self.assertEqual( '', GB.strip_branch_status('[ahead 1]') )

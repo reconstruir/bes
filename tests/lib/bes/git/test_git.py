@@ -7,11 +7,11 @@ from bes.testing.unit_test import unit_test
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.archive.archiver import archiver
+from bes.git.git_unit_test import git_temp_home_func
 from bes.system.env_override import env_override_temp_home_func
 
 from bes.git.git import git
 from bes.git.git_status import git_status
-from bes.git.git_unit_test import git_unit_test
 
 class test_git(unit_test):
 
@@ -27,7 +27,7 @@ class test_git(unit_test):
     file_util.save(bar, content = 'bar.txt\n')
     return [ 'bar.txt', 'foo.txt' ]
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_add(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
@@ -36,14 +36,14 @@ class test_git(unit_test):
     actual_status = git.status(tmp_repo, '.')
     self.assertEqual( expected_status, actual_status )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_commit(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
     git.commit(tmp_repo, 'nomsg\n', '.')
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_clone(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
@@ -58,7 +58,7 @@ class test_git(unit_test):
     for f in expected_cloned_files:
       self.assertTrue( path.exists(f) )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_clone_or_pull(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
@@ -73,7 +73,7 @@ class test_git(unit_test):
     for f in expected_cloned_files:
       self.assertTrue( path.exists(f) )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_tag(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
@@ -90,7 +90,7 @@ class test_git(unit_test):
     self.assertEqual( ['1.0.0', '1.0.1', '1.0.10', '1.0.9'], git.list_local_tags(tmp_repo, lexical = True) )
     self.assertEqual( [ '1.0.10', '1.0.9', '1.0.1', '1.0.0' ], git.list_local_tags(tmp_repo, reverse = True) )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_delete_local_tag(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
@@ -110,7 +110,7 @@ class test_git(unit_test):
     git.delete_local_tag(tmp_repo, '1.0.1')
     self.assertEqual( [], git.list_local_tags(tmp_repo) )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_tag_allow_downgrade_error(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
@@ -121,7 +121,7 @@ class test_git(unit_test):
     with self.assertRaises(ValueError) as ctx:
       git.tag(tmp_repo, '1.0.99')
     
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_tag_allow_downgrade(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
@@ -133,7 +133,7 @@ class test_git(unit_test):
     self.assertEqual( '1.0.100', git.greatest_local_tag(tmp_repo) )
     self.assertEqual( [ '1.0.99', '1.0.100' ], git.list_local_tags(tmp_repo) )
     
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_read_gitignore(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
@@ -151,7 +151,7 @@ class test_git(unit_test):
       '*~',
       ], git.read_gitignore(tmp_repo) )
     
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_archive_local_repo(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
@@ -165,7 +165,7 @@ class test_git(unit_test):
       'foo-master/foo.txt',
     ], archiver.members(tmp_archive) )
     
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_archive_local_repo_untracked(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
@@ -221,7 +221,7 @@ class test_git(unit_test):
     git.config_unset_value('user.name')
     self.assertEqual( ( None, None ), git.config_get_identity() )
       
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_has_changes(self):
     tmp_repo = self._create_tmp_repo()
     self.assertFalse( git.has_changes(tmp_repo) )
@@ -232,7 +232,7 @@ class test_git(unit_test):
     git.commit(tmp_repo, 'nomsg\n', '.')
     self.assertFalse( git.has_changes(tmp_repo) )
     
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_has_changes(self):
     tmp_repo = self._create_tmp_repo()
     self.assertFalse( git.has_changes(tmp_repo) )
@@ -243,14 +243,14 @@ class test_git(unit_test):
     git.commit(tmp_repo, 'nomsg\n', '.')
     self.assertFalse( git.has_changes(tmp_repo) )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_has_determine_where(self):
     self.assertEqual( 'both', git.determine_where(True, True) )
     self.assertEqual( 'local', git.determine_where(True, False) )
     self.assertEqual( 'remote', git.determine_where(False, True) )
     self.assertEqual( 'both', git.determine_where(None, None) )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_resolve_address(self):
     self.assertEqual( 'https://github.com/git/git.git', git.resolve_address('https://github.com/git/git.git') )
     self.assertEqual( 'git@github.com/git/git.git', git.resolve_address('git@github.com/git/git.git') )
@@ -259,13 +259,13 @@ class test_git(unit_test):
     git.init(tmp_repo)
     self.assertEqual( tmp_repo, git.resolve_address('~/minerepo') )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_is_long_hash(self):
     self.assertTrue( git.is_long_hash('cd138635e1a94a6f2da6acbce3e2f2d584121d28') )
     self.assertFalse( git.is_long_hash('zd138635e1a94a6f2da6acbce3e2f2d584121d28') )
     self.assertFalse( git.is_long_hash('cd13863') )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_is_short_hash(self):
     self.assertTrue( git.is_short_hash('cd13863') )
     self.assertFalse( git.is_short_hash('cd138635e1a94a6f2da6acbce3e2f2d584121d28') )
