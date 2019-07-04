@@ -6,22 +6,20 @@ from bes.testing.unit_test import unit_test
 from bes.git.git_util import git_util
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_unit_test
-from bes.system.env_override import env_override_temp_home_func
 from bes.system.host import host
+from bes.git.git_unit_test import git_temp_home_func
 
 class test_git_util(unit_test):
   
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_name_from_address(self):
-    git_unit_test.set_identity()
     self.assertEqual( 'bar', git_util.name_from_address('https://foohub.com/myproj/bar.git') )
     self.assertEqual( 'foo-bar-baz', git_util.name_from_address('git@git:foo-bar-baz.git') )
     r = git_temp_repo(debug = self.DEBUG)
     self.assertEqual( path.basename(r.root), git_util.name_from_address(r.root) )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_repo_greatest_tag(self):
-    git_unit_test.set_identity()
     r = git_temp_repo(debug = self.DEBUG)
     r.add_file('readme.txt', 'readme is good')
     r.push('origin', 'master')
@@ -32,9 +30,8 @@ class test_git_util(unit_test):
     r.push_tag('1.0.1')
     self.assertEqual( '1.0.1', git_util.repo_greatest_tag(r.address) )
     
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_repo_bump_tag(self):
-    git_unit_test.set_identity()
     r1 = git_temp_repo(debug = self.DEBUG)
     r2 = r1.make_temp_cloned_repo()
     r1.add_file('readme.txt', 'readme is good')
@@ -55,9 +52,8 @@ class test_git_util(unit_test):
     r2.pull()
     self.assertEqual( '1.0.2', r2.greatest_local_tag() )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_repo_bump_tag_dry_run(self):
-    git_unit_test.set_identity()
     r1 = git_temp_repo(debug = self.DEBUG)
     r2 = r1.make_temp_cloned_repo()
     r1.add_file('readme.txt', 'readme is good')
@@ -68,9 +64,8 @@ class test_git_util(unit_test):
     r2.pull()
     self.assertEqual( None, r2.greatest_local_tag() )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_repo_bump_tag_single_number(self):
-    git_unit_test.set_identity()
     r1 = git_temp_repo(debug = self.DEBUG)
     r2 = r1.make_temp_cloned_repo()
     r1.add_file('readme.txt', 'readme is good')
@@ -86,9 +81,8 @@ class test_git_util(unit_test):
     r2.pull()
     self.assertEqual( '668', r2.greatest_local_tag() )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_repo_run_script(self):
-    git_unit_test.set_identity()
     r = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
       script = self.xp_path('fruits/kiwi.bat')
@@ -115,9 +109,8 @@ exit 0
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( '{} arg1 arg2'.format(xp_script), rv.stdout.strip() )
     
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_repo_run_script_dry_run(self):
-    git_unit_test.set_identity()
     r = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
       script = self.xp_path('fruits/kiwi.bat')
@@ -143,9 +136,8 @@ exit 0
     rv = git_util.repo_run_script(r.address, xp_script, [ 'arg1', 'arg2' ], False, None, True)
     self.assertEqual( None, rv )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_repo_run_script_push(self):
-    git_unit_test.set_identity()
     r1 = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
       script = self.xp_path('fruits/kiwi.bat')
@@ -178,9 +170,8 @@ exit 0
     r2 = r1.make_temp_cloned_repo()
     self.assertEqual( 'yellow', r2.read_file('color.txt').strip() )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_repo_run_scripts_push(self):
-    git_unit_test.set_identity()
     r1 = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
       script1 = self.xp_path('scripts/script1.bat')
@@ -235,9 +226,8 @@ exit 0
     self.assertEqual( 'yellow', r2.read_file('color.txt').strip() )
     self.assertEqual( 'kiwi', r2.read_file('fruit.txt').strip() )
 
-  @env_override_temp_home_func()
+  @git_temp_home_func()
   def test_repo_run_script_bump_tag(self):
-    git_unit_test.set_identity()
     r1 = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
       script = 'nothing.bat'
