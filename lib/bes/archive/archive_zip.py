@@ -75,7 +75,7 @@ class archive_zip(archive):
              extension = None):
     self._pre_create()
     items = self._find(root_dir, base_dir, extra_items, include, exclude)
-    with zipfile.ZipFile(file = self.filename, mode = 'w', compression = zipfile.ZIP_DEFLATED) as archive:
+    with zipfile.ZipFile(file = self.filename, mode = 'w', compression = zipfile.ZIP_DEFLATED, allowZip64 = True) as archive:
       for item in items:
         archive.write(item.filename, arcname = item.arcname)
 
