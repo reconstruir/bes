@@ -6,10 +6,11 @@ class git_clone_options(object):
   def __init__(self, *args, **kargs):
     self.enforce_empty_dir = True
     self.depth = None
-    self.lfs = True
+    self.lfs = False
     self.jobs = None
     self.submodules = False
     self.submodules_recursive = False
+    self.submodule_list = None
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_bool(self.enforce_empty_dir)
@@ -18,4 +19,5 @@ class git_clone_options(object):
     check.check_int(self.jobs, allow_none = True)
     check.check_bool(self.submodules)
     check.check_bool(self.submodules_recursive)
+    check.check_list(self.submodule_list, allow_none = True)
 check.register_class(git_clone_options)

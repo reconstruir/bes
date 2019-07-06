@@ -145,12 +145,14 @@ class git(object):
     }
     clone_rv = clazz._call_git(os.getcwd(), args, extra_env = extra_env)
     sub_rv = None
-    if options.submodules:
+    if options.submodules or options.submodule_list:
       sub_args = [ 'submodule', 'update', '--init' ]
-      if jobs:
-        args.extend([ '--jobs', str(jobs) ])
+      if options.jobs:
+        args.extend([ '--jobs', str(options.jobs) ])
       if options.submodules_recursive:
         sub_args.append('--recursive')
+      if options.submodule_list:
+        sub_args.extend(options.submodule_list)
       sub_rv = clazz._call_git(dest_dir, sub_args, extra_env = extra_env)
     return clone_rv, sub_rv
 
