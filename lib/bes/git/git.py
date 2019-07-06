@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os, os.path as path, re
+import os, os.path as path, re, pprint
 from datetime import datetime
 from collections import namedtuple
 
@@ -43,7 +43,7 @@ class git(object):
     else:
       flags.append('--untracked-files=no')
     args = [ 'status' ] + flags + filenames
-    rv = clazz._call_git(root, args)
+    rv = clazz.call_git(root, args)
     result = git_status.parse(rv.stdout)
     if abspath:
       for r in result:
@@ -52,16 +52,16 @@ class git(object):
 
   @classmethod
   def branch_status(clazz, root):
-    rv = clazz._call_git(root, [ 'status', '-b', '--porcelain' ])
+    rv = clazz.call_git(root, [ 'status', '-b', '--porcelain' ])
     return git_branch.parse_branch_status(rv.stdout)
 
   @classmethod
   def remote_update(clazz, root):
-    return clazz._call_git(root, [ 'remote', 'update' ])
+    return clazz.call_git(root, [ 'remote', 'update' ])
 
   @classmethod
   def remote_origin_url(clazz, root):
-    rv = clazz._call_git(root, [ 'remote', 'get-url', '--push', 'origin' ])
+    rv = clazz.call_git(root, [ 'remote', 'get-url', '--push', 'origin' ])
     return rv.stdout.strip()
     
   @classmethod
@@ -73,17 +73,17 @@ class git(object):
     filenames = object_util.listify(filenames)
     flags = []
     args = [ 'add' ] + flags + filenames
-    return clazz._call_git(root, args)
+    return clazz.call_git(root, args)
 
   @classmethod
   def move(clazz, root, src, dst):
     args = [ 'mv', src, dst ]
-    return clazz._call_git(root, args)
+    return clazz.call_git(root, args)
 
   @classmethod
   def init(clazz, root, *args):
     args = [ 'init', '.' ] + list(args or [])
-    return clazz._call_git(root, args)
+    return clazz.call_git(root, args)
 
   @classmethod
   def is_repo(clazz, root):
@@ -99,7 +99,7 @@ class git(object):
       raise RuntimeError('Not a git repo: %s' % (d))
   
   @classmethod
-  def _call_git(clazz, root, args, raise_error = True, extra_env = None):
+  def call_git(clazz, root, args, raise_error = True, extra_env = None):
     if not hasattr(clazz, '_git_exe'):
       git_exe = clazz.find_git_exe()
       if not git_exe:
@@ -127,6 +127,7 @@ class git(object):
     check.check_git_clone_options(options, allow_none = True)
     address = clazz.resolve_address(address)
     options = options or git_clone_options()
+    clazz._LOG.log_d('clone: address={} dest_dir={} options={}'.format(address, dest_dir, pprint.pformat(options.__dict__)))
     if path.exists(dest_dir):
       if not path.isdir(dest_dir):
         raise RuntimeError('dest_dir %s is not a directory.' % (dest_dir))
@@ -143,7 +144,9 @@ class git(object):
     extra_env = {
       'GIT_LFS_SKIP_SMUDGE': '0' if options.lfs else '1',
     }
-    clone_rv = clazz._call_git(os.getcwd(), args, extra_env = extra_env)
+    clazz._LOG.log_d('clone: args="{}" extra_env={}'.format(' '.join(args), extra_env))
+    clone_rv = clazz.call_git(os.getcwd(), args, extra_env = extra_env)
+    clazz._LOG.log_d('clone: clone_rv="{}"'.format(str(clone_rv)))
     sub_rv = None
     if options.submodules or options.submodule_list:
       sub_args = [ 'submodule', 'update', '--init' ]
@@ -153,38 +156,40 @@ class git(object):
         sub_args.append('--recursive')
       if options.submodule_list:
         sub_args.extend(options.submodule_list)
-      sub_rv = clazz._call_git(dest_dir, sub_args, extra_env = extra_env)
+      clazz._LOG.log_d('clone: sub_args="{}" extra_env={}'.format(' '.join(args), extra_env))
+      sub_rv = clazz.call_git(dest_dir, sub_args, extra_env = extra_env)
+      clazz._LOG.log_d('clone: sub_rv="{}"'.format(str(sub_rv)))
     return clone_rv, sub_rv
 
   @classmethod
   def pull(clazz, root):
     args = [ 'pull', '--verbose' ]
-    return clazz._call_git(root, args)
+    return clazz.call_git(root, args)
 
   @classmethod
   def checkout(clazz, root, revision):
     args = [ 'checkout', revision ]
-    return clazz._call_git(root, args)
+    return clazz.call_git(root, args)
 
   @classmethod
   def push(clazz, root, *args):
     args = [ 'push', '--verbose' ] + list(args or [])
-    return clazz._call_git(root, args)
+    return clazz.call_git(root, args)
 
   @classmethod
   def diff(clazz, root):
     args = [ 'diff' ]
-    return clazz._call_git(root, args)
+    return clazz.call_git(root, args).stdout
 
   @classmethod
   def patch_apply(clazz, root, patch_file):
     args = [ 'apply', patch_file ]
-    return clazz._call_git(root, args)
+    return clazz.call_git(root, args)
 
   @classmethod
   def patch_make(clazz, root, patch_file):
     args = [ 'diff', '--patch' ]
-    rv = clazz._call_git(root, args)
+    rv = clazz.call_git(root, args)
     file_util.save(patch_file, content = rv.stdout)
 
   @classmethod
@@ -192,7 +197,7 @@ class git(object):
     filenames = object_util.listify(filenames)
     message_filename = temp_file.make_temp_file(content = message)
     args = [ 'commit', '-F', message_filename ] + filenames
-    return clazz._call_git(root, args)
+    return clazz.call_git(root, args)
 
   @classmethod
   def clone_or_pull(clazz, address, dest_dir, options = None):
@@ -210,8 +215,8 @@ class git(object):
     if path.isdir(address):
       file_copy.copy_tree(address, tmp_repo_dir, excludes = clazz.read_gitignore(address))
       if untracked:
-        clazz._call_git(tmp_repo_dir, [ 'add', '-A' ])
-        clazz._call_git(tmp_repo_dir, [ 'commit', '-m', 'add untracked files just for tmp repo' ])
+        clazz.call_git(tmp_repo_dir, [ 'add', '-A' ])
+        clazz.call_git(tmp_repo_dir, [ 'commit', '-m', 'add untracked files just for tmp repo' ])
     else:
       if untracked:
         raise RuntimeError('untracked can only be True for local repos.')
@@ -227,7 +232,7 @@ class git(object):
       output_filename,
       revision
     ]
-    rv = clazz._call_git(tmp_repo_dir, args)
+    rv = clazz.call_git(tmp_repo_dir, args)
     return rv
 
   @classmethod
@@ -249,30 +254,30 @@ class git(object):
       output_filename,
       revision
     ]
-    rv = clazz._call_git(root, args)
+    rv = clazz.call_git(root, args)
     return rv
   
   @classmethod
   def short_hash(clazz, root, long_hash):
     args = [ 'rev-parse', '--short', long_hash ]
-    rv = clazz._call_git(root, args)
+    rv = clazz.call_git(root, args)
     return rv.stdout.strip()
 
   @classmethod
   def long_hash(clazz, root, short_hash):
     args = [ 'rev-parse', short_hash ]
-    rv = clazz._call_git(root, args)
+    rv = clazz.call_git(root, args)
     return rv.stdout.strip()
   
   @classmethod
   def reset_to_revision(clazz, root, revision):
     args = [ 'reset', '--hard', revision ]
-    return clazz._call_git(root, args)
+    return clazz.call_git(root, args)
 
   @classmethod
   def last_commit_hash(clazz, root, short_hash = False):
     args = [ 'log', '--format=%H', '-n', '1' ]
-    rv = clazz._call_git(root, args)
+    rv = clazz.call_git(root, args)
     long_hash = rv.stdout.strip()
     if not short_hash:
       return long_hash
@@ -297,7 +302,7 @@ class git(object):
   def is_tracked(clazz, root, filename):
     'Return True if the filename is tracked by a git repo.'
     args = [ 'ls-files', '--error-unmatch', filename ]
-    return clazz._call_git(root, args, raise_error = False).exit_code == 0
+    return clazz.call_git(root, args, raise_error = False).exit_code == 0
   
   @classmethod
   def modified_files(clazz, root):
@@ -310,19 +315,19 @@ class git(object):
     if greatest_tag and not allow_downgrade:
       if software_version.compare(greatest_tag, tag) >= 0:
         raise ValueError('new tag \"%s\" is older than \"%s\".  Use allow_downgrade to force it.' % (tag, greatest_tag))
-    clazz._call_git(root_dir, [ 'tag', tag ])
+    clazz.call_git(root_dir, [ 'tag', tag ])
 
   @classmethod
   def push_tag(clazz, root, tag):
-    clazz._call_git(root, [ 'push', 'origin', tag ])
+    clazz.call_git(root, [ 'push', 'origin', tag ])
 
   @classmethod
   def delete_local_tag(clazz, root, tag):
-    clazz._call_git(root, [ 'tag', '--delete', tag ])
+    clazz.call_git(root, [ 'tag', '--delete', tag ])
 
   @classmethod
   def delete_remote_tag(clazz, root, tag):
-    clazz._call_git(root, [ 'push', '--delete', 'origin', tag ])
+    clazz.call_git(root, [ 'push', '--delete', 'origin', tag ])
 
   @classmethod
   def delete_tag(clazz, root, tag, where, dry_run):
@@ -348,7 +353,7 @@ class git(object):
       sort_arg = '--sort={reverse}refname'.format(reverse = '-' if reverse else '')
     else:
       sort_arg = '--sort={reverse}version:refname'.format(reverse = '-' if reverse else '')
-    rv = clazz._call_git(root, [ 'tag', '-l', sort_arg ])
+    rv = clazz.call_git(root, [ 'tag', '-l', sort_arg ])
     return clazz._parse_lines(rv.stdout)
   
   @classmethod
@@ -360,7 +365,7 @@ class git(object):
 
   @classmethod
   def list_remote_tags(clazz, root, lexical = False, reverse = False):
-    rv = clazz._call_git(root, [ 'ls-remote', '--tags' ])
+    rv = clazz.call_git(root, [ 'ls-remote', '--tags' ])
     lines = clazz._parse_lines(rv.stdout)
     tags = [ clazz._parse_remote_tag_line(line) for line in lines ]
     if lexical:
@@ -389,14 +394,14 @@ class git(object):
 
   @classmethod
   def commit_timestamp(clazz, root, commit):
-    rv = clazz._call_git(root, [ 'show', '-s', '--format=%ct', commit ])
+    rv = clazz.call_git(root, [ 'show', '-s', '--format=%ct', commit ])
     ts = float(rv.stdout.strip())
     return datetime.fromtimestamp(ts)
 
   @classmethod
   def commit_for_tag(clazz, root, tag, short_hash = False):
     args = [ 'rev-list', '-n', '1', tag ]
-    rv = clazz._call_git(root, args)
+    rv = clazz.call_git(root, args)
     long_hash = rv.stdout.strip()
     if not short_hash:
       return long_hash
@@ -412,15 +417,15 @@ class git(object):
 
   @classmethod
   def config_set_value(clazz, key, value):
-    clazz._call_git('/tmp', [ 'config', '--global', key, value ], raise_error = False)
+    clazz.call_git('/tmp', [ 'config', '--global', key, value ], raise_error = False)
     
   @classmethod
   def config_unset_value(clazz, key):
-    clazz._call_git('/tmp', [ 'config', '--global', '--unset', key ], raise_error = False)
+    clazz.call_git('/tmp', [ 'config', '--global', '--unset', key ], raise_error = False)
     
   @classmethod
   def config_get_value(clazz, key):
-    rv = clazz._call_git('/tmp', [ 'config', '--global', key ], raise_error = False)
+    rv = clazz.call_git('/tmp', [ 'config', '--global', key ], raise_error = False)
     if rv.exit_code == 0:
       return string_util.unquote(rv.stdout.strip())
     else:
@@ -428,8 +433,8 @@ class git(object):
   
   @classmethod
   def config_set_identity(clazz, name, email):
-    clazz._call_git('/tmp', [ 'config', '--global', 'user.name', '"%s"' % (name) ])
-    clazz._call_git('/tmp', [ 'config', '--global', 'user.email', '"%s"' % (email) ])
+    clazz.call_git('/tmp', [ 'config', '--global', 'user.name', '"%s"' % (name) ])
+    clazz.call_git('/tmp', [ 'config', '--global', 'user.email', '"%s"' % (email) ])
 
   _identity = namedtuple('_identity', 'name, email')
   @classmethod
@@ -499,7 +504,7 @@ class git(object):
   
   @classmethod
   def _list_remote_branches(clazz, root):
-    rv = clazz._call_git(root, [ 'branch', '--verbose', '--list', '--no-color', '--remote' ])
+    rv = clazz.call_git(root, [ 'branch', '--verbose', '--list', '--no-color', '--remote' ])
     lines = clazz._parse_lines(rv.stdout)
     lines = [ line for line in lines if not ' -> ' in line ]
     lines = [ string_util.remove_head(line, 'origin/') for line in lines ]
@@ -508,7 +513,7 @@ class git(object):
 
   @classmethod
   def _list_local_branches(clazz, root):
-    rv = clazz._call_git(root, [ 'branch', '--verbose', '--list', '--no-color' ])
+    rv = clazz.call_git(root, [ 'branch', '--verbose', '--list', '--no-color' ])
     lines = clazz._parse_lines(rv.stdout)
     branches = git_branch_list([ git_branch.parse_branch(line, 'local') for line in lines ])
     return clazz._branch_list_determine_authors(root, branches)
@@ -546,7 +551,7 @@ class git(object):
       raise ValueError('branch already exists remotely: {}'.format(branch_name))
     if branches.has_local(branch_name):
       raise ValueError('branch already exists locally: {}'.format(branch_name))
-    clazz._call_git(root, [ 'branch', branch_name ])
+    clazz.call_git(root, [ 'branch', branch_name ])
     if checkout:
       clazz.checkout(root, branch_name)
     if push:
@@ -554,15 +559,15 @@ class git(object):
     
   @classmethod
   def branch_push(clazz, root, branch_name):
-    clazz._call_git(root, [ 'push', '--set-upstream', 'origin', branch_name ])
+    clazz.call_git(root, [ 'push', '--set-upstream', 'origin', branch_name ])
 
   @classmethod
   def fetch(clazz, root):
-    clazz._call_git(root, [ 'fetch', '--all' ])
+    clazz.call_git(root, [ 'fetch', '--all' ])
 
   @classmethod
   def author(clazz, root, commit, brief = False):
-    rv = clazz._call_git(root, [ 'show', '--no-patch', '--pretty=%ae', commit ])
+    rv = clazz.call_git(root, [ 'show', '--no-patch', '--pretty=%ae', commit ])
     author = rv.stdout.strip()
     if brief:
       i = author.find('@')
@@ -602,7 +607,7 @@ class git(object):
   def files_for_commit(clazz, root, commit):
     'Return a list of files affected by commit.'
     args = [ 'diff-tree', '--no-commit-id', '--name-only', '-r', commit ]
-    rv = clazz._call_git(root, args)
+    rv = clazz.call_git(root, args)
     return sorted(clazz._parse_lines(rv.stdout))
 
 
@@ -631,13 +636,13 @@ class git(object):
   @classmethod
   def files(clazz, root):
     'Return a list of all the files in the repo.'
-    rv = clazz._call_git(root, [ 'ls-files' ])
+    rv = clazz.call_git(root, [ 'ls-files' ])
     return sorted(clazz._parse_lines(rv.stdout))
   
   @classmethod
   def lfs_files(clazz, root):
     'Return a list of all the lfs files in the repo.'
-    rv = clazz._call_git(root, [ 'lfs', 'ls-files', '-n' ])
+    rv = clazz.call_git(root, [ 'lfs', 'ls-files', '-n' ])
     return sorted(clazz._parse_lines(rv.stdout))
 
   @classmethod

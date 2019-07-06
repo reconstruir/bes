@@ -16,14 +16,17 @@ from bes.fs.find.max_depth_criteria import max_depth_criteria
 from bes.fs.find.pattern_criteria import pattern_criteria
 from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
+from bes.system.log import logger
 
 from .git import git
 from .git_repo import git_repo
 from .git_repo_script_options import git_repo_script_options
 
 class git_util(object):
-  'git util.'
+  'Some higher level git utilities.'
 
+  _LOG = logger('git')
+  
   @classmethod
   def find_git_dirs(clazz, dirs):
     'Return the first .git dir found in any dir in dirs.'
@@ -105,11 +108,11 @@ class git_util(object):
     return result
   
   @classmethod
-  def _clone_to_temp_dir(clazz, address):
+  def _clone_to_temp_dir(clazz, address, options = None, debug = False):
     'Clone a git address to a temp dir'
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = temp_file.make_temp_dir(delete = not debug)
     r = git_repo(tmp_dir, address = address)
-    r.clone()
+    r.clone(options = options)
     return tmp_dir, r
   
   @classmethod
@@ -119,24 +122,31 @@ class git_util(object):
     return results[0]
                 
   script = namedtuple('script', 'filename, args')
+  _run_script_result = namedtuple('_run_script_result', 'scripts_results, status, diff')
   @classmethod
   def repo_run_scripts(clazz, address, scripts, options = None):
     check.check_git_repo_script_options(options, allow_none = True)
     options = options or git_repo_script_options()
-    tmp_dir, repo = clazz._clone_to_temp_dir(address)
-    results = []
+    tmp_dir, repo = clazz._clone_to_temp_dir(address, options = options, debug = options.debug)
+    if options.debug:
+      m = 'repo_run_scripts: tmp_dir={}'.format(tmp_dir)
+      print(m)
+      clazz._LOG.log_d(m)
+    scripts_results = []
     for script in scripts:
       if not repo.has_file(script.filename):
         raise IOError('script not found in {}/{}'.format(address, script.filename))
       if options.dry_run:
         print('DRY_RUN: would run {}/{} {} push={}'.format(address, script.filename, script.args or '', options.push))
-        results.append(None)
+        scripts_results.append(None)
       else:
         cmd = [ script.filename ]
         if script.args:
           cmd.extend(script.args)
+        clazz._LOG.log_d('repo_run_scripts: executing cmd="{}" root={}'.format(' '.join(cmd), repo.root))
         rv = execute.execute(cmd, cwd = repo.root, shell = True)
-        results.append(rv)
+        clazz._LOG.log_d('repo_run_scripts: rv={}'.format(str(rv)))
+        scripts_results.append(rv)
     if options.push:
       if options.dry_run:
         print('DRY_RUN: {}: would push'.format(address))
@@ -148,7 +158,7 @@ class git_util(object):
         print('DRY_RUN: {}: would bump "{}" component of tag {} to {}'.format(address, options.bump_tag_component, rv.old_tag, rv.new_tag))
       else:
         repo.bump_tag(options.bump_tag_component, push = True)
-    return results
+    return clazz._run_script_result(scripts_results, repo.call_git([ 'status', '.' ]).stdout, repo.diff())
   
   @classmethod
   def find_root_dir(clazz, start_dir = None):

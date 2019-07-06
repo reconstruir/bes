@@ -185,4 +185,5 @@ New
 archiver.format_name() returns tar for tgz
 cleanup git.archive
 
-unit tests for all the git.clone() args (i tested them manually)
+unit tests for all the git.repo_run_scripts() options  (i tested them manually)
+unit tests for all the git.clone() options (i tested them manually)

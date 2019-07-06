@@ -50,6 +50,9 @@ class git_repo(object):
   def status(self, filenames):
     return git.status(self.root, filenames)
     
+  def diff(self):
+    return git.diff(self.root)
+    
   def exists(self):
     return path.isdir(self._dot_git_path())
 
@@ -204,5 +207,8 @@ class git_repo(object):
                   archive_format = None, short_hash = True):
     return git.archive_foo(self.root, base_name, revision, output_filename,
                            archive_format = archive_format, short_hash = short_hash)
+
+  def call_git(self, args, raise_error = True, extra_env = None):
+    return git.call_git(self.root, args, raise_error = raise_error, extra_env = extra_env)
   
 check.register_class(git_repo)
