@@ -5,6 +5,7 @@ from datetime import datetime
 from collections import namedtuple
 
 from bes.common.algorithm import algorithm
+from bes.common.check import check
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
@@ -12,9 +13,9 @@ from bes.fs.file_copy import file_copy
 from bes.fs.file_find import file_find
 from bes.fs.file_ignore import file_ignore
 from bes.fs.file_ignore import ignore_file_data
+from bes.fs.file_mime import file_mime
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
-from bes.fs.file_mime import file_mime
 from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
 from bes.system.host import host
@@ -25,6 +26,7 @@ from bes.version.software_version import software_version
 
 from .git_branch import git_branch, git_branch_status
 from .git_branch_list import git_branch_list
+from .git_clone_options import git_clone_options
 from .git_status import git_status
 
 class git(object):
@@ -121,33 +123,33 @@ class git(object):
     return rv
 
   @classmethod
-  def clone(clazz, address, dest_dir, enforce_empty_dir = True,
-            depth = None, lfs = True, jobs = None,
-            submodules = False, submodules_recursive = False):
+  def clone(clazz, address, dest_dir, options = None):
+    check.check_git_clone_options(options, allow_none = True)
     address = clazz.resolve_address(address)
+    options = options or git_clone_options()
     if path.exists(dest_dir):
       if not path.isdir(dest_dir):
         raise RuntimeError('dest_dir %s is not a directory.' % (dest_dir))
-      if enforce_empty_dir:
+      if options.enforce_empty_dir:
         if not dir_util.is_empty(dest_dir):
           raise RuntimeError('dest_dir %s is not empty.' % (dest_dir))
     else:
       file_util.mkdir(dest_dir)
     args = [ 'clone' ]
-    if depth:
-      args.extend([ '--depth', str(depth) ])
+    if options.depth:
+      args.extend([ '--depth', str(options.depth) ])
     args.append(address)
     args.append(dest_dir)
     extra_env = {
-      'GIT_LFS_SKIP_SMUDGE': '0' if lfs else '1',
+      'GIT_LFS_SKIP_SMUDGE': '0' if options.lfs else '1',
     }
     clone_rv = clazz._call_git(os.getcwd(), args, extra_env = extra_env)
     sub_rv = None
-    if submodules:
+    if options.submodules:
       sub_args = [ 'submodule', 'update', '--init' ]
       if jobs:
         args.extend([ '--jobs', str(jobs) ])
-      if submodules_recursive:
+      if options.submodules_recursive:
         sub_args.append('--recursive')
       sub_rv = clazz._call_git(dest_dir, sub_args, extra_env = extra_env)
     return clone_rv, sub_rv
@@ -191,13 +193,13 @@ class git(object):
     return clazz._call_git(root, args)
 
   @classmethod
-  def clone_or_pull(clazz, address, dest_dir, enforce_empty_dir = True):
+  def clone_or_pull(clazz, address, dest_dir, options = None):
     if clazz.is_repo(dest_dir):
       if clazz.has_changes(dest_dir):
         raise RuntimeError('dest_dir %s has changes.' % (dest_dir))
       return clazz.pull(dest_dir)
     else:
-      return clazz.clone(address, dest_dir, enforce_empty_dir = enforce_empty_dir)
+      return clazz.clone(address, dest_dir, options = options)
 
   @classmethod
   def archive(clazz, address, revision, base_name, output_filename, untracked = False):

@@ -8,6 +8,7 @@ from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_unit_test
 from bes.system.host import host
 from bes.git.git_unit_test import git_temp_home_func
+from bes.git.git_repo_script_options import git_repo_script_options
 
 class test_git_util(unit_test):
   
@@ -105,7 +106,7 @@ exit 0
     r.push('origin', 'master')
     r.tag('1.0.0')
     r.push_tag('1.0.0')
-    rv = git_util.repo_run_script(r.address, xp_script, [ 'arg1', 'arg2' ], False, None, False)
+    rv = git_util.repo_run_script(r.address, xp_script, [ 'arg1', 'arg2' ])
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( '{} arg1 arg2'.format(xp_script), rv.stdout.strip() )
     
@@ -133,7 +134,8 @@ exit 0
     r.push('origin', 'master')
     r.tag('1.0.0')
     r.push_tag('1.0.0')
-    rv = git_util.repo_run_script(r.address, xp_script, [ 'arg1', 'arg2' ], False, None, True)
+    options = git_repo_script_options(dry_run = True)
+    rv = git_util.repo_run_script(r.address, xp_script, [ 'arg1', 'arg2' ], options = options)
     self.assertEqual( None, rv )
 
   @git_temp_home_func()
@@ -164,7 +166,8 @@ exit 0
     r1.push('origin', 'master')
     r1.tag('1.0.0')
     r1.push_tag('1.0.0')
-    rv = git_util.repo_run_script(r1.address, xp_script, [ 'arg1', 'arg2' ], True, None, False)
+    options = git_repo_script_options(push = True)
+    rv = git_util.repo_run_script(r1.address, xp_script, [ 'arg1', 'arg2' ], options = options)
     self.assertEqual( 0, rv.exit_code )
 
     r2 = r1.make_temp_cloned_repo()
@@ -218,7 +221,8 @@ exit 0
       git_util.script(script1, [ 'yellow' ]),
       git_util.script(script2, [ 'kiwi' ]),
     ]
-    results = git_util.repo_run_scripts(r1.address, scripts, True, None, False)
+    options = git_repo_script_options(push = True)
+    results = git_util.repo_run_scripts(r1.address, scripts, options = options)
     self.assertEqual( 0, results[0].exit_code )
     self.assertEqual( 0, results[1].exit_code )
 
@@ -248,13 +252,15 @@ exit 0
     r1.push('origin', 'master')
     r1.tag('1.0.0')
     r1.push_tag('1.0.0')
-    rv = git_util.repo_run_script(r1.address, xp_script, [], False, 'revision', False)
+    options = git_repo_script_options(bump_tag_component = 'revision')
+    rv = git_util.repo_run_script(r1.address, xp_script, [], options = options)
     self.assertEqual( 0, rv.exit_code )
 
     r2 = r1.make_temp_cloned_repo()
     self.assertEqual( '1.0.1', r2.greatest_local_tag() )
 
-    rv = git_util.repo_run_script(r1.address, xp_script, [], False, 'major', False)
+    options = git_repo_script_options(bump_tag_component = 'major')
+    rv = git_util.repo_run_script(r1.address, xp_script, [], options = options)
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( '2.0.1', r2.greatest_remote_tag() )
     

@@ -23,13 +23,11 @@ class git_repo(object):
   def has_changes(self):
     return git.has_changes(self.root)
   
-  def clone_or_pull(self):
+  def clone_or_pull(self, options = None):
     return git.clone_or_pull(self.address, self.root)
 
-  def clone(self, depth = None, lfs = True, jobs = None,
-            submodules = False, submodules_recursive = False):
-    return git.clone(self.address, self.root, depth = depth, lfs = lfs, jobs = jobs,
-                     submodules = submodules, submodules_recursive = submodules_recursive)
+  def clone(self, options = None):
+    return git.clone(self.address, self.root, options = options)
 
   def init(self, *args):
     return git.init(self.root, *args)
