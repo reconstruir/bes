@@ -144,6 +144,7 @@ class os_env(object):
   @classmethod
   def update(clazz, env, d, prepend = True):
     'Update env with d taking into account paths that needed to be appended.'
+    d = d or {}
     for key, value in d.items():
       if clazz.key_is_path(key):
         clazz._env_path_update(env, d, key, prepend = prepend)
@@ -161,9 +162,10 @@ class os_env(object):
     return env
 
   @classmethod
-  def clone_current_env(clazz):
-    return copy.deepcopy(dict(os.environ))
-  
+  def clone_current_env(clazz, d = None, prepend = False):
+    'Clone the current environment and update it with d taking into account paths that needed to be appended or prepended.'
+    return clazz.clone_and_update(dict(os.environ), d = d, prepend = prepend)
+    
   @classmethod
   def set_current_env(clazz, d):
     assert isinstance(d, dict)

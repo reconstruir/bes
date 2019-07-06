@@ -19,6 +19,7 @@ from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
+from bes.system.os_env import os_env
 from bes.text.text_line_parser import text_line_parser
 from bes.version.software_version import software_version
 
@@ -96,7 +97,7 @@ class git(object):
       raise RuntimeError('Not a git repo: %s' % (d))
   
   @classmethod
-  def _call_git(clazz, root, args, raise_error = True):
+  def _call_git(clazz, root, args, raise_error = True, extra_env = None):
     if not hasattr(clazz, '_git_exe'):
       git_exe = clazz.find_git_exe()
       if not git_exe:
@@ -106,7 +107,9 @@ class git(object):
     cmd = [ git_exe ] + args
     clazz._LOG.log_d('root=%s; cmd=%s' % (root, ' '.join(cmd)))
     save_raise_error = raise_error
-    rv = execute.execute(cmd, cwd = root, raise_error = False)
+    extra_env = extra_env or {}
+    env = os_env.clone_current_env(d = extra_env, prepend = True)
+    rv = execute.execute(cmd, cwd = root, raise_error = False, env = env)
     if rv.exit_code != 0 and save_raise_error:
       message = 'git command failed: %s in %s\n' % (' '.join(cmd), root)
       message += rv.stderr
@@ -118,7 +121,9 @@ class git(object):
     return rv
 
   @classmethod
-  def clone(clazz, address, dest_dir, enforce_empty_dir = True):
+  def clone(clazz, address, dest_dir, enforce_empty_dir = True,
+            depth = None, lfs = True, jobs = None,
+            submodules = False, submodules_recursive = False):
     address = clazz.resolve_address(address)
     if path.exists(dest_dir):
       if not path.isdir(dest_dir):
@@ -128,8 +133,24 @@ class git(object):
           raise RuntimeError('dest_dir %s is not empty.' % (dest_dir))
     else:
       file_util.mkdir(dest_dir)
-    args = [ 'clone', address, dest_dir ]
-    return clazz._call_git(os.getcwd(), args)
+    args = [ 'clone' ]
+    if depth:
+      args.extend([ '--depth', str(depth) ])
+    args.append(address)
+    args.append(dest_dir)
+    extra_env = {
+      'GIT_LFS_SKIP_SMUDGE': '0' if lfs else '1',
+    }
+    clone_rv = clazz._call_git(os.getcwd(), args, extra_env = extra_env)
+    sub_rv = None
+    if submodules:
+      sub_args = [ 'submodule', 'update', '--init' ]
+      if jobs:
+        args.extend([ '--jobs', str(jobs) ])
+      if submodules_recursive:
+        sub_args.append('--recursive')
+      sub_rv = clazz._call_git(dest_dir, sub_args, extra_env = extra_env)
+    return clone_rv, sub_rv
 
   @classmethod
   def pull(clazz, root):

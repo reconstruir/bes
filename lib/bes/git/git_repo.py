@@ -26,8 +26,10 @@ class git_repo(object):
   def clone_or_pull(self):
     return git.clone_or_pull(self.address, self.root)
 
-  def clone(self):
-    return git.clone(self.address, self.root)
+  def clone(self, depth = None, lfs = True, jobs = None,
+            submodules = False, submodules_recursive = False):
+    return git.clone(self.address, self.root, depth = depth, lfs = lfs, jobs = jobs,
+                     submodules = submodules, submodules_recursive = submodules_recursive)
 
   def init(self, *args):
     return git.init(self.root, *args)
