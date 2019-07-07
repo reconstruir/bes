@@ -12,10 +12,12 @@ class git_repo_script_options(git_clone_options):
     self.bump_tag_component = None
     self.dry_run = False
     self.debug = False
+    self.verbose = False
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_bool(self.push)
     check.check_string(self.bump_tag_component, allow_none = True)
     check.check_bool(self.dry_run)
     check.check_bool(self.debug)
+    check.check_bool(self.verbose)
 check.register_class(git_repo_script_options)

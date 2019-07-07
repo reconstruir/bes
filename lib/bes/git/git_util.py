@@ -116,11 +116,14 @@ class git_util(object):
     return tmp_dir, r
   
   script = namedtuple('script', 'filename, args')
-  _run_script_result = namedtuple('_run_script_result', 'scripts_results, status, diff')
+  _one_script_result = namedtuple('_one_script_result', 'script, stdout')
+  _run_scripts_result = namedtuple('_run_scripts_result', 'results, status, diff')
   @classmethod
   def repo_run_scripts(clazz, address, scripts, options = None):
     check.check_git_repo_script_options(options, allow_none = True)
     options = options or git_repo_script_options()
+    if options.verbose:
+      print('repo_run_scripts: cloning {}'.format(address))
     tmp_dir, repo = clazz._clone_to_temp_dir(address, options = options, debug = options.debug)
     if options.debug:
       m = 'repo_run_scripts: tmp_dir={}'.format(tmp_dir)
@@ -138,9 +141,11 @@ class git_util(object):
         if script.args:
           cmd.extend(script.args)
         clazz._LOG.log_d('repo_run_scripts: executing cmd="{}" root={}'.format(' '.join(cmd), repo.root))
+        if options.verbose:
+          print('repo_run_scripts: executing {}'.format(' '.join(cmd)))
         rv = execute.execute(cmd, cwd = repo.root, shell = True, stderr_to_stdout = True)
         clazz._LOG.log_d('repo_run_scripts: rv={}'.format(str(rv)))
-        scripts_results.append(rv)
+        scripts_results.append(clazz._one_script_result(script, rv.stdout))
     if options.push:
       if options.dry_run:
         print('DRY_RUN: {}: would push'.format(address))
@@ -152,7 +157,7 @@ class git_util(object):
         print('DRY_RUN: {}: would bump "{}" component of tag {} to {}'.format(address, options.bump_tag_component, rv.old_tag, rv.new_tag))
       else:
         repo.bump_tag(options.bump_tag_component, push = True)
-    return clazz._run_script_result(scripts_results, repo.call_git([ 'status', '.' ]).stdout, repo.diff())
+    return clazz._run_scripts_result(scripts_results, repo.call_git([ 'status', '.' ]).stdout, repo.diff())
   
   @classmethod
   def find_root_dir(clazz, start_dir = None):
