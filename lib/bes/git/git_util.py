@@ -115,12 +115,6 @@ class git_util(object):
     r.clone(options = options)
     return tmp_dir, r
   
-  @classmethod
-  def repo_run_script(clazz, address, script, args, options = None):
-    scripts = [ clazz.script(script, args or []) ]
-    results = clazz.repo_run_scripts(address, scripts, options = options)
-    return results[0]
-                
   script = namedtuple('script', 'filename, args')
   _run_script_result = namedtuple('_run_script_result', 'scripts_results, status, diff')
   @classmethod
@@ -144,7 +138,7 @@ class git_util(object):
         if script.args:
           cmd.extend(script.args)
         clazz._LOG.log_d('repo_run_scripts: executing cmd="{}" root={}'.format(' '.join(cmd), repo.root))
-        rv = execute.execute(cmd, cwd = repo.root, shell = True)
+        rv = execute.execute(cmd, cwd = repo.root, shell = True, stderr_to_stdout = True)
         clazz._LOG.log_d('repo_run_scripts: rv={}'.format(str(rv)))
         scripts_results.append(rv)
     if options.push:
