@@ -6,14 +6,23 @@ function _bes_trace_file() ( _bes_trace "file: ${BASH_SOURCE}: $*" )
 
 _bes_trace_file "begin"
 
+# A basic UNIX path that is guranteed to find common exeutables on both linux and macos
 _BES_BASIC_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/usr/bin:/bin
 
+# Which is in the same place on both linux and macos
 _BES_WHICH_EXE=/usr/bin/which
+
+# Use which to find the abs paths to a handful of executables used in this library.
+# The reason for using _BES_BASIC_PATH in this manner is that we want this library to
+# work *even* if the callers PATH is empty or "bad"
 _BES_AWK_EXE=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} awk)
 _BES_TR_EXE=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} tr)
 _BES_BASENAME_EXE=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} basename)
+_BES_DIRNAME_EXE=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} dirname)
 _BES_GREP_EXE=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} grep)
 _BES_CAT_EXE=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} cat)
+_BES_PWD_EXE=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} pwd)
+_BES_MKDIR_EXE=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} mkdir)
 
 # return a colon separated path without the head item
 function bes_path_without_head()
@@ -108,6 +117,7 @@ function bes_path_sanitize()
   return 0
 }
 
+# remove one or more items from a colon delimited path
 function bes_path_remove()
 {
   _bes_trace_function $*
@@ -134,6 +144,7 @@ function bes_path_remove()
   return 0
 }
 
+# append one or more items to a colon delimited path
 function bes_path_append()
 {
   _bes_trace_function $*
@@ -156,6 +167,7 @@ function bes_path_append()
   return 0
 }
 
+# prepend one or more items to a colon delimited path
 function bes_path_prepend()
 {
   _bes_trace_function $*
@@ -176,6 +188,7 @@ function bes_path_prepend()
   return 0
 }
 
+# pretty print a path one item per line including unexpanding ~/
 function bes_path_print()
 {
   if [[ $# != 1 ]]; then
@@ -539,6 +552,17 @@ function bes_testing_print_unit_tests()
   return 0
 }
 
+# Call a function and print the exit code
+function bes_testing_call_function()
+{
+  local _function=${1}
+  shift
+  ${_function} ${1+"$@"}
+  local _rv=$?
+  echo ${_rv}
+  return 0
+}
+
 _bes_testing_exit_code=0
 
 # Run all the unit tests found in this script environment
@@ -583,7 +607,7 @@ function bes_system_info()
   case ${_uname} in
     Darwin)
       _system='macos'
-      _version=$(/usr/bin/defaults read loginwindow SystemVersionStampAsString | ${_BES_AWK_EXE} -F"." '{ printf("%s.%s\n", $1, $2); }')
+      _version=$(/usr/bin/sw_vers -productVersion)
       _major=$(echo ${_version} | ${_BES_AWK_EXE} -F"." '{ print $1; }')
       _minor=$(echo ${_version} | ${_BES_AWK_EXE} -F"." '{ print $2; }')
       _path=${_system}-${_major}/${_arch}
@@ -658,6 +682,12 @@ function bes_debug_message()
     echo ${_message}
   fi
   return 0
+}
+
+function bes_console_message()
+{
+  BES_DEBUG=1 BES_LOG_FILE=$(tty) bes_debug_message ${1+"$@"}
+  return $?
 }
 
 function _bes_checksum_text_macos()
@@ -964,6 +994,107 @@ function bes_has_program()
   $(${_BES_WHICH_EXE} "${_program}" >& /dev/null)
   local _rv=$?
   return ${_rv}
+}
+
+function bes_find_program()
+{
+  if [[ $# < 2 ]]; then
+    bes_message "usage: bes_find_program env_var_name prog_name1 [ prog_name1 ... prog_nameN ]"
+    return 1
+  fi
+  local _env_var_name=${1}
+  shift
+  local _exe=$(bes_var_get ${_env_var_name})
+  if [[ -n ${_exe} ]]; then
+    if ! $(bes_has_program ${_exe}); then
+      echo ""
+      return 1
+    fi
+    echo "${_exe}"
+    return 0  
+  fi
+  for _exe in "$@"; do
+    if bes_has_program ${_exe}; then
+      echo ${_exe}
+      return 0
+    fi
+  done
+  echo ""
+  return 1
+}
+
+# atexit function suitable for trapping and printing the exit code
+# trap "bes_atexit_message_successful ${_remote_name}" EXIT
+function bes_atexit_message_successful()
+{
+  local _actual_exit_code=$?
+  if [[ ${_actual_exit_code} == 0 ]]; then
+    bes_message success ${1+"$@"}
+  else
+    bes_message failed ${1+"$@"}
+  fi
+  return ${_actual_exit_code}
+}
+
+# DEPRECATED: use bes_abs_dir instead
+# Return the absolute path for the path arg
+function bes_abs_path()
+{
+  if [[ $# < 1 ]]; then
+    bes_message "usage: bes_abs_path path"
+    return 1
+  fi
+  local _path="${1}"
+  echo $(cd ${_path} && pwd)
+  return 0
+}
+
+# Return the absolute dir path for path.  Note that path will be created
+# if it doesnt exist so that this function can be used for paths that
+# dont yet exist.  That is useful for scripts that want to normalize
+# their file input/output arguments.
+function bes_abs_dir()
+{
+  if [[ $# < 1 ]]; then
+    bes_message "usage: bes_abs_dir path"
+    return 1
+  fi
+  local _path="${1}"
+  if [[ ! -d "${_path}" ]]; then
+    $_BES_MKDIR_EXE -p "${_path}"
+  fi
+  local _result="$(cd "${_path}" && $_BES_PWD_EXE)"
+  echo ${_result}
+  return 0
+}
+
+function bes_abs_file()
+{
+  if [[ $# < 1 ]]; then
+    bes_message "usage: bes_abs_file filename"
+    return 1
+  fi
+  local _filename="${1}"
+  local _dirname="$($_BES_DIRNAME_EXE "${_filename}")"
+  local _basename="$($_BES_BASENAME_EXE "${_filename}")"
+  local _abs_dirname="$(bes_abs_dir "${_dirname}")"
+  local _result="${_abs_dirname}"/"${_basename}"
+  echo ${_result}
+  return 0
+}
+
+# reuturn just the extension of a file
+function bes_file_extension()
+{
+  if [[ $# < 1 ]]; then
+    bes_message "usage: bes_file_extension filename"
+    return 1
+  fi
+  local _filename="${1}"
+  local _base=$($_BES_BASENAME_EXE -- "${_filename}")
+  local _ext="${_base##*.}"
+  echo "${_ext}"
+  return 0
 }
 
 _bes_trace_file "end"
