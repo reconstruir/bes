@@ -45,6 +45,9 @@ class git_status(object):
   def as_tuple(self):
     return tuple([ self.action, self.filename ] + list(self.args))
   
+  def is_untracked(self):
+    return self.action == '??'
+  
   @classmethod
   def parse(clazz, s):
     lines = [ line.strip() for line in s.split('\n') ]
