@@ -2,13 +2,15 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
-from bes.testing.unit_test import unit_test
+
+from bes.env.env_dir import env_dir
+from bes.env.shell_framework import shell_framework
+from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
-from bes.env.shell_framework import shell_framework
-from bes.env.env_dir import env_dir
-from bes.system.os_env import os_env
 from bes.fs.testing import temp_content
+from bes.system.os_env import os_env
+from bes.testing.unit_test import unit_test
 
 class test_shell_framework(unit_test):
 
@@ -18,7 +20,9 @@ class test_shell_framework(unit_test):
     tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)
     ef = shell_framework()
     ef.extract(tmp_dir)
-    self.assertTrue( path.exists(path.join(tmp_dir, 'bes_shell.sh')) )
+    self.assertEqual( [
+      'bes_shell.sh',
+    ], file_find.find(tmp_dir) )
   
   def test_use_framework(self):
     tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)

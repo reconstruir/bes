@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $_BES_DEV_ROOT/bes_shell/bes_shell.sh
+source $_BES_DEV_ROOT/bes_shell/bash/bes_shell/bes_shell.sh
 
 function test_bes_var_set()
 {

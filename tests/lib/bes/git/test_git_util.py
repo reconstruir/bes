@@ -110,9 +110,8 @@ exit 0
       git_util.script(xp_script, [ 'arg1', 'arg2' ]),
     ]
     rv = git_util.repo_run_scripts(r.address, scripts)
-    self.assertEqual( 1, len(rv.scripts_results) )
-    self.assertEqual( 0, rv.scripts_results[0].exit_code )
-    self.assertEqual( '{} arg1 arg2'.format(xp_script), rv.scripts_results[0].stdout.strip() )
+    self.assertEqual( 1, len(rv.results) )
+    self.assertEqual( '{} arg1 arg2'.format(xp_script), rv.results[0].stdout.strip() )
     
   @git_temp_home_func()
   def test_repo_run_script_one_dry_run(self):
@@ -143,7 +142,7 @@ exit 0
       git_util.script(xp_script, [ 'arg1', 'arg2' ]),
     ]
     rv = git_util.repo_run_scripts(r.address, scripts, options = options)
-    self.assertEqual( [ None ], rv.scripts_results )
+    self.assertEqual( [ None ], rv.results )
 
   @git_temp_home_func()
   def test_repo_run_script_push(self):
@@ -178,8 +177,7 @@ exit 0
       git_util.script(xp_script, [ 'arg1', 'arg2' ]),
     ]
     rv = git_util.repo_run_scripts(r1.address, scripts, options = options)
-    self.assertEqual( 1, len(rv.scripts_results) )
-    self.assertEqual( 0, rv.scripts_results[0].exit_code )
+    self.assertEqual( 1, len(rv.results) )
 
     r2 = r1.make_temp_cloned_repo()
     self.assertEqual( 'yellow', r2.read_file('color.txt').strip() )
@@ -234,8 +232,6 @@ exit 0
     ]
     options = git_repo_script_options(push = True)
     rv = git_util.repo_run_scripts(r1.address, scripts, options = options)
-    self.assertEqual( 0, rv.scripts_results[0].exit_code )
-    self.assertEqual( 0, rv.scripts_results[1].exit_code )
 
     r2 = r1.make_temp_cloned_repo()
     self.assertEqual( 'yellow', r2.read_file('color.txt').strip() )
@@ -268,8 +264,7 @@ exit 0
       git_util.script(xp_script, []),
     ]
     rv = git_util.repo_run_scripts(r1.address, scripts, options = options)
-    self.assertEqual( 1, len(rv.scripts_results) )
-    self.assertEqual( 0, rv.scripts_results[0].exit_code )
+    self.assertEqual( 1, len(rv.results) )
 
     r2 = r1.make_temp_cloned_repo()
     self.assertEqual( '1.0.1', r2.greatest_local_tag() )
@@ -279,8 +274,7 @@ exit 0
       git_util.script(xp_script, []),
     ]
     rv = git_util.repo_run_scripts(r1.address, scripts, options = options)
-    self.assertEqual( 1, len(rv.scripts_results) )
-    self.assertEqual( 0, rv.scripts_results[0].exit_code )
+    self.assertEqual( 1, len(rv.results) )
     self.assertEqual( '2.0.1', r2.greatest_remote_tag() )
     
 if __name__ == '__main__':

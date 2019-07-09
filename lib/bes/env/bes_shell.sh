@@ -1,1 +1,1 @@
-../../../bes_shell/bes_shell.sh
+../../../bes_shell/bash/bes_shell/bes_shell.sh
