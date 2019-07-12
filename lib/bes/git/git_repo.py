@@ -24,7 +24,7 @@ class git_repo(object):
     return git.has_changes(self.root)
   
   def clone_or_pull(self, options = None):
-    return git.clone_or_pull(self.address, self.root)
+    return git.clone_or_pull(self.address, self.root, options = options)
 
   def clone(self, options = None):
     return git.clone(self.address, self.root, options = options)
