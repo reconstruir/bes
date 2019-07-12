@@ -161,7 +161,6 @@ class git(object):
       clazz._LOG.log_d('clone: sub_args="{}" extra_env={}'.format(' '.join(args), extra_env))
       sub_rv = clazz.call_git(dest_dir, sub_args, extra_env = extra_env)
       clazz._LOG.log_d('clone: sub_rv="{}"'.format(str(sub_rv)))
-    print('cloned: {}'.format(dest_dir))
     return clone_rv, sub_rv
 
   @classmethod
