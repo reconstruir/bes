@@ -5,6 +5,7 @@ from collections import namedtuple
 
 from bes.common.check import check
 from bes.common.string_util import string_util
+from bes.common.object_util import object_util
 from bes.compat.StringIO import StringIO
 from bes.fs.file_find import file_find
 from bes.fs.file_type import file_type
@@ -30,6 +31,7 @@ class git_util(object):
   @classmethod
   def find_git_dirs(clazz, dirs):
     'Return the first .git dir found in any dir in dirs.'
+    dirs = object_util.listify(dirs)
     dirs = [ d for d in dirs if path.isdir(d) ]
     possible = []
     result = clazz._find(dirs, '.git', None, None, False)
