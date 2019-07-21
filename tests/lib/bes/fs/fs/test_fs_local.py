@@ -14,9 +14,9 @@ from bes.fs.fs.fs_local import fs_local
 class test_fs_local(unit_test):
 
   _TEST_ITEMS = [
-    'file foo.txt "foo.txt\n"',
-    'file subdir/bar.txt "bar.txt\n"',
-    'file subdir/subberdir/baz.txt "baz.txt\n"',
+    'file foo.txt "foo.txt"',
+    'file subdir/bar.txt "bar.txt"',
+    'file subdir/subberdir/baz.txt "baz.txt"',
     'file emptyfile.txt',
     'dir emptydir',
   ]
@@ -25,7 +25,7 @@ class test_fs_local(unit_test):
     fs = self._make_temp_fs()
     self.assertEqual( [
       ( 'emptyfile.txt', 0, 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', {} ),
-      ( 'foo.txt', 8, 'b6a5ff9795209b3d64cb5c04d574515413f9fec7abde49d66b44de90d1e0db14', {} ),
+      ( 'foo.txt', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {} ),
     ], fs.list_dir('/', False) )
     
   def test_list_dir_empty(self):
@@ -42,13 +42,13 @@ class test_fs_local(unit_test):
   def test_file_info(self):
     fs = self._make_temp_fs()
     self.assertEqual(
-      ( 'foo.txt', 8, 'b6a5ff9795209b3d64cb5c04d574515413f9fec7abde49d66b44de90d1e0db14', {} ),
+      ( 'foo.txt', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {} ),
       fs.file_info('foo.txt') )
     
   def test_file_info(self):
     fs = self._make_temp_fs()
     self.assertEqual(
-      ( 'foo.txt', 8, 'b6a5ff9795209b3d64cb5c04d574515413f9fec7abde49d66b44de90d1e0db14', {} ),
+      ( 'foo.txt', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {} ),
       fs.file_info('foo.txt') )
     
   def test_remove_file(self):
@@ -65,6 +65,47 @@ class test_fs_local(unit_test):
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt',
     ], file_find.find(fs._where) )
+    
+  def test_upload_file_new(self):
+    fs = self._make_temp_fs()
+    self.assertEqual( [
+      'emptyfile.txt',
+      'foo.txt',
+      'subdir/bar.txt',
+      'subdir/subberdir/baz.txt',
+    ], file_find.find(fs._where) )
+    tmp_file = self.make_temp_file(content = 'this is kiwi.txt\n')
+    fs.upload_file('kiwi.txt', tmp_file)
+    self.assertEqual( [
+      'emptyfile.txt',
+      'foo.txt',
+      'kiwi.txt',
+      'subdir/bar.txt',
+      'subdir/subberdir/baz.txt',
+    ], file_find.find(fs._where) )
+    
+  def test_upload_file_replace(self):
+    fs = self._make_temp_fs()
+    self.assertEqual( [
+      'emptyfile.txt',
+      'foo.txt',
+      'subdir/bar.txt',
+      'subdir/subberdir/baz.txt',
+    ], file_find.find(fs._where) )
+    self.assertEqual(
+      ( 'foo.txt', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {} ),
+      fs.file_info('foo.txt') )
+    tmp_file = self.make_temp_file(content = 'this is the new foo.txt\n')
+    fs.upload_file('foo.txt', tmp_file)
+    self.assertEqual( [
+      'emptyfile.txt',
+      'foo.txt',
+      'subdir/bar.txt',
+      'subdir/subberdir/baz.txt',
+    ], file_find.find(fs._where) )
+    self.assertEqual(
+      ( 'foo.txt', 24, 'ee190d0691f8bd34826b9892a719892eb1accc36131ef4195dd81c0dfcf5517c', {} ),
+      fs.file_info('foo.txt') )
     
   @classmethod
   def _make_temp_content(clazz, items):
