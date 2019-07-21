@@ -40,3 +40,18 @@ class _file_attributes_base(with_metaclass(ABCMeta, object)):
   def _check_key(clazz, key):
     if ' ' in key:
       raise ValueError('space not supported in key: \"{}\"'.format(key))
+
+  @classmethod
+  def get_all(clazz, filename):
+    'Return all attributes as a dictionary.'
+    keys = clazz.keys(filename)
+    result = {}
+    for key in keys:
+      result[key] = clazz.get(filename, key)
+    return result
+
+  @classmethod
+  def set_all(clazz, filename, attributes):
+    'Set all file attributes.'
+    for key, value in attributes.items():
+      clazz.set(filename, key, value)
