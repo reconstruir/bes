@@ -106,6 +106,16 @@ class test_fs_local(unit_test):
     self.assertEqual(
       ( 'foo.txt', 24, 'ee190d0691f8bd34826b9892a719892eb1accc36131ef4195dd81c0dfcf5517c', {} ),
       fs.file_info('foo.txt') )
+
+  def test_set_file_properties(self):
+    fs = self._make_temp_fs()
+    self.assertEqual(
+      ( 'foo.txt', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {} ),
+      fs.file_info('foo.txt') )
+    fs.set_file_attributes('foo.txt', { 'p1': 'hello', 'p2': '666' })
+    self.assertEqual(
+      ( 'foo.txt', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {u'p2': '666', u'p1': 'hello'} ),
+      fs.file_info('foo.txt') )
     
   @classmethod
   def _make_temp_content(clazz, items):
