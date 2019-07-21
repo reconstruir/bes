@@ -6,7 +6,7 @@ from bes.system.compat import with_metaclass
 class fs_base(with_metaclass(ABCMeta, object)):
 
   @abstractmethod
-  def list(self, d, recursive):
+  def list_dir(self, d, recursive):
     'List entries in a directory.'
     pass
 
