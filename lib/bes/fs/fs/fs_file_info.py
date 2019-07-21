@@ -3,7 +3,7 @@
 from collections import namedtuple
 from bes.common.check import check
 
-class fs_entry(namedtuple('fs_entry', 'filename, size, checksum, attributes')):
+class fs_file_info(namedtuple('fs_file_info', 'filename, size, checksum, attributes')):
 
   def __new__(clazz, filename, size, checksum, attributes):
     check.check_string(filename)
@@ -12,4 +12,4 @@ class fs_entry(namedtuple('fs_entry', 'filename, size, checksum, attributes')):
     check.check_dict(attributes, check.STRING_TYPES, check.STRING_TYPES)
     return clazz.__bases__[0].__new__(clazz, filename, size, checksum, attributes)
 
-check.register_class(fs_entry, include_seq = False)
+check.register_class(fs_file_info, include_seq = False)

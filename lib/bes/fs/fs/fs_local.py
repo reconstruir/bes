@@ -3,8 +3,8 @@
 from os import path
 
 from .fs_base import fs_base
-from .fs_entry import fs_entry
-from .fs_entry_list import fs_entry_list
+from .fs_file_info import fs_file_info
+from .fs_file_info_list import fs_file_info_list
 from .fs_error import fs_error
 
 from bes.fs.file_find import file_find
@@ -29,7 +29,7 @@ class fs_local(fs_base):
     max_depth = None if recursive else 1
     self.log.log_d('list_dir: dir_path={}'.format(dir_path))
     files = file_find.find(dir_path, relative = True, max_depth = max_depth)
-    result = fs_entry_list()
+    result = fs_file_info_list()
     for filename in files:
       file_path = self._make_file_path(filename)
       entry = self._make_entry(filename, file_path)
@@ -95,4 +95,4 @@ class fs_local(fs_base):
     size = file_util.size(p)
     checksum = file_util.checksum('sha256', p)
     attributes = file_attributes.get_all(p)
-    return fs_entry(filename, size, checksum, attributes)
+    return fs_file_info(filename, size, checksum, attributes)
