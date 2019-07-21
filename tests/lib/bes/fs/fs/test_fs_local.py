@@ -6,12 +6,13 @@ from os import path
 
 from bes.testing.unit_test import unit_test
 from bes.fs.testing.temp_content import temp_content
+from bes.fs.file_util import file_util
 
 from bes.fs.fs.fs_local import fs_local
 
 class test_fs_local(unit_test):
 
-  def test_fs_local(self):
+  def test_list_dir(self):
     tmp_dir = self._make_temp_content([
       'file foo.txt "foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
@@ -25,6 +26,17 @@ class test_fs_local(unit_test):
       ( 'emptyfile.txt', 0, 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', {} ),
       ( 'foo.txt', 8, 'b6a5ff9795209b3d64cb5c04d574515413f9fec7abde49d66b44de90d1e0db14', {} ),
     ], fs.list_dir('/', False) )
+    
+  def test_list_dir_empty(self):
+    tmp_dir = self.make_temp_dir()
+    fs = fs_local(tmp_dir)
+    self.assertEqual( [], fs.list_dir('/', False) )
+    
+  def test_list_dir_non_existent(self):
+    tmp_dir = self.make_temp_dir()
+    file_util.remove(tmp_dir)
+    fs = fs_local(tmp_dir)
+    self.assertEqual( [], fs.list_dir('/', False) )
     
   @classmethod
   def _make_temp_content(clazz, items):

@@ -11,31 +11,33 @@ from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.file_checksum import file_checksum
 from bes.fs.file_attributes import file_attributes
+from bes.system.log import logger
 
 class fs_local(fs_base):
 
+  log = logger('fs_local')
+  
   def __init__(self, where):
     self._where = where
+    file_util.mkdir(self._where)
   
   #@abstractmethod
   def list_dir(self, d, recursive):
     'List entries in a directory.'
+    self.log.log_d('list_dir(d={}, recursive={}'.format(d, recursive))
     dir_path = self._make_dir_path(d)
     max_depth = None if recursive else 1
-    print('dir_path: {}'.format(dir_path))
+    self.log.log_d('list_dir: dir_path={}'.format(dir_path))
     files = file_find.find(dir_path, relative = True, max_depth = max_depth)
-    print('   files: {}'.format(files))
     result = fs_entry_list()
     for filename in files:
-      print(': {}'.format(filename))
       file_path = self._make_file_path(filename)
-      print('file_path: {}'.format(file_path))
       entry = self._make_entry(filename, file_path)
       result.append(entry)
     return result
 
   #@abstractmethod
-  def info(self, filename):
+  def file_info(self, filename):
     'Get info for a single file..'
     p = self._make_file_path(filename)
     if not path.isfile(p):

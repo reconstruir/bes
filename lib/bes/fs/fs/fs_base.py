@@ -11,7 +11,7 @@ class fs_base(with_metaclass(ABCMeta, object)):
     pass
 
   @abstractmethod
-  def info(self, filename):
+  def file_info(self, filename):
     'Get info for a single file..'
     pass
   
