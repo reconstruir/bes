@@ -45,7 +45,7 @@ class fs_local(fs_base):
     return self._make_entry(filename, p)
   
   #@abstractmethod
-  def remove(self, filename):
+  def remove_file(self, filename):
     'Remove filename.'
     p = self._make_file_path(filename)
     if not path.exists(p):
@@ -57,7 +57,7 @@ class fs_local(fs_base):
     file_util.remove(p)
   
   #@abstractmethod
-  def upload(self, filename, local_filename):
+  def upload_file(self, filename, local_filename):
     'Upload filename from local_filename.'
     p = self._make_file_path(filename)
     if path.isdir(p):
@@ -69,7 +69,7 @@ class fs_local(fs_base):
     file_util.copy(local_filename, p)
 
   #@abstractmethod
-  def set_attributes(self, filename, attributes):
+  def set_file_attributes(self, filename, attributes):
     'Set file attirbutes.'
     p = self._make_file_path(filename)
     if path.isdir(p):

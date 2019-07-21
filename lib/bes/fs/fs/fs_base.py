@@ -16,17 +16,17 @@ class fs_base(with_metaclass(ABCMeta, object)):
     pass
   
   @abstractmethod
-  def remove(self, filename):
+  def remove_file(self, filename):
     'Remove filename.'
     pass
   
   @abstractmethod
-  def upload(self, filename, local_filename):
+  def upload_file(self, filename, local_filename):
     'Upload filename from local_filename.'
     pass
 
   @abstractmethod
-  def set_attributes(self, filename, attributes):
+  def set_file_attributes(self, filename, attributes):
     'Set file attirbutes.'
     pass
   

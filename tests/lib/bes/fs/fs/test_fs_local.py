@@ -7,6 +7,7 @@ from os import path
 from bes.testing.unit_test import unit_test
 from bes.fs.testing.temp_content import temp_content
 from bes.fs.file_util import file_util
+from bes.fs.file_find import file_find
 
 from bes.fs.fs.fs_local import fs_local
 
@@ -43,6 +44,27 @@ class test_fs_local(unit_test):
     self.assertEqual(
       ( 'foo.txt', 8, 'b6a5ff9795209b3d64cb5c04d574515413f9fec7abde49d66b44de90d1e0db14', {} ),
       fs.file_info('foo.txt') )
+    
+  def test_file_info(self):
+    fs = self._make_temp_fs()
+    self.assertEqual(
+      ( 'foo.txt', 8, 'b6a5ff9795209b3d64cb5c04d574515413f9fec7abde49d66b44de90d1e0db14', {} ),
+      fs.file_info('foo.txt') )
+    
+  def test_remove_file(self):
+    fs = self._make_temp_fs()
+    self.assertEqual( [
+      'emptyfile.txt',
+      'foo.txt',
+      'subdir/bar.txt',
+      'subdir/subberdir/baz.txt',
+    ], file_find.find(fs._where) )
+    fs.remove_file('foo.txt')
+    self.assertEqual( [
+      'emptyfile.txt',
+      'subdir/bar.txt',
+      'subdir/subberdir/baz.txt',
+    ], file_find.find(fs._where) )
     
   @classmethod
   def _make_temp_content(clazz, items):
