@@ -5,6 +5,8 @@ from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
+from bes.system.log import logger
+from bes.system.execute import execute
 
 class table_missing_error(Exception):
   
@@ -18,6 +20,8 @@ class table_missing_error(Exception):
 
 class file_metadata_db(object):
 
+  log = logger('file_metadata_db')
+  
   _METADATA_SCHEMA = '''
 create table {table_name}(
   key                 text primary key not null,
@@ -80,11 +84,14 @@ create table {table_name}(
       self._db.begin()
       function(*args)
       self._db.commit()
+      execute.execute('sync')
     except Exception as ex:
+      self.log.log_e('Caught exception: {}'.format(str(ex)))
+      self.log.log_exception(ex)
       try:
         self._db.rollback()
       except Exception as sqlite_ex:
-        print('%s: CAUGHT EXCEPTION ROLLING BACK: %s' % (label, str(sqlite_ex)))
+        self.log.log_e('{}: CAUGHT EXCEPTION ROLLING BACK: {}'.format(label, str(sqlite_ex)))
       raise ex
     
   def _ensure_table_(self, table_name):

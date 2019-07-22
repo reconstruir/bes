@@ -7,7 +7,7 @@ from bes.sqlite.sqlite import sqlite
 from .detail.file_metadata_db import file_metadata_db
 
 class file_metadata(object):
-  'Metadata for files.'
+  'Metadata for files using an sql db.'
   
   def __init__(self, db_filename):
     self._db_filename = db_filename

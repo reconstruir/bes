@@ -2,25 +2,30 @@
 
 from os import path
 
+from bes.fs.file_attributes import file_attributes
+from bes.fs.file_checksum import file_checksum
+from bes.fs.file_checksum_db import file_checksum_db
+from bes.fs.file_find import file_find
+from bes.fs.file_metadata import file_metadata
+from bes.fs.file_util import file_util
+from bes.system.log import logger
+
 from .fs_base import fs_base
 from .fs_file_info import fs_file_info
 from .fs_file_info_list import fs_file_info_list
 from .fs_error import fs_error
 
-from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
-from bes.fs.file_checksum import file_checksum
-from bes.fs.file_attributes import file_attributes
-from bes.system.log import logger
-
 class fs_local(fs_base):
 
   log = logger('fs_local')
   
-  def __init__(self, where):
+  def __init__(self, where, cache_dir = None):
     self._where = where
+    self._cache_dir = cache_dir or path.expanduser('~/.bes/fs_local/cache')
+    self._metadata_db_filename = path.join(self._cache_dir, 'metadata.db')
+    self._checksum_db_filename = path.join(self._cache_dir, 'checksum.db')
     file_util.mkdir(self._where)
-  
+
   #@abstractmethod
   def list_dir(self, d, recursive):
     'List entries in a directory.'
@@ -29,6 +34,7 @@ class fs_local(fs_base):
     max_depth = None if recursive else 1
     self.log.log_d('list_dir: dir_path={}'.format(dir_path))
     files = file_find.find(dir_path, relative = True, max_depth = max_depth)
+    files = self._files_filter(files)
     result = fs_file_info_list()
     for filename in files:
       file_path = self._make_file_path(filename)
@@ -91,8 +97,25 @@ class fs_local(fs_base):
     else:
       return path.join(self._where, file_util.lstrip_sep(d))
   
-  def _make_entry(self, filename, p):
-    size = file_util.size(p)
-    checksum = file_util.checksum('sha256', p)
-    attributes = file_attributes.get_all(p)
+  def _make_entry(self, filename, file_path):
+    size = file_util.size(file_path)
+    checksum = self._get_checksum(file_path)
+    attributes = file_attributes.get_all(file_path)
     return fs_file_info(filename, size, checksum, attributes)
+    
+  def _get_checksum(self, file_path):
+    db = file_checksum_db(self._metadata_db_filename)
+    checksum = db.checksum('sha256', file_path)
+    return checksum
+
+  def _get_attributes(self, file_path):
+    db = file_metadata(self._checksum_db_filename)
+    return db.get_values()
+
+  def _files_filter(clazz, files):
+    return [ f for f in files if not clazz._file_is_system_file(f) ]
+
+  def _file_is_system_file(clazz, filename):
+    b = path.basename(filename)
+    return b.startswith('.bes')
+  
