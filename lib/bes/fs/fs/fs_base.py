@@ -4,7 +4,8 @@ from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 
 class fs_base(with_metaclass(ABCMeta, object)):
-
+  'Abstract class to manipulate a filesystem.'
+  
   @abstractmethod
   def name(self):
     'The name if this fs.'

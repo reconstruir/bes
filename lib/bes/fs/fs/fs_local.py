@@ -16,6 +16,7 @@ from .fs_file_info_list import fs_file_info_list
 from .fs_error import fs_error
 
 class fs_local(fs_base):
+  'Local filesystem'
 
   log = logger('fs_local')
   
