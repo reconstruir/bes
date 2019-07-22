@@ -27,6 +27,11 @@ class fs_local(fs_base):
     file_util.mkdir(self._where)
 
   #@abstractmethod
+  def name(self):
+    'The name if this fs.'
+    return 'fs_local'
+    
+  #@abstractmethod
   def list_dir(self, d, recursive):
     'List entries in a directory.'
     self.log.log_d('list_dir(d={}, recursive={}'.format(d, recursive))
@@ -118,4 +123,3 @@ class fs_local(fs_base):
   def _file_is_system_file(clazz, filename):
     b = path.basename(filename)
     return b.startswith('.bes')
-  

@@ -28,6 +28,15 @@ class test_fs_local(unit_test):
       ( 'foo.txt', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {} ),
     ], fs.list_dir('/', False) )
     
+  def test_list_dir_recursive(self):
+    fs = self._make_temp_fs()
+    self.assertEqual( [
+      ( 'emptyfile.txt', 0, 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', {} ),
+      ( 'foo.txt', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {} ),
+      ( 'subdir/bar.txt', 7, '08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae', {} ),
+      ( 'subdir/subberdir/baz.txt', 7, '541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669', {} ),
+    ], fs.list_dir('/', True) )
+    
   def test_list_dir_empty(self):
     tmp_dir = self.make_temp_dir()
     fs = fs_local(tmp_dir)
