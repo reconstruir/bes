@@ -16,7 +16,8 @@ class test_fs_local(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    raise_skip('work in progress not ready')
+    #raise_skip('work in progress not ready')
+    pass
   
   _TEST_ITEMS = [
     'file foo.txt "foo.txt"',
@@ -90,7 +91,7 @@ class test_fs_local(unit_test):
     ], file_find.find(fs._where) )
     tmp_file = self.make_temp_file(content = 'this is kiwi.txt\n')
     fs.upload_file('kiwi.txt', tmp_file)
-    if False: self.assertEqual( [
+    self.assertEqual( [
       'emptyfile.txt',
       'foo.txt',
       'kiwi.txt',
@@ -130,6 +131,12 @@ class test_fs_local(unit_test):
     self.assertEqual(
       ( 'foo.txt', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {u'p2': '666', u'p1': 'hello'} ),
       fs.file_info('foo.txt') )
+
+  def test_download_file(self):
+    fs = self._make_temp_fs()
+    tmp_file = self.make_temp_file()
+    fs.download_file('foo.txt', tmp_file)
+    self.assertEqual( 'foo.txt', file_util.read(tmp_file) )
     
   @classmethod
   def _make_temp_content(clazz, items):

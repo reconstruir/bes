@@ -32,6 +32,11 @@ class fs_base(with_metaclass(ABCMeta, object)):
     pass
 
   @abstractmethod
+  def download_file(self, filename, local_filename):
+    'Download filename to local_filename.'
+    pass
+
+  @abstractmethod
   def set_file_attributes(self, filename, attributes):
     'Set file attirbutes.'
     pass

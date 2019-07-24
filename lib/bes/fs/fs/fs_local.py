@@ -81,6 +81,16 @@ class fs_local(fs_base):
     file_util.copy(local_filename, p)
 
   #@abstractmethod
+  def download_file(self, filename, local_filename):
+    'Download filename to local_filename.'
+    p = self._make_file_path(filename)
+    if not path.exists(p):
+      raise fs_error('file not found: {}'.format(filename))
+    if not path.isfile(p):
+      raise fs_error('not a file: {}'.format(filename))
+    file_util.copy(p, local_filename)
+    
+  #@abstractmethod
   def set_file_attributes(self, filename, attributes):
     'Set file attirbutes.'
     p = self._make_file_path(filename)
