@@ -6,7 +6,7 @@ from bes.common.string_util import string_util
 from bes.compat.input import input
 from bes.system.log import log
 
-from .web_server_controller web_server_controller
+from .web_server_controller import web_server_controller
 from .file_web_server import file_web_server
 
 class web_server_app(object):
