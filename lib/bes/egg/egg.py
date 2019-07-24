@@ -6,7 +6,7 @@ from bes.archive import archiver
 from bes.system import execute
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
-from bes.git import git 
+from bes.git.git import git 
 
 class egg(object):
 
