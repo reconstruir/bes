@@ -8,11 +8,16 @@ from bes.testing.unit_test import unit_test
 from bes.fs.testing.temp_content import temp_content
 from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
+from bes.testing.unit_test_skip import raise_skip
 
 from bes.fs.fs.fs_local import fs_local
 
 class test_fs_local(unit_test):
 
+  @classmethod
+  def setUpClass(clazz):
+    raise_skip('work in progress not ready')
+  
   _TEST_ITEMS = [
     'file foo.txt "foo.txt"',
     'file subdir/bar.txt "bar.txt"',
