@@ -19,14 +19,14 @@ from bes.web.file_web_server_tester import file_web_server_tester
 class test_file_web_server(unit_test):
 
   def test_download(self):
-    items = [
+    tester = file_web_server_tester(debug = self.DEBUG)
+    tester.write_temp_content([
       'file foo.txt "this is foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
       'file subdir/subberdir/baz.txt "this is baz.txt\n"',
       'file emptyfile.txt',
       'dir emptydir',
-    ]
-    tester = file_web_server_tester(debug = self.DEBUG, items = items)
+    ])
     tester.start()
 
     url = tester.make_url('foo.txt')
@@ -46,14 +46,14 @@ class test_file_web_server(unit_test):
     tester.stop()
     
   def test_download_with_auth(self):
-    items = [
+    tester = file_web_server_tester(debug = self.DEBUG, users = { 'fred': 'flintpass' })
+    tester.write_temp_content([
       'file foo.txt "this is foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
       'file subdir/subberdir/baz.txt "this is baz.txt\n"',
       'file emptyfile.txt',
       'dir emptydir',
-    ]
-    tester = file_web_server_tester(debug = self.DEBUG, items = items, users = { 'fred': 'flintpass' })
+    ])
     tester.start()
 
     url = tester.make_url('foo.txt')
