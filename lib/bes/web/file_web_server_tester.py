@@ -14,8 +14,8 @@ from .web_server_controller import web_server_controller
 class file_web_server_tester(object):
   'A class to test a file_web_server'
 
-  def __init__(self, debug = False, items = None, users = None):
-    self.root_dir = temp_file.make_temp_dir(delete = not debug)
+  def __init__(self, root_dir = None, debug = False, items = None, users = None):
+    self.root_dir = root_dir or temp_file.make_temp_dir(delete = not debug)
     if items:
       self.write_temp_content(items)
     self.server = None
@@ -32,9 +32,11 @@ class file_web_server_tester(object):
     assert self.server
     self.server.stop()
     
-  def make_url(self, p):
+  def make_url(self, p = None):
     assert self.port
     base = 'http://localhost:{}'.format(self.port)
+    if not p:
+      return base
     return url_compat.urljoin(base, p)
     
   def write_temp_content(self, items):
@@ -48,6 +50,9 @@ class file_web_server_tester(object):
 
   def read_file(self, filename, codec = 'utf-8'):
     return file_util.read(self.file_path(filename), codec = codec)
+
+  def file_checksum(self, filename):
+    return file_util.checksum('sha256', self.file_path(filename))
 
   def has_file(self, filename):
     return path.exists(self.file_path(filename))

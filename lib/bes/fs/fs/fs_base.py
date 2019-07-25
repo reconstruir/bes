@@ -2,12 +2,30 @@
 
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
+from bes.factory.singleton_class_registry import singleton_class_registry
 
-class fs_base(with_metaclass(ABCMeta, object)):
-  'Abstract class to manipulate a filesystem.'
+from .fs_registry import fs_registry
+
+class fs_register_meta(ABCMeta):
   
+  def __new__(meta, name, bases, class_dict):
+    clazz = ABCMeta.__new__(meta, name, bases, class_dict)
+    if name != 'fs_base':
+      fs_registry.register(clazz)
+    return clazz
+
+class fs_base(with_metaclass(fs_register_meta, object)):
+  'Abstract class to manipulate a filesystem.'
+
+  @classmethod
   @abstractmethod
-  def name(self):
+  def create(clazz, config):
+    'Create an fs instance.'
+    pass
+  
+  @classmethod
+  @abstractmethod
+  def name(clazz):
     'The name if this fs.'
     pass
 
@@ -40,4 +58,3 @@ class fs_base(with_metaclass(ABCMeta, object)):
   def set_file_attributes(self, filename, attributes):
     'Set file attirbutes.'
     pass
-  

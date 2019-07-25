@@ -2,6 +2,7 @@
 
 from os import path
 
+from bes.common.check import check
 from bes.fs.file_attributes import file_attributes
 from bes.fs.file_checksum import file_checksum
 from bes.fs.file_checksum_db import file_checksum_db
@@ -21,14 +22,32 @@ class fs_local(fs_base):
   log = logger('fs_local')
   
   def __init__(self, where, cache_dir = None):
+    check.check_string(where)
+    check.check_string(cache_dir, allow_none = True)
     self._where = where
     self._cache_dir = cache_dir or path.expanduser('~/.bes/fs_local/cache')
     self._metadata_db_filename = path.join(self._cache_dir, 'metadata.db')
     self._checksum_db_filename = path.join(self._cache_dir, 'checksum.db')
     file_util.mkdir(self._where)
 
+  def __str__(self):
+    return 'fs_local(where={}, cache_dir={})'.format(self._where, self._cache_dir)
+    
+  @classmethod
   #@abstractmethod
-  def name(self):
+  def create(clazz, config):
+    'Create an fs instance.'
+    check.check_fs_config(config)
+    assert config.fs_type == clazz.name()
+    where = config.values.get('where', None)
+    if where is None:
+      raise fs_error('Need "where" to create an fs_local')
+    cache_dir = config.values.get('cache_dir', None)
+    return fs_local(where, cache_dir = cache_dir)
+    
+  @classmethod
+  #@abstractmethod
+  def name(clazz):
     'The name if this fs.'
     return 'fs_local'
     
