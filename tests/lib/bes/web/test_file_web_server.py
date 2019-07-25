@@ -22,6 +22,7 @@ class test_file_web_server(unit_test):
     return tmp_dir
   
   def test_download(self):
+    
     tmp_dir = self._make_temp_content([
       'file foo.txt "this is foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
