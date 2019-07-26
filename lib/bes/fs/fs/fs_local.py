@@ -78,8 +78,8 @@ class fs_local(fs_base):
   def file_info(self, filename):
     'Get info for a single file..'
     p = self._make_file_path(filename)
-    if not path.isfile(p):
-      raise fs_error('file not found: {}'.format(filename))
+    if not path.exists(p):
+      raise fs_error('not found: {}'.format(filename))
     return self._make_entry(filename, p)
   
   #@abstractmethod

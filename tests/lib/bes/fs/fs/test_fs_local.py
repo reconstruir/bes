@@ -65,6 +65,12 @@ class test_fs_local(unit_test):
       ( 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {} ),
       fs.file_info('foo.txt') )
     
+  def test_file_info_dir(self):
+    fs = self._make_temp_fs()
+    self.assertEqual(
+      ( 'subdir', 'dir', None, None, None ),
+      fs.file_info('subdir') )
+    
   def test_remove_file(self):
     fs = self._make_temp_fs()
     self.assertEqual( [
