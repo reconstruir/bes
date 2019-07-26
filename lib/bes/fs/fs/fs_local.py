@@ -68,6 +68,12 @@ class fs_local(fs_base):
     return result
 
   #@abstractmethod
+  def has_file(self, filename):
+    'Return True if filename exists in the filesystem and is a FILE.'
+    p = self._make_file_path(filename)
+    return path.isfile(p)
+  
+  #@abstractmethod
   def file_info(self, filename):
     'Get info for a single file..'
     p = self._make_file_path(filename)

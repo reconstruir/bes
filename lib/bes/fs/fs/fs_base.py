@@ -35,6 +35,11 @@ class fs_base(with_metaclass(fs_register_meta, object)):
     pass
 
   @abstractmethod
+  def has_file(self, filename):
+    'Return True if filename exists in the filesystem and is a FILE.'
+    pass
+  
+  @abstractmethod
   def file_info(self, filename):
     'Get info for a single file..'
     pass
