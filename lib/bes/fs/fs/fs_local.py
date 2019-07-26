@@ -58,7 +58,8 @@ class fs_local(fs_base):
     dir_path = self._make_dir_path(d)
     max_depth = None if recursive else 1
     self.log.log_d('list_dir: dir_path={}'.format(dir_path))
-    files = file_find.find(dir_path, relative = True, max_depth = max_depth)
+    files = file_find.find(dir_path, relative = True, max_depth = max_depth,
+                           file_type = file_find.FILE|file_find.LINK|file_find.DIR)
     files = self._files_filter(files)
     result = fs_file_info_list()
     for filename in files:
@@ -137,12 +138,24 @@ class fs_local(fs_base):
       return self._where
     else:
       return path.join(self._where, file_util.lstrip_sep(d))
-  
+
+  def _file_type(self, file_path):
+    if path.isdir(file_path):
+      return fs_file_info.DIR
+    else:
+      return fs_file_info.FILE
+    
   def _make_entry(self, filename, file_path):
-    size = file_util.size(file_path)
-    checksum = self._get_checksum(file_path)
-    attributes = file_attributes.get_all(file_path)
-    return fs_file_info(filename, size, checksum, attributes)
+    ftype = self._file_type(file_path)
+    if ftype == fs_file_info.FILE:
+      checksum = self._get_checksum(file_path)
+      attributes = file_attributes.get_all(file_path)
+      size = file_util.size(file_path)
+    else:
+      checksum = None
+      attributes = None
+      size = None
+    return fs_file_info(filename, ftype, size, checksum, attributes)
     
   def _get_checksum(self, file_path):
     db = file_checksum_db(self._metadata_db_filename)
