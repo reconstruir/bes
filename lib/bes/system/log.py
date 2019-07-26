@@ -426,5 +426,27 @@ del _config
 class logger(object):
 
   def __init__(self, tag):
-    log.add_logging(self, tag)
-    
+    self._tag = tag
+
+  def log(self, level, message, multi_line = False):
+    log.log(self._tag, level, message, multi_line = multi_line)
+
+  def log_c(self, message, multi_line = False):
+    log.log_c(self._tag, message, multi_line = multi_line)
+
+  def log_e(self, message, multi_line = False):
+    log.log_e(self._tag, message, multi_line = multi_line)
+
+  def log_w(self, message, multi_line = False):
+    log.log_w(self._tag, message, multi_line = multi_line)
+
+  def log_i(self, message, multi_line = False):
+    log.log_i(self._tag, message, multi_line = multi_line)
+
+  def log_d(self, message, multi_line = False):
+    log.log_d(self._tag, message, multi_line = multi_line)
+
+  critical = log_c
+  debug = log_d
+  info = log_i
+  warning = log_w
