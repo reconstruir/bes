@@ -19,7 +19,7 @@ from .fs_error import fs_error
 class fs_local(fs_base):
   'Local filesystem'
 
-  log = logger('fs_local')
+  log = logger('fs')
   
   def __init__(self, where, cache_dir = None):
     check.check_string(where)
@@ -31,7 +31,7 @@ class fs_local(fs_base):
     file_util.mkdir(self._where)
 
   def __str__(self):
-    return 'fs_local(where={}, cache_dir={})'.format(self._where, self._cache_dir)
+    return 'fs_local(where={})'.format(self._where)
     
   @classmethod
   #@abstractmethod
@@ -50,9 +50,15 @@ class fs_local(fs_base):
   def name(clazz):
     'The name if this fs.'
     return 'fs_local'
-    
+
   #@abstractmethod
   def list_dir(self, d, recursive):
+    'List entries in a directory.'
+    #return self.list_dir2(d, recursive)
+    return self.list_dir1(d, recursive)
+  
+  #@abstractmethod
+  def list_dir1(self, d, recursive):
     'List entries in a directory.'
     self.log.log_d('list_dir(d={}, recursive={}'.format(d, recursive))
     dir_path = self._make_dir_path(d)
@@ -69,6 +75,20 @@ class fs_local(fs_base):
     return result
 
   #@abstractmethod
+  def list_dir2(self, d, recursive):
+    'List entries in a directory.'
+    dir_path = self._make_dir_path(d)
+    max_depth = None if recursive else 1
+    for root, dirs, files in file_find.walk_with_depth(dir_path, max_depth = max_depth, follow_links = True):
+      print(' root: {}'.format(root))
+      print(' dirs: {}'.format(dirs))
+      print('files: {}'.format(files))
+      print('\n')
+    
+
+    assert False
+
+  #@abstractmethod
   def has_file(self, filename):
     'Return True if filename exists in the filesystem and is a FILE.'
     p = self._make_file_path(filename)
@@ -79,7 +99,7 @@ class fs_local(fs_base):
     'Get info for a single file..'
     p = self._make_file_path(filename)
     if not path.exists(p):
-      raise fs_error('not found: {}'.format(filename))
+      raise fs_error('{}: not found: {}'.format(self, filename))
     return self._make_entry(filename, p)
   
   #@abstractmethod
