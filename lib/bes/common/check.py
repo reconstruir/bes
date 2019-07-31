@@ -8,6 +8,7 @@ class check(object):
   STRING_TYPES = compat.STRING_TYPES
   INTEGER_TYPES = compat.INTEGER_TYPES
   CLASS_TYPES = compat.CLASS_TYPES
+  CALLABLE_TYPES = ( types.FunctionType, types.MethodType )
 
   @classmethod
   def is_string(clazz, o):
@@ -122,6 +123,10 @@ class check(object):
   @classmethod
   def check_class(clazz, o, allow_none = False):
     return clazz._check(o, clazz.CLASS_TYPES, 2, allow_none = allow_none)
+
+  @classmethod
+  def check_function(clazz, o, allow_none = False):
+    return clazz._check(o, clazz.CALLABLE_TYPES, 2, allow_none = allow_none)
 
   @classmethod
   def _check(clazz, o, t, depth, type_blurb = None, allow_none = False):

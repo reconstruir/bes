@@ -11,6 +11,7 @@ from bes.fs.file_find import file_find
 from bes.fs.file_metadata import file_metadata
 from bes.fs.file_util import file_util
 from bes.system.log import logger
+from bes.factory.factory_field import factory_field
 
 from .fs_base import fs_base
 from .fs_file_info import fs_file_info
@@ -33,18 +34,21 @@ class fs_local(fs_base):
 
   def __str__(self):
     return 'fs_local(local_root_dir={})'.format(self._local_root_dir)
-    
+
   @classmethod
   #@abstractmethod
-  def create(clazz, config):
+  def creation_fields(clazz):
+    'Return a list of fields needed for create()'
+    return [
+      factory_field('local_root_dir', False, check.is_string),
+      factory_field('cache_dir', True, check.is_string),
+    ]
+  
+  @classmethod
+  #@abstractmethod
+  def create(clazz, **values):
     'Create an fs instance.'
-    check.check_fs_config(config)
-    assert config.fs_type == clazz.name()
-    local_root_dir = config.values.get('local_root_dir', None)
-    if local_root_dir is None:
-      raise fs_error('Need "local_root_dir" to create an fs_local')
-    cache_dir = config.values.get('cache_dir', None)
-    return fs_local(local_root_dir, cache_dir = cache_dir)
+    return fs_local(values['local_root_dir'], cache_dir = values['cache_dir'])
     
   @classmethod
   #@abstractmethod

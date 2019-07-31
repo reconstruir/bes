@@ -19,7 +19,13 @@ class fs_base(with_metaclass(fs_register_meta, object)):
 
   @classmethod
   @abstractmethod
-  def create(clazz, config):
+  def creation_fields(clazz):
+    'Return a list of fields needed for create()'
+    pass
+  
+  @classmethod
+  @abstractmethod
+  def create(clazz, **values):
     'Create an fs instance.'
     pass
   

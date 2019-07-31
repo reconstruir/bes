@@ -17,16 +17,12 @@ class fs_cli_command(object):
   log = logger('fs')
   
   @classmethod
-  def ls(clazz, config_file, filename, load, options):
+  def ls(clazz, config_file, filename, options):
     'ls command.'
     check.check_string(config_file)
     check.check_string(filename)
-    check.check_string(load, allow_none = True)
     check.check_fs_list_options(options, allow_none = True)
 
-    if load:
-      code.execfile(load, globals(), locals())
-    
     options = options or fs_list_options()
     clazz.log.log_d('ls: config_file={} filename={} options={}'.format(config_file, filename, options))
     fs = fs_registry.load_from_config_file(config_file)

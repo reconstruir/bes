@@ -20,12 +20,10 @@ class fs_cli_args(object):
                    help = 'The fs config file. [ None ]')
     p.add_argument('filename', action = 'store', default = None, type = str, nargs = '?',
                    help = 'Filename or directory to list. [ None ]')
-    p.add_argument('--load', action = 'store', default = None,
-                   help = 'Load some python code. [ None ]')
     p.add_argument('-R', '--recursive', action = 'store_true', default = False,
                    help = 'List recurisively. [ False ]')
     
-  def _command_fs_ls(self, config_file, filename, load, recursive):
+  def _command_fs_ls(self, config_file, filename, recursive):
     filename = filename or '/'
     options = fs_list_options(recursive = recursive)
-    return fs_cli_command.ls(config_file, filename, load, options)
+    return fs_cli_command.ls(config_file, filename, options)
