@@ -4,6 +4,7 @@ from os import path
 
 from bes.common.check import check
 from bes.system.log import logger
+from bes.python.code import code
 
 from .fs_registry import fs_registry
 from .fs_local import fs_local
@@ -16,11 +17,16 @@ class fs_cli_command(object):
   log = logger('fs')
   
   @classmethod
-  def ls(clazz, config_file, filename, options):
+  def ls(clazz, config_file, filename, load, options):
     'ls command.'
     check.check_string(config_file)
     check.check_string(filename)
+    check.check_string(load, allow_none = True)
     check.check_fs_list_options(options, allow_none = True)
+
+    if load:
+      code.execfile(load, globals(), locals())
+    
     options = options or fs_list_options()
     clazz.log.log_d('ls: config_file={} filename={} options={}'.format(config_file, filename, options))
     fs = fs_registry.load_from_config_file(config_file)

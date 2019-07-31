@@ -55,29 +55,6 @@ class fs_local(fs_base):
   #@abstractmethod
   def list_dir(self, remote_dir, recursive):
     'List entries in a directory.'
-    return self.list_dir2(remote_dir, recursive)
-    #return self.list_dir1(remote_dir, recursive)
-  
-  #@abstractmethod
-  def list_dir1(self, remote_dir, recursive):
-    'List entries in a directory.'
-    self.log.log_d('list_dir(remote_dir={}, recursive={}'.format(remote_dir, recursive))
-    local_dir_path = self._make_local_dir_path(remote_dir)
-    max_depth = None if recursive else 1
-    self.log.log_d('list_dir: local_dir_path={}'.format(local_dir_path))
-    files = file_find.find(local_dir_path, relative = True, max_depth = max_depth,
-                           file_type = file_find.FILE|file_find.LINK|file_find.DIR)
-    files = self._files_filter(files)
-    result = fs_file_info_list()
-    for filename in files:
-      local_filename = self._make_local_file_path(filename)
-      entry = self._make_entry(filename, local_filename, [])
-      result.append(entry)
-    return result
-
-  #@abstractmethod
-  def list_dir2(self, remote_dir, recursive):
-    'List entries in a directory.'
     self.log.log_d('list_dir(remote_dir={}, recursive={}'.format(remote_dir, recursive))
     result = node('/')
     local_dir_path = self._make_local_dir_path(remote_dir)
