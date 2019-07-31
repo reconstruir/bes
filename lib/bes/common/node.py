@@ -68,8 +68,9 @@ class node(object):
 
   def ensure_path(self, path):
     current_node = self
-    for next in path:
-      current_node = current_node.ensure_child(next)
+    for part in path:
+      current_node = current_node.ensure_child(part)
+    return current_node
   
   def to_string(self, depth = 0, indent = 2, data_func = None, rstrip = True):
     buf = StringIO()

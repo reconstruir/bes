@@ -3,6 +3,7 @@
 from os import path
 
 from bes.common.check import check
+from bes.common.node import node
 from bes.fs.file_attributes import file_attributes
 from bes.fs.file_checksum import file_checksum
 from bes.fs.file_checksum_db import file_checksum_db
@@ -21,17 +22,17 @@ class fs_local(fs_base):
 
   log = logger('fs')
   
-  def __init__(self, where, cache_dir = None):
-    check.check_string(where)
+  def __init__(self, local_root_dir, cache_dir = None):
+    check.check_string(local_root_dir)
     check.check_string(cache_dir, allow_none = True)
-    self._where = where
+    self._local_root_dir = local_root_dir
     self._cache_dir = cache_dir or path.expanduser('~/.bes/fs_local/cache')
     self._metadata_db_filename = path.join(self._cache_dir, 'metadata.db')
     self._checksum_db_filename = path.join(self._cache_dir, 'checksum.db')
-    file_util.mkdir(self._where)
+    file_util.mkdir(self._local_root_dir)
 
   def __str__(self):
-    return 'fs_local(where={})'.format(self._where)
+    return 'fs_local(local_root_dir={})'.format(self._local_root_dir)
     
   @classmethod
   #@abstractmethod
@@ -39,11 +40,11 @@ class fs_local(fs_base):
     'Create an fs instance.'
     check.check_fs_config(config)
     assert config.fs_type == clazz.name()
-    where = config.values.get('where', None)
-    if where is None:
-      raise fs_error('Need "where" to create an fs_local')
+    local_root_dir = config.values.get('local_root_dir', None)
+    if local_root_dir is None:
+      raise fs_error('Need "local_root_dir" to create an fs_local')
     cache_dir = config.values.get('cache_dir', None)
-    return fs_local(where, cache_dir = cache_dir)
+    return fs_local(local_root_dir, cache_dir = cache_dir)
     
   @classmethod
   #@abstractmethod
@@ -52,60 +53,91 @@ class fs_local(fs_base):
     return 'fs_local'
 
   #@abstractmethod
-  def list_dir(self, d, recursive):
+  def list_dir(self, remote_dir, recursive):
     'List entries in a directory.'
-    #return self.list_dir2(d, recursive)
-    return self.list_dir1(d, recursive)
+    return self.list_dir2(remote_dir, recursive)
+    #return self.list_dir1(remote_dir, recursive)
   
   #@abstractmethod
-  def list_dir1(self, d, recursive):
+  def list_dir1(self, remote_dir, recursive):
     'List entries in a directory.'
-    self.log.log_d('list_dir(d={}, recursive={}'.format(d, recursive))
-    dir_path = self._make_dir_path(d)
+    self.log.log_d('list_dir(remote_dir={}, recursive={}'.format(remote_dir, recursive))
+    local_dir_path = self._make_local_dir_path(remote_dir)
     max_depth = None if recursive else 1
-    self.log.log_d('list_dir: dir_path={}'.format(dir_path))
-    files = file_find.find(dir_path, relative = True, max_depth = max_depth,
+    self.log.log_d('list_dir: local_dir_path={}'.format(local_dir_path))
+    files = file_find.find(local_dir_path, relative = True, max_depth = max_depth,
                            file_type = file_find.FILE|file_find.LINK|file_find.DIR)
     files = self._files_filter(files)
     result = fs_file_info_list()
     for filename in files:
-      file_path = self._make_file_path(filename)
-      entry = self._make_entry(filename, file_path)
+      local_filename = self._make_local_file_path(filename)
+      entry = self._make_entry(filename, local_filename, [])
       result.append(entry)
     return result
 
   #@abstractmethod
-  def list_dir2(self, d, recursive):
+  def list_dir2(self, remote_dir, recursive):
     'List entries in a directory.'
-    dir_path = self._make_dir_path(d)
+    self.log.log_d('list_dir(remote_dir={}, recursive={}'.format(remote_dir, recursive))
+    result = node('/')
+    local_dir_path = self._make_local_dir_path(remote_dir)
     max_depth = None if recursive else 1
-    for root, dirs, files in file_find.walk_with_depth(dir_path, max_depth = max_depth, follow_links = True):
-      print(' root: {}'.format(root))
-      print(' dirs: {}'.format(dirs))
-      print('files: {}'.format(files))
-      print('\n')
+
+    setattr(result, '_remote_filename', '/')
+    setattr(result, '_local_filename', self._local_root_dir)
+    setattr(result, '_is_file', False)
     
+    for root, dirs, files in file_find.walk_with_depth(local_dir_path, max_depth = max_depth, follow_links = True):
+      if root == local_dir_path:
+        rel = '/'
+      else:
+        rel = file_util.ensure_lsep(file_util.remove_head(root, local_dir_path))
+      files_set = set(files)
+      for next_file_or_dir in sorted(files + dirs):
+        remote_filename = path.join(rel, next_file_or_dir)
+        assert remote_filename[0] == '/'
+        remote_filename = remote_filename[1:]
+        parts = remote_filename.split('/')
+        new_node = result.ensure_path(parts)
+        local_filename = path.join(root, next_file_or_dir)
+        setattr(new_node, '_remote_filename', remote_filename)
+        setattr(new_node, '_local_filename', local_filename)
+        setattr(new_node, '_is_file', next_file_or_dir in files_set)
 
-    assert False
+    fs_tree = self._convert_node_to_fs_tree(result, depth = 0)
+    return fs_tree
 
+  def _convert_node_to_fs_tree(self, n, depth = 0):
+    indent = ' ' * depth
+    is_file = getattr(n, '_is_file')
+    remote_filename = getattr(n, '_remote_filename')
+    local_filename = getattr(n, '_local_filename')
+    if is_file:
+      children = fs_file_info_list()
+    else:
+      children = fs_file_info_list([ self._convert_node_to_fs_tree(child, depth + 2) for child in n.children ])
+    entry = self._make_entry(remote_filename, local_filename, children)
+    return entry
+  
   #@abstractmethod
   def has_file(self, filename):
     'Return True if filename exists in the filesystem and is a FILE.'
-    p = self._make_file_path(filename)
+    p = self._make_local_file_path(filename)
     return path.isfile(p)
   
   #@abstractmethod
   def file_info(self, filename):
     'Get info for a single file..'
-    p = self._make_file_path(filename)
+    p = self._make_local_file_path(filename)
     if not path.exists(p):
       raise fs_error('{}: not found: {}'.format(self, filename))
-    return self._make_entry(filename, p)
+    local_filename = self._make_local_file_path(filename)
+    return self._make_entry(filename, local_filename, fs_file_info_list())
   
   #@abstractmethod
   def remove_file(self, filename):
     'Remove filename.'
-    p = self._make_file_path(filename)
+    p = self._make_local_file_path(filename)
     if not path.exists(p):
       raise fs_error('file not found: {}'.format(filename))
     if path.isdir(p):
@@ -117,7 +149,7 @@ class fs_local(fs_base):
   #@abstractmethod
   def upload_file(self, filename, local_filename):
     'Upload filename from local_filename.'
-    p = self._make_file_path(filename)
+    p = self._make_local_file_path(filename)
     if path.isdir(p):
       raise fs_error('filename exists and is a dir: {}'.format(filename))
     if path.exists(p) and not path.isfile(p):
@@ -129,7 +161,7 @@ class fs_local(fs_base):
   #@abstractmethod
   def download_file(self, filename, local_filename):
     'Download filename to local_filename.'
-    p = self._make_file_path(filename)
+    p = self._make_local_file_path(filename)
     if not path.exists(p):
       raise fs_error('file not found: {}'.format(filename))
     if not path.isfile(p):
@@ -139,25 +171,23 @@ class fs_local(fs_base):
   #@abstractmethod
   def set_file_attributes(self, filename, attributes):
     'Set file attirbutes.'
-    p = self._make_file_path(filename)
+    p = self._make_local_file_path(filename)
     if path.isdir(p):
       raise fs_error('filename exists and is a dir: {}'.format(filename))
     if path.exists(p) and not path.isfile(p):
       raise fs_error('filename exists and is not a file: {}'.format(filename))
     file_attributes.set_all(p, attributes)
   
-  def _make_file_path(self, filename, d = None):
-    'Make a local path for filename in optional subdir d.'
-    if d:
-      return path.join(self._where, d, filename)
-    return path.join(self._where, filename)
+  def _make_local_file_path(self, remote_filename):
+    'Make a local path for remote_filename.'
+    return path.join(self._local_root_dir, remote_filename)
 
-  def _make_dir_path(self, d):
+  def _make_local_dir_path(self, remote_dir):
     'Make a local dir path.'
-    if d == '/':
-      return self._where
+    if remote_dir == '/':
+      return self._local_root_dir
     else:
-      return path.join(self._where, file_util.lstrip_sep(d))
+      return path.join(self._local_root_dir, file_util.lstrip_sep(remote_dir))
 
   def _file_type(self, file_path):
     if path.isdir(file_path):
@@ -165,26 +195,26 @@ class fs_local(fs_base):
     else:
       return fs_file_info.FILE
     
-  def _make_entry(self, filename, file_path):
-    ftype = self._file_type(file_path)
+  def _make_entry(self, remote_filename, local_filename, children):
+    ftype = self._file_type(local_filename)
     if ftype == fs_file_info.FILE:
-      checksum = self._get_checksum(file_path)
-      attributes = file_attributes.get_all(file_path)
-      size = file_util.size(file_path)
+      checksum = self._get_checksum(local_filename)
+      attributes = file_attributes.get_all(local_filename)
+      size = file_util.size(local_filename)
     else:
       checksum = None
       attributes = None
       size = None
-    return fs_file_info(filename, ftype, size, checksum, attributes)
+    return fs_file_info(remote_filename, ftype, size, checksum, attributes, children)
     
-  def _get_checksum(self, file_path):
+  def _get_checksum(self, local_filename):
     db = file_checksum_db(self._metadata_db_filename)
-    checksum = db.checksum('sha256', file_path)
+    checksum = db.checksum('sha256', local_filename)
     return checksum
 
-  def _get_attributes(self, file_path):
+  def _get_attributes(self, local_filename):
     db = file_metadata(self._checksum_db_filename)
-    return db.get_values()
+    return db.get_values(local_filename)
 
   def _files_filter(clazz, files):
     return [ f for f in files if not clazz._file_is_system_file(f) ]

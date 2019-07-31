@@ -26,6 +26,7 @@ class fs_cli_command(object):
     fs = fs_registry.load_from_config_file(config_file)
     clazz.log.log_d('ls: fs={}'.format(fs))
     info = fs.file_info(filename)
+
     clazz.log.log_d('ls: info={}'.format(info))
     if info.ftype == fs_file_info.DIR:
       return clazz._ls_dir(fs, info, options)
@@ -37,10 +38,21 @@ class fs_cli_command(object):
   def _ls_dir(clazz, fs, info, options):
     'list dirs.'
     clazz.log.log_d('_ls_dir: fs={} info={} options={}'.format(fs, info, options))
-    files = fs.list_dir(info.filename, options.recursive)
-    for f in files:
-      print('FILE: {}'.format(f))
+    assert not info.children
+    listing = fs.list_dir(info.filename, options.recursive)
+    clazz._print_entry(listing, options, 0)
     return 0
+
+  @classmethod
+  def _print_entry(clazz, entry, options, depth):
+    indent = '  ' * depth
+    if entry.ftype == 'file':
+      print('{}{}'.format(indent, entry.display_filename))
+    elif entry.ftype == 'dir':
+      for child in entry:
+        print('{}{}'.format(indent, child.display_filename))
+        if child.is_dir():
+          clazz._print_entry(child, options, depth + 1)
 
   @classmethod
   def _ls_file(clazz, fs, info, options):

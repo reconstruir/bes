@@ -22,11 +22,8 @@ class fs_file_info_list(type_checked_list):
       first = False
       buf.write(str(fs_file_info))
     return buf.getvalue()
-
-#  def __hash__(self):
-#    return hash(str(self))
   
   def __str__(self):
     return self.to_string()
-
+  
 check.register_class(fs_file_info_list, include_seq = False)
