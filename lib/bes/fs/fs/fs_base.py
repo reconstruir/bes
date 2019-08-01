@@ -36,36 +36,36 @@ class fs_base(with_metaclass(fs_register_meta, object)):
     pass
 
   @abstractmethod
-  def list_dir(self, d, recursive):
+  def list_dir(self, remote_dir, recursive):
     'List entries in a directory.'
     pass
 
   @abstractmethod
-  def has_file(self, filename):
+  def has_file(self, remote_filename):
     'Return True if filename exists in the filesystem and is a FILE.'
     pass
   
   @abstractmethod
-  def file_info(self, filename):
+  def file_info(self, remote_filename):
     'Get info for a single file..'
     pass
   
   @abstractmethod
-  def remove_file(self, filename):
+  def remove_file(self, remote_filename):
     'Remove filename.'
     pass
   
   @abstractmethod
-  def upload_file(self, filename, local_filename):
+  def upload_file(self, remote_filename, local_filename):
     'Upload filename from local_filename.'
     pass
 
   @abstractmethod
-  def download_file(self, filename, local_filename):
+  def download_file(self, remote_filename, local_filename):
     'Download filename to local_filename.'
     pass
 
   @abstractmethod
-  def set_file_attributes(self, filename, attributes):
+  def set_file_attributes(self, remote_filename, attributes):
     'Set file attirbutes.'
     pass
