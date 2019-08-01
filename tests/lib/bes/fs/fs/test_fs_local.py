@@ -103,7 +103,7 @@ class test_fs_local(unit_test):
       'subdir/subberdir/baz.txt',
     ], file_find.find(tester.local_root_dir) )
     
-  def xtest_upload_file_new(self):
+  def test_upload_file_new(self):
     tester = self._make_tester()
     self.assertEqual( [
       'emptyfile.txt',
@@ -121,7 +121,7 @@ class test_fs_local(unit_test):
       'subdir/subberdir/baz.txt',
     ], file_find.find(tester.local_root_dir) )
     
-  def xtest_upload_file_replace(self):
+  def test_upload_file_replace(self):
     tester = self._make_tester()
     self.assertEqual( [
       'emptyfile.txt',
@@ -130,7 +130,7 @@ class test_fs_local(unit_test):
       'subdir/subberdir/baz.txt',
     ], file_find.find(tester.local_root_dir) )
     self.assertEqual(
-      ( 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {} ),
+      ( 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {}, [] ),
       tester.fs.file_info('foo.txt') )
     tmp_file = self.make_temp_file(content = 'this is the new foo.txt\n')
     tester.fs.upload_file('foo.txt', tmp_file)
@@ -141,20 +141,20 @@ class test_fs_local(unit_test):
       'subdir/subberdir/baz.txt',
     ], file_find.find(tester.local_root_dir) )
     self.assertEqual(
-      ( 'foo.txt', 'file', 24, 'ee190d0691f8bd34826b9892a719892eb1accc36131ef4195dd81c0dfcf5517c', {} ),
+      ( 'foo.txt', 'file', 24, 'ee190d0691f8bd34826b9892a719892eb1accc36131ef4195dd81c0dfcf5517c', {}, [] ),
       tester.fs.file_info('foo.txt') )
 
-  def xtest_set_file_properties(self):
+  def test_set_file_properties(self):
     tester = self._make_tester()
     self.assertEqual(
-      ( 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {} ),
+      ( 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {}, [] ),
       tester.fs.file_info('foo.txt') )
     tester.fs.set_file_attributes('foo.txt', { 'p1': 'hello', 'p2': '666' })
     self.assertEqual(
-      ( 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {u'p2': '666', u'p1': 'hello'} ),
+      ( 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {'p2': '666', 'p1': 'hello'}, [] ),
       tester.fs.file_info('foo.txt') )
 
-  def xtest_download_file(self):
+  def test_download_file(self):
     tester = self._make_tester()
     tmp_file = self.make_temp_file()
     tester.fs.download_file('foo.txt', tmp_file)
