@@ -62,6 +62,9 @@ class fs_local(fs_base):
     self.log.log_d('list_dir(remote_dir={}, recursive={}'.format(remote_dir, recursive))
     result = node('/')
     local_dir_path = self._make_local_dir_path(remote_dir)
+    if not path.isdir(local_dir_path):
+      raise fs_error('dir not found: {}'.format(remote_dir))
+     
     max_depth = None if recursive else 1
 
     setattr(result, '_remote_filename', '/')
