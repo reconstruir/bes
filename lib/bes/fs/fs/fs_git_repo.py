@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
+from collections import namedtuple
 
 from bes.common.check import check
 from bes.common.node import node
@@ -12,22 +13,27 @@ from bes.fs.file_metadata import file_metadata
 from bes.fs.file_util import file_util
 from bes.system.log import logger
 from bes.factory.factory_field import factory_field
+from bes.git.git_clone_manager import git_clone_manager
 
 from .fs_base import fs_base
 from .fs_file_info import fs_file_info
 from .fs_file_info_list import fs_file_info_list
 from .fs_error import fs_error
+from .fs_local import fs_local
 
 class fs_git_repo(fs_base):
   'Masqurade a git repo as a filesystem.'
 
   log = logger('fs')
   
-  def __init__(self, address, clone_manager_dir = None):
+  def __init__(self, address, config_dir = None):
     check.check_string(address)
-    check.check_string(clone_manager_dir, allow_none = True)
+    check.check_string(config_dir, allow_none = True)
     self._address = address
-    self._clone_manager_dir = clone_manager_dir or path.expanduser('~/.bes/git_clone_manager')
+    self._config_dir = config_dir or path.expanduser('~/.bes/fs_git_repo')
+    self._cache_dir = path.join(self._config_dir, 'cache')
+    clone_manager_dir = path.join(self._config_dir, 'clone')
+    self._clone_manager = git_clone_manager(clone_manager_dir)
 
   def __str__(self):
     return 'fs_git_repo(address={})'.format(self._address)
@@ -38,7 +44,7 @@ class fs_git_repo(fs_base):
     'Return a list of fields needed for create()'
     return [
       factory_field('address', False, check.is_string),
-      factory_field('clone_manager_dir', True, check.is_string),
+      factory_field('config_dir', True, check.is_string),
     ]
   
   @classmethod
@@ -57,34 +63,52 @@ class fs_git_repo(fs_base):
   def list_dir(self, remote_dir, recursive):
     'List entries in a directory.'
     self.log.log_d('list_dir(remote_dir={}, recursive={}'.format(remote_dir, recursive))
-    assert False
+    proxy = self._make_proxy()
+    return proxy.fs.list_dir(remote_dir, recursive)
   
   #@abstractmethod
-  def has_file(self, filename):
+  def has_file(self, remote_filename):
     'Return True if filename exists in the filesystem and is a FILE.'
-    assert False
+    proxy = self._make_proxy()
+    return proxy.fs.has_file(remote_filename)
   
   #@abstractmethod
-  def file_info(self, filename):
+  def file_info(self, remote_filename):
     'Get info for a single file..'
-    assert False
+    proxy = self._make_proxy()
+    return proxy.fs.file_info(remote_filename)
   
   #@abstractmethod
   def remove_file(self, filename):
     'Remove filename.'
-    assert False
+    proxy = self._make_proxy()
+    proxy.fs.remove_file(remote_filename)
   
   #@abstractmethod
-  def upload_file(self, filename, local_filename):
+  def upload_file(self, remote_filename, local_filename):
     'Upload filename from local_filename.'
-    assert False
+    proxy = self._make_proxy()
+    proxy.fs.upload_file(remote_filename, local_filename)
 
   #@abstractmethod
-  def download_file(self, filename, local_filename):
+  def download_file(self, remote_filename, local_filename):
     'Download filename to local_filename.'
-    assert False
+    proxy = self._make_proxy()
+    return proxy.fs.download_file(remote_filename, local_filename)
     
   #@abstractmethod
-  def set_file_attributes(self, filename, attributes):
+  def set_file_attributes(self, remote_filename, attributes):
     'Set file attirbutes.'
-    assert False
+    proxy = self._make_proxy()
+    proxy.fs.set_file_attributes(remote_filename, local_filename)
+
+  class _proxy(namedtuple('_proxy', 'repo, fs')):
+
+    def __new__(clazz, repo, fs):
+      return clazz.__bases__[0].__new__(clazz, repo, fs)
+    
+  def _make_proxy(self):
+    repo = self._clone_manager.update(self._address)
+    fs = fs_local(repo.root, cache_dir = self._cache_dir)
+    return self._proxy(repo, fs)
+    
