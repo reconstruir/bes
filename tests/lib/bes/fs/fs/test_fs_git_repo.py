@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os, pprint, sys
+import os
 from os import path
 
 from bes.testing.unit_test import unit_test
@@ -22,8 +22,26 @@ class _fs_git_repo_tester(object):
     self.repo = git_temp_repo(remote = False, content = items, debug = fixture.DEBUG, prefix = '.repo')
     self.fs = fs_git_repo(self.repo.root, config_dir = self.config_dir)
 
-  def list_dir(self, remote_dir, recursive):
-    return self._call_fs('list_dir', remote_dir, recursive)
+  def list_dir(self, *args):
+    return self._call_fs('list_dir', *args)
+    
+  def has_file(self, *args):
+    return self._call_fs('has_file', *args)
+    
+  def file_info(self, *args):
+    return self._call_fs('file_info', *args)
+
+  def remove_file(self, *args):
+    return self._call_fs('remove_file', *args)
+
+  def upload_file(self, *args):
+    return self._call_fs('upload_file', *args)
+
+  def download_file(self, *args):
+    return self._call_fs('download_file', *args)
+
+  def set_file_attributes(self, *args):
+    return self._call_fs('set_file_attributes', *args)
     
   def _call_fs(self, func_name, *args):
     func = getattr(self.fs, func_name)
@@ -51,7 +69,6 @@ class test_fs_git_repo(unit_test):
   
   def test_list_dir(self):
     tester = self._make_tester()
-    import pprint
     expected = '''\
 emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 {}
 foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35 {}
@@ -59,7 +76,15 @@ subdir/ dir None None None
 '''
     self.assertMultiLineEqual( expected, tester.list_dir('/', False) )
     
-  def xtest_list_dir_recursive(self):
+  def test_list_dir_recursive(self):
+    tester = self._make_tester()
+    expected = '''\
+emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 {}
+foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35 {}
+subdir/ dir None None None
+'''
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
+    '''
     tester = self._make_tester()
     self.assertEqual(
       ( '/', 'dir', None, None, None, [
@@ -73,6 +98,7 @@ subdir/ dir None None None
           ]),
       ] ),
       ] ), tester.fs.list_dir('/', True) )
+    '''
     
   def xtest_list_dir_empty(self):
     tmp_dir = self.make_temp_dir()
