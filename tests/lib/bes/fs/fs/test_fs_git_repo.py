@@ -23,9 +23,12 @@ class _fs_git_repo_tester(object):
     self.fs = fs_git_repo(self.repo.root, config_dir = self.config_dir)
 
   def list_dir(self, remote_dir, recursive):
-    entry = self.fs.list_dir(remote_dir, recursive)
+    return self._call_fs('list_dir', remote_dir, recursive)
+    
+  def _call_fs(self, func_name, *args):
+    func = getattr(self.fs, func_name)
     options = fs_list_options(show_details = True)
-    return entry.to_string(options = options)
+    return func(*args).to_string(options = options)
     
   @classmethod
   def _make_temp_content(clazz, items, debug):
