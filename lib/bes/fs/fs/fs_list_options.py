@@ -5,7 +5,9 @@ from bes.common.check import check
 class fs_list_options(object):
   def __init__(self, *args, **kargs):
     self.recursive = False
+    self.show_details = False
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_bool(self.recursive)
+    check.check_bool(self.show_details)
 check.register_class(fs_list_options)
