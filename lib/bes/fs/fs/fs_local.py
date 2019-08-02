@@ -81,12 +81,13 @@ class fs_local(fs_base):
         remote_filename = path.join(rel, next_file_or_dir)
         assert remote_filename[0] == '/'
         remote_filename = remote_filename[1:]
-        parts = remote_filename.split('/')
-        new_node = result.ensure_path(parts)
         local_filename = path.join(root, next_file_or_dir)
-        setattr(new_node, '_remote_filename', remote_filename)
-        setattr(new_node, '_local_filename', local_filename)
-        setattr(new_node, '_is_file', next_file_or_dir in files_set)
+        if self._should_include_file(local_filename):
+          parts = remote_filename.split('/')
+          new_node = result.ensure_path(parts)
+          setattr(new_node, '_remote_filename', remote_filename)
+          setattr(new_node, '_local_filename', local_filename)
+          setattr(new_node, '_is_file', next_file_or_dir in files_set)
 
     fs_tree = self._convert_node_to_fs_tree(result, depth = 0)
     return fs_tree
@@ -102,6 +103,9 @@ class fs_local(fs_base):
       children = fs_file_info_list([ self._convert_node_to_fs_tree(child, depth + 2) for child in n.children ])
     entry = self._make_entry(remote_filename, local_filename, children)
     return entry
+
+  def _should_include_file(clazz, filename):
+    return not file_util.is_hidden(filename)
   
   #@abstractmethod
   def has_file(self, filename):
