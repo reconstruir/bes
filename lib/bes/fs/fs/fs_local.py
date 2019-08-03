@@ -77,12 +77,14 @@ class fs_local(fs_base):
       else:
         rel = file_util.ensure_lsep(file_util.remove_head(root, local_dir_path))
       files_set = set(files)
+      if not self._should_include_file(rel):
+        continue
       for next_file_or_dir in sorted(files + dirs):
-        remote_filename = path.join(rel, next_file_or_dir)
-        assert remote_filename[0] == '/'
-        remote_filename = remote_filename[1:]
-        local_filename = path.join(root, next_file_or_dir)
-        if self._should_include_file(local_filename):
+        if self._should_include_file(next_file_or_dir):
+          remote_filename = path.join(rel, next_file_or_dir)
+          assert remote_filename[0] == '/'
+          remote_filename = remote_filename[1:]
+          local_filename = path.join(root, next_file_or_dir)
           parts = remote_filename.split('/')
           new_node = result.ensure_path(parts)
           setattr(new_node, '_remote_filename', remote_filename)
@@ -203,10 +205,3 @@ class fs_local(fs_base):
   def _get_attributes(self, local_filename):
     db = file_metadata(self._checksum_db_filename)
     return db.get_values(local_filename)
-
-  def _files_filter(clazz, files):
-    return [ f for f in files if not clazz._file_is_system_file(f) ]
-
-  def _file_is_system_file(clazz, filename):
-    b = path.basename(filename)
-    return b.startswith('.bes')

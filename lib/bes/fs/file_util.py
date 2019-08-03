@@ -267,6 +267,8 @@ class file_util(object):
   @classmethod
   def is_hidden(clazz, filename):
     'Return True if the file is hidden.  Starts with "." on unix.'
+    if filename.startswith('.') or filename.startswith('/.'):
+      return True
     return path.basename(filename).startswith('.')
   
 log.add_logging(file_util, 'file_util')
