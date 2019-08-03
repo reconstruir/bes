@@ -33,7 +33,10 @@ class git_status(object):
       assert string_util.is_string(arg)
       buf.write(arg)
     return buf.getvalue()
-    
+
+  def __repr__(self):
+    return str(self)
+  
   def __eq__(self, other):
     if isinstance(other, git_status):
       return self.__dict__ == other.__dict__

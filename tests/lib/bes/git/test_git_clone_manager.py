@@ -20,7 +20,10 @@ class test_git_clone_manager(unit_test):
     r1.push('origin', 'master')
 
     g = GCM(self.make_temp_dir(suffix = '.gcm.dir'))
-    r1b = g.update(r1.root)
+    r1b = g.update(r1.address)
+    r1b.remove('foo.txt')
+    r1b.commit('remove foo.txt', 'foo.txt')
+    r1b.push()
             
   def _make_repo(self, remote = True, content = None, prefix = None):
     return git_temp_repo(remote = remote, content = content, prefix = prefix, debug = self.DEBUG)
