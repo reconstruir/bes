@@ -271,6 +271,6 @@ class test_git(unit_test):
     self.assertTrue( git.is_short_hash('cd13863') )
     self.assertFalse( git.is_short_hash('cd138635e1a94a6f2da6acbce3e2f2d584121d28') )
     self.assertFalse( git.is_short_hash('zd13863') )
-      
+
 if __name__ == '__main__':
   unit_test.main()

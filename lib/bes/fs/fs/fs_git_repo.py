@@ -82,7 +82,8 @@ class fs_git_repo(fs_base):
   def remove_file(self, filename):
     'Remove filename.'
     proxy = self._make_proxy()
-    proxy.fs.remove_file(remote_filename)
+    proxy.repo
+#    proxy.fs.remove_file(remote_filename)
   
   #@abstractmethod
   def upload_file(self, remote_filename, local_filename):

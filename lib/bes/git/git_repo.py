@@ -35,6 +35,9 @@ class git_repo(object):
   def add(self, filenames):
     return git.add(self.root, filenames)
 
+  def remove(self, filenames):
+    return git.remove(self.root, filenames)
+
   def pull(self):
     return git.pull(self.root)
 

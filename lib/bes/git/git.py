@@ -71,8 +71,7 @@ class git(object):
   @classmethod
   def add(clazz, root, filenames):
     filenames = object_util.listify(filenames)
-    flags = []
-    args = [ 'add' ] + flags + filenames
+    args = [ 'add' ] + filenames
     return clazz.call_git(root, args)
 
   @classmethod
@@ -225,7 +224,6 @@ class git(object):
       clazz.clone(address, tmp_repo_dir)
     output_filename = path.abspath(output_filename)
     file_util.mkdir(path.dirname(output_filename))
-    flags = []
     args = [
       'archive',
       '--format=tgz',
@@ -659,5 +657,9 @@ class git(object):
     lfs_files = clazz.lfs_files(root)
     to_check = set(files) & set(lfs_files)
     result = []
-    
-#    for f in files:
+
+  @classmethod
+  def remove(clazz, root, filenames):
+    filenames = object_util.listify(filenames)
+    args = [ 'rm' ] + filenames
+    return clazz.call_git(root, args)

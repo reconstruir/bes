@@ -14,6 +14,7 @@ from bes.testing.unit_test_skip import raise_skip
 from bes.fs.fs.fs_git_repo import fs_git_repo
 from bes.fs.fs.fs_error import fs_error
 from bes.fs.fs.fs_list_options import fs_list_options
+from bes.git.git_unit_test import git_temp_home_func
 
 class _fs_git_repo_tester(object):
 
@@ -54,11 +55,6 @@ class _fs_git_repo_tester(object):
 
 class test_fs_git_repo(unit_test):
 
-  @classmethod
-  def setUpClass(clazz):
-    #raise_skip('work in progress not ready')
-    pass
-  
   _TEST_ITEMS = [
     'file foo.txt "foo.txt"',
     'file subdir/bar.txt "bar.txt"',
@@ -67,6 +63,7 @@ class test_fs_git_repo(unit_test):
     'dir emptydir',
   ]
   
+  @git_temp_home_func()
   def test_list_dir(self):
     tester = self._make_tester()
     expected = '''\
@@ -76,6 +73,7 @@ subdir/ dir None None None
 '''
     self.assertMultiLineEqual( expected, tester.list_dir('/', False) )
     
+  @git_temp_home_func()
   def test_list_dir_recursive(self):
     tester = self._make_tester()
     expected = '''\
@@ -87,27 +85,14 @@ subdir/ dir None None None
     subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669 {}
 '''
     self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
-    '''
-    tester = self._make_tester()
-    self.assertEqual(
-      ( '/', 'dir', None, None, None, [
-        ( 'emptydir', 'dir', None, None, None, [] ),
-        ( 'emptyfile.txt', 'file', 0, 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', {}, [] ),
-        ( 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {}, [] ),
-        ( 'subdir', 'dir', None, None, None, [
-          ( 'subdir/bar.txt', 'file', 7, '08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae', {}, [] ),
-          ( 'subdir/subberdir', 'dir', None, None, None, [
-            ( 'subdir/subberdir/baz.txt', 'file', 7, '541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669', {}, [] ),
-          ]),
-      ] ),
-      ] ), tester.fs.list_dir('/', True) )
-    '''
     
+  @git_temp_home_func()
   def xtest_list_dir_empty(self):
     tmp_dir = self.make_temp_dir()
     fs = fs_git_repo(tmp_dir)
     self.assertEqual( ( '/', 'dir', None, None, None, [] ), fs.list_dir('/', True) )
     
+  @git_temp_home_func()
   def xtest_list_dir_non_existent(self):
     tmp_dir = self.make_temp_dir()
     fs = fs_git_repo(tmp_dir)
@@ -115,18 +100,21 @@ subdir/ dir None None None
       fs.list_dir('/foo', False)
     self.assertEqual( 'dir not found: /foo', ctx.exception.message )
       
-  def xtest_file_info(self):
+  @git_temp_home_func()
+  def test_file_info(self):
     tester = self._make_tester()
     self.assertEqual(
       ( 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {}, [] ),
       tester.fs.file_info('foo.txt') )
     
-  def xtest_file_info_dir(self):
+  @git_temp_home_func()
+  def test_file_info_dir(self):
     tester = self._make_tester()
     self.assertEqual(
       ( 'subdir', 'dir', None, None, None, [] ),
       tester.fs.file_info('subdir') )
     
+  @git_temp_home_func()
   def xtest_remove_file(self):
     tester = self._make_tester()
     self.assertEqual( [
@@ -142,6 +130,7 @@ subdir/ dir None None None
       'subdir/subberdir/baz.txt',
     ], file_find.find(tester.local_root_dir) )
     
+  @git_temp_home_func()
   def xtest_upload_file_new(self):
     tester = self._make_tester()
     self.assertEqual( [
@@ -160,6 +149,7 @@ subdir/ dir None None None
       'subdir/subberdir/baz.txt',
     ], file_find.find(tester.local_root_dir) )
     
+  @git_temp_home_func()
   def xtest_upload_file_replace(self):
     tester = self._make_tester()
     self.assertEqual( [
@@ -183,6 +173,7 @@ subdir/ dir None None None
       ( 'foo.txt', 'file', 24, 'ee190d0691f8bd34826b9892a719892eb1accc36131ef4195dd81c0dfcf5517c', {} ),
       tester.fs.file_info('foo.txt') )
 
+  @git_temp_home_func()
   def xtest_set_file_properties(self):
     tester = self._make_tester()
     self.assertEqual(
@@ -193,6 +184,7 @@ subdir/ dir None None None
       ( 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {u'p2': '666', u'p1': 'hello'} ),
       tester.fs.file_info('foo.txt') )
 
+  @git_temp_home_func()
   def xtest_download_file(self):
     tester = self._make_tester()
     tmp_file = self.make_temp_file()

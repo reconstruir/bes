@@ -417,9 +417,23 @@ class test_git_repo(unit_test):
     self.assertEqual( 'b1', r2.active_branch() )
     r2.checkout('master')
     self.assertEqual( 'master', r2.active_branch() )
-      
+
+  @git_temp_home_func()
+  def test_remove(self):
+    r = self._make_repo(remote = True)
+    r.write_temp_content([
+      'file a/b/c/foo.txt "foo content" 755',
+      'file d/e/bar.txt "bar content" 644',
+      'dir  baz     ""            700',
+    ])
+    r.add('.')
+    r.commit('add', '.')
+    r.remove('d/e/bar.txt')
+    r.commit('remove', 'd/e/bar.txt')
+    r.push()
+
   def _make_repo(self, remote = True, content = None, prefix = None):
     return git_temp_repo(remote = remote, content = content, prefix = prefix, debug = self.DEBUG)
-      
+
 if __name__ == '__main__':
   unit_test.main()
