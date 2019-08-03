@@ -92,6 +92,10 @@ class fs_git_repo(fs_base):
     'Upload filename from local_filename.'
     proxy = self._make_proxy()
     proxy.fs.upload_file(remote_filename, local_filename)
+    proxy.repo.add(remote_filename)
+    comment = 'add {}'.format(remote_filename)
+    proxy.repo.commit(comment, remote_filename)
+    proxy.repo.push()
 
   #@abstractmethod
   def download_file(self, remote_filename, local_filename):
@@ -103,7 +107,7 @@ class fs_git_repo(fs_base):
   def set_file_attributes(self, remote_filename, attributes):
     'Set file attirbutes.'
     proxy = self._make_proxy()
-    proxy.fs.set_file_attributes(remote_filename, local_filename)
+    proxy.fs.set_file_attributes(remote_filename, attributes)
 
   class _proxy(namedtuple('_proxy', 'repo, fs')):
 
