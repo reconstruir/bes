@@ -13,45 +13,17 @@ from bes.testing.unit_test_skip import raise_skip
 
 from bes.fs.fs.fs_git_repo import fs_git_repo
 from bes.fs.fs.fs_error import fs_error
+from bes.fs.fs.fs_tester import fs_tester
 from bes.fs.fs.fs_list_options import fs_list_options
 from bes.git.git_unit_test import git_temp_home_func
 
-class _fs_git_repo_tester(object):
+class _fs_git_repo_tester(fs_tester):
 
   def __init__(self, fixture, items = None):
     self.config_dir = fixture.make_temp_dir(suffix = '.config.dir')
     self.repo = git_temp_repo(remote = True, content = items, debug = fixture.DEBUG, prefix = '.repo')
-    self.fs = fs_git_repo(self.repo.address, config_dir = self.config_dir)
-
-  def list_dir(self, *args):
-    return self._call_fs('list_dir', *args)
-    
-  def has_file(self, *args):
-    return self._call_fs('has_file', *args)
-    
-  def file_info(self, *args):
-    return self._call_fs('file_info', *args)
-
-  def remove_file(self, *args):
-    return self._call_fs('remove_file', *args)
-
-  def upload_file(self, *args):
-    return self._call_fs('upload_file', *args)
-
-  def download_file(self, *args):
-    return self._call_fs('download_file', *args)
-
-  def set_file_attributes(self, *args):
-    return self._call_fs('set_file_attributes', *args)
-    
-  def _call_fs(self, func_name, *args):
-    func = getattr(self.fs, func_name)
-    options = fs_list_options(show_details = True)
-    return func(*args).to_string(options = options)
-    
-  @classmethod
-  def _make_temp_content(clazz, items, debug):
-    return temp_content.write_items_to_temp_dir(items, delete = debug)
+    fs = fs_git_repo(self.repo.address, config_dir = self.config_dir)
+    super(_fs_git_repo_tester, self).__init__(fs)
 
 class test_fs_git_repo(unit_test):
 

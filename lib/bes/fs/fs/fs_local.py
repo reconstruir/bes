@@ -23,13 +23,12 @@ class fs_local(fs_base):
 
   log = logger('fs')
   
-  def __init__(self, local_root_dir, cache_dir = None):
+  def __init__(self, local_root_dir):
     check.check_string(local_root_dir)
-    check.check_string(cache_dir, allow_none = True)
     self._local_root_dir = local_root_dir
-    self._cache_dir = cache_dir or path.expanduser('~/.bes/fs_local/cache')
-    self._metadata_db_filename = path.join(self._cache_dir, 'metadata.db')
-    self._checksum_db_filename = path.join(self._cache_dir, 'checksum.db')
+    cache_dir = path.join(self._local_root_dir, '.fs_local')
+    self._metadata_db_filename = path.join(cache_dir, 'metadata.db')
+    self._checksum_db_filename = path.join(cache_dir, 'checksum.db')
     file_util.mkdir(self._local_root_dir)
 
   def __str__(self):
@@ -41,14 +40,13 @@ class fs_local(fs_base):
     'Return a list of fields needed for create()'
     return [
       factory_field('local_root_dir', False, check.is_string),
-      factory_field('cache_dir', True, check.is_string),
     ]
   
   @classmethod
   #@abstractmethod
   def create(clazz, **values):
     'Create an fs instance.'
-    return fs_local(values['local_root_dir'], cache_dir = values['cache_dir'])
+    return fs_local(values['local_root_dir'])
     
   @classmethod
   #@abstractmethod

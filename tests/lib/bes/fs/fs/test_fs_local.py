@@ -9,16 +9,17 @@ from bes.fs.testing.temp_content import temp_content
 from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
 from bes.testing.unit_test_skip import raise_skip
+from bes.fs.fs.fs_tester import fs_tester
 
 from bes.fs.fs.fs_local import fs_local
 from bes.fs.fs.fs_error import fs_error
 
-class _fs_local_tester(object):
+class _fs_local_tester(fs_tester):
 
   def __init__(self, fixture, items = None):
     self.local_root_dir = self._make_temp_content(items, fixture.DEBUG)
-    self.cache_dir = fixture.make_temp_dir(suffix = '.cache.dir')
-    self.fs = fs_local(self.local_root_dir, cache_dir = self.cache_dir)
+    fs = fs_local(self.local_root_dir)
+    super(_fs_local_tester, self).__init__(fs)
 
   @classmethod
   def _make_temp_content(clazz, items, debug):
@@ -96,7 +97,7 @@ class test_fs_local(unit_test):
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt',
     ], file_find.find(tester.local_root_dir) )
-    tester.fs.remove_file('foo.txt')
+    tester.remove_file('foo.txt')
     self.assertEqual( [
       'emptyfile.txt',
       'subdir/bar.txt',
@@ -112,7 +113,7 @@ class test_fs_local(unit_test):
       'subdir/subberdir/baz.txt',
     ], file_find.find(tester.local_root_dir) )
     tmp_file = self.make_temp_file(content = 'this is kiwi.txt\n')
-    tester.fs.upload_file('kiwi.txt', tmp_file)
+    tester.upload_file('kiwi.txt', tmp_file)
     self.assertEqual( [
       'emptyfile.txt',
       'foo.txt',
@@ -123,33 +124,35 @@ class test_fs_local(unit_test):
     
   def test_upload_file_replace(self):
     tester = self._make_tester()
-    self.assertEqual( [
-      'emptyfile.txt',
-      'foo.txt',
-      'subdir/bar.txt',
-      'subdir/subberdir/baz.txt',
-    ], file_find.find(tester.local_root_dir) )
-    self.assertEqual(
-      ( 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {}, [] ),
-      tester.fs.file_info('foo.txt') )
+    expected = '''\
+emptydir/ dir None None None
+emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 {}
+foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35 {}
+subdir/ dir None None None
+  subdir/bar.txt file 7 08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae {}
+  subdir/subberdir/ dir None None None
+    subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669 {}
+'''
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
     tmp_file = self.make_temp_file(content = 'this is the new foo.txt\n')
-    tester.fs.upload_file('foo.txt', tmp_file)
-    self.assertEqual( [
-      'emptyfile.txt',
-      'foo.txt',
-      'subdir/bar.txt',
-      'subdir/subberdir/baz.txt',
-    ], file_find.find(tester.local_root_dir) )
-    self.assertEqual(
-      ( 'foo.txt', 'file', 24, 'ee190d0691f8bd34826b9892a719892eb1accc36131ef4195dd81c0dfcf5517c', {}, [] ),
-      tester.fs.file_info('foo.txt') )
+    tester.upload_file('foo.txt', tmp_file)
+    expected = '''\
+emptydir/ dir None None None
+emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 {}
+foo.txt file 24 ee190d0691f8bd34826b9892a719892eb1accc36131ef4195dd81c0dfcf5517c {}
+subdir/ dir None None None
+  subdir/bar.txt file 7 08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae {}
+  subdir/subberdir/ dir None None None
+    subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669 {}
+'''
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
 
   def test_set_file_properties(self):
     tester = self._make_tester()
     self.assertEqual(
       ( 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {}, [] ),
       tester.fs.file_info('foo.txt') )
-    tester.fs.set_file_attributes('foo.txt', { 'p1': 'hello', 'p2': '666' })
+    tester.set_file_attributes('foo.txt', { 'p1': 'hello', 'p2': '666' })
     self.assertEqual(
       ( 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {'p2': '666', 'p1': 'hello'}, [] ),
       tester.fs.file_info('foo.txt') )
@@ -157,7 +160,7 @@ class test_fs_local(unit_test):
   def test_download_file(self):
     tester = self._make_tester()
     tmp_file = self.make_temp_file()
-    tester.fs.download_file('foo.txt', tmp_file)
+    tester.download_file('foo.txt', tmp_file)
     self.assertEqual( 'foo.txt', file_util.read(tmp_file) )
     
   @classmethod

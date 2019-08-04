@@ -31,7 +31,6 @@ class fs_git_repo(fs_base):
     check.check_string(config_dir, allow_none = True)
     self._address = address
     self._config_dir = config_dir or path.expanduser('~/.bes/fs_git_repo')
-    self._cache_dir = path.join(self._config_dir, 'cache')
     clone_manager_dir = path.join(self._config_dir, 'clone')
     self._clone_manager = git_clone_manager(clone_manager_dir)
 
@@ -51,7 +50,7 @@ class fs_git_repo(fs_base):
   #@abstractmethod
   def create(clazz, **values):
     'Create an fs instance.'
-    return fs_git_repo(values['local_root_dir'], cache_dir = values['cache_dir'])
+    return fs_git_repo(values['local_root_dir'])
     
   @classmethod
   #@abstractmethod
@@ -116,6 +115,6 @@ class fs_git_repo(fs_base):
     
   def _make_proxy(self):
     repo = self._clone_manager.update(self._address)
-    fs = fs_local(repo.root, cache_dir = self._cache_dir)
+    fs = fs_local(repo.root)
     return self._proxy(repo, fs)
     
