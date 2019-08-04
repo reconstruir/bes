@@ -172,6 +172,28 @@ subdir/ dir None None None
     tmp_file = self.make_temp_file()
     tester.fs.download_file('foo.txt', tmp_file)
     self.assertEqual( 'foo.txt', file_util.read(tmp_file) )
+
+  @git_temp_home_func()
+  def test_list_dir_persistent(self):
+    items = [
+      'file foo.txt "foo.txt"',
+    ]
+    r = git_temp_repo(remote = True, content = items, debug = self.DEBUG, prefix = '.repo')
+    config_dir1 = self.make_temp_dir(suffix = '.config.dir')
+    fs = fs_git_repo(r.address, config_dir = config_dir1)
+    t = fs_tester(fs)
+    self.assertEqual( 'foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35 {}\n',
+                      t.list_dir('/', False) )
+    r.add_file('bar.txt', 'bar.txt')
+    r.push()
+    config_dir2 = self.make_temp_dir(suffix = '.config.dir')
+    fs = fs_git_repo(r.address, config_dir = config_dir2)
+    t = fs_tester(fs)
+    expected = '''\
+bar.txt file 7 08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae {}
+foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35 {}
+'''
+    self.assertEqual( expected, t.list_dir('/', False) )
     
   @classmethod
   def _make_tester(clazz, items = None):
