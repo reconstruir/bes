@@ -119,7 +119,7 @@ subdir/ dir None None None
 '''
     self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
     tmp_file = self.make_temp_file(content = 'this is kiwi.txt\n')
-    tester.fs.upload_file('kiwi.txt', tmp_file)
+    tester.fs.upload_file(tmp_file, 'kiwi.txt')
     expected = '''\
 emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 {}
 foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35 {}
@@ -144,7 +144,7 @@ subdir/ dir None None None
 '''
     self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
     tmp_file = self.make_temp_file(content = 'this is the new foo.txt\n')
-    tester.fs.upload_file('foo.txt', tmp_file)
+    tester.fs.upload_file(tmp_file, 'foo.txt')
     expected = '''\
 emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 {}
 foo.txt file 24 ee190d0691f8bd34826b9892a719892eb1accc36131ef4195dd81c0dfcf5517c {}

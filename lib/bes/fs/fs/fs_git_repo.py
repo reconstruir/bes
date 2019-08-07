@@ -31,6 +31,7 @@ class fs_git_repo(fs_base):
     check.check_string(config_dir)
     self._address = address
     self._config_dir = config_dir
+    self._use_lfs = use_lfs
     clone_manager_dir = path.join(self._config_dir, 'clone')
     self._clone_manager = git_clone_manager(clone_manager_dir)
 
@@ -88,11 +89,14 @@ class fs_git_repo(fs_base):
     proxy.repo.push()
   
   #@abstractmethod
-  def upload_file(self, remote_filename, local_filename):
-    'Upload filename from local_filename.'
+  def upload_file(self, local_filename, remote_filename):
+    'Upload local_filename to remote_filename.'
     proxy = self._make_proxy()
-    proxy.fs.upload_file(remote_filename, local_filename)
+    proxy.fs.upload_file(local_filename, remote_filename)
     proxy.repo.add(remote_filename)
+    if self._use_lfs:
+      pattern = '*.{}'.format(file_util.extension(remote_filename))
+      proxy.repo.lfs_track(remote_filename)
     comment = 'add {}'.format(remote_filename)
     proxy.repo.commit(comment, remote_filename)
     proxy.repo.push()

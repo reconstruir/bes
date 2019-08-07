@@ -113,7 +113,7 @@ class test_fs_local(unit_test):
       'subdir/subberdir/baz.txt',
     ], file_find.find(tester.local_root_dir) )
     tmp_file = self.make_temp_file(content = 'this is kiwi.txt\n')
-    tester.upload_file('kiwi.txt', tmp_file)
+    tester.upload_file(tmp_file, 'kiwi.txt')
     self.assertEqual( [
       'emptyfile.txt',
       'foo.txt',
@@ -135,7 +135,7 @@ subdir/ dir None None None
 '''
     self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
     tmp_file = self.make_temp_file(content = 'this is the new foo.txt\n')
-    tester.upload_file('foo.txt', tmp_file)
+    tester.upload_file(tmp_file, 'foo.txt')
     expected = '''\
 emptydir/ dir None None None
 emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 {}

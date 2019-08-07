@@ -135,13 +135,13 @@ class fs_local(fs_base):
     file_util.remove(p)
   
   #@abstractmethod
-  def upload_file(self, filename, local_filename):
-    'Upload filename from local_filename.'
-    p = self._make_local_file_path(filename)
+  def upload_file(self, local_filename, remote_filename):
+    'Upload local_filename to remote_filename.'
+    p = self._make_local_file_path(remote_filename)
     if path.isdir(p):
-      raise fs_error('filename exists and is a dir: {}'.format(filename))
+      raise fs_error('filename exists and is a dir: {}'.format(remote_filename))
     if path.exists(p) and not path.isfile(p):
-      raise fs_error('filename exists and is not a file: {}'.format(filename))
+      raise fs_error('filename exists and is not a file: {}'.format(remote_filename))
     if not path.exists(local_filename):
       raise fs_error('local_filename not found: {}'.format(local_filename))
     file_util.copy(local_filename, p)

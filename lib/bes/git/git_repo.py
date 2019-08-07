@@ -211,6 +211,9 @@ class git_repo(object):
     return git.archive_foo(self.root, base_name, revision, output_filename,
                            archive_format = archive_format, short_hash = short_hash)
 
+  def lfs_track(self, pattern):
+    return self.call_git([ 'lfs', 'track', pattern ])
+  
   def call_git(self, args, raise_error = True, extra_env = None):
     return git.call_git(self.root, args, raise_error = raise_error, extra_env = extra_env)
   

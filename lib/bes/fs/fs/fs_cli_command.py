@@ -61,4 +61,19 @@ class fs_cli_command(object):
     'list files.'
     clazz.log.log_d('_ls_file: fs={} info={} options={}'.format(fs, info, options))
     return 0
+
+  @classmethod
+  def upload(clazz, config_file, local_filename, remote_filename):
+    'upload a file.'
+    check.check_string(config_file)
+    check.check_string(local_filename)
+    check.check_string(remote_filename)
+    clazz.log.log_d('upload: config_file={} local_filename={} remote_filename={}'.format(config_file,
+                                                                                         local_filename,
+                                                                                         remote_filename))
+    fs = fs_registry.load_from_config_file(config_file)
+    clazz.log.log_d('ls: fs={}'.format(fs))
+    fs.upload_file(local_filename, remote_filename)
+    return 0
+
   

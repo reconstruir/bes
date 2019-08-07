@@ -56,8 +56,8 @@ class fs_base(with_metaclass(fs_register_meta, object)):
     pass
   
   @abstractmethod
-  def upload_file(self, remote_filename, local_filename):
-    'Upload filename from local_filename.'
+  def upload_file(self, local_filename, remote_filename):
+    'Upload local_filename to remote_filename.'
     pass
 
   @abstractmethod
