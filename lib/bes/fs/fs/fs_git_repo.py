@@ -22,15 +22,15 @@ from .fs_error import fs_error
 from .fs_local import fs_local
 
 class fs_git_repo(fs_base):
-  'Masqurade a git repo as a filesystem.'
+  'Masquerade a git repo as a filesystem.  All operations are committed automatically.'
 
   log = logger('fs')
   
-  def __init__(self, address, config_dir = None):
+  def __init__(self, address, config_dir):
     check.check_string(address)
-    check.check_string(config_dir, allow_none = True)
+    check.check_string(config_dir)
     self._address = address
-    self._config_dir = config_dir or path.expanduser('~/.bes/fs_git_repo')
+    self._config_dir = config_dir
     clone_manager_dir = path.join(self._config_dir, 'clone')
     self._clone_manager = git_clone_manager(clone_manager_dir)
 
@@ -43,19 +43,19 @@ class fs_git_repo(fs_base):
     'Return a list of fields needed for create()'
     return [
       factory_field('address', False, check.is_string),
-      factory_field('config_dir', True, check.is_string),
+      factory_field('config_dir', False, check.is_string),
     ]
   
   @classmethod
   #@abstractmethod
   def create(clazz, **values):
     'Create an fs instance.'
-    return fs_git_repo(values['local_root_dir'])
+    return fs_git_repo(values['address'], values['config_dir'])
     
   @classmethod
   #@abstractmethod
   def name(clazz):
-    'The name if this fs.'
+    'The name of this fs.'
     return 'fs_git_repo'
 
   #@abstractmethod
