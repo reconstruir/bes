@@ -22,11 +22,13 @@ class file_checksum_db(object):
     'sha1': _KEY_BES_CHECKSUM_SHA1,
     'sha256': _KEY_BES_CHECKSUM_SHA256,
   }
+
+  DEFAULT_CHECKSUM_DB_FILENAME = '.bes_file_checksum.db'
   
-  def __init__(self, db_filename):
-    check.check_string(db_filename)
-    self._db_filename = db_filename
-    self._metadata = file_metadata(self._db_filename)
+  def __init__(self, root_dir, db_filename = None):
+    check.check_string(root_dir)
+    check.check_string(db_filename, allow_none = True)
+    self._metadata = file_metadata(root_dir, db_filename = db_filename)
     self._count = 0
 
   @property
@@ -71,6 +73,6 @@ class file_checksum_db(object):
       self._metadata.set_value(filename, checksum_key, checksum)
     except Exception as ex:
       self.log.log_e('_write_checksum: Failed to write checksum for {} to {}'.format(filename,
-                                                                                     self._db_filename))
+                                                                                     self._metadata.db_filename))
     return checksum
   

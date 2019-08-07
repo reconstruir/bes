@@ -270,5 +270,10 @@ class file_util(object):
     if filename.startswith('.') or filename.startswith('/.'):
       return True
     return path.basename(filename).startswith('.')
+
+  @classmethod
+  def exists(clazz, files):
+    files = object_util.listify(files)
+    return not False in [ path.exists(f) for f in files ]
   
 log.add_logging(file_util, 'file_util')

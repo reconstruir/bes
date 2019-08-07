@@ -11,8 +11,8 @@ from bes.fs.temp_file import temp_file
 class test_file_metadata_db(unit_test):
 
   def test_file_first_time(self):
-    tmp_db = temp_file.make_temp_file(suffix = '.sqlite.db')
-    db = file_checksum_db(tmp_db)
+    tmp_dir = self.make_temp_dir()
+    db = file_checksum_db(tmp_dir)
     tmp_file = temp_file.make_temp_file(suffix = '.txt', content = 'this is foo\n')
     self.assertEqual( 0, db.count )
     self.assertEqual( file_util.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
@@ -21,19 +21,19 @@ class test_file_metadata_db(unit_test):
     self.assertEqual( 1, db.count )
     
   def test_file_persistence(self):
-    tmp_db = temp_file.make_temp_file(suffix = '.sqlite.db')
-    db = file_checksum_db(tmp_db)
+    tmp_dir = self.make_temp_dir()
+    db = file_checksum_db(tmp_dir)
     tmp_file = temp_file.make_temp_file(suffix = '.txt', content = 'this is foo\n')
     self.assertEqual( 0, db.count )
     self.assertEqual( file_util.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
     self.assertEqual( 1, db.count )
-    db = file_checksum_db(tmp_db)
+    db = file_checksum_db(tmp_dir)
     self.assertEqual( file_util.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
     self.assertEqual( 0, db.count )
     
   def test_file_changed(self):
-    tmp_db = temp_file.make_temp_file(suffix = '.sqlite.db')
-    db = file_checksum_db(tmp_db)
+    tmp_dir = self.make_temp_dir()
+    db = file_checksum_db(tmp_dir)
     tmp_file = temp_file.make_temp_file(suffix = '.txt', content = 'this is foo\n')
     self.assertEqual( 0, db.count )
     self.assertEqual( file_util.checksum('sha256', tmp_file), db.checksum('sha256', tmp_file) )
