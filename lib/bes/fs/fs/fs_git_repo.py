@@ -26,7 +26,7 @@ class fs_git_repo(fs_base):
 
   log = logger('fs')
   
-  def __init__(self, address, config_dir):
+  def __init__(self, address, config_dir, use_lfs):
     check.check_string(address)
     check.check_string(config_dir)
     self._address = address
@@ -44,13 +44,14 @@ class fs_git_repo(fs_base):
     return [
       factory_field('address', False, check.is_string),
       factory_field('config_dir', False, check.is_string),
+      factory_field('use_lfs', False, check.is_bool),
     ]
   
   @classmethod
   #@abstractmethod
   def create(clazz, **values):
     'Create an fs instance.'
-    return fs_git_repo(values['address'], values['config_dir'])
+    return fs_git_repo(values['address'], values['config_dir'], values['use_lfs'])
     
   @classmethod
   #@abstractmethod
