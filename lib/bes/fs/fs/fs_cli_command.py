@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 from os import path
 
 from bes.common.check import check
@@ -72,8 +73,23 @@ class fs_cli_command(object):
                                                                                          local_filename,
                                                                                          remote_filename))
     fs = fs_registry.load_from_config_file(config_file)
-    clazz.log.log_d('ls: fs={}'.format(fs))
+    clazz.log.log_d('upload: fs={}'.format(fs))
     fs.upload_file(local_filename, remote_filename)
+    return 0
+
+  @classmethod
+  def download(clazz, config_file, remote_filename, output_filename):
+    'Download a file.'
+    check.check_string(config_file)
+    check.check_string(remote_filename)
+    check.check_string(output_filename, allow_none = True)
+    output_filename = output_filename or path.join(ow.getcwd(), path.basename(remote_filename))
+    clazz.log.log_d('download: config_file={} remote_filename={} output_filename={}'.format(config_file,
+                                                                                            remote_filename,
+                                                                                            output_filename))
+    fs = fs_registry.load_from_config_file(config_file)
+    clazz.log.log_d('download: fs={}'.format(fs))
+    fs.download_file(remote_filename, output_filename)
     return 0
 
   

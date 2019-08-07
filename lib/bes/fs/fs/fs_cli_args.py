@@ -32,6 +32,14 @@ class fs_cli_args(object):
     p.add_argument('remote_filename', action = 'store', default = None, type = str,
                    help = 'Remote filename to upload to. [ None ]')
     
+    p = subparser.add_parser('download', help = 'Download a file.')
+    p.add_argument('config_file', action = 'store', default = None, type = str,
+                   help = 'The fs config file. [ None ]')
+    p.add_argument('remote_filename', action = 'store', default = None, type = str,
+                   help = 'Remote filename to upload to. [ None ]')
+    p.add_argument('-o', '--output-filename', action = 'store', default = None, type = str,
+                   help = 'Output filename to download to. [ None ]')
+    
   def _command_fs_ls(self, config_file, filename, recursive):
     filename = filename or '/'
     options = fs_list_options(recursive = recursive)
@@ -39,4 +47,7 @@ class fs_cli_args(object):
 
   def _command_fs_upload(self, config_file, local_filename, remote_filename):
     return fs_cli_command.upload(config_file, local_filename, remote_filename)
+  
+  def _command_fs_download(self, config_file, remote_filename, output_filename):
+    return fs_cli_command.download(config_file, remote_filename, output_filename)
   
