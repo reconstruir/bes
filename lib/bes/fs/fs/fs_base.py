@@ -32,7 +32,7 @@ class fs_base(with_metaclass(fs_register_meta, object)):
   @classmethod
   @abstractmethod
   def name(clazz):
-    'The name if this fs.'
+    'The name of this fs.'
     pass
 
   @abstractmethod
