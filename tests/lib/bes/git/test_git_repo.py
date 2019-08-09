@@ -432,6 +432,19 @@ class test_git_repo(unit_test):
     r.commit('remove', 'd/e/bar.txt')
     r.push()
 
+  @git_temp_home_func()
+  def test_has_unpushed_commits(self):
+    r = self._make_repo(remote = True)
+    r.write_temp_content([
+      'file foo.txt "this is foo" 644',
+    ])
+    r.add([ 'foo.txt' ])
+    r.commit('add foo.txt', [ 'foo.txt' ])
+    r.push('origin', 'master')
+    self.assertFalse( r.has_unpushed_commits() )
+    r.add_file('bar.txt', 'this is bar.txt', commit = True)
+    self.assertTrue( r.has_unpushed_commits() )
+    
   def _make_repo(self, remote = True, content = None, prefix = None):
     return git_temp_repo(remote = remote, content = content, prefix = prefix, debug = self.DEBUG)
 

@@ -66,19 +66,25 @@ class fs_git_repo(fs_base):
     'List entries in a directory.'
     self.log.log_d('list_dir(remote_dir={}, recursive={}'.format(remote_dir, recursive))
     proxy = self._make_proxy()
-    return proxy.fs.list_dir(remote_dir, recursive)
+    rv = proxy.fs.list_dir(remote_dir, recursive)
+    self._post_operation(proxy)
+    return rv
   
   #@abstractmethod
   def has_file(self, remote_filename):
     'Return True if filename exists in the filesystem and is a FILE.'
     proxy = self._make_proxy()
-    return proxy.fs.has_file(remote_filename)
+    rv = proxy.fs.has_file(remote_filename)
+    self._post_operation(proxy)
+    return rv
   
   #@abstractmethod
   def file_info(self, remote_filename):
     'Get info for a single file..'
     proxy = self._make_proxy()
-    return proxy.fs.file_info(remote_filename)
+    rv = proxy.fs.file_info(remote_filename)
+    self._post_operation(proxy)
+    return rv
   
   #@abstractmethod
   def remove_file(self, filename):
@@ -88,6 +94,7 @@ class fs_git_repo(fs_base):
     comment = 'remove {}'.format(filename)
     proxy.repo.commit(comment, filename)
     proxy.repo.push()
+    self._post_operation(proxy)
   
   #@abstractmethod
   def upload_file(self, local_filename, remote_filename):
@@ -101,22 +108,24 @@ class fs_git_repo(fs_base):
         proxy.repo.lfs_track(remote_filename)
     comment = 'add {}'.format(remote_filename)
     proxy.repo.commit(comment, remote_filename)
-    st = proxy.repo.status('.')
-    print('status: {}'.format(st))
-    proxy.repo.push()
+    #proxy.repo.push()
+    self._post_operation(proxy)
 
   #@abstractmethod
   def download_file(self, remote_filename, local_filename):
     'Download filename to local_filename.'
     proxy = self._make_proxy()
-    return proxy.fs.download_file(remote_filename, local_filename)
+    rv = proxy.fs.download_file(remote_filename, local_filename)
+    self._post_operation(proxy)
+    return rv
     
   #@abstractmethod
   def set_file_attributes(self, remote_filename, attributes):
     'Set file attirbutes.'
     proxy = self._make_proxy()
     proxy.fs.set_file_attributes(remote_filename, attributes)
-
+    self._post_operation(proxy)
+    
   class _proxy(namedtuple('_proxy', 'repo, fs')):
 
     def __new__(clazz, repo, fs):
@@ -127,3 +136,22 @@ class fs_git_repo(fs_base):
     fs = fs_local(repo.root)
     return self._proxy(repo, fs)
     
+  #@abstractmethod
+  def _post_operation(self, proxy):
+    'Update the .besfs git droppings after any operation.'
+    status = proxy.repo.status('.')
+    self._post_operation_besfs(proxy, status)
+    self._post_operation_push(proxy, status)
+
+  def _post_operation_besfs(self, proxy, status):
+    rv = False
+    for st in status:
+      if st.filename.startswith('.besfs'):
+        proxy.repo.add(st.filename)
+        proxy.repo.commit('update .besfs db dir', st.filename)
+        rv = True
+    return rv
+
+  def _post_operation_push(self, proxy, status):
+    if proxy.repo.has_unpushed_commits():
+      proxy.repo.push()

@@ -26,9 +26,9 @@ class fs_local(fs_base):
   def __init__(self, local_root_dir):
     check.check_string(local_root_dir)
     self._local_root_dir = local_root_dir
-    cache_dir = path.join(self._local_root_dir, '.fs_local')
-    self._metadata_db_filename = path.join(cache_dir, 'metadata.db')
-    self._checksum_db_filename = path.join(cache_dir, 'checksum.db')
+    db_dir = path.join(self._local_root_dir, '.besfs')
+    self._metadata_db_filename = path.join(db_dir, 'metadata.db')
+    self._checksum_db_filename = path.join(db_dir, 'checksum.db')
     file_util.mkdir(self._local_root_dir)
 
   def __str__(self):
