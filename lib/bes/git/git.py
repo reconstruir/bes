@@ -32,7 +32,7 @@ from .git_status import git_status
 class git(object):
   'A class to deal with git.'
 
-  _LOG = logger('git')
+  log = logger('git')
   
   @classmethod
   def status(clazz, root, filenames, abspath = False, untracked_files = True):
@@ -106,7 +106,7 @@ class git(object):
       setattr(clazz, '_git_exe', git_exe)
     git_exe = getattr(clazz, '_git_exe')
     cmd = [ git_exe ] + args
-    clazz._LOG.log_d('root=%s; cmd=%s' % (root, ' '.join(cmd)))
+    clazz.log.log_d('root=%s; cmd=%s' % (root, ' '.join(cmd)))
     save_raise_error = raise_error
     extra_env = extra_env or {}
     env = os_env.clone_current_env(d = extra_env, prepend = True)
@@ -126,7 +126,7 @@ class git(object):
     check.check_git_clone_options(options, allow_none = True)
     address = clazz.resolve_address(address)
     options = options or git_clone_options()
-    clazz._LOG.log_d('clone: address={} dest_dir={} options={}'.format(address, dest_dir, pprint.pformat(options.__dict__)))
+    clazz.log.log_d('clone: address={} dest_dir={} options={}'.format(address, dest_dir, pprint.pformat(options.__dict__)))
     if path.exists(dest_dir):
       if not path.isdir(dest_dir):
         raise RuntimeError('dest_dir %s is not a directory.' % (dest_dir))
@@ -143,9 +143,9 @@ class git(object):
     extra_env = {
       'GIT_LFS_SKIP_SMUDGE': '0' if options.lfs else '1',
     }
-    clazz._LOG.log_d('clone: args="{}" extra_env={}'.format(' '.join(args), extra_env))
+    clazz.log.log_d('clone: args="{}" extra_env={}'.format(' '.join(args), extra_env))
     clone_rv = clazz.call_git(os.getcwd(), args, extra_env = extra_env)
-    clazz._LOG.log_d('clone: clone_rv="{}"'.format(str(clone_rv)))
+    clazz.log.log_d('clone: clone_rv="{}"'.format(str(clone_rv)))
     sub_rv = None
     if options.branch:
       git.checkout(dest_dir, options.branch)
@@ -157,9 +157,9 @@ class git(object):
         sub_args.append('--recursive')
       if options.submodule_list:
         sub_args.extend(options.submodule_list)
-      clazz._LOG.log_d('clone: sub_args="{}" extra_env={}'.format(' '.join(args), extra_env))
+      clazz.log.log_d('clone: sub_args="{}" extra_env={}'.format(' '.join(args), extra_env))
       sub_rv = clazz.call_git(dest_dir, sub_args, extra_env = extra_env)
-      clazz._LOG.log_d('clone: sub_rv="{}"'.format(str(sub_rv)))
+      clazz.log.log_d('clone: sub_rv="{}"'.format(str(sub_rv)))
     return clone_rv, sub_rv
 
   @classmethod
@@ -648,7 +648,7 @@ class git(object):
   @classmethod
   def _lfs_file_needs_smudge(clazz, filename):
     'Return True if filename needs smudge.'
-    file
+    pass
     
   @classmethod
   def lfs_files_need_smudge(clazz, root):
@@ -663,3 +663,19 @@ class git(object):
     filenames = object_util.listify(filenames)
     args = [ 'rm' ] + filenames
     return clazz.call_git(root, args)
+
+  @classmethod
+  def unpushed_commits(clazz, root):
+    'Return a list of unpushed commits.'
+    rv = clazz.call_git(root, [ 'cherry' ])
+    lines = clazz._parse_lines(rv.stdout)
+    result = []
+    for line in lines:
+      x = re.findall('^\+\s([a-f0-9]+)$', line)
+      if x and len(x) == 1:
+        result.append(x[0])
+    return result
+  
+  @classmethod
+  def has_unpushed_commits(clazz, root):
+    return len(clazz.unpushed_commits(root)) > 0

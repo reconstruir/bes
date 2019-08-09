@@ -84,15 +84,18 @@ class git_repo(object):
   def remote_origin_url(self):
     return git.remote_origin_url(selfroot)
 
-  def add_file(self, filename, content, codec = 'utf-8', mode = None, commit = True):
+  def add_file(self, filename, content, codec = 'utf-8', mode = None, commit = True, push = False):
     p = self.file_path(filename)
     assert not path.isfile(p)
     file_util.save(p, content = content, codec = codec, mode = mode)
     self.add( [ filename ])
+    result = None
     if commit:
       self.commit('add %s' % (filename), [ filename ])
-      return self.last_commit_hash(short_hash = True)
-    return None
+      result = self.last_commit_hash(short_hash = True)
+    if push:
+      self.push()
+    return result
 
   def save_file(self, filename, content, codec = 'utf-8', mode = None):
     if not self.has_file(filename):
@@ -216,5 +219,11 @@ class git_repo(object):
   
   def call_git(self, args, raise_error = True, extra_env = None):
     return git.call_git(self.root, args, raise_error = raise_error, extra_env = extra_env)
+
+  def unpushed_commits(self):
+    return git.unpushed_commits(self.root)
+  
+  def has_unpushed_commits(self):
+    return git.has_unpushed_commits(self.root)
   
 check.register_class(git_repo)
