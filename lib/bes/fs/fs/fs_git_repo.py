@@ -11,6 +11,7 @@ from bes.fs.file_checksum_db import file_checksum_db
 from bes.fs.file_find import file_find
 from bes.fs.file_metadata import file_metadata
 from bes.fs.file_util import file_util
+from bes.fs.file_mime import file_mime
 from bes.system.log import logger
 from bes.factory.factory_field import factory_field
 from bes.git.git_clone_manager import git_clone_manager
@@ -45,7 +46,7 @@ class fs_git_repo(fs_base):
     return [
       factory_field('address', False, check.is_string),
       factory_field('config_dir', False, check.is_string),
-      factory_field('use_lfs', False, check.is_bool),
+      factory_field('use_lfs', False, factory_field.is_bool),
     ]
   
   @classmethod
@@ -95,10 +96,13 @@ class fs_git_repo(fs_base):
     proxy.fs.upload_file(local_filename, remote_filename)
     proxy.repo.add(remote_filename)
     if self._use_lfs:
-      pattern = '*.{}'.format(file_util.extension(remote_filename))
-      proxy.repo.lfs_track(remote_filename)
+      if not file_mime.content_is_text(local_filename):
+        pattern = '*.{}'.format(file_util.extension(remote_filename))
+        proxy.repo.lfs_track(remote_filename)
     comment = 'add {}'.format(remote_filename)
     proxy.repo.commit(comment, remote_filename)
+    st = proxy.repo.status('.')
+    print('status: {}'.format(st))
     proxy.repo.push()
 
   #@abstractmethod

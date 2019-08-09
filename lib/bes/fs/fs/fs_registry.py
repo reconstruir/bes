@@ -10,6 +10,10 @@ from bes.fs.temp_file import temp_file
 from .fs_error import fs_error
 from .fs_config import fs_config
 
+# Not used directly but need to be imported so the factory knows about them
+#from .fs_local import fs_local
+#from .fs_git_repo import fs_git_repo
+
 class fs_registry(singleton_class_registry):
   __registry_class_name_prefix__ = 'bes_fs_'
   __registry_raise_on_existing__ = False

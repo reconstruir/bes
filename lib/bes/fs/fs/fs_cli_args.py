@@ -15,26 +15,19 @@ class fs_cli_args(object):
     pass
   
   def fs_add_args(self, subparser):
-
     p = subparser.add_parser('ls', help = 'List files or folders.')
-    p.add_argument('config_file', action = 'store', default = None, type = str,
-                   help = 'The fs config file. [ None ]')
     p.add_argument('filename', action = 'store', default = None, type = str, nargs = '?',
                    help = 'Filename or directory to list. [ None ]')
     p.add_argument('-R', '--recursive', action = 'store_true', default = False,
                    help = 'List recurisively. [ False ]')
     
     p = subparser.add_parser('upload', help = 'Upload a file.')
-    p.add_argument('config_file', action = 'store', default = None, type = str,
-                   help = 'The fs config file. [ None ]')
     p.add_argument('local_filename', action = 'store', default = None, type = str,
                    help = 'Local filename to upload. [ None ]')
     p.add_argument('remote_filename', action = 'store', default = None, type = str,
                    help = 'Remote filename to upload to. [ None ]')
     
     p = subparser.add_parser('download', help = 'Download a file.')
-    p.add_argument('config_file', action = 'store', default = None, type = str,
-                   help = 'The fs config file. [ None ]')
     p.add_argument('remote_filename', action = 'store', default = None, type = str,
                    help = 'Remote filename to upload to. [ None ]')
     p.add_argument('-o', '--output-filename', action = 'store', default = None, type = str,
