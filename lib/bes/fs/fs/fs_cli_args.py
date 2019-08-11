@@ -20,6 +20,8 @@ class fs_cli_args(object):
                    help = 'Filename or directory to list. [ None ]')
     p.add_argument('-R', '--recursive', action = 'store_true', default = False,
                    help = 'List recurisively. [ False ]')
+    p.add_argument('-l', '--show-details', action = 'store_true', default = False,
+                   help = 'Show file details. [ False ]')
     
     p = subparser.add_parser('upload', help = 'Upload a file.')
     p.add_argument('local_filename', action = 'store', default = None, type = str,
@@ -33,9 +35,9 @@ class fs_cli_args(object):
     p.add_argument('-o', '--output-filename', action = 'store', default = None, type = str,
                    help = 'Output filename to download to. [ None ]')
     
-  def _command_fs_ls(self, config_file, filename, recursive):
+  def _command_fs_ls(self, config_file, filename, recursive, show_details):
     filename = filename or '/'
-    options = fs_list_options(recursive = recursive)
+    options = fs_list_options(recursive = recursive, show_details = show_details)
     return fs_cli_command.ls(config_file, filename, options)
 
   def _command_fs_upload(self, config_file, local_filename, remote_filename):

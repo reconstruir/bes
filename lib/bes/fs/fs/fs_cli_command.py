@@ -29,7 +29,6 @@ class fs_cli_command(object):
     fs = fs_registry.load_from_config_file(config_file)
     clazz.log.log_d('ls: fs={}'.format(fs))
     info = fs.file_info(filename)
-
     clazz.log.log_d('ls: info={}'.format(info))
     if info.ftype == fs_file_info.DIR:
       return clazz._ls_dir(fs, info, options)
@@ -47,20 +46,35 @@ class fs_cli_command(object):
     return 0
 
   @classmethod
+  def _format_file_info(clazz, info, options):
+    if options.show_details:
+      return '{} {} {}'.format(path.basename(info.filename), info.size, info.checksum)
+    else:
+      return info.filename
+  
+  @classmethod
   def _print_entry(clazz, entry, options, depth):
     indent = '  ' * depth
     if entry.ftype == 'file':
-      print('{}{}'.format(indent, entry.display_filename))
+      s = clazz._format_file_info(entry, options)
+      print('{}{}'.format(indent, s))
     elif entry.ftype == 'dir':
       for child in entry:
-        print('{}{}'.format(indent, child.display_filename))
         if child.is_dir():
+          print('{}{}'.format(indent, child.display_filename))
           clazz._print_entry(child, options, depth + 1)
+        else:
+          s = clazz._format_file_info(child, options)
+          print('{}{}'.format(indent, s))
 
   @classmethod
   def _ls_file(clazz, fs, info, options):
     'list files.'
     clazz.log.log_d('_ls_file: fs={} info={} options={}'.format(fs, info, options))
+    if options.show_details:
+      print('{} {} {}'.format(path.basename(info.filename), info.size, info.checksum))
+    else:
+      print(info.filename)
     return 0
 
   @classmethod
