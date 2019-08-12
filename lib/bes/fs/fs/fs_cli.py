@@ -18,9 +18,8 @@ class fs_cli(fs_cli_args):
     self.parser = argparse.ArgumentParser()
     commands_subparser = self.parser.add_subparsers(help = 'commands', dest = 'command')
 
-    default_config = os.environ.get('BESFS_CONFIG', 'local.besfs')
-    self.parser.add_argument('-c', '--config-file', action = 'store', default = default_config, type = str,
-                             help = 'The fs config file. [ {} ]'.format(default_config))
+    self.parser.add_argument('-c', '--config', action = 'store', default = None, type = str,
+                             help = 'The fs config file. [ None ]')
 
     self.fs_add_args(commands_subparser)
     
@@ -35,7 +34,7 @@ class fs_cli(fs_cli_args):
     version_cli.print_everything('bes', dependencies = [ 'bes' ],
                                  brief = brief, print_all = print_all)
     return 0
-
+  
   @classmethod
   def run(clazz):
     raise SystemExit(fs_cli().main())
