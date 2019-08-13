@@ -70,8 +70,8 @@ class archiver(object):
     
   @classmethod
   def extract_all_temp_dir(clazz, filename, base_dir = None,
-                           strip_common_ancestor = False, strip_head = None):
-    tmp_dir = temp_file.make_temp_dir()
+                           strip_common_ancestor = False, strip_head = None, delete = True):
+    tmp_dir = temp_file.make_temp_dir(delete = delete)
     clazz.extract_all(filename, tmp_dir, base_dir = base_dir,
                       strip_common_ancestor = strip_common_ancestor, strip_head = strip_head)
     return tmp_dir
@@ -112,8 +112,8 @@ class archiver(object):
     archive_class(archive).extract_member_to_file(member, filename)
 
   @classmethod
-  def extract_member_to_temp_file(clazz, archive, member):
-    tmp_filename = temp_file.make_temp_file(suffix = '-' + path.basename(member))
+  def extract_member_to_temp_file(clazz, archive, member, delete = True):
+    tmp_filename = temp_file.make_temp_file(suffix = '-' + path.basename(member), delete = delete)
     clazz.extract_member_to_file(archive, member, tmp_filename)
     return tmp_filename
 
@@ -142,19 +142,19 @@ class archiver(object):
     file_util.rename(tmp_archive, output_archive)
     
   @classmethod
-  def recreate_temp_file(clazz, archive, base_dir):
+  def recreate_temp_file(clazz, archive, base_dir, delete = True):
     'Recreate the archive to a temp file.'
-    tmp_dir = temp_file.make_temp_dir()
+    tmp_dir = temp_file.make_temp_dir(delete = True)
     clazz.extract_all(archive, tmp_dir)
     return clazz.create_temp_file(archive_extension.extension_for_filename(archive), tmp_dir, base_dir = base_dir)
     
   @classmethod
   def create_temp_file(clazz, extension, root_dir, base_dir = None,
                        extra_items = None,
-                       include = None, exclude = None):
+                       include = None, exclude = None, delete = True):
     if not archive_extension.is_valid_ext(extension):
       raise ValueError('invalid extension: {}'.format(extension))
-    tmp_archive = temp_file.make_temp_file(suffix = '.' + extension)
+    tmp_archive = temp_file.make_temp_file(suffix = '.' + extension, delete = delete)
     archiver.create(tmp_archive, root_dir, base_dir = base_dir,
                     extra_items = extra_items,
                     include = include, exclude = exclude)
