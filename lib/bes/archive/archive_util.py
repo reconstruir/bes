@@ -51,3 +51,21 @@ class archive_util(object):
           if key in members:
             result[key].add(archive)
     return result
+
+  @classmethod
+  def member_checksums(clazz, archive, members, debug = False):
+    'Return a dict of checksums for the given members in archive.'
+    members = object_util.listify(members)
+    tmp_dir = archiver.extract_all_temp_dir(archive, delete = not debug)
+    if debug:
+      print('tmp_dir: {}'.format(tmp_dir))
+    result = {}
+    for member in members:
+      assert not member in result
+      p = path.join(tmp_dir, member)
+      if not path.exists(p):
+        raise IOError('member not found: {}'.format(member))
+      if not path.isfile(p):
+        raise IOError('member is not a file: {}'.format(member))
+      result[member] = file_util.checksum('sha256', path.join(tmp_dir, member))
+    return result

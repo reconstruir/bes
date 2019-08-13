@@ -56,6 +56,17 @@ class test_archive_util(unit_test):
       'foo-1.2.3/fruits/apple.txt': { a1, a2 },
       'foo-1.2.3/wine/barolo.txt': { a2, a3 },
     }, archive_util.duplicate_members([ a1, a2, a3 ]) )
+
+  def test_member_checksums(self):
+    a = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
+      ( self.xp_path('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
+      ( self.xp_path('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
+      ( self.xp_path('foo-1.2.3/fruits/kiwi.txt'), 'kiwi.txt' ),
+    ]), 'zip', delete = not self.DEBUG)
+    self.assertEqual( {
+      'foo-1.2.3/fruits/apple.txt': '7269b27861e2a5ba6947b6279bb5e66b23439d83a65a3c0cf529f5834ed2e7fb',
+      'foo-1.2.3/fruits/kiwi.txt': 'a7be44d9dda7e951298316b34ce84a1b2da8b5e0bead26118145bda4fbca9329',
+    }, archive_util.member_checksums(a, [ 'foo-1.2.3/fruits/apple.txt', 'foo-1.2.3/fruits/kiwi.txt' ]) )
     
 if __name__ == "__main__":
   unit_test.main()
