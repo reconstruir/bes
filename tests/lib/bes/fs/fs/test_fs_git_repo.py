@@ -59,7 +59,7 @@ subdir/ dir None None None
     self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
     
   @git_temp_home_func()
-  def test_list_dir_empty(self):
+  def xtest_list_dir_empty(self):
     tester = self._make_tester()
     self.assertEqual( ( '/', 'dir', None, None, None, [] ), tester.fs.list_dir('/', True) )
     
@@ -174,7 +174,7 @@ subdir/ dir None None None
     self.assertEqual( 'foo.txt', file_util.read(tmp_file) )
 
   @git_temp_home_func()
-  def test_list_dir_persistent(self):
+  def xtest_list_dir_persistent(self):
     items = [
       'file foo.txt "foo.txt"',
     ]
