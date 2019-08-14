@@ -28,7 +28,7 @@ class fs_file_info(namedtuple('fs_file_info', 'filename, ftype, size, checksum, 
       if checksum:
         raise fs_error('checksum is only for "file"')
       if attributes:
-        raise fs_error('attributes area only for "file"')
+        raise fs_error('attributes are only for "file"')
     return clazz.__bases__[0].__new__(clazz, filename, ftype, size, checksum, attributes, children)
 
   def __iter__(self):
@@ -63,19 +63,27 @@ class fs_file_info(namedtuple('fs_file_info', 'filename, ftype, size, checksum, 
     indent = '  ' * depth
     if entry.ftype == 'file':
       if options.show_details:
-        buf.write('{}{} {} {} {} {}'.format(indent, entry.display_filename, entry.ftype, entry.size, entry.checksum, entry.attributes))
+        buf.write('{}{} {} {} {}'.format(indent, entry.display_filename, entry.ftype, entry.size, entry.checksum))
+        clazz._write_attributes(entry, buf)
       else:
         buf.write('{}{}'.format(indent, entry.display_filename))
       buf.write('\n')
     elif entry.ftype == 'dir':
       for child in entry:
         if options.show_details:
-          buf.write('{}{} {} {} {} {}'.format(indent, child.display_filename, child.ftype, child.size, child.checksum, child.attributes))
+          buf.write('{}{} {} {} {}'.format(indent, child.display_filename, child.ftype, child.size, child.checksum))
+          clazz._write_attributes(child, buf)
         else:
           buf.write('{}{}'.format(indent, child.display_filename))
           
         buf.write('\n')
         if child.is_dir():
           clazz._entry_to_string(child, buf, options, depth + 1)
+  
+  @classmethod
+  def _write_attributes(clazz, info, buf):
+    if info.attributes:
+      for key, value in sorted(info.attributes.items()):
+        buf.write(' {}={}'.format(key, value))
   
 check.register_class(fs_file_info, include_seq = False)

@@ -9,6 +9,7 @@ from bes.fs.file_checksum_db import file_checksum_db
 from bes.fs.file_find import file_find
 from bes.fs.file_metadata import file_metadata
 from bes.fs.file_util import file_util
+from bes.key_value.key_value_list import key_value_list
 from bes.system.log import logger
 from bes.factory.factory_field import factory_field
 
@@ -28,6 +29,7 @@ class fs_local(fs_base):
     db_dir = path.join(self._local_root_dir, '.besfs')
     self._metadata_db_filename = path.join(db_dir, 'metadata.db')
     self._checksum_db_filename = path.join(db_dir, 'checksum.db')
+    self._metadata_db = file_metadata(self._checksum_db_filename)
     file_util.mkdir(self._local_root_dir)
 
   def __str__(self):
@@ -156,14 +158,14 @@ class fs_local(fs_base):
     file_util.copy(p, local_filename)
     
   #@abstractmethod
-  def set_file_attributes(self, filename, attributes):
+  def set_file_attributes(self, remote_filename, attributes):
     'Set file attirbutes.'
-    p = self._make_local_file_path(filename)
-    if path.isdir(p):
-      raise fs_error('filename exists and is a dir: {}'.format(filename))
-    if path.exists(p) and not path.isfile(p):
-      raise fs_error('filename exists and is not a file: {}'.format(filename))
-    file_attributes.set_all(p, attributes)
+    local_filename = self._make_local_file_path(remote_filename)
+    if path.isdir(local_filename):
+      raise fs_error('filename exists and is a dir: {}'.format(remote_filename))
+    if path.exists(local_filename) and not path.isfile(local_filename):
+      raise fs_error('filename exists and is not a file: {}'.format(remote_filename))
+    self._metadata_db.replace_values(local_filename, key_value_list.from_dict(attributes))
   
   def _make_local_file_path(self, remote_filename):
     'Make a local path for remote_filename.'
@@ -186,7 +188,7 @@ class fs_local(fs_base):
     ftype = self._file_type(local_filename)
     if ftype == fs_file_info.FILE:
       checksum = self._get_checksum(local_filename)
-      attributes = file_attributes.get_all(local_filename)
+      attributes = self._metadata_db.get_values(local_filename).to_dict()
       size = file_util.size(local_filename)
     else:
       checksum = None
@@ -198,7 +200,3 @@ class fs_local(fs_base):
     db = file_checksum_db(self._metadata_db_filename)
     checksum = db.checksum('sha256', local_filename)
     return checksum
-
-  def _get_attributes(self, local_filename):
-    db = file_metadata(self._checksum_db_filename)
-    return db.get_values(local_filename)
