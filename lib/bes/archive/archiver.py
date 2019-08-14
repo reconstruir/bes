@@ -3,6 +3,7 @@
 import os.path as path
 from bes.fs.file_cache import file_cache
 from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.host import host
 from .archive_tar import archive_tar
@@ -117,6 +118,13 @@ class archiver(object):
     clazz.extract_member_to_file(archive, member, tmp_filename)
     return tmp_filename
 
+  @classmethod
+  def member_checksum(clazz, archive, member):
+    tmp_file = clazz.extract_member_to_temp_file(archive, member)
+    chk = file_util.checksum('sha256', tmp_file)
+    file_util.remove(tmp_file)
+    return chk
+    
   @classmethod
   def create(clazz, filename, root_dir, base_dir = None,
              extra_items = None,

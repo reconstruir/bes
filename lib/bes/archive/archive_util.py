@@ -23,7 +23,25 @@ class archive_util(object):
     archiver.create(archive, tmp_dir)
 
   @classmethod
-  def duplicate_members(clazz, archives):
+  def member_checksums(clazz, archive, members, debug = False):
+    'Return a dict of checksums for the given members in archive.'
+    members = object_util.listify(members)
+    tmp_dir = archiver.extract_all_temp_dir(archive, delete = not debug)
+    if debug:
+      print('tmp_dir: {}'.format(tmp_dir))
+    result = {}
+    for member in members:
+      assert not member in result
+      p = path.join(tmp_dir, member)
+      if not path.exists(p):
+        raise IOError('member not found: {}'.format(member))
+      if not path.isfile(p):
+        raise IOError('member is not a file: {}'.format(member))
+      result[member] = file_util.checksum('sha256', path.join(tmp_dir, member))
+    return result
+    
+  @classmethod
+  def duplicate_members(clazz, archives, only_content_conficts = False):
     '''
     Return a dict of members in archives that are duplicates in this form:
     {
@@ -50,22 +68,32 @@ class archive_util(object):
         for archive, members in archive_to_members.items():
           if key in members:
             result[key].add(archive)
+
+    if only_content_conficts:
+      result = clazz._dups_only_with_conficts(result)
+            
     return result
 
   @classmethod
-  def member_checksums(clazz, archive, members, debug = False):
-    'Return a dict of checksums for the given members in archive.'
-    members = object_util.listify(members)
-    tmp_dir = archiver.extract_all_temp_dir(archive, delete = not debug)
-    if debug:
-      print('tmp_dir: {}'.format(tmp_dir))
+  def _dups_only_with_conficts(clazz, dups):
+    'Filter out dups that have the same content.'
     result = {}
-    for member in members:
-      assert not member in result
-      p = path.join(tmp_dir, member)
-      if not path.exists(p):
-        raise IOError('member not found: {}'.format(member))
-      if not path.isfile(p):
-        raise IOError('member is not a file: {}'.format(member))
-      result[member] = file_util.checksum('sha256', path.join(tmp_dir, member))
+    for member, archives in dups.items():
+      if clazz._has_conflict(archives, member):
+        result[member] = archives
     return result
+
+  @classmethod
+  def _has_conflict(clazz, archives, member):
+    'Return True if any archive in archives has a content conflict with member.'
+    checksum = None
+    assert(archives)
+    assert(member)
+    for archive in archives:
+      next_checksum = archiver.member_checksum(archive, member)
+      if checksum is None:
+        checksum = next_checksum
+      else:
+        if next_checksum != checksum:
+          return True
+    return False
