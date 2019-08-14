@@ -200,6 +200,25 @@ fruit = durian
     self.assertEqual( '9.6.3', c.get_value('something', 'version') )
     c.change_version('something', 'version', config.REVISION, 8)
     self.assertEqual( '9.6.8', c.get_value('something', 'version') )
+
+  def test_sections(self):
+    text = '''\
+[default]
+color = red
+fruit = apple
+
+[new_zealand]
+color = green
+fruit = kiwi
+
+[indonesia]
+color = yellow
+fruit = durian
+
+[antartica]
+'''
+    c = config.load_from_text(text, '<unittest>')
+    self.assertEqual( [ 'default', 'new_zealand', 'indonesia', 'antartica' ], c.sections() )
     
 if __name__ == '__main__':
   unit_test.main()

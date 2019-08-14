@@ -97,6 +97,9 @@ class config(object):
     old_version = self.get_value(section, key)
     new_version = software_version.change_component(old_version, component, value)
     self.set_value(section, key, new_version)
+
+  def sections(self):
+    return self._parser.sections()
     
   @classmethod
   def load_from_text(clazz, text, filename):

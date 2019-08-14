@@ -49,7 +49,10 @@ class config_file_editor(object):
     check.check_string(key)
     self._config.change_version(section, key, component, value)
     self._config.save(self._filename)
-    
+
+  def sections(self):
+    return self._config.sections()
+
   def _check_file_exists(self):
     if not path.exists(self._filename):
       raise IOError('config file not found: {}'.format(self._filename))
