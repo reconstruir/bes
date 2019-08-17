@@ -34,8 +34,8 @@ class fs_file_info(namedtuple('fs_file_info', 'filename, ftype, size, checksum, 
   def __iter__(self):
     return iter(self.children)
 
-  def __str__(self):
-    return self.to_string()
+#  def __str__(self):
+#    return self.to_string()
 
   @cached_property
   def display_filename(self):
