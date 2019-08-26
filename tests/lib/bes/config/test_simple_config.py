@@ -4,6 +4,7 @@
 import os
 from bes.testing.unit_test import unit_test
 from bes.config.simple_config import simple_config as SC
+from bes.system.env_override import env_override
 
 class test_simple_config(unit_test):
 
@@ -56,9 +57,7 @@ credential
   email: email2@bar.com # two
   password: ${SEKRET2}
 '''
-    try:
-      os.environ['SEKRET1'] = 'sekret1'
-      os.environ['SEKRET2'] = 'sekret2'
+    with env_override(env = { 'SEKRET1': 'sekret1', 'SEKRET2': 'sekret2' }) as tmp_env:
       s = SC.from_text(text)
 
       sections = s.find_sections('credential')
@@ -84,9 +83,6 @@ credential
         'email': 'email1@bar.com',
         'password': 'sekret1',
       }, sections[0].to_dict(resolve_env_vars = True) )
-    finally:
-      del os.environ['SEKRET1']
-      del os.environ['SEKRET2']
     
   def test_env_var_missing(self):
     text = '''\
