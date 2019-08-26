@@ -105,7 +105,7 @@ class properties(object):
     del self._properties[key]
 
   def items(self):
-    return items(self._properties.items())
+    return sorted(self._properties.items())
 
   def keys(self):
     return sorted(self._properties.keys())

@@ -74,6 +74,17 @@ version: 1.2.3
       'fruit': 'kiwi',
     }, a.properties() )
 
+  def test_items(self):
+    a = P()
+    a.set_value('version', '1.2.3')
+    a.set_value('status', 'doomed')
+    a.set_value('fruit', 'kiwi')
+    self.assertEqual( [
+      ( 'fruit', 'kiwi' ), 
+      ( 'status', 'doomed' ), 
+      ( 'version', '1.2.3' ), 
+    ], a.items() )
+
   def test_load_from_empty_java(self):
     text = ''
     a = P.from_java_text('', '<unitest>')
