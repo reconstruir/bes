@@ -67,6 +67,9 @@ credential
       self.assertEqual( 'upload', sections[1].find_by_key('type') )
       self.assertEqual( '${SEKRET1}', sections[0].find_by_key('password', resolve_env_vars = False) )
       self.assertEqual( 'sekret1', sections[0].find_by_key('password', resolve_env_vars = True) )
+      self.assertEqual( 'sekret1', sections[0].get_value('password') )
+      self.assertEqual( True, sections[0].has_key('password') )
+      self.assertEqual( False, sections[0].has_key('missingkey') )
 
       self.assertEqual( {
         'provider': 'pcloud',

@@ -86,6 +86,12 @@ class config_section(object):
         return entry
     return None
 
+  def has_key(self, key):
+    return self.find_entry(key) is not None
+
+  def get_value(self, key):
+    return self.find_by_key(key, raise_error = True, resolve_env_vars = True)
+  
   def set_value(self, key, value):
     check.check_string(key)
     check.check_string(value)
