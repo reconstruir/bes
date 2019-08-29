@@ -190,6 +190,23 @@ class file_util(object):
   def size(clazz, filename):
     return os.stat(filename).st_size
 
+  # from https://gist.github.com/cbwar/d2dfbc19b140bd599daccbe0fe925597
+  @classmethod
+  def format_size(clazz, num, suffix = None):
+    """Readable file size
+    :param num: Bytes value
+    :type num: int
+    :param suffix: Optional suffix or None
+    :type suffix: str
+    :rtype: str
+    """
+    suffix = suffix or ''
+    for unit in ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z']:
+      if abs(num) < 1024.0:
+        return "%3.1f%s%s" % (num, unit, suffix)
+      num /= 1024.0
+    return "%.1f%s%s" % (num, 'Yi', suffix)    
+    
   @classmethod
   def mtime(clazz, filename):
     return os.stat(filename).st_mtime

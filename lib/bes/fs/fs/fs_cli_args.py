@@ -21,10 +21,20 @@ class fs_cli_args(object):
                    help = 'Filename or directory to list. [ None ]')
     p.add_argument('-R', '--recursive', action = 'store_true', default = False,
                    help = 'List recurisively. [ False ]')
-    p.add_argument('-l', '--show-details', action = 'store_true', default = False,
-                   help = 'Show file details. [ False ]')
+    p.add_argument('-l', '--show-all', action = 'store_true', default = False,
+                   help = 'Show all file details. [ False ]')
     p.add_argument('-1', '--one-line', action = 'store_true', default = False,
                    help = 'Show one file per line. [ False ]')
+    p.add_argument('-c', '--show-checksums', action = 'store_true', default = False,
+                   help = 'Show checksums. [ False ]')
+    p.add_argument('-a', '--show-attributes', action = 'store_true', default = False,
+                   help = 'Show attributes. [ False ]')
+    p.add_argument('-s', '--show-size', action = 'store_true', default = False,
+                   help = 'Show size. [ False ]')
+    p.add_argument('-f', '--flat-paths', action = 'store_true', default = False,
+                   help = 'Flatten the fs tree paths. [ False ]')
+    p.add_argument('-H', '--human-friendly', action = 'store_true', default = False,
+                   help = 'Print data in human friendly form. [ False ]')
     
     p = subparser.add_parser('upload', help = 'Upload a file.')
     p.add_argument('local_filename', action = 'store', default = None, type = str,
@@ -52,10 +62,19 @@ class fs_cli_args(object):
 
     p = subparser.add_parser('config', help = 'Show config possibilities.')
     
-  def _command_fs_ls(self, config, filename, recursive, show_details, one_line):
+  def _command_fs_ls(self, config, filename, recursive, show_all, one_line,
+                     show_checksums, show_attributes, show_size, flat_paths, human_friendly):
+    if show_all:
+      show_checksums = True
+      show_size = True
+      show_attributes = True
     options = fs_list_options(recursive = recursive,
-                              show_details = show_details,
-                              one_line = one_line)
+                              show_checksums = show_checksums,
+                              show_size = show_size,
+                              show_attributes = show_attributes,
+                              one_line = one_line,
+                              flat_paths = flat_paths,
+                              human_friendly = human_friendly)
     return fs_cli_command.ls(config, filename, options)
 
   def _command_fs_upload(self, config, local_filename, remote_filename):

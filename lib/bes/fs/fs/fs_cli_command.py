@@ -7,6 +7,7 @@ from bes.common.check import check
 from bes.system.log import logger
 from bes.python.code import code
 from bes.fs.file_util import file_util
+from bes.key_value.key_value_list import key_value_list
 
 from .fs_registry import fs_registry
 from .fs_local import fs_local
@@ -51,10 +52,23 @@ class fs_cli_command(object):
 
   @classmethod
   def _format_file_info(clazz, info, options):
-    if options.show_details:
-      return '{} {} {}'.format(path.basename(info.filename), info.size, info.checksum)
+    fields = [ path.basename(info.filename) ]
+    if options.show_size:
+      fields.append(clazz._format_file_size(info.size, options))
+    if options.show_checksums:
+      fields.append(info.checksum)
+#    if options.show_attributes:
+#      kvl = key_value_list.from_dict(info.attributes)
+#      fields.append(kvl.to_string(delimiter = '=', value_delimiter = ' '))
+    return ' '.join(fields)
+
+  @classmethod
+  def _format_file_size(clazz, size, options):
+    if options.human_friendly:
+      return file_util.format_size(size)
     else:
-      return info.filename
+      return str(size)
+  
   
   @classmethod
   def _print_entry(clazz, entry, options, depth):
@@ -75,12 +89,17 @@ class fs_cli_command(object):
   def _ls_file(clazz, fs, info, options):
     'list files.'
     clazz.log.log_d('_ls_file: fs={} info={} options={}'.format(fs, info, options))
-    if options.show_details:
-      print('{} {} {}'.format(path.basename(info.filename), info.size, info.checksum))
-    else:
-      print(info.filename)
-    return 0
+    s = clazz._format_file_info(info, options)
+    print(s)
+    if options.show_attributes:
+      kvl = key_value_list.from_dict(info.attributes)
+      from bes.text.text_table import text_table
+      t = text_table(data = kvl)
+      print(t)
+      #fields.append(kvl.to_string(delimiter = '=', value_delimiter = ' '))
 
+    return 0
+  
   @classmethod
   def upload(clazz, config, local_filename, remote_filename):
     'upload a file.'
