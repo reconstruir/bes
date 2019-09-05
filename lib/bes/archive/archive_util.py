@@ -97,3 +97,19 @@ class archive_util(object):
         if next_checksum != checksum:
           return True
     return False
+  
+  @classmethod
+  def combine(clazz, archives, dest_archive, check_content = False, base_dir = None):
+    '''
+    Combine a list of archives into one.  If check content is True and 
+    there are content dups with different checksums, an error will
+    be raised.
+    '''
+    dups = clazz.duplicate_members(archives, only_content_conficts = True)
+    if dups:
+      raise RuntimeError('Archives have duplicate members with different content.')
+
+    tmp_dir = temp_file.make_temp_dir()
+    for archive in archives:
+      archiver.extract_all(archive, tmp_dir)
+    archiver.create(dest_archive, tmp_dir, base_dir = base_dir)
