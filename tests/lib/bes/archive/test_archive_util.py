@@ -212,5 +212,35 @@ class test_archive_util(unit_test):
     with self.assertRaises(RuntimeError) as ctx:
       archive_util.combine([ a1, a2, a3 ], tmp_archive, check_content = True)
 
+  def test_combine_with_base_dir(self):
+    a1 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
+      ( self.xp_path('fruits/apple.txt'), 'apple.txt' ),
+      ( self.xp_path('fruits/durian.txt'), 'durian.txt' ),
+      ( self.xp_path('fruits/kiwi.txt'), 'kiwi.txt' ),
+    ]), 'zip', delete = not self.DEBUG, prefix = 'a1-')
+    a2 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
+      ( self.xp_path('fruits/melon.txt'), 'melon.txt' ),
+      ( self.xp_path('fruits/lemon.txt'), 'lemon.txt' ),
+      ( self.xp_path('fruits/dragonfruit.txt'), 'dragonfruit.txt' ),
+    ]), 'zip', delete = not self.DEBUG, prefix = 'a2-')
+    a3 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
+      ( self.xp_path('fruits/strawberry.txt'), 'strawberry.txt' ),
+      ( self.xp_path('fruits/pear.txt'), 'pear.txt' ),
+      ( self.xp_path('fruits/plum.txt'), 'plum.txt' ),
+    ]), 'zip', delete = not self.DEBUG, prefix = 'a3-')
+    tmp_archive = self.make_temp_file(suffix = '.zip')
+    archive_util.combine([ a1, a2, a3 ], tmp_archive, base_dir = 'foo-1.2.3')
+    self.assertEqual( [
+      self.xp_path('foo-1.2.3/fruits/apple.txt'),
+      self.xp_path('foo-1.2.3/fruits/dragonfruit.txt'),
+      self.xp_path('foo-1.2.3/fruits/durian.txt'),
+      self.xp_path('foo-1.2.3/fruits/kiwi.txt'),
+      self.xp_path('foo-1.2.3/fruits/lemon.txt'),
+      self.xp_path('foo-1.2.3/fruits/melon.txt'),
+      self.xp_path('foo-1.2.3/fruits/pear.txt'),
+      self.xp_path('foo-1.2.3/fruits/plum.txt'),
+      self.xp_path('foo-1.2.3/fruits/strawberry.txt'),
+    ], archiver.members(tmp_archive) )
+
 if __name__ == "__main__":
   unit_test.main()
