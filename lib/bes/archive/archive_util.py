@@ -105,9 +105,10 @@ class archive_util(object):
     there are content dups with different checksums, an error will
     be raised.
     '''
-    dups = clazz.duplicate_members(archives, only_content_conficts = True)
-    if dups:
-      raise RuntimeError('Archives have duplicate members with different content.')
+    if check_content:
+      dups = clazz.duplicate_members(archives, only_content_conficts = True)
+      if dups:
+        raise RuntimeError('Archives have duplicate members with different content.')
 
     tmp_dir = temp_file.make_temp_dir()
     for archive in archives:
