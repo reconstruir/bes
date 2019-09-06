@@ -15,7 +15,7 @@ from bes.factory.factory_field import factory_field
 
 from .vfs_base import vfs_base
 from .vfs_file_info import vfs_file_info
-from .vvfs_file_info_list import vvfs_file_info_list
+from .vfs_file_info_list import vfs_file_info_list
 from .vfs_error import vfs_error
 
 class vfs_local(vfs_base):
@@ -102,9 +102,9 @@ class vfs_local(vfs_base):
     remote_filename = getattr(n, '_remote_filename')
     local_filename = getattr(n, '_local_filename')
     if is_file:
-      children = vvfs_file_info_list()
+      children = vfs_file_info_list()
     else:
-      children = vvfs_file_info_list([ self._convert_node_to_fs_tree(child, depth + 2) for child in n.children ])
+      children = vfs_file_info_list([ self._convert_node_to_fs_tree(child, depth + 2) for child in n.children ])
     entry = self._make_entry(remote_filename, local_filename, children)
     return entry
 
@@ -124,7 +124,7 @@ class vfs_local(vfs_base):
     if not path.exists(p):
       raise vfs_error('{}: not found: {}'.format(self, filename))
     local_filename = self._make_local_file_path(filename)
-    return self._make_entry(filename, local_filename, vvfs_file_info_list())
+    return self._make_entry(filename, local_filename, vfs_file_info_list())
   
   #@abstractmethod
   def remove_file(self, filename):

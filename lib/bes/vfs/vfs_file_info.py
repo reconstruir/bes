@@ -18,7 +18,7 @@ class vfs_file_info(namedtuple('vfs_file_info', 'filename, ftype, size, checksum
     check.check_string(ftype)
     check.check_int(size, allow_none = True)
     check.check_string(checksum, allow_none = True)
-    check.check_vvfs_file_info_list(children, entry_type = vfs_file_info)
+    check.check_vfs_file_info_list(children, entry_type = vfs_file_info)
     if ftype == clazz.FILE:
       if children:
         raise vfs_error('children is only for "dir"')

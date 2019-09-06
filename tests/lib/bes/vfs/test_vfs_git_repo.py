@@ -11,10 +11,10 @@ from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
 from bes.testing.unit_test_skip import raise_skip
 
-from bes.fs.fs.vfs_git_repo import vfs_git_repo
-from bes.fs.fs.vfs_error import vfs_error
-from bes.fs.fs.vfs_tester import vfs_tester
-from bes.fs.fs.vfs_list_options import vfs_list_options
+from bes.vfs.vfs_git_repo import vfs_git_repo
+from bes.vfs.vfs_error import vfs_error
+from bes.vfs.vfs_tester import vfs_tester
+from bes.vfs.vfs_list_options import vfs_list_options
 from bes.git.git_unit_test import git_temp_home_func
 
 class _vfs_git_repo_tester(vfs_tester):

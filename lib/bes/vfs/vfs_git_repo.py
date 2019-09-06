@@ -18,7 +18,7 @@ from bes.git.git_clone_manager import git_clone_manager
 
 from .vfs_base import vfs_base
 from .vfs_file_info import vfs_file_info
-from .vvfs_file_info_list import vvfs_file_info_list
+from .vfs_file_info_list import vfs_file_info_list
 from .vfs_error import vfs_error
 from .vfs_local import vfs_local
 

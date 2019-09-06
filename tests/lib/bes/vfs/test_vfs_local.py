@@ -9,10 +9,10 @@ from bes.fs.testing.temp_content import temp_content
 from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
 from bes.testing.unit_test_skip import raise_skip
-from bes.fs.fs.vfs_tester import vfs_tester
+from bes.vfs.vfs_tester import vfs_tester
 
-from bes.fs.fs.vfs_local import vfs_local
-from bes.fs.fs.vfs_error import vfs_error
+from bes.vfs.vfs_local import vfs_local
+from bes.vfs.vfs_error import vfs_error
 
 class _vfs_local_tester(vfs_tester):
 

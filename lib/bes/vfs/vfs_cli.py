@@ -10,9 +10,9 @@ from bes.cli.argparser_handler import argparser_handler
 
 import bes
 
-from .vvfs_cli_args import vvfs_cli_args
+from .vfs_cli_args import vfs_cli_args
 
-class vfs_cli(vvfs_cli_args):
+class vfs_cli(vfs_cli_args):
 
   def __init__(self):
     self.parser = argparse.ArgumentParser()
