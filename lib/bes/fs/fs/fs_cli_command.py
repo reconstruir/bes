@@ -10,7 +10,7 @@ from bes.fs.file_util import file_util
 from bes.key_value.key_value_list import key_value_list
 
 from .fs_registry import fs_registry
-from .fs_local import fs_local
+from .vfs_local import vfs_local
 from .fs_file_info import fs_file_info
 from .fs_list_options import fs_list_options
 from .fs_error import fs_error

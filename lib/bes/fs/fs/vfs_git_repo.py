@@ -16,13 +16,13 @@ from bes.system.log import logger
 from bes.factory.factory_field import factory_field
 from bes.git.git_clone_manager import git_clone_manager
 
-from .fs_base import fs_base
+from .vfs_base import vfs_base
 from .fs_file_info import fs_file_info
 from .fs_file_info_list import fs_file_info_list
 from .fs_error import fs_error
-from .fs_local import fs_local
+from .vfs_local import vfs_local
 
-class fs_git_repo(fs_base):
+class vfs_git_repo(vfs_base):
   'Masquerade a git repo as a filesystem.  All operations are committed automatically.'
 
   log = logger('fs')
@@ -40,7 +40,7 @@ class fs_git_repo(fs_base):
     self._clone_manager = git_clone_manager(clone_manager_dir)
 
   def __str__(self):
-    return 'fs_git_repo(address={})'.format(self._address)
+    return 'vfs_git_repo(address={})'.format(self._address)
 
   @classmethod
   #@abstractmethod
@@ -56,13 +56,13 @@ class fs_git_repo(fs_base):
   #@abstractmethod
   def create(clazz, config_source, **values):
     'Create an fs instance.'
-    return fs_git_repo(config_source, values['address'], values['config_dir'], values['use_lfs'])
+    return vfs_git_repo(config_source, values['address'], values['config_dir'], values['use_lfs'])
     
   @classmethod
   #@abstractmethod
   def name(clazz):
     'The name of this fs.'
-    return 'fs_git_repo'
+    return 'vfs_git_repo'
 
   #@abstractmethod
   def list_dir(self, remote_dir, recursive):
@@ -136,7 +136,7 @@ class fs_git_repo(fs_base):
     
   def _make_proxy(self):
     repo = self._clone_manager.update(self._address)
-    fs = fs_local('<proxy>', repo.root)
+    fs = vfs_local('<proxy>', repo.root)
     return self._proxy(repo, fs)
     
   #@abstractmethod

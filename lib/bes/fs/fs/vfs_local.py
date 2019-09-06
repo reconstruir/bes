@@ -13,12 +13,12 @@ from bes.key_value.key_value_list import key_value_list
 from bes.system.log import logger
 from bes.factory.factory_field import factory_field
 
-from .fs_base import fs_base
+from .vfs_base import vfs_base
 from .fs_file_info import fs_file_info
 from .fs_file_info_list import fs_file_info_list
 from .fs_error import fs_error
 
-class fs_local(fs_base):
+class vfs_local(vfs_base):
   'Local filesystem'
 
   log = logger('fs')
@@ -36,7 +36,7 @@ class fs_local(fs_base):
     file_util.mkdir(self._local_root_dir)
 
   def __str__(self):
-    return 'fs_local(local_root_dir={})'.format(self._local_root_dir)
+    return 'vfs_local(local_root_dir={})'.format(self._local_root_dir)
 
   @classmethod
   #@abstractmethod
@@ -50,13 +50,13 @@ class fs_local(fs_base):
   #@abstractmethod
   def create(clazz, config_source, **values):
     'Create an fs instance.'
-    return fs_local(config_source, values['local_root_dir'])
+    return vfs_local(config_source, values['local_root_dir'])
     
   @classmethod
   #@abstractmethod
   def name(clazz):
     'The name if this fs.'
-    return 'fs_local'
+    return 'vfs_local'
 
   #@abstractmethod
   def list_dir(self, remote_dir, recursive):

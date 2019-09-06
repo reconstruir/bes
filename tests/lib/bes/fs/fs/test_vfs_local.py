@@ -11,21 +11,21 @@ from bes.fs.file_find import file_find
 from bes.testing.unit_test_skip import raise_skip
 from bes.fs.fs.fs_tester import fs_tester
 
-from bes.fs.fs.fs_local import fs_local
+from bes.fs.fs.vfs_local import vfs_local
 from bes.fs.fs.fs_error import fs_error
 
-class _fs_local_tester(fs_tester):
+class _vfs_local_tester(fs_tester):
 
   def __init__(self, fixture, items = None):
     self.local_root_dir = self._make_temp_content(items, fixture.DEBUG)
-    fs = fs_local('<unittest>', self.local_root_dir)
-    super(_fs_local_tester, self).__init__(fs)
+    fs = vfs_local('<unittest>', self.local_root_dir)
+    super(_vfs_local_tester, self).__init__(fs)
 
   @classmethod
   def _make_temp_content(clazz, items, debug):
     return temp_content.write_items_to_temp_dir(items, delete = debug)
     
-class test_fs_local(unit_test):
+class test_vfs_local(unit_test):
 
   @classmethod
   def setUpClass(clazz):
@@ -65,12 +65,12 @@ subdir/ dir None None
     
   def test_list_dir_empty(self):
     tmp_dir = self.make_temp_dir()
-    fs = fs_local('<unittest>',tmp_dir)
+    fs = vfs_local('<unittest>',tmp_dir)
     self.assertEqual( ( '/', 'dir', None, None, None, [] ), fs.list_dir('/', True) )
     
   def test_list_dir_non_existent(self):
     tmp_dir = self.make_temp_dir()
-    fs = fs_local('<unittest>',tmp_dir)
+    fs = vfs_local('<unittest>',tmp_dir)
     with self.assertRaises(fs_error) as ctx:
       fs.list_dir('/foo', False)
     self.assertEqual( 'dir not found: /foo', ctx.exception.message )
@@ -173,7 +173,7 @@ subdir/ dir None None
     
   @classmethod
   def _make_tester(self):
-    return _fs_local_tester(self, items = self._TEST_ITEMS)
+    return _vfs_local_tester(self, items = self._TEST_ITEMS)
   
 if __name__ == '__main__':
   unit_test.main()

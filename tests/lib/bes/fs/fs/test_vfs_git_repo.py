@@ -11,21 +11,21 @@ from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
 from bes.testing.unit_test_skip import raise_skip
 
-from bes.fs.fs.fs_git_repo import fs_git_repo
+from bes.fs.fs.vfs_git_repo import vfs_git_repo
 from bes.fs.fs.fs_error import fs_error
 from bes.fs.fs.fs_tester import fs_tester
 from bes.fs.fs.fs_list_options import fs_list_options
 from bes.git.git_unit_test import git_temp_home_func
 
-class _fs_git_repo_tester(fs_tester):
+class _vfs_git_repo_tester(fs_tester):
 
   def __init__(self, fixture, use_lfs, items = None):
     self.config_dir = fixture.make_temp_dir(suffix = '.config.dir')
     self.repo = git_temp_repo(remote = True, content = items, debug = fixture.DEBUG, prefix = '.repo')
-    fs = fs_git_repo('<unittest>', self.repo.address, self.config_dir, use_lfs)
-    super(_fs_git_repo_tester, self).__init__(fs)
+    fs = vfs_git_repo('<unittest>', self.repo.address, self.config_dir, use_lfs)
+    super(_vfs_git_repo_tester, self).__init__(fs)
 
-class test_fs_git_repo(unit_test):
+class test_vfs_git_repo(unit_test):
 
   _TEST_ITEMS = [
     'file foo.txt "foo.txt"',
@@ -180,14 +180,14 @@ subdir/ dir None None
     ]
     r = git_temp_repo(remote = True, content = items, debug = self.DEBUG, prefix = '.repo')
     config_dir1 = self.make_temp_dir(suffix = '.config.dir')
-    fs = fs_git_repo(r.address, config_dir1, False)
+    fs = vfs_git_repo(r.address, config_dir1, False)
     t = fs_tester(fs)
     self.assertEqual( 'foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35\n',
                       t.list_dir('/', False) )
     r.add_file('bar.txt', 'bar.txt')
     r.push()
     config_dir2 = self.make_temp_dir(suffix = '.config.dir')
-    fs = fs_git_repo(r.address, config_dir2, False)
+    fs = vfs_git_repo(r.address, config_dir2, False)
     t = fs_tester(fs)
     expected = '''\
 bar.txt file 7 08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae
@@ -197,7 +197,7 @@ foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35
     
   @classmethod
   def _make_tester(clazz, use_lfs = False, items = None):
-    return _fs_git_repo_tester(clazz, use_lfs, items = items)
+    return _vfs_git_repo_tester(clazz, use_lfs, items = items)
   
   @classmethod
   def _make_tester_with_items(clazz, use_lfs = False):

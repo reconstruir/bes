@@ -10,11 +10,11 @@ class fs_register_meta(ABCMeta):
   
   def __new__(meta, name, bases, class_dict):
     clazz = ABCMeta.__new__(meta, name, bases, class_dict)
-    if name != 'fs_base':
+    if name != 'vfs_base':
       fs_registry.register(clazz)
     return clazz
 
-class fs_base(with_metaclass(fs_register_meta, object)):
+class vfs_base(with_metaclass(fs_register_meta, object)):
   'Abstract class to manipulate a filesystem.'
 
   @classmethod

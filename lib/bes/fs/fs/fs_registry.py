@@ -11,8 +11,8 @@ from .fs_error import fs_error
 from .fs_config import fs_config
 
 # Not used directly but need to be imported so the factory knows about them
-#from .fs_local import fs_local
-#from .fs_git_repo import fs_git_repo
+#from .vfs_local import vfs_local
+#from .vfs_git_repo import vfs_git_repo
 
 class fs_registry(singleton_class_registry):
   __registry_class_name_prefix__ = 'bes_fs_'
