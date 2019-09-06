@@ -25,7 +25,7 @@ class fs_base(with_metaclass(fs_register_meta, object)):
   
   @classmethod
   @abstractmethod
-  def create(clazz, **values):
+  def create(clazz, config_source, **values):
     'Create an fs instance.'
     pass
   

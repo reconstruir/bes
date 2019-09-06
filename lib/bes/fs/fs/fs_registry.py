@@ -58,8 +58,7 @@ class fs_registry(singleton_class_registry):
         if not (field.optional and value is None):
           if not field.checker_function(value):
             raise fs_error('Invalid value "{}" for field "{} for filesystem {}'.format(value, key, config.fs_type))
-      
-    return fs_class.create(**values)
+    return fs_class.create(config_filename, **values)
 
   @classmethod
   def _fields_to_dict(clazz, fields):

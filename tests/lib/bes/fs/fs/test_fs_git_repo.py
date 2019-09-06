@@ -22,7 +22,7 @@ class _fs_git_repo_tester(fs_tester):
   def __init__(self, fixture, use_lfs, items = None):
     self.config_dir = fixture.make_temp_dir(suffix = '.config.dir')
     self.repo = git_temp_repo(remote = True, content = items, debug = fixture.DEBUG, prefix = '.repo')
-    fs = fs_git_repo(self.repo.address, self.config_dir, use_lfs)
+    fs = fs_git_repo('<unittest>', self.repo.address, self.config_dir, use_lfs)
     super(_fs_git_repo_tester, self).__init__(fs)
 
 class test_fs_git_repo(unit_test):

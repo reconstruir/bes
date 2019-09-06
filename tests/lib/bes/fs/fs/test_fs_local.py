@@ -18,7 +18,7 @@ class _fs_local_tester(fs_tester):
 
   def __init__(self, fixture, items = None):
     self.local_root_dir = self._make_temp_content(items, fixture.DEBUG)
-    fs = fs_local(self.local_root_dir)
+    fs = fs_local('<unittest>', self.local_root_dir)
     super(_fs_local_tester, self).__init__(fs)
 
   @classmethod
@@ -65,12 +65,12 @@ subdir/ dir None None
     
   def test_list_dir_empty(self):
     tmp_dir = self.make_temp_dir()
-    fs = fs_local(tmp_dir)
+    fs = fs_local('<unittest>',tmp_dir)
     self.assertEqual( ( '/', 'dir', None, None, None, [] ), fs.list_dir('/', True) )
     
   def test_list_dir_non_existent(self):
     tmp_dir = self.make_temp_dir()
-    fs = fs_local(tmp_dir)
+    fs = fs_local('<unittest>',tmp_dir)
     with self.assertRaises(fs_error) as ctx:
       fs.list_dir('/foo', False)
     self.assertEqual( 'dir not found: /foo', ctx.exception.message )

@@ -27,9 +27,12 @@ class fs_git_repo(fs_base):
 
   log = logger('fs')
   
-  def __init__(self, address, config_dir, use_lfs):
+  def __init__(self, config_source, address, config_dir, use_lfs):
+    check.check_string(config_source)
     check.check_string(address)
     check.check_string(config_dir)
+
+    self._config_source = config_source
     self._address = address
     self._config_dir = config_dir
     self._use_lfs = use_lfs
@@ -51,9 +54,9 @@ class fs_git_repo(fs_base):
   
   @classmethod
   #@abstractmethod
-  def create(clazz, **values):
+  def create(clazz, config_source, **values):
     'Create an fs instance.'
-    return fs_git_repo(values['address'], values['config_dir'], values['use_lfs'])
+    return fs_git_repo(config_source, values['address'], values['config_dir'], values['use_lfs'])
     
   @classmethod
   #@abstractmethod
@@ -133,7 +136,7 @@ class fs_git_repo(fs_base):
     
   def _make_proxy(self):
     repo = self._clone_manager.update(self._address)
-    fs = fs_local(repo.root)
+    fs = fs_local('<proxy>', repo.root)
     return self._proxy(repo, fs)
     
   #@abstractmethod

@@ -23,8 +23,11 @@ class fs_local(fs_base):
 
   log = logger('fs')
   
-  def __init__(self, local_root_dir):
+  def __init__(self, config_source, local_root_dir):
+    check.check_string(config_source)
     check.check_string(local_root_dir)
+
+    self._config_source = config_source
     self._local_root_dir = local_root_dir
     db_dir = path.join(self._local_root_dir, '.besfs')
     self._metadata_db_filename = path.join(db_dir, 'metadata.db')
@@ -45,9 +48,9 @@ class fs_local(fs_base):
   
   @classmethod
   #@abstractmethod
-  def create(clazz, **values):
+  def create(clazz, config_source, **values):
     'Create an fs instance.'
-    return fs_local(values['local_root_dir'])
+    return fs_local(config_source, values['local_root_dir'])
     
   @classmethod
   #@abstractmethod
