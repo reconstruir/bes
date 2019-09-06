@@ -242,5 +242,32 @@ class test_archive_util(unit_test):
       self.xp_path('foo-1.2.3/fruits/strawberry.txt'),
     ], archiver.members(tmp_archive) )
 
+  def test_combine_conflicts_different_content_with_check_and_exclude(self):
+    a1 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
+      ( self.xp_path('fruits/apple.txt'), 'apple.txt' ),
+      ( self.xp_path('fruits/durian.txt'), 'durian.txt' ),
+      ( self.xp_path('fruits/plum.txt'), '1plum.txt' ),
+    ]), 'zip', delete = not self.DEBUG, prefix = 'a1-')
+    a2 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
+      ( self.xp_path('fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.xp_path('fruits/melon.txt'), 'melon.txt' ),
+      ( self.xp_path('fruits/plum.txt'), '2plum.txt' ),
+    ]), 'zip', delete = not self.DEBUG, prefix = 'a2-')
+    a3 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
+      ( self.xp_path('fruits/lemon.txt'), 'lemon.txt' ),
+      ( self.xp_path('fruits/strawberry.txt'), 'strawberry.txt' ),
+      ( self.xp_path('fruits/plum.txt'), '3plum.txt' ),
+    ]), 'zip', delete = not self.DEBUG, prefix = 'a3-')
+    tmp_archive = self.make_temp_file(suffix = '.zip')
+    archive_util.combine([ a1, a2, a3 ], tmp_archive, check_content = True, exclude = [ 'fruits/plum.txt' ])
+    self.assertEqual( [
+      self.xp_path('fruits/apple.txt'),
+      self.xp_path('fruits/durian.txt'),
+      self.xp_path('fruits/kiwi.txt'),
+      self.xp_path('fruits/lemon.txt'),
+      self.xp_path('fruits/melon.txt'),
+      self.xp_path('fruits/strawberry.txt'),
+    ], archiver.members(tmp_archive) )
+    
 if __name__ == "__main__":
   unit_test.main()

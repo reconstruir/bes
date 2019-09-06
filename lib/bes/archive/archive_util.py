@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import pprint
 import os.path as path
 from bes.fs.temp_file import temp_file
 from bes.fs.file_util import file_util
@@ -99,18 +100,24 @@ class archive_util(object):
     return False
   
   @classmethod
-  def combine(clazz, archives, dest_archive, check_content = False, base_dir = None):
+  def combine(clazz, archives, dest_archive, check_content = False,
+              base_dir = None, exclude = None):
     '''
     Combine a list of archives into one.  If check content is True and 
     there are content dups with different checksums, an error will
     be raised.
     '''
+    exclude = exclude or []
     if check_content:
       dups = clazz.duplicate_members(archives, only_content_conficts = True)
+      if exclude:
+        for next_exclude in exclude:
+          if next_exclude in dups:
+            del dups[next_exclude]
       if dups:
-        raise RuntimeError('Archives have duplicate members with different content.')
+        raise RuntimeError('Archives have duplicate members with different content\n{}.'.format(pprint.pformat(dups)))
 
     tmp_dir = temp_file.make_temp_dir()
     for archive in archives:
       archiver.extract_all(archive, tmp_dir)
-    archiver.create(dest_archive, tmp_dir, base_dir = base_dir)
+    archiver.create(dest_archive, tmp_dir, base_dir = base_dir, exclude = exclude)
