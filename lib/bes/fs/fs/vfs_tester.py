@@ -1,9 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.fs.temp_file import temp_file
-from .fs_list_options import fs_list_options
+from .vfs_list_options import vfs_list_options
 
-class fs_tester(object):
+class vfs_tester(object):
 
   def __init__(self, fs):
     self.fs = fs
@@ -31,7 +31,7 @@ class fs_tester(object):
     
   def _call_fs(self, func_name, *args):
     func = getattr(self.fs, func_name)
-    options = fs_list_options(show_details = True)
+    options = vfs_list_options(show_details = True)
     result = func(*args)
     if result is None:
       return None

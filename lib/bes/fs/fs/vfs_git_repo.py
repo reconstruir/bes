@@ -17,9 +17,9 @@ from bes.factory.factory_field import factory_field
 from bes.git.git_clone_manager import git_clone_manager
 
 from .vfs_base import vfs_base
-from .fs_file_info import fs_file_info
-from .fs_file_info_list import fs_file_info_list
-from .fs_error import fs_error
+from .vfs_file_info import vfs_file_info
+from .vvfs_file_info_list import vvfs_file_info_list
+from .vfs_error import vfs_error
 from .vfs_local import vfs_local
 
 class vfs_git_repo(vfs_base):

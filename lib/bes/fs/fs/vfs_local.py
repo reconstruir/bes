@@ -14,9 +14,9 @@ from bes.system.log import logger
 from bes.factory.factory_field import factory_field
 
 from .vfs_base import vfs_base
-from .fs_file_info import fs_file_info
-from .fs_file_info_list import fs_file_info_list
-from .fs_error import fs_error
+from .vfs_file_info import vfs_file_info
+from .vvfs_file_info_list import vvfs_file_info_list
+from .vfs_error import vfs_error
 
 class vfs_local(vfs_base):
   'Local filesystem'
@@ -65,7 +65,7 @@ class vfs_local(vfs_base):
     result = node('/')
     local_dir_path = self._make_local_dir_path(remote_dir)
     if not path.isdir(local_dir_path):
-      raise fs_error('dir not found: {}'.format(remote_dir))
+      raise vfs_error('dir not found: {}'.format(remote_dir))
      
     max_depth = None if recursive else 1
 
@@ -102,9 +102,9 @@ class vfs_local(vfs_base):
     remote_filename = getattr(n, '_remote_filename')
     local_filename = getattr(n, '_local_filename')
     if is_file:
-      children = fs_file_info_list()
+      children = vvfs_file_info_list()
     else:
-      children = fs_file_info_list([ self._convert_node_to_fs_tree(child, depth + 2) for child in n.children ])
+      children = vvfs_file_info_list([ self._convert_node_to_fs_tree(child, depth + 2) for child in n.children ])
     entry = self._make_entry(remote_filename, local_filename, children)
     return entry
 
@@ -122,20 +122,20 @@ class vfs_local(vfs_base):
     'Get info for a single file..'
     p = self._make_local_file_path(filename)
     if not path.exists(p):
-      raise fs_error('{}: not found: {}'.format(self, filename))
+      raise vfs_error('{}: not found: {}'.format(self, filename))
     local_filename = self._make_local_file_path(filename)
-    return self._make_entry(filename, local_filename, fs_file_info_list())
+    return self._make_entry(filename, local_filename, vvfs_file_info_list())
   
   #@abstractmethod
   def remove_file(self, filename):
     'Remove filename.'
     p = self._make_local_file_path(filename)
     if not path.exists(p):
-      raise fs_error('file not found: {}'.format(filename))
+      raise vfs_error('file not found: {}'.format(filename))
     if path.isdir(p):
-      raise fs_error('should be file instead of dir: {}'.format(filename))
+      raise vfs_error('should be file instead of dir: {}'.format(filename))
     if not path.isfile(p):
-      raise fs_error('not a file: {}'.format(filename))
+      raise vfs_error('not a file: {}'.format(filename))
     file_util.remove(p)
   
   #@abstractmethod
@@ -143,11 +143,11 @@ class vfs_local(vfs_base):
     'Upload local_filename to remote_filename.'
     p = self._make_local_file_path(remote_filename)
     if path.isdir(p):
-      raise fs_error('filename exists and is a dir: {}'.format(remote_filename))
+      raise vfs_error('filename exists and is a dir: {}'.format(remote_filename))
     if path.exists(p) and not path.isfile(p):
-      raise fs_error('filename exists and is not a file: {}'.format(remote_filename))
+      raise vfs_error('filename exists and is not a file: {}'.format(remote_filename))
     if not path.exists(local_filename):
-      raise fs_error('local_filename not found: {}'.format(local_filename))
+      raise vfs_error('local_filename not found: {}'.format(local_filename))
     file_util.copy(local_filename, p)
 
   #@abstractmethod
@@ -155,9 +155,9 @@ class vfs_local(vfs_base):
     'Download filename to local_filename.'
     p = self._make_local_file_path(filename)
     if not path.exists(p):
-      raise fs_error('file not found: {}'.format(filename))
+      raise vfs_error('file not found: {}'.format(filename))
     if not path.isfile(p):
-      raise fs_error('not a file: {}'.format(filename))
+      raise vfs_error('not a file: {}'.format(filename))
     file_util.copy(p, local_filename)
     
   #@abstractmethod
@@ -165,9 +165,9 @@ class vfs_local(vfs_base):
     'Set file attirbutes.'
     local_filename = self._make_local_file_path(remote_filename)
     if path.isdir(local_filename):
-      raise fs_error('filename exists and is a dir: {}'.format(remote_filename))
+      raise vfs_error('filename exists and is a dir: {}'.format(remote_filename))
     if path.exists(local_filename) and not path.isfile(local_filename):
-      raise fs_error('filename exists and is not a file: {}'.format(remote_filename))
+      raise vfs_error('filename exists and is not a file: {}'.format(remote_filename))
     self._metadata_db.replace_values(local_filename, key_value_list.from_dict(attributes))
   
   def _make_local_file_path(self, remote_filename):
@@ -183,13 +183,13 @@ class vfs_local(vfs_base):
 
   def _file_type(self, file_path):
     if path.isdir(file_path):
-      return fs_file_info.DIR
+      return vfs_file_info.DIR
     else:
-      return fs_file_info.FILE
+      return vfs_file_info.FILE
     
   def _make_entry(self, remote_filename, local_filename, children):
     ftype = self._file_type(local_filename)
-    if ftype == fs_file_info.FILE:
+    if ftype == vfs_file_info.FILE:
       checksum = self._get_checksum(local_filename)
       attributes = self._metadata_db.get_values(local_filename).to_dict()
       size = file_util.size(local_filename)
@@ -197,7 +197,7 @@ class vfs_local(vfs_base):
       checksum = None
       attributes = None
       size = None
-    return fs_file_info(remote_filename, ftype, size, checksum, attributes, children)
+    return vfs_file_info(remote_filename, ftype, size, checksum, attributes, children)
     
   def _get_checksum(self, local_filename):
     db = file_checksum_db(self._metadata_db_filename)

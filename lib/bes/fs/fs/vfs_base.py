@@ -4,14 +4,14 @@ from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 from bes.factory.singleton_class_registry import singleton_class_registry
 
-from .fs_registry import fs_registry
+from .vfs_registry import vfs_registry
 
 class fs_register_meta(ABCMeta):
   
   def __new__(meta, name, bases, class_dict):
     clazz = ABCMeta.__new__(meta, name, bases, class_dict)
     if name != 'vfs_base':
-      fs_registry.register(clazz)
+      vfs_registry.register(clazz)
     return clazz
 
 class vfs_base(with_metaclass(fs_register_meta, object)):

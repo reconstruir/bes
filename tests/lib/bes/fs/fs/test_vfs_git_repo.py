@@ -12,12 +12,12 @@ from bes.fs.file_find import file_find
 from bes.testing.unit_test_skip import raise_skip
 
 from bes.fs.fs.vfs_git_repo import vfs_git_repo
-from bes.fs.fs.fs_error import fs_error
-from bes.fs.fs.fs_tester import fs_tester
-from bes.fs.fs.fs_list_options import fs_list_options
+from bes.fs.fs.vfs_error import vfs_error
+from bes.fs.fs.vfs_tester import vfs_tester
+from bes.fs.fs.vfs_list_options import vfs_list_options
 from bes.git.git_unit_test import git_temp_home_func
 
-class _vfs_git_repo_tester(fs_tester):
+class _vfs_git_repo_tester(vfs_tester):
 
   def __init__(self, fixture, use_lfs, items = None):
     self.config_dir = fixture.make_temp_dir(suffix = '.config.dir')
@@ -66,7 +66,7 @@ subdir/ dir None None
   @git_temp_home_func()
   def test_list_dir_non_existent(self):
     tester = self._make_tester()
-    with self.assertRaises(fs_error) as ctx:
+    with self.assertRaises(vfs_error) as ctx:
       tester.fs.list_dir('/foo', False)
     self.assertEqual( 'dir not found: /foo', ctx.exception.message )
       
@@ -181,14 +181,14 @@ subdir/ dir None None
     r = git_temp_repo(remote = True, content = items, debug = self.DEBUG, prefix = '.repo')
     config_dir1 = self.make_temp_dir(suffix = '.config.dir')
     fs = vfs_git_repo(r.address, config_dir1, False)
-    t = fs_tester(fs)
+    t = vfs_tester(fs)
     self.assertEqual( 'foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35\n',
                       t.list_dir('/', False) )
     r.add_file('bar.txt', 'bar.txt')
     r.push()
     config_dir2 = self.make_temp_dir(suffix = '.config.dir')
     fs = vfs_git_repo(r.address, config_dir2, False)
-    t = fs_tester(fs)
+    t = vfs_tester(fs)
     expected = '''\
 bar.txt file 7 08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae
 foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35

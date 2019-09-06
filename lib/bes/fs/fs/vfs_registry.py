@@ -7,21 +7,21 @@ from bes.common.check import check
 from bes.python.code import code
 from bes.fs.temp_file import temp_file
 
-from .fs_error import fs_error
-from .fs_config import fs_config
+from .vfs_error import vfs_error
+from .vfs_config import vfs_config
 
 # Not used directly but need to be imported so the factory knows about them
 #from .vfs_local import vfs_local
 #from .vfs_git_repo import vfs_git_repo
 
-class fs_registry(singleton_class_registry):
+class vfs_registry(singleton_class_registry):
   __registry_class_name_prefix__ = 'bes_fs_'
   __registry_raise_on_existing__ = False
 
   @classmethod
   def load_from_config_file(clazz, config_filename):
     check.check_string(config_filename)
-    config = fs_config.load(config_filename)
+    config = vfs_config.load(config_filename)
 
     values = copy.deepcopy(config.values)
     
@@ -34,7 +34,7 @@ class fs_registry(singleton_class_registry):
     fs_class = clazz.get(config.fs_type)
 
     if not fs_class:
-      raise fs_error('Unkown filesystem type: {}'.format(config.fs_type))
+      raise vfs_error('Unkown filesystem type: {}'.format(config.fs_type))
 
     fields = fs_class.creation_fields()
     dfields = clazz._fields_to_dict(fields)
@@ -47,17 +47,17 @@ class fs_registry(singleton_class_registry):
     # Make sure all required values are given
     for field in fields:
       if not field.optional and not field.key in values:
-        raise fs_error('Required field "{}" missing for filesystem {}'.format(field.key, config.fs_type))
+        raise vfs_error('Required field "{}" missing for filesystem {}'.format(field.key, config.fs_type))
 
     # Make sure all values are known and of valid type
     for key, value in values.items():
       field = dfields.get(key, None)
       if field is None:
-        raise fs_error('Unkown field "{}" for filesystem {}'.format(key, config.fs_type))
+        raise vfs_error('Unkown field "{}" for filesystem {}'.format(key, config.fs_type))
       if field.checker_function:
         if not (field.optional and value is None):
           if not field.checker_function(value):
-            raise fs_error('Invalid value "{}" for field "{} for filesystem {}'.format(value, key, config.fs_type))
+            raise vfs_error('Invalid value "{}" for field "{} for filesystem {}'.format(value, key, config.fs_type))
     return fs_class.create(config_filename, **values)
 
   @classmethod

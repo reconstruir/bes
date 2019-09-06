@@ -2,7 +2,7 @@
 
 from bes.common.check import check
 
-class fs_list_options(object):
+class vfs_list_options(object):
 
   def __init__(self, *args, **kargs):
     self.flat_paths = False
@@ -25,4 +25,4 @@ class fs_list_options(object):
   def __str__(self):
     return str(self.__dict__)
     
-check.register_class(fs_list_options)
+check.register_class(vfs_list_options)

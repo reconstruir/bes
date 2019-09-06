@@ -9,12 +9,12 @@ from bes.fs.testing.temp_content import temp_content
 from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
 from bes.testing.unit_test_skip import raise_skip
-from bes.fs.fs.fs_tester import fs_tester
+from bes.fs.fs.vfs_tester import vfs_tester
 
 from bes.fs.fs.vfs_local import vfs_local
-from bes.fs.fs.fs_error import fs_error
+from bes.fs.fs.vfs_error import vfs_error
 
-class _vfs_local_tester(fs_tester):
+class _vfs_local_tester(vfs_tester):
 
   def __init__(self, fixture, items = None):
     self.local_root_dir = self._make_temp_content(items, fixture.DEBUG)
@@ -71,7 +71,7 @@ subdir/ dir None None
   def test_list_dir_non_existent(self):
     tmp_dir = self.make_temp_dir()
     fs = vfs_local('<unittest>',tmp_dir)
-    with self.assertRaises(fs_error) as ctx:
+    with self.assertRaises(vfs_error) as ctx:
       fs.list_dir('/foo', False)
     self.assertEqual( 'dir not found: /foo', ctx.exception.message )
       

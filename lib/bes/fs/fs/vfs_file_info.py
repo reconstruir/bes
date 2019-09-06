@@ -5,10 +5,10 @@ from bes.common.check import check
 from bes.property.cached_property import cached_property
 from bes.compat.StringIO import StringIO
 
-from .fs_error import fs_error
-from .fs_list_options import fs_list_options
+from .vfs_error import vfs_error
+from .vfs_list_options import vfs_list_options
 
-class fs_file_info(namedtuple('fs_file_info', 'filename, ftype, size, checksum, attributes, children')):
+class vfs_file_info(namedtuple('vfs_file_info', 'filename, ftype, size, checksum, attributes, children')):
 
   FILE = 'file'
   DIR = 'dir'
@@ -18,17 +18,17 @@ class fs_file_info(namedtuple('fs_file_info', 'filename, ftype, size, checksum, 
     check.check_string(ftype)
     check.check_int(size, allow_none = True)
     check.check_string(checksum, allow_none = True)
-    check.check_fs_file_info_list(children, entry_type = fs_file_info)
+    check.check_vvfs_file_info_list(children, entry_type = vfs_file_info)
     if ftype == clazz.FILE:
       if children:
-        raise fs_error('children is only for "dir"')
+        raise vfs_error('children is only for "dir"')
     if ftype == clazz.DIR:
       if size:
-        raise fs_error('size is only for "file"')
+        raise vfs_error('size is only for "file"')
       if checksum:
-        raise fs_error('checksum is only for "file"')
+        raise vfs_error('checksum is only for "file"')
       if attributes:
-        raise fs_error('attributes are only for "file"')
+        raise vfs_error('attributes are only for "file"')
     return clazz.__bases__[0].__new__(clazz, filename, ftype, size, checksum, attributes, children)
 
   def __iter__(self):
@@ -53,7 +53,7 @@ class fs_file_info(namedtuple('fs_file_info', 'filename, ftype, size, checksum, 
     return self.ftype == self.FILE
 
   def to_string(self, options = None):
-    options = options or fs_list_options()
+    options = options or vfs_list_options()
     buf = StringIO()
     self._entry_to_string(self, buf, options, 0)
     return buf.getvalue()
@@ -86,4 +86,4 @@ class fs_file_info(namedtuple('fs_file_info', 'filename, ftype, size, checksum, 
       for key, value in sorted(info.attributes.items()):
         buf.write(' {}={}'.format(key, value))
   
-check.register_class(fs_file_info, include_seq = False)
+check.register_class(vfs_file_info, include_seq = False)

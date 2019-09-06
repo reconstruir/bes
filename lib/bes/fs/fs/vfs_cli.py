@@ -10,9 +10,9 @@ from bes.cli.argparser_handler import argparser_handler
 
 import bes
 
-from .fs_cli_args import fs_cli_args
+from .vvfs_cli_args import vvfs_cli_args
 
-class fs_cli(fs_cli_args):
+class vfs_cli(vvfs_cli_args):
 
   def __init__(self):
     self.parser = argparse.ArgumentParser()
@@ -37,5 +37,5 @@ class fs_cli(fs_cli_args):
   
   @classmethod
   def run(clazz):
-    raise SystemExit(fs_cli().main())
+    raise SystemExit(vfs_cli().main())
   
