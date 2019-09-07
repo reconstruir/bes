@@ -108,20 +108,20 @@ class file_util(object):
   @classmethod
   def lstrip_sep(clazz, filename):
     'Return the filename without a leading path separator.'
-    return clazz.__strip_sep(filename, True, False)
+    return clazz._strip_sep(filename, True, False)
 
   @classmethod
   def rstrip_sep(clazz, filename):
     'Return the filename without a trailing path separator.'
-    return clazz.__strip_sep(filename, False, True)
+    return clazz._strip_sep(filename, False, True)
 
   @classmethod
   def strip_sep(clazz, filename):
     'Return the filename without either leading or trailing path separator.'
-    return clazz.__strip_sep(filename, True, True)
+    return clazz._strip_sep(filename, True, True)
 
   @classmethod
-  def __strip_sep(clazz, filename, leading, trailing):
+  def _strip_sep(clazz, filename, leading, trailing):
     'Return the filename without a trailing path separator.'
 
     leading = leading and filename.startswith(path.sep)
