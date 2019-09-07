@@ -1,9 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
+
 from bes.common.check import check
-from bes.property.cached_property import cached_property
+from bes.common.type_checked_list import type_checked_list
 from bes.compat.StringIO import StringIO
+from bes.property.cached_property import cached_property
 
 from .vfs_error import vfs_error
 from .vfs_list_options import vfs_list_options
@@ -13,12 +15,16 @@ class vfs_file_info(namedtuple('vfs_file_info', 'filename, ftype, size, checksum
   FILE = 'file'
   DIR = 'dir'
   
-  def __new__(clazz, filename, ftype, size, checksum, attributes, children):
+  def __new__(clazz, filename, ftype, size = None, checksum = None, attributes = None, children = None):
     check.check_string(filename)
     check.check_string(ftype)
     check.check_int(size, allow_none = True)
     check.check_string(checksum, allow_none = True)
-    check.check_vfs_file_info_list(children, entry_type = vfs_file_info)
+    check.check_dict(attributes, allow_none = True)
+    check.check_vfs_file_info_list(children, entry_type = vfs_file_info, allow_none = True)
+
+    children = children or vfs_file_info_list()
+    
     if ftype == clazz.FILE:
       if children:
         raise vfs_error('children is only for "dir"')
@@ -87,3 +93,25 @@ class vfs_file_info(namedtuple('vfs_file_info', 'filename, ftype, size, checksum
         buf.write(' {}={}'.format(key, value))
   
 check.register_class(vfs_file_info, include_seq = False)
+
+class vfs_file_info_list(type_checked_list):
+
+  __value_type__ = vfs_file_info
+  
+  def __init__(self, values = None):
+    super(vfs_file_info_list, self).__init__(values = values)
+
+  def to_string(self, delimiter = '\n'):
+    buf = StringIO()
+    first = True
+    for vfs_file_info in iter(self):
+      if not first:
+        buf.write(delimiter)
+      first = False
+      buf.write(str(vfs_file_info))
+    return buf.getvalue()
+  
+  def __str__(self):
+    return self.to_string()
+  
+check.register_class(vfs_file_info_list, include_seq = False)

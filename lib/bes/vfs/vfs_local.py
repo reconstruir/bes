@@ -15,7 +15,7 @@ from bes.factory.factory_field import factory_field
 
 from .vfs_base import vfs_base
 from .vfs_file_info import vfs_file_info
-from .vfs_file_info_list import vfs_file_info_list
+from .vfs_file_info import vfs_file_info_list
 from .vfs_error import vfs_error
 
 class vfs_local(vfs_base):
@@ -151,13 +151,13 @@ class vfs_local(vfs_base):
     file_util.copy(local_filename, p)
 
   #@abstractmethod
-  def download_file(self, filename, local_filename):
+  def download_file(self, remote_filename, local_filename):
     'Download filename to local_filename.'
-    p = self._make_local_file_path(filename)
+    p = self._make_local_file_path(remote_filename)
     if not path.exists(p):
-      raise vfs_error('file not found: {}'.format(filename))
+      raise vfs_error('file not found: {}'.format(remote_filename))
     if not path.isfile(p):
-      raise vfs_error('not a file: {}'.format(filename))
+      raise vfs_error('not a file: {}'.format(remote_filename))
     file_util.copy(p, local_filename)
     
   #@abstractmethod

@@ -12,6 +12,7 @@ from bes.key_value.key_value_list import key_value_list
 from .vfs_registry import vfs_registry
 from .vfs_local import vfs_local
 from .vfs_file_info import vfs_file_info
+from .vfs_file_info import vfs_file_info_list
 from .vfs_list_options import vfs_list_options
 from .vfs_error import vfs_error
 
@@ -33,7 +34,11 @@ class vfs_cli_command(object):
 
     options = options or vfs_list_options()
     clazz.log.log_d('ls: filename={} options={}'.format(filename, options))
-    info = fs.file_info(filename)
+
+    if filename.endswith('/'):
+      info = vfs_file_info(file_util.rstrip_sep(filename), vfs_file_info.DIR)
+    else:
+      info = fs.file_info(filename)
     clazz.log.log_d('ls: info={}'.format(info))
     if info.ftype == vfs_file_info.DIR:
       return clazz._ls_dir(fs, info, options)
