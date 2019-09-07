@@ -9,30 +9,35 @@ class vfs_tester(object):
     self.fs = fs
 
   def list_dir(self, *args):
-    return self._call_fs('list_dir', *args)
+    return self._call_fs('list_dir', True, *args)
     
   def has_file(self, *args):
-    return self._call_fs('has_file', *args)
+    return self._call_fs('has_file', True, *args)
     
   def file_info(self, *args):
-    return self._call_fs('file_info', *args)
+    return self._call_fs('file_info', True, *args)
 
   def remove_file(self, *args):
-    return self._call_fs('remove_file', *args)
+    return self._call_fs('remove_file', True, *args)
 
   def upload_file(self, *args):
-    return self._call_fs('upload_file', *args)
+    return self._call_fs('upload_file', True, *args)
 
-  def download_file(self, *args):
-    return self._call_fs('download_file', *args)
+  def download_to_file(self, *args):
+    return self._call_fs('download_to_file', True, *args)
+
+  def download_to_bytes(self, *args):
+    return self._call_fs('download_to_bytes', False, *args)
 
   def set_file_attributes(self, *args):
-    return self._call_fs('set_file_attributes', *args)
+    return self._call_fs('set_file_attributes', True, *args)
     
-  def _call_fs(self, func_name, *args):
+  def _call_fs(self, func_name, to_string, *args):
     func = getattr(self.fs, func_name)
     options = vfs_list_options(show_details = True)
     result = func(*args)
     if result is None:
       return None
-    return result.to_string(options = options)
+    if to_string:
+      return result.to_string(options = options)
+    return result

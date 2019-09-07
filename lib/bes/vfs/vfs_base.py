@@ -61,8 +61,13 @@ class vfs_base(with_metaclass(fs_register_meta, object)):
     pass
 
   @abstractmethod
-  def download_file(self, remote_filename, local_filename):
+  def download_to_file(self, remote_filename, local_filename):
     'Download filename to local_filename.'
+    pass
+
+  @abstractmethod
+  def download_to_bytes(self, remote_filename):
+    'Download filename to bytes.'
     pass
 
   @abstractmethod

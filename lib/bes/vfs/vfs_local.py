@@ -151,7 +151,7 @@ class vfs_local(vfs_base):
     file_util.copy(local_filename, p)
 
   #@abstractmethod
-  def download_file(self, remote_filename, local_filename):
+  def download_to_file(self, remote_filename, local_filename):
     'Download filename to local_filename.'
     p = self._make_local_file_path(remote_filename)
     if not path.exists(p):
@@ -159,6 +159,16 @@ class vfs_local(vfs_base):
     if not path.isfile(p):
       raise vfs_error('not a file: {}'.format(remote_filename))
     file_util.copy(p, local_filename)
+    
+  #@abstractmethod
+  def download_to_bytes(self, remote_filename):
+    'Download filename to local_filename.'
+    p = self._make_local_file_path(remote_filename)
+    if not path.exists(p):
+      raise vfs_error('file not found: {}'.format(remote_filename))
+    if not path.isfile(p):
+      raise vfs_error('not a file: {}'.format(remote_filename))
+    return file_util.read(p)
     
   #@abstractmethod
   def set_file_attributes(self, remote_filename, attributes):

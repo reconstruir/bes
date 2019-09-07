@@ -167,10 +167,10 @@ subdir/ dir None None
       tester.fs.file_info('foo.txt') )
 
   @git_temp_home_func()
-  def test_download_file(self):
+  def test_download_to_file(self):
     tester = self._make_tester_with_items()
     tmp_file = self.make_temp_file()
-    tester.fs.download_file('foo.txt', tmp_file)
+    tester.fs.download_to_file('foo.txt', tmp_file)
     self.assertEqual( 'foo.txt', file_util.read(tmp_file) )
 
   @git_temp_home_func()

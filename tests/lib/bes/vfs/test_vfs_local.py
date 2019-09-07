@@ -165,11 +165,17 @@ subdir/ dir None None
      'foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35 p1=hello p2=666\n',
       tester.file_info('foo.txt') )
 
-  def test_download_file(self):
+  def test_download_to_file(self):
     tester = self._make_tester()
     tmp_file = self.make_temp_file()
-    tester.download_file('foo.txt', tmp_file)
+    tester.download_to_file('foo.txt', tmp_file)
     self.assertEqual( 'foo.txt', file_util.read(tmp_file) )
+    
+  def test_download_to_bytes(self):
+    tester = self._make_tester()
+    tmp_file = self.make_temp_file(content = 'this is foo.txt')
+    tester.upload_file(tmp_file, 'x/y/z/foo.txt')
+    self.assertEqual( 'this is foo.txt', tester.download_to_bytes('x/y/z/foo.txt') )
     
   @classmethod
   def _make_tester(self):

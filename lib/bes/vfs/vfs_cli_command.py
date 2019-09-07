@@ -203,5 +203,17 @@ class vfs_cli_command(object):
     fs = vfs_registry.load_from_config_file(config_filename)
     clazz.log.log_d('_create_fs_from_config: fs={}'.format(fs))
     return fs
-
   
+  @classmethod
+  def cat(clazz, config, remote_filename, output_filename):
+    'Download a file.'
+    check.check_string(config, allow_none = True)
+    check.check_string(remote_filename)
+    check.check_string(output_filename, allow_none = True)
+    fs = clazz._create_fs_from_config(config)
+    output_filename = output_filename or path.join(ow.getcwd(), path.basename(remote_filename))
+    clazz.log.log_d('download: remote_filename={} output_filename={}'.format(remote_filename,
+                                                                             output_filename))
+    clazz.log.log_d('download: fs={}'.format(fs))
+    fs.download_file(remote_filename, output_filename)
+    return 0

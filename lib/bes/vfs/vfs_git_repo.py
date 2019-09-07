@@ -115,10 +115,18 @@ class vfs_git_repo(vfs_base):
     self._post_operation(proxy)
 
   #@abstractmethod
-  def download_file(self, remote_filename, local_filename):
+  def download_to_file(self, remote_filename, local_filename):
     'Download filename to local_filename.'
     proxy = self._make_proxy()
-    rv = proxy.fs.download_file(remote_filename, local_filename)
+    rv = proxy.fs.download_to_file(remote_filename, local_filename)
+    self._post_operation(proxy)
+    return rv
+    
+  #@abstractmethod
+  def download_to_bytes(self, remote_filename):
+    'Download filename to bytes.'
+    proxy = self._make_proxy()
+    rv = proxy.fs.download_to_bytes(remote_filename)
     self._post_operation(proxy)
     return rv
     

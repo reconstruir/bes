@@ -60,6 +60,10 @@ class vfs_cli_args(object):
     p.add_argument('params', action = 'store', default = [], type = str, nargs = '+',
                    help = 'The params to set in the for key1=value1 key2=value2 .... [ None ]')
 
+    p = subparser.add_parser('cat', help = 'Cat a file.')
+    p.add_argument('remote_filename', action = 'store', default = None, type = str,
+                   help = 'Remote filename to upload to. [ None ]')
+    
     p = subparser.add_parser('config', help = 'Show config possibilities.')
     
   def _command_fs_ls(self, config, filename, recursive, show_all, one_line,
@@ -92,3 +96,8 @@ class vfs_cli_args(object):
   
   def _command_fs_config(self):
     return vfs_cli_command.config()
+
+  def _command_fs_cat(self, config, remote_filename):
+    return vfs_cli_command.cat(config, remote_filename)
+  
+  
