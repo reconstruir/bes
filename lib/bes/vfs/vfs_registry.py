@@ -24,15 +24,19 @@ class vfs_registry(singleton_class_registry):
     config = vfs_config.load(config_filename)
 
     values = copy.deepcopy(config.values)
-    
-    load_code = values.get('load_code', None)
-    if load_code:
+
+    vfs_class_path = values.get('vfs_class_path', None)
+    if vfs_class_path:
+      load_code = 'from {} import {}'.format(vfs_class_path, vfs_class_path.split('.')[-1])
       load_filename = temp_file.make_temp_file(suffix = '.py', content = load_code)
       code.execfile(load_filename, globals(), locals())
-      del values['load_code']
-    
-    fs_class = clazz.get(config.fs_type)
+      del values['vfs_class_path']
 
+    fs_type = config.fs_type
+    fs_class = clazz.get(config.fs_type)
+    if not fs_class:
+      fs_class = clazz.get('vfs_' + config.fs_type)
+      
     if not fs_class:
       raise vfs_error('Unkown filesystem type: {}'.format(config.fs_type))
 
