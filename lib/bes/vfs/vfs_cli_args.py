@@ -90,5 +90,5 @@ class vfs_cli_args(object):
   def _command_fs_get_attributes(self, config, remote_filename, keys):
     return vfs_cli_command.get_attributes(config, remote_filename, keys)
   
-  def _command_vfs_config(self):
+  def _command_fs_config(self):
     return vfs_cli_command.config()

@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+
 class vfs_path(object):
   'Class to deal with vfs paths.'
 
@@ -90,3 +92,9 @@ class vfs_path(object):
     if parts in [ [ '']  ]:
       return '/'
     return clazz.join(*parts)
+
+  _sprit_basename_rv = namedtuple('_sprit_basename_rv', 'dirname, basename')
+  @classmethod
+  def split_basename(clazz, filename):
+    return clazz._sprit_basename_rv(clazz.dirname(filename),
+                                    clazz.basename(filename))
