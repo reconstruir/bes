@@ -9,12 +9,13 @@ from bes.python.code import code
 from bes.fs.file_util import file_util
 from bes.key_value.key_value_list import key_value_list
 
-from .vfs_registry import vfs_registry
-from .vfs_local import vfs_local
+from .vfs_error import vfs_error
 from .vfs_file_info import vfs_file_info
 from .vfs_file_info import vfs_file_info_list
 from .vfs_list_options import vfs_list_options
-from .vfs_error import vfs_error
+from .vfs_local import vfs_local
+from .vfs_path import vfs_path
+from .vfs_registry import vfs_registry
 
 class vfs_cli_command(object):
   'fs command line implementations.'
@@ -35,8 +36,8 @@ class vfs_cli_command(object):
     options = options or vfs_list_options()
     clazz.log.log_d('ls: filename={} options={}'.format(filename, options))
 
-    if filename.endswith('/'):
-      info = vfs_file_info(file_util.rstrip_sep(filename), vfs_file_info.DIR)
+    if vfs_path.ends_with_sep(filename):
+      info = vfs_file_info(vfs_path.rstrip_sep(filename), vfs_file_info.DIR)
     else:
       info = fs.file_info(filename)
     clazz.log.log_d('ls: info={}'.format(info))
