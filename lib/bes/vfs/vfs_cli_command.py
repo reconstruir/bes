@@ -58,7 +58,7 @@ class vfs_cli_command(object):
 
   @classmethod
   def _format_file_info(clazz, info, options):
-    fields = [ path.basename(info.filename) ]
+    fields = [ vfs_path.basename(info.filename) ]
     if options.show_size:
       fields.append(clazz._format_file_size(info.size, options))
     if options.show_checksums:

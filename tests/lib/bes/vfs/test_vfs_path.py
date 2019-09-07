@@ -48,7 +48,19 @@ class test_vfs_path(unit_test):
     self.assertEqual( '/', P.ensure_lsep('') )
     self.assertEqual( '/', P.ensure_lsep('/') )
     self.assertEqual( '/foo/bar', P.ensure_lsep('foo/bar') )
-    self.assertEqual( '/foo/bar/', P.ensure_lsep('foo/bar/')) )
+    self.assertEqual( '/foo/bar/', P.ensure_lsep('foo/bar/') )
+    
+  def test_basename(self):
+    self.assertEqual( '', P.basename('') )
+    self.assertEqual( '', P.basename('/') )
+    self.assertEqual( 'f', P.basename('/f') )
+    self.assertEqual( 'b', P.basename('/f/b') )
+    
+  def test_dirname(self):
+    self.assertEqual( '', P.dirname('') )
+    self.assertEqual( '/', P.dirname('/') )
+    self.assertEqual( '/', P.dirname('/f') )
+    self.assertEqual( '/f', P.dirname('/f/b') )
     
 if __name__ == '__main__':
   unit_test.main()
