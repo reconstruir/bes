@@ -178,7 +178,7 @@ class vfs_local(vfs_base):
       raise vfs_error('filename exists and is a dir: {}'.format(remote_filename))
     if path.exists(local_filename) and not path.isfile(local_filename):
       raise vfs_error('filename exists and is not a file: {}'.format(remote_filename))
-    self._metadata_db.replace_values(local_filename, key_value_list.from_dict(attributes))
+    self._metadata_db.replace_values('attributes', local_filename, key_value_list.from_dict(attributes))
   
   def _make_local_file_path(self, remote_filename):
     'Make a local path for remote_filename.'
@@ -201,7 +201,7 @@ class vfs_local(vfs_base):
     ftype = self._file_type(local_filename)
     if ftype == vfs_file_info.FILE:
       checksum = self._get_checksum(local_filename)
-      attributes = self._metadata_db.get_values(local_filename).to_dict()
+      attributes = self._metadata_db.get_values('attributes', local_filename).to_dict()
       size = file_util.size(local_filename)
     else:
       checksum = None

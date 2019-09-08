@@ -43,8 +43,8 @@ class file_checksum_db(object):
     checksum_key = self._ALGORITHM_TO_KEY.get(algorithm, None)
     if not checksum_key:
       raise ValueError('invalid algorithm: %s' % (algorithm))
-    attr_mtime = self._metadata.get_value(filename, self._KEY_BES_MTIME)
-    attr_checksum = self._metadata.get_value(filename, checksum_key)
+    attr_mtime = self._metadata.get_value('checksums', filename, self._KEY_BES_MTIME)
+    attr_checksum = self._metadata.get_value('checksums', filename, checksum_key)
     mtime = file_util.mtime(filename)
     self.log.log_d('checksum: mtime={} attr_mtime={} attr_checksum={}'.format(mtime, attr_mtime, attr_checksum))
     if attr_mtime is not None and attr_checksum is not None:
@@ -69,8 +69,8 @@ class file_checksum_db(object):
 #        checksum_key: checksum,
 #      }
 #      self._metadata.replace_values(filename, values)
-      self._metadata.set_value(filename, self._KEY_BES_MTIME, mtime)
-      self._metadata.set_value(filename, checksum_key, checksum)
+      self._metadata.set_value('checksums', filename, self._KEY_BES_MTIME, mtime)
+      self._metadata.set_value('checksums', filename, checksum_key, checksum)
     except Exception as ex:
       self.log.log_e('_write_checksum: Failed to write checksum for {} to {}'.format(filename,
                                                                                      self._metadata.db_filename))

@@ -38,33 +38,37 @@ create table {table_name}(
     return hash(filename) + sys.maxsize
     
   @classmethod
-  def _table_name(clazz, filename):
-    return 'file_%d' % (clazz._unsigned_hash(filename))
+  def _table_name(clazz, what, filename):
+    return 'what_%d' % (clazz._unsigned_hash(filename))
 
-  def get_values(self, filename):
+  def get_values(self, what, filename):
+    check.check_string(what)
     check.check_string(filename)
-    table_name = self._table_name(filename)
+    table_name = self._table_name(what, filename)
     if not self._db.has_table(table_name):
       return key_value_list()
     sql = 'select key, value from {table_name} order by key asc'.format(table_name = table_name)
     return key_value_list(self._db.select_all(sql))
 
-  def replace_values(self, filename, values):
+  def replace_values(self, what, filename, values):
+    check.check_string(what)
     check.check_string(filename)
     check.check_key_value_list(values)
-    table_name = self._table_name(filename)
+    table_name = self._table_name(what, filename)
     self._call_sqlite('replace_values', self._replace_values_i, table_name, values)
 
-  def set_value(self, filename, key, value):
+  def set_value(self, what, filename, key, value):
+    check.check_string(what)
     check.check_string(filename)
     check.check_string(key)
-    table_name = self._table_name(filename)
+    table_name = self._table_name(what, filename)
     self._call_sqlite('set_value', self._set_value_i, table_name, key, value)
 
-  def get_value(self, filename, key):
+  def get_value(self, what, filename, key):
+    check.check_string(what)
     check.check_string(filename)
     check.check_string(key)
-    table_name = self._table_name(filename)
+    table_name = self._table_name(what, filename)
     if not self._db.has_table(table_name):
       return None
     sql = 'select value from {table_name} where key={key}'.format(table_name = table_name,
@@ -74,9 +78,10 @@ create table {table_name}(
       return None
     return result[0]
 
-  def clear(self, filename):
+  def clear(self, what, filename):
+    check.check_string(what)
     check.check_string(filename)
-    table_name = self._table_name(filename)
+    table_name = self._table_name(what, filename)
     self._call_sqlite('clear', self._clear_i, table_name)
 
   def _call_sqlite(self, label, function, *args):

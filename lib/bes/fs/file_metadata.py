@@ -27,31 +27,36 @@ class file_metadata(object):
   def db_filename(self):
     return self._db_filename
     
-  def get_values(self, filename):
+  def get_values(self, what, filename):
+    check.check_string(what)
     check.check_string(filename)
     filename = file_util.lstrip_sep(filename)
-    return self._db.get_values(filename)
+    return self._db.get_values(what, filename)
 
-  def replace_values(self, filename, values):
+  def replace_values(self, what, filename, values):
+    check.check_string(what)
     check.check_string(filename)
     filename = file_util.lstrip_sep(filename)
-    self._db.replace_values(filename, values)
+    self._db.replace_values(what, filename, values)
 
-  def set_value(self, filename, key, value):
+  def set_value(self, what, filename, key, value):
+    check.check_string(what)
     check.check_string(filename)
     filename = file_util.lstrip_sep(filename)
-    self._db.set_value(filename, key, value)
+    self._db.set_value(what, filename, key, value)
 
-  def get_value(self, filename, key):
+  def get_value(self, what, filename, key):
+    check.check_string(what)
     check.check_string(filename)
     filename = file_util.lstrip_sep(filename)
-    return self._db.get_value(filename, key)
+    return self._db.get_value(what, filename, key)
 
-  def clear(self, filename):
+  def clear(self, what, filename):
+    check.check_string(what)
     check.check_string(filename)
     filename = file_util.lstrip_sep(filename)
-    self._db.clear(filename)
+    self._db.clear(what, filename)
 
-  def _table_name(self, filename):
+  def _table_name(self, what, filename):
     filename = file_util.lstrip_sep(filename)
-    return self._db._table_name(filename)
+    return self._db._table_name(what, filename)
