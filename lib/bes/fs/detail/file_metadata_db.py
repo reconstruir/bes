@@ -24,13 +24,21 @@ class file_metadata_db(object):
   
   _METADATA_SCHEMA = '''
 create table {table_name}(
-  key                 text primary key not null,
-  value               text
+  key   text primary key not null,
+  value text
+);
+'''
+
+  _HASH_TO_FILENAME_SCHEMA = '''
+create table hash_to_filename(
+  hash     text primary key not null,
+  filename text
 );
 '''
   
   def __init__(self, db):
     self._db = db
+    self._ensure_hash_to_filename_table()
 
   @classmethod
   def _unsigned_hash(clazz, filename):
@@ -39,7 +47,7 @@ create table {table_name}(
     
   @classmethod
   def _table_name(clazz, what, filename):
-    return 'what_%d' % (clazz._unsigned_hash(filename))
+    return '{}_{}'.format(what, clazz._unsigned_hash(filename))
 
   def get_values(self, what, filename):
     check.check_string(what)
@@ -55,14 +63,16 @@ create table {table_name}(
     check.check_string(filename)
     check.check_key_value_list(values)
     table_name = self._table_name(what, filename)
-    self._call_sqlite('replace_values', self._replace_values_i, table_name, values)
+    self._ensure_hash_to_filename(filename)
+    self._sqlite_write('replace_values', self._replace_values_i, table_name, values)
 
   def set_value(self, what, filename, key, value):
     check.check_string(what)
     check.check_string(filename)
     check.check_string(key)
     table_name = self._table_name(what, filename)
-    self._call_sqlite('set_value', self._set_value_i, table_name, key, value)
+    self._ensure_hash_to_filename(filename)
+    self._sqlite_write('set_value', self._set_value_i, table_name, key, value)
 
   def get_value(self, what, filename, key):
     check.check_string(what)
@@ -82,9 +92,11 @@ create table {table_name}(
     check.check_string(what)
     check.check_string(filename)
     table_name = self._table_name(what, filename)
-    self._call_sqlite('clear', self._clear_i, table_name)
+    self._ensure_hash_to_filename(filename)
+    self._sqlite_write('clear', self._clear_i, table_name)
 
-  def _call_sqlite(self, label, function, *args):
+  def _sqlite_write(self, label, function, *args):
+    'Call a write operation to the db.'
     try:
       self._db.begin()
       function(*args)
@@ -99,12 +111,24 @@ create table {table_name}(
         self.log.log_e('{}: CAUGHT EXCEPTION ROLLING BACK: {}'.format(label, str(sqlite_ex)))
       raise ex
     
-  def _ensure_table_(self, table_name):
+  def _ensure_table(self, table_name):
     'Ensure that a table exists.  Does not commit.'
     if self._db.has_table(table_name):
       return
     schema = self._METADATA_SCHEMA.format(table_name = table_name)
     self._db.execute(schema)
+
+  def _ensure_hash_to_filename(self, filename):
+    h = self._unsigned_hash(filename)
+    sql = 'insert or replace into hash_to_filename (hash, filename) values (?, ?)'
+    values = ( str(h), filename )
+    print('ensuring: {} with {}'.format(sql, str(values)))
+    self._db.execute(sql, values)
+    
+  def _ensure_hash_to_filename_table(self):
+    if self._db.has_table('hash_to_filename'):
+      return
+    self._db.execute(self._HASH_TO_FILENAME_SCHEMA)
     
   def _replace_values_i(self, table_name, values):
     'Do the replace_values work without transactions.'
@@ -114,7 +138,7 @@ create table {table_name}(
       sql = 'delete from {table_name}'.format(table_name = table_name)
       self._db.execute(sql)
       return
-    self._ensure_table_(table_name)
+    self._ensure_table(table_name)
     for kv in values:
       sql = 'insert or replace into {table_name} (key, value) values (?, ?)'.format(table_name = table_name)
       self._db.execute(sql, kv)
@@ -131,7 +155,7 @@ create table {table_name}(
     
   def _set_value_i(self, table_name, key, value):
     'Do the replace_values work without transactions.'
-    self._ensure_table_(table_name)
+    self._ensure_table(table_name)
     sql = 'insert or replace into {table_name} (key, value) values (?, ?)'.format(table_name = table_name)
     self._db.execute(sql, ( key, value ))
     

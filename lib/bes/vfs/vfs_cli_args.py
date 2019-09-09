@@ -63,6 +63,12 @@ class vfs_cli_args(object):
     p = subparser.add_parser('cat', help = 'Cat a file.')
     p.add_argument('remote_filename', action = 'store', default = None, type = str,
                    help = 'Remote filename to upload to. [ None ]')
+
+    p = subparser.add_parser('rm', help = 'Remove files.')
+    p.add_argument('filenames', action = 'store', default = None, type = str, nargs = '+',
+                   help = 'Filename to remove. [ None ]')
+    p.add_argument('-R', '--recursive', action = 'store_true', default = False,
+                   help = 'List recurisively. [ False ]')
     
     p = subparser.add_parser('config', help = 'Show config possibilities.')
     
@@ -100,4 +106,5 @@ class vfs_cli_args(object):
   def _command_fs_cat(self, config, remote_filename):
     return vfs_cli_command.cat(config, remote_filename)
   
-  
+  def _command_fs_rm(self, config, filenames, recursive):
+    return vfs_cli_command.rm(config, filenames, recursive)

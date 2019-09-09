@@ -22,7 +22,7 @@ class vfs_cli_command(object):
 
   log = logger('fs')
 
-  _CONFIG_DIR = path.expanduser('~/.besfs/config')
+  _CONFIG_DIR = path.expanduser('~/.bes_vfs/config')
   
   @classmethod
   def ls(clazz, config, filename, options):
@@ -62,7 +62,7 @@ class vfs_cli_command(object):
     if options.show_size:
       fields.append(clazz._format_file_size(info.size, options))
     if options.show_checksums:
-      fields.append(info.checksum)
+      fields.append(info.checksum or '')
 #    if options.show_attributes:
 #      kvl = key_value_list.from_dict(info.attributes)
 #      fields.append(kvl.to_string(delimiter = '=', value_delimiter = ' '))
@@ -131,7 +131,7 @@ class vfs_cli_command(object):
     clazz.log.log_d('download: remote_filename={} output_filename={}'.format(remote_filename,
                                                                              output_filename))
     clazz.log.log_d('download: fs={}'.format(fs))
-    fs.download_file(remote_filename, output_filename)
+    fs.download_to_file(remote_filename, output_filename)
     return 0
 
   @classmethod
@@ -179,26 +179,26 @@ class vfs_cli_command(object):
         return path.abspath(config)
       possible_configs = [
         '{}/{}'.format(clazz._CONFIG_DIR, config),
-        '{}/{}.besfs'.format(clazz._CONFIG_DIR, config),
+        '{}/{}.bes_vfs'.format(clazz._CONFIG_DIR, config),
       ]
       for p in possible_configs:
         if path.isfile(p):
           return p
-    config = os.environ.get('BESFS_CONFIG', None)
+    config = os.environ.get('BES_VFS_CONFIG', None)
     if path.isfile(config):
       return config
     return None
   
   @classmethod
   def _list_configs(clazz):
-    files = glob.glob('{}/*.besfs'.format(clazz._CONFIG_DIR))
+    files = glob.glob('{}/*.bes_vfs'.format(clazz._CONFIG_DIR))
     return [ file_util.remove_extension(path.basename(f)) for f in files ]
   
   @classmethod
   def _create_fs_from_config(clazz, config):
     config_filename = clazz._resolve_config_filename(config)
     if not config_filename:
-      raise vfs_error('No config given either with --config or ~/.besfs/config or BESFS_CONFIG')
+      raise vfs_error('No config given either with --config or ~/.bes_vfs/config or BES_VFS_CONFIG')
     clazz.log.log_d('_create_fs_from_config: config={}'.format(config))
     fs = vfs_registry.load_from_config_file(config_filename)
     clazz.log.log_d('_create_fs_from_config: fs={}'.format(fs))
@@ -208,7 +208,20 @@ class vfs_cli_command(object):
   def cat(clazz, config, remote_filename):
     'Cat a file.'
     check.check_string(config, allow_none = True)
+
     fs = clazz._create_fs_from_config(config)
     data = fs.download_to_bytes(remote_filename)
     print(data.decode('utf-8'))
+    return 0
+
+  @classmethod
+  def rm(clazz, config, remote_filenames, recursive):
+    'Remove one or more files.'
+    check.check_string(config, allow_none = True)
+    check.check_string_seq(remote_filenames)
+    check.check_bool(recursive)
+
+    fs = clazz._create_fs_from_config(config)
+    for remote_filename in remote_filenames:
+      fs.remove_file(remote_filename)
     return 0

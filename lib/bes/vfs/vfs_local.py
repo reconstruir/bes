@@ -29,7 +29,7 @@ class vfs_local(vfs_base):
 
     self._config_source = config_source
     self._local_root_dir = local_root_dir
-    db_dir = path.join(self._local_root_dir, '.besvfs')
+    db_dir = path.join(self._local_root_dir, '.bes_vfs')
     self._metadata_db_filename = path.join(db_dir, 'metadata.db')
     self._checksum_db_filename = path.join(db_dir, 'checksum.db')
     self._metadata_db = file_metadata(self._checksum_db_filename)

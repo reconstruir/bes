@@ -113,7 +113,7 @@ subdir/ dir None None
   def test_upload_file_new(self):
     tester = self._make_tester()
     self.assertEqual( [
-      '.besvfs/checksum.db/.bes_file_metadata.db',
+      '.bes_vfs/checksum.db/.bes_file_metadata.db',
       'emptyfile.txt',
       'foo.txt',
       'subdir/bar.txt',
@@ -122,7 +122,7 @@ subdir/ dir None None
     tmp_file = self.make_temp_file(content = 'this is kiwi.txt\n')
     tester.upload_file(tmp_file, 'kiwi.txt')
     self.assertEqual( [
-      '.besvfs/checksum.db/.bes_file_metadata.db',
+      '.bes_vfs/checksum.db/.bes_file_metadata.db',
       'emptyfile.txt',
       'foo.txt',
       'kiwi.txt',

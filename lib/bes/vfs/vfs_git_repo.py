@@ -149,17 +149,17 @@ class vfs_git_repo(vfs_base):
     
   #@abstractmethod
   def _post_operation(self, proxy):
-    'Update the .besfs git droppings after any operation.'
+    'Update the .bes_vfs git droppings after any operation.'
     status = proxy.repo.status('.')
-    self._post_operation_besfs(proxy, status)
+    self._post_operation_update_dot_bes_vfs_dir(proxy, status)
     self._post_operation_push(proxy, status)
 
-  def _post_operation_besfs(self, proxy, status):
+  def _post_operation_update_dot_bes_vfs_dir(self, proxy, status):
     rv = False
     for st in status:
-      if st.filename.startswith('.besfs'):
+      if st.filename.startswith('.bes_vfs'):
         proxy.repo.add(st.filename)
-        proxy.repo.commit('update .besfs db dir', st.filename)
+        proxy.repo.commit('update .bes_vfs db dir', st.filename)
         rv = True
     return rv
 
