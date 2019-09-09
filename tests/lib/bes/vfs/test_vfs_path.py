@@ -62,5 +62,25 @@ class test_vfs_path(unit_test):
     self.assertEqual( '/', P.dirname('/f') )
     self.assertEqual( '/f', P.dirname('/f/b') )
     
+  def test_dedup_sep(self):
+    self.assertEqual( '/f', P.dedup_sep('/f') )
+    self.assertEqual( '/f', P.dedup_sep('//f') )
+    self.assertEqual( '/f', P.dedup_sep('///f') )
+    self.assertEqual( '/f/', P.dedup_sep('///f/') )
+    self.assertEqual( '/f/', P.dedup_sep('/f//') )
+    self.assertEqual( '/f/', P.dedup_sep('/f///') )
+    self.assertEqual( 'f/b', P.dedup_sep('f///b') )
+    
+  def test_normalize(self):
+    self.assertEqual( '/f', P.normalize('/f') )
+    self.assertEqual( '/f', P.normalize('//f') )
+    self.assertEqual( '/f', P.normalize('///f') )
+    self.assertEqual( '/f/', P.normalize('///f/') )
+    self.assertEqual( '/f/', P.normalize('/f//') )
+    self.assertEqual( '/f/', P.normalize('/f///') )
+    self.assertEqual( '/f/b', P.normalize('f///b') )
+    self.assertEqual( '/f', P.normalize('f') )
+    self.assertEqual( '/f/b', P.normalize('f/b') )
+    
 if __name__ == '__main__':
   unit_test.main()

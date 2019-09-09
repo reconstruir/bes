@@ -185,6 +185,8 @@ class vfs_cli_command(object):
         if path.isfile(p):
           return p
     config = os.environ.get('BES_VFS_CONFIG', None)
+    if config == None:
+      return None
     if path.isfile(config):
       return config
     return None

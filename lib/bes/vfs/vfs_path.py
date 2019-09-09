@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import re
 from collections import namedtuple
 
 class vfs_path(object):
@@ -98,3 +99,20 @@ class vfs_path(object):
   def split_basename(clazz, filename):
     return clazz._sprit_basename_rv(clazz.dirname(filename),
                                     clazz.basename(filename))
+
+  @classmethod
+  def dedup_sep(clazz, filename):
+    'Dedup separators in a vfs_path'
+    pattern = r'{}{{2,}}'.format(clazz.SEP)
+    return re.sub(pattern, clazz.SEP, filename, flags = re.DOTALL)
+  
+  @classmethod
+  def normalize(clazz, filename):
+    '''
+    Normalize a vfs path including:
+    - dedup separators: //foo///bar/// => /foo/bar/
+    - ensure leading separator
+    '''
+    deduped = clazz.dedup_sep(filename)
+    normalized = clazz.ensure_lsep(deduped)
+    return normalized
