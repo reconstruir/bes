@@ -69,6 +69,11 @@ class vfs_cli_args(object):
                    help = 'Filename to remove. [ None ]')
     p.add_argument('-R', '--recursive', action = 'store_true', default = False,
                    help = 'List recurisively. [ False ]')
+
+  def fs_add_args(self, subparser):
+    p = subparser.add_parser('info', help = 'Print file info.')
+    p.add_argument('filename', action = 'store', default = None, type = str,
+                   help = 'Filename or directory to info. [ None ]')
     
     p = subparser.add_parser('config', help = 'Show config possibilities.')
     
@@ -108,3 +113,7 @@ class vfs_cli_args(object):
   
   def _command_fs_rm(self, config, filenames, recursive):
     return vfs_cli_command.rm(config, filenames, recursive)
+
+  def _command_fs_info(self, config, filename):
+    return vfs_cli_command.info(config, filename)
+  

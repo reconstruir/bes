@@ -25,21 +25,25 @@ class vfs_cli_command(object):
   _CONFIG_DIR = path.expanduser('~/.bes_vfs/config')
   
   @classmethod
-  def ls(clazz, config, filename, options):
+  def ls(clazz, config, remote_filename, options):
     'ls command.'
     check.check_string(config, allow_none = True)
-    check.check_string(filename)
+    check.check_string(remote_filename)
     check.check_vfs_list_options(options, allow_none = True)
 
+    remote_filename = vfs_path.normalize(remote_filename)
+    
     fs = clazz._create_fs_from_config(config)
 
     options = options or vfs_list_options()
-    clazz.log.log_d('ls: filename={} options={}'.format(filename, options))
+    clazz.log.log_d('ls: remote_filename={} options={}'.format(remote_filename, options))
 
-    if vfs_path.ends_with_sep(filename):
-      info = vfs_file_info(vfs_path.rstrip_sep(filename), vfs_file_info.DIR)
+    if vfs_path.ends_with_sep(remote_filename):
+      info = vfs_file_info(vfs_path.dirname(remote_filename),
+                           vfs_path.basename(remote_filename),
+                           vfs_file_info.DIR)
     else:
-      info = fs.file_info(filename)
+      info = fs.file_info(remote_filename)
     clazz.log.log_d('ls: info={}'.format(info))
     if info.ftype == vfs_file_info.DIR:
       return clazz._ls_dir(fs, info, options)
@@ -227,3 +231,19 @@ class vfs_cli_command(object):
     for remote_filename in remote_filenames:
       fs.remove_file(remote_filename)
     return 0
+
+  @classmethod
+  def info(clazz, config, remote_filename):
+    'info command.'
+    check.check_string(config, allow_none = True)
+    check.check_string(remote_filename)
+
+    remote_filename = vfs_path.normalize(remote_filename)
+    
+    fs = clazz._create_fs_from_config(config)
+
+    info = fs.file_info(remote_filename)
+    clazz.log.log_d('info: info={}'.format(info))
+    print(info)
+    return 0
+  

@@ -122,7 +122,6 @@ create table hash_to_filename(
     h = self._unsigned_hash(filename)
     sql = 'insert or replace into hash_to_filename (hash, filename) values (?, ?)'
     values = ( str(h), filename )
-    print('ensuring: {} with {}'.format(sql, str(values)))
     self._db.execute(sql, values)
     
   def _ensure_hash_to_filename_table(self):
