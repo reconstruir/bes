@@ -8,6 +8,7 @@ from bes.system.log import logger
 from bes.python.code import code
 from bes.fs.file_util import file_util
 from bes.key_value.key_value_list import key_value_list
+from bes.text.text_table import text_table
 
 from .vfs_error import vfs_error
 from .vfs_file_info import vfs_file_info
@@ -103,7 +104,6 @@ class vfs_cli_command(object):
     print(s)
     if options.show_attributes:
       kvl = key_value_list.from_dict(info.attributes)
-      from bes.text.text_table import text_table
       t = text_table(data = kvl)
       print(t)
       #fields.append(kvl.to_string(delimiter = '=', value_delimiter = ' '))
@@ -244,6 +244,7 @@ class vfs_cli_command(object):
 
     info = fs.file_info(remote_filename)
     clazz.log.log_d('info: info={}'.format(info))
-    print(info)
+    t = text_table(data = [ info ])
+    print(t)
     return 0
   

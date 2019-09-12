@@ -70,7 +70,6 @@ class vfs_cli_args(object):
     p.add_argument('-R', '--recursive', action = 'store_true', default = False,
                    help = 'List recurisively. [ False ]')
 
-  def fs_add_args(self, subparser):
     p = subparser.add_parser('info', help = 'Print file info.')
     p.add_argument('filename', action = 'store', default = None, type = str,
                    help = 'Filename or directory to info. [ None ]')
