@@ -17,7 +17,7 @@ from .vfs_base import vfs_base
 from .vfs_error import vfs_error
 from .vfs_file_info import vfs_file_info
 from .vfs_file_info import vfs_file_info_list
-from .vfs_path import vfs_path
+from .vfs_path_util import vfs_path_util
 
 class vfs_local(vfs_base):
   'Local filesystem'
@@ -62,7 +62,7 @@ class vfs_local(vfs_base):
   #@abstractmethod
   def list_dir(self, remote_dir, recursive):
     'List entries in a directory.'
-    remote_dir = vfs_path.normalize(remote_dir)
+    remote_dir = vfs_path_util.normalize(remote_dir)
     self.log.log_d('list_dir(remote_dir={}, recursive={}'.format(remote_dir, recursive))
     result = node('/')
     local_dir_path = self._make_local_dir_path(remote_dir)
@@ -116,14 +116,14 @@ class vfs_local(vfs_base):
   #@abstractmethod
   def has_file(self, remote_filename):
     'Return True if filename exists in the filesystem and is a FILE.'
-    remote_filename = vfs_path.normalize(remote_filename)
+    remote_filename = vfs_path_util.normalize(remote_filename)
     p = self._make_local_file_path(remote_filename)
     return path.isfile(p)
   
   #@abstractmethod
   def file_info(self, remote_filename):
     'Get info for a single file..'
-    remote_filename = vfs_path.normalize(remote_filename)
+    remote_filename = vfs_path_util.normalize(remote_filename)
     p = self._make_local_file_path(remote_filename)
     if not path.exists(p):
       raise vfs_error('{}: not found: {}'.format(self, remote_filename))
@@ -133,7 +133,7 @@ class vfs_local(vfs_base):
   #@abstractmethod
   def remove_file(self, remote_filename):
     'Remove filename.'
-    remote_filename = vfs_path.normalize(remote_filename)
+    remote_filename = vfs_path_util.normalize(remote_filename)
     p = self._make_local_file_path(remote_filename)
     if not path.exists(p):
       raise vfs_error('file not found: {}'.format(remote_filename))
@@ -146,7 +146,7 @@ class vfs_local(vfs_base):
   #@abstractmethod
   def upload_file(self, local_filename, remote_filename):
     'Upload local_filename to remote_filename.'
-    remote_filename = vfs_path.normalize(remote_filename)
+    remote_filename = vfs_path_util.normalize(remote_filename)
     p = self._make_local_file_path(remote_filename)
     if path.isdir(p):
       raise vfs_error('filename exists and is a dir: {}'.format(remote_filename))
@@ -159,7 +159,7 @@ class vfs_local(vfs_base):
   #@abstractmethod
   def download_to_file(self, remote_filename, local_filename):
     'Download filename to local_filename.'
-    remote_filename = vfs_path.normalize(remote_filename)
+    remote_filename = vfs_path_util.normalize(remote_filename)
     p = self._make_local_file_path(remote_filename)
     if not path.exists(p):
       raise vfs_error('file not found: {}'.format(remote_filename))
@@ -170,7 +170,7 @@ class vfs_local(vfs_base):
   #@abstractmethod
   def download_to_bytes(self, remote_filename):
     'Download filename to local_filename.'
-    remote_filename = vfs_path.normalize(remote_filename)
+    remote_filename = vfs_path_util.normalize(remote_filename)
     p = self._make_local_file_path(remote_filename)
     if not path.exists(p):
       raise vfs_error('file not found: {}'.format(remote_filename))
@@ -181,7 +181,7 @@ class vfs_local(vfs_base):
   #@abstractmethod
   def set_file_attributes(self, remote_filename, attributes):
     'Set file attirbutes.'
-    remote_filename = vfs_path.normalize(remote_filename)
+    remote_filename = vfs_path_util.normalize(remote_filename)
     local_filename = self._make_local_file_path(remote_filename)
     if path.isdir(local_filename):
       raise vfs_error('filename exists and is a dir: {}'.format(remote_filename))
@@ -216,8 +216,8 @@ class vfs_local(vfs_base):
       checksum = None
       attributes = None
       size = None
-    return vfs_file_info(vfs_path.dirname(remote_filename),
-                         vfs_path.basename(remote_filename),
+    return vfs_file_info(vfs_path_util.dirname(remote_filename),
+                         vfs_path_util.basename(remote_filename),
                          ftype,
                          size,
                          checksum,

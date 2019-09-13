@@ -3,7 +3,7 @@
 import re
 from collections import namedtuple
 
-class vfs_path(object):
+class vfs_path_util(object):
   'Class to deal with vfs paths.'
 
   # vfs paths are use unix style regardless of the python runtime platform
@@ -102,7 +102,7 @@ class vfs_path(object):
 
   @classmethod
   def dedup_sep(clazz, filename):
-    'Dedup separators in a vfs_path'
+    'Dedup separators in a vfs_path_util'
     pattern = r'{}{{2,}}'.format(clazz.SEP)
     return re.sub(pattern, clazz.SEP, filename, flags = re.DOTALL)
   

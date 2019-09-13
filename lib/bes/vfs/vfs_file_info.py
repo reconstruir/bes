@@ -9,7 +9,7 @@ from bes.property.cached_property import cached_property
 
 from .vfs_error import vfs_error
 from .vfs_list_options import vfs_list_options
-from .vfs_path import vfs_path
+from .vfs_path_util import vfs_path_util
 
 class vfs_file_info(namedtuple('vfs_file_info', 'dirname, basename, ftype, size, checksum, attributes, children')):
 
@@ -47,8 +47,8 @@ class vfs_file_info(namedtuple('vfs_file_info', 'dirname, basename, ftype, size,
 
   @property
   def filename(self):
-    return vfs_path.normalize(vfs_path.join(vfs_path.ensure_lsep(self.dirname),
-                                            vfs_path.lstrip_sep(self.basename)))
+    return vfs_path_util.normalize(vfs_path_util.join(vfs_path_util.ensure_lsep(self.dirname),
+                                            vfs_path_util.lstrip_sep(self.basename)))
 
   @cached_property
   def display_filename(self):

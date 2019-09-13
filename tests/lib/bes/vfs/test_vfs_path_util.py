@@ -3,9 +3,9 @@
 
 from bes.testing.unit_test import unit_test
 
-from bes.vfs.vfs_path import vfs_path as P
+from bes.vfs.vfs_path_util import vfs_path_util as P
 
-class test_vfs_path(unit_test):
+class test_vfs_path_util(unit_test):
 
   def test_join(self):
     self.assertEqual( 'foo/bar', P.join('foo', 'bar') )

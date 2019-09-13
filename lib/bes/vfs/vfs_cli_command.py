@@ -15,7 +15,7 @@ from .vfs_file_info import vfs_file_info
 from .vfs_file_info import vfs_file_info_list
 from .vfs_list_options import vfs_list_options
 from .vfs_local import vfs_local
-from .vfs_path import vfs_path
+from .vfs_path_util import vfs_path_util
 from .vfs_registry import vfs_registry
 
 class vfs_cli_command(object):
@@ -32,16 +32,16 @@ class vfs_cli_command(object):
     check.check_string(remote_filename)
     check.check_vfs_list_options(options, allow_none = True)
 
-    remote_filename = vfs_path.normalize(remote_filename)
+    remote_filename = vfs_path_util.normalize(remote_filename)
     
     fs = clazz._create_fs_from_config(config)
 
     options = options or vfs_list_options()
     clazz.log.log_d('ls: remote_filename={} options={}'.format(remote_filename, options))
 
-    if vfs_path.ends_with_sep(remote_filename):
-      info = vfs_file_info(vfs_path.dirname(remote_filename),
-                           vfs_path.basename(remote_filename),
+    if vfs_path_util.ends_with_sep(remote_filename):
+      info = vfs_file_info(vfs_path_util.dirname(remote_filename),
+                           vfs_path_util.basename(remote_filename),
                            vfs_file_info.DIR)
     else:
       info = fs.file_info(remote_filename)
@@ -63,7 +63,7 @@ class vfs_cli_command(object):
 
   @classmethod
   def _format_file_info(clazz, info, options):
-    fields = [ vfs_path.basename(info.filename) ]
+    fields = [ vfs_path_util.basename(info.filename) ]
     if options.show_size:
       fields.append(clazz._format_file_size(info.size, options))
     if options.show_checksums:
@@ -238,7 +238,7 @@ class vfs_cli_command(object):
     check.check_string(config, allow_none = True)
     check.check_string(remote_filename)
 
-    remote_filename = vfs_path.normalize(remote_filename)
+    remote_filename = vfs_path_util.normalize(remote_filename)
     
     fs = clazz._create_fs_from_config(config)
 
