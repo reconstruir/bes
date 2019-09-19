@@ -80,9 +80,12 @@ class test_vfs_git_repo(unit_test):
   @git_temp_home_func()
   def test_file_info_dir(self):
     tester = self._make_tester_with_items()
+    i = tester.fs.file_info('subdir')
+    import time
+    time.sleep(4)
     self.assertEqual(
-      ( '/', 'subdir', 'dir', None, None, None, [] ),
-      tester.fs.file_info('subdir') )
+      ( '/', 'subdir', 'dir', file_util.get_modification_date(tester.repo.root), None, None, None, [] ),
+      i ) #tester.fs.file_info('subdir') )
     
   @git_temp_home_func()
   def test_remove_file(self):

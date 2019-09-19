@@ -36,6 +36,26 @@ class vfs_cli_args(object):
     p.add_argument('-H', '--human-friendly', action = 'store_true', default = False,
                    help = 'Print data in human friendly form. [ False ]')
     
+    p = subparser.add_parser('lsdir', help = 'List a dir.')
+    p.add_argument('filename', action = 'store', default = '/', type = str, nargs = '?',
+                   help = 'Directory to list. [ None ]')
+    p.add_argument('-R', '--recursive', action = 'store_true', default = False,
+                   help = 'List recurisively. [ False ]')
+    p.add_argument('-l', '--show-all', action = 'store_true', default = False,
+                   help = 'Show all file details. [ False ]')
+    p.add_argument('-1', '--one-line', action = 'store_true', default = False,
+                   help = 'Show one file per line. [ False ]')
+    p.add_argument('-c', '--show-checksums', action = 'store_true', default = False,
+                   help = 'Show checksums. [ False ]')
+    p.add_argument('-a', '--show-attributes', action = 'store_true', default = False,
+                   help = 'Show attributes. [ False ]')
+    p.add_argument('-s', '--show-size', action = 'store_true', default = False,
+                   help = 'Show size. [ False ]')
+    p.add_argument('-f', '--flat-paths', action = 'store_true', default = False,
+                   help = 'Flatten the fs tree paths. [ False ]')
+    p.add_argument('-H', '--human-friendly', action = 'store_true', default = False,
+                   help = 'Print data in human friendly form. [ False ]')
+    
     p = subparser.add_parser('upload', help = 'Upload a file.')
     p.add_argument('local_filename', action = 'store', default = None, type = str,
                    help = 'Local filename to upload. [ None ]')
@@ -91,6 +111,21 @@ class vfs_cli_args(object):
                               human_friendly = human_friendly)
     return vfs_cli_command.ls(config, filename, options)
 
+  def _command_fs_lsdir(self, config, filename, recursive, show_all, one_line,
+                        show_checksums, show_attributes, show_size, flat_paths, human_friendly):
+    if show_all:
+      show_checksums = True
+      show_size = True
+      show_attributes = True
+    options = vfs_list_options(recursive = recursive,
+                              show_checksums = show_checksums,
+                              show_size = show_size,
+                              show_attributes = show_attributes,
+                              one_line = one_line,
+                              flat_paths = flat_paths,
+                              human_friendly = human_friendly)
+    return vfs_cli_command.lsdir(config, filename, options)
+  
   def _command_fs_upload(self, config, local_filename, remote_filename):
     return vfs_cli_command.upload(config, local_filename, remote_filename)
   
