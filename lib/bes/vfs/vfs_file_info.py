@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
+from datetime import datetime
 
 from bes.common.check import check
 from bes.common.type_checked_list import type_checked_list
@@ -11,15 +12,16 @@ from .vfs_error import vfs_error
 from .vfs_list_options import vfs_list_options
 from .vfs_path_util import vfs_path_util
 
-class vfs_file_info(namedtuple('vfs_file_info', 'dirname, basename, ftype, size, checksum, attributes, children')):
+class vfs_file_info(namedtuple('vfs_file_info', 'dirname, basename, ftype, modification_date, size, checksum, attributes, children')):
 
   FILE = 'file'
   DIR = 'dir'
   
-  def __new__(clazz, dirname, basename, ftype, size = None, checksum = None, attributes = None, children = None):
+  def __new__(clazz, dirname, basename, ftype, modification_date, size = None, checksum = None, attributes = None, children = None):
     check.check_string(dirname)
     check.check_string(basename)
     check.check_string(ftype)
+    check.check(modification_date, datetime)
     check.check_int(size, allow_none = True)
     check.check_string(checksum, allow_none = True)
     check.check_dict(attributes, allow_none = True)
@@ -37,7 +39,7 @@ class vfs_file_info(namedtuple('vfs_file_info', 'dirname, basename, ftype, size,
         raise vfs_error('checksum is only for "file"')
       if attributes:
         raise vfs_error('attributes are only for "file"')
-    return clazz.__bases__[0].__new__(clazz, dirname, basename, ftype, size, checksum, attributes, children)
+    return clazz.__bases__[0].__new__(clazz, dirname, basename, ftype, modification_date, size, checksum, attributes, children)
 
   def __iter__(self):
     return iter(self.children)

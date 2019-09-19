@@ -3,6 +3,8 @@
 import glob, os, re
 from os import path
 
+from datetime import datetime
+
 from bes.common.check import check
 from bes.system.log import logger
 from bes.python.code import code
@@ -52,6 +54,24 @@ class vfs_cli_command(object):
       return clazz._ls_file(fs, info, options)
     return 0
 
+  @classmethod
+  def lsdir(clazz, config, remote_dir, options):
+    'ls command.'
+    check.check_string(config, allow_none = True)
+    check.check_string(remote_dir)
+    check.check_vfs_list_options(options, allow_none = True)
+
+    remote_dir = vfs_path_util.normalize(remote_dir)
+    
+    fs = clazz._create_fs_from_config(config)
+
+    options = options or vfs_list_options()
+    clazz.log.log_d('lsdir: remote_dir={} options={}'.format(remote_dir, options))
+
+    x = fs.list_dir(remote_dir, options.recursive)
+    print(x, type(x))
+    return 0
+  
   @classmethod
   def _ls_dir(clazz, fs, info, options):
     'list dirs.'

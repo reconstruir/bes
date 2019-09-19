@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 from os import path
 
 from bes.common.check import check
@@ -205,7 +206,7 @@ class vfs_local(vfs_base):
       return vfs_file_info.DIR
     else:
       return vfs_file_info.FILE
-    
+
   def _make_entry(self, remote_filename, local_filename, children):
     ftype = self._file_type(local_filename)
     if ftype == vfs_file_info.FILE:
@@ -216,9 +217,11 @@ class vfs_local(vfs_base):
       checksum = None
       attributes = None
       size = None
+    modification_date = file_util.get_modification_date(local_filename)
     return vfs_file_info(vfs_path_util.dirname(remote_filename),
                          vfs_path_util.basename(remote_filename),
                          ftype,
+                         modification_date,
                          size,
                          checksum,
                          attributes,

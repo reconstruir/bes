@@ -3,6 +3,7 @@
 
 import os, pprint, sys
 from os import path
+from datetime import datetime
 
 from bes.testing.unit_test import unit_test
 from bes.fs.testing.temp_content import temp_content
@@ -16,15 +17,17 @@ from bes.vfs.vfs_error import vfs_error
 
 class _vfs_local_tester(vfs_tester):
 
+  MTIME = datetime(year=1980, month=1, day=1, hour=1, minute=1, second=1)
+  
   def __init__(self, fixture, items = None):
-    self.local_root_dir = self._make_temp_content(items, fixture.DEBUG)
+    self.local_root_dir = temp_content.write_items_to_temp_dir(items, delete = not fixture.DEBUG)
+    files = file_find.find(self.local_root_dir, relative = False, file_type = file_find.ANY)
+    for f in files:
+      file_util.set_modification_date(f, self.MTIME)
+    file_util.set_modification_date(self.local_root_dir, self.MTIME)
     fs = vfs_local('<unittest>', self.local_root_dir)
     super(_vfs_local_tester, self).__init__(fs)
 
-  @classmethod
-  def _make_temp_content(clazz, items, debug):
-    return temp_content.write_items_to_temp_dir(items, delete = debug)
-    
 class test_vfs_local(unit_test):
 
   @classmethod
@@ -64,9 +67,9 @@ class test_vfs_local(unit_test):
     self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
     
   def test_list_dir_empty(self):
-    tmp_dir = self.make_temp_dir()
+    tmp_dir = self.make_temp_dir(mtime = _vfs_local_tester.MTIME)
     fs = vfs_local('<unittest>',tmp_dir)
-    self.assertEqual( ( '/', '', 'dir', None, None, None, [] ), fs.list_dir('/', True) )
+    self.assertEqual( ( '/', '', 'dir', file_util.get_modification_date(tmp_dir), None, None, None, [] ), fs.list_dir('/', True) )
     
   def test_list_dir_non_existent(self):
     tmp_dir = self.make_temp_dir()
@@ -84,7 +87,7 @@ class test_vfs_local(unit_test):
   def test_file_info_dir(self):
     tester = self._make_tester()
     self.assertEqual(
-      ( '/', 'subdir', 'dir', None, None, None, [] ),
+      ( '/', 'subdir', 'dir', tester.MTIME, None, None, None, [] ),
       tester.fs.file_info('subdir') )
     
   def test_remove_file(self):

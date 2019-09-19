@@ -2,6 +2,8 @@
 
 from collections import namedtuple
 import os, os.path as path
+from datetime import datetime
+
 from bes.text.string_list_parser import string_list_parser
 from bes.common.string_util import string_util
 from bes.fs.temp_file import temp_file
@@ -103,7 +105,7 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
     clazz._mkdir(path.dirname(filename))
     with open(filename, 'wb') as fout:
       fout.write(content)
-
+      
   def _write_dir(self, root_dir):
     p = path.join(root_dir, self.filename)
     self._mkdir(p, mode = self.mode)

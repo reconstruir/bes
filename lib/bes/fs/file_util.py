@@ -1,11 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import codecs, hashlib
-import os.path as path, os, platform, shutil, tempfile
+import os.path as path, os, platform, shutil, tempfile, time
+from datetime import datetime
+
 from bes.common.check import check
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
-
 from bes.system.compat import compat
 from bes.system.log import log
 
@@ -292,5 +293,16 @@ class file_util(object):
   def exists(clazz, files):
     files = object_util.listify(files)
     return not False in [ path.exists(f) for f in files ]
+
+  @classmethod
+  def get_modification_date(clazz, filename):
+    ts = path.getmtime(filename)
+    return datetime.fromtimestamp(ts)
+
+  @classmethod
+  def set_modification_date(clazz, filename, mtime):
+    check.check(mtime, datetime)
+    mktime = time.mktime(mtime.timetuple())
+    os.utime(filename, ( mktime, mktime ))
   
 log.add_logging(file_util, 'file_util')

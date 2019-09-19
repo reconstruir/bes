@@ -1,7 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import atexit, codecs, copy, json, inspect, os, os.path as path
-import platform, pprint, re, sys, shutil, subprocess, tempfile, unittest
+import platform, pprint, re, sys, shutil, subprocess, tempfile, time, unittest
+from datetime import datetime
+
 from .hexdata import hexdata
 
 class unit_test(unittest.TestCase):
@@ -222,7 +224,7 @@ class unit_test(unittest.TestCase):
   _DEFAULT_PREFIX = path.splitext(path.basename(sys.argv[0]))[0] + '-tmp-'
 
   @classmethod
-  def make_temp_file(clazz, content = None, prefix = None, suffix = None, dir = None, mode = 'w+b', perm = None):
+  def make_temp_file(clazz, content = None, prefix = None, suffix = None, dir = None, mode = 'w+b', perm = None, mtime = None):
     'Write content to a temporary file.  Returns the file object.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or ''
@@ -246,10 +248,13 @@ class unit_test(unittest.TestCase):
     else:
       clazz._atexit_delete(tmp.name)
     tmp.close()
+    if mtime:
+      assert isinstance(mtime, datetime)
+      clazz._set_mtime(tmp.name, mtime)
     return tmp.name
 
   @classmethod
-  def make_temp_dir(clazz, prefix = None, suffix = None, dir = None):
+  def make_temp_dir(clazz, prefix = None, suffix = None, dir = None, mtime = None):
     'Make a temporary directory.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or '.dir'
@@ -261,8 +266,16 @@ class unit_test(unittest.TestCase):
       print('temp_dir: {}'.format(tmp_dir))
     else:
       clazz._atexit_delete(tmp_dir)
+    if mtime:
+      assert isinstance(mtime, datetime)
+      clazz._set_mtime(tmp_dir, mtime)
     return tmp_dir
 
+  @classmethod
+  def _set_mtime(clazz, filename, mtime):
+    mktime = time.mktime(mtime.timetuple())
+    os.utime(filename, ( mktime, mktime ))
+  
   @classmethod
   def _atexit_delete(clazz, filename):
     'Delete filename atexit time.'
