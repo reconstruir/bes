@@ -236,9 +236,10 @@ class git(object):
     return rv
 
   @classmethod
-  def archive_foo(clazz, root, base_name, revision, output_filename,
+  def archive_foo(clazz, root, prefix, revision, output_filename,
                   archive_format = None, short_hash = True):
     'git archive with additional support to include untracked files for local repos.'
+    prefix = file_util.ensure_rsep(prefix)
     archive_format = archive_format or 'tgz'
     output_filename = path.abspath(output_filename)
     file_util.ensure_file_dir(output_filename)
@@ -249,7 +250,7 @@ class git(object):
     args = [
       'archive',
       '--format={}'.format(archive_format),
-      '--prefix={}-{}/'.format(base_name, revision),
+      '--prefix={}'.format(prefix),
       '-o',
       output_filename,
       revision
