@@ -17,9 +17,10 @@ from bes.factory.factory_field import factory_field
 from bes.git.git_clone_manager import git_clone_manager
 
 from .vfs_base import vfs_base
+from .vfs_error import vfs_error
 from .vfs_file_info import vfs_file_info
 from .vfs_file_info import vfs_file_info_list
-from .vfs_error import vfs_error
+from .vfs_file_info_options import vfs_file_info_options
 from .vfs_local import vfs_local
 
 class vfs_git_repo(vfs_base):
@@ -65,11 +66,17 @@ class vfs_git_repo(vfs_base):
     return 'vfs_git_repo'
 
   #@abstractmethod
-  def list_dir(self, remote_dir, recursive):
+  def list_dir(self, remote_dir, recursive, options):
     'List entries in a directory.'
-    self.log.log_d('list_dir(remote_dir={}, recursive={}'.format(remote_dir, recursive))
+    check.check_string(remote_dir)
+    check.check_bool(recursive)
+    check.check_vfs_file_info_options(options, allow_none = True)
+
+    options = options or vfs_file_info_options()
+    
+    self.log.log_d('list_dir(remote_dir={}, recursive={} options={}'.format(remote_dir, recursive, options))
     proxy = self._make_proxy()
-    rv = proxy.fs.list_dir(remote_dir, recursive)
+    rv = proxy.fs.list_dir(remote_dir, recursive, options)
     self._post_operation(proxy)
     return rv
   
@@ -82,10 +89,15 @@ class vfs_git_repo(vfs_base):
     return rv
   
   #@abstractmethod
-  def file_info(self, remote_filename):
-    'Get info for a single file..'
+  def file_info(self, remote_filename, options):
+    'Get info for a single file.'
+    check.check_string(remote_filename)
+    check.check_vfs_file_info_options(options, allow_none = True)
+
+    options = options or vfs_file_info_options()
+
     proxy = self._make_proxy()
-    rv = proxy.fs.file_info(remote_filename)
+    rv = proxy.fs.file_info(remote_filename, options)
     self._post_operation(proxy)
     return rv
   

@@ -9,7 +9,6 @@ from bes.fs.testing.temp_content import temp_content
 from bes.git.git_temp_repo import git_temp_repo
 from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
-from bes.testing.unit_test_skip import raise_skip
 
 from bes.vfs.vfs_git_repo import vfs_git_repo
 from bes.vfs.vfs_error import vfs_error
@@ -27,10 +26,6 @@ class _vfs_git_repo_tester(vfs_tester):
 
 class test_vfs_git_repo(unit_test):
 
-  @classmethod
-  def setUpClass(clazz):
-    raise_skip('broken')
-  
   _TEST_ITEMS = [
     'file foo.txt "foo.txt"',
     'file subdir/bar.txt "bar.txt"',
@@ -47,7 +42,7 @@ class test_vfs_git_repo(unit_test):
 /foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35
 /subdir/ dir None None
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', False) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', False, tester.OPTIONS) )
     
   @git_temp_home_func()
   def test_list_dir_recursive(self):
@@ -60,36 +55,33 @@ class test_vfs_git_repo(unit_test):
   /subdir/subberdir/ dir None None
     /subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
     
   @git_temp_home_func()
   def xtest_list_dir_empty(self):
     tester = self._make_tester()
-    self.assertEqual( ( '/', '', 'dir', None, None, None, [] ), tester.fs.list_dir('/', True) )
+    self.assertEqual( ( '/', '', 'dir', None, None, None, [] ), tester.fs.list_dir('/', True, tester.OPTIONS) )
     
   @git_temp_home_func()
   def test_list_dir_non_existent(self):
     tester = self._make_tester()
     with self.assertRaises(vfs_error) as ctx:
-      tester.fs.list_dir('/foo', False)
+      tester.fs.list_dir('/foo', False, tester.OPTIONS)
     self.assertEqual( 'dir not found: /foo', ctx.exception.message )
       
   @git_temp_home_func()
   def test_file_info(self):
     tester = self._make_tester_with_items()
     self.assertEqual(
-      ( '/', 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {}, [] ),
-      tester.fs.file_info('foo.txt') )
+      ( '/', 'foo.txt', 'file', tester.MTIME, 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {}, [] ),
+      tester.fs.file_info('foo.txt', tester.OPTIONS) )
     
   @git_temp_home_func()
   def test_file_info_dir(self):
     tester = self._make_tester_with_items()
-    i = tester.fs.file_info('subdir')
-    import time
-    time.sleep(4)
     self.assertEqual(
-      ( '/', 'subdir', 'dir', file_util.get_modification_date(tester.repo.root), None, None, None, [] ),
-      i ) #tester.fs.file_info('subdir') )
+      ( '/', 'subdir', 'dir', tester.MTIME, None, None, None, [] ),
+      tester.fs.file_info('subdir', tester.OPTIONS) )
     
   @git_temp_home_func()
   def test_remove_file(self):
@@ -102,7 +94,7 @@ class test_vfs_git_repo(unit_test):
   /subdir/subberdir/ dir None None
     /subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
     tester.fs.remove_file('foo.txt')
     expected = '''\
 /emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
@@ -111,7 +103,7 @@ class test_vfs_git_repo(unit_test):
   /subdir/subberdir/ dir None None
     /subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
     
   @git_temp_home_func()
   def test_upload_file_new(self):
@@ -124,7 +116,7 @@ class test_vfs_git_repo(unit_test):
   /subdir/subberdir/ dir None None
     /subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
     tmp_file = self.make_temp_file(content = 'this is kiwi.txt\n')
     tester.fs.upload_file(tmp_file, 'kiwi.txt')
     expected = '''\
@@ -136,7 +128,7 @@ class test_vfs_git_repo(unit_test):
   /subdir/subberdir/ dir None None
     /subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
     
   @git_temp_home_func()
   def test_upload_file_replace(self):
@@ -149,7 +141,7 @@ class test_vfs_git_repo(unit_test):
   /subdir/subberdir/ dir None None
     /subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
     tmp_file = self.make_temp_file(content = 'this is the new foo.txt\n')
     tester.fs.upload_file(tmp_file, 'foo.txt')
     expected = '''\
@@ -160,18 +152,18 @@ class test_vfs_git_repo(unit_test):
   /subdir/subberdir/ dir None None
     /subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
 
   @git_temp_home_func()
   def test_set_file_properties(self):
     tester = self._make_tester_with_items()
     self.assertEqual(
-      ( '/', 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {}, [] ),
-      tester.fs.file_info('foo.txt') )
+      ( '/', 'foo.txt', 'file', tester.MTIME, 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {}, [] ),
+      tester.fs.file_info('foo.txt', tester.OPTIONS) )
     tester.fs.set_file_attributes('foo.txt', { 'p1': 'hello', 'p2': '666' })
     self.assertEqual(
-      ( '/', 'foo.txt', 'file', 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {'p2': '666', 'p1': 'hello'}, [] ),
-      tester.fs.file_info('foo.txt') )
+      ( '/', 'foo.txt', 'file', tester.MTIME, 7, 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35', {'p2': '666', 'p1': 'hello'}, [] ),
+      tester.fs.file_info('foo.txt', tester.OPTIONS) )
 
   @git_temp_home_func()
   def test_download_to_file(self):
@@ -190,7 +182,7 @@ class test_vfs_git_repo(unit_test):
     fs = vfs_git_repo(r.address, config_dir1, False)
     t = vfs_tester(fs)
     self.assertEqual( '/foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35\n',
-                      t.list_dir('/', False) )
+                      t.list_dir('/', False, tester.OPTIONS) )
     r.add_file('bar.txt', 'bar.txt')
     r.push()
     config_dir2 = self.make_temp_dir(suffix = '.config.dir')
@@ -200,7 +192,7 @@ class test_vfs_git_repo(unit_test):
 /bar.txt file 7 08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae
 /foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35
 '''
-    self.assertEqual( expected, t.list_dir('/', False) )
+    self.assertEqual( expected, t.list_dir('/', False, tester.OPTIONS) )
     
   @classmethod
   def _make_tester(clazz, use_lfs = False, items = None):

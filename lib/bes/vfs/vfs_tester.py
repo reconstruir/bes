@@ -1,10 +1,16 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from datetime import datetime
+
 from bes.fs.temp_file import temp_file
 from .vfs_list_options import vfs_list_options
+from .vfs_file_info_options import vfs_file_info_options
 
 class vfs_tester(object):
 
+  MTIME = datetime(year = 1999, month = 1, day = 1, hour = 1, minute = 1, second = 1)
+  OPTIONS = vfs_file_info_options(hardcode_modification_date = MTIME)
+  
   def __init__(self, fs):
     self.fs = fs
 
