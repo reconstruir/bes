@@ -68,8 +68,9 @@ class vfs_cli_command(object):
     options = options or vfs_list_options()
     clazz.log.log_d('lsdir: remote_dir={} options={}'.format(remote_dir, options))
 
-    x = fs.list_dir(remote_dir, options.recursive)
-    print(x, type(x))
+    entries = fs.list_dir(remote_dir, options.recursive)
+    t = text_table(data = entries)
+    print(t)
     return 0
   
   @classmethod

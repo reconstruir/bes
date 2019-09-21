@@ -39,7 +39,9 @@ class vfs_file_info(namedtuple('vfs_file_info', 'dirname, basename, ftype, modif
         raise vfs_error('checksum is only for "file"')
       if attributes:
         raise vfs_error('attributes are only for "file"')
-    return clazz.__bases__[0].__new__(clazz, dirname, basename, ftype, modification_date, size, checksum, attributes, children)
+    return clazz.__bases__[0].__new__(clazz, dirname, basename, ftype,
+                                      modification_date, size, checksum,
+                                      attributes, children)
 
   def __iter__(self):
     return iter(self.children)
