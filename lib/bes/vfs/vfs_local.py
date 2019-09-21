@@ -18,6 +18,7 @@ from .vfs_base import vfs_base
 from .vfs_error import vfs_error
 from .vfs_file_info import vfs_file_info
 from .vfs_file_info import vfs_file_info_list
+from .vfs_file_info_options import vfs_file_info_options
 from .vfs_path_util import vfs_path_util
 
 class vfs_local(vfs_base):
@@ -61,9 +62,15 @@ class vfs_local(vfs_base):
     return 'vfs_local'
 
   #@abstractmethod
-  def list_dir(self, remote_dir, recursive):
+  def list_dir(self, remote_dir, recursive, options):
     'List entries in a directory.'
+    check.check_string(remote_dir)
+    check.check_bool(recursive)
+    check.check_vfs_file_info_options(options, allow_none = True)
+
     remote_dir = vfs_path_util.normalize(remote_dir)
+    options = options or vfs_file_info_options()
+    
     self.log.log_d('list_dir(remote_dir={}, recursive={}'.format(remote_dir, recursive))
     result = node('/')
     local_dir_path = self._make_local_dir_path(remote_dir)
@@ -96,10 +103,10 @@ class vfs_local(vfs_base):
           setattr(new_node, '_local_filename', local_filename)
           setattr(new_node, '_is_file', next_file_or_dir in files_set)
 
-    fs_tree = self._convert_node_to_fs_tree(result, depth = 0)
+    fs_tree = self._convert_node_to_fs_tree(result, 0, options)
     return fs_tree
 
-  def _convert_node_to_fs_tree(self, n, depth = 0):
+  def _convert_node_to_fs_tree(self, n, depth, options):
     indent = ' ' * depth
     is_file = getattr(n, '_is_file')
     remote_filename = getattr(n, '_remote_filename')
@@ -107,8 +114,8 @@ class vfs_local(vfs_base):
     if is_file:
       children = vfs_file_info_list()
     else:
-      children = vfs_file_info_list([ self._convert_node_to_fs_tree(child, depth + 2) for child in n.children ])
-    entry = self._make_entry(remote_filename, local_filename, children)
+      children = vfs_file_info_list([ self._convert_node_to_fs_tree(child, depth + 2, options) for child in n.children ])
+    entry = self._make_entry(remote_filename, local_filename, children, options)
     return entry
 
   def _should_include_file(clazz, filename):
@@ -122,14 +129,19 @@ class vfs_local(vfs_base):
     return path.isfile(p)
   
   #@abstractmethod
-  def file_info(self, remote_filename):
-    'Get info for a single file..'
+  def file_info(self, remote_filename, options):
+    'Get info for a single file.'
+    check.check_string(remote_filename)
+    check.check_vfs_file_info_options(options, allow_none = True)
+
     remote_filename = vfs_path_util.normalize(remote_filename)
+    options = options or vfs_file_info_options()
+
     p = self._make_local_file_path(remote_filename)
     if not path.exists(p):
       raise vfs_error('{}: not found: {}'.format(self, remote_filename))
     local_filename = self._make_local_file_path(remote_filename)
-    return self._make_entry(remote_filename, local_filename, vfs_file_info_list())
+    return self._make_entry(remote_filename, local_filename, vfs_file_info_list(), options)
   
   #@abstractmethod
   def remove_file(self, remote_filename):
@@ -207,7 +219,7 @@ class vfs_local(vfs_base):
     else:
       return vfs_file_info.FILE
 
-  def _make_entry(self, remote_filename, local_filename, children):
+  def _make_entry(self, remote_filename, local_filename, children, options):
     ftype = self._file_type(local_filename)
     if ftype == vfs_file_info.FILE:
       checksum = self._get_checksum(local_filename)
@@ -217,7 +229,10 @@ class vfs_local(vfs_base):
       checksum = None
       attributes = None
       size = None
-    modification_date = file_util.get_modification_date(local_filename)
+    if options.hardcode_modification_date:
+      modification_date = options.hardcode_modification_date
+    else:
+      modification_date = file_util.get_modification_date(local_filename)
     return vfs_file_info(vfs_path_util.dirname(remote_filename),
                          vfs_path_util.basename(remote_filename),
                          ftype,

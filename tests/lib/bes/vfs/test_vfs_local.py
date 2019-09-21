@@ -5,35 +5,23 @@ import os, pprint, sys
 from os import path
 from datetime import datetime
 
-from bes.testing.unit_test import unit_test
-from bes.fs.testing.temp_content import temp_content
-from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
-from bes.testing.unit_test_skip import raise_skip
-from bes.vfs.vfs_tester import vfs_tester
-
-from bes.vfs.vfs_local import vfs_local
+from bes.fs.file_util import file_util
+from bes.fs.testing.temp_content import temp_content
+from bes.testing.unit_test import unit_test
 from bes.vfs.vfs_error import vfs_error
+from bes.vfs.vfs_file_info_options import vfs_file_info_options
+from bes.vfs.vfs_local import vfs_local
+from bes.vfs.vfs_tester import vfs_tester
 
 class _vfs_local_tester(vfs_tester):
 
-  MTIME = datetime(year=1980, month=1, day=1, hour=1, minute=1, second=1)
-  
   def __init__(self, fixture, items = None):
     self.local_root_dir = temp_content.write_items_to_temp_dir(items, delete = not fixture.DEBUG)
-    files = file_find.find(self.local_root_dir, relative = False, file_type = file_find.ANY)
-    for f in files:
-      file_util.set_modification_date(f, self.MTIME)
-    file_util.set_modification_date(self.local_root_dir, self.MTIME)
     fs = vfs_local('<unittest>', self.local_root_dir)
     super(_vfs_local_tester, self).__init__(fs)
 
 class test_vfs_local(unit_test):
-
-  @classmethod
-  def setUpClass(clazz):
-    #raise_skip('work in progress not ready')
-    pass
   
   _TEST_ITEMS = [
     'file foo.txt "foo.txt"',
@@ -51,7 +39,7 @@ class test_vfs_local(unit_test):
 /foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35
 /subdir/ dir None None
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', False) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', False, tester.OPTIONS) )
     
   def test_list_dir_recursive(self):
     tester = self._make_tester()
@@ -64,31 +52,31 @@ class test_vfs_local(unit_test):
   /subdir/subberdir/ dir None None
     /subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
     
   def test_list_dir_empty(self):
-    tmp_dir = self.make_temp_dir(mtime = _vfs_local_tester.MTIME)
+    tmp_dir = self.make_temp_dir()
     fs = vfs_local('<unittest>',tmp_dir)
-    self.assertEqual( ( '/', '', 'dir', file_util.get_modification_date(tmp_dir), None, None, None, [] ), fs.list_dir('/', True) )
+    self.assertEqual( ( '/', '', 'dir', vfs_tester.MTIME, None, None, None, [] ), fs.list_dir('/', True, vfs_tester.OPTIONS) )
     
   def test_list_dir_non_existent(self):
     tmp_dir = self.make_temp_dir()
     fs = vfs_local('<unittest>',tmp_dir)
     with self.assertRaises(vfs_error) as ctx:
-      fs.list_dir('/foo', False)
+      fs.list_dir('/foo', False, vfs_tester.OPTIONS)
     self.assertEqual( 'dir not found: /foo', ctx.exception.message )
       
   def test_file_info(self):
     tester = self._make_tester()
     self.assertEqual(
       '/foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35\n',
-      tester.file_info('foo.txt') )
+      tester.file_info('foo.txt', tester.OPTIONS) )
     
   def test_file_info_dir(self):
     tester = self._make_tester()
     self.assertEqual(
       ( '/', 'subdir', 'dir', tester.MTIME, None, None, None, [] ),
-      tester.fs.file_info('subdir') )
+      tester.fs.file_info('subdir', tester.OPTIONS) )
     
   def test_remove_file(self):
     tester = self._make_tester()
@@ -101,7 +89,7 @@ class test_vfs_local(unit_test):
   /subdir/subberdir/ dir None None
     /subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
     tester.remove_file('foo.txt')
     expected = '''\
 /emptydir/ dir None None
@@ -111,7 +99,7 @@ class test_vfs_local(unit_test):
   /subdir/subberdir/ dir None None
     /subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
 
   def test_upload_file_new(self):
     tester = self._make_tester()
@@ -144,7 +132,7 @@ class test_vfs_local(unit_test):
   /subdir/subberdir/ dir None None
     /subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
     tmp_file = self.make_temp_file(content = 'this is the new foo.txt\n')
     tester.upload_file(tmp_file, 'foo.txt')
     expected = '''\
@@ -156,17 +144,17 @@ class test_vfs_local(unit_test):
   /subdir/subberdir/ dir None None
     /subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
 '''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True) )
+    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
 
   def test_set_file_properties(self):
     tester = self._make_tester()
     self.assertEqual(
       '/foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35\n',
-      tester.file_info('foo.txt') )
+      tester.file_info('foo.txt', tester.OPTIONS) )
     tester.set_file_attributes('foo.txt', { 'p1': 'hello', 'p2': '666' })
     self.assertEqual(
      '/foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35 p1=hello p2=666\n',
-      tester.file_info('foo.txt') )
+      tester.file_info('foo.txt', tester.OPTIONS) )
 
   def test_download_to_file(self):
     tester = self._make_tester()

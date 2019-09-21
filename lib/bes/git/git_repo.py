@@ -209,10 +209,11 @@ class git_repo(object):
   def active_branch(self):
     return git.active_branch(self.root)
 
-  def archive_foo(self, base_name, revision, output_filename,
+  def archive_foo(self, prefix, revision, output_filename,
                   archive_format = None, short_hash = True):
-    return git.archive_foo(self.root, base_name, revision, output_filename,
-                           archive_format = archive_format, short_hash = short_hash)
+    return git.archive_foo(self.root, prefix, revision, output_filename,
+                           archive_format = archive_format,
+                           short_hash = short_hash)
 
   def lfs_track(self, pattern):
     return self.call_git([ 'lfs', 'track', pattern ])
