@@ -111,8 +111,8 @@ class vfs_path_util(object):
     '''
     Normalize a vfs path including:
     - dedup separators: //foo///bar/// => /foo/bar/
-    - ensure leading separator
+    - ensure path is relative with no leading separator: /foo/bar => foo/bar
     '''
     deduped = clazz.dedup_sep(filename)
-    normalized = clazz.ensure_lsep(deduped)
-    return normalized
+    no_leading_sep = clazz.lstrip_sep(deduped)
+    return no_leading_sep

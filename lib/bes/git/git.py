@@ -115,7 +115,7 @@ class git(object):
       message = 'git command failed: %s in %s\n' % (' '.join(cmd), root)
       message += rv.stderr
       message += rv.stdout
-      print(message)
+      #print(message)
       ex = RuntimeError(message)
       setattr(ex, 'execute_result', rv)
       raise ex

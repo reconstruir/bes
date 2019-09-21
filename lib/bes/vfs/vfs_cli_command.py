@@ -15,6 +15,7 @@ from bes.text.text_table import text_table
 from .vfs_error import vfs_error
 from .vfs_file_info import vfs_file_info
 from .vfs_file_info import vfs_file_info_list
+from .vfs_file_info_options import vfs_file_info_options
 from .vfs_list_options import vfs_list_options
 from .vfs_local import vfs_local
 from .vfs_path_util import vfs_path_util
@@ -44,9 +45,10 @@ class vfs_cli_command(object):
     if vfs_path_util.ends_with_sep(remote_filename):
       info = vfs_file_info(vfs_path_util.dirname(remote_filename),
                            vfs_path_util.basename(remote_filename),
-                           vfs_file_info.DIR)
+                           vfs_file_info.DIR,
+                           datetime.now())
     else:
-      info = fs.file_info(remote_filename)
+      info = fs.file_info(remote_filename, vfs_file_info_options())
     clazz.log.log_d('ls: info={}'.format(info))
     if info.ftype == vfs_file_info.DIR:
       return clazz._ls_dir(fs, info, options)
@@ -68,8 +70,9 @@ class vfs_cli_command(object):
     options = options or vfs_list_options()
     clazz.log.log_d('lsdir: remote_dir={} options={}'.format(remote_dir, options))
 
-    x = fs.list_dir(remote_dir, options.recursive)
-    print(x, type(x))
+    caca = fs.list_dir(remote_dir, options.recursive, vfs_file_info_options())
+    for x in caca:
+      print(x, type(x))
     return 0
   
   @classmethod
@@ -77,7 +80,7 @@ class vfs_cli_command(object):
     'list dirs.'
     clazz.log.log_d('_ls_dir: fs={} info={} options={}'.format(fs, info, options))
     assert not info.children
-    listing = fs.list_dir(info.filename, options.recursive)
+    listing = fs.list_dir(info.filename, options.recursive, vfs_file_info_options())
     clazz._print_entry(listing, options, 0)
     return 0
 
@@ -262,7 +265,7 @@ class vfs_cli_command(object):
     
     fs = clazz._create_fs_from_config(config)
 
-    info = fs.file_info(remote_filename)
+    info = fs.file_info(remote_filename, vfs_file_info_options())
     clazz.log.log_d('info: info={}'.format(info))
     t = text_table(data = [ info ])
     print(t)

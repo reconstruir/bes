@@ -26,7 +26,7 @@ from .vfs_local import vfs_local
 class vfs_git_repo(vfs_base):
   'Masquerade a git repo as a filesystem.  All operations are committed automatically.'
 
-  log = logger('fs')
+  log = logger('vfs_git_repo')
   
   def __init__(self, config_source, address, config_dir, use_lfs):
     check.check_string(config_source)
@@ -176,5 +176,10 @@ class vfs_git_repo(vfs_base):
     return rv
 
   def _post_operation_push(self, proxy, status):
-    if proxy.repo.has_unpushed_commits():
-      proxy.repo.push()
+    try:
+      if proxy.repo.has_unpushed_commits():
+        proxy.repo.push()
+    except RuntimeError as ex:
+      if 'Unknown commit' in str(ex):
+        return
+      raise

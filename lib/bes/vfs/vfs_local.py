@@ -24,7 +24,7 @@ from .vfs_path_util import vfs_path_util
 class vfs_local(vfs_base):
   'Local filesystem'
 
-  log = logger('fs')
+  log = logger('vfs_local')
   
   def __init__(self, config_source, local_root_dir):
     check.check_string(config_source)
@@ -71,9 +71,9 @@ class vfs_local(vfs_base):
     remote_dir = vfs_path_util.normalize(remote_dir)
     options = options or vfs_file_info_options()
     
-    self.log.log_d('list_dir(remote_dir={}, recursive={}'.format(remote_dir, recursive))
     result = node('/')
     local_dir_path = self._make_local_dir_path(remote_dir)
+    self.log.log_d('list_dir: remote_dir={} recursive={} local_dir_path={}'.format(remote_dir, recursive, local_dir_path))
     if not path.isdir(local_dir_path):
       raise vfs_error('dir not found: {}'.format(remote_dir))
      
@@ -82,14 +82,17 @@ class vfs_local(vfs_base):
     setattr(result, '_remote_filename', '/')
     setattr(result, '_local_filename', self._local_root_dir)
     setattr(result, '_is_file', False)
-    
+
+    num_added = 0
     for root, dirs, files in file_find.walk_with_depth(local_dir_path, max_depth = max_depth, follow_links = True):
       if root == local_dir_path:
         rel = '/'
       else:
         rel = file_util.ensure_lsep(file_util.remove_head(root, local_dir_path))
+      self.log.log_d('list_dir: next: root={} dirs={} files={} rel={}'.format(root, dirs, files, rel))
       files_set = set(files)
       if not self._should_include_file(rel):
+        self.log.log_d('list_dir: skipping {}'.format(rel))
         continue
       for next_file_or_dir in sorted(files + dirs):
         if self._should_include_file(next_file_or_dir):
@@ -102,11 +105,18 @@ class vfs_local(vfs_base):
           setattr(new_node, '_remote_filename', remote_filename)
           setattr(new_node, '_local_filename', local_filename)
           setattr(new_node, '_is_file', next_file_or_dir in files_set)
-
+          num_added += 1
+        else:
+          self.log.log_d('list_dir: skipping {}'.format(next_file_or_dir))
+    if num_added == 0:
+      return vfs_file_info_list()
     fs_tree = self._convert_node_to_fs_tree(result, 0, options)
     return fs_tree
 
   def _convert_node_to_fs_tree(self, n, depth, options):
+    if not hasattr(n, '_is_file'):
+      msg = 'node missing attributes:\n----------------------\n{}\n----------------------\n'.format(n)
+      raise RuntimeError(msg)
     indent = ' ' * depth
     is_file = getattr(n, '_is_file')
     remote_filename = getattr(n, '_remote_filename')
@@ -211,7 +221,7 @@ class vfs_local(vfs_base):
     if remote_dir == '/':
       return self._local_root_dir
     else:
-      return path.join(self._local_root_dir, file_util.lstrip_sep(remote_dir))
+      return file_util.rstrip_sep(path.join(self._local_root_dir, file_util.lstrip_sep(remote_dir)))
 
   def _file_type(self, file_path):
     if path.isdir(file_path):
@@ -233,8 +243,7 @@ class vfs_local(vfs_base):
       modification_date = options.hardcode_modification_date
     else:
       modification_date = file_util.get_modification_date(local_filename)
-    return vfs_file_info(vfs_path_util.dirname(remote_filename),
-                         vfs_path_util.basename(remote_filename),
+    return vfs_file_info(remote_filename,
                          ftype,
                          modification_date,
                          size,

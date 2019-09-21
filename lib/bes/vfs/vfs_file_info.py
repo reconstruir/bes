@@ -12,14 +12,13 @@ from .vfs_error import vfs_error
 from .vfs_list_options import vfs_list_options
 from .vfs_path_util import vfs_path_util
 
-class vfs_file_info(namedtuple('vfs_file_info', 'dirname, basename, ftype, modification_date, size, checksum, attributes, children')):
+class vfs_file_info(namedtuple('vfs_file_info', 'filename, ftype, modification_date, size, checksum, attributes, children')):
 
   FILE = 'file'
   DIR = 'dir'
   
-  def __new__(clazz, dirname, basename, ftype, modification_date, size = None, checksum = None, attributes = None, children = None):
-    check.check_string(dirname)
-    check.check_string(basename)
+  def __new__(clazz, filename, ftype, modification_date, size = None, checksum = None, attributes = None, children = None):
+    check.check_string(filename)
     check.check_string(ftype)
     check.check(modification_date, datetime)
     check.check_int(size, allow_none = True)
@@ -27,6 +26,8 @@ class vfs_file_info(namedtuple('vfs_file_info', 'dirname, basename, ftype, modif
     check.check_dict(attributes, allow_none = True)
     check.check_vfs_file_info_list(children, entry_type = vfs_file_info, allow_none = True)
 
+    filename = vfs_path_util.normalize(filename)
+    
     children = children or vfs_file_info_list()
     
     if ftype == clazz.FILE:
@@ -39,7 +40,7 @@ class vfs_file_info(namedtuple('vfs_file_info', 'dirname, basename, ftype, modif
         raise vfs_error('checksum is only for "file"')
       if attributes:
         raise vfs_error('attributes are only for "file"')
-    return clazz.__bases__[0].__new__(clazz, dirname, basename, ftype, modification_date, size, checksum, attributes, children)
+    return clazz.__bases__[0].__new__(clazz, filename, ftype, modification_date, size, checksum, attributes, children)
 
   def __iter__(self):
     return iter(self.children)
@@ -47,10 +48,13 @@ class vfs_file_info(namedtuple('vfs_file_info', 'dirname, basename, ftype, modif
 #  def __str__(self):
 #    return self.to_string()
 
-  @property
-  def filename(self):
-    return vfs_path_util.normalize(vfs_path_util.join(vfs_path_util.ensure_lsep(self.dirname),
-                                            vfs_path_util.lstrip_sep(self.basename)))
+  @cached_property
+  def dirname(self):
+    return vfs_path_util.dirname(self.filename)
+
+  @cached_property
+  def basename(self):
+    return vfs_path_util.basename(self.filename)
 
   @cached_property
   def display_filename(self):
