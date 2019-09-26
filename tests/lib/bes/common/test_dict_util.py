@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
 import unittest
 from bes.common.dict_util import dict_util
 from bes.system.compat import compat
 
-class Testobject_util(unittest.TestCase):
+class test_dict_util(unittest.TestCase):
 
   def test_combine(self):
     a = { 'fruit': 'apple', 'num': 666 }

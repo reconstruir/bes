@@ -69,8 +69,8 @@ subdir/ dir None None
   def test_file_info(self):
     tester = self._make_tester()
     self.assertEqual(
-      'foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35\n',
-      tester.file_info('foo.txt', tester.OPTIONS) )
+      {}, #'foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35\n',
+      tester.file_info_caca('foo.txt', tester.OPTIONS) )
     
   def test_file_info_dir(self):
     tester = self._make_tester()
