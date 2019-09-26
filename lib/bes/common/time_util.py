@@ -22,3 +22,24 @@ class time_util(object):
   def timezone(clazz):
     'Return the current timezone (ie PST).'
     return time.strftime('%Z')
+
+  _FORMAT = ( '%Y', '%m', '%d', '%H', '%M', '%S' )
+  _FORMAT_WITH_MS = _FORMAT + ( '%f', ) 
+  
+  @classmethod
+  def format_for_timestamp(clazz, when, delimiter = '-', milliseconds = False, timezone = False):
+    'Format a datetime object for a timestamp.'
+    delimiter = delimiter or ''
+    fmt = [ '%Y', '%m', '%d', '%H', '%M', '%S' ]
+    if milliseconds:
+      fmt.append('%f')
+    if timezone:
+      fmt.append(clazz.timezone())
+    return when.strftime(delimiter.join(fmt))
+
+  @classmethod
+  def timestamp_parse(clazz, when, delimiter = '-', milliseconds = False, timezone = False):
+    'Parse a timestamp in the form 1999-01-01-01-01-01 to a datetime object.'
+    fmt = clazz._FORMAT_WITH_MS if  milliseconds else clazz._FORMAT
+    fmt_delim = delimiter.join(fmt)
+    return datetime.strptime(when, fmt_delim)
