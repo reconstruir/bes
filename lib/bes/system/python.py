@@ -2,7 +2,9 @@
 
 import os
 from os import path
+
 from .host import host
+from .which import which
 
 class python(object):
   'Class to deal with system specific python things.'
@@ -11,27 +13,22 @@ class python(object):
   def find_python_exe(clazz):
     'Return the full path to the platform specific python executable.'
     exe_name = clazz._python_exe_name()
-    return clazz._find_program(exe_name)
-    
+    return which.which(exe_name)
+
+  _UNIX_POSSIBLE_EXE = [ 'python3', 'python2', 'python' ]
   @classmethod
   def _python_exe_name(clazz):
     'Return the platform specific name of the python exe.'
     if host.is_unix():
-      return 'python'
+      for exe in clazz._UNIX_POSSIBLE_EXE:
+        if which.which(exe):
+          return path.basename(exe)
+      raise RuntimeError('python not found.')
     elif host.is_windows():
       return 'python.exe'
     else:
       host.raise_unsupported_system()
 
-  @classmethod
-  def _find_program(clazz, program):
-    'Find a program in PATH.'
-    for p in os.environ['PATH'].split(os.pathsep):
-      program_filename = path.join(p, program)
-      if path.exists(program_filename):
-        return program_filename
-    return None
-  
   @classmethod
   def is_python_script(clazz, filename):
     if filename.lower().endswith('.py'):

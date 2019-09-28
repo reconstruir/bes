@@ -4,6 +4,7 @@ import glob, os.path as path, os, re
 from bes.common.algorithm import algorithm
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
+from bes.system.which import which
 
 from .file_util import file_util
 
@@ -18,19 +19,7 @@ class file_path(object):
   @classmethod
   def which(clazz, program, raise_error = False):
     'Same as unix which.'
-
-    fpath, fname = path.split(program)
-    if fpath:
-      if file_path.is_executable(program):
-        return program
-    else:
-      for p in os.environ['PATH'].split(os.pathsep):
-        exe_file = path.join(p, program)
-        if file_path.is_executable(exe_file):
-          return exe_file
-    if raise_error:
-      raise RuntimeError('Executable for %s not found.  Fix your PATH.' % (program))
-    return None
+    return which.which(program)
 
   @classmethod
   def split(clazz, p):
