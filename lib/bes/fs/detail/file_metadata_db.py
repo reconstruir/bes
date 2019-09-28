@@ -98,13 +98,12 @@ create table hash_to_filename(
   def _sqlite_write(self, label, function, *args):
     'Call a write operation to the db.'
     try:
-      self._db.begin()
       function(*args)
       self._db.commit()
-      execute.execute('sync')
     except Exception as ex:
       self.log.log_e('Caught exception: {}'.format(str(ex)))
       self.log.log_exception(ex)
+      raise
       try:
         self._db.rollback()
       except Exception as sqlite_ex:
