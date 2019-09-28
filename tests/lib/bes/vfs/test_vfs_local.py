@@ -160,13 +160,13 @@ subdir/ dir None None
     tester = self._make_tester()
     tmp_file = self.make_temp_file()
     tester.download_to_file('foo.txt', tmp_file)
-    self.assertEqual( 'foo.txt', file_util.read(tmp_file) )
+    self.assertEqual( b'foo.txt', file_util.read(tmp_file) )
     
   def test_download_to_bytes(self):
     tester = self._make_tester()
     tmp_file = self.make_temp_file(content = 'this is foo.txt')
     tester.upload_file(tmp_file, 'x/y/z/foo.txt')
-    self.assertEqual( 'this is foo.txt', tester.download_to_bytes('x/y/z/foo.txt') )
+    self.assertEqual( b'this is foo.txt', tester.download_to_bytes('x/y/z/foo.txt') )
     
   @classmethod
   def _make_tester(self):

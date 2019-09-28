@@ -170,7 +170,7 @@ subdir/ dir None None
     tester = self._make_tester_with_items()
     tmp_file = self.make_temp_file()
     tester.fs.download_to_file('foo.txt', tmp_file)
-    self.assertEqual( 'foo.txt', file_util.read(tmp_file) )
+    self.assertEqual( b'foo.txt', file_util.read(tmp_file) )
 
   @git_temp_home_func()
   def xtest_list_dir_persistent(self):
