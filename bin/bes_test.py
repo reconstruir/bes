@@ -108,6 +108,10 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Print the list of unit tests [ False ]')
+  parser.add_argument('--print-python',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Print the detected python executable [ False ]')
   parser.add_argument('--print-files',
                       action = 'store_true',
                       default = False,
@@ -237,6 +241,10 @@ def main():
   if not ar.test_descriptions:
     return 1
 
+  if args.print_python:
+    print(python_exe)
+    return 0
+  
   if args.print_path:
     for p in sys.path:
       print(p)
