@@ -23,6 +23,9 @@ class vfs_tester(object):
   def file_info(self, *args):
     return self._call_fs('file_info', True, *args)
 
+  def file_info_caca(self, *args):
+    return self._call_fs('file_info', False, *args).to_dict()
+
   def remove_file(self, *args):
     return self._call_fs('remove_file', True, *args)
 

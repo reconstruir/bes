@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import copy
+
 from collections import namedtuple
 from datetime import datetime
 
@@ -77,6 +79,20 @@ class vfs_file_info(namedtuple('vfs_file_info', 'filename, ftype, modification_d
     self._entry_to_string(self, buf, options, 0)
     return buf.getvalue()
 
+  def to_dict(self, flatten_attributes = False, flatten_paths = False):
+    d = {
+      'filename': self.filename,
+      'ftype': self.ftype,
+      'modification_date': str(self.modification_date),
+      'size': self.size,
+      'checksum': self.checksum,
+    }
+    if flatten_attributes:
+      d.update(self.attributes)
+    else:
+      d['attributes'] = self.attributes
+    return d
+  
   @classmethod
   def _entry_to_string(clazz, entry, buf, options, depth):
     indent = '  ' * depth

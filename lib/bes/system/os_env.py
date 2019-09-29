@@ -23,9 +23,8 @@ class os_env(object):
     
   # The cleanest possible unix PATH
   CLEAN_PATH_MAP = {
-    host.LINUX: [ '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/caca/bin' ],
-    # Not sure if macos has some other special bin dirs
-    host.MACOS: [ '/usr/bin', '/bin', '/usr/sbin', '/sbin' ],
+    host.LINUX: [ '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin' ],
+    host.MACOS: [ '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin' ],
     host.WINDOWS: DEFAULT_SYSTEM_PATH,
   }
 

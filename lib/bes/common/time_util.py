@@ -3,6 +3,8 @@
 from datetime import datetime
 import time
 
+from bes.common.check import check
+
 class time_util(object):
   'Time util'
 
