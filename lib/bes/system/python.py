@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os
+import os, subprocess
 from os import path
 
 from .host import host
@@ -14,6 +14,18 @@ class python(object):
     'Return the full path to the platform specific python executable.'
     exe_name = clazz._python_exe_name()
     return which.which(exe_name)
+
+  @classmethod
+  def exe_version(clazz, exe, revision = False):
+    'Return the result of python --version.'
+    which_exe = which.which(exe)
+    if not which_exe:
+      raise RuntimeError('python not found: {}'.format(exe))
+    s = subprocess.check_output([ which_exe, '--version' ], stderr = subprocess.STDOUT).strip()
+    version = s.split(' ')[1]
+    if revision:
+      return version
+    return '.'.join(version.split('.')[0:2])
 
   _UNIX_POSSIBLE_EXE = [ 'python3', 'python2', 'python' ]
   @classmethod
