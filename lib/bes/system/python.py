@@ -48,7 +48,7 @@ class python(object):
     try:
       with open(filename, 'r') as fin:
         content = fin.read(32)
-        return content.startswith('#!/usr/bin/env python')
+        return content.startswith('#!/usr/bin/env python3')
         return result
     except Exception as ex:
       pass
