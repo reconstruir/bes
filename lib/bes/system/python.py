@@ -21,7 +21,7 @@ class python(object):
     which_exe = which.which(exe)
     if not which_exe:
       raise RuntimeError('python not found: {}'.format(exe))
-    s = subprocess.check_output([ which_exe, '--version' ], stderr = subprocess.STDOUT).strip()
+    s = subprocess.check_output([ which_exe, '--version' ], stderr = subprocess.STDOUT).decode('utf-8').strip()
     version = s.split(' ')[1]
     if revision:
       return version
