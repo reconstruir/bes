@@ -27,7 +27,7 @@ class python(object):
       return version
     return '.'.join(version.split('.')[0:2])
 
-  _UNIX_POSSIBLE_EXE = [ 'python3', 'python2', 'python2.7', 'python' ]
+  _UNIX_POSSIBLE_EXE = [ 'python2', 'python2.7', 'python', 'python3' ]
   @classmethod
   def _python_exe_name(clazz):
     'Return the platform specific name of the python exe.'
