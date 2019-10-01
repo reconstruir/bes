@@ -178,16 +178,22 @@ def main():
     printer.writeln_name('ERROR: No git found.  Git is needed to run bes_test.')
     return 1
 
-  python_exe = python.find_python_exe()
-  if not python_exe:
-    printer.writeln_name('ERROR: No python found.  Python is needed to run bes_test.')
-    return 1
-  
   for g in parser._action_groups:
     g._group_actions.sort(key = lambda x: x.dest)
   
   args = parser.parse_args()
 
+  args.python = _resolve_python_exe_list(args.python)
+
+  if not args.python:
+    python_exe = python.find_python_exe()
+    if python_exe:
+      args.python = [ python_exe ]
+      
+  if not args.python:
+    printer.writeln_name('ERROR: No python found.  Python is needed to run bes_test.')
+    return 1
+  
   if args.git and args.commit:
     printer.writeln_name('ERROR: Only one of --git or --commit can be given.')
     return 1
@@ -242,7 +248,8 @@ def main():
     return 1
 
   if args.print_python:
-    print(python_exe)
+    for python_exe in args.python:
+      print(python_exe)
     return 0
   
   if args.print_path:
@@ -287,7 +294,8 @@ def main():
     
   env = os_env.make_clean_env(keep_keys = keep_keys, keep_func = lambda key: key.startswith('BES') or key.startswith('_BES'))
   env_var(env, 'PATH').prepend(path.dirname(git_exe))
-  env_var(env, 'PATH').prepend(path.dirname(python_exe))
+  for python_exe in args.python:
+    env_var(env, 'PATH').prepend(path.dirname(python_exe))
   env['PYTHONDONTWRITEBYTECODE'] = 'x'
 
   variables = {
@@ -362,9 +370,6 @@ def main():
 
   total_num_tests = 0
 
-  if not args.python:
-    args.python = [ python_exe ]
-  
   if args.profile:
     args.profile = path.abspath(args.profile)
     if not _check_program('cprofilev'):
@@ -632,6 +637,17 @@ def _parse_args_env(env):
       env[i] = env[i] + '=1'
   kv = key_value_list.parse(' '.join(env), empty_value = '', log_tag = 'bes_test')
   return kv.to_dict()
-  
+
+def _resolve_python_exe_list(l):
+  if not l:
+    return []
+  result = []
+  for exe in l:
+    resolved_exe = file_path.which(exe)
+    if not resolved_exe:
+      raise RuntimeError('No python found: {}'.format(exe))
+    result.append(resolved_exe)
+  return result
+
 if __name__ == '__main__':
   raise SystemExit(main())
