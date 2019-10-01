@@ -41,7 +41,7 @@ class file_mime_type_windows(object):
     try:
       with open(filename, 'r') as fin:
         content = fin.read(32)
-        return content.startswith('#!/usr/bin/env python3')
+        return content.startswith('#!/usr/bin/env python')
         return result
     except Exception as ex:
       pass

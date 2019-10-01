@@ -106,7 +106,7 @@ class refactor_cli(script_base):
     refactor_files.refactor(src, dst, dirs, word_boundary = word_boundary)
     
   NEW_CONTENT_HEADER = '''\
-  #!/usr/bin/env python3
+  #!/usr/bin/env python
   #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
   #
   '''
