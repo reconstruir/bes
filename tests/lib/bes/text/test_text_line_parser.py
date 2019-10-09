@@ -50,7 +50,17 @@ class test_text_line_parser(unit_test):
   def test___init__with_text_line_seq_invalid_line_number(self):
     with self.assertRaises(ValueError) as ex:
       LTP([ LT( 1, 'apple' ), LT( 1, 'kiwi' ) ])
-    
+
+  def test___init__with_lines_and_starting_line_number(self):
+    l1 = LTP('apple\nkiwi\npear\nmelon', starting_line_number = 5)
+    self.assertEqual( 4, len(l1) )
+    l2 = LTP(l1)
+    self.assertEqual( 4, len(l2) )
+    self.assertEqual( ( 5, 'apple' ), l2[0] )
+    self.assertEqual( ( 6, 'kiwi' ), l2[1] )
+    self.assertEqual( ( 7, 'pear' ), l2[2] )
+    self.assertEqual( ( 8, 'melon' ), l2[3] )
+      
   def test_1_line(self):
     l = LTP('foo')
     self.assertEqual( 1, len(l) )
@@ -753,6 +763,12 @@ cheese'''
     self.assertEqual( [ 1, 3, 4 ], l.line_numbers() )
     l.renumber()
     self.assertEqual( [ 1, 2, 3 ], l.line_numbers() )
+    
+  def test_renumber_empty(self):
+    l = LTP('')
+    self.assertEqual( [], l.line_numbers() )
+    l.renumber()
+    self.assertEqual( [], l.line_numbers() )
     
   def test_indeces(self):
     text = '''\

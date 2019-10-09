@@ -19,31 +19,32 @@ from .string_list import string_list
 class text_line_parser(object):
   'Manage text as lines.'
 
-  def __init__(self, text, delimiter = '\n'):
+  def __init__(self, what, delimiter = '\n', starting_line_number = None):
     log.add_logging(self, 'text_line_parser')
-    self._line_break = line_break.guess_line_break(text) or line_break.DEFAULT_LINE_BREAK
-    if isinstance(text, text_line_parser):
-      self._lines = text._lines[:]
+    self._line_break = line_break.DEFAULT_LINE_BREAK
+    if isinstance(what, text_line_parser):
+      self._assign_text_line_seq(what._lines, starting_line_number)
       self._ends_with_line_break = False
-    elif check.is_text_line_seq(text):
-      self._assign_text_line_seq(text)
-    elif check.is_seq(text, tuple):
-      tokens = [ text_line(*line) for line in text ]
-      self._assign_text_line_seq(tokens)
+    elif check.is_text_line_seq(what):
+      self._assign_text_line_seq(what, starting_line_number)
+    elif check.is_seq(what, tuple):
+      lines = [ text_line(*line) for line in what ]
+      self._assign_text_line_seq(lines, starting_line_number)
     else:
-      check.check_string(text)
-      self._lines = self._parse(text)
-      self._ends_with_line_break = text and line_break.ends_with_line_break(text)
+      check.check_string(what)
+      self._line_break = line_break.guess_line_break(what) or line_break.DEFAULT_LINE_BREAK
+      self._lines = self._parse(what, starting_line_number)
+      self._ends_with_line_break = what and line_break.ends_with_line_break(what)
 
   @property
   def lines(self):
     return self._lines
       
-  def _assign_text_line_seq(self, tokens):
-    check.check_text_line_seq(tokens)
+  def _assign_text_line_seq(self, lines, starting_line_number):
+    check.check_text_line_seq(lines)
     self._lines = []
     line_number = None
-    for line in tokens:
+    for line in lines:
       if line_number is not None:
         if line.line_number <= line_number:
           raise ValueError('line_number should be %d or greater instead of %d: \"%s\"' % (line_number + 1, line.line_number, line.text))
@@ -102,11 +103,11 @@ class text_line_parser(object):
     raise RuntimeError('lines are read only.')
 
   @classmethod
-  def _parse(clazz, text):
-    lines = text.splitlines()
-    range(1, len(lines) + 1)
-    lines = [ text_line(*item) for item in zip(range(1, len(lines) + 1), lines) ]
-    return lines
+  def _parse(clazz, text, starting_line_number):
+    starting_line_number = starting_line_number or 1
+    texts = text.splitlines()
+    line_numbers = range(starting_line_number, len(texts) + starting_line_number)
+    return [ text_line(*item) for item in zip(line_numbers, texts) ]
 
   def add_line_numbers(self, delimiter = '|'):
     width = math.trunc(math.log10(len(self._lines)) + 1)
@@ -433,7 +434,9 @@ class text_line_parser(object):
 
   def renumber(self, starting = None):
     'Renumber line numbers starting at starting or 1 if None.'
-    starting = starting or 1
+    if not self._lines:
+      return
+    starting = starting or self._lines[0].line_number
     check.check_int(starting)
     index = self._check_line_number_index(starting)
     line_number = self._lines[index].line_number
