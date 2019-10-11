@@ -29,7 +29,7 @@ class console(object):
         fout.close()
 
   _WINDOWS_DEVICES = [ 'con:' ]
-  _UNIX_DEVICES = [ '/dev/console', '/dev/tty' ]
+  _UNIX_DEVICES = [ '/dev/tty', '/dev/console' ]
   @classmethod
   def _possible_devices(clazz):
     if host.is_windows():
