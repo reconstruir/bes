@@ -680,3 +680,12 @@ class git(object):
   @classmethod
   def has_unpushed_commits(clazz, root):
     return len(clazz.unpushed_commits(root)) > 0
+
+  @classmethod
+  def submodule_init(clazz, root, submodule = None, recursive = False):
+    args = [ 'submodule', '--init' ]
+    if recursive:
+      args.append('--recursive')
+    if submodule:
+      args.append(submodule)
+    return clazz.call_git(root, args)

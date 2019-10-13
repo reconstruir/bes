@@ -226,5 +226,9 @@ class git_repo(object):
   
   def has_unpushed_commits(self):
     return git.has_unpushed_commits(self.root)
+
+  def submodule_init(clazz, submodule = None, recursive = False):
+    return git.submodule_init(self.root, submodule = submodule, recursive = recursive)
+    
   
 check.register_class(git_repo)
