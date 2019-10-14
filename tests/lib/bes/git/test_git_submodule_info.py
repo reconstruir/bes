@@ -7,19 +7,19 @@ from bes.git.git_submodule_info import git_submodule_info as SI
 class test_git_submodule_info(unit_test):
 
   def test_parse_not_current(self):
-    self.assertEqual( ( 'sub1', '1234567890abcdef1234567890abcdef12345678', False, None ),
+    self.assertEqual( ( 'sub1', '1234567890abcdef1234567890abcdef12345678', None, False, None ),
                       SI.parse('-1234567890abcdef1234567890abcdef12345678 sub1') )
 
   def test_parse_current(self):
-    self.assertEqual( ( 'sub1', '1234567890abcdef1234567890abcdef12345678', True, None ),
+    self.assertEqual( ( 'sub1', '1234567890abcdef1234567890abcdef12345678', None, True, None ),
                       SI.parse(' 1234567890abcdef1234567890abcdef12345678 sub1') )
 
   def test_parse_not_current_with_tag(self):
-    self.assertEqual( ( 'sub1', '1234567890abcdef1234567890abcdef12345678', False, 'tag666' ),
+    self.assertEqual( ( 'sub1', '1234567890abcdef1234567890abcdef12345678', None, False, 'tag666' ),
                       SI.parse('-1234567890abcdef1234567890abcdef12345678 sub1 (tag666)') )
 
   def test_parse_current_with_tag(self):
-    self.assertEqual( ( 'sub1', '1234567890abcdef1234567890abcdef12345678', True, 'tag666' ),
+    self.assertEqual( ( 'sub1', '1234567890abcdef1234567890abcdef12345678', None, True, 'tag666' ),
                       SI.parse(' 1234567890abcdef1234567890abcdef12345678 sub1 (tag666)') )
 
 if __name__ == '__main__':

@@ -5,15 +5,17 @@ import re
 
 from bes.common.check import check
 from bes.common.string_util import string_util
+from bes.common.tuple_util import tuple_util
 
-class git_submodule_info(namedtuple('git_submodule_info', 'name, revision, is_current, tag')):
+class git_submodule_info(namedtuple('git_submodule_info', 'name, revision_long, revision_short, is_current, tag')):
 
-  def __new__(clazz, name, revision, is_current, tag):
+  def __new__(clazz, name, revision_long, revision_short, is_current, tag):
     check.check_string(name)
-    check.check_string(revision)
+    check.check_string(revision_long)
+    check.check_string(revision_short, allow_none = True)
     check.check_bool(is_current)
     check.check_string(tag, allow_none = True)
-    return clazz.__bases__[0].__new__(clazz, name, revision, is_current, tag)
+    return clazz.__bases__[0].__new__(clazz, name, revision_long, revision_short, is_current, tag)
 
   @classmethod
   def parse(clazz, text):
@@ -26,15 +28,15 @@ class git_submodule_info(namedtuple('git_submodule_info', 'name, revision, is_cu
     parts = string_util.split_by_white_space(text_without_dash, strip = True)
     if len(parts) < 2:
       raise ValueError('Invalid git submodule status: "{}"'.format(text_without_dash))
-    revision = parts.pop(0)
-    if len(revision) != 40:
-      raise ValueError('Invalid git submodule revision: "{}"'.format(revision))
+    revision_long = parts.pop(0)
+    if len(revision_long) != 40:
+      raise ValueError('Invalid git submodule revision_long: "{}"'.format(revision_long))
     name = parts.pop(0)
     if len(parts) > 0:
       tag = clazz._parse_tag(parts.pop(0))
     else:
       tag = None
-    return git_submodule_info(name, revision, is_current, tag)
+    return git_submodule_info(name, revision_long, None, is_current, tag)
 
   @classmethod
   def _parse_tag(clazz, s):
@@ -42,6 +44,9 @@ class git_submodule_info(namedtuple('git_submodule_info', 'name, revision, is_cu
     if not f or not len(f) == 1:
       raise ValueError('Invalid git submodule tag: "{}"'.format(s))
     return f[0]
+
+  def clone(self, mutations = None):
+    return tuple_util.clone(self, mutations = mutations)
   
 check.register_class(git_submodule_info)
   

@@ -239,7 +239,10 @@ class git_repo(object):
   def submodule_init(self, submodule = None, recursive = False):
     return git.submodule_init(self.root, submodule = submodule, recursive = recursive)
 
-  def submodule_status(self, submodule = None):
-    return git.submodule_status(self.root, submodule = submodule)
+  def submodule_status_all(self, submodule = None):
+    return git.submodule_status_all(self.root, submodule = submodule)
+  
+  def submodule_status_one(self, submodule):
+    return git.submodule_status_one(self.root, submodule)
   
 check.register_class(git_repo)

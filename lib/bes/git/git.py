@@ -702,10 +702,21 @@ class git(object):
     return clazz.call_git(root, args)
 
   @classmethod
-  def submodule_status(clazz, root, submodule = None):
+  def submodule_status_all(clazz, root, submodule = None):
     args = [ 'submodule', 'status' ]
     if submodule:
       args.append(submodule)
     rv = clazz.call_git(root, args)
     lines = clazz._parse_lines(rv.stdout)
-    return [ git_submodule_info.parse(line) for line in lines ]
+    result = [ git_submodule_info.parse(line) for line in lines ]
+    return [ clazz._submodule_info_fill_revision_short(root, info) for info in result ]
+
+  @classmethod
+  def submodule_status_one(clazz, root, submodule):
+    return clazz.submodule_status_all(root, submodule = submodule)[0]
+
+  @classmethod
+  def _submodule_info_fill_revision_short(clazz, root, info):
+    submodule_root = path.join(root, info.name)
+    revision_short = clazz.short_hash(submodule_root, info.revision_long)
+    return info.clone(mutations = { 'revision_short': revision_short })
