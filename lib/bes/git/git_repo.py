@@ -216,8 +216,17 @@ class git_repo(object):
                            short_hash = short_hash)
 
   def lfs_track(self, pattern):
-    return self.call_git([ 'lfs', 'track', pattern ])
+    return git.lfs_track(self.root, pattern)
   
+  def lfs_pull(self):
+    return git.lfs_pull(self.root)
+
+  def lfs_files(self):
+    return git.lfs_files(self.root)
+
+  def lfs_files_need_smudge(self):
+    return git.lfs_files_need_smudge(self.root)
+    
   def call_git(self, args, raise_error = True, extra_env = None):
     return git.call_git(self.root, args, raise_error = raise_error, extra_env = extra_env)
 
@@ -227,8 +236,10 @@ class git_repo(object):
   def has_unpushed_commits(self):
     return git.has_unpushed_commits(self.root)
 
-  def submodule_init(clazz, submodule = None, recursive = False):
+  def submodule_init(self, submodule = None, recursive = False):
     return git.submodule_init(self.root, submodule = submodule, recursive = recursive)
-    
+
+  def submodule_status(self, submodule = None):
+    return git.submodule_status(self.root, submodule = submodule)
   
 check.register_class(git_repo)

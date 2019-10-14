@@ -28,6 +28,7 @@ from .git_branch import git_branch, git_branch_status
 from .git_branch_list import git_branch_list
 from .git_clone_options import git_clone_options
 from .git_status import git_status
+from .git_submodule_info import git_submodule_info
 
 class git(object):
   'A class to deal with git.'
@@ -643,7 +644,7 @@ class git(object):
   @classmethod
   def lfs_files(clazz, root):
     'Return a list of all the lfs files in the repo.'
-    rv = clazz.call_git(root, [ 'lfs', 'ls-files', '-n' ])
+    rv = clazz.call_git(root, [ 'lfs', 'ls-files' ])
     return sorted(clazz._parse_lines(rv.stdout))
 
   @classmethod
@@ -659,6 +660,16 @@ class git(object):
     to_check = set(files) & set(lfs_files)
     result = []
 
+  @classmethod
+  def lfs_pull(root, clazz):
+    args = [ 'lfs', 'pull' ]
+    return clazz.call_git(root, args)
+
+  @classmethod
+  def lfs_track(root, clazz, pattern):
+    args = [ 'lfs', 'track', pattern ]
+    return clazz.call_git(root, args)
+    
   @classmethod
   def remove(clazz, root, filenames):
     filenames = object_util.listify(filenames)
@@ -689,3 +700,12 @@ class git(object):
     if submodule:
       args.append(submodule)
     return clazz.call_git(root, args)
+
+  @classmethod
+  def submodule_status(clazz, root, submodule = None):
+    args = [ 'submodule', 'status' ]
+    if submodule:
+      args.append(submodule)
+    rv = clazz.call_git(root, args)
+    lines = clazz._parse_lines(rv.stdout)
+    return [ git_submodule_info.parse(line) for line in lines ]
