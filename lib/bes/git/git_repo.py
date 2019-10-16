@@ -212,12 +212,15 @@ class git_repo(object):
   def active_branch(self):
     return git.active_branch(self.root)
 
-  def archive_foo(self, prefix, revision, output_filename,
-                  archive_format = None, short_hash = True):
-    return git.archive_foo(self.root, prefix, revision, output_filename,
-                           archive_format = archive_format,
-                           short_hash = short_hash)
+  def archive_to_file(self, prefix, revision, output_filename,
+                      archive_format = None, short_hash = True):
+    git.archive_to_file(self.root, prefix, revision, output_filename,
+                        archive_format = archive_format,
+                        short_hash = short_hash)
 
+  def archive_to_dir(self, revision, output_dir):
+    return git.archive_to_dir(self.root, revision, output_dir)
+  
   def lfs_track(self, pattern):
     return git.lfs_track(self.root, pattern)
   

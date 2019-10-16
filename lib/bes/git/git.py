@@ -4,6 +4,7 @@ import os, os.path as path, re, pprint
 from datetime import datetime
 from collections import namedtuple
 
+from bes.archive.archiver import archiver
 from bes.common.check import check
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
@@ -252,8 +253,8 @@ class git(object):
     return rv
 
   @classmethod
-  def archive_foo(clazz, root, prefix, revision, output_filename,
-                  archive_format = None, short_hash = True):
+  def archive_to_file(clazz, root, prefix, revision, output_filename,
+                      archive_format = None, short_hash = True):
     'git archive with additional support to include untracked files for local repos.'
     prefix = file_util.ensure_rsep(prefix)
     archive_format = archive_format or 'tgz'
@@ -271,8 +272,22 @@ class git(object):
       output_filename,
       revision
     ]
-    rv = clazz.call_git(root, args)
-    return rv
+    clazz.call_git(root, args)
+  
+  @classmethod
+  def archive_to_dir(clazz, root, revision, output_dir):
+    'git archive to a dir.'
+    file_util.mkdir(output_dir)
+    tmp_archive = temp_file.make_temp_file(suffix = '.tar')
+    args = [
+      'archive',
+      '--format=tar',
+      '-o',
+      tmp_archive,
+      revision,
+    ]
+    clazz.call_git(root, args)
+    archiver.extract_all(tmp_archive, output_dir)
   
   @classmethod
   def short_hash(clazz, root, long_hash):
