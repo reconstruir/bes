@@ -29,6 +29,9 @@ class git_repo(object):
   def clone(self, options = None):
     return git.clone(self.address, self.root, options = options)
 
+  def sync(self, options = None):
+    return git.sync(self.address, self.root, options = options)
+
   def init(self, *args):
     return git.init(self.root, *args)
 

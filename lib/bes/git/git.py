@@ -4,7 +4,6 @@ import os, os.path as path, re, pprint
 from datetime import datetime
 from collections import namedtuple
 
-from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
@@ -17,6 +16,8 @@ from bes.fs.file_mime import file_mime
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
+from bes.system.command_line import command_line
+from bes.system.compat import compat
 from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
@@ -100,13 +101,15 @@ class git(object):
   
   @classmethod
   def call_git(clazz, root, args, raise_error = True, extra_env = None):
+    parsed_args = command_line.parse_args(args)
+    assert isinstance(parsed_args, list)
     if not hasattr(clazz, '_git_exe'):
       git_exe = clazz.find_git_exe()
       if not git_exe:
         raise RuntimeError('git exe not found.')
       setattr(clazz, '_git_exe', git_exe)
     git_exe = getattr(clazz, '_git_exe')
-    cmd = [ git_exe ] + args
+    cmd = [ git_exe ] + parsed_args
     clazz.log.log_d('root=%s; cmd=%s' % (root, ' '.join(cmd)))
     save_raise_error = raise_error
     extra_env = extra_env or {}
@@ -163,6 +166,18 @@ class git(object):
       clazz.log.log_d('clone: sub_rv="{}"'.format(str(sub_rv)))
     return clone_rv, sub_rv
 
+  @classmethod
+  def sync(clazz, address, dest_dir, options = None):
+    check.check_git_clone_options(options, allow_none = True)
+    if clazz.is_repo(dest_dir):
+      clazz.checkout(dest_dir, 'master')
+    clazz.clone_or_pull(address, dest_dir, options = options)
+    branches = clazz.list_branches(dest_dir, 'both')
+    for needed_branch in branches.difference:
+      clazz.branch_track(dest_dir, needed_branch)
+    clazz.call_git(dest_dir, 'fetch --all')
+    clazz.call_git(dest_dir, 'pull --all')
+  
   @classmethod
   def pull(clazz, root):
     args = [ 'pull', '--verbose' ]
@@ -562,6 +577,10 @@ class git(object):
   @classmethod
   def branch_push(clazz, root, branch_name):
     clazz.call_git(root, [ 'push', '--set-upstream', 'origin', branch_name ])
+
+  @classmethod
+  def branch_track(clazz, root, branch_name):
+    clazz.call_git(root, [ 'branch', '--track', branch_name ])
 
   @classmethod
   def fetch(clazz, root):

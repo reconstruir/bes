@@ -1,7 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs, os, os.path as path, re, shlex, subprocess, sys, tempfile
+import codecs, os, os.path as path, re, subprocess, sys, tempfile
+
 from collections import namedtuple
+
+from .command_line import command_line
 from .compat import compat
 from .host import host
 from .python import python
@@ -9,7 +12,7 @@ from .python import python
 class execute(object):
   'execute'
 
-  Result = namedtuple('Result', [ 'stdout', 'stderr', 'exit_code' ])
+  Result = namedtuple('Result', 'stdout, stderr, exit_code, command')
 
   @classmethod
   def execute(clazz, command, raise_error = True, non_blocking = False, stderr_to_stdout = False,
@@ -74,7 +77,7 @@ class execute(object):
       stdout = output[0]
       stderr = output[1]
 
-    rv = clazz.Result(stdout, stderr, exit_code)
+    rv = clazz.Result(stdout, stderr, exit_code, args)
     if raise_error:
       if rv.exit_code != 0:
         ex = RuntimeError(rv.stdout)
@@ -88,40 +91,8 @@ class execute(object):
   @classmethod
   def parse_args(clazz, args):
     'Parse arguments to use for execute.'
-    if host.SYSTEM == host.WINDOWS:
-      return clazz._parse_args_windows(args)
-    else:
-      return clazz._parse_args_unix(args)
+    return command_line.parse_args(args)
     
-  @classmethod
-  def _parse_args_unix(clazz, args):
-    if compat.is_string(args):
-      return shlex.split(args)
-    elif isinstance(args, list):
-      return args
-    else:
-      raise TypeError('args should be a string or list of strings instead of: {}'.format(args))
-    
-  @classmethod
-  def _parse_args_windows(clazz, args):
-    if compat.is_string(args):
-      return clazz.win_CommandLineToArgvW(args)
-    elif isinstance(args, list):
-      return args
-    else:
-      raise TypeError('args should be a string or list of strings instead of: {}'.format(args))
-    
-  @classmethod
-  def win_CommandLineToArgvW(clazz, cmd):
-    import ctypes
-    nargs = ctypes.c_int()
-    ctypes.windll.shell32.CommandLineToArgvW.restype = ctypes.POINTER(ctypes.c_wchar_p)
-    lpargs = ctypes.windll.shell32.CommandLineToArgvW(cmd, ctypes.byref(nargs))
-    args = [lpargs[i] for i in range(nargs.value)]
-    if ctypes.windll.kernel32.LocalFree(lpargs):
-      raise AssertionError
-    return args
-  
   @classmethod
   def is_shell_script(clazz, filename):
     'Execute a command'
@@ -132,11 +103,7 @@ class execute(object):
   @classmethod
   def listify_command(clazz, command):
     'Listify a command if needed'
-
-    if isinstance(command, ( list )):
-      return command
-    else:
-      return shlex.split(str(command))
+    return command_line.listify(command)
 
   @classmethod
   def execute_from_string(clazz, content, raise_error = True, non_blocking = False, stderr_to_stdout = False,

@@ -12,10 +12,6 @@ class test_execute(unit_test):
 
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.common/shell'
 
-  def test_parse_args(self):
-    self.assertEqual( [ 'echo', 'foo' ], execute.parse_args('echo foo') )
-    self.assertEqual( [ 'echo', 'foo' ], execute.parse_args([ 'echo', 'foo' ]) )
-
   @skip_if(not host.is_windows(), 'not windows')
   def test_windows_batch_file_success(self):
     bat = self.data_path('windows_batch_file_true.bat')
