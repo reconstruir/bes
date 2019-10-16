@@ -342,12 +342,14 @@ class git(object):
     return [ item.filename for item in items if 'M' in item.action ]
 
   @classmethod
-  def tag(clazz, root_dir, tag, allow_downgrade = False):
+  def tag(clazz, root_dir, tag, allow_downgrade = False, push = False):
     greatest_tag = git.greatest_local_tag(root_dir)
     if greatest_tag and not allow_downgrade:
       if software_version.compare(greatest_tag, tag) >= 0:
         raise ValueError('new tag \"%s\" is older than \"%s\".  Use allow_downgrade to force it.' % (tag, greatest_tag))
     clazz.call_git(root_dir, [ 'tag', tag ])
+    if push:
+      clazz.push_tag(root_dir, tag)
 
   @classmethod
   def push_tag(clazz, root, tag):

@@ -169,8 +169,8 @@ class git_repo(object):
     tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if software_version.compare(t, tag) < 0 ]
   
-  def tag(self, tag, allow_downgrade = True):
-    git.tag(self.root, tag, allow_downgrade = allow_downgrade)
+  def tag(self, tag, allow_downgrade = True, push = False):
+    git.tag(self.root, tag, allow_downgrade = allow_downgrade, push = push)
 
   def delete_local_tag(self, tag):
     git.delete_local_tag(self.root, tag)
