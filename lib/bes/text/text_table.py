@@ -43,12 +43,12 @@ class text_cell_renderer(object):
   def compute_width(self, value):
     return len(self.render(value, width = None))
 
-  @classmethod
   def _value_to_string(self, value):
-    if check.is_string(value):
-      return value
-    else:
-      return str(value)
+    if not check.is_string(value):
+      value = str(value)
+    if self.width and len(value) > self.width:
+      value = value[0:self.width]
+    return value
   
 class text_table(object):
   'A table of strings.'
