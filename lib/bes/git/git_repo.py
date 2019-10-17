@@ -257,4 +257,7 @@ class git_repo(object):
   def submodule_status_one(self, submodule):
     return git.submodule_status_one(self.root, submodule)
   
+  def has_commit(self, commit):
+    return git.has_commit(self.root, commit)
+  
 check.register_class(git_repo)

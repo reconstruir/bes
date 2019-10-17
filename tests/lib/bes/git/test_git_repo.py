@@ -470,5 +470,37 @@ class test_git_repo(unit_test):
     r.push_tag('foo-1.0.0')
     self.assertTrue( r.has_remote_tag('foo-1.0.0') )
     
+  @git_temp_home_func()
+  def test_has_commit_exists(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    commit1 = r.add_file('bar.txt', 'this is bar.txt')
+    commit2 = r.add_file('baz.txt', 'this is baz.txt')
+    self.assertTrue( r.has_commit(commit1) )
+    self.assertTrue( r.has_commit(commit2) )
+    
+  @git_temp_home_func()
+  def test_has_commit_does_not_exist(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    commit1 = r.add_file('bar.txt', 'this is bar.txt')
+    commit2 = r.add_file('baz.txt', 'this is baz.txt')
+    self.assertFalse( r.has_commit('0000000') )
+    
+  @git_temp_home_func()
+  def test_has_commit_invalid_hash(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    commit1 = r.add_file('bar.txt', 'this is bar.txt')
+    commit2 = r.add_file('baz.txt', 'this is baz.txt')
+    with self.assertRaises(ValueError) as ctx:
+      r.has_commit('invalidhash')
+    
 if __name__ == '__main__':
   unit_test.main()

@@ -769,3 +769,10 @@ class git(object):
   @classmethod
   def has_local_tag(clazz, root, tag):
     return tag in clazz.list_local_tags(root)
+  
+  @classmethod
+  def has_commit(clazz, root, commit):
+    if not clazz.is_hash(commit):
+      raise ValueError('not a valid git short or long commit hash: "{}"'.format(commit))
+    args = [ 'cat-file', '-t', commit ]
+    return clazz.call_git(root, args, raise_error = False).exit_code == 0
