@@ -663,13 +663,18 @@ class git(object):
   
   @classmethod
   def is_long_hash(clazz, h):
-    'Return True if h is a long hash.'
+    'Return True if h is a valid git long hash.'
     return len(h) == 40 and clazz._is_valid_hash(h)
 
   @classmethod
   def is_short_hash(clazz, h):
-    'Return True if h is a short hash.'
+    'Return True if h is a valid git short hash.'
     return len(h) == 7 and clazz._is_valid_hash(h)
+
+  @classmethod
+  def is_hash(clazz, h):
+    'Return True if h is a valid git short or long hash.'
+    return len(h) in [ 7, 40 ] and clazz._is_valid_hash(h)
 
   @classmethod
   def files(clazz, root):
@@ -764,4 +769,3 @@ class git(object):
   @classmethod
   def has_local_tag(clazz, root, tag):
     return tag in clazz.list_local_tags(root)
-  
