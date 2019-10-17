@@ -772,7 +772,9 @@ class git(object):
   
   @classmethod
   def has_commit(clazz, root, commit):
-    if not clazz.is_hash(commit):
-      raise ValueError('not a valid git short or long commit hash: "{}"'.format(commit))
     args = [ 'cat-file', '-t', commit ]
     return clazz.call_git(root, args, raise_error = False).exit_code == 0
+
+  @classmethod
+  def has_revision(clazz, root, revision):
+    return clazz.has_local_tag(root, revision) or clazz.has_commit(root, revision)

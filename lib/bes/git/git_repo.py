@@ -260,4 +260,7 @@ class git_repo(object):
   def has_commit(self, commit):
     return git.has_commit(self.root, commit)
   
+  def has_revision(self, revision):
+    return git.has_revision(self.root, revision)
+  
 check.register_class(git_repo)

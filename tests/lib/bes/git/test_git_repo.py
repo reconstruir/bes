@@ -499,8 +499,24 @@ class test_git_repo(unit_test):
     r = self._make_repo(remote = True, content = content)
     commit1 = r.add_file('bar.txt', 'this is bar.txt')
     commit2 = r.add_file('baz.txt', 'this is baz.txt')
-    with self.assertRaises(ValueError) as ctx:
-      r.has_commit('invalidhash')
+    self.assertFalse( r.has_commit('invalidhash') )
+    
+  @git_temp_home_func()
+  def test_has_revision(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    commit1 = r.add_file('bar.txt', 'this is bar.txt')
+    r.tag('foo-1.0.0', push = False)
+    commit2 = r.add_file('baz.txt', 'this is baz.txt')
+    r.tag('foo-1.0.1', push = False)
+    self.assertFalse( r.has_revision('0000000') )
+    self.assertTrue( r.has_revision(commit1) )
+    self.assertTrue( r.has_revision(commit2) )
+    self.assertTrue( r.has_revision('foo-1.0.0') )
+    self.assertTrue( r.has_revision('foo-1.0.1') )
+    self.assertFalse( r.has_revision('foo-1.0.2') )
     
 if __name__ == '__main__':
   unit_test.main()
