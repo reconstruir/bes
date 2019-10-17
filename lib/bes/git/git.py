@@ -756,3 +756,12 @@ class git(object):
     submodule_root = path.join(root, info.name)
     revision_short = clazz.short_hash(submodule_root, info.revision_long)
     return info.clone(mutations = { 'revision_short': revision_short })
+
+  @classmethod
+  def has_remote_tag(clazz, root, tag):
+    return tag in clazz.list_remote_tags(root)
+
+  @classmethod
+  def has_local_tag(clazz, root, tag):
+    return tag in clazz.list_local_tags(root)
+  

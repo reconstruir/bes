@@ -14,6 +14,9 @@ from bes.git.git_unit_test import git_temp_home_func
 
 class test_git_repo(unit_test):
 
+  def _make_repo(self, remote = True, content = None, prefix = None):
+    return git_temp_repo(remote = remote, content = content, prefix = prefix, debug = self.DEBUG)
+
   @git_temp_home_func()
   def test_init(self):
     r = self._make_repo(remote = False)
@@ -444,9 +447,28 @@ class test_git_repo(unit_test):
     self.assertFalse( r.has_unpushed_commits() )
     r.add_file('bar.txt', 'this is bar.txt', commit = True)
     self.assertTrue( r.has_unpushed_commits() )
-    
-  def _make_repo(self, remote = True, content = None, prefix = None):
-    return git_temp_repo(remote = remote, content = content, prefix = prefix, debug = self.DEBUG)
 
+  @git_temp_home_func()
+  def test_has_local_tag(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    r.tag('foo-1.0.0', push = False)
+    self.assertTrue( r.has_local_tag('foo-1.0.0') )
+    self.assertFalse( r.has_remote_tag('foo-1.0.0') )
+    
+  @git_temp_home_func()
+  def test_has_remote_tag(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    r.tag('foo-1.0.0', push = False)
+    self.assertTrue( r.has_local_tag('foo-1.0.0') )
+    self.assertFalse( r.has_remote_tag('foo-1.0.0') )
+    r.push_tag('foo-1.0.0')
+    self.assertTrue( r.has_remote_tag('foo-1.0.0') )
+    
 if __name__ == '__main__':
   unit_test.main()

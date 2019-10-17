@@ -173,10 +173,10 @@ class git_repo(object):
     git.tag(self.root, tag, allow_downgrade = allow_downgrade, push = push)
 
   def has_remote_tag(self, tag):
-    return tag in self.list_remote_tags()
+    return git.has_remote_tag(self.root, tag)
 
   def has_local_tag(self, tag):
-    return tag in self.list_local_tags()
+    return git.has_local_tag(self.root, tag)
 
   def delete_local_tag(self, tag):
     git.delete_local_tag(self.root, tag)
