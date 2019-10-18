@@ -577,4 +577,3 @@ class archive_tester(object):
   @classmethod
   def p(clazz, s, pathsep = ':', sep = '/'):
     return clazz.xp_path(s, pathsep = pathsep, sep = sep)
-    

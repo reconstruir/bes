@@ -54,9 +54,9 @@ class archive(archive_base):
     tmp_member = path.join(tmp_dir, member)
     self.extract(tmp_dir, include = [ member ])
     if not path.exists(tmp_member):
-      raise RuntimeError('Failed to extract member: %s' % (member))
+      raise RuntimeError('Failed to extract member from {}: {}'.format(self.filename, member))
     if not path.isfile(tmp_member):
-      raise RuntimeError('Member is not a file: %s' % (member))
+      raise RuntimeError('Member is not a file {}: {}'.format(self.filename, member))
     file_util.rename(tmp_member, filename)
 
   def extract_member_to_string(self, member, codec = None):

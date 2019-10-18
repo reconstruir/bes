@@ -12,16 +12,22 @@ class matcher_filename(matcher_base):
     self._ignore_case = ignore_case
     if self._ignore_case:
       self._pattern = self._pattern.lower()
+    self._escaped_pattern = self._escape_pattern(self._pattern)
       
   def match(self, text):
     if self._ignore_case:
-      return fnmatch.fnmatch(text.lower(), self._pattern)
+      return fnmatch.fnmatch(text.lower(), self._escaped_pattern)
     else:
-      return fnmatch.fnmatchcase(text, self._pattern)
+      return fnmatch.fnmatchcase(text, self._escaped_pattern)
 
   def __str__(self):
     return '(%s, %s)' % (self._pattern, self._ignore_case)
 
+  @classmethod
+  def _escape_pattern(clazz, pattern):
+    # In python 3 could use glob.escape() for a more complete escape strategy
+    return pattern.replace('[', '[[]')
+  
 class matcher_multiple_filename(matcher_base):
   'Filename matcher using multiple filename matchers.'
 

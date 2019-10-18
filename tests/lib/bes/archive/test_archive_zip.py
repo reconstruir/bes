@@ -113,6 +113,6 @@ class test_archive_zip(unit_test):
 
   def xxtest_checksum(self):
     return self._make_archive_tester(self).test_checksum()
-    
+
 if __name__ == '__main__':
   unit_test.main()

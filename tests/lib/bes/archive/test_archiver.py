@@ -15,7 +15,6 @@ class test_archiver(unit_test):
   def test_find_archives(self):
     tmp_dir = temp_file.make_temp_dir()
     tmp_zip = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.ZIP)
-    print('tmp_zip: %s' % (str(tmp_zip)))
     tmp_tar = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR)
     tmp_tgz = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TGZ)
     tmp_tar_gz = temp_archive.make_temp_archive([ temp_archive.item('foo.txt', content = 'foo.txt\n') ], archive_extension.TAR_GZ)
@@ -118,6 +117,32 @@ class test_archiver(unit_test):
       'd/e/bar.txt',
     ], archiver.members(tmp_archive) )
     self.assertEqual( 'zip', archiver.format_name(tmp_archive) )
+
+  def test_filenames_with_brackets_zip(self):
+    tmp_dir = temp_content.write_items_to_temp_dir([
+        'file .foo/bar-[baz].ext-kiwi.apple.lemon "something" 644',
+    ], delete = not self.DEBUG)
+    tmp_archive = self.make_temp_file()
+    archiver.create(tmp_archive, tmp_dir, extension = 'zip')
+    self.assertEqual( [
+      '.foo/bar-[baz].ext-kiwi.apple.lemon',
+    ], archiver.members(tmp_archive) )
+    self.assertEqual( 'zip', archiver.format_name(tmp_archive) )
+    self.assertEqual( '3fc9b689459d738f8c88a3a48aa9e33542016b7a4052e001aaa536fca74813cb',
+                      archiver.member_checksum(tmp_archive, '.foo/bar-[baz].ext-kiwi.apple.lemon') )
+    
+  def test_filenames_with_brackets_tar(self):
+    tmp_dir = temp_content.write_items_to_temp_dir([
+        'file .foo/bar-[baz].ext-kiwi.apple.lemon "something" 644',
+    ], delete = not self.DEBUG)
+    tmp_archive = self.make_temp_file()
+    archiver.create(tmp_archive, tmp_dir, extension = 'tar.gz')
+    self.assertEqual( [
+      '.foo/bar-[baz].ext-kiwi.apple.lemon',
+    ], archiver.members(tmp_archive) )
+    self.assertEqual( 'tgz', archiver.format_name(tmp_archive) )
+    self.assertEqual( '3fc9b689459d738f8c88a3a48aa9e33542016b7a4052e001aaa536fca74813cb',
+                      archiver.member_checksum(tmp_archive, '.foo/bar-[baz].ext-kiwi.apple.lemon') )
     
 if __name__ == '__main__':
   unit_test.main()
