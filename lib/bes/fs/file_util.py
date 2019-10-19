@@ -304,5 +304,9 @@ class file_util(object):
     check.check(mtime, datetime)
     mktime = time.mktime(mtime.timetuple())
     os.utime(filename, ( mktime, mktime ))
-  
+
+  @classmethod
+  def un_expanduser(clazz, p):
+    return p.replace(path.expanduser('~'), '~')
+                       
 log.add_logging(file_util, 'file_util')
