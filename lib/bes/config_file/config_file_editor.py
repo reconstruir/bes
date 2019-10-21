@@ -26,6 +26,14 @@ class config_file_editor(object):
     self._config.save(self._filename)
     assert path.isfile(self._filename)
 
+  def set_values(self, section, values):
+    check.check_string(section)
+    check.check_dict(values)
+    for key, value in values.items():
+      self._config.set_value(section, key, value)
+    self._config.save(self._filename)
+    assert path.isfile(self._filename)
+    
   def has_value(self, section, key):
     check.check_string(section)
     check.check_string(key)
