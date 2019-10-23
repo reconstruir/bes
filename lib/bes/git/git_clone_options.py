@@ -3,6 +3,7 @@
 from bes.common.check import check
 
 class git_clone_options(object):
+  
   def __init__(self, *args, **kargs):
     self.enforce_empty_dir = True
     self.depth = None
@@ -22,4 +23,8 @@ class git_clone_options(object):
     check.check_bool(self.submodules_recursive)
     check.check_list(self.submodule_list, allow_none = True)
     check.check_string(self.branch, allow_none = True)
+
+  def __str__(self):
+    return str(self.__dict__)
+    
 check.register_class(git_clone_options)

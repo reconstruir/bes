@@ -20,4 +20,5 @@ class git_repo_script_options(git_clone_options):
     check.check_bool(self.dry_run)
     check.check_bool(self.debug)
     check.check_bool(self.verbose)
+
 check.register_class(git_repo_script_options)
