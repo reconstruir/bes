@@ -129,7 +129,7 @@ class git_util(object):
     tmp_dir, repo = clazz._clone_to_temp_dir(address, options = options, debug = options.debug)
     if options.debug:
       msg = 'repo_run_scripts: tmp_dir={} repo.root={}'.format(tmp_dir, repo.root)
-      print(m)
+      print(msg)
       clazz._LOG.log_d(msg)
     scripts_results = []
     for script in scripts:
