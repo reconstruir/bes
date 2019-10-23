@@ -128,9 +128,9 @@ class git_util(object):
       print('repo_run_scripts: cloning {}'.format(address))
     tmp_dir, repo = clazz._clone_to_temp_dir(address, options = options, debug = options.debug)
     if options.debug:
-      m = 'repo_run_scripts: tmp_dir={}'.format(tmp_dir)
+      msg = 'repo_run_scripts: tmp_dir={} repo.root={}'.format(tmp_dir, repo.root)
       print(m)
-      clazz._LOG.log_d(m)
+      clazz._LOG.log_d(msg)
     scripts_results = []
     for script in scripts:
       if not repo.has_file(script.filename):
@@ -144,7 +144,7 @@ class git_util(object):
           cmd.extend(script.args)
         clazz._LOG.log_d('repo_run_scripts: executing cmd="{}" root={}'.format(' '.join(cmd), repo.root))
         if options.verbose:
-          print('repo_run_scripts: executing {}'.format(' '.join(cmd)))
+          print('repo_run_scripts: executing {} in cwd={}'.format(' '.join(cmd), repo.root))
         rv = execute.execute(cmd, cwd = repo.root, shell = True, stderr_to_stdout = True)
         clazz._LOG.log_d('repo_run_scripts: rv={}'.format(str(rv)))
         scripts_results.append(clazz._one_script_result(script, rv.stdout))
@@ -162,8 +162,12 @@ class git_util(object):
     return clazz._run_scripts_result(scripts_results, repo.call_git([ 'status', '.' ]).stdout, repo.diff())
   
   @classmethod
-  def find_root_dir(clazz, start_dir = None):
+  def find_root_dir(clazz, start_dir = None, working_dir = True):
     'Find the root of a git repo starting at start_dir or None if not found.'
     start_dir = start_dir or os.getcwd()
-    return file_find.find_in_ancestors(start_dir, '.git')
-  
+    git_dir = file_find.find_in_ancestors(start_dir, '.git')
+    if not git_dir:
+      return None
+    if working_dir:
+      return path.normpath(path.join(git_dir, path.pardir))
+    return git_dir
