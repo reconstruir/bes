@@ -269,5 +269,95 @@ class test_archive_util(unit_test):
       self.xp_path('fruits/strawberry.txt'),
     ], archiver.members(tmp_archive) )
     
+  def test_match_members(self):
+    tmp_archive = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
+      ( self.xp_path('fruits/apple.pdf'), 'apple.pdf' ),
+      ( self.xp_path('fruits/durian.pdf'), 'durian.pdf' ),
+      ( self.xp_path('fruits/plum.pdf'), 'plum.pdf' ),
+      ( self.xp_path('cheese/brie.txt'), 'brie.txt' ),
+      ( self.xp_path('cheese/cheddar.txt'), 'cheddar.txt' ),
+      ( self.xp_path('cheese/fontina.txt'), 'fontina.txt' ),
+    ]), 'zip', delete = not self.DEBUG)
+    self.assertEqual( [
+      'cheese/brie.txt',
+      'cheese/cheddar.txt',
+      'cheese/fontina.txt',
+      'fruits/apple.pdf',
+      'fruits/durian.pdf',
+      'fruits/plum.pdf',
+    ], archive_util.match_members(tmp_archive, [ '*' ]) )
+    self.assertEqual( [
+      'cheese/brie.txt',
+      'cheese/cheddar.txt',
+      'cheese/fontina.txt',
+    ], archive_util.match_members(tmp_archive, [ 'cheese*' ]) )
+    self.assertEqual( [
+      'cheese/brie.txt',
+      'cheese/cheddar.txt',
+      'cheese/fontina.txt',
+    ], archive_util.match_members(tmp_archive, [ '*.txt' ]) )
+    self.assertEqual( [
+      'fruits/apple.pdf',
+      'fruits/durian.pdf',
+      'fruits/plum.pdf',
+    ], archive_util.match_members(tmp_archive, [ '*.pdf' ]) )
+
+  def test_remove_members_matching_patterns(self):
+    items = temp_archive.make_temp_item_list([
+      ( self.xp_path('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
+      ( self.xp_path('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
+      ( self.xp_path('foo-1.2.3/fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.xp_path('foo-1.2.3/.import/foo.txt'), 'foo.txt' ),
+      ( self.xp_path('foo-1.2.3/.import/bar.txt'), 'bar.txt' ),
+      ( self.xp_path('foo-1.2.3/cheese/brie.jpg'), 'brie.jpg' ),
+      ( self.xp_path('foo-1.2.3/cheese/halumi.jpg'), 'halumi.jpg' ),
+      ( self.xp_path('foo-1.2.3/cheese/feta.jpg'), 'feta.jpg' ),
+    ])
+    tmp_archive = temp_archive.make_temp_archive(items, 'zip', delete = not self.DEBUG)
+    archive_util.remove_members_matching_patterns(tmp_archive, [ 'notfound' ], debug = self.DEBUG)
+    self.assertEqual( [
+      'foo-1.2.3/.import/bar.txt',
+      'foo-1.2.3/.import/foo.txt',
+      'foo-1.2.3/cheese/brie.jpg',
+      'foo-1.2.3/cheese/feta.jpg',
+      'foo-1.2.3/cheese/halumi.jpg',
+      'foo-1.2.3/fruits/apple.txt',
+      'foo-1.2.3/fruits/durian.txt',
+      'foo-1.2.3/fruits/kiwi.txt',
+    ], archiver.members(tmp_archive))
+
+    tmp_archive = temp_archive.make_temp_archive(items, 'zip', delete = not self.DEBUG)
+    archive_util.remove_members_matching_patterns(tmp_archive, [ '*.txt' ], debug = self.DEBUG)
+    self.assertEqual( [
+      'foo-1.2.3/cheese/brie.jpg',
+      'foo-1.2.3/cheese/feta.jpg',
+      'foo-1.2.3/cheese/halumi.jpg',
+    ], archiver.members(tmp_archive))
+
+    tmp_archive = temp_archive.make_temp_archive(items, 'zip', delete = not self.DEBUG)
+    archive_util.remove_members_matching_patterns(tmp_archive, [ '*cheese*' ], debug = self.DEBUG)
+    self.assertEqual( [
+      'foo-1.2.3/.import/bar.txt',
+      'foo-1.2.3/.import/foo.txt',
+      'foo-1.2.3/fruits/apple.txt',
+      'foo-1.2.3/fruits/durian.txt',
+      'foo-1.2.3/fruits/kiwi.txt',
+    ], archiver.members(tmp_archive))
+
+  def test_read_patterns(self):
+    content = '''\
+cheese.txt
+foo.jpg
+test_orange/foo.txt
+test_kiwi/*
+'''
+    tmp_file = self.make_temp_file(content = content)
+    self.assertEqual( [
+      'cheese.txt',
+      'foo.jpg',
+      'test_orange/foo.txt',
+      'test_kiwi/*',
+    ], archive_util.read_patterns(tmp_file) )
+    
 if __name__ == "__main__":
   unit_test.main()

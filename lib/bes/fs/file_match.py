@@ -18,7 +18,7 @@ class file_match(object):
     return match_type in clazz.VALID_TYPES
 
   @classmethod
-  def _match(clazz, filenames, patterns, match_func, match_type):
+  def _match(clazz, filenames, patterns, match_func, match_type, basename = True):
     '''
     Match a list of files with patterns using match_func and match_type.
     match_func should be the form match_func(filename, patterns)
@@ -48,7 +48,11 @@ class file_match(object):
 
     result = []
     for filename in filenames:
-      if func(match_func, path.basename(filename), patterns):
+      if basename:
+        filename_for_match = path.basename(filename)
+      else:
+        filename_for_match = filename
+      if func(match_func, filename_for_match, patterns):
         result.append(filename)
     return sorted(algorithm.unique(result))
 
@@ -74,15 +78,15 @@ class file_match(object):
     return True
 
   @classmethod
-  def match_fnmatch(clazz, filenames, patterns, match_type):
-    return clazz._match(filenames, patterns, fnmatch.fnmatch, match_type)
+  def match_fnmatch(clazz, filenames, patterns, match_type, basename = True):
+    return clazz._match(filenames, patterns, fnmatch.fnmatch, match_type, basename = basename)
 
   @classmethod
-  def match_re(clazz, filenames, expressions, match_type):
+  def match_re(clazz, filenames, expressions, match_type, basename = True):
     expressions = [ re.compile(expression) for expression in expressions ]
     def _match_re(filename, expression):
       return len(expression.findall(filename)) > 0
-    return clazz._match(filenames, expressions, _match_re, match_type)
+    return clazz._match(filenames, expressions, _match_re, match_type, basename = basename)
 
   @classmethod
   def match_function(clazz, filenames, function):

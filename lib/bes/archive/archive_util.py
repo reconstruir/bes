@@ -4,8 +4,10 @@ import pprint
 import os.path as path
 from bes.fs.temp_file import temp_file
 from bes.fs.file_util import file_util
+from bes.fs.file_match import file_match
 from bes.common.object_util import object_util
 from bes.common.dict_util import dict_util
+from bes.text.text_line_parser import text_line_parser
 
 from .archiver import archiver
 
@@ -14,7 +16,7 @@ class archive_util(object):
 
   @classmethod
   def remove_members(clazz, archive, members, debug = False):
-    'Remove memvers from an archive and then recreate it.'
+    'Remove members from an archive and then recreate it.'
     members = object_util.listify(members)
     tmp_dir = archiver.extract_all_temp_dir(archive, delete = not debug)
     if debug:
@@ -22,6 +24,12 @@ class archive_util(object):
     members = [ path.join(tmp_dir, m) for m in members ]
     file_util.remove(members)
     archiver.create(archive, tmp_dir)
+
+  @classmethod
+  def remove_members_matching_patterns(clazz, archive, patterns, debug = False):
+    'Remove members that match any of the given patterns.'
+    members = clazz.match_members(archive, patterns)
+    return clazz.remove_members(archive, members, debug = debug)
 
   @classmethod
   def member_checksums(clazz, archive, members, debug = False):
@@ -121,3 +129,14 @@ class archive_util(object):
     for archive in archives:
       archiver.extract_all(archive, tmp_dir)
     archiver.create(dest_archive, tmp_dir, base_dir = base_dir, exclude = exclude)
+
+  @classmethod
+  def match_members(clazz, archive, patterns):
+    'Return a list of members that match any pattern in patterns.'
+    return file_match.match_fnmatch(archiver.members(archive), patterns, file_match.ANY, basename = False)
+
+  @classmethod
+  def read_patterns(clazz, filename):
+    'Return a list of members that match any pattern in patterns.'
+    text = file_util.read(filename)
+    return text_line_parser.parse_lines(text)
