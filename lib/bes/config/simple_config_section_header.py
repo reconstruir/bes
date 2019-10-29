@@ -30,6 +30,6 @@ class simple_config_section_header(namedtuple('simple_config_section_header', 'n
         raise simple_config_error('Invalid config section directive: "{}"'.format(extends_directive, origin))
       return simple_config_section_header(name, extends_name, origin)
     else:
-      raise simple_config_error('Invalid config section header: "{}"'.format(text, origin))
+      raise simple_config_error('Invalid config section header: "{}"'.format(text), origin)
   
 check.register_class(simple_config_section_header)

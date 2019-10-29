@@ -15,17 +15,17 @@ from .simple_config_origin import simple_config_origin
 from .simple_config_entry import simple_config_entry
 from .simple_config_section_header import simple_config_section_header
 
-class simple_config_section(namedtuple('simple_config_section', 'name, entries, origin')):
+class simple_config_section(namedtuple('simple_config_section', 'header, entries, origin')):
 
-  def __new__(clazz, name, entries, origin):
-    check.check_string(name)
+  def __new__(clazz, header, entries, origin):
+    check.check_simple_config_section_header(header)
     check.check_simple_config_entry_seq(entries)
     check.check_simple_config_origin(origin)
-    return clazz.__bases__[0].__new__(clazz, name, entries, origin)
+    return clazz.__bases__[0].__new__(clazz, header, entries, origin)
 
   def __str__(self):
     buf = StringIO()
-    buf.write(self.name)
+    buf.write(self.header.name)
     buf.write('\n')
     for i, entry in enumerate(self.entries):
       if i != 0:

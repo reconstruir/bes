@@ -42,7 +42,7 @@ class simple_config(object):
 
   def find_sections(self, name, raise_error = True):
     check.check_string(name)
-    result = [ section for section in self.sections if section.name == name ]
+    result = [ section for section in self.sections if section.header.name == name ]
     if not result and raise_error:
       raise simple_config_error('no sections found: %s' % (name), self.origin)
     return result
@@ -72,14 +72,12 @@ class simple_config(object):
   def _parse_section(clazz, node, source):
     check.check_node(node)
     check.check_string(source)
-    name = node.data.text
-    entries = clazz._parse_section_entries(node, source)
-    return simple_config_section(name, entries, simple_config_origin(source, node.data.line_number))
 
-  @classmethod
-  def _parse_section_header(clazz, node, text):
-    name = node.data.text
-  
+    origin = simple_config_origin(source, node.data.line_number)
+    header = simple_config_section_header.parse_text(node.data.text, origin)
+    entries = clazz._parse_section_entries(node, source)
+    return simple_config_section(header, entries, origin)
+
   @classmethod
   def _parse_section_entries(clazz, node, source):
     check.check_node(node)

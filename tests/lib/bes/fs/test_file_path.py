@@ -141,7 +141,6 @@ class test_file_path(unit_test):
       path.join(tmp_dir, 'drinks/dairy/yogurt.config'),
       path.join(tmp_dir, 'fruit/fruit.config'),
     ], FP.glob_env_search_path(search_path, '*.config') )
-'''
     
 if __name__ == "__main__":
   unit_test.main()

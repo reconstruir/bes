@@ -32,7 +32,9 @@ credential
 
     sections = s.find_sections('credential')
     self.assertEqual( 2, len(sections) )
+    self.assertEqual( 'credential', sections[0].header.name )
     self.assertEqual( 'download', sections[0].find_by_key('type') )
+    self.assertEqual( 'credential', sections[1].header.name )
     self.assertEqual( 'upload', sections[1].find_by_key('type') )
     self.assertEqual( {
       'provider': 'pcloud',
@@ -98,6 +100,40 @@ credential
     self.assertEqual( 1, len(sections) )
     with self.assertRaises(SC.error) as context:
       sections[0].to_dict(resolve_env_vars = True)
+
+  def test_extends(self):
+    text = '''\
+fruit
+  name: apple
+  color: red
+
+cheese
+  name: brie
+  type: creamy
+
+foo extends fruit
+  color: green
+'''
+    
+    s = SC.from_text(text)
+
+    sections = s.find_sections('foo')
+    self.assertEqual( 1, len(sections) )
+    self.assertEqual( 'foo', sections[0].header.name )
+    self.assertEqual( 'fruit', sections[0].header.extends )
+    self.assertEqual( 'green', sections[0].find_by_key('color') )
+    self.assertEqual( {
+      'color': 'green',
+      }, sections[0].to_dict() )
       
+  def test_extends_missing_base(self):
+    text = '''\
+foo extends
+  color: green
+'''
+    
+    with self.assertRaises(SC.error):
+      SC.from_text(text)
+
 if __name__ == '__main__':
   unit_test.main()
