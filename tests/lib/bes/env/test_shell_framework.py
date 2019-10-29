@@ -8,7 +8,6 @@ from bes.env.shell_framework import shell_framework
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
-from bes.fs.testing import temp_content
 from bes.system.os_env import os_env
 from bes.testing.unit_test import unit_test
 
