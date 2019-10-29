@@ -14,16 +14,14 @@ from .simple_config_error import simple_config_error
 from .simple_config_origin import simple_config_origin
 from .simple_config_entry import simple_config_entry
 from .simple_config_section_header import simple_config_section_header
-  
-class simple_config_section(object):
 
-  def __init__(self, name, entries, origin):
+class simple_config_section(namedtuple('simple_config_section', 'name, entries, origin')):
+
+  def __new__(clazz, name, entries, origin):
     check.check_string(name)
     check.check_simple_config_entry_seq(entries)
     check.check_simple_config_origin(origin)
-    self.name = name
-    self.entries = entries
-    self.origin = origin
+    return clazz.__bases__[0].__new__(clazz, name, entries, origin)
 
   def __str__(self):
     buf = StringIO()

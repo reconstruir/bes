@@ -2,8 +2,6 @@
 
 from bes.common.check import check
 
-from collections import namedtuple
-
 class simple_config_error(Exception):
   def __init__(self, message, origin):
     check.check_string(message)
