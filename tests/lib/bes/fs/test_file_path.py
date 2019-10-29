@@ -4,8 +4,10 @@
 import os, os.path as path, unittest
 
 from bes.testing.unit_test import unit_test
+
 from bes.fs.file_path import file_path as FP
 from bes.fs.file_util import file_util
+from bes.fs.testing.temp_content import temp_content
 from bes.system.env_override import env_override
 
 class test_file_path(unit_test):
@@ -87,6 +89,59 @@ class test_file_path(unit_test):
     with env_override.path_append(bin_dir) as env:
       expected_path = path.join(bin_dir, 'kiwi_tool.bat')
       self.assertEqual( expected_path, FP.which('kiwi_tool.bat') )
+    
+  def test_glob_search_path(self):
+    tmp_dir = temp_content.write_items_to_temp_dir([
+      'file fruit/fruit.config         "fruits.config" 644',
+      'file cheese/cheese.config       "cheese.config" 644',
+      'file drinks/alcohol/wine.config "wine.config"   644',
+      'file drinks/alcohol/beer.config "beer.config"   644',
+      'file drinks/dairy/milk.config   "milk.config"   644',
+      'file drinks/dairy/yogurt.config "yogurt.config" 644',
+      'dir  nothing                 ""                 700',
+    ])
+    search_path = [
+      [ 'fruit' ],
+      [ 'cheese' ],
+      [ 'drinks', 'alcohol' ],
+      [ 'drinks', 'dairy' ],
+    ]
+    search_path = [ path.join(tmp_dir, *x) for x in search_path ]
+    self.assertEqual( [
+      path.join(tmp_dir, 'cheese/cheese.config'),
+      path.join(tmp_dir, 'drinks/alcohol/beer.config'),
+      path.join(tmp_dir, 'drinks/alcohol/wine.config'),
+      path.join(tmp_dir, 'drinks/dairy/milk.config'),
+      path.join(tmp_dir, 'drinks/dairy/yogurt.config'),
+      path.join(tmp_dir, 'fruit/fruit.config'),
+    ], FP.glob_search_path(search_path, '*.config') )
+
+  def xtest_glob_env_search_path(self):
+    tmp_dir = temp_content.write_items_to_temp_dir([
+      'file fruit/fruit.config         "fruits.config" 644',
+      'file cheese/cheese.config       "cheese.config" 644',
+      'file drinks/alcohol/wine.config "wine.config"   644',
+      'file drinks/alcohol/beer.config "beer.config"   644',
+      'file drinks/dairy/milk.config   "milk.config"   644',
+      'file drinks/dairy/yogurt.config "yogurt.config" 644',
+      'dir  nothing                 ""                 700',
+    ])
+    search_path = [
+      [ 'fruit' ],
+      [ 'cheese' ],
+      [ 'drinks', 'alcohol' ],
+      [ 'drinks', 'dairy' ],
+    ]
+    search_path = [ '{}/{}'.format(tmp_dir, path.join(x)) for x in search_path ]
+    self.assertEqual( [
+      path.join(tmp_dir, 'cheese/cheese.config'),
+      path.join(tmp_dir, 'drinks/alcohol/beer.config'),
+      path.join(tmp_dir, 'drinks/alcohol/wine.config'),
+      path.join(tmp_dir, 'drinks/dairy/milk.config'),
+      path.join(tmp_dir, 'drinks/dairy/yogurt.config'),
+      path.join(tmp_dir, 'fruit/fruit.config'),
+    ], FP.glob_env_search_path(search_path, '*.config') )
+'''
     
 if __name__ == "__main__":
   unit_test.main()

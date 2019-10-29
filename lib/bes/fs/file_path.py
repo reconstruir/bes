@@ -1,10 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import glob, os.path as path, os, re
+from bes.common.check import check
 from bes.common.algorithm import algorithm
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.system.which import which
+from bes.system.os_env import os_env_var
 
 from .file_util import file_util
 
@@ -96,6 +98,23 @@ class file_path(object):
       result.extend(glob.glob(p))
     return sorted(algorithm.unique(result))
 
+  @classmethod
+  def glob_search_path(clazz, search_path, glob_expression):
+    'Like glob but handles a single path or a sequence of paths'
+    check.check_string_seq(search_path)
+    check.check_string(glob_expression)
+    return clazz.glob(search_path, glob_expression)
+
+  '''
+  @classmethod
+  def glob_env_search_path(clazz, env_var_name, glob_expression):
+    'Like glob but handles a single path or a sequence of paths'
+    check.check_string_seq(env_var_name)
+    check.check_string(glob_expression)
+    paths = os_env_var(env_var_name).path
+    return clazz.glob(paths, glob_expression)
+  '''
+  
   @classmethod
   def decompose(clazz, p):
     'Decompose a path into a list of paths starting with the root'
