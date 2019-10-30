@@ -222,5 +222,18 @@ bonobo extends ape
       s.section('ape')
       self.assertTrue( 'Cyclic dependencies found: ape bonobo' in ctx.exception.message )
       
+  def test_self_dependency(self):
+    content = '''\
+ape extends ape
+  something: yes
+'''
+    tmp_dir = self.make_temp_dir()
+    tmp_file = path.join(tmp_dir, 'organisms.config')
+    file_util.save(tmp_file, content = content)
+    s = SCL(tmp_dir, '*.config')
+    with self.assertRaises(ERROR) as ctx:
+      s.load()
+      self.assertTrue( 'Self dependency for "ape"' in ctx.exception.message )
+      
 if __name__ == '__main__':
   unit_test.main()

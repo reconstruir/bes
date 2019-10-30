@@ -59,6 +59,10 @@ class simple_config_files(object):
       for section in config.config.sections:
         section_name = section.header.name
         extends = set([ section.header.extends ] if section.header.extends else [])
+        if section_name in extends:
+          msg = 'Self dependency for {} in {}'.format(section_name,
+                                                        section.origin.source)
+          raise simple_config_error(msg, section.origin)
         if section_name in section_map:
           existing_section = section_map[section_name]
           msg = 'Duplicate config section "{}"\n  {}\n  {}'.format(section_name,
