@@ -88,5 +88,12 @@ class test_dependency_resolver(unittest.TestCase):
     self.assertEqual( [ 'n1', 'n2' ], dependency_resolver.check_missing(available, [ 'd1', 'd2', 'd3', 'n1', 'n2' ]) )
     self.assertEqual( [ 'n1', 'n2' ], dependency_resolver.check_missing(available, [ 'n1', 'n2' ]) )
 
+  # Not sure this is correct.  Maybe if the input depends on itself it should be stripped...
+  def test_resolve_deps_depends_on_self(self):
+    dep_map = {
+      'c1': set( [ 'c1' ] ),
+    }
+    self.assertEqual( [ 'c1' ], dependency_resolver.resolve_deps(dep_map, 'c1') )
+    
 if __name__ == '__main__':
   unittest.main()
