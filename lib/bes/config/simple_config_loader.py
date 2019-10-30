@@ -89,7 +89,3 @@ class simple_config_loader(object):
     origin = simple_config_origin('<hierarchical>', 1)
     header = simple_config_section_header(section_name, None, origin)
     return simple_config_section(header, unique_entries, origin)
-    
-  @property
-  def files(self):
-    return self._configs
