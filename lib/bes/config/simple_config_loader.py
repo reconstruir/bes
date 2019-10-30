@@ -28,10 +28,16 @@ class simple_config_loader(object):
     self._resolved_sections = {}
     
   def load(self):
+    'Load the config files.  Will throw simple_config_error if any config file is invalid.'
     if self._configs:
       return
     self._configs = self.load_configs(self._search_path, self._glob_expression)
     self._dep_map, self._section_map = self._make_maps(self._configs)
+
+  @property
+  def has_loaded(self):
+    'Return True if load() was called and suceeded.'
+    return self._configs is not None
     
   @classmethod
   def load_configs(clazz, search_path, glob_expression):
@@ -86,6 +92,15 @@ class simple_config_loader(object):
       if not entry.value.key in seen:
         seen.add(entry.value.key)
         unique_entries.append(entry)
-    origin = simple_config_origin('<hierarchical>', 1)
+    origin = simple_config_origin('\n'.join(self.files), None)
     header = simple_config_section_header(section_name, None, origin)
     return simple_config_section(header, unique_entries, origin)
+
+  @property
+  def files(self):
+    'Return a list of files loaded in load()'
+    if not self.has_loaded:
+      raise simple_config_error('Need to call load() first.', None)
+    return sorted([ config.abs_path for config in self._configs ])
+    
+  

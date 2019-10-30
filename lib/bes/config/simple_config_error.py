@@ -6,12 +6,18 @@ class simple_config_error(Exception):
   
   def __init__(self, message, origin):
     check.check_string(message)
-    check.check_simple_config_origin(origin)
+    check.check_simple_config_origin(origin, allow_none = True)
     super(simple_config_error, self).__init__()
     self.message = message
     self.origin = origin
 
   def __str__(self):
-    source = '<unknown>' if not self.origin else self.origin.source
-    line_number = '<unknown>' if not self.origin else self.origin.line_number
-    return '{}:{}: {}'.format(source, line_number, self.message)
+    blurbs = []
+    if self.origin and self.origin.source:
+      blurbs.append(self.origin.source)
+    else:
+      blurbs.append('<unknown>')
+    if self.origin and self.origin.line_number is not None:
+      blurbs.append(str(self.origin.line_number))
+      
+    return '{}: {}'.format(':'.join(blurbs), self.message)

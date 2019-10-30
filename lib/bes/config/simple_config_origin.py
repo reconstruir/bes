@@ -8,7 +8,7 @@ class simple_config_origin(namedtuple('simple_config_origin', 'source, line_numb
 
   def __new__(clazz, source, line_number):
     check.check_string(source)
-    check.check_int(line_number)
+    check.check_int(line_number, allow_none = True)
     return clazz.__bases__[0].__new__(clazz, source, line_number)
 
 check.register_class(simple_config_origin)
