@@ -190,6 +190,20 @@ organism
     with self.assertRaises(ERROR) as ctx:
       s.load()
       self.assertTrue( 'Duplicate config section' in ctx.exception.message )
-  
+
+  def test_missing_dependency(self):
+    content = '''\
+ape extends missing_link
+  something: yes
+'''
+    tmp_dir = self.make_temp_dir()
+    tmp_file = path.join(tmp_dir, 'organisms.config')
+    file_util.save(tmp_file, content = content)
+    s = SCL(tmp_dir, '*.config')
+    s.load()
+    with self.assertRaises(ERROR) as ctx:
+    s.section('ape')
+      self.assertTrue( 'Missing dependency for ape: missing_link' in ctx.exception.message )
+      
 if __name__ == '__main__':
   unit_test.main()

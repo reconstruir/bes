@@ -5,6 +5,8 @@ from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.common.object_util import object_util
 from bes.dependency.dependency_resolver import dependency_resolver
+from bes.dependency.dependency_resolver import missing_dependency_error
+from bes.dependency.dependency_resolver import cyclic_dependency_error
 
 from collections import namedtuple
 
@@ -84,7 +86,17 @@ class simple_config_loader(object):
   
   def _resolve_section(self, section_name):
     'Resolve a section using dependencies.'
-    deps = self._resolve_deps(section_name)
+    origin = simple_config_origin('\n'.join(self.files), None)
+
+    try:
+      deps = self._resolve_deps(section_name)
+    except missing_dependency_error as ex:
+      raise simple_config_error(ex.message, origin)
+    except cyclic_dependency_error as ex:
+      raise simple_config_error(ex.message, origin)
+    except:
+      raise
+    
     entries = []
     for dep in deps:
       s = self._section_map[dep]
@@ -97,7 +109,6 @@ class simple_config_loader(object):
       if not entry.value.key in seen:
         seen.add(entry.value.key)
         unique_entries.append(entry)
-    origin = simple_config_origin('\n'.join(self.files), None)
     header = simple_config_section_header(section_name, None, origin)
     return simple_config_section(header, unique_entries, origin)
 
