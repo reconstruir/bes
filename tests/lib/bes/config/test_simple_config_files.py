@@ -255,10 +255,10 @@ chimp extends ape
     with env_override(env = { '_CONFIG_ACTIVITY': 'resting', '_CONFIG_SNACK': 'kiwi' }) as tmp_env:
       s = SCL(tmp_dir, '*.config')
       s.load()
-      self.assertEqual( 'fighting', s.section('chimp').find_by_key('activity', resolve_env_vars = True) )
-      self.assertEqual( 'loving', s.section('bonobo').find_by_key('activity', resolve_env_vars = True) )
-      self.assertEqual( 'eggs', s.section('chimp').find_by_key('snack', resolve_env_vars = True) )
-      self.assertEqual( 'kiwi', s.section('bonobo').find_by_key('snack', resolve_env_vars = True) )
+      self.assertEqual( 'fighting', s.section('chimp').find_by_key('activity') )
+      self.assertEqual( 'loving', s.section('bonobo').find_by_key('activity') )
+      self.assertEqual( 'eggs', s.section('chimp').find_by_key('snack') )
+      self.assertEqual( 'kiwi', s.section('bonobo').find_by_key('snack') )
       
 if __name__ == '__main__':
   unit_test.main()

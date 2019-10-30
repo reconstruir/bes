@@ -34,7 +34,7 @@ class simple_config_section(namedtuple('simple_config_section', 'header, entries
       buf.write(str(entry))
     return buf.getvalue()
 
-  def find_by_key(self, key, raise_error = True, resolve_env_vars = False):
+  def find_by_key(self, key, raise_error = True, resolve_env_vars = True):
     for entry in self.entries:
       if entry.value.key == key:
         value = entry.value.value
