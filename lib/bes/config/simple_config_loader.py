@@ -74,11 +74,16 @@ class simple_config_loader(object):
     return deps_in_order
 
   def section(self, section_name):
+    '''
+    Return a section object.  The section is constructed using any sections
+    and dependencies specified in any config files found.
+    '''
     if not section_name in self._resolved_sections:
       self._resolved_sections[section_name] = self._resolve_section(section_name)
     return self._resolved_sections[section_name]
   
   def _resolve_section(self, section_name):
+    'Resolve a section using dependencies.'
     deps = self._resolve_deps(section_name)
     entries = []
     for dep in deps:

@@ -6,6 +6,7 @@ from os import path
 from bes.testing.unit_test import unit_test
 from bes.config.simple_config import simple_config as SC
 from bes.config.simple_config_loader import simple_config_loader as SCL
+from bes.config.simple_config_error import simple_config_error as ERROR
 from bes.fs.testing.temp_content import temp_content
 from bes.fs.file_util import file_util
 from bes.system.env_override import env_override
@@ -171,6 +172,24 @@ cat extends mammal
     tmp_file = path.join(tmp_dir, 'organisms.config')
     file_util.save(tmp_file, content = content)
     return tmp_file
+
+  def test_duplicate_section(self):
+    content = '''\
+organism
+  respiration: unknown
+  food: false
+
+organism
+  respiration: unknown
+  food: true
+'''
+    tmp_dir = self.make_temp_dir()
+    tmp_file = path.join(tmp_dir, 'organisms.config')
+    file_util.save(tmp_file, content = content)
+    s = SCL(tmp_dir, '*.config')
+    with self.assertRaises(ERROR) as ctx:
+      s.load()
+      self.assertTrue( 'Duplicate config section' in ctx.exception.message )
   
 if __name__ == '__main__':
   unit_test.main()
