@@ -20,7 +20,7 @@ class simple_config_section(namedtuple('simple_config_section', 'header, entries
   def __new__(clazz, header, entries, origin):
     check.check_simple_config_section_header(header)
     check.check_simple_config_entry_seq(entries)
-    check.check_simple_config_origin(origin)
+    check.check_simple_config_origin(origin, allow_none = True)
     return clazz.__bases__[0].__new__(clazz, header, entries, origin)
 
   def __str__(self):

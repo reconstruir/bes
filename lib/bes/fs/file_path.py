@@ -7,6 +7,7 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.system.which import which
 from bes.system.os_env import os_env_var
+from bes.common.object_util import object_util
 
 from .file_util import file_util
 
