@@ -197,7 +197,7 @@ ape extends missing_link
   something: yes
 '''
     tmp_dir = self.make_temp_dir()
-    tmp_file = path.join(tmp_dir, 'organisms.config')
+    tmp_file = path.join(tmp_dir, 'apes.config')
     file_util.save(tmp_file, content = content)
     s = SCL(tmp_dir, '*.config')
     s.load()
@@ -214,7 +214,7 @@ bonobo extends ape
   something: yes
 '''
     tmp_dir = self.make_temp_dir()
-    tmp_file = path.join(tmp_dir, 'organisms.config')
+    tmp_file = path.join(tmp_dir, 'apes.config')
     file_util.save(tmp_file, content = content)
     s = SCL(tmp_dir, '*.config')
     s.load()
@@ -228,12 +228,37 @@ ape extends ape
   something: yes
 '''
     tmp_dir = self.make_temp_dir()
-    tmp_file = path.join(tmp_dir, 'organisms.config')
+    tmp_file = path.join(tmp_dir, 'apes.config')
     file_util.save(tmp_file, content = content)
     s = SCL(tmp_dir, '*.config')
     with self.assertRaises(ERROR) as ctx:
       s.load()
       self.assertTrue( 'Self dependency for "ape"' in ctx.exception.message )
+
+  def test_env_vars(self):
+    content = '''\
+ape
+  activity: ${_CONFIG_ACTIVITY}
+  snack: leaves
+
+bonobo extends ape
+  activity: loving
+  snack: ${_CONFIG_SNACK}
+
+chimp extends ape
+  activity: fighting
+  snack: eggs
+'''
+    tmp_dir = self.make_temp_dir()
+    tmp_file = path.join(tmp_dir, 'apes.config')
+    file_util.save(tmp_file, content = content)
+    with env_override(env = { '_CONFIG_ACTIVITY': 'resting', '_CONFIG_SNACK': 'kiwi' }) as tmp_env:
+      s = SCL(tmp_dir, '*.config')
+      s.load()
+      self.assertEqual( 'fighting', s.section('chimp').find_by_key('activity', resolve_env_vars = True) )
+      self.assertEqual( 'loving', s.section('bonobo').find_by_key('activity', resolve_env_vars = True) )
+      self.assertEqual( 'eggs', s.section('chimp').find_by_key('snack', resolve_env_vars = True) )
+      self.assertEqual( 'kiwi', s.section('bonobo').find_by_key('snack', resolve_env_vars = True) )
       
 if __name__ == '__main__':
   unit_test.main()
