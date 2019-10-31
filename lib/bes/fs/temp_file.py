@@ -65,6 +65,16 @@ class temp_file(object):
     return tmp_dir
 
   @classmethod
+  def make_named_temp_file(clazz, filename, content = None, delete = True, perm = None):
+    'Write a named temporary file to an also temporary directory.'
+    tmp_dir = clazz.make_temp_dir(delete = delete)
+    tmp_file = path.join(tmp_dir, filename)
+    file_util.save(tmp_file, content = content)
+    if perm:
+      os.chmod(tmp_file, perm)
+    return tmp_file
+  
+  @classmethod
   def atexit_delete(clazz, filename):
     'Delete filename atexit time.'
     def _delete_file(*args, **kargs):
