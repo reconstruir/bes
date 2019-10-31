@@ -33,7 +33,7 @@ class unit_test(unittest.TestCase):
 
   def platform_data_path(self, filename): 
     return self.data_path(filename, platform_specific = True)
-
+  
   def data_dir(self, platform_specific = False, where = None): 
     parts = [ self._get_data_dir() ]
     if platform_specific:
@@ -92,7 +92,6 @@ class unit_test(unittest.TestCase):
     if path.isabs(right):
       result = path.join(right)
       return result
-    left = path.dirname(inspect.getfile(clazz))
     return path.abspath(path.normpath(path.join(left, right)))
 
   def assert_bit_string_equal(self, b1, b2, size):
@@ -271,6 +270,20 @@ class unit_test(unittest.TestCase):
       clazz._set_mtime(tmp_dir, mtime)
     return tmp_dir
 
+  @classmethod
+  def make_named_temp_file(clazz, filename, content = None, delete = True, perm = None):
+    'Write a named temporary file to an also temporary directory.'
+    tmp_dir = clazz.make_temp_dir()
+    tmp_file = path.join(tmp_dir, filename)
+    if content:
+      with open(tmp_file, 'wb') as fout:
+        if not isinstance(content, bytes):
+          content = content.encode('utf-8')
+        fout.write(content)
+        fout.flush()
+        os.fsync(fout.fileno())
+    return tmp_file  
+  
   @classmethod
   def _set_mtime(clazz, filename, mtime):
     mktime = time.mktime(mtime.timetuple())
