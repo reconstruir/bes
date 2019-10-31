@@ -42,6 +42,8 @@ credential
       'email': 'email1@bar.com',
       'password': 'sekret1',
       }, sections[0].to_dict() )
+    self.assertTrue( s.has_section('credential') )
+    self.assertFalse( s.has_section('nothere') )
     
   def test_env_var(self):
     text = '''\

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 from os import path
 
 from bes.testing.unit_test import unit_test
@@ -27,6 +28,10 @@ class test_simple_config_files(unit_test):
       'organism.config',
       'virus.config',
     ]
+    self.assertTrue( s.has_section('dog') )
+    self.assertTrue( s.has_section('cat') )
+    self.assertFalse( s.has_section('notthere') )
+    
     self.assertEqual( 'false', s.section('dog').find_by_key('food') )
     self.assertEqual( 'true', s.section('dog').find_by_key('pet') )
     self.assertEqual( 'warm', s.section('dog').find_by_key('blood') )
@@ -254,6 +259,52 @@ chimp extends ape
     file_util.save(tmp_file, content = content)
     with env_override(env = { '_CONFIG_ACTIVITY': 'resting', '_CONFIG_SNACK': 'kiwi' }) as tmp_env:
       s = SCL(tmp_dir, '*.config')
+      s.load()
+      self.assertEqual( 'fighting', s.section('chimp').find_by_key('activity') )
+      self.assertEqual( 'loving', s.section('bonobo').find_by_key('activity') )
+      self.assertEqual( 'eggs', s.section('chimp').find_by_key('snack') )
+      self.assertEqual( 'kiwi', s.section('bonobo').find_by_key('snack') )
+      
+  def test_search_path_expanduser(self):
+    content = '''\
+ape
+  activity: resting
+  snack: leaves
+
+bonobo extends ape
+  activity: loving
+  snack: kiwi
+
+chimp extends ape
+  activity: fighting
+  snack: eggs
+'''
+    with env_override.temp_home() as tmp_env:
+      file_util.save(path.join(os.environ['HOME'], '.config', 'apes.config'), content = content)
+      s = SCL('~/.config', '*.config')
+      s.load()
+      self.assertEqual( 'fighting', s.section('chimp').find_by_key('activity') )
+      self.assertEqual( 'loving', s.section('bonobo').find_by_key('activity') )
+      self.assertEqual( 'eggs', s.section('chimp').find_by_key('snack') )
+      self.assertEqual( 'kiwi', s.section('bonobo').find_by_key('snack') )
+      
+  def test_search_path_env_var(self):
+    content = '''\
+ape
+  activity: resting
+  snack: leaves
+
+bonobo extends ape
+  activity: loving
+  snack: kiwi
+
+chimp extends ape
+  activity: fighting
+  snack: eggs
+'''
+    tmp_file = self.make_named_temp_file('apes.config', content = content)
+    with env_override(env = { '_CONFIG_DIR': path.dirname(tmp_file) }) as tmp_env:
+      s = SCL('${_CONFIG_DIR}', '*.config')
       s.load()
       self.assertEqual( 'fighting', s.section('chimp').find_by_key('activity') )
       self.assertEqual( 'loving', s.section('bonobo').find_by_key('activity') )

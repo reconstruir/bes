@@ -16,7 +16,26 @@ from .simple_config_section import simple_config_section
 from .simple_config_section_header import simple_config_section_header
   
 class simple_config(object):
-  'A very simple config file'
+  '''
+  A very simple config file in this form:
+
+  ---------
+  # Comment support
+  section
+    key1: value1
+    key2: value2
+    key3: ${ENV_VALUE3}
+    key4: ~/.foo/something.txt # more comment support
+
+  basic
+    color: red
+    flavor: tart
+
+  # support for extending sections with full dependency checking and resolution
+  fancy extends basic
+    flavor: spicy
+  ---------
+  '''
 
   # Convenience reference so users dont need to import error to catch it
   error = simple_config_error
@@ -40,6 +59,10 @@ class simple_config(object):
     check.check_simple_config_section(section)
     self.sections.append(section)
 
+  def has_section(self, name):
+    check.check_string(name)
+    return next((section for section in self.sections if section.header.name == name), None) is not None
+    
   def find_sections(self, name, raise_error = True):
     check.check_string(name)
     result = [ section for section in self.sections if section.header.name == name ]

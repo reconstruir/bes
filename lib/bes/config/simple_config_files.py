@@ -1,6 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+from os import path
+
 from bes.common.check import check
+from bes.common.variable import variable
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.common.object_util import object_util
@@ -23,7 +27,7 @@ class simple_config_files(object):
   _found_config = namedtuple('_found_config', 'where, filename, abs_path, config')
   
   def __init__(self, search_path, glob_expression):
-    self._search_path = object_util.listify(search_path)
+    self._search_path = self.parse_search_path(search_path)
     self._glob_expression = glob_expression
     self._configs = None
     self._dep_map = None
@@ -31,12 +35,27 @@ class simple_config_files(object):
 
   def __str__(self):
     return ','.join(self.files)
+
+  @classmethod
+  def parse_search_path(clazz, search_path):
+    if check.is_string(search_path):
+      result = search_path.split(':')
+    elif check.is_string_seq(search_path):
+      result = [ x for x in search_path ]
+    else:
+      raise TypeError('Unkown type for search_path: {} - {}'.format(search_path, type(search_path)))
+    return [ clazz._resolve_seach_path_part(part) for part in result ]
     
+  @classmethod
+  def _resolve_seach_path_part(clazz, part):
+    substituted_part = variable.substitute(part, os.environ.data, variable.BRACKET)
+    return path.expanduser(substituted_part)
+  
   def load(self):
     'Load the config files.  Will throw simple_config_error if any config file is invalid.'
     if self._configs:
       return
-    self._configs = self.load_configs(self._search_path, self._glob_expression)
+    self._configs = self._load_configs(self._search_path, self._glob_expression)
     self._dep_map, self._section_map = self._make_maps(self._configs)
 
   @property
@@ -45,7 +64,7 @@ class simple_config_files(object):
     return self._configs is not None
     
   @classmethod
-  def load_configs(clazz, search_path, glob_expression):
+  def _load_configs(clazz, search_path, glob_expression):
     result = []
     for next_path in search_path:
       for next_file in file_path.glob(next_path, glob_expression):
@@ -94,7 +113,6 @@ class simple_config_files(object):
   def _resolve_section(self, section_name):
     'Resolve a section using dependencies.'
     origin = simple_config_origin('\n'.join(self.files), None)
-
     try:
       deps = self._resolve_deps(section_name)
     except missing_dependency_error as ex:
@@ -125,5 +143,11 @@ class simple_config_files(object):
     if not self.has_loaded:
       raise simple_config_error('Need to call load() first.', None)
     return sorted([ config.abs_path for config in self._configs ])
-    
+
+  def has_section(self, section_name):
+    'Return True if section_name is in any of the loaded config files.'
+    if not self.has_loaded:
+      raise simple_config_error('Need to call load() first.', None)
+    return next((c for c in self._configs if c.config.has_section(section_name)), None) is not None    
+  
   
