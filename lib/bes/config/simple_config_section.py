@@ -92,7 +92,7 @@ class simple_config_section(namedtuple('simple_config_section', 'header, entries
       result.append(key_value(entry.value.key, value))
     return result
   
-  def to_dict(self, resolve_env_vars = False):
+  def to_dict(self, resolve_env_vars = True):
     'Return values as a dict optionally resolving environment variables.'
     return self.to_key_value_list(resolve_env_vars = resolve_env_vars).to_dict()
 
