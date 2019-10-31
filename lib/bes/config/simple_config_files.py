@@ -28,6 +28,9 @@ class simple_config_files(object):
     self._configs = None
     self._dep_map = None
     self._resolved_sections = {}
+
+  def __str__(self):
+    return ','.join(self.files)
     
   def load(self):
     'Load the config files.  Will throw simple_config_error if any config file is invalid.'
