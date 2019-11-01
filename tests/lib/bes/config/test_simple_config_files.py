@@ -311,5 +311,26 @@ chimp extends ape
       self.assertEqual( 'eggs', s.section('chimp').find_by_key('snack') )
       self.assertEqual( 'kiwi', s.section('bonobo').find_by_key('snack') )
       
+  def test_empty_section(self):
+    content = '''\
+ape
+  activity: resting
+  snack: leaves
+
+bonobo extends ape
+
+chimp extends ape
+  activity: fighting
+  snack: eggs
+'''
+    tmp_file = self.make_named_temp_file('apes.config', content = content)
+    with env_override(env = { '_CONFIG_DIR': path.dirname(tmp_file) }) as tmp_env:
+      s = SCL('${_CONFIG_DIR}', '*.config')
+      s.load()
+      self.assertEqual( 'fighting', s.section('chimp').find_by_key('activity') )
+      self.assertEqual( 'resting', s.section('bonobo').find_by_key('activity') )
+      self.assertEqual( 'eggs', s.section('chimp').find_by_key('snack') )
+      self.assertEqual( 'leaves', s.section('bonobo').find_by_key('snack') )
+      
 if __name__ == '__main__':
   unit_test.main()
