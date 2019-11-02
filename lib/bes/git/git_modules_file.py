@@ -4,12 +4,11 @@ from collections import namedtuple
 import re
 
 from bes.common.check import check
+from bes.compat.StringIO import StringIO
 from bes.fs.file_util import file_util
 from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
-
 from bes.text.tree_text_parser import tree_text_parser
-#bes/text/tree_text_parser.py
 
 class git_module(namedtuple('git_module', 'name, path, url, branch')):
 
@@ -20,6 +19,15 @@ class git_module(namedtuple('git_module', 'name, path, url, branch')):
     check.check_string(branch, allow_none = True)
     return clazz.__bases__[0].__new__(clazz, name, path, url, branch)
 
+  def __str__(self):
+    buf = StringIO()
+    buf.write('[submodule "{}"]\n'.format(self.name))
+    buf.write('\tpath = {}\n'.format(self.path))
+    buf.write('\turl = {}\n'.format(self.url))
+    if self.branch:
+      buf.write('\tbranch = {}\n'.format(self.branch))
+    return buf.getvalue()
+  
 check.register_class(git_module)
 
 class git_modules_file(namedtuple('git_modules_file', 'filename, modules')):
@@ -29,6 +37,13 @@ class git_modules_file(namedtuple('git_modules_file', 'filename, modules')):
     check.check_git_module_seq(modules, allow_none = True)
     return clazz.__bases__[0].__new__(clazz, filename, modules)
 
+  def __str__(self):
+    buf = StringIO()
+    for mod in self.modules:
+      print('mod: {}'.format(mod))
+      buf.write(str(mod))
+    return buf.getvalue()
+  
   @classmethod
   def parse_file(clazz, filename):
     text = file_util.read(filename)
