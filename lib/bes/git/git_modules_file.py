@@ -100,12 +100,3 @@ class git_modules_file(object):
     if f and len(f) == 1:
       return f[0]
     return None
-  
-'''
-[submodule "ego-app"]
-	path = ego-app
-	url = git@bitbucket.org:imvu/ego-app.git
-[submodule "ego-app-builder"]
-	path = ego-app-builder
-	url = git@bitbucket.org:imvu/ego-app-builder.git
-'''    
