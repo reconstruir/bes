@@ -4,6 +4,7 @@ from collections import namedtuple
 import re
 
 from bes.common.check import check
+from bes.common.tuple_util import tuple_util
 from bes.compat.StringIO import StringIO
 from bes.fs.file_util import file_util
 from bes.key_value.key_value import key_value
@@ -27,6 +28,9 @@ class git_module(namedtuple('git_module', 'name, path, url, branch')):
     if self.branch:
       buf.write('\tbranch = {}\n'.format(self.branch))
     return buf.getvalue()
+
+  def clone(self, mutations = None):
+    return tuple_util.clone(self, mutations = mutations)
   
 check.register_class(git_module)
 
@@ -37,6 +41,23 @@ class git_modules_file(object):
     self._filename = filename
     self._modules = self._parse_file(filename)
 
+  def set_branch(self, name, branch):
+    check.check_string(name)
+    check.check_string(branch)
+    for i, mod in enumerate(self._modules):
+      if mod.name == name:
+        if mod.branch != branch:
+          self._modules[i] = mod.clone(mutations = { 'branch': branch })
+          self.save()
+        return
+    raise KeyError('modules not found: {}'.format(name))
+        
+  def save(self):
+    new_content = str(self)
+    old_content = file_util.read(self._filename)
+    if new_content != old_content:
+      file_util.save(self._filename, new_content)
+        
   def __str__(self):
     buf = StringIO()
     for mod in self._modules:
