@@ -30,33 +30,32 @@ class git_module(namedtuple('git_module', 'name, path, url, branch')):
   
 check.register_class(git_module)
 
-class git_modules_file(namedtuple('git_modules_file', 'filename, modules')):
+class git_modules_file(object):
 
-  def __new__(clazz, filename, modules):
+  def __init__(self, filename):
     check.check_string(filename)
-    check.check_git_module_seq(modules, allow_none = True)
-    return clazz.__bases__[0].__new__(clazz, filename, modules)
+    self._filename = filename
+    self._modules = self._parse_file(filename)
 
   def __str__(self):
     buf = StringIO()
-    for mod in self.modules:
-      print('mod: {}'.format(mod))
+    for mod in self._modules:
       buf.write(str(mod))
     return buf.getvalue()
   
   @classmethod
-  def parse_file(clazz, filename):
+  def _parse_file(clazz, filename):
     text = file_util.read(filename)
-    return clazz.parse_text(filename, text)
+    return clazz._parse_text(filename, text)
     
   @classmethod
-  def parse_text(clazz, filename, text):
+  def _parse_text(clazz, filename, text):
     root = tree_text_parser.parse(text, strip_comments = True)
     modules = []
     for child in root.children:
       mod = clazz._parse_module(child)
       modules.append(mod)
-    return git_modules_file(filename, modules)
+    return modules
 
   @classmethod
   def _parse_module(clazz, node):
