@@ -43,7 +43,7 @@ class git_modules_file(object):
 
   def set_branch(self, name, branch):
     check.check_string(name)
-    check.check_string(branch)
+    check.check_string(branch, allow_none = True)
     for i, mod in enumerate(self._modules):
       if mod.name == name:
         if mod.branch != branch:

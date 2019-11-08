@@ -90,6 +90,31 @@ class test_git_submodules_file(unit_test):
 	url = git@example.com:org/bar.git
 	branch = b666
 '''
-      
+
+  def test_remove_branch(self):
+    text = '''\
+[submodule "foo"]
+	path = foo
+	url = git@example.com:org/foo.git
+	branch = b2
+[submodule "bar"]
+	path = bar
+	url = git@example.com:org/bar.git
+	branch = b666
+'''
+    tmp_file = self.make_temp_file(content = text)
+    mf = git_modules_file(tmp_file)
+    mf.set_branch('foo', None)
+    mf.set_branch('bar', None)
+    expected = '''\
+[submodule "foo"]
+	path = foo
+	url = git@example.com:org/foo.git
+[submodule "bar"]
+	path = bar
+	url = git@example.com:org/bar.git
+'''
+    self.assertMultiLineEqual( expected, file_util.read(tmp_file) )
+    
 if __name__ == '__main__':
   unit_test.main()
