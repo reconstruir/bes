@@ -264,11 +264,11 @@ class table(object):
 
   def check_width(self, width):
     if not self.width_valid(width):
-      raise ValueError('Invalid width: %s' % (str(width)))
+      raise ValueError('Invalid width: %s - should be %s' % (str(width), self.width))
 
   def check_height(self, height):
     if not self.height_valid(height):
-      raise ValueError('Invalid height: %s' % (str(height)))
+      raise ValueError('Invalid height: %s - should be %s' % (str(height), self.height))
 
   def _make_rows(self, width, height, default_value):
     rows = [ default_value ] * height
