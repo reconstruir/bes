@@ -158,7 +158,11 @@ class text_table(object):
     renderer = self.get_cell_renderer(x, y)
     assert renderer
     value_string = renderer.render(value, width = width)
-    stream.write(value_string)
+    try:
+      stream.write(value_string)
+    except UnicodeEncodeError as ex:
+      value_string = renderer.render('ERROR', width = width)
+      stream.write(value_string)
     return value_string
   
   def _write_label(self, x, stream, width):
