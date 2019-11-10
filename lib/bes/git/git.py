@@ -10,7 +10,6 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_copy import file_copy
-from bes.fs.file_find import file_find
 from bes.fs.file_ignore import file_ignore
 from bes.fs.file_ignore import ignore_file_data
 from bes.fs.file_mime import file_mime
@@ -220,11 +219,20 @@ class git(object):
   @classmethod
   def clone_or_pull(clazz, address, dest_dir, options = None):
     if clazz.is_repo(dest_dir):
+      if options and options.reset_to_head:
+        clazz.reset_to_revision(dest_dir, 'HEAD')
+        
       if clazz.has_changes(dest_dir):
         raise RuntimeError('dest_dir %s has changes.' % (dest_dir))
-      return clazz.pull(dest_dir)
+
+      clazz.pull(dest_dir)
+
+      if options and options.branch:
+        clazz.checkout(dest_dir, options.branch)
+        clazz.pull(dest_dir)
+      
     else:
-      return clazz.clone(address, dest_dir, options = options)
+      clazz.clone(address, dest_dir, options = options)
 
   @classmethod
   def archive(clazz, address, revision, base_name, output_filename, untracked = False):
@@ -718,7 +726,7 @@ class git(object):
     return clazz.call_git(root, args)
 
   @classmethod
-  def unpushed_commits(clazz, root):
+  def unpushed_commits(clazz, root): # tested
     'Return a list of unpushed commits.'
     rv = clazz.call_git(root, [ 'cherry' ])
     lines = clazz._parse_lines(rv.stdout)
@@ -734,8 +742,8 @@ class git(object):
     return len(clazz.unpushed_commits(root)) > 0
 
   @classmethod
-  def submodule_init(clazz, root, submodule = None, recursive = False):
-    args = [ 'submodule', '--init' ]
+  def submodule_init(clazz, root, submodule = None, recursive = False): # nottested
+    args = [ 'submodule', 'update', '--init' ]
     if recursive:
       args.append('--recursive')
     if submodule:
@@ -743,7 +751,7 @@ class git(object):
     return clazz.call_git(root, args)
 
   @classmethod
-  def submodule_status_all(clazz, root, submodule = None):
+  def submodule_status_all(clazz, root, submodule = None): # nottested
     args = [ 'submodule', 'status' ]
     if submodule:
       args.append(submodule)
@@ -753,7 +761,15 @@ class git(object):
     return [ clazz._submodule_info_fill_revision_short(root, info) for info in result ]
 
   @classmethod
-  def submodule_status_one(clazz, root, submodule):
+  def submodule_add(clazz, root, address, local_path): # nottested
+    check.check_string(root)
+    check.check_string(address)
+    check.check_string(local_path)
+    args = [ 'submodule', 'add', address, local_path ]
+    clazz.call_git(root, args)
+
+  @classmethod
+  def submodule_status_one(clazz, root, submodule): # nottested
     return clazz.submodule_status_all(root, submodule = submodule)[0]
 
   @classmethod
@@ -777,4 +793,8 @@ class git(object):
 
   @classmethod
   def has_revision(clazz, root, revision):
+    return clazz.has_local_tag(root, revision) or clazz.has_commit(root, revision)
+
+  @classmethod
+  def changelog(clazz, root, revision):
     return clazz.has_local_tag(root, revision) or clazz.has_commit(root, revision)

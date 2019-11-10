@@ -15,7 +15,7 @@ class git_clone_manager(object):
   'Manage a collection of repos under one root dir with conveniences.'
 
   def __init__(self, root_dir):
-    self.root_dir = root_dir
+    self.root_dir = path.expanduser(root_dir)
     
   def update(self, address, options = None):
     'Update the repo.'

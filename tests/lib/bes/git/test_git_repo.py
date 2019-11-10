@@ -518,5 +518,50 @@ class test_git_repo(unit_test):
     self.assertTrue( r.has_revision('foo-1.0.1') )
     self.assertFalse( r.has_revision('foo-1.0.2') )
     
+  @git_temp_home_func()
+  def test_submodule_set_branch(self):
+    sub_content = [
+      'file subfoo.txt "this is subfoo" 644',
+    ]
+    sub_repo = self._make_repo(remote = True, content = sub_content)
+    
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+
+    r.call_git('submodule add {} mod'.format(sub_repo.address))
+    self.assertEqual( None, r.submodule_get_branch('mod') )
+    r.submodule_set_branch('mod', 'foo')
+    self.assertEqual( 'foo', r.submodule_get_branch('mod') )
+    
+  @git_temp_home_func()
+  def test_submodule_init(self):
+    sub_content = [
+      'file subfoo.txt "this is subfoo" 644',
+    ]
+    sub_repo = self._make_repo(remote = True, content = sub_content, prefix = '-mod-')
+    
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content, prefix = '-main-')
+    self.assertEqual( [ 'foo.txt' ], r.find_all_files() )
+
+    r.submodule_add(sub_repo.address, 'mod')
+    r.commit('add mod submodule', '.')
+    r.push()
+    self.assertEqual( [ 'foo.txt', 'mod/subfoo.txt' ], r.find_all_files() )
+
+    r2 = git_repo(self.make_temp_dir(), address = r.address)
+    r2.clone()
+    self.assertEqual( ( 'mod', sub_repo.last_commit_hash(), sub_repo.last_commit_hash(short_hash = True), False, None ),
+                      r2.submodule_status_one('mod') )
+    self.assertEqual( [ 'foo.txt' ], r2.find_all_files() )
+    r2.submodule_init(submodule = 'mod')
+    self.assertEqual( [ 'foo.txt', 'mod/subfoo.txt' ], r2.find_all_files() )
+    self.assertEqual( ( 'mod', sub_repo.last_commit_hash(), sub_repo.last_commit_hash(short_hash = True), True, 'heads/master' ),
+                      r2.submodule_status_one('mod') )
+    
 if __name__ == '__main__':
   unit_test.main()

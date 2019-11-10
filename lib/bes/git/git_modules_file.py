@@ -50,7 +50,14 @@ class git_modules_file(object):
           self._modules[i] = mod.clone(mutations = { 'branch': branch })
           self.save()
         return
-    raise KeyError('modules not found: {}'.format(name))
+    raise KeyError('module "{}" not found in {}'.format(name, self._filename))
+        
+  def get_branch(self, name):
+    check.check_string(name)
+    for mod in self._modules:
+      if mod.name == name:
+        return mod.branch
+    raise KeyError('module "{}" not found in {}'.format(name, self._filename))
         
   def save(self):
     new_content = str(self)

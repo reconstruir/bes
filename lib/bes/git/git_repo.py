@@ -9,6 +9,7 @@ from bes.fs.testing.temp_content import temp_content
 from bes.version.software_version import software_version
 
 from .git import git
+from .git_modules_file import git_modules_file
 
 class git_repo(object):
   'A mini git repo abstraction.'
@@ -78,7 +79,8 @@ class git_repo(object):
 
   def find_all_files(self):
     files = file_find.find(self.root, relative = True, file_type = file_find.FILE|file_find.LINK)
-    files = [ f for f in files if not f.startswith('.git') ]
+    is_git = lambda f: f.startswith('.git') or f.endswith('.git')
+    files = [ f for f in files if not is_git(f) ]
     return files
 
   def last_commit_hash(self, short_hash = False):
@@ -247,20 +249,50 @@ class git_repo(object):
   
   def has_unpushed_commits(self):
     return git.has_unpushed_commits(self.root)
-
-  def submodule_init(self, submodule = None, recursive = False):
-    return git.submodule_init(self.root, submodule = submodule, recursive = recursive)
-
-  def submodule_status_all(self, submodule = None):
-    return git.submodule_status_all(self.root, submodule = submodule)
-  
-  def submodule_status_one(self, submodule):
-    return git.submodule_status_one(self.root, submodule)
   
   def has_commit(self, commit):
     return git.has_commit(self.root, commit)
   
   def has_revision(self, revision):
     return git.has_revision(self.root, revision)
+    
+  def is_long_hash(clazz, h):
+    return git.is_long_hash(h)
+  
+  def is_short_hash(clazz, h):
+    return git.is_short_hash(h)
+
+  def short_hash(clazz, long_hash):
+    return git.short_hash(self.root, long_hash)
+
+  def long_hash(clazz, short_hash):
+    return git.long_hash(self.root, short_hash)
+
+  def submodule_init(self, submodule = None, recursive = False):
+    return git.submodule_init(self.root, submodule = submodule, recursive = recursive)
+
+  def submodule_add(self, address, local_path):
+    return git.submodule_add(self.root, address, local_path)
+
+  def submodule_status_all(self, submodule = None):
+    return git.submodule_status_all(self.root, submodule = submodule)
+  
+  def submodule_status_one(self, submodule):
+    return git.submodule_status_one(self.root, submodule)
+
+  def submodule_file(self):
+    filename = path.join(self.root, '.gitmodules')
+    if not path.isfile(filename):
+      raise IOError('no modules file found: {}'.format(filename))
+    return git_modules_file(filename)
+
+  def submodule_set_branch(self, module_name, branch_name):
+    check.check_string(module_name)
+    check.check_string(branch_name)
+    self.submodule_file().set_branch(module_name, branch_name)
+
+  def submodule_get_branch(self, module_name):
+    check.check_string(module_name)
+    return self.submodule_file().get_branch(module_name)
   
 check.register_class(git_repo)
