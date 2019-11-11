@@ -144,5 +144,27 @@ class test_archiver(unit_test):
     self.assertEqual( '3fc9b689459d738f8c88a3a48aa9e33542016b7a4052e001aaa536fca74813cb',
                       archiver.member_checksum(tmp_archive, '.foo/bar-[baz].ext-kiwi.apple.lemon') )
     
+  def test_transform(self):
+    tmp_dir = temp_content.write_items_to_temp_dir([
+        'file files/foo.txt "this is foo.txt" 644',
+        'file files/bar.txt "this is bar.txt" 644',
+        'file files/baz.txt "this is baz.txt" 644',
+    ], delete = not self.DEBUG)
+    tmp_archive = self.make_temp_file(suffix = '.zip')
+    archiver.create(tmp_archive, tmp_dir)
+
+    from bes.archive.archive_operation_add_file import archive_operation_add_file
+    from bes.archive.archive_operation_remove_files import archive_operation_remove_files
+    operations = [
+      archive_operation_add_file('new/new_file.txt', 'this is new_file.txt', 0644),
+      archive_operation_remove_files([ 'files/foo.txt', 'files/bar.txt' ]),
+    ]
+    archiver.transform(tmp_archive, operations)
+    self.assertEqual( [
+      'files/baz.txt',
+      'new/new_file.txt',
+    ], archiver.members(tmp_archive) )
+    self.assertEqual( 'this is new_file.txt', archiver.extract_member_to_string(tmp_archive, 'new/new_file.txt') )
+    
 if __name__ == '__main__':
   unit_test.main()

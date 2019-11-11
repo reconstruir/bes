@@ -1,17 +1,22 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
+
+from bes.common.check import check
+from bes.common.object_util import object_util
 from bes.fs.file_cache import file_cache
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.host import host
+
 from .archive_tar import archive_tar
 from .archive_zip import archive_zip
 from .archive_dmg import archive_dmg
 from .archive_xz import archive_xz
 from .archive_extension import archive_extension
 from .archive_base import archive_base
+from .archive_operation_base import archive_operation_base
 
 class archiver(object):
   'Class to deal with archives.'
@@ -233,4 +238,14 @@ class archiver(object):
       return None
     return archive_class.name(filename)
   
-  
+  @classmethod
+  def transform(clazz, archive, operations):
+    'Transform an archive with one or more operations.'
+    check.check_string(archive)
+    operations = object_util.listify(operations)
+    check.check_archive_operation_seq(operations)
+    tmp_dir = clazz.extract_all_temp_dir(archive)
+    for operation in operations:
+      operation.execute(tmp_dir)
+    tmp_new_archive = clazz.create_temp_file(archive_extension.extension_for_filename(archive), tmp_dir)
+    file_util.rename(tmp_new_archive, archive)
