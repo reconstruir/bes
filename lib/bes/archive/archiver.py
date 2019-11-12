@@ -10,13 +10,16 @@ from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.host import host
 
-from .archive_tar import archive_tar
-from .archive_zip import archive_zip
-from .archive_dmg import archive_dmg
-from .archive_xz import archive_xz
-from .archive_extension import archive_extension
 from .archive_base import archive_base
+from .archive_dmg import archive_dmg
+from .archive_extension import archive_extension
+from .archive_tar import archive_tar
+from .archive_xz import archive_xz
+from .archive_zip import archive_zip
 from .archive_operation_base import archive_operation_base
+from .archive_operation_add_file import archive_operation_add_file
+from .archive_operation_remove_files import archive_operation_remove_files
+from .archive_operation_replace_file import archive_operation_replace_file
 
 class archiver(object):
   'Class to deal with archives.'
@@ -237,7 +240,10 @@ class archiver(object):
     if not archive_class:
       return None
     return archive_class.name(filename)
-  
+
+  operation_add_file = archive_operation_add_file
+  operation_remove_files = archive_operation_remove_files
+  operation_replace_file = archive_operation_replace_file
   @classmethod
   def transform(clazz, archive, operations):
     'Transform an archive with one or more operations.'
@@ -246,6 +252,8 @@ class archiver(object):
     check.check_archive_operation_seq(operations)
     tmp_dir = clazz.extract_all_temp_dir(archive)
     for operation in operations:
+      if not check.is_archive_operation(operation):
+        raise TypeError('Operation should be a subclass of archive_operation_base: {}'.format(operation))
       operation.execute(tmp_dir)
     tmp_new_archive = clazz.create_temp_file(archive_extension.extension_for_filename(archive), tmp_dir)
     file_util.rename(tmp_new_archive, archive)
