@@ -61,6 +61,14 @@ class config(object):
       self._parser.add_section(section)
     self._parser.set(section, key, value)
 
+  def set_values(self, section, values):
+    check.check_string(section)
+    check.check_dict(values, check.STRING_TYPES, check.STRING_TYPES)
+    if not self._parser.has_section(section):
+      self._parser.add_section(section)
+    for key, value in sorted(values.items()):
+      self._parser.set(section, key, value)
+
   def get_value(self, section, key):
     check.check_string(section)
     check.check_string(key)

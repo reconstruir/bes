@@ -28,9 +28,8 @@ class config_file_editor(object):
 
   def set_values(self, section, values):
     check.check_string(section)
-    check.check_dict(values)
-    for key, value in values.items():
-      self._config.set_value(section, key, value)
+    check.check_dict(values, check.STRING_TYPES, check.STRING_TYPES)
+    self._config.set_values(section, values)
     self._config.save(self._filename)
     assert path.isfile(self._filename)
     
