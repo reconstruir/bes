@@ -46,6 +46,11 @@ class config_file_editor(object):
     self._check_key(section, key)
     return self._config.get_value(section, key)
 
+  def get_values(self, section):
+    check.check_string(section)
+    self._check_file_exists()
+    return self._config.get_values(section)
+
   def bump_version(self, section, key, component, reset_lower = False):
     check.check_string(section)
     check.check_string(key)

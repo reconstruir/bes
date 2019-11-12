@@ -71,6 +71,12 @@ class config(object):
     except NoOptionError as ex:
       raise ValueError('no such value in section {}: {}'.format(section, key))
 
+  def get_values(self, section):
+    check.check_string(section)
+    if not self._parser.has_section(section):
+      raise ValueError('no such section: {}'.format(section))
+    return dict(self._parser.items(section))
+    
   def has_value(self, section, key):
     check.check_string(section)
     check.check_string(key)
