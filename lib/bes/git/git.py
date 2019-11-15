@@ -710,12 +710,12 @@ class git(object):
     result = []
 
   @classmethod
-  def lfs_pull(root, clazz):
+  def lfs_pull(clazz, root):
     args = [ 'lfs', 'pull' ]
     return clazz.call_git(root, args)
 
   @classmethod
-  def lfs_track(root, clazz, pattern):
+  def lfs_track(clazz, root, pattern):
     args = [ 'lfs', 'track', pattern ]
     return clazz.call_git(root, args)
     
