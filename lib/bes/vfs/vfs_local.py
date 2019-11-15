@@ -74,9 +74,12 @@ class vfs_local(vfs_base):
     result = node('/')
     local_dir_path = self._make_local_dir_path(remote_dir)
     self.log.log_d('list_dir: remote_dir={} recursive={} local_dir_path={}'.format(remote_dir, recursive, local_dir_path))
+    if not path.exists(local_dir_path):
+      raise vfs_error('dir does not exist: {}'.format(remote_dir))
+
     if not path.isdir(local_dir_path):
-      raise vfs_error('dir not found: {}'.format(remote_dir))
-     
+      raise vfs_error('not a dir: {}'.format(remote_dir))
+    
     max_depth = None if recursive else 1
     setattr(result, '_remote_filename', '/')
     setattr(result, '_local_filename', self._local_root_dir)
