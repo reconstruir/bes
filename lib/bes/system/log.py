@@ -288,6 +288,10 @@ class log(object):
     system_console.output(message, console = console)
     
   @classmethod
+  def console(clazz, message):
+    clazz.output(message, console = True)
+    
+  @classmethod
   def set_log_file(clazz, f):
     'Set the log file to be f.  f can be a filename or a file object.'
     clazz._log_lock.acquire()
