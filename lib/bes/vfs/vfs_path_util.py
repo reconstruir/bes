@@ -113,6 +113,8 @@ class vfs_path_util(object):
     - dedup separators: //foo///bar/// => /foo/bar/
     - ensure path is relative with no leading separator: /foo/bar => foo/bar
     '''
+    if filename == '/':
+      return '/'
     deduped = clazz.dedup_sep(filename)
     no_leading_sep = clazz.lstrip_sep(deduped)
     return no_leading_sep
