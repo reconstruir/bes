@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import copy
 from bes.common.check import check
 
 from .checksum import checksum
@@ -28,7 +29,10 @@ class checksum_set(object):
     return [ c for _, c in sorted(self._checksums.items()) ]
 
   def to_dict(self):
-    return copy.copy(self._checksums)
+    result = {}
+    for _, checksum in self._checksums.items():
+      result[checksum.algorithm] = ( checksum.algorithm, checksum.checksum )
+    return result
 
   def preferred(self):
     for p in self._PREFERRED:

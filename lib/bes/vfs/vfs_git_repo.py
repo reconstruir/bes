@@ -123,6 +123,7 @@ class vfs_git_repo(vfs_base):
         proxy.repo.lfs_track(remote_filename)
     comment = 'add {}'.format(remote_filename)
     proxy.repo.commit(comment, remote_filename)
+    print('good')
     #proxy.repo.push()
     self._post_operation(proxy)
 

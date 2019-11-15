@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs, hashlib
+import codecs, hashlib, subprocess
 import os.path as path, os, platform, shutil, tempfile, time
 from datetime import datetime
 
@@ -308,5 +308,13 @@ class file_util(object):
   @classmethod
   def un_expanduser(clazz, p):
     return p.replace(path.expanduser('~'), '~')
-                       
+
+  @classmethod
+  def sync(clazz):
+    'Call unix sync()'
+    if compat.IS_PYTHON3:
+      os.sync()
+    else:
+      subprocess.call([ 'sync' ])
+
 log.add_logging(file_util, 'file_util')

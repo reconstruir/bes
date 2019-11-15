@@ -42,13 +42,15 @@ class vfs_cli_command(object):
     options = options or vfs_list_options()
     clazz.log.log_d('ls: remote_filename={} options={}'.format(remote_filename, options))
 
-    if vfs_path_util.ends_with_sep(remote_filename):
-      info = vfs_file_info(vfs_path_util.dirname(remote_filename),
-                           vfs_path_util.basename(remote_filename),
-                           vfs_file_info.DIR,
-                           datetime.now())
-    else:
-      info = fs.file_info(remote_filename, vfs_file_info_options())
+    info = fs.file_info(remote_filename, vfs_file_info_options())
+    print('info: {}'.format(info))
+#    if vfs_path_util.ends_with_sep(remote_filename):
+#      info = vfs_file_info(vfs_path_util.dirname(remote_filename),
+#                           vfs_path_util.basename(remote_filename),
+#                           vfs_file_info.DIR,
+#                           datetime.now())
+#    else:
+#      info = fs.file_info(remote_filename, vfs_file_info_options())
     clazz.log.log_d('ls: info={}'.format(info))
     if info.ftype == vfs_file_info.DIR:
       return clazz._ls_dir(fs, info, options)
@@ -107,6 +109,7 @@ class vfs_cli_command(object):
   @classmethod
   def _print_entry(clazz, entry, options, depth):
     indent = '  ' * depth
+    print('entry: {}'.format(len(entry)))
     if entry.ftype == 'file':
       s = clazz._format_file_info(entry, options)
       print('{}{}'.format(indent, s))

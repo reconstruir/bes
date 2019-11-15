@@ -37,7 +37,7 @@ class vfs_base(with_metaclass(fs_register_meta, object)):
 
   @abstractmethod
   def list_dir(self, remote_dir, recursive, options):
-    'List entries in a directory.'
+    'Return a vfs_file_info_list() of entryes in a dir.'
     pass
 
   @abstractmethod
@@ -47,7 +47,7 @@ class vfs_base(with_metaclass(fs_register_meta, object)):
   
   @abstractmethod
   def file_info(self, remote_filename, options):
-    'Get info for a single file.'
+    'Get info for a single file or dir.'
     pass
   
   @abstractmethod

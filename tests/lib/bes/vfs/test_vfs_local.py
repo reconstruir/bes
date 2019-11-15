@@ -30,29 +30,143 @@ class test_vfs_local(unit_test):
     'file emptyfile.txt',
     'dir emptydir',
   ]
+
+  def test_list_dir_empty(self):
+    tester = self._make_tester(items = [])
+    self.assertEqual( [], tester.list_dir_dict('/', False, tester.OPTIONS) )
   
-  def test_list_dir(self):
-    tester = self._make_tester()
-    expected = '''\
-emptydir/ dir None None
-emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35
-subdir/ dir None None
-'''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', False, tester.OPTIONS) )
+  def test_list_dir_one_file(self):
+    items = [
+      'file foo.txt "foo.txt"',
+    ]
+    tester = self._make_tester(items = items)
+    self.assertEqual( [
+      {
+        'modification_date': '1999-01-01 01:01:01',
+        'filename': 'foo.txt',
+        'ftype': 'file',
+        'attributes': {},
+        'checksums': { 'sha256': ( 'sha256', 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35' ) },
+        'size': 7,
+        'children': None,
+      },
+    ], tester.list_dir_dict('/', False, tester.OPTIONS) )
     
-  def test_list_dir_recursive(self):
+  def test_list_dir_many_files_non_recursive(self):
     tester = self._make_tester()
-    expected = '''\
-emptydir/ dir None None
-emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35
-subdir/ dir None None
-  subdir/bar.txt file 7 08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae
-  subdir/subberdir/ dir None None
-    subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
-'''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
+    self.assertEqual( [
+      {
+        'attributes': None,
+        'checksums': None,
+        'filename': 'emptydir',
+        'ftype': 'dir',
+        'modification_date': '1999-01-01 01:01:01',
+        'size': None,
+        'children': [],
+      },
+      {
+        'modification_date': '1999-01-01 01:01:01',
+        'filename': 'emptyfile.txt',
+        'ftype': 'file',
+        'attributes': {},
+        'checksums': { 'sha256': ( 'sha256', 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' ) },
+        'size': 0,
+        'children': None,
+      },
+      {
+        'modification_date': '1999-01-01 01:01:01',
+        'filename': 'foo.txt',
+        'ftype': 'file',
+        'attributes': {},
+        'checksums': { 'sha256': ( 'sha256', 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35' ) },
+        'size': 7,
+        'children': None,
+      },
+      {
+        'attributes': None,
+        'checksums': None,
+        'filename': 'subdir',
+        'ftype': 'dir',
+        'modification_date': '1999-01-01 01:01:01',
+        'size': None,
+        'children': [],
+      },
+    ], tester.list_dir_dict('/', False, tester.OPTIONS) )
+
+  def test_list_dir_many_files_recursive(self):
+    tester = self._make_tester()
+    self.assertEqual( [
+      {
+        'filename': 'emptydir', 
+        'attributes': None,
+        'checksums': None,
+        'ftype': 'dir',
+        'modification_date': '1999-01-01 01:01:01',
+        'size': None,
+        'children': [],
+      },
+      {
+        'filename': 'emptyfile.txt',
+        'modification_date': '1999-01-01 01:01:01',
+        'ftype': 'file',
+        'attributes': {},
+        'checksums': { 'sha256': ( 'sha256', 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' ) },
+        'size': 0,
+        'children': None,
+      },
+      {
+        'filename': 'foo.txt',
+        'modification_date': '1999-01-01 01:01:01',
+        'ftype': 'file',
+        'attributes': {},
+        'checksums': { 'sha256': ( 'sha256', 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35' ) },
+        'size': 7,
+        'children': None,
+      },
+      {
+        'filename': 'subdir',
+        'attributes': None,
+        'checksums': None,
+        'ftype': 'dir',
+        'modification_date': '1999-01-01 01:01:01',
+        'size': None,
+        'children': [
+          {
+            'filename': 'subdir/bar.txt',
+            'attributes': {},
+            'checksums': { 'sha256': ( 'sha256', '08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae' ) },
+            'children': None,
+            'ftype': 'file',
+            'modification_date': '1999-01-01 01:01:01',
+            'size': 7,
+          },
+          {
+            'filename': 'subdir/subberdir',
+            'ftype': 'dir',
+            'modification_date': '1999-01-01 01:01:01',
+            'size': None,
+            'attributes': None,
+            'checksums': None,
+            'children': [
+              {
+                'filename': 'subdir/subberdir/baz.txt',
+                'attributes': {},
+                'checksums': {
+                  'sha256': ( 'sha256', '541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669' )
+                },
+                'children': None,
+                'ftype': 'file',
+                'modification_date': '1999-01-01 01:01:01',
+                'size': 7,
+              },
+            ],
+          },
+        ],
+        'ftype': 'dir',
+        'modification_date': '1999-01-01 01:01:01',
+        'size': None,
+      },
+    ], tester.list_dir_dict('/', True, tester.OPTIONS) )
     
   def test_list_dir_empty(self):
     tmp_dir = self.make_temp_dir()
@@ -66,45 +180,106 @@ subdir/ dir None None
       fs.list_dir('/notthere', False, vfs_tester.OPTIONS)
     self.assertEqual( 'dir not found: notthere', ctx.exception.message )
       
-  def xtest_file_info(self):
+  def test_file_info_file(self):
     tester = self._make_tester()
-    self.assertEqual(
-      {}, #'foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35\n',
-      tester.file_info_caca('foo.txt', tester.OPTIONS) )
+    self.assertEqual( {
+      'attributes': {},
+      'checksums': {
+        'sha256': ( 'sha256', 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35' ),
+      },
+      'filename': 'foo.txt',
+      'ftype': 'file',
+      'modification_date': '1999-01-01 01:01:01',
+      'size': 7,
+      'children': None,
+    }, tester.file_info_dict('foo.txt', tester.OPTIONS) )
     
   def test_file_info_dir(self):
     tester = self._make_tester()
-    self.assertEqual(
-      ( 'subdir', 'dir', tester.MTIME, None, None, None, [] ),
-      tester.fs.file_info('subdir', tester.OPTIONS) )
+    self.assertEqual( {
+      'attributes': None,
+      'checksums': None,
+      'filename': 'subdir',
+      'ftype': 'dir',
+      'modification_date': '1999-01-01 01:01:01',
+      'size': None,
+      'children': [],
+    }, tester.file_info_dict('subdir', tester.OPTIONS) )
     
   def test_remove_file(self):
     tester = self._make_tester()
-    expected = '''\
-emptydir/ dir None None
-emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35
-subdir/ dir None None
-  subdir/bar.txt file 7 08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae
-  subdir/subberdir/ dir None None
-    subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
-'''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
+    self.assertEqual( [
+      {
+        'attributes': None,
+        'checksums': None,
+        'filename': 'emptydir',
+        'ftype': 'dir',
+        'modification_date': '1999-01-01 01:01:01',
+        'size': None,
+        'children': [],
+      },
+      {
+        'modification_date': '1999-01-01 01:01:01',
+        'filename': 'emptyfile.txt',
+        'ftype': 'file',
+        'attributes': {},
+        'checksums': { 'sha256': ( 'sha256', 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' ) },
+        'size': 0,
+        'children': None,
+      },
+      {
+        'modification_date': '1999-01-01 01:01:01',
+        'filename': 'foo.txt',
+        'ftype': 'file',
+        'attributes': {},
+        'checksums': { 'sha256': ( 'sha256', 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35' ) },
+        'size': 7,
+        'children': None,
+      },
+      {
+        'attributes': None,
+        'checksums': None,
+        'filename': 'subdir',
+        'ftype': 'dir',
+        'modification_date': '1999-01-01 01:01:01',
+        'size': None,
+        'children': [],
+      },
+    ], tester.list_dir_dict('/', False, tester.OPTIONS) )
     tester.remove_file('foo.txt')
-    expected = '''\
-emptydir/ dir None None
-emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-subdir/ dir None None
-  subdir/bar.txt file 7 08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae
-  subdir/subberdir/ dir None None
-    subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
-'''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
+    self.assertEqual( [
+      {
+        'attributes': None,
+        'checksums': None,
+        'filename': 'emptydir',
+        'ftype': 'dir',
+        'modification_date': '1999-01-01 01:01:01',
+        'size': None,
+        'children': [],
+      },
+      {
+        'modification_date': '1999-01-01 01:01:01',
+        'filename': 'emptyfile.txt',
+        'ftype': 'file',
+        'attributes': {},
+        'checksums': { 'sha256': ( 'sha256', 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' ) },
+        'size': 0,
+        'children': None,
+      },
+      {
+        'attributes': None,
+        'checksums': None,
+        'filename': 'subdir',
+        'ftype': 'dir',
+        'modification_date': '1999-01-01 01:01:01',
+        'size': None,
+        'children': [],
+      },
+    ], tester.list_dir_dict('/', False, tester.OPTIONS) )
 
-  def test_upload_file_new(self):
+  def test_upload_file_new_file(self):
     tester = self._make_tester()
     self.assertEqual( [
-      '.bes_vfs/checksum.db/.bes_file_metadata.db',
       'emptyfile.txt',
       'foo.txt',
       'subdir/bar.txt',
@@ -113,7 +288,6 @@ subdir/ dir None None
     tmp_file = self.make_temp_file(content = 'this is kiwi.txt\n')
     tester.upload_file(tmp_file, 'kiwi.txt')
     self.assertEqual( [
-      '.bes_vfs/checksum.db/.bes_file_metadata.db',
       'emptyfile.txt',
       'foo.txt',
       'kiwi.txt',
@@ -121,39 +295,41 @@ subdir/ dir None None
       'subdir/subberdir/baz.txt',
     ], file_find.find(tester.local_root_dir) )
     
-  def test_upload_file_replace(self):
+  def test_upload_file_replace_file(self):
     tester = self._make_tester()
-    expected = '''\
-emptydir/ dir None None
-emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35
-subdir/ dir None None
-  subdir/bar.txt file 7 08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae
-  subdir/subberdir/ dir None None
-    subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
-'''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
+    self.assertEqual( {
+      'attributes': {},
+      'checksums': {
+        'sha256': ( 'sha256', 'ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35' ),
+      },
+      'filename': 'foo.txt',
+      'ftype': 'file',
+      'modification_date': '1999-01-01 01:01:01',
+      'size': 7,
+      'children': None,
+    }, tester.file_info_dict('foo.txt', tester.OPTIONS) )
     tmp_file = self.make_temp_file(content = 'this is the new foo.txt\n')
     tester.upload_file(tmp_file, 'foo.txt')
-    expected = '''\
-emptydir/ dir None None
-emptyfile.txt file 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-foo.txt file 24 ee190d0691f8bd34826b9892a719892eb1accc36131ef4195dd81c0dfcf5517c
-subdir/ dir None None
-  subdir/bar.txt file 7 08bd2d247cc7aa38b8c4b7fd20ee7edad0b593c3debce92f595c9d016da40bae
-  subdir/subberdir/ dir None None
-    subdir/subberdir/baz.txt file 7 541ea9c9d29b720d2b1c4d661e983865e2cd0943ca00ccf5d08319d0dcfff669
-'''
-    self.assertMultiLineEqual( expected, tester.list_dir('/', True, tester.OPTIONS) )
+    self.assertEqual( {
+      'attributes': {},
+      'checksums': {
+        'sha256': ( 'sha256', 'ee190d0691f8bd34826b9892a719892eb1accc36131ef4195dd81c0dfcf5517c' ),
+      },
+      'filename': 'foo.txt',
+      'ftype': 'file',
+      'modification_date': '1999-01-01 01:01:01',
+      'size': 24,
+      'children': None,
+    }, tester.file_info_dict('foo.txt', tester.OPTIONS) )
 
   def test_set_file_properties(self):
     tester = self._make_tester()
     self.assertEqual(
-      'foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35\n',
+      'foo.txt file 7 sha256:ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35\n',
       tester.file_info('foo.txt', tester.OPTIONS) )
     tester.set_file_attributes('foo.txt', { 'p1': 'hello', 'p2': '666' })
     self.assertEqual(
-     'foo.txt file 7 ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35 p1=hello p2=666\n',
+     'foo.txt file 7 sha256:ddab29ff2c393ee52855d21a240eb05f775df88e3ce347df759f0c4b80356c35 p1=hello p2=666\n',
       tester.file_info('foo.txt', tester.OPTIONS) )
 
   def test_download_to_file(self):
@@ -169,8 +345,8 @@ subdir/ dir None None
     self.assertEqual( b'this is foo.txt', tester.download_to_bytes('x/y/z/foo.txt') )
     
   @classmethod
-  def _make_tester(self):
-    return _vfs_local_tester(self, items = self._TEST_ITEMS)
+  def _make_tester(self, items = None):
+    return _vfs_local_tester(self, items = items or self._TEST_ITEMS)
   
 if __name__ == '__main__':
   unit_test.main()

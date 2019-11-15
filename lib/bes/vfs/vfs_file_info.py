@@ -9,46 +9,44 @@ from bes.common.check import check
 from bes.common.type_checked_list import type_checked_list
 from bes.compat.StringIO import StringIO
 from bes.property.cached_property import cached_property
+from bes.fs.checksum_set import checksum_set
 
 from .vfs_error import vfs_error
 from .vfs_list_options import vfs_list_options
 from .vfs_path_util import vfs_path_util
 
-class vfs_file_info(namedtuple('vfs_file_info', 'filename, ftype, modification_date, size, checksum, attributes, children')):
+class vfs_file_info(namedtuple('vfs_file_info', 'filename, ftype, modification_date, size, checksums, attributes, children')):
 
   FILE = 'file'
   DIR = 'dir'
   
-  def __new__(clazz, filename, ftype, modification_date, size = None, checksum = None, attributes = None, children = None):
+  def __new__(clazz, filename, ftype, modification_date, size = None, checksums = None, attributes = None, children = None):
     check.check_string(filename)
     check.check_string(ftype)
     check.check(modification_date, datetime)
     check.check_int(size, allow_none = True)
-    check.check_string(checksum, allow_none = True)
+    check.check_checksum_set(checksums, allow_none = True)
     check.check_dict(attributes, allow_none = True)
     check.check_vfs_file_info_list(children, entry_type = vfs_file_info, allow_none = True)
-
-    filename = vfs_path_util.normalize(filename)
     
-    children = children or vfs_file_info_list()
+    filename = vfs_path_util.normalize(filename)
     
     if ftype == clazz.FILE:
       if children:
         raise vfs_error('children is only for "dir"')
+      children = None
     if ftype == clazz.DIR:
+      children = children or vfs_file_info_list()
       if size:
         raise vfs_error('size is only for "file"')
-      if checksum:
-        raise vfs_error('checksum is only for "file"')
+      if checksums:
+        raise vfs_error('checksums is only for "file"')
       if attributes:
         raise vfs_error('attributes are only for "file"')
-    return clazz.__bases__[0].__new__(clazz, filename, ftype, modification_date, size, checksum, attributes, children)
+    return clazz.__bases__[0].__new__(clazz, filename, ftype, modification_date, size, checksums, attributes, children)
 
   def __iter__(self):
     return iter(self.children)
-
-#  def __str__(self):
-#    return self.to_string()
 
   @cached_property
   def dirname(self):
@@ -80,13 +78,22 @@ class vfs_file_info(namedtuple('vfs_file_info', 'filename, ftype, modification_d
     return buf.getvalue()
 
   def to_dict(self, flatten_attributes = False, flatten_paths = False):
+    chk = self.checksums.to_dict() if self.checksums else {}
     d = {
       'filename': self.filename,
       'ftype': self.ftype,
       'modification_date': str(self.modification_date),
       'size': self.size,
-      'checksum': self.checksum,
+      'checksums': self.checksums.to_dict() if self.checksums else None,
     }
+    if self.ftype == 'dir':
+      if self.children:
+        d['children'] = self.children.to_dict_list(flatten_attributes = flatten_attributes, flatten_paths = flatten_paths)
+      else:
+        d['children'] = []
+    else:
+      d['children'] = None
+        
     if flatten_attributes:
       d.update(self.attributes)
     else:
@@ -96,9 +103,12 @@ class vfs_file_info(namedtuple('vfs_file_info', 'filename, ftype, modification_d
   @classmethod
   def _entry_to_string(clazz, entry, buf, options, depth):
     indent = '  ' * depth
+    checksum_str = ''
+    if entry.checksums:
+      checksum_str = str(entry.checksums.preferred())
     if entry.ftype == 'file':
       if options.show_details:
-        buf.write('{}{} {} {} {}'.format(indent, entry.display_filename, entry.ftype, entry.size, entry.checksum))
+        buf.write('{}{} {} {} {}'.format(indent, entry.display_filename, entry.ftype, entry.size, checksum_str))
         clazz._write_attributes(entry, buf)
       else:
         buf.write('{}{}'.format(indent, entry.display_filename))
@@ -106,7 +116,7 @@ class vfs_file_info(namedtuple('vfs_file_info', 'filename, ftype, modification_d
     elif entry.ftype == 'dir':
       for child in entry:
         if options.show_details:
-          buf.write('{}{} {} {} {}'.format(indent, child.display_filename, child.ftype, child.size, child.checksum))
+          buf.write('{}{} {} {} {}'.format(indent, child.display_filename, child.ftype, child.size, checksum_str))
           clazz._write_attributes(child, buf)
         else:
           buf.write('{}{}'.format(indent, child.display_filename))
@@ -142,5 +152,8 @@ class vfs_file_info_list(type_checked_list):
   
   def __str__(self):
     return self.to_string()
+
+  def to_dict_list(self, flatten_attributes = False, flatten_paths = False):
+    return [ entry.to_dict(flatten_attributes = flatten_attributes, flatten_paths = flatten_paths) for entry in self ]
   
 check.register_class(vfs_file_info_list, include_seq = False)

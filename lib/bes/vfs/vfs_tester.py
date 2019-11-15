@@ -17,13 +17,16 @@ class vfs_tester(object):
   def list_dir(self, *args):
     return self._call_fs('list_dir', True, *args)
     
+  def list_dir_dict(self, *args):
+    return self._call_fs('list_dir', False, *args).to_dict_list()
+    
   def has_file(self, *args):
     return self._call_fs('has_file', True, *args)
     
   def file_info(self, *args):
     return self._call_fs('file_info', True, *args)
 
-  def file_info_caca(self, *args):
+  def file_info_dict(self, *args):
     return self._call_fs('file_info', False, *args).to_dict()
 
   def remove_file(self, *args):
