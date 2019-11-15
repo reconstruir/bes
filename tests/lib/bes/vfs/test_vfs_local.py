@@ -179,7 +179,19 @@ class test_vfs_local(unit_test):
     with self.assertRaises(vfs_error) as ctx:
       fs.list_dir('/notthere', False, vfs_tester.OPTIONS)
     self.assertEqual( 'dir not found: notthere', ctx.exception.message )
-      
+
+  def test_file_info_root(self):
+    tester = self._make_tester()
+    self.assertEqual( {
+      'attributes': None,
+      'checksums': None,
+      'filename': '/',
+      'ftype': 'dir',
+      'modification_date': '1999-01-01 01:01:01',
+      'size': None,
+      'children': [],
+    }, tester.file_info_dict('/', tester.OPTIONS) )
+    
   def test_file_info_file(self):
     tester = self._make_tester()
     self.assertEqual( {
