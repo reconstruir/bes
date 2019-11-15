@@ -84,7 +84,7 @@ class vfs_cli_command(object):
     if options.show_size:
       fields.append(clazz._format_file_size(info.size, options))
     if options.show_checksums:
-      fields.append(info.checksum or '')
+      fields.append(str(info.checksums) or '')
 #    if options.show_attributes:
 #      kvl = key_value_list.from_dict(info.attributes)
 #      fields.append(kvl.to_string(delimiter = '=', value_delimiter = ' '))
