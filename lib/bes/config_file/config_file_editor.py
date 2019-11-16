@@ -12,9 +12,10 @@ class config_file_editor(object):
   A class to manipulate ini style config files
   '''
 
-  def __init__(self, filename):
+  def __init__(self, filename, string_quote_char = None):
     check.check_string(filename)
     self._filename = path.abspath(filename)
+    self._string_quote_char = string_quote_char
     if not path.isfile(self._filename):
       file_util.save(self._filename, content = '')
     
@@ -78,6 +79,6 @@ class config_file_editor(object):
     if self._filename:
       if not path.isfile(self._filename):
         raise IOError('config file not found: {}'.format(self._filename))
-      return config.load_from_file(self._filename)
+      return config.load_from_file(self._filename, string_quote_char = self._string_quote_char)
     else:
       return config()

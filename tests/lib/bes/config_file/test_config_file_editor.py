@@ -21,6 +21,18 @@ class test_config_file_editor(unit_test):
 fruit = kiwi
 '''
     self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+
+  def test_set_value_non_existent_file_quoted(self):
+    'Set the first value for a non existent config file.'
+    tmp = temp_file.make_temp_file()
+    file_util.remove(tmp)
+    e = CFE(tmp, string_quote_char = '"')
+    e.set_value('something', 'fruit', 'kiwi')
+    expected = '''\
+[something]
+fruit = "kiwi"
+'''
+    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
     
   def test_replace_value(self):
     'Set the first value for a non existent config file.'
@@ -37,6 +49,24 @@ fruit = kiwi
     expected = '''\
 [something]
 fruit = apple
+'''
+    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    
+  def test_replace_value_quoted(self):
+    'Set the first value for a non existent config file.'
+    tmp = temp_file.make_temp_file()
+    file_util.remove(tmp)
+    e = CFE(tmp, string_quote_char = '"')
+    e.set_value('something', 'fruit', 'kiwi')
+    expected = '''\
+[something]
+fruit = "kiwi"
+'''
+    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    e.set_value('something', 'fruit', 'apple')
+    expected = '''\
+[something]
+fruit = "apple"
 '''
     self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
     

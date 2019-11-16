@@ -43,6 +43,9 @@ class config(object):
       return copy.deepcopy(d)
   
   def __init__(self, parser = None, string_quote_char = None):
+    check.check_string(string_quote_char, allow_none = True)
+    if string_quote_char:
+      assert string_quote_char in [ '"', "'" ]
     parser = parser or ConfigParser()
     if not isinstance(parser, ( ConfigParser, SafeConfigParser )):
       raise TypeError('parser should be an instance of ConfigParser or SafeConfigParser.')
