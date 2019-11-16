@@ -167,7 +167,14 @@ class test_vfs_git_repo(unit_test):
     tester = self._make_tester()
     with self.assertRaises(vfs_error) as ctx:
       tester.fs.list_dir('/foo', False, tester.OPTIONS)
-    self.assertEqual( 'dir not found: foo', ctx.exception.message )
+    self.assertTrue( 'dir does not exist' in ctx.exception.message )
+      
+  @git_temp_home_func()
+  def test_list_dir_not_a_dir(self):
+    tester = self._make_tester_with_items()
+    with self.assertRaises(vfs_error) as ctx:
+      tester.fs.list_dir('foo.txt', False, tester.OPTIONS)
+    self.assertTrue( 'not a dir' in ctx.exception.message )
       
   @git_temp_home_func()
   def test_file_info_file(self):
