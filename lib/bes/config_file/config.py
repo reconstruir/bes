@@ -42,24 +42,35 @@ class config(object):
         d[k].pop('__name__', None)
       return copy.deepcopy(d)
   
-  def __init__(self, parser = None):
+  def __init__(self, parser = None, string_quote_char = None):
     parser = parser or ConfigParser()
     if not isinstance(parser, ( ConfigParser, SafeConfigParser )):
       raise TypeError('parser should be an instance of ConfigParser or SafeConfigParser.')
     self._parser = parser
+    self._string_quote_char = string_quote_char
 
   def __str__(self):
     buf = StringIO()
     self._parser.write(buf)
     return buf.getvalue().strip() + '\n'
-    
+
+  def _value_for_set(self, value):
+    if self._string_quote_char:
+      return string_util.quote(value, quote_char = self._string_quote_char)
+    return value
+
+  def _value_for_get(self, value):
+    if self._string_quote_char:
+      return string_util.unquote(value)
+    return value
+  
   def set_value(self, section, key, value):
     check.check_string(section)
     check.check_string(key)
     check.check_string(value)
     if not self._parser.has_section(section):
       self._parser.add_section(section)
-    self._parser.set(section, key, value)
+    self._parser.set(section, key, self._value_for_set(value))
 
   def set_values(self, section, values):
     check.check_string(section)
@@ -67,7 +78,7 @@ class config(object):
     if not self._parser.has_section(section):
       self._parser.add_section(section)
     for key, value in sorted(values.items()):
-      self._parser.set(section, key, value)
+      self._parser.set(section, key, self._value_for_set(value))
 
   def get_value(self, section, key):
     check.check_string(section)
@@ -75,7 +86,7 @@ class config(object):
     if not self._parser.has_section(section):
       raise ValueError('no such section: {}'.format(section))
     try:
-      return self._parser.get(section, key)
+      return self._value_for_get(self._parser.get(section, key))
     except NoOptionError as ex:
       raise ValueError('no such value in section {}: {}'.format(section, key))
 
@@ -83,8 +94,11 @@ class config(object):
     check.check_string(section)
     if not self._parser.has_section(section):
       raise ValueError('no such section: {}'.format(section))
-    return dict(self._parser.items(section))
-    
+    result = {}
+    for key, value in dict(self._parser.items(section)).items():
+      result[key] = self._value_for_get(value) 
+    return result
+  
   def has_value(self, section, key):
     check.check_string(section)
     check.check_string(key)
@@ -114,16 +128,22 @@ class config(object):
 
   def sections(self):
     return self._parser.sections()
-    
-  @classmethod
-  def load_from_text(clazz, text, filename):
-    parser = clazz._make_parser_from_text(text)
-    return config(parser = parser)
+
+  def to_dict(self):
+    result = {}
+    for section in self.sections():
+      result[section] = self.get_values(section)
+    return result
   
   @classmethod
-  def load_from_file(clazz, filename):
+  def load_from_text(clazz, text, filename, string_quote_char = None):
+    parser = clazz._make_parser_from_text(text)
+    return config(parser = parser, string_quote_char = string_quote_char)
+  
+  @classmethod
+  def load_from_file(clazz, filename, string_quote_char = None):
     parser = clazz._make_parser_from_file(filename)
-    return config(parser = parser)
+    return config(parser = parser, string_quote_char = string_quote_char)
   
   @classmethod
   def _make_parser_from_file(clazz, filename, codec = 'utf-8'):
