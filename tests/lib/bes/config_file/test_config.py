@@ -454,6 +454,50 @@ fruit = "durian"
       'indonesia': { 'color': 'yellow', 'fruit': 'durian' },
       'antartica': {},
     }, c.to_dict() )
+
+  def test_convert_unquoted_to_quoted(self):
+    text = '''\
+[default]
+color = red
+fruit = apple
+
+[new_zealand]
+color = green
+fruit = kiwi
+
+[indonesia]
+color = yellow
+fruit = durian
+
+[antartica]
+'''
+    c = config.load_from_text(text, '<unittest>', string_quote_char = '"')
+    self.assertEqual( {
+      'default': { 'color': 'red', 'fruit': 'apple' },
+      'new_zealand': { 'color': 'green', 'fruit': 'kiwi' },
+      'indonesia': { 'color': 'yellow', 'fruit': 'durian' },
+      'antartica': {},
+    }, c.to_dict() )
+
+    tmp = temp_file.make_temp_file()
+    c.save(tmp, codec = 'utf-8')
+
+    expected = '''\
+[default]
+color = "red"
+fruit = "apple"
+
+[new_zealand]
+color = "green"
+fruit = "kiwi"
+
+[indonesia]
+color = "yellow"
+fruit = "durian"
+
+[antartica]
+'''
+    self.assertMultiLineEqual( expected, file_util.read(tmp, codec = 'utf-8') )
     
 if __name__ == '__main__':
   unit_test.main()

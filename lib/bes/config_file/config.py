@@ -137,16 +137,26 @@ class config(object):
     for section in self.sections():
       result[section] = self.get_values(section)
     return result
+
+  def _reset(self):
+    for section in self.sections():
+      self.set_values(section, self.get_values(section))
   
   @classmethod
   def load_from_text(clazz, text, filename, string_quote_char = None):
     parser = clazz._make_parser_from_text(text)
-    return config(parser = parser, string_quote_char = string_quote_char)
+    cfg = config(parser = parser, string_quote_char = string_quote_char)
+    if string_quote_char:
+      cfg._reset()
+    return cfg
   
   @classmethod
   def load_from_file(clazz, filename, string_quote_char = None):
     parser = clazz._make_parser_from_file(filename)
-    return config(parser = parser, string_quote_char = string_quote_char)
+    cfg = config(parser = parser, string_quote_char = string_quote_char)
+    if string_quote_char:
+      cfg._reset()
+    return cfg
   
   @classmethod
   def _make_parser_from_file(clazz, filename, codec = 'utf-8'):
