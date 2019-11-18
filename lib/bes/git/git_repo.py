@@ -87,7 +87,7 @@ class git_repo(object):
     return git.last_commit_hash(self.root, short_hash = short_hash)
 
   def remote_origin_url(self):
-    return git.remote_origin_url(selfroot)
+    return git.remote_origin_url(self.root)
 
   def add_file(self, filename, content, codec = 'utf-8', mode = None, commit = True, push = False):
     p = self.file_path(filename)
