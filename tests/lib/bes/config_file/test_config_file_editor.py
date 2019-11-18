@@ -118,7 +118,8 @@ fruit = kiwi
     tmp = temp_file.make_temp_file(content = content)
     e = CFE(tmp)
     self.assertMultiLineEqual(content, file_util.read(tmp, codec = 'utf-8') )
-    self.assertEqual( None, e.get_value('something', 'color') )
+    with self.assertRaises(KeyError) as ctx:
+      self.assertEqual( None, e.get_value('something', 'color') )
     
 if __name__ == '__main__':
   unit_test.main()
