@@ -70,8 +70,7 @@ fruit = "apple"
 '''
     self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
     
-  def test_set_value_existing_file(self):
-    'Add a second property to an existing property file.'
+  def test_get_value_existing_file(self):
     content = '''\
 [something]
 fruit = kiwi
@@ -110,6 +109,16 @@ ver = 1.2.3
     self.assertEqual( '9.6.3', e.get_value('something', 'ver') )
     e.change_version('something', 'ver', 'revision', 8)
     self.assertEqual( '9.6.8', e.get_value('something', 'ver') )
+
+  def test_get_value_missing_key(self):
+    content = '''\
+[something]
+fruit = kiwi
+'''
+    tmp = temp_file.make_temp_file(content = content)
+    e = CFE(tmp)
+    self.assertMultiLineEqual(content, file_util.read(tmp, codec = 'utf-8') )
+    self.assertEqual( None, e.get_value('something', 'color') )
     
 if __name__ == '__main__':
   unit_test.main()
