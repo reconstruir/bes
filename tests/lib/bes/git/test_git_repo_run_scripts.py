@@ -12,7 +12,7 @@ from bes.git.git_repo_script_options import git_repo_script_options
 class test_git_repo_run_scripts(unit_test):
   
   @git_temp_home_func()
-  def test_repo_run_script_one(self):
+  def test_one_script(self):
     r = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
       script = self.xp_path('fruits/kiwi.bat')
@@ -43,7 +43,7 @@ exit 0
     self.assertEqual( '{} arg1 arg2'.format(xp_script), rv.results[0].stdout.strip() )
     
   @git_temp_home_func()
-  def test_repo_run_script_one_dry_run(self):
+  def test_one_script_with_dry_run(self):
     r = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
       script = self.xp_path('fruits/kiwi.bat')
@@ -74,7 +74,7 @@ exit 0
     self.assertEqual( [ None ], rv.results )
 
   @git_temp_home_func()
-  def test_repo_run_script_push(self):
+  def test_one_script_with_push(self):
     r1 = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
       script = self.xp_path('fruits/kiwi.bat')
@@ -112,7 +112,7 @@ exit 0
     self.assertEqual( 'yellow', r2.read_file('color.txt').strip() )
 
   @git_temp_home_func()
-  def test_repo_run_scripts_push(self):
+  def test_many_scripts_with_push(self):
     r1 = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
       script1 = self.xp_path('scripts/script1.bat')
@@ -167,7 +167,7 @@ exit 0
     self.assertEqual( 'kiwi', r2.read_file('fruit.txt').strip() )
 
   @git_temp_home_func()
-  def test_repo_run_script_bump_tag(self):
+  def test_one_script_with_bump_tag(self):
     r1 = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
       script = 'nothing.bat'
