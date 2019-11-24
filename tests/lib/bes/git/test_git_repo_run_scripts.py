@@ -2,8 +2,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
+import multiprocessing
+
 from bes.testing.unit_test import unit_test
 from bes.git.git_util import git_util
+from bes.git.git_repo import git_repo
 from bes.git.git_temp_repo import git_temp_repo
 from bes.system.host import host
 from bes.git.git_unit_test import git_temp_home_func
@@ -205,6 +208,96 @@ exit 0
     rv = git_util.repo_run_scripts(r1.address, scripts, options = options)
     self.assertEqual( 1, len(rv.results) )
     self.assertEqual( '2.0.1', r2.greatest_remote_tag() )
+
+  _FRUITS = [
+    'apple',
+    'blueberry',
+    'kiwi',
+    'lemon',
+    'melon',
+    'orange',
+    'papaya',
+    'pineapple',
+    'watermelon',
+  ]
+    
+  @git_temp_home_func()
+  def test_push_conflict(self):
+    r1 = git_temp_repo(debug = self.DEBUG)
+    if host.is_windows():
+      script = self.xp_path('fruits/kiwi.bat')
+      content = '''\
+@echo off
+echo %1 > %1
+git add %1
+git commit -m"add %1" %1
+exit 0
+'''
+    elif host.is_unix():
+      script = self.xp_path('fruits/kiwi.sh')
+      content = '''\
+#!/bin/bash
+echo ${1} > ${1}
+git add ${1}
+git commit -m"add ${1}" ${1}
+exit 0
+'''
+    else:
+      assert False
+    xp_script = self.xp_path(script)
+    r1.add_file(self.xp_path(xp_script), content, mode = 0o0755)
+    r1.push('origin', 'master')
+
+    options = git_repo_script_options(push = True, push_with_rebase = True)
+    
+    def worker(fruit):
+      scripts = [
+        git_util.script(xp_script, [ fruit ]),
+      ]
+      rv = git_util.repo_run_scripts(r1.address, scripts, options = options)
+      print('rv: {}'.format(str(rv)))
+      
+      #tmp_dir = self.make_temp_dir()
+      #content = self._make_content(fruit)
+      #repo = git_repo(tmp_dir, address = r2.address)
+      #repo.clone_or_pull()
+      #repo.add_file(fruit, content = fruit, commit = True)
+      #repo.push_with_rebase(num_tries = 10, retry_wait_ms = 0.250)
+      return 0
+
+    jobs = []
+    for fruit in self._FRUITS:
+      p = multiprocessing.Process(target = worker, args = ( fruit, ) )
+      jobs.append(p)
+      p.start()
+
+    for job in jobs:
+      job.join()
+
+    r2 = git_repo(self.make_temp_dir(), address = r1.address)
+    r2.clone_or_pull()
+
+    self.assertEqual( {
+      xp_script, 
+      'apple',
+      'blueberry',
+      'kiwi',
+      'lemon',
+      'melon',
+      'orange',
+      'papaya',
+      'pineapple',
+      'watermelon',
+    }, set(r2.find_all_files()) )
+
+    '''
+    scripts = [
+      git_util.script(xp_script, [ 'arg1', 'arg2' ]),
+    ]
+    rv = git_util.repo_run_scripts(r.address, scripts)
+    self.assertEqual( 1, len(rv.results) )
+    self.assertEqual( '{} arg1 arg2'.format(xp_script), rv.results[0].stdout.strip() )
+    '''
     
 if __name__ == '__main__':
   unit_test.main()

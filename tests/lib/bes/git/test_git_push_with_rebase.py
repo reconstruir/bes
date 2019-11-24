@@ -49,16 +49,16 @@ class test_git_push_with_rebase(unit_test):
     Create a bunch of processes trying to push to the same repo simulataneously.
     This creates git locking issues and exercises the safe_push retry code.
     '''
-    r2 = git_temp_repo(debug = self.DEBUG)
+    r1 = git_temp_repo(debug = self.DEBUG)
 
     initial_content = self._make_content('coconut')
-    r2.add_file('coconut', initial_content)
-    r2.push('origin', 'master')
+    r1.add_file('coconut', initial_content)
+    r1.push('origin', 'master')
     
     def worker(fruit):
       tmp_dir = self.make_temp_dir()
       content = self._make_content(fruit)
-      repo = git_repo(tmp_dir, address = r2.address)
+      repo = git_repo(tmp_dir, address = r1.address)
       repo.clone_or_pull()
       repo.add_file(fruit, content = fruit, commit = True)
       repo.push_with_rebase(num_tries = 10, retry_wait_ms = 0.250)
@@ -73,11 +73,9 @@ class test_git_push_with_rebase(unit_test):
     for job in jobs:
       job.join()
 
-    r2.pull()
+    r2 = git_repo(self.make_temp_dir(), address = r1.address)
+    r2.clone_or_pull()
 
-    tmp_dir = self.make_temp_dir()
-    repo = git_repo(tmp_dir, address = r2.address)
-    repo.clone_or_pull()
     self.assertEqual( [
       'apple',
       'blueberry',
@@ -89,7 +87,7 @@ class test_git_push_with_rebase(unit_test):
       'papaya',
       'pineapple',
       'watermelon',
-    ], repo.find_all_files() )
+    ], r2.find_all_files() )
 
   @classmethod
   def _make_content(clazz, fruit):
