@@ -24,7 +24,15 @@ class check(object):
 
   @classmethod
   def is_int_seq(clazz, o):
-    return not clazz.is_int(o) and clazz.is_seq(o, clazz.INTEGER_TYPES)
+    return clazz.is_seq(o, clazz.INTEGER_TYPES)
+  
+  @classmethod
+  def is_float(clazz, o):
+    return isinstance(o, float)
+
+  @classmethod
+  def is_float_seq(clazz, o):
+    return not clazz.is_seq(o, float)
   
   @classmethod
   def is_bool(clazz, o):
@@ -88,6 +96,10 @@ class check(object):
   @classmethod
   def check_bool(clazz, o, allow_none = False):
     return clazz._check(o, bool, 2, allow_none = allow_none)
+
+  @classmethod
+  def check_float(clazz, o, allow_none = False):
+    return clazz._check(o, float, 2, allow_none = allow_none)
 
   @classmethod
   def check_tuple(clazz, o, allow_none = False):
