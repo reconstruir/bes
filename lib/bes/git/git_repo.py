@@ -48,6 +48,15 @@ class git_repo(object):
   def push(self, *args):
     return git.push(self.root, *args)
 
+  def push_with_rebase(self, remote_name = None, num_tries = None, retry_wait_ms = None):
+    return git.push_with_rebase(self.root,
+                                remote_name = remote_name,
+                                num_tries = num_tries,
+                                retry_wait_ms = retry_wait_ms)
+
+  def safe_push(self, *args):
+    return git.safe_push(self.root, *args)
+
   def commit(self, message, filenames):
     return git.commit(self.root, message, filenames)
     

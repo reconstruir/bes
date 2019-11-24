@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os, os.path as path, re, pprint
+import os, os.path as path, re, pprint, time
 from datetime import datetime
 from collections import namedtuple
 
@@ -63,8 +63,11 @@ class git(object):
 
   @classmethod
   def remote_origin_url(clazz, root):
-    rv = clazz.call_git(root, [ 'remote', 'get-url', '--push', 'origin' ])
-    return rv.stdout.strip()
+    try:
+      rv = clazz.call_git(root, [ 'remote', 'get-url', '--push', 'origin' ])
+      return rv.stdout.strip()
+    except RuntimeError as ex:
+      return None
     
   @classmethod
   def has_changes(clazz, root, untracked_files = False):
@@ -179,8 +182,8 @@ class git(object):
     clazz.call_git(dest_dir, 'pull --all')
   
   @classmethod
-  def pull(clazz, root):
-    args = [ 'pull', '--verbose' ]
+  def pull(clazz, root, *args):
+    args = [ 'pull', '--verbose' ] + list(args or [])
     return clazz.call_git(root, args)
 
   @classmethod
@@ -192,6 +195,43 @@ class git(object):
   def push(clazz, root, *args):
     args = [ 'push', '--verbose' ] + list(args or [])
     return clazz.call_git(root, args)
+
+  @classmethod
+  def push_with_rebase(clazz, root, remote_name = None, num_tries = None, retry_wait_ms = None):
+    'Push, but call "pull --rebase origin master" first to be up to date.  With multiple optional retries.'
+    check.check_string(root)
+    check.check_string(remote_name, allow_none = True)
+    check.check_int(num_tries, allow_none = True)
+    check.check_float(retry_wait_ms, allow_none = True)
+
+    if check.is_int(num_tries):
+      if num_tries <= 0 or num_tries > 100:
+        raise ValueError('num_tries should be between 1 and 100: {}'.format(num_tries))
+    
+    num_tries = num_tries or 1
+    save_ex = None
+    origin = clazz.remote_origin_url(root) or '<unknown>'
+    remote_name = remote_name or 'origin'
+    active_branch = clazz.active_branch(root)
+    retry_wait_ms = retry_wait_ms or 0.500
+    
+    pull_command = 'pull --rebase {} {}'.format(remote_name, active_branch)
+
+    clazz.log.log_d('push_with_rebase: num_tries={} pull_command="{}" retry_wait_ms={}'.format(num_tries,
+                                                                                               pull_command,
+                                                                                               retry_wait_ms))
+    for i in range(0, num_tries):
+      try:
+        clazz.log.log_d('push_with_rebase: attempt {} of {} pushing to {}'.format(i + 1, num_tries, origin))
+        clazz.call_git(root, pull_command)
+        clazz.push(root)
+        clazz.log.log_i('push_with_rebase: success {} of {} pushing to {}'.format(i + 1, num_tries, origin))
+        return
+      except RuntimeError as ex:
+        clazz.log.log_w('push_with_rebase: failed {} of {} pushing to {}'.format(i + 1, num_tries, origin))
+        time.sleep(retry_wait_ms)
+        save_ex = ex
+    raise save_ex
 
   @classmethod
   def diff(clazz, root):

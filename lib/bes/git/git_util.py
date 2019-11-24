@@ -152,7 +152,11 @@ class git_util(object):
       if options.dry_run:
         print('DRY_RUN: {}: would push'.format(address))
       else:
-        repo.push()
+        if options.push_with_rebase:
+          repo.push_with_rebase(num_tries = options.push_with_rebase_num_tries,
+                                retry_wait_ms = options.push_with_rebase_retry_wait_ms)
+        else:
+          repo.push()
     if options.bump_tag_component is not None:
       if options.dry_run:
         rv = repo.bump_tag(options.bump_tag_component, dry_run = True)

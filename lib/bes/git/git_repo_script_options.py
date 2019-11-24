@@ -13,6 +13,9 @@ class git_repo_script_options(git_clone_options):
     self.dry_run = False
     self.debug = False
     self.verbose = False
+    self.push_with_rebase = False
+    self.push_with_rebase_num_tries = 10
+    self.push_with_rebase_retry_wait_ms = 0.500
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_bool(self.push)
@@ -20,5 +23,8 @@ class git_repo_script_options(git_clone_options):
     check.check_bool(self.dry_run)
     check.check_bool(self.debug)
     check.check_bool(self.verbose)
+    check.check_bool(self.push_with_rebase)
+    check.check_int(self.push_with_rebase_num_tries)
+    check.check_float(self.push_with_rebase_retry_wait_ms)
 
 check.register_class(git_repo_script_options)
