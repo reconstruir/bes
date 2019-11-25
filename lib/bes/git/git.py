@@ -374,7 +374,7 @@ class git(object):
     rv = execute.execute(cmd, cwd = cwd, raise_error = False)
     if rv.exit_code != 0:
       return None
-    l = clazz._parse_lines(rv.stdout)
+    l = clazz.parse_output_lines(rv.stdout)
     assert len(l) == 1
     return l[0]
   
@@ -390,88 +390,7 @@ class git(object):
     return [ item.filename for item in items if 'M' in item.action ]
 
   @classmethod
-  def tag(clazz, root_dir, tag, allow_downgrade = False, push = False):
-    greatest_tag = git.greatest_local_tag(root_dir)
-    if greatest_tag and not allow_downgrade:
-      if software_version.compare(greatest_tag, tag) >= 0:
-        raise ValueError('new tag \"%s\" is older than \"%s\".  Use allow_downgrade to force it.' % (tag, greatest_tag))
-    clazz.call_git(root_dir, [ 'tag', tag ])
-    if push:
-      clazz.push_tag(root_dir, tag)
-
-  @classmethod
-  def push_tag(clazz, root, tag):
-    clazz.call_git(root, [ 'push', 'origin', tag ])
-
-  @classmethod
-  def delete_local_tag(clazz, root, tag):
-    clazz.call_git(root, [ 'tag', '--delete', tag ])
-
-  @classmethod
-  def delete_remote_tag(clazz, root, tag):
-    clazz.call_git(root, [ 'push', '--delete', 'origin', tag ])
-
-  @classmethod
-  def delete_tag(clazz, root, tag, where, dry_run):
-    clazz.check_where(where)
-    if where in [ 'local', 'both' ]:
-      local_tags = git.list_local_tags(root)
-      if tag in local_tags:
-        if dry_run:
-          print('would delete local tag \"{tag}\"'.format(tag = tag))
-        else:
-          clazz.delete_local_tag(root, tag)
-    if where in [ 'remote', 'both' ]:
-      remote_tags = git.list_remote_tags(root)
-      if tag in remote_tags:
-        if dry_run:
-          print('would delete remote tag \"{tag}\"'.format(tag = tag))
-        else:
-          clazz.delete_remote_tag(root, tag)
-
-  @classmethod
-  def list_local_tags(clazz, root, lexical = False, reverse = False):
-    if lexical:
-      sort_arg = '--sort={reverse}refname'.format(reverse = '-' if reverse else '')
-    else:
-      sort_arg = '--sort={reverse}version:refname'.format(reverse = '-' if reverse else '')
-    rv = clazz.call_git(root, [ 'tag', '-l', sort_arg ])
-    return clazz._parse_lines(rv.stdout)
-  
-  @classmethod
-  def greatest_local_tag(clazz, root):
-    tags = clazz.list_local_tags(root)
-    if not tags:
-      return None
-    return tags[-1]
-
-  @classmethod
-  def list_remote_tags(clazz, root, lexical = False, reverse = False):
-    rv = clazz.call_git(root, [ 'ls-remote', '--tags' ])
-    lines = clazz._parse_lines(rv.stdout)
-    tags = [ clazz._parse_remote_tag_line(line) for line in lines ]
-    if lexical:
-      return sorted(tags, reverse = reverse)
-    else:
-      return software_version.sort_versions(tags, reverse = reverse)
-    return tags
-
-  @classmethod
-  def greatest_remote_tag(clazz, root):
-    tags = clazz.list_remote_tags(root)
-    if not tags:
-      return None
-    return tags[-1]
-
-  @classmethod
-  def _parse_remote_tag_line(clazz, s):
-    f = re.findall('^[0-9a-f]{40}\s+refs/tags/(.+)$', s)
-    if f and len(f) == 1:
-      return f[0]
-    return None
-
-  @classmethod
-  def _parse_lines(clazz, s):
+  def parse_output_lines(clazz, s):
     return text_line_parser.parse_lines(s, strip_comments = False, strip_text = True, remove_empties = True)
 
   @classmethod
@@ -524,20 +443,6 @@ class git(object):
     return clazz._identity(clazz.config_get_value('user.name'),
                            clazz.config_get_value('user.email'))
     
-  _bump_tag_result = namedtuple('_bump_tag_result', 'old_tag, new_tag')
-  @classmethod
-  def bump_tag(clazz, root_dir, component, push = True, dry_run = False, default_tag = None, reset_lower = False):
-    old_tag = git.greatest_local_tag(root_dir)
-    if old_tag:
-      new_tag = software_version.bump_version(old_tag, component, reset_lower = reset_lower)
-    else:
-      new_tag = default_tag or '1.0.0'
-    if not dry_run:
-      git.tag(root_dir, new_tag)
-      if push:
-        git.push_tag(root_dir, new_tag)
-    return clazz._bump_tag_result(old_tag, new_tag)
-  
   @classmethod
   def where_is_valid(clazz, where):
     return where in [ 'local', 'remote', 'both' ]
@@ -587,7 +492,7 @@ class git(object):
   @classmethod
   def _list_remote_branches(clazz, root):
     rv = clazz.call_git(root, [ 'branch', '--verbose', '--list', '--no-color', '--remote' ])
-    lines = clazz._parse_lines(rv.stdout)
+    lines = clazz.parse_output_lines(rv.stdout)
     lines = [ line for line in lines if not ' -> ' in line ]
     lines = [ string_util.remove_head(line, 'origin/') for line in lines ]
     branches = git_branch_list([ git_branch.parse_branch(line, 'remote') for line in lines ])
@@ -596,7 +501,7 @@ class git(object):
   @classmethod
   def _list_local_branches(clazz, root):
     rv = clazz.call_git(root, [ 'branch', '--verbose', '--list', '--no-color' ])
-    lines = clazz._parse_lines(rv.stdout)
+    lines = clazz.parse_output_lines(rv.stdout)
     branches = git_branch_list([ git_branch.parse_branch(line, 'local') for line in lines ])
     return clazz._branch_list_determine_authors(root, branches)
 
@@ -694,7 +599,7 @@ class git(object):
     'Return a list of files affected by commit.'
     args = [ 'diff-tree', '--no-commit-id', '--name-only', '-r', commit ]
     rv = clazz.call_git(root, args)
-    return sorted(clazz._parse_lines(rv.stdout))
+    return sorted(clazz.parse_output_lines(rv.stdout))
 
 
   @classmethod
@@ -728,13 +633,13 @@ class git(object):
   def files(clazz, root):
     'Return a list of all the files in the repo.'
     rv = clazz.call_git(root, [ 'ls-files' ])
-    return sorted(clazz._parse_lines(rv.stdout))
+    return sorted(clazz.parse_output_lines(rv.stdout))
   
   @classmethod
   def lfs_files(clazz, root):
     'Return a list of all the lfs files in the repo.'
     rv = clazz.call_git(root, [ 'lfs', 'ls-files' ])
-    return sorted(clazz._parse_lines(rv.stdout))
+    return sorted(clazz.parse_output_lines(rv.stdout))
 
   @classmethod
   def _lfs_file_needs_smudge(clazz, filename):
@@ -769,7 +674,7 @@ class git(object):
   def unpushed_commits(clazz, root): # tested
     'Return a list of unpushed commits.'
     rv = clazz.call_git(root, [ 'cherry' ])
-    lines = clazz._parse_lines(rv.stdout)
+    lines = clazz.parse_output_lines(rv.stdout)
     result = []
     for line in lines:
       x = re.findall('^\+\s([a-f0-9]+)$', line)
@@ -796,7 +701,7 @@ class git(object):
     if submodule:
       args.append(submodule)
     rv = clazz.call_git(root, args)
-    lines = clazz._parse_lines(rv.stdout)
+    lines = clazz.parse_output_lines(rv.stdout)
     result = [ git_submodule_info.parse(line) for line in lines ]
     return [ clazz._submodule_info_fill_revision_short(root, info) for info in result ]
 
@@ -818,14 +723,6 @@ class git(object):
     revision_short = clazz.short_hash(submodule_root, info.revision_long)
     return info.clone(mutations = { 'revision_short': revision_short })
 
-  @classmethod
-  def has_remote_tag(clazz, root, tag):
-    return tag in clazz.list_remote_tags(root)
-
-  @classmethod
-  def has_local_tag(clazz, root, tag):
-    return tag in clazz.list_local_tags(root)
-  
   @classmethod
   def has_commit(clazz, root, commit):
     args = [ 'cat-file', '-t', commit ]

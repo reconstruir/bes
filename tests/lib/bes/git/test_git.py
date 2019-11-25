@@ -200,28 +200,6 @@ class test_git(unit_test):
       'foo-master/kiwi.txt',
     ], archiver.members(tmp_archive) )
 
-  @env_override_temp_home_func()
-  def test_config(self):
-    self.assertEqual( None, git.config_get_value('user.name') )
-    self.assertEqual( None, git.config_get_value('user.email') )
-
-    git.config_set_value('user.name', 'foo bar')
-    self.assertEqual( 'foo bar', git.config_get_value('user.name') )
-      
-    git.config_set_value('user.email', 'foo@example.com')
-    self.assertEqual( 'foo@example.com', git.config_get_value('user.email') )
-
-    self.assertEqual( ( 'foo bar', 'foo@example.com' ), git.config_get_identity() )
-
-    git.config_set_identity('green kiwi', 'kiwi@example.com')
-    self.assertEqual( ( 'green kiwi', 'kiwi@example.com' ), git.config_get_identity() )
-
-    git.config_unset_value('user.email')
-    self.assertEqual( ( 'green kiwi', None ), git.config_get_identity() )
-
-    git.config_unset_value('user.name')
-    self.assertEqual( ( None, None ), git.config_get_identity() )
-      
   @git_temp_home_func()
   def test_has_changes(self):
     tmp_repo = self._create_tmp_repo()

@@ -7,7 +7,6 @@ from bes.git.git import git
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_repo import git_repo
 from bes.fs.file_util import file_util
-from bes.fs.temp_file import temp_file
 from bes.git.git_unit_test import git_temp_home_func
 
 from bes.testing.unit_test import unit_test
@@ -15,7 +14,7 @@ from bes.testing.unit_test import unit_test
 class test_git_push_with_rebase(unit_test):
 
   @git_temp_home_func()
-  def test_simple(self):
+  def test_push_with_rebase_simple(self):
     r1 = git_temp_repo(debug = self.DEBUG)
     r1.add_file('coconut', 'coconut')
     r1.push('origin', 'master')
@@ -44,7 +43,7 @@ class test_git_push_with_rebase(unit_test):
   ]
 
   @git_temp_home_func()
-  def test_many_concurrent(self):
+  def test_push_with_rebase_many_concurrent(self):
     '''
     Create a bunch of processes trying to push to the same repo simulataneously.
     This creates git locking issues and exercises the safe_push retry code.
