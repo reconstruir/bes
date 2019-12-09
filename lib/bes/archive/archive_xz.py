@@ -29,7 +29,7 @@ class archive_xz(archive):
   #@abstractmethod
   def file_is_valid(clazz, filename):
     with open(filename, 'rb') as fin:
-      magic = fin.read(6)
+      magic = fin.read(len(clazz._MAGIC))
       return magic == clazz._MAGIC
 
   #@abstractmethod
