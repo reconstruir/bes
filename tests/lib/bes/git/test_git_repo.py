@@ -563,5 +563,100 @@ class test_git_repo(unit_test):
     self.assertEqual( ( 'mod', sub_repo.last_commit_hash(), sub_repo.last_commit_hash(short_hash = True), True, 'heads/master' ),
                       r2.submodule_status_one('mod') )
     
+  @git_temp_home_func()
+  def xtest_submodule_update_revision(self):
+    sub_content = [
+      'file subfoo.txt "this is subfoo" 644',
+    ]
+    sub_repo = self._make_repo(remote = True, content = sub_content, prefix = '-mod-')
+    rev1 = sub_repo.last_commit_hash(short_hash = True)
+    
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r1 = self._make_repo(remote = True, content = content, prefix = '-main-')
+    self.assertEqual( [ 'foo.txt' ], r1.find_all_files() )
+
+    r1.submodule_add(sub_repo.address, 'mod')
+    r1.commit('add mod submodule', '.')
+    r1.push()
+    self.assertEqual( [ 'foo.txt', 'mod/subfoo.txt' ], r1.find_all_files() )
+
+    rev2 = sub_repo.add_file('sub_kiwi.txt', 'this is sub_kiwi.txt', push = True)
+    #rev3 = sub_repo.add_file('sub_orange.txt', 'this is sub_orange.txt', push = True)
+    
+    r2 = git_repo(self.make_temp_dir(), address = r1.address)
+    r2.clone()
+    r2.submodule_init(submodule = 'mod')
+    self.assertEqual( rev1, r2.submodule_status_one('mod').revision_short )
+    
+    r2.submodule_update_revision('mod', rev2)
+
+    r3 = git_repo(self.make_temp_dir(), address = r1.address)
+    r3.clone()
+    r3.submodule_init(submodule = 'mod')
+    self.assertEqual( rev2, r3.submodule_status_one('mod').revision_short )
+
+  @git_temp_home_func()
+  def test_is_long_hash(self):
+    content = [
+      'file subfoo.txt "this is subfoo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content, prefix = '-mod-')
+    self.assertTrue( r.is_long_hash(r.last_commit_hash(short_hash = False)) )
+    self.assertFalse( r.is_long_hash(r.last_commit_hash(short_hash = True)) )
+
+
+  @git_temp_home_func()
+  def test_is_short_hash(self):
+    content = [
+      'file subfoo.txt "this is subfoo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content, prefix = '-mod-')
+    self.assertFalse( r.is_short_hash(r.last_commit_hash(short_hash = False)) )
+    self.assertTrue( r.is_short_hash(r.last_commit_hash(short_hash = True)) )
+    
+  @git_temp_home_func()
+  def test_short_hash(self):
+    content = [
+      'file subfoo.txt "this is subfoo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content, prefix = '-mod-')
+    long_hash = r.last_commit_hash(short_hash = False)
+    short_hash = r.last_commit_hash(short_hash = True)
+    self.assertEqual( short_hash, r.short_hash(long_hash) )
+    self.assertEqual( short_hash, r.short_hash(short_hash) )
+
+  @git_temp_home_func()
+  def test_long_hash(self):
+    content = [
+      'file subfoo.txt "this is subfoo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content, prefix = '-mod-')
+    long_hash = r.last_commit_hash(short_hash = False)
+    short_hash = r.last_commit_hash(short_hash = True)
+    self.assertTrue( r.is_long_hash(long_hash) )
+    self.assertFalse( r.is_long_hash(short_hash) )
+    self.assertEqual( long_hash, r.long_hash(long_hash) )
+    self.assertEqual( long_hash, r.long_hash(short_hash) )
+    
+  @git_temp_home_func()
+  def test_revision_equals(self):
+    content = [
+      'file subfoo.txt "this is subfoo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content, prefix = '-mod-')
+    rev1_short = r.last_commit_hash(short_hash = True)
+    rev1_long = r.last_commit_hash(short_hash = True)
+    
+    r.add_file('sub_kiwi.txt', 'this is sub_kiwi.txt', push = True)
+    rev2_short = r.last_commit_hash(short_hash = True)
+    rev2_long = r.last_commit_hash(short_hash = True)
+    
+    self.assertTrue( r.revision_equals(rev1_short, rev1_short) )
+    self.assertTrue( r.revision_equals(rev1_long, rev1_short) )
+    self.assertTrue( r.revision_equals(rev1_short, rev1_long) )
+    self.assertTrue( r.revision_equals(rev1_long, rev1_long) )
+    
 if __name__ == '__main__':
   unit_test.main()

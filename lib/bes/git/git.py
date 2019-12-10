@@ -355,6 +355,11 @@ class git(object):
     return clazz.call_git(root, args)
 
   @classmethod
+  def revision_equals(clazz, root, revision1, revision2):
+    'Return True if revision1 is the same as revision2.  Short and long hashes can be mixed.'
+    return clazz.long_hash(root, revision1) == clazz.long_hash(root, revision2)
+  
+  @classmethod
   def last_commit_hash(clazz, root, short_hash = False):
     args = [ 'log', '--format=%H', '-n', '1' ]
     rv = clazz.call_git(root, args)
@@ -782,7 +787,7 @@ class git(object):
     return len(clazz.unpushed_commits(root)) > 0
 
   @classmethod
-  def submodule_init(clazz, root, submodule = None, recursive = False): # nottested
+  def submodule_init(clazz, root, submodule = None, recursive = False):
     args = [ 'submodule', 'update', '--init' ]
     if recursive:
       args.append('--recursive')
@@ -801,7 +806,7 @@ class git(object):
     return [ clazz._submodule_info_fill_revision_short(root, info) for info in result ]
 
   @classmethod
-  def submodule_add(clazz, root, address, local_path): # nottested
+  def submodule_add(clazz, root, address, local_path):
     check.check_string(root)
     check.check_string(address)
     check.check_string(local_path)
@@ -809,9 +814,17 @@ class git(object):
     clazz.call_git(root, args)
 
   @classmethod
-  def submodule_status_one(clazz, root, submodule): # nottested
+  def submodule_status_one(clazz, root, submodule):
     return clazz.submodule_status_all(root, submodule = submodule)[0]
 
+  @classmethod
+  def submodule_update_revision(clazz, root, module_name, revision):
+    clazz.submodule_init(root, submodule = module_name, recursive = False)
+    status = clazz.submodule_status_one(root, module_name)
+    if clazz.revision_equals(root, revision1, revision2):
+      return
+    print(status)
+  
   @classmethod
   def _submodule_info_fill_revision_short(clazz, root, info):
     submodule_root = path.join(root, info.name)

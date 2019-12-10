@@ -207,7 +207,11 @@ class git_repo(object):
 
   def reset_to_revision(self, revision):
     git.reset_to_revision(self.root, revision)
-  
+
+  def revision_equals(self, revision1, revision2):
+    'Return True if revision1 is the same as revision2.  Short and long hashes can be mixed.'
+    return git.revision_equals(self.root, revision1, revision2)
+    
   def list_branches(self, where):
     return git.list_branches(self.root, where)
 
@@ -264,17 +268,19 @@ class git_repo(object):
   
   def has_revision(self, revision):
     return git.has_revision(self.root, revision)
-    
+
+  @classmethod
   def is_long_hash(clazz, h):
     return git.is_long_hash(h)
   
+  @classmethod
   def is_short_hash(clazz, h):
     return git.is_short_hash(h)
 
-  def short_hash(clazz, long_hash):
+  def short_hash(self, long_hash):
     return git.short_hash(self.root, long_hash)
 
-  def long_hash(clazz, short_hash):
+  def long_hash(self, short_hash):
     return git.long_hash(self.root, short_hash)
 
   def submodule_init(self, submodule = None, recursive = False):
@@ -303,5 +309,10 @@ class git_repo(object):
   def submodule_get_branch(self, module_name):
     check.check_string(module_name)
     return self.submodule_file().get_branch(module_name)
+  
+  def submodule_update_revision(self, module_name, revision):
+    check.check_string(module_name)
+    check.check_string(revision)
+    git.submodule_update_revision(self.root, module_name, revision)
   
 check.register_class(git_repo)
