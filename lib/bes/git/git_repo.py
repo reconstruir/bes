@@ -313,6 +313,6 @@ class git_repo(object):
   def submodule_update_revision(self, module_name, revision):
     check.check_string(module_name)
     check.check_string(revision)
-    git.submodule_update_revision(self.root, module_name, revision)
+    return git.submodule_update_revision(self.root, module_name, revision)
   
 check.register_class(git_repo)

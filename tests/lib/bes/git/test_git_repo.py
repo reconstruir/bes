@@ -589,9 +589,13 @@ class test_git_repo(unit_test):
     r2.submodule_init(submodule = 'mod')
     self.assertEqual( rev1, r2.submodule_status_one('mod').revision_short )
     
-    r2.submodule_update_revision('mod', rev2)
+    rv = r2.submodule_update_revision('mod', rev2)
+    self.assertTrue( rv )
     r2.commit('update mod', 'mod')
     r2.push()
+
+    rv = r2.submodule_update_revision('mod', rev2)
+    self.assertFalse( rv )
     
     r3 = git_repo(self.make_temp_dir(), address = r1.address)
     r3.clone()
