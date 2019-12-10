@@ -614,16 +614,17 @@ class test_git_repo(unit_test):
     r4.push()
     self.assertEqual( rev3, r4.submodule_status_one('mod').revision )
 
-    return
+    rev4 = sub_repo.add_file('sub_melon.txt', 'this is sub_melon.txt', push = True)
     
     r3.pull()
     r3.submodule_init(submodule = 'mod')
     self.assertEqual( rev3, r3.submodule_status_one('mod').revision )
+    rv = r3.submodule_update_revision('mod', rev4)
+    self.assertTrue( rv )
+    r3.commit('update mod', 'mod')
+    r3.push()
+    self.assertEqual( rev4, r3.submodule_status_one('mod').revision )
 
-    rv = r3.submodule_update_revision('mod', rev3)
-    self.assertFalse( rv )
-
-    rev4 = sub_repo.add_file('sub_melon.txt', 'this is sub_melon.txt', push = True)
     
   @git_temp_home_func()
   def test_is_long_hash(self):

@@ -836,6 +836,8 @@ class git(object):
     if revision_long == status.revision_long:
       return False
     branch = status.branch or 'master'
+    clazz.checkout(module_root, branch)
+    clazz.pull(module_root, 'origin', branch)
     clazz.checkout(module_root, revision_long)
     clazz.add(root, module_name)
     return True
