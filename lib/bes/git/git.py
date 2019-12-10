@@ -357,7 +357,9 @@ class git(object):
   @classmethod
   def revision_equals(clazz, root, revision1, revision2):
     'Return True if revision1 is the same as revision2.  Short and long hashes can be mixed.'
-    return clazz.long_hash(root, revision1) == clazz.long_hash(root, revision2)
+    revision1_long = clazz.long_hash(root, revision1)
+    revision2_long = clazz.long_hash(root, revision2)
+    return revision1_long == revision2_long
   
   @classmethod
   def last_commit_hash(clazz, root, short_hash = False):
@@ -821,10 +823,14 @@ class git(object):
   def submodule_update_revision(clazz, root, module_name, revision):
     clazz.submodule_init(root, submodule = module_name, recursive = False)
     status = clazz.submodule_status_one(root, module_name)
-    if clazz.revision_equals(root, revision1, revision2):
-      return
-    print(status)
-  
+    module_root = path.join(root, module_name)
+    revision_long = clazz.long_hash(module_root, revision)
+    if revision_long == status.revision_long:
+      return False
+    clazz.checkout(module_root, revision_long)
+    clazz.add(root, module_name)
+    return True
+
   @classmethod
   def _submodule_info_fill_revision_short(clazz, root, info):
     submodule_root = path.join(root, info.name)

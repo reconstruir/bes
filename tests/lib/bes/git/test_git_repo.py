@@ -564,7 +564,7 @@ class test_git_repo(unit_test):
                       r2.submodule_status_one('mod') )
     
   @git_temp_home_func()
-  def xtest_submodule_update_revision(self):
+  def test_submodule_update_revision(self):
     sub_content = [
       'file subfoo.txt "this is subfoo" 644',
     ]
@@ -583,7 +583,6 @@ class test_git_repo(unit_test):
     self.assertEqual( [ 'foo.txt', 'mod/subfoo.txt' ], r1.find_all_files() )
 
     rev2 = sub_repo.add_file('sub_kiwi.txt', 'this is sub_kiwi.txt', push = True)
-    #rev3 = sub_repo.add_file('sub_orange.txt', 'this is sub_orange.txt', push = True)
     
     r2 = git_repo(self.make_temp_dir(), address = r1.address)
     r2.clone()
@@ -591,7 +590,9 @@ class test_git_repo(unit_test):
     self.assertEqual( rev1, r2.submodule_status_one('mod').revision_short )
     
     r2.submodule_update_revision('mod', rev2)
-
+    r2.commit('update mod', 'mod')
+    r2.push()
+    
     r3 = git_repo(self.make_temp_dir(), address = r1.address)
     r3.clone()
     r3.submodule_init(submodule = 'mod')
