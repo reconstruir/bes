@@ -30,6 +30,7 @@ from .git_branch_list import git_branch_list
 from .git_clone_options import git_clone_options
 from .git_status import git_status
 from .git_submodule_info import git_submodule_info
+from .git_modules_file import git_modules_file
 
 class git(object):
   'A class to deal with git.'
@@ -805,8 +806,15 @@ class git(object):
     rv = clazz.call_git(root, args)
     lines = clazz._parse_lines(rv.stdout)
     result = [ git_submodule_info.parse(line) for line in lines ]
-    return [ clazz._submodule_info_fill_revision_short(root, info) for info in result ]
+    return [ clazz._submodule_info_fill_fields(root, info) for info in result ]
 
+  @classmethod
+  def _submodule_info_fill_fields(clazz, root, info):
+    submodule_root = path.join(root, info.name)
+    revision_short = clazz.short_hash(submodule_root, info.revision_long)
+    branch = git_modules_file.module_branch(root, info.name)
+    return info.clone(mutations = { 'branch': branch, 'revision': revision_short })
+  
   @classmethod
   def submodule_add(clazz, root, address, local_path):
     check.check_string(root)
@@ -827,15 +835,10 @@ class git(object):
     revision_long = clazz.long_hash(module_root, revision)
     if revision_long == status.revision_long:
       return False
+    branch = status.branch or 'master'
     clazz.checkout(module_root, revision_long)
     clazz.add(root, module_name)
     return True
-
-  @classmethod
-  def _submodule_info_fill_revision_short(clazz, root, info):
-    submodule_root = path.join(root, info.name)
-    revision_short = clazz.short_hash(submodule_root, info.revision_long)
-    return info.clone(mutations = { 'revision_short': revision_short })
 
   @classmethod
   def has_remote_tag(clazz, root, tag):

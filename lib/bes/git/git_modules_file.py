@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from os import path
 from collections import namedtuple
 import re
 
@@ -41,23 +42,23 @@ class git_modules_file(object):
     self._filename = filename
     self._modules = self._parse_file(filename)
 
-  def set_branch(self, name, branch):
-    check.check_string(name)
+  def set_branch(self, module_name, branch):
+    check.check_string(module_name)
     check.check_string(branch, allow_none = True)
     for i, mod in enumerate(self._modules):
-      if mod.name == name:
+      if mod.name == module_name:
         if mod.branch != branch:
           self._modules[i] = mod.clone(mutations = { 'branch': branch })
           self.save()
         return
-    raise KeyError('module "{}" not found in {}'.format(name, self._filename))
+    raise KeyError('module "{}" not found in {}'.format(module_name, self._filename))
         
-  def get_branch(self, name):
-    check.check_string(name)
+  def get_branch(self, module_name):
+    check.check_string(module_name)
     for mod in self._modules:
-      if mod.name == name:
+      if mod.name == module_name:
         return mod.branch
-    raise KeyError('module "{}" not found in {}'.format(name, self._filename))
+    raise KeyError('module "{}" not found in {}'.format(module_name, self._filename))
         
   def save(self):
     new_content = str(self)
@@ -107,3 +108,15 @@ class git_modules_file(object):
     if f and len(f) == 1:
       return f[0]
     return None
+
+  @classmethod
+  def modules_filename(clazz, root):
+    return path.join(root, '.gitmodules')
+
+  @classmethod
+  def module_branch(clazz, root, module_name):
+    filename = clazz.modules_filename(root)
+    if not path.isfile(filename):
+      return None
+    mf = git_modules_file(filename)
+    return mf.get_branch(module_name)

@@ -7,15 +7,16 @@ from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.common.tuple_util import tuple_util
 
-class git_submodule_info(namedtuple('git_submodule_info', 'name, revision_long, revision_short, is_current, tag')):
+class git_submodule_info(namedtuple('git_submodule_info', 'name, branch, revision_long, revision, is_current, tag')):
 
-  def __new__(clazz, name, revision_long, revision_short, is_current, tag):
+  def __new__(clazz, name, branch, revision_long, revision, is_current, tag):
     check.check_string(name)
+    check.check_string(branch, allow_none = True)
     check.check_string(revision_long)
-    check.check_string(revision_short, allow_none = True)
+    check.check_string(revision, allow_none = True)
     check.check_bool(is_current)
     check.check_string(tag, allow_none = True)
-    return clazz.__bases__[0].__new__(clazz, name, revision_long, revision_short, is_current, tag)
+    return clazz.__bases__[0].__new__(clazz, name, branch, revision_long, revision, is_current, tag)
 
   @classmethod
   def parse(clazz, text):
@@ -36,7 +37,7 @@ class git_submodule_info(namedtuple('git_submodule_info', 'name, revision_long, 
       tag = clazz._parse_tag(parts.pop(0))
     else:
       tag = None
-    return git_submodule_info(name, revision_long, None, is_current, tag)
+    return git_submodule_info(name, None, revision_long, None, is_current, tag)
 
   @classmethod
   def _parse_tag(clazz, s):

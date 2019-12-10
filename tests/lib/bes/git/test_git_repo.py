@@ -555,12 +555,12 @@ class test_git_repo(unit_test):
 
     r2 = git_repo(self.make_temp_dir(), address = r.address)
     r2.clone()
-    self.assertEqual( ( 'mod', sub_repo.last_commit_hash(), sub_repo.last_commit_hash(short_hash = True), False, None ),
+    self.assertEqual( ( 'mod', None, sub_repo.last_commit_hash(), sub_repo.last_commit_hash(short_hash = True), False, None ),
                       r2.submodule_status_one('mod') )
     self.assertEqual( [ 'foo.txt' ], r2.find_all_files() )
     r2.submodule_init(submodule = 'mod')
     self.assertEqual( [ 'foo.txt', 'mod/subfoo.txt' ], r2.find_all_files() )
-    self.assertEqual( ( 'mod', sub_repo.last_commit_hash(), sub_repo.last_commit_hash(short_hash = True), True, 'heads/master' ),
+    self.assertEqual( ( 'mod', None, sub_repo.last_commit_hash(), sub_repo.last_commit_hash(short_hash = True), True, 'heads/master' ),
                       r2.submodule_status_one('mod') )
     
   @git_temp_home_func()
@@ -587,7 +587,7 @@ class test_git_repo(unit_test):
     r2 = git_repo(self.make_temp_dir(), address = r1.address)
     r2.clone()
     r2.submodule_init(submodule = 'mod')
-    self.assertEqual( rev1, r2.submodule_status_one('mod').revision_short )
+    self.assertEqual( rev1, r2.submodule_status_one('mod').revision )
     
     rv = r2.submodule_update_revision('mod', rev2)
     self.assertTrue( rv )
@@ -600,8 +600,31 @@ class test_git_repo(unit_test):
     r3 = git_repo(self.make_temp_dir(), address = r1.address)
     r3.clone()
     r3.submodule_init(submodule = 'mod')
-    self.assertEqual( rev2, r3.submodule_status_one('mod').revision_short )
+    self.assertEqual( rev2, r3.submodule_status_one('mod').revision )
 
+    rev3 = sub_repo.add_file('sub_orange.txt', 'this is sub_orange.txt', push = True)
+
+    r4 = git_repo(self.make_temp_dir(), address = r1.address)
+    r4.clone()
+    r4.submodule_init(submodule = 'mod')
+    self.assertEqual( rev2, r4.submodule_status_one('mod').revision )
+    rv = r4.submodule_update_revision('mod', rev3)
+    self.assertTrue( rv )
+    r4.commit('update mod', 'mod')
+    r4.push()
+    self.assertEqual( rev3, r4.submodule_status_one('mod').revision )
+
+    return
+    
+    r3.pull()
+    r3.submodule_init(submodule = 'mod')
+    self.assertEqual( rev3, r3.submodule_status_one('mod').revision )
+
+    rv = r3.submodule_update_revision('mod', rev3)
+    self.assertFalse( rv )
+
+    rev4 = sub_repo.add_file('sub_melon.txt', 'this is sub_melon.txt', push = True)
+    
   @git_temp_home_func()
   def test_is_long_hash(self):
     content = [
