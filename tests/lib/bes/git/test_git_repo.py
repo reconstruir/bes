@@ -625,7 +625,6 @@ class test_git_repo(unit_test):
     r3.push()
     self.assertEqual( rev4, r3.submodule_status_one('mod').revision )
 
-    
   @git_temp_home_func()
   def test_is_long_hash(self):
     content = [
