@@ -315,4 +315,13 @@ class git_repo(object):
     check.check_string(revision)
     return git.submodule_update_revision(self.root, module_name, revision)
   
+  def commit_for_tag(self, tag, short_hash = False):
+    check.check_string(tag)
+    check.check_bool(short_hash)
+    return git.commit_for_tag(self.root, tag, short_hash = short_hash)
+
+  def commit_brief_message(self, commit_hash):
+    check.check_string(commit_hash)
+    return git.commit_brief_message(self.root, commit_hash)
+  
 check.register_class(git_repo)

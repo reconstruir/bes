@@ -498,6 +498,17 @@ class git(object):
     return clazz.short_hash(root, long_hash)
 
   @classmethod
+  def commit_brief_message(clazz, root, commit_hash):
+    args = [
+      'log',
+      '-n1',
+      '--pretty=format:%s',
+      commit_hash,
+      '--',
+    ]
+    return clazz.call_git(root, args).stdout.strip()
+  
+  @classmethod
   def read_gitignore(clazz, root):
     'Return the contents of .gitignore with comments stripped.'
     p = path.join(root, '.gitignore')
