@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import re
+
 from collections import namedtuple
 from bes.common.check import check
 from bes.common.string_util import string_util
@@ -33,7 +35,8 @@ class text_line(namedtuple('text_line', 'line_number, text')):
     if not self.CONTINUATION_CHAR in self.text:
       return [ self ]
     indent_str = ' ' * indent
-    texts = self.text.split(self.CONTINUATION_CHAR)
+    texts = self.text.strip().split(self.CONTINUATION_CHAR)
+    texts = [ text for text in texts if text ]
     result = []
     last_text_index = len(texts) - 1
     for i, text in enumerate(texts):
@@ -41,7 +44,8 @@ class text_line(namedtuple('text_line', 'line_number, text')):
         text = '{}{}'.format(text, self.CONTINUATION_CHAR)
       if i != 0:
         text = '{}{}'.format(indent_str, text)
-      result.append(text_line(self.line_number + i, text))
+      new_line = text_line(self.line_number + i, text)
+      result.append(new_line)
     return result
   
   @cached_property
