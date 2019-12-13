@@ -832,5 +832,18 @@ cheese'''
       ( 3, 'baz' ), 
     ], l.lines )
     
+  def test_expand_continuations_with_indent(self):
+    text = '''foo\\bar\\baz'''
+    l = LTP(text)
+    self.assertEqual( [
+      ( 1, 'foo\\bar\\baz' ), 
+    ], l.lines )
+    l.expand_continuations(indent = 2)
+    self.assertEqual( [
+      ( 1, 'foo' ), 
+      ( 2, '  bar' ), 
+      ( 3, '  baz' ), 
+    ], l.lines )
+    
 if __name__ == '__main__':
   unit_test.main()
