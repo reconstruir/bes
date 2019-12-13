@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system.log import log
+from bes.common.check import check
+
 from .text_line import text_line
 
 class _state(object):
@@ -28,7 +30,7 @@ class _state_expecting_line(_state):
     new_state = None
     if token is None:
       new_state = self.parser.STATE_DONE
-    elif token.has_continuation:
+    elif token.ends_with_continuation:
       new_state = self.parser.STATE_CONTINUATION
       assert not self.parser._buffer
       self.parser._buffer = [ token ]
@@ -50,7 +52,7 @@ class _state_continuation(_state):
     self.parser._buffer.append(token)
     if token is None:
       raise RuntimeError('Unexpected end of tokens expecting a continuation in state %s' % (self.name))
-    elif token.has_continuation:
+    elif token.ends_with_continuation:
       new_state = self.parser.STATE_CONTINUATION
       self.parser._blank_buffer.append(text_line(token.line_number + 1, ''))
     else:
@@ -105,12 +107,16 @@ class line_continuation_merger(object):
       self.state = new_state
 
   @classmethod
-  def merge(clazz, tokens):
+  def merge(clazz, lines):
     'Merge a sequence of text_line objects. Yield a sequence with line'
     'continuations merged into one.  The resulting empty lines are kept with'
     'empty text.'
-    return clazz()._run(tokens)
+    check.check_text_line_seq(lines)
+
+    return clazz()._run(lines)
 
   @classmethod
-  def merge_to_list(clazz, tokens):
-    return [ x for x in clazz.merge(tokens) ]
+  def merge_to_list(clazz, lines):
+    check.check_text_line_seq(lines)
+
+    return [ x for x in clazz.merge(lines) ]

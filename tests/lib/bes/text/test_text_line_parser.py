@@ -819,5 +819,18 @@ cheese'''
     ], l.lines )
     self.assertMultiLineEqual( text, str(l) )
     
+  def test_expand_continuations(self):
+    text = '''foo\\bar\\baz'''
+    l = LTP(text)
+    self.assertEqual( [
+      ( 1, 'foo\\bar\\baz' ), 
+    ], l.lines )
+    l.expand_continuations()
+    self.assertEqual( [
+      ( 1, 'foo' ), 
+      ( 2, 'bar' ), 
+      ( 3, 'baz' ), 
+    ], l.lines )
+    
 if __name__ == '__main__':
   unit_test.main()

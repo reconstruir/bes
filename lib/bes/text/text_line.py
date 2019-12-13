@@ -26,8 +26,19 @@ class text_line(namedtuple('text_line', 'line_number, text')):
     return str(self)
 
   @cached_property
-  def has_continuation(self):
+  def ends_with_continuation(self):
     return self.text.strip().endswith(self.CONTINUATION_CHAR)
+  
+  def expand_continuations(self, indent = 0, keep_continuation = False):
+    if not self.CONTINUATION_CHAR in self.text:
+      return [ self ]
+    texts = self.text.split(self.CONTINUATION_CHAR)
+    result = []
+    for i, text in enumerate(texts):
+      if keep_continuation:
+        text = '{}{}'.format(text, self.CONTINUATION_CHAR)
+      result.append(text_line(self.line_number + i, text))
+    return result
   
   @cached_property
   def text_no_comments(self):
@@ -44,7 +55,7 @@ class text_line(namedtuple('text_line', 'line_number, text')):
     for line in lines:
       text = string_util.remove_tail(line.text, clazz.CONTINUATION_CHAR)
       buf.write(text)
-    return clazz(lines[0].line_number, buf.getvalue())
+    return text_line(lines[0].line_number, buf.getvalue())
 
   def get_text(self, strip_comments = False, strip_text = False):
     if strip_comments:

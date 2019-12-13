@@ -138,6 +138,13 @@ class text_line_parser(object):
   def merge_continuations(self):
     self._lines = line_continuation_merger.merge_to_list(self._lines)
 
+  def expand_continuations(self, indent = 0, keep_continuation = False):
+    new_lines = []
+    for line in self._lines:
+      new_lines.extend(line.expand_continuations(indent = indent, keep_continuation = keep_continuation))
+    self._lines = new_lines
+    self.renumber()
+
   def texts(self, strip_head = False, strip_tail = False):
     def _do_strip(s):
       if strip_head and strip_tail:
