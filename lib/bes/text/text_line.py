@@ -35,8 +35,9 @@ class text_line(namedtuple('text_line', 'line_number, text')):
     indent_str = ' ' * indent
     texts = self.text.split(self.CONTINUATION_CHAR)
     result = []
+    last_text_index = len(texts) - 1
     for i, text in enumerate(texts):
-      if keep_continuation:
+      if keep_continuation and i < last_text_index:
         text = '{}{}'.format(text, self.CONTINUATION_CHAR)
       if i != 0:
         text = '{}{}'.format(indent_str, text)

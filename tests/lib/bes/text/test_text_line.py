@@ -19,12 +19,15 @@ class test_text_line(unit_test):
   def test_expand_continuations(self):
     self.assertEqual( [ TL(1, 'foo' ), TL(2, 'bar') ], TL(1, 'foo\\bar').expand_continuations() )
     
-  def test_expand_continuations_with_indent(self):
+  def test_expand_continuations_indent(self):
     self.assertEqual( [ TL(1, 'foo' ), TL(2, 'bar') ], TL(1, 'foo\\bar').expand_continuations(indent = 0) )
     self.assertEqual( [ TL(1, 'foo' ), TL(2, ' bar') ], TL(1, 'foo\\bar').expand_continuations(indent = 1) )
     self.assertEqual( [ TL(1, 'foo' ) ], TL(1, 'foo').expand_continuations(indent = 1) )
     self.assertEqual( [ TL(1, 'foo' ), TL(2, '  bar') ], TL(1, 'foo\\bar').expand_continuations(indent = 2) )
     self.assertEqual( [ TL(1, 'foo' ), TL(2, '  bar'), TL(3, '  baz') ], TL(1, 'foo\\bar\\baz').expand_continuations(indent = 2) )
+    
+  def test_expand_continuations_keep_continuation(self):
+    self.assertEqual( [ TL(1, 'foo\\' ), TL(2, 'bar') ], TL(1, 'foo\\bar').expand_continuations(keep_continuation = True) )
     
 if __name__ == '__main__':
   unit_test.main()
