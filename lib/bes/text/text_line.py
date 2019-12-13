@@ -32,11 +32,14 @@ class text_line(namedtuple('text_line', 'line_number, text')):
   def expand_continuations(self, indent = 0, keep_continuation = False):
     if not self.CONTINUATION_CHAR in self.text:
       return [ self ]
+    indent_str = ' ' * indent
     texts = self.text.split(self.CONTINUATION_CHAR)
     result = []
     for i, text in enumerate(texts):
       if keep_continuation:
         text = '{}{}'.format(text, self.CONTINUATION_CHAR)
+      if i != 0:
+        text = '{}{}'.format(indent_str, text)
       result.append(text_line(self.line_number + i, text))
     return result
   
