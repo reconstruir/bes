@@ -4,13 +4,14 @@ import os
 from os import path
 
 from bes.common.check import check
-from bes.common.variable import variable
-from bes.fs.file_path import file_path
-from bes.fs.file_util import file_util
 from bes.common.object_util import object_util
+from bes.common.variable import variable
+from bes.dependency.dependency_resolver import cyclic_dependency_error
 from bes.dependency.dependency_resolver import dependency_resolver
 from bes.dependency.dependency_resolver import missing_dependency_error
-from bes.dependency.dependency_resolver import cyclic_dependency_error
+from bes.fs.file_path import file_path
+from bes.fs.file_util import file_util
+from bes.system.log import logger
 
 from collections import namedtuple
 
@@ -25,6 +26,8 @@ class simple_config_files(object):
   'A class to manage finding and loading hierarchical config files.'
 
   _found_config = namedtuple('_found_config', 'where, filename, abs_path, config')
+
+  log = logger('simple_config')
   
   def __init__(self, search_path, glob_expression):
     self._search_path = self.parse_search_path(search_path)
@@ -149,5 +152,30 @@ class simple_config_files(object):
     if not self.has_loaded:
       raise simple_config_error('Need to call load() first.', None)
     return next((c for c in self._configs if c.config.has_section(section_name)), None) is not None    
-  
-  
+
+  @classmethod
+  def load_and_find_section(clazz, config_path, section_name, extension):
+    check.check_string(config_path)
+    check.check_string(section_name)
+    check.check_string(extension)
+    
+    if config_path and not section_name:
+      raise ValueError('section_name needs to be given when config_path is given.')
+    if section_name and not config_path:
+      raise ValueError('config_path needs to be given when section_name is given.')
+
+    if not config_path:
+      return None
+
+    glob_expression = '*.{}'.format(extension)
+    clazz.log.log_d('using config_path={} glob_expression={} section_name={}'.format(config_path,
+                                                                                    glob_expression,
+                                                                                    section_name))
+    config = simple_config_files(config_path, glob_expression)
+    config.load()
+    if not config.files:
+      raise RuntimeError('No config files matching "{}" in "{}"'.format(glob_expression, config_path))
+    if not config.has_section(section_name):
+      raise RuntimeError('No config "{}" found in "{}":\n  {}'.format(section_name, config_path, '  \n'.join(config.files)))
+    section = config.section(section_name)
+    return section
