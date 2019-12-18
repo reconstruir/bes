@@ -16,5 +16,19 @@ class test_simple_config_entry(unit_test):
     self.assertEqual( 'foo: bar', str(SCE(KV('foo', 'bar'), SCO('<unittest>', 1), None)) )
     self.assertEqual( 'foo[a=x,b=y]: bar', str(SCE(KV('foo', 'bar'), SCO('<unittest>', 1), KVL([ ( 'a', 'x' ), ( 'b', 'y' ) ]))) )
       
+  def test_find_annotation(self):
+    self.assertEqual( ( 'a', 'x' ),
+                      SCE(KV('foo', 'bar'), SCO('<unittest>', 1), KVL([ ( 'a', 'x' ), ( 'b', 'y' ) ])).find_annotation('a') )
+      
+    self.assertEqual( None,
+                      SCE(KV('foo', 'bar'), SCO('<unittest>', 1), KVL([ ( 'a', 'x' ), ( 'b', 'y' ) ])).find_annotation('notthere') )
+      
+  def test_has_annotation(self):
+    self.assertEqual( True,
+                      SCE(KV('foo', 'bar'), SCO('<unittest>', 1), KVL([ ( 'a', 'x' ), ( 'b', 'y' ) ])).has_annotation('a') )
+      
+    self.assertEqual( False,
+                      SCE(KV('foo', 'bar'), SCO('<unittest>', 1), KVL([ ( 'a', 'x' ), ( 'b', 'y' ) ])).has_annotation('notthere') )
+      
 if __name__ == '__main__':
   unit_test.main()

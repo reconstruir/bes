@@ -32,5 +32,15 @@ class simple_config_entry(namedtuple('simple_config_entry', 'value, origin, anno
     buf.write(': ')
     buf.write(self.value.value)
     return buf.getvalue()
+
+  def has_annotation(self, annotation_key):
+    check.check_string(annotation_key)
+    return self.find_annotation(annotation_key) is not None
+
+  def find_annotation(self, annotation_key):
+    check.check_string(annotation_key)
+    if not self.annotations:
+      return None
+    return self.annotations.find_by_key(annotation_key)
   
 check.register_class(simple_config_entry)
