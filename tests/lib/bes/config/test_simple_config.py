@@ -5,6 +5,7 @@ import os
 from bes.testing.unit_test import unit_test
 from bes.config.simple_config import simple_config as SC
 from bes.system.env_override import env_override
+from bes.key_value.key_value_list import key_value_list as KVL
 
 class test_simple_config(unit_test):
 
@@ -136,6 +137,64 @@ foo extends
     
     with self.assertRaises(SC.error):
       SC.from_text(text)
+
+  def test_annotation_key_only(self):
+    text = '''\
+fruit
+  name: lemon
+  tart: true
+  is_good[annotation1,annotation2]: true
+
+fruit
+  name: apple
+  tart: true
+  is_good[annotation2]: true
+
+fruit
+  name: watermelon
+  tart: false
+  is_good[annotation1]: true
+
+fruit
+  name: strawberry
+  tart: false
+  is_good: true
+'''
+    
+    s = SC.from_text(text)
+
+    with self.assertRaises(SC.error):
+      s.find_sections('foo')
+
+    sections = s.find_sections('fruit')
+    self.assertEqual( 4, len(sections) )
+    
+    self.assertEqual( 'fruit', sections[0].header.name )
+    self.assertEqual( 'lemon', sections[0].find_by_key('name') )
+    self.assertEqual( 'true', sections[0].find_by_key('tart') )
+    self.assertEqual( 'true', sections[0].find_by_key('is_good') )
+    self.assertEqual( KVL([ ( 'annotation1', None), ( 'annotation2', None ) ]),
+                      sections[0].find_entry('is_good').annotations )
+
+    self.assertEqual( 'fruit', sections[1].header.name )
+    self.assertEqual( 'apple', sections[1].find_by_key('name') )
+    self.assertEqual( 'true', sections[1].find_by_key('tart') )
+    self.assertEqual( 'true', sections[1].find_by_key('is_good') )
+    self.assertEqual( KVL([ ( 'annotation2', None ) ]),
+                      sections[1].find_entry('is_good').annotations )
+    
+    self.assertEqual( 'fruit', sections[2].header.name )
+    self.assertEqual( 'watermelon', sections[2].find_by_key('name') )
+    self.assertEqual( 'false', sections[2].find_by_key('tart') )
+    self.assertEqual( 'true', sections[2].find_by_key('is_good') )
+    self.assertEqual( KVL([ ( 'annotation1', None ) ]),
+                      sections[2].find_entry('is_good').annotations )
+    
+    self.assertEqual( 'fruit', sections[3].header.name )
+    self.assertEqual( 'strawberry', sections[3].find_by_key('name') )
+    self.assertEqual( 'false', sections[3].find_by_key('tart') )
+    self.assertEqual( 'true', sections[3].find_by_key('is_good') )
+    self.assertEqual( None, sections[3].find_entry('is_good').annotations )
 
 if __name__ == '__main__':
   unit_test.main()

@@ -1,9 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import re
+
 from bes.common.check import check
 from bes.compat.StringIO import StringIO
 from bes.fs.file_util import file_util
 from bes.key_value.key_value import key_value
+from bes.key_value.key_value_list import key_value_list
 from bes.system.log import log
 from bes.text.tree_text_parser import tree_text_parser
 
@@ -107,8 +110,48 @@ class simple_config(object):
     check.check_string(source)
     result = []
     for child in node.children:
-      entry_value = key_value.parse(child.data.text, delimiter = ':')
       entry_origin = simple_config_origin(source, child.data.line_number)
-      new_entry = simple_config_entry(entry_value, entry_origin)
+      new_entry = clazz._parse_entry(child.data.text, entry_origin)
       result.append(new_entry)
     return result
+  
+  _ENTRY_PATTERN = re.compile('([a-zA-Z_]\w*)(\[.*\])?\s*:\s*(.*)')
+  @classmethod
+  def _parse_entry(clazz, text, origin):
+    check.check_string(text)
+    check.check_simple_config_origin(origin)
+    f = clazz._ENTRY_PATTERN.findall(text)
+    if not f or len(f) != 1 or len(f[0]) != 3:
+      raise simple_config_error('invalid config entry: "{}"'.format(text), origin)
+    value = key_value(f[0][0].strip(), f[0][2].strip())
+    annotations = clazz._parse_annotations(f[0][1], origin)
+    return simple_config_entry(value, origin, annotations = annotations)
+
+  @classmethod
+  def _parse_annotations(clazz, text, origin):
+    check.check_string(text)
+    check.check_simple_config_origin(origin)
+    if not text:
+      return None
+    if not text.startswith('[') or not text.endswith(']'):
+      raise simple_config_error('invalid annotation: "{}"'.format(text), origin)
+    strings = [ s.strip() for s in text[1:-1].split(',') ]
+    result = key_value_list()
+    for s in strings:
+      a = clazz._parse_annotation(s, origin)
+      result.append(a)
+    return result
+
+  _ANNOTATION_PATTERN = re.compile('([a-zA-Z_]\w*)\s*(=\s*.*)?')
+  @classmethod
+  def _parse_annotation(clazz, text, origin):
+    check.check_string(text)
+    check.check_simple_config_origin(origin)
+
+    parts = text.partition('=')
+    key = parts[0].strip()
+    if parts[1] == '=':
+      value = parts[2].strip()
+    else:
+      value = None
+    return key_value(key, value)

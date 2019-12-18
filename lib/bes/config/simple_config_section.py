@@ -35,15 +35,15 @@ class simple_config_section(namedtuple('simple_config_section', 'header, entries
     return buf.getvalue()
 
   def find_by_key(self, key, raise_error = True, resolve_env_vars = True):
-    for entry in self.entries:
-      if entry.value.key == key:
-        value = entry.value.value
-        if resolve_env_vars:
-          value = self._resolve_variable(value, entry.origin)
-        return value
-    if raise_error:
-      raise simple_config_error('%s not found' % (key), self.origin)
-    return None
+    entry = self.find_entry(key)
+    if not entry:
+      if raise_error:
+        raise simple_config_error('"{}" entry not found'.format(key), self.origin)
+      return None
+    value = entry.value.value
+    if resolve_env_vars:
+     value = self._resolve_variables(value, entry.origin)
+    return value
 
   def find_entry(self, key):
     for entry in self.entries:
@@ -88,7 +88,7 @@ class simple_config_section(namedtuple('simple_config_section', 'header, entries
     for entry in self.entries:
       value = entry.value.value
       if resolve_env_vars:
-        value = self._resolve_variable(value, entry.origin)
+        value = self._resolve_variables(value, entry.origin)
       result.append(key_value(entry.value.key, value))
     return result
   
@@ -97,7 +97,7 @@ class simple_config_section(namedtuple('simple_config_section', 'header, entries
     return self.to_key_value_list(resolve_env_vars = resolve_env_vars).to_dict()
 
   @classmethod
-  def _resolve_variable(clazz, value, origin):
+  def _resolve_variables(clazz, value, origin):
     variables = variable.find_variables(value)
     if variables:
       substitutions = clazz._substitutions_for_value(value, origin)
