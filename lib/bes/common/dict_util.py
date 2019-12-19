@@ -143,3 +143,16 @@ class dict_util(object):
         else:
             stack.pop()
     return default        
+
+  @staticmethod
+  def partition_by_function(d, func):
+    'Return a dict with only keys.'
+    assert callable(func)
+    matching = {}
+    not_matching = {}
+    for key, value in d.items():
+      if func(key):
+        matching[key] = value
+      else:
+        not_matching[key] = value
+    return matching, not_matching

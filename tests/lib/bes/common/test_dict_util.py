@@ -36,6 +36,12 @@ class test_dict_util(unittest.TestCase):
     r = { '@FOO@': 'hi', '@BAR@': 'bye' }
     dict_util.replace_values(d, r)
     self.assertEqual( { 'foo': 'hi', 'bar': 'bye' }, d )
+
+  def test_partition_by_function(self):
+    func = lambda key: key.startswith('f')
+    self.assertEqual( ( {}, {} ), dict_util.partition_by_function({}, func) )
+    self.assertEqual( ( { 'foo': 'hi' }, { 'bar': '666' } ), dict_util.partition_by_function({ 'foo': 'hi', 'bar': '666' }, func) )
+    self.assertEqual( ( { 'foo': 'hi', 'fruit': 'apple' }, { 'bar': '666' } ), dict_util.partition_by_function({ 'foo': 'hi', 'bar': '666', 'fruit': 'apple' }, func) )
     
 if __name__ == '__main__':
   unittest.main()
