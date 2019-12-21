@@ -78,7 +78,7 @@ class test_git_submodules_file(unit_test):
 	path = bar
 	url = git@example.com:org/bar.git
 '''
-    self.assertMultiLineEqual( expected, file_util.read(tmp_file) )
+    self.assertMultiLineEqual( expected, file_util.read(tmp_file, codec = 'utf8') )
     mf.set_branch('bar', 'b666')
     expected = '''\
 [submodule "foo"]
@@ -114,7 +114,7 @@ class test_git_submodules_file(unit_test):
 	path = bar
 	url = git@example.com:org/bar.git
 '''
-    self.assertMultiLineEqual( expected, file_util.read(tmp_file) )
+    self.assertMultiLineEqual( expected, file_util.read(tmp_file, codec = 'utf8') )
     
 if __name__ == '__main__':
   unit_test.main()
