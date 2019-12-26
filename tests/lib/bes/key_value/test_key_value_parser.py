@@ -86,6 +86,9 @@ class test_key_value_parser(unittest.TestCase):
   def test_ignore_comments(self):
     self.assertEqual( [ KV('foo', '#bar'), KV('fruit', '#orange') ] , self._parse('foo=#bar fruit=#orange', ignore_comments = True) )
 
+  def test_escaped_equal(self):
+    self.assertEqual( [ KV('foo', 'bar=baz') ] , self._parse('foo=bar\=baz') )
+
   @classmethod
   def _parse(self, text,
              keep_quotes = False,
