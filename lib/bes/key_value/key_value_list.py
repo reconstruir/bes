@@ -79,8 +79,10 @@ class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
 
   @classmethod
   def parse(clazz, text, options = 0, delimiter = '=', empty_value = None, log_tag = None):
-    check.check_string(text)
-    result = clazz()
+    check.check_string(text, allow_none = True)
+    result = key_value_list()
+    if not text:
+      return result
     for kv in key_value_parser.parse(text, options = options, delimiter = delimiter,
                                      empty_value = empty_value, log_tag = log_tag):
       result.append(kv)

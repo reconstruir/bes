@@ -30,7 +30,7 @@ class vfs_config(namedtuple('vfs_config', 'fs_type, values')):
       raise vfs_error('no fsconfig section found: {}'.format(config_filename))
     if len(sections) != 1:
       raise vfs_error('only one fsconfig section should be given: {}'.format(config_filename))
-    values = sections[0].to_key_value_list().to_dict()
+    values = sections[0].to_key_value_list(resolve_env_vars = True).to_dict()
     fs_type = values.get('vfs_type', None)
     if fs_type is None:
       raise vfs_error('no fs_type found in fsconfig: {}'.format(config_filename))

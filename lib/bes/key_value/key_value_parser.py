@@ -63,7 +63,7 @@ class key_value_parser(string_lexer_options.CONSTANTS):
 
   @classmethod
   def parse(clazz, text, options = 0, delimiter = '=', empty_value = None, log_tag = None):
-    return clazz(options, delimiter, empty_value, log_tag)._run(text)
+    return key_value_parser(options, delimiter, empty_value, log_tag)._run(text)
 
   @classmethod
   def parse_to_dict(clazz, text, options = 0, delimiter = '=', empty_value = None, log_tag = None):

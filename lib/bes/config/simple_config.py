@@ -75,7 +75,7 @@ class simple_config(object):
 
   @classmethod
   def from_file(clazz, filename):
-    return clazz.from_text(file_util.read(filename), source = filename)
+    return clazz.from_text(file_util.read(filename, codec = 'utf8'), source = filename)
     
   @classmethod
   def from_text(clazz, s, source = None):

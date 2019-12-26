@@ -62,7 +62,7 @@ class git_modules_file(object):
         
   def save(self):
     new_content = str(self)
-    old_content = file_util.read(self._filename)
+    old_content = file_util.read(self._filename, codec = 'utf8')
     if new_content != old_content:
       file_util.save(self._filename, new_content)
         
@@ -74,7 +74,7 @@ class git_modules_file(object):
   
   @classmethod
   def _parse_file(clazz, filename):
-    text = file_util.read(filename)
+    text = file_util.read(filename, codec = 'utf8')
     return clazz._parse_text(filename, text)
     
   @classmethod

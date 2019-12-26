@@ -81,6 +81,7 @@ class web_server(with_metaclass(ABCMeta, object)):
     def _handler(environ, start_response):
       self.log_d('_handler: id={} self={} _fail_next_request={}'.format(id(self), self, self._fail_next_request))
       self.headers = self._get_headers(environ)
+      self.log_d('headers={}'.format(self.headers))
       auth = self._decode_auth(environ)
       if not self._validate_auth(auth):
         return self.response_error(start_response, 403)

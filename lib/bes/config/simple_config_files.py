@@ -51,7 +51,7 @@ class simple_config_files(object):
     
   @classmethod
   def _resolve_seach_path_part(clazz, part):
-    substituted_part = variable.substitute(part, os.environ.data, variable.BRACKET)
+    substituted_part = variable.substitute(part, dict(os.environ), variable.BRACKET)
     return path.expanduser(substituted_part)
   
   def load(self):

@@ -138,5 +138,5 @@ class archive_util(object):
   @classmethod
   def read_patterns(clazz, filename):
     'Return a list of members that match any pattern in patterns.'
-    text = file_util.read(filename)
+    text = file_util.read(filename, codec = 'utf8')
     return text_line_parser.parse_lines(text).to_list()

@@ -156,7 +156,7 @@ class test_archiver(unit_test):
     from bes.archive.archive_operation_add_file import archive_operation_add_file
     from bes.archive.archive_operation_remove_files import archive_operation_remove_files
     operations = [
-      archive_operation_add_file('new/new_file.txt', 'this is new_file.txt', 0644),
+      archive_operation_add_file('new/new_file.txt', 'this is new_file.txt', 0o0644),
       archive_operation_remove_files([ 'files/foo.txt', 'files/bar.txt' ]),
     ]
     archiver.transform(tmp_archive, operations)
@@ -164,7 +164,7 @@ class test_archiver(unit_test):
       'files/baz.txt',
       'new/new_file.txt',
     ], archiver.members(tmp_archive) )
-    self.assertEqual( 'this is new_file.txt', archiver.extract_member_to_string(tmp_archive, 'new/new_file.txt') )
+    self.assertEqual( 'this is new_file.txt', archiver.extract_member_to_string(tmp_archive, 'new/new_file.txt', codec = 'utf8') )
     
 if __name__ == '__main__':
   unit_test.main()
