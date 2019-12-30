@@ -16,6 +16,13 @@ class test_file_resolve(unit_test):
       ( '${where}', 'fruit/orange.fruit', '${where}/fruit/orange.fruit' ),
     ], self._munge_result(file_resolve.resolve_dir(tmp_dir)) )
 
+  def test_resolve_dir_with_patterns(self):
+    tmp_dir = self._make_temp_content()
+    self.assertEqual( [
+      ( '${where}', 'cheese/brie.cheese', '${where}/cheese/brie.cheese' ),
+      ( '${where}', 'cheese/cheddar.cheese', '${where}/cheese/cheddar.cheese' ),
+    ], self._munge_result(file_resolve.resolve_dir(tmp_dir, patterns = [ '*.cheese' ])) )
+
   def _make_temp_content(self):
     filenames = [
       'cheese/brie.cheese',
