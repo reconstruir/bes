@@ -10,8 +10,8 @@ class test_file_resolve(unit_test):
   def test_resolve_dir(self):
     tmp_dir = self._make_temp_content()
     self.assertEqual( [
-      ( '${where}', 'cheese/brie.cheese', '${where}/cheese/brie.cheese' ),
-      ( '${where}', 'cheese/cheddar.cheese', '${where}/cheese/cheddar.cheese' ),
+      ( '${where}', 'cheese/hard/cheddar.cheese', '${where}/cheese/hard/cheddar.cheese' ),
+      ( '${where}', 'cheese/soft/brie.cheese', '${where}/cheese/soft/brie.cheese' ),
       ( '${where}', 'fruit/kiwi.fruit', '${where}/fruit/kiwi.fruit' ),
       ( '${where}', 'fruit/orange.fruit', '${where}/fruit/orange.fruit' ),
     ], self._munge_result(file_resolve.resolve_dir(tmp_dir)) )
@@ -19,30 +19,52 @@ class test_file_resolve(unit_test):
   def test_resolve_dir_with_patterns(self):
     tmp_dir = self._make_temp_content()
     self.assertEqual( [
-      ( '${where}', 'cheese/brie.cheese', '${where}/cheese/brie.cheese' ),
-      ( '${where}', 'cheese/cheddar.cheese', '${where}/cheese/cheddar.cheese' ),
+      ( '${where}', 'cheese/hard/cheddar.cheese', '${where}/cheese/hard/cheddar.cheese' ),
+      ( '${where}', 'cheese/soft/brie.cheese', '${where}/cheese/soft/brie.cheese' ),
     ], self._munge_result(file_resolve.resolve_dir(tmp_dir, patterns = [ '*.cheese' ])) )
 
+  def test_resolve_mixed_dirs_only(self):
+    tmp_dir = self._make_temp_content()
+
+    self.assertEqual( [
+      ( '${where}', 'cheese/hard/cheddar.cheese', '${where}/cheese/hard/cheddar.cheese' ),
+      ( '${where}', 'cheese/soft/brie.cheese', '${where}/cheese/soft/brie.cheese' ),
+    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'cheese' ])) )
+
+    self.assertEqual( [
+      ( '${where}', 'fruit/kiwi.fruit', '${where}/fruit/kiwi.fruit' ),
+      ( '${where}', 'fruit/orange.fruit', '${where}/fruit/orange.fruit' ),
+    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'fruit' ])) )
+    
+    self.assertEqual( [
+      ( '${where}', 'cheese/hard/cheddar.cheese', '${where}/cheese/hard/cheddar.cheese' ),
+      ( '${where}', 'cheese/soft/brie.cheese', '${where}/cheese/soft/brie.cheese' ),
+      ( '${where}', 'fruit/kiwi.fruit', '${where}/fruit/kiwi.fruit' ),
+      ( '${where}', 'fruit/orange.fruit', '${where}/fruit/orange.fruit' ),
+    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'cheese', 'fruit' ])) )
+    
+  def test_resolve_mixed_duplicates_only(self):
+    tmp_dir = self._make_temp_content()
+
+    self.assertEqual( [
+      ( '${where}', 'cheese/hard/cheddar.cheese', '${where}/cheese/hard/cheddar.cheese' ),
+      ( '${where}', 'cheese/soft/brie.cheese', '${where}/cheese/soft/brie.cheese' ),
+    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'cheese', 'cheese' ])) )
+    
   def _make_temp_content(self):
-    filenames = [
-      'cheese/brie.cheese',
-      'cheese/cheddar.cheese',
-      'fruit/kiwi.fruit',
-      'fruit/orange.fruit',
-    ]
     tmp_dir = self.make_temp_dir()
     items = [
-      'file cheese/brie.cheese "brie.cheese" 644',
-      'file cheese/cheddar.cheese "cheddar.cheese" 644',
-      'file fruit/kiwi.fruit "kiwi.fruit" 644',
-      'file fruit/orange.fruit "orange.fruit" 644',
+      'file cheese/soft/brie.cheese "this is brie" 644',
+      'file cheese/hard/cheddar.cheese "this is cheddar" 644',
+      'file fruit/kiwi.fruit "this is kiwi" 644',
+      'file fruit/orange.fruit "this is orange" 644',
     ]
     temp_content.write_items(items, tmp_dir)
     return tmp_dir
     
   @classmethod
   def _munge_result(clazz, result):
-    return [ clazz._munge_one_result(rf) for rf in result ]
+    return sorted([ clazz._munge_one_result(rf) for rf in result ])
 
   @classmethod
   def _munge_one_result(clazz, rf):
