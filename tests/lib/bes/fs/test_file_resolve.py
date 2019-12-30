@@ -43,13 +43,30 @@ class test_file_resolve(unit_test):
       ( '${where}', 'fruit/orange.fruit', '${where}/fruit/orange.fruit' ),
     ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'cheese', 'fruit' ])) )
     
-  def test_resolve_mixed_duplicates_only(self):
+  def test_resolve_mixed_dirs_only_duplicates(self):
     tmp_dir = self._make_temp_content()
 
     self.assertEqual( [
       ( '${where}', 'cheese/hard/cheddar.cheese', '${where}/cheese/hard/cheddar.cheese' ),
       ( '${where}', 'cheese/soft/brie.cheese', '${where}/cheese/soft/brie.cheese' ),
     ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'cheese', 'cheese' ])) )
+
+  def test_resolve_mixed_dirs_and_files(self):
+    tmp_dir = self._make_temp_content()
+
+    self.assertEqual( [
+      ( '${where}', 'cheese/hard/cheddar.cheese', '${where}/cheese/hard/cheddar.cheese' ),
+      ( '${where}', 'cheese/soft/brie.cheese', '${where}/cheese/soft/brie.cheese' ),
+      ( '${where}', 'fruit/orange.fruit', '${where}/fruit/orange.fruit' ),
+    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'cheese', 'fruit/orange.fruit' ])) )
+
+  def test_resolve_mixed_dirs_only_with_patterns(self):
+    tmp_dir = self._make_temp_content()
+
+    self.assertEqual( [
+      ( '${where}', 'cheese/hard/cheddar.cheese', '${where}/cheese/hard/cheddar.cheese' ),
+      ( '${where}', 'cheese/soft/brie.cheese', '${where}/cheese/soft/brie.cheese' ),
+    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'cheese', 'fruit' ], patterns = [ '*.cheese' ])) )
     
   def _make_temp_content(self):
     tmp_dir = self.make_temp_dir()
