@@ -68,6 +68,16 @@ class test_file_resolve(unit_test):
       ( '${where}', 'cheese/soft/brie.cheese', '${where}/cheese/soft/brie.cheese' ),
     ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'cheese', 'fruit' ], patterns = [ '*.cheese' ])) )
     
+  def test_resolve_mixed_no_args(self):
+    tmp_dir = self._make_temp_content()
+
+    self.assertEqual( [
+      ( '${where}', 'cheese/hard/cheddar.cheese', '${where}/cheese/hard/cheddar.cheese' ),
+      ( '${where}', 'cheese/soft/brie.cheese', '${where}/cheese/soft/brie.cheese' ),
+      ( '${where}', 'fruit/kiwi.fruit', '${where}/fruit/kiwi.fruit' ),
+      ( '${where}', 'fruit/orange.fruit', '${where}/fruit/orange.fruit' ),
+    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [])) )
+    
   def _make_temp_content(self):
     tmp_dir = self.make_temp_dir()
     items = [

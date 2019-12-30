@@ -6,9 +6,10 @@ from collections import namedtuple
 
 from bes.common.algorithm import algorithm
 from bes.common.object_util import object_util
+from bes.fs.dir_util import dir_util
 from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
 from bes.fs.file_match import file_match
+from bes.fs.file_util import file_util
 
 class file_resolve(object):
 
@@ -53,6 +54,10 @@ class file_resolve(object):
   @classmethod
   def resolve_mixed(clazz, base_dir, files_or_dirs, patterns = None, match_type = None):
     files_or_dirs = object_util.listify(files_or_dirs)
+
+    if not files_or_dirs:
+      files_or_dirs = dir_util.list(base_dir, relative = True)
+
     result = []
     for f in files_or_dirs:
       if path.isabs(f):
