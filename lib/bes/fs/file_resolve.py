@@ -83,7 +83,7 @@ class file_resolve(object):
   @classmethod
   def _fix_resolved_file_filenames(clazz, rf, base_dir):
     base_dir_basename = file_util.remove_head(rf.where, base_dir)
-    where = rf.where
+    where = base_dir
     filename = path.join(base_dir_basename, rf.filename)
-    filename_abs = path.join(rf.where, filename)
+    filename_abs = path.join(where, filename)
     return clazz.resolved_file(where, filename, filename_abs)
