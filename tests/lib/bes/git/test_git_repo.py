@@ -685,6 +685,31 @@ class test_git_repo(unit_test):
     self.assertTrue( r.revision_equals(rev1_long, rev1_short) )
     self.assertTrue( r.revision_equals(rev1_short, rev1_long) )
     self.assertTrue( r.revision_equals(rev1_long, rev1_long) )
+
+  @git_temp_home_func()
+  def test_operation_with_reset(self):
+    r1 = self._make_repo()
+    r1.write_temp_content([
+      'file foo.txt "this is foo" 644',
+    ])
+    r1.add([ 'foo.txt' ])
+    r1.commit('add foo.txt', [ 'foo.txt' ])
+    r1.push('origin', 'master')
+
+    r2 = r1.make_temp_cloned_repo()
+
+    def _op(repo):
+      repo.write_temp_content([
+        'file bar.txt "this is bar" 644',
+      ])
+      repo.add('.')
+    r2.operation_with_reset(_op, 'add bar.txt', push = True)
+    self.assertEqual( 'this is foo', r2.read_file('foo.txt', codec = 'utf8') )
+    self.assertEqual( 'this is bar', r2.read_file('bar.txt', codec = 'utf8') )
+
+    r3 = r1.make_temp_cloned_repo()
+    self.assertEqual( 'this is foo', r3.read_file('foo.txt', codec = 'utf8') )
+    self.assertEqual( 'this is bar', r3.read_file('bar.txt', codec = 'utf8') )
     
 if __name__ == '__main__':
   unit_test.main()
