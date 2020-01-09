@@ -687,7 +687,7 @@ class test_git_repo(unit_test):
     self.assertTrue( r.revision_equals(rev1_long, rev1_long) )
 
   @git_temp_home_func()
-  def test_operation_with_reset(self):
+  def test_operation_with_reset_basic(self):
     r1 = self._make_repo()
     r1.write_temp_content([
       'file foo.txt "this is foo" 644',
@@ -710,6 +710,35 @@ class test_git_repo(unit_test):
     r3 = r1.make_temp_cloned_repo()
     self.assertEqual( 'this is foo', r3.read_file('foo.txt', codec = 'utf8') )
     self.assertEqual( 'this is bar', r3.read_file('bar.txt', codec = 'utf8') )
+    
+  @git_temp_home_func()
+  def test_operation_with_reset_with_conflict(self):
+    r1 = self._make_repo()
+    r1.write_temp_content([
+      'file foo.txt "this is foo" 644',
+    ])
+    r1.add([ 'foo.txt' ])
+    r1.commit('add foo.txt', [ 'foo.txt' ])
+    r1.push('origin', 'master')
+
+    r2 = r1.make_temp_cloned_repo()
+    r3 = r1.make_temp_cloned_repo()
+
+    def _op2(repo):
+      repo.write_temp_content([
+        'file foo.txt "this is foo 2" 644',
+      ])
+    r2.operation_with_reset(_op2, 'hack foo.txt to 2', push = True)
+
+    def _op3(repo):
+      repo.write_temp_content([
+        'file foo.txt "this is foo 3" 644',
+      ])
+    r3.operation_with_reset(_op3, 'hack foo.txt to 3', push = True)
+    self.assertEqual( 'this is foo 3', r3.read_file('foo.txt', codec = 'utf8') )
+
+    r4 = r1.make_temp_cloned_repo()
+    self.assertEqual( 'this is foo 3', r4.read_file('foo.txt', codec = 'utf8') )
     
 if __name__ == '__main__':
   unit_test.main()
