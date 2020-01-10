@@ -126,7 +126,7 @@ class unit_test(unittest.TestCase):
     unittest.main(*args, **kargs)
 
   @classmethod
-  def file_path(clazz, unit_test_filename, filename):
+  def file_path(clazz, unit_test_filename, filename, check_executable = True):
     'return an absolute normalized path for a file relative to this unit test.'
     filename = clazz._substitute_test_data_dir(filename)
     if path.isabs(filename):
@@ -135,7 +135,7 @@ class unit_test(unittest.TestCase):
     p = path.abspath(path.normpath(path.join(path.dirname(unit_test_filename), filename)))
     if not path.exists(p):
       raise RuntimeError('file not found: %s' % (p))
-    if not os.access(p, os.X_OK):
+    if check_executable and not os.access(p, os.X_OK):
       raise RuntimeError('file not executable: %s' % (p))
     return p
 
