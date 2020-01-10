@@ -5,6 +5,7 @@ import os, os.path as path
 from bes.archive.temp_archive import temp_archive
 from bes.compat import url_compat
 from bes.fs.file_util import file_util
+from bes.fs.file_find import file_find
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
 
@@ -67,3 +68,6 @@ class file_web_server_tester(object):
     extension = file_util.extension(filename)
     tmp_archive = temp_archive.make_temp_archive(items, extension)
     file_util.rename(tmp_archive, p)
+
+  def find_all_files(self, relative = True):
+    return file_find.find(self.root_dir, relative = relative, file_type = file_find.FILE | file_find.LINK)

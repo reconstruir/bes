@@ -138,11 +138,44 @@ class test_file_match(unittest.TestCase):
       'vaca.png',
       '/foo/bar/vaca.txt',
     ]
-    expected = [
+    self.assertEqual( [
       'vaca.png',
-    ]
-    def _func(filename): return filename.endswith('.png')
-    self.assertEqual( sorted(expected), file_match.match_function(filenames, _func) )
+    ], file_match.match_function(filenames, lambda f: f.endswith('.png')) )
     
-if __name__ == "__main__":
+  def test_match_function_with_match_type(self):
+    filenames = [
+      'notes.txt',
+      'report.pdf',
+      'caca.jpg',
+      'vaca.png',
+      '/foo/bar/vaca.txt',
+    ]
+    self.assertEqual( [
+      'vaca.png',
+    ], file_match.match_function(filenames, lambda f: f.endswith('.png'), match_type = 'ANY') )
+    self.assertEqual( [
+      'vaca.png',
+    ], file_match.match_function(filenames, lambda f: f.endswith('.png'), match_type = 'ALL') )
+    self.assertEqual( [
+      '/foo/bar/vaca.txt',
+      'caca.jpg',
+      'notes.txt',
+      'report.pdf',
+    ], file_match.match_function(filenames, lambda f: f.endswith('.png'), match_type = 'NONE') )
+    
+  def test_match_function_with_basename(self):
+    filenames = [
+      'notes.txt',
+      'report.pdf',
+      'caca.jpg',
+      'vaca.png',
+      '/foo/bar/vaca.txt',
+    ]
+    self.assertEqual( [
+    ], file_match.match_function(filenames, lambda f: f.startswith('/'), basename = True) )
+    self.assertEqual( [
+      '/foo/bar/vaca.txt',
+    ], file_match.match_function(filenames, lambda f: f.startswith('/'), basename = False) )
+    
+if __name__ == '__main__':
   unittest.main()

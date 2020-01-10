@@ -2,13 +2,13 @@
 
 import argparse, os.path as path
 
-from bes.script.script_base import script_base
+from bes.fs.file_resolve import file_resolve
 
 from .import_expand import import_expand
 
 from .files import files as refactor_files
 
-class refactor_cli(script_base):
+class refactor_cli(object):
 
   def __init__(self):
 
@@ -137,7 +137,7 @@ class refactor_cli(script_base):
     return False
   
   def _command_unit(self, files, dry_run, limit, make_backup):
-    files = self.resolve_files(files, patterns = '*.py')
+    files = file_resolve.resolve_files(files, patterns = '*.py')
     success_count = 0
     for f in files:
       if _command_unit_process_one_file(f, dry_run, make_backup):
@@ -165,13 +165,13 @@ class refactor_cli(script_base):
     return True
     
   def _command_unit_cleanup(self, files, dry_run):
-    files = self.resolve_files(files, patterns = '*.span')
+    files = file_resolve.resolve_files(files, patterns = '*.span')
     for f in files:
       self._command_unit_cleanup_one_file(f, dry_run)
     return 0
 
   def _command_list(self, files):
-    files = self.resolve_files(files, patterns = '*.py')
+    files = file_resolve.resolve_files(files, patterns = '*.py')
     for f in files:
       print(f)
     return 0
@@ -287,6 +287,6 @@ class refactor_cli(script_base):
     #refactor_files.refactor(src, dst, dirs, word_boundary = word_boundary)
     
   def _command_expand_imports(self, namespace, files, include_module, sort, dry_run, verbose):
-    files = self.resolve_files(files, patterns = '*.py')
+    files = file_resolve.resolve_files(files, patterns = '*.py')
     import_expand.expand(namespace, files, include_module, sort, dry_run, verbose)
     
