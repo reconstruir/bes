@@ -54,9 +54,11 @@ class http_download_cache(object):
       file_util.rename(tmp, local_cached_path)
       return local_cached_path
     else:
-      self.log.log_e('get_url: download worked but checksum was WRONG: %s' % (url))
+      self.log.log_e('get_url: download worked but checksum was WRONG: {}'.format(url))
+      self.log.log_e('get_url:  cookies: %s' % (cookies))
       self.log.log_e('get_url: expected: %s' % (checksum))
       self.log.log_e('get_url:   actual: %s' % (actual_checksum))
+      #self.log.log_e('content:\n{}\n'.format(file_util.read(tmp, codec = 'utf8')))
       return None
     
   def _path_for_url(self, url):
