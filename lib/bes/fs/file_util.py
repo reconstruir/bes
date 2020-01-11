@@ -60,9 +60,20 @@ class file_util(object):
     tmp.close()
     if mode:
       os.chmod(tmp.name, mode)
-    os.rename(tmp.name, filename)
+    clazz._cross_device_safe_rename(tmp.name, filename)
     return filename
 
+  @classmethod
+  def _cross_device_safe_rename(clazz, src, dst):
+    'Rename that deals with cross device link issues.' 
+    try:
+      os.rename(src, dst)
+    except OSError as ex:
+      if ex.errno == errno.EXDEV:
+        shutil.move(src, dst)
+      else:
+        raise
+  
   @classmethod
   def backup(clazz, filename, suffix = '.bak'):
     'Make a backup of filename if it exists.'
