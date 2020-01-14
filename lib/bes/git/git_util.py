@@ -22,6 +22,7 @@ from bes.system.log import logger
 from .git import git
 from .git_repo import git_repo
 from .git_repo_script_options import git_repo_script_options
+from .git_repo_operation_options import git_repo_operation_options
 
 class git_util(object):
   'Some higher level git utilities.'
@@ -164,6 +165,31 @@ class git_util(object):
       else:
         repo.bump_tag(options.bump_tag_component, push = True)
     return clazz._run_scripts_result(scripts_results, repo.call_git([ 'status', '.' ]).stdout, repo.diff())
+
+  @classmethod
+  def repo_run_operation(clazz, address, operation, commit_message, options = None):
+    check.check_string(address)
+    check.check_function(operation)
+    check.check_string(commit_message)
+    check.check_git_repo_operation_options(options, allow_none = True)
+
+    options = options or git_repo_operation_options()
+    if options.verbose:
+      print('repo_run_operation: cloning {}'.format(address))
+    tmp_dir, repo = clazz._clone_to_temp_dir(address, options = options, debug = options.debug)
+    if options.debug:
+      msg = 'repo_run_operation: tmp_dir={} repo.root={}'.format(tmp_dir, repo.root)
+      print(msg)
+      clazz._LOG.log_d(msg)
+    if options.dry_run:
+      print('DRY_RUN: would execute {} on {} in {}'.format(operation, address, repo.root))
+    else:
+      if options.verbose:
+        print('repo_run_operation: executing {} in cwd={}'.format(operation, repo.root))
+      repo.operation_with_reset(operation,
+                                commit_message,
+                                num_tries = options.num_tries,
+                                retry_wait_ms = options.retry_wait_ms)
   
   @classmethod
   def find_root_dir(clazz, start_dir = None, working_dir = True):
