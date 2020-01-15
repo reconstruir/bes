@@ -63,6 +63,10 @@ class config_file_editor(object):
     self._config.change_version(section, key, component, value)
     self._config.save(self._filename)
 
+  def has_section(self, section):
+    check.check_string(section)
+    return self._config.has_section(section)
+
   def sections(self):
     return self._config.sections()
 

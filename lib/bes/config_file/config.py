@@ -1,4 +1,4 @@
-#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+lib/bes/config_file/config_file_editor.py#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
 import copy
@@ -66,6 +66,10 @@ class config(object):
     if self._string_quote_char:
       return string_util.unquote(value)
     return value
+
+  def has_section(self, section):
+    check.check_string(section)
+    return self._parser.has_section(section)
   
   def set_value(self, section, key, value):
     check.check_string(section)
