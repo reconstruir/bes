@@ -450,6 +450,18 @@ class logger(object):
   def log_d(self, message, multi_line = False):
     log.log_d(self._tag, message, multi_line = multi_line)
 
+  def log_traceback(self):
+    'Log a traceback as an error.'
+    log.log_traceback(self._tag)
+
+  def log_traceback_string(self, ts):
+    'Log a traceback string as an error.'
+    log.log_traceback_string(self._tag, ts)
+
+  def log_exception(self, ex, show_traceback = True):
+    'Log an exception with optional traceback.'
+    log.log_exception(self._tag, ex, show_traceback = show_traceback)
+
   critical = log_c
   debug = log_d
   info = log_i
