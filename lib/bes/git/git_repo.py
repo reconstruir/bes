@@ -378,6 +378,7 @@ class git_repo(object):
         return
       except RuntimeError as ex:
         git.log.log_w('operation_with_reset: failed {} of {}'.format(i + 1, num_tries))
+        #git.log.log_exception(ex, show_traceback = True)
         time.sleep(retry_wait_ms)
         save_ex = ex
     assert save_ex
