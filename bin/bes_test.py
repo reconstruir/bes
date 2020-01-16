@@ -594,7 +594,12 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
       label = 'FAILED'
     if writeln_output:
       printer.writeln_name('%7s: %s' % (label, short_filename))
-      printer.writeln(output)
+      try:
+        printer.writeln(output)
+      except UnicodeEncodeError as ex:
+        tmp = temp_file.make_temp_file(delete = False)
+        file_util.save(tmp, content = output[0])
+        printer.writeln('failed to decode output.  wrote to: {}'.format(tmp))
     return test_result(success, wanted_unit_tests, elapsed_time, output)
   except Exception as ex:
     printer.writeln_name('Caught exception on %s: %s' % (filename, str(ex)))
