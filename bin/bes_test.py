@@ -597,10 +597,8 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
       try:
         printer.writeln(decoded_output)
       except UnicodeEncodeError as ex:
-        tmp = temp_file.make_temp_file(delete = False)
-        file_util.save(tmp, content = output[0])
-        printer.writeln('failed to decode output.  wrote to: {}'.format(tmp))
-    return test_result(success, wanted_unit_tests, elapsed_time, tmp)
+        printer.writeln(decoded_output.encode('ascii', 'replace'))
+    return test_result(success, wanted_unit_tests, elapsed_time, decoded_output)
   except Exception as ex:
     printer.writeln_name('Caught exception on %s: %s' % (filename, str(ex)))
     for s in traceback.format_exc().split('\n'):
