@@ -58,9 +58,9 @@ class simple_config(object):
       buf.write(str(section))
     return buf.getvalue()
 
-  def add_section(self, section):
-    check.check_simple_config_section(section)
-    self.sections.append(section)
+#  def add_section(self, section):
+#    check.check_simple_config_section(section)
+#    r = self.sections.append(section)
 
   def has_section(self, name):
     check.check_string(name)

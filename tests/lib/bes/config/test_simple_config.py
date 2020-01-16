@@ -3,7 +3,7 @@
 
 import os
 from bes.testing.unit_test import unit_test
-from bes.config.simple_config import simple_config as SC
+from bes.config.simple_config import simple_config
 from bes.system.env_override import env_override
 from bes.key_value.key_value_list import key_value_list as KVL
 
@@ -26,9 +26,9 @@ credential
   password: sekret2
 '''
     
-    s = SC.from_text(text)
+    s = simple_config.from_text(text)
 
-    with self.assertRaises(SC.error):
+    with self.assertRaises(simple_config.error):
       s.find_sections('foo')
 
     sections = s.find_sections('credential')
@@ -63,7 +63,7 @@ credential
   password: ${SEKRET2}
 '''
     with env_override(env = { 'SEKRET1': 'sekret1', 'SEKRET2': 'sekret2' }) as tmp_env:
-      s = SC.from_text(text)
+      s = simple_config.from_text(text)
 
       sections = s.find_sections('credential')
       self.assertEqual( 2, len(sections) )
@@ -98,10 +98,10 @@ credential
   email: email1@bar.com # one
   password: ${SEKRET1}
 '''
-    s = SC.from_text(text)
+    s = simple_config.from_text(text)
     sections = s.find_sections('credential')
     self.assertEqual( 1, len(sections) )
-    with self.assertRaises(SC.error) as context:
+    with self.assertRaises(simple_config.error) as context:
       sections[0].to_dict(resolve_env_vars = True)
 
   def test_extends(self):
@@ -118,7 +118,7 @@ foo extends fruit
   color: green
 '''
     
-    s = SC.from_text(text)
+    s = simple_config.from_text(text)
 
     sections = s.find_sections('foo')
     self.assertEqual( 1, len(sections) )
@@ -135,8 +135,8 @@ foo extends
   color: green
 '''
     
-    with self.assertRaises(SC.error):
-      SC.from_text(text)
+    with self.assertRaises(simple_config.error):
+      simple_config.from_text(text)
 
   def test_annotation_key_only(self):
     text = '''\
@@ -161,9 +161,9 @@ fruit
   is_good: true
 '''
     
-    s = SC.from_text(text)
+    s = simple_config.from_text(text)
 
-    with self.assertRaises(SC.error):
+    with self.assertRaises(simple_config.error):
       s.find_sections('foo')
 
     sections = s.find_sections('fruit')
@@ -196,5 +196,9 @@ fruit
     self.assertEqual( 'true', sections[3].find_by_key('is_good') )
     self.assertEqual( None, sections[3].find_entry('is_good').annotations )
 
+  def xtest_add_section(self):
+    c = simple_config()
+    c.add_section('foo')
+    
 if __name__ == '__main__':
   unit_test.main()
