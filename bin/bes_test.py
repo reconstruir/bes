@@ -585,7 +585,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     output = process.communicate()
     exit_code = process.wait()
     elapsed_time = time.time() - time_start
-    output = output[0].decode('utf-8')
+    decoded_output = output[0].decode('utf-8')
     success = exit_code == 0
     writeln_output = not success or options.verbose
     if success:
@@ -595,17 +595,17 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     if writeln_output:
       printer.writeln_name('%7s: %s' % (label, short_filename))
       try:
-        printer.writeln(output)
+        printer.writeln(decoded_output)
       except UnicodeEncodeError as ex:
         tmp = temp_file.make_temp_file(delete = False)
         file_util.save(tmp, content = output[0])
         printer.writeln('failed to decode output.  wrote to: {}'.format(tmp))
-    return test_result(success, wanted_unit_tests, elapsed_time, output)
+    return test_result(success, wanted_unit_tests, elapsed_time, tmp)
   except Exception as ex:
     printer.writeln_name('Caught exception on %s: %s' % (filename, str(ex)))
     for s in traceback.format_exc().split('\n'):
       printer.writeln_name(s)
-    return test_result(False, wanted_unit_tests, 0.0, output)
+    return test_result(False, wanted_unit_tests, 0.0, tmp)
 
 def _count_tests(test_map, tests):
   total = 0
