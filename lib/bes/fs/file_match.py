@@ -7,9 +7,9 @@ from bes.common.object_util import object_util
 
 class file_match(object):
 
-  ANY = 1
-  NONE = 2
-  ALL = 3
+  ANY = 'ANY'
+  NONE = 'NONE'
+  ALL = 'ALL'
 
   VALID_TYPES = [ ANY, NONE, ALL ]
 
@@ -78,16 +78,38 @@ class file_match(object):
     return True
 
   @classmethod
-  def match_fnmatch(clazz, filenames, patterns, match_type, basename = True):
+  def match_fnmatch(clazz, filenames, patterns, match_type = None, basename = True):
+    match_type = match_type or clazz.ANY
     return clazz._match(filenames, patterns, fnmatch.fnmatch, match_type, basename = basename)
 
   @classmethod
-  def match_re(clazz, filenames, expressions, match_type, basename = True):
+  def match_re(clazz, filenames, expressions, match_type = None, basename = True):
+    match_type = match_type or clazz.ANY
     expressions = [ re.compile(expression) for expression in expressions ]
     def _match_re(filename, expression):
       return len(expression.findall(filename)) > 0
     return clazz._match(filenames, expressions, _match_re, match_type, basename = basename)
 
   @classmethod
-  def match_function(clazz, filenames, function):
-    return [ f for f in filenames if function(f) ]
+  def match_function(clazz, filenames, function, match_type = None, basename = True):
+    match_type = match_type or clazz.ANY
+    assert clazz.match_type_is_valid(match_type)
+    filenames = object_util.listify(filenames)
+    result = []
+    for filename in filenames:
+      if basename:
+        filename_for_match = path.basename(filename)
+      else:
+        filename_for_match = filename
+      if clazz._match_function_one(filename_for_match, function, match_type):
+        result.append(filename)
+    return sorted(algorithm.unique(result))
+
+  @classmethod
+  def _match_function_one(clazz, filename, function, match_type):
+    if match_type in [ clazz.ANY, clazz.ALL ]:
+      return function(filename)
+    elif match_type == clazz.NONE:
+      return not function(filename)
+    else:
+      assert False

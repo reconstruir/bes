@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
+import inspect, time
+
 from bes.common.check import check
 from bes.fs.file_type import file_type
 from bes.fs.file_util import file_util
@@ -12,7 +14,7 @@ from .git import git
 from .git_modules_file import git_modules_file
 
 class git_repo(object):
-  'A mini git repo abstraction.'
+  'A git repo abstraction.'
 
   def __init__(self, root, address = None):
     self.root = path.abspath(root)
@@ -323,5 +325,63 @@ class git_repo(object):
   def commit_brief_message(self, commit_hash):
     check.check_string(commit_hash)
     return git.commit_brief_message(self.root, commit_hash)
-  
+
+  def operation_with_reset(self, operation, commit_message, num_tries = None, retry_wait_ms = None):
+    '''
+    Attempt a git operation.  With multiple tries.  Reset the repo before each
+    attempt.
+
+    Commit the results of the operation with commit_message and
+    push it upstream.
+
+    operation should be a function that takes exactly one "repo" argument
+    of type "git_repo"
+    '''
+    
+    check.check_function(operation)
+    check.check_string(commit_message)
+    check.check_int(num_tries, allow_none = True)
+    check.check_float(retry_wait_ms, allow_none = True)
+
+    operation_spec = inspect.getargspec(operation)
+    if len(operation_spec[0]) != 1:
+      raise RuntimeError('operation should take exactly one argument.')
+    
+    if check.is_int(num_tries):
+      if num_tries <= 0 or num_tries > 100:
+        raise ValueError('num_tries should be between 1 and 100: {}'.format(num_tries))
+
+    num_tries = num_tries or 10
+    save_ex = None
+    retry_wait_ms = retry_wait_ms or 0.500
+    
+    git.log.log_d('operation_with_reset: num_tries={} operation="{}" retry_wait_ms={}'.format(num_tries,
+                                                                                              operation,
+                                                                                              retry_wait_ms))
+    for i in range(0, num_tries):
+      try:
+        git.log.log_d('operation_with_reset: reset: attempt {} of {}'.format(i + 1, num_tries))
+        self.reset_to_revision('@{upstream}')
+        git.log.log_d('operation_with_reset: pull: attempt {} of {}'.format(i + 1, num_tries))
+        self.pull()
+        git.log.log_d('operation_with_reset: calling operation(): attempt {} of {}'.format(i + 1, num_tries))
+        operation(self)
+        if self.has_changes():
+          git.log.log_d('operation_with_reset: committing...: attempt {} of {}'.format(i + 1, num_tries))
+          self.commit(commit_message, [ '.' ])
+        git.log.log_i('operation_with_reset: success {} of {}'.format(i + 1, num_tries))
+        if self.has_unpushed_commits():
+          git.log.log_d('operation_with_reset: pushing...: attempt {} of {}'.format(i + 1, num_tries))
+          self.push()
+        else:
+          git.log.log_w('operation_with_reset: nothing to push.')
+        return
+      except RuntimeError as ex:
+        git.log.log_w('operation_with_reset: failed {} of {}'.format(i + 1, num_tries))
+        #git.log.log_exception(ex, show_traceback = True)
+        time.sleep(retry_wait_ms)
+        save_ex = ex
+    assert save_ex
+    raise save_ex
+
 check.register_class(git_repo)

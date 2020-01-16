@@ -200,5 +200,163 @@ class test_file_find(unit_test):
       self.xp_path('1b.f'),
     ]), file_find.find(tmp_dir, min_depth = 1, max_depth = 1) )
 
+  def test_file_find_with_patterns(self):
+    self.maxDiff = None
+    tmp_dir = self._make_temp_content([
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ])
+    self.assertEqual( [
+      'cheese/brie.cheese',
+      'cheese/cheddar.cheese',
+    ], file_find.find(tmp_dir, match_patterns = [ '*.cheese' ]) )
+    
+  def test_file_find_with_patterns_and_match_type(self):
+    self.maxDiff = None
+    tmp_dir = self._make_temp_content([
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ])
+    self.assertEqual( [
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], file_find.find(tmp_dir, match_patterns = [ '*.cheese' ], match_type = 'NONE') )
+    
+  def test_file_find_with_patterns_and_basename(self):
+    self.maxDiff = None
+    tmp_dir = self._make_temp_content([
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ])
+    self.assertEqual( [
+    ], file_find.find(tmp_dir, match_patterns = [ 'f*' ], match_basename = True) )
+
+    self.assertEqual( [
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], file_find.find(tmp_dir, match_patterns = [ 'f*' ], match_basename = False) )
+
+  def test_file_find_with_function(self):
+    self.maxDiff = None
+    tmp_dir = self._make_temp_content([
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ])
+    self.assertEqual( [
+      'cheese/brie.cheese',
+      'cheese/cheddar.cheese',
+    ], file_find.find(tmp_dir, match_function = lambda f: f.endswith('.cheese')) )
+    
+  def test_file_find_with_function_and_match_type(self):
+    self.maxDiff = None
+    tmp_dir = self._make_temp_content([
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ])
+    self.assertEqual( [
+      'cheese/brie.cheese',
+      'cheese/cheddar.cheese',
+    ], file_find.find(tmp_dir, match_function = lambda f: f.endswith('.cheese'), match_type = 'ANY') )
+    self.assertEqual( [
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], file_find.find(tmp_dir, match_function = lambda f: f.endswith('.cheese'), match_type = 'NONE') )
+
+  def test_file_find_with_function_and_basename(self):
+    self.maxDiff = None
+    tmp_dir = self._make_temp_content([
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ])
+    self.assertEqual( [
+    ], file_find.find(tmp_dir, match_function = lambda f: f.startswith('cheese'), match_basename = True) )
+    
+    self.assertEqual( [
+      'cheese/brie.cheese',
+      'cheese/cheddar.cheese',
+    ], file_find.find(tmp_dir, match_function = lambda f: f.startswith('cheese'), match_basename = False) )
+
+  def test_file_find_with_re(self):
+    self.maxDiff = None
+    tmp_dir = self._make_temp_content([
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ])
+    self.assertEqual( [
+      'cheese/brie.cheese',
+      'cheese/cheddar.cheese',
+    ], file_find.find(tmp_dir, match_re = [ '^.*\.cheese$' ]) )
+    
+  def test_file_find_with_re_and_match_type(self):
+    self.maxDiff = None
+    tmp_dir = self._make_temp_content([
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ])
+    self.assertEqual( [
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], file_find.find(tmp_dir, match_re = [ '^.*\.cheese$' ], match_type = 'NONE') )
+    
+  def test_file_find_with_re_and_basename(self):
+    self.maxDiff = None
+    tmp_dir = self._make_temp_content([
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ])
+    self.assertEqual( [
+    ], file_find.find(tmp_dir, match_re = [ '^f.*$' ], match_basename = True) )
+
+    self.assertEqual( [
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], file_find.find(tmp_dir, match_re = [ '^f.*$' ], match_basename = False) )
+    
 if __name__ == "__main__":
   unit_test.main()

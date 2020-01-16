@@ -2,6 +2,7 @@
 
 from bes.common.check import check
 from bes.common.string_util import string_util
+from bes.text.line_numbers import line_numbers
 
 from collections import namedtuple
 
@@ -27,7 +28,9 @@ class simple_config_section_header(namedtuple('simple_config_section_header', 'n
       extends_directive = parts[1]
       extends_name = parts[2]
       if extends_directive != 'extends':
-        raise simple_config_error('Invalid config section directive: "{}"'.format(extends_directive, origin))
+        numbered_text = line_numbers.add_line_numbers(text)
+        msg = 'Invalid config section directive: "{}"\n{}\n'.format(extends_directive, numbered_text)
+        raise simple_config_error(msg, origin)
       return simple_config_section_header(name, extends_name, origin)
     else:
       raise simple_config_error('Invalid config section header: "{}"'.format(text), origin)

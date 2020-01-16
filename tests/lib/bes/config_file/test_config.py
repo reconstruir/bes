@@ -498,6 +498,27 @@ fruit = "durian"
 [antartica]
 '''
     self.assertMultiLineEqual( expected, file_util.read(tmp, codec = 'utf-8') )
+
+  def test_has_section(self):
+    text = '''\
+[default]
+color = "red"
+fruit = "apple"
+
+[new_zealand]
+color = "green"
+fruit = "kiwi"
+
+[indonesia]
+color = "yellow"
+fruit = "durian"
+
+[antartica]
+'''
+    c = config.load_from_text(text, '<unittest>', string_quote_char = '"')
+    self.assertTrue( c.has_section('default') )
+    self.assertTrue( c.has_section('indonesia') )
+    self.assertFalse( c.has_section('pakistan') )
     
 if __name__ == '__main__':
   unit_test.main()

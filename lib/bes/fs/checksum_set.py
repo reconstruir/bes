@@ -21,6 +21,9 @@ class checksum_set(object):
   def __str__(self):
     return ';'.join([ str(c) for c in self.to_list()])
   
+  def __repr__(self):
+    return str(self)
+  
   def add(self, checksum):
     check.check_checksum(checksum)
     self._checksums[checksum.algorithm] = checksum
