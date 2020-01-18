@@ -303,6 +303,14 @@ class git_repo(object):
       raise IOError('no modules file found: {}'.format(filename))
     return git_modules_file(filename)
 
+  def submodule_repo(self, submodule):
+    'Return a git_repo object for the given submodule.'
+    return git_repo(path.join(self.root, submodule))
+
+  def has_submodule(self, submodule):
+    'Return True if this repo has submodule.'
+    return submodule in set([ info.name for info in self.submodule_status_all() ])
+
   def submodule_set_branch(self, module_name, branch_name):
     check.check_string(module_name)
     check.check_string(branch_name)
