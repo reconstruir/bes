@@ -155,3 +155,6 @@ class simple_config(object):
     else:
       value = None
     return key_value(key, value)
+
+check.register_class(simple_config)
+  
