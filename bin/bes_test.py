@@ -5,7 +5,7 @@
 # problem when unit testing bes itself.  Use the standalone bes_test version to avoid
 # the issue.
 # FOO
-import argparse, copy, math, os, os.path as path, py_compile, re, subprocess, sys
+import argparse, copy, math, os, os.path as path, py_compile, re, subprocess, sys, traceback
 import time, tempfile
 from collections import namedtuple
 
@@ -585,7 +585,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     output = process.communicate()
     exit_code = process.wait()
     elapsed_time = time.time() - time_start
-    output = output[0].decode('utf-8')
+    decoded_output = output[0].decode('utf-8')
     success = exit_code == 0
     writeln_output = not success or options.verbose
     if success:
@@ -594,11 +594,16 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
       label = 'FAILED'
     if writeln_output:
       printer.writeln_name('%7s: %s' % (label, short_filename))
-      printer.writeln(output)
-    return test_result(success, wanted_unit_tests, elapsed_time, output)
+      try:
+        printer.writeln(decoded_output)
+      except UnicodeEncodeError as ex:
+        printer.writeln(decoded_output.encode('ascii', 'replace'))
+    return test_result(success, wanted_unit_tests, elapsed_time, decoded_output)
   except Exception as ex:
     printer.writeln_name('Caught exception on %s: %s' % (filename, str(ex)))
-    return test_result(False, wanted_unit_tests, 0.0, output)
+    for s in traceback.format_exc().split('\n'):
+      printer.writeln_name(s)
+    return test_result(False, wanted_unit_tests, 0.0, tmp)
 
 def _count_tests(test_map, tests):
   total = 0
