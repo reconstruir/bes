@@ -392,4 +392,10 @@ class git_repo(object):
     assert save_ex
     raise save_ex
 
+  def changelog(self, revision_since, revision_until, max_length=-1):
+    check.check_int(max_length)
+
+    return git.changelog_range(self.root, revision_since, revision_until)
+
+
 check.register_class(git_repo)

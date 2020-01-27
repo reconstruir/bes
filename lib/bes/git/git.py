@@ -873,3 +873,14 @@ class git(object):
   @classmethod
   def changelog(clazz, root, revision):
     return clazz.has_local_tag(root, revision) or clazz.has_commit(root, revision)
+
+  @classmethod
+  def changelog_range(clazz, root, revision_since, revision_until):
+    check.check_string(root)
+    check.check_string(revision_since)
+    check.check_string(revision_until)
+
+    revisions_range = '{}..{}'.format(revision_since, revision_until)
+    args = ['log', revisions_range, '--pretty=oneline']
+    result = clazz.call_git(root, args)
+    return result.stdout
