@@ -392,10 +392,33 @@ class git_repo(object):
     assert save_ex
     raise save_ex
 
-  def changelog(self, revision_since, revision_until, max_length=-1):
-    check.check_int(max_length)
+  def changelog(self, revision_since, revision_until):
+    git_changelog = git.changelog_range(self.root, revision_since, revision_until)
 
-    return git.changelog_range(self.root, revision_since, revision_until)
+    result = []
+    for elem in git_changelog.split('\n'):
+      print(elem)
+      revision, message = elem.split(' ', 1)
+      commit_info = git_commit_info(revision, message)
+      result.append(commit_info)
+
+    return result
+
+
+class git_commit_info(object):
+
+  def __init__(self, revision, message):
+    check.check_string(revision)
+    check.check_string(message)
+
+    self.revision = revision
+    self.message = message
+
+  def __str__(self):
+    return '{} {}'.format(self.revision, self.message)
+
+  def is_merge_commit(self):
+    return self.message.startswith('Merge branch')
 
 
 check.register_class(git_repo)

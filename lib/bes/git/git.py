@@ -876,11 +876,15 @@ class git(object):
 
   @classmethod
   def changelog_range(clazz, root, revision_since, revision_until):
+    # TODO: add support for multiple log formats
     check.check_string(root)
-    check.check_string(revision_since)
-    check.check_string(revision_until)
+    check.check_string(revision_since, allow_none=True)
+    check.check_string(revision_until, allow_none=True)
 
+    revision_since = revision_since if revision_since else 'origin'
+    revision_until = revision_until if revision_until else 'HEAD'
     revisions_range = '{}..{}'.format(revision_since, revision_until)
     args = ['log', revisions_range, '--pretty=oneline']
     result = clazz.call_git(root, args)
-    return result.stdout
+
+    return result.stdout.strip()
