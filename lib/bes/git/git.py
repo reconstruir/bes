@@ -871,11 +871,7 @@ class git(object):
     return clazz.has_local_tag(root, revision) or clazz.has_commit(root, revision)
 
   @classmethod
-  def changelog(clazz, root, revision):
-    return clazz.has_local_tag(root, revision) or clazz.has_commit(root, revision)
-
-  @classmethod
-  def changelog_range(clazz, root, revision_since, revision_until):
+  def changelog(clazz, root, revision_since, revision_until):
     # TODO: add support for multiple log formats
     check.check_string(root)
     check.check_string(revision_since, allow_none=True)

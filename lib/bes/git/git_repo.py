@@ -393,7 +393,7 @@ class git_repo(object):
     raise save_ex
 
   def changelog(self, revision_since, revision_until):
-    git_changelog = git.changelog_range(self.root, revision_since, revision_until)
+    git_changelog = git.changelog(self.root, revision_since, revision_until)
 
     result = []
     for elem in git_changelog.split('\n'):
