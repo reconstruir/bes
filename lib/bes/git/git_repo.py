@@ -400,7 +400,6 @@ class git_repo(object):
 
     result = []
     for elem in git_changelog.split('\n'):
-      print(elem)
       revision, message = elem.split(' ', 1)
       commit_info = git_commit_info(revision, message)
       result.append(commit_info)

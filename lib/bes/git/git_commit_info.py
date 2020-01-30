@@ -14,7 +14,12 @@ class git_commit_info(object):
     self.message = message
 
   def __str__(self):
-    return '{} {}'.format(self.revision, self.message)
+    if self.revision and self.message:
+      return '{} {}'.format(self.revision, self.message)
+    return ''
+
+  def __len__(self):
+    return len(self.__str__())
 
   def is_merge_commit(self):
     return self.message.startswith('Merge branch')
