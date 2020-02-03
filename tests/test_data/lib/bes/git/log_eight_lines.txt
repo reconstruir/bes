@@ -1,0 +1,12 @@
+0c7f865 add submodule_repo() and has_submodule()
+8788faf add class to parse git services (like bitbucket or github) remote "urls"
+7ec1fc3 abortive attempt to add add_section() commented out for now
+6009eed if spewing the unicode fails, convert it to ascii
+d8c23f6 fix output
+abcc511 if fail to write output, save it to a temp file.
+2921069 print out the exception
+c693bdb fix ugly typo
+558c61d add commented exception logging for debugging
+98b6eb1 [dropped]
+1b43736 [dropped]
+a1a67ca [dropped]
