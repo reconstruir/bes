@@ -220,7 +220,7 @@ class git_util(object):
     if balance <= 0 or balance > 1:
       raise ValueError("balance argument value must be inside next range - (0, 1]")
 
-    list_of_commit_info = copy.deepcopy(list_of_commit_info)[::-1]
+    list_of_commit_info = copy.deepcopy(list_of_commit_info)
     result = '\n'.join(str(elem) for elem in list_of_commit_info)
     total_chars = len(result)
 
@@ -273,7 +273,6 @@ class git_util(object):
 
     while total_chars > max_chars:
       limit = int(len(list_of_commit_info) * balance) + 1
-      print(limit)
       for index, commit_info in enumerate(list_of_commit_info):
         if index == limit:
           break
