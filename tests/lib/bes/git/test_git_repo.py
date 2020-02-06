@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import sys
 import os.path as path
 import multiprocessing
 
@@ -8,6 +9,7 @@ from bes.testing.unit_test import unit_test
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.env_override import env_override_temp_home_func
+from bes.system.execute import execute
 from bes.git.git import git
 from bes.git.git_repo import git_repo
 from bes.git.git_status import git_status
@@ -794,6 +796,30 @@ class test_git_repo(unit_test):
       'worker 7',
       'worker 8',
     ], sorted(r2.read_file('foo.txt', codec = 'utf8').split('\n')) )
+
+  @git_temp_home_func()
+  def test_atexit_reset_to_revision(self):
+    r = self._make_repo()
+    r.write_temp_content([
+      'file foo.txt "_foo" 644',
+    ])
+    r.add([ 'foo.txt' ])
+    r.commit('add foo.txt', [ 'foo.txt' ])
+    r.push('origin', 'master')
+
+    tmp_script_content = '''\
+from bes.git.git_repo import git_repo
+r = git_repo("{}", address = "{}")
+r.atexit_reset_to_revision('HEAD')
+r.save_file('foo.txt', content = 'i hacked you', commit = False)
+'''.format(r.root, r.address)
+    
+    tmp_script = self.make_temp_file(content = tmp_script_content, perm = 0o0755)
+
+    cmd = [ sys.executable, tmp_script, r.root ]
+    execute.execute(cmd)
+
+    self.assertFalse( r.has_changes() )
     
 if __name__ == '__main__':
   unit_test.main()

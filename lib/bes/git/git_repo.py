@@ -1,8 +1,6 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-
-import time
-import inspect
+import atexit, inspect, time
 import os.path as path
 
 from bes.common.check import check
@@ -116,13 +114,14 @@ class git_repo(object):
       self.push()
     return result
 
-  def save_file(self, filename, content, codec = 'utf-8', mode = None):
+  def save_file(self, filename, content, codec = 'utf-8', mode = None, commit = True):
     if not self.has_file(filename):
       self.add_file(filename, content, codec = codec, mode = mode)
       return
     p = self.file_path(filename)
     file_util.save(p, content = content, mode = mode)
-    self.commit('modify %s' % (filename), [ filename ])
+    if commit:
+      self.commit('modify %s' % (filename), [ filename ])
 
   def read_file(self, filename, codec = 'utf-8'):
     return file_util.read(self.file_path(filename), codec = codec)
@@ -406,5 +405,12 @@ class git_repo(object):
 
     return result
 
-
+  def atexit_reset_to_revision(self, revision):
+    'When the process exists, reset this git repo to the given revision.'
+    from bes.system.log import log
+    def _reset_repo(*args, **kargs):
+      repo, revision = args
+      repo.reset_to_revision(revision)
+    atexit.register(_reset_repo, self, revision)
+    
 check.register_class(git_repo)
