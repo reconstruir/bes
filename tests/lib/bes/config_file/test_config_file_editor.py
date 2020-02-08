@@ -121,5 +121,58 @@ fruit = kiwi
     with self.assertRaises(KeyError) as ctx:
       self.assertEqual( None, e.get_value('something', 'color') )
     
+  def test_import_file(self):
+    content1 = '''\
+[something]
+fruit = kiwi
+'''
+    content2 = '''\
+[something]
+cheese = brie
+'''
+    content3 = '''\
+[something]
+wine = barolo
+'''
+    tmp = temp_file.make_temp_file()
+    e = CFE(tmp)
+    e.import_file(temp_file.make_temp_file(content = content1))
+    e.import_file(temp_file.make_temp_file(content = content2))
+    e.import_file(temp_file.make_temp_file(content = content3))
+
+    expected = '''\
+[something]
+fruit = kiwi
+cheese = brie
+wine = barolo
+'''
+    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    
+  def test_import_file_clobber(self):
+    content1 = '''\
+[something]
+fruit = kiwi
+'''
+    content2 = '''\
+[something]
+cheese = brie
+'''
+    content3 = '''\
+[something]
+fruit = lemon
+'''
+    tmp = temp_file.make_temp_file()
+    e = CFE(tmp)
+    e.import_file(temp_file.make_temp_file(content = content1))
+    e.import_file(temp_file.make_temp_file(content = content2))
+    e.import_file(temp_file.make_temp_file(content = content3))
+
+    expected = '''\
+[something]
+fruit = lemon
+cheese = brie
+'''
+    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    
 if __name__ == '__main__':
   unit_test.main()

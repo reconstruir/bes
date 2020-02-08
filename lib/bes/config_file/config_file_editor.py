@@ -70,6 +70,13 @@ class config_file_editor(object):
   def sections(self):
     return self._config.sections()
 
+  def import_file(self, filename):
+    other_config = config.load_from_file(filename, string_quote_char = self._string_quote_char)
+    for section in other_config.sections():
+      other_values = other_config.get_values(section)
+      for key, value in other_values.items():
+        self.set_value(section, key, value)
+    
   def _check_file_exists(self):
     if not path.exists(self._filename):
       raise IOError('config file not found: {}'.format(self._filename))

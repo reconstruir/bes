@@ -1,0 +1,20 @@
+0 add submodule_repo() and has_submodule()
+8 add class to parse git services (like bitbucket or github) remote "urls"
+7 abortive attempt to add add_section() commented out for now
+6 if spewing the unicode fails, convert it to ascii
+d fix output
+a if fail to write output, save it to a temp file.
+2 print out the exception
+c fix ugly typo
+5 add commented exception logging for debugging
+9 add has_section() and unit test
+1 add missing traceback and exception loging methods
+a Merge branch 'master' of gitlab.com:rebuilder/bes
+d add git_util.repo_run_operation()
+e add missing errno import
+8 Merge branch 'master' of gitlab.com:rebuilder/bes
+2 make file_util.save() more robust by detecting cross device link errors and using shutil.move() in that case.
+4 make the check for executable be optional
+a fix the log spew
+b add __repr__ same as __str__
+3 print a numbered dump of the config file with exceptions to make it easy to debug
