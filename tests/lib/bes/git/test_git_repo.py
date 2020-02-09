@@ -820,6 +820,27 @@ r.save_file('foo.txt', content = 'i hacked you', commit = False)
     execute.execute(cmd)
 
     self.assertFalse( r.has_changes() )
+
+  @git_temp_home_func()
+  def test_has_local_branch(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    self.assertFalse( r.has_local_branch('kiwi') )
+    r.branch_create('kiwi')
+    self.assertTrue( r.has_local_branch('kiwi') )
+
+  @git_temp_home_func()
+  def test_has_remote_branch(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    self.assertFalse( r.has_remote_branch('kiwi') )
+    r.branch_create('kiwi', push = True)
+    self.assertTrue( r.has_local_branch('kiwi') )
+    self.assertTrue( r.has_remote_branch('kiwi') )
     
 if __name__ == '__main__':
   unit_test.main()

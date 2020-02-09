@@ -622,11 +622,11 @@ class git(object):
 
   @classmethod
   def has_remote_branch(clazz, root, branch):
-    return branch in clazz.list_remote_branches(root)
+    return branch in clazz.list_remote_branches(root).names
 
   @classmethod
   def has_local_branch(clazz, root, branch):
-    return branch in clazz.list_local_branches(root)
+    return branch in clazz.list_local_branches(root).names
   
   @classmethod
   def _list_both_branches(clazz, root):
