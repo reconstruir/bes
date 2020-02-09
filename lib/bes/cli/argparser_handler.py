@@ -24,7 +24,7 @@ class argparser_handler(object):
       raise RuntimeError('No method found for command: %s' % (' '.join(possible_names)))
     arg_names = inspect.getargspec(handler).args
     if arg_names[0] != 'self':
-      raise RuntimeError('First argument should be \"self\": %s' (method_name))
+      raise RuntimeError('First argument should be \"self\": "{}"'.format(method_name))
     arg_names.pop(0)
     args = [ getattr(args, arg_name) for arg_name in arg_names ]
     args_blurb = '; '.join([ '%s=%s' % (key, value) for ( key, value ) in zip(arg_names, args) ])
