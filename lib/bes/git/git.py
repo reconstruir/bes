@@ -590,9 +590,9 @@ class git(object):
   def list_branches(clazz, root, where):
     clazz.check_where(where)
     if where == 'local':
-      branches = clazz._list_local_branches(root)
+      branches = clazz.list_local_branches(root)
     elif where == 'remote':
-      branches = clazz._list_remote_branches(root)
+      branches = clazz.list_remote_branches(root)
     else:
       branches = clazz._list_both_branches(root)
     return git_branch_list(branches)
@@ -605,7 +605,7 @@ class git(object):
     return result
 
   @classmethod
-  def _list_remote_branches(clazz, root):
+  def list_remote_branches(clazz, root):
     rv = clazz.call_git(root, [ 'branch', '--verbose', '--list', '--no-color', '--remote' ])
     lines = clazz._parse_lines(rv.stdout)
     lines = [ line for line in lines if not ' -> ' in line ]
@@ -614,22 +614,30 @@ class git(object):
     return clazz._branch_list_determine_authors(root, branches)
 
   @classmethod
-  def _list_local_branches(clazz, root):
+  def list_local_branches(clazz, root):
     rv = clazz.call_git(root, [ 'branch', '--verbose', '--list', '--no-color' ])
     lines = clazz._parse_lines(rv.stdout)
     branches = git_branch_list([ git_branch.parse_branch(line, 'local') for line in lines ])
     return clazz._branch_list_determine_authors(root, branches)
 
   @classmethod
+  def has_remote_branch(clazz, root, branch):
+    return branch in clazz.list_remote_branches(root)
+
+  @classmethod
+  def has_local_branch(clazz, root, branch):
+    return branch in clazz.list_local_branches(root)
+  
+  @classmethod
   def _list_both_branches(clazz, root):
-    local_branches = clazz._list_local_branches(root)
-    remote_branches = clazz._list_remote_branches(root)
+    local_branches = clazz.list_local_branches(root)
+    remote_branches = clazz.list_remote_branches(root)
     branch_map = {}
 
-    for branch in clazz._list_remote_branches(root):
+    for branch in clazz.list_remote_branches(root):
       branch_map[branch.name] = [ branch ]
 
-    for branch in clazz._list_local_branches(root):
+    for branch in clazz.list_local_branches(root):
       existing_branch = branch_map.get(branch.name, None)
       if existing_branch:
         assert len(existing_branch) == 1
