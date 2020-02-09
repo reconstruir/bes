@@ -219,6 +219,18 @@ class git_repo(object):
   def list_branches(self, where):
     return git.list_branches(self.root, where)
 
+  def list_remote_branches(self):
+    return git.list_remote_branches(self.root)
+
+  def list_local_branches(self):
+    return git.list_local_branches(self.root)
+  
+  def has_remote_branch(self, branch):
+    return git.has_remote_branch(self.root, branch)
+
+  def has_local_branch(self, branch):
+    return git.has_local_branch(self.root, branch)
+
   def branch_create(self, branch_name, checkout = False, push = False):
     git.branch_create(self.root, branch_name, checkout = checkout, push = push)
 
