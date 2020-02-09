@@ -14,6 +14,9 @@ class file_split(object):
   
   @classmethod
   def split(clazz, filename, max_size):
+    check.check_string(filename)
+    check.check_int(max_size)
+    
     file_size = file_util.size(filename)
     
     clazz.log.log_d('split: filename={} max_size={} file_size={}'.format(filename,

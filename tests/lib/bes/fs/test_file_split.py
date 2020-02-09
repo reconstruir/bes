@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import string, random
+import math, string, random
 
 from bes.testing.unit_test import unit_test
 
@@ -22,27 +22,27 @@ class test_file_split(unit_test):
       items.append(item)
     tmp_archive = temp_archive.make_temp_archive(items, 'zip')
 
-    files = file_split.split(tmp_archive, file_util.size(tmp_archive) / 1)
+    files = file_split.split(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 1)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit(unsplit_tmp_archive, files)
     self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
 
-    files = file_split.split(tmp_archive, file_util.size(tmp_archive) / 2)
+    files = file_split.split(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 2)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit(unsplit_tmp_archive, files)
     self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
 
-    files = file_split.split(tmp_archive, file_util.size(tmp_archive) / 3)
+    files = file_split.split(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 3)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit(unsplit_tmp_archive, files)
     self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
     
-    files = file_split.split(tmp_archive, file_util.size(tmp_archive) / 4)
+    files = file_split.split(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 4)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit(unsplit_tmp_archive, files)
     self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
     
-    files = file_split.split(tmp_archive, file_util.size(tmp_archive) / 5)
+    files = file_split.split(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 5)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit(unsplit_tmp_archive, files)
     self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
