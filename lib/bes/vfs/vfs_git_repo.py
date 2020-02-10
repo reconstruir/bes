@@ -57,7 +57,7 @@ class vfs_git_repo(vfs_base):
   #@abstractmethod
   def create(clazz, config_source, **values):
     'Create an fs instance.'
-    return vfs_git_repo(config_source, values['address'], values['config_dir'], values['use_lfs'])
+    return vfs_git_repo(config_source, values['git_address'], values['git_config_dir'], values['git_use_lfs'])
     
   @classmethod
   #@abstractmethod
