@@ -297,7 +297,7 @@ class test_vfs_local(unit_test):
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt',
     ], file_find.find(tester.local_root_dir) )
-    tmp_file = self.make_temp_file(content = 'this is kiwi.txt\n')
+    tmp_file = self.make_temp_file(content = 'this is kiwi.txt')
     tester.upload_file(tmp_file, 'kiwi.txt')
     self.assertEqual( [
       'emptyfile.txt',
@@ -320,17 +320,17 @@ class test_vfs_local(unit_test):
       'size': 7,
       'children': None,
     }, tester.file_info_dict('foo.txt', tester.OPTIONS) )
-    tmp_file = self.make_temp_file(content = 'this is the new foo.txt\n')
+    tmp_file = self.make_temp_file(content = 'this is the new foo.txt')
     tester.upload_file(tmp_file, 'foo.txt')
     self.assertEqual( {
       'attributes': {},
       'checksums': {
-        'sha256': ( 'sha256', 'ee190d0691f8bd34826b9892a719892eb1accc36131ef4195dd81c0dfcf5517c' ),
+        'sha256': ( 'sha256', '85a746121aaabbdab676f911f30c712873e053c6920af1132834e1bbdfc14bb5' ),
       },
       'filename': 'foo.txt',
       'ftype': 'file',
       'modification_date': '1999-01-01 01:01:01',
-      'size': 24,
+      'size': 23,
       'children': None,
     }, tester.file_info_dict('foo.txt', tester.OPTIONS) )
 
