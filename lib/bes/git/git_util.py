@@ -1,6 +1,8 @@
-#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+# -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os, os.path as path
+import os
+import os.path as path
+import copy
 from collections import namedtuple
 
 from bes.common.check import check
@@ -21,14 +23,16 @@ from bes.system.log import logger
 
 from .git import git
 from .git_repo import git_repo
+from .git_commit_info import git_commit_info
 from .git_repo_script_options import git_repo_script_options
 from .git_repo_operation_options import git_repo_operation_options
+
 
 class git_util(object):
   'Some higher level git utilities.'
 
   _LOG = logger('git')
-  
+
   @classmethod
   def find_git_dirs(clazz, dirs):
     'Return the first .git dir found in any dir in dirs.'
@@ -48,7 +52,7 @@ class git_util(object):
         ff = clazz._make_finder(f, name, ft, max_depth, quit)
         for f in ff.find():
           yield f
-  
+
   @classmethod
   def _make_finder(clazz, d, name, ft, max_depth, quit):
     crit_list = []
@@ -109,7 +113,7 @@ class git_util(object):
     result = repo.bump_tag(component, push = True, dry_run = dry_run, reset_lower = reset_lower)
     file_util.remove(tmp_dir)
     return result
-  
+
   @classmethod
   def _clone_to_temp_dir(clazz, address, options = None, debug = False):
     'Clone a git address to a temp dir'
@@ -117,7 +121,7 @@ class git_util(object):
     r = git_repo(tmp_dir, address = address)
     r.clone(options = options)
     return tmp_dir, r
-  
+
   script = namedtuple('script', 'filename, args')
   _one_script_result = namedtuple('_one_script_result', 'script, stdout')
   _run_scripts_result = namedtuple('_run_scripts_result', 'results, status, diff')
@@ -190,7 +194,7 @@ class git_util(object):
                                 commit_message,
                                 num_tries = options.num_tries,
                                 retry_wait_ms = options.retry_wait_ms)
-  
+
   @classmethod
   def find_root_dir(clazz, start_dir = None, working_dir = True):
     'Find the root of a git repo starting at start_dir or None if not found.'
@@ -201,3 +205,102 @@ class git_util(object):
     if working_dir:
       return path.normpath(path.join(git_dir, path.pardir))
     return git_dir
+
+  @classmethod
+  def truncate_changelog(clazz, list_of_commit_info, max_chars=4000, revision_chars=7, balance=0.5):
+    check.check_list(list_of_commit_info, entry_type=git_commit_info)
+    check.check_int(max_chars)
+    check.check_int(revision_chars)
+    check.check_float(balance)
+
+    if max_chars < 1:
+      raise ValueError("max_chars argument can't be less than 1")
+    if revision_chars < 1:
+      raise ValueError("revision_chars argument can't be less than 1")
+    if balance <= 0 or balance > 1:
+      raise ValueError("balance argument value must be inside next range - (0, 1]")
+
+    list_of_commit_info = copy.deepcopy(list_of_commit_info)
+    result = '\n'.join(str(elem) for elem in list_of_commit_info)
+    total_chars = len(result)
+
+    if total_chars <= max_chars:
+      return result
+
+    drop_functions_and_additional_arg = (
+      (clazz._drop_revisions, revision_chars),
+      (clazz._drop_merge_commit_messages, None),
+      (clazz._drop_commit_messages_and_lines, balance)
+    )
+
+    for drop_function, additional_arg in drop_functions_and_additional_arg:
+      args = [list_of_commit_info, total_chars, max_chars]
+      if additional_arg:
+        args.append(additional_arg)
+
+      is_finished, total_chars = drop_function(*args)
+      if is_finished:
+        return '\n'.join(str(elem) for elem in list_of_commit_info)
+
+  @staticmethod
+  def _drop_revisions(list_of_commit_info, total_chars, max_chars, limit):
+    for commit_info in list_of_commit_info:
+      start_length = len(commit_info.revision)
+      commit_info.revision = commit_info.revision[:limit]
+      total_chars -= start_length - limit
+
+    is_finished = total_chars <= max_chars
+    return is_finished, total_chars
+
+  @staticmethod
+  def _drop_merge_commit_messages(list_of_commit_info, total_chars, max_chars):
+    list_of_commit_info = list_of_commit_info[::-1]
+
+    for commit_info in list_of_commit_info:
+      if commit_info.is_merge_commit():
+        start_length = len(commit_info.message)
+        commit_info.message = '[dropped]'
+        total_chars -= start_length - len(commit_info.message)
+
+        if total_chars <= max_chars:
+          return True, total_chars
+
+    return False, total_chars
+
+  @staticmethod
+  def _drop_commit_messages_and_lines(list_of_commit_info, total_chars, max_chars, balance):
+    list_of_commit_info.reverse()
+
+    while total_chars > max_chars:
+      limit = int(len(list_of_commit_info) * balance) + 1
+      for index, commit_info in enumerate(list_of_commit_info):
+        if index == limit:
+          break
+
+        if commit_info.message != '[dropped]':
+          start_length = len(commit_info.message)
+          commit_info.message = '[dropped]'
+          total_chars -= start_length - len(commit_info.message)
+
+          if total_chars <= max_chars:
+            list_of_commit_info.reverse()
+            return True, total_chars
+
+      index = 0
+      length = len(list_of_commit_info)
+      while index < length:
+        if index == limit:
+          break
+
+        start_length = len(list_of_commit_info[0])
+        total_chars -= start_length + 1
+
+        if total_chars <= max_chars:
+          list_of_commit_info[:index + 1] = []
+          list_of_commit_info.reverse()
+          return True, total_chars
+
+        index += 1
+      list_of_commit_info[:index + 1] = []
+
+    raise Exception('algorith is invalid for this case')

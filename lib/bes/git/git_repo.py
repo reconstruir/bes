@@ -1,10 +1,9 @@
-#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+# -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import atexit, inspect, time
 import os.path as path
-import inspect, time
 
 from bes.common.check import check
-from bes.fs.file_type import file_type
 from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
 from bes.fs.testing.temp_content import temp_content
@@ -12,6 +11,8 @@ from bes.version.software_version import software_version
 
 from .git import git
 from .git_modules_file import git_modules_file
+from .git_commit_info import git_commit_info
+
 
 class git_repo(object):
   'A git repo abstraction.'
@@ -19,13 +20,13 @@ class git_repo(object):
   def __init__(self, root, address = None):
     self.root = path.abspath(root)
     self.address = address
-    
+
   def __str__(self):
     return '%s@%s' % (self.root, self.address)
 
   def has_changes(self):
     return git.has_changes(self.root)
-  
+
   def clone_or_pull(self, options = None):
     return git.clone_or_pull(self.address, self.root, options = options)
 
@@ -61,16 +62,16 @@ class git_repo(object):
 
   def commit(self, message, filenames):
     return git.commit(self.root, message, filenames)
-    
+
   def checkout(self, revision):
     return git.checkout(self.root, revision)
-    
+
   def status(self, filenames):
     return git.status(self.root, filenames)
-    
+
   def diff(self):
     return git.diff(self.root)
-    
+
   def exists(self):
     return path.isdir(self._dot_git_path())
 
@@ -113,14 +114,15 @@ class git_repo(object):
       self.push()
     return result
 
-  def save_file(self, filename, content, codec = 'utf-8', mode = None):
+  def save_file(self, filename, content, codec = 'utf-8', mode = None, commit = True):
     if not self.has_file(filename):
       self.add_file(filename, content, codec = codec, mode = mode)
       return
     p = self.file_path(filename)
     file_util.save(p, content = content, mode = mode)
-    self.commit('modify %s' % (filename), [ filename ])
-  
+    if commit:
+      self.commit('modify %s' % (filename), [ filename ])
+
   def read_file(self, filename, codec = 'utf-8'):
     return file_util.read(self.file_path(filename), codec = codec)
 
@@ -143,22 +145,22 @@ class git_repo(object):
     'List tags greater than tag'
     tags = self.list_local_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if software_version.compare(t, tag) > 0 ]
-    
+
   def list_local_tags_ge(self, tag, lexical = False, reverse = False):
     'List tags greater or equal to tag'
     tags = self.list_local_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if software_version.compare(t, tag) >= 0 ]
-    
+
   def list_local_tags_le(self, tag, lexical = False, reverse = False):
     'List tags lesser or equal to tag'
     tags = self.list_local_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if software_version.compare(t, tag) <= 0 ]
-    
+
   def list_local_tags_lt(self, tag, lexical = False, reverse = False):
     'List tags lesser than tag'
     tags = self.list_local_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if software_version.compare(t, tag) < 0 ]
-    
+
   def list_remote_tags(self, lexical = False, reverse = False):
     return git.list_remote_tags(self.root, lexical = lexical, reverse = reverse)
 
@@ -166,22 +168,22 @@ class git_repo(object):
     'List tags greater than tag'
     tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if software_version.compare(t, tag) > 0 ]
-    
+
   def list_remote_tags_ge(self, tag, lexical = False, reverse = False):
     'List tags greater or equal to tag'
     tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if software_version.compare(t, tag) >= 0 ]
-    
+
   def list_remote_tags_le(self, tag, lexical = False, reverse = False):
     'List tags lesser or equal to tag'
     tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if software_version.compare(t, tag) <= 0 ]
-    
+
   def list_remote_tags_lt(self, tag, lexical = False, reverse = False):
     'List tags lesser than tag'
     tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if software_version.compare(t, tag) < 0 ]
-  
+
   def tag(self, tag, allow_downgrade = True, push = False):
     git.tag(self.root, tag, allow_downgrade = allow_downgrade, push = push)
 
@@ -199,10 +201,10 @@ class git_repo(object):
 
   def delete_tag(clazz, tag, where, dry_run):
     return git.delete_tag(self.root, tag, where, dry_run)
-    
+
   def push_tag(self, tag):
     git.push_tag(self.root, tag)
-    
+
   def bump_tag(self, component, push = True, dry_run = False, default_tag = None, reset_lower = False):
     return git.bump_tag(self.root, component, push = push, dry_run = dry_run,
                         default_tag = default_tag, reset_lower = reset_lower)
@@ -213,25 +215,37 @@ class git_repo(object):
   def revision_equals(self, revision1, revision2):
     'Return True if revision1 is the same as revision2.  Short and long hashes can be mixed.'
     return git.revision_equals(self.root, revision1, revision2)
-    
+
   def list_branches(self, where):
     return git.list_branches(self.root, where)
 
+  def list_remote_branches(self):
+    return git.list_remote_branches(self.root)
+
+  def list_local_branches(self):
+    return git.list_local_branches(self.root)
+  
+  def has_remote_branch(self, branch):
+    return git.has_remote_branch(self.root, branch)
+
+  def has_local_branch(self, branch):
+    return git.has_local_branch(self.root, branch)
+
   def branch_create(self, branch_name, checkout = False, push = False):
     git.branch_create(self.root, branch_name, checkout = checkout, push = push)
-  
+
   def branch_push(self, branch_name):
     git.branch_push(self.root, branch_name)
-  
+
   def fetch(self):
     git.fetch(self.root)
-  
+
   def author(self, commit):
     git.author(self.root, commit)
 
   def files_for_commit(self, commit):
     return git.files_for_commit(self.root, commit)
-    
+
   def active_branch(self):
     return git.active_branch(self.root)
 
@@ -243,10 +257,10 @@ class git_repo(object):
 
   def archive_to_dir(self, revision, output_dir):
     return git.archive_to_dir(self.root, revision, output_dir)
-  
+
   def lfs_track(self, pattern):
     return git.lfs_track(self.root, pattern)
-  
+
   def lfs_pull(self):
     return git.lfs_pull(self.root)
 
@@ -255,26 +269,26 @@ class git_repo(object):
 
   def lfs_files_need_smudge(self):
     return git.lfs_files_need_smudge(self.root)
-    
+
   def call_git(self, args, raise_error = True, extra_env = None):
     return git.call_git(self.root, args, raise_error = raise_error, extra_env = extra_env)
 
   def unpushed_commits(self):
     return git.unpushed_commits(self.root)
-  
+
   def has_unpushed_commits(self):
     return git.has_unpushed_commits(self.root)
-  
+
   def has_commit(self, commit):
     return git.has_commit(self.root, commit)
-  
+
   def has_revision(self, revision):
     return git.has_revision(self.root, revision)
 
   @classmethod
   def is_long_hash(clazz, h):
     return git.is_long_hash(h)
-  
+
   @classmethod
   def is_short_hash(clazz, h):
     return git.is_short_hash(h)
@@ -293,7 +307,7 @@ class git_repo(object):
 
   def submodule_status_all(self, submodule = None):
     return git.submodule_status_all(self.root, submodule = submodule)
-  
+
   def submodule_status_one(self, submodule):
     return git.submodule_status_one(self.root, submodule)
 
@@ -319,12 +333,12 @@ class git_repo(object):
   def submodule_get_branch(self, module_name):
     check.check_string(module_name)
     return self.submodule_file().get_branch(module_name)
-  
+
   def submodule_update_revision(self, module_name, revision):
     check.check_string(module_name)
     check.check_string(revision)
     return git.submodule_update_revision(self.root, module_name, revision)
-  
+
   def commit_for_tag(self, tag, short_hash = False):
     check.check_string(tag)
     check.check_bool(short_hash)
@@ -345,7 +359,7 @@ class git_repo(object):
     operation should be a function that takes exactly one "repo" argument
     of type "git_repo"
     '''
-    
+
     check.check_function(operation)
     check.check_string(commit_message)
     check.check_int(num_tries, allow_none = True)
@@ -354,7 +368,7 @@ class git_repo(object):
     operation_spec = inspect.getargspec(operation)
     if len(operation_spec[0]) != 1:
       raise RuntimeError('operation should take exactly one argument.')
-    
+
     if check.is_int(num_tries):
       if num_tries <= 0 or num_tries > 100:
         raise ValueError('num_tries should be between 1 and 100: {}'.format(num_tries))
@@ -362,7 +376,7 @@ class git_repo(object):
     num_tries = num_tries or 10
     save_ex = None
     retry_wait_ms = retry_wait_ms or 0.500
-    
+
     git.log.log_d('operation_with_reset: num_tries={} operation="{}" retry_wait_ms={}'.format(num_tries,
                                                                                               operation,
                                                                                               retry_wait_ms))
@@ -386,10 +400,29 @@ class git_repo(object):
         return
       except RuntimeError as ex:
         git.log.log_w('operation_with_reset: failed {} of {}'.format(i + 1, num_tries))
-        #git.log.log_exception(ex, show_traceback = True)
+        # git.log.log_exception(ex, show_traceback = True)
         time.sleep(retry_wait_ms)
         save_ex = ex
     assert save_ex
     raise save_ex
 
+  def changelog(self, revision_since, revision_until):
+    git_changelog = git.changelog(self.root, revision_since, revision_until)
+
+    result = []
+    for elem in git_changelog.split('\n'):
+      revision, message = elem.split(' ', 1)
+      commit_info = git_commit_info(revision, message)
+      result.append(commit_info)
+
+    return result
+
+  def atexit_reset_to_revision(self, revision):
+    'When the process exists, reset this git repo to the given revision.'
+    from bes.system.log import log
+    def _reset_repo(*args, **kargs):
+      repo, revision = args
+      repo.reset_to_revision(revision)
+    atexit.register(_reset_repo, self, revision)
+    
 check.register_class(git_repo)

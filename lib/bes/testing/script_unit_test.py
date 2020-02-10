@@ -25,7 +25,12 @@ class script_unit_test(unit_test):
     return clazz.file_path(script[0], script[1])
   
   def make_command(self, args):
-    cmd = [ self._resolve_script() ] + list(args)
+    cmd = []
+    script = self._resolve_script()
+    if script.lower().endswith('.py'):
+      cmd.append(sys.executable)
+    cmd.append(script)
+    cmd.extend(list(args))
     return cmd
 
   def run_script(self, args, cwd = None, env = None):

@@ -1,0 +1,20 @@
+0c7f865 add submodule_repo() and has_submodule()
+8788faf add class to parse git services (like bitbucket or github) remote "urls"
+7ec1fc3 abortive attempt to add add_section() commented out for now
+6009eed if spewing the unicode fails, convert it to ascii
+d8c23f6 fix output
+abcc511 if fail to write output, save it to a temp file.
+2921069 print out the exception
+c693bdb fix ugly typo
+558c61d add commented exception logging for debugging
+98b6eb1 add has_section() and unit test
+1b43736 add missing traceback and exception loging methods
+a1a67ca [dropped]
+dd60a5a add git_util.repo_run_operation()
+e22e1ae add missing errno import
+8877451 [dropped]
+2e48d26 make file_util.save() more robust by detecting cross device link errors and using shutil.move() in that case.
+4a13b9b make the check for executable be optional
+a5f509e fix the log spew
+b12f635 [dropped]
+386e182 [dropped]
