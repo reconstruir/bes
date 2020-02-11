@@ -19,7 +19,7 @@ class git_repo(object):
 
   def __init__(self, root, address = None):
     self.root = path.abspath(root)
-    self.address = address
+    self.address = address or git.remote_origin_url(self.root)
 
   def __str__(self):
     return '%s@%s' % (self.root, self.address)
