@@ -114,14 +114,14 @@ class git_repo(object):
       self.push()
     return result
 
-  def save_file(self, filename, content, codec = 'utf-8', mode = None, commit = True):
-    if not self.has_file(filename):
-      self.add_file(filename, content, codec = codec, mode = mode)
-      return
+  def save_file(self, filename, content, codec = 'utf-8', mode = None, add = True, commit = True):
     p = self.file_path(filename)
     file_util.save(p, content = content, mode = mode)
+    if add:
+      self.add([ filename ])
     if commit:
-      self.commit('modify %s' % (filename), [ filename ])
+      msg = 'add or change {}'.format(filename)
+      self.commit(msg, [ filename ])
 
   def read_file(self, filename, codec = 'utf-8'):
     return file_util.read(self.file_path(filename), codec = codec)
@@ -208,6 +208,9 @@ class git_repo(object):
   def bump_tag(self, component, push = True, dry_run = False, default_tag = None, reset_lower = False):
     return git.bump_tag(self.root, component, push = push, dry_run = dry_run,
                         default_tag = default_tag, reset_lower = reset_lower)
+
+  def reset(self, revision = None):
+    git.reset(self.root, revision = revision)
 
   def reset_to_revision(self, revision):
     git.reset_to_revision(self.root, revision)
@@ -424,5 +427,12 @@ class git_repo(object):
       repo, revision = args
       repo.reset_to_revision(revision)
     atexit.register(_reset_repo, self, revision)
+
+  def clean(self, immaculate = True):
+    '''Clean untracked stuff in the repo.
+    If immaculate is True this will include untracked dirs as well as giving
+    the -f (force) and -x (ignore .gitignore rules) for a really immaculate repo
+    '''
+    git.clean(self.root, immaculate = immaculate)
     
 check.register_class(git_repo)

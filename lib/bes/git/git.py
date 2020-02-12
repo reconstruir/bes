@@ -352,9 +352,16 @@ class git(object):
     return rv.stdout.strip()
 
   @classmethod
-  def reset_to_revision(clazz, root, revision):
-    args = [ 'reset', '--hard', revision ]
+  def reset(clazz, root, revision = None):
+    args = [ 'reset', '--hard' ]
+    if revision:
+      args.append(revision)
+    print('fuck reset args: {}'.format(args))
     return clazz.call_git(root, args)
+
+  @classmethod
+  def reset_to_revision(clazz, root, revision = None):
+    return clazz.reset(root, revision = revision)
 
   @classmethod
   def revision_equals(clazz, root, revision1, revision2):
@@ -892,3 +899,14 @@ class git(object):
     result = clazz.call_git(root, args)
 
     return result.stdout.strip()
+
+  @classmethod
+  def clean(clazz, root, immaculate = True):
+    '''Clean untracked stuff in the repo.
+    If immaculate is True this will include untracked dirs as well as giving
+    the -f (force) and -x (ignore .gitignore rules) for a really immaculate repo
+    '''
+    args = [ 'clean' ]
+    if immaculate:
+      args.append('-dfx')
+    clazz.call_git(root, args)

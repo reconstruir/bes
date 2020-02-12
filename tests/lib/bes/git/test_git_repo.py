@@ -282,7 +282,7 @@ class test_git_repo(unit_test):
 #    self.assertEqual( 'readme is bad', r2.read_file('readme.txt') )
     
   @git_temp_home_func()
-  def test_reset_to_revision(self):
+  def xtest_reset_to_revision(self):
     r1 = self._make_repo()
     r1.add_file('readme.txt', 'readme is good')
     r1.push('origin', 'master')
@@ -841,6 +841,34 @@ r.save_file('foo.txt', content = 'i hacked you', commit = False)
     r.branch_create('kiwi', push = True)
     self.assertTrue( r.has_local_branch('kiwi') )
     self.assertTrue( r.has_remote_branch('kiwi') )
+    
+  @git_temp_home_func()
+  def test_reset(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r1 = self._make_repo(remote = True, content = content)
+    r1.push('origin', 'master')
+
+    r2 = r1.make_temp_cloned_repo()
+
+    self.assertEqual( 'this is foo', r2.read_file('foo.txt') )
+    r2.save_file('foo.txt', 'i hacked you', commit = False)
+    self.assertEqual( 'i hacked you', r2.read_file('foo.txt') )
+    r2.reset()
+    self.assertEqual( 'this is foo', r2.read_file('foo.txt') )
+    
+  @git_temp_home_func()
+  def test_clean(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    self.assertEqual( [ 'foo.txt' ], r.find_all_files() )
+    r.save_file('garbage.txt', 'this is garbage', add = False, commit = False)
+    self.assertEqual( [ 'foo.txt', 'garbage.txt' ], r.find_all_files() )
+    r.clean()
+    self.assertEqual( [ 'foo.txt' ], r.find_all_files() )
     
 if __name__ == '__main__':
   unit_test.main()
