@@ -422,11 +422,17 @@ class git_repo(object):
 
   def atexit_reset_to_revision(self, revision):
     'When the process exists, reset this git repo to the given revision.'
-    from bes.system.log import log
     def _reset_repo(*args, **kargs):
       repo, revision = args
       repo.reset_to_revision(revision)
     atexit.register(_reset_repo, self, revision)
+
+  def atexit_operations(self, operations):
+    'When the process exists, run the sequence of operations on the repo.'
+    def _do_ops(*args, **kargs):
+      for op in operations:
+        op(self)
+    atexit.register(_do_ops)
 
   def clean(self, immaculate = True):
     '''Clean untracked stuff in the repo.
