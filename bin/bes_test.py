@@ -582,7 +582,10 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
                                stderr = subprocess.STDOUT,
                                shell = True,
                                env = env)
-    output = process.communicate()
+    communicate_args = {}
+    if sys.version_info.major >= 3:
+      communicate_args['timeout'] = 60.0
+    output = process.communicate(**communicate_args)
     exit_code = process.wait()
     elapsed_time = time.time() - time_start
     decoded_output = output[0].decode('utf-8')
@@ -600,10 +603,11 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
         printer.writeln(decoded_output.encode('ascii', 'replace'))
     return test_result(success, wanted_unit_tests, elapsed_time, decoded_output)
   except Exception as ex:
-    printer.writeln_name('Caught exception on %s: %s' % (filename, str(ex)))
-    for s in traceback.format_exc().split('\n'):
+    ex_output = traceback.format_exc()
+    printer.writeln_name('Caught exception on {}\n{}'.format(filename, ex_output))
+    for s in ex_output.split('\n'):
       printer.writeln_name(s)
-    return test_result(False, wanted_unit_tests, 0.0, tmp)
+    return test_result(False, wanted_unit_tests, 0.0, ex_output)
 
 def _count_tests(test_map, tests):
   total = 0
