@@ -802,7 +802,7 @@ class test_git_repo(unit_test):
     ], sorted(r2.read_file('foo.txt', codec = 'utf8').split('\n')) )
 
   @git_temp_home_func()
-  def test_atexit_reset_to_revision(self):
+  def test_atexit_reset(self):
     r = self._make_repo()
     r.write_temp_content([
       'file foo.txt "_foo" 644',
@@ -814,7 +814,7 @@ class test_git_repo(unit_test):
     tmp_script_content = '''\
 from bes.git.git_repo import git_repo
 r = git_repo("{}", address = "{}")
-r.atexit_reset_to_revision('HEAD')
+r.atexit_reset(revision = 'HEAD')
 r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
 '''.format(r.root, r.address)
     

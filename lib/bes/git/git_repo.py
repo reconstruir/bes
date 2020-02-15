@@ -467,7 +467,13 @@ class git_repo(object):
     '''
     self.reset(submodules = submodules)
     self.clean(immaculate = immaculate, submodules = submodules)
-    
+
+  def atexit_reset(self, submodules = False, revision = None):
+    'When the process exists, reset and clean the repo'
+    def _op(repo):
+      repo.reset(revision = None, submodules = submodules)
+    self.atexit_operations(_op)
+
   def atexit_reset_and_clean(self, immaculate = False, submodules = False):
     'When the process exists, reset and clean the repo'
     def _op(repo):
