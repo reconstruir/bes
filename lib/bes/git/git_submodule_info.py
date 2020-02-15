@@ -30,6 +30,8 @@ class git_submodule_info(namedtuple('git_submodule_info', 'name, branch, revisio
     if len(parts) < 2:
       raise ValueError('Invalid git submodule status: "{}"'.format(text_without_dash))
     revision_long = parts.pop(0)
+    if revision_long.startswith('+'):
+      revision_long = revision_long[1:]
     if len(revision_long) != 40:
       raise ValueError('Invalid git submodule revision_long: "{}"'.format(revision_long))
     name = parts.pop(0)
