@@ -356,7 +356,6 @@ class git(object):
     args = [ 'reset', '--hard' ]
     if revision:
       args.append(revision)
-    print('fuck reset args: {}'.format(args))
     return clazz.call_git(root, args)
 
   @classmethod
@@ -905,8 +904,9 @@ class git(object):
     '''Clean untracked stuff in the repo.
     If immaculate is True this will include untracked dirs as well as giving
     the -f (force) and -x (ignore .gitignore rules) for a really immaculate repo
+    Optionally does the same treatment for all submodules.
     '''
-    args = [ 'clean' ]
+    args = [ 'clean', '-f' ]
     if immaculate:
-      args.append('-dfx')
+      args.extend([ '-d', '-x' ])
     clazz.call_git(root, args)
