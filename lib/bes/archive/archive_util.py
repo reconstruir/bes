@@ -8,6 +8,7 @@ from bes.fs.file_match import file_match
 from bes.common.object_util import object_util
 from bes.common.dict_util import dict_util
 from bes.text.text_line_parser import text_line_parser
+from bes.system.execute import execute
 
 from .archiver import archiver
 
@@ -140,3 +141,39 @@ class archive_util(object):
     'Return a list of members that match any pattern in patterns.'
     text = file_util.read(filename, codec = 'utf8')
     return text_line_parser.parse_lines(text).to_list()
+
+    
+  @classmethod
+  def grep(clazz, tarball, pattern):
+    'Return the output of ag (silver searcher) for an archive.'
+    tmp_dir = temp_file.make_temp_dir()
+    archiver.extract(tarball, tmp_dir, strip_common_ancestor = True)
+    result = execute.execute('ag %s .' % (pattern), cwd = tmp_dir, shell = True, raise_error = False).stdout
+    file_util.remove(tmp_dir)
+    return result
+
+  @classmethod
+  def diff_manifest(clazz, archive1, archive2, strip_common_ancestor = False):
+    'Return the output of diffing the contents of 2 archives.'
+    members1 = archiver.members(archive1)
+    members2 = archiver.members(archive2)
+    content1 = '\n'.join(members1)
+    content2 = '\n'.join(members2)
+    tmp_file1 = temp_file.make_temp_file(content = content1)
+    tmp_file2 = temp_file.make_temp_file(content = content2)
+    cmd = [ 'diff', '-u', '-r', tmp_file1, tmp_file2 ]
+    rv = execute.execute(cmd, raise_error = False, stderr_to_stdout = True)
+    return rv
+
+  @classmethod
+  def diff_contents(clazz, archive1, archive2, strip_common_ancestor = False):
+    'Return the output of diffing the contents of 2 archives.'
+    tmp_dir = temp_file.make_temp_dir(delete = False)
+    tmp_dir1 = path.join(tmp_dir, 'a')
+    tmp_dir2 = path.join(tmp_dir, 'b')
+    archiver.extract_all(archive1, tmp_dir1, strip_common_ancestor = strip_common_ancestor)
+    archiver.extract_all(archive2, tmp_dir2, strip_common_ancestor = strip_common_ancestor)
+    cmd = [ 'diff', '-u', '-r', tmp_dir1, tmp_dir2 ]
+    rv = execute.execute(cmd, raise_error = False, stderr_to_stdout = True)
+    return rv
+  
