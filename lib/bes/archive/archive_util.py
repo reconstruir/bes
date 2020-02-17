@@ -9,6 +9,7 @@ from bes.common.object_util import object_util
 from bes.common.dict_util import dict_util
 from bes.text.text_line_parser import text_line_parser
 from bes.system.execute import execute
+from bes.system.which import which
 
 from .archiver import archiver
 
@@ -144,11 +145,26 @@ class archive_util(object):
 
     
   @classmethod
-  def grep(clazz, tarball, pattern):
-    'Return the output of ag (silver searcher) for an archive.'
+  def search(clazz, tarball, pattern, ignore_case = False, whole_word = False):
+    'Return the output of either ag (silver searcher) or grep for the contents of an archive.'
+    ag = which.which('ag')
+    if ag:
+      cmd = [ ag ]
+    else:
+      grep = which.which('grep')
+      if not grep:
+        raise RuntimeError('No grep or ag found.')
+      cmd = [ grep, '-r' ]
+
+    if ignore_case:
+      cmd.append('-i')
+    if whole_word:
+      cmd.append('-w')
+    cmd.extend([ pattern, '.' ])
+      
     tmp_dir = temp_file.make_temp_dir()
     archiver.extract(tarball, tmp_dir, strip_common_ancestor = True)
-    result = execute.execute('ag %s .' % (pattern), cwd = tmp_dir, shell = True, raise_error = False).stdout
+    result = execute.execute(cmd, cwd = tmp_dir, shell = True, raise_error = False)
     file_util.remove(tmp_dir)
     return result
 
