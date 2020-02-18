@@ -482,7 +482,7 @@ class git(object):
   def _parse_remote_tag_line(clazz, s):
     f = re.findall('^[0-9a-f]{40}\s+refs/tags/(.+)$', s)
     if f and len(f) == 1:
-      return f[0]
+      return string_util.remove_tail(f[0], '^{}')
     return None
 
   @classmethod
