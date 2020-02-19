@@ -10,9 +10,8 @@ from .git_commit_info import git_commit_info
 
 class git_changelog:
 
-  @classmethod
-  def truncate(clazz, list_of_commit_info, max_chars=4000, revision_chars=7, balance=0.5):
-    check.check_list(list_of_commit_info, entry_type=git_commit_info)
+  @staticmethod
+  def _check_algorithm_params(max_chars, revision_chars, balance):
     check.check_int(max_chars)
     check.check_int(revision_chars)
     check.check_float(balance)
@@ -23,6 +22,11 @@ class git_changelog:
       raise ValueError("revision_chars argument can't be less than 1")
     if balance <= 0 or balance > 1:
       raise ValueError("balance argument value must be inside next range - (0, 1]")
+
+  @classmethod
+  def truncate_changelog(clazz, list_of_commit_info, max_chars=4000, revision_chars=7, balance=0.5):
+    check.check_list(list_of_commit_info, entry_type=git_commit_info)
+    clazz._check_algorithm_params(max_chars, revision_chars, balance)
 
     list_of_commit_info = copy.deepcopy(list_of_commit_info)
     result = '\n'.join(str(elem) for elem in list_of_commit_info)
@@ -45,6 +49,22 @@ class git_changelog:
       is_finished, total_chars = drop_function(*args)
       if is_finished:
         return '\n'.join(str(elem) for elem in list_of_commit_info)
+
+  @classmethod
+  def truncate_changelogs(clazz, dict_of_list_of_commit_info, max_chars=4000, revision_chars=7, balance=0.5):
+    check.check_dict(dict_of_list_of_commit_info)
+    clazz._check_algorithm_params(max_chars, revision_chars, balance)
+
+    keys = dict_of_list_of_commit_info.keys()
+    addional_length = len(''.join(keys)) + 3 * len(keys) - 1
+    max_chars_bit = (max_chars - addional_length) // len(keys)
+
+    changelog_blocks = []
+    for label in dict_of_list_of_commit_info:
+      changelog = clazz.truncate_changelog(dict_of_list_of_commit_info[label], max_chars_bit, revision_chars, balance)
+      changelog_blocks.append('{}:\n{}'.format(label, changelog))
+
+    return '\n\n'.join(changelog_blocks)
 
   @staticmethod
   def _drop_revisions(list_of_commit_info, total_chars, max_chars, limit):
