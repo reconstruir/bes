@@ -11,7 +11,6 @@ from bes.fs.testing.temp_content import temp_content
 from bes.version.software_version import software_version
 
 from .git import git
-from .git_changelog import git_changelog
 from .git_modules_file import git_modules_file
 
 import warnings
@@ -431,8 +430,7 @@ class git_repo(object):
     return git.changelog(self.root, revision_since, revision_until)
 
   def changelog_as_string(self, revision_since, revision_until, max_chars=4000, revision_chars=7, balance=0.5):
-    commit_info_data = git.changelog(self.root, revision_since, revision_until)
-    return git_changelog.truncate(commit_info_data, max_chars, revision_chars, balance)
+    return git.changelog_as_string(self.root, revision_since, revision_until, max_chars, revision_chars, balance)
 
   def clean(self, immaculate = True, submodules = False):
     '''Clean untracked stuff in the repo.

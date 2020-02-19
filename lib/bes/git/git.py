@@ -32,6 +32,7 @@ from .git_status import git_status
 from .git_submodule_info import git_submodule_info
 from .git_modules_file import git_modules_file
 from .git_commit_info import git_commit_info
+from .git_changelog import git_changelog
 
 
 class git(object):
@@ -905,6 +906,11 @@ class git(object):
       result.append(commit_info)
 
     return result
+
+  @classmethod
+  def changelog_as_string(clazz, root, revision_since, revision_until, max_chars=4000, revision_chars=7, balance=0.5):
+    commit_info_data = clazz.changelog(root, revision_since, revision_until)
+    return git_changelog.truncate(commit_info_data, max_chars, revision_chars, balance)
 
   @classmethod
   def clean(clazz, root, immaculate = True):
