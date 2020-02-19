@@ -1,0 +1,36 @@
+bes:
+0c7f865 add submodule_repo() and has_submodule()
+8788faf add class to parse git services (like bitbucket or github) remote "urls"
+7ec1fc3 abortive attempt to add add_section() commented out for now
+6009eed if spewing the unicode fails, convert it to ascii
+d8c23f6 fix output
+abcc511 if fail to write output, save it to a temp file.
+2921069 print out the exception
+c693bdb fix ugly typo
+558c61d add commented exception logging for debugging
+
+rebuild:
+c63a752 pass arguments through
+0e1b26e add --entry argument to do just one entry
+466e3e1 escape the escape sign before the equal sign so it gets parsed correctly
+f5a3c95 implement the arcname option in the http method.
+d271348 retire an unused and confusing class
+e1e6b3c add property setter and getter for origin
+ea2b796 fix if then else entry section parsing logic
+bf8b291 [dropped]
+32261a9 [dropped]
+
+ego_automation:
+91eba5a add assets()
+7afcfe5 when calling egoist do it with the right python if egoist is the version that is a python script.
+f059838 add str
+422e0be p3 fixes
+099e274 py3 fixes
+a25c87c refactor to minimize imports before they are needed since they are a bit heavy
+1593859 use the python exe in the current environment to call egoist
+dcecff7 add write_text_file()
+e7780b8 [dropped]
+7092d31 [dropped]
+525fb04 [dropped]
+f6d0916 [dropped]
+48581e6 [dropped]
