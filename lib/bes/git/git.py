@@ -31,6 +31,8 @@ from .git_clone_options import git_clone_options
 from .git_status import git_status
 from .git_submodule_info import git_submodule_info
 from .git_modules_file import git_modules_file
+from .git_commit_info import git_commit_info
+from .git_changelog import git_changelog
 
 
 class git(object):
@@ -886,7 +888,6 @@ class git(object):
 
   @classmethod
   def changelog(clazz, root, revision_since, revision_until):
-    # TODO: add support for multiple log formats
     check.check_string(root)
     check.check_string(revision_since, allow_none=True)
     check.check_string(revision_until, allow_none=True)
@@ -895,9 +896,21 @@ class git(object):
     revision_until = revision_until if revision_until else 'HEAD'
     revisions_range = '{}..{}'.format(revision_since, revision_until)
     args = ['log', revisions_range, '--pretty=oneline']
-    result = clazz.call_git(root, args)
+    git_changelog = clazz.call_git(root, args)
+    git_changelog = git_changelog.stdout.strip()
 
-    return result.stdout.strip()
+    result = []
+    for elem in git_changelog.split('\n'):
+      revision, message = elem.split(' ', 1)
+      commit_info = git_commit_info(revision, message)
+      result.append(commit_info)
+
+    return result
+
+  @classmethod
+  def changelog_as_string(clazz, root, revision_since, revision_until, max_chars=4000, revision_chars=7, balance=0.5):
+    commit_info_data = clazz.changelog(root, revision_since, revision_until)
+    return git_changelog.truncate_changelog(commit_info_data, max_chars, revision_chars, balance)
 
   @classmethod
   def clean(clazz, root, immaculate = True):
