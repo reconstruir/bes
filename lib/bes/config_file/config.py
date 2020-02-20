@@ -87,6 +87,15 @@ class config(object):
     for key, value in sorted(values.items()):
       self._parser.set(section, key, self._value_for_set(value))
 
+  def update_config(self, values_dict):
+    check.check_dict(values_dict, check.STRING_TYPES, dict)
+
+    for _, section_values in values_dict.items():
+      check.check_dict(section_values, check.STRING_TYPES, check.STRING_TYPES)
+      
+    for section, section_values in values_dict.items():
+      self.set_values(section, section_values)
+      
   def get_value(self, section, key):
     check.check_string(section)
     check.check_string(key)
