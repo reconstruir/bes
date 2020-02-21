@@ -1,0 +1,13 @@
+91eba5a7b8f816b67d3a0e737f8593635d17d965 add assets()
+7afcfe5d98a989316d0c9e16cb02063425141ff6 when calling egoist do it with the right python if egoist is the version that is a python script.
+f059838cc16495a0b3a8ded00a99d29f37090068 add str
+422e0be1376deef3f373ad701234eeb8bbe0ed98 p3 fixes
+099e2743ad21b06fb1b42e1cc7a7083180580b05 py3 fixes
+a25c87c57c07a5d91ed21467b47af129091e5c54 refactor to minimize imports before they are needed since they are a bit heavy
+1593859547129384830b594e435af418940ec192 use the python exe in the current environment to call egoist
+dcecff77621f5f668886b79ecc42019781c4b51b add write_text_file()
+e7780b887875d772b087d7919197782622265321 bump the version from 1.0.381 to 1.0.382
+7092d3194cc6bbc6603b6be8aa9de108f61b973c add support for overriding the python version
+525fb048afb3cd10a3140611d1327cfb9e88f946 make the logger modules consistent with the names of the classes.
+f6d09162320b206a3df876394df43b0aad95edba add destination_to_description()
+48581e62e24c5ff0acbb7ee044927a8edb3803b1 add save_to_file()

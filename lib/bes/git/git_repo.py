@@ -12,7 +12,6 @@ from bes.version.software_version import software_version
 
 from .git import git
 from .git_modules_file import git_modules_file
-from .git_commit_info import git_commit_info
 
 import warnings
 with warnings.catch_warnings():
@@ -428,15 +427,10 @@ class git_repo(object):
     raise save_ex
 
   def changelog(self, revision_since, revision_until):
-    git_changelog = git.changelog(self.root, revision_since, revision_until)
+    return git.changelog(self.root, revision_since, revision_until)
 
-    result = []
-    for elem in git_changelog.split('\n'):
-      revision, message = elem.split(' ', 1)
-      commit_info = git_commit_info(revision, message)
-      result.append(commit_info)
-
-    return result
+  def changelog_as_string(self, revision_since, revision_until, max_chars=4000, revision_chars=7, balance=0.5):
+    return git.changelog_as_string(self.root, revision_since, revision_until, max_chars, revision_chars, balance)
 
   def clean(self, immaculate = True, submodules = False):
     '''Clean untracked stuff in the repo.
