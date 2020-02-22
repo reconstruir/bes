@@ -20,17 +20,14 @@ class git_commit_info(object):
     self.date = date
 
   def __str__(self):
-    if self.revision and self.message:
-      if self.author or self.email or self.date:
-        text = 'commit {}\n'.format(self.revision)
-        if self.author or self.email:
-          text += 'Author: {} <{}>\n'.format(self.author, self.email)
-        if self.date:
-          text += 'Date: {}\n'.format(self.date)
-        text += '\n    {}\n'.format(self.message)
-        return text
-      return '{} {}'.format(self.revision, self.message)
-    return ''
+    parts = [
+      self.revision,
+      self.date,
+      self.author or self.email,
+      self.message,
+    ]
+    parts = [ part for part in parts if part ]
+    return ' '.join(parts)
 
   def __len__(self):
     return len(self.__str__())
