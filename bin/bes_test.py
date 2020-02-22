@@ -4,7 +4,6 @@
 # A script to run python unit tests.  Depends on bes which as bit of a chicken-and-egg
 # problem when unit testing bes itself.  Use the standalone bes_test version to avoid
 # the issue.
-# FOO
 import argparse, copy, math, os, os.path as path, py_compile, re, subprocess, sys, traceback
 import time, tempfile
 from collections import namedtuple
@@ -284,15 +283,19 @@ def main():
       for dep_file in dep_files[filename]:
         print('  %s' % (dep_file.filename))
     return 0
+
+  # Read ~/.bes_test/bes_test.config (or use a default config)
+  bes_test_config = _read_config_file()
+  keep_patterns = bes_test_config.get_value_string_list('environment', 'keep_patterns')
   
   # Start with a clean environment so unit testing can be deterministic and not subject
   # to whatever the user happened to have exported.  PYTHONPATH and PATH for dependencies
   # are set below by iterating the configs 
-  keep_keys = [ 'DEBUG' ]
+  keep_keys = bes_test_config.get_value_string_list('environment', 'keep_keys')
   if args.dont_hack_env:
     keep_keys.extend([ 'PATH', 'PYTHONPATH'])
-    
-  env = os_env.make_clean_env(keep_keys = keep_keys, keep_func = lambda key: key.startswith('BES') or key.startswith('_BES'))
+
+  env = os_env.make_clean_env(keep_keys = keep_keys, keep_func = lambda key: _env_var_should_keep(key, keep_patterns))
   env_var(env, 'PATH').prepend(path.dirname(git_exe))
   for python_exe in args.python:
     env_var(env, 'PATH').prepend(path.dirname(python_exe))
@@ -658,5 +661,30 @@ def _resolve_python_exe_list(l):
     result.append(resolved_exe)
   return result
 
+def _read_config_file():
+  DEFAULT_CONFIG = '''\
+# config file for bes_test.py.  Goes in ~/.bes_test/bes_test.config
+environment
+  keep_keys: DEBUG
+  keep_patterns: BES.* BES_.*
+
+python
+  keep_keys: DEBUG
+  keep_patterns: BES.* BES_.*
+
+'''
+  from bes.config.simple_config import simple_config
+  config_filename = path.expanduser('~/.bes_test/bes_test.config')
+  if path.exists(config_filename):
+    return simple_config.from_file(config_filename)
+  else:
+    return simple_config.from_text(DEFAULT_CONFIG)
+
+def _env_var_should_keep(key, patterns):
+  for pattern in patterns:
+    if re.match(pattern, key) != None:
+      return True
+  return False
+  
 if __name__ == '__main__':
   raise SystemExit(main())
