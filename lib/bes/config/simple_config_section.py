@@ -19,13 +19,18 @@ class simple_config_section(namedtuple('simple_config_section', 'header, entries
 
   def __new__(clazz, header, entries, origin):
     check.check_simple_config_section_header(header)
-    check.check_simple_config_entry_seq(entries)
+    check.check_simple_config_entry_seq(entries, allow_none = True)
     check.check_simple_config_origin(origin, allow_none = True)
-    return clazz.__bases__[0].__new__(clazz, header, entries, origin)
+    
+    return clazz.__bases__[0].__new__(clazz, header, entries or [], origin)
 
+  @property
+  def name(self):
+    return self.header.name
+  
   def __str__(self):
     buf = StringIO()
-    buf.write(self.header.name)
+    buf.write(self.name)
     buf.write('\n')
     for i, entry in enumerate(self.entries):
       if i != 0:
@@ -34,6 +39,12 @@ class simple_config_section(namedtuple('simple_config_section', 'header, entries
       buf.write(str(entry))
     return buf.getvalue()
 
+#  def __getitem__(self, key):
+#    return self.find_by_key(key)
+
+#  def __setitem__(self, key, value):
+#    self.set_value(key, value)
+  
   def find_by_key(self, key, raise_error = True, resolve_env_vars = True):
     entry = self.find_entry(key)
     if not entry:
@@ -46,35 +57,45 @@ class simple_config_section(namedtuple('simple_config_section', 'header, entries
     return value
 
   def find_entry(self, key):
-    for entry in self.entries:
+    index = self.entry_index(key)
+    if index < 0:
+      return None
+    return self.entries[index]
+
+  def entry_index(self, key):
+    for i, entry in enumerate(self.entries):
       if entry.value.key == key:
-        return entry
-    return None
+        return i
+    return -1
 
   def has_key(self, key):
     return self.find_entry(key) is not None
 
   def get_value(self, key):
     return self.find_by_key(key, raise_error = True, resolve_env_vars = True)
-  
+
   def set_value(self, key, value):
     check.check_string(key)
     check.check_string(value)
 
-    entry = self.find_entry(key)
-    if entry:
+    index = self.entry_index(key)
+    if index >= 0:
+      entry = self.entries[index]
       assert entry.value.key == key
-      entry.value = key_value(key, value)
+      self.entries[index] = simple_config_entry(key_value(entry.value.key, value), entry.origin, entry.annotations)
       return
     
     if self.entries:
       last_origin = self.entries[-1].origin
     else:
       last_origin = self.origin
-    new_origin = simple_config_origin(last_origin.source, last_origin.line_number + 1)
-    new_entry = simple_config_entry(key_value(key, value), new_origin)
+    if last_origin:
+      new_origin = simple_config_origin(last_origin.source, last_origin.line_number + 1)
+    else:
+      new_origin = None
+    new_entry = simple_config_entry(key_value(key, value), origin = new_origin)
     self.entries.append(new_entry)
-
+    
   def get_bool(self, key, default = False):
     value = self.find_by_key(key, raise_error = False, resolve_env_vars = False)
     if value is not None:
@@ -96,6 +117,16 @@ class simple_config_section(namedtuple('simple_config_section', 'header, entries
     'Return values as a dict optionally resolving environment variables.'
     return self.to_key_value_list(resolve_env_vars = resolve_env_vars).to_dict()
 
+  def set_values(self, values):
+    if isinstance(values, key_value_list):
+      values = key_value_list.to_dict()
+    elif isinstance(values, dict):
+      pass
+    else:
+      raise TypeError('values should be of type dict or key_value_list: {}'.format(type(values)))
+    for key, value in values.items():
+      self.set_value(key, value)
+  
   @classmethod
   def _resolve_variables(clazz, value, origin):
     variables = variable.find_variables(value)

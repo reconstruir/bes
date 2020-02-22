@@ -9,6 +9,7 @@ from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
 from bes.system.log import log
 from bes.text.tree_text_parser import tree_text_parser
+from bes.text.string_list import string_list
 
 from collections import namedtuple
 
@@ -49,6 +50,9 @@ class simple_config(object):
     log.add_logging(self, 'simple_config')
     self.origin = simple_config_origin(source, 1)
     self.sections = sections[:]
+
+#  def __getitem__(self, section):
+#    return self.find(section)
     
   def __str__(self):
     buf = StringIO()
@@ -58,9 +62,12 @@ class simple_config(object):
       buf.write(str(section))
     return buf.getvalue()
 
-#  def add_section(self, section):
-#    check.check_simple_config_section(section)
-#    r = self.sections.append(section)
+  def add_section(self, section, extends = None, origin = None):
+    check.check_string(section)
+
+    header = simple_config_section_header(section, extends = extends, origin = origin)
+    section = simple_config_section(header, None, origin)
+    self.sections.append(section)
 
   def has_section(self, name):
     check.check_string(name)
@@ -73,6 +80,28 @@ class simple_config(object):
       raise simple_config_error('no sections found: %s' % (name), self.origin)
     return result
 
+  def find(self, section_name):
+    check.check_string(section_name)
+    if not self.has_section(section_name):
+      self.add_section(section_name)
+    sections = self.find_sections(section_name)
+    if len(sections) != 1:
+      raise simple_config_error('multiple sections found: {}'.format(section_name), self.origin)
+    return sections[0]
+  
+  def get_value(self, section, key):
+    return self.find(section).get_value(key)
+  
+  def get_value_string_list(self, section, key):
+    value = self.get_value(section, key)
+    return string_list.parse(value)
+
+  def get_value(self, section, key):
+    sections = self.find_sections(section)
+    if len(sections) != 1:
+      raise simple_config_error('multiple sections found: %s' % (section), self.origin)
+    return sections[0].get_value(key)
+  
   @classmethod
   def from_file(clazz, filename):
     return clazz.from_text(file_util.read(filename, codec = 'utf8'), source = filename)
@@ -181,5 +210,28 @@ class simple_config(object):
       value = None
     return key_value(key, value)
 
+  def section_names(self):
+    'Return a list of all the section names.  Multiple sections with the same name get repeated.'
+    return [ section.header.name for section in self.sections ]
+    
+  def sections_are_unique(self):
+    'Return True if every section has a different name.'
+    names = self.section_names()
+    return len(set(names)) == len(names)
+    
+  def update(self, config):
+    'Update from another config.  Only works for configs without multiple sections with the same name.'
+    check.check_simple_config(config)
+
+    if not self.sections_are_unique():
+      raise simple_config_error('update only works if sections have unique names.')
+
+    if not config.sections_are_unique():
+      raise simple_config_error('update only works if sections have unique names.')
+
+    for other_section in config.sections:
+      self_section = self.find(other_section.name)
+      self_section.set_values(other_section.to_dict(resolve_env_vars = False))
+  
 check.register_class(simple_config)
   

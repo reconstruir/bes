@@ -9,9 +9,9 @@ from collections import namedtuple
 
 class simple_config_entry(namedtuple('simple_config_entry', 'value, origin, annotations')):
 
-  def __new__(clazz, value, origin, annotations = None):
+  def __new__(clazz, value, origin = None, annotations = None):
     check.check_key_value(value)
-    check.check_simple_config_origin(origin)
+    check.check_simple_config_origin(origin, allow_none = True)
     check.check_key_value_list(annotations, allow_none = True)
     
     return clazz.__bases__[0].__new__(clazz, value, origin, annotations)

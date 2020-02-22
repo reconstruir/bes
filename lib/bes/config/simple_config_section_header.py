@@ -11,10 +11,11 @@ from .simple_config_origin import simple_config_origin
 
 class simple_config_section_header(namedtuple('simple_config_section_header', 'name, extends, origin')):
 
-  def __new__(clazz, name, extends, origin):
+  def __new__(clazz, name, extends = None, origin = None):
     check.check_string(name)
     check.check_string(extends, allow_none = True)
-    check.check_simple_config_origin(origin)
+    check.check_simple_config_origin(origin, allow_none = True)
+    
     return clazz.__bases__[0].__new__(clazz, name, extends, origin)
 
   @classmethod
