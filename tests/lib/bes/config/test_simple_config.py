@@ -199,6 +199,16 @@ fruit
   def xtest_add_section(self):
     c = simple_config()
     c.add_section('foo')
+
+  def test_invalid_key(self):
+    text = '''\
+foo
+  in.valid: bar
+'''
+
+    with self.assertRaises(simple_config.error) as ctx:
+      simple_config.from_text(text)
+      print(ctx)
     
 if __name__ == '__main__':
   unit_test.main()
