@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import re
+import string, re
 
 from bes.common.check import check
 from bes.compat.StringIO import StringIO
@@ -115,21 +115,46 @@ class simple_config(object):
       result.append(new_entry)
     return result
   
-  _ENTRY_PATTERN = re.compile('([a-zA-Z_]\w*)(\[.*\])?\s*:\s*(.*)')
+  _ENTRY_KEY_VALID_FIRST_CHAR = string.ascii_letters + '_'
+  _ENTRY_KEY_VALID_NEXT_CHARS = string.ascii_letters + string.digits + '_'
   @classmethod
   def _parse_entry(clazz, text, origin):
     check.check_string(text)
     check.check_simple_config_origin(origin)
-    f = clazz._ENTRY_PATTERN.findall(text)
-    if not f or len(f) != 1 or len(f[0]) != 3:
-      raise simple_config_error('invalid config entry: "{}"'.format(text), origin)
-    value = key_value(f[0][0].strip(), f[0][2].strip())
-    annotations = clazz._parse_annotations(f[0][1], origin)
+
+    raw_key, delimiter, raw_value = text.partition(':')
+    if delimiter != ':':
+      raise simple_config_error('invalid config entry (missing colon): "{}"'.format(text), origin)
+    raw_key = raw_key.strip()
+    if not raw_key:
+      raise simple_config_error('invalid config entry (empty key): "{}"'.format(text), origin)
+    raw_value = raw_value.strip()
+
+    key, raw_annotations = clazz._entry_partition_key_and_annotation(raw_key)
+    
+    if not key[0] in clazz._ENTRY_KEY_VALID_FIRST_CHAR:
+      raise simple_config_error('invalid config entry (key should start with ascii letter or underscore): "{}"'.format(text), origin)
+
+    for c in key[1:]:
+      if not c in clazz._ENTRY_KEY_VALID_NEXT_CHARS:
+        raise simple_config_error('invalid config entry (key should have only ascii letter, digits or underscore): "{}"'.format(text), origin)
+      
+    value = key_value(key, raw_value)
+    annotations = clazz._parse_annotations(raw_annotations, origin)
     return simple_config_entry(value, origin, annotations = annotations)
 
   @classmethod
+  def _entry_partition_key_and_annotation(clazz, raw_key):
+    i = raw_key.find('[')
+    if i < 0:
+      return raw_key, None
+    key = raw_key[0:i]
+    annotations = raw_key[i:]
+    return key, annotations
+  
+  @classmethod
   def _parse_annotations(clazz, text, origin):
-    check.check_string(text)
+    check.check_string(text, allow_none = True)
     check.check_simple_config_origin(origin)
     if not text:
       return None
