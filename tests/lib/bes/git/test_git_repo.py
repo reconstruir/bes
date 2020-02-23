@@ -592,6 +592,10 @@ class test_git_repo(unit_test):
     r2.clone()
     r2.submodule_init(submodule = 'mod')
     self.assertEqual( rev1, r2.submodule_status_one('mod').revision )
+
+    # check that setting the same revision returns false
+    rv = r2.submodule_update_revision('mod', rev1)
+    self.assertFalse( rv )
     
     rv = r2.submodule_update_revision('mod', rev2)
     self.assertTrue( rv )
@@ -798,7 +802,7 @@ class test_git_repo(unit_test):
     ], sorted(r2.read_file('foo.txt', codec = 'utf8').split('\n')) )
 
   @git_temp_home_func()
-  def test_atexit_reset_to_revision(self):
+  def test_atexit_reset(self):
     r = self._make_repo()
     r.write_temp_content([
       'file foo.txt "_foo" 644',
@@ -810,8 +814,8 @@ class test_git_repo(unit_test):
     tmp_script_content = '''\
 from bes.git.git_repo import git_repo
 r = git_repo("{}", address = "{}")
-r.atexit_reset_to_revision('HEAD')
-r.save_file('foo.txt', content = 'i hacked you', commit = False)
+r.atexit_reset(revision = 'HEAD')
+r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
 '''.format(r.root, r.address)
     
     tmp_script = self.make_temp_file(content = tmp_script_content, perm = 0o0755)
@@ -853,7 +857,7 @@ r.save_file('foo.txt', content = 'i hacked you', commit = False)
     r2 = r1.make_temp_cloned_repo()
 
     self.assertEqual( 'this is foo', r2.read_file('foo.txt') )
-    r2.save_file('foo.txt', 'i hacked you', commit = False)
+    r2.save_file('foo.txt', 'i hacked you', add = False, commit = False)
     self.assertEqual( 'i hacked you', r2.read_file('foo.txt') )
     r2.reset()
     self.assertEqual( 'this is foo', r2.read_file('foo.txt') )
@@ -869,6 +873,59 @@ r.save_file('foo.txt', content = 'i hacked you', commit = False)
     self.assertEqual( [ 'foo.txt', 'garbage.txt' ], r.find_all_files() )
     r.clean()
     self.assertEqual( [ 'foo.txt' ], r.find_all_files() )
+
+  @git_temp_home_func()
+  def test_submodule_reset(self):
+    sub_content = [
+      'file subfoo.txt "this is subfoo" 644',
+    ]
+    sub_repo = self._make_repo(remote = True, content = sub_content, prefix = '-mod-')
+    rev1 = sub_repo.last_commit_hash(short_hash = True)
+    rev2 = sub_repo.add_file('sub_kiwi.txt', 'this is sub_kiwi.txt', push = True)
+    
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r1 = self._make_repo(remote = True, content = content, prefix = '-main-')
+    self.assertEqual( [ 'foo.txt' ], r1.find_all_files() )
+
+    r1.submodule_add(sub_repo.address, 'mod')
+    r1.commit('add mod submodule', '.')
+    r1.push()
+    self.assertEqual( [ 'foo.txt', 'mod/sub_kiwi.txt', 'mod/subfoo.txt' ], r1.find_all_files() )
+    self.assertFalse( r1.has_changes(submodules = True) )
+
+    rv = r1.submodule_update_revision('mod', rev1)
+    self.assertTrue( rv )
+    self.assertTrue( r1.has_changes(submodules = True) )
+    r1.reset(submodules = True)
+    self.assertFalse( r1.has_changes(submodules = True) )
+    
+  @git_temp_home_func()
+  def test_submodule_clean(self):
+    sub_content = [
+      'file subfoo.txt "this is subfoo" 644',
+    ]
+    sub_repo = self._make_repo(remote = True, content = sub_content, prefix = '-mod-')
+    rev1 = sub_repo.last_commit_hash(short_hash = True)
+    rev2 = sub_repo.add_file('sub_kiwi.txt', 'this is sub_kiwi.txt', push = True)
+    
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r1 = self._make_repo(remote = True, content = content, prefix = '-main-')
+    self.assertEqual( [ 'foo.txt' ], r1.find_all_files() )
+
+    r1.submodule_add(sub_repo.address, 'mod')
+    r1.commit('add mod submodule', '.')
+    r1.push()
+    self.assertEqual( [ 'foo.txt', 'mod/sub_kiwi.txt', 'mod/subfoo.txt' ], r1.find_all_files() )
+    self.assertFalse( r1.has_changes() )
+
+    r1.save_file('mod/untracked_junk.txt', content = 'this is untracked junk', add = False, commit = False)
+    self.assertTrue( r1.has_changes(untracked_files = True, submodules = True) )
+    r1.clean(submodules = True)
+    self.assertFalse( r1.has_changes(untracked_files = True, submodules = True) )
     
 if __name__ == '__main__':
   unit_test.main()

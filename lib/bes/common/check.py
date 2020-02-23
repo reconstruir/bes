@@ -141,6 +141,10 @@ class check(object):
     return clazz._check(o, clazz.CALLABLE_TYPES, 2, allow_none = allow_none)
 
   @classmethod
+  def check_function_seq(clazz, o, allow_none = False):
+    return clazz._check_seq(o, clazz.CALLABLE_TYPES, 2, allow_none = allow_none)
+  
+  @classmethod
   def _check(clazz, o, t, depth, type_blurb = None, allow_none = False):
     if allow_none and o is None:
       return o

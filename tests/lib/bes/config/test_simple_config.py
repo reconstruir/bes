@@ -196,9 +196,83 @@ fruit
     self.assertEqual( 'true', sections[3].find_by_key('is_good') )
     self.assertEqual( None, sections[3].find_entry('is_good').annotations )
 
-  def xtest_add_section(self):
+  def test_invalid_key(self):
+    text = '''\
+foo
+  in.valid: bar
+'''
+    with self.assertRaises(simple_config.error) as ctx:
+      simple_config.from_text(text)
+      print(ctx)
+    
+  def test_add_section_explicit(self):
     c = simple_config()
     c.add_section('foo')
+
+    c.add_section('fruit')
+    c.find('fruit').set_value('name', 'kiwi')
+    c.find('fruit').set_value('color', 'green')
+
+    self.assertEqual( 'kiwi', c.find('fruit').get_value('name') )
+    self.assertEqual( 'green', c.find('fruit').get_value('color') )
+    
+  def test_add_section_implicit(self):
+    c = simple_config()
+    c.find('fruit').set_value('name', 'kiwi')
+    c.find('fruit').set_value('color', 'green')
+
+    self.assertEqual( 'kiwi', c.find('fruit').get_value('name') )
+    self.assertEqual( 'green', c.find('fruit').get_value('color') )
+    
+  def test_sections_names(self):
+    text = '''\
+fruit
+  name: lemon
+
+cheese
+  name: brie
+
+wine
+  name: barolo
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( [ 'fruit', 'cheese', 'wine' ], s.section_names() )
+    self.assertTrue( s.sections_are_unique() )
+    
+  def test_sections_names_sections_with_same_names(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+
+fruit
+  name: apple
+  flavor: sweet
+
+fruit
+  name: kiwi
+  flavor: sweet
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( [ 'fruit', 'fruit', 'fruit' ], s.section_names() )
+    self.assertFalse( s.sections_are_unique() )
+
+  def test_update_basic(self):
+    c1 = simple_config()
+    c1.find('fruit').set_value('name', 'kiwi')
+    c1.find('fruit').set_value('color', 'green')
+
+    c2 = simple_config()
+    c2.find('fruit').set_value('name', 'lemon')
+    c2.find('fruit').set_value('color', 'yellow')
+
+    c1.update(c2)
+    
+    self.assertEqual( 'lemon', c1.find('fruit').get_value('name') )
+    self.assertEqual( 'yellow', c1.find('fruit').get_value('color') )
+
+    self.assertEqual( 'lemon', c2.find('fruit').get_value('name') )
+    self.assertEqual( 'yellow', c2.find('fruit').get_value('color') )
     
 if __name__ == '__main__':
   unit_test.main()

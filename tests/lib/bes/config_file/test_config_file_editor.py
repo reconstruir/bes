@@ -173,6 +173,57 @@ fruit = lemon
 cheese = brie
 '''
     self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+
+  def test_immediate_read(self):
+    content = '''\
+[something]
+fruit = kiwi
+cheese = brie
+wine = barolo
+'''
+    tmp = temp_file.make_temp_file(content = content)
+    e = CFE(tmp)
+    expected = '''\
+[something]
+fruit = kiwi
+cheese = brie
+wine = barolo
+'''
+    
+    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    
+  def test_update_config(self):
+    content = '''\
+[something]
+fruit = kiwi
+cheese = brie
+wine = barolo
+'''
+    tmp = temp_file.make_temp_file(content = content)
+    e = CFE(tmp)
+    e.update_config({
+      'something': {
+        'fruit': 'lemon',
+        'candy': 'chocolate',
+      },
+      'foo': {
+        'bread': 'baguette',
+        'drink': 'water',
+      },
+    })
+    expected = '''\
+[something]
+fruit = lemon
+cheese = brie
+wine = barolo
+candy = chocolate
+
+[foo]
+bread = baguette
+drink = water
+'''
+    
+    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
     
 if __name__ == '__main__':
   unit_test.main()

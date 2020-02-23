@@ -4,6 +4,7 @@ import atexit, inspect, time
 import os.path as path
 
 from bes.common.check import check
+from bes.common.object_util import object_util
 from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
 from bes.fs.testing.temp_content import temp_content
@@ -11,9 +12,11 @@ from bes.version.software_version import software_version
 
 from .git import git
 from .git_modules_file import git_modules_file
-from .git_commit_info import git_commit_info
 
-
+import warnings
+with warnings.catch_warnings():
+  warnings.filterwarnings("ignore", category = DeprecationWarning)
+    
 class git_repo(object):
   'A git repo abstraction.'
 
@@ -24,8 +27,15 @@ class git_repo(object):
   def __str__(self):
     return '%s@%s' % (self.root, self.address)
 
-  def has_changes(self):
-    return git.has_changes(self.root)
+  def has_changes(self, untracked_files = False, submodules = False):
+    if git.has_changes(self.root, untracked_files = untracked_files):
+      return True
+    if submodules:
+      for st in self.submodule_status_all():
+        sub_repo = self.submodule_repo(st.name)
+        if sub_repo.has_changes(untracked_files = untracked_files):
+          return True
+    return False
 
   def clone_or_pull(self, options = None):
     return git.clone_or_pull(self.address, self.root, options = options)
@@ -115,6 +125,8 @@ class git_repo(object):
     return result
 
   def save_file(self, filename, content, codec = 'utf-8', mode = None, add = True, commit = True):
+    if add and not commit:
+      raise ValueError('If add is True then commit should be True as well.')
     p = self.file_path(filename)
     file_util.save(p, content = content, mode = mode)
     if add:
@@ -209,8 +221,13 @@ class git_repo(object):
     return git.bump_tag(self.root, component, push = push, dry_run = dry_run,
                         default_tag = default_tag, reset_lower = reset_lower)
 
-  def reset(self, revision = None):
+  def reset(self, revision = None, submodules = False):
     git.reset(self.root, revision = revision)
+    if submodules:
+      for st in self.submodule_status_all():
+        sub_repo = self.submodule_repo(st.name)
+        sub_repo.reset(revision = revision)
+      self.submodule_init()
 
   def reset_to_revision(self, revision):
     git.reset_to_revision(self.root, revision)
@@ -410,29 +427,51 @@ class git_repo(object):
     raise save_ex
 
   def changelog(self, revision_since, revision_until):
-    git_changelog = git.changelog(self.root, revision_since, revision_until)
+    return git.changelog(self.root, revision_since, revision_until)
 
-    result = []
-    for elem in git_changelog.split('\n'):
-      revision, message = elem.split(' ', 1)
-      commit_info = git_commit_info(revision, message)
-      result.append(commit_info)
+  def changelog_as_string(self, revision_since, revision_until, max_chars=4000, revision_chars=7, balance=0.5):
+    return git.changelog_as_string(self.root, revision_since, revision_until, max_chars, revision_chars, balance)
 
-    return result
-
-  def atexit_reset_to_revision(self, revision):
-    'When the process exists, reset this git repo to the given revision.'
-    from bes.system.log import log
-    def _reset_repo(*args, **kargs):
-      repo, revision = args
-      repo.reset_to_revision(revision)
-    atexit.register(_reset_repo, self, revision)
-
-  def clean(self, immaculate = True):
+  def clean(self, immaculate = True, submodules = False):
     '''Clean untracked stuff in the repo.
     If immaculate is True this will include untracked dirs as well as giving
     the -f (force) and -x (ignore .gitignore rules) for a really immaculate repo
     '''
     git.clean(self.root, immaculate = immaculate)
-    
+    if submodules:
+      for st in self.submodule_status_all():
+        sub_repo = self.submodule_repo(st.name)
+        sub_repo.clean(immaculate = immaculate)
+
+  def atexit_operations(self, operations):
+    'When the process exists, run one or more operations on the repo.'
+    operations = object_util.listify(operations)
+    from bes.system.log import log
+    def _do_ops(*args, **kargs):
+      arg_repo = args[0]
+      arg_operations = args[1]
+      for op in arg_operations:
+        op(arg_repo)
+    atexit.register(_do_ops, self, operations)
+
+  def reset_and_clean(self, immaculate = False, submodules = False):
+    '''
+    Reset and clean the repo optionaly making it immaculate
+    and also giving submodules the same treatment.
+    '''
+    self.reset(submodules = submodules)
+    self.clean(immaculate = immaculate, submodules = submodules)
+
+  def atexit_reset(self, submodules = False, revision = None):
+    'When the process exists, reset and clean the repo'
+    def _op(repo):
+      repo.reset(revision = None, submodules = submodules)
+    self.atexit_operations(_op)
+
+  def atexit_reset_and_clean(self, immaculate = False, submodules = False):
+    'When the process exists, reset and clean the repo'
+    def _op(repo):
+      repo.reset_and_clean(immaculate = immaculate, submodules = submodules)
+    self.atexit_operations(_op)
+
 check.register_class(git_repo)

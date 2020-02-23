@@ -31,6 +31,8 @@ from .git_clone_options import git_clone_options
 from .git_status import git_status
 from .git_submodule_info import git_submodule_info
 from .git_modules_file import git_modules_file
+from .git_commit_info import git_commit_info
+from .git_changelog import git_changelog
 
 
 class git(object):
@@ -356,7 +358,6 @@ class git(object):
     args = [ 'reset', '--hard' ]
     if revision:
       args.append(revision)
-    print('fuck reset args: {}'.format(args))
     return clazz.call_git(root, args)
 
   @classmethod
@@ -483,7 +484,7 @@ class git(object):
   def _parse_remote_tag_line(clazz, s):
     f = re.findall('^[0-9a-f]{40}\s+refs/tags/(.+)$', s)
     if f and len(f) == 1:
-      return f[0]
+      return string_util.remove_tail(f[0], '^{}')
     return None
 
   @classmethod
@@ -887,7 +888,6 @@ class git(object):
 
   @classmethod
   def changelog(clazz, root, revision_since, revision_until):
-    # TODO: add support for multiple log formats
     check.check_string(root)
     check.check_string(revision_since, allow_none=True)
     check.check_string(revision_until, allow_none=True)
@@ -896,17 +896,30 @@ class git(object):
     revision_until = revision_until if revision_until else 'HEAD'
     revisions_range = '{}..{}'.format(revision_since, revision_until)
     args = ['log', revisions_range, '--pretty=oneline']
-    result = clazz.call_git(root, args)
+    git_changelog = clazz.call_git(root, args)
+    git_changelog = git_changelog.stdout.strip()
 
-    return result.stdout.strip()
+    result = []
+    for elem in git_changelog.split('\n'):
+      revision, message = elem.split(' ', 1)
+      commit_info = git_commit_info(revision, message)
+      result.append(commit_info)
+
+    return result
+
+  @classmethod
+  def changelog_as_string(clazz, root, revision_since, revision_until, max_chars=4000, revision_chars=7, balance=0.5):
+    commit_info_data = clazz.changelog(root, revision_since, revision_until)
+    return git_changelog.truncate_changelog(commit_info_data, max_chars, revision_chars, balance)
 
   @classmethod
   def clean(clazz, root, immaculate = True):
     '''Clean untracked stuff in the repo.
     If immaculate is True this will include untracked dirs as well as giving
     the -f (force) and -x (ignore .gitignore rules) for a really immaculate repo
+    Optionally does the same treatment for all submodules.
     '''
-    args = [ 'clean' ]
+    args = [ 'clean', '-f' ]
     if immaculate:
-      args.append('-dfx')
+      args.extend([ '-d', '-x' ])
     clazz.call_git(root, args)
