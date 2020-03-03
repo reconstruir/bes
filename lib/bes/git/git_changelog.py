@@ -13,7 +13,7 @@ class git_changelog:
 
   @staticmethod
   def _check_algorithm_params(max_chars, revision_chars, balance):
-    check.check_int(max_chars)
+    check.check_int(max_chars, allow_none=True)
     check.check_int(revision_chars)
     check.check_float(balance)
 
@@ -52,7 +52,7 @@ class git_changelog:
     return result
 
   @classmethod
-  def truncate_changelog(clazz, list_of_commit_info, max_chars=4000, revision_chars=7, balance=0.5):
+  def truncate_changelog(clazz, list_of_commit_info, max_chars=None, revision_chars=7, balance=0.5):
     check.check_list(list_of_commit_info, entry_type=git_commit_info)
     clazz._check_algorithm_params(max_chars, revision_chars, balance)
 
@@ -60,7 +60,7 @@ class git_changelog:
     result = '\n'.join(str(elem) for elem in list_of_commit_info)
     total_chars = len(result)
 
-    if total_chars <= max_chars:
+    if max_chars is None or total_chars <= max_chars:
       return result
 
     drop_functions_and_additional_arg = (
@@ -79,9 +79,15 @@ class git_changelog:
         return '\n'.join(str(elem) for elem in list_of_commit_info)
 
   @classmethod
-  def truncate_changelogs(clazz, dict_of_list_of_commit_info, max_chars=4000, revision_chars=7, balance=0.5):
+  def truncate_changelogs(clazz, dict_of_list_of_commit_info, max_chars=None, revision_chars=7, balance=0.5):
     check.check_dict(dict_of_list_of_commit_info)
     clazz._check_algorithm_params(max_chars, revision_chars, balance)
+
+    if max_chars is None:
+      result = ''
+      for label in dict_of_list_of_commit_info:
+        result += 'label\n'
+        result += '\n'.join(str(elem) for elem in dict_of_list_of_commit_info[label])
 
     keys = dict_of_list_of_commit_info.keys()
     addional_length = len(''.join(keys)) + 3 * len(keys) - 1
