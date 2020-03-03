@@ -1,6 +1,7 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 
+import re
 import copy
 
 from bes.common.check import check
@@ -22,6 +23,33 @@ class git_changelog:
       raise ValueError("revision_chars argument can't be less than 1")
     if balance <= 0 or balance > 1:
       raise ValueError("balance argument value must be inside next range - (0, 1]")
+
+  @classmethod
+  def convert_changelog_string(clazz, changelog_string):
+    check.check_string(changelog_string)
+
+    result = []
+
+    commits = [elem.strip() for elem in changelog_string.split('\ncommit ') if elem]
+
+    for commit in commits:
+      commit_parts = [elem.strip() for elem in commit.split('\n') if elem]
+      revision = commit_parts[0].split('commit ')[-1]
+      revision = re.search(r'(\w+)\s*.*', revision).group(1)
+
+      index = 1
+      is_merge_commit = False
+      if commit_parts[1].startswith('Merge: '):
+        index += 1
+        is_merge_commit = True
+      email = re.search(r'Author: .*\s+<(.+)>', commit_parts[index]).group(1)
+      author = email.split('@')[0]
+      date = re.search(r'Date:\s+(.+)', commit_parts[index + 1]).group(1)
+      message = ' '.join(commit_parts[index + 2:])
+
+      result.append(git_commit_info(revision, message, author, email, date, is_merge_commit))
+
+    return result
 
   @classmethod
   def truncate_changelog(clazz, list_of_commit_info, max_chars=4000, revision_chars=7, balance=0.5):
@@ -81,7 +109,7 @@ class git_changelog:
     list_of_commit_info = list_of_commit_info[::-1]
 
     for commit_info in list_of_commit_info:
-      if commit_info.is_merge_commit():
+      if commit_info.is_merge_commit:
         start_length = len(commit_info.message)
         commit_info.message = '[dropped]'
         total_chars -= start_length - len(commit_info.message)
