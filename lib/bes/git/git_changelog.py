@@ -74,12 +74,14 @@ class git_changelog:
     if options.max_chars is None:
       result = ''
       for label in dict_of_list_of_commit_info:
-        result += 'label\n'
+        result += '\n\n{}\n'.format(label)
         # disable date and/or author if needed
         clazz._disable_date(options.disable_date, dict_of_list_of_commit_info[label])
         clazz._disable_author(options.disable_author, dict_of_list_of_commit_info[label])
 
         result += '\n'.join(str(elem) for elem in dict_of_list_of_commit_info[label])
+
+      return result.strip()
 
     keys = dict_of_list_of_commit_info.keys()
     addional_length = len(''.join(keys)) + 3 * len(keys) - 1
