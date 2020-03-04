@@ -902,9 +902,9 @@ class git(object):
     return git_changelog.convert_changelog_string(changelog_string)
 
   @classmethod
-  def changelog_as_string(clazz, root, revision_since, revision_until, max_chars=None, revision_chars=7, balance=0.5):
+  def changelog_as_string(clazz, root, revision_since, revision_until, options):
     commit_info_data = clazz.changelog(root, revision_since, revision_until)
-    return git_changelog.truncate_changelog(commit_info_data, max_chars, revision_chars, balance)
+    return git_changelog.truncate_changelog(commit_info_data, options)
 
   @classmethod
   def clean(clazz, root, immaculate = True):

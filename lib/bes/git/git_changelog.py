@@ -7,22 +7,10 @@ import copy
 from bes.common.check import check
 
 from .git_commit_info import git_commit_info
+from .git_changelog_options import git_changelog_options
 
 
 class git_changelog:
-
-  @staticmethod
-  def _check_algorithm_params(max_chars, revision_chars, balance):
-    check.check_int(max_chars, allow_none=True)
-    check.check_int(revision_chars)
-    check.check_float(balance)
-
-    if max_chars < 1:
-      raise ValueError("max_chars argument can't be less than 1")
-    if revision_chars < 1:
-      raise ValueError("revision_chars argument can't be less than 1")
-    if balance <= 0 or balance > 1:
-      raise ValueError("balance argument value must be inside next range - (0, 1]")
 
   @classmethod
   def convert_changelog_string(clazz, changelog_string):
@@ -52,95 +40,123 @@ class git_changelog:
     return result
 
   @classmethod
-  def truncate_changelog(clazz, list_of_commit_info, max_chars=None, revision_chars=7, balance=0.5):
+  def truncate_changelog(clazz, list_of_commit_info, options):
     check.check_list(list_of_commit_info, entry_type=git_commit_info)
-    clazz._check_algorithm_params(max_chars, revision_chars, balance)
 
     list_of_commit_info = copy.deepcopy(list_of_commit_info)
+    # disable date and/or author if needed
+    clazz._disable_date(options.disable_date, list_of_commit_info)
+    clazz._disable_author(options.disable_author, list_of_commit_info)
+
     result = '\n'.join(str(elem) for elem in list_of_commit_info)
     total_chars = len(result)
 
-    if max_chars is None or total_chars <= max_chars:
+    if options.max_chars is None or total_chars <= options.max_chars:
       return result
 
-    drop_functions_and_additional_arg = (
-      (clazz._drop_revisions, revision_chars),
-      (clazz._drop_merge_commit_messages, None),
-      (clazz._drop_commit_messages_and_lines, balance)
+    drop_functions = (
+      clazz._drop_revisions,
+      clazz._drop_date,
+      clazz._drop_author,
+      clazz._drop_merge_commit_messages,
+      clazz._drop_commit_messages_and_lines
     )
 
-    for drop_function, additional_arg in drop_functions_and_additional_arg:
-      args = [list_of_commit_info, total_chars, max_chars]
-      if additional_arg:
-        args.append(additional_arg)
-
-      is_finished, total_chars = drop_function(*args)
+    for drop_function in drop_functions:
+      is_finished, total_chars = drop_function(list_of_commit_info, total_chars, options)
       if is_finished:
         return '\n'.join(str(elem) for elem in list_of_commit_info)
 
   @classmethod
-  def truncate_changelogs(clazz, dict_of_list_of_commit_info, max_chars=None, revision_chars=7, balance=0.5):
+  def truncate_changelogs(clazz, dict_of_list_of_commit_info, options):
     check.check_dict(dict_of_list_of_commit_info)
-    clazz._check_algorithm_params(max_chars, revision_chars, balance)
 
-    if max_chars is None:
+    if options.max_chars is None:
       result = ''
       for label in dict_of_list_of_commit_info:
         result += 'label\n'
+        # disable date and/or author if needed
+        clazz._disable_date(options.disable_date, dict_of_list_of_commit_info[label])
+        clazz._disable_author(options.disable_author, dict_of_list_of_commit_info[label])
+
         result += '\n'.join(str(elem) for elem in dict_of_list_of_commit_info[label])
 
     keys = dict_of_list_of_commit_info.keys()
     addional_length = len(''.join(keys)) + 3 * len(keys) - 1
-    max_chars_bit = (max_chars - addional_length) // len(keys)
+    max_chars_bit = (options.max_chars - addional_length) // len(keys)
 
     changelog_blocks = []
     for label in dict_of_list_of_commit_info:
-      changelog = clazz.truncate_changelog(dict_of_list_of_commit_info[label], max_chars_bit, revision_chars, balance)
+      label_options = clazz._create_label_options(max_chars_bit, options)
+      changelog = clazz.truncate_changelog(dict_of_list_of_commit_info[label], label_options)
       changelog_blocks.append('{}:\n{}'.format(label, changelog))
 
     return '\n\n'.join(changelog_blocks)
 
   @staticmethod
-  def _drop_revisions(list_of_commit_info, total_chars, max_chars, limit):
+  def _drop_revisions(list_of_commit_info, total_chars, options):
     for commit_info in list_of_commit_info:
       start_length = len(commit_info.revision)
-      commit_info.revision = commit_info.revision[:limit]
-      total_chars -= start_length - limit
+      commit_info.revision = commit_info.revision[:options.revision_chars]
+      total_chars -= start_length - options.revision_chars
 
-    is_finished = total_chars <= max_chars
+    is_finished = total_chars <= options.max_chars
     return is_finished, total_chars
 
   @staticmethod
-  def _drop_merge_commit_messages(list_of_commit_info, total_chars, max_chars):
+  def _drop_date(list_of_commit_info, total_chars, options):
+    if not options.disable_date:
+      for commit_info in list_of_commit_info:
+        start_length = len(commit_info.date)
+        commit_info.date = None
+        total_chars -= start_length + 1
+
+    is_finished = total_chars <= options.max_chars
+    return is_finished, total_chars
+
+  @staticmethod
+  def _drop_author(list_of_commit_info, total_chars, options):
+    if not options.disable_author:
+      for commit_info in list_of_commit_info:
+        start_length = len(commit_info.author) if commit_info.author else len(commit_info.email)
+        commit_info.author = None
+        commit_info.email = None
+        total_chars -= start_length + 1
+
+    is_finished = total_chars <= options.max_chars
+    return is_finished, total_chars
+
+  @staticmethod
+  def _drop_merge_commit_messages(list_of_commit_info, total_chars, options):
     list_of_commit_info = list_of_commit_info[::-1]
 
     for commit_info in list_of_commit_info:
       if commit_info.is_merge_commit:
         start_length = len(commit_info.message)
-        commit_info.message = '[dropped]'
+        commit_info.message = commit_info.message[:options.message_chars] if options.message_chars else options.drop_message
         total_chars -= start_length - len(commit_info.message)
 
-        if total_chars <= max_chars:
+        if total_chars <= options.max_chars:
           return True, total_chars
 
     return False, total_chars
 
   @staticmethod
-  def _drop_commit_messages_and_lines(list_of_commit_info, total_chars, max_chars, balance):
+  def _drop_commit_messages_and_lines(list_of_commit_info, total_chars, options):
     list_of_commit_info.reverse()
 
-    while total_chars > max_chars:
-      limit = int(len(list_of_commit_info) * balance) + 1
+    while total_chars > options.max_chars:
+      limit = int(len(list_of_commit_info) * options.balance) + 1
       for index, commit_info in enumerate(list_of_commit_info):
         if index == limit:
           break
 
-        if commit_info.message != '[dropped]':
+        if commit_info.message != options.drop_message:
           start_length = len(commit_info.message)
-          commit_info.message = '[dropped]'
+          commit_info.message = commit_info.message[:options.message_chars] if options.message_chars else options.drop_message
           total_chars -= start_length - len(commit_info.message)
 
-          if total_chars <= max_chars:
+          if total_chars <= options.max_chars:
             list_of_commit_info.reverse()
             return True, total_chars
 
@@ -153,7 +169,7 @@ class git_changelog:
         start_length = len(list_of_commit_info[0])
         total_chars -= start_length + 1
 
-        if total_chars <= max_chars:
+        if total_chars <= options.max_chars:
           list_of_commit_info[:index + 1] = []
           list_of_commit_info.reverse()
           return True, total_chars
@@ -162,3 +178,27 @@ class git_changelog:
       list_of_commit_info[:index + 1] = []
 
     raise Exception('algorith is invalid for this case')
+
+  @staticmethod
+  def _disable_date(disable_date, list_of_commit_info):
+    if disable_date:
+      for commit_info in list_of_commit_info:
+        commit_info.date = None
+
+  @staticmethod
+  def _disable_author(disable_author, list_of_commit_info):
+    if disable_author:
+      for commit_info in list_of_commit_info:
+        commit_info.author = None
+        commit_info.email = None
+
+  @staticmethod
+  def _create_label_options(max_chars_bit, options):
+    return git_changelog_options(
+      max_chars=max_chars_bit,
+      revision_chars=options.revision_chars,
+      message_chars=options.message_chars,
+      balance=options.balance,
+      disable_date=options.disable_date,
+      disable_author=options.disable_author,
+    )
