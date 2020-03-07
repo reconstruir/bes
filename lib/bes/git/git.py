@@ -262,11 +262,11 @@ class git(object):
 
   @classmethod
   def clone_or_pull(clazz, address, dest_dir, options = None):
+    options = options or git_clone_options()
+    
     if clazz.is_repo(dest_dir):
-
-      if options and options.reset_to_head:
+      if options.reset_to_head:
         clazz.reset_to_revision(dest_dir, 'HEAD')
-        #clazz.reset_to_revision(dest_dir, '@{upstream}')
         
       if clazz.has_changes(dest_dir):
         raise RuntimeError('dest_dir %s has changes.' % (dest_dir))
@@ -275,14 +275,15 @@ class git(object):
 
       if info.is_detached:
         clazz.checkout(dest_dir, 'master')
-        
-      clazz.call_git(dest_dir, 'fetch --tags')
-      clazz.pull(dest_dir)
 
-      if options and options.branch:
-        clazz.checkout(dest_dir, options.branch)
+      if not options.no_network:
+        clazz.call_git(dest_dir, 'fetch --tags')
         clazz.pull(dest_dir)
 
+      if options.branch:
+        clazz.checkout(dest_dir, options.branch)
+        if not options.no_network:
+          clazz.pull(dest_dir)
     else:
       clazz.clone(address, dest_dir, options = options)
 

@@ -14,6 +14,7 @@ class git_clone_options(object):
     self.submodule_list = None
     self.branch = None
     self.reset_to_head = False
+    self.no_network = False
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_bool(self.enforce_empty_dir)
@@ -25,6 +26,7 @@ class git_clone_options(object):
     check.check_list(self.submodule_list, allow_none = True)
     check.check_string(self.branch, allow_none = True)
     check.check_bool(self.reset_to_head)
+    check.check_bool(self.no_network)
 
   def __str__(self):
     return str(self.__dict__)
