@@ -112,14 +112,16 @@ class git_repo(object):
   def remote_origin_url(self):
     return git.remote_origin_url(self.root)
 
-  def add_file(self, filename, content, codec = 'utf-8', mode = None, commit = True, push = False):
+  def add_file(self, filename, content, codec = 'utf-8', mode = None, commit = True, push = False,
+               commit_message = None):
     p = self.file_path(filename)
     assert not path.isfile(p)
     file_util.save(p, content = content, codec = codec, mode = mode)
     self.add( [ filename ])
     result = None
     if commit:
-      self.commit('add %s' % (filename), [ filename ])
+      commit_message = commit_message or 'add {}'.format(filename)
+      self.commit(commit_message, [ filename ])
       result = self.last_commit_hash(short_hash = True)
     if push:
       self.push()

@@ -962,5 +962,18 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r.checkout('1.2.3')
     self.assertEqual( ( None, '1.2.3', c1, 'message 1', True ), r.head_info() )
     
+  @git_temp_home_func()
+  def test_head_info_detached_head_at_branch(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content, commit_message = 'message 1')
+    c1 = r.last_commit_hash(short_hash = True)
+    r.branch_create('b1', checkout = True)
+    self.assertEqual( ( 'b1', None, c1, 'message 1', False ), r.head_info() )
+    r.add_file('bar.txt', 'this is bar in b1', commit_message = 'message 2')
+    c2 = r.last_commit_hash(short_hash = True)
+    self.assertEqual( ( 'b1', None, c2, 'message 2', False ), r.head_info() )
+    
 if __name__ == '__main__':
   unit_test.main()
