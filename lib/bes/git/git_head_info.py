@@ -9,7 +9,7 @@ from bes.text.text_line_parser import text_line_parser
 class git_head_info(object):
   'A class to deal with git head info.'
 
-  _head_info = namedtuple('_head_info', 'branch, commit, is_detached, message')
+  _head_info = namedtuple('_head_info', 'branch, ref, commit_hash, commit_message, is_detached')
   @classmethod
   def parse_head_info(clazz, text):
     lines = text_line_parser.parse_lines(text, strip_comments = False, strip_text = True, remove_empties = True)
@@ -17,17 +17,19 @@ class git_head_info(object):
     if not active_line:
       raise RuntimeError('Failed to get head info')
     detached_info = clazz._parse_detached_head_line(active_line)
+    print('detached_info', detached_info)
     if detached_info:
-      commit = detached_info[0]
-      message = detached_info[1]
-      return clazz._head_info(None, commit, True, message)
+      ref = detached_info[0]
+      commit_hash = detached_info[1]
+      commit_message = detached_info[2]
+      return clazz._head_info(None, ref, commit_hash, commit_message, True)
     info = clazz._parse_head_line(active_line)
     if not info:
       raise RuntimeError('Failed to parse head info: "{}"'.format(active_line))
     branch = info[0]
-    commit = info[1]
-    message = info[2]
-    return clazz._head_info(branch, commit, False, message)
+    commit_hash = info[1]
+    commit_message = info[2]
+    return clazz._head_info(branch, None, commit_hash, commit_message, False)
 
   @classmethod
   def _find_active_branch_entry(clazz, lines):
@@ -36,14 +38,14 @@ class git_head_info(object):
         return line
     return none
 
-  _DETACHED_HEAD_PATTERN = r'^\*\s+\(HEAD\s+detached\s+at\s+.+\)\s+([0-9a-f]+)\s+(.+)$'
+  _DETACHED_HEAD_PATTERN = r'^\*\s+\(HEAD\s+detached\s+at\s+(.+)\)\s+([0-9a-f]+)\s+(.+)$'
   @classmethod
   def _parse_detached_head_line(clazz, line):
     f = re.findall(clazz._DETACHED_HEAD_PATTERN, line)
     if not f:
       return None
     assert len(f) == 1
-    assert len(f[0]) == 2
+    assert len(f[0]) == 3
     return f[0]
 
   _HEAD_PATTERN = r'^\*\s+(\w+)\s+([0-9a-f]+)\s+(.+)$'

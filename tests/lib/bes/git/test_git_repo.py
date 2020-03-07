@@ -935,11 +935,10 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     ]
     r = self._make_repo(remote = True, content = content, commit_message = 'message 1')
     c1 = r.last_commit_hash(short_hash = True)
-    print('fuck', r.head_info() )
-    self.assertEqual( ( 'master', c1, False, 'message 1' ), r.head_info() )
+    self.assertEqual( ( 'master', None, c1, 'message 1', False ), r.head_info() )
     
   @git_temp_home_func()
-  def test_head_info_detached_head(self):
+  def test_head_info_detached_head_at_commit(self):
     content = [
       'file foo.txt "this is foo" 644',
     ]
@@ -948,7 +947,20 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r.add_file('bar.txt', 'this is bar')
     c2 = r.last_commit_hash(short_hash = True)
     r.checkout(c1)
-    self.assertEqual( ( None, c1, True, 'message 1' ), r.head_info() )
+    self.assertEqual( ( None, c1, c1, 'message 1', True ), r.head_info() )
+    
+  @git_temp_home_func()
+  def test_head_info_detached_head_at_tag(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content, commit_message = 'message 1')
+    c1 = r.last_commit_hash(short_hash = True)
+    r.tag('1.2.3')
+    r.add_file('bar.txt', 'this is bar')
+    c2 = r.last_commit_hash(short_hash = True)
+    r.checkout('1.2.3')
+    self.assertEqual( ( None, '1.2.3', c1, 'message 1', True ), r.head_info() )
     
 if __name__ == '__main__':
   unit_test.main()
