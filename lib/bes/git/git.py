@@ -264,16 +264,19 @@ class git(object):
   def clone_or_pull(clazz, address, dest_dir, options = None):
     if clazz.is_repo(dest_dir):
 
-      branches = clazz.list_local_branches(dest_dir)
-      print('branches: {}'.format(branches))
-      
       if options and options.reset_to_head:
-        #clazz.reset_to_revision(dest_dir, 'HEAD')
-        clazz.reset_to_revision(dest_dir, '@{upstream}')
+        clazz.reset_to_revision(dest_dir, 'HEAD')
+        #clazz.reset_to_revision(dest_dir, '@{upstream}')
         
       if clazz.has_changes(dest_dir):
         raise RuntimeError('dest_dir %s has changes.' % (dest_dir))
 
+      info = clazz.head_info(dest_dir)
+
+      if info.is_detached:
+        clazz.checkout(dest_dir, 'master')
+        
+      clazz.call_git(dest_dir, 'fetch --tags')
       clazz.pull(dest_dir)
 
       if options and options.branch:
