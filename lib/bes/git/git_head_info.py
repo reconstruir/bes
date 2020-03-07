@@ -17,7 +17,6 @@ class git_head_info(object):
     if not active_line:
       raise RuntimeError('Failed to get head info')
     detached_info = clazz._parse_detached_head_line(active_line)
-    print('detached_info', detached_info)
     if detached_info:
       ref = detached_info[0]
       commit_hash = detached_info[1]
