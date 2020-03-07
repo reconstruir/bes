@@ -18,8 +18,9 @@ from bes.git.git_unit_test import git_temp_home_func
 
 class test_git_repo(unit_test):
 
-  def _make_repo(self, remote = True, content = None, prefix = None):
-    return git_temp_repo(remote = remote, content = content, prefix = prefix, debug = self.DEBUG)
+  def _make_repo(self, remote = True, content = None, prefix = None, commit_message = None):
+    return git_temp_repo(remote = remote, content = content, prefix = prefix,
+                         debug = self.DEBUG, commit_message = commit_message)
 
   @git_temp_home_func()
   def test_init(self):
@@ -926,6 +927,28 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     self.assertTrue( r1.has_changes(untracked_files = True, submodules = True) )
     r1.clean(submodules = True)
     self.assertFalse( r1.has_changes(untracked_files = True, submodules = True) )
+    
+  @git_temp_home_func()
+  def test_head_info_basic(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content, commit_message = 'message 1')
+    c1 = r.last_commit_hash(short_hash = True)
+    print('fuck', r.head_info() )
+    self.assertEqual( ( 'master', c1, False, 'message 1' ), r.head_info() )
+    
+  @git_temp_home_func()
+  def test_head_info_detached_head(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content, commit_message = 'message 1')
+    c1 = r.last_commit_hash(short_hash = True)
+    r.add_file('bar.txt', 'this is bar')
+    c2 = r.last_commit_hash(short_hash = True)
+    r.checkout(c1)
+    self.assertEqual( ( None, c1, True, 'message 1' ), r.head_info() )
     
 if __name__ == '__main__':
   unit_test.main()

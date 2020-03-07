@@ -88,13 +88,14 @@ class git_repo(object):
   def branch_status(self):
     return git.branch_status(self.root)
 
-  def write_temp_content(self, items, commit = False):
+  def write_temp_content(self, items, commit = False, commit_message = None):
+    commit_message = commit_message or 'add temp content'
     temp_content.write_items(items, self.root)
     if commit:
       if self.has_changes():
         raise RuntimeError('You need a clean tree with no changes to add temp content.')
       self.add('.')
-      self.commit('add temp content', '.')
+      self.commit(commit_message, '.')
 
   def _dot_git_path(self):
     return path.join(self.root, '.git')
@@ -473,5 +474,9 @@ class git_repo(object):
     def _op(repo):
       repo.reset_and_clean(immaculate = immaculate, submodules = submodules)
     self.atexit_operations(_op)
+
+  def head_info(self):
+    'Return information about the HEAD of the repo.'
+    return git.head_info(self.root)
 
 check.register_class(git_repo)

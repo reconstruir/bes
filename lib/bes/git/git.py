@@ -27,13 +27,13 @@ from bes.version.software_version import software_version
 
 from .git_branch import git_branch, git_branch_status
 from .git_branch_list import git_branch_list
+from .git_changelog import git_changelog
 from .git_clone_options import git_clone_options
+from .git_commit_info import git_commit_info
+from .git_head_info import git_head_info
+from .git_modules_file import git_modules_file
 from .git_status import git_status
 from .git_submodule_info import git_submodule_info
-from .git_modules_file import git_modules_file
-from .git_commit_info import git_commit_info
-from .git_changelog import git_changelog
-
 
 class git(object):
   'A class to deal with git.'
@@ -263,9 +263,14 @@ class git(object):
   @classmethod
   def clone_or_pull(clazz, address, dest_dir, options = None):
     if clazz.is_repo(dest_dir):
-      if options and options.reset_to_head:
-        clazz.reset_to_revision(dest_dir, 'HEAD')
 
+      branches = clazz.list_local_branches(dest_dir)
+      print('branches: {}'.format(branches))
+      
+      if options and options.reset_to_head:
+        #clazz.reset_to_revision(dest_dir, 'HEAD')
+        clazz.reset_to_revision(dest_dir, '@{upstream}')
+        
       if clazz.has_changes(dest_dir):
         raise RuntimeError('dest_dir %s has changes.' % (dest_dir))
 
@@ -923,3 +928,9 @@ class git(object):
     if immaculate:
       args.extend([ '-d', '-x' ])
     clazz.call_git(root, args)
+
+  @classmethod
+  def head_info(clazz, root):
+    'Return information about the HEAD of the repo.'
+    rv = clazz.call_git(root, [ 'branch', '--verbose' ])
+    return git_head_info.parse_head_info(rv.stdout)

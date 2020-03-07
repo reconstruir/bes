@@ -24,20 +24,23 @@ class git_temp_repo(object):
   that all operations mimic the behavior of working with a cloned repo.
   '''
   
-  def __init__(self, remote = True, content = None, debug = False, prefix = None):
+  def __init__(self, remote = True, content = None, debug = False,
+               prefix = None, commit_message = None):
     self._debug = debug
     if remote:
-      self._init_remote(content, prefix)
+      self._init_remote(content, prefix, commit_message = commit_message)
     else:
-      self._init_local(content, prefix)
+      self._init_local(content, prefix, commit_message = commit_message)
 
-  def _init_remote(self, content, prefix):
+  def _init_remote(self, content, prefix, commit_message = None):
     if prefix:
       remote_prefix = '{}remote-'.format(prefix)
     else:
       remote_prefix = 'remote-'
     self._remote_repo = self._make_temp_repo(init_args = [ '--bare', '--shared' ],
-                                             debug = self._debug, prefix = remote_prefix)
+                                             debug = self._debug,
+                                             prefix = remote_prefix,
+                                             commit_message = commit_message)
     if prefix:
       local_prefix = '{}local-'.format(prefix)
     else:
@@ -49,20 +52,20 @@ class git_temp_repo(object):
     self._local_repo.clone()
     
     if content:
-      self._local_repo.write_temp_content(items = content, commit = True)
+      self._local_repo.write_temp_content(items = content, commit = True, commit_message = commit_message)
       self._local_repo.push('origin', 'master')
     self.root = self._local_repo.root
     self.address = self._remote_repo.root
     self._transplant_methods(self._local_repo)
 
-  def _init_local(self, content, prefix):
+  def _init_local(self, content, prefix, commit_message = None):
     tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = prefix)
     if self._debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     self._local_repo = git_repo(tmp_dir, address = None)
     self._local_repo.init()
     if content:
-      self._local_repo.write_temp_content(items = content, commit = True)
+      self._local_repo.write_temp_content(items = content, commit = True, commit_message = commit_message)
     self.root = self._local_repo.root
     self.address = None
     self._transplant_methods(self._local_repo)
@@ -84,7 +87,7 @@ class git_temp_repo(object):
     return r
       
   @classmethod
-  def _make_temp_repo(clazz, init_args = None, content = None, debug = False, prefix = None):
+  def _make_temp_repo(clazz, init_args = None, content = None, debug = False, prefix = None, commit_message = None):
     tmp_dir = temp_file.make_temp_dir(delete = not debug, prefix = prefix)
     if debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
@@ -93,5 +96,5 @@ class git_temp_repo(object):
     r.init(*init_args)
     if content:
       check.check_string_seq(content)
-      r.write_temp_content(content, commit = True)
+      r.write_temp_content(content, commit = True, commit_message = commit_message)
     return r
