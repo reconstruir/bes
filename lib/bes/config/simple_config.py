@@ -7,7 +7,7 @@ from bes.compat.StringIO import StringIO
 from bes.fs.file_util import file_util
 from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
-from bes.system.log import log
+from bes.system.log import logger
 from bes.text.tree_text_parser import tree_text_parser
 from bes.text.string_list import string_list
 
@@ -41,43 +41,50 @@ class simple_config(object):
   ---------
   '''
 
+  log = logger('simple_config')
+  
   # Convenience reference so users dont need to import error to catch it
   error = simple_config_error
   
   def __init__(self, sections = None, source = None):
     sections = sections or []
     source = source or '<unknown>'
-    log.add_logging(self, 'simple_config')
-    self.origin = simple_config_origin(source, 1)
-    self.sections = sections[:]
+    self._origin = simple_config_origin(source, 1)
+    self._sections = sections[:]
 
-#  def __getitem__(self, section):
-#    return self.find(section)
-    
   def __str__(self):
     buf = StringIO()
-    for i, section in enumerate(self.sections):
+    for i, section in enumerate(self._sections):
       if i != 0:
         buf.write('\n')
       buf.write(str(section))
     return buf.getvalue()
 
+  def __getattr__(self, section_name):
+    return self.find(section_name)
+
+  def __iter__(self):
+    return iter(self._sections)
+  
+  def __hasattr__(self, section_name):
+    return self.find(section_name) != None
+    
   def add_section(self, section, extends = None, origin = None):
     check.check_string(section)
 
     header = simple_config_section_header(section, extends = extends, origin = origin)
     section = simple_config_section(header, None, origin)
-    self.sections.append(section)
+    self._sections.append(section)
 
   def has_section(self, name):
     check.check_string(name)
-    return next((section for section in self.sections if section.header.name == name), None) is not None
+    return next((section for section in self._sections if section.header_.name == name), None) is not None
     
   def find_sections(self, name, raise_error = True):
     check.check_string(name)
-    result = [ section for section in self.sections if section.header.name == name ]
+    result = [ section for section in self._sections if section.header_.name == name ]
     if not result and raise_error:
-      raise simple_config_error('no sections found: %s' % (name), self.origin)
+      raise simple_config_error('no sections found: %s' % (name), self._origin)
     return result
 
   def find(self, section_name):
@@ -86,7 +93,7 @@ class simple_config(object):
       self.add_section(section_name)
     sections = self.find_sections(section_name)
     if len(sections) != 1:
-      raise simple_config_error('multiple sections found: {}'.format(section_name), self.origin)
+      raise simple_config_error('multiple sections found: {}'.format(section_name), self._origin)
     return sections[0]
   
   def get_value(self, section, key):
@@ -99,7 +106,7 @@ class simple_config(object):
   def get_value(self, section, key):
     sections = self.find_sections(section)
     if len(sections) != 1:
-      raise simple_config_error('multiple sections found: %s' % (section), self.origin)
+      raise simple_config_error('multiple sections found: %s' % (section), self._origin)
     return sections[0].get_value(key)
   
   @classmethod
@@ -212,7 +219,7 @@ class simple_config(object):
 
   def section_names(self):
     'Return a list of all the section names.  Multiple sections with the same name get repeated.'
-    return [ section.header.name for section in self.sections ]
+    return [ section.header_.name for section in self._sections ]
     
   def sections_are_unique(self):
     'Return True if every section has a different name.'
@@ -221,17 +228,46 @@ class simple_config(object):
     
   def update(self, config):
     'Update from another config.  Only works for configs without multiple sections with the same name.'
-    check.check_simple_config(config)
 
     if not self.sections_are_unique():
       raise simple_config_error('update only works if sections have unique names.')
 
+    if check.is_simple_config(config):
+      self._update_with_simple_config(config)
+    elif check.is_dict(config):
+      self._update_with_dict(config)
+    else:
+      raise TypeError('config should be of simple_config or dict type: {}'.format(type(config)))
+
+  def to_dict(self, resolve_env_vars = False):
+    'Return the config as a dict.'
+
+    if not self.sections_are_unique():
+      raise simple_config_error('to_dict() only works if sections have unique names.')
+
+    result = {}
+    for section in self._sections:
+      result[section.header_.name] = section.to_dict(resolve_env_vars = resolve_env_vars)
+    return result
+    
+  def _update_with_simple_config(self, config):
+    'Update from another config.  Only works for configs without multiple sections with the same name.'
+    check.check_simple_config(config)
+
     if not config.sections_are_unique():
       raise simple_config_error('update only works if sections have unique names.')
 
-    for other_section in config.sections:
-      self_section = self.find(other_section.name)
+    for other_section in config._sections:
+      self_section = self.find(other_section.header_.name)
       self_section.set_values(other_section.to_dict(resolve_env_vars = False))
+  
+  def _update_with_dict(self, config):
+    'Update from a dict of dicts.'
+    check.check_dict(config, check.STRING_TYPES, dict)
+
+    for section_name, values in config.items():
+      self_section = self.find(section_name)
+      self_section.set_values(values)
   
 check.register_class(simple_config)
   
