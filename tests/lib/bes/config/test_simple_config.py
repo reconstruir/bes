@@ -33,9 +33,9 @@ credential
 
     sections = s.find_sections('credential')
     self.assertEqual( 2, len(sections) )
-    self.assertEqual( 'credential', sections[0].header.name )
+    self.assertEqual( 'credential', sections[0].header_.name )
     self.assertEqual( 'download', sections[0].find_by_key('type') )
-    self.assertEqual( 'credential', sections[1].header.name )
+    self.assertEqual( 'credential', sections[1].header_.name )
     self.assertEqual( 'upload', sections[1].find_by_key('type') )
     self.assertEqual( {
       'provider': 'pcloud',
@@ -122,8 +122,8 @@ foo extends fruit
 
     sections = s.find_sections('foo')
     self.assertEqual( 1, len(sections) )
-    self.assertEqual( 'foo', sections[0].header.name )
-    self.assertEqual( 'fruit', sections[0].header.extends )
+    self.assertEqual( 'foo', sections[0].header_.name )
+    self.assertEqual( 'fruit', sections[0].header_.extends )
     self.assertEqual( 'green', sections[0].find_by_key('color') )
     self.assertEqual( {
       'color': 'green',
@@ -169,28 +169,28 @@ fruit
     sections = s.find_sections('fruit')
     self.assertEqual( 4, len(sections) )
     
-    self.assertEqual( 'fruit', sections[0].header.name )
+    self.assertEqual( 'fruit', sections[0].header_.name )
     self.assertEqual( 'lemon', sections[0].find_by_key('name') )
     self.assertEqual( 'true', sections[0].find_by_key('tart') )
     self.assertEqual( 'true', sections[0].find_by_key('is_good') )
     self.assertEqual( KVL([ ( 'annotation1', None), ( 'annotation2', None ) ]),
                       sections[0].find_entry('is_good').annotations )
 
-    self.assertEqual( 'fruit', sections[1].header.name )
+    self.assertEqual( 'fruit', sections[1].header_.name )
     self.assertEqual( 'apple', sections[1].find_by_key('name') )
     self.assertEqual( 'true', sections[1].find_by_key('tart') )
     self.assertEqual( 'true', sections[1].find_by_key('is_good') )
     self.assertEqual( KVL([ ( 'annotation2', None ) ]),
                       sections[1].find_entry('is_good').annotations )
     
-    self.assertEqual( 'fruit', sections[2].header.name )
+    self.assertEqual( 'fruit', sections[2].header_.name )
     self.assertEqual( 'watermelon', sections[2].find_by_key('name') )
     self.assertEqual( 'false', sections[2].find_by_key('tart') )
     self.assertEqual( 'true', sections[2].find_by_key('is_good') )
     self.assertEqual( KVL([ ( 'annotation1', None ) ]),
                       sections[2].find_entry('is_good').annotations )
     
-    self.assertEqual( 'fruit', sections[3].header.name )
+    self.assertEqual( 'fruit', sections[3].header_.name )
     self.assertEqual( 'strawberry', sections[3].find_by_key('name') )
     self.assertEqual( 'false', sections[3].find_by_key('tart') )
     self.assertEqual( 'true', sections[3].find_by_key('is_good') )
@@ -257,22 +257,90 @@ fruit
     self.assertEqual( [ 'fruit', 'fruit', 'fruit' ], s.section_names() )
     self.assertFalse( s.sections_are_unique() )
 
-  def test_update_basic(self):
-    c1 = simple_config()
-    c1.find('fruit').set_value('name', 'kiwi')
-    c1.find('fruit').set_value('color', 'green')
-
-    c2 = simple_config()
-    c2.find('fruit').set_value('name', 'lemon')
-    c2.find('fruit').set_value('color', 'yellow')
+  def test_update_with_simple_config(self):
+    text1 = '''\
+fruit
+  name: kiwi
+  color: green
+'''
+    text2 = '''\
+fruit
+  name: lemon
+  color: yellow
+'''
+    c1 = simple_config.from_text(text1)
+    c2 = simple_config.from_text(text2)
 
     c1.update(c2)
     
-    self.assertEqual( 'lemon', c1.find('fruit').get_value('name') )
-    self.assertEqual( 'yellow', c1.find('fruit').get_value('color') )
+    self.assertEqual( 'lemon', c1.fruit.name )
+    self.assertEqual( 'yellow', c1.fruit.color )
 
-    self.assertEqual( 'lemon', c2.find('fruit').get_value('name') )
-    self.assertEqual( 'yellow', c2.find('fruit').get_value('color') )
+    self.assertEqual( 'lemon', c2.fruit.name )
+    self.assertEqual( 'yellow', c2.fruit.color )
+
+  def test_update_with_dict(self):
+    c = simple_config()
+    c.fruit.name = 'kiwi'
+    c.fruit.color = 'green'
+
+    d = {
+      'fruit': {
+        'name': 'lemon',
+        'color': 'yellow',
+      },
+    }
+      
+    c.update(d)
+    
+    self.assertEqual( 'lemon', c.fruit.name )
+    self.assertEqual( 'yellow', c.fruit.color )
+
+  def test_attributes(self):
+    text = '''\
+fruit
+  name: lemon
+
+cheese
+  name: brie
+
+wine
+  name: barolo
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( 'lemon', s.fruit.name )
+    self.assertEqual( 'brie', s.cheese.name )
+    self.assertEqual( 'barolo', s.wine.name )
+
+    s.veggie.name = 'cauliflower'
+    s.veggie.color = 'white'
+
+    self.assertEqual( 'cauliflower', s.veggie.name )
+    self.assertEqual( 'white', s.veggie.color )
+    
+  def test_to_dict(self):
+    text = '''\
+fruit
+  name: lemon
+
+cheese
+  name: brie
+
+wine
+  name: barolo
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( {
+      'fruit': {
+        'name': 'lemon',
+      },
+      'cheese': {
+        'name': 'brie',
+      },
+      'wine': {
+        'name': 'barolo',
+      },
+    }, s.to_dict() )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -15,41 +15,40 @@ from .simple_config_origin import simple_config_origin
 from .simple_config_entry import simple_config_entry
 from .simple_config_section_header import simple_config_section_header
 
-class simple_config_section(namedtuple('simple_config_section', 'header, entries, origin')):
+class simple_config_section(namedtuple('simple_config_section', 'header_, entries_, origin_')):
 
-  def __new__(clazz, header, entries, origin):
-    check.check_simple_config_section_header(header)
-    check.check_simple_config_entry_seq(entries, allow_none = True)
-    check.check_simple_config_origin(origin, allow_none = True)
+  def __new__(clazz, header_, entries_, origin_):
+    check.check_simple_config_section_header(header_)
+    check.check_simple_config_entry_seq(entries_, allow_none = True)
+    check.check_simple_config_origin(origin_, allow_none = True)
     
-    return clazz.__bases__[0].__new__(clazz, header, entries or [], origin)
+    return clazz.__bases__[0].__new__(clazz, header_, entries_ or [], origin_)
 
-  @property
-  def name(self):
-    return self.header.name
+  def __iter__(self):
+    return iter(self.entries_)
   
   def __str__(self):
     buf = StringIO()
-    buf.write(self.name)
+    buf.write(self.header_.name)
     buf.write('\n')
-    for i, entry in enumerate(self.entries):
+    for i, entry in enumerate(self.entries_):
       if i != 0:
         buf.write('\n')
       buf.write('  ')
       buf.write(str(entry))
     return buf.getvalue()
 
-#  def __getitem__(self, key):
-#    return self.find_by_key(key)
-
-#  def __setitem__(self, key, value):
-#    self.set_value(key, value)
+  def __getattr__(self, key):
+    return self.find_by_key(key)
+  
+  def __setattr__(self, key, value):
+    self.set_value(key, value)
   
   def find_by_key(self, key, raise_error = True, resolve_env_vars = True):
     entry = self.find_entry(key)
     if not entry:
       if raise_error:
-        raise simple_config_error('"{}" entry not found'.format(key), self.origin)
+        raise simple_config_error('"{}" entry not found'.format(key), self.origin_)
       return None
     value = entry.value.value
     if resolve_env_vars:
@@ -60,10 +59,10 @@ class simple_config_section(namedtuple('simple_config_section', 'header, entries
     index = self.entry_index(key)
     if index < 0:
       return None
-    return self.entries[index]
+    return self.entries_[index]
 
   def entry_index(self, key):
-    for i, entry in enumerate(self.entries):
+    for i, entry in enumerate(self.entries_):
       if entry.value.key == key:
         return i
     return -1
@@ -80,21 +79,21 @@ class simple_config_section(namedtuple('simple_config_section', 'header, entries
 
     index = self.entry_index(key)
     if index >= 0:
-      entry = self.entries[index]
+      entry = self.entries_[index]
       assert entry.value.key == key
-      self.entries[index] = simple_config_entry(key_value(entry.value.key, value), entry.origin, entry.annotations)
+      self.entries_[index] = simple_config_entry(key_value(entry.value.key, value), entry.origin, entry.annotations)
       return
     
-    if self.entries:
-      last_origin = self.entries[-1].origin
+    if self.entries_:
+      last_origin = self.entries_[-1].origin
     else:
-      last_origin = self.origin
+      last_origin = self.origin_
     if last_origin:
       new_origin = simple_config_origin(last_origin.source, last_origin.line_number + 1)
     else:
       new_origin = None
     new_entry = simple_config_entry(key_value(key, value), origin = new_origin)
-    self.entries.append(new_entry)
+    self.entries_.append(new_entry)
     
   def get_bool(self, key, default = False):
     value = self.find_by_key(key, raise_error = False, resolve_env_vars = False)
@@ -106,7 +105,7 @@ class simple_config_section(namedtuple('simple_config_section', 'header, entries
   def to_key_value_list(self, resolve_env_vars = False):
     'Return values as a key_value_list optionally resolving environment variables.'
     result = key_value_list()
-    for entry in self.entries:
+    for entry in self.entries_:
       value = entry.value.value
       if resolve_env_vars:
         value = self._resolve_variables(value, entry.origin)

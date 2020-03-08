@@ -81,18 +81,18 @@ class simple_config_files(object):
     dep_map = {}
     section_map = {}
     for config in configs:
-      for section in config.config.sections:
-        section_name = section.header.name
-        extends = set([ section.header.extends ] if section.header.extends else [])
+      for section in config.config._sections:
+        section_name = section.header_.name
+        extends = set([ section.header_.extends ] if section.header_.extends else [])
         if section_name in extends:
           msg = 'Self dependency for {} in {}'.format(section_name,
-                                                        section.origin.source)
-          raise simple_config_error(msg, section.origin)
+                                                      section.origin_.source)
+          raise simple_config_error(msg, section.origin_)
         if section_name in section_map:
           existing_section = section_map[section_name]
           msg = 'Duplicate config section "{}"\n  {}\n  {}'.format(section_name,
-                                                                   section.origin.source,
-                                                                   existing_section.origin.source)
+                                                                   section.origin_.source,
+                                                                   existing_section.origin_.source)
           raise simple_config_error(msg, section.origin)
         section_map[section_name] = section
         dep_map[section_name] = extends
@@ -128,7 +128,7 @@ class simple_config_files(object):
     entries = []
     for dep in deps:
       s = self._section_map[dep]
-      for e in s.entries:
+      for e in s:
         entries.append(e)
     entries = [ e for e in reversed(entries) ]
     seen = set()
