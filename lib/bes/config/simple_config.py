@@ -88,6 +88,9 @@ class simple_config(object):
     return result
 
   def find(self, section_name):
+    return self.section(section_name)
+  
+  def section(self, section_name):
     check.check_string(section_name)
     if not self.has_section(section_name):
       self.add_section(section_name)
