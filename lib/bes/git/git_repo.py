@@ -316,6 +316,10 @@ class git_repo(object):
   def is_short_hash(clazz, h):
     return git.is_short_hash(h)
 
+  @classmethod
+  def is_hash(clazz, h):
+    return git.is_hash(h)
+
   def short_hash(self, long_hash):
     return git.short_hash(self.root, long_hash)
 
