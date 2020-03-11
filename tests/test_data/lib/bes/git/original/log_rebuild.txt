@@ -1,0 +1,104 @@
+commit d1f0c5b542b483f4352b7d56b43d5fe1dc420779
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Mon Dec 23 09:00:48 2019 -0800
+
+    add support for python scripts that impersonate pkgconfig
+
+commit bd2bd691a0cffdc3049310c828fa41177000e069
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Mon Dec 23 07:30:21 2019 -0800
+
+    comment out java for now
+
+commit 5eee3d8ed5282dd47052c3154106f50da505d4c7
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Mon Dec 23 07:00:56 2019 -0800
+
+    clean it up
+
+commit 56c8d49a379fcb54d53613700c7431148e541fce
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Mon Dec 23 06:49:12 2019 -0800
+
+    better error when theres an invalid section
+
+commit 5d6e72322514f58f232ff86d558f798ae7f3e5b7
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Mon Dec 23 06:15:14 2019 -0800
+
+    add script to run test ingestion
+
+commit 93bf11ad22441a5bcc0043252167a5c20b57eea0
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Mon Dec 23 04:39:05 2019 -0800
+
+    add cat command
+
+commit 2767448d272929be86a94c9926d369b0075bb251
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Mon Dec 23 04:38:47 2019 -0800
+
+    update for checksum interface
+
+commit f20807249aaed4b6342139d1d8bc96f3b9eaf8ef
+Merge: 68c2d183 ad16d2ce
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Mon Nov 25 10:41:58 2019 -0800
+
+    Merge branch 'master' of gitlab.com:rebuilder/rebuild
+
+commit 68c2d183ba10785d33b971fc65cd671a23d8b01a
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Mon Nov 25 10:40:02 2019 -0800
+
+    wip vfs
+
+commit ad16d2ce22393d501ba5dd4a6ca5a9a326274868
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Sat Nov 16 22:51:32 2019 -0800
+
+    update unit test for changes to deb files.
+
+commit 1d882891942876de0a1ffa00dd3139b0a33e8321 (tag: 1.0.98)
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Thu Oct 31 10:43:02 2019 -0700
+
+    update for changes in config
+
+commit bf183efc244687fb9c644ca166dab33a9d818daf (tag: 1.0.97)
+Merge: 12f94165 a71bbc4b
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Wed Oct 16 11:01:07 2019 -0700
+
+    Merge branch 'master' of gitlab.com:rebuilder/rebuild
+
+commit 12f94165401a4c2c2342c5b0a4e7d6c459e4d147
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Wed Oct 16 01:38:08 2019 -0700
+
+    s/archive_foo/archive_to_file/
+
+commit a71bbc4b9a5368d8adc6e20cdbf6c99f48312fa8 (tag: 1.0.96)
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Sun Oct 13 22:32:57 2019 -0700
+
+    always decode the output as utf8
+
+commit 44e1a9aa4ef80fd08b8b0adbdbf0e46f97dcdc3e
+Merge: e1e494f3 e83d03fc
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Sun Oct 13 22:11:31 2019 -0700
+
+    Merge branch 'vfs'
+
+commit e83d03fcb0f17d7a5087b65bc65df0c356c768a7 (origin/vfs)
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Sun Oct 13 22:11:05 2019 -0700
+
+    add
+
+commit e1e494f306850b7a241a7b88f08fd2d2d92e78a2
+Author: Ramiro Estrugo <restrugo@imvu.com>
+Date:   Sun Oct 13 13:50:17 2019 -0700
+
+    add retool.py

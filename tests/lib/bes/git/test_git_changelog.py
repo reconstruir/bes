@@ -5,180 +5,194 @@
 from bes.fs.file_util import file_util
 from bes.testing.unit_test import unit_test
 from bes.git.git_changelog import git_changelog
-from bes.git.git_commit_info import git_commit_info
+from bes.git.git_changelog_options import git_changelog_options as options
 
 
 def create_list_of_commit_info(filename):
-  result = []
   log = file_util.read(filename, codec='utf-8')
   log = log.strip()
 
-  for line in log.split('\n'):
-    revision, message = line.split(' ', 1)
-    commit_info = git_commit_info(revision, message)
-    result.append(commit_info)
-
-  return result
+  return git_changelog.convert_changelog_string(log)
 
 
 class test_truncate_changelog(unit_test):
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/git'
 
   def test_no_truncation(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
-    result = git_changelog.truncate_changelog(list_of_commit_info)
-    original_log = file_util.read(self.data_path('log.txt'), codec='utf-8')
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+    result_log = git_changelog.truncate_changelog(list_of_commit_info, options())
+    original_log = file_util.read(self.data_path('result/log_no_truncation.txt'), codec='utf-8')
     original_log = original_log.strip()
-    self.assertEqual(original_log, result)
+    self.assertEqual(original_log, result_log)
+
+  def test_disable_date(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+    result_log = git_changelog.truncate_changelog(list_of_commit_info, options(disable_date=True))
+    original_log = file_util.read(self.data_path('result/log_disable_date.txt'), codec='utf-8')
+    original_log = original_log.strip()
+    self.assertEqual(original_log, result_log)
+
+  def test_disable_author(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+    result_log = git_changelog.truncate_changelog(list_of_commit_info, options(disable_author=True))
+    original_log = file_util.read(self.data_path('result/log_disable_author.txt'), codec='utf-8')
+    original_log = original_log.strip()
+    self.assertEqual(original_log, result_log)
+
+  def test_disable_date_and_author(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+    result_log = git_changelog.truncate_changelog(list_of_commit_info, options(disable_date=True, disable_author=True))
+    original_log = file_util.read(self.data_path('result/log_disable_date_and_author.txt'), codec='utf-8')
+    original_log = original_log.strip()
+    self.assertEqual(original_log, result_log)
 
   def test_truncate_revisions_1(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
 
-    for max_chars in range(1200, 928, -1):
-      result = git_changelog.truncate_changelog(list_of_commit_info, max_chars=max_chars, revision_chars=1)
-      original_log = file_util.read(self.data_path('log_revision_chars_1.txt'), codec='utf-8')
+    for max_chars in range(5668, 4148, -1):
+      result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars, revision_chars=1))
+      original_log = file_util.read(self.data_path('result/log_truncate_revisions_1.txt'), codec='utf-8')
       original_log = original_log.strip()
-      self.assertEqual(original_log, result)
+      self.assertEqual(original_log, result_log)
 
   def test_truncate_revisions_7(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
 
-    for max_chars in range(1200, 1048, -1):
-      result = git_changelog.truncate_changelog(list_of_commit_info, max_chars=max_chars)
-      original_log = file_util.read(self.data_path('log_revision_chars_7.txt'), codec='utf-8')
+    for max_chars in range(5668, 4381, -1):
+      result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars, revision_chars=7))
+      original_log = file_util.read(self.data_path('result/log_truncate_revisions_7.txt'), codec='utf-8')
       original_log = original_log.strip()
-      self.assertEqual(original_log, result)
+      self.assertEqual(original_log, result_log)
 
   def test_truncate_revisions_10(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
 
-    for max_chars in range(1200, 1109, -1):
-      result = git_changelog.truncate_changelog(list_of_commit_info, max_chars=max_chars, revision_chars=10)
-      original_log = file_util.read(self.data_path('log_revision_chars_10.txt'), codec='utf-8')
+    for max_chars in range(5668, 4498, -1):
+      result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars, revision_chars=10))
+      original_log = file_util.read(self.data_path('result/log_truncate_revisions_10.txt'), codec='utf-8')
       original_log = original_log.strip()
-      self.assertEqual(original_log, result)
+      self.assertEqual(original_log, result_log)
 
-  def test_truncate_one_merge_commit_message(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
+  def test_truncate_date(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
 
-    for max_chars in range(1048, 1008, -1):
-      result = git_changelog.truncate_changelog(list_of_commit_info, max_chars=max_chars)
-      original_log = file_util.read(self.data_path('log_one_merge_commit.txt'), codec='utf-8')
+    for max_chars in range(4381, 3182, -1):
+      result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
+      original_log = file_util.read(self.data_path('result/log_truncate_date.txt'), codec='utf-8')
       original_log = original_log.strip()
-      self.assertEqual(original_log, result)
+      self.assertEqual(original_log, result_log)
 
-  def test_truncate_two_merge_commit_messages(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
+  def test_truncate_author(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
 
-    for max_chars in range(1008, 968, -1):
-      result = git_changelog.truncate_changelog(list_of_commit_info, max_chars=max_chars)
-      original_log = file_util.read(self.data_path('log_all_merge_commits.txt'), codec='utf-8')
+    for max_chars in range(3182, 2770, -1):
+      result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
+      original_log = file_util.read(self.data_path('result/log_truncate_author.txt'), codec='utf-8')
       original_log = original_log.strip()
-      self.assertEqual(original_log, result)
+      self.assertEqual(original_log, result_log)
 
-  def test_truncate_one_commit_message(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
+  def test_truncate_one_merge_commit(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
 
-    for max_chars in range(968, 896, -1):
-      result = git_changelog.truncate_changelog(list_of_commit_info, max_chars=max_chars)
-      original_log = file_util.read(self.data_path('log_one_message.txt'), codec='utf-8')
+    for max_chars in range(2770, 2730, -1):
+      result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
+      original_log = file_util.read(self.data_path('result/log_truncate_one_merge_commit.txt'), codec='utf-8')
       original_log = original_log.strip()
-      self.assertEqual(original_log, result)
+      self.assertEqual(original_log, result_log)
 
-  def test_truncate_two_commit_messages(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
+  def test_truncate_all_merge_commits(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
 
-    for max_chars in range(896, 878, -1):
-      result = git_changelog.truncate_changelog(list_of_commit_info, max_chars=max_chars)
-      original_log = file_util.read(self.data_path('log_two_messages.txt'), codec='utf-8')
+    for max_chars in range(2310, 2270, -1):
+      result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
+      original_log = file_util.read(self.data_path('result/log_truncate_all_merge_commits.txt'), codec='utf-8')
       original_log = original_log.strip()
-      self.assertEqual(original_log, result)
+      self.assertEqual(original_log, result_log)
 
-  def test_truncate_eleven_commit_messages(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
+  def test_truncate_one_message(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
 
-    for max_chars in range(650, 636, -1):
-      result = git_changelog.truncate_changelog(list_of_commit_info, max_chars=max_chars)
-      original_log = file_util.read(self.data_path('log_eleven_messages.txt'), codec='utf-8')
+    for max_chars in range(2270, 2260, -1):
+      result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
+      original_log = file_util.read(self.data_path('result/log_truncate_one_message.txt'), codec='utf-8')
       original_log = original_log.strip()
-      self.assertEqual(original_log, result)
+      self.assertEqual(original_log, result_log)
 
-  def test_truncate_lines(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
+  def test_truncate_five_messages(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
 
-    for max_chars in range(510, 492, -1):
-      result = git_changelog.truncate_changelog(list_of_commit_info, max_chars=max_chars)
-      original_log = file_util.read(self.data_path('log_eight_lines.txt'), codec='utf-8')
+    for max_chars in range(2125, 2056, -1):
+      result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
+      original_log = file_util.read(self.data_path('result/log_truncate_five_messages.txt'), codec='utf-8')
       original_log = original_log.strip()
-      self.assertEqual(original_log, result)
+      self.assertEqual(original_log, result_log)
+
+  def test_truncate_one_line(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+
+    for max_chars in range(1510, 1492, -1):
+      result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
+      original_log = file_util.read(self.data_path('result/log_truncate_one_line.txt'), codec='utf-8')
+      original_log = original_log.strip()
+      self.assertEqual(original_log, result_log)
+
+  def test_truncate_five_lines(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+
+    for max_chars in range(1420, 1402, -1):
+      result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars))
+      original_log = file_util.read(self.data_path('result/log_truncate_five_lines.txt'), codec='utf-8')
+      original_log = original_log.strip()
+      self.assertEqual(original_log, result_log)
+
+  def test_truncate_with_new_drop_message(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+
+    for max_chars in range(1420, 1402, -1):
+      result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars, drop_message='XxXxYyYyW'))
+      original_log = file_util.read(self.data_path('result/log_truncate_with_new_drop_message.txt'), codec='utf-8')
+      original_log = original_log.strip()
+      self.assertEqual(original_log, result_log)
+
+  def test_truncate_message_chars_9(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+
+    for max_chars in range(1420, 1402, -1):
+      result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=max_chars, message_chars=9))
+      original_log = file_util.read(self.data_path('result/log_truncate_message_chars_9.txt'), codec='utf-8')
+      original_log = original_log.strip()
+      self.assertEqual(original_log, result_log)
+
+  def test_truncate_max_chars_200(self):
+    list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+
+    result_log = git_changelog.truncate_changelog(list_of_commit_info, options(max_chars=100))
+    original_log = file_util.read(self.data_path('result/log_truncate_max_chars_100.txt'), codec='utf-8')
+    original_log = original_log.strip()
+    self.assertEqual(original_log, result_log)
 
   def test_invalid_type_for_list_of_commit_info(self):
     invalid_types = (None, True, 14, 15.6, 'a', ('a', 'b'), {'a': 'b'}, {'a'})
 
     for list_of_commit_info in invalid_types:
       with self.assertRaises(TypeError):
-        git_changelog.truncate_changelog(list_of_commit_info)
+        git_changelog.truncate_changelog(list_of_commit_info, options())
 
   def test_invalid_inner_type_for_list_of_commit_info(self):
     invalid_inner_types = (None, True, 14, 15.6, 'a', ('a', 'b'), {'a': 'b'}, {'a'})
 
     for inner_type in invalid_inner_types:
       with self.assertRaises(TypeError):
-        git_changelog.truncate_changelog([inner_type])
-
-  def test_invalid_type_for_max_chars(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
-    invalid_types = (None, 15.6, 'a', ('a', 'b'), {'a': 'b'}, {'a'})
-
-    for max_chars in invalid_types:
-      with self.assertRaises(TypeError):
-        git_changelog.truncate_changelog(list_of_commit_info, max_chars=max_chars)
-
-  def test_forbbiden_values_for_max_chars(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
-
-    for max_chars in range(0, -10, -1):
-      with self.assertRaises(ValueError):
-        git_changelog.truncate_changelog(list_of_commit_info, max_chars=max_chars)
-
-  def test_invalid_type_for_revision_chars(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
-    invalid_types = (None, 15.6, 'a', ('a', 'b'), {'a': 'b'}, {'a'})
-
-    for revision_chars in invalid_types:
-      with self.assertRaises(TypeError):
-        git_changelog.truncate_changelog(list_of_commit_info, revision_chars=revision_chars)
-
-  def test_forbbiden_values_for_revision_chars(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
-
-    for revision_chars in range(0, -10, -1):
-      with self.assertRaises(ValueError):
-        git_changelog.truncate_changelog(list_of_commit_info, revision_chars=revision_chars)
-
-  def test_invalid_type_for_balance(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
-    invalid_types = (None, 14, 'a', ('a', 'b'), {'a': 'b'}, {'a'})
-
-    for balance in invalid_types:
-      with self.assertRaises(TypeError):
-        git_changelog.truncate_changelog(list_of_commit_info, balance=balance)
-
-  def test_forbbiden_values_for_balance(self):
-    list_of_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
-
-    for balance in (-10.0, -5.0, -1.0, -0.5, -0.001, -0.0, 1.001, 1.5, 2.0, 5.0, 10.0):
-      with self.assertRaises(ValueError):
-        git_changelog.truncate_changelog(list_of_commit_info, balance=balance)
+        git_changelog.truncate_changelog([inner_type], options())
 
 
 class test_truncate_changelogs(unit_test):
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/git'
 
-  def test_truncate_three_repos(self):
-    bes_commit_info = create_list_of_commit_info(self.data_path('log.txt'))
-    rebuild_commit_info = create_list_of_commit_info(self.data_path('log_rebuild.txt'))
-    ego_automation_commit_info = create_list_of_commit_info(self.data_path('log_ego_automation.txt'))
+  def test_three_repos_no_truncation(self):
+    bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+    rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
+    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_ego_automation.txt'))
 
     dict_commit_info = {
       'bes': bes_commit_info,
@@ -186,17 +200,58 @@ class test_truncate_changelogs(unit_test):
       'ego_automation': ego_automation_commit_info
     }
 
-    result = git_changelog.truncate_changelogs(dict_commit_info, max_chars=1400)
-    original_log = file_util.read(self.data_path('log_three_repos.txt'), codec='utf-8')
+    result = git_changelog.truncate_changelogs(dict_commit_info, options())
+    original_log = file_util.read(self.data_path('result/log_three_repos_no_truncation.txt'), codec='utf-8')
     original_log = original_log.strip()
     self.assertEqual(original_log, result)
 
-  def test_invalid_type_for_dict_of_list_of_commit_info(self):
-    invalid_types = (None, True, 14, 15.6, 'a', ('a', 'b'), ['a', 'b'], {'a'})
+  def test_three_repos_max_chars_2000(self):
+    bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+    rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
+    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_ego_automation.txt'))
 
-    for dict_of_list_of_commit_info in invalid_types:
-      with self.assertRaises(TypeError):
-        git_changelog.truncate_changelogs(dict_of_list_of_commit_info)
+    dict_commit_info = {
+      'bes': bes_commit_info,
+      'rebuild': rebuild_commit_info,
+      'ego_automation': ego_automation_commit_info
+    }
+
+    result = git_changelog.truncate_changelogs(dict_commit_info, options(max_chars=2000))
+    original_log = file_util.read(self.data_path('result/log_three_repos_max_chars_2000.txt'), codec='utf-8')
+    original_log = original_log.strip()
+    self.assertEqual(original_log, result)
+
+  def test_three_repos_max_chars_1000(self):
+    bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+    rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
+    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_ego_automation.txt'))
+
+    dict_commit_info = {
+      'bes': bes_commit_info,
+      'rebuild': rebuild_commit_info,
+      'ego_automation': ego_automation_commit_info
+    }
+
+    result = git_changelog.truncate_changelogs(dict_commit_info, options(max_chars=1000))
+    original_log = file_util.read(self.data_path('result/log_three_repos_max_chars_1000.txt'), codec='utf-8')
+    original_log = original_log.strip()
+    self.assertEqual(original_log, result)
+
+  def test_three_repos_max_chars_500(self):
+    bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+    rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
+    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_ego_automation.txt'))
+
+    dict_commit_info = {
+      'bes': bes_commit_info,
+      'rebuild': rebuild_commit_info,
+      'ego_automation': ego_automation_commit_info
+    }
+
+    result = git_changelog.truncate_changelogs(dict_commit_info, options(max_chars=500))
+    original_log = file_util.read(self.data_path('result/log_three_repos_max_chars_500.txt'), codec='utf-8')
+    original_log = original_log.strip()
+    self.assertEqual(original_log, result)
 
 
 if __name__ == '__main__':

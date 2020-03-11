@@ -1,0 +1,33 @@
+65ca65e Use full log info
+8adf766 Add method that converts changelog from string to the commit_info list
+d93e327 dont use pkgutil to manage bes_shell.sh because it doesnt work under pkgutil.
+2afb5f9 XxXxYyYyW
+cb6afd9 significant refactor to flesh out the interface
+da72ada XxXxYyYyW
+bc22cd2 add support for using ~/.bes_test/bes_test.config to configure bes_test behavior.  Start by using it manage which environment variables should be kept when making the environment clean for test runs.
+18def57 change __str__ to print the info out in the same format as the changelog
+a0d5903 rewrite parsing of entry keys annotations and values to be more robust and throw error for invalid keys.
+bf6ee7f XxXxYyYyW
+660f29e add update_config() and a unit test to prove it works.
+5f8109a Create tests for truncate_changelogs
+b2bc3ea Add support for multiple repos for truncate functionality
+690f963 Move changelog_as_string to git module
+5fde2a1 properly parse remote tags.
+1f3d897 Enhance git_commit_info structure
+8925ee5 Create new structure for git changelog
+6294316 cleanup search() function to accept some useful args.  rename if from grep()
+69657e1 add utils
+39bfc64 XxXxYyYyW
+8ef94cb XxXxYyYyW
+9aa9212 XxXxYyYyW
+3f0949a XxXxYyYyW
+d2d12e6 XxXxYyYyW
+a20da4b XxXxYyYyW
+3bab84c XxXxYyYyW
+837bce7 XxXxYyYyW
+43e476f XxXxYyYyW
+ae38dc1 XxXxYyYyW
+f24cb25 XxXxYyYyW
+884e006 XxXxYyYyW
+803ae1c XxXxYyYyW
+ed21369 XxXxYyYyW
