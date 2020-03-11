@@ -186,5 +186,73 @@ class test_truncate_changelog(unit_test):
         git_changelog.truncate_changelog([inner_type], options())
 
 
+class test_truncate_changelogs(unit_test):
+  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/git'
+
+  def test_three_repos_no_truncation(self):
+    bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+    rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
+    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_ego_automation.txt'))
+
+    dict_commit_info = {
+      'bes': bes_commit_info,
+      'rebuild': rebuild_commit_info,
+      'ego_automation': ego_automation_commit_info
+    }
+
+    result = git_changelog.truncate_changelogs(dict_commit_info, options())
+    original_log = file_util.read(self.data_path('result/log_three_repos_no_truncation.txt'), codec='utf-8')
+    original_log = original_log.strip()
+    self.assertEqual(original_log, result)
+
+  def test_three_repos_max_chars_2000(self):
+    bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+    rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
+    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_ego_automation.txt'))
+
+    dict_commit_info = {
+      'bes': bes_commit_info,
+      'rebuild': rebuild_commit_info,
+      'ego_automation': ego_automation_commit_info
+    }
+
+    result = git_changelog.truncate_changelogs(dict_commit_info, options(max_chars=2000))
+    original_log = file_util.read(self.data_path('result/log_three_repos_max_chars_2000.txt'), codec='utf-8')
+    original_log = original_log.strip()
+    self.assertEqual(original_log, result)
+
+  def test_three_repos_max_chars_1000(self):
+    bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+    rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
+    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_ego_automation.txt'))
+
+    dict_commit_info = {
+      'bes': bes_commit_info,
+      'rebuild': rebuild_commit_info,
+      'ego_automation': ego_automation_commit_info
+    }
+
+    result = git_changelog.truncate_changelogs(dict_commit_info, options(max_chars=1000))
+    original_log = file_util.read(self.data_path('result/log_three_repos_max_chars_1000.txt'), codec='utf-8')
+    original_log = original_log.strip()
+    self.assertEqual(original_log, result)
+
+  def test_three_repos_max_chars_500(self):
+    bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
+    rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
+    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_ego_automation.txt'))
+
+    dict_commit_info = {
+      'bes': bes_commit_info,
+      'rebuild': rebuild_commit_info,
+      'ego_automation': ego_automation_commit_info
+    }
+
+    result = git_changelog.truncate_changelogs(dict_commit_info, options(max_chars=500))
+    original_log = file_util.read(self.data_path('result/log_three_repos_max_chars_500.txt'), codec='utf-8')
+    original_log = original_log.strip()
+    self.assertEqual(original_log, result)
+
+
 if __name__ == '__main__':
   unit_test.main()
