@@ -35,8 +35,8 @@ class git_changelog_options(object):
     check.check_bool(disable_author)
     check.check_string(drop_message, allow_none=True)
 
-    if max_chars and max_chars < 200:
-      raise ValueError("max_chars argument can't be less than 200")
+    if max_chars and max_chars < 100:
+      raise ValueError("max_chars argument can't be less than 100")
     if revision_chars < 1:
       raise ValueError("revision_chars argument can't be less than 1")
     if message_chars and message_chars < 1:

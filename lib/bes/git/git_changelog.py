@@ -148,6 +148,9 @@ class git_changelog:
     list_of_commit_info.reverse()
 
     while total_chars > options.max_chars:
+      # the purpose of this line is sync total_chars parameter (BUG)
+      total_chars = len('\n'.join(str(elem) for elem in list_of_commit_info))
+
       limit = int(len(list_of_commit_info) * options.balance) + 1
       for index, commit_info in enumerate(list_of_commit_info):
         if index == limit:
@@ -168,7 +171,7 @@ class git_changelog:
         if index == limit:
           break
 
-        start_length = len(list_of_commit_info[0])
+        start_length = len(list_of_commit_info[index])
         total_chars -= start_length + 1
 
         if total_chars <= options.max_chars:
