@@ -904,22 +904,16 @@ class git(object):
     revision_since = revision_since if revision_since else 'origin'
     revision_until = revision_until if revision_until else 'HEAD'
     revisions_range = '{}..{}'.format(revision_since, revision_until)
-    args = ['log', revisions_range, '--pretty=oneline']
-    git_changelog = clazz.call_git(root, args)
-    git_changelog = git_changelog.stdout.strip()
+    args = ['log', revisions_range]
+    data = clazz.call_git(root, args)
+    changelog_string = data.stdout.strip()
 
-    result = []
-    for elem in git_changelog.split('\n'):
-      revision, message = elem.split(' ', 1)
-      commit_info = git_commit_info(revision, message)
-      result.append(commit_info)
-
-    return result
+    return git_changelog.convert_changelog_string(changelog_string)
 
   @classmethod
-  def changelog_as_string(clazz, root, revision_since, revision_until, max_chars=4000, revision_chars=7, balance=0.5):
+  def changelog_as_string(clazz, root, revision_since, revision_until, options):
     commit_info_data = clazz.changelog(root, revision_since, revision_until)
-    return git_changelog.truncate_changelog(commit_info_data, max_chars, revision_chars, balance)
+    return git_changelog.truncate_changelog(commit_info_data, options)
 
   @classmethod
   def clean(clazz, root, immaculate = True):

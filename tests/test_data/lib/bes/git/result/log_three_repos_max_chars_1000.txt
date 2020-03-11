@@ -1,0 +1,27 @@
+bes:
+65ca65e Use full log info
+8adf766 Add method that converts changelog from string to the commit_info list
+d93e327 dont use pkgutil to manage bes_shell.sh because it doesnt work under pkgutil.
+2afb5f9 [dropped]
+cb6afd9 significant refactor to flesh out the interface
+da72ada [dropped]
+bc22cd2 [dropped]
+
+rebuild:
+d1f0c5b add support for python scripts that impersonate pkgconfig
+bd2bd69 comment out java for now
+5eee3d8 clean it up
+56c8d49 better error when theres an invalid section
+5d6e723 add script to run test ingestion
+93bf11a add cat command
+2767448 update for checksum interface
+f208072 [dropped]
+68c2d18 [dropped]
+
+ego_automation:
+7355f60 finish changelog.  final proper slicing of commits to support to and from revisions
+c9bd206 cleanup resolve of to and from revisions for changelog()
+a6e40ef dont import until needed
+2e07aae dont import until needed
+d62085b have no default branch it will get determined
+ff95921 move constant to a shareable place

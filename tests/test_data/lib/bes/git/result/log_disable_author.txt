@@ -1,0 +1,39 @@
+65ca65eee1e27b5901dc99589a32b8519bbf756a Tue Mar 3 11:25:57 2020 +0300 Use full log info
+8adf7669df9b61b6e42ad8a0ec6cbf39932de28a Tue Mar 3 11:25:35 2020 +0300 Add method that converts changelog from string to the commit_info list
+d93e32755915e35d154a8db2546c49e68bcf2f3f Wed Feb 26 17:17:01 2020 -0800 dont use pkgutil to manage bes_shell.sh because it doesnt work under pkgutil.
+2afb5f9dd83e3802ce42ebb50e67b9fbf8fa55dd Sat Feb 22 20:11:57 2020 -0800 Merge branch 'master' of gitlab.com:rebuilder/bes
+cb6afd96d52fedd6aebd72ddc85598ca3eccf9f0 Fri Feb 21 23:31:28 2020 -0800 significant refactor to flesh out the interface
+da72ada689430260ff0f8011bd74b255fccc0258 Fri Feb 21 23:17:19 2020 -0800 Merge branch 'master' of gitlab.com:rebuilder/bes
+bc22cd24fe9e596c23fc9b34d0f99f030f748aa3 Fri Feb 21 21:02:03 2020 -0800 add support for using ~/.bes_test/bes_test.config to configure bes_test behavior.  Start by using it manage which environment variables should be kept when making the environment clean for test runs.
+18def57e9910a7e9a3e29f90eb5946f18ec69076 Fri Feb 21 21:01:14 2020 -0800 change __str__ to print the info out in the same format as the changelog
+a0d5903ea79342203cd8f431378a1dc814f705a3 Fri Feb 21 17:27:06 2020 -0800 rewrite parsing of entry keys annotations and values to be more robust and throw error for invalid keys.
+bf6ee7f192e9ce79f5c0d8df03cb035bbb79d874 Fri Feb 21 00:04:10 2020 +0000 Merge branch 'git-changelog-upgrade' into 'master'  Git changelog upgrade  See merge request rebuilder/bes!3
+660f29e0b1a70cb6da4070c9a4d20aa21480a391 Thu Feb 20 13:09:46 2020 -0800 add update_config() and a unit test to prove it works.
+5f8109ac13015e3c516870973e420f4b2cf5894c Wed Feb 19 17:03:42 2020 +0300 Create tests for truncate_changelogs
+b2bc3eab8179babe17824c31a92c8e90dd0bb330 Wed Feb 19 17:03:24 2020 +0300 Add support for multiple repos for truncate functionality
+690f9630b2d4e83d939248b22f0a4a784325f952 Wed Feb 19 10:18:47 2020 +0300 Move changelog_as_string to git module
+5fde2a19ad69ed80ca1853cf2d5afaf741322761 Tue Feb 18 15:30:34 2020 -0800 properly parse remote tags.
+1f3d89713f53097f03342669097d1fa2dfe84295 Mon Feb 17 16:22:57 2020 +0300 Enhance git_commit_info structure
+8925ee58527919ac15b2a0e9137463020ba15b6c Mon Feb 17 15:13:44 2020 +0300 Create new structure for git changelog
+629431671c0c09eae0029036e2296ec5b4d5304c Sun Feb 16 16:35:15 2020 -0800 cleanup search() function to accept some useful args.  rename if from grep()
+69657e1ca3f2a17e1e14bf57db2fd78361bb09ae Sun Feb 16 13:30:35 2020 -0800 add utils
+39bfc647c407f218826f127d723eb677c4913e34 Fri Feb 14 16:47:28 2020 -0800 Add git_repo.atexit_reset()
+8ef94cbff0a3fac09cd92f8dca8a2c22db9f600d Fri Feb 14 16:32:20 2020 -0800 fix a bug in git_repo.save_file() that assumed it was always getting added to the git index. Supress deprecation warnings that are harmless and got introduces in python 3.7 Cleanup the clean, reset and and atexit versions of those interfaces.
+9aa921287778e802a18adb1e3809b7ac18f04b3f Fri Feb 14 16:29:32 2020 -0800 deal with the + sign at the start of some submodule status
+3f0949aa4fa89506d0cba546191be632b59c56d0 Thu Feb 13 16:30:41 2020 -0800 Merge branch 'master' of gitlab.com:rebuilder/bes
+d2d12e6911dc149559b8a8a4c0623aa71727fe69 Wed Feb 12 01:12:34 2020 -0800 add check_function_seq
+a20da4b40294a5f1886091d8c205b603696b4831 Wed Feb 12 00:01:56 2020 -0800 cleanup the reset interface a bit.  add clean().  fix a bug where save_file() would always git add the file.  add option to not add. Add unit tests that prove that reset() and clean() work
+3bab84c02eccaa92b63b9bc23871af3e75d33401 Mon Feb 10 23:21:51 2020 -0800 Merge branch 'master' of gitlab.com:rebuilder/bes
+837bce7cda9e001d06b024613ad6e624e9030390 Mon Feb 10 23:20:16 2020 -0800 add a timeout for python3
+43e476ff68b3c7fd39ae65646eac7a211b097669 Mon Feb 10 23:19:23 2020 -0800 if no address is given detect it
+ae38dc1531897b253a23ad2a937427a3d7d3123f Mon Feb 10 16:42:43 2020 +0000 Merge branch 'git-repo-fix' into 'master'  Git repo fix  See merge request rebuilder/bes!2
+f24cb2537929e43a56563f5f578840085946fcf9 Mon Feb 10 12:45:45 2020 +0300 Merge branch 'master' of gitlab.com:rebuilder/bes
+884e006b47f7dae761a7b320e87a981fb843949e Mon Feb 10 12:45:23 2020 +0300 Fix args in vfs_git_repo
+803ae1ccab75a5bc445456b62bf9a08b3f79754e Sun Feb 9 18:41:10 2020 -0800 Merge branch 'master' of gitlab.com:rebuilder/bes
+ed2136979875e687e1112e6ba6a7a39da2c10f3f Sun Feb 9 12:02:04 2020 -0800 if the script is a python file then run it under the appropiate sys.executable
+dc02b63cf9a2dec50b12f7d9efa7246195f4f164 Sun Feb 9 11:06:58 2020 -0800 py3 fixes
+30a231d47651991754f290e83c173458d6efa70f Sun Feb 9 10:34:08 2020 -0800 remove newlines to prevent line ending issues on non unix platforms.
+853513f33186195b25455c33f57f235876e7d6cf Sun Feb 9 02:03:42 2020 -0800 Merge branch 'master' of gitlab.com:rebuilder/bes
+19100a8811dd1870ce657cf1915a120cd2c27e58 Sun Feb 9 02:03:18 2020 -0800 fix list_local_branches and list_remote_branches.  add unit tests the prove they work
+a1caaa7f1dbf6ec4730fe6848c5534051246981b Sun Feb 9 01:31:54 2020 -0800 Merge branch 'master' of gitlab.com:rebuilder/bes
+02725ef2963a9ad5b64a221b259fa25e0e3d5ccf Sun Feb 9 00:41:16 2020 -0800 remove rogue import

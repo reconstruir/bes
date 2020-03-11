@@ -436,8 +436,8 @@ class git_repo(object):
   def changelog(self, revision_since, revision_until):
     return git.changelog(self.root, revision_since, revision_until)
 
-  def changelog_as_string(self, revision_since, revision_until, max_chars=4000, revision_chars=7, balance=0.5):
-    return git.changelog_as_string(self.root, revision_since, revision_until, max_chars, revision_chars, balance)
+  def changelog_as_string(self, revision_since, revision_until, options):
+    return git.changelog_as_string(self.root, revision_since, revision_until, options)
 
   def clean(self, immaculate = True, submodules = False):
     '''Clean untracked stuff in the repo.
