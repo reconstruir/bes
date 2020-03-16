@@ -974,6 +974,22 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r.add_file('bar.txt', 'this is bar in b1', commit_message = 'message 2')
     c2 = r.last_commit_hash(short_hash = True)
     self.assertEqual( ( 'b1', None, c2, 'message 2', False ), r.head_info() )
+
+  @git_temp_home_func()
+  def test_is_tag(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    commit1 = r.add_file('bar.txt', 'this is bar.txt')
+    r.tag('foo-1.0.0', push = False)
+    commit2 = r.add_file('baz.txt', 'this is baz.txt')
+    r.tag('foo-1.0.1', push = False)
+    self.assertTrue( r.is_tag('foo-1.0.0') )
+    self.assertTrue( r.is_tag('foo-1.0.1') )
+    self.assertFalse( r.is_tag('foo-1.0.2') )
+    self.assertFalse( r.is_tag(commit1) )
+    self.assertFalse( r.is_tag(commit2) )
     
 if __name__ == '__main__':
   unit_test.main()

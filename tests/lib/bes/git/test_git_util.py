@@ -10,15 +10,7 @@ from bes.git.git_commit_info import git_commit_info
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
 
-
 class test_git_util(unit_test):
-
-  @git_temp_home_func()
-  def test_name_from_address(self):
-    self.assertEqual( 'bar', git_util.name_from_address('https://foohub.com/myproj/bar.git') )
-    self.assertEqual( 'foo-bar-baz', git_util.name_from_address('git@git:foo-bar-baz.git') )
-    r = git_temp_repo(debug = self.DEBUG)
-    self.assertEqual( path.basename(r.root), git_util.name_from_address(r.root) )
 
   @git_temp_home_func()
   def test_repo_greatest_tag(self):

@@ -6,7 +6,7 @@ from bes.system.log import logger
 from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.fs.file_util import file_util
-from bes.git.git_util import git_util
+from bes.git.git_address_util import git_address_util
 from bes.url.url_util import url_util
 
 class http_download_cache(object):
@@ -63,7 +63,7 @@ class http_download_cache(object):
     
   def _path_for_url(self, url):
     'Return path for local tarball.'
-    return path.join(self.root_dir, git_util.sanitize_address(url))
+    return path.join(self.root_dir, git_address_util.sanitize_for_local_path(url))
 
   @classmethod
   def _download_to_tmp_file(clazz, url, cookies, debug = False, auth = None):

@@ -252,15 +252,6 @@ class test_git(unit_test):
     self.assertEqual( 'both', git.determine_where(None, None) )
 
   @git_temp_home_func()
-  def test_resolve_address(self):
-    self.assertEqual( 'https://github.com/git/git.git', git.resolve_address('https://github.com/git/git.git') )
-    self.assertEqual( 'git@github.com/git/git.git', git.resolve_address('git@github.com/git/git.git') )
-    tmp_repo = path.expanduser('~/minerepo')
-    file_util.mkdir(tmp_repo)
-    git.init(tmp_repo)
-    self.assertEqual( tmp_repo, git.resolve_address('~/minerepo') )
-
-  @git_temp_home_func()
   def test_is_long_hash(self):
     self.assertTrue( git.is_long_hash('cd138635e1a94a6f2da6acbce3e2f2d584121d28') )
     self.assertFalse( git.is_long_hash('zd138635e1a94a6f2da6acbce3e2f2d584121d28') )
