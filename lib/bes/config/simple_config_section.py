@@ -3,6 +3,7 @@
 from bes.common.bool_util import bool_util
 from bes.common.check import check
 from bes.common.variable import variable
+from bes.common.string_util import string_util
 from bes.compat.StringIO import StringIO
 from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
@@ -72,6 +73,9 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
 
   def get_value(self, key):
     return self.find_by_key(key, raise_error = True, resolve_env_vars = True)
+
+  def get_string_list(self, key):
+    return string_util.split_by_white_space(self.get_value(key), strip = True)
 
   def set_value(self, key, value):
     check.check_string(key)
