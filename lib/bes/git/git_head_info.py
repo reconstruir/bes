@@ -47,7 +47,7 @@ class git_head_info(object):
     assert len(f[0]) == 3
     return f[0]
 
-  _HEAD_PATTERN = r'^\*\s+(\w+)\s+([0-9a-f]+)\s+(.+)$'
+  _HEAD_PATTERN = r'^\*\s+(.+)\s+([0-9a-f]+)\s+(.+)$'
   @classmethod
   def _parse_head_line(clazz, line):
     f = re.findall(clazz._HEAD_PATTERN, line)
