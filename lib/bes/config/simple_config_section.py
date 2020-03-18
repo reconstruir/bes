@@ -8,6 +8,7 @@ from bes.compat.StringIO import StringIO
 from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
 from bes.system.env_var import os_env_var
+from bes.common.tuple_util import tuple_util
 
 from collections import namedtuple
 
@@ -44,7 +45,10 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
   
   def __setattr__(self, key, value):
     self.set_value(key, value)
-  
+
+  def clone(self, mutations = None):
+    return tuple_util.clone(self, mutations = mutations)
+    
   def find_by_key(self, key, raise_error = True, resolve_env_vars = True):
     entry = self.find_entry(key)
     if not entry:
@@ -122,7 +126,7 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
 
   def set_values(self, values):
     if isinstance(values, key_value_list):
-      values = key_value_list.to_dict()
+      values = values.to_dict()
     elif isinstance(values, dict):
       pass
     else:

@@ -341,6 +341,60 @@ wine
         'name': 'barolo',
       },
     }, s.to_dict() )
+
+  def test_remove_section(self):
+    text = '''\
+fruit
+  name: lemon
+
+cheese
+  name: brie
+
+wine
+  name: barolo
+'''
+    s = simple_config.from_text(text)
+    s.remove_section('cheese')
+    self.assertEqual( [ 'fruit', 'wine' ], s.section_names() )
+    
+  def test_replace_sections(self):
+    text = '''\
+fruit
+  name: lemon
+
+cheese1
+  name: brie
+
+cheese2
+  name: cheddar
+
+cheese3
+  name: fontina
+
+wine
+  name: barolo
+'''
+    s = simple_config.from_text(text)
+
+    old_section = s.section('cheese2')
+    s.remove_section('cheese3')
+    s.remove_section('cheese1')
+    s.remove_section('cheese2')
+    new_section = s.add_section('cheese')
+    new_section.set_values(old_section.to_key_value_list())
+    
+    self.assertEqual( [ 'fruit', 'wine', 'cheese' ], s.section_names() )
+    self.assertEqual( {
+      'fruit': {
+        'name': 'lemon',
+      },
+      'cheese': {
+        'name': 'cheddar',
+      },
+      'wine': {
+        'name': 'barolo',
+      },
+    }, s.to_dict() )
     
 if __name__ == '__main__':
   unit_test.main()

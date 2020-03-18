@@ -3,6 +3,7 @@
 from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.text.line_numbers import line_numbers
+from bes.common.tuple_util import tuple_util
 
 from collections import namedtuple
 
@@ -18,6 +19,9 @@ class simple_config_section_header(namedtuple('simple_config_section_header', 'n
     
     return clazz.__bases__[0].__new__(clazz, name, extends, origin)
 
+  def clone(self, mutations = None):
+    return tuple_util.clone(self, mutations = mutations)
+  
   @classmethod
   def parse_text(clazz, text, origin):
     parts = string_util.split_by_white_space(text, strip = True)
