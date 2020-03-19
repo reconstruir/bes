@@ -18,6 +18,30 @@ class url_util(object):
   @classmethod
   def download_to_stream(clazz, url, stream, chunk_size = None, cookies = None, auth = None):
     'Download url to a stream in chunks.'
+    try:
+      import requests
+      return clazz._download_to_stream_requests(url, stream, chunk_size = chunk_size, cookies = cookies, auth = auth)
+    except ImportError as ex:
+      return clazz._download_to_stream_python(url, stream, chunk_size = chunk_size, cookies = cookies, auth = auth)
+
+  @classmethod
+  def _download_to_stream_requests(clazz, url, stream, chunk_size = None, cookies = None, auth = None):
+    'Download url to a stream in chunks.'
+    check.check_dict(cookies, key_type = check.STRING_TYPES, value_type = check.STRING_TYPES, allow_none = True)
+
+    import requests
+    
+    with requests.get(url, auth = auth, cookies = cookies, stream = True) as response:
+      if response.status_code != 200:
+        raise RuntimeError('Failed to download: {}'.format(url))
+      for chunk in response.iter_content(chunk_size = 8192): 
+        if chunk:
+          stream.write(chunk)
+      return response.status_code
+  
+  @classmethod
+  def _download_to_stream_python(clazz, url, stream, chunk_size = None, cookies = None, auth = None):
+    'Download url to a stream in chunks.'
     check.check_dict(cookies, key_type = check.STRING_TYPES, value_type = check.STRING_TYPES, allow_none = True)
     response = clazz._url_open(url, cookies = cookies, auth = auth)
     status_code = response.getcode()
@@ -30,7 +54,7 @@ class url_util(object):
         break
       stream.write(chunk)
     return status_code
-
+  
   @classmethod
   def download_to_file(clazz, url, filename, chunk_size = None, cookies = None, auth = None):
     'Download url to filename.'
