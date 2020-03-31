@@ -142,6 +142,7 @@ class simple_config(object):
       raise simple_config_error('multiple sections found: %s' % (section), self._origin)
     return sections[0].get_value(key)
 
+  @classmethod
   def from_file(clazz, filename, check_env_vars = True):
     return clazz.from_text(file_util.read(filename, codec = 'utf8'),
                            source = filename,
