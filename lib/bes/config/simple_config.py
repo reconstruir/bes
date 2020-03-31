@@ -1,6 +1,7 @@
-#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+# -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import string, re
+import re
+import string
 
 from bes.common.check import check
 from bes.compat.StringIO import StringIO
@@ -11,14 +12,13 @@ from bes.system.log import logger
 from bes.text.tree_text_parser import tree_text_parser
 from bes.text.string_list import string_list
 
-from collections import namedtuple
-
 from .simple_config_entry import simple_config_entry
 from .simple_config_error import simple_config_error
 from .simple_config_origin import simple_config_origin
 from .simple_config_section import simple_config_section
 from .simple_config_section_header import simple_config_section_header
-  
+
+
 class simple_config(object):
   '''
   A very simple config file in this form:
@@ -42,11 +42,11 @@ class simple_config(object):
   '''
 
   log = logger('simple_config')
-  
+
   # Convenience reference so users dont need to import error to catch it
   error = simple_config_error
-  
-  def __init__(self, sections = None, source = None):
+
+  def __init__(self, sections=None, source=None):
     sections = sections or []
     source = source or '<unknown>'
     self._origin = simple_config_origin(source, 1)
@@ -65,31 +65,50 @@ class simple_config(object):
 
   def __iter__(self):
     return iter(self._sections)
-  
+
   def __hasattr__(self, section_name):
-    return self.find(section_name) != None
-    
-  def add_section(self, section, extends = None, origin = None):
+    return self.find(section_name) is not None
+
+  def add_section(self, section, extends=None, origin=None):
     check.check_string(section)
 
-    header = simple_config_section_header(section, extends = extends, origin = origin)
+    header = simple_config_section_header(section, extends=extends, origin=origin)
     section = simple_config_section(header, None, origin)
     self._sections.append(section)
 
   def has_section(self, name):
     check.check_string(name)
-    return next((section for section in self._sections if section.header_.name == name), None) is not None
-    
-  def find_sections(self, name, raise_error = True):
+
+    for section in self._sections:
+      if '*' in section.header_.name:
+        pattern = re.compile(section.header_.name)
+        if re.search(pattern, name):
+          return True
+      elif section.header_.name == name:
+        return True
+
+    return False
+
+  def find_sections(self, name, raise_error=True):
     check.check_string(name)
-    result = [ section for section in self._sections if section.header_.name == name ]
+
+    result = []
+    for section in self._sections:
+      if '*' in section.header_.name:
+        pattern = re.compile(section.header_.name)
+        if re.search(pattern, name):
+          result.append(section)
+      elif section.header_.name == name:
+        result.append(section)
+
     if not result and raise_error:
       raise simple_config_error('no sections found: %s' % (name), self._origin)
+
     return result
 
   def find(self, section_name):
     return self.section(section_name)
-  
+
   def section(self, section_name):
     check.check_string(section_name)
     if not self.has_section(section_name):
@@ -98,24 +117,25 @@ class simple_config(object):
     if len(sections) != 1:
       raise simple_config_error('multiple sections found: {}'.format(section_name), self._origin)
     return sections[0]
-  
+
   def get_value(self, section, key):
     return self.find(section).get_value(key)
-  
+
   def get_value_string_list(self, section, key):
     value = self.get_value(section, key)
     return string_list.parse(value)
 
+  # TODO: two different get_value methods - WARNING
   def get_value(self, section, key):
     sections = self.find_sections(section)
     if len(sections) != 1:
       raise simple_config_error('multiple sections found: %s' % (section), self._origin)
     return sections[0].get_value(key)
-  
+
   @classmethod
   def from_file(clazz, filename):
     return clazz.from_text(file_util.read(filename, codec = 'utf8'), source = filename)
-    
+
   @classmethod
   def from_text(clazz, s, source = None):
     check.check_string(s)
@@ -132,7 +152,7 @@ class simple_config(object):
       section = clazz._parse_section(child, source)
       sections.append(section)
     return simple_config(sections = sections, source = source)
-  
+
   @classmethod
   def _parse_section(clazz, node, source):
     check.check_node(node)
@@ -153,7 +173,7 @@ class simple_config(object):
       new_entry = clazz._parse_entry(child.data.text, entry_origin)
       result.append(new_entry)
     return result
-  
+
   _ENTRY_KEY_VALID_FIRST_CHAR = string.ascii_letters + '_'
   _ENTRY_KEY_VALID_NEXT_CHARS = string.ascii_letters + string.digits + '_'
   @classmethod
@@ -170,14 +190,14 @@ class simple_config(object):
     raw_value = raw_value.strip()
 
     key, raw_annotations = clazz._entry_partition_key_and_annotation(raw_key)
-    
+
     if not key[0] in clazz._ENTRY_KEY_VALID_FIRST_CHAR:
       raise simple_config_error('invalid config entry (key should start with ascii letter or underscore): "{}"'.format(text), origin)
 
     for c in key[1:]:
       if not c in clazz._ENTRY_KEY_VALID_NEXT_CHARS:
         raise simple_config_error('invalid config entry (key should have only ascii letter, digits or underscore): "{}"'.format(text), origin)
-      
+
     value = key_value(key, raw_value)
     annotations = clazz._parse_annotations(raw_annotations, origin)
     return simple_config_entry(value, origin, annotations = annotations)
@@ -190,7 +210,7 @@ class simple_config(object):
     key = raw_key[0:i]
     annotations = raw_key[i:]
     return key, annotations
-  
+
   @classmethod
   def _parse_annotations(clazz, text, origin):
     check.check_string(text, allow_none = True)
@@ -223,12 +243,12 @@ class simple_config(object):
   def section_names(self):
     'Return a list of all the section names.  Multiple sections with the same name get repeated.'
     return [ section.header_.name for section in self._sections ]
-    
+
   def sections_are_unique(self):
     'Return True if every section has a different name.'
     names = self.section_names()
     return len(set(names)) == len(names)
-    
+
   def update(self, config):
     'Update from another config.  Only works for configs without multiple sections with the same name.'
 
@@ -252,7 +272,7 @@ class simple_config(object):
     for section in self._sections:
       result[section.header_.name] = section.to_dict(resolve_env_vars = resolve_env_vars)
     return result
-    
+
   def _update_with_simple_config(self, config):
     'Update from another config.  Only works for configs without multiple sections with the same name.'
     check.check_simple_config(config)
@@ -263,7 +283,7 @@ class simple_config(object):
     for other_section in config._sections:
       self_section = self.find(other_section.header_.name)
       self_section.set_values(other_section.to_dict(resolve_env_vars = False))
-  
+
   def _update_with_dict(self, config):
     'Update from a dict of dicts.'
     check.check_dict(config, check.STRING_TYPES, dict)
@@ -271,6 +291,6 @@ class simple_config(object):
     for section_name, values in config.items():
       self_section = self.find(section_name)
       self_section.set_values(values)
-  
+
+
 check.register_class(simple_config)
-  
