@@ -46,11 +46,12 @@ class simple_config(object):
   # Convenience reference so users dont need to import error to catch it
   error = simple_config_error
 
-  def __init__(self, sections=None, source=None):
+  def __init__(self, sections=None, source=None, check_env_vars=True):
     sections = sections or []
     source = source or '<unknown>'
     self._origin = simple_config_origin(source, 1)
     self._sections = sections[:]
+    self._check_env_vars = check_env_vars
 
   def __str__(self):
     buf = StringIO()
@@ -75,6 +76,15 @@ class simple_config(object):
     header = simple_config_section_header(section, extends=extends, origin=origin)
     section = simple_config_section(header, None, origin)
     self._sections.append(section)
+    return section
+
+  def remove_section(self, section_name):
+    check.check_string(section_name)
+
+    for i, section in enumerate(self._sections):
+      if section.header_.name == section_name:
+        return self._sections.pop(i)
+    raise simple_config_error('no such section found: "{}"'.format(section_name, self._origin))
 
   def has_section(self, name):
     check.check_string(name)
@@ -132,26 +142,27 @@ class simple_config(object):
       raise simple_config_error('multiple sections found: %s' % (section), self._origin)
     return sections[0].get_value(key)
 
-  @classmethod
-  def from_file(clazz, filename):
-    return clazz.from_text(file_util.read(filename, codec = 'utf8'), source = filename)
+  def from_file(clazz, filename, check_env_vars = True):
+    return clazz.from_text(file_util.read(filename, codec = 'utf8'),
+                           source = filename,
+                           check_env_vars = check_env_vars)
 
   @classmethod
-  def from_text(clazz, s, source = None):
+  def from_text(clazz, s, source = None, check_env_vars = True):
     check.check_string(s)
     source = source or '<unknown>'
     root = tree_text_parser.parse(s, strip_comments = True, root_name = 'root')
-    return clazz.from_node(root, source = source)
+    return clazz.from_node(root, source = source, check_env_vars = check_env_vars)
 
   @classmethod
-  def from_node(clazz, node, source = None):
+  def from_node(clazz, node, source = None, check_env_vars = True):
     check.check_node(node)
     source = source or '<unknown>'
     sections = []
     for child in node.children:
       section = clazz._parse_section(child, source)
       sections.append(section)
-    return simple_config(sections = sections, source = source)
+    return simple_config(sections = sections, source = source, check_env_vars = check_env_vars)
 
   @classmethod
   def _parse_section(clazz, node, source):

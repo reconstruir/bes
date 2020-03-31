@@ -35,7 +35,7 @@ class string_util(object):
     'Split the string into tokens by white space.'
     tokens = re.split('\s+', s)
     if strip:
-      return [ token.strip() for token in tokens if token ]
+      return [ token.strip() for token in tokens if token.strip() ]
     else:
       return [ token for token in tokens if token ]
 

@@ -7,11 +7,14 @@ from bes.common.check import check
 from bes.common.object_util import object_util
 from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
+from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
 from bes.version.software_version import software_version
 
 from .git import git
 from .git_modules_file import git_modules_file
+from .git_error import git_error
+from .git_address_util import git_address_util
 
 import warnings
 with warnings.catch_warnings():
@@ -485,4 +488,56 @@ class git_repo(object):
     'Return information about the HEAD of the repo.'
     return git.head_info(self.root)
 
+  def is_tag(self, ref):
+    'Return True if ref is a tag.'
+    return git.is_tag(self.root, ref)
+
+  def cached_archive_get(self, revision, cache_dir = None):
+    if not self.address:
+      raise git_error('cached_archive only works for repos cloned from a remote address.')
+    if not self._cached_archive_revision_is_valid(revision):
+      raise git_error('revision should be a valid tag or commit hash.')
+      
+    cache_dir = self._cached_archive_resolve_cache_dir(cache_dir = cache_dir)
+    local_address_path = self._cached_archive_path_for_address(cache_dir, self.address)
+    tarball_filename = '{}.tar.gz'.format(revision)
+    tarball_path = path.join(local_address_path, tarball_filename)
+    if path.exists(tarball_path):
+      return tarball_path
+
+    tmp_dir = temp_file.make_temp_dir()
+    name = git_address_util.name(self.address)
+    tmp_full_path = path.join(tmp_dir, tarball_filename)
+
+    prefix = '{}-{}'.format(name, revision)
+    self.archive_to_file(prefix, revision, tmp_full_path, archive_format = 'tar.gz', short_hash = True)
+    file_util.rename(tmp_full_path, tarball_path)
+    return tarball_path
+
+  @classmethod
+  def cached_archive_contains(self, revision, cache_dir = None):
+    'Return True if the tarball with address and revision is in the cache.'
+    cache_dir = self._cached_archive_resolve_cache_dir(cache_dir = cache_dir)
+    local_address_path = self._cached_archive_path_for_address(cache_dir, self.address)
+    tarball_filename = '{}.tar.gz'.format(revision)
+    tarball_path = path.join(local_address_path, tarball_filename)
+    return path.exists(tarball_path)
+
+  def _cached_archive_revision_is_valid(self, revision):
+    'Return True if revision is something that support archive caching.  Either commit hash or tag.'
+    if self.is_tag(revision):
+      return True
+    if self.is_hash(revision):
+      return self.has_commit(revision)
+    return False
+  
+  @classmethod
+  def _cached_archive_resolve_cache_dir(clazz, cache_dir = None):
+    cache_dir = cache_dir or path.expanduser('~/.bes_git/archives')
+    return cache_dir
+    
+  @classmethod
+  def _cached_archive_path_for_address(clazz, cache_dir, address):
+    return path.join(cache_dir, git_address_util.sanitize_for_local_path(address))
+  
 check.register_class(git_repo)

@@ -1,0 +1,2 @@
+- move is_hash is_long_hash is_short_hash to its own git_hash module
+

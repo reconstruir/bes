@@ -8,7 +8,6 @@ from collections import namedtuple
 from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.common.object_util import object_util
-from bes.compat.StringIO import StringIO
 from bes.fs.file_find import file_find
 from bes.fs.file_type import file_type
 from bes.fs.file_util import file_util
@@ -26,7 +25,6 @@ from .git_repo import git_repo
 from .git_commit_info import git_commit_info
 from .git_repo_script_options import git_repo_script_options
 from .git_repo_operation_options import git_repo_operation_options
-
 
 class git_util(object):
   'Some higher level git utilities.'
@@ -67,26 +65,6 @@ class git_util(object):
     if ft:
       crit_list.append(file_type_criteria(ft))
     return finder(d, criteria = crit_list)
-
-  @classmethod
-  def name_from_address(clazz, address):
-    address = git.resolve_address(address)
-    if path.isdir(address):
-      return path.basename(address)
-    if not address.endswith('.git'):
-      raise ValueError('not a git address: %s' % (address))
-    buf = StringIO()
-    for c in string_util.reverse(address):
-      if c in ':/':
-        break
-      buf.write(c)
-    last_part = string_util.reverse(buf.getvalue())
-    return string_util.remove_tail(last_part, '.git')
-
-  @classmethod
-  def sanitize_address(clazz, address):
-    'Return path for local tarball.'
-    return string_util.replace(address, { ':': '_', '/': '_' })
 
   @classmethod
   def is_long_hash(clazz, h):

@@ -7,7 +7,7 @@ from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 
 from .git import git
-from .git_util import git_util
+from .git_address_util import git_address_util
 
 class git_archive_cache(object):
   'A git download by revision cache.'
@@ -33,7 +33,7 @@ class git_archive_cache(object):
     if path.isdir(address):
       name = path.basename(address)
     else:
-      name = git_util.name_from_address(address)
+      name = git_address_util.name(address)
     tmp_full_path = path.join(tmp_dir, tarball_filename)
     git.archive(address, revision, name, tmp_full_path)
     file_util.rename(tmp_full_path, tarball_path)
@@ -41,7 +41,7 @@ class git_archive_cache(object):
     
   def path_for_address(self, address):
     'Return path for local tarball.'
-    return path.join(self.root_dir, git_util.sanitize_address(address))
+    return path.join(self.root_dir, git_address_util.sanitize_for_local_path(address))
 
   def tarball_path(self, address, revision):
     'Return True if the tarball with address and revision is in the cache.'

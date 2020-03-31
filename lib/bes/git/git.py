@@ -34,6 +34,7 @@ from .git_head_info import git_head_info
 from .git_modules_file import git_modules_file
 from .git_status import git_status
 from .git_submodule_info import git_submodule_info
+from .git_address_util import git_address_util
 
 class git(object):
   'A class to deal with git.'
@@ -135,7 +136,7 @@ class git(object):
   @classmethod
   def clone(clazz, address, dest_dir, options = None):
     check.check_git_clone_options(options, allow_none = True)
-    address = clazz.resolve_address(address)
+    address = git_address_util.resolve(address)
     options = options or git_clone_options()
     clazz.log.log_d('clone: address={} dest_dir={} options={}'.format(address, dest_dir, pprint.pformat(options.__dict__)))
     if path.exists(dest_dir):
@@ -254,11 +255,12 @@ class git(object):
     file_util.save(patch_file, content = rv.stdout)
 
   @classmethod
-  def commit(clazz, root, message, filenames):
+  def commit(clazz, root_dir, message, filenames):
     filenames = object_util.listify(filenames)
     message_filename = temp_file.make_temp_file(content = message)
     args = [ 'commit', '-F', message_filename ] + filenames
-    return clazz.call_git(root, args)
+    rv = clazz.call_git(root_dir, args)
+    return clazz.last_commit_hash(root_dir, short_hash = True)
 
   @classmethod
   def clone_or_pull(clazz, address, dest_dir, options = None):
@@ -710,14 +712,6 @@ class git(object):
     return author
 
   @classmethod
-  def resolve_address(clazz, address):
-    'If address is a local dir, return its absolute path with ~ expanded.  Otherwise just return address.'
-    resolved_address = path.expanduser(address)
-    if path.isdir(resolved_address):
-      return resolved_address
-    return address
-
-  @classmethod
   def find_git_exe(clazz):
     'Return the full path to the git executable.'
     exe_name = clazz._git_exe_name()
@@ -932,3 +926,12 @@ class git(object):
     'Return information about the HEAD of the repo.'
     rv = clazz.call_git(root, [ 'branch', '--verbose' ])
     return git_head_info.parse_head_info(rv.stdout)
+
+  @classmethod
+  def is_tag(clazz, root_dir, ref):
+    'Return True if ref is a tag.'
+    check.check_string(root_dir)
+    check.check_string(ref)
+
+    rv = clazz.call_git(root_dir, [ 'show-ref', ref ], raise_error = False)
+    return rv.exit_code == 0 and 'refs/tags/{}'.format(ref) in rv.stdout

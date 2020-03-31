@@ -25,7 +25,7 @@ class git_head_info(object):
     info = clazz._parse_head_line(active_line)
     if not info:
       raise RuntimeError('Failed to parse head info: "{}"'.format(active_line))
-    branch = info[0]
+    branch = info[0].strip()
     commit_hash = info[1]
     commit_message = info[2]
     return clazz._head_info(branch, None, commit_hash, commit_message, False)
@@ -47,7 +47,7 @@ class git_head_info(object):
     assert len(f[0]) == 3
     return f[0]
 
-  _HEAD_PATTERN = r'^\*\s+(\w+)\s+([0-9a-f]+)\s+(.+)$'
+  _HEAD_PATTERN = r'^\*\s+(.+)\s+([0-9a-f]+)\s+(.+)$'
   @classmethod
   def _parse_head_line(clazz, line):
     f = re.findall(clazz._HEAD_PATTERN, line)

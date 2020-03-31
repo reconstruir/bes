@@ -844,6 +844,37 @@ cheese'''
       ( 2, '  bar' ), 
       ( 3, '  baz' ), 
     ], l.lines )
+
+  def test_re_sub(self):
+    text = '''\
+cheese = brie;
+fruit = kiwi;
+wine = barolo;
+'''
+    l = LTP(text)
+    pattern = r'cheese\s+=\s+(.*);'
+    l.re_sub(r'cheese\s+=\s+(.*);', 'cheese = fontina;')
+
+    expected = '''\
+cheese = fontina;
+fruit = kiwi;
+wine = barolo;
+'''
+    self.assertMultiLineEqual( expected, str(l) )
+    
+  def test_re_findall(self):
+    text = '''\
+cheese = brie;
+fruit = kiwi;
+wine = barolo;
+cheese = cheddar;
+'''
+    l = LTP(text)
+    pattern = r'cheese\s+=\s+(.*);'
+    self.assertEqual( [
+      ( 0, ( 1, 'cheese = brie;' ), ['brie'] ),
+      ( 3, ( 4, 'cheese = cheddar;' ), ['cheddar'] ),
+    ], l.re_findall(r'cheese\s+=\s+(.*);') )
     
 if __name__ == '__main__':
   unit_test.main()
