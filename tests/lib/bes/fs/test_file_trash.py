@@ -11,8 +11,6 @@ import os.path as path
 from collections import namedtuple
 import time
 
-log.configure('*=debug')
-
 class test_file_trash(unit_test):
 
   _context = namedtuple('_context', 'trash_dir, stuff_dir, trash')
