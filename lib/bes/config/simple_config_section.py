@@ -4,6 +4,7 @@ from bes.common.bool_util import bool_util
 from bes.common.check import check
 from bes.common.variable import variable
 from bes.common.string_util import string_util
+from bes.common.list_util import list_util
 from bes.compat.StringIO import StringIO
 from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
@@ -67,7 +68,7 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
     return self.entries_[index]
 
   def entry_index(self, key):
-    for i, entry in enumerate(self.entries_):
+    for i, entry in list_util.reversed_enumerate(self.entries_):
       if entry.value.key == key:
         return i
     return -1
@@ -85,13 +86,15 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
     check.check_string(key)
     check.check_string(value)
 
-    index = self.entry_index(key)
-    if index >= 0:
-      entry = self.entries_[index]
-      assert entry.value.key == key
-      self.entries_[index] = simple_config_entry(key_value(entry.value.key, value), entry.origin, entry.annotations)
+    found = False
+    for i, entry in enumerate(self.entries_):
+      if entry.value.key == key:
+        found = True
+        self.entries_[i] = simple_config_entry(key_value(entry.value.key, value), entry.origin, entry.annotations)
+
+    if found:
       return
-    
+        
     if self.entries_:
       last_origin = self.entries_[-1].origin
     else:

@@ -396,5 +396,39 @@ wine
       },
     }, s.to_dict() )
     
+  def test_duplicate_key_get(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+  flavor: sweet
+'''
+    s = simple_config.from_text(text)
+
+    self.assertEqual( 'sweet', s.fruit.flavor )
+
+  def test_duplicate_key_set(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+  flavor: sweet
+'''
+    s = simple_config.from_text(text)
+
+    s.fruit.flavor = 'rotten'
+    
+    expected = '''\
+fruit
+  name: lemon
+  flavor: rotten
+  color: yellow
+  flavor: rotten
+'''.strip()
+
+    self.assertEqual( expected, str(s).strip() )
+    
 if __name__ == '__main__':
   unit_test.main()
