@@ -514,7 +514,6 @@ class git_repo(object):
     file_util.rename(tmp_full_path, tarball_path)
     return tarball_path
 
-  @classmethod
   def cached_archive_contains(self, revision, cache_dir = None):
     'Return True if the tarball with address and revision is in the cache.'
     cache_dir = self._cached_archive_resolve_cache_dir(cache_dir = cache_dir)
