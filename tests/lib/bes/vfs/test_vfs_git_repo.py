@@ -35,11 +35,6 @@ class test_vfs_git_repo(unit_test):
   ]
 
   @git_temp_home_func()
-  def test_list_dir_empty(self):
-    tester = self._make_tester(items = [])
-    self.assertEqual( [], tester.list_dir_dict('/', False, tester.OPTIONS) )
-
-  @git_temp_home_func()
   def test_list_dir_one_file(self):
     items = [
       'file foo.txt "foo.txt"',
@@ -156,9 +151,14 @@ class test_vfs_git_repo(unit_test):
         'size': None,
       },
     ], tester.list_dir_dict('/', True, tester.OPTIONS) )
-    
+
   @git_temp_home_func()
   def test_list_dir_empty(self):
+    tester = self._make_tester(items = [])
+    self.assertEqual( [], tester.list_dir_dict('/', False, tester.OPTIONS) )
+    
+  @git_temp_home_func()
+  def test_list_dir_empty_recursive(self):
     tester = self._make_tester()
     self.assertEqual( [], tester.fs.list_dir('/', True, tester.OPTIONS) )
     

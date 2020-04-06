@@ -114,7 +114,7 @@ class git(object):
     if not hasattr(clazz, '_git_exe'):
       git_exe = clazz.find_git_exe()
       if not git_exe:
-        raise RuntimeError('git exe not found.')
+        raise RuntimeError('git exe not found in: {}'.format(' '.join(os.environ['PATH'].split(os.pathsep))))
       setattr(clazz, '_git_exe', git_exe)
     git_exe = getattr(clazz, '_git_exe')
     cmd = [ git_exe ] + parsed_args
