@@ -181,6 +181,6 @@ class vfs_git_repo(vfs_base):
       if proxy.repo.has_unpushed_commits():
         proxy.repo.push()
     except RuntimeError as ex:
-      if 'Unknown commit' in str(ex):
+      if 'unknown commit' in str(ex).lower():
         return
       raise
