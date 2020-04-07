@@ -15,6 +15,7 @@ from .git import git
 from .git_modules_file import git_modules_file
 from .git_error import git_error
 from .git_address_util import git_address_util
+from .git_commit_hash import git_commit_hash
 
 import warnings
 with warnings.catch_warnings():
@@ -313,15 +314,15 @@ class git_repo(object):
 
   @classmethod
   def is_long_hash(clazz, h):
-    return git.is_long_hash(h)
+    return git_commit_hash.is_long(h)
 
   @classmethod
   def is_short_hash(clazz, h):
-    return git.is_short_hash(h)
+    return git_commit_hash.is_short(h)
 
   @classmethod
   def is_hash(clazz, h):
-    return git.is_hash(h)
+    return git_commit_hash.is_valid(h)
 
   def short_hash(self, long_hash):
     return git.short_hash(self.root, long_hash)
@@ -526,7 +527,7 @@ class git_repo(object):
     'Return True if revision is something that support archive caching.  Either commit hash or tag.'
     if self.is_tag(revision):
       return True
-    if self.is_hash(revision):
+    if git_commit_hash.is_valid(revision):
       return self.has_commit(revision)
     return False
   

@@ -25,16 +25,17 @@ from bes.system.os_env import os_env
 from bes.text.text_line_parser import text_line_parser
 from bes.version.software_version import software_version
 
+from .git_address_util import git_address_util
 from .git_branch import git_branch, git_branch_status
 from .git_branch_list import git_branch_list
 from .git_changelog import git_changelog
 from .git_clone_options import git_clone_options
+from .git_commit_hash import git_commit_hash
 from .git_commit_info import git_commit_info
 from .git_head_info import git_head_info
 from .git_modules_file import git_modules_file
 from .git_status import git_status
 from .git_submodule_info import git_submodule_info
-from .git_address_util import git_address_util
 
 class git(object):
   'A class to deal with git.'
@@ -325,7 +326,7 @@ class git(object):
     file_util.ensure_file_dir(output_filename)
     if short_hash:
       if clazz.is_long_hash(revision):
-        revision = clazz.short_hash(root, long_hash)
+        revision = clazz.short_hash(root, revision)
 
     args = [
       'archive',
@@ -736,31 +737,19 @@ class git(object):
     return sorted(clazz._parse_lines(rv.stdout))
 
   @classmethod
-  def _is_valid_hash_char(clazz, c):
-    'Return True if c is a valid git hash char.'
-    return (c >= 'a' and c <= 'f') or (c >= '0' and c <= '9')
-
-  @classmethod
-  def _is_valid_hash(clazz, h):
-    for c in h:
-      if not clazz._is_valid_hash_char(c):
-        return False
-    return True
-
-  @classmethod
   def is_long_hash(clazz, h):
     'Return True if h is a valid git long hash.'
-    return len(h) == 40 and clazz._is_valid_hash(h)
+    return git_commit_hash.is_long(h)
 
   @classmethod
   def is_short_hash(clazz, h):
     'Return True if h is a valid git short hash.'
-    return len(h) == 7 and clazz._is_valid_hash(h)
+    return git_commit_hash.is_short(h)
 
   @classmethod
   def is_hash(clazz, h):
     'Return True if h is a valid git short or long hash.'
-    return len(h) in [ 7, 40 ] and clazz._is_valid_hash(h)
+    return git_commit_hash.is_valid(h)
 
   @classmethod
   def files(clazz, root):
