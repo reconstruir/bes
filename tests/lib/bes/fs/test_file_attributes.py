@@ -5,9 +5,14 @@ import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.fs.file_attributes import file_attributes as FA
 from bes.fs.file_util import file_util
+from bes.docker.docker import docker
   
 class test_file_attributes(unit_test):
 
+  @classmethod
+  def setUpClass(clazz):
+    docker.raise_skip_if_running_under_docker()
+  
   def test_get_never_set(self):
     tmp = self._make_temp_file('this is foo\n')
     self.assertEqual( None, FA.get(tmp, 'foo') )

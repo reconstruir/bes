@@ -4,6 +4,7 @@ from os import path
 
 from bes.system.host import host
 from bes.fs.file_util import file_util
+from bes.testing.unit_test_skip import raise_skip_if
 
 class docker(object):
   'Class to deal with docker.'
@@ -20,3 +21,7 @@ class docker(object):
     
     content = file_util.read(clazz._CGROUPS_FILE)
     return 'pids:/docker/' in content
+
+  @staticmethod
+  def raise_skip_if_running_under_docker():
+    raise_skip_if(not docker.is_running_inside_docker(), 'running under docekr')
