@@ -7,9 +7,14 @@ import os, os.path as path, tempfile
 from bes.fs.file_checksum_db import file_checksum_db
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
+from bes.docker.docker import docker
 
 class test_file_metadata_db(unit_test):
 
+  @classmethod
+  def setUpClass(clazz):
+    docker.raise_skip_if_running_under_docker()
+  
   def test_file_first_time(self):
     tmp_dir = self.make_temp_dir()
     db = file_checksum_db(tmp_dir)
