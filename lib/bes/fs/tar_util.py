@@ -8,6 +8,7 @@ from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.os_env import os_env
 from bes.system.env_var import os_env_var
+from bes.docker.docker import docker
 
 from .file_find import file_find
 from .file_path import file_path
@@ -31,8 +32,8 @@ class tar_util(object):
       exclude_flags_flat = ' '.join(exclude_flags)
     else:
       exclude_flags_flat = ''
-    cmd = '%s %s -C \"%s\" -pcf - . | ( cd \"%s\" ; %s -pxf - )' % (clazz._tar_exe(), exclude_flags_flat,
-                                                                    src_dir, dst_dir, clazz._tar_exe())
+    cmd = '%s %s -C \"%s\" -pcf - . | ( cd \"%s\" ; %s -pxf - )' % (clazz.tar_exe(), exclude_flags_flat,
+                                                                    src_dir, dst_dir, clazz.tar_exe())
     with os.popen(cmd) as pipe:
       pipe.read()
       pipe.close()
@@ -42,22 +43,37 @@ class tar_util(object):
     cmd = 'tar tf %s' % (filename)
     rv = execute.execute(cmd)
     return [ i for i in rv.stdout.split('\n') if i ]
-
   @classmethod
-  def extract(clazz, filename, dest_dir):
-    execute.execute('tar xf {filename} -C {dest_dir}'.format(filename = filename, dest_dir = dest_dir))
 
-  _tar_info = namedtuple('_tar_exe_info', 'flavor, version')
+  def extract(clazz, filename, dest_dir):
+    # There is a docker bug (probably macos only) where running tar in alpine linux fails to set
+    # utime for symlinks.  They extract but tar fails to do "utime" on them leading to an error
+    # that looks like this: "tar: foo.txt: Cannot utime: No such file or directory"
+    #
+    # We work around this screwy situation by doing the untar 2 times and only failing if the
+    # second one fails.  And we only do this workaround for alpine linux *and* running under docker.
+    #
+    num_tries = 1
+    if host.SYSTEM == host.LINUX and host.DISTRO == 'alpine' and docker.is_running_inside_docker():
+      num_tries = 2
+
+    # tar is 10x faster than archiver.  need to fix archiver
+    tar_cmd = [ clazz.tar_exe(), 'xf', filename, '-C', dest_dir ]
+
+    for try_index in range(1, num_tries + 1):
+      try:
+        execute.execute(tar_cmd)
+      except Exception as ex:
+        if try_index == num_tries:
+          raise
+    
+  _tar_info = namedtuple('tar_exe_info', 'flavor, version')
   @classmethod
   def tar_exe_info(clazz, exe):
     rv = execute.execute('{exe} --version'.format(exe = exe), raise_error = False)
     flavor = clazz._tar_flavor(rv.stdout)
     version = clazz._tar_version(flavor, rv.stdout)
     return clazz._tar_info(flavor, version)
-
-  @classmethod
-  def extract(clazz, filename, dest_dir):
-    execute.execute('tar xf {filename} -C {dest_dir}'.format(filename = filename, dest_dir = dest_dir))
 
   @classmethod
   def _tar_flavor(clazz, version_text):
@@ -132,20 +148,19 @@ class tar_util(object):
     execute.execute(tar_cmd, shell = True)
 
   @classmethod
-  def _tar_exe(clazz):
+  def tar_exe(clazz):
     'Find the tar executable explicitly in the system default place in case the user aliased it somehow'
-    if not hasattr(clazz, '_TAR_EXE'):
+    if not hasattr(clazz, 'TAR_EXE'):
       tar_exe = clazz._find_tar_exe_tar()
-      setattr(clazz, '_TAR_EXE', tar_exe)
-    return getattr(clazz, '_TAR_EXE')
+      setattr(clazz, 'TAR_EXE', tar_exe)
+    return getattr(clazz, 'TAR_EXE')
     
   @classmethod
   def _find_tar_exe_tar(clazz):
     'Find the tar executable explicitly in the system default place in case the user aliased it somehow'
-    if host.is_linux():
-      return '/bin/tar'
-    elif host.is_macos():
-      return '/usr/bin/tar'
+    for possible_tar in [ '/bin/tar', '/usr/bin/tar' ]: 
+      if file_path.is_executable(possible_tar):
+        return possible_tar
 # because of the way copy_tree() used unix pipes to copy a dir tree it will take a lot of work
 # to make it work on windows
 #    elif host.is_windows():
@@ -153,7 +168,6 @@ class tar_util(object):
 #      if not tar_exe:
 #        raise RuntimeError('tar.exe not found.  install it from http://gnuwin32.sourceforge.net/packages/gtar.htm.')
 #      return tar_exe
-    else:
-      raise RuntimeError('tar not supported on: {}'.format(host.SYSTEM))
+    raise RuntimeError('tar not supported on: {}'.format(host.SYSTEM))
 
     
