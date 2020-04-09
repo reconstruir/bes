@@ -1,4 +1,4 @@
-# -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import re
 import string
@@ -70,10 +70,10 @@ class simple_config(object):
   def __hasattr__(self, section_name):
     return self.find(section_name) is not None
 
-  def add_section(self, section, extends=None, origin=None):
+  def add_section(self, section, extends = None, origin = None):
     check.check_string(section)
 
-    header = simple_config_section_header(section, extends=extends, origin=origin)
+    header = simple_config_section_header(section, extends = extends, origin = origin)
     section = simple_config_section(header, None, origin)
     self._sections.append(section)
     return section
@@ -99,7 +99,7 @@ class simple_config(object):
 
     return False
 
-  def find_sections(self, name, raise_error=True):
+  def find_sections(self, name, raise_error = True):
     check.check_string(name)
 
     result = []
