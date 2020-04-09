@@ -18,7 +18,8 @@ from .simple_config_error import simple_config_error
 from .simple_config_origin import simple_config_origin
 from .simple_config_section import simple_config_section
 from .simple_config_section_header import simple_config_section_header
-  
+
+
 class simple_config(object):
   '''
   A very simple config file in this form:
@@ -88,13 +89,32 @@ class simple_config(object):
 
   def has_section(self, name):
     check.check_string(name)
-    return next((section for section in self._sections if section.header_.name == name), None) is not None
-    
+
+    for section in self._sections:
+      if '*' in section.header_.name:
+        pattern = re.compile(section.header_.name)
+        if re.search(pattern, name):
+          return True
+      elif section.header_.name == name:
+        return True
+
+    return False
+
   def find_sections(self, name, raise_error = True):
     check.check_string(name)
-    result = [ section for section in self._sections if section.header_.name == name ]
+
+    result = []
+    for section in self._sections:
+      if '*' in section.header_.name:
+        pattern = re.compile(section.header_.name)
+        if re.search(pattern, name):
+          result.append(section)
+      elif section.header_.name == name:
+        result.append(section)
+
     if not result and raise_error:
       raise simple_config_error('no sections found: %s' % (name), self._origin)
+
     return result
 
   def find(self, section_name):
@@ -115,7 +135,8 @@ class simple_config(object):
   def get_value_string_list(self, section, key):
     value = self.get_value(section, key)
     return string_list.parse(value)
-
+  
+  # TODO: two different get_value methods - WARNING
   def get_value(self, section, key):
     sections = self.find_sections(section)
     if len(sections) != 1:
@@ -231,7 +252,7 @@ class simple_config(object):
     else:
       value = None
     return key_value(key, value)
-
+    
   def section_names(self):
     'Return a list of all the section names.  Multiple sections with the same name get repeated.'
     return [ section.header_.name for section in self._sections ]
@@ -283,6 +304,6 @@ class simple_config(object):
     for section_name, values in config.items():
       self_section = self.find(section_name)
       self_section.set_values(values)
-  
+
+
 check.register_class(simple_config)
-  
