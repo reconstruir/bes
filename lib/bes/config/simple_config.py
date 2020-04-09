@@ -69,7 +69,7 @@ class simple_config(object):
     return iter(self._sections)
   
   def __hasattr__(self, section_name):
-    return self.find(section_name) is not None
+    return self.find(section_name) != None
     
   def add_section(self, section, extends = None, origin = None):
     check.check_string(section)
@@ -131,7 +131,7 @@ class simple_config(object):
   
   def get_value(self, section, key):
     return self.find(section).get_value(key)
-
+  
   def get_value_string_list(self, section, key):
     value = self.get_value(section, key)
     return string_list.parse(value)
@@ -261,7 +261,7 @@ class simple_config(object):
     'Return True if every section has a different name.'
     names = self.section_names()
     return len(set(names)) == len(names)
-
+    
   def update(self, config):
     'Update from another config.  Only works for configs without multiple sections with the same name.'
 
