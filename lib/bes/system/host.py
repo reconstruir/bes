@@ -3,7 +3,20 @@
 from .host_info import host_info
 from .platform_determiner import platform_determiner
 
-class host(object):
+from .compat import with_metaclass
+
+class _host_info_holder(type):
+  
+  _VALID_KEYS = [ 'ARCH', 'DISTRO', 'FAMILY', 'SYSTEM', 'VERSION_MAJOR', 'VERSION_MINOR' ]
+  
+  def __getattr__(clazz, key):
+    if not key in clazz._VALID_KEYS:
+      raise AttributeError('Invalid key: "{}" - should be one of {}'.format(key, ' '.join(clazz._VALID_KEYS)))
+    if not hasattr(clazz, 'HOST_INFO'):
+      raise AttributeError('_host_info_holder has not be initialized yet.')
+    return getattr(clazz.HOST_INFO, key.lower())
+
+class host(with_metaclass(_host_info_holder, object)):
 
   # systems
   LINUX = 'linux'
@@ -27,14 +40,12 @@ class host(object):
   @classmethod
   def init(clazz):
     determiner = platform_determiner()
-    clazz.SYSTEM = determiner.system()
-    clazz.DISTRO = determiner.distro()
-    clazz.FAMILY = determiner.family()
-    clazz.VERSION_MAJOR = determiner.version_major()
-    clazz.VERSION_MINOR = determiner.version_minor()
-    clazz.ARCH = determiner.arch()
-    clazz.HOST_INFO = host_info(clazz.SYSTEM, clazz.VERSION_MAJOR, clazz.VERSION_MINOR,
-                                clazz.ARCH, clazz.DISTRO, clazz.FAMILY)
+    clazz.HOST_INFO = host_info(determiner.system(),
+                                determiner.version_major(),
+                                determiner.version_minor(),
+                                determiner.arch(),
+                                determiner.distro(),
+                                determiner.family())
     del clazz.init
     
   @classmethod
