@@ -54,7 +54,7 @@ class tar_util(object):
     # second one fails.  And we only do this workaround for alpine linux *and* running under docker.
     #
     num_tries = 1
-    if host.SYSTEM == host.LINUX and host.DISTRO == 'alpine' and docker.is_running_inside_docker():
+    if host.SYSTEM == host.LINUX and docker.is_running_inside_docker():
       num_tries = 2
 
     # tar is 10x faster than archiver.  need to fix archiver
@@ -63,6 +63,7 @@ class tar_util(object):
     for try_index in range(1, num_tries + 1):
       try:
         execute.execute(tar_cmd)
+        return
       except Exception as ex:
         if try_index == num_tries:
           raise
