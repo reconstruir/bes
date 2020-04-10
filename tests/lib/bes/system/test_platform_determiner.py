@@ -157,5 +157,24 @@ VARIANT_ID=container
     self.assertEqual( None, LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_minor() )
     self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').arch() )
 
+  def test_linux_os_release_alpine_310(self):
+    PLAT = self.fake_linux_platform
+
+    OS_RELEASE = '''\
+NAME="Alpine Linux"
+ID=alpine
+VERSION_ID=3.10.4
+PRETTY_NAME="Alpine Linux v3.10"
+HOME_URL="https://alpinelinux.org/"
+BUG_REPORT_URL="https://bugs.alpinelinux.org/"
+'''
+    
+    self.assertEqual( 'linux', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').system() )
+    self.assertEqual( 'alpine', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').distro() )
+    self.assertEqual( 'alpine', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').family() )
+    self.assertEqual( '3', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_major() )
+    self.assertEqual( '10', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_minor() )
+    self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').arch() )
+
 if __name__ == '__main__':
   unittest.main()
