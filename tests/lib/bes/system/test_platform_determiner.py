@@ -99,7 +99,40 @@ REDHAT_SUPPORT_PRODUCT_VERSION="7"
     self.assertEqual( None, LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_minor() )
     self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').arch() )
 
-  def test_linux_os_release_fedora_29(self):
+  def test_linux_os_release_fedora_28(self):
+    PLAT = self.fake_linux_platform
+
+    OS_RELEASE = '''\
+NAME=Fedora
+VERSION="28 (Workstation Edition)"
+ID=fedora
+VERSION_ID=28
+VERSION_CODENAME=""
+PLATFORM_ID="platform:f28"
+PRETTY_NAME="Fedora 28 (Workstation Edition)"
+ANSI_COLOR="0;34"
+LOGO=fedora-logo-icon
+CPE_NAME="cpe:/o:fedoraproject:fedora:28"
+HOME_URL="https://fedoraproject.org/"
+SUPPORT_URL="https://fedoraproject.org/wiki/Communicating_and_getting_help"
+BUG_REPORT_URL="https://bugzilla.redhat.com/"
+REDHAT_BUGZILLA_PRODUCT="Fedora"
+REDHAT_BUGZILLA_PRODUCT_VERSION=28
+REDHAT_SUPPORT_PRODUCT="Fedora"
+REDHAT_SUPPORT_PRODUCT_VERSION=28
+PRIVACY_POLICY_URL="https://fedoraproject.org/wiki/Legal:PrivacyPolicy"
+VARIANT="Workstation Edition"
+VARIANT_ID=workstation
+'''
+    
+    self.assertEqual( 'linux', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').system() )
+    self.assertEqual( 'fedora', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').distro() )
+    self.assertEqual( 'redhat', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').family() )
+    self.assertEqual( '28', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_major() )
+    self.assertEqual( None, LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_minor() )
+    self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').arch() )
+
+  def test_linux_os_release_fedora_29_container(self):
     PLAT = self.fake_linux_platform
 
     OS_RELEASE = '''\
