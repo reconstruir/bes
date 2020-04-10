@@ -45,6 +45,33 @@ credential
       }, sections[0].to_dict() )
     self.assertTrue( s.has_section('credential') )
     self.assertFalse( s.has_section('nothere') )
+
+  def test_wildcard(self):
+    text = '''\
+common
+  test: false
+  name: Artur
+
+release-*
+  test: true
+  port: 5502
+'''
+
+    s = simple_config.from_text(text)
+
+    self.assertTrue(s.has_section('release-1v.5166'))
+    self.assertTrue(s.has_section('common'))
+
+    self.assertFalse(s.has_section('commo-n'))
+    self.assertFalse(s.has_section('releas-e'))
+
+    sections = s.find_sections('release-1v.5166')
+    self.assertEqual(1, len(sections))
+    self.assertEqual({'test': 'true', 'port': '5502'}, sections[0].to_dict())
+
+    sections = s.find_sections('common')
+    self.assertEqual(1, len(sections))
+    self.assertEqual({'test': 'false', 'name': 'Artur'}, sections[0].to_dict())
     
   def test_env_var(self):
     text = '''\
@@ -234,9 +261,12 @@ cheese
 
 wine
   name: barolo
+
+release-*
+  bane: arma
 '''
     s = simple_config.from_text(text)
-    self.assertEqual( [ 'fruit', 'cheese', 'wine' ], s.section_names() )
+    self.assertEqual( [ 'fruit', 'cheese', 'wine', 'release-*' ], s.section_names() )
     self.assertTrue( s.sections_are_unique() )
     
   def test_sections_names_sections_with_same_names(self):
