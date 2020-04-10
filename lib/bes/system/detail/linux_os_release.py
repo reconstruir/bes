@@ -62,12 +62,26 @@ class linux_os_release(object):
   @classmethod
   def _parse_distro(clazz, text):
     'Parse the distro text.'
+    return clazz._unquote_text(text)
+
+  @classmethod
+  def _unquote_text(clazz, text):
+    'Unquote text if quoted.'
+    for c in [ '\'', '"' ]:
+      if text.startswith(c):
+        assert text.endswith(c)
+        return text[1:-1]
     return text
+
+  _FAMILY_ALIASES = {
+    'rhel fedora': 'redhat',
+  }
   
   @classmethod
   def _parse_family(clazz, text):
     'Parse the family text.'
-    return text
+    family = clazz._unquote_text(text)
+    return clazz._FAMILY_ALIASES.get(family, family)
   
   @classmethod
   def _guess_family(clazz, distro):
