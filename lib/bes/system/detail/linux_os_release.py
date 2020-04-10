@@ -82,12 +82,18 @@ class linux_os_release(object):
     'Parse the family text.'
     family = clazz._unquote_text(text)
     return clazz._FAMILY_ALIASES.get(family, family)
+
+  _FAMILY_GUESSES = {
+    'alpine': 'alpine',
+    'fedora': 'redhat',
+  }
   
   @classmethod
   def _guess_family(clazz, distro):
     'Guess the distro family.'
-    if distro in [ 'alpine' ]:
-      return 'alpine'
+    for pattern, family in clazz._FAMILY_GUESSES.items():
+      if pattern in distro:
+        return family
     return 'unknown'
 
   @classmethod
