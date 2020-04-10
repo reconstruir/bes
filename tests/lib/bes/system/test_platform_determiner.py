@@ -71,30 +71,6 @@ Codename:   stretch
     self.assertEqual( '4', LINUX_LSB_REL(PLAT('x86_64'), LSB_RELEASE).version_minor() )
     self.assertEqual( 'x86_64', LINUX_LSB_REL(PLAT('x86_64'), LSB_RELEASE).arch() )
 
-  def test_linux_os_release_ubuntu_16(self):
-    PLAT = self.fake_linux_platform
-
-    OS_RELEASE = '''\
-NAME="Ubuntu"
-VERSION="16.04.5 LTS (Xenial Xerus)"
-ID=ubuntu
-ID_LIKE=debian
-PRETTY_NAME="Ubuntu 16.04.5 LTS"
-VERSION_ID="16.04"
-HOME_URL="http://www.ubuntu.com/"
-SUPPORT_URL="http://help.ubuntu.com/"
-BUG_REPORT_URL="http://bugs.launchpad.net/ubuntu/"
-VERSION_CODENAME=xenial
-UBUNTU_CODENAME=xenial
-'''
-    
-    self.assertEqual( 'linux', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').system() )
-    self.assertEqual( 'ubuntu', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').distro() )
-    self.assertEqual( 'debian', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').family() )
-    self.assertEqual( '16', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_major() )
-    self.assertEqual( '04', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_minor() )
-    self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').arch() )
-
   def test_linux_os_release_centos_7(self):
     PLAT = self.fake_linux_platform
 
@@ -174,6 +150,102 @@ BUG_REPORT_URL="https://bugs.alpinelinux.org/"
     self.assertEqual( 'alpine', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').family() )
     self.assertEqual( '3', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_major() )
     self.assertEqual( '10', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_minor() )
+    self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').arch() )
+
+  def test_linux_os_release_ubuntu_14(self):
+    PLAT = self.fake_linux_platform
+
+    OS_RELEASE = '''\
+NAME="Ubuntu"
+VERSION="14.04.6 LTS, Trusty Tahr"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 14.04.6 LTS"
+VERSION_ID="14.04"
+HOME_URL="http://www.ubuntu.com/"
+SUPPORT_URL="http://help.ubuntu.com/"
+BUG_REPORT_URL="http://bugs.launchpad.net/ubuntu/"
+'''
+    
+    self.assertEqual( 'linux', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').system() )
+    self.assertEqual( 'ubuntu', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').distro() )
+    self.assertEqual( 'debian', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').family() )
+    self.assertEqual( '14', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_major() )
+    self.assertEqual( '04', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_minor() )
+    self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').arch() )
+    
+  def test_linux_os_release_ubuntu_16(self):
+    PLAT = self.fake_linux_platform
+
+    OS_RELEASE = '''\
+NAME="Ubuntu"
+VERSION="16.04.5 LTS (Xenial Xerus)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 16.04.5 LTS"
+VERSION_ID="16.04"
+HOME_URL="http://www.ubuntu.com/"
+SUPPORT_URL="http://help.ubuntu.com/"
+BUG_REPORT_URL="http://bugs.launchpad.net/ubuntu/"
+VERSION_CODENAME=xenial
+UBUNTU_CODENAME=xenial
+'''
+    
+    self.assertEqual( 'linux', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').system() )
+    self.assertEqual( 'ubuntu', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').distro() )
+    self.assertEqual( 'debian', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').family() )
+    self.assertEqual( '16', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_major() )
+    self.assertEqual( '04', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_minor() )
+    self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').arch() )
+    
+  def test_linux_os_release_ubuntu_18(self):
+    PLAT = self.fake_linux_platform
+
+    OS_RELEASE = '''\
+NAME="Ubuntu"
+VERSION="18.04.4 LTS (Bionic Beaver)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 18.04.4 LTS"
+VERSION_ID="18.04"
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+VERSION_CODENAME=bionic
+UBUNTU_CODENAME=bionic
+'''
+    
+    self.assertEqual( 'linux', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').system() )
+    self.assertEqual( 'ubuntu', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').distro() )
+    self.assertEqual( 'debian', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').family() )
+    self.assertEqual( '18', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_major() )
+    self.assertEqual( '04', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_minor() )
+    self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').arch() )
+
+  def test_linux_os_release_ubuntu_20(self):
+    PLAT = self.fake_linux_platform
+
+    OS_RELEASE = '''\
+NAME="Ubuntu"
+VERSION="20.04 LTS (Focal Fossa)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu Focal Fossa (development branch)"
+VERSION_ID="20.04"
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+VERSION_CODENAME=focal
+UBUNTU_CODENAME=focal
+'''
+    
+    self.assertEqual( 'linux', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').system() )
+    self.assertEqual( 'ubuntu', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').distro() )
+    self.assertEqual( 'debian', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').family() )
+    self.assertEqual( '20', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_major() )
+    self.assertEqual( '04', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').version_minor() )
     self.assertEqual( 'x86_64', LINUX_OS_REL(PLAT('x86_64'), OS_RELEASE, '<unittest>').arch() )
 
 if __name__ == '__main__':
