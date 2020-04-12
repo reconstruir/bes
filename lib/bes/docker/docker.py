@@ -24,7 +24,7 @@ class docker(object):
     if not path.exists(clazz._CGROUPS_FILE):
       raise RuntimeError('cgroups file not found: {}'.format(clazz._CGROUPS_FILE))
     
-    content = file_util.read(clazz._CGROUPS_FILE)
+    content = file_util.read(clazz._CGROUPS_FILE, codec = 'utf-8')
     return 'pids:/docker/' in content
 
   @staticmethod
