@@ -29,7 +29,7 @@ class docker(object):
 
   @staticmethod
   def raise_skip_if_running_under_docker():
-    raise_skip_if(not docker.is_running_inside_docker(), 'running under docekr')
+    raise_skip_if(not docker.is_running_inside_docker(), 'running under docker')
 
 class is_running_under_docker_override(object):
   'A class with context support for overriding whether running under docker.  Mostly for unit testing.'
