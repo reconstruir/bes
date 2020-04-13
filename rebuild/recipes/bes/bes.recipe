@@ -2,9 +2,6 @@
 
 package bes ${BES_VERSION}
 
-  requirements
-    all: TOOL python_setuptools >= 39.1.0
-
   steps  
     step_python_egg
     
