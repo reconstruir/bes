@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
-import inspect
+import copy, inspect
 from bes.system.log import logger
 
 from bes.common.check import check
@@ -22,17 +22,37 @@ class argparser_handler(object):
     handler = clazz._find_handler(handler_object, possible_names)
     if not handler:
       raise RuntimeError('No method found for command: %s' % (' '.join(possible_names)))
-    arg_names = inspect.getargspec(handler).args
-    if arg_names[0] != 'self':
-      raise RuntimeError('First argument should be \"self\": "{}"'.format(method_name))
-    arg_names.pop(0)
-    args = [ getattr(args, arg_name) for arg_name in arg_names ]
-    args_blurb = '; '.join([ '%s=%s' % (key, value) for ( key, value ) in zip(arg_names, args) ])
-    log.log_d('calling %s(%s)' % (handler.__name__, args_blurb))
-    exit_code = handler(*args)
-    if not isinstance(exit_code, int):
-      raise RuntimeError('Handler should return an int exit_code: %s' % (handler))
-    log.log_d('%s() returns %d' % (handler.__name__, exit_code))
+    handler_spec = inspect.getargspec(handler)
+
+    # If the arghandler has a keywords field, that means the user intends
+    # to use the simplified interface where handler methods are implemented
+    # generically with **kargs
+    if handler_spec.keywords:
+      dict_args = copy.deepcopy(args.__dict__)
+      for key in [ 'command', 'command_group' ]:
+        if key in dict_args:
+          del dict_args[key]
+      args_blurb = '; '.join([ '{}={}'.format(key, value) for key, value in sorted(dict_args.items()) ])
+      log.log_d('calling {}({})'.format(handler.__name__, args_blurb))
+      if handler.__name__.endswith('_generic__'):
+        exit_code = handler(command_group, command, **dict_args)
+      else:
+        exit_code = handler(**dict_args)
+      if not isinstance(exit_code, int):
+        raise RuntimeError('Handler should return an int exit_code: %s' % (handler))
+      log.log_d('{}() returns {}'.format(handler.__name__, exit_code))
+    else:
+      arg_names = handler_spec.args
+      if arg_names[0] != 'self':
+        raise RuntimeError('First argument should be \"self\": "{}"'.format(method_name))
+      arg_names.pop(0)
+      args = [ getattr(args, arg_name) for arg_name in arg_names ]
+      args_blurb = '; '.join([ '%s=%s' % (key, value) for ( key, value ) in zip(arg_names, args) ])
+      log.log_d('calling %s(%s)' % (handler.__name__, args_blurb))
+      exit_code = handler(*args)
+      if not isinstance(exit_code, int):
+        raise RuntimeError('Handler should return an int exit_code: %s' % (handler))
+      log.log_d('{}() returns {}'.format(handler.__name__, exit_code))
     return exit_code
 
   @classmethod
@@ -43,6 +63,7 @@ class argparser_handler(object):
     names = [ clazz._handler_method_name(None, command) ]
     if command_group:
       names.append(clazz._handler_method_name(command_group, command))
+      names.insert(0, clazz._handler_method_name(command_group, 'generic__'))
     return names
   
   @classmethod
