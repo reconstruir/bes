@@ -63,7 +63,7 @@ class argparser_handler(object):
     names = [ clazz._handler_method_name(None, command) ]
     if command_group:
       names.append(clazz._handler_method_name(command_group, command))
-      names.insert(0, clazz._handler_method_name(command_group, 'generic__'))
+      names.append(clazz._handler_method_name(command_group, 'generic__'))
     return names
   
   @classmethod
