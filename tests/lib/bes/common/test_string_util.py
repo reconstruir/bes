@@ -159,6 +159,18 @@ class test_string_util(unittest.TestCase):
     self.assertEqual( 'f_oo', f('foo', '_', -2) )
     self.assertEqual( '_foo', f('foo', '_', -3) )
     self.assertEqual( '_foo', f('foo', '_', -4) )
+
+  def test_replace_many_parts(self):
+    f = SU.replace
+    r = {
+      'ego_app': 'ea',
+      'bkom-CookingTogether': 'bk',
+      'hitpoint-Escaperoom': 'hp',
+      'imvu': 'im',
+      'timecode-EscapeRoom': 'tc',
+    }
+    self.assertEqual( 'withmedev2_support-ea-d64c314_bk-0.6.51_hp-0.154_im-2e2b480_tc-0.3.46',
+                      f('withmedev2_support-ego_app-d64c314_bkom-CookingTogether-0.6.51_hitpoint-Escaperoom-0.154_imvu-2e2b480_timecode-EscapeRoom-0.3.46', r, word_boundary = False) )
     
 if __name__ == "__main__":
   unittest.main()
