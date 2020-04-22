@@ -100,3 +100,5 @@ class config_file_editor(object):
       return config.load_from_file(self._filename, string_quote_char = self._string_quote_char)
     else:
       return config()
+
+check.register_class(config_file_editor, include_seq = False)
