@@ -34,10 +34,10 @@ class argparser_handler(object):
           del dict_args[key]
       args_blurb = '; '.join([ '{}={}'.format(key, value) for key, value in sorted(dict_args.items()) ])
       log.log_d('calling {}({})'.format(handler.__name__, args_blurb))
-      if handler.__name__.endswith('_generic__'):
-        exit_code = handler(command_group, command, **dict_args)
-      else:
+      if handler.__name__.endswith(command):
         exit_code = handler(**dict_args)
+      else:
+        exit_code = handler(command, **dict_args)
       if not isinstance(exit_code, int):
         raise RuntimeError('Handler should return an int exit_code: %s' % (handler))
       log.log_d('{}() returns {}'.format(handler.__name__, exit_code))
@@ -63,7 +63,7 @@ class argparser_handler(object):
     names = [ clazz._handler_method_name(None, command) ]
     if command_group:
       names.append(clazz._handler_method_name(command_group, command))
-      names.append(clazz._handler_method_name(command_group, 'generic__'))
+      names.append(clazz._handler_method_name(command_group, None))
     return names
   
   @classmethod
@@ -118,3 +118,14 @@ class argparser_handler(object):
   def resolve_dir(clazz, dirname, root_dir = None):
     return clazz.resolve_file(dirname, root_dir = root_dir)
   
+  @classmethod
+  def filter_keywords_args(clazz, clazz_for_instance, kargs):
+    check.check_class(clazz)
+    
+    instance = clazz_for_instance()
+    fields = [ field for field in dir(instance) if not field.startswith('_') ]
+    copied_args = copy.deepcopy(kargs)
+    for field in fields:
+      if field in copied_args:
+        del copied_args[field]
+    return copied_args
