@@ -163,18 +163,28 @@ class git(object):
     if options.branch:
       git.checkout(dest_dir, options.branch)
     if options.submodules or options.submodule_list:
-      sub_args = [ 'submodule', 'update', '--init' ]
-      if options.jobs:
-        args.extend([ '--jobs', str(options.jobs) ])
-      if options.submodules_recursive:
-        sub_args.append('--recursive')
-      if options.submodule_list:
-        sub_args.extend(options.submodule_list)
-      clazz.log.log_d('clone: sub_args="{}" extra_env={}'.format(' '.join(args), extra_env))
-      sub_rv = clazz.call_git(dest_dir, sub_args, extra_env = extra_env)
-      clazz.log.log_d('clone: sub_rv="{}"'.format(str(sub_rv)))
+      sub_rv = clazz._submodule_init(dest_dir, options)
     return clone_rv, sub_rv
 
+  @classmethod
+  def _submodule_init(clazz, dest_dir, options):
+    assert options.submodules or options.submodule_list
+
+    lfs_env = {
+      'GIT_LFS_SKIP_SMUDGE': '0' if options.lfs else '1',
+    }
+    sub_args = [ 'submodule', 'update', '--init' ]
+    if options.jobs:
+      sub_args.extend([ '--jobs', str(options.jobs) ])
+    if options.submodules_recursive:
+      sub_args.append('--recursive')
+    if options.submodule_list:
+      sub_args.extend(options.submodule_list)
+    clazz.log.log_d('_submodule_init: sub_args="{}" lfs_env={}'.format(' '.join(sub_args), lfs_env))
+    sub_rv = clazz.call_git(dest_dir, sub_args, extra_env = lfs_env)
+    clazz.log.log_d('_submodule_init: sub_rv="{}"'.format(str(sub_rv)))
+    return sub_rv
+  
   @classmethod
   def sync(clazz, address, dest_dir, options = None):
     check.check_git_clone_options(options, allow_none = True)
@@ -270,6 +280,9 @@ class git(object):
     if clazz.is_repo(dest_dir):
       if options.reset_to_head:
         clazz.reset_to_revision(dest_dir, 'HEAD')
+
+      if options.submodules or options.submodule_list:
+        clazz._submodule_init(dest_dir, options)
         
       if clazz.has_changes(dest_dir):
         raise RuntimeError('dest_dir %s has changes.' % (dest_dir))
