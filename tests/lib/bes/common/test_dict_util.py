@@ -43,5 +43,11 @@ class test_dict_util(unittest.TestCase):
     self.assertEqual( ( { 'foo': 'hi' }, { 'bar': '666' } ), dict_util.partition_by_function({ 'foo': 'hi', 'bar': '666' }, func) )
     self.assertEqual( ( { 'foo': 'hi', 'fruit': 'apple' }, { 'bar': '666' } ), dict_util.partition_by_function({ 'foo': 'hi', 'bar': '666', 'fruit': 'apple' }, func) )
     
+  def test_hide_passwords(self):
+    self.assertEqual( {
+      'username': 'fred',
+      'password': '***'
+    }, dict_util.hide_passwords({ 'username': 'fred', 'password': 'foo' }, [ 'password' ]) )
+    
 if __name__ == '__main__':
   unittest.main()

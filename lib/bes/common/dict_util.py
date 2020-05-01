@@ -2,9 +2,10 @@
 
 import copy
 from bes.compat.StringIO import StringIO
+from .check import check
+from .object_util import object_util
 from .string_util import string_util
 from .variable import variable
-from .object_util import object_util
 
 class dict_util(object):
   'Dict util'
@@ -156,3 +157,20 @@ class dict_util(object):
       else:
         not_matching[key] = value
     return matching, not_matching
+
+  @staticmethod
+  def hide_passwords(d, password_keys, hide_char = '*'):
+    'Return a copy of d with any password kyes hidden.'
+    check.check_dict(d, check.STRING_TYPES)
+    check.check_string_seq(password_keys)
+    check.check_string(hide_char)
+    
+    result = copy.deepcopy(d)
+    for key in password_keys:
+      value = result[key]
+      if not check.is_string(value):
+        raise ValueError('value for key "{}" is not a string: "{}"'.format(key, value))
+      new_value = hide_char * len(value)
+      result[key] = new_value
+    return result
+    
