@@ -15,6 +15,7 @@ from bes.fs.file_mime import file_mime
 from bes.system.log import logger
 from bes.factory.factory_field import factory_field
 from bes.git.git_clone_manager import git_clone_manager
+from bes.git.git_error import git_error
 
 from .vfs_base import vfs_base
 from .vfs_error import vfs_error
@@ -180,7 +181,7 @@ class vfs_git_repo(vfs_base):
     try:
       if proxy.repo.has_unpushed_commits():
         proxy.repo.push()
-    except RuntimeError as ex:
+    except git_error as ex:
       if 'unknown commit' in str(ex).lower():
         return
       raise

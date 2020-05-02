@@ -7,6 +7,7 @@ from bes.property.cached_property import cached_property
 from bes.fs.file_util import file_util
 from bes.fs.file_symlink import file_symlink
 from bes.git.git import git
+from bes.git.git_error import git_error
 
 from .unit_test_inspect import unit_test_inspect
 
@@ -34,7 +35,7 @@ class file_info(namedtuple('file_info', 'filename,config')):
     'Return the git root for this file or None if not within a git repo.'
     try:
       return git.root(self.filename)
-    except RuntimeError as ex:
+    except git_error as ex:
       return None
     except Exception as ex:
       raise

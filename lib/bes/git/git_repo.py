@@ -12,10 +12,10 @@ from bes.fs.testing.temp_content import temp_content
 from bes.version.software_version import software_version
 
 from .git import git
-from .git_modules_file import git_modules_file
-from .git_error import git_error
 from .git_address_util import git_address_util
 from .git_commit_hash import git_commit_hash
+from .git_error import git_error
+from .git_modules_file import git_modules_file
 
 import warnings
 with warnings.catch_warnings():
@@ -97,7 +97,7 @@ class git_repo(object):
     temp_content.write_items(items, self.root)
     if commit:
       if self.has_changes():
-        raise RuntimeError('You need a clean tree with no changes to add temp content.')
+        raise git_error('You need a clean tree with no changes to add temp content.')
       self.add('.')
       self.commit(commit_message, '.')
 
@@ -398,7 +398,7 @@ class git_repo(object):
 
     operation_spec = inspect.getargspec(operation)
     if len(operation_spec[0]) != 1:
-      raise RuntimeError('operation should take exactly one argument.')
+      raise git_error('operation should take exactly one argument.')
 
     if check.is_int(num_tries):
       if num_tries <= 0 or num_tries > 100:
@@ -429,7 +429,7 @@ class git_repo(object):
         else:
           git.log.log_w('operation_with_reset: nothing to push.')
         return
-      except RuntimeError as ex:
+      except git_error as ex:
         git.log.log_w('operation_with_reset: failed {} of {}'.format(i + 1, num_tries))
         # git.log.log_exception(ex, show_traceback = True)
         time.sleep(retry_wait_ms)

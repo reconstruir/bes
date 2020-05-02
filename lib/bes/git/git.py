@@ -32,6 +32,7 @@ from .git_changelog import git_changelog
 from .git_clone_options import git_clone_options
 from .git_commit_hash import git_commit_hash
 from .git_commit_info import git_commit_info
+from .git_error import git_error
 from .git_head_info import git_head_info
 from .git_modules_file import git_modules_file
 from .git_status import git_status
@@ -72,7 +73,7 @@ class git(object):
     try:
       rv = clazz.call_git(root, [ 'remote', 'get-url', '--push', 'origin' ])
       return rv.stdout.strip()
-    except RuntimeError as ex:
+    except git_error as ex:
       return None
 
   @classmethod
@@ -106,7 +107,7 @@ class git(object):
   @classmethod
   def check_is_git_repo(clazz, d):
     if not clazz.is_repo(d):
-      raise RuntimeError('Not a git repo: %s' % (d))
+      raise git_error('Not a git repo: "{}"'.format(d))
 
   @classmethod
   def call_git(clazz, root, args, raise_error = True, extra_env = None):
@@ -115,7 +116,7 @@ class git(object):
     if not hasattr(clazz, '_git_exe'):
       git_exe = clazz.find_git_exe()
       if not git_exe:
-        raise RuntimeError('git exe not found in: {}'.format(' '.join(os.environ['PATH'].split(os.pathsep))))
+        raise git_error('git exe not found in: {}'.format(' '.join(os.environ['PATH'].split(os.pathsep))))
       setattr(clazz, '_git_exe', git_exe)
     git_exe = getattr(clazz, '_git_exe')
     cmd = [ git_exe ] + parsed_args
@@ -129,9 +130,7 @@ class git(object):
       message += rv.stderr
       message += rv.stdout
       # print(message)
-      ex = RuntimeError(message)
-      setattr(ex, 'execute_result', rv)
-      raise ex
+      raise git_error(message, execute_result = rv)
     return rv
 
   @classmethod
@@ -142,10 +141,10 @@ class git(object):
     clazz.log.log_d('clone: address={} dest_dir={} options={}'.format(address, dest_dir, pprint.pformat(options.__dict__)))
     if path.exists(dest_dir):
       if not path.isdir(dest_dir):
-        raise RuntimeError('dest_dir %s is not a directory.' % (dest_dir))
+        raise git_error('dest_dir "{}" is not a directory.'.format(dest_dir))
       if options.enforce_empty_dir:
         if not dir_util.is_empty(dest_dir):
-          raise RuntimeError('dest_dir %s is not empty.' % (dest_dir))
+          raise git_error('dest_dir "{}" is not empty.'.format(dest_dir))
     else:
       file_util.mkdir(dest_dir)
     args = [ 'clone' ]
@@ -243,7 +242,7 @@ class git(object):
         clazz.push(root)
         clazz.log.log_i('push_with_rebase: success {} of {} pushing to {}'.format(i + 1, num_tries, origin))
         return
-      except RuntimeError as ex:
+      except git_error as ex:
         clazz.log.log_w('push_with_rebase: failed {} of {} pushing to {}'.format(i + 1, num_tries, origin))
         time.sleep(retry_wait_ms)
         save_ex = ex
@@ -285,7 +284,7 @@ class git(object):
         clazz._submodule_init(dest_dir, options)
         
       if clazz.has_changes(dest_dir):
-        raise RuntimeError('dest_dir %s has changes.' % (dest_dir))
+        raise git_error('dest_dir "{}" has changes.'.format(dest_dir))
 
       info = clazz.head_info(dest_dir)
 
@@ -314,7 +313,7 @@ class git(object):
         clazz.call_git(tmp_repo_dir, [ 'commit', '-m', 'add untracked files just for tmp repo' ])
     else:
       if untracked:
-        raise RuntimeError('untracked can only be True for local repos.')
+        raise git_error('untracked can only be True for local repos.')
       clazz.clone(address, tmp_repo_dir)
     output_filename = path.abspath(output_filename)
     file_util.mkdir(path.dirname(output_filename))

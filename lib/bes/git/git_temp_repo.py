@@ -4,6 +4,8 @@ import inspect
 
 from bes.common.check import check
 from bes.fs.temp_file import temp_file
+
+from .git_error import git_error
 from .git_repo import git_repo
 
 class _method_caller(object):
@@ -75,7 +77,7 @@ class git_temp_repo(object):
     method_names = [ name for name in method_names if not name.startswith('_') ]
     for method_name in method_names:
       if hasattr(self, method_name):
-        raise RuntimeError('{} already has method \"{}\"'.format(self, method_name))
+        raise git_error('{} already has method \"{}\"'.format(self, method_name))
       setattr(self, method_name, _method_caller(target, method_name))
       
   def make_temp_cloned_repo(self, prefix = None):

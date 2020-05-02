@@ -6,6 +6,8 @@ from collections import namedtuple
 
 from bes.text.text_line_parser import text_line_parser
 
+from .git_error import git_error
+
 class git_head_info(object):
   'A class to deal with git head info.'
 
@@ -15,7 +17,7 @@ class git_head_info(object):
     lines = text_line_parser.parse_lines(text, strip_comments = False, strip_text = True, remove_empties = True)
     active_line = clazz._find_active_branch_entry(lines)
     if not active_line:
-      raise RuntimeError('Failed to get head info')
+      raise git_error('Failed to get head info')
     detached_info = clazz._parse_detached_head_line(active_line)
     if detached_info:
       ref = detached_info[0]
@@ -24,7 +26,7 @@ class git_head_info(object):
       return clazz._head_info(None, ref, commit_hash, commit_message, True)
     info = clazz._parse_head_line(active_line)
     if not info:
-      raise RuntimeError('Failed to parse head info: "{}"'.format(active_line))
+      raise git_error('Failed to parse head info: "{}"'.format(active_line))
     branch = info[0].strip()
     commit_hash = info[1]
     commit_message = info[2]

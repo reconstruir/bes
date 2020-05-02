@@ -25,7 +25,7 @@ class git_unit_test(object):
       file_util.remove(path.expanduser('~/.gitconfig'))
 
 def git_temp_home_func():
-  'A decarator to override HOME for a function.'
+  'A decorator to override HOME for a function.'
   def _wrap(func):
     @wraps(func)
     def _caller(self, *args, **kwargs):

@@ -12,6 +12,8 @@ from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
 from bes.text.tree_text_parser import tree_text_parser
 
+from .git_error import git_error
+
 class git_module(namedtuple('git_module', 'name, path, url, branch')):
 
   def __new__(clazz, name, path, url, branch):
@@ -90,7 +92,7 @@ class git_modules_file(object):
   def _parse_module(clazz, node):
     name = clazz._parse_entry_header(node.data.text)
     if not name:
-      raise RuntimeError('Invalid module header: "{}"'.format(node.data.text))
+      raise git_error('Invalid module header: "{}"'.format(node.data.text))
     values = key_value_list()
     for child in node.children:
       kv = key_value.parse(child.data.text)
