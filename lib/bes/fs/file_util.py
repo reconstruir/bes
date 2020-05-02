@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import errno, codecs, hashlib, subprocess
-import os.path as path, os, platform, shutil, tempfile, time
+import contextlib, codecs, errno, hashlib, subprocess
+import os.path as path, os, platform, shutil, sys, tempfile, time
 from datetime import datetime
 
 from bes.common.check import check
@@ -327,5 +327,22 @@ class file_util(object):
       os.sync()
     else:
       subprocess.call([ 'sync' ])
+
+  @classmethod
+  @contextlib.contextmanager
+  def open_with_default(clazz, filename = None):
+    '''
+    Return an open file managed with contextmanager or sys.stdout if None
+    From: https://stackoverflow.com/a/17603000
+    '''
+    if filename and filename != '-':
+      fh = open(filename, 'w')
+    else:
+      fh = sys.stdout
+    try:
+      yield fh
+    finally:
+      if fh is not sys.stdout:
+        fh.close()
 
 log.add_logging(file_util, 'file_util')
