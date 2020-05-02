@@ -15,6 +15,7 @@ from .git import git
 from .git_address_util import git_address_util
 from .git_commit_hash import git_commit_hash
 from .git_error import git_error
+from .git_exe import git_exe
 from .git_modules_file import git_modules_file
 
 import warnings
@@ -298,7 +299,7 @@ class git_repo(object):
     return git.lfs_files_need_smudge(self.root)
 
   def call_git(self, args, raise_error = True, extra_env = None):
-    return git.call_git(self.root, args, raise_error = raise_error, extra_env = extra_env)
+    return git_exe.call_git(self.root, args, raise_error = raise_error, extra_env = extra_env)
 
   def unpushed_commits(self):
     return git.unpushed_commits(self.root)
