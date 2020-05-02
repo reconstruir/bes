@@ -18,7 +18,10 @@ class config_file_editor(object):
     self._string_quote_char = string_quote_char
     if not path.isfile(self._filename):
       file_util.save(self._filename, content = '')
-    
+
+  def __str__(self):
+    return str(self._config)
+      
   def set_value(self, section, key, value):
     check.check_string(section)
     check.check_string(key)
