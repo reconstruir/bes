@@ -15,10 +15,10 @@ from bes.git.git_status import git_status
 
 class test_git(unit_test):
 
-  def _create_tmp_repo(self):
-    tmp_repo = self.make_temp_dir()
-    git.init(tmp_repo)
-    return tmp_repo
+  def _create_tmp_repo(self, *args):
+    tmp_dir = self.make_temp_dir()
+    git.init(tmp_dir, *args)
+    return tmp_dir
 
   def _create_tmp_files(self, tmp_repo):
     foo = path.join(tmp_repo, 'foo.txt')
@@ -262,6 +262,30 @@ class test_git(unit_test):
     self.assertTrue( git.is_short_hash('cd13863') )
     self.assertFalse( git.is_short_hash('cd138635e1a94a6f2da6acbce3e2f2d584121d28') )
     self.assertFalse( git.is_short_hash('zd13863') )
+
+  @git_temp_home_func()
+  def test_is_repo_true(self):
+    tmp_repo = self._create_tmp_repo()
+    tmp_bare_repo = self._create_tmp_repo('--bare')
+    self.assertTrue( git.is_repo(tmp_repo) )
+    self.assertFalse( git.is_bare_repo(tmp_repo) )
+    
+  @git_temp_home_func()
+  def test_is_repo_false(self):
+    tmp_repo = self.make_temp_dir()
+    self.assertFalse( git.is_repo(tmp_repo) )
+    
+  @git_temp_home_func()
+  def test_is_bare_repo_true(self):
+    tmp_repo = self._create_tmp_repo()
+    tmp_bare_repo = self._create_tmp_repo('--bare')
+    self.assertFalse( git.is_bare_repo(tmp_repo) )
+    self.assertTrue( git.is_bare_repo(tmp_bare_repo) )
+    
+  @git_temp_home_func()
+  def test_is_bare_repo_false(self):
+    tmp_bare_repo = self.make_temp_dir()
+    self.assertFalse( git.is_bare_repo(tmp_bare_repo) )
     
 if __name__ == '__main__':
   unit_test.main()

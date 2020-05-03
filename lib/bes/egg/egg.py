@@ -13,7 +13,7 @@ class egg(object):
   @classmethod
   def make(clazz, root_dir, revision, setup_filename, untracked = False, debug = False):
     'Make an egg from a git root_dir.  setup_filename is relative to that root'
-    git.check_is_git_repo(root_dir)
+    git.check_is_repo(root_dir)
     base_name = path.basename(root_dir)
     tmp_archive_filename = temp_file.make_temp_file(delete = not debug,
                                                     prefix = '%s.egg.' % (base_name),

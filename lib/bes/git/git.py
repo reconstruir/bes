@@ -90,18 +90,31 @@ class git(object):
     return git_exe.call_git(root, args)
 
   @classmethod
-  def is_repo(clazz, root):
-    expected_files = [ 'HEAD', 'config', 'index', 'refs', 'objects' ]
+  def is_bare_repo(clazz, root):
+    'Return True if d is a bare git repo meaning it has git files.'
+    expected_files = [ 'HEAD', 'config', 'description', 'hooks', 'info', 'objects', 'refs' ]
     for f in expected_files:
-      if not path.exists(path.join(root, '.git', f)):
+      if not path.exists(path.join(root, f)):
         return False
     return True
 
   @classmethod
-  def check_is_git_repo(clazz, d):
+  def is_repo(clazz, root):
+    'Return True if d is a git repo meaning it has a .git dir with git files.'
+    return clazz.is_bare_repo(path.join(root, '.git'))
+
+  @classmethod
+  def check_is_repo(clazz, d):
+    'Raise an error if d is not a valid git repo.'
     if not clazz.is_repo(d):
       raise git_error('Not a git repo: "{}"'.format(d))
 
+  @classmethod
+  def check_is_bare_repo(clazz, d):
+    'Raise an error if d is not a valid bare repo.'
+    if not clazz.is_bare_repo(d):
+      raise git_error('Not a bare git repo: "{}"'.format(d))
+    
   @classmethod
   def clone(clazz, address, dest_dir, options = None):
     check.check_git_clone_options(options, allow_none = True)

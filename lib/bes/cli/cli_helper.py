@@ -26,7 +26,7 @@ class cli_helper(object):
 #####
 #####  @classmethod
 #####  def check_dir_is_git_repo(clazz, d):
-#####    git.check_is_git_repo(d)
+#####    git.check_is_repo(d)
 #####
 #####  @classmethod
 #####  def resolve_file(clazz, filename, root_dir = None):

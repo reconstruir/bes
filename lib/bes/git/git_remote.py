@@ -18,7 +18,7 @@ class git_remote(object):
   def parse(clazz, remote):
     'Parse a bitbucket remote "url" and return the parsed parts.'
     if path.isdir(remote):
-      #git.check_is_git_repo(remote)
+      #git.check_is_repo(remote)
       return clazz._parsed_remote('local', None, None, remote)
         
     found = re.findall(clazz._SSH_PATTERN, remote)
