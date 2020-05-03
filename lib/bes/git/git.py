@@ -10,7 +10,6 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_copy import file_copy
-from bes.fs.file_ignore import file_ignore
 from bes.fs.file_ignore import ignore_file_data
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
