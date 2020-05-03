@@ -24,6 +24,7 @@ from .git_branch_list import git_branch_list
 from .git_changelog import git_changelog
 from .git_clone_options import git_clone_options
 from .git_commit_hash import git_commit_hash
+from .git_config import git_config
 from .git_error import git_error
 from .git_exe import git_exe
 from .git_head_info import git_head_info
@@ -520,30 +521,23 @@ class git(object):
 
   @classmethod
   def config_set_value(clazz, key, value):
-    git_exe.call_git('/tmp', [ 'config', '--global', key, value ], raise_error = False)
+    git_config.set_value(key, value)
 
   @classmethod
   def config_unset_value(clazz, key):
-    git_exe.call_git('/tmp', [ 'config', '--global', '--unset', key ], raise_error = False)
+    return git_config.unset_value(key)
 
   @classmethod
   def config_get_value(clazz, key):
-    rv = git_exe.call_git('/tmp', [ 'config', '--global', key ], raise_error = False)
-    if rv.exit_code == 0:
-      return string_util.unquote(rv.stdout.strip())
-    else:
-      return None
+    return git_config.get_value(key)
 
   @classmethod
   def config_set_identity(clazz, name, email):
-    git_exe.call_git('/tmp', [ 'config', '--global', 'user.name', '"%s"' % (name) ])
-    git_exe.call_git('/tmp', [ 'config', '--global', 'user.email', '"%s"' % (email) ])
+    return git_config.set_identity(name, email)
 
-  _identity = namedtuple('_identity', 'name, email')
   @classmethod
   def config_get_identity(clazz):
-    return clazz._identity(clazz.config_get_value('user.name'),
-                           clazz.config_get_value('user.email'))
+    return git_config.get_identity()
 
   _bump_tag_result = namedtuple('_bump_tag_result', 'old_tag, new_tag')
   @classmethod
