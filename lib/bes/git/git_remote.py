@@ -5,7 +5,7 @@ import re
 from collections import namedtuple
 
 from .git_error import git_error
-#from .git import git
+from .git import git
 
 class git_remote(object):
   'Class to deal with git remote "urls"'
@@ -18,8 +18,12 @@ class git_remote(object):
   def parse(clazz, remote):
     'Parse a bitbucket remote "url" and return the parsed parts.'
     if path.isdir(remote):
-      #git.check_is_repo(remote)
-      return clazz._parsed_remote('local', None, None, remote)
+      if git.is_repo(remote):
+        return clazz._parsed_remote('local', None, None, remote)
+      elif git.is_bare_repo(remote):
+        return clazz._parsed_remote('bare_local', None, None, remote)
+      else:
+        raise git_error('Not a git repo: "{}"'.format(remote))
         
     found = re.findall(clazz._SSH_PATTERN, remote)
     scheme = None

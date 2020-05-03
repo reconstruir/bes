@@ -21,7 +21,15 @@ class test_git_remote(unit_test):
       'file foo.txt "foo.txt"',
     ]
     r = git_temp_repo(remote = True, content = items, debug = self.DEBUG, prefix = '.repo')
-    self.assertEqual( ( 'local', None, None, r.address ), git_remote.parse(r.address) )
+    self.assertEqual( ( 'local', None, None, r.root ), git_remote.parse(r.root) )
+    
+  @git_temp_home_func()
+  def test_parse_local_bare(self):
+    items = [
+      'file foo.txt "foo.txt"',
+    ]
+    r = git_temp_repo(remote = True, content = items, debug = self.DEBUG, prefix = '.repo')
+    self.assertEqual( ( 'bare_local', None, None, r.address ), git_remote.parse(r.address) )
     
   @git_temp_home_func()
   def xtest_parse_local_non_existent(self):

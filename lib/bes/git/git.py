@@ -101,7 +101,8 @@ class git(object):
   @classmethod
   def is_repo(clazz, root):
     'Return True if d is a git repo meaning it has a .git dir with git files.'
-    return clazz.is_bare_repo(path.join(root, '.git'))
+    dot_git_dir = path.join(root, '.git')
+    return path.isdir(dot_git_dir) and clazz.is_bare_repo(dot_git_dir)
 
   @classmethod
   def check_is_repo(clazz, d):
