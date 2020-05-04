@@ -56,7 +56,7 @@ class files(object):
   @classmethod
   def find_text_files(clazz, d):
     'Find text files recurisively in directory d.'
-    return file_find.find_function(d, file_mime.is_text, relative = False)
+    return file_find.find_function(d, file_mime.is_text, relative = False, match_basename = False)
 
   @classmethod
   def find_python_files(clazz, d):
