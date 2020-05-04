@@ -404,7 +404,7 @@ fruit = durian
       'default': { 'color': 'red', 'fruit': 'apple' },
       'new_zealand': { 'color': 'green', 'fruit': 'kiwi' },
       'indonesia': { 'color': 'yellow', 'fruit': 'durian' },
-      'antartica': {},
+      'antartica': {'color': 'red', 'fruit': 'apple'},
     }, c.to_dict() )
     
   def test_load_unquoted(self):
@@ -428,7 +428,7 @@ fruit = "durian"
       'default': { 'color': '"red"', 'fruit': '"apple"' },
       'new_zealand': { 'color': '"green"', 'fruit': '"kiwi"' },
       'indonesia': { 'color': '"yellow"', 'fruit': '"durian"' },
-      'antartica': {},
+      'antartica': {'color': '"red"', 'fruit': '"apple"'},
     }, c.to_dict() )
     
   def test_load_quoted(self):
@@ -452,7 +452,7 @@ fruit = "durian"
       'default': { 'color': 'red', 'fruit': 'apple' },
       'new_zealand': { 'color': 'green', 'fruit': 'kiwi' },
       'indonesia': { 'color': 'yellow', 'fruit': 'durian' },
-      'antartica': {},
+      'antartica': {'color': 'red', 'fruit': 'apple'},
     }, c.to_dict() )
 
   def test_convert_unquoted_to_quoted(self):
@@ -476,7 +476,7 @@ fruit = durian
       'default': { 'color': 'red', 'fruit': 'apple' },
       'new_zealand': { 'color': 'green', 'fruit': 'kiwi' },
       'indonesia': { 'color': 'yellow', 'fruit': 'durian' },
-      'antartica': {},
+      'antartica': {'color': 'red', 'fruit': 'apple'},
     }, c.to_dict() )
 
     tmp = temp_file.make_temp_file()
@@ -519,6 +519,99 @@ fruit = "durian"
     self.assertTrue( c.has_section('default') )
     self.assertTrue( c.has_section('indonesia') )
     self.assertFalse( c.has_section('pakistan') )
+
+  def test_get_value_with_default_section(self):
+    text = '''\
+[default]
+color = red
+fruit = apple
+
+[new_zealand]
+color = green
+fruit = kiwi
+
+[indonesia]
+color = yellow
+fruit = durian
+
+[antartica]
+
+[singapore]
+fruit = dragonfruit
+'''
+    c = config.load_from_text(text, '<unittest>')
+    self.assertEqual( 'red', c.get_value('default', 'color') )
+    self.assertEqual( 'apple', c.get_value('default', 'fruit') )
+
+    self.assertEqual( 'green', c.get_value('new_zealand', 'color') )
+    self.assertEqual( 'kiwi', c.get_value('new_zealand', 'fruit') )
+
+    self.assertEqual( 'red', c.get_value('antartica', 'color') )
+    self.assertEqual( 'apple', c.get_value('antartica', 'fruit') )
+
+    self.assertEqual( 'red', c.get_value('singapore', 'color') )
+    self.assertEqual( 'dragonfruit', c.get_value('singapore', 'fruit') )
+    
+  def test_get_values_with_default_section(self):
+    text = '''\
+[default]
+color = red
+fruit = apple
+
+[new_zealand]
+color = green
+fruit = kiwi
+
+[indonesia]
+color = yellow
+fruit = durian
+
+[antartica]
+
+[singapore]
+fruit = dragonfruit
+'''
+    c = config.load_from_text(text, '<unittest>')
+    self.assertEqual( { 'color': 'red', 'fruit': 'apple' }, c.get_values('default') )
+    self.assertEqual( { 'color': 'green', 'fruit': 'kiwi' }, c.get_values('new_zealand') )
+    self.assertEqual( { 'color': 'red', 'fruit': 'apple' }, c.get_values('antartica') )
+    self.assertEqual( { 'color': 'red', 'fruit': 'dragonfruit' }, c.get_values('singapore') )
+    self.assertEqual( { 'color': 'yellow', 'fruit': 'durian' }, c.get_values('indonesia') )
+    
+  def test_has_values_with_default_section(self):
+    text = '''\
+[default]
+color = red
+fruit = apple
+
+[new_zealand]
+color = green
+fruit = kiwi
+
+[indonesia]
+color = yellow
+fruit = durian
+
+[antartica]
+
+[singapore]
+fruit = dragonfruit
+'''
+    c = config.load_from_text(text, '<unittest>')
+    self.assertTrue( c.has_value('default', 'color') )
+    self.assertTrue( c.has_value('default', 'fruit') )
+
+    self.assertTrue( c.has_value('new_zealand', 'color') )
+    self.assertTrue( c.has_value('new_zealand', 'fruit') )
+    
+    self.assertTrue( c.has_value('antartica', 'color') )
+    self.assertTrue( c.has_value('antartica', 'fruit') )
+    
+    self.assertTrue( c.has_value('singapore', 'color') )
+    self.assertTrue( c.has_value('singapore', 'fruit') )
+    
+    self.assertTrue( c.has_value('indonesia', 'color') )
+    self.assertTrue( c.has_value('indonesia', 'fruit') )
     
 if __name__ == '__main__':
   unit_test.main()

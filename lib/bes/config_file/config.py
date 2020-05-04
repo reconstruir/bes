@@ -34,6 +34,8 @@ class config(object):
   [antartica]
   '''
 
+  _DEFAULT_SECTION = 'default'
+
   class Parser(SafeConfigParser):
     def to_dict(self):
       d = dict(self._sections)
@@ -44,8 +46,10 @@ class config(object):
   
   def __init__(self, parser = None, string_quote_char = None):
     check.check_string(string_quote_char, allow_none = True)
+    
     if string_quote_char:
       assert string_quote_char in [ '"', "'" ]
+
     parser = parser or ConfigParser()
     if not isinstance(parser, ( ConfigParser, SafeConfigParser )):
       raise TypeError('parser should be an instance of ConfigParser or SafeConfigParser.')
@@ -54,6 +58,10 @@ class config(object):
 
   def __str__(self):
     buf = StringIO()
+#    for section in self._parser.sections():
+#      for x in self._parser.items(section):
+#        print('HI: {} x={}'.format(section, x))
+#    assert False
     self._parser.write(buf)
     return buf.getvalue().strip() + '\n'
 
@@ -69,6 +77,7 @@ class config(object):
 
   def has_section(self, section):
     check.check_string(section)
+    
     return self._parser.has_section(section)
   
   def set_value(self, section, key, value):
@@ -99,17 +108,39 @@ class config(object):
   def get_value(self, section, key):
     check.check_string(section)
     check.check_string(key)
+    
     if not self._parser.has_section(section):
       raise ValueError('no such section: {}'.format(section))
-    try:
-      return self._value_for_get(self._parser.get(section, key))
-    except NoOptionError as ex:
-      raise ValueError('no such value in section {}: {}'.format(section, key))
 
+    if self._parser.has_option(section, key):
+      return self._value_for_get(self._parser.get(section, key))
+
+    if self._parser.has_option(self._DEFAULT_SECTION, key):
+      return self._value_for_get(self._parser.get(self._DEFAULT_SECTION, key))
+    
+    raise ValueError('no such value in section {}: {}'.format(section, key))
+
+  def has_default_section(self):
+    return self.has_section(self._DEFAULT_SECTION)
+  
   def get_values(self, section):
     check.check_string(section)
+    
     if not self._parser.has_section(section):
       raise ValueError('no such section: {}'.format(section))
+
+    result = {}
+    if self.has_default_section():
+      default_values = self._get_values_for_section(self._DEFAULT_SECTION)
+      for key, value in default_values.items():
+        result[key] = self._value_for_get(value) 
+      
+    values = self._get_values_for_section(section)
+    for key, value in values.items():
+      result[key] = self._value_for_get(value) 
+    return result
+
+  def _get_values_for_section(self, section):
     result = {}
     for key, value in dict(self._parser.items(section)).items():
       result[key] = self._value_for_get(value) 
@@ -118,7 +149,12 @@ class config(object):
   def has_value(self, section, key):
     check.check_string(section)
     check.check_string(key)
-    return self._parser.has_option(section, key)
+    
+    if self._parser.has_option(section, key):
+      return True
+    if self.has_default_section():
+      return self._parser.has_option(self._DEFAULT_SECTION, key)
+    return False
   
   def save(self, filename, codec = 'utf-8'):
     file_util.save(filename, content = str(self), codec = codec)
@@ -152,8 +188,9 @@ class config(object):
     return result
 
   def _reset(self):
-    for section in self.sections():
-      self.set_values(section, self.get_values(section))
+    for section in self._parser.sections():
+      for key, value in self._parser.items(section):
+        self._parser.set(section, key, self._value_for_set(value))
   
   @classmethod
   def load_from_text(clazz, text, filename, string_quote_char = None):
@@ -161,6 +198,7 @@ class config(object):
     cfg = config(parser = parser, string_quote_char = string_quote_char)
     if string_quote_char:
       cfg._reset()
+
     return cfg
   
   @classmethod
