@@ -49,5 +49,11 @@ class test_dict_util(unittest.TestCase):
       'password': '***'
     }, dict_util.hide_passwords({ 'username': 'fred', 'password': 'foo' }, [ 'password' ]) )
     
+  def test_hide_passwords_with_None_values(self):
+    self.assertEqual( {
+      'username': 'fred',
+      'password': None,
+    }, dict_util.hide_passwords({ 'username': 'fred', 'password': None }, [ 'password' ]) )
+    
 if __name__ == '__main__':
   unittest.main()
