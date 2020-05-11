@@ -4,7 +4,7 @@ from bes.common.check import check
 
 class simple_config_error(Exception):
   
-  def __init__(self, message, origin):
+  def __init__(self, message, origin = None):
     check.check_string(message)
     check.check_simple_config_origin(origin, allow_none = True)
     super(simple_config_error, self).__init__()
