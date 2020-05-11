@@ -33,6 +33,9 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
   def __str__(self):
     buf = StringIO()
     buf.write(self.header_.name)
+    if self.header_.extends:
+      buf.write(' extends ')
+      buf.write(self.header_.extends)
     buf.write('\n')
     for i, entry in enumerate(self.entries_):
       if i != 0:
