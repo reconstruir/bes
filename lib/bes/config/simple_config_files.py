@@ -183,7 +183,7 @@ class simple_config_files(object):
   @classmethod
   def load_config(clazz, config):
     if not config:
-      return None
+      return {}
 
     parsed_config = clazz._parse_config(config)
     if parsed_config.section:
@@ -196,7 +196,7 @@ class simple_config_files(object):
       section_name = sections[0]
 
     config_path = path.dirname(parsed_config.filename)
-    return clazz.load_and_find_section(config_path, section_name, parsed_config.extension)
+    return clazz.load_and_find_section(config_path, section_name, parsed_config.extension).to_dict()
     
   _parsed_config = namedtuple('_parsed_config', 'filename, section, extension')
   @classmethod

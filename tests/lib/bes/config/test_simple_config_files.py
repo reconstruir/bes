@@ -352,18 +352,18 @@ chimp extends ape
   def test_load_config_without_section(self):
     tmp_dir = self._make_temp_configs()
     tmp_config = path.join(tmp_dir, 'mammal.config')
-    section = SCL.load_config(tmp_config)
+    values = SCL.load_config(tmp_config)
     self.assertEqual( {
       'food': 'maybe',
       'blood': 'warm',
       'pet': 'false',
       'respiration': 'aerobic',
-    }, section.to_dict() )
+    }, values )
 
   def test_load_config_with_section(self):
     tmp_dir = self._make_temp_configs()
     tmp_config = path.join(tmp_dir, 'mammal.config') + ':shepherd'
-    section = SCL.load_config(tmp_config)
+    values = SCL.load_config(tmp_config)
     self.assertEqual( {
       'food': 'false',
       'blood': 'warm',
@@ -371,7 +371,10 @@ chimp extends ape
       'worker': 'true',
       'respiration': 'aerobic',
       'name': 'rin tin tin',
-    }, section.to_dict() )
+    }, values )
+
+  def test_load_config_with_none(self):
+    self.assertEqual( {}, SCL.load_config(None) )
     
 if __name__ == '__main__':
   unit_test.main()
