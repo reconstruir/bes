@@ -10,6 +10,7 @@ from bes.config.simple_config_files import simple_config_files as SCL
 from bes.config.simple_config_error import simple_config_error as ERROR
 from bes.fs.testing.temp_content import temp_content
 from bes.fs.file_util import file_util
+from bes.fs.file_find import file_find
 from bes.system.env_override import env_override
 
 class test_simple_config_files(unit_test):
@@ -122,6 +123,12 @@ mammal extends animal
 dog extends mammal
   food: false
   pet: true
+
+shepherd extends dog
+  food: false
+  pet: false
+  worker: true
+  name: rin tin tin
 '''
     cat = '''\
 cat extends mammal
@@ -331,6 +338,40 @@ chimp extends ape
       self.assertEqual( 'resting', s.section('bonobo').find_by_key('activity') )
       self.assertEqual( 'eggs', s.section('chimp').find_by_key('snack') )
       self.assertEqual( 'leaves', s.section('bonobo').find_by_key('snack') )
-      
+
+  def test_load_and_find_section(self):
+    tmp_dir = self._make_temp_configs()
+    section = SCL.load_and_find_section(tmp_dir, 'mammal', 'config')
+    self.assertEqual( {
+      'food': 'maybe',
+      'blood': 'warm',
+      'pet': 'false',
+      'respiration': 'aerobic',
+    }, section.to_dict() )
+
+  def test_load_config_without_section(self):
+    tmp_dir = self._make_temp_configs()
+    tmp_config = path.join(tmp_dir, 'mammal.config')
+    section = SCL.load_config(tmp_config)
+    self.assertEqual( {
+      'food': 'maybe',
+      'blood': 'warm',
+      'pet': 'false',
+      'respiration': 'aerobic',
+    }, section.to_dict() )
+
+  def test_load_config_with_section(self):
+    tmp_dir = self._make_temp_configs()
+    tmp_config = path.join(tmp_dir, 'mammal.config') + ':shepherd'
+    section = SCL.load_config(tmp_config)
+    self.assertEqual( {
+      'food': 'false',
+      'blood': 'warm',
+      'pet': 'false',
+      'worker': 'true',
+      'respiration': 'aerobic',
+      'name': 'rin tin tin',
+    }, section.to_dict() )
+    
 if __name__ == '__main__':
   unit_test.main()

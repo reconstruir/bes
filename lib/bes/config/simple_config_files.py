@@ -174,8 +174,38 @@ class simple_config_files(object):
     config = simple_config_files(config_path, glob_expression)
     config.load()
     if not config.files:
-      raise RuntimeError('No config files matching "{}" in "{}"'.format(glob_expression, config_path))
+      raise simple_config_error('No config files matching "{}" in "{}"'.format(glob_expression, config_path))
     if not config.has_section(section_name):
-      raise RuntimeError('No config "{}" found in "{}":\n  {}'.format(section_name, config_path, '  \n'.join(config.files)))
+      raise simple_config_error('No config "{}" found in "{}":\n  {}'.format(section_name, config_path, '  \n'.join(config.files)))
     section = config.section(section_name)
     return section
+
+  @classmethod
+  def load_config(clazz, config):
+    if not config:
+      return None
+
+    parsed_config = clazz._parse_config(config)
+    if parsed_config.section:
+      section_name = parsed_config.section
+    else:
+      first_config = simple_config.from_file(parsed_config.filename, check_env_vars = True)
+      sections = first_config.section_names()
+      if not sections:
+        raise simple_config_error('No sections found in config: "{}"'.format(parsed_config.filename))
+      section_name = sections[0]
+
+    config_path = path.dirname(parsed_config.filename)
+    return clazz.load_and_find_section(config_path, section_name, parsed_config.extension)
+    
+  _parsed_config = namedtuple('_parsed_config', 'filename, section, extension')
+  @classmethod
+  def _parse_config(clazz, config):
+    if not config:
+      return None
+    i = config.rfind(':')
+    if i < 0:
+      return clazz._parsed_config(config, None, file_util.extension(config))
+    filename = config[0:i]
+    section = config[i+1:]
+    return clazz._parsed_config(filename, section, file_util.extension(filename))
