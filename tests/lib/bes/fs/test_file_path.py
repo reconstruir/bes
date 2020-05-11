@@ -89,6 +89,21 @@ class test_file_path(unit_test):
     with env_override.path_append(bin_dir) as env:
       expected_path = path.join(bin_dir, 'kiwi_tool.bat')
       self.assertEqual( expected_path, FP.which('kiwi_tool.bat') )
+
+  def test_glob(self):
+    tmp_dir = temp_content.write_items_to_temp_dir([
+      'file fruit/fruit.config         "fruits.config" 644',
+      'file cheese/cheese.config       "cheese.config" 644',
+      'file drinks/alcohol/wine.config "wine.config"   644',
+      'file drinks/alcohol/beer.config "beer.config"   644',
+      'file drinks/dairy/milk.config   "milk.config"   644',
+      'file drinks/dairy/yogurt.config "yogurt.config" 644',
+      'dir  nothing                 ""                 700',
+    ])
+    self.assertEqual( [
+      path.join(tmp_dir, 'drinks/alcohol/beer.config'),
+      path.join(tmp_dir, 'drinks/alcohol/wine.config'),
+    ], FP.glob(path.join(tmp_dir, 'drinks/alcohol'), '*.config') )
     
   def test_glob_search_path(self):
     tmp_dir = temp_content.write_items_to_temp_dir([
@@ -141,6 +156,13 @@ class test_file_path(unit_test):
       path.join(tmp_dir, 'drinks/dairy/yogurt.config'),
       path.join(tmp_dir, 'fruit/fruit.config'),
     ], FP.glob_env_search_path(search_path, '*.config') )
+
+  def test_has_glob_pattern_true(self):
+    self.assertTrue( FP.has_glob_pattern('*.py') )
+    self.assertTrue( FP.has_glob_pattern('*.??') )
+
+  def test_has_glob_pattern_false(self):
+    self.assertFalse( FP.has_glob_pattern('foo.py') )
     
 if __name__ == "__main__":
   unit_test.main()

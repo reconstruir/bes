@@ -106,6 +106,17 @@ class file_path(object):
     check.check_string(glob_expression)
     return clazz.glob(search_path, glob_expression)
 
+  _GLOB_CHARS = { '*', '?', '[', ']' }
+  @classmethod
+  def has_glob_pattern(clazz, filename):
+    'Return True if filename has any glob character pattern.'
+    check.check_string(filename)
+    
+    for c in filename:
+      if c in clazz._GLOB_CHARS:
+        return True
+    return False
+
   '''
   @classmethod
   def glob_env_search_path(clazz, env_var_name, glob_expression):
