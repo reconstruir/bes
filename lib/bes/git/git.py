@@ -63,12 +63,29 @@ class git(object):
 
   @classmethod
   def remote_origin_url(clazz, root):
+    return clazz.remote_get_url(root, name = 'origin')
+
+  @classmethod
+  def remote_set_url(clazz, root, url, name = 'origin'):
+    check.check_string(root)
+    check.check_string(url)
+    check.check_string(name)
+    
+    args = [ 'remote', 'set-url', name, url ]
+    git_exe.call_git(root, args)
+
+  @classmethod
+  def remote_get_url(clazz, root, name = 'origin'):
+    check.check_string(root)
+    check.check_string(name)
+
+    args = [ 'remote', 'get-url', name ]
     try:
-      rv = git_exe.call_git(root, [ 'remote', 'get-url', '--push', 'origin' ])
+      rv = git_exe.call_git(root, args)
       return rv.stdout.strip()
     except git_error as ex:
       return None
-
+    
   @classmethod
   def has_changes(clazz, root, untracked_files = False):
     return clazz.status(root, '.', untracked_files = untracked_files) != []

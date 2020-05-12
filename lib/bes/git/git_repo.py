@@ -117,6 +117,12 @@ class git_repo(object):
   def remote_origin_url(self):
     return git.remote_origin_url(self.root)
 
+  def remote_set_url(self, url, name = 'origin'):
+    return git.remote_set_url(self.root, url, name = name)
+    
+  def remote_get_url(self, name = 'origin'):
+    return git.remote_get_url(self.root, name = name)
+    
   def add_file(self, filename, content, codec = 'utf-8', mode = None, commit = True, push = False,
                commit_message = None):
     p = self.file_path(filename)
