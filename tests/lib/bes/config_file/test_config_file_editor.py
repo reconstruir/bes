@@ -147,6 +147,53 @@ cheese = brie
 wine = barolo
 '''
     self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+
+  def test_import_file_empty_config(self):
+    content1 = '''\
+[something]
+fruit = kiwi
+'''
+    content2 = '''\
+[something]
+cheese = brie
+'''
+    content3 = '''\
+[something]
+wine = barolo
+'''
+    content4 = '''\
+'''
+    tmp = temp_file.make_temp_file()
+    e = CFE(tmp)
+    e.import_file(temp_file.make_temp_file(content = content1))
+    e.import_file(temp_file.make_temp_file(content = content2))
+    e.import_file(temp_file.make_temp_file(content = content3))
+    e.import_file(temp_file.make_temp_file(content = content4))
+
+    expected = '''\
+[something]
+fruit = kiwi
+cheese = brie
+wine = barolo
+'''
+    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+
+  def test_import_file_empty_config(self):
+    content = '''\
+[something]
+fruit = kiwi
+'''
+    content2 = '''\
+'''
+    tmp = temp_file.make_temp_file(content = content)
+    e = CFE(tmp)
+    e.import_file(temp_file.make_temp_file(content = content2))
+
+    expected = '''\
+[something]
+fruit = kiwi
+'''
+    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
     
   def test_import_file_clobber(self):
     content1 = '''\
