@@ -117,3 +117,19 @@ class text_box_space(text_box):
       text_box_char('bl_corner', '', 0),
       text_box_char('br_corner', '', 0),
     ])
+
+class text_box_csv(text_box):
+  def __init__(self):
+    super(text_box_csv, self).__init__([
+      text_box_char('v_bar', ',', 1),
+      text_box_char('l_bar', '', 0),
+      text_box_char('r_bar', '', 0),
+      text_box_char('h_bar', '', 0),
+      text_box_char('t_bar', '', 0),
+      text_box_char('b_bar', '', 0),
+      text_box_char('tl_corner', '', 0),
+      text_box_char('tr_corner', '', 0),
+      text_box_char('bl_corner', '', 0),
+      text_box_char('br_corner', '', 0),
+    ])
+    
