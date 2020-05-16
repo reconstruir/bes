@@ -906,6 +906,7 @@ class git(object):
     check.check_string(ref)
 
     rv = git_exe.call_git(root_dir, [ 'show-ref', ref ], raise_error = False)
+    print('FUICK: rv={}'.format(rv))
     return rv.exit_code == 0 and 'refs/tags/{}'.format(ref) in rv.stdout
 
   @classmethod

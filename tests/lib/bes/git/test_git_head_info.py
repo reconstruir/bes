@@ -8,9 +8,9 @@ class test_git_remote(unit_test):
 
   def test_parse_head_info(self):
     f = git_head_info.parse_head_info
-    self.assertEqual( ( 'branch', 'release-beta-14-studio-fixes', None, '9038154f', 'track branch release-beta-14-studio-fixes [skip ci]' ),
+    self.assertEqual( ( 'branch', 'release-beta-14-studio-fixes', None, '9038154f', 'track branch release-beta-14-studio-fixes [skip ci]', None ),
                       f(None, '* release-beta-14-studio-fixes 9038154f track branch release-beta-14-studio-fixes [skip ci]') )
-    self.assertEqual( ( 'branch', 'b1', None, 'b59bc43', 'message 1' ),
+    self.assertEqual( ( 'branch', 'b1', None, 'b59bc43', 'message 1', None ),
                       f(None, '* b1     b59bc43 message 1') )
 
 if __name__ == '__main__':

@@ -80,10 +80,11 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
       assert commit_hash
       commit_message = detached_info[2]
       assert commit_message
-      ref_branches = None
+      if root:
+        ref_branches = clazz._branches_for_ref(root, ref)
+      else:
+        ref_branches = None
       if ref != commit_hash:
-        if root:
-          ref_branches = clazz._branches_for_ref(root, ref)
         state = clazz.STATE_TAG
       else:
         state = clazz.STATE_DETACHED_COMMIT
@@ -130,6 +131,7 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
   def _branches_for_ref(clazz, root, ref):
     cmd = [ 'branch', '--contains', ref ]
     rv = git_exe.call_git(root, cmd, raise_error = False)
+    print('FUCK: rv={}'.format(rv))
     if rv.exit_code != 0:
       return None
     result = []

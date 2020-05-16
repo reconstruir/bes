@@ -500,7 +500,7 @@ class git_repo(object):
     'Return True if ref is a tag.'
     return git.is_tag(self.root, ref)
 
-  def is_tag(self, ref):
+  def is_branch(self, ref):
     'Return True if ref is a branch.'
     return git.is_branch(self.root, ref)
 
