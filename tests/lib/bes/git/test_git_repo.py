@@ -948,6 +948,10 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     c2 = r.last_commit_hash(short_hash = True)
     r.checkout(c1)
     self.assertEqual( ( None, c1, c1, 'message 1', True ), r.head_info() )
+    print('HI: {}'.format(r.head_info()))
+    self.assertEqual( False, r.head_info().is_tag )
+    self.assertEqual( False, r.head_info().is_branch )
+    self.assertEqual( 'commit', r.head_info().state )
     
   @git_temp_home_func()
   def test_head_info_detached_head_at_tag(self):
@@ -961,6 +965,9 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     c2 = r.last_commit_hash(short_hash = True)
     r.checkout('1.2.3')
     self.assertEqual( ( None, '1.2.3', c1, 'message 1', True ), r.head_info() )
+    self.assertEqual( True, r.head_info().is_tag )
+    self.assertEqual( False, r.head_info().is_branch )
+    self.assertEqual( 'tag', r.head_info().state )
     
   @git_temp_home_func()
   def test_head_info_detached_head_at_branch(self):
@@ -974,6 +981,9 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r.add_file('bar.txt', 'this is bar in b1', commit_message = 'message 2')
     c2 = r.last_commit_hash(short_hash = True)
     self.assertEqual( ( 'b1', None, c2, 'message 2', False ), r.head_info() )
+    self.assertEqual( False, r.head_info().is_tag )
+    self.assertEqual( True, r.head_info().is_branch )
+    self.assertEqual( 'branch', r.head_info().state )
 
   @git_temp_home_func()
   def test_is_tag(self):
