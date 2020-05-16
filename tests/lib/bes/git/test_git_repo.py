@@ -935,7 +935,7 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     ]
     r = self._make_repo(remote = True, content = content, commit_message = 'message 1')
     c1 = r.last_commit_hash(short_hash = True)
-    self.assertEqual( ( 'master', None, c1, 'message 1', False ), r.head_info() )
+    self.assertEqual( ( 'branch', 'master', None, c1, 'message 1', None ), r.head_info() )
     
   @git_temp_home_func()
   def test_head_info_detached_head_at_commit(self):
@@ -947,11 +947,12 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r.add_file('bar.txt', 'this is bar')
     c2 = r.last_commit_hash(short_hash = True)
     r.checkout(c1)
-    self.assertEqual( ( None, c1, c1, 'message 1', True ), r.head_info() )
-    print('HI: {}'.format(r.head_info()))
+    self.assertEqual( ( 'detached_commit', None, c1, c1, 'message 1', None ), r.head_info() )
+    self.assertEqual( True, r.head_info().is_detached )
     self.assertEqual( False, r.head_info().is_tag )
     self.assertEqual( False, r.head_info().is_branch )
-    self.assertEqual( 'commit', r.head_info().state )
+    self.assertEqual( 'detached_commit', r.head_info().state )
+    self.assertEqual( 'detached_commit::{}'.format(c1), str(r.head_info()) )
     
   @git_temp_home_func()
   def test_head_info_detached_head_at_tag(self):
@@ -964,10 +965,12 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r.add_file('bar.txt', 'this is bar')
     c2 = r.last_commit_hash(short_hash = True)
     r.checkout('1.2.3')
-    self.assertEqual( ( None, '1.2.3', c1, 'message 1', True ), r.head_info() )
+    self.assertEqual( ( 'tag', None, '1.2.3', c1, 'message 1', None ), r.head_info() )
     self.assertEqual( True, r.head_info().is_tag )
+    self.assertEqual( True, r.head_info().is_detached )
     self.assertEqual( False, r.head_info().is_branch )
     self.assertEqual( 'tag', r.head_info().state )
+    self.assertEqual( 'tag:{}:{}'.format('1.2.3', c1), str(r.head_info()) )
     
   @git_temp_home_func()
   def test_head_info_detached_head_at_branch(self):
@@ -977,14 +980,37 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r = self._make_repo(remote = True, content = content, commit_message = 'message 1')
     c1 = r.last_commit_hash(short_hash = True)
     r.branch_create('b1', checkout = True)
-    self.assertEqual( ( 'b1', None, c1, 'message 1', False ), r.head_info() )
+    self.assertEqual( ( 'branch', 'b1', None, c1, 'message 1', None ), r.head_info() )
+    self.assertEqual( False, r.head_info().is_detached )
     r.add_file('bar.txt', 'this is bar in b1', commit_message = 'message 2')
     c2 = r.last_commit_hash(short_hash = True)
-    self.assertEqual( ( 'b1', None, c2, 'message 2', False ), r.head_info() )
+    self.assertEqual( ( 'branch', 'b1', None, c2, 'message 2', None ), r.head_info() )
     self.assertEqual( False, r.head_info().is_tag )
     self.assertEqual( True, r.head_info().is_branch )
     self.assertEqual( 'branch', r.head_info().state )
+    self.assertEqual( 'branch:{}:{}'.format('b1', c2), str(r.head_info()) )
 
+  @git_temp_home_func()
+  def test_head_info_detached_head_at_tag_in_branch(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content, commit_message = 'message 1')
+    r.branch_create('b1', checkout = True)
+    r.add_file('kiwi.txt', 'this is kiwi in b1', commit_message = 'message 2')
+    c1 = r.last_commit_hash(short_hash = True)
+    r.tag('1.2.3')
+    r.branch_create('b2', checkout = True)
+    r.add_file('lemon.txt', 'this is lemon in b1', commit_message = 'message 3')
+    r.checkout('b1')
+    r.checkout('1.2.3')
+    self.assertEqual( True, r.head_info().is_tag )
+    self.assertEqual( False, r.head_info().is_branch )
+    self.assertEqual( 'tag', r.head_info().state )
+    self.assertEqual( 'tag:{}:{}'.format('1.2.3', c1), str(r.head_info()) )
+    self.assertEqual( None, r.head_info().branch )
+    self.assertEqual( [ 'b1', 'b2' ], r.head_info().ref_branches )
+    
   @git_temp_home_func()
   def test_is_tag(self):
     content = [
@@ -1000,6 +1026,24 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     self.assertFalse( r.is_tag('foo-1.0.2') )
     self.assertFalse( r.is_tag(commit1) )
     self.assertFalse( r.is_tag(commit2) )
+    r.branch_create('b1', checkout = True)
+    self.assertFalse( r.is_tag('b1') )
+
+  @git_temp_home_func()
+  def test_is_branch(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    commit1 = r.add_file('bar.txt', 'this is bar.txt')
+    r.tag('foo-1.0.0', push = False)
+    r.branch_create('b1', checkout = True)
+    commit2 = r.add_file('baz.txt', 'this is baz.txt')
+    r.tag('foo-1.0.1', push = False)
+    self.assertFalse( r.is_branch('foo-1.0.0') )
+    self.assertFalse( r.is_branch('foo-1.0.1') )
+    r.branch_create('b1', checkout = True)
+    self.assertTrue( r.is_branch('b1') )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -5,51 +5,69 @@ import re
 from collections import namedtuple
 
 from bes.common.check import check
+from bes.common.string_util import string_util
 from bes.text.text_line_parser import text_line_parser
 
 from .git_error import git_error
+from .git_exe import git_exe
 
-class git_head_info(object):
+class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash, commit_message, ref_branches')):
   'A class to deal with git head info.'
 
-  class _head_info(namedtuple('_head_info', 'branch, ref, commit_hash, commit_message, is_detached')):
+  STATE_BRANCH = 'branch'
+  STATE_DETACHED_COMMIT = 'detached_commit'
+  STATE_TAG = 'tag'
+  
+  STATES = ( STATE_BRANCH, STATE_DETACHED_COMMIT, STATE_TAG )
+  
+  def __new__(clazz, state, branch, ref, commit_hash, commit_message, ref_branches):
+    check.check_string(state)
+    check.check(branch, (check.STRING_TYPES, list ), allow_none = True)
+    check.check_string(ref, allow_none = True)
+    check.check_string(commit_hash)
+    check.check_string(commit_message)
+    check.check_string_seq(ref_branches, allow_none = True)
 
-    STATE_BRANCH = 'branch'
-    STATE_TAG = 'tag'
-    STATE_COMMIT = 'commit'
-    
-    def __new__(clazz, branch, ref, commit_hash, commit_message, is_detached):
-      check.check_string(branch, allow_none = True)
-      check.check_string(ref, allow_none = True)
-      check.check_string(commit_hash)
-      check.check_string(commit_message)
-      check.check_bool(is_detached)
-      
-      return clazz.__bases__[0].__new__(clazz, branch, ref, commit_hash, commit_message, is_detached)
+    if state not in clazz.STATES:
+      raise git_error('Invalid state: "{}"'.format(state))
+    return clazz.__bases__[0].__new__(clazz, state, branch, ref, commit_hash, commit_message, ref_branches)
 
-    @property
-    def is_branch(self):
-      'Return True if head points to a branch'
-      return self.state == self.STATE_BRANCH
-    
-    @property
-    def is_tag(self):
-      'Return True if head points to a tag'
-      return self.state == self.STATE_TAG
+  def __str__(self):
+    values = dict(self._asdict())
+    if self.state == self.STATE_BRANCH:
+      return 'branch:{branch}:{commit_hash}'.format(**values)
+    elif self.state == self.STATE_TAG:
+      return 'tag:{ref}:{commit_hash}'.format(**values)
+    elif self.state == self.STATE_DETACHED_COMMIT:
+      return 'detached_commit::{commit_hash}'.format(**values)
+    else:
+      assert False
 
-    @property
-    def state(self):
-      'Return the state of the head'
-      if self.branch:
-        return self.STATE_BRANCH
-      else:
-        if self.ref != None and self.ref != self.commit_hash:
-          return self.STATE_TAG
-      return self.STATE_COMMIT
+  @property
+  def is_detached(self):
+    'Return True if head is detached (tag or detached_commit)'
+    return self.state in ( self.STATE_TAG, self.STATE_DETACHED_COMMIT )
+        
+  @property
+  def is_branch(self):
+    'Return True if head points to a branch'
+    return self.state == self.STATE_BRANCH
     
+  @property
+  def is_detached_commit(self):
+    'Return True if head points to a detached commit'
+    return self.state == self.STATE_DETACHED_COMMIT
+    
+  @property
+  def is_tag(self):
+    'Return True if head points to a tag'
+    return self.state == self.STATE_TAG
+
   @classmethod
-  def parse_head_info(clazz, text):
-    print('parsing "{}"'.format(text.strip()))
+  def parse_head_info(clazz, root, text):
+    check.check_string(root, allow_none = True)
+    check.check_string(text)
+
     lines = text_line_parser.parse_lines(text, strip_comments = False, strip_text = True, remove_empties = True)
     active_line = clazz._find_active_branch_entry(lines)
     if not active_line:
@@ -57,16 +75,29 @@ class git_head_info(object):
     detached_info = clazz._parse_detached_head_line(active_line)
     if detached_info:
       ref = detached_info[0]
+      assert ref
       commit_hash = detached_info[1]
+      assert commit_hash
       commit_message = detached_info[2]
-      return clazz._head_info(None, ref, commit_hash, commit_message, True)
+      assert commit_message
+      ref_branches = None
+      if ref != commit_hash:
+        if root:
+          ref_branches = clazz._branches_for_ref(root, ref)
+        state = clazz.STATE_TAG
+      else:
+        state = clazz.STATE_DETACHED_COMMIT
+      return git_head_info(state, None, ref, commit_hash, commit_message, ref_branches)
     info = clazz._parse_head_line(active_line)
     if not info:
       raise git_error('Failed to parse head info: "{}"'.format(active_line))
     branch = info[0].strip()
+    assert branch
     commit_hash = info[1]
+    assert commit_hash
     commit_message = info[2]
-    return clazz._head_info(branch, None, commit_hash, commit_message, False)
+    assert commit_message
+    return git_head_info(clazz.STATE_BRANCH, branch, None, commit_hash, commit_message, None)
 
   @classmethod
   def _find_active_branch_entry(clazz, lines):
@@ -95,3 +126,18 @@ class git_head_info(object):
     assert len(f[0]) == 3
     return f[0]
 
+  @classmethod
+  def _branches_for_ref(clazz, root, ref):
+    cmd = [ 'branch', '--contains', ref ]
+    rv = git_exe.call_git(root, cmd, raise_error = False)
+    if rv.exit_code != 0:
+      return None
+    result = []
+    lines = git_exe.parse_lines(rv.stdout)
+    for line in lines:
+      branch_ref = 'refs/heads/{}'.format(line)
+      cmd = [ 'show-ref', '--verify', branch_ref ]
+      rv = git_exe.call_git(root, [ 'show-ref', '--verify', '--quiet', branch_ref ], raise_error = False)
+      if rv.exit_code == 0:
+        result.append(line)
+    return sorted(result)

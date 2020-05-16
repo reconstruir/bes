@@ -14,7 +14,6 @@ from bes.fs.file_ignore import ignore_file_data
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.log import logger
-from bes.text.text_line_parser import text_line_parser
 from bes.version.software_version import software_version
 
 from .git_address_util import git_address_util
@@ -415,7 +414,7 @@ class git(object):
     rv = git_exe.call_git(cwd, args, raise_error = False)
     if rv.exit_code != 0:
       return None
-    l = clazz._parse_lines(rv.stdout)
+    l = git_exe.parse_lines(rv.stdout)
     assert len(l) == 1
     return l[0]
 
@@ -477,7 +476,7 @@ class git(object):
     else:
       sort_arg = '--sort={reverse}version:refname'.format(reverse = '-' if reverse else '')
     rv = git_exe.call_git(root, [ 'tag', '-l', sort_arg ])
-    return clazz._parse_lines(rv.stdout)
+    return git_exe.parse_lines(rv.stdout)
 
   @classmethod
   def greatest_local_tag(clazz, root):
@@ -489,7 +488,7 @@ class git(object):
   @classmethod
   def list_remote_tags(clazz, root, lexical = False, reverse = False):
     rv = git_exe.call_git(root, [ 'ls-remote', '--tags' ])
-    lines = clazz._parse_lines(rv.stdout)
+    lines = git_exe.parse_lines(rv.stdout)
     tags = [ clazz._parse_remote_tag_line(line) for line in lines ]
     if lexical:
       return sorted(tags, reverse = reverse)
@@ -510,10 +509,6 @@ class git(object):
     if f and len(f) == 1:
       return string_util.remove_tail(f[0], '^{}')
     return None
-
-  @classmethod
-  def _parse_lines(clazz, s):
-    return text_line_parser.parse_lines(s, strip_comments = False, strip_text = True, remove_empties = True)
 
   @classmethod
   def commit_timestamp(clazz, root, commit):
@@ -632,7 +627,7 @@ class git(object):
   @classmethod
   def list_remote_branches(clazz, root):
     rv = git_exe.call_git(root, [ 'branch', '--verbose', '--list', '--no-color', '--remote' ])
-    lines = clazz._parse_lines(rv.stdout)
+    lines = git_exe.parse_lines(rv.stdout)
     lines = [ line for line in lines if not ' -> ' in line ]
     lines = [ string_util.remove_head(line, 'origin/') for line in lines ]
     branches = git_branch_list([ git_branch.parse_branch(line, 'remote') for line in lines ])
@@ -641,7 +636,7 @@ class git(object):
   @classmethod
   def list_local_branches(clazz, root):
     rv = git_exe.call_git(root, [ 'branch', '--verbose', '--list', '--no-color' ])
-    lines = clazz._parse_lines(rv.stdout)
+    lines = git_exe.parse_lines(rv.stdout)
     branches = git_branch_list([ git_branch.parse_branch(line, 'local') for line in lines ])
     return clazz._branch_list_determine_authors(root, branches)
 
@@ -722,7 +717,7 @@ class git(object):
     'Return a list of files affected by commit.'
     args = [ 'diff-tree', '--no-commit-id', '--name-only', '-r', commit ]
     rv = git_exe.call_git(root, args)
-    return sorted(clazz._parse_lines(rv.stdout))
+    return sorted(git_exe.parse_lines(rv.stdout))
 
   @classmethod
   def is_long_hash(clazz, h):
@@ -743,13 +738,13 @@ class git(object):
   def files(clazz, root):
     'Return a list of all the files in the repo.'
     rv = git_exe.call_git(root, [ 'ls-files' ])
-    return sorted(clazz._parse_lines(rv.stdout))
+    return sorted(git_exe.parse_lines(rv.stdout))
 
   @classmethod
   def lfs_files(clazz, root):
     'Return a list of all the lfs files in the repo.'
     rv = git_exe.call_git(root, [ 'lfs', 'ls-files' ])
-    return sorted(clazz._parse_lines(rv.stdout))
+    return sorted(git_exe.parse_lines(rv.stdout))
 
   @classmethod
   def _lfs_file_needs_smudge(clazz, filename):
@@ -784,7 +779,7 @@ class git(object):
   def unpushed_commits(clazz, root): # tested
     'Return a list of unpushed commits.'
     rv = git_exe.call_git(root, [ 'cherry' ])
-    lines = clazz._parse_lines(rv.stdout)
+    lines = git_exe.parse_lines(rv.stdout)
     result = []
     for line in lines:
       x = re.findall('^\+\s([a-f0-9]+)$', line)
@@ -811,7 +806,7 @@ class git(object):
     if submodule:
       args.append(submodule)
     rv = git_exe.call_git(root, args)
-    lines = clazz._parse_lines(rv.stdout)
+    lines = git_exe.parse_lines(rv.stdout)
     result = [ git_submodule_info.parse(line) for line in lines ]
     return [ clazz._submodule_info_fill_fields(root, info) for info in result ]
 
@@ -902,7 +897,7 @@ class git(object):
   def head_info(clazz, root):
     'Return information about the HEAD of the repo.'
     rv = git_exe.call_git(root, [ 'branch', '--verbose' ])
-    return git_head_info.parse_head_info(rv.stdout)
+    return git_head_info.parse_head_info(root, rv.stdout)
 
   @classmethod
   def is_tag(clazz, root_dir, ref):
@@ -912,3 +907,13 @@ class git(object):
 
     rv = git_exe.call_git(root_dir, [ 'show-ref', ref ], raise_error = False)
     return rv.exit_code == 0 and 'refs/tags/{}'.format(ref) in rv.stdout
+
+  @classmethod
+  def is_branch(clazz, root_dir, branch_name):
+    'Return True if branch_name is a branch.'
+    check.check_string(root_dir)
+    check.check_string(branch_name)
+
+    ref = 'refs/heads/{}'.format(branch_name)
+    rv = git_exe.call_git(root_dir, [ 'show-ref', '--verify', '--quiet', ref ], raise_error = False)
+    return rv.exit_code == 0

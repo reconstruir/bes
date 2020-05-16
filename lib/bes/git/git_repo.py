@@ -500,6 +500,10 @@ class git_repo(object):
     'Return True if ref is a tag.'
     return git.is_tag(self.root, ref)
 
+  def is_tag(self, ref):
+    'Return True if ref is a branch.'
+    return git.is_branch(self.root, ref)
+
   def cached_archive_get(self, revision, cache_dir = None):
     if not self.address:
       raise git_error('cached_archive only works for repos cloned from a remote address.')

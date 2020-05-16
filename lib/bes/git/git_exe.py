@@ -9,6 +9,7 @@ from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
 from bes.system.os_env import os_env
+from bes.text.text_line_parser import text_line_parser
 
 from .git_error import git_error
 
@@ -57,3 +58,7 @@ class git_exe(object):
       return 'git.exe'
     else:
       host.raise_unsupported_system()
+
+  @classmethod
+  def parse_lines(clazz, s):
+    return text_line_parser.parse_lines(s, strip_comments = False, strip_text = True, remove_empties = True)
