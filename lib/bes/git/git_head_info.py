@@ -131,7 +131,6 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
   def _branches_for_ref(clazz, root, ref):
     cmd = [ 'branch', '--contains', ref ]
     rv = git_exe.call_git(root, cmd, raise_error = False)
-    print('FUCK: rv={}'.format(rv))
     if rv.exit_code != 0:
       return None
     result = []
