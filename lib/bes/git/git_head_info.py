@@ -89,7 +89,9 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
       else:
         state = clazz.STATE_DETACHED_COMMIT
       return git_head_info(state, None, ref, commit_hash, commit_message, ref_branches)
-    info = clazz._parse_head_line(active_line)
+#branch, commit_hash, commit_message
+    info = clazz._parse_active_branch_entry(active_line)
+    print('info={}'.format(info))
     if not info:
       raise git_error('Failed to parse head info: "{}"'.format(active_line))
     branch = info[0].strip()
@@ -117,15 +119,18 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
     assert len(f[0]) == 3
     return f[0]
 
-  _HEAD_PATTERN = r'^\*\s+(.+)\s+([0-9a-f]+)\s+(.+)$'
   @classmethod
-  def _parse_head_line(clazz, line):
-    f = re.findall(clazz._HEAD_PATTERN, line)
-    if not f:
-      return None
-    assert len(f) == 1
-    assert len(f[0]) == 3
-    return f[0]
+  def _parse_active_branch_entry(clazz, entry):
+    parts = string_util.split_by_white_space(entry, strip = True)
+    if len(parts) < 4:
+      raise git_error('Invalid active branch entry: "{}"'.format(entry))
+    if parts[0] != '*':
+      raise git_error('Invalid active branch entry: "{}"'.format(entry))
+
+    branch = parts[1]
+    commit_hash = parts[2]
+    commit_message = entry[entry.find(commit_hash) + len(commit_hash) + 1:]
+    return ( branch, commit_hash, commit_message )
 
   @classmethod
   def _branches_for_ref(clazz, root, ref):

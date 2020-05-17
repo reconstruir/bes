@@ -13,5 +13,10 @@ class test_git_remote(unit_test):
     self.assertEqual( ( 'branch', 'b1', None, 'b59bc43', 'message 1', None ),
                       f(None, '* b1     b59bc43 message 1') )
 
+  def test_parse_head_info_master(self):
+    f = git_head_info.parse_head_info
+    self.assertEqual( ( 'branch', 'master', None, 'deadbeef', 'fix foo.', None ),
+                      f(None, '* master          deadbeef fix foo.') )
+    
 if __name__ == '__main__':
   unit_test.main()
