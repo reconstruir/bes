@@ -89,9 +89,7 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
       else:
         state = clazz.STATE_DETACHED_COMMIT
       return git_head_info(state, None, ref, commit_hash, commit_message, ref_branches)
-#branch, commit_hash, commit_message
     info = clazz._parse_active_branch_entry(active_line)
-    print('info={}'.format(info))
     if not info:
       raise git_error('Failed to parse head info: "{}"'.format(active_line))
     branch = info[0].strip()
