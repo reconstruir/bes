@@ -2,6 +2,9 @@
 
 import pprint
 import os.path as path
+
+from collections import namedtuple
+
 from bes.fs.temp_file import temp_file
 from bes.fs.file_util import file_util
 from bes.fs.file_match import file_match
@@ -192,4 +195,23 @@ class archive_util(object):
     cmd = [ 'diff', '-u', '-r', tmp_dir1, tmp_dir2 ]
     rv = execute.execute(cmd, raise_error = False, stderr_to_stdout = True)
     return rv
-  
+
+  _diff_dir_result = namedtuple('_diff_dir_result', 'filename, archive1, archive2, execute_result')
+  @classmethod
+  def diff_dir(clazz, dir1, dir2, strip_common_ancestor = False):
+    'Return the output of diffing all archives found in 2 directories.'
+
+    archives1 = archiver.find_archives(dir1)
+    archives2 = archiver.find_archives(dir2)
+
+    if archives1 != archives2:
+      return 1
+
+    archives1_abs = [ path.join(dir1, f) for f in archives1 ]
+    archives2_abs = [ path.join(dir2, f) for f in archives2 ]
+
+    result = []
+    for archive_rel, archive1_abs, archive2_abs in zip(archives1, archives1_abs, archives2_abs):
+      rv = clazz.diff_contents(archive1_abs, archive2_abs, strip_common_ancestor = strip_common_ancestor)
+      result.append(clazz._diff_dir_result(archive_rel, archive1_abs, archive2_abs, rv))
+    return result

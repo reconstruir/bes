@@ -257,3 +257,7 @@ class archiver(object):
       operation.execute(tmp_dir)
     tmp_new_archive = clazz.create_temp_file(archive_extension.extension_for_filename(archive), tmp_dir)
     file_util.rename(tmp_new_archive, archive)
+
+  @classmethod
+  def is_empty(clazz, filename):
+    return len(clazz.members(filename)) == 0
