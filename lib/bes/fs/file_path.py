@@ -117,6 +117,18 @@ class file_path(object):
         return True
     return False
 
+  @classmethod
+  def glob_paths(clazz, paths):
+    'Glob a list of paths if needed'
+    paths = object_util.listify(paths)
+    result = []
+    for p in paths:
+      if clazz.has_glob_pattern(p):
+        result.extend(glob.glob(p))
+      else:
+        result.append(p)
+    return sorted(algorithm.unique(result))
+  
   '''
   @classmethod
   def glob_env_search_path(clazz, env_var_name, glob_expression):
