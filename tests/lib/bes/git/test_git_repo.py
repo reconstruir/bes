@@ -1089,6 +1089,55 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     self.assertTrue( r.is_branch('b1') )
     self.assertTrue( r.is_branch('b2') )
     self.assertFalse( r.is_branch('notthere') )
+
+  @git_temp_home_func()
+  def test_branches_for_tag_single_branch(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    r.branch_create('b1', checkout = True)
+    c1 = r.add_file('kiwi.txt', 'this is kiwi.txt')
+    r.tag('t1')
+    r.checkout('master')
+    r.branch_create('b2')
+    c2 = r.add_file('apple.txt', 'this is apple.txt')
+    r.checkout('master')
+    r.branch_create('b3', checkout = True)
+    self.assertEqual( [ 'b1' ], r.branches_for_tag('t1') )
+
+  @git_temp_home_func()
+  def test_branches_for_tag_multiple_branches(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    r.branch_create('b1', checkout = True)
+    c1 = r.add_file('kiwi.txt', 'this is kiwi.txt')
+    r.tag('t1')
+    r.branch_create('b2')
+    c2 = r.add_file('apple.txt', 'this is apple.txt')
+    r.checkout('master')
+    r.branch_create('b3')
+    self.assertEqual( [ 'b1', 'b2' ] , r.branches_for_tag('t1') )
+
+  @git_temp_home_func()
+  def test_branches_for_tag_detached_head(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    r.branch_create('b1', checkout = True)
+    c1 = r.add_file('kiwi.txt', 'this is kiwi.txt')
+    r.tag('t1')
+    r.checkout('master')
+    r.branch_create('b2')
+    c2 = r.add_file('apple.txt', 'this is apple.txt')
+    r.checkout('master')
+    r.branch_create('b3', checkout = True)
+    r.checkout('t1')
+    self.assertEqual( [ 'b1' ], r.branches_for_tag('t1') )
+
     
 if __name__ == '__main__':
   unit_test.main()

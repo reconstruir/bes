@@ -550,5 +550,8 @@ class git_repo(object):
   @classmethod
   def _cached_archive_path_for_address(clazz, cache_dir, address):
     return path.join(cache_dir, git_address_util.sanitize_for_local_path(address))
+
+  def branches_for_tag(self, tag):
+    return git.branches_for_tag(self.root, tag)
   
 check.register_class(git_repo)

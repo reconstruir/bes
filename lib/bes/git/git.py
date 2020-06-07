@@ -917,3 +917,11 @@ class git(object):
     ref = 'refs/heads/{}'.format(branch_name)
     rv = git_exe.call_git(root_dir, [ 'show-ref', '--verify', '--quiet', ref ], raise_error = False)
     return rv.exit_code == 0
+
+  @classmethod
+  def branches_for_tag(clazz, root_dir, tag):
+    rv = git_exe.call_git(root_dir, [ 'branch', '--verbose', '--contains', 'tags/{}'.format(tag) ])
+    lines = git_exe.parse_lines(rv.stdout)
+    lines = [ line for line in lines if not '(HEAD detached' in line ]
+    branches = git_branch_list([ git_branch.parse_branch(line, 'local') for line in lines ])
+    return sorted([ branche.name for branche in branches ])
