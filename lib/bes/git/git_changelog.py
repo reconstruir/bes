@@ -9,7 +9,6 @@ from bes.common.check import check
 from .git_commit_info import git_commit_info
 from .git_changelog_options import git_changelog_options
 
-
 class git_changelog:
 
   @classmethod
@@ -98,8 +97,8 @@ class git_changelog:
   @staticmethod
   def _drop_revisions(list_of_commit_info, total_chars, options):
     for commit_info in list_of_commit_info:
-      start_length = len(commit_info.revision)
-      commit_info.revision = commit_info.revision[:options.revision_chars]
+      start_length = len(commit_info.commit_hash_long)
+      commit_info.commit_hash_long = commit_info.commit_hash_long[:options.revision_chars]
       total_chars -= start_length - options.revision_chars
 
     is_finished = total_chars <= options.max_chars
