@@ -27,6 +27,7 @@ from .git_error import git_error
 from .git_exe import git_exe
 from .git_head_info import git_head_info
 from .git_modules_file import git_modules_file
+from .git_ref import git_ref
 from .git_status import git_status
 from .git_submodule_info import git_submodule_info
 
@@ -920,8 +921,9 @@ class git(object):
 
   @classmethod
   def branches_for_tag(clazz, root_dir, tag):
-    rv = git_exe.call_git(root_dir, [ 'branch', '--verbose', '--contains', 'tags/{}'.format(tag) ])
-    lines = git_exe.parse_lines(rv.stdout)
-    lines = [ line for line in lines if not '(HEAD detached' in line ]
-    branches = git_branch_list([ git_branch.parse_branch(line, 'local') for line in lines ])
-    return sorted([ branche.name for branche in branches ])
+    return git_ref.branches_for_tag(root_dir, tag)
+
+  @classmethod
+  def branches_for_ref(clazz, root_dir, ref):
+    return git_ref.branches_for_ref(root_dir, ref)
+  

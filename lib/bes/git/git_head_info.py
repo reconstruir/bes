@@ -10,6 +10,7 @@ from bes.text.text_line_parser import text_line_parser
 
 from .git_error import git_error
 from .git_exe import git_exe
+from .git_ref import git_ref
 
 class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash, commit_message, ref_branches')):
   'A class to deal with git head info.'
@@ -64,8 +65,8 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
     return self.state == self.STATE_TAG
 
   @classmethod
-  def parse_head_info(clazz, root, text):
-    check.check_string(root, allow_none = True)
+  def parse_head_info(clazz, root_dir, text):
+    check.check_string(root_dir, allow_none = True)
     check.check_string(text)
 
     lines = text_line_parser.parse_lines(text, strip_comments = False, strip_text = True, remove_empties = True)
@@ -80,8 +81,8 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
       assert commit_hash
       commit_message = detached_info[2]
       assert commit_message
-      if root:
-        ref_branches = clazz._branches_for_ref(root, ref)
+      if root_dir:
+        ref_branches = git_ref.branches_for_ref(root_dir, ref)
       else:
         ref_branches = None
       if ref != commit_hash:
@@ -129,19 +130,3 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
     commit_hash = parts[2]
     commit_message = entry[entry.find(commit_hash) + len(commit_hash) + 1:]
     return ( branch, commit_hash, commit_message )
-
-  @classmethod
-  def _branches_for_ref(clazz, root, ref):
-    cmd = [ 'branch', '--contains', ref ]
-    rv = git_exe.call_git(root, cmd, raise_error = False)
-    if rv.exit_code != 0:
-      return None
-    result = []
-    lines = git_exe.parse_lines(rv.stdout)
-    for line in lines:
-      branch_ref = 'refs/heads/{}'.format(line)
-      cmd = [ 'show-ref', '--verify', branch_ref ]
-      rv = git_exe.call_git(root, [ 'show-ref', '--verify', '--quiet', branch_ref ], raise_error = False)
-      if rv.exit_code == 0:
-        result.append(line)
-    return sorted(result)
