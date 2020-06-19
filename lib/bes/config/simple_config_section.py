@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import fnmatch
+
 from bes.common.bool_util import bool_util
 from bes.common.check import check
 from bes.common.variable import variable
@@ -76,6 +78,23 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
         return i
     return -1
 
+  def match_by_key(self, pattern, raise_error = True, resolve_env_vars = True):
+    entry = self.match_entry(pattern)
+    if not entry:
+      if raise_error:
+        raise simple_config_error('"{}" entry not found'.format(pattern), self.origin_)
+      return None
+    value = entry.value.value
+    if resolve_env_vars:
+     value = self._resolve_variables(value, entry.origin)
+    return value
+
+  def match_entry(self, pattern):
+    for i, entry in list_util.reversed_enumerate(self.entries_):
+      if fnmatch.fnmatch(entry.value.key, pattern):
+        return entry
+    return None
+  
   def has_key(self, key):
     return self.find_entry(key) is not None
 
