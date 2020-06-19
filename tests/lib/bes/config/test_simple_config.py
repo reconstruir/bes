@@ -460,5 +460,42 @@ fruit
 
     self.assertEqual( expected, str(s).strip() )
     
+  def test_find_key(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+  flavor: sweet
+'''
+    s = simple_config.from_text(text)
+
+    section = s.section('fruit')
+
+    self.assertEqual( 'lemon', section.find_by_key('name') )
+
+    with self.assertRaises(simple_config.error):
+      self.assertEqual( None, section.find_by_key('notthere') )
+    
+  def test_match_key(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+  flavor: sweet
+'''
+    s = simple_config.from_text(text)
+
+    section = s.section('fruit')
+
+    self.assertEqual( 'lemon', section.match_by_key('name') )
+    self.assertEqual( 'sweet', section.match_by_key('fl*') )
+    self.assertEqual( 'sweet', section.match_by_key('*') )
+    self.assertEqual( 'lemon', section.match_by_key('n???') )
+
+    with self.assertRaises(simple_config.error):
+      self.assertEqual( None, section.match_by_key('notthere') )
+    
 if __name__ == '__main__':
   unit_test.main()
