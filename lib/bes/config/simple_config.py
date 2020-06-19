@@ -188,7 +188,7 @@ class simple_config(object):
     return result
   
   _ENTRY_KEY_VALID_FIRST_CHAR = string.ascii_letters + '_'
-  _ENTRY_KEY_VALID_NEXT_CHARS = string.ascii_letters + string.digits + '_'
+  _ENTRY_KEY_VALID_NEXT_CHARS = string.ascii_letters + string.digits + '_' + '*' + '?' + '-'
   @classmethod
   def _parse_entry(clazz, text, origin):
     check.check_string(text)
@@ -209,7 +209,7 @@ class simple_config(object):
 
     for c in key[1:]:
       if not c in clazz._ENTRY_KEY_VALID_NEXT_CHARS:
-        raise simple_config_error('invalid config entry (key should have only ascii letter, digits or underscore): "{}"'.format(text), origin)
+        raise simple_config_error('invalid config entry char "{}" (key should have only ascii letter, digits or underscore): "{}"'.format(c, text), origin)
       
     value = key_value(key, raw_value)
     annotations = clazz._parse_annotations(raw_annotations, origin)
