@@ -46,6 +46,14 @@ class argparser_handler(object):
       if arg_names[0] != 'self':
         raise RuntimeError('First argument should be \"self\": "{}"'.format(method_name))
       arg_names.pop(0)
+      for arg_name in arg_names:
+        if not hasattr(args, arg_name):
+          source_filename = inspect.getsourcefile(handler)
+          source_line = inspect.getsourcelines(handler)[-1]
+          raise RuntimeError('{}:{}:{}: Missing argument: "{}"'.format(source_filename,
+                                                                       source_line,
+                                                                       handler.__name__,
+                                                                       arg_name))
       args = [ getattr(args, arg_name) for arg_name in arg_names ]
       args_blurb = '; '.join([ '%s=%s' % (key, value) for ( key, value ) in zip(arg_names, args) ])
       log.log_d('calling %s(%s)' % (handler.__name__, args_blurb))
