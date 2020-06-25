@@ -33,19 +33,25 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
     return iter(self.entries_)
   
   def __str__(self):
+    return self.to_string()
+
+  def to_string(self, entry_formatter = None):
+    entry_formatter = entry_formatter or self.default_entry_formatter
     buf = StringIO()
-    buf.write(self.header_.name)
-    if self.header_.extends:
-      buf.write(' extends ')
-      buf.write(self.header_.extends)
+    buf.write(str(self.header_))
     buf.write('\n')
     for i, entry in enumerate(self.entries_):
       if i != 0:
         buf.write('\n')
       buf.write('  ')
-      buf.write(str(entry))
+      buf.write(entry_formatter(entry))
+    buf.write('\n')
     return buf.getvalue()
 
+  @classmethod
+  def default_entry_formatter(clazz, entry):
+    return str(entry)
+  
   def __getattr__(self, key):
     return self.find_by_key(key)
   

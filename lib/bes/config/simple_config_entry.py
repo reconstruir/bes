@@ -7,14 +7,15 @@ from bes.key_value.key_value_list import key_value_list
 
 from collections import namedtuple
 
-class simple_config_entry(namedtuple('simple_config_entry', 'value, origin, annotations')):
+class simple_config_entry(namedtuple('simple_config_entry', 'value, origin, annotations, hints')):
 
-  def __new__(clazz, value, origin = None, annotations = None):
+  def __new__(clazz, value, origin = None, annotations = None, hints = None):
     check.check_key_value(value)
     check.check_simple_config_origin(origin, allow_none = True)
     check.check_key_value_list(annotations, allow_none = True)
+    check.check_dict(hints, allow_none = True)
     
-    return clazz.__bases__[0].__new__(clazz, value, origin, annotations)
+    return clazz.__bases__[0].__new__(clazz, value, origin, annotations, hints)
     
   def __str__(self):
     buf = StringIO()

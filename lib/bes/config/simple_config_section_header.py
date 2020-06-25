@@ -4,6 +4,7 @@ from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.text.line_numbers import line_numbers
 from bes.common.tuple_util import tuple_util
+from bes.compat.StringIO import StringIO
 
 from collections import namedtuple
 
@@ -20,6 +21,17 @@ class simple_config_section_header(namedtuple('simple_config_section_header', 'n
     
     return clazz.__bases__[0].__new__(clazz, name, extends, extra_text, origin)
 
+  def __str__(self):
+    buf = StringIO()
+    buf.write(self.name)
+    if self.extends:
+      buf.write(' extends ')
+      buf.write(self.extends)
+    if self.extra_text:
+      buf.write(' ')
+      buf.write(self.extra_text)
+    return buf.getvalue()
+  
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
   

@@ -47,21 +47,25 @@ class simple_config(object):
   # Convenience reference so users dont need to import error to catch it
   error = simple_config_error
   
-  def __init__(self, sections = None, source = None, check_env_vars = True):
+  def __init__(self, sections = None, source = None, check_env_vars = True, entry_formatter = None):
     sections = sections or []
     source = source or '<unknown>'
     self._origin = simple_config_origin(source, 1)
     self._sections = sections[:]
     self._check_env_vars = check_env_vars
+    self._entry_formatter = entry_formatter
 
   def __str__(self):
+    return self.to_string()
+
+  def to_string(self):
     buf = StringIO()
     for i, section in enumerate(self._sections):
       if i != 0:
         buf.write('\n')
-      buf.write(str(section))
+      buf.write(section.to_string(entry_formatter = self._entry_formatter))
     return buf.getvalue()
-
+  
   def __getattr__(self, section_name):
     return self.find(section_name)
 
@@ -144,24 +148,26 @@ class simple_config(object):
     return sections[0].get_value(key)
   
   @classmethod
-  def from_file(clazz, filename, check_env_vars = True, entry_parser = None):
+  def from_file(clazz, filename, check_env_vars = True, entry_parser = None, entry_formatter = None):
     return clazz.from_text(file_util.read(filename, codec = 'utf8'),
                            source = filename,
                            check_env_vars = check_env_vars,
-                           entry_parser = entry_parser)
+                           entry_parser = entry_parser,
+                           entry_formatter = entry_formatter)
     
   @classmethod
-  def from_text(clazz, s, source = None, check_env_vars = True, entry_parser = None):
+  def from_text(clazz, s, source = None, check_env_vars = True, entry_parser = None, entry_formatter = None):
     check.check_string(s)
     source = source or '<unknown>'
     root = tree_text_parser.parse(s, strip_comments = True, root_name = 'root')
     return clazz.from_node(root,
                            source = source,
                            check_env_vars = check_env_vars,
-                           entry_parser = entry_parser)
+                           entry_parser = entry_parser,
+                           entry_formatter = entry_formatter)
 
   @classmethod
-  def from_node(clazz, node, source = None, check_env_vars = True, entry_parser = None):
+  def from_node(clazz, node, source = None, check_env_vars = True, entry_parser = None, entry_formatter = None):
     check.check_node(node)
     check.check_bool(check_env_vars)
     check.check_function(entry_parser, allow_none = True)
@@ -172,7 +178,10 @@ class simple_config(object):
     for child in node.children:
       section = clazz._parse_section(child, source, entry_parser)
       sections.append(section)
-    return simple_config(sections = sections, source = source, check_env_vars = check_env_vars)
+    return simple_config(sections = sections,
+                         source = source,
+                         check_env_vars = check_env_vars,
+                         entry_formatter = entry_formatter)
   
   @classmethod
   def _parse_section(clazz, node, source, entry_parser):
@@ -182,17 +191,18 @@ class simple_config(object):
 
     origin = simple_config_origin(source, node.data.line_number)
     header = simple_config_section_header.parse_text(node.data.text, origin)
-    entries = clazz._parse_section_entries(node, source)
+    entries = clazz._parse_section_entries(node, source, entry_parser)
     return simple_config_section(header, entries, origin)
 
   @classmethod
-  def _parse_section_entries(clazz, node, source):
+  def _parse_section_entries(clazz, node, source, entry_parser):
     check.check_node(node)
     check.check_string(source)
+    
     result = []
     for child in node.children:
       entry_origin = simple_config_origin(source, child.data.line_number)
-      new_entry = clazz._parse_entry(child.data.text, entry_origin)
+      new_entry = entry_parser(child.data.text, entry_origin)
       result.append(new_entry)
     return result
   
