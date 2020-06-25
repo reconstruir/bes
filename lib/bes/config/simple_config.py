@@ -75,10 +75,10 @@ class simple_config(object):
   def __hasattr__(self, section_name):
     return self.find(section_name) != None
     
-  def add_section(self, section, extends = None, origin = None):
-    check.check_string(section)
+  def add_section(self, section_name, extends = None, origin = None, extra_text = None):
+    check.check_string(section_name)
 
-    header = simple_config_section_header(section, extends = extends, origin = origin)
+    header = simple_config_section_header(section_name, extends = extends, extra_text = extra_text, origin = origin)
     section = simple_config_section(header, None, origin)
     self._sections.append(section)
     return section

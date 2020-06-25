@@ -122,7 +122,14 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
 
     if found:
       return
-        
+    
+    self.add_value(key, value)
+
+  def add_value(self, key, value, hints = None):
+    check.check_string(key)
+    check.check_string(value)
+    check.check_dict(hints, allow_none = True)
+
     if self.entries_:
       last_origin = self.entries_[-1].origin
     else:
@@ -131,7 +138,7 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
       new_origin = simple_config_origin(last_origin.source, last_origin.line_number + 1)
     else:
       new_origin = None
-    new_entry = simple_config_entry(key_value(key, value), origin = new_origin)
+    new_entry = simple_config_entry(key_value(key, value), origin = new_origin, hints = hints)
     self.entries_.append(new_entry)
     
   def get_bool(self, key, default = False):

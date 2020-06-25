@@ -11,15 +11,15 @@ from collections import namedtuple
 from .simple_config_error import simple_config_error
 from .simple_config_origin import simple_config_origin
 
-class simple_config_section_header(namedtuple('simple_config_section_header', 'name, extends, extra_text, origin')):
+class simple_config_section_header(namedtuple('simple_config_section_header', 'name, extends, origin, extra_text')):
 
-  def __new__(clazz, name, extends = None, extra_text = None, origin = None):
+  def __new__(clazz, name, extends = None, origin = None, extra_text = None):
     check.check_string(name)
     check.check_string(extends, allow_none = True)
-    check.check_string(extra_text, allow_none = True)
     check.check_simple_config_origin(origin, allow_none = True)
+    check.check_string(extra_text, allow_none = True)
     
-    return clazz.__bases__[0].__new__(clazz, name, extends, extra_text, origin)
+    return clazz.__bases__[0].__new__(clazz, name, extends, origin, extra_text)
 
   def __str__(self):
     buf = StringIO()
@@ -54,6 +54,6 @@ class simple_config_section_header(namedtuple('simple_config_section_header', 'n
 
     if len(parts) > 0:
       extra_text = ' '.join(parts)
-    return simple_config_section_header(name, extends, extra_text, origin)
+    return simple_config_section_header(name, extends = extends, origin = origin, extra_text = extra_text)
   
 check.register_class(simple_config_section_header)

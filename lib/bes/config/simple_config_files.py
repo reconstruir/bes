@@ -137,7 +137,7 @@ class simple_config_files(object):
       if not entry.value.key in seen:
         seen.add(entry.value.key)
         unique_entries.append(entry)
-    header = simple_config_section_header(section_name, None, origin)
+    header = simple_config_section_header(section_name, origin = origin)
     return simple_config_section(header, unique_entries, origin)
 
   @property
