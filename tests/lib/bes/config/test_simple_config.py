@@ -563,7 +563,7 @@ Host lemon
   User fred
   IdentityFile ~/.ssh/id_rsa
 
-Host imacr
+Host apple
   User fred
   IdentityFile ~/.ssh/id_rsa
   Hostname 172.16.1.1
