@@ -496,6 +496,35 @@ fruit
 
     with self.assertRaises(simple_config.error):
       self.assertEqual( None, section.match_by_key('notthere') )
-    
+
+  def test_section_extra_text(self):
+    text = '''\
+kiwi foo
+  color: green
+  flavor: tart
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( 'green', s.kiwi.color )
+    self.assertEqual( 'tart', s.kiwi.flavor )
+
+    section = s.section('kiwi')
+    self.assertEqual( 'kiwi', section.header_.name )
+    self.assertEqual( 'foo', section.header_.extra_text )
+      
+  def test_section_extends_extra_text(self):
+    text = '''\
+kiwi extends fruit foo
+  color: green
+  flavor: tart
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( 'green', s.kiwi.color )
+    self.assertEqual( 'tart', s.kiwi.flavor )
+
+    section = s.section('kiwi')
+    self.assertEqual( 'kiwi', section.header_.name )
+    self.assertEqual( 'fruit', section.header_.extends )
+    self.assertEqual( 'foo', section.header_.extra_text )
+      
 if __name__ == '__main__':
   unit_test.main()

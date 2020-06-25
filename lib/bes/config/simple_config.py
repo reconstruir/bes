@@ -144,32 +144,41 @@ class simple_config(object):
     return sections[0].get_value(key)
   
   @classmethod
-  def from_file(clazz, filename, check_env_vars = True):
+  def from_file(clazz, filename, check_env_vars = True, entry_parser = None):
     return clazz.from_text(file_util.read(filename, codec = 'utf8'),
                            source = filename,
-                           check_env_vars = check_env_vars)
+                           check_env_vars = check_env_vars,
+                           entry_parser = entry_parser)
     
   @classmethod
-  def from_text(clazz, s, source = None, check_env_vars = True):
+  def from_text(clazz, s, source = None, check_env_vars = True, entry_parser = None):
     check.check_string(s)
     source = source or '<unknown>'
     root = tree_text_parser.parse(s, strip_comments = True, root_name = 'root')
-    return clazz.from_node(root, source = source, check_env_vars = check_env_vars)
+    return clazz.from_node(root,
+                           source = source,
+                           check_env_vars = check_env_vars,
+                           entry_parser = entry_parser)
 
   @classmethod
-  def from_node(clazz, node, source = None, check_env_vars = True):
+  def from_node(clazz, node, source = None, check_env_vars = True, entry_parser = None):
     check.check_node(node)
+    check.check_bool(check_env_vars)
+    check.check_function(entry_parser, allow_none = True)
+
     source = source or '<unknown>'
+    entry_parser = entry_parser or clazz._parse_entry
     sections = []
     for child in node.children:
-      section = clazz._parse_section(child, source)
+      section = clazz._parse_section(child, source, entry_parser)
       sections.append(section)
     return simple_config(sections = sections, source = source, check_env_vars = check_env_vars)
   
   @classmethod
-  def _parse_section(clazz, node, source):
+  def _parse_section(clazz, node, source, entry_parser):
     check.check_node(node)
     check.check_string(source)
+    check.check_function(entry_parser)
 
     origin = simple_config_origin(source, node.data.line_number)
     header = simple_config_section_header.parse_text(node.data.text, origin)
