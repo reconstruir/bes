@@ -525,6 +525,57 @@ kiwi extends fruit foo
     self.assertEqual( 'kiwi', section.header_.name )
     self.assertEqual( 'fruit', section.header_.extends )
     self.assertEqual( 'foo', section.header_.extra_text )
+
+  @classmethod
+  def _parse_ssh_config_entry(clazz, text, origin):
+    from bes.common.check import check
+    from bes.common.string_util import string_util
+    from bes.key_value.key_value import key_value
+    from bes.config.simple_config_entry import simple_config_entry
+
+    check.check_string(text)
+    check.check_simple_config_origin(origin)
+    hints = {}
+    if '=' in text:
+      kv = key_value.parse(text)
+      hints['delimiter'] = '='
+    else:
+      parts = string_util.split_by_white_space(text, strip = True)
+      if len(parts) < 2:
+        raise simple_config_error('invalid sss config entry (not enough parts): "{}"'.format(text), origin)
+      kv = key_value(parts.pop(0), ' '.join(parts))
+      hints['delimiter'] = ' '
+    return simple_config_entry(kv, origin = origin, hints = hints)
+
+  @classmethod
+  def _ssh_config_entry_formatter(clazz, entry):
+    assert 'delimiter' in entry.hints
+    return entry.value.to_string(delimiter = entry.hints['delimiter'])
+    
+  def test_custom_ssh_config_parser(self):
+    text = '''
+Host kiwi
+  User fred
+  IdentityFile ~/.ssh/id_rsa
+  IdentitiesOnly yes
+
+Host lemon
+  User fred
+  IdentityFile ~/.ssh/id_rsa
+
+Host imacr
+  User fred
+  IdentityFile ~/.ssh/id_rsa
+  Hostname 172.16.1.1
+  Port 666
+
+Host *
+  IPQoS=throughput
+'''
+    c = simple_config.from_text(text,
+                                entry_parser = self._parse_ssh_config_entry,
+                                entry_formatter = self._ssh_config_entry_formatter)
+    self.assertMultiLineEqual( text.strip(), str(c).strip() )
       
 if __name__ == '__main__':
   unit_test.main()
