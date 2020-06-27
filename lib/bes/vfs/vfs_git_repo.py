@@ -185,3 +185,8 @@ class vfs_git_repo(vfs_base):
       if 'unknown commit' in str(ex).lower():
         return
       raise
+
+  #@abstractmethod
+  def mkdir(self, remote_dir):
+    'Create a remote dir.  Returns the fs specific directory id if appropiate or None'
+    return None

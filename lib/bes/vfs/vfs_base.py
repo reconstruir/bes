@@ -75,5 +75,10 @@ class vfs_base(with_metaclass(fs_register_meta, object)):
   def set_file_attributes(self, remote_filename, attributes):
     'Set file attirbutes.'
     pass
+
+  @abstractmethod
+  def mkdir(self, remote_dir):
+    'Create a remote dir.  Returns the fs specific directory id if appropiate or None'
+    pass
   
 check.register_class(vfs_base, name = 'vfs_fs')

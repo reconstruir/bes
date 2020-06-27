@@ -260,3 +260,14 @@ class vfs_local(vfs_base):
     db = file_checksum_db(self._checksum_db_filename)
     checksum = db.checksum('sha256', local_filename)
     return checksum
+
+  #@abstractmethod
+  def mkdir(self, remote_dir):
+    'Create a remote dir.  Returns the fs specific directory id if appropiate or None'
+    remote_dir = vfs_path_util.normalize(remote_dir)
+    p = self._make_local_file_path(remote_dir)
+    if path.exists(p):
+      if not path.isdir(p):
+        raise vfs_error('already a file: {}'.format(remote_dir))
+      return None
+    file_util.mkdir(p)
