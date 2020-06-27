@@ -19,7 +19,7 @@ from .string_list import string_list
 class text_line_parser(object):
   'Manage text as lines.'
 
-  def __init__(self, what, delimiter = '\n', starting_line_number = None):
+  def __init__(self, what, delimiter = line_break.DEFAULT_LINE_BREAK, starting_line_number = None):
     log.add_logging(self, 'text_line_parser')
     self._line_break = line_break.DEFAULT_LINE_BREAK
     if isinstance(what, text_line_parser):
