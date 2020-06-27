@@ -90,3 +90,8 @@ class comments(object):
       else:
         buf.write(' ')
     return buf.getvalue()
+
+  @classmethod
+  def line_is_comment(clazz, text):
+    'Return True if text is a comment.'
+    return text.strip().startswith('#')
