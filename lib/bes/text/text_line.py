@@ -56,6 +56,10 @@ class text_line(namedtuple('text_line', 'line_number, text')):
   def stripped_text(self):
     return self.text.strip()
   
+  @cached_property
+  def is_comment(self):
+    return comments.line_is_comment(self.text)
+  
   @classmethod
   def merge(clazz, lines):
     'Merge a sequence of lines into one.  Continuation flags are cleared'
