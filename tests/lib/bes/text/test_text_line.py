@@ -28,6 +28,11 @@ class test_text_line(unit_test):
     
   def test_expand_continuations_keep_continuation(self):
     self.assertEqual( [ TL(1, 'foo\\' ), TL(2, 'bar') ], TL(1, 'foo\\bar').expand_continuations(keep_continuation = True) )
+
+  def test_is_comment(self):
+    self.assertEqual( True, TL(1, '#foo').is_comment )
+    self.assertEqual( False, TL(1, 'foo').is_comment )
+    self.assertEqual( False, TL(1, '').is_comment )
     
 if __name__ == '__main__':
   unit_test.main()
