@@ -59,19 +59,22 @@ release-*
 
     s = simple_config.from_text(text)
 
-    self.assertTrue(s.has_section('release-1v.5166'))
-    self.assertTrue(s.has_section('common'))
+    import re
+    matcher = lambda section, pattern: re.search(section.header_.name, pattern)
 
-    self.assertFalse(s.has_section('commo-n'))
-    self.assertFalse(s.has_section('releas-e'))
+    self.assertTrue( s.has_section('release-1v.5166', matcher = matcher) )
+    self.assertTrue( s.has_section('common', matcher = matcher) )
 
-    sections = s.find_sections('release-1v.5166')
-    self.assertEqual(1, len(sections))
-    self.assertEqual({'test': 'true', 'port': '5502'}, sections[0].to_dict())
+    self.assertFalse( s.has_section('commo-n', matcher = matcher) )
+    self.assertFalse( s.has_section('releas-e', matcher = matcher) )
 
-    sections = s.find_sections('common')
-    self.assertEqual(1, len(sections))
-    self.assertEqual({'test': 'false', 'name': 'Artur'}, sections[0].to_dict())
+    sections = s.find_sections('release-1v.5166', matcher = matcher)
+    self.assertEqual( 1, len(sections) )
+    self.assertEqual( {'test': 'true', 'port': '5502'}, sections[0].to_dict() )
+
+    sections = s.find_sections('common', matcher = matcher)
+    self.assertEqual( 1, len(sections) )
+    self.assertEqual( {'test': 'false', 'name': 'Artur'}, sections[0].to_dict() )
     
   def test_env_var(self):
     text = '''\

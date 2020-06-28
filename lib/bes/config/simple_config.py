@@ -47,13 +47,19 @@ class simple_config(object):
   # Convenience reference so users dont need to import error to catch it
   error = simple_config_error
   
-  def __init__(self, sections = None, source = None, check_env_vars = True, entry_formatter = None):
+  def __init__(self,
+               sections = None,
+               source = None,
+               check_env_vars = True,
+               entry_formatter = None,
+               section_finder = None):
     sections = sections or []
     source = source or '<unknown>'
     self._origin = simple_config_origin(source, 1)
     self._sections = sections[:]
     self._check_env_vars = check_env_vars
     self._entry_formatter = entry_formatter
+    self._section_finder = section_finder
 
   def __str__(self):
     return self.to_string()
@@ -83,41 +89,45 @@ class simple_config(object):
     self._sections.append(section)
     return section
 
-  def remove_section(self, section_name):
-    check.check_string(section_name)
+  @classmethod
+  def default_section_matcher(clazz, section, pattern):
+    check.check_simple_config_section(section)
+    check.check_string(pattern)
 
+    return section.header_.name == pattern
+  
+  def remove_section(self, section_name, matcher = None):
+    check.check_string(section_name)
+    check.check_function(matcher, allow_none = True)
+
+    matcher = matcher or self.default_section_matcher
     for i, section in enumerate(self._sections):
-      if section.header_.name == section_name:
+      if matcher(section, section_name):
         return self._sections.pop(i)
     raise simple_config_error('no such section found: "{}"'.format(section_name, self._origin))
 
-  def has_section(self, name):
-    check.check_string(name)
+  def has_section(self, section_name, matcher = None):
+    check.check_string(section_name)
+    check.check_function(matcher, allow_none = True)
 
+    matcher = matcher or self.default_section_matcher
     for section in self._sections:
-      if '*' in section.header_.name:
-        pattern = re.compile(section.header_.name)
-        if re.search(pattern, name):
-          return True
-      elif section.header_.name == name:
+      if matcher(section, section_name):
         return True
-
     return False
 
-  def find_sections(self, name, raise_error = True):
-    check.check_string(name)
+  def find_sections(self, section_name, raise_error = True, matcher = None):
+    check.check_string(section_name)
+    check.check_function(matcher, allow_none = True)
 
+    matcher = matcher or self.default_section_matcher
     result = []
     for section in self._sections:
-      if '*' in section.header_.name:
-        pattern = re.compile(section.header_.name)
-        if re.search(pattern, name):
-          result.append(section)
-      elif section.header_.name == name:
+      if matcher(section, section_name):
         result.append(section)
 
     if not result and raise_error:
-      raise simple_config_error('no sections found: %s' % (name), self._origin)
+      raise simple_config_error('no sections found: "{}"'.format(section_name), self._origin)
 
     return result
 
@@ -133,14 +143,10 @@ class simple_config(object):
       raise simple_config_error('multiple sections found: {}'.format(section_name), self._origin)
     return sections[0]
   
-  def get_value(self, section, key):
-    return self.find(section).get_value(key)
-  
   def get_value_string_list(self, section, key):
     value = self.get_value(section, key)
     return string_list.parse(value)
   
-  # TODO: two different get_value methods - WARNING
   def get_value(self, section, key):
     sections = self.find_sections(section)
     if len(sections) != 1:
