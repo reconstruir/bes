@@ -147,11 +147,11 @@ class simple_config_files(object):
       raise simple_config_error('Need to call load() first.', None)
     return sorted([ config.abs_path for config in self._configs ])
 
-  def has_section(self, section_name):
+  def has_unique_section(self, section_name):
     'Return True if section_name is in any of the loaded config files.'
     if not self.has_loaded:
       raise simple_config_error('Need to call load() first.', None)
-    return next((c for c in self._configs if c.config.has_section(section_name)), None) is not None    
+    return next((c for c in self._configs if c.config.has_unique_section(section_name)), None) is not None    
 
   @classmethod
   def load_and_find_section(clazz, config_path, section_name, extension):
@@ -175,7 +175,7 @@ class simple_config_files(object):
     config.load()
     if not config.files:
       raise simple_config_error('No config files matching "{}" in "{}"'.format(glob_expression, config_path))
-    if not config.has_section(section_name):
+    if not config.has_unique_section(section_name):
       raise simple_config_error('No config "{}" found in "{}":\n  {}'.format(section_name, config_path, '  \n'.join(config.files)))
     section = config.section(section_name)
     return section

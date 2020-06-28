@@ -25,7 +25,7 @@ class vfs_config(namedtuple('vfs_config', 'fs_type, values')):
     if not path.isfile(config_filename):
       raise vfs_error('config_filename not found: {}'.format(config_filename))
     config = simple_config.from_file(config_filename)
-    sections = config.find_sections('fsconfig')
+    sections = config.find_all_sections('fsconfig')
     if not sections:
       raise vfs_error('no fsconfig section found: {}'.format(config_filename))
     if len(sections) != 1:

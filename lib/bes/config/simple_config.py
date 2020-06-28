@@ -106,7 +106,7 @@ class simple_config(object):
         return self._sections.pop(i)
     raise simple_config_error('no such section found: "{}"'.format(section_name, self._origin))
 
-  def has_section(self, section_name, matcher = None):
+  def has_unique_section(self, section_name, matcher = None):
     check.check_string(section_name)
     check.check_function(matcher, allow_none = True)
 
@@ -116,7 +116,17 @@ class simple_config(object):
         return True
     return False
 
-  def find_sections(self, section_name, raise_error = True, matcher = None):
+  def find_first_section(self, section_name, matcher = None):
+    check.check_string(section_name)
+    check.check_function(matcher, allow_none = True)
+
+    matcher = matcher or self.default_section_matcher
+    for section in self._sections:
+      if matcher(section, section_name):
+        return section
+    return None
+  
+  def find_all_sections(self, section_name, raise_error = True, matcher = None):
     check.check_string(section_name)
     check.check_function(matcher, allow_none = True)
 
@@ -131,14 +141,20 @@ class simple_config(object):
 
     return result
 
-  def find(self, section_name):
-    return self.section(section_name)
-  
-  def section(self, section_name):
+  def find(self, section_name, matcher = None):
     check.check_string(section_name)
-    if not self.has_section(section_name):
+    check.check_function(matcher, allow_none = True)
+
+    return self.section(section_name, matcher = matcher)
+  
+  def section(self, section_name, matcher = None):
+    check.check_string(section_name)
+    check.check_function(matcher, allow_none = True)
+
+    check.check_string(section_name)
+    if not self.has_unique_section(section_name, matcher = matcher):
       self.add_section(section_name)
-    sections = self.find_sections(section_name)
+    sections = self.find_all_sections(section_name, matcher = matcher)
     if len(sections) != 1:
       raise simple_config_error('multiple sections found: {}'.format(section_name), self._origin)
     return sections[0]
@@ -148,7 +164,7 @@ class simple_config(object):
     return string_list.parse(value)
   
   def get_value(self, section, key):
-    sections = self.find_sections(section)
+    sections = self.find_all_sections(section)
     if len(sections) != 1:
       raise simple_config_error('multiple sections found: %s' % (section), self._origin)
     return sections[0].get_value(key)

@@ -29,9 +29,9 @@ class test_simple_config_files(unit_test):
       'organism.config',
       'virus.config',
     ]
-    self.assertTrue( s.has_section('dog') )
-    self.assertTrue( s.has_section('cat') )
-    self.assertFalse( s.has_section('notthere') )
+    self.assertTrue( s.has_unique_section('dog') )
+    self.assertTrue( s.has_unique_section('cat') )
+    self.assertFalse( s.has_unique_section('notthere') )
     
     self.assertEqual( 'false', s.section('dog').find_by_key('food') )
     self.assertEqual( 'true', s.section('dog').find_by_key('pet') )

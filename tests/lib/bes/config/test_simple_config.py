@@ -29,9 +29,9 @@ credential
     s = simple_config.from_text(text)
 
     with self.assertRaises(simple_config.error):
-      s.find_sections('foo')
+      s.find_all_sections('foo')
 
-    sections = s.find_sections('credential')
+    sections = s.find_all_sections('credential')
     self.assertEqual( 2, len(sections) )
     self.assertEqual( 'credential', sections[0].header_.name )
     self.assertEqual( 'download', sections[0].find_by_key('type') )
@@ -43,8 +43,8 @@ credential
       'email': 'email1@bar.com',
       'password': 'sekret1',
       }, sections[0].to_dict() )
-    self.assertTrue( s.has_section('credential') )
-    self.assertFalse( s.has_section('nothere') )
+    self.assertTrue( s.has_unique_section('credential') )
+    self.assertFalse( s.has_unique_section('nothere') )
 
   def test_wildcard(self):
     text = '''\
@@ -62,17 +62,17 @@ release-*
     import re
     matcher = lambda section, pattern: re.search(section.header_.name, pattern)
 
-    self.assertTrue( s.has_section('release-1v.5166', matcher = matcher) )
-    self.assertTrue( s.has_section('common', matcher = matcher) )
+    self.assertTrue( s.has_unique_section('release-1v.5166', matcher = matcher) )
+    self.assertTrue( s.has_unique_section('common', matcher = matcher) )
 
-    self.assertFalse( s.has_section('commo-n', matcher = matcher) )
-    self.assertFalse( s.has_section('releas-e', matcher = matcher) )
+    self.assertFalse( s.has_unique_section('commo-n', matcher = matcher) )
+    self.assertFalse( s.has_unique_section('releas-e', matcher = matcher) )
 
-    sections = s.find_sections('release-1v.5166', matcher = matcher)
+    sections = s.find_all_sections('release-1v.5166', matcher = matcher)
     self.assertEqual( 1, len(sections) )
     self.assertEqual( {'test': 'true', 'port': '5502'}, sections[0].to_dict() )
 
-    sections = s.find_sections('common', matcher = matcher)
+    sections = s.find_all_sections('common', matcher = matcher)
     self.assertEqual( 1, len(sections) )
     self.assertEqual( {'test': 'false', 'name': 'Artur'}, sections[0].to_dict() )
     
@@ -95,7 +95,7 @@ credential
     with env_override(env = { 'SEKRET1': 'sekret1', 'SEKRET2': 'sekret2' }) as tmp_env:
       s = simple_config.from_text(text)
 
-      sections = s.find_sections('credential')
+      sections = s.find_all_sections('credential')
       self.assertEqual( 2, len(sections) )
       self.assertEqual( 'download', sections[0].find_by_key('type') )
       self.assertEqual( 'upload', sections[1].find_by_key('type') )
@@ -129,7 +129,7 @@ credential
   password: ${SEKRET1}
 '''
     s = simple_config.from_text(text)
-    sections = s.find_sections('credential')
+    sections = s.find_all_sections('credential')
     self.assertEqual( 1, len(sections) )
     with self.assertRaises(simple_config.error) as context:
       sections[0].to_dict(resolve_env_vars = True)
@@ -150,7 +150,7 @@ foo extends fruit
     
     s = simple_config.from_text(text)
 
-    sections = s.find_sections('foo')
+    sections = s.find_all_sections('foo')
     self.assertEqual( 1, len(sections) )
     self.assertEqual( 'foo', sections[0].header_.name )
     self.assertEqual( 'fruit', sections[0].header_.extends )
@@ -194,9 +194,9 @@ fruit
     s = simple_config.from_text(text)
 
     with self.assertRaises(simple_config.error):
-      s.find_sections('foo')
+      s.find_all_sections('foo')
 
-    sections = s.find_sections('fruit')
+    sections = s.find_all_sections('fruit')
     self.assertEqual( 4, len(sections) )
     
     self.assertEqual( 'fruit', sections[0].header_.name )

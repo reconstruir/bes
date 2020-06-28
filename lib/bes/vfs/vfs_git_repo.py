@@ -189,4 +189,4 @@ class vfs_git_repo(vfs_base):
   #@abstractmethod
   def mkdir(self, remote_dir):
     'Create a remote dir.  Returns the fs specific directory id if appropiate or None'
-    return None
+    raise vfs_error('mkdir not supported for vfs_artifactory')
