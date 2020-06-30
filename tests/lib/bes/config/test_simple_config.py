@@ -580,5 +580,69 @@ Host *
                                 entry_formatter = self._ssh_config_entry_formatter)
     self.assertMultiLineEqual( text.strip(), str(c).strip() )
       
+  def test_multi_line_values(self):
+    text = '''
+kiwi
+  key: -----BEGIN RSA PRIVATE KEY-----
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+       -----END RSA PRIVATE KEY-----
+'''
+    c = simple_config.from_text(text)
+
+    key_expected = '''\
+-----BEGIN RSA PRIVATE KEY-----
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
+-----END RSA PRIVATE KEY-----'''
+    
+    self.assertMultiLineEqual( key_expected, c.kiwi.key )
+
 if __name__ == '__main__':
   unit_test.main()

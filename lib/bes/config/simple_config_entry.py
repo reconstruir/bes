@@ -4,6 +4,7 @@ from bes.common.check import check
 from bes.compat.StringIO import StringIO
 from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
+from bes.text.line_break import line_break
 
 from collections import namedtuple
 
@@ -18,21 +19,31 @@ class simple_config_entry(namedtuple('simple_config_entry', 'value, origin, anno
     return clazz.__bases__[0].__new__(clazz, value, origin, annotations, hints)
     
   def __str__(self):
-    buf = StringIO()
-    buf.write(self.value.key)
+    buf_left = StringIO()
+    buf_left.write(self.value.key)
     if self.annotations:
-      buf.write('[')
+      buf_left.write('[')
       for i, annotation in enumerate(self.annotations):
         if i != 0:
-          buf.write(',')
-        buf.write(annotation.key)
+          buf_left.write(',')
+        buf_left.write(annotation.key)
         if annotation.value:
-          buf.write('=')
-          buf.write(annotation.value)
-      buf.write(']')
-    buf.write(': ')
-    buf.write(self.value.value)
-    return buf.getvalue()
+          buf_left.write('=')
+          buf_left.write(annotation.value)
+      buf_left.write(']')
+    buf_left.write(': ')
+    left_side = buf_left.getvalue()
+    buf_right = StringIO()
+    buf_right.write(left_side)
+    value_lines = self.value.value.split(line_break.DEFAULT_LINE_BREAK)
+    indent = ' ' * len(left_side) 
+    for i, line in enumerate(value_lines):
+      if i > 0:
+        buf_right.write(line_break.DEFAULT_LINE_BREAK)
+        buf_right.write(indent)
+        buf_right.write(self.value.value)
+      buf_right.write(line)
+    return buf_right.getvalue()
 
   def has_annotation(self, annotation_key):
     check.check_string(annotation_key)

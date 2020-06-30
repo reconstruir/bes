@@ -10,6 +10,7 @@ from bes.key_value.key_value_list import key_value_list
 from bes.system.log import logger
 from bes.text.tree_text_parser import tree_text_parser
 from bes.text.string_list import string_list
+from bes.text.line_break import line_break
 
 from collections import namedtuple
 
@@ -68,7 +69,7 @@ class simple_config(object):
     buf = StringIO()
     for i, section in enumerate(self._sections):
       if i != 0:
-        buf.write('\n')
+        buf.write(line_break.DEFAULT_LINE_BREAK)
       buf.write(section.to_string(entry_formatter = self._entry_formatter))
     return buf.getvalue()
   
@@ -224,7 +225,8 @@ class simple_config(object):
     result = []
     for child in node.children:
       entry_origin = simple_config_origin(source, child.data.line_number)
-      new_entry = entry_parser(child.data.text, entry_origin)
+      text = child.get_text(child.NODE_FLAT, delimiter = line_break.DEFAULT_LINE_BREAK)
+      new_entry = entry_parser(text, entry_origin)
       result.append(new_entry)
     return result
   
