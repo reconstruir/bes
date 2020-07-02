@@ -294,15 +294,15 @@ class test_git(unit_test):
     self.assertFalse( git.is_bare_repo(tmp_bare_repo) )
 
   @git_temp_home_func()
-  def test_get_root_dir(self):
+  def test_find_root_dir(self):
     tmp_repo = self._create_tmp_repo()
-    self.assertEqual( tmp_repo, git.get_root_dir(where = tmp_repo) )
+    self.assertEqual( tmp_repo, git.find_root_dir(start_dir = tmp_repo) )
 
     d = path.join(tmp_repo, 'foo', 'bar', 'baz')
     file_util.mkdir(d)
-    self.assertEqual( tmp_repo, git.get_root_dir(where = d) )
+    self.assertEqual( tmp_repo, git.find_root_dir(start_dir = d) )
 
-    self.assertEqual( None, git.get_root_dir(self.make_temp_dir()) )
+    self.assertEqual( None, git.find_root_dir(self.make_temp_dir()) )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -11,7 +11,6 @@ from bes.fs.file_ignore import file_multi_ignore
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.git.git import git
-from bes.git.git_util import git_util
 from bes.python.dependencies import dependencies
 from bes.system.env_var import env_var
 from bes.system.execute import execute
@@ -282,7 +281,7 @@ class argument_resolver(object):
 
   @classmethod
   def _git_files_for_commit(clazz, commit):
-    git_dir = git_util.find_root_dir()
+    git_dir = git.find_root_dir()
     root = path.dirname(git_dir)
     files = git.files_for_commit(root, commit)
     files = [ path.join(root, f) for f in files ]

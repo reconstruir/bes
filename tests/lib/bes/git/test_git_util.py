@@ -75,6 +75,5 @@ class test_git_util(unit_test):
     r2.pull()
     self.assertEqual( '668', r2.greatest_local_tag() )
 
-
 if __name__ == '__main__':
   unit_test.main()

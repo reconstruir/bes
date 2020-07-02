@@ -8,7 +8,6 @@ from collections import namedtuple
 from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.common.object_util import object_util
-from bes.fs.file_find import file_find
 from bes.fs.file_type import file_type
 from bes.fs.file_util import file_util
 from bes.fs.find.criteria import criteria
@@ -172,14 +171,3 @@ class git_util(object):
                                 commit_message,
                                 num_tries = options.num_tries,
                                 retry_wait_ms = options.retry_wait_ms)
-
-  @classmethod
-  def find_root_dir(clazz, start_dir = None, working_dir = True):
-    'Find the root of a git repo starting at start_dir or None if not found.'
-    start_dir = start_dir or os.getcwd()
-    git_dir = file_find.find_in_ancestors(start_dir, '.git')
-    if not git_dir:
-      return None
-    if working_dir:
-      return path.normpath(path.join(git_dir, path.pardir))
-    return git_dir
