@@ -102,8 +102,14 @@ class check(object):
     return clazz._check(o, float, 2, allow_none = allow_none)
 
   @classmethod
-  def check_tuple(clazz, o, allow_none = False):
-    return clazz._check(o, tuple, 2, allow_none = allow_none)
+  def check_tuple(clazz, o, allow_none = False, value_type = None):
+    if allow_none and o is None:
+      return o
+    o = clazz._check(o, tuple, 2, allow_none = allow_none)
+    if value_type:
+      for value in o:
+        clazz._check(value, value_type, 2)
+    return o
 
   @classmethod
   def check_dict(clazz, o, key_type = None, value_type = None, allow_none = False):
