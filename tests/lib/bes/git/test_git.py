@@ -9,6 +9,7 @@ from bes.fs.temp_file import temp_file
 from bes.archive.archiver import archiver
 from bes.git.git_unit_test import git_temp_home_func
 from bes.system.env_override import env_override_temp_home_func
+from bes.system.host import host
 
 from bes.git.git import git
 from bes.git.git_status import git_status
@@ -16,7 +17,12 @@ from bes.git.git_status import git_status
 class test_git(unit_test):
 
   def _create_tmp_repo(self, *args):
-    tmp_dir = self.make_temp_dir()
+    # make the temp dir predictable on macos
+    if host.is_macos():
+      d = '/private/tmp'
+    else:
+      d = None
+    tmp_dir = self.make_temp_dir(dir = d)
     git.init(tmp_dir, *args)
     return tmp_dir
 
@@ -286,6 +292,17 @@ class test_git(unit_test):
   def test_is_bare_repo_false(self):
     tmp_bare_repo = self.make_temp_dir()
     self.assertFalse( git.is_bare_repo(tmp_bare_repo) )
+
+  @git_temp_home_func()
+  def test_get_root_dir(self):
+    tmp_repo = self._create_tmp_repo()
+    self.assertEqual( tmp_repo, git.get_root_dir(where = tmp_repo) )
+
+    d = path.join(tmp_repo, 'foo', 'bar', 'baz')
+    file_util.mkdir(d)
+    self.assertEqual( tmp_repo, git.get_root_dir(where = d) )
+
+    self.assertEqual( None, git.get_root_dir(self.make_temp_dir()) )
     
 if __name__ == '__main__':
   unit_test.main()
