@@ -928,16 +928,16 @@ class git(object):
     return git_ref.branches_for_ref(root_dir, ref)
 
   @classmethod
-  def get_root_dir(clazz, where = None):
+  def find_root_dir(clazz, start_dir = None):
     '''
-    Find the root dir of a git repo starting at where.
-    If where is None then the current working directory is used
+    Find the root dir of a git repo starting at start_dir.
+    If start_dir is None then the current working directory is used
     Return the root dir if found or None if not.
     '''
-    check.check_string(where, allow_none = True)
+    check.check_string(start_dir, allow_none = True)
 
-    where = where or os.getcwd()
-    rv = git_exe.call_git(where, [ 'rev-parse', '--show-toplevel' ], raise_error = False)
+    start_dir = start_dir or os.getcwd()
+    rv = git_exe.call_git(start_dir, [ 'rev-parse', '--show-toplevel' ], raise_error = False)
     if rv.exit_code != 0:
       return None
     return rv.stdout.strip()
