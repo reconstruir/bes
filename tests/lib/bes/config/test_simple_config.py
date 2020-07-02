@@ -644,5 +644,24 @@ abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
     
     self.assertMultiLineEqual( key_expected, c.kiwi.key )
 
+  def test_clear_value(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+  flavor: sweet
+'''
+    s = simple_config.from_text(text)
+
+    section = s.section('fruit')
+    section.clear_values()
+    
+    expected = '''\
+fruit
+
+'''
+    self.assertEqual( expected, str(s) )
+    
 if __name__ == '__main__':
   unit_test.main()

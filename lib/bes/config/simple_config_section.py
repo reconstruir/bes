@@ -107,23 +107,33 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
   def get_value(self, key):
     return self.find_by_key(key, raise_error = True, resolve_env_vars = True)
 
+  def get_values(self):
+    result = {}
+    for i, entry in list_util.reversed_enumerate(self.entries_):
+      result[entry.value.key] = entry.value.value
+    return result
+
   def get_string_list(self, key):
     return string_util.split_by_white_space(self.get_value(key), strip = True)
 
-  def set_value(self, key, value):
+  def set_value(self, key, value, hints = None):
     check.check_string(key)
     check.check_string(value)
+    check.check_dict(hints, allow_none = True)
 
     found = False
     for i, entry in enumerate(self.entries_):
       if entry.value.key == key:
         found = True
-        self.entries_[i] = simple_config_entry(key_value(entry.value.key, value), entry.origin, entry.annotations)
+        self.entries_[i] = simple_config_entry(key_value(entry.value.key, value),
+                                               origin = entry.origin,
+                                               annotations = entry.annotations,
+                                               hints = entry.hints)
 
     if found:
       return
     
-    self.add_value(key, value)
+    self.add_value(key, value, hints = hints)
 
   def add_value(self, key, value, hints = None):
     check.check_string(key)
@@ -162,16 +172,25 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
     'Return values as a dict optionally resolving environment variables.'
     return self.to_key_value_list(resolve_env_vars = resolve_env_vars).to_dict()
 
-  def set_values(self, values):
-    if isinstance(values, key_value_list):
-      values = values.to_dict()
-    elif isinstance(values, dict):
-      pass
+  def set_values(self, values, hints = None):
+    check.check_dict(hints, allow_none = True)
+
+    if check.is_string(values):
+      kv_values = key_value_list.parse(values)
+    elif check.is_key_value_list(values):
+      kv_values = values
+    elif check.is_dict(values):
+      kv_values = key_value_list.from_dict(values)
     else:
-      raise TypeError('values should be of type dict or key_value_list: {}'.format(type(values)))
-    for key, value in values.items():
-      self.set_value(key, value)
-  
+      raise TypeError('Unknown type for values: "{}" - "{}"'.format(type(values), values))
+    
+    for kv in kv_values:
+      self.set_value(kv.key, kv.value, hints = hints)
+
+  def clear_values(self):
+    while len(self.entries_):
+      self.entries_.pop()
+      
   @classmethod
   def _resolve_variables(clazz, value, origin):
     variables = variable.find_variables(value)
