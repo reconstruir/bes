@@ -95,6 +95,9 @@ class git_util(object):
   def _clone_to_temp_dir(clazz, address, options = None, debug = False):
     'Clone a git address to a temp dir'
     tmp_dir = temp_file.make_temp_dir(delete = not debug)
+    clazz._LOG.log_d('_clone_to_temp_dir: tmp_dir={}'.format(tmp_dir))
+    if debug:
+      print('_clone_to_temp_dir: tmp_dir={}'.format(tmp_dir))
     r = git_repo(tmp_dir, address = address)
     r.clone(options = options)
     return tmp_dir, r
@@ -170,4 +173,5 @@ class git_util(object):
       repo.operation_with_reset(operation,
                                 commit_message,
                                 num_tries = options.num_tries,
-                                retry_wait_ms = options.retry_wait_ms)
+                                retry_wait_ms = options.retry_wait_ms,
+                                files_to_commit = options.files_to_commit)

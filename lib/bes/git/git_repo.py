@@ -386,7 +386,12 @@ class git_repo(object):
     check.check_string(commit_hash)
     return git.commit_brief_message(self.root, commit_hash)
 
-  def operation_with_reset(self, operation, commit_message, num_tries = None, retry_wait_ms = None):
+  def operation_with_reset(self,
+                           operation,
+                           commit_message,
+                           num_tries = None,
+                           retry_wait_ms = None,
+                           files_to_commit = None):
     '''
     Attempt a git operation.  With multiple tries.  Reset the repo before each
     attempt.
@@ -402,6 +407,7 @@ class git_repo(object):
     check.check_string(commit_message)
     check.check_int(num_tries, allow_none = True)
     check.check_float(retry_wait_ms, allow_none = True)
+    check.check_string_seq(files_to_commit, allow_none = True)
 
     operation_spec = inspect.getargspec(operation)
     if len(operation_spec[0]) != 1:
@@ -414,7 +420,8 @@ class git_repo(object):
     num_tries = num_tries or 10
     save_ex = None
     retry_wait_ms = retry_wait_ms or 0.500
-
+    files_to_commit = files_to_commit or [ '.' ]
+    
     git.log.log_d('operation_with_reset: num_tries={} operation="{}" retry_wait_ms={}'.format(num_tries,
                                                                                               operation,
                                                                                               retry_wait_ms))
@@ -428,7 +435,7 @@ class git_repo(object):
         operation(self)
         if self.has_changes():
           git.log.log_d('operation_with_reset: committing...: attempt {} of {}'.format(i + 1, num_tries))
-          self.commit(commit_message, [ '.' ])
+          self.commit(commit_message, files_to_commit)
         git.log.log_i('operation_with_reset: success {} of {}'.format(i + 1, num_tries))
         if self.has_unpushed_commits():
           git.log.log_d('operation_with_reset: pushing...: attempt {} of {}'.format(i + 1, num_tries))
