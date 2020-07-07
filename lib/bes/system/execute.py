@@ -71,8 +71,11 @@ class execute(object):
       output = ( '\n'.join(stdout_lines), output[1] )
     
     if codec:
-      stdout = codecs.decode(output[0], codec)
-      stderr = codecs.decode(output[1], codec)
+      stdout = codecs.decode(output[0], codec, 'ignore')
+      if output[1]:
+        stderr = codecs.decode(output[1], codec, 'ignore')
+      else:
+        stderr = None
     else:
       stdout = output[0]
       stderr = output[1]
