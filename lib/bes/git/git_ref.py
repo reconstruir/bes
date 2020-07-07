@@ -35,3 +35,12 @@ class git_ref(object):
     branches = [ branch for branch in branches if branch not in blacklist ]
     return sorted(list(set(branches)))
   
+  @classmethod
+  def is_branch(clazz, root_dir, branch_name):
+    'Return True if branch_name is a branch.'
+    check.check_string(root_dir)
+    check.check_string(branch_name)
+
+    ref = 'refs/heads/{}'.format(branch_name)
+    rv = git_exe.call_git(root_dir, [ 'show-ref', '--verify', '--quiet', ref ], raise_error = False)
+    return rv.exit_code == 0
