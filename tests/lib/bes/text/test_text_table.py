@@ -88,8 +88,95 @@ class test_text_table(unit_test):
 +-------------------------------+'''
     self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
 
+  def test_sort_by_column(self):
+    data = [
+      ( 'FRUIT', 'FAVORITE', 'COLOR' ),
+      ( 'kiwi', 'YES', 'green' ),
+      ( 'banana', 'NO', 'yellow' ),
+      ( 'blueberry', 'YES', 'purple' ),
+      ( 'lemon', 'NO', 'yellow' ),
+    ]
+    t = self._make_text_table(data)
+    t.sort_by_column(0)
+    expected = '''\
++-------------------------------+
+| FRUIT     | FAVORITE | COLOR  |
+| banana    | NO       | yellow |
+| blueberry | YES      | purple |
+| kiwi      | YES      | green  |
+| lemon     | NO       | yellow |
++-------------------------------+'''
+    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+
+    t.sort_by_column(1)
+    expected = '''\
++-------------------------------+
+| FRUIT     | FAVORITE | COLOR  |
+| banana    | NO       | yellow |
+| lemon     | NO       | yellow |
+| blueberry | YES      | purple |
+| kiwi      | YES      | green  |
++-------------------------------+'''
+    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+
+    t.sort_by_column(2)
+    expected = '''\
++-------------------------------+
+| FRUIT     | FAVORITE | COLOR  |
+| kiwi      | YES      | green  |
+| blueberry | YES      | purple |
+| banana    | NO       | yellow |
+| lemon     | NO       | yellow |
++-------------------------------+'''
+    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+    
+  def test_sort_by_column_named(self):
+    data = [
+      ( 'kiwi', 'YES', 'green' ),
+      ( 'banana', 'NO', 'yellow' ),
+      ( 'blueberry', 'YES', 'purple' ),
+      ( 'lemon', 'NO', 'yellow' ),
+    ]
+    t = self._make_text_table(data)
+    t.set_labels( ( 'FRUIT', 'FAVORITE', 'COLOR' ) )
+    t.sort_by_column('FRUIT')
+    expected = '''\
+|-------------------------------|
+| FRUIT     | FAVORITE | COLOR  |
++-------------------------------+
+| banana    | NO       | yellow |
+| blueberry | YES      | purple |
+| kiwi      | YES      | green  |
+| lemon     | NO       | yellow |
++-------------------------------+'''
+    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+    t.sort_by_column('FAVORITE')
+    expected = '''\
+|-------------------------------|
+| FRUIT     | FAVORITE | COLOR  |
++-------------------------------+
+| banana    | NO       | yellow |
+| lemon     | NO       | yellow |
+| blueberry | YES      | purple |
+| kiwi      | YES      | green  |
++-------------------------------+'''
+    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+
+    t.sort_by_column('COLOR')
+    expected = '''\
+|-------------------------------|
+| FRUIT     | FAVORITE | COLOR  |
++-------------------------------+
+| kiwi      | YES      | green  |
+| blueberry | YES      | purple |
+| banana    | NO       | yellow |
+| lemon     | NO       | yellow |
++-------------------------------+'''
+    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+    
   def _make_text_table(self, data):
     return TT(data = data, style = self._STYLE)
-    
+
+  
 if __name__ == '__main__':
   unit_test.main()

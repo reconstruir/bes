@@ -190,7 +190,7 @@ class text_table(object):
     return max_width
   
   def sort_by_column(self, x):
-    self._table.check_x(x)
+    x = self._table.resolve_x(x)
     self._table.sort_by_column(x)
 
   def set_row(self, y, row):
