@@ -262,7 +262,7 @@ exit 0
       #repo = git_repo(tmp_dir, address = r2.address)
       #repo.clone_or_pull()
       #repo.add_file(fruit, content = fruit, commit = True)
-      #repo.push_with_rebase(num_tries = 10, retry_wait_ms = 0.250)
+      #repo.push_with_rebase(num_tries = 10, retry_wait_seconds = 0.250)
       return 0
 
     jobs = []

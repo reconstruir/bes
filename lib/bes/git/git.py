@@ -225,12 +225,12 @@ class git(object):
     return git_exe.call_git(root, args)
 
   @classmethod
-  def push_with_rebase(clazz, root, remote_name = None, num_tries = None, retry_wait_ms = None):
+  def push_with_rebase(clazz, root, remote_name = None, num_tries = None, retry_wait_seconds = None):
     'Push, but call "pull --rebase origin master" first to be up to date.  With multiple optional retries.'
     check.check_string(root)
     check.check_string(remote_name, allow_none = True)
     check.check_int(num_tries, allow_none = True)
-    check.check_float(retry_wait_ms, allow_none = True)
+    check.check_float(retry_wait_seconds, allow_none = True)
 
     if check.is_int(num_tries):
       if num_tries <= 0 or num_tries > 100:
@@ -241,13 +241,13 @@ class git(object):
     origin = clazz.remote_origin_url(root) or '<unknown>'
     remote_name = remote_name or 'origin'
     active_branch = clazz.active_branch(root)
-    retry_wait_ms = retry_wait_ms or 0.500
+    retry_wait_seconds = retry_wait_seconds or 0.500
 
     pull_command = 'pull --rebase {} {}'.format(remote_name, active_branch)
 
-    clazz.log.log_d('push_with_rebase: num_tries={} pull_command="{}" retry_wait_ms={}'.format(num_tries,
+    clazz.log.log_d('push_with_rebase: num_tries={} pull_command="{}" retry_wait_seconds={}'.format(num_tries,
                                                                                                pull_command,
-                                                                                               retry_wait_ms))
+                                                                                               retry_wait_seconds))
     for i in range(0, num_tries):
       try:
         clazz.log.log_d('push_with_rebase: attempt {} of {} pushing to {}'.format(i + 1, num_tries, origin))
@@ -257,7 +257,7 @@ class git(object):
         return
       except git_error as ex:
         clazz.log.log_w('push_with_rebase: failed {} of {} pushing to {}'.format(i + 1, num_tries, origin))
-        time.sleep(retry_wait_ms)
+        time.sleep(retry_wait_seconds)
         save_ex = ex
     raise save_ex
 

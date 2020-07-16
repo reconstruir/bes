@@ -12,7 +12,7 @@ class git_repo_operation_options(git_clone_options):
     self.debug = False
     self.verbose = False
     self.num_tries = 10
-    self.retry_wait_ms = 0.500
+    self.retry_wait_seconds = 0.500
     self.files_to_commit = [ '.' ]
     for key, value in kargs.items():
       setattr(self, key, value)
@@ -20,7 +20,7 @@ class git_repo_operation_options(git_clone_options):
     check.check_bool(self.debug)
     check.check_bool(self.verbose)
     check.check_int(self.num_tries)
-    check.check_float(self.retry_wait_ms)
+    check.check_float(self.retry_wait_seconds)
     check.check_string_seq(self.files_to_commit)
 
 check.register_class(git_repo_operation_options)

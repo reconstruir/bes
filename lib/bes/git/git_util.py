@@ -139,7 +139,7 @@ class git_util(object):
       else:
         if options.push_with_rebase:
           repo.push_with_rebase(num_tries = options.push_with_rebase_num_tries,
-                                retry_wait_ms = options.push_with_rebase_retry_wait_ms)
+                                retry_wait_seconds = options.push_with_rebase_retry_wait_seconds)
         else:
           repo.push()
     if options.bump_tag_component is not None:
@@ -173,5 +173,5 @@ class git_util(object):
       repo.operation_with_reset(operation,
                                 commit_message,
                                 num_tries = options.num_tries,
-                                retry_wait_ms = options.retry_wait_ms,
+                                retry_wait_seconds = options.retry_wait_seconds,
                                 files_to_commit = options.files_to_commit)

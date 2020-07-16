@@ -66,11 +66,11 @@ class git_repo(object):
   def push(self, *args):
     return git.push(self.root, *args)
 
-  def push_with_rebase(self, remote_name = None, num_tries = None, retry_wait_ms = None):
+  def push_with_rebase(self, remote_name = None, num_tries = None, retry_wait_seconds = None):
     return git.push_with_rebase(self.root,
                                 remote_name = remote_name,
                                 num_tries = num_tries,
-                                retry_wait_ms = retry_wait_ms)
+                                retry_wait_seconds = retry_wait_seconds)
 
   def safe_push(self, *args):
     return git.safe_push(self.root, *args)
@@ -390,7 +390,7 @@ class git_repo(object):
                            operation,
                            commit_message,
                            num_tries = None,
-                           retry_wait_ms = None,
+                           retry_wait_seconds = None,
                            files_to_commit = None):
     '''
     Attempt a git operation.  With multiple tries.  Reset the repo before each
@@ -406,7 +406,7 @@ class git_repo(object):
     check.check_function(operation)
     check.check_string(commit_message)
     check.check_int(num_tries, allow_none = True)
-    check.check_float(retry_wait_ms, allow_none = True)
+    check.check_float(retry_wait_seconds, allow_none = True)
     check.check_string_seq(files_to_commit, allow_none = True)
 
     operation_spec = inspect.getargspec(operation)
@@ -419,12 +419,12 @@ class git_repo(object):
 
     num_tries = num_tries or 10
     save_ex = None
-    retry_wait_ms = retry_wait_ms or 0.500
+    retry_wait_seconds = retry_wait_seconds or 0.500
     files_to_commit = files_to_commit or [ '.' ]
     
-    git.log.log_d('operation_with_reset: num_tries={} operation="{}" retry_wait_ms={}'.format(num_tries,
+    git.log.log_d('operation_with_reset: num_tries={} operation="{}" retry_wait_seconds={}'.format(num_tries,
                                                                                               operation,
-                                                                                              retry_wait_ms))
+                                                                                              retry_wait_seconds))
     for i in range(0, num_tries):
       try:
         git.log.log_d('operation_with_reset: reset: attempt {} of {}'.format(i + 1, num_tries))
@@ -446,7 +446,7 @@ class git_repo(object):
       except git_error as ex:
         git.log.log_w('operation_with_reset: failed {} of {}'.format(i + 1, num_tries))
         # git.log.log_exception(ex, show_traceback = True)
-        time.sleep(retry_wait_ms)
+        time.sleep(retry_wait_seconds)
         save_ex = ex
     assert save_ex
     raise save_ex
