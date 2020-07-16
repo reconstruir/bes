@@ -134,24 +134,24 @@ class git(object):
       raise git_error('Not a bare git repo: "{}"'.format(d))
     
   @classmethod
-  def clone(clazz, address, dest_dir, options = None):
+  def clone(clazz, address, root_dir, options = None):
     check.check_git_clone_options(options, allow_none = True)
     address = git_address_util.resolve(address)
     options = options or git_clone_options()
-    clazz.log.log_d('clone: address={} dest_dir={} options={}'.format(address, dest_dir, pprint.pformat(options.__dict__)))
-    if path.exists(dest_dir):
-      if not path.isdir(dest_dir):
-        raise git_error('dest_dir "{}" is not a directory.'.format(dest_dir))
+    clazz.log.log_d('clone: address={} root_dir={} options={}'.format(address, root_dir, pprint.pformat(options.__dict__)))
+    if path.exists(root_dir):
+      if not path.isdir(root_dir):
+        raise git_error('root_dir "{}" is not a directory.'.format(root_dir))
       if options.enforce_empty_dir:
-        if not dir_util.is_empty(dest_dir):
-          raise git_error('dest_dir "{}" is not empty.'.format(dest_dir))
+        if not dir_util.is_empty(root_dir):
+          raise git_error('root_dir "{}" is not empty.'.format(root_dir))
     else:
-      file_util.mkdir(dest_dir)
+      file_util.mkdir(root_dir)
     args = [ 'clone' ]
     if options.depth:
       args.extend([ '--depth', str(options.depth) ])
     args.append(address)
-    args.append(dest_dir)
+    args.append(root_dir)
     extra_env = {
       'GIT_LFS_SKIP_SMUDGE': '0' if options.lfs else '1',
     }
@@ -160,13 +160,13 @@ class git(object):
     clazz.log.log_d('clone: clone_rv="{}"'.format(str(clone_rv)))
     sub_rv = None
     if options.branch:
-      git.checkout(dest_dir, options.branch)
+      git.checkout(root_dir, options.branch)
     if options.submodules or options.submodule_list:
-      sub_rv = clazz._submodule_init(dest_dir, options)
+      sub_rv = clazz._submodule_init(root_dir, options)
     return clone_rv, sub_rv
 
   @classmethod
-  def _submodule_init(clazz, dest_dir, options):
+  def _submodule_init(clazz, root_dir, options):
     assert options.submodules or options.submodule_list
 
     lfs_env = {
@@ -180,21 +180,34 @@ class git(object):
     if options.submodule_list:
       sub_args.extend(options.submodule_list)
     clazz.log.log_d('_submodule_init: sub_args="{}" lfs_env={}'.format(' '.join(sub_args), lfs_env))
-    sub_rv = git_exe.call_git(dest_dir, sub_args, extra_env = lfs_env)
+    sub_rv = git_exe.call_git(root_dir, sub_args, extra_env = lfs_env)
     clazz.log.log_d('_submodule_init: sub_rv="{}"'.format(str(sub_rv)))
+
+    if options.submodule_list:
+      submodule_to_reset = options.submodule_list
+    else:
+      submodule_to_reset = [ info.name for info in clazz.submodule_status_all(root_dir) ]
+
+    for submodule in submodule_to_reset:
+      submodule_root_dir = path.join(root_dir, submodule)
+      if options.reset_to_head:
+        clazz.reset_to_revision(submodule_root_dir, 'HEAD')
+      if options.clean:
+        clazz.clean(submodule_root_dir, immaculate = options.clean_immaculate)
+    
     return sub_rv
   
   @classmethod
-  def sync(clazz, address, dest_dir, options = None):
+  def sync(clazz, address, root_dir, options = None):
     check.check_git_clone_options(options, allow_none = True)
-    if clazz.is_repo(dest_dir):
-      clazz.checkout(dest_dir, 'master')
-    clazz.clone_or_pull(address, dest_dir, options = options)
-    branches = clazz.list_branches(dest_dir, 'both')
+    if clazz.is_repo(root_dir):
+      clazz.checkout(root_dir, 'master')
+    clazz.clone_or_pull(address, root_dir, options = options)
+    branches = clazz.list_branches(root_dir, 'both')
     for needed_branch in branches.difference:
-      clazz.branch_track(dest_dir, needed_branch)
-    git_exe.call_git(dest_dir, 'fetch --all')
-    git_exe.call_git(dest_dir, 'pull --all')
+      clazz.branch_track(root_dir, needed_branch)
+    git_exe.call_git(root_dir, 'fetch --all')
+    git_exe.call_git(root_dir, 'pull --all')
 
   @classmethod
   def pull(clazz, root, *args):
@@ -273,34 +286,39 @@ class git(object):
     return clazz.last_commit_hash(root_dir, short_hash = True)
 
   @classmethod
-  def clone_or_pull(clazz, address, dest_dir, options = None):
+  def clone_or_pull(clazz, address, root_dir, options = None):
     options = options or git_clone_options()
+
+    clazz.log.log_d('clone_or_pull: address={} root_dir={} options={}'.format(address, root_dir, pprint.pformat(options.__dict__)))
     
-    if clazz.is_repo(dest_dir):
+    if clazz.is_repo(root_dir):
       if options.reset_to_head:
-        clazz.reset_to_revision(dest_dir, 'HEAD')
+        clazz.reset_to_revision(root_dir, 'HEAD')
 
-      if options.submodules or options.submodule_list:
-        clazz._submodule_init(dest_dir, options)
+      if options.clean:
+        clazz.clean(root_dir, immaculate = options.clean_immaculate)
         
-      if clazz.has_changes(dest_dir):
-        raise git_error('dest_dir "{}" has changes.'.format(dest_dir))
+      if options.submodules or options.submodule_list:
+        clazz._submodule_init(root_dir, options)
 
-      info = clazz.head_info(dest_dir)
+      if clazz.has_changes(root_dir):
+        raise git_error('root_dir "{}" has changes.'.format(root_dir))
+
+      info = clazz.head_info(root_dir)
 
       if info.is_detached:
-        clazz.checkout(dest_dir, 'master')
+        clazz.checkout(root_dir, 'master')
 
       if not options.no_network:
-        git_exe.call_git(dest_dir, 'fetch --tags')
-        clazz.pull(dest_dir)
+        git_exe.call_git(root_dir, 'fetch --tags')
+        clazz.pull(root_dir)
 
       if options.branch:
-        clazz.checkout(dest_dir, options.branch)
+        clazz.checkout(root_dir, options.branch)
         if not options.no_network:
-          clazz.pull(dest_dir)
+          clazz.pull(root_dir)
     else:
-      clazz.clone(address, dest_dir, options = options)
+      clazz.clone(address, root_dir, options = options)
 
   @classmethod
   def archive(clazz, address, revision, base_name, output_filename, untracked = False):
