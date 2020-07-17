@@ -136,9 +136,11 @@ class git(object):
   @classmethod
   def clone(clazz, address, root_dir, options = None):
     check.check_git_clone_options(options, allow_none = True)
+    
     address = git_address_util.resolve(address)
     options = options or git_clone_options()
     clazz.log.log_d('clone: address={} root_dir={} options={}'.format(address, root_dir, pprint.pformat(options.__dict__)))
+    
     if path.exists(root_dir):
       if not path.isdir(root_dir):
         raise git_error('root_dir "{}" is not a directory.'.format(root_dir))
@@ -147,6 +149,7 @@ class git(object):
           raise git_error('root_dir "{}" is not empty.'.format(root_dir))
     else:
       file_util.mkdir(root_dir)
+      
     args = [ 'clone' ]
     if options.depth:
       args.extend([ '--depth', str(options.depth) ])
@@ -156,7 +159,11 @@ class git(object):
       'GIT_LFS_SKIP_SMUDGE': '0' if options.lfs else '1',
     }
     clazz.log.log_d('clone: args="{}" extra_env={}'.format(' '.join(args), extra_env))
-    clone_rv = git_exe.call_git(os.getcwd(), args, extra_env = extra_env)
+    clone_rv = git_exe.call_git(os.getcwd(),
+                                args,
+                                extra_env = extra_env,
+                                num_tries = options.num_tries,
+                                retry_wait_seconds = options.retry_wait_seconds)
     clazz.log.log_d('clone: clone_rv="{}"'.format(str(clone_rv)))
     sub_rv = None
     if options.branch:
@@ -232,9 +239,9 @@ class git(object):
     check.check_int(num_tries, allow_none = True)
     check.check_float(retry_wait_seconds, allow_none = True)
 
-    if check.is_int(num_tries):
+    if num_tries != None:
       if num_tries <= 0 or num_tries > 100:
-        raise ValueError('num_tries should be between 1 and 100: {}'.format(num_tries))
+        raise git_error('num_tries should be between 1 and 100: {}'.format(num_tries))
 
     num_tries = num_tries or 1
     save_ex = None

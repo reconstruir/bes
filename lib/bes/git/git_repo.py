@@ -304,8 +304,14 @@ class git_repo(object):
   def lfs_files_need_smudge(self):
     return git.lfs_files_need_smudge(self.root)
 
-  def call_git(self, args, raise_error = True, extra_env = None):
-    return git_exe.call_git(self.root, args, raise_error = raise_error, extra_env = extra_env)
+  def call_git(self, args, raise_error = True, extra_env = None,
+               num_tries = None, retry_wait_seconds = None):
+    return git_exe.call_git(self.root,
+                            args,
+                            raise_error = raise_error,
+                            extra_env = extra_env,
+                            num_tries = num_tries,
+                            retry_wait_seconds = retry_wait_seconds)
 
   def unpushed_commits(self):
     return git.unpushed_commits(self.root)
