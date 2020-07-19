@@ -2,6 +2,7 @@
 
 import fnmatch
 
+from bes.common.algorithm import algorithm
 from bes.common.bool_util import bool_util
 from bes.common.check import check
 from bes.common.variable import variable
@@ -20,14 +21,15 @@ from .simple_config_origin import simple_config_origin
 from .simple_config_entry import simple_config_entry
 from .simple_config_section_header import simple_config_section_header
 
-class simple_config_section(namedtuple('simple_config_section', 'header_, entries_, origin_')):
+class simple_config_section(namedtuple('simple_config_section', 'header_, entries_, origin_, extends_section_')):
 
-  def __new__(clazz, header_, entries_, origin_):
+  def __new__(clazz, header_, entries_, origin_, extends_section_ = None):
     check.check_simple_config_section_header(header_)
     check.check_simple_config_entry_seq(entries_, allow_none = True)
     check.check_simple_config_origin(origin_, allow_none = True)
+    check.check_simple_config_section(extends_section_, allow_none = True)
     
-    return clazz.__bases__[0].__new__(clazz, header_, entries_ or [], origin_)
+    return clazz.__bases__[0].__new__(clazz, header_, entries_ or [], origin_, extends_section_)
 
   def __iter__(self):
     return iter(self.entries_)
@@ -60,9 +62,11 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
 
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
-    
+  
   def find_by_key(self, key, raise_error = True, resolve_env_vars = True):
     entry = self.find_entry(key)
+    if not entry and self.extends_section_:
+      entry = self.extends_section_.find_entry(key)
     if not entry:
       if raise_error:
         raise simple_config_error('"{}" entry not found'.format(key), self.origin_)
@@ -86,6 +90,8 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
 
   def match_by_key(self, pattern, raise_error = True, resolve_env_vars = True):
     entry = self.match_entry(pattern)
+    if not entry and self.extends_section_:
+      entry = self.extends_section_.match_entry(pattern)
     if not entry:
       if raise_error:
         raise simple_config_error('"{}" entry not found'.format(pattern), self.origin_)
@@ -94,7 +100,7 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
     if resolve_env_vars:
      value = self._resolve_variables(value, entry.origin)
     return value
-
+  
   def match_entry(self, pattern):
     for i, entry in list_util.reversed_enumerate(self.entries_):
       if fnmatch.fnmatch(entry.value.key, pattern):
@@ -102,16 +108,10 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
     return None
   
   def has_key(self, key):
-    return self.find_entry(key) is not None
+    return self.find_by_key(key, raise_error = False, resolve_env_vars = False) is not None
 
   def get_value(self, key):
     return self.find_by_key(key, raise_error = True, resolve_env_vars = True)
-
-  def get_values(self):
-    result = {}
-    for i, entry in list_util.reversed_enumerate(self.entries_):
-      result[entry.value.key] = entry.value.value
-    return result
 
   def get_string_list(self, key):
     return string_util.split_by_white_space(self.get_value(key), strip = True)
@@ -161,6 +161,8 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
   def to_key_value_list(self, resolve_env_vars = False):
     'Return values as a key_value_list optionally resolving environment variables.'
     result = key_value_list()
+    if self.extends_section_:
+      result.extend(self.extends_section_.to_key_value_list(resolve_env_vars = resolve_env_vars))
     for entry in self.entries_:
       value = entry.value.value
       if resolve_env_vars:
@@ -170,8 +172,22 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
   
   def to_dict(self, resolve_env_vars = True):
     'Return values as a dict optionally resolving environment variables.'
-    return self.to_key_value_list(resolve_env_vars = resolve_env_vars).to_dict()
+    result = {}
+    if self.extends_section_:
+      result.update(self.extends_section_.to_dict(resolve_env_vars = resolve_env_vars))
+    for entry in self:
+      if resolve_env_vars:
+        value = self._resolve_variables(entry.value.value, entry.origin)
+      else:
+        value = entry.value.value
+      result[entry.value.key] = value
+    return result
 
+  def get_all_values(self, key, resolve_env_vars = True):
+    'Return all values that have key.'
+    kvl = self.to_key_value_list(resolve_env_vars = resolve_env_vars)
+    return [ kv.value for kv in kvl if kv.key == key ]
+  
   def set_values(self, values, hints = None):
     check.check_dict(hints, allow_none = True)
 

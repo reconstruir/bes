@@ -72,7 +72,7 @@ class simple_config_files(object):
     for next_path in search_path:
       for next_file in file_path.glob(next_path, glob_expression):
         filename = file_util.remove_head(next_file, next_path)
-        config = simple_config.from_file(next_file)
+        config = simple_config.from_file(next_file, ignore_extends = True)
         result.append(clazz._found_config(next_path, filename, next_file, config))
     return result
 
@@ -189,7 +189,7 @@ class simple_config_files(object):
     if parsed_config.section:
       section_name = parsed_config.section
     else:
-      first_config = simple_config.from_file(parsed_config.filename, check_env_vars = True)
+      first_config = simple_config.from_file(parsed_config.filename, check_env_vars = True, ignore_extends = True)
       sections = first_config.section_names()
       if not sections:
         raise simple_config_error('No sections found in config: "{}"'.format(parsed_config.filename))

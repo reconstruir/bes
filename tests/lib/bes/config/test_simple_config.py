@@ -139,26 +139,46 @@ credential
 fruit
   name: apple
   color: red
+  base: fructose
 
 cheese
   name: brie
   type: creamy
 
-foo extends fruit
+kiwi extends fruit
   color: green
+  where: new zealand
 '''
     
     s = simple_config.from_text(text)
 
-    sections = s.find_all_sections('foo')
+    sections = s.find_all_sections('kiwi')
     self.assertEqual( 1, len(sections) )
-    self.assertEqual( 'foo', sections[0].header_.name )
+    self.assertEqual( 'kiwi', sections[0].header_.name )
     self.assertEqual( 'fruit', sections[0].header_.extends )
     self.assertEqual( 'green', sections[0].find_by_key('color') )
+    self.assertEqual( 'apple', sections[0].find_by_key('name') )
+    self.assertEqual( 'fructose', sections[0].find_by_key('base') )
+
     self.assertEqual( {
+      'base': 'fructose',
       'color': 'green',
-      }, sections[0].to_dict() )
-      
+      'name': 'apple',
+      'where': 'new zealand',
+    }, sections[0].to_dict() )
+
+    self.assertEqual( KVL([
+      ( 'name', 'apple'),
+      ( 'color', 'red'),
+      ( 'base', 'fructose'),
+      ( 'color', 'green'),
+      ( 'where', 'new zealand'),
+    ]), sections[0].to_key_value_list() )
+    
+    self.assertEqual( True, sections[0].has_key('base') )
+    self.assertEqual( True, sections[0].has_key('color') )
+    self.assertEqual( True, sections[0].has_key('name') )
+
   def test_extends_missing_base(self):
     text = '''\
 foo extends
@@ -516,6 +536,9 @@ kiwi foo
       
   def test_section_extends_extra_text(self):
     text = '''\
+fruit
+  name:fruit
+
 kiwi extends fruit foo
   color: green
   flavor: tart
@@ -662,6 +685,45 @@ fruit
 
 '''
     self.assertEqual( expected, str(s) )
+
+  def test_get_all_values(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+  flavor: sweet
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( [ 'tart', 'sweet' ], s.fruit.get_all_values('flavor') )
+    
+  def test_get_all_values_with_dups(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+  flavor: sweet
+  flavor: tart
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( [ 'tart', 'sweet', 'tart' ], s.fruit.get_all_values('flavor') )
+
+  def test_get_all_values_with_extends(self):
+    text = '''\
+fruit
+  base: fructose
+  arg: yummy=1
+  arg: tart=0
+
+kiwi extends fruit
+  arg: tart=1
+  arg: color=green
+  arg: where="new zealand"
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( [ 'yummy=1', 'tart=0' ], s.fruit.get_all_values('arg') )
+    self.assertEqual( [ 'yummy=1', 'tart=0', 'tart=1', 'color=green', 'where="new zealand"' ], s.kiwi.get_all_values('arg') )
     
 if __name__ == '__main__':
   unit_test.main()

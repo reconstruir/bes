@@ -171,51 +171,83 @@ class simple_config(object):
     return sections[0].get_value(key)
   
   @classmethod
-  def from_file(clazz, filename, check_env_vars = True, entry_parser = None, entry_formatter = None):
+  def from_file(clazz,
+                filename,
+                check_env_vars = True,
+                entry_parser = None,
+                entry_formatter = None,
+                ignore_extends = False):
     return clazz.from_text(file_util.read(filename, codec = 'utf8'),
                            source = filename,
                            check_env_vars = check_env_vars,
                            entry_parser = entry_parser,
-                           entry_formatter = entry_formatter)
+                           entry_formatter = entry_formatter,
+                           ignore_extends = ignore_extends)
     
   @classmethod
-  def from_text(clazz, s, source = None, check_env_vars = True, entry_parser = None, entry_formatter = None):
-    check.check_string(s)
+  def from_text(clazz,
+                text,
+                source = None,
+                check_env_vars = True,
+                entry_parser = None,
+                entry_formatter = None,
+                ignore_extends = False):
+    check.check_string(text)
     source = source or '<unknown>'
-    root = tree_text_parser.parse(s, strip_comments = True, root_name = 'root')
+    root = tree_text_parser.parse(text, strip_comments = True, root_name = 'root')
     return clazz.from_node(root,
                            source = source,
                            check_env_vars = check_env_vars,
                            entry_parser = entry_parser,
-                           entry_formatter = entry_formatter)
+                           entry_formatter = entry_formatter,
+                           ignore_extends = ignore_extends)
 
   @classmethod
-  def from_node(clazz, node, source = None, check_env_vars = True, entry_parser = None, entry_formatter = None):
+  def from_node(clazz,
+                node,
+                source = None,
+                check_env_vars = True,
+                entry_parser = None,
+                entry_formatter = None,
+                ignore_extends = False):
     check.check_node(node)
     check.check_bool(check_env_vars)
     check.check_function(entry_parser, allow_none = True)
+    check.check_bool(ignore_extends)
 
     source = source or '<unknown>'
     entry_parser = entry_parser or clazz._parse_entry
     sections = []
+    section_dict = {}
     for child in node.children:
-      section = clazz._parse_section(child, source, entry_parser)
+      origin = simple_config_origin(source, child.data.line_number)
+      header = simple_config_section_header.parse_text(child.data.text, origin)
+
+      extends_section = None
+      if not ignore_extends and header.extends:
+        extends_section = section_dict.get(header.extends, None)
+        if not extends_section:
+          msg = 'no extends section "{}" found for "{}"'.format(header.extends, header.name)
+          raise simple_config_error(msg, origin)
+      section = clazz._parse_section(child, source, entry_parser, origin, header, extends_section)
       sections.append(section)
+      section_dict[section.header_.name] = section
     return simple_config(sections = sections,
                          source = source,
                          check_env_vars = check_env_vars,
                          entry_formatter = entry_formatter)
   
   @classmethod
-  def _parse_section(clazz, node, source, entry_parser):
+  def _parse_section(clazz, node, source, entry_parser, origin, header, extends_section):
     check.check_node(node)
     check.check_string(source)
     check.check_function(entry_parser)
+    check.check_simple_config_origin(origin)
+    check.check_simple_config_section_header(header)
+    check.check_simple_config_section(extends_section, allow_none = True)
 
-    origin = simple_config_origin(source, node.data.line_number)
-    header = simple_config_section_header.parse_text(node.data.text, origin)
     entries = clazz._parse_section_entries(node, source, entry_parser)
-    return simple_config_section(header, entries, origin)
+    return simple_config_section(header, entries, origin, extends_section_ = extends_section)
 
   @classmethod
   def _parse_section_entries(clazz, node, source, entry_parser):
@@ -347,6 +379,5 @@ class simple_config(object):
     for section_name, values in config.items():
       self_section = self.find(section_name)
       self_section.set_values(values)
-
 
 check.register_class(simple_config)
