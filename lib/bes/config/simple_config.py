@@ -147,6 +147,17 @@ class simple_config(object):
     check.check_function(matcher, allow_none = True)
 
     return self.section(section_name, matcher = matcher)
+
+  def find_section_by_key_value(self, key, value):
+    'Return a list of all the sections that have a key with value'
+    check.check_string(key)
+    check.check_string(value)
+
+    result = []
+    for section in self._sections:
+      if section.has_key(key) and section.get_value(key) == value:
+        result.append(section.header_.name)
+    return result
   
   def section(self, section_name, matcher = None):
     check.check_string(section_name)

@@ -724,6 +724,28 @@ kiwi extends fruit
     s = simple_config.from_text(text)
     self.assertEqual( [ 'yummy=1', 'tart=0' ], s.fruit.get_all_values('arg') )
     self.assertEqual( [ 'yummy=1', 'tart=0', 'tart=1', 'color=green', 'where="new zealand"' ], s.kiwi.get_all_values('arg') )
+
+  def test_find_section_by_key_value(self):
+    text = '''\
+s1
+  color: red
+
+s2
+  color: green
+
+s3
+  color: red
+
+s4
+  color: blue
+
+s5
+  taste: tart
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( [ 's1', 's3' ],  s.find_section_by_key_value('color', 'red') )
+    self.assertEqual( [ 's2' ],  s.find_section_by_key_value('color', 'green') )
+    self.assertEqual( [],  s.find_section_by_key_value('cheese', 'blue') )
     
 if __name__ == '__main__':
   unit_test.main()
