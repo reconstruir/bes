@@ -17,16 +17,17 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
 
   STATE_BRANCH = 'branch'
   STATE_DETACHED_COMMIT = 'detached_commit'
+  STATE_NOTHING = 'nothing'
   STATE_TAG = 'tag'
   
-  STATES = ( STATE_BRANCH, STATE_DETACHED_COMMIT, STATE_TAG )
+  STATES = ( STATE_BRANCH, STATE_DETACHED_COMMIT, STATE_NOTHING, STATE_TAG )
   
   def __new__(clazz, state, branch, ref, commit_hash, commit_message, ref_branches):
     check.check_string(state)
     check.check(branch, (check.STRING_TYPES, list ), allow_none = True)
     check.check_string(ref, allow_none = True)
-    check.check_string(commit_hash)
-    check.check_string(commit_message)
+    check.check_string(commit_hash, allow_none = True)
+    check.check_string(commit_message, allow_none = True)
     check.check_string_seq(ref_branches, allow_none = True)
 
     if state not in clazz.STATES:
@@ -41,6 +42,8 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
       return 'tag:{ref}:{commit_hash}'.format(**values)
     elif self.state == self.STATE_DETACHED_COMMIT:
       return 'detached_commit::{commit_hash}'.format(**values)
+    elif self.state == self.STATE_NOTHING:
+      return 'nothing::'
     else:
       assert False
 
@@ -69,6 +72,9 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
     check.check_string(root_dir, allow_none = True)
     check.check_string(text)
 
+    if text == '':
+      return git_head_info(clazz.STATE_NOTHING, None, None, None, None, None)
+    
     lines = text_line_parser.parse_lines(text, strip_comments = False, strip_text = True, remove_empties = True)
     active_line = clazz._find_active_branch_entry(lines)
     if not active_line:
@@ -106,7 +112,7 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
     for line in lines:
       if line.startswith('*'):
         return line
-    return none
+    return None
 
   _DETACHED_HEAD_PATTERN = r'^\*\s+\(HEAD\s+detached\s+at\s+(.+)\)\s+([0-9a-f]+)\s+(.+)$'
   @classmethod
