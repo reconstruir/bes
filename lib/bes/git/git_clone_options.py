@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import pprint
 from bes.common.check import check
 
 class git_clone_options(object):
@@ -38,5 +39,8 @@ class git_clone_options(object):
 
   def __str__(self):
     return str(self.__dict__)
-    
+
+  def pformat(self):
+    return pprint.pformat(self.__dict__)
+  
 check.register_class(git_clone_options)

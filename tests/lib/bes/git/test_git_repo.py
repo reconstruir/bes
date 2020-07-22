@@ -936,6 +936,14 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r = self._make_repo(remote = True, content = content, commit_message = 'message 1')
     c1 = r.last_commit_hash(short_hash = True)
     self.assertEqual( ( 'branch', 'master', None, c1, 'message 1', None ), r.head_info() )
+
+  @git_temp_home_func()
+  def test_head_info_empty_repo(self):
+    'Test head_info() works on an empty just created repo.'
+    tmp_dir = self.make_temp_dir()
+    git.init(tmp_dir)
+    r = git_repo(tmp_dir)
+    self.assertEqual( ( 'nothing', None, None, None, None, None ), r.head_info() )
     
   @git_temp_home_func()
   def test_head_info_detached_head_at_commit(self):

@@ -60,6 +60,10 @@ class git_temp_repo(object):
     self.address = self._remote_repo.root
     self._transplant_methods(self._local_repo)
 
+  @property
+  def repo(self):
+    return self._local_repo
+    
   def _init_local(self, content, prefix, commit_message = None):
     tmp_dir = temp_file.make_temp_dir(delete = not self._debug, prefix = prefix)
     if self._debug:

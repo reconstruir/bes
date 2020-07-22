@@ -1,6 +1,6 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os, os.path as path, re, pprint, time
+import os, os.path as path, re, time
 from datetime import datetime
 from collections import namedtuple
 
@@ -66,59 +66,59 @@ class git(object):
     return clazz.remote_get_url(root, name = 'origin')
 
   @classmethod
-  def remote_set_url(clazz, root, url, name = 'origin'):
-    check.check_string(root)
+  def remote_set_url(clazz, root_dir, url, name = 'origin'):
+    check.check_string(root_dir)
     check.check_string(url)
     check.check_string(name)
     
     args = [ 'remote', 'set-url', name, url ]
-    git_exe.call_git(root, args)
+    git_exe.call_git(root_dir, args)
 
   @classmethod
-  def remote_get_url(clazz, root, name = 'origin'):
-    check.check_string(root)
+  def remote_get_url(clazz, root_dir, name = 'origin'):
+    check.check_string(root_dir)
     check.check_string(name)
 
     args = [ 'remote', 'get-url', name ]
     try:
-      rv = git_exe.call_git(root, args)
+      rv = git_exe.call_git(root_dir, args)
       return rv.stdout.strip()
     except git_error as ex:
       return None
     
   @classmethod
-  def has_changes(clazz, root, untracked_files = False):
-    return clazz.status(root, '.', untracked_files = untracked_files) != []
+  def has_changes(clazz, root_dir, untracked_files = False):
+    return clazz.status(root_dir, '.', untracked_files = untracked_files) != []
 
   @classmethod
-  def add(clazz, root, filenames):
+  def add(clazz, root_dir, filenames):
     filenames = object_util.listify(filenames)
     args = [ 'add' ] + filenames
-    return git_exe.call_git(root, args)
+    return git_exe.call_git(root_dir, args)
 
   @classmethod
-  def move(clazz, root, src, dst):
+  def move(clazz, root_dir, src, dst):
     args = [ 'mv', src, dst ]
-    return git_exe.call_git(root, args)
+    return git_exe.call_git(root_dir, args)
 
   @classmethod
-  def init(clazz, root, *args):
+  def init(clazz, root_dir, *args):
     args = [ 'init', '.' ] + list(args or [])
-    return git_exe.call_git(root, args)
+    return git_exe.call_git(root_dir, args)
 
   @classmethod
-  def is_bare_repo(clazz, root):
+  def is_bare_repo(clazz, root_dir):
     'Return True if d is a bare git repo meaning it has git files.'
     expected_files = [ 'HEAD', 'config', 'description', 'hooks', 'info', 'objects', 'refs' ]
     for f in expected_files:
-      if not path.exists(path.join(root, f)):
+      if not path.exists(path.join(root_dir, f)):
         return False
     return True
 
   @classmethod
-  def is_repo(clazz, root):
+  def is_repo(clazz, root_dir):
     'Return True if d is a git repo meaning it has a .git dir with git files.'
-    dot_git_dir = path.join(root, '.git')
+    dot_git_dir = path.join(root_dir, '.git')
     return path.isdir(dot_git_dir) and clazz.is_bare_repo(dot_git_dir)
 
   @classmethod
@@ -139,7 +139,7 @@ class git(object):
     
     address = git_address_util.resolve(address)
     options = options or git_clone_options()
-    clazz.log.log_d('clone: address={} root_dir={} options={}'.format(address, root_dir, pprint.pformat(options.__dict__)))
+    clazz.log.log_d('clone: address={} root_dir={} options={}'.format(address, root_dir, options.pformat()))
     
     if path.exists(root_dir):
       if not path.isdir(root_dir):
@@ -207,6 +207,7 @@ class git(object):
   @classmethod
   def sync(clazz, address, root_dir, options = None):
     check.check_git_clone_options(options, allow_none = True)
+
     if clazz.is_repo(root_dir):
       clazz.checkout(root_dir, 'master')
     clazz.clone_or_pull(address, root_dir, options = options)
@@ -217,10 +218,55 @@ class git(object):
     git_exe.call_git(root_dir, 'pull --all')
 
   @classmethod
-  def pull(clazz, root, *args):
-    args = [ 'pull', '--verbose' ] + list(args or [])
-    return git_exe.call_git(root, args)
+  def pull(clazz, root_dir, remote_name = None, branch = None, options = None):
+    check.check_string(root_dir)
+    check.check_git_clone_options(options, allow_none = True)
+    
+    options = options or git_clone_options()
+    clazz.log.log_d('pull: root_dir={} options={}'.format(root_dir, options.pformat()))
 
+    args = []
+    if remote_name:
+      args.append(remote_name)
+
+    if branch:
+      args.append(branch)
+      
+#    clazz._call_pull(root_dir, *args)
+
+    if options.reset_to_head:
+      clazz.reset_to_revision(root_dir, 'HEAD')
+
+    if options.clean:
+      clazz.clean(root_dir, immaculate = options.clean_immaculate)
+        
+    if options.submodules or options.submodule_list:
+      clazz._submodule_init(root_dir, options)
+
+    if clazz.has_changes(root_dir):
+      raise git_error('root_dir "{}" has changes.'.format(root_dir))
+
+    info = clazz.head_info(root_dir)
+
+    if info.is_detached:
+      clazz.checkout(root_dir, 'master')
+
+    if not options.no_network:
+      git_exe.call_git(root_dir, 'fetch --tags')
+      clazz._call_pull(root_dir, *args)
+
+    if options.branch:
+      clazz.checkout(root_dir, options.branch)
+      if not options.no_network:
+        clazz._call_pull(root_dir, *args)
+
+  @classmethod
+  def _call_pull(clazz, root_dir, *args):
+    check.check_string(root_dir)
+    
+    args = [ 'pull', '--verbose' ] + list(args)
+    git_exe.call_git(root_dir, args)
+        
   @classmethod
   def checkout(clazz, root, revision):
     args = [ 'checkout', revision ]
@@ -294,36 +340,15 @@ class git(object):
 
   @classmethod
   def clone_or_pull(clazz, address, root_dir, options = None):
+    check.check_string(root_dir)
+    check.check_git_clone_options(options, allow_none = True)
+
     options = options or git_clone_options()
-
-    clazz.log.log_d('clone_or_pull: address={} root_dir={} options={}'.format(address, root_dir, pprint.pformat(options.__dict__)))
-    
+    clazz.log.log_d('clone_or_pull: address={} root_dir={} options={}'.format(address,
+                                                                              root_dir,
+                                                                              options.pformat()))
     if clazz.is_repo(root_dir):
-      if options.reset_to_head:
-        clazz.reset_to_revision(root_dir, 'HEAD')
-
-      if options.clean:
-        clazz.clean(root_dir, immaculate = options.clean_immaculate)
-        
-      if options.submodules or options.submodule_list:
-        clazz._submodule_init(root_dir, options)
-
-      if clazz.has_changes(root_dir):
-        raise git_error('root_dir "{}" has changes.'.format(root_dir))
-
-      info = clazz.head_info(root_dir)
-
-      if info.is_detached:
-        clazz.checkout(root_dir, 'master')
-
-      if not options.no_network:
-        git_exe.call_git(root_dir, 'fetch --tags')
-        clazz.pull(root_dir)
-
-      if options.branch:
-        clazz.checkout(root_dir, options.branch)
-        if not options.no_network:
-          clazz.pull(root_dir)
+      clazz.pull(root_dir, options = options)
     else:
       clazz.clone(address, root_dir, options = options)
 
@@ -865,7 +890,7 @@ class git(object):
       return False
     branch = status.branch or 'master'
     clazz.checkout(module_root, branch)
-    clazz.pull(module_root, 'origin', branch)
+    clazz.pull(module_root, remote_name = 'origin', branch = branch)
     clazz.checkout(module_root, revision_long)
     clazz.add(root, module_name)
     return True
