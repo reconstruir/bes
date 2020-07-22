@@ -24,7 +24,6 @@ class test_git_repo_run_operation(unit_test):
       r.add_file('melon.txt', content = 'this is melon.txt', mode = 0o0644,
                  commit = False, push = False)
     git_util.repo_run_operation(r.address, _op, 'add melon.txt', options = None)
-    r.pull()
     self.assertEqual( 'this is melon.txt', r.read_file('melon.txt') )
     
   @git_temp_home_func()
