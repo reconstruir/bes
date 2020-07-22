@@ -218,15 +218,21 @@ class git(object):
     git_exe.call_git(root_dir, 'pull --all')
 
   @classmethod
-  def pull(clazz, root_dir, options = None):
+  def pull(clazz, root_dir, remote_name = None, branch = None, options = None):
     check.check_string(root_dir)
     check.check_git_clone_options(options, allow_none = True)
     
     options = options or git_clone_options()
     clazz.log.log_d('pull: root_dir={} options={}'.format(root_dir, options.pformat()))
 
-    args = [ 'pull', '--verbose' ]
-    git_exe.call_git(root_dir, args)
+    args = []
+    if remote_name:
+      args.append(remote_name)
+
+    if branch:
+      args.append(branch)
+      
+#    clazz._call_pull(root_dir, *args)
 
     if options.reset_to_head:
       clazz.reset_to_revision(root_dir, 'HEAD')
@@ -247,13 +253,20 @@ class git(object):
 
     if not options.no_network:
       git_exe.call_git(root_dir, 'fetch --tags')
-      clazz.pull(root_dir)
+      clazz._call_pull(root_dir, *args)
 
     if options.branch:
       clazz.checkout(root_dir, options.branch)
       if not options.no_network:
-        clazz.pull(root_dir)
+        clazz._call_pull(root_dir, *args)
 
+  @classmethod
+  def _call_pull(clazz, root_dir, *args):
+    check.check_string(root_dir)
+    
+    args = [ 'pull', '--verbose' ] + list(args)
+    git_exe.call_git(root_dir, args)
+        
   @classmethod
   def checkout(clazz, root, revision):
     args = [ 'checkout', revision ]
@@ -877,7 +890,7 @@ class git(object):
       return False
     branch = status.branch or 'master'
     clazz.checkout(module_root, branch)
-    clazz.pull(module_root, 'origin', branch)
+    clazz.pull(module_root, remote_name = 'origin', branch = branch)
     clazz.checkout(module_root, revision_long)
     clazz.add(root, module_name)
     return True
