@@ -148,7 +148,7 @@ class simple_config(object):
 
     return self.section(section_name, matcher = matcher)
 
-  def find_section_by_key_value(self, key, value):
+  def sections_with_key_value(self, key, value):
     'Return a list of all the sections that have a key with value'
     check.check_string(key)
     check.check_string(value)
@@ -338,6 +338,10 @@ class simple_config(object):
     else:
       value = None
     return key_value(key, value)
+
+  def has_section(self, section_name):
+    'Return True if config has section.'
+    return section_name in self.section_names()
     
   def section_names(self):
     'Return a list of all the section names.  Multiple sections with the same name get repeated.'

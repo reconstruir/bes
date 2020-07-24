@@ -291,6 +291,9 @@ release-*
     s = simple_config.from_text(text)
     self.assertEqual( [ 'fruit', 'cheese', 'wine', 'release-*' ], s.section_names() )
     self.assertTrue( s.sections_are_unique() )
+    self.assertTrue( s.has_section('fruit') )
+    self.assertTrue( s.has_section('wine') )
+    self.assertFalse( s.has_section('liquor') )
     
   def test_sections_names_sections_with_same_names(self):
     text = '''\
@@ -725,7 +728,7 @@ kiwi extends fruit
     self.assertEqual( [ 'yummy=1', 'tart=0' ], s.fruit.get_all_values('arg') )
     self.assertEqual( [ 'yummy=1', 'tart=0', 'tart=1', 'color=green', 'where="new zealand"' ], s.kiwi.get_all_values('arg') )
 
-  def test_find_section_by_key_value(self):
+  def test_sections_with_key_value(self):
     text = '''\
 s1
   color: red
@@ -743,9 +746,9 @@ s5
   taste: tart
 '''
     s = simple_config.from_text(text)
-    self.assertEqual( [ 's1', 's3' ],  s.find_section_by_key_value('color', 'red') )
-    self.assertEqual( [ 's2' ],  s.find_section_by_key_value('color', 'green') )
-    self.assertEqual( [],  s.find_section_by_key_value('cheese', 'blue') )
+    self.assertEqual( [ 's1', 's3' ],  s.sections_with_key_value('color', 'red') )
+    self.assertEqual( [ 's2' ],  s.sections_with_key_value('color', 'green') )
+    self.assertEqual( [],  s.sections_with_key_value('cheese', 'blue') )
     
 if __name__ == '__main__':
   unit_test.main()
