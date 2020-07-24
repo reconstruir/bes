@@ -60,8 +60,8 @@ class git_repo(object):
   def remove(self, filenames):
     return git.remove(self.root, filenames)
 
-  def pull(self):
-    return git.pull(self.root)
+  def pull(self, remote_name = None, branch_name = None, options = None):
+    return git.pull(self.root, remote_name = remote_name, branch_name = branch_name, options = options)
 
   def push(self, *args):
     return git.push(self.root, *args)

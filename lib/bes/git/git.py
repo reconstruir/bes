@@ -218,7 +218,7 @@ class git(object):
     git_exe.call_git(root_dir, 'pull --all')
 
   @classmethod
-  def pull(clazz, root_dir, remote_name = None, branch = None, options = None):
+  def pull(clazz, root_dir, remote_name = None, branch_name = None, options = None):
     check.check_string(root_dir)
     check.check_git_clone_options(options, allow_none = True)
     
@@ -229,11 +229,9 @@ class git(object):
     if remote_name:
       args.append(remote_name)
 
-    if branch:
-      args.append(branch)
+    if branch_name:
+      args.append(branch_name)
       
-#    clazz._call_pull(root_dir, *args)
-
     if options.reset_to_head:
       clazz.reset_to_revision(root_dir, 'HEAD')
 
@@ -888,9 +886,9 @@ class git(object):
     revision_long = clazz.long_hash(module_root, revision)
     if revision_long == status.revision_long:
       return False
-    branch = status.branch or 'master'
-    clazz.checkout(module_root, branch)
-    clazz.pull(module_root, remote_name = 'origin', branch = branch)
+    branch_name = status.branch or 'master'
+    clazz.checkout(module_root, branch_name)
+    clazz.pull(module_root, remote_name = 'origin', branch_name = branch_name)
     clazz.checkout(module_root, revision_long)
     clazz.add(root, module_name)
     return True
