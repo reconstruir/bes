@@ -10,9 +10,9 @@ from bes.compat.StringIO import StringIO
 from bes.fs.file_path import file_path
 from bes.text.text_line_parser import text_line_parser
 
-class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, requires, variables')):
+class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, requires, variables, optional_requires')):
 
-  def __new__(clazz, name, unixpath, pythonpath, requires, variables):
+  def __new__(clazz, name, unixpath, pythonpath, requires, variables, optional_requires):
     check.check_string(name)
     unixpath = unixpath or []
     if check.is_string(unixpath):
@@ -23,10 +23,12 @@ class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, require
       pythonpath = pythonpath.split(':')
     check.check_string_seq(pythonpath)
     requires = requires or set()
+    optional_requires = optional_requires or set()
     check.check_set(requires)
+    check.check_set(optional_requires)
     unixpath = [ file_path.normalize_sep(p) for p in unixpath ]
     pythonpath = [ file_path.normalize_sep(p) for p in pythonpath ]
-    return clazz.__bases__[0].__new__(clazz, name, unixpath, pythonpath, requires, variables)
+    return clazz.__bases__[0].__new__(clazz, name, unixpath, pythonpath, requires, variables, optional_requires)
     
   def to_string(self):
     buf = StringIO()
@@ -36,6 +38,7 @@ class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, require
     buf.write('unixpath: %s\n' % (os.pathsep.join(self.unixpath)))
     buf.write('pythonpath: %s\n' % (os.pathsep.join(self.pythonpath)))
     buf.write('requires: %s\n' % (' '.join(sorted([ r for r in self.requires ]))))
+    buf.write('optional_requires: %s\n' % (' '.join(sorted([ r for r in self.optional_requires ]))))
     return buf.getvalue()
 
   @classmethod
@@ -45,6 +48,7 @@ class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, require
     pythonpath = None
     requires = None
     variables = []
+    optional_requires = None
     for line in text_line_parser(text):
       text = line.text_no_comments.strip()
       if text:
@@ -63,9 +67,11 @@ class config_data(namedtuple('config_data', 'name, unixpath, pythonpath, require
           requires = set(string_util.split_by_white_space(value))
         elif key == 'variables':
           variables = string_util.split_by_white_space(value)
+        elif key == 'optional_requires':
+          optional_requires = set(string_util.split_by_white_space(value))
         else:
           raise ValueError('Invalid config value \"%s\" at %s:%s' % (line.text, filename, line.line_number))
-    return clazz(name, unixpath, pythonpath, requires, variables)
+    return config_data(name, unixpath, pythonpath, requires, variables, optional_requires)
   
   def substitute(self, variables):
     unixpath = []

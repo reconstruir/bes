@@ -4,6 +4,7 @@ import copy, glob, os, os.path as path
 
 from bes.common.algorithm import algorithm
 from bes.dependency.dependency_resolver import dependency_resolver
+from bes.dependency.dependency_resolver import missing_dependency_error
 from bes.fs.file_find import file_find
 from bes.fs.file_path import file_path
 from bes.system.env_var import os_env_var
@@ -73,4 +74,23 @@ class config_env(object):
     return file_path.glob(os_env_var('BESTEST_CONFIG_PATH').path, '*.bescfg')
 
   def resolve_deps(self, names):
-    return dependency_resolver.resolve_deps(self.dependency_map, names)
+    print('fuck: names={}'.format(names))
+    try:
+      return dependency_resolver.resolve_deps(self.dependency_map, names)
+    except missing_dependency_error as ex:
+      print('missing: {}'.format(ex.missing_deps))
+      optional_requires = set()
+      for next_missing in ex.missing_deps:
+        for next_name in names:
+          next_config = self.config_for_name(next_name)
+          print('next_config: {}'.format(next_config))
+          if next_missing in next_config.data.optional_requires:
+            optional_requires.add(next_missing)
+#      config = self.config_for_name(self, name):
+#      print('config: {}'.format(self.optional_requiresnames))
+      if set(ex.missing_deps) == optional_requires:
+        print('old: {}'.format(names))
+        print('old: {}'.format(names))
+        return self.resolve_deps(list(set(names) - set(ex.missing_deps)))
+      else:
+        raise
