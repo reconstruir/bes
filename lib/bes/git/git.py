@@ -153,6 +153,14 @@ class git(object):
     args = [ 'clone' ]
     if options.depth:
       args.extend([ '--depth', str(options.depth) ])
+    if options.jobs:
+      args.extend([ '--jobs', str(options.jobs) ])
+    if options.branch:
+      args.extend([ '--branch', options.branch ])
+    if options.recursive:
+      args.extend([ '--recursive' ])
+    if options.shallow_submodules:
+      args.extend([ '--shallow-submodules' ])
     args.append(address)
     args.append(root_dir)
     extra_env = {

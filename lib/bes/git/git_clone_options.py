@@ -20,6 +20,8 @@ class git_clone_options(object):
     self.no_network = False
     self.num_tries = 1
     self.retry_wait_seconds = 10.0
+    self.recursive = False
+    self.shallow_submodules = False
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_bool(self.enforce_empty_dir)
@@ -36,6 +38,8 @@ class git_clone_options(object):
     check.check_bool(self.clean_immaculate)
     check.check_int(self.num_tries)
     check.check_float(self.retry_wait_seconds)
+    check.check_bool(self.recursive)
+    check.check_bool(self.shallow_submodules)
 
   def __str__(self):
     return str(self.__dict__)
