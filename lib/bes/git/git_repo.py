@@ -445,7 +445,7 @@ class git_repo(object):
         git.log.log_i('operation_with_reset: success {} of {}'.format(i + 1, num_tries))
         if self.has_unpushed_commits():
           git.log.log_d('operation_with_reset: pushing...: attempt {} of {}'.format(i + 1, num_tries))
-          self.push()
+          self.push('-u', 'origin', self.active_branch())
         else:
           git.log.log_w('operation_with_reset: nothing to push.')
         return
