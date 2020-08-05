@@ -8,7 +8,7 @@ from bes.common.string_util import string_util
 from .git_error import git_error
 
 class git_lfs_entry(namedtuple('git_lfs_entry', 'filename, oid, is_pointer')):
-  'A class to deal with git lfs file info.'
+  'A class to deal with git lfs entries.'
 
   def __new__(clazz, filename, oid, is_pointer):
     check.check_string(filename)

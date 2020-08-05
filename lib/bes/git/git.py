@@ -26,12 +26,13 @@ from .git_config import git_config
 from .git_error import git_error
 from .git_exe import git_exe
 from .git_head_info import git_head_info
+from .git_lfs import git_lfs
 from .git_modules_file import git_modules_file
 from .git_ref import git_ref
 from .git_status import git_status
 from .git_submodule_info import git_submodule_info
 
-class git(object):
+class git(git_lfs):
   'A class to deal with git.'
 
   log = logger('git')
@@ -163,9 +164,7 @@ class git(object):
       args.extend([ '--shallow-submodules' ])
     args.append(address)
     args.append(root_dir)
-    extra_env = {
-      'GIT_LFS_SKIP_SMUDGE': '0' if options.lfs else '1',
-    }
+    extra_env = git_lfs.lfs_make_env(options.lfs)
     clazz.log.log_d('clone: args="{}" extra_env={}'.format(' '.join(args), extra_env))
     clone_rv = git_exe.call_git(os.getcwd(),
                                 args,
@@ -184,9 +183,7 @@ class git(object):
   def _submodule_init(clazz, root_dir, options):
     assert options.submodules or options.submodule_list
 
-    lfs_env = {
-      'GIT_LFS_SKIP_SMUDGE': '0' if options.lfs else '1',
-    }
+    lfs_env = git_lfs.lfs_make_env(options.lfs)
     sub_args = [ 'submodule', 'update', '--init' ]
     if options.jobs:
       sub_args.extend([ '--jobs', str(options.jobs) ])
@@ -796,35 +793,6 @@ class git(object):
     'Return a list of all the files in the repo.'
     rv = git_exe.call_git(root, [ 'ls-files' ])
     return sorted(git_exe.parse_lines(rv.stdout))
-
-  @classmethod
-  def lfs_files(clazz, root):
-    'Return a list of all the lfs files in the repo.'
-    rv = git_exe.call_git(root, [ 'lfs', 'ls-files' ])
-    return sorted(git_exe.parse_lines(rv.stdout))
-
-  @classmethod
-  def _lfs_file_needs_smudge(clazz, filename):
-    'Return True if filename needs smudge.'
-    pass
-
-  @classmethod
-  def lfs_files_need_smudge(clazz, root):
-    'Return a list of all the lfs files that need smudge.'
-    files = clazz.files(root)
-    lfs_files = clazz.lfs_files(root)
-    to_check = set(files) & set(lfs_files)
-    result = []
-
-  @classmethod
-  def lfs_pull(clazz, root):
-    args = [ 'lfs', 'pull' ]
-    return git_exe.call_git(root, args)
-
-  @classmethod
-  def lfs_track(clazz, root, pattern):
-    args = [ 'lfs', 'track', pattern ]
-    return git_exe.call_git(root, args)
 
   @classmethod
   def remove(clazz, root, filenames):
