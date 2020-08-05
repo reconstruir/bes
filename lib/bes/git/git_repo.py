@@ -301,8 +301,8 @@ class git_repo(object):
   def lfs_files(self):
     return git.lfs_files(self.root)
 
-  def lfs_files_need_smudge(self):
-    return git.lfs_files_need_smudge(self.root)
+  def lfs_files_needing_smudge(self):
+    return git.lfs_files_needing_smudge(self.root)
 
   def call_git(self, args, raise_error = True, extra_env = None,
                num_tries = None, retry_wait_seconds = None):
@@ -566,5 +566,8 @@ class git_repo(object):
 
   def branches_for_tag(self, tag):
     return git.branches_for_tag(self.root, tag)
+
+  def files(self):
+    return git.files(self.root)
   
 check.register_class(git_repo)
