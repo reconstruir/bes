@@ -11,7 +11,7 @@ class git_lfs(object):
   @classmethod
   def lfs_files(clazz, root_dir):
     'Return a list of all the lfs files in the repo.'
-    check.check_stirng(check)
+    check.check_string(root_dir)
     
     rv = git_exe.call_git(root_dir, [ 'lfs', 'ls-files', '--long' ])
     lines = git_exe.parse_lines(rv.stdout)
@@ -21,16 +21,23 @@ class git_lfs(object):
   @classmethod
   def lfs_files_needing_smudge(clazz, root_dir):
     'Return a list of all the lfs files that need smudge.'
+    check.check_string(root_dir)
+
     files = clazz.lfs_files(root_dir)
     return [ f.filename for f in files if f.is_pointer ]
 
   @classmethod
   def lfs_pull(clazz, root_dir):
+    check.check_string(root_dir)
+
     args = [ 'lfs', 'pull' ]
     return git_exe.call_git(root_dir, args)
 
   @classmethod
   def lfs_track(clazz, root_dir, pattern):
+    check.check_string(root_dir)
+    check.check_string(pattern)
+
     args = [ 'lfs', 'track', pattern ]
     return git_exe.call_git(root_dir, args)
   
