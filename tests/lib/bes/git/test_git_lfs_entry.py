@@ -10,6 +10,8 @@ class test_git_lfs_entry(unit_test):
     f = git_lfs_entry.parse_entry
     self.assertEqual( ( 'foo.txt', 'abcdef01234567890abcdef01234567890abcdef01234567890abcdef0123456', True ), 
                       f('abcdef01234567890abcdef01234567890abcdef01234567890abcdef0123456 - foo.txt') )
+    self.assertEqual( ( 'foo with space.txt', 'abcdef01234567890abcdef01234567890abcdef01234567890abcdef0123456', True ), 
+                      f('abcdef01234567890abcdef01234567890abcdef01234567890abcdef0123456 - foo with space.txt') )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -34,9 +34,11 @@ class git_lfs_entry(namedtuple('git_lfs_entry', 'filename, oid, is_pointer')):
     check.check_string(text)
 
     parts = string_util.split_by_white_space(text, strip = True)
-    if len(parts) != 3:
-      raise git_error('Invalid git lfs entry.  Should have 3 parts: {}'.format(test))
-    filename = parts[2]
-    oid = parts[0]
-    is_pointer = parts[1] == '-'
+    if len(parts) < 3:
+      raise git_error('Invalid git lfs entry.  Should have 3 parts: "{}"'.format(text))
+    oid = parts.pop(0)
+    is_pointer_flag = parts.pop(0)
+    is_pointer = is_pointer_flag == '-'
+    head = oid + ' ' + is_pointer_flag + ' '
+    filename = string_util.remove_head(text, head)
     return git_lfs_entry(filename, oid, is_pointer)
