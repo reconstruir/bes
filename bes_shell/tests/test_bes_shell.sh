@@ -403,4 +403,45 @@ function test_bes_file_extension()
   bes_assert "[ $(bes_file_extension foo) = foo ]"
 }
 
+function test_bes_str_split()
+{
+  bes_assert "[ $(bes_str_split a:b:c : | tr ' ' '_') = 'a_b_c' ]"
+  bes_assert "[ $(bes_str_split a\ :b:c : | tr ' ' '_') = 'a__b_c' ]"
+}
+
+function test_bes_str_is_integer()
+{
+  bes_assert "[[ $(bes_testing_call_function bes_str_is_integer 0 ) == 0 ]]"
+  bes_assert "[[ $(bes_testing_call_function bes_str_is_integer 1 ) == 0 ]]"
+  bes_assert "[[ $(bes_testing_call_function bes_str_is_integer foo ) == 1 ]]"
+  bes_assert "[[ $(bes_testing_call_function bes_str_is_integer 1.0 ) == 1 ]]"
+  bes_assert "[[ $(bes_testing_call_function bes_str_is_integer 1a ) == 1 ]]"
+}
+
+function test_bes_str_starts_with()
+{
+  bes_assert "[[ $(bes_testing_call_function bes_str_starts_with foo/bar foo ) == 0 ]]"
+  bes_assert "[[ $(bes_testing_call_function bes_str_starts_with foo/bar foo/ ) == 0 ]]"
+  bes_assert "[[ $(bes_testing_call_function bes_str_starts_with foo/bar foo/bar ) == 0 ]]"
+  bes_assert "[[ $(bes_testing_call_function bes_str_starts_with foo/bar f ) == 0 ]]"
+  bes_assert "[[ $(bes_testing_call_function bes_str_starts_with foo/bar food ) == 1 ]]"
+}
+
+function test_bes_str_remove_head()
+{
+  bes_assert "[ $(bes_str_remove_head /rel/fruit/1.2.3 /rel/fruit/) = 1.2.3 ]"
+  bes_assert "[ $(bes_str_remove_head /rel/fruit/1.2.3 /rel/fruit) = /1.2.3 ]"
+  bes_assert "[ $(bes_str_remove_head /rel/fruit/1.2.3 /rel/cheese) = /rel/fruit/1.2.3 ]"
+  bes_assert "[ $(bes_str_remove_head /rel/fruit/1.2.3 '') = /rel/fruit/1.2.3 ]"
+  bes_assert "[ $(bes_str_remove_head /rel/fruit/1.2.3 /rel/fruit/1.2.3) =  ]"
+}
+
+function test_bes_str_remove_tail()
+{
+  bes_assert "[ $(bes_str_remove_tail /rel/fruit/1.2.3 1.2.3) = /rel/fruit/ ]"
+  bes_assert "[ $(bes_str_remove_tail /rel/fruit/1.2.3 1.2.3.4) = /rel/fruit/1.2.3 ]"
+  bes_assert "[ $(bes_str_remove_tail /rel/fruit/1.2.3 '') = /rel/fruit/1.2.3 ]"
+  bes_assert "[ $(bes_str_remove_tail /rel/fruit/1.2.3 /rel/fruit/1.2.3) =  ]"
+}
+
 bes_testing_run_unit_tests

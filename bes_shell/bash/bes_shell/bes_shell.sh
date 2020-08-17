@@ -7,7 +7,7 @@ function _bes_trace_file() ( _bes_trace "file: ${BASH_SOURCE}: $*" )
 _bes_trace_file "begin"
 
 # A basic UNIX path that is guranteed to find common exeutables on both linux and macos
-_BES_BASIC_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/usr/bin:/bin
+_BES_BASIC_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/usr/bin:/bin:/c/Windows/System32
 
 # Which is in the same place on both linux and macos
 _BES_WHICH_EXE=/usr/bin/which
@@ -269,28 +269,6 @@ function bes_env_path_print()
   local _var_name=$(bes_variable_map $1)
   local _value=$(bes_var_get $_var_name)
   bes_path_print $_value
-  return 0
-}
-
-# Return system host name.  linux or macos same as bes_shell/system/host.py
-function bes_system()
-{
-  _bes_trace_function $*
-  local _uname_exe=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} uname)
-  local _uname=$(${_uname_exe})
-  local _result
-  case "${_uname}" in
-    Linux)
-      _result="linux"
-      ;;
-    Darwin)
-      _result="macos"
-      ;;
-    *)
-      _result="unknown"
-      ;;
-  esac
-  echo "${_result}"
   return 0
 }
 
@@ -593,6 +571,13 @@ function bes_assert()
   fi
 }
 
+function _bes_windows_version()
+{
+  local _version=$(cmd /c ver | grep "Microsoft Windows \[Version" | tr '[' ' ' | tr ']' ' ' | awk '{ print $4; }')
+  echo ${_version}
+  return 0
+}
+
 function bes_system_info()
 {
   local _uname_exe=$(PATH=${_BES_BASIC_PATH} ${_BES_WHICH_EXE} uname)
@@ -604,7 +589,7 @@ function bes_system_info()
   local _minor=
   local _path=
   local _version=
-  case ${_uname} in
+  case "${_uname}" in
     Darwin)
       _system='macos'
       _version=$(/usr/bin/sw_vers -productVersion)
@@ -620,7 +605,23 @@ function bes_system_info()
       _distro=$(${_BES_CAT_EXE} /etc/os-release | ${_BES_GREP_EXE} -e '^ID=' | ${_BES_AWK_EXE} -F"=" '{ print $2; }')
       _path=${_system}-${_distro}-${_major}/${_arch}
       ;;
+    MINGW64_NT*) # git bash
+      _system="windows"
+      _distro="mingw64"
+      ;;
+    MSYS_NT*) # msys2
+      _system="windows"
+      _distro="msys2"
+      ;;
 	esac
+
+  if [[ ${_system} == "windows" ]]; then
+    local _powershell=/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+    local _version=$(${_powershell} [System.Environment]::OSVersion | ${_BES_GREP_EXE} Win32NT | ${_BES_AWK_EXE} '{ print $2; }')
+    local _major=$(echo ${_version} | ${_BES_AWK_EXE} -F'.' '{ print $1 }')
+    local _minor=$(echo ${_version} | ${_BES_AWK_EXE} -F'.' '{ print $2 }')
+    _path=${_system}-${_major}/${_arch}
+  fi
   echo ${_system}:${_distro}:${_major}:${_minor}:${_arch}:${_path}
   return 0
 }
@@ -684,9 +685,21 @@ function bes_debug_message()
   return 0
 }
 
+function bes_is_ci()
+{
+  if [[ -n "${CI}"|| -n "${HUDSON_COOKIE}" ]]; then
+    return 0
+  fi
+  return 1
+}
+
 function bes_console_message()
 {
-  BES_DEBUG=1 BES_LOG_FILE=$(tty) bes_debug_message ${1+"$@"}
+  if bes_is_ci ; then
+    BES_DEBUG=1 bes_debug_message ${1+"$@"}
+  else    
+    BES_DEBUG=1 BES_LOG_FILE=$(tty) bes_debug_message ${1+"$@"}
+  fi
   return $?
 }
 
@@ -786,7 +799,7 @@ function _bes_checksum_file_linux()
 function _bes_checksum_text_linux()
 {
   if [[ $# != 2 ]]; then
-    echo "Usage: _bes_checksum_file_linux algorithm text"
+    echo "Usage: _bes_checksum_text_linux algorithm text"
     return 1
   fi
   local _algorithm="${1}"
@@ -827,7 +840,7 @@ function bes_checksum_file()
   local _result
   local _rv
   case "${_system}" in
-    linux)
+    linux|windows)
       _result=$(_bes_checksum_file_linux ${_algorithm}  "${_filename}")
       _rv=$?
       ;;
@@ -857,7 +870,7 @@ function bes_checksum_text()
   local _result
   local _rv
   case "${_system}" in
-    linux)
+    linux|windows)
       _result=$(_bes_checksum_text_linux ${_algorithm}  "${_text}")
       _rv=$?
       ;;
@@ -1083,6 +1096,22 @@ function bes_abs_file()
   return 0
 }
 
+function bes_str_split()
+{
+  if [[ $# < 2 ]]; then
+    bes_message "usage: bes_str_split string delimiter"
+    return 1
+  fi
+  local _string="${1}"
+  local _delimiter="${2}"
+  local _saveIFS="${IFS}"
+  local _result
+  IFS="${_delimiter}" read -r -a _result <<< "${_string}"
+  echo "${_result[@]}"
+  IFS="${_saveIFS}"
+  return 0
+}
+
 # reuturn just the extension of a file
 function bes_file_extension()
 {
@@ -1094,6 +1123,93 @@ function bes_file_extension()
   local _base=$($_BES_BASENAME_EXE -- "${_filename}")
   local _ext="${_base##*.}"
   echo "${_ext}"
+  return 0
+}
+
+# return 0 if str is an integer
+function bes_str_is_integer()
+{
+  if [[ $# < 1 ]]; then
+    bes_message "usage: bes_str_is_integer str"
+    return 1
+  fi
+  local _str="${1}"
+  local _pattern='^[0-9]+$'
+  if [[ ${_str} =~ ${_pattern} ]]; then
+    return 0
+  fi
+  return 1
+}
+
+# return 0 if str starts with head
+function bes_str_starts_with()
+{
+  if [[ $# < 1 ]]; then
+    bes_message "usage: bes_str_starts_with str head"
+    return 1
+  fi
+  local _str="${1}"
+  local _head="${2}"
+  local _pattern="^${_head}.*"
+  if [[ "${_str}" =~ ${_pattern} ]]; then
+    return 0
+  fi
+  return 1
+}
+
+# Remove head from str
+function bes_str_remove_head()
+{
+  if [[ $# < 1 ]]; then
+    bes_message "usage: bes_str_remove_head str head"
+    return 1
+  fi
+  local _str="${1}"
+  local _head="${2}"
+  echo ${_str#${_head}}
+  return 0
+}
+
+# Remove tail from str
+function bes_str_remove_tail()
+{
+  if [[ $# < 1 ]]; then
+    bes_message "usage: bes_str_remove_tail str tail"
+    return 1
+  fi
+  local _str="${1}"
+  local _tail="${2}"
+  echo ${_str%${_tail}}
+  return 0
+}
+
+function bes_question_yes_no()
+{
+  if [[ $# != 2 ]]; then
+    echo "usage: _question_yes_no var_name message"
+    return 1
+  fi
+  local _CHOICES="[y]es [n]o"
+  local _var_name="${1}"
+  local _message="${2}"
+  local _local_answer
+  local _result=1
+  while true; do
+    read -p "${_message} - ${_CHOICES}: " _local_answer
+    case "${_local_answer}" in
+      y|Y|yes|YES)
+        _result=yes
+        break
+        ;;
+      n|N|no|NO)
+        _result=no
+        break
+        ;;
+      *)
+        bes_message "Invalid answer: ${_local_answer}.  Please answer: ${_CHOICES}"
+    esac
+  done
+  eval ${_var_name}=${_result}
   return 0
 }
 
