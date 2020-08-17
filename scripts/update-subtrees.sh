@@ -2,7 +2,7 @@
 
 BES_SHELL_REMOTE=bes_shell
 BES_SHELL_ORIGIN=https://gitlab.com/rebuilder/bes_shell.git
-BES_SHELL_TAG=1.0.17
+BES_SHELL_TAG=1.2.2
 
 function _at_exit()
 {
