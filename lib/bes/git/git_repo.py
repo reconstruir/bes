@@ -570,4 +570,14 @@ class git_repo(object):
   def files(self):
     return git.files(self.root)
   
+  def rsync_dir(self, src_repo, src_dir, src_revision, dst_dir):
+    check.check_git_repp(src_repo)
+    check.check_string(src_dir)
+    check.check_string(src_revision)
+    check.check_string(dst_dir)
+
+    src_path = src_repo.path(src_dir)
+    dst_path = self.path(dst_dir)
+
+    
 check.register_class(git_repo)

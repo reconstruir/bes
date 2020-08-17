@@ -1146,6 +1146,28 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r.checkout('t1')
     self.assertEqual( [ 'b1' ], r.branches_for_tag('t1') )
 
+  @git_temp_home_func()
+  def test_rsync_dir(self):
+    src_content = [
+      'file foo/bar/kiwi.txt "this is kiwi" 644',
+    ]
+    src_repo = self._make_repo(remote = True, content = src_content)
+
+    dst_content = [
+      'file apple.txt "this is apple" 644',
+    ]
+    dst_repo = self._make_repo(remote = True, content = dst_content)
+    
+#    r.branch_create('b1', checkout = True)
+#    c1 = r.add_file('kiwi.txt', 'this is kiwi.txt')
+#    r.tag('t1')
+#    r.checkout('master')
+#    r.branch_create('b2')
+#    c2 = r.add_file('apple.txt', 'this is apple.txt')
+#    r.checkout('master')
+#    r.branch_create('b3', checkout = True)
+#    r.checkout('t1')
+#    self.assertEqual( [ 'b1' ], r.branches_for_tag('t1') )
     
 if __name__ == '__main__':
   unit_test.main()
