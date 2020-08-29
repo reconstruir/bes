@@ -1168,6 +1168,23 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
 #    r.branch_create('b3', checkout = True)
 #    r.checkout('t1')
 #    self.assertEqual( [ 'b1' ], r.branches_for_tag('t1') )
-    
+
+  @git_temp_home_func()
+  def test_tag_with_commit(self):
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r = self._make_repo(remote = True, content = content)
+    r.tag('t1')
+    c1 = r.add_file('kiwi.txt', 'this is kiwi.txt')
+    r.tag('t2')
+#    r.checkout('master')
+#    r.branch_create('b2')
+#    c2 = r.add_file('apple.txt', 'this is apple.txt')
+#    r.checkout('master')
+#    r.branch_create('b3', checkout = True)
+#    r.checkout('t1')
+#    self.assertEqual( [ 'b1' ], r.branches_for_tag('t1') )
+
 if __name__ == '__main__':
   unit_test.main()

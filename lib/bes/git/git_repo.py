@@ -210,7 +210,7 @@ class git_repo(object):
     tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if software_version.compare(t, tag) < 0 ]
 
-  def tag(self, tag, allow_downgrade = True, push = False):
+  def tag(self, tag, allow_downgrade = True, push = False, commit = None):
     git.tag(self.root, tag, allow_downgrade = allow_downgrade, push = push)
 
   def has_remote_tag(self, tag):

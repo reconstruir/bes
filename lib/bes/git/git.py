@@ -484,12 +484,21 @@ class git(git_lfs):
     return [ item.filename for item in items if 'M' in item.action ]
 
   @classmethod
-  def tag(clazz, root_dir, tag, allow_downgrade = False, push = False):
+  def tag(clazz, root_dir, tag, allow_downgrade = False, push = False, commit = None):
+    check.check_string(root_dir)
+    check.check_string(tag)
+    check.check_bool(allow_downgrade)
+    check.check_bool(push)
+    check.check_string(commit, allow_none = True)
+
     greatest_tag = git.greatest_local_tag(root_dir)
     if greatest_tag and not allow_downgrade:
       if software_version.compare(greatest_tag, tag) >= 0:
         raise ValueError('new tag \"%s\" is older than \"%s\".  Use allow_downgrade to force it.' % (tag, greatest_tag))
-    git_exe.call_git(root_dir, [ 'tag', tag ])
+    if not commit:
+      commit = clazz.last_commit_hash(root_dir, short_hash = True)
+    args = [ 'tag', tag, commit ]
+    rv = git_exe.call_git(root_dir, args)
     if push:
       clazz.push_tag(root_dir, tag)
 
