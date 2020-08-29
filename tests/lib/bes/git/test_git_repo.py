@@ -1060,7 +1060,6 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     self.assertEqual( None, r.head_info().branch )
     self.assertEqual( [ 'b1' ], r.head_info().ref_branches )
 
-    
   @git_temp_home_func()
   def test_is_tag(self):
     content = [
