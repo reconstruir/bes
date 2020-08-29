@@ -1175,16 +1175,13 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
       'file foo.txt "this is foo" 644',
     ]
     r = self._make_repo(remote = True, content = content)
-    r.tag('t1')
     c1 = r.add_file('kiwi.txt', 'this is kiwi.txt')
+    c2 = r.add_file('lemon.txt', 'this is lemon.txt')
+    r.tag('t1')
+    c3 = r.add_file('apple.txt', 'this is apple.txt')
     r.tag('t2')
-#    r.checkout('master')
-#    r.branch_create('b2')
-#    c2 = r.add_file('apple.txt', 'this is apple.txt')
-#    r.checkout('master')
-#    r.branch_create('b3', checkout = True)
-#    r.checkout('t1')
-#    self.assertEqual( [ 'b1' ], r.branches_for_tag('t1') )
-
+    r.tag('t3', commit = c1)
+    self.assertEqual( c3, r.ref_info('t3').commit_short )
+    
 if __name__ == '__main__':
   unit_test.main()

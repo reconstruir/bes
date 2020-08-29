@@ -509,6 +509,10 @@ class git_repo(object):
     'Return information about the HEAD of the repo.'
     return git.head_info(self.root)
 
+  def ref_info(self, ref_name):
+    'Return information about a ref.'
+    return git.ref_info(self.root, ref_name)
+  
   def is_tag(self, ref):
     'Return True if ref is a tag.'
     return git.is_tag(self.root, ref)
