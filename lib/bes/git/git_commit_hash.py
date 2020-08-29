@@ -53,3 +53,15 @@ class git_commit_hash(object):
     'Check that h is a valid hash and if not raise an error.'
     if not clazz.is_valid(h):
       raise git_error('Invalid hash: "{}"'.format(str(h)))
+
+  @classmethod
+  def check_is_short(clazz, h):
+    'Check that h is a valid hash and if not raise an error.'
+    if not clazz.is_short(h):
+      raise git_error('Invalid short hash: "{}"'.format(str(h)))
+    
+  @classmethod
+  def check_is_long(clazz, h):
+    'Check that h is a valid hash and if not raise an error.'
+    if not clazz.is_long(h):
+      raise git_error('Invalid long hash: "{}"'.format(str(h)))
