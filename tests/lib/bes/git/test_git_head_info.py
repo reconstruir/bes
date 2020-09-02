@@ -17,6 +17,10 @@ class test_git_remote(unit_test):
     f = git_head_info.parse_head_info
     self.assertEqual( ( 'branch', 'master', None, 'deadbeef', 'fix foo.', None ),
                       f(None, '* master          deadbeef fix foo.') )
+
+  def test_match_ref_branches(self):
+    h = git_head_info('tag', None, 'builds/foo/1.2.3', 'deadbeef', 'foo', [ 'master', 'release-beta-26', 'release-beta-27' ])
+    self.assertEqual( [ 'release-beta-26', 'release-beta-27' ], h.match_ref_branches([ 'release-beta-*' ]) )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -6,6 +6,7 @@ from collections import namedtuple
 
 from bes.common.check import check
 from bes.common.string_util import string_util
+from bes.fs.file_match import file_match
 from bes.text.text_line_parser import text_line_parser
 
 from .git_error import git_error
@@ -136,3 +137,8 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
     commit_hash = parts[2]
     commit_message = entry[entry.find(commit_hash) + len(commit_hash) + 1:]
     return ( branch, commit_hash, commit_message )
+
+  def match_ref_branches(self, patterns):
+    if not self.ref_branches:
+      self.error('head info does not have any ref branches')
+    return file_match.match_fnmatch(self.ref_branches, patterns)

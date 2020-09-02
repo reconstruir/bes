@@ -158,7 +158,7 @@ class git(git_lfs):
       args.extend([ '--jobs', str(options.jobs) ])
     if options.branch:
       args.extend([ '--branch', options.branch ])
-    if options.recursive:
+    if options.submodules_recursive:
       args.extend([ '--recursive' ])
     if options.shallow_submodules:
       args.extend([ '--shallow-submodules' ])
@@ -222,13 +222,15 @@ class git(git_lfs):
     git_exe.call_git(root_dir, 'fetch --all')
     git_exe.call_git(root_dir, 'pull --all')
 
+  # FIXME: branch_name is for backwards compatiblity but it should be removed.
   @classmethod
   def pull(clazz, root_dir, remote_name = None, branch_name = None, options = None):
     check.check_string(root_dir)
     check.check_git_clone_options(options, allow_none = True)
     
     options = options or git_clone_options()
-    clazz.log.log_d('pull: root_dir={} options={}'.format(root_dir, options.pformat()))
+    branch_name = branch_name or options.branch
+    clazz.log.log_d('pull: root_dir={} branch_name={} options={}'.format(root_dir, branch_name, options.pformat()))
 
     args = []
     if remote_name:
@@ -250,6 +252,9 @@ class git(git_lfs):
       raise git_error('root_dir "{}" has changes.'.format(root_dir))
 
     info = clazz.head_info(root_dir)
+
+#    if branch_name:
+#      git_exe.call_git(root_dir, [ 'fetch', 'origin', branch_name ])
 
     if info.is_detached:
       clazz.checkout(root_dir, 'master')
@@ -812,7 +817,7 @@ class git(git_lfs):
   @classmethod
   def unpushed_commits(clazz, root): # tested
     'Return a list of unpushed commits.'
-    rv = git_exe.call_git(root, [ 'cherry' ])
+    rv = git_exe.call_git(root, [ 'cherry', 'origin' ])
     lines = git_exe.parse_lines(rv.stdout)
     result = []
     for line in lines:
