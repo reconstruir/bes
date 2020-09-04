@@ -29,6 +29,7 @@ from .git_head_info import git_head_info
 from .git_lfs import git_lfs
 from .git_modules_file import git_modules_file
 from .git_ref import git_ref
+from .git_ref_info import git_ref_info
 from .git_status import git_status
 from .git_submodule_info import git_submodule_info
 
@@ -944,23 +945,35 @@ class git(git_lfs):
     return git_head_info.parse_head_info(root, rv.stdout)
 
   @classmethod
-  def is_tag(clazz, root_dir, ref):
+  def ref_info(clazz, root_dir, ref_name):
+    'Return information about a ref.'
+    check.check_string(root_dir)
+    check.check_string(ref_name)
+
+    rv = git_exe.call_git(root_dir, [ 'show-ref', ref_name ])
+    return git_ref_info.parse_show_ref_output(rv.stdout)
+  
+  @classmethod
+  def is_tag(clazz, root_dir, ref_name):
     'Return True if ref is a tag.'
     check.check_string(root_dir)
-    check.check_string(ref)
+    check.check_string(ref_name)
 
-    rv = git_exe.call_git(root_dir, [ 'show-ref', ref ], raise_error = False)
-    return rv.exit_code == 0 and 'refs/tags/{}'.format(ref) in rv.stdout
+    try:
+      return clazz.ref_info(root_dir, ref_name).is_tag
+    except git_error as ex:
+      return False
 
   @classmethod
-  def is_branch(clazz, root_dir, branch_name):
-    'Return True if branch_name is a branch.'
+  def is_branch(clazz, root_dir, ref_name):
+    'Return True if ref is a branch.'
     check.check_string(root_dir)
-    check.check_string(branch_name)
+    check.check_string(ref_name)
 
-    ref = 'refs/heads/{}'.format(branch_name)
-    rv = git_exe.call_git(root_dir, [ 'show-ref', '--verify', '--quiet', ref ], raise_error = False)
-    return rv.exit_code == 0
+    try:
+      return clazz.ref_info(root_dir, ref_name).is_branch
+    except git_error as ex:
+      return False
 
   @classmethod
   def branches_for_tag(clazz, root_dir, tag):
@@ -983,4 +996,10 @@ class git(git_lfs):
     rv = git_exe.call_git(start_dir, [ 'rev-parse', '--show-toplevel' ], raise_error = False)
     if rv.exit_code != 0:
       return None
+    return rv.stdout.strip()
+
+  @classmethod
+  def commit_message(clazz, root_dir, revision):
+    'Return the commit message for a single revision'
+    rv = git_exe.call_git(root_dir, 'log -n 1 --pretty=format:%s {}'.format(revision))
     return rv.stdout.strip()

@@ -10,7 +10,6 @@ from bes.fs.file_match import file_match
 from bes.text.text_line_parser import text_line_parser
 
 from .git_error import git_error
-from .git_exe import git_exe
 from .git_ref import git_ref
 
 class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash, commit_message, ref_branches')):

@@ -4,7 +4,7 @@
 from bes.testing.unit_test import unit_test
 from bes.git.git_head_info import git_head_info
 
-class test_git_remote(unit_test):
+class test_git_head_info(unit_test):
 
   def test_parse_head_info(self):
     f = git_head_info.parse_head_info
