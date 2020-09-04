@@ -9,7 +9,8 @@ from bes.common.check import check
 from .git_commit_info import git_commit_info
 from .git_changelog_options import git_changelog_options
 
-class git_changelog:
+class git_changelog(object):
+  'Class to deal with git changelogs'
 
   @classmethod
   def convert_changelog_string(clazz, changelog_string):
@@ -195,6 +196,17 @@ class git_changelog:
       for commit_info in list_of_commit_info:
         commit_info.author = None
         commit_info.email = None
+
+  @staticmethod
+  def _create_label_options(max_chars_bit, options):
+    return git_changelog_options(
+      max_chars=max_chars_bit,
+      revision_chars=options.revision_chars,
+      message_chars=options.message_chars,
+      balance=options.balance,
+      disable_date=options.disable_date,
+      disable_author=options.disable_author,
+    )
 
   @staticmethod
   def _create_label_options(max_chars_bit, options):

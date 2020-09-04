@@ -13,40 +13,11 @@ from .git_error import git_error
 from .git_exe import git_exe
 from .git_ref import git_ref
 
-class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash, commit_message, ref_branches')):
-  'A class to deal with git head info.'
+class git_changelog_maker(object):
+  'A class to deal with making git changelogs.'
 
-  STATE_BRANCH = 'branch'
-  STATE_DETACHED_COMMIT = 'detached_commit'
-  STATE_NOTHING = 'nothing'
-  STATE_TAG = 'tag'
-  
-  STATES = ( STATE_BRANCH, STATE_DETACHED_COMMIT, STATE_NOTHING, STATE_TAG )
-  
-  def __new__(clazz, state, branch, ref, commit_hash, commit_message, ref_branches):
-    check.check_string(state)
-    check.check(branch, (check.STRING_TYPES, list ), allow_none = True)
-    check.check_string(ref, allow_none = True)
-    check.check_string(commit_hash, allow_none = True)
-    check.check_string(commit_message, allow_none = True)
-    check.check_string_seq(ref_branches, allow_none = True)
-
-    if state not in clazz.STATES:
-      raise git_error('Invalid state: "{}"'.format(state))
-    return clazz.__bases__[0].__new__(clazz, state, branch, ref, commit_hash, commit_message, ref_branches)
-
-  def __str__(self):
-    values = dict(self._asdict())
-    if self.state == self.STATE_BRANCH:
-      return 'branch:{branch}:{commit_hash}'.format(**values)
-    elif self.state == self.STATE_TAG:
-      return 'tag:{ref}:{commit_hash}'.format(**values)
-    elif self.state == self.STATE_DETACHED_COMMIT:
-      return 'detached_commit::{commit_hash}'.format(**values)
-    elif self.state == self.STATE_NOTHING:
-      return 'nothing::'
-    else:
-      assert False
+  def __init__(self, repo):
+    self._repo = repo
 
   @property
   def is_detached(self):

@@ -230,14 +230,14 @@ class git(git_lfs):
     
     options = options or git_clone_options()
     branch_name = branch_name or options.branch
-    clazz.log.log_d('pull: root_dir={} branch_name={} options={}'.format(root_dir, branch_name, options.pformat()))
+    clazz.log.log_d('CACA: pull: root_dir={} branch_name={} options={}'.format(root_dir, branch_name, options.pformat()))
 
     args = []
     if remote_name:
       args.append(remote_name)
 
-    if branch_name:
-      args.append(branch_name)
+#    if branch_name:
+#      args.extend([ 'origin', branch_name ])
       
     if options.reset_to_head:
       clazz.reset_to_revision(root_dir, 'HEAD')
@@ -253,8 +253,8 @@ class git(git_lfs):
 
     info = clazz.head_info(root_dir)
 
-#    if branch_name:
-#      git_exe.call_git(root_dir, [ 'fetch', 'origin', branch_name ])
+    if branch_name:
+      git_exe.call_git(root_dir, [ 'fetch', 'origin', branch_name ])
 
     if info.is_detached:
       clazz.checkout(root_dir, 'master')
@@ -815,9 +815,14 @@ class git(git_lfs):
     return git_exe.call_git(root, args)
 
   @classmethod
-  def unpushed_commits(clazz, root): # tested
+  def unpushed_commits(clazz, root_dir): # tested
     'Return a list of unpushed commits.'
-    rv = git_exe.call_git(root, [ 'cherry', 'origin' ])
+    head_info = clazz.head_info(root_dir)
+    print('head_info={}'.format(head_info))
+    if head_info.is_detached:
+      rv = git_exe.call_git(root_dir, [ 'cherry', 'origin' ])
+    else:
+      rv = git_exe.call_git(root_dir, [ 'cherry' ])
     lines = git_exe.parse_lines(rv.stdout)
     result = []
     for line in lines:

@@ -21,6 +21,16 @@ class test_git_remote(unit_test):
   def test_match_ref_branches(self):
     h = git_head_info('tag', None, 'builds/foo/1.2.3', 'deadbeef', 'foo', [ 'master', 'release-beta-26', 'release-beta-27' ])
     self.assertEqual( [ 'release-beta-26', 'release-beta-27' ], h.match_ref_branches([ 'release-beta-*' ]) )
+
+  def test_parse_head_info_detached_commit(self):
+    output = '''\
+* (HEAD detached from deadbeef)
+  foo
+  master
+  zoo
+'''
+    self.assertEqual( ( 'detached_commit', None, None, 'deadbeef', None, None ),
+                      git_head_info.parse_head_info(None, output) )
     
 if __name__ == '__main__':
   unit_test.main()
