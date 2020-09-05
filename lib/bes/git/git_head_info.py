@@ -122,13 +122,6 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
       if line.startswith('*'):
         return line
     return None
-#* (HEAD detached at 1.0.511) 9b16b32f Merging git@gitlab.com:rebuilder/bes.git 1.2.3 lib/bes into lib/bes
-#  master                     dbc089e9 fix a handful of python3 portability issues.
-#  python3_support            dbc089e9 fix a handful of python3 portability issues.
-
-#* (HEAD detached at 87fa0918) 87fa0918 Merge branch 'master' of bitbucket.org:imvu/ego-cicd-automation
-#  master                      dbc089e9 fix a handful of python3 portability issues.
-#  python3_support             dbc089e9 fix a handful of python3 portability issues.
 
   _DETACHED_HEAD_PATTERN = r'^\*\s+\(HEAD\s+detached\s+(at|from)\s+(.+)\)\s+([0-9a-f]+)\s+(.*)$'
   _detached_head_info = namedtuple('_detached_head_info', 'where, ref, commit, message')
