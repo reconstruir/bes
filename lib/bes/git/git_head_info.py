@@ -7,6 +7,7 @@ from collections import namedtuple
 from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.fs.file_match import file_match
+from bes.system.log import logger
 from bes.text.text_line_parser import text_line_parser
 
 from .git_error import git_error
@@ -21,6 +22,8 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
   STATE_TAG = 'tag'
   
   STATES = ( STATE_BRANCH, STATE_DETACHED_COMMIT, STATE_NOTHING, STATE_TAG )
+
+  log = logger('git')
   
   def __new__(clazz, state, branch, ref, commit_hash, commit_message, ref_branches):
     check.check_string(state)
@@ -72,31 +75,36 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
     check.check_string(root_dir, allow_none = True)
     check.check_string(text)
 
+    clazz.log.log_d('parse_head_info: text={}'.format(text))
+    
     if text == '':
       return git_head_info(clazz.STATE_NOTHING, None, None, None, None, None)
     
     lines = text_line_parser.parse_lines(text, strip_comments = False, strip_text = True, remove_empties = True)
+    clazz.log.log_d('parse_head_info: lines={}'.format(lines))
     active_line = clazz._find_active_branch_entry(lines)
     if not active_line:
       raise git_error('Failed to get head info')
     detached_info = clazz._parse_detached_head_line(active_line)
+    clazz.log.log_d('parse_head_info: detached_info={}'.format(detached_info))
+    
     if detached_info:
-      ref = detached_info[0]
-      assert ref
-      commit_hash = detached_info[1]
-      assert commit_hash
-      commit_message = detached_info[2]
-      assert commit_message
       if root_dir:
-        ref_branches = git_ref.branches_for_ref(root_dir, ref)
-        print('ref_branches={}'.format(ref_branches))
+        ref_branches = git_ref.branches_for_ref(root_dir, detached_info.commit)
       else:
         ref_branches = None
-      if ref != commit_hash:
+      if detached_info.ref != detached_info.commit:
         state = clazz.STATE_TAG
+        ref = detached_info.ref
       else:
         state = clazz.STATE_DETACHED_COMMIT
-      return git_head_info(state, None, ref, commit_hash, commit_message, ref_branches)
+        ref = None
+      return git_head_info(state,
+                           None,
+                           ref,
+                           detached_info.commit,
+                           detached_info.message,
+                           ref_branches)
     info = clazz._parse_active_branch_entry(active_line)
     if not info:
       raise git_error('Failed to parse head info: "{}"'.format(active_line))
@@ -114,16 +122,25 @@ class git_head_info(namedtuple('git_head_info', 'state, branch, ref, commit_hash
       if line.startswith('*'):
         return line
     return None
+#* (HEAD detached at 1.0.511) 9b16b32f Merging git@gitlab.com:rebuilder/bes.git 1.2.3 lib/bes into lib/bes
+#  master                     dbc089e9 fix a handful of python3 portability issues.
+#  python3_support            dbc089e9 fix a handful of python3 portability issues.
 
-  _DETACHED_HEAD_PATTERN = r'^\*\s+\(HEAD\s+detached\s+at\s+(.+)\)\s+([0-9a-f]+)\s+(.+)$'
+#* (HEAD detached at 87fa0918) 87fa0918 Merge branch 'master' of bitbucket.org:imvu/ego-cicd-automation
+#  master                      dbc089e9 fix a handful of python3 portability issues.
+#  python3_support             dbc089e9 fix a handful of python3 portability issues.
+
+  _DETACHED_HEAD_PATTERN = r'^\*\s+\(HEAD\s+detached\s+(at|from)\s+(.+)\)\s+([0-9a-f]+)\s+(.*)$'
+  _detached_head_info = namedtuple('_detached_head_info', 'where, ref, commit, message')
   @classmethod
   def _parse_detached_head_line(clazz, line):
     f = re.findall(clazz._DETACHED_HEAD_PATTERN, line)
     if not f:
       return None
     assert len(f) == 1
-    assert len(f[0]) == 3
-    return f[0]
+    assert len(f[0]) == 4
+    assert f[0][0] in ( 'at', 'from' )
+    return clazz._detached_head_info(*f[0])
 
   @classmethod
   def _parse_active_branch_entry(clazz, entry):
