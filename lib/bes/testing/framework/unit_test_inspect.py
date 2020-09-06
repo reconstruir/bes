@@ -73,7 +73,7 @@ class unit_test_inspect(object):
       return False
     for i, base in enumerate(node.bases):
       base_class_name = clazz._base_class_name(base)
-      if base_class_name in [ 'unittest.TestCase', 'unit_test', 'script_unit_test' ]:
+      if base_class_name in [ 'unittest.TestCase', 'unit_test', 'script_unit_test', 'program_unit_test' ]:
         return True
     return False
     
