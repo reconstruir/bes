@@ -69,7 +69,6 @@ class unit_test_inspect(object):
       base_class_name = clazz._base_class_name(base)
       if base_class_name in unit_test_class_names:
         return True
-      print('missed base_class_name={}'.format(base_class_name))
     return False
     
   @classmethod
