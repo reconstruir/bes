@@ -9,7 +9,7 @@ from collections import namedtuple
 
 class program_unit_test(unit_test):
 
-  def make_command(self, program, args):
+  def _make_command(self, program, args):
     cmd = []
     if program.lower().endswith('.py'):
       cmd.append(sys.executable)
@@ -28,7 +28,7 @@ class program_unit_test(unit_test):
     return self.exec_result(rv.exit_code, output)
 
   def run_program_raw(self, program, args, cwd = None, env = None):
-    cmd = self.make_command(program, args)
+    cmd = self._make_command(program, args)
     return self._exec(cmd, cwd, env)
   
   exec_result = namedtuple('exec_result', 'exit_code, output')

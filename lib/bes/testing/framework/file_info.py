@@ -11,16 +11,16 @@ from bes.git.git_error import git_error
 
 from .unit_test_inspect import unit_test_inspect
 
-class file_info(namedtuple('file_info', 'filename,config')):
+class file_info(namedtuple('file_info', 'filename, config, unit_test_class_names')):
 
-  def __new__(clazz, config_env, filename):
+  def __new__(clazz, config_env, filename, unit_test_class_names = None):
     if filename is not None:
       check.check_string(filename)
     if not path.isfile(filename):
       raise IOError('File not found: %s' % (filename))
     filename = path.abspath(filename)
     config = config_env.config_for_filename(filename)
-    return clazz.__bases__[0].__new__(clazz, filename, config)
+    return clazz.__bases__[0].__new__(clazz, filename, config, unit_test_class_names)
 
   @cached_property
   def relative_filename(self):
@@ -51,7 +51,8 @@ class file_info(namedtuple('file_info', 'filename,config')):
   def inspection(self):
     'Return the git root for this file or None if not within a git repo.'
     try:
-      return unit_test_inspect.inspect_file(self.filename)
+      return unit_test_inspect.inspect_file(self.filename,
+                                            unit_test_class_names = self.unit_test_class_names)
     except SyntaxError as ex:
       #printer.writeln('Failed to inspect: %s - %s' % (f, str(ex)))
       print('syntax error inspecting: %s - %s' % (self.filename, str(ex)))

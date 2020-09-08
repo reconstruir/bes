@@ -11,6 +11,7 @@ from bes.fs.file_ignore import file_multi_ignore
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.git.git import git
+from bes.system.log import logger
 from bes.python.dependencies import dependencies
 from bes.system.env_var import env_var
 from bes.system.execute import execute
@@ -25,8 +26,10 @@ from .unit_test_description import unit_test_description
 
 class argument_resolver(object):
 
+  log = logger('testing')
+  
   def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None,
-               check_git = False, git_commit = None, use_env_deps = True):
+               check_git = False, git_commit = None, use_env_deps = True, unit_test_class_names = None):
     self._num_iterations = 1
     self._randomize = False
     self._raw_test_descriptions = []
@@ -34,16 +37,24 @@ class argument_resolver(object):
     if root_dir:
       file_check.check_dir(root_dir)
     working_dir = path.abspath(working_dir)
+    self.log.log_d('argument_resolver: working_dir={}'.format(working_dir))
     ignore = file_multi_ignore(file_ignore_filename)
+    self.log.log_d('argument_resolver: ignore={}'.format(ignore))
     arguments_just_files, arguments_just_filters = self._split_files_and_filters(working_dir, arguments)
     filter_patterns = self._make_filters_patterns(arguments_just_filters)
     unresolved_files, unresolved_dirs = self._split_files_and_dirs(working_dir, arguments_just_files)
+    self.log.log_d('argument_resolver: arguments_just_files={}'.format(arguments_just_files))
+    self.log.log_d('argument_resolver: arguments_just_filters={}'.format(arguments_just_filters))
+    self.log.log_d('argument_resolver: filter_patterns={}'.format(filter_patterns))
+    self.log.log_d('argument_resolver: unresolved_files={}'.format(unresolved_files))
+    self.log.log_d('argument_resolver: unresolved_dirs={}'.format(unresolved_dirs))
     if check_git:
       files = self._git_tracked_modified_files(unresolved_dirs + unresolved_files)
     elif git_commit:
       files = self._git_files_for_commit(git_commit)
     else:
       files = self._resolve_files_and_dirs(working_dir, arguments_just_files)
+    self.log.log_d('argument_resolver: files={}'.format(files))
     if not files:
       return
     if not root_dir:
@@ -51,14 +62,18 @@ class argument_resolver(object):
       if not root_dir:
         raise RuntimeError('Failed to determine root dir.')
     self.root_dir = root_dir
+    self.log.log_d('argument_resolver: root_dir={}'.format(root_dir))
     self.config_env = config_env(root_dir)
+    self.log.log_d('argument_resolver: config_env={}'.format(config_env))
     self.all_files = ignore.filter_files(files)
-    file_infos = file_info_list([ file_info(self.config_env, f) for f in self.all_files ])
+    self.log.log_d('argument_resolver: self.all_files={}'.format(self.all_files))
+    file_infos = file_info_list([ file_info(self.config_env, f, unit_test_class_names = unit_test_class_names) for f in self.all_files ])
     file_infos += self._tests_for_many_files(file_infos)
     file_infos.remove_dups()
     file_infos = file_infos.filter_by_filenames(filter_patterns)
     file_infos = file_infos.filter_by_test_filename_only()
     self.inspect_map = file_infos.make_inspect_map()
+    self.log.log_d('argument_resolver: inspect_map={}'.format(self.inspect_map))
     # FIXME: change to ignore_without_tests()
     file_infos = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])
     # FIXME: change to filter_with_patterns_tests()
@@ -68,6 +83,7 @@ class argument_resolver(object):
     else:
       self._env_dependencies = []
     self._env_dependencies_configs = [ self.config_env.config_for_name(name) for name in self._env_dependencies ]
+    self.log.log_d('argument_resolver: env_dependencies_configs={}'.format(self._env_dependencies_configs))
       
   @property
   def num_iterations(self):
