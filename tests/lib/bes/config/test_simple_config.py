@@ -273,7 +273,23 @@ foo
 
     self.assertEqual( 'kiwi', c.find('fruit').get_value('name') )
     self.assertEqual( 'green', c.find('fruit').get_value('color') )
-    
+
+  def test_delete_value(self):
+    c = simple_config()
+    c.add_section('fruit')
+    s = c.find('fruit')
+    s.set_value('name', 'kiwi')
+    s.set_value('color', 'green')
+    self.assertEqual( {
+      'color': 'green',
+      'name': 'kiwi',
+    }, s.to_dict() )
+
+    s.delete_value('name')
+    self.assertEqual( {
+      'color': 'green',
+    }, s.to_dict() )
+
   def test_sections_names(self):
     text = '''\
 fruit
