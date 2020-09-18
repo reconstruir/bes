@@ -37,12 +37,13 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
   def __str__(self):
     return self.to_string()
 
-  def to_string(self, entry_formatter = None):
+  def to_string(self, entry_formatter = None, sort = False):
     entry_formatter = entry_formatter or self.default_entry_formatter
     buf = StringIO()
     buf.write(str(self.header_))
     buf.write('\n')
-    for i, entry in enumerate(self.entries_):
+    entries = self.entries_ if not sort else sorted(self.entries_)
+    for i, entry in enumerate(entries):
       if i != 0:
         buf.write('\n')
       buf.write('  ')
@@ -150,7 +151,15 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
       new_origin = None
     new_entry = simple_config_entry(key_value(key, value), origin = new_origin, hints = hints)
     self.entries_.append(new_entry)
-    
+
+  def delete_value(self, key):
+    check.check_string(key)
+
+    index = self.entry_index(key)
+    if index < 0:
+      return
+    del self.entries_[index]
+
   def get_bool(self, key, default = False):
     value = self.find_by_key(key, raise_error = False, resolve_env_vars = False)
     if value is not None:

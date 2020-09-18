@@ -65,12 +65,13 @@ class simple_config(object):
   def __str__(self):
     return self.to_string()
 
-  def to_string(self):
+  def to_string(self, sort = False):
     buf = StringIO()
-    for i, section in enumerate(self._sections):
+    sections = self._sections if not sort else sorted(self._sections)
+    for i, section in enumerate(sections):
       if i != 0:
         buf.write(line_break.DEFAULT_LINE_BREAK)
-      buf.write(section.to_string(entry_formatter = self._entry_formatter))
+      buf.write(section.to_string(entry_formatter = self._entry_formatter, sort = sort))
     return buf.getvalue()
   
   def __getattr__(self, section_name):
@@ -274,7 +275,7 @@ class simple_config(object):
     return result
   
   _ENTRY_KEY_VALID_FIRST_CHAR = string.ascii_letters + '_'
-  _ENTRY_KEY_VALID_NEXT_CHARS = string.ascii_letters + string.digits + '_' + '*' + '?' + '-'
+  _ENTRY_KEY_VALID_NEXT_CHARS = string.ascii_letters + string.digits + '_' + '*' + '?' + '-' + ' '
   @classmethod
   def _parse_entry(clazz, text, origin):
     check.check_string(text)
