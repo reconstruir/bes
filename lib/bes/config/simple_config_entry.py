@@ -23,7 +23,7 @@ class simple_config_entry(namedtuple('simple_config_entry', 'value, origin, anno
 
   def to_string(self, sort = False):
     buf_left = StringIO()
-    buf_left.write(self.value.key.encode('utf-8'))
+    buf_left.write(self.value.key)
     if self.annotations:
       buf_left.write('[')
       for i, annotation in enumerate(self.annotations):
@@ -37,7 +37,7 @@ class simple_config_entry(namedtuple('simple_config_entry', 'value, origin, anno
     buf_left.write(': ')
     left_side = buf_left.getvalue()
     buf_right = StringIO()
-    buf_right.write(left_side.encode('utf-8'))
+    buf_right.write(left_side)
     value_lines = self.value.value.split(line_break.DEFAULT_LINE_BREAK)
     value_lines = value_lines if not sort else sorted(value_lines)
     indent = ' ' * (len(left_side) + 2)
@@ -45,7 +45,7 @@ class simple_config_entry(namedtuple('simple_config_entry', 'value, origin, anno
       if i > 0:
         buf_right.write(line_break.DEFAULT_LINE_BREAK)
         buf_right.write(indent)
-      buf_right.write(line.encode('utf-8'))
+      buf_right.write(line)
     return buf_right.getvalue()
 
   def has_annotation(self, annotation_key):
