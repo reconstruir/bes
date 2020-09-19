@@ -85,7 +85,7 @@ class web_server(with_metaclass(ABCMeta, object)):
       auth = self._decode_auth(environ)
       if not self._validate_auth(auth):
         return self.response_error(start_response, 403)
-      if self._fail_next_request.value is not 0:
+      if self._fail_next_request.value != 0:
         code = self._fail_next_request.value
         self._fail_next_request.value = 0
         return self.response_error(start_response, code)
