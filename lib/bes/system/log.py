@@ -10,6 +10,8 @@ from .add_method import add_method
 from .compat import compat
 from .console import console as system_console
 
+from .detail.log_writer_list import log_writer_list
+
 import logging as pylog
 
 class log(object):
@@ -22,16 +24,17 @@ class log(object):
   DEBUG = 6
 
   DEFAULT_LEVEL = ERROR
-  DEFAULT_LOG_FP = sys.stdout
 
   FORMAT_FULL = '${timestamp}${space}[${process_id}.${thread_id}]${space}(${tag}.${level})${padding}${space}${message}'
   FORMAT_BRIEF = '${timestamp_brief}${space}(${tag}.${level})${padding}${space}${message}'
+  FORMAT_VERY_BRIEF = '(${tag}.${level})${padding}${space}${message}'
 
-  __PADDING_CHAR = ' '
+  _PADDING_CHAR = ' '
   _DEFAULT_FORMAT = FORMAT_FULL
-  __FORMATS = {
+  _FORMATS = {
     'full': FORMAT_FULL,
     'brief': FORMAT_BRIEF,
+    'very_brief': FORMAT_VERY_BRIEF,
     }
 
   _level_to_string = {
@@ -46,7 +49,7 @@ class log(object):
   
   _tag_levels = {}
   _level = DEFAULT_LEVEL
-  _log_fp = DEFAULT_LOG_FP
+  _log_writer = log_writer_list()
   _log_lock = threading.Lock()
   _format = _DEFAULT_FORMAT
   _log_config_patterns = {}
@@ -60,8 +63,8 @@ class log(object):
     try:
       clazz._do_log_i(tag, level, message, multi_line)
     except Exception as ex:
-      clazz._log_fp.write('Unexpected logging error: %s\n' % (str(ex)))
-      clazz._log_fp.flush()
+      clazz._log_writer.write('Unexpected logging error: %s\n' % (str(ex)))
+      clazz._log_writer.flush()
     clazz._log_lock.release()
 
   @classmethod
@@ -77,8 +80,8 @@ class log(object):
     else:
       messages = [ clazz._make_message_i(tag, level, message, timestamp) ]
     for m in messages:
-      clazz._log_fp.write(m + '\n')
-    clazz._log_fp.flush()
+      clazz._log_writer.write(m + '\n')
+    clazz._log_writer.flush()
       
   @classmethod
   def log_c(clazz, tag, message, multi_line = False):
@@ -122,7 +125,7 @@ class log(object):
       'level': level,
       'message': message,
       'space': ' ',
-      'padding': delta * clazz.__PADDING_CHAR
+      'padding': delta * clazz._PADDING_CHAR
     }
     result = clazz._format
     for key, value in values.items():
@@ -217,8 +220,8 @@ class log(object):
     flat = re.sub('\s+', ' ', flat)
     parts = flat.split(' ')
     for part in parts:
-      kv = part.partition('=')
-      clazz._configure_i(kv[0], kv[2])
+      key, sep, value = part.partition('=')
+      clazz._configure_i(key, value)
     clazz._log_lock.release()
 
   @classmethod
@@ -233,7 +236,7 @@ class log(object):
 
   @classmethod
   def _configure_i(clazz, key, value):
-    'Configure levels.'
+    'Configure logging.'
     if key == 'level':
       clazz._level = clazz.parse_level(value)
     elif key == 'all':
@@ -243,18 +246,15 @@ class log(object):
     elif key == 'reset':
       clazz._configure_i('level', clazz.DEFAULT_LEVEL)
       clazz._configure_i('all', clazz._level)
-      clazz._configure_i('file', clazz.DEFAULT_LOG_FP)
-    elif key == 'file':
-      if compat.is_file(value):
-        clazz._log_fp = value
-      else:
-        clazz._log_fp = open(path.expanduser(value), 'wa')
+      clazz._log_writer.reset()
+    elif key in [ 'output', 'out', 'o' ]:
+      clazz._log_writer.configure(value)
     elif key == 'dump':
       lines = [ '%s: %s' % (key, clazz._level_to_string.get(level)) for key, level in sorted(clazz._tag_levels.items()) ]
       message = '\n'.join(lines) + '\n'
       clazz.output(message, console = True)
     elif key == 'format':
-      clazz._format = clazz.__FORMATS.get(value, value)
+      clazz._format = clazz._FORMATS.get(value, value)
     elif key == 'width':
       clazz._tag_width = int(value)
     else:
@@ -275,11 +275,11 @@ class log(object):
   def _update_longest_tag_length(clazz):
     clazz._longest_tag_length = max(len(key) for key in clazz._tag_levels.keys())
     
-  __FNMATCH_CHARS = '.*?[]!'
+  _FNMATCH_CHARS = '.*?[]!'
   @classmethod
   def _key_is_fnmatch_pattern(clazz, key):
     for c in key:
-      if c in clazz.__FNMATCH_CHARS:
+      if c in clazz._FNMATCH_CHARS:
         return True
     return False
   
@@ -292,15 +292,16 @@ class log(object):
     clazz.output(message, console = True)
     
   @classmethod
-  def set_log_file(clazz, f):
-    'Set the log file to be f.  f can be a filename or a file object.'
+  def set_log_file(clazz, file_object):
+    'Configure the log to Set the log file to be f.  f can be a filename or a file object.'
     clazz._log_lock.acquire()
-    clazz._configure_i('file', f)
+    clazz._log_writer.clear()
+    clazz._log_add_file_object(file_object)
     clazz._log_lock.release()
 
   @classmethod
   def reset(clazz):
-    'Parse the level string and returns its integer value.'
+    'Reset the log configuration to the defaults.'
     clazz._log_lock.acquire()
     clazz._configure_i('reset', None)
     clazz._log_lock.release()
@@ -411,7 +412,7 @@ class log_filter(pylog.Filter):
   }
 
   def __init__(self, label):
-    super(log_filter, self).__init__(name = 'fateware_filter')
+    super(log_filter, self).__init__(name = 'bes_filter')
     self._label = label
 
   def filter(self, record):
@@ -462,6 +463,14 @@ class logger(object):
     'Log an exception with optional traceback.'
     log.log_exception(self._tag, ex, show_traceback = show_traceback)
 
+  def configure(self, args):
+    'Configure logging.'
+    log.configure(args)
+
+  def reset(self):
+    'Reset logging.'
+    log.reset()
+    
   critical = log_c
   debug = log_d
   info = log_i

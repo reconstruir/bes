@@ -223,7 +223,7 @@ class unit_test(unittest.TestCase):
   _DEFAULT_PREFIX = path.splitext(path.basename(sys.argv[0]))[0] + '-tmp-'
 
   @classmethod
-  def make_temp_file(clazz, content = None, prefix = None, suffix = None, dir = None, mode = 'w+b', perm = None, mtime = None):
+  def make_temp_file(clazz, content = None, prefix = None, suffix = None, dir = None, mode = 'w+b', perm = None, mtime = None, delete = True):
     'Write content to a temporary file.  Returns the file object.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or ''
