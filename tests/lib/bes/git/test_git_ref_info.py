@@ -48,5 +48,23 @@ deadbeefdeadbeefdeadbeefdeadbeefdeadbeef refs/remotes/origin/master
       f(output)
       self.assertTrue( 'Ref that is both a branch and tag is not supported' in str(ctx.exception) )
     
+  def test_parse_show_ref_output_only_heads(self):
+    f = git_ref_info.parse_show_ref_output
+
+    output = '''\
+deadbeefdeadbeefdeadbeefdeadbeefdeadbeef refs/heads/test1
+'''
+    self.assertEqual( ( 'test1', 'refs/heads/test1', 'branch', 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef', 'deadbee', False),
+                      f(output) )
+
+  def test_parse_show_ref_output_only_remotes(self):
+    f = git_ref_info.parse_show_ref_output
+
+    output = '''\
+deadbeefdeadbeefdeadbeefdeadbeefdeadbeef refs/remotes/origin/test1
+'''
+    self.assertEqual( ( 'test1', 'refs/remotes/origin/test1', 'branch', 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef', 'deadbee', True),
+                      f(output) )
+    
 if __name__ == '__main__':
   unit_test.main()

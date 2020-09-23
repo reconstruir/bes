@@ -7,6 +7,7 @@ from collections import namedtuple
 from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.property.cached_property import cached_property
+from bes.system.log import logger
 from bes.text.text_line_parser import text_line_parser
 
 from .git_error import git_error
@@ -24,6 +25,8 @@ class git_ref_info(namedtuple('git_ref_info', 'name, full_name, ref_type, commit
   REF_TYPE_TAG = 'tag'
 
   VALID_REF_TYPES = ( REF_TYPE_BRANCH, REF_TYPE_TAG )
+
+  log = logger('git')
   
   def __new__(clazz, name, full_name, ref_type, commit, commit_short, has_remote):
     check.check_string(name)
@@ -66,6 +69,13 @@ class git_ref_info(namedtuple('git_ref_info', 'name, full_name, ref_type, commit
     head_item = next(iter([ item for item in items if item.full_name.startswith('refs/heads') ]), None)
     remote_item = next(iter([ item for item in items if item.full_name.startswith('refs/remotes') ]), None)
     tag_item = next(iter([ item for item in items if item.full_name.startswith('refs/tags') ]), None)
+
+    clazz.log.log_d('       text: {}'.format(text))
+    clazz.log.log_d('      lines: {}'.format(lines))
+    clazz.log.log_d('  head_item: {}'.format(head_item))
+    clazz.log.log_d('remote_item: {}'.format(remote_item))
+    clazz.log.log_d('   tag_item: {}'.format(tag_item))
+    
     if tag_item and (head_item or remote_item):
       raise git_error('Ref that is both a branch and tag is not supported: {}'.format(tag_item.full_name))
 
@@ -76,9 +86,16 @@ class git_ref_info(namedtuple('git_ref_info', 'name, full_name, ref_type, commit
       has_remote = False
     else:
       ref_type = clazz.REF_TYPE_BRANCH
-      commit = head_item.commit
-      full_name = head_item.full_name
-      has_remote = remote_item != None
+      if head_item:
+        commit = head_item.commit
+        full_name = head_item.full_name
+        has_remote = remote_item != None
+      elif remote_item:
+        commit = remote_item.commit
+        full_name = remote_item.full_name
+        has_remote = True
+      else:
+        raise git_error('Failed to determine ref type: {}'.format(text))
 
     name = full_name.split('/')[-1]
     commit_short = git_commit_hash.shorten(commit)
