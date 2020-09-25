@@ -819,7 +819,6 @@ class git(git_lfs):
   def unpushed_commits(clazz, root_dir): # tested
     'Return a list of unpushed commits.'
     head_info = clazz.head_info(root_dir)
-    print('head_info={}'.format(head_info))
     if head_info.is_detached:
       rv = git_exe.call_git(root_dir, [ 'cherry', 'origin' ])
     else:
