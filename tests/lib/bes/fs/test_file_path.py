@@ -74,6 +74,19 @@ class test_file_path(unit_test):
       'foo/base-1.2.3/bar.txt',
       'foo/base-1.2.3/',
     ]) )
+
+  def test_common_ancestor_more_multiple_ancestors(self):
+    self.assertEqual( 'foo/bar/base-1.2.3', FP.common_ancestor([
+      'foo/bar/base-1.2.3/foo.txt',
+      'foo/bar/base-1.2.3/bar.txt',
+      'foo/bar/base-1.2.3/',
+    ]) )
+
+    self.assertEqual( 'foo', FP.common_ancestor([
+      'foo/bar/base-1.2.3/foo.txt',
+      'foo/bar/base-1.2.3/bar.txt',
+      'foo/baz/base-1.2.3/',
+    ]) )
     
   def test_common_ancestor_multiple_ancestors_absolute(self):
     self.assertEqual( '/foo/base-1.2.3', FP.common_ancestor([
