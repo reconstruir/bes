@@ -16,6 +16,16 @@ class _host_info_holder(type):
       raise AttributeError('_host_info_holder has not be initialized yet.')
     return getattr(clazz.HOST_INFO, key.lower())
 
+class host_error(Exception):
+  'Exception raised when a host does match an expectation'
+  
+  def __init__(self, message):
+    super(host_error, self).__init__()
+    self.message = message
+
+  def __str__(self):
+    return self.message
+  
 class host(with_metaclass(_host_info_holder, object)):
 
   # systems
@@ -72,7 +82,19 @@ class host(with_metaclass(_host_info_holder, object)):
   def raise_unsupported_system(clazz, system = None):
     'Raise a RuntimeError about the system being unsupported.  If system is None host.SYSTEM is used.'
     system = system or host.SYSTEM
-    raise RuntimeError('unsupported system: {}'.format(system))
-  
+    raise host_error('unsupported system: {}'.format(system))
+
+  @classmethod
+  def check_is_macos(clazz):
+    'Raise host_error if system is not macos.'
+    if clazz.SYSTEM != clazz.MACOS:
+      raise host_error('not macos')
+
+  @classmethod
+  def check_is_linux(clazz):
+    'Raise host_error if system is not linux.'
+    if clazz.SYSTEM != clazz.LINUX:
+      raise host_error('not linux')
+    
 host.init()
 
