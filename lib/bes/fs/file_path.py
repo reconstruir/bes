@@ -81,13 +81,34 @@ class file_path(object):
   @classmethod
   def common_ancestor(clazz, filenames):
     'Return a common ancestor for all the given filenames or None if there is not one.'
-    def _path_base(p):
-      return file_util.strip_sep(path.normpath(p).split(os.sep)[0])
-    ancestors = [ _path_base(f) for f in filenames ]
-    common_ancestor = algorithm.unique(ancestors)
-    if len(common_ancestor) == 1:
-      return common_ancestor[0] or None
-    return None
+    if not filenames:
+      return None
+    def _split_filename(f):
+      return path.normpath(f).split(os.sep)
+    split_filenames = [ _split_filename(f) for f in filenames ]
+    lengths = [ len(s) for s in split_filenames ]
+    min_length = min(lengths)
+
+    levels = [ None ] * min_length
+    for i in range(0, min_length):
+      levels[i] = set()
+
+    for split_filename in split_filenames:
+      for i in range(0, min_length):
+        p = split_filename[i]
+        save = levels[:]
+        levels[i].add(p)
+
+    ancestor_parts = []
+    for level in levels:
+      if len(level) != 1:
+        break
+      ancestor_parts.append(level.pop())
+
+    if not ancestor_parts:
+      return None
+    
+    return os.sep.join(ancestor_parts)
   
   @classmethod
   def glob(clazz, paths, glob_expression):
