@@ -60,3 +60,11 @@ class dir_util(object):
       if mtime <= ago:
         result.append(d)
     return result
+
+  @classmethod
+  def remove(clazz, d):
+    if path.isfile(d):
+      raise ValueError('Not a directory: "{}"'.format(d))
+    if not path.exists(d):
+      raise ValueError('Directory does not exits: "{}"'.format(d))
+    os.rmdir(d)
