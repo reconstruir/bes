@@ -97,6 +97,16 @@ class test_file_path(unit_test):
 
   def test_common_ancestor_empty_filenames(self):
     self.assertEqual( None, FP.common_ancestor([]) )
+
+  def test_common_ancestor_just_one_entry(self):
+    self.assertEqual( 'base-1.2.3', FP.common_ancestor([
+      'base-1.2.3/foo.txt',
+    ]) )
+
+  def test_common_ancestor_just_one_deep_entry(self):
+    self.assertEqual( 'foo/base-1.2.3', FP.common_ancestor([
+      'foo/base-1.2.3/foo.txt',
+    ]) )
     
   def test_decompose(self):
     self.assertEqual( [ self.p('/foo'), self.p('/foo/bar'), self.p('/foo/bar/baz') ], FP.decompose(self.p('/foo/bar/baz')) )

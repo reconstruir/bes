@@ -83,8 +83,14 @@ class file_path(object):
     'Return a common ancestor for all the given filenames or None if there is not one.'
     if not filenames:
       return None
+
     def _split_filename(f):
       return path.normpath(f).split(os.sep)
+    
+    if len(filenames) == 1:
+      filename_split = _split_filename(filenames[0])
+      return os.sep.join(filename_split[0:-1])
+    
     split_filenames = [ _split_filename(f) for f in filenames ]
     lengths = [ len(s) for s in split_filenames ]
     min_length = min(lengths)
@@ -108,7 +114,8 @@ class file_path(object):
     if not ancestor_parts:
       return None
     
-    return os.sep.join(ancestor_parts)
+    result = os.sep.join(ancestor_parts)
+    return result
   
   @classmethod
   def glob(clazz, paths, glob_expression):
