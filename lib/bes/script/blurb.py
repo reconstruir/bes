@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path, sys
+
 from bes.common.json_util import json_util
 from bes.system.add_method import add_method
 from bes.system.console import console
@@ -25,7 +26,8 @@ class blurb(object):
     clazz._label_length = label_length
     
   @classmethod
-  def blurb(clazz, label, message, output = sys.stdout, fit = False):
+  def blurb(clazz, label, message, output = None, fit = False):
+    output = output or sys.stdout
     assert label
     justified_label = clazz.justified_label(label)
     delimiter = ': '
@@ -51,7 +53,7 @@ class blurb(object):
     output.flush()
 
   @classmethod
-  def blurb_verbose(clazz, label, message, output = sys.stdout, fit = False):
+  def blurb_verbose(clazz, label, message, output = None, fit = False):
     if not clazz._verbose:
       return
     clazz.blurb(label, message, output = output, fit = fit)
@@ -61,12 +63,12 @@ class blurb(object):
     return label.rjust(12) #self._get_label_length())
 
   @staticmethod
-  def _transplant_blurb(obj, message, output = sys.stdout, fit = False):
+  def _transplant_blurb(obj, message, output = None, fit = False):
     assert getattr(obj, 'bes_blurb_label__', None) != None
     blurb.blurb(obj.bes_blurb_label__, message, output = output, fit = fit)
 
   @staticmethod
-  def _transplant_blurb_verbose(obj, message, output = sys.stdout, fit = False):
+  def _transplant_blurb_verbose(obj, message, output = None, fit = False):
     assert getattr(obj, 'bes_blurb_verbose_label__', None) != None
     blurb.blurb_verbose(obj.bes_blurb_verbose_label__, message, output = output, fit = fit)
 
