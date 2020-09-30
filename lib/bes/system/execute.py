@@ -17,7 +17,7 @@ class execute(object):
   @classmethod
   def execute(clazz, command, raise_error = True, non_blocking = False, stderr_to_stdout = False,
               cwd = None, env = None, shell = False, input_data = None, universal_newlines = True,
-              codec = None):
+              codec = None, print_failure = True):
     'Execute a command'
     args = clazz.parse_args(command)
     stdout_pipe = subprocess.PIPE
@@ -46,10 +46,11 @@ class execute(object):
                                  env = env,
                                  universal_newlines = universal_newlines)
     except OSError as ex:
-      message = 'failed: {} - {}'.format(str(args), str(ex))
-      sys.stderr.write(message)
-      sys.stderr.write('\n')
-      sys.stderr.flush()
+      if print_failure:
+        message = 'failed: {} - {}'.format(str(args), str(ex))
+        sys.stderr.write(message)
+        sys.stderr.write('\n')
+        sys.stderr.flush()
       raise
 
     # http://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
