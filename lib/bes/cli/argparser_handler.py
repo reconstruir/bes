@@ -22,7 +22,7 @@ class argparser_handler(object):
     handler = clazz._find_handler(handler_object, possible_names)
     if not handler:
       raise RuntimeError('No method found for command: %s' % (' '.join(possible_names)))
-    handler_spec = inspect.getargspec(handler)
+    handler_spec = inspect.getfullargspec(handler)
 
     # If the arghandler has a keywords field, that means the user intends
     # to use the simplified interface where handler methods are implemented

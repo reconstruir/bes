@@ -415,7 +415,7 @@ class git_repo(object):
     check.check_float(retry_wait_seconds, allow_none = True)
     check.check_string_seq(files_to_commit, allow_none = True)
 
-    operation_spec = inspect.getargspec(operation)
+    operation_spec = inspect.getfullargspec(operation)
     if len(operation_spec[0]) != 1:
       raise git_error('operation should take exactly one argument.')
 

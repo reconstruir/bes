@@ -13,7 +13,7 @@ class command_line(object):
     for command in commands:
       name = command[0]
       desc = command[1]
-      argspec = inspect.getargspec(desc)
+      argspec = inspect.getfullargspec(desc)
 #      help(desc)
       print("desc: ", desc, type(desc))
       print("args: ", argspec, type(argspec))
