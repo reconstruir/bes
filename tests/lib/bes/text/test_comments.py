@@ -26,10 +26,10 @@ class test_comments(unit_test):
     self.assertEqual( '"', comments.strip_line('"#"', allow_quoted = False) )
     
   def test_strip_line_disallow_quoted_escaped(self):
-    self.assertEqual( 'ab "cd # ef"', comments.strip_line('ab "cd \# ef"', allow_quoted = False) )
-    self.assertEqual( 'ab "cd # ef"', comments.strip_line('ab "cd \# ef"#comment', allow_quoted = False) )
+    self.assertEqual( 'ab "cd # ef"', comments.strip_line(r'ab "cd \# ef"', allow_quoted = False) )
+    self.assertEqual( 'ab "cd # ef"', comments.strip_line(r'ab "cd \# ef"#comment', allow_quoted = False) )
     self.assertEqual( '', comments.strip_line('#ab "cd # ef"', allow_quoted = False) )
-    self.assertEqual( '"#"', comments.strip_line('"\#"', allow_quoted = False) )
+    self.assertEqual( '"#"', comments.strip_line(r'"\#"', allow_quoted = False) )
     
   def test_strip_line_with_strip(self):
     self.assertEqual( 'foo', comments.strip_line('foo #comment', strip_tail = True) )

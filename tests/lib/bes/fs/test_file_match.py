@@ -77,8 +77,8 @@ class test_file_match(unittest.TestCase):
       '/foo/bar/vaca.txt',
     ]
     expressions = [
-      '.*\.txt$',
-      '.*\.pdf$',
+      r'.*\.txt$',
+      r'.*\.pdf$',
     ]
     expected = [
       'notes.txt',
@@ -96,8 +96,8 @@ class test_file_match(unittest.TestCase):
       '/foo/bar/vaca.txt',
     ]
     expressions = [
-      '.*\.txt$',
-      '.*\.pdf$',
+      r'.*\.txt$',
+      r'.*\.pdf$',
     ]
     expected = [
       'caca.jpg',
@@ -114,16 +114,16 @@ class test_file_match(unittest.TestCase):
       '/foo/bar/vaca.txt',
     ]
     expressions = [
-      '.*\.txt$',
-      '.*\.pdf$',
+      r'.*\.txt$',
+      r'.*\.pdf$',
     ]
     expected = [
     ]
     self.assertEqual( sorted(expected), file_match.match_re(filenames, expressions, file_match.ALL) )
 
     expressions = [
-      '.*\.txt$',
-      'n.*$',
+      r'.*\.txt$',
+      r'n.*$',
     ]
     expected = [
       'notes.txt',

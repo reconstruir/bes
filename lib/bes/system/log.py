@@ -215,9 +215,9 @@ class log(object):
         args = 'all=%s level=%s' % (args, args)
     args = clazz._flatten(args)
     # remove white spaces around the equal sign: 'foo  =  bar' => 'foo=bar'
-    flat = re.sub('\s*=\s*', '=', args)
+    flat = re.sub(r'\s*=\s*', '=', args)
     # coalesce multiple white spaces into just one space 
-    flat = re.sub('\s+', ' ', flat)
+    flat = re.sub(r'\s+', ' ', flat)
     parts = flat.split(' ')
     for part in parts:
       key, sep, value = part.partition('=')

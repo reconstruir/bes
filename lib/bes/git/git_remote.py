@@ -10,8 +10,8 @@ from .git import git
 class git_remote(object):
   'Class to deal with git remote "urls"'
 
-  _SSH_PATTERN = '^git\@(.+)\:(.+)\/(.+)\.git$'
-  _HTTP_PATTERN = '^http\:\/\/(.+)\/(.+)\/(.+)$'
+  _SSH_PATTERN = r'^git\@(.+)\:(.+)\/(.+)\.git$'
+  _HTTP_PATTERN = r'^http\:\/\/(.+)\/(.+)\/(.+)$'
   
   _parsed_remote = namedtuple('_parsed_remote', 'scheme, service, owner, project')
   @classmethod

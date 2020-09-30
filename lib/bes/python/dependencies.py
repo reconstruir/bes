@@ -36,7 +36,7 @@ class dependencies(object):
           result.append(filename)
     return result
 
-  _IMPORT_PATTERN = re.compile('^\s*import\s+(.+)\s+#\s+(from|precompiled\s+from)\s(.+)\s*$')
+  _IMPORT_PATTERN = re.compile(r'^\s*import\s+(.+)\s+#\s+(from|precompiled\s+from)\s(.+)\s*$')
   
   @classmethod
   def caca_dependencies(clazz, filename, python_exe):

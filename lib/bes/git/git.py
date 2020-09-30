@@ -574,7 +574,7 @@ class git(git_lfs):
 
   @classmethod
   def _parse_remote_tag_line(clazz, s):
-    f = re.findall('^[0-9a-f]{40}\s+refs/tags/(.+)$', s)
+    f = re.findall(r'^[0-9a-f]{40}\s+refs/tags/(.+)$', s)
     if f and len(f) == 1:
       return string_util.remove_tail(f[0], '^{}')
     return None
@@ -826,7 +826,7 @@ class git(git_lfs):
     lines = git_exe.parse_lines(rv.stdout)
     result = []
     for line in lines:
-      x = re.findall('^\+\s([a-f0-9]+)$', line)
+      x = re.findall(r'^\+\s([a-f0-9]+)$', line)
       if x and len(x) == 1:
         result.append(x[0])
     return result

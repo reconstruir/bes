@@ -103,7 +103,7 @@ class git_modules_file(object):
     branch = d.get('branch', None)
     return git_module(name, mpath, url, branch)
     
-  _ENTRY_HEADER_PATTERN = '\[submodule\s+\"(.+)\"\]'
+  _ENTRY_HEADER_PATTERN = r'\[submodule\s+\"(.+)\"\]'
   @classmethod
   def _parse_entry_header(clazz, text):
     f = re.findall(clazz._ENTRY_HEADER_PATTERN, text)

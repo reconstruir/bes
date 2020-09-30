@@ -263,8 +263,8 @@ coke'''
 '''
     l = LTP(text)
     patterns = [
-      '^\s*Test\s+Name\s\s+Result\s\s+Flag\s\s+Reference\s+Range\s\s+Lab\s*$',
-      '^\s*Test\s+Name\s\s+Results\s\s+Reference\s+Range\s\s+Lab\s*$',
+      r'^\s*Test\s+Name\s\s+Result\s\s+Flag\s\s+Reference\s+Range\s\s+Lab\s*$',
+      r'^\s*Test\s+Name\s\s+Results\s\s+Reference\s+Range\s\s+Lab\s*$',
     ]
     self.assertEqual( 3, l.match_first(patterns).line.line_number )
     
@@ -442,7 +442,7 @@ i
 
 '''
     l = LTP(text)
-    sections = l.cut_sections('^section\:.*$', '^\s*$', include_pattern = True)
+    sections = l.cut_sections(r'^section\:.*$', r'^\s*$', include_pattern = True)
     self.assertEqual( 3, len(sections) )
     self.assertEqual( ( 1, 'section:1' ), sections[0][0] )
     self.assertEqual( ( 2, 'a' ), sections[0][1] )

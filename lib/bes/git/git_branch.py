@@ -36,18 +36,18 @@ class git_branch(namedtuple('git_branch', 'name, where, active, ahead, behind, c
     lines = text_line_parser.parse_lines(s, strip_comments = False, strip_text = True, remove_empties = True)
     if not lines:
       return git_branch_status(0, 0)
-    ahead = re.findall('.*\[ahead\s+(\d+).*', lines[0])
+    ahead = re.findall(r'.*\[ahead\s+(\d+).*', lines[0])
     if ahead:
       ahead = int(ahead[0])
-    behind = re.findall('.*behind\s+(\d+)\].*', lines[0])
+    behind = re.findall(r'.*behind\s+(\d+)\].*', lines[0])
     if behind:
       behind = int(behind[0])
     return git_branch_status(ahead or 0, behind or 0)
 
   @classmethod
   def strip_branch_status(clazz, s):
-    s = re.sub('\[ahead.*\]', '', s)
-    s = re.sub('\[behind.*\]', '', s)
+    s = re.sub(r'\[ahead.*\]', '', s)
+    s = re.sub(r'\[behind.*\]', '', s)
     return s
 
   def clone(self, mutations = None):

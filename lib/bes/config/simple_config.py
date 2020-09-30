@@ -326,7 +326,7 @@ class simple_config(object):
       result.append(a)
     return result
 
-  _ANNOTATION_PATTERN = re.compile('([a-zA-Z_]\w*)\s*(=\s*.*)?')
+  _ANNOTATION_PATTERN = re.compile(r'([a-zA-Z_]\w*)\s*(=\s*.*)?')
   @classmethod
   def _parse_annotation(clazz, text, origin):
     check.check_string(text)
