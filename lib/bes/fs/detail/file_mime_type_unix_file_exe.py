@@ -54,7 +54,7 @@ class file_mime_type_unix_file_exe(object):
   @classmethod
   def _parse_fat_file_output_line(clazz, line):
     'Parse one line of output from file --brief --mime {filename} for fat files'
-    r = re.findall('^.*\s\(for\sarchitecture\s(.+)\)\:\s+(.*)$', line)
+    r = re.findall(r'^.*\s\(for\sarchitecture\s(.+)\)\:\s+(.*)$', line)
     if len(r) == 1:
       arch, text = r[0]
       return clazz._parse_non_fat_file_output_line(text)
