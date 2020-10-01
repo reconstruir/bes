@@ -4,7 +4,7 @@ from bes.testing.unit_test import unit_test
 from bes.enum.enum import enum
 from bes.common.check import check
 
-class fruit(enum):
+class example_fruit_enum(enum):
   SIZE = 1
 
   PEAR = 1
@@ -17,62 +17,62 @@ class fruit(enum):
 class test_enum(unit_test):
 
   def test_default_value(self):
-    self.assertEqual( fruit.PEAR, fruit().value )
-    self.assertEqual( fruit.PEAR, fruit('DEFAULT').value )
+    self.assertEqual( example_fruit_enum.PEAR, example_fruit_enum().value )
+    self.assertEqual( example_fruit_enum.PEAR, example_fruit_enum('DEFAULT').value )
     
   def test__init___value(self):
-    self.assertEqual( fruit.APPLE, fruit(fruit.APPLE).value )
-    self.assertEqual( fruit.KIWI, fruit(fruit.KIWI).value )
-    self.assertEqual( fruit.KIWI, fruit(fruit.KIWI).value )
+    self.assertEqual( example_fruit_enum.APPLE, example_fruit_enum(example_fruit_enum.APPLE).value )
+    self.assertEqual( example_fruit_enum.KIWI, example_fruit_enum(example_fruit_enum.KIWI).value )
+    self.assertEqual( example_fruit_enum.KIWI, example_fruit_enum(example_fruit_enum.KIWI).value )
 
   def test___init___from_string(self):
-    self.assertEqual( fruit.APPLE, fruit('APPLE') )
-    self.assertEqual( fruit.KIWI, fruit('KIWI') )
-    self.assertEqual( fruit.KIWI, fruit('KIWI_CLONE') )
+    self.assertEqual( example_fruit_enum.APPLE, example_fruit_enum('APPLE') )
+    self.assertEqual( example_fruit_enum.KIWI, example_fruit_enum('KIWI') )
+    self.assertEqual( example_fruit_enum.KIWI, example_fruit_enum('KIWI_CLONE') )
     
   def test___init___invalid_value(self):
     with self.assertRaises(ValueError) as context:
-      fruit(666)
+      example_fruit_enum(666)
     
   def test___init___invalid_name(self):
     with self.assertRaises(ValueError) as context:
-      fruit('666')
+      example_fruit_enum('666')
     
   def test_set_value(self):
-    f = fruit()
-    f.value = fruit.APPLE
-    self.assertEqual( fruit.APPLE, f.value )
-    f.value = fruit.KIWI
-    self.assertEqual( fruit.KIWI, f.value )
+    f = example_fruit_enum()
+    f.value = example_fruit_enum.APPLE
+    self.assertEqual( example_fruit_enum.APPLE, f.value )
+    f.value = example_fruit_enum.KIWI
+    self.assertEqual( example_fruit_enum.KIWI, f.value )
     
     f.value = 3
-    self.assertEqual( fruit.KIWI, f.value )
+    self.assertEqual( example_fruit_enum.KIWI, f.value )
 
   def test_set_value_invalid(self):
     with self.assertRaises(ValueError) as context:
-      fruit().value = 666
+      example_fruit_enum().value = 666
     
   def test___str__(self):
-    self.assertEqual( 'PEAR', str(fruit()) )
-    self.assertEqual( 'KIWI', str(fruit(fruit.KIWI)) )
-    self.assertEqual( 'KIWI', str(fruit(fruit.KIWI_CLONE)) )
+    self.assertEqual( 'PEAR', str(example_fruit_enum()) )
+    self.assertEqual( 'KIWI', str(example_fruit_enum(example_fruit_enum.KIWI)) )
+    self.assertEqual( 'KIWI', str(example_fruit_enum(example_fruit_enum.KIWI_CLONE)) )
 
   def test_set_name(self):
-    f = fruit()
+    f = example_fruit_enum()
     f.name = 'PEAR'
-    self.assertEqual( f.value, fruit.PEAR )
+    self.assertEqual( f.value, example_fruit_enum.PEAR )
     
   def test_set_name_invalid(self):
     with self.assertRaises(ValueError) as context:
-      fruit().name = 'NOTHERE'
+      example_fruit_enum().name = 'NOTHERE'
     
   def test_assign(self):
-    f = fruit()
+    f = example_fruit_enum()
     f.assign('KIWI')
     self.assertEqual( 'KIWI', f.name )
     f.assign(2)
     self.assertEqual( 'APPLE', f.name )
-    f.assign(fruit('APPLE'))
+    f.assign(example_fruit_enum('APPLE'))
     self.assertEqual( 'APPLE', f.name )
 
     with self.assertRaises(ValueError) as context:
@@ -82,21 +82,21 @@ class test_enum(unit_test):
       f.assign(666)
     
   def test_parse(self):
-    self.assertEqual( fruit('KIWI'), fruit.parse('KIWI') )
+    self.assertEqual( example_fruit_enum('KIWI'), example_fruit_enum.parse('KIWI') )
 
   def test_name_is_valid(self):
-    self.assertTrue( fruit.name_is_valid('PEAR') )
-    self.assertFalse( fruit.name_is_valid('NOTTHERE') )
+    self.assertTrue( example_fruit_enum.name_is_valid('PEAR') )
+    self.assertFalse( example_fruit_enum.name_is_valid('NOTTHERE') )
     
   def test_value_is_valid(self):
-    self.assertTrue( fruit.value_is_valid(1) )
-    self.assertFalse( fruit.value_is_valid(666) )
+    self.assertTrue( example_fruit_enum.value_is_valid(1) )
+    self.assertFalse( example_fruit_enum.value_is_valid(666) )
     
   def test_is_valid(self):
-    self.assertTrue( fruit.is_valid(1) )
-    self.assertFalse( fruit.is_valid(666) )
-    self.assertTrue( fruit.is_valid('PEAR') )
-    self.assertFalse( fruit.is_valid('NOTTHERE') )
+    self.assertTrue( example_fruit_enum.is_valid(1) )
+    self.assertFalse( example_fruit_enum.is_valid(666) )
+    self.assertTrue( example_fruit_enum.is_valid('PEAR') )
+    self.assertFalse( example_fruit_enum.is_valid('NOTTHERE') )
     
   def test_size(self):
     class cheese(enum):

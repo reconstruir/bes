@@ -33,36 +33,36 @@ class test_check(unit_test):
 #      C.check_string_seq('a')
 
   def test_register_class(self):
-    class foo(object): pass
-    C.register_class(foo, 'foo')
-    C.check_foo(foo())
+    class _test_check_foo(object): pass
+    C.register_class(_test_check_foo, '_test_check_foo')
+    C.check__test_check_foo(_test_check_foo())
     
     with self.assertRaises(TypeError) as context:
-      C.check_foo(6)
+      C.check__test_check_foo(6)
 
   def test_register_class_duplicate(self):
-    class bar(object): pass
-    C.register_class(bar, 'bar')
+    class _test_check_bar(object): pass
+    C.register_class(_test_check_bar, '_test_check_bar')
     with self.assertRaises(RuntimeError) as context:
-      C.register_class(bar, 'bar')
+      C.register_class(_test_check_bar, '_test_check_bar')
 
   def test_is(self):
-    class baz(object): pass
-    C.register_class(baz, 'baz')
-    self.assertTrue( C.is_baz(baz()) )
-    self.assertFalse( C.is_baz(int(6)) )
+    class _test_check_baz(object): pass
+    C.register_class(_test_check_baz, '_test_check_baz')
+    self.assertTrue( C.is__test_check_baz(_test_check_baz()) )
+    self.assertFalse( C.is__test_check_baz(int(6)) )
 
   def test_is_seq(self):
-    class kiwi(object): pass
-    C.register_class(kiwi, 'kiwi')
-    self.assertTrue( C.is_kiwi_seq([ kiwi(), kiwi() ]) )
-    self.assertFalse( C.is_kiwi_seq([ kiwi(), int(6) ]) )
+    class _test_check_kiwi(object): pass
+    C.register_class(_test_check_kiwi, '_test_check_kiwi')
+    self.assertTrue( C.is__test_check_kiwi_seq([ _test_check_kiwi(), _test_check_kiwi() ]) )
+    self.assertFalse( C.is__test_check_kiwi_seq([ _test_check_kiwi(), int(6) ]) )
 
   def test_is_seq_not_registered(self):
-    class apple(object): pass
-    C.register_class(apple, 'apple', include_seq = False)
+    class _test_check_apple(object): pass
+    C.register_class(_test_check_apple, '_test_check_apple', include_seq = False)
     with self.assertRaises(AttributeError) as context:
-      self.assertTrue( C.is_apple_seq([ apple(), apple() ]) )
+      self.assertTrue( C.is__test_check_apple_seq([ _test_check_apple(), _test_check_apple() ]) )
 
   def test_is_seq_without_reigstration(self):
     self.assertTrue( C.is_seq([ 1, 2, 3, 4 ], int) )
@@ -71,15 +71,15 @@ class test_check(unit_test):
     self.assertFalse( C.is_seq(False, bool) )
       
   def test_check_seq(self):
-    class orange(object): pass
-    C.register_class(orange, 'orange')
-    C.check_orange_seq([ orange(), orange() ])
+    class _test_check_orange(object): pass
+    C.register_class(_test_check_orange, '_test_check_orange')
+    C.check__test_check_orange_seq([ _test_check_orange(), _test_check_orange() ])
 
   def test_check_seq(self):
-    class potato(object): pass
-    C.register_class(potato, 'potato', include_seq = False)
+    class _test_check_potato(object): pass
+    C.register_class(_test_check_potato, '_test_check_potato', include_seq = False)
     with self.assertRaises(AttributeError) as context:
-      C.check_potato_seq([ potato(), potato() ])
+      C.check__test_check_potato_seq([ _test_check_potato(), _test_check_potato() ])
       
   def test_check_dict(self):
     C.check_dict({ 'a': 5 })
@@ -108,12 +108,12 @@ class test_check(unit_test):
     self.assertEqual( None, C.check_string(None, allow_none = True) )
 
   def test_custom_class_allow_none(self):
-    class wine(object): pass
-    C.register_class(wine, 'wine')
-    C.check_wine(wine())
-    C.check_wine(None, allow_none = True)
-    C.check_wine_seq([ wine(), wine() ])
-    C.check_wine_seq(None, allow_none = True)
+    class _test_check_wine(object): pass
+    C.register_class(_test_check_wine, '_test_check_wine')
+    C.check__test_check_wine(_test_check_wine())
+    C.check__test_check_wine(None, allow_none = True)
+    C.check__test_check_wine_seq([ _test_check_wine(), _test_check_wine() ])
+    C.check__test_check_wine_seq(None, allow_none = True)
     
 if __name__ == '__main__':
   unit_test.main()

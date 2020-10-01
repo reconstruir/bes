@@ -11,12 +11,12 @@ class test_key_value_parser(unittest.TestCase):
     self.assertEqual( [ ], self._parse('') )
     
   def test_parse_key_values(self):
-    ##self.assertEqual( [ KV('foo', '123'), KV('bar', 'hello') ], self._parse(r'foo=123  bar=hello') )
-    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(r'foo=\"1 2 3\" bar=hello') )
-    #self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(r' foo=\"1 2 3\" bar=hello ') )
-    #self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(r' foo=\"1 2 3\" bar=hello ') )
-    #self.assertEqual( [ KV('f oo', '1 2 3'), KV('bar', 'hello') ], self._parse(r' f\ oo=\"1 2 3\" bar=hello ') )
-    ##self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(r' foo=1\ 2\ 3 bar=hello ') )
+    self.assertEqual( [ KV('foo', '123'), KV('bar', 'hello') ], self._parse('foo=123  bar=hello') )
+    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse('foo=\"1 2 3\" bar=hello') )
+    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(' foo=\"1 2 3\" bar=hello ') )
+    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(' foo=\"1 2 3\" bar=hello ') )
+    self.assertEqual( [ KV('f oo', '1 2 3'), KV('bar', 'hello') ], self._parse(' f\\ oo=\"1 2 3\" bar=hello ') )
+    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(r' foo=1\ 2\ 3 bar=hello ') )
 
   def test_empty_value(self):
     self.maxDiff = None

@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import multiprocessing, os.path as path, os, shutil, tempfile
+import os.path as path, os, shutil, tempfile
 from abc import abstractmethod, ABCMeta
 from bes.common.check import check
 from bes.system.log import log

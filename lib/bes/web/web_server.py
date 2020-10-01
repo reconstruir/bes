@@ -131,6 +131,7 @@ class web_server(with_metaclass(ABCMeta, object)):
     return True
   
   def response_error(self, start_response, code):
+    self.log_d('response_error: code='.format(code))
     rc = self._RESPONSE_CODES[code]
     start_response(rc.status_message, rc.headers)
     return iter([ rc.html.encode('utf-8') ])

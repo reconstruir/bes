@@ -317,4 +317,4 @@ class unit_test(unittest.TestCase):
         else:
           os.remove(f)
       except Exception as ex:
-        print('Caught exception {} removing {}'.format(ex, f))
+        pass

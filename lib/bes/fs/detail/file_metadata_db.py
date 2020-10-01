@@ -101,7 +101,7 @@ create table hash_to_filename(
       function(*args)
       self._db.commit()
     except Exception as ex:
-      self.log.log_e('Caught exception: {}'.format(str(ex)))
+      self.log.log_e('_sqlite_write: Caught exception: {}'.format(str(ex)))
       self.log.log_exception(ex)
       raise
       try:

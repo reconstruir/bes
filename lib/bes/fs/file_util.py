@@ -36,7 +36,7 @@ class file_util(object):
         else:
           os.remove(f)
       except Exception as ex:
-        clazz.log_d('Caught exception %s removing %s' % (ex, f))
+        clazz.log_d('file_util.remove: Caught exception %s removing %s' % (ex, f))
         pass
 
   @classmethod
