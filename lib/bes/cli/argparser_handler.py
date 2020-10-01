@@ -2,9 +2,10 @@
 
 from os import path
 import copy, inspect
-from bes.system.log import logger
 
+from bes.system.log import logger
 from bes.common.check import check
+from bes.common.inspect_util import inspect_util
 from bes.system.log import log
 from bes.fs.file_check import file_check
 from bes.git.git import git
@@ -22,12 +23,19 @@ class argparser_handler(object):
     handler = clazz._find_handler(handler_object, possible_names)
     if not handler:
       raise RuntimeError('No method found for command: %s' % (' '.join(possible_names)))
-    handler_spec = inspect.getfullargspec(handler)
+    handler_spec = inspect_util.getargspec(handler)
 
     # If the arghandler has a keywords field, that means the user intends
     # to use the simplified interface where handler methods are implemented
     # generically with **kargs
-    if handler_spec.keywords:
+    if hasattr(handler_spec, 'varkw'):
+      keywords = getattr(handler_spec, 'varkw')
+    elif hasattr(handler_spec, 'keywords'):
+      keywords = getattr(handler_spec, 'keywords')
+    else:
+      raise RuntimeError('keywords attribute not found.')
+
+    if keywords:
       dict_args = copy.deepcopy(args.__dict__)
       for key in [ 'command', 'command_group' ]:
         if key in dict_args:

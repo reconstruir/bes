@@ -11,6 +11,7 @@ from bes.compat.ConfigParser import SafeConfigParser
 from bes.compat.StringIO import StringIO
 from bes.fs.file_util import file_util
 from bes.key_value.key_value import key_value
+from bes.system.compat import compat
 from bes.system.log import log
 from bes.text.text_line_parser import text_line_parser
 from bes.version.software_version import software_version
@@ -218,5 +219,8 @@ class config(object):
   def _make_parser_from_text(clazz, text):
     parser = clazz.Parser()
     stream = StringIO(text)
-    parser.readfp(stream)
+    if compat.IS_PYTHON3:
+      parser.read_file(stream)
+    else:
+      parser.readfp(stream)
     return parser

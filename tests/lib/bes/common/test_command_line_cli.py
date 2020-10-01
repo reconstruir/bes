@@ -2,12 +2,12 @@
 #-*- coding:utf-8 -*-
 #
 import unittest
-from bes.common.command_line import command_line
+from bes.common.command_line_cli import command_line_cli
 
-class test_command_line(unittest.TestCase):
+class test_command_line_cli(unittest.TestCase):
 
   def test_simple(self):
-    class food(command_line):
+    class food(command_line_cli):
 
       FOO = 666
 

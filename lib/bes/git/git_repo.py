@@ -10,6 +10,7 @@ from bes.fs.file_find import file_find
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
 from bes.version.software_version import software_version
+from bes.common.inspect_util import inspect_util
 
 from .git import git
 from .git_address_util import git_address_util
@@ -18,9 +19,9 @@ from .git_error import git_error
 from .git_exe import git_exe
 from .git_modules_file import git_modules_file
 
-import warnings
-with warnings.catch_warnings():
-  warnings.filterwarnings("ignore", category = DeprecationWarning)
+#import warnings
+#with warnings.catch_warnings():
+#  warnings.filterwarnings("ignore", category = DeprecationWarning)
     
 class git_repo(object):
   'A git repo abstraction.'
@@ -415,7 +416,7 @@ class git_repo(object):
     check.check_float(retry_wait_seconds, allow_none = True)
     check.check_string_seq(files_to_commit, allow_none = True)
 
-    operation_spec = inspect.getfullargspec(operation)
+    operation_spec = inspect_util.getargspec(operation)
     if len(operation_spec[0]) != 1:
       raise git_error('operation should take exactly one argument.')
 
