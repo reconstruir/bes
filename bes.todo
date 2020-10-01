@@ -190,4 +190,6 @@ unit tests for all the git.clone() options (i tested them manually)
 
 New
 - looks like execute.execute() does honor raise_error when the program doesnt exist
-
+- the url util methods that choose python or requests need to raise the same exception
+  it varies between RuntimeError and HTTPErro depending which one is chosen.  ths
+  unit tests catch both
