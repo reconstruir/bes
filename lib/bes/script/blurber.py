@@ -1,12 +1,16 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import sys
+from os import path
 from bes.common.check import check
 
 from .blurb import blurb
 
 class blurber(object):
 
-  def __init__(self, label):
+  def __init__(self, label = None):
+    label = label or path.basename(sys.argv[0])
+    check.check_string(label)
     self._label = label
 
   def set_verbose(self, verbose):
