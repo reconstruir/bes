@@ -63,9 +63,26 @@ class file_mime(object):
   def is_zip(clazz, filename):
     return clazz.mime_type(filename).mime_type in clazz._ZIP_MIME_TYPES
 
-  # From http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
   @classmethod
   def content_is_text(clazz, filename):
+    if compat.IS_PYTHON2:
+      return clazz._content_is_text_py2(filename)
+    else:
+      return clazz._content_is_text_py3(filename)
+
+  # From https://stackoverflow.com/questions/898669/how-can-i-detect-if-a-file-is-binary-non-text-in-python
+  @classmethod
+  def _content_is_text_py3(clazz, filename):
+    try:
+      with open(filename, "r") as f:
+        for l in f:
+          pass
+      return True
+    except UnicodeDecodeError:
+      return False
+
+  @classmethod
+  def _content_is_text_py2(clazz, filename):
     with open(filename, 'rb') as fin:
       s = fin.read(512)
       text_characters = ''.join(list(map(chr, range(32, 127))) + list('\n\r\t\b'))
@@ -89,7 +106,7 @@ class file_mime(object):
       if float(len(t))/float(len(s)) > 0.30:
         return False
       return True  
-
+    
   @classmethod
   def _get_impl(clazz):
     if not hasattr(clazz, '_mime_type_impl'):
