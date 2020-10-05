@@ -765,6 +765,37 @@ s5
     self.assertEqual( [ 's1', 's3' ],  s.sections_with_key_value('color', 'red') )
     self.assertEqual( [ 's2' ],  s.sections_with_key_value('color', 'green') )
     self.assertEqual( [],  s.sections_with_key_value('cheese', 'blue') )
+
+  def test_clone(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+
+wine
+  name: barolo
+  flavor: good
+  color: red
+
+cheese
+  name: brie
+  flavor: nice
+  color: cream
+'''
+    s1 = simple_config.from_text(text)
+    self.assertEqual( text, str(s1) )
+
+    s2 = s1.clone()
+    self.assertEqual( text, str(s2) )
+
+    s2.remove_section('wine')
+    self.assertEqual( text, str(s1) )
+    self.assertNotEqual( text, str(s2) )
+
+    s2.cheese.add_value('price', '100')
+    self.assertEqual( text, str(s1) )
+    self.assertNotEqual( text, str(s2) )
     
 if __name__ == '__main__':
   unit_test.main()

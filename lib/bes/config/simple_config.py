@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import string, re
+import copy, string, re
 
 from bes.common.check import check
 from bes.compat.StringIO import StringIO
@@ -19,7 +19,6 @@ from .simple_config_error import simple_config_error
 from .simple_config_origin import simple_config_origin
 from .simple_config_section import simple_config_section
 from .simple_config_section_header import simple_config_section_header
-
 
 class simple_config(object):
   '''
@@ -396,4 +395,18 @@ class simple_config(object):
       self_section = self.find(section_name)
       self_section.set_values(values)
 
+  def clone(self,
+            sections = None,
+            source = None,
+            check_env_vars = True,
+            entry_formatter = None,
+            section_finder = None):
+    tmp = self.from_text(str(self))
+    result = simple_config(tmp._sections)
+    result._origin = self._origin
+    result._check_env_vars = self._check_env_vars
+    result._entry_formatter = self._entry_formatter
+    result._section_finder = self._section_finder
+    return result
+      
 check.register_class(simple_config)
