@@ -21,7 +21,7 @@ class TestMatcher(unit_test):
     ]
     exclude = None
     matcher_util.match_filenames(self.__TEST_FILENAMES, include, exclude)
-    self.assertEquals( [
+    self.assertEqual( [
       '/foo/bar/good.txt',
       '/foo/bar/bad.txt',
     ], matcher_util.match_filenames(self.__TEST_FILENAMES, include, exclude) )
@@ -32,7 +32,7 @@ class TestMatcher(unit_test):
       '/fruits*',
     ]
     matcher_util.match_filenames(self.__TEST_FILENAMES, include, exclude)
-    self.assertEquals( [
+    self.assertEqual( [
       '/foo/bar/good.txt',
       '/foo/bar/bad.txt',
     ], matcher_util.match_filenames(self.__TEST_FILENAMES, include, exclude) )
@@ -45,12 +45,12 @@ class TestMatcher(unit_test):
       '*bad*',
     ]
     matcher_util.match_filenames(self.__TEST_FILENAMES, include, exclude)
-    self.assertEquals( [
+    self.assertEqual( [
       '/foo/bar/good.txt',
     ], matcher_util.match_filenames(self.__TEST_FILENAMES, include, exclude) )
 
   def test_match_filenames_both_none(self):
-    self.assertEquals( self.__TEST_FILENAMES, matcher_util.match_filenames(self.__TEST_FILENAMES, None, None) )
+    self.assertEqual( self.__TEST_FILENAMES, matcher_util.match_filenames(self.__TEST_FILENAMES, None, None) )
 
 if __name__ == "__main__":
   unit_test.main()

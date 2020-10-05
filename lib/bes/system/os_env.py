@@ -16,9 +16,9 @@ class os_env(object):
     DEFAULT_SYSTEM_PATH = _default_system_value('PATH')
   else:
     DEFAULT_SYSTEM_PATH = [
-      'C:\WINDOWS\system32',
-      'C:\WINDOWS',
-      'C:\WINDOWS\System32\Wbem',
+      r'C:\WINDOWS\system32',
+      r'C:\WINDOWS',
+      r'C:\WINDOWS\System32\Wbem',
     ]
     
   # The cleanest possible unix PATH

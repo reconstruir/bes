@@ -35,7 +35,7 @@ class test_dependency_resolver(unittest.TestCase):
     }
     with self.assertRaises(cyclic_dependency_error) as context:
       dependency_resolver.resolve_deps(cycle_dep_map, [ 'c1' ])
-    self.assertEquals( [ 'c1', 'c2', 'c3', 'c4', 'f1', 'f2', 'f3' ], context.exception.cyclic_deps )
+    self.assertEqual( [ 'c1', 'c2', 'c3', 'c4', 'f1', 'f2', 'f3' ], context.exception.cyclic_deps )
 
   def test_resolve_deps_missing(self):
     missing_dep_map = {
@@ -44,7 +44,7 @@ class test_dependency_resolver(unittest.TestCase):
     }
     with self.assertRaises(missing_dependency_error) as context:
       dependency_resolver.resolve_deps(missing_dep_map, [ 'c1' ])
-    self.assertEquals( [ 'x1' ], context.exception.missing_deps )
+    self.assertEqual( [ 'x1' ], context.exception.missing_deps )
 
   def test_is_cyclic(self):
     cycle_dep_map = {

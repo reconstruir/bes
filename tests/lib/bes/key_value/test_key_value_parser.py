@@ -15,8 +15,8 @@ class test_key_value_parser(unittest.TestCase):
     self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse('foo=\"1 2 3\" bar=hello') )
     self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(' foo=\"1 2 3\" bar=hello ') )
     self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(' foo=\"1 2 3\" bar=hello ') )
-    self.assertEqual( [ KV('f oo', '1 2 3'), KV('bar', 'hello') ], self._parse(' f\ oo=\"1 2 3\" bar=hello ') )
-    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(' foo=1\ 2\ 3 bar=hello ') )
+    self.assertEqual( [ KV('f oo', '1 2 3'), KV('bar', 'hello') ], self._parse(' f\\ oo=\"1 2 3\" bar=hello ') )
+    self.assertEqual( [ KV('foo', '1 2 3'), KV('bar', 'hello') ], self._parse(r' foo=1\ 2\ 3 bar=hello ') )
 
   def test_empty_value(self):
     self.maxDiff = None
@@ -87,7 +87,7 @@ class test_key_value_parser(unittest.TestCase):
     self.assertEqual( [ KV('foo', '#bar'), KV('fruit', '#orange') ] , self._parse('foo=#bar fruit=#orange', ignore_comments = True) )
 
   def test_escaped_equal(self):
-    self.assertEqual( [ KV('foo', 'bar=baz') ] , self._parse('foo=bar\=baz') )
+    self.assertEqual( [ KV('foo', 'bar=baz') ] , self._parse(r'foo=bar\=baz') )
 
   @classmethod
   def _parse(self, text,

@@ -43,7 +43,7 @@ class git_submodule_info(namedtuple('git_submodule_info', 'name, branch, revisio
 
   @classmethod
   def _parse_tag(clazz, s):
-    f = re.findall('\((.+)\)', s)
+    f = re.findall(r'\((.+)\)', s)
     if not f or not len(f) == 1:
       raise ValueError('Invalid git submodule tag: "{}"'.format(s))
     return f[0]

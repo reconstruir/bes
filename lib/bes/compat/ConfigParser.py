@@ -9,6 +9,6 @@ if compat.IS_PYTHON2:
   from ConfigParser import NoOptionError
 else:
   from configparser import ConfigParser
-  from configparser import SafeConfigParser
+  SafeConfigParser = ConfigParser
   from configparser import NoOptionError
   

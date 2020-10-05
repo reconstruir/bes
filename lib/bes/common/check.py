@@ -245,7 +245,8 @@ class check(object):
       assert len(args) == 1
       obj = args[0]
       return check.is_seq(obj, self.object_type)
-      
+
+  _check_method_map = {}
   @classmethod
   def register_class(clazz, object_type, name = None, cast_func = None, include_seq = True):
     'Add a check method to check for object type with name.'
@@ -254,7 +255,10 @@ class check(object):
     clazz.check_string(name)
     check_method_name = 'check_%s' % (name)
     if getattr(clazz, check_method_name, None):
-      raise RuntimeError('check already has a method named \"%s\"' % (check_method_name))
+      existing_object_type = clazz._check_method_map[check_method_name]
+      raise RuntimeError('check already has a method named "{}" for "{}"'.format(check_method_name,
+                                                                                 existing_object_type))
+    clazz._check_method_map[check_method_name] = object_type
     clazz._check_helper(clazz, check_method_name, object_type, cast_func)
     
     is_method_name = 'is_%s' % (name)

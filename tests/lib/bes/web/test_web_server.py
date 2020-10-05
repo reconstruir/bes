@@ -137,7 +137,7 @@ class test_web_server(unit_test):
 
     server.fail_next_request(404)
 
-    with self.assertRaises(url_compat.HTTPError) as ctx:
+    with self.assertRaises( ( url_compat.HTTPError, RuntimeError ) ) as ctx:
       url_util.download_to_temp_file(url, basename = 'foo-1.2.3.tar.gz')
 
     tmp = url_util.download_to_temp_file(url, basename = 'foo-1.2.3.tar.gz')

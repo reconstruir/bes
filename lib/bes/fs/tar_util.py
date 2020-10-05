@@ -87,7 +87,7 @@ class tar_util(object):
   @classmethod
   def _tar_version(clazz, flavor, version_text):
     if flavor == 'gnu':
-      r = re.findall('^tar\s+\(GNU\s+tar\)\s+([0-9\.]+)', version_text)
+      r = re.findall(r'^tar\s+\(GNU\s+tar\)\s+([0-9\.]+)', version_text)
       return r[0] if r and len(r) == 1 else None
     elif flavor == 'bsd':
       r = re.findall(r'^bsdtar\s+([0-9\.]+)\s+.*$', version_text)

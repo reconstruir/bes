@@ -55,8 +55,8 @@ class unit_test(unittest.TestCase):
   def assertEqualIgnoreWhiteSpace(self, s1, s2):
     'Assert s1 equals s2 ignoreing minor white space differences.'
     self.maxDiff = None
-    s1 = re.sub('\s+', ' ', s1).strip()
-    s2 = re.sub('\s+', ' ', s2).strip()
+    s1 = re.sub(r'\s+', ' ', s1).strip()
+    s2 = re.sub(r'\s+', ' ', s2).strip()
     self.assertMultiLineEqual( s1, s2 )
 
   def assert_string_equal_strip(self, s1, s2):
@@ -317,4 +317,4 @@ class unit_test(unittest.TestCase):
         else:
           os.remove(f)
       except Exception as ex:
-        print('Caught exception {} removing {}'.format(ex, f))
+        pass

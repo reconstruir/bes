@@ -119,7 +119,7 @@ class test_caca_variable(unit_test):
 
   def test_has_rogue_dollar_signs(self):
     self.assertTrue( variable.has_rogue_dollar_signs('$foo') )
-    self.assertFalse( variable.has_rogue_dollar_signs('\$foo') )
+    self.assertFalse( variable.has_rogue_dollar_signs(r'\$foo') )
 
   def test_invalid_key(self):
     with self.assertRaises(TypeError) as context:

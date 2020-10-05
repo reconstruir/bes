@@ -33,7 +33,7 @@ class string_util(object):
   @classmethod
   def split_by_white_space(clazz, s, strip = False):
     'Split the string into tokens by white space.'
-    tokens = re.split('\s+', s)
+    tokens = re.split(r'\s+', s)
     if strip:
       return [ token.strip() for token in tokens if token.strip() ]
     else:
@@ -42,7 +42,7 @@ class string_util(object):
   @classmethod
   def partition_by_white_space(clazz, s, strip = False):
     'Split the string into tokens by white space.'
-    found = re.search('\s+', s)
+    found = re.search(r'\s+', s)
     if not found:
       if strip:
         s = s.strip()

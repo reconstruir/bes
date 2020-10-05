@@ -44,7 +44,7 @@ class test_file_web_server(unit_test):
     self.assertEqual( 'text/plain', file_mime.mime_type(download_tmp).mime_type )
     self.assertEqual( 'this is baz.txt\n', file_util.read(download_tmp, codec = 'utf8') )
 
-    with self.assertRaises(url_compat.HTTPError) as ctx:
+    with self.assertRaises( ( url_compat.HTTPError, RuntimeError ) ) as ctx:
       url = tester.make_url('notthere.txt')
       tmp = url_util.download_to_temp_file(url)
 
@@ -71,7 +71,7 @@ class test_file_web_server(unit_test):
     self.assertEqual( 'text/plain', file_mime.mime_type(download_tmp).mime_type )
     self.assertEqual( 'this is baz.txt\n', file_util.read(download_tmp, codec = 'utf8') )
 
-    with self.assertRaises(url_compat.HTTPError) as ctx:
+    with self.assertRaises( ( url_compat.HTTPError, RuntimeError ) ) as ctx:
       url = tester.make_url('notthere.txt')
       tmp = url_util.download_to_temp_file(url)
 

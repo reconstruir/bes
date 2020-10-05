@@ -319,7 +319,7 @@ class test_file_find(unit_test):
     self.assertEqual( [
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
-    ], file_find.find(tmp_dir, match_re = [ '^.*\.cheese$' ]) )
+    ], file_find.find(tmp_dir, match_re = [ r'^.*\.cheese$' ]) )
     
   def test_file_find_with_re_and_match_type(self):
     self.maxDiff = None
@@ -336,7 +336,7 @@ class test_file_find(unit_test):
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
       'fruit/strawberry.fruit',
-    ], file_find.find(tmp_dir, match_re = [ '^.*\.cheese$' ], match_type = 'NONE') )
+    ], file_find.find(tmp_dir, match_re = [ r'^.*\.cheese$' ], match_type = 'NONE') )
     
   def test_file_find_with_re_and_basename(self):
     self.maxDiff = None
@@ -349,14 +349,14 @@ class test_file_find(unit_test):
       'file cheese/cheddar.cheese',
     ])
     self.assertEqual( [
-    ], file_find.find(tmp_dir, match_re = [ '^f.*$' ], match_basename = True) )
+    ], file_find.find(tmp_dir, match_re = [ r'^f.*$' ], match_basename = True) )
 
     self.assertEqual( [
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
       'fruit/strawberry.fruit',
-    ], file_find.find(tmp_dir, match_re = [ '^f.*$' ], match_basename = False) )
+    ], file_find.find(tmp_dir, match_re = [ r'^f.*$' ], match_basename = False) )
     
 if __name__ == "__main__":
   unit_test.main()
