@@ -75,18 +75,19 @@ class url_util(object):
       fout.close()
     return tmp
       
-  _response = namedtuple('_response', 'status_code, content')
+  _response = namedtuple('_response', 'status_code, content, headers')
   @classmethod
-  def get(clazz, url, params = None):
+  def get(clazz, url, params = None, method = None):
     if params:
       data = url_compat.urlencode(params).encode('utf-8')
     else:
       data = None
-    req = url_compat.Request(url, data = data)
+    req = url_compat.Request(url, data = data, method = method)
     response = url_compat.urlopen(req)
     content = response.read()
+    headers = response.headers.items()
     status_code = response.getcode()
-    return clazz._response(status_code, content)
+    return clazz._response(status_code, content, headers)
 
   @classmethod
   def url_path_baename(clazz, url):
@@ -139,3 +140,13 @@ class url_util(object):
     req = url_compat.Request(url, headers = headers)
     response = url_compat.urlopen(req)
     return response
+
+  @classmethod
+  def exists(clazz, url):
+    'Return True if url exists by issuing a HEAD request for it.'
+    try:
+      response = clazz.get(url, method = 'HEAD')
+      return response.status_code == 200
+    except Exception as ex:
+      pass
+    return False

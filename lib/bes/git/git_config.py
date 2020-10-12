@@ -1,5 +1,7 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import tempfile
+
 from collections import namedtuple
 
 from bes.common.check import check
@@ -15,15 +17,15 @@ class git_config(object):
 
   @classmethod
   def set_value(clazz, key, value):
-    git_exe.call_git('/tmp', [ 'config', '--global', key, value ], raise_error = False)
+    git_exe.call_git(tempfile.gettempdir(), [ 'config', '--global', key, value ], raise_error = False)
 
   @classmethod
   def unset_value(clazz, key):
-    git_exe.call_git('/tmp', [ 'config', '--global', '--unset', key ], raise_error = False)
+    git_exe.call_git(tempfile.gettempdir(), [ 'config', '--global', '--unset', key ], raise_error = False)
 
   @classmethod
   def get_value(clazz, key):
-    rv = git_exe.call_git('/tmp', [ 'config', '--global', key ], raise_error = False)
+    rv = git_exe.call_git(tempfile.gettempdir(), [ 'config', '--global', key ], raise_error = False)
     if rv.exit_code == 0:
       return string_util.unquote(rv.stdout.strip())
     else:
@@ -31,8 +33,8 @@ class git_config(object):
 
   @classmethod
   def set_identity(clazz, name, email):
-    git_exe.call_git('/tmp', [ 'config', '--global', 'user.name', '"%s"' % (name) ])
-    git_exe.call_git('/tmp', [ 'config', '--global', 'user.email', '"%s"' % (email) ])
+    git_exe.call_git(tempfile.gettempdir(), [ 'config', '--global', 'user.name', '"%s"' % (name) ])
+    git_exe.call_git(tempfile.gettempdir(), [ 'config', '--global', 'user.email', '"%s"' % (email) ])
 
   _identity = namedtuple('_identity', 'name, email')
   @classmethod
