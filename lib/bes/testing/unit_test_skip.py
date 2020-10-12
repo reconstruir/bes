@@ -2,7 +2,7 @@
 
 # Borrowed from: http://stackoverflow.com/questions/21936292/conditional-skip-testcase-decorator-in-nosetests
 
-import functools, unittest, types
+import functools, unittest, types, sys
 from bes.system.host import host
 from bes.system.compat import compat
 
@@ -63,4 +63,7 @@ def raise_skip_if_not_macos():
   
 def raise_skip_if_not_linux():
   raise_skip_if_not_platform(host.LINUX)
-  
+
+def raise_skip_if_python_version_matches(major, minor, message):
+  if sys.version_info.major == major and sys.version_info.minor == minor:
+    raise unittest.SkipTest(message)
