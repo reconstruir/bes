@@ -13,7 +13,7 @@ from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
 from bes.git.git_util import git_util
 
-class test_git_repo_run_operation(unit_test):
+class test_git_util_repo_run_operation(unit_test):
   
   @git_temp_home_func()
   def test_basic(self):
