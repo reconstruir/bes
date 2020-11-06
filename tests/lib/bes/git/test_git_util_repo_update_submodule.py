@@ -44,6 +44,34 @@ class test_git_util_repo_update_submodule(unit_test):
     r1.submodule_init(submodule = 'submod1')
     
     self.assertEqual( rev2, r1.submodule_status_one('submod1').revision )
+  
+  @git_temp_home_func()
+  def test_no_change(self):
+    sub_content = [
+      'file subfoo.txt "this is subfoo" 644',
+    ]
+    sub_repo = self._make_repo(remote = True, content = sub_content, prefix = '-mod-')
+    rev1 = sub_repo.last_commit_hash(short_hash = True)
+    
+    content = [
+      'file foo.txt "this is foo" 644',
+    ]
+    r1 = self._make_repo(remote = True, content = content, prefix = '-main-')
+    self.assertEqual( [ 'foo.txt' ], r1.find_all_files() )
+
+    r1.submodule_add(sub_repo.address, 'submod1')
+    r1.commit('add mod submodule', '.')
+    r1.push()
+
+    self.assertEqual( rev1, r1.submodule_status_one('submod1').revision )
+    
+    git_util.repo_update_submodule(r1.address, 'submod1', 'master', rev1, False)
+
+    r1.pull()
+
+    r1.submodule_init(submodule = 'submod1')
+    
+    self.assertEqual( rev1, r1.submodule_status_one('submod1').revision )
 
   def _make_repo(self, remote = True, content = None, prefix = None, commit_message = None):
     return git_temp_repo(remote = remote, content = content, prefix = prefix,
