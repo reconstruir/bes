@@ -231,15 +231,12 @@ class git(git_lfs):
     
     options = options or git_clone_options()
     branch_name = branch_name or options.branch
-    clazz.log.log_d('CACA: pull: root_dir={} branch_name={} options={}'.format(root_dir, branch_name, options.pformat()))
+    clazz.log.log_d('pull: root_dir={} branch_name={} options={}'.format(root_dir, branch_name, options.pformat()))
 
     args = []
     if remote_name:
       args.append(remote_name)
 
-#    if branch_name:
-#      args.extend([ 'origin', branch_name ])
-      
     if options.reset_to_head:
       clazz.reset_to_revision(root_dir, 'HEAD')
 
@@ -250,7 +247,8 @@ class git(git_lfs):
       clazz._submodule_init(root_dir, options)
 
     if clazz.has_changes(root_dir):
-      raise git_error('root_dir "{}" has changes.'.format(root_dir))
+      status = git_exe.call_git(root_dir, [ 'status', '--porcelain' ]).stdout.strip()
+      raise git_error('root_dir "{}" has changes:\n{}\n'.format(root_dir, status))
 
     info = clazz.head_info(root_dir)
 
