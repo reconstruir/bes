@@ -168,7 +168,7 @@ class text_line_parser(object):
       l.remove_empties()
     return l
 
-  _match_result = namedtuple('_match_result', 'expression,match,line')
+  _match_result = namedtuple('_match_result', 'expression, match, line')
   def match_first(self, expressions, strip_comments = False, line_number = None):
     expressions = object_util.listify(expressions)
     for line in self._lines:
