@@ -11,13 +11,11 @@ class test_shell(unit_test):
   def test_valid_shells(self):
     v = shell.valid_shells()
     self.assertTrue( '/bin/bash' in v )
-    self.assertTrue( '/bin/ksh' in v )
-    self.assertTrue( '/bin/csh' in v )
+    self.assertTrue( '/bin/sh' in v )
 
   def test_shell_is_valid(self):
     self.assertTrue( shell.shell_is_valid('/bin/bash') )
-    self.assertTrue( shell.shell_is_valid('/bin/ksh') )
-    self.assertTrue( shell.shell_is_valid('/bin/csh') )
+    self.assertTrue( shell.shell_is_valid('/bin/sh') )
 
   def test_shell_for_user(self):
     s = shell.shell_for_user(username = user.USERNAME)
