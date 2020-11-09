@@ -3,7 +3,7 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from bes.unix.shell import shell
+from bes.unix.shell.shell import shell
 from bes.system.user import user
 
 class test_shell(unit_test):
