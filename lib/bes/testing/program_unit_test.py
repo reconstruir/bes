@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+
 import codecs, sys
 import subprocess
 import os.path as path
+
 from .unit_test import unit_test
-from collections import namedtuple
 
 class program_unit_test(unit_test):
 
@@ -44,3 +46,12 @@ class program_unit_test(unit_test):
       sys.stdout.write(rv.stdout)
       sys.stdout.flush()
     self.assertEqual( 0, rv.exit_code )
+
+  @classmethod
+  def resolve_program(clazz, module_file, *parts):
+    if not path.isabs(module_file):
+      raise RuntimeError('module_file needs to be an absolute path to a python module file.')
+    if not parts:
+      raise RuntimeError('parts needs to be a non empty list of program parts for path.join()')
+    return path.normpath(path.abspath(path.join(path.dirname(module_file), *parts)))
+    
