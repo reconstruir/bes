@@ -18,6 +18,7 @@ from bes.fs.find.pattern_criteria import pattern_criteria
 from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
 from bes.system.log import logger
+from bes.script.blurber import blurber
 
 from .git import git
 from .git_repo import git_repo
@@ -175,3 +176,48 @@ class git_util(object):
                                 num_tries = options.num_tries,
                                 retry_wait_seconds = options.retry_wait_seconds,
                                 files_to_commit = options.files_to_commit)
+
+  @classmethod
+  def repo_update_submodule(clazz, address, submodule, branch, revision, dry_run, blurber = None):
+    '''
+    Update the submodule of git repo given by address to point to branch and revision
+    '''
+    check.check_string(address)
+    check.check_string(submodule)
+    check.check_string(branch)
+    check.check_string(revision)
+    check.check_bool(dry_run)
+    check.check_blurber(blurber, allow_none = True)
+    
+    def _op(repo):
+      repo.submodule_init(submodule = submodule, recursive = False)
+      status = repo.submodule_status_one(submodule)
+      old_revision = status.revision
+      old_branch = status.branch
+      if repo.is_long_hash(revision):
+        new_revision = repo.short_hash(revision)
+      else:
+        new_revision = revision
+      new_branch = branch
+      msg = 'update {} from {}@{} to {}@{}'.format(submodule,
+                                                   old_branch,
+                                                   old_revision,
+                                                   new_branch,
+                                                   new_revision)
+      repo.submodule_set_branch(submodule, branch)
+      repo.submodule_update_revision(submodule, revision)
+      if repo.has_changes():
+        if blurber:
+          blurber.blurb_verbose(msg)
+        repo.commit(msg, '.')
+      else:
+        if blurber:
+          blurber.blurb_verbose('nothing to change')
+        
+    options = git_repo_operation_options(dry_run = dry_run,
+                                         branch = branch)
+    # the commit happens inside the op which is the only place we have
+    # all the data needed to compose it.
+    msg = ''
+    clazz.repo_run_operation(address, _op, msg, options = options)
+      
