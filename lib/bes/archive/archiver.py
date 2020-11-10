@@ -241,6 +241,7 @@ class archiver(object):
       return None
     return archive_class.name(filename)
 
+  operation_base = archive_operation_base
   operation_add_file = archive_operation_add_file
   operation_remove_files = archive_operation_remove_files
   operation_replace_file = archive_operation_replace_file
