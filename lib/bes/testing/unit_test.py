@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import atexit, codecs, copy, json, inspect, os, os.path as path
+import atexit, codecs, copy, difflib, json, inspect, os, os.path as path
 import platform, pprint, re, sys, shutil, subprocess, tempfile, time, unittest
 from datetime import datetime
 
@@ -318,3 +318,25 @@ class unit_test(unittest.TestCase):
           os.remove(f)
       except Exception as ex:
         pass
+
+  @classmethod
+  def resolve_data_dir(clazz, module_file, *parts):
+    if not path.isabs(module_file):
+      raise RuntimeError('module_file needs to be an absolute path to a python module file.')
+    if not parts:
+      raise RuntimeError('parts needs to be a non empty list of program parts for path.join()')
+    return path.normpath(path.abspath(path.join(path.dirname(module_file), *parts)))
+
+  @classmethod
+  def diff_two_files(clazz, filename1, filename2, label1 = 'one', label2 = 'two', n = 1):
+    'Return the equivalent off diff -u -n 1 filename1 filename2 suitable for unit tests'
+    with open(filename1, 'rb') as fin1:
+      content1 = fin1.read().decode('utf-8')
+      lines1 = content1.splitlines(True)
+
+      with open(filename2, 'rb') as fin2:
+        content2 = fin2.read().decode('utf-8')
+        lines2 = content2.splitlines(True)
+      
+        diff_rv = difflib.unified_diff(lines1, lines2, fromfile = label1, tofile = label2, n = n)
+        return ''.join(diff_rv)
