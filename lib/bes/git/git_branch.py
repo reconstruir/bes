@@ -23,7 +23,7 @@ class git_branch(namedtuple('git_branch', 'name, where, active, ahead, behind, c
     if parts[0] == '*':
       active = True
       parts.pop(0)
-    assert len(parts) > 2
+    assert len(parts) >= 2
     name = parts[0]
     commit = parts[1]
     comment = ' '.join(parts[2:])
