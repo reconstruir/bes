@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from __future__ import unicode_literals
+
 import os
 from bes.testing.unit_test import unit_test
 from bes.config.simple_config import simple_config
@@ -796,6 +798,16 @@ cheese
     s2.cheese.add_value('price', '100')
     self.assertEqual( text, str(s1) )
     self.assertNotEqual( text, str(s2) )
+
+  def xtest_unicode(self):
+    c = simple_config()
+    section = c.add_section('s1')
+    section.add_value('v1', u'this Д is cyrillic')
+
+    self.assertEqual( u'''\
+s1
+  v1: this Д is cyrillic
+''', str(c) )
     
 if __name__ == '__main__':
   unit_test.main()
