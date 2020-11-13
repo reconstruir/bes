@@ -21,7 +21,7 @@ class simple_config_entry(namedtuple('simple_config_entry', 'value, origin, anno
   def __str__(self):
     return self.to_string()
 
-  def to_string(self, sort = False):
+  def to_string(self, sort = False, key_column_width = 0):
     buf_left = StringIO()
     buf_left.write(self.value.key)
     if self.annotations:
@@ -45,7 +45,8 @@ class simple_config_entry(namedtuple('simple_config_entry', 'value, origin, anno
       if i > 0:
         buf_right.write(line_break.DEFAULT_LINE_BREAK)
         buf_right.write(indent)
-      buf_right.write(line)
+      key_column_indent = ' ' * (2 + key_column_width - len(left_side))
+      buf_right.write(key_column_indent + line)
     return buf_right.getvalue()
 
   def has_annotation(self, annotation_key):
