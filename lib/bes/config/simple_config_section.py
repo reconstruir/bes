@@ -37,24 +37,30 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
   def __str__(self):
     return self.to_string()
 
-  def to_string(self, entry_formatter = None, sort = False):
+  def to_string(self, entry_formatter = None, sort = False, fixed_key_column_width = False):
     entry_formatter = entry_formatter or self.default_entry_formatter
     buf = StringIO()
     buf.write(str(self.header_))
     buf.write('\n')
     entries = self.entries_ if not sort else sorted(self.entries_)
+    key_column_width = 0
+    if fixed_key_column_width:
+      for entry in entries:
+        this_len = len(entry.value.key)
+        if this_len > key_column_width:
+          key_column_width = this_len
     for i, entry in enumerate(entries):
       if i != 0:
         buf.write('\n')
       buf.write('  ')
-      buf.write(entry_formatter(entry))
+      buf.write(entry_formatter(entry, key_column_width = key_column_width))
     buf.write('\n')
     return buf.getvalue()
 
   @classmethod
-  def default_entry_formatter(clazz, entry):
-    return str(entry)
-  
+  def default_entry_formatter(clazz, entry, sort = False, key_column_width = 0):
+    return entry.to_string(sort = sort, key_column_width = key_column_width)
+
   def __getattr__(self, key):
     return self.find_by_key(key)
   

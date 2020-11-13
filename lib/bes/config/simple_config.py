@@ -64,13 +64,14 @@ class simple_config(object):
   def __str__(self):
     return self.to_string()
 
-  def to_string(self, sort = False):
+  def to_string(self, sort = False, fixed_key_column_width = False):
     buf = StringIO()
     sections = self._sections if not sort else sorted(self._sections)
     for i, section in enumerate(sections):
       if i != 0:
         buf.write(line_break.DEFAULT_LINE_BREAK)
-      buf.write(section.to_string(entry_formatter = self._entry_formatter, sort = sort))
+      buf.write(section.to_string(entry_formatter = self._entry_formatter, sort = sort,
+                                  fixed_key_column_width = fixed_key_column_width))
     return buf.getvalue()
   
   def __getattr__(self, section_name):
@@ -187,13 +188,15 @@ class simple_config(object):
                 check_env_vars = True,
                 entry_parser = None,
                 entry_formatter = None,
-                ignore_extends = False):
+                ignore_extends = False,
+                validate_key_characters = True):
     return clazz.from_text(file_util.read(filename, codec = 'utf8'),
                            source = filename,
                            check_env_vars = check_env_vars,
                            entry_parser = entry_parser,
                            entry_formatter = entry_formatter,
-                           ignore_extends = ignore_extends)
+                           ignore_extends = ignore_extends,
+                           validate_key_characters = validate_key_characters)
     
   @classmethod
   def from_text(clazz,
@@ -202,7 +205,8 @@ class simple_config(object):
                 check_env_vars = True,
                 entry_parser = None,
                 entry_formatter = None,
-                ignore_extends = False):
+                ignore_extends = False,
+                validate_key_characters = True):
     check.check_string(text)
     source = source or '<unknown>'
     root = tree_text_parser.parse(text, strip_comments = True, root_name = 'root')
@@ -211,7 +215,8 @@ class simple_config(object):
                            check_env_vars = check_env_vars,
                            entry_parser = entry_parser,
                            entry_formatter = entry_formatter,
-                           ignore_extends = ignore_extends)
+                           ignore_extends = ignore_extends,
+                           validate_key_characters = validate_key_characters)
 
   @classmethod
   def from_node(clazz,
@@ -220,7 +225,8 @@ class simple_config(object):
                 check_env_vars = True,
                 entry_parser = None,
                 entry_formatter = None,
-                ignore_extends = False):
+                ignore_extends = False,
+                validate_key_characters = True):
     check.check_node(node)
     check.check_bool(check_env_vars)
     check.check_function(entry_parser, allow_none = True)
@@ -240,7 +246,8 @@ class simple_config(object):
         if not extends_section:
           msg = 'no extends section "{}" found for "{}"'.format(header.extends, header.name)
           raise simple_config_error(msg, origin)
-      section = clazz._parse_section(child, source, entry_parser, origin, header, extends_section)
+      section = clazz._parse_section(child, source, entry_parser, origin, header, extends_section,
+                                     validate_key_characters = validate_key_characters)
       sections.append(section)
       section_dict[section.header_.name] = section
     return simple_config(sections = sections,
@@ -249,7 +256,7 @@ class simple_config(object):
                          entry_formatter = entry_formatter)
   
   @classmethod
-  def _parse_section(clazz, node, source, entry_parser, origin, header, extends_section):
+  def _parse_section(clazz, node, source, entry_parser, origin, header, extends_section, validate_key_characters = True):
     check.check_node(node)
     check.check_string(source)
     check.check_function(entry_parser)
@@ -257,11 +264,11 @@ class simple_config(object):
     check.check_simple_config_section_header(header)
     check.check_simple_config_section(extends_section, allow_none = True)
 
-    entries = clazz._parse_section_entries(node, source, entry_parser)
+    entries = clazz._parse_section_entries(node, source, entry_parser, validate_key_characters = validate_key_characters)
     return simple_config_section(header, entries, origin, extends_section_ = extends_section)
 
   @classmethod
-  def _parse_section_entries(clazz, node, source, entry_parser):
+  def _parse_section_entries(clazz, node, source, entry_parser, validate_key_characters = True):
     check.check_node(node)
     check.check_string(source)
     
@@ -269,14 +276,14 @@ class simple_config(object):
     for child in node.children:
       entry_origin = simple_config_origin(source, child.data.line_number)
       text = child.get_text(child.NODE_FLAT, delimiter = line_break.DEFAULT_LINE_BREAK)
-      new_entry = entry_parser(text, entry_origin)
+      new_entry = entry_parser(text, entry_origin, validate_key_characters = validate_key_characters)
       result.append(new_entry)
     return result
   
   _ENTRY_KEY_VALID_FIRST_CHAR = string.ascii_letters + '_'
   _ENTRY_KEY_VALID_NEXT_CHARS = string.ascii_letters + string.digits + '_' + '*' + '?' + '-' + ' '
   @classmethod
-  def _parse_entry(clazz, text, origin):
+  def _parse_entry(clazz, text, origin, validate_key_characters = True):
     check.check_string(text)
     check.check_simple_config_origin(origin)
 
@@ -289,13 +296,14 @@ class simple_config(object):
     raw_value = raw_value.strip()
 
     key, raw_annotations = clazz._entry_partition_key_and_annotation(raw_key)
-    
-    if not key[0] in clazz._ENTRY_KEY_VALID_FIRST_CHAR:
-      raise simple_config_error('invalid config entry (key should start with ascii letter or underscore): "{}"'.format(text), origin)
 
-    for c in key[1:]:
-      if not c in clazz._ENTRY_KEY_VALID_NEXT_CHARS:
-        raise simple_config_error('invalid config entry char "{}" (key should have only ascii letter, digits or underscore): "{}"'.format(c, text), origin)
+    if validate_key_characters:
+      if not key[0] in clazz._ENTRY_KEY_VALID_FIRST_CHAR:
+        raise simple_config_error('invalid config entry (key should start with ascii letter or underscore): "{}"'.format(text), origin)
+
+      for c in key[1:]:
+        if not c in clazz._ENTRY_KEY_VALID_NEXT_CHARS:
+          raise simple_config_error('invalid config entry char "{}" (key should have only ascii letter, digits or underscore): "{}"'.format(c, text), origin)
       
     value = key_value(key, raw_value)
     annotations = clazz._parse_annotations(raw_annotations, origin)
