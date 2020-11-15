@@ -574,7 +574,7 @@ kiwi extends fruit foo
     self.assertEqual( 'foo', section.header_.extra_text )
 
   @classmethod
-  def _parse_ssh_config_entry(clazz, text, origin):
+  def _parse_ssh_config_entry(clazz, text, origin = None, validate_key_characters = False):
     from bes.common.check import check
     from bes.common.string_util import string_util
     from bes.key_value.key_value import key_value
@@ -595,7 +595,7 @@ kiwi extends fruit foo
     return simple_config_entry(kv, origin = origin, hints = hints)
 
   @classmethod
-  def _ssh_config_entry_formatter(clazz, entry):
+  def _ssh_config_entry_formatter(clazz, entry, key_column_width = None):
     assert 'delimiter' in entry.hints
     return entry.value.to_string(delimiter = entry.hints['delimiter'])
     
