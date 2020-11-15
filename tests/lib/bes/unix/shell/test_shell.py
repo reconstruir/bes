@@ -13,9 +13,9 @@ class test_shell(unit_test):
     self.assertTrue( '/bin/bash' in v )
     self.assertTrue( '/bin/sh' in v )
 
-  def test_shell_is_valid(self):
-    self.assertTrue( shell.shell_is_valid('/bin/bash') )
-    self.assertTrue( shell.shell_is_valid('/bin/sh') )
+  def test_has_shell(self):
+    self.assertTrue( shell.has_shell('/bin/bash') )
+    self.assertTrue( shell.has_shell('/bin/sh') )
 
   def test_shell_for_user(self):
     s = shell.shell_for_user(username = user.USERNAME)

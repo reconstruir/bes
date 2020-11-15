@@ -39,7 +39,7 @@ class shell(object):
     return pwd.getpwnam(username).pw_shell
 
   @classmethod
-  def shell_is_valid(clazz, shell):
+  def has_shell(clazz, shell):
     'Return True if shell is valid.'
     return shell in clazz.valid_shells()
   
