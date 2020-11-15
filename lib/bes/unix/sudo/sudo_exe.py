@@ -20,7 +20,7 @@ class sudo_exe(object):
       raise sudo_error('sudo not found')
     cmd = [ exe ]
     if prompt:
-      cmd.extend( ['--prompt', prompt] )
+      cmd.extend( [ '--prompt', '"{}"'.format(prompt) ] )
     cmd.extend(command_line.parse_args(args))
     env = os_env.clone_current_env(d = {})
     rv = execute.execute(cmd,
@@ -41,7 +41,14 @@ class sudo_exe(object):
     clazz.call_sudo('--validate', cwd = cwd, msg = msg, prompt = prompt)
 
   @classmethod
-  def is_authenticated(clazz, cwd = None, msg = None, prompt = 'sudo password: '):
+  def authenticate_if_needed(clazz, cwd = None, msg = None, prompt = 'sudo password: '):
+    'Authenticate only if needed'
+    if clazz.is_authenticated(cwd = cwd):
+      return
+    clazz.authenticate(cwd = cwd, msg = msg, prompt = prompt)
+    
+  @classmethod
+  def is_authenticated(clazz, cwd = None):
     'Return True if the user is already sudo authenticated.'
     try:
       clazz.call_sudo('--non-interactive true', cwd = tempfile.gettempdir())

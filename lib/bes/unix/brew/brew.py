@@ -10,6 +10,7 @@ from bes.url.url_util import url_util
 from bes.compat import url_compat
 from bes.common.check import check
 from bes.unix.shell.shell import shell
+from bes.unix.sudo.sudo_exe import sudo_exe
 
 from .brew_error import brew_error
 
@@ -23,51 +24,70 @@ class brew(object):
     clazz._check_system()
     return clazz._brew_exe() != None
 
-  _BREW_INSTALL_SCRIPT_URL = 'https://raw.githubusercontent.com/Homebrew/install/master/install.sh'
   @classmethod
-  def install(clazz):
+  def install(clazz, verbose):
     'Install brew.'
+    check.check_bool(verbose)
 
     clazz._check_system()
     if clazz.has_brew():
       raise brew_error('brew already installed')
-    self._do_install()
+    clazz._do_install(verbose)
 
   @classmethod
-  def reinstall(clazz):
-    'Reinstall brew even if already installed.'
+  def uninstall(clazz, verbose):
+    'Uninstall brew.'
+    check.check_bool(verbose)
 
     clazz._check_system()
-    self._do_install()
+    if not clazz.has_brew():
+      raise brew_error('brew not installed')
 
+    clazz.run_script('uninstall.sh', [ '--force' ], verbose)
+    
   @classmethod
-  def run_script(clazz, script_name, args):
+  def reinstall(clazz, verbose):
+    'Reinstall brew even if already installed.'
+    check.check_bool(verbose)
+
+    clazz._check_system()
+    clazz._do_install(verbose)
+
+  _SUDO_ERROR_MESSAGE = 'Failed to read sudo password for brew hackery.'
+  _SUDO_PROMPT = 'sudo password for brew hackery: '
+  @classmethod
+  def run_script(clazz, script_name, args, verbose):
     'Download and run a brew script with optional args.'
     check.check_string(script_name)
     check.check_string_seq(args, allow_none = True)
+    check.check_bool(verbose)
     
     if not shell.has_shell('/bin/bash'):
       raise brew_error('/bin/bash is needed to run brew scripts.')
 
     args = args or []
+    tmp_script = clazz.download_script(script_name)
+
+    sudo_exe.authenticate_if_needed(msg = clazz._SUDO_ERROR_MESSAGE,
+                                    prompt = clazz._SUDO_PROMPT)
     
-    tmp = clazz.download_script(script_name)
-    cmd = [ '/bin/bash', script_name ] + args
-    execute.execute(cmd, shell = False, non_blocking = True)
+    cmd = [ '/bin/bash', tmp_script ] + args
+    execute.execute(cmd, shell = False, non_blocking = verbose)
 
   @classmethod
-  def _do_install(clazz):
+  def _do_install(clazz, verbose):
     'Install brew.'
-    self.run_script('install.sh')
-    
+
+    clazz.run_script('install.sh', [], verbose)
+
   @classmethod
-  def ensure(clazz):
+  def ensure(clazz, verbose):
     'Ensure brew is installed.'
 
     clazz._check_system()
     if clazz.has_brew():
       return
-    clazz.install()
+    clazz.install(verbose)
     
   @classmethod
   def _check_system(clazz):

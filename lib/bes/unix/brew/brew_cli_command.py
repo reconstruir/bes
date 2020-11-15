@@ -15,15 +15,17 @@ class brew_cli_command(object):
     return func(**kargs)
   
   @classmethod
-  def run_script(clazz, script_name, args, print_only):
+  def run_script(clazz, script_name, args, verbose, print_only):
     check.check_string(script_name)
     check.check_string_seq(args, allow_none = True)
+    check.check_bool(verbose)
     check.check_bool(print_only)
+    
     if print_only:
       tmp = brew.download_script(script_name)
       file_util.page(tmp)
       return 0
-    brew.run_script(script_name, args)
+    brew.run_script(script_name, args, verbose)
     return 0
 
   @classmethod
@@ -31,4 +33,24 @@ class brew_cli_command(object):
     version = brew.version()
     print(version)
     return 0
+
+  @classmethod
+  def reinstall(clazz, verbose):
+    check.check_bool(verbose)
+
+    brew.reinstall(verbose)
+    return 0
   
+  @classmethod
+  def install(clazz, verbose):
+    check.check_bool(verbose)
+
+    brew.install(verbose)
+    return 0
+
+  @classmethod
+  def uninstall(clazz, verbose):
+    check.check_bool(verbose)
+
+    brew.uninstall(verbose)
+    return 0
