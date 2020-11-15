@@ -499,7 +499,9 @@ function bes_git_list_remote_tags()
   bes_git_call "${_root_dir}" \
     ls-remote --tags --sort=version:refname 2> "${_BES_GIT_LOG_FILE}" | \
     awk '{ print $2; }' | \
-    sed 's/refs\/tags\///'
+    sed 's/refs\/tags\///' | \
+    sed 's/\^{}//' | \
+    uniq
   return 0
 }
 
