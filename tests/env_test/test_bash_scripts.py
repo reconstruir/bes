@@ -12,7 +12,6 @@ class test_bash_scripts(unit_test):
     
   def _run_test(self, script_name):
     script = path.join(path.dirname(__file__), script_name)
-    print("python: running: %s" % (script))
     env = self._make_env()
     rv = execute.execute(script,
                          shell = False,
