@@ -10,6 +10,9 @@ from bes.common.string_util import string_util
 from bes.system.compat import compat
 from bes.system.log import log
 
+from bes.system.env_var import os_env_var
+from bes.system.which import which
+
 class file_util(object):
 
   @classmethod
@@ -345,4 +348,20 @@ class file_util(object):
       if fh is not sys.stdout:
         fh.close()
 
+  @classmethod
+  def page(clazz, filename):
+    'Page a file with ${PAGER}'
+    check.check_string(filename)
+
+    if not path.exists(filename):
+      raise RuntimeError('Not found: "{}"'.format(filename))
+    v = os_env_var('PAGER')
+    if v.is_set:
+      pager = which.which(v.value)
+    else:
+      pager = which.which('less') or which.which('more')
+    if not pager:
+      raise RuntimeError('Pager not found')
+    subprocess.call([ pager, filename ])
+        
 log.add_logging(file_util, 'file_util')
