@@ -8,6 +8,7 @@ import argparse, copy, math, os, os.path as path, py_compile, re, subprocess, sy
 import time, tempfile
 from collections import namedtuple
 
+from bes.common.string_util import string_util
 from bes.egg.egg import egg
 from bes.fs.file_find import file_find
 from bes.fs.file_path import file_path
@@ -20,17 +21,20 @@ from bes.system.env_var import env_var
 from bes.system.env_var import os_env_var
 from bes.system.execute import execute
 from bes.system.host import host
+from bes.system.log import logger
 from bes.system.os_env import os_env
+from bes.system.python import python as python
 from bes.testing.framework.argument_resolver import argument_resolver
 from bes.testing.framework.printer import printer
 from bes.testing.framework.unit_test_output import unit_test_output
 from bes.version.version_cli import version_cli
-from bes.system.python import python as python
 
 # TODO:
 #  - figure out how to stop on first failure within one module
 #  - https://stackoverflow.com/questions/6813837/stop-testsuite-if-a-testcase-find-an-error
 # - cleanup egg dropping
+
+_LOG = logger('bes_test')
 
 def main():
   import bes
@@ -193,7 +197,9 @@ def main():
   if not args.python:
     printer.writeln_name('ERROR: No python found.  Python is needed to run bes_test.')
     return 1
-  
+
+  _LOG.log_d('using python={}'.format(args.python))
+
   if args.git and args.commit:
     printer.writeln_name('ERROR: Only one of --git or --commit can be given.')
     return 1
@@ -526,7 +532,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
   if options.profile_output:
     cmd.extend(['-m', 'cProfile', '-o', options.profile_output ])
 
-  cmd.append(filename)
+  cmd.append(string_util.quote_if_needed(filename))
     
   total_unit_tests = len(test_map[filename])
   
@@ -581,6 +587,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
       env['BES_TEMP_DIR'] = options.temp_dir
     env['HOME'] = options.home_dir
     time_start = time.time()
+    _LOG.log_d('cmd=={}'.format(cmd))
     process = subprocess.Popen(' '.join(cmd),
                                stdout = subprocess.PIPE,
                                stderr = subprocess.STDOUT,
