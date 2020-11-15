@@ -17,16 +17,23 @@ class command_line(object):
     
   @classmethod
   def _parse_args_unix(clazz, args, quote = False):
+    assert args != None
+    
+    flat_args = None
     if compat.is_string(args):
-      if quote:
-        args = clazz.shell_quote(args)
-      return shlex.split(args)
-    elif isinstance(args, list):
-      if quote:
-        args = [ clazz.shell_quote(arg) for arg in args ]
-      return args
+      flat_args = args
+    elif isinstance(args, ( list, tuple )):
+      for arg in args:
+        if not compat.is_string(arg):
+          raise TypeError('arg should be a string instead of: "{}" - {}'.format(args, type(arg)))
+      flat_args = ' '.join(args)
     else:
-      raise TypeError('args should be a string or list of strings instead of: {}'.format(args))
+      raise TypeError('args should be a string or list of strings instead of: "{}" - {}'.format(args, type(args)))
+    assert flat_args != None
+
+    if quote:
+      args = clazz.shell_quote(flat_args)
+    return shlex.split(flat_args)
     
   @classmethod
   def _parse_args_windows(clazz, args, quote = False):
