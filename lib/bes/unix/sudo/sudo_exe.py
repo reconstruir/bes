@@ -14,7 +14,9 @@ class sudo_exe(object):
   'Class to deal with the sudo_exe executable.'
   
   @classmethod
-  def call_sudo(clazz, args, cwd = None, msg = None, prompt = None):
+  def call_sudo(clazz, args, cwd = None, msg = None, prompt = None, password = None):
+    check.check_string(password, allow_none = True)
+    
     exe = which.which('sudo')
     if not exe:
       raise sudo_error('sudo not found')
@@ -23,11 +25,15 @@ class sudo_exe(object):
       cmd.extend( [ '--prompt', '"{}"'.format(prompt) ] )
     cmd.extend(command_line.parse_args(args))
     env = os_env.clone_current_env(d = {})
+    input_data = None
+    if password:
+      input_data = password
     rv = execute.execute(cmd,
                          env = env,
                          cwd = cwd,
                          stderr_to_stdout = True,
-                         raise_error = False)
+                         raise_error = False,
+                         input_data = input_data)
     if rv.exit_code != 0:
       if not msg:
         cmd_flag = ' '.join(cmd)

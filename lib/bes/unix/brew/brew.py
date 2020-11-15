@@ -25,42 +25,42 @@ class brew(object):
     return clazz._brew_exe() != None
 
   @classmethod
-  def install(clazz, verbose):
+  def install(clazz, options):
     'Install brew.'
-    check.check_bool(verbose)
+    check.check_brew_cli_options(options)
 
     clazz._check_system()
     if clazz.has_brew():
       raise brew_error('brew already installed')
-    clazz._do_install(verbose)
+    clazz._do_install(options)
 
   @classmethod
-  def uninstall(clazz, verbose):
+  def uninstall(clazz, options):
     'Uninstall brew.'
-    check.check_bool(verbose)
+    check.check_brew_cli_options(options)
 
     clazz._check_system()
     if not clazz.has_brew():
       raise brew_error('brew not installed')
 
-    clazz.run_script('uninstall.sh', [ '--force' ], verbose)
+    clazz.run_script('uninstall.sh', [ '--force' ], options)
     
   @classmethod
-  def reinstall(clazz, verbose):
+  def reinstall(clazz, options):
     'Reinstall brew even if already installed.'
-    check.check_bool(verbose)
+    check.check_brew_cli_options(options)
 
     clazz._check_system()
-    clazz._do_install(verbose)
+    clazz._do_install(options)
 
   _SUDO_ERROR_MESSAGE = 'Failed to read sudo password for brew hackery.'
   _SUDO_PROMPT = 'sudo password for brew hackery: '
   @classmethod
-  def run_script(clazz, script_name, args, verbose):
+  def run_script(clazz, script_name, args, options):
     'Download and run a brew script with optional args.'
+    check.check_brew_cli_options(options)
     check.check_string(script_name)
     check.check_string_seq(args, allow_none = True)
-    check.check_bool(verbose)
     
     if not shell.has_shell('/bin/bash'):
       raise brew_error('/bin/bash is needed to run brew scripts.')
@@ -72,22 +72,23 @@ class brew(object):
                                     prompt = clazz._SUDO_PROMPT)
     
     cmd = [ '/bin/bash', tmp_script ] + args
-    execute.execute(cmd, shell = False, non_blocking = verbose)
+    execute.execute(cmd, shell = False, non_blocking = options.verbose)
 
   @classmethod
-  def _do_install(clazz, verbose):
+  def _do_install(clazz, options):
     'Install brew.'
 
-    clazz.run_script('install.sh', [], verbose)
+    clazz.run_script('install.sh', [], options)
 
   @classmethod
-  def ensure(clazz, verbose):
+  def ensure(clazz, options):
     'Ensure brew is installed.'
+    check.check_brew_cli_options(options)
 
     clazz._check_system()
     if clazz.has_brew():
       return
-    clazz.install(verbose)
+    clazz.install(options)
     
   @classmethod
   def _check_system(clazz):

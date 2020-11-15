@@ -9,8 +9,7 @@ class brew_cli_args(object):
 
     # run_script
     p = subparser.add_parser('run_script', help = 'Download and run a brew script.')
-    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
-                   help = 'Verbose output [ False ]')
+    self.__brew_add_common_args(p)
     p.add_argument('--print', action = 'store_true', default = False,
                    dest = 'print_only',
                    help = 'Print the script instead of running it [ False ]')
@@ -24,18 +23,21 @@ class brew_cli_args(object):
 
     # install
     p = subparser.add_parser('install', help = 'Install brew.')
-    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
-                   help = 'Verbose output [ False ]')
+    self.__brew_add_common_args(p)
 
     # uninstall
     p = subparser.add_parser('uninstall', help = 'Uninstall brew.')
-    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
-                   help = 'Verbose output [ False ]')
+    self.__brew_add_common_args(p)
     
     # reinstall
     p = subparser.add_parser('reinstall', help = 'Reinstall brew.')
+    self.__brew_add_common_args(p)
+
+  def __brew_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
+    p.add_argument('-p', '--password', action = 'store', default = None,
+                   help = 'The sudo password to use [ ]')
     
   def _command_brew(self, command, *args, **kargs):
     from .brew_cli_command import brew_cli_command
