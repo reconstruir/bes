@@ -8,24 +8,28 @@ class command_line(object):
   'command_line'
 
   @classmethod
-  def parse_args(clazz, args):
+  def parse_args(clazz, args, quote = False):
     'Parse arguments to use for execute.'
     if host.SYSTEM == host.WINDOWS:
-      return clazz._parse_args_windows(args)
+      return clazz._parse_args_windows(args, quote = quote)
     else:
-      return clazz._parse_args_unix(args)
+      return clazz._parse_args_unix(args, quote = quote)
     
   @classmethod
-  def _parse_args_unix(clazz, args):
+  def _parse_args_unix(clazz, args, quote = False):
     if compat.is_string(args):
+      if quote:
+        args = clazz.shell_quote(args)
       return shlex.split(args)
     elif isinstance(args, list):
+      if quote:
+        args = [ clazz.shell_quote(arg) for arg in args ]
       return args
     else:
       raise TypeError('args should be a string or list of strings instead of: {}'.format(args))
     
   @classmethod
-  def _parse_args_windows(clazz, args):
+  def _parse_args_windows(clazz, args, quote = False):
     if compat.is_string(args):
       return clazz.win_CommandLineToArgvW(args)
     elif isinstance(args, list):
@@ -51,3 +55,14 @@ class command_line(object):
       return command
     else:
       return shlex.split(str(command))
+
+
+  @classmethod
+  def shell_quote(clazz, s):
+    'Quote spaces, quotes and other shell special chars'
+    if compat.IS_PYTHON2:
+      import pipes
+      return pipes.quote(s)
+    else:
+      return shlex.quote(s)
+    
