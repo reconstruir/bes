@@ -33,6 +33,7 @@ class brew(object):
     if clazz.has_brew():
       raise brew_error('brew already installed')
     clazz._do_install(options)
+    options.blurber.blurb('Installed brew version {}'.format(clazz.version()))
 
   @classmethod
   def uninstall(clazz, options):
@@ -53,8 +54,8 @@ class brew(object):
     clazz._check_system()
     clazz._do_install(options)
 
-  _SUDO_ERROR_MESSAGE = 'Failed to read sudo password for brew hackery.'
-  _SUDO_PROMPT = 'sudo password for brew hackery: '
+  _SUDO_ERROR_MESSAGE = 'Failed to read sudo password for brew.'
+  _SUDO_PROMPT = 'sudo password for brew: '
   @classmethod
   def run_script(clazz, script_name, args, options):
     'Download and run a brew script with optional args.'
