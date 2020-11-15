@@ -17,6 +17,9 @@ class brew_cli_args(object):
     p.add_argument('args', action = 'store', default = None, nargs = '*',
                    help = 'Arguments for the script [ ]')
 
+    # info
+    p = subparser.add_parser('info', help = 'Print the brew version.')
+    
   def _command_brew(self, command, *args, **kargs):
     from .brew_cli_command import brew_cli_command
     return brew_cli_command.handle_command(command, **kargs)

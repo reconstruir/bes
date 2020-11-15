@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import re
 from os import path
 
 from bes.system.host import host
@@ -78,6 +79,19 @@ class brew(object):
   def _brew_exe(clazz):
     'Return the brew exe path.'
     return which.which('brew')
+
+  @classmethod
+  def version(clazz):
+    'Return the version of brew.'
+    if not clazz.has_brew():
+      raise brew_error('brew not installed')
+    rv = execute.execute([ clazz._brew_exe(), '--version' ])
+    f = re.findall('^Homebrew\s+(.+)\n', rv.stdout)
+    if not f:
+      raise brew_error('failed to determine brew version.')
+    if len(f) != 1:
+      raise brew_error('failed to determine brew version.')
+    return f[0]
   
   _BREW_SCRIPT_URL = 'https://raw.githubusercontent.com/Homebrew/install/master/'
   @classmethod

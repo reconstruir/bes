@@ -25,3 +25,10 @@ class brew_cli_command(object):
       return 0
     brew.run_script(script_name, args)
     return 0
+
+  @classmethod
+  def info(clazz):
+    version = brew.version()
+    print(version)
+    return 0
+  
