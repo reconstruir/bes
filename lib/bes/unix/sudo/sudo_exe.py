@@ -3,37 +3,54 @@
 import tempfile
 
 from bes.common.check import check
-from bes.system.os_env import os_env
-from bes.system.which import which
+from bes.common.object_util import object_util
 from bes.system.command_line import command_line
 from bes.system.execute import execute
+from bes.system.log import logger
+from bes.system.os_env import os_env
+from bes.system.which import which
 
+from .sudo_cli_options import sudo_cli_options
 from .sudo_error import sudo_error
 
 class sudo_exe(object):
   'Class to deal with the sudo_exe executable.'
+
+  _log = logger('sudo')
   
   @classmethod
-  def call_sudo(clazz, args, cwd = None, msg = None, prompt = None, password = None):
-    check.check_string(password, allow_none = True)
-    
+  def call_sudo(clazz, args, options = None, msg = None):
+    check.check_sudo_cli_options(options, allow_none = True)
+    check.check_string(msg, allow_none = True)
+
+    command_line.check_args_type(args)
+    args = object_util.listify(args)
+    #    parsed_args = command_line.parse_args(args)
+    options = options or sudo_cli_options()
+
     exe = which.which('sudo')
     if not exe:
       raise sudo_error('sudo not found')
+    
+    clazz._log.log_d('sudo_exe: exe={} args={} options={} msg={}'.format(exe,
+                                                                         args,
+                                                                         options,
+                                                                         msg))
+    
     cmd = [ exe ]
-    if prompt:
-      cmd.extend( [ '--prompt', '"{}"'.format(prompt) ] )
-    cmd.extend(command_line.parse_args(args))
+#    if password:
+#      input_data = password
+#      cmd.append('--stdin')
+    if options.prompt:
+      cmd.extend( [ '--prompt', '"{}"'.format(options.prompt) ] )
+    cmd.extend(args)
     env = os_env.clone_current_env(d = {})
-    input_data = None
-    if password:
-      input_data = password
     rv = execute.execute(cmd,
                          env = env,
-                         cwd = cwd,
+                         cwd = options.working_dir,
                          stderr_to_stdout = True,
                          raise_error = False,
-                         input_data = input_data)
+                         non_blocking = options.verbose)
     if rv.exit_code != 0:
       if not msg:
         cmd_flag = ' '.join(cmd)
@@ -41,23 +58,36 @@ class sudo_exe(object):
       raise sudo_error(msg)
     return rv
 
+#options = None, msg = None
+  
   @classmethod
-  def authenticate(clazz, cwd = None, msg = None, prompt = 'sudo password: '):
+  def authenticate(clazz, options = None):
     'Authenticate the user by prompting for sudo password *if* needed'
-    clazz.call_sudo('--validate', cwd = cwd, msg = msg, prompt = prompt)
+    check.check_sudo_cli_options(options, allow_none = True)
+
+    clazz.call_sudo('--validate', options = options)
 
   @classmethod
-  def authenticate_if_needed(clazz, cwd = None, msg = None, prompt = 'sudo password: '):
-    'Authenticate only if needed'
-    if clazz.is_authenticated(cwd = cwd):
-      return
-    clazz.authenticate(cwd = cwd, msg = msg, prompt = prompt)
+  def reset(clazz, options = None):
+    'Reset the authenticatation'
+    check.check_sudo_cli_options(options, allow_none = True)
+
+    clazz.call_sudo('--reset-timestamp', options = options)
     
   @classmethod
-  def is_authenticated(clazz, cwd = None):
+  def authenticate_if_needed(clazz, cwd = None, msg = None, prompt = 'sudo password: ', password = None):
+    'Authenticate only if needed'
+    if clazz.is_authenticated(cwd = cwd, password = password):
+      return
+    clazz.authenticate(cwd = cwd, msg = msg, prompt = prompt, password = password)
+    
+  @classmethod
+  def is_authenticated(clazz, cwd = None, password = None):
     'Return True if the user is already sudo authenticated.'
     try:
-      clazz.call_sudo('--non-interactive true', cwd = tempfile.gettempdir())
+      clazz.call_sudo('--non-interactive true',
+                      cwd = tempfile.gettempdir(),
+                      password = password)
       return True
     except sudo_error as ex:
       pass

@@ -69,8 +69,12 @@ class brew(object):
     args = args or []
     tmp_script = clazz.download_script(script_name)
 
-    sudo_exe.authenticate_if_needed(msg = clazz._SUDO_ERROR_MESSAGE,
-                                    prompt = clazz._SUDO_PROMPT)
+    print('here1')
+    sudo_exe.call_sudo('true',
+                       msg = clazz._SUDO_ERROR_MESSAGE,
+                       prompt = clazz._SUDO_PROMPT,
+                       password = options.password)
+    print('here2')
     
     cmd = [ '/bin/bash', tmp_script ] + args
     execute.execute(cmd, shell = False, non_blocking = options.verbose)

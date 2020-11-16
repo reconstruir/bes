@@ -13,9 +13,11 @@ from bes.script.blurb import blurb
 from bes.version.version_cli import version_cli
 
 from bes.unix.brew.brew_cli_args import brew_cli_args
+from bes.unix.sudo.sudo_cli_args import sudo_cli_args
 
 class tool_cli(
-  brew_cli_args
+  brew_cli_args,
+  sudo_cli_args
 ):
 
   def __init__(self):
@@ -26,6 +28,7 @@ class tool_cli(
     commands_subparser = self.parser.add_subparsers(help = 'commands', dest = 'command_group')
 
     self.add_command_group(commands_subparser, 'brew', 'brew_add_args', 'Deal with brew')
+    self.add_command_group(commands_subparser, 'sudo', 'sudo_add_args', 'Deal with sudo')
 
     # version
     version_parser = commands_subparser.add_parser('version', help = 'Version a build to a build list.')

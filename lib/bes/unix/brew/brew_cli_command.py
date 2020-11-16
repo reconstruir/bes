@@ -23,7 +23,6 @@ class brew_cli_command(object):
     check.check_brew_cli_options(options)
     check.check_string(script_name)
     check.check_string_seq(args, allow_none = True)
-    check.check_bool(verbose)
     check.check_string(pasword, allow_none = True)
     check.check_bool(print_only)
     

@@ -73,3 +73,10 @@ class command_line(object):
     else:
       return shlex.quote(s)
     
+  @classmethod
+  def check_args_type(clazz, args):
+    if compat.is_string(args):
+      return
+    if isinstance(args, ( list, tuple )):
+      return
+    raise TypeError('args should be a string, list or tuple: "{}" - {}'.format(args, type(args)))
