@@ -12,6 +12,7 @@ class sudo_cli_options(object):
     self.blurber = blurber()
     self.working_dir = None
     self.prompt = 'sudo password: '
+    self.force_auth = False
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_bool(self.verbose)
@@ -19,6 +20,7 @@ class sudo_cli_options(object):
     check.check_blurber(self.blurber)
     check.check_string(self.working_dir, allow_none = True)
     check.check_string(self.prompt, allow_none = True)
+    check.check_bool(self.force_auth)
 
   def __str__(self):
     return str(dict_util.hide_passwords(self.__dict__, [ 'password' ]))

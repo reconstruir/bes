@@ -16,6 +16,9 @@ class sudo_cli_args(object):
     # auth
     p = subparser.add_parser('auth', help = 'Authenticate with sudo.')
     self.__sudo_cli_args_add_common_args(p)
+    p.add_argument('--force', action = 'store_true', default = False,
+                   dest = 'force_auth',
+                   help = 'Force auth even if already authenticated [ False ]')
 
     # reset
     p = subparser.add_parser('reset', help = 'Reset authentication.')

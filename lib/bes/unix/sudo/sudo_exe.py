@@ -64,8 +64,10 @@ class sudo_exe(object):
   def authenticate(clazz, options = None):
     'Authenticate the user by prompting for sudo password *if* needed'
     check.check_sudo_cli_options(options, allow_none = True)
-
-    clazz.call_sudo('--validate', options = options)
+    args = [ '--validate' ]
+    if options and options.force_auth:
+      args.append('--reset-timestamp')
+    clazz.call_sudo(args, options = options)
 
   @classmethod
   def reset(clazz, options = None):
