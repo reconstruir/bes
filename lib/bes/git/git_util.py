@@ -209,7 +209,10 @@ class git_util(object):
       if repo.has_changes():
         if blurber:
           blurber.blurb_verbose(msg)
-        repo.commit(msg, '.')
+        status = repo.status('.')
+        changed_filenames = [ item.filename for item in status ]
+        repo.add(changed_filenames)
+        repo.commit(msg, changed_filenames)
       else:
         if blurber:
           blurber.blurb_verbose('nothing to change')
