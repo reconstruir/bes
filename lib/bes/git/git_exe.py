@@ -3,6 +3,7 @@
 import os
 
 from bes.common.check import check
+from bes.common.object_util import object_util
 from bes.fs.file_path import file_path
 from bes.system.command_line import command_line
 from bes.system.execute import execute
@@ -28,11 +29,14 @@ class git_exe(object):
   def call_git(clazz, root, args, raise_error = True, extra_env = None,
                num_tries = None, retry_wait_seconds = None):
     check.check_string(root)
+    command_line.check_args_type(args)
     check.check_bool(raise_error)
     check.check_dict(extra_env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
     check.check_int(num_tries, allow_none = True)
     check.check_float(retry_wait_seconds, allow_none = True)
-  
+
+    args = object_util.listify(args)
+    
     num_tries = num_tries if num_tries != None else clazz._DEFAULT_NUM_TRIES
     retry_wait_seconds = retry_wait_seconds if retry_wait_seconds != None else clazz._DEFAULT_RETRY_WAIT_SECONDS
 
@@ -45,15 +49,13 @@ class git_exe(object):
                                                                                               clazz._MAX_RETRY_WAIT_SECONDS,
                                                                                               retry_wait_seconds))
     
-    parsed_args = command_line.parse_args(args)
-    assert isinstance(parsed_args, list)
     if not hasattr(clazz, '_git_exe'):
       git_exe = clazz.find_git_exe()
       if not git_exe:
         raise git_error('git exe not found in: {}'.format(' '.join(os.environ['PATH'].split(os.pathsep))))
       setattr(clazz, '_git_exe', git_exe)
     git_exe = getattr(clazz, '_git_exe')
-    cmd = [ git_exe ] + parsed_args
+    cmd = [ git_exe ] + args
     clazz.log.log_d('root=%s; cmd=%s' % (root, ' '.join(cmd)))
     extra_env = extra_env or {}
     env = os_env.clone_current_env(d = extra_env, prepend = True)

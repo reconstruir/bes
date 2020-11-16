@@ -17,7 +17,13 @@ class git_config(object):
 
   @classmethod
   def set_value(clazz, key, value):
-    git_exe.call_git(tempfile.gettempdir(), [ 'config', '--global', key, value ], raise_error = False)
+    args = [
+      'config',
+      '--global',
+      key,
+      string_util.quote_if_needed(value),
+    ]
+    git_exe.call_git(tempfile.gettempdir(), args, raise_error = False)
 
   @classmethod
   def unset_value(clazz, key):
