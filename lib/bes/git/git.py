@@ -340,9 +340,12 @@ class git(git_lfs):
   @classmethod
   def commit(clazz, root_dir, message, filenames):
     filenames = object_util.listify(filenames)
-    message_filename = temp_file.make_temp_file(content = message)
-    args = [ 'commit', '-F', message_filename ] + filenames
-    rv = git_exe.call_git(root_dir, args)
+    tmp_msg = temp_file.make_temp_file(content = message)
+    args = [ 'commit', '-F', tmp_msg ] + filenames
+    try:
+      rv = git_exe.call_git(root_dir, args)
+    finally:
+      file_util.remove(tmp_msg)
     return clazz.last_commit_hash(root_dir, short_hash = True)
 
   @classmethod
@@ -367,7 +370,7 @@ class git(git_lfs):
       file_copy.copy_tree(address, tmp_repo_dir, excludes = clazz.read_gitignore(address))
       if untracked:
         git_exe.call_git(tmp_repo_dir, [ 'add', '-A' ])
-        git_exe.call_git(tmp_repo_dir, [ 'commit', '-m', 'add untracked files just for tmp repo' ])
+        git_exe.call_git(tmp_repo_dir, [ 'commit', '-m', '"add untracked files just for tmp repo"' ])
     else:
       if untracked:
         raise git_error('untracked can only be True for local repos.')
