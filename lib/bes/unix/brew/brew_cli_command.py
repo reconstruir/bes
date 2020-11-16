@@ -61,3 +61,11 @@ class brew_cli_command(object):
 
     brew.uninstall(options)
     return 0
+
+  @classmethod
+  def ensure(clazz, options):
+    check.check_brew_cli_options(options)
+
+    brew.ensure(options)
+    return 0
+  

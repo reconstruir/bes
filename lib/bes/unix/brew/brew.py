@@ -11,6 +11,7 @@ from bes.compat import url_compat
 from bes.common.check import check
 from bes.unix.shell.shell import shell
 from bes.unix.sudo.sudo_exe import sudo_exe
+from bes.unix.sudo.sudo_cli_options import sudo_cli_options
 
 from .brew_error import brew_error
 
@@ -69,13 +70,11 @@ class brew(object):
     args = args or []
     tmp_script = clazz.download_script(script_name)
 
-    print('here1')
-    sudo_exe.call_sudo('true',
-                       msg = clazz._SUDO_ERROR_MESSAGE,
-                       prompt = clazz._SUDO_PROMPT,
-                       password = options.password)
-    print('here2')
-    
+    options = sudo_cli_options()
+    options.error_message = clazz._SUDO_ERROR_MESSAGE
+    options.prompt = clazz._SUDO_PROMPT
+    options.password = options.password
+    sudo_exe.authenticate_if_needed(options = options)
     cmd = [ '/bin/bash', tmp_script ] + args
     execute.execute(cmd, shell = False, non_blocking = options.verbose)
 
@@ -92,6 +91,7 @@ class brew(object):
 
     clazz._check_system()
     if clazz.has_brew():
+      options.blurber.blurb('brew already installed at version {}'.format(clazz.version()))
       return
     clazz.install(options)
     

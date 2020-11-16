@@ -33,6 +33,10 @@ class brew_cli_args(object):
     p = subparser.add_parser('reinstall', help = 'Reinstall brew.')
     self.__brew_add_common_args(p)
 
+    # ensure
+    p = subparser.add_parser('ensure', help = 'Ensure brew is installed.')
+    self.__brew_add_common_args(p)
+    
   def __brew_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')

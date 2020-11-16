@@ -13,13 +13,17 @@ class sudo_cli_args(object):
     p.add_argument('cmd', action = 'store', default = None, nargs = '+',
                    help = 'Command to run [ ]')
 
-    # auth
-    p = subparser.add_parser('auth', help = 'Authenticate with sudo.')
+    # authenticate
+    p = subparser.add_parser('authenticate', help = 'Authenticate with sudo.')
     self.__sudo_cli_args_add_common_args(p)
     p.add_argument('--force', action = 'store_true', default = False,
                    dest = 'force_auth',
                    help = 'Force auth even if already authenticated [ False ]')
 
+    # is_authenticated
+    p = subparser.add_parser('is_authenticated', help = 'Return 0 if authenticated 1 otherwise.')
+    self.__sudo_cli_args_add_common_args(p)
+    
     # reset
     p = subparser.add_parser('reset', help = 'Reset authentication.')
     self.__sudo_cli_args_add_common_args(p)

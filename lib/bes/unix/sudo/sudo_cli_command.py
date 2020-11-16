@@ -26,11 +26,20 @@ class sudo_cli_command(object):
     return 0
 
   @classmethod
-  def auth(clazz, options):
+  def authenticate(clazz, options):
     check.check_sudo_cli_options(options)
 
     sudo_exe.authenticate(options)
     return 0
+
+  @classmethod
+  def is_authenticated(clazz, options):
+    check.check_sudo_cli_options(options)
+
+    if sudo_exe.is_authenticated(options):
+      return 0
+    else:
+      return 1
 
   @classmethod
   def reset(clazz, options):
