@@ -10,7 +10,7 @@ from bes.url.url_util import url_util
 from bes.compat import url_compat
 from bes.common.check import check
 from bes.unix.shell.shell import shell
-from bes.unix.sudo.sudo_exe import sudo_exe
+from bes.unix.sudo.sudo import sudo
 from bes.unix.sudo.sudo_cli_options import sudo_cli_options
 
 from .brew_error import brew_error
@@ -63,18 +63,18 @@ class brew(object):
     check.check_brew_cli_options(options)
     check.check_string(script_name)
     check.check_string_seq(args, allow_none = True)
-    
+
     if not shell.has_shell('/bin/bash'):
       raise brew_error('/bin/bash is needed to run brew scripts.')
 
     args = args or []
     tmp_script = clazz.download_script(script_name)
 
-    options = sudo_cli_options()
-    options.error_message = clazz._SUDO_ERROR_MESSAGE
-    options.prompt = clazz._SUDO_PROMPT
-    options.password = options.password
-    sudo_exe.authenticate_if_needed(options = options)
+    sudo_options = sudo_cli_options()
+    sudo_options.error_message = clazz._SUDO_ERROR_MESSAGE
+    sudo_options.prompt = clazz._SUDO_PROMPT
+    sudo_options.password = options.password
+    sudo.authenticate_if_needed(options = sudo_options)
     cmd = [ '/bin/bash', tmp_script ] + args
     execute.execute(cmd, shell = False, non_blocking = options.verbose)
 

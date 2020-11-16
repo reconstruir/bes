@@ -5,7 +5,7 @@ from os import path
 from bes.cli.argparser_handler import argparser_handler
 from bes.common.check import check
 
-from .sudo_exe import sudo_exe
+from .sudo import sudo
 from .sudo_cli_options import sudo_cli_options
 
 class sudo_cli_command(object):
@@ -22,21 +22,21 @@ class sudo_cli_command(object):
     check.check_sudo_cli_options(options)
     check.check_string_seq(cmd)
 
-    sudo_exe.call_sudo(cmd, options)
+    sudo.call_sudo(cmd, options)
     return 0
 
   @classmethod
   def authenticate(clazz, options):
     check.check_sudo_cli_options(options)
 
-    sudo_exe.authenticate(options)
+    sudo.authenticate(options)
     return 0
 
   @classmethod
   def is_authenticated(clazz, options):
     check.check_sudo_cli_options(options)
 
-    if sudo_exe.is_authenticated(options):
+    if sudo.is_authenticated(options):
       return 0
     else:
       return 1
@@ -45,6 +45,6 @@ class sudo_cli_command(object):
   def reset(clazz, options):
     check.check_sudo_cli_options(options)
 
-    sudo_exe.reset(options)
+    sudo.reset(options)
     return 0
   
