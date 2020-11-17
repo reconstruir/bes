@@ -58,8 +58,8 @@ class sudo(object):
         if options.error_message:
           msg = options.error_message
         else:
-          cmd_flag = ' '.join(cmd)
-          msg = 'sudo command failed: {}\n{}'.format(cmd_flag, rv.stdout)
+          cmd_flat = ' '.join(cmd)
+          msg = 'sudo command failed: {}\n{}'.format(cmd_flat, rv.stdout)
         raise sudo_error(msg)
       return rv
     finally:
