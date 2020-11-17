@@ -17,9 +17,9 @@ class execute(object):
   @classmethod
   def execute(clazz, command, raise_error = True, non_blocking = False, stderr_to_stdout = False,
               cwd = None, env = None, shell = False, input_data = None, universal_newlines = True,
-              codec = None, print_failure = True):
+              codec = None, print_failure = True, quote = False):
     'Execute a command'
-    args = clazz.parse_args(command)
+    args = clazz.parse_args(command, quote = quote)
     stdout_pipe = subprocess.PIPE
     if not stderr_to_stdout:
       stderr_pipe = subprocess.PIPE
@@ -93,9 +93,9 @@ class execute(object):
     return rv
 
   @classmethod
-  def parse_args(clazz, args):
+  def parse_args(clazz, args, quote = False):
     'Parse arguments to use for execute.'
-    return command_line.parse_args(args)
+    return command_line.parse_args(args, quote = quote)
     
   @classmethod
   def is_shell_script(clazz, filename):

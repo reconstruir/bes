@@ -1,48 +1,109 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import getpass, os.path as path, subprocess
+import tempfile
 
-from bes.common.json_util import json_util
+from bes.common.check import check
+from bes.common.object_util import object_util
+from bes.system.command_line import command_line
+from bes.system.execute import execute
+from bes.system.log import logger
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
+from bes.system.os_env import os_env
+from bes.system.which import which
 
-from .sudo_exe import sudo_exe
+from .sudo_cli_options import sudo_cli_options
+from .sudo_error import sudo_error
 
 class sudo(object):
-  'Class to deal with sudo.'
+  'Class to deal with the sudo executable.'
 
-  _INFO_FILE_PATH = path.expanduser('~/bes/sudo/info.json')
-  _VERSION = '1'
+  _log = logger('sudo')
   
   @classmethod
-  def ensure_can_call_program(clazz, user, program, info_file_path = None):
-    'Ensure that sudo can be used for program by user without a password.'
-    if not path.isabs(program):
-      raise RuntimeError('path is not an absolute path: %s' % (program))
-    info = clazz._info_load(clazz._INFO_FILE_PATH)
-    key = '%s_%s' % (user, program)
-    print("info: ", info)
-    if key in info:
+  def call_sudo(clazz, args, options = None):
+    check.check_sudo_cli_options(options, allow_none = True)
+
+    command_line.check_args_type(args)
+    args = object_util.listify(args)
+    options = options or sudo_cli_options()
+
+    exe = which.which('sudo')
+    if not exe:
+      raise sudo_error('sudo not found')
+    
+    clazz._log.log_d('sudo: exe={} args={} options={}'.format(exe,
+                                                                  args,
+                                                                  options))
+    
+    cmd = [ exe ]
+    tmp_askpass = None
+    askpass_env = {}
+    if options.password:
+      tmp_askpass = clazz._make_temp_askpass(options.password)
+      askpass_env = { 'SUDO_ASKPASS': tmp_askpass }
+      cmd.append('--askpass')
+    if options.prompt:
+      cmd.extend( [ '--prompt', '"{}"'.format(options.prompt) ] )
+    cmd.extend(args)
+    env = os_env.clone_current_env(d = askpass_env)
+    try:
+      rv = execute.execute(cmd,
+                           env = env,
+                           cwd = options.working_dir,
+                           stderr_to_stdout = True,
+                           raise_error = False,
+                           non_blocking = options.verbose)
+      if rv.exit_code != 0:
+        if options.error_message:
+          msg = options.error_message
+        else:
+          cmd_flag = ' '.join(cmd)
+          msg = 'sudo command failed: {}\n{}'.format(cmd_flag, rv.stdout)
+        raise sudo_error(msg)
+      return rv
+    finally:
+      if tmp_askpass:
+        file_util.remove(tmp_askpass)
+  
+  @classmethod
+  def authenticate(clazz, options = None):
+    'Authenticate the user by prompting for sudo password *if* needed'
+    check.check_sudo_cli_options(options, allow_none = True)
+    args = [ '--validate' ]
+    if options and options.force_auth:
+      args.append('--reset-timestamp')
+    clazz.call_sudo(args, options = options)
+
+  @classmethod
+  def reset(clazz, options = None):
+    'Reset the authenticatation'
+    check.check_sudo_cli_options(options, allow_none = True)
+
+    clazz.call_sudo('--reset-timestamp', options = options)
+    
+  @classmethod
+  def authenticate_if_needed(clazz, options = None):
+    'Authenticate only if needed'
+    if clazz.is_authenticated(options = options):
+      print('already')
+      return
+    clazz.authenticate(options = options)
+    
+  @classmethod
+  def is_authenticated(clazz, options):
+    'Return True if the user is already sudo authenticated.'
+    try:
+      clazz.call_sudo('--non-interactive true', options = options)
       return True
+    except sudo_error as ex:
+      pass
     return False
 
   @classmethod
-  def _info_load(clazz, filename):
-    'Load info.'
-    try:
-      return json_util.read_file(filename) or {}
-    except IOError, ex:
-      return {}
-
-  @classmethod
-  def _info_save(clazz, filename, info):
-    'Save info.'
-    return json_util.save_file(filename, info, indent = 2)
-
-  @classmethod
-  def _make_sudo_line(clazz, user, program, version):
-    'Make one line of sudo config.'
-    return '%s ALL = (root) NOPASSWD: %s # bes_sudo:v%d' % (user, program, clazz._VERSION)
-
-  @classmethod
-  def call_sudo(clazz, args, cwd = None, msg = None, prompt = 'sudo password: '):
-    'Call sudo.'
-    return sudo_exe.call_sudo(args, cwd = cwd, msg = msg, prompt = prompt)
+  def _make_temp_askpass(clazz, password):
+    content = '''\
+#!/bin/sh
+echo "{password}"
+'''.format(password = password)
+    return temp_file.make_temp_file(content = content, delete = True, perm = 0o700)

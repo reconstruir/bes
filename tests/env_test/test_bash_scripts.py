@@ -12,13 +12,13 @@ class test_bash_scripts(unit_test):
     
   def _run_test(self, script_name):
     script = path.join(path.dirname(__file__), script_name)
-    print("python: running: %s" % (script))
     env = self._make_env()
     rv = execute.execute(script,
                          shell = False,
                          stderr_to_stdout = True,
                          raise_error = False,
-                         env = env)
+                         env = env,
+                         quote = True)
     print(rv.stdout)
     return rv.exit_code
     

@@ -7,7 +7,7 @@ from .env_var import os_env_var
 from .execute import execute
 
 def _default_system_value(key):
-  rv = execute.execute([ 'env', '-i', 'bash', '-c', 'echo ${key}'.format(key = key) ], raise_error = True, shell = False)
+  rv = execute.execute([ 'env', '-i', 'bash', '-c', '"echo ${key}"'.format(key = key) ], raise_error = True, shell = False)
   return rv.stdout.strip()
 
 class os_env(object):

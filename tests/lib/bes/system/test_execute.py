@@ -3,10 +3,11 @@
 
 import os.path as path
 
-from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip import skip_if
+from bes.common.string_util import string_util
 from bes.system.execute import execute
 from bes.system.host import host
+from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_skip import skip_if
 
 class test_execute(unit_test):
 
@@ -32,15 +33,15 @@ class test_execute(unit_test):
   def test_windows_batch_file_success_shell(self):
     bat = self.data_path('windows_batch_file_true.bat')
     cmd = [ bat, 'foo', 'bar' ]
-    rv = execute.execute(cmd, shell = True)
+    rv = execute.execute(cmd, shell = True, quote = True)
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( 'foo bar', rv.stdout.strip() )
 
   @skip_if(not host.is_windows(), 'not windows')
   def test_windows_batch_file_success_flat_shell(self):
     bat = self.data_path('windows_batch_file_true.bat')
-    cmd = '{} foo bar'.format(bat)
-    rv = execute.execute(cmd, shell = True)
+    cmd = '"{}" foo bar'.format(bat)
+    rv = execute.execute(cmd, shell = True, quote = True)
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( 'foo bar', rv.stdout.strip() )
 
@@ -54,7 +55,7 @@ class test_execute(unit_test):
   @skip_if(not host.is_windows(), 'not windows')
   def test_windows_batch_file_failure_flat(self):
     bat = self.data_path('windows_batch_file_false.bat')
-    cmd = '{} foo bar'.format(bat)
+    cmd = '"{}" foo bar'.format(bat)
     rv = execute.execute(cmd, shell = False, raise_error = False)
     self.assertEqual( 1, rv.exit_code )
     self.assertEqual( 'foo bar', rv.stdout.strip() )
@@ -63,14 +64,14 @@ class test_execute(unit_test):
   def test_windows_batch_file_failure_shell(self):
     bat = self.data_path('windows_batch_file_false.bat')
     cmd = [ bat, 'foo', 'bar' ]
-    rv = execute.execute(cmd, shell = True, raise_error = False)
+    rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
     self.assertEqual( 1, rv.exit_code )
 
   @skip_if(not host.is_windows(), 'not windows')
   def test_windows_batch_file_failure_flat_shell(self):
     bat = self.data_path('windows_batch_file_false.bat')
-    cmd = '{} foo bar'.format(bat)
-    rv = execute.execute(cmd, shell = True, raise_error = False)
+    cmd = '"{}" foo bar'.format(bat)
+    rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
     self.assertEqual( 1, rv.exit_code )
 
   @skip_if(not host.is_unix(), 'not unix')
@@ -84,7 +85,7 @@ class test_execute(unit_test):
   @skip_if(not host.is_unix(), 'not unix')
   def test_unix_shell_script_success_flat(self):
     bat = self.data_path('unix_shell_script_true.sh')
-    cmd = '{} foo bar'.format(bat)
+    cmd = '"{}" foo bar'.format(bat)
     rv = execute.execute(cmd, shell = False)
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( 'foo bar', rv.stdout.strip() )
@@ -93,15 +94,15 @@ class test_execute(unit_test):
   def test_unix_shell_script_success_shell(self):
     bat = self.data_path('unix_shell_script_true.sh')
     cmd = [ bat, 'foo', 'bar' ]
-    rv = execute.execute(cmd, shell = True)
+    rv = execute.execute(cmd, shell = True, quote = True)
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( 'foo bar', rv.stdout.strip() )
 
   @skip_if(not host.is_unix(), 'not unix')
   def test_unix_shell_script_success_flat_shell(self):
     bat = self.data_path('unix_shell_script_true.sh')
-    cmd = '{} foo bar'.format(bat)
-    rv = execute.execute(cmd, shell = True)
+    cmd = '"{}" foo bar'.format(bat)
+    rv = execute.execute(cmd, shell = True, quote = True)
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( 'foo bar', rv.stdout.strip() )
 
@@ -115,7 +116,7 @@ class test_execute(unit_test):
   @skip_if(not host.is_unix(), 'not unix')
   def test_unix_shell_script_failure_flat(self):
     bat = self.data_path('unix_shell_script_false.sh')
-    cmd = '{} foo bar'.format(bat)
+    cmd = '"{}" foo bar'.format(bat)
     rv = execute.execute(cmd, shell = False, raise_error = False)
     self.assertEqual( 1, rv.exit_code )
     self.assertEqual( 'foo bar', rv.stdout.strip() )
@@ -123,15 +124,15 @@ class test_execute(unit_test):
   @skip_if(not host.is_unix(), 'not unix')
   def test_unix_shell_script_failure_shell(self):
     bat = self.data_path('unix_shell_script_false.sh')
-    cmd = [ bat, 'foo', 'bar' ]
-    rv = execute.execute(cmd, shell = True, raise_error = False)
+    cmd = [ '"{}"'.format(bat), 'foo', 'bar' ]
+    rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
     self.assertEqual( 1, rv.exit_code )
 
   @skip_if(not host.is_unix(), 'not unix')
   def test_unix_shell_script_failure_flat_shell(self):
     bat = self.data_path('unix_shell_script_false.sh')
-    cmd = '{} foo bar'.format(bat)
-    rv = execute.execute(cmd, shell = True, raise_error = False)
+    cmd = '"{}" foo bar'.format(bat)
+    rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
     self.assertEqual( 1, rv.exit_code )
 
 if __name__ == "__main__":
