@@ -12,6 +12,11 @@ class software_updater_cli_args(object):
     p.add_argument('--force-command-line-tools', action = 'store_true', default = False,
                    help = 'Force the xcode command line tools to appear in list [ False ]')
 
+    # install
+    p = subparser.add_parser('install', help = 'Install an item by label.')
+    p.add_argument('label', action = 'store', default = None,
+                   help = 'Label of the item to install [ None ]')
+    
   def _command_software_updater(self, command, *args, **kargs):
     from .software_updater_cli_command import software_updater_cli_command
     return software_updater_cli_command.handle_command(command, **kargs)

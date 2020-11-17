@@ -21,3 +21,11 @@ class software_updater_cli_command(object):
     for item in items:
       print('{} - {} - {}'.format(item.label, item.version, item.size))
     return 0
+
+  @classmethod
+  def install(clazz, label):
+    check.check_string(label)
+
+    software_updater.install(label)
+    return 0
+  
