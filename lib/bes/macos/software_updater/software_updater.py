@@ -5,12 +5,21 @@ import re
 from bes.system.host import host
 from bes.text.tree_text_parser import tree_text_parser
 from bes.common.algorithm import algorithm
+from bes.system.execute import execute
 
 from .software_updater_item import software_updater_item
 
 class software_updater(object):
   'Class to deal with the macos softwareupdate program.'
 
+  @classmethod
+  def available(clazz):
+    'Return a list of available software update items.'
+    host.check_is_macos()
+    
+    rv = execute.execute('softwareupdate --list')
+    return clazz._parse_list_output(rv.stdout)
+  
   @classmethod
   def _parse_list_output(clazz, text):
     'Parse the output of softwareupdate --list.'
