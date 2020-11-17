@@ -2,23 +2,37 @@
 
 import re
 
+from bes.common.algorithm import algorithm
+from bes.common.check import check
+from bes.fs.file_util import file_util
+from bes.system.execute import execute
 from bes.system.host import host
 from bes.text.tree_text_parser import tree_text_parser
-from bes.common.algorithm import algorithm
-from bes.system.execute import execute
 
 from .software_updater_item import software_updater_item
 
 class software_updater(object):
   'Class to deal with the macos softwareupdate program.'
 
+  # touching this file forces softwareupdate to list the xcode command line tools
+  _FORCE_COMMAND_LINE_TOOLS_FILE = '/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress'
+  
   @classmethod
-  def available(clazz):
+  def available(clazz, force_command_line_tools):
     'Return a list of available software update items.'
+    check.check_bool(force_command_line_tools)
+
     host.check_is_macos()
-    
-    rv = execute.execute('softwareupdate --list')
-    return clazz._parse_list_output(rv.stdout)
+
+    if force_command_line_tools:
+      file_util.save(clazz._FORCE_COMMAND_LINE_TOOLS_FILE)
+
+    try:
+      rv = execute.execute('softwareupdate --list')
+      return clazz._parse_list_output(rv.stdout)
+    finally:
+      if force_command_line_tools:
+        file_util.remove(clazz._FORCE_COMMAND_LINE_TOOLS_FILE)
   
   @classmethod
   def _parse_list_output(clazz, text):
