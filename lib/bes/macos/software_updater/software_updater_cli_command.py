@@ -14,9 +14,10 @@ class software_updater_cli_command(object):
     return func(**kargs)
   
   @classmethod
-  def available(clazz):
+  def available(clazz, force_command_line_tools):
+    check.check_bool(force_command_line_tools)
 
-    items = software_updater.available()
+    items = software_updater.available(force_command_line_tools)
     for item in items:
-      print(item.title)
+      print('{} - {} - {}'.format(item.label, item.version, item.size))
     return 0
