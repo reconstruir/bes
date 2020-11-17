@@ -3,23 +3,15 @@
 from collections import namedtuple
 
 from bes.common.check import check
-from bes.property.cached_property import cached_property
-from bes.git.git_commit_hash import git_commit_hash
 
-#* Label: Command Line Tools for Xcode-12.2
-#	Title: Command Line Tools for Xcode, Version: 12.2, Size: 440907K, Recommended: YES,
 class software_updater_item(namedtuple('software_updater_item', 'title, label, version, size, recommended')):
   'A class to deal with a single macos softwareupdater item.'
   
-  def __new__(clazz, ref_type, revision, author, date):
-    check.check_string(ref_type)
-    check.check_string(revision)
-    check.check_string(author)
-    check.check_string(date)
+  def __new__(clazz, title, label, version, size, recommended):
+    check.check_string(title)
+    check.check_string(label)
+    check.check_string(version)
+    check.check_string(size)
+    check.check_bool(recommended)
 
-    return clazz.__bases__[0].__new__(clazz, ref_type, revision, author, date)
-
-  @cached_property
-  def revision_short(self):
-    'Return a short revision'
-    return git_commit_hash.shorten(self.revision)
+    return clazz.__bases__[0].__new__(clazz, title, label, version, size, recommended)
