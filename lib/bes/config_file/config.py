@@ -15,6 +15,7 @@ from bes.system.compat import compat
 from bes.system.log import log
 from bes.text.text_line_parser import text_line_parser
 from bes.version.software_version import software_version
+from bes.system.compat import compat
 
 class config(object):
   '''
@@ -38,6 +39,17 @@ class config(object):
   _DEFAULT_SECTION = 'default'
 
   class Parser(SafeConfigParser):
+
+    def __init__(self, *args, **kargs):
+      # Python 3 breaks compatibility with SafeConfigParser by making the
+      # inline_comment_prefixes be None instead of ';' which is a
+      # ridiculous breakage but nevertheless it happened so deal with it.
+      if compat.IS_PYTHON3:
+        kargs = copy.deepcopy(kargs)
+        kargs['comment_prefixes'] = ('#', ';')
+        kargs['inline_comment_prefixes'] = (';', )
+      SafeConfigParser.__init__(self, *args, **kargs)
+    
     def to_dict(self):
       d = dict(self._sections)
       for k in d:
@@ -51,7 +63,7 @@ class config(object):
     if string_quote_char:
       assert string_quote_char in [ '"', "'" ]
 
-    parser = parser or ConfigParser()
+    parser = parser or self.Parser()
     if not isinstance(parser, ( ConfigParser, SafeConfigParser )):
       raise TypeError('parser should be an instance of ConfigParser or SafeConfigParser.')
     self._parser = parser

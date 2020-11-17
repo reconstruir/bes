@@ -612,6 +612,32 @@ fruit = dragonfruit
     
     self.assertTrue( c.has_value('indonesia', 'color') )
     self.assertTrue( c.has_value('indonesia', 'fruit') )
+
+  def test_comment_semicolon(self):
+    text = '''\
+[s1]
+foo = lemon
+bar = orange ; this is a comment ?
+baz = grape
+'''
+    c = config.load_from_text(text, '<unittest>')
+    
+    self.assertEqual( 'lemon', c.get_value('s1', 'foo') )
+    self.assertEqual( 'orange', c.get_value('s1', 'bar') )
+    self.assertEqual( 'grape', c.get_value('s1', 'baz') )
+
+  def test_comment_semicolon_with_quotes(self):
+    text = '''\
+[s1]
+foo = "lemon"
+bar = "orange" ; this is a comment ?
+baz = "grape"
+'''
+    c = config.load_from_text(text, '<unittest>', string_quote_char = '"')
+    
+    self.assertEqual( 'lemon', c.get_value('s1', 'foo') )
+    self.assertEqual( 'orange', c.get_value('s1', 'bar') )
+    self.assertEqual( 'grape', c.get_value('s1', 'baz') )
     
 if __name__ == '__main__':
   unit_test.main()
