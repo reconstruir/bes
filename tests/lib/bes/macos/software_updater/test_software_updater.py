@@ -5,7 +5,7 @@ from bes.macos.software_updater.software_updater import software_updater
 
 class test_software_updater(unit_test):
 
-  def test__parse_list_output(self):
+  def test__parse_list_output_dups(self):
     text = '''\
 Software Update Tool
 
@@ -24,6 +24,15 @@ Software Update found the following new or updated software:
         True,
        ) ,
     ], software_updater._parse_list_output(text) )
-      
+
+  def test__parse_list_output_no_updates(self):
+    text = '''\
+Software Update Tool
+
+Finding available software
+No new software available.
+'''
+    self.assertEqual( [], software_updater._parse_list_output(text) )
+    
 if __name__ == "__main__":
   unit_test.main()
