@@ -11,6 +11,7 @@ from bes.fs.dir_util import dir_util
 from bes.fs.file_mime import file_mime
 from bes.fs.file_path import file_path
 from bes.macos.pkgutil.pkgutil import pkgutil
+from bes.macos.pkgutil.pkgutil_error import pkgutil_error
 from bes.system.execute import execute
 from bes.unix.sudo.sudo import sudo
 
@@ -61,7 +62,7 @@ class native_package_macos(native_package_base):
     'Return True if native_package is installed.'
     try:
       self.package_info(package_name)
-    except native_package_error as ex:
+    except pkgutil_error as ex:
       return False
     return True
 
