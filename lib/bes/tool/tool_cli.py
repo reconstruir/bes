@@ -16,8 +16,10 @@ from bes.macos.softwareupdater.softwareupdater_cli_args import softwareupdater_c
 from bes.native_package.native_package_cli_args import native_package_cli_args
 from bes.unix.brew.brew_cli_args import brew_cli_args
 from bes.unix.sudo.sudo_cli_args import sudo_cli_args
+from bes.archive.archive_cli_args import archive_cli_args
 
 class tool_cli(
+  archive_cli_args,
   brew_cli_args,
   native_package_cli_args,
   softwareupdater_cli_args,
@@ -31,6 +33,7 @@ class tool_cli(
 
     commands_subparser = self.parser.add_subparsers(help = 'commands', dest = 'command_group')
 
+    self.add_command_group(commands_subparser, 'archive', 'archive_add_args', 'Deal with archive')
     self.add_command_group(commands_subparser, 'brew', 'brew_add_args', 'Deal with brew')
     self.add_command_group(commands_subparser, 'sudo', 'sudo_add_args', 'Deal with sudo')
     self.add_command_group(commands_subparser, 'softwareupdater', 'softwareupdater_add_args', 'Deal with macos software updater')
