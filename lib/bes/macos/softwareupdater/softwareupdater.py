@@ -14,13 +14,13 @@ from bes.system.os_env import os_env
 from bes.system.which import which
 from bes.text.tree_text_parser import tree_text_parser
 
-from .software_updater_item import software_updater_item
-from .software_updater_error import software_updater_error
+from .softwareupdater_item import softwareupdater_item
+from .softwareupdater_error import softwareupdater_error
 
-class software_updater(object):
+class softwareupdater(object):
   'Class to deal with the macos softwareupdate program.'
 
-  _log = logger('software_updater')
+  _log = logger('softwareupdater')
   
   # touching this file forces softwareupdate to list the xcode command line tools
   _FORCE_COMMAND_LINE_TOOLS_FILE = '/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress'
@@ -53,7 +53,7 @@ class software_updater(object):
         assert len(child.children) == 1
         label = clazz._parse_label(text)
         title, version, size, recommended = clazz._parse_attributes(child.children[0])
-        item = software_updater_item(title, label, version, size, recommended == 'YES')
+        item = softwareupdater_item(title, label, version, size, recommended == 'YES')
         result.append(item)
     return sorted(algorithm.unique(result))
 
@@ -89,7 +89,7 @@ class software_updater(object):
 
     exe = which.which('softwareupdate')
     if not exe:
-      raise software_updater_error('softwareupdate not found')
+      raise softwareupdater_error('softwareupdate not found')
     
     clazz._log.log_d('_call_softwareupdate: exe={} args={}'.format(exe, args))
     
@@ -105,5 +105,5 @@ class software_updater(object):
       msg = 'softwareupdate command failed: {} - {}\n{}'.format(cmd,
                                                                 rv.exit_code,
                                                                 rv.stdout)
-      raise software_updater_error(msg, status_code = rv.exit_code)
+      raise softwareupdater_error(msg, status_code = rv.exit_code)
     return rv

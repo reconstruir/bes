@@ -1,9 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.macos.software_updater.software_updater import software_updater
+from bes.macos.softwareupdater.softwareupdater import softwareupdater
 
-class test_software_updater(unit_test):
+class test_softwareupdater(unit_test):
 
   def test__parse_list_output_dups(self):
     text = '''\
@@ -23,7 +23,7 @@ Software Update found the following new or updated software:
         '440907K',
         True,
        ) ,
-    ], software_updater._parse_list_output(text) )
+    ], softwareupdater._parse_list_output(text) )
 
   def test__parse_list_output_no_updates(self):
     text = '''\
@@ -32,7 +32,7 @@ Software Update Tool
 Finding available software
 No new software available.
 '''
-    self.assertEqual( [], software_updater._parse_list_output(text) )
+    self.assertEqual( [], softwareupdater._parse_list_output(text) )
     
 if __name__ == "__main__":
   unit_test.main()

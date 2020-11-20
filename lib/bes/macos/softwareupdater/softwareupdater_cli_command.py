@@ -4,20 +4,20 @@ from os import path
 
 from bes.common.check import check
 
-from .software_updater import software_updater
+from .softwareupdater import softwareupdater
 
-class software_updater_cli_command(object):
+class softwareupdater_cli_command(object):
 
   @classmethod
   def handle_command(clazz, command, **kargs):
-    func = getattr(software_updater_cli_command, command)
+    func = getattr(softwareupdater_cli_command, command)
     return func(**kargs)
   
   @classmethod
   def available(clazz, force_command_line_tools):
     check.check_bool(force_command_line_tools)
 
-    items = software_updater.available(force_command_line_tools)
+    items = softwareupdater.available(force_command_line_tools)
     for item in items:
       print('{} - {} - {}'.format(item.label, item.version, item.size))
     return 0
@@ -26,6 +26,6 @@ class software_updater_cli_command(object):
   def install(clazz, label):
     check.check_string(label)
 
-    software_updater.install(label)
+    softwareupdater.install(label)
     return 0
   

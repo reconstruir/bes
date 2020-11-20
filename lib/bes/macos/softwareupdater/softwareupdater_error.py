@@ -1,8 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-class software_updater_error(Exception):
+class softwareupdater_error(Exception):
   def __init__(self, message, status_code = None):
-    super(software_updater_error, self).__init__()
+    super(softwareupdater_error, self).__init__()
     self.message = message
     self.status_code = status_code
 

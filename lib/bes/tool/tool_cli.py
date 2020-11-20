@@ -14,11 +14,11 @@ from bes.version.version_cli import version_cli
 
 from bes.unix.brew.brew_cli_args import brew_cli_args
 from bes.unix.sudo.sudo_cli_args import sudo_cli_args
-from bes.macos.software_updater.software_updater_cli_args import software_updater_cli_args
+from bes.macos.softwareupdater.softwareupdater_cli_args import softwareupdater_cli_args
 
 class tool_cli(
   brew_cli_args,
-  software_updater_cli_args,
+  softwareupdater_cli_args,
   sudo_cli_args
 ):
 
@@ -31,7 +31,7 @@ class tool_cli(
 
     self.add_command_group(commands_subparser, 'brew', 'brew_add_args', 'Deal with brew')
     self.add_command_group(commands_subparser, 'sudo', 'sudo_add_args', 'Deal with sudo')
-    self.add_command_group(commands_subparser, 'software_updater', 'software_updater_add_args', 'Deal with macos software updater')
+    self.add_command_group(commands_subparser, 'softwareupdater', 'softwareupdater_add_args', 'Deal with macos software updater')
 
     # version
     version_parser = commands_subparser.add_parser('version', help = 'Version a build to a build list.')
