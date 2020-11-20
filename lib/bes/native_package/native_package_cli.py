@@ -9,9 +9,8 @@ from bes.version.version_cli import version_cli
 from bes.cli.argparser_handler import argparser_handler
 
 import bes
-import rebuild
 
-from rebuild.native_package.native_package_cli_args import native_package_cli_args
+from bes.native_package.native_package_cli_args import native_package_cli_args
 
 class native_package_cli(native_package_cli_args):
 
@@ -28,7 +27,7 @@ class native_package_cli(native_package_cli_args):
     return argparser_handler.main('native_package', self.parser, self, command_group = 'native_package')
 
   def _command_version(self, print_all, brief):
-    version_cli.print_everything('ego_automation', dependencies = [ 'rebuild', 'bes' ],
+    version_cli.print_everything('ego_automation', dependencies = [ 'bes' ],
                                  brief = brief, print_all = print_all)
     return 0
 

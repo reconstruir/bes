@@ -6,7 +6,7 @@ from bes.system.which import which
 from bes.system.command_line import command_line
 from bes.system.execute import execute
 
-from rebuild.native_package.native_package_error import native_package_error
+from bes.native_package.native_package_error import native_package_error
 
 class pkgutil(object):
   'Class to deal with the pkgutil executable.'

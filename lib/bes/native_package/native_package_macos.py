@@ -12,7 +12,7 @@ from bes.fs.file_mime import file_mime
 from bes.fs.file_path import file_path
 from bes.system.execute import execute
 
-from bes.unix.sudo.sudo_exe import sudo_exe
+from bes.unix.sudo.sudo import sudo
 
 from .native_package_base import native_package_base
 from .native_package_error import native_package_error
@@ -103,18 +103,18 @@ class native_package_macos(native_package_base):
     files = self.package_files(package_name)
     dirs = self.package_dirs(package_name)
     
-    sudo_exe.validate(prompt = 'sudo password for remove:')
+    sudo.validate(prompt = 'sudo password for remove:')
     for filename in files:
       if path.exists(filename):
         args = [ 'rm', '-f', filename ]
-        sudo_exe.call_sudo(args)
+        sudo.call_sudo(args)
 
     sorted_dirs = sorted(dirs, key = lambda d: d.count(os.sep), reverse = True)
     for dirname in sorted_dirs:
       if path.exists(dirname):
         if dir_util.is_empty(dirname):
           args = [ 'rmdir', dirname ]
-          sudo_exe.call_sudo(args)
+          sudo.call_sudo(args)
     
     if force_package_root:
       root_dir = file_path.common_ancestor(dirs)
@@ -122,7 +122,7 @@ class native_package_macos(native_package_base):
         if root_dir in [ '/', '/Applications', '/Library', '/bin', '/usr/bin', '/usr/local', '/opt' ]:
           raise native_package_error('Trying to delete a system directory: "{}"'.format(root_dir))
         args = [ 'rm', '-r', '-f', root_dir ]
-        sudo_exe.call_sudo(args)
+        sudo.call_sudo(args)
 
     args = [ '--forget', package_name ]
     pkgutil.call_pkgutil(args, use_sudo = True)
@@ -142,4 +142,4 @@ class native_package_macos(native_package_base):
     package_filename = path.abspath(package_filename)
     
     args = [ 'installer', '-verboseR', '-pkg', package_filename, '-target', '/' ]
-    sudo_exe.call_sudo(args)
+    sudo.call_sudo(args)
