@@ -1,0 +1,21 @@
+diff --git a/lib/bes/cli/argparser_handler.py b/lib/bes/cli/argparser_handler.py
+index 879d35cc..343bd025 100644
+--- a/lib/bes/cli/argparser_handler.py
++++ b/lib/bes/cli/argparser_handler.py
+@@ -17,8 +17,16 @@ class argparser_handler(object):
+   def main(clazz, log_tag, parser, handler_object, command_group = None):
+     log = logger(log_tag)
+     args = parser.parse_args()
++    if not args.command_group:
++      parser.print_help()
++      parser.exit()
++
+     command_group = getattr(args, 'command_group', command_group)
+     command = getattr(args, 'command', None)
++    if not command:
++      parser.print_help()
++      parser.exit()
++      
+     possible_names = clazz._possible_method_names(command_group, command)
+     handler = clazz._find_handler(handler_object, possible_names)
+     if not handler:
