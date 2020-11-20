@@ -92,8 +92,10 @@ class native_package_cli_command(object):
     check.check_string(filename)
 
     owner = np.owner(filename)
-    print(owner)
-    return 0
+    if owner:
+      print(owner)
+      return 0
+    return 1
   
   @classmethod
   def remove(clazz, np, package_name, force_package_root):
