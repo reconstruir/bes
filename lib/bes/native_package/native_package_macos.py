@@ -10,15 +10,13 @@ from bes.compat.plistlib import plistlib_loads
 from bes.fs.dir_util import dir_util
 from bes.fs.file_mime import file_mime
 from bes.fs.file_path import file_path
+from bes.macos.pkgutil.pkgutil import pkgutil
 from bes.system.execute import execute
-
 from bes.unix.sudo.sudo import sudo
 
 from .native_package_base import native_package_base
 from .native_package_error import native_package_error
 from .native_package_util import native_package_util
-
-from .detail.pkgutil import pkgutil
 
 class native_package_macos(native_package_base):
 

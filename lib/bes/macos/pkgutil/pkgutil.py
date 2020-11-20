@@ -6,7 +6,7 @@ from bes.system.which import which
 from bes.system.command_line import command_line
 from bes.system.execute import execute
 
-from bes.native_package.native_package_error import native_package_error
+from .pkgutil_error import pkgutil_error
 
 class pkgutil(object):
   'Class to deal with the pkgutil executable.'
@@ -15,7 +15,7 @@ class pkgutil(object):
   def call_pkgutil(clazz, args, cwd = None, msg = None, use_sudo = False):
     exe = which.which('pkgutil')
     if not exe:
-      raise native_package_error('pkgutil not found')
+      raise pkgutil_error('pkgutil not found')
     cmd = []
     if use_sudo:
       cmd.append('sudo')
@@ -31,5 +31,5 @@ class pkgutil(object):
       if not msg:
         cmd_flag = ' '.join(cmd)
         msg = 'pkgutil command failed: {}\n{}'.format(cmd_flag, rv.stdout)
-      raise native_package_error(msg)
+      raise pkgutil_error(msg)
     return rv
