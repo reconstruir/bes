@@ -26,7 +26,7 @@ class softwareupdater(object):
   _FORCE_COMMAND_LINE_TOOLS_FILE = '/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress'
   
   @classmethod
-  def available(clazz, force_command_line_tools):
+  def available(clazz, force_command_line_tools = False):
     'Return a list of available software update items.'
     check.check_bool(force_command_line_tools)
 
