@@ -2,8 +2,13 @@
 
 from bes.common.check import check
 from bes.system.which import which
+from bes.system.execute import execute
 
 from bes.native_package.native_package import native_package
+from bes.macos.softwareupdater.softwareupdater import softwareupdater
+
+from .command_line_tools_error import command_line_tools_error
+from .command_line_tools_force import command_line_tools_force
 
 class command_line_tools(object):
   'Class to deal with the command_line_tools executable.'
@@ -15,5 +20,31 @@ class command_line_tools(object):
     exe = which.which('xcode-select')
     if not exe:
       return False
-    np = native_package()
-    return np.owner(exe) != None
+
+    cmd = [ exe, '--print-path' ]
+    rv = execute.execute(cmd, raise_error = False)
+    if rv.exit_code != 0:
+      return False
+    return True
+
+  @classmethod
+  def install(clazz):
+    'Install the command line tools.'
+
+    if clazz.installed():
+      raise command_line_tools_error('command line tools already installed.')
+
+    with command_line_tools_force() as force:
+      available_update = softwareupdater.available()
+      for next_update in available_update:
+        if next_update.title == 'Command Line Tools for Xcode':
+          print('installing: {}'.format(next_update.label))
+          softwareupdater.install(next_update.label)
+    
+  @classmethod
+  def ensure(clazz):
+    'Ensure that the command line tools are installed.'
+
+    if clazz.installed():
+      return
+    clazz.install()

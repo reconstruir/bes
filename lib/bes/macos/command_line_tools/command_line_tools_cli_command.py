@@ -3,7 +3,6 @@
 from os import path
 
 from bes.common.check import check
-from bes.macos.softwareupdater.softwareupdater import softwareupdater
 
 from .command_line_tools import command_line_tools
 
@@ -22,13 +21,10 @@ class command_line_tools_cli_command(object):
 
   @classmethod
   def install(clazz):
-    available = softwareupdater.available(force_command_line_tools = True)
-    print(available)
+    command_line_tools.install()
     return 0
   
   @classmethod
   def ensure(clazz):
-    if clazz.installed():
-      return 0
-    return clazz.install()
-  
+    command_line_tools.ensure()
+    return 0

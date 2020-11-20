@@ -9,8 +9,6 @@ class softwareupdater_cli_args(object):
 
     # available
     p = subparser.add_parser('available', help = 'Print available updates.')
-    p.add_argument('--force-command-line-tools', action = 'store_true', default = False,
-                   help = 'Force the xcode command line tools to appear in list [ False ]')
 
     # install
     p = subparser.add_parser('install', help = 'Install an item by label.')
