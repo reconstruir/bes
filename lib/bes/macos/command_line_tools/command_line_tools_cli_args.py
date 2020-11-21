@@ -9,12 +9,18 @@ class command_line_tools_cli_args(object):
 
     # installed
     p = subparser.add_parser('installed', help = 'Return 0 if command line tools are installed.')
+    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
+                   help = 'Verbose output [ False ]')
 
     # install
     p = subparser.add_parser('install', help = 'Install the command line tools.')
+    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
+                   help = 'Verbose output [ False ]')
     
     # ensure
     p = subparser.add_parser('ensure', help = 'Ensure the command line tools.')
+    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
+                   help = 'Verbose output [ False ]')
     
   def _command_command_line_tools(self, command, *args, **kargs):
     from .command_line_tools_cli_command import command_line_tools_cli_command

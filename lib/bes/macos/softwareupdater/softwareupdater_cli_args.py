@@ -14,6 +14,8 @@ class softwareupdater_cli_args(object):
     p = subparser.add_parser('install', help = 'Install an item by label.')
     p.add_argument('label', action = 'store', default = None,
                    help = 'Label of the item to install [ None ]')
+    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
+                   help = 'Verbose output [ False ]')
     
   def _command_softwareupdater(self, command, *args, **kargs):
     from .softwareupdater_cli_command import softwareupdater_cli_command

@@ -21,9 +21,9 @@ class softwareupdater_cli_command(object):
     return 0
 
   @classmethod
-  def install(clazz, label):
+  def install(clazz, label, verbose):
     check.check_string(label)
 
-    softwareupdater.install(label)
+    softwareupdater.install(label, verbose)
     return 0
   

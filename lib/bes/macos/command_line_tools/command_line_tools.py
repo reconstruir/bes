@@ -14,7 +14,7 @@ class command_line_tools(object):
   'Class to deal with the command_line_tools executable.'
   
   @classmethod
-  def installed(clazz):
+  def installed(clazz, verbose):
     'Return True of command line tools are installed.'
 
     exe = which.which('xcode-select')
@@ -24,11 +24,14 @@ class command_line_tools(object):
     cmd = [ exe, '--print-path' ]
     rv = execute.execute(cmd, raise_error = False)
     if rv.exit_code != 0:
+      if verbose:
+        print('not installed')
       return False
+    print('installed')
     return True
 
   @classmethod
-  def install(clazz):
+  def install(clazz, verbose):
     'Install the command line tools.'
 
     if clazz.installed():
@@ -39,12 +42,12 @@ class command_line_tools(object):
       for next_update in available_update:
         if next_update.title == 'Command Line Tools for Xcode':
           print('installing: {}'.format(next_update.label))
-          softwareupdater.install(next_update.label)
+          softwareupdater.install(next_update.label, verbose)
     
   @classmethod
-  def ensure(clazz):
+  def ensure(clazz, verbose):
     'Ensure that the command line tools are installed.'
 
-    if clazz.installed():
+    if clazz.installed(False):
       return
-    clazz.install()
+    clazz.install(verbose)

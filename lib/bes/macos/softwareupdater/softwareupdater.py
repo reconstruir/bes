@@ -45,17 +45,18 @@ class softwareupdater(object):
     return sorted(algorithm.unique(result))
 
   @classmethod
-  def install(clazz, label):
+  def install(clazz, label, verbose):
     'Install an item by label.'
     check.check_string(label)
+    check.check_bool(verbose)
 
     args = [
       '--verbose',
       '--install',
-      '--agree-to-license',
+      #'--agree-to-license', # big sur only
       '"{}"'.format(label),
     ]
-    clazz._call_softwareupdate(args, True)
+    clazz._call_softwareupdate(args, verbose)
   
   _LABEL_PATTERN = r'^\* Label:\s+(.+)\s*$'
   @classmethod
