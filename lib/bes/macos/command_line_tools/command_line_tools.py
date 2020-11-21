@@ -34,7 +34,7 @@ class command_line_tools(object):
   def install(clazz, verbose):
     'Install the command line tools.'
 
-    if clazz.installed():
+    if clazz.installed(verbose):
       raise command_line_tools_error('command line tools already installed.')
 
     with command_line_tools_force() as force:
