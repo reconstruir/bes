@@ -4,14 +4,21 @@ from collections import namedtuple
 
 from bes.common.check import check
 
-class softwareupdater_item(namedtuple('softwareupdater_item', 'title, label, version, size, recommended')):
+class softwareupdater_item(namedtuple('softwareupdater_item', 'label, title, attributes')):
   'A class to deal with a single macos softwareupdater item.'
   
-  def __new__(clazz, title, label, version, size, recommended):
-    check.check_string(title)
+  def __new__(clazz, label, title, attributes):
     check.check_string(label)
-    check.check_string(version)
-    check.check_string(size)
-    check.check_bool(recommended)
+    check.check_string(title)
+    check.check_dict(attributes, check.STRING_TYPES)
 
-    return clazz.__bases__[0].__new__(clazz, title, label, version, size, recommended)
+    return clazz.__bases__[0].__new__(clazz, label, title, attributes)
+
+  @property
+  def version(self):
+    return self.attributes.get('version', None)
+  
+  @property
+  def size(self):
+    return self.attributes.get('size', None)
+  

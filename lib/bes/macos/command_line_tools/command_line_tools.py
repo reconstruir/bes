@@ -29,7 +29,7 @@ class command_line_tools(object):
       return False
     print('installed')
     return True
-
+  
   @classmethod
   def install(clazz, verbose):
     'Install the command line tools.'
@@ -40,7 +40,7 @@ class command_line_tools(object):
     with command_line_tools_force() as force:
       available_update = softwareupdater.available()
       for next_update in available_update:
-        if next_update.title == 'Command Line Tools for Xcode':
+        if next_update.title == 'Command Line Tools':
           print('installing: {}'.format(next_update.label))
           softwareupdater.install(next_update.label, verbose)
     
