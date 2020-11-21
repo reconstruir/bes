@@ -10,14 +10,17 @@ class command_line_tools_force(object):
   # touching this file forces softwareupdate to list the xcode command line tools
   _FORCE_COMMAND_LINE_TOOLS_FILE = '/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress'
   
-  def __init__(self):
+  def __init__(self, force = True):
+    self._force = force
     self._log.log_i('command_line_tools_force: __init__()')
     
   def __enter__(self):
     self._log.log_i('command_line_tools_force: __enter__()')
-    file_util.save(self._FORCE_COMMAND_LINE_TOOLS_FILE)
+    if self._force:
+      file_util.save(self._FORCE_COMMAND_LINE_TOOLS_FILE)
     return self
   
   def __exit__(self, type, value, traceback):
     self._log.log_i('command_line_tools_force: __exit__()')
-    file_util.remove(self._FORCE_COMMAND_LINE_TOOLS_FILE)
+    if self._force:
+      file_util.remove(self._FORCE_COMMAND_LINE_TOOLS_FILE)

@@ -3,6 +3,7 @@
 from bes.common.check import check
 from bes.system.which import which
 from bes.system.execute import execute
+from bes.system.log import logger
 
 from bes.native_package.native_package import native_package
 from bes.macos.softwareupdater.softwareupdater import softwareupdater
@@ -12,6 +13,8 @@ from .command_line_tools_force import command_line_tools_force
 
 class command_line_tools(object):
   'Class to deal with the command_line_tools executable.'
+
+  _log = logger('command_line_tools')
   
   @classmethod
   def installed(clazz, verbose):
@@ -34,13 +37,17 @@ class command_line_tools(object):
   def install(clazz, verbose):
     'Install the command line tools.'
 
-    if clazz.installed(verbose):
+    installed = clazz.installed(False)
+    clazz._log.log_i('install: installed={}'.format(installed))
+    if installed:
       raise command_line_tools_error('command line tools already installed.')
 
-    with command_line_tools_force() as force:
-      available_update = softwareupdater.available()
-      for next_update in available_update:
-        if next_update.title == 'Command Line Tools':
+    with command_line_tools_force(force = True) as force:
+      available_updates = softwareupdater.available()
+      clazz._log.log_i('install: available_updates={}'.format(available_updates))
+      for next_update in available_updates:
+        clazz._log.log_i('install: next_update={}'.format(next_update))
+        if 'command line tools' in next_update.title.lower():
           print('installing: {}'.format(next_update.label))
           softwareupdater.install(next_update.label, verbose)
     
