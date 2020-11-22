@@ -36,7 +36,7 @@ class computer_setup_task_base(with_metaclass(ABCMeta, object)):
     raise NotImplemented('run')
 
   @abstractmethod
-  def run(self, verbose):
+  def run(self):
     'Run the task.'
     raise NotImplemented('run')
 

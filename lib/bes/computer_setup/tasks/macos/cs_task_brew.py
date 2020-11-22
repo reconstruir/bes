@@ -33,7 +33,7 @@ class cs_task_brew(computer_setup_task_base):
     return not brew.has_brew()
   
   #@abstractmethod
-  def run(self, verbose):
+  def run(self):
     'Run the task.'
     options = brew_cli_options()
     options.verbose = self.options.verbose
