@@ -2,6 +2,7 @@
 
 import copy, os, pprint
 
+from bes.cli.argparser_handler import argparser_handler
 from bes.common.Script import Script
 from bes.common.algorithm import algorithm
 from bes.common.check import check
@@ -17,12 +18,11 @@ class computer_setup_cli_command(object):
 
   @classmethod
   def handle_command(clazz, command, **kargs):
-    return 0
-#    options = brew_cli_options(**kargs)
-#    filtered_args = argparser_handler.filter_keywords_args(brew_cli_options, kargs)
-#    func = getattr(brew_cli_command, command)
-#    return func(options, **filtered_args)
-    
+    options = computer_setup_options(**kargs)
+    csm = computer_setup_manager(options = options)
+    filtered_args = argparser_handler.filter_keywords_args(computer_setup_options, kargs)
+    func = getattr(computer_setup_cli_command, command)
+    return func(csm, **filtered_args)
 #    kargs = copy.deepcopy(kargs)
 #    func = getattr(computer_setup_cli_command, command)
 #    bl = blurber(Script.name())
