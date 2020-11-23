@@ -16,10 +16,20 @@ class defaults_cli_command(object):
     return func(**kargs)
   
   @classmethod
-  def read_domain(clazz, domain, style):
+  def get_domain(clazz, domain, style):
     check.check_string(domain)
     check.check_string(style)
 
-    s = defaults.read_domain(domain, style)
+    s = defaults.get_domain(domain, style)
     print(s)
     return 0
+
+  @classmethod
+  def get_value(clazz, domain, key):
+    check.check_string(domain)
+    check.check_string(key)
+
+    s = defaults.get_value(domain, key)
+    print(s)
+    return 0
+  
