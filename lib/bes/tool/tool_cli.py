@@ -26,9 +26,11 @@ command_parsers = [
 if host.is_macos():
   from bes.macos.softwareupdater.softwareupdater_cli_args import softwareupdater_cli_args
   from bes.macos.command_line_tools.command_line_tools_cli_args import command_line_tools_cli_args
+  from bes.macos.defaults.defaults_cli_args import defaults_cli_args
   command_parsers.extend([
     ( 'softwareupdater', 'softwareupdater_add_args', 'Deal with macos softwareupdate' ),
     ( 'command_line_tools', 'command_line_tools_add_args', 'Deal with command line tools' ),
+    ( 'defaults', 'defaults_add_args', 'Deal with defaults' ),
   ])
 
 if host.is_unix():
@@ -44,6 +46,7 @@ class tool_cli(
   brew_cli_args,
   command_line_tools_cli_args,
   computer_setup_cli_args,
+  defaults_cli_args,
   native_package_cli_args,
   softwareupdater_cli_args,
   sudo_cli_args
