@@ -32,4 +32,13 @@ class defaults_cli_command(object):
     s = defaults.get_value(domain, key)
     print(s)
     return 0
+
+  @classmethod
+  def set_value(clazz, domain, key, value):
+    check.check_string(domain)
+    check.check_string(key)
+    check.check_string(value)
+
+    defaults.set_value(domain, key, value)
+    return 0
   

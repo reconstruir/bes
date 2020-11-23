@@ -35,7 +35,7 @@ class defaults(object):
 
   @classmethod
   def get_value(clazz, domain, key):
-    'Return a a value.'
+    'Get a value.'
     check.check_string(domain)
     check.check_string(key)
 
@@ -45,7 +45,25 @@ class defaults(object):
     if not key in o:
       raise defaults_error('key "{}" not found in domain "{}"'.format(key, domain))
     return o[key]
+
+  @classmethod
+  def set_value(clazz, domain, key, value):
+    'Set a value.'
+    check.check_string(domain)
+    check.check_string(key)
+    check.check_string(value)
+
+    host.check_is_macos()
     
+    cmd = [ 'defaults', '-currentHost', 'write', domain, key, value ]
+    rv = execute.execute(cmd, raise_error = False)
+    if rv.exit_code != 0:
+      cmd_flat = ' '.join(cmd)
+      msg = 'defaults command failed: {} - {}\n{}'.format(cmd_flat,
+                                                          rv.exit_code,
+                                                          rv.stdout)
+      raise defaults_error(msg, status_code = rv.exit_code)
+  
   @classmethod
   def _get_domain_raw(clazz, domain):
     cmd = [ 'defaults', '-currentHost', 'read' ]

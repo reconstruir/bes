@@ -21,6 +21,15 @@ class defaults_cli_args(object):
                    help = 'The domain [ None ]')
     p.add_argument('key', action = 'store', default = None,
                    help = 'The key [ None ]')
+
+    # set_value
+    p = subparser.add_parser('set_value', help = 'Set a a value.')
+    p.add_argument('domain', action = 'store', default = None,
+                   help = 'The domain [ None ]')
+    p.add_argument('key', action = 'store', default = None,
+                   help = 'The key [ None ]')
+    p.add_argument('value', action = 'store', default = None,
+                   help = 'The value [ None ]')
     
   def _command_defaults(self, command, *args, **kargs):
     from .defaults_cli_command import defaults_cli_command
