@@ -9,7 +9,6 @@ from bes.fs.file_path import file_path
 from bes.script.blurber import blurber
 
 from .computer_setup_error import computer_setup_error
-from .computer_setup import computer_setup
 from .computer_setup_manager import computer_setup_manager
 from .computer_setup_options import computer_setup_options
 

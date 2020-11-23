@@ -15,9 +15,11 @@ from bes.version.version_cli import version_cli
 
 from bes.native_package.native_package_cli_args import native_package_cli_args
 from bes.archive.archive_cli_args import archive_cli_args
+from bes.computer_setup.computer_setup_cli_args import computer_setup_cli_args
 
 command_parsers = [
   ( 'archive', 'archive_add_args', 'Deal with archive' ),
+  ( 'computer_setup', 'computer_setup_add_args', 'Deal with computer setup' ),
   ( 'native_package', 'native_package_add_args', 'Deal with native packages' ),
 ]
 
@@ -41,6 +43,7 @@ class tool_cli(
   archive_cli_args,
   brew_cli_args,
   command_line_tools_cli_args,
+  computer_setup_cli_args,
   native_package_cli_args,
   softwareupdater_cli_args,
   sudo_cli_args
