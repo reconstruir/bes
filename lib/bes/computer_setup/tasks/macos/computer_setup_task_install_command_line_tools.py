@@ -5,15 +5,15 @@ from bes.common.check import check
 from bes.computer_setup.computer_setup_task_base import computer_setup_task_base
 from bes.macos.command_line_tools.command_line_tools import command_line_tools
 
-class computer_setup_install_command_line_tools(computer_setup_task_base):
+class computer_setup_task_install_command_line_tools(computer_setup_task_base):
 
   def __init__(self, *args, **kargs):
-    super(computer_setup_install_command_line_tools, self).__init__(*args, **kargs)
+    super(computer_setup_task_install_command_line_tools, self).__init__(*args, **kargs)
 
   #@abstractmethod
   def name(self):
     'Name for task.'
-    return 'xcode_command_line_tools'
+    return 'intall_command_line_tools'
 
   #@abstractmethod
   def description(self):

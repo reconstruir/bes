@@ -7,15 +7,15 @@ from bes.computer_setup.computer_setup_task_base import computer_setup_task_base
 from bes.unix.brew.brew import brew
 from bes.unix.brew.brew_cli_options import brew_cli_options
 
-class computer_setup_install_brew(computer_setup_task_base):
+class computer_setup_task_install_brew(computer_setup_task_base):
 
   def __init__(self, *args, **kargs):
-    super(computer_setup_install_brew, self).__init__(*args, **kargs)
+    super(computer_setup_task_install_brew, self).__init__(*args, **kargs)
 
   #@abstractmethod
   def name(self):
     'Name for task.'
-    return 'brew'
+    return 'install_brew'
 
   #@abstractmethod
   def description(self):
