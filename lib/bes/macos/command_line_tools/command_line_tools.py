@@ -17,7 +17,7 @@ class command_line_tools(object):
   _log = logger('command_line_tools')
   
   @classmethod
-  def installed(clazz, verbose):
+  def installed(clazz, verbose = False):
     'Return True of command line tools are installed.'
 
     exe = which.which('xcode-select')
