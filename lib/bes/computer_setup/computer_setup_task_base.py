@@ -6,13 +6,13 @@ from bes.common.check import check
 from bes.script.blurber import blurber
 from bes.system.compat import with_metaclass
 
-from .computer_setup_task_options import computer_setup_task_options
+from .computer_setup_options import computer_setup_options
 
 class computer_setup_task_base(with_metaclass(ABCMeta, object)):
 
   def __init__(self, options = None):
-    options = options or computer_setup_task_options()
-    check.check_computer_setup_task_options(options)
+    options = options or computer_setup_options()
+    check.check_computer_setup_options(options)
     self.options = options
 
   @abstractmethod

@@ -4,7 +4,7 @@ from bes.common.check import check
 from bes.common.dict_util import dict_util
 from bes.script.blurber import blurber
 
-class computer_setup_task_options(object):
+class computer_setup_options(object):
   
   def __init__(self, *args, **kargs):
     self.verbose = False
@@ -21,4 +21,4 @@ class computer_setup_task_options(object):
   def __str__(self):
     return str(dict_util.hide_passwords(self.__dict__, [ 'password' ]))
 
-check.register_class(computer_setup_task_options)
+check.register_class(computer_setup_options)

@@ -2,12 +2,12 @@
 
 from bes.common.check import check
 
-from .computer_setup_task_options import computer_setup_task_options
+from .computer_setup_options import computer_setup_options
 
 class computer_setup_manager(object):
   
   def __init__(self, options = None):
-    self._options = options or computer_setup_task_options()
+    self._options = options or computer_setup_options()
     self._tasks = []
 
   def run(self):
