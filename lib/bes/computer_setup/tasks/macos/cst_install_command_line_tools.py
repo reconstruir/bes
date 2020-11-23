@@ -31,6 +31,6 @@ class cst_install_command_line_tools(computer_setup_task):
     return not command_line_tools.installed()
   
   #@abstractmethod
-  def run(self):
+  def run(self, *args, **kwargs):
     'Run the task.'
     command_line_tools.install(self.options.verbose)

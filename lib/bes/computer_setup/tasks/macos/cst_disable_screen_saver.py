@@ -32,6 +32,6 @@ class cst_disable_screen_saver(computer_setup_task):
     return value != '0'
   
   #@abstractmethod
-  def run(self):
+  def run(self, *args, **kwargs):
     'Run the task.'
     defaults.set_value('com.apple.screensaver', 'idleTime', 0)

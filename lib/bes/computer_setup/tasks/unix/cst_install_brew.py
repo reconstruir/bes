@@ -33,7 +33,7 @@ class cst_install_brew(computer_setup_task):
     return not brew.has_brew()
   
   #@abstractmethod
-  def run(self):
+  def run(self, *args, **kwargs):
     'Run the task.'
     options = brew_cli_options()
     options.verbose = self.options.verbose
