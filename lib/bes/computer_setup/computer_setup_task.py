@@ -18,7 +18,7 @@ class _computer_setup_register_meta(ABCMeta):
       computer_setup_registry.register(clazz)
     return clazz
   
-class computer_setup_task_base(with_metaclass(_computer_setup_register_meta, object)):
+class computer_setup_task(with_metaclass(_computer_setup_register_meta, object)):
 
   def __init__(self, options = None):
     options = options or computer_setup_options()
@@ -60,4 +60,4 @@ class computer_setup_task_base(with_metaclass(_computer_setup_register_meta, obj
   def blurb_verbose(self, message, output = None, fit = False):
     self.blurber.blurb_verbose(message, output = output, fit = fit)
 
-check.register_class(computer_setup_task_base, name = 'computer_setup_task', include_seq = False)
+check.register_class(computer_setup_task, name = 'computer_setup_task', include_seq = False)

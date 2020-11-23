@@ -2,12 +2,12 @@
 
 from bes.common.check import check
 
-from bes.computer_setup.computer_setup_task_base import computer_setup_task_base
+from bes.computer_setup.computer_setup_task import computer_setup_task
 
 from bes.unix.brew.brew import brew
 from bes.unix.brew.brew_cli_options import brew_cli_options
 
-class cst_install_brew(computer_setup_task_base):
+class cst_install_brew(computer_setup_task):
 
   def __init__(self, *args, **kargs):
     super(cst_install_brew, self).__init__(*args, **kargs)

@@ -2,10 +2,10 @@
 
 from bes.common.check import check
 
-from bes.computer_setup.computer_setup_task_base import computer_setup_task_base
+from bes.computer_setup.computer_setup_task import computer_setup_task
 from bes.macos.command_line_tools.command_line_tools import command_line_tools
 
-class cst_install_command_line_tools(computer_setup_task_base):
+class cst_install_command_line_tools(computer_setup_task):
 
   def __init__(self, *args, **kargs):
     super(cst_install_command_line_tools, self).__init__(*args, **kargs)
