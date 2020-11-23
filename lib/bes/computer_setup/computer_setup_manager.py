@@ -17,6 +17,9 @@ class computer_setup_manager(object):
     needed_blurb = '- not needed' if not needed else ''
     print('{} of {}: {} {}'.format(i, num_tasks, task.name(), needed_blurb))
     if needed:
-      task.run()
+      if self.options.dry_run:
+        print('DRY_RUN: would run: {}'.format(task.name()))
+      else:
+        task.run()
     
 check.register_class(computer_setup_manager)

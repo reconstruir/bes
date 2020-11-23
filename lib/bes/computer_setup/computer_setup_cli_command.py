@@ -13,6 +13,8 @@ from .computer_setup_error import computer_setup_error
 from .computer_setup_manager import computer_setup_manager
 from .computer_setup_options import computer_setup_options
 
+from .tasks.macos import *
+
 class computer_setup_cli_command(object):
   'computer_setup cli commands.'
 
