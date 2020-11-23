@@ -60,4 +60,4 @@ class computer_setup_task(with_metaclass(_computer_setup_register_meta, object))
   def blurb_verbose(self, message, output = None, fit = False):
     self.blurber.blurb_verbose(message, output = output, fit = fit)
 
-check.register_class(computer_setup_task, name = 'computer_setup_task', include_seq = False)
+check.register_class(computer_setup_task, include_seq = False)
