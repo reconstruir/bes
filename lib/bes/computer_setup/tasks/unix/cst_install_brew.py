@@ -9,9 +9,6 @@ from bes.unix.brew.brew_cli_options import brew_cli_options
 
 class cst_install_brew(computer_setup_task):
 
-  def __init__(self, *args, **kargs):
-    super(cst_install_brew, self).__init__(*args, **kargs)
-
   #@abstractmethod
   def name(self):
     'Name for task.'
@@ -33,10 +30,10 @@ class cst_install_brew(computer_setup_task):
     return not brew.has_brew()
   
   #@abstractmethod
-  def run(self, *args, **kwargs):
+  def run(self, options, args):
     'Run the task.'
-    options = brew_cli_options()
-    options.verbose = self.options.verbose
-    options.password = self.options.password
-    options.blurber = self.options.blurber
-    brew.install(options)
+    brew_options = brew_cli_options()
+    brew_options.verbose = options.verbose
+    brew_options.password = options.password
+    brew_options.blurber = options.blurber
+    brew.install(brew_options)

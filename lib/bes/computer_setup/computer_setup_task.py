@@ -20,11 +20,6 @@ class _computer_setup_register_meta(ABCMeta):
   
 class computer_setup_task(with_metaclass(_computer_setup_register_meta, object)):
 
-  def __init__(self, options = None):
-    options = options or computer_setup_options()
-    check.check_computer_setup_options(options)
-    self.options = options
-
   @abstractmethod
   def name(self):
     'Name for task.'
@@ -43,21 +38,11 @@ class computer_setup_task(with_metaclass(_computer_setup_register_meta, object))
   @abstractmethod
   def is_needed(self):
     'Return True of the task needs to run.'
-    raise NotImplemented('run')
+    raise NotImplemented('is_needed')
 
   @abstractmethod
-  def run(self, *args, **kwargs):
+  def run(self, options, args):
     'Run the task.'
     raise NotImplemented('run')
-
-  @property
-  def blurber(self):
-    return self.options.blurber
-  
-  def blurb(self, message, output = None, fit = False):
-    self.blurber.blurb(message, output = output, fit = fit)
-    
-  def blurb_verbose(self, message, output = None, fit = False):
-    self.blurber.blurb_verbose(message, output = output, fit = fit)
 
 check.register_class(computer_setup_task, include_seq = False)

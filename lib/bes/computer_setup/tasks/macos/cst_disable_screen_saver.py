@@ -7,9 +7,6 @@ from bes.macos.defaults.defaults import defaults
 
 class cst_disable_screen_saver(computer_setup_task):
 
-  def __init__(self, *args, **kargs):
-    super(cst_disable_screen_saver, self).__init__(*args, **kargs)
-
   #@abstractmethod
   def name(self):
     'Name for task.'
@@ -32,6 +29,6 @@ class cst_disable_screen_saver(computer_setup_task):
     return value != '0'
   
   #@abstractmethod
-  def run(self, *args, **kwargs):
+  def run(self, options, args):
     'Run the task.'
     defaults.set_value('com.apple.screensaver', 'idleTime', 0)

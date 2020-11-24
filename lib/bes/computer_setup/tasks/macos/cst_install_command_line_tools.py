@@ -7,9 +7,6 @@ from bes.macos.command_line_tools.command_line_tools import command_line_tools
 
 class cst_install_command_line_tools(computer_setup_task):
 
-  def __init__(self, *args, **kargs):
-    super(cst_install_command_line_tools, self).__init__(*args, **kargs)
-
   #@abstractmethod
   def name(self):
     'Name for task.'
@@ -31,6 +28,6 @@ class cst_install_command_line_tools(computer_setup_task):
     return not command_line_tools.installed()
   
   #@abstractmethod
-  def run(self, *args, **kwargs):
+  def run(self, options, args):
     'Run the task.'
     command_line_tools.install(self.options.verbose)

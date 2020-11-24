@@ -9,9 +9,6 @@ from bes.unix.shell.shell import shell
 
 class cst_change_shell_to_bash(computer_setup_task):
 
-  def __init__(self, *args, **kargs):
-    super(cst_change_shell_to_bash, self).__init__(*args, **kargs)
-
   #@abstractmethod
   def name(self):
     'Name for task.'
@@ -33,6 +30,6 @@ class cst_change_shell_to_bash(computer_setup_task):
     return not shell.shell_is_bash()
   
   #@abstractmethod
-  def run(self, *args, **kwargs):
+  def run(self, options, args):
     'Run the task.'
-    shell.change_shell('/bin/bash', self.options.password)
+    shell.change_shell('/bin/bash', options.password)

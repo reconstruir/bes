@@ -125,7 +125,7 @@ class brew(object):
     'Return the version of brew.'
     if not clazz.has_brew():
       raise brew_error('brew not installed')
-    rv = execute.execute([ clazz._brew_exe(), '--version' ])
+    rv = clazz.call_brew([ '--version' ])
     f = re.findall('^Homebrew\s+(.+)\n', rv.stdout)
     if not f:
       raise brew_error('failed to determine brew version.')
@@ -147,3 +147,11 @@ class brew(object):
     url = clazz._make_script_url(script_name)
     tmp = url_util.download_to_temp_file(url, suffix = '-{}'.format(script_name))
     return tmp
+
+  @classmethod
+  def call_brew(clazz, args):
+    'Call brew.'
+    if not clazz.has_brew():
+      raise brew_error('brew not installed')
+    cmd = [ clazz._brew_exe() ] + args
+    return execute.execute(args, raise_error = False)
