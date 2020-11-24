@@ -35,9 +35,11 @@ if host.is_macos():
 
 if host.is_unix():
   from bes.unix.brew.brew_cli_args import brew_cli_args
+  from bes.unix.shell.shell_cli_args import shell_cli_args
   from bes.unix.sudo.sudo_cli_args import sudo_cli_args
   command_parsers.extend([
     ( 'brew', 'brew_add_args', 'Deal with brew' ),
+    ( 'shell', 'shell_add_args', 'Deal with shell' ),
     ( 'sudo', 'sudo_add_args', 'Deal with sudo' ),
   ])
 
@@ -48,6 +50,7 @@ class tool_cli(
   computer_setup_cli_args,
   defaults_cli_args,
   native_package_cli_args,
+  shell_cli_args,
   softwareupdater_cli_args,
   sudo_cli_args
 ):
