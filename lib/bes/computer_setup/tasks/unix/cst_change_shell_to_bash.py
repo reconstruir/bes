@@ -35,8 +35,4 @@ class cst_change_shell_to_bash(computer_setup_task):
   #@abstractmethod
   def run(self, *args, **kwargs):
     'Run the task.'
-    options = brew_cli_options()
-    options.verbose = self.options.verbose
-    options.password = self.options.password
-    options.blurber = self.options.blurber
-    brew.install(options)
+    shell.change_shell('/bin/bash', self.options.password)
