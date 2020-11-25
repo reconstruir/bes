@@ -4,7 +4,7 @@ from bes.common.check import check
 from bes.common.dict_util import dict_util
 from bes.script.blurber import blurber
 
-class brew_cli_options(object):
+class brew_installer_options(object):
   
   def __init__(self, *args, **kargs):
     self.verbose = False
@@ -19,4 +19,4 @@ class brew_cli_options(object):
   def __str__(self):
     return str(dict_util.hide_passwords(self.__dict__, [ 'password' ]))
 
-check.register_class(brew_cli_options)
+check.register_class(brew_installer_options)

@@ -17,10 +17,10 @@ from bes.url.url_util import url_util
 
 from .brew_error import brew_error
 
-class brew(object):
+class brew_installer(object):
   'Class to deal with brew on macos.'
 
-  _log = logger('brew')
+  _log = logger('brew_installer')
   
   @classmethod
   def has_brew(clazz):
@@ -32,7 +32,7 @@ class brew(object):
   @classmethod
   def install(clazz, options):
     'Install brew.'
-    check.check_brew_cli_options(options)
+    check.check_brew_installer_options(options)
 
     clazz._check_system()
     if clazz.has_brew():
@@ -43,7 +43,7 @@ class brew(object):
   @classmethod
   def uninstall(clazz, options):
     'Uninstall brew.'
-    check.check_brew_cli_options(options)
+    check.check_brew_installer_options(options)
 
     clazz._check_system()
     if not clazz.has_brew():
@@ -54,7 +54,7 @@ class brew(object):
   @classmethod
   def reinstall(clazz, options):
     'Reinstall brew even if already installed.'
-    check.check_brew_cli_options(options)
+    check.check_brew_installer_options(options)
 
     clazz._check_system()
     clazz._do_install(options)
@@ -64,7 +64,7 @@ class brew(object):
   @classmethod
   def run_script(clazz, script_name, args, options):
     'Download and run a brew script with optional args.'
-    check.check_brew_cli_options(options)
+    check.check_brew_installer_options(options)
     check.check_string(script_name)
     check.check_string_seq(args, allow_none = True)
 
@@ -101,7 +101,7 @@ class brew(object):
   @classmethod
   def ensure(clazz, options):
     'Ensure brew is installed.'
-    check.check_brew_cli_options(options)
+    check.check_brew_installer_options(options)
 
     clazz._check_system()
     if clazz.has_brew():
@@ -154,4 +154,4 @@ class brew(object):
     if not clazz.has_brew():
       raise brew_error('brew not installed')
     cmd = [ clazz._brew_exe() ] + args
-    return execute.execute(args, raise_error = False)
+    return execute.execute(cmd, raise_error = False)
