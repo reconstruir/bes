@@ -18,7 +18,7 @@ from bes.url.url_util import url_util
 from .brew_error import brew_error
 
 class brew_installer(object):
-  'Class to deal with brew on macos.'
+  'Class to install and uninstall brew on unix.'
 
   _log = logger('brew_installer')
   
@@ -27,7 +27,7 @@ class brew_installer(object):
     'Return True if brew is installed.'
 
     clazz._check_system()
-    return clazz._brew_exe() != None
+    return clazz.brew_exe() != None
 
   @classmethod
   def install(clazz, options):
@@ -116,7 +116,7 @@ class brew_installer(object):
     raise brew_error('brew is only for macos or linux: "{}"'.format(host.SYSTEM))
 
   @classmethod
-  def _brew_exe(clazz):
+  def brew_exe(clazz):
     'Return the brew exe path.'
     return which.which('brew')
 
@@ -153,5 +153,5 @@ class brew_installer(object):
     'Call brew.'
     if not clazz.has_brew():
       raise brew_error('brew not installed')
-    cmd = [ clazz._brew_exe() ] + args
+    cmd = [ clazz.brew_exe() ] + args
     return execute.execute(cmd, raise_error = False)
