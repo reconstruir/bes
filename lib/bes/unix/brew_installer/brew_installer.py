@@ -1,7 +1,5 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import re
-
 from bes.common.check import check
 from bes.compat import url_compat
 from bes.system.execute import execute
@@ -12,8 +10,8 @@ from bes.unix.sudo.sudo import sudo
 from bes.unix.sudo.sudo_cli_options import sudo_cli_options
 from bes.url.url_util import url_util
 
-from .brew_error import brew_error
-from .brew import brew
+from bes.unix.brew.brew import brew
+from bes.unix.brew.brew_error import brew_error
 
 class brew_installer(object):
   'Class to install and uninstall brew on unix.'
@@ -96,7 +94,7 @@ class brew_installer(object):
 
     brew.check_system()
     if brew.has_brew():
-      options.blurber.blurb('brew already installed at version {}'.format(clazz.version()))
+      options.blurber.blurb('brew already installed at version {}'.format(brew.version()))
       return
     clazz.install(options)
     

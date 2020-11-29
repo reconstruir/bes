@@ -10,8 +10,8 @@ from bes.system.which import which
 
 from .brew_error import brew_error
 
-class brew_installer(object):
-  'Class to deal with brew.'
+class brew(object):
+  'Class to install and uninstall brew on unix.'
 
   _log = logger('brew')
   

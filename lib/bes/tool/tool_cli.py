@@ -34,17 +34,20 @@ if host.is_macos():
   ])
 
 if host.is_unix():
-  from bes.unix.brew.brew_installer_cli_args import brew_installer_cli_args
+  from bes.unix.brew.brew_cli_args import brew_cli_args
+  from bes.unix.brew_installer.brew_installer_cli_args import brew_installer_cli_args
   from bes.unix.shell.shell_cli_args import shell_cli_args
   from bes.unix.sudo.sudo_cli_args import sudo_cli_args
   command_parsers.extend([
-    ( 'brew_installer', 'brew_installer_add_args', 'Deal with brew' ),
+    ( 'brew', 'brew_add_args', 'Deal with brew' ),
+    ( 'brew_installer', 'brew_installer_add_args', 'Deal with brew install' ),
     ( 'shell', 'shell_add_args', 'Deal with shell' ),
     ( 'sudo', 'sudo_add_args', 'Deal with sudo' ),
   ])
 
 class tool_cli(
   archive_cli_args,
+  brew_cli_args,
   brew_installer_cli_args,
   command_line_tools_cli_args,
   computer_setup_cli_args,
