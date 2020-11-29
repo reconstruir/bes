@@ -3,21 +3,25 @@
 import re
 from os import path
 
-from bes.system.host import host
-from bes.system.which import which
-from bes.system.execute import execute
-from bes.url.url_util import url_util
-from bes.compat import url_compat
 from bes.common.check import check
+from bes.compat import url_compat
+from bes.system.execute import execute
+from bes.system.host import host
+from bes.system.log import logger
+from bes.system.which import which
+from bes.system.os_env import os_env
 from bes.unix.shell.shell import shell
 from bes.unix.sudo.sudo import sudo
 from bes.unix.sudo.sudo_cli_options import sudo_cli_options
+from bes.url.url_util import url_util
 
 from .brew_error import brew_error
 
 class brew(object):
   'Class to deal with brew on macos.'
 
+  _log = logger('brew')
+  
   @classmethod
   def has_brew(clazz):
     'Return True if brew is installed.'
@@ -74,14 +78,24 @@ class brew(object):
     sudo_options.error_message = clazz._SUDO_ERROR_MESSAGE
     sudo_options.prompt = clazz._SUDO_PROMPT
     sudo_options.password = options.password
+    clazz._log.log_d('run_script: calling sudo if needed: options={}'.format(options))
     sudo.authenticate_if_needed(options = sudo_options)
     cmd = [ '/bin/bash', tmp_script ] + args
-    execute.execute(cmd, shell = False, non_blocking = options.verbose)
+    clazz._log.log_d('run_script: script_name={} cmd={}'.format(script_name, cmd))
+    env = os_env.make_clean_env()
+    env.update({
+      'CI': '1',
+    })
+    execute.execute(cmd,
+                    shell = False,
+                    env = env,
+                    non_blocking = options.verbose)
 
   @classmethod
   def _do_install(clazz, options):
     'Install brew.'
-
+    
+    clazz._log.log_d('_do_install: calling install.sh options={}'.format(options))
     clazz.run_script('install.sh', [], options)
 
   @classmethod

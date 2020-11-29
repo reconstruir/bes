@@ -35,10 +35,10 @@ from bes.match.matcher_multiple_filename import matcher_multiple_filename
 from bes.python import setup_tools
 from bes.system.execute import execute
 from bes.system.log import log
-from rebuild.base import build_blurb, build_target, package_descriptor
+from something.base import build_blurb, build_target, package_descriptor
 from bes.debug import debug_timer
 
-from rebuild.binary_format.binary_detector import binary_detector
+from something.binary_format.binary_detector import binary_detector
 
 from .package_metadata import package_metadata
 from .package_manifest import package_manifest

@@ -9,16 +9,40 @@ import argparse
 from bes.cli.argparser_handler import argparser_handler
 from bes.common.check import check
 from bes.system.log import log
+from bes.system.host import host
 from bes.script.blurb import blurb
 from bes.version.version_cli import version_cli
 
-from bes.unix.brew.brew_cli_args import brew_cli_args
-from bes.unix.sudo.sudo_cli_args import sudo_cli_args
-from bes.macos.software_updater.software_updater_cli_args import software_updater_cli_args
+from bes.native_package.native_package_cli_args import native_package_cli_args
+from bes.archive.archive_cli_args import archive_cli_args
+
+command_parsers = [
+  ( 'archive', 'archive_add_args', 'Deal with archive' ),
+  ( 'native_package', 'native_package_add_args', 'Deal with native packages' ),
+]
+
+if host.is_macos():
+  from bes.macos.softwareupdater.softwareupdater_cli_args import softwareupdater_cli_args
+  from bes.macos.command_line_tools.command_line_tools_cli_args import command_line_tools_cli_args
+  command_parsers.extend([
+    ( 'softwareupdater', 'softwareupdater_add_args', 'Deal with macos softwareupdate' ),
+    ( 'command_line_tools', 'command_line_tools_add_args', 'Deal with command line tools' ),
+  ])
+
+if host.is_unix():
+  from bes.unix.brew.brew_cli_args import brew_cli_args
+  from bes.unix.sudo.sudo_cli_args import sudo_cli_args
+  command_parsers.extend([
+    ( 'brew', 'brew_add_args', 'Deal with brew' ),
+    ( 'sudo', 'sudo_add_args', 'Deal with sudo' ),
+  ])
 
 class tool_cli(
+  archive_cli_args,
   brew_cli_args,
-  software_updater_cli_args,
+  command_line_tools_cli_args,
+  native_package_cli_args,
+  softwareupdater_cli_args,
   sudo_cli_args
 ):
 
@@ -29,9 +53,8 @@ class tool_cli(
 
     commands_subparser = self.parser.add_subparsers(help = 'commands', dest = 'command_group')
 
-    self.add_command_group(commands_subparser, 'brew', 'brew_add_args', 'Deal with brew')
-    self.add_command_group(commands_subparser, 'sudo', 'sudo_add_args', 'Deal with sudo')
-    self.add_command_group(commands_subparser, 'software_updater', 'software_updater_add_args', 'Deal with macos software updater')
+    for p in command_parsers:
+      self.add_command_group(commands_subparser, *p)
 
     # version
     version_parser = commands_subparser.add_parser('version', help = 'Version a build to a build list.')
