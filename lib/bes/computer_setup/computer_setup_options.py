@@ -4,19 +4,21 @@ from bes.common.check import check
 from bes.common.dict_util import dict_util
 from bes.script.blurber import blurber
 
-class brew_cli_options(object):
+class computer_setup_options(object):
   
   def __init__(self, *args, **kargs):
     self.verbose = False
     self.password = None
     self.blurber = blurber()
+    self.dry_run = False
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_bool(self.verbose)
     check.check_string(self.password, allow_none = True)
     check.check_blurber(self.blurber)
+    check.check_bool(self.dry_run)
 
   def __str__(self):
     return str(dict_util.hide_passwords(self.__dict__, [ 'password' ]))
 
-check.register_class(brew_cli_options)
+check.register_class(computer_setup_options)

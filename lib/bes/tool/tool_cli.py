@@ -15,33 +15,42 @@ from bes.version.version_cli import version_cli
 
 from bes.native_package.native_package_cli_args import native_package_cli_args
 from bes.archive.archive_cli_args import archive_cli_args
+from bes.computer_setup.computer_setup_cli_args import computer_setup_cli_args
 
 command_parsers = [
   ( 'archive', 'archive_add_args', 'Deal with archive' ),
+  ( 'computer_setup', 'computer_setup_add_args', 'Deal with computer setup' ),
   ( 'native_package', 'native_package_add_args', 'Deal with native packages' ),
 ]
 
 if host.is_macos():
   from bes.macos.softwareupdater.softwareupdater_cli_args import softwareupdater_cli_args
   from bes.macos.command_line_tools.command_line_tools_cli_args import command_line_tools_cli_args
+  from bes.macos.defaults.defaults_cli_args import defaults_cli_args
   command_parsers.extend([
     ( 'softwareupdater', 'softwareupdater_add_args', 'Deal with macos softwareupdate' ),
     ( 'command_line_tools', 'command_line_tools_add_args', 'Deal with command line tools' ),
+    ( 'defaults', 'defaults_add_args', 'Deal with defaults' ),
   ])
 
 if host.is_unix():
-  from bes.unix.brew.brew_cli_args import brew_cli_args
+  from bes.unix.brew.brew_installer_cli_args import brew_installer_cli_args
+  from bes.unix.shell.shell_cli_args import shell_cli_args
   from bes.unix.sudo.sudo_cli_args import sudo_cli_args
   command_parsers.extend([
     ( 'brew', 'brew_add_args', 'Deal with brew' ),
+    ( 'shell', 'shell_add_args', 'Deal with shell' ),
     ( 'sudo', 'sudo_add_args', 'Deal with sudo' ),
   ])
 
 class tool_cli(
   archive_cli_args,
-  brew_cli_args,
+  brew_installer_cli_args,
   command_line_tools_cli_args,
+  computer_setup_cli_args,
+  defaults_cli_args,
   native_package_cli_args,
+  shell_cli_args,
   softwareupdater_cli_args,
   sudo_cli_args
 ):

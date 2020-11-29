@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-class brew_cli_args(object):
+class brew_installer_cli_args(object):
 
   def __init__(self):
     pass
@@ -44,5 +44,5 @@ class brew_cli_args(object):
                    help = 'The sudo password to use [ ]')
     
   def _command_brew(self, command, *args, **kargs):
-    from .brew_cli_command import brew_cli_command
-    return brew_cli_command.handle_command(command, **kargs)
+    from .brew_installer_cli_command import brew_installer_cli_command
+    return brew_installer_cli_command.handle_command(command, **kargs)
