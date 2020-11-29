@@ -38,7 +38,7 @@ if host.is_unix():
   from bes.unix.shell.shell_cli_args import shell_cli_args
   from bes.unix.sudo.sudo_cli_args import sudo_cli_args
   command_parsers.extend([
-    ( 'brew', 'brew_add_args', 'Deal with brew' ),
+    ( 'brew_installer', 'brew_installer_add_args', 'Deal with brew' ),
     ( 'shell', 'shell_add_args', 'Deal with shell' ),
     ( 'sudo', 'sudo_add_args', 'Deal with sudo' ),
   ])

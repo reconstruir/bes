@@ -5,7 +5,7 @@ class brew_installer_cli_args(object):
   def __init__(self):
     pass
   
-  def brew_add_args(self, subparser):
+  def brew_installer_add_args(self, subparser):
 
     # run_script
     p = subparser.add_parser('run_script', help = 'Download and run a brew script.')
