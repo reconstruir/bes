@@ -42,7 +42,7 @@ class command_line_tools(object):
     if installed:
       raise command_line_tools_error('command line tools already installed.')
 
-    with command_line_tools_force() as force:
+    with command_line_tools_force(force = True) as force:
       available_updates = softwareupdater.available()
       clazz._log.log_i('install: available_updates={}'.format(available_updates))
       for next_update in available_updates:
