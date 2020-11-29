@@ -4,7 +4,7 @@ from bes.common.check import check
 
 from bes.computer_setup.computer_setup_task import computer_setup_task
 
-from bes.unix.brew.brew import brew
+from bes.unix.brew.brew_installer import brew_installer
 from bes.unix.brew.brew_installer_options import brew_installer_options
 
 class cst_install_brew(computer_setup_task):
@@ -27,7 +27,7 @@ class cst_install_brew(computer_setup_task):
   @abstractmethod
   def is_needed(self):
     'Return True of the task needs to run.'
-    return not brew.has_brew()
+    return not brew.is_installed()
   
   #@abstractmethod
   def run(self, options, args):
@@ -36,4 +36,4 @@ class cst_install_brew(computer_setup_task):
     brew_options.verbose = options.verbose
     brew_options.password = options.password
     brew_options.blurber = options.blurber
-    brew.install(brew_options)
+    brew_installer.install(brew_options)

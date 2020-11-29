@@ -114,3 +114,10 @@ class brew_installer(object):
     url = clazz._make_script_url(script_name)
     tmp = url_util.download_to_temp_file(url, suffix = '-{}'.format(script_name))
     return tmp
+
+  @classmethod
+  def is_installed(clazz):
+    'Return True if bres is installed.'
+    check.check_string(script_name)
+
+    return brew.has_brew()
