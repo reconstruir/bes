@@ -138,7 +138,7 @@ class git(git_lfs):
   @classmethod
   def clone(clazz, address, root_dir, options = None):
     check.check_git_clone_options(options, allow_none = True)
-    
+
     address = git_address_util.resolve(address)
     options = options or git_clone_options()
     clazz.log.log_d('clone: address={} root_dir={} options={}'.format(address, root_dir, options.pformat()))
@@ -228,7 +228,7 @@ class git(git_lfs):
   def pull(clazz, root_dir, remote_name = None, branch_name = None, options = None):
     check.check_string(root_dir)
     check.check_git_clone_options(options, allow_none = True)
-    
+
     options = options or git_clone_options()
     branch_name = branch_name or options.branch
     clazz.log.log_d('pull: root_dir={} branch_name={} options={}'.format(root_dir, branch_name, options.pformat()))
@@ -253,7 +253,7 @@ class git(git_lfs):
     info = clazz.head_info(root_dir)
 
     if branch_name:
-      git_exe.call_git(root_dir, [ 'fetch', 'origin', branch_name ])
+      clazz.fetch_branch(root_dir, branch_name)
 
     if info.is_detached:
       clazz.checkout(root_dir, 'master')
@@ -769,6 +769,17 @@ class git(git_lfs):
   def fetch(clazz, root):
     git_exe.call_git(root, [ 'fetch', '--all' ])
 
+  @classmethod
+  def fetch_branch(clazz, root, branch_name):
+    check.check_string(root)
+    check.check_string(branch_name)
+
+    refspec = '{branch_name}:refs/remotes/origin/{branch_name}'.format(branch_name = branch_name)
+    args = [ 'fetch', 'origin', refspec ]
+    print('calling: {}'.format(' '.join(args)))
+    rv = git_exe.call_git(root, args)
+    print(rv)
+    
   @classmethod
   def author(clazz, root, commit, brief = False):
     rv = git_exe.call_git(root, [ 'show', '--no-patch', '--pretty=%ae', commit ])
