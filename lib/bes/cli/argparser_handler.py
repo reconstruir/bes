@@ -83,10 +83,11 @@ class argparser_handler(object):
     if not command:
       assert command_group
       return [ clazz._handler_method_name(command_group, None) ]
-    names = [ clazz._handler_method_name(None, command) ]
+    names = []
     if command_group:
       names.append(clazz._handler_method_name(command_group, command))
       names.append(clazz._handler_method_name(command_group, None))
+    names.append(clazz._handler_method_name(None, command))
     return names
   
   @classmethod
