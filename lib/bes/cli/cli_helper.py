@@ -1,52 +1,15 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from collections import namedtuple
-
 from os import path
-import inspect
-from bes.system.log import logger
 
 from bes.common.check import check
 from bes.common.object_util import object_util
-from bes.system.log import log
 from bes.fs.file_check import file_check
 from bes.fs.file_find import file_find
-#from bes.git.git import git
+from bes.git.git import git
 
 class cli_helper(object):
-  'A class to help implement clis'
-
-#####  @classmethod
-#####  def check_file(clazz, filename):
-#####    file_check.check_file(filename)
-#####
-#####  @classmethod
-#####  def check_dir(clazz, dirname):
-#####    file_check.check_dir(dirname)
-#####
-#####  @classmethod
-#####  def check_dir_is_git_repo(clazz, d):
-#####    git.check_is_repo(d)
-#####
-#####  @classmethod
-#####  def resolve_file(clazz, filename, root_dir = None):
-#####    '''
-#####    Resolve a filename as follows:
-#####     . expand ~ to $HOME
-#####     . make it an absolute path
-#####    '''
-#####    if root_dir:
-#####      filename = path.join(root_dir, filename)
-#####    else:
-#####      if '~' in filename:
-#####        filename = path.expanduser(filename)
-#####      if not path.isabs(filename):
-#####        filename = path.abspath(filename)
-#####    return filename
-#####
-#####  @classmethod
-#####  def resolve_dir(clazz, dirname, root_dir = None):
-#####    return clazz.resolve_file(dirname, root_dir = root_dir)
+  'A class to help implement cli tools'
 
   @classmethod
   def resolve_files(clazz, what, func = None):
@@ -78,3 +41,47 @@ class cli_helper(object):
     if path.exists(filename):
       raise RuntimeError('File not a file or dir: {}'.format(filename))
     raise RuntimeError('File not found: {}'.format(filename))
+
+  @classmethod
+  def check_file(clazz, filename):
+    file_check.check_file(filename)
+
+  @classmethod
+  def check_dir(clazz, dirname):
+    file_check.check_dir(dirname)
+
+  @classmethod
+  def check_dir_is_git_repo(clazz, d):
+    git.check_is_repo(d)
+
+  @classmethod
+  def resolve_file(clazz, filename, root_dir = None):
+    '''
+    Resolve a filename as follows:
+     . expand ~ to $HOME
+     . make it an absolute path
+    '''
+    if root_dir:
+      filename = path.join(root_dir, filename)
+    else:
+      if '~' in filename:
+        filename = path.expanduser(filename)
+      if not path.isabs(filename):
+        filename = path.abspath(filename)
+    return filename
+
+  @classmethod
+  def resolve_dir(clazz, dirname, root_dir = None):
+    return clazz.resolve_file(dirname, root_dir = root_dir)
+
+  @classmethod
+  def filter_keywords_args(clazz, clazz_for_instance, kargs):
+    check.check_class(clazz)
+    
+    instance = clazz_for_instance()
+    fields = [ field for field in dir(instance) if not field.startswith('_') ]
+    copied_args = copy.deepcopy(kargs)
+    for field in fields:
+      if field in copied_args:
+        del copied_args[field]
+    return copied_args
