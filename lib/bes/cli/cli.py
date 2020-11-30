@@ -1,6 +1,6 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import argparse
+import argparse, pprint
 from abc import abstractmethod, ABCMeta
 
 from .argparser_handler import argparser_handler
@@ -36,6 +36,10 @@ class cli(with_metaclass(ABCMeta, object)):
     all_handlers = cli_command_list()
     all_handlers.extend(command_groups)
     all_handlers.extend(commands)
+
+    dups = all_handlers.duplicate_handlers()
+    if dups:
+      raise RuntimeError('duplicate handlers found:\n{}\n'.format(pprint.pformat(dups)))
     
     handler_class_name = '{}_handler_superclass'.format(name)
     handler_class = all_handlers.make_handler_superclass(handler_class_name)
