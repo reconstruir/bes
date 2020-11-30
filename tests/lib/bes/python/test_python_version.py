@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from ego_automation.python.python_version import python_version
+from bes.python.python_version import python_version
 
 class test_python_version(unit_test):
 

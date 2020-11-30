@@ -7,8 +7,8 @@ from bes.testing.unit_test import unit_test
 from bes.fs.file_util import file_util
 from bes.system.env_override import env_override
 
-from ego_automation.python.python_exe import python_exe
-from ego_automation.python.python_error import python_error
+from bes.python.python_exe import python_exe
+from bes.python.python_error import python_error
 
 class test_python_exe(unit_test):
 
