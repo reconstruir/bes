@@ -1,6 +1,6 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import argparse
+import argparse, sys
 from abc import abstractmethod, ABCMeta
 
 from .argparser_handler import argparser_handler
@@ -29,7 +29,9 @@ class cli(with_metaclass(ABCMeta, object)):
     handler_class_name = '{}_handler_superclass'.format(name)
     self._version_cli_args.version_module_name = version_module_name
     self._version_cli_args.version_dependencies = version_dependencies
-    handler_class = items.make_handler_superclass(self._version_cli_args, handler_class_name)
+    extra_super_classes = [ self._version_cli_args, self._env_cli_args ]
+    handler_class = items.make_handler_superclass(handler_class_name,
+                                                  extra_super_classes = extra_super_classes)
     self.handler_object = handler_class()
     for item in items:
       self._add_command_group(commands_subparser,
@@ -40,6 +42,9 @@ class cli(with_metaclass(ABCMeta, object)):
     # version
     version_parser = commands_subparser.add_parser('version', help = 'Print version information.')
     version_cli.arg_sub_parser_add_arguments(version_parser)
+
+    # env
+    #env_parser = commands_subparser.add_parser('env', help = 'Print environment information.')
     
   @abstractmethod
   def tool_item_list(self):
@@ -67,3 +72,19 @@ class cli(with_metaclass(ABCMeta, object)):
                                    brief = kargs['brief'],
                                    print_all = kargs['print_all'])
       return 0
+
+  class _env_cli_args(object):
+  
+    def _command_env(self, command, *args, **kargs):
+      assert command == None
+      data = {
+        'python_version': sys.version.replace('\n', ''),
+        'python_executable': sys.executable,
+        'python_frozen': getattr(sys, 'frozen', False),
+        'pyinstaller_tmp_dir': getattr(sys, '_MEIPASS', ''),
+        'python_exe_for_sys_version': python_exe.exe_for_sys_version(absolute = True),
+      }
+      for key, value in sorted(data.items()):
+        print('{:>26}: {}'.format(key, value))
+      return 0
+    
