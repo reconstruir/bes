@@ -27,6 +27,7 @@ class cli(with_metaclass(ABCMeta, object)):
 
     commands_subparser = self.parser.add_subparsers(help = 'commands', dest = 'command_group')
     items = cli_item_list(self.tool_item_list())
+    items.sort(key = lambda item: item.name)
     handler_class_name = '{}_handler_superclass'.format(name)
     self._version_cli_args.version_module_name = version_module_name
     self._version_cli_args.version_dependencies = version_dependencies

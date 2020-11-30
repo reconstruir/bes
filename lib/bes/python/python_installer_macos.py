@@ -13,8 +13,8 @@ from bes.fs.file_symlink import file_symlink
 from bes.fs.file_util import file_util
 
 from bes.native_package.native_package import native_package
-from bes.unix.sudo import sudo
-from bes.unix.sudo_cli_options import sudo_cli_options
+from bes.unix.sudo.sudo import sudo
+from bes.unix.sudo.sudo_cli_options import sudo_cli_options
 
 from .python_error import python_error
 from .python_exe import python_exe

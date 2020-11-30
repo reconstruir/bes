@@ -36,13 +36,15 @@ class best_cli(cli):
     
   from bes.archive.archive_cli_args import archive_cli_args
   from bes.computer_setup.computer_setup_cli_args import computer_setup_cli_args
-  from bes.native_package.native_package_cli_args import native_package_cli_args
   from bes.egg.egg_cli_args import egg_cli_args
+  from bes.native_package.native_package_cli_args import native_package_cli_args
+  from bes.python.python_cli_args import python_cli_args
   COMMON_ITEMS = [
     cli_item('archive', 'archive_add_args', 'Deal with archive', archive_cli_args),
     cli_item('egg', 'egg_add_args', 'Deal with eggs', egg_cli_args),
     cli_item('computer_setup', 'computer_setup_add_args', 'Deal with computer setup', computer_setup_cli_args),
     cli_item('native_package', 'native_package_add_args', 'Deal with native packages', native_package_cli_args),
+    cli_item('python', 'python_add_args', 'Deal with python', python_cli_args),
   ]
 
   ITEMS = COMMON_ITEMS + MACOS_ITEMS + UNIX_ITEMS
