@@ -56,10 +56,12 @@ class best_cli(cli):
 
   from bes.cli.cli_env_cli_args import cli_env_cli_args
   from bes.cli.cli_version_cli_args import cli_version_cli_args
+  from bes.cli.cli_help_cli_args import cli_help_cli_args
   cli_version_cli_args.version_module_name = 'bes'
   cli_version_cli_args.version_dependencies = None
   COMMANDS = [
     cli_command('env', 'env_add_args', 'Print env information', cli_env_cli_args),
+    cli_command('help', 'help_add_args', 'Print help', cli_help_cli_args),
     cli_command('version', 'version_add_args', 'Print version information', cli_version_cli_args),
   ]
   

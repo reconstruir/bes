@@ -22,6 +22,9 @@ class cli(with_metaclass(ABCMeta, object)):
     blurb.add_blurb(self, self.name)
     self.parser = argparse.ArgumentParser()
 
+    from bes.cli.cli_help_cli_args import cli_help_cli_args
+    cli_help_cli_args.parser = self.parser
+    
     self.commands_subparser = self.parser.add_subparsers(help = 'commands', dest = 'command_group')
 
     command_groups = cli_command_list(self.command_group_list())
@@ -49,7 +52,7 @@ class cli(with_metaclass(ABCMeta, object)):
                         command.name,
                         command.add_args_function,
                         command.description)
-      
+
   @abstractmethod
   def command_list(self):
     'Return a list of commands for this cli.'
