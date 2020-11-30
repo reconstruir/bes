@@ -1,9 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-class brew_error(Exception):
-  
+class defaults_error(Exception):
   def __init__(self, message, status_code = None):
-    super(brew_error, self).__init__()
+    super(defaults_error, self).__init__()
     self.message = message
     self.status_code = status_code
 

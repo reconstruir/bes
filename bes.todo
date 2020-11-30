@@ -1,3 +1,8 @@
+dec 2020
+- return cli_helper
+- fix lib/bes/cli/argparser_handler.py to remove all the check and filter commands
+  then find all old usages and replace with subclassing from cli_helper
+
 >jul 28
 - fix file_find.fnmatch_find to work more like /bin/find in that it stops when it finds what it wants
 - also rename find_fnmatch to find_name

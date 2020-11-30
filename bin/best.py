@@ -4,8 +4,8 @@
 def best_main():
   import sys
   sys.dont_write_bytecode = True
-  from bes.tool.tool_cli import tool_cli
-  tool_cli.run()
+  from bes.best_cli.best_cli import best_cli
+  best_cli.run()
 
 if __name__ == '__main__':
   best_main()
