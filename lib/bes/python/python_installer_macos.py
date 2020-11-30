@@ -12,8 +12,9 @@ from bes.version.software_version import software_version
 from bes.fs.file_symlink import file_symlink
 from bes.fs.file_util import file_util
 
-from rebuild.native_package.native_package import native_package
-from rebuild.sudo.sudo_exe import sudo_exe
+from bes.native_package.native_package import native_package
+from bes.unix.sudo import sudo
+from bes.unix.sudo_cli_options import sudo_cli_options
 
 from .python_error import python_error
 from .python_exe import python_exe
@@ -152,7 +153,7 @@ class python_installer_macos(python_installer_base):
         rv = True
         self._sudo_validate('sudo password for uninstall:')
         args = [ 'rm', '-rf', next_garbage ]
-        sudo_exe.call_sudo(args)
+        sudo.call_sudo(args)
     return result
 
   #@abstractmethod
@@ -242,7 +243,9 @@ class python_installer_macos(python_installer_base):
 
   @classmethod
   def _sudo_validate(clazz, prompt):
-    sudo_exe.validate(prompt = prompt)
+    options = sudo_cli_options()
+    options.prompt = prompt
+    sudo.authenticate(options = options)
 
   def _run_commands(self, np, version):
     package_name = 'org.python.Python.PythonApplications-{}'.format(version)
