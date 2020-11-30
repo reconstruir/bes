@@ -17,7 +17,7 @@ class test_cli(program_unit_test):
 #  else:
 #    host.raise_unsupported_system()
   
-  def test_caca(self):
+  def test_cli(self):
 
     kitchen_program_content = '''\
 #!/usr/bin/env python
@@ -62,7 +62,7 @@ class oven_cli_args(object):
 '''
     
     kitchen_cli_content = '''\
-from bes.cli.cli_item import cli_item
+from bes.cli.cli_command import cli_command
 from bes.cli.cli import cli
 
 from knife_cli_args import knife_cli_args
@@ -74,11 +74,14 @@ class kitchen_cli(cli):
     super(kitchen_cli, self).__init__('kitchen')
 
   #@abstractmethod
-  def tool_item_list(self):
-    'Return a list of tool items for this cli.'
+  def command_list(self):
+    return []
+
+  #@abstractmethod
+  def command_group_list(self):
     return [
-      cli_item('knife', 'knife_add_args', 'Knife', knife_cli_args),
-      cli_item('oven', 'oven_add_args', 'Oven', oven_cli_args),
+      cli_command('knife', 'knife_add_args', 'Knife', knife_cli_args),
+      cli_command('oven', 'oven_add_args', 'Oven', oven_cli_args),
     ]
 
   @classmethod

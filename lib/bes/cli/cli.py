@@ -10,48 +10,55 @@ from bes.system.compat import with_metaclass
 from bes.system.log import log
 from bes.version.version_cli import version_cli
 
-from .cli_item_list import cli_item_list
-from .cli_env_cli_args import cli_env_cli_args
+from .cli_command_list import cli_command_list
 
 class cli(with_metaclass(ABCMeta, object)):
 
-  def __init__(self, name, version_module_name, version_dependencies = None):
+  def __init__(self, name):
     check.check_string(name)
-    check.check_string(version_module_name)
-    check.check_string_seq(version_dependencies, allow_none = True)
-    
+
     self.name = name
     log.add_logging(self, self.name)
     blurb.add_blurb(self, self.name)
     self.parser = argparse.ArgumentParser()
 
-    commands_subparser = self.parser.add_subparsers(help = 'commands', dest = 'command_group')
-    items = cli_item_list(self.tool_item_list())
-    items.sort(key = lambda item: item.name)
-    handler_class_name = '{}_handler_superclass'.format(name)
-    self._version_cli_args.version_module_name = version_module_name
-    self._version_cli_args.version_dependencies = version_dependencies
-    extra_super_classes = [ self._version_cli_args, cli_env_cli_args ]
-    handler_class = items.make_handler_superclass(handler_class_name,
-                                                  extra_super_classes = extra_super_classes)
-    self.handler_object = handler_class()
-    for item in items:
-      self._add_command_group(commands_subparser,
-                              item.name,
-                              item.add_args_function,
-                              item.description)
+    self.commands_subparser = self.parser.add_subparsers(help = 'commands', dest = 'command_group')
 
-    # version
-    version_parser = commands_subparser.add_parser('version', help = 'Print version information.')
-    version_cli.arg_sub_parser_add_arguments(version_parser)
+    command_groups = cli_command_list(self.command_group_list())
+    command_groups.sort(key = lambda item: item.name)
 
-    # env
-    env_parser = commands_subparser.add_parser('env', help = 'Print environment information.')
+    commands = cli_command_list(self.command_list())
+    commands.sort(key = lambda item: item.name)
+
+    all_handlers = cli_command_list()
+    all_handlers.extend(command_groups)
+    all_handlers.extend(commands)
     
+    handler_class_name = '{}_handler_superclass'.format(name)
+    handler_class = all_handlers.make_handler_superclass(handler_class_name)
+    self.handler_object = handler_class()
+    
+    for command_group in command_groups:
+      self._add_command_group(self.commands_subparser,
+                              command_group.name,
+                              command_group.add_args_function,
+                              command_group.description)
+
+    for command in commands:
+      self._add_command(self.commands_subparser,
+                        command.name,
+                        command.add_args_function,
+                        command.description)
+      
   @abstractmethod
-  def tool_item_list(self):
-    'Return a list of tool items for this cli.'
-    raise NotImplemented('tool_item_list')
+  def command_list(self):
+    'Return a list of commands for this cli.'
+    raise NotImplemented('command_list')
+
+  @abstractmethod
+  def command_group_list(self):
+    'Return a list of command groups for this cli.'
+    raise NotImplemented('command_group_list')
 
   def main(self):
     return argparser_handler.main(self.name, self.parser, self.handler_object)
@@ -63,14 +70,7 @@ class cli(with_metaclass(ABCMeta, object)):
     adder = getattr(self.handler_object, arg_adder)
     adder(subparsers)
 
-  class _version_cli_args(object):
-  
-    def _command_version(self, command, *args, **kargs):
-      assert command == None
-      assert 'print_all' in kargs
-      assert 'brief' in kargs
-      version_cli.print_everything(self.version_module_name,
-                                   dependencies = self.version_dependencies,
-                                   brief = kargs['brief'],
-                                   print_all = kargs['print_all'])
-      return 0
+  def _add_command(self, commands_subparser, command_name, arg_adder, help_blurb):
+    parser = commands_subparser.add_parser(command_name, help = help_blurb)
+    adder = getattr(self.handler_object, arg_adder)
+    adder(parser)

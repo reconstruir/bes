@@ -3,14 +3,14 @@
 from bes.common.check import check
 from bes.common.type_checked_list import type_checked_list
 
-from .cli_item import cli_item 
+from .cli_command import cli_command 
 
-class cli_item_list(type_checked_list):
+class cli_command_list(type_checked_list):
 
-  __value_type__ = cli_item
+  __value_type__ = cli_command
 
   def __init__(self, values = None):
-    super(cli_item_list, self).__init__(values = values)
+    super(cli_command_list, self).__init__(values = values)
 
   _CLASS_NAMES = set()
   def make_handler_superclass(self, class_name, extra_super_classes = None):
@@ -25,4 +25,4 @@ class cli_item_list(type_checked_list):
     new_class = type(class_name, tuple(super_classes), {})
     return new_class
     
-check.register_class(cli_item_list, include_seq = False)
+check.register_class(cli_command_list, include_seq = False)

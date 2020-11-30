@@ -5,6 +5,9 @@ import sys
 from bes.python.python_exe import python_exe
 
 class cli_env_cli_args(object):
+
+  def env_add_args(self, parser):
+    pass
   
   def _command_env(self, command, *args, **kargs):
     assert command == None
