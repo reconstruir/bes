@@ -21,9 +21,11 @@ class argparser_handler(object):
     command = getattr(args, 'command', None)
     possible_names = clazz._possible_method_names(command_group, command)
     handler = clazz._find_handler(handler_object, possible_names)
+    #print('handler={}'.format(handler))
     if not handler:
       raise RuntimeError('No method found for command: %s' % (' '.join(possible_names)))
     handler_spec = inspect_util.getargspec(handler)
+    #print('handler_spec={}'.format(handler_spec))
 
     # If the arghandler has a keywords field, that means the user intends
     # to use the simplified interface where handler methods are implemented

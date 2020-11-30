@@ -62,57 +62,24 @@ class oven_cli_args(object):
 '''
     
     kitchen_cli_content = '''\
-import argparse
-
-from bes.cli.argparser_handler import argparser_handler
-from bes.common.check import check
-from bes.system.log import log
-from bes.system.host import host
-from bes.script.blurb import blurb
-from bes.version.version_cli import version_cli
+from bes.cli.cli_item import cli_item
+from bes.cli.cli import cli
 
 from knife_cli_args import knife_cli_args
 from oven_cli_args import oven_cli_args
 
-_PARSERS = [
-  ( 'knife', 'knife_add_args', 'Knife' ),
-  ( 'oven', 'oven_add_args', 'Oven' ),
-]
-
-class kitchen_cli(knife_cli_args, oven_cli_args):
+class kitchen_cli(cli):
 
   def __init__(self):
-    log.add_logging(self, 'kitchen')
-    blurb.add_blurb(self, 'kitchen')
-    self.parser = argparse.ArgumentParser()
+    super(kitchen_cli, self).__init__('kitchen')
 
-    commands_subparser = self.parser.add_subparsers(help = 'commands', dest = 'command_group')
-
-    for p in _PARSERS:
-      self.add_command_group(commands_subparser, *p)
-
-#    # version
-#    version_parser = commands_subparser.add_parser('version', help = 'Version a build to a build list.')
-#    version_cli.arg_sub_parser_add_arguments(version_parser)
-
-  def _command_version(self, print_all, brief):
-    version_cli.print_everything(
-      'bes',
-      dependencies = [],
-      brief = brief,
-      print_all = print_all
-    )
-    return 0
-
-  def main(self):
-    return argparser_handler.main('kitchen', self.parser, self)
-
-  def add_command_group(self, commands_subparser, command_group, arg_adder, help_blurb):
-    parser = commands_subparser.add_parser(command_group, help = help_blurb)
-    subparsers_help_blurb = '%s_commands' % (command_group)
-    subparsers = parser.add_subparsers(help = subparsers_help_blurb, dest = 'command')
-    adder = getattr(self, arg_adder)
-    adder(subparsers)
+  #@abstractmethod
+  def tool_item_list(self):
+    'Return a list of tool items for this cli.'
+    return [
+      cli_item('knife', 'knife_add_args', 'Knife', knife_cli_args),
+      cli_item('oven', 'oven_add_args', 'Oven', oven_cli_args),
+    ]
 
   @classmethod
   def run(clazz):
