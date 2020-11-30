@@ -39,7 +39,7 @@ class brew(object):
     if not clazz.has_brew():
       raise brew_error('brew not installed')
     rv = clazz.call_brew([ '--version' ])
-    f = re.findall('^Homebrew\s+(.+)\n', rv.stdout)
+    f = re.findall(r'^Homebrew\s+(.+)\n', rv.stdout)
     if not f:
       raise brew_error('failed to determine brew version.')
     if len(f) != 1:
