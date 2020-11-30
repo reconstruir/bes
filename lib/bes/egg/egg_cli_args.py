@@ -3,7 +3,6 @@
 import argparse, os, os.path as path
 
 from bes.fs import file_util
-from bes.cli.command_cli import command_cli
 
 from .egg import egg
 
