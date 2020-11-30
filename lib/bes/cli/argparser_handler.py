@@ -1,4 +1,4 @@
-#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+lib/bes/version/version_cli_args.py#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
 import copy, inspect
@@ -19,13 +19,15 @@ class argparser_handler(object):
     args = parser.parse_args()
     command_group = getattr(args, 'command_group', command_group)
     command = getattr(args, 'command', None)
+    log.log_d('command={} command_group={}'.format(command, command_group))
     possible_names = clazz._possible_method_names(command_group, command)
+    log.log_d('possible_names={}'.format(possible_names))
     handler = clazz._find_handler(handler_object, possible_names)
-    #print('handler={}'.format(handler))
+    log.log_d('handler={}'.format(handler))
     if not handler:
       raise RuntimeError('No method found for command: %s' % (' '.join(possible_names)))
     handler_spec = inspect_util.getargspec(handler)
-    #print('handler_spec={}'.format(handler_spec))
+    log.log_d('handler_spec={}'.format(handler_spec))
 
     # If the arghandler has a keywords field, that means the user intends
     # to use the simplified interface where handler methods are implemented
@@ -43,8 +45,11 @@ class argparser_handler(object):
         if key in dict_args:
           del dict_args[key]
       args_blurb = '; '.join([ '{}={}'.format(key, value) for key, value in sorted(dict_args.items()) ])
+      log.log_d('handler.__name__={}'.format(handler.__name__))
       log.log_d('calling {}({})'.format(handler.__name__, args_blurb))
-      if handler.__name__.endswith(command):
+      if command == None:
+        exit_code = handler(None, **dict_args)
+      elif handler.__name__.endswith(command):
         exit_code = handler(**dict_args)
       else:
         exit_code = handler(command, **dict_args)

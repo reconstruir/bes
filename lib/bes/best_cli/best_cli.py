@@ -6,7 +6,7 @@ from bes.cli.cli_item import cli_item
 class best_cli(cli):
 
   def __init__(self):
-    super(best_cli, self).__init__('best')
+    super(best_cli, self).__init__('best', 'bes', [])
 
   from bes.system.host import host
     
