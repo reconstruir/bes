@@ -54,9 +54,11 @@ class pip_exe(object):
 
     python_exe.check_exe(py_exe)
     py_version = python_exe.version(py_exe)
-    pip_basename = 'pip{}'.format(py_version)
-    python_bin_dir = path.dirname(py_exe)
-    return path.join(python_bin_dir, pip_basename)
+
+    exe = clazz._pip_exe_for_python_exe(py_exe)
+    if not exe:
+      raise pip_error('No pip found for python exe: "{}"'.format(py_exe))
+    return exe
 
   @classmethod
   def pip_exe_is_valid(clazz, pip_exe):
@@ -69,3 +71,22 @@ class pip_exe(object):
     except Exception as ex:
       pass
     return False
+
+  @classmethod
+  def _pip_exe_for_python_exe(clazz, py_exe):
+    'Return the pip executable for the given python'
+    check.check_string(py_exe)
+
+    python_exe.check_exe(py_exe)
+    py_version = python_exe.version(py_exe)
+    python_bin_dir = path.dirname(py_exe)
+    possible_basenames = [
+      'pip{}'.format(py_version),
+      'pip{}'.format(python_version.any_version_to_major_version(py_version)),
+    ]
+    for possible_basename in possible_basenames:
+      possible_pip_exe = path.join(python_bin_dir, possible_basename)
+      if path.exists(possible_pip_exe):
+        return possible_pip_exe
+    return None
+  
