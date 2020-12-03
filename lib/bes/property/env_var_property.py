@@ -8,7 +8,7 @@ from bes.system.env_var import os_env_var
 
 # From https://stackoverflow.com/questions/4037481/caching-attributes-of-classes-in-python
 class env_var_property(object):
-  """/home/ramiro/proj/rebuild/lib/rebuild/credentials/credential.py
+  """
   Descriptor (non-data) for building an attribute on-demand on first use.
   Based on From https://stackoverflow.com/questions/4037481/caching-attributes-of-classes-in-python
   """

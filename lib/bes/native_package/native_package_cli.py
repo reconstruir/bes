@@ -27,7 +27,7 @@ class native_package_cli(native_package_cli_args):
     return argparser_handler.main('native_package', self.parser, self, command_group = 'native_package')
 
   def _command_version(self, print_all, brief):
-    version_cli.print_everything('ego_automation', dependencies = [ 'bes' ],
+    version_cli.print_everything('bes', dependencies = [],
                                  brief = brief, print_all = print_all)
     return 0
 
