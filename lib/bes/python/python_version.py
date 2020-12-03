@@ -30,7 +30,7 @@ class python_version(object):
 
   @classmethod
   def any_version_to_version(clazz, any_version):
-    'Return x for x.y.z or x.y'
+    'Return x.y for x.y.z or x.y'
     check.check_string(any_version)
     
     sv = software_version.parse_version(any_version)
