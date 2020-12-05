@@ -14,9 +14,9 @@ class argparser_handler(object):
   'A class to simplify the process of calling functions to handle argparser commands'
 
   @classmethod
-  def main(clazz, log_tag, parser, handler_object, command_group = None):
+  def main(clazz, log_tag, parser, handler_object, command_group = None, args = None):
     log = logger(log_tag)
-    args = parser.parse_args()
+    args = parser.parse_args(args = args)
     command_group = getattr(args, 'command_group', command_group)
     command = getattr(args, 'command', None)
     log.log_d('command={} command_group={}'.format(command, command_group))
