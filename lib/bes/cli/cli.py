@@ -67,8 +67,8 @@ class cli(with_metaclass(ABCMeta, object)):
     'Return a list of command groups for this cli.'
     raise NotImplemented('command_group_list')
 
-  def main(self):
-    return argparser_handler.main(self.name, self.parser, self.handler_object)
+  def main(self, args = None):
+    return argparser_handler.main(self.name, self.parser, self.handler_object, args=args)
 
   def _add_command_group(self, commands_subparser, command_group, arg_adder, help_blurb):
     parser = commands_subparser.add_parser(command_group, help = help_blurb)
