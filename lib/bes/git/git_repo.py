@@ -27,7 +27,7 @@ class git_repo(object):
   'A git repo abstraction.'
 
   def __init__(self, root, address = None):
-    self.root = path.abspath(root)
+    self.root = git.find_root_dir(path.abspath(root))
     self.address = address or git.remote_origin_url(self.root)
 
   def __str__(self):
@@ -526,7 +526,7 @@ class git_repo(object):
     if not self.address:
       raise git_error('cached_archive only works for repos cloned from a remote address.')
     if not self._cached_archive_revision_is_valid(revision):
-      raise git_error('revision should be a valid tag or commit hash.')
+      raise git_error('revision should be a valid tag or commit hash: ""'.format(revision))
       
     cache_dir = self._cached_archive_resolve_cache_dir(cache_dir = cache_dir)
     local_address_path = self._cached_archive_path_for_address(cache_dir, self.address)
