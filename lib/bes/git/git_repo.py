@@ -26,8 +26,12 @@ from .git_modules_file import git_modules_file
 class git_repo(object):
   'A git repo abstraction.'
 
-  def __init__(self, root, address = None):
-    self.root = git.find_root_dir(path.abspath(root))
+  def __init__(self, root, address = None, find_root = False):
+    if find_root:
+      found_root = git.find_root_dir(path.abspath(root))
+    else:
+      found_root = path.abspath(root)
+    self.root = found_root
     self.address = address or git.remote_origin_url(self.root)
 
   def __str__(self):
