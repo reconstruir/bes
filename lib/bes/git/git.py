@@ -10,7 +10,6 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_copy import file_copy
-from bes.fs.file_ignore import ignore_file_data
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.log import logger
@@ -26,6 +25,7 @@ from .git_config import git_config
 from .git_error import git_error
 from .git_exe import git_exe
 from .git_head_info import git_head_info
+from .git_ignore import git_ignore
 from .git_lfs import git_lfs
 from .git_modules_file import git_modules_file
 from .git_ref import git_ref
@@ -363,11 +363,16 @@ class git(git_lfs):
       clazz.clone(address, root_dir, options = options)
 
   @classmethod
-  def archive(clazz, address, revision, base_name, output_filename, untracked = False):
+  def archive(clazz, address, revision, base_name, output_filename,
+              untracked = False, override_gitignore = None, debug = False):
     'git archive with additional support to include untracked files for local repos.'
-    tmp_repo_dir = temp_file.make_temp_dir()
+    tmp_repo_dir = temp_file.make_temp_dir(delete = not debug)
+    
     if path.isdir(address):
-      file_copy.copy_tree(address, tmp_repo_dir, excludes = clazz.read_gitignore(address))
+      excludes = git_ignore.read_gitignore_file(address)
+      file_copy.copy_tree(address, tmp_repo_dir, excludes = excludes)
+      if override_gitignore:
+        file_util.save(path.join(address, '.gitignore'), content = override_gitignore)
       if untracked:
         git_exe.call_git(tmp_repo_dir, [ 'add', '-A' ])
         git_exe.call_git(tmp_repo_dir, [ 'commit', '-m', '"add untracked files just for tmp repo"' ])
@@ -607,12 +612,9 @@ class git(git_lfs):
     return git_exe.call_git(root, args).stdout.strip()
 
   @classmethod
-  def read_gitignore(clazz, root):
+  def read_gitignore(clazz, root_dir):
     'Return the contents of .gitignore with comments stripped.'
-    p = path.join(root, '.gitignore')
-    if not path.isfile(p):
-      return None
-    return ignore_file_data.read_file(p).patterns
+    return git_ignore.read_gitignore_file(root_dir)
 
   @classmethod
   def config_set_value(clazz, key, value):
