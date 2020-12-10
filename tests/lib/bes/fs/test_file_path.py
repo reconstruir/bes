@@ -169,7 +169,7 @@ class test_file_path(unit_test):
       path.join(tmp_dir, 'drinks/dairy/milk.config'),
       path.join(tmp_dir, 'drinks/dairy/yogurt.config'),
       path.join(tmp_dir, 'fruit/fruit.config'),
-    ], FP.glob_search_path(search_path, '*.config') )
+    ], FP.glob(search_path, '*.config') )
 
   def xtest_glob_env_search_path(self):
     tmp_dir = temp_content.write_items_to_temp_dir([
@@ -195,7 +195,7 @@ class test_file_path(unit_test):
       path.join(tmp_dir, 'drinks/dairy/milk.config'),
       path.join(tmp_dir, 'drinks/dairy/yogurt.config'),
       path.join(tmp_dir, 'fruit/fruit.config'),
-    ], FP.glob_env_search_path(search_path, '*.config') )
+    ], FP.glob(search_path, '*.config') )
 
   def test_has_glob_pattern_true(self):
     self.assertTrue( FP.has_glob_pattern('*.py') )
