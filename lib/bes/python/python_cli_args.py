@@ -43,6 +43,15 @@ class python_cli_args(object):
     p.add_argument('-v', '--verbose', action = 'store_true',
                    default = False, help = 'Verbose output')
 
+    # python_info
+    p = subparser.add_parser('info', help = 'Print information about the python executable.')
+    p.add_argument('exe', action = 'store', help = 'The python executable')
+    
+    # python_exes
+    p = subparser.add_parser('exes', help = 'Print all the pythons found in PATH.')
+    p.add_argument('-i', '--info', action = 'store_true', dest = 'show_info',
+                   default = False, help = 'Print info about the executable')
+    
   def _command_python(self, command, *args, **kargs):
     from .python_cli_command import python_cli_command
     return python_cli_command.handle_command(command, **kargs)
