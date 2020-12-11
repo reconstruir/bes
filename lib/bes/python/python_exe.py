@@ -17,7 +17,7 @@ from bes.system.which import which
 from bes.system.os_env import os_env_var
 from bes.version.software_version import software_version
 
-from bes.unix.brew import brew
+from bes.unix.brew.brew import brew
 
 from .python_error import python_error
 from .python_version import python_version
