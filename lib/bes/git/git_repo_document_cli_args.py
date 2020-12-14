@@ -17,8 +17,8 @@ class git_repo_document_cli_args(object):
     default_root = os.getcwd()
     default_working_dir = os.path.join(os.getcwd(), '.ego_git_repo_document_db_tmp')
 
-    # update_document
-    p = subparser.add_parser('update_document', help = 'Update a document in a repo db.')
+    # update
+    p = subparser.add_parser('update', help = 'Update a document in a repo db.')
     p.add_argument('input_filename', action = 'store', type = str, default = None,
                    help = 'The file to store in the repo. [ None ]')
     p.add_argument('address', action = 'store', type = str, default = None,
@@ -31,8 +31,8 @@ class git_repo_document_cli_args(object):
     p.add_argument('--commit-msg', action = 'store', type = str, default = None,
                    help = 'The commit message for the check-in. [ None ]')
 
-    # load_document
-    p = subparser.add_parser('load_document', help = 'Load a document that''s in a repo db.')
+    # load
+    p = subparser.add_parser('load', help = 'Load a document that''s in a repo db.')
     p.add_argument('filename', action = 'store', type = str, default = None,
                    help = 'The name of the file in the repo. [ None ]')
     p.add_argument('address', action = 'store', type = str, default = None,

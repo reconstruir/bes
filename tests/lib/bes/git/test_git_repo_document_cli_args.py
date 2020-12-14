@@ -16,21 +16,21 @@ class test_git_repo_document_cli_args(program_unit_test):
   @git_temp_home_func()
   def test_basic(self):
     # This is the document to write to the repository.
-    tmp_source_doc = self.make_temp_file(content='abc', suffix='-doc.txt')
+    tmp_source_doc = self.make_temp_file(content = 'abc', suffix = '-doc.txt')
 
     # Here's a repository to put it in.
     r = git_temp_repo(debug=self.DEBUG)
-    r.add_file('dummy.txt', content='dummy')
+    r.add_file('dummy.txt', content = 'dummy')
     r.push('origin', 'master')
 
     # Use this directory for the document DB's local repository. It will be deleted at the end of
     # the test.
     tmp_db_dir = self.make_temp_dir()
 
-    # Run the 'egoist.py git update_document <source-doc> <repo-address> <branch>' command.
+    # Run the 'egoist.py git update <source-doc> <repo-address> <branch>' command.
     args = [
       'git_repo_document',
-      'update_document',
+      'update',
       tmp_source_doc,
       r.address,
       'master',
@@ -49,7 +49,7 @@ class test_git_repo_document_cli_args(program_unit_test):
     # Since we now have a file in the repo, let's also test whether load_document can read it.
 
     # Here's an auto-delete temp directory for the document DB's local repository.
-    tmp_db_dir2 = temp_file.make_temp_dir(delete=not self.DEBUG)
+    tmp_db_dir2 = temp_file.make_temp_dir(delete = not self.DEBUG)
 
     # By default, the CLI will put the output file in a file with the same name as the file in
     # the repo, in the current directory.
@@ -60,7 +60,7 @@ class test_git_repo_document_cli_args(program_unit_test):
     # Run the CLI.
     args = [
       'git_repo_document',
-      'load_document',
+      'load',
       filename,
       r.address,
       'master',

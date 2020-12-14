@@ -16,7 +16,7 @@ class git_repo_document_cli_command(object):
     return func(**kargs)
   
   @classmethod
-  def update_document(clazz, input_filename, address, branch, working_dir, commit_msg):
+  def update(clazz, input_filename, address, branch, working_dir, commit_msg):
     # For the purposes of this CLI, the name of the stored file in the repo will be the same as the
     # base name of the file used to provide the source document contents.
     filename = path.basename(input_filename)
@@ -31,7 +31,7 @@ class git_repo_document_cli_command(object):
     return 0
 
   @classmethod
-  def load_document(clazz, filename, address, branch, output_filename, working_dir):
+  def load(clazz, filename, address, branch, output_filename, working_dir):
     db = git_repo_document_db(working_dir, address, branch)
     if not output_filename:
       output_filename = path.join(os.getcwd(), filename)
