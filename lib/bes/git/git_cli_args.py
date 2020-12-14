@@ -15,24 +15,6 @@ class git_cli_args(object):
   def git_add_args(self, subparser):
 
     default_root = os.getcwd()
-    default_working_dir = os.path.join(os.getcwd(), '.ego_git_repo_document_db_tmp')
-
-    # git_set_identity
-    p = subparser.add_parser('set_identity', help = 'Set git identity.')
-    p.add_argument('--name', action = 'store', default = git_cli_command.DEFAULT_NAME, type = str,
-                   help = 'The name of the git user. [ %s ]' % (git_cli_command.DEFAULT_NAME))
-    p.add_argument('--email', action = 'store', default = git_cli_command.DEFAULT_EMAIL, type = str,
-                   help = 'The email of the git user. [ %s ]' % (git_cli_command.DEFAULT_EMAIL))
-    
-    # git_get_identity
-    p = subparser.add_parser('get_identity', help = 'Get the git identity.')
-    p.add_argument('--name', action = 'store_true', default = False,
-                   help = 'Print only the name. [ False ]')
-    p.add_argument('--email', action = 'store_true', default = False,
-                   help = 'Print only the email. [ False ]')
-    
-    # git_ensure_identity
-    p = subparser.add_parser('ensure_identity', help = 'Ensure that git identity is set or make it a default.')
 
     # git_tag
     p = subparser.add_parser('tag', help = 'Tag the repo locally and or remotely or just print the tags.')
@@ -193,36 +175,6 @@ class git_cli_args(object):
     p.add_argument('-n', '--no-fetch', action = 'store_true', default = False,
                    help = 'Do not call git fetch first. [ False ]')
 
-    # update_document
-    p = subparser.add_parser('update_document', help = 'Update a document in a repo db.')
-    p.add_argument('input_filename', action = 'store', type = str, default = None,
-                   help = 'The file to store in the repo. [ None ]')
-    p.add_argument('address', action = 'store', type = str, default = None,
-                   help = 'The repo address. [ None ]')
-    p.add_argument('branch', action = 'store', type = str, default = None,
-                   help = 'The branch to use. [ None ]')
-    p.add_argument('-w', '--working-dir', action='store', default=default_working_dir,
-                   help='Working directory used to clone git repos [ %s ]' % (
-                     os.path.relpath(default_working_dir)))
-    p.add_argument('--commit-msg', action = 'store', type = str, default = None,
-                   help = 'The commit message for the check-in. [ None ]')
-    self._add_common_clone_args(p)
-
-    # load_document
-    p = subparser.add_parser('load_document', help = 'Load a document that''s in a repo db.')
-    p.add_argument('filename', action = 'store', type = str, default = None,
-                   help = 'The name of the file in the repo. [ None ]')
-    p.add_argument('address', action = 'store', type = str, default = None,
-                   help = 'The repo address. [ None ]')
-    p.add_argument('branch', action = 'store', type = str, default = None,
-                   help = 'The branch to use. [ None ]')
-    p.add_argument('--output-filename', action = 'store', type = str, default = None,
-                   help = 'Where to store the contents of the named file. [ ./filename ]')
-    p.add_argument('-w', '--working-dir', action='store', default=default_working_dir,
-                   help='Working directory used to clone git repos [ %s ]' % (
-                     os.path.relpath(default_working_dir)))
-    self._add_common_clone_args(p)
-
     # git_short
     p = subparser.add_parser('short', help = 'Print short commit hash.')
     p.add_argument('commit', action = 'store', type = str, default = None,
@@ -260,15 +212,6 @@ class git_cli_args(object):
                    help = 'List of submodules to clone (otherwise all get clones) [ None ]')
     p.add_argument('--branch', action = 'store', default = None,
                    help = 'The branch to checkout after cloning [ None ]')
-
-  def _command_git_set_identity(self, name, email):
-    return git_cli_command.set_identity(name, email)
-
-  def _command_git_get_identity(self, name, email):
-    return git_cli_command.get_identity(name, email)
-  
-  def _command_git_ensure_identity(self):
-    return git_cli_command.ensure_identity()
 
   def _command_git_bump_tag(self, root_dir, component, dry_run, dont_push, reset_lower, verbose):
     return git_cli_command.bump_tag(root_dir, component, dry_run, dont_push, reset_lower, verbose)
@@ -310,12 +253,6 @@ class git_cli_args(object):
 
   def _command_git_branches(self, root_dir, local, remote, brief, plain, difference, no_fetch):
     return git_cli_command.branches(root_dir, local, remote, brief, plain, difference, no_fetch)
-
-  def _command_git_update_document(self, input_filename, address, branch, working_dir, commit_msg):
-    return git_cli_command.update_document(input_filename, address, branch, working_dir, commit_msg)
-
-  def _command_git_load_document(self, filename, address, branch, output_filename, working_dir):
-    return git_cli_command.load_document(filename, address, branch, output_filename, working_dir)
 
   def _command_git_short(self, root_dir, commit):
     return git_cli_command.short_commit(root_dir, commit)

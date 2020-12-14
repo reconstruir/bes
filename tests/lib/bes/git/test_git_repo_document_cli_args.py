@@ -9,7 +9,7 @@ from bes.git.git_unit_test import git_temp_home_func
 
 from bes.testing.program_unit_test import program_unit_test
 
-class test_git_repo_document_db_cli(program_unit_test):
+class test_git_repo_document_cli_args(program_unit_test):
 
   _program = program_unit_test.resolve_program(__file__, '..', '..', '..', '..', 'bin', 'best.py')
   
@@ -29,7 +29,7 @@ class test_git_repo_document_db_cli(program_unit_test):
 
     # Run the 'egoist.py git update_document <source-doc> <repo-address> <branch>' command.
     args = [
-      'git',
+      'git_repo_document',
       'update_document',
       tmp_source_doc,
       r.address,
@@ -59,7 +59,7 @@ class test_git_repo_document_db_cli(program_unit_test):
 
     # Run the CLI.
     args = [
-      'git',
+      'git_repo_document',
       'load_document',
       filename,
       r.address,

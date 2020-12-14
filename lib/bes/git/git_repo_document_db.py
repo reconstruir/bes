@@ -1,6 +1,5 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import inspect
 from os import path
 
 from bes.git.git_address_util import git_address_util
