@@ -237,6 +237,13 @@ class git_cli_args(object):
     p.add_argument('--root-dir', action = 'store', default = default_root,
                    help = 'The root dir of the git repo to archive. [ None ]')
 
+    # git_repo_lfs_invalid_files
+    p = subparser.add_parser('lfs_invalid_files', help = 'Show invalid git lfs files in a repo.')
+    p.add_argument('address', action = 'store', type = str, default = None,
+                   help = 'The git repo address to clone. [ None ]')
+    p.add_argument('-b', '--branch', action = 'store', type = str, default = 'master',
+                   help = 'The branch to check. [ master ]')
+    
   @classmethod
   def _add_common_clone_args(clazz, p):
     p.add_argument('--depth', action = 'store', type = int, default = None,

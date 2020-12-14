@@ -19,6 +19,7 @@ from bes.version.software_version import software_version
 from bes.git.git_repo_document_db import git_repo_document_db
 
 from .git_cli_util import git_cli_util
+from .git_lfs_util import git_lfs_util
 
 class git_cli_command(object):
 
@@ -325,5 +326,15 @@ class git_cli_command(object):
   def long_commit(clazz, root_dir, commit):
     long_commit = git.long_hash(root_dir, commit)
     print(long_commit)
+    return 0
+  
+  @classmethod
+  def repo_lfs_invalid_files(clazz, address, branch):
+    check.check_string(address)
+    check.check_string(branch)
+
+    files = git_lfs_util.lfs_invalid_files(address, branch)
+    for f in files:
+      print(files)
     return 0
   

@@ -20,6 +20,7 @@ class git_lfs_util(object):
     - They are not GIT LFS pointers but plain git files
     '''
     check.check_string(address)
+    check.check_string(branch)
 
     '''\
 Cloning into 'lfs-test'...
@@ -39,3 +40,6 @@ Encountered 3 file(s) that should have been pointers, but weren't:
     options = git_clone_options()
     options.branch = branch
     clone_rv, sub_rv = repo.clone(options = options)
+    print('clone_rv: {}'.format(clone_rv))
+    print('  sub_rv: {}'.format(sub_rv))
+    return []
