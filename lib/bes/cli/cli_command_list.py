@@ -35,7 +35,7 @@ class cli_command_list(type_checked_list):
         if next_method_name.startswith('_command'):
           if not next_method_name in method_names:
             method_names[next_method_name] = []
-          method_names[next_method_name].append(item.cli_args_class)
+          method_names[next_method_name].append(( item.cli_args_class, item.filename ))
 
     dups = {}
     for method_name, cli_args_classes in method_names.items():
