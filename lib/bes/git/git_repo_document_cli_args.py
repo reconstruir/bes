@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os
+from os import path
+
 from bes.common.check import check
 from bes.git.git_repo_script_options import git_repo_script_options
 from bes.git.git_clone_options import git_clone_options
@@ -25,7 +27,7 @@ class git_repo_document_cli_args(object):
                    help = 'The repo address. [ None ]')
     p.add_argument('branch', action = 'store', type = str, default = None,
                    help = 'The branch to use. [ None ]')
-    p.add_argument('-w', '--working-dir', action='store', default=default_working_dir,
+    p.add_argument('-w', '--working-dir', action='store', default = default_working_dir,
                    help='Working directory used to clone git repos [ %s ]' % (
                      os.path.relpath(default_working_dir)))
     p.add_argument('--commit-msg', action = 'store', type = str, default = None,

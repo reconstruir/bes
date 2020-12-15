@@ -23,11 +23,8 @@ class test_git_repo_document_cli_args(program_unit_test):
     r.add_file('dummy.txt', content = 'dummy')
     r.push('origin', 'master')
 
-    # Use this directory for the document DB's local repository. It will be deleted at the end of
-    # the test.
     tmp_db_dir = self.make_temp_dir()
 
-    # Run the 'egoist.py git update <source-doc> <repo-address> <branch>' command.
     args = [
       'git_repo_document',
       'update',
