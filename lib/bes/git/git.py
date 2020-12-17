@@ -496,12 +496,14 @@ class git(git_lfs):
     return [ item.filename for item in items if 'M' in item.action ]
 
   @classmethod
-  def tag(clazz, root_dir, tag, allow_downgrade = False, push = False, commit = None):
+  def tag(clazz, root_dir, tag, allow_downgrade = False, push = False,
+          commit = None, annotation = None):
     check.check_string(root_dir)
     check.check_string(tag)
     check.check_bool(allow_downgrade)
     check.check_bool(push)
     check.check_string(commit, allow_none = True)
+    check.check_string(annotation, allow_none = True)
 
     greatest_tag = git.greatest_local_tag(root_dir)
     if greatest_tag and not allow_downgrade:
@@ -510,6 +512,10 @@ class git(git_lfs):
     if not commit:
       commit = clazz.last_commit_hash(root_dir, short_hash = True)
     args = [ 'tag', tag, commit ]
+    if annotation:
+      args.append('--annotate')
+      args.append('--message')
+      args.append(string_util.quote(annotation))
     rv = git_exe.call_git(root_dir, args)
     if push:
       clazz.push_tag(root_dir, tag)
@@ -747,13 +753,17 @@ class git(git_lfs):
     return clazz._branch_list_determine_authors(root, result)
 
   @classmethod
-  def branch_create(clazz, root, branch_name, checkout = False, push = False):
+  def branch_create(clazz, root, branch_name, checkout = False, push = False,
+                    start_point = None):
     branches = clazz.list_branches(root, 'both')
     if branches.has_remote(branch_name):
       raise ValueError('branch already exists remotely: {}'.format(branch_name))
     if branches.has_local(branch_name):
       raise ValueError('branch already exists locally: {}'.format(branch_name))
-    git_exe.call_git(root, [ 'branch', branch_name ])
+    args = [ 'branch', branch_name ]
+    if start_point:
+      args.append(start_point)
+    git_exe.call_git(root, args)
     if checkout:
       clazz.checkout(root, branch_name)
     if push:

@@ -215,9 +215,11 @@ class git_repo(object):
     tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if software_version.compare(t, tag) < 0 ]
 
-  def tag(self, tag, allow_downgrade = True, push = False, commit = None):
-    git.tag(self.root, tag, allow_downgrade = allow_downgrade, push = push)
-
+  def tag(self, tag, allow_downgrade = True, push = False, commit = None,
+          annotation = None):
+    git.tag(self.root, tag, allow_downgrade = allow_downgrade,
+            push = push, annotation = annotation)
+    
   def has_remote_tag(self, tag):
     return git.has_remote_tag(self.root, tag)
 
@@ -270,8 +272,8 @@ class git_repo(object):
   def has_local_branch(self, branch):
     return git.has_local_branch(self.root, branch)
 
-  def branch_create(self, branch_name, checkout = False, push = False):
-    git.branch_create(self.root, branch_name, checkout = checkout, push = push)
+  def branch_create(self, branch_name, checkout = False, push = False, start_point = None):
+    git.branch_create(self.root, branch_name, checkout = checkout, push = push, start_point = start_point)
 
   def branch_push(self, branch_name):
     git.branch_push(self.root, branch_name)

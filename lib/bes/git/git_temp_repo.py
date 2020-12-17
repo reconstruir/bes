@@ -117,10 +117,10 @@ class git_temp_repo(object):
                                      check_env_vars = False,
                                      validate_key_characters = False)
     cmds = []
+    self._commit_aliases = {}
     for section in config:
       cmd = self._command_parse(section)
       cmds.append(cmd)
-
     for cmd in cmds:
       self._command_apply(cmd)
 
@@ -133,18 +133,33 @@ class git_temp_repo(object):
 
   def _command_apply_file(self, cmd):
     assert cmd.command_name == 'file'
-  
+
   def _command_apply_add(self, cmd):
     assert cmd.command_name == 'add'
+    for f in cmd.files:
+      self.add_file(f.filename, f.content, mode = f.mode, commit = False)
+    commit_hash = self.commit(cmd.message, [ f.filename for f in cmd.files ])
+    key = '@{}'.format(cmd.commit_alias)
+    if key in self._commit_aliases:
+      raise git_temp_repo_error('duplicate commit alias: "{}"'.format(cmd.commit_alias))
+    self._commit_aliases[key] = commit_hash
 
+  def _resolve_commit(self, commit_alias):
+    return self._commit_aliases.get(commit_alias, commit_alias)
+    
   def _command_apply_tag(self, cmd):
     assert cmd.command_name == 'tag'
+    self.tag(cmd.tag_name, allow_downgrade = True, push = cmd.push,
+             commit = cmd.from_commit, annotation = cmd.annotation)
     
   def _command_apply_branch(self, cmd):
     assert cmd.command_name == 'branch'
+    start_point = self._resolve_commit(cmd.start_point)
+    self.branch_create(cmd.branch_name, push = cmd.push, start_point = start_point)
     
   def _command_apply_remove(self, cmd):
     assert cmd.command_name == 'remove'
+    self.remove(cmd.filename)
     
   @classmethod
   def _command_parse(clazz, section):
@@ -155,7 +170,7 @@ class git_temp_repo(object):
     handler = getattr(clazz, handler_name)
     return handler(section)
 
-  _file = namedtuple('_file', 'filename, perm, content')
+  _file = namedtuple('_file', 'filename, mode, content')
   
   _command_file = namedtuple('_command_file', 'command_name, file')
   @classmethod
@@ -201,7 +216,7 @@ class git_temp_repo(object):
         files.append(clazz._file(filename, perm, content))
     return clazz._command_add('add', name, files, commit_alias, message)
 
-  _command_tag = namedtuple('_command_tag', 'command_name, name, tag_name, from_commit, annotation')
+  _command_tag = namedtuple('_command_tag', 'command_name, name, tag_name, from_commit, annotation, push')
   @classmethod
   def _command_parse_tag(clazz, section):
     assert section.header_.name == 'tag'
@@ -214,17 +229,20 @@ class git_temp_repo(object):
 
     from_commit = None
     annotation = None
+    push = False
     if section.has_key('from_commit'):
       from_commit = section.get_value('from_commit')
     if section.has_key('annotation'):
       annotation = section.get_value('annotation')
+    if section.has_key('push'):
+      push = section.get_bool('push')
 
     if not from_commit:
       raise git_temp_repo_error('"tag" missing "from_commit"')
       
-    return clazz._command_tag('tag', name, tag_name, from_commit, annotation)
+    return clazz._command_tag('tag', name, tag_name, from_commit, annotation, push)
     
-  _command_branch = namedtuple('_command_branch', 'command_name, name, branch_name, from_commit, from_branch')
+  _command_branch = namedtuple('_command_branch', 'command_name, name, branch_name, start_point, push')
   @classmethod
   def _command_parse_branch(clazz, section):
     assert section.header_.name == 'branch'
@@ -235,20 +253,14 @@ class git_temp_repo(object):
     branch_name = parts[0]
     name = parts[1]
 
-    from_commit = None
-    from_branch = None
-    if section.has_key('from_commit'):
-      from_commit = section.get_value('from_commit')
-    if section.has_key('from_branch'):
-      from_branch = section.get_value('from_branch')
+    start_point = None
+    push = False
+    if section.has_key('start_point'):
+      start_point = section.get_value('start_point')
+    if section.has_key('push'):
+      push = section.get_bool('push')
 
-    if not from_commit and not from_branch:
-      raise git_temp_repo_error('"branch" missing one of "from_commit" or "from_branch"')
-
-    if from_commit and from_branch:
-      raise git_temp_repo_error('"branch" should have only one of "from_commit" or "from_branch"')
-    
-    return clazz._command_branch('branch', name, branch_name, from_commit, from_branch)
+    return clazz._command_branch('branch', name, branch_name, start_point, push)
 
   _command_remove = namedtuple('_command_remove', 'command_name, name, filename')
   @classmethod

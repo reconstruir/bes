@@ -44,19 +44,19 @@ add commit1 commit1
 tag rel/1.0.0 tag1
   from_commit: @commit1
 
-tag rel/1.0.0 tag2
+tag rel/1.0.1 tag2
   from_commit: @commit1
   annotation: first release
 
 branch b1 b1 
-  from_commit: @commit1
+  start_point: @commit1
   
 branch b2 b2
-  from_branch: b1
+  start_point: b1
 
 remove remove1
   filename: copy_of_something.txt
-    '''
+'''
 
     r = git_temp_repo(remote = True)
     r.apply_config_text(config)
