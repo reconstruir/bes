@@ -118,25 +118,48 @@ class git_temp_repo(object):
                                      validate_key_characters = False)
     cmds = []
     for section in config:
-      cmd = self._parse_command(section)
+      cmd = self._command_parse(section)
       cmds.append(cmd)
 
     for cmd in cmds:
-      print(cmd)
-    return cmds
+      self._command_apply(cmd)
 
+  def _command_apply(self, cmd):
+    handler_name = '_command_apply_{}'.format(cmd.command_name)
+    if not hasattr(self, handler_name):
+      raise git_temp_repo_error('unknown command apply: "{}"'.format(cmd.command_name))
+    handler = getattr(self, handler_name)
+    return handler(cmd)
+
+  def _command_apply_file(self, cmd):
+    assert cmd.command_name == 'file'
+  
+  def _command_apply_add(self, cmd):
+    assert cmd.command_name == 'add'
+
+  def _command_apply_tag(self, cmd):
+    assert cmd.command_name == 'tag'
+    
+  def _command_apply_branch(self, cmd):
+    assert cmd.command_name == 'branch'
+    
+  def _command_apply_remove(self, cmd):
+    assert cmd.command_name == 'remove'
+    
   @classmethod
-  def _parse_command(clazz, section):
+  def _command_parse(clazz, section):
     command_name = section.header_.name
-    handler_name = '_parse_command_{}'.format(command_name)
+    handler_name = '_command_parse_{}'.format(command_name)
     if not hasattr(clazz, handler_name):
-      raise git_temp_repo_error('unknown command: "{}"'.format(command_name))
+      raise git_temp_repo_error('unknown command parse: "{}"'.format(command_name))
     handler = getattr(clazz, handler_name)
     return handler(section)
 
-  _command_file = namedtuple('_command_file', 'filename, perm, content')
+  _file = namedtuple('_file', 'filename, perm, content')
+  
+  _command_file = namedtuple('_command_file', 'command_name, file')
   @classmethod
-  def _parse_command_file(clazz, section):
+  def _command_parse_file(clazz, section):
     assert section.header_.name == 'file'
 
     parts = string_util.split_by_white_space(section.header_.extra_text, strip = True)
@@ -149,11 +172,12 @@ class git_temp_repo(object):
     perm = 0o644
     if section.has_key('perm'):
       perm = file_mode.parse_mode(section.get_value('perm'))
-    return clazz._command_file(filename, perm, content)
+    f = clazz._file(filename, perm, content)
+    return clazz._command_file('file', f)
 
-  _command_add = namedtuple('_command_add', 'name, files, commit_alias, message')
+  _command_add = namedtuple('_command_add', 'command_name, name, files, commit_alias, message')
   @classmethod
-  def _parse_command_add(clazz, section):
+  def _command_parse_add(clazz, section):
     assert section.header_.name == 'add'
 
     parts = string_util.split_by_white_space(section.header_.extra_text, strip = True)
@@ -174,12 +198,12 @@ class git_temp_repo(object):
         for annotation in entry.annotations or []:
           if annotation.key == 'perm':
             perm = file_mode.parse_mode(annotation.value)
-        files.append(clazz._command_file(filename, perm, content))
-    return clazz._command_add(name, files, commit_alias, message)
+        files.append(clazz._file(filename, perm, content))
+    return clazz._command_add('add', name, files, commit_alias, message)
 
-  _command_tag = namedtuple('_command_tag', 'name, tag_name, from_commit, annotation')
+  _command_tag = namedtuple('_command_tag', 'command_name, name, tag_name, from_commit, annotation')
   @classmethod
-  def _parse_command_tag(clazz, section):
+  def _command_parse_tag(clazz, section):
     assert section.header_.name == 'tag'
 
     parts = string_util.split_by_white_space(section.header_.extra_text, strip = True)
@@ -198,11 +222,11 @@ class git_temp_repo(object):
     if not from_commit:
       raise git_temp_repo_error('"tag" missing "from_commit"')
       
-    return clazz._command_tag(name, tag_name, from_commit, annotation)
+    return clazz._command_tag('tag', name, tag_name, from_commit, annotation)
     
-  _command_branch = namedtuple('_command_branch', 'name, branch_name, from_commit, from_branch')
+  _command_branch = namedtuple('_command_branch', 'command_name, name, branch_name, from_commit, from_branch')
   @classmethod
-  def _parse_command_branch(clazz, section):
+  def _command_parse_branch(clazz, section):
     assert section.header_.name == 'branch'
 
     parts = string_util.split_by_white_space(section.header_.extra_text, strip = True)
@@ -224,11 +248,11 @@ class git_temp_repo(object):
     if from_commit and from_branch:
       raise git_temp_repo_error('"branch" should have only one of "from_commit" or "from_branch"')
     
-    return clazz._command_branch(name, branch_name, from_commit, from_branch)
+    return clazz._command_branch('branch', name, branch_name, from_commit, from_branch)
 
-  _command_remove = namedtuple('_command_remove', 'name, filename')
+  _command_remove = namedtuple('_command_remove', 'command_name, name, filename')
   @classmethod
-  def _parse_command_remove(clazz, section):
+  def _command_parse_remove(clazz, section):
     assert section.header_.name == 'remove'
 
     parts = string_util.split_by_white_space(section.header_.extra_text, strip = True)
@@ -243,4 +267,4 @@ class git_temp_repo(object):
     if not filename:
       raise git_temp_repo_error('"remove" missing one of "filename"')
     
-    return clazz._command_remove(name, filename)
+    return clazz._command_remove('remove', name, filename)
