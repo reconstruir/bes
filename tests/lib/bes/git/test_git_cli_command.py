@@ -11,6 +11,7 @@ from bes.system.env_override import env_override
 
 from bes.testing.unit_test import unit_test
 from bes.git.git_cli_command import git_cli_command
+from bes.git.git_cli_options import git_cli_options
 
 class test_git_cli_command(unit_test):
 
@@ -25,19 +26,22 @@ class test_git_cli_command(unit_test):
     r2 = r1.make_temp_cloned_repo()
     self.assertEqual( None, r1.greatest_local_tag() )
 
-    git_cli_command.bump_tag(r1.root, 'revision', False, False, True, False)
+    options = git_cli_options()
+    options.root_dir = r1.root
+    
+    git_cli_command.bump_tag(options, 'revision', False, False, True, False)
     r2.pull()
     self.assertEqual( '1.0.0', r2.greatest_local_tag() )
 
-    git_cli_command.bump_tag(r1.root, 'revision', False, False, True, False)
+    git_cli_command.bump_tag(options, 'revision', False, False, True, False)
     r2.pull()
     self.assertEqual( '1.0.1', r2.greatest_local_tag() )
   
-    git_cli_command.bump_tag(r1.root, 'minor', False, False, True, False)
+    git_cli_command.bump_tag(options, 'minor', False, False, True, False)
     r2.pull()
     self.assertEqual( '1.1.0', r2.greatest_local_tag() )
     
-    git_cli_command.bump_tag(r1.root, 'major', False, False, True, False)
+    git_cli_command.bump_tag(options, 'major', False, False, True, False)
     r2.pull()
     self.assertEqual( '2.0.0', r2.greatest_local_tag() )
     
