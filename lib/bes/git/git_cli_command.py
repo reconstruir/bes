@@ -50,7 +50,6 @@ class git_cli_command(object):
   @classmethod
   def delete_tags(clazz, options, tags, local, remote, dry_run, from_file):
     check.check_git_cli_options(options)
-    check.check_string(root_dir)
     check.check_bool(local, allow_none = True)
     check.check_string_seq(tags)
     check.check_bool(remote, allow_none = True)
@@ -72,10 +71,14 @@ class git_cli_command(object):
     return 0
 
   @classmethod
-  def list_tags(clazz, options, local, remote):
+  def tags(clazz, options, local, remote, prefix, limit, reverse):
     check.check_git_cli_options(options)
     check.check_bool(local, allow_none = True)
     check.check_bool(remote, allow_none = True)
+    check.check_string(prefix, allow_none = True)
+    check.check_int(limit, allow_none = True)
+    check.check_bool(reverse)
+
     where = git.determine_where(local, remote)
     if where == 'both':
       clazz._list_tags_both(options.root_dir)
@@ -84,6 +87,12 @@ class git_cli_command(object):
       tags = git.list_local_tags(options.root_dir)
     else:
       tags = git.list_remote_tags(options.root_dir)
+    if prefix:
+      tags = [ tag for tag in tags if tag.startswith(prefix) ]
+    if reverse:
+      tags = [ tag for tag in reversed(tags) ]
+    if limit:
+      tags = tags[0:limit]
     for tag in tags:
       print(tag)
     return 0

@@ -85,6 +85,12 @@ class git_cli_args(object):
                    help = 'Show local tags. [ False ]')
     p.add_argument('-r', '--remote', action = 'store_true', default = None,
                    help = 'Show remote tags. [ False ]')
+    p.add_argument('--prefix', action = 'store', default = None, type = str,
+                   help = 'Show only tags with prefix. [ None ]')
+    p.add_argument('--limit', action = 'store', default = None, type = int,
+                   help = 'Limit number of tags shown. [ None ]')
+    p.add_argument('--reverse', action = 'store_true', default = False,
+                   help = 'Reverse the tag order such that greatest version is first. [ None ]')
     
     # git_branches
     p = subparser.add_parser('branches', help = 'List local and remote branches.')
