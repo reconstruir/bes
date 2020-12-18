@@ -173,7 +173,7 @@ raise SystemExit(0)
     tmp_output = temp_file.make_temp_file()
     cmd = [ exe, tmp_script, tmp_output ]
     rv = execute.execute(cmd)
-    return file_util.read(tmp_output).strip()
+    return file_util.read(tmp_output, codec = 'utf-8').strip()
 
   _python_exe_info = namedtuple('_python_exe_info', 'exe, version, full_version, source, real_exe, exe_links')
   @classmethod
