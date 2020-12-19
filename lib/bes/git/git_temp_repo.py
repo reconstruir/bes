@@ -117,47 +117,64 @@ class git_temp_repo(object):
                                      check_env_vars = False,
                                      validate_key_characters = False)
     cmds = []
-    self._commit_aliases = {}
     for section in config:
       cmd = self._command_parse(section)
       cmds.append(cmd)
+    context = {
+      'commit_aliases': {},
+      'files': {},
+    }
     for cmd in cmds:
-      self._command_apply(cmd)
+      self._command_apply(cmd, context)
 
-  def _command_apply(self, cmd):
+  def _command_apply(self, cmd, context):
     handler_name = '_command_apply_{}'.format(cmd.command_name)
     if not hasattr(self, handler_name):
       raise git_temp_repo_error('unknown command apply: "{}"'.format(cmd.command_name))
     handler = getattr(self, handler_name)
-    return handler(cmd)
+    return handler(cmd, context)
 
-  def _command_apply_file(self, cmd):
+  def _command_apply_file(self, cmd, context):
     assert cmd.command_name == 'file'
+    context['files'][cmd.file.filename] = cmd.file
 
-  def _command_apply_add(self, cmd):
+  def _command_apply_add(self, cmd, context):
     assert cmd.command_name == 'add'
     for f in cmd.files:
-      self.add_file(f.filename, f.content, mode = f.mode, commit = False)
+      resolved_file = self._resolve_file(f.content, context)
+      if resolved_file:
+        content = resolved_file.content
+        mode = resolved_file.mode
+      else:
+        content = f.content
+        mode = f.mode
+      self.add_file(f.filename, content, mode = mode, commit = False)
     commit_hash = self.commit(cmd.message, [ f.filename for f in cmd.files ])
     key = '@{}'.format(cmd.commit_alias)
-    if key in self._commit_aliases:
+    if key in context['commit_aliases']:
       raise git_temp_repo_error('duplicate commit alias: "{}"'.format(cmd.commit_alias))
-    self._commit_aliases[key] = commit_hash
+    context['commit_aliases'][key] = commit_hash
 
-  def _resolve_commit(self, commit_alias):
-    return self._commit_aliases.get(commit_alias, commit_alias)
-    
-  def _command_apply_tag(self, cmd):
+  def _resolve_commit(self, commit_alias, context):
+    return context['commit_aliases'].get(commit_alias, commit_alias)
+
+  def _resolve_file(self, content, context):
+    if not content.startswith('@'):
+      return None
+    key = content[1:]
+    return context['files'].get(key, None)
+  
+  def _command_apply_tag(self, cmd, context):
     assert cmd.command_name == 'tag'
     self.tag(cmd.tag_name, allow_downgrade = True, push = cmd.push,
              commit = cmd.from_commit, annotation = cmd.annotation)
     
-  def _command_apply_branch(self, cmd):
+  def _command_apply_branch(self, cmd, context):
     assert cmd.command_name == 'branch'
-    start_point = self._resolve_commit(cmd.start_point)
+    start_point = self._resolve_commit(cmd.start_point, context)
     self.branch_create(cmd.branch_name, push = cmd.push, start_point = start_point)
     
-  def _command_apply_remove(self, cmd):
+  def _command_apply_remove(self, cmd, context):
     assert cmd.command_name == 'remove'
     self.remove(cmd.filename)
     
