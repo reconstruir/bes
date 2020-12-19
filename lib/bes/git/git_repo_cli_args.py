@@ -44,25 +44,6 @@ class git_repo_cli_args(object):
                    help = 'Reset the lower components to zero. [ False ]')
     self._git_repo_add_common_args(p)
     
-    # git_repo_run_scripts
-    p = subparser.add_parser('repo_run_scripts', help = 'Clone a repo and run a script in it.')
-    p.add_argument('address', action = 'store', type = str, default = None,
-                   help = 'The git repo address to clone. [ None ]')
-    p.add_argument('scripts', action = 'store', nargs = '*', default = None,
-                   help = 'Scripts to run one per argument.  Use quotes to include args for the scripts. [ None ]')
-    p.add_argument('-v', '--verbose', action = 'store_true',
-                   help = 'Verbose output.  Mostly for the results (git status and diff). [ False ]')
-    p.add_argument('--push', action = 'store_true',
-                   help = 'Push to the origin when done. [ False ]')
-    p.add_argument('--bump-tag', action = 'store', type = str, default = None,
-                   dest = 'bump_tag_component',
-                   help = 'Bump the repo tag when done. [ False ]')
-    p.add_argument('--dry-run', action = 'store_true',
-                   help = 'Dont do it just print it. [ False ]')
-    p.add_argument('--debug', action = 'store_true',
-                   help = 'Debug mode.  Print out the tmp dirs and do not delete them. [ False ]')
-    self._git_repo_add_common_args(p)
-
     # git_repo_clone
     p = subparser.add_parser('repo_clone', help = 'Clone a repo with nicer support for lfs and submodules.')
     p.add_argument('address', action = 'store', type = str, default = None,

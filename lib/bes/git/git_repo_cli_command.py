@@ -38,21 +38,6 @@ class git_repo_cli_command(object):
     return 0
 
   @classmethod
-  def repo_run_scripts(clazz, options, address, scripts, options):
-    check.check_git_clone_options(options)
-    check.check_string(address)
-
-    v = [ clazz._parse_script(script) for script in scripts ]
-    result = git_util.repo_run_scripts(address, v, options = options)
-    if options.verbose:
-      print('status:\n{}\n'.format(result.status))
-      print('  diff:\n{}\n'.format(result.diff))
-      for rv in result.results:
-        print('{}'.format(rv.script))
-        print('{}'.format(rv.stdout))
-    return 0
-
-  @classmethod
   def repo_clone(clazz, options, address, dest_dir):
     check.check_git_clone_options(options)
     check.check_string(address)
