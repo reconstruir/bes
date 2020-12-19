@@ -59,7 +59,14 @@ remove remove1
 '''
 
     r = git_temp_repo(remote = True)
+    self.assertEqual( [], r.find_all_files() )
     r.apply_config_text(config)
+    self.assertEqual( [
+      'foo.txt',
+      'scripts/go.sh',
+      'subdir/bar.txt',
+    ], r.find_all_files() )
+    
     
 if __name__ == '__main__':
   unit_test.main()
