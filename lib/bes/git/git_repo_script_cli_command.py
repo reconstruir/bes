@@ -4,8 +4,10 @@ from os import path
 
 from bes.common.check import check
 from bes.cli.argparser_handler import argparser_handler
+from bes.system.command_line import command_line
 
 from .git_repo_script_options import git_repo_script_options
+from .git_util import git_util
 
 class git_repo_script_cli_command(object):
 
@@ -17,7 +19,7 @@ class git_repo_script_cli_command(object):
     return func(options, **filtered_args)
   
   @classmethod
-  def repo_run_scripts(clazz, options, address, scripts, options):
+  def repo_run_scripts(clazz, options, address, scripts):
     check.check_git_repo_script_options(options)
     check.check_string(address)
 
@@ -30,3 +32,9 @@ class git_repo_script_cli_command(object):
         print('{}'.format(rv.script))
         print('{}'.format(rv.stdout))
     return 0
+
+  @classmethod
+  def _parse_script(clazz, cmd):
+    args = command_line.parse_args(cmd)
+    return git_util.script(args[0], args[1:])
+  
