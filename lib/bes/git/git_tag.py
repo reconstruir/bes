@@ -16,18 +16,18 @@ class git_tag(namedtuple('git_tag', 'name, commit, commit_short, peeled')):
     return clazz.__bases__[0].__new__(clazz, name, commit, commit_short, peeled)
 
   @classmethod
-  def parse_remote_tags(clazz, s):
+  def parse_show_ref_output(clazz, s):
     lines = text_line_parser.parse_lines(s,
                                          strip_comments = False,
                                          strip_text = True,
                                          remove_empties = True)
     if not lines:
       return []
-    tags = [ clazz._parse_remote_tag_line(line) for line in lines ]
+    tags = [ clazz._parse_show_ref_one_line(line) for line in lines ]
     return sorted(tags, key = lambda tag: software_version.parse_version(tag.name))
 
   @classmethod
-  def _parse_remote_tag_line(clazz, s):
+  def _parse_show_ref_one_line(clazz, s):
     f = re.findall(r'^\s*([0-9a-f]{40})\s+refs/tags/(.+)\s*$', s)
     if not f:
       return None
