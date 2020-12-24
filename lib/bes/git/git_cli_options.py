@@ -3,20 +3,15 @@
 import os, pprint
 from bes.common.check import check
 
-class git_cli_options(object):
+from .git_cli_common_options import git_cli_common_options
+
+class git_cli_options(git_cli_common_options):
   
   def __init__(self, *args, **kargs):
-    cwd = os.getcwd()
-    self.root_dir = cwd
+    self.root_dir = None
     for key, value in kargs.items():
       setattr(self, key, value)
-    self.root_dir = self.root_dir or cwd
+    self.root_dir = self.root_dir or os.getcwd()
     check.check_string(self.root_dir, allow_none = True)
 
-  def __str__(self):
-    return str(self.__dict__)
-
-  def pformat(self):
-    return pprint.pformat(self.__dict__)
-  
 check.register_class(git_cli_options)
