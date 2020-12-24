@@ -36,5 +36,22 @@ class test_git_tag(unit_test):
       ( '1.0.100', '04001234567890abcdef1234567890abcdef1234', '0400123', False ),
     ], git_tag.parse_remote_tags(output) )
     
+  @git_temp_home_func()
+  def test_parse_remote_tags_peeled(self):
+    output = '''\
+01001234567890abcdef1234567890abcdef1234    refs/tags/1.0.0
+02001234567890abcdef1234567890abcdef1234    refs/tags/1.0.1^{}
+03001234567890abcdef1234567890abcdef1234    refs/tags/1.0.10
+04001234567890abcdef1234567890abcdef1234    refs/tags/1.0.100^{}
+05001234567890abcdef1234567890abcdef1234	  refs/tags/1.0.2
+'''
+    self.assertEqual( [
+      ( '1.0.0', '01001234567890abcdef1234567890abcdef1234', '0100123', False ),
+      ( '1.0.1', '02001234567890abcdef1234567890abcdef1234', '0200123', True ),
+      ( '1.0.2', '05001234567890abcdef1234567890abcdef1234', '0500123', False ),
+      ( '1.0.10', '03001234567890abcdef1234567890abcdef1234', '0300123', False ),
+      ( '1.0.100', '04001234567890abcdef1234567890abcdef1234', '0400123', True ),
+    ], git_tag.parse_remote_tags(output) )
+    
 if __name__ == '__main__':
   unit_test.main()
