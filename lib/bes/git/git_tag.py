@@ -9,14 +9,23 @@ from bes.text.text_line_parser import text_line_parser
 from bes.version.software_version import software_version
 
 from .git_commit_hash import git_commit_hash
+from .git_error import git_error
 
 class git_tag(namedtuple('git_tag', 'name, commit, commit_short, peeled')):
 
   def __new__(clazz, name, commit, commit_short, peeled):
     return clazz.__bases__[0].__new__(clazz, name, commit, commit_short, peeled)
 
+  SORT_TYPES = ( 'lexical', 'version' )
   @classmethod
-  def parse_show_ref_output(clazz, s):
+  def parse_show_ref_output(clazz, s, sort_type = 'version', reverse = False):
+    check.check_string(s)
+    check.check_string(sort_type)
+    check.check_bool(reverse)
+    
+    if sort_type not in clazz.SORT_TYPES:
+      raise git_error('invalid sort_type: "{}"'.format(sort_type))
+    
     lines = text_line_parser.parse_lines(s,
                                          strip_comments = False,
                                          strip_text = True,
@@ -24,7 +33,13 @@ class git_tag(namedtuple('git_tag', 'name, commit, commit_short, peeled')):
     if not lines:
       return []
     tags = [ clazz._parse_show_ref_one_line(line) for line in lines ]
-    return sorted(tags, key = lambda tag: software_version.parse_version(tag.name))
+    if sort_type == 'lexical':
+      tags = sorted(tags, key = lambda tag: tag.name)
+    elif sort_type == 'version':
+      tags = sorted(tags, key = lambda tag: software_version.parse_version(tag.name))
+    if reverse:
+      tags = [ tag for tag in reversed(tags) ]
+    return tags
 
   @classmethod
   def _parse_show_ref_one_line(clazz, s):
