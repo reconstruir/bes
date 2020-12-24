@@ -80,7 +80,7 @@ class test_git(unit_test):
       self.assertTrue( path.exists(f) )
 
   @git_temp_home_func()
-  def test_tag(self):
+  def test_xtag(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
