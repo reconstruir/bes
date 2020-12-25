@@ -6,49 +6,48 @@ from bes.common.check import check
 from bes.cli.argparser_handler import argparser_handler
 
 from .git import git
-from .git_clone_options import git_clone_options
+from .git_output import git_output
+from .git_repo_cli_options import git_repo_cli_options
 from .git_util import git_util
 
 class git_repo_cli_command(object):
 
   @classmethod
   def handle_command(clazz, command, **kargs):
-    options = git_clone_options(**kargs)
-    filtered_args = argparser_handler.filter_keywords_args(git_clone_options, kargs)
+    options = git_repo_cli_options(**kargs)
+    filtered_args = argparser_handler.filter_keywords_args(git_repo_cli_options, kargs)
     func = getattr(git_repo_cli_command, command)
     return func(options, **filtered_args)
   
   @classmethod
-  def repo_bump_tag(clazz, options, address, component, dry_run, reset_lower):
+  def bump_tag(clazz, options, component, dry_run, reset_lower):
     check.check_git_clone_options(options)
-    check.check_string(address)
 
-    result = git_util.repo_bump_tag(address, component, dry_run, reset_lower)
+    result = git_util.repo_bump_tag(options.address, component, dry_run, reset_lower)
     if dry_run:
       print('dry_run: old_tag={} new_tag={}'.format(result.old_tag, result.new_tag))
     return 0
 
   @classmethod
-  def repo_greatest_tag(clazz, options, address):
+  def greatest_tag(clazz, options):
     check.check_git_clone_options(options)
-    check.check_string(address)
     
-    greatest_tag = git_util.repo_greatest_tag(address)
-    print(greatest_tag)
+    greatest_tag = git_util.repo_greatest_tag(options.address)
+    git_output.output_string(greatest_tag, options)
     return 0
 
   @classmethod
-  def repo_clone(clazz, options, address, dest_dir):
+  def clone(clazz, options, dest_dir):
     check.check_git_clone_options(options)
-    check.check_string(address)
+    check.check_string(dest_dir)
 
-    git.clone(address, dest_dir, options = options) 
+    git.clone(options.address, dest_dir, options = options) 
     return 0
   
   @classmethod
-  def repo_sync(clazz, options, address, dest_dir):
+  def sync(clazz, options, dest_dir):
     check.check_git_clone_options(options)
-    check.check_string(address)
+    check.check_string(dest_dir)
 
-    git.sync(address, dest_dir, options = options) 
+    git.sync(options.address, dest_dir, options = options) 
     return 0

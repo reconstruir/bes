@@ -7,6 +7,8 @@ from bes.cli.argparser_handler import argparser_handler
 from bes.common.string_util import string_util
 from bes.common.table import table
 from bes.git.git import git
+from bes.git.git_repo import git_repo
+from bes.git.git_ref_where import git_ref_where
 from bes.text.text_table import text_cell_renderer
 from bes.text.text_table import text_table
 from bes.text.text_table import text_table_style
@@ -16,6 +18,7 @@ from bes.version.software_version import software_version
 
 from .git_cli_util import git_cli_util
 from .git_cli_options import git_cli_options
+from .git_output import git_output
 
 class git_cli_command(object):
 
@@ -33,29 +36,30 @@ class git_cli_command(object):
   }
   
   @classmethod
-  def bump_tag(clazz, options, component, dry_run, dont_push, reset_lower, verbose):
+  def bump_tag(clazz, options, component, dont_push, reset_lower):
     check.check_git_cli_options(options)
+    
     old_tag = git.greatest_local_tag(options.root_dir)
     bump_rv = git.bump_tag(options.root_dir, component,
                            push = not dont_push,
-                           dry_run = dry_run,
+                           dry_run = options.dry_run,
                            reset_lower = reset_lower)
     blurb = 'old_tag={} new_tag={}'.format(bump_rv.old_tag, bump_rv.new_tag)
-    if dry_run:
+    if options.dry_run:
       print('dry_run: {} dont_push={}'.format(blurb, dont_push))
-    if verbose:
+    if options.verbose:
       print(blurb)
     return 0
 
   @classmethod
-  def delete_tags(clazz, options, tags, local, remote, dry_run, from_file):
+  def delete_tags(clazz, options, tags, local, remote, from_file):
     check.check_git_cli_options(options)
     check.check_bool(local, allow_none = True)
     check.check_string_seq(tags)
     check.check_bool(remote, allow_none = True)
     check.check_string(from_file, allow_none = True)
     
-    where = git.determine_where(local, remote)
+    where = git_ref_where.determine_where(local, remote)
 
     combined_tags = []
     
@@ -67,40 +71,47 @@ class git_cli_command(object):
       combined_tags.extend(tags)
       
     for tag in combined_tags:
-      git.delete_tag(options.root_dir, tag, where, dry_run)
+      git.delete_tag(options.root_dir, tag, where, options.dry_run)
     return 0
 
   @classmethod
-  def tags(clazz, options, local, remote, prefix, limit, reverse):
+  def tags(clazz, options, local, remote, prefix, limit, sort_type, reverse):
     check.check_git_cli_options(options)
     check.check_bool(local, allow_none = True)
     check.check_bool(remote, allow_none = True)
     check.check_string(prefix, allow_none = True)
     check.check_int(limit, allow_none = True)
+    check.check_string(prefix, allow_none = True)
+    check.check_string(sort_type, allow_none = True)
     check.check_bool(reverse)
 
-    where = git.determine_where(local, remote)
-    if where == 'both':
-      clazz._list_tags_both(options.root_dir)
-      return 0
-    if where == 'local':
-      tags = git.list_local_tags(options.root_dir)
-    else:
-      tags = git.list_remote_tags(options.root_dir)
+    r = git_repo(options.root_dir)
+    tags = r.list_tags(sort_type = sort_type, reverse = reverse)
+    
+#    return
+#    where = git_ref_where.determine_where(local, remote)
+#    if where == 'both':
+#      clazz._list_tags_both(options)
+#      return 0
+#    if where == 'local':
+#      tags = git.list_local_tags(options.root_dir)
+#    else:
+#      tags = git.list_remote_tags(options.root_dir)
     if prefix:
-      tags = [ tag for tag in tags if tag.startswith(prefix) ]
+      tags = [ tag for tag in tags if tag.name.startswith(prefix) ]
     if reverse:
       tags = [ tag for tag in reversed(tags) ]
-    if limit:
-      tags = tags[0:limit]
-    for tag in tags:
-      print(tag)
+#    if limit:
+#      tags = tags[0:limit]
+#    for tag in tags:
+#      print(tag)
+    tags.output(options.output_style, output_filename = options.output_filename)
     return 0
   
   @classmethod
-  def _list_tags_both(clazz, root_dir):
-    local_tags = git.list_local_tags(root_dir)
-    remote_tags = git.list_remote_tags(root_dir)
+  def _list_tags_both(clazz, options):
+    local_tags = git.list_local_tags(options.root_dir)
+    remote_tags = git.list_remote_tags(options.root_dir)
     slocal = set(local_tags)
     sremote = set(remote_tags)
 
@@ -131,7 +142,7 @@ class git_cli_command(object):
     check.check_bool(remote, allow_none = True)
     check.check_string(commit, allow_none = True)
     
-    where = git.determine_where(local, remote)
+    where = git_ref_where.determine_where(local, remote)
     if not tag:
       clazz._tag_print(options.root_dir, where)
     else:
@@ -156,14 +167,14 @@ class git_cli_command(object):
     git.push_tag(root_dir, tag)
     
   @classmethod
-  def retag(clazz, options, tag = None, verbose = False):
+  def retag(clazz, options, tag = None):
     check.check_git_cli_options(options)
 
     tag = tag or git.greatest_local_tag(options.root_dir)
     git.delete_tag(options.root_dir, tag, 'both', False)
     git.tag(options.root_dir, tag)
-    git.push_tag(root_dir, tag)
-    if verbose:
+    git.push_tag(options.root_dir, tag)
+    if options.verbose:
       print('old_tag={} new_tag={}'.format(tag, tag))
     return 0
 
@@ -184,16 +195,14 @@ class git_cli_command(object):
       return str(value).center(2) if value else ' ' * 2
       
   @classmethod
-  def branches(clazz, options, local, remote, brief, plain, difference, no_fetch):
+  def branches(clazz, options, local, remote, difference, no_fetch):
     check.check_git_cli_options(options)
     check.check_bool(local, allow_none = True)
     check.check_bool(remote, allow_none = True)
-    check.check_bool(brief)
-    check.check_bool(plain)
     check.check_bool(difference)
     check.check_bool(no_fetch)
     
-    where = git.determine_where(local, remote)
+    where = git_ref_where.determine_where(local, remote)
     if not no_fetch:
       git.fetch(options.root_dir)
     branches = git.list_branches(options.root_dir, where)
@@ -203,21 +212,22 @@ class git_cli_command(object):
       for branch in branches.difference:
         print(branch)
       return 0
-    if brief:
+    if options.output_style == 'brief':
       for branch in branches.names:
         print(branch)
       return 0
     title = git.remote_origin_url(options.root_dir)
-    clazz._print_branches(title, branches, branches.longest_name, branches.longest_comment, plain)
+    clazz._print_branches(title, branches, branches.longest_name, branches.longest_comment,
+                          options.output_style)
     return 0
 
   @classmethod
-  def _print_branches(clazz, title, branches, longest_name, longest_comment, plain):
+  def _print_branches(clazz, title, branches, longest_name, longest_comment, style):
     longest_comment = 60
     if not branches:
       return
 
-    if plain:
+    if style == 'plain':
       style = text_table_style(spacing = 1, box = text_box_colon())
     else:
       style = text_table_style(spacing = 1, box = text_box_unicode())
@@ -228,7 +238,7 @@ class git_cli_command(object):
     t = table(data = branches)
     t.column_names = labels
     tt = text_table(data = t, style = style)
-    if not plain:
+    if not style == 'plain':
       tt.set_title(title)
       tt.set_labels(labels)
     tt.set_col_renderer('NAME', text_cell_renderer(width = longest_name))

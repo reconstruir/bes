@@ -3,6 +3,8 @@
 import pprint
 from bes.common.check import check
 
+from .git_output_style import git_output_style
+
 class git_cli_common_options(object):
   
   def __init__(self, *args, **kargs):
@@ -17,7 +19,7 @@ class git_cli_common_options(object):
     check.check_bool(self.dry_run)
     check.check_string(self.output_style)
     check.check_string(self.output_filename, allow_none = True)
-    assert self.output_style in [ 'brief', 'table', 'json', 'plain' ]
+    git_output_style.check_style(self.output_style)
     check.check_bool(self.verbose)
 
   def __str__(self):

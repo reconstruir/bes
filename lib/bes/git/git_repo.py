@@ -169,6 +169,9 @@ class git_repo(object):
   def greatest_remote_tag(self):
     return git.greatest_remote_tag(self.root)
 
+  def list_tags(self, where = None, sort_type = None, reverse = False):
+    return git.list_tags(self.root, where = where, sort_type = sort_type, reverse = reverse)
+  
   def list_local_tags(self, lexical = False, reverse = False):
     return git.list_local_tags(self.root, lexical = lexical, reverse = reverse)
 

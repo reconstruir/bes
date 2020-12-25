@@ -30,8 +30,10 @@ from .git_lfs import git_lfs
 from .git_modules_file import git_modules_file
 from .git_ref import git_ref
 from .git_ref_info import git_ref_info
+from .git_ref_where import git_ref_where
 from .git_status import git_status
 from .git_submodule_info import git_submodule_info
+from .git_tag import git_tag
 
 class git(git_lfs):
   'A class to deal with git.'
@@ -534,7 +536,8 @@ class git(git_lfs):
 
   @classmethod
   def delete_tag(clazz, root, tag, where, dry_run):
-    clazz.check_where(where)
+    git_ref_where.check_where(where)
+    
     if where in [ 'local', 'both' ]:
       local_tags = git.list_local_tags(root)
       if tag in local_tags:
@@ -551,13 +554,25 @@ class git(git_lfs):
           clazz.delete_remote_tag(root, tag)
 
   @classmethod
-  def list_local_tags(clazz, root, lexical = False, reverse = False):
+  def list_tags(clazz, root_dir, where = None, sort_type = None, reverse = False):
+    where = where or 'local'
+    git_ref_where.check_where(where)
+
+    assert sort_type in ( 'lexical', 'version' )
+
+    rv = git_exe.call_git(root_dir, [ 'tag', '-l', '--format="%(objectname) %(refname)"' ])
+    return git_tag.parse_show_ref_output(rv.stdout,
+                                         sort_type = sort_type,
+                                         reverse = reverse)
+          
+  @classmethod
+  def list_local_tags(clazz, root_dir, lexical = False, reverse = False):
     if lexical:
-      sort_arg = '--sort={reverse}refname'.format(reverse = '-' if reverse else '')
+      sort_type = 'lexical'
     else:
-      sort_arg = '--sort={reverse}version:refname'.format(reverse = '-' if reverse else '')
-    rv = git_exe.call_git(root, [ 'tag', '-l', sort_arg ])
-    return git_exe.parse_lines(rv.stdout)
+      sort_type = 'version'
+    tags = clazz.list_tags(root_dir, sort_type = sort_type, reverse = reverse)
+    return [ tag.name for tag in tags ]
 
   @classmethod
   def greatest_local_tag(clazz, root):
@@ -657,36 +672,13 @@ class git(git_lfs):
     return clazz._bump_tag_result(old_tag, new_tag)
 
   @classmethod
-  def where_is_valid(clazz, where):
-    return where in [ 'local', 'remote', 'both' ]
-
-  @classmethod
-  def check_where(clazz, where):
-    if not clazz.where_is_valid(where):
-      raise ValueError('where should be local, remote or both instead of: {}'.format(where))
-    return where
-
-  @classmethod
-  def determine_where(clazz, local, remote, default_value = 'both'):
-    if local is None and remote is None:
-      return default_value
-    local = bool(local)
-    remote = bool(remote)
-    if local and remote:
-      return 'both'
-    elif local:
-      return 'local'
-    elif remote:
-      return 'remote'
-    assert False
-
-  @classmethod
   def active_branch(clazz, root):
     return [ i for i in clazz.list_branches(root, 'local') if i.active ][0].name
 
   @classmethod
   def list_branches(clazz, root, where):
-    clazz.check_where(where)
+    git_ref_where.check_where(where)
+    
     if where == 'local':
       branches = clazz.list_local_branches(root)
     elif where == 'remote':

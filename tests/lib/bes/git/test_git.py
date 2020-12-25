@@ -251,13 +251,6 @@ class test_git(unit_test):
     self.assertFalse( git.has_changes(tmp_repo) )
 
   @git_temp_home_func()
-  def test_has_determine_where(self):
-    self.assertEqual( 'both', git.determine_where(True, True) )
-    self.assertEqual( 'local', git.determine_where(True, False) )
-    self.assertEqual( 'remote', git.determine_where(False, True) )
-    self.assertEqual( 'both', git.determine_where(None, None) )
-
-  @git_temp_home_func()
   def test_is_long_hash(self):
     self.assertTrue( git.is_long_hash('cd138635e1a94a6f2da6acbce3e2f2d584121d28') )
     self.assertFalse( git.is_long_hash('zd138635e1a94a6f2da6acbce3e2f2d584121d28') )

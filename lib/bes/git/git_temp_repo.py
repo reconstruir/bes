@@ -149,7 +149,8 @@ class git_temp_repo(object):
         content = f.content
         mode = f.mode
       self.add_file(f.filename, content, mode = mode, commit = False)
-    commit_hash = self.commit(cmd.message, [ f.filename for f in cmd.files ])
+    message = cmd.message or 'add {}'.format(' '.join([ f.filename for f in cmd.files ]))
+    commit_hash = self.commit(message, [ f.filename for f in cmd.files ])
     key = '@{}'.format(cmd.commit_alias)
     if key in context['commit_aliases']:
       raise git_temp_repo_error('duplicate commit alias: "{}"'.format(cmd.commit_alias))
@@ -239,14 +240,17 @@ class git_temp_repo(object):
     assert section.header_.name == 'tag'
 
     parts = string_util.split_by_white_space(section.header_.extra_text, strip = True)
-    if len(parts) != 2:
+    if len(parts) < 2:
       raise git_temp_repo_error('Invalid "tag" section header: "{}"'.format(str(section.header_)))
-    tag_name = parts[0]
-    name = parts[1]
-
+    tag_name = parts.pop(0)
+    name = parts.pop(0)
     from_commit = None
+    push = True
     annotation = None
-    push = False
+    if parts:
+      from_commit = parts.pop(0)
+    if parts:
+      annotation = ''.join(parts)
     if section.has_key('from_commit'):
       from_commit = section.get_value('from_commit')
     if section.has_key('annotation'):
