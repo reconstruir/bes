@@ -31,7 +31,7 @@ add commit1 commit1
   foo.txt: this is a multi line
            content
   subdir/bar.txt: this is subdir/bar.txt
-  scripts/go.sh[perm=655]: \#!/bin/bash
+  scripts/go.sh[perm=655]: \\#!/bin/bash
                            echo hello
                            exit 0
   copy_of_something1.txt: @something.txt
