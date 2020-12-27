@@ -113,7 +113,7 @@ tag rel/1.0.2 tag3 @commit3
     ]
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
-    self.assert_file_content_equal( '''\
+    self.assert_text_file_equal( '''\
 rel/1.0.0
 rel/1.0.1
 rel/1.0.2

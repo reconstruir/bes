@@ -73,14 +73,20 @@ class unit_test(unittest.TestCase):
   def _dict_to_str(clazz, d):
     return '\n'.join([ '%s=%s' % x for x in sorted(d.items()) ])
 
-  def assert_file_content_equal(self, expected, filename, strip = True):
+  def assert_binary_file_equal(self, expected, filename):
     self.maxDiff = None
     with open(filename, 'rb') as fin:
-      content = fin.read()
+      actual = fin.read()
+      self.assertEqual( expected, actual )
+
+  def assert_text_file_equal(self, expected, filename, strip = True, codec = 'utf-8'):
+    self.maxDiff = None
+    with open(filename, 'rb') as fin:
+      actual = fin.read().decode(codec)
       if strip:
+        actual = actual.strip()
         expected = expected.strip()
-        content = content.strip()
-    self.assertEqual( expected, content )
+      self.assertMultiLineEqual( expected, actual )
     
   @classmethod
   def _get_data_dir(clazz): 
