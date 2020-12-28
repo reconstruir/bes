@@ -79,15 +79,25 @@ class unit_test(unittest.TestCase):
       actual = fin.read()
       self.assertEqual( expected, actual )
 
-  def assert_text_file_equal(self, expected, filename, strip = True, codec = 'utf-8'):
+  def assert_text_file_equal(self, expected, filename, strip = True, codec = 'utf-8',
+                             preprocess_func = None):
     self.maxDiff = None
     with open(filename, 'rb') as fin:
       actual = fin.read().decode(codec)
+      if preprocess_func:
+        actual = preprocess_func(actual)
+        expected = preprocess_func(expected)
       if strip:
         actual = actual.strip()
         expected = expected.strip()
       self.assertMultiLineEqual( expected, actual )
-    
+
+  def assert_json_file_equal(self, expected, filename):
+    self.assert_text_file_equal(expected, filename,
+                                strip = True,
+                                codec = 'utf-8',
+                                preprocess_func = self._json_normalize)
+
   @classmethod
   def _get_data_dir(clazz): 
     right = getattr(clazz, '__unit_test_data_dir__', None)
@@ -119,7 +129,6 @@ class unit_test(unittest.TestCase):
     self.assertMultiLineEqual(self._json_normalize(expected),
                               self._json_normalize(actual))
                                
-
   @classmethod
   def decode_hex(clazz, s):
     return hexdata.string_to_bytes(s)
