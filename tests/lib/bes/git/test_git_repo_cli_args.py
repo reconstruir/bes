@@ -59,6 +59,111 @@ tag 1.0.0 tag1 @commit1
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
     self.assertEqual( '1.0.1', rv.output.strip() )
+
+  @git_temp_home_func()
+  def test_repo_bump_tag_component_major(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: kiwi.txt
+tag 1.0.0 tag1 @commit1
+'''
+    r = git_temp_repo(remote = True)
+    r.apply_config_text(config)
+    args = [
+      'git_repo',
+      'bump_tag',
+      '--component', 'major',
+      r.root,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    args = [
+      'git_repo',
+      'greatest_tag',
+      r.root,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    self.assertEqual( '2.0.0', rv.output.strip() )
+
+  @git_temp_home_func()
+  def test_repo_bump_tag_component_minor(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: kiwi.txt
+tag 1.0.0 tag1 @commit1
+'''
+    r = git_temp_repo(remote = True)
+    r.apply_config_text(config)
+    args = [
+      'git_repo',
+      'bump_tag',
+      '--component', 'minor',
+      r.root,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    args = [
+      'git_repo',
+      'greatest_tag',
+      r.root,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    self.assertEqual( '1.1.0', rv.output.strip() )
+    
+  @git_temp_home_func()
+  def test_repo_bump_tag_component_revision(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: kiwi.txt
+tag 1.0.0 tag1 @commit1
+'''
+    r = git_temp_repo(remote = True)
+    r.apply_config_text(config)
+    args = [
+      'git_repo',
+      'bump_tag',
+      '--component', 'revision',
+      r.root,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    args = [
+      'git_repo',
+      'greatest_tag',
+      r.root,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    self.assertEqual( '1.0.1', rv.output.strip() )
+
+  @git_temp_home_func()
+  def test_repo_bump_tag_component_major_reset_lower(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: kiwi.txt
+tag 1.0.1 tag1 @commit1
+'''
+    r = git_temp_repo(remote = True)
+    r.apply_config_text(config)
+    args = [
+      'git_repo',
+      'bump_tag',
+      '--component', 'major',
+      '--reset-lower',
+      r.root,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    args = [
+      'git_repo',
+      'greatest_tag',
+      r.root,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    self.assertEqual( '2.0.0', rv.output.strip() )
     
 if __name__ == '__main__':
   program_unit_test.main()
