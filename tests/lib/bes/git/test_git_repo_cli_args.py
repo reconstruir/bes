@@ -16,23 +16,16 @@ class test_git_cli_args(program_unit_test):
     config = '''\
 add commit1 commit1
   kiwi.txt: kiwi.txt
-
 tag rel/1.0.0 tag1 @commit1
-
 add commit2 commit2
   lemon.txt: lemon.txt
-
 tag rel/1.0.1 tag2 @commit2
-
 add commit3 commit3
   melon.txt: melon.txt
-
 tag rel/1.0.2 tag3 @commit3
 '''
-
     r = git_temp_repo(remote = True)
     r.apply_config_text(config)
-
     args = [
       'git_repo',
       'greatest_tag',
@@ -42,5 +35,30 @@ tag rel/1.0.2 tag3 @commit3
     self.assertEqual(0, rv.exit_code)
     self.assertEqual( 'rel/1.0.2', rv.output.strip() )
 
+  @git_temp_home_func()
+  def test_repo_bump_tag(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: kiwi.txt
+tag 1.0.0 tag1 @commit1
+'''
+    r = git_temp_repo(remote = True)
+    r.apply_config_text(config)
+    args = [
+      'git_repo',
+      'bump_tag',
+      r.root,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    args = [
+      'git_repo',
+      'greatest_tag',
+      r.root,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    self.assertEqual( '1.0.1', rv.output.strip() )
+    
 if __name__ == '__main__':
   program_unit_test.main()

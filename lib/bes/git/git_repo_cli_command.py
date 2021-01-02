@@ -20,11 +20,11 @@ class git_repo_cli_command(object):
     return func(options, **filtered_args)
   
   @classmethod
-  def bump_tag(clazz, options, component, dry_run, reset_lower):
+  def bump_tag(clazz, options, component, reset_lower):
     check.check_git_clone_options(options)
 
-    result = git_util.repo_bump_tag(options.address, component, dry_run, reset_lower)
-    if dry_run:
+    result = git_util.repo_bump_tag(options.address, component, options.dry_run, reset_lower)
+    if options.dry_run:
       print('dry_run: old_tag={} new_tag={}'.format(result.old_tag, result.new_tag))
     return 0
 
