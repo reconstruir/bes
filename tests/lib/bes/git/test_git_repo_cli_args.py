@@ -172,6 +172,7 @@ tag 1.0.1 tag1 @commit1
 add commit1 commit1
   kiwi.txt: kiwi.txt
 tag 1.0.1 tag1 @commit1
+push origin master
 '''
     r1 = git_temp_repo(remote = True, debug = self.DEBUG)
     r1.apply_config_text(config)
@@ -186,9 +187,8 @@ tag 1.0.1 tag1 @commit1
     self.assertEqual(0, rv.exit_code)
     r2 = git_repo(tmp_dir)
     self.assertEqual( '1.0.1', r2.greatest_local_tag() )
-    return
     self.assertEqual( [
-      'f',
+      'kiwi.txt',
     ], r2.find_all_files() )
     
 if __name__ == '__main__':

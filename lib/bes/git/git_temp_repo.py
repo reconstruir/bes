@@ -178,6 +178,16 @@ class git_temp_repo(object):
   def _command_apply_remove(self, cmd, context):
     assert cmd.command_name == 'remove'
     self.remove(cmd.filename)
+
+  def _command_apply_push(self, cmd, context):
+    assert cmd.command_name == 'push'
+    args = []
+    if cmd.upstream:
+      args.append('--set-upstream')
+      args.append(cmd.upstream)
+    args.append(cmd.repository)
+    args.append(cmd.ref)
+    self.push(*args)
     
   @classmethod
   def _command_parse(clazz, section):
@@ -301,3 +311,19 @@ class git_temp_repo(object):
       raise git_temp_repo_error('"remove" missing one of "filename"')
     
     return clazz._command_remove('remove', name, filename)
+
+  _command_push = namedtuple('_command_push', 'command_name, repository, ref, upstream')
+  @classmethod
+  def _command_parse_push(clazz, section):
+    assert section.header_.name == 'push'
+
+    parts = string_util.split_by_white_space(section.header_.extra_text, strip = True)
+    if len(parts) != 2:
+      raise git_temp_repo_error('Invalid "push" section header: "{}"'.format(str(section.header_)))
+    repository = parts.pop(0)
+    ref = parts.pop(0)
+    upstream = None
+    if section.has_key('upstream'):
+      upstream = section.get_value('upstream')
+    return clazz._command_push('push', repository, ref, upstream)
+  
