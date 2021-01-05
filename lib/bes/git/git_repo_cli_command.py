@@ -40,7 +40,6 @@ class git_repo_cli_command(object):
   def clone(clazz, options, dest_dir):
     check.check_git_clone_options(options)
     check.check_string(dest_dir)
-
     git.clone(options.address, dest_dir, options = options) 
     return 0
   

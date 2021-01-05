@@ -9,30 +9,30 @@ class git_repo_cli_args(object):
   
   def git_repo_add_args(self, subparser):
 
-    # git_repo_greatest_tag
+    # git_greatest_tag
     p = subparser.add_parser('greatest_tag', help = 'Print the greatest tag of an addressed repo numerically.')
     self._git_repo_add_common_args(p)
     
-    # git_repo_bump_tag
+    # git_bump_tag
     p = subparser.add_parser('bump_tag', help = 'Bump the tag of an addressed repo.')
+    self._git_repo_add_common_args(p)
     p.add_argument('--component', action = 'store', type = str, default = None,
                    choices = ( 'major', 'minor', 'revision' ),
                    help = 'What part of the version to bump. [ None ]')
     p.add_argument('--reset-lower', action = 'store_true',
                    help = 'Reset the lower components to zero. [ False ]')
-    self._git_repo_add_common_args(p)
     
-    # git_repo_clone
+    # git_clone
     p = subparser.add_parser('clone', help = 'Clone a repo with nicer support for lfs and submodules.')
+    self._git_repo_add_common_args(p)
     p.add_argument('dest_dir', action = 'store', type = str, default = None,
                    help = 'The dir to clone to. [ None ]')
-    self._git_repo_add_common_args(p)
     
-    # git_repo_sync
+    # git_sync
     p = subparser.add_parser('sync', help = 'Sync a repo by either cloning or updating it including all its branches.')
+    self._git_repo_add_common_args(p)
     p.add_argument('dest_dir', action = 'store', type = str, default = None,
                    help = 'The dir to clone to. [ None ]')
-    self._git_repo_add_common_args(p)
     
   @classmethod
   def _git_repo_add_common_args(clazz, p):
