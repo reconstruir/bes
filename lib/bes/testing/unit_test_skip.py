@@ -67,3 +67,8 @@ def raise_skip_if_not_linux():
 def raise_skip_if_python_version_matches(major, minor, message):
   if sys.version_info.major == major and sys.version_info.minor == minor:
     raise unittest.SkipTest(message)
+
+def raise_skip_if_python_major_version_matches(major, message):
+  if sys.version_info.major == major:
+    raise unittest.SkipTest(message)
+  
