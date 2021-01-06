@@ -10,6 +10,27 @@ from bes.testing.program_unit_test import program_unit_test
 class test_git_cli_args(program_unit_test):
 
   _program = program_unit_test.resolve_program(__file__, '..', '..', '..', '..', 'bin', 'best.py')
+
+  @git_temp_home_func()
+  def test_tag(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: kiwi.txt
+tag 1.0.0 tag1 @commit1
+'''
+    r = git_temp_repo(remote = True, config = config)
+    self.assertEqual( '1.0.0', r.greatest_local_tag() )
+    args = [
+      'git',
+      'tag',
+      '--root-dir', r.root,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    self.assert_string_equal_strip( '''\
+local: 1.0.0
+remote: 1.0.0
+''', rv.output )
   
   @git_temp_home_func()
   def test_bump_tag_revision(self):
