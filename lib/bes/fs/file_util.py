@@ -337,13 +337,14 @@ class file_util(object):
 
   @classmethod
   @contextlib.contextmanager
-  def open_with_default(clazz, filename = None):
+  def open_with_default(clazz, filename = None, mode = None):
     '''
     Return an open file managed with contextmanager or sys.stdout if None
     From: https://stackoverflow.com/a/17603000
     '''
+    mode = mode or 'w'
     if filename and filename != '-':
-      fh = open(filename, 'w')
+      fh = open(filename, mode)
     else:
       fh = sys.stdout
     try:
