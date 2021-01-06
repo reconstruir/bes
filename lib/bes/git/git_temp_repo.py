@@ -31,12 +31,14 @@ class git_temp_repo(object):
   '''
   
   def __init__(self, remote = True, content = None, debug = False,
-               prefix = None, commit_message = None):
+               prefix = None, commit_message = None, config = None):
     self._debug = debug
     if remote:
       self._init_remote(content, prefix, commit_message = commit_message)
     else:
       self._init_local(content, prefix, commit_message = commit_message)
+    if config:
+      self.apply_config_text(config)
 
   def _init_remote(self, content, prefix, commit_message = None):
     if prefix:
