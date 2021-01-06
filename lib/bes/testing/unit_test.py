@@ -58,8 +58,6 @@ class unit_test(unittest.TestCase):
     s1_stripped = re.sub(r'\s+', ' ', s1).strip()
     s2_stripped = re.sub(r'\s+', ' ', s2).strip()
     if s1_stripped == s2_stripped:
-      from bes.system.log import log
-      log.console('FUCK')
       return
     self.assertMultiLineEqual( s1, s2 )
 
