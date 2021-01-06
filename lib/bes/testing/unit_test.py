@@ -55,13 +55,19 @@ class unit_test(unittest.TestCase):
   def assertEqualIgnoreWhiteSpace(self, s1, s2):
     'Assert s1 equals s2 ignoreing minor white space differences.'
     self.maxDiff = None
-    s1 = re.sub(r'\s+', ' ', s1).strip()
-    s2 = re.sub(r'\s+', ' ', s2).strip()
+    s1_stripped = re.sub(r'\s+', ' ', s1).strip()
+    s2_stripped = re.sub(r'\s+', ' ', s2).strip()
+    if s1_stripped == s2_stripped:
+      from bes.system.log import log
+      log.console('FUCK')
+      return
     self.assertMultiLineEqual( s1, s2 )
 
   def assert_string_equal_strip(self, s1, s2):
     self.maxDiff = None
-    self.assertEqual( s1.strip(), s2.strip() )
+    if s1.strip() == s2.strip():
+      return
+    self.assertMultiLineEqual( s1, s2 )
 
   def assert_dict_equal(self, d1, d2):
     self.assertMultiLineEqual( pprint.pformat(d1, indent = 2), pprint.pformat(d2, indent = 2) )
