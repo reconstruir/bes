@@ -2,20 +2,19 @@
 
 from os import path
 
+from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
-from bes.cli.argparser_handler import argparser_handler
 from bes.common.string_util import string_util
 from bes.common.table import table
 from bes.git.git import git
-from bes.git.git_repo import git_repo
 from bes.git.git_ref_where import git_ref_where
+from bes.git.git_repo import git_repo
+from bes.text.text_box import text_box_colon
+from bes.text.text_box import text_box_unicode
 from bes.text.text_table import text_cell_renderer
 from bes.text.text_table import text_table
 from bes.text.text_table import text_table_style
-from bes.text.text_box import text_box_colon
-from bes.text.text_box import text_box_unicode
 from bes.version.software_version import software_version
-from bes.cli.cli_command_handler import cli_command_handler
 
 from .git_cli_util import git_cli_util
 from .git_cli_options import git_cli_options
@@ -27,15 +26,6 @@ class git_cli_command(cli_command_handler):
     super(git_cli_command, self).__init__(cli_args, options_class = git_cli_options)
     check.check_git_cli_options(self.options)
 
-  '''
-  @classmethod
-  def handle_command(clazz, command, **kargs):
-    options = git_cli_options(**kargs)
-    filtered_args = argparser_handler.filter_keywords_args(git_cli_options, kargs)
-    func = getattr(git_cli_command, command)
-    return func(options, **filtered_args)
-  '''
-  
   _DELTA_MAP = {
     'major': [ 1, 0, 0 ],
     'minor': [ 0, 1, 0 ],
