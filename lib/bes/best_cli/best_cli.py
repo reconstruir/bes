@@ -46,11 +46,12 @@ class best_cli(cli):
   from bes.git.git_cli_args import git_cli_args
   from bes.git.git_identity_cli_args import git_identity_cli_args
   from bes.git.git_repo_cli_args import git_repo_cli_args
-  from bes.git.git_repo_script_cli_args import git_repo_script_cli_args
   from bes.git.git_repo_document_cli_args import git_repo_document_cli_args
+  from bes.git.git_repo_script_cli_args import git_repo_script_cli_args
   from bes.native_package.native_package_cli_args import native_package_cli_args
   from bes.pip.pip_cli_args import pip_cli_args
   from bes.python.python_cli_args import python_cli_args
+  from bes.python.python_installer_cli_args import python_installer_cli_args
   COMMON_COMMAND_GROUPS = [
     cli_command('archive', 'archive_add_args', 'Deal with archive', archive_cli_args),
     cli_command('computer_setup', 'computer_setup_add_args', 'Deal with computer setup', computer_setup_cli_args),
@@ -63,6 +64,7 @@ class best_cli(cli):
     cli_command('native_package', 'native_package_add_args', 'Deal with native packages', native_package_cli_args),
     cli_command('pip', 'pip_add_args', 'Pip stuff', pip_cli_args),
     cli_command('python', 'python_add_args', 'Deal with python', python_cli_args),
+    cli_command('python_installer', 'python_installer_add_args', 'Deal with python install', python_installer_cli_args),
   ]
 
   COMMAND_GROUPS = COMMON_COMMAND_GROUPS + MACOS_COMMAND_GROUPS + UNIX_COMMAND_GROUPS
