@@ -32,6 +32,12 @@ class python_installer_cli_args(object):
                    help = 'Number of versions to show for each major python version [ 3 ]')
     self.__python_installer_add_common_args(p)
 
+    # installers
+    p = subparser.add_parser('installers', help = 'List all available installers.')
+    p.add_argument('--system', action = 'store', type = str,
+                   help = 'System to list installers for.  [ current system ]')
+    self.__python_installer_add_common_args(p)
+    
   def __python_installer_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')

@@ -46,6 +46,14 @@ class python_installer(python_installer_base):
       raise python_error('No python installer named "{}" found for this system: {}'.format(installer_name, host.SYSTEM))
     self.installer = installer_class(blurber)
 
+  @classmethod
+  def available_installers(self, system):
+    'Return a list of available installers for the given system.'
+    check.check_string(system, allow_none = True)
+
+    installers = self._INSTALLER_CLASSES.get(system or host.SYSTEM, {})
+    return [ name for name in installers.keys() ]
+    
   #@abstractmethod
   def available_versions(self, num):
     'Return a list of python versions available to install.'

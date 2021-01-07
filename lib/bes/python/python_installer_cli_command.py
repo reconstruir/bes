@@ -9,7 +9,7 @@ from .python_installer import python_installer
 from .python_installer_options import python_installer_options
 
 class python_installer_cli_command(cli_command_handler):
-  'python installer cli commands.'
+  'python installer cli handler.'
 
   def __init__(self, cli_args):
     super(python_installer_cli_command, self).__init__(cli_args, options_class = python_installer_options)
@@ -17,7 +17,15 @@ class python_installer_cli_command(cli_command_handler):
     bl = blurber(Script.name())
     bl.set_verbose(self.options.verbose)
     self.installer = python_installer(self.options.installer_name, bl)
-  
+
+  def installers(self, system):
+    check.check_string(system, allow_none = True)
+    
+    installers = python_installer.available_installers(system)
+    for installer in installers:
+      print(installer)
+    return 0
+    
   def available(self, num):
     check.check_int(num)
 

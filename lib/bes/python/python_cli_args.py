@@ -7,17 +7,17 @@ class python_cli_args(object):
   
   def python_add_args(self, subparser):
 
-    # python_version
+    # version
     p = subparser.add_parser('ver', help = 'Print the python sys.version.')
     
-    # python_path
+    # path
     p = subparser.add_parser('path', help = 'Print the python sys.path.')
 
-    # python_info
+    # info
     p = subparser.add_parser('info', help = 'Print information about the python executable.')
     p.add_argument('exe', action = 'store', help = 'The python executable')
     
-    # python_exes
+    # exes
     p = subparser.add_parser('exes', help = 'Print all the pythons found in PATH.')
     p.add_argument('-i', '--info', action = 'store_true', dest = 'show_info',
                    default = False, help = 'Print info about the executable')
