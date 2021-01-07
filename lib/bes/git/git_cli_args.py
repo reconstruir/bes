@@ -101,4 +101,4 @@ class git_cli_args(object):
     
   def _command_git(self, command, *args, **kargs):
     from .git_cli_command import git_cli_command
-    return git_cli_command.handle_command(command, **kargs)
+    return git_cli_command(kargs).handle_command(command)
