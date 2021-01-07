@@ -3,15 +3,9 @@
 from bes.common.check import check
 from bes.system.host import host
 
-#if host.SYSTEM == 'macos':
-#  from .python_installer_macos import python_installer_macos as python_installer
-#elif host.SYSTEM == 'linux':
-#  from .python_installer_linux import python_installer_linux as python_installer
-#else:
-#  host.raise_unsupported_system()
-
 from .python_error import python_error
 from .python_installer_base import python_installer_base
+from .python_installer_macos_brew import python_installer_macos_brew
 from .python_installer_macos_python_dot_org import python_installer_macos_python_dot_org
 
 class python_installer(python_installer_base):
@@ -19,13 +13,14 @@ class python_installer(python_installer_base):
   _INSTALLER_CLASSES = {
     host.MACOS: {
       'python.org': python_installer_macos_python_dot_org,
+      'brew': python_installer_macos_brew,
     },
     host.LINUX: {
     },
   }
 
   _DEFAULT_INSTALLER_CLASS = {
-    host.MACOS: 'python.org',
+    host.MACOS: 'brew',
   }
   
   def __init__(self, installer_name, blurber):

@@ -3,6 +3,7 @@
 import re
 
 from bes.common.check import check
+from bes.common.string_util import string_util
 from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
@@ -52,4 +53,31 @@ class brew(object):
     if not clazz.has_brew():
       raise brew_error('brew not installed')
     cmd = [ clazz.brew_exe() ] + args
-    return execute.execute(cmd, raise_error = False)
+    return execute.execute(cmd)
+
+  @classmethod
+  def available(clazz):
+    'Return a list of all available packages.'
+    rv = clazz.call_brew([ 'search' ])
+    return sorted(string_util.split_by_white_space(rv.stdout, strip = True))
+
+  @classmethod
+  def installed(clazz):
+    'Return a list of all installed packages.'
+    rv = clazz.call_brew([ 'list' ])
+    return sorted(string_util.split_by_white_space(rv.stdout, strip = True))
+  
+  @classmethod
+  def uninstall(clazz, package_name):
+    'Uninstall a package.'
+    check.check_string(package_name)
+    
+    clazz.call_brew([ 'uninstall', package_name ])
+
+  @classmethod
+  def install(clazz, package_name):
+    'Install a package.'
+    check.check_string(package_name)
+    
+    clazz.call_brew([ 'install', package_name ])
+    
