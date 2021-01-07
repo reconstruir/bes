@@ -1,17 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import sys
-
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.check import check
 from bes.common.Script import Script
+from bes.common.check import check
 from bes.script.blurber import blurber
-from bes.script.blurber import blurber
-from bes.text.text_box import text_box_unicode, text_box_space
-from bes.text.text_table import text_table, text_cell_renderer, text_table_style
 
 from .python_installer import python_installer
-from .python_exe import python_exe
 from .python_installer_options import python_installer_options
 
 class python_installer_cli_command(cli_command_handler):
@@ -22,7 +16,7 @@ class python_installer_cli_command(cli_command_handler):
     check.check_python_installer_options(self.options)
     bl = blurber(Script.name())
     bl.set_verbose(self.options.verbose)
-    self.installer = python_installer(bl)
+    self.installer = python_installer(self.options.installer_name, bl)
   
   def available(self, num):
     check.check_int(num)

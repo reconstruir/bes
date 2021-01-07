@@ -15,7 +15,7 @@ class python_installer_base(with_metaclass(ABCMeta, object)):
     self.blurber = blurber
   
   @abstractmethod
-  def available_versions(self, include_all):
+  def available_versions(self, num):
     'Return a list of python versions available to install.'
     raise NotImplemented('available_versions')
   

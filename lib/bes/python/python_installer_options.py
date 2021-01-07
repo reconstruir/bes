@@ -9,9 +9,11 @@ class python_installer_options(object):
   def __init__(self, *args, **kargs):
     self.verbose = False
     self.blurber = blurber()
+    self.installer_name = None
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_bool(self.verbose)
     check.check_blurber(self.blurber)
+    check.check_string(self.installer_name, allow_none = True)
 
 check.register_class(python_installer_options)

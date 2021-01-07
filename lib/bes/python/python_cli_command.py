@@ -3,14 +3,9 @@
 import sys
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.Script import Script
 from bes.common.check import check
-from bes.script.blurber import blurber
-from bes.script.blurber import blurber
-from bes.text.text_box import text_box_unicode, text_box_space
-from bes.text.text_table import text_table, text_cell_renderer, text_table_style
+from bes.text.text_table import text_table
 
-from .python_installer import python_installer
 from .python_exe import python_exe
 
 class python_cli_command(cli_command_handler):
