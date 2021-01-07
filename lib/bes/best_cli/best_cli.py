@@ -1,5 +1,11 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import sys, warnings
+
+# So for Python 2.7 we supress CryptographyDeprecationWarning warnings
+if sys.version_info.major == 2 and sys.version_info.minor == 7:
+  warnings.filterwarnings(action = 'ignore', module = 'OpenSSL')
+
 from bes.cli.cli import cli
 from bes.cli.cli_command import cli_command
 
