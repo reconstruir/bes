@@ -37,26 +37,7 @@ class vmware_client_api(object):
   def vms(self):
     'Return a list of vms'
     url = self._make_url('api/vms')
-
-#    params = {
-#      'q': 'name~"{}"'.format(ref_name),
-#    }
-#    params = params
-
-#    $body = @{
-#        'name' = $newvmname;
-#        'parentId' = $sourcevmid
-#    }
-
-    self._log.log_d('url={} auth={} headers={}'.format(url,
-                                                       self._auth,
-                                                       self._headers))
-    response = requests.get(url,
-                            auth = self._auth_tuple,
-                            headers = self._headers)
-    self._log.log_d('vms: response={} url={} headers={}'.format(response,
-                                                                response.url,
-                                                                response.headers))
+    response = self._make_request('get', url)
     if response.status_code != 200:
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
@@ -72,23 +53,41 @@ class vmware_client_api(object):
     check.check_string(vm_id)
     
     url = self._make_url('api/vms/{}'.format(vm_id))
-
-    self._log.log_d('vm_settings: url={} auth={} headers={}'.format(url,
-                                                                    self._auth,
-                                                                    self._headers))
-    response = requests.get(url,
-                            auth = self._auth_tuple,
-                            headers = self._headers)
-    self._log.log_d('vm_settings: response={} url={} headers={}'.format(response,
-                                                                        response.url,
-                                                                        response.headers))
+    response = self._make_request('get', url)
     if response.status_code != 200:
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
     return response_data
+
+  def _make_request(self, method, url, params = None, json = None):
+    auth = self._auth.to_tuple('username', 'password')
+    func = getattr(requests, method)
+    self._log.log_d('_make_request() method={} url={} params={} json={}'.format(method,
+                                                                                url,
+                                                                                params,
+                                                                                json))
+
+    response = func(url, json = json, params = params, auth = auth)
+    self._log.log_d('_make_request() response: status_code={} url={} headers={} content={}'.format(response.status_code,
+                                                                                                   response.url,
+                                                                                                   response.headers,
+                                                                                                   response.content))
+    return response
   
   def _make_url(self, fragment):
     check.check_string(fragment)
 
     return url_compat.urljoin(self.base_url, fragment)
+
+#    params = {
+#      'q': 'name~"{}"'.format(ref_name),
+#    }
+#    params = params
+
+#    $body = @{
+#        'name' = $newvmname;
+#        'parentId' = $sourcevmid
+#    }
+
+  
