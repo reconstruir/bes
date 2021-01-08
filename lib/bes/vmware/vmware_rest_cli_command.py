@@ -6,15 +6,15 @@ from bes.common.check import check
 from bes.script.blurber import blurber
 
 from .vmware_rest import vmware_rest
-from .vmware_rest_options import vmware_rest_options
+from .vmware_server_options import vmware_server_options
 from .vmware_rest_app import vmware_rest_app
 
 class vmware_rest_cli_command(cli_command_handler):
   'python installer cli handler.'
 
   def __init__(self, cli_args):
-    super(vmware_rest_cli_command, self).__init__(cli_args, options_class = vmware_rest_options)
-    check.check_vmware_rest_options(self.options)
+    super(vmware_rest_cli_command, self).__init__(cli_args, options_class = vmware_server_options)
+    check.check_vmware_server_options(self.options)
 
   def shell(self, shell_args):
     check.check_string_seq(shell_args)
