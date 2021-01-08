@@ -4,7 +4,7 @@ from bes.common.check import check
 from bes.common.dict_util import dict_util
 from bes.script.blurber import blurber
 
-class vmware_vmrest_options(object):
+class vmware_rest_options(object):
   
   def __init__(self, *args, **kargs):
     self.verbose = False
@@ -16,4 +16,4 @@ class vmware_vmrest_options(object):
     check.check_blurber(self.blurber)
     check.check_int(self.port, allow_none = True)
 
-check.register_class(vmware_vmrest_options)
+check.register_class(vmware_rest_options)

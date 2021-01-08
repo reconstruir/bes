@@ -8,12 +8,12 @@ from os import path
 from bes.system.log import logger
 from bes.common.check import check
 
-class vmware_vmrest(object):
+class vmware_rest(object):
 
-  _log = logger('vmware_vmrest')
+  _log = logger('vmware_rest')
   
   def __init__(self, port = None):
-    self._log.log_i('vmware_vmrest(id={} self={}, port={})'.format(id(self), self, port))
+    self._log.log_i('vmware_rest(id={} self={}, port={})'.format(id(self), self, port))
     self._requested_port = port
     self.address = None
     self._process = None
@@ -35,7 +35,7 @@ class vmware_vmrest(object):
 #    exit_code = process.wait()
 
   def start(self):
-    self._process = multiprocessing.Process(name = 'vmware_vmrest', target = self._vmrest_process)
+    self._process = multiprocessing.Process(name = 'vmware_rest', target = self._vmrest_process)
     self._process.daemon = True
     self._process.start()
     self._log.log_i('waiting for port known notification')

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import argparse
@@ -8,14 +7,14 @@ from bes.common.string_util import string_util
 from bes.compat.input import input
 from bes.system.log import log
 
-from .vmware_vmrest_controller import vmware_vmrest_controller
+from .vmware_rest_controller import vmware_rest_controller
 
-class vmware_vmrest_app(object):
+class vmware_rest_app(object):
 
-  _log = logger('vmware_vmrest_app')
+  _log = logger('vmware_rest_app')
   
   def __init__(self):
-    self._controller = vmware_vmrest_controller()
+    self._controller = vmware_rest_controller()
   
   def main(self, args = None):
     ap = argparse.ArgumentParser()
