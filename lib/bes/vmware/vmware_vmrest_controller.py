@@ -16,7 +16,7 @@ class vmware_vmrest_controller(object):
     if self._server:
       return
     self._log.log_i('controller start: args=%s; kargs=%s' % (str(args), str(kargs)))
-    self._server = self._server_class(*args, **kargs)
+    self._server = vmware_vmrest(*args, **kargs)
     self._log.log_i('starting server.')
     self._server.start()
     self.address = self._server.address

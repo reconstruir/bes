@@ -12,26 +12,25 @@ class vmware_vmrest(object):
 
   _log = logger('vmware_vmrest')
   
-  def __init__(self, port = None, log_tag = None, users = None):
+  def __init__(self, port = None):
     self._log.log_i('vmware_vmrest(id={} self={}, port={})'.format(id(self), self, port))
-    self._users = users or {}
     self._requested_port = port
     self.address = None
     self._process = None
     self._port_queue = multiprocessing.Queue()
-    self._fail_next_request = multiprocessing.Value('i', 0)
   
   def _vmrest_process(self):
+    print('hi; here')
     cmd = [
       'vmrest',
-      '-p', 9000,
+      '-p', '9000',
     ]
     #cwd = cwd, env = env, 
     process = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell = False)
     while True:
       nextline = process.stdout.readline()
       print('next_line: {}'.format(nextline))
-    print('CACA')
+    print('HI')
 #    stdout, stderr = process.communicate()
 #    exit_code = process.wait()
 

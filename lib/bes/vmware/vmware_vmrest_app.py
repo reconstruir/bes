@@ -17,11 +17,11 @@ class vmware_vmrest_app(object):
   def __init__(self):
     self._controller = vmware_vmrest_controller()
   
-  def main(self):
+  def main(self, args = None):
     ap = argparse.ArgumentParser()
     ap.add_argument('-p', '--port', action = 'store', default = None, type = int,
                     help = 'The port to bind to [ None ]')
-    args = ap.parse_args()
+    args = ap.parse_args(args = args)
     if args.port:
       self._command_start([ 'start', str(args.port)])
     while True:
