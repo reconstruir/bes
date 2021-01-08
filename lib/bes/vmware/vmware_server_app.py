@@ -7,14 +7,14 @@ from bes.common.string_util import string_util
 from bes.compat.input import input
 from bes.system.log import log
 
-from .vmware_rest_controller import vmware_rest_controller
+from .vmware_server_controller import vmware_server_controller
 
-class vmware_rest_app(object):
+class vmware_server_app(object):
 
-  _log = logger('vmware_rest_app')
+  _log = logger('vmware_server_app')
   
   def __init__(self):
-    self._controller = vmware_rest_controller()
+    self._controller = vmware_server_controller()
   
   def main(self, args = None, shell_args = None):
     ap = argparse.ArgumentParser()

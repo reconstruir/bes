@@ -12,14 +12,14 @@ from os import path
 from bes.system.log import logger
 from bes.common.check import check
 
-class vmware_rest(object):
+class vmware_server(object):
 
-  _log = logger('vmware_rest')
+  _log = logger('vmware_server')
 
   _info = namedtuple('_info', 'address, pid, version')
   
   def __init__(self, port = None):
-    self._log.log_d('vmware_rest(id={} self={}, port={})'.format(id(self), self, port))
+    self._log.log_d('vmware_server(id={} self={}, port={})'.format(id(self), self, port))
     self._requested_port = port
     self.address = None
     self._process = None
@@ -70,7 +70,7 @@ class vmware_rest(object):
     return f[0]
   
   def start(self):
-    self._process = multiprocessing.Process(name = 'vmware_rest', target = self._vmrest_process)
+    self._process = multiprocessing.Process(name = 'vmware_server', target = self._vmrest_process)
     self._process.daemon = True
     self._process.start()
     self._log.log_d('waiting for address notification')

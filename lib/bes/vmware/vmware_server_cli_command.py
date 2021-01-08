@@ -5,15 +5,15 @@ from bes.common.Script import Script
 from bes.common.check import check
 from bes.script.blurber import blurber
 
-from .vmware_rest import vmware_rest
+from .vmware_server import vmware_server
 from .vmware_server_options import vmware_server_options
-from .vmware_rest_app import vmware_rest_app
+from .vmware_server_app import vmware_server_app
 
-class vmware_rest_cli_command(cli_command_handler):
+class vmware_server_cli_command(cli_command_handler):
   'python installer cli handler.'
 
   def __init__(self, cli_args):
-    super(vmware_rest_cli_command, self).__init__(cli_args, options_class = vmware_server_options)
+    super(vmware_server_cli_command, self).__init__(cli_args, options_class = vmware_server_options)
     check.check_vmware_server_options(self.options)
 
   def shell(self, shell_args):
@@ -22,5 +22,5 @@ class vmware_rest_cli_command(cli_command_handler):
     args = []
     if self.options.port:
       args.extend([ '--port', self.options.port ])
-    raise SystemExit(vmware_rest_app().main(args = args, shell_args = shell_args))
+    raise SystemExit(vmware_server_app().main(args = args, shell_args = shell_args))
     return 0

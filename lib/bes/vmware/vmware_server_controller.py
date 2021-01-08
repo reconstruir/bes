@@ -2,11 +2,11 @@
 
 from bes.system.log import logger
 
-from .vmware_rest import vmware_rest
+from .vmware_server import vmware_server
 
-class vmware_rest_controller(object):
+class vmware_server_controller(object):
 
-  _log = logger('vmware_rest_controller')
+  _log = logger('vmware_server_controller')
   
   def __init__(self):
     self._server = None
@@ -16,7 +16,7 @@ class vmware_rest_controller(object):
     if self._server:
       return
     self._log.log_i('controller start: args=%s; kargs=%s' % (str(args), str(kargs)))
-    self._server = vmware_rest(*args, **kargs)
+    self._server = vmware_server(*args, **kargs)
     self._log.log_i('starting server.')
     self._server.start()
     self.address = self._server.address

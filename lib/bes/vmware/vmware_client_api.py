@@ -13,7 +13,7 @@ from .vmware_error import vmware_error
 class vmware_client_api(object):
   'A class to deal with the vmware fusion rest api'
   
-  _log = logger('vmware_rest_api')
+  _log = logger('vmware_server_api')
   
   def __init__(self, address, auth):
     check.check_tuple(address)

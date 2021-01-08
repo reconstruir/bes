@@ -2,7 +2,7 @@
 
 from bes.common.check import check
 from bes.common.dict_util import dict_util
-from rebuild.credentials.credentials import credentials
+from bes.credentials.credentials import credentials
 from bes.script.blurber import blurber
 
 class vmware_client_options(object):
@@ -22,12 +22,8 @@ class vmware_client_options(object):
     check.check_string(self.username, allow_none = True)
     check.check_string(self.password, allow_none = True)
 
-  @classmethod
-  def resolve_with_vault(clazz):
-    config = vault_ego.resolve_config()
-    v = vault(config)
-    username = v.get_secret('cicd/bitbucket', 'EGO_BITBUCKET_USER')
-    app_password = v.get_secret('cicd/bitbucket', 'EGO_BITBUCKET_APP_PASSWORD')
-    return credentials('<vault>', username = username, app_password = app_password )
+  @proeprty
+  def auth(self):
+    return credentials('<cli>', username = self.username, password = self.password)
     
 check.register_class(vmware_client_options)
