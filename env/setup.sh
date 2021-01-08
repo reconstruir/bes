@@ -12,6 +12,8 @@ source ${_BES_DEV_ROOT}/bes_shell/bes_shell.sh
 
 bes_dev()
 {
+  source ~/.rebuild/bes_deps/setup.sh
+  bes_deps_setup
   bes_setup ${_BES_DEV_ROOT} ${1+"$@"}
   return 0
 }

@@ -9,8 +9,9 @@ class vmware_client_options(object):
   
   def __init__(self, *args, **kargs):
     self.verbose = False
-    self.port = None
+    self.port = 8697
     self.blurber = blurber()
+    self.hostname = None
     self.username = None
     self.password = None
     for key, value in kargs.items():
@@ -22,11 +23,11 @@ class vmware_client_options(object):
     check.check_string(self.username, allow_none = True)
     check.check_string(self.password, allow_none = True)
 
-  @proeprty
+  @property
   def address(self):
     return ( self.hostname, self.port )
-    
-  @proeprty
+
+  @property
   def auth(self):
     return credentials('<cli>', username = self.username, password = self.password)
     
