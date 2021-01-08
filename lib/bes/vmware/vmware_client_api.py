@@ -61,18 +61,6 @@ class vmware_client_api(object):
     self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
     return response_data
 
-  def vm_config(self, vm_id):
-    'Return a config for a vm'
-    check.check_string(vm_id)
-    
-    url = self._make_url('vms/params'.format(vm_id))
-    response = self._make_request('get', url)
-    if response.status_code != 200:
-      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
-    response_data = response.json()
-    self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
-    return response_data
-
   def vm_config(self, vm_id, key):
     'Return a config for a vm'
     check.check_string(vm_id)
@@ -84,7 +72,15 @@ class vmware_client_api(object):
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
-    return response_data
+    name = response_data.get('name', None)
+    if not name:
+      raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
+    value = response_data.get('value', None)
+    if not value:
+      raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
+    if name == key:
+      return value
+    raise vmware_error('Config value "{}" not found'.format(key))
 
   def vm_get_power(self, vm_id):
     'Return power status for a vm.'
