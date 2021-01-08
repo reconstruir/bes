@@ -32,12 +32,12 @@ class vmware_client_api(object):
 
   @property
   def base_url(self):
-    return 'http://{}:{}/'.format(self._address[0], self._address[1])
+    return 'http://{}:{}/api/'.format(self._address[0], self._address[1])
 
   _vm = namedtuple('_vm', 'vm_id, path')
   def vms(self):
     'Return a list of vms'
-    url = self._make_url('api/vms')
+    url = self._make_url('vms')
     response = self._make_request('get', url)
     if response.status_code != 200:
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
@@ -53,7 +53,7 @@ class vmware_client_api(object):
     'Return a settings for a vm'
     check.check_string(vm_id)
     
-    url = self._make_url('api/vms/{}'.format(vm_id))
+    url = self._make_url('vms/{}'.format(vm_id))
     response = self._make_request('get', url)
     if response.status_code != 200:
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
@@ -65,7 +65,7 @@ class vmware_client_api(object):
     'Return a config for a vm'
     check.check_string(vm_id)
     
-    url = self._make_url('api/vms/params'.format(vm_id))
+    url = self._make_url('vms/params'.format(vm_id))
     response = self._make_request('get', url)
     if response.status_code != 200:
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
@@ -78,7 +78,7 @@ class vmware_client_api(object):
     check.check_string(vm_id)
     check.check_string(key)
     
-    url = self._make_url('api/vms/{}/params/{}'.format(vm_id, key))
+    url = self._make_url('vms/{}/params/{}'.format(vm_id, key))
     response = self._make_request('get', url)
     if response.status_code != 200:
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
@@ -90,7 +90,7 @@ class vmware_client_api(object):
     'Return power status for a vm.'
     check.check_string(vm_id)
     
-    url = self._make_url('api/vms/{}/power'.format(vm_id))
+    url = self._make_url('vms/{}/power'.format(vm_id))
     response = self._make_request('get', url)
     if response.status_code != 200:
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
@@ -106,7 +106,7 @@ class vmware_client_api(object):
     check.check_string(vm_id)
     check.check_string(state)
     
-    url = self._make_url('api/vms/{}/power'.format(vm_id))
+    url = self._make_url('vms/{}/power'.format(vm_id))
 
     data = state
     response = self._make_request('put', url, data = data)
@@ -129,7 +129,7 @@ class vmware_client_api(object):
     
     response = self._make_request('get', endpoint)
     if response.status_code != 200:
-      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+      raise vmware_error('Error querying: "{}": {}'.format(endpoint, response.status_code))
     response_data = response.json()
     self._log.log_d('request: response_data={}'.format(pprint.pformat(response_data)))
     return response_data
