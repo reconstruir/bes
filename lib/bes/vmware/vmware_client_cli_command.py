@@ -1,7 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import pprint
+
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
+from bes.key_value.key_value_list import key_value_list
+from bes.common.string_util import string_util
 
 from .vmware_client_api import vmware_client_api
 from .vmware_client_options import vmware_client_options
@@ -44,5 +48,15 @@ class vmware_client_cli_command(cli_command_handler):
     else:
       power = self._api.vm_get_power(vm_id)
       print(power)
+    return 0
+
+  def request(self, endpoint, args):
+    check.check_string(endpoint)
+
+    # Deal with situation where spacing around args is not consistent
+    flat_args = string_util.replace(' '.join(args), { ' =': '=', ' = ': '=', '= ': '=' })
+    params = key_value_list.parse(flat_args).to_dict()
+    data = self._api.request(endpoint, params or None)
+    print(pprint.pformat(data))
     return 0
   

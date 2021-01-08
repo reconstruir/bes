@@ -32,7 +32,7 @@ class vmware_client_api(object):
 
   @property
   def base_url(self):
-    return 'http://{}:{}'.format(self._address[0], self._address[1])
+    return 'http://{}:{}/'.format(self._address[0], self._address[1])
 
   _vm = namedtuple('_vm', 'vm_id, path')
   def vms(self):
@@ -118,6 +118,21 @@ class vmware_client_api(object):
     if not power_state:
       raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
     return power_state == 'poweredOn'
+
+  def request(self, endpoint, params):
+    'Return power status for a vm.'
+    check.check_string(endpoint)
+    check.check_dict(params, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
+
+    if not endpoint.startswith(self.base_url):
+      endpoint = self.base_url + endpoint
+    
+    response = self._make_request('get', endpoint)
+    if response.status_code != 200:
+      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+    response_data = response.json()
+    self._log.log_d('request: response_data={}'.format(pprint.pformat(response_data)))
+    return response_data
   
   def _make_request(self, method, url, params = None, json = None, data = None):
     auth = self._auth.to_tuple('username', 'password')

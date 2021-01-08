@@ -33,6 +33,14 @@ class vmware_client_cli_args(object):
     p.add_argument('state', action = 'store', type = str, default = None, nargs = '?',
                    choices = ( 'on', 'off', 'shutdown', 'suspend', 'pause', 'unpause' ),
                    help = 'The new power state [ ]')
+
+    # request
+    p = subparser.add_parser('request', help = 'Make a generic request.')
+    self.__vmware_client_add_common_args(p)
+    p.add_argument('endpoint', action = 'store', default = None, type = str,
+                   help = 'The request end point. [ None ]')
+    p.add_argument('args', action = 'store', default = [], nargs = '*',
+                   help = 'The script args. [ None ]')
     
   def __vmware_client_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,
