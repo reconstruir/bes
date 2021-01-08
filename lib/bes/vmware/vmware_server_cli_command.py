@@ -10,7 +10,7 @@ from .vmware_server_options import vmware_server_options
 from .vmware_server_app import vmware_server_app
 
 class vmware_server_cli_command(cli_command_handler):
-  'python installer cli handler.'
+  'vmware server cli handler.'
 
   def __init__(self, cli_args):
     super(vmware_server_cli_command, self).__init__(cli_args, options_class = vmware_server_options)

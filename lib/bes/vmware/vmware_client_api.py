@@ -32,6 +32,7 @@ class vmware_client_api(object):
     response = requests.get(url)
     print(response)
     print(response.content)
+    return []
   
   @classmethod
   def _make_url(clazz, fragment):

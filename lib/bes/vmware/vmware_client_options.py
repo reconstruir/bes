@@ -23,6 +23,10 @@ class vmware_client_options(object):
     check.check_string(self.password, allow_none = True)
 
   @proeprty
+  def address(self):
+    return ( self.hostname, self.port )
+    
+  @proeprty
   def auth(self):
     return credentials('<cli>', username = self.username, password = self.password)
     
