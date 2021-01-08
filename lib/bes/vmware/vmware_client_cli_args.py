@@ -41,6 +41,12 @@ class vmware_client_cli_args(object):
                    help = 'The request end point. [ None ]')
     p.add_argument('args', action = 'store', default = [], nargs = '*',
                    help = 'The script args. [ None ]')
+
+    # vm_mac_address
+    p = subparser.add_parser('vm_mac_address', help = 'Return mac_address for a vm.')
+    self.__vmware_client_add_common_args(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
     
   def __vmware_client_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,

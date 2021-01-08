@@ -82,6 +82,12 @@ class vmware_client_api(object):
       return value
     raise vmware_error('Config value "{}" not found'.format(key))
 
+  def vm_get_mac_address(self, vm_id):
+    'Return the mac address for a vm'
+    check.check_string(vm_id)
+
+    return self.vm_config(vm_id, 'ethernet0.generatedAddress')
+  
   def vm_get_power(self, vm_id):
     'Return power status for a vm.'
     check.check_string(vm_id)

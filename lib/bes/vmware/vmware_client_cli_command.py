@@ -60,3 +60,9 @@ class vmware_client_cli_command(cli_command_handler):
     print(pprint.pformat(data))
     return 0
   
+  def vm_mac_address(self, vm_id):
+    check.check_string(vm_id)
+    
+    mac_address = self._api.vm_get_mac_address(vm_id)
+    print(mac_address)
+    return 0
