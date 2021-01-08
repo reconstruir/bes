@@ -27,3 +27,22 @@ class vmware_client_cli_command(cli_command_handler):
     print(settings)
     return 0
   
+  def vm_config(self, vm_id, key):
+    check.check_string(vm_id)
+    check.check_string(key)
+    
+    config = self._api.vm_config(vm_id, key)
+    print(config)
+    return 0
+
+  def vm_power(self, vm_id, state):
+    check.check_string(vm_id)
+    check.check_string(state, allow_none = True)
+
+    if state != None:
+      self._api.vm_set_power(vm_id, state)
+    else:
+      power = self._api.vm_get_power(vm_id)
+      print(power)
+    return 0
+  

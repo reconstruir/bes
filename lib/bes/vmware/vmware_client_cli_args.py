@@ -16,6 +16,23 @@ class vmware_client_cli_args(object):
     self.__vmware_client_add_common_args(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
+
+    # vm_config
+    p = subparser.add_parser('vm_config', help = 'Return config for a vm.')
+    self.__vmware_client_add_common_args(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    p.add_argument('key', action = 'store', type = str, default = None,
+                   help = 'Config param key [ ]')
+
+    # vm_power
+    p = subparser.add_parser('vm_power', help = 'Get or set the vm power.')
+    self.__vmware_client_add_common_args(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    p.add_argument('state', action = 'store', type = str, default = None, nargs = '?',
+                   choices = ( 'on', 'off', 'shutdown', 'suspend', 'pause', 'unpause' ),
+                   help = 'The new power state [ ]')
     
   def __vmware_client_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,
