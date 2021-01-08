@@ -10,7 +10,7 @@ class vmware_rest_controller(object):
   
   def __init__(self):
     self._server = None
-    self.address = None
+    self._reset()
     
   def start(self, *args, **kargs):
     if self._server:
@@ -20,6 +20,7 @@ class vmware_rest_controller(object):
     self._log.log_i('starting server.')
     self._server.start()
     self.address = self._server.address
+    self.pid = self._server.pid
     self._log.log_i('server started on %s' % (str(self.address)))
   
   def stop(self):
@@ -27,9 +28,9 @@ class vmware_rest_controller(object):
       return
     self._log.log_i('stopping server.')
     self._server.stop()
+    self._reset()
+
+  def _reset(self):
+    self.address = None
+    self.pid = None
     self._server = None
-    
-  def fail_next_request(self, status_code):
-    if not self._server:
-      raise RuntimeError('server not running.')
-    self._server.fail_next_request(status_code)

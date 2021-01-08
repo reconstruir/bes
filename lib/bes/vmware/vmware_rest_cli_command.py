@@ -16,9 +16,11 @@ class vmware_rest_cli_command(cli_command_handler):
     super(vmware_rest_cli_command, self).__init__(cli_args, options_class = vmware_rest_options)
     check.check_vmware_rest_options(self.options)
 
-  def shell(self):
+  def shell(self, shell_args):
+    check.check_string_seq(shell_args)
+    
     args = []
     if self.options.port:
       args.extend([ '--port', self.options.port ])
-    raise SystemExit(vmware_rest_app().main(args = args))
+    raise SystemExit(vmware_rest_app().main(args = args, shell_args = shell_args))
     return 0

@@ -10,6 +10,8 @@ class vmware_rest_cli_args(object):
     # shell
     p = subparser.add_parser('shell', help = 'Run interactive vmrest shell.')
     self.__vmware_rest_add_common_args(p)
+    p.add_argument('shell_args', action = 'store', default = [], nargs = '*',
+                   help = 'Shell args. [ None ]')
     
   def __vmware_rest_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,

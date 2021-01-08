@@ -16,16 +16,22 @@ class vmware_rest_app(object):
   def __init__(self):
     self._controller = vmware_rest_controller()
   
-  def main(self, args = None):
+  def main(self, args = None, shell_args = None):
     ap = argparse.ArgumentParser()
     ap.add_argument('-p', '--port', action = 'store', default = None, type = int,
                     help = 'The port to bind to [ None ]')
-    args = ap.parse_args(args = args)
-    if args.port:
-      self._command_start([ 'start', str(args.port)])
+    parsed_args = ap.parse_args(args = args)
+    if parsed_args.port:
+      self._command_start([ 'start', str(parsed_args.port)])
+    if shell_args:
+      return self._handle_command(shell_args)
+      
     while True:
-      if not self._command_loop():
-        break
+      try:
+        if not self._command_loop():
+          break
+      except KeyboardInterrupt as ex:
+        print('fuck')
     self._controller.stop()
     return 0
 
@@ -47,6 +53,8 @@ class vmware_rest_app(object):
       return self._command_start(cmd)
     elif cmd[0] == 'port':
       return self._command_port(cmd)
+    elif cmd[0] == 'pid':
+      return self._command_pid(cmd)
     elif cmd[0] == 'quit':
       return self._command_quit(cmd)
     return True
@@ -66,3 +74,8 @@ class vmware_rest_app(object):
   def _command_port(self, cmd):
     print(self._controller.address)
     return True
+
+  def _command_pid(self, cmd):
+    print(self._controller.pid)
+    return True
+  
