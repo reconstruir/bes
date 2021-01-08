@@ -4,8 +4,9 @@ import pprint
 
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
-from bes.key_value.key_value_list import key_value_list
 from bes.common.string_util import string_util
+from bes.key_value.key_value_list import key_value_list
+from bes.text.text_table import text_table
 
 from .vmware_client_api import vmware_client_api
 from .vmware_client_options import vmware_client_options
@@ -21,8 +22,9 @@ class vmware_client_cli_command(cli_command_handler):
 
   def vms(self):
     vms = self._api.vms()
-    for vm in vms:
-      print(vm)
+    tt = text_table(data = vms)
+    tt.set_labels( ( 'NAME', 'ID', 'PATH' ) )
+    print(tt)
     return 0
 
   def vm_settings(self, vm_id):

@@ -6,14 +6,14 @@ from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.property.cached_property import cached_property
 
-class vmware_vm(namedtuple('vmware_vm', 'vm_id, path, name')):
+class vmware_vm(namedtuple('vmware_vm', 'name, vm_id, path')):
   'A class to represent a vmware vm.'
   
   def __new__(clazz, vm_id, path):
     check.check_string(vm_id)
     check.check_string(path)
 
-    return clazz.__bases__[0].__new__(clazz, vm_id, path, clazz._make_name(path))
+    return clazz.__bases__[0].__new__(clazz, clazz._make_name(path), vm_id, path)
 
   @classmethod
   def _make_name(clazz, path):
