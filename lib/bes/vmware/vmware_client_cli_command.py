@@ -66,3 +66,11 @@ class vmware_client_cli_command(cli_command_handler):
     mac_address = self._api.vm_get_mac_address(vm_id)
     print(mac_address)
     return 0
+
+  def vm_ip_address(self, vm_id):
+    check.check_string(vm_id)
+    
+    ip_address = self._api.vm_get_ip_address(vm_id)
+    print(ip_address)
+    return 0
+  

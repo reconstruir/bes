@@ -5,13 +5,12 @@ import requests
 import sys
 import time
 
-from collections import namedtuple
-
 from bes.compat import url_compat
 from bes.common.check import check
 from bes.system.log import logger
 
 from .vmware_error import vmware_error
+from .vmware_vm import vmware_vm
 
 class vmware_client_api(object):
   'A class to deal with the vmware fusion rest api'
@@ -34,7 +33,6 @@ class vmware_client_api(object):
   def base_url(self):
     return 'http://{}:{}/api/'.format(self._address[0], self._address[1])
 
-  _vm = namedtuple('_vm', 'vm_id, path')
   def vms(self):
     'Return a list of vms'
     url = self._make_url('vms')
@@ -45,10 +43,10 @@ class vmware_client_api(object):
     self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
     result = []
     for item in response_data:
-      result.append(self._vm(item['id'], item['path']))
+      vm = vmware_vm(item['id'], item['path'])
+      result.append(vm)
     return result
 
-  _vmx = namedtuple('_vm', 'vm_id, path')
   def vm_settings(self, vm_id):
     'Return a settings for a vm'
     check.check_string(vm_id)
@@ -86,7 +84,15 @@ class vmware_client_api(object):
     'Return the mac address for a vm'
     check.check_string(vm_id)
 
-    return self.vm_config(vm_id, 'ethernet0.generatedAddress')
+    try:
+      return self.vm_config(vm_id, 'ethernet0.address')
+    except vmware_error as ex:
+      pass
+    try:
+      return self.vm_config(vm_id, 'ethernet0.generatedAddress')
+    except vmware_error as ex:
+      pass
+    return None
   
   def vm_get_power(self, vm_id):
     'Return power status for a vm.'
@@ -135,6 +141,21 @@ class vmware_client_api(object):
     response_data = response.json()
     self._log.log_d('request: response_data={}'.format(pprint.pformat(response_data)))
     return response_data
+
+  def vm_get_ip_address(self, vm_id):
+    'Return a config for a vm'
+    check.check_string(vm_id)
+    
+    url = self._make_url('vms/{}/ip'.format(vm_id))
+    response = self._make_request('get', url)
+    if response.status_code != 200:
+      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+    response_data = response.json()
+    self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
+    ip_address = response_data.get('ip', None)
+    if not ip_address:
+      raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
+    return ip_address
   
   def _make_request(self, method, url, params = None, json = None, data = None):
     auth = self._auth.to_tuple('username', 'password')
