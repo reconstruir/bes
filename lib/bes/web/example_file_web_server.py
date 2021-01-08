@@ -6,4 +6,3 @@ from bes.web.file_web_server import file_web_server
 
 if __name__ == '__main__':
   raise SystemExit(web_server_app(file_web_server).main())
-  
