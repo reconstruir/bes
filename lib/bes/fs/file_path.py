@@ -118,22 +118,23 @@ class file_path(object):
     return result
   
   @classmethod
-  def glob(clazz, paths, glob_expression):
-    'Like glob but handles a single path or a sequence of paths'
+  def glob(clazz, paths, patterns):
+    'Like glob but handles one or more paths and one or more patterns'
+    patterns = object_util.listify(patterns)
+    result = []
+    for pattern in patterns:
+      result.extend(clazz._glob_one_pattern(paths, pattern))
+    return sorted(algorithm.unique(result))
+
+  @classmethod
+  def _glob_one_pattern(clazz, paths, pattern):
     paths = object_util.listify(paths)
-    paths = [ path.join(p, glob_expression) for p in paths ]
+    paths = [ path.join(p, pattern) for p in paths ]
     result = []
     for p in paths:
       result.extend(glob.glob(p))
     return sorted(algorithm.unique(result))
-
-  @classmethod
-  def glob_search_path(clazz, search_path, glob_expression):
-    'Like glob but handles a single path or a sequence of paths'
-    check.check_string_seq(search_path)
-    check.check_string(glob_expression)
-    return clazz.glob(search_path, glob_expression)
-
+  
   _GLOB_CHARS = { '*', '?', '[', ']' }
   @classmethod
   def has_glob_pattern(clazz, filename):
@@ -156,16 +157,6 @@ class file_path(object):
       else:
         result.append(p)
     return sorted(algorithm.unique(result))
-  
-  '''
-  @classmethod
-  def glob_env_search_path(clazz, env_var_name, glob_expression):
-    'Like glob but handles a single path or a sequence of paths'
-    check.check_string_seq(env_var_name)
-    check.check_string(glob_expression)
-    paths = os_env_var(env_var_name).path
-    return clazz.glob(paths, glob_expression)
-  '''
   
   @classmethod
   def decompose(clazz, p):

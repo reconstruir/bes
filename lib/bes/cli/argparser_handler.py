@@ -143,13 +143,29 @@ class argparser_handler(object):
     return clazz.resolve_file(dirname, root_dir = root_dir)
   
   @classmethod
-  def filter_keywords_args(clazz, clazz_for_instance, kargs):
-    check.check_class(clazz)
-    
-    instance = clazz_for_instance()
-    fields = [ field for field in dir(instance) if not field.startswith('_') ]
+  def filter_keywords_args(clazz, options_clazz, kargs):
+    check.check_class(options_clazz)
+
+    fields = clazz._options_clazz_all_attributes(options_clazz)
     copied_args = copy.deepcopy(kargs)
     for field in fields:
       if field in copied_args:
         del copied_args[field]
     return copied_args
+  
+  @classmethod
+  def _options_clazz_attributes(clazz, options_clazz):
+    result = []
+    instance = options_clazz()
+    for name, _ in inspect.getmembers(instance, lambda m: not callable(m)):
+      if not name.startswith('_'):
+        result.append(name)
+    return result
+  
+  @classmethod
+  def _options_clazz_all_attributes(clazz, options_clazz):
+    result = []
+    result.extend(clazz._options_clazz_attributes(options_clazz))
+    for base_clazz in options_clazz.__bases__:
+      result.extend(clazz._options_clazz_attributes(base_clazz))
+    return result

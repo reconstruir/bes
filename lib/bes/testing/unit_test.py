@@ -55,13 +55,17 @@ class unit_test(unittest.TestCase):
   def assertEqualIgnoreWhiteSpace(self, s1, s2):
     'Assert s1 equals s2 ignoreing minor white space differences.'
     self.maxDiff = None
-    s1 = re.sub(r'\s+', ' ', s1).strip()
-    s2 = re.sub(r'\s+', ' ', s2).strip()
+    s1_stripped = re.sub(r'\s+', ' ', s1).strip()
+    s2_stripped = re.sub(r'\s+', ' ', s2).strip()
+    if s1_stripped == s2_stripped:
+      return
     self.assertMultiLineEqual( s1, s2 )
 
   def assert_string_equal_strip(self, s1, s2):
     self.maxDiff = None
-    self.assertEqual( s1.strip(), s2.strip() )
+    if s1.strip() == s2.strip():
+      return
+    self.assertMultiLineEqual( s1, s2 )
 
   def assert_dict_equal(self, d1, d2):
     self.assertMultiLineEqual( pprint.pformat(d1, indent = 2), pprint.pformat(d2, indent = 2) )
@@ -73,15 +77,31 @@ class unit_test(unittest.TestCase):
   def _dict_to_str(clazz, d):
     return '\n'.join([ '%s=%s' % x for x in sorted(d.items()) ])
 
-  def assert_file_content_equal(self, expected, filename, strip = True):
+  def assert_binary_file_equal(self, expected, filename):
     self.maxDiff = None
     with open(filename, 'rb') as fin:
-      content = fin.read()
+      actual = fin.read()
+      self.assertEqual( expected, actual )
+
+  def assert_text_file_equal(self, expected, filename, strip = True, codec = 'utf-8',
+                             preprocess_func = None):
+    self.maxDiff = None
+    with open(filename, 'rb') as fin:
+      actual = fin.read().decode(codec)
+      if preprocess_func:
+        actual = preprocess_func(actual)
+        expected = preprocess_func(expected)
       if strip:
+        actual = actual.strip()
         expected = expected.strip()
-        content = content.strip()
-    self.assertEqual( expected, content )
-    
+      self.assertMultiLineEqual( expected, actual )
+
+  def assert_json_file_equal(self, expected, filename):
+    self.assert_text_file_equal(expected, filename,
+                                strip = True,
+                                codec = 'utf-8',
+                                preprocess_func = self._json_normalize)
+
   @classmethod
   def _get_data_dir(clazz): 
     right = getattr(clazz, '__unit_test_data_dir__', None)
@@ -113,7 +133,6 @@ class unit_test(unittest.TestCase):
     self.assertMultiLineEqual(self._json_normalize(expected),
                               self._json_normalize(actual))
                                
-
   @classmethod
   def decode_hex(clazz, s):
     return hexdata.string_to_bytes(s)

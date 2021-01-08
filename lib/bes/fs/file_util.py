@@ -267,6 +267,10 @@ class file_util(object):
   def device_id(clazz, filename):
     return os.stat(filename).st_dev
 
+  @classmethod
+  def inode_number(clazz, filename):
+    return os.stat(filename).st_ino
+  
   # https://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
   @classmethod
   def sizeof_fmt(clazz, num, suffix='B'):

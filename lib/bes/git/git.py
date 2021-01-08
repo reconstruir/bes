@@ -10,7 +10,6 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_copy import file_copy
-from bes.fs.file_ignore import ignore_file_data
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.log import logger
@@ -26,12 +25,15 @@ from .git_config import git_config
 from .git_error import git_error
 from .git_exe import git_exe
 from .git_head_info import git_head_info
+from .git_ignore import git_ignore
 from .git_lfs import git_lfs
 from .git_modules_file import git_modules_file
 from .git_ref import git_ref
 from .git_ref_info import git_ref_info
+from .git_ref_where import git_ref_where
 from .git_status import git_status
 from .git_submodule_info import git_submodule_info
+from .git_tag import git_tag
 
 class git(git_lfs):
   'A class to deal with git.'
@@ -148,7 +150,10 @@ class git(git_lfs):
         raise git_error('root_dir "{}" is not a directory.'.format(root_dir))
       if options.enforce_empty_dir:
         if not dir_util.is_empty(root_dir):
-          raise git_error('root_dir "{}" is not empty.'.format(root_dir))
+          files = dir_util.list(root_dir, relative = True)
+          sorted_files = sorted(files, key = lambda f: f.lower())
+          printed_files = '\n  '.join(sorted_files).strip()
+          raise git_error('root_dir "{}" is not empty:\n  {}\n'.format(root_dir, printed_files))
     else:
       file_util.mkdir(root_dir)
       
@@ -363,11 +368,16 @@ class git(git_lfs):
       clazz.clone(address, root_dir, options = options)
 
   @classmethod
-  def archive(clazz, address, revision, base_name, output_filename, untracked = False):
+  def archive(clazz, address, revision, base_name, output_filename,
+              untracked = False, override_gitignore = None, debug = False):
     'git archive with additional support to include untracked files for local repos.'
-    tmp_repo_dir = temp_file.make_temp_dir()
+    tmp_repo_dir = temp_file.make_temp_dir(delete = not debug)
+    
     if path.isdir(address):
-      file_copy.copy_tree(address, tmp_repo_dir, excludes = clazz.read_gitignore(address))
+      excludes = git_ignore.read_gitignore_file(address)
+      file_copy.copy_tree(address, tmp_repo_dir, excludes = excludes)
+      if override_gitignore:
+        file_util.save(path.join(address, '.gitignore'), content = override_gitignore)
       if untracked:
         git_exe.call_git(tmp_repo_dir, [ 'add', '-A' ])
         git_exe.call_git(tmp_repo_dir, [ 'commit', '-m', '"add untracked files just for tmp repo"' ])
@@ -491,12 +501,14 @@ class git(git_lfs):
     return [ item.filename for item in items if 'M' in item.action ]
 
   @classmethod
-  def tag(clazz, root_dir, tag, allow_downgrade = False, push = False, commit = None):
+  def tag(clazz, root_dir, tag, allow_downgrade = False, push = False,
+          commit = None, annotation = None):
     check.check_string(root_dir)
     check.check_string(tag)
     check.check_bool(allow_downgrade)
     check.check_bool(push)
     check.check_string(commit, allow_none = True)
+    check.check_string(annotation, allow_none = True)
 
     greatest_tag = git.greatest_local_tag(root_dir)
     if greatest_tag and not allow_downgrade:
@@ -505,6 +517,10 @@ class git(git_lfs):
     if not commit:
       commit = clazz.last_commit_hash(root_dir, short_hash = True)
     args = [ 'tag', tag, commit ]
+    if annotation:
+      args.append('--annotate')
+      args.append('--message')
+      args.append(string_util.quote(annotation))
     rv = git_exe.call_git(root_dir, args)
     if push:
       clazz.push_tag(root_dir, tag)
@@ -523,7 +539,8 @@ class git(git_lfs):
 
   @classmethod
   def delete_tag(clazz, root, tag, where, dry_run):
-    clazz.check_where(where)
+    git_ref_where.check_where(where)
+    
     if where in [ 'local', 'both' ]:
       local_tags = git.list_local_tags(root)
       if tag in local_tags:
@@ -540,13 +557,25 @@ class git(git_lfs):
           clazz.delete_remote_tag(root, tag)
 
   @classmethod
-  def list_local_tags(clazz, root, lexical = False, reverse = False):
+  def list_tags(clazz, root_dir, where = None, sort_type = None, reverse = False):
+    where = where or 'local'
+    git_ref_where.check_where(where)
+
+    assert sort_type in ( 'lexical', 'version' )
+
+    rv = git_exe.call_git(root_dir, [ 'tag', '-l', '--format="%(objectname) %(refname)"' ])
+    return git_tag.parse_show_ref_output(rv.stdout,
+                                         sort_type = sort_type,
+                                         reverse = reverse)
+          
+  @classmethod
+  def list_local_tags(clazz, root_dir, lexical = False, reverse = False):
     if lexical:
-      sort_arg = '--sort={reverse}refname'.format(reverse = '-' if reverse else '')
+      sort_type = 'lexical'
     else:
-      sort_arg = '--sort={reverse}version:refname'.format(reverse = '-' if reverse else '')
-    rv = git_exe.call_git(root, [ 'tag', '-l', sort_arg ])
-    return git_exe.parse_lines(rv.stdout)
+      sort_type = 'version'
+    tags = clazz.list_tags(root_dir, sort_type = sort_type, reverse = reverse)
+    return [ tag.name for tag in tags ]
 
   @classmethod
   def greatest_local_tag(clazz, root):
@@ -607,12 +636,9 @@ class git(git_lfs):
     return git_exe.call_git(root, args).stdout.strip()
 
   @classmethod
-  def read_gitignore(clazz, root):
+  def read_gitignore(clazz, root_dir):
     'Return the contents of .gitignore with comments stripped.'
-    p = path.join(root, '.gitignore')
-    if not path.isfile(p):
-      return None
-    return ignore_file_data.read_file(p).patterns
+    return git_ignore.read_gitignore_file(root_dir)
 
   @classmethod
   def config_set_value(clazz, key, value):
@@ -649,36 +675,13 @@ class git(git_lfs):
     return clazz._bump_tag_result(old_tag, new_tag)
 
   @classmethod
-  def where_is_valid(clazz, where):
-    return where in [ 'local', 'remote', 'both' ]
-
-  @classmethod
-  def check_where(clazz, where):
-    if not clazz.where_is_valid(where):
-      raise ValueError('where should be local, remote or both instead of: {}'.format(where))
-    return where
-
-  @classmethod
-  def determine_where(clazz, local, remote, default_value = 'both'):
-    if local is None and remote is None:
-      return default_value
-    local = bool(local)
-    remote = bool(remote)
-    if local and remote:
-      return 'both'
-    elif local:
-      return 'local'
-    elif remote:
-      return 'remote'
-    assert False
-
-  @classmethod
   def active_branch(clazz, root):
     return [ i for i in clazz.list_branches(root, 'local') if i.active ][0].name
 
   @classmethod
   def list_branches(clazz, root, where):
-    clazz.check_where(where)
+    git_ref_where.check_where(where)
+    
     if where == 'local':
       branches = clazz.list_local_branches(root)
     elif where == 'remote':
@@ -745,13 +748,17 @@ class git(git_lfs):
     return clazz._branch_list_determine_authors(root, result)
 
   @classmethod
-  def branch_create(clazz, root, branch_name, checkout = False, push = False):
+  def branch_create(clazz, root, branch_name, checkout = False, push = False,
+                    start_point = None):
     branches = clazz.list_branches(root, 'both')
     if branches.has_remote(branch_name):
       raise ValueError('branch already exists remotely: {}'.format(branch_name))
     if branches.has_local(branch_name):
       raise ValueError('branch already exists locally: {}'.format(branch_name))
-    git_exe.call_git(root, [ 'branch', branch_name ])
+    args = [ 'branch', branch_name ]
+    if start_point:
+      args.append(start_point)
+    git_exe.call_git(root, args)
     if checkout:
       clazz.checkout(root, branch_name)
     if push:

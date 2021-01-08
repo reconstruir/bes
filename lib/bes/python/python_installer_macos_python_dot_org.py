@@ -2,6 +2,7 @@
 
 import os, re
 from os import path
+import requests
 
 from bes.common.check import check
 from bes.fs.dir_util import dir_util
@@ -21,10 +22,11 @@ from .python_exe import python_exe
 from .python_installer_base import python_installer_base
 from .python_version import python_version
 
-class python_installer_macos(python_installer_base):
-
+class python_installer_macos_python_dot_org(python_installer_base):
+  'Python installer for macos from python.org'
+  
   def __init__(self, blurber):
-    super(python_installer_macos, self).__init__(blurber)
+    super(python_installer_macos_python_dot_org, self).__init__(blurber)
 
   #@abstractmethod
   def available_versions(self, num):
@@ -45,6 +47,7 @@ class python_installer_macos(python_installer_base):
       version_table[major_version].append(any_version)
     result = []
 
+    # theres no point showing obsolete (and sometimes dangerous) versions
     obsolete_versions = ( '3.0', '3.1', '3.2', '3.3', '3.4', '3.5', '3.6' )
     
     for version in sorted([ key for key in version_table.keys() ]):
@@ -124,7 +127,6 @@ class python_installer_macos(python_installer_base):
       raise python_error('Invalid python version: "{}"'.format(version_or_full_version))
     return result
 
-  #@abstractmethod
   def _uninstall_version(self, version):
     'Install the major.minor full version of python.'
     check.check_string(version)
@@ -156,7 +158,6 @@ class python_installer_macos(python_installer_base):
         sudo.call_sudo(args)
     return result
 
-  #@abstractmethod
   def _uninstall_full_version(self, full_version):
     'Install the major.minor.revision full version of python.'
     check.check_string(full_version)
@@ -231,7 +232,7 @@ class python_installer_macos(python_installer_base):
   def _download_available_index(clazz):
     'Download and parse the available python version index.'
 
-    response = url_util.get('https://www.python.org/ftp/python/')
+    response = requests.get('https://www.python.org/ftp/python/')
     content = response.content.decode('utf-8')
     lines = text_line_parser.parse_lines(content, strip_comments = False, strip_text = True, remove_empties = True)
     result = []

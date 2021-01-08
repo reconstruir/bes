@@ -80,7 +80,7 @@ class test_git(unit_test):
       self.assertTrue( path.exists(f) )
 
   @git_temp_home_func()
-  def test_tag(self):
+  def test_xtag(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
@@ -249,13 +249,6 @@ class test_git(unit_test):
     self.assertTrue( git.has_changes(tmp_repo) )
     git.commit(tmp_repo, 'nomsg\n', '.')
     self.assertFalse( git.has_changes(tmp_repo) )
-
-  @git_temp_home_func()
-  def test_has_determine_where(self):
-    self.assertEqual( 'both', git.determine_where(True, True) )
-    self.assertEqual( 'local', git.determine_where(True, False) )
-    self.assertEqual( 'remote', git.determine_where(False, True) )
-    self.assertEqual( 'both', git.determine_where(None, None) )
 
   @git_temp_home_func()
   def test_is_long_hash(self):

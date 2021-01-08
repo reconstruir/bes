@@ -10,7 +10,6 @@ class inspect_util(object):
   @classmethod
   def getargspec(clazz, f):
     'Backward compatible getargspec wrapper.'
-#    return inspect.getargspec(f)
     if compat.IS_PYTHON3:
       return inspect.getfullargspec(f)
     else:

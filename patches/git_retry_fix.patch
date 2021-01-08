@@ -1,0 +1,45 @@
+diff --git a/lib/bes/git/git_exe.py b/lib/bes/git/git_exe.py
+index 216beeb6..0c7a244d 100644
+--- a/lib/bes/git/git_exe.py
++++ b/lib/bes/git/git_exe.py
+@@ -1,6 +1,6 @@
+ # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+ 
+-import os
++import os, time
+ 
+ from bes.common.check import check
+ from bes.common.object_util import object_util
+@@ -62,6 +62,7 @@ class git_exe(object):
+ 
+     last_try_exception = None
+     num_failed_attempts = 0
++    rv = None
+     for i in range(0, num_tries):
+       try:
+         clazz.log.log_d('call_git: attempt {} of {}: {}'.format(i + 1, num_tries, ' '.join(cmd)))
+@@ -76,8 +77,8 @@ class git_exe(object):
+         num_failed_attempts += 1
+         clazz.log.log_w('call_git: failed {} of {}: {}'.format(i + 1, num_tries, ' '.join(cmd)))
+         clazz.log.log_d('call_git: exception: {}'.format(str(ex)))
+-        clazz.log.log_d('call_git: sleeping {} seconds'.format(options.retry_wait_seconds))
+-        time.sleep(options.retry_wait_seconds)
++        clazz.log.log_d('call_git: sleeping {} seconds'.format(retry_wait_seconds))
++        time.sleep(retry_wait_seconds)
+         last_try_exception = ex
+         
+     # first handle the retry failure
+@@ -90,6 +91,13 @@ class git_exe(object):
+                                                                                    rv.stdout)
+       clazz.log.log_w('call_git: {}'.format(message))
+       raise git_error(message, execute_result = rv)
++
++    # handle the case where nothing worked
++    if not rv:
++      message = 'git command failed: {} in {}'.format(' '.join(cmd), root)
++      clazz.log.log_w('call_git: {}'.format(message))
++      raise git_error(message, execute_result = rv)
++    return rv
+     
+     # handle raise_error if needed
+     if rv.exit_code != 0 and raise_error:

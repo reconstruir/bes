@@ -26,8 +26,12 @@ from .git_modules_file import git_modules_file
 class git_repo(object):
   'A git repo abstraction.'
 
-  def __init__(self, root, address = None):
-    self.root = git.find_root_dir(path.abspath(root))
+  def __init__(self, root, address = None, find_root = False):
+    if find_root:
+      found_root = git.find_root_dir(path.abspath(root))
+    else:
+      found_root = path.abspath(root)
+    self.root = found_root
     self.address = address or git.remote_origin_url(self.root)
 
   def __str__(self):
@@ -165,6 +169,9 @@ class git_repo(object):
   def greatest_remote_tag(self):
     return git.greatest_remote_tag(self.root)
 
+  def list_tags(self, where = None, sort_type = None, reverse = False):
+    return git.list_tags(self.root, where = where, sort_type = sort_type, reverse = reverse)
+  
   def list_local_tags(self, lexical = False, reverse = False):
     return git.list_local_tags(self.root, lexical = lexical, reverse = reverse)
 
@@ -211,9 +218,11 @@ class git_repo(object):
     tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
     return [ t for t in tags if software_version.compare(t, tag) < 0 ]
 
-  def tag(self, tag, allow_downgrade = True, push = False, commit = None):
-    git.tag(self.root, tag, allow_downgrade = allow_downgrade, push = push)
-
+  def tag(self, tag, allow_downgrade = True, push = False, commit = None,
+          annotation = None):
+    git.tag(self.root, tag, allow_downgrade = allow_downgrade,
+            push = push, annotation = annotation)
+    
   def has_remote_tag(self, tag):
     return git.has_remote_tag(self.root, tag)
 
@@ -266,8 +275,8 @@ class git_repo(object):
   def has_local_branch(self, branch):
     return git.has_local_branch(self.root, branch)
 
-  def branch_create(self, branch_name, checkout = False, push = False):
-    git.branch_create(self.root, branch_name, checkout = checkout, push = push)
+  def branch_create(self, branch_name, checkout = False, push = False, start_point = None):
+    git.branch_create(self.root, branch_name, checkout = checkout, push = push, start_point = start_point)
 
   def branch_push(self, branch_name):
     git.branch_push(self.root, branch_name)
