@@ -5,6 +5,7 @@ import os
 import re
 import signal
 import subprocess
+from collections import namedtuple
 
 from os import path
 
@@ -14,6 +15,8 @@ from bes.common.check import check
 class vmware_rest(object):
 
   _log = logger('vmware_rest')
+
+  _info = namedtuple('_info', 'address, pid, version')
   
   def __init__(self, port = None):
     self._log.log_d('vmware_rest(id={} self={}, port={})'.format(id(self), self, port))
@@ -21,8 +24,9 @@ class vmware_rest(object):
     self.address = None
     self._process = None
     self._address_notification = multiprocessing.Queue()
+    self.version = None
     self.pid = None
-  
+
   def _vmrest_process(self):
     cmd = [ 'vmrest' ]
     if self._requested_port:
@@ -39,10 +43,13 @@ class vmware_rest(object):
       if 'Failed to launch vmrest' in next_line:
         self._log.log_e('failed to launch vmrest: cmd="{}"'.format(' '.join(cmd)))
         return 1
+      elif next_line.startswith('vmrest '):
+        self.version = self._parse_version(next_line)
+        self._log.log_i('vmrest version: {}'.format(self.version))
       elif 'Serving HTTP' in next_line:
         address = self._parse_server_address(next_line)
         self._log.log_i('launched vmrest on {}'.format(address))
-        self._address_notification.put( ( address, self.pid ) )
+        self._address_notification.put( ( address, self.pid, self.version ) )
         break
     self._log.log_d('waiting for process')
     try:
@@ -57,13 +64,21 @@ class vmware_rest(object):
     f = re.findall(r'^Serving\sHTTP\son\s([0-9]+\.[0-9]+\.[0-9]\.[0-9]+):(.*)$', s)
     return f[0]
 
+  @classmethod
+  def _parse_version(clazz, s):
+    f = re.findall(r'^vmrest\s(.+)\s.*$', s)
+    return f[0]
+  
   def start(self):
     self._process = multiprocessing.Process(name = 'vmware_rest', target = self._vmrest_process)
     self._process.daemon = True
     self._process.start()
     self._log.log_d('waiting for address notification')
-    self.address, self.pid = self._address_notification.get()
-    self._log.log_d('got address notification: {} - {}'.format(self.address, self.pid))
+    info = self._info(*self._address_notification.get())
+    self._log.log_d('got info notification: {}'.format(info))
+    self.address = info.address
+    self.pid = info.pid
+    self.version = info.version
   
   def stop(self):
     self._log.log_d('sending SIGINT')

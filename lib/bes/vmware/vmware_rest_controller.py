@@ -21,6 +21,7 @@ class vmware_rest_controller(object):
     self._server.start()
     self.address = self._server.address
     self.pid = self._server.pid
+    self.version = self._server.version
     self._log.log_i('server started on %s' % (str(self.address)))
   
   def stop(self):
@@ -33,4 +34,5 @@ class vmware_rest_controller(object):
   def _reset(self):
     self.address = None
     self.pid = None
+    self.version = None
     self._server = None

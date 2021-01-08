@@ -24,14 +24,10 @@ class vmware_rest_app(object):
     if parsed_args.port:
       self._command_start([ 'start', str(parsed_args.port)])
     if shell_args:
-      return self._handle_command(shell_args)
-      
+      self._handle_command(shell_args)
     while True:
-      try:
-        if not self._command_loop():
-          break
-      except KeyboardInterrupt as ex:
-        print('fuck')
+      if not self._command_loop():
+        break
     self._controller.stop()
     return 0
 
@@ -55,6 +51,8 @@ class vmware_rest_app(object):
       return self._command_port(cmd)
     elif cmd[0] == 'pid':
       return self._command_pid(cmd)
+    elif cmd[0] == 'version':
+      return self._command_version(cmd)
     elif cmd[0] == 'quit':
       return self._command_quit(cmd)
     return True
@@ -79,3 +77,6 @@ class vmware_rest_app(object):
     print(self._controller.pid)
     return True
   
+  def _command_version(self, cmd):
+    print(self._controller.version)
+    return True
