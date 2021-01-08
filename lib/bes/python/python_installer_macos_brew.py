@@ -3,7 +3,6 @@
 from bes.common.check import check
 
 from bes.unix.brew.brew import brew
-#from bes.unix.sudo.sudo_cli_options import sudo_cli_options
 
 from .python_error import python_error
 from .python_exe import python_exe

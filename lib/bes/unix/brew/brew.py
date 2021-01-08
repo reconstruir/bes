@@ -80,4 +80,3 @@ class brew(object):
     check.check_string(package_name)
     
     clazz.call_brew([ 'install', package_name ])
-    
