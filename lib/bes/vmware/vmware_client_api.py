@@ -25,6 +25,9 @@ class vmware_client_api(object):
     self._address = address
     self._auth = auth
     self._auth_tuple = ( self._auth.username, self._auth.password )
+    self._headers = {
+      'Accept': 'application/vnd.vmware.vmw.rest-v1+json',
+    }
 
   @property
   def base_url(self):
@@ -35,11 +38,6 @@ class vmware_client_api(object):
     'Return a list of vms'
     url = self._make_url('api/vms')
 
-    headers = {
-      'Accept': 'application/vnd.vmware.vmw.rest-v1+json',
-    }
-    
-#curl 'http://localhost:8697/api/vms' -X GET --header 'Accept: application/vnd.vmware.vmw.rest-v1+json' -u"fred:FRED#1flint"
 #    params = {
 #      'q': 'name~"{}"'.format(ref_name),
 #    }
@@ -50,8 +48,12 @@ class vmware_client_api(object):
 #        'parentId' = $sourcevmid
 #    }
 
-    self._log.log_d('url={} auth={} headers={}'.format(url, self._auth, headers))
-    response = requests.get(url, auth = self._auth_tuple, headers = headers)
+    self._log.log_d('url={} auth={} headers={}'.format(url,
+                                                       self._auth,
+                                                       self._headers))
+    response = requests.get(url,
+                            auth = self._auth_tuple,
+                            headers = self._headers)
     self._log.log_d('vms: response={} url={} headers={}'.format(response,
                                                                 response.url,
                                                                 response.headers))
@@ -63,6 +65,28 @@ class vmware_client_api(object):
     for item in response_data:
       result.append(self._vm(item['id'], item['path']))
     return result
+
+  _vmx = namedtuple('_vm', 'vm_id, path')
+  def vm_settings(self, vm_id):
+    'Return a settings for a vm'
+    check.check_string(vm_id)
+    
+    url = self._make_url('api/vms/{}'.format(vm_id))
+
+    self._log.log_d('vm_settings: url={} auth={} headers={}'.format(url,
+                                                                    self._auth,
+                                                                    self._headers))
+    response = requests.get(url,
+                            auth = self._auth_tuple,
+                            headers = self._headers)
+    self._log.log_d('vm_settings: response={} url={} headers={}'.format(response,
+                                                                        response.url,
+                                                                        response.headers))
+    if response.status_code != 200:
+      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+    response_data = response.json()
+    self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
+    return response_data
   
   def _make_url(self, fragment):
     check.check_string(fragment)
