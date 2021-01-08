@@ -9,6 +9,7 @@ from bes.common.string_util import string_util
 
 from .vmware_client_api import vmware_client_api
 from .vmware_client_options import vmware_client_options
+from .vmware_error import vmware_error
 
 class vmware_client_cli_command(cli_command_handler):
   'vmware client cli handler.'
@@ -26,7 +27,8 @@ class vmware_client_cli_command(cli_command_handler):
 
   def vm_settings(self, vm_id):
     check.check_string(vm_id)
-    
+
+    vm_id = self._resolve_vm_id(vm_id)
     settings = self._api.vm_settings(vm_id)
     print(settings)
     return 0
@@ -35,6 +37,7 @@ class vmware_client_cli_command(cli_command_handler):
     check.check_string(vm_id)
     check.check_string(key)
     
+    vm_id = self._resolve_vm_id(vm_id)
     config = self._api.vm_config(vm_id, key)
     print(config)
     return 0
@@ -43,6 +46,7 @@ class vmware_client_cli_command(cli_command_handler):
     check.check_string(vm_id)
     check.check_string(state, allow_none = True)
 
+    vm_id = self._resolve_vm_id(vm_id)
     if state != None:
       self._api.vm_set_power(vm_id, state)
     else:
@@ -63,6 +67,7 @@ class vmware_client_cli_command(cli_command_handler):
   def vm_mac_address(self, vm_id):
     check.check_string(vm_id)
     
+    vm_id = self._resolve_vm_id(vm_id)
     mac_address = self._api.vm_get_mac_address(vm_id)
     print(mac_address)
     return 0
@@ -70,7 +75,13 @@ class vmware_client_cli_command(cli_command_handler):
   def vm_ip_address(self, vm_id):
     check.check_string(vm_id)
     
+    vm_id = self._resolve_vm_id(vm_id)
     ip_address = self._api.vm_get_ip_address(vm_id)
     print(ip_address)
     return 0
   
+  def _resolve_vm_id(self, name):
+    vm_id = self._api.vm_name_to_id(name)
+    if not vm_id:
+      raise vmware_error('Unknown vm: "{}"'.format(name))
+    return vm_id

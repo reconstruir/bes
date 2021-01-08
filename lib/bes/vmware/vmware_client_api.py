@@ -156,6 +156,16 @@ class vmware_client_api(object):
     if not ip_address:
       raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
     return ip_address
+
+  def vm_name_to_id(self, name):
+    'Return the id for a vm name'
+    check.check_string(name)
+
+    vms = self.vms()
+    for vm in vms:
+      if name in [ vm.name, vm.vm_id ]:
+        return vm.vm_id
+    return None
   
   def _make_request(self, method, url, params = None, json = None, data = None):
     auth = self._auth.to_tuple('username', 'password')
