@@ -3,10 +3,10 @@
 
 import os
 from bes.testing.unit_test import unit_test
-from rebuild.credentials.credentials_manager import credentials_manager
-from rebuild.credentials.credentials_source_aws import credentials_source_aws
-from rebuild.credentials.credentials_source_env import credentials_source_env
-from rebuild.gradle.credentials_source_gradle import credentials_source_gradle
+from bes.credentials.credentials_manager import credentials_manager
+from bes.credentials.credentials_source_aws import credentials_source_aws
+from bes.credentials.credentials_source_env import credentials_source_env
+from bes.gradle.credentials_source_gradle import credentials_source_gradle
 from bes.system.env_override import env_override
 from bes.fs.temp_file import temp_file
 

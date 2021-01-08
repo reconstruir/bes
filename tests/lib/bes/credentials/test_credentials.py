@@ -3,7 +3,7 @@
 
 import os
 from bes.testing.unit_test import unit_test
-from rebuild.credentials.credentials import credentials
+from bes.credentials.credentials import credentials
 from bes.system.env_override import env_override
 
 class test_credentials(unit_test):

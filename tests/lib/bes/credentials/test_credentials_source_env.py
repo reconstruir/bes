@@ -3,7 +3,7 @@
 
 import os
 from bes.testing.unit_test import unit_test
-from rebuild.credentials.credentials_source_env import credentials_source_env as CSE
+from bes.credentials.credentials_source_env import credentials_source_env as CSE
 from bes.system.env_override import env_override
 from bes.fs.temp_file import temp_file
 
