@@ -44,13 +44,14 @@ class vmware_client_cli_command(cli_command_handler):
     print(config)
     return 0
 
-  def vm_power(self, vm_id, state):
+  def vm_power(self, vm_id, state, wait_for_ip_address):
     check.check_string(vm_id)
     check.check_string(state, allow_none = True)
+    check.check_bool(wait_for_ip_address)
 
     vm_id = self._resolve_vm_id(vm_id)
     if state != None:
-      self._api.vm_set_power(vm_id, state)
+      self._api.vm_set_power(vm_id, state, wait_for_ip_address = wait_for_ip_address)
     else:
       power = self._api.vm_get_power(vm_id)
       print(power)

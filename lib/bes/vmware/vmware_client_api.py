@@ -109,7 +109,7 @@ class vmware_client_api(object):
       raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
     return power_state == 'poweredOn'
 
-  def vm_set_power(self, vm_id, state):
+  def vm_set_power(self, vm_id, state, wait_for_ip_address = False):
     'Return power status for a vm.'
     check.check_string(vm_id)
     check.check_string(state)
@@ -121,11 +121,22 @@ class vmware_client_api(object):
     if response.status_code != 200:
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
-    self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
+    self._log.log_d('vm_power: response_data={}'.format(pprint.pformat(response_data)))
     power_state = response_data.get('power_state', None)
     if not power_state:
       raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
-    return power_state == 'poweredOn'
+    result = power_state == 'poweredOn'
+
+    if result and wait_for_ip_address:
+      while True:
+        try:
+          ip_address = self.vm_get_ip_address(vm_id)
+          break
+        except vmware_error as ex:
+          self._log.log_d('vm_power: caught exception polling for ip address: {}'.format(ex))
+        time.sleep(1.0)
+          
+    return result
 
   def request(self, endpoint, params):
     'Return power status for a vm.'
