@@ -65,8 +65,8 @@ class archive_cli_command(object):
     return 0
 
   @classmethod
-  def cat(clazz, archive, filename):
-    s = archiver.extract_member_to_string(archive, filename, codec = 'utf-8')
+  def cat(clazz, archive_filename, filename):
+    s = archiver.extract_member_to_string(archive_filename, filename, codec = 'utf-8')
     print(s)
     return 0
 
