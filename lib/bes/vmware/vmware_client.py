@@ -12,10 +12,10 @@ from bes.system.log import logger
 from .vmware_error import vmware_error
 from .vmware_vm import vmware_vm
 
-class vmware_client_api(object):
+class vmware_client(object):
   'A class to deal with the vmware fusion rest api'
   
-  _log = logger('vmware_client_api')
+  _log = logger('vmware_client')
   
   def __init__(self, address, auth):
     check.check_tuple(address)

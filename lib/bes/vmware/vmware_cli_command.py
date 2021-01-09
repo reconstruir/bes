@@ -8,7 +8,7 @@ from bes.common.string_util import string_util
 from bes.key_value.key_value_list import key_value_list
 from bes.text.text_table import text_table
 
-from .vmware_client_api import vmware_client_api
+from .vmware_client import vmware_client
 from .vmware_error import vmware_error
 from .vmware_options import vmware_options
 from .vmware_server import vmware_server
@@ -19,7 +19,7 @@ class vmware_cli_command(cli_command_handler):
   def __init__(self, cli_args):
     super(vmware_cli_command, self).__init__(cli_args, options_class = vmware_options)
     check.check_vmware_options(self.options)
-    #self._api = vmware_client_api(self.options.address, self.options.auth)
+    #self._api = vmware_client(self.options.address, self.options.auth)
 
   def vms(self):
     #vms = self._api.vms()
