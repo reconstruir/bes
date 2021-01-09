@@ -77,12 +77,12 @@ class url_util(object):
       
   _response = namedtuple('_response', 'status_code, content, headers')
   @classmethod
-  def get(clazz, url, params = None, method = None):
+  def get(clazz, url, params = None):
     if params:
       data = url_compat.urlencode(params).encode('utf-8')
     else:
       data = None
-    req = url_compat.Request(url, data = data, method = method)
+    req = url_compat.Request(url, data = data)
     response = url_compat.urlopen(req)
     content = response.read()
     headers = response.headers.items()

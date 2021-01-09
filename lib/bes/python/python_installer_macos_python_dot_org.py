@@ -2,7 +2,6 @@
 
 import os, re
 from os import path
-import requests
 
 from bes.common.check import check
 from bes.fs.dir_util import dir_util
@@ -232,7 +231,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
   def _download_available_index(clazz):
     'Download and parse the available python version index.'
 
-    response = requests.get('https://www.python.org/ftp/python/')
+    response = url_util.get('https://www.python.org/ftp/python/')
     content = response.content.decode('utf-8')
     lines = text_line_parser.parse_lines(content, strip_comments = False, strip_text = True, remove_empties = True)
     result = []
