@@ -52,6 +52,7 @@ class best_cli(cli):
   from bes.pip.pip_cli_args import pip_cli_args
   from bes.python.python_cli_args import python_cli_args
   from bes.python.python_installer_cli_args import python_installer_cli_args
+  from bes.vmware.vmware_cli_args import vmware_cli_args
   from bes.vmware.vmware_client_cli_args import vmware_client_cli_args
   from bes.vmware.vmware_server_cli_args import vmware_server_cli_args
   COMMON_COMMAND_GROUPS = [
@@ -67,6 +68,7 @@ class best_cli(cli):
     cli_command('pip', 'pip_add_args', 'Pip stuff', pip_cli_args),
     cli_command('python', 'python_add_args', 'Deal with python', python_cli_args),
     cli_command('python_installer', 'python_installer_add_args', 'Deal with python install', python_installer_cli_args),
+    cli_command('vmware', 'vmware_add_args', 'Deal with vmware', vmware_cli_args),
     cli_command('vmware_client', 'vmware_client_add_args', 'Deal with vmware client', vmware_client_cli_args),
     cli_command('vmware_server', 'vmware_server_add_args', 'Deal with vmware server', vmware_server_cli_args),
   ]
