@@ -16,9 +16,10 @@ from bes.text.text_box import text_box_colon
 from bes.text.text_box import text_box_unicode
 from bes.version.software_version import software_version
 
-from .git_cli_util import git_cli_util
 from .git_cli_options import git_cli_options
+from .git_cli_util import git_cli_util
 from .git_output import git_output
+from .git_tag import git_tag_list
 
 class git_cli_command(object):
 
@@ -98,11 +99,11 @@ class git_cli_command(object):
 #    else:
 #      tags = git.list_remote_tags(options.root_dir)
     if prefix:
-      tags = [ tag for tag in tags if tag.name.startswith(prefix) ]
-    if reverse:
-      tags = [ tag for tag in reversed(tags) ]
-#    if limit:
-#      tags = tags[0:limit]
+      tags = git_tag_list([ tag for tag in tags if tag.name.startswith(prefix) ])
+#    if reverse:
+#      tags = tags[ tag for tag in reversed(tags) ]
+    if limit:
+      tags = tags[0:limit]
 #    for tag in tags:
 #      print(tag)
     tags.output(options.output_style, output_filename = options.output_filename)
