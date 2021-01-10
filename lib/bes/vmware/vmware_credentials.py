@@ -71,6 +71,7 @@ Password does not meet complexity requirements:
 
   @classmethod
   def _make_random_username(clazz):
+    return 'fred'
     names = ( 'john', 'george', 'paul', 'ringo' )
     name = random.choice(names)
     num = str(random.randint(1, 100)).zfill(3)
@@ -78,10 +79,12 @@ Password does not meet complexity requirements:
 
   @classmethod
   def _make_random_password(clazz):
-    special_chars = r'!#$%&\'()*+,-./:;<=>?@[]^_`{|}~'
-    lower_part = ( 's3kr3t', 'h1dden', 'n0thing', 'ob$cure' )
+    return 'FRED#1flint'
+    special_chars = r'#%*+-'
+    lower_part = ( 's3kr', 'h1dd', 'n0th', 'ob8c' )
     upper_part = ( 'K!W!', '@PPL3', 'M3L0N', 'L3M0N' )
+    special_char = random.choice(special_chars)
     lower = random.choice(lower_part)
     upper = random.choice(upper_part)
-    num = str(random.randint(1, 100)).zfill(3)
-    return lower + num + upper
+    num = str(random.randint(0, 9))
+    return lower + num + upper + special_char

@@ -23,7 +23,6 @@ class vmware_client(object):
     
     self._address = address
     self._auth = auth
-    self._auth_tuple = ( self._auth.username, self._auth.password )
     self._headers = {
       'Accept': 'application/vnd.vmware.vmw.rest-v1+json',
       'Content-Type': 'application/vnd.vmware.vmw.rest-v1+json',
@@ -180,6 +179,7 @@ class vmware_client(object):
   
   def _make_request(self, method, url, params = None, json = None, data = None):
     auth = self._auth.to_tuple('username', 'password')
+    #print('auth={}'.format(auth))
     func = getattr(requests, method)
     self._log.log_d('_make_request() method={} url={} params={} json={} data={}'.format(method,
                                                                                         url,

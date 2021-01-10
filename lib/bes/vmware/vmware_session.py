@@ -21,9 +21,34 @@ class vmware_session(object):
       credentials = vmware_credentials.make_random_credentials()
 
     self._log.log_d('vmware_session(port={} credentials={})'.format(port, credentials))
+    self._port = port
+    self._credentials = credentials
 
-    vmware_credentials.set_credentials(clazz, credentials.username, credentials.password)
-    self._server = vmware_server_controller(port = port)
-    self._server.start()
-    self._address = self._server.address()
-    self._client = vmware_server(port = port, auth = self._address)
+    import os
+    os.system('killall vmrest')
+    vmware_credentials.set_credentials(credentials.username, credentials.password)
+    self._server = None
+    self._client = None
+
+  def start(self):
+    if self._server:
+      return
+    self._server = vmware_server_controller()
+    self._server.start(port = self._port)
+    self._client = vmware_client(address = self._server.address,
+                                 auth = self._credentials)
+    
+  def stop(self):
+    if not self._server:
+      return
+    self._client = None
+    self._server.stop()
+    self._server = None
+
+  def call_client(self, method_name, *args, **kargs):
+    check.check_string(method_name)
+
+    if not self._client:
+      raise vmware_error('session not started.  call start() first')
+    func = getattr(self._client, method_name)
+    return func(*args, **kargs)

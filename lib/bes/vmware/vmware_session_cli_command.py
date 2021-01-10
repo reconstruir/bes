@@ -12,6 +12,7 @@ from .vmware_client import vmware_client
 from .vmware_error import vmware_error
 from .vmware_options import vmware_options
 from .vmware_server import vmware_server
+from .vmware_session import vmware_session
 
 class vmware_session_cli_command(cli_command_handler):
   'vmware cli handler.'
@@ -19,14 +20,15 @@ class vmware_session_cli_command(cli_command_handler):
   def __init__(self, cli_args):
     super(vmware_session_cli_command, self).__init__(cli_args, options_class = vmware_options)
     check.check_vmware_options(self.options)
-    #self._api = vmware_client(self.options.address, self.options.auth)
+    self._session = vmware_session(port = None, credentials = None)
 
   def vms(self):
-    #vms = self._api.vms()
-    #tt = text_table(data = vms)
-    #tt.set_labels( ( 'NAME', 'ID', 'PATH' ) )
-    #print(tt)
-    print('foo')
+    self._session.start()
+    vms = self._session.call_client('vms')
+    tt = text_table(data = vms)
+    tt.set_labels( ( 'NAME', 'ID', 'PATH' ) )
+    print(tt)
+    self._session.stop()
     return 0
 
   def vm_settings(self, vm_id):
