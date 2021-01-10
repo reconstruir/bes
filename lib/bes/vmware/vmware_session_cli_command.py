@@ -13,11 +13,11 @@ from .vmware_error import vmware_error
 from .vmware_options import vmware_options
 from .vmware_server import vmware_server
 
-class vmware_cli_command(cli_command_handler):
+class vmware_session_cli_command(cli_command_handler):
   'vmware cli handler.'
 
   def __init__(self, cli_args):
-    super(vmware_cli_command, self).__init__(cli_args, options_class = vmware_options)
+    super(vmware_session_cli_command, self).__init__(cli_args, options_class = vmware_options)
     check.check_vmware_options(self.options)
     #self._api = vmware_client(self.options.address, self.options.auth)
 
