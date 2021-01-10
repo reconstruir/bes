@@ -12,6 +12,13 @@ class vmware_server_cli_args(object):
     self.__vmware_server_add_common_args(p)
     p.add_argument('shell_args', action = 'store', default = [], nargs = '*',
                    help = 'Shell args. [ None ]')
+
+    # set_credentials
+    p = subparser.add_parser('set_credentials', help = 'Set the server username and password.')
+    p.add_argument('username', action = 'store', default = None,
+                   help = 'The username. [ None ]')
+    p.add_argument('password', action = 'store', default = None,
+                   help = 'The password. [ None ]')
     
   def __vmware_server_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,

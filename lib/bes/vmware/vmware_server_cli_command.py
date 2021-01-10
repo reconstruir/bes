@@ -24,3 +24,10 @@ class vmware_server_cli_command(cli_command_handler):
       args.extend([ '--port', self.options.port ])
     raise SystemExit(vmware_server_app().main(args = args, shell_args = shell_args))
     return 0
+
+  def set_credentials(self, username, password):
+    check.check_string(username)
+    check.check_string(password)
+    
+    vmware_server.set_credentials(username, password)
+    return 0
