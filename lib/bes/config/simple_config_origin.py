@@ -11,4 +11,9 @@ class simple_config_origin(namedtuple('simple_config_origin', 'source, line_numb
     check.check_int(line_number, allow_none = True)
     return clazz.__bases__[0].__new__(clazz, source, line_number)
 
+  def __str__(self):
+    if self.line_number == None:
+      return self.source
+    return '{}:{}'.format(self.source, self.line_number)
+  
 check.register_class(simple_config_origin)

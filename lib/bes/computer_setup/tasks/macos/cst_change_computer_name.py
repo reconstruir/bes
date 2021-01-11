@@ -3,7 +3,7 @@
 from bes.common.check import check
 
 from bes.computer_setup.computer_setup_task import computer_setup_task
-from bes.macos.defaults.scutil import scutil
+from bes.macos.scutil.scutil import scutil
 
 class cst_change_computer_name(computer_setup_task):
 
@@ -22,7 +22,7 @@ class cst_change_computer_name(computer_setup_task):
     'Average duration in seconds.'
     return 0
 
-  @abstractmethod
+  #@abstractmethod
   def is_needed(self):
     'Return True of the task needs to run.'
 

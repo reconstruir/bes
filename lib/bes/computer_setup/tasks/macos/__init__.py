@@ -2,5 +2,7 @@
 
 # We need to explicitly import each module otherwise PyInstaller will not
 # include them in the egoist binary.
+from .cst_change_computer_name import cst_change_computer_name
 from .cst_disable_screen_saver import cst_disable_screen_saver
 from .cst_install_command_line_tools import cst_install_command_line_tools
+

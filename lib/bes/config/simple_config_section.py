@@ -120,6 +120,12 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
   def get_value(self, key):
     return self.find_by_key(key, raise_error = True, resolve_env_vars = True)
 
+  def get_value_origin(self, key):
+    entry = self.find_entry(key)
+    if not entry:
+      return None
+    return entry.origin
+
   def get_string_list(self, key):
     return string_util.split_by_white_space(self.get_value(key), strip = True)
 

@@ -15,6 +15,7 @@ class _computer_setup_register_meta(ABCMeta):
   def __new__(meta, name, bases, class_dict):
     clazz = ABCMeta.__new__(meta, name, bases, class_dict)
     if name != 'computer_setup_base':
+      print('register: {}'.format(clazz.__name__))
       computer_setup_task_registry.register(clazz)
     return clazz
   

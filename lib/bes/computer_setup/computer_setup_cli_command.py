@@ -13,10 +13,8 @@ from .computer_setup_error import computer_setup_error
 from .computer_setup_manager import computer_setup_manager
 from .computer_setup_options import computer_setup_options
 
-from .tasks.macos.cst_disable_screen_saver import cst_disable_screen_saver
-from .tasks.macos.cst_install_command_line_tools import cst_install_command_line_tools
-from .tasks.unix.cst_change_shell_to_bash import cst_change_shell_to_bash
-from .tasks.unix.cst_install_brew import cst_install_brew
+from .tasks.macos import *
+from .tasks.unix import *
 
 class computer_setup_cli_command(cli_command_handler):
   'computer_setup cli handler.'
