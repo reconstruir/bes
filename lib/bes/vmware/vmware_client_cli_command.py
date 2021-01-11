@@ -32,7 +32,7 @@ class vmware_client_cli_command(cli_command_handler):
 
     vm_id = self._resolve_vm_id(vm_id)
     settings = self._api.vm_settings(vm_id)
-    print(settings)
+    print(pprint.pformat(settings))
     return 0
   
   def vm_config(self, vm_id, key):
@@ -44,17 +44,20 @@ class vmware_client_cli_command(cli_command_handler):
     print(config)
     return 0
 
-  def vm_power(self, vm_id, state, wait_for_ip_address):
+  def vm_power(self, vm_id, state, wait):
     check.check_string(vm_id)
     check.check_string(state, allow_none = True)
-    check.check_bool(wait_for_ip_address)
+    check.check_string(wait, allow_none = True)
 
     vm_id = self._resolve_vm_id(vm_id)
     if state != None:
-      self._api.vm_set_power(vm_id, state, wait_for_ip_address = wait_for_ip_address)
+      self._api.vm_set_power(vm_id, state, wait = wait)
+      if self.options.verbose:
+        ip_address = self._api.vm_get_ip_address(vm_id)
+        print(ip_address)
     else:
       power = self._api.vm_get_power(vm_id)
-      print(power)
+      print('on' if power else 'off')
     return 0
 
   def request(self, endpoint, args):

@@ -9,9 +9,9 @@ from bes.system.log import log
 
 from .vmware_server_controller import vmware_server_controller
 
-class vmware_server_app(object):
+class vmware_server_shell(object):
 
-  _log = logger('vmware_server_app')
+  _log = logger('vmware_server_shell')
   
   def __init__(self):
     self._controller = vmware_server_controller()
@@ -47,14 +47,18 @@ class vmware_server_app(object):
       return self._command_stop(cmd)
     elif cmd[0] == 'start':
       return self._command_start(cmd)
-    elif cmd[0] == 'port':
-      return self._command_port(cmd)
+    elif cmd[0] == 'address':
+      return self._command_address(cmd)
     elif cmd[0] == 'pid':
       return self._command_pid(cmd)
+    elif cmd[0] == 'info':
+      return self._command_info(cmd)
     elif cmd[0] == 'version':
       return self._command_version(cmd)
     elif cmd[0] == 'quit':
       return self._command_quit(cmd)
+    else:
+      print('unknown command: "{}"'.format(cmd))
     return True
   
   def _command_stop(self, cmd):
@@ -69,7 +73,7 @@ class vmware_server_app(object):
     self._controller.start(port = port)
     return True
 
-  def _command_port(self, cmd):
+  def _command_address(self, cmd):
     print(self._controller.address)
     return True
 
@@ -80,3 +84,17 @@ class vmware_server_app(object):
   def _command_version(self, cmd):
     print(self._controller.version)
     return True
+
+  def _command_info(self, cmd):
+    if not self._controller.address:
+      print('not running')
+      return True
+    print('address: {}'.format(self._controller.address[0]))
+    print('   port: {}'.format(self._controller.address[1]))
+    print('    pid: {}'.format(self._controller.pid))
+    print('version: {}'.format(self._controller.version))
+    return True
+  
+  def _command_quit(self, cmd):
+    return False
+  

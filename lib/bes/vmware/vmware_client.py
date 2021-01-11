@@ -2,11 +2,11 @@
 
 import pprint
 import requests
-import sys
 import time
 
-from bes.compat import url_compat
 from bes.common.check import check
+from bes.compat import url_compat
+from bes.net_util.port_probe import port_probe
 from bes.system.log import logger
 
 from .vmware_error import vmware_error
@@ -114,10 +114,11 @@ class vmware_client(object):
       raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
     return power_state == 'poweredOn'
 
-  def vm_set_power(self, vm_id, state, wait_for_ip_address = False):
+  def vm_set_power(self, vm_id, state, wait = None):
     'Return power status for a vm.'
     check.check_string(vm_id)
     check.check_string(state)
+    check.check_string(wait, allow_none = True)
     
     url = self._make_url('vms/{}/power'.format(vm_id))
 
@@ -132,17 +133,36 @@ class vmware_client(object):
       raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
     result = power_state == 'poweredOn'
 
-    if result and wait_for_ip_address:
-      while True:
-        try:
-          ip_address = self.vm_get_ip_address(vm_id)
-          break
-        except vmware_error as ex:
-          self._log.log_d('vm_power: caught exception polling for ip address: {}'.format(ex))
-        time.sleep(1.0)
+    if result:
+      if wait in [ 'ip', 'ssh' ]:
+        ip_address = self._wait_for_ip_address(vm_id)
+      if wait in [ 'ssh' ]:
+        self._wait_for_ssh(ip_address)
           
     return result
 
+  # FIXME: add timeout or max retries
+  def _wait_for_ip_address(self, vm_id):
+    ip_address = None
+    while True:
+      try:
+        ip_address = self.vm_get_ip_address(vm_id)
+        break
+      except vmware_error as ex:
+        self._log.log_d('vm_power: caught exception waiting for ip address: {}'.format(ex))
+        time.sleep(1.0)
+    return ip_address
+
+  def _wait_for_ssh(self, ip_address):
+    ssh_port = ( ip_address, 22 )
+    while True:
+      try:
+        if port_probe.is_open(ssh_port):
+          break
+      except vmware_error as ex:
+        self._log.log_d('vm_power: caught exception waiting for ssh port: {}'.format(ex))
+        time.sleep(1.0)
+        
   def request(self, endpoint, params):
     'Return power status for a vm.'
     check.check_string(endpoint)
@@ -225,4 +245,14 @@ class vmware_client(object):
 #        'parentId' = $sourcevmid
 #    }
 
-  
+  def vm_shared_folders(self, vm_id):
+    'Return a list of shared folders for a vm'
+    check.check_string(vm_id)
+    
+    url = self._make_url('vms/{}'.format(vm_id))
+    response = self._make_request('get', url)
+    if response.status_code != 200:
+      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+    response_data = response.json()
+    self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
+    return response_data

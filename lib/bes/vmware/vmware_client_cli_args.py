@@ -28,9 +28,9 @@ class vmware_client_cli_args(object):
     # vm_power
     p = subparser.add_parser('vm_power', help = 'Get or set the vm power.')
     self.__vmware_client_add_common_args(p)
-    p.add_argument('--wait', action = 'store_true', default = False,
-                   dest = 'wait_for_ip_address',
-                   help = 'Wait until the ip address is known [ False ]')
+    p.add_argument('--wait', action = 'store', default = None,
+                   choices = ( 'ip', 'ssh', 'none' ),
+                   help = 'Wait until the ip address is known or ssh server is up [ none ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
     p.add_argument('state', action = 'store', type = str, default = None, nargs = '?',
