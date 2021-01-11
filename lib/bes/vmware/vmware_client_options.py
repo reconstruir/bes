@@ -3,6 +3,7 @@
 from bes.common.check import check
 from bes.common.dict_util import dict_util
 from bes.credentials.credentials import credentials
+from bes.system.env_var import os_env_var
 from bes.script.blurber import blurber
 
 class vmware_client_options(object):
@@ -32,6 +33,8 @@ class vmware_client_options(object):
 
   @property
   def auth(self):
-    return credentials('<cli>', username = self.username, password = self.password)
+    username = self.username or os_env_var('BES_VMWARE_USERNAME').value_if_set
+    password = self.password or os_env_var('BES_VMWARE_PASSWORD').value_if_set
+    return credentials('<cli>', username = username, password = password)
     
 check.register_class(vmware_client_options)
