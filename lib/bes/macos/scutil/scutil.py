@@ -21,6 +21,9 @@ class scutil(object):
     
     cmd = [ 'scutil', '--get', key ]
     rv = execute.execute(cmd, raise_error = False)
+    # check for "not set"
+    if rv.exit_code == 1:
+      return None
     if rv.exit_code != 0:
       cmd_flat = ' '.join(cmd)
       msg = 'scutil command failed: {} - {}\n{}'.format(cmd_flat,
