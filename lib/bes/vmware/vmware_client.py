@@ -286,7 +286,6 @@ class vmware_client(object):
       result.append(vm)
     return result
 
-
   def vm_add_shared_folder(self, vm_id, folder_id, host_path, flags):
     check.check_string(vm_id)
     check.check_string(folder_id)
@@ -308,3 +307,12 @@ class vmware_client(object):
       vm = vmware_shared_folder(item['folder_id'], item['host_path'], item['flags'])
       result.append(vm)
     return result
+
+  def vm_delete_shared_folder(self, vm_id, folder_id):
+    check.check_string(vm_id)
+    check.check_string(folder_id)
+
+    url = self._make_url('vms/{}/sharedfolders/{}'.format(vm_id, folder_id))
+    response = self._make_request('delete', url)
+    if response.status_code != 204:
+      raise vmware_error('Error deleting: "{}": {}'.format(url, response.status_code))
