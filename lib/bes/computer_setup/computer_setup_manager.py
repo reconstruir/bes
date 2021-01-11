@@ -2,6 +2,7 @@
 
 from bes.common.check import check
 from bes.config.simple_config import simple_config
+from bes.key_value.key_value_list import key_value_list
 from bes.system.host import host
 from bes.system.log import logger
 
@@ -64,7 +65,12 @@ class computer_setup_manager(object):
                                                                        origin,
                                                                        section.header_.origin))
       
+    task_values = key_value_list()
     #print('task_class={}'.format(task_class))
-    return None
+    for next_values in section.get_all_values('value'):
+      task_values.extend(key_value_list.parse(next_values))
+    task = task_class()
+    task.values = task_values
+    return task
       
 check.register_class(computer_setup_manager)

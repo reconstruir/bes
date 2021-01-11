@@ -5,8 +5,9 @@ from collections import namedtuple
 from abc import abstractmethod, ABCMeta
 
 from bes.common.check import check
-from bes.system.compat import with_metaclass
+from bes.key_value.key_value_list import key_value_list
 from bes.system.compat import compat
+from bes.system.compat import with_metaclass
 
 from .computer_setup_task_registry import computer_setup_task_registry
 
@@ -15,12 +16,15 @@ class _computer_setup_register_meta(ABCMeta):
   def __new__(meta, name, bases, class_dict):
     clazz = ABCMeta.__new__(meta, name, bases, class_dict)
     if name != 'computer_setup_base':
-      print('register: {}'.format(clazz.__name__))
+      #print('register: {}'.format(clazz.__name__))
       computer_setup_task_registry.register(clazz)
     return clazz
   
 class computer_setup_task(with_metaclass(_computer_setup_register_meta, object)):
 
+  def __init__(self):
+    self.values = key_value_list()
+  
   @abstractmethod
   def name(self):
     'Name for task.'
