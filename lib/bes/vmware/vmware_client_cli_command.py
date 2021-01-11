@@ -91,7 +91,22 @@ class vmware_client_cli_command(cli_command_handler):
     
     vm_id = self._resolve_vm_id(vm_id)
     shared_folders = self._api.vm_get_shared_folders(vm_id)
-    print(shared_folders)
+    tt = text_table(data = shared_folders)
+    tt.set_labels( ( 'FOLDER_ID', 'PATH', 'PATH_ABS', 'FLAGS' ) )
+    print(tt)
+    return 0
+
+  def vm_update_shared_folder(self, vm_id, folder_id, host_path, flags):
+    check.check_string(vm_id)
+    check.check_string(folder_id)
+    check.check_string(host_path)
+    check.check_int(flags)
+    
+    vm_id = self._resolve_vm_id(vm_id)
+    shared_folders = self._api.vm_update_shared_folder(vm_id, folder_id, host_path, flags)
+    tt = text_table(data = shared_folders)
+    tt.set_labels( ( 'FOLDER_ID', 'PATH', 'PATH_ABS', 'FLAGS' ) )
+    print(tt)
     return 0
   
   def _resolve_vm_id(self, name):

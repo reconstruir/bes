@@ -261,3 +261,27 @@ class vmware_client(object):
       vm = vmware_shared_folder(item['folder_id'], item['host_path'], item['flags'])
       result.append(vm)
     return result
+
+  def vm_update_shared_folder(self, vm_id, folder_id, host_path, flags):
+    check.check_string(vm_id)
+    check.check_string(folder_id)
+    check.check_string(host_path)
+    check.check_int(flags)
+
+    url = self._make_url('vms/{}/sharedfolders/{}'.format(vm_id, folder_id))
+
+    json = {
+      'host_path': host_path,
+      'flags': flags,
+    }
+    response = self._make_request('put', url, json = json) #data = data)
+    #response = self._make_request('put', url)
+    if response.status_code != 200:
+      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+    response_data = response.json()
+    self._log.log_d('vm_set_shared_folders: response_data={}'.format(pprint.pformat(response_data)))
+    result = []
+    for item in response_data:
+      vm = vmware_shared_folder(item['folder_id'], item['host_path'], item['flags'])
+      result.append(vm)
+    return result
