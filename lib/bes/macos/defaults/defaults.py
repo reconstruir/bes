@@ -11,7 +11,7 @@ from bes.system.log import logger
 from .defaults_error import defaults_error
 
 class defaults(object):
-  'Class to deal with the macos softwareupdate program.'
+  'Class to deal with the macos defaults program.'
 
   _log = logger('defaults')
   
