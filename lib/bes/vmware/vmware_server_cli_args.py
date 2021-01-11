@@ -19,6 +19,8 @@ class vmware_server_cli_args(object):
                    help = 'The username. [ None ]')
     p.add_argument('password', action = 'store', default = None,
                    help = 'The password. [ None ]')
+    p.add_argument('-n', '--num-tries', action = 'store', default = None,
+                   help = 'Number of set credentials tries.  It can be flaky. [ 1 ]')
     
   def __vmware_server_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,

@@ -37,7 +37,12 @@ class vmware_client(object):
     url = self._make_url('vms')
     response = self._make_request('get', url)
     if response.status_code != 200:
-      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+      print('FAILED: url={} response={}'.format(url, response))
+      import time
+      time.sleep(1.0)
+      response2 = self._make_request('get', url)
+      if response2.status_code != 200:
+        print('FAILED2: url={} response={}'.format(url, response))
     response_data = response.json()
     self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
     result = []
@@ -204,6 +209,11 @@ class vmware_client(object):
 
     return url_compat.urljoin(self.base_url, fragment)
 
+  def call_client(self, method_name, *args, **kargs):
+    check.check_string(method_name)
+    func = getattr(self, method_name)
+    return func(*args, **kargs)
+  
 #    params = {
 #      'q': 'name~"{}"'.format(ref_name),
 #    }

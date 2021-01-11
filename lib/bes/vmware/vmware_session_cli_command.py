@@ -10,7 +10,7 @@ from bes.text.text_table import text_table
 
 from .vmware_client import vmware_client
 from .vmware_error import vmware_error
-from .vmware_options import vmware_options
+from .vmware_session_options import vmware_session_options
 from .vmware_server import vmware_server
 from .vmware_session import vmware_session
 
@@ -18,8 +18,8 @@ class vmware_session_cli_command(cli_command_handler):
   'vmware cli handler.'
 
   def __init__(self, cli_args):
-    super(vmware_session_cli_command, self).__init__(cli_args, options_class = vmware_options)
-    check.check_vmware_options(self.options)
+    super(vmware_session_cli_command, self).__init__(cli_args, options_class = vmware_session_options)
+    check.check_vmware_session_options(self.options)
     self._session = vmware_session(port = None, credentials = None)
 
   def vms(self):

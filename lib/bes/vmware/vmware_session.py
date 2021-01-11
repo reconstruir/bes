@@ -8,6 +8,7 @@ from .vmware_client import vmware_client
 from .vmware_credentials import vmware_credentials
 from .vmware_error import vmware_error
 from .vmware_server_controller import vmware_server_controller
+from .vmware_util import vmware_util
 
 class vmware_session(object):
 
@@ -24,9 +25,9 @@ class vmware_session(object):
     self._port = port
     self._credentials = credentials
 
-    import os
-    os.system('killall vmrest')
-    vmware_credentials.set_credentials(credentials.username, credentials.password)
+    vmware_credentials.set_credentials(credentials.username,
+                                       credentials.password,
+                                       num_tries = 100)
     self._server = None
     self._client = None
 

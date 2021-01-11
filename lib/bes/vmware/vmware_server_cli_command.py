@@ -6,6 +6,7 @@ from bes.common.check import check
 from bes.script.blurber import blurber
 
 from .vmware_server import vmware_server
+from .vmware_credentials import vmware_credentials
 from .vmware_server_options import vmware_server_options
 from .vmware_server_app import vmware_server_app
 
@@ -25,9 +26,10 @@ class vmware_server_cli_command(cli_command_handler):
     raise SystemExit(vmware_server_app().main(args = args, shell_args = shell_args))
     return 0
 
-  def set_credentials(self, username, password):
+  def set_credentials(self, username, password, num_tries):
     check.check_string(username)
     check.check_string(password)
+    check.check_int(num_tries, allow_none = True)
     
-    vmware_server.set_credentials(username, password)
+    vmware_credentials.set_credentials(username, password, num_tries = num_tries)
     return 0

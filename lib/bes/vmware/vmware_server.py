@@ -10,6 +10,8 @@ from collections import namedtuple
 from bes.system.log import logger
 from bes.common.check import check
 
+from .vmware_util import vmware_util
+
 class vmware_server(object):
 
   _log = logger('vmware_server')
@@ -26,6 +28,9 @@ class vmware_server(object):
     self.pid = None
 
   def _vmrest_process(self):
+    # Make sure there no stale vmrest processes
+    vmware_util.killall_vmrest()
+
     cmd = [ 'vmrest' ]
     if self._requested_port:
       cmd.extend([ '-p', str(self._requested_port) ])
