@@ -6,8 +6,6 @@ from bes.common.check import check
 
 from .defaults import defaults
 
-from bes.macos.command_line_tools.command_line_tools_force import command_line_tools_force
-
 class defaults_cli_command(object):
 
   @classmethod
