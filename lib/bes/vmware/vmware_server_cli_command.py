@@ -5,10 +5,9 @@ from bes.common.Script import Script
 from bes.common.check import check
 from bes.script.blurber import blurber
 
-from .vmware_server import vmware_server
 from .vmware_credentials import vmware_credentials
-from .vmware_server_options import vmware_server_options
 from .vmware_server_app import vmware_server_app
+from .vmware_server_options import vmware_server_options
 
 class vmware_server_cli_command(cli_command_handler):
   'vmware server cli handler.'
