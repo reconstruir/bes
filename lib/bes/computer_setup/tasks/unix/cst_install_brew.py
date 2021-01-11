@@ -4,8 +4,8 @@ from bes.common.check import check
 
 from bes.computer_setup.computer_setup_task import computer_setup_task
 
-from bes.unix.brew.brew_installer import brew_installer
-from bes.unix.brew.brew_installer_options import brew_installer_options
+from bes.unix.brew_installer.brew_installer import brew_installer
+from bes.unix.brew_installer.brew_installer_options import brew_installer_options
 
 class cst_install_brew(computer_setup_task):
 
@@ -24,7 +24,7 @@ class cst_install_brew(computer_setup_task):
     'Average duration in seconds.'
     return 8 * 600
 
-  @abstractmethod
+  #@abstractmethod
   def is_needed(self):
     'Return True of the task needs to run.'
     return not brew.is_installed()

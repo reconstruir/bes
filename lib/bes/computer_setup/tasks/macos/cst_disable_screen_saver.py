@@ -22,7 +22,7 @@ class cst_disable_screen_saver(computer_setup_task):
     'Average duration in seconds.'
     return 0
 
-  @abstractmethod
+  #@abstractmethod
   def is_needed(self):
     'Return True of the task needs to run.'
     value = defaults.get_value('com.apple.screensaver', 'idleTime')

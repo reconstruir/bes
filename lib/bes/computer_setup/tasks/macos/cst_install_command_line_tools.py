@@ -22,7 +22,7 @@ class cst_install_command_line_tools(computer_setup_task):
     'Average duration in seconds.'
     return 10 * 600
 
-  @abstractmethod
+  #@abstractmethod
   def is_needed(self):
     'Return True of the task needs to run.'
     return not command_line_tools.installed()
