@@ -64,7 +64,19 @@ class vmware_client_cli_args(object):
                    help = 'The vm id [ ]')
 
     # vm_update_shared_folder
-    p = subparser.add_parser('vm_update_shared_folder', help = 'Add a shared folder.')
+    p = subparser.add_parser('vm_update_shared_folder', help = 'add a shared folder.')
+    self.__vmware_client_add_common_args(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'the vm id [ ]')
+    p.add_argument('folder_id', action = 'store', type = str, default = None,
+                   help = 'the folder_id [ ]')
+    p.add_argument('host_path', action = 'store', type = str, default = None,
+                   help = 'the host_path [ ]')
+    p.add_argument('flags', action = 'store', type = int, default = None,
+                   help = 'the flags [ ]')
+
+    # vm_add_shared_folder
+    p = subparser.add_parser('vm_add_shared_folder', help = 'Add a shared folder.')
     self.__vmware_client_add_common_args(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')

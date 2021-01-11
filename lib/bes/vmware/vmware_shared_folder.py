@@ -7,6 +7,8 @@ from collections import namedtuple
 from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.property.cached_property import cached_property
+from bes.common.type_checked_list import type_checked_list
+from bes.common.json_util import json_util
 
 class vmware_shared_folder(namedtuple('vmware_shared_folder', 'folder_id, host_path, host_path_abs, flags')):
   'A class to represent a vmware vm shared folder.'
@@ -22,3 +24,38 @@ class vmware_shared_folder(namedtuple('vmware_shared_folder', 'folder_id, host_p
   @cached_property
   def host_path_abs(self):
     return path.abspath(path.expanduser(self.host_path))
+
+  def to_dict(self):
+    return {
+      'folder_id': self.folder_id,
+      'host_path': self.host_path,
+      'flags': self.flags,
+    }
+
+  def to_json(self):
+    return json_util.to_json(self.to_dict(), indent = 2, sort_keys = True)
+  
+check.register_class(vmware_shared_folder, include_seq = False)
+
+class vmware_shared_folder_list(type_checked_list):
+
+  __value_type__ = vmware_shared_folder
+  
+  def __init__(self, values = None):
+    super(vmware_shared_folder_list, self).__init__(values = values)
+
+  def to_list(self):
+    return [ f.to_dict() for f in self ]
+
+  def to_json(self):
+    l = self.to_list()
+    return json_util.to_json(l, indent = 2, sort_keys = True)
+
+  def has_folder_id(self, folder_id):
+    for f in self:
+      if f.folder_id == folder_id:
+        return True
+    return False
+  
+check.register_class(vmware_shared_folder_list, include_seq = False)
+  

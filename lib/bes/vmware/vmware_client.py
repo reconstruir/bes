@@ -10,8 +10,9 @@ from bes.net_util.port_probe import port_probe
 from bes.system.log import logger
 
 from .vmware_error import vmware_error
-from .vmware_vm import vmware_vm
 from .vmware_shared_folder import vmware_shared_folder
+from .vmware_shared_folder import vmware_shared_folder_list
+from .vmware_vm import vmware_vm
 
 class vmware_client(object):
   'A class to deal with the vmware fusion rest api'
@@ -256,7 +257,7 @@ class vmware_client(object):
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vm_get_shared_folders: response_data={}'.format(pprint.pformat(response_data)))
-    result = []
+    result = vmware_shared_folder_list()
     for item in response_data:
       vm = vmware_shared_folder(item['folder_id'], item['host_path'], item['flags'])
       result.append(vm)
@@ -275,12 +276,34 @@ class vmware_client(object):
       'flags': flags,
     }
     response = self._make_request('put', url, json = json) #data = data)
-    #response = self._make_request('put', url)
     if response.status_code != 200:
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
     self._log.log_d('vm_set_shared_folders: response_data={}'.format(pprint.pformat(response_data)))
     result = []
+    for item in response_data:
+      vm = vmware_shared_folder(item['folder_id'], item['host_path'], item['flags'])
+      result.append(vm)
+    return result
+
+
+  def vm_add_shared_folder(self, vm_id, folder_id, host_path, flags):
+    check.check_string(vm_id)
+    check.check_string(folder_id)
+    check.check_string(host_path)
+    check.check_int(flags)
+
+    folder = vmware_shared_folder(folder_id, host_path, flags)
+    url = self._make_url('vms/{}/sharedfolders'.format(vm_id))
+    json = folder.to_json()
+    response = self._make_request('post', url, data = json)
+    if response.status_code == 409:
+      raise vmware_error('shared folder already exists: "{}"'.format(folder_id))
+    elif response.status_code != 201:
+      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+    response_data = response.json()
+    self._log.log_d('vm_add_shared_folder: response_data={}'.format(pprint.pformat(response_data)))
+    result = vmware_shared_folder_list()
     for item in response_data:
       vm = vmware_shared_folder(item['folder_id'], item['host_path'], item['flags'])
       result.append(vm)
