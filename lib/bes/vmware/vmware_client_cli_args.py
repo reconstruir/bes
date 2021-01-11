@@ -56,6 +56,12 @@ class vmware_client_cli_args(object):
     self.__vmware_client_add_common_args(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
+
+    # vm_shared_folders
+    p = subparser.add_parser('vm_shared_folders', help = 'Return shared folders for a vm.')
+    self.__vmware_client_add_common_args(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
     
   def __vmware_client_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,

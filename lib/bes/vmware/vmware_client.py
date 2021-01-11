@@ -11,6 +11,7 @@ from bes.system.log import logger
 
 from .vmware_error import vmware_error
 from .vmware_vm import vmware_vm
+from .vmware_shared_folder import vmware_shared_folder
 
 class vmware_client(object):
   'A class to deal with the vmware fusion rest api'
@@ -245,14 +246,18 @@ class vmware_client(object):
 #        'parentId' = $sourcevmid
 #    }
 
-  def vm_shared_folders(self, vm_id):
+  def vm_get_shared_folders(self, vm_id):
     'Return a list of shared folders for a vm'
     check.check_string(vm_id)
     
-    url = self._make_url('vms/{}'.format(vm_id))
+    url = self._make_url('vms/{}/sharedfolders'.format(vm_id))
     response = self._make_request('get', url)
     if response.status_code != 200:
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
     response_data = response.json()
-    self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
-    return response_data
+    self._log.log_d('vm_get_shared_folders: response_data={}'.format(pprint.pformat(response_data)))
+    result = []
+    for item in response_data:
+      vm = vmware_shared_folder(item['folder_id'], item['host_path'], item['flags'])
+      result.append(vm)
+    return result

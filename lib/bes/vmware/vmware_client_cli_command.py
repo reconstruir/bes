@@ -85,6 +85,14 @@ class vmware_client_cli_command(cli_command_handler):
     ip_address = self._api.vm_get_ip_address(vm_id)
     print(ip_address)
     return 0
+
+  def vm_shared_folders(self, vm_id):
+    check.check_string(vm_id)
+    
+    vm_id = self._resolve_vm_id(vm_id)
+    shared_folders = self._api.vm_get_shared_folders(vm_id)
+    print(shared_folders)
+    return 0
   
   def _resolve_vm_id(self, name):
     vm_id = self._api.vm_name_to_id(name)
