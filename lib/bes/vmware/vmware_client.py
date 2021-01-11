@@ -341,4 +341,12 @@ class vmware_client(object):
     response_data = response.json()
     self._log.log_d('vm_copy: response_data={}'.format(pprint.pformat(response_data)))
     return response_data
-    
+
+  def vm_delete(self, vm_id):
+    check.check_string(vm_id)
+
+    url = self._make_url('vms/{}'.format(vm_id))
+    response = self._make_request('delete', url)
+
+    if response.status_code != 204:
+      raise vmware_error('Error deleting: "{}": {}'.format(url, response.status_code))

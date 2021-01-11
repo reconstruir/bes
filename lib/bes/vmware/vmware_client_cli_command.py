@@ -146,6 +146,13 @@ class vmware_client_cli_command(cli_command_handler):
     shared_folders = self._api.vm_copy(vm_id, new_vm_id)
     return 0
 
+  def vm_delete(self, vm_id):
+    check.check_string(vm_id)
+    
+    vm_id = self._resolve_vm_id(vm_id)
+    shared_folders = self._api.vm_delete(vm_id)
+    return 0
+  
   def vm_restart(self, vm_id, wait):
     check.check_string(vm_id)
     check.check_string(wait, allow_none = True)

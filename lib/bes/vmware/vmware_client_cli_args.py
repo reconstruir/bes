@@ -103,6 +103,12 @@ class vmware_client_cli_args(object):
     p.add_argument('new_vm_id', action = 'store', type = str, default = None,
                    help = 'The new vm id [ ]')
 
+    # vm_delete
+    p = subparser.add_parser('vm_delete', help = 'Delete a vm.')
+    self.__vmware_client_add_common_args(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    
     # vm_restart
     p = subparser.add_parser('vm_restart', help = 'Restart a vm.')
     self.__vmware_client_add_common_args(p)
