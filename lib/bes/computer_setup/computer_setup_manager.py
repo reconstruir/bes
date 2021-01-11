@@ -25,7 +25,7 @@ class computer_setup_manager(object):
       needed_blurb = '- not needed' if not needed else ''
       print('{} of {}: {} {}'.format(i, num_tasks, task.name(), needed_blurb))
       if needed:
-        if self.options.dry_run:
+        if self._options.dry_run:
           print('DRY_RUN: would run: {}'.format(task.name()))
         else:
           task.run()
@@ -66,7 +66,6 @@ class computer_setup_manager(object):
                                                                        section.header_.origin))
       
     task_values = key_value_list()
-    #print('task_class={}'.format(task_class))
     for next_values in section.get_all_values('value'):
       task_values.extend(key_value_list.parse(next_values))
     task = task_class()
