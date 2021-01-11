@@ -2,7 +2,7 @@
 
 import copy, os, pprint
 
-from bes.cli.argparser_handler import argparser_handler
+from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.Script import Script
 from bes.common.algorithm import algorithm
 from bes.common.check import check
@@ -18,16 +18,25 @@ from .tasks.macos.cst_install_command_line_tools import cst_install_command_line
 from .tasks.unix.cst_change_shell_to_bash import cst_change_shell_to_bash
 from .tasks.unix.cst_install_brew import cst_install_brew
 
-class computer_setup_cli_command(object):
-  'computer_setup cli commands.'
+class computer_setup_cli_command(cli_command_handler):
+  'computer_setup cli handler.'
 
-  @classmethod
-  def handle_command(clazz, command, **kargs):
-    options = computer_setup_options(**kargs)
-    csm = computer_setup_manager(options = options)
-    filtered_args = argparser_handler.filter_keywords_args(computer_setup_options, kargs)
-    func = getattr(computer_setup_cli_command, command)
-    return func(csm, **filtered_args)
+  def __init__(self, cli_args):
+    super(computer_setup_cli_command, self).__init__(cli_args, options_class = computer_setup_options)
+    check.check_computer_setup_options(self.options)
+    
+    self._csm = computer_setup_manager(options = self.options)
+  
+###  @classmethod
+###  def handle_command(clazz, command, **kargs):
+###    super(vmware_client_cli_command, self).__init__(cli_args, options_class = vmware_client_options)
+###    check.check_vmware_client_options(self.options)
+###
+###    options = computer_setup_options(**kargs)
+###    csm = computer_setup_manager(options = options)
+###    filtered_args = argparser_handler.filter_keywords_args(computer_setup_options, kargs)
+###    func = getattr(computer_setup_cli_command, command)
+###    return func(csm, **filtered_args)
 #    kargs = copy.deepcopy(kargs)
 #    func = getattr(computer_setup_cli_command, command)
 #    bl = blurber(Script.name())
@@ -36,10 +45,12 @@ class computer_setup_cli_command(object):
 #    np = computer_setup(bl)
 #    return func(np, **kargs)
   
-  @classmethod
-  def update(clazz, csm, config_filename):
-    check.check_computer_setup_manager(csm)
+  def update(self, config_filename):
     check.check_string(config_filename)
+
+    self._csm.add_tasks_from_config(config_filename)
+    self._csm.run()
+
     return 0
 
   @classmethod
