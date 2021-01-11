@@ -8,6 +8,7 @@ from bes.common.check import check
 from bes.compat import url_compat
 from bes.net_util.port_probe import port_probe
 from bes.system.log import logger
+from bes.common.json_util import json_util
 
 from .vmware_error import vmware_error
 from .vmware_shared_folder import vmware_shared_folder
@@ -316,3 +317,28 @@ class vmware_client(object):
     response = self._make_request('delete', url)
     if response.status_code != 204:
       raise vmware_error('Error deleting: "{}": {}'.format(url, response.status_code))
+
+  def vm_copy(self, vm_id, new_vm_id):
+    check.check_string(vm_id)
+    check.check_string(new_vm_id)
+
+    url = self._make_url('vms')
+    data = {
+      'name': new_vm_id,
+      'parentId': vm_id,
+    }
+    json = json_util.to_json(data, indent = 2, sort_keys = True)
+    response = self._make_request('post', url, data = json)
+    response_data = response.json()
+
+    if response.status_code == 409:
+      if response_data['Code'] == 107:
+        raise vmware_error('{} - {}'.format(response_data['Code'], response_data['Message']))
+      else:
+        raise vmware_error('vm already exists: "{}"'.format(new_vm_id))
+    elif response.status_code != 201:
+      raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
+    response_data = response.json()
+    self._log.log_d('vm_copy: response_data={}'.format(pprint.pformat(response_data)))
+    return response_data
+    

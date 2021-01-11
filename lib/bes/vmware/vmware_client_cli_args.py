@@ -94,6 +94,23 @@ class vmware_client_cli_args(object):
                    help = 'The vm id [ ]')
     p.add_argument('folder_id', action = 'store', type = str, default = None,
                    help = 'The folder_id [ ]')
+
+    # vm_copy
+    p = subparser.add_parser('vm_copy', help = 'Copy a vm.')
+    self.__vmware_client_add_common_args(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    p.add_argument('new_vm_id', action = 'store', type = str, default = None,
+                   help = 'The new vm id [ ]')
+
+    # vm_restart
+    p = subparser.add_parser('vm_restart', help = 'Restart a vm.')
+    self.__vmware_client_add_common_args(p)
+    p.add_argument('--wait', action = 'store', default = None,
+                   choices = ( 'ip', 'ssh', 'none' ),
+                   help = 'Wait until the ip address is known or ssh server is up [ none ]')
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
     
   def __vmware_client_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,
