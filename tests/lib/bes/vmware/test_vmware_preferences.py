@@ -9,7 +9,7 @@ from bes.vmware.vmware_preferences import vmware_preferences as GP
 
 class test_vmware_preferences(unit_test):
 
-  def test_basic(self):
+  def test_values(self):
     content = '''\
 .encoding = "UTF-8"
 pref.dataCollectionEnabled = "FALSE"
@@ -28,7 +28,7 @@ pref.lastUpdateCheckSec = "1234567890"
       'pref.keyboardAndMouse.vmHotKey.count': '0',
       'pref.keyboardAndMouse.vmHotKey.enabled': 'FALSE',
       'pref.lastUpdateCheckSec': '1234567890',
-    }, prefs.values )
+    }, prefs.values() )
 ###    g = GP(temp_file.make_temp_file(content = content))
 ###    self.assertEqual( {
 ###      '.encoding': 'UTF-8"

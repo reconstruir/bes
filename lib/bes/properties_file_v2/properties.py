@@ -27,21 +27,21 @@ class properties(object):
   _FORMATTER_JAVA = properties_file_formatter_java()
   _FORMATTER_YAML = properties_file_formatter_yaml()
   
-  def __init__(self, properties = None): #, formatter = None):
-    properties = properties or {}
-    check.check_dict(properties, check.STRING_TYPES)
+  def __init__(self, values = None):
+    values = values or {}
+    check.check_dict(values, check.STRING_TYPES)
     
-    self._properties = copy.deepcopy(properties)
+    self._values = copy.deepcopy(values)
 
   def add(self, key, value):
     check.check_string(key)
     check.check_string(value)
     
-    self._properties[key] = value
+    self._values[key] = value
 
   def to_text(self, formatter):
     buf = StringIO()
-    for key, value in sorted(self.properties().items()):
+    for key, value in sorted(self.values().items()):
       formatted_value = formatter.value_to_text(value)
       formatted_key_value = formatter.key_value_to_text(key, value)
       buf.write(formatted_key_value)
@@ -68,25 +68,25 @@ class properties(object):
     self.save(filename, self._FORMATTER_JAVA)
     
   def has_value(self, key):
-    return key in self._properties
+    return key in self._values
 
   def set_value(self, key, value):
-    self._properties[key] = value
+    self._values[key] = value
 
   def get_value(self, key):
-    return self._properties[key]
+    return self._values[key]
 
   def remove_value(self, key):
-    del self._properties[key]
+    del self._values[key]
 
   def items(self):
-    return sorted(self._properties.items())
+    return sorted(self._values.items())
 
   def keys(self):
-    return sorted(self._properties.keys())
+    return sorted(self._values.keys())
 
-  def properties(self):
-    return copy.deepcopy(self._properties)
+  def values(self):
+    return copy.deepcopy(self._values)
 
   MAJOR = software_version.MAJOR
   MINOR = software_version.MINOR
@@ -134,10 +134,10 @@ class properties(object):
 
     if not text:
       return properties()
-    doc = clazz._parse_text(text, filename, formatter)
-    if not check.is_dict(doc):
+    values = clazz._parse_text(text, filename, formatter)
+    if not check.is_dict(values):
       raise ValueError('not a properties file: "{}"'.format(filename))
-    return properties(properties = doc)
+    return properties(values = values)
   
   @classmethod
   def from_yaml_text(clazz, text, filename):

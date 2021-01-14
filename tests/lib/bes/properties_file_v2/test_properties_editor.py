@@ -99,14 +99,14 @@ fruit: 'kiwi'
     with self.assertRaises(KeyError) as ctx:
       e.get_value('color')
     
-  def test_properties(self):
+  def test_values(self):
     content = """\
 color: 'green'
 fruit: 'kiwi'
 """
     tmp = temp_file.make_temp_file(content = content)
     e = PE(tmp)
-    self.assertEqual( { 'color': 'green', 'fruit': 'kiwi' }, e.properties() )
+    self.assertEqual( { 'color': 'green', 'fruit': 'kiwi' }, e.values() )
     
   def test_bump_version(self):
     content = """\

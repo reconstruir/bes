@@ -27,7 +27,7 @@ class properties_file(object):
                                   formatter = formatter)
     if not editor:
       return {}
-    return editor.properties()
+    return editor.values()
 
   @classmethod
   def read_to_tuple(clazz, filename, tuple_class, throw_error = True, formatter = None):

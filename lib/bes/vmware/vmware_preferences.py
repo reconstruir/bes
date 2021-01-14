@@ -4,12 +4,11 @@ from os import path
 
 from bes.system.log import logger
 from bes.common.check import check
-from bes.properties_file.properties_file import properties_file
 
-class vmware_preferences(object):
+from bes.properties_file_v2.properties_editor import properties_editor
+from bes.properties_file_v2.properties_file_formatter_java import properties_file_formatter_java
 
-  _log = logger('vmware_preferences')
-  
+class vmware_preferences(properties_editor):
+
   def __init__(self, filename):
-    self._filename = filename
-    self.values = properties_file.read(self._filename, style = 'java')
+    super(vmware_preferences, self).__init__(filename, formatter = properties_file_formatter_java())

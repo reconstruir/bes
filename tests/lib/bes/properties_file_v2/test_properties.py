@@ -72,7 +72,7 @@ version: 1.2.3
       'version': '1.2.3',
       'status': 'doomed',
       'fruit': 'kiwi',
-    }, a.properties() )
+    }, a.values() )
 
   def test_items(self):
     a = P()

@@ -62,9 +62,9 @@ class properties_editor(object):
     self._properties.change_version(key, component, value)
     self._save()
     
-  def properties(self):
+  def values(self):
     self._check_file_exists()
-    return self._properties.properties()
+    return self._properties.values()
     
   def _check_file_exists(self):
     if not path.exists(self._filename):
