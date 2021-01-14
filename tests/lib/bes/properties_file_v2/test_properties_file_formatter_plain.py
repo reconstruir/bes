@@ -11,5 +11,14 @@ class test_properties_formatter_plain(unit_test):
   def test_delimiter(self):
     self.assertEqual( '=', F().delimiter() )
     
+  def test_key_value_to_text(self):
+    self.assertEqual( 'fruit=kiwi', F().key_value_to_text('fruit', 'kiwi') )
+
+  def test_parse_value(self):
+    self.assertEqual( 'foo', F().parse_value('foo') )
+
+  def test_value_to_text(self):
+    self.assertEqual( 'foo', F().value_to_text('foo') )
+    
 if __name__ == '__main__':
   unit_test.main()
