@@ -29,15 +29,19 @@ pref.lastUpdateCheckSec = "1234567890"
       'pref.keyboardAndMouse.vmHotKey.enabled': 'FALSE',
       'pref.lastUpdateCheckSec': '1234567890',
     }, prefs.values() )
-###    g = GP(temp_file.make_temp_file(content = content))
-###    self.assertEqual( {
-###      '.encoding': 'UTF-8"
-###pref.dataCollectionEnabled = "FALSE"
-###pref.dataCollectionEnabled.epoch = ""
-###pref.keyboardAndMoul( 'flintpass', c.password )
-###    c = g.credentials('systemProp.vmware.wrapper')
-###    self.assertEqual( 'tuser', c.username )
-###    self.assertEqual( 'tpassword', c.password )
+
+  def test_get_value(self):
+    content = '''\
+.encoding = "UTF-8"
+pref.dataCollectionEnabled = "FALSE"
+pref.dataCollectionEnabled.epoch = ""
+pref.keyboardAndMouse.maxProfiles = "4"
+pref.keyboardAndMouse.vmHotKey.count = "0"
+pref.keyboardAndMouse.vmHotKey.enabled = "FALSE"
+pref.lastUpdateCheckSec = "1234567890"
+'''
+    prefs = GP(temp_file.make_temp_file(content = content))
+    self.assertEqual( 'FALSE', prefs.get_value('pref.keyboardAndMouse.vmHotKey.enabled') )
     
 if __name__ == '__main__':
   unit_test.main()
