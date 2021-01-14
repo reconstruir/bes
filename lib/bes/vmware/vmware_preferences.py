@@ -15,8 +15,10 @@ class vmware_preferences(properties_editor):
   if host.is_macos():
     DEFAULT_PREFERENCES_FILE = path.expanduser('~/Library/Preferences/VMware Fusion/preferences')
   
-  def __init__(self, filename = None):
+  def __init__(self, filename = None, backup = False):
     filename = filename or self.DEFAULT_PREFERENCES_FILE
-    super(vmware_preferences, self).__init__(filename, formatter = vmware_preferences_formatter())
+    super(vmware_preferences, self).__init__(filename,
+                                             formatter = vmware_preferences_formatter(),
+                                             backup = backup)
 
     

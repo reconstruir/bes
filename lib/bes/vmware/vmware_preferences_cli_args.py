@@ -11,6 +11,8 @@ class vmware_preferences_cli_args(object):
     p = subparser.add_parser('set_value', help = 'Set a vmware preferences value.')
     p.add_argument('-f', '--filename', action = 'store', type = str, default = None,
                    help = 'The preferences filename [ ]')
+    p.add_argument('-b', '--backup', action = 'store_true', default = False,
+                   help = 'Make a backup of the preferneces file if applicable [ ]')
     p.add_argument('key', action = 'store', type = str, default = None,
                    help = 'The pref key [ ]')
     p.add_argument('value', action = 'store', type = str, default = None,
