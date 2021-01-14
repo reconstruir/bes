@@ -17,7 +17,7 @@ class test_properties_editor_v2(unit_test):
     e = PE(tmp)
     e.set_value('fruit', 'kiwi')
     expected = """fruit: kiwi\n"""
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assert_text_file_equal( expected, tmp )
     
   def test_set_value_empty_file(self):
     'Set the first value for a non existent properties file.'
@@ -25,7 +25,7 @@ class test_properties_editor_v2(unit_test):
     e = PE(tmp)
     e.set_value('fruit', 'kiwi')
     expected = """fruit: kiwi\n"""
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assert_text_file_equal( expected, tmp )
     
   def test_replace_value(self):
     'Set the first value for a non existent properties file.'
@@ -33,11 +33,11 @@ class test_properties_editor_v2(unit_test):
     e = PE(tmp)
     e.set_value('fruit', 'kiwi')
     expected = """fruit: kiwi\n"""
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assert_text_file_equal( expected, tmp )
 
     e.set_value('fruit', 'orange')
     expected = """fruit: orange\n"""
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assert_text_file_equal( expected, tmp )
     
   def test_set_value_many_values(self):
     'Set the first value for a non existent properties file.'
@@ -51,7 +51,7 @@ fruit: kiwi
 status: doomed
 version: 1.2.3
 """
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assert_text_file_equal( expected, tmp )
     
   def test_set_value_existing_file(self):
     'Add a second property to an existing property file.'
@@ -60,13 +60,13 @@ fruit: 'kiwi'
 """
     tmp = temp_file.make_temp_file(content = content)
     e = PE(tmp)
-    self.assertMultiLineEqual(content, file_util.read(tmp, codec = 'utf-8') )
+    self.assert_text_file_equal( content, tmp )
     e.set_value('status', 'doomed')
     expected = """\
 fruit: kiwi
 status: doomed
 """
-    self.assertMultiLineEqual(expected, file_util.read(tmp, codec = 'utf-8') )
+    self.assert_text_file_equal( expected, tmp )
 
   def test_keys(self):
     'Get all the keys.'
@@ -125,6 +125,22 @@ version: 1.2.3
     e = PE(tmp)
     e.change_version('version', 'major', 9)
     self.assertEqual( '9.2.3', e.get_value('version') )
+
+  def test_backup(self):
+    'Set the first value for a non existent properties file.'
+    tmp = temp_file.make_temp_file(content = '')
+    tmp_backup = tmp + '.bak'
+    e = PE(tmp, backup = True)
+    e.set_value('fruit', 'kiwi')
+    self.assertFalse( path.isfile(tmp_backup) )
+    expected = '''\
+fruit: kiwi
+'''
+    self.assert_text_file_equal( expected, tmp )
+    
+    e.set_value('fruit', 'melon')
+    self.assertTrue( path.isfile(tmp_backup) )
+    self.assert_text_file_equal( expected, tmp_backup )
     
 if __name__ == '__main__':
   unit_test.main()

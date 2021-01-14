@@ -1,8 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
+
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
-
+from bes.fs.file_util import file_util
 from .vmware_preferences import vmware_preferences
 
 class vmware_preferences_cli_handler(cli_command_handler):

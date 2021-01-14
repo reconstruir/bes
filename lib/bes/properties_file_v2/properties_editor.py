@@ -4,6 +4,7 @@ from os import path
 from bes.common.check import check
 from bes.property.cached_property import cached_property
 from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
 
 from .properties import properties
 
@@ -12,12 +13,14 @@ class properties_editor(object):
   A class to manipulate a properties file
   '''
 
-  def __init__(self, filename, formatter = None):
+  def __init__(self, filename, formatter = None, backup = False):
     check.check_string(filename)
     check.check_properties_file_formatter(formatter, allow_none = True)
+    check.check_bool(backup)
     
-    self._formatter = formatter or properties._FORMATTER_YAML
     self._filename = path.abspath(filename)
+    self._formatter = formatter or properties._FORMATTER_YAML
+    self._backup = backup
     if not path.isfile(self._filename):
       file_util.save(self._filename, content = '')
     
@@ -26,8 +29,9 @@ class properties_editor(object):
     check.check_string(value)
     
     self._properties.set_value(key, value)
-    self._save()
+    result = self._save()
     assert path.isfile(self._filename)
+    return result
 
   def has_value(self, key):
     return self._properties.has_value(key)
@@ -45,7 +49,7 @@ class properties_editor(object):
     self._check_file_exists()
     self._check_key(key)
     self._properties.remove_value(key)
-    self._save()
+    return self._save()
 
   def keys(self):
     self._check_file_exists()
@@ -54,13 +58,13 @@ class properties_editor(object):
   def bump_version(self, key, component, reset_lower = False):
     check.check_string(key)
     self._properties.bump_version(key, component, reset_lower = reset_lower)
-    self._save()
+    return self._save()
 
   def change_version(self, key, component, value):
     check.check_string(key)
     
     self._properties.change_version(key, component, value)
-    self._save()
+    return self._save()
     
   def values(self):
     self._check_file_exists()
@@ -84,5 +88,16 @@ class properties_editor(object):
       return properties()
 
   def _save(self):
-    self._properties.save(self._filename, self._formatter)
-    
+    if path.exists(self._filename):
+      old_checksum = file_util.checksum('sha256', self._filename)
+    else:
+      old_checksum = None
+    tmp_file = temp_file.make_temp_file()
+    self._properties.save(tmp_file, self._formatter)
+    new_checksum = file_util.checksum('sha256', tmp_file)
+    if old_checksum == new_checksum:
+      return False
+    if self._backup and not file_util.is_empty(self._filename):
+      file_util.backup(self._filename)
+    file_util.copy(tmp_file, self._filename)
+    return True
