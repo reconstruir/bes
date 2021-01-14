@@ -5,6 +5,8 @@ import os.path as path
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
 from bes.fs.file_util import file_util
+from bes.text.text_table import text_table
+
 from .vmware_preferences import vmware_preferences
 
 class vmware_preferences_cli_handler(cli_command_handler):
@@ -14,7 +16,7 @@ class vmware_preferences_cli_handler(cli_command_handler):
     super(vmware_preferences_cli_handler, self).__init__(cli_args)
 
   def set_value(self, filename, key, value, backup):
-    check.check_string(filename)
+    check.check_string(filename, allow_none = True)
     check.check_string(key)
     check.check_string(value)
     check.check_bool(backup)
@@ -24,9 +26,21 @@ class vmware_preferences_cli_handler(cli_command_handler):
     return 0
 
   def get_value(self, filename, key):
-    check.check_string(filename)
+    check.check_string(filename, allow_none = True)
     check.check_string(key)
 
-    prefs = vmware_preferences(None)
+    prefs = vmware_preferences(filename)
     print(prefs.get_value(key))
     return 0
+
+  def print_values(self, filename):
+    check.check_string(filename, allow_none = True)
+
+    prefs = vmware_preferences(filename)
+    values = sorted(prefs.values().items())
+
+    tt = text_table(data = values)
+    tt.set_labels( ( 'KEY', 'VALUE' ) )
+    print(tt)
+    return 0
+  
