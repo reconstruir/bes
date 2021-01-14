@@ -52,6 +52,7 @@ class best_cli(cli):
   from bes.git.git_repo_script_cli_args import git_repo_script_cli_args
   from bes.native_package.native_package_cli_args import native_package_cli_args
   from bes.pip.pip_cli_args import pip_cli_args
+  from bes.properties_file_v2.properties_file_cli_args import properties_file_cli_args
   from bes.python.python_cli_args import python_cli_args
   from bes.python.python_installer_cli_args import python_installer_cli_args
   from bes.vmware.vmware_session_cli_args import vmware_session_cli_args
@@ -68,6 +69,7 @@ class best_cli(cli):
     cli_command('git_repo_document', 'git_repo_document_add_args', 'Deal with git documents', git_repo_document_cli_args),
     cli_command('native_package', 'native_package_add_args', 'Deal with native packages', native_package_cli_args),
     cli_command('pip', 'pip_add_args', 'Pip stuff', pip_cli_args),
+    cli_command('properties_file', 'properties_file_add_args', 'Deal with properties files', properties_file_cli_args),
     cli_command('python', 'python_add_args', 'Deal with python', python_cli_args),
     cli_command('python_installer', 'python_installer_add_args', 'Deal with python install', python_installer_cli_args),
     cli_command('vmware_session', 'vmware_session_add_args', 'Deal with vmware session', vmware_session_cli_args),
