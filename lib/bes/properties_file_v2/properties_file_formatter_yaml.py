@@ -13,11 +13,11 @@ class properties_file_formatter_yaml(properties_file_formatter_base):
     return ':'
   
   #@abstractmethod
-  def parse_value(self, value):
+  def parse_value(self, key, value):
     return string_util.unquote(value)
 
   #@abstractmethod
-  def value_to_text(self, value):
+  def value_to_text(self, key, value):
     if self._value_is_number(value):
       return string_util.quote(value, quote_char = self._QUOTE_CHAR)
     return value

@@ -42,8 +42,8 @@ class properties(object):
   def to_text(self, formatter):
     buf = StringIO()
     for key, value in sorted(self.values().items()):
-      formatted_value = formatter.value_to_text(value)
-      formatted_key_value = formatter.key_value_to_text(key, value)
+      formatted_value = formatter.value_to_text(key, value)
+      formatted_key_value = formatter.key_value_to_text(key, formatted_value)
       buf.write(formatted_key_value)
       buf.write('\n')
     result = buf.getvalue().strip()
@@ -121,7 +121,7 @@ class properties(object):
                                                                                  line.line_number,
                                                                                  text))
         key = left.strip()
-        value = formatter.parse_value(right.strip())
+        value = formatter.parse_value(key, right.strip())
         clazz.logger.log_d('_parse_text: key={} value=|{}|'.format(key, value))
       result[key] = value
     return result

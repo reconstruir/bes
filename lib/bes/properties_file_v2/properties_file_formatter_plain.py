@@ -9,11 +9,11 @@ class properties_file_formatter_plain(properties_file_formatter_base):
     return '='
   
   #@abstractmethod
-  def parse_value(self, value):
+  def parse_value(self, key, value):
     return value
 
   #@abstractmethod
-  def value_to_text(self, value):
+  def value_to_text(self, key, value):
     return value
 
   #@abstractmethod

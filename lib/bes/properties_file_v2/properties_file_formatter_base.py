@@ -12,11 +12,11 @@ class properties_file_formatter_base(with_metaclass(ABCMeta, object)):
     raise NotImplemented('delimiter')
   
   @abstractmethod
-  def parse_value(self, value):
+  def parse_value(self, key, value):
     raise NotImplemented('parse_value')
 
   @abstractmethod
-  def value_to_text(self, value):
+  def value_to_text(self, key, value):
     raise NotImplemented('value_to_text')
 
   @abstractmethod

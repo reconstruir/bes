@@ -15,10 +15,10 @@ class test_properties_formatter_plain(unit_test):
     self.assertEqual( 'fruit=kiwi', F().key_value_to_text('fruit', 'kiwi') )
 
   def test_parse_value(self):
-    self.assertEqual( 'foo', F().parse_value('foo') )
+    self.assertEqual( 'kiwi', F().parse_value('fruit', 'kiwi') )
 
   def test_value_to_text(self):
-    self.assertEqual( 'foo', F().value_to_text('foo') )
+    self.assertEqual( 'kiwi', F().value_to_text('fruit', 'kiwi') )
     
 if __name__ == '__main__':
   unit_test.main()

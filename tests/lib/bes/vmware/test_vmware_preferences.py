@@ -42,6 +42,31 @@ pref.lastUpdateCheckSec = "1234567890"
 '''
     prefs = GP(temp_file.make_temp_file(content = content))
     self.assertEqual( 'FALSE', prefs.get_value('pref.keyboardAndMouse.vmHotKey.enabled') )
+
+  def test_set_value(self):
+    content = '''\
+.encoding = "UTF-8"
+pref.dataCollectionEnabled = "FALSE"
+pref.dataCollectionEnabled.epoch = ""
+pref.keyboardAndMouse.maxProfiles = "4"
+pref.keyboardAndMouse.vmHotKey.count = "0"
+pref.keyboardAndMouse.vmHotKey.enabled = "FALSE"
+pref.lastUpdateCheckSec = "1234567890"
+'''
+    tmp_file = temp_file.make_temp_file(content = content)
+    prefs = GP(tmp_file)
+    prefs.set_value('pref.keyboardAndMouse.vmHotKey.enabled', 'TRUE')
+
+    expected = '''\
+.encoding = "UTF-8"
+pref.dataCollectionEnabled = "FALSE"
+pref.dataCollectionEnabled.epoch = ""
+pref.keyboardAndMouse.maxProfiles = "4"
+pref.keyboardAndMouse.vmHotKey.count = "0"
+pref.keyboardAndMouse.vmHotKey.enabled = "TRUE"
+pref.lastUpdateCheckSec = "1234567890"
+'''
+    self.assert_text_file_equal( expected, tmp_file )
     
 if __name__ == '__main__':
   unit_test.main()

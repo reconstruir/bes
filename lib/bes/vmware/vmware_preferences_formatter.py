@@ -2,9 +2,9 @@
 
 from bes.common.string_util import string_util
 
-from .properties_file_formatter_base import properties_file_formatter_base
+from bes.properties_file_v2.properties_file_formatter_base import properties_file_formatter_base
 
-class properties_file_formatter_java(properties_file_formatter_base):
+class vmware_preferences_formatter(properties_file_formatter_base):
 
   #@abstractmethod
   def delimiter(self):
@@ -12,12 +12,12 @@ class properties_file_formatter_java(properties_file_formatter_base):
   
   #@abstractmethod
   def parse_value(self, key, value):
-    return value
+    return string_util.unquote(value)
 
   #@abstractmethod
   def value_to_text(self, key, value):
-    return value
+    return string_util.quote(value, quote_char = '"')
 
   #@abstractmethod
   def key_value_to_text(self, key, value):
-    return '{}{}{}'.format(key, self.delimiter(), value)
+    return '{} {} {}'.format(key, self.delimiter(), value)
