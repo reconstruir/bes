@@ -33,12 +33,14 @@ class vmware_preferences_cli_handler(cli_command_handler):
     print(prefs.get_value(key))
     return 0
 
-  def print_values(self, filename):
+  def print_values(self, filename, verbose):
     check.check_string(filename, allow_none = True)
+    check.check_bool(verbose)
 
     prefs = vmware_preferences(filename)
     values = sorted(prefs.values().items())
-
+    if verbose:
+      print('{}:'.format(prefs.filename))
     tt = text_table(data = values)
     tt.set_labels( ( 'KEY', 'VALUE' ) )
     print(tt)

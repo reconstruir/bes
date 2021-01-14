@@ -18,11 +18,11 @@ class properties_editor(object):
     check.check_properties_file_formatter(formatter, allow_none = True)
     check.check_bool(backup)
     
-    self._filename = path.abspath(filename)
+    self.filename = path.abspath(filename)
     self._formatter = formatter or properties._FORMATTER_YAML
     self._backup = backup
-    if not path.isfile(self._filename):
-      file_util.save(self._filename, content = '')
+    if not path.isfile(self.filename):
+      file_util.save(self.filename, content = '')
     
   def set_value(self, key, value):
     check.check_string(key)
@@ -30,7 +30,7 @@ class properties_editor(object):
     
     self._properties.set_value(key, value)
     result = self._save()
-    assert path.isfile(self._filename)
+    assert path.isfile(self.filename)
     return result
 
   def has_value(self, key):
@@ -71,25 +71,25 @@ class properties_editor(object):
     return self._properties.values()
     
   def _check_file_exists(self):
-    if not path.exists(self._filename):
-      raise IOError('properties file not found: %s' % (self._filename))
+    if not path.exists(self.filename):
+      raise IOError('properties file not found: %s' % (self.filename))
 
   def _check_key(self, key):
     if not self.has_value(key):
-      raise KeyError('property \"%s\" not found in %s' % (key, self._filename))
+      raise KeyError('property \"%s\" not found in %s' % (key, self.filename))
 
   @cached_property
   def _properties(self):
-    if self._filename:
-      if not path.isfile(self._filename):
-        raise IOError('properties file not found: %s' % (self._filename))
-      return properties.load(self._filename, self._formatter)
+    if self.filename:
+      if not path.isfile(self.filename):
+        raise IOError('properties file not found: %s' % (self.filename))
+      return properties.load(self.filename, self._formatter)
     else:
       return properties()
 
   def _save(self):
-    if path.exists(self._filename):
-      old_checksum = file_util.checksum('sha256', self._filename)
+    if path.exists(self.filename):
+      old_checksum = file_util.checksum('sha256', self.filename)
     else:
       old_checksum = None
     tmp_file = temp_file.make_temp_file()
@@ -97,7 +97,7 @@ class properties_editor(object):
     new_checksum = file_util.checksum('sha256', tmp_file)
     if old_checksum == new_checksum:
       return False
-    if self._backup and not file_util.is_empty(self._filename):
-      file_util.backup(self._filename)
-    file_util.copy(tmp_file, self._filename)
+    if self._backup and not file_util.is_empty(self.filename):
+      file_util.backup(self.filename)
+    file_util.copy(tmp_file, self.filename)
     return True

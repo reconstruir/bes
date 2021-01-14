@@ -29,6 +29,8 @@ class vmware_preferences_cli_args(object):
     p = subparser.add_parser('print_values', help = 'Print vmware preferences.')
     p.add_argument('-f', '--filename', action = 'store', type = str, default = None,
                    help = 'The preferences filename [ ]')
+    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
+                   help = 'Verbose output [ ]')
     
   def _command_vmware_preferences(self, command, *args, **kargs):
     from .vmware_preferences_cli_handler import vmware_preferences_cli_handler
