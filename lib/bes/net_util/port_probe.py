@@ -15,7 +15,12 @@ class port_probe(object):
     check.check_tuple(address)
     
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    rv = sock.connect_ex(address)
+    try:
+      rv = sock.connect_ex(address)
+    except Exception as ex:
+      clazz._log.log_d('caught: {}'.format(str(ex)))
+      return False
+      
     if rv != 0:
       clazz._log.log_d('not open: {} - {} - {}'.format(address, rv, errno.errorcode[rv]))
     return rv == 0
