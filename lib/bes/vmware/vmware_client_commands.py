@@ -11,8 +11,8 @@ from .vmware_client import vmware_client
 from .vmware_client_options import vmware_client_options
 from .vmware_error import vmware_error
 
-class vmware_client_cli_command(object):
-  'vmware client cli handler.'
+class vmware_client_commands(object):
+  'vmware client commands.'
 
   def __init__(self, client, options):
     check.check_vmware_client(client)
