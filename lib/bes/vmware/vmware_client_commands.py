@@ -10,13 +10,14 @@ from bes.text.text_table import text_table
 from .vmware_client import vmware_client
 from .vmware_client_options import vmware_client_options
 from .vmware_error import vmware_error
+from .vmware_session_options import vmware_session_options
 
 class vmware_client_commands(object):
   'vmware client commands.'
 
   def __init__(self, client, options):
     check.check_vmware_client(client)
-    check.check_vmware_client_options(options)
+    check.check(options, ( vmware_client_options, vmware_session_options ))
 
     self._client = client
     self._options = options
@@ -53,7 +54,7 @@ class vmware_client_commands(object):
     vm_id = self._resolve_vm_id(vm_id)
     if state != None:
       self._client.vm_set_power(vm_id, state, wait = wait)
-      if self.options.verbose:
+      if self._options.verbose:
         ip_address = self._client.vm_get_ip_address(vm_id)
         print(ip_address)
     else:
