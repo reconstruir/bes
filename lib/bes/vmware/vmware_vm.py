@@ -3,8 +3,8 @@
 from collections import namedtuple
 
 from bes.common.check import check
-from bes.common.string_util import string_util
-from bes.property.cached_property import cached_property
+
+from .vmware_vmx import vmware_vmx
 
 class vmware_vm(namedtuple('vmware_vm', 'name, vm_id, path')):
   'A class to represent a vmware vm.'
@@ -13,13 +13,4 @@ class vmware_vm(namedtuple('vmware_vm', 'name, vm_id, path')):
     check.check_string(vm_id)
     check.check_string(path)
 
-    return clazz.__bases__[0].__new__(clazz, clazz._make_name(path), vm_id, path)
-
-  @classmethod
-  def _make_name(clazz, path):
-    'Return a short revision'
-    i = path.rfind('/')
-    if i < 0:
-      return None
-    vmx = path[i + 1:]
-    return string_util.remove_tail(vmx, '.vmx')
+    return clazz.__bases__[0].__new__(clazz, vmware_vmx.vmx_filename_nickname(path), vm_id, path)

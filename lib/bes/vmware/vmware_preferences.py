@@ -11,14 +11,15 @@ from .vmware_preferences_formatter import vmware_preferences_formatter
 
 class vmware_preferences(properties_editor):
 
-  DEFAULT_PREFERENCES_FILE = None
-  if host.is_macos():
-    DEFAULT_PREFERENCES_FILE = path.expanduser('~/Library/Preferences/VMware Fusion/preferences')
-  
   def __init__(self, filename = None, backup = False):
-    filename = filename or self.DEFAULT_PREFERENCES_FILE
+    filename = filename or self.default_preferences_filename()
     super(vmware_preferences, self).__init__(filename,
                                              formatter = vmware_preferences_formatter(),
                                              backup = backup)
 
-    
+  @classmethod
+  def default_preferences_filename(clazz):
+    if host.is_macos():
+      return path.expanduser('~/Library/Preferences/VMware Fusion/preferences')
+    else:
+      assert False

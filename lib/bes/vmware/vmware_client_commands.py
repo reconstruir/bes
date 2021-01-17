@@ -2,7 +2,6 @@
 
 import pprint
 
-from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.key_value.key_value_list import key_value_list
@@ -12,13 +11,15 @@ from .vmware_client import vmware_client
 from .vmware_client_options import vmware_client_options
 from .vmware_error import vmware_error
 
-class vmware_client_cli_command(cli_command_handler):
+class vmware_client_cli_command(object):
   'vmware client cli handler.'
 
-  def __init__(self, cli_args):
-    super(vmware_client_cli_command, self).__init__(cli_args, options_class = vmware_client_options)
-    check.check_vmware_client_options(self.options)
-    self._client = vmware_client(self.options.address, self.options.auth)
+  def __init__(self, client, options):
+    check.check_vmware_client(client)
+    check.check_vmware_client_options(options)
+
+    self._client = client
+    self._options = options
 
   def vms(self):
     vms = self._client.vms()

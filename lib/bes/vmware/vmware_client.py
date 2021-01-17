@@ -350,3 +350,5 @@ class vmware_client(object):
 
     if response.status_code != 204:
       raise vmware_error('Error deleting: "{}": {}'.format(url, response.status_code))
+
+check.register_class(vmware_client, include_seq = False)

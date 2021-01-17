@@ -28,28 +28,28 @@ class vmware_session(object):
     vmware_credentials.set_credentials(credentials.username,
                                        credentials.password,
                                        num_tries = 100)
-    self._server = None
-    self._client = None
+    self.server = None
+    self.client = None
 
   def start(self):
-    if self._server:
+    if self.server:
       return
-    self._server = vmware_server_controller()
-    self._server.start(port = self._port)
-    self._client = vmware_client(address = self._server.address,
-                                 auth = self._credentials)
+    self.server = vmware_server_controller()
+    self.server.start(port = self._port)
+    self.client = vmware_client(address = self.server.address,
+                                auth = self._credentials)
     
   def stop(self):
-    if not self._server:
+    if not self.server:
       return
-    self._client = None
-    self._server.stop()
-    self._server = None
+    self.client = None
+    self.server.stop()
+    self.server = None
 
   def call_client(self, method_name, *args, **kargs):
     check.check_string(method_name)
 
-    if not self._client:
+    if not self.client:
       raise vmware_error('session not started.  call start() first')
-    func = getattr(self._client, method_name)
+    func = getattr(self.client, method_name)
     return func(*args, **kargs)
