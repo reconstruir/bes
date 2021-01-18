@@ -6,16 +6,18 @@ class vmware_cli_args(object):
     pass
   
   def vmware_add_args(self, subparser):
-
-    # is_running
-    p = subparser.add_parser('is_running', help = 'Check if vmware is running.')
-
-    # ensure_running
-    p = subparser.add_parser('ensure_running', help = 'Ensure vmware is running.')
     
-    # vm_run
-    p = subparser.add_parser('vm_run', help = 'Ensure vmware is running.')
-    
+    # vm_run_program
+    p = subparser.add_parser('vm_run_program', help = 'Run a program in a vm.')
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    p.add_argument('username', action = 'store', type = str, default = None,
+                   help = 'VM username [ ]')
+    p.add_argument('password', action = 'store', type = str, default = None,
+                   help = 'VM username password [ ]')
+    p.add_argument('program', action = 'store', default = [], nargs = '*',
+                   help = 'The program and optional arguments [ ]')
+
   def _command_vmware(self, command, *args, **kargs):
     from .vmware_cli_handler import vmware_cli_handler
     return vmware_cli_handler(kargs).handle_command(command)

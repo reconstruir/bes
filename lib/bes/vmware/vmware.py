@@ -3,6 +3,7 @@
 from os import path
 
 from bes.system.log import logger
+from bes.system.command_line import command_line
 from bes.common.check import check
 from bes.fs.file_find import file_find
 
@@ -43,9 +44,9 @@ class vmware(object):
       self._session.start()
     return self._session
 
-  def run_command(self, vm_id, username, password, command):
+  def run_program(self, vm_id, username, password, program):
     vmx_filename = self._resolve_vmx_filename(vm_id)
-    
+    program_args = command_line.parse_args(program)
     args = [
       '-T', 'ws',
       '-gu', username,
@@ -53,10 +54,9 @@ class vmware(object):
       'runProgramInGuest',
       vmx_filename,
       '-interactive',
-      command,
-    ]
+    ] + program_args
     rv = vmware_vmrun_exe.call_vmrun(args)
-    print(rv)
+    return rv
       
   def _resolve_vmx_filename(self, vm_id):
     return self._resolve_vmx_filename_local_vms(vm_id) or self._resolve_vmx_filename_rest_vms(vm_id)
