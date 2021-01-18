@@ -19,6 +19,16 @@ class vmware_local_vm(object):
     self.vmx_filename = path.abspath(vmx_filename)
     self.vmx_config = vmware_preferences(self.vmx_filename)
 
+  def __str__(self):
+    return self.vmx_filename
+
+  def __repr__(self):
+    return self.vmx_filename
+  
   @cached_property
   def nickname(self):
     return vmware_vmx.vmx_filename_nickname(self.vmx_filename)
+
+  @cached_property
+  def uuid(self):
+    return self.vmx_config.get_value('uuid.bios')

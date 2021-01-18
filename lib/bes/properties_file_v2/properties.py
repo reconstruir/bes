@@ -9,6 +9,7 @@ from bes.fs.file_util import file_util
 from bes.key_value.key_value import key_value
 from bes.system.log import logger
 from bes.text.text_line_parser import text_line_parser
+from bes.text.comments import comments
 from bes.version.software_version import software_version
 
 from .properties_file_formatter_plain import properties_file_formatter_plain
@@ -112,7 +113,7 @@ class properties(object):
     parser = text_line_parser(text)
     result = {}
     for line in parser:
-      text = line.text_no_comments.strip()
+      text = comments.strip_line(line.text, allow_quoted = False).strip()
       if text:
         clazz.logger.log_d('_parse_text: line=|{}|'.format(text))
         left, delimiter, right = text.partition(formatter.delimiter())
@@ -123,7 +124,7 @@ class properties(object):
         key = left.strip()
         value = formatter.parse_value(key, right.strip())
         clazz.logger.log_d('_parse_text: key={} value=|{}|'.format(key, value))
-      result[key] = value
+        result[key] = value
     return result
 
   @classmethod
