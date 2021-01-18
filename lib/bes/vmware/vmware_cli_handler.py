@@ -16,6 +16,6 @@ class vmware_cli_handler(cli_command_handler):
   def is_running(self):
     return 0 if vmware_util.is_running() else 1
 
-  def run(self):
-    vmware_util.run()
+  def ensure_running(self):
+    vmware_util.ensure_running()
     return 0

@@ -10,8 +10,11 @@ class vmware_cli_args(object):
     # is_running
     p = subparser.add_parser('is_running', help = 'Check if vmware is running.')
 
-    # run
-    p = subparser.add_parser('run', help = 'Ensure vmware is running.')
+    # ensure_running
+    p = subparser.add_parser('ensure_running', help = 'Ensure vmware is running.')
+    
+    # vm_run
+    p = subparser.add_parser('vm_run', help = 'Ensure vmware is running.')
     
   def _command_vmware(self, command, *args, **kargs):
     from .vmware_cli_handler import vmware_cli_handler

@@ -32,22 +32,11 @@ class vmware_util(object):
     return False
 
   @classmethod
-  def run(clazz):
-    'Make sure vmware is running'
+  def ensure_running(clazz):
+    'Ensure vmware is running'
     if clazz.is_running():
       return
     if host.is_macos():
       execute.execute('open -g /Applications/VMware\ Fusion.app')
     else:
       assert False
-
-  @classmethod
-  def run(clazz):
-    'Make sure vmware is running'
-    if clazz.is_running():
-      return
-    if host.is_macos():
-      execute.execute('open -g /Applications/VMware\ Fusion.app')
-    else:
-      assert False
-      
