@@ -15,6 +15,9 @@ class vmware_app_cli_args(object):
 
     # ensure_running
     p = subparser.add_parser('ensure_running', help = 'Ensure vmware is running.')
+
+    # ensure_stopped
+    p = subparser.add_parser('ensure_stopped', help = 'Ensure vmware is stopped.')
     
   def _command_vmware_app(self, command, *args, **kargs):
     from .vmware_app_cli_handler import vmware_app_cli_handler

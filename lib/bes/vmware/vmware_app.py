@@ -27,6 +27,11 @@ class vmware_app(vmware_app_base):
     'Ensure vmware is running.'
     self._impl.ensure_running()
 
+  #@abstractmethod
+  def ensure_stopped(self):
+    'Ensure vmware is stopped.'
+    self._impl.ensure_stopped()
+    
   @classmethod
   def _find_impl_class(clazz):
     system = platform.system()

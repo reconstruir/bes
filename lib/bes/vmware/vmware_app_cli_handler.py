@@ -21,3 +21,8 @@ class vmware_app_cli_handler(cli_command_handler):
   def ensure_running(self):
     self._app.ensure_running()
     return 0
+
+  def ensure_stopped(self):
+    self._app.ensure_stopped()
+    return 0
+  

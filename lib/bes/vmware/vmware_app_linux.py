@@ -20,3 +20,9 @@ class vmware_app_linux(platform_determiner_base):
   def ensure_running(self):
     'Ensure vmware is running.'
     raise NotImplemented('ensure_running')
+
+  #@abstractmethod
+  def ensure_stopped(self):
+    'Ensure vmware is stopped.'
+    raise NotImplemented('ensure_stopped')
+  
