@@ -14,13 +14,12 @@ from .vmware_server import vmware_server
 from .vmware_session import vmware_session
 from .vmware_session_options import vmware_session_options
 
-class vmware_session_cli_command(cli_command_handler):
-  'vmware cli handler.'
+class vmware_session_cli_handler(cli_command_handler):
+  'vmware session cli handler.'
 
   def __init__(self, cli_args):
-    super(vmware_session_cli_command, self).__init__(cli_args, options_class = vmware_session_options)
+    super(vmware_session_cli_handler, self).__init__(cli_args, options_class = vmware_session_options)
     check.check_vmware_session_options(self.options)
-    self._commands = None
 
   def _handle_session_command(self, command_name, *args, **kwargs):
     session = vmware_session(port = None, credentials = None)

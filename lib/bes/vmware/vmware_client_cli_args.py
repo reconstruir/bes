@@ -131,5 +131,5 @@ class vmware_client_cli_args(object):
                    help = 'Password [ ]')
     
   def _command_vmware_client(self, command, *args, **kargs):
-    from .vmware_client_cli_command import vmware_client_cli_command
-    return vmware_client_cli_command(kargs).handle_command(command)
+    from .vmware_client_cli_handler import vmware_client_cli_handler
+    return vmware_client_cli_handler(kargs).handle_command(command)

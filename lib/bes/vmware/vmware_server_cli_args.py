@@ -29,5 +29,5 @@ class vmware_server_cli_args(object):
                    help = 'Port [ 8697 ]')
     
   def _command_vmware_server(self, command, *args, **kargs):
-    from .vmware_server_cli_command import vmware_server_cli_command
-    return vmware_server_cli_command(kargs).handle_command(command)
+    from .vmware_server_cli_handler import vmware_server_cli_handler
+    return vmware_server_cli_handler(kargs).handle_command(command)

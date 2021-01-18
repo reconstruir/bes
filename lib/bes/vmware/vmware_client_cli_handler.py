@@ -9,11 +9,11 @@ from .vmware_client import vmware_client
 from .vmware_client_commands import vmware_client_commands
 from .vmware_client_options import vmware_client_options
 
-class vmware_client_cli_command(cli_command_handler):
+class vmware_client_cli_handler(cli_command_handler):
   'vmware client cli handler.'
 
   def __init__(self, cli_args):
-    super(vmware_client_cli_command, self).__init__(cli_args, options_class = vmware_client_options)
+    super(vmware_client_cli_handler, self).__init__(cli_args, options_class = vmware_client_options)
     check.check_vmware_client_options(self.options)
     client = vmware_client(self.options.address, self.options.auth)
     self._commands = vmware_client_commands(client, self.options)
