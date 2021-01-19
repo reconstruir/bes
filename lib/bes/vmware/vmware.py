@@ -44,7 +44,13 @@ class vmware(object):
       self._session.start()
     return self._session
 
-  def run_program(self, vm_id, username, password, program):
+  def run_program(self, vm_id, username, password, program, copy_vm):
+    check.check_string(vm_id)
+    check.check_string(username)
+    check.check_string(password)
+    check.check_string_seq(program)
+    check.check_bool(copy_vm)
+    
     vmx_filename = self._resolve_vmx_filename(vm_id)
     program_args = command_line.parse_args(program)
     args = [

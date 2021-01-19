@@ -9,6 +9,8 @@ class vmware_cli_args(object):
     
     # vm_run_program
     p = subparser.add_parser('vm_run_program', help = 'Run a program in a vm.')
+    p.add_argument('--copy', action = 'store', type = str, default = None,
+                   help = 'Run the program in a copy of the vm [ False ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
     p.add_argument('username', action = 'store', type = str, default = None,

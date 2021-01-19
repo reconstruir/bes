@@ -14,7 +14,6 @@ class vmware_cli_handler(cli_command_handler):
     super(vmware_cli_handler, self).__init__(cli_args)
     self._vmware = vmware()
 
-  def vm_run_program(self, vm_id, username, password, program):
-    rv = self._vmware.run_program(vm_id, username, password, program)
-    print('rv={}'.format(rv))
-    return 0
+  def vm_run_program(self, vm_id, username, password, program, copy_vm):
+    rv = self._vmware.run_program(vm_id, username, password, program, copy_vm)
+    return rv.exit_code
