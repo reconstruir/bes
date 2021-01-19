@@ -44,6 +44,93 @@ fruit: kiwi
 fruit: apple
 '''
     self.assert_text_file_equal( expected, tmp_file )
+
+  def test_set_value_nonexistent_file(self):
+    tmp = self.make_temp_file(suffix = '.yml')
+    args = [
+      'properties_file',
+      'set',
+      tmp,
+      'fruit',
+      'kiwi',
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual( 0, rv.exit_code )
+    expected = '''\
+fruit: kiwi
+'''
+    self.assert_text_file_equal( expected, tmp )
+    
+  def test_set_value_existing_file(self):
+    content = '''\
+fruit: kiwi
+'''
+    tmp = self.make_temp_file(content = content, suffix = '.yml')
+    args = [
+      'properties_file',
+      'set',
+      tmp,
+      'fruit',
+      'apple',
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual( 0, rv.exit_code )
+    expected = '''\
+fruit: apple
+'''
+    self.assert_text_file_equal( expected, tmp )
+    
+  def test_get_value_existing_file(self):
+    content = '''\
+fruit: kiwi
+'''
+    tmp = self.make_temp_file(content = content, suffix = '.yml')
+    args = [
+      'properties_file',
+      'get',
+      tmp,
+      'fruit',
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual( 0, rv.exit_code )
+    self.assertEqual( 'kiwi', rv.output.strip() )
+
+  def test_bump_version(self):
+    content = '''\
+ver: 1.2.3
+'''
+    tmp = self.make_temp_file(content = content, suffix = '.yml')
+    args = [
+      'properties_file',
+      'bump_version',
+      tmp,
+      'ver',
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual( 0, rv.exit_code )
+    expected = '''\
+ver: 1.2.4
+'''
+    self.assert_text_file_equal( expected, tmp )
+    
+  def test_bump_version_major(self):
+    content = '''\
+ver: 1.2.3
+'''
+    tmp = self.make_temp_file(content = content, suffix = '.yml')
+    args = [
+      'properties_file',
+      'bump_version',
+      '--component', 'major',
+      tmp,
+      'ver',
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual( 0, rv.exit_code )
+    expected = '''\
+ver: 2.2.3
+'''
+    self.assert_text_file_equal( expected, tmp )
     
 if __name__ == '__main__':
   program_unit_test.main()
