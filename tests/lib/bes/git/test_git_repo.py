@@ -13,6 +13,7 @@ from bes.git.git_repo import git_repo
 from bes.git.git_status import git_status
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
+from bes.git.git_operation_base import git_operation_base
 from bes.system.env_override import env_override_temp_home_func
 from bes.system.execute import execute
 from bes.testing.unit_test import unit_test
@@ -720,6 +721,67 @@ class test_git_repo(unit_test):
     r3 = r1.make_temp_cloned_repo()
     self.assertEqual( 'this is foo', r3.read_file('foo.txt', codec = 'utf8') )
     self.assertEqual( 'this is bar', r3.read_file('bar.txt', codec = 'utf8') )
+
+  @git_temp_home_func()
+  def test_operation_with_reset_basic_interface(self):
+    r1 = self._make_repo()
+    r1.write_temp_content([
+      'file foo.txt "this is foo" 644',
+    ])
+    r1.add([ 'foo.txt' ])
+    r1.commit('add foo.txt', [ 'foo.txt' ])
+    r1.push('origin', 'master')
+
+    r2 = r1.make_temp_cloned_repo()
+
+    class _op(git_operation_base):
+      def run(op_self, repo):
+        repo.write_temp_content([
+          'file bar.txt "this is bar" 644',
+         ])
+        repo.add('.')
+    r2.operation_with_reset(_op(), 'add bar.txt')
+    self.assertEqual( 'this is foo', r2.read_file('foo.txt', codec = 'utf8') )
+    self.assertEqual( 'this is bar', r2.read_file('bar.txt', codec = 'utf8') )
+
+    r3 = r1.make_temp_cloned_repo()
+    self.assertEqual( 'this is foo', r3.read_file('foo.txt', codec = 'utf8') )
+    self.assertEqual( 'this is bar', r3.read_file('bar.txt', codec = 'utf8') )
+
+  @git_temp_home_func()
+  def test_operation_with_reset_seq_interface(self):
+    r1 = self._make_repo()
+    r1.write_temp_content([
+      'file foo.txt "this is foo" 644',
+    ])
+    r1.add([ 'foo.txt' ])
+    r1.commit('add foo.txt', [ 'foo.txt' ])
+    r1.push('origin', 'master')
+
+    r2 = r1.make_temp_cloned_repo()
+
+    class _op1(git_operation_base):
+      def run(op_self, repo):
+        repo.write_temp_content([
+          'file kiwi.txt "this is kiwi" 644',
+         ])
+        repo.add('.')
+    class _op2(git_operation_base):
+      def run(op_self, repo):
+        repo.write_temp_content([
+          'file apple.txt "this is apple" 644',
+         ])
+        repo.add('.')
+    ops = [ _op1(), _op2() ]
+    r2.operation_with_reset(ops, 'add kiwi.txt')
+    self.assertEqual( 'this is foo', r2.read_file('foo.txt', codec = 'utf8') )
+    self.assertEqual( 'this is kiwi', r2.read_file('kiwi.txt', codec = 'utf8') )
+    self.assertEqual( 'this is apple', r2.read_file('apple.txt', codec = 'utf8') )
+
+    r3 = r1.make_temp_cloned_repo()
+    self.assertEqual( 'this is foo', r3.read_file('foo.txt', codec = 'utf8') )
+    self.assertEqual( 'this is kiwi', r3.read_file('kiwi.txt', codec = 'utf8') )
+    self.assertEqual( 'this is apple', r3.read_file('apple.txt', codec = 'utf8') )
     
   @git_temp_home_func()
   def test_operation_with_reset_with_conflict(self):

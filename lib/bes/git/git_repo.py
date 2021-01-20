@@ -18,6 +18,7 @@ from .git_commit_hash import git_commit_hash
 from .git_error import git_error
 from .git_exe import git_exe
 from .git_modules_file import git_modules_file
+from .git_operation_base import git_operation_base
 
 #import warnings
 #with warnings.catch_warnings():
@@ -423,10 +424,13 @@ class git_repo(object):
       operation_spec = inspect_util.getargspec(operation)
       if len(operation_spec[0]) != 1:
         raise git_error('operation should take exactly one argument.')
+    elif isinstance(operation, git_operation_base):
+      pass
+    elif check.is_seq(operation, git_operation_base):
+      pass
     else:
-      if not check.is_operation(operation) and not check.is_operation_seq(operation):
-        raise TypeError('operation should be one or more objects that implement the git_operation_base interface.')
-    
+      raise TypeError('operation should be one or more objects that implement the git_operation_base interface.')
+      
     check.check_string(commit_message)
     check.check_int(num_tries, allow_none = True)
     check.check_float(retry_wait_seconds, allow_none = True)
@@ -473,9 +477,9 @@ class git_repo(object):
   def _call_operation(self, operation):
     if check.is_function(operation):
       operation(self)
-    elif check.is_operation(operation):
+    elif isinstance(operation, git_operation_base):
       operation.run(self)
-    elif check.is_operation_seq(operation):
+    elif check.is_seq(operation, git_operation_base):
       for op in operation:
         op.run(self)
     
