@@ -5,16 +5,17 @@ import sys
 import os.path as path
 import multiprocessing
 
-from bes.testing.unit_test import unit_test
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
-from bes.system.env_override import env_override_temp_home_func
-from bes.system.execute import execute
 from bes.git.git import git
+from bes.git.git_error import git_error
 from bes.git.git_repo import git_repo
 from bes.git.git_status import git_status
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
+from bes.system.env_override import env_override_temp_home_func
+from bes.system.execute import execute
+from bes.testing.unit_test import unit_test
 
 class test_git_repo(unit_test):
 
@@ -1181,6 +1182,23 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r.tag('t2')
     r.tag('t3', commit = c1)
     self.assertEqual( c3, r.ref_info('t3').commit_short )
+
+  @git_temp_home_func()
+  def test_operation_with_reset_wrong_function_args(self):
+    r1 = self._make_repo()
+    r1.write_temp_content([
+      'file foo.txt "this is foo" 644',
+    ])
+    r1.add([ 'foo.txt' ])
+    r1.commit('add foo.txt', [ 'foo.txt' ])
+    r1.push('origin', 'master')
+
+    r2 = r1.make_temp_cloned_repo()
+
+    def _op(repo, bad_arg):
+      pass
+    with self.assertRaises(git_error) as ctx:
+      r2.operation_with_reset(_op, 'add bar.txt')
     
 if __name__ == '__main__':
   unit_test.main()
