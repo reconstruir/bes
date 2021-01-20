@@ -17,3 +17,11 @@ class vmware_cli_handler(cli_command_handler):
   def vm_run_program(self, vm_id, username, password, program, copy_vm):
     rv = self._vmware.run_program(vm_id, username, password, program, copy_vm)
     return rv.exit_code
+
+  def vm_clone(self, vm_id, dst_vmx_filename, full, snapshot_name, clone_name):
+    rv = self._vmware.clone(vm_id,
+                            dst_vmx_filename,
+                            full = full,
+                            snapshot_name = snapshot_name,
+                            clone_name = clone_name)
+    return rv.exit_code

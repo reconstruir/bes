@@ -31,6 +31,11 @@ class vmware_app(vmware_app_base):
   def ensure_stopped(self):
     'Ensure vmware is stopped.'
     self._impl.ensure_stopped()
+
+  #@abstractmethod
+  def host_type(self):
+    'Host type form vmrun authentication.'
+    self._impl.host_type()
     
   @classmethod
   def _find_impl_class(clazz):

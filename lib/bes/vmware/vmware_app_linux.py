@@ -25,4 +25,9 @@ class vmware_app_linux(platform_determiner_base):
   def ensure_stopped(self):
     'Ensure vmware is stopped.'
     raise NotImplemented('ensure_stopped')
+
+  #@abstractmethod
+  def host_type(self):
+    'Host type form vmrun authentication.'
+    return 'ws'
   

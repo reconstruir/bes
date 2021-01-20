@@ -46,3 +46,8 @@ end tell
     tmp_applescript = temp_file.make_temp_file(content = tmp_applescript_content, suffix = '.scpt')
     cmd = [ 'osascript', tmp_applescript ]
     execute.execute(cmd)
+
+  #@abstractmethod
+  def host_type(self):
+    'Host type form vmrun authentication.'
+    return 'fusion'

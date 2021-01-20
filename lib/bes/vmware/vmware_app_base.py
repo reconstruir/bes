@@ -25,3 +25,9 @@ class vmware_app_base(with_metaclass(ABCMeta, object)):
   def ensure_stopped(self):
     'Ensure vmware is stopped.'
     raise NotImplemented('ensure_stopped')
+
+  #@abstractmethod
+  def host_type(self):
+    'Host type form vmrun authentication.'
+    raise NotImplemented('host_type')
+  
