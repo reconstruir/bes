@@ -41,8 +41,12 @@ class test_http_download_cache(unit_test):
 
     url1 = self._make_url(port, 'foo.txt')
     self.assertFalse( cache.has_url(url1) )
+    self.assertEqual( 0, cache.download_count )
     self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url1), codec = 'utf-8') )
     self.assertTrue( cache.has_url(url1) )
+    self.assertEqual( 1, cache.download_count )
+    self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url1), codec = 'utf-8') )
+    self.assertEqual( 1, cache.download_count )
     self.assertEqual( [
       'http___localhost_{}_foo.txt'.format(server.address[1]),
     ], cache.find_all_files(relative = True) )
@@ -75,14 +79,19 @@ class test_http_download_cache(unit_test):
 
     url1 = self._make_url(port, 'foo.txt')
     self.assertFalse( cache.has_url(url1) )
+    self.assertEqual( 0, cache.download_count )
     self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url1), codec = 'utf-8') )
     self.assertTrue( cache.has_url(url1) )
+    self.assertEqual( 1, cache.download_count )
+    self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url1), codec = 'utf-8') )
+    self.assertEqual( 1, cache.download_count )
     self.assertEqual( [
       'http___localhost_{}_foo.txt.gz'.format(server.address[1]),
     ], cache.find_all_files(relative = True) )
 
     url2 = self._make_url(port, 'subdir/subberdir/baz.txt')
     self.assertFalse( cache.has_url(url2) )
+    self.assertEqual( "this is baz.txt\n", file_util.read(cache.get_url(url2), codec = 'utf-8') )
     self.assertEqual( "this is baz.txt\n", file_util.read(cache.get_url(url2), codec = 'utf-8') )
     self.assertTrue( cache.has_url(url2) )
     self.assertEqual( [

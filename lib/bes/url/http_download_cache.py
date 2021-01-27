@@ -25,6 +25,7 @@ class http_download_cache(object):
     '''
     self.root_dir = root_dir
     self.compressed = compressed
+    self.download_count = 0
     
   def has_url(self, url):
     'Return True if the tarball with address and revision is in the cache.'
@@ -50,6 +51,7 @@ class http_download_cache(object):
         self.log.log_d('get_url: found in cache. using: %s' % (local_cached_path_rel))
         return self._uncompress_if_needed(local_cached_path)
     tmp = self._download_to_tmp_file(url, cookies = cookies, debug = debug, auth = auth)
+    self.download_count += 1
     self.log.log_d('get_url: downloaded url to %s' % (tmp))
     if not tmp:
       self.log.log_d('get_url: failed to download: %s' % (url))
@@ -107,6 +109,7 @@ class http_download_cache(object):
       result = tmp_uncompressed_file
     else:
       result = filename
+    return result
 
   def find_all_files(self, relative = True):
     'Return all files in the cache.'
