@@ -39,16 +39,59 @@ class test_http_download_cache(unit_test):
 
     cache = http_download_cache(temp_file.make_temp_dir())
 
-    url = self._make_url(port, 'foo.txt')
+    url1 = self._make_url(port, 'foo.txt')
+    self.assertFalse( cache.has_url(url1) )
+    self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url1), codec = 'utf-8') )
+    self.assertTrue( cache.has_url(url1) )
+    self.assertEqual( [
+      'http___localhost_{}_foo.txt'.format(server.address[1]),
+    ], cache.find_all_files(relative = True) )
 
-    self.assertFalse( cache.has_url(url) )
-    self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url), codec = 'utf-8') )
-    self.assertTrue( cache.has_url(url) )
-
-    
+    url2 = self._make_url(port, 'subdir/subberdir/baz.txt')
+    self.assertFalse( cache.has_url(url2) )
+    self.assertEqual( "this is baz.txt\n", file_util.read(cache.get_url(url2), codec = 'utf-8') )
+    self.assertTrue( cache.has_url(url2) )
+    self.assertEqual( [
+      'http___localhost_{}_foo.txt'.format(port),
+      'http___localhost_{}_subdir_subberdir_baz.txt'.format(port),
+    ], cache.find_all_files(relative = True) )
     
     server.stop()
 
+  def test_compressed(self):
+    tmp_dir = self._make_temp_content([
+      'file foo.txt "this is foo.txt\n"',
+      'file subdir/bar.txt "bar.txt\n"',
+      'file subdir/subberdir/baz.txt "this is baz.txt\n"',
+      'file emptyfile.txt',
+      'dir emptydir',
+    ])
+
+    server = web_server_controller(file_web_server)
+    server.start(root_dir = tmp_dir)
+    port = server.address[1]
+
+    cache = http_download_cache(temp_file.make_temp_dir(), compressed = True)
+
+    url1 = self._make_url(port, 'foo.txt')
+    self.assertFalse( cache.has_url(url1) )
+    self.assertEqual( "this is foo.txt\n", file_util.read(cache.get_url(url1), codec = 'utf-8') )
+    self.assertTrue( cache.has_url(url1) )
+    self.assertEqual( [
+      'http___localhost_{}_foo.txt.gz'.format(server.address[1]),
+    ], cache.find_all_files(relative = True) )
+
+    url2 = self._make_url(port, 'subdir/subberdir/baz.txt')
+    self.assertFalse( cache.has_url(url2) )
+    self.assertEqual( "this is baz.txt\n", file_util.read(cache.get_url(url2), codec = 'utf-8') )
+    self.assertTrue( cache.has_url(url2) )
+    self.assertEqual( [
+      'http___localhost_{}_foo.txt.gz'.format(port),
+      'http___localhost_{}_subdir_subberdir_baz.txt.gz'.format(port),
+    ], cache.find_all_files(relative = True) )
+    
+    server.stop()
+    
   @classmethod
   def _make_url(clazz, port, p):
     base = 'http://localhost:%d' % (port)
