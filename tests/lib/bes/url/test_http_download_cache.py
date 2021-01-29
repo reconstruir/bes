@@ -15,6 +15,7 @@ from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.url.http_download_cache import http_download_cache
 from bes.fs.testing.temp_content import temp_content
+from bes.fs.compressed_file import compressed_file
 
 class test_http_download_cache(unit_test):
 
@@ -98,6 +99,36 @@ class test_http_download_cache(unit_test):
       'http___localhost_{}_foo.txt.gz'.format(port),
       'http___localhost_{}_subdir_subberdir_baz.txt.gz'.format(port),
     ], cache.find_all_files(relative = True) )
+    
+    server.stop()
+
+  def test_compressed_no_uncompress(self):
+    tmp_dir = self._make_temp_content([
+      'file foo.txt "this is foo.txt\n"',
+      'file subdir/bar.txt "bar.txt\n"',
+      'file subdir/subberdir/baz.txt "this is baz.txt\n"',
+      'file emptyfile.txt',
+      'dir emptydir',
+    ])
+
+    server = web_server_controller(file_web_server)
+    server.start(root_dir = tmp_dir)
+    port = server.address[1]
+
+    cache = http_download_cache(temp_file.make_temp_dir(), compressed = True)
+
+    url1 = self._make_url(port, 'foo.txt')
+    self.assertFalse( cache.has_url(url1) )
+    self.assertEqual( 0, cache.download_count )
+    cached_filename = cache.get_url(url1, uncompress = False)
+    tmp_uncompressed_file = self.make_temp_file()
+    compressed_file.uncompress(cached_filename, tmp_uncompressed_file)
+    self.assertEqual( "this is foo.txt\n", file_util.read(tmp_uncompressed_file, codec = 'utf-8') )
+
+    cached_filename = cache.get_url(url1, uncompress = False)
+    tmp_uncompressed_file = self.make_temp_file()
+    compressed_file.uncompress(cached_filename, tmp_uncompressed_file)
+    self.assertEqual( "this is foo.txt\n", file_util.read(tmp_uncompressed_file, codec = 'utf-8') )
     
     server.stop()
     

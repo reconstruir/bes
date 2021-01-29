@@ -32,7 +32,7 @@ class http_download_cache(object):
     local_cached_path = self._local_path_for_url(url)
     return path.exists(local_cached_path)
 
-  def get_url(self, url, checksum = None, cookies = None, debug = False, auth = None):
+  def get_url(self, url, checksum = None, cookies = None, debug = False, auth = None, uncompress = True):
     'Return the local filesystem path to the tarball with address and revision.'
     self.log.log_d('get_url: url=%s; checksum=%s; cookies=%s' % (url, checksum, cookies))
     local_cached_path = self._local_path_for_url(url)
@@ -42,35 +42,52 @@ class http_download_cache(object):
       if path.exists(local_cached_path):
         if self._local_checksum(local_cached_path) == checksum:
           self.log.log_d('get_url: found in cache with good checksum. using: %s' % (local_cached_path_rel))
-          return self._uncompress_if_needed(local_cached_path)
+          result = self._uncompress_if_needed(local_cached_path, uncompress)
+          self.log.log_d('get_url: 1 result={}'.format(result))
+          return result
         else:
           self.log.log_w('get_url: found in cache with BAD checksum. removing: %s' % (local_cached_path_rel))
           file_util.remove(local_cached_path)
     else:
       if path.exists(local_cached_path):
         self.log.log_d('get_url: found in cache. using: %s' % (local_cached_path_rel))
-        return self._uncompress_if_needed(local_cached_path)
+        result = self._uncompress_if_needed(local_cached_path, uncompress)
+        self.log.log_d('get_url: 2 result={}'.format(result))
+        return result
     tmp = self._download_to_tmp_file(url, cookies = cookies, debug = debug, auth = auth)
     self.download_count += 1
     self.log.log_d('get_url: downloaded url to %s' % (tmp))
     if not tmp:
       self.log.log_d('get_url: failed to download: %s' % (url))
+      self.log.log_d('get_url: 3 result={}'.format(None))
       return None
     if not checksum:
       if self.compressed:
         compressed_file.compress(tmp, local_cached_path)
-        return tmp
+        if uncompress:
+          result = tmp
+        else:
+          result = local_cached_path
+        self.log.log_d('get_url: 4 result={}'.format(result))
+        return result
       else:
         file_util.rename(tmp, local_cached_path)
+        self.log.log_d('get_url: 5 result={}'.format(local_cached_path))
         return local_cached_path
     actual_checksum = file_util.checksum('sha256', tmp)
     if actual_checksum == checksum:
       self.log.log_d('get_url: download succesful and checksum is good.  using: %s' % (local_cached_path_rel))
       if self.compressed:
         compressed_file.compress(tmp, local_cached_path)
-        return tmp
+        if uncompress:
+          result = tmp
+        else:
+          result = local_cached_path
+        self.log.log_d('get_url: 6 result={}'.format(result))
+        return result
       else:
         file_util.rename(tmp, local_cached_path)
+        self.log.log_d('get_url: 7 result={}'.format(local_cached_path))
         return local_cached_path
     else:
       self.log.log_e('get_url: download worked but checksum was WRONG: {}'.format(url))
@@ -78,6 +95,7 @@ class http_download_cache(object):
       self.log.log_e('get_url: expected: %s' % (checksum))
       self.log.log_e('get_url:   actual: %s' % (actual_checksum))
       #self.log.log_e('content:\n{}\n'.format(file_util.read(tmp, codec = 'utf8')))
+      self.log.log_d('get_url: 8 result={}'.format(None))
       return None
     
   def _local_path_for_url(self, url):
@@ -102,11 +120,14 @@ class http_download_cache(object):
     else:
       result = file_util.checksum('sha256', filename)
 
-  def _uncompress_if_needed(self, filename):
+  def _uncompress_if_needed(self, filename, uncompress):
     if self.compressed:
-      tmp_uncompressed_file = temp_file.make_temp_file()
-      compressed_file.uncompress(filename, tmp_uncompressed_file)
-      result = tmp_uncompressed_file
+      if uncompress:
+        tmp_uncompressed_file = temp_file.make_temp_file()
+        compressed_file.uncompress(filename, tmp_uncompressed_file)
+        result = tmp_uncompressed_file
+      else:
+        result = filename
     else:
       result = filename
     return result
