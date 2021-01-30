@@ -525,6 +525,7 @@ class test_git_repo(unit_test):
     
   @git_temp_home_func()
   def test_submodule_set_branch(self):
+
     sub_content = [
       'file subfoo.txt "this is subfoo" 644',
     ]

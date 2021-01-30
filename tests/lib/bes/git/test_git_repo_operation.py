@@ -203,6 +203,40 @@ class test_git_repo(unit_test):
       pass
     with self.assertRaises(git_error) as ctx:
       r2.operation_with_reset(_op, 'add bar.txt')
+
+  @git_temp_home_func()
+  def test_dirty_submodule(self):
+    sub_content = [
+      'file subfoo.txt "this is subfoo" 644',
+    ]
+    sub_repo = self._make_repo(remote = True, content = sub_content)
+
+    r1 = self._make_repo()
+    r1.write_temp_content([
+      'file foo.txt "this is foo" 644',
+    ])
+    r1.add([ 'foo.txt' ])
+    r1.commit('add foo.txt', [ 'foo.txt' ])
+    r1.submodule_add(sub_repo.address, 'mod')
+    r1.push('origin', 'master')
+
+    r2 = r1.make_temp_cloned_repo()
+    r3 = r1.make_temp_cloned_repo()
+
+    def _op2(repo):
+      repo.write_temp_content([
+        'file foo.txt "this is foo 2" 644',
+      ])
+    r2.operation_with_reset(_op2, 'hack foo.txt to 2')
+
+    sub_repo.add_file('sub_orange.txt', 'this is sub_orange.txt', push = True)
     
+    def _op3(repo):
+      repo.write_temp_content([
+        'file foo.txt "this is foo 3" 644',
+      ])
+    r3.operation_with_reset(_op3, 'hack foo.txt to 3')
+    self.assertEqual( 'this is foo 3', r3.read_file('foo.txt', codec = 'utf8') )
+
 if __name__ == '__main__':
   unit_test.main()
