@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
+
 from bes.common.string_util import string_util
 from bes.fs.file_mime import file_mime
 from bes.fs.file_util import file_util

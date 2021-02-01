@@ -9,7 +9,8 @@ class vmware_cli_args(object):
     
     # vm_run_program
     p = subparser.add_parser('vm_run_program', help = 'Run a program in a vm.')
-    p.add_argument('--copy', action = 'store', type = str, default = None,
+    p.add_argument('--copy', action = 'store_true', default = False,
+                   dest = 'copy_vm',
                    help = 'Run the program in a copy of the vm [ False ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
@@ -20,7 +21,7 @@ class vmware_cli_args(object):
     p.add_argument('program', action = 'store', default = [], nargs = '*',
                    help = 'The program and optional arguments [ ]')
 
-    # vm_run_program
+    # vm_clone
     p = subparser.add_parser('vm_clone', help = 'Clone a vm.')
     p.add_argument('--snapshot', action = 'store', type = str, default = None,
                    dest = 'snapshot_name',

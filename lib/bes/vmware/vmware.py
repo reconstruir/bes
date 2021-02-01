@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from os import path
+import os.path as path
 
 from bes.system.log import logger
 from bes.system.command_line import command_line
@@ -8,12 +8,13 @@ from bes.system.host import host
 from bes.common.check import check
 from bes.fs.file_find import file_find
 
+from .vmware_app import vmware_app
 from .vmware_error import vmware_error
-from .vmware_preferences import vmware_preferences
 from .vmware_local_vm import vmware_local_vm
+from .vmware_preferences import vmware_preferences
 from .vmware_session import vmware_session
 from .vmware_vmrun_exe import vmware_vmrun_exe
-from .vmware_app import vmware_app
+from .vmware_vmx_file import vmware_vmx_file
 
 class vmware(object):
 
@@ -61,12 +62,14 @@ class vmware(object):
       vmx_filename,
       '-interactive',
     ] + program_args
+    print('args: {} - {}'.format(type(args), args))
     rv = vmware_vmrun_exe.call_vmrun(args)
     return rv
 
-                         full|linked
-                         [-snapshot=Snapshot Name]
-                         [-cloneName=Name]
+  #
+  #                       full|linked
+  #                       [-snapshot=Snapshot Name]
+  #                       [-cloneName=Name]
   
   def vm_clone(self, vm_id, dst_vmx_filename, full = False, snapshot_name = None, clone_name = None):
     check.check_string(vm_id)
