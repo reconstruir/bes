@@ -6,11 +6,14 @@ from bes.common.check import check
 
 from .vmware_vmx_file import vmware_vmx_file
 
-class vmware_vm(namedtuple('vmware_vm', 'name, vm_id, path')):
+class vmware_vm(namedtuple('vmware_vm', 'name, vm_id, vmx_filename')):
   'A class to represent a vmware vm.'
   
-  def __new__(clazz, vm_id, path):
+  def __new__(clazz, vm_id, vmx_filename):
     check.check_string(vm_id)
-    check.check_string(path)
+    check.check_string(vmx_filename)
 
-    return clazz.__bases__[0].__new__(clazz, vmware_vmx_file.nickname(path), vm_id, path)
+    return clazz.__bases__[0].__new__(clazz,
+                                      vmware_vmx_file.nickname(vmx_filename),
+                                      vm_id,
+                                      vmx_filename)

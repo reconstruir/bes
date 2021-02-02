@@ -24,15 +24,17 @@ class vmware_client_commands(object):
 
   def vms(self):
     vms = self._client.vms()
+    if not vms:
+      return 0
     tt = text_table(data = vms)
-    tt.set_labels( ( 'NAME', 'ID', 'PATH' ) )
+    tt.set_labels( tuple([ f.upper() for f in vms[0]._fields ]) ) #( 'NAME', 'ID', 'VMX_FILENAME' ) )
     print(tt)
     return 0
 
   def vm_settings(self, vm_id):
     check.check_string(vm_id)
 
-    vm_id = self._resolve_vm_id(vm_id)
+    vm_id = self.resolve_vm_id(vm_id)
     settings = self._client.vm_settings(vm_id)
     print(pprint.pformat(settings))
     return 0
@@ -41,7 +43,7 @@ class vmware_client_commands(object):
     check.check_string(vm_id)
     check.check_string(key)
     
-    vm_id = self._resolve_vm_id(vm_id)
+    vm_id = self.resolve_vm_id(vm_id)
     config = self._client.vm_config(vm_id, key)
     print(config)
     return 0
@@ -51,7 +53,7 @@ class vmware_client_commands(object):
     check.check_string(state, allow_none = True)
     check.check_string(wait, allow_none = True)
 
-    vm_id = self._resolve_vm_id(vm_id)
+    vm_id = self.resolve_vm_id(vm_id)
     if state != None:
       self._client.vm_set_power(vm_id, state, wait = wait)
       if self._options.verbose:
@@ -75,7 +77,7 @@ class vmware_client_commands(object):
   def vm_mac_address(self, vm_id):
     check.check_string(vm_id)
     
-    vm_id = self._resolve_vm_id(vm_id)
+    vm_id = self.resolve_vm_id(vm_id)
     mac_address = self._client.vm_get_mac_address(vm_id)
     print(mac_address)
     return 0
@@ -83,7 +85,7 @@ class vmware_client_commands(object):
   def vm_ip_address(self, vm_id):
     check.check_string(vm_id)
     
-    vm_id = self._resolve_vm_id(vm_id)
+    vm_id = self.resolve_vm_id(vm_id)
     ip_address = self._client.vm_get_ip_address(vm_id)
     print(ip_address)
     return 0
@@ -91,7 +93,7 @@ class vmware_client_commands(object):
   def vm_shared_folders(self, vm_id):
     check.check_string(vm_id)
     
-    vm_id = self._resolve_vm_id(vm_id)
+    vm_id = self.resolve_vm_id(vm_id)
     shared_folders = self._client.vm_get_shared_folders(vm_id)
     tt = text_table(data = shared_folders)
     tt.set_labels( ( 'FOLDER_ID', 'PATH', 'PATH_ABS', 'FLAGS' ) )
@@ -104,7 +106,7 @@ class vmware_client_commands(object):
     check.check_string(host_path)
     check.check_int(flags)
     
-    vm_id = self._resolve_vm_id(vm_id)
+    vm_id = self.resolve_vm_id(vm_id)
     shared_folders = self._client.vm_update_shared_folder(vm_id, folder_id, host_path, flags)
     tt = text_table(data = shared_folders)
     tt.set_labels( ( 'FOLDER_ID', 'PATH', 'PATH_ABS', 'FLAGS' ) )
@@ -117,7 +119,7 @@ class vmware_client_commands(object):
     check.check_string(host_path)
     check.check_int(flags)
     
-    vm_id = self._resolve_vm_id(vm_id)
+    vm_id = self.resolve_vm_id(vm_id)
     shared_folders = self._client.vm_add_shared_folder(vm_id, folder_id, host_path, flags)
     tt = text_table(data = shared_folders)
     tt.set_labels( ( 'FOLDER_ID', 'PATH', 'PATH_ABS', 'FLAGS' ) )
@@ -128,7 +130,7 @@ class vmware_client_commands(object):
     check.check_string(vm_id)
     check.check_string(folder_id)
     
-    vm_id = self._resolve_vm_id(vm_id)
+    vm_id = self.resolve_vm_id(vm_id)
     shared_folders = self._client.vm_delete_shared_folder(vm_id, folder_id)
     return 0
 
@@ -136,7 +138,7 @@ class vmware_client_commands(object):
     check.check_string(vm_id)
     check.check_string(folder_id)
     
-    vm_id = self._resolve_vm_id(vm_id)
+    vm_id = self.resolve_vm_id(vm_id)
     shared_folders = self._client.vm_delete_shared_folder(vm_id, folder_id)
     return 0
 
@@ -144,14 +146,14 @@ class vmware_client_commands(object):
     check.check_string(vm_id)
     check.check_string(new_vm_id)
     
-    vm_id = self._resolve_vm_id(vm_id)
+    vm_id = self.resolve_vm_id(vm_id)
     shared_folders = self._client.vm_copy(vm_id, new_vm_id)
     return 0
 
   def vm_delete(self, vm_id):
     check.check_string(vm_id)
     
-    vm_id = self._resolve_vm_id(vm_id)
+    vm_id = self.resolve_vm_id(vm_id)
     shared_folders = self._client.vm_delete(vm_id)
     return 0
   
@@ -159,12 +161,12 @@ class vmware_client_commands(object):
     check.check_string(vm_id)
     check.check_string(wait, allow_none = True)
     
-    vm_id = self._resolve_vm_id(vm_id)
+    vm_id = self.resolve_vm_id(vm_id)
     self._client.vm_set_power(vm_id, 'off')
     self._client.vm_set_power(vm_id, 'on', wait = wait)
     return 0
   
-  def _resolve_vm_id(self, name):
+  def resolve_vm_id(self, name):
     vm_id = self._client.vm_name_to_id(name)
     if not vm_id:
       raise vmware_error('Unknown vm: "{}"'.format(name))

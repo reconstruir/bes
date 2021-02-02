@@ -18,7 +18,7 @@ from .vmware_vmx_file import vmware_vmx_file
 
 class vmware(object):
 
-  logger = logger('vmware')
+  _log = logger('vmware')
   
   def __init__(self, vm_dir = None):
     self._preferences_filename = vmware_preferences.default_preferences_filename()
@@ -48,21 +48,35 @@ class vmware(object):
       self._session.start()
     return self._session
 
-  def run_program(self, vm_id, username, password, program, copy_vm):
+  def run_program(self, vm_id, username, password, program, copy_vm, dont_ensure):
     check.check_string(vm_id)
     check.check_string(username)
     check.check_string(password)
     check.check_string_seq(program)
     check.check_bool(copy_vm)
-    
+    check.check_bool(dont_ensure)
+
     vmx_filename = self._resolve_vmx_filename(vm_id)
+    self._log.log_d('run_program: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
+
+    if not dont_ensure:
+      resolved_vm_id = self.session.resolve_vm_id(vm_id)
+      self._log.log_d('run_program: resolved_vm_id={}'.format(resolved_vm_id))
+      self._log.log_d('run_program: ensuring vmware is running')
+      self._app.ensure_running()
+
+      #self.session.call_client('', *args, **kargs)
+      
+      self._log.log_d('run_program: ensuring vmware is running')
+      #rest_vms = self.session.client.vms()
+
     program_args = command_line.parse_args(program)
     args = self._authentication_args() + [
       'runProgramInGuest',
       vmx_filename,
       '-interactive',
     ] + program_args
-    print('args: {} - {}'.format(type(args), args))
+    self._log.log_d('run_program: args={}'.format(args))
     rv = vmware_vmrun_exe.call_vmrun(args)
     return rv
 

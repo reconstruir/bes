@@ -23,7 +23,9 @@ class command_line(object):
     if compat.is_string(args):
       flat_args = args
     elif isinstance(args, ( list, tuple )):
-      for arg in args:
+      for i, arg in enumerate(args, 1):
+        if arg == None:
+          raise TypeError('arg number {} cannot be "None":  "{}"'.format(i, args))
         if not compat.is_string(arg):
           raise TypeError('arg should be a string instead of: "{}" - {}'.format(args, type(arg)))
       flat_args = ' '.join(args)

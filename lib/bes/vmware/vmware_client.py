@@ -202,7 +202,7 @@ class vmware_client(object):
 
     vms = self.vms()
     for vm in vms:
-      if name in [ vm.name, vm.vm_id ]:
+      if name in [ vm.name, vm.vm_id, vm.vmx_filename ]:
         return vm.vm_id
     return None
   

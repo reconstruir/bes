@@ -53,3 +53,6 @@ class vmware_session(object):
       raise vmware_error('session not started.  call start() first')
     func = getattr(self.client, method_name)
     return func(*args, **kargs)
+
+  def resolve_vm_id(self, name):
+    return self.call_client('vm_name_to_id', name)
