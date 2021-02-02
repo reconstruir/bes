@@ -27,7 +27,7 @@ class vmware_client_commands(object):
     if not vms:
       return 0
     tt = text_table(data = vms)
-    tt.set_labels( tuple([ f.upper() for f in vms[0]._fields ]) ) #( 'NAME', 'ID', 'VMX_FILENAME' ) )
+    tt.set_labels( tuple([ f.upper() for f in vms[0]._fields ]) )
     print(tt)
     return 0
 
