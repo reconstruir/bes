@@ -8,6 +8,7 @@ from bes.system.host import host
 from bes.common.check import check
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
+from bes.archive.archiver import archiver
 
 from .vmware_app import vmware_app
 from .vmware_error import vmware_error
@@ -58,18 +59,9 @@ class vmware(object):
     check.check_bool(dont_ensure)
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('run_program: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
+    self._log.log_d('vm_run_program: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
 
-    if not dont_ensure:
-      resolved_vm_id = self.session.resolve_vm_id(vm_id)
-      self._log.log_d('run_program: resolved_vm_id={}'.format(resolved_vm_id))
-      self._log.log_d('run_program: ensuring vmware is running')
-      self._app.ensure_running()
-
-      #self.session.call_client('', *args, **kargs)
-      
-      self._log.log_d('run_program: ensuring vmware is running')
-      #rest_vms = self.session.client.vms()
+    self._ensure_running_if_needed(vm_id, dont_ensure)
 
     program_args = command_line.parse_args(program)
     args = self._authentication_args(username = username, password = password) + [
@@ -77,14 +69,49 @@ class vmware(object):
       vmx_filename,
       '-interactive',
     ] + program_args
-    self._log.log_d('run_program: args={}'.format(args))
+    self._log.log_d('vm_run_program: args={}'.format(args))
     rv = vmware_vmrun_exe.call_vmrun(args)
     return rv
 
-  #
-  #                       full|linked
-  #                       [-snapshot=Snapshot Name]
-  #                       [-cloneName=Name]
+  def vm_run_package(self, vm_id, username, password, package_dir, entry_command, copy_vm, dont_ensure):
+    check.check_string(vm_id)
+    check.check_string(username)
+    check.check_string(password)
+    check.check_string(package_dir)
+    check.check_string(entry_command)
+    check.check_bool(copy_vm)
+    check.check_bool(dont_ensure)
+
+    if not path.isdir(package_dir):
+      raise vmware_error('package_dir not found or not a dir: "{}"'.format(package_dir))
+
+    vmx_filename = self._resolve_vmx_filename(vm_id)
+    self._log.log_d('vm_run_package: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
+
+    self._ensure_running_if_needed(vm_id, dont_ensure)
+    
+    tmp_package = archiver.create_temp_file('zip', package_dir)
+    tmp_basename = path.basename(tmp_package)
+    #def vm_copy_to(self, vm_id, username, password, local_filename, remote_filename):
+    
+    program_args = command_line.parse_args(program)
+    args = self._authentication_args(username = username, password = password) + [
+      'runProgramInGuest',
+      vmx_filename,
+      '-interactive',
+    ] + program_args
+    self._log.log_d('vm_run_package: args={}'.format(args))
+    rv = vmware_vmrun_exe.call_vmrun(args)
+    return rv
+  
+  def _ensure_running_if_needed(self, vm_id, dont_ensure):
+    if dont_ensure:
+      self._log.log_d('_ensure_running_if_needed: doing nothing cause dont_ensure is True')
+      return
+    
+    resolved_vm_id = self.session.resolve_vm_id(vm_id)
+    self._log.log_d('_ensure_running_if_needed: ensuring vm {}:{} is running'.format(vm_id, resolved_vm_id))
+    self._app.ensure_running()
   
   def vm_clone(self, vm_id, dst_vmx_filename, full = False, snapshot_name = None, clone_name = None):
     check.check_string(vm_id)
@@ -136,12 +163,13 @@ class vmware(object):
       args.extend([ '-gp', password ])
     return args
 
-  def vm_copy_to(self, vm_id, username, password, local_filename, remote_filename):
+  def vm_copy_to(self, vm_id, username, password, local_filename, remote_filename, dont_ensure):
     check.check_string(vm_id)
     check.check_string(username)
     check.check_string(password)
     check.check_string(local_filename)
     check.check_string(remote_filename)
+    check.check_bool(dont_ensure)
 
     src_vmx_filename = self._resolve_vmx_filename(vm_id)
     
@@ -157,12 +185,13 @@ class vmware(object):
     ]
     vmware_vmrun_exe.call_vmrun(args, raise_error = True)
 
-  def vm_copy_from(self, vm_id, username, password, remote_filename, local_filename):
+  def vm_copy_from(self, vm_id, username, password, remote_filename, local_filename, dont_ensure):
     check.check_string(vm_id)
     check.check_string(username)
     check.check_string(password)
     check.check_string(remote_filename)
     check.check_string(local_filename)
+    check.check_bool(dont_ensure)
 
     src_vmx_filename = self._resolve_vmx_filename(vm_id)
     

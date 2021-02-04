@@ -24,6 +24,25 @@ class vmware_cli_args(object):
     p.add_argument('program', action = 'store', default = [], nargs = '*',
                    help = 'The program and optional arguments [ ]')
 
+    # vm_run_package
+    p = subparser.add_parser('vm_run_package', help = 'Run a package in a vm.')
+    p.add_argument('--copy', action = 'store_true', default = False,
+                   dest = 'copy_vm',
+                   help = 'Run the package in a copy of the vm [ False ]')
+    p.add_argument('--dont-ensure', action = 'store_true', default = False,
+                   dest = 'dont_ensure',
+                   help = 'Dont ensure that both vmware and the vm are running [ False ]')
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    p.add_argument('username', action = 'store', type = str, default = None,
+                   help = 'VM username [ ]')
+    p.add_argument('password', action = 'store', type = str, default = None,
+                   help = 'VM username password [ ]')
+    p.add_argument('package_dir', action = 'store', default = None,
+                   help = 'The package source dir [ ]')
+    p.add_argument('entry_command', action = 'store', default = None,
+                   help = 'The entry command [ ]')
+    
     # vm_clone
     p = subparser.add_parser('vm_clone', help = 'Clone a vm.')
     p.add_argument('--snapshot', action = 'store', type = str, default = None,
@@ -38,6 +57,9 @@ class vmware_cli_args(object):
 
     # vm_copy_to
     p = subparser.add_parser('vm_copy_to', help = 'Copy a local file to a vm.')
+    p.add_argument('--dont-ensure', action = 'store_true', default = False,
+                   dest = 'dont_ensure',
+                   help = 'Dont ensure that both vmware and the vm are running [ False ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
     p.add_argument('username', action = 'store', type = str, default = None,
@@ -51,6 +73,9 @@ class vmware_cli_args(object):
 
     # vm_copy_from
     p = subparser.add_parser('vm_copy_from', help = 'Copy a remote vm file to a local file.')
+    p.add_argument('--dont-ensure', action = 'store_true', default = False,
+                   dest = 'dont_ensure',
+                   help = 'Dont ensure that both vmware and the vm are running [ False ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
     p.add_argument('username', action = 'store', type = str, default = None,
