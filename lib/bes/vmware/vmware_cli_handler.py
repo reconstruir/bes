@@ -15,7 +15,7 @@ class vmware_cli_handler(cli_command_handler):
     self._vmware = vmware()
 
   def vm_run_program(self, vm_id, username, password, program, copy_vm, dont_ensure):
-    rv = self._vmware.run_program(vm_id, username, password, program, copy_vm, dont_ensure)
+    rv = self._vmware.vm_run_program(vm_id, username, password, program, copy_vm, dont_ensure)
     return rv.exit_code
 
   def vm_clone(self, vm_id, dst_vmx_filename, full, snapshot_name, clone_name):
@@ -25,3 +25,7 @@ class vmware_cli_handler(cli_command_handler):
                             snapshot_name = snapshot_name,
                             clone_name = clone_name)
     return rv.exit_code
+
+  def vm_copy_to(self, vm_id, username, password, local_filename, remote_filename):
+    self._vmware.vm_copy_to(vm_id, username, password, local_filename, remote_filename)
+    return 0

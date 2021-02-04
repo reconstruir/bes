@@ -25,7 +25,7 @@ class vmware_vmrun_exe(object):
     clazz._log.log_d('call_vmrun: quoted_exe={} args={} - {}'.format(quoted_exe, args, type(args)))
     cmd = [ string_util.quote(exe) ] + command_line.parse_args(args)
     env = os_env.clone_current_env(d = {})
-    print('cmd={}'.format(cmd))
+    clazz._log.log_d('call_vmrun: cmd={}'.format(cmd))
     rv = execute.execute(cmd,
                          env = env,
                          shell = shell,

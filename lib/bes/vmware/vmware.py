@@ -48,7 +48,7 @@ class vmware(object):
       self._session.start()
     return self._session
 
-  def run_program(self, vm_id, username, password, program, copy_vm, dont_ensure):
+  def vm_run_program(self, vm_id, username, password, program, copy_vm, dont_ensure):
     check.check_string(vm_id)
     check.check_string(username)
     check.check_string(password)
@@ -71,7 +71,7 @@ class vmware(object):
       #rest_vms = self.session.client.vms()
 
     program_args = command_line.parse_args(program)
-    args = self._authentication_args() + [
+    args = self._authentication_args(username = username, password = password) + [
       'runProgramInGuest',
       vmx_filename,
       '-interactive',
@@ -134,3 +134,24 @@ class vmware(object):
     if password:
       args.extend([ '-gp', password ])
     return args
+
+  def vm_copy_to(self, vm_id, username, password, local_filename, remote_filename):
+    check.check_string(vm_id)
+    check.check_string(username)
+    check.check_string(password)
+    check.check_string(local_filename)
+    check.check_string(remote_filename)
+
+    src_vmx_filename = self._resolve_vmx_filename(vm_id)
+    
+    local_filename = path.abspath(local_filename)
+    if not path.isfile(local_filename):
+      raise vmware_error('local filename not found: "{}"'.format(local_filename))
+      
+    args = self._authentication_args(username = username, password = password) + [
+      'copyFileFromHostToGuest',
+      src_vmx_filename,
+      local_filename,
+      remote_filename,
+    ]
+    vmware_vmrun_exe.call_vmrun(args, raise_error = True)
