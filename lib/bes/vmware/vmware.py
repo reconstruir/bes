@@ -7,6 +7,7 @@ from bes.system.command_line import command_line
 from bes.system.host import host
 from bes.common.check import check
 from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
 
 from .vmware_app import vmware_app
 from .vmware_error import vmware_error
@@ -155,3 +156,22 @@ class vmware(object):
       remote_filename,
     ]
     vmware_vmrun_exe.call_vmrun(args, raise_error = True)
+
+  def vm_copy_from(self, vm_id, username, password, remote_filename, local_filename):
+    check.check_string(vm_id)
+    check.check_string(username)
+    check.check_string(password)
+    check.check_string(remote_filename)
+    check.check_string(local_filename)
+
+    src_vmx_filename = self._resolve_vmx_filename(vm_id)
+    
+    args = self._authentication_args(username = username, password = password) + [
+      'copyFileFromGuestToHost',
+      src_vmx_filename,
+      remote_filename,
+      local_filename,
+    ]
+    file_util.remove(local_filename)
+    vmware_vmrun_exe.call_vmrun(args, raise_error = True)
+    assert path.isfile(local_filename)

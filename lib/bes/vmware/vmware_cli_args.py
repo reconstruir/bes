@@ -48,6 +48,19 @@ class vmware_cli_args(object):
                    help = 'The local filename [ ]')
     p.add_argument('remote_filename', action = 'store', type = str, default = None,
                    help = 'The remote filename [ ]')
+
+    # vm_copy_from
+    p = subparser.add_parser('vm_copy_from', help = 'Copy a remote vm file to a local file.')
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    p.add_argument('username', action = 'store', type = str, default = None,
+                   help = 'VM username [ ]')
+    p.add_argument('password', action = 'store', type = str, default = None,
+                   help = 'VM username password [ ]')
+    p.add_argument('remote_filename', action = 'store', type = str, default = None,
+                   help = 'The remote filename [ ]')
+    p.add_argument('local_filename', action = 'store', type = str, default = None,
+                   help = 'The local filename [ ]')
     
   def _command_vmware(self, command, *args, **kargs):
     from .vmware_cli_handler import vmware_cli_handler
