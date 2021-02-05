@@ -8,6 +8,7 @@ from bes.system.host import host
 from bes.common.check import check
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
 from bes.archive.archiver import archiver
 
 from .vmware_app import vmware_app
@@ -73,12 +74,14 @@ class vmware(object):
     rv = vmware_vmrun_exe.call_vmrun(args)
     return rv
 
-  def vm_run_package(self, vm_id, username, password, package_dir, entry_command, copy_vm, dont_ensure):
+  def vm_run_package(self, vm_id, username, password, package_dir,
+                     entry_command, entry_command_args, copy_vm, dont_ensure):
     check.check_string(vm_id)
     check.check_string(username)
     check.check_string(password)
     check.check_string(package_dir)
     check.check_string(entry_command)
+    check.check_string_seq(entry_command_args)
     check.check_bool(copy_vm)
     check.check_bool(dont_ensure)
 
@@ -90,19 +93,108 @@ class vmware(object):
 
     self._ensure_running_if_needed(vm_id, dont_ensure)
     
-    tmp_package = archiver.create_temp_file('zip', package_dir)
-    tmp_basename = path.basename(tmp_package)
-    #def vm_copy_to(self, vm_id, username, password, local_filename, remote_filename):
+    tmp_local_package = archiver.create_temp_file('zip', package_dir)
+    tmp_remote_package = self._make_temp_tmp_filename(tmp_local_package)
+
+    driver_script_content = '''
+#!/bin/bash
+
+function _log()
+{
+  # uncomment this to log the actions of this driver script itself to a tty or file on the guest
+  return 0
+  local _LOG_DEST=/dev/ttys000
+  local _name="$(basename ${BASH_SOURCE[0]})"
+  printf "${_name}: "${1+"$@"} >& ${_LOG_DEST}
+  printf "\n\n" >& ${_LOG_DEST}
+  return 0
+}
+
+_log "script: ${BASH_SOURCE[0]}"
+set -e -x
+_log "after set"
+function main()
+{
+  _log "main starts"
+  local _name="$(basename ${BASH_SOURCE[0]})"
+  _log "_name=${_name}"
+  _log "args before: $*"
+  if [[ $# < 3 ]]; then
+    _log "bad args"
+    echo "usage: ${_name} package_zip entry_command output_log"
+    _log "return 1"
+    return 1
+  fi
+  _log "num args check passed"
+  local _package_zip="${1}"
+  shift
+  local _entry_command="${1}"
+  shift
+  local _output_log="${1}"
+  shift
+  _log "args after: $*"
+  _log "_package_zip=${_package_zip} _entry_command=${_entry_command} _output_log=${_output_log}"
+  local _tmp="$(mktemp -d /tmp/${_name}.XXXXXX)"
+  rm -rf ${_tmp}
+  mkdir -p ${_tmp}
+  cd ${_tmp}
+  unzip "${_package_zip}"
+  local _output_log_dir=$(dirname "${_output_log}")
+  mkdir -p "${_output_log_dir}"
+  _log "calling command: ${_entry_command} $* >& ${_output_log}"
+  ( ./"${_entry_command}" $* >& ${_output_log} )
+  local _exit_code=$?
+  _log "after command _exit_code=${_exit_code}"
+  return ${_exit_code}
+}
+
+_log "before main"
+main ${1+"$@"}
+_log "after main"
+'''
+    tmp_local_driver_script = temp_file.make_temp_file(content = driver_script_content,
+                                                       suffix = '.bash',
+                                                       perm = 0o0755)
+    tmp_remote_driver_script = self._make_temp_tmp_filename(tmp_local_driver_script)
+
+    tmp_local_output_log = temp_file.make_temp_file(suffix = '.log', perm = 0o0644, delete = False)
+    tmp_remote_output_log = self._make_temp_tmp_filename(tmp_local_output_log)
+
+    self._log.log_d('      vm_run_package: tmp_local_package: {}'.format(tmp_local_package))
+    self._log.log_d('      vm_run_package: tmp_remote_package: {}'.format(tmp_remote_package))
+    self._log.log_d('vm_run_driver_script: tmp_local_driver_script: {}'.format(tmp_local_driver_script))
+    self._log.log_d('vm_run_driver_script: tmp_remote_driver_script: {}'.format(tmp_remote_driver_script))
+    self._log.log_d('   vm_run_output_log: tmp_local_output_log: {}'.format(tmp_local_output_log))
+    self._log.log_d('   vm_run_output_log: tmp_remote_output_log: {}'.format(tmp_remote_output_log))
     
-    program_args = command_line.parse_args(program)
+    self.vm_copy_to(vm_id, username, password, tmp_local_package, tmp_remote_package, True)
+    self.vm_copy_to(vm_id, username, password, tmp_local_driver_script, tmp_remote_driver_script, True)
+    
+    parsed_entry_command_args = command_line.parse_args(entry_command_args)
+    driver_args = [
+      tmp_remote_driver_script,
+      tmp_remote_package,      
+      entry_command,
+      tmp_remote_output_log,
+    ] + parsed_entry_command_args
     args = self._authentication_args(username = username, password = password) + [
       'runProgramInGuest',
       vmx_filename,
       '-interactive',
-    ] + program_args
-    self._log.log_d('vm_run_package: args={}'.format(args))
+    ] + driver_args
+    self._log.log_d('vm_run_package: driver_args={}'.format(driver_args))
     rv = vmware_vmrun_exe.call_vmrun(args)
+
+    self.vm_copy_from(vm_id, username, password, tmp_remote_output_log, tmp_local_output_log, True)
+
+    print('tmp_local_output_log: {}'.format(tmp_local_output_log))
+    
     return rv
+
+  def _make_temp_tmp_filename(self, local_tmp_filename):
+    tmp_basename = path.basename(local_tmp_filename)
+    tmp_remote_filename = path.join('/tmp', tmp_basename)
+    return tmp_remote_filename
   
   def _ensure_running_if_needed(self, vm_id, dont_ensure):
     if dont_ensure:

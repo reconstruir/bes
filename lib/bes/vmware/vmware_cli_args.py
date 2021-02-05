@@ -42,6 +42,8 @@ class vmware_cli_args(object):
                    help = 'The package source dir [ ]')
     p.add_argument('entry_command', action = 'store', default = None,
                    help = 'The entry command [ ]')
+    p.add_argument('entry_command_args', action = 'store', default = [], nargs = '*',
+                   help = 'Optional entry command args [ ]')
     
     # vm_clone
     p = subparser.add_parser('vm_clone', help = 'Clone a vm.')
