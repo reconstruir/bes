@@ -19,9 +19,11 @@ class vmware_cli_handler(cli_command_handler):
     return rv.exit_code
 
   def vm_run_package(self, vm_id, username, password, package_dir,
-                     entry_command, entry_command_args, copy_vm, dont_ensure):
+                     entry_command, entry_command_args, copy_vm,
+                     dont_ensure, output_filename):
     rv = self._vmware.vm_run_package(vm_id, username, password, package_dir,
-                                     entry_command, entry_command_args, copy_vm, dont_ensure)
+                                     entry_command, entry_command_args, copy_vm,
+                                     dont_ensure, output_filename)
     return rv.exit_code
 
   def vm_clone(self, vm_id, dst_vmx_filename, full, snapshot_name, clone_name):

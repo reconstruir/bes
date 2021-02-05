@@ -32,6 +32,9 @@ class vmware_cli_args(object):
     p.add_argument('--dont-ensure', action = 'store_true', default = False,
                    dest = 'dont_ensure',
                    help = 'Dont ensure that both vmware and the vm are running [ False ]')
+    p.add_argument('-o', '--output', action = 'store', default = None,
+                   dest = 'output_filename',
+                   help = 'Output the log to filename instead of stdout [ False ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
     p.add_argument('username', action = 'store', type = str, default = None,

@@ -75,7 +75,8 @@ class vmware(object):
     return rv
 
   def vm_run_package(self, vm_id, username, password, package_dir,
-                     entry_command, entry_command_args, copy_vm, dont_ensure):
+                     entry_command, entry_command_args, copy_vm,
+                     dont_ensure, output_filename):
     check.check_string(vm_id)
     check.check_string(username)
     check.check_string(password)
@@ -84,6 +85,7 @@ class vmware(object):
     check.check_string_seq(entry_command_args)
     check.check_bool(copy_vm)
     check.check_bool(dont_ensure)
+    check.check_string(output_filename, allow_none = True)
 
     if not path.isdir(package_dir):
       raise vmware_error('package_dir not found or not a dir: "{}"'.format(package_dir))
@@ -187,7 +189,9 @@ _log "after main"
 
     self.vm_copy_from(vm_id, username, password, tmp_remote_output_log, tmp_local_output_log, True)
 
-    print('tmp_local_output_log: {}'.format(tmp_local_output_log))
+    with file_util.open_with_default(filename = output_filename) as f:
+      log_content = file_util.read(tmp_local_output_log, codec = 'utf-8')
+      f.write(log_content)
     
     return rv
 
