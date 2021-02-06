@@ -76,7 +76,7 @@ class vmware(object):
 
   def vm_run_package(self, vm_id, username, password, package_dir,
                      entry_command, entry_command_args, copy_vm,
-                     dont_ensure, output_filename):
+                     dont_ensure, output_filename, tail_log):
     check.check_string(vm_id)
     check.check_string(username)
     check.check_string(password)
@@ -86,6 +86,7 @@ class vmware(object):
     check.check_bool(copy_vm)
     check.check_bool(dont_ensure)
     check.check_string(output_filename, allow_none = True)
+    check.check_bool(tail_log)
 
     if not path.isdir(package_dir):
       raise vmware_error('package_dir not found or not a dir: "{}"'.format(package_dir))
