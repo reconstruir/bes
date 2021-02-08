@@ -138,6 +138,9 @@ class vmware(object):
       debug_args.append('--debug')
     if tty:
       debug_args.extend([ '--tty', tty ])
+
+    if tail_log:
+      debug_args.extend([ '--tail-log-port', str(9000) ])
       
     caller_args = [ tmp_caller_script.remote ] + debug_args + [
       tmp_package.remote,      
@@ -297,6 +300,8 @@ class package_caller(object):
                    help = 'Debug mode.  Save temp files and log the script itself [ False ]')
     p.add_argument('--tty', action = 'store', default = None,
                    help = 'tty to log to in debug mode [ False ]')
+    p.add_argument('--tail-log-port', action = 'store', default = None, type = int,
+                   help = 'port to send to for tailing [ False ]')
     p.add_argument('package_zip', action = 'store', default = None,
                    help = 'The package []')
     p.add_argument('entry_command', action = 'store', default = None,
@@ -306,13 +311,15 @@ class package_caller(object):
     p.add_argument('entry_command_args', action = 'store', default = [], nargs = '*',
                    help = 'Optional entry command args [ ]')
     args = p.parse_args()
+    # make sure the log exists so even if the command fails theres something
     with open(args.output_log, 'w') as fout:
-      for key, value in sorted(args.__dict__.items()):
-        fout.write('args: {}={}\n'.format(key, value))
+      fout.write('')
       fout.flush()
     self._debug = args.debug
     self._name = path.basename(sys.argv[0])
     self._console_device = args.tty or self._find_console_device()
+    for key, value in sorted(args.__dict__.items()):
+      self._log('args: {}={}'.format(key, value))
     tmp_dir = path.join(path.dirname(args.package_zip), 'work')
     self._log('tmp_dir={}'.format(tmp_dir))
 
