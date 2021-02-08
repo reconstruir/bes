@@ -350,13 +350,22 @@ class package_caller(object):
     args = [ command_abs ] + entry_command_args
     self._log('args={} cwd={}'.format(args, dest_dir))
     os.chmod(command_abs, 0o0755)
-
     process = subprocess.Popen(args,
                                stdout = stdout_pipe,
                                stderr = stderr_pipe,
                                shell = False,
                                cwd = dest_dir,
                                universal_newlines = True)
+    stdout_lines = []
+    if True:
+      # Poll process for new output until finished
+      while True:
+        nextline = process.stdout.readline()
+        if nextline == '' and process.poll() != None:
+            break
+        stdout_lines.append(nextline)
+        self._log('process: {}'.format(nextline))
+
     output = process.communicate()
     exit_code = process.wait()
     self._mkdir(path.dirname(output_log))
