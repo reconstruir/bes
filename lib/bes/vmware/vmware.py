@@ -313,9 +313,6 @@ class package_caller(object):
     self._debug = args.debug
     self._name = path.basename(sys.argv[0])
     self._console_device = args.tty or self._find_console_device()
-    with open('/dev/ttys000', 'w') as cccc:
-      cccc.write('{}\n'.format(args.tty))
-      cccc.flush()
     tmp_dir = path.join(path.dirname(args.package_zip), 'work')
     self._log('tmp_dir={}'.format(tmp_dir))
 
