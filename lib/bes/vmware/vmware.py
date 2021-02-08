@@ -272,63 +272,6 @@ class vmware(object):
     vmware_vmrun_exe.call_vmrun(args, raise_error = True)
     assert path.isfile(local_filename)
 
-  _RUN_PACKAGE_CALLER_BASH = '''\
-#!/bin/bash
-
-function _log()
-{
-  # uncomment this to log the actions of this caller script itself to a tty or file on the guest
-  return 0
-  local _LOG_DEST=/dev/ttys000
-  local _name="$(basename ${BASH_SOURCE[0]})"
-  printf "${_name}: "${1+"$@"} >& ${_LOG_DEST}
-  printf "\n\n" >& ${_LOG_DEST}
-  return 0
-}
-
-_log "script: ${BASH_SOURCE[0]}"
-set -e -x
-_log "after set"
-function main()
-{
-  _log "main starts"
-  local _name="$(basename ${BASH_SOURCE[0]})"
-  _log "_name=${_name}"
-  _log "args before: $*"
-  if [[ $# < 3 ]]; then
-    _log "bad args"
-    echo "usage: ${_name} package_zip entry_command output_log"
-    _log "return 1"
-    return 1
-  fi
-  _log "num args check passed"
-  local _package_zip="${1}"
-  shift
-  local _entry_command="${1}"
-  shift
-  local _output_log="${1}"
-  shift
-  _log "args after: $*"
-  _log "_package_zip=${_package_zip} _entry_command=${_entry_command} _output_log=${_output_log}"
-  local _tmp="$(mktemp -d /tmp/${_name}.XXXXXX)"
-  rm -rf ${_tmp}
-  mkdir -p ${_tmp}
-  cd ${_tmp}
-  unzip "${_package_zip}"
-  local _output_log_dir=$(dirname "${_output_log}")
-  mkdir -p "${_output_log_dir}"
-  _log "calling command: ${_entry_command} $* >& ${_output_log}"
-  ( ./"${_entry_command}" $* >& ${_output_log} )
-  local _exit_code=$?
-  _log "after command _exit_code=${_exit_code}"
-  return ${_exit_code}
-}
-
-_log "before main"
-main ${1+"$@"}
-_log "after main"
-'''
-
   _RUN_PACKAGE_CALLER_PYTHON = r'''#!/usr/bin/env python
 
 import argparse
@@ -398,38 +341,19 @@ class package_caller(object):
     self._log('args={} cwd={}'.format(args, dest_dir))
     os.chmod(command_abs, 0o0755)
 
-    poto = open('/Users/ramiro/poto.log', 'w')
-    poto.write('before\n')
-    poto.flush()
     process = subprocess.Popen(args,
                                stdout = stdout_pipe,
                                stderr = stderr_pipe,
                                shell = False,
                                cwd = dest_dir,
                                universal_newlines = True)
-    poto.write('after 1\n')
-    poto.flush()
     output = process.communicate()
-    poto.write('after 2\n')
-    poto.flush()
     exit_code = process.wait()
-    poto.write('after 3: exit_code={}\n'.format(exit_code))
-    poto.flush()
     self._mkdir(path.dirname(output_log))
     stdout = output[0]
-    poto.write('after 4: stdout={}\n'.format(stdout))
-    poto.flush()
-    with open('/tmp/xxx.log', 'w') as ffff:
-      ffff.write(output_log + '\n')
-      ffff.flush()
     with open(output_log, 'a') as fout:
       fout.write(stdout)
       fout.flush()
-    with open('/dev/ttys000', 'w') as caca:
-      caca.write('finished')
-      caca.flush()
-    poto.write('after 5\n')
-    poto.flush()
     return exit_code
 
   @classmethod
