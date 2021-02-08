@@ -31,11 +31,17 @@ class vmware_tester(object):
                    help = 'Verbose log output [ False ]')
     p.add_argument('--debug', action = 'store_true', default = False,
                    help = 'Debug mode.  Save temp files and log the script itself [ False ]')
+    p.add_argument('--tty', action = 'store', default = None,
+                   help = 'tty to log to in debug mode [ False ]')
     p.add_argument('--dir', action = 'store', default = os.getcwd(),
                    dest = 'source_dir',
                    help = 'Directory to use for the package [ False ]')
-    p.add_argument('vmx_filename', action = 'store', default = None,
+    p.add_argument('vm_id', action = 'store', default = None,
                    help = 'The vmware vmx filename for the vm to test [ None ]')
+    p.add_argument('username', action = 'store', type = str, default = None,
+                   help = 'VM username [ ]')
+    p.add_argument('password', action = 'store', type = str, default = None,
+                   help = 'VM username password [ ]')
     p.add_argument('entry_command_args', action = 'store', default = [], nargs = '*',
                    help = 'Optional entry command args [ ]')
     args = p.parse_args()
@@ -44,10 +50,6 @@ class vmware_tester(object):
     self._name = path.basename(sys.argv[0])
     tmp_dir = tempfile.mkdtemp()
 
-#    tmp_archive = archiver.create_temp_file('.zip',
-#                                            args.source_dir,
-#                                            exclude = self._PACKAGE_EXCLUDES,
-#                                            delete = not args.debug)
     tar_util.copy_tree(args.source_dir,
                        tmp_dir,
                        excludes = self._PACKAGE_EXCLUDES)
@@ -57,13 +59,18 @@ class vmware_tester(object):
     env = os_env.clone_current_env(d = {
       'xBES_LOG': 'vmware=debug',
     })
+    debug_args = []
+    if args.debug:
+      debug_args.append('--debug')
+    if args.tty:
+      debug_args.extend([ '--tty', tty ])
     cmd = [
       'bin/best.py',
       'vmware', 'vm_run_package',
-      '--debug',
-      '--tty', '/dev/ttys000',
-      args.vmx_filename,
-      'ramiro', 'caca',
+    ] + debug_args + [
+      args.vm_id,
+      args.username,
+      args.password,
       tmp_dir,
       self._ENTRY_COMMAND_FILENAME,
     ] + args.entry_command_args

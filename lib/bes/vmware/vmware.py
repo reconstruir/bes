@@ -396,7 +396,7 @@ class package_caller(object):
     if system == 'Windows':
       return 'con:'
     elif system == 'Darwin':
-      return '/dev/tty'
+      return '/dev/ttys000'
     elif system == 'Linux':
       return '/dev/console'
     else:
