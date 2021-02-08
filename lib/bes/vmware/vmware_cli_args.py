@@ -26,12 +26,16 @@ class vmware_cli_args(object):
 
     # vm_run_package
     p = subparser.add_parser('vm_run_package', help = 'Run a package in a vm.')
-    p.add_argument('--copy', action = 'store_true', default = False,
-                   dest = 'copy_vm',
-                   help = 'Run the package in a copy of the vm [ False ]')
+    p.add_argument('--debug', action = 'store_true', default = False,
+                   help = 'Debug mode [ False ]')
+    p.add_argument('--tty', action = 'store', default = None,
+                   help = 'tty to log to in debug mode [ False ]')
     p.add_argument('--dont-ensure', action = 'store_true', default = False,
                    dest = 'dont_ensure',
                    help = 'Dont ensure that both vmware and the vm are running [ False ]')
+    p.add_argument('--copy', action = 'store_true', default = False,
+                   dest = 'copy_vm',
+                   help = 'Run the package in a copy of the vm [ False ]')
     p.add_argument('--tail-log', action = 'store_true', default = False,
                    help = 'Tail the log [ False ]')
     p.add_argument('-o', '--output', action = 'store', default = None,

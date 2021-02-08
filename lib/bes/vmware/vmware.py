@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
 import os.path as path
 
 from bes.system.log import logger
@@ -51,7 +52,8 @@ class vmware(object):
       self._session.start()
     return self._session
 
-  def vm_run_program(self, vm_id, username, password, program, copy_vm, dont_ensure):
+  def vm_run_program(self, vm_id, username, password, program,
+                     copy_vm, dont_ensure):
     check.check_string(vm_id)
     check.check_string(username)
     check.check_string(password)
@@ -76,7 +78,8 @@ class vmware(object):
 
   def vm_run_package(self, vm_id, username, password, package_dir,
                      entry_command, entry_command_args, copy_vm,
-                     dont_ensure, output_filename, tail_log):
+                     dont_ensure, output_filename, tail_log,
+                     debug, tty):
     check.check_string(vm_id)
     check.check_string(username)
     check.check_string(password)
@@ -87,6 +90,8 @@ class vmware(object):
     check.check_bool(dont_ensure)
     check.check_string(output_filename, allow_none = True)
     check.check_bool(tail_log)
+    check.check_bool(debug)
+    check.check_string(tty, allow_none = True)
 
     if not path.isdir(package_dir):
       raise vmware_error('package_dir not found or not a dir: "{}"'.format(package_dir))
@@ -95,50 +100,72 @@ class vmware(object):
     self._log.log_d('vm_run_package: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
 
     self._ensure_running_if_needed(vm_id, dont_ensure)
-    
-    tmp_local_package = archiver.create_temp_file('zip', package_dir)
-    tmp_remote_package = self._make_temp_tmp_filename(tmp_local_package)
-    tmp_local_driver_script = temp_file.make_temp_file(content = self._RUN_PACKAGE_DRIVER_BASH,
-                                                       suffix = '.bash',
-                                                       perm = 0o0755)
-    tmp_remote_driver_script = self._make_temp_tmp_filename(tmp_local_driver_script)
 
-    tmp_local_output_log = temp_file.make_temp_file(suffix = '.log', perm = 0o0644, delete = False)
-    tmp_remote_output_log = self._make_temp_tmp_filename(tmp_local_output_log)
+    tmp_dir_local = temp_file.make_temp_dir(suffix = '-run_package.dir', delete = not debug)
+    if debug:
+      print('tmp_dir_local={}'.format(tmp_dir_local))
 
-    self._log.log_d('      vm_run_package: tmp_local_package: {}'.format(tmp_local_package))
-    self._log.log_d('      vm_run_package: tmp_remote_package: {}'.format(tmp_remote_package))
-    self._log.log_d('vm_run_driver_script: tmp_local_driver_script: {}'.format(tmp_local_driver_script))
-    self._log.log_d('vm_run_driver_script: tmp_remote_driver_script: {}'.format(tmp_remote_driver_script))
-    self._log.log_d('   vm_run_output_log: tmp_local_output_log: {}'.format(tmp_local_output_log))
-    self._log.log_d('   vm_run_output_log: tmp_remote_output_log: {}'.format(tmp_remote_output_log))
+    tmp_remote_dir = path.join('/tmp', path.basename(tmp_dir_local))
+    self._log.log_d('      vm_run_package: tmp_remote_dir={}'.format(tmp_remote_dir))
+
+    rmdir_cmd = '/bin/rm -rf {}'.format(tmp_remote_dir)
+    mkdir_cmd = '/bin/mkdir -p {}'.format(tmp_remote_dir)
+    rv = self.vm_run_program(vm_id, username, password, rmdir_cmd, False, False)
+    if rv.exit_code != 0:
+      raise vmware_error('vm_run_package: failed to: "{}"'.format(rmdir_cmd))
+    self.vm_run_program(vm_id, username, password, mkdir_cmd, False, False)
+    if rv.exit_code != 0:
+      raise vmware_error('vm_run_package: failed to: "{}"'.format(mkdir_cmd))
     
-    self.vm_copy_to(vm_id, username, password, tmp_local_package, tmp_remote_package, True)
-    self.vm_copy_to(vm_id, username, password, tmp_local_driver_script, tmp_remote_driver_script, True)
+    tmp_package = self._make_tmp_file_pair(tmp_dir_local, 'package.zip')
+    tmp_caller_script = self._make_tmp_file_pair(tmp_dir_local, 'caller_script.py')
+    tmp_output_log = self._make_tmp_file_pair(tmp_dir_local, 'output.log')
+
+    archiver.create(tmp_package.local, package_dir)
+    file_util.save(tmp_caller_script.local,
+                   content = self._RUN_PACKAGE_CALLER_PYTHON,
+                   mode = 0o0755)
+    self._log.log_d('      vm_run_package: tmp_package={}'.format(tmp_package))
+    self._log.log_d('      vm_run_package: tmp_caller_script={}'.format(tmp_caller_script))
+    self._log.log_d('      vm_run_package: tmp_output_log={}'.format(tmp_output_log))
     
+    self.vm_copy_to(vm_id, username, password, tmp_package.local, tmp_package.remote, True)
+    self.vm_copy_to(vm_id, username, password, tmp_caller_script.local, tmp_caller_script.remote, True)
+
     parsed_entry_command_args = command_line.parse_args(entry_command_args)
-    driver_args = [
-      tmp_remote_driver_script,
-      tmp_remote_package,      
+    debug_args = []
+    if debug:
+      debug_args.append('--debug')
+    if tty:
+      debug_args.extend([ '--tty', tty ])
+      
+    caller_args = [ tmp_caller_script.remote ] + debug_args + [
+      tmp_package.remote,      
       entry_command,
-      tmp_remote_output_log,
+      tmp_output_log.remote,      
     ] + parsed_entry_command_args
     args = self._authentication_args(username = username, password = password) + [
       'runProgramInGuest',
       vmx_filename,
       '-interactive',
-    ] + driver_args
-    self._log.log_d('vm_run_package: driver_args={}'.format(driver_args))
+    ] + caller_args
+    self._log.log_d('vm_run_package: caller_args={}'.format(caller_args))
     rv = vmware_vmrun_exe.call_vmrun(args)
 
-    self.vm_copy_from(vm_id, username, password, tmp_remote_output_log, tmp_local_output_log, True)
+    self.vm_copy_from(vm_id, username, password, tmp_output_log.remote, tmp_output_log.local, True)
 
     with file_util.open_with_default(filename = output_filename) as f:
-      log_content = file_util.read(tmp_local_output_log, codec = 'utf-8')
+      log_content = file_util.read(tmp_output_log.local, codec = 'utf-8')
       f.write(log_content)
     
     return rv
 
+  _tmp_file_pair = namedtuple('_tmp_file_pair', 'local, remote')
+  def _make_tmp_file_pair(self, tmp_dir_local, name):
+    local = path.join(tmp_dir_local, name)
+    remote = path.join('/tmp', path.basename(tmp_dir_local), name)
+    return self._tmp_file_pair(local, remote)
+    
   def _make_temp_tmp_filename(self, local_tmp_filename):
     tmp_basename = path.basename(local_tmp_filename)
     tmp_remote_filename = path.join('/tmp', tmp_basename)
@@ -245,12 +272,12 @@ class vmware(object):
     vmware_vmrun_exe.call_vmrun(args, raise_error = True)
     assert path.isfile(local_filename)
 
-  _RUN_PACKAGE_DRIVER_BASH = '''\
+  _RUN_PACKAGE_CALLER_BASH = '''\
 #!/bin/bash
 
 function _log()
 {
-  # uncomment this to log the actions of this driver script itself to a tty or file on the guest
+  # uncomment this to log the actions of this caller script itself to a tty or file on the guest
   return 0
   local _LOG_DEST=/dev/ttys000
   local _name="$(basename ${BASH_SOURCE[0]})"
@@ -301,3 +328,156 @@ _log "before main"
 main ${1+"$@"}
 _log "after main"
 '''
+
+  _RUN_PACKAGE_CALLER_PYTHON = r'''#!/usr/bin/env python
+
+import argparse
+import os
+import os.path as path
+import platform
+import sys
+import tarfile
+import tempfile
+import zipfile
+import subprocess
+
+class package_caller(object):
+
+  def __init__(self):
+    pass
+  
+  def main(self):
+    p = argparse.ArgumentParser()
+    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
+                   help = 'Verbose log output [ False ]')
+    p.add_argument('--debug', action = 'store_true', default = False,
+                   help = 'Debug mode.  Save temp files and log the script itself [ False ]')
+    p.add_argument('--tty', action = 'store', default = None,
+                   help = 'tty to log to in debug mode [ False ]')
+    p.add_argument('package_zip', action = 'store', default = None,
+                   help = 'The package []')
+    p.add_argument('entry_command', action = 'store', default = None,
+                   help = 'The entry command []')
+    p.add_argument('output_log', action = 'store', default = None,
+                   help = 'The output log file []')
+    p.add_argument('entry_command_args', action = 'store', default = [], nargs = '*',
+                   help = 'Optional entry command args [ ]')
+    args = p.parse_args()
+    with open(args.output_log, 'w') as fout:
+      for key, value in sorted(args.__dict__.items()):
+        fout.write('args: {}={}\n'.format(key, value))
+      fout.flush()
+    self._debug = args.debug
+    self._name = path.basename(sys.argv[0])
+    self._console_device = args.tty or self._find_console_device()
+    with open('/dev/ttys000', 'w') as cccc:
+      cccc.write('{}\n'.format(args.tty))
+      cccc.flush()
+    tmp_dir = path.join(path.dirname(args.package_zip), 'work')
+    self._log('tmp_dir={}'.format(tmp_dir))
+
+    self._log('package_zip={} entry_command={} output_log={}'.format(args.package_zip,
+                                                                     args.entry_command,
+                                                                     args.output_log))
+
+    self._unpack_package(args.package_zip, tmp_dir)
+    exit_code = self._execute(tmp_dir,
+                              args.entry_command,
+                              args.output_log,
+                              args.entry_command_args)
+    return exit_code
+    
+  def _execute(self, dest_dir, command, output_log, entry_command_args):
+    entry_command_args = entry_command_args or []
+    stdout_pipe = subprocess.PIPE
+    stderr_pipe = subprocess.STDOUT
+    command_abs = path.join(dest_dir, command)
+    if not path.isfile(command_abs):
+      raise IOError('entry command not found: "{}"'.format(command_abs))
+    args = [ command_abs ] + entry_command_args
+    self._log('args={} cwd={}'.format(args, dest_dir))
+    os.chmod(command_abs, 0o0755)
+
+    poto = open('/Users/ramiro/poto.log', 'w')
+    poto.write('before\n')
+    poto.flush()
+    process = subprocess.Popen(args,
+                               stdout = stdout_pipe,
+                               stderr = stderr_pipe,
+                               shell = False,
+                               cwd = dest_dir,
+                               universal_newlines = True)
+    poto.write('after 1\n')
+    poto.flush()
+    output = process.communicate()
+    poto.write('after 2\n')
+    poto.flush()
+    exit_code = process.wait()
+    poto.write('after 3: exit_code={}\n'.format(exit_code))
+    poto.flush()
+    self._mkdir(path.dirname(output_log))
+    stdout = output[0]
+    poto.write('after 4: stdout={}\n'.format(stdout))
+    poto.flush()
+    with open('/tmp/xxx.log', 'w') as ffff:
+      ffff.write(output_log + '\n')
+      ffff.flush()
+    with open(output_log, 'a') as fout:
+      fout.write(stdout)
+      fout.flush()
+    with open('/dev/ttys000', 'w') as caca:
+      caca.write('finished')
+      caca.flush()
+    poto.write('after 5\n')
+    poto.flush()
+    return exit_code
+
+  @classmethod
+  def _mkdir(clazz, p):
+    if path.isdir(p):
+      return
+    os.makedirs(p)
+  
+  def _unpack_package_zip(self, package_zip, dest_dir):
+    with zipfile.ZipFile(package_zip, mode = 'r') as f:
+      f.extractall(path = dest_dir)
+
+  def _unpack_package_tar(self, package_tar, dest_dir):
+    with tarfile.open(package_tar, mode = 'r') as f:
+      f.extractall(path = dest_dir)
+
+  def _unpack_package(self, package, dest_dir):
+    if zipfile.is_zipfile(package):
+      self._unpack_package_zip(package, dest_dir)
+    elif tarfile.is_tarfile(package):
+      self._unpack_package_tar(package, dest_dir)
+    else:
+      raise RuntimeError('unknown archive type: "{}"'.format(package))
+      
+  def _log(self, message):
+    if not self._debug:
+      return
+    s = '{}: {}\n'.format(self._name, message)
+    with open(self._console_device, 'w') as f:
+      f.write(s)
+      f.flush()
+
+  @classmethod
+  def _find_console_device(clazz):
+    system = platform.system()
+    if system == 'Windows':
+      return 'con:'
+    elif system == 'Darwin':
+      return '/dev/tty'
+    elif system == 'Linux':
+      return '/dev/console'
+    else:
+      raise RuntimeError('unknown platform: "{}"'.format(system))
+
+  @classmethod
+  def run(clazz):
+    raise SystemExit(package_caller().main())
+
+if __name__ == '__main__':
+  package_caller.run()
+'''  
