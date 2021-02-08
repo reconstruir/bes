@@ -160,6 +160,12 @@ class vmware(object):
     with file_util.open_with_default(filename = output_filename) as f:
       log_content = file_util.read(tmp_output_log.local, codec = 'utf-8')
       f.write(log_content)
+
+    # cleanup the tmp dir but only if debug is False
+    if not debug:
+      rv = self.vm_run_program(vm_id, username, password, rmdir_cmd, False, False)
+      if rv.exit_code != 0:
+        raise vmware_error('vm_run_package: failed to: "{}"'.format(rmdir_cmd))
     
     return rv
 
