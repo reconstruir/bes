@@ -98,64 +98,7 @@ class vmware(object):
     
     tmp_local_package = archiver.create_temp_file('zip', package_dir)
     tmp_remote_package = self._make_temp_tmp_filename(tmp_local_package)
-
-    driver_script_content = '''
-#!/bin/bash
-
-function _log()
-{
-  # uncomment this to log the actions of this driver script itself to a tty or file on the guest
-  return 0
-  local _LOG_DEST=/dev/ttys000
-  local _name="$(basename ${BASH_SOURCE[0]})"
-  printf "${_name}: "${1+"$@"} >& ${_LOG_DEST}
-  printf "\n\n" >& ${_LOG_DEST}
-  return 0
-}
-
-_log "script: ${BASH_SOURCE[0]}"
-set -e -x
-_log "after set"
-function main()
-{
-  _log "main starts"
-  local _name="$(basename ${BASH_SOURCE[0]})"
-  _log "_name=${_name}"
-  _log "args before: $*"
-  if [[ $# < 3 ]]; then
-    _log "bad args"
-    echo "usage: ${_name} package_zip entry_command output_log"
-    _log "return 1"
-    return 1
-  fi
-  _log "num args check passed"
-  local _package_zip="${1}"
-  shift
-  local _entry_command="${1}"
-  shift
-  local _output_log="${1}"
-  shift
-  _log "args after: $*"
-  _log "_package_zip=${_package_zip} _entry_command=${_entry_command} _output_log=${_output_log}"
-  local _tmp="$(mktemp -d /tmp/${_name}.XXXXXX)"
-  rm -rf ${_tmp}
-  mkdir -p ${_tmp}
-  cd ${_tmp}
-  unzip "${_package_zip}"
-  local _output_log_dir=$(dirname "${_output_log}")
-  mkdir -p "${_output_log_dir}"
-  _log "calling command: ${_entry_command} $* >& ${_output_log}"
-  ( ./"${_entry_command}" $* >& ${_output_log} )
-  local _exit_code=$?
-  _log "after command _exit_code=${_exit_code}"
-  return ${_exit_code}
-}
-
-_log "before main"
-main ${1+"$@"}
-_log "after main"
-'''
-    tmp_local_driver_script = temp_file.make_temp_file(content = driver_script_content,
+    tmp_local_driver_script = temp_file.make_temp_file(content = self._RUN_PACKAGE_DRIVER_BASH,
                                                        suffix = '.bash',
                                                        perm = 0o0755)
     tmp_remote_driver_script = self._make_temp_tmp_filename(tmp_local_driver_script)
@@ -301,3 +244,60 @@ _log "after main"
     file_util.remove(local_filename)
     vmware_vmrun_exe.call_vmrun(args, raise_error = True)
     assert path.isfile(local_filename)
+
+  _RUN_PACKAGE_DRIVER_BASH = '''\
+#!/bin/bash
+
+function _log()
+{
+  # uncomment this to log the actions of this driver script itself to a tty or file on the guest
+  return 0
+  local _LOG_DEST=/dev/ttys000
+  local _name="$(basename ${BASH_SOURCE[0]})"
+  printf "${_name}: "${1+"$@"} >& ${_LOG_DEST}
+  printf "\n\n" >& ${_LOG_DEST}
+  return 0
+}
+
+_log "script: ${BASH_SOURCE[0]}"
+set -e -x
+_log "after set"
+function main()
+{
+  _log "main starts"
+  local _name="$(basename ${BASH_SOURCE[0]})"
+  _log "_name=${_name}"
+  _log "args before: $*"
+  if [[ $# < 3 ]]; then
+    _log "bad args"
+    echo "usage: ${_name} package_zip entry_command output_log"
+    _log "return 1"
+    return 1
+  fi
+  _log "num args check passed"
+  local _package_zip="${1}"
+  shift
+  local _entry_command="${1}"
+  shift
+  local _output_log="${1}"
+  shift
+  _log "args after: $*"
+  _log "_package_zip=${_package_zip} _entry_command=${_entry_command} _output_log=${_output_log}"
+  local _tmp="$(mktemp -d /tmp/${_name}.XXXXXX)"
+  rm -rf ${_tmp}
+  mkdir -p ${_tmp}
+  cd ${_tmp}
+  unzip "${_package_zip}"
+  local _output_log_dir=$(dirname "${_output_log}")
+  mkdir -p "${_output_log_dir}"
+  _log "calling command: ${_entry_command} $* >& ${_output_log}"
+  ( ./"${_entry_command}" $* >& ${_output_log} )
+  local _exit_code=$?
+  _log "after command _exit_code=${_exit_code}"
+  return ${_exit_code}
+}
+
+_log "before main"
+main ${1+"$@"}
+_log "after main"
+'''
