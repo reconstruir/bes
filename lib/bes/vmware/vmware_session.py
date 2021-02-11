@@ -56,3 +56,6 @@ class vmware_session(object):
 
   def resolve_vm_id(self, name):
     return self.call_client('vm_name_to_id', name)
+
+  def ensure_vm_running(self, vm_id):
+    return self.call_client('vm_set_power', vm_id, 'on', wait = 'ssh')

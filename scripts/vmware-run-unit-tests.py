@@ -33,6 +33,8 @@ class vmware_tester(object):
                    help = 'Debug mode.  Save temp files and log the script itself [ False ]')
     p.add_argument('--tty', action = 'store', default = None,
                    help = 'tty to log to in debug mode [ False ]')
+    p.add_argument('--tail-log', action = 'store_true', default = False,
+                   help = 'Tail the log [ False ]')
     p.add_argument('--dir', action = 'store', default = os.getcwd(),
                    dest = 'source_dir',
                    help = 'Directory to use for the package [ False ]')
@@ -64,6 +66,8 @@ class vmware_tester(object):
       debug_args.append('--debug')
     if args.tty:
       debug_args.extend([ '--tty', tty ])
+    if args.tail_log:
+      debug_args.append('--tail-log')
     cmd = [
       'bin/best.py',
       'vmware', 'vm_run_package',

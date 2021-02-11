@@ -2,6 +2,9 @@
 
 from collections import namedtuple
 import os.path as path
+import multiprocessing
+import socket
+import sys
 
 from bes.system.log import logger
 from bes.system.command_line import command_line
@@ -97,7 +100,9 @@ class vmware(object):
       raise vmware_error('package_dir not found or not a dir: "{}"'.format(package_dir))
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('vm_run_package: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
+    self._log.log_d('vm_run_package: vm_id={} vmx_filename={} dont_ensure={}'.format(vm_id,
+                                                                                     vmx_filename,
+                                                                                     dont_ensure))
 
     self._ensure_running_if_needed(vm_id, dont_ensure)
 
@@ -113,9 +118,11 @@ class vmware(object):
     rv = self.vm_run_program(vm_id, username, password, rmdir_cmd, False, False)
     if rv.exit_code != 0:
       raise vmware_error('vm_run_package: failed to: "{}"'.format(rmdir_cmd))
-    self.vm_run_program(vm_id, username, password, mkdir_cmd, False, False)
+    rv = self.vm_run_program(vm_id, username, password, mkdir_cmd, False, False)
     if rv.exit_code != 0:
-      raise vmware_error('vm_run_package: failed to: "{}"'.format(mkdir_cmd))
+      raise vmware_error('vm_run_package: failed to: "{}" - {}\n{}\n'.format(mkdir_cmd,
+                                                                             rv.exit_code,
+                                                                             rv.stdout))
     
     tmp_package = self._make_tmp_file_pair(tmp_dir_local, 'package.zip')
     tmp_caller_script = self._make_tmp_file_pair(tmp_dir_local, 'caller_script.py')
@@ -139,9 +146,36 @@ class vmware(object):
     if tty:
       debug_args.extend([ '--tty', tty ])
 
+    process = None
     if tail_log:
       debug_args.extend([ '--tail-log-port', str(9000) ])
+      resolved_vm_id = self.session.resolve_vm_id(vm_id)
+      ip_address = self.session.call_client('vm_get_ip_address', resolved_vm_id)
+      print('ip_address={}'.format(ip_address))
+
+      def _process_main(*args, **kargs):
+        print('_process_main: args={}'.format(args))
+        print('_process_main: kargs={}'.format(kargs))
+        ip_address = args[0]
+        port = args[1]
+        print('_process_main: ip_address={} port={}'.format(ip_address, port))
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        address = ( ip_address, port )
+        print('client connecting...')
+        sock.connect(address)
+        while True:
+          data = sock.recv(1024)
+          s = data.decode('utf-8')
+          print('client got: "{}"'.format(s))
+          if s == 'byebye':
+            break
+        return 0
       
+      process = multiprocessing.Process(name = 'caca', target = _process_main, args = ( ip_address, 9000 ))
+      process.daemon = True
+      process.start()
+      
+    #print(debug_args)
     caller_args = [ tmp_caller_script.remote ] + debug_args + [
       tmp_package.remote,      
       entry_command,
@@ -159,6 +193,7 @@ class vmware(object):
 
     with file_util.open_with_default(filename = output_filename) as f:
       log_content = file_util.read(tmp_output_log.local, codec = 'utf-8')
+      print('log_content={}'.format(log_content))
       f.write(log_content)
 
     # cleanup the tmp dir but only if debug is False
@@ -166,7 +201,11 @@ class vmware(object):
       rv = self.vm_run_program(vm_id, username, password, rmdir_cmd, False, False)
       if rv.exit_code != 0:
         raise vmware_error('vm_run_package: failed to: "{}"'.format(rmdir_cmd))
-    
+
+    if process:
+      print('joining process')
+      process.join()
+      
     return rv
 
   _tmp_file_pair = namedtuple('_tmp_file_pair', 'local, remote')
@@ -184,10 +223,13 @@ class vmware(object):
     if dont_ensure:
       self._log.log_d('_ensure_running_if_needed: doing nothing cause dont_ensure is True')
       return
+
+    self._log.log_d('_ensure_running_if_needed: ensuring vmware is running')
+    self._app.ensure_running()
     
     resolved_vm_id = self.session.resolve_vm_id(vm_id)
     self._log.log_d('_ensure_running_if_needed: ensuring vm {}:{} is running'.format(vm_id, resolved_vm_id))
-    self._app.ensure_running()
+    self.session.ensure_vm_running(resolved_vm_id)
   
   def vm_clone(self, vm_id, dst_vmx_filename, full = False, snapshot_name = None, clone_name = None):
     check.check_string(vm_id)
@@ -287,11 +329,13 @@ import argparse
 import os
 import os.path as path
 import platform
+import socket
+import subprocess
+import sys
 import sys
 import tarfile
 import tempfile
 import zipfile
-import subprocess
 
 class package_caller(object):
 
@@ -324,6 +368,7 @@ class package_caller(object):
     self._debug = args.debug
     self._name = path.basename(sys.argv[0])
     self._console_device = args.tty or self._find_console_device()
+    self._socket = None
     for key, value in sorted(args.__dict__.items()):
       self._log('args: {}={}'.format(key, value))
     tmp_dir = path.join(path.dirname(args.package_zip), 'work')
@@ -334,11 +379,25 @@ class package_caller(object):
                                                                      args.output_log))
 
     self._unpack_package(args.package_zip, tmp_dir)
+    self._start_socket(args.tail_log_port)
     exit_code = self._execute(tmp_dir,
                               args.entry_command,
                               args.output_log,
                               args.entry_command_args)
+    self._stop_socket(args.tail_log_port)
     return exit_code
+
+  def _start_socket(self, port):
+    if not port:
+      return
+    address = ( 'localhost', port )
+    self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    self._log('binding socket to port {}'.format(port))
+    self._socket.bind(address)
+
+  def _stop_socket(self):
+    self._socket.close()
+    self._socket = None
     
   def _execute(self, dest_dir, command, output_log, entry_command_args):
     entry_command_args = entry_command_args or []
@@ -356,8 +415,16 @@ class package_caller(object):
                                shell = False,
                                cwd = dest_dir,
                                universal_newlines = True)
+
+    if self._socket:
+      self._log('socket listening')
+      self._socket.listen(1)
+      self._log('calling accept')
+      connection, client_address = self._socket.accept()
+      self._log('connection={} client_address={}'.format(connection, client_address))
+
     stdout_lines = []
-    if True:
+    if False:
       # Poll process for new output until finished
       while True:
         nextline = process.stdout.readline()
