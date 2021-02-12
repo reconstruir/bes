@@ -89,7 +89,9 @@ sleep 1
     for i in range(1, num_tries + 1):
       clazz._log.log_d('set_credentials: try {} of {}'.format(i, num_tries))
       try:
-        clazz._do_set_credentials(username, password)
+        # this happens so much that its not even worth printing unless it happens too much
+        print_error = i >= 5
+        clazz._do_set_credentials(username, password, print_error)
         clazz._log.log_d('set_credentials: try {} of {} succeeded'.format(i, num_tries))
         return
       except vmware_error as ex:
@@ -100,7 +102,7 @@ sleep 1
     raise last_exception
 
   @classmethod
-  def _do_set_credentials(clazz, username, password):
+  def _do_set_credentials(clazz, username, password, print_error):
     expect_script = clazz._EXPECT_SCRIPT_TEMPLATE.format(username = username,
                                                          password = password)
 
@@ -119,7 +121,7 @@ sleep 1
     finally:
       file_util.remove(tmp_script)
 
-    if clazz._vmrest_config_is_corrupt():
+    if clazz._vmrest_config_is_corrupt() and print_error:
       raise vmware_error('Failed to set credentials.  Corrupt {}'.format(clazz._VMREST_CONFIG_FILENAME))
     
   @classmethod
