@@ -74,7 +74,7 @@ class vmware(object):
     if not dont_ensure:
       self._ensure_running_if_needed(vm_id)
       self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(vm_id))
-      self.vm_wait_for_can_run_programs(vm_id, username, password, num_tries)
+      self.vm_wait_for_can_run_programs(vm_id, username, password, 10) #num_tries)
       
     return self._do_run_program(vmx_filename, username, password, program)
 
@@ -159,7 +159,7 @@ class vmware(object):
     if not dont_ensure:
       self._ensure_running_if_needed(vm_id)
       self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(vm_id))
-      self.vm_wait_for_can_run_programs(vm_id, username, password, num_tries)
+      self.vm_wait_for_can_run_programs(vm_id, username, password, 10) #num_tries)
       
     tmp_dir_local = temp_file.make_temp_dir(suffix = '-run_package.dir', delete = not debug)
     if debug:
