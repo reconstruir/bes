@@ -32,12 +32,18 @@ class vmware_session(object):
     self.client = None
 
   def start(self):
+    self._log.log_d('start')
     if self.server:
+      self._log.log_d('server already exists')
       return
+    self._log.log_d('creating server')
     self.server = vmware_server_controller()
+    self._log.log_d('starting server on port {}'.format(self._port))
     self.server.start(port = self._port)
+    self._log.log_d('starting client with address {}'.format(self.server.address))
     self.client = vmware_client(address = self.server.address,
                                 auth = self._credentials)
+    self._log.log_d('client started')
     
   def stop(self):
     if not self.server:

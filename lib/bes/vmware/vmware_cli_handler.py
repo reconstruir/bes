@@ -43,4 +43,7 @@ class vmware_cli_handler(cli_command_handler):
   def vm_copy_from(self, vm_id, username, password, remote_filename, local_filename, dont_ensure):
     self._vmware.vm_copy_from(vm_id, username, password, remote_filename, local_filename, dont_ensure)
     return 0
-  
+
+  def vm_set_power(self, vm_id, state, wait, username, password, num_tries):
+    self._vmware.vm_set_power(vm_id, state, wait, username, password, num_tries)
+    return 0

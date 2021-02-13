@@ -29,6 +29,7 @@ class vmware_server(object):
 
   def _vmrest_process(self):
     # Make sure there no stale vmrest processes
+    self._log.log_d('_vmrest_process: killing any stale vmreset')
     vmware_util.killall_vmrest()
 
     cmd = [ 'vmrest' ]
