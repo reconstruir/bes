@@ -94,6 +94,7 @@ sleep 1
         clazz._do_set_credentials(username, password, print_error)
         clazz._log.log_d('set_credentials: try {} of {} succeeded'.format(i, num_tries))
         assert not clazz._vmrest_config_is_corrupt()
+        assert clazz._vmrest_config_exists()
         return
       except vmware_error as ex:
         clazz._log.log_e('set_credentials: try {} caught {}'.format(i, ex))
@@ -164,3 +165,8 @@ sleep 1
     if not path.exists(clazz._VMREST_CONFIG_FILENAME):
       return False
     return file_util.is_empty(clazz._VMREST_CONFIG_FILENAME)
+
+  @classmethod
+  def _vmrest_config_exists(clazz):
+    'Return True if ~/.vmrestCfg is corrupt (empty)'
+    return path.exists(clazz._VMREST_CONFIG_FILENAME)
