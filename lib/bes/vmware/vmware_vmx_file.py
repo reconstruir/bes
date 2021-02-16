@@ -10,7 +10,7 @@ from .vmware_error import vmware_error
 
 class vmware_vmx_file(object):
   'Class do deal with vmware vmx files'
-  
+
   @classmethod
   def nickname(clazz, vmx_filename):
     'Return the nickname for a vmx file'

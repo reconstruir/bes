@@ -316,7 +316,7 @@ class vmware_client(object):
     url = self._make_url('vms/{}/sharedfolders/{}'.format(vm_id, folder_id))
     response = self._make_request('delete', url)
     if response.status_code != 204:
-      raise vmware_error('Error deleting: "{}": {}'.format(url, response.status_code))
+      raise vmware_error('Error deleting: "{}": {}\n{}'.format(url, response.status_code, response.content))
 
   def vm_copy(self, vm_id, new_vm_id):
     check.check_string(vm_id)

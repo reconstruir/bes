@@ -82,7 +82,13 @@ class vmware(object):
       self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(target_vm_id))
       self.vm_wait_for_can_run_programs(target_vm_id, username, password, interactive, 10) #num_tries)
       
-    return self._do_run_program(target_vmx_filename, username, password, program, interactive)
+    rv = self._do_run_program(target_vmx_filename, username, password, program, interactive)
+
+    if clone_vm:
+      self._vm_stop(target_vmx_filename)
+      self._vm_delete(target_vmx_filename)
+
+    return rv
 
   def _do_run_program(self, vmx_filename, username, password, program, interactive):
     check.check_string(vmx_filename)
@@ -302,6 +308,10 @@ class vmware(object):
       if rv.exit_code != 0:
         raise vmware_error('vm_run_package: failed to: "{}"'.format(rmdir_cmd))
 
+    if not debug and clone_vm:
+      self._vm_stop(target_vmx_filename)
+      self._vm_delete(target_vmx_filename)
+      
     if process:
       print('joining process')
       process.join()
@@ -351,7 +361,29 @@ class vmware(object):
       args.append('-cloneName="{}"'.format(clone_name))
     rv = vmware_vmrun_exe.call_vmrun(args)
     return rv
-  
+
+  def _vm_delete(self, vmx_filename):
+    check.check_string(vmx_filename)
+    
+    args = self._authentication_args() + [
+      'deleteVM',
+      vmx_filename,
+    ]
+    rv = vmware_vmrun_exe.call_vmrun(args)
+    if rv.exit_code != 0:
+      raise vmware_error('_vm_delete: failed to delete: "{}"'.format(vmx_filename))
+
+  def _vm_stop(self, vmx_filename):
+    check.check_string(vmx_filename)
+    
+    args = self._authentication_args() + [
+      'stop',
+      vmx_filename,
+    ]
+    rv = vmware_vmrun_exe.call_vmrun(args)
+    if rv.exit_code != 0:
+      raise vmware_error('_vm_stop: failed to stop: "{}"'.format(vmx_filename))
+    
   def _resolve_vmx_filename(self, vm_id):
     return self._resolve_vmx_filename_local_vms(vm_id) or self._resolve_vmx_filename_rest_vms(vm_id)
   
