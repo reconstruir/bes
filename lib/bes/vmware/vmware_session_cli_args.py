@@ -56,6 +56,12 @@ class vmware_session_cli_args(object):
     self.__vmware_session_add_common_args(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
+
+    # vm_delete
+    p = subparser.add_parser('vm_delete', help = 'Delete a vm.')
+    self.__vmware_session_add_common_args(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
     
   def __vmware_session_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,

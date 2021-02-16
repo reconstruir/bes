@@ -71,3 +71,7 @@ class vmware_session_cli_handler(cli_command_handler):
   
   def vm_restart(self, vm_id, wait):
     return self._handle_session_command('vm_restart', vm_id, wait)
+
+  def vm_delete(self, vm_id):
+    return self._handle_session_command('vm_delete', vm_id)
+  
