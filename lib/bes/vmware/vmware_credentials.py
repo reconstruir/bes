@@ -93,8 +93,14 @@ sleep 1
         print_error = i >= 5
         clazz._do_set_credentials(username, password, print_error)
         clazz._log.log_d('set_credentials: try {} of {} succeeded'.format(i, num_tries))
-        assert not clazz._vmrest_config_is_corrupt()
-        assert clazz._vmrest_config_exists()
+        if clazz._vmrest_config_is_corrupt():
+          clazz._log.log_d('set_credentials: vmrest config is corrupt even though set was successfull')
+          time.sleep(1.0)
+          continue
+        if not clazz._vmrest_config_exists():
+          clazz._log.log_d('set_credentials: vmrest config does not exists even though set was successfull')
+          time.sleep(1.0)
+          continue
         return
       except vmware_error as ex:
         clazz._log.log_d('set_credentials: try {} caught {}'.format(i, ex))
