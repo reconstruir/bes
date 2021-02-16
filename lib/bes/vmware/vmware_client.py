@@ -342,9 +342,16 @@ class vmware_client(object):
     self._log.log_d('vm_copy: response_data={}'.format(pprint.pformat(response_data)))
     return response_data
 
-  def vm_delete(self, vm_id):
+  def vm_delete(self, vm_id, force_shutdown):
     check.check_string(vm_id)
+    check.check_bool(force_shutdown)
 
+    self._log.log_d('vm_delete: vm_id={} force_shutdown={}'.format(vm_id, force_shutdown))
+    
+    if force_shutdown:
+      self._log.log_d('vm_delete: shutting vm down first.')
+      self.vm_set_power(vm_id, 'off')
+      
     url = self._make_url('vms/{}'.format(vm_id))
     response = self._make_request('delete', url)
 

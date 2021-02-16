@@ -60,6 +60,9 @@ class vmware_session_cli_args(object):
     # vm_delete
     p = subparser.add_parser('vm_delete', help = 'Delete a vm.')
     self.__vmware_session_add_common_args(p)
+    p.add_argument('--shutdown', action = 'store_true', default = False,
+                   dest = 'force_shutdown',
+                   help = 'Force the vm to shutdown first [ False ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
     

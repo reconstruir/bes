@@ -66,12 +66,12 @@ class vmware_session_cli_handler(cli_command_handler):
   def vm_copy(self, vm_id, new_vm_id):
     return self._handle_session_command('vm_copy', vm_id, new_vm_id)
 
-  def vm_delete(self, vm_id):
-    return self._handle_session_command('vm_delete', vm_id)
+  def vm_delete(self, vm_id, force_shutdown):
+    return self._handle_session_command('vm_delete', vm_id, force_shutdown)
   
   def vm_restart(self, vm_id, wait):
     return self._handle_session_command('vm_restart', vm_id, wait)
 
-  def vm_delete(self, vm_id):
-    return self._handle_session_command('vm_delete', vm_id)
+  def vm_delete(self, vm_id, force_shutdown):
+    return self._handle_session_command('vm_delete', vm_id, force_shutdown)
   
