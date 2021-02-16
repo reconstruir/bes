@@ -138,7 +138,6 @@ class vmware(object):
     assert rv.exit_code == 0
     new_vm_id = self._vmx_filename_to_id(new_vmx_filename)
     self._log.log_d('clone worked: new_mv_id={} new_vmx_filename={}'.format(new_vm_id, new_vmx_filename))
-    print('clone worked: new_mv_id={} new_vmx_filename={}'.format(new_vm_id, new_vmx_filename))
     return new_vm_id, new_vmx_filename
   
   def vm_can_run_program(self, vm_id, username, password, interactive):
@@ -158,7 +157,7 @@ class vmware(object):
       self._log.log_d('CACA: vm_can_run_program: exit_code={}'.format(rv.exit_code))
       return rv.exit_code == 0
     except vmware_error as ex:
-      print('caught: "{}"'.format(str(ex)))
+      pass
     return False
 
   def vm_wait_for_can_run_programs(self, vm_id, username, password, interactive, num_tries):
