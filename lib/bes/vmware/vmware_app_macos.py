@@ -51,3 +51,8 @@ end tell
   def host_type(self):
     'Host type form vmrun authentication.'
     return 'fusion'
+
+  #@abstractmethod
+  def preferences_filename(self):
+    'The full path to the preferneces filename.'
+    return path.expanduser('~/Library/Preferences/VMware Fusion/preferences')

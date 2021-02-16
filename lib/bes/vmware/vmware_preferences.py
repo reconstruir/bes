@@ -7,7 +7,9 @@ from bes.common.check import check
 from bes.system.host import host
 
 from bes.properties_file_v2.properties_editor import properties_editor
+
 from .vmware_preferences_formatter import vmware_preferences_formatter
+from .vmware_app import vmware_app
 
 class vmware_preferences(properties_editor):
 
@@ -19,7 +21,4 @@ class vmware_preferences(properties_editor):
 
   @classmethod
   def default_preferences_filename(clazz):
-    if host.is_macos():
-      return path.expanduser('~/Library/Preferences/VMware Fusion/preferences')
-    else:
-      assert False
+    return vmware_app().preferences_filename()

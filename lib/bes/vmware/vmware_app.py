@@ -36,7 +36,17 @@ class vmware_app(vmware_app_base):
   def host_type(self):
     'Host type form vmrun authentication.'
     return self._impl.host_type()
-    
+
+  #@abstractmethod
+  def host_type(self):
+    'Host type form vmrun authentication.'
+    return self._impl.host_type()
+
+  #@abstractmethod
+  def preferences_filename(self):
+    'The full path to the preferneces filename.'
+    return self._impl.preferences_filename()
+  
   @classmethod
   def _find_impl_class(clazz):
     system = platform.system()

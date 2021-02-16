@@ -31,3 +31,7 @@ class vmware_app_linux(platform_determiner_base):
     'Host type form vmrun authentication.'
     return 'ws'
   
+  #@abstractmethod
+  def preferences_filename(self):
+    'The full path to the preferneces filename.'
+    return '/etc/vmware/config'

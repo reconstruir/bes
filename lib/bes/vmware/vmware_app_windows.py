@@ -29,4 +29,8 @@ class vmware_app_windows(platform_determiner_base):
   def host_type(self):
     'Host type form vmrun authentication.'
     return 'ws'
-  
+
+  #@abstractmethod
+  def preferences_filename(self):
+    'The full path to the preferneces filename.'
+    return r'C:\Documents and Settings\All Users\Application Data\VMware\VMware Workstation\config.ini'
