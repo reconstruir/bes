@@ -6,11 +6,13 @@ import multiprocessing
 import socket
 import sys
 import time
+import tempfile
 
 from bes.system.log import logger
 from bes.system.command_line import command_line
 from bes.system.host import host
 from bes.common.check import check
+from bes.common.string_util import string_util
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
@@ -61,24 +63,28 @@ class vmware(object):
     return self._session
 
   def vm_run_program(self, vm_id, username, password, program,
-                     copy_vm, dont_ensure):
+                     clone_vm, dont_ensure, interactive):
     check.check_string(vm_id)
     check.check_string(username)
     check.check_string(password)
     check.check_string_seq(program)
-    check.check_bool(copy_vm)
+    check.check_bool(clone_vm)
     check.check_bool(dont_ensure)
+    check.check_bool(interactive)
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
     self._log.log_d('vm_run_program: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
-    if not dont_ensure:
-      self._ensure_running_if_needed(vm_id)
-      self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(vm_id))
-      self.vm_wait_for_can_run_programs(vm_id, username, password, 10) #num_tries)
-      
-    return self._do_run_program(vmx_filename, username, password, program)
 
-  def _do_run_program(self, vmx_filename, username, password, program):
+    target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id, vmx_filename, clone_vm)
+    
+    if not dont_ensure or clone_vm:
+      self._ensure_running_if_needed(target_vm_id)
+      self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(target_vm_id))
+      self.vm_wait_for_can_run_programs(target_vm_id, username, password, interactive, 10) #num_tries)
+      
+    return self._do_run_program(target_vmx_filename, username, password, program, interactive)
+
+  def _do_run_program(self, vmx_filename, username, password, program, interactive):
     check.check_string(vmx_filename)
     check.check_string(username)
     check.check_string(password)
@@ -87,34 +93,74 @@ class vmware(object):
     assert path.isfile(vmx_filename)
     
     program_args = command_line.parse_args(program)
+    interactive_args = [ '-interactive' ] if interactive else []
     args = self._authentication_args(username = username, password = password) + [
       'runProgramInGuest',
       vmx_filename,
-      '-interactive',
-    ] + program_args
+    ] + interactive_args + program_args
     self._log.log_d('vm_run_program: args={}'.format(args))
     return vmware_vmrun_exe.call_vmrun(args)
+
+  @classmethod
+  def _tmp_nickname_part(clazz):
+    d = tempfile.mkdtemp()
+    b = path.basename(d)
+    file_util.remove(d)
+    return string_util.remove_head(b, 'tmp')
   
-  def vm_can_run_program(self, vm_id, username, password):
+  def _clone_vm_if_needed(self, vm_id, vmx_filename, clone_vm):
+    if not clone_vm:
+      return vm_id, vmx_filename
+    
+    vms_root_dir = path.normpath(path.join(path.dirname(vmx_filename), path.pardir))
+    self.vm_set_power(vm_id, 'off', None, None, None, 1)
+    src_vmx_nickname = vmware_vmx_file.nickname(vmx_filename)
+    tmp_nickname_part = self._tmp_nickname_part()
+    new_vmx_nickname = '{}_clone_{}'.format(src_vmx_nickname, tmp_nickname_part)
+    new_vm_root_dir_basename = '{}.vmwarevm'.format(new_vmx_nickname)
+    new_vm_root_dir = path.join(vms_root_dir, new_vm_root_dir_basename)
+    file_util.mkdir(new_vm_root_dir)
+    new_vmx_basename = '{}.vmx'.format(new_vmx_nickname)
+    new_vmx_filename = path.join(new_vm_root_dir, new_vmx_basename)
+    rv = self.vm_clone(vm_id,
+                       new_vmx_filename,
+                       full = False,
+                       snapshot_name = None,
+                       clone_name = new_vmx_nickname)
+    if rv.exit_code != 0:
+      print('clone failed: {}'.format(rv.stdout))
+    assert rv.exit_code == 0
+    new_vm_id = self._vmx_filename_to_id(new_vmx_filename)
+    self._log.log_d('clone worked: new_mv_id={} new_vmx_filename={}'.format(new_vm_id, new_vmx_filename))
+    print('clone worked: new_mv_id={} new_vmx_filename={}'.format(new_vm_id, new_vmx_filename))
+    return new_vm_id, new_vmx_filename
+  
+  def vm_can_run_program(self, vm_id, username, password, interactive):
     check.check_string(vm_id)
     check.check_string(username)
     check.check_string(password)
+    check.check_bool(interactive)
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
+    self._log.log_d('vm_can_run_program: vm_id={} vmx_filename={} username={} password={}'.format(vm_id,
+                                                                                                  vmx_filename,
+                                                                                                  username,
+                                                                                                  password))
 
     try:
-      self._do_run_program(vmx_filename, username, password, '/bin/true')
-      return True
+      rv = self._do_run_program(vmx_filename, username, password, '/bin/bash --version', interactive)
+      self._log.log_d('CACA: vm_can_run_program: exit_code={}'.format(rv.exit_code))
+      return rv.exit_code == 0
     except vmware_error as ex:
       print('caught: "{}"'.format(str(ex)))
     return False
 
-  def vm_wait_for_can_run_programs(self, vm_id, username, password, num_tries):
+  def vm_wait_for_can_run_programs(self, vm_id, username, password, interactive, num_tries):
     check.check_string(vm_id)
     check.check_string(username)
     check.check_string(password)
 
-    sleep_time = 1.0
+    sleep_time = 5.0
     assert num_tries > 0
 
     self._log.log_d('vm_wait_for_can_run_programs: vm_id={} username={} password={} num_tries={}'.format(vm_id,
@@ -123,17 +169,17 @@ class vmware(object):
                                                                                                         num_tries))
     for i in range(1, num_tries + 1):
       self._log.log_d('vm_wait_for_can_run_programs: try {} of {}'.format(i, num_tries))
-      if self.vm_can_run_program(vm_id, username, password):
+      if self.vm_can_run_program(vm_id, username, password, interactive):
         self._log.log_d('vm_wait_for_can_run_programs: try {} success'.format(i))
-        return True
+        return
       self._log.log_d('vm_wait_for_can_run_programs: sleeping for {} seconds'.format(sleep_time))
       time.sleep(sleep_time)
     self._log.log_d('vm_wait_for_can_run_programs: timed out waiting for vm to be able to run programs.')
-    return False
+    raise vmware_error('vm_wait_for_can_run_programs: timed out waiting for vm to be able to run programs.')
   
   def vm_run_package(self, vm_id, username, password, package_dir,
-                     entry_command, entry_command_args, copy_vm,
-                     dont_ensure, output_filename, tail_log,
+                     entry_command, entry_command_args, clone_vm,
+                     dont_ensure, interactive, output_filename, tail_log,
                      debug, tty):
     check.check_string(vm_id)
     check.check_string(username)
@@ -141,8 +187,9 @@ class vmware(object):
     check.check_string(package_dir)
     check.check_string(entry_command)
     check.check_string_seq(entry_command_args)
-    check.check_bool(copy_vm)
+    check.check_bool(clone_vm)
     check.check_bool(dont_ensure)
+    check.check_bool(interactive)
     check.check_string(output_filename, allow_none = True)
     check.check_bool(tail_log)
     check.check_bool(debug)
@@ -156,10 +203,16 @@ class vmware(object):
                                                                                      vmx_filename,
                                                                                      dont_ensure))
 
-    if not dont_ensure:
-      self._ensure_running_if_needed(vm_id)
-      self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(vm_id))
-      self.vm_wait_for_can_run_programs(vm_id, username, password, 10) #num_tries)
+    target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id, vmx_filename, clone_vm)
+    assert target_vm_id
+    assert path.isfile(target_vmx_filename)
+    self._log.log_d('vm_run_package: target_vm_id={} target_vmx_filename={}'.format(target_vm_id,
+                                                                                    target_vmx_filename))
+    
+    if not dont_ensure or clone_vm:
+      self._ensure_running_if_needed(target_vm_id)
+      self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(target_vm_id))
+      self.vm_wait_for_can_run_programs(target_vm_id, username, password, interactive, 10)
       
     tmp_dir_local = temp_file.make_temp_dir(suffix = '-run_package.dir', delete = not debug)
     if debug:
@@ -170,10 +223,10 @@ class vmware(object):
 
     rmdir_cmd = '/bin/rm -rf {}'.format(tmp_remote_dir)
     mkdir_cmd = '/bin/mkdir -p {}'.format(tmp_remote_dir)
-    rv = self.vm_run_program(vm_id, username, password, rmdir_cmd, False, False)
+    rv = self._do_run_program(target_vmx_filename, username, password, rmdir_cmd, interactive)
     if rv.exit_code != 0:
       raise vmware_error('vm_run_package: failed to: "{}"'.format(rmdir_cmd))
-    rv = self.vm_run_program(vm_id, username, password, mkdir_cmd, False, False)
+    rv = self._do_run_program(target_vmx_filename, username, password, mkdir_cmd, interactive)
     if rv.exit_code != 0:
       raise vmware_error('vm_run_package: failed to: "{}" - {}\n{}\n'.format(mkdir_cmd,
                                                                              rv.exit_code,
@@ -191,8 +244,8 @@ class vmware(object):
     self._log.log_d('      vm_run_package: tmp_caller_script={}'.format(tmp_caller_script))
     self._log.log_d('      vm_run_package: tmp_output_log={}'.format(tmp_output_log))
     
-    self.vm_copy_to(vm_id, username, password, tmp_package.local, tmp_package.remote, True)
-    self.vm_copy_to(vm_id, username, password, tmp_caller_script.local, tmp_caller_script.remote, True)
+    self.vm_copy_to(target_vm_id, username, password, tmp_package.local, tmp_package.remote, True)
+    self.vm_copy_to(target_vm_id, username, password, tmp_caller_script.local, tmp_caller_script.remote, True)
 
     parsed_entry_command_args = command_line.parse_args(entry_command_args)
     debug_args = []
@@ -204,8 +257,8 @@ class vmware(object):
     process = None
     if tail_log:
       debug_args.extend([ '--tail-log-port', str(9000) ])
-      resolved_vm_id = self.session.resolve_vm_id(vm_id)
-      ip_address = self.session.call_client('vm_get_ip_address', resolved_vm_id)
+      resolved_target_vm_id = self.session.resolve_vm_id(target_vm_id)
+      ip_address = self.session.call_client('vm_get_ip_address', resolved_target_vm_id)
       print('ip_address={}'.format(ip_address))
 
       def _process_main(*args, **kargs):
@@ -230,31 +283,22 @@ class vmware(object):
       process.daemon = True
       process.start()
 
-    #print(debug_args)
     caller_args = [ tmp_caller_script.remote ] + debug_args + [
       tmp_package.remote,      
       entry_command,
       tmp_output_log.remote,      
     ] + parsed_entry_command_args
-#    args = self._authentication_args(username = username, password = password) + [
-#      'runProgramInGuest',
-#      vmx_filename,
-#      '-interactive',
-#    ] + caller_args
-#    self._log.log_d('vm_run_package: caller_args={}'.format(caller_args))
-#    rv = vmware_vmrun_exe.call_vmrun(args)
-    rv = self._do_run_program(vmx_filename, username, password, caller_args)
+    rv = self._do_run_program(target_vmx_filename, username, password, caller_args, interactive)
  
-    self.vm_copy_from(vm_id, username, password, tmp_output_log.remote, tmp_output_log.local, True)
+    self.vm_copy_from(target_vm_id, username, password, tmp_output_log.remote, tmp_output_log.local, True)
 
     with file_util.open_with_default(filename = output_filename) as f:
       log_content = file_util.read(tmp_output_log.local, codec = 'utf-8')
-      #print('log_content={}'.format(log_content))
       f.write(log_content)
 
     # cleanup the tmp dir but only if debug is False
     if not debug:
-      rv = self.vm_run_program(vm_id, username, password, rmdir_cmd, False, False)
+      rv = self._do_run_program(target_vmx_filename, username, password, rmdir_cmd, interactive)
       if rv.exit_code != 0:
         raise vmware_error('vm_run_package: failed to: "{}"'.format(rmdir_cmd))
 
@@ -309,8 +353,6 @@ class vmware(object):
     return rv
   
   def _resolve_vmx_filename(self, vm_id):
-#    if isinstance(vm_id, vmware_vm):
-#      return vm_id.vm_id
     return self._resolve_vmx_filename_local_vms(vm_id) or self._resolve_vmx_filename_rest_vms(vm_id)
   
   def _resolve_vmx_filename_local_vms(self, vm_id):
@@ -325,9 +367,16 @@ class vmware(object):
     rest_vms = self.session.client.vms()
     for vm in rest_vms:
       if vm_id == vm.vm_id:
-        return vm.path
+        return vm.vmx_filename
     return None
 
+  def _vmx_filename_to_id(self, vmx_filename):
+    rest_vms = self.session.client.vms()
+    for vm in rest_vms:
+      if vmx_filename == vm.vmx_filename:
+        return vm.vm_id
+    return None
+  
   def _authentication_args(self, username = None, password = None):
     args = [ '-T', self._app.host_type() ]
     if username:
@@ -342,7 +391,6 @@ class vmware(object):
     check.check_string(password)
     check.check_string(local_filename)
     check.check_string(remote_filename)
-    check.check_bool(dont_ensure)
 
     src_vmx_filename = self._resolve_vmx_filename(vm_id)
     
@@ -393,7 +441,7 @@ class vmware(object):
     resolved_vm_id = self.session.resolve_vm_id(vm_id)
     self.session.call_client('vm_set_power', resolved_vm_id, state, client_wait)
     if wait == 'login':
-      self.vm_wait_for_can_run_programs(vm_id, username, password, num_tries)
+      self.vm_wait_for_can_run_programs(vm_id, username, password, interactive, num_tries)
     
   _RUN_PACKAGE_CALLER_PYTHON = r'''#!/usr/bin/env python
 

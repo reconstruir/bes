@@ -9,9 +9,10 @@ class vmware_cli_args(object):
     
     # vm_run_program
     p = subparser.add_parser('vm_run_program', help = 'Run a program in a vm.')
-    p.add_argument('--copy', action = 'store_true', default = False,
-                   dest = 'copy_vm',
-                   help = 'Run the program in a copy of the vm [ False ]')
+    p.add_argument('--clone-vm', action = 'store_true', default = False,
+                   help = 'Run the program in a clone of the vm [ False ]')
+    p.add_argument('--interactive', action = 'store_true', default = False,
+                   help = 'Run the program in interactive mode [ False ]')
     p.add_argument('--dont-ensure', action = 'store_true', default = False,
                    dest = 'dont_ensure',
                    help = 'Dont ensure that both vmware and the vm are running [ False ]')
@@ -33,9 +34,10 @@ class vmware_cli_args(object):
     p.add_argument('--dont-ensure', action = 'store_true', default = False,
                    dest = 'dont_ensure',
                    help = 'Dont ensure that both vmware and the vm are running [ False ]')
-    p.add_argument('--copy', action = 'store_true', default = False,
-                   dest = 'copy_vm',
-                   help = 'Run the package in a copy of the vm [ False ]')
+    p.add_argument('--clone-vm', action = 'store_true', default = False,
+                   help = 'Run the package in a clone of the vm [ False ]')
+    p.add_argument('--interactive', action = 'store_true', default = False,
+                   help = 'Run the program in interactive mode [ False ]')
     p.add_argument('--tail-log', action = 'store_true', default = False,
                    help = 'Tail the log [ False ]')
     p.add_argument('-o', '--output', action = 'store', default = None,

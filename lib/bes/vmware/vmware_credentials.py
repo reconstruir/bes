@@ -97,7 +97,7 @@ sleep 1
         assert clazz._vmrest_config_exists()
         return
       except vmware_error as ex:
-        clazz._log.log_e('set_credentials: try {} caught {}'.format(i, ex))
+        clazz._log.log_d('set_credentials: try {} caught {}'.format(i, ex))
         last_exception = ex
         time.sleep(5.0)
     assert last_exception != None
@@ -129,7 +129,7 @@ sleep 1
     if clazz._vmrest_config_is_corrupt():
       msg = 'Failed to set credentials.  Corrupt {}'.format(clazz._VMREST_CONFIG_FILENAME)
       if print_error:
-        clazz._log.log_e(msg)
+        clazz._log.log_i(msg)
       raise vmware_error(msg)
     
   @classmethod

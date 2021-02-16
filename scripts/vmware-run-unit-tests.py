@@ -35,6 +35,8 @@ class vmware_tester(object):
                    help = 'tty to log to in debug mode [ False ]')
     p.add_argument('--tail-log', action = 'store_true', default = False,
                    help = 'Tail the log [ False ]')
+    p.add_argument('--clone-vm', action = 'store_true', default = False,
+                   help = 'Clone the vm [ False ]')
     p.add_argument('--dir', action = 'store', default = os.getcwd(),
                    dest = 'source_dir',
                    help = 'Directory to use for the package [ False ]')
@@ -61,17 +63,19 @@ class vmware_tester(object):
     env = os_env.clone_current_env(d = {
       'xBES_LOG': 'vmware=debug',
     })
-    debug_args = []
+    extra_args = []
     if args.debug:
-      debug_args.append('--debug')
+      extra_args.append('--debug')
     if args.tty:
-      debug_args.extend([ '--tty', tty ])
+      extra_args.extend([ '--tty', tty ])
     if args.tail_log:
-      debug_args.append('--tail-log')
+      extra_args.append('--tail-log')
+    if args.clone_vm:
+      extra_args.append('--clone-vm')
     cmd = [
       'bin/best.py',
       'vmware', 'vm_run_package',
-    ] + debug_args + [
+    ] + extra_args + [
       args.vm_id,
       args.username,
       args.password,

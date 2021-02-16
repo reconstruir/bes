@@ -14,17 +14,17 @@ class vmware_cli_handler(cli_command_handler):
     super(vmware_cli_handler, self).__init__(cli_args)
     self._vmware = vmware()
 
-  def vm_run_program(self, vm_id, username, password, program, copy_vm, dont_ensure):
-    rv = self._vmware.vm_run_program(vm_id, username, password, program, copy_vm, dont_ensure)
+  def vm_run_program(self, vm_id, username, password, program, clone_vm, dont_ensure, interactive):
+    rv = self._vmware.vm_run_program(vm_id, username, password, program, clone_vm, dont_ensure, interactive)
     return rv.exit_code
 
   def vm_run_package(self, vm_id, username, password, package_dir,
-                     entry_command, entry_command_args, copy_vm,
-                     dont_ensure, output_filename, tail_log,
+                     entry_command, entry_command_args, clone_vm,
+                     dont_ensure, interactive, output_filename, tail_log,
                      debug, tty):
     rv = self._vmware.vm_run_package(vm_id, username, password, package_dir,
-                                     entry_command, entry_command_args, copy_vm,
-                                     dont_ensure, output_filename, tail_log,
+                                     entry_command, entry_command_args, clone_vm,
+                                     dont_ensure, interactive, output_filename, tail_log,
                                      debug, tty)
     return rv.exit_code
 
