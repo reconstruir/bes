@@ -16,7 +16,12 @@ from .vmware_shared_folder import vmware_shared_folder_list
 from .vmware_vm import vmware_vm
 
 class vmware_client(object):
-  'A class to deal with the vmware fusion rest api'
+  '''
+  A class to deal with the vmware fusion/workstation rest api
+  fusion: https://code.vmware.com/apis/1044
+  workstation pro: https://code.vmware.com/apis/1043
+  
+  '''
   
   _log = logger('vmware_client')
   

@@ -16,7 +16,7 @@ class vmware_vmrun_exe(object):
   _log = logger('vmware')
   
   @classmethod
-  def call_vmrun(clazz, args, env = None, extra_env = None, cwd = None,
+  def call_vmrun(clazz, args, extra_env = None, cwd = None,
                  non_blocking = False, shell = False, raise_error = False):
     exe = which.which('vmrun')
     if not exe:
@@ -24,7 +24,7 @@ class vmware_vmrun_exe(object):
     quoted_exe = string_util.quote(exe)
     clazz._log.log_d('call_vmrun: quoted_exe={} args={} - {}'.format(quoted_exe, args, type(args)))
     cmd = [ string_util.quote(exe) ] + command_line.parse_args(args)
-    env = os_env.clone_current_env(d = {})
+    env = os_env.clone_current_env(d = extra_env)
     clazz._log.log_d('call_vmrun: cmd={}'.format(cmd))
     rv = execute.execute(cmd,
                          env = env,

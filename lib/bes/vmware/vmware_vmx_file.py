@@ -35,3 +35,10 @@ class vmware_vmx_file(object):
     if not 'config.version = ' in content:
       return False
     return True
+
+  @classmethod
+  def check_vmx_file(clazz, filename):
+    'Raise an exception if filename is not a vmware vmx file.'
+    if not clazz.is_vmx_file(filename):
+      raise vmware_error('Not a vmware vmx file: "{}"'.format(filename))
+    return filename

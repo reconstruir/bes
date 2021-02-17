@@ -40,6 +40,9 @@ class vmware_tester(object):
     p.add_argument('--dir', action = 'store', default = os.getcwd(),
                    dest = 'source_dir',
                    help = 'Directory to use for the package [ False ]')
+    p.add_argument('-o', '--output', action = 'store', default = None,
+                   dest = 'output_filename',
+                   help = 'Output the log to filename instead of stdout [ False ]')
     p.add_argument('vm_id', action = 'store', default = None,
                    help = 'The vmware vmx filename for the vm to test [ None ]')
     p.add_argument('username', action = 'store', type = str, default = None,
@@ -72,6 +75,8 @@ class vmware_tester(object):
       extra_args.append('--tail-log')
     if args.clone_vm:
       extra_args.append('--clone-vm')
+    if args.output_filename:
+      extra_args.extend([ '--output', args.output_filename ])
     cmd = [
       'bin/best.py',
       'vmware', 'vm_run_package',
