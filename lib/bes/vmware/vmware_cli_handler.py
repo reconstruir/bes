@@ -41,12 +41,12 @@ class vmware_cli_handler(cli_command_handler):
     return rv.exit_code
 
   def vm_clone(self, vm_id, dst_vmx_filename, full, snapshot_name, clone_name):
-    rv = self._vmware.clone(vm_id,
-                            dst_vmx_filename,
-                            full = full,
-                            snapshot_name = snapshot_name,
-                            clone_name = clone_name)
-    return rv.exit_code
+    self._vmware.vm_clone(vm_id,
+                          dst_vmx_filename,
+                          full = full,
+                          snapshot_name = snapshot_name,
+                          clone_name = clone_name)
+    return 0
 
   def vm_copy_to(self, vm_id, local_filename, remote_filename):
     self._vmware.vm_copy_to(vm_id, local_filename, remote_filename)

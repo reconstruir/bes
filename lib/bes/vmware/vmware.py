@@ -339,7 +339,11 @@ class vmware(object):
     check.check_string(clone_name, allow_none = True)
 
     src_vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._runner.clone(src_vmx_filename, dst_vmx_filename, full = full, snapshot_name = snapshot_name, clone_name = clone_name)
+    self._runner.vm_clone(src_vmx_filename,
+                          dst_vmx_filename,
+                          full = full,
+                          snapshot_name = snapshot_name,
+                          clone_name = clone_name)
 
   def _resolve_vmx_filename(self, vm_id):
     return self._resolve_vmx_filename_local_vms(vm_id) or self._resolve_vmx_filename_rest_vms(vm_id)

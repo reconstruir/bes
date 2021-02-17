@@ -62,8 +62,10 @@ class vmware_cli_args(object):
     p.add_argument('--snapshot', action = 'store', type = str, default = None,
                    dest = 'snapshot_name',
                    help = 'The snapshot name []')
-#    p.add_argument('--clone-name', action = 'store', type = str, default = None,
-#                   help = 'The clone name []')
+    p.add_argument('--clone-name', action = 'store', type = str, default = None,
+                   help = 'The clone name []')
+    p.add_argument('--full', action = 'store_true', default = False,
+                   help = 'Whether to do full instead of linked clone []')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
     p.add_argument('dst_vmx_filename', action = 'store', type = str, default = None,
@@ -72,15 +74,8 @@ class vmware_cli_args(object):
     # vm_file_copy_to
     p = subparser.add_parser('vm_file_copy_to', help = 'Copy a local file to a vm.')
     vmware_options_cli_args.add_arguments(p)
-#    p.add_argument('--dont-ensure', action = 'store_true', default = False,
-#                   dest = 'dont_ensure',
-#                   help = 'Dont ensure that both vmware and the vm are running [ False ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
-#    p.add_argument('username', action = 'store', type = str, default = None,
-#                   help = 'VM username [ ]')
-#    p.add_argument('password', action = 'store', type = str, default = None,
-#                   help = 'VM username password [ ]')
     p.add_argument('local_filename', action = 'store', type = str, default = None,
                    help = 'The local filename [ ]')
     p.add_argument('remote_filename', action = 'store', type = str, default = None,
@@ -89,15 +84,8 @@ class vmware_cli_args(object):
     # vm_file_copy_from
     p = subparser.add_parser('vm_file_copy_from', help = 'Copy a remote vm file to a local file.')
     vmware_options_cli_args.add_arguments(p)
-#    p.add_argument('--dont-ensure', action = 'store_true', default = False,
-#                   dest = 'dont_ensure',
-#                   help = 'Dont ensure that both vmware and the vm are running [ False ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
-#    p.add_argument('username', action = 'store', type = str, default = None,
-#                   help = 'VM username [ ]')
-#    p.add_argument('password', action = 'store', type = str, default = None,
-#                   help = 'VM username password [ ]')
     p.add_argument('remote_filename', action = 'store', type = str, default = None,
                    help = 'The remote filename [ ]')
     p.add_argument('local_filename', action = 'store', type = str, default = None,
@@ -109,10 +97,6 @@ class vmware_cli_args(object):
     p.add_argument('--wait', action = 'store', default = None,
                    choices = ( 'ip', 'login', 'ssh', 'none' ),
                    help = 'Wait until the ip address is known or ssh server is up [ none ]')
-#    p.add_argument('--username', action = 'store', type = str, default = None,
-#                   help = 'VM username [ ]')
-#    p.add_argument('--password', action = 'store', type = str, default = None,
-#                   help = 'VM username password [ ]')
     p.add_argument('-n', '--num-tries', action = 'store', type = int, default = 10,
                    help = 'Number of tries for waits [ ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
