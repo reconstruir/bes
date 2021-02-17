@@ -18,10 +18,12 @@ class vmware_session(object):
     check.check_int(port, allow_none = True)
     check.check_credentials(credentials, allow_none = True)
 
-    if not credentials:
+    self._log.log_d('vmware_session() port={} credentials={}'.format(port, credentials))
+    
+    if not credentials or credentials.username :
       credentials = vmware_credentials.make_random_credentials()
+      self._log.log_d('vmware_session() using random credentials={}'.format(credentials))
 
-    self._log.log_d('vmware_session(port={} credentials={})'.format(port, credentials))
     self._port = port
     self._credentials = credentials
 

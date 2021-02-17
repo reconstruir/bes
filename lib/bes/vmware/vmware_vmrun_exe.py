@@ -17,7 +17,8 @@ class vmware_vmrun_exe(object):
   
   @classmethod
   def call_vmrun(clazz, args, extra_env = None, cwd = None,
-                 non_blocking = False, shell = False, raise_error = False):
+                 non_blocking = False, shell = False,
+                 raise_error = False, error_message = None):
     exe = which.which('vmrun')
     if not exe:
       raise vmware_error('vmrun not found')
@@ -34,7 +35,7 @@ class vmware_vmrun_exe(object):
                          non_blocking = non_blocking,
                          raise_error = False)
     if raise_error and rv.exit_code != 0:
-      cmd_flag = ' '.join(cmd)
-      msg = 'vmrun command failed: {}\n{}'.format(cmd_flag, rv.stdout)
+      cmd_flat = ' '.join(cmd)
+      msg = error_message or 'vmrun command failed: {}\n{}'.format(cmd_flat, rv.stdout)
       raise vmware_error(msg)
     return rv

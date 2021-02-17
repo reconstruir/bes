@@ -39,8 +39,9 @@ class vmware_vmrun(object):
     self._app = vmware_app()
     self._auth_args = self._make_vmrun_auth_args(self._app, self._login_credentials)
 
-  def run(self, args, env = None, extra_env = None, cwd = None,
-          non_blocking = False, shell = False, raise_error = False):
+  def run(self, args, extra_env = None, cwd = None,
+          non_blocking = False, shell = False, raise_error = False,
+          error_message = None):
     parsed_args = command_line.parse_args(args)
     vmrun_exe_args = self._auth_args + parsed_args
     self._log.log_d('run: vm_run_program: vmrun_exe_args={}'.format(vmrun_exe_args))
@@ -53,7 +54,7 @@ class vmware_vmrun(object):
 
 
   POWER_STATES = ( 'start', 'stop', 'reset', 'suspend', 'pause', 'unpause' )
-  def power(self, vmx_filename, state, gui = False, hard = False):
+  def vm_set_power_state(self, vmx_filename, state, gui = False, hard = False):
     check.check_string(vmx_filename)
     check.check_string(state)
     check.check_bool(gui)
@@ -79,7 +80,7 @@ class vmware_vmrun(object):
       pass
     return self.run(args)
 
-  def file_copy_to(self, vmx_filename, local_filename, remote_filename):
+  def vm_file_copy_to(self, vmx_filename, local_filename, remote_filename):
     check.check_string(vmx_filename)
     check.check_string(local_filename)
     check.check_string(remote_filename)
@@ -93,7 +94,7 @@ class vmware_vmrun(object):
     ]
     return self.run(args)
 
-  def file_copy_from(self, vmx_filename, remote_filename, local_filename):
+  def vm_file_copy_from(self, vmx_filename, remote_filename, local_filename):
     check.check_string(vmx_filename)
     check.check_string(remote_filename)
     check.check_string(local_filename)
@@ -106,6 +107,45 @@ class vmware_vmrun(object):
       local_filename,
     ]
     return self.run(args)
+
+  def vm_clone(self, src_vmx_filename, dst_vmx_filename, full = False, snapshot_name = None, clone_name = None):
+    check.check_string(src_vmx_filename)
+    check.check_string(dst_vmx_filename)
+    check.check_bool(full)
+    check.check_string(snapshot_name, allow_none = True)
+    check.check_string(clone_name, allow_none = True)
+
+    vmware_vmx_file.check_vmx_file(src_vmx_filename)
+    
+    args = [
+      'clone',
+      src_vmx_filename,
+      dst_vmx_filename,
+      'full' if full else 'linked',
+    ]
+    if snapshot_name:
+      args.append('-snapshot="{}"'.format(snapshot_name))
+    if clone_name:
+      args.append('-cloneName="{}"'.format(clone_name))
+    return self.run(args)
+
+  def vm_stop(self, vmx_filename):
+    check.check_string(vmx_filename)
+
+    vmware_vmx_file.check_vmx_file(src_vmx_filename)
+    args = [ 'stop', vmx_filename ]
+    return self.run(args,
+                    raise_error = True,
+                    error_message = 'Failed to stop vm: {}'.format(vmx_filename))
+
+  def vm_delete(self, vmx_filename):
+    check.check_string(vmx_filename)
+
+    vmware_vmx_file.check_vmx_file(src_vmx_filename)
+    args = [ 'deleteVM', vmx_filename ]
+    return self.run(args,
+                    raise_error = True,
+                    error_message = 'Failed to delete vm: {}'.format(vmx_filename))
   
   @classmethod
   def _make_vmrun_auth_args(clazz, app, cred):

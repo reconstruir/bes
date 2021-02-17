@@ -43,12 +43,12 @@ class vmware_tester(object):
     p.add_argument('-o', '--output', action = 'store', default = None,
                    dest = 'output_filename',
                    help = 'Output the log to filename instead of stdout [ False ]')
+    p.add_argument('--username', action = 'store', type = str, default = None,
+                   help = 'VM username [ ]')
+    p.add_argument('--password', action = 'store', type = str, default = None,
+                   help = 'VM username password [ ]')
     p.add_argument('vm_id', action = 'store', default = None,
                    help = 'The vmware vmx filename for the vm to test [ None ]')
-    p.add_argument('username', action = 'store', type = str, default = None,
-                   help = 'VM username [ ]')
-    p.add_argument('password', action = 'store', type = str, default = None,
-                   help = 'VM username password [ ]')
     p.add_argument('entry_command_args', action = 'store', default = [], nargs = '*',
                    help = 'Optional entry command args [ ]')
     args = p.parse_args()
@@ -77,16 +77,20 @@ class vmware_tester(object):
       extra_args.append('--clone-vm')
     if args.output_filename:
       extra_args.extend([ '--output', args.output_filename ])
+    username_args = []
+    if args.username:
+      username_args.extend([ '--username', args.username ])
+    if args.password:
+      username_args.extend([ '--password', args.password ])
     cmd = [
       'bin/best.py',
       'vmware', 'vm_run_package',
-    ] + extra_args + [
+    ] + extra_args + username_args + [
       args.vm_id,
-      args.username,
-      args.password,
       tmp_dir,
       self._ENTRY_COMMAND_FILENAME,
     ] + args.entry_command_args
+    self._log.log_d('cmd={}'.format(' '.join(cmd)))
     rv = execute.execute(cmd,
                          env = env,
                          raise_error = False,

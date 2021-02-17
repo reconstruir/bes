@@ -1,10 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import pprint
+
 from bes.common.check import check
 from bes.common.dict_util import dict_util
 from bes.config.simple_config import simple_config
 from bes.credentials.credentials import credentials
 from bes.script.blurber import blurber
+
+from .vmware_error import vmware_error
 
 class vmware_options(object):
   
@@ -17,6 +21,12 @@ class vmware_options(object):
     self.vmrest_port = None
     self.login_username = None
     self.login_password = None
+    self.dont_ensure = False
+    self.tty = None
+    self.clone_vm = False
+    self.vm_dir = None
+    self.wait_programs_num_tries = 10
+    self.wait_programs_sleep_time = 5.0
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_blurber(self.blurber)
@@ -27,37 +37,39 @@ class vmware_options(object):
     check.check_int(self.vmrest_port, allow_none = True)
     check.check_string(self.login_username, allow_none = True)
     check.check_string(self.login_password, allow_none = True)
-
+    check.check_bool(self.dont_ensure)
+    check.check_bool(self.dont_ensure)
+    check.check_string(self.tty, allow_none = True)
+    check.check_bool(self.clone_vm)
+    check.check_string(self.vm_dir, allow_none = True)
+    check.check_int(self.wait_programs_num_tries)
+    check.check_float(self.wait_programs_sleep_time)
+    
   def __str__(self):
-    return str(dict_util.hide_passwords(self.__dict__, [ 'vmrest_password', 'login_password' ]))
+    d = dict_util.hide_passwords(self.__dict__, [ 'vmrest_password', 'login_password' ])
+    return pprint.pformat(d)
     
   @property
   def vmrest_credentials(self):
+    if self.vmrest_username and not self.vmrest_password:
+      raise vmware_error('both vmrest_username and vmrest_password need to be given.')
+    if self.vmrest_password and not self.vmrest_username:
+      raise vmware_error('both vmrest_password and vmrest_username need to be given.')
+    if not self.vmrest_username:
+      assert not self.vmrest_password
+      return None
     return credentials('<cli>', username = self.vmrest_username, password = self.vmrest_password)
 
   @property
   def login_credentials(self):
+    if self.login_username and not self.login_password:
+      raise vmware_error('both login_username and login_password need to be given.')
+    if self.login_password and not self.login_username:
+      raise vmware_error('both login_password and login_username need to be given.')
+    if not self.login_username:
+      assert not self.login_password
+      return None
     return credentials('<cli>', username = self.login_username, password = self.login_password)
-
-  @classmethod
-  def add_argparse_arguments(clazz, p):
-    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
-                   help = 'Verbose output [ False ]')
-    p.add_argument('-d', '--debug', action = 'store_true', default = False,
-                   help = 'Debug mode [ False ]')
-    p.add_argument('--vmrest-username', action = 'store', type = str, default = None,
-                   help = 'Username for vmrest.  None means generate a random one. [ None ]')
-    p.add_argument('--vmrest-password', action = 'store', type = str, default = None,
-                   help = 'Password for vmrest.  None means generate a random one. [ None ]')
-    p.add_argument('--vmrest-port', action = 'store', type = int, default = 8697,
-                   dest = 'vmrest_port',
-                   help = 'Port for vmrest [ 8697 ]')
-    p.add_argument('--username', action = 'store', type = str, default = None,
-                   dest = 'login_username',
-                   help = 'Username for vm uer login [ ]')
-    p.add_argument('--password', action = 'store', type = str, default = None,
-                   dest = 'login_password',
-                   help = 'Password for vm user login [ ]')
 
   @classmethod
   def from_config_file(clazz, filename):
@@ -75,8 +87,15 @@ vmware
       raise vmware_error('No section "vmware" found in config file: "{}"'.format(filename))
     section = config.section('vmware')
     values = section.to_dict()
-    if 'vmrest_port' in values:
-      values['vmrest_port'] = int(values['vmrest_port'])
+
+    self._morph_type(values, 'vmrest_port', int)
+    self._morph_type(values, 'wait_programs_num_tries', int)
+    self._morph_type(values, 'wait_programs_sleep_time', float)
     return vmware_options(**values)
-    
+
+  @classmethod
+  def _morph_type(clazz, d, key, type_class):
+    if key in values:
+      values[key] = type_class(values[key])
+  
 check.register_class(vmware_options)
