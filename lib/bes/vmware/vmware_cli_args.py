@@ -92,9 +92,9 @@ class vmware_cli_args(object):
     vmware_options_cli_args.add_arguments(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
-    p.add_argument('command', action = 'store', default = [], nargs = '*',
-                   help = 'The command and optional arguments [ ]')
+    p.add_argument('command', action = 'store', default = [], nargs = '+',
+                   help = 'Command and optional args [ ]')
     
-  def _command_vmware(self, command, *args, **kargs):
+  def _command_vmware(self, __bes_command__, *args, **kargs):
     from .vmware_cli_handler import vmware_cli_handler
-    return vmware_cli_handler(kargs).handle_command(command)
+    return vmware_cli_handler(kargs).handle_command(__bes_command__)

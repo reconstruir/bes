@@ -17,8 +17,8 @@ class argparser_handler(object):
   def main(clazz, log_tag, parser, handler_object, command_group = None, args = None):
     log = logger(log_tag)
     args = parser.parse_args(args = args)
-    command_group = getattr(args, 'command_group', command_group)
-    command = getattr(args, 'command', None)
+    command_group = getattr(args, '__bes_command_group__', command_group)
+    command = getattr(args, '__bes_command__', None)
     log.log_d('command={} command_group={}'.format(command, command_group))
     possible_names = clazz._possible_method_names(command_group, command)
     log.log_d('possible_names={}'.format(possible_names))
@@ -41,7 +41,7 @@ class argparser_handler(object):
 
     if keywords:
       dict_args = copy.deepcopy(args.__dict__)
-      for key in [ 'command', 'command_group' ]:
+      for key in [ '__bes_command__', '__bes_command_group__' ]:
         if key in dict_args:
           del dict_args[key]
       args_blurb = '; '.join([ '{}={}'.format(key, value) for key, value in sorted(dict_args.items()) ])

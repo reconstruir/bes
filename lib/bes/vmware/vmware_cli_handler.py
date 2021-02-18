@@ -61,6 +61,6 @@ class vmware_cli_handler(cli_command_handler):
     return 0
 
   def vm_command(self, vm_id, command):
-    self._vmware.vm_command(vm_id, vm_id, command)
-    return 0
-  
+    rv = self._vmware.vm_command(vm_id, command)
+    print(rv.stdout)
+    return rv.exit_code

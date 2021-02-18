@@ -425,7 +425,7 @@ class vmware(object):
     check.check_string_seq(command)
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('vm_command: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
+    self._log.log_d('vm_command: vm_id={} vmx_filename={} command={}'.format(vm_id, vmx_filename, command))
     return self._runner.run(command)
       
   _RUN_PACKAGE_CALLER_PYTHON = r'''#!/usr/bin/env python
