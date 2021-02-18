@@ -327,6 +327,7 @@ class vmware(object):
     self._app.ensure_running()
     
     resolved_vm_id = self.session.resolve_vm_id(vm_id)
+    assert resolved_vm_id
     vm_label = '{}:{}'.format(vm_id, resolved_vm_id)
     self._log.log_d('_ensure_running_if_needed:{}: ensuring vm is running'.format(vm_label))
     self.session.ensure_vm_running(resolved_vm_id)
@@ -418,7 +419,15 @@ class vmware(object):
     self.session.call_client('vm_set_power', resolved_vm_id, state, client_wait)
     if wait == 'login':
       self.vm_wait_for_can_run_programs(vm_id, username, password, interactive, num_tries)
-    
+
+  def vm_command(self, vm_id, command):
+    check.check_string(vm_id)
+    check.check_string_seq(command)
+
+    vmx_filename = self._resolve_vmx_filename(vm_id)
+    self._log.log_d('vm_command: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
+    return self._runner.run(command)
+      
   _RUN_PACKAGE_CALLER_PYTHON = r'''#!/usr/bin/env python
 
 import argparse

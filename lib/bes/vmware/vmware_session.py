@@ -62,8 +62,11 @@ class vmware_session(object):
     func = getattr(self.client, method_name)
     return func(*args, **kargs)
 
-  def resolve_vm_id(self, name):
-    return self.call_client('vm_name_to_id', name)
+  def resolve_vm_id(self, name, raise_error = True):
+    vm_id = self.call_client('vm_name_to_id', name)
+    if not vm_id and raise_error:
+      raise vmware_error('failed to resolve vm id: "{}"'.format(name))
+    return vm_id
 
   def ensure_vm_running(self, vm_id):
     return self.call_client('vm_set_power', vm_id, 'on', wait = 'ssh')

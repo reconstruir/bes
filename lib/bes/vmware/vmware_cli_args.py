@@ -12,30 +12,16 @@ class vmware_cli_args(object):
     # vm_run_program
     p = subparser.add_parser('vm_run_program', help = 'Run a program in a vm.')
     vmware_options_cli_args.add_arguments(p)
-#    p.add_argument('--clone-vm', action = 'store_true', default = False,
-#                   help = 'Run the program in a clone of the vm [ False ]')
     p.add_argument('--interactive', action = 'store_true', default = False,
                    help = 'Run the program in interactive mode [ False ]')
-#    p.add_argument('--dont-ensure', action = 'store_true', default = False,
-#                   dest = 'dont_ensure',
-#                   help = 'Dont ensure that both vmware and the vm are running [ False ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
-    p.add_argument('program', action = 'store', default = [], nargs = '*',
+    p.add_argument('program', action = 'store', default = [], nargs = '+',
                    help = 'The program and optional arguments [ ]')
 
     # vm_run_package
     p = subparser.add_parser('vm_run_package', help = 'Run a package in a vm.')
     vmware_options_cli_args.add_arguments(p)
-#    p.add_argument('--debug', action = 'store_true', default = False,
-#                   help = 'Debug mode [ False ]')
-#    p.add_argument('--tty', action = 'store', default = None,
-#                   help = 'tty to log to in debug mode [ False ]')
-#    p.add_argument('--dont-ensure', action = 'store_true', default = False,
-#                   dest = 'dont_ensure',
-#                   help = 'Dont ensure that both vmware and the vm are running [ False ]')
-#    p.add_argument('--clone-vm', action = 'store_true', default = False,
-#                   help = 'Run the package in a clone of the vm [ False ]')
     p.add_argument('--interactive', action = 'store_true', default = False,
                    help = 'Run the program in interactive mode [ False ]')
     p.add_argument('--tail-log', action = 'store_true', default = False,
@@ -45,10 +31,6 @@ class vmware_cli_args(object):
                    help = 'Output the log to filename instead of stdout [ False ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
-#    p.add_argument('username', action = 'store', type = str, default = None,
-#                   help = 'VM username [ ]')
-#    p.add_argument('password', action = 'store', type = str, default = None,
-#                   help = 'VM username password [ ]')
     p.add_argument('package_dir', action = 'store', default = None,
                    help = 'The package source dir [ ]')
     p.add_argument('entry_command', action = 'store', default = None,
@@ -104,6 +86,14 @@ class vmware_cli_args(object):
     p.add_argument('state', action = 'store', type = str, default = None, nargs = '?',
                    choices = ( 'on', 'off', 'shutdown', 'suspend', 'pause', 'unpause' ),
                    help = 'The new power state [ ]')
+
+    # vm_command
+    p = subparser.add_parser('vm_command', help = 'Run a generic vmrun command.')
+    vmware_options_cli_args.add_arguments(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    p.add_argument('command', action = 'store', default = [], nargs = '*',
+                   help = 'The command and optional arguments [ ]')
     
   def _command_vmware(self, command, *args, **kargs):
     from .vmware_cli_handler import vmware_cli_handler

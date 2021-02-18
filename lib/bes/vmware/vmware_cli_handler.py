@@ -59,3 +59,8 @@ class vmware_cli_handler(cli_command_handler):
   def vm_set_power(self, vm_id, state, wait, num_tries):
     self._vmware.vm_set_power(vm_id, state, wait, num_tries)
     return 0
+
+  def vm_command(self, vm_id, command):
+    self._vmware.vm_command(vm_id, vm_id, command)
+    return 0
+  
