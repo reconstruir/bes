@@ -19,6 +19,7 @@ class vmware_client(object):
   '''
   A class to deal with the vmware fusion/workstation rest api
   fusion: https://code.vmware.com/apis/1044
+
   workstation pro: https://code.vmware.com/apis/1043
   
   '''
@@ -122,11 +123,16 @@ class vmware_client(object):
       raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
     return power_state == 'poweredOn'
 
+  POWER_STATES = ( 'on', 'off', 'shutdown', 'suspend', 'pause', 'unpause' )
   def vm_set_power(self, vm_id, state, wait = None):
     'Return power status for a vm.'
     check.check_string(vm_id)
     check.check_string(state)
     check.check_string(wait, allow_none = True)
+
+    if state not in self.POWER_STATES:
+      raise vmware_error('Invalid power stte "{}" - Should be one of: {}'.format(state,
+                                                                                 ' '.join(self.POWER_STATES)))
     
     url = self._make_url('vms/{}/power'.format(vm_id))
 
