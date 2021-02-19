@@ -88,12 +88,14 @@ class vmware_cli_args(object):
                    help = 'The new power state [ ]')
 
     # vm_command
-    p = subparser.add_parser('vm_command', help = 'Run a generic vmrun command.')
+    p = subparser.add_parser('vm_command', help = 'Run a generic vmrun command that take a vmx file as its first argument.')
     vmware_options_cli_args.add_arguments(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
-    p.add_argument('command', action = 'store', default = [], nargs = '+',
-                   help = 'Command and optional args [ ]')
+    p.add_argument('command', action = 'store', default = None,
+                   help = 'vmrun command that take a vmx file as its first argument [ ]')
+    p.add_argument('command_args', action = 'store', default = [], nargs = '*',
+                   help = 'Optional command args [ ]')
     
   def _command_vmware(self, __bes_command__, *args, **kargs):
     from .vmware_cli_handler import vmware_cli_handler

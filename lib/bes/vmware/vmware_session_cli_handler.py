@@ -1,12 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import pprint
-
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
-from bes.common.string_util import string_util
-from bes.key_value.key_value_list import key_value_list
-from bes.text.text_table import text_table
 
 from .vmware_client_commands import vmware_client_commands
 from .vmware_error import vmware_error
@@ -20,9 +15,10 @@ class vmware_session_cli_handler(cli_command_handler):
   def __init__(self, cli_args):
     super(vmware_session_cli_handler, self).__init__(cli_args, options_class = vmware_session_options)
     check.check_vmware_session_options(self.options)
-
+    
   def _handle_session_command(self, command_name, *args, **kwargs):
-    session = vmware_session(port = None, credentials = None)
+    session = vmware_session(port = self.options.vmrest_port,
+                             credentials = self.options.vmrest_credentials)
     session.start()
     commands = vmware_client_commands(session.client, self.options)
     func = getattr(commands, command_name)

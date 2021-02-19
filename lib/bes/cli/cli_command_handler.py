@@ -4,6 +4,8 @@ import copy
 from bes.cli.argparser_handler import argparser_handler
 from bes.common.check import check
 
+from .cli_options import cli_options
+
 class cli_command_handler(object):
 
   def __init__(self, cli_args, options_class = None):
@@ -19,6 +21,10 @@ class cli_command_handler(object):
     else:
       options = options_class(**cli_args)
       args = argparser_handler.filter_keywords_args(options_class, cli_args)
+      if isinstance(options, cli_options):
+        config_file_key = options.config_file_key()
+        if config_file_key and config_file_key in args:
+          del args[config_file_key]
       return options, args
     
   def handle_command(self, command_name):

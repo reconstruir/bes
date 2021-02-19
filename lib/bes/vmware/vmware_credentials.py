@@ -78,7 +78,7 @@ sleep 1
     check.check_string(password)
     check.check_int(num_tries, allow_none = True)
 
-    num_tries = num_tries or 1
+    num_tries = num_tries or 10
     
     if num_tries < 1:
       raise vmware_error('Num tries should be between 1 and 10: {}'.format(num_tries))
@@ -128,7 +128,7 @@ sleep 1
                                                                                           rv.stdout,
                                                                                           rv.stderr))
       if rv.exit_code != 0:
-        vmware_error(clazz._EXPECT_SCRIPT_MSG_MAP(rv.exit_code))
+        raise vmware_error(clazz._EXPECT_SCRIPT_MSG_MAP[rv.exit_code])
     finally:
       file_util.remove(tmp_script)
 

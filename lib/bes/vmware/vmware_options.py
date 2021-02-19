@@ -1,34 +1,45 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import pprint
-
+from bes.cli.cli_options import cli_options
 from bes.common.check import check
-from bes.common.dict_util import dict_util
-from bes.config.simple_config import simple_config
 from bes.credentials.credentials import credentials
 from bes.script.blurber import blurber
 
 from .vmware_error import vmware_error
 
-class vmware_options(object):
+class vmware_options(cli_options):
+
+  def __init__(self, **kargs):
+    super(vmware_options, self).__init__(**kargs)
+
+  #@abstractmethod
+  def default_values(self):
+    'Return a dict of defaults for these options.'
+    return {
+      'blurber': blurber(),
+      'verbose': False,
+      'debug': False,
+      'vmrest_username': None,
+      'vmrest_password': None,
+      'vmrest_port': None,
+      'login_username': None,
+      'login_password': None,
+      'dont_ensure': False,
+      'tty': None,
+      'clone_vm': False,
+      'vm_dir': None,
+      'wait_programs_num_tries': 10,
+      'wait_programs_sleep_time': 5.0,
+    }
   
-  def __init__(self, *args, **kargs):
-    self.blurber = blurber()
-    self.verbose = False
-    self.debug = False
-    self.vmrest_username = None
-    self.vmrest_password = None
-    self.vmrest_port = None
-    self.login_username = None
-    self.login_password = None
-    self.dont_ensure = False
-    self.tty = None
-    self.clone_vm = False
-    self.vm_dir = None
-    self.wait_programs_num_tries = 10
-    self.wait_programs_sleep_time = 5.0
-    for key, value in kargs.items():
-      setattr(self, key, value)
+  #@abstractmethod
+  def sensitive_keys(self):
+    'Return list of keys that are secrets and should be protected from __str__.'
+    return [ 'vmrest_password', 'login_password' ]
+  
+  #@abstractmethod
+  def check_value_types(self):
+    'Check the type of each option.'
     check.check_blurber(self.blurber)
     check.check_bool(self.verbose)
     check.check_bool(self.debug)
@@ -44,11 +55,27 @@ class vmware_options(object):
     check.check_string(self.vm_dir, allow_none = True)
     check.check_int(self.wait_programs_num_tries)
     check.check_float(self.wait_programs_sleep_time)
-    
-  def __str__(self):
-    d = dict_util.hide_passwords(self.__dict__, [ 'vmrest_password', 'login_password' ])
-    return pprint.pformat(d)
-    
+
+  #@abstractmethod
+  def value_type_hints(self):
+    return {
+      'vmrest_port': int,
+      'wait_programs_num_tries': int,
+      'wait_programs_sleep_time': float,
+    }
+
+  #@abstractmethod
+  def config_file_key(self):
+    return 'config_filename'
+
+  #@abstractmethod
+  def config_file_section(self):
+    return 'vmware'
+
+  #@abstractmethod
+  def error_class(self):
+    return vmware_error
+  
   @property
   def vmrest_credentials(self):
     if self.vmrest_username and not self.vmrest_password:
@@ -70,32 +97,5 @@ class vmware_options(object):
       assert not self.login_password
       return None
     return credentials('<cli>', username = self.login_username, password = self.login_password)
-
-  @classmethod
-  def from_config_file(clazz, filename):
-    '''
-    Read vmware options from a config file with this format:
-vmware
-  vmrest_username: foo
-  vmrest_password: sekret
-  vmrest_port: 9999
-  login_username: fred
-  login_password: flintpass
-'''
-    config = simple_config.from_file(filename)
-    if not config.has_section('vmware'):
-      raise vmware_error('No section "vmware" found in config file: "{}"'.format(filename))
-    section = config.section('vmware')
-    values = section.to_dict()
-
-    self._morph_type(values, 'vmrest_port', int)
-    self._morph_type(values, 'wait_programs_num_tries', int)
-    self._morph_type(values, 'wait_programs_sleep_time', float)
-    return vmware_options(**values)
-
-  @classmethod
-  def _morph_type(clazz, d, key, type_class):
-    if key in values:
-      values[key] = type_class(values[key])
   
 check.register_class(vmware_options)

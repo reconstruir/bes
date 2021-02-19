@@ -15,14 +15,9 @@ class vmware_cli_handler(cli_command_handler):
   _log = logger('vmware_cli_handler')
   
   def __init__(self, cli_args):
-    self._log.log_d('cli_args={}'.format(cli_args))
-    config_filename = None
-    if 'config_filename' in cli_args:
-      config_filename = cli_args['config_filename']
-      del cli_args['config_filename']
-    self._log.log_d('config_filename={}'.format(config_filename))
     super(vmware_cli_handler, self).__init__(cli_args, options_class = vmware_options)
     check.check_vmware_options(self.options)
+    print('options={}'.format(self.options))
     self._vmware = vmware(self.options)
     
   def vm_run_program(self, vm_id, program, interactive):
@@ -60,7 +55,7 @@ class vmware_cli_handler(cli_command_handler):
     self._vmware.vm_set_power(vm_id, state, wait, num_tries)
     return 0
 
-  def vm_command(self, vm_id, command):
-    rv = self._vmware.vm_command(vm_id, command)
+  def vm_command(self, vm_id, command, command_args):
+    rv = self._vmware.vm_command(vm_id, command, command_args)
     print(rv.stdout)
     return rv.exit_code

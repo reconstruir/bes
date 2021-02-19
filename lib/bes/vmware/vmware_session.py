@@ -19,17 +19,16 @@ class vmware_session(object):
     check.check_credentials(credentials, allow_none = True)
 
     self._log.log_d('vmware_session() port={} credentials={}'.format(port, credentials))
-    
-    if not credentials or credentials.username :
-      credentials = vmware_credentials.make_random_credentials()
-      self._log.log_d('vmware_session() using random credentials={}'.format(credentials))
 
+    if not credentials or not credentials.username :
+      self._log.log_d('vmware_session() using random credentials={}'.format(credentials))
+      credentials = vmware_credentials.make_random_credentials()
+      vmware_credentials.set_credentials(credentials.username,
+                                         credentials.password,
+                                         num_tries = 100)
     self._port = port
     self._credentials = credentials
 
-    vmware_credentials.set_credentials(credentials.username,
-                                       credentials.password,
-                                       num_tries = 100)
     self.server = None
     self.client = None
 

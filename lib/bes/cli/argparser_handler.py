@@ -10,6 +10,8 @@ from bes.system.log import log
 from bes.fs.file_check import file_check
 from bes.git.git import git
 
+from .cli_options import cli_options
+
 class argparser_handler(object):
   'A class to simplify the process of calling functions to handle argparser commands'
 
@@ -167,5 +169,6 @@ class argparser_handler(object):
     result = []
     result.extend(clazz._options_clazz_attributes(options_clazz))
     for base_clazz in options_clazz.__bases__:
-      result.extend(clazz._options_clazz_attributes(base_clazz))
+      if base_clazz != cli_options:
+        result.extend(clazz._options_clazz_attributes(base_clazz))
     return result

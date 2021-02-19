@@ -90,6 +90,31 @@ class vmware(object):
 
     return rv
 
+  def vm_run_script(self, vm_id, program, interactive):
+    check.check_string(vm_id)
+    check.check_string_seq(program)
+    check.check_bool(interactive)
+
+    vmx_filename = self._resolve_vmx_filename(vm_id)
+    self._log.log_d('vm_run_program: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
+
+    target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
+                                                                 vmx_filename,
+                                                                 self._options.clone_vm)
+    
+    if not self._options.dont_ensure or self._options.clone_vm:
+      self._ensure_running_if_needed(target_vm_id)
+      self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(target_vm_id))
+      self.vm_wait_for_can_run_programs(target_vm_id, interactive)
+      
+    rv = self._do_run_program(target_vmx_filename, program, interactive)
+
+    if self._options.clone_vm and not self._options.debug:
+      self._runner.vm_stop(target_vmx_filename)
+      self._runner.vm_delete(target_vmx_filename)
+
+    return rv
+  
   def _do_run_program(self, vmx_filename, program, interactive):
     assert path.isfile(vmx_filename)
 
@@ -346,8 +371,11 @@ class vmware(object):
                           snapshot_name = snapshot_name,
                           clone_name = clone_name)
 
-  def _resolve_vmx_filename(self, vm_id):
-    return self._resolve_vmx_filename_local_vms(vm_id) or self._resolve_vmx_filename_rest_vms(vm_id)
+  def _resolve_vmx_filename(self, vm_id, raise_error = True):
+    vmx_filename = self._resolve_vmx_filename_local_vms(vm_id) or self._resolve_vmx_filename_rest_vms(vm_id)
+    if not vmx_filename and raise_error:
+      raise vmware_error('failed to resolve vmx filename for id: "{}"'.format(vm_id))
+    return vmx_filename
   
   def _resolve_vmx_filename_local_vms(self, vm_id):
     if vmware_vmx_file.is_vmx_file(vm_id):
@@ -420,13 +448,19 @@ class vmware(object):
     if wait == 'login':
       self.vm_wait_for_can_run_programs(vm_id, username, password, interactive, num_tries)
 
-  def vm_command(self, vm_id, command):
+  def vm_command(self, vm_id, command, command_args):
     check.check_string(vm_id)
-    check.check_string_seq(command)
+    check.check_string(command)
+    check.check_string_seq(command_args)
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('vm_command: vm_id={} vmx_filename={} command={}'.format(vm_id, vmx_filename, command))
-    return self._runner.run(command)
+    self._log.log_d('vm_command: vm_id={} vmx_filename={} command={} command_args={}'.format(vm_id,
+                                                                                             vmx_filename,
+                                                                                             command,
+                                                                                             command_args))
+    command_args = command_args or []
+    args = [ command, vmx_filename ] + command_args
+    return self._runner.run(args)
       
   _RUN_PACKAGE_CALLER_PYTHON = r'''#!/usr/bin/env python
 

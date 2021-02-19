@@ -69,10 +69,16 @@ class vmware_session_cli_args(object):
   def __vmware_session_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
-    p.add_argument('--username', action = 'store', type = str, default = None,
-                   help = 'Username [ ]')
-    p.add_argument('--password', action = 'store', type = str, default = None,
-                   help = 'Password [ ]')
+    p.add_argument('--vmrest-username', action = 'store', type = str, default = None,
+                   help = 'Username for vmrest.  None means generate a random one. [ None ]')
+    p.add_argument('--vmrest-password', action = 'store', type = str, default = None,
+                   help = 'Password for vmrest.  None means generate a random one. [ None ]')
+    p.add_argument('--vmrest-port', action = 'store', type = int, default = 8697,
+                   dest = 'vmrest_port',
+                   help = 'Port for vmrest [ 8697 ]')
+    p.add_argument('--config', action = 'store', type = str, default = None,
+                   dest = 'config_filename',
+                   help = 'Use config filename [ False ]')
     
   def _command_vmware_session(self, command, *args, **kargs):
     from .vmware_session_cli_handler import vmware_session_cli_handler

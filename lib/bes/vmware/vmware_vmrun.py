@@ -1,30 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-#from collections import namedtuple
 import os.path as path
-#import multiprocessing
-#import socket
-#import sys
-#import time
-#import tempfile
 
 from bes.system.log import logger
 from bes.system.command_line import command_line
-#from bes.system.host import host
 from bes.common.check import check
-#from bes.common.string_util import string_util
-#from bes.fs.file_find import file_find
-#from bes.fs.file_util import file_util
-#from bes.fs.temp_file import temp_file
-#from bes.archive.archiver import archiver
 from bes.credentials.credentials import credentials
 
 from .vmware_app import vmware_app
 from .vmware_error import vmware_error
-#from .vmware_local_vm import vmware_local_vm
-#from .vmware_preferences import vmware_preferences
-#from .vmware_session import vmware_session
-#from .vmware_vm import vmware_vm
 from .vmware_vmrun_exe import vmware_vmrun_exe
 from .vmware_vmx_file import vmware_vmx_file
 
@@ -51,7 +35,6 @@ class vmware_vmrun(object):
                                        non_blocking = non_blocking,
                                        shell = shell,
                                        raise_error = raise_error)
-
 
   POWER_STATES = ( 'start', 'stop', 'reset', 'suspend', 'pause', 'unpause' )
   def vm_set_power_state(self, vmx_filename, state, gui = False, hard = False):
@@ -116,7 +99,6 @@ class vmware_vmrun(object):
     check.check_string(clone_name, allow_none = True)
 
     vmware_vmx_file.check_vmx_file(src_vmx_filename)
-    
     args = [
       'clone',
       src_vmx_filename,
@@ -154,4 +136,3 @@ class vmware_vmrun(object):
       args.extend([ '-gu', cred.username ])
       args.extend([ '-gp', cred.password ])
     return args
-
