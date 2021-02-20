@@ -12,8 +12,9 @@ class vmware_options(cli_options):
   def __init__(self, **kargs):
     super(vmware_options, self).__init__(**kargs)
 
+  @classmethod
   #@abstractmethod
-  def default_values(self):
+  def default_values(clazz):
     'Return a dict of defaults for these options.'
     return {
       'blurber': blurber(),
@@ -32,11 +33,36 @@ class vmware_options(cli_options):
       'wait_programs_sleep_time': 5.0,
     }
   
+  @classmethod
   #@abstractmethod
-  def sensitive_keys(self):
-    'Return list of keys that are secrets and should be protected from __str__.'
-    return [ 'vmrest_password', 'login_password' ]
+  def sensitive_keys(clazz):
+    'Return a tuple of keys that are secrets and should be protected from __str__.'
+    return ( 'vmrest_password', 'login_password' )
   
+  @classmethod
+  #@abstractmethod
+  def value_type_hints(clazz):
+    return {
+      'vmrest_port': int,
+      'wait_programs_num_tries': int,
+      'wait_programs_sleep_time': float,
+    }
+
+  @classmethod
+  #@abstractmethod
+  def config_file_key(clazz):
+    return 'config_filename'
+
+  @classmethod
+  #@abstractmethod
+  def config_file_section(clazz):
+    return 'vmware'
+
+  @classmethod
+  #@abstractmethod
+  def error_class(clazz):
+    return vmware_error
+
   #@abstractmethod
   def check_value_types(self):
     'Check the type of each option.'
@@ -55,26 +81,6 @@ class vmware_options(cli_options):
     check.check_string(self.vm_dir, allow_none = True)
     check.check_int(self.wait_programs_num_tries)
     check.check_float(self.wait_programs_sleep_time)
-
-  #@abstractmethod
-  def value_type_hints(self):
-    return {
-      'vmrest_port': int,
-      'wait_programs_num_tries': int,
-      'wait_programs_sleep_time': float,
-    }
-
-  #@abstractmethod
-  def config_file_key(self):
-    return 'config_filename'
-
-  #@abstractmethod
-  def config_file_section(self):
-    return 'vmware'
-
-  #@abstractmethod
-  def error_class(self):
-    return vmware_error
   
   @property
   def vmrest_credentials(self):

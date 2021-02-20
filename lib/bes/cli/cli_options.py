@@ -31,36 +31,42 @@ class cli_options(with_metaclass(ABCMeta, object)):
     d = dict_util.hide_passwords(self.__dict__, self.sensitive_keys())
     return pprint.pformat(d)
     
+  @classmethod
   @abstractmethod
-  def default_values(self):
+  def default_values(clazz):
     'Return a dict of default values for these options.'
     raise NotImplemented('default_values')
+
+  @classmethod
+  @abstractmethod
+  def sensitive_keys(clazz):
+    'Return a tuple of keys that are secrets and should be protected from __str__.'
+    raise NotImplemented('sensitive_keys')
+
+  @classmethod
+  @abstractmethod
+  def value_type_hints(clazz):
+    raise NotImplemented('morph_value_types')
+
+  @classmethod
+  @abstractmethod
+  def config_file_key(clazz):
+    raise NotImplemented('config_file_key')
+
+  @classmethod
+  @abstractmethod
+  def config_file_section(clazz):
+    raise NotImplemented('config_file_section')
+
+  @classmethod
+  @abstractmethod
+  def error_class(clazz):
+    raise NotImplemented('error_class')
 
   @abstractmethod
   def check_value_types(self):
     'Check the type of each option.'
     raise NotImplemented('check_value_types')
-
-  @abstractmethod
-  def sensitive_keys(self):
-    'Return list of keys that are secrets and should be protected from __str__.'
-    raise NotImplemented('sensitive_keys')
-
-  @abstractmethod
-  def value_type_hints(self):
-    raise NotImplemented('morph_value_types')
-
-  @abstractmethod
-  def config_file_key(self):
-    raise NotImplemented('config_file_key')
-
-  @abstractmethod
-  def config_file_section(self):
-    raise NotImplemented('config_file_section')
-
-  @abstractmethod
-  def error_class(self):
-    raise NotImplemented('error_class')
   
   @classmethod
   def _morph_value_type(clazz, values, key, type_class):
@@ -127,4 +133,33 @@ class cli_options(with_metaclass(ABCMeta, object)):
         if value != default_value:
           result[key] = value
     return result
+
+  @classmethod
+  def from_config_file(clazz, config_filename):
+    error_class = clazz.error_class()
+    if not path.exists(config_filename):
+      raise error_class('Config file not found: "{}"'.format(config_filename))
+      
+    if not path.isfile(config_filename):
+      raise error_class('Config file is not a file: "{}"'.format(config_filename))
+
+    try:
+      config = simple_config.from_file(config_filename)
+    except Exception as ex:
+      raise error_class(str(ex))
+
+    config_file_section = clazz.config_file_section()
+    if not config.has_section(config_file_section):
+      raise error_class('No section "{}" found in config file: "{}"'.format(config_file_section,
+                                                                                  config_filename))
+    section = config.section(config_file_section)
+    values = section.to_dict()
+
+    for hint_key, hint_class in clazz.value_type_hints().items():
+      clazz._morph_value_type(values, hint_key, hint_class)
+
+    valid_keys = clazz.default_values().keys()
+    filtered_values = dict_util.filter_with_keys(values, valid_keys)
+    return clazz(**filtered_values)
+
   

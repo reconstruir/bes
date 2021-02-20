@@ -13,8 +13,9 @@ class vmware_session_options(cli_options):
   def __init__(self, **kargs):
     super(vmware_session_options, self).__init__(**kargs)
 
+  @classmethod
   #@abstractmethod
-  def default_values(self):
+  def default_values(clazz):
     'Return a dict of defaults for these options.'
     return {
       'verbose': False,
@@ -23,11 +24,35 @@ class vmware_session_options(cli_options):
       'vmrest_password': None,
     }
 
+  @classmethod
   #@abstractmethod
-  def sensitive_keys(self):
+  def sensitive_keys(clazz):
     'Return list of keys that are secrets and should be protected from __str__.'
     return [ 'vmrest_password' ]
   
+  @classmethod
+  #@abstractmethod
+  def value_type_hints(clazz):
+    return {
+      'vmrest_port': int,
+    }
+
+  @classmethod
+  #@abstractmethod
+  def config_file_key(clazz):
+    return 'config_filename'
+
+  @classmethod
+  #@abstractmethod
+  def config_file_section(clazz):
+    return 'vmware'
+
+  @classmethod
+  #@abstractmethod
+  def error_class(clazz):
+    return vmware_error
+
+  @classmethod
   #@abstractmethod
   def check_value_types(self):
     'Check the type of each option.'
@@ -35,24 +60,6 @@ class vmware_session_options(cli_options):
     check.check_int(self.vmrest_port, allow_none = True)
     check.check_string(self.vmrest_username, allow_none = True)
     check.check_string(self.vmrest_password, allow_none = True)
-
-  #@abstractmethod
-  def value_type_hints(self):
-    return {
-      'vmrest_port': int,
-    }
-
-  #@abstractmethod
-  def config_file_key(self):
-    return 'config_filename'
-
-  #@abstractmethod
-  def config_file_section(self):
-    return 'vmware'
-
-  #@abstractmethod
-  def error_class(self):
-    return vmware_error
   
   @property
   def vmrest_credentials(self):

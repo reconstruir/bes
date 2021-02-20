@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from collections import namedtuple
-import os.path as path
-
 from bes.system.host import host
 from bes.testing.program_unit_test import program_unit_test
 
@@ -36,8 +33,7 @@ class test_argparser_handler(program_unit_test):
     self.assertEqual( 1, rv.exit_code )
     self.assertEqual( '_command_cheese_fail()', rv.output )
     
-    
-  def xtest_version(self):
+  def test_version(self):
     rv = self.run_program(self._program, [ 'version', '--brief' ])
     self.assertEqual( 0, rv.exit_code )
 

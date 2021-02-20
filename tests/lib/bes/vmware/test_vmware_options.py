@@ -7,7 +7,7 @@ from bes.vmware.vmware_options import vmware_options
 
 class test_vmware_options(unit_test):
 
-  def test_from_file(self):
+  def test_from_config_file(self):
 
     content = '''\
 vmware
@@ -24,6 +24,20 @@ vmware
     self.assertEqual( 9999, o.vmrest_port )
     self.assertEqual( 'fred', o.login_username )
     self.assertEqual( 'flintpass', o.login_password )
+
+  def test_unknown_value(self):
+    content = '''\
+vmware
+  vmrest_username: foo
+  vmrest_password: sekret
+  something_unknown: kiwi
+'''
+    tmp_config = self.make_temp_file(content = content)
+    o = vmware_options.from_config_file(tmp_config)
+    self.assertTrue( hasattr(o, 'vmrest_username') )
+    self.assertTrue( hasattr(o, 'vmrest_password') )
+    self.assertTrue( hasattr(o, 'vmrest_port') )
+    self.assertFalse( hasattr(o, 'something_unknown') )
     
 if __name__ == '__main__':
   unit_test.main()
