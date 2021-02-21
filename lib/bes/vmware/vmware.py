@@ -165,14 +165,9 @@ class vmware(object):
     check.check_string(vm_id)
     check.check_bool(interactive)
 
-    username = self._options.login_username
-    password = self._options.login_password
-    
     vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('vm_can_run_programs: vm_id={} vmx_filename={} username={} password={}'.format(vm_id,
-                                                                                                  vmx_filename,
-                                                                                                  username,
-                                                                                                  password))
+    self._log.log_d('vm_can_run_programs: vm_id={} vmx_filename={}'.format(vm_id,
+                                                                           vmx_filename))
 
     try:
       rv = self._do_run_program(vmx_filename, '/bin/bash --version', interactive)
@@ -189,15 +184,10 @@ class vmware(object):
     check.check_bool(interactive)
 
     num_tries = self._options.wait_programs_num_tries
-    num_tries = self._options.wait_programs_num_tries
-    password = self._options.login_password
     sleep_time = self._options.wait_programs_sleep_time
-    username = self._options.login_username
-    self._log.log_d('vm_wait_for_can_run_programs: vm_id={} username={} password={} num_tries={} sleep_time={}'.format(vm_id,
-                                                                                                                       username,
-                                                                                                                       password,
-                                                                                                                       num_tries,
-                                                                                                                       sleep_time))
+    self._log.log_d('vm_wait_for_can_run_programs: vm_id={} num_tries={} sleep_time={}'.format(vm_id,
+                                                                                               num_tries,
+                                                                                               sleep_time))
     for i in range(1, num_tries + 1):
       self._log.log_d('vm_wait_for_can_run_programs: try {} of {}'.format(i, num_tries))
       if self.vm_can_run_programs(vm_id, interactive):
