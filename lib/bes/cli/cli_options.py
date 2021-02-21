@@ -17,18 +17,20 @@ class cli_options(with_metaclass(ABCMeta, object)):
   
   def __init__(self, **kargs):
     default_values = self.default_values()
-    self._log.log_d('default_values={}'.format(pprint.pformat(default_values)))
-    self.update_values(default_values)
+    self._log.log_d('__init__: default_values={}'.format(pprint.pformat(default_values)))
+    self._do_update_values(default_values)
     config_values = self._read_config_file(kargs)
-    self._log.log_d('config_values={}'.format(pprint.pformat(config_values)))
-    self.update_values(config_values)
-    self._log.log_d('kargs={}'.format(pprint.pformat(kargs)))
+    self._log.log_d('__init__: config_values={}'.format(pprint.pformat(config_values)))
+    self._do_update_values(config_values)
+    self._log.log_d('__init__: kargs={}'.format(pprint.pformat(kargs)))
     non_default_kargs = self._extract_non_default_values(kargs, default_values)
-    self._log.log_d('non_default_kargs={}'.format(pprint.pformat(non_default_kargs)))
-    self.update_values(non_default_kargs)
-
+    self._log.log_d('__init__: non_default_kargs={}'.format(pprint.pformat(non_default_kargs)))
+    self._do_update_values(non_default_kargs)
+    self.check_value_types()
+    
   def __str__(self):
-    d = dict_util.hide_passwords(self.__dict__, self.sensitive_keys())
+    sensitive_keys = self.sensitive_keys()
+    d = dict_util.hide_passwords(self.__dict__, sensitive_keys)
     return pprint.pformat(d)
     
   @classmethod
@@ -81,10 +83,17 @@ class cli_options(with_metaclass(ABCMeta, object)):
     'Update the options values and check their types'
     check.check_dict(values)
     
-    for key, value in values.items():
-      setattr(self, key, value)
+    self._do_update_values(values)
     self.check_value_types()
 
+  def _do_update_values(self, values):
+    'update values only with no checking'
+    self._log.log_d('_do_update_values: update before: {}'.format(str(self)))
+    for key, value in values.items():
+      self._log.log_d('_do_update_values: setattr({}, {}, {})'.format(id(self), key, value))
+      setattr(self, key, value)
+    self._log.log_d('_do_update_values: update after: {}'.format(str(self)))
+    
   def _read_config_file(self, cli_values):
     check.check_dict(cli_values)
 
@@ -161,5 +170,3 @@ class cli_options(with_metaclass(ABCMeta, object)):
     valid_keys = clazz.default_values().keys()
     filtered_values = dict_util.filter_with_keys(values, valid_keys)
     return clazz(**filtered_values)
-
-  
