@@ -52,7 +52,6 @@ class vmware_session_options(cli_options):
   def error_class(clazz):
     return vmware_error
 
-  @classmethod
   #@abstractmethod
   def check_value_types(self):
     'Check the type of each option.'
