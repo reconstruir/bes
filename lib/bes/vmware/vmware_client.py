@@ -41,18 +41,22 @@ class vmware_client(object):
   def base_url(self):
     return 'http://{}:{}/api/'.format(self._address[0], self._address[1])
 
+  def _check_response_401(self, response):
+    if response.status_code == 401:
+      raise vmware_error('401 authentication error for "{}"  Check vmrest_username and vmrest_password.'.format(response.url))
+    return False
+
+  def _check_response(self, response):
+    self._check_response_401(response)
+    
   def vms(self):
     'Return a list of vms'
     url = self._make_url('vms')
     response = self._make_request('get', url)
+    self._check_response(response)
+
     if response.status_code != 200:
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
-      #print('FAILED: url={} response={}'.format(url, response))
-      #import time
-      #time.sleep(1.0)
-      #response2 = self._make_request('get', url)
-      #if response2.status_code != 200:
-      #  print('FAILED2: url={} response={}'.format(url, response))
     response_data = response.json()
     self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
     result = []

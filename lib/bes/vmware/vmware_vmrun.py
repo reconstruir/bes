@@ -11,6 +11,7 @@ from .vmware_app import vmware_app
 from .vmware_error import vmware_error
 from .vmware_vmrun_exe import vmware_vmrun_exe
 from .vmware_vmx_file import vmware_vmx_file
+from .vmware_power import vmware_power
 
 class vmware_vmrun(object):
 
@@ -36,7 +37,6 @@ class vmware_vmrun(object):
                                        shell = shell,
                                        raise_error = raise_error)
 
-  POWER_STATES = ( 'start', 'stop', 'reset', 'suspend', 'pause', 'unpause' )
   def vm_set_power_state(self, vmx_filename, state, gui = False, hard = False):
     check.check_string(vmx_filename)
     check.check_string(state)
@@ -44,12 +44,10 @@ class vmware_vmrun(object):
     check.check_bool(hard)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
+    vmware_power.check_state(state)
     
-    if state not in self.POWER_STATES:
-      raise vmware_error('Invalid power state "{}"  Should be one of: {}'.format(state, ' '.join(self.POWER_STATES)))
-
-    args = [ vmx_filename, state ]
-    if state in ( 'start' ):
+    args = [ state, vmx_filename ]
+    if state in ( 'start',  ):
       if gui:
         args.append('gui')
       else:

@@ -17,7 +17,6 @@ class vmware_cli_handler(cli_command_handler):
   def __init__(self, cli_args):
     super(vmware_cli_handler, self).__init__(cli_args, options_class = vmware_options)
     check.check_vmware_options(self.options)
-    print('options={}'.format(self.options))
     self._vmware = vmware(self.options)
     
   def vm_run_program(self, vm_id, program, interactive):
@@ -51,8 +50,8 @@ class vmware_cli_handler(cli_command_handler):
     self._vmware.vm_copy_from(vm_id, remote_filename, local_filename)
     return 0
 
-  def vm_set_power(self, vm_id, state, wait, num_tries):
-    self._vmware.vm_set_power(vm_id, state, wait, num_tries)
+  def vm_set_power_state(self, vm_id, state, wait):
+    self._vmware.vm_set_power_state(vm_id, state, wait)
     return 0
 
   def vm_command(self, vm_id, command, command_args):

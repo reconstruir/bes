@@ -22,6 +22,7 @@ from .vmware_app import vmware_app
 from .vmware_error import vmware_error
 from .vmware_local_vm import vmware_local_vm
 from .vmware_options import vmware_options
+from .vmware_power import vmware_power
 from .vmware_preferences import vmware_preferences
 from .vmware_session import vmware_session
 from .vmware_vm import vmware_vm
@@ -388,7 +389,7 @@ class vmware(object):
   def _resolve_vmx_filename_rest_vms(self, vm_id):
     rest_vms = self.session.client.vms()
     for vm in rest_vms:
-      if vm_id == vm.vm_id:
+      if vm_id in [ vm.name, vm.vm_id, vm.vmx_filename ]:
         return vm.vmx_filename
     return None
 
@@ -431,22 +432,24 @@ class vmware(object):
     self._runner.vm_file_copy_from(src_vmx_filename, remote_filename, local_filename)
     assert path.isfile(local_filename)
 
-  def vm_set_power(self, vm_id, state, wait, username, password, num_tries):
+  def vm_set_power_state(self, vm_id, state, wait):
+    check.check_string(vm_id)
+    check.check_string(state)
+    check.check_bool(wait)
+
+    vmware_power.check_state(state)
+    
     self._app.ensure_running()
 
-    self._log.log_d('vm_set_power: vm_id={} state={} wait={} username={} password={} num_tried={}'.format(vm_id,
-                                                                                                          state,
-                                                                                                          wait,
-                                                                                                          username,
-                                                                                                          password,
-                                                                                                          num_tries))
-    client_wait = wait
-    if client_wait == 'login':
-      client_wait = 'ssh'
-    resolved_vm_id = self.session.resolve_vm_id(vm_id)
-    self.session.call_client('vm_set_power', resolved_vm_id, state, client_wait)
-    if wait == 'login':
-      self.vm_wait_for_can_run_programs(vm_id, username, password, interactive, num_tries)
+    vmx_filename = self._resolve_vmx_filename(vm_id)
+    
+    self._log.log_d('vm_set_power: vm_id={} state={} wait={}'.format(vm_id,
+                                                                     state,
+                                                                     wait))
+
+    self._runner.vm_set_power_state(vmx_filename, state)
+    if wait and state in ( 'start', 'unpause' ):
+      self.vm_wait_for_can_run_programs(vm_id, False)
 
   def vm_command(self, vm_id, command, command_args):
     check.check_string(vm_id)

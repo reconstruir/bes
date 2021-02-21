@@ -26,7 +26,7 @@ class vmware_vmrun_exe(object):
     clazz._log.log_d('call_vmrun: quoted_exe={} args={} - {}'.format(quoted_exe, args, type(args)))
     cmd = [ string_util.quote(exe) ] + command_line.parse_args(args)
     env = os_env.clone_current_env(d = extra_env)
-    clazz._log.log_d('call_vmrun: cmd={}'.format(cmd))
+    clazz._log.log_d('call_vmrun: cmd={}'.format(' '.join(cmd)))
     rv = execute.execute(cmd,
                          env = env,
                          shell = shell,
@@ -34,6 +34,7 @@ class vmware_vmrun_exe(object):
                          stderr_to_stdout = True,
                          non_blocking = non_blocking,
                          raise_error = False)
+    clazz._log.log_d('call_vmrun: exit_code={}'.format(rv.exit_code))
     if raise_error and rv.exit_code != 0:
       cmd_flat = ' '.join(cmd)
       msg = error_message or 'vmrun command failed: {}\n{}'.format(cmd_flat, rv.stdout)

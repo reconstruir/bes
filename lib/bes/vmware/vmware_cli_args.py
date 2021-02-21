@@ -74,17 +74,15 @@ class vmware_cli_args(object):
                    help = 'The local filename [ ]')
 
     # vm_set_power
-    p = subparser.add_parser('vm_set_power', help = 'Get or set the vm power.')
+    from .vmware_power import vmware_power
+    p = subparser.add_parser('vm_set_power_state', help = 'Get or set the vm power.')
     vmware_options_cli_args.add_arguments(p)
-    p.add_argument('--wait', action = 'store', default = None,
-                   choices = ( 'ip', 'login', 'ssh', 'none' ),
-                   help = 'Wait until the ip address is known or ssh server is up [ none ]')
-    p.add_argument('-n', '--num-tries', action = 'store', type = int, default = 10,
-                   help = 'Number of tries for waits [ ]')
+    p.add_argument('--wait', action = 'store_true', default = False,
+                   help = 'Wait until the vm can run programs [ False ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
     p.add_argument('state', action = 'store', type = str, default = None, nargs = '?',
-                   choices = ( 'on', 'off', 'shutdown', 'suspend', 'pause', 'unpause' ),
+                   choices = vmware_power.STATES,
                    help = 'The new power state [ ]')
 
     # vm_command
