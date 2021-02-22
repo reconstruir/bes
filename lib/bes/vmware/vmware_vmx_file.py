@@ -2,6 +2,7 @@
 
 import os.path as path
 
+from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.fs.file_mime import file_mime
 from bes.fs.file_util import file_util
@@ -39,6 +40,8 @@ class vmware_vmx_file(object):
   @classmethod
   def check_vmx_file(clazz, filename):
     'Raise an exception if filename is not a vmware vmx file.'
+    check.check_string(filename)
+
     if not clazz.is_vmx_file(filename):
       raise vmware_error('Not a vmware vmx file: "{}"'.format(filename))
     return filename

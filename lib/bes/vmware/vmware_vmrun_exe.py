@@ -13,7 +13,7 @@ from .vmware_error import vmware_error
 class vmware_vmrun_exe(object):
   'Class to deal with the vmrun executable.'
 
-  _log = logger('vmware')
+  _log = logger('vmware_vmrun')
   
   @classmethod
   def call_vmrun(clazz, args, extra_env = None, cwd = None,
@@ -34,7 +34,7 @@ class vmware_vmrun_exe(object):
                          stderr_to_stdout = True,
                          non_blocking = non_blocking,
                          raise_error = False)
-    clazz._log.log_d('call_vmrun: exit_code={}'.format(rv.exit_code))
+    clazz._log.log_d('call_vmrun: exit_code={} stdout={}'.format(rv.exit_code, rv.stdout))
     if raise_error and rv.exit_code != 0:
       cmd_flat = ' '.join(cmd)
       msg = error_message or 'vmrun command failed: {}\n{}'.format(cmd_flat, rv.stdout)

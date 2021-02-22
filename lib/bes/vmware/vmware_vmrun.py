@@ -2,10 +2,11 @@
 
 import os.path as path
 
-from bes.system.log import logger
-from bes.system.command_line import command_line
 from bes.common.check import check
 from bes.credentials.credentials import credentials
+from bes.system.command_line import command_line
+from bes.system.log import logger
+from bes.text.text_line_parser import text_line_parser
 
 from .vmware_app import vmware_app
 from .vmware_error import vmware_error
@@ -59,7 +60,7 @@ class vmware_vmrun(object):
         args.append('soft')
     elif state in ( 'pause', 'unpause' ):
       pass
-    return self.run(args)
+    return self.run(args, raise_error = True)
 
   def vm_file_copy_to(self, vmx_filename, local_filename, remote_filename):
     check.check_string(vmx_filename)
@@ -73,7 +74,7 @@ class vmware_vmrun(object):
       local_filename,
       remote_filename,
     ]
-    return self.run(args)
+    return self.run(args, raise_error = True)
 
   def vm_file_copy_from(self, vmx_filename, remote_filename, local_filename):
     check.check_string(vmx_filename)
@@ -87,7 +88,7 @@ class vmware_vmrun(object):
       remote_filename,
       local_filename,
     ]
-    return self.run(args)
+    return self.run(args, raise_error = True)
 
   def vm_clone(self, src_vmx_filename, dst_vmx_filename, full = False, snapshot_name = None, clone_name = None):
     check.check_string(src_vmx_filename)
@@ -107,12 +108,12 @@ class vmware_vmrun(object):
       args.append('-snapshot="{}"'.format(snapshot_name))
     if clone_name:
       args.append('-cloneName="{}"'.format(clone_name))
-    return self.run(args)
+    return self.run(args, raise_error = True)
 
   def vm_stop(self, vmx_filename):
     check.check_string(vmx_filename)
 
-    vmware_vmx_file.check_vmx_file(src_vmx_filename)
+    vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [ 'stop', vmx_filename ]
     return self.run(args,
                     raise_error = True,
@@ -126,6 +127,30 @@ class vmware_vmrun(object):
     return self.run(args,
                     raise_error = True,
                     error_message = 'Failed to delete vm: {}'.format(vmx_filename))
+
+  def vm_delete(self, vmx_filename):
+    check.check_string(vmx_filename)
+
+    vmware_vmx_file.check_vmx_file(vmx_filename)
+    args = [ 'deleteVM', vmx_filename ]
+    return self.run(args,
+                    raise_error = True,
+                    error_message = 'Failed to delete vm: {}'.format(vmx_filename))
+
+  def running_vms(self):
+    args = [ 'list' ]
+    rv = self.run(args, raise_error = True)
+    lines = text_line_parser.parse_lines(rv.stdout,
+                                         strip_comments = False,
+                                         strip_text = True,
+                                         remove_empties = True)
+    return lines[1:]
+
+  def vm_is_running(self, vmx_filename):
+    vmware_vmx_file.check_vmx_file(vmx_filename)
+
+    running_vms = self.running_vms()
+    return vmx_filename in self.running_vms()
   
   @classmethod
   def _make_vmrun_auth_args(clazz, app, cred):

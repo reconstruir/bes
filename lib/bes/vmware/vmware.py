@@ -139,28 +139,12 @@ class vmware(object):
   def _clone_vm_if_needed(self, vm_id, vmx_filename, clone_vm):
     if not clone_vm:
       return vm_id, vmx_filename
-    
-    vms_root_dir = path.normpath(path.join(path.dirname(vmx_filename), path.pardir))
-    self.vm_set_power(vm_id, 'off', None, None, None, 1)
-    src_vmx_nickname = vmware_vmx_file.nickname(vmx_filename)
-    tmp_nickname_part = self._tmp_nickname_part()
-    new_vmx_nickname = '{}_clone_{}'.format(src_vmx_nickname, tmp_nickname_part)
-    new_vm_root_dir_basename = '{}.vmwarevm'.format(new_vmx_nickname)
-    new_vm_root_dir = path.join(vms_root_dir, new_vm_root_dir_basename)
-    file_util.mkdir(new_vm_root_dir)
-    new_vmx_basename = '{}.vmx'.format(new_vmx_nickname)
-    new_vmx_filename = path.join(new_vm_root_dir, new_vmx_basename)
-    rv = self.vm_clone(vm_id,
-                       new_vmx_filename,
-                       full = False,
-                       snapshot_name = None,
-                       clone_name = new_vmx_nickname)
-    if rv.exit_code != 0:
-      print('clone failed: {}'.format(rv.stdout))
-    assert rv.exit_code == 0
-    new_vm_id = self._vmx_filename_to_id(new_vmx_filename)
-    self._log.log_d('clone worked: new_mv_id={} new_vmx_filename={}'.format(new_vm_id, new_vmx_filename))
-    return new_vm_id, new_vmx_filename
+    self._stop_vm_if_needed(vmx_filename)
+    rv = self.vm_clone(vm_id)
+    dst_vm_id = self._vmx_filename_to_id(rv.dst_vmx_filename)
+    assert dst_vm_id
+    self._log.log_d('clone worked: dst_mv_id={} dst_vmx_filename={}'.format(dst_vm_id, rv.dst_vmx_filename))
+    return dst_vm_id, rv.dst_vmx_filename
   
   def vm_can_run_programs(self, vm_id, interactive):
     check.check_string(vm_id)
@@ -350,9 +334,15 @@ class vmware(object):
     self._log.log_d('_ensure_running_if_needed:{}: ensuring vm is running'.format(vm_label))
     self.session.ensure_vm_running(resolved_vm_id)
   
-  def vm_clone(self, vm_id, clone_name, where = None, full = False, snapshot_name = None, shutdown = False):
+  def _stop_vm_if_needed(self, vmx_filename):
+    if not self._runner.vm_is_running(vmx_filename):
+      return
+    self._runner.vm_set_power_state(vmx_filename, 'stop')
+  
+  _clone_result = namedtuple('_clone_result', 'src_vmx_filename, dst_vmx_filename')
+  def vm_clone(self, vm_id, clone_name = None, where = None, full = False, snapshot_name = None, shutdown = False):
     check.check_string(vm_id)
-    check.check_string(clone_name)
+    check.check_string(clone_name, allow_none = True)
     check.check_string(where, allow_none = True)
     check.check_bool(full)
     check.check_string(snapshot_name, allow_none = True)
@@ -361,12 +351,23 @@ class vmware(object):
     self._log.log_method_d()
     
     src_vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('vm_delete: vmx_filename={}'.format(vmx_filename))
-    return self._runner.vm_clone(src_vmx_filename,
-                                 dst_vmx_filename,
-                                 full = full,
-                                 snapshot_name = snapshot_name,
-                                 clone_name = clone_name)
+    self._log.log_d('vm_delete: src_vmx_filename={}'.format(src_vmx_filename))
+
+    names = self._make_cloned_vm_names(src_vmx_filename, clone_name, where)
+    self._log.log_d('vm_delete: dst_vmx_filename={} dst_vmx_nickname={}'.format(names.dst_vmx_filename,
+                                                                                names.dst_vmx_nickname))
+    if path.exists(names.dst_vmx_filename):
+      raise vmware_error('Clones vmx file already exists: "{}"'.format(names.dst_vmx_filename))
+
+    if shutdown:
+      self._stop_vm_if_needed(src_vmx_filename)
+      
+    self._runner.vm_clone(src_vmx_filename,
+                          names.dst_vmx_filename,
+                          full = full,
+                          snapshot_name = snapshot_name,
+                          clone_name = names.dst_vmx_nickname)
+    return self._clone_result(src_vmx_filename, names.dst_vmx_filename)
 
   def vm_delete(self, vm_id, shutdown = False):
     check.check_string(vm_id)
@@ -377,7 +378,7 @@ class vmware(object):
     vmx_filename = self._resolve_vmx_filename(vm_id)
     self._log.log_d('vm_delete: vmx_filename={}'.format(vmx_filename))
     if shutdown:
-      self._runner.vm_set_power_state(vmx_filename, 'stop')
+      self._stop_vm_if_needed(vmx_filename)
     return self._runner.vm_delete(vmx_filename)
                     
   def _resolve_vmx_filename(self, vm_id, raise_error = True):
@@ -463,9 +464,10 @@ class vmware(object):
                                                                      state,
                                                                      wait))
 
-    self._runner.vm_set_power_state(vmx_filename, state)
+    result = self._runner.vm_set_power_state(vmx_filename, state)
     if wait and state in ( 'start', 'unpause' ):
       self.vm_wait_for_can_run_programs(vm_id, False)
+    return result
 
   def vm_command(self, vm_id, command, command_args):
     check.check_string(vm_id)
@@ -482,7 +484,29 @@ class vmware(object):
     command_args = command_args or []
     args = [ command, vmx_filename ] + command_args
     return self._runner.run(args)
-      
+
+  @classmethod
+  def _tmp_nickname_part(clazz):
+    d = tempfile.mkdtemp(prefix = 'foo')
+    b = path.basename(d)
+    file_util.remove(d)
+    return string_util.remove_head(b, 'foo')
+
+  _cloned_vm_names = namedtuple('_cloned_vm_names', 'src_vmx_filename, dst_vmx_filename, dst_vmx_nickname')
+  def _make_cloned_vm_names(clazz, src_vmx_filename, clone_name, where):
+    vms_root_dir = path.normpath(path.join(path.dirname(src_vmx_filename), path.pardir))
+    src_vmx_nickname = vmware_vmx_file.nickname(src_vmx_filename)
+    tmp_nickname_part = clazz._tmp_nickname_part()
+    if not clone_name:
+      clone_name = '{}_clone_{}'.format(src_vmx_nickname, tmp_nickname_part)
+    new_vm_root_dir_basename = '{}.vmwarevm'.format(clone_name)
+    if not where:
+      where = path.join(vms_root_dir, new_vm_root_dir_basename)
+    file_util.mkdir(where)
+    dst_vmx_basename = '{}.vmx'.format(clone_name)
+    dst_vmx_filename = path.join(where, dst_vmx_basename)
+    return clazz._cloned_vm_names(src_vmx_filename, dst_vmx_filename, clone_name)
+  
   _RUN_PACKAGE_CALLER_PYTHON = r'''#!/usr/bin/env python
 
 import argparse
