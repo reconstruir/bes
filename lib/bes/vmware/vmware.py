@@ -84,7 +84,7 @@ class vmware(object):
       self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(target_vm_id))
       self.vm_wait_for_can_run_programs(target_vm_id, interactive)
       
-    rv = self._do_run_program(target_vmx_filename, program, interactive)
+    rv = self._runner.vm_run_program(target_vmx_filename, program, interactive)
 
     if self._options.clone_vm and not self._options.debug:
       self._runner.vm_stop(target_vmx_filename)
@@ -109,7 +109,7 @@ class vmware(object):
       self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(target_vm_id))
       self.vm_wait_for_can_run_programs(target_vm_id, interactive)
       
-    rv = self._do_run_program(target_vmx_filename, program, interactive)
+    rv = self._runner.vm_run_program(target_vmx_filename, program, interactive)
 
     if self._options.clone_vm and not self._options.debug:
       self._runner.vm_stop(target_vmx_filename)
@@ -117,18 +117,6 @@ class vmware(object):
 
     return rv
   
-  def _do_run_program(self, vmx_filename, program, interactive):
-    assert path.isfile(vmx_filename)
-
-    program_args = command_line.parse_args(program)
-    interactive_args = [ '-interactive' ] if interactive else []
-    args = [
-      'runProgramInGuest',
-      vmx_filename,
-    ] + interactive_args + program_args
-    self._log.log_d('vm_run_program: args={}'.format(args))
-    return self._runner.run(args)
-
   @classmethod
   def _tmp_nickname_part(clazz):
     d = tempfile.mkdtemp()
@@ -154,7 +142,7 @@ class vmware(object):
     
     vmx_filename = self._resolve_vmx_filename(vm_id)
     try:
-      rv = self._do_run_program(vmx_filename, '/bin/bash --version', interactive)
+      rv = self._runner.vm_run_program(vmx_filename, '/bin/bash --version', interactive)
       self._log.log_d('vm_can_run_programs: exit_code={}'.format(rv.exit_code))
       if rv.exit_code != 0:
         self._log.log_d('vm_can_run_programs: output:\n'.format(rv.stdout))
@@ -223,11 +211,11 @@ class vmware(object):
     self._log.log_d('      vm_run_package: tmp_remote_dir={}'.format(tmp_remote_dir))
 
     rmdir_cmd = '/bin/rm -rf {}'.format(tmp_remote_dir)
-    mkdir_cmd = '/bin/mkdir -p {}'.format(tmp_remote_dir)
-    rv = self._do_run_program(target_vmx_filename, rmdir_cmd, interactive)
+    rv = self._runner.vm_run_program(target_vmx_filename, rmdir_cmd, interactive)
     if rv.exit_code != 0:
       raise vmware_error('vm_run_package: failed to: "{}"'.format(rmdir_cmd))
-    rv = self._do_run_program(target_vmx_filename, mkdir_cmd, interactive)
+    mkdir_cmd = '/bin/mkdir -p {}'.format(tmp_remote_dir)
+    rv = self._runner.vm_run_program(target_vmx_filename, mkdir_cmd, interactive)
     if rv.exit_code != 0:
       raise vmware_error('vm_run_package: failed to: "{}" - {}\n{}\n'.format(mkdir_cmd,
                                                                              rv.exit_code,
@@ -289,7 +277,7 @@ class vmware(object):
       entry_command,
       tmp_output_log.remote,      
     ] + parsed_entry_command_args
-    rv = self._do_run_program(target_vmx_filename, caller_args, interactive)
+    rv = self._runner.vm_run_program(target_vmx_filename, caller_args, interactive)
 
     self._runner.vm_file_copy_from(target_vmx_filename, tmp_output_log.remote, tmp_output_log.local)
 
@@ -299,7 +287,7 @@ class vmware(object):
 
     # cleanup the tmp dir but only if debug is False
     if not debug:
-      rv = self._do_run_program(target_vmx_filename, rmdir_cmd, interactive)
+      rv = self._runner.vm_run_program(target_vmx_filename, rmdir_cmd, interactive)
       if rv.exit_code != 0:
         raise vmware_error('vm_run_package: failed to: "{}"'.format(rmdir_cmd))
 

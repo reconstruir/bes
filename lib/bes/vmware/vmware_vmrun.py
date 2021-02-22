@@ -137,6 +137,18 @@ class vmware_vmrun(object):
                     raise_error = True,
                     error_message = 'Failed to delete vm: {}'.format(vmx_filename))
 
+  def vm_run_program(self, vmx_filename, program, interactive):
+
+    vmware_vmx_file.check_vmx_file(vmx_filename)
+    interactive_args = [ '-interactive' ] if interactive else []
+    program_args = command_line.parse_args(program)
+    interactive_args = [ '-interactive' ] if interactive else []
+    args = [
+      'runProgramInGuest',
+      vmx_filename,
+    ] + interactive_args + program_args
+    return self.run(args, raise_error = False)
+  
   def running_vms(self):
     args = [ 'list' ]
     rv = self.run(args, raise_error = True)
