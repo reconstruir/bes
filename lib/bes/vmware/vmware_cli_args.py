@@ -19,6 +19,20 @@ class vmware_cli_args(object):
     p.add_argument('program', action = 'store', default = [], nargs = '+',
                    help = 'The program and optional arguments [ ]')
 
+    # vm_run_script
+    p = subparser.add_parser('vm_run_script', help = 'Run a script in a vm.')
+    vmware_options_cli_args.add_arguments(p)
+    p.add_argument('--interactive', action = 'store_true', default = False,
+                   help = 'Run the program in interactive mode [ False ]')
+    p.add_argument('--interpreter', action = 'store', default = None,
+                   help = 'The interpreter to use.  Default is platform specific [ ]')
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    p.add_argument('script_filename', action = 'store', default = None,
+                   help = 'The script filename [ ]')
+    p.add_argument('script_args', action = 'store', default = [], nargs = '+',
+                   help = 'Optional script arguments [ ]')
+    
     # vm_run_package
     p = subparser.add_parser('vm_run_package', help = 'Run a package in a vm.')
     vmware_options_cli_args.add_arguments(p)
@@ -44,14 +58,16 @@ class vmware_cli_args(object):
     p.add_argument('--snapshot', action = 'store', type = str, default = None,
                    dest = 'snapshot_name',
                    help = 'The snapshot name []')
-    p.add_argument('--clone-name', action = 'store', type = str, default = None,
-                   help = 'The clone name []')
     p.add_argument('--full', action = 'store_true', default = False,
                    help = 'Whether to do full instead of linked clone []')
+    p.add_argument('--where', action = 'store', default = None,
+                   help = 'Where to store the cloned vm files []')
+    p.add_argument('--shutdown', action = 'store_true', default = False,
+                   help = 'Whether to shutdown the source vm first []')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
-    p.add_argument('dst_vmx_filename', action = 'store', type = str, default = None,
-                   help = 'The destination vm vmx filename [ ]')
+    p.add_argument('clone_name', action = 'store', type = str, default = None,
+                   help = 'The clone name []')
 
     # vm_file_copy_to
     p = subparser.add_parser('vm_file_copy_to', help = 'Copy a local file to a vm.')
@@ -94,6 +110,14 @@ class vmware_cli_args(object):
                    help = 'vmrun command that take a vmx file as its first argument [ ]')
     p.add_argument('command_args', action = 'store', default = [], nargs = '*',
                    help = 'Optional command args [ ]')
+
+    # vm_delete
+    p = subparser.add_parser('vm_delete', help = 'Delete a vm.')
+    vmware_options_cli_args.add_arguments(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    p.add_argument('--shutdown', action = 'store_true', default = False,
+                   help = 'Whether to shutdown the source vm first []')
     
   def _command_vmware(self, __bes_command__, *args, **kargs):
     from .vmware_cli_handler import vmware_cli_handler

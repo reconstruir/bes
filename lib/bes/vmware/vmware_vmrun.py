@@ -121,7 +121,7 @@ class vmware_vmrun(object):
   def vm_delete(self, vmx_filename):
     check.check_string(vmx_filename)
 
-    vmware_vmx_file.check_vmx_file(src_vmx_filename)
+    vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [ 'deleteVM', vmx_filename ]
     return self.run(args,
                     raise_error = True,

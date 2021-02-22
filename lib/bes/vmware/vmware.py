@@ -7,6 +7,7 @@ import socket
 import sys
 import time
 import tempfile
+import inspect
 
 from bes.system.log import logger
 from bes.system.command_line import command_line
@@ -71,9 +72,9 @@ class vmware(object):
     check.check_string_seq(program)
     check.check_bool(interactive)
 
+    self._log.log_method_d()
+    
     vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('vm_run_program: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
-
     target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
                                                                  vmx_filename,
                                                                  self._options.clone_vm)
@@ -96,9 +97,9 @@ class vmware(object):
     check.check_string_seq(program)
     check.check_bool(interactive)
 
+    self._log.log_method_d()
+    
     vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('vm_run_program: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
-
     target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
                                                                  vmx_filename,
                                                                  self._options.clone_vm)
@@ -165,10 +166,9 @@ class vmware(object):
     check.check_string(vm_id)
     check.check_bool(interactive)
 
+    self._log.log_method_d()
+    
     vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('vm_can_run_programs: vm_id={} vmx_filename={}'.format(vm_id,
-                                                                           vmx_filename))
-
     try:
       rv = self._do_run_program(vmx_filename, '/bin/bash --version', interactive)
       self._log.log_d('vm_can_run_programs: exit_code={}'.format(rv.exit_code))
@@ -183,11 +183,12 @@ class vmware(object):
     check.check_string(vm_id)
     check.check_bool(interactive)
 
+    self._log.log_method_d()
+    
     num_tries = self._options.wait_programs_num_tries
     sleep_time = self._options.wait_programs_sleep_time
-    self._log.log_d('vm_wait_for_can_run_programs: vm_id={} num_tries={} sleep_time={}'.format(vm_id,
-                                                                                               num_tries,
-                                                                                               sleep_time))
+    self._log.log_d('vm_wait_for_can_run_programs: num_tries={} sleep_time={}'.format(num_tries,
+                                                                                      sleep_time))
     for i in range(1, num_tries + 1):
       self._log.log_d('vm_wait_for_can_run_programs: try {} of {}'.format(i, num_tries))
       if self.vm_can_run_programs(vm_id, interactive):
@@ -208,15 +209,16 @@ class vmware(object):
     check.check_string(output_filename, allow_none = True)
     check.check_bool(tail_log)
 
+    self._log.log_method_d()
+
     debug = self._options.debug
     
     if not path.isdir(package_dir):
       raise vmware_error('package_dir not found or not a dir: "{}"'.format(package_dir))
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('vm_run_package: vm_id={} vmx_filename={} dont_ensure={}'.format(vm_id,
-                                                                                     vmx_filename,
-                                                                                     self._options.dont_ensure))
+    self._log.log_d('vm_run_package: vmx_filename={} dont_ensure={}'.format(vmx_filename,
+                                                                            self._options.dont_ensure))
 
     target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id, vmx_filename, self._options.clone_vm)
     assert target_vm_id
@@ -348,24 +350,41 @@ class vmware(object):
     self._log.log_d('_ensure_running_if_needed:{}: ensuring vm is running'.format(vm_label))
     self.session.ensure_vm_running(resolved_vm_id)
   
-  def vm_clone(self, vm_id, dst_vmx_filename, full = False, snapshot_name = None, clone_name = None):
+  def vm_clone(self, vm_id, clone_name, where = None, full = False, snapshot_name = None, shutdown = False):
     check.check_string(vm_id)
-    check.check_string(dst_vmx_filename)
+    check.check_string(clone_name)
+    check.check_string(where, allow_none = True)
     check.check_bool(full)
     check.check_string(snapshot_name, allow_none = True)
-    check.check_string(clone_name, allow_none = True)
+    check.check_bool(shutdown)
 
+    self._log.log_method_d()
+    
     src_vmx_filename = self._resolve_vmx_filename(vm_id)
+    self._log.log_d('vm_delete: vmx_filename={}'.format(vmx_filename))
     return self._runner.vm_clone(src_vmx_filename,
                                  dst_vmx_filename,
                                  full = full,
                                  snapshot_name = snapshot_name,
                                  clone_name = clone_name)
 
+  def vm_delete(self, vm_id, shutdown = False):
+    check.check_string(vm_id)
+    check.check_bool(shutdown)
+
+    self._log.log_method_d()
+
+    vmx_filename = self._resolve_vmx_filename(vm_id)
+    self._log.log_d('vm_delete: vmx_filename={}'.format(vmx_filename))
+    if shutdown:
+      self._runner.vm_set_power_state(vmx_filename, 'stop')
+    return self._runner.vm_delete(vmx_filename)
+                    
   def _resolve_vmx_filename(self, vm_id, raise_error = True):
     vmx_filename = self._resolve_vmx_filename_local_vms(vm_id) or self._resolve_vmx_filename_rest_vms(vm_id)
     if not vmx_filename and raise_error:
       raise vmware_error('failed to resolve vmx filename for id: "{}"'.format(vm_id))
+    self._log.log_d('_resolve_vmx_filename: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
     return vmx_filename
   
   def _resolve_vmx_filename_local_vms(self, vm_id):
@@ -403,6 +422,8 @@ class vmware(object):
     check.check_string(local_filename)
     check.check_string(remote_filename)
 
+    self._log.log_method_d()
+    
     src_vmx_filename = self._resolve_vmx_filename(vm_id)
     
     local_filename = path.abspath(local_filename)
@@ -416,6 +437,8 @@ class vmware(object):
     check.check_string(remote_filename)
     check.check_string(local_filename)
 
+    self._log.log_method_d()
+    
     src_vmx_filename = self._resolve_vmx_filename(vm_id)
 
     file_util.remove(local_filename)
@@ -428,6 +451,8 @@ class vmware(object):
     check.check_string(state)
     check.check_bool(wait)
 
+    self._log.log_method_d()
+    
     vmware_power.check_state(state)
     
     self._app.ensure_running()
@@ -447,6 +472,8 @@ class vmware(object):
     check.check_string(command)
     check.check_string_seq(command_args)
 
+    self._log.log_method_d()
+    
     vmx_filename = self._resolve_vmx_filename(vm_id)
     self._log.log_d('vm_command: vm_id={} vmx_filename={} command={} command_args={}'.format(vm_id,
                                                                                              vmx_filename,
