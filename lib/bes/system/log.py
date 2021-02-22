@@ -486,7 +486,6 @@ class logger(object):
     '''
     current_frame = inspect.currentframe()
     caller_frame = current_frame
-    print('depth={}'.format(depth))
     for _ in range(0, depth):
       caller_frame = caller_frame.f_back
     args, _, _, values = inspect.getargvalues(caller_frame)
