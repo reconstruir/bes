@@ -356,11 +356,11 @@ class vmware(object):
     check.check_string(clone_name, allow_none = True)
 
     src_vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._runner.vm_clone(src_vmx_filename,
-                          dst_vmx_filename,
-                          full = full,
-                          snapshot_name = snapshot_name,
-                          clone_name = clone_name)
+    return self._runner.vm_clone(src_vmx_filename,
+                                 dst_vmx_filename,
+                                 full = full,
+                                 snapshot_name = snapshot_name,
+                                 clone_name = clone_name)
 
   def _resolve_vmx_filename(self, vm_id, raise_error = True):
     vmx_filename = self._resolve_vmx_filename_local_vms(vm_id) or self._resolve_vmx_filename_rest_vms(vm_id)
@@ -409,7 +409,7 @@ class vmware(object):
     if not path.isfile(local_filename):
       raise vmware_error('local filename not found: "{}"'.format(local_filename))
 
-    self._runner.vm_file_copy_to(src_vmx_filename, local_filename, remote_filename)
+    return self._runner.vm_file_copy_to(src_vmx_filename, local_filename, remote_filename)
 
   def vm_file_copy_from(self, vm_id, remote_filename, local_filename):
     check.check_string(vm_id)
@@ -419,8 +419,9 @@ class vmware(object):
     src_vmx_filename = self._resolve_vmx_filename(vm_id)
 
     file_util.remove(local_filename)
-    self._runner.vm_file_copy_from(src_vmx_filename, remote_filename, local_filename)
+    result = self._runner.vm_file_copy_from(src_vmx_filename, remote_filename, local_filename)
     assert path.isfile(local_filename)
+    return result
 
   def vm_set_power_state(self, vm_id, state, wait):
     check.check_string(vm_id)
