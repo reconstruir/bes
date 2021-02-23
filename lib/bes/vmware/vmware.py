@@ -93,10 +93,10 @@ class vmware(object):
 
     return rv
 
-  def vm_run_script(self, vm_id, interpreter_path, script_text, run_program_options):
+  def vm_run_script(self, vm_id, interpreter_path, script, run_program_options):
     check.check_string(vm_id)
     check.check_string(interpreter_path)
-    check.check_string(script_text)
+    check.check_string(script)
     check.check_vmware_run_program_options(run_program_options)
 
     self._log.log_method_d()
@@ -111,7 +111,7 @@ class vmware(object):
       self._log.log_d('vm_run_script:{}: ensuring vm can run programs'.format(target_vm_id))
       self.vm_wait_for_can_run_programs(target_vm_id, run_program_options)
       
-    rv = self._runner.vm_run_script(target_vmx_filename, program, run_program_options)
+    rv = self._runner.vm_run_script(target_vmx_filename, interpreter_path, script, run_program_options)
 
     if self._options.clone_vm and not self._options.debug:
       self._runner.vm_stop(target_vmx_filename)

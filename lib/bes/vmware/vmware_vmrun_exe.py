@@ -4,7 +4,6 @@ from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.system.os_env import os_env
 from bes.system.which import which
-from bes.system.command_line import command_line
 from bes.system.execute import execute
 from bes.system.log import logger
 
@@ -19,12 +18,15 @@ class vmware_vmrun_exe(object):
   def call_vmrun(clazz, args, extra_env = None, cwd = None,
                  non_blocking = False, shell = False,
                  raise_error = False, error_message = None):
+    check.check_string_seq(args)
+    check.check_dict(extra_env, allow_none = True)
+    
     exe = which.which('vmrun')
     if not exe:
       raise vmware_error('vmrun not found')
     quoted_exe = string_util.quote(exe)
     clazz._log.log_d('call_vmrun: quoted_exe={} args={} - {}'.format(quoted_exe, args, type(args)))
-    cmd = [ string_util.quote(exe) ] + command_line.parse_args(args)
+    cmd = [ string_util.quote(exe) ] + list(args)
     env = os_env.clone_current_env(d = extra_env)
     clazz._log.log_d('call_vmrun: cmd={}'.format(' '.join(cmd)))
     rv = execute.execute(cmd,

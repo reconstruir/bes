@@ -3,6 +3,7 @@
 import os.path as path
 
 from bes.common.check import check
+from bes.common.string_util import string_util
 from bes.credentials.credentials import credentials
 from bes.system.command_line import command_line
 from bes.system.log import logger
@@ -28,8 +29,15 @@ class vmware_vmrun(object):
 
   def run(self, args, extra_env = None, cwd = None,
           non_blocking = False, shell = False, raise_error = False,
-          error_message = None):
-    parsed_args = command_line.parse_args(args)
+          error_message = None, parse_args = True):
+    check.check_string_seq(args)
+    check.check_dict(extra_env, allow_none = True)
+
+    if parse_args:
+      parsed_args = command_line.parse_args(args)
+    else:
+      parsed_args = args[:]
+      
     vmrun_exe_args = self._auth_args + parsed_args
     self._log.log_d('run: vm_run_program: vmrun_exe_args={}'.format(vmrun_exe_args))
     return vmware_vmrun_exe.call_vmrun(vmrun_exe_args,
@@ -151,19 +159,21 @@ class vmware_vmrun(object):
     ] + run_program_options.to_vmrun_command_line_args() + program_args
     return self.run(args, raise_error = False)
   
-  def vm_run_script(self, vmx_filename, interpreter_path, script_text, run_program_options):
+  def vm_run_script(self, vmx_filename, interpreter_path, script, run_program_options):
     check.check_string(vmx_filename)
     check.check_string(interpreter_path)
-    check.check_string(script_text)
+    check.check_string(script)
     check.check_vmware_run_program_options(run_program_options)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
-    program_args = command_line.parse_args(program)
     args = [
       'runScriptInGuest',
       vmx_filename,
-    ] + run_program_options.to_vmrun_command_line_args() + program_args
-    return self.run(args, raise_error = False)
+    ] + run_program_options.to_vmrun_command_line_args() + [
+      interpreter_path,
+      '"{}"'.format(script),
+    ]
+    return self.run(args, raise_error = False, parse_args = False)
   
   def running_vms(self):
     args = [ 'list' ]

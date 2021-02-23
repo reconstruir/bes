@@ -22,14 +22,12 @@ class vmware_cli_args(object):
     p = subparser.add_parser('vm_run_script', help = 'Run a script in a vm.')
     vmware_options_cli_args.add_arguments(p)
     self.__vmware_add_common_run_program_args(p)
-    p.add_argument('--interpreter', action = 'store', default = None,
-                   help = 'The interpreter to use.  Default is platform specific [ ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
-    p.add_argument('script_filename', action = 'store', default = None,
-                   help = 'The script filename [ ]')
-    p.add_argument('script_args', action = 'store', default = [], nargs = '+',
-                   help = 'Optional script arguments [ ]')
+    p.add_argument('interpreter_path', action = 'store', default = None,
+                   help = 'The full path to the interpreter to use [ ]')
+    p.add_argument('script', action = 'store', default = None,
+                   help = 'The script text or filename [ ]')
     
     # vm_run_package
     p = subparser.add_parser('vm_run_package', help = 'Run a package in a vm.')
