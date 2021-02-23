@@ -75,7 +75,6 @@ class vmware_options(cli_options):
     check.check_string(self.login_username, allow_none = True)
     check.check_string(self.login_password, allow_none = True)
     check.check_bool(self.dont_ensure)
-    check.check_bool(self.dont_ensure)
     check.check_string(self.tty, allow_none = True)
     check.check_bool(self.clone_vm)
     check.check_string(self.vm_dir, allow_none = True)
