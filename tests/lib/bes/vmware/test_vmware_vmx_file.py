@@ -8,7 +8,7 @@ from bes.vmware.vmware_vmx_file import vmware_vmx_file
 class test_vmware_vmx_file(unit_test):
 
   def test_nickname(self):
-    self.assertEqual( 'win10', vmware_vmx_file('/Users/foo/vms/win10.vmwarevm/win10.vmx').nickname )
+    self.assertEqual( 'win10', vmware_vmx_file('/Users/fred/vms/win10.vmwarevm/win10.vmx').nickname )
 
   _TEST_MACOS_CONTENT = '''\
 .encoding = "UTF-8"
