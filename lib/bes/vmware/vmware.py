@@ -28,7 +28,6 @@ from .vmware_preferences import vmware_preferences
 from .vmware_session import vmware_session
 from .vmware_vm import vmware_vm
 from .vmware_vmrun import vmware_vmrun
-from .vmware_vmrun_exe import vmware_vmrun_exe
 from .vmware_vmx_file import vmware_vmx_file
 from .vmware_run_program_options import vmware_run_program_options
 
