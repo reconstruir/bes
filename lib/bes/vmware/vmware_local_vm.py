@@ -27,7 +27,7 @@ class vmware_local_vm(object):
   
   @cached_property
   def nickname(self):
-    return vmware_vmx_file.nickname(self.vmx_filename)
+    return vmware_vmx_file(self.vmx_filename).nickname
 
   @cached_property
   def uuid(self):

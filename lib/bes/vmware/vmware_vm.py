@@ -13,7 +13,7 @@ class vmware_vm(namedtuple('vmware_vm', 'name, vm_id, vmx_filename')):
     check.check_string(vm_id)
     check.check_string(vmx_filename)
 
-    name = vmware_vmx_file.nickname(vmx_filename)
+    name = vmware_vmx_file(vmx_filename).nickname
     return clazz.__bases__[0].__new__(clazz,
                                       name,
                                       vm_id,

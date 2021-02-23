@@ -25,11 +25,11 @@ from .vmware_local_vm import vmware_local_vm
 from .vmware_options import vmware_options
 from .vmware_power import vmware_power
 from .vmware_preferences import vmware_preferences
+from .vmware_run_program_options import vmware_run_program_options
 from .vmware_session import vmware_session
 from .vmware_vm import vmware_vm
 from .vmware_vmrun import vmware_vmrun
 from .vmware_vmx_file import vmware_vmx_file
-from .vmware_run_program_options import vmware_run_program_options
 
 class vmware(object):
 
@@ -81,7 +81,7 @@ class vmware(object):
     
     if not self._options.dont_ensure or self._options.clone_vm:
       self._ensure_running_if_needed(target_vm_id)
-      self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(target_vm_id))
+      self._log.log_d('vm_run_program:{}: ensuring vm can run programs'.format(target_vm_id))
       self.vm_wait_for_can_run_programs(target_vm_id, run_program_options)
       
     rv = self._runner.vm_run_program(target_vmx_filename, program, run_program_options)
@@ -482,7 +482,7 @@ class vmware(object):
   _cloned_vm_names = namedtuple('_cloned_vm_names', 'src_vmx_filename, dst_vmx_filename, dst_vmx_nickname')
   def _make_cloned_vm_names(clazz, src_vmx_filename, clone_name, where):
     vms_root_dir = path.normpath(path.join(path.dirname(src_vmx_filename), path.pardir))
-    src_vmx_nickname = vmware_vmx_file.nickname(src_vmx_filename)
+    src_vmx_nickname = vmware_vmx_file(src_vmx_filename).nickname
     tmp_nickname_part = clazz._tmp_nickname_part()
     if not clone_name:
       clone_name = '{}_clone_{}'.format(src_vmx_nickname, tmp_nickname_part)

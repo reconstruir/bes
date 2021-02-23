@@ -6,19 +6,23 @@ from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.fs.file_mime import file_mime
 from bes.fs.file_util import file_util
+from bes.property.cached_property import cached_property
 
 from .vmware_error import vmware_error
 
 class vmware_vmx_file(object):
   'Class do deal with vmware vmx files'
 
-  @classmethod
-  def nickname(clazz, vmx_filename):
-    'Return the nickname for a vmx file'
-    i = vmx_filename.rfind('/')
+  def __init__(self, filename):
+    self.filename = filename
+
+  @cached_property
+  def nickname(self):
+    'Return the nickname for a the vmx file'
+    i = self.filename.rfind('/')
     if i < 0:
       return None
-    vmx = vmx_filename[i + 1:]
+    vmx = self.filename[i + 1:]
     return string_util.remove_tail(vmx, '.vmx')
 
   @classmethod
