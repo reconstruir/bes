@@ -7,6 +7,53 @@ from bes.vmware.vmware_options import vmware_options
 
 class test_vmware_options(unit_test):
 
+  def test___init__(self):
+    values = {
+      'vmrest_username': 'foo',
+      'vmrest_password': 'sekret',
+      'vmrest_port': '9999',
+      'login_username': 'fred',
+      'login_password': 'flintpass',
+    }
+    o = vmware_options(**values)
+    self.assertEqual( 'foo', o.vmrest_username )
+    self.assertEqual( 'sekret', o.vmrest_password )
+    self.assertEqual( 9999, o.vmrest_port )
+    self.assertEqual( 'fred', o.login_username )
+    self.assertEqual( 'flintpass', o.login_password )
+
+  def test___init___with_type_hints(self):
+    values = {
+      'vmrest_username': 'foo',
+      'vmrest_password': 'sekret',
+      'vmrest_port': 9999,
+      'login_username': 'fred',
+      'login_password': 'flintpass',
+    }
+    o = vmware_options(**values)
+    self.assertEqual( 'foo', o.vmrest_username )
+    self.assertEqual( 'sekret', o.vmrest_password )
+    self.assertEqual( 9999, o.vmrest_port )
+    self.assertEqual( 'fred', o.login_username )
+    self.assertEqual( 'flintpass', o.login_password )
+
+  def test___init___with_unknown_value(self):
+    values = {
+      'vmrest_username': 'foo',
+      'vmrest_password': 'sekret',
+      'vmrest_port': 9999,
+      'login_username': 'fred',
+      'login_password': 'flintpass',
+      'something_unknown': 'kiwi',
+    }
+    o = vmware_options(**values)
+    self.assertEqual( 'foo', o.vmrest_username )
+    self.assertEqual( 'sekret', o.vmrest_password )
+    self.assertEqual( 9999, o.vmrest_port )
+    self.assertEqual( 'fred', o.login_username )
+    self.assertEqual( 'flintpass', o.login_password )
+    self.assertFalse( hasattr(o, 'something_unknown') )
+    
   def test_from_config_file(self):
 
     content = '''\
@@ -25,7 +72,7 @@ vmware
     self.assertEqual( 'fred', o.login_username )
     self.assertEqual( 'flintpass', o.login_password )
 
-  def test_unknown_value(self):
+  def test_unknown_value_from_config_file(self):
     content = '''\
 vmware
   vmrest_username: foo
