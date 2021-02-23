@@ -6,14 +6,16 @@ from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.credentials.credentials import credentials
 from bes.system.command_line import command_line
+from bes.system.execute import execute
 from bes.system.log import logger
+from bes.system.os_env import os_env
+from bes.system.which import which
 from bes.text.text_line_parser import text_line_parser
 
 from .vmware_app import vmware_app
 from .vmware_error import vmware_error
 from .vmware_power import vmware_power
 from .vmware_run_program_options import vmware_run_program_options
-from .vmware_vmrun_exe import vmware_vmrun_exe
 from .vmware_vmx_file import vmware_vmx_file
 
 class vmware_vmrun(object):
@@ -27,6 +29,35 @@ class vmware_vmrun(object):
     self._app = vmware_app()
     self._auth_args = self._make_vmrun_auth_args(self._app, self._login_credentials)
 
+  @classmethod
+  def call_vmrun(clazz, args, extra_env = None, cwd = None,
+                 non_blocking = False, shell = False,
+                 raise_error = False, error_message = None):
+    check.check_string_seq(args)
+    check.check_dict(extra_env, allow_none = True)
+    
+    exe = which.which('vmrun')
+    if not exe:
+      raise vmware_error('vmrun not found')
+    quoted_exe = string_util.quote(exe)
+    clazz._log.log_d('call_vmrun: quoted_exe={} args={} - {}'.format(quoted_exe, args, type(args)))
+    cmd = [ string_util.quote(exe) ] + list(args)
+    env = os_env.clone_current_env(d = extra_env)
+    clazz._log.log_d('call_vmrun: cmd={}'.format(' '.join(cmd)))
+    rv = execute.execute(cmd,
+                         env = env,
+                         shell = shell,
+                         cwd = cwd,
+                         stderr_to_stdout = True,
+                         non_blocking = non_blocking,
+                         raise_error = False)
+    clazz._log.log_d('call_vmrun: exit_code={} stdout={}'.format(rv.exit_code, rv.stdout))
+    if raise_error and rv.exit_code != 0:
+      cmd_flat = ' '.join(cmd)
+      msg = error_message or 'vmrun command failed: {}\n{}'.format(cmd_flat, rv.stdout)
+      raise vmware_error(msg)
+    return rv
+    
   def run(self, args, extra_env = None, cwd = None,
           non_blocking = False, shell = False, raise_error = False,
           error_message = None, parse_args = True):
@@ -40,12 +71,12 @@ class vmware_vmrun(object):
       
     vmrun_exe_args = self._auth_args + parsed_args
     self._log.log_d('run: vm_run_program: vmrun_exe_args={}'.format(vmrun_exe_args))
-    return vmware_vmrun_exe.call_vmrun(vmrun_exe_args,
-                                       extra_env = extra_env,
-                                       cwd = cwd,
-                                       non_blocking = non_blocking,
-                                       shell = shell,
-                                       raise_error = raise_error)
+    return self.call_vmrun(vmrun_exe_args,
+                           extra_env = extra_env,
+                           cwd = cwd,
+                           non_blocking = non_blocking,
+                           shell = shell,
+                           raise_error = raise_error)
 
   def vm_set_power_state(self, vmx_filename, state, gui = False, hard = False):
     check.check_string(vmx_filename)
