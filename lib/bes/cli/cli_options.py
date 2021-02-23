@@ -31,7 +31,7 @@ class cli_options(with_metaclass(ABCMeta, object)):
     self.check_value_types()
     
   def __str__(self):
-    sensitive_keys = self.sensitive_keys()
+    sensitive_keys = self.sensitive_keys() or {}
     d = dict_util.hide_passwords(self.__dict__, sensitive_keys)
     return pprint.pformat(d)
     

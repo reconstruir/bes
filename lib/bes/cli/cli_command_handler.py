@@ -21,10 +21,10 @@ class cli_command_handler(object):
     
     self._cli_args = cli_args
     self._delegate = delegate
-    self.options, self._kwargs = self._make_options(options_class, cli_args)
+    self.options, self._kwargs = self.make_options(options_class, cli_args)
 
   @classmethod
-  def _make_options(clazz, options_class, cli_args):
+  def make_options(clazz, options_class, cli_args):
     if not options_class:
       return None, copy.deepcopy(cli_args)
     else:

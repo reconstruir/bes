@@ -4,7 +4,7 @@ class vmware_cli_args(object):
 
   def __init__(self):
     pass
-  
+
   def vmware_add_args(self, subparser):
 
     from vmware_options_cli_args import vmware_options_cli_args
@@ -12,8 +12,7 @@ class vmware_cli_args(object):
     # vm_run_program
     p = subparser.add_parser('vm_run_program', help = 'Run a program in a vm.')
     vmware_options_cli_args.add_arguments(p)
-    p.add_argument('--interactive', action = 'store_true', default = False,
-                   help = 'Run the program in interactive mode [ False ]')
+    self.__vmware_add_common_run_program_args(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
     p.add_argument('program', action = 'store', default = [], nargs = '+',
@@ -22,8 +21,7 @@ class vmware_cli_args(object):
     # vm_run_script
     p = subparser.add_parser('vm_run_script', help = 'Run a script in a vm.')
     vmware_options_cli_args.add_arguments(p)
-    p.add_argument('--interactive', action = 'store_true', default = False,
-                   help = 'Run the program in interactive mode [ False ]')
+    self.__vmware_add_common_run_program_args(p)
     p.add_argument('--interpreter', action = 'store', default = None,
                    help = 'The interpreter to use.  Default is platform specific [ ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
@@ -36,13 +34,7 @@ class vmware_cli_args(object):
     # vm_run_package
     p = subparser.add_parser('vm_run_package', help = 'Run a package in a vm.')
     vmware_options_cli_args.add_arguments(p)
-    p.add_argument('--interactive', action = 'store_true', default = False,
-                   help = 'Run the program in interactive mode [ False ]')
-    p.add_argument('--tail-log', action = 'store_true', default = False,
-                   help = 'Tail the log [ False ]')
-    p.add_argument('-o', '--output', action = 'store', default = None,
-                   dest = 'output_filename',
-                   help = 'Output the log to filename instead of stdout [ False ]')
+    self.__vmware_add_common_run_program_args(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
     p.add_argument('package_dir', action = 'store', default = None,
@@ -119,6 +111,20 @@ class vmware_cli_args(object):
                    help = 'The vm id [ ]')
     p.add_argument('--shutdown', action = 'store_true', default = False,
                    help = 'Whether to shutdown the source vm first []')
+
+  def __vmware_add_common_run_program_args(self, p):
+    'Add argument common to all commands that run programs and scripts'
+    p.add_argument('--interactive', action = 'store_true', default = False,
+                   help = 'Ensure a user is logged in [ False ]')
+    p.add_argument('--no-wait', action = 'store_true', default = False,
+                   help = 'Do not wait for the program to finish.  Return right away [ False ]')
+    p.add_argument('--active-window', action = 'store_true', default = False,
+                   help = 'Ensure the Windows GUI is visible.  No effect on Linux or Macos. [ False ]')
+    p.add_argument('--tail-log', action = 'store_true', default = False,
+                   help = 'Tail the log [ False ]')
+    p.add_argument('-o', '--output', action = 'store', default = None,
+                   dest = 'output_filename',
+                   help = 'Output the log to filename instead of stdout [ False ]')
     
   def _command_vmware(self, __bes_command__, *args, **kargs):
     from .vmware_cli_handler import vmware_cli_handler

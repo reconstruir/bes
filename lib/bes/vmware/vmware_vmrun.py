@@ -10,9 +10,10 @@ from bes.text.text_line_parser import text_line_parser
 
 from .vmware_app import vmware_app
 from .vmware_error import vmware_error
+from .vmware_power import vmware_power
+from .vmware_run_program_options import vmware_run_program_options
 from .vmware_vmrun_exe import vmware_vmrun_exe
 from .vmware_vmx_file import vmware_vmx_file
-from .vmware_power import vmware_power
 
 class vmware_vmrun(object):
 
@@ -137,16 +138,31 @@ class vmware_vmrun(object):
                     raise_error = True,
                     error_message = 'Failed to delete vm: {}'.format(vmx_filename))
 
-  def vm_run_program(self, vmx_filename, program, interactive):
+  def vm_run_program(self, vmx_filename, program, run_program_options):
+    check.check_string(vmx_filename)
+    #check.check_string(program)
+    check.check_vmware_run_program_options(run_program_options)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
-    interactive_args = [ '-interactive' ] if interactive else []
     program_args = command_line.parse_args(program)
-    interactive_args = [ '-interactive' ] if interactive else []
     args = [
       'runProgramInGuest',
       vmx_filename,
-    ] + interactive_args + program_args
+    ] + run_program_options.to_vmrun_command_line_args() + program_args
+    return self.run(args, raise_error = False)
+  
+  def vm_run_script(self, vmx_filename, interpreter_path, script_text, run_program_options):
+    check.check_string(vmx_filename)
+    check.check_string(interpreter_path)
+    check.check_string(script_text)
+    check.check_vmware_run_program_options(run_program_options)
+
+    vmware_vmx_file.check_vmx_file(vmx_filename)
+    program_args = command_line.parse_args(program)
+    args = [
+      'runScriptInGuest',
+      vmx_filename,
+    ] + run_program_options.to_vmrun_command_line_args() + program_args
     return self.run(args, raise_error = False)
   
   def running_vms(self):

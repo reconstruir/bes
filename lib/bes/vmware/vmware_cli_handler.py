@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import copy
 import os.path as path
 
 from bes.cli.cli_command_handler import cli_command_handler
@@ -8,6 +9,7 @@ from bes.system.log import logger
 
 from .vmware import vmware
 from .vmware_options import vmware_options
+from .vmware_run_program_options import vmware_run_program_options
 
 class vmware_cli_handler(cli_command_handler):
   'vmware cli handler.'
@@ -27,8 +29,14 @@ class vmware_cli_handler(cli_command_handler):
     check.check_tuple(args)
     check.check_dict(kwargs)
 
+    if command_name in ( 'vm_run_program', 'vm_run_script', 'vm_run_package' ):
+      options, left_over_args = self.make_options(vmware_run_program_options, kwargs)
+      function_args = left_over_args
+      function_args['run_program_options'] = options
+    else:
+      function_args = kwargs
     func = getattr(self._vmware, command_name)
-    rv = func(*args, **kwargs)
+    rv = func(*args, **function_args)
     if not rv:
       return 0
     if hasattr(rv, 'exit_code'):

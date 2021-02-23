@@ -30,6 +30,7 @@ from .vmware_vm import vmware_vm
 from .vmware_vmrun import vmware_vmrun
 from .vmware_vmrun_exe import vmware_vmrun_exe
 from .vmware_vmx_file import vmware_vmx_file
+from .vmware_run_program_options import vmware_run_program_options
 
 class vmware(object):
 
@@ -67,10 +68,10 @@ class vmware(object):
       self._log.log_d('session: starting session done')
     return self._session
 
-  def vm_run_program(self, vm_id, program, interactive):
+  def vm_run_program(self, vm_id, program, run_program_options):
     check.check_string(vm_id)
     check.check_string_seq(program)
-    check.check_bool(interactive)
+    check.check_vmware_run_program_options(run_program_options)
 
     self._log.log_method_d()
     
@@ -82,9 +83,9 @@ class vmware(object):
     if not self._options.dont_ensure or self._options.clone_vm:
       self._ensure_running_if_needed(target_vm_id)
       self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(target_vm_id))
-      self.vm_wait_for_can_run_programs(target_vm_id, interactive)
+      self.vm_wait_for_can_run_programs(target_vm_id, run_program_options)
       
-    rv = self._runner.vm_run_program(target_vmx_filename, program, interactive)
+    rv = self._runner.vm_run_program(target_vmx_filename, program, run_program_options)
 
     if self._options.clone_vm and not self._options.debug:
       self._runner.vm_stop(target_vmx_filename)
@@ -92,10 +93,11 @@ class vmware(object):
 
     return rv
 
-  def vm_run_script(self, vm_id, program, interactive):
+  def vm_run_script(self, vm_id, interpreter_path, script_text, run_program_options):
     check.check_string(vm_id)
-    check.check_string_seq(program)
-    check.check_bool(interactive)
+    check.check_string(interpreter_path)
+    check.check_string(script_text)
+    check.check_vmware_run_program_options(run_program_options)
 
     self._log.log_method_d()
     
@@ -106,10 +108,10 @@ class vmware(object):
     
     if not self._options.dont_ensure or self._options.clone_vm:
       self._ensure_running_if_needed(target_vm_id)
-      self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(target_vm_id))
-      self.vm_wait_for_can_run_programs(target_vm_id, interactive)
+      self._log.log_d('vm_run_script:{}: ensuring vm can run programs'.format(target_vm_id))
+      self.vm_wait_for_can_run_programs(target_vm_id, run_program_options)
       
-    rv = self._runner.vm_run_program(target_vmx_filename, program, interactive)
+    rv = self._runner.vm_run_script(target_vmx_filename, program, run_program_options)
 
     if self._options.clone_vm and not self._options.debug:
       self._runner.vm_stop(target_vmx_filename)
@@ -134,15 +136,15 @@ class vmware(object):
     self._log.log_d('clone worked: dst_mv_id={} dst_vmx_filename={}'.format(dst_vm_id, rv.dst_vmx_filename))
     return dst_vm_id, rv.dst_vmx_filename
   
-  def vm_can_run_programs(self, vm_id, interactive):
+  def vm_can_run_programs(self, vm_id, run_program_options):
     check.check_string(vm_id)
-    check.check_bool(interactive)
+    check.check_vmware_run_program_options(run_program_options)
 
     self._log.log_method_d()
     
     vmx_filename = self._resolve_vmx_filename(vm_id)
     try:
-      rv = self._runner.vm_run_program(vmx_filename, '/bin/bash --version', interactive)
+      rv = self._runner.vm_run_program(vmx_filename, '/bin/bash --version', run_program_options)
       self._log.log_d('vm_can_run_programs: exit_code={}'.format(rv.exit_code))
       if rv.exit_code != 0:
         self._log.log_d('vm_can_run_programs: output:\n'.format(rv.stdout))
@@ -151,9 +153,9 @@ class vmware(object):
       pass
     return False
 
-  def vm_wait_for_can_run_programs(self, vm_id, interactive):
+  def vm_wait_for_can_run_programs(self, vm_id, run_program_options):
     check.check_string(vm_id)
-    check.check_bool(interactive)
+    check.check_vmware_run_program_options(run_program_options)
 
     self._log.log_method_d()
     
@@ -163,7 +165,7 @@ class vmware(object):
                                                                                       sleep_time))
     for i in range(1, num_tries + 1):
       self._log.log_d('vm_wait_for_can_run_programs: try {} of {}'.format(i, num_tries))
-      if self.vm_can_run_programs(vm_id, interactive):
+      if self.vm_can_run_programs(vm_id, run_program_options):
         self._log.log_d('vm_wait_for_can_run_programs: try {} success'.format(i))
         return
       self._log.log_d('vm_wait_for_can_run_programs: sleeping for {} seconds'.format(sleep_time))
@@ -171,15 +173,12 @@ class vmware(object):
     self._log.log_d('vm_wait_for_can_run_programs: timed out waiting for vm to be able to run programs.')
     raise vmware_error('vm_wait_for_can_run_programs: timed out waiting for vm to be able to run programs.')
   
-  def vm_run_package(self, vm_id, package_dir, entry_command, entry_command_args,
-                     interactive, output_filename, tail_log):
+  def vm_run_package(self, vm_id, package_dir, entry_command, entry_command_args, run_program_options):
     check.check_string(vm_id)
     check.check_string(package_dir)
     check.check_string(entry_command)
     check.check_string_seq(entry_command_args)
-    check.check_bool(interactive)
-    check.check_string(output_filename, allow_none = True)
-    check.check_bool(tail_log)
+    check.check_vmware_run_program_options(run_program_options)
 
     self._log.log_method_d()
 
@@ -201,7 +200,7 @@ class vmware(object):
     if not self._options.dont_ensure or self._options.clone_vm:
       self._ensure_running_if_needed(target_vm_id)
       self._log.log_d('vm_run_package:{}: ensuring vm can run programs'.format(target_vm_id))
-      self.vm_wait_for_can_run_programs(target_vm_id, interactive)
+      self.vm_wait_for_can_run_programs(target_vm_id, run_program_options)
       
     tmp_dir_local = temp_file.make_temp_dir(suffix = '-run_package.dir', delete = not debug)
     if debug:
@@ -211,11 +210,11 @@ class vmware(object):
     self._log.log_d('      vm_run_package: tmp_remote_dir={}'.format(tmp_remote_dir))
 
     rmdir_cmd = '/bin/rm -rf {}'.format(tmp_remote_dir)
-    rv = self._runner.vm_run_program(target_vmx_filename, rmdir_cmd, interactive)
+    rv = self._runner.vm_run_program(target_vmx_filename, rmdir_cmd, run_program_options)
     if rv.exit_code != 0:
       raise vmware_error('vm_run_package: failed to: "{}"'.format(rmdir_cmd))
     mkdir_cmd = '/bin/mkdir -p {}'.format(tmp_remote_dir)
-    rv = self._runner.vm_run_program(target_vmx_filename, mkdir_cmd, interactive)
+    rv = self._runner.vm_run_program(target_vmx_filename, mkdir_cmd, run_program_options)
     if rv.exit_code != 0:
       raise vmware_error('vm_run_package: failed to: "{}" - {}\n{}\n'.format(mkdir_cmd,
                                                                              rv.exit_code,
@@ -244,7 +243,8 @@ class vmware(object):
       debug_args.extend([ '--tty', tty ])
 
     process = None
-    if tail_log:
+    if run_program_options.tail_log:
+      assert False # not working
       debug_args.extend([ '--tail-log-port', str(9000) ])
       resolved_target_vm_id = self.session.resolve_vm_id(target_vm_id)
       ip_address = self.session.call_client('vm_get_ip_address', resolved_target_vm_id)
@@ -277,17 +277,17 @@ class vmware(object):
       entry_command,
       tmp_output_log.remote,      
     ] + parsed_entry_command_args
-    rv = self._runner.vm_run_program(target_vmx_filename, caller_args, interactive)
+    rv = self._runner.vm_run_program(target_vmx_filename, caller_args, run_program_options)
 
     self._runner.vm_file_copy_from(target_vmx_filename, tmp_output_log.remote, tmp_output_log.local)
 
-    with file_util.open_with_default(filename = output_filename) as f:
+    with file_util.open_with_default(filename = run_program_options.output_filename) as f:
       log_content = file_util.read(tmp_output_log.local, codec = 'utf-8')
       f.write(log_content)
 
     # cleanup the tmp dir but only if debug is False
     if not debug:
-      rv = self._runner.vm_run_program(target_vmx_filename, rmdir_cmd, interactive)
+      rv = self._runner.vm_run_program(target_vmx_filename, rmdir_cmd, run_program_options)
       if rv.exit_code != 0:
         raise vmware_error('vm_run_package: failed to: "{}"'.format(rmdir_cmd))
 
@@ -454,7 +454,7 @@ class vmware(object):
 
     result = self._runner.vm_set_power_state(vmx_filename, state)
     if wait and state in ( 'start', 'unpause' ):
-      self.vm_wait_for_can_run_programs(vm_id, False)
+      self.vm_wait_for_can_run_programs(vm_id, vmware_run_program_options())
     return result
 
   def vm_command(self, vm_id, command, command_args):
