@@ -16,19 +16,19 @@ class test_vmware_vmx_file(unit_test):
   def test_guest_system_macos_10_14(self):
     tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos-10.14.vmx', content = self._TEST_MACOS_10_14_CONTENT)
     self.assertEqual( 'macos-10.14', vmware_vmx_file(tmp).nickname )
-    self.assertEqual( 'macos-10.14', vmware_vmx_file(tmp).display_name )
+    self.assertEqual( 'macos-mojave', vmware_vmx_file(tmp).display_name )
     self.assertEqual( ( 'macos', '10', '14', 'x86_64', '', None ), vmware_vmx_file(tmp).system_info )
 
   def test_guest_system_macos_10_15(self):
     tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos-10.15.vmx', content = self._TEST_MACOS_10_15_CONTENT)
     self.assertEqual( 'macos-10.15', vmware_vmx_file(tmp).nickname )
-    self.assertEqual( 'macos-10.15', vmware_vmx_file(tmp).display_name )
+    self.assertEqual( 'macos-catalina', vmware_vmx_file(tmp).display_name )
     self.assertEqual( ( 'macos', '10', '15', 'x86_64', '', None ), vmware_vmx_file(tmp).system_info )
 
   def test_guest_system_macos_10_16(self):
     tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos-10.16.vmx', content = self._TEST_MACOS_10_16_CONTENT)
     self.assertEqual( 'macos-10.16', vmware_vmx_file(tmp).nickname )
-    self.assertEqual( 'macos-10.16', vmware_vmx_file(tmp).display_name )
+    self.assertEqual( 'macos-big-sur', vmware_vmx_file(tmp).display_name )
     self.assertEqual( ( 'macos', '10', '16', 'x86_64', '', None ), vmware_vmx_file(tmp).system_info )
     
   def _make_temp_vmx_file(self, fragment, content = None):
@@ -39,7 +39,7 @@ class test_vmware_vmx_file(unit_test):
   
   _TEST_MACOS_10_14_CONTENT = '''\
 .encoding = "UTF-8"
-displayName = "macos-10.14"
+displayName = "macos-mojave"
 config.version = "8"
 virtualHW.version = "18"
 pciBridge0.present = "TRUE"
@@ -171,7 +171,7 @@ usb_xhci:4.parent = "-1"
 
   _TEST_MACOS_10_15_CONTENT = '''\
 .encoding = "UTF-8"
-displayName = "macos-10.15"
+displayName = "macos-catalina"
 config.version = "8"
 virtualHW.version = "18"
 pciBridge0.present = "TRUE"
@@ -303,7 +303,7 @@ usb_xhci:4.parent = "-1"
 
   _TEST_MACOS_10_16_CONTENT = '''\
 .encoding = "UTF-8"
-displayName = "macos-10.16"
+displayName = "macos-big-sur"
 config.version = "8"
 virtualHW.version = "18"
 pciBridge0.present = "TRUE"
