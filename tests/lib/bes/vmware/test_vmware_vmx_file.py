@@ -14,8 +14,9 @@ class test_vmware_vmx_file(unit_test):
     self.assertEqual( 'win10', vmware_vmx_file(tmp).nickname )
 
   def test_guest_system_macos(self):
-    tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos.vmx', content = self._TEST_MACOS_CONTENT)
-    self.assertEqual( 'macos', vmware_vmx_file(tmp).nickname )
+    tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos-mojave.vmx', content = self._TEST_MACOS_10_14_CONTENT)
+    self.assertEqual( 'macos-mojave', vmware_vmx_file(tmp).nickname )
+    self.assertEqual( ( 'macos', '10', '14', 'x86_64', '', None ), vmware_vmx_file(tmp).system_info )
 
   def _make_temp_vmx_file(self, fragment, content = None):
     tmp_dir = self.make_temp_dir()
@@ -23,7 +24,7 @@ class test_vmware_vmx_file(unit_test):
     file_util.save(tmp_vmx_file, content = content)
     return tmp_vmx_file
   
-  _TEST_MACOS_CONTENT = '''\
+  _TEST_MACOS_10_14_CONTENT = '''\
 .encoding = "UTF-8"
 displayName = "kiwi3"
 config.version = "8"

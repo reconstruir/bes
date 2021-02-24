@@ -7,9 +7,11 @@ from bes.common.string_util import string_util
 from bes.fs.file_mime import file_mime
 from bes.fs.file_util import file_util
 from bes.property.cached_property import cached_property
+from bes.system.host_info import host_info
 
 from .vmware_error import vmware_error
 from .vmware_properties_file import vmware_properties_file
+from .vmware_system_info import vmware_system_info
 
 class vmware_vmx_file(vmware_properties_file):
   'Class do deal with vmware vmx files'
@@ -26,6 +28,18 @@ class vmware_vmx_file(vmware_properties_file):
     vmx = self.filename[i + 1:]
     return string_util.remove_tail(vmx, '.vmx')
 
+  @cached_property
+  def system_info(self):
+    'Return guest system info in bes.system.host_info format'
+    guest_os = self.get_value('guestOS')
+    guest_os_detailed_data = self.get_value('guestOS.detailed.data')
+    return vmware_system_info.system_info(guest_os, guest_os_detailed_data)
+
+  @cached_property
+  def system(self):
+    'Return guest system info in bes.system.host_info format'
+    return self.system_info.system
+  
   @classmethod
   def is_vmx_file(clazz, filename):
     'Return True if filename is a vmx file'
