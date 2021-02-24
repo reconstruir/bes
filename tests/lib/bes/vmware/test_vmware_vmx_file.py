@@ -3,16 +3,26 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
+from bes.fs.file_util import file_util
 
 from bes.vmware.vmware_vmx_file import vmware_vmx_file
 
 class test_vmware_vmx_file(unit_test):
 
   def test_nickname(self):
-    tmp_dir = self.make_temp_dir()
-    tmp_vmx_file = path.join(tmp_dir, 'vms/win10.vmwarevm/win10.vmx')
-    self.assertEqual( 'win10', vmware_vmx_file(tmp_vmx_file).nickname )
+    tmp = self._make_temp_vmx_file('vms/win10.vmwarevm/win10.vmx')
+    self.assertEqual( 'win10', vmware_vmx_file(tmp).nickname )
 
+  def test_guest_system_macos(self):
+    tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos.vmx', content = self._TEST_MACOS_CONTENT)
+    self.assertEqual( 'macos', vmware_vmx_file(tmp).nickname )
+
+  def _make_temp_vmx_file(self, fragment, content = None):
+    tmp_dir = self.make_temp_dir()
+    tmp_vmx_file = path.join(tmp_dir, fragment)
+    file_util.save(tmp_vmx_file, content = content)
+    return tmp_vmx_file
+  
   _TEST_MACOS_CONTENT = '''\
 .encoding = "UTF-8"
 displayName = "kiwi3"
