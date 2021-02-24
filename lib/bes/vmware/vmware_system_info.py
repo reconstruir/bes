@@ -29,20 +29,47 @@ class vmware_system_info(object):
     check.check_string(guest_os_detailed_data)
 
     if guest_os_detailed_data:
-      details = key_value_list.parse(guest_os_detailed_data)
+      details = key_value_list.parse(guest_os_detailed_data).to_dict()
     else:
       details = {}
-
     clazz._log.log_d('system_info: guest_os="{}" details="{}"'.format(guest_os, details))
+    family_name = details.get('familyName', None)
+    if not family_name:
+      raise vmware_error('Family name not found for guest os: "{}" - "{}"'.format(guest_os, details))
 
-    result = clazz._TABLE.get(guest_os, None)
+    family_name = family_name.lower()
+    handler_name = '_system_info_{}'.format(family_name)
+    handler = getattr(clazz, handler_name, None)
+    if not handler:
+      raise vmware_error('Unknown guest os: "{}" - "{}"'.format(guest_os, details))
+    result = handler(guest_os, details)
     if not result:
-      raise RuntimeError('Unknown guest os: "{}" - "{}"'.format(guest_os, details))
-    
+      raise vmware_error('Unknown guest os: "{}" - "{}"'.format(guest_os, details))
     return result
 
-  _TABLE = {
-    'darwin18-64': host_info('macos', '10', '14', 'x86_64', '', None),
-    'darwin19-64': host_info('macos', '10', '15', 'x86_64', '', None),
-    'darwin20-64': host_info('macos', '10', '16', 'x86_64', '', None),
-  }
+  @classmethod
+  def _system_info_linux(clazz, guest_os, details):
+    arch = clazz._determine_arch(details)
+    distro_name = details.get('distroName', None)
+    assert distro_name
+    distro_version = details.get('distroVersion', None)
+    assert distro_version
+    version_parts = distro_version.split('.')
+    return host_info('linux', version_parts[0], version_parts[1], arch, distro_name.lower(), None)
+  
+  @classmethod
+  def _system_info_darwin(clazz, guest_os, details):
+    arch = clazz._determine_arch(details)
+    distro_version = details.get('distroVersion', None)
+    assert distro_version
+    version_parts = distro_version.split('.')
+    return host_info('macos', version_parts[0], version_parts[1], arch, '', None)
+
+  @classmethod
+  def _determine_arch(clazz, details):
+    if details.get('bitness', None) == '64':
+      arch = 'x86_64'
+    else:
+      arch = 'i386'
+    return arch
+  

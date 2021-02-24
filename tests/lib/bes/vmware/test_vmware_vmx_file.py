@@ -14,22 +14,28 @@ class test_vmware_vmx_file(unit_test):
     self.assertEqual( 'win10', vmware_vmx_file(tmp).nickname )
 
   def test_guest_system_macos_10_14(self):
-    tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos-10.14.vmx', content = self._TEST_MACOS_10_14_CONTENT)
+    tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos-10.14.vmx', content = self._TEST_VMX_MACOS_10_14)
     self.assertEqual( 'macos-10.14', vmware_vmx_file(tmp).nickname )
     self.assertEqual( 'macos-mojave', vmware_vmx_file(tmp).display_name )
     self.assertEqual( ( 'macos', '10', '14', 'x86_64', '', None ), vmware_vmx_file(tmp).system_info )
 
   def test_guest_system_macos_10_15(self):
-    tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos-10.15.vmx', content = self._TEST_MACOS_10_15_CONTENT)
+    tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos-10.15.vmx', content = self._TEST_VMX_MACOS_10_15)
     self.assertEqual( 'macos-10.15', vmware_vmx_file(tmp).nickname )
     self.assertEqual( 'macos-catalina', vmware_vmx_file(tmp).display_name )
     self.assertEqual( ( 'macos', '10', '15', 'x86_64', '', None ), vmware_vmx_file(tmp).system_info )
 
   def test_guest_system_macos_10_16(self):
-    tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos-10.16.vmx', content = self._TEST_MACOS_10_16_CONTENT)
+    tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/macos-10.16.vmx', content = self._TEST_VMX_MACOS_10_16)
     self.assertEqual( 'macos-10.16', vmware_vmx_file(tmp).nickname )
     self.assertEqual( 'macos-big-sur', vmware_vmx_file(tmp).display_name )
     self.assertEqual( ( 'macos', '10', '16', 'x86_64', '', None ), vmware_vmx_file(tmp).system_info )
+
+  def test_guest_system_ubuntu_18_04(self):
+    tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/ubuntu-18.04.vmx', content = self._TEST_VMX_UBUNTU_18_04)
+    self.assertEqual( 'ubuntu-18.04', vmware_vmx_file(tmp).nickname )
+    self.assertEqual( 'ubuntu-bionic-beaver', vmware_vmx_file(tmp).display_name )
+    self.assertEqual( ( 'linux', '18', '04', 'x86_64', 'ubuntu', None ), vmware_vmx_file(tmp).system_info )
     
   def _make_temp_vmx_file(self, fragment, content = None):
     tmp_dir = self.make_temp_dir()
@@ -37,7 +43,7 @@ class test_vmware_vmx_file(unit_test):
     file_util.save(tmp_vmx_file, content = content)
     return tmp_vmx_file
   
-  _TEST_MACOS_10_14_CONTENT = '''\
+  _TEST_VMX_MACOS_10_14 = '''\
 .encoding = "UTF-8"
 displayName = "macos-mojave"
 config.version = "8"
@@ -169,7 +175,7 @@ usb_xhci:4.port = "4"
 usb_xhci:4.parent = "-1"
 '''
 
-  _TEST_MACOS_10_15_CONTENT = '''\
+  _TEST_VMX_MACOS_10_15 = '''\
 .encoding = "UTF-8"
 displayName = "macos-catalina"
 config.version = "8"
@@ -301,7 +307,7 @@ usb_xhci:4.port = "4"
 usb_xhci:4.parent = "-1"
 '''
 
-  _TEST_MACOS_10_16_CONTENT = '''\
+  _TEST_VMX_MACOS_10_16 = '''\
 .encoding = "UTF-8"
 displayName = "macos-big-sur"
 config.version = "8"
@@ -433,9 +439,9 @@ usb_xhci:4.port = "4"
 usb_xhci:4.parent = "-1"
 '''
   
-  _TEST_UBUNTU_CONTENT = '''\
+  _TEST_VMX_UBUNTU_18_04 = '''\
 .encoding = "UTF-8"
-displayName = "ubuntu-18.04.1-clean"
+displayName = "ubuntu-bionic-beaver"
 config.version = "8"
 virtualHW.version = "18"
 mks.enable3d = "TRUE"
