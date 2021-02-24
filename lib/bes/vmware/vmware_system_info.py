@@ -33,22 +33,35 @@ class vmware_system_info(object):
     else:
       details = {}
     clazz._log.log_d('system_info: guest_os="{}" details="{}"'.format(guest_os, details))
-    family_name = details.get('familyName', None)
-    if not family_name:
-      raise vmware_error('Family name not found for guest os: "{}" - "{}"'.format(guest_os, details))
+    if details:
+      family_name = details.get('familyName', None)
+      if not family_name:
+        raise vmware_error('Family name not found for guest os: "{}" - "{}"'.format(guest_os, details))
+      return clazz._system_info_with_details(family_name, details)
+    else:
+      return clazz._system_info_without_details(guest_os)
+
+  @classmethod
+  def _system_info_with_details(clazz, family_name, details):
+    assert family_name
+    assert details
 
     family_name = family_name.lower()
     handler_name = '_system_info_{}'.format(family_name)
     handler = getattr(clazz, handler_name, None)
     if not handler:
       raise vmware_error('Unknown guest os: "{}" - "{}"'.format(guest_os, details))
-    result = handler(guest_os, details)
+    result = handler(details)
     if not result:
       raise vmware_error('Unknown guest os: "{}" - "{}"'.format(guest_os, details))
     return result
 
   @classmethod
-  def _system_info_linux(clazz, guest_os, details):
+  def _system_info_without_details(clazz, guest_os):
+    return clazz._WITHOUT_DETAILS_TABLE.get(guest_os, None)
+  
+  @classmethod
+  def _system_info_linux(clazz, details):
     arch = clazz._determine_arch(details)
     distro_name = details.get('distroName', None)
     assert distro_name
@@ -56,15 +69,15 @@ class vmware_system_info(object):
     assert distro_version
     version_parts = distro_version.split('.')
     return host_info('linux', version_parts[0], version_parts[1], arch, distro_name.lower(), None)
-  
+
   @classmethod
-  def _system_info_darwin(clazz, guest_os, details):
+  def _system_info_darwin(clazz, details):
     arch = clazz._determine_arch(details)
     distro_version = details.get('distroVersion', None)
     assert distro_version
     version_parts = distro_version.split('.')
     return host_info('macos', version_parts[0], version_parts[1], arch, '', None)
-
+  
   @classmethod
   def _determine_arch(clazz, details):
     if details.get('bitness', None) == '64':
@@ -72,4 +85,8 @@ class vmware_system_info(object):
     else:
       arch = 'i386'
     return arch
-  
+
+  _WITHOUT_DETAILS_TABLE = {
+    'windows9-64': host_info('windows', '10', '0', 'x86_64', '', None),
+    'windows9': host_info('windows', '10', '0', 'i386', '', None),
+  }

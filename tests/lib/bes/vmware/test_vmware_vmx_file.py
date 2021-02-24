@@ -36,6 +36,12 @@ class test_vmware_vmx_file(unit_test):
     self.assertEqual( 'ubuntu-18.04', vmware_vmx_file(tmp).nickname )
     self.assertEqual( 'ubuntu-bionic-beaver', vmware_vmx_file(tmp).display_name )
     self.assertEqual( ( 'linux', '18', '04', 'x86_64', 'ubuntu', None ), vmware_vmx_file(tmp).system_info )
+
+  def test_guest_system_ubuntu_18_04(self):
+    tmp = self._make_temp_vmx_file('vms/macos.vmwarevm/windows-10.vmx', content = self._TEST_CONTENT_WINDOWS_10)
+    self.assertEqual( 'windows-10', vmware_vmx_file(tmp).nickname )
+    self.assertEqual( 'windoze-10', vmware_vmx_file(tmp).display_name )
+    self.assertEqual( ( 'windows', '10', '0', 'x86_64', '', None ), vmware_vmx_file(tmp).system_info )
     
   def _make_temp_vmx_file(self, fragment, content = None):
     tmp_dir = self.make_temp_dir()
@@ -578,7 +584,7 @@ ehci:0.port = "0"
 ehci:0.parent = "-1"
 '''
 
-  _TEST_CONTENT_WINDOWS = '''\
+  _TEST_CONTENT_WINDOWS_10 = '''\
 #!/usr/bin/vmware
 .encoding = "UTF-8"
 config.version = "8"
@@ -603,7 +609,7 @@ usb.vbluetooth.startConnected = "TRUE"
 firmware = "efi"
 sensor.location = "pass-through"
 chipset.useApmBattery = "TRUE"
-displayName = "win10"
+displayName = "windoze-10"
 guestOS = "windows9-64"
 nvram = "win10.nvram"
 virtualHW.productCompatibility = "hosted"
