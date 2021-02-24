@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
 from bes.testing.unit_test import unit_test
 
 from bes.vmware.vmware_vmx_file import vmware_vmx_file
@@ -8,7 +9,9 @@ from bes.vmware.vmware_vmx_file import vmware_vmx_file
 class test_vmware_vmx_file(unit_test):
 
   def test_nickname(self):
-    self.assertEqual( 'win10', vmware_vmx_file('/Users/fred/vms/win10.vmwarevm/win10.vmx').nickname )
+    tmp_dir = self.make_temp_dir()
+    tmp_vmx_file = path.join(tmp_dir, 'vms/win10.vmwarevm/win10.vmx')
+    self.assertEqual( 'win10', vmware_vmx_file(tmp_vmx_file).nickname )
 
   _TEST_MACOS_CONTENT = '''\
 .encoding = "UTF-8"

@@ -9,13 +9,14 @@ from bes.fs.file_util import file_util
 from bes.property.cached_property import cached_property
 
 from .vmware_error import vmware_error
+from .vmware_properties_file import vmware_properties_file
 
-class vmware_vmx_file(object):
+class vmware_vmx_file(vmware_properties_file):
   'Class do deal with vmware vmx files'
 
-  def __init__(self, filename):
-    self.filename = filename
-
+  def __init__(self, filename = None, backup = False):
+    super(vmware_vmx_file, self).__init__(filename, backup = backup)
+                      
   @cached_property
   def nickname(self):
     'Return the nickname for a the vmx file'
