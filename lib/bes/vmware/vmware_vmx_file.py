@@ -39,6 +39,11 @@ class vmware_vmx_file(vmware_properties_file):
   def system(self):
     'Return guest system info in bes.system.host_info format'
     return self.system_info.system
+
+  @cached_property
+  def display_name(self):
+    'Return the display name of the vm in the vmware gui'
+    return self.get_value('displayName')
   
   @classmethod
   def is_vmx_file(clazz, filename):
