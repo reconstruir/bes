@@ -16,4 +16,4 @@ class vmware_preferences(vmware_properties_file):
 
   @classmethod
   def default_preferences_filename(clazz):
-    return vmware_app().preferences_filename()
+    return vmware_app.preferences_filename()

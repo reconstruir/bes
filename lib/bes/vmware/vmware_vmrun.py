@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
 import os.path as path
+import subprocess
 
 from bes.common.check import check
 from bes.common.string_util import string_util
@@ -9,7 +11,6 @@ from bes.system.command_line import command_line
 from bes.system.execute import execute
 from bes.system.log import logger
 from bes.system.os_env import os_env
-from bes.system.which import which
 from bes.text.text_line_parser import text_line_parser
 
 from .vmware_app import vmware_app
@@ -26,57 +27,43 @@ class vmware_vmrun(object):
     check.check_credentials(login_credentials, allow_none = True)
 
     self._login_credentials = login_credentials
-    self._app = vmware_app()
-    self._auth_args = self._make_vmrun_auth_args(self._app, self._login_credentials)
+    self._auth_args = self._make_vmrun_auth_args(self._login_credentials)
 
-  @classmethod
-  def call_vmrun(clazz, args, extra_env = None, cwd = None,
-                 non_blocking = False, shell = False,
-                 raise_error = False, error_message = None):
+  _run_result = namedtuple('_run_result', 'output, exit_code, args')
+  def run(self, args, extra_env = None,
+          raise_error = False, error_message = None):
     check.check_string_seq(args)
     check.check_dict(extra_env, allow_none = True)
-    
-    exe = which.which('vmrun')
-    if not exe:
-      raise vmware_error('vmrun not found')
-    quoted_exe = string_util.quote(exe)
-    clazz._log.log_d('call_vmrun: quoted_exe={} args={} - {}'.format(quoted_exe, args, type(args)))
-    cmd = [ string_util.quote(exe) ] + list(args)
+    check.check_bool(raise_error)
+    check.check_string(error_message, allow_none = True)
+
+    self._log.log_method_d()
+    exe = vmware_app.vmrun_exe_path()
+    vmrun_args = [ exe ] + self._auth_args + list(args)
+    self._log.log_d('run: vmrun_args={}'.format(vmrun_args))
+
     env = os_env.clone_current_env(d = extra_env)
-    clazz._log.log_d('call_vmrun: cmd={}'.format(' '.join(cmd)))
-    rv = execute.execute(cmd,
-                         env = env,
-                         shell = shell,
-                         cwd = cwd,
-                         stderr_to_stdout = True,
-                         non_blocking = non_blocking,
-                         raise_error = False)
-    clazz._log.log_d('call_vmrun: exit_code={} stdout={}'.format(rv.exit_code, rv.stdout))
-    if raise_error and rv.exit_code != 0:
-      cmd_flat = ' '.join(cmd)
-      msg = error_message or 'vmrun command failed: {}\n{}'.format(cmd_flat, rv.stdout)
-      raise vmware_error(msg)
-    return rv
-    
-  def run(self, args, extra_env = None, cwd = None,
-          non_blocking = False, shell = False, raise_error = False,
-          error_message = None, parse_args = True):
-    check.check_string_seq(args)
-    check.check_dict(extra_env, allow_none = True)
 
-    if parse_args:
-      parsed_args = command_line.parse_args(args)
+    try:
+      self._log.log_d('run: calling: {}'.format(' '.join(vmrun_args)))
+      output = subprocess.check_output(vmrun_args,
+                                       stderr = subprocess.STDOUT,
+                                       shell = False,
+                                       env = env)
+    except subprocess.CalledProcessError as ex:
+      exit_code = ex.returncode
+      self._log.log_d('run: caught exception: {} - {}'.format(str(ex), exit_code))
+      output = ex.output
+      if raise_error:
+        if not error_message:
+          args_flat = ' '.join(vmrun_args)
+          error_message or 'vmrun command failed: {}\n{}'.format(cmd_flat, output)
+        raise vmware_error(error_message, status_code = exit_code)
     else:
-      parsed_args = args[:]
-      
-    vmrun_exe_args = self._auth_args + parsed_args
-    self._log.log_d('run: vm_run_program: vmrun_exe_args={}'.format(vmrun_exe_args))
-    return self.call_vmrun(vmrun_exe_args,
-                           extra_env = extra_env,
-                           cwd = cwd,
-                           non_blocking = non_blocking,
-                           shell = shell,
-                           raise_error = raise_error)
+      exit_code = 0
+    result = self._run_result(output, exit_code, vmrun_args)
+    self._log.log_d('run: result: {} - {}'.format(result.exit_code, result.output))
+    return result
 
   def vm_set_power_state(self, vmx_filename, state, gui = False, hard = False):
     check.check_string(vmx_filename)
@@ -86,7 +73,8 @@ class vmware_vmrun(object):
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     vmware_power.check_state(state)
-    
+
+    self._log.log_method_d()
     args = [ state, vmx_filename ]
     if state in ( 'start',  ):
       if gui:
@@ -108,6 +96,7 @@ class vmware_vmrun(object):
     check.check_string(remote_filename)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
+    self._log.log_method_d()
     args = [
       'copyFileFromHostToGuest',
       vmx_filename,
@@ -130,6 +119,32 @@ class vmware_vmrun(object):
     ]
     return self.run(args, raise_error = True)
 
+  def vm_file_exists(self, vmx_filename, remote_filename):
+    check.check_string(vmx_filename)
+    check.check_string(remote_filename)
+
+    vmware_vmx_file.check_vmx_file(vmx_filename%)
+    args = [
+      'fileExistsInGuest',
+      vmx_filename,
+      remote_filename,
+    ]
+    rv = self.run(args, raise_false = True)
+    return rv.exit_code == 0
+
+  def vm_directory_exists(self, vmx_filename, remote_directory):
+    check.check_string(vmx_filename)
+    check.check_string(remote_directory)
+
+    vmware_vmx_file.check_vmx_file(vmx_filename)
+    args = [
+      'directoryExistsInGuest',
+      vmx_filename,
+      remote_directory,
+    ]
+    rv = self.run(args, raise_false = True)
+    return rv.exit_code == 0
+  
   def vm_clone(self, src_vmx_filename, dst_vmx_filename, full = False, snapshot_name = None, clone_name = None):
     check.check_string(src_vmx_filename)
     check.check_string(dst_vmx_filename)
@@ -177,23 +192,25 @@ class vmware_vmrun(object):
                     raise_error = True,
                     error_message = 'Failed to delete vm: {}'.format(vmx_filename))
 
-  def vm_run_program(self, vmx_filename, program, run_program_options):
+  def vm_run_program(self, vmx_filename, program, program_args, run_program_options):
     check.check_string(vmx_filename)
-    #check.check_string(program)
+    check.check_string(program)
+    check.check_string_seq(program_args)
     check.check_vmware_run_program_options(run_program_options)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
-    program_args = command_line.parse_args(program)
     args = [
       'runProgramInGuest',
       vmx_filename,
-    ] + run_program_options.to_vmrun_command_line_args() + program_args
+    ] + run_program_options.to_vmrun_command_line_args() + [
+      program,
+    ] + list(program_args)
     return self.run(args, raise_error = False)
   
-  def vm_run_script(self, vmx_filename, interpreter_path, script, run_program_options):
+  def vm_run_script(self, vmx_filename, interpreter_path, script_text, run_program_options):
     check.check_string(vmx_filename)
     check.check_string(interpreter_path)
-    check.check_string(script)
+    check.check_string(script_text)
     check.check_vmware_run_program_options(run_program_options)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
@@ -202,11 +219,12 @@ class vmware_vmrun(object):
       vmx_filename,
     ] + run_program_options.to_vmrun_command_line_args() + [
       interpreter_path,
-      '"{}"'.format(script),
+      script_text,
     ]
-    return self.run(args, raise_error = False, parse_args = False)
+    return self.run(args, raise_error = False)
   
   def running_vms(self):
+    self._log.log_method_d()
     args = [ 'list' ]
     rv = self.run(args, raise_error = True)
     lines = text_line_parser.parse_lines(rv.stdout,
@@ -216,14 +234,15 @@ class vmware_vmrun(object):
     return lines[1:]
 
   def vm_is_running(self, vmx_filename):
+    self._log.log_method_d()
     vmware_vmx_file.check_vmx_file(vmx_filename)
 
     running_vms = self.running_vms()
     return vmx_filename in self.running_vms()
   
   @classmethod
-  def _make_vmrun_auth_args(clazz, app, cred):
-    args = [ '-T', app.host_type() ]
+  def _make_vmrun_auth_args(clazz, cred):
+    args = [ '-T', vmware_app.host_type() ]
     if cred:
       args.extend([ '-gu', cred.username ])
       args.extend([ '-gp', cred.password ])

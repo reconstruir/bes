@@ -29,7 +29,7 @@ class vmware_cli_handler(cli_command_handler):
     check.check_tuple(args)
     check.check_dict(kwargs)
 
-    if command_name in ( 'vm_run_program', 'vm_run_script', 'vm_run_package' ):
+    if command_name in ( 'vm_run_program', 'vm_run_script', 'vm_run_package', 'vm_can_run_programs' ):
       options, left_over_args = self.make_options(vmware_run_program_options, kwargs)
       function_args = left_over_args
       function_args['run_program_options'] = options

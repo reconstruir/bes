@@ -10,19 +10,18 @@ class vmware_app_cli_handler(cli_command_handler):
 
   def __init__(self, cli_args):
     super(vmware_app_cli_handler, self).__init__(cli_args)
-    self._app = vmware_app()
 
   def is_installed(self):
-    return 0 if self._app.is_installed() else 1
+    return 0 if vmware_app.is_installed() else 1
 
   def is_running(self):
-    return 0 if self._app.is_running() else 1
+    return 0 if vmware_app.is_running() else 1
   
   def ensure_running(self):
-    self._app.ensure_running()
+    vmware_app.ensure_running()
     return 0
 
   def ensure_stopped(self):
-    self._app.ensure_stopped()
+    vmware_app.ensure_stopped()
     return 0
   

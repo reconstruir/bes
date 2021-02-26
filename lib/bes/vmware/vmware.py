@@ -46,9 +46,8 @@ class vmware(object):
     vmx_files = file_find.find(vm_dir, relative = False, match_patterns = [ '*.vmx' ])
     for vmx_filename in vmx_files:
       local_vm = vmware_local_vm(vmx_filename)
-      self.local_vms[local_vm.nickname] = local_vm
+      self.local_vms[vmx_filename] = local_vm
     self._session = None
-    self._app = vmware_app()
     self._runner = vmware_vmrun(login_credentials = self._options.login_credentials)
 
   def _default_vm_dir(self):
@@ -67,9 +66,10 @@ class vmware(object):
       self._log.log_d('session: starting session done')
     return self._session
 
-  def vm_run_program(self, vm_id, program, run_program_options):
+  def vm_run_program(self, vm_id, program, program_args, run_program_options):
     check.check_string(vm_id)
-    check.check_string_seq(program)
+    check.check_string(program)
+    check.check_string_seq(program_args, allow_none = True)
     check.check_vmware_run_program_options(run_program_options)
 
     self._log.log_method_d()
@@ -84,7 +84,7 @@ class vmware(object):
       self._log.log_d('vm_run_program:{}: ensuring vm can run programs'.format(target_vm_id))
       self.vm_wait_for_can_run_programs(target_vm_id, run_program_options)
       
-    rv = self._runner.vm_run_program(target_vmx_filename, program, run_program_options)
+    rv = self._runner.vm_run_program(target_vmx_filename, program, program_args, run_program_options)
 
     if self._options.clone_vm and not self._options.debug:
       self._runner.vm_stop(target_vmx_filename)
@@ -92,15 +92,36 @@ class vmware(object):
 
     return rv
 
-  def vm_run_script(self, vm_id, interpreter_path, script, run_program_options):
+  def vm_run_script(self, vm_id, script, run_program_options, interpreter = None, script_is_file = False):
     check.check_string(vm_id)
-    check.check_string(interpreter_path)
     check.check_string(script)
     check.check_vmware_run_program_options(run_program_options)
+    check.check_string(interpreter_path, allow_none = True)
+    check.check_bool(script_is_file)
 
     self._log.log_method_d()
-    
+
+    if script_is_file:
+      if not path.exists(script):
+        raise vmware_error('script file not found: "{}"'.format(script))
+      if not path.isfile(script):
+        raise vmware_error('script is not a file: "{}"'.format(script))
+      script_text = file_util.read(script, codec = 'utf8')
+    else:
+      script_text = script
+
     vmx_filename = self._resolve_vmx_filename(vm_id)
+    local_vm = self.local_vms[vmx_filename]
+    interpreter = interpreter or local_vm.interpreter.default_interpreter()
+    local_vm.interpreter.check_interpreter(interpreter)
+
+#    interpreters = local_vm.interpreter.interpreters()
+#    if interpreter not in interpreters:
+#      raise vmware_error('script file not found: "{}"'.format(script))
+      
+#    interpreter_path = interpreter_path or local_vm.vmx.interpreter
+    self._log.log_d('vm_run_script: interpreter_path={}'.format(interpreter_path))
+    
     target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
                                                                  vmx_filename,
                                                                  self._options.clone_vm)
@@ -109,8 +130,17 @@ class vmware(object):
       self._ensure_running_if_needed(target_vm_id)
       self._log.log_d('vm_run_script:{}: ensuring vm can run programs'.format(target_vm_id))
       self.vm_wait_for_can_run_programs(target_vm_id, run_program_options)
+
+    # On Windows for some reason to run scripts the interpreter needs
+    # to be null and instead be in the script text itself
+    if local_vm.vmx.system == 'windows':
+      script_text = r'{} /C "{}"'.format(interpreter_path, script_text)
+      interpreter_path = ''
       
-    rv = self._runner.vm_run_script(target_vmx_filename, interpreter_path, script, run_program_options)
+    rv = self._runner.vm_run_script(target_vmx_filename,
+                                    interpreter_path,
+                                    script_text,
+                                    run_program_options)
 
     if self._options.clone_vm and not self._options.debug:
       self._runner.vm_stop(target_vmx_filename)
@@ -142,11 +172,18 @@ class vmware(object):
     self._log.log_method_d()
     
     vmx_filename = self._resolve_vmx_filename(vm_id)
+    local_vm = self.local_vms[vmx_filename]
+    interpreter_path = local_vm.vmx.interpreter
+    can_run_programs_arguments = local_vm.vmx.can_run_programs_arguments
+
     try:
-      rv = self._runner.vm_run_program(vmx_filename, '/bin/bash --version', run_program_options)
+      rv = self._runner.vm_run_program(vmx_filename,
+                                       interpreter_path,
+                                       can_run_programs_arguments,
+                                       run_program_options)
       self._log.log_d('vm_can_run_programs: exit_code={}'.format(rv.exit_code))
       if rv.exit_code != 0:
-        self._log.log_d('vm_can_run_programs: output:\n'.format(rv.stdout))
+        self._log.log_d('vm_can_run_programs: output:\n'.format(rv.output))
       return rv.exit_code == 0
     except vmware_error as ex:
       pass
@@ -217,7 +254,7 @@ class vmware(object):
     if rv.exit_code != 0:
       raise vmware_error('vm_run_package: failed to: "{}" - {}\n{}\n'.format(mkdir_cmd,
                                                                              rv.exit_code,
-                                                                             rv.stdout))
+                                                                             rv.output))
     
     tmp_package = self._make_tmp_file_pair(tmp_dir_local, 'package.zip')
     tmp_caller_script = self._make_tmp_file_pair(tmp_dir_local, 'caller_script.py')
@@ -313,7 +350,7 @@ class vmware(object):
   
   def _ensure_running_if_needed(self, vm_id):
     self._log.log_d('_ensure_running_if_needed: ensuring vmware is running')
-    self._app.ensure_running()
+    vmware_app.ensure_running()
     
     resolved_vm_id = self.session.resolve_vm_id(vm_id)
     assert resolved_vm_id
@@ -378,8 +415,8 @@ class vmware(object):
   def _resolve_vmx_filename_local_vms(self, vm_id):
     if vmware_vmx_file.is_vmx_file(vm_id):
       return vm_id
-    for nickname, vm in self.local_vms.items():
-      if vm_id in [ nickname, vm.vmx_filename ]:
+    for _, vm in self.local_vms.items():
+      if vm_id in [ vm.nickname, vm.vmx_filename ]:
         return vm.vmx_filename
     return None
 
@@ -398,7 +435,7 @@ class vmware(object):
     return None
   
   def _authentication_args(self, username = None, password = None):
-    args = [ '-T', self._app.host_type() ]
+    args = [ '-T', vmware_app.host_type() ]
     if username:
       args.extend([ '-gu', username ])
     if password:
@@ -443,7 +480,7 @@ class vmware(object):
     
     vmware_power.check_state(state)
     
-    self._app.ensure_running()
+    vmware_app.ensure_running()
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
     

@@ -44,7 +44,35 @@ class vmware_vmx_file(vmware_properties_file):
   def display_name(self):
     'Return the display name of the vm in the vmware gui'
     return self.get_value('displayName')
-  
+
+  @cached_property
+  def uuid(self):
+    'Return the uuid for the vm'
+    return self.get_value('uuid.bios')
+
+  @cached_property
+  def interpreter(self):
+    'Return the full path for the default command line interpreter for this system'
+    if self.system == 'linux':
+      return '/bin/bash'
+    elif self.system == 'macos':
+      return '/bin/bash'
+    elif self.system == 'windows':
+      #return r'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      return r'C:\Windows\System32\cmd.exe'
+    else:
+      raise vmware_error('Unknown vmware system: "{}"'.format(system))
+
+  @cached_property
+  def can_run_programs_arguments(self):
+    'Return a string of arguments to the interpreter to simply prove it works.'
+    if self.interpreter.endswith('bash'):
+      return r'-c "exit 0"'
+    elif self.interpreter.endswith('cmd.exe'):
+      return r'exit 0'
+    else:
+      raise vmware_error('Unknown vmware system: "{}"'.format(system))
+    
   @classmethod
   def is_vmx_file(clazz, filename):
     'Return True if filename is a vmx file'

@@ -15,8 +15,10 @@ class vmware_cli_args(object):
     self.__vmware_add_common_run_program_args(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
-    p.add_argument('program', action = 'store', default = [], nargs = '+',
-                   help = 'The program and optional arguments [ ]')
+    p.add_argument('program', action = 'store', default = None,
+                   help = 'The program [ ]')
+    p.add_argument('program_args', action = 'store', default = [], nargs = '*',
+                   help = 'Optional program arguments [ ]')
 
     # vm_run_script
     p = subparser.add_parser('vm_run_script', help = 'Run a script in a vm.')
@@ -24,10 +26,13 @@ class vmware_cli_args(object):
     self.__vmware_add_common_run_program_args(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
-    p.add_argument('interpreter_path', action = 'store', default = None,
-                   help = 'The full path to the interpreter to use [ ]')
+    p.add_argument('--interpreter', action = 'store', default = None,
+                   help = 'The name of the interpreter or full path to it in the vm [ ]')
+    p.add_argument('--file', action = 'store_true', default = False,
+                   dest = 'script_is_file',
+                   help = 'The name of the interpreter or full path to it in the vm [ ]')
     p.add_argument('script', action = 'store', default = None,
-                   help = 'The script text or filename [ ]')
+                   help = 'The script text [ ]')
     
     # vm_run_package
     p = subparser.add_parser('vm_run_package', help = 'Run a package in a vm.')
@@ -110,6 +115,12 @@ class vmware_cli_args(object):
     p.add_argument('--shutdown', action = 'store_true', default = False,
                    help = 'Whether to shutdown the source vm first []')
 
+    # vm_can_run_programs
+    p = subparser.add_parser('vm_can_run_programs', help = 'Return 0 if the vm can run programs otherwise 1.')
+    vmware_options_cli_args.add_arguments(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    
   def __vmware_add_common_run_program_args(self, p):
     'Add argument common to all commands that run programs and scripts'
     p.add_argument('--interactive', action = 'store_true', default = False,

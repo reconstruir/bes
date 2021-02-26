@@ -2,22 +2,25 @@
 
 import os.path as path
 
-from bes.system.execute import execute
-from bes.system.process_lister import process_lister
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
+from bes.system.execute import execute
+from bes.system.process_lister import process_lister
+from bes.system.which import which
 
 from .vmware_app_base import vmware_app_base
 
 class vmware_app_macos(vmware_app_base):
 
+  @classmethod
   #@abstractmethod
-  def is_installed(self):
+  def is_installed(clazz):
     'Return True if vmware is installed.'
     return path.exists('/Applications/VMware Fusion.app/Contents/Public/vmrun')
 
+  @classmethod
   #@abstractmethod
-  def is_running(self):
+  def is_running(clazz):
     'Return True if vmware is installed.'
     vmware_command_name = '/Applications/VMware Fusion.app/Contents/MacOS/VMware Fusion'
     processes = process_lister().list_processes()
@@ -26,17 +29,19 @@ class vmware_app_macos(vmware_app_base):
         return True
     return False
 
+  @classmethod
   #@abstractmethod
-  def ensure_running(self):
+  def ensure_running(clazz):
     'Ensure vmware is running.'
-    if self.is_running():
+    if clazz.is_running():
       return
     execute.execute('open -g /Applications/VMware\ Fusion.app')
 
+  @classmethod
   #@abstractmethod
-  def ensure_stopped(self):
+  def ensure_stopped(clazz):
     'Ensure vmware is stopped.'
-    if not self.is_running():
+    if not clazz.is_running():
       return
     tmp_applescript_content = '''\
 tell application "VMWare Fusion"
@@ -47,12 +52,21 @@ end tell
     cmd = [ 'osascript', tmp_applescript ]
     execute.execute(cmd)
 
+  @classmethod
   #@abstractmethod
-  def host_type(self):
+  def host_type(clazz):
     'Host type form vmrun authentication.'
     return 'fusion'
 
+  @classmethod
   #@abstractmethod
-  def preferences_filename(self):
+  def preferences_filename(clazz):
     'The full path to the preferneces filename.'
     return path.expanduser('~/Library/Preferences/VMware Fusion/preferences')
+
+  @classmethod
+  #@abstractmethod
+  def vmrun_exe_path(clazz):
+    'The full path to the vmrun executable.'
+    return which.which('vmrun')
+  
