@@ -292,11 +292,11 @@ class log(object):
     clazz.output(message, console = True)
     
   @classmethod
-  def set_log_file(clazz, file_object):
-    'Configure the log to Set the log file to be f.  f can be a filename or a file object.'
+  def set_log_file(clazz, filename):
+    'Redirect logging to the file.'
     clazz._log_lock.acquire()
     clazz._log_writer.clear()
-    clazz._log_add_file_object(file_object)
+    clazz._log_writer.add_filename(filename)
     clazz._log_lock.release()
 
   @classmethod
