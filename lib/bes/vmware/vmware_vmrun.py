@@ -227,7 +227,7 @@ class vmware_vmrun(object):
     self._log.log_method_d()
     args = [ 'list' ]
     rv = self.run(args, raise_error = True)
-    lines = text_line_parser.parse_lines(rv.stdout,
+    lines = text_line_parser.parse_lines(rv.output,
                                          strip_comments = False,
                                          strip_text = True,
                                          remove_empties = True)

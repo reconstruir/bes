@@ -127,7 +127,7 @@ class vmware(object):
                                                                  self._options.clone_vm)
     
     if not self._options.dont_ensure or self._options.clone_vm:
-      self._ensure_running_if_needed(target_vm_id)
+      self.vm_ensure_running(target_vm_id, True)
       self._log.log_d('vm_run_script:{}: ensuring vm can run programs'.format(target_vm_id))
       self.vm_wait_for_can_run_programs(target_vm_id, run_program_options)
 
@@ -169,20 +169,15 @@ class vmware(object):
     local_vm = self.local_vms[vmx_filename]
     system = local_vm.vmx.system
     default_interpreter = self._command_interpreter_manager.find_default_interpreter(system)
+    # "exit 0" works on all the default interpreters for both windows and unix
     command = default_interpreter.build_command('exit 0')
     
-    try:
-      rv = self._runner.vm_run_script(vmx_filename,
-                                      command.interpreter_path,
-                                      command.script_text,
-                                      run_program_options)
-      self._log.log_d('vm_can_run_programs: exit_code={}'.format(rv.exit_code))
-      if rv.exit_code != 0:
-        self._log.log_d('vm_can_run_programs: output:\n'.format(rv.output))
-      return rv.exit_code == 0
-    except vmware_error as ex:
-      pass
-    return False
+    rv = self._runner.vm_run_script(vmx_filename,
+                                    command.interpreter_path,
+                                    command.script_text,
+                                    run_program_options)
+    self._log.log_d('vm_can_run_programs: exit_code={}'.format(rv.exit_code))
+    return rv.exit_code == 0
 
   def vm_wait_for_can_run_programs(self, vm_id, run_program_options):
     check.check_string(vm_id)
@@ -342,16 +337,18 @@ class vmware(object):
     tmp_basename = path.basename(local_tmp_filename)
     tmp_remote_filename = path.join('/tmp', tmp_basename)
     return tmp_remote_filename
-  
-  def _ensure_running_if_needed(self, vm_id):
-    self._log.log_d('_ensure_running_if_needed: ensuring vmware is running')
+
+  def vm_ensure_running(self, vm_id, wait):
+    check.check_string(vm_id)
+
+    self._log.log_method_d()
     vmware_app.ensure_running()
-    
-    resolved_vm_id = self.session.resolve_vm_id(vm_id)
-    assert resolved_vm_id
-    vm_label = '{}:{}'.format(vm_id, resolved_vm_id)
-    self._log.log_d('_ensure_running_if_needed:{}: ensuring vm is running'.format(vm_label))
-    self.session.ensure_vm_running(resolved_vm_id)
+
+    vmx_filename = self._resolve_vmx_filename(vm_id)
+    if not self._runner.vm_is_running(vmx_filename):
+      self._runner.vm_set_power_state(vmx_filename, 'start')
+    if wait:
+      self.vm_wait_for_can_run_programs(vm_id, vmware_run_program_options())
   
   def _stop_vm_if_needed(self, vmx_filename):
     if not self._runner.vm_is_running(vmx_filename):
