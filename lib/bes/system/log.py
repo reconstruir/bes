@@ -493,7 +493,7 @@ class logger(object):
     method_name = inspect.getframeinfo(caller_frame)[2]
     args_strings = [ '{}={}'.format(key, values[key]) for key in args ]
     msg = '{}: {}'.format(method_name, ' '.join(args_strings))
-    self.log(level, msg)
+    self.log(level, msg, multi_line = True)
 
   def log_method_d(self):
     self.log_method(log.DEBUG, depth = 2)
