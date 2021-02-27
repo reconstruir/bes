@@ -37,6 +37,13 @@ class vmware_command_interpreter_manager(object):
       raise vmware_error('Trying to add interpreter with same name "{}": new={} old={}'.format(name,
                                                                                                interpreter,
                                                                                                system_map[name]))
+
+    if interpreter.is_default():
+      for next_name, next_interpreter in system_map.items():
+        if next_interpreter.is_default():
+          raise vmware_error('Trying to add a different default interpreter: new={} old={}'.format(interpreter.name(),
+                                                                                                   next_interpreter.name()))
+    
     system_map[name] = interpreter
   
   def has_interpreter(self, system, name):
@@ -46,32 +53,31 @@ class vmware_command_interpreter_manager(object):
 
     return clazz.find_interpreter(system, name) != None
   
-  def find_interpreter(self, system, name):
+  def find_interpreter(self, system, name, raise_error = True):
     check.check_string(system)
     check.check_string(name)
     host.check_system(system)
     
-    if not system in self._map:
-      return False
-    system_map = self._map[system]
-    return system_map.get(name, None)
+    result = None
+    if system in self._map:
+      result = self._map[system].get(name, None)
+    if not result and raise_error:
+      raise vmware_error('Interpreter for system "{}" not found: {}'.format(system, name))
+    return result
 
-  def find_default_interpreter(self, system):
+  def find_default_interpreter(self, system, raise_error = True):
     check.check_string(system)
     host.check_system(system)
-    
-    if not system in self._map:
-      return None
-    system_map = self._map[system]
-    result = []
-    for name, interpreter in system_map.items():
-      if interpreter.is_default():
-        result.append(interpreter)
-    if len(result) == 0:
-      return None
-    elif len(result) > 1:
-      raise vmware_error('Multiple interpreters marked default found: {}'.format(' '.join([ i.name() for i in result ])))
-    return result[0]
+
+    result = None
+    if system in self._map:
+      system_map = self._map[system]
+      for name, interpreter in system_map.items():
+        if interpreter.is_default():
+          result = interpreter
+    if not result and raise_error:
+      raise vmware_error('Default interpreter for system "{}" not found'.format(system))
+    return result
 
   def resolve_interpreter(self, system, name):
     check.check_string(system)

@@ -94,18 +94,6 @@ class vmware(object):
 
     return rv
 
-  def _vm_resolve_interpreter(self, system, interpreter_name):
-    if interpreter_name == None:
-      interpreter = self._command_interpreter_manager.find_default_interpreter(system)
-      if not interpreter:
-        return None
-      else:
-        interpreter = self._command_interpreter_manager.find_interpreter(system, interpreter_name)
-    return interpreter
-    if not interpreter:
-      return None
-    return interpreter.full_path()
-  
   def vm_run_script(self, vm_id, script, run_program_options,
                     interpreter_name = None, script_is_file = False):
     check.check_string(vm_id)
@@ -179,14 +167,15 @@ class vmware(object):
     
     vmx_filename = self._resolve_vmx_filename(vm_id)
     local_vm = self.local_vms[vmx_filename]
-    interpreter_path = local_vm.vmx.interpreter
-    can_run_programs_arguments = local_vm.vmx.can_run_programs_arguments
-
+    system = local_vm.vmx.system
+    default_interpreter = self._command_interpreter_manager.find_default_interpreter(system)
+    command = default_interpreter.build_command('exit 0')
+    
     try:
-      rv = self._runner.vm_run_program(vmx_filename,
-                                       interpreter_path,
-                                       can_run_programs_arguments,
-                                       run_program_options)
+      rv = self._runner.vm_run_script(vmx_filename,
+                                      command.interpreter_path,
+                                      command.script_text,
+                                      run_program_options)
       self._log.log_d('vm_can_run_programs: exit_code={}'.format(rv.exit_code))
       if rv.exit_code != 0:
         self._log.log_d('vm_can_run_programs: output:\n'.format(rv.output))
