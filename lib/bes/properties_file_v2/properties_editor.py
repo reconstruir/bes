@@ -43,6 +43,12 @@ class properties_editor(object):
     self._check_key(key)
     return self._properties.get_value(key)
 
+  def get_value_with_default(self, key, default_value):
+    check.check_string(key)
+    
+    self._check_file_exists()
+    return self._properties.get_value_with_default(key, default_value)
+  
   def remove_value(self, key):
     check.check_string(key)
     

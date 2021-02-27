@@ -31,7 +31,7 @@ class vmware_vmx_file(vmware_properties_file):
   @cached_property
   def system_info(self):
     'Return guest system info in bes.system.host_info format'
-    guest_os = self.get_value('guestOS')
+    guest_os = self.get_value_with_default('guestOS', None) or self.get_value_with_default('guestos', None)
     guest_os_detailed_data = self.get_value('guestOS.detailed.data')
     return vmware_system_info.system_info(guest_os, guest_os_detailed_data)
 
