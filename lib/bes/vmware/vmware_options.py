@@ -29,8 +29,8 @@ class vmware_options(cli_options):
       'tty': None,
       'clone_vm': False,
       'vm_dir': None,
-      'wait_programs_num_tries': 10,
-      'wait_programs_sleep_time': 5.0,
+      'wait_programs_num_tries': 60,
+      'wait_programs_sleep_time': 2.0,
     }
   
   @classmethod

@@ -31,7 +31,7 @@ class vmware_options_cli_args(object):
     p.add_argument('--config', action = 'store', type = str, default = None,
                    dest = 'config_filename',
                    help = 'Use config filename [ False ]')
-    p.add_argument('--wait-programs-num-tries', action = 'store', type = int, default = 10,
+    p.add_argument('--wait-programs-num-tries', action = 'store', type = int, default = 60,
                    help = 'The number of tries when waiting for vm to be able to run programs [ False ]')
-    p.add_argument('--wait-programs-sleep-time', action = 'store', type = float, default = 5.0,
+    p.add_argument('--wait-programs-sleep-time', action = 'store', type = float, default = 2.0,
                    help = 'Amount of time in seconds to sleep between wait for programs retries [ False ]')
