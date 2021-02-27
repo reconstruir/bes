@@ -30,7 +30,7 @@ class vmware_vmrun(object):
     self._auth_args = self._make_vmrun_auth_args(self._login_credentials)
 
   _run_result = namedtuple('_run_result', 'output, exit_code, args')
-  def run(self, args, extra_env = None,
+  def run(self, args, extra_env = None, no_output = False,
           raise_error = False, error_message = None):
     check.check_string_seq(args)
     check.check_dict(extra_env, allow_none = True)
@@ -48,7 +48,10 @@ class vmware_vmrun(object):
                                shell = False,
                                env = env,
                                universal_newlines = False)
-    output = process.communicate()[0]
+    if no_output:
+      output = None
+    else:
+      output, _ = process.communicate()
     exit_code = process.wait()
     self._log.log_d('run: exit_code={} output="{}"'.format(exit_code, output))
     if exit_code != 0 and raise_error:
@@ -83,7 +86,7 @@ class vmware_vmrun(object):
         args.append('soft')
     elif state in ( 'pause', 'unpause' ):
       pass
-    return self.run(args, raise_error = True)
+    return self.run(args, raise_error = False, no_output = True)
 
   def vm_file_copy_to(self, vmx_filename, local_filename, remote_filename):
     check.check_string(vmx_filename)
