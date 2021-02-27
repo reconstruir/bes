@@ -30,6 +30,7 @@ from .vmware_session import vmware_session
 from .vmware_vm import vmware_vm
 from .vmware_vmrun import vmware_vmrun
 from .vmware_vmx_file import vmware_vmx_file
+from .vmware_command_interpreter_manager import vmware_command_interpreter_manager
 
 class vmware(object):
 
@@ -49,6 +50,7 @@ class vmware(object):
       self.local_vms[vmx_filename] = local_vm
     self._session = None
     self._runner = vmware_vmrun(login_credentials = self._options.login_credentials)
+    self._command_interpreter_manager = vmware_command_interpreter_manager()
 
   def _default_vm_dir(self):
     if self._preferences.has_value('prefvmx.defaultVMPath'):
@@ -92,11 +94,24 @@ class vmware(object):
 
     return rv
 
-  def vm_run_script(self, vm_id, script, run_program_options, interpreter = None, script_is_file = False):
+  def _vm_resolve_interpreter(self, system, interpreter_name):
+    if interpreter_name == None:
+      interpreter = self._command_interpreter_manager.find_default_interpreter(system)
+      if not interpreter:
+        return None
+      else:
+        interpreter = self._command_interpreter_manager.find_interpreter(system, interpreter_name)
+    return interpreter
+    if not interpreter:
+      return None
+    return interpreter.full_path()
+  
+  def vm_run_script(self, vm_id, script, run_program_options,
+                    interpreter_name = None, script_is_file = False):
     check.check_string(vm_id)
     check.check_string(script)
     check.check_vmware_run_program_options(run_program_options)
-    check.check_string(interpreter_path, allow_none = True)
+    check.check_string(interpreter_name, allow_none = True)
     check.check_bool(script_is_file)
 
     self._log.log_method_d()
@@ -112,16 +127,13 @@ class vmware(object):
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
     local_vm = self.local_vms[vmx_filename]
-    interpreter = interpreter or local_vm.interpreter.default_interpreter()
-    local_vm.interpreter.check_interpreter(interpreter)
-
-#    interpreters = local_vm.interpreter.interpreters()
-#    if interpreter not in interpreters:
-#      raise vmware_error('script file not found: "{}"'.format(script))
-      
-#    interpreter_path = interpreter_path or local_vm.vmx.interpreter
-    self._log.log_d('vm_run_script: interpreter_path={}'.format(interpreter_path))
-    
+    system = local_vm.vmx.system
+    interpreter = self._command_interpreter_manager.resolve_interpreter(system, interpreter_name)
+    if not interpreter:
+      raise vmware_error('Failed to resolve interpreter for "{}": "{}"'.format(vm_id, interpreter))
+    self._log.log_d('vm_run_script: interpreter={}'.format(interpreter))
+    command = interpreter.build_command(script_text)
+    self._log.log_d('vm_run_script: command={}'.format(command))
     target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
                                                                  vmx_filename,
                                                                  self._options.clone_vm)
@@ -131,15 +143,9 @@ class vmware(object):
       self._log.log_d('vm_run_script:{}: ensuring vm can run programs'.format(target_vm_id))
       self.vm_wait_for_can_run_programs(target_vm_id, run_program_options)
 
-    # On Windows for some reason to run scripts the interpreter needs
-    # to be null and instead be in the script text itself
-    if local_vm.vmx.system == 'windows':
-      script_text = r'{} /C "{}"'.format(interpreter_path, script_text)
-      interpreter_path = ''
-      
     rv = self._runner.vm_run_script(target_vmx_filename,
-                                    interpreter_path,
-                                    script_text,
+                                    command.interpreter_path,
+                                    command.script_text,
                                     run_program_options)
 
     if self._options.clone_vm and not self._options.debug:

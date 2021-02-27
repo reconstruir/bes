@@ -11,22 +11,16 @@ from bes.system.compat import with_metaclass
 
 from .vmware_command_interpreter_registry import vmware_command_interpreter_registry
 
-class _computer_setup_register_meta(ABCMeta):
+class _command_interpreter_register_meta(ABCMeta):
   
   def __new__(meta, name, bases, class_dict):
     clazz = ABCMeta.__new__(meta, name, bases, class_dict)
-    if name not in [ 'vmware_command_interpreter', 'vmware_command_unix_shell' ]:
+    if name not in [ 'vmware_command_interpreter', 'ci_unix_shell' ]:
       vmware_command_interpreter_registry.register(clazz)
     return clazz
   
-class vmware_command_interpreter(with_metaclass(_computer_setup_register_meta, object)):
+class vmware_command_interpreter(with_metaclass(_command_interpreter_register_meta, object)):
 
-  @classmethod
-  @abstractmethod
-  def is_super_class(clazz):
-    'Return True if this command interpreter class is a super class for other classes.'
-    raise NotImplemented('is_super_class')
-  
   @abstractmethod
   def name(self):
     'Name for this interpreter.'

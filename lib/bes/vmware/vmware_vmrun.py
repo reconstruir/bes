@@ -57,7 +57,7 @@ class vmware_vmrun(object):
       if raise_error:
         if not error_message:
           args_flat = ' '.join(vmrun_args)
-          error_message or 'vmrun command failed: {}\n{}'.format(cmd_flat, output)
+          error_message or 'vmrun command failed: {}\n{}'.format(args_flat, output)
         raise vmware_error(error_message, status_code = exit_code)
     else:
       exit_code = 0
@@ -123,13 +123,13 @@ class vmware_vmrun(object):
     check.check_string(vmx_filename)
     check.check_string(remote_filename)
 
-    vmware_vmx_file.check_vmx_file(vmx_filename%)
+    vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
       'fileExistsInGuest',
       vmx_filename,
       remote_filename,
     ]
-    rv = self.run(args, raise_false = True)
+    rv = self.run(args, raise_error = False)
     return rv.exit_code == 0
 
   def vm_directory_exists(self, vmx_filename, remote_directory):
@@ -142,7 +142,7 @@ class vmware_vmrun(object):
       vmx_filename,
       remote_directory,
     ]
-    rv = self.run(args, raise_false = True)
+    rv = self.run(args, raise_error = False)
     return rv.exit_code == 0
   
   def vm_clone(self, src_vmx_filename, dst_vmx_filename, full = False, snapshot_name = None, clone_name = None):

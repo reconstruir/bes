@@ -27,10 +27,11 @@ class vmware_cli_args(object):
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
     p.add_argument('--interpreter', action = 'store', default = None,
-                   help = 'The name of the interpreter or full path to it in the vm [ ]')
+                   dest = 'interpreter_name',
+                   help = 'The name of the interpreter [ ]')
     p.add_argument('--file', action = 'store_true', default = False,
                    dest = 'script_is_file',
-                   help = 'The name of the interpreter or full path to it in the vm [ ]')
+                   help = 'Use script as a filename instead of script text [ ]')
     p.add_argument('script', action = 'store', default = None,
                    help = 'The script text [ ]')
     

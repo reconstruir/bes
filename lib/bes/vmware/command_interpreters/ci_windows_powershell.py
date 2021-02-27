@@ -3,9 +3,9 @@
 from bes.common.check import check
 from bes.system.host import host
 
-from lib.bes.vmware.vmware_command_interpreter import vmware_command_interpreter
+from bes.vmware.vmware_command_interpreter import vmware_command_interpreter
 
-class vmware_command_interpreter_windows_powershell(vmware_command_interpreter):
+class ci_windows_powershell(vmware_command_interpreter):
 
   def __init__(self):
     pass
@@ -29,7 +29,7 @@ class vmware_command_interpreter_windows_powershell(vmware_command_interpreter):
   #@abstractmethod
   def supported_systems(self):
     'Return a tuple of supported systems.'
-    raise ( host.WINDOWS, )
+    return ( host.WINDOWS, )
   
   #@abstractmethod
   def full_path(self):

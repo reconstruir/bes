@@ -17,8 +17,8 @@ class vmware_local_vm(object):
   def __init__(self, vmx_filename):
     self.vmx_filename = path.abspath(vmx_filename)
     self.vmx = vmware_vmx_file(self.vmx_filename)
-    command_interpreter_class = self._find_command_interpreter_class()
-    self.interpreter = command_interpreter_class()
+    #command_interpreter_class = self._find_command_interpreter_class()
+    #self.interpreter = command_interpreter_class()
     
   def __str__(self):
     return self.vmx_filename
@@ -34,17 +34,17 @@ class vmware_local_vm(object):
   def uuid(self):
     return self.vmx.uuid
 
-  @classmethod
-  def _find_command_interpreter_class(clazz):
-    from bes.system.host import host
-    if host.is_linux():
-      from .vmware_command_interpreter_linux import vmware_command_interpreter_linux
-      return vmware_command_interpreter_linux
-    elif host.is_macos():
-      from .vmware_command_interpreter_macos import vmware_command_interpreter_macos
-      return vmware_command_interpreter_macos
-    elif host.is_windows():
-      from .vmware_command_interpreter_windows import vmware_command_interpreter_windows
-      return vmware_command_interpreter_windows
-    else:
-      host.raise_unsupported_system()
+#  @classmethod
+#  def _find_command_interpreter_class(clazz):
+#    from bes.system.host import host
+#    if host.is_linux():
+#      from .vmware_command_interpreter_linux import vmware_command_interpreter_linux
+#      return vmware_command_interpreter_linux
+#    elif host.is_macos():
+#      from .vmware_command_interpreter_macos import vmware_command_interpreter_macos
+#      return vmware_command_interpreter_macos
+#    elif host.is_windows():
+#      from .vmware_command_interpreter_windows import vmware_command_interpreter_windows
+#      return vmware_command_interpreter_windows
+#    else:
+#      host.raise_unsupported_system()

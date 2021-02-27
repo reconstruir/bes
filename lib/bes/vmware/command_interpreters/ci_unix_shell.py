@@ -3,9 +3,9 @@
 from bes.common.check import check
 from bes.system.host import host
 
-from lib.bes.vmware.vmware_command_interpreter import vmware_command_interpreter
+from bes.vmware.vmware_command_interpreter import vmware_command_interpreter
 
-class vmware_command_interpreter_unix_shell(vmware_command_interpreter):
+class ci_unix_shell(vmware_command_interpreter):
 
   def __init__(self, name, full_path, is_default):
     check.check_string(name)
@@ -16,12 +16,6 @@ class vmware_command_interpreter_unix_shell(vmware_command_interpreter):
     self._full_path = full_path
     self._is_default = is_default
 
-  @classmethod
-  #@abstractmethod
-  def is_super_class(clazz):
-    'Return True if this command interpreter class is a super class for other classes.'
-    return True
-    
   #@abstractmethod
   def name(self):
     'Name for this interpreter.'
@@ -35,7 +29,7 @@ class vmware_command_interpreter_unix_shell(vmware_command_interpreter):
   #@abstractmethod
   def supported_systems(self):
     'Return a tuple of supported systems.'
-    raise ( host.MACOS, host.LINUX )
+    return ( host.MACOS, host.LINUX )
   
   #@abstractmethod
   def full_path(self):
@@ -47,6 +41,5 @@ class vmware_command_interpreter_unix_shell(vmware_command_interpreter):
     'Build a command and return a command object for it'
     check.check_string(script_text)
     
-    full_path = self.full_path(name)
-    command_script_text = r'-c "{}"'.format(script_text)
-    return self.command(full_path, command_script_text)
+    full_path = self.full_path()
+    return self.command(full_path, script_text)

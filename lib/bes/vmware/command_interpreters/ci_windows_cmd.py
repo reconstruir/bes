@@ -3,19 +3,13 @@
 from bes.common.check import check
 from bes.system.host import host
 
-from lib.bes.vmware.vmware_command_interpreter import vmware_command_interpreter
+from bes.vmware.vmware_command_interpreter import vmware_command_interpreter
 
-class vmware_command_interpreter_windows_cmd(vmware_command_interpreter):
+class ci_windows_cmd(vmware_command_interpreter):
 
   def __init__(self):
     pass
 
-  @classmethod
-  #@abstractmethod
-  def is_super_class(clazz):
-    'Return True if this command interpreter class is a super class for other classes.'
-    return False
-  
   #@abstractmethod
   def name(self):
     'Name for this interpreter.'
@@ -29,7 +23,7 @@ class vmware_command_interpreter_windows_cmd(vmware_command_interpreter):
   #@abstractmethod
   def supported_systems(self):
     'Return a tuple of supported systems.'
-    raise ( host.WINDOWS, )
+    return ( host.WINDOWS, )
   
   #@abstractmethod
   def full_path(self):

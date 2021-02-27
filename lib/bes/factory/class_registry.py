@@ -30,6 +30,9 @@ class class_registry(object):
     object_class = self.get(class_name)
     return object_class()
 
+  def items(self):
+    return self._registry.items()
+  
   @classmethod
   def _add_to_global_sys_modules(clazz, registree):
     '''
