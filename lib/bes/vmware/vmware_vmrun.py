@@ -129,8 +129,8 @@ class vmware_vmrun(object):
     ]
     rv = self.run(args, raise_error = False)
     return rv.exit_code == 0
-
-  def vm_directory_exists(self, vmx_filename, remote_directory):
+  
+  def vm_dir_exists(self, vmx_filename, remote_directory):
     check.check_string(vmx_filename)
     check.check_string(remote_directory)
 
@@ -142,6 +142,34 @@ class vmware_vmrun(object):
     ]
     rv = self.run(args, raise_error = False)
     return rv.exit_code == 0
+  
+  def vm_dir_create(self, vmx_filename, remote_directory):
+    check.check_string(vmx_filename)
+    check.check_string(remote_directory)
+
+    vmware_vmx_file.check_vmx_file(vmx_filename)
+    args = [
+      'createDirectoryInGuest',
+      vmx_filename,
+      remote_directory,
+    ]
+    self.run(args,
+             raise_error = True,
+             error_message = 'Failed to create dir: {}'.format(remote_directory))
+
+  def vm_dir_delete(self, vmx_filename, remote_directory):
+    check.check_string(vmx_filename)
+    check.check_string(remote_directory)
+
+    vmware_vmx_file.check_vmx_file(vmx_filename)
+    args = [
+      'deleteDirectoryInGuest',
+      vmx_filename,
+      remote_directory,
+    ]
+    self.run(args,
+             raise_error = True,
+             error_message = 'Failed to delete dir: {}'.format(remote_directory))
   
   def vm_clone(self, src_vmx_filename, dst_vmx_filename, full = False, snapshot_name = None, clone_name = None):
     check.check_string(src_vmx_filename)
@@ -253,7 +281,7 @@ class vmware_vmrun(object):
     if ip_address == 'unknown':
       return None
     return ip_address
-  
+
   @classmethod
   def _make_vmrun_auth_args(clazz, cred):
     args = [ '-T', vmware_app.host_type() ]
