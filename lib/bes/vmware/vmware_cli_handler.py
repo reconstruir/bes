@@ -37,8 +37,12 @@ class vmware_cli_handler(cli_command_handler):
       function_args = kwargs
     func = getattr(self._vmware, command_name)
     rv = func(*args, **function_args)
-    if not rv:
+    if rv == None:
       return 0
+    if isinstance(rv, bool):
+      return 0 if rv else 1
+    if isinstance(rv, int):
+      return rv
     if hasattr(rv, 'exit_code'):
       return getattr(rv, 'exit_code')
     return 0

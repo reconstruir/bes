@@ -41,30 +41,25 @@ class vmware_vmrun(object):
     exe = vmware_app.vmrun_exe_path()
     vmrun_args = [ exe ] + self._auth_args + list(args)
     self._log.log_d('run: vmrun_args={}'.format(vmrun_args))
-
     env = os_env.clone_current_env(d = extra_env)
-
-    try:
-      self._log.log_d('run: calling: {}'.format(' '.join(vmrun_args)))
-      output = subprocess.check_output(vmrun_args,
-                                       stderr = subprocess.STDOUT,
-                                       shell = False,
-                                       env = env)
-    except subprocess.CalledProcessError as ex:
-      exit_code = ex.returncode
-      self._log.log_d('run: caught exception: {} - {}'.format(str(ex), exit_code))
-      output = ex.output
-      if raise_error:
-        if not error_message:
-          args_flat = ' '.join(vmrun_args)
-          error_message or 'vmrun command failed: {}\n{}'.format(args_flat, output)
-        raise vmware_error(error_message, status_code = exit_code)
-    else:
-      exit_code = 0
+    process = subprocess.Popen(vmrun_args,
+                               stdout = subprocess.PIPE,
+                               stderr = subprocess.STDOUT,
+                               shell = False,
+                               env = env,
+                               universal_newlines = False)
+    output = process.communicate()[0]
+    exit_code = process.wait()
+    self._log.log_d('run: exit_code={} output="{}"'.format(exit_code, output))
+    if exit_code != 0 and raise_error:
+      if not error_message:
+        args_flat = ' '.join(vmrun_args)
+        error_message or 'vmrun command failed: {}\n{}'.format(args_flat, output)
+      raise vmware_error(error_message, status_code = exit_code)
     result = self._run_result(output, exit_code, vmrun_args)
     self._log.log_d('run: result: {} - {}'.format(result.exit_code, result.output))
     return result
-
+  
   def vm_set_power_state(self, vmx_filename, state, gui = False, hard = False):
     check.check_string(vmx_filename)
     check.check_string(state)
@@ -239,6 +234,22 @@ class vmware_vmrun(object):
 
     running_vms = self.running_vms()
     return vmx_filename in self.running_vms()
+
+  def vm_get_ip_address(self, vmx_filename):
+    self._log.log_method_d()
+    vmware_vmx_file.check_vmx_file(vmx_filename)
+
+    args = [
+      'getGuestIPAddress',
+      vmx_filename,
+    ]
+    rv = self.run(args, raise_error = False)
+    if rv.exit_code != 0:
+      return None
+    ip_address = rv.output.strip()
+    if ip_address == 'unknown':
+      return None
+    return ip_address
   
   @classmethod
   def _make_vmrun_auth_args(clazz, cred):

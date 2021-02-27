@@ -166,6 +166,10 @@ class vmware(object):
     self._log.log_method_d()
     
     vmx_filename = self._resolve_vmx_filename(vm_id)
+
+    ip_address = self._runner.vm_get_ip_address(vmx_filename)
+    if not ip_address:
+      return False
     local_vm = self.local_vms[vmx_filename]
     system = local_vm.vmx.system
     default_interpreter = self._command_interpreter_manager.find_default_interpreter(system)
@@ -396,7 +400,32 @@ class vmware(object):
     if shutdown:
       self._stop_vm_if_needed(vmx_filename)
     return self._runner.vm_delete(vmx_filename)
-                    
+
+  def vm_is_running(self, vm_id):
+    check.check_string(vm_id)
+
+    self._log.log_method_d()
+    
+    vmx_filename = self._resolve_vmx_filename(vm_id)
+    running = self._runner.vm_is_running(vmx_filename)
+    self._log.log_d('vm_is_running: running={}'.format(running))
+    return 0 if running else 1
+
+  def vm_get_ip_address(self, vm_id):
+    check.check_string(vm_id)
+
+    self._log.log_method_d()
+    
+    vmx_filename = self._resolve_vmx_filename(vm_id)
+    ip_address = self._runner.vm_get_ip_address(vmx_filename)
+    self._log.log_d('vm_get_ip_address: ip_address={}'.format(ip_address))
+    if ip_address:
+      print(ip_address)
+      return 0
+    else:
+      print('')
+      return 1
+  
   def _resolve_vmx_filename(self, vm_id, raise_error = True):
     vmx_filename = self._resolve_vmx_filename_local_vms(vm_id) or self._resolve_vmx_filename_rest_vms(vm_id)
     if not vmx_filename and raise_error:

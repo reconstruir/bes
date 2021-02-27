@@ -121,6 +121,18 @@ class vmware_cli_args(object):
     vmware_options_cli_args.add_arguments(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
+
+    # vm_is_running
+    p = subparser.add_parser('vm_is_running', help = 'Return 0 if the vm is running.')
+    vmware_options_cli_args.add_arguments(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+
+    # vm_get_ip_address
+    p = subparser.add_parser('vm_get_ip_address', help = 'Return the ip address for the vm0 if the vm is runningw.')
+    vmware_options_cli_args.add_arguments(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
     
   def __vmware_add_common_run_program_args(self, p):
     'Add argument common to all commands that run programs and scripts'
