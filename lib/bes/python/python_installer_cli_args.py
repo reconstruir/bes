@@ -46,5 +46,5 @@ class python_installer_cli_args(object):
                    help = 'The installer to use [ False ]')
     
   def _command_python_installer(self, command, *args, **kargs):
-    from .python_installer_cli_command import python_installer_cli_command
-    return python_installer_cli_command(kargs).handle_command(command)
+    from .python_installer_cli_handler import python_installer_cli_handler
+    return python_installer_cli_handler(kargs).handle_command(command)
