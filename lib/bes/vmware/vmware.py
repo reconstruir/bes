@@ -110,7 +110,7 @@ class vmware(object):
                                                                  self._options.clone_vm)
     
     if not self._options.dont_ensure or self._options.clone_vm:
-      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options)
+      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
       
     rv = self._runner.vm_run_program(target_vmx_filename, program, program_args, run_program_options)
 
@@ -129,6 +129,7 @@ class vmware(object):
     check.check_bool(script_is_file)
 
     self._log.log_method_d()
+    vmware_app.ensure_running()
 
     if script_is_file:
       if not path.exists(script):
@@ -152,7 +153,7 @@ class vmware(object):
                                                                  vmx_filename,
                                                                  self._options.clone_vm)
     if not self._options.dont_ensure or self._options.clone_vm:
-      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options)
+      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
 
     rv = self._runner.vm_run_script(target_vmx_filename,
                                     command.interpreter_path,
@@ -161,6 +162,7 @@ class vmware(object):
 
     if self._options.clone_vm and not self._options.debug:
       self._runner.vm_stop(target_vmx_filename)
+      vmware_app.ensure_stopped()
       self._runner.vm_delete(target_vmx_filename)
 
     return rv
@@ -270,7 +272,7 @@ class vmware(object):
                                                                                     target_vmx_filename))
     
     if not self._options.dont_ensure or self._options.clone_vm:
-      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options)
+      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
       
     tmp_dir_local = temp_file.make_temp_dir(suffix = '-run_package.dir', delete = not debug)
     if debug:
@@ -374,7 +376,7 @@ class vmware(object):
     tmp_remote_filename = path.join('/tmp', tmp_basename)
     return tmp_remote_filename
 
-  def vm_ensure_started(self, vm_id, wait, run_program_options = None):
+  def vm_ensure_started(self, vm_id, wait, run_program_options = None, gui = False):
     check.check_string(vm_id)
     check.check_bool(wait)
     check.check_vmware_run_program_options(run_program_options)
@@ -386,7 +388,7 @@ class vmware(object):
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
     if not self._runner.vm_is_running(vmx_filename):
-      self._runner.vm_set_power_state(vmx_filename, 'start', gui = True)
+      self._runner.vm_set_power_state(vmx_filename, 'start', gui = gui)
     if wait:
       self.vm_wait_for_can_run_programs(vm_id, run_program_options)
   
@@ -529,7 +531,7 @@ class vmware(object):
     assert path.isfile(local_filename)
     return result
 
-  def vm_set_power_state(self, vm_id, state, wait):
+  def vm_set_power_state(self, vm_id, state, wait, gui = False):
     check.check_string(vm_id)
     check.check_string(state)
     check.check_bool(wait)
@@ -546,7 +548,7 @@ class vmware(object):
                                                                      state,
                                                                      wait))
 
-    result = self._runner.vm_set_power_state(vmx_filename, state, gui = True)
+    result = self._runner.vm_set_power_state(vmx_filename, state, gui = gui)
     if wait and state in ( 'start', 'unpause' ):
       self.vm_wait_for_can_run_programs(vm_id, vmware_run_program_options())
     return result
