@@ -373,7 +373,8 @@ class vmware(object):
     self._runner.vm_set_power_state(vmx_filename, 'stop')
   
   _clone_result = namedtuple('_clone_result', 'src_vmx_filename, dst_vmx_filename')
-  def vm_clone(self, vm_id, clone_name = None, where = None, full = False, snapshot_name = None, shutdown = False):
+  def vm_clone(self, vm_id, clone_name = None, where = None, full = False,
+               snapshot_name = None, shutdown = False):
     check.check_string(vm_id)
     check.check_string(clone_name, allow_none = True)
     check.check_string(where, allow_none = True)
@@ -384,10 +385,10 @@ class vmware(object):
     self._log.log_method_d()
     
     src_vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('vm_delete: src_vmx_filename={}'.format(src_vmx_filename))
+    self._log.log_d('vm_clone: src_vmx_filename={}'.format(src_vmx_filename))
 
     names = self._make_cloned_vm_names(src_vmx_filename, clone_name, where)
-    self._log.log_d('vm_delete: dst_vmx_filename={} dst_vmx_nickname={}'.format(names.dst_vmx_filename,
+    self._log.log_d('vm_clone: dst_vmx_filename={} dst_vmx_nickname={}'.format(names.dst_vmx_filename,
                                                                                 names.dst_vmx_nickname))
     if path.exists(names.dst_vmx_filename):
       raise vmware_error('Clones vmx file already exists: "{}"'.format(names.dst_vmx_filename))
@@ -550,6 +551,9 @@ class vmware(object):
     self._log.log_method_d()
     
     vmx_filename = self._resolve_vmx_filename(vm_id)
+    snapshots = self._runner.vm_snapshots(vmx_filename)
+    if name in snapshots:
+      raise vmware_error('snapshot "{}" already exists for {}'.format(name, vmx_filename))
     self._runner.vm_snapshot_create(vmx_filename, name)
 
   def vm_snapshot_delete(self, vm_id, name, delete_children = False):
