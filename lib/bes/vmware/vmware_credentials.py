@@ -78,7 +78,7 @@ sleep 1
     check.check_string(password)
     check.check_int(num_tries, allow_none = True)
 
-    num_tries = num_tries or 1
+    num_tries = num_tries or 10
     
     if num_tries < 1:
       raise vmware_error('Num tries should be between 1 and 10: {}'.format(num_tries))
@@ -89,18 +89,28 @@ sleep 1
     for i in range(1, num_tries + 1):
       clazz._log.log_d('set_credentials: try {} of {}'.format(i, num_tries))
       try:
-        clazz._do_set_credentials(username, password)
+        # this happens so much that its not even worth printing unless it passes a threshold
+        print_error = i >= 5
+        clazz._do_set_credentials(username, password, print_error)
         clazz._log.log_d('set_credentials: try {} of {} succeeded'.format(i, num_tries))
+        if clazz._vmrest_config_is_corrupt():
+          clazz._log.log_d('set_credentials: vmrest config is corrupt even though set was successfull')
+          time.sleep(1.0)
+          continue
+        if not clazz._vmrest_config_exists():
+          clazz._log.log_d('set_credentials: vmrest config does not exists even though set was successfull')
+          time.sleep(1.0)
+          continue
         return
       except vmware_error as ex:
-        clazz._log.log_e('set_credentials: try {} caught {}'.format(i, ex))
+        clazz._log.log_d('set_credentials: try {} caught {}'.format(i, ex))
         last_exception = ex
         time.sleep(5.0)
     assert last_exception != None
     raise last_exception
 
   @classmethod
-  def _do_set_credentials(clazz, username, password):
+  def _do_set_credentials(clazz, username, password, print_error):
     expect_script = clazz._EXPECT_SCRIPT_TEMPLATE.format(username = username,
                                                          password = password)
 
@@ -114,13 +124,19 @@ sleep 1
     try:
       cmd = [ 'expect', '-d', tmp_script ]
       rv = execute.execute(cmd, raise_error = False, shell = False)
+      clazz._log.log_d('_do_set_credentials: exit_code={} stdout="{}" stderr="{}"'.format(rv.exit_code,
+                                                                                          rv.stdout,
+                                                                                          rv.stderr))
       if rv.exit_code != 0:
-        vmware_error(clazz._EXPECT_SCRIPT_MSG_MAP(rv.exit_code))
+        raise vmware_error(clazz._EXPECT_SCRIPT_MSG_MAP[rv.exit_code])
     finally:
       file_util.remove(tmp_script)
 
     if clazz._vmrest_config_is_corrupt():
-      raise vmware_error('Failed to set credentials.  Corrupt {}'.format(clazz._VMREST_CONFIG_FILENAME))
+      msg = 'Failed to set credentials.  Corrupt {}'.format(clazz._VMREST_CONFIG_FILENAME)
+      if print_error:
+        clazz._log.log_i(msg)
+      raise vmware_error(msg)
     
   @classmethod
   def _make_random_username(clazz):
@@ -155,3 +171,8 @@ sleep 1
     if not path.exists(clazz._VMREST_CONFIG_FILENAME):
       return False
     return file_util.is_empty(clazz._VMREST_CONFIG_FILENAME)
+
+  @classmethod
+  def _vmrest_config_exists(clazz):
+    'Return True if ~/.vmrestCfg is corrupt (empty)'
+    return path.exists(clazz._VMREST_CONFIG_FILENAME)

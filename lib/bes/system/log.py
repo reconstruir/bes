@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import fnmatch, os, os.path as path, re, sys, time, traceback
+import inspect
 
 from datetime import datetime
 import threading
@@ -430,6 +431,12 @@ del _config
 
 class logger(object):
 
+  CRITICAL = log.CRITICAL
+  ERROR = log.ERROR
+  WARNING = log.WARNING
+  INFO = log.INFO
+  DEBUG = log.DEBUG
+  
   def __init__(self, tag):
     self._tag = tag
 
@@ -470,6 +477,38 @@ class logger(object):
   def reset(self):
     'Reset logging.'
     log.reset()
+
+  def log_method(self, level, depth = 1):
+    '''
+    Log a instance or clazz method including name and all arguments
+    Please not this method is *slow*.  Around 50ms on a fast modern
+    macbook pro.  So don't use it in performance sensitive code.
+    '''
+    current_frame = inspect.currentframe()
+    caller_frame = current_frame
+    for _ in range(0, depth):
+      caller_frame = caller_frame.f_back
+    args, _, _, values = inspect.getargvalues(caller_frame)
+    args.pop(0)
+    method_name = inspect.getframeinfo(caller_frame)[2]
+    args_strings = [ '{}={}'.format(key, str(values[key]).replace('\n', ' ')) for key in args ]
+    msg = '{}: {}'.format(method_name, ' '.join(args_strings))
+    self.log(level, msg, multi_line = True)
+
+  def log_method_d(self):
+    self.log_method(log.DEBUG, depth = 2)
+
+  def log_method_i(self, msg):
+    self.log_method(log.INFO, depth = 2)
+
+  def log_method_c(self, msg):
+    self.log_method(log.CRITICAL, depth = 2)
+    
+  def log_method_e(self, msg):
+    self.log_method(log.ERROR, depth = 2)
+    
+  def log_method_w(self, msg):
+    self.log_method(log.WARNING, depth = 2)
     
   critical = log_c
   debug = log_d

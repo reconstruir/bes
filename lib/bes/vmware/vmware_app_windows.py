@@ -3,30 +3,46 @@ from .vmware_app_base import vmware_app_base
 
 from bes.system.execute import execute
 
-class vmware_app_windows(platform_determiner_base):
+class vmware_app_windows(vmware_app_base):
 
+  @classmethod
   #@abstractmethod
-  def is_installed(self):
+  def is_installed(clazz):
     'Return True if vmware is installed.'
     raise NotImplemented('is_installed')
 
+  @classmethod
   #@abstractmethod
-  def is_running(self):
+  def is_running(clazz):
     'Return True if vmware is running.'
     raise NotImplemented('is_running')
 
+  @classmethod
   #@abstractmethod
-  def ensure_running(self):
+  def ensure_running(clazz):
     'Ensure vmware is running.'
     raise NotImplemented('ensure_running')
 
+  @classmethod
   #@abstractmethod
-  def ensure_stopped(self):
+  def ensure_stopped(clazz):
     'Ensure vmware is stopped.'
     raise NotImplemented('ensure_stopped')
 
+  @classmethod
   #@abstractmethod
-  def host_type(self):
+  def host_type(clazz):
     'Host type form vmrun authentication.'
     return 'ws'
-  
+
+  @classmethod
+  #@abstractmethod
+  def preferences_filename(clazz):
+    'The full path to the preferneces filename.'
+    return r'C:\Documents and Settings\All Users\Application Data\VMware\VMware Workstation\config.ini'
+
+  @classmethod
+  #@abstractmethod
+  def vmrun_exe_path(clazz):
+    'The full path to the vmrun executable.'
+    raise NotImplemented('vmrun_exe_path')

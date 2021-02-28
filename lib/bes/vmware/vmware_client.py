@@ -16,7 +16,13 @@ from .vmware_shared_folder import vmware_shared_folder_list
 from .vmware_vm import vmware_vm
 
 class vmware_client(object):
-  'A class to deal with the vmware fusion rest api'
+  '''
+  A class to deal with the vmware fusion/workstation rest api
+  fusion: https://code.vmware.com/apis/1044
+
+  workstation pro: https://code.vmware.com/apis/1043
+  
+  '''
   
   _log = logger('vmware_client')
   
@@ -35,18 +41,22 @@ class vmware_client(object):
   def base_url(self):
     return 'http://{}:{}/api/'.format(self._address[0], self._address[1])
 
+  def _check_response_401(self, response):
+    if response.status_code == 401:
+      raise vmware_error('401 authentication error for "{}"  Check vmrest_username and vmrest_password.'.format(response.url))
+    return False
+
+  def _check_response(self, response):
+    self._check_response_401(response)
+    
   def vms(self):
     'Return a list of vms'
     url = self._make_url('vms')
     response = self._make_request('get', url)
+    self._check_response(response)
+
     if response.status_code != 200:
       raise vmware_error('Error querying: "{}": {}'.format(url, response.status_code))
-      #print('FAILED: url={} response={}'.format(url, response))
-      #import time
-      #time.sleep(1.0)
-      #response2 = self._make_request('get', url)
-      #if response2.status_code != 200:
-      #  print('FAILED2: url={} response={}'.format(url, response))
     response_data = response.json()
     self._log.log_d('vms: response_data={}'.format(pprint.pformat(response_data)))
     result = []
@@ -117,11 +127,16 @@ class vmware_client(object):
       raise vmware_error('Invalid response_data: {}'.format(pprint.pformat(response_data)))
     return power_state == 'poweredOn'
 
+  POWER_STATES = ( 'on', 'off', 'shutdown', 'suspend', 'pause', 'unpause' )
   def vm_set_power(self, vm_id, state, wait = None):
     'Return power status for a vm.'
     check.check_string(vm_id)
     check.check_string(state)
     check.check_string(wait, allow_none = True)
+
+    if state not in self.POWER_STATES:
+      raise vmware_error('Invalid power stte "{}" - Should be one of: {}'.format(state,
+                                                                                 ' '.join(self.POWER_STATES)))
     
     url = self._make_url('vms/{}/power'.format(vm_id))
 
@@ -316,7 +331,7 @@ class vmware_client(object):
     url = self._make_url('vms/{}/sharedfolders/{}'.format(vm_id, folder_id))
     response = self._make_request('delete', url)
     if response.status_code != 204:
-      raise vmware_error('Error deleting: "{}": {}'.format(url, response.status_code))
+      raise vmware_error('Error deleting: "{}": {}\n{}'.format(url, response.status_code, response.content))
 
   def vm_copy(self, vm_id, new_vm_id):
     check.check_string(vm_id)
@@ -342,9 +357,16 @@ class vmware_client(object):
     self._log.log_d('vm_copy: response_data={}'.format(pprint.pformat(response_data)))
     return response_data
 
-  def vm_delete(self, vm_id):
+  def vm_delete(self, vm_id, force_shutdown):
     check.check_string(vm_id)
+    check.check_bool(force_shutdown)
 
+    self._log.log_d('vm_delete: vm_id={} force_shutdown={}'.format(vm_id, force_shutdown))
+    
+    if force_shutdown:
+      self._log.log_d('vm_delete: shutting vm down first.')
+      self.vm_set_power(vm_id, 'off')
+      
     url = self._make_url('vms/{}'.format(vm_id))
     response = self._make_request('delete', url)
 

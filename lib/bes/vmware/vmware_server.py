@@ -5,11 +5,14 @@ import os
 import re
 import signal
 import subprocess
+import time
 from collections import namedtuple
+from bes.compat.Queue import Empty as QueueEmptyException
 
 from bes.system.log import logger
 from bes.common.check import check
 
+from .vmware_error import vmware_error
 from .vmware_util import vmware_util
 
 class vmware_server(object):
@@ -29,6 +32,7 @@ class vmware_server(object):
 
   def _vmrest_process(self):
     # Make sure there no stale vmrest processes
+    self._log.log_d('_vmrest_process: killing any stale vmreset')
     vmware_util.killall_vmrest()
 
     cmd = [ 'vmrest' ]
@@ -44,7 +48,10 @@ class vmware_server(object):
       else:
         continue
       if 'Failed to launch vmrest' in next_line:
-        self._log.log_e('failed to launch vmrest: cmd="{}"'.format(' '.join(cmd)))
+        self._log.log_e('failed to launch vmrest(1): cmd="{}"'.format(' '.join(cmd)))
+        return 1
+      elif 'Unable to get configurations: Bad response' in next_line:
+        self._log.log_e('failed to launch vmrest(2): cmd="{}"'.format(' '.join(cmd)))
         return 1
       elif next_line.startswith('vmrest '):
         self.version = self._parse_version(next_line)
@@ -73,11 +80,29 @@ class vmware_server(object):
     return f[0]
   
   def start(self):
-    self._process = multiprocessing.Process(name = 'vmware_server', target = self._vmrest_process)
-    self._process.daemon = True
-    self._process.start()
-    self._log.log_d('waiting for address notification')
-    info = self._info(*self._address_notification.get())
+    num_tries = 5
+    address_timeout = 5.0
+    sleep_timeout = 1.0
+    info = None
+    for i in range(1, num_tries + 1):
+      label = '{} of {}'.format(i, num_tries)
+      self._log.log_d('{}: process attempt'.format(label))
+      self._process = multiprocessing.Process(name = 'vmware_server', target = self._vmrest_process)
+      self._process.daemon = True
+      self._process.start()
+      self._log.log_d('{}: waiting for server info'.format(label))
+      try:
+        info = self._info(*self._address_notification.get(timeout = address_timeout))
+        self._log.log_d('{}: got server info: {}'.format(label, info))
+        break
+      except QueueEmptyException as ex:
+        self._log.log_d('{}: timeout getting server info'.format(label))
+        self._log.log_d('{}: sleeping {}'.format(label, sleep_timeout))
+        time.sleep(sleep_timeout)
+      
+    if not info:
+      raise vmware_error('Failed to start server after {} tries.'.format(num_tries))
+      
     self._log.log_d('got info notification: {}'.format(info))
     self.address = info.address
     self.pid = info.pid

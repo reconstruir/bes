@@ -8,7 +8,6 @@ from bes.fs.file_find import file_find
 from bes.property.cached_property import cached_property
 
 from .vmware_error import vmware_error
-from .vmware_preferences import vmware_preferences
 from .vmware_vmx_file import vmware_vmx_file
 
 class vmware_local_vm(object):
@@ -17,8 +16,10 @@ class vmware_local_vm(object):
   
   def __init__(self, vmx_filename):
     self.vmx_filename = path.abspath(vmx_filename)
-    self.vmx_config = vmware_preferences(self.vmx_filename)
-
+    self.vmx = vmware_vmx_file(self.vmx_filename)
+    #command_interpreter_class = self._find_command_interpreter_class()
+    #self.interpreter = command_interpreter_class()
+    
   def __str__(self):
     return self.vmx_filename
 
@@ -27,8 +28,23 @@ class vmware_local_vm(object):
   
   @cached_property
   def nickname(self):
-    return vmware_vmx_file.nickname(self.vmx_filename)
+    return self.vmx.nickname
 
   @cached_property
   def uuid(self):
-    return self.vmx_config.get_value('uuid.bios')
+    return self.vmx.uuid
+
+#  @classmethod
+#  def _find_command_interpreter_class(clazz):
+#    from bes.system.host import host
+#    if host.is_linux():
+#      from .vmware_command_interpreter_linux import vmware_command_interpreter_linux
+#      return vmware_command_interpreter_linux
+#    elif host.is_macos():
+#      from .vmware_command_interpreter_macos import vmware_command_interpreter_macos
+#      return vmware_command_interpreter_macos
+#    elif host.is_windows():
+#      from .vmware_command_interpreter_windows import vmware_command_interpreter_windows
+#      return vmware_command_interpreter_windows
+#    else:
+#      host.raise_unsupported_system()

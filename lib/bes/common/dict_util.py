@@ -167,11 +167,12 @@ class dict_util(object):
     
     result = copy.deepcopy(d)
     for key in password_keys:
-      value = result[key]
-      if value != None:
-        if not check.is_string(value):
-          raise ValueError('value for key "{}" is not a string: "{}"'.format(key, value))
-        new_value = hide_char * len(value)
-        result[key] = new_value
+      if key in result:
+        value = result[key]
+        if value != None:
+          if not check.is_string(value):
+            raise ValueError('value for key "{}" is not a string: "{}"'.format(key, value))
+          new_value = hide_char * len(value)
+          result[key] = new_value
     return result
     

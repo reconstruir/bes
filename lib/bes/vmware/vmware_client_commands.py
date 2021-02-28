@@ -150,11 +150,12 @@ class vmware_client_commands(object):
     shared_folders = self._client.vm_copy(vm_id, new_vm_id)
     return 0
 
-  def vm_delete(self, vm_id):
+  def vm_delete(self, vm_id, force_shutdown):
     check.check_string(vm_id)
+    check.check_bool(force_shutdown)
     
     vm_id = self.resolve_vm_id(vm_id)
-    shared_folders = self._client.vm_delete(vm_id)
+    shared_folders = self._client.vm_delete(vm_id, force_shutdown)
     return 0
   
   def vm_restart(self, vm_id, wait):

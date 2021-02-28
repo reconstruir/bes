@@ -33,19 +33,19 @@ class host(with_metaclass(_host_info_holder, object)):
   MACOS = 'macos'
   WINDOWS = 'windows'
 
-  SYSTEMS = [ LINUX, MACOS, WINDOWS ]
+  SYSTEMS = ( LINUX, MACOS, WINDOWS )
 
   # distros
   RASPBIAN = 'raspbian'
   UBUNTU = 'ubuntu'
 
-  DISTROS = [ RASPBIAN, UBUNTU ]
+  DISTROS = ( RASPBIAN, UBUNTU )
 
   # families
   FAMILY_DEBIAN = 'debian'
   FAMILY_REDHAT = 'redhat'
 
-  FAMILIES = [ FAMILY_DEBIAN, FAMILY_REDHAT ]
+  FAMILIES = ( FAMILY_DEBIAN, FAMILY_REDHAT )
 
   @classmethod
   def init(clazz):
@@ -95,6 +95,12 @@ class host(with_metaclass(_host_info_holder, object)):
     'Raise host_error if system is not linux.'
     if clazz.SYSTEM != clazz.LINUX:
       raise host_error('not linux')
+
+  @classmethod
+  def check_system(clazz, system):
+    'Raise a RuntimeError about the system being unsupported.  If system is None host.SYSTEM is used.'
+    if not system in clazz.SYSTEMS:
+      clazz.raise_unsupported_system(clazz, system = system)
     
 host.init()
 

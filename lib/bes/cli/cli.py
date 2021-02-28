@@ -25,7 +25,7 @@ class cli(with_metaclass(ABCMeta, object)):
     from bes.cli.cli_help_cli_args import cli_help_cli_args
     cli_help_cli_args.parser = self.parser
     
-    self.commands_subparser = self.parser.add_subparsers(help = 'commands', dest = 'command_group')
+    self.commands_subparser = self.parser.add_subparsers(help = 'commands', dest = '__bes_command_group__')
 
     command_groups = cli_command_list(self.command_group_list())
     command_groups.sort(key = lambda item: item.name)
@@ -73,7 +73,7 @@ class cli(with_metaclass(ABCMeta, object)):
   def _add_command_group(self, commands_subparser, command_group, arg_adder, help_blurb):
     parser = commands_subparser.add_parser(command_group, help = help_blurb)
     subparsers_help_blurb = '%s_commands' % (command_group)
-    subparsers = parser.add_subparsers(help = subparsers_help_blurb, dest = 'command')
+    subparsers = parser.add_subparsers(help = subparsers_help_blurb, dest = '__bes_command__')
     adder = getattr(self.handler_object, arg_adder)
     adder(subparsers)
 

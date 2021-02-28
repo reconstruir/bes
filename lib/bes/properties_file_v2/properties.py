@@ -77,6 +77,9 @@ class properties(object):
   def get_value(self, key):
     return self._values[key]
 
+  def get_value_with_default(self, key, default_value):
+    return self._values.get(key, default_value)
+  
   def remove_value(self, key):
     del self._values[key]
 

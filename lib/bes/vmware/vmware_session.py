@@ -18,26 +18,33 @@ class vmware_session(object):
     check.check_int(port, allow_none = True)
     check.check_credentials(credentials, allow_none = True)
 
-    if not credentials:
-      credentials = vmware_credentials.make_random_credentials()
+    self._log.log_d('vmware_session() port={} credentials={}'.format(port, credentials))
 
-    self._log.log_d('vmware_session(port={} credentials={})'.format(port, credentials))
+    if not credentials or not credentials.username :
+      self._log.log_d('vmware_session() using random credentials={}'.format(credentials))
+      credentials = vmware_credentials.make_random_credentials()
+      vmware_credentials.set_credentials(credentials.username,
+                                         credentials.password,
+                                         num_tries = 100)
     self._port = port
     self._credentials = credentials
 
-    vmware_credentials.set_credentials(credentials.username,
-                                       credentials.password,
-                                       num_tries = 100)
     self.server = None
     self.client = None
 
   def start(self):
+    self._log.log_d('start')
     if self.server:
+      self._log.log_d('server already exists')
       return
+    self._log.log_d('creating server')
     self.server = vmware_server_controller()
+    self._log.log_d('starting server on port {}'.format(self._port))
     self.server.start(port = self._port)
+    self._log.log_d('starting client with address {}'.format(self.server.address))
     self.client = vmware_client(address = self.server.address,
                                 auth = self._credentials)
+    self._log.log_d('client started')
     
   def stop(self):
     if not self.server:
@@ -54,5 +61,11 @@ class vmware_session(object):
     func = getattr(self.client, method_name)
     return func(*args, **kargs)
 
-  def resolve_vm_id(self, name):
-    return self.call_client('vm_name_to_id', name)
+  def resolve_vm_id(self, name, raise_error = True):
+    vm_id = self.call_client('vm_name_to_id', name)
+    if not vm_id and raise_error:
+      raise vmware_error('failed to resolve vm id: "{}"'.format(name))
+    return vm_id
+
+  def ensure_vm_running(self, vm_id):
+    return self.call_client('vm_set_power', vm_id, 'on', wait = 'ssh')
