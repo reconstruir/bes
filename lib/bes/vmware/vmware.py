@@ -20,7 +20,9 @@ from bes.fs.temp_file import temp_file
 from bes.archive.archiver import archiver
 
 from .vmware_app import vmware_app
+from .vmware_command_interpreter_manager import vmware_command_interpreter_manager
 from .vmware_error import vmware_error
+from .vmware_guest_scripts import vmware_guest_scripts
 from .vmware_local_vm import vmware_local_vm
 from .vmware_options import vmware_options
 from .vmware_power import vmware_power
@@ -30,7 +32,6 @@ from .vmware_session import vmware_session
 from .vmware_vm import vmware_vm
 from .vmware_vmrun import vmware_vmrun
 from .vmware_vmx_file import vmware_vmx_file
-from .vmware_command_interpreter_manager import vmware_command_interpreter_manager
 
 class vmware(object):
 
@@ -57,6 +58,28 @@ class vmware(object):
       return self._preferences.get_value('prefvmx.defaultVMPath')
     return None
 
+  @classmethod
+  def _tmp_nickname_part(clazz):
+    d = tempfile.mkdtemp(prefix = 'foo')
+    b = path.basename(d)
+    file_util.remove(d)
+    return string_util.remove_head(b, 'foo')
+
+  _cloned_vm_names = namedtuple('_cloned_vm_names', 'src_vmx_filename, dst_vmx_filename, dst_vmx_nickname')
+  def _make_cloned_vm_names(clazz, src_vmx_filename, clone_name, where):
+    vms_root_dir = path.normpath(path.join(path.dirname(src_vmx_filename), path.pardir))
+    src_vmx_nickname = vmware_vmx_file(src_vmx_filename).nickname
+    tmp_nickname_part = clazz._tmp_nickname_part()
+    if not clone_name:
+      clone_name = '{}_clone_{}'.format(src_vmx_nickname, tmp_nickname_part)
+    new_vm_root_dir_basename = '{}.vmwarevm'.format(clone_name)
+    if not where:
+      where = path.join(vms_root_dir, new_vm_root_dir_basename)
+    file_util.mkdir(where)
+    dst_vmx_basename = '{}.vmx'.format(clone_name)
+    dst_vmx_filename = path.join(where, dst_vmx_basename)
+    return clazz._cloned_vm_names(src_vmx_filename, dst_vmx_filename, clone_name)
+  
   @property
   def session(self):
     if not self._session:
@@ -82,7 +105,7 @@ class vmware(object):
                                                                  self._options.clone_vm)
     
     if not self._options.dont_ensure or self._options.clone_vm:
-      self.vm_ensure_running(target_vm_id, True, run_program_options = run_program_options)
+      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options)
       
     rv = self._runner.vm_run_program(target_vmx_filename, program, program_args, run_program_options)
 
@@ -125,7 +148,7 @@ class vmware(object):
                                                                  self._options.clone_vm)
     
     if not self._options.dont_ensure or self._options.clone_vm:
-      self.vm_ensure_running(target_vm_id, True, run_program_options = run_program_options)
+      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options)
 
     rv = self._runner.vm_run_script(target_vmx_filename,
                                     command.interpreter_path,
@@ -224,7 +247,7 @@ class vmware(object):
                                                                                     target_vmx_filename))
     
     if not self._options.dont_ensure or self._options.clone_vm:
-      self.vm_ensure_running(target_vm_id, True, run_program_options = run_program_options)
+      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options)
       
     tmp_dir_local = temp_file.make_temp_dir(suffix = '-run_package.dir', delete = not debug)
     if debug:
@@ -241,7 +264,7 @@ class vmware(object):
 
     archiver.create(tmp_package.local, package_dir)
     file_util.save(tmp_caller_script.local,
-                   content = self._RUN_PACKAGE_CALLER_PYTHON,
+                   content = vmware_guest_scripts.RUN_PACKAGE_CALLER,
                    mode = 0o0755)
     self._log.log_d('vm_run_package: tmp_package={}'.format(tmp_package))
     self._log.log_d('vm_run_package: tmp_caller_script={}'.format(tmp_caller_script))
@@ -328,7 +351,7 @@ class vmware(object):
     tmp_remote_filename = path.join('/tmp', tmp_basename)
     return tmp_remote_filename
 
-  def vm_ensure_running(self, vm_id, wait, run_program_options = None):
+  def vm_ensure_started(self, vm_id, wait, run_program_options = None):
     check.check_string(vm_id)
     check.check_bool(wait)
     check.check_vmware_run_program_options(run_program_options)
@@ -389,7 +412,7 @@ class vmware(object):
     self._log.log_d('vm_delete: vmx_filename={}'.format(vmx_filename))
     if shutdown:
       self._stop_vm_if_needed(vmx_filename)
-    return self._runner.vm_delete(vmx_filename)
+    self._runner.vm_delete(vmx_filename)
 
   def vm_is_running(self, vm_id):
     check.check_string(vm_id)
@@ -520,193 +543,26 @@ class vmware(object):
     args = [ command, vmx_filename ] + command_args
     return self._runner.run(args)
 
-  @classmethod
-  def _tmp_nickname_part(clazz):
-    d = tempfile.mkdtemp(prefix = 'foo')
-    b = path.basename(d)
-    file_util.remove(d)
-    return string_util.remove_head(b, 'foo')
+  def vm_snapshot_create(self, vm_id, name):
+    check.check_string(vm_id)
+    check.check_string(name)
 
-  _cloned_vm_names = namedtuple('_cloned_vm_names', 'src_vmx_filename, dst_vmx_filename, dst_vmx_nickname')
-  def _make_cloned_vm_names(clazz, src_vmx_filename, clone_name, where):
-    vms_root_dir = path.normpath(path.join(path.dirname(src_vmx_filename), path.pardir))
-    src_vmx_nickname = vmware_vmx_file(src_vmx_filename).nickname
-    tmp_nickname_part = clazz._tmp_nickname_part()
-    if not clone_name:
-      clone_name = '{}_clone_{}'.format(src_vmx_nickname, tmp_nickname_part)
-    new_vm_root_dir_basename = '{}.vmwarevm'.format(clone_name)
-    if not where:
-      where = path.join(vms_root_dir, new_vm_root_dir_basename)
-    file_util.mkdir(where)
-    dst_vmx_basename = '{}.vmx'.format(clone_name)
-    dst_vmx_filename = path.join(where, dst_vmx_basename)
-    return clazz._cloned_vm_names(src_vmx_filename, dst_vmx_filename, clone_name)
-  
-  _RUN_PACKAGE_CALLER_PYTHON = r'''#!/usr/bin/env python
-
-import argparse
-import os
-import os.path as path
-import platform
-import socket
-import subprocess
-import sys
-import sys
-import tarfile
-import tempfile
-import zipfile
-
-class package_caller(object):
-
-  def __init__(self):
-    pass
-  
-  def main(self):
-    p = argparse.ArgumentParser()
-    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
-                   help = 'Verbose log output [ False ]')
-    p.add_argument('--debug', action = 'store_true', default = False,
-                   help = 'Debug mode.  Save temp files and log the script itself [ False ]')
-    p.add_argument('--tty', action = 'store', default = None,
-                   help = 'tty to log to in debug mode [ False ]')
-    p.add_argument('--tail-log-port', action = 'store', default = None, type = int,
-                   help = 'port to send to for tailing [ False ]')
-    p.add_argument('package_zip', action = 'store', default = None,
-                   help = 'The package []')
-    p.add_argument('entry_command', action = 'store', default = None,
-                   help = 'The entry command []')
-    p.add_argument('output_log', action = 'store', default = None,
-                   help = 'The output log file []')
-    p.add_argument('entry_command_args', action = 'store', default = [], nargs = '*',
-                   help = 'Optional entry command args [ ]')
-    args = p.parse_args()
-    # make sure the log exists so even if the command fails theres something
-    with open(args.output_log, 'w') as fout:
-      fout.write('')
-      fout.flush()
-    self._debug = args.debug
-    self._name = path.basename(sys.argv[0])
-    self._console_device = args.tty or self._find_console_device()
-    self._socket = None
-    for key, value in sorted(args.__dict__.items()):
-      self._log('args: {}={}'.format(key, value))
-    tmp_dir = path.join(path.dirname(args.package_zip), 'work')
-    self._log('tmp_dir={}'.format(tmp_dir))
-
-    self._log('package_zip={} entry_command={} output_log={}'.format(args.package_zip,
-                                                                     args.entry_command,
-                                                                     args.output_log))
-
-    self._unpack_package(args.package_zip, tmp_dir)
-    self._start_socket(args.tail_log_port)
-    exit_code = self._execute(tmp_dir,
-                              args.entry_command,
-                              args.output_log,
-                              args.entry_command_args)
-    self._stop_socket(args.tail_log_port)
-    return exit_code
-
-  def _start_socket(self, port):
-    if not port:
-      return
-    address = ( 'localhost', port )
-    self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    self._log('binding socket to port {}'.format(port))
-    self._socket.bind(address)
-
-  def _stop_socket(self):
-    self._socket.close()
-    self._socket = None
+    self._log.log_method_d()
     
-  def _execute(self, dest_dir, command, output_log, entry_command_args):
-    entry_command_args = entry_command_args or []
-    stdout_pipe = subprocess.PIPE
-    stderr_pipe = subprocess.STDOUT
-    command_abs = path.join(dest_dir, command)
-    if not path.isfile(command_abs):
-      raise IOError('entry command not found: "{}"'.format(command_abs))
-    args = [ command_abs ] + entry_command_args
-    self._log('args={} cwd={}'.format(args, dest_dir))
-    os.chmod(command_abs, 0o0755)
-    process = subprocess.Popen(args,
-                               stdout = stdout_pipe,
-                               stderr = stderr_pipe,
-                               shell = False,
-                               cwd = dest_dir,
-                               universal_newlines = True)
+    vmx_filename = self._resolve_vmx_filename(vm_id)
+    self._runner.vm_snapshot_create(vmx_filename, name)
 
-    if self._socket:
-      self._log('socket listening')
-      self._socket.listen(1)
-      self._log('calling accept')
-      connection, client_address = self._socket.accept()
-      self._log('connection={} client_address={}'.format(connection, client_address))
+  def vm_snapshot_delete(self, vm_id, name, delete_children = False):
+    check.check_string(vm_id)
+    check.check_string(name)
+    check.check_bool(delete_children)
 
-    stdout_lines = []
-    if False:
-      # Poll process for new output until finished
-      while True:
-        nextline = process.stdout.readline()
-        if nextline == '' and process.poll() != None:
-            break
-        stdout_lines.append(nextline)
-        self._log('process: {}'.format(nextline))
+    self._log.log_method_d()
+    
+    vmx_filename = self._resolve_vmx_filename(vm_id)
+    self._runner.vm_snapshot_delete(vmx_filename, name, delete_children)
 
-    output = process.communicate()
-    exit_code = process.wait()
-    self._mkdir(path.dirname(output_log))
-    stdout = output[0]
-    with open(output_log, 'a') as fout:
-      fout.write(stdout)
-      fout.flush()
-    return exit_code
-
-  @classmethod
-  def _mkdir(clazz, p):
-    if path.isdir(p):
-      return
-    os.makedirs(p)
-  
-  def _unpack_package_zip(self, package_zip, dest_dir):
-    with zipfile.ZipFile(package_zip, mode = 'r') as f:
-      f.extractall(path = dest_dir)
-
-  def _unpack_package_tar(self, package_tar, dest_dir):
-    with tarfile.open(package_tar, mode = 'r') as f:
-      f.extractall(path = dest_dir)
-
-  def _unpack_package(self, package, dest_dir):
-    if zipfile.is_zipfile(package):
-      self._unpack_package_zip(package, dest_dir)
-    elif tarfile.is_tarfile(package):
-      self._unpack_package_tar(package, dest_dir)
-    else:
-      raise RuntimeError('unknown archive type: "{}"'.format(package))
-      
-  def _log(self, message):
-    if not self._debug:
-      return
-    s = '{}: {}\n'.format(self._name, message)
-    with open(self._console_device, 'w') as f:
-      f.write(s)
-      f.flush()
-
-  @classmethod
-  def _find_console_device(clazz):
-    system = platform.system()
-    if system == 'Windows':
-      return 'con:'
-    elif system == 'Darwin':
-      return '/dev/ttys000'
-    elif system == 'Linux':
-      return '/dev/console'
-    else:
-      raise RuntimeError('unknown platform: "{}"'.format(system))
-
-  @classmethod
-  def run(clazz):
-    raise SystemExit(package_caller().main())
-
-if __name__ == '__main__':
-  package_caller.run()
-'''  
+  def vms(self):
+    self._log.log_method_d()
+    for _, vm in self.local_vms.items():
+      print(vm)

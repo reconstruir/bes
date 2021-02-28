@@ -29,6 +29,14 @@ class vmware_vmrun(object):
     self._login_credentials = login_credentials
     self._auth_args = self._make_vmrun_auth_args(self._login_credentials)
 
+  @classmethod
+  def _make_vmrun_auth_args(clazz, cred):
+    args = [ '-T', vmware_app.host_type() ]
+    if cred:
+      args.extend([ '-gu', cred.username ])
+      args.extend([ '-gp', cred.password ])
+    return args
+    
   _run_result = namedtuple('_run_result', 'output, exit_code, args')
   def run(self, args, extra_env = None, no_output = False,
           raise_error = False, error_message = None):
@@ -205,9 +213,9 @@ class vmware_vmrun(object):
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [ 'deleteVM', vmx_filename ]
-    return self.run(args,
-                    raise_error = True,
-                    error_message = 'Failed to delete vm: {}'.format(vmx_filename))
+    self.run(args,
+             raise_error = True,
+             error_message = 'Failed to delete vm: {}'.format(vmx_filename))
 
   def vm_delete(self, vmx_filename):
     check.check_string(vmx_filename)
@@ -260,9 +268,10 @@ class vmware_vmrun(object):
     return lines[1:]
 
   def vm_is_running(self, vmx_filename):
-    self._log.log_method_d()
     vmware_vmx_file.check_vmx_file(vmx_filename)
 
+    self._log.log_method_d()
+    
     running_vms = self.running_vms()
     return vmx_filename in self.running_vms()
 
@@ -282,10 +291,34 @@ class vmware_vmrun(object):
       return None
     return ip_address
 
-  @classmethod
-  def _make_vmrun_auth_args(clazz, cred):
-    args = [ '-T', vmware_app.host_type() ]
-    if cred:
-      args.extend([ '-gu', cred.username ])
-      args.extend([ '-gp', cred.password ])
-    return args
+  def vm_snapshot_create(self, vmx_filename, name):
+    check.check_string(vmx_filename)
+    check.check_string(name)
+
+    vmware_vmx_file.check_vmx_file(vmx_filename)
+    self._log.log_method_d()
+    args = [
+      'snapshot',
+      vmx_filename,
+      name,
+    ]
+    self.run(args,
+             raise_error = True,
+             error_message = 'Failed to create snapshot "{}" for {}'.format(name, vmx_filename))
+
+  def vm_snapshot_delete(self, vmx_filename, name, delete_children = False):
+    check.check_string(vmx_filename)
+    check.check_string(name)
+
+    vmware_vmx_file.check_vmx_file(vmx_filename)
+    self._log.log_method_d()
+    args = [
+      'deleteSnapshot',
+      vmx_filename,
+      name,
+    ]
+    if delete_children:
+      args.append('andDeleteChildren')
+    self.run(args,
+             raise_error = True,
+             error_message = 'Failed to delete snapshot "{}" for {}'.format(name, vmx_filename))

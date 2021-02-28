@@ -133,6 +133,28 @@ class vmware_cli_args(object):
     vmware_options_cli_args.add_arguments(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
+
+    # vm_snapshot_create
+    p = subparser.add_parser('vm_snapshot_create', help = 'Create a vm snapshot.')
+    vmware_options_cli_args.add_arguments(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The snapshot name []')
+
+    # vm_snapshot_delete
+    p = subparser.add_parser('vm_snapshot_delete', help = 'Delete a vm snapshot.')
+    vmware_options_cli_args.add_arguments(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The snapshot name []')
+    p.add_argument('--delete-children', action = 'store_true', default = False,
+                   help = 'Whether to delete the snapshot children as well []')
+
+    # vms
+    p = subparser.add_parser('vms', help = 'List vms.')
+    vmware_options_cli_args.add_arguments(p)
     
   def __vmware_add_common_run_program_args(self, p):
     'Add argument common to all commands that run programs and scripts'
