@@ -13,7 +13,8 @@ class brew_cli_args(object):
   def __brew_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
-    
+
   def _command_brew(self, command, *args, **kargs):
     from .brew_cli_handler import brew_cli_handler
-    return brew_cli_handler.handle_command(command, **kargs)
+    return brew_cli_handler(kargs).handle_command(command)
+  

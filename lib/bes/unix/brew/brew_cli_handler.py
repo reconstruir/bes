@@ -2,25 +2,20 @@
 
 from os import path
 
-from bes.cli.argparser_handler import argparser_handler
+from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
 
 from .brew import brew
 from .brew_options import brew_options
 
-class brew_cli_handler(object):
+class brew_cli_handler(cli_command_handler):
 
-  @classmethod
-  def handle_command(clazz, command, **kargs):
-    options = brew_options(**kargs)
-    filtered_args = argparser_handler.filter_keywords_args(brew_options, kargs)
-    func = getattr(brew_cli_handler, command)
-    return func(options, **filtered_args)
+  def __init__(self, cli_args):
+    super(brew_cli_handler, self).__init__(cli_args,
+                                           options_class = brew_options)
+    check.check_brew_options(self.options)
   
-  @classmethod
-  def info(clazz, options):
-    check.check_brew_options(options)
-
+  def info(self):
     version = brew.version()
     print('version: {}'.format(version))
     return 0
