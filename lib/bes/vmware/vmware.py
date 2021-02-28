@@ -562,6 +562,17 @@ class vmware(object):
     vmx_filename = self._resolve_vmx_filename(vm_id)
     self._runner.vm_snapshot_delete(vmx_filename, name, delete_children)
 
+  def vm_snapshots(self, vm_id, tree = False):
+    check.check_string(vm_id)
+    check.check_bool(tree)
+
+    self._log.log_method_d()
+    
+    vmx_filename = self._resolve_vmx_filename(vm_id)
+    snapshots = self._runner.vm_snapshots(vmx_filename, tree = tree)
+    for snapshot in snapshots:
+      print(snapshot)
+
   def vms(self):
     self._log.log_method_d()
     for _, vm in self.local_vms.items():

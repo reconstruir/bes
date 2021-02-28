@@ -322,3 +322,22 @@ class vmware_vmrun(object):
     self.run(args,
              raise_error = True,
              error_message = 'Failed to delete snapshot "{}" for {}'.format(name, vmx_filename))
+
+  def vm_snapshots(self, vmx_filename, tree = False):
+    check.check_string(vmx_filename)
+    check.check_bool(tree)
+
+    vmware_vmx_file.check_vmx_file(vmx_filename)
+    self._log.log_method_d()
+    args = [
+      'listSnapshots',
+      vmx_filename,
+    ]
+    rv = self.run(args,
+                  raise_error = True,
+                  error_message = 'Failed to list snapshots for {}'.format(vmx_filename))
+    lines = text_line_parser.parse_lines(rv.output,
+                                         strip_comments = False,
+                                         strip_text = True,
+                                         remove_empties = True)
+    return lines[1:]

@@ -152,6 +152,14 @@ class vmware_cli_args(object):
     p.add_argument('--delete-children', action = 'store_true', default = False,
                    help = 'Whether to delete the snapshot children as well []')
 
+    # vm_snapshots
+    p = subparser.add_parser('vm_snapshots', help = 'List snapshots for a vm.')
+    vmware_options_cli_args.add_arguments(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    p.add_argument('--tree', action = 'store_true', default = False,
+                   help = 'Show as a tree []')
+    
     # vms
     p = subparser.add_parser('vms', help = 'List vms.')
     vmware_options_cli_args.add_arguments(p)
