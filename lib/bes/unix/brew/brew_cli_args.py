@@ -10,6 +10,9 @@ class brew_cli_args(object):
     # info
     p = subparser.add_parser('info', help = 'Print the brew version.')
     
+    # available
+    p = subparser.add_parser('available', help = 'Print packages available to install.')
+    
   def __brew_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')

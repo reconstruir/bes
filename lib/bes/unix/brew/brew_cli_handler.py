@@ -19,3 +19,10 @@ class brew_cli_handler(cli_command_handler):
     version = brew.version()
     print('version: {}'.format(version))
     return 0
+
+  def available(self):
+    packages = brew.available()
+    for package in packages:
+      print(package)
+    return 0
+  

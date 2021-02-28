@@ -58,7 +58,7 @@ class brew(object):
   @classmethod
   def available(clazz):
     'Return a list of all available packages.'
-    rv = clazz.call_brew([ 'search' ])
+    rv = clazz.call_brew([ 'formulae' ])
     return sorted(string_util.split_by_white_space(rv.stdout, strip = True))
 
   @classmethod
