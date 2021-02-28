@@ -23,5 +23,5 @@ class python_cli_args(object):
                    default = False, help = 'Print info about the executable')
     
   def _command_python(self, command, *args, **kargs):
-    from .python_cli_command import python_cli_command
-    return python_cli_command(kargs).handle_command(command)
+    from .python_cli_handler import python_cli_handler
+    return python_cli_handler(kargs).handle_command(command)
