@@ -6,9 +6,6 @@ from os import path
 from bes.common.check import check
 from bes.fs.dir_util import dir_util
 from bes.system.execute import execute
-from bes.text.text_line_parser import text_line_parser
-from bes.url.url_util import url_util
-from bes.version.software_version import software_version
 from bes.fs.file_symlink import file_symlink
 from bes.fs.file_util import file_util
 
@@ -19,6 +16,7 @@ from bes.unix.sudo.sudo_cli_options import sudo_cli_options
 from .python_error import python_error
 from .python_exe import python_exe
 from .python_installer_base import python_installer_base
+from .python_python_dot_org import python_python_dot_org
 from .python_version import python_version
 
 class python_installer_macos_python_dot_org(python_installer_base):
@@ -31,29 +29,8 @@ class python_installer_macos_python_dot_org(python_installer_base):
   def available_versions(self, num):
     'Return a list of python versions available to install.'
     check.check_int(num)
-    
-    index = self._download_available_index()
-    sorted_index = software_version.sort_versions(index, reverse = True)
-    # theres no point showing versions older than 2.7
-    modern_index = [ v for v in sorted_index if software_version.compare(v, '2.7') > 0 ]
-    if not num:
-      return modern_index
-    version_table = {}
-    for any_version in modern_index:
-      major_version = python_version.any_version_to_version(any_version)
-      if not major_version in version_table:
-        version_table[major_version] = []
-      version_table[major_version].append(any_version)
-    result = []
 
-    # theres no point showing obsolete (and sometimes dangerous) versions
-    obsolete_versions = ( '3.0', '3.1', '3.2', '3.3', '3.4', '3.5', '3.6' )
-    
-    for version in sorted([ key for key in version_table.keys() ]):
-      if not version in obsolete_versions:
-        versions = version_table[version][0 : num]
-        result.extend(versions)
-    return software_version.sort_versions(result)
+    return python_python_dot_org.available_versions(num)
     
   #@abstractmethod
   def installed_versions(self):
@@ -91,12 +68,10 @@ class python_installer_macos_python_dot_org(python_installer_base):
     if versions_to_uninstall:
       self.blurb_verbose('need to uninstall: {}'.format(' '.join(versions_to_uninstall)))
     self._sudo_validate('sudo password for install:')
-        
-    basename = 'python-{full_version}-macosx10.9.pkg'.format(full_version = full_version)
-    url = 'https://www.python.org/ftp/python/{full_version}/{basename}'.format(full_version = full_version,
-                                                                               basename = basename)
-    tmp_pkg = url_util.download_to_temp_file(url, basename = basename, delete = True, suffix = '.pkg')
 
+    url = python_python_dot_org.macos_package_url(full_version)
+    tmp_pkg = python_python_dot_org.downlod_package_to_temp_file(url)
+    
     np = native_package(self.blurber)
     
     for old_full_version in versions_to_uninstall:
@@ -225,20 +200,6 @@ class python_installer_macos_python_dot_org(python_installer_base):
     for filename in files:
       if re.match(r'^.*\.command$', filename):
         result.append(filename)
-    return result
-
-  @classmethod
-  def _download_available_index(clazz):
-    'Download and parse the available python version index.'
-
-    response = url_util.get('https://www.python.org/ftp/python/')
-    content = response.content.decode('utf-8')
-    lines = text_line_parser.parse_lines(content, strip_comments = False, strip_text = True, remove_empties = True)
-    result = []
-    for line in lines:
-      f = re.findall(r'^.*href=\"(\d+\.\d+.*)\/\".*$', line)
-      if len(f) == 1:
-        result.append(f[0])
     return result
 
   @classmethod
