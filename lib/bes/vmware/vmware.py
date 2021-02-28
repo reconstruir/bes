@@ -12,6 +12,7 @@ import inspect
 from bes.system.log import logger
 from bes.system.command_line import command_line
 from bes.system.host import host
+from bes.common.time_util import time_util
 from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.fs.file_find import file_find
@@ -41,18 +42,22 @@ class vmware(object):
     self._options = options or vmware_options()
     self._preferences_filename = vmware_preferences.default_preferences_filename()
     self._preferences = vmware_preferences(self._preferences_filename)
-    vm_dir = self._options.vm_dir or self._default_vm_dir()
-    if not vm_dir:
+    self._vm_dir = self._options.vm_dir or self._default_vm_dir()
+    if not self._vm_dir:
       raise vmware_error('no vm_dir given in options and no default configured in {}'.format(self._preferences_filename))
-    self.local_vms = {}
-    vmx_files = file_find.find(vm_dir, relative = False, match_patterns = [ '*.vmx' ])
-    for vmx_filename in vmx_files:
-      local_vm = vmware_local_vm(vmx_filename)
-      self.local_vms[vmx_filename] = local_vm
     self._session = None
     self._runner = vmware_vmrun(login_credentials = self._options.login_credentials)
     self._command_interpreter_manager = vmware_command_interpreter_manager()
 
+  @property
+  def local_vms(self):
+    local_vms = {}
+    vmx_files = file_find.find(self._vm_dir, relative = False, match_patterns = [ '*.vmx' ])
+    for vmx_filename in vmx_files:
+      local_vm = vmware_local_vm(vmx_filename)
+      local_vms[vmx_filename] = local_vm
+    return local_vms
+    
   def _default_vm_dir(self):
     if self._preferences.has_value('prefvmx.defaultVMPath'):
       return self._preferences.get_value('prefvmx.defaultVMPath')
@@ -146,7 +151,6 @@ class vmware(object):
     target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
                                                                  vmx_filename,
                                                                  self._options.clone_vm)
-    
     if not self._options.dont_ensure or self._options.clone_vm:
       self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options)
 
@@ -167,15 +171,32 @@ class vmware(object):
     b = path.basename(d)
     file_util.remove(d)
     return string_util.remove_head(b, 'tmp')
-  
+
+  @classmethod
+  def _clone_timestamp(clazz):
+    return time_util.timestamp(delimiter = '-', milliseconds = False)
+
   def _clone_vm_if_needed(self, vm_id, vmx_filename, clone_vm):
     if not clone_vm:
       return vm_id, vmx_filename
+    local_vm = self.local_vms[vmx_filename]
+    timestamp = self._clone_timestamp()
+    clone_name = '{}_clone_{}'.format(local_vm.vmx.nickname, timestamp)
+    snapshot_name = 'snapshot_{}'.format(timestamp)
+    self._log.log_d('_clone_vm_if_needed: vm_id={} vmx_filename={} clone_name={} snapshot_name={}'.format(vm_id,
+                                                                                                          vmx_filename,
+                                                                                                          clone_name,
+                                                                                                          snapshot_name))
+    self._log.log_d('_clone_vm_if_needed: stopping {}'.format(vmx_filename))
     self._stop_vm_if_needed(vmx_filename)
-    rv = self.vm_clone(vm_id)
+    self._log.log_d('_clone_vm_if_needed: creating snapshot')
+    self._runner.vm_snapshot_create(vmx_filename, snapshot_name)
+    self._log.log_d('_clone_vm_if_needed: cloning snapshot')
+    rv = self.vm_clone(vm_id, clone_name = clone_name, full = False,
+                       snapshot_name = snapshot_name, shutdown = True)
     dst_vm_id = self._vmx_filename_to_id(rv.dst_vmx_filename)
     assert dst_vm_id
-    self._log.log_d('clone worked: dst_mv_id={} dst_vmx_filename={}'.format(dst_vm_id, rv.dst_vmx_filename))
+    self._log.log_d('_clone_vm_if_needed: dst_mv_id={} dst_vmx_filename={}'.format(dst_vm_id, rv.dst_vmx_filename))
     return dst_vm_id, rv.dst_vmx_filename
   
   def vm_can_run_programs(self, vm_id, run_program_options):
@@ -240,7 +261,9 @@ class vmware(object):
     self._log.log_d('vm_run_package: vmx_filename={} dont_ensure={}'.format(vmx_filename,
                                                                             self._options.dont_ensure))
 
-    target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id, vmx_filename, self._options.clone_vm)
+    target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
+                                                                 vmx_filename,
+                                                                 self._options.clone_vm)
     assert target_vm_id
     assert path.isfile(target_vmx_filename)
     self._log.log_d('vm_run_package: target_vm_id={} target_vmx_filename={}'.format(target_vm_id,
@@ -363,7 +386,7 @@ class vmware(object):
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
     if not self._runner.vm_is_running(vmx_filename):
-      self._runner.vm_set_power_state(vmx_filename, 'start')
+      self._runner.vm_set_power_state(vmx_filename, 'start', gui = True)
     if wait:
       self.vm_wait_for_can_run_programs(vm_id, run_program_options)
   
@@ -523,7 +546,7 @@ class vmware(object):
                                                                      state,
                                                                      wait))
 
-    result = self._runner.vm_set_power_state(vmx_filename, state)
+    result = self._runner.vm_set_power_state(vmx_filename, state, gui = True)
     if wait and state in ( 'start', 'unpause' ):
       self.vm_wait_for_can_run_programs(vm_id, vmware_run_program_options())
     return result

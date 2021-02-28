@@ -491,7 +491,7 @@ class logger(object):
     args, _, _, values = inspect.getargvalues(caller_frame)
     args.pop(0)
     method_name = inspect.getframeinfo(caller_frame)[2]
-    args_strings = [ '{}={}'.format(key, values[key]) for key in args ]
+    args_strings = [ '{}={}'.format(key, str(values[key]).replace('\n', ' ')) for key in args ]
     msg = '{}: {}'.format(method_name, ' '.join(args_strings))
     self.log(level, msg, multi_line = True)
 

@@ -194,7 +194,7 @@ class vmware_vmrun(object):
       'full' if full else 'linked',
     ]
     if snapshot_name:
-      args.append('-snapshot="{}"'.format(snapshot_name))
+      args.append('-snapshot={}'.format(snapshot_name))
     if clone_name:
       args.append('-cloneName="{}"'.format(clone_name))
     return self.run(args, raise_error = True)
