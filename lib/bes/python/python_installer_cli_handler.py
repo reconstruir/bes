@@ -16,7 +16,9 @@ class python_installer_cli_handler(cli_command_handler):
     check.check_python_installer_options(self.options)
     bl = blurber(Script.name())
     bl.set_verbose(self.options.verbose)
-    self.installer = python_installer(self.options.installer_name, bl)
+    self.installer = python_installer(self.options.installer_name,
+                                      self.options.system,
+                                      bl)
 
   def installers(self, system):
     check.check_string(system, allow_none = True)

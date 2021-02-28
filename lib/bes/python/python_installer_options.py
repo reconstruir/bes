@@ -10,10 +10,12 @@ class python_installer_options(object):
     self.verbose = False
     self.blurber = blurber()
     self.installer_name = None
+    self.system = None
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_bool(self.verbose)
     check.check_blurber(self.blurber)
     check.check_string(self.installer_name, allow_none = True)
+    check.check_string(self.system, allow_none = True)
 
 check.register_class(python_installer_options)

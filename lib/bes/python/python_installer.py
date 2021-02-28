@@ -23,22 +23,27 @@ class python_installer(python_installer_base):
     host.MACOS: 'brew',
   }
   
-  def __init__(self, installer_name, blurber):
+  def __init__(self, installer_name, system, blurber):
     check.check_string(installer_name, allow_none = True)
-    
+    check.check_string(system, allow_none = True)
+
+    system = system or host.SYSTEM
+    host.check_system(system)
+
     super(python_installer, self).__init__(blurber)
+    
     if not installer_name:
-      default_installer_class_name = self._DEFAULT_INSTALLER_CLASS.get(host.SYSTEM, None)
+      default_installer_class_name = self._DEFAULT_INSTALLER_CLASS.get(system, None)
       if not default_installer_class_name:
-        raise python_error('No default python installer found for this system: {}'.format(host.SYSTEM))
+        raise python_error('No default python installer found for this system: {}'.format(system))
       installer_name = default_installer_class_name
     
-    system_installer_classes = self._INSTALLER_CLASSES.get(host.SYSTEM, None)
+    system_installer_classes = self._INSTALLER_CLASSES.get(system, None)
     if not system_installer_classes:
-      raise python_error('No python installer named "{}" found for this system: {}'.format(installer_name, host.SYSTEM))
+      raise python_error('No python installer named "{}" found for system: {}'.format(installer_name, system))
     installer_class = system_installer_classes.get(installer_name, None)
     if not installer_class:
-      raise python_error('No python installer named "{}" found for this system: {}'.format(installer_name, host.SYSTEM))
+      raise python_error('No python installer named "{}" found for system: {}'.format(installer_name, system))
     self.installer = installer_class(blurber)
 
   @classmethod

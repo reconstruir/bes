@@ -34,8 +34,6 @@ class python_installer_cli_args(object):
 
     # installers
     p = subparser.add_parser('installers', help = 'List all available installers.')
-    p.add_argument('--system', action = 'store', type = str,
-                   help = 'System to list installers for.  [ current system ]')
     self.__python_installer_add_common_args(p)
     
   def __python_installer_add_common_args(self, p):
@@ -44,6 +42,9 @@ class python_installer_cli_args(object):
     p.add_argument('--installer', action = 'store', default = None, type = str,
                    dest = 'installer_name',
                    help = 'The installer to use [ False ]')
+    p.add_argument('--system', action = 'store', default = None, type = str,
+                   choices = ( 'linux', 'macos', 'windows' ),
+                   help = 'The target system [ False ]')
     
   def _command_python_installer(self, command, *args, **kargs):
     from .python_installer_cli_handler import python_installer_cli_handler
