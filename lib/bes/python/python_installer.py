@@ -7,6 +7,7 @@ from .python_error import python_error
 from .python_installer_base import python_installer_base
 from .python_installer_macos_brew import python_installer_macos_brew
 from .python_installer_macos_python_dot_org import python_installer_macos_python_dot_org
+from .python_installer_windows_python_dot_org import python_installer_windows_python_dot_org
 
 class python_installer(python_installer_base):
 
@@ -16,6 +17,9 @@ class python_installer(python_installer_base):
       'brew': python_installer_macos_brew,
     },
     host.LINUX: {
+    },
+    host.WINDOWS: {
+      'python.org': python_installer_windows_python_dot_org,
     },
   }
 
@@ -73,5 +77,10 @@ class python_installer(python_installer_base):
   def uninstall(self, version_or_full_version):
     'Uninstall a python by version or full_version.'
     return self.installer.uninstall(version_or_full_version)
+
+  #@abstractmethod
+  def download(self, full_version):
+    'Download the major.minor.revision full version of python to a temporary file.'
+    return self.installer.download(full_version)
   
 check.register_class(python_installer, include_seq = False)

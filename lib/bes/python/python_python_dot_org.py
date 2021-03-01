@@ -6,6 +6,7 @@ import re
 from bes.common.check import check
 from bes.compat import url_compat
 from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
 from bes.url.url_util import url_util
 from bes.version.software_version import software_version
 from bes.text.text_line_parser import text_line_parser
@@ -43,7 +44,7 @@ class python_python_dot_org(object):
         result.extend(versions)
     return software_version.sort_versions(result)
 
-  _BASE_URL = 'https://www.python.org/ftp/python'
+  _BASE_URL = 'https://www.python.org/ftp/python/'
   @classmethod
   def macos_package_url(clazz, full_version):
     'Return the macos package url for a specific version of python.'
@@ -51,7 +52,7 @@ class python_python_dot_org(object):
 
     basename = 'python-{full_version}-macosx10.9.pkg'.format(full_version = full_version)
     fragment = '{full_version}/{basename}'.format(full_version = full_version, basename = basename)
-    return url_compat.urljoin(_BASE_URL, fragment)
+    return url_compat.urljoin(clazz._BASE_URL, fragment)
 
   @classmethod
   def windows_package_url(clazz, full_version):
@@ -60,18 +61,15 @@ class python_python_dot_org(object):
 
     basename = 'python-{full_version}-amd64.exe'.format(full_version = full_version)
     fragment = '{full_version}/{basename}'.format(full_version = full_version, basename = basename)
-    return url_compat.urljoin(_BASE_URL, fragment)
+    return url_compat.urljoin(clazz._BASE_URL, fragment)
 
   @classmethod
   def downlod_package_to_temp_file(clazz, url, debug = False):
+    tmp_dir = temp_file.make_temp_dir(suffix = '-python-download')
     basename = path.basename(url)
-    extension = file_util.extension(basename)
-    suffix = '.' + extension
-    tmp_pkg = url_util.download_to_temp_file(url,
-                                             basename = basename,
-                                             delete = not debug,
-                                             suffix = suffix)
-    return tmp_pkg
+    tmp_package = path.join(tmp_dir, basename)
+    url_util.download_to_file(url, tmp_package)
+    return tmp_package
   
   @classmethod
   def _download_available_index(clazz):

@@ -101,6 +101,13 @@ class python_installer_macos_python_dot_org(python_installer_base):
       raise python_error('Invalid python version: "{}"'.format(version_or_full_version))
     return result
 
+  #@abstractmethod
+  def download(self, full_version):
+    'Download the major.minor.revision full version of python to a temporary file.'
+    url = python_python_dot_org.macos_package_url(full_version)
+    tmp_pkg = python_python_dot_org.downlod_package_to_temp_file(url)
+    return tmp_pkg
+  
   def _uninstall_version(self, version):
     'Install the major.minor full version of python.'
     check.check_string(version)

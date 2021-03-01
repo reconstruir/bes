@@ -43,6 +43,11 @@ class python_installer_macos_brew(python_installer_base):
     brew.uninstall(version_or_full_version)
 
   #@abstractmethod
+  def download(self, full_version):
+    'Download the major.minor.revision full version of python to a temporary file.'
+    raise python_error('download not supported.')
+    
+  #@abstractmethod
   def _filter_python_packages(self, packages):
     'Filter a list of brew packages so it only contains python packages.'
     return sorted([ p for p in packages if p.startswith('python@') ])

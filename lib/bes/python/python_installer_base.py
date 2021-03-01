@@ -33,6 +33,11 @@ class python_installer_base(with_metaclass(ABCMeta, object)):
   def uninstall(self, full_version):
     'Uninstall the major.minor.revision full version of python.'
     raise NotImplemented('uninstall_full_version')
+
+  @abstractmethod
+  def download(self, full_version):
+    'Download the major.minor.revision full version of python to a temporary file.'
+    raise NotImplemented('download')
   
   def blurb(self, message, output = None, fit = False):
     'Print a blurb'
