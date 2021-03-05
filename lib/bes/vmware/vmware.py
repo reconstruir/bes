@@ -166,6 +166,54 @@ class vmware(object):
       self._runner.vm_delete(target_vmx_filename)
 
     return rv
+
+  def vm_run_script_file(self, vm_id, script_filename, script_args,
+                         run_program_options, interpreter_name = None):
+    check.check_string(vm_id)
+    check.check_string(script)
+    check.check_string_seq(script_args)
+    check.check_vmware_run_program_options(run_program_options)
+    check.check_string(interpreter_name, allow_none = True)
+    check.check_bool(script_is_file)
+
+    self._log.log_method_d()
+    vmware_app.ensure_running()
+
+    if script_is_file:
+      if not path.exists(script):
+        raise vmware_error('script file not found: "{}"'.format(script))
+      if not path.isfile(script):
+        raise vmware_error('script is not a file: "{}"'.format(script))
+      script_text = file_util.read(script, codec = 'utf8')
+    else:
+      script_text = script
+
+    vmx_filename = self._resolve_vmx_filename(vm_id)
+    local_vm = self.local_vms[vmx_filename]
+    system = local_vm.vmx.system
+    interpreter = self._command_interpreter_manager.resolve_interpreter(system, interpreter_name)
+    if not interpreter:
+      raise vmware_error('Failed to resolve interpreter for "{}": "{}"'.format(vm_id, interpreter))
+    self._log.log_d('vm_run_script: interpreter={}'.format(interpreter))
+    command = interpreter.build_command(script_text)
+    self._log.log_d('vm_run_script: command={}'.format(command))
+    target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
+                                                                 vmx_filename,
+                                                                 self._options.clone_vm)
+    if not self._options.dont_ensure or self._options.clone_vm:
+      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
+
+    rv = self._runner.vm_run_script(target_vmx_filename,
+                                    command.interpreter_path,
+                                    command.script_text,
+                                    run_program_options)
+
+    if self._options.clone_vm and not self._options.debug:
+      self._runner.vm_stop(target_vmx_filename)
+      vmware_app.ensure_stopped()
+      self._runner.vm_delete(target_vmx_filename)
+
+    return rv
   
   @classmethod
   def _tmp_nickname_part(clazz):
