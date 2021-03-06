@@ -58,7 +58,7 @@ remove remove1
     r = git_temp_repo(remote = True)
     self.assertEqual( [], r.find_all_files() )
     r.apply_config_text(config)
-    self.assertEqual( self.xp_file_list([
+    self.assertEqual( self.xp_path_list([
       'copy_of_something2.txt',
       'foo.txt',
       'scripts/go.sh',
