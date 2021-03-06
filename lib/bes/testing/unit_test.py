@@ -47,11 +47,16 @@ class unit_test(unittest.TestCase):
   def platform_data_dir(self): 
     return self.data_dir(platform_specific = True)
 
-  def data(self, filename, platform_specific = False):
+  def data(self, filename, platform_specific = False, codec = 'utf-8', xp_new_lines = False):
     data_path = self.data_path(filename, platform_specific = platform_specific)
     with open(data_path, 'rb') as fin:
-      return fin.read()
-
+      data = fin.read()
+      if codec:
+        data = data.decode(codec)
+      if xp_new_lines:
+        data = self.xp_new_lines(data)
+      return data
+    
   def assertEqualIgnoreWhiteSpace(self, s1, s2):
     'Assert s1 equals s2 ignoreing minor white space differences.'
     self.maxDiff = None
