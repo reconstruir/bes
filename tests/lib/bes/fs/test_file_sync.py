@@ -9,6 +9,7 @@ from bes.fs.file_sync import file_sync
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
+from bes.system.host import host
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_skip import skip_if
 
