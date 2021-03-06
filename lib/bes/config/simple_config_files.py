@@ -42,7 +42,7 @@ class simple_config_files(object):
   @classmethod
   def parse_search_path(clazz, search_path):
     if check.is_string(search_path):
-      result = search_path.split(':')
+      result = search_path.split(os.pathsep)
     elif check.is_string_seq(search_path):
       result = [ x for x in search_path ]
     else:

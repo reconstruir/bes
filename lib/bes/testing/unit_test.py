@@ -56,6 +56,29 @@ class unit_test(unittest.TestCase):
       if xp_new_lines:
         data = self.xp_new_lines(data)
       return data
+
+  def assert_string_equal(self, s1, s2, strip = False, multi_line = False,
+                          ignore_white_space = False, xp_new_lines = False):
+    'Assert s1 equals s2 with ioptional features.'
+    self.maxDiff = None
+    s1_save = s1
+    s2_save = s2
+    s1_to_compare = s1
+    s2_to_compare = s2
+    if strip:
+      s1 = s1.strip()
+      s2 = s2.strip()
+    if ignore_white_space:
+      s1 = re.sub(r'\s+', ' ', s1)
+      s2 = re.sub(r'\s+', ' ', s2)
+    if xp_new_lines:
+      s1 = self.xp_new_lines(s1)
+      s2 = self.xp_new_lines(s2)
+      s1_to_compare = self.xp_new_lines(s1_to_compare)
+      s2_to_compare = self.xp_new_lines(s2_to_compare)
+    if s1 == s2:
+      return
+    self.assertMultiLineEqual( s1_to_compare, s2_to_compare )
     
   def assertEqualIgnoreWhiteSpace(self, s1, s2):
     'Assert s1 equals s2 ignoreing minor white space differences.'
