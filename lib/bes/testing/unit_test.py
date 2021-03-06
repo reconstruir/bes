@@ -235,6 +235,13 @@ class unit_test(unittest.TestCase):
     return result
 
   @classmethod
+  def xp_path_list(clazz, l, pathsep = ':', sep = '/'):
+    if l == None:
+      return Noneb
+    assert isinstance(l, list)
+    return [ clazz.xp_path(n) for n in l ]
+  
+  @classmethod
   def xp_new_lines(clazz, s, ending = '\n'):
     result = s.replace('\n\r', ending)
     result = result.replace('\r\n', ending)
@@ -244,6 +251,7 @@ class unit_test(unittest.TestCase):
   def p(clazz, s, pathsep = ':', sep = '/'):
     return clazz.xp_path(s, pathsep = pathsep, sep = sep)
 
+  
   _DEFAULT_PREFIX = path.splitext(path.basename(sys.argv[0]))[0] + '-tmp-'
 
   @classmethod
