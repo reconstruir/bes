@@ -35,7 +35,7 @@ class git_exe(object):
     check.check_int(num_tries, allow_none = True)
     check.check_float(retry_wait_seconds, allow_none = True)
 
-    args = command_line.parse_args(args)
+    args = object_util.listify(args)
     
     num_tries = num_tries if num_tries != None else clazz._DEFAULT_NUM_TRIES
     retry_wait_seconds = retry_wait_seconds if retry_wait_seconds != None else clazz._DEFAULT_RETRY_WAIT_SECONDS
