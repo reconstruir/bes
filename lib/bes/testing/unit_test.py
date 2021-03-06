@@ -66,11 +66,23 @@ class unit_test(unittest.TestCase):
       return
     self.assertMultiLineEqual( s1, s2 )
 
-  def assert_string_equal_strip(self, s1, s2):
+  def assert_string_equal_strip(self, s1, s2, xp_new_lines = False):
     self.maxDiff = None
-    if s1.strip() == s2.strip():
+
+    s1_stripped = s1.strip()
+    s2_stripped = s2.strip()
+
+    if xp_new_lines:
+      s1_stripped = self.xp_new_lines(s1_stripped)
+      s2_stripped = self.xp_new_lines(s2_stripped)
+    
+    if s1_stripped == s2_stripped:
       return
-    self.assertMultiLineEqual( s1, s2 )
+    
+    if xp_new_lines:
+      self.assertMultiLineEqual( self.xp_new_lines(s1_stripped), self.xp_new_lines(s2_stripped) )
+    else:
+      self.assertMultiLineEqual( s1, s2 )
 
   def assert_dict_equal(self, d1, d2):
     self.assertMultiLineEqual( pprint.pformat(d1, indent = 2), pprint.pformat(d2, indent = 2) )
@@ -89,10 +101,13 @@ class unit_test(unittest.TestCase):
       self.assertEqual( expected, actual )
 
   def assert_text_file_equal(self, expected, filename, strip = True, codec = 'utf-8',
-                             preprocess_func = None):
+                             preprocess_func = None, xp_new_lines = False):
     self.maxDiff = None
     with open(filename, 'rb') as fin:
       actual = fin.read().decode(codec)
+      if xp_new_lines:
+        actual = self.xp_new_lines(actual)
+      
       if preprocess_func:
         actual = preprocess_func(actual)
         expected = preprocess_func(expected)

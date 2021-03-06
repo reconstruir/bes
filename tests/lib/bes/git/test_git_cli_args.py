@@ -30,7 +30,7 @@ tag 1.0.0 tag1 @commit1
     self.assert_string_equal_strip( '''\
 local: 1.0.0
 remote: 1.0.0
-''', rv.output )
+''', rv.output, xp_new_lines = True )
   
   @git_temp_home_func()
   def test_bump_tag_revision(self):
@@ -138,7 +138,7 @@ tag rel/1.0.2 tag3 @commit3
 rel/1.0.0
 rel/1.0.1
 rel/1.0.2
-''', tmp_output_file )
+''', tmp_output_file, xp_new_lines = True )
     
 if __name__ == '__main__':
   program_unit_test.main()
