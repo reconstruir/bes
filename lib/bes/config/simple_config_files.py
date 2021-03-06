@@ -11,6 +11,7 @@ from bes.dependency.dependency_resolver import dependency_resolver
 from bes.dependency.dependency_resolver import missing_dependency_error
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
+from bes.system.host import host
 from bes.system.log import logger
 
 from collections import namedtuple
@@ -209,9 +210,19 @@ class simple_config_files(object):
   def _parse_config(clazz, config):
     if not config:
       return None
-    i = config.rfind(':')
+    i = clazz._find_section_delimiter_index(config)
     if i < 0:
       return clazz._parsed_config(config, None, file_util.extension(config))
     filename = config[0:i]
     section = config[i+1:]
     return clazz._parsed_config(filename, section, file_util.extension(filename))
+
+  @classmethod
+  def _find_section_delimiter_index(clazz, config):
+    if host.is_windows():
+      _, filename = path.splitdrive(config)
+    else:
+      filename = config
+    if ':' not in filename:
+      return -1
+    return config.rfind(':')
