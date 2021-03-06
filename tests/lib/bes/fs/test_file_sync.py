@@ -4,12 +4,13 @@
 import os
 import os.path as path
 
-from bes.testing.unit_test import unit_test
 from bes.fs.file_find import file_find
 from bes.fs.file_sync import file_sync
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
+from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_skip import skip_if
 
 class test_file_find(unit_test):
 
@@ -105,6 +106,7 @@ class test_file_find(unit_test):
     ]
     self.assertEqual( expected, file_find.find(tmp_dst_dir, relative = True) )
 
+  @skip_if(not host.is_unix(), 'not unix')
   def test_file_sync_with_mode(self):
     tmp_src_dir = self._make_temp_content([
       'file foo.txt "foo.txt\n" 644',
@@ -115,6 +117,7 @@ class test_file_find(unit_test):
     self.assertEqual( 0o0755, file_util.mode(path.join(tmp_dst_dir, 'bar.sh')) )
     self.assertEqual( 0o0644, file_util.mode(path.join(tmp_dst_dir, 'foo.txt')) )
     
+  @skip_if(not host.is_unix(), 'not unix')
   def test_file_sync_with_mode_change(self):
     tmp_src_dir = self._make_temp_content([
       'file foo.txt "foo.txt\n" 644',
