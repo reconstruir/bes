@@ -187,7 +187,7 @@ class test_archive_util(unit_test):
       'fruits/pear.txt',
       'fruits/plum.txt',
       'fruits/strawberry.txt',
-    ], archive.members(tmp_archive) )
+    ], archiver.members(tmp_archive) )
 
   def test_combine_conflicts_different_content_with_check(self):
     a1 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
