@@ -58,12 +58,12 @@ remove remove1
     r = git_temp_repo(remote = True)
     self.assertEqual( [], r.find_all_files() )
     r.apply_config_text(config)
-    self.assertEqual( [
+    self.assertEqual( self.xp_file_list([
       'copy_of_something2.txt',
       'foo.txt',
       'scripts/go.sh',
       'subdir/bar.txt',
-    ], r.find_all_files() )
+    ]), r.find_all_files() )
 
     self.assertEqual( 'this is subdir/bar.txt', r.read_file('subdir/bar.txt') )
 
