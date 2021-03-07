@@ -34,7 +34,7 @@ class python_exe(object):
     if len(parts) != 2:
       raise python_error('not a valid python version for {}: "{}"'.format(exe, rv.stdout))
     if parts[0] != 'Python':
-      raise python_error('not a valid python version for {}: "{}"'.format(exe, rv.stdout))
+      raise python_error('not a valid python name for {}: "{}"'.format(exe, rv.stdout))
     return parts[1]
 
   @classmethod
