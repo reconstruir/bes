@@ -275,7 +275,7 @@ class unit_test(unittest.TestCase):
   @classmethod
   def xp_path_list(clazz, l, pathsep = ':', sep = '/'):
     if l == None:
-      return Noneb
+      return None
     assert isinstance(l, list)
     return [ clazz.xp_path(n) for n in l ]
   
