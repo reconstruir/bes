@@ -178,7 +178,7 @@ class test_archive_util(unit_test):
     tmp_archive = self.make_temp_file(suffix = '.zip')
     archive_util.combine([ a1, a2, a3 ], tmp_archive)
     self.assertEqual( [
-      self.xp_path('fruits/apple.txt'),
+      'fruits/apple.txt',
       'fruits/dragonfruit.txt',
       'fruits/durian.txt',
       'fruits/kiwi.txt',

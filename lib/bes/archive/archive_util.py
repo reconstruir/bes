@@ -5,20 +5,24 @@ import os.path as path
 
 from collections import namedtuple
 
-from bes.fs.temp_file import temp_file
-from bes.fs.file_util import file_util
-from bes.fs.file_match import file_match
-from bes.common.object_util import object_util
 from bes.common.dict_util import dict_util
-from bes.text.text_line_parser import text_line_parser
+from bes.common.object_util import object_util
+from bes.fs.file_match import file_match
+from bes.fs.file_path import file_path
+from bes.fs.file_util import file_util
+from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
+from bes.system.log import logger
 from bes.system.which import which
+from bes.text.text_line_parser import text_line_parser
 
 from .archiver import archiver
 
 class archive_util(object):
   'Archive util.'
 
+  _log = logger('archive_util')
+  
   @classmethod
   def remove_members(clazz, archive, members, debug = False):
     'Remove members from an archive and then recreate it.'
@@ -121,19 +125,24 @@ class archive_util(object):
     be raised.
     '''
     exclude = exclude or []
+    clazz._log.log_method_d()
     if check_content:
       dups = clazz.duplicate_members(archives, only_content_conficts = True)
+      clazz._log.log_d('combine: dups={}'.format(dups))
       if exclude:
         for next_exclude in exclude:
+          clazz._log.log_d('combine: checking next_exclude={} vs exclude={}'.format(next_exclude, exclude))
           if next_exclude in dups:
+            clazz._log.log_d('combine: {}'.format(next_exclude))
             del dups[next_exclude]
+      clazz._log.log_d('combine: dups={}'.format(dups))
       if dups:
         raise RuntimeError('Archives have duplicate members with different content\n{}.'.format(pprint.pformat(dups)))
 
     tmp_dir = temp_file.make_temp_dir()
     for archive in archives:
       archiver.extract_all(archive, tmp_dir)
-    archiver.create(dest_archive, tmp_dir, base_dir = base_dir, exclude = exclude)
+    archiver.create(dest_archive, tmp_dir, base_dir = base_dir, exclude = file_path.xp_path_list(exclude))
 
   @classmethod
   def match_members(clazz, archive, patterns):

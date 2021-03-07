@@ -173,7 +173,7 @@ class test_archiver(unit_test):
         'dir  baz     ""            700',
     ])
     tmp_archive = self.make_temp_file(suffix = '.zip')
-    archiver.create(tmp_archive, tmp_dir, exclude = [ 'd/e/bar.txt' ] )
+    archiver.create(tmp_archive, tmp_dir, exclude = [ self.xp_path('d/e/bar.txt') ] )
     self.assertEqual( [
       'a/b/c/foo.txt',
     ], archiver.members(tmp_archive) )
