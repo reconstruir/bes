@@ -7,6 +7,13 @@ from .host import host
 class which(object):
   'Find executables in the system just like unix which.'
 
+  if host.is_windows():
+    EXE_EXTENSIONS = ( 'bat', 'cmd', 'exe', 'ps1', 'py' )
+  elif host.is_unix():
+    EXE_EXTENSIONS = ( 'py', )
+  else:
+    host.raise_unsupported_system()
+    
   @classmethod
   def _is_executable(clazz, p):
     'Return True if the path is executable.'
@@ -40,21 +47,16 @@ class which(object):
   def _possible_program_names(clazz, program):
     'Return possible names for a program taking into account extensions'
     # If the program already has an extension then use just that
-    if program.rfind('.') >= 0:
+    ext = clazz._extension(program)
+    if ext in set(clazz.EXE_EXTENSIONS):
       return ( program, )
-    if host.is_windows():
-      return (
-        program,
-        program + '.exe',
-        program + '.bat',
-        program + '.cmd',
-        program + '.ps1',
-        program + '.py',
-      )
-    elif host.is_unix():
-      return (
-        program,
-        program + '.py',
-      )
-    else:
-      host.raise_unsupported_system()
+    return tuple([ program ] + [ program + os.extsep + ext for ext in clazz.EXE_EXTENSIONS ])
+
+  @classmethod
+  def _extension(clazz, filename):
+    'Return the extension for filename.'
+    _, ext = path.splitext(filename)
+    if ext == '':
+      return None
+    assert ext[0] == os.extsep
+    return ext[1:]
