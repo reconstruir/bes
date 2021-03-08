@@ -1,9 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path, tarfile
+import gzip
+import os.path as path
+import tarfile
 
 from bes.fs.tar_util import tar_util
-from bes.fs.file_mime import file_mime
 
 from .archive import archive
 from .archive_extension import archive_extension
@@ -18,10 +19,14 @@ class archive_tar(archive):
   #@abstractmethod
   def name(clazz, filename):
     'Name of this archive format.'
-    mime_type = file_mime.mime_type(filename)
-    if 'gzip' in mime_type.mime_type:
-      return 'tgz'
-    return 'tar'
+    if not tarfile.is_tarfile(filename):
+      return None
+    try:
+      with gzip.open(filename) as fin:
+        fin.read(1)
+        return 'tgz'
+    except IOError as ex:
+      return 'tar'
     
   @classmethod
   #@abstractmethod
