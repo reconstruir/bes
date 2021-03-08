@@ -12,6 +12,7 @@ from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
 from bes.git.git_operation_base import git_operation_base
 from bes.testing.unit_test import unit_test
+from bes.text.line_break import line_break
 
 class test_git_repo(unit_test):
 
@@ -134,6 +135,21 @@ class test_git_repo(unit_test):
     r4 = r1.make_temp_cloned_repo()
     self.assertEqual( 'this is foo 3', r4.read_file('foo.txt', codec = 'utf8') )
 
+  @staticmethod
+  def _worker_test_operation_with_reset_with_multiprocess_conflict(clazz, n, address):
+    worker_tmp_root = clazz.make_temp_dir(suffix = 'worker-{}'.format(n))
+    worker_repo = git_repo(worker_tmp_root, address = address)
+    worker_repo.clone_or_pull()
+    worker_repo.checkout('master')
+      
+    def _op(repo):
+      old_content = repo.read_file('foo.txt', codec = 'utf8')
+      new_content = '{}\nworker {}'.format(old_content, n)
+      fp = repo.file_path('foo.txt')
+      file_util.save(fp, content = new_content, codec = 'utf8', mode = 0o644)
+        
+    worker_repo.operation_with_reset(_op, 'from worker {}'.format(n))
+    
   @git_temp_home_func()
   def test_operation_with_reset_with_multiprocess_conflict(self):
     '''
@@ -148,25 +164,11 @@ class test_git_repo(unit_test):
     r1.commit('add foo.txt', [ 'foo.txt' ])
     r1.push('origin', 'master')
 
-    def worker(n):
-      worker_tmp_root = self.make_temp_dir(suffix = 'worker-{}'.format(n))
-      worker_repo = git_repo(worker_tmp_root, address = r1.address)
-      worker_repo.clone_or_pull()
-      worker_repo.checkout('master')
-      
-      def _op(repo):
-        old_content = repo.read_file('foo.txt', codec = 'utf8')
-        new_content = '{}\nworker {}'.format(old_content, n)
-        fp = repo.file_path('foo.txt')
-        file_util.save(fp, content = new_content, codec = 'utf8', mode = 0o644)
-        
-      worker_repo.operation_with_reset(_op, 'from worker {}'.format(n))
-
     num_jobs = 9
     
     jobs = []
     for i in range(num_jobs):
-      p = multiprocessing.Process(target = worker, args = (i, ))
+      p = multiprocessing.Process(target = self._worker_test_operation_with_reset_with_multiprocess_conflict, args = ( self.__class__, i, r1.address ))
       jobs.append(p)
       p.start()
 
@@ -185,7 +187,7 @@ class test_git_repo(unit_test):
       'worker 6',
       'worker 7',
       'worker 8',
-    ], sorted(r2.read_file('foo.txt', codec = 'utf8').split('\n')) )
+    ], sorted(r2.read_file('foo.txt', codec = 'utf8').split(line_break.DEFAULT_LINE_BREAK)) )
 
   @git_temp_home_func()
   def test_operation_with_reset_wrong_function_args(self):
