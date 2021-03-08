@@ -26,12 +26,11 @@ class execute(object):
     else:
       stderr_pipe = subprocess.STDOUT
 
-    # On windows run python scripts with python.exe
-    if host.is_windows():
-      if path.exists(parsed_args[0]) and python.is_python_script(parsed_args[0]):
-        python_exe = python.find_python_exe()
-        quoted_python_exe = '"{}"'.format(python_exe)
-        parsed_args.insert(0, quoted_python_exe)
+    # If the first argument is a python script, then run it with python always
+    if path.exists(parsed_args[0]) and python.is_python_script(parsed_args[0]):
+      python_exe = python.find_python_exe()
+      quoted_python_exe = '"{}"'.format(python_exe)
+      parsed_args.insert(0, quoted_python_exe)
       
     if shell:
       parsed_args = ' '.join(parsed_args)
