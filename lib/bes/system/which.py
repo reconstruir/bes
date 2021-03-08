@@ -2,6 +2,8 @@
 
 import os.path as path, os
 
+from .host import host
+
 class which(object):
   'Find executables in the system just like unix which.'
 
@@ -24,10 +26,35 @@ class which(object):
       if clazz._is_executable(program):
         return program
     else:
-      for p in os.environ['PATH'].split(os.pathsep):
-        exe_file = path.join(p, program)
-        if clazz._is_executable(exe_file):
-          return exe_file
+      possible_programs = clazz._possible_program_names(program)
+      for next_path in os.environ['PATH'].split(os.pathsep):
+        for possible_program in possible_programs:
+          exe_file = path.join(next_path, possible_program)
+          if clazz._is_executable(exe_file):
+            return exe_file
     if raise_error:
       raise RuntimeError('Executable for %s not found.  Fix your PATH.' % (program))
     return None
+
+  @classmethod
+  def _possible_program_names(clazz, program):
+    'Return possible names for a program taking into account extensions'
+    # If the program already has an extension then use just that
+    if program.rfind('.') >= 0:
+      return ( program, )
+    if host.is_windows():
+      return (
+        program,
+        program + '.exe',
+        program + '.bat',
+        program + '.cmd',
+        program + '.ps1',
+        program + '.py',
+      )
+    elif host.is_unix():
+      return (
+        program,
+        program + '.py',
+      )
+    else:
+      host.raise_unsupported_system()

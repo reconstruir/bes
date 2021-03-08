@@ -25,7 +25,7 @@ class test_which(unit_test):
       self.assertEqual( expected_path, which.which('fruit_kiwi_tool') )
 
   @skip_if(not host.is_windows(), 'not windows')
-  def test_which_unix(self):
+  def test_which_windows(self):
     'Test which() in unix.'
     tmp_dir = self.make_temp_dir()
     bin_dir = path.join(tmp_dir, 'bin')
