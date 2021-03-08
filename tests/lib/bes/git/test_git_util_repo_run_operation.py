@@ -11,6 +11,7 @@ from bes.git.git_repo_operation_options import git_repo_operation_options
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
 from bes.git.git_util import git_util
+from bes.text.line_break import line_break
 
 class test_git_util_repo_run_operation(unit_test):
   
@@ -38,6 +39,16 @@ class test_git_util_repo_run_operation(unit_test):
     r.pull()
     self.assertFalse( r.has_file('melon.txt') )
 
+  @staticmethod
+  def _worker_test_multiprocess_conflict(n, address):
+    def _op(repo):
+      old_content = repo.read_file('foo.txt', codec = 'utf8')
+      new_content = '{}\nworker {}'.format(old_content, n)
+      fp = repo.file_path('foo.txt')
+      file_util.save(fp, content = new_content, codec = 'utf8', mode = 0o644)
+        
+    git_util.repo_run_operation(address, _op, 'from worker {}'.format(n), options = None)
+    
   @git_temp_home_func()
   def test_multiprocess_conflict(self):
     '''
@@ -52,20 +63,11 @@ class test_git_util_repo_run_operation(unit_test):
     r1.commit('add foo.txt', [ 'foo.txt' ])
     r1.push('origin', 'master')
 
-    def worker(n):
-      def _op(repo):
-        old_content = repo.read_file('foo.txt', codec = 'utf8')
-        new_content = '{}\nworker {}'.format(old_content, n)
-        fp = repo.file_path('foo.txt')
-        file_util.save(fp, content = new_content, codec = 'utf8', mode = 0o644)
-        
-      git_util.repo_run_operation(r1.address, _op, 'from worker {}'.format(n), options = None)
-
     num_jobs = 9
     
     jobs = []
     for i in range(num_jobs):
-      p = multiprocessing.Process(target = worker, args = (i, ))
+      p = multiprocessing.Process(target = self._worker_test_multiprocess_conflict, args = (i, r1.address ))
       jobs.append(p)
       p.start()
 
@@ -84,7 +86,7 @@ class test_git_util_repo_run_operation(unit_test):
       'worker 6',
       'worker 7',
       'worker 8',
-    ], sorted(r2.read_file('foo.txt', codec = 'utf8').split('\n')) )
+    ], sorted(r2.read_file('foo.txt', codec = 'utf8').split(line_break.DEFAULT_LINE_BREAK)) )
     
 if __name__ == '__main__':
   unit_test.main()
