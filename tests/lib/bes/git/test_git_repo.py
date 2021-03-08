@@ -556,7 +556,7 @@ class test_git_repo(unit_test):
     r.submodule_add(sub_repo.address, 'mod')
     r.commit('add mod submodule', '.')
     r.push()
-    self.assertEqual( [ 'foo.txt', 'mod/subfoo.txt' ], r.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.xp_path('mod/subfoo.txt') ], r.find_all_files() )
 
     r2 = git_repo(self.make_temp_dir(), address = r.address)
     r2.clone()
@@ -564,7 +564,7 @@ class test_git_repo(unit_test):
                       r2.submodule_status_one('mod') )
     self.assertEqual( [ 'foo.txt' ], r2.find_all_files() )
     r2.submodule_init(submodule = 'mod')
-    self.assertEqual( [ 'foo.txt', 'mod/subfoo.txt' ], r2.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.xp_path('mod/subfoo.txt') ], r2.find_all_files() )
     self.assertEqual( ( 'mod', None, sub_repo.last_commit_hash(), sub_repo.last_commit_hash(short_hash = True), True, 'heads/master' ),
                       r2.submodule_status_one('mod') )
     
@@ -585,7 +585,7 @@ class test_git_repo(unit_test):
     r1.submodule_add(sub_repo.address, 'mod')
     r1.commit('add mod submodule', '.')
     r1.push()
-    self.assertEqual( [ 'foo.txt', 'mod/subfoo.txt' ], r1.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.xp_path('mod/subfoo.txt') ], r1.find_all_files() )
 
     rev2 = sub_repo.add_file('sub_kiwi.txt', 'this is sub_kiwi.txt', push = True)
     
@@ -707,15 +707,17 @@ class test_git_repo(unit_test):
 
     tmp_script_content = '''\
 from bes.git.git_repo import git_repo
-r = git_repo("{}", address = "{}")
+r = git_repo(r'{}', address = r'{}')
 r.atexit_reset(revision = 'HEAD')
 r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
 '''.format(r.root, r.address)
     
-    tmp_script = self.make_temp_file(content = tmp_script_content, perm = 0o0755)
+    tmp_script = self.make_temp_file(content = tmp_script_content,
+                                     suffix = '.py',
+                                     perm = 0o755)
 
-    cmd = [ sys.executable, tmp_script, r.root ]
-    execute.execute(cmd)
+    cmd = [ tmp_script, r.root ]
+    execute.execute(cmd, shell = True)
 
     self.assertFalse( r.has_changes() )
 
@@ -786,7 +788,7 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r1.submodule_add(sub_repo.address, 'mod')
     r1.commit('add mod submodule', '.')
     r1.push()
-    self.assertEqual( [ 'foo.txt', 'mod/sub_kiwi.txt', 'mod/subfoo.txt' ], r1.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.xp_path('mod/sub_kiwi.txt'), self.xp_path('mod/subfoo.txt') ], r1.find_all_files() )
     self.assertFalse( r1.has_changes(submodules = True) )
 
     rv = r1.submodule_update_revision('mod', rev1)
@@ -813,7 +815,7 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r1.submodule_add(sub_repo.address, 'mod')
     r1.commit('add mod submodule', '.')
     r1.push()
-    self.assertEqual( [ 'foo.txt', 'mod/sub_kiwi.txt', 'mod/subfoo.txt' ], r1.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.xp_path('mod/sub_kiwi.txt'), self.xp_path('mod/subfoo.txt') ], r1.find_all_files() )
     self.assertFalse( r1.has_changes() )
 
     r1.save_file('mod/untracked_junk.txt', content = 'this is untracked junk', add = False, commit = False)

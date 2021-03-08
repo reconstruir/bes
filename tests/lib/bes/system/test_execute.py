@@ -135,5 +135,40 @@ class test_execute(unit_test):
     rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
     self.assertEqual( 1, rv.exit_code )
 
-if __name__ == "__main__":
+  def test_python_script_success(self):
+    content = '''\
+import sys
+print('success:{}'.format(sys.argv[1]))
+raise SystemExit(0)
+'''
+    script = self.make_temp_file(content = content, perm = 0o0755, suffix = '.py')
+    cmd = [ script, 'foo' ]
+    rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
+    self.assertEqual( 0, rv.exit_code )
+    self.assertEqual( 'success:foo', rv.stdout.strip() )
+
+  def test_python_script_failure(self):
+    content = '''\
+import sys
+print('failure:{}'.format(sys.argv[1]))
+raise SystemExit(1)
+'''
+    script = self.make_temp_file(content = content, perm = 0o0755, suffix = '.py')
+    cmd = [ script, 'foo' ]
+    rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
+    self.assertEqual( 1, rv.exit_code )
+
+  def test_python_script_uppercase_extension(self):
+    content = '''\
+import sys
+print('success:{}'.format(sys.argv[1]))
+raise SystemExit(0)
+'''
+    script = self.make_temp_file(content = content, perm = 0o0755, suffix = '.PY')
+    cmd = [ script, 'foo' ]
+    rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
+    self.assertEqual( 0, rv.exit_code )
+    self.assertEqual( 'success:foo', rv.stdout.strip() )
+    
+if __name__ == '__main__':
   unit_test.main()
