@@ -65,12 +65,11 @@ remove remove1
       'subdir/bar.txt',
     ]), r.find_all_files() )
 
-    self.assertEqual( 'this is subdir/bar.txt', r.read_file('subdir/bar.txt') )
-
-    self.assertEqual( '''\
+    expected = '''\
 this is my content
 it can be multi line
-or not''', r.read_file('copy_of_something2.txt') )
+or not'''
+    self.assert_text_file_equal( expected, r.file_path('copy_of_something2.txt'), codec = 'utf-8', xp_new_lines = True )
     
 if __name__ == '__main__':
   unit_test.main()
