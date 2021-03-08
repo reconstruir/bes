@@ -67,6 +67,14 @@ class test_python_exe(unit_test):
     self.assertTrue( 'not a valid python name' in str(ctx.exception) )
 
   def _make_temp_fake_python(self, filename, name, version, mode = 0o0755):
+    if host.is_unix():
+      return self._make_temp_fake_python_unix(filename, name, version, mode = mode)
+    elif host.is_windows():
+      return self._make_temp_fake_python_windows(filename, name, version, mode = mode)
+    else:
+      host.raise_unsupported_system()
+
+  def _make_temp_fake_python_unix(self, filename, name, version, mode = 0o0755):
     tmp_dir = self.make_temp_dir()
     tmp_exe = path.join(tmp_dir, filename)
     content = '''\
@@ -76,6 +84,19 @@ exit 0
 '''.format(name = name, version = version)
     file_util.save(tmp_exe, content = content, mode = mode)
     return tmp_exe
-    
+
+  def _make_temp_fake_python_windows(self, filename, name, version, mode = 0o0755):
+    tmp_dir = self.make_temp_dir()
+    assert not filename.endswith('.bat')
+    filename = filename + '.bat'
+    tmp_exe = path.join(tmp_dir, filename)
+    content = '''\
+@echo off
+echo {name} {version}
+exit /b 0
+'''.format(name = name, version = version)
+    file_util.save(tmp_exe, content = content, mode = mode)
+    return tmp_exe
+  
 if __name__ == '__main__':
   unit_test.main()

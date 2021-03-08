@@ -215,6 +215,7 @@ raise SystemExit(0)
   @classmethod
   def _find_python_exes_in_PATH(clazz):
     'Return all the executables in PATH that match any patterns'
+    assert False
     patterns = [
       'python',
       'python2',
@@ -222,7 +223,10 @@ raise SystemExit(0)
       'python3',
       'python3.?',
     ]
-    return file_path.glob(os_env_var('PATH').path, patterns)
+    patterns_with_extensions = []
+    for pattern in patterns:
+      patterns_with_extensions.extend([ pattern + os.extsep + ext for ext in clazz.EXE_EXTENSIONS ])
+    return file_path.glob(os_env_var('PATH').path, patterns_with_extensions)
   
   @classmethod
   def _inode_map(clazz, exes):
