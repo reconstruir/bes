@@ -48,8 +48,8 @@ class python(object):
       return True
     try:
       with open(filename, 'r') as fin:
-        content = fin.read(1024)
-        return content.startswith('#!/') and 'python' in content
+        line = fin.readline()
+        return line.startswith('#!/') and 'python' in line
     except Exception as ex:
       pass
     return False
