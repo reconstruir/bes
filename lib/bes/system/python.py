@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import sys
 import os, subprocess
 from os import path
 
@@ -47,9 +48,8 @@ class python(object):
       return True
     try:
       with open(filename, 'r') as fin:
-        content = fin.read(32)
-        return content.startswith('#!/usr/bin/env python')
-        return result
+        content = fin.read(1024)
+        return content.startswith('#!/') and 'python' in content
     except Exception as ex:
       pass
     return False
