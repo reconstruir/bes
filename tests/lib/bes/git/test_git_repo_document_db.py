@@ -39,10 +39,12 @@ class test_git_repo_document_db(unit_test):
 
     # Now modify the file further and retrieve it again.
     db.update_document('testdoc.txt', lambda content: content + 'b\n', 'test commit message 2')
-    content = db.load_document('testdoc.txt')
-    self.assertEqual(content, 'a\nb\n')
+    expected = '''\
+a
+b
+'''
     repo.pull()
-    self.assertEqual('a\nb\n', repo.read_file('testdoc.txt'))
+    self.assert_string_equal( expected, db.load_document('testdoc.txt'), strip = True, xp_new_lines = True )
 
     # Try replacing everything.
     db.update_document('testdoc.txt', lambda content: 'foo', 'test commit message 3')
