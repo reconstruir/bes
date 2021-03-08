@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.testing.unit_test import unit_test
-from bes.fs.temp_file import temp_file
-from bes.git.git_temp_repo import git_temp_repo
-from bes.git.git_unit_test import git_temp_home_func
-from bes.git.git_repo_document_db import git_repo_document_db
-
 import multiprocessing
 
+from bes.fs.temp_file import temp_file
+from bes.git.git_repo_document_db import git_repo_document_db
+from bes.git.git_temp_repo import git_temp_repo
+from bes.git.git_unit_test import git_temp_home_func
+from bes.testing.unit_test import unit_test
+from bes.text.line_break import line_break
 
 class test_git_repo_document_db(unit_test):
 
@@ -81,9 +81,9 @@ class test_git_repo_document_db(unit_test):
     # check the results.
     repo.pull()
     contents = repo.read_file('retries.txt')
-    actual = sorted(contents.split('\n'))
-    expected = [str(n) for n in range(num_jobs)]
-    self.assert_string_equal( actual, expected, xp_new_lines = True)
+    actual = sorted(contents.split(line_break.DEFAULT_LINE_BREAK))
+    expected = [ str(n) for n in range(num_jobs) ]
+    self.assertEqual( actual, expected )
 
 if __name__ == '__main__':
   unit_test.main()
