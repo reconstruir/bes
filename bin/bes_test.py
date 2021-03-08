@@ -595,7 +595,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
                                env = env)
     communicate_args = {}
     if sys.version_info.major >= 3:
-      communicate_args['timeout'] = 60.0
+      communicate_args['timeout'] = 60.0 * 5
     output = process.communicate(**communicate_args)
     exit_code = process.wait()
     elapsed_time = time.time() - time_start
