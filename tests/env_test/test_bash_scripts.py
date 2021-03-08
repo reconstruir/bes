@@ -7,6 +7,7 @@ from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_skip import skip_if
 
 class test_bash_scripts(unit_test):
 
