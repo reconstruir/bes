@@ -4,6 +4,7 @@ import os.path as path
 from multiprocessing import Lock
 from abc import abstractmethod, ABCMeta
 from collections import namedtuple
+import sys
 
 from bes.system.compat import with_metaclass
 from bes.system.host import host
@@ -140,28 +141,21 @@ class file_cache(object):
   @classmethod
   def _make_info(clazz, item, cache_dir):
     name = item.name()
-    fragment_filename = clazz._make_fragement_filename(name)
-    clazz._log.log_d('file_cache:_make_info: cache_dir={} _FILES_DIR_NAME={} _CHECKSUMS_DIR_NAME={} fragment_filename={}'.format(cache_dir,
-                                                                                                                                 clazz._FILES_DIR_NAME,
-                                                                                                                                 clazz._CHECKSUMS_DIR_NAME,
-                                                                                                                                 fragment_filename))
-    cached_filename = path.join(cache_dir, clazz._FILES_DIR_NAME, fragment_filename)
-    checksum_filename = path.join(cache_dir, clazz._CHECKSUMS_DIR_NAME, fragment_filename)
+    fragment_hash = str(hash(name) % ((sys.maxsize + 1) * 2))
+
+    clazz._log.log_d('file_cache:_make_info: cache_dir={} _FILES_DIR_NAME={} _CHECKSUMS_DIR_NAME={} fragment_hash={}'.format(cache_dir,
+                                                                                                                             clazz._FILES_DIR_NAME,
+                                                                                                                             clazz._CHECKSUMS_DIR_NAME,
+                                                                                                                             fragment_hash))
+    cached_files_dir = path.join(cache_dir, clazz._FILES_DIR_NAME)
+    cached_checksums_dir = path.join(cache_dir, clazz._CHECKSUMS_DIR_NAME)
+    
+    cached_filename = path.join(cached_files_dir, fragment_hash)
+    checksum_filename = path.join(cached_checksums_dir, fragment_hash)
     clazz._log.log_d('file_cache:_make_info: cached_filename={} checksum_filename={}'.format(cached_filename,
                                                                                              checksum_filename))
     cached_checksum = clazz._cached_checksum(checksum_filename)
     return cache_info(cached_filename, checksum_filename, cached_checksum)
-
-  @classmethod
-  def _make_fragement_filename(clazz, name):
-    if host.is_unix():
-      assert name.startswith(path.sep)
-      return file_util.lstrip_sep(name)
-    elif host.is_windows():
-      drive, filename = path.splitdrive(name)
-      return path.join(drive.replace(':', ''), filename)
-    else:
-      raise RuntimeError('unsupported system: {}'.format(host.SYSTEM))
 
   @classmethod
   def _cached_checksum(clazz, checksum_filename):
