@@ -189,6 +189,8 @@ class file_util(object):
 
   @classmethod
   def copy(clazz, src, dst, use_hard_link = False):
+    if src == dst:
+      raise IOError('src and dst files are the same: "{}"'.format(src))
     dirname = path.dirname(dst)
     if dirname:
       clazz.mkdir(dirname)
