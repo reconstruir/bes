@@ -15,30 +15,29 @@ class execute(object):
   Result = namedtuple('Result', 'stdout, stderr, exit_code, command')
 
   @classmethod
-  def execute(clazz, command, raise_error = True, non_blocking = False, stderr_to_stdout = False,
+  def execute(clazz, args, raise_error = True, non_blocking = False, stderr_to_stdout = False,
               cwd = None, env = None, shell = False, input_data = None, universal_newlines = True,
               codec = None, print_failure = True, quote = False):
     'Execute a command'
-    args = clazz.parse_args(command, quote = quote)
+    parsed_args = command_line.parse_args(args, quote = quote)
     stdout_pipe = subprocess.PIPE
     if not stderr_to_stdout:
       stderr_pipe = subprocess.PIPE
     else:
       stderr_pipe = subprocess.STDOUT
 
-    # On windows run python scripts with python.exe
-    if host.SYSTEM == host.WINDOWS:
-      if path.exists(args[0]) and python.is_python_script(args[0]):
-        from bes.python.py_exe import py_exe
-        python_exe = py_exe.find_python_exe()
-        args.insert(0, python_exe)
+    # If the first argument is a python script, then run it with python always
+    if path.exists(parsed_args[0]) and python.is_python_script(parsed_args[0]):
+      python_exe = python.find_python_exe()
+      quoted_python_exe = '"{}"'.format(python_exe)
+      parsed_args.insert(0, quoted_python_exe)
       
     if shell:
-      args = ' '.join(args)
+      parsed_args = ' '.join(parsed_args)
       # FIXME: quoting ?
 
     try:
-      process = subprocess.Popen(args,
+      process = subprocess.Popen(parsed_args,
                                  stdout = stdout_pipe,
                                  stderr = stderr_pipe,
                                  shell = shell,
@@ -47,7 +46,7 @@ class execute(object):
                                  universal_newlines = universal_newlines)
     except OSError as ex:
       if print_failure:
-        message = 'failed: {} - {}'.format(str(args), str(ex))
+        message = 'failed: {} - {}'.format(str(parsed_args), str(ex))
         sys.stderr.write(message)
         sys.stderr.write('\n')
         sys.stderr.flush()
@@ -81,7 +80,7 @@ class execute(object):
       stdout = output[0]
       stderr = output[1]
 
-    rv = clazz.Result(stdout, stderr, exit_code, args)
+    rv = clazz.Result(stdout, stderr, exit_code, parsed_args)
     if raise_error:
       if rv.exit_code != 0:
         ex = RuntimeError(rv.stdout)

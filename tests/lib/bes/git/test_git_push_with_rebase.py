@@ -8,6 +8,7 @@ from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_repo import git_repo
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
+from bes.fs.temp_file import temp_file
 from bes.git.git_unit_test import git_temp_home_func
 
 from bes.testing.unit_test import unit_test
@@ -43,6 +44,16 @@ class test_git_push_with_rebase(unit_test):
     'watermelon',
   ]
 
+  @staticmethod
+  def _test_many_concurrent_worker(clazz, fruit, address):
+    tmp_dir = clazz.make_temp_dir()
+    content = clazz._make_content(fruit)
+    repo = git_repo(tmp_dir, address = address)
+    repo.clone_or_pull()
+    repo.add_file(fruit, content = fruit, commit = True)
+    repo.push_with_rebase(num_tries = 10, retry_wait_seconds = 0.250)
+    return 0
+  
   @git_temp_home_func()
   def test_many_concurrent(self):
     '''
@@ -55,18 +66,9 @@ class test_git_push_with_rebase(unit_test):
     r1.add_file('coconut', initial_content)
     r1.push('origin', 'master')
     
-    def worker(fruit):
-      tmp_dir = self.make_temp_dir()
-      content = self._make_content(fruit)
-      repo = git_repo(tmp_dir, address = r1.address)
-      repo.clone_or_pull()
-      repo.add_file(fruit, content = fruit, commit = True)
-      repo.push_with_rebase(num_tries = 10, retry_wait_seconds = 0.250)
-      return 0
-
     jobs = []
     for fruit in self._FRUITS:
-      p = multiprocessing.Process(target = worker, args = (fruit, ))
+      p = multiprocessing.Process(target = self._test_many_concurrent_worker, args = ( self.__class__, fruit, r1.address ))
       jobs.append(p)
       p.start()
 
@@ -89,8 +91,8 @@ class test_git_push_with_rebase(unit_test):
       'watermelon',
     ], r2.find_all_files() )
 
-  @classmethod
-  def _make_content(clazz, fruit):
+  @staticmethod
+  def _make_content(fruit):
     return 'fruit = {}\n'.format(fruit)
     
 if __name__ == '__main__':

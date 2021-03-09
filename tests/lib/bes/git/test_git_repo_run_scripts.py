@@ -220,7 +220,24 @@ exit 0
     'pineapple',
     'watermelon',
   ]
-    
+
+  @staticmethod
+  def _worker_test_push_conflict(fruit, address, xp_script):
+    options = git_repo_script_options(push = True, push_with_rebase = True)
+    scripts = [
+      git_util.script(xp_script, [ fruit ]),
+    ]
+    rv = git_util.repo_run_scripts(address, scripts, options = options)
+    print('rv: {}'.format(str(rv)))
+      
+    #tmp_dir = self.make_temp_dir()
+    #content = self._make_content(fruit)
+    #repo = git_repo(tmp_dir, address = r2.address)
+    #repo.clone_or_pull()
+    #repo.add_file(fruit, content = fruit, commit = True)
+    #repo.push_with_rebase(num_tries = 10, retry_wait_seconds = 0.250)
+    return 0
+  
   @git_temp_home_func()
   def test_push_conflict(self):
     r1 = git_temp_repo(debug = self.DEBUG)
@@ -248,26 +265,9 @@ exit 0
     r1.add_file(self.xp_path(xp_script), content, mode = 0o0755)
     r1.push('origin', 'master')
 
-    options = git_repo_script_options(push = True, push_with_rebase = True)
-    
-    def worker(fruit):
-      scripts = [
-        git_util.script(xp_script, [ fruit ]),
-      ]
-      rv = git_util.repo_run_scripts(r1.address, scripts, options = options)
-      print('rv: {}'.format(str(rv)))
-      
-      #tmp_dir = self.make_temp_dir()
-      #content = self._make_content(fruit)
-      #repo = git_repo(tmp_dir, address = r2.address)
-      #repo.clone_or_pull()
-      #repo.add_file(fruit, content = fruit, commit = True)
-      #repo.push_with_rebase(num_tries = 10, retry_wait_seconds = 0.250)
-      return 0
-
     jobs = []
     for fruit in self._FRUITS:
-      p = multiprocessing.Process(target = worker, args = ( fruit, ) )
+      p = multiprocessing.Process(target = self._worker_test_push_conflict, args = ( fruit, r1.address, xp_script ) )
       jobs.append(p)
       p.start()
 

@@ -13,6 +13,7 @@ from bes.fs.file_copy import file_copy
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.log import logger
+from bes.system.host import host
 from bes.version.software_version import software_version
 
 from .git_address_util import git_address_util
@@ -1003,7 +1004,10 @@ class git(git_lfs):
     rv = git_exe.call_git(start_dir, [ 'rev-parse', '--show-toplevel' ], raise_error = False)
     if rv.exit_code != 0:
       return None
-    return rv.stdout.strip()
+    result = rv.stdout.strip()
+    if host.SYSTEM == host.WINDOWS:
+      result = result.replace('/', os.sep)
+    return result
 
   @classmethod
   def commit_message(clazz, root_dir, revision):

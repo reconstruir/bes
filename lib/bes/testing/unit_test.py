@@ -47,11 +47,39 @@ class unit_test(unittest.TestCase):
   def platform_data_dir(self): 
     return self.data_dir(platform_specific = True)
 
-  def data(self, filename, platform_specific = False):
+  def data(self, filename, platform_specific = False, codec = 'utf-8', xp_new_lines = False):
     data_path = self.data_path(filename, platform_specific = platform_specific)
     with open(data_path, 'rb') as fin:
-      return fin.read()
+      data = fin.read()
+      if codec:
+        data = data.decode(codec)
+      if xp_new_lines:
+        data = self.xp_new_lines(data)
+      return data
 
+  def assert_string_equal(self, s1, s2, strip = False, multi_line = False,
+                          ignore_white_space = False, xp_new_lines = False):
+    'Assert s1 equals s2 with ioptional features.'
+    self.maxDiff = None
+    s1_save = s1
+    s2_save = s2
+    s1_to_compare = s1
+    s2_to_compare = s2
+    if strip:
+      s1 = s1.strip()
+      s2 = s2.strip()
+    if ignore_white_space:
+      s1 = re.sub(r'\s+', ' ', s1)
+      s2 = re.sub(r'\s+', ' ', s2)
+    if xp_new_lines:
+      s1 = self.xp_new_lines(s1)
+      s2 = self.xp_new_lines(s2)
+      s1_to_compare = self.xp_new_lines(s1_to_compare)
+      s2_to_compare = self.xp_new_lines(s2_to_compare)
+    if s1 == s2:
+      return
+    self.assertMultiLineEqual( s1_to_compare, s2_to_compare )
+    
   def assertEqualIgnoreWhiteSpace(self, s1, s2):
     'Assert s1 equals s2 ignoreing minor white space differences.'
     self.maxDiff = None
@@ -61,11 +89,23 @@ class unit_test(unittest.TestCase):
       return
     self.assertMultiLineEqual( s1, s2 )
 
-  def assert_string_equal_strip(self, s1, s2):
+  def assert_string_equal_strip(self, s1, s2, xp_new_lines = False):
     self.maxDiff = None
-    if s1.strip() == s2.strip():
+
+    s1_stripped = s1.strip()
+    s2_stripped = s2.strip()
+
+    if xp_new_lines:
+      s1_stripped = self.xp_new_lines(s1_stripped)
+      s2_stripped = self.xp_new_lines(s2_stripped)
+    
+    if s1_stripped == s2_stripped:
       return
-    self.assertMultiLineEqual( s1, s2 )
+    
+    if xp_new_lines:
+      self.assertMultiLineEqual( self.xp_new_lines(s1_stripped), self.xp_new_lines(s2_stripped) )
+    else:
+      self.assertMultiLineEqual( s1, s2 )
 
   def assert_dict_equal(self, d1, d2):
     self.assertMultiLineEqual( pprint.pformat(d1, indent = 2), pprint.pformat(d2, indent = 2) )
@@ -84,10 +124,13 @@ class unit_test(unittest.TestCase):
       self.assertEqual( expected, actual )
 
   def assert_text_file_equal(self, expected, filename, strip = True, codec = 'utf-8',
-                             preprocess_func = None):
+                             preprocess_func = None, xp_new_lines = False):
     self.maxDiff = None
     with open(filename, 'rb') as fin:
       actual = fin.read().decode(codec)
+      if xp_new_lines:
+        actual = self.xp_new_lines(actual)
+      
       if preprocess_func:
         actual = preprocess_func(actual)
         expected = preprocess_func(expected)
@@ -230,6 +273,13 @@ class unit_test(unittest.TestCase):
     return result
 
   @classmethod
+  def xp_path_list(clazz, l, pathsep = ':', sep = '/'):
+    if l == None:
+      return None
+    assert isinstance(l, list)
+    return [ clazz.xp_path(n) for n in l ]
+  
+  @classmethod
   def xp_new_lines(clazz, s, ending = '\n'):
     result = s.replace('\n\r', ending)
     result = result.replace('\r\n', ending)
@@ -239,6 +289,7 @@ class unit_test(unittest.TestCase):
   def p(clazz, s, pathsep = ':', sep = '/'):
     return clazz.xp_path(s, pathsep = pathsep, sep = sep)
 
+  
   _DEFAULT_PREFIX = path.splitext(path.basename(sys.argv[0]))[0] + '-tmp-'
 
   @classmethod

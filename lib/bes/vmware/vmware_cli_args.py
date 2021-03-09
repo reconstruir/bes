@@ -7,7 +7,7 @@ class vmware_cli_args(object):
 
   def vmware_add_args(self, subparser):
 
-    from vmware_options_cli_args import vmware_options_cli_args
+    from .vmware_options_cli_args import vmware_options_cli_args
     
     # vm_run_program
     p = subparser.add_parser('vm_run_program', help = 'Run a program in a vm.')

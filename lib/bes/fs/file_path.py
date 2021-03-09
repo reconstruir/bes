@@ -177,3 +177,17 @@ class file_path(object):
   def normalize_sep(clazz, p, sep = None):
     sep = sep or os.sep
     return path.normpath(sep.join(re.split(r'\\|/', p)))
+
+  @classmethod
+  def xp_path(clazz, s, pathsep = ':', sep = '/'):
+    result = s.replace(pathsep, os.pathsep)
+    result = result.replace(sep, os.sep)
+    return result
+
+  @classmethod
+  def xp_path_list(clazz, l, pathsep = ':', sep = '/'):
+    if l == None:
+      return None
+    assert isinstance(l, list)
+    return [ clazz.xp_path(n) for n in l ]
+  

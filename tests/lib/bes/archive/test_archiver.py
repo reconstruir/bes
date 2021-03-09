@@ -165,6 +165,18 @@ class test_archiver(unit_test):
       'new/new_file.txt',
     ], archiver.members(tmp_archive) )
     self.assertEqual( 'this is new_file.txt', archiver.extract_member_to_string(tmp_archive, 'new/new_file.txt', codec = 'utf8') )
+
+  def test_create_with_exclude(self):
+    tmp_dir = temp_content.write_items_to_temp_dir([
+        'file a/b/c/foo.txt "foo content" 755',
+        'file d/e/bar.txt "bar content" 644',
+        'dir  baz     ""            700',
+    ])
+    tmp_archive = self.make_temp_file(suffix = '.zip')
+    archiver.create(tmp_archive, tmp_dir, exclude = [ self.xp_path('d/e/bar.txt') ] )
+    self.assertEqual( [
+      'a/b/c/foo.txt',
+    ], archiver.members(tmp_archive) )
     
 if __name__ == '__main__':
   unit_test.main()

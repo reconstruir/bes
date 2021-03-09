@@ -31,17 +31,16 @@ class git_tag(namedtuple('git_tag', 'name, commit, commit_short, peeled')):
     check.check_string(s)
     check.check_string(sort_type)
     check.check_bool(reverse)
-    
     if sort_type not in clazz.SORT_TYPES:
       raise git_error('invalid sort_type: "{}"'.format(sort_type))
-    
     lines = text_line_parser.parse_lines(s,
                                          strip_comments = False,
                                          strip_text = True,
                                          remove_empties = True)
     if not lines:
       return []
-    tags = git_tag_list([ clazz._parse_show_ref_one_line(line) for line in lines ])
+    parsed_tags = [ clazz._parse_show_ref_one_line(line) for line in lines ]
+    tags = git_tag_list(parsed_tags)
     if sort_type == 'lexical':
       tags.sort_lexical(reverse = reverse)
     elif sort_type == 'version':
@@ -50,6 +49,7 @@ class git_tag(namedtuple('git_tag', 'name, commit, commit_short, peeled')):
 
   @classmethod
   def _parse_show_ref_one_line(clazz, s):
+    s = string_util.unquote(s)
     f = re.findall(r'^\s*([0-9a-f]{40})\s+refs/tags/(.+)\s*$', s)
     if not f:
       return None
