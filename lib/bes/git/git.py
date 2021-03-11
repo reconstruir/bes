@@ -10,10 +10,11 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_copy import file_copy
+from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
-from bes.system.log import logger
 from bes.system.host import host
+from bes.system.log import logger
 from bes.version.software_version import software_version
 
 from .git_address_util import git_address_util
@@ -875,6 +876,11 @@ class git(git_lfs):
     check.check_string(root)
     check.check_string(address)
     check.check_string(local_path)
+
+    # submodule urls that are local paths need to use unix like
+    # separators even on windows.
+    if path.exists(address):
+      address = address.replace('\\', '/') #file_path.xp_path(address, sep = '/')
     args = [ 'submodule', 'add', address, local_path ]
     git_exe.call_git(root, args)
 

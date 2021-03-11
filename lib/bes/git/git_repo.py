@@ -5,8 +5,8 @@ import os.path as path
 
 from bes.common.check import check
 from bes.common.object_util import object_util
-from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
 from bes.version.software_version import software_version
