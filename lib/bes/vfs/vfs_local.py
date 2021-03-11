@@ -5,16 +5,16 @@ from os import path
 
 from bes.common.check import check
 from bes.common.node import node
+from bes.factory.factory_field import factory_field
+from bes.fs.checksum import checksum
+from bes.fs.checksum_set import checksum_set
 from bes.fs.file_attributes import file_attributes
 from bes.fs.file_checksum_db import file_checksum_db
 from bes.fs.file_find import file_find
 from bes.fs.file_metadata import file_metadata
 from bes.fs.file_util import file_util
-from bes.fs.checksum import checksum
-from bes.fs.checksum_set import checksum_set
 from bes.key_value.key_value_list import key_value_list
 from bes.system.log import logger
-from bes.factory.factory_field import factory_field
 
 from .vfs_base import vfs_base
 from .vfs_error import vfs_error
@@ -71,7 +71,7 @@ class vfs_local(vfs_base):
     remote_dir = vfs_path_util.normalize(remote_dir)
     options = options or vfs_file_info_options()
     
-    result = node('/')
+    result = node(self.SEP)
     local_dir_path = self._make_local_dir_path(remote_dir)
     self.log.log_d('list_dir: remote_dir={} recursive={} local_dir_path={}'.format(remote_dir, recursive, local_dir_path))
     if not path.exists(local_dir_path):
@@ -81,14 +81,14 @@ class vfs_local(vfs_base):
       raise vfs_error('not a dir: {}'.format(remote_dir))
     
     max_depth = None if recursive else 1
-    setattr(result, '_remote_filename', '/')
+    setattr(result, '_remote_filename', self.SEP)
     setattr(result, '_local_filename', self._local_root_dir)
     setattr(result, '_is_file', False)
 
     num_added = 0
     for root, dirs, files in file_find.walk_with_depth(local_dir_path, max_depth = max_depth, follow_links = True):
       if root == local_dir_path:
-        rel = '/'
+        rel = os.sep
       else:
         rel = file_util.ensure_lsep(file_util.remove_head(root, local_dir_path))
       self.log.log_d('list_dir: next: root={} dirs={} files={} rel={}'.format(root, dirs, files, rel))
@@ -98,8 +98,13 @@ class vfs_local(vfs_base):
         continue
       for next_file_or_dir in sorted(files + dirs):
         if self._should_include_file(next_file_or_dir):
-          remote_filename = path.join(rel, next_file_or_dir)
-          assert remote_filename[0] == '/'
+          self.log.log_d('list_dir: rel={} next_file_or_dir={}'.format(rel, next_file_or_dir))
+          local_filename_rel = path.join(rel, next_file_or_dir)
+          remote_filename = local_filename_rel.replace(os.sep, self.SEP)
+          self.log.log_d('list_dir: local_filename_rel={} remote_filename={}'.format(local_filename_rel,
+                                                                                     remote_filename))
+          assert local_filename_rel[0] == os.sep
+          assert remote_filename[0] == self.SEP
           remote_filename = remote_filename[1:]
           local_filename = path.join(root, next_file_or_dir)
           parts = remote_filename.split('/')
@@ -222,7 +227,7 @@ class vfs_local(vfs_base):
 
   def _make_local_dir_path(self, remote_dir):
     'Make a local dir path.'
-    if remote_dir == '/':
+    if remote_dir == self.SEP:
       return self._local_root_dir
     else:
       return file_util.rstrip_sep(path.join(self._local_root_dir, file_util.lstrip_sep(remote_dir)))

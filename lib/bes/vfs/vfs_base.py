@@ -18,6 +18,9 @@ class fs_register_meta(ABCMeta):
 class vfs_base(with_metaclass(fs_register_meta, object)):
   'Abstract class to manipulate a filesystem.'
 
+  # vfs path separators are unix style for the same reason urls are
+  SEP = '/'
+  
   @classmethod
   @abstractmethod
   def creation_fields(clazz):
