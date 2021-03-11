@@ -231,8 +231,12 @@ class config(object):
   def _make_parser_from_text(clazz, text):
     parser = clazz.Parser()
     stream = StringIO(text)
+    clazz.read_stream(parser, stream)
+    return parser
+
+  @classmethod
+  def read_stream(clazz, parser, stream):
     if compat.IS_PYTHON3:
       parser.read_file(stream)
     else:
       parser.readfp(stream)
-    return parser
