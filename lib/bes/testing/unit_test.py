@@ -78,7 +78,10 @@ class unit_test(unittest.TestCase):
       s2_to_compare = self.xp_new_lines(s2_to_compare)
     if s1 == s2:
       return
-    self.assertMultiLineEqual( s1_to_compare, s2_to_compare )
+    if multi_line:
+      self.assertMultiLineEqual( s1_to_compare, s2_to_compare )
+    else:
+      self.assertEqual( s1_to_compare, s2_to_compare )
     
   def assertEqualIgnoreWhiteSpace(self, s1, s2):
     'Assert s1 equals s2 ignoreing minor white space differences.'
@@ -124,20 +127,17 @@ class unit_test(unittest.TestCase):
       self.assertEqual( expected, actual )
 
   def assert_text_file_equal(self, expected, filename, strip = True, codec = 'utf-8',
-                             preprocess_func = None, xp_new_lines = False):
+                             preprocess_func = None, ignore_white_space = False, xp_new_lines = False):
     self.maxDiff = None
     with open(filename, 'rb') as fin:
       actual = fin.read().decode(codec)
-      if xp_new_lines:
-        actual = self.xp_new_lines(actual)
-      
       if preprocess_func:
         actual = preprocess_func(actual)
         expected = preprocess_func(expected)
-      if strip:
-        actual = actual.strip()
-        expected = expected.strip()
-      self.assertMultiLineEqual( expected, actual )
+      self.assert_string_equal(expected, actual,
+                               strip = strip,
+                               ignore_white_space = ignore_white_space,
+                               xp_new_lines = xp_new_lines)
 
   def assert_json_file_equal(self, expected, filename):
     self.assert_text_file_equal(expected, filename,
