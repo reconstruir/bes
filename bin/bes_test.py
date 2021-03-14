@@ -625,7 +625,10 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
 
 def _fix_output(output):
   'For some reason python3 unit tests print the output as bytes.  Fix it'
-  marker = r'''b'Traceback'''
+  if host.is_windows():
+    marker = "\r\nb'"
+  else:
+    marker = "\nb'"
   i = output.find(marker)
   if i < 0:
     return output
