@@ -21,8 +21,13 @@ class line_break(object):
   ]
 
   LINE_BREAKS_SET = set(LINE_BREAKS)
-  
-  DEFAULT_LINE_BREAK = '\n' if host.is_unix() else '\r\n'
+
+  if host.is_unix():
+    DEFAULT_LINE_BREAK = '\n'
+    DEFAULT_LINE_BREAK_RAW = r'\n'
+  else:
+    DEFAULT_LINE_BREAK = '\r\n'
+    DEFAULT_LINE_BREAK_RAW = r'\r\n'
 
   @classmethod
   def is_line_break(clazz, c):
