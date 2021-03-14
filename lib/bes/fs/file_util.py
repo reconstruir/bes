@@ -9,10 +9,10 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.system.compat import compat
 from bes.system.log import log
-from bes.system.host import host
 
 from bes.system.env_var import os_env_var
 from bes.system.which import which
+from bes.system.filesystem import filesystem
 
 class file_util(object):
 
@@ -333,12 +333,7 @@ class file_util(object):
   @classmethod
   def sync(clazz):
     'Call unix sync()'
-    if not host.is_unix():
-      return
-    if compat.IS_PYTHON3:
-      os.sync()
-    else:
-      subprocess.call([ 'sync' ])
+    filesystem.sync()
 
   @classmethod
   @contextlib.contextmanager
