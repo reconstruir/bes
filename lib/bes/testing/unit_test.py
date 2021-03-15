@@ -309,14 +309,15 @@ class unit_test(unittest.TestCase):
 
   _XP_PATHSEP = ':'
   @classmethod
-  def _xp_pathsep(clazz, p, pathsep = None):
+  def xp_path(clazz, p, pathsep = None):
     pathsep = pathsep or clazz._XP_PATHSEP
-    result = p.replace(os.pathsep, pathsep)
+    result = p.replace(':', pathsep)
+    result = result.replace(';', pathsep)
     return result
 
   @classmethod
-  def native_pathsep(clazz, p):
-    return clazz.xp_pathsep(p, pathsep = os.pathsep)
+  def native_path(clazz, p):
+    return clazz.xp_path(p, pathsep = os.pathsep)
   
   if _HOST == 'windows':
     _NATIVE_LINE_BREAK = '\r\n'

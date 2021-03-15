@@ -56,7 +56,7 @@ class test_os_env_var(unit_test):
 
   def test_get_environ_path(self):
     test_name = self.__test_name()
-    os.environ[test_name] = self.native_filename('FOO:BAR')
+    os.environ[test_name] = self.native_path('FOO:BAR')
     self.assertEqual( [ 'FOO', 'BAR' ], os_env_var(test_name).path )
 
   def test_set_path_with_cleanup(self):
@@ -100,14 +100,14 @@ class test_os_env_var(unit_test):
     self.assertEqual( [ 'foo', 'bar' ], os_env_var.path_cleanup([ 'foo', '', 'bar' ]) )
 
   def test_path_split(self):
-    self.assertEqual( [ 'foo', 'bar' ], os_env_var.path_split(self.native_filename('foo:bar')) )
-    self.assertEqual( [ 'foo', 'bar', 'bar' ], os_env_var.path_split(self.native_filename('foo:bar:bar')) )
-    self.assertEqual( [ 'foo', 'bar', 'foo' ], os_env_var.path_split(self.native_filename('foo:bar:foo')) )
+    self.assertEqual( [ 'foo', 'bar' ], os_env_var.path_split(self.native_path('foo:bar')) )
+    self.assertEqual( [ 'foo', 'bar', 'bar' ], os_env_var.path_split(self.native_path('foo:bar:bar')) )
+    self.assertEqual( [ 'foo', 'bar', 'foo' ], os_env_var.path_split(self.native_path('foo:bar:foo')) )
 
   def test_path_join(self):
-    self.assertEqual( self.native_filename('foo:bar'), os_env_var.path_join([ 'foo', 'bar' ]) )
-    self.assertEqual( self.native_filename('foo:bar:foo'), os_env_var.path_join([ 'foo', 'bar', 'foo' ]) )
-    self.assertEqual( self.native_filename('foo:bar:bar'), os_env_var.path_join([ 'foo', 'bar', 'bar' ]) )
+    self.assertEqual( self.native_path('foo:bar'), os_env_var.path_join([ 'foo', 'bar' ]) )
+    self.assertEqual( self.native_path('foo:bar:foo'), os_env_var.path_join([ 'foo', 'bar', 'foo' ]) )
+    self.assertEqual( self.native_path('foo:bar:bar'), os_env_var.path_join([ 'foo', 'bar', 'bar' ]) )
 
 if __name__ == "__main__":
   unit_test.main()
