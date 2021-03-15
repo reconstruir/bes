@@ -40,9 +40,8 @@ class unit_test(unittest.TestCase):
       parts.append(self._HOST)
     result = path.join(*parts)
     if where:
-      return path.join(result, where)
-    else:
-      return result
+      result = path.join(result, where)
+    return self.native_filename(result)
 
   def platform_data_dir(self): 
     return self.data_dir(platform_specific = True)
