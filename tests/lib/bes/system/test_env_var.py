@@ -10,7 +10,7 @@ class test_env_var(unit_test):
     d = {
       'FOO': '666',
       'BAR': 'hello',
-      'PATH': self.native_filename('foo:bar:baz'),
+      'PATH': self.native_path('foo:bar:baz'),
     }
     self.assertEqual( '666', env_var(d, 'FOO').value )
     self.assertEqual( [ '666' ], env_var(d, 'FOO').path )
@@ -21,35 +21,35 @@ class test_env_var(unit_test):
 
   def test_path(self):
     d = {
-      'PATH': self.native_filename('foo:bar:baz'),
+      'PATH': self.native_path('foo:bar:baz'),
     }
-    self.assertEqual( self.native_filename('foo:bar:baz'), self.native_filename(env_var(d, 'PATH').value) )
+    self.assertEqual( self.native_path('foo:bar:baz'), self.native_path(env_var(d, 'PATH').value) )
     self.assertEqual( [ 'foo', 'bar', 'baz' ], env_var(d, 'PATH').path )
 
   def test_path_duplicates(self):
     d = {
-      'PATH': self.native_filename('foo:bar:baz:foo'),
+      'PATH': self.native_path('foo:bar:baz:foo'),
     }
-    self.assertEqual( self.native_filename('foo:bar:baz:foo'), env_var(d, 'PATH').value )
+    self.assertEqual( self.native_path('foo:bar:baz:foo'), env_var(d, 'PATH').value )
     self.assertEqual( [ 'foo', 'bar', 'baz' ], env_var(d, 'PATH').path )
 
   def test_path_append(self):
     d = {
-      'PATH': self.native_filename('foo:bar:baz'),
+      'PATH': self.native_path('foo:bar:baz'),
     }
     env_var(d, 'PATH').append('apple')
     self.assertEqual( [ 'foo', 'bar', 'baz', 'apple' ], env_var(d, 'PATH').path )
 
   def test_path_prepend(self):
     d = {
-      'PATH': self.native_filename('foo:bar:baz'),
+      'PATH': self.native_path('foo:bar:baz'),
     }
     env_var(d, 'PATH').prepend('apple')
     self.assertEqual( [ 'apple', 'foo', 'bar', 'baz' ], env_var(d, 'PATH').path )
 
   def test_path_remove(self):
     d = {
-      'PATH': self.native_filename('foo:bar:baz'),
+      'PATH': self.native_path('foo:bar:baz'),
     }
     env_var(d, 'PATH').remove('bar')
     self.assertEqual( [ 'foo', 'baz' ], env_var(d, 'PATH').path )
