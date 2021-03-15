@@ -18,14 +18,14 @@ class test_git_repo_run_scripts(unit_test):
   def test_one_script(self):
     r = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
-      script = self.xp_path('fruits/kiwi.bat')
+      script = self.native_filename('fruits/kiwi.bat')
       content = '''\
 @echo off
 echo {} %*
 exit 0
 '''.format(script)
     elif host.is_unix():
-      script = self.xp_path('fruits/kiwi.sh')
+      script = self.native_filename('fruits/kiwi.sh')
       content = '''\
 #!/bin/bash
 echo {} ${{1+"$@"}}
@@ -33,8 +33,8 @@ exit 0
 '''.format(script)
     else:
       assert False
-    xp_script = self.xp_path(script)
-    r.add_file(self.xp_path(xp_script), content, mode = 0o0755)
+    xp_script = self.native_filename(script)
+    r.add_file(self.native_filename(xp_script), content, mode = 0o0755)
     r.push('origin', 'master')
     r.tag('1.0.0')
     r.push_tag('1.0.0')
@@ -49,14 +49,14 @@ exit 0
   def test_one_script_with_dry_run(self):
     r = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
-      script = self.xp_path('fruits/kiwi.bat')
+      script = self.native_filename('fruits/kiwi.bat')
       content = '''\
 @echo off
 echo {} %*
 exit 0
 '''.format(script)
     elif host.is_unix():
-      script = self.xp_path('fruits/kiwi.sh')
+      script = self.native_filename('fruits/kiwi.sh')
       content = '''\
 #!/bin/bash
 echo {} ${{1+"$@"}}
@@ -64,8 +64,8 @@ exit 0
 '''.format(script)
     else:
       assert False
-    xp_script = self.xp_path(script)
-    r.add_file(self.xp_path(xp_script), content, mode = 0o0755)
+    xp_script = self.native_filename(script)
+    r.add_file(self.native_filename(xp_script), content, mode = 0o0755)
     r.push('origin', 'master')
     r.tag('1.0.0')
     r.push_tag('1.0.0')
@@ -80,7 +80,7 @@ exit 0
   def test_one_script_with_push(self):
     r1 = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
-      script = self.xp_path('fruits/kiwi.bat')
+      script = self.native_filename('fruits/kiwi.bat')
       content = '''\
 @echo off
 echo yellow > color.txt
@@ -89,7 +89,7 @@ git commit -madd color.txt
 exit 0
 '''
     elif host.is_unix():
-      script = self.xp_path('fruits/kiwi.sh')
+      script = self.native_filename('fruits/kiwi.sh')
       content = '''\
 #!/bin/bash
 echo yellow > color.txt
@@ -99,7 +99,7 @@ exit 0
 '''
     else:
       assert False
-    xp_script = self.xp_path(script)
+    xp_script = self.native_filename(script)
     r1.add_file(xp_script, content, mode = 0o0755)
     r1.push('origin', 'master')
     r1.tag('1.0.0')
@@ -118,8 +118,8 @@ exit 0
   def test_many_scripts_with_push(self):
     r1 = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
-      script1 = self.xp_path('scripts/script1.bat')
-      script2 = self.xp_path('scripts/script2.bat')
+      script1 = self.native_filename('scripts/script1.bat')
+      script2 = self.native_filename('scripts/script2.bat')
       content1 = '''\
 @echo off
 echo %1% > color.txt
@@ -135,8 +135,8 @@ git commit -madd fruit.txt
 exit 0
 '''
     elif host.is_unix():
-      script1 = self.xp_path('scripts/script1.sh')
-      script2 = self.xp_path('scripts/script2.sh')
+      script1 = self.native_filename('scripts/script1.sh')
+      script2 = self.native_filename('scripts/script2.sh')
       content1 = '''\
 #!/bin/bash
 echo ${1} > color.txt
@@ -186,7 +186,7 @@ exit 0
 '''.format(script)
     else:
       assert False
-    xp_script = self.xp_path(script)
+    xp_script = self.native_filename(script)
     r1.add_file(xp_script, content, mode = 0o0755)
     r1.push('origin', 'master')
     r1.tag('1.0.0')
@@ -242,7 +242,7 @@ exit 0
   def test_push_conflict(self):
     r1 = git_temp_repo(debug = self.DEBUG)
     if host.is_windows():
-      script = self.xp_path('fruits/kiwi.bat')
+      script = self.native_filename('fruits/kiwi.bat')
       content = '''\
 @echo off
 echo %1 > %1
@@ -251,7 +251,7 @@ git commit -m"add %1" %1
 exit 0
 '''
     elif host.is_unix():
-      script = self.xp_path('fruits/kiwi.sh')
+      script = self.native_filename('fruits/kiwi.sh')
       content = '''\
 #!/bin/bash
 echo ${1} > ${1}
@@ -261,8 +261,8 @@ exit 0
 '''
     else:
       assert False
-    xp_script = self.xp_path(script)
-    r1.add_file(self.xp_path(xp_script), content, mode = 0o0755)
+    xp_script = self.native_filename(script)
+    r1.add_file(self.native_filename(xp_script), content, mode = 0o0755)
     r1.push('origin', 'master')
 
     jobs = []

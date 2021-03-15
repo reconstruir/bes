@@ -91,7 +91,7 @@ class test_log(unit_test):
 (foo.CRITICAL)  critical
 '''
 
-    self.assert_string_equal( expected, rv.output, xp_new_lines = True )
+    self.assert_string_equal( expected, rv.output, native_line_breaks = True )
 
     rv = self.run_test('foo=debug', self._test_log_func_stdout)
     expected = '''\
@@ -101,14 +101,14 @@ class test_log(unit_test):
 (foo.INFO)  info
 (foo.WARNING)  warning
 '''
-    self.assert_string_equal( expected, rv.output, xp_new_lines = True )
+    self.assert_string_equal( expected, rv.output, native_line_breaks = True )
     
     rv = self.run_test('foo=error', self._test_log_func_stdout)
     expected = '''\
 (foo.CRITICAL)  critical
 (foo.ERROR)  error
 '''
-    self.assert_string_equal( expected, rv.output, xp_new_lines = True )
+    self.assert_string_equal( expected, rv.output, native_line_breaks = True )
 
     rv = self.run_test('foo=debug', self._test_log_func_stdout)
     expected = '''\
@@ -118,7 +118,7 @@ class test_log(unit_test):
 (foo.INFO)  info
 (foo.WARNING)  warning
 '''
-    self.assert_string_equal( expected, rv.output, xp_new_lines = True )
+    self.assert_string_equal( expected, rv.output, native_line_breaks = True )
 
   @staticmethod
   def _test_log_func_stdout_and_output_filename(args):
@@ -138,8 +138,8 @@ class test_log(unit_test):
     expected = '''\
 (foo.CRITICAL)  critical
 '''
-    self.assert_string_equal( expected, rv.output, xp_new_lines = True )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', xp_new_lines = True)
+    self.assert_string_equal( expected, rv.output, native_line_breaks = True )
+    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
 
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=debug', self._test_log_func_stdout_and_output_filename, function_args = [ outer_tmp_log ])
@@ -150,8 +150,8 @@ class test_log(unit_test):
 (foo.INFO)  info
 (foo.WARNING)  warning
 '''
-    self.assert_string_equal( expected, rv.output, xp_new_lines = True )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', xp_new_lines = True)
+    self.assert_string_equal( expected, rv.output, native_line_breaks = True )
+    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
     
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=error', self._test_log_func_stdout_and_output_filename, function_args = [ outer_tmp_log ])
@@ -159,8 +159,8 @@ class test_log(unit_test):
 (foo.CRITICAL)  critical
 (foo.ERROR)  error
 '''
-    self.assert_string_equal( expected, rv.output, xp_new_lines = True )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', xp_new_lines = True)
+    self.assert_string_equal( expected, rv.output, native_line_breaks = True )
+    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
 
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=debug', self._test_log_func_stdout_and_output_filename, function_args = [ outer_tmp_log ])
@@ -171,8 +171,8 @@ class test_log(unit_test):
 (foo.INFO)  info
 (foo.WARNING)  warning
 '''
-    self.assert_string_equal( expected, rv.output, xp_new_lines = True )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', xp_new_lines = True)
+    self.assert_string_equal( expected, rv.output, native_line_breaks = True )
+    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
 
   @staticmethod
   def _test_log_func_output_filename(args):
@@ -195,7 +195,7 @@ class test_log(unit_test):
 (foo.CRITICAL)  critical
 '''
     self.assertEqual( '', rv.output )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', xp_new_lines = True)
+    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
 
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=debug', self._test_log_func_output_filename, function_args = [ outer_tmp_log ])
@@ -207,7 +207,7 @@ class test_log(unit_test):
 (foo.WARNING)  warning
 '''
     self.assertEqual( '', rv.output )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', xp_new_lines = True)
+    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
     
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=error', self._test_log_func_output_filename, function_args = [ outer_tmp_log ])
@@ -216,7 +216,7 @@ class test_log(unit_test):
 (foo.ERROR)  error
 '''
     self.assertEqual( '', rv.output )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', xp_new_lines = True)
+    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
 
     outer_tmp_log = self.make_temp_file(suffix = '.log')
     rv = self.run_test('foo=debug', self._test_log_func_output_filename, function_args = [ outer_tmp_log ])
@@ -228,7 +228,7 @@ class test_log(unit_test):
 (foo.WARNING)  warning
 '''
     self.assertEqual( '', rv.output )
-    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', xp_new_lines = True)
+    self.assert_text_file_equal( expected, outer_tmp_log, codec = 'utf-8', native_line_breaks = True)
 
   #FIXME: broken
   def xtest_all(self):
@@ -250,7 +250,7 @@ class test_log(unit_test):
 (foo.INFO)  info
 (foo.WARNING)  warning
 '''
-    self.assert_string_equal( expected, rv.output, xp_new_lines = True )
+    self.assert_string_equal( expected, rv.output, native_line_breaks = True )
 
   @staticmethod
   def _test_log_func_add_logging(args):
@@ -275,7 +275,7 @@ class test_log(unit_test):
     expected = '''\
 (foo.CRITICAL)  critical
 '''
-    self.assert_string_equal( expected, rv.output, xp_new_lines = True )
+    self.assert_string_equal( expected, rv.output, native_line_breaks = True )
 
     rv = self.run_test('foo=debug', self._test_log_func_add_logging)
     expected = '''\
@@ -285,14 +285,14 @@ class test_log(unit_test):
 (foo.INFO)  info
 (foo.WARNING)  warning
 '''
-    self.assert_string_equal( expected, rv.output, xp_new_lines = True )
+    self.assert_string_equal( expected, rv.output, native_line_breaks = True )
     
     rv = self.run_test('foo=error', self._test_log_func_add_logging)
     expected = '''\
 (foo.CRITICAL)  critical
 (foo.ERROR)  error
 '''
-    self.assert_string_equal( expected, rv.output, xp_new_lines = True )
+    self.assert_string_equal( expected, rv.output, native_line_breaks = True )
 
     rv = self.run_test('foo=debug', self._test_log_func_add_logging)
     expected = '''\
@@ -302,7 +302,7 @@ class test_log(unit_test):
 (foo.INFO)  info
 (foo.WARNING)  warning
 '''
-    self.assert_string_equal( expected, rv.output, xp_new_lines = True )
+    self.assert_string_equal( expected, rv.output, native_line_breaks = True )
 
   class _log_tester(multiprocessing.Process):
 

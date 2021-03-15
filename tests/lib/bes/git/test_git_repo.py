@@ -108,7 +108,7 @@ class test_git_repo(unit_test):
     r2 = git_repo(tmp_dir, address = r1.root)
     r2.clone()
     r2.pull()
-    self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt') ], r2.find_all_files() )
+    self.assertEqual([ self.native_filename('a/b/c/foo.txt'), self.native_filename('d/e/bar.txt') ], r2.find_all_files() )
 
     r1.write_temp_content([
       'file kiwi.txt "kiwi" 644',
@@ -116,7 +116,7 @@ class test_git_repo(unit_test):
     r1.add('kiwi.txt')
     r1.commit('foo', 'kiwi.txt')
     r2.pull()
-    self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt'), 'kiwi.txt' ], r2.find_all_files() )
+    self.assertEqual([ self.native_filename('a/b/c/foo.txt'), self.native_filename('d/e/bar.txt'), 'kiwi.txt' ], r2.find_all_files() )
 
   @git_temp_home_func()
   def test_clone_or_pull(self):
@@ -132,7 +132,7 @@ class test_git_repo(unit_test):
     tmp_dir = temp_file.make_temp_dir()
     r2 = git_repo(tmp_dir, address = r1.root)
     r2.clone_or_pull()
-    self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt')], r2.find_all_files() )
+    self.assertEqual([ self.native_filename('a/b/c/foo.txt'), self.native_filename('d/e/bar.txt')], r2.find_all_files() )
 
     r1.write_temp_content([
       'file kiwi.txt "kiwi" 644',
@@ -140,7 +140,7 @@ class test_git_repo(unit_test):
     r1.add('kiwi.txt')
     r1.commit('foo', 'kiwi.txt')
     r2.pull()
-    self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt'), 'kiwi.txt' ], r2.find_all_files() )
+    self.assertEqual([ self.native_filename('a/b/c/foo.txt'), self.native_filename('d/e/bar.txt'), 'kiwi.txt' ], r2.find_all_files() )
     
   @git_temp_home_func()
   def test_find_all_files(self):
@@ -153,7 +153,7 @@ class test_git_repo(unit_test):
     ])
     r.add('.')
     r.commit('foo', '.')
-    self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt')], r.find_all_files() )
+    self.assertEqual([ self.native_filename('a/b/c/foo.txt'), self.native_filename('d/e/bar.txt')], r.find_all_files() )
    
   @git_temp_home_func()
   def test_push(self):
@@ -556,7 +556,7 @@ class test_git_repo(unit_test):
     r.submodule_add(sub_repo.address, 'mod')
     r.commit('add mod submodule', '.')
     r.push()
-    self.assertEqual( [ 'foo.txt', self.xp_path('mod/subfoo.txt') ], r.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.native_filename('mod/subfoo.txt') ], r.find_all_files() )
 
     r2 = git_repo(self.make_temp_dir(), address = r.address)
     r2.clone()
@@ -564,7 +564,7 @@ class test_git_repo(unit_test):
                       r2.submodule_status_one('mod') )
     self.assertEqual( [ 'foo.txt' ], r2.find_all_files() )
     r2.submodule_init(submodule = 'mod')
-    self.assertEqual( [ 'foo.txt', self.xp_path('mod/subfoo.txt') ], r2.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.native_filename('mod/subfoo.txt') ], r2.find_all_files() )
     self.assertEqual( ( 'mod', None, sub_repo.last_commit_hash(), sub_repo.last_commit_hash(short_hash = True), True, 'heads/master' ),
                       r2.submodule_status_one('mod') )
     
@@ -585,7 +585,7 @@ class test_git_repo(unit_test):
     r1.submodule_add(sub_repo.address, 'mod')
     r1.commit('add mod submodule', '.')
     r1.push()
-    self.assertEqual( [ 'foo.txt', self.xp_path('mod/subfoo.txt') ], r1.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.native_filename('mod/subfoo.txt') ], r1.find_all_files() )
 
     rev2 = sub_repo.add_file('sub_kiwi.txt', 'this is sub_kiwi.txt', push = True)
     
@@ -788,7 +788,7 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r1.submodule_add(sub_repo.address, 'mod')
     r1.commit('add mod submodule', '.')
     r1.push()
-    self.assertEqual( [ 'foo.txt', self.xp_path('mod/sub_kiwi.txt'), self.xp_path('mod/subfoo.txt') ], r1.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.native_filename('mod/sub_kiwi.txt'), self.native_filename('mod/subfoo.txt') ], r1.find_all_files() )
     self.assertFalse( r1.has_changes(submodules = True) )
 
     rv = r1.submodule_update_revision('mod', rev1)
@@ -815,7 +815,7 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r1.submodule_add(sub_repo.address, 'mod')
     r1.commit('add mod submodule', '.')
     r1.push()
-    self.assertEqual( [ 'foo.txt', self.xp_path('mod/sub_kiwi.txt'), self.xp_path('mod/subfoo.txt') ], r1.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.native_filename('mod/sub_kiwi.txt'), self.native_filename('mod/subfoo.txt') ], r1.find_all_files() )
     self.assertFalse( r1.has_changes() )
 
     r1.save_file('mod/untracked_junk.txt', content = 'this is untracked junk', add = False, commit = False)

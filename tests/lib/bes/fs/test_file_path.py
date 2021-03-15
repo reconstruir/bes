@@ -69,14 +69,14 @@ class test_file_path(unit_test):
     ]) )
 
   def test_common_ancestor_multiple_ancestors(self):
-    self.assertEqual( self.xp_path('foo/base-1.2.3'), FP.common_ancestor([
+    self.assertEqual( self.native_filename('foo/base-1.2.3'), FP.common_ancestor([
       'foo/base-1.2.3/foo.txt',
       'foo/base-1.2.3/bar.txt',
       'foo/base-1.2.3/',
     ]) )
 
   def test_common_ancestor_more_multiple_ancestors(self):
-    self.assertEqual( self.xp_path('foo/bar/base-1.2.3'), FP.common_ancestor([
+    self.assertEqual( self.native_filename('foo/bar/base-1.2.3'), FP.common_ancestor([
       'foo/bar/base-1.2.3/foo.txt',
       'foo/bar/base-1.2.3/bar.txt',
       'foo/bar/base-1.2.3/',
@@ -89,7 +89,7 @@ class test_file_path(unit_test):
     ]) )
     
   def test_common_ancestor_multiple_ancestors_absolute(self):
-    self.assertEqual( self.xp_path('/foo/base-1.2.3'), FP.common_ancestor([
+    self.assertEqual( self.native_filename('/foo/base-1.2.3'), FP.common_ancestor([
       '/foo/base-1.2.3/foo.txt',
       '/foo/base-1.2.3/bar.txt',
       '/foo/base-1.2.3/',
@@ -104,7 +104,7 @@ class test_file_path(unit_test):
     ]) )
 
   def test_common_ancestor_just_one_deep_entry(self):
-    self.assertEqual( self.xp_path('foo/base-1.2.3'), FP.common_ancestor([
+    self.assertEqual( self.native_filename('foo/base-1.2.3'), FP.common_ancestor([
       'foo/base-1.2.3/foo.txt',
     ]) )
     
@@ -141,9 +141,9 @@ class test_file_path(unit_test):
       'dir  nothing                 ""                 700',
     ])
     self.assertEqual( [
-      path.join(tmp_dir, self.xp_path('drinks/alcohol/beer.config')),
-      path.join(tmp_dir, self.xp_path('drinks/alcohol/wine.config')),
-    ], FP.glob(path.join(tmp_dir, self.xp_path('drinks/alcohol')), '*.config') )
+      path.join(tmp_dir, self.native_filename('drinks/alcohol/beer.config')),
+      path.join(tmp_dir, self.native_filename('drinks/alcohol/wine.config')),
+    ], FP.glob(path.join(tmp_dir, self.native_filename('drinks/alcohol')), '*.config') )
     
   def test_glob_search_path(self):
     tmp_dir = temp_content.write_items_to_temp_dir([
@@ -163,12 +163,12 @@ class test_file_path(unit_test):
     ]
     search_path = [ path.join(tmp_dir, *x) for x in search_path ]
     self.assertEqual( [
-      path.join(tmp_dir, self.xp_path('cheese/cheese.config')),
-      path.join(tmp_dir, self.xp_path('drinks/alcohol/beer.config')),
-      path.join(tmp_dir, self.xp_path('drinks/alcohol/wine.config')),
-      path.join(tmp_dir, self.xp_path('drinks/dairy/milk.config')),
-      path.join(tmp_dir, self.xp_path('drinks/dairy/yogurt.config')),
-      path.join(tmp_dir, self.xp_path('fruit/fruit.config')),
+      path.join(tmp_dir, self.native_filename('cheese/cheese.config')),
+      path.join(tmp_dir, self.native_filename('drinks/alcohol/beer.config')),
+      path.join(tmp_dir, self.native_filename('drinks/alcohol/wine.config')),
+      path.join(tmp_dir, self.native_filename('drinks/dairy/milk.config')),
+      path.join(tmp_dir, self.native_filename('drinks/dairy/yogurt.config')),
+      path.join(tmp_dir, self.native_filename('fruit/fruit.config')),
     ], FP.glob(search_path, '*.config') )
 
   def xtest_glob_env_search_path(self):
@@ -189,12 +189,12 @@ class test_file_path(unit_test):
     ]
     search_path = [ '{}/{}'.format(tmp_dir, path.join(x)) for x in search_path ]
     self.assertEqual( [
-      path.join(tmp_dir, self.xp_path('cheese/cheese.config')),
-      path.join(tmp_dir, self.xp_path('drinks/alcohol/beer.config')),
-      path.join(tmp_dir, self.xp_path('drinks/alcohol/wine.config')),
-      path.join(tmp_dir, self.xp_path('drinks/dairy/milk.config')),
-      path.join(tmp_dir, self.xp_path('drinks/dairy/yogurt.config')),
-      path.join(tmp_dir, self.xp_path('fruit/fruit.config')),
+      path.join(tmp_dir, self.native_filename('cheese/cheese.config')),
+      path.join(tmp_dir, self.native_filename('drinks/alcohol/beer.config')),
+      path.join(tmp_dir, self.native_filename('drinks/alcohol/wine.config')),
+      path.join(tmp_dir, self.native_filename('drinks/dairy/milk.config')),
+      path.join(tmp_dir, self.native_filename('drinks/dairy/yogurt.config')),
+      path.join(tmp_dir, self.native_filename('fruit/fruit.config')),
     ], FP.glob(search_path, '*.config') )
 
   def test_has_glob_pattern_true(self):

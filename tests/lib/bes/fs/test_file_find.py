@@ -23,10 +23,10 @@ class test_file_find(unit_test):
     ])
 
     expected_relative = [
-      self.xp_path('emptyfile.txt'),
-      self.xp_path('foo.txt'),
-      self.xp_path('subdir/bar.txt'),
-      self.xp_path('subdir/subberdir/baz.txt'),
+      self.native_filename('emptyfile.txt'),
+      self.native_filename('foo.txt'),
+      self.native_filename('subdir/bar.txt'),
+      self.native_filename('subdir/subberdir/baz.txt'),
     ]
 
     self.assertEqual( expected_relative, file_find.find(tmp_dir, relative = True) )
@@ -41,10 +41,10 @@ class test_file_find(unit_test):
     ])
 
     expected_relative = [
-      self.xp_path('emptyfile.txt'),
-      self.xp_path('foo.txt'),
-      self.xp_path('subdir/bar.txt'),
-      self.xp_path('subdir/subberdir/baz.txt'),
+      self.native_filename('emptyfile.txt'),
+      self.native_filename('foo.txt'),
+      self.native_filename('subdir/bar.txt'),
+      self.native_filename('subdir/subberdir/baz.txt'),
     ]
     expected_absolute = [ path.join(tmp_dir, f) for f in expected_relative ]
 
@@ -67,44 +67,44 @@ class test_file_find(unit_test):
 
 #    self.assertEqual( sorted([ '1a.f', '1b.f' ]), file_find.find(tmp_dir, max_depth = 0) )
     self.assertEqual( sorted([
-      self.xp_path('1a.f'),
-      self.xp_path('1b.f'),
+      self.native_filename('1a.f'),
+      self.native_filename('1b.f'),
     ]), file_find.find(tmp_dir, max_depth = 1) )
     self.assertEqual( sorted([
-      self.xp_path('1a.f'),
-      self.xp_path('1b.f'),
-      self.xp_path('1.d/2a.f'),
-      self.xp_path('1.d/2b.f'),
+      self.native_filename('1a.f'),
+      self.native_filename('1b.f'),
+      self.native_filename('1.d/2a.f'),
+      self.native_filename('1.d/2b.f'),
     ]), file_find.find(tmp_dir, max_depth = 2) )
     self.assertEqual( sorted([
-      self.xp_path('1a.f'),
-      self.xp_path('1b.f'),
-      self.xp_path('1.d/2a.f'),
-      self.xp_path('1.d/2b.f'),
-      self.xp_path('1.d/2.d/3a.f'),
-      self.xp_path('1.d/2.d/3b.f'),
+      self.native_filename('1a.f'),
+      self.native_filename('1b.f'),
+      self.native_filename('1.d/2a.f'),
+      self.native_filename('1.d/2b.f'),
+      self.native_filename('1.d/2.d/3a.f'),
+      self.native_filename('1.d/2.d/3b.f'),
     ]), file_find.find(tmp_dir, max_depth = 3) )
     self.assertEqual( sorted([
-      self.xp_path('1a.f'),
-      self.xp_path('1b.f'),
-      self.xp_path('1.d/2a.f'),
-      self.xp_path('1.d/2b.f'),
-      self.xp_path('1.d/2.d/3a.f'),
-      self.xp_path('1.d/2.d/3b.f'),
-      self.xp_path('1.d/2.d/3.d/4a.f'),
-      self.xp_path('1.d/2.d/3.d/4b.f'),
+      self.native_filename('1a.f'),
+      self.native_filename('1b.f'),
+      self.native_filename('1.d/2a.f'),
+      self.native_filename('1.d/2b.f'),
+      self.native_filename('1.d/2.d/3a.f'),
+      self.native_filename('1.d/2.d/3b.f'),
+      self.native_filename('1.d/2.d/3.d/4a.f'),
+      self.native_filename('1.d/2.d/3.d/4b.f'),
     ]), file_find.find(tmp_dir, max_depth = 4) )
     self.assertEqual( sorted([
-      self.xp_path('1a.f'),
-      self.xp_path('1b.f'),
-      self.xp_path('1.d/2a.f'),
-      self.xp_path('1.d/2b.f'),
-      self.xp_path('1.d/2.d/3a.f'),
-      self.xp_path('1.d/2.d/3b.f'),
-      self.xp_path('1.d/2.d/3.d/4a.f'),
-      self.xp_path('1.d/2.d/3.d/4b.f'),
-      self.xp_path('1.d/2.d/3.d/4.d/5a.f'),
-      self.xp_path('1.d/2.d/3.d/4.d/5b.f'),
+      self.native_filename('1a.f'),
+      self.native_filename('1b.f'),
+      self.native_filename('1.d/2a.f'),
+      self.native_filename('1.d/2b.f'),
+      self.native_filename('1.d/2.d/3a.f'),
+      self.native_filename('1.d/2.d/3b.f'),
+      self.native_filename('1.d/2.d/3.d/4a.f'),
+      self.native_filename('1.d/2.d/3.d/4b.f'),
+      self.native_filename('1.d/2.d/3.d/4.d/5a.f'),
+      self.native_filename('1.d/2.d/3.d/4.d/5b.f'),
     ]), file_find.find(tmp_dir, max_depth = 5) )
 
   def test_file_find_min_depth(self):
@@ -123,44 +123,44 @@ class test_file_find(unit_test):
     ])
 
     self.assertEqual( sorted([
-      self.xp_path('1a.f'),
-      self.xp_path('1b.f'),
-      self.xp_path('1.d/2a.f'),
-      self.xp_path('1.d/2b.f'),
-      self.xp_path('1.d/2.d/3a.f'),
-      self.xp_path('1.d/2.d/3b.f'),
-      self.xp_path('1.d/2.d/3.d/4a.f'),
-      self.xp_path('1.d/2.d/3.d/4b.f'),
-      self.xp_path('1.d/2.d/3.d/4.d/5a.f'),
-      self.xp_path('1.d/2.d/3.d/4.d/5b.f'),
+      self.native_filename('1a.f'),
+      self.native_filename('1b.f'),
+      self.native_filename('1.d/2a.f'),
+      self.native_filename('1.d/2b.f'),
+      self.native_filename('1.d/2.d/3a.f'),
+      self.native_filename('1.d/2.d/3b.f'),
+      self.native_filename('1.d/2.d/3.d/4a.f'),
+      self.native_filename('1.d/2.d/3.d/4b.f'),
+      self.native_filename('1.d/2.d/3.d/4.d/5a.f'),
+      self.native_filename('1.d/2.d/3.d/4.d/5b.f'),
     ]), file_find.find(tmp_dir, min_depth = 1) )
     self.assertEqual( sorted([
-      self.xp_path('1.d/2a.f'),
-      self.xp_path('1.d/2b.f'),
-      self.xp_path('1.d/2.d/3a.f'),
-      self.xp_path('1.d/2.d/3b.f'),
-      self.xp_path('1.d/2.d/3.d/4a.f'),
-      self.xp_path('1.d/2.d/3.d/4b.f'),
-      self.xp_path('1.d/2.d/3.d/4.d/5a.f'),
-      self.xp_path('1.d/2.d/3.d/4.d/5b.f'),
+      self.native_filename('1.d/2a.f'),
+      self.native_filename('1.d/2b.f'),
+      self.native_filename('1.d/2.d/3a.f'),
+      self.native_filename('1.d/2.d/3b.f'),
+      self.native_filename('1.d/2.d/3.d/4a.f'),
+      self.native_filename('1.d/2.d/3.d/4b.f'),
+      self.native_filename('1.d/2.d/3.d/4.d/5a.f'),
+      self.native_filename('1.d/2.d/3.d/4.d/5b.f'),
     ]), file_find.find(tmp_dir, min_depth = 2) )
     self.assertEqual( sorted([
-      self.xp_path('1.d/2.d/3a.f'),
-      self.xp_path('1.d/2.d/3b.f'),
-      self.xp_path('1.d/2.d/3.d/4a.f'),
-      self.xp_path('1.d/2.d/3.d/4b.f'),
-      self.xp_path('1.d/2.d/3.d/4.d/5a.f'),
-      self.xp_path('1.d/2.d/3.d/4.d/5b.f'),
+      self.native_filename('1.d/2.d/3a.f'),
+      self.native_filename('1.d/2.d/3b.f'),
+      self.native_filename('1.d/2.d/3.d/4a.f'),
+      self.native_filename('1.d/2.d/3.d/4b.f'),
+      self.native_filename('1.d/2.d/3.d/4.d/5a.f'),
+      self.native_filename('1.d/2.d/3.d/4.d/5b.f'),
     ]), file_find.find(tmp_dir, min_depth = 3) )
     self.assertEqual( sorted([
-      self.xp_path('1.d/2.d/3.d/4a.f'),
-      self.xp_path('1.d/2.d/3.d/4b.f'),
-      self.xp_path('1.d/2.d/3.d/4.d/5a.f'),
-      self.xp_path('1.d/2.d/3.d/4.d/5b.f'),
+      self.native_filename('1.d/2.d/3.d/4a.f'),
+      self.native_filename('1.d/2.d/3.d/4b.f'),
+      self.native_filename('1.d/2.d/3.d/4.d/5a.f'),
+      self.native_filename('1.d/2.d/3.d/4.d/5b.f'),
     ]), file_find.find(tmp_dir, min_depth = 4) )
     self.assertEqual( sorted([
-      self.xp_path('1.d/2.d/3.d/4.d/5a.f'),
-      self.xp_path('1.d/2.d/3.d/4.d/5b.f'),
+      self.native_filename('1.d/2.d/3.d/4.d/5a.f'),
+      self.native_filename('1.d/2.d/3.d/4.d/5b.f'),
     ]), file_find.find(tmp_dir, min_depth = 5) )
     self.assertEqual( sorted([]), file_find.find(tmp_dir, min_depth = 6) )
 
@@ -180,24 +180,24 @@ class test_file_find(unit_test):
     ])
 
     self.assertEqual( sorted([
-      self.xp_path('1a.f'),
-      self.xp_path('1b.f'),
-      self.xp_path('1.d/2a.f'),
-      self.xp_path('1.d/2b.f'),
+      self.native_filename('1a.f'),
+      self.native_filename('1b.f'),
+      self.native_filename('1.d/2a.f'),
+      self.native_filename('1.d/2b.f'),
     ]), file_find.find(tmp_dir, min_depth = 1, max_depth = 2) )
     self.assertEqual( sorted([
-      self.xp_path('1.d/2a.f'),
-      self.xp_path('1.d/2b.f'),
-      self.xp_path('1.d/2.d/3a.f'),
-      self.xp_path('1.d/2.d/3b.f'),
+      self.native_filename('1.d/2a.f'),
+      self.native_filename('1.d/2b.f'),
+      self.native_filename('1.d/2.d/3a.f'),
+      self.native_filename('1.d/2.d/3b.f'),
     ]), file_find.find(tmp_dir, min_depth = 2, max_depth = 3) )
     self.assertEqual( sorted([
-      self.xp_path('1.d/2a.f'),
-      self.xp_path('1.d/2b.f'),
+      self.native_filename('1.d/2a.f'),
+      self.native_filename('1.d/2b.f'),
     ]), file_find.find(tmp_dir, min_depth = 2, max_depth = 2) )
     self.assertEqual( sorted([
-      self.xp_path('1a.f'),
-      self.xp_path('1b.f'),
+      self.native_filename('1a.f'),
+      self.native_filename('1b.f'),
     ]), file_find.find(tmp_dir, min_depth = 1, max_depth = 1) )
 
   def test_file_find_with_patterns(self):
@@ -210,7 +210,7 @@ class test_file_find(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ])
-    self.assertEqual( self.xp_path_list([
+    self.assertEqual( self.native_filename_list([
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
     ]), file_find.find(tmp_dir, match_patterns = [ '*.cheese' ]) )
@@ -225,7 +225,7 @@ class test_file_find(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ])
-    self.assertEqual( self.xp_path_list([
+    self.assertEqual( self.native_filename_list([
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
@@ -245,7 +245,7 @@ class test_file_find(unit_test):
     self.assertEqual( [
     ], file_find.find(tmp_dir, match_patterns = [ 'f*' ], match_basename = True) )
 
-    self.assertEqual( self.xp_path_list([
+    self.assertEqual( self.native_filename_list([
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
@@ -262,7 +262,7 @@ class test_file_find(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ])
-    self.assertEqual( self.xp_path_list([
+    self.assertEqual( self.native_filename_list([
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
     ]), file_find.find(tmp_dir, match_function = lambda f: f.endswith('.cheese')) )
@@ -277,11 +277,11 @@ class test_file_find(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ])
-    self.assertEqual( self.xp_path_list([
+    self.assertEqual( self.native_filename_list([
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
     ]), file_find.find(tmp_dir, match_function = lambda f: f.endswith('.cheese'), match_type = 'ANY') )
-    self.assertEqual( self.xp_path_list([
+    self.assertEqual( self.native_filename_list([
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
@@ -301,7 +301,7 @@ class test_file_find(unit_test):
     self.assertEqual( [
     ], file_find.find(tmp_dir, match_function = lambda f: f.startswith('cheese'), match_basename = True) )
     
-    self.assertEqual( self.xp_path_list([
+    self.assertEqual( self.native_filename_list([
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
     ]), file_find.find(tmp_dir, match_function = lambda f: f.startswith('cheese'), match_basename = False) )
@@ -316,7 +316,7 @@ class test_file_find(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ])
-    self.assertEqual( self.xp_path_list([
+    self.assertEqual( self.native_filename_list([
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
     ]), file_find.find(tmp_dir, match_re = [ r'^.*\.cheese$' ]) )
@@ -331,7 +331,7 @@ class test_file_find(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ])
-    self.assertEqual( self.xp_path_list([
+    self.assertEqual( self.native_filename_list([
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
@@ -351,7 +351,7 @@ class test_file_find(unit_test):
     self.assertEqual( [
     ], file_find.find(tmp_dir, match_re = [ r'^f.*$' ], match_basename = True) )
 
-    self.assertEqual( self.xp_path_list([
+    self.assertEqual( self.native_filename_list([
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',

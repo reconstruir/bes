@@ -28,17 +28,17 @@ class test_os_env(unit_test):
 
   def test_update_empty(self):
     env = {}
-    d = { 'PATH': self.xp_path('foo:bar') }
-    self.assertEqual( { 'PATH': self.xp_path('foo:bar') }, os_env.clone_and_update(env, d) )
-    self.assertEqual( { 'PATH': self.xp_path('foo:bar') }, os_env.clone_and_update(env, d, prepend = True) )
+    d = { 'PATH': self.native_filename('foo:bar') }
+    self.assertEqual( { 'PATH': self.native_filename('foo:bar') }, os_env.clone_and_update(env, d) )
+    self.assertEqual( { 'PATH': self.native_filename('foo:bar') }, os_env.clone_and_update(env, d, prepend = True) )
 
     self.assertEqual( {}, os_env.clone_and_update({}, {}) )
 
   def test_update(self):
-    env = { 'PATH': self.xp_path('baz:biz'), 'USER': 'me' }
-    d = { 'PATH': self.xp_path('foo:bar') }
-    self.assertEqual( { 'PATH': self.xp_path('baz:biz:foo:bar'), 'USER': 'me' }, os_env.clone_and_update(env, d) )
-    self.assertEqual( { 'PATH': self.xp_path('foo:bar:baz:biz'), 'USER': 'me' }, os_env.clone_and_update(env, d, prepend = True) )
+    env = { 'PATH': self.native_filename('baz:biz'), 'USER': 'me' }
+    d = { 'PATH': self.native_filename('foo:bar') }
+    self.assertEqual( { 'PATH': self.native_filename('baz:biz:foo:bar'), 'USER': 'me' }, os_env.clone_and_update(env, d) )
+    self.assertEqual( { 'PATH': self.native_filename('foo:bar:baz:biz'), 'USER': 'me' }, os_env.clone_and_update(env, d, prepend = True) )
 
   def test_clone_and_update(self):
     env = { 'FOO': 666, 'BAR': 'hi' }

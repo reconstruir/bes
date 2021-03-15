@@ -10,11 +10,11 @@ class test_archive_util(unit_test):
 
   def test_remove_members(self):
     items = temp_archive.make_temp_item_list([
-      ( self.xp_path('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/kiwi.txt'), 'kiwi.txt' ),
-      ( self.xp_path('foo-1.2.3/.import/foo.txt'), 'foo.txt' ),
-      ( self.xp_path('foo-1.2.3/.import/bar.txt'), 'bar.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('foo-1.2.3/.import/foo.txt'), 'foo.txt' ),
+      ( self.native_filename('foo-1.2.3/.import/bar.txt'), 'bar.txt' ),
     ])
     tmp_archive = temp_archive.make_temp_archive(items, 'zip', delete = not self.DEBUG)
     self.assertEqual( [
@@ -33,9 +33,9 @@ class test_archive_util(unit_test):
 
   def test_member_checksums(self):
     a = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/kiwi.txt'), 'kiwi.txt' ),
     ]), 'zip', delete = not self.DEBUG)
     self.assertEqual( {
       'foo-1.2.3/fruits/apple.txt': '7269b27861e2a5ba6947b6279bb5e66b23439d83a65a3c0cf529f5834ed2e7fb',
@@ -44,23 +44,23 @@ class test_archive_util(unit_test):
     
   def test_duplicate_members(self):
     a1 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/kiwi.txt'), 'kiwi.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a1-')
     a2 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/lemon.txt'), 'lemon.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/melon.txt'), 'melon.txt' ),
-      ( self.xp_path('foo-1.2.3/wine/barolo.txt'), 'barolo.txt' ),
-      ( self.xp_path('foo-1.2.3/cheese/brie.txt'), 'brie.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/lemon.txt'), 'lemon.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/melon.txt'), 'melon.txt' ),
+      ( self.native_filename('foo-1.2.3/wine/barolo.txt'), 'barolo.txt' ),
+      ( self.native_filename('foo-1.2.3/cheese/brie.txt'), 'brie.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a2-')
     a3 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('foo-1.2.3/fruits/strawberry.txt'), 'strawberry.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/blueberry.txt'), 'blueberry.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/banana.txt'), 'banana.txt' ),
-      ( self.xp_path('foo-1.2.3/wine/barolo.txt'), 'barolo.txt' ),
-      ( self.xp_path('foo-1.2.3/cheese/brie.txt'), 'brie.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/strawberry.txt'), 'strawberry.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/blueberry.txt'), 'blueberry.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/banana.txt'), 'banana.txt' ),
+      ( self.native_filename('foo-1.2.3/wine/barolo.txt'), 'barolo.txt' ),
+      ( self.native_filename('foo-1.2.3/cheese/brie.txt'), 'brie.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a3-')
     self.assertEqual( {
       'foo-1.2.3/cheese/brie.txt': { a2, a3 },
@@ -70,23 +70,23 @@ class test_archive_util(unit_test):
 
   def test_duplicate_members_with_conflicts(self):
     a1 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/kiwi.txt'), 'kiwi.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a1-')
     a2 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('foo-1.2.3/fruits/apple.txt'), 'apple2.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/melon.txt'), 'melon.txt' ),
-      ( self.xp_path('foo-1.2.3/wine/barolo.txt'), 'barolo.txt' ),
-      ( self.xp_path('foo-1.2.3/cheese/brie.txt'), 'brie.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/apple.txt'), 'apple2.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/melon.txt'), 'melon.txt' ),
+      ( self.native_filename('foo-1.2.3/wine/barolo.txt'), 'barolo.txt' ),
+      ( self.native_filename('foo-1.2.3/cheese/brie.txt'), 'brie.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a2-')
     a3 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('foo-1.2.3/fruits/strawberry.txt'), 'strawberry.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/blueberry.txt'), 'blueberry.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/banana.txt'), 'banana.txt' ),
-      ( self.xp_path('foo-1.2.3/wine/barolo.txt'), 'barolo.txt' ),
-      ( self.xp_path('foo-1.2.3/cheese/brie.txt'), 'brie2.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/strawberry.txt'), 'strawberry.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/blueberry.txt'), 'blueberry.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/banana.txt'), 'banana.txt' ),
+      ( self.native_filename('foo-1.2.3/wine/barolo.txt'), 'barolo.txt' ),
+      ( self.native_filename('foo-1.2.3/cheese/brie.txt'), 'brie2.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a3-')
     self.assertEqual( {
       'foo-1.2.3/cheese/brie.txt': { a2, a3 },
@@ -95,19 +95,19 @@ class test_archive_util(unit_test):
 
   def test_combine(self):
     a1 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/apple.txt'), 'apple.txt' ),
-      ( self.xp_path('fruits/durian.txt'), 'durian.txt' ),
-      ( self.xp_path('fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('fruits/apple.txt'), 'apple.txt' ),
+      ( self.native_filename('fruits/durian.txt'), 'durian.txt' ),
+      ( self.native_filename('fruits/kiwi.txt'), 'kiwi.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a1-')
     a2 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/melon.txt'), 'melon.txt' ),
-      ( self.xp_path('fruits/lemon.txt'), 'lemon.txt' ),
-      ( self.xp_path('fruits/dragonfruit.txt'), 'dragonfruit.txt' ),
+      ( self.native_filename('fruits/melon.txt'), 'melon.txt' ),
+      ( self.native_filename('fruits/lemon.txt'), 'lemon.txt' ),
+      ( self.native_filename('fruits/dragonfruit.txt'), 'dragonfruit.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a2-')
     a3 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/strawberry.txt'), 'strawberry.txt' ),
-      ( self.xp_path('fruits/pear.txt'), 'pear.txt' ),
-      ( self.xp_path('fruits/plum.txt'), 'plum.txt' ),
+      ( self.native_filename('fruits/strawberry.txt'), 'strawberry.txt' ),
+      ( self.native_filename('fruits/pear.txt'), 'pear.txt' ),
+      ( self.native_filename('fruits/plum.txt'), 'plum.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a3-')
     tmp_archive = self.make_temp_file(suffix = '.zip')
     archive_util.combine([ a1, a2, a3 ], tmp_archive)
@@ -125,22 +125,22 @@ class test_archive_util(unit_test):
 
   def test_combine_conflicts_same_content(self):
     a1 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/apple.txt'), 'apple.txt' ),
-      ( self.xp_path('fruits/durian.txt'), 'durian.txt' ),
-      ( self.xp_path('fruits/kiwi.txt'), 'kiwi.txt' ),
-      ( self.xp_path('fruits/plum.txt'), 'plum.txt' ),
+      ( self.native_filename('fruits/apple.txt'), 'apple.txt' ),
+      ( self.native_filename('fruits/durian.txt'), 'durian.txt' ),
+      ( self.native_filename('fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('fruits/plum.txt'), 'plum.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a1-')
     a2 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/kiwi.txt'), 'kiwi.txt' ),
-      ( self.xp_path('fruits/melon.txt'), 'melon.txt' ),
-      ( self.xp_path('fruits/lemon.txt'), 'lemon.txt' ),
-      ( self.xp_path('fruits/dragonfruit.txt'), 'dragonfruit.txt' ),
+      ( self.native_filename('fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('fruits/melon.txt'), 'melon.txt' ),
+      ( self.native_filename('fruits/lemon.txt'), 'lemon.txt' ),
+      ( self.native_filename('fruits/dragonfruit.txt'), 'dragonfruit.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a2-')
     a3 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/lemon.txt'), 'lemon.txt' ),
-      ( self.xp_path('fruits/strawberry.txt'), 'strawberry.txt' ),
-      ( self.xp_path('fruits/pear.txt'), 'pear.txt' ),
-      ( self.xp_path('fruits/plum.txt'), 'plum.txt' ),
+      ( self.native_filename('fruits/lemon.txt'), 'lemon.txt' ),
+      ( self.native_filename('fruits/strawberry.txt'), 'strawberry.txt' ),
+      ( self.native_filename('fruits/pear.txt'), 'pear.txt' ),
+      ( self.native_filename('fruits/plum.txt'), 'plum.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a3-')
     tmp_archive = self.make_temp_file(suffix = '.zip')
     archive_util.combine([ a1, a2, a3 ], tmp_archive)
@@ -158,22 +158,22 @@ class test_archive_util(unit_test):
 
   def test_combine_conflicts_different_content_no_check(self):
     a1 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/apple.txt'), 'apple.txt' ),
-      ( self.xp_path('fruits/durian.txt'), 'durian.txt' ),
-      ( self.xp_path('fruits/kiwi.txt'), 'kiwi.txt' ),
-      ( self.xp_path('fruits/plum.txt'), '1plum.txt' ),
+      ( self.native_filename('fruits/apple.txt'), 'apple.txt' ),
+      ( self.native_filename('fruits/durian.txt'), 'durian.txt' ),
+      ( self.native_filename('fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('fruits/plum.txt'), '1plum.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a1-')
     a2 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/kiwi.txt'), 'kiwi.txt' ),
-      ( self.xp_path('fruits/melon.txt'), 'melon.txt' ),
-      ( self.xp_path('fruits/lemon.txt'), '1lemon.txt' ),
-      ( self.xp_path('fruits/dragonfruit.txt'), 'dragonfruit.txt' ),
+      ( self.native_filename('fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('fruits/melon.txt'), 'melon.txt' ),
+      ( self.native_filename('fruits/lemon.txt'), '1lemon.txt' ),
+      ( self.native_filename('fruits/dragonfruit.txt'), 'dragonfruit.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a2-')
     a3 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/lemon.txt'), '2lemon.txt' ),
-      ( self.xp_path('fruits/strawberry.txt'), 'strawberry.txt' ),
-      ( self.xp_path('fruits/pear.txt'), 'pear.txt' ),
-      ( self.xp_path('fruits/plum.txt'), '2plum.txt' ),
+      ( self.native_filename('fruits/lemon.txt'), '2lemon.txt' ),
+      ( self.native_filename('fruits/strawberry.txt'), 'strawberry.txt' ),
+      ( self.native_filename('fruits/pear.txt'), 'pear.txt' ),
+      ( self.native_filename('fruits/plum.txt'), '2plum.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a3-')
     tmp_archive = self.make_temp_file(suffix = '.zip')
     archive_util.combine([ a1, a2, a3 ], tmp_archive)
@@ -191,22 +191,22 @@ class test_archive_util(unit_test):
 
   def test_combine_conflicts_different_content_with_check(self):
     a1 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/apple.txt'), 'apple.txt' ),
-      ( self.xp_path('fruits/durian.txt'), 'durian.txt' ),
-      ( self.xp_path('fruits/kiwi.txt'), 'kiwi.txt' ),
-      ( self.xp_path('fruits/plum.txt'), '1plum.txt' ),
+      ( self.native_filename('fruits/apple.txt'), 'apple.txt' ),
+      ( self.native_filename('fruits/durian.txt'), 'durian.txt' ),
+      ( self.native_filename('fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('fruits/plum.txt'), '1plum.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a1-')
     a2 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/kiwi.txt'), 'kiwi.txt' ),
-      ( self.xp_path('fruits/melon.txt'), 'melon.txt' ),
-      ( self.xp_path('fruits/lemon.txt'), '1lemon.txt' ),
-      ( self.xp_path('fruits/dragonfruit.txt'), 'dragonfruit.txt' ),
+      ( self.native_filename('fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('fruits/melon.txt'), 'melon.txt' ),
+      ( self.native_filename('fruits/lemon.txt'), '1lemon.txt' ),
+      ( self.native_filename('fruits/dragonfruit.txt'), 'dragonfruit.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a2-')
     a3 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/lemon.txt'), '2lemon.txt' ),
-      ( self.xp_path('fruits/strawberry.txt'), 'strawberry.txt' ),
-      ( self.xp_path('fruits/pear.txt'), 'pear.txt' ),
-      ( self.xp_path('fruits/plum.txt'), '2plum.txt' ),
+      ( self.native_filename('fruits/lemon.txt'), '2lemon.txt' ),
+      ( self.native_filename('fruits/strawberry.txt'), 'strawberry.txt' ),
+      ( self.native_filename('fruits/pear.txt'), 'pear.txt' ),
+      ( self.native_filename('fruits/plum.txt'), '2plum.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a3-')
     tmp_archive = self.make_temp_file(suffix = '.zip')
     with self.assertRaises(RuntimeError) as ctx:
@@ -214,19 +214,19 @@ class test_archive_util(unit_test):
 
   def test_combine_with_base_dir(self):
     a1 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/apple.txt'), 'apple.txt' ),
-      ( self.xp_path('fruits/durian.txt'), 'durian.txt' ),
-      ( self.xp_path('fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('fruits/apple.txt'), 'apple.txt' ),
+      ( self.native_filename('fruits/durian.txt'), 'durian.txt' ),
+      ( self.native_filename('fruits/kiwi.txt'), 'kiwi.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a1-')
     a2 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/melon.txt'), 'melon.txt' ),
-      ( self.xp_path('fruits/lemon.txt'), 'lemon.txt' ),
-      ( self.xp_path('fruits/dragonfruit.txt'), 'dragonfruit.txt' ),
+      ( self.native_filename('fruits/melon.txt'), 'melon.txt' ),
+      ( self.native_filename('fruits/lemon.txt'), 'lemon.txt' ),
+      ( self.native_filename('fruits/dragonfruit.txt'), 'dragonfruit.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a2-')
     a3 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/strawberry.txt'), 'strawberry.txt' ),
-      ( self.xp_path('fruits/pear.txt'), 'pear.txt' ),
-      ( self.xp_path('fruits/plum.txt'), 'plum.txt' ),
+      ( self.native_filename('fruits/strawberry.txt'), 'strawberry.txt' ),
+      ( self.native_filename('fruits/pear.txt'), 'pear.txt' ),
+      ( self.native_filename('fruits/plum.txt'), 'plum.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a3-')
     tmp_archive = self.make_temp_file(suffix = '.zip')
     archive_util.combine([ a1, a2, a3 ], tmp_archive, base_dir = 'foo-1.2.3')
@@ -244,19 +244,19 @@ class test_archive_util(unit_test):
 
   def test_combine_conflicts_different_content_with_check_and_exclude(self):
     a1 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/apple.txt'), 'apple.txt' ),
-      ( self.xp_path('fruits/durian.txt'), 'durian.txt' ),
-      ( self.xp_path('fruits/plum.txt'), '1plum.txt' ),
+      ( self.native_filename('fruits/apple.txt'), 'apple.txt' ),
+      ( self.native_filename('fruits/durian.txt'), 'durian.txt' ),
+      ( self.native_filename('fruits/plum.txt'), '1plum.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a1-')
     a2 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/kiwi.txt'), 'kiwi.txt' ),
-      ( self.xp_path('fruits/melon.txt'), 'melon.txt' ),
-      ( self.xp_path('fruits/plum.txt'), '2plum.txt' ),
+      ( self.native_filename('fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('fruits/melon.txt'), 'melon.txt' ),
+      ( self.native_filename('fruits/plum.txt'), '2plum.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a2-')
     a3 = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/lemon.txt'), 'lemon.txt' ),
-      ( self.xp_path('fruits/strawberry.txt'), 'strawberry.txt' ),
-      ( self.xp_path('fruits/plum.txt'), '3plum.txt' ),
+      ( self.native_filename('fruits/lemon.txt'), 'lemon.txt' ),
+      ( self.native_filename('fruits/strawberry.txt'), 'strawberry.txt' ),
+      ( self.native_filename('fruits/plum.txt'), '3plum.txt' ),
     ]), 'zip', delete = not self.DEBUG, prefix = 'a3-')
     tmp_archive = self.make_temp_file(suffix = '.zip')
     archive_util.combine([ a1, a2, a3 ], tmp_archive, check_content = True, exclude = [ 'fruits/plum.txt' ])
@@ -271,12 +271,12 @@ class test_archive_util(unit_test):
     
   def test_match_members(self):
     tmp_archive = temp_archive.make_temp_archive(temp_archive.make_temp_item_list([
-      ( self.xp_path('fruits/apple.pdf'), 'apple.pdf' ),
-      ( self.xp_path('fruits/durian.pdf'), 'durian.pdf' ),
-      ( self.xp_path('fruits/plum.pdf'), 'plum.pdf' ),
-      ( self.xp_path('cheese/brie.txt'), 'brie.txt' ),
-      ( self.xp_path('cheese/cheddar.txt'), 'cheddar.txt' ),
-      ( self.xp_path('cheese/fontina.txt'), 'fontina.txt' ),
+      ( self.native_filename('fruits/apple.pdf'), 'apple.pdf' ),
+      ( self.native_filename('fruits/durian.pdf'), 'durian.pdf' ),
+      ( self.native_filename('fruits/plum.pdf'), 'plum.pdf' ),
+      ( self.native_filename('cheese/brie.txt'), 'brie.txt' ),
+      ( self.native_filename('cheese/cheddar.txt'), 'cheddar.txt' ),
+      ( self.native_filename('cheese/fontina.txt'), 'fontina.txt' ),
     ]), 'zip', delete = not self.DEBUG)
     self.assertEqual( [
       'cheese/brie.txt',
@@ -304,14 +304,14 @@ class test_archive_util(unit_test):
 
   def test_remove_members_matching_patterns(self):
     items = temp_archive.make_temp_item_list([
-      ( self.xp_path('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
-      ( self.xp_path('foo-1.2.3/fruits/kiwi.txt'), 'kiwi.txt' ),
-      ( self.xp_path('foo-1.2.3/.import/foo.txt'), 'foo.txt' ),
-      ( self.xp_path('foo-1.2.3/.import/bar.txt'), 'bar.txt' ),
-      ( self.xp_path('foo-1.2.3/cheese/brie.jpg'), 'brie.jpg' ),
-      ( self.xp_path('foo-1.2.3/cheese/halumi.jpg'), 'halumi.jpg' ),
-      ( self.xp_path('foo-1.2.3/cheese/feta.jpg'), 'feta.jpg' ),
+      ( self.native_filename('foo-1.2.3/fruits/apple.txt'), 'apple.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/durian.txt'), 'durian.txt' ),
+      ( self.native_filename('foo-1.2.3/fruits/kiwi.txt'), 'kiwi.txt' ),
+      ( self.native_filename('foo-1.2.3/.import/foo.txt'), 'foo.txt' ),
+      ( self.native_filename('foo-1.2.3/.import/bar.txt'), 'bar.txt' ),
+      ( self.native_filename('foo-1.2.3/cheese/brie.jpg'), 'brie.jpg' ),
+      ( self.native_filename('foo-1.2.3/cheese/halumi.jpg'), 'halumi.jpg' ),
+      ( self.native_filename('foo-1.2.3/cheese/feta.jpg'), 'feta.jpg' ),
     ])
     tmp_archive = temp_archive.make_temp_archive(items, 'zip', delete = not self.DEBUG)
     archive_util.remove_members_matching_patterns(tmp_archive, [ 'notfound' ], debug = self.DEBUG)

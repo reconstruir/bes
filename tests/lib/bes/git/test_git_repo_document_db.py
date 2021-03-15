@@ -35,7 +35,7 @@ class test_git_repo_document_db(unit_test):
     # And check that the file really exists via the repo interface and has the
     # content in it. The repo file side effect is part of the contract.
     repo.pull()
-    self.assert_text_file_equal( 'a', repo.file_path('testdoc.txt'), codec = 'utf-8', strip = True, xp_new_lines = True)
+    self.assert_text_file_equal( 'a', repo.file_path('testdoc.txt'), codec = 'utf-8', strip = True, native_line_breaks = True)
 
     # Now modify the file further and retrieve it again.
     db.update_document('testdoc.txt', lambda content: content + 'b\n', 'test commit message 2')
@@ -44,7 +44,7 @@ a
 b
 '''
     repo.pull()
-    self.assert_string_equal( expected, db.load_document('testdoc.txt'), strip = True, xp_new_lines = True )
+    self.assert_string_equal( expected, db.load_document('testdoc.txt'), strip = True, native_line_breaks = True )
 
     # Try replacing everything.
     db.update_document('testdoc.txt', lambda content: 'foo', 'test commit message 3')

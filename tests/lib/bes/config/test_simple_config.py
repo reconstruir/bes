@@ -622,7 +622,7 @@ Host *
     c = simple_config.from_text(text,
                                 entry_parser = self._parse_ssh_config_entry,
                                 entry_formatter = self._ssh_config_entry_formatter)
-    self.assert_string_equal( text, str(c), strip = True, xp_new_lines = True )
+    self.assert_string_equal( text, str(c), strip = True, native_line_breaks = True )
       
   def test_multi_line_values(self):
     text = '''
@@ -686,7 +686,7 @@ abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
 abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
 -----END RSA PRIVATE KEY-----'''
     
-    self.assert_string_equal( key_expected, c.kiwi.key, xp_new_lines = True )
+    self.assert_string_equal( key_expected, c.kiwi.key, native_line_breaks = True )
 
   def test_clear_value(self):
     text = '''\
@@ -786,17 +786,17 @@ cheese
   color: cream
 '''
     s1 = simple_config.from_text(text)
-    self.assert_string_equal( text, str(s1), xp_new_lines = True )
+    self.assert_string_equal( text, str(s1), native_line_breaks = True )
 
     s2 = s1.clone()
-    self.assert_string_equal( text, str(s2), xp_new_lines = True )
+    self.assert_string_equal( text, str(s2), native_line_breaks = True )
 
     s2.remove_section('wine')
-    self.assert_string_equal( text, str(s1), xp_new_lines = True )
+    self.assert_string_equal( text, str(s1), native_line_breaks = True )
     self.assertNotEqual( text, str(s2) )
 
     s2.cheese.add_value('price', '100')
-    self.assert_string_equal( text, str(s1), xp_new_lines = True )
+    self.assert_string_equal( text, str(s1), native_line_breaks = True )
     self.assertNotEqual( text, str(s2) )
 
   def xtest_unicode(self):
