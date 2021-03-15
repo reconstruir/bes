@@ -267,51 +267,57 @@ class unit_test(unittest.TestCase):
     return getattr(clazz, '_console_fp')
 
   @classmethod
-  def xp_filename(clazz, p, pathsep = None, sep = None):
+  def xp_filename(clazz, p, sep = None):
     if clazz._HOST == 'windows':
-      return clazz._xp_filename_windows(p, pathsep = pathsep, sep = sep)
+      return clazz._xp_filename_windows(p, sep = sep)
     elif clazz._HOST in ( 'linux', 'macos' ):
-      return clazz._xp_filename_unix(p, pathsep = pathsep, sep = sep)
+      return clazz._xp_filename_unix(p, sep = sep)
     else:
       assert False
 
-  _XP_SEP = '/'
-  _XP_PATHSEP = ':'
   @classmethod
-  def _xp_filename_windows(clazz, p, pathsep = None, sep = None):
-    pathsep = pathsep or clazz._XP_PATHSEP
-    #sep = sep or clazz._XP_SEP
+  def native_filename(clazz, p):
+    return clazz.xp_filename(p, sep = os.sep)
+      
+  @classmethod
+  def xp_filename_list(clazz, l, sep = None):
+    if l == None:
+      return None
+    assert isinstance(l, list)
+    return [ clazz.xp_filename(n, sep = sep) for n in l ]
+
+  @classmethod
+  def native_filename_list(clazz, l):
+    return clazz.xp_filename_list(l, sep = os.sep)
+      
+  _XP_SEP = '/'
+  @classmethod
+  def _xp_filename_windows(clazz, p, sep = None):
+    sep = sep or clazz._XP_SEP
     _, split_path = path.splitdrive(p)
     xp_split_path = split_path.replace('\\', sep)
     xp_split_path = xp_split_path.replace('/', sep)
-    #xp_split_path = xp_split_path.replace(';', pathsep)
     result = p.replace(split_path, xp_split_path)
     return result
   
   @classmethod
-  def _xp_filename_unix(clazz, s, pathsep = None, sep = None):
-    pathsep = pathsep or ':'
-    #sep = sep or '/'
-    result = s.replace('/', pathsep)
-    result = s.replace('\\', pathsep)
-    #result = result.replace(':', sep)
+  def _xp_filename_unix(clazz, p, sep = None):
+    sep = sep or '/'
+    result = p.replace('/', sep)
+    result = result.replace('\\', sep)
+    return result
+
+  _XP_PATHSEP = ':'
+  @classmethod
+  def _xp_pathsep(clazz, p, pathsep = None):
+    pathsep = pathsep or clazz._XP_PATHSEP
+    result = p.replace(os.pathsep, pathsep)
     return result
 
   @classmethod
-  def native_filename(clazz, p):
-    return clazz.xp_filename(p, pathsep = os.pathsep, sep = os.sep)
-      
-  @classmethod
-  def xp_filename_list(clazz, l, pathsep = None, sep = None):
-    if l == None:
-      return None
-    assert isinstance(l, list)
-    return [ clazz.xp_filename(n, pathsep = pathsep, sep = sep) for n in l ]
-
-  @classmethod
-  def native_filename_list(clazz, l):
-    return clazz.xp_filename_list(l, pathsep = os.pathsep, sep = os.sep)
-
+  def native_pathsep(clazz, p):
+    return clazz.xp_pathsep(p, pathsep = os.pathsep)
+  
   if _HOST == 'windows':
     _NATIVE_LINE_BREAK = '\r\n'
     _NATIVE_LINE_BREAK_RAW = r'\r\n'
