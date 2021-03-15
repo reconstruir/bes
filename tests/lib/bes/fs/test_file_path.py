@@ -19,15 +19,15 @@ class test_file_path(unit_test):
     self.assertEqual( [ 'foo', 'bar' ], FP.split('foo/bar') )
 
   def test_join(self):
-    self.assertEqual( self.p('/foo/bar'), FP.join([ '', 'foo', 'bar' ]) )
-    self.assertEqual( self.p('/foo/bar'), FP.join([ '', 'foo', 'bar' ]) )
-    self.assertEqual( self.p('foo/bar'), FP.join([ 'foo', 'bar' ]) )
+    self.assertEqual( self.native_filename('/foo/bar'), FP.join([ '', 'foo', 'bar' ]) )
+    self.assertEqual( self.native_filename('/foo/bar'), FP.join([ '', 'foo', 'bar' ]) )
+    self.assertEqual( self.native_filename('foo/bar'), FP.join([ 'foo', 'bar' ]) )
 
   def test_replace(self):
-    self.assertEqual( self.p('/foo/apple'), FP.replace(self.p('/foo/bar'), 'bar', 'apple') )
-    self.assertEqual( self.p('/apple/apple'), FP.replace(self.p('/bar/bar'), 'bar', 'apple') )
-    self.assertEqual( self.p('/apple/bar'), FP.replace(self.p('/bar/bar'), 'bar', 'apple', count = 1) )
-    self.assertEqual( self.p('/bar/apple'), FP.replace(self.p('/bar/bar'), 'bar', 'apple', count = 1, backwards = True) )
+    self.assertEqual( self.native_filename('/foo/apple'), FP.replace(self.native_filename('/foo/bar'), 'bar', 'apple') )
+    self.assertEqual( self.native_filename('/apple/apple'), FP.replace(self.native_filename('/bar/bar'), 'bar', 'apple') )
+    self.assertEqual( self.native_filename('/apple/bar'), FP.replace(self.native_filename('/bar/bar'), 'bar', 'apple', count = 1) )
+    self.assertEqual( self.native_filename('/bar/apple'), FP.replace(self.native_filename('/bar/bar'), 'bar', 'apple', count = 1, backwards = True) )
 
   def test_depth(self):
     self.assertEqual( 3, FP.depth('/foo/bar') )
@@ -36,10 +36,10 @@ class test_file_path(unit_test):
     self.assertEqual( 0, FP.depth('') )
     
   def test_parent_dir(self):
-    self.assertEqual( self.p('/foo'), FP.parent_dir(self.p('/foo/bar/')) )
-    self.assertEqual( self.p('/foo'), FP.parent_dir(self.p('/foo/bar')) )
-    self.assertEqual( self.p('/'), FP.parent_dir(self.p('/foo')) )
-    self.assertEqual( None, FP.parent_dir(self.p('/')) )
+    self.assertEqual( self.native_filename('/foo'), FP.parent_dir(self.native_filename('/foo/bar/')) )
+    self.assertEqual( self.native_filename('/foo'), FP.parent_dir(self.native_filename('/foo/bar')) )
+    self.assertEqual( self.native_filename('/'), FP.parent_dir(self.native_filename('/foo')) )
+    self.assertEqual( None, FP.parent_dir(self.native_filename('/')) )
 
   def test_common_ancestor(self):
     self.assertEqual( 'base-1.2.3', FP.common_ancestor([
@@ -109,15 +109,15 @@ class test_file_path(unit_test):
     ]) )
     
   def test_decompose(self):
-    self.assertEqual( [ self.p('/foo'), self.p('/foo/bar'), self.p('/foo/bar/baz') ], FP.decompose(self.p('/foo/bar/baz')) )
-    self.assertEqual( [ self.p('/foo'), self.p('/foo/bar') ], FP.decompose(self.p('/foo/bar')) )
-    self.assertEqual( [ self.p('/foo'), ], FP.decompose(self.p('/foo')) )
-    self.assertEqual( [], FP.decompose(self.p('/')) )
+    self.assertEqual( [ self.native_filename('/foo'), self.native_filename('/foo/bar'), self.native_filename('/foo/bar/baz') ], FP.decompose(self.native_filename('/foo/bar/baz')) )
+    self.assertEqual( [ self.native_filename('/foo'), self.native_filename('/foo/bar') ], FP.decompose(self.native_filename('/foo/bar')) )
+    self.assertEqual( [ self.native_filename('/foo'), ], FP.decompose(self.native_filename('/foo')) )
+    self.assertEqual( [], FP.decompose(self.native_filename('/')) )
 
   def test_normalize_sep(self):
-    self.assertEqual( self.p('/foo/bar'), FP.normalize_sep('/foo/bar') )
-    self.assertEqual( self.p('/foo/bar'), FP.normalize_sep('/foo\\bar') )
-    self.assertEqual( self.p('/foo/bar'), FP.normalize_sep('\\foo\\bar') )
+    self.assertEqual( self.native_filename('/foo/bar'), FP.normalize_sep('/foo/bar') )
+    self.assertEqual( self.native_filename('/foo/bar'), FP.normalize_sep('/foo\\bar') )
+    self.assertEqual( self.native_filename('/foo/bar'), FP.normalize_sep('\\foo\\bar') )
     
   def test_which(self):
     'Test which()  Looks like a windows only test but works on unix as well.'

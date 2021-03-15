@@ -12,7 +12,7 @@ class test_config_file(unit_test):
   def test_parse(self):
     a = CF(self.data_path('fruit/env/fruit.bescfg'))
     expected_root_dir = path.join(self.data_dir(), 'fruit')
-    expected_filename = self.data_path(self.p('fruit/env/fruit.bescfg'))
+    expected_filename = self.data_path(self.native_filename('fruit/env/fruit.bescfg'))
     expected_data = ( 'fruit', [ path.join('${root_dir}', 'bin') ], [ path.join('${root_dir}', 'lib') ], { 'water' }, [] )
     self.assertEqual( ( expected_root_dir, expected_filename, expected_data ), a )
 
@@ -20,7 +20,7 @@ class test_config_file(unit_test):
     a = CF(self.data_path('fruit/env/fruit.bescfg'))
     b = a.substitute({})
     expected_root_dir = path.join(self.data_dir(), 'fruit')
-    expected_filename = self.data_path(self.p('fruit/env/fruit.bescfg'))
+    expected_filename = self.data_path(self.native_filename('fruit/env/fruit.bescfg'))
     expected_data_a = ( 'fruit', [ path.join('${root_dir}', 'bin') ], [ path.join('${root_dir}', 'lib') ], { 'water' }, [] )
     self.assertEqual( ( expected_root_dir, expected_filename, expected_data_a ), a )
     expected_unixpath = [ path.join(expected_root_dir, 'bin') ]

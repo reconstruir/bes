@@ -30,10 +30,10 @@ class test_file_find(unit_test):
     tmp_dst_dir = temp_file.make_temp_dir()
     file_sync.sync(tmp_src_dir, tmp_dst_dir)
     expected = [
-      self.p('emptyfile.txt'),
-      self.p('foo.txt'),
-      self.p('subdir/bar.txt'),
-      self.p('subdir/subberdir/baz.txt'),
+      self.native_filename('emptyfile.txt'),
+      self.native_filename('foo.txt'),
+      self.native_filename('subdir/bar.txt'),
+      self.native_filename('subdir/subberdir/baz.txt'),
     ]
     self.assertEqual( expected, file_find.find(tmp_dst_dir, relative = True) )
 
@@ -55,9 +55,9 @@ class test_file_find(unit_test):
     file_sync.sync(tmp_src_dir1, tmp_dst_dir)
     file_sync.sync(tmp_src_dir2, tmp_dst_dir)
     expected = [
-      self.p('emptyfile.txt'),
-      self.p('subdir/bar.txt'),
-      self.p('subdir/subberdir/baz.txt'),
+      self.native_filename('emptyfile.txt'),
+      self.native_filename('subdir/bar.txt'),
+      self.native_filename('subdir/subberdir/baz.txt'),
     ]
     self.assertEqual( expected, file_find.find(tmp_dst_dir, relative = True) )
 
@@ -80,10 +80,10 @@ class test_file_find(unit_test):
     file_sync.sync(tmp_src_dir1, tmp_dst_dir)
     file_sync.sync(tmp_src_dir2, tmp_dst_dir)
     expected = [
-      self.p('emptyfile.txt'),
-      self.p('foo.txt'),
-      self.p('subdir/bar.txt'),
-      self.p('subdir/subberdir/baz.txt'),
+      self.native_filename('emptyfile.txt'),
+      self.native_filename('foo.txt'),
+      self.native_filename('subdir/bar.txt'),
+      self.native_filename('subdir/subberdir/baz.txt'),
     ]
     self.assertEqual( expected, file_find.find(tmp_dst_dir, relative = True) )
     self.assertEqual( 'second foo.txt\n', file_util.read(path.join(tmp_dst_dir, 'foo.txt'), codec = 'utf8') )
@@ -98,12 +98,12 @@ class test_file_find(unit_test):
     ])
     tmp_dst_dir = temp_file.make_temp_dir()
     file_sync.sync(tmp_src_dir, tmp_dst_dir, exclude = [
-      self.p('foo.txt'),
-      self.p('subdir/subberdir/baz.txt'),
+      self.native_filename('foo.txt'),
+      self.native_filename('subdir/subberdir/baz.txt'),
     ])
     expected = [
-      self.p('emptyfile.txt'),
-      self.p('subdir/bar.txt'),
+      self.native_filename('emptyfile.txt'),
+      self.native_filename('subdir/bar.txt'),
     ]
     self.assertEqual( expected, file_find.find(tmp_dst_dir, relative = True) )
 
