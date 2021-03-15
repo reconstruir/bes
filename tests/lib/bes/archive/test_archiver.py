@@ -27,12 +27,12 @@ class test_archiver(unit_test):
     file_util.save(path.join(tmp_dir, 'archives/tar/fake_tar.tar'), content = 'not a tar\n')
     file_util.save(path.join(tmp_dir, 'archives/tar_gz/fake_tar_gz.tar.gz'), content = 'not a tar.gz\n')
 
-    self.assertEqual( [
-      self.p('archives/tar/tmp_tar.tar'),
-      self.p('archives/tar_gz/tmp_tar_gz.tar.gz'),
-      self.p('archives/tgz/tmp_tgz.tgz'),
-      self.p('archives/zip/tmp_zip.zip'),
-    ], archiver.find_archives(tmp_dir) )
+    self.assertEqual( self.native_path_list([
+      'archives/tar/tmp_tar.tar',
+      'archives/tar_gz/tmp_tar_gz.tar.gz',
+      'archives/tgz/tmp_tgz.tgz',
+      'archives/zip/tmp_zip.zip',
+    ]), archiver.find_archives(tmp_dir) )
 
   def test_create_tar_gz(self):
     tmp_dir = temp_content.write_items_to_temp_dir([
@@ -173,7 +173,7 @@ class test_archiver(unit_test):
         'dir  baz     ""            700',
     ])
     tmp_archive = self.make_temp_file(suffix = '.zip')
-    archiver.create(tmp_archive, tmp_dir, exclude = [ self.xp_path('d/e/bar.txt') ] )
+    archiver.create(tmp_archive, tmp_dir, exclude = [ self.native_path('d/e/bar.txt') ] )
     self.assertEqual( [
       'a/b/c/foo.txt',
     ], archiver.members(tmp_archive) )

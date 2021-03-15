@@ -150,7 +150,7 @@ class unit_test(unittest.TestCase):
     right = getattr(clazz, '__unit_test_data_dir__', None)
     if not right:
       raise RuntimeError('%s does not have a __unit_test_data_dir__ attribute.' % (clazz))
-    right = clazz.xp_path(right)
+    right = clazz.xp_filename(right)
     right = clazz._substitute_test_data_dir(right)
     if path.isabs(right):
       result = path.join(right)
@@ -267,35 +267,78 @@ class unit_test(unittest.TestCase):
     return getattr(clazz, '_console_fp')
 
   @classmethod
-  def xp_path(clazz, s, pathsep = ':', sep = '/'):
-    result = s.replace(pathsep, os.pathsep)
-    result = result.replace(sep, os.sep)
+  def xp_filename(clazz, p, pathsep = None, sep = None):
+    if clazz._HOST == 'windows':
+      return clazz._xp_filename_windows(p, pathsep = pathsep, sep = sep)
+    elif clazz._HOST in ( 'linux', 'macos' ):
+      return clazz._xp_filename_unix(p, pathsep = pathsep, sep = sep)
+    else:
+      assert False
+
+  _XP_SEP = '/'
+  _XP_PATHSEP = ':'
+  @classmethod
+  def _xp_filename_windows(clazz, p, pathsep = None, sep = None):
+    pathsep = pathsep or clazz._XP_PATHSEP
+    #sep = sep or clazz._XP_SEP
+    _, split_path = path.splitdrive(p)
+    xp_split_path = split_path.replace('\\', sep)
+    xp_split_path = xp_split_path.replace('/', sep)
+    #xp_split_path = xp_split_path.replace(';', pathsep)
+    result = p.replace(split_path, xp_split_path)
+    return result
+  
+  @classmethod
+  def _xp_filename_unix(clazz, s, pathsep = None, sep = None):
+    pathsep = pathsep or ':'
+    #sep = sep or '/'
+    result = s.replace('/', pathsep)
+    result = s.replace('\\', pathsep)
+    #result = result.replace(':', sep)
     return result
 
   @classmethod
-  def xp_path_list(clazz, l, pathsep = ':', sep = '/'):
+  def native_path(clazz, p):
+    return clazz.xp_filename(p, pathsep = os.pathsep, sep = os.sep)
+      
+  @classmethod
+  def xp_filename_list(clazz, l, pathsep = None, sep = None):
     if l == None:
       return None
     assert isinstance(l, list)
-    return [ clazz.xp_path(n) for n in l ]
+    return [ clazz.xp_filename(n, pathsep = pathsep, sep = sep) for n in l ]
+
+  @classmethod
+  def native_path_list(clazz, l):
+    return clazz.xp_filename_list(l, pathsep = os.pathsep, sep = os.sep)
+
+  if _HOST == 'windows':
+    _NATIVE_LINE_BREAK = '\r\n'
+    _NATIVE_LINE_BREAK_RAW = r'\r\n'
+  elif _HOST in ( 'linux', 'macos' ):
+    _NATIVE_LINE_BREAK = '\n'
+    _NATIVE_LINE_BREAK_RAW = r'\n'
+  else:
+    assert False
+  _XP_LINE_BREAK = '\n'
+  _XP_LINE_BREAK_RAW = r'\n'
   
   @classmethod
-  def xp_new_lines(clazz, s, ending = '\n'):
-    result = s.replace('\n\r', ending)
-    result = result.replace('\r\n', ending)
+  def xp_line_breaks(clazz, text, line_break = None):
+    line_break = line_break or clazz._XP_LINE_BREAK
+    result = text.replace(clazz._NATIVE_LINE_BREAK, line_break)
     return result
 
   @classmethod
-  def p(clazz, s, pathsep = ':', sep = '/'):
-    return clazz.xp_path(s, pathsep = pathsep, sep = sep)
-
+  def native_line_breaks(clazz, text):
+    return clazz.xp_line_breaks(line_break = clazz._XP_LINE_BREAK)
   
   _DEFAULT_PREFIX = path.splitext(path.basename(sys.argv[0]))[0] + '-tmp-'
 
   @classmethod
   def make_temp_file(clazz, content = None, prefix = None, suffix = None,
                      dir = None, mode = 'w+b', perm = None, mtime = None,
-                     delete = True, xp_path = False):
+                     delete = True, xp_filename = False):
     'Write content to a temporary file.  Returns the file object.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or ''
@@ -323,8 +366,8 @@ class unit_test(unittest.TestCase):
       assert isinstance(mtime, datetime)
       clazz._set_mtime(tmp.name, mtime)
     result = tmp.name
-    if xp_path:
-      result = clazz.xp_path(result, sep = '/')
+    if xp_filename:
+      result = clazz.xp_filename(result, sep = '/')
     return result
 
   @classmethod
@@ -416,10 +459,10 @@ class unit_test(unittest.TestCase):
         diff_rv = difflib.unified_diff(lines1, lines2, fromfile = label1, tofile = label2, n = n)
         return ''.join(diff_rv)
 
-  def assert_path_list_equal(self, pl1, pl2):
+  def assert_filename_list_equal(self, pl1, pl2):
     'Assert that 2 path lists are the same using cross platform paths.'
     self.maxDiff = None
-    xp_pl1 = self.xp_path_list(pl1)
-    xp_pl2 = self.xp_path_list(pl2)
+    xp_pl1 = self.xp_filename_list(pl1)
+    xp_pl2 = self.xp_filename_list(pl2)
     self.assertEqual( xp_pl1, xp_pl2 )
       
