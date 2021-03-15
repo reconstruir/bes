@@ -275,10 +275,6 @@ class unit_test(unittest.TestCase):
     else:
       assert False
 
-  @classmethod
-  def p(clazz, p, pathsep = None, sep = None):
-    return clazz.native_filename(p)
-      
   _XP_SEP = '/'
   _XP_PATHSEP = ':'
   @classmethod
