@@ -69,54 +69,15 @@ class archive_zip(archive):
         self._fix_permissions(extracted, zip_info)
       self._handle_extract_strip_common_ancestor(filtered_members, strip_common_ancestor, strip_head, dest_dir)
 
-  def create(self, root_dir, base_dir=None, extra_items=None, include=None, exclude=None, extension=None):
-    """Create a zip archive for the root directory.
-
-    Args:
-      root_dir: Root directory that must be zipped.
-      base_dir: Base directory name that will be used to create an acrname. Default value is None.
-      extra_items: List of items-objects (each item is namedtuple('item', [ 'filename', 'arcname' ]))
-                   that will be added to the final zip. Default value is None.
-      include: String patterns that will be used to include files to final zip. Default value is None.
-      exclude: String patterns that will be used to exclude files from final zip. Default value is None.
-      extension: Extension of acrchive. Default value is None
-    """
+  def create(self, root_dir, base_dir = None,
+             extra_items = None,
+             include = None, exclude = None,
+             extension = None):
     self._pre_create()
     items = self._find(root_dir, base_dir, extra_items, include, exclude)
-    self._create_zipfile(items)
-
-  def create_all(self, entry_points, base_dir=None, extra_items=None, include=None, exclude=None, extension=None):
-    """Create a zip archive for all entry points (each entry point can be a folder, like root dir, or a specific file).
-    It will combine all folders and files into one zip archive.
-
-    Args:
-      entry_points: List of entry points.
-      base_dir: Base directory name that will be used to create an acrname. Default value is None.
-      extra_items: List of items-objects (each item is namedtuple('item', [ 'filename', 'arcname' ]))
-                   that will be added to the final zip. Default value is None.
-      include: String patterns that will be used to include files to final zip. Default value is None.
-      exclude: String patterns that will be used to exclude files from final zip. Default value is None.
-      extension: Extension of acrchive. Default value is None
-    """
-    self._pre_create()
-    items = self._collect_items(entry_points, base_dir, extra_items, include, exclude)
-    self._create_zipfile(items)
-
-  def _collect_items(self, entry_points, base_dir, extra_items, include, exclude):
-    items = []
-    for entry_point in entry_points:
-      if path.isdir(entry_point):
-        entry_point_items = self._find(entry_point, base_dir, extra_items, include, exclude)
-        items.extend(entry_point_items)
-      else:
-        arcname = path.join(base_dir, entry_point) if base_dir else entry_point
-        items.append(self.item(entry_point, arcname))
-    return items
-
-  def _create_zipfile(self, items):
-    with zipfile.ZipFile(file=self.filename, mode='w', compression=zipfile.ZIP_DEFLATED, allowZip64=True) as archive:
+    with zipfile.ZipFile(file = self.filename, mode = 'w', compression = zipfile.ZIP_DEFLATED, allowZip64 = True) as archive:
       for item in items:
-        archive.write(item.filename, arcname=item.arcname)
+        archive.write(item.filename, arcname = item.arcname)
 
   @classmethod
   def _infos_for_files(clazz, archive, filenames):
