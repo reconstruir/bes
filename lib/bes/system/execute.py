@@ -7,11 +7,14 @@ from collections import namedtuple
 from .command_line import command_line
 from .compat import compat
 from .host import host
+from .log import logger
 from .python import python
 
 class execute(object):
   'execute'
 
+  _log = logger('execute')
+  
   Result = namedtuple('Result', 'stdout, stderr, exit_code, command')
 
   @classmethod
@@ -19,6 +22,8 @@ class execute(object):
               cwd = None, env = None, shell = False, input_data = None, universal_newlines = True,
               codec = None, print_failure = True, quote = False):
     'Execute a command'
+    clazz._log.log_d('raise_error={raise_error} non_blocking={non_blocking} stderr_to_stdout={stderr_to_stdout} cwd={cwd} shell={shell} input_data={input_data} universal_newlines={universal_newlines} print_failure={print_failure} quote={quote}'.format(**locals()))
+    
     parsed_args = command_line.parse_args(args, quote = quote)
     stdout_pipe = subprocess.PIPE
     if not stderr_to_stdout:
@@ -36,6 +41,7 @@ class execute(object):
       parsed_args = ' '.join(parsed_args)
       # FIXME: quoting ?
 
+    clazz._log.log_d('parsed_args={}'.format(parsed_args))
     try:
       process = subprocess.Popen(parsed_args,
                                  stdout = stdout_pipe,
@@ -66,7 +72,9 @@ class execute(object):
 
     output = process.communicate(input_data)
     exit_code = process.wait()
-
+    clazz._log.log_d('output={}'.format(output))
+    clazz._log.log_d('exit_code={}'.format(exit_code))
+    
     if stdout_lines:
       output = ( '\n'.join(stdout_lines), output[1] )
     
@@ -79,12 +87,15 @@ class execute(object):
     else:
       stdout = output[0]
       stderr = output[1]
-
     rv = clazz.Result(stdout, stderr, exit_code, parsed_args)
     if raise_error:
       if rv.exit_code != 0:
-        ex = RuntimeError(rv.stdout)
+        clazz._log.log_d(rv.exit_code)
+        ex = RuntimeError('caca') #rv.stdout)
         setattr(ex, 'execute_result', rv)
+        clazz._log.log_d('stderr={}'.format(rv.stderr))
+        clazz._log.log_d('stdout={}'.format(rv.stdout))
+        clazz._log.log_d('ex={}'.format(str(ex)))
         print(rv.stdout)
         print(rv.stderr)
         print(str(ex))
