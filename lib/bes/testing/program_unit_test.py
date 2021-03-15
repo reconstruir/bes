@@ -28,14 +28,26 @@ class program_unit_test(unit_test):
     Windows supports them and using them bypasses a bunch
     of quoting issues'
     '''
-    is_windows = platform.system() == 'Windows'
     result = []
     for arg in args:
-      if path.exists(arg):
-        result.append(arg.replace('\\', '/'))
-      else:
-        result.append(arg)
+      result.append(clazz._fix_arg(arg))
     return result
+
+  @classmethod
+  def _fix_arg(clazz, arg):
+    if not platform.system() == 'Windows':
+      return arg
+    if path.exists(arg):
+      return arg.replace('\\', '/')
+    if isinstance(arg, list):
+      fixed_arg = []
+      for next_item in arg:
+        if path.exists(next_item):
+          fixed_arg.append(next_item.replace('\\', '/'))
+        else:
+          fixed_arg.append(next_item)
+      arg = fixed_arg
+    return arg
   
   def run_program(self, program, args, cwd = None, env = None):
     rv = self.run_program_raw(program, args, cwd = cwd, env = env)
