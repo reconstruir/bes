@@ -91,7 +91,7 @@ class execute(object):
     if raise_error:
       if rv.exit_code != 0:
         clazz._log.log_d(rv.exit_code)
-        ex = RuntimeError('caca') #rv.stdout)
+        ex = RuntimeError(rv.stdout)
         setattr(ex, 'execute_result', rv)
         clazz._log.log_d('stderr={}'.format(rv.stderr))
         clazz._log.log_d('stdout={}'.format(rv.stdout))
