@@ -34,8 +34,9 @@ class execute(object):
     # If the first argument is a python script, then run it with python always
     if path.exists(parsed_args[0]) and python.is_python_script(parsed_args[0]):
       python_exe = python.find_python_exe()
-      quoted_python_exe = '"{}"'.format(python_exe)
-      parsed_args.insert(0, quoted_python_exe)
+      if ' ' in python_exe:
+        python_exe = '"{}"'.format(python_exe)
+      parsed_args.insert(0, python_exe)
       
     if shell:
       parsed_args = ' '.join(parsed_args)
