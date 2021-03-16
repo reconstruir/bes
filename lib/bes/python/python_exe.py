@@ -223,7 +223,7 @@ raise SystemExit(0)
     patterns = [
       'python',
       'python[0-9]',
-      'python[0-9].[0-9]*',
+      'python[0-9].[0-9]',
     ]
     patterns_with_extensions = []
     for pattern in patterns:
