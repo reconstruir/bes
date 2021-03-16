@@ -32,7 +32,12 @@ class process_lister_macos(process_lister_base):
       else:
         tty = '/dev/tty' + tty
       command = parts[-1]
-      info = process_info(user, pid, cpu, mem, vsz, rss, tty, command)
+      other = {
+        'vsz': vsz,
+        'rss': rss,
+        'tty': tty,
+      }
+      info = process_info(user, pid, cpu, mem, command, other)
       result.append(info)
     return result
   

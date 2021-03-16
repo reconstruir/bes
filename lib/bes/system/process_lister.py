@@ -1,8 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import platform
-
 from .detail.process_lister_base import process_lister_base
+from .host import host
 
 class process_lister(process_lister_base):
 
@@ -19,15 +18,14 @@ class process_lister(process_lister_base):
 
   @classmethod
   def _find_impl_class(clazz):
-    system = platform.system()
-    if system == 'Linux':
+    if host.is_linux():
       from .detail.process_lister_linux import process_lister_linux
       return process_lister_linux
-    elif system == 'Darwin':
+    elif host.is_macos():
       from .detail.process_lister_macos import process_lister_macos
       return process_lister_macos
-    elif system == 'Windows':
+    elif host.is_windows():
       from .detail.process_lister_windows import process_lister_windows
       return process_lister_windows
     else:
-      return None
+      host.raise_unsupported_system()
