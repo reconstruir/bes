@@ -1,23 +1,24 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from os import path
-import os, sys
+import os
+import os.path as path
+import sys
 
 from collections import namedtuple
 
 from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.fs.file_path import file_path
+from bes.fs.file_symlink import file_symlink
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
-from bes.fs.file_symlink import file_symlink
 from bes.system.execute import execute
 from bes.system.host import host
-from bes.system.which import which
+from bes.system.log import logger
 from bes.system.os_env import os_env_var
-from bes.version.software_version import software_version
-
+from bes.system.which import which
 from bes.unix.brew.brew import brew
+from bes.version.software_version import software_version
 
 from .python_error import python_error
 from .python_version import python_version
@@ -25,6 +26,8 @@ from .python_version import python_version
 class python_exe(object):
   'Class to deal with the python executable.'
 
+  _log = logger('python_exe')
+  
   @classmethod
   def full_version(clazz, exe):
     'Return the full version of a python executable'
@@ -52,7 +55,7 @@ class python_exe(object):
       next_version = clazz.version(next_exe)
       if next_version == version:
         return next_exe
-    raise python_error('No python executable found for version: "{}"'.format(version))
+    return None
 
   @classmethod
   def find_python_full_version(clazz, full_version):
@@ -121,9 +124,7 @@ class python_exe(object):
   def _source_is_system(clazz, exe):
     'Return True if the given python executable came builtin to the current system'
 
-    if host.is_macos():
-      return exe.lower().startswith('/usr/bin/python')
-    elif host.is_linux():
+    if host.is_unix():
       return exe.lower().startswith('/usr/bin/python')
     else:
       host.raise_unsupported_system()
@@ -221,17 +222,24 @@ raise SystemExit(0)
     'Return all the executables in PATH that match any patterns'
     patterns = [
       'python',
-      'python2',
-      'python2.?',
-      'python3',
-      'python3.?',
+      'python[0-9]',
+      'python[0-9].[0-9]*',
     ]
     patterns_with_extensions = []
     for pattern in patterns:
-      patterns_with_extensions.extend([ pattern + os.extsep + ext for ext in which.EXE_EXTENSIONS ])
+      if host.is_windows():
+        patterns_with_extensions.extend([ pattern + os.extsep + ext for ext in which.EXE_EXTENSIONS ])
+      elif host.is_unix():
+        patterns_with_extensions.append(pattern)
+      else:
+        host.raise_unsupported_system()
     env_path = os_env_var('PATH').path
     sanitized_env_path = clazz._sanitize_env_path(env_path)
     result = file_path.glob(sanitized_env_path, patterns_with_extensions)
+    clazz._log.log_d('patterns_with_extensions={}'.format(patterns_with_extensions))
+    clazz._log.log_d('                env_path={}'.format(env_path))
+    clazz._log.log_d('      sanitized_env_path={}'.format(sanitized_env_path))
+    clazz._log.log_d('                  result={}'.format(result))
     return result
 
   @classmethod
