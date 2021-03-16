@@ -28,7 +28,8 @@ class pyinstaller_exe(object):
     env.update(replace_env)
     clazz._log.log_d('using env: {}'.format(pprint.pformat(env)))
     clazz._log.log_d('calling pyinstaller: {}'.format(' '.join(cmd)))
-    file_util.mkdir(cwd)
+    if cwd:
+      file_util.mkdir(cwd)
     rv = execute.execute(cmd,
                          env = env,
                          shell = False,
