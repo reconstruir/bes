@@ -47,8 +47,12 @@ class python_exe(object):
   @classmethod
   def find_python_version(clazz, version):
     'Return the python executable for major.minor version or None if not found'
-    exe = 'python{}'.format(version)
-    return which.which(exe, raise_error = False)
+    all_exes = python_exe.find_python_exes()
+    for next_exe in all_exes:
+      next_version = clazz.version(next_exe)
+      if next_version == version:
+        return next_exe
+    raise python_error('No python executable found for version: "{}"'.format(version))
 
   @classmethod
   def find_python_full_version(clazz, full_version):
@@ -215,7 +219,6 @@ raise SystemExit(0)
   @classmethod
   def _find_python_exes_in_PATH(clazz):
     'Return all the executables in PATH that match any patterns'
-    assert False
     patterns = [
       'python',
       'python2',
@@ -225,8 +228,19 @@ raise SystemExit(0)
     ]
     patterns_with_extensions = []
     for pattern in patterns:
-      patterns_with_extensions.extend([ pattern + os.extsep + ext for ext in clazz.EXE_EXTENSIONS ])
-    return file_path.glob(os_env_var('PATH').path, patterns_with_extensions)
+      patterns_with_extensions.extend([ pattern + os.extsep + ext for ext in which.EXE_EXTENSIONS ])
+    env_path = os_env_var('PATH').path
+    sanitized_env_path = clazz._sanitize_env_path(env_path)
+    result = file_path.glob(sanitized_env_path, patterns_with_extensions)
+    return result
+
+  @classmethod
+  def _sanitize_env_path(clazz, env_path):
+    result = []
+    for next_path in env_path:
+      if not r'Microsoft\WindowsApps' in next_path:
+        result.append(next_path)
+    return result
   
   @classmethod
   def _inode_map(clazz, exes):
