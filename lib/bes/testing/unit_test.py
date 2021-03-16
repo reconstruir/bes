@@ -301,7 +301,7 @@ class unit_test(unittest.TestCase):
   
   @classmethod
   def _xp_filename_unix(clazz, p, sep = None):
-    sep = sep or '/'
+    sep = sep or clazz._XP_SEP
     result = p.replace('/', sep)
     result = result.replace('\\', sep)
     return result
