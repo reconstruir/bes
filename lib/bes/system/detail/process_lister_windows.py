@@ -10,8 +10,9 @@ from .process_lister_base import process_lister_base
 
 class process_lister_windows(process_lister_base):
 
+  @classmethod
   #@abstractmethod
-  def list_processes(self):
+  def list_processes(clazz):
     'List all processes.'
 
     # tasklist fields:
@@ -36,9 +37,9 @@ class process_lister_windows(process_lister_base):
       session_number = row.pop(0)
       mem_usage = row.pop(0)
       status = row.pop(0)
-      user_name = self._fix_na_strings(row.pop(0))
+      user_name = clazz._fix_na_strings(row.pop(0))
       cpu_time = row.pop(0)
-      window_title = self._fix_na_strings(row.pop(0))
+      window_title = clazz._fix_na_strings(row.pop(0))
       other = {
         'window_title': window_title,
         'status': status,

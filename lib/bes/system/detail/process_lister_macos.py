@@ -10,8 +10,9 @@ from .ps_output_parser import ps_output_parser
 
 class process_lister_macos(process_lister_base):
 
+  @classmethod
   #@abstractmethod
-  def list_processes(self):
+  def list_processes(clazz):
     'List all processes.'
     rv = execute.execute('ps aux')
     lines = text_line_parser.parse_lines(rv.stdout, strip_comments = False, strip_text = True, remove_empties = True)
