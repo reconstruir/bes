@@ -377,7 +377,8 @@ class unit_test(unittest.TestCase):
     return result
 
   @classmethod
-  def make_temp_dir(clazz, prefix = None, suffix = None, dir = None, mtime = None):
+  def make_temp_dir(clazz, prefix = None, suffix = None, dir = None,
+                    mtime = None, xp_filename = False):
     'Make a temporary directory.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or '.dir'
@@ -392,6 +393,8 @@ class unit_test(unittest.TestCase):
     if mtime:
       assert isinstance(mtime, datetime)
       clazz._set_mtime(tmp_dir, mtime)
+    if xp_filename:
+      tmp_dir = clazz.xp_filename(tmp_dir, sep = '/')
     return tmp_dir
 
   @classmethod
