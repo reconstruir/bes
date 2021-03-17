@@ -59,20 +59,28 @@ class handle_output_parser(object):
     items = clazz._parse_items(lines)
     return clazz._section(header, items)
 
-  _item = namedtuple('_item', 'handle_id, handle_type, target')
   @classmethod
   def _parse_items(clazz, lines):
     'Parse lines of items.'
     items = []
     for line in lines:
-      parts = [ part for part in re.split(r'\s+', line) if part ]
-      assert len(parts) == 3
-      handle_id = clazz._parse_handle_id(parts.pop(0))
-      handle_type = parts.pop(0).lower()
-      handle_target = parts.pop(0)
-      item = clazz._item(handle_id, handle_type, handle_target)
+      item = clazz._parse_item(line)
       items.append(item)
     return items
+
+  _item = namedtuple('_item', 'handle_id, handle_type, target')
+  @classmethod
+  def _parse_item(clazz, line):
+    'Parse one item.'
+    parts = [ part for part in re.split(r'\s+', line) if part ]
+    if len(parts) < 3:
+      raise ValueError('Invalid line: "{}" => {}'.format(line, parts))
+    target_index = line.find(parts[2])
+    assert target_index > 0
+    handle_target = line[target_index:]
+    handle_id = clazz._parse_handle_id(parts.pop(0))
+    handle_type = parts.pop(0).lower()
+    return clazz._item(handle_id, handle_type, handle_target)
   
   @classmethod
   def _parse_handle_id(clazz, s):

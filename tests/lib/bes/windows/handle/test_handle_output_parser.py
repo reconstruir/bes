@@ -24,6 +24,7 @@ conhost.exe pid: 10320 BEDROCK\fred
   1D0: Section       \Sessions\1\BaseNamedObjects\SessionImmersiveColorPreference
   1DC: File          C:\Windows\System32\en-US\user32.dll.mui
   1FC: Section       \Sessions\1\BaseNamedObjects\windows_shell_global_counters
+  1FD: File          C:\Program Files\space in name.dll
 '''
     expected = (
       ( 'conhost.exe', 10320, 'BEDROCK\\fred' ),
@@ -34,6 +35,7 @@ conhost.exe pid: 10320 BEDROCK\fred
         ( 464, 'section', r'\Sessions\1\BaseNamedObjects\SessionImmersiveColorPreference' ),
         ( 476, 'file', r'C:\Windows\System32\en-US\user32.dll.mui' ),
         ( 508, 'section', r'\Sessions\1\BaseNamedObjects\windows_shell_global_counters' ),
+        ( 509, 'file', r'C:\Program Files\space in name.dll' ),
       ]
     )
     actual = P._parse_section(text)
