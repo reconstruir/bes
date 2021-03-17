@@ -68,7 +68,7 @@ class handle_output_parser(object):
       parts = [ part for part in re.split(r'\s+', line) if part ]
       assert len(parts) == 3
       handle_id = clazz._parse_handle_id(parts.pop(0))
-      handle_type = parts.pop(0)
+      handle_type = parts.pop(0).lower()
       handle_target = parts.pop(0)
       item = clazz._item(handle_id, handle_type, handle_target)
       items.append(item)

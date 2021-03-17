@@ -3,7 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 
-from bes.system.detail.handle_output_parser import handle_output_parser as P
+from bes.windows.handle.handle_output_parser import handle_output_parser as P
 
 class test_handle_output_parser(unit_test):
 
@@ -28,12 +28,12 @@ conhost.exe pid: 10320 BEDROCK\fred
     expected = (
       ( 'conhost.exe', 10320, 'BEDROCK\\fred' ),
       [
-        ( 304, 'File', r'C:\Windows\System32\en-US\Conhost.exe.mui' ),
-        ( 432, 'Section', r'\Windows\Theme3773140654' ),
-        ( 456, 'File', r'C:\Windows\Fonts\StaticCache.dat' ),
-        ( 464, 'Section', r'\Sessions\1\BaseNamedObjects\SessionImmersiveColorPreference' ),
-        ( 476, 'File', r'C:\Windows\System32\en-US\user32.dll.mui' ),
-        ( 508, 'Section', r'\Sessions\1\BaseNamedObjects\windows_shell_global_counters' ),
+        ( 304, 'file', r'C:\Windows\System32\en-US\Conhost.exe.mui' ),
+        ( 432, 'section', r'\Windows\Theme3773140654' ),
+        ( 456, 'file', r'C:\Windows\Fonts\StaticCache.dat' ),
+        ( 464, 'section', r'\Sessions\1\BaseNamedObjects\SessionImmersiveColorPreference' ),
+        ( 476, 'file', r'C:\Windows\System32\en-US\user32.dll.mui' ),
+        ( 508, 'section', r'\Sessions\1\BaseNamedObjects\windows_shell_global_counters' ),
       ]
     )
     actual = P._parse_section(text)
@@ -61,12 +61,12 @@ System pid: 4 \<unable to open process>'
       (
         None,
         [
-          ( 304, 'File', r'C:\Windows\System32\en-US\Conhost.exe.mui' ),
-          ( 432, 'Section', r'\Windows\Theme3773140654' ),
-          ( 456, 'File', r'C:\Windows\Fonts\StaticCache.dat' ),
-          ( 464, 'Section', r'\Sessions\1\BaseNamedObjects\SessionImmersiveColorPreference' ),
-          ( 476, 'File', r'C:\Windows\System32\en-US\user32.dll.mui' ),
-          ( 508, 'Section', r'\Sessions\1\BaseNamedObjects\windows_shell_global_counters' ),
+          ( 304, 'file', r'C:\Windows\System32\en-US\Conhost.exe.mui' ),
+          ( 432, 'section', r'\Windows\Theme3773140654' ),
+          ( 456, 'file', r'C:\Windows\Fonts\StaticCache.dat' ),
+          ( 464, 'section', r'\Sessions\1\BaseNamedObjects\SessionImmersiveColorPreference' ),
+          ( 476, 'file', r'C:\Windows\System32\en-US\user32.dll.mui' ),
+          ( 508, 'section', r'\Sessions\1\BaseNamedObjects\windows_shell_global_counters' ),
         ]
       ),
     ]
@@ -114,12 +114,12 @@ cmd.exe pid: 8544 BEDROCK\fred
       (
         ( 'conhost.exe', 10320, 'BEDROCK\\fred' ),
         [
-          ( 304, 'File', r'C:\Windows\System32\en-US\Conhost.exe.mui' ),
-          ( 432, 'Section', r'\Windows\Theme3773140654' ),
-          ( 456, 'File', r'C:\Windows\Fonts\StaticCache.dat' ),
-          ( 464, 'Section', r'\Sessions\1\BaseNamedObjects\SessionImmersiveColorPreference' ),
-          ( 476, 'File', r'C:\Windows\System32\en-US\user32.dll.mui' ),
-          ( 508, 'Section', r'\Sessions\1\BaseNamedObjects\windows_shell_global_counters' ),
+          ( 304, 'file', r'C:\Windows\System32\en-US\Conhost.exe.mui' ),
+          ( 432, 'section', r'\Windows\Theme3773140654' ),
+          ( 456, 'file', r'C:\Windows\Fonts\StaticCache.dat' ),
+          ( 464, 'section', r'\Sessions\1\BaseNamedObjects\SessionImmersiveColorPreference' ),
+          ( 476, 'file', r'C:\Windows\System32\en-US\user32.dll.mui' ),
+          ( 508, 'section', r'\Sessions\1\BaseNamedObjects\windows_shell_global_counters' ),
         ]
       ),
       (

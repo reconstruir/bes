@@ -5,6 +5,7 @@ import csv
 from bes.system.execute import execute
 from bes.compat.StringIO import StringIO
 from bes.system.process_info import process_info
+from bes.windows.handle.handle import handle
 
 from .process_lister_base import process_lister_base
 
@@ -62,4 +63,8 @@ class process_lister_windows(process_lister_base):
   #@abstractmethod
   def open_files(clazz, pid):
     'Return a list of open files for pid or None if pid not found.'
-    raise NotImplemented('open_files')
+
+    handles = handle.open_handles(pid)
+    assert len(handles) == 1
+    items = handles[0].items
+    return sorted([ item.target for item in items if item.handle_type == 'file' ])

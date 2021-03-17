@@ -27,6 +27,12 @@ class process_lister(process_lister_base):
     return clazz._impl_class.list_processes()
 
   @classmethod
+  #@abstractmethod
+  def open_files(clazz, pid):
+    'Return a list of open files for pid or None if pid not found.'
+    return clazz._impl_class.open_files(pid)
+  
+  @classmethod
   def _find_impl_class(clazz):
     if host.is_linux():
       from .detail.process_lister_linux import process_lister_linux

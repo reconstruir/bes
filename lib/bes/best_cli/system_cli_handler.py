@@ -24,5 +24,7 @@ class system_cli_handler(cli_command_handler):
 
   def lsof(self, pid):
     check.check_int(pid)
-    
+
+    for f in process_lister.open_files(pid):
+      print(f)
     return 0
