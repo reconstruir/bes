@@ -67,4 +67,4 @@ class process_lister_windows(process_lister_base):
     handles = handle.open_handles(pid)
     assert len(handles) == 1
     items = handles[0].items
-    return sorted([ item.target for item in items if item.handle_type == 'file' ])
+    return sorted(list(set([ item.target for item in items if item.handle_type == 'file' ])))

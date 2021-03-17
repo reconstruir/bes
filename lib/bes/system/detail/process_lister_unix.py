@@ -5,6 +5,7 @@ from .process_lister_base import process_lister_base
 from bes.system.execute import execute
 from bes.text.text_line_parser import text_line_parser
 from bes.system.process_info import process_info
+from bes.unix.lsof.lsof import lsof
 
 from .ps_output_parser import ps_output_parser
 
@@ -46,4 +47,5 @@ class process_lister_unix(process_lister_base):
   #@abstractmethod
   def open_files(clazz, pid):
     'Return a list of open files for pid or None if pid not found.'
-    raise NotImplemented('open_files')
+    items = lsof.lsof(pid = pid)
+    return sorted(list(set([ item.name for item in items if item.fd_type in ( 'DIR', 'REG', 'CHR' ) ])))
