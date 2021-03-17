@@ -8,7 +8,7 @@ from bes.system.process_info import process_info
 
 from .ps_output_parser import ps_output_parser
 
-class process_lister_macos(process_lister_base):
+class process_lister_unix(process_lister_base):
 
   @classmethod
   #@abstractmethod
