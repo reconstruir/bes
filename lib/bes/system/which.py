@@ -20,11 +20,12 @@ class which(object):
     return path.exists(p) and os.access(p, os.X_OK)
 
   @classmethod
-  def which(clazz, program, raise_error = False):
+  def which(clazz, program, raise_error = False, extra_path = None):
     '''
     Return the absolute path for program or None.
     raise_error will optionally raise a RuntimeError exception if not found.
     '''
+    extra_path = extra_path or []
     if path.isabs(program) and clazz._is_executable(program):
       return program
       
@@ -33,8 +34,9 @@ class which(object):
       if clazz._is_executable(program):
         return program
     else:
+      env_path = os.environ['PATH'].split(os.pathsep) + extra_path
       possible_programs = clazz._possible_program_names(program)
-      for next_path in os.environ['PATH'].split(os.pathsep):
+      for next_path in env_path:
         for possible_program in possible_programs:
           exe_file = path.join(next_path, possible_program)
           if clazz._is_executable(exe_file):

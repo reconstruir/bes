@@ -10,8 +10,9 @@ from .ps_output_parser import ps_output_parser
 
 class process_lister_macos(process_lister_base):
 
+  @classmethod
   #@abstractmethod
-  def list_processes(self):
+  def list_processes(clazz):
     'List all processes.'
     rv = execute.execute('ps aux')
     lines = text_line_parser.parse_lines(rv.stdout, strip_comments = False, strip_text = True, remove_empties = True)
@@ -32,7 +33,17 @@ class process_lister_macos(process_lister_base):
       else:
         tty = '/dev/tty' + tty
       command = parts[-1]
-      info = process_info(user, pid, cpu, mem, vsz, rss, tty, command)
+      other = {
+        'vsz': vsz,
+        'rss': rss,
+        'tty': tty,
+      }
+      info = process_info(user, pid, cpu, mem, command, other)
       result.append(info)
     return result
   
+  @classmethod
+  #@abstractmethod
+  def open_files(clazz, pid):
+    'Return a list of open files for pid or None if pid not found.'
+    raise NotImplemented('open_files')

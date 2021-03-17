@@ -11,3 +11,5 @@ class user(object):
     USERNAME = pwd.getpwuid(os.getuid()).pw_name
   elif host.is_windows():
     USERNAME = os.environ.get('USERNAME')
+  else:
+    host.raise_unsupported_system()

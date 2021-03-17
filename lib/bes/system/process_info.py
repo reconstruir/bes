@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-class process_info(namedtuple('process_info', 'user, pid, cpu, mem, vsz, rss, tty, command')):
+class process_info(namedtuple('process_info', 'user, pid, cpu, mem, command, other')):
 
-  def __new__(clazz, user, pid, cpu, mem, vsz, rss, tty, command):
-    return clazz.__bases__[0].__new__(clazz, user, pid, cpu, mem, vsz, rss, tty, command)
+  def __new__(clazz, user, pid, cpu, mem, command, other):
+    return clazz.__bases__[0].__new__(clazz, user, pid, cpu, mem, command, other)

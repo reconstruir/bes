@@ -5,8 +5,15 @@ from bes.system.compat import with_metaclass
 
 class process_lister_base(with_metaclass(ABCMeta, object)):
   'Abstract interface for listing processes.'
-  
+
+  @classmethod
   @abstractmethod
-  def list_processes(self):
+  def list_processes(clazz):
     'List all processes.'
     raise NotImplemented('list_processes')
+
+  @classmethod
+  @abstractmethod
+  def open_files(clazz, pid):
+    'Return a list of open files for pid or None if pid not found.'
+    raise NotImplemented('open_files')
