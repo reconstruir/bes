@@ -61,6 +61,7 @@ class best_cli(cli):
   from bes.vmware.vmware_preferences_cli_args import vmware_preferences_cli_args
   from bes.vmware.vmware_server_cli_args import vmware_server_cli_args
   from bes.vmware.vmware_session_cli_args import vmware_session_cli_args
+  from .system_cli_args import system_cli_args
   COMMON_COMMAND_GROUPS = [
     cli_command('archive', 'archive_add_args', 'Deal with archive', archive_cli_args),
     cli_command('computer_setup', 'computer_setup_add_args', 'Deal with computer setup', computer_setup_cli_args),
@@ -81,6 +82,7 @@ class best_cli(cli):
     cli_command('vmware_preferences', 'vmware_preferences_add_args', 'Deal with vmware preferences', vmware_preferences_cli_args),
     cli_command('vmware_server', 'vmware_server_add_args', 'Deal with vmware server', vmware_server_cli_args),
     cli_command('vmware_session', 'vmware_session_add_args', 'Deal with vmware session', vmware_session_cli_args),
+    cli_command('system', 'system_add_args', 'Deal with system', system_cli_args),
   ]
 
   COMMAND_GROUPS = COMMON_COMMAND_GROUPS + MACOS_COMMAND_GROUPS + UNIX_COMMAND_GROUPS
