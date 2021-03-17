@@ -11,3 +11,9 @@ class process_lister_base(with_metaclass(ABCMeta, object)):
   def list_processes(clazz):
     'List all processes.'
     raise NotImplemented('list_processes')
+
+  @classmethod
+  @abstractmethod
+  def open_files(clazz, pid):
+    'Return a list of open files for pid or None if pid not found.'
+    raise NotImplemented('open_files')

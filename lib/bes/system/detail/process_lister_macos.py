@@ -42,3 +42,8 @@ class process_lister_macos(process_lister_base):
       result.append(info)
     return result
   
+  @classmethod
+  #@abstractmethod
+  def open_files(clazz, pid):
+    'Return a list of open files for pid or None if pid not found.'
+    raise NotImplemented('open_files')

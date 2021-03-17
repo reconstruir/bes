@@ -57,3 +57,9 @@ class process_lister_windows(process_lister_base):
     if s == 'N/A':
       return None
     return s
+
+  @classmethod
+  #@abstractmethod
+  def open_files(clazz, pid):
+    'Return a list of open files for pid or None if pid not found.'
+    raise NotImplemented('open_files')

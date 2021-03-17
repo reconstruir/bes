@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 class ps_output_parser(object):
-  'Class to parse the oputput of ps aux'
+  'Class to parse the output of "ps aux" on unix'
 
   @classmethod
   def parse_ps_output_line(clazz, text, num_fields):

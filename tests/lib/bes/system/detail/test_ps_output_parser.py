@@ -5,7 +5,7 @@ from bes.testing.unit_test import unit_test
 
 from bes.system.detail.ps_output_parser import ps_output_parser as P
 
-class test_linux_os_release(unit_test):
+class test_ps_output_parser(unit_test):
 
   def test_parse_ps_output_line(self):
     text = '''\
