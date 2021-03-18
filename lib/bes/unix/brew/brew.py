@@ -58,13 +58,13 @@ class brew(object):
   @classmethod
   def available(clazz):
     'Return a list of all available packages.'
-    rv = clazz.call_brew([ 'search' ])
+    rv = clazz.call_brew([ 'formulae', '-1' ])
     return sorted(string_util.split_by_white_space(rv.stdout, strip = True))
 
   @classmethod
   def installed(clazz):
     'Return a list of all installed packages.'
-    rv = clazz.call_brew([ 'list' ])
+    rv = clazz.call_brew([ 'list', '-1' ])
     return sorted(string_util.split_by_white_space(rv.stdout, strip = True))
   
   @classmethod
