@@ -11,12 +11,12 @@ from .pip_error import pip_error
 from .pip_exe import pip_exe
 from .pip_installer import pip_installer
 
-class pip_cli_command(object):
+class pip_cli_handler(object):
   'python cli commands.'
 
   @classmethod
   def handle_command(clazz, command, **kargs):
-    func = getattr(pip_cli_command, command)
+    func = getattr(pip_cli_handler, command)
     return func(**kargs)
 
   @classmethod

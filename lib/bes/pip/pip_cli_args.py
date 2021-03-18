@@ -41,6 +41,6 @@ class pip_cli_args(object):
                    default = False, help = 'Verbose output')
     
   def _command_pip(self, command, *args, **kargs):
-    from .pip_cli_command import pip_cli_command
-    return pip_cli_command.handle_command(command, **kargs)
+    from .pip_cli_handler import pip_cli_handler
+    return pip_cli_handler.handle_command(command, **kargs)
   
