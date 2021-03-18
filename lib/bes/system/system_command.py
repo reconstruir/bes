@@ -8,6 +8,7 @@ from bes.system.compat import with_metaclass
 from .command_line import command_line
 from .compat import compat
 from .execute import execute
+from .host import host
 from .which import which
 
 class system_command(with_metaclass(ABCMeta, object)):
@@ -32,6 +33,11 @@ class system_command(with_metaclass(ABCMeta, object)):
   def static_args(self):
     'List of static arg for all calls of the command.'
     raise NotImplemented('static_args')
+
+  @abstractmethod
+  def supported_systems(self):
+    'Return a list of supported systems.'
+    raise NotImplemented('supported_systems')
   
   def _find_exe(self):
     'Find the exe'
@@ -65,6 +71,25 @@ class system_command(with_metaclass(ABCMeta, object)):
     cmd = [ exe ] + list(static_args) + args
     return execute.execute(cmd, raise_error = raise_error)
 
+  def check_system(self):
+    'Check that the current system supports this command otherwise raise an error'
+    supported_systems = self.supported_systems()
+    if host.SYSTEM in supported_systems:
+      return
+    error_class = self.error_class()
+    raise error_class('{} is not supported on {} - only {}'.format(self.exe_name(),
+                                                                   host.SYSTEM,
+                                                                   ' '.join(supported_systems)))
+  
+  def has_command(self):
+    'Return True if the command is found'
+    try:
+      exe = self._find_exe()
+      return True
+    except self.error_class() as ex:
+      pass
+    return False
+  
   @classmethod
   def split_lines(self, text):
     lines = text.splitlines()

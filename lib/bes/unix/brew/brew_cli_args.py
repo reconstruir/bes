@@ -15,6 +15,14 @@ class brew_cli_args(object):
 
     # available
     p = subparser.add_parser('available', help = 'Print list of available packages.')
+
+    # files
+    p = subparser.add_parser('files', help = 'Print files for a package.')
+    p.add_argument('-i', '--inode', action = 'store_true', default = False,
+                   dest = 'print_inode',
+                   help = 'Print inode for each file [ False ]')
+    p.add_argument('package_name', action = 'store', default = None,
+                   help = 'The package to print files for []')
     
   def __brew_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,

@@ -2,14 +2,14 @@
 
 from bes.system.system_command import system_command
 
-from .lsof_error import lsof_error
+from .brew_error import brew_error
 
-class lsof_command(system_command):
+class brew_command(system_command):
 
   #@abstractmethod
   def exe_name(self):
     'The name of the executable.'
-    return 'lsof'
+    return 'brew'
 
   #@abstractmethod
   def extra_path(self):
@@ -19,12 +19,12 @@ class lsof_command(system_command):
   #@abstractmethod
   def error_class(self):
     'The error exception class to raise when errors happen.'
-    return lsof_error
+    return brew_error
   
   #@abstractmethod
   def static_args(self):
     'List of static arg for all calls of the command.'
-    return ( '-w', )
+    return None
 
   #@abstractmethod
   def supported_systems(self):
