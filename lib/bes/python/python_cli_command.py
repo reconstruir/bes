@@ -40,3 +40,11 @@ class python_cli_command(cli_command_handler):
       if show_info:
         self.info(exe)
     return 0
+
+  def default_exe(self):
+    exe = python_exe.default_exe()
+    if not exe:
+      print('')
+      return 1
+    print(exe)
+    return 0

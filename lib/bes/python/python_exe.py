@@ -263,6 +263,8 @@ raise SystemExit(0)
   def _sanitize_env_path(clazz, env_path):
     result = []
     for next_path in env_path:
+      # Windows has some exes named pythonX.exe which call the app store to
+      # install python if invoked - not real python so ignore those
       if not r'Microsoft\WindowsApps' in next_path:
         result.append(next_path)
     return result
@@ -280,4 +282,12 @@ raise SystemExit(0)
     for inode, links in result.items():
       sorted_result[inode] = sorted(result[inode], key = lambda exe: len(exe), reverse = True)
     return sorted_result
-  
+
+  @classmethod
+  def default_exe(clazz):
+    'Return the default python executable'
+
+    all_exes = python_exe.find_python_exes()
+    for next_exe in all_exes:
+      print('next_exe: {}'.format(next_exe))
+    return all_exes[0]

@@ -18,8 +18,7 @@ class pip_cli_handler(cli_command_handler):
     self.options.blurber.set_verbose(self.options.verbose)
     self._installer = pip_installer(self.options)
     
-  def update(self, py_exe, pip_version):
-    check.check_string(py_exe)
+  def update(self, pip_version):
     check.check_string(pip_version)
 
     self._installer.update(py_exe, pip_version)
