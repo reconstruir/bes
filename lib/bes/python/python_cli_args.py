@@ -26,5 +26,5 @@ class python_cli_args(object):
     p = subparser.add_parser('default_exe', help = 'Print the default python exe.')
     
   def _command_python(self, command, *args, **kargs):
-    from .python_cli_command import python_cli_command
-    return python_cli_command(kargs).handle_command(command)
+    from .python_cli_handler import python_cli_handler
+    return python_cli_handler(kargs).handle_command(command)

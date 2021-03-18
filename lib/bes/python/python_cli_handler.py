@@ -8,11 +8,11 @@ from bes.text.text_table import text_table
 
 from .python_exe import python_exe
 
-class python_cli_command(cli_command_handler):
+class python_cli_handler(cli_command_handler):
   'python cli commands.'
 
   def __init__(self, cli_args):
-    super(python_cli_command, self).__init__(cli_args)
+    super(python_cli_handler, self).__init__(cli_args)
   
   def ver(self):
     print(sys.version)
