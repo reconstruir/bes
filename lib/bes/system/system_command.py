@@ -55,6 +55,9 @@ class system_command(with_metaclass(ABCMeta, object)):
 
   def call_command(self, args, raise_error = True):
     'Call the command'
+
+    self.check_supported()
+    
     if isinstance(args, ( list, tuple )):
       parsed_args = list(args)
     elif isinstance(args, compat.STRING_TYPES):
@@ -71,18 +74,30 @@ class system_command(with_metaclass(ABCMeta, object)):
     cmd = [ exe ] + list(static_args) + args
     return execute.execute(cmd, raise_error = raise_error)
 
-  def check_system(self):
+  def call_command_parse_lines(self, args, sort = False):
+    'Call a command that returns a list of lines'
+    rv = self.call_command(args, raise_error = True)
+    result = self.split_lines(rv.stdout)
+    if sort:
+      result = sorted(result)
+    return result
+
+  def is_supported(self):
+    'Return True if this command is support on the current system'
+    return host.SYSTEM in self.supported_systems()
+  
+  def check_supported(self):
     'Check that the current system supports this command otherwise raise an error'
-    supported_systems = self.supported_systems()
-    if host.SYSTEM in supported_systems:
+    if self.is_supported():
       return
-    error_class = self.error_class()
     raise error_class('{} is not supported on {} - only {}'.format(self.exe_name(),
                                                                    host.SYSTEM,
-                                                                   ' '.join(supported_systems)))
+                                                                   ' '.join(self.supported_systems())))
   
   def has_command(self):
     'Return True if the command is found'
+    if not self.is_supported():
+      return False
     try:
       exe = self._find_exe()
       return True

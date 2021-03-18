@@ -7,20 +7,21 @@ from bes.system.log import logger
 
 from .brew_command import brew_command
 from .brew_error import brew_error
+from .brew_options import brew_options
 
 class brew(object):
   'Class to deal with unix brew.'
 
   _log = logger('brew')
 
-  def __init__(self, options):
-    self._options = options
+  def __init__(self, options = None):
+    self._options = options or brew_options()
     self._command = brew_command()
-  
-  def has_brew():
-    'Return True if brew is installed.'
-    self._command.check_system()
-    return self._command.has_command()
+
+  @classmethod
+  def has_brew(clazz):
+    'Return True if brew is supported and installed.'
+    return brew_command().has_command()
     
   def version(self):
     'Return the version of brew.'
@@ -35,13 +36,11 @@ class brew(object):
 
   def available(self):
     'Return a list of all available packages.'
-    rv = self._command.call_command([ 'formulae', '-1' ])
-    return sorted(self._command.split_lines(rv.stdout))
+    return self._command.call_command_parse_lines([ 'formulae', '-1' ], sort = True)
 
   def installed(self):
     'Return a list of all installed packages.'
-    rv = self._command.call_command([ 'list', '-1' ])
-    return sorted(self._command.split_lines(rv.stdout))
+    return self._command.call_command_parse_lines([ 'list', '-1' ], sort = True)
   
   def uninstall(self, package_name):
     'Uninstall a package.'
@@ -59,6 +58,5 @@ class brew(object):
     'Return a list of files for a package.'
     check.check_string(package_name)
 
-    rv = self._command.call_command([ 'list', '-1', package_name ])
-    return sorted(self._command.split_lines(rv.stdout))
+    return self._command.call_command_parse_lines([ 'list', '-1', package_name ], sort = True)
     
