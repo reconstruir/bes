@@ -42,5 +42,4 @@ class pip_cli_args(object):
     
   def _command_pip(self, command, *args, **kargs):
     from .pip_cli_handler import pip_cli_handler
-    return pip_cli_handler.handle_command(command, **kargs)
-  
+    return pip_cli_handler(kargs).handle_command(command)
