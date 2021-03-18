@@ -8,11 +8,11 @@ from bes.script.blurber import blurber
 from .python_installer import python_installer
 from .python_installer_options import python_installer_options
 
-class python_installer_cli_command(cli_command_handler):
+class python_installer_cli_handler(cli_command_handler):
   'python installer cli handler.'
 
   def __init__(self, cli_args):
-    super(python_installer_cli_command, self).__init__(cli_args, options_class = python_installer_options)
+    super(python_installer_cli_handler, self).__init__(cli_args, options_class = python_installer_options)
     check.check_python_installer_options(self.options)
     bl = blurber(Script.name())
     bl.set_verbose(self.options.verbose)
