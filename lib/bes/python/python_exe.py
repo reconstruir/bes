@@ -106,12 +106,29 @@ class python_exe(object):
 
     if not brew.has_brew():
       return False
-    
+
+    # This is slighlty faster than checking inodes, but it does
+    # not always work depending on the python version and perhaps
+    # whether its the main one
     if host.is_macos():
       actual_exe = file_symlink.resolve(exe)
-      return 'cellar' in actual_exe.lower()
-    else:
-      host.raise_unsupported_system()
+      if 'cellar' in actual_exe.lower():
+        return True
+
+    # Check if the inode for exe matches a file in a python package in brew.
+    # Checking the inode deals with links, indirection and other tricks
+    # brew does to obfuscate the real exe
+    exe_inode = file_util.inode_number(exe)
+    b = brew()
+    packages = b.installed()
+    python_packages = [ p for p in packages if p.startswith('python@') ]
+    for next_package in python_packages:
+      files = b.files(next_package)
+      for f in files:
+        next_file_inode = file_util.inode_number(f)
+        if exe_inode == next_file_inode:
+          return True
+    return False
 
   @classmethod
   def _source_is_xcode(clazz, exe):

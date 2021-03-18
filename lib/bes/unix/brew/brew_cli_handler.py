@@ -4,6 +4,7 @@ from os import path
 
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
+from bes.fs.file_util import file_util
 
 from .brew import brew
 from .brew_options import brew_options
@@ -39,6 +40,10 @@ class brew_cli_handler(cli_command_handler):
     
     files = self._brew.files(package_name)
     for f in files:
-      print(f)
+      if print_inode:
+        inode = '{} '.format(file_util.inode_number(f))
+      else:
+        inode = ''
+      print('{}{}'.format(inode, f))
     return 0
   
