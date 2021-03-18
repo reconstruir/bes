@@ -8,13 +8,13 @@ from bes.common.check import check
 from .brew import brew
 from .brew_options import brew_options
 
-class brew_cli_command(object):
+class brew_cli_handler(object):
 
   @classmethod
   def handle_command(clazz, command, **kargs):
     options = brew_options(**kargs)
     filtered_args = argparser_handler.filter_keywords_args(brew_options, kargs)
-    func = getattr(brew_cli_command, command)
+    func = getattr(brew_cli_handler, command)
     return func(options, **filtered_args)
   
   @classmethod

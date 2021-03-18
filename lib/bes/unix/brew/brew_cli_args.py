@@ -21,5 +21,5 @@ class brew_cli_args(object):
                    help = 'Verbose output [ False ]')
     
   def _command_brew(self, command, *args, **kargs):
-    from .brew_cli_command import brew_cli_command
-    return brew_cli_command.handle_command(command, **kargs)
+    from .brew_cli_handler import brew_cli_handler
+    return brew_cli_handler.handle_command(command, **kargs)
