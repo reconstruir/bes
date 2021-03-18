@@ -233,7 +233,39 @@ raise SystemExit(0)
       main_exe = exes.pop(0)
       result.append(main_exe)
     return result
+  
+  @classmethod
+  def find_all_exes_info(clazz):
+    'Return info about all the executables in PATH that match any patterns'
+    all_exes = clazz.find_all_exes()
+    result = {}
+    for next_exe in all_exes:
+      result[next_exe] = clazz.info(next_exe)
+    return result
 
+  # Order in which versions are checked to return the default exe
+  _DEFAULT_EXE_VERSION_LOOKUP_ORDER = {
+    '3.9': 2,
+    '3.7': 0,
+    '3.8': 1,
+    '2.7': 3,
+  }
+  @classmethod
+  def default_exe(clazz):
+    'Return the default python executable'
+
+    all_info = python_exe.find_all_exes_info()
+    if not all_info:
+      return None
+    by_version = {}
+    for _, next_info in all_info.items():
+      by_version[next_info.version] = next_info
+    for version in clazz._DEFAULT_EXE_VERSION_LOOKUP_ORDER:
+      info = by_version.get(version, None)
+      if info:
+        return info.exe
+    return by_version.items()[0].exe
+  
   @classmethod
   def _find_all_exes_in_PATH(clazz):
     'Return all the executables in PATH that match any patterns'
@@ -282,12 +314,3 @@ raise SystemExit(0)
     for inode, links in result.items():
       sorted_result[inode] = sorted(result[inode], key = lambda exe: len(exe), reverse = True)
     return sorted_result
-
-  @classmethod
-  def default_exe(clazz):
-    'Return the default python executable'
-
-    all_exes = python_exe.find_all_exes()
-    for next_exe in all_exes:
-      print('next_exe: {}'.format(next_exe))
-    return all_exes[0]
