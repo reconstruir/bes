@@ -9,7 +9,7 @@ from bes.text.text_table import text_table
 from .python_exe import python_exe
 
 class python_cli_handler(cli_command_handler):
-  'python cli commands.'
+  'python cli handler.'
 
   def __init__(self, cli_args):
     super(python_cli_handler, self).__init__(cli_args)
@@ -34,7 +34,7 @@ class python_cli_handler(cli_command_handler):
   def exes(self, show_info):
     check.check_bool(show_info)
     
-    python_exes = python_exe.find_python_exes()
+    python_exes = python_exe.find_all_exes()
     for exe in python_exes:
       print(exe)
       if show_info:

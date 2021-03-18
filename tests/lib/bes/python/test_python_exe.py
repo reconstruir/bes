@@ -22,27 +22,27 @@ class test_python_exe(unit_test):
     fake_exe = self._make_temp_fake_python('python', 'Python', '2.7.666')
     self.assertEqual( '2.7', python_exe.version(fake_exe) )
 
-  def test_find_python_version(self):
+  def test_find_version(self):
     fake_exe = self._make_temp_fake_python('python6.7', 'Python', '6.7.666')
     with env_override(env = { 'PATH': path.dirname(fake_exe) }) as env:
-      self.assertEqual( fake_exe, python_exe.find_python_version('6.7') )
+      self.assertEqual( fake_exe, python_exe.find_version('6.7') )
 
-  def test_find_python_full_version(self):
+  def test_find_full_version(self):
     fake_exe = self._make_temp_fake_python('python6.7', 'Python', '6.7.666')
     with env_override(env = { 'PATH': path.dirname(fake_exe) }) as env:
-      self.assertEqual( fake_exe, python_exe.find_python_full_version('6.7.666') )
+      self.assertEqual( fake_exe, python_exe.find_full_version('6.7.666') )
 
-  def test_has_python_version(self):
+  def test_has_version(self):
     fake_exe = self._make_temp_fake_python('python6.7', 'Python', '6.7.666')
     with env_override(env = { 'PATH': path.dirname(fake_exe) }) as env:
-      self.assertTrue( python_exe.has_python_version('6.7') )
-      self.assertFalse( python_exe.has_python_version('9.8') )
+      self.assertTrue( python_exe.has_version('6.7') )
+      self.assertFalse( python_exe.has_version('9.8') )
       
-  def test_has_python_full_version(self):
+  def test_has_full_version(self):
     fake_exe = self._make_temp_fake_python('python6.7', 'Python', '6.7.666')
     with env_override(env = { 'PATH': path.dirname(fake_exe) }) as env:
-      self.assertTrue( python_exe.has_python_full_version('6.7.666') )
-      self.assertFalse( python_exe.has_python_full_version('6.7.667') )
+      self.assertTrue( python_exe.has_full_version('6.7.666') )
+      self.assertFalse( python_exe.has_full_version('6.7.667') )
 
   def test_check_exe_success(self):
     fake_exe = self._make_temp_fake_python('python6.7', 'Python', '6.7.666')

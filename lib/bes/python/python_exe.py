@@ -48,9 +48,9 @@ class python_exe(object):
     return '{}.{}'.format(sv.parts[0], sv.parts[1])
 
   @classmethod
-  def find_python_version(clazz, version):
+  def find_version(clazz, version):
     'Return the python executable for major.minor version or None if not found'
-    all_exes = python_exe.find_python_exes()
+    all_exes = python_exe.find_all_exes()
     for next_exe in all_exes:
       next_version = clazz.version(next_exe)
       if next_version == version:
@@ -58,10 +58,10 @@ class python_exe(object):
     return None
 
   @classmethod
-  def find_python_full_version(clazz, full_version):
+  def find_full_version(clazz, full_version):
     'Return the python executable for major.minor.revision full_version or None if not found'
     version = python_version.full_version_to_version(full_version)
-    exe = clazz.find_python_version(version)
+    exe = clazz.find_version(version)
     if not exe:
       return None
     if clazz.full_version(exe) != full_version:
@@ -69,14 +69,14 @@ class python_exe(object):
     return exe
   
   @classmethod
-  def has_python_version(clazz, version):
+  def has_version(clazz, version):
     'Return True if python version major.minor is found'
-    return clazz.find_python_version(version) != None
+    return clazz.find_version(version) != None
 
   @classmethod
-  def has_python_full_version(clazz, full_version):
+  def has_full_version(clazz, full_version):
     'Return True if python version major.minor.revision is found'
-    return clazz.find_python_full_version(full_version) != None
+    return clazz.find_full_version(full_version) != None
 
   @classmethod
   def source(clazz, exe):
@@ -215,7 +215,7 @@ raise SystemExit(0)
   def _determine_main_exe_and_links(clazz, exe):
     'Return info for python executables'
     inode = file_util.inode_number(exe)
-    exes = clazz._find_python_exes_in_PATH()
+    exes = clazz._find_all_exes_in_PATH()
     inode_map = clazz._inode_map(exes)
     if not inode in inode_map:
       return exe, []
@@ -224,9 +224,9 @@ raise SystemExit(0)
     return main_exe, links
   
   @classmethod
-  def find_python_exes(clazz):
+  def find_all_exes(clazz):
     'Return all the executables in PATH that match any patterns'
-    all_exes = clazz._find_python_exes_in_PATH()
+    all_exes = clazz._find_all_exes_in_PATH()
     inode_map = clazz._inode_map(all_exes)
     result = []
     for inode, exes in inode_map.items():
@@ -235,7 +235,7 @@ raise SystemExit(0)
     return result
 
   @classmethod
-  def _find_python_exes_in_PATH(clazz):
+  def _find_all_exes_in_PATH(clazz):
     'Return all the executables in PATH that match any patterns'
     patterns = [
       'python',
@@ -287,7 +287,7 @@ raise SystemExit(0)
   def default_exe(clazz):
     'Return the default python executable'
 
-    all_exes = python_exe.find_python_exes()
+    all_exes = python_exe.find_all_exes()
     for next_exe in all_exes:
       print('next_exe: {}'.format(next_exe))
     return all_exes[0]
