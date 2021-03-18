@@ -24,22 +24,6 @@ class pip_cli_args(object):
     p.add_argument('-v', '--verbose', action = 'store_true',
                    default = False, help = 'Verbose output')
 
-    # pip_update
-    p = subparser.add_parser('update', help = 'Update pip to a specific version or install it if needed.')
-    p.add_argument('py_exe', action = 'store', type = str, default = None,
-                   help = 'The python executable [ None ]')
-    p.add_argument('pip_version', action = 'store', type = str, default = None,
-                   help = 'The pip version [ None ]')
-    p.add_argument('-v', '--verbose', action = 'store_true',
-                   default = False, help = 'Verbose output')
-
-    # pip_uninstall
-    p = subparser.add_parser('uninstall', help = 'Uninstall pip.')
-    p.add_argument('py_exe', action = 'store', type = str, default = None,
-                   help = 'The python executable [ None ]')
-    p.add_argument('-v', '--verbose', action = 'store_true',
-                   default = False, help = 'Verbose output')
-    
   def _command_pip(self, command, *args, **kargs):
     from .pip_cli_handler import pip_cli_handler
     return pip_cli_handler(kargs).handle_command(command)

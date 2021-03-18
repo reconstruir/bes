@@ -8,21 +8,20 @@ from bes.system.os_env import os_env
 from bes.url.url_util import url_util
 from bes.system.execute import execute
 from bes.fs.dir_util import dir_util
-from bes.script.blurber import blurber
 
 from bes.python.python_exe import python_exe
 from bes.python.python_version import python_version
 
 from .pip_error import pip_error
 from .pip_exe import pip_exe
+from .pip_installer_options import pip_installer_options
 
 class pip_installer(object):
   'Install pip.'
 
-  def __init__(self, blurber):
-    check.check_blurber(blurber)
-
-    self._blurber = blurber
+  def __init__(self, options = None):
+    check.check_pip_installer_options(options, allow_none = True)
+    self._options = options or pip_installer_options()
   
   _GET_PIP_URL = 'https://bootstrap.pypa.io/get-pip.py'
   

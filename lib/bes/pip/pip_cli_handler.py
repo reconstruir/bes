@@ -10,7 +10,6 @@ from bes.script.blurber import blurber
 
 from .pip_error import pip_error
 from .pip_exe import pip_exe
-from .pip_installer import pip_installer
 from .pip_options import pip_options
 
 class pip_cli_handler(cli_command_handler):
@@ -20,7 +19,6 @@ class pip_cli_handler(cli_command_handler):
     super(pip_cli_handler, self).__init__(cli_args, options_class = pip_options)
     check.check_pip_options(self.options)
     self.options.blurber.set_verbose(self.options.verbose)
-    self._installer = pip_installer(self.options.blurber)
     
   def ver(self, py_exe):
     check.check_string(py_exe)
@@ -40,20 +38,8 @@ class pip_cli_handler(cli_command_handler):
     check.check_string(py_exe)
 
     exe = pip_exe.pip_exe(py_exe)
+    print('exe={}'.format(exe))
     if pip_exe.pip_exe_is_valid(exe):
       return 0
     else:
       return 1
-
-  def update(self, py_exe, pip_version):
-    check.check_string(py_exe)
-    check.check_string(pip_version)
-
-    self._installer.update(py_exe, pip_version)
-    return 0
-
-  def uninstall(self, py_exe):
-    check.check_string(py_exe)
-
-    self._installer.uninstall(py_exe)
-    return 0
