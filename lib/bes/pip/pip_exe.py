@@ -24,7 +24,7 @@ class pip_exe(object):
   def version_info(clazz, pip_exe):
     'Return the version info of a pip executable'
     check.check_string(pip_exe)
-    
+    from bes.system.log import log
     cmd = [ pip_exe, '--version' ]
     rv = execute.execute(cmd, stderr_to_stdout = True, print_failure = False)
     if rv.exit_code != 0:
