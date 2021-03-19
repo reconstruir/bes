@@ -244,12 +244,12 @@ raise SystemExit(0)
     return result
 
   # Order in which versions are checked to return the default exe
-  _DEFAULT_EXE_VERSION_LOOKUP_ORDER = {
-    '3.9': 2,
-    '3.7': 0,
-    '3.8': 1,
-    '2.7': 3,
-  }
+  _DEFAULT_EXE_VERSION_LOOKUP_ORDER = [
+    '3.7',
+    '3.8',
+    '3.9',
+    '2.7',
+  ]
   @classmethod
   def default_exe(clazz):
     'Return the default python executable'

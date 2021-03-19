@@ -2,7 +2,6 @@
 
 from bes.common.check import check
 from bes.script.blurber import blurber
-from bes.property.cached_property import cached_property
 
 class pip_installer_options(object):
   
@@ -18,9 +17,17 @@ class pip_installer_options(object):
     check.check_string(self.root_dir, allow_none = True)
     check.check_string(self.python_exe, allow_none = True)
 
-  @cached_property
   def resolve_python_exe(self):
     if self.python_exe:
       return self.python_exe
+    from bes.python.python_exe import python_exe
+    return python_exe.default_exe()
+
+  def resolve_root_dir(self):
+    if self.root_dir:
+      return self.root_dir
+    import os
+    import os.path as path
+    return path.join(os.getcwd(), 'BES_PIP_ROOT')
     
 check.register_class(pip_installer_options)

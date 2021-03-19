@@ -7,6 +7,15 @@ class pip_installer_cli_args(object):
   
   def pip_installer_add_args(self, subparser):
 
+    # pip_install
+    p = subparser.add_parser('install', help = 'Install pip to a new root dir.')
+    self.__pip_installer_add_common_args(p)
+    p.add_argument('pip_version', action = 'store', type = str, default = None,
+                   help = 'The pip version [ None ]')
+    p.add_argument('--clobber', action = 'store_true', default = False,
+                   dest = 'clobber_root_dir',
+                   help = 'Clobber the root dir if it exists [ None ]')
+    
     # pip_update
     p = subparser.add_parser('update', help = 'Update pip to a specific version or install it if needed.')
     self.__pip_installer_add_common_args(p)
