@@ -10,12 +10,14 @@ class pip_installer_options(object):
     self.blurber = blurber()
     self.root_dir = None
     self.python_exe = None
+    self.name = None
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_bool(self.verbose)
     check.check_blurber(self.blurber)
     check.check_string(self.root_dir, allow_none = True)
     check.check_string(self.python_exe, allow_none = True)
+    check.check_string(self.name)
 
   def resolve_python_exe(self):
     if self.python_exe:

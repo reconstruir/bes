@@ -25,41 +25,47 @@ class pip_installer(object):
   
   def __init__(self, options = None):
     check.check_pip_installer_options(options, allow_none = True)
+
     self._options = options or pip_installer_options()
+    self._python_exe = self._options.resolve_python_exe()
+    python_exe.check_exe(self._python_exe)
+    self._root_dir = self._options.resolve_root_dir()
+    self._cache_dir = path.join(self._root_dir, '.pip_cache')
+    self._install_dir = path.join(self._root_dir, self._options.name)
 
   _GET_PIP_27_URL = 'https://bootstrap.pypa.io/pip/2.7/get-pip.py'
   _GET_PIP_36_URL = 'https://bootstrap.pypa.io/get-pip.py'
 
-  def install(self, pip_version, clobber_root_dir):
+  def install(self, pip_version, clobber_install_dir):
     'Install pip on an empty root directory'
     check.check_string(pip_version)
-    check.check_bool(clobber_root_dir)
+    check.check_bool(clobber_install_dir)
 
-    py_exe = self._options.resolve_python_exe()
-    python_exe.check_exe(py_exe)
-    
-    root_dir = self._options.resolve_root_dir()
-    self._log.log_d('install: pip_version={} root_dir={} py_exe={}'.format(pip_version, root_dir, py_exe))
+    self._log.log_method_d()
+    self._log.log_d('install: root_dir={} python_exe={}'.format(self._root_dir,
+                                                                self._python_exe))
 
-    if path.exists(root_dir):
-      if not path.isdir(root_dir):
-        raise pip_error('Not a directory: "{}"'.format(root_dir))
-      if clobber_root_dir:
-        file_util.remove(root_dir)
-      if path.isdir(root_dir) and not dir_util.is_empty(root_dir):
-        raise pip_error('Directory not empty: "{}"'.format(root_dir))
+    if path.exists(self._install_dir):
+      if not path.isdir(self._install_dir):
+        raise pip_error('Not a directory: "{}"'.format(self._install_dir))
+      if clobber_install_dir:
+        file_util.remove(self._install_dir)
+      if path.isdir(self._install_dir) and not dir_util.is_empty(self._install_dir):
+        raise pip_error('Directory not empty: "{}"'.format(self._install_dir))
 
-    url = self._determine_get_pip_url(py_exe)
+    url = self._determine_get_pip_url(self._python_exe)
     tmp_get_pip = url_util.download_to_temp_file(url, suffix = '.py')
     self._log.log_d('install: url={} tmp_get_pip={}'.format(url, tmp_get_pip))
       
     cmd = [
-      py_exe,
+      self._python_exe,
       tmp_get_pip,
       'install',
       '--user',
+      '--cache-dir', self._cache_dir,
     ]
-    env = self._make_env(root_dir)
+    env = self._make_env(self._install_dir)
+    file_util.mkdir(self._root_dir)
     self._log.log_d('install: cmd={} env={}'.format(cmd, env))
     execute.execute(cmd, env = env)
 

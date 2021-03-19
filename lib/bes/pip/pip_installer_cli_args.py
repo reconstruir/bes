@@ -13,8 +13,8 @@ class pip_installer_cli_args(object):
     p.add_argument('pip_version', action = 'store', type = str, default = None,
                    help = 'The pip version [ None ]')
     p.add_argument('--clobber', action = 'store_true', default = False,
-                   dest = 'clobber_root_dir',
-                   help = 'Clobber the root dir if it exists [ None ]')
+                   dest = 'clobber_install_dir',
+                   help = 'Clobber the install dir if it exists [ None ]')
     
     # pip_update
     p = subparser.add_parser('update', help = 'Update pip to a specific version or install it if needed.')
@@ -34,7 +34,9 @@ class pip_installer_cli_args(object):
     p.add_argument('-p', '--python', action = 'store', default = None,
                    dest = 'python_exe',
                    help = 'The python executable to use [ None ]')
-    
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The name for this pip installation [ None ]')
+     
   def _command_pip_installer(self, command, *args, **kargs):
     from .pip_installer_cli_handler import pip_installer_cli_handler
     return pip_installer_cli_handler(kargs).handle_command(command)

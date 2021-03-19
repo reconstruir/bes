@@ -18,10 +18,10 @@ class pip_installer_cli_handler(cli_command_handler):
     self.options.blurber.set_verbose(self.options.verbose)
     self._installer = pip_installer(self.options)
 
-  def install(self, pip_version, clobber_root_dir):
+  def install(self, pip_version, clobber_install_dir):
     check.check_string(pip_version)
 
-    self._installer.install(pip_version, clobber_root_dir)
+    self._installer.install(pip_version, clobber_install_dir)
     return 0
     
   def update(self, pip_version):
@@ -31,5 +31,7 @@ class pip_installer_cli_handler(cli_command_handler):
     return 0
 
   def uninstall(self):
+    check.check_string()
+
     self._installer.uninstall()
     return 0
