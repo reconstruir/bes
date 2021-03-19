@@ -53,7 +53,7 @@ class python(object):
     try:
       with open(filename, 'r') as fin:
         line = fin.readline()
-        return line.startswith('#!/') and 'python' in line
+        return line.startswith('#!/') and 'python' in line.lower()
     except Exception as ex:
       pass
     return False

@@ -73,18 +73,12 @@ class pip_installer(object):
     'Update pip to the given version or install it if needed'
     check.check_string(pip_version)
 
-    py_exe = self._options.resolve_python_exe()
-    python_exe.check_exe(py_exe)
-    
-    root_dir = self._options.resolve_root_dir()
-    self._log.log_d('update: pip_version={} root_dir={} py_exe={}'.format(pip_version, root_dir, py_exe))
-
-    if not path.exists(root_dir):
-      self.install(pip_version)
+    if not path.exists(self._install_dir):
+      self.install(pip_version, False)
     
     self._update_pip(py_exe, root_dir, pip_version)
 
-  def _update_pip(self, py_exe, root_dir, pip_version):
+  def _update_pip(self, pip_version):
     'Update pip to the given version or install it if needed'
     py_version = python_exe.version(py_exe)
     pip_exe_basename = 'pip{}'.format(py_version)
