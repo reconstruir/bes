@@ -41,6 +41,14 @@ class pip_project(object):
     self._pip_exe = path.join(self._install_dir, 'bin', pip_exe_basename)
     self._pip_env = self._make_env(self._install_dir)
 
+  @property
+  def env(self):
+    return self._pip_env
+
+  @property
+  def exe(self):
+    return self._pip_exe
+  
   def is_installed(self):
     'Return True if pip is installed'
     return path.exists(self._pip_exe)
