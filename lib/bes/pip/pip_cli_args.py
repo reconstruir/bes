@@ -17,6 +17,11 @@ class pip_cli_args(object):
     p.add_argument('pip_exe', action = 'store', type = str, default = None,
                    help = 'The pip executable [ None ]')
 
+    # pip_filename_info
+    p = subparser.add_parser('filename_info', help = 'Print pip filename info.')
+    p.add_argument('pip_exe', action = 'store', type = str, default = None,
+                   help = 'The pip executable [ None ]')
+    
 #    # pip_present
 #    p = subparser.add_parser('present', help = 'Return 0 if pip is present for the python executable.')
 #    p.add_argument('py_exe', action = 'store', type = str, default = None,
