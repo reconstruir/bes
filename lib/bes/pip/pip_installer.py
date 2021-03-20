@@ -33,7 +33,6 @@ class pip_installer(object):
     self._cache_dir = path.join(self._root_dir, '.pip_cache')
     self._install_dir = path.join(self._root_dir, self._options.name)
     self._common_pip_args = [
-      '--user',
       '--cache-dir', self._cache_dir,
     ]
     python_exe_version = python_exe.version(self._python_exe)
@@ -69,6 +68,7 @@ class pip_installer(object):
       self._python_exe,
       tmp_get_pip,
       'install',
+      '--user',
     ] + self._common_pip_args
     file_util.mkdir(self._root_dir)
     self._log.log_d('install: cmd={} env={}'.format(cmd, self._pip_env))
@@ -79,11 +79,15 @@ class pip_installer(object):
     'Update pip to the given version or install it if needed'
     check.check_string(pip_version)
 
-    if not path.exists(self._install_dir):
+    if not self.is_installed():
       self.install(pip_version, False)
-    
+      
     self._update_pip(pip_version)
 
+  def is_installed(self):
+    'Return True if pip is installed'
+    return path.exists(self._pip_exe)
+    
   def _update_pip(self, pip_version):
     'Update pip to the given version or install it if needed'
 
@@ -97,10 +101,26 @@ class pip_installer(object):
       self._python_exe,
       self._pip_exe,
       'install',
+      '--user',
     ] + self._common_pip_args + [
       'pip=={}'.format(pip_version),
     ]
     self._log.log_d('update: cmd={} env={}'.format(cmd, self._pip_env))
+    execute.execute(cmd, env = self._pip_env)
+
+  def uninstall(self):
+    'Uninstall pip for the given python executable'
+
+    if not self.is_installed():
+      raise pip_error('Pip is not installed in: {}'.format(self._install_dir))
+    cmd = [
+      self._python_exe,
+      self._pip_exe,
+      'uninstall',
+      '--yes',
+    ] + self._common_pip_args + [
+      'pip',
+    ]
     execute.execute(cmd, env = self._pip_env)
     
   def _determine_get_pip_url(clazz, py_exe):
@@ -114,46 +134,6 @@ class pip_installer(object):
       if minor >= 6:
         return clazz._GET_PIP_36_URL
     raise pip_error('Unsupported python version "{}" for {}'.format(version, py_exe))
-    
-  def _install_pip(self, py_exe, pip_version):
-    'Install pip from scratch'
-    tmp_get_pip = url_util.download_to_temp_file(self._GET_PIP_URL)
-
-    #--cache-dir    
-
-    cmd = [ py_exe, tmp_get_pip ]
-    execute.execute(cmd, env = self._make_clean_env())
-    exe = pip_exe.pip_exe(py_exe)
-    if not pip_exe.pip_exe_is_valid(exe):
-      raise pip_error('failed to install pip version {}'.format(pip_version))
-    self._update_pip(py_exe, pip_version)
-
-  @classmethod
-  def _list_python_dir(clazz, py_exe):
-    python_bin_dir = path.dirname(py_exe)
-    return dir_util.list(python_bin_dir)
-
-  def status(self, py_exe):
-    'Return the current pip situation'
-    check.check_string(py_exe)
-    
-    if not path.isabs(py_exe):
-      raise pip_error('py_exe needs to be an absolute path')
-    
-    version = python_version.version(py_exe)
-    tmp_get_pip = url_util.download_to_temp_file(self, url._GET_PIP_URL)
-    cmd = [ py_exe, tmp_get_pip ]
-    env = os_env.clone_current_env(d = { 'PYTHONPATH': ''})
-    list_before = self._list_python_dir(py_exe)
-    execute.execute(cmd, env = env)
-    list_after = self._list_python_dir(py_exe)
-    pip_basename = 'pip{}'.format(version)
-    pip_exe = next(iter([ f for f in list_after if f.endswith(pip_basename) ]), None)
-    if not pip_exe:
-      raise pip_error('failed to install {}'.format(pip_basename))
-    cmd = [ pip_exe, 'install', 'pip=={}'.format(pip_version) ]
-    execute.execute(cmd, env = env)
-    return pip_exe
 
   @classmethod
   def _make_env(clazz, install_dir):
@@ -163,13 +143,4 @@ class pip_installer(object):
       'PYTHONPATH': path.join(install_dir, 'lib/python/site-packages'),
     }
     return os_env.make_clean_env(update = extra_env)
-
-  def uninstall(self):
-    'Uninstall pip for the given python executable'
-
-    python_exe.check_exe(py_exe)
-    exe = pip_exe.pip_exe(py_exe)
-    if not pip_exe.pip_exe_is_valid(exe):
-      return
-    cmd = [ exe, 'uninstall', '--yes', 'pip' ]
-    execute.execute(cmd, env = self._make_clean_env())
+    

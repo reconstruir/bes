@@ -10,6 +10,7 @@ from bes.pip.pip_exe import pip_exe
 from bes.pip.pip_installer import pip_installer
 from bes.pip.pip_installer_options import pip_installer_options
 from bes.python.python_exe import python_exe as bes_python_exe
+from bes.python.python_version import python_version as bes_python_version
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_skip import skip_if
@@ -18,8 +19,8 @@ class test_pip_installer(unit_test):
 
   # The python 3.8 that comes with xcode is very non standard
   # crapping all kinds of droppings in non standard places such
-  # as ~/Library/Caches and the pip that comes with it does not
-  # respected --no-cache-dir so dont ever user it
+  # as ~/Library/Caches even though the --no-cache-dir was given
+  # so never use them for tests since they create side effects
   _EXCLUDE_SOURCES = ( 'xcode', )
   
   _PYTHON_27 = bes_python_exe.find_version('2.7', exclude_sources = _EXCLUDE_SOURCES)
@@ -27,14 +28,18 @@ class test_pip_installer(unit_test):
   _PYTHON_38 = bes_python_exe.find_version('3.8', exclude_sources = _EXCLUDE_SOURCES)
   _PYTHON_39 = bes_python_exe.find_version('3.9', exclude_sources = _EXCLUDE_SOURCES)
 
-  print('_PYTHON_27={}'.format(_PYTHON_27))
-  print('_PYTHON_37={}'.format(_PYTHON_37))
-  print('_PYTHON_38={}'.format(_PYTHON_38))
-  print('_PYTHON_39={}'.format(_PYTHON_39))
+  _ALL_PYTHONS = [ p for p in [ _PYTHON_27, _PYTHON_37, _PYTHON_38, _PYTHON_39 ] if p ]
+  _ANY_PYTHON2 = next(iter([ p for p in _ALL_PYTHONS if bes_python_exe.major_version(p) == 2]), None)
+  _ANY_PYTHON3 = next(iter([ p for p in _ALL_PYTHONS if bes_python_exe.major_version(p) == 3]), None)
 
+  #print('_ALL_PYTHONS: {}'.format(_ALL_PYTHONS))
+  #print('_ANY_PYTHON2: {}'.format(_ANY_PYTHON2))
+  #print('_ANY_PYTHON3: {}'.format(_ANY_PYTHON3))
+  #raise SystemExit(1)
+  
   @skip_if(not _PYTHON_27, 'test_install_python_27 - python 2.7 not found', warning = True)
   def test_install_python_27(self):
-    tester = self._make_tester(self._PYTHON_27, 'kiwi-27')
+    tester = self._make_tester(self._PYTHON_27, 'test')
     self.assertFalse( path.exists(tester.pip_exe) )
     tester.installer.install('19.2.3', False)
     self.assertTrue( path.exists(tester.pip_exe) )
@@ -42,7 +47,7 @@ class test_pip_installer(unit_test):
 
   @skip_if(not _PYTHON_37, 'test_install_python_37 - python 3.7 not found', warning = True)
   def test_install_python_37(self):
-    tester = self._make_tester(self._PYTHON_37, 'lemon-37')
+    tester = self._make_tester(self._PYTHON_37, 'test')
     self.assertFalse( path.exists(tester.pip_exe) )
     tester.installer.install('19.2.3', False)
     self.assertTrue( path.exists(tester.pip_exe) )
@@ -50,7 +55,7 @@ class test_pip_installer(unit_test):
 
   @skip_if(not _PYTHON_38, 'test_install_python_38 - python 3.8 not found', warning = True)
   def test_install_python_38(self):
-    tester = self._make_tester(self._PYTHON_38, 'tomato-38')
+    tester = self._make_tester(self._PYTHON_38, 'test')
     self.assertFalse( path.exists(tester.pip_exe) )
     tester.installer.install('19.2.3', False)
     self.assertTrue( path.exists(tester.pip_exe) )
@@ -58,12 +63,20 @@ class test_pip_installer(unit_test):
 
   @skip_if(not _PYTHON_39, 'test_install_python_39 - python 3.9 not found', warning = True)
   def test_install_python_39(self):
-    tester = self._make_tester(self._PYTHON_38, 'pineapple-39')
+    tester = self._make_tester(self._PYTHON_39, 'test')
     self.assertFalse( path.exists(tester.pip_exe) )
     tester.installer.install('19.2.3', False)
     self.assertTrue( path.exists(tester.pip_exe) )
     self.assertEqual( '19.2.3', pip_exe.version(tester.pip_exe) )
 
+  @skip_if(not _ANY_PYTHON3, 'test_uninstall_python3 - python 3 not found', warning = True)
+  def test_uninstall_python3(self):
+    tester = self._make_tester(self._ANY_PYTHON3, 'test')
+    tester.installer.install('19.2.3', False)
+    self.assertTrue( tester.installer.is_installed() )
+    tester.installer.uninstall()
+    self.assertFalse( tester.installer.is_installed() )
+    
   _tester = namedtuple('_tester', 'name, tmp_dir, installer, python_exe, python_version, pip_exe')
   @classmethod
   def _make_tester(clazz, python_exe, name):

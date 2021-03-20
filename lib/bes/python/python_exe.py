@@ -48,6 +48,13 @@ class python_exe(object):
     return '{}.{}'.format(sv.parts[0], sv.parts[1])
 
   @classmethod
+  def major_version(clazz, exe):
+    'Return the major version of a python executable'
+    full_version = clazz.full_version(exe)
+    sv = software_version.parse_version(full_version)
+    return sv.parts[0]
+  
+  @classmethod
   def find_version(clazz, version, exclude_sources = None):
     'Return the python executable for major.minor version or None if not found'
     check.check_string(version)
