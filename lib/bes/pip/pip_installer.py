@@ -71,7 +71,14 @@ class pip_installer(object):
     file_util.mkdir(self._root_dir)
     self._log.log_d('install: cmd={} env={}'.format(cmd, self._project.env))
     execute.execute(cmd, env = self._project.env)
-    self._update_pip(pip_version)
+    if pip_version == 'latest':
+      outdated = self._project.outdated()
+      op = outdated.get('pip', None)
+      if op:
+        self._log.log_d('install: need to update pip to'.format(op.latest_version))
+        self._update_pip(op.latest_version)
+    else:
+      self._update_pip(pip_version)
     
   def update(self, pip_version):
     'Update pip to the given version or install it if needed'
@@ -85,13 +92,17 @@ class pip_installer(object):
   def is_installed(self):
     'Return True if pip is installed'
     return self._project.is_installed()
-    
+
+  def pip_version(self):
+    'Return the pip version'
+    return self._project.pip_version
+  
   def _update_pip(self, pip_version):
     'Update pip to the given version or install it if needed'
 
     self._project.check_installed()
 
-    old_pip_version = pip_exe.version(self._project.exe)
+    old_pip_version = self._project.pip_version
     if old_pip_version == pip_version:
       return
     

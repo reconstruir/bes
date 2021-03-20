@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
 import json
 from os import path
 
@@ -48,6 +49,10 @@ class pip_project(object):
   @property
   def exe(self):
     return self._pip_exe
+
+  @property
+  def pip_version(self):
+    return pip_exe.version(self.exe)
   
   def is_installed(self):
     'Return True if pip is installed'
@@ -57,7 +62,8 @@ class pip_project(object):
     'Check that pip is installed and if not raise an error'
     if not self.is_installed():
       raise pip_error('Pip not found: {}'.format(self._pip_exe))
-  
+
+  _outdated_package = namedtuple('_outdated_package', 'name, current_version, latest_version, latest_filetype')
   def outdated(self):
     'Return a dictionary of outdated packages'
     args = [
@@ -67,7 +73,14 @@ class pip_project(object):
       '--format', 'json',
     ]
     rv = self.call_pip(args)
-    result = json.loads(rv.stdout)    
+    outdated = json.loads(rv.stdout)
+    result = {}
+    for next_item in outdated:
+      op = self._outdated_package(next_item['name'],
+                                  next_item['version'],
+                                  next_item['latest_version'],
+                                  next_item['latest_filetype'])
+      result[op.name] = op
     return result
 
   def pip(self, args):
