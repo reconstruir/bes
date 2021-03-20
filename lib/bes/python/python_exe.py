@@ -48,11 +48,17 @@ class python_exe(object):
     return '{}.{}'.format(sv.parts[0], sv.parts[1])
 
   @classmethod
-  def find_version(clazz, version):
+  def find_version(clazz, version, exclude_sources = None):
     'Return the python executable for major.minor version or None if not found'
-    all_exes = python_exe.find_all_exes()
-    for next_exe in all_exes:
+    check.check_string(version)
+    check.check_seq(exclude_sources, check.STRING_TYPES, allow_none = True)
+    
+    exclude_sources = set(exclude_sources or [])
+    all_info = python_exe.find_all_exes_info()
+    for next_exe, info in all_info.items():
       next_version = clazz.version(next_exe)
+      if exclude_sources and info.source in exclude_sources:
+        continue
       if next_version == version:
         return next_exe
     return None

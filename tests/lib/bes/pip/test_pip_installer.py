@@ -15,17 +15,23 @@ from bes.testing.unit_test_skip import skip_if
 
 class test_pip_installer(unit_test):
 
-  _PYTHON_27 = python_exe.find_version('2.7')
-  _PYTHON_37 = python_exe.find_version('3.7')
-  _PYTHON_38 = python_exe.find_version('3.8')
-  _PYTHON_39 = python_exe.find_version('3.9')
+  # The python 3.8 that comes with xcode is very non standard
+  # crapping all kinds of droppings in non standard places such
+  # as ~/Library/Caches and the pip that comes with it does not
+  # respected --no-cache-dir so dont ever user it
+  _EXCLUDE_SOURCES = ( 'xcode', )
+  
+  _PYTHON_27 = python_exe.find_version('2.7', exclude_sources = _EXCLUDE_SOURCES)
+  _PYTHON_37 = python_exe.find_version('3.7', exclude_sources = _EXCLUDE_SOURCES)
+  _PYTHON_38 = python_exe.find_version('3.8', exclude_sources = _EXCLUDE_SOURCES)
+  _PYTHON_39 = python_exe.find_version('3.9', exclude_sources = _EXCLUDE_SOURCES)
 
   print('_PYTHON_27={}'.format(_PYTHON_27))
   print('_PYTHON_37={}'.format(_PYTHON_37))
   print('_PYTHON_38={}'.format(_PYTHON_38))
   print('_PYTHON_39={}'.format(_PYTHON_39))
 
-  @skip_if(not _PYTHON_27, 'test_install_python_27 - python 3.7 not found', warning = True)
+  @skip_if(not _PYTHON_27, 'test_install_python_27 - python 2.7 not found', warning = True)
   def test_install_python_27(self):
     tmp_dir = self.make_temp_dir()
     options = pip_installer_options(root_dir = tmp_dir,
@@ -34,9 +40,9 @@ class test_pip_installer(unit_test):
                                     name = 'kiwi-27')
     installer = pip_installer(options)
     installer.install('19.2.3', False)
-    #pexe = path.join(tmp_dir, 'kiwi-27', 'bin', 'pip2.7')
-    #self.assertTrue( path.exists(pexe) )
-    #self.assertEqual( '19.2.3', pip_exe.version(pexe) )
+    pexe = path.join(tmp_dir, 'kiwi-27', 'bin', 'pip2.7')
+    self.assertTrue( path.exists(pexe) )
+    self.assertEqual( '19.2.3', pip_exe.version(pexe) )
 
   @skip_if(not _PYTHON_37, 'test_install_python_37 - python 3.7 not found', warning = True)
   def test_install_python_37(self):
@@ -44,16 +50,19 @@ class test_pip_installer(unit_test):
 
   @skip_if(not _PYTHON_38, 'test_install_python_38 - python 3.8 not found', warning = True)
   def test_install_python_38(self):
-    tmp_dir = self.make_temp_dir()
-    options = pip_installer_options(root_dir = tmp_dir,
-                                    python_exe = self._PYTHON_38,
-                                    verbose = True,
-                                    name = 'apple-38')
-    installer = pip_installer(options)
-    installer.install('19.2.3', False)
-    files = file_find.find(tmp_dir)
-    for f in files:
-      print(f)
+    from bes.system.env_override import env_override
+    e = { 'PYTHONUSERBASE': '/tmp/a' }
+    with env_override(env = e) as env: #{ 'PYTHONNOUSERSITE': 'tmp/caca_de_vaca' }) as env:
+      tmp_dir = self.make_temp_dir()
+      options = pip_installer_options(root_dir = tmp_dir,
+                                      python_exe = self._PYTHON_38,
+                                      verbose = True,
+                                      name = 'apple-38')
+      installer = pip_installer(options)
+      installer.install('19.2.3', False)
+      files = file_find.find(tmp_dir)
+      for f in files:
+        print(f)
 
   @skip_if(not _PYTHON_39, 'test_install_python_39 - python 3.9 not found', warning = True)
   def test_install_python_39(self):

@@ -32,7 +32,15 @@ class pip_installer(object):
     self._root_dir = self._options.resolve_root_dir()
     self._cache_dir = path.join(self._root_dir, '.pip_cache')
     self._install_dir = path.join(self._root_dir, self._options.name)
-
+    self._common_pip_args = [
+      '--user',
+      '--cache-dir', self._cache_dir,
+    ]
+    python_exe_version = python_exe.version(self._python_exe)
+    pip_exe_basename = 'pip{}'.format(python_exe_version)
+    self._pip_exe = path.join(self._install_dir, 'bin', pip_exe_basename)
+    self._pip_env = self._make_env(self._install_dir)
+    
   _GET_PIP_27_URL = 'https://bootstrap.pypa.io/pip/2.7/get-pip.py'
   _GET_PIP_36_URL = 'https://bootstrap.pypa.io/get-pip.py'
 
@@ -61,14 +69,12 @@ class pip_installer(object):
       self._python_exe,
       tmp_get_pip,
       'install',
-      '--user',
-      '--cache-dir', self._cache_dir,
-    ]
-    env = self._make_env(self._install_dir)
+    ] + self._common_pip_args
     file_util.mkdir(self._root_dir)
-    self._log.log_d('install: cmd={} env={}'.format(cmd, env))
-    execute.execute(cmd, env = env)
-
+    self._log.log_d('install: cmd={} env={}'.format(cmd, self._pip_env))
+    execute.execute(cmd, env = self._pip_env)
+    self._update_pip(pip_version)
+    
   def update(self, pip_version):
     'Update pip to the given version or install it if needed'
     check.check_string(pip_version)
@@ -76,26 +82,26 @@ class pip_installer(object):
     if not path.exists(self._install_dir):
       self.install(pip_version, False)
     
-    self._update_pip(py_exe, root_dir, pip_version)
+    self._update_pip(pip_version)
 
   def _update_pip(self, pip_version):
     'Update pip to the given version or install it if needed'
-    py_version = python_exe.version(py_exe)
-    pip_exe_basename = 'pip{}'.format(py_version)
-    exe = path.join(root_dir, 'bin', pip_exe_basename)
-    old_pip_version = pip_exe.version(exe)
+
+    if not path.exists(self._pip_exe):
+      raise pip_error('Pip not found: {}'.format(self._pip_exe))
+      
+    old_pip_version = pip_exe.version(self._pip_exe)
     if old_pip_version == pip_version:
       return
     cmd = [
-      py_exe,
-      exe,
+      self._python_exe,
+      self._pip_exe,
       'install',
-      '--user',
+    ] + self._common_pip_args + [
       'pip=={}'.format(pip_version),
     ]
-    env = self._make_env(root_dir)
-    self._log.log_d('update: cmd={} env={}'.format(cmd, env))
-    execute.execute(cmd, env = env)
+    self._log.log_d('update: cmd={} env={}'.format(cmd, self._pip_env))
+    execute.execute(cmd, env = self._pip_env)
     
   def _determine_get_pip_url(clazz, py_exe):
     version = python_exe.version(py_exe)
@@ -150,11 +156,11 @@ class pip_installer(object):
     return pip_exe
 
   @classmethod
-  def _make_env(clazz, root_dir):
+  def _make_env(clazz, install_dir):
     'Make a clean environment for python or pip'
     extra_env = {
-      'PYTHONUSERBASE': path.join(root_dir),
-      'PYTHONPATH': path.join(root_dir, 'lib/python/site-packages'),
+      'PYTHONUSERBASE': path.join(install_dir),
+      'PYTHONPATH': path.join(install_dir, 'lib/python/site-packages'),
     }
     return os_env.make_clean_env(update = extra_env)
 
