@@ -53,6 +53,7 @@ class best_cli(cli):
   from bes.native_package.native_package_cli_args import native_package_cli_args
   from bes.pip.pip_cli_args import pip_cli_args
   from bes.pip.pip_installer_cli_args import pip_installer_cli_args
+  from bes.pip.pip_project_cli_args import pip_project_cli_args
   from bes.properties_file_v2.properties_file_cli_args import properties_file_cli_args
   from bes.python.python_cli_args import python_cli_args
   from bes.python.python_installer_cli_args import python_installer_cli_args
@@ -75,6 +76,7 @@ class best_cli(cli):
     cli_command('native_package', 'native_package_add_args', 'Deal with native packages', native_package_cli_args),
     cli_command('pip', 'pip_add_args', 'Pip stuff', pip_cli_args),
     cli_command('pip_installer', 'pip_installer_add_args', 'Pip installer stuff', pip_installer_cli_args),
+    cli_command('pip_project', 'pip_project_add_args', 'Pip project stuff', pip_project_cli_args),
     cli_command('properties_file', 'properties_file_add_args', 'Deal with properties files', properties_file_cli_args),
     cli_command('python', 'python_add_args', 'Deal with python', python_cli_args),
     cli_command('python_installer', 'python_installer_add_args', 'Deal with python install', python_installer_cli_args),

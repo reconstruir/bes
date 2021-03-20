@@ -17,7 +17,7 @@ class pip_installer_options(object):
     check.check_blurber(self.blurber)
     check.check_string(self.root_dir, allow_none = True)
     check.check_string(self.python_exe, allow_none = True)
-    check.check_string(self.name)
+    check.check_string(self.name, allow_none = True)
 
   def resolve_python_exe(self):
     if self.python_exe:

@@ -12,6 +12,8 @@ class pip_installer_cli_args(object):
     self.__pip_installer_add_common_args(p)
     p.add_argument('pip_version', action = 'store', type = str, default = None,
                    help = 'The pip version [ None ]')
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The name for this pip installation [ None ]')
     p.add_argument('--clobber', action = 'store_true', default = False,
                    dest = 'clobber_install_dir',
                    help = 'Clobber the install dir if it exists [ None ]')
@@ -21,10 +23,14 @@ class pip_installer_cli_args(object):
     self.__pip_installer_add_common_args(p)
     p.add_argument('pip_version', action = 'store', type = str, default = None,
                    help = 'The pip version [ None ]')
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The name for this pip installation [ None ]')
 
     # pip_uninstall
     p = subparser.add_parser('uninstall', help = 'Uninstall pip.')
     self.__pip_installer_add_common_args(p)
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The name for this pip installation [ None ]')
 
   def __pip_installer_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,
@@ -34,8 +40,6 @@ class pip_installer_cli_args(object):
     p.add_argument('-p', '--python', action = 'store', default = None,
                    dest = 'python_exe',
                    help = 'The python executable to use [ None ]')
-    p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip installation [ None ]')
      
   def _command_pip_installer(self, command, *args, **kargs):
     from .pip_installer_cli_handler import pip_installer_cli_handler
