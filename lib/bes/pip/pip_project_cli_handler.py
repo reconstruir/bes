@@ -23,3 +23,11 @@ class pip_project_cli_handler(cli_command_handler):
     outdated = self._project.outdated()
     print(pprint.pformat(outdated))
     return 0
+
+  def pip(self, args):
+    check.check_string_seq(args)
+
+    rv = self._project.pip(args)
+    print(rv.stdout)
+    return 0
+  

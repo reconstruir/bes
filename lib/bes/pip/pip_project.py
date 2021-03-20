@@ -71,6 +71,23 @@ class pip_project(object):
     result = json.loads(rv.stdout)    
     return result
 
+  def pip(self, args):
+    'Run a pip command'
+    check.check_string_seq(args)
+    
+    self.check_installed()
+
+    self._log.log_method_d()
+    self._log.log_d('pip: root_dir={} python_exe={}'.format(self._root_dir,
+                                                            self._python_exe))
+    
+    cmd = self._make_cmd_python_part() + [
+      self._pip_exe
+    ] + args + self._common_pip_args
+    self._log.log_d('pip: cmd={} env={}'.format(cmd, self._pip_env))
+    rv = execute.execute(cmd, env = self._pip_env, stderr_to_stdout = True)
+    return rv
+  
   def _make_cmd_python_part(self):
     if pip_exe.is_binary(self._pip_exe):
       cmd_python = []

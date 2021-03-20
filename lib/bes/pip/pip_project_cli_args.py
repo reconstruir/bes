@@ -13,6 +13,14 @@ class pip_project_cli_args(object):
     p.add_argument('name', action = 'store', type = str, default = None,
                    help = 'The name for this pip project [ None ]')
     
+    # pip_project_pip
+    p = subparser.add_parser('pip', help = 'Run pip command.')
+    self.__pip_project_add_common_args(p)
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The name for this pip project [ None ]')
+    p.add_argument('args', action = 'store', default = [], nargs = '+',
+                   help = 'The pip args. [ None ]')
+    
   def __pip_project_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
