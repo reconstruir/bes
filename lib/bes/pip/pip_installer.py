@@ -97,8 +97,7 @@ class pip_installer(object):
     old_pip_version = pip_exe.version(self._pip_exe)
     if old_pip_version == pip_version:
       return
-    cmd = [
-      self._python_exe,
+    cmd = self._make_cmd_python_part() + [
       self._pip_exe,
       'install',
       '--user',
@@ -108,13 +107,19 @@ class pip_installer(object):
     self._log.log_d('update: cmd={} env={}'.format(cmd, self._pip_env))
     execute.execute(cmd, env = self._pip_env)
 
+  def _make_cmd_python_part(self):
+    if pip_exe.is_binary(self._pip_exe):
+      cmd_python = []
+    else:
+      cmd_python = [self._python_exe]
+    return cmd_python
+    
   def uninstall(self):
     'Uninstall pip for the given python executable'
 
     if not self.is_installed():
       raise pip_error('Pip is not installed in: {}'.format(self._install_dir))
-    cmd = [
-      self._python_exe,
+    cmd = self._make_cmd_python_part() + [
       self._pip_exe,
       'uninstall',
       '--yes',

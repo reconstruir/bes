@@ -43,13 +43,3 @@ class pip_cli_handler(cli_command_handler):
     tt = text_table(data = zip(tuple(info._fields), info))
     print(tt)
     return 0
-  
-#  def present(self, py_exe):
-#    check.check_string(py_exe)
-#
-#    exe = pip_exe.pip_exe(py_exe)
-#    print('exe={}'.format(exe))
-#    if pip_exe.pip_exe_is_valid(exe):
-#      return 0
-#    else:
-#      return 1
