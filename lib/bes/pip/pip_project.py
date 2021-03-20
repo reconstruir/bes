@@ -52,40 +52,37 @@ class pip_project(object):
   
   def outdated(self):
     'Return a dictionary of outdated packages'
-
-    self.check_installed()
-
-    self._log.log_method_d()
-    self._log.log_d('outdated: root_dir={} python_exe={}'.format(self._root_dir,
-                                                                 self._python_exe))
-    
-    cmd = self._make_cmd_python_part() + [
-      self._pip_exe,
+    args = [
       'list',
       '--user',
       '--outdated',
       '--format', 'json',
-    ] + self._common_pip_args
-    self._log.log_d('outdated: cmd={} env={}'.format(cmd, self._pip_env))
-    rv = execute.execute(cmd, env = self._pip_env)
+    ]
+    rv = self.call_pip(args)
     result = json.loads(rv.stdout)    
     return result
 
   def pip(self, args):
     'Run a pip command'
     check.check_string_seq(args)
-    
+
+    pip_args = args + self._common_pip_args
+    return self.call_pip(args)
+
+  def call_pip(self, args):
+    'Call pip'
+
     self.check_installed()
 
     self._log.log_method_d()
-    self._log.log_d('pip: root_dir={} python_exe={}'.format(self._root_dir,
-                                                            self._python_exe))
+    self._log.log_d('call_pip: root_dir={} python_exe={}'.format(self._root_dir,
+                                                                 self._python_exe))
     
     cmd = self._make_cmd_python_part() + [
-      self._pip_exe
-    ] + args + self._common_pip_args
-    self._log.log_d('pip: cmd={} env={}'.format(cmd, self._pip_env))
-    rv = execute.execute(cmd, env = self._pip_env, stderr_to_stdout = True)
+      self._pip_exe,
+    ] + self._common_pip_args + args
+    self._log.log_d('call_pip: cmd={} env={}'.format(cmd, self._pip_env))
+    rv = execute.execute(cmd, env = self._pip_env)
     return rv
   
   def _make_cmd_python_part(self):
