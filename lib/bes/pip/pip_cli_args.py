@@ -22,13 +22,6 @@ class pip_cli_args(object):
     p.add_argument('pip_exe', action = 'store', type = str, default = None,
                    help = 'The pip executable [ None ]')
     
-#    # pip_present
-#    p = subparser.add_parser('present', help = 'Return 0 if pip is present for the python executable.')
-#    p.add_argument('py_exe', action = 'store', type = str, default = None,
-#                   help = 'The python executable [ None ]')
-#    p.add_argument('-v', '--verbose', action = 'store_true',
-#                   default = False, help = 'Verbose output')
-
   def _command_pip(self, command, *args, **kargs):
     from .pip_cli_handler import pip_cli_handler
     return pip_cli_handler(kargs).handle_command(command)
