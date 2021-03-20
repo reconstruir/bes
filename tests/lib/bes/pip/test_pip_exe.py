@@ -30,11 +30,11 @@ class test_pip_exe(unit_test):
     fake_exe, lib_dir = self._make_temp_fake_pip('pip2', 'pip', '2.7', '666.0.1', make_site_package_dir = True)
     self.assertEqual( ( '2', lib_dir ), pip_exe.filename_info(fake_exe) )
     
-  def xtest_version_info(self):
+  def test_version_info(self):
     fake_exe, _ = self._make_temp_fake_pip('pip', 'pip', '2.7', '666.0.1')
     self.assertEqual( ( '666.0.1', '/foo/site-packages/pip', '2.7' ), pip_exe.version_info(fake_exe) )
 
-  def xtest_version(self):
+  def test_version(self):
     fake_exe, _ = self._make_temp_fake_pip('pip', 'pip', '2.7', '666.0.1')
     self.assertEqual( '666.0.1', pip_exe.version(fake_exe) )
     

@@ -33,13 +33,14 @@ class pip_exe(object):
 
     cmd = [ pip_exe, '--version' ]
 
-    #p = '/var/folders/22/l4gkfx_13j9gfkr97tvzr6k80000z8/T/test_pip_installer-tmp-ok7qan.dir/kiwi-27/lib/python/site-packages')
-    
-    try:
-      output = subprocess.check_output(cmd, stderr = subprocess.STDOUT)
-    except subprocess.CalledProcessError as ex:
-      msg = 'Failed to run: "{}" - {}'.format(' '.join(cmd), ex.output)
-      raise pip_error(msg, status_code = ex.returncode)
+    filename_info = clazz.filename_info(pip_exe)
+    libdir = filename_info.libdir or ''
+    with env_override(env = { 'PYTHONPATH': libdir }) as env:
+      try:
+        output = subprocess.check_output(cmd, stderr = subprocess.STDOUT)
+      except subprocess.CalledProcessError as ex:
+        msg = 'Failed to run: "{}" - {}'.format(' '.join(cmd), ex.output)
+        raise pip_error(msg, status_code = ex.returncode)
 
     f = re.findall(clazz._PIP_VERSION_PATTERN, output)
     if not f:
@@ -51,7 +52,7 @@ class pip_exe(object):
     python_version = f[0][2]
     return clazz._pip_version_info(version, where, python_version)
 
-  _pip_filename_info = namedtuple('_pip_filename_info', 'version, pythonpath')
+  _pip_filename_info = namedtuple('_pip_filename_info', 'version, libdir')
   @classmethod
   def filename_info(clazz, pip_exe):
     'Return info about the pip exe filename'
@@ -65,11 +66,11 @@ class pip_exe(object):
     num_version_parts = len(version_parts)
     if num_version_parts not in ( 1, 2 ):
       version = None
-    pythonpath = clazz._pip_exe_determine_pythonpath(pip_exe, version)
-    return clazz._pip_filename_info(version, pythonpath)
+    libdir = clazz._pip_exe_determine_libdir(pip_exe, version)
+    return clazz._pip_filename_info(version, libdir)
 
   @classmethod
-  def _pip_exe_determine_pythonpath(clazz, pip_exe, version):
+  def _pip_exe_determine_libdir(clazz, pip_exe, version):
     'Determine the PYTHONPATH needed to run a pip exe'
     assert pip_exe
 
