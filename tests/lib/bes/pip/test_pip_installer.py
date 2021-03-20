@@ -40,6 +40,30 @@ class test_pip_installer(unit_test):
     self.assertTrue( path.exists(tester.pip_exe) )
     self.assertEqual( '19.2.3', pip_exe.version(tester.pip_exe) )
 
+  @skip_if(not _PYTHON_37, 'test_install_python_37 - python 3.7 not found', warning = True)
+  def test_install_python_37(self):
+    tester = self._make_tester(self._PYTHON_37, 'lemon-37')
+    self.assertFalse( path.exists(tester.pip_exe) )
+    tester.installer.install('19.2.3', False)
+    self.assertTrue( path.exists(tester.pip_exe) )
+    self.assertEqual( '19.2.3', pip_exe.version(tester.pip_exe) )
+
+  @skip_if(not _PYTHON_38, 'test_install_python_38 - python 3.8 not found', warning = True)
+  def test_install_python_38(self):
+    tester = self._make_tester(self._PYTHON_38, 'tomato-38')
+    self.assertFalse( path.exists(tester.pip_exe) )
+    tester.installer.install('19.2.3', False)
+    self.assertTrue( path.exists(tester.pip_exe) )
+    self.assertEqual( '19.2.3', pip_exe.version(tester.pip_exe) )
+
+  @skip_if(not _PYTHON_39, 'test_install_python_39 - python 3.9 not found', warning = True)
+  def test_install_python_39(self):
+    tester = self._make_tester(self._PYTHON_38, 'pineapple-39')
+    self.assertFalse( path.exists(tester.pip_exe) )
+    tester.installer.install('19.2.3', False)
+    self.assertTrue( path.exists(tester.pip_exe) )
+    self.assertEqual( '19.2.3', pip_exe.version(tester.pip_exe) )
+
   _tester = namedtuple('_tester', 'name, tmp_dir, installer, python_exe, python_version, pip_exe')
   @classmethod
   def _make_tester(clazz, python_exe, name):
@@ -58,30 +82,6 @@ class test_pip_installer(unit_test):
                          python_exe,
                          python_exe_version,
                          pexe)
-    
-  @skip_if(not _PYTHON_37, 'test_install_python_37 - python 3.7 not found', warning = True)
-  def test_install_python_37(self):
-    print('running: test_install_python_37')
-
-  @skip_if(not _PYTHON_38, 'test_install_python_38 - python 3.8 not found', warning = True)
-  def test_install_python_38(self):
-    from bes.system.env_override import env_override
-    e = { 'PYTHONUSERBASE': '/tmp/a' }
-    with env_override(env = e) as env: #{ 'PYTHONNOUSERSITE': 'tmp/caca_de_vaca' }) as env:
-      tmp_dir = self.make_temp_dir()
-      options = pip_installer_options(root_dir = tmp_dir,
-                                      python_exe = self._PYTHON_38,
-                                      verbose = True,
-                                      name = 'apple-38')
-      installer = pip_installer(options)
-      installer.install('19.2.3', False)
-      files = file_find.find(tmp_dir)
-      for f in files:
-        print(f)
-
-  @skip_if(not _PYTHON_39, 'test_install_python_39 - python 3.9 not found', warning = True)
-  def test_install_python_39(self):
-    print('running: test_install_python_39')
     
 if __name__ == '__main__':
   unit_test.main()
