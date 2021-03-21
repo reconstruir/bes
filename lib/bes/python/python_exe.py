@@ -339,9 +339,10 @@ raise SystemExit(0)
     result = []
     if host.is_windows():
       result.extend([
-        r'C:\Program Files\Python37\python.exe',
-        r'C:\Program Files\Python38\python.exe',
-        r'C:\Program Files\Python39\python.exe',
+        r'C:\Program Files\Python37',
+        r'C:\Program Files\Python38',
+        r'C:\Program Files\Python39',
+        r'C:\Python27',
       ])
     elif host.is_macos():
       result.extend([
