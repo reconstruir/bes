@@ -295,7 +295,7 @@ raise SystemExit(0)
         patterns_with_extensions.append(pattern)
       else:
         host.raise_unsupported_system()
-    env_path = os_env_var('PATH').path
+    env_path = os_env_var('PATH').path + clazz._find_extra_PATH()
     sanitized_env_path = clazz._sanitize_env_path(env_path)
     result = file_path.glob(sanitized_env_path, patterns_with_extensions)
     clazz._log.log_d('patterns_with_extensions={}'.format(patterns_with_extensions))
@@ -304,6 +304,24 @@ raise SystemExit(0)
     clazz._log.log_d('                  result={}'.format(result))
     return result
 
+  @classmethod
+  def _find_extra_PATH(clazz):
+    'Platform specific extra PATH where to search for pythons'
+    result = []
+    if host.is_windows():
+      result.extend([
+        r'C:\Program Files\Python37\python.exe',
+        r'C:\Program Files\Python38\python.exe',
+        r'C:\Program Files\Python39\python.exe',
+      ])
+    elif host.is_macos():
+      result.extend([
+        '/usr/local/opt/python@3.7/bin',
+        '/usr/local/opt/python@3.8/bin',
+        '/usr/local/opt/python@3.9/bin',
+      ])
+    return result
+  
   @classmethod
   def _sanitize_env_path(clazz, env_path):
     result = []

@@ -54,13 +54,13 @@ class pip_project(object):
   def pip_version(self):
     return pip_exe.version(self.exe)
   
-  def is_installed(self):
+  def pip_is_installed(self):
     'Return True if pip is installed'
     return path.exists(self._pip_exe)
 
-  def check_installed(self):
+  def check_pip_is_installed(self):
     'Check that pip is installed and if not raise an error'
-    if not self.is_installed():
+    if not self.pip_is_installed():
       raise pip_error('Pip not found: {}'.format(self._pip_exe))
 
   _outdated_package = namedtuple('_outdated_package', 'name, current_version, latest_version, latest_filetype')
@@ -93,7 +93,7 @@ class pip_project(object):
   def call_pip(self, args):
     'Call pip'
 
-    self.check_installed()
+    self.check_pip_is_installed()
 
     self._log.log_method_d()
     self._log.log_d('call_pip: root_dir={} python_exe={}'.format(self._root_dir,

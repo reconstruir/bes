@@ -84,14 +84,14 @@ class pip_installer(object):
     'Update pip to the given version or install it if needed'
     check.check_string(pip_version)
 
-    if not self._project.is_installed():
+    if not self._project.pip_is_installed():
       self.install(pip_version, False)
       
     self._update_pip(pip_version)
 
   def is_installed(self):
     'Return True if pip is installed'
-    return self._project.is_installed()
+    return self._project.pip_is_installed()
 
   def pip_version(self):
     'Return the pip version'
@@ -100,7 +100,7 @@ class pip_installer(object):
   def _update_pip(self, pip_version):
     'Update pip to the given version or install it if needed'
 
-    self._project.check_installed()
+    self._project.check_pip_is_installed()
 
     old_pip_version = self._project.pip_version
     if old_pip_version == pip_version:
@@ -116,7 +116,7 @@ class pip_installer(object):
   def uninstall(self):
     'Uninstall pip for the given python executable'
 
-    self._project.check_installed()
+    self._project.check_pip_is_installed()
 
     args = [
       'uninstall',
