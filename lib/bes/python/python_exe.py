@@ -102,9 +102,23 @@ class python_exe(object):
     '''
     clazz.check_exe(exe)
 
+    if host.is_macos():
+      result = clazz._determine_source_macos(exe)
+    elif host.is_linux():
+      result = clazz._determine_source_linux(exe)
+    elif host.is_windows():
+      result = clazz._determine_source_windows(exe)
+    else:
+      host.raise_unsupported_system()
+    return result
+
+  @classmethod
+  def _determine_source_macos(clazz, exe):
+    'Determine the source of a python exe on macos'
+
     if clazz._source_is_xcode(exe):
       return 'xcode'
-    if clazz._source_is_system(exe):
+    elif clazz._source_is_unix_system(exe):
       return 'system'
     elif clazz._source_is_brew(exe):
       return 'brew'
@@ -112,7 +126,22 @@ class python_exe(object):
       return 'python.org'
     else:
       return 'unknown'
-    
+
+  @classmethod
+  def _determine_source_windows(clazz, exe):
+    'Determine the source of a python exe on windows'
+
+    return 'unknown'
+
+  @classmethod
+  def _determine_source_linux(clazz, exe):
+    'Determine the source of a python exe on linux'
+
+    if clazz._source_is_unix_system(exe):
+      return 'system'
+    else:
+      return 'unknown'
+  
   @classmethod
   def _source_is_brew(clazz, exe):
     'Return True if python executable is from brew'
@@ -151,7 +180,7 @@ class python_exe(object):
     return 'Applications/Xcode.app' in real_exe
       
   @classmethod
-  def _source_is_system(clazz, exe):
+  def _source_is_unix_system(clazz, exe):
     'Return True if the given python executable came builtin to the current system'
 
     if host.is_unix():

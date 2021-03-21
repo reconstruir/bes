@@ -27,7 +27,8 @@ class python_cli_handler(cli_command_handler):
     python_exe.check_exe(exe)
 
     info = python_exe.info(exe)
-    tt = text_table(data = zip(tuple(info._fields), info))
+    data = [ item for item in zip(tuple(info._fields), info) ]
+    tt = text_table(data = data)
     print(tt)
     return 0
 
