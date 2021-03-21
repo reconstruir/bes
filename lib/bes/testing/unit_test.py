@@ -474,10 +474,16 @@ class unit_test(unittest.TestCase):
         diff_rv = difflib.unified_diff(lines1, lines2, fromfile = label1, tofile = label2, n = n)
         return ''.join(diff_rv)
 
+  def assert_filename_equal(self, f1, f2):
+    'Assert that 2 filenames are the same using cross platform paths.'
+    self.maxDiff = None
+    xp_f1 = self.xp_filename(f1)
+    xp_f2 = self.xp_filename(f2)
+    self.assertEqual( xp_f1, xp_f2 )
+      
   def assert_filename_list_equal(self, pl1, pl2):
-    'Assert that 2 path lists are the same using cross platform paths.'
+    'Assert that 2 filename lists are the same using cross platform paths.'
     self.maxDiff = None
     xp_pl1 = self.xp_filename_list(pl1)
     xp_pl2 = self.xp_filename_list(pl2)
     self.assertEqual( xp_pl1, xp_pl2 )
-      
