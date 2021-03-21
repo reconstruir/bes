@@ -7,8 +7,10 @@ from os import path
 from bes.common.check import check
 
 from bes.fs.dir_util import dir_util
+from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.system.execute import execute
+from bes.system.host import host
 from bes.system.log import logger
 from bes.system.os_env import os_env
 from bes.url.url_util import url_util
@@ -37,9 +39,7 @@ class pip_project(object):
     self._common_pip_args = [
       '--cache-dir', self._cache_dir,
     ]
-    python_exe_version = python_exe.version(self._python_exe)
-    pip_exe_basename = 'pip{}'.format(python_exe_version)
-    self._pip_exe = path.join(self._install_dir, 'bin', pip_exe_basename)
+    self._pip_exe = self._determine_pip_exe()
     self._pip_env = self._make_env(self._install_dir)
 
   @property
@@ -105,6 +105,17 @@ class pip_project(object):
     self._log.log_d('call_pip: cmd={} env={}'.format(cmd, self._pip_env))
     rv = execute.execute(cmd, env = self._pip_env)
     return rv
+
+  def _determine_pip_exe(self):
+    python_exe_version = python_exe.version(self._python_exe)
+    if host.is_windows():
+      pip_exe_basename = 'pip{}.exe'.format(python_exe_version)
+      python_dir = 'Python{}'.format(python_exe_version.replace('.', ''))
+      pexe = path.join(self._install_dir, python_dir, 'Scripts', pip_exe_basename)
+    else:
+      pip_exe_basename = 'pip{}'.format(python_exe_version)
+      pexe = path.join(self._install_dir, 'bin', pip_exe_basename)
+    return pexe
   
   def _make_cmd_python_part(self):
     if pip_exe.is_binary(self._pip_exe):
