@@ -42,7 +42,7 @@ class filename_util(object):
 
     left, _ = path.splitext(filename)
     return left
-  
+
   @classmethod
   def xp_filename(clazz, p, sep = None):
     if host.is_windows():

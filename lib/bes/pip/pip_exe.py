@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import codecs
 from os import path
 import subprocess
 
@@ -9,10 +10,11 @@ from collections import namedtuple
 
 from bes.common.check import check
 from bes.common.string_util import string_util
-from bes.system.execute import execute
-from bes.system.env_override import env_override
 from bes.fs.file_mime import file_mime
 from bes.fs.file_path import file_path
+from bes.fs.filename_util import filename_util
+from bes.system.env_override import env_override
+from bes.system.execute import execute
 
 from bes.python.python_exe import python_exe
 from bes.python.python_version import python_version
@@ -36,11 +38,11 @@ class pip_exe(object):
     libdir = filename_info.libdir or ''
     with env_override(env = { 'PYTHONPATH': libdir }) as env:
       try:
-        output = subprocess.check_output(cmd, stderr = subprocess.STDOUT)
+        output_bytes = subprocess.check_output(cmd, stderr = subprocess.STDOUT)
+        output = codecs.decode(output_bytes, 'utf-8').strip()
       except subprocess.CalledProcessError as ex:
         msg = 'Failed to run: "{}" - {}'.format(' '.join(cmd), ex.output)
         raise pip_error(msg, status_code = ex.returncode)
-
     f = re.findall(clazz._PIP_VERSION_PATTERN, output)
     if not f:
       raise pip_error('not a valid pip version for {}: "{}"'.format(pip_exe, output))
@@ -57,7 +59,7 @@ class pip_exe(object):
     'Return info about the pip exe filename'
     check.check_string(pip_exe)
 
-    basename = path.basename(pip_exe).lower()
+    basename = filename_util.without_extension(path.basename(pip_exe).lower())
     if not basename.startswith('pip'):
       return clazz._pip_filename_info(None, None)
     version = string_util.remove_head(basename, 'pip')
