@@ -36,6 +36,14 @@ class filename_util(object):
     return clazz.extension(filename) in set(extensions)
 
   @classmethod
+  def without_extension(clazz, filename):
+    'Return the filename without its extension if any.'
+    check.check_string(filename)
+
+    left, _ = path.splitext(filename)
+    return left
+  
+  @classmethod
   def xp_filename(clazz, p, sep = None):
     if host.is_windows():
       return clazz._xp_filename_windows(p, sep = sep)

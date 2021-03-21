@@ -19,6 +19,10 @@ class test_filename_util(unit_test):
   def test_has_any_extension(self):
     self.assertTrue( filename_util.has_any_extension('a.foo', ( 'foo', 'png' )) )
     self.assertFalse( filename_util.has_any_extension('a.foo', ( 'png', 'jpg' )) )
+
+  def test_without_extension(self):
+    self.assertEqual( 'a', filename_util.without_extension('a.foo') )
+    self.assertEqual( 'a', filename_util.without_extension('a') )
     
 if __name__ == '__main__':
   unit_test.main()
