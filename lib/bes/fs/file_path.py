@@ -190,4 +190,8 @@ class file_path(object):
       return None
     assert isinstance(l, list)
     return [ clazz.xp_path(n) for n in l ]
-  
+
+  @classmethod
+  def parent_dir(clazz, p):
+    pardir = path.join(path.dirname(p), path.pardir)
+    return path.normpath(pardir)
