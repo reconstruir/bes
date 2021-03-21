@@ -37,7 +37,7 @@ class pip_installation_values(object):
     self._system = system or host.SYSTEM
 
   @cached_property
-  def pip_exe(self):
+  def exe(self):
     'Return the pip executable'
     if self._system == host.WINDOWS:
       pip_exe_basename = 'pip{}.exe'.format(self._python_version)
@@ -71,7 +71,7 @@ class pip_installation_values(object):
     return site_packaged_dir
 
   @cached_property
-  def pip_env(self):
+  def env(self):
     'Make a clean environment for python or pip'
     extra_env = {
       'PYTHONUSERBASE': self._install_dir,
