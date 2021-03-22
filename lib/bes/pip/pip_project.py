@@ -25,7 +25,7 @@ from .pip_installer_options import pip_installer_options
 class pip_project(object):
   'Pip project.'
 
-  _log = logger('pip_project')
+  _log = logger('pip')
   
   def __init__(self, options = None):
     check.check_pip_installer_options(options, allow_none = True)
@@ -40,7 +40,12 @@ class pip_project(object):
       '--cache-dir', self._cache_dir,
     ]
     self._pip_exe = self._determine_pip_exe()
-    self._pip_env = self._make_env(self._install_dir)
+    self._pip_site_packages_dir = self._determine_pip_site_packages_dir()
+    self._pip_env = self._make_env()
+    self._log.log_d('pip_project: pip_exe={} site_packages_dir={} pip_env={} install_dir={}'.format(self._pip_exe,
+                                                                                                    self._pip_site_packages_dir,
+                                                                                                    self._pip_env,
+                                                                                                    self._install_dir))
 
   @property
   def env(self):
@@ -49,6 +54,10 @@ class pip_project(object):
   @property
   def exe(self):
     return self._pip_exe
+
+  @property
+  def site_packages_dir(self):
+    return self._pip_site_packages_dir
 
   @property
   def pip_version(self):
@@ -107,15 +116,36 @@ class pip_project(object):
     return rv
 
   def _determine_pip_exe(self):
+    'Determine the pip executable for this installation'
     python_exe_version = python_exe.version(self._python_exe)
     if host.is_windows():
       pip_exe_basename = 'pip{}.exe'.format(python_exe_version)
       python_dir = 'Python{}'.format(python_exe_version.replace('.', ''))
-      pexe = path.join(self._install_dir, python_dir, 'Scripts', pip_exe_basename)
-    else:
+      if python_exe_version == '2.7':
+        pexe = path.join(self._install_dir, 'Scripts', pip_exe_basename)
+      else:
+        pexe = path.join(self._install_dir, python_dir, 'Scripts', pip_exe_basename)
+    elif host.is_unix():
       pip_exe_basename = 'pip{}'.format(python_exe_version)
       pexe = path.join(self._install_dir, 'bin', pip_exe_basename)
+    else:
+      host.raise_unsupported_system()
     return pexe
+
+  def _determine_pip_site_packages_dir(self):
+    'Determine the pip site-packages dir sometimes needed for PYTHONPATH'
+    python_exe_version = python_exe.version(self._python_exe)
+    if host.is_windows():
+      python_dir = 'Python{}'.format(python_exe_version.replace('.', ''))
+      #if python_exe_version == '2.7':
+      #  site_packaged_dir = path.join(self._install_dir, 'site-packages')
+      #else:
+      site_packaged_dir = path.join(self._install_dir, python_dir, 'site-packages')
+    elif host.is_unix():
+      site_packaged_dir = path.join(self._install_dir, 'lib/python/site-packages')
+    else:
+      host.raise_unsupported_system()
+    return site_packaged_dir
   
   def _make_cmd_python_part(self):
     if pip_exe.is_binary(self._pip_exe):
@@ -124,12 +154,11 @@ class pip_project(object):
       cmd_python = [self._python_exe]
     return cmd_python
     
-  @classmethod
-  def _make_env(clazz, install_dir):
+  def _make_env(self):
     'Make a clean environment for python or pip'
     extra_env = {
-      'PYTHONUSERBASE': path.join(install_dir),
-      'PYTHONPATH': path.join(install_dir, 'lib/python/site-packages'),
+      'PYTHONUSERBASE': self._install_dir,
+      'PYTHONPATH': self.site_packages_dir,
     }
     return os_env.make_clean_env(update = extra_env)
     
