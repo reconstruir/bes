@@ -22,7 +22,7 @@ from .pip_project import pip_project
 class pip_installer(object):
   'Pip installer.'
 
-  _log = logger('pip_installer')
+  _log = logger('pip')
   
   def __init__(self, options = None):
     check.check_pip_installer_options(options, allow_none = True)
@@ -96,6 +96,10 @@ class pip_installer(object):
   def pip_version(self):
     'Return the pip version'
     return self._project.pip_version
+  
+  def pip_exe(self):
+    'Return the pip exe'
+    return self._project.exe
   
   def _update_pip(self, pip_version):
     'Update pip to the given version or install it if needed'
