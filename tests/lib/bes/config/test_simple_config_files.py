@@ -4,14 +4,16 @@
 import os
 from os import path
 
-from bes.testing.unit_test import unit_test
 from bes.config.simple_config import simple_config as SC
-from bes.config.simple_config_files import simple_config_files as SCL
 from bes.config.simple_config_error import simple_config_error as ERROR
-from bes.fs.testing.temp_content import temp_content
-from bes.fs.file_util import file_util
+from bes.config.simple_config_files import simple_config_files as SCL
 from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
+from bes.fs.testing.temp_content import temp_content
 from bes.system.env_override import env_override
+from bes.testing.unit_test import unit_test
+from bes.system.host import host
+from bes.testing.unit_test_skip import skip_if
 
 class test_simple_config_files(unit_test):
 
@@ -271,7 +273,8 @@ chimp extends ape
       self.assertEqual( 'loving', s.section('bonobo').find_by_key('activity') )
       self.assertEqual( 'eggs', s.section('chimp').find_by_key('snack') )
       self.assertEqual( 'kiwi', s.section('bonobo').find_by_key('snack') )
-      
+
+  @skip_if(not host.is_unix(), 'not unix')
   def test_search_path_expanduser(self):
     content = '''\
 ape
