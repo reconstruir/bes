@@ -72,25 +72,32 @@ class file_path(object):
     return path.abspath(path.normpath(p))
 
   @classmethod
-  def parent_dir(clazz, p, levels = 1):
-    check.check_string(p)
-    check.check_int(levels)
-
-    if p == path.sep:
+  def parent_dir(clazz, d):
+    d = path.normpath(d)
+    if d == path.sep:
       return None
-    
-    add_sep = ''
-    if p.endswith(path.sep):
-      add_sep = path.sep
-    p = path.normpath(p) + add_sep
-    
-    for i in range(0, levels):
-      dirname = path.dirname(p)
-      if dirname == path.sep:
-        return None
-      parent = path.join(dirname, path.pardir)
-      p = path.normpath(parent)
-    return p
+    return path.normpath(path.join(d, os.pardir))
+  
+#  @classmethod
+#  def parent_dir(clazz, p, levels = 1):
+#    check.check_string(p)
+#    check.check_int(levels)
+#
+#    if p == path.sep:
+#      return None
+#    
+#    add_sep = ''
+#    if p.endswith(path.sep):
+#      add_sep = path.sep
+#    p = path.normpath(p) + add_sep
+#    
+#    for i in range(0, levels):
+#      dirname = path.dirname(p)
+#      if dirname == path.sep:
+#        return None
+#      parent = path.join(dirname, path.pardir)
+#      p = path.normpath(parent)
+#    return p
 
   @classmethod
   def common_ancestor(clazz, filenames):
