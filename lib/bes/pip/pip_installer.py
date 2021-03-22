@@ -112,6 +112,7 @@ class pip_installer(object):
     
     args = [
       'install',
+      '--upgrade',
       '--user',
       'pip=={}'.format(pip_version),
     ]
