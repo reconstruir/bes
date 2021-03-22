@@ -72,11 +72,21 @@ class file_path(object):
     return path.abspath(path.normpath(p))
 
   @classmethod
-  def parent_dir(clazz, d):
-    d = path.normpath(d)
-    if d == path.sep:
+  def parent_dir(clazz, p, levels = 1):
+    check.check_string(p)
+    check.check_int(levels)
+
+    #print('p={}'.format(p))
+    
+    normalized_p = path.normpath(p)
+    #print('normalized_p={}'.format(normalized_p))
+    if normalized_p == path.sep:
       return None
-    return path.normpath(path.join(d, os.pardir))
+    fragment = [ path.pardir ] * levels
+    #print('fragment={}'.format(fragment))
+    caca = path.normpath(path.join(normalized_p, *fragment))
+    #print('caca={}'.format(caca))
+    return path.normpath(path.join(normalized_p, *fragment))
 
   @classmethod
   def common_ancestor(clazz, filenames):
@@ -190,8 +200,3 @@ class file_path(object):
       return None
     assert isinstance(l, list)
     return [ clazz.xp_path(n) for n in l ]
-
-  @classmethod
-  def parent_dir(clazz, p):
-    pardir = path.join(path.dirname(p), path.pardir)
-    return path.normpath(pardir)
