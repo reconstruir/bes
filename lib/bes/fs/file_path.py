@@ -76,17 +76,21 @@ class file_path(object):
     check.check_string(p)
     check.check_int(levels)
 
-    #print('p={}'.format(p))
-    
-    normalized_p = path.normpath(p)
-    #print('normalized_p={}'.format(normalized_p))
-    if normalized_p == path.sep:
+    if p == path.sep:
       return None
-    fragment = [ path.pardir ] * levels
-    #print('fragment={}'.format(fragment))
-    caca = path.normpath(path.join(normalized_p, *fragment))
-    #print('caca={}'.format(caca))
-    return path.normpath(path.join(normalized_p, *fragment))
+    
+    add_sep = ''
+    if p.endswith(path.sep):
+      add_sep = path.sep
+    p = path.normpath(p) + add_sep
+    
+    for i in range(0, levels):
+      dirname = path.dirname(p)
+      if dirname == path.sep:
+        return None
+      parent = path.join(dirname, path.pardir)
+      p = path.normpath(parent)
+    return p
 
   @classmethod
   def common_ancestor(clazz, filenames):

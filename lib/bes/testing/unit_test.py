@@ -273,6 +273,8 @@ class unit_test(unittest.TestCase):
 
   @classmethod
   def xp_filename(clazz, p, sep = None):
+    if p == None:
+      return None
     if clazz._HOST == 'windows':
       return clazz._xp_filename_windows(p, sep = sep)
     elif clazz._HOST in ( 'linux', 'macos' ):

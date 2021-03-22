@@ -15,6 +15,7 @@ from bes.fs.file_path import file_path
 from bes.fs.filename_util import filename_util
 from bes.system.env_override import env_override
 from bes.system.execute import execute
+from bes.system.host import host
 
 from bes.python.python_exe import python_exe
 from bes.python.python_version import python_version
@@ -59,7 +60,11 @@ class pip_exe(object):
     'Return info about the pip exe filename'
     check.check_string(pip_exe)
 
-    basename = filename_util.without_extension(path.basename(pip_exe).lower())
+    if host.is_windows():
+      basename = filename_util.without_extension(path.basename(pip_exe).lower())
+    else:
+      basename = path.basename(pip_exe)
+    
     if not basename.startswith('pip'):
       return clazz._pip_filename_info(None, None)
     version = string_util.remove_head(basename, 'pip')
