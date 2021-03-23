@@ -15,9 +15,14 @@ from bes.system.host import host
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_skip import skip_if
 from bes.version.software_version import software_version
+from bes.testing.unit_test_skip import raise_skip
 
 class test_pip_installer(unit_test):
 
+  @classmethod
+  def setUpClass(clazz):
+    raise_skip('Not ready')
+  
   # The python 3.8 that comes with xcode is very non standard
   # crapping all kinds of droppings in non standard places such
   # as ~/Library/Caches even though the --no-cache-dir was given
