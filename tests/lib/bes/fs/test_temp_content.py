@@ -39,7 +39,7 @@ class test_temp_content(unit_test):
       self.assertEqual( 'this is foo\nhaha', fin.read() )
     shutil.rmtree(tmp_dir)
     
-  @skip_if_not_unix
+  @skip_if_not_unix()
   def test_write_mode(self):
     i = I(I.FILE, 'foo.txt', 'this is foo\nhaha', 0o644)
     tmp_dir = tempfile.mkdtemp()
