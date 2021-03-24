@@ -43,3 +43,12 @@ class pip_cli_handler(cli_command_handler):
     tt = text_table(data = zip(tuple(info._fields), info))
     print(tt)
     return 0
+
+  def exe_for_python(self, python_exe):
+    exe = bes_pip_exe.find_exe_for_python(python_exe)
+    if not exe:
+      print('')
+      return 1
+    print(exe)
+    return 0
+  

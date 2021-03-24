@@ -16,15 +16,18 @@ from bes.fs.filename_util import filename_util
 from bes.system.env_override import env_override
 from bes.system.execute import execute
 from bes.system.host import host
+from bes.system.log import logger
 
-from bes.python.python_exe import python_exe
-from bes.python.python_version import python_version
+from bes.python.python_exe import python_exe as bes_python_exe
+from bes.python.python_version import python_version as bes_python_version
 
 from .pip_error import pip_error
 
 class pip_exe(object):
   'Class to deal with the python executable.'
 
+  _log = logger('pip')
+  
   _PIP_VERSION_PATTERN = r'^pip\s+([\d\.]+)\s+from\s+(.+)\s+\(python\s+(\d+\.\d+)\)$'
   
   _pip_version_info = namedtuple('_pip_version_info', 'version, where, python_version')
@@ -114,3 +117,51 @@ class pip_exe(object):
 
     return file_mime.is_binary(pip_exe)
   
+  @classmethod
+  def find_exe_for_python(clazz, python_exe):
+    'Find pip executable for a specific python exe'
+    bes_python_exe.check_exe(python_exe)
+
+    if host.is_windows():
+      result = clazz._find_exe_for_python_windows(python_exe)
+    elif host.is_unix():
+      result = clazz._find_exe_for_python_unix(python_exe)
+    else:
+      host.raise_unsupported_system()
+    return result
+
+  @classmethod
+  def _find_exe_for_python_windows(clazz, python_exe):
+    version = bes_python_exe.version(python_exe)
+    major_version = bes_python_version.any_version_to_major_version(version)
+    clazz._log.log_d('_find_exe_for_python_windows: python_exe={} version={} major_version={}'.format(python_exe,
+                                                                                                      version,
+                                                                                                      major_version))
+    dirname = path.dirname(python_exe)
+    possible_pips = [
+      path.join(dirname, 'pip{}.exe'.format(version)),
+      path.join(dirname, 'pip{}.exe'.format(major_version)),
+      path.join(dirname, 'Scripts', 'pip{}.exe'.format(version)),
+      path.join(dirname, 'Scripts', 'pip{}.exe'.format(major_version)),
+    ]
+    for p in possible_pips:
+      if path.exists(p):
+        return p
+    return None
+  
+  @classmethod
+  def _find_exe_for_python_unix(clazz, python_exe):
+    version = bes_python_exe.version(python_exe)
+    major_version = bes_python_version.any_version_to_major_version(version)
+    clazz._log.log_d('_find_exe_for_python_unix: python_exe={} version={} major_version={}'.format(python_exe,
+                                                                                                  version,
+                                                                                                  major_version))
+    dirname = path.dirname(python_exe)
+    possible_pips = [
+      path.join(dirname, 'pip{}'.format(version)),
+      path.join(dirname, 'pip{}'.format(major_version)),
+    ]
+    for p in possible_pips:
+      if path.exists(p):
+        return p
+    return None
