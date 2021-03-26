@@ -15,7 +15,7 @@ from bes.testing.unit_test_skip import skip_if
 from bes.version.software_version import software_version
 from bes.testing.unit_test_skip import raise_skip
 
-class test_pip_installer(unit_test):
+class test_pip_project(unit_test):
 
   @classmethod
   def setUpClass(clazz):
@@ -24,13 +24,11 @@ class test_pip_installer(unit_test):
   
   @skip_if(not python_testing.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_install(self):
-    tester = pip_installer_tester(python_testing.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
+    tester = pip_installer_tester(python_testing.ANY_PYTHON3, 'kiwi', debug = True) #self.DEBUG)
     tester.installer.install('latest', False)
     project = tester.installer._project
     project.install('pyinstaller', version = '4.2')
     files = file_find.find(project.install_dir)
-    for f in files:
-      print('FILE: {}'.format(f))
     rv = project.call_program([ 'pyinstaller', '--version' ])
     self.assertEqual( '4.2', rv.stdout.strip() )
     

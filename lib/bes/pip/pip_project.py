@@ -64,7 +64,7 @@ class pip_project(object):
 
   @cached_property
   def PYTHONPATH(self):
-    self._installation_values.PYTHONPATH
+    return self._installation_values.PYTHONPATH
 
   @cached_property
   def PATH(self):
@@ -188,5 +188,8 @@ class pip_project(object):
     kargs['env'] = env
     self._log.log_d('call_program: env={}'.format(env))
 
+    kargs['shell'] = True
+    kargs['check_python_script'] = False
+    
     return execute.execute(parsed_args, **kargs)
     
