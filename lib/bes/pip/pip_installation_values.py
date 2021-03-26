@@ -17,11 +17,11 @@ class pip_installation_values(object):
 
   _log = logger('pip')
   
-  def __init__(self, install_dir, python_version, system = None):
-    check.check_string(install_dir)
+  def __init__(self, root_dir, python_version, system = None):
+    check.check_string(root_dir)
     check.check_string(python_version)
 
-    self._install_dir = install_dir
+    self._root_dir = root_dir
     self._python_version = python_version
     self._system = system or host.SYSTEM
 
@@ -32,12 +32,12 @@ class pip_installation_values(object):
       pip_exe_basename = 'pip{}.exe'.format(self._python_version)
       python_dir = 'Python{}'.format(self._python_version.replace('.', ''))
       if self._python_version == '2.7':
-        pexe = path.join(self._install_dir, 'Scripts', pip_exe_basename)
+        pexe = path.join(self._root_dir, 'Scripts', pip_exe_basename)
       else:
-        pexe = path.join(self._install_dir, python_dir, 'Scripts', pip_exe_basename)
+        pexe = path.join(self._root_dir, python_dir, 'Scripts', pip_exe_basename)
     elif self._system in ( host.LINUX, host.MACOS ):
       pip_exe_basename = 'pip{}'.format(self._python_version)
-      pexe = path.join(self._install_dir, 'bin', pip_exe_basename)
+      pexe = path.join(self._root_dir, 'bin', pip_exe_basename)
     else:
       host.raise_unsupported_system()
     return pexe
@@ -50,11 +50,11 @@ class pip_installation_values(object):
     if self._system == host.WINDOWS:
       python_dir = 'Python{}'.format(self._python_version.replace('.', ''))
       if self._python_version == '2.7':
-        bin_dir = path.join(self._install_dir, 'Scripts')
+        bin_dir = path.join(self._root_dir, 'Scripts')
       else:
-        bin_dir = path.join(self._install_dir, python_dir, 'Scripts')
+        bin_dir = path.join(self._root_dir, python_dir, 'Scripts')
     elif self._system in ( host.LINUX, host.MACOS ):
-      bin_dir = path.join(self._install_dir, 'bin')
+      bin_dir = path.join(self._root_dir, 'bin')
     else:
       host.raise_unsupported_system()
     return bin_dir
@@ -64,21 +64,12 @@ class pip_installation_values(object):
     'Return the pip site-packages dir sometimes needed for PYTHONPATH'
     if self._system == host.WINDOWS:
       python_dir = 'Python{}'.format(self._python_version.replace('.', ''))
-      site_packaged_dir = path.join(self._install_dir, python_dir, 'site-packages')
+      site_packaged_dir = path.join(self._root_dir, python_dir, 'site-packages')
     elif self._system in ( host.LINUX, host.MACOS ):
-      site_packaged_dir = path.join(self._install_dir, 'lib/python/site-packages')
+      site_packaged_dir = path.join(self._root_dir, 'lib/python/site-packages')
     else:
       host.raise_unsupported_system()
     return site_packaged_dir
-
-  @cached_property
-  def env(self):
-    'Make a clean environment for python or pip'
-    extra_env = {
-      'PYTHONUSERBASE': self._install_dir,
-      'PYTHONPATH': self.site_packages_dir,
-    }
-    return os_env.make_clean_env(update = extra_env)
 
   @cached_property
   def PYTHONPATH(self):
@@ -89,20 +80,20 @@ class pip_installation_values(object):
     return [ self.bin_dir ]
   
   @classmethod
-  def find_install_dir(clazz, pip_exe, system = None):
+  def find_root_dir(clazz, pip_exe, system = None):
     'Find the install dir from the pip exe'
     check.check_string(pip_exe)
 
     if self._system == host.WINDOWS:
-      result = self._find_install_dir_windows(pip_exe)
+      result = self._find_root_dir_windows(pip_exe)
     elif self._system in ( host.LINUX, host.MACOS ):
-      result = self._find_install_dir_unix(pip_exe)
+      result = self._find_root_dir_unix(pip_exe)
     else:
       host.raise_unsupported_system()
     return result
 
   @classmethod
-  def _find_install_dir_unix(clazz, pip_exe):
+  def _find_root_dir_unix(clazz, pip_exe):
     parent_dir = file_path.parent_dir(pip_exe)
     print('CACA: parent_dir={}'.format(parent_dir))
     
@@ -124,7 +115,7 @@ class pip_installation_values(object):
     return None
   
   @classmethod
-  def _find_install_dir_windows(clazz, pip_exe):
+  def _find_root_dir_windows(clazz, pip_exe):
     basename = path.basename(pip_exe)
 
     f = re.findall(r'^pip(\d+\.\d+)\....$', basename, flags = re.IGNORECASE)

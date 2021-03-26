@@ -38,29 +38,31 @@ class pip_project(object):
     self._name = name
     self._root_dir = root_dir
     self._cache_dir = path.join(self._root_dir, '.pip_cache')
-    self._install_dir = path.join(self._root_dir, self._name)
-    self._installation_values = pip_installation_values(self._install_dir,
+    self._fake_home_dir = path.join(self._root_dir, '.fake_home')
+    self._project_dir = path.join(self._root_dir, self._name)
+    self._installation_values = pip_installation_values(self._project_dir,
                                                         self._python_version)
 
     self._common_pip_args = [
       '--cache-dir', self._cache_dir,
     ]
-    self._log.log_d('pip_project: pip_exe={} site_packages_dir={} pip_env={} install_dir={}'.format(self.exe,
+    self._log.log_d('pip_project: pip_exe={} site_packages_dir={} pip_env={} project_dir={}'.format(self.exe,
                                                                                                     self.site_packages_dir,
                                                                                                     self.env,
-                                                                                                    self._install_dir))
+                                                                                                    self._project_dir))
   @property
-  def install_dir(self):
-    return self._install_dir
+  def project_dir(self):
+    return self._project_dir
 
   @cached_property
   def env(self):
     'Make a clean environment for python or pip'
     extra_env = {
-      'PYTHONUSERBASE': self._install_dir,
+      'PYTHONUSERBASE': self._project_dir,
       'PYTHONPATH': self.site_packages_dir,
+      'HOME': self._fake_home_dir,
     }
-    return os_env.make_clean_env(update = extra_env)
+    return os_env.make_clean_env(update = extra_env, allow_override = True)
 
   @cached_property
   def PYTHONPATH(self):
@@ -168,7 +170,7 @@ class pip_project(object):
     self._log.log_d('call_program: parsed_args={}'.format(parsed_args))
 
     env = os_env.clone_current_env()
-    
+    env['HOME'] = self._fake_home_dir
     PATH = env_var(env, 'PATH')
     PYTHONPATH = env_var(env, 'PYTHONPATH')
     

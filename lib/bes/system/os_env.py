@@ -106,7 +106,8 @@ class os_env(object):
    ]
 
   @classmethod
-  def make_clean_env(clazz, keep_keys = None, update = None, prepend = True, keep_func = None):
+  def make_clean_env(clazz, keep_keys = None, update = None, prepend = True,
+                     keep_func = None, allow_override = False):
     'Return a clean environment suitable for deterministic build related tasks.'
     keep_keys = keep_keys or []
     env = { k: v for k,v in os.environ.items() if k in clazz.CLEAN_ENV_VARS }
@@ -120,7 +121,7 @@ class os_env(object):
           env[key] = value
     if update:
       assert isinstance(update, dict)
-      clazz.update(env, update, prepend = prepend)
+      clazz.update(env, update, prepend = prepend, allow_override = allow_override)
     return env
 
   @classmethod
@@ -141,7 +142,7 @@ class os_env(object):
     os_env_var('PATH').path = value
 
   @classmethod
-  def update(clazz, env, d, prepend = True):
+  def update(clazz, env, d, prepend = True, allow_override = False):
     'Update env with d taking into account paths that needed to be appended.'
     d = d or {}
     for key, value in d.items():
@@ -149,15 +150,16 @@ class os_env(object):
         clazz._env_path_update(env, d, key, prepend = prepend)
       else:
         # Dont allow silent override of an existing key if the value changes
-        if key in env and env[key] != d[key]:
-          raise RuntimeError('Trying to change %s from \"%s\" to \"%s\"' % (key, env[key], d[key]))
+        if not allow_override:
+          if key in env and env[key] != d[key]:
+            raise RuntimeError('Trying to change %s from \"%s\" to \"%s\"' % (key, env[key], d[key]))
         env[key] = d[key]
         
   @classmethod
-  def clone_and_update(clazz, env, d, prepend = False):
+  def clone_and_update(clazz, env, d, prepend = False, allow_override = False):
     'Clone and update env with d taking into account paths that needed to be appended.'
     env = copy.deepcopy(env)
-    clazz.update(env, d, prepend = prepend)
+    clazz.update(env, d, prepend = prepend, allow_override = allow_override)
     return env
 
   @classmethod

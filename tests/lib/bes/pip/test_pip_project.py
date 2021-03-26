@@ -28,7 +28,9 @@ class test_pip_project(unit_test):
     tester.installer.install('latest', False)
     project = tester.installer._project
     project.install('pyinstaller', version = '4.2')
-    files = file_find.find(project.install_dir)
+    files = file_find.find(project.project_dir)
+    for f in files:
+      print('FILE: {}'.format(f))
     rv = project.call_program([ 'pyinstaller', '--version' ])
     self.assertEqual( '4.2', rv.stdout.strip() )
     
