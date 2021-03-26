@@ -101,7 +101,7 @@ class pip_installer(object):
   
   def pip_exe(self):
     'Return the pip exe'
-    return self._project.exe
+    return self._project.pip_exe
   
   def _update_pip(self, pip_version):
     'Update pip to the given version or install it if needed'

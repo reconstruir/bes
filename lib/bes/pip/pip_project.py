@@ -47,7 +47,7 @@ class pip_project(object):
     self._common_pip_args = [
       '--cache-dir', self._pip_cache_dir,
     ]
-    self._log.log_d('pip_project: pip_exe={} site_packages_dir={} pip_env={} project_dir={}'.format(self.exe,
+    self._log.log_d('pip_project: pip_exe={} site_packages_dir={} pip_env={} project_dir={}'.format(self.pip_exe,
                                                                                                     self.site_packages_dir,
                                                                                                     self.env,
                                                                                                     self._project_dir))
@@ -76,8 +76,8 @@ class pip_project(object):
     ] + self._installation.PATH
   
   @cached_property
-  def exe(self):
-    return self._installation.exe
+  def pip_exe(self):
+    return self._installation.pip_exe
 
   @cached_property
   def site_packages_dir(self):
@@ -85,16 +85,16 @@ class pip_project(object):
 
   @property
   def pip_version(self):
-    return pip_exe.version(self.exe)
+    return pip_exe.version(self.pip_exe)
   
   def pip_is_installed(self):
     'Return True if pip is installed'
-    return path.exists(self.exe)
+    return path.exists(self.pip_exe)
 
   def check_pip_is_installed(self):
     'Check that pip is installed and if not raise an error'
     if not self.pip_is_installed():
-      raise pip_error('Pip not found: {}'.format(self.exe))
+      raise pip_error('Pip not found: {}'.format(self.pip_exe))
 
   _outdated_package = namedtuple('_outdated_package', 'name, current_version, latest_version, latest_filetype')
   def outdated(self):
@@ -133,14 +133,14 @@ class pip_project(object):
                                                                  self._python_exe))
     
     cmd = self._make_cmd_python_part() + [
-      self.exe,
+      self.pip_exe,
     ] + self._common_pip_args + args
     self._log.log_d('call_pip: cmd={} env={}'.format(cmd, self.env))
     rv = execute.execute(cmd, env = self.env)
     return rv
 
   def _make_cmd_python_part(self):
-    if pip_exe.is_binary(self.exe):
+    if pip_exe.is_binary(self.pip_exe):
       cmd_python = []
     else:
       cmd_python = [ self._python_exe ]

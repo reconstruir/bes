@@ -26,7 +26,7 @@ class python_installation(object):
     self._system = system or host.SYSTEM
 
   @cached_property
-  def exe(self):
+  def pip_exe(self):
     'Return the pip executable'
     if self._system == host.WINDOWS:
       pip_exe_basename = 'pip{}.exe'.format(self._python_version)
@@ -94,25 +94,7 @@ class python_installation(object):
 
   @classmethod
   def _find_root_dir_unix(clazz, pip_exe):
-    parent_dir = file_path.parent_dir(pip_exe)
-    print('CACA: parent_dir={}'.format(parent_dir))
-    
-    root_dir = path.dirname(pip_exe)
-    lib_dir = path.normpath(path.join(path.join(root_dir, path.pardir), 'lib'))
-    possible_python_libdirs = file_path.glob(lib_dir, 'python*')
-    num_possible_python_libdirs = len(possible_python_libdirs)
-    if num_possible_python_libdirs == 1:
-      python_libdir = possible_python_libdirs[0]
-    else:
-      python_libdir = None
-    if not python_libdir:
-      return None
-    if not python_libdir:
-      return None
-    possible_site_packages_dir = path.join(python_libdir, 'site-packages')
-    if path.isdir(possible_site_packages_dir):
-      return possible_site_packages_dir
-    return None
+    return path.normpath(path.join(path.dirname(pip_exe), '..'))
   
   @classmethod
   def _find_root_dir_windows(clazz, pip_exe):
