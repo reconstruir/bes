@@ -20,10 +20,10 @@ class python_testing(object):
   PYTHON_38 = python_exe.find_version('3.8', exclude_sources = _EXCLUDE_SOURCES)
   PYTHON_39 = python_exe.find_version('3.9', exclude_sources = _EXCLUDE_SOURCES)
 
-  ALL_PYTHONS = [ p for p in [ _PYTHON_27, _PYTHON_37, _PYTHON_38, _PYTHON_39 ] if p ]
-  ANY_PYTHON = next(iter([ p for p in _ALL_PYTHONS), None))
-  ANY_PYTHON2 = next(iter([ p for p in _ALL_PYTHONS if python_exe.major_version(p) == 2]), None)
-  ANY_PYTHON3 = next(iter([ p for p in _ALL_PYTHONS if python_exe.major_version(p) == 3]), None)
+  ALL_PYTHONS = [ p for p in [ PYTHON_27, PYTHON_37, PYTHON_38, PYTHON_39 ] if p ]
+  ANY_PYTHON = next(iter([ p for p in ALL_PYTHONS ]), None)
+  ANY_PYTHON2 = next(iter([ p for p in ALL_PYTHONS if python_exe.major_version(p) == 2]), None)
+  ANY_PYTHON3 = next(iter([ p for p in ALL_PYTHONS if python_exe.major_version(p) == 3]), None)
 
   _log.log_d('  PYTHON_27: {}'.format(PYTHON_27))
   _log.log_d('  PYTHON_37: {}'.format(PYTHON_37))

@@ -6,6 +6,7 @@ from bes.script.blurber import blurber
 class pip_installer_options(object):
   
   def __init__(self, *args, **kargs):
+    self.debug = False
     self.verbose = False
     self.blurber = blurber()
     self.root_dir = None
@@ -13,6 +14,7 @@ class pip_installer_options(object):
     self.name = None
     for key, value in kargs.items():
       setattr(self, key, value)
+    check.check_bool(self.debug)
     check.check_bool(self.verbose)
     check.check_blurber(self.blurber)
     check.check_string(self.root_dir, allow_none = True)

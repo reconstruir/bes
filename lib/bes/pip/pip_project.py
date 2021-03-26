@@ -15,27 +15,26 @@ from bes.system.log import logger
 from bes.system.os_env import os_env
 from bes.url.url_util import url_util
 
-from bes.python.python_exe import python_exe
-from bes.python.python_version import python_version
+from bes.python.python_exe import python_exe as bes_python_exe
 
 from .pip_error import pip_error
 from .pip_exe import pip_exe
-from .pip_installer_options import pip_installer_options
 
 class pip_project(object):
   'Pip project.'
 
   _log = logger('pip')
   
-  def __init__(self, options = None):
-    check.check_pip_installer_options(options, allow_none = True)
+  def __init__(self, name, root_dir, python_exe, debug = False):
+    check.check_string(name)
+    check.check_string(root_dir)
+    bes_python_exe.check_exe(python_exe)
 
-    self._options = options or pip_installer_options()
-    self._python_exe = self._options.resolve_python_exe()
-    python_exe.check_exe(self._python_exe)
-    self._root_dir = self._options.resolve_root_dir()
+    self._python_exe = python_exe
+    self._name = name
+    self._root_dir = root_dir
     self._cache_dir = path.join(self._root_dir, '.pip_cache')
-    self._install_dir = path.join(self._root_dir, self._options.name)
+    self._install_dir = path.join(self._root_dir, self._name)
     self._common_pip_args = [
       '--cache-dir', self._cache_dir,
     ]
@@ -117,7 +116,7 @@ class pip_project(object):
 
   def _determine_pip_exe(self):
     'Determine the pip executable for this installation'
-    python_exe_version = python_exe.version(self._python_exe)
+    python_exe_version = bes_python_exe.version(self._python_exe)
     if host.is_windows():
       pip_exe_basename = 'pip{}.exe'.format(python_exe_version)
       python_dir = 'Python{}'.format(python_exe_version.replace('.', ''))
@@ -134,7 +133,7 @@ class pip_project(object):
 
   def _determine_pip_site_packages_dir(self):
     'Determine the pip site-packages dir sometimes needed for PYTHONPATH'
-    python_exe_version = python_exe.version(self._python_exe)
+    python_exe_version = bes_python_exe.version(self._python_exe)
     if host.is_windows():
       python_dir = 'Python{}'.format(python_exe_version.replace('.', ''))
       #if python_exe_version == '2.7':

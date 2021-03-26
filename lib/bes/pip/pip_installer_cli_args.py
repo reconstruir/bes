@@ -35,6 +35,8 @@ class pip_installer_cli_args(object):
   def __pip_installer_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
+    p.add_argument('--debug', action = 'store_true', default = False,
+                   help = 'Debug mode [ False ]')
     p.add_argument('-r', '--root-dir', action = 'store', default = None,
                    help = 'The root directory where to install pip [ None ]')
     p.add_argument('-p', '--python', action = 'store', default = None,

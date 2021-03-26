@@ -36,7 +36,9 @@ class pip_installer(object):
     self._common_pip_args = [
       '--cache-dir', self._cache_dir,
     ]
-    self._project = pip_project(self._options)
+    self._project = pip_project(self._options.name,
+                                self._options.resolve_root_dir(),
+                                self._options.resolve_python_exe())
     
   _GET_PIP_27_URL = 'https://bootstrap.pypa.io/pip/2.7/get-pip.py'
   _GET_PIP_36_URL = 'https://bootstrap.pypa.io/get-pip.py'
