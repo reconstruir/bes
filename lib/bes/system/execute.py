@@ -20,7 +20,7 @@ class execute(object):
   @classmethod
   def execute(clazz, args, raise_error = True, non_blocking = False, stderr_to_stdout = False,
               cwd = None, env = None, shell = False, input_data = None, universal_newlines = True,
-              codec = None, print_failure = True, quote = False):
+              codec = None, print_failure = True, quote = False, check_python_script = True):
     'Execute a command'
     clazz._log.log_d('raise_error={raise_error} non_blocking={non_blocking} stderr_to_stdout={stderr_to_stdout} cwd={cwd} shell={shell} input_data={input_data} universal_newlines={universal_newlines} print_failure={print_failure} quote={quote}'.format(**locals()))
     
@@ -32,11 +32,12 @@ class execute(object):
       stderr_pipe = subprocess.STDOUT
 
     # If the first argument is a python script, then run it with python always
-    if path.exists(parsed_args[0]) and python.is_python_script(parsed_args[0]):
-      python_exe = python.find_python_exe()
-      if ' ' in python_exe:
-        python_exe = '"{}"'.format(python_exe)
-      parsed_args.insert(0, python_exe)
+    if check_python_script:
+      if path.exists(parsed_args[0]) and python.is_python_script(parsed_args[0]):
+        python_exe = python.find_python_exe()
+        if ' ' in python_exe:
+          python_exe = '"{}"'.format(python_exe)
+        parsed_args.insert(0, python_exe)
       
     if shell:
       parsed_args = ' '.join(parsed_args)

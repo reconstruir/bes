@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
+import copy
 import json
 from os import path
 
@@ -9,9 +10,12 @@ from bes.property.cached_property import cached_property
 
 from bes.system.execute import execute
 from bes.system.host import host
+from bes.system.command_line import command_line
 from bes.system.log import logger
 from bes.system.os_env import os_env
 from bes.url.url_util import url_util
+from bes.system.os_env import os_env
+from bes.system.env_var import env_var
 
 from bes.python.python_exe import python_exe as bes_python_exe
 
@@ -29,7 +33,6 @@ class pip_project(object):
     check.check_string(root_dir)
     bes_python_exe.check_exe(python_exe)
 
-    
     self._python_exe = python_exe
     self._python_version = bes_python_exe.version(self._python_exe)
     self._name = name
@@ -46,6 +49,9 @@ class pip_project(object):
                                                                                                     self.site_packages_dir,
                                                                                                     self.env,
                                                                                                     self._install_dir))
+  @property
+  def install_dir(self):
+    return self._install_dir
 
   @cached_property
   def env(self):
@@ -56,6 +62,16 @@ class pip_project(object):
     }
     return os_env.make_clean_env(update = extra_env)
 
+  @cached_property
+  def PYTHONPATH(self):
+    self._installation_values.PYTHONPATH
+
+  @cached_property
+  def PATH(self):
+    return [
+      path.dirname(self._python_exe),
+    ] + self._installation_values.PATH
+  
   @cached_property
   def exe(self):
     return self._installation_values.exe
@@ -138,3 +154,39 @@ class pip_project(object):
       '--user',
     ] + package_args
     self.call_pip(args)
+
+  def call_program(self, args, **kargs):
+    'Call a program with the right environment'
+    command_line.check_args_type(args)
+
+    kargs = copy.deepcopy(kargs)
+    
+    self._log.log_method_d()
+    self._log.log_d('call_program: args={}'.format(args))
+
+    parsed_args = command_line.parse_args(args)
+    self._log.log_d('call_program: parsed_args={}'.format(parsed_args))
+
+    env = os_env.clone_current_env()
+    
+    PATH = env_var(env, 'PATH')
+    PYTHONPATH = env_var(env, 'PYTHONPATH')
+    
+    if 'env' in kargs:
+      kargs_env = kargs['env']
+      del kargs['env']
+      if 'PATH' in kargs_env:
+        PATH.append(kargs_env['PATH'])
+        del kargs_env['PATH']
+      if 'PYTHONPATH' in kargs_env:
+        PYTHONPATH.append(kargs_env['PYTHONPATH'])
+        del kargs_env['PYTHONPATH']
+      env.update(kargs_env)
+
+    PATH.prepend(self.PATH)
+    PYTHONPATH.prepend(self.PYTHONPATH)
+    kargs['env'] = env
+    self._log.log_d('call_program: env={}'.format(env))
+
+    return execute.execute(parsed_args, **kargs)
+    

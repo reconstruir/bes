@@ -46,20 +46,18 @@ class pip_installation_values(object):
 
   @cached_property
   def bin_dir(self):
-    'Return the pip executable'
+    'Return the bin dir'
     if self._system == host.WINDOWS:
-      pip_exe_basename = 'pip{}.exe'.format(self._python_version)
       python_dir = 'Python{}'.format(self._python_version.replace('.', ''))
       if self._python_version == '2.7':
-        pexe = path.join(self._install_dir, 'Scripts', pip_exe_basename)
+        bin_dir = path.join(self._install_dir, 'Scripts')
       else:
-        pexe = path.join(self._install_dir, python_dir, 'Scripts', pip_exe_basename)
+        bin_dir = path.join(self._install_dir, python_dir, 'Scripts')
     elif self._system in ( host.LINUX, host.MACOS ):
-      pip_exe_basename = 'pip{}'.format(self._python_version)
-      pexe = path.join(self._install_dir, 'bin', pip_exe_basename)
+      bin_dir = path.join(self._install_dir, 'bin')
     else:
       host.raise_unsupported_system()
-    return pexe
+    return bin_dir
   
   @cached_property
   def site_packages_dir(self):
@@ -82,6 +80,14 @@ class pip_installation_values(object):
     }
     return os_env.make_clean_env(update = extra_env)
 
+  @cached_property
+  def PYTHONPATH(self):
+    return [ self.site_packages_dir ]
+
+  @cached_property
+  def PATH(self):
+    return [ self.bin_dir ]
+  
   @classmethod
   def find_install_dir(clazz, pip_exe, system = None):
     'Find the install dir from the pip exe'
