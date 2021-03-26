@@ -10,7 +10,7 @@ from bes.system.os_env import os_env
 from bes.fs.file_mime import file_mime
 from bes.fs.filename_util import filename_util
 
-from .pip_error import pip_error
+from .python_error import python_error
 
 class python_installation(object):
   'Class to determine the filename and directory values of a pip installatiuon.'
@@ -120,9 +120,9 @@ class python_installation(object):
 
     f = re.findall(r'^pip(\d+\.\d+)\....$', basename, flags = re.IGNORECASE)
     if not f:
-      raise pip_error('pip_exe does not contain a python version: "{}"'.format(pip_exe))
+      raise python_error('pip_exe does not contain a python version: "{}"'.format(pip_exe))
     if len(f) != 1:
-      raise pip_error('pip_exe does not contain a python version: "{}"'.format(pip_exe))
+      raise python_error('pip_exe does not contain a python version: "{}"'.format(pip_exe))
     python_version = f[0]
     parent_dir = file_path.parent_dir(pip_exe)
 

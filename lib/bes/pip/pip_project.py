@@ -7,21 +7,18 @@ from os import path
 
 from bes.common.check import check
 from bes.property.cached_property import cached_property
-
+from bes.python.python_exe import python_exe as bes_python_exe
+from bes.python.python_installation import python_installation
+from bes.system.command_line import command_line
+from bes.system.env_var import env_var
 from bes.system.execute import execute
 from bes.system.host import host
-from bes.system.command_line import command_line
 from bes.system.log import logger
 from bes.system.os_env import os_env
 from bes.url.url_util import url_util
-from bes.system.os_env import os_env
-from bes.system.env_var import env_var
-
-from bes.python.python_exe import python_exe as bes_python_exe
 
 from .pip_error import pip_error
 from .pip_exe import pip_exe
-from .python_installation import python_installation
 
 class pip_project(object):
   'Pip project.'
@@ -44,8 +41,8 @@ class pip_project(object):
     self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
     self._user_base_dir = path.join(self._project_dir, 'py-user-base')
     
-    self._installation_values = python_installation(self._user_base_dir,
-                                                        self._python_version)
+    self._installation = python_installation(self._user_base_dir,
+                                             self._python_version)
 
     self._common_pip_args = [
       '--cache-dir', self._pip_cache_dir,
@@ -70,21 +67,21 @@ class pip_project(object):
 
   @cached_property
   def PYTHONPATH(self):
-    return self._installation_values.PYTHONPATH
+    return self._installation.PYTHONPATH
 
   @cached_property
   def PATH(self):
     return [
       path.dirname(self._python_exe),
-    ] + self._installation_values.PATH
+    ] + self._installation.PATH
   
   @cached_property
   def exe(self):
-    return self._installation_values.exe
+    return self._installation.exe
 
   @cached_property
   def site_packages_dir(self):
-    return self._installation_values.site_packages_dir
+    return self._installation.site_packages_dir
 
   @property
   def pip_version(self):

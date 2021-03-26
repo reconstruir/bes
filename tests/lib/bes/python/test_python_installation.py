@@ -3,7 +3,7 @@
 
 from os import path
 
-from bes.pip.python_installation import python_installation
+from bes.python.python_installation import python_installation
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
 
