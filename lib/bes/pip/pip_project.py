@@ -5,10 +5,8 @@ import json
 from os import path
 
 from bes.common.check import check
+from bes.property.cached_property import cached_property
 
-from bes.fs.dir_util import dir_util
-from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
 from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
@@ -19,6 +17,7 @@ from bes.python.python_exe import python_exe as bes_python_exe
 
 from .pip_error import pip_error
 from .pip_exe import pip_exe
+from .pip_installation_values import pip_installation_values
 
 class pip_project(object):
   'Pip project.'
@@ -30,33 +29,40 @@ class pip_project(object):
     check.check_string(root_dir)
     bes_python_exe.check_exe(python_exe)
 
+    
     self._python_exe = python_exe
+    self._python_version = bes_python_exe.version(self._python_exe)
     self._name = name
     self._root_dir = root_dir
     self._cache_dir = path.join(self._root_dir, '.pip_cache')
     self._install_dir = path.join(self._root_dir, self._name)
+    self._installation_values = pip_installation_values(self._install_dir,
+                                                        self._python_version)
+
     self._common_pip_args = [
       '--cache-dir', self._cache_dir,
     ]
-    self._pip_exe = self._determine_pip_exe()
-    self._pip_site_packages_dir = self._determine_pip_site_packages_dir()
-    self._pip_env = self._make_env()
-    self._log.log_d('pip_project: pip_exe={} site_packages_dir={} pip_env={} install_dir={}'.format(self._pip_exe,
-                                                                                                    self._pip_site_packages_dir,
-                                                                                                    self._pip_env,
+    self._log.log_d('pip_project: pip_exe={} site_packages_dir={} pip_env={} install_dir={}'.format(self.exe,
+                                                                                                    self.site_packages_dir,
+                                                                                                    self.env,
                                                                                                     self._install_dir))
 
-  @property
+  @cached_property
   def env(self):
-    return self._pip_env
+    'Make a clean environment for python or pip'
+    extra_env = {
+      'PYTHONUSERBASE': self._install_dir,
+      'PYTHONPATH': self.site_packages_dir,
+    }
+    return os_env.make_clean_env(update = extra_env)
 
-  @property
+  @cached_property
   def exe(self):
-    return self._pip_exe
+    return self._installation_values.exe
 
-  @property
+  @cached_property
   def site_packages_dir(self):
-    return self._pip_site_packages_dir
+    return self._installation_values.site_packages_dir
 
   @property
   def pip_version(self):
@@ -64,12 +70,12 @@ class pip_project(object):
   
   def pip_is_installed(self):
     'Return True if pip is installed'
-    return path.exists(self._pip_exe)
+    return path.exists(self.exe)
 
   def check_pip_is_installed(self):
     'Check that pip is installed and if not raise an error'
     if not self.pip_is_installed():
-      raise pip_error('Pip not found: {}'.format(self._pip_exe))
+      raise pip_error('Pip not found: {}'.format(self.exe))
 
   _outdated_package = namedtuple('_outdated_package', 'name, current_version, latest_version, latest_filetype')
   def outdated(self):
@@ -108,58 +114,18 @@ class pip_project(object):
                                                                  self._python_exe))
     
     cmd = self._make_cmd_python_part() + [
-      self._pip_exe,
+      self.exe,
     ] + self._common_pip_args + args
-    self._log.log_d('call_pip: cmd={} env={}'.format(cmd, self._pip_env))
-    rv = execute.execute(cmd, env = self._pip_env)
+    self._log.log_d('call_pip: cmd={} env={}'.format(cmd, self.env))
+    rv = execute.execute(cmd, env = self.env)
     return rv
 
-  def _determine_pip_exe(self):
-    'Determine the pip executable for this installation'
-    python_exe_version = bes_python_exe.version(self._python_exe)
-    if host.is_windows():
-      pip_exe_basename = 'pip{}.exe'.format(python_exe_version)
-      python_dir = 'Python{}'.format(python_exe_version.replace('.', ''))
-      if python_exe_version == '2.7':
-        pexe = path.join(self._install_dir, 'Scripts', pip_exe_basename)
-      else:
-        pexe = path.join(self._install_dir, python_dir, 'Scripts', pip_exe_basename)
-    elif host.is_unix():
-      pip_exe_basename = 'pip{}'.format(python_exe_version)
-      pexe = path.join(self._install_dir, 'bin', pip_exe_basename)
-    else:
-      host.raise_unsupported_system()
-    return pexe
-
-  def _determine_pip_site_packages_dir(self):
-    'Determine the pip site-packages dir sometimes needed for PYTHONPATH'
-    python_exe_version = bes_python_exe.version(self._python_exe)
-    if host.is_windows():
-      python_dir = 'Python{}'.format(python_exe_version.replace('.', ''))
-      #if python_exe_version == '2.7':
-      #  site_packaged_dir = path.join(self._install_dir, 'site-packages')
-      #else:
-      site_packaged_dir = path.join(self._install_dir, python_dir, 'site-packages')
-    elif host.is_unix():
-      site_packaged_dir = path.join(self._install_dir, 'lib/python/site-packages')
-    else:
-      host.raise_unsupported_system()
-    return site_packaged_dir
-  
   def _make_cmd_python_part(self):
-    if pip_exe.is_binary(self._pip_exe):
+    if pip_exe.is_binary(self.exe):
       cmd_python = []
     else:
-      cmd_python = [self._python_exe]
+      cmd_python = [ self._python_exe ]
     return cmd_python
-    
-  def _make_env(self):
-    'Make a clean environment for python or pip'
-    extra_env = {
-      'PYTHONUSERBASE': self._install_dir,
-      'PYTHONPATH': self.site_packages_dir,
-    }
-    return os_env.make_clean_env(update = extra_env)
     
   def install(self, package_name, version = None):
     'Install a packagepackages'

@@ -45,6 +45,23 @@ class pip_installation_values(object):
     return self._pip_exe
 
   @cached_property
+  def bin_dir(self):
+    'Return the pip executable'
+    if self._system == host.WINDOWS:
+      pip_exe_basename = 'pip{}.exe'.format(self._python_version)
+      python_dir = 'Python{}'.format(self._python_version.replace('.', ''))
+      if self._python_version == '2.7':
+        pexe = path.join(self._install_dir, 'Scripts', pip_exe_basename)
+      else:
+        pexe = path.join(self._install_dir, python_dir, 'Scripts', pip_exe_basename)
+    elif self._system in ( host.LINUX, host.MACOS ):
+      pip_exe_basename = 'pip{}'.format(self._python_version)
+      pexe = path.join(self._install_dir, 'bin', pip_exe_basename)
+    else:
+      host.raise_unsupported_system()
+    return pexe
+  
+  @cached_property
   def site_packages_dir(self):
     'Return the pip site-packages dir sometimes needed for PYTHONPATH'
     if self._system == host.WINDOWS:
