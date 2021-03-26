@@ -37,14 +37,18 @@ class pip_project(object):
     self._python_version = bes_python_exe.version(self._python_exe)
     self._name = name
     self._root_dir = root_dir
-    self._cache_dir = path.join(self._root_dir, '.pip_cache')
-    self._fake_home_dir = path.join(self._root_dir, '.fake_home')
     self._project_dir = path.join(self._root_dir, self._name)
-    self._installation_values = pip_installation_values(self._project_dir,
+    self._droppings_dir = path.join(self._project_dir, 'droppings')
+    self._pip_cache_dir = path.join(self._droppings_dir, 'pip-cache')
+    self._pipenv_cache_dir = path.join(self._droppings_dir, 'pipenv-cache')
+    self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
+    self._user_base_dir = path.join(self._project_dir, 'py-user-base')
+    
+    self._installation_values = pip_installation_values(self._user_base_dir,
                                                         self._python_version)
 
     self._common_pip_args = [
-      '--cache-dir', self._cache_dir,
+      '--cache-dir', self._pip_cache_dir,
     ]
     self._log.log_d('pip_project: pip_exe={} site_packages_dir={} pip_env={} project_dir={}'.format(self.exe,
                                                                                                     self.site_packages_dir,
@@ -58,7 +62,7 @@ class pip_project(object):
   def env(self):
     'Make a clean environment for python or pip'
     extra_env = {
-      'PYTHONUSERBASE': self._project_dir,
+      'PYTHONUSERBASE': self._user_base_dir,
       'PYTHONPATH': self.site_packages_dir,
       'HOME': self._fake_home_dir,
     }
