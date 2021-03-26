@@ -12,7 +12,7 @@ from bes.fs.filename_util import filename_util
 
 from .pip_error import pip_error
 
-class pip_installation_values(object):
+class python_installation(object):
   'Class to determine the filename and directory values of a pip installatiuon.'
 
   _log = logger('pip')

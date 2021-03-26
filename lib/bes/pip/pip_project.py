@@ -21,7 +21,7 @@ from bes.python.python_exe import python_exe as bes_python_exe
 
 from .pip_error import pip_error
 from .pip_exe import pip_exe
-from .pip_installation_values import pip_installation_values
+from .python_installation import python_installation
 
 class pip_project(object):
   'Pip project.'
@@ -44,7 +44,7 @@ class pip_project(object):
     self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
     self._user_base_dir = path.join(self._project_dir, 'py-user-base')
     
-    self._installation_values = pip_installation_values(self._user_base_dir,
+    self._installation_values = python_installation(self._user_base_dir,
                                                         self._python_version)
 
     self._common_pip_args = [
