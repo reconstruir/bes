@@ -24,7 +24,7 @@ from bes.python.python_version import python_version as bes_python_version
 from .pip_error import pip_error
 
 class pip_exe(object):
-  'Class to deal with the python executable.'
+  'Class to deal with the pip executable.'
 
   _log = logger('pip')
   

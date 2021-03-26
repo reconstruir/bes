@@ -162,3 +162,14 @@ class pip_project(object):
     }
     return os_env.make_clean_env(update = extra_env)
     
+  def install(self, package_name, version = None):
+    'Install a packagepackages'
+    if version:
+      package_args = [ '{}=={}'.format(package_name, version) ]
+    else:
+      package_args = [ package_name ]
+    args = [
+      'install',
+      '--user',
+    ] + package_args
+    self.call_pip(args)
