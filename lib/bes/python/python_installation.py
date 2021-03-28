@@ -78,7 +78,8 @@ class python_installation(object):
   @cached_property
   def PATH(self):
     return [ self.bin_dir ]
-  
+
+  x = '''
   @classmethod
   def find_root_dir(clazz, pip_exe, system = None):
     'Find the install dir from the pip exe'
@@ -131,4 +132,4 @@ class python_installation(object):
     if path.isdir(possible_site_packages_dir):
       return possible_site_packages_dir
     return None
-  
+'''  
