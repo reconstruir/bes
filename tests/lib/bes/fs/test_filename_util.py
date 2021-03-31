@@ -11,6 +11,8 @@ class test_filename_util(unit_test):
     self.assertEqual( None, filename_util.extension('a') )
     self.assertEqual( 'foo', filename_util.extension('a.foo') )
     self.assertEqual( 'gz', filename_util.extension('a.tar.gz') )
+    self.assertEqual( 'png', filename_util.extension('.kiwi.png') )
+    self.assertEqual( '', filename_util.extension('a.') )
 
   def test_has_extension(self):
     self.assertTrue( filename_util.has_extension('a.foo', 'foo') )
@@ -23,6 +25,17 @@ class test_filename_util(unit_test):
   def test_without_extension(self):
     self.assertEqual( 'a', filename_util.without_extension('a.foo') )
     self.assertEqual( 'a', filename_util.without_extension('a') )
+    self.assertEqual( '.kiwi', filename_util.without_extension('.kiwi.png') )
+
+  def test_split_extension(self):
+    self.assertEqual( ( 'a', 'foo' ), filename_util.split_extension('a.foo') )
+    self.assertEqual( ( 'a', None ), filename_util.split_extension('a') )
+    self.assertEqual( ( '.kiwi', 'png' ), filename_util.split_extension('.kiwi.png') )
+    self.assertEqual( ( 'a' , None ), filename_util.split_extension('a') )
+    self.assertEqual( ( 'a', 'foo' ), filename_util.split_extension('a.foo') )
+    self.assertEqual( ( 'a.tar', 'gz' ), filename_util.split_extension('a.tar.gz') )
+    self.assertEqual( ( '.kiwi', 'png' ), filename_util.split_extension('.kiwi.png') )
+    self.assertEqual( ( 'a', '' ), filename_util.split_extension('a.') )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
 import os
 import os.path as path
 
@@ -43,6 +44,16 @@ class filename_util(object):
     left, _ = path.splitext(filename)
     return left
 
+  _split_filename = namedtuple('_split_filename', 'root, extension')
+  @classmethod
+  def split_extension(clazz, filename):
+    'Split filename into 2 parts.  extension will be None if not present.'
+    check.check_string(filename)
+
+    root = clazz.without_extension(filename)
+    extension = clazz.extension(filename)
+    return clazz._split_filename(root, extension)
+  
   @classmethod
   def xp_filename(clazz, p, sep = None):
     if host.is_windows():
