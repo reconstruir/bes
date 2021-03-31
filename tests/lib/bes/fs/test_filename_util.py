@@ -22,6 +22,10 @@ class test_filename_util(unit_test):
     self.assertTrue( filename_util.has_any_extension('a.foo', ( 'foo', 'png' )) )
     self.assertFalse( filename_util.has_any_extension('a.foo', ( 'png', 'jpg' )) )
 
+  def test_has_any_extension_ignore_case(self):
+    self.assertFalse( filename_util.has_any_extension('FOO.EXE', ( 'exe', 'bat' )) )
+    self.assertTrue( filename_util.has_any_extension('FOO.EXE', ( 'exe', 'bat' ), ignore_case = True ) )
+    
   def test_without_extension(self):
     self.assertEqual( 'a', filename_util.without_extension('a.foo') )
     self.assertEqual( 'a', filename_util.without_extension('a') )

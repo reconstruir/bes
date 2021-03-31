@@ -30,11 +30,15 @@ class filename_util(object):
     return clazz.extension(filename) == extension
   
   @classmethod
-  def has_any_extension(clazz, filename, extensions):
+  def has_any_extension(clazz, filename, extensions, ignore_case = False):
     check.check_string(filename)
     check.check_string_seq(extensions)
 
-    return clazz.extension(filename) in set(extensions)
+    ext = clazz.extension(filename)
+    if ignore_case:
+      ext = ext.lower()
+      extensions = [ ext.lower() for ext in extensions ]
+    return ext in set(extensions)
 
   @classmethod
   def without_extension(clazz, filename):
