@@ -3,13 +3,15 @@
 import os
 from os import path
 
+from bes.common.check import check
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
-from bes.system.log import logger
 from bes.system.host import host
+from bes.system.log import logger
 
 from .python_exe import python_exe
 from .python_version import python_version
+from .python_error import python_error
 
 class python_testing(object):
   'Class to deal with the python testing.'
@@ -43,62 +45,101 @@ class python_testing(object):
 
   PYTHON_VERSIONS = ( '2.7', '3.7', '3.8', '3.9' )
   @classmethod
-  def make_fake_python_installation(clazz, root_dir, python_version, pip_version):
-    assert python_version in clazz.PYTHON_VERSIONS
+  def make_fake_python_installation(clazz, root_dir, py_version, pip_version,
+                                    source, system = None):
+    check.check_string(root_dir)
+    check.check_string(py_version)
+    check.check_string(pip_version)
+    check.check_string(source)
+    check.check_string(system, allow_none = True)
+
+    if not py_version in clazz.PYTHON_VERSIONS:
+      raise python_error('unsupported python version: "{}"'.format(py_version))
+    system = system or host.SYSTEM
     
-    if host.is_unix():
-      clazz._make_fake_python_installation_unix(root_dir,
-                                                python_version,
-                                                pip_version)
-    elif host.is_windows():
+    if system == host.MACOS:
+      clazz._make_fake_python_installation_macos(root_dir,
+                                                 py_version,
+                                                 pip_version,
+                                                 source)
+    elif system == host.LINUX:
+      clazz._make_fake_python_installation_linux(root_dir,
+                                                 py_version,
+                                                 pip_version,
+                                                 source)
+    elif system == host.WINDOWS:
       clazz._make_fake_python_installation_windows(root_dir,
-                                                   python_version,
-                                                   pip_version)
+                                                   py_version,
+                                                   pip_version,
+                                                   source)
     else:
       host.raise_unsupported_system()
 
   @classmethod
-  def make_temp_fake_python_installation(clazz, python_version, pip_version, debug = False):
+  def make_temp_fake_python_installation(clazz, py_version, pip_version, source,
+                                         system = None, debug = False):
     tmp_dir = temp_file.make_temp_dir(delete = not debug)
-    clazz.make_fake_python_installation(tmp_dir, python_version, pip_version)
+    clazz.make_fake_python_installation(tmp_dir, py_version, pip_version, source)
     return tmp_dir
-      
+
   @classmethod
-  def _make_fake_python_installation_unix(clazz, root_dir, python_version, pip_version):
-    python_major_version = python_version.major_version(python_version)
+  def _make_fake_python_installation_macos(clazz, root_dir, py_version, pip_version, source):
+    if source == 'xcode':
+      return clazz._make_fake_python_installation_macos_xcode(root_dir, py_version, pip_version)
+    elif source == 'brew':
+      return clazz._make_fake_python_installation_macos_brew(root_dir, py_version, pip_version)
+    else:
+      raise python_error('unknown python source: "{}"'.format(source))
+
+  @classmethod
+  def _make_fake_python_installation_macos_brew(clazz, root_dir, py_version, pip_version):
+    python_major_version = python_version.major_version(py_version)
     bin_dir = path.join(root_dir, 'bin')
     fake_python = path.join(bin_dir, 'python')
-    fake_python_with_version = path.join(bin_dir, 'python{}'.format(python_version))
+    fake_python_with_version = path.join(bin_dir, 'python{}'.format(py_version))
     fake_python_major_version = path.join(bin_dir, 'python{}'.format(python_major_version))
     fake_pip = path.join(bin_dir, 'pip')
-    fake_pip_with_version = path.join(bin_dir, 'pip{}'.format(python_version))
+    fake_pip_with_version = path.join(bin_dir, 'pip{}'.format(py_version))
     fake_pip_major_version = path.join(bin_dir, 'pip{}'.format(python_major_version))
 
-    clazz._make_fake_python_unix(fake_python, python_version)
-    clazz._make_fake_python_unix(fake_python_with_version, python_version)
-    clazz._make_fake_python_unix(fake_python_major_version, python_version)
+    clazz._make_fake_python_unix(fake_python, py_version)
+    clazz._make_fake_python_unix(fake_python_with_version, py_version)
+    clazz._make_fake_python_unix(fake_python_major_version, py_version)
 
-    clazz._make_fake_pip_unix(fake_pip, pip_version, python_version)
-    clazz._make_fake_pip_unix(fake_pip_with_version, pip_version, python_version)
-    clazz._make_fake_pip_unix(fake_pip_major_version, pip_version, python_version)
+    clazz._make_fake_pip_unix(fake_pip, pip_version, py_version)
+    clazz._make_fake_pip_unix(fake_pip_with_version, pip_version, py_version)
+    clazz._make_fake_pip_unix(fake_pip_major_version, pip_version, py_version)
+    
+  @classmethod
+  def _make_fake_python_installation_macos_xcode(clazz, root_dir, py_version, pip_version):
+    python_major_version = python_version.major_version(py_version)
+    bin_dir = path.join(root_dir, 'bin')
+    fake_python_major_version = path.join(bin_dir, 'python{}'.format(python_major_version))
+    fake_pip_major_version = path.join(bin_dir, 'pip{}'.format(python_major_version))
+    clazz._make_fake_python_unix(fake_python_major_version, py_version)
+    clazz._make_fake_pip_unix(fake_pip_major_version, pip_version, py_version)
+    
+  @classmethod
+  def _make_fake_python_installation_linux(clazz, root_dir, py_version, pip_version, source):
+    assert False
 
   @classmethod
-  def _make_fake_python_installation_windows(clazz, root_dir, python_version, pip_version):
-    python_major_version = python_version.major_version(python_version)
+  def _make_fake_python_installation_windows(clazz, root_dir, py_version, pip_version, source):
+    python_major_version = python_version.major_version(py_version)
     fake_python = path.join(root_dir, 'python.bat')
-    fake_python_with_version = path.join(root_dir, 'python{}.bat'.format(python_version))
+    fake_python_with_version = path.join(root_dir, 'python{}.bat'.format(py_version))
     fake_python_major_version = path.join(root_dir, 'python{}.bat'.format(python_major_version))
     fake_pip = path.join(root_dir, 'Scripts', 'pip.bat')
-    fake_pip_with_version = path.join(root_dir, 'Scripts', 'pip{}.bat'.format(python_version))
+    fake_pip_with_version = path.join(root_dir, 'Scripts', 'pip{}.bat'.format(py_version))
     fake_pip_major_version = path.join(root_dir, 'Scripts', 'pip{}.bat'.format(python_major_version))
 
-    clazz._make_fake_python_windows(fake_python, python_version)
-    clazz._make_fake_python_windows(fake_python_with_version, python_version)
-    clazz._make_fake_python_windows(fake_python_major_version, python_version)
+    clazz._make_fake_python_windows(fake_python, py_version)
+    clazz._make_fake_python_windows(fake_python_with_version, py_version)
+    clazz._make_fake_python_windows(fake_python_major_version, py_version)
 
-    clazz._make_fake_pip_windows(fake_pip, pip_version, python_version)
-    clazz._make_fake_pip_windows(fake_pip_with_version, pip_version, python_version)
-    clazz._make_fake_pip_windows(fake_pip_major_version, pip_version, python_version)
+    clazz._make_fake_pip_windows(fake_pip, pip_version, py_version)
+    clazz._make_fake_pip_windows(fake_pip_with_version, pip_version, py_version)
+    clazz._make_fake_pip_windows(fake_pip_major_version, pip_version, py_version)
 
   @classmethod
   def _make_fake_python_unix(clazz, filename, version):
@@ -155,41 +196,41 @@ exit /b 0
     return file_util.save(filename, content = content, mode = 0o0755)
 
   @classmethod
-  def make_fake_pip(clazz, filename, version, python_version):
+  def make_fake_pip(clazz, filename, version, py_version):
     if host.is_unix():
-      return clazz._make_fake_pip_unix(filename, version, python_version)
+      return clazz._make_fake_pip_unix(filename, version, py_version)
     elif host.is_windows():
-      return clazz._make_fake_pip_windows(filename, version, python_version)
+      return clazz._make_fake_pip_windows(filename, version, py_version)
     else:
       host.raise_unsupported_system()
 
   @classmethod
-  def make_temp_fake_pip(clazz, filename, version, python_version, mode = None, debug = False):
+  def make_temp_fake_pip(clazz, filename, version, py_version, mode = None, debug = False):
     mode = mode or 0o0755
 
     tmp_dir = temp_file.make_temp_dir(delete = not debug)
     tmp_exe = path.join(tmp_dir, filename)
-    clazz.make_fake_pip(tmp_exe, version, python_version)
+    clazz.make_fake_pip(tmp_exe, version, py_version)
     if mode:
       os.chmod(tmp_exe, mode)
     return tmp_exe
       
   @classmethod
-  def _make_fake_pip_unix(clazz, filename, pip_version, python_version):
+  def _make_fake_pip_unix(clazz, filename, pip_version, py_version):
     content = '''\
 #!/bin/bash
-echo "pip {pip_version} from /foo/site-packages/pip (python {python_version})"
+echo "pip {pip_version} from /foo/site-packages/pip (python {py_version})"
 exit 0
-'''.format(python_version = python_version, pip_version = pip_version)
+'''.format(py_version = py_version, pip_version = pip_version)
     return file_util.save(filename, content = content, mode = 0o0755)
 
   @classmethod
-  def _make_fake_pip_windows(clazz, filename, pip_version, python_version):
+  def _make_fake_pip_windows(clazz, filename, pip_version, py_version):
     content = '''\
 @echo off
-echo pip {pip_version} from /foo/site-packages/pip (python {python_version})
+echo pip {pip_version} from /foo/site-packages/pip (python {py_version})
 exit /b 0
-'''.format(python_version = python_version, pip_version = pip_version)
+'''.format(py_version = py_version, pip_version = pip_version)
     return file_util.save(filename, content = content, mode = 0o0755)
   
   
