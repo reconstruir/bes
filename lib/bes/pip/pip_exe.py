@@ -20,6 +20,7 @@ from bes.system.log import logger
 
 from bes.python.python_exe import python_exe as bes_python_exe
 from bes.python.python_version import python_version as bes_python_version
+from bes.python.python_pip_exe import python_version as python_pip_exe
 
 from .pip_error import pip_error
 
@@ -28,34 +29,17 @@ class pip_exe(object):
 
   _log = logger('pip')
   
-  _PIP_VERSION_PATTERN = r'^pip\s+([\d\.]+)\s+from\s+(.+)\s+\(python\s+(\d+\.\d+)\)$'
-  
-  _pip_version_info = namedtuple('_pip_version_info', 'version, where, python_version')
   @classmethod
   def version_info(clazz, pip_exe):
     'Return the version info of a pip executable'
     check.check_string(pip_exe)
 
-    cmd = [ pip_exe, '--version' ]
-
     filename_info = clazz.filename_info(pip_exe)
-    libdir = filename_info.libdir or ''
-    with env_override(env = { 'PYTHONPATH': libdir }) as env:
-      try:
-        output_bytes = subprocess.check_output(cmd, stderr = subprocess.STDOUT)
-        output = codecs.decode(output_bytes, 'utf-8').strip()
-      except subprocess.CalledProcessError as ex:
-        msg = 'Failed to run: "{}" - {}'.format(' '.join(cmd), ex.output)
-        raise pip_error(msg, status_code = ex.returncode)
-    f = re.findall(clazz._PIP_VERSION_PATTERN, output)
-    if not f:
-      raise pip_error('not a valid pip version for {}: "{}"'.format(pip_exe, output))
-    if len(f[0]) != 3:
-      raise pip_error('not a valid pip version for {}: "{}"'.format(pip_exe, output))
-    version = f[0][0]
-    where = f[0][1]
-    python_version = f[0][2]
-    return clazz._pip_version_info(version, where, python_version)
+    pythonpath = [ filename_info.libdir ] if filename_info.libdir else None
+    try:
+      return python_pip_exe.version_info(pip_exe, pythonpath = pythonpath)
+    except python_error as ex:
+      raise pip_error(ex.message, status_code = ex.status_code)
 
   _pip_filename_info = namedtuple('_pip_filename_info', 'version, libdir')
   @classmethod

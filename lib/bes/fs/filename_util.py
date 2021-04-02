@@ -35,9 +35,11 @@ class filename_util(object):
     check.check_string_seq(extensions)
 
     ext = clazz.extension(filename)
+    if ext == None:
+      return False
     if ignore_case:
       ext = ext.lower()
-      extensions = [ ext.lower() for ext in extensions ]
+      extensions = [ e.lower() for e in extensions ]
     return ext in set(extensions)
 
   @classmethod
