@@ -29,7 +29,7 @@ class python_version(object):
     return str(sv.parts[0])
 
   @classmethod
-  def any_version_to_version(clazz, any_version):
+  def version(clazz, any_version):
     'Return x.y for x.y.z or x.y'
     check.check_string(any_version)
     
