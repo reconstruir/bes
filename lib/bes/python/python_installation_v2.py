@@ -16,6 +16,7 @@ from bes.fs.filename_util import filename_util
 from .python_error import python_error
 from .python_exe import python_exe
 from .python_pip_exe import python_pip_exe
+from .python_version import python_version
 
 class python_installation_v2(object):
   'Class to determine the filename and directory values of a pip installatiuon.'
@@ -115,15 +116,30 @@ class python_installation_v2(object):
     clazz._log.log_d('_determine_stuff_macos: bin_dir={}'.format(bin_dir))
     clazz._log.log_d('_determine_stuff_macos: py_version={}'.format(py_version))
 
-    py_major_version = 
+    py_major_version = python_version.major_version(py_version)
+
+    possible_pythons = [
+      path.join(bin_dir, 'python{}'.format(py_version)),
+      path.join(bin_dir, 'python{}'.format(py_major_version)),
+    ]
+
+    possible_pips = [
+      path.join(bin_dir, 'pip{}'.format(py_version)),
+      path.join(bin_dir, 'pip{}'.format(py_major_version)),
+    ]
+
+    py_exe = clazz._find_possible_exe(possible_pythons)
+    pip_exe = clazz._find_possible_exe(possible_pips)
     
-    py_basename = 'python{}'.format(py_version)
-    py_exe = path.join(bin_dir, py_basename)
-    pip_basename = 'pip{}'.format(py_version)
-    pip_exe = path.join(bin_dir, pip_basename)
     root_dir = path.normpath(path.join(bin_dir, '..'))
     return clazz._stuff(root_dir, py_exe, pip_exe, py_version), None
-    
+
+  def _find_possible_exe(clazz, possible_exes):
+    for p in possible_exes:
+      if path.exists(p):
+        return p
+    return None
+  
   def _determine_stuff_linux(clazz, exe):
     pass
   
