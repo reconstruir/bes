@@ -73,7 +73,7 @@ class python_exe(object):
   @classmethod
   def find_full_version(clazz, full_version):
     'Return the python executable for major.minor.revision full_version or None if not found'
-    version = python_version.full_version_to_version(full_version)
+    version = python_version.version(full_version)
     exe = clazz.find_version(version)
     if not exe:
       return None

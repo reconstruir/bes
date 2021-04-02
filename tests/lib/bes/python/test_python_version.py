@@ -6,8 +6,8 @@ from bes.python.python_version import python_version
 
 class test_python_version(unit_test):
 
-  def test_full_version_to_version(self):
-    self.assertEqual( '6.7', python_version.full_version_to_version('6.7.8') )
+  def test_version(self):
+    self.assertEqual( '6.7', python_version.version('6.7.8') )
 
   def test_is_version(self):
     self.assertTrue( python_version.is_version('6.7') )

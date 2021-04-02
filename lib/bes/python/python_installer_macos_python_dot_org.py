@@ -76,7 +76,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
     'Install the major.minor.revision full version of python.'
     check.check_string(full_version)
 
-    version = python_version.full_version_to_version(full_version)
+    version = python_version.version(full_version)
     installed_versions = self.installed_versions()
     
     if full_version in installed_versions:
@@ -85,7 +85,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
 
     versions_to_uninstall = []
     for next_installed_full_version in installed_versions:
-      next_installed_version = python_version.full_version_to_version(next_installed_full_version)
+      next_installed_version = python_version.version(next_installed_full_version)
       if next_installed_version == version:
         versions_to_uninstall.append(next_installed_full_version)
     if versions_to_uninstall:
@@ -162,7 +162,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
     check.check_string(full_version)
     assert python_version.is_full_version(full_version)
 
-    version = python_version.full_version_to_version(full_version)
+    version = python_version.version(full_version)
     np = native_package(self.blurber)
     package_name = 'org.python.Python.PythonFramework-{}'.format(version)
     if np.has_package(package_name):
@@ -258,7 +258,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
         self.blurb('WARNING: Command not found: {}'.format(command))
 
   def _fix_symlinks(self, np, full_version):
-    version = python_version.full_version_to_version(full_version)
+    version = python_version.version(full_version)
     installed_versions = self.installed_versions()
 
   _FRAMEWORK_LINK_ROOT_DIR = '/Library/Frameworks/Python.framework'

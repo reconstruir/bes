@@ -9,16 +9,6 @@ class python_version(object):
   'Class to deal with python versions.'
 
   @classmethod
-  def full_version_to_version(clazz, full_version):
-    'Return x.y for x.y.z'
-    check.check_string(full_version)
-    
-    sv = software_version.parse_version(full_version)
-    if len(sv.parts) != 3:
-      raise python_error('Invalid full python version: "{}"'.format(full_version))
-    return '{}.{}'.format(sv.parts[0], sv.parts[1])
-
-  @classmethod
   def major_version(clazz, any_version):
     'Return x for x.y.z or x.y or x'
     check.check_string(any_version)
@@ -40,7 +30,7 @@ class python_version(object):
   
   @classmethod
   def is_version(clazz, version):
-    'Return Trye if version is in the form major.minor'
+    'Return True if version is in the form major.minor'
     check.check_string(version)
     
     sv = software_version.parse_version(version)
@@ -48,7 +38,7 @@ class python_version(object):
 
   @classmethod
   def is_full_version(clazz, full_version):
-    'Return Trye if version is in the form major.minor.revision'
+    'Return True if version is in the form major.minor.revision'
     check.check_string(full_version)
     
     sv = software_version.parse_version(full_version)
