@@ -65,7 +65,7 @@ class python_testing(object):
       
   @classmethod
   def _make_fake_python_installation_unix(clazz, root_dir, python_version, pip_version):
-    python_major_version = python_version.any_version_to_major_version(python_version)
+    python_major_version = python_version.major_version(python_version)
     bin_dir = path.join(root_dir, 'bin')
     fake_python = path.join(bin_dir, 'python')
     fake_python_with_version = path.join(bin_dir, 'python{}'.format(python_version))
@@ -84,7 +84,7 @@ class python_testing(object):
 
   @classmethod
   def _make_fake_python_installation_windows(clazz, root_dir, python_version, pip_version):
-    python_major_version = python_version.any_version_to_major_version(python_version)
+    python_major_version = python_version.major_version(python_version)
     fake_python = path.join(root_dir, 'python.bat')
     fake_python_with_version = path.join(root_dir, 'python{}.bat'.format(python_version))
     fake_python_major_version = path.join(root_dir, 'python{}.bat'.format(python_major_version))
@@ -128,7 +128,7 @@ exit /b 0
       host.raise_unsupported_system()
       
   @classmethod
-  def make_temp_fake_python(clazz, filename, version, debug = False):
+  def make_temp_fake_python(clazz, filename, version, mode = None, debug = False):
     tmp_dir = temp_file.make_temp_dir(delete = not debug)
     tmp_exe = path.join(tmp_dir, filename)
     clazz.make_fake_python(tmp_exe, version)

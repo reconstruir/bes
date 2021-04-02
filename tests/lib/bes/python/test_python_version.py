@@ -17,10 +17,10 @@ class test_python_version(unit_test):
     self.assertTrue( python_version.is_full_version('6.7.8') )
     self.assertFalse( python_version.is_full_version('6.7') )
 
-  def test_any_version_to_major_version(self):
-    self.assertEqual( '6', python_version.any_version_to_major_version('6') )
-    self.assertEqual( '6', python_version.any_version_to_major_version('6.7') )
-    self.assertEqual( '6', python_version.any_version_to_major_version('6.7.8') )
+  def test_major_version(self):
+    self.assertEqual( '6', python_version.major_version('6') )
+    self.assertEqual( '6', python_version.major_version('6.7') )
+    self.assertEqual( '6', python_version.major_version('6.7.8') )
     
 if __name__ == '__main__':
   unit_test.main()

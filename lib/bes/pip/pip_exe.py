@@ -20,7 +20,7 @@ from bes.system.log import logger
 
 from bes.python.python_exe import python_exe as bes_python_exe
 from bes.python.python_version import python_version as bes_python_version
-from bes.python.python_pip_exe import python_version as python_pip_exe
+from bes.python.python_pip_exe import python_pip_exe as python_pip_exe
 
 from .pip_error import pip_error
 
@@ -117,7 +117,7 @@ class pip_exe(object):
   @classmethod
   def _find_exe_for_python_windows(clazz, python_exe):
     version = bes_python_exe.version(python_exe)
-    major_version = bes_python_version.any_version_to_major_version(version)
+    major_version = bes_python_version.major_version(version)
     clazz._log.log_d('_find_exe_for_python_windows: python_exe={} version={} major_version={}'.format(python_exe,
                                                                                                       version,
                                                                                                       major_version))
@@ -136,7 +136,7 @@ class pip_exe(object):
   @classmethod
   def _find_exe_for_python_unix(clazz, python_exe):
     version = bes_python_exe.version(python_exe)
-    major_version = bes_python_version.any_version_to_major_version(version)
+    major_version = bes_python_version.major_version(version)
     clazz._log.log_d('_find_exe_for_python_unix: python_exe={} version={} major_version={}'.format(python_exe,
                                                                                                   version,
                                                                                                   major_version))
