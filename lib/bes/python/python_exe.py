@@ -234,6 +234,8 @@ class python_exe(object):
       output = ex.output
       exit_code = ex.returncode
       clazz._log.log_d('run_script: failed')
+    finally:
+      file_util.remove(tmp_script)
     clazz._log.log_d('run_script: exit_code={} output="{}"')
     return clazz._run_script_result(exit_code, output)
     
@@ -245,7 +247,7 @@ class python_exe(object):
     'Return the value of sys.executable for the given python executable'
     clazz.check_exe(exe)
 
-    script = '''\
+    script = r'''\
 import sys
 assert len(sys.argv) == 2
 _filename = sys.argv[1]
@@ -253,10 +255,8 @@ with open(_filename, 'w') as f:
   f.write(sys.executable)
 raise SystemExit(0)
 '''
-    tmp_script = temp_file.make_temp_file(content = script, suffix = '.py')
     tmp_output = temp_file.make_temp_file()
-    cmd = [ exe, tmp_script, tmp_output ]
-    rv = execute.execute(cmd)
+    clazz.run_script(exe, script, [ tmp_output ])
     return file_util.read(tmp_output, codec = 'utf-8').strip()
 
   _python_exe_info = namedtuple('_python_exe_info', 'exe, version, full_version, source, real_exe, exe_links')
