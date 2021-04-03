@@ -23,7 +23,8 @@ class test_python_installation_v2(unit_test):
     self.assert_filename_equal( path.join(tmp_dir, 'bin/python3'), piv.python_exe )
     self.assert_filename_equal( path.join(tmp_dir, 'bin/pip3'), piv.pip_exe )
     self.assert_filename_equal( '3.8', piv.python_version )
-    #self.assert_filename_equal( '/tmp/foo/bin/pip2.7', piv.pip_exe )
+    self.assert_filename_list_equal( [ path.join(tmp_dir, 'bin') ], piv.PATH )
+    
     #self.assert_filename_equal( '/tmp/foo/lib/python/site-packages', piv.site_packages_dir )
     #self.assert_filename_list_equal( [ '/tmp/foo/lib/python/site-packages' ], piv.PYTHONPATH )
 
@@ -39,9 +40,26 @@ class test_python_installation_v2(unit_test):
     self.assert_filename_equal( path.join(tmp_dir, 'python.bat'), piv.python_exe )
     self.assert_filename_equal( path.join(tmp_dir, 'Scripts', 'pip3.8.bat'), piv.pip_exe )
     self.assert_filename_equal( '3.8', piv.python_version )
+    self.assert_filename_list_equal( [
+      tmp_dir,
+      path.join(tmp_dir, 'Scripts'),
+    ], piv.PATH )
 
     #self.assert_filename_equal( '/tmp/foo/lib/python/site-packages', piv.site_packages_dir )
     #self.assert_filename_list_equal( [ '/tmp/foo/lib/python/site-packages' ], piv.PYTHONPATH )
+
+  @skip_if(not host.is_windows(), 'not windows')
+  def test_windows_python_27(self):
+    tmp_dir = python_testing.make_temp_fake_python_installation('2.7',
+                                                                '20.3.4',
+                                                                None,
+                                                                system = 'windows',
+                                                                debug = self.DEBUG)
+
+    piv = python_installation_v2(path.join(tmp_dir, 'python.bat'), system = 'windows')
+    self.assert_filename_equal( path.join(tmp_dir, 'python.bat'), piv.python_exe )
+    self.assert_filename_equal( path.join(tmp_dir, 'Scripts', 'pip2.7.bat'), piv.pip_exe )
+    self.assert_filename_equal( '2.7', piv.python_version )
     
   def xtest_macos_py27(self):
     piv = python_installation('/tmp/foo', '2.7', system = 'macos')
