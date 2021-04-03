@@ -19,7 +19,6 @@ from bes.system.host import host
 from bes.system.log import logger
 from bes.system.os_env import os_env_var
 from bes.system.which import which
-from bes.text.text_line_parser import text_line_parser
 from bes.unix.brew.brew import brew
 from bes.version.software_version import software_version
 
@@ -269,9 +268,8 @@ for p in site.getsitepackages():
 raise SystemExit(0)
 '''
     rv = clazz.run_script(exe, script)
-    return text_line_parser.parse_lines(rv.output,
-                                        strip_text = True,
-                                        remove_empties = True)
+    lines = [ line for line in rv.output.splitlines() if line ]
+    return lines
   
   _python_exe_info = namedtuple('_python_exe_info', 'exe, version, full_version, source, real_exe, exe_links')
   @classmethod
