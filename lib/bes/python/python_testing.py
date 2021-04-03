@@ -234,29 +234,26 @@ exit /b 0
     return file_util.save(filename, content = content, mode = 0o0755)
   
   
-
-'''
-c:\Program Files\Python37
-c:\Program Files\Python37\DLLs
-c:\Program Files\Python37\DLLs\libcrypto-1_1.dll
-c:\Program Files\Python37\Lib
-c:\Program Files\Python37\Lib\abc.py
-c:\Program Files\Python37\Lib\site-packages
-c:\Program Files\Python37\libs
-c:\Program Files\Python37\libs\libpython37.a
-c:\Program Files\Python37\libs\python3.lib
-c:\Program Files\Python37\libs\python37.lib
-c:\Program Files\Python37\libs\_tkinter.lib
-c:\Program Files\Python37\LICENSE.txt
-c:\Program Files\Python37\NEWS.txt
-c:\Program Files\Python37\python.exe
-c:\Program Files\Python37\python3.dll
-c:\Program Files\Python37\python37.dll
-c:\Program Files\Python37\pythonw.exe
-c:\Program Files\Python37\Scripts
-c:\Program Files\Python37\Scripts\easy_install-3.7.exe
-c:\Program Files\Python37\Scripts\easy_install.exe
-c:\Program Files\Python37\Scripts\pip.exe
-c:\Program Files\Python37\Scripts\pip3.7.exe
-c:\Program Files\Python37\Scripts\pip3.exe
-'''
+#c:\Program Files\Python37
+#c:\Program Files\Python37\DLLs
+#c:\Program Files\Python37\DLLs\libcrypto-1_1.dll
+#c:\Program Files\Python37\Lib
+#c:\Program Files\Python37\Lib\abc.py
+#c:\Program Files\Python37\Lib\site-packages
+#c:\Program Files\Python37\libs
+#c:\Program Files\Python37\libs\libpython37.a
+#c:\Program Files\Python37\libs\python3.lib
+#c:\Program Files\Python37\libs\python37.lib
+#c:\Program Files\Python37\libs\_tkinter.lib
+#c:\Program Files\Python37\LICENSE.txt
+#c:\Program Files\Python37\NEWS.txt
+#c:\Program Files\Python37\python.exe
+#c:\Program Files\Python37\python3.dll
+#c:\Program Files\Python37\python37.dll
+#c:\Program Files\Python37\pythonw.exe
+#c:\Program Files\Python37\Scripts
+#c:\Program Files\Python37\Scripts\easy_install-3.7.exe
+#c:\Program Files\Python37\Scripts\easy_install.exe
+#c:\Program Files\Python37\Scripts\pip.exe
+#c:\Program Files\Python37\Scripts\pip3.7.exe
+#c:\Program Files\Python37\Scripts\pip3.exe

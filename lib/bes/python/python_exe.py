@@ -226,16 +226,16 @@ class python_exe(object):
 
     try:
       output_bytes = subprocess.check_output(cmd, stderr = subprocess.STDOUT)
-      output = codecs.decode(output_bytes, 'utf-8').strip()
       exit_code = 0
       clazz._log.log_d('run_script: success')
     except subprocess.CalledProcessError as ex:
       clazz._log.log_d('run_script: caught: {}'.format(str(ex)))
-      output = ex.output
+      output_bytes = ex.output
       exit_code = ex.returncode
       clazz._log.log_d('run_script: failed')
     finally:
       file_util.remove(tmp_script)
+    output = codecs.decode(output_bytes, 'utf-8').strip()
     clazz._log.log_d('run_script: exit_code={} output="{}"')
     return clazz._run_script_result(exit_code, output)
     

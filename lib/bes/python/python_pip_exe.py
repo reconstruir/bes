@@ -37,9 +37,11 @@ class python_pip_exe(object):
         output_bytes = subprocess.check_output(cmd, stderr = subprocess.STDOUT)
         output = codecs.decode(output_bytes, 'utf-8').strip()
       except subprocess.CalledProcessError as ex:
-        msg = 'Failed to run: "{}" - {}'.format(' '.join(cmd), ex.output)
+        output_bytes = ex.output
+        output = codecs.decode(output_bytes, 'utf-8').strip()
+        msg = 'Failed to run: "{}" - {}'.format(' '.join(cmd), output)
         clazz._log.log_w(msg)
-        raise ython_error(msg, status_code = ex.returncode)
+        raise python_error(msg, status_code = ex.returncode)
     f = re.findall(clazz._PIP_VERSION_PATTERN, output)
     if not f:
       raise python_error('not a valid pip version for {}: "{}"'.format(pip_exe, output))
