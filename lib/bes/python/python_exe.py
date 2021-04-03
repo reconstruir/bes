@@ -19,6 +19,7 @@ from bes.system.host import host
 from bes.system.log import logger
 from bes.system.os_env import os_env_var
 from bes.system.which import which
+from bes.text.text_line_parser import text_line_parser
 from bes.unix.brew.brew import brew
 from bes.version.software_version import software_version
 
@@ -212,7 +213,7 @@ class python_exe(object):
 
   _run_script_result = namedtuple('_run_script_result', 'exit_code, output')
   @classmethod
-  def run_script(clazz, exe, script, args):
+  def run_script(clazz, exe, script, args = None):
     'Run the script and return the result.'
     clazz.check_exe(exe)
     check.check_string(script)
@@ -239,9 +240,6 @@ class python_exe(object):
     clazz._log.log_d('run_script: exit_code={} output="{}"')
     return clazz._run_script_result(exit_code, output)
     
-#import site
-#print(site.getsitepackages())
-
   @classmethod
   def sys_executable(clazz, exe):
     'Return the value of sys.executable for the given python executable'
@@ -259,6 +257,22 @@ raise SystemExit(0)
     clazz.run_script(exe, script, [ tmp_output ])
     return file_util.read(tmp_output, codec = 'utf-8').strip()
 
+  @classmethod
+  def site_packages_path(clazz, exe):
+    'Return a list of paths needed for the site-packages of the given python'
+    clazz.check_exe(exe)
+
+    script = r'''\
+import site
+for p in site.getsitepackages():
+  print(p)
+raise SystemExit(0)
+'''
+    rv = clazz.run_script(exe, script)
+    return text_line_parser.parse_lines(rv.output,
+                                        strip_text = True,
+                                        remove_empties = True)
+  
   _python_exe_info = namedtuple('_python_exe_info', 'exe, version, full_version, source, real_exe, exe_links')
   @classmethod
   def info(clazz, exe):
