@@ -59,6 +59,16 @@ class test_python_exe(unit_test):
     with self.assertRaises(python_error) as ctx:
       python_exe.check_exe('python6.7')
     self.assertTrue( 'not an absolute path' in str(ctx.exception) )
+
+  def test_run_script_success(self):
+    script = r'''
+import sys
+sys.stdout.write('kiwi\n')
+sys.stdout.flush()
+raise SystemExit(0)
+'''
+    rv = python_exe.run_script(python_testing.ANY_PYTHON, script, [])
+    self.assertEqual( 0, rv.exit_code )
     
 if __name__ == '__main__':
   unit_test.main()

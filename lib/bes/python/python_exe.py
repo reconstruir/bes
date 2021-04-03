@@ -1,8 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import codecs
 import os
 import os.path as path
 import sys
+import subprocess
 
 from collections import namedtuple
 
@@ -208,17 +210,35 @@ class python_exe(object):
 
     return clazz.full_version(python_exe)
 
+  _run_script_result = namedtuple('_run_script_result', 'exit_code, output')
   @classmethod
-  def exe_for_sys_version(clazz, absolute = True):
-    'Return the python executable binary for sys.version (python2.7, python3.7, etc)'
-    check.check_bool(absolute)
+  def run_script(clazz, exe, script, args):
+    'Run the script and return the result.'
+    clazz.check_exe(exe)
+    check.check_string(script)
+    check.check_string_seq(args, allow_none = True)
 
-    exe = 'python{major}.{minor}'.format(major = sys.version_info.major,
-                                         minor = sys.version_info.minor)
-    if absolute:
-      return which.which(exe)
-    else:
-      return exe
+    args = list(args or [])
+    tmp_script = temp_file.make_temp_file(content = script, suffix = '.py')
+    cmd = [ exe, tmp_script ] + args
+    clazz._log.log_d('run_script: exe={} cmd={}'.format(exe, cmd))
+    clazz._log.log_d('run_script: script=\n{}\n'.format(script))
+
+    try:
+      output_bytes = subprocess.check_output(cmd, stderr = subprocess.STDOUT)
+      output = codecs.decode(output_bytes, 'utf-8').strip()
+      exit_code = 0
+      clazz._log.log_d('run_script: success')
+    except subprocess.CalledProcessError as ex:
+      clazz._log.log_d('run_script: caught: {}'.format(str(ex)))
+      output = ex.output
+      exit_code = ex.returncode
+      clazz._log.log_d('run_script: failed')
+    clazz._log.log_d('run_script: exit_code={} output="{}"')
+    return clazz._run_script_result(exit_code, output)
+    
+#import site
+#print(site.getsitepackages())
 
   @classmethod
   def sys_executable(clazz, exe):
