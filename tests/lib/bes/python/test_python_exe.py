@@ -69,6 +69,18 @@ raise SystemExit(0)
 '''
     rv = python_exe.run_script(python_testing.ANY_PYTHON, script, [])
     self.assertEqual( 0, rv.exit_code )
+    self.assertEqual( 'kiwi', rv.output.strip() )
+
+  def test_run_script_failure(self):
+    script = r'''
+import sys
+sys.stdout.write('lemon\n')
+sys.stdout.flush()
+raise SystemExit(42)
+'''
+    rv = python_exe.run_script(python_testing.ANY_PYTHON, script, [])
+    self.assertEqual( 42, rv.exit_code )
+    self.assertEqual( 'lemon', rv.output.strip() )
     
 if __name__ == '__main__':
   unit_test.main()
