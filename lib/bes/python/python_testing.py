@@ -50,7 +50,7 @@ class python_testing(object):
     check.check_string(root_dir)
     check.check_string(py_version)
     check.check_string(pip_version)
-    check.check_string(source)
+    check.check_string(source, allow_none = True)
     check.check_string(system, allow_none = True)
 
     if not py_version in clazz.PYTHON_VERSIONS:
@@ -132,6 +132,7 @@ class python_testing(object):
     fake_pip = path.join(root_dir, 'Scripts', 'pip.bat')
     fake_pip_with_version = path.join(root_dir, 'Scripts', 'pip{}.bat'.format(py_version))
     fake_pip_major_version = path.join(root_dir, 'Scripts', 'pip{}.bat'.format(python_major_version))
+    fake_pip_no_version = path.join(root_dir, 'Scripts', 'pip.bat')
 
     clazz._make_fake_python_windows(fake_python, py_version)
     clazz._make_fake_python_windows(fake_python_with_version, py_version)
@@ -140,6 +141,7 @@ class python_testing(object):
     clazz._make_fake_pip_windows(fake_pip, pip_version, py_version)
     clazz._make_fake_pip_windows(fake_pip_with_version, pip_version, py_version)
     clazz._make_fake_pip_windows(fake_pip_major_version, pip_version, py_version)
+    clazz._make_fake_pip_windows(fake_pip_no_version, pip_version, py_version)
 
   @classmethod
   def _make_fake_python_unix(clazz, filename, version):

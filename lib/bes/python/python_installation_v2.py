@@ -65,8 +65,9 @@ class python_installation_v2(object):
       raise python_error('Failed to determine python for "{}" - {}'.format(exe, message))
     return result
 
+  _WINDOWS_PYTHON_EXTENSIONS = ( 'exe', 'bat', 'cmd' )
   def _exe_basename_version(clazz, exe_type, basename):
-    if filename_util.has_any_extension(basename, ( 'exe', 'bat', 'cmd', 'ps1' ), ignore_case = True):
+    if filename_util.has_any_extension(basename, clazz._WINDOWS_PYTHON_EXTENSIONS, ignore_case = True):
       root = filename_util.without_extension(basename)
     else:
       root = basename
@@ -89,14 +90,41 @@ class python_installation_v2(object):
     return clazz._exe_basename_version(None, None)
   
   def _determine_stuff_windows(clazz, exe):
-    exe_type = clazz._identify_exe(exe)
+    exe_type, exe_version = clazz._identify_exe(exe)
     if not exe_type:
       return None, 'exe is neither python or pip: "{}"'.format(exe)
+    clazz._log.log_d('_determine_stuff_windows: exe_type={} exe_version={}'.format(exe_type, exe_version))
+
+    root_dir = path.dirname(exe)
+    
     if exe_type == 'pip':
-      pass
+      vi = python_pip_exe.version_info(exe)
+      clazz._log.log_d('_determine_stuff_windows: pip version_info={}'.format(vi))
+      py_version = vi.python_version
     elif exe_type == 'python':
-      pass
-    assert False
+      py_version = python_exe.version(exe)
+    clazz._log.log_d('_determine_stuff_windows: exe={}'.format(exe))
+    clazz._log.log_d('_determine_stuff_windows: root_dir={}'.format(root_dir))
+    clazz._log.log_d('_determine_stuff_windows: py_version={}'.format(py_version))
+
+    py_major_version = python_version.major_version(py_version)
+
+    possible_pythons = []
+    for ext in clazz._WINDOWS_PYTHON_EXTENSIONS:
+      possible_pythons.append(path.join(root_dir, 'python.{}'.format(ext)))
+
+    possible_pips = []
+    for ext in clazz._WINDOWS_PYTHON_EXTENSIONS:
+      possible_pips.extend([
+        path.join(root_dir, 'Scripts', 'pip{}.{}'.format(py_version, ext)),
+        path.join(root_dir, 'Scripts', 'pip{}.{}'.format(py_major_version, ext)),
+        path.join(root_dir, 'Scripts', 'pip.{}'.format(ext)),
+    ])
+      
+    py_exe = clazz._find_possible_exe(possible_pythons)
+    pip_exe = clazz._find_possible_exe(possible_pips)
+    clazz._log.log_d('_determine_stuff_windows: py_exe={} pip_exe={}'.format(py_exe, pip_exe))
+    return clazz._stuff(root_dir, py_exe, pip_exe, py_version), None
 
   def _determine_stuff_macos(clazz, exe):
     exe_type, exe_version = clazz._identify_exe(exe)
@@ -132,6 +160,7 @@ class python_installation_v2(object):
     pip_exe = clazz._find_possible_exe(possible_pips)
     
     root_dir = path.normpath(path.join(bin_dir, '..'))
+    clazz._log.log_d('_determine_stuff_macos: py_exe={} pip_exe={}'.format(py_exe, pip_exe))
     return clazz._stuff(root_dir, py_exe, pip_exe, py_version), None
 
   def _find_possible_exe(clazz, possible_exes):
