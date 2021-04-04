@@ -271,19 +271,25 @@ raise SystemExit(0)
     lines = [ line for line in rv.output.splitlines() if line ]
     return lines
   
-  _python_exe_info = namedtuple('_python_exe_info', 'exe, version, full_version, source, real_exe, exe_links')
+  _python_exe_info = namedtuple('_python_exe_info', 'exe, version, full_version, source, sys_executable, real_executable, exe_links, pip_exe')
   @classmethod
   def info(clazz, exe):
     'Return info for python executables'
     clazz.check_exe(exe)
-
+    
     main_exe, exe_links = clazz._determine_main_exe_and_links(exe)
+    from .python_installation_v2 import python_installation_v2
+    piv = python_installation_v2(main_exe)
+    sys_executable = clazz.sys_executable(main_exe)
+    real_executable = file_symlink.resolve(sys_executable)
     return clazz._python_exe_info(main_exe,
                                   clazz.version(main_exe),
                                   clazz.full_version(main_exe),
                                   clazz.source(main_exe),
-                                  clazz.sys_executable(main_exe),
-                                  exe_links)
+                                  sys_executable,
+                                  real_executable,
+                                  exe_links,
+                                  piv.pip_exe)
 
   @classmethod
   def _determine_main_exe_and_links(clazz, exe):
