@@ -32,8 +32,6 @@ class file_symlink(object):
 
   @classmethod
   def resolve(clazz, filename):
-#    if not path.exists(filename):
-#      raise IOError('not found: {}'.format(filename))
     if not path.islink(filename):
       return path.normpath(filename)
 
@@ -42,7 +40,7 @@ class file_symlink(object):
     while True:
       if next_filename in seen:
         raise IOError('Cyclic error in symlink "{}": "{}"'.format(filename,
-                                                                     next_filename))
+                                                                  next_filename))
       seen.add(next_filename)
       if not path.islink(next_filename):
         break
