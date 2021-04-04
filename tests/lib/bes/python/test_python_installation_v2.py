@@ -12,7 +12,35 @@ from bes.testing.unit_test_skip import skip_if
 class test_python_installation_v2(unit_test):
 
   @skip_if(not host.is_macos(), 'not macos')
-  def test_macos_xcode_python_exe(self):
+  def test_macos_xcode_38(self):
+    tmp_dir = python_testing.make_temp_fake_python_installation('3.8',
+                                                                '19.2.3',
+                                                                'xcode',
+                                                                system = 'macos',
+                                                                debug = self.DEBUG)
+
+    piv = python_installation_v2(path.join(tmp_dir, 'bin/python3'), system = 'macos')
+    self.assert_filename_equal( path.join(tmp_dir, 'bin/python3'), piv.python_exe )
+    self.assert_filename_equal( path.join(tmp_dir, 'bin/pip3'), piv.pip_exe )
+    self.assert_filename_equal( '3.8', piv.python_version )
+    self.assert_filename_list_equal( [ path.join(tmp_dir, 'bin') ], piv.PATH )
+
+  @skip_if(not host.is_macos(), 'not macos')
+  def test_macos_system_27(self):
+    tmp_dir = python_testing.make_temp_fake_python_installation('2.7',
+                                                                None,
+                                                                'system',
+                                                                system = 'macos',
+                                                                debug = self.DEBUG)
+
+    piv = python_installation_v2(path.join(tmp_dir, 'bin/python'), system = 'macos')
+    self.assert_filename_equal( path.join(tmp_dir, 'bin/python2.7'), piv.python_exe )
+    self.assert_filename_equal( None, piv.pip_exe )
+    self.assert_filename_equal( '2.7', piv.python_version )
+    self.assert_filename_list_equal( [ path.join(tmp_dir, 'bin') ], piv.PATH )
+
+  @skip_if(not host.is_macos(), 'not macos')
+  def xtest_macos_xcode_38(self):
     tmp_dir = python_testing.make_temp_fake_python_installation('3.8',
                                                                 '19.2.3',
                                                                 'xcode',
@@ -25,9 +53,6 @@ class test_python_installation_v2(unit_test):
     self.assert_filename_equal( '3.8', piv.python_version )
     self.assert_filename_list_equal( [ path.join(tmp_dir, 'bin') ], piv.PATH )
     
-    #self.assert_filename_equal( '/tmp/foo/lib/python/site-packages', piv.site_packages_dir )
-    #self.assert_filename_list_equal( [ '/tmp/foo/lib/python/site-packages' ], piv.PYTHONPATH )
-
   @skip_if(not host.is_windows(), 'not windows')
   def test_windows_python_38(self):
     tmp_dir = python_testing.make_temp_fake_python_installation('3.8',

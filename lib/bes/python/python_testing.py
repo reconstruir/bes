@@ -49,7 +49,7 @@ class python_testing(object):
                                     source, system = None):
     check.check_string(root_dir)
     check.check_string(py_version)
-    check.check_string(pip_version)
+    check.check_string(pip_version, allow_none = True)
     check.check_string(source, allow_none = True)
     check.check_string(system, allow_none = True)
 
@@ -88,6 +88,8 @@ class python_testing(object):
       return clazz._make_fake_python_installation_macos_xcode(root_dir, py_version, pip_version)
     elif source == 'brew':
       return clazz._make_fake_python_installation_macos_brew(root_dir, py_version, pip_version)
+    elif source == 'system':
+      return clazz._make_fake_python_installation_macos_system(root_dir, py_version, pip_version)
     else:
       raise python_error('unknown python source: "{}"'.format(source))
 
@@ -118,6 +120,18 @@ class python_testing(object):
     fake_pip_major_version = path.join(bin_dir, 'pip{}'.format(python_major_version))
     clazz._make_fake_python_unix(fake_python_major_version, py_version)
     clazz._make_fake_pip_unix(fake_pip_major_version, pip_version, py_version)
+
+  @classmethod
+  def _make_fake_python_installation_macos_system(clazz, root_dir, py_version, pip_version):
+    assert py_version == '2.7'
+    python_major_version = python_version.major_version(py_version)
+    bin_dir = path.join(root_dir, 'bin')
+    fake_python = path.join(bin_dir, 'python')
+    fake_python_with_major_version = path.join(bin_dir, 'python2')
+    fake_python_with_version = path.join(bin_dir, 'python2.7')
+    clazz._make_fake_python_unix(fake_python, py_version)
+    clazz._make_fake_python_unix(fake_python_with_major_version, py_version)
+    clazz._make_fake_python_unix(fake_python_with_version, py_version)
     
   @classmethod
   def _make_fake_python_installation_linux(clazz, root_dir, py_version, pip_version, source):
