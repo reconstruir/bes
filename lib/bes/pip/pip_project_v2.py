@@ -3,12 +3,12 @@
 from collections import namedtuple
 import copy
 import json
+import os
 from os import path
 
 from bes.common.check import check
 from bes.property.cached_property import cached_property
-from bes.python.python_exe import python_exe as bes_python_exe
-from bes.python.python_installation import python_installation
+from bes.python.python_installation_v2 import python_installation_v2
 from bes.system.command_line import command_line
 from bes.system.env_var import env_var
 from bes.system.execute import execute
@@ -28,29 +28,27 @@ class pip_project_v2(object):
   def __init__(self, name, root_dir, python_exe, debug = False):
     check.check_string(name)
     check.check_string(root_dir)
-    bes_python_exe.check_exe(python_exe)
 
     self._python_exe = python_exe
-    self._python_version = bes_python_exe.version(self._python_exe)
     self._name = name
-    self._root_dir = root_dir
+    self._root_dir = path.abspath(root_dir)
     self._project_dir = path.join(self._root_dir, self._name)
     self._droppings_dir = path.join(self._project_dir, 'droppings')
     self._pip_cache_dir = path.join(self._droppings_dir, 'pip-cache')
     self._pipenv_cache_dir = path.join(self._droppings_dir, 'pipenv-cache')
     self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
     self._user_base_dir = path.join(self._project_dir, 'py-user-base')
+    # FIXME: windows
+    self._bin_dir = path.join(self._user_base_dir, 'bin')
     
-    self._installation = python_installation(self._user_base_dir,
-                                             self._python_version)
+    self._installation = python_installation_v2(self._python_exe)
 
     self._common_pip_args = [
       '--cache-dir', self._pip_cache_dir,
     ]
-    self._log.log_d('pip_project: pip_exe={} site_packages_dir={} pip_env={} project_dir={}'.format(self.pip_exe,
-                                                                                                    self.site_packages_dir,
-                                                                                                    self.env,
-                                                                                                    self._project_dir))
+    self._log.log_d('pip_project: pip_exe={} pip_env={} project_dir={}'.format(self.pip_exe,
+                                                                               self.env,
+                                                                               self._project_dir))
   @property
   def project_dir(self):
     return self._project_dir
@@ -58,12 +56,13 @@ class pip_project_v2(object):
   @cached_property
   def env(self):
     'Make a clean environment for python or pip'
-    extra_env = {
-      'PYTHONUSERBASE': self._user_base_dir,
-      'PYTHONPATH': self.site_packages_dir,
-      'HOME': self._fake_home_dir,
-    }
-    return os_env.make_clean_env(update = extra_env, allow_override = True)
+    clean_env = os_env.make_clean_env()
+
+    env_var(clean_env, 'PYTHONUSERBASE').value = self._user_base_dir
+    env_var(clean_env, 'PYTHONPATH').path = self.PYTHONPATH
+    env_var(clean_env, 'PATH').prepend(self.PATH)
+    env_var(clean_env, 'HOME').value = self._fake_home_dir
+    return clean_env
 
   @cached_property
   def PYTHONPATH(self):
@@ -73,28 +72,29 @@ class pip_project_v2(object):
   def PATH(self):
     return [
       path.dirname(self._python_exe),
+      self._bin_dir,
     ] + self._installation.PATH
   
   @cached_property
-  def pip_exe(self):
-    return self._installation.pip_exe
+  def python_exe(self):
+    return self._installation.python_exe
 
   @cached_property
-  def site_packages_dir(self):
-    return self._installation.site_packages_dir
-
+  def pip_exe(self):
+    return self._installation.pip_exe
+  
   @property
   def pip_version(self):
     return pip_exe.version(self.pip_exe)
   
   def pip_is_installed(self):
     'Return True if pip is installed'
-    return path.exists(self.pip_exe)
+    return self.pip_exe and path.exists(self.pip_exe)
 
   def check_pip_is_installed(self):
     'Check that pip is installed and if not raise an error'
     if not self.pip_is_installed():
-      raise pip_error('Pip not found: {}'.format(self.pip_exe))
+      raise pip_error('Pip not found: {}'.format(self.pip_exe or ''))
 
   _outdated_package = namedtuple('_outdated_package', 'name, current_version, latest_version, latest_filetype')
   def outdated(self):
@@ -137,6 +137,9 @@ class pip_project_v2(object):
     ] + self._common_pip_args + args
     self._log.log_d('call_pip: cmd={} env={}'.format(cmd, self.env))
     rv = execute.execute(cmd, env = self.env)
+    self._log.log_d('call_pip: exit_code={} stdout={} stderr={}'.format(rv.exit_code,
+                                                                        rv.stdout,
+                                                                        rv.stderr))
     return rv
 
   def _make_cmd_python_part(self):
@@ -155,6 +158,9 @@ class pip_project_v2(object):
     args = [
       'install',
       '--user',
+#      '--ignore-installed',
+#      '--upgrade',
+#      '--python-version', self._installation.python_version,
     ] + package_args
     self.call_pip(args)
 

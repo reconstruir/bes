@@ -24,6 +24,7 @@ class python_installation_v2(object):
   def __init__(self, exe, system = None):
     check.check_string(exe)
     check.check_string(system, allow_none = True)
+    python_exe.check_exe(exe)
 
     self.system = system or host.SYSTEM
     
