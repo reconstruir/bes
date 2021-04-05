@@ -809,6 +809,43 @@ s1
   v1: this Д is cyrillic
 ''', str(c) )
 
+  def test_set_value(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( 'tart', s.get_value('fruit', 'flavor') )
+    s.set_value('fruit', 'flavor', 'sweet')
+    self.assertEqual( 'sweet', s.get_value('fruit', 'flavor') )
+    
+  def test_set_values(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( {
+      'name': 'lemon',
+      'flavor': 'tart',
+      'color': 'yellow'
+    }, s.get_values('fruit') )
+    s.set_values('fruit', {
+      'name': 'kiwi',
+      'color': 'green',
+      'where': 'new zealand',
+    })
+    self.assertEqual( {
+      'name': 'kiwi',
+      'flavor': 'tart',
+      'color': 'green',
+      'where': 'new zealand',
+    }, s.get_values('fruit') )
+    
   def test_empty_content(self):
     s = simple_config.from_text('')
     self.assertEqual( [], s.section_names() )

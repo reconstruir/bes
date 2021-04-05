@@ -169,19 +169,39 @@ class simple_config(object):
       self.add_section(section_name)
     sections = self.find_all_sections(section_name, matcher = matcher)
     if len(sections) != 1:
-      raise simple_config_error('multiple sections found: {}'.format(section_name), self._origin)
+      raise simple_config_error('multiple sections found: "{}"'.format(section_name), self._origin)
     return sections[0]
-  
-  def get_value_string_list(self, section, key):
-    value = self.get_value(section, key)
+
+  def get_value_string_list(self, section_name, key):
+    value = self.get_value(section_name, key)
     return string_list.parse(value)
   
-  def get_value(self, section, key):
-    sections = self.find_all_sections(section)
-    if len(sections) != 1:
-      raise simple_config_error('multiple sections found: %s' % (section), self._origin)
-    return sections[0].get_value(key)
+  def get_value(self, section_name, key):
+    section = self.section(section_name)
+    return section.get_value(key)
+  
+  def get_values(self, section_name):
+    check.check_string(section_name)
 
+    section = self.section(section_name)
+    return section.to_dict()
+    
+  def set_value(self, section_name, key, value, hints = None):
+    check.check_string(section_name)
+    check.check_string(key)
+    check.check_string(value)
+    check.check_dict(hints, allow_none = True)
+
+    section = self.section(section_name)
+    section.set_value(key, value, hints = hints)
+
+  def set_values(self, section_name, values, hints = None):
+    check.check_string(section_name)
+    check.check_dict(hints, allow_none = True)
+
+    section = self.section(section_name)
+    section.set_values(values, hints = hints)
+    
   @classmethod
   def from_file(clazz,
                 filename,
