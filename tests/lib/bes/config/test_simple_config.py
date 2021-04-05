@@ -845,6 +845,31 @@ fruit
       'color': 'green',
       'where': 'new zealand',
     }, s.get_values('fruit') )
+
+  def test_set_value_new_section(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+'''
+    s = simple_config.from_text(text)
+    s.set_value('cheese', 'name', 'brie')
+    s.set_value('cheese', 'texture', 'creamy')
+    self.assertEqual( 'brie', s.get_value('cheese', 'name') )
+    self.assertEqual( 'creamy', s.get_value('cheese', 'texture') )
+
+    expected = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+
+cheese
+  name: brie
+  texture: creamy
+'''
+    self.assert_string_equal( expected, str(s), strip = True, native_line_breaks = True, multi_line = True )
     
   def test_empty_content(self):
     s = simple_config.from_text('')
