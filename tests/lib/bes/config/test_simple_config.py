@@ -879,6 +879,7 @@ cheese
   name: brie
   texture: creamy
 '''
+
     self.assert_string_equal( expected, str(s), strip = True, native_line_breaks = True, multi_line = True )
     
   def test_empty_content(self):

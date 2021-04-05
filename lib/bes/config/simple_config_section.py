@@ -113,10 +113,14 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
       if fnmatch.fnmatch(entry.value.key, pattern):
         return entry
     return None
-  
-  def has_key(self, key):
-    return self.find_by_key(key, raise_error = False, resolve_env_vars = False) is not None
 
+  # deprecate this
+  def has_key(self, key):
+    return self.has_value(key)
+
+  def has_value(self, key):
+    return self.find_by_key(key, raise_error = False, resolve_env_vars = False) is not None
+  
   def get_value(self, key):
     return self.find_by_key(key, raise_error = True, resolve_env_vars = True)
 

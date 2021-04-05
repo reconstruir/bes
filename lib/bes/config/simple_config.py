@@ -82,7 +82,7 @@ class simple_config(object):
   
   def __hasattr__(self, section_name):
     return self.find(section_name) != None
-    
+
   def add_section(self, section_name, extends = None, origin = None, extra_text = None):
     check.check_string(section_name)
 
@@ -156,7 +156,7 @@ class simple_config(object):
 
     result = []
     for section in self._sections:
-      if section.has_key(key) and section.get_value(key) == value:
+      if section.has_value(key) and section.get_value(key) == value:
         result.append(section.header_.name)
     return result
   
@@ -370,7 +370,12 @@ class simple_config(object):
   def has_section(self, section_name):
     'Return True if config has section.'
     return section_name in self.section_names()
-    
+
+  def has_value(self, section_name, key):
+    'Return True if config has value with key in section_name.'
+    section = self.section(section_name)
+    return section.has_value(key)
+  
   def section_names(self):
     'Return a list of all the section names.  Multiple sections with the same name get repeated.'
     return [ section.header_.name for section in self._sections ]
@@ -436,5 +441,8 @@ class simple_config(object):
     result._entry_formatter = self._entry_formatter
     result._section_finder = self._section_finder
     return result
-      
+
+  def save(self, filename, codec = 'utf-8'):
+    file_util.save(filename, content = str(self), codec = codec)
+  
 check.register_class(simple_config)
