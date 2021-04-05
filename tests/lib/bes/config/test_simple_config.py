@@ -808,6 +808,10 @@ cheese
 s1
   v1: this Д is cyrillic
 ''', str(c) )
+
+  def test_empty_content(self):
+    s = simple_config.from_text('')
+    self.assertEqual( [], s.section_names() )
     
 if __name__ == '__main__':
   unit_test.main()
