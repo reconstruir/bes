@@ -32,16 +32,12 @@ class pip_project_v2(object):
     self._python_exe = python_exe
     self._name = name
     self._root_dir = path.abspath(root_dir)
-    self._project_dir = path.join(self._root_dir, self._name)
-    self._droppings_dir = path.join(self._project_dir, 'droppings')
+    self._droppings_dir = path.join(self.project_dir, 'droppings')
     self._pip_cache_dir = path.join(self._droppings_dir, 'pip-cache')
     self._pipenv_cache_dir = path.join(self._droppings_dir, 'pipenv-cache')
     self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
-    self._user_base_dir = path.join(self._project_dir, 'py-user-base')
-    self._pip_prefix_dir = path.join(self._project_dir, 'prefix')
-    # FIXME: windows
-    self._bin_dir = path.join(self._pip_prefix_dir, 'bin')
-    
+    self._user_base_dir = path.join(self.project_dir, 'py-user-base')
+
     self._installation = python_installation_v2(self._python_exe)
 
     self._common_pip_args = [
@@ -49,11 +45,25 @@ class pip_project_v2(object):
     ]
     self._log.log_d('pip_project: pip_exe={} pip_env={} project_dir={}'.format(self.pip_exe,
                                                                                self.env,
-                                                                               self._project_dir))
+                                                                               self.project_dir))
   @property
   def project_dir(self):
-    return self._project_dir
+    return path.join(self._root_dir, self._name)
 
+  @property
+  def prefix_dir(self):
+    return path.join(self.project_dir, 'prefix')
+  
+  @property
+  def bin_dir(self):
+    if host.is_windows():
+      bin_dir = path.join(self.prefix_dir, 'Scripts')
+    elif host.is_unix():
+      bin_dir = path.join(self.prefix_dir, 'bin')
+    else:
+      host.raise_unsupported_system()
+    return bin_dir
+  
   @cached_property
   def env(self):
     'Make a clean environment for python or pip'
@@ -74,7 +84,7 @@ class pip_project_v2(object):
   def PATH(self):
     return [
       path.dirname(self._python_exe),
-      self._bin_dir,
+      self.bin_dir,
     ] + self._installation.PATH
   
   @cached_property
@@ -162,7 +172,7 @@ class pip_project_v2(object):
     args = [
       'install',
 #      '--user',
-      '--prefix', self._pip_prefix_dir,
+      '--prefix', self.prefix_dir,
 #      '--ignore-installed',
 #      '--upgrade',
 #      '--python-version', self._installation.python_version,
