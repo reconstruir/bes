@@ -7,7 +7,7 @@ from bes.pip.pip_exe import pip_exe
 from bes.pip.pip_installer import pip_installer
 from bes.pip.pip_installer_options import pip_installer_options
 from bes.pip.pip_installer_tester import pip_installer_tester
-from bes.pip.pip_project import pip_project_v2
+from bes.pip.pip_project_v2 import pip_project_v2
 from bes.python.python_testing import python_testing
 from bes.fs.file_find import file_find
 from bes.testing.unit_test import unit_test
@@ -21,7 +21,7 @@ class test_pip_project_v2(unit_test):
   def setUpClass(clazz):
     #raise_skip('Not ready')
     pass
-  
+
   @skip_if(not python_testing.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_install(self):
     tester = pip_installer_tester(python_testing.ANY_PYTHON3, 'kiwi', debug = True) #self.DEBUG)

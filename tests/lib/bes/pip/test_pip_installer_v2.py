@@ -22,33 +22,33 @@ class test_pip_installer(unit_test):
   @skip_if(not python_testing.PYTHON_27, 'test_install_python_27 - python 2.7 not found', warning = True)
   def test_install_python_27(self):
     tester = pip_installer_tester_v2(python_testing.PYTHON_27, 'test', debug = self.DEBUG)
-    self.assertFalse( path.exists(tester.installer.pip_exe()) )
+    self.assertFalse( path.exists(tester.installer.pip_exe) )
     tester.installer.install('latest', False)
-    self.assertTrue( path.exists(tester.installer.pip_exe()) )
+    self.assertTrue( path.exists(tester.installer.pip_exe) )
     self.assertEqual( 1, software_version.compare(tester.installer.pip_version(), '19.0.0') )
 
   @skip_if(not python_testing.PYTHON_37, 'test_install_python_37 - python 3.7 not found', warning = True)
   def test_install_python_37(self):
     tester = pip_installer_tester_v2(python_testing.PYTHON_37, 'test', debug = self.DEBUG)
-    self.assertFalse( path.exists(tester.installer.pip_exe()) )
+    self.assertFalse( path.exists(tester.installer.pip_exe) )
     tester.installer.install('latest', False)
-    self.assertTrue( path.exists(tester.installer.pip_exe()) )
+    self.assertTrue( path.exists(tester.installer.pip_exe) )
     self.assertEqual( 1, software_version.compare(tester.installer.pip_version(), '19.0.0') )
 
   @skip_if(not python_testing.PYTHON_38, 'test_install_python_38 - python 3.8 not found', warning = True)
   def test_install_python_38(self):
     tester = pip_installer_tester_v2(python_testing.PYTHON_38, 'test', debug = self.DEBUG)
-    self.assertFalse( path.exists(tester.installer.pip_exe()) )
+    self.assertFalse( path.exists(tester.installer.pip_exe) )
     tester.installer.install('latest', False)
-    self.assertTrue( path.exists(tester.installer.pip_exe()) )
+    self.assertTrue( path.exists(tester.installer.pip_exe) )
     self.assertEqual( 1, software_version.compare(tester.installer.pip_version(), '19.0.0') )
 
   @skip_if(not python_testing.PYTHON_39, 'test_install_python_39 - python 3.9 not found', warning = True)
   def test_install_python_39(self):
     tester = pip_installer_tester_v2(python_testing.PYTHON_39, 'test', debug = self.DEBUG)
-    self.assertFalse( path.exists(tester.installer.pip_exe()) )
+    self.assertFalse( path.exists(tester.installer.pip_exe) )
     tester.installer.install('latest', False)
-    self.assertTrue( path.exists(tester.installer.pip_exe()) )
+    self.assertTrue( path.exists(tester.installer.pip_exe) )
     self.assertEqual( 1, software_version.compare(tester.installer.pip_version(), '19.0.0') )
 
   @skip_if(not python_testing.ANY_PYTHON3, 'test_uninstall_python3 - python 3 not found', warning = True)

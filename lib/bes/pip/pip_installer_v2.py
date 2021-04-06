@@ -91,14 +91,17 @@ class pip_installer_v2(object):
       
     self._update_pip(pip_version)
 
+  @property
   def is_installed(self):
     'Return True if pip is installed'
     return self._project.pip_is_installed()
 
+  @property
   def pip_version(self):
     'Return the pip version'
     return self._project.pip_version
   
+  @property
   def pip_exe(self):
     'Return the pip exe'
     return self._project.pip_exe

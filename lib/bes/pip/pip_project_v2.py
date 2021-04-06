@@ -38,8 +38,9 @@ class pip_project_v2(object):
     self._pipenv_cache_dir = path.join(self._droppings_dir, 'pipenv-cache')
     self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
     self._user_base_dir = path.join(self._project_dir, 'py-user-base')
+    self._pip_prefix_dir = path.join(self._project_dir, 'prefix')
     # FIXME: windows
-    self._bin_dir = path.join(self._user_base_dir, 'bin')
+    self._bin_dir = path.join(self._pip_prefix_dir, 'bin')
     
     self._installation = python_installation_v2(self._python_exe)
 
@@ -66,7 +67,8 @@ class pip_project_v2(object):
 
   @cached_property
   def PYTHONPATH(self):
-    return self._installation.PYTHONPATH
+    return [
+    ] + self._installation.PYTHONPATH
 
   @cached_property
   def PATH(self):
@@ -135,7 +137,9 @@ class pip_project_v2(object):
     cmd = self._make_cmd_python_part() + [
       self.pip_exe,
     ] + self._common_pip_args + args
-    self._log.log_d('call_pip: cmd={} env={}'.format(cmd, self.env))
+    self._log.log_d('call_pip: cmd={}'.format(cmd))
+    for key, value in sorted(self.env.items()):
+      self._log.log_d('call_pip: {}={}'.format(key, value))
     rv = execute.execute(cmd, env = self.env)
     self._log.log_d('call_pip: exit_code={} stdout={} stderr={}'.format(rv.exit_code,
                                                                         rv.stdout,
@@ -157,7 +161,8 @@ class pip_project_v2(object):
       package_args = [ package_name ]
     args = [
       'install',
-      '--user',
+#      '--user',
+      '--prefix', self._pip_prefix_dir,
 #      '--ignore-installed',
 #      '--upgrade',
 #      '--python-version', self._installation.python_version,
