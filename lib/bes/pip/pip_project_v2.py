@@ -46,16 +46,26 @@ class pip_project_v2(object):
     self._log.log_d('pip_project: pip_exe={} pip_env={} project_dir={}'.format(self.pip_exe,
                                                                                self.env,
                                                                                self.project_dir))
-  @property
+  @cached_property
   def project_dir(self):
     return path.join(self._root_dir, self._name)
 
-  @property
+  @cached_property
   def prefix_dir(self):
     return path.join(self.project_dir, 'prefix')
   
-  @property
+  @cached_property
   def bin_dir(self):
+    if host.is_windows():
+      bin_dir = path.join(self.prefix_dir, 'Scripts')
+    elif host.is_unix():
+      bin_dir = path.join(self.prefix_dir, 'bin')
+    else:
+      host.raise_unsupported_system()
+    return bin_dir
+  
+  @cached_property
+  def site_packages_dir(self):
     if host.is_windows():
       bin_dir = path.join(self.prefix_dir, 'Scripts')
     elif host.is_unix():
