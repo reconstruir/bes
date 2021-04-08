@@ -50,6 +50,14 @@ class simple_config_editor(object):
     self._check_key(section_name, key)
     return self._config.get_value(section_name, key)
 
+  def get_value_with_default(self, section_name, key, default):
+    check.check_string(section_name)
+    check.check_string(key)
+    check.check_string(default, allow_none = True)
+
+    self._check_file_exists()
+    return self._config.get_value_with_default(section_name, key, default)
+  
   def get_values(self, section_name):
     check.check_string(section_name)
     

@@ -179,6 +179,15 @@ class simple_config(object):
   def get_value(self, section_name, key):
     section = self.section(section_name)
     return section.get_value(key)
+
+  def get_value_with_default(self, section_name, key, default):
+    check.check_string(section_name)
+    check.check_string(key)
+    check.check_string(default, allow_none = True)
+
+    if not self.has_value(section_name, key):
+      return default
+    return self.get_value(section_name, key)
   
   def get_values(self, section_name):
     check.check_string(section_name)
