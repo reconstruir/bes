@@ -9,6 +9,7 @@ from os import path
 from bes.common.check import check
 from bes.property.cached_property import cached_property
 from bes.python.python_installation_v2 import python_installation_v2
+from bes.python.python_version import python_version
 from bes.system.command_line import command_line
 from bes.system.env_var import env_var
 from bes.system.execute import execute
@@ -50,11 +51,23 @@ class pip_project_v2(object):
     return path.join(self._root_dir, self._name)
 
   @cached_property
+  def caca_dir(self):
+    if host.is_windows():
+      parts = python_version.parts(self._installation.python_version)
+      versioned_dir_part = 'Python{}{}'.format(parts[0], parts[1])
+      caca_dir = path.join(self.project_dir, versioned_dir_part)
+    elif host.is_unix():
+      caca_dir = self.project_dir
+    else:
+      host.raise_unsupported_system()
+    return caca_dir
+  
+  @cached_property
   def bin_dir(self):
     if host.is_windows():
-      bin_dir = path.join(self.project_dir, 'Scripts')
+      bin_dir = path.join(self.caca_dir, 'Scripts')
     elif host.is_unix():
-      bin_dir = path.join(self.project_dir, 'bin')
+      bin_dir = path.join(self.caca_dir, 'bin')
     else:
       host.raise_unsupported_system()
     return bin_dir

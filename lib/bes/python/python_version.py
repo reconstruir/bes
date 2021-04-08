@@ -43,3 +43,10 @@ class python_version(object):
     
     sv = software_version.parse_version(full_version)
     return len(sv.parts) == 3
+
+  @classmethod
+  def parts(clazz, version):
+    'Return the python version parts as ints'
+    check.check_string(version)
+
+    return [ int(p) for p in version.split('.') ]

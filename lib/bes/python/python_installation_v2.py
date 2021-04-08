@@ -124,7 +124,7 @@ class python_installation_v2(object):
     pip_exe = clazz._find_possible_exe(possible_pips)
     clazz._log.log_d('_determine_stuff_windows: py_exe={} pip_exe={}'.format(py_exe, pip_exe))
     return clazz._stuff(root_dir, py_exe, pip_exe, py_version), None
-
+  
   def _determine_stuff_macos(clazz, exe):
     exe_type, exe_version = clazz._identify_exe(exe)
     if not exe_type:
