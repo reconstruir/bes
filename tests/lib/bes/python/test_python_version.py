@@ -21,6 +21,12 @@ class test_python_version(unit_test):
     self.assertEqual( '6', python_version.major_version('6') )
     self.assertEqual( '6', python_version.major_version('6.7') )
     self.assertEqual( '6', python_version.major_version('6.7.8') )
+
+  def test_parse(self):
+    self.assertEqual( ( 6, None, None ), python_version.parse('6') )
+    self.assertEqual( ( 6, 7, None ), python_version.parse('6.7') )
+    self.assertEqual( ( 6, 7, 8  ), python_version.parse('6.7.8') )
+    self.assertEqual( ( None, None, None  ), python_version.parse('') )
     
 if __name__ == '__main__':
   unit_test.main()

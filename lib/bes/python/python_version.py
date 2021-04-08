@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+
 from bes.common.check import check
 from bes.version.software_version import software_version
 
@@ -44,9 +46,21 @@ class python_version(object):
     sv = software_version.parse_version(full_version)
     return len(sv.parts) == 3
 
+  _parsed_version = namedtuple('_parsed_version', 'major, minor, revision')
   @classmethod
-  def parts(clazz, version):
+  def parse(clazz, any_version):
     'Return the python version parts as ints'
-    check.check_string(version)
+    check.check_string(any_version)
 
-    return [ int(p) for p in version.split('.') ]
+    sv = software_version.parse_version(any_version)
+    parts = list(sv.parts)
+    major = None
+    minor = None
+    revision = None
+    if parts:
+      major = parts.pop(0)
+    if parts:
+      minor = parts.pop(0)
+    if parts:
+      revision = parts.pop(0)
+    return clazz._parsed_version(major, minor, revision)

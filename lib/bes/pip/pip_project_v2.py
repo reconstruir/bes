@@ -51,23 +51,24 @@ class pip_project_v2(object):
     return path.join(self._root_dir, self._name)
 
   @cached_property
-  def caca_dir(self):
+  def install_dir(self):
     if host.is_windows():
-      parts = python_version.parts(self._installation.python_version)
-      versioned_dir_part = 'Python{}{}'.format(parts[0], parts[1])
-      caca_dir = path.join(self.project_dir, versioned_dir_part)
+      parsed_version = python_version.parse(self._installation.python_version)
+      versioned_dir_part = 'Python{}{}'.format(parsed_version.major,
+                                               parsed_version.minor)
+      install_dir = path.join(self.project_dir, versioned_dir_part)
     elif host.is_unix():
-      caca_dir = self.project_dir
+      install_dir = self.project_dir
     else:
       host.raise_unsupported_system()
-    return caca_dir
+    return install_dir
   
   @cached_property
   def bin_dir(self):
     if host.is_windows():
-      bin_dir = path.join(self.caca_dir, 'Scripts')
+      bin_dir = path.join(self.install_dir, 'Scripts')
     elif host.is_unix():
-      bin_dir = path.join(self.caca_dir, 'bin')
+      bin_dir = path.join(self.install_dir, 'bin')
     else:
       host.raise_unsupported_system()
     return bin_dir
@@ -75,12 +76,12 @@ class pip_project_v2(object):
   @cached_property
   def site_packages_dir(self):
     if host.is_windows():
-      bin_dir = path.join(self.project_dir, 'Scripts')
+      site_packages_dir = path.join(self.install_dir, 'site-packages')
     elif host.is_unix():
-      bin_dir = path.join(self.project_dir, 'bin')
+      site_packages_dir = path.join(self.install_dir, 'lib/python/site-packages')
     else:
       host.raise_unsupported_system()
-    return bin_dir
+    return site_packages_dir
   
   @cached_property
   def env(self):
@@ -96,6 +97,7 @@ class pip_project_v2(object):
   @cached_property
   def PYTHONPATH(self):
     return [
+      self.site_packages_dir,
     ] + self._installation.PYTHONPATH
 
   @cached_property
