@@ -32,11 +32,10 @@ class pip_project_v2(object):
     self._python_exe = python_exe
     self._name = name
     self._root_dir = path.abspath(root_dir)
-    self._droppings_dir = path.join(self.project_dir, 'droppings')
+    self._droppings_dir = path.join(self.project_dir, '.droppings')
     self._pip_cache_dir = path.join(self._droppings_dir, 'pip-cache')
     self._pipenv_cache_dir = path.join(self._droppings_dir, 'pipenv-cache')
     self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
-    self._user_base_dir = path.join(self.project_dir, 'py-user-base')
 
     self._installation = python_installation_v2(self._python_exe)
 
@@ -51,15 +50,11 @@ class pip_project_v2(object):
     return path.join(self._root_dir, self._name)
 
   @cached_property
-  def prefix_dir(self):
-    return path.join(self.project_dir, 'prefix')
-  
-  @cached_property
   def bin_dir(self):
     if host.is_windows():
-      bin_dir = path.join(self.prefix_dir, 'Scripts')
+      bin_dir = path.join(self.project_dir, 'Scripts')
     elif host.is_unix():
-      bin_dir = path.join(self.prefix_dir, 'bin')
+      bin_dir = path.join(self.project_dir, 'bin')
     else:
       host.raise_unsupported_system()
     return bin_dir
@@ -67,9 +62,9 @@ class pip_project_v2(object):
   @cached_property
   def site_packages_dir(self):
     if host.is_windows():
-      bin_dir = path.join(self.prefix_dir, 'Scripts')
+      bin_dir = path.join(self.project_dir, 'Scripts')
     elif host.is_unix():
-      bin_dir = path.join(self.prefix_dir, 'bin')
+      bin_dir = path.join(self.project_dir, 'bin')
     else:
       host.raise_unsupported_system()
     return bin_dir
@@ -79,7 +74,7 @@ class pip_project_v2(object):
     'Make a clean environment for python or pip'
     clean_env = os_env.make_clean_env()
 
-    env_var(clean_env, 'PYTHONUSERBASE').value = self._user_base_dir
+    env_var(clean_env, 'PYTHONUSERBASE').value = self.project_dir
     env_var(clean_env, 'PYTHONPATH').path = self.PYTHONPATH
     env_var(clean_env, 'PATH').prepend(self.PATH)
     env_var(clean_env, 'HOME').value = self._fake_home_dir
@@ -138,6 +133,21 @@ class pip_project_v2(object):
       result[op.name] = op
     return result
 
+  _installed_package = namedtuple('_installed_package', 'name, version')
+  def installed(self):
+    'Return a list of installed packages'
+    args = [
+      'list',
+      '--user',
+      '--format', 'json',
+    ]
+    rv = self.call_pip(args)
+    installed = json.loads(rv.stdout)
+    result = []
+    for next_item in installed:
+      result.append(self._installed_package(next_item['name'], next_item['version']))
+    return sorted(result, key = lambda item: item.name)
+  
   def pip(self, args):
     'Run a pip command'
     check.check_string_seq(args)
@@ -159,7 +169,7 @@ class pip_project_v2(object):
     ] + self._common_pip_args + args
     self._log.log_d('call_pip: cmd={}'.format(cmd))
     for key, value in sorted(self.env.items()):
-      self._log.log_d('call_pip: {}={}'.format(key, value))
+      self._log.log_d('call_pip: ENV: {}={}'.format(key, value))
     rv = execute.execute(cmd, env = self.env)
     self._log.log_d('call_pip: exit_code={} stdout={} stderr={}'.format(rv.exit_code,
                                                                         rv.stdout,
@@ -181,11 +191,7 @@ class pip_project_v2(object):
       package_args = [ package_name ]
     args = [
       'install',
-#      '--user',
-      '--prefix', self.prefix_dir,
-#      '--ignore-installed',
-#      '--upgrade',
-#      '--python-version', self._installation.python_version,
+      '--user',
     ] + package_args
     self.call_pip(args)
 

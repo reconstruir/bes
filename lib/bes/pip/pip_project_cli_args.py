@@ -12,6 +12,12 @@ class pip_project_cli_args(object):
     self.__pip_project_add_common_args(p)
     p.add_argument('name', action = 'store', type = str, default = None,
                    help = 'The name for this pip project [ None ]')
+
+    # pip_project_installed
+    p = subparser.add_parser('installed', help = 'Print install packages.')
+    self.__pip_project_add_common_args(p)
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The name for this pip project [ None ]')
     
     # pip_project_pip
     p = subparser.add_parser('pip', help = 'Run pip command.')
