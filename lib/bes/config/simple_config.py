@@ -310,7 +310,7 @@ class simple_config(object):
     return result
   
   _ENTRY_KEY_VALID_FIRST_CHAR = string.ascii_letters + '_'
-  _ENTRY_KEY_VALID_NEXT_CHARS = string.ascii_letters + string.digits + '_' + '*' + '?' + '-' + ' '
+  _ENTRY_KEY_VALID_NEXT_CHARS = _ENTRY_KEY_VALID_FIRST_CHAR + string.digits + '*' + '?' + '-' + ' ' + '.'
   @classmethod
   def _parse_entry(clazz, text, origin, validate_key_characters = True):
     check.check_string(text)

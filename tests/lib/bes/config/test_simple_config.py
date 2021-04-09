@@ -251,7 +251,7 @@ fruit
   def test_invalid_key(self):
     text = '''\
 foo
-  in.valid: bar
+  in@valid: bar
 '''
     with self.assertRaises(simple_config.error) as ctx:
       simple_config.from_text(text)
@@ -885,6 +885,23 @@ cheese
   def test_empty_content(self):
     s = simple_config.from_text('')
     self.assertEqual( [], s.section_names() )
+
+  def test_dots_in_keys(self):
+    text = '''\
+foo
+  kiwi_3.8: a
+  kiwi_3.9: b
+
+bar
+  kiwi_3.8: c
+  kiwi_3.9: d
+'''
+    
+    s = simple_config.from_text(text)
+    self.assertEqual( 'a', s.get_value('foo', 'kiwi_3.8') )
+    self.assertEqual( 'b', s.get_value('foo', 'kiwi_3.9') )
+    self.assertEqual( 'c', s.get_value('bar', 'kiwi_3.8') )
+    self.assertEqual( 'd', s.get_value('bar', 'kiwi_3.9') )
     
 if __name__ == '__main__':
   unit_test.main()
