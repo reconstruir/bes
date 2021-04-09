@@ -9,14 +9,14 @@ from bes.text.text_table import text_table
 
 from .pip_error import pip_error
 from .pip_project_v2 import pip_project_v2
-from .pip_installer_options import pip_installer_options
+from .pip_project_options import pip_project_options
 
 class pip_project_cli_handler(cli_command_handler):
   'pip project cli handler.'
 
   def __init__(self, cli_args):
-    super(pip_project_cli_handler, self).__init__(cli_args, options_class = pip_installer_options)
-    check.check_pip_installer_options(self.options)
+    super(pip_project_cli_handler, self).__init__(cli_args, options_class = pip_project_options)
+    check.check_pip_project_options(self.options)
     self.options.blurber.set_verbose(self.options.verbose)
     self._project = pip_project_v2(self.options.name,
                                    self.options.root_dir,

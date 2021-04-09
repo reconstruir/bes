@@ -32,9 +32,12 @@ class pip_project_cli_args(object):
                    help = 'Verbose output [ False ]')
     p.add_argument('-r', '--root-dir', action = 'store', default = None,
                    help = 'The root directory where to install pip [ None ]')
-    p.add_argument('-p', '--python', action = 'store', default = None,
-                   dest = 'python_exe',
-                   help = 'The python executable to use [ None ]')
+    p.add_argument('-p', '--python-version', action = 'store', default = None,
+                   dest = 'python_version',
+                   help = 'The python version to use [ None ]')
+    p.add_argument('-c', '--config', action = 'store', default = None,
+                   dest = 'config_filename',
+                   help = 'The config filename to use [ None ]')
      
   def _command_pip_project(self, command, *args, **kargs):
     from .pip_project_cli_handler import pip_project_cli_handler

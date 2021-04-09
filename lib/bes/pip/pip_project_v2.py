@@ -51,24 +51,25 @@ class pip_project_v2(object):
     return path.join(self._root_dir, self._name)
 
   @cached_property
-  def install_dir(self):
+  def user_base_dir(self):
+    return path.join(self.project_dir, self._installation.python_version)
+  
+  @cached_property
+  def user_base_install_dir(self):
     if host.is_windows():
-      parsed_version = python_version.parse(self._installation.python_version)
-      versioned_dir_part = 'Python{}{}'.format(parsed_version.major,
-                                               parsed_version.minor)
-      install_dir = path.join(self.project_dir, versioned_dir_part)
+      user_base_install_dir = path.join(self.user_base_dir, self._installation.windows_versioned_install_dirname)
     elif host.is_unix():
-      install_dir = self.project_dir
+      user_base_install_dir = self.user_base_dir
     else:
       host.raise_unsupported_system()
-    return install_dir
+    return user_base_install_dir
   
   @cached_property
   def bin_dir(self):
     if host.is_windows():
-      bin_dir = path.join(self.install_dir, 'Scripts')
+      bin_dir = path.join(self.user_base_install_dir, 'Scripts')
     elif host.is_unix():
-      bin_dir = path.join(self.install_dir, 'bin')
+      bin_dir = path.join(self.user_base_install_dir, 'bin')
     else:
       host.raise_unsupported_system()
     return bin_dir
@@ -76,9 +77,9 @@ class pip_project_v2(object):
   @cached_property
   def site_packages_dir(self):
     if host.is_windows():
-      site_packages_dir = path.join(self.install_dir, 'site-packages')
+      site_packages_dir = path.join(self.user_base_install_dir, 'site-packages')
     elif host.is_unix():
-      site_packages_dir = path.join(self.install_dir, 'lib/python/site-packages')
+      site_packages_dir = path.join(self.user_base_install_dir, 'lib/python/site-packages')
     else:
       host.raise_unsupported_system()
     return site_packages_dir
@@ -88,7 +89,7 @@ class pip_project_v2(object):
     'Make a clean environment for python or pip'
     clean_env = os_env.make_clean_env()
 
-    env_var(clean_env, 'PYTHONUSERBASE').value = self.project_dir
+    env_var(clean_env, 'PYTHONUSERBASE').value = self.user_base_dir
     env_var(clean_env, 'PYTHONPATH').path = self.PYTHONPATH
     env_var(clean_env, 'PATH').prepend(self.PATH)
     env_var(clean_env, 'HOME').value = self._fake_home_dir

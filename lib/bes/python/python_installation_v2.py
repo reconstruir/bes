@@ -184,3 +184,9 @@ class python_installation_v2(object):
   @cached_property
   def PYTHONPATH(self):
     return python_exe.site_packages_path(self.python_exe)
+
+  @cached_property
+  def windows_versioned_install_dirname(self):
+    parsed_version = python_version.parse(self.python_version)
+    return 'Python{}{}'.format(parsed_version.major,
+                               parsed_version.minor)
