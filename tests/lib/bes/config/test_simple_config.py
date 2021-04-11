@@ -4,9 +4,12 @@
 from __future__ import unicode_literals
 
 import os
+import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.config.simple_config import simple_config
 from bes.system.env_override import env_override
+from bes.system.host import host
+from bes.system.user import user
 from bes.key_value.key_value_list import key_value_list as KVL
 
 class test_simple_config(unit_test):
@@ -808,6 +811,24 @@ cheese
 s1
   v1: this Д is cyrillic
 ''', str(c) )
+
+  def test_builtin_variables(self):
+    text = '''\
+vars
+  current_dir: ${BES_CONFIG_CURRENT_DIR}
+  config_file_dir: ${BES_CONFIG_CONFIG_FILE_DIR}
+  system: ${BES_CONFIG_SYSTEM}
+  username: ${BES_CONFIG_USERNAME}
+#  home: ${BES_CONFIG_HOME}
+'''
+    tmp = self.make_temp_file(content = text, suffix = '.config')
+    s = simple_config.from_file(tmp)
+
+    self.assertEqual( os.getcwd(), s.get_value('vars', 'current_dir') )
+    self.assertEqual( path.dirname(tmp), s.get_value('vars', 'config_file_dir') )
+    self.assertEqual( host.SYSTEM, s.get_value('vars', 'system') )
+    self.assertEqual( user.USERNAME, s.get_value('vars', 'username') )
+#    self.assertEqual( user.HOME, s.get_value('vars', 'home') )
     
 if __name__ == '__main__':
   unit_test.main()

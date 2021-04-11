@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+import os.path as path
 import fnmatch
 
 from bes.common.algorithm import algorithm
@@ -13,6 +15,8 @@ from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
 from bes.system.env_var import os_env_var
 from bes.common.tuple_util import tuple_util
+from bes.system.host import host
+from bes.system.user import user
 
 from collections import namedtuple
 
@@ -240,11 +244,39 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
   def _substitutions_for_value(clazz, v, origin):
     result = {}
     variables = variable.find_variables(v)
+    biv = None
     for var in variables:
       os_var = os_env_var(var)
-      if not os_var.is_set:
-        raise simple_config_error('Not set in the current environment: %s' % (v), origin)
-      result[var] = os_var.value
+      found = False
+      if os_var.is_set:
+        value = var.value
+        found = True
+      else:
+        if not biv:
+          biv = clazz._builtin_env_vars(origin)
+        if var in biv:
+          value = biv[var]
+          found = True
+      if not found:  
+        raise simple_config_error('Not set in the current environment: "{}"'.format(v), origin)
+      result[var] = value
     return result
-  
+
+  @classmethod
+  def _builtin_env_vars(clazz, origin):
+    config_file_dir = None
+    if origin.source:
+      dirname = path.dirname(origin.source)
+      if path.isdir(dirname):
+        config_file_dir = dirname
+
+    return {
+      'BES_CONFIG_CONFIG_FILE_DIR': config_file_dir,
+      'BES_CONFIG_CURRENT_DIR': os.getcwd(),
+      'BES_CONFIG_SYSTEM': host.SYSTEM,
+      'BES_CONFIG_USERNAME': user.USERNAME,
+      # FIXME uncomment this when the pip branch merges
+      #'BES_CONFIG_HOME': user.HOME,
+    }
+    
 check.register_class(simple_config_section)
