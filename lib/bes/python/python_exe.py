@@ -282,10 +282,13 @@ raise SystemExit(0)
     piv = python_installation_v2(main_exe)
     sys_executable = clazz.sys_executable(main_exe)
     real_executable = file_symlink.resolve(sys_executable)
+    source = clazz.source(main_exe)
+    version = clazz.version(main_exe)
+    full_version = clazz.full_version(main_exe)
     return clazz._python_exe_info(main_exe,
-                                  clazz.version(main_exe),
-                                  clazz.full_version(main_exe),
-                                  clazz.source(main_exe),
+                                  version,
+                                  full_version,
+                                  source,
                                   sys_executable,
                                   real_executable,
                                   exe_links,

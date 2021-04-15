@@ -32,21 +32,23 @@ class python_pip_exe(object):
     cmd = [ pip_exe, '--version' ]
     env_PYTHONPATH = os.pathsep.join(pythonpath)
     with env_override(env = { 'PYTHONPATH': env_PYTHONPATH }) as env:
-      clazz._log.log_d('pip_exe={} PYTHONPATH={}'.format(pip_exe, env_PYTHONPATH))
+      clazz._log.log_d('version_info: pip_exe={} PYTHONPATH={}'.format(pip_exe, env_PYTHONPATH))
       try:
         output_bytes = subprocess.check_output(cmd, stderr = subprocess.STDOUT)
         output = codecs.decode(output_bytes, 'utf-8').strip()
       except subprocess.CalledProcessError as ex:
         output_bytes = ex.output
         output = codecs.decode(output_bytes, 'utf-8').strip()
-        msg = 'Failed to run: "{}" - {}'.format(' '.join(cmd), output)
+        msg = 'version_info: Failed to run: "{}" - {}'.format(' '.join(cmd), output)
         clazz._log.log_w(msg)
         raise python_error(msg, status_code = ex.returncode)
+    clazz._log.log_d('version_info: output="{}"'.format(output))
     f = re.findall(clazz._PIP_VERSION_PATTERN, output)
+    clazz._log.log_d('version_info: f="{}"'.format(f))
     if not f:
-      raise python_error('not a valid pip version for {}: "{}"'.format(pip_exe, output))
+      raise python_error('version_info: not a valid pip version for {}: "{}"'.format(pip_exe, output))
     if len(f[0]) != 3:
-      raise python_error('not a valid pip version for {}: "{}"'.format(pip_exe, output))
+      raise python_error('version_info: not a valid pip version for {}: "{}"'.format(pip_exe, output))
     version = f[0][0]
     where = f[0][1]
     python_version = f[0][2]
