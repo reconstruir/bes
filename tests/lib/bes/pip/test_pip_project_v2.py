@@ -41,18 +41,23 @@ class test_pip_project_v2(unit_test):
       project.install('pyinstaller', version = '666.666.666.666.666')
     self.assertTrue( 'no matching distribution found for pyinstaller==666.666.666.666.666' in str(ctx.exception).lower() )
     
-  @skip_if(not python_testing.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
-  def test_install(self):
-    tester = pip_installer_tester_v2(python_testing.ANY_PYTHON3, 'kiwi', debug = True) #self.DEBUG)
+  @skip_if(not python_testing.ANY_PYTHON3, 'test_install_latest_version - no python3 found', warning = True)
+  def test_install_latest_version(self):
+    tester = pip_installer_tester_v2(python_testing.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
     tester.installer.install('latest', False)
     project = tester.installer._project
-    project.install('pyinstaller', version = '4.2')
-    project.install('macholib', version = '4.2')
-#    files = file_find.find(project.project_dir)
-#    for f in files:
-#      print('FILE: {}'.format(f))
+    project.install('pyinstaller')
     rv = project.call_program([ 'pyinstaller', '--version' ])
-    self.assertEqual( '4.2', rv.stdout.strip() )
+    self.assertEqual( 0, rv.exit_code )
+    
+  @skip_if(not python_testing.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
+  def test_install_specific_version(self):
+    tester = pip_installer_tester_v2(python_testing.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
+    tester.installer.install('latest', False)
+    project = tester.installer._project
+    project.install('pyinstaller', version = '3.5')
+    rv = project.call_program([ 'pyinstaller', '--version' ])
+    self.assertEqual( '3.5', rv.stdout.strip() )
     
 if __name__ == '__main__':
   unit_test.main()
