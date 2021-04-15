@@ -97,9 +97,9 @@ class pip_project_v2(object):
 
   @cached_property
   def PYTHONPATH(self):
-    return [
+    return self._installation.PYTHONPATH + [
       self.site_packages_dir,
-    ] + self._installation.PYTHONPATH
+    ]
 
   @cached_property
   def PATH(self):
@@ -171,7 +171,7 @@ class pip_project_v2(object):
     pip_args = args + self._common_pip_args
     return self.call_pip(args)
 
-  def call_pip(self, args):
+  def call_pip(self, args, raise_error = True):
     'Call pip'
 
     self.check_pip_is_installed()
@@ -183,11 +183,13 @@ class pip_project_v2(object):
     cmd = self._make_cmd_python_part() + [
       self.pip_exe,
     ] + self._common_pip_args + args
-    self._log.log_d('call_pip: cmd={}'.format(cmd))
     for key, value in sorted(self.env.items()):
       self._log.log_d('call_pip: ENV: {}={}'.format(key, value))
-    rv = execute.execute(cmd, env = self.env)
-    self._log.log_d('call_pip: exit_code={} stdout={} stderr={}'.format(rv.exit_code,
+    self._log.log_d('call_pip: cmd="{}" raise_error={}'.format(' '.join(cmd), raise_error))
+    rv = execute.execute(cmd,
+                         env = self.env,
+                         raise_error = raise_error)
+    self._log.log_d('call_pip: exit_code={} stdout="{}" stderr="{}"'.format(rv.exit_code,
                                                                         rv.stdout,
                                                                         rv.stderr))
     return rv
@@ -209,7 +211,11 @@ class pip_project_v2(object):
       'install',
       '--user',
     ] + package_args
-    self.call_pip(args)
+    rv = self.call_pip(args, raise_error = False)
+    if rv.exit_code != 0:
+      msg = 'Failed to install "{}" version "{}" - {}'.format(package_name, version or '', rv.stderr)
+      self._log.log_w('install: {}'.format(msg))
+      raise pip_error(msg)
 
   def call_program(self, args, **kargs):
     'Call a program with the right environment'
