@@ -24,3 +24,9 @@ class filesystem_unix(filesystem_base):
       os.sync()
     else:
       subprocess.call([ 'sync' ])
+
+  @classmethod
+  #@abstractmethod
+  def has_symlinks(self):
+    'Return True if this system has support for symlinks.'
+    return True

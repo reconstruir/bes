@@ -33,3 +33,10 @@ class filesystem(filesystem_base):
   def sync(clazz):
     'Sync the filesystem.'
     return clazz._impl_class.sync()
+
+  @classmethod
+  #@abstractmethod
+  def has_symlinks(clazz):
+    'Return True if this system has support for symlinks.'
+    return clazz._impl_class.has_symlinks()
+  

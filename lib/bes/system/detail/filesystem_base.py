@@ -18,3 +18,8 @@ class filesystem_base(with_metaclass(ABCMeta, object)):
     'Sync the filesystem.  Only works for both unix and windows in python3.  Otherwise only unix.'
     raise NotImplemented('sync')
   
+  @classmethod
+  @abstractmethod
+  def has_symlinks(self):
+    'Return True if this system has support for symlinks.'
+    raise NotImplemented('has_symlinks')
