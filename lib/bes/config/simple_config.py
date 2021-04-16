@@ -19,6 +19,7 @@ from .simple_config_error import simple_config_error
 from .simple_config_origin import simple_config_origin
 from .simple_config_section import simple_config_section
 from .simple_config_section_header import simple_config_section_header
+from .simple_config_variables import simple_config_variables
 
 class simple_config(object):
   '''
@@ -60,6 +61,7 @@ class simple_config(object):
     self._check_env_vars = check_env_vars
     self._entry_formatter = entry_formatter
     self._section_finder = section_finder
+    self._variables = simple_config_variables()
 
   def __str__(self):
     return self.to_string()
@@ -87,7 +89,7 @@ class simple_config(object):
     check.check_string(section_name)
 
     header = simple_config_section_header(section_name, extends = extends, extra_text = extra_text, origin = origin)
-    section = simple_config_section(header, None, origin)
+    section = simple_config_section(header, None, origin, parent_variables_ = self._variables)
     self._sections.append(section)
     return section
 
@@ -236,6 +238,12 @@ class simple_config(object):
     entry_parser = entry_parser or clazz._parse_entry
     sections = []
     section_dict = {}
+
+    result = simple_config(sections = None,
+                           source = source,
+                           check_env_vars = check_env_vars,
+                           entry_formatter = entry_formatter)
+    
     for child in node.children:
       origin = simple_config_origin(source, child.data.line_number)
       header = simple_config_section_header.parse_text(child.data.text, origin)
@@ -246,26 +254,43 @@ class simple_config(object):
         if not extends_section:
           msg = 'no extends section "{}" found for "{}"'.format(header.extends, header.name)
           raise simple_config_error(msg, origin)
-      section = clazz._parse_section(child, source, entry_parser, origin, header, extends_section,
+      section = clazz._parse_section(child,
+                                     source,
+                                     entry_parser,
+                                     origin,
+                                     header,
+                                     extends_section,
+                                     result._variables,
                                      validate_key_characters = validate_key_characters)
       sections.append(section)
       section_dict[section.header_.name] = section
-    return simple_config(sections = sections,
-                         source = source,
-                         check_env_vars = check_env_vars,
-                         entry_formatter = entry_formatter)
+    result._sections = sections
+    return result
   
   @classmethod
-  def _parse_section(clazz, node, source, entry_parser, origin, header, extends_section, validate_key_characters = True):
+  def _parse_section(clazz,
+                     node,
+                     source,
+                     entry_parser,
+                     origin,
+                     header,
+                     extends_section,
+                     parent_variables,
+                     validate_key_characters = True):
     check.check_node(node)
     check.check_string(source)
     check.check_function(entry_parser)
     check.check_simple_config_origin(origin)
     check.check_simple_config_section_header(header)
     check.check_simple_config_section(extends_section, allow_none = True)
+    check.check_simple_config_variables(parent_variables)
 
     entries = clazz._parse_section_entries(node, source, entry_parser, validate_key_characters = validate_key_characters)
-    return simple_config_section(header, entries, origin, extends_section_ = extends_section)
+    return simple_config_section(header,
+                                 entries,
+                                 origin,
+                                 extends_section_ = extends_section,
+                                 parent_variables_ = parent_variables)
 
   @classmethod
   def _parse_section_entries(clazz, node, source, entry_parser, validate_key_characters = True):
@@ -416,5 +441,24 @@ class simple_config(object):
     result._entry_formatter = self._entry_formatter
     result._section_finder = self._section_finder
     return result
-      
+
+  def set_variable(self, key, value):
+    check.check_string(key)
+    check.check_value(value)
+
+    self._variables.set_variable(key, value)
+
+  def set_variables(self, variables):
+    check.check_dict(variables, check.STRING_TYPES, check.STRING_TYPES)
+
+    self._variables.set_variables(variables)
+
+  def update_variables(self, variables):
+    check.check_dict(variables, check.STRING_TYPES, check.STRING_TYPES)
+
+    self._variables.update_variables(variables)
+    
+  def variables(self):
+    return self._variables.variables()
+    
 check.register_class(simple_config)
