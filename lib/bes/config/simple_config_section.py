@@ -7,22 +7,20 @@ import fnmatch
 from bes.common.algorithm import algorithm
 from bes.common.bool_util import bool_util
 from bes.common.check import check
-from bes.common.variable import variable
-from bes.common.string_util import string_util
 from bes.common.list_util import list_util
+from bes.common.string_util import string_util
+from bes.common.tuple_util import tuple_util
+from bes.common.variable import variable
 from bes.compat.StringIO import StringIO
 from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
 from bes.system.env_var import os_env_var
-from bes.common.tuple_util import tuple_util
-from bes.system.host import host
-from bes.system.user import user
 
 from collections import namedtuple
 
+from .simple_config_entry import simple_config_entry
 from .simple_config_error import simple_config_error
 from .simple_config_origin import simple_config_origin
-from .simple_config_entry import simple_config_entry
 from .simple_config_section_header import simple_config_section_header
 from .simple_config_variables import simple_config_variables
 
@@ -286,21 +284,4 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
   def variables(self):
     return self.variables_.variables()
   
-  def _builtin_env_vars(self, origin):
-    return {}
-    config_file_dir = None
-    if origin.source:
-      dirname = path.dirname(origin.source)
-      if path.isdir(dirname):
-        config_file_dir = dirname
-
-    return {
-      'BES_CONFIG_CONFIG_FILE_DIR': config_file_dir,
-      'BES_CONFIG_CURRENT_DIR': os.getcwd(),
-      'BES_CONFIG_SYSTEM': host.SYSTEM,
-      'BES_CONFIG_USERNAME': user.USERNAME,
-      # FIXME uncomment this when the pip branch merges
-      #'BES_CONFIG_HOME': user.HOME,
-    }
-    
 check.register_class(simple_config_section)
