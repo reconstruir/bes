@@ -4,9 +4,12 @@
 from __future__ import unicode_literals
 
 import os
+import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.config.simple_config import simple_config
 from bes.system.env_override import env_override
+from bes.system.host import host
+from bes.system.user import user
 from bes.key_value.key_value_list import key_value_list as KVL
 
 class test_simple_config(unit_test):
@@ -902,6 +905,121 @@ bar
     self.assertEqual( 'b', s.get_value('foo', 'kiwi_3.9') )
     self.assertEqual( 'c', s.get_value('bar', 'kiwi_3.8') )
     self.assertEqual( 'd', s.get_value('bar', 'kiwi_3.9') )
+    
+  def test_variables_section(self):
+    text = '''\
+kiwi
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+
+apple
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+
+lemon
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+'''
+    tmp = self.make_temp_file(content = text, suffix = '.config')
+    s = simple_config.from_file(tmp)
+    s.kiwi.set_variables({
+      'COLOR': 'green',
+      'FLAVOR': 'tart',
+    })
+    s.apple.set_variables({
+      'COLOR': 'red',
+      'FLAVOR': 'sweet',
+    })
+    self.assertEqual( 'small', s.kiwi.size )
+    self.assertEqual( 'green', s.kiwi.color )
+    self.assertEqual( 'tart', s.kiwi.flavor )
+
+    self.assertEqual( 'small', s.apple.size )
+    self.assertEqual( 'red', s.apple.color )
+    self.assertEqual( 'sweet', s.apple.flavor )
+
+    self.assertEqual( 'small', s.lemon.size )
+    with self.assertRaises(simple_config.error):
+      s.lemon.color
+    with self.assertRaises(simple_config.error):
+      s.lemon.flavor
+
+  def test_variables_global(self):
+    text = '''\
+kiwi
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+
+apple
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+
+lemon
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+'''
+    tmp = self.make_temp_file(content = text, suffix = '.config')
+    s = simple_config.from_file(tmp)
+    s.set_variables({
+      'COLOR': 'green',
+      'FLAVOR': 'tart',
+    })
+    self.assertEqual( 'small', s.kiwi.size )
+    self.assertEqual( 'green', s.kiwi.color )
+    self.assertEqual( 'tart', s.kiwi.flavor )
+
+    self.assertEqual( 'small', s.apple.size )
+    self.assertEqual( 'green', s.apple.color )
+    self.assertEqual( 'tart', s.apple.flavor )
+
+    self.assertEqual( 'small', s.lemon.size )
+    self.assertEqual( 'green', s.lemon.color )
+    self.assertEqual( 'tart', s.lemon.flavor )
+
+  def test_variables_global_and_section(self):
+    text = '''\
+kiwi
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+
+apple
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+
+lemon
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+'''
+    tmp = self.make_temp_file(content = text, suffix = '.config')
+    s = simple_config.from_file(tmp)
+    s.set_variables({
+      'COLOR': 'green',
+      'FLAVOR': 'tart',
+    })
+    s.apple.set_variables({
+      'COLOR': 'red',
+      'FLAVOR': 'sweet',
+    })
+    self.assertEqual( 'small', s.kiwi.size )
+    self.assertEqual( 'green', s.kiwi.color )
+    self.assertEqual( 'tart', s.kiwi.flavor )
+
+    self.assertEqual( 'small', s.apple.size )
+    self.assertEqual( 'red', s.apple.color )
+    self.assertEqual( 'sweet', s.apple.flavor )
+
+    self.assertEqual( 'small', s.lemon.size )
+    self.assertEqual( 'green', s.lemon.color )
+    self.assertEqual( 'tart', s.lemon.flavor )
     
 if __name__ == '__main__':
   unit_test.main()
