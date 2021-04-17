@@ -416,3 +416,15 @@ raise SystemExit(0)
     for inode, links in result.items():
       sorted_result[inode] = sorted(result[inode], key = lambda exe: len(exe), reverse = True)
     return sorted_result
+
+  @classmethod
+  def exe_for_sys_version(clazz, absolute = True):
+    'Return the python executable binary for sys.version (python2.7, python3.7, etc)'
+    check.check_bool(absolute)
+
+    exe = 'python{major}.{minor}'.format(major = sys.version_info.major,
+                                         minor = sys.version_info.minor)
+    if absolute:
+      return which.which(exe)
+    else:
+      return exe
