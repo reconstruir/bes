@@ -7,6 +7,7 @@ import os
 import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.config.simple_config import simple_config
+from bes.config.simple_config_options import simple_config_options
 from bes.system.env_override import env_override
 from bes.system.host import host
 from bes.system.user import user
@@ -577,7 +578,7 @@ kiwi extends fruit foo
     self.assertEqual( 'foo', section.header_.extra_text )
 
   @classmethod
-  def _parse_ssh_config_entry(clazz, text, origin = None, validate_key_characters = False):
+  def _parse_ssh_config_entry(clazz, text, origin, options):
     from bes.common.check import check
     from bes.common.string_util import string_util
     from bes.key_value.key_value import key_value
@@ -585,6 +586,8 @@ kiwi extends fruit foo
 
     check.check_string(text)
     check.check_simple_config_origin(origin)
+    check.check_simple_config_options(options)
+    
     hints = {}
     if '=' in text:
       kv = key_value.parse(text)
@@ -899,8 +902,8 @@ bar
   kiwi_3.8: c
   kiwi_3.9: d
 '''
-    
-    s = simple_config.from_text(text)
+    options = simple_config_options(key_check_type = simple_config_options.KEY_CHECK_ANY)
+    s = simple_config.from_text(text, options = options)
     self.assertEqual( 'a', s.get_value('foo', 'kiwi_3.8') )
     self.assertEqual( 'b', s.get_value('foo', 'kiwi_3.9') )
     self.assertEqual( 'c', s.get_value('bar', 'kiwi_3.8') )
