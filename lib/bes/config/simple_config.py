@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import copy, string, re
+import re
 
 from bes.common.check import check
 from bes.compat.StringIO import StringIO
@@ -16,6 +16,8 @@ from collections import namedtuple
 
 from .simple_config_entry import simple_config_entry
 from .simple_config_error import simple_config_error
+from .simple_config_keys import simple_config_keys
+from .simple_config_options import simple_config_options
 from .simple_config_origin import simple_config_origin
 from .simple_config_section import simple_config_section
 from .simple_config_section_header import simple_config_section_header
@@ -53,7 +55,10 @@ class simple_config(object):
                source = None,
                check_env_vars = True,
                entry_formatter = None,
-               section_finder = None):
+               section_finder = None,
+               options = None):
+    check.check_simple_config_options(options, allow_none = True)
+    
     sections = sections or []
     source = source or '<unknown>'
     self._origin = simple_config_origin(source, 1)
@@ -62,6 +67,7 @@ class simple_config(object):
     self._entry_formatter = entry_formatter
     self._section_finder = section_finder
     self._variables = simple_config_variables()
+    self._options = options or simple_config_options()
 
   def __str__(self):
     return self.to_string()
@@ -220,14 +226,14 @@ class simple_config(object):
                 entry_parser = None,
                 entry_formatter = None,
                 ignore_extends = False,
-                validate_key_characters = True):
+                options = None):
     return clazz.from_text(file_util.read(filename, codec = 'utf8'),
                            source = filename,
                            check_env_vars = check_env_vars,
                            entry_parser = entry_parser,
                            entry_formatter = entry_formatter,
                            ignore_extends = ignore_extends,
-                           validate_key_characters = validate_key_characters)
+                           options = options)
     
   @classmethod
   def from_text(clazz,
@@ -237,7 +243,7 @@ class simple_config(object):
                 entry_parser = None,
                 entry_formatter = None,
                 ignore_extends = False,
-                validate_key_characters = True):
+                options = None):
     check.check_string(text)
     source = source or '<unknown>'
     root = tree_text_parser.parse(text, strip_comments = True, root_name = 'root')
@@ -247,7 +253,7 @@ class simple_config(object):
                            entry_parser = entry_parser,
                            entry_formatter = entry_formatter,
                            ignore_extends = ignore_extends,
-                           validate_key_characters = validate_key_characters)
+                           options = options)
 
   @classmethod
   def from_node(clazz,
@@ -257,11 +263,12 @@ class simple_config(object):
                 entry_parser = None,
                 entry_formatter = None,
                 ignore_extends = False,
-                validate_key_characters = True):
+                options = None):
     check.check_node(node)
     check.check_bool(check_env_vars)
     check.check_function(entry_parser, allow_none = True)
     check.check_bool(ignore_extends)
+    check.check_simple_config_options(options, allow_none = True)
 
     source = source or '<unknown>'
     entry_parser = entry_parser or clazz._parse_entry
@@ -271,7 +278,8 @@ class simple_config(object):
     result = simple_config(sections = None,
                            source = source,
                            check_env_vars = check_env_vars,
-                           entry_formatter = entry_formatter)
+                           entry_formatter = entry_formatter,
+                           options = options)
     
     for child in node.children:
       origin = simple_config_origin(source, child.data.line_number)
@@ -290,7 +298,7 @@ class simple_config(object):
                                      header,
                                      extends_section,
                                      result._variables,
-                                     validate_key_characters = validate_key_characters)
+                                     result._options)
       sections.append(section)
       section_dict[section.header_.name] = section
     result._sections = sections
@@ -305,7 +313,7 @@ class simple_config(object):
                      header,
                      extends_section,
                      parent_variables,
-                     validate_key_characters = True):
+                     options):
     check.check_node(node)
     check.check_string(source)
     check.check_function(entry_parser)
@@ -313,8 +321,9 @@ class simple_config(object):
     check.check_simple_config_section_header(header)
     check.check_simple_config_section(extends_section, allow_none = True)
     check.check_simple_config_variables(parent_variables)
+    check.check_simple_config_options(options)
 
-    entries = clazz._parse_section_entries(node, source, entry_parser, validate_key_characters = validate_key_characters)
+    entries = clazz._parse_section_entries(node, source, entry_parser, options = options)
     return simple_config_section(header,
                                  entries,
                                  origin,
@@ -322,7 +331,7 @@ class simple_config(object):
                                  parent_variables_ = parent_variables)
 
   @classmethod
-  def _parse_section_entries(clazz, node, source, entry_parser, validate_key_characters = True):
+  def _parse_section_entries(clazz, node, source, entry_parser, options = None):
     check.check_node(node)
     check.check_string(source)
     
@@ -330,16 +339,15 @@ class simple_config(object):
     for child in node.children:
       entry_origin = simple_config_origin(source, child.data.line_number)
       text = child.get_text(child.NODE_FLAT, delimiter = line_break.DEFAULT_LINE_BREAK)
-      new_entry = entry_parser(text, entry_origin, validate_key_characters = validate_key_characters)
+      new_entry = entry_parser(text, entry_origin, options)
       result.append(new_entry)
     return result
   
-  _ENTRY_KEY_VALID_FIRST_CHAR = string.ascii_letters + '_'
-  _ENTRY_KEY_VALID_NEXT_CHARS = _ENTRY_KEY_VALID_FIRST_CHAR + string.digits + '*' + '?' + '-' + ' ' + '.'
   @classmethod
-  def _parse_entry(clazz, text, origin, validate_key_characters = True):
+  def _parse_entry(clazz, text, origin, options):
     check.check_string(text)
     check.check_simple_config_origin(origin)
+    check.check_simple_config_options(options)
 
     raw_key, delimiter, raw_value = text.partition(':')
     if delimiter != ':':
@@ -351,14 +359,8 @@ class simple_config(object):
 
     key, raw_annotations = clazz._entry_partition_key_and_annotation(raw_key)
 
-    if validate_key_characters:
-      if not key[0] in clazz._ENTRY_KEY_VALID_FIRST_CHAR:
-        raise simple_config_error('invalid config entry (key should start with ascii letter or underscore): "{}"'.format(text), origin)
-
-      for c in key[1:]:
-        if not c in clazz._ENTRY_KEY_VALID_NEXT_CHARS:
-          raise simple_config_error('invalid config entry char "{}" (key should have only ascii letter, digits or underscore): "{}"'.format(c, text), origin)
-      
+    simple_config_keys.validate_key(options.key_check_type, key, origin)
+    
     value = key_value(key, raw_value)
     annotations = clazz._parse_annotations(raw_annotations, origin)
     return simple_config_entry(value, origin, annotations = annotations)
@@ -462,18 +464,21 @@ class simple_config(object):
       self_section = self.find(section_name)
       self_section.set_values(values)
 
+  # FIXME: the options here dont really do anything
   def clone(self,
             sections = None,
             source = None,
             check_env_vars = True,
             entry_formatter = None,
-            section_finder = None):
+            section_finder = None,
+            options = None):
     tmp = self.from_text(str(self))
     result = simple_config(tmp._sections)
     result._origin = self._origin
     result._check_env_vars = self._check_env_vars
     result._entry_formatter = self._entry_formatter
     result._section_finder = self._section_finder
+    result._options = self._options
     return result
 
   def save(self, filename, codec = 'utf-8'):
