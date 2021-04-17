@@ -8,6 +8,7 @@ from bes.common.string_util import string_util
 from bes.fs.temp_file import temp_file
 from bes.fs.file_mode import file_mode
 from bes.config.simple_config import simple_config
+from bes.config.simple_config_options import simple_config_options
 
 from .git_repo import git_repo
 from .git_temp_repo_error import git_temp_repo_error
@@ -114,10 +115,11 @@ class git_temp_repo(object):
   def apply_config_text(self, config_text):
     check.check_string(config_text)
 
+    config_options = simple_config_options(key_check_type = simple_config_options.KEY_CHECK_ANY)
     config = simple_config.from_text(config_text,
                                      source = '<git_temp_repo>',
                                      check_env_vars = False,
-                                     validate_key_characters = False)
+                                     options = config_options)
     cmds = []
     for section in config:
       cmd = self._command_parse(section)
