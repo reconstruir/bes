@@ -17,7 +17,7 @@ class python_testing(object):
   'Class to deal with the python testing.'
 
   _log = logger('python_testing')
-  
+
   # The python 3.8 that comes with xcode is very non standard
   # crapping all kinds of droppings in non standard places such
   # as ~/Library/Caches even though the --no-cache-dir was given
@@ -187,8 +187,8 @@ exit /b 0
   @classmethod
   def make_temp_fake_python(clazz, filename, version, mode = None, debug = False):
     tmp_dir = temp_file.make_temp_dir(delete = not debug)
-    tmp_exe = path.join(tmp_dir, filename)
-    clazz.make_fake_python(tmp_exe, version)
+    path.join(tmp_dir, filename)
+    tmp_exe = clazz.make_fake_python(path.join(tmp_dir, filename), version)
     if mode:
       os.chmod(tmp_exe, mode)
     return tmp_exe
@@ -204,6 +204,8 @@ exit 0
 
   @classmethod
   def _make_fake_python_windows(clazz, filename, version):
+    assert file_util.extension(filename) not in ( 'bat', 'exe', 'cmd', 'ps1' )
+    filename = filename + '.cmd'
     content = '''\
 @echo off
 echo Python {version}
