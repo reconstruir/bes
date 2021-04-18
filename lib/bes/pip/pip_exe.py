@@ -49,10 +49,14 @@ class pip_exe(object):
     check.check_string(pip_exe)
 
     if host.is_windows():
-      basename = filename_util.without_extension(path.basename(pip_exe).lower())
+      pip_exe_lower = pip_exe.lower()
+      ext = filename_util.extension(pip_exe_lower)
+      if ext in ( 'cmd', 'exe', 'bat', 'ps1' ):
+        basename = filename_util.without_extension(path.basename(pip_exe_lower))
+      else:
+        basename = path.basename(pip_exe_lower)
     else:
       basename = path.basename(pip_exe)
-    
     if not basename.startswith('pip'):
       return clazz._pip_filename_info(None, None)
     version = string_util.remove_head(basename, 'pip')

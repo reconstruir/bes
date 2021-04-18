@@ -217,7 +217,8 @@ exit /b 0
     if host.is_unix():
       return clazz._make_fake_pip_unix(filename, version, py_version)
     elif host.is_windows():
-      return clazz._make_fake_pip_windows(filename, version, py_version)
+      assert file_util.extension(filename) not in ( 'bat', 'exe', 'cmd', 'ps1' )
+      return clazz._make_fake_pip_windows(filename + '.cmd', version, py_version)
     else:
       host.raise_unsupported_system()
 
@@ -226,8 +227,7 @@ exit /b 0
     mode = mode or 0o0755
 
     tmp_dir = temp_file.make_temp_dir(delete = not debug)
-    tmp_exe = path.join(tmp_dir, filename)
-    clazz.make_fake_pip(tmp_exe, version, py_version)
+    tmp_exe = clazz.make_fake_pip(path.join(tmp_dir, filename), version, py_version)
     if mode:
       os.chmod(tmp_exe, mode)
     return tmp_exe
