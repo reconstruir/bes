@@ -11,7 +11,7 @@ class test_python_exe_config(unit_test):
   def test_empty_file(self):
     tmp = self.make_temp_file(suffix = '.python_config')
     c = python_exe_config(tmp)
-    self.assertEqual( None, c.get_python_exe('3.7', system = 'macos') )
+    self.assertEqual( None, c.get_python_exe('3.7', system = 'macos', distro = None) )
 
   def test_existing_file(self):
     content = '''\
@@ -31,6 +31,19 @@ windows
     c = python_exe_config(tmp)
     self.assertEqual( '/usr/local/opt/python@3.7/bin/python3.7', c.get_python_exe('3.7', system = 'macos') )
     self.assertEqual( 'C:/Program Files/Python37/python.exe', c.get_python_exe('3.7', system = 'windows') )
+
+  def test_linux_with_distro(self):
+    content = '''\
+linux.ubuntu
+  2.7: /usr/bin/python2.7
+
+linux
+  2.7: /usr/local/bin/python2.7
+'''
+    tmp = self.make_temp_file(content = content, suffix = '.python_config')
+    c = python_exe_config(tmp)
+    self.assertEqual( '/usr/bin/python2.7', c.get_python_exe('2.7', system = 'linux', distro = 'ubuntu') )
+    self.assertEqual( '/usr/local/bin/python2.7', c.get_python_exe('2.7', system = 'linux', distro = '') )
     
   def xtest_change_python_exe(self):
     content = '''\
