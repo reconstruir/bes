@@ -16,7 +16,7 @@ class test_pip_installer_v2(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    #raise_skip('Not ready')
+    raise_skip('Not ready')
     pass
   
   @skip_if(not python_testing._PYTHONS.PYTHON_27, 'test_install_python_27 - python 2.7 not found', warning = True)
