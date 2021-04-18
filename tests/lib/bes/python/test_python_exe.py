@@ -67,7 +67,7 @@ sys.stdout.write('kiwi\n')
 sys.stdout.flush()
 raise SystemExit(0)
 '''
-    rv = python_exe.run_script(python_testing.ANY_PYTHON, script, [])
+    rv = python_exe.run_script(python_testing._PYTHONS.ANY_PYTHON, script, [])
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( 'kiwi', rv.output.strip() )
 
@@ -78,7 +78,7 @@ sys.stdout.write('lemon\n')
 sys.stdout.flush()
 raise SystemExit(42)
 '''
-    rv = python_exe.run_script(python_testing.ANY_PYTHON, script, [])
+    rv = python_exe.run_script(python_testing._PYTHONS.ANY_PYTHON, script, [])
     self.assertEqual( 42, rv.exit_code )
     self.assertEqual( 'lemon', rv.output.strip() )
 
@@ -89,7 +89,7 @@ sys.stderr.write('kiwi\n')
 sys.stderr.flush()
 raise SystemExit(0)
 '''
-    rv = python_exe.run_script(python_testing.ANY_PYTHON, script, [])
+    rv = python_exe.run_script(python_testing._PYTHONS.ANY_PYTHON, script, [])
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( 'kiwi', rv.output.strip() )
     

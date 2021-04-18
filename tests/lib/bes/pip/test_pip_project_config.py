@@ -11,12 +11,12 @@ class test_pip_project_config(unit_test):
   def test_empty_file(self):
     tmp = self.make_temp_file(suffix = '.pip_project')
     c = pip_project_config(tmp)
-    self.assertEqual( None, c.python_exe('3.7') )
+    self.assertEqual( None, c.python_exe )
 
   def test_existing_file(self):
     content = '''\
 pip_project
-  python_exe_3.7: /foo/bin/python.exe
+  python_exe: /foo/bin/python.exe
 '''
     tmp = self.make_temp_file(content = content, suffix = '.pip_project')
     c = pip_project_config(tmp)

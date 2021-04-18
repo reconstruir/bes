@@ -8,6 +8,7 @@ from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.host import host
 from bes.system.log import logger
+from bes.property.cached_property import cached_property
 
 from .python_exe import python_exe
 from .python_version import python_version
@@ -18,30 +19,56 @@ class python_testing(object):
 
   _log = logger('python_testing')
 
-  # The python 3.8 that comes with xcode is very non standard
-  # crapping all kinds of droppings in non standard places such
-  # as ~/Library/Caches even though the --no-cache-dir was given
-  # so never use them for tests since they create side effects
-  _EXCLUDE_SOURCES = ( 'xcode', )
-  
-  PYTHON_27 = python_exe.find_version('2.7', exclude_sources = _EXCLUDE_SOURCES)
-  PYTHON_37 = python_exe.find_version('3.7', exclude_sources = _EXCLUDE_SOURCES)
-  PYTHON_38 = python_exe.find_version('3.8', exclude_sources = _EXCLUDE_SOURCES)
-  PYTHON_39 = python_exe.find_version('3.9', exclude_sources = _EXCLUDE_SOURCES)
+  class _python_constants(object):
 
-  ALL_PYTHONS = [ p for p in [ PYTHON_27, PYTHON_37, PYTHON_38, PYTHON_39 ] if p ]
-  ANY_PYTHON = next(iter([ p for p in ALL_PYTHONS ]), None)
-  ANY_PYTHON2 = next(iter([ p for p in ALL_PYTHONS if python_exe.major_version(p) == 2]), None)
-  ANY_PYTHON3 = next(iter([ p for p in ALL_PYTHONS if python_exe.major_version(p) == 3]), None)
+    # The python 3.8 that comes with xcode is very non standard
+    # crapping all kinds of droppings in non standard places such
+    # as ~/Library/Caches even though the --no-cache-dir was given
+    # so never use them for tests since they create side effects
+    _EXCLUDE_SOURCES = ( 'xcode', )
 
-  _log.log_d('  PYTHON_27: {}'.format(PYTHON_27))
-  _log.log_d('  PYTHON_37: {}'.format(PYTHON_37))
-  _log.log_d('  PYTHON_38: {}'.format(PYTHON_38))
-  _log.log_d('  PYTHON_39: {}'.format(PYTHON_39))
-  _log.log_d('ALL_PYTHONS: {}'.format(' '.join(ALL_PYTHONS)))
-  _log.log_d(' ANY_PYTHON: {}'.format(ANY_PYTHON))
-  _log.log_d('ANY_PYTHON2: {}'.format(ANY_PYTHON2))
-  _log.log_d('ANY_PYTHON3: {}'.format(ANY_PYTHON3))
+    @cached_property
+    def PYTHON_27(self):
+      return python_exe.find_version('2.7', exclude_sources = self._EXCLUDE_SOURCES)
+
+    @cached_property
+    def PYTHON_37(self):
+      return python_exe.find_version('3.7', exclude_sources = self._EXCLUDE_SOURCES)
+
+    @cached_property
+    def PYTHON_38(self):
+      return python_exe.find_version('3.8', exclude_sources = self._EXCLUDE_SOURCES)
+
+    @cached_property
+    def PYTHON_39(self):
+      return python_exe.find_version('3.9', exclude_sources = self._EXCLUDE_SOURCES)
+
+    @cached_property
+    def ALL_PYTHONS(self):
+      return [ p for p in [ self.PYTHON_27, self.PYTHON_37, self.PYTHON_38, self.PYTHON_39 ] if p ]
+    
+    @cached_property
+    def ANY_PYTHON(self):
+      return next(iter([ p for p in self.ALL_PYTHONS ]), None)
+    
+    @cached_property
+    def ANY_PYTHON2(self):
+      return next(iter([ p for p in self.ALL_PYTHONS if python_exe.major_version(p) == 2]), None)
+    
+    @cached_property
+    def ANY_PYTHON3(self):
+      return next(iter([ p for p in self.ALL_PYTHONS if python_exe.major_version(p) == 3]), None)
+
+  _PYTHONS = _python_constants()
+  if False:
+    _log.log_d('  PYTHON_27: {}'.format(_PYTHONS.PYTHON_27))
+    _log.log_d('  PYTHON_37: {}'.format(_PYTHONS.PYTHON_37))
+    _log.log_d('  PYTHON_38: {}'.format(_PYTHONS.PYTHON_38))
+    _log.log_d('  PYTHON_39: {}'.format(_PYTHONS.PYTHON_39))
+    _log.log_d('ALL_PYTHONS: {}'.format(' '.join(_PYTHONS.ALL_PYTHONS)))
+    _log.log_d(' ANY_PYTHON: {}'.format(_PYTHONS.ANY_PYTHON))
+    _log.log_d('ANY_PYTHON2: {}'.format(_PYTHONS.ANY_PYTHON2))
+    _log.log_d('ANY_PYTHON3: {}'.format(_PYTHONS.ANY_PYTHON3))
 
   PYTHON_VERSIONS = ( '2.7', '3.7', '3.8', '3.9' )
   @classmethod

@@ -6,6 +6,7 @@ from bes.common.check import check
 from bes.system.log import logger
 
 from bes.config.simple_config_editor import simple_config_editor
+from bes.config.simple_config_options import simple_config_options
 
 from .pip_error import pip_error
 from .pip_exe import pip_exe
@@ -18,7 +19,8 @@ class pip_project_config(object):
   def __init__(self, filename):
     check.check_string(filename)
 
-    self._config = simple_config_editor(filename)
+    options = simple_config_options(key_check_type = simple_config_options.KEY_CHECK_ANY)
+    self._config = simple_config_editor(filename, options = options)
 
   @property
   def python_exe(self):
