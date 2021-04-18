@@ -23,10 +23,10 @@ macos
   3.9: /usr/local/opt/python@3.9/bin/python3.9
 
 windows
-  2.7: C:\Python27\python.exe
-  3.7: C:\Program Files\Python37\python.exe
-  3.8: C:\Program Files\Python38\python.exe
-  3.9: C:\Program Files\Python39\python.exe
+  2.7: C:/Python27/python.exe
+  3.7: C:/Program Files/Python37/python.exe
+  3.8: C:/Program Files/Python38/python.exe
+  3.9: C:/Program Files/Python39/python.exe
   '''
 
   _log = logger('pip')
