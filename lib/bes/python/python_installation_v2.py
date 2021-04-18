@@ -53,10 +53,8 @@ class python_installation_v2(object):
   def _determine_stuff(clazz, exe, system):
     if system == host.WINDOWS:
       result, message = clazz._determine_stuff_windows(exe)
-    elif system == host.MACOS:
-      result, message = clazz._determine_stuff_macos(exe)
-    elif system == host.LINUX:
-      result, message = self._determine_stuff_linux(exe)
+    elif system in ( host.MACOS, host.LINUX ):
+      result, message = clazz._determine_stuff_unix(exe)
     else:
       host.raise_unsupported_system(system = system)
     if not result:
@@ -125,23 +123,23 @@ class python_installation_v2(object):
     clazz._log.log_d('_determine_stuff_windows: py_exe={} pip_exe={}'.format(py_exe, pip_exe))
     return clazz._stuff(root_dir, py_exe, pip_exe, py_version), None
   
-  def _determine_stuff_macos(clazz, exe):
+  def _determine_stuff_unix(clazz, exe):
     exe_type, exe_version = clazz._identify_exe(exe)
     if not exe_type:
       return None, 'exe is neither python or pip: "{}"'.format(exe)
-    clazz._log.log_d('_determine_stuff_macos: exe_type={} exe_version={}'.format(exe_type, exe_version))
+    clazz._log.log_d('_determine_stuff_unix: exe_type={} exe_version={}'.format(exe_type, exe_version))
 
     bin_dir = path.dirname(exe)
     
     if exe_type == 'pip':
       vi = python_pip_exe.version_info(exe)
-      clazz._log.log_d('_determine_stuff_macos: pip version_info={}'.format(vi))
+      clazz._log.log_d('_determine_stuff_unix: pip version_info={}'.format(vi))
       py_version = vi.python_version
     elif exe_type == 'python':
       py_version = python_exe.version(exe)
-    clazz._log.log_d('_determine_stuff_macos: exe={}'.format(exe))
-    clazz._log.log_d('_determine_stuff_macos: bin_dir={}'.format(bin_dir))
-    clazz._log.log_d('_determine_stuff_macos: py_version={}'.format(py_version))
+    clazz._log.log_d('_determine_stuff_unix: exe={}'.format(exe))
+    clazz._log.log_d('_determine_stuff_unix: bin_dir={}'.format(bin_dir))
+    clazz._log.log_d('_determine_stuff_unix: py_version={}'.format(py_version))
 
     py_major_version = python_version.major_version(py_version)
 
@@ -159,9 +157,9 @@ class python_installation_v2(object):
     pip_exe = clazz._find_possible_exe(possible_pips)
     
     root_dir = path.normpath(path.join(bin_dir, '..'))
-    clazz._log.log_d('_determine_stuff_macos: py_exe={} pip_exe={}'.format(py_exe, pip_exe))
+    clazz._log.log_d('_determine_stuff_unix: py_exe={} pip_exe={}'.format(py_exe, pip_exe))
     return clazz._stuff(root_dir, py_exe, pip_exe, py_version), None
-
+  
   def _find_possible_exe(clazz, possible_exes):
     for p in possible_exes:
       if path.exists(p):

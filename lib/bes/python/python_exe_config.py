@@ -55,12 +55,21 @@ windows
   
   @classmethod
   def _make_section_name(clazz, system, distro):
-    system = system or host.SYSTEM
-    distro = distro or host.DISTRO
-
-    if system != host.LINUX and distro:
-      raise python_error('distro should only be given when system is linux')
+    check.check_string(system, allow_none = True)
+    check.check_string(distro, allow_none = True)
     
+    if system:
+      host.check_system(system)
+    else:
+      system = host.SYSTEM
+
+    if distro:
+      host.check_distro(system, distro)
+    elif distro == None:
+      distro = host.DISTRO
+    else:
+      distro = ''
+      
     if system in ( host.WINDOWS, host.MACOS ):
       section_name = system
     elif system in ( host.LINUX ):

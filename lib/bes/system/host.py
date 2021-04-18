@@ -85,6 +85,12 @@ class host(with_metaclass(_host_info_holder, object)):
     raise host_error('unsupported system: "{}"'.format(system))
 
   @classmethod
+  def raise_unsupported_distro(clazz, distro = None):
+    'Raise a RuntimeError about the distro being unsupported.  If distro is None host.DISTRO is used.'
+    distro = distro or host.DISTRO
+    raise host_error('unsupported distro: "{}"'.format(distro))
+  
+  @classmethod
   def check_is_macos(clazz):
     'Raise host_error if system is not macos.'
     if clazz.SYSTEM != clazz.MACOS:
@@ -101,6 +107,20 @@ class host(with_metaclass(_host_info_holder, object)):
     'Raise a RuntimeError about the system being unsupported.  If system is None host.SYSTEM is used.'
     if not system in clazz.SYSTEMS:
       clazz.raise_unsupported_system(clazz, system = system)
+
+  @classmethod
+  def check_distro(clazz, system, distro):
+    'Raise a RuntimeError about the distro being unsupported.  If distro is None host.DISTRO is used.'
+    clazz.check_system(system)
+
+    if system != clazz.LINUX:
+      raise RuntimeError('distro is only valid when system is linux instead of "{}": "{}'.format(system, distro))
+
+    if not distro:
+      raise RuntimeError('invalid distro for {}: "{}'.format(system, distro))
     
+    if not distro in clazz.DISTROS:
+      clazz.raise_unsupported_distro(clazz, distro = distro)
+      
 host.init()
 
