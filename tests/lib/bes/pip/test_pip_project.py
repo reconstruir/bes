@@ -19,7 +19,7 @@ class test_pip_project(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    #raise_skip('Not ready')
+    raise_skip('Not ready')
     pass
   
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
