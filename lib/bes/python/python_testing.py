@@ -180,7 +180,8 @@ exit /b 0
     if host.is_unix():
       return clazz._make_fake_python_unix(filename, version)
     elif host.is_windows():
-      return clazz._make_fake_python_windows(filename, version)
+      assert file_util.extension(filename) not in ( 'bat', 'exe', 'cmd', 'ps1' )
+      return clazz._make_fake_python_windows(filename + '.cmd', version)
     else:
       host.raise_unsupported_system()
       
@@ -204,8 +205,6 @@ exit 0
 
   @classmethod
   def _make_fake_python_windows(clazz, filename, version):
-    assert file_util.extension(filename) not in ( 'bat', 'exe', 'cmd', 'ps1' )
-    filename = filename + '.cmd'
     content = '''\
 @echo off
 echo Python {version}
