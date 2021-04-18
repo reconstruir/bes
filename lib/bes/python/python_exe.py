@@ -16,6 +16,7 @@ from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
 from bes.system.host import host
+from bes.system.user import user
 from bes.system.log import logger
 from bes.system.os_env import os_env_var
 from bes.system.which import which
@@ -392,16 +393,20 @@ raise SystemExit(0)
         '/usr/local/opt/python@3.9/bin',
       ])
     return result
+
+  @classmethod
+  def _sanitized_env_path_should_skip(clazz, entry):
+    # Windows has some exes named pythonX.exe which call the app store to
+    # install python if invoked - not real python so ignore those
+    if r'Microsoft\WindowsApps' in entry:
+      return True
+    if entry.startswith(user.HOME):
+      return True
+    return False
   
   @classmethod
   def _sanitize_env_path(clazz, env_path):
-    result = []
-    for next_path in env_path:
-      # Windows has some exes named pythonX.exe which call the app store to
-      # install python if invoked - not real python so ignore those
-      if not r'Microsoft\WindowsApps' in next_path:
-        result.append(next_path)
-    return result
+    return [ entry for entry in env_path if not clazz._sanitized_env_path_should_skip(entry) ]
   
   @classmethod
   def _inode_map(clazz, exes):
