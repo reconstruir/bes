@@ -39,6 +39,15 @@ class python_version(object):
     return len(sv.parts) == 2
 
   @classmethod
+  def check_version(clazz, version):
+    'Check version is a x.y version or raise an error if not'
+    check.check_string(version)
+
+    if not clazz.is_version(version):
+      raise python_error('Not a valid python version: "{}"'.format(version))
+    return version
+  
+  @classmethod
   def is_full_version(clazz, full_version):
     'Return True if version is in the form major.minor.revision'
     check.check_string(full_version)
