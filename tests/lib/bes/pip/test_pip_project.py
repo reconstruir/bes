@@ -22,9 +22,9 @@ class test_pip_project(unit_test):
     #raise_skip('Not ready')
     pass
   
-  @skip_if(not python_testing.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
+  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_install(self):
-    tester = pip_installer_tester(python_testing.ANY_PYTHON3, 'kiwi', debug = True) #self.DEBUG)
+    tester = pip_installer_tester(python_testing._PYTHONS.ANY_PYTHON3, 'kiwi', debug = True) #self.DEBUG)
     tester.installer.install('latest', False)
     project = tester.installer._project
     project.install('pyinstaller', version = '4.2')
