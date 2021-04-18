@@ -6,13 +6,16 @@ from bes.property.cached_property import cached_property
 from bes.fs.file_util import file_util
 
 from .simple_config import simple_config
+from .simple_config_options import simple_config_options
 
 class simple_config_editor(object):
   'A class to manipulate simple config files'
 
-  def __init__(self, filename):
+  def __init__(self, filename, options = None):
     check.check_string(filename)
-    
+    check.check_simple_config_options(options, allow_none = True)
+
+    self._options = options or simple_config_options()
     self._filename = path.abspath(filename)
     if not path.isfile(self._filename):
       file_util.save(self._filename, content = '')
@@ -81,7 +84,7 @@ class simple_config_editor(object):
       raise KeyError('value \"{}\" in section {} not found in {}'.format(key, section_name, self._filename))
 
   def import_file(self, filename):
-    other_config = simple_config.from_file(filename)
+    other_config = simple_config.from_file(filename, options = self._options)
     for section in other_config:
       other_values = section.to_dict()
       for key, value in other_values.items():
@@ -92,7 +95,7 @@ class simple_config_editor(object):
     if self._filename:
       if not path.isfile(self._filename):
         raise IOError('config file not found: {}'.format(self._filename))
-      return simple_config.from_file(self._filename)
+      return simple_config.from_file(self._filename, options = self._options)
     else:
       return simple_config(source = '<simple_config_editor>')
 

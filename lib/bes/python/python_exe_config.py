@@ -7,6 +7,7 @@ from bes.system.log import logger
 from bes.system.host import host
 
 from bes.config.simple_config_editor import simple_config_editor
+from bes.config.simple_config_options import simple_config_options
 from bes.python.python_version import python_version
 
 from .python_error import python_error
@@ -33,7 +34,8 @@ windows
   def __init__(self, filename):
     check.check_string(filename)
 
-    self._config = simple_config_editor(filename)
+    options = simple_config_options(key_check_type = simple_config_options.KEY_CHECK_ANY)
+    self._config = simple_config_editor(filename, options = options)
 
   def get_python_exe(self, version, system = None, distro = None):
     python_version.check_version(version)
