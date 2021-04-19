@@ -199,7 +199,7 @@ exit 0
     self.assertEqual( 1, len(rv.results) )
 
     r2 = r1.make_temp_cloned_repo()
-    self.assertEqual( '1.0.1', r2.greatest_local_tag() )
+    self.assertEqual( '1.0.1', r2.greatest_local_tag().name )
 
     options = git_repo_script_options(bump_tag_component = 'major')
     scripts = [
@@ -207,7 +207,7 @@ exit 0
     ]
     rv = git_util.repo_run_scripts(r1.address, scripts, options = options)
     self.assertEqual( 1, len(rv.results) )
-    self.assertEqual( '2.0.1', r2.greatest_remote_tag() )
+    self.assertEqual( '2.0.1', r2.greatest_remote_tag().name )
 
   _FRUITS = [
     'apple',

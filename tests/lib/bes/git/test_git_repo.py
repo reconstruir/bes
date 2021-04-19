@@ -178,10 +178,10 @@ class test_git_repo(unit_test):
     r1.push_tag('1.0.0')
     r1.tag('1.0.1')
     r1.push_tag('1.0.1')
-    self.assertEqual( [ '1.0.0', '1.0.1' ], r2.list_remote_tags() )
+    self.assertEqual( [ '1.0.0', '1.0.1' ], r2.list_remote_tags().names() )
     r1.delete_local_tag('1.0.1')
     r1.delete_remote_tag('1.0.1')
-    self.assertEqual( [ '1.0.0' ], r2.list_remote_tags() )
+    self.assertEqual( [ '1.0.0' ], r2.list_remote_tags().names() )
 
   @git_temp_home_func()
   def test_list_remote_tags(self):
@@ -193,7 +193,7 @@ class test_git_repo(unit_test):
     r1.push_tag('1.0.0')
     r1.tag('1.0.1')
     r1.push_tag('1.0.1')
-    self.assertEqual( [ '1.0.0', '1.0.1' ], r2.list_remote_tags() )
+    self.assertEqual( [ '1.0.0', '1.0.1' ], r2.list_remote_tags().names() )
 
   @git_temp_home_func()
   def test_bump_tag(self):
@@ -202,11 +202,11 @@ class test_git_repo(unit_test):
     r1.push('origin', 'master')
     r1.tag('1.0.0')
     r1.push_tag('1.0.0')
-    self.assertEqual( '1.0.0', r1.greatest_local_tag() )
+    self.assertEqual( '1.0.0', r1.greatest_local_tag().name )
     r1.bump_tag('revision', reset_lower = True)
 
     r2 = r1.make_temp_cloned_repo()
-    self.assertEqual( '1.0.1', r2.greatest_local_tag() )
+    self.assertEqual( '1.0.1', r2.greatest_local_tag().name )
 
   @git_temp_home_func()
   def test_bump_tag_empty(self):
@@ -217,7 +217,7 @@ class test_git_repo(unit_test):
     r1.bump_tag('revision', reset_lower = True)
 
     r2 = r1.make_temp_cloned_repo()
-    self.assertEqual( '1.0.0', r2.greatest_local_tag() )
+    self.assertEqual( '1.0.0', r2.greatest_local_tag().name )
 
   @git_temp_home_func()
   def test_bump_two_components(self):
@@ -226,11 +226,11 @@ class test_git_repo(unit_test):
     r1.push('origin', 'master')
     r1.tag('1.0')
     r1.push_tag('1.0')
-    self.assertEqual( '1.0', r1.greatest_local_tag() )
+    self.assertEqual( '1.0', r1.greatest_local_tag().name )
     r1.bump_tag('minor', reset_lower = True)
 
     r2 = r1.make_temp_cloned_repo()
-    self.assertEqual( '1.1', r2.greatest_local_tag() )
+    self.assertEqual( '1.1', r2.greatest_local_tag().name )
     
   @git_temp_home_func()
   def test_list_local_tags_by_version(self):
@@ -242,10 +242,10 @@ class test_git_repo(unit_test):
     r.tag('1.0.5')
     r.tag('1.0.9')
     r.tag('1.0.11')
-    self.assertEqual( [ '1.0.9', '1.0.11' ], r.list_local_tags_gt('1.0.5') )
-    self.assertEqual( [ '1.0.5', '1.0.9', '1.0.11' ], r.list_local_tags_ge('1.0.5') )
-    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4' ], r.list_local_tags_lt('1.0.5') )
-    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4', '1.0.5' ], r.list_local_tags_le('1.0.5') )
+    self.assertEqual( [ '1.0.9', '1.0.11' ], r.list_local_tags_gt('1.0.5').names() )
+    self.assertEqual( [ '1.0.5', '1.0.9', '1.0.11' ], r.list_local_tags_ge('1.0.5').names() )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4' ], r.list_local_tags_lt('1.0.5').names() )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4', '1.0.5' ], r.list_local_tags_le('1.0.5').names() )
     
   @git_temp_home_func()
   def test_list_remote_tags_by_version(self):
@@ -257,11 +257,11 @@ class test_git_repo(unit_test):
     for tag in all_tags:
       r1.tag(tag)
       r1.push_tag(tag)
-    self.assertEqual( all_tags, r2.list_remote_tags() )
-    self.assertEqual( [ '1.0.9', '1.0.11' ], r2.list_remote_tags_gt('1.0.5') )
-    self.assertEqual( [ '1.0.5', '1.0.9', '1.0.11' ], r2.list_remote_tags_ge('1.0.5') )
-    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4' ], r2.list_remote_tags_lt('1.0.5') )
-    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4', '1.0.5' ], r2.list_remote_tags_le('1.0.5') )
+    self.assertEqual( all_tags, r2.list_remote_tags().names() )
+    self.assertEqual( [ '1.0.9', '1.0.11' ], r2.list_remote_tags_gt('1.0.5').names() )
+    self.assertEqual( [ '1.0.5', '1.0.9', '1.0.11' ], r2.list_remote_tags_ge('1.0.5').names() )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4' ], r2.list_remote_tags_lt('1.0.5').names() )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4', '1.0.5' ], r2.list_remote_tags_le('1.0.5').names() )
 
   @git_temp_home_func()
   def test_save_file_first_time(self):
@@ -1077,5 +1077,20 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r.tag('t3', commit = c1)
     self.assertEqual( c3, r.ref_info('t3').commit_short )
 
+  @git_temp_home_func()
+  def test_list_remote_tags_with_limit(self):
+    r1 = self._make_repo()
+    r2 = r1.make_temp_cloned_repo()
+    r1.add_file('readme.txt', 'readme is good')
+    r1.push('origin', 'master')
+    all_tags = [ '1.0.0', '1.0.1','1.0.4','1.0.5','1.0.9','1.0.11' ]
+    for tag in all_tags:
+      r1.tag(tag)
+      r1.push_tag(tag)
+    self.assertEqual( [], r2.list_remote_tags(limit = 0).names() )
+    self.assertEqual( [ '1.0.0' ], r2.list_remote_tags(limit = 1).names() )
+    self.assertEqual( [ '1.0.0', '1.0.1' ], r2.list_remote_tags(limit = 2).names() )
+    self.assertEqual( all_tags, r2.list_remote_tags(limit = 666).names() )
+    
 if __name__ == '__main__':
   unit_test.main()

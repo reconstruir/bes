@@ -19,7 +19,7 @@ add commit1 commit1
 tag 1.0.0 tag1 @commit1
 '''
     r = git_temp_repo(remote = True, config = config)
-    self.assertEqual( '1.0.0', r.greatest_local_tag() )
+    self.assertEqual( '1.0.0', r.greatest_local_tag().name )
     args = [
       'git',
       'tag',
@@ -53,7 +53,7 @@ remote: 1.0.0
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
     r2.pull()
-    self.assertEqual( '1.0.0', r2.greatest_local_tag() )
+    self.assertEqual( '1.0.0', r2.greatest_local_tag().name )
 
     args = [
       'git',
@@ -65,7 +65,7 @@ remote: 1.0.0
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
     r2.pull()
-    self.assertEqual( '1.0.1', r2.greatest_local_tag() )
+    self.assertEqual( '1.0.1', r2.greatest_local_tag().name )
 
 
   @git_temp_home_func()
@@ -89,7 +89,7 @@ remote: 1.0.0
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
     r2.pull()
-    self.assertEqual( '1.0.0', r2.greatest_local_tag() )
+    self.assertEqual( '1.0.0', r2.greatest_local_tag().name )
 
     args = [
       'git',
@@ -101,7 +101,7 @@ remote: 1.0.0
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
     r2.pull()
-    self.assertEqual( '2.0.0', r2.greatest_local_tag() )
+    self.assertEqual( '2.0.0', r2.greatest_local_tag().name )
 
   @git_temp_home_func()
   def test_tags(self):

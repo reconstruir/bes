@@ -24,7 +24,8 @@ class git_repo_cli_command(cli_command_handler):
 
   def greatest_tag(self):
     greatest_tag = git_util.repo_greatest_tag(self.options.address)
-    git_output.output_string(greatest_tag, self.options)
+    if greatest_tag:
+      git_output.output_string(greatest_tag.name, self.options)
     return 0
 
   def clone(self, dest_dir):

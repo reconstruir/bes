@@ -19,6 +19,7 @@ from .git_error import git_error
 from .git_exe import git_exe
 from .git_modules_file import git_modules_file
 from .git_operation_base import git_operation_base
+from .git_tag import git_tag_list
 
 #import warnings
 #with warnings.catch_warnings():
@@ -177,27 +178,28 @@ class git_repo(object):
   
   def list_local_tags(self, sort_type = None, reverse = False,
                       limit = None, prefix = None):
-    return git.list_local_tags(self.root, sort_type = sort_type, reverse = reverse)
+    return git.list_local_tags(self.root, sort_type = sort_type, reverse = reverse,
+                               limit = limit, prefix = prefix)
 
   def list_local_tags_gt(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags greater than tag'
     tags = self.list_local_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
-    return [ t for t in tags if software_version.compare(t, tag) > 0 ]
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) > 0 ])
 
   def list_local_tags_ge(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags greater or equal to tag'
     tags = self.list_local_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
-    return [ t for t in tags if software_version.compare(t, tag) >= 0 ]
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) >= 0 ])
 
   def list_local_tags_le(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags lesser or equal to tag'
     tags = self.list_local_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
-    return [ t for t in tags if software_version.compare(t, tag) <= 0 ]
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) <= 0 ])
 
   def list_local_tags_lt(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags lesser than tag'
     tags = self.list_local_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
-    return [ t for t in tags if software_version.compare(t, tag) < 0 ]
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) < 0 ])
 
   def list_remote_tags(self, sort_type = None, reverse = False, limit = None, prefix = None):
     return git.list_remote_tags(self.root, sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
@@ -205,22 +207,22 @@ class git_repo(object):
   def list_remote_tags_gt(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags greater than tag'
     tags = self.list_remote_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
-    return [ t for t in tags if software_version.compare(t, tag) > 0 ]
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) > 0 ])
 
   def list_remote_tags_ge(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags greater or equal to tag'
     tags = self.list_remote_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
-    return [ t for t in tags if software_version.compare(t, tag) >= 0 ]
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) >= 0 ])
 
   def list_remote_tags_le(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags lesser or equal to tag'
     tags = self.list_remote_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
-    return [ t for t in tags if software_version.compare(t, tag) <= 0 ]
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) <= 0 ])
 
   def list_remote_tags_lt(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags lesser than tag'
     tags = self.list_remote_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
-    return [ t for t in tags if software_version.compare(t, tag) < 0 ]
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) < 0 ])
 
   def tag(self, tag, allow_downgrade = True, push = False, commit = None,
           annotation = None):

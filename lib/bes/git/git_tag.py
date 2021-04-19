@@ -27,7 +27,7 @@ class git_tag(namedtuple('git_tag', 'name, commit, commit_short, peeled')):
     return dict(self._asdict())
   
   @classmethod
-  def parse_show_ref_output(clazz, s, sort_type = None, reverse = False):
+  def parse_show_ref_output(clazz, s, sort_type = None, reverse = False, limit = None):
     check.check_string(s)
     check.check_bool(reverse)
     sort_type = git_tag_sort_type.check_sort_type(sort_type)
@@ -37,13 +37,15 @@ class git_tag(namedtuple('git_tag', 'name, commit, commit_short, peeled')):
                                          strip_text = True,
                                          remove_empties = True)
     if not lines:
-      return []
+      return git_tag_list()
     parsed_tags = [ clazz._parse_show_ref_one_line(line) for line in lines ]
     tags = git_tag_list(parsed_tags)
     if sort_type == 'lexical':
       tags.sort_lexical(reverse = reverse)
     elif sort_type == 'version':
       tags.sort_version(reverse = reverse)
+    if limit != None:
+      tags = tags[0:limit]
     return tags
 
   @classmethod
@@ -112,6 +114,15 @@ class git_tag_list(type_checked_list):
       elif style == 'json':
         fout.write(self.to_json(short_hash = True))
         fout.write('\n')
-  
+
+  def names(self):
+    return [ tag.name for tag in self ]
+
+  def has_name(self, name):
+    for tag in self:
+      if tag.name == name:
+        return True
+    return False
+        
 check.register_class(git_tag_list, include_seq = False)
   

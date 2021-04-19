@@ -142,10 +142,12 @@ class git_cli_command(cli_command_handler):
   def _tag_print(clazz, root_dir, where):
     messages = []
     if where in [ 'local', 'both' ]:
-      msg = ' local: {tag}'.format(tag = git.greatest_local_tag(root_dir))
+      greatest_tag = git.greatest_local_tag(root_dir)
+      msg = ' local: {tag}'.format(tag = greatest_tag.name if greatest_tag else '')
       messages.append(msg)
     if where in [ 'remote', 'both' ]:
-      msg = 'remote: {tag}'.format(tag = git.greatest_remote_tag(root_dir))
+      greatest_tag = git.greatest_remote_tag(root_dir)
+      msg = 'remote: {tag}'.format(tag = greatest_tag.name if greatest_tag else '')
       messages.append(msg)
     for msg in messages:
       print(msg)

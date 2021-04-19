@@ -515,7 +515,7 @@ class git(git_lfs):
 
     greatest_tag = git.greatest_local_tag(root_dir)
     if greatest_tag and not allow_downgrade:
-      if software_version.compare(greatest_tag, tag) >= 0:
+      if software_version.compare(greatest_tag.name, tag) >= 0:
         raise ValueError('new tag \"%s\" is older than \"%s\".  Use allow_downgrade to force it.' % (tag, greatest_tag))
     if not commit:
       commit = clazz.last_commit_hash(root_dir, short_hash = True)
@@ -562,24 +562,37 @@ class git(git_lfs):
   @classmethod
   def list_tags(clazz, root_dir, where = None, sort_type = None, reverse = False,
                 limit = None, prefix = None):
-    where = where or 'local'
-    git_ref_where.check_where(where)
+    where = git_ref_where.check_where(where)
+    if where == 'both':
+      raise git_error('where needs to be "local" or "remote" only: {}'.format(where))
     sort_type = git_tag_sort_type.check_sort_type(sort_type)
-
-    rv = git_exe.call_git(root_dir, [ 'tag', '-l', '--format="%(objectname) %(refname)"' ])
-    return git_tag.parse_show_ref_output(rv.stdout,
-                                         sort_type = sort_type,
-                                         reverse = reverse)
+    if where == 'local':
+      tags = clazz.list_local_tags(root_dir,
+                                   sort_type = sort_type,
+                                   reverse = reverse,
+                                   limit = limit,
+                                   prefix = prefix)
+    else:
+      tags = clazz.list_remote_tags(root_dir,
+                                   sort_type = sort_type,
+                                   reverse = reverse,
+                                   limit = limit,
+                                   prefix = prefix)
+    return tags
           
   @classmethod
   def list_local_tags(clazz, root_dir, sort_type = None, reverse = False,
                       limit = None, prefix = None):
-    tags = clazz.list_tags(root_dir, sort_type = sort_type, reverse = reverse)
-    return [ tag.name for tag in tags ]
-
+    sort_type = git_tag_sort_type.check_sort_type(sort_type)
+    rv = git_exe.call_git(root_dir, [ 'tag', '-l', '--format="%(objectname) %(refname)"' ])
+    return git_tag.parse_show_ref_output(rv.stdout,
+                                         sort_type = sort_type,
+                                         reverse = reverse,
+                                         limit = limit)
+    
   @classmethod
   def greatest_local_tag(clazz, root):
-    tags = clazz.list_local_tags(root)
+    tags = clazz.list_local_tags(root, sort_type = 'version')
     if not tags:
       return None
     return tags[-1]
@@ -588,31 +601,17 @@ class git(git_lfs):
   def list_remote_tags(clazz, root, sort_type = None, reverse = False,
                        limit = None, prefix = None):
     rv = git_exe.call_git(root, [ 'ls-remote', '--tags' ])
-    lines = git_exe.parse_lines(rv.stdout)
-
-    
-    # FIXME: this should return a git_tag_list
-    # tags = git_ref_info.parse_show_ref_output(rv.stdout, sort_type = sort_type, reverse = reverse)
-    tags = [ clazz._parse_remote_tag_line(line) for line in lines ]
-    if sort_type == 'lexical':
-      tags = sorted(tags, reverse = reverse)
-    else:
-      tags = software_version.sort_versions(tags, reverse = reverse)
-    return tags
+    return git_tag.parse_show_ref_output(rv.stdout,
+                                         sort_type = sort_type,
+                                         reverse = reverse,
+                                         limit = limit)
 
   @classmethod
   def greatest_remote_tag(clazz, root):
-    tags = clazz.list_remote_tags(root)
+    tags = clazz.list_remote_tags(root, sort_type = 'version')
     if not tags:
       return None
     return tags[-1]
-
-  @classmethod
-  def _parse_remote_tag_line(clazz, s):
-    f = re.findall(r'^[0-9a-f]{40}\s+refs/tags/(.+)$', s)
-    if f and len(f) == 1:
-      return string_util.remove_tail(f[0], '^{}')
-    return None
 
   @classmethod
   def commit_timestamp(clazz, root, commit):
@@ -670,14 +669,16 @@ class git(git_lfs):
   def bump_tag(clazz, root_dir, component, push = True, dry_run = False, default_tag = None, reset_lower = False):
     old_tag = git.greatest_local_tag(root_dir)
     if old_tag:
-      new_tag = software_version.bump_version(old_tag, component, reset_lower = reset_lower)
+      old_tag_name = old_tag.name
+      new_tag_name = software_version.bump_version(old_tag.name, component, reset_lower = reset_lower)
     else:
-      new_tag = default_tag or '1.0.0'
+      old_tag_name = None
+      new_tag_name = default_tag or '1.0.0'
     if not dry_run:
-      git.tag(root_dir, new_tag)
+      git.tag(root_dir, new_tag_name)
       if push:
-        git.push_tag(root_dir, new_tag)
-    return clazz._bump_tag_result(old_tag, new_tag)
+        git.push_tag(root_dir, new_tag_name)
+    return clazz._bump_tag_result(old_tag_name, new_tag_name)
 
   @classmethod
   def active_branch(clazz, root):
@@ -907,12 +908,12 @@ class git(git_lfs):
     return True
 
   @classmethod
-  def has_remote_tag(clazz, root, tag):
-    return tag in clazz.list_remote_tags(root)
+  def has_remote_tag(clazz, root_dir, tag):
+    return clazz.list_remote_tags(root_dir).has_name(tag)
 
   @classmethod
-  def has_local_tag(clazz, root, tag):
-    return tag in clazz.list_local_tags(root)
+  def has_local_tag(clazz, root_dir, tag):
+    return clazz.list_local_tags(root_dir).has_name(tag)
 
   @classmethod
   def has_commit(clazz, root, commit):
