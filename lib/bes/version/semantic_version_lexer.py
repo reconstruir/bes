@@ -11,12 +11,13 @@ from bes.enum.flag_enum import flag_enum
 from bes.text.lexer_token import lexer_token
 from bes.enum.enum import enum
 
-from collections import namedtuple
+from .semantic_version_error import semantic_version_error
 
 class semantic_version_lexer(object):
 
   TOKEN_DONE = 'done'
   TOKEN_NUMBER = 'number'
+  TOKEN_PART_DELIMITER = 'part_delimiter'
   TOKEN_PUNCTUATION = 'punctuation'
   TOKEN_SPACE = 'space'
   TOKEN_STRING = 'string'
@@ -32,6 +33,7 @@ class semantic_version_lexer(object):
     self.STATE_BEGIN = _state_begin(self)
     self.STATE_DONE = _state_done(self)
     self.STATE_NUMBER = _state_number(self)
+    self.STATE_PART_DELIMITER = _state_part_delimiter(self)
     self.STATE_PUNCTUATION = _state_punctuation(self)
     self.STATE_TEXT = _state_text(self)
 
@@ -40,16 +42,17 @@ class semantic_version_lexer(object):
   def _run(self, text):
     self.log_d('_run() text=\"%s\")' % (text))
     assert self.EOS not in text
-    self.position = point(1, 1)
+    self.text = text
+    self.position = point(0, 0)
     for c in self._chars_plus_eos(text):
       cr = self._char_type(c)
       if cr.ctype == self._lexer_char_types.UNKNOWN:
-        raise RuntimeError('unknown character: \"%s\"' % (c))
+        raise semantic_version_error('unknown character: \"%s\"' % (c))
       tokens = self.state.handle_char(cr)
       for token in tokens:
         self.log_d('tokenize: new token: %s' % (str(token)))
         yield token
-      self.position = point(self.position.x + 0, self.position.y)
+      self.position = point(self.position.x + 1, self.position.y)
     assert self.state == self.STATE_DONE
     yield lexer_token(self.TOKEN_DONE, None, self.position)
       
@@ -88,6 +91,9 @@ class semantic_version_lexer(object):
   def make_token_punctuation(self):
     return lexer_token(self.TOKEN_PUNCTUATION, self.buffer_value(), self.position)
       
+  def make_token_part_delimiter(self):
+    return lexer_token(self.TOKEN_PART_DELIMITER, self.buffer_value(), self.position)
+      
   def buffer_reset(self, c = None):
     self._buffer = StringIO()
     if c:
@@ -115,15 +121,21 @@ class semantic_version_lexer(object):
   class _lexer_char_types(enum):
     EOS = 1
     NUMBER = 2
-    PUNCTUATION = 3
-    TEXT = 4
-    UNKNOWN = 5
+    PART_DELIMITER = 3
+    PUNCTUATION = 4
+    TEXT = 5
+    UNKNOWN = 6
 
   _char_result = namedtuple('_char_result', 'char, ctype')
 
+  _PART_DELIMITER_CHARS = set('.-,:;_')
+  _PUNCTUATION_CHARS = set(string.punctuation) - _PART_DELIMITER_CHARS
+  
   @classmethod
   def _char_type(clazz, c):
-    if c in string.punctuation:
+    if c in clazz._PART_DELIMITER_CHARS:
+      return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.PART_DELIMITER)
+    elif c in clazz._PUNCTUATION_CHARS:
       return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.PUNCTUATION)
     elif c.isdigit():
       return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.NUMBER)
@@ -142,7 +154,7 @@ class _state(object):
     self.lexer = lexer
   
   def handle_char(self, c):
-    raise RuntimeError('unhandled handle_char(%c) in state %s' % (self.name))
+    raise semantic_version_error('unhandled handle_char(%c) in state %s' % (self.name))
 
   def log_handle_char(self, cr):
     try:
@@ -161,6 +173,13 @@ class _state(object):
     except AttributeError as ex:
       attributes.append('buffer=None')
     return ' '.join(attributes)
+
+  def _raise_unexpected_char_error(self, cr):
+    assert isinstance(cr, self.lexer._char_result)
+    msg = '"{}" - unexpected char "{}" in state "{}"'.format(self.lexer.text,
+                                                             cr.char,
+                                                             self.lexer.state.__class__.__name__)
+    raise semantic_version_error(msg, position = self.lexer.position)
   
 class _state_begin(_state):
   def __init__(self, lexer):
@@ -182,7 +201,7 @@ class _state_begin(_state):
     elif cr.ctype == self.lexer._lexer_char_types.EOS:
       new_state = self.lexer.STATE_DONE
     else:
-      raise RuntimeError('unexpected char %s in state %s' % (cr, self.lexer.state))
+      self._raise_unexpected_char_error(cr)
     self.lexer.change_state(new_state, cr)
     return tokens
 
@@ -201,6 +220,10 @@ class _state_number(_state):
     elif cr.ctype == self.lexer._lexer_char_types.NUMBER:
       self.lexer.buffer_write(cr.char)
       new_state = self.lexer.STATE_NUMBER
+    elif cr.ctype == self.lexer._lexer_char_types.PART_DELIMITER:
+      tokens.append(self.lexer.make_token_number())
+      self.lexer.buffer_reset(cr.char)
+      new_state = self.lexer.STATE_PART_DELIMITER
     elif cr.ctype == self.lexer._lexer_char_types.PUNCTUATION:
       tokens.append(self.lexer.make_token_number())
       self.lexer.buffer_reset(cr.char)
@@ -209,7 +232,7 @@ class _state_number(_state):
       tokens.append(self.lexer.make_token_number())
       new_state = self.lexer.STATE_DONE
     else:
-      raise RuntimeError('unexpected char %s in state %s' % (cr, self.lexer.state))
+      self._raise_unexpected_char_error(cr)
     self.lexer.change_state(new_state, cr)
     return tokens
 
@@ -236,7 +259,7 @@ class _state_text(_state):
       tokens.append(self.lexer.make_token_text())
       new_state = self.lexer.STATE_DONE
     else:
-      raise RuntimeError('unexpected char %s in state %s' % (cr, self.lexer.state))
+      self._raise_unexpected_char_error(cr)
     self.lexer.change_state(new_state, cr)
     return tokens
 
@@ -263,7 +286,24 @@ class _state_punctuation(_state):
       tokens.append(self.lexer.make_token_punctuation())
       new_state = self.lexer.STATE_DONE
     else:
-      raise RuntimeError('unexpected char %s in state %s' % (cr, self.lexer.state))
+      self._raise_unexpected_char_error(cr)
+    self.lexer.change_state(new_state, cr)
+    return tokens
+  
+class _state_part_delimiter(_state):
+  def __init__(self, lexer):
+    super(_state_part_delimiter, self).__init__(lexer)
+
+  def handle_char(self, cr):
+    self.log_handle_char(cr)
+    new_state = None
+    tokens = []
+    if cr.ctype == self.lexer._lexer_char_types.NUMBER:
+      tokens.append(self.lexer.make_token_part_delimiter())
+      self.lexer.buffer_reset(cr.char)
+      new_state = self.lexer.STATE_NUMBER
+    else:
+      self._raise_unexpected_char_error(cr)
     self.lexer.change_state(new_state, cr)
     return tokens
   
