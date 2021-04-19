@@ -1103,7 +1103,9 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
       r1.tag(tag)
       r1.push_tag(tag)
     self.assertEqual( [ 'pur/lin/testing', 'pur/mac/latest', 'pur/win/build', 'rel/kiwi/1.0.0', 'rel/kiwi/1.0.5', 'rel/kiwi/1.0.11' ], r2.list_remote_tags().names() )
-    self.assertEqual( [ 'rel/kiwi/1.0.0', 'rel/kiwi/1.0.5', 'rel/kiwi/1.0.11' ], r2.list_remote_tags(prefix = 'rel/').names() )    
+    self.assertEqual( [ 'rel/kiwi/1.0.0', 'rel/kiwi/1.0.5', 'rel/kiwi/1.0.11' ], r2.list_remote_tags(prefix = 'rel/').names() )
+    self.assertEqual( [ 'pur/lin/testing', 'pur/mac/latest', 'pur/win/build' ], r2.list_remote_tags(prefix = 'pur/').names() )
+    self.assertEqual( [], r2.list_remote_tags(prefix = 'nothere/').names() )
     
 if __name__ == '__main__':
   unit_test.main()
