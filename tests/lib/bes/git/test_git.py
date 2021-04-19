@@ -80,7 +80,7 @@ class test_git(unit_test):
       self.assertTrue( path.exists(f) )
 
   @git_temp_home_func()
-  def test_xtag(self):
+  def test_tag(self):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
@@ -93,7 +93,7 @@ class test_git(unit_test):
     git.tag(tmp_repo, '1.0.10')
     self.assertEqual( [ '1.0.0', '1.0.1', '1.0.9', '1.0.10' ], git.list_local_tags(tmp_repo) )
     self.assertEqual( '1.0.10', git.greatest_local_tag(tmp_repo) )
-    self.assertEqual( ['1.0.0', '1.0.1', '1.0.10', '1.0.9'], git.list_local_tags(tmp_repo, lexical = True) )
+    self.assertEqual( ['1.0.0', '1.0.1', '1.0.10', '1.0.9'], git.list_local_tags(tmp_repo, sort_type = 'lexical') )
     self.assertEqual( [ '1.0.10', '1.0.9', '1.0.1', '1.0.0' ], git.list_local_tags(tmp_repo, reverse = True) )
 
   @git_temp_home_func()

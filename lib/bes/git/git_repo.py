@@ -170,53 +170,56 @@ class git_repo(object):
   def greatest_remote_tag(self):
     return git.greatest_remote_tag(self.root)
 
-  def list_tags(self, where = None, sort_type = None, reverse = False):
-    return git.list_tags(self.root, where = where, sort_type = sort_type, reverse = reverse)
+  def list_tags(self, where = None, sort_type = None, reverse = False,
+                limit = None, prefix = None):
+    return git.list_tags(self.root, where = where, sort_type = sort_type, reverse = reverse,
+                         limit = limit, prefix = prefix)
   
-  def list_local_tags(self, lexical = False, reverse = False):
-    return git.list_local_tags(self.root, lexical = lexical, reverse = reverse)
+  def list_local_tags(self, sort_type = None, reverse = False,
+                      limit = None, prefix = None):
+    return git.list_local_tags(self.root, sort_type = sort_type, reverse = reverse)
 
-  def list_local_tags_gt(self, tag, lexical = False, reverse = False):
+  def list_local_tags_gt(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags greater than tag'
-    tags = self.list_local_tags(lexical = lexical, reverse = reverse)
+    tags = self.list_local_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
     return [ t for t in tags if software_version.compare(t, tag) > 0 ]
 
-  def list_local_tags_ge(self, tag, lexical = False, reverse = False):
+  def list_local_tags_ge(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags greater or equal to tag'
-    tags = self.list_local_tags(lexical = lexical, reverse = reverse)
+    tags = self.list_local_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
     return [ t for t in tags if software_version.compare(t, tag) >= 0 ]
 
-  def list_local_tags_le(self, tag, lexical = False, reverse = False):
+  def list_local_tags_le(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags lesser or equal to tag'
-    tags = self.list_local_tags(lexical = lexical, reverse = reverse)
+    tags = self.list_local_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
     return [ t for t in tags if software_version.compare(t, tag) <= 0 ]
 
-  def list_local_tags_lt(self, tag, lexical = False, reverse = False):
+  def list_local_tags_lt(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags lesser than tag'
-    tags = self.list_local_tags(lexical = lexical, reverse = reverse)
+    tags = self.list_local_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
     return [ t for t in tags if software_version.compare(t, tag) < 0 ]
 
-  def list_remote_tags(self, lexical = False, reverse = False):
-    return git.list_remote_tags(self.root, lexical = lexical, reverse = reverse)
+  def list_remote_tags(self, sort_type = None, reverse = False, limit = None, prefix = None):
+    return git.list_remote_tags(self.root, sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
 
-  def list_remote_tags_gt(self, tag, lexical = False, reverse = False):
+  def list_remote_tags_gt(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags greater than tag'
-    tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
+    tags = self.list_remote_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
     return [ t for t in tags if software_version.compare(t, tag) > 0 ]
 
-  def list_remote_tags_ge(self, tag, lexical = False, reverse = False):
+  def list_remote_tags_ge(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags greater or equal to tag'
-    tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
+    tags = self.list_remote_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
     return [ t for t in tags if software_version.compare(t, tag) >= 0 ]
 
-  def list_remote_tags_le(self, tag, lexical = False, reverse = False):
+  def list_remote_tags_le(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags lesser or equal to tag'
-    tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
+    tags = self.list_remote_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
     return [ t for t in tags if software_version.compare(t, tag) <= 0 ]
 
-  def list_remote_tags_lt(self, tag, lexical = False, reverse = False):
+  def list_remote_tags_lt(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags lesser than tag'
-    tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
+    tags = self.list_remote_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
     return [ t for t in tags if software_version.compare(t, tag) < 0 ]
 
   def tag(self, tag, allow_downgrade = True, push = False, commit = None,

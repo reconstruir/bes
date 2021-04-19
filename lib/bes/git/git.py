@@ -36,6 +36,7 @@ from .git_ref_where import git_ref_where
 from .git_status import git_status
 from .git_submodule_info import git_submodule_info
 from .git_tag import git_tag
+from .git_tag_sort_type import git_tag_sort_type
 
 class git(git_lfs):
   'A class to deal with git.'
@@ -559,11 +560,11 @@ class git(git_lfs):
           clazz.delete_remote_tag(root, tag)
 
   @classmethod
-  def list_tags(clazz, root_dir, where = None, sort_type = None, reverse = False):
+  def list_tags(clazz, root_dir, where = None, sort_type = None, reverse = False,
+                limit = None, prefix = None):
     where = where or 'local'
     git_ref_where.check_where(where)
-
-    assert sort_type in ( 'lexical', 'version' )
+    sort_type = git_tag_sort_type.check_sort_type(sort_type)
 
     rv = git_exe.call_git(root_dir, [ 'tag', '-l', '--format="%(objectname) %(refname)"' ])
     return git_tag.parse_show_ref_output(rv.stdout,
@@ -571,11 +572,8 @@ class git(git_lfs):
                                          reverse = reverse)
           
   @classmethod
-  def list_local_tags(clazz, root_dir, lexical = False, reverse = False):
-    if lexical:
-      sort_type = 'lexical'
-    else:
-      sort_type = 'version'
+  def list_local_tags(clazz, root_dir, sort_type = None, reverse = False,
+                      limit = None, prefix = None):
     tags = clazz.list_tags(root_dir, sort_type = sort_type, reverse = reverse)
     return [ tag.name for tag in tags ]
 
@@ -587,14 +585,19 @@ class git(git_lfs):
     return tags[-1]
 
   @classmethod
-  def list_remote_tags(clazz, root, lexical = False, reverse = False):
+  def list_remote_tags(clazz, root, sort_type = None, reverse = False,
+                       limit = None, prefix = None):
     rv = git_exe.call_git(root, [ 'ls-remote', '--tags' ])
     lines = git_exe.parse_lines(rv.stdout)
+
+    
+    # FIXME: this should return a git_tag_list
+    # tags = git_ref_info.parse_show_ref_output(rv.stdout, sort_type = sort_type, reverse = reverse)
     tags = [ clazz._parse_remote_tag_line(line) for line in lines ]
-    if lexical:
-      return sorted(tags, reverse = reverse)
+    if sort_type == 'lexical':
+      tags = sorted(tags, reverse = reverse)
     else:
-      return software_version.sort_versions(tags, reverse = reverse)
+      tags = software_version.sort_versions(tags, reverse = reverse)
     return tags
 
   @classmethod

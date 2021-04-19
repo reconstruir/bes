@@ -16,6 +16,7 @@ from bes.common.table import table
 from .git_commit_hash import git_commit_hash
 from .git_error import git_error
 from .git_output_style import git_output_style
+from .git_tag_sort_type import git_tag_sort_type
 
 class git_tag(namedtuple('git_tag', 'name, commit, commit_short, peeled')):
 
@@ -25,14 +26,12 @@ class git_tag(namedtuple('git_tag', 'name, commit, commit_short, peeled')):
   def to_dict(self):
     return dict(self._asdict())
   
-  SORT_TYPES = ( 'lexical', 'version' )
   @classmethod
-  def parse_show_ref_output(clazz, s, sort_type = 'version', reverse = False):
+  def parse_show_ref_output(clazz, s, sort_type = None, reverse = False):
     check.check_string(s)
-    check.check_string(sort_type)
     check.check_bool(reverse)
-    if sort_type not in clazz.SORT_TYPES:
-      raise git_error('invalid sort_type: "{}"'.format(sort_type))
+    sort_type = git_tag_sort_type.check_sort_type(sort_type)
+    
     lines = text_line_parser.parse_lines(s,
                                          strip_comments = False,
                                          strip_text = True,
