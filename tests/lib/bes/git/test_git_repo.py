@@ -1091,6 +1091,19 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     self.assertEqual( [ '1.0.0' ], r2.list_remote_tags(limit = 1).names() )
     self.assertEqual( [ '1.0.0', '1.0.1' ], r2.list_remote_tags(limit = 2).names() )
     self.assertEqual( all_tags, r2.list_remote_tags(limit = 666).names() )
+
+  @git_temp_home_func()
+  def test_list_remote_tags_with_prefix(self):
+    r1 = self._make_repo()
+    r2 = r1.make_temp_cloned_repo()
+    r1.add_file('readme.txt', 'readme is good')
+    r1.push('origin', 'master')
+    all_tags = [ 'rel/kiwi/1.0.0', 'rel/kiwi/1.0.5', 'rel/kiwi/1.0.11', 'pur/mac/latest', 'pur/lin/testing', 'pur/win/build' ]
+    for tag in all_tags:
+      r1.tag(tag)
+      r1.push_tag(tag)
+    self.assertEqual( [ 'pur/lin/testing', 'pur/mac/latest', 'pur/win/build', 'rel/kiwi/1.0.0', 'rel/kiwi/1.0.5', 'rel/kiwi/1.0.11' ], r2.list_remote_tags().names() )
+    self.assertEqual( [ 'rel/kiwi/1.0.0', 'rel/kiwi/1.0.5', 'rel/kiwi/1.0.11' ], r2.list_remote_tags(prefix = 'rel/').names() )    
     
 if __name__ == '__main__':
   unit_test.main()

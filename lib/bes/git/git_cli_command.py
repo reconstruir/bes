@@ -78,7 +78,7 @@ class git_cli_command(cli_command_handler):
     check.check_bool(reverse)
 
     r = git_repo(self.options.root_dir)
-    tags = r.list_tags(sort_type = sort_type, reverse = reverse)
+    tags = r.list_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
     
 #    return
 #    where = git_ref_where.determine_where(local, remote)
@@ -89,14 +89,6 @@ class git_cli_command(cli_command_handler):
 #      tags = git.list_local_tags(self.options.root_dir)
 #    else:
 #      tags = git.list_remote_tags(self.options.root_dir)
-    if prefix:
-      tags = git_tag_list([ tag for tag in tags if tag.name.startswith(prefix) ])
-#    if reverse:
-#      tags = tags[ tag for tag in reversed(tags) ]
-    if limit:
-      tags = tags[0:limit]
-#    for tag in tags:
-#      print(tag)
     tags.output(self.options.output_style, output_filename = self.options.output_filename)
     return 0
   

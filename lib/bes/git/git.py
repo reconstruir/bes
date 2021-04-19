@@ -588,7 +588,8 @@ class git(git_lfs):
     return git_tag.parse_show_ref_output(rv.stdout,
                                          sort_type = sort_type,
                                          reverse = reverse,
-                                         limit = limit)
+                                         limit = limit,
+                                         prefix = prefix)
     
   @classmethod
   def greatest_local_tag(clazz, root):
@@ -604,7 +605,8 @@ class git(git_lfs):
     return git_tag.parse_show_ref_output(rv.stdout,
                                          sort_type = sort_type,
                                          reverse = reverse,
-                                         limit = limit)
+                                         limit = limit,
+                                         prefix = prefix)
 
   @classmethod
   def greatest_remote_tag(clazz, root):
