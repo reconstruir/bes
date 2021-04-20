@@ -1176,6 +1176,7 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     config = '''\
 add commit1 commit1
   kiwi.txt: kiwi.txt
+
 tag 1.0.0 tag1 @commit1
 tag 1.0.1 tag2 @commit1
 tag 1.0.2 tag3 @commit1
@@ -1193,10 +1194,16 @@ tag 1.0.2 tag3 @commit1
     config = '''\
 add commit1 commit1
   kiwi.txt: kiwi.txt
+add commit2 commit2
+  lemon.txt: lemon.txt
+add commit3 commit3
+  blueberry.txt: blueberry.txt
 tag 1.0.0 tag1 @commit1
-tag 1.0.1 tag2 @commit1
-tag 1.0.2 tag3 @commit1
+tag 1.0.1 tag2 @commit2
+  annotation: annotation 1.0.1 is good
+tag 1.0.2 tag3 @commit3
 '''
+
     r1 = git_temp_repo(remote = True, debug = self.DEBUG, config = config)
     r2 = r1.make_temp_cloned_repo()
     self.assertEqual( [ '1.0.0', '1.0.1', '1.0.2' ], r1.list_remote_tags().names() )
@@ -1206,6 +1213,25 @@ tag 1.0.2 tag3 @commit1
     r1.tag_rename('1.0.2', 'rel/v2/1.0.2', push = True)
     self.assertEqual( [ 'rel/v2/1.0.0', 'rel/v2/1.0.1', 'rel/v2/1.0.2' ], r1.list_remote_tags().names() )
     self.assertEqual( [ 'rel/v2/1.0.0', 'rel/v2/1.0.1', 'rel/v2/1.0.2' ], r2.list_remote_tags().names() )
+
+  @git_temp_home_func()
+  def test_tag_annotation(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: kiwi.txt
+add commit2 commit2
+  lemon.txt: lemon.txt
+tag 1.0.0 tag1
+  from_commit: @commit1
+tag 1.0.1 tag2
+  from_commit: @commit2
+  annotation: annotation 1.0.1 is good
+'''
+    r = git_temp_repo(remote = True, debug = self.DEBUG, config = config)
+    self.assertEqual( [ '1.0.0', '1.0.1' ], r.list_local_tags().names() )
+    self.assertFalse( r.tag_has_annotation('1.0.0') )
+    self.assertTrue( r.tag_has_annotation('1.0.1') )
+    self.assertEqual( 'annotation 1.0.1 is good', r.tag_annotation('1.0.1') )
     
 if __name__ == '__main__':
   unit_test.main()

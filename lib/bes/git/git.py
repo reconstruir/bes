@@ -536,7 +536,11 @@ class git(git_lfs):
                                                                                    old_tag,
                                                                                    new_tag,
                                                                                    push))
-    clazz.tag(root_dir, new_tag, allow_downgrade = True, commit = old_tag)
+    if clazz.tag_has_annotation(root_dir, old_tag):
+      annotation = clazz.tag_annotation(root_dir, old_tag)
+    else:
+      annotation = None
+    clazz.tag(root_dir, new_tag, allow_downgrade = True, commit = old_tag, annotation = annotation)
     clazz.push_tag(root_dir, new_tag)
     clazz.delete_tag(root_dir, old_tag, 'both')
       
@@ -619,6 +623,7 @@ class git(git_lfs):
   def list_remote_tags(clazz, root, sort_type = None, reverse = False,
                        limit = None, prefix = None):
     rv = git_exe.call_git(root, [ 'ls-remote', '--tags' ])
+    clazz.log.log_d('list_remote_tags: stdout="{}"'.format(rv.stdout))
     return git_tag.parse_show_ref_output(rv.stdout,
                                          sort_type = sort_type,
                                          reverse = reverse,
@@ -1006,6 +1011,28 @@ class git(git_lfs):
       return clazz.ref_info(root_dir, ref_name).is_tag
     except git_error as ex:
       return False
+
+  @classmethod
+  def tag_has_annotation(clazz, root_dir, tag_name):
+    'Return True if tag_name has an annotation.'
+    check.check_string(root_dir)
+    check.check_string(tag_name)
+
+    rv = git_exe.call_git(root_dir, [ 'cat-file', '-t', tag_name ])
+    tag_type = rv.stdout.strip()
+    assert tag_type in ( 'tag', 'commit' )
+    return tag_type == 'tag'
+
+  @classmethod
+  def tag_annotation(clazz, root_dir, tag_name):
+    'Return the annotation for tag_name or raise an error it is not annotated.'
+    check.check_string(root_dir)
+    check.check_string(tag_name)
+
+    if not clazz.tag_has_annotation(root_dir, tag_name):
+      raise git_error('not an annotated tag: "{}"'.format(tag_name))
+    rv = git_exe.call_git(root_dir, [ 'tag', '-n', '--format=%(subject)', tag_name ])
+    return rv.stdout.strip()
 
   @classmethod
   def is_branch(clazz, root_dir, ref_name):

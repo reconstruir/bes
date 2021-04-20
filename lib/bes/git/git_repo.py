@@ -231,6 +231,12 @@ class git_repo(object):
 
   def tag_rename(self, old_tag, new_tag, push = False):
     git.tag_rename(self.root, old_tag, new_tag, push = push)
+
+  def tag_has_annotation(self, tag_name):
+    return git.tag_has_annotation(self.root, tag_name)
+
+  def tag_annotation(self, tag_name):
+    return git.tag_annotation(self.root, tag_name)
     
   def has_remote_tag(self, tag):
     return git.has_remote_tag(self.root, tag)

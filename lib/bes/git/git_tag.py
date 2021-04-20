@@ -3,15 +3,16 @@
 import re
 from collections import namedtuple
 
+from bes.common.algorithm import algorithm
 from bes.common.check import check
-from bes.common.string_util import string_util
-from bes.common.type_checked_list import type_checked_list
 from bes.common.json_util import json_util
-from bes.text.text_line_parser import text_line_parser
-from bes.version.software_version import software_version
-from bes.fs.file_util import file_util
-from bes.text.text_table import text_table
+from bes.common.string_util import string_util
 from bes.common.table import table
+from bes.common.type_checked_list import type_checked_list
+from bes.fs.file_util import file_util
+from bes.text.text_line_parser import text_line_parser
+from bes.text.text_table import text_table
+from bes.version.software_version import software_version
 
 from .git_commit_hash import git_commit_hash
 from .git_error import git_error
@@ -121,7 +122,7 @@ class git_tag_list(type_checked_list):
         fout.write('\n')
 
   def names(self):
-    return [ tag.name for tag in self ]
+    return algorithm.unique([ tag.name for tag in self ])
 
   def has_name(self, name):
     for tag in self:
