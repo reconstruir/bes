@@ -58,6 +58,16 @@ class test_semantic_version(unit_test):
 
   def test_compare_with_fluff(self):
     self.assertEqual( 0, semantic_version.compare('rel/v2/foo-1.2.3', 'rel/v2/foo-1.2.3') )
+
+  def test_part_value(self):
+    self.assertEqual( 1, semantic_version('rel/v2/1.2.3').part_value(0) )
+    self.assertEqual( 2, semantic_version('rel/v2/1.2.3').part_value(1) )
+    self.assertEqual( 3, semantic_version('rel/v2/1.2.3').part_value(2) )
+
+  def test_set_part(self):
+    self.assertEqual( 'rel/v2/6.2.3', str(semantic_version('rel/v2/1.2.3').set_part(0, 6)) )
+    self.assertEqual( 'rel/v2/1.6.3', str(semantic_version('rel/v2/1.2.3').set_part(1, 6)) )
+    self.assertEqual( 'rel/v2/1.2.6', str(semantic_version('rel/v2/1.2.3').set_part(2, 6)) )
     
 if __name__ == '__main__':
   unit_test.main()

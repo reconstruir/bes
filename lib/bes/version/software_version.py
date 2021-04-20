@@ -95,98 +95,20 @@ class software_version(object):
     '''
     check.check_string(version)
     check.check_bool(reset_lower)
-    
-    parsed_version = clazz.parse_version(version)
-    parts = list(parsed_version.parts)
-    if len(parts) == 3:
-      bumped = clazz._bump_version_three_components(version, parts, component, parsed_version.delimiter, reset_lower)
-    elif len(parts) == 2:
-      bumped = clazz._bump_version_two_components(version, parts, component, parsed_version.delimiter, reset_lower)
-    elif len(parts) == 1:
-      bumped = clazz._bump_version_one_component(version, parts, component, parsed_version.delimiter)
-    else:
-      raise ValueError('version \"%s\" should have at least 1, 2, or 3 components' % (version))
-    return bumped
 
-  @classmethod
-  def _bump_version_three_components(clazz, version_string, parts, component, delimiter, reset_lower):
-    '''
-    Bump a 3 component version.
-    component=REVISION 1.0.0 -> 1.0.1
-    component=MINOR 1.2.3 -> 1.3.0
-    component=MAJOR 1.2.3 -> 2.0.0
-    '''
-    assert len(parts) == 3
-    if component is None:
-      component = clazz.REVISION
     component = clazz._COMPONENT_MAP.get(component, component)
-    if component == clazz.MAJOR:
-      if reset_lower:
-        parts[clazz.MINOR] = 0
-        parts[clazz.REVISION] = 0
-      deltas = [ 1, 0, 0 ]
-    elif component == clazz.MINOR:
-      if reset_lower:
-        parts[clazz.REVISION] = 0
-      deltas = [ 0, 1, 0 ]
-    elif component == clazz.REVISION:
-      deltas = [ 0, 0, 1 ]
-    else:
-      raise ValueError('Invalid component \"{component}\" for \"{version}\"'.format(component = component,
-                                                                                    version = version_string))
-    string_version = delimiter.join([ str(c) for c in parts ])
-    return software_version.change_version(string_version, deltas)
-  
-  @classmethod
-  def _bump_version_two_components(clazz, version_string, parts, component, delimiter, reset_lower):
-    '''
-    Bump a 2 component version.
-    component=MINOR 1.2 -> 1.3
-    component=MAJOR 1.2 -> 2.0
-    '''
-    assert len(parts) == 2
-    if component is None:
-      component = clazz.MINOR
-    component = clazz._COMPONENT_MAP.get(component, component)
-    if component == clazz.MAJOR:
-      if reset_lower:
-        parts[clazz.MINOR] = 0
-      deltas = [ 1, 0 ]
-    elif component == clazz.MINOR:
-      deltas = [ 0, 1 ]
-    else:
-      raise ValueError('Invalid component \"{component}\" for \"{version}\"'.format(component = component,
-                                                                                    version = version_string))
-    string_version = delimiter.join([ str(c) for c in parts ])
-    return software_version.change_version(string_version, deltas)
-  
-  @classmethod
-  def _bump_version_one_component(clazz, version_string, parts, component, delimiter):
-    '''
-    Bump a 1 component version.
-    component=MAJOR 1 -> 2
-    '''
-    assert len(parts) == 1
-    if component is None:
-      component = clazz.MAJOR
-    component = clazz._COMPONENT_MAP.get(component, component)
-    if component == clazz.MAJOR:
-      deltas = [ 1 ]
-    else:
-      raise ValueError('Invalid component \"{component}\" for \"{version}\"'.format(component = component,
-                                                                                    version = version_string))
-    string_version = delimiter.join([ str(c) for c in parts ])
-    return software_version.change_version(string_version, deltas)
-  
+    sv = semantic_version(version)
+    v = sv.change_part(component, 1)
+    if reset_lower:
+      for i in range(component + 1, v.num_parts):
+        v = v.set_part(i, 0)
+    return str(v)
+
   @classmethod
   def change_component(clazz, version, component, value):
     'Change a component of a version to value.'
     check.check_string(version)
+    
     component = clazz._COMPONENT_MAP.get(component, component)
-    parsed_version = clazz.parse_version(version)
-    parts = list(parsed_version.parts)
-    num_components = len(parts)
-    if component >= num_components:
-      raise ValueError('Invalid component \"{}\" for \"{}\"'.format(component, version))
-    parts[component] = value
-    return parsed_version.delimiter.join([ str(c) for c in parts ])
+    sv = semantic_version(version)
+    return str(sv.set_part(component, int(value)))
