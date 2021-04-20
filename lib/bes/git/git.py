@@ -536,9 +536,9 @@ class git(git_lfs):
                                                                                    old_tag,
                                                                                    new_tag,
                                                                                    push))
-    git_exe.call_git(root_dir, 'tag {new_tag} {old_tag}'.format(old_tag = old_tag, new_tag = new_tag))
-    git_exe.call_git(root_dir, 'tag -d {old_tag}'.format(old_tag = old_tag))
-    git_exe.call_git(root_dir, 'push origin {new_tag} :{old_tag}'.format(old_tag = old_tag, new_tag = new_tag))
+    clazz.tag(root_dir, new_tag, allow_downgrade = True, commit = old_tag)
+    clazz.push_tag(root_dir, new_tag)
+    clazz.delete_tag(root_dir, old_tag, 'both')
       
   @classmethod
   def push_tag(clazz, root_dir, tag):
