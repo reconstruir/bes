@@ -592,8 +592,8 @@ class git(git_lfs):
                                          prefix = prefix)
     
   @classmethod
-  def greatest_local_tag(clazz, root):
-    tags = clazz.list_local_tags(root, sort_type = 'version')
+  def greatest_local_tag(clazz, root, prefix = None):
+    tags = clazz.list_local_tags(root, sort_type = 'version', prefix = prefix)
     if not tags:
       return None
     return tags[-1]
@@ -609,8 +609,8 @@ class git(git_lfs):
                                          prefix = prefix)
 
   @classmethod
-  def greatest_remote_tag(clazz, root):
-    tags = clazz.list_remote_tags(root, sort_type = 'version')
+  def greatest_remote_tag(clazz, root, prefix = None):
+    tags = clazz.list_remote_tags(root, sort_type = 'version', prefix = prefix)
     if not tags:
       return None
     return tags[-1]
@@ -668,14 +668,20 @@ class git(git_lfs):
 
   _bump_tag_result = namedtuple('_bump_tag_result', 'old_tag, new_tag')
   @classmethod
-  def bump_tag(clazz, root_dir, component, push = True, dry_run = False, default_tag = None, reset_lower = False):
-    old_tag = git.greatest_local_tag(root_dir)
+  def bump_tag(clazz, root_dir, component, push = True, dry_run = False,
+               default_tag = None, reset_lower = False, prefix = None):
+    default_tag = default_tag or '1.0.0'
+    old_tag = git.greatest_local_tag(root_dir, prefix = prefix)
     if old_tag:
       old_tag_name = old_tag.name
       new_tag_name = software_version.bump_version(old_tag.name, component, reset_lower = reset_lower)
     else:
       old_tag_name = None
-      new_tag_name = default_tag or '1.0.0'
+      if prefix:
+        new_tag_name = '{}{}'.format(prefix, default_tag)
+      else:
+        new_tag_name = default_tag
+        
     if not dry_run:
       git.tag(root_dir, new_tag_name)
       if push:

@@ -1106,6 +1106,70 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     self.assertEqual( [ 'rel/kiwi/1.0.0', 'rel/kiwi/1.0.5', 'rel/kiwi/1.0.11' ], r2.list_remote_tags(prefix = 'rel/').names() )
     self.assertEqual( [ 'pur/lin/testing', 'pur/mac/latest', 'pur/win/build' ], r2.list_remote_tags(prefix = 'pur/').names() )
     self.assertEqual( [], r2.list_remote_tags(prefix = 'nothere/').names() )
+
+  @git_temp_home_func()
+  def test_greatest_local_tag_with_prefix(self):
+    r = self._make_repo()
+    r.add_file('readme.txt', 'readme is good')
+    r.push('origin', 'master')
+    r.tag('rel/v2/1.0.0')
+    r.tag('rel/v2/1.0.1')
+    r.tag('rel/v2/1.0.2')
+    r.tag('rel/v2/1.0.3')
+    r.tag('test/v1/1.0.0')
+    r.tag('test/v1/1.0.1')
+    r.tag('test/v1/1.0.2')
+    r.tag('test/v1/1.0.9')
+    r.tag('test/v1/1.0.11')
+    
+    self.assertEqual( 'rel/v2/1.0.3', r.greatest_local_tag().name )
+    self.assertEqual( 'rel/v2/1.0.3', r.greatest_local_tag(prefix = 'rel/v2/').name )
+    self.assertEqual( 'test/v1/1.0.11', r.greatest_local_tag(prefix = 'test/v1/').name )
+
+  @git_temp_home_func()
+  def test_greatest_remote_tag_with_prefix(self):
+    r = self._make_repo()
+    r.add_file('readme.txt', 'readme is good')
+    r.push('origin', 'master')
+    r.tag('rel/v2/1.0.0', push = True)
+    r.tag('rel/v2/1.0.1', push = True)
+    r.tag('rel/v2/1.0.2', push = True)
+    r.tag('rel/v2/1.0.3', push = False)
+    r.tag('test/v1/1.0.0', push = True)
+    r.tag('test/v1/1.0.1', push = True)
+    r.tag('test/v1/1.0.2', push = True)
+    r.tag('test/v1/1.0.9', push = True)
+    r.tag('test/v1/1.0.11', push = False)
+    
+    self.assertEqual( 'rel/v2/1.0.2', r.greatest_remote_tag().name )
+    self.assertEqual( 'rel/v2/1.0.2', r.greatest_remote_tag(prefix = 'rel/v2/').name )
+    self.assertEqual( 'test/v1/1.0.9', r.greatest_remote_tag(prefix = 'test/v1/').name )
+
+  @git_temp_home_func()
+  def test_bump_local_tag_first_with_prefix(self):
+    r = self._make_repo()
+    r.add_file('readme.txt', 'readme is good')
+    r.push('origin', 'master')
+    r.bump_tag('revision', push = False, prefix = 'rel/v2/')
+    self.assertEqual( 'rel/v2/1.0.0', r.greatest_local_tag(prefix = 'rel/v2/').name )
+    
+  @git_temp_home_func()
+  def test_bump_local_tag_with_prefix(self):
+    r = self._make_repo()
+    r.add_file('readme.txt', 'readme is good')
+    r.push('origin', 'master')
+    r.tag('rel/v2/1.0.0')
+    r.tag('rel/v2/1.0.1')
+    r.tag('test/v1/1.2.3')
+    r.tag('test/v1/1.2.4')
+    r.tag('test/v1/1.2.5')
+    self.assertEqual( 'rel/v2/1.0.1', r.greatest_local_tag(prefix = 'rel/v2/').name )
+
+    r.bump_tag('revision', push = False, prefix = 'rel/v2/')
+    self.assertEqual( 'rel/v2/1.0.2', r.greatest_local_tag(prefix = 'rel/v2/').name )
+
+    r.bump_tag('revision', push = False, prefix = 'test/v1/')
+    self.assertEqual( 'test/v1/1.2.6', r.greatest_local_tag(prefix = 'test/v1/').name )
     
 if __name__ == '__main__':
   unit_test.main()

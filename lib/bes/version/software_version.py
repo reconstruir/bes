@@ -96,8 +96,10 @@ class software_version(object):
     check.check_string(version)
     check.check_bool(reset_lower)
 
-    component = clazz._COMPONENT_MAP.get(component, component)
     sv = semantic_version(version)
+    component = clazz._COMPONENT_MAP.get(component, component or sv.num_parts - 1)
+    assert component != None
+    assert isinstance(component, int)
     v = sv.change_part(component, 1)
     if reset_lower:
       for i in range(component + 1, v.num_parts):

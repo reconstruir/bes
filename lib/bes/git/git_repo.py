@@ -165,11 +165,11 @@ class git_repo(object):
   def file_path(self, filename):
     return path.join(self.root, filename)
 
-  def greatest_local_tag(self):
-    return git.greatest_local_tag(self.root)
+  def greatest_local_tag(self, prefix = None):
+    return git.greatest_local_tag(self.root, prefix = prefix)
 
-  def greatest_remote_tag(self):
-    return git.greatest_remote_tag(self.root)
+  def greatest_remote_tag(self, prefix = None):
+    return git.greatest_remote_tag(self.root, prefix = prefix)
 
   def list_tags(self, where = None, sort_type = None, reverse = False,
                 limit = None, prefix = None):
@@ -247,9 +247,10 @@ class git_repo(object):
   def push_tag(self, tag):
     git.push_tag(self.root, tag)
 
-  def bump_tag(self, component, push = True, dry_run = False, default_tag = None, reset_lower = False):
+  def bump_tag(self, component, push = True, dry_run = False, default_tag = None,
+               reset_lower = False, prefix = None):
     return git.bump_tag(self.root, component, push = push, dry_run = dry_run,
-                        default_tag = default_tag, reset_lower = reset_lower)
+                        default_tag = default_tag, reset_lower = reset_lower, prefix = prefix)
 
   def reset(self, revision = None, submodules = False):
     git.reset(self.root, revision = revision)
