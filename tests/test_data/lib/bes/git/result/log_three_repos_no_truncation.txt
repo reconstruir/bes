@@ -78,12 +78,12 @@ c58fb7ac5894e154f8712cc07c3d93901e19dda1 Sun Feb 23 20:07:35 2020 -0800 yevgenia
 38120fcefde5d8235e007a6324db8b5e4011da65 Sat Feb 22 20:07:01 2020 -0800 yevgenia remove a rogue check.
 efd4830516666b7bf5fb7a9f9416cce2a0a31f56 Sat Feb 22 20:05:59 2020 -0800 yevgenia wip for bitbucket changelog
 462ea05dcb3b51375e621e7443922af1c2ce9508 Sat Feb 22 16:13:43 2020 -0800 yevgenia bump the version from 1.0.404 to 1.0.405
-ef79f555e3a4cb04548dfb28548180ba049ad6b6 Sat Feb 22 16:13:23 2020 -0800 yevgenia Merge branch 'master' of bitbucket.org:imvu/ego-cicd-automation
+ef79f555e3a4cb04548dfb28548180ba049ad6b6 Sat Feb 22 16:13:23 2020 -0800 yevgenia Merge branch 'master' of bitbucket.org:example/example-project
 e6a2645b82cf558686705d94508005bd6d15ca6b Sat Feb 22 16:12:55 2020 -0800 yevgenia fix checking of paams to support both dict and key_value_list
 e157a066c2b3f16cc9e641e7d513eef3da1d2a9d Sat Feb 22 12:21:23 2020 -0800 yevgenia bump the version from 1.0.403 to 1.0.404
 14c109e88afd3c53b97991eefb2bd1c7d90385e7 Sat Feb 22 12:21:13 2020 -0800 yevgenia always push master
 255dd1459c40ca8cb418b283a74495b9944c13f2 Sat Feb 22 12:18:26 2020 -0800 yevgenia bump bes from 1.0.186 to 1.0.187
-cef142af5786cd11960b184fc76ce99fe0247dfe Fri Feb 21 12:17:16 2020 -0800 yevgenia Merge branch 'changelog' of bitbucket.org:imvu/ego-cicd-automation into changelog
+cef142af5786cd11960b184fc76ce99fe0247dfe Fri Feb 21 12:17:16 2020 -0800 yevgenia Merge branch 'changelog' of bitbucket.org:example/example-project into changelog
 8d4a3ffacdd1f1ae9d9cc9212252068d557df80d Fri Feb 21 00:34:56 2020 -0800 yevgenia remove rogue paramters i hadent quite implemented
 de3b702261627be50489262d30c9eec54c4f7811 Fri Feb 21 00:29:23 2020 -0800 yevgenia implement basic changelog.  needs work to to be useful. add _ref_info which is a way faster way to determine the info/revision for a tag or branch.  reimplement commit_for_tag() and commit_for_branch() using ref info.
 9586bfdfd89a3170c50bd79d5d58fde815e798c6 Thu Feb 20 17:34:23 2020 -0800 yevgenia wip for changelog support in the bitbucket api

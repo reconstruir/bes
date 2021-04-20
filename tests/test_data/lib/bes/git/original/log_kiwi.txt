@@ -119,7 +119,7 @@ Merge: e6a2645 e157a06
 Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sat Feb 22 16:13:23 2020 -0800
 
-    Merge branch 'master' of bitbucket.org:imvu/ego-cicd-automation
+    Merge branch 'master' of bitbucket.org:example/example-project
 
 commit e6a2645b82cf558686705d94508005bd6d15ca6b
 Author: Ramiro Estrugo <yevgenia@example.com>
@@ -150,7 +150,7 @@ Merge: 8d4a3ff beb4a3d
 Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Fri Feb 21 12:17:16 2020 -0800
 
-    Merge branch 'changelog' of bitbucket.org:imvu/ego-cicd-automation into changelog
+    Merge branch 'changelog' of bitbucket.org:example/example-project into changelog
 
 commit 8d4a3ffacdd1f1ae9d9cc9212252068d557df80d
 Author: Ramiro Estrugo <yevgenia@example.com>
