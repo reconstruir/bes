@@ -4,6 +4,7 @@ from bes.common.check import check
 from bes.compat.cmp import cmp
 from bes.text.lexer_token import lexer_token
 
+from .semantic_version import semantic_version
 from .software_version_lexer import software_version_lexer
 
 from collections import namedtuple
@@ -20,9 +21,8 @@ class software_version(object):
     '''
     check.check_string(v1)
     check.check_string(v2)
-    tokens1 = [ token for token in software_version_lexer.tokenize(v1, 'compare') ]
-    tokens2 = [ token for token in software_version_lexer.tokenize(v2, 'compare') ]
-    return cmp(tokens1, tokens2)
+
+    return semantic_version.compare(v1, v2)
 
   @classmethod
   def sort_versions(clazz, versions, reverse = False):

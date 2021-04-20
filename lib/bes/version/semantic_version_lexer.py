@@ -52,7 +52,7 @@ class semantic_version_lexer(object):
       for token in tokens:
         self.log_d('tokenize: new token: %s' % (str(token)))
         yield token
-      self.position = point(self.position.x + 1, self.position.y)
+      self.position = self.position.move(1, 0)
     assert self.state == self.STATE_DONE
     yield lexer_token(self.TOKEN_DONE, None, self.position)
       
@@ -163,7 +163,7 @@ class _state(object):
     self.lexer = lexer
   
   def handle_char(self, c):
-    raise semantic_version_error('unhandled handle_char(%c) in state %s' % (self.name))
+    raise semantic_version_error('unhandled handle_char "{}" in state "{}"'.format(c, self.name))
 
   def log_handle_char(self, cr):
     try:
@@ -188,7 +188,7 @@ class _state(object):
     msg = '"{}" - unexpected char "{}" in state "{}"'.format(self.lexer.text,
                                                              cr.char,
                                                              self.lexer.state.__class__.__name__)
-    raise semantic_version_error(msg, position = self.lexer.position)
+    raise semantic_version_error(msg, position = self.lexer.position.move(1, 0))
   
 class _state_begin(_state):
   def __init__(self, lexer):
@@ -267,6 +267,9 @@ class _state_text(_state):
     elif cr.ctype == self.lexer._lexer_char_types.EOS:
       tokens.append(self.lexer.make_token_text())
       new_state = self.lexer.STATE_DONE
+    elif cr.ctype == self.lexer._lexer_char_types.PART_DELIMITER:
+      self.lexer.buffer_write(cr.char)
+      new_state = self.lexer.STATE_TEXT
     else:
       self._raise_unexpected_char_error(cr)
     self.lexer.change_state(new_state, cr)

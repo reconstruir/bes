@@ -74,7 +74,6 @@ class semantic_version(object):
     new_version_string = self._tokens_to_string(tokens)
     return semantic_version(new_version_string)
         
-  """
   @classmethod
   def compare(clazz, v1, v2):
     '''
@@ -84,10 +83,12 @@ class semantic_version(object):
     '''
     check.check_string(v1)
     check.check_string(v2)
-    tokens1 = [ token for token in semantic_version_lexer.tokenize(v1, 'compare') ]
-    tokens2 = [ token for token in semantic_version_lexer.tokenize(v2, 'compare') ]
+    
+    tokens1 = [ token for token in semantic_version_lexer.tokenize(v1, 'semantic_version') ]
+    tokens2 = [ token for token in semantic_version_lexer.tokenize(v2, 'semantic_version') ]
     return cmp(tokens1, tokens2)
 
+  """
   @classmethod
   def sort_versions(clazz, versions, reverse = False):
     tversions = [ ( index, semantic_version_lexer.tokenize(v, 'sort_versions') ) for index, v in enumerate(versions) ]
