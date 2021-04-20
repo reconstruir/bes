@@ -9,6 +9,7 @@ from bes.common.table import table
 from bes.git.git import git
 from bes.git.git_ref_where import git_ref_where
 from bes.git.git_repo import git_repo
+from bes.system.log import logger
 from bes.text.text_box import text_box_colon
 from bes.text.text_box import text_box_unicode
 from bes.text.text_table import text_cell_renderer
@@ -23,6 +24,8 @@ from .git_tag import git_tag_list
 
 class git_cli_command(cli_command_handler):
 
+  _log = logger('git_cli')
+  
   def __init__(self, cli_args):
     super(git_cli_command, self).__init__(cli_args, options_class = git_cli_options)
     check.check_git_cli_options(self.options)
@@ -53,7 +56,6 @@ class git_cli_command(cli_command_handler):
       print(blurb)
     return 0
 
-  @classmethod
   def delete_tags(self, tags, local, remote, from_file):
     check.check_bool(local, allow_none = True)
     check.check_string_seq(tags)
@@ -62,6 +64,8 @@ class git_cli_command(cli_command_handler):
     
     where = git_ref_where.determine_where(local, remote)
 
+    self._log.log_method_d()
+    
     combined_tags = []
     
     if from_file:
@@ -72,6 +76,9 @@ class git_cli_command(cli_command_handler):
       combined_tags.extend(tags)
       
     for tag in combined_tags:
+      self._log.log_d('delete_tags: deleting tag={} in {} dry_run={}'.format(tag,
+                                                                             where,
+                                                                             self.options.dry_run))
       git.delete_tag(self.options.root_dir, tag, where, self.options.dry_run)
     return 0
 

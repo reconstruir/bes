@@ -531,35 +531,40 @@ class git(git_lfs):
       clazz.push_tag(root_dir, tag)
 
   @classmethod
-  def push_tag(clazz, root, tag):
-    git_exe.call_git(root, [ 'push', 'origin', tag ])
+  def push_tag(clazz, root_dir, tag):
+    git_exe.call_git(root_dir, [ 'push', 'origin', tag ])
 
   @classmethod
-  def delete_local_tag(clazz, root, tag):
-    git_exe.call_git(root, [ 'tag', '--delete', tag ])
+  def delete_local_tag(clazz, root_dir, tag):
+    clazz.log.log_d('delete_local_tag: root_dir={} tag={}'.format(root_dir, tag))
+    git_exe.call_git(root_dir, [ 'tag', '--delete', tag ])
 
   @classmethod
-  def delete_remote_tag(clazz, root, tag):
-    git_exe.call_git(root, [ 'push', '--delete', 'origin', tag ])
+  def delete_remote_tag(clazz, root_dir, tag):
+    clazz.log.log_d('delete_remote_tag: root_dir={} tag={}'.format(root_dir, tag))
+    git_exe.call_git(root_dir, [ 'push', '--delete', 'origin', tag ])
 
   @classmethod
-  def delete_tag(clazz, root, tag, where, dry_run):
+  def delete_tag(clazz, root_dir, tag, where, dry_run):
     git_ref_where.check_where(where)
+
+    clazz.log.log_d('delete_tag: root_dir={} tag={} where={} dry_run={}'.format(root_dir,
+                                                                                tag,
+                                                                                where,
+                                                                                dry_run))
     
-    if where in [ 'local', 'both' ]:
-      local_tags = git.list_local_tags(root)
-      if tag in local_tags:
+    if where in ( 'local', 'both' ):
+      if git.has_local_tag(root_dir, tag):
         if dry_run:
           print('would delete local tag \"{tag}\"'.format(tag = tag))
         else:
-          clazz.delete_local_tag(root, tag)
-    if where in [ 'remote', 'both' ]:
-      remote_tags = git.list_remote_tags(root)
-      if tag in remote_tags:
+          clazz.delete_local_tag(root_dir, tag)
+    if where in ( 'remote', 'both' ):
+      if git.has_remote_tag(root_dir, tag):
         if dry_run:
           print('would delete remote tag \"{tag}\"'.format(tag = tag))
         else:
-          clazz.delete_remote_tag(root, tag)
+          clazz.delete_remote_tag(root_dir, tag)
 
   @classmethod
   def list_tags(clazz, root_dir, where = None, sort_type = None, reverse = False,
