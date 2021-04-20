@@ -192,7 +192,7 @@ class test_truncate_changelogs(unit_test):
   def test_three_repos_no_truncation(self):
     bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
-    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_ego_automation.txt'))
+    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_kiwi.txt'))
 
     dict_commit_info = {
       'bes': bes_commit_info,
@@ -208,7 +208,7 @@ class test_truncate_changelogs(unit_test):
   def test_three_repos_max_chars_2000(self):
     bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
-    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_ego_automation.txt'))
+    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_kiwi.txt'))
 
     dict_commit_info = {
       'bes': bes_commit_info,
@@ -224,7 +224,7 @@ class test_truncate_changelogs(unit_test):
   def test_three_repos_max_chars_1000(self):
     bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
-    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_ego_automation.txt'))
+    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_kiwi.txt'))
 
     dict_commit_info = {
       'bes': bes_commit_info,
@@ -240,7 +240,7 @@ class test_truncate_changelogs(unit_test):
   def test_three_repos_max_chars_500(self):
     bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
-    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_ego_automation.txt'))
+    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_kiwi.txt'))
 
     dict_commit_info = {
       'bes': bes_commit_info,
