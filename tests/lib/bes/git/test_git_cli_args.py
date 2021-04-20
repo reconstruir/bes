@@ -67,7 +67,6 @@ remote: 1.0.0
     r2.pull()
     self.assertEqual( '1.0.1', r2.greatest_local_tag().name )
 
-
   @git_temp_home_func()
   def test_bump_tag_major(self):
     'Just a smoke test bes.git has more test cases for bump_tag'
@@ -108,22 +107,15 @@ remote: 1.0.0
     config = '''\
 add commit1 commit1
   kiwi.txt: kiwi.txt
-
 tag rel/1.0.0 tag1 @commit1
-
 add commit2 commit2
   lemon.txt: lemon.txt
-
 tag rel/1.0.1 tag2 @commit2
-
 add commit3 commit3
   melon.txt: melon.txt
-
 tag rel/1.0.2 tag3 @commit3
 '''
-
-    r = git_temp_repo(remote = True)
-    r.apply_config_text(config)
+    r = git_temp_repo(remote = True, config = config)
     tmp_output_file = self.make_temp_file(suffix = '.txt')
     args = [
       'git',
@@ -139,6 +131,40 @@ rel/1.0.0
 rel/1.0.1
 rel/1.0.2
 ''', tmp_output_file, native_line_breaks = True )
+
+  @git_temp_home_func()
+  def test_bump_tag_with_prefix(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: kiwi.txt
+tag rel/v2/1.0.0 tag1 @commit1
+add commit2 commit2
+  lemon.txt: lemon.txt
+tag rel/v2/1.0.1 tag2 @commit2
+add commit3 commit3
+  melon.txt: melon.txt
+tag rel/v2/1.0.2 tag3 @commit3
+add commit4 commit4
+  potato.txt: potato.txt
+tag test/v3/1.0.0 tag4 @commit4
+tag test/v3/1.0.1 tag5 @commit4
+'''
+    r = git_temp_repo(remote = True, config = config)
+    args = [
+      'git',
+      'bump_tag',
+      '--root-dir', r.root,
+      '--component', 'revision',
+      '--prefix', 'rel/v2/',
+    ]
+    self.assertEqual( 'rel/v2/1.0.2', r.greatest_local_tag(prefix = 'rel/v2/').name )
+    self.assertEqual( 'test/v3/1.0.1', r.greatest_local_tag(prefix = 'test/v3/').name )
+
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+
+    self.assertEqual( 'rel/v2/1.0.3', r.greatest_local_tag(prefix = 'rel/v2/').name )
+    self.assertEqual( 'test/v3/1.0.1', r.greatest_local_tag(prefix = 'test/v3/').name )
     
 if __name__ == '__main__':
   program_unit_test.main()

@@ -513,10 +513,12 @@ class git(git_lfs):
     check.check_string(commit, allow_none = True)
     check.check_string(annotation, allow_none = True)
 
-    greatest_tag = git.greatest_local_tag(root_dir)
-    if greatest_tag and not allow_downgrade:
-      if software_version.compare(greatest_tag.name, tag) >= 0:
-        raise ValueError('new tag \"%s\" is older than \"%s\".  Use allow_downgrade to force it.' % (tag, greatest_tag))
+    if not allow_downgrade:
+      greatest_tag = git.greatest_local_tag(root_dir)
+      if greatest_tag:
+        if software_version.compare(greatest_tag.name, tag) >= 0:
+          raise ValueError('new tag \"{}\" is older than \"{}\".  Use allow_downgrade to force it.'.format(tag,
+                                                                                                           greatest_tag.name))
     if not commit:
       commit = clazz.last_commit_hash(root_dir, short_hash = True)
     args = [ 'tag', tag, commit ]
@@ -683,7 +685,7 @@ class git(git_lfs):
         new_tag_name = default_tag
         
     if not dry_run:
-      git.tag(root_dir, new_tag_name)
+      git.tag(root_dir, new_tag_name, allow_downgrade = prefix != None)
       if push:
         git.push_tag(root_dir, new_tag_name)
     return clazz._bump_tag_result(old_tag_name, new_tag_name)

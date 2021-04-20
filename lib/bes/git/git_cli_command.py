@@ -33,12 +33,19 @@ class git_cli_command(cli_command_handler):
     'revision': [ 0, 0, 1 ],
   }
   
-  def bump_tag(self, component, dont_push, reset_lower):
-    old_tag = git.greatest_local_tag(self.options.root_dir)
-    bump_rv = git.bump_tag(self.options.root_dir, component,
-                           push = not dont_push,
-                           dry_run = self.options.dry_run,
-                           reset_lower = reset_lower)
+  def bump_tag(self, component, dont_push, reset_lower, prefix):
+    check.check_string(component, allow_none = True)
+    check.check_bool(dont_push)
+    check.check_bool(reset_lower)
+    check.check_string(prefix, allow_none = True)
+
+    repo = git_repo(self.options.root_dir)
+    old_tag = repo.greatest_local_tag(prefix = prefix)
+    bump_rv = repo.bump_tag(component,
+                            push = not dont_push,
+                            dry_run = self.options.dry_run,
+                            reset_lower = reset_lower,
+                            prefix = prefix)
     blurb = 'old_tag={} new_tag={}'.format(bump_rv.old_tag, bump_rv.new_tag)
     if self.options.dry_run:
       print('dry_run: {} dont_push={}'.format(blurb, dont_push))
