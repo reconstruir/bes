@@ -182,7 +182,7 @@ Date:   Fri Feb 21 14:33:00 2020 +0000
     
     Add 'x86_64' to the list of valid Android architectures.
     
-    Approved-by: Fred Flintstone <bmytnyk@example.com>
+    Approved-by: Fred Flintstone <fflintstone@example.com>
 
 commit e975e163c9315c695908741028c80f74e7434246
 Author: Anton Breusov <yevgenia@example.com>
