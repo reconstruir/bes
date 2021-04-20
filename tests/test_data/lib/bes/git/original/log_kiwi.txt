@@ -178,7 +178,7 @@ Merge: 9551235 e975e16
 Author: Anton  Breusov <yevgenia@example.com>
 Date:   Fri Feb 21 14:33:00 2020 +0000
 
-    Merged in EGO-965-cicd-integration-with-new-android-build-system (pull request #37)
+    Merged in EGG-965-cicd-integration-with-new-android-build-system (pull request #37)
     
     Add 'x86_64' to the list of valid Android architectures.
     

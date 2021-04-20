@@ -87,5 +87,5 @@ cef142af5786cd11960b184fc76ce99fe0247dfe Fri Feb 21 12:17:16 2020 -0800 yevgenia
 8d4a3ffacdd1f1ae9d9cc9212252068d557df80d Fri Feb 21 00:34:56 2020 -0800 yevgenia remove rogue paramters i hadent quite implemented
 de3b702261627be50489262d30c9eec54c4f7811 Fri Feb 21 00:29:23 2020 -0800 yevgenia implement basic changelog.  needs work to to be useful. add _ref_info which is a way faster way to determine the info/revision for a tag or branch.  reimplement commit_for_tag() and commit_for_branch() using ref info.
 9586bfdfd89a3170c50bd79d5d58fde815e798c6 Thu Feb 20 17:34:23 2020 -0800 yevgenia wip for changelog support in the bitbucket api
-2635e91dab413d8479ca50ac54f90b25f9a0dced Fri Feb 21 14:33:00 2020 +0000 yevgenia Merged in EGO-965-cicd-integration-with-new-android-build-system (pull request #37)  Add 'x86_64' to the list of valid Android architectures.  Approved-by: Fred Flintstone <fflintstone@example.com>
+2635e91dab413d8479ca50ac54f90b25f9a0dced Fri Feb 21 14:33:00 2020 +0000 yevgenia Merged in EGG-965-cicd-integration-with-new-android-build-system (pull request #37)  Add 'x86_64' to the list of valid Android architectures.  Approved-by: Fred Flintstone <fflintstone@example.com>
 e975e163c9315c695908741028c80f74e7434246 Fri Feb 21 15:32:41 2020 +0200 yevgenia Bumped KIWI_VERSION .
