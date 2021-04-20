@@ -531,6 +531,16 @@ class git(git_lfs):
       clazz.push_tag(root_dir, tag)
 
   @classmethod
+  def tag_rename(clazz, root_dir, old_tag, new_tag, push = False):
+    clazz.log.log_d('tag_rename: root_dir={} old_tag={} new_tag={} push={}'.format(root_dir,
+                                                                                   old_tag,
+                                                                                   new_tag,
+                                                                                   push))
+    git_exe.call_git(root_dir, 'tag {new_tag} {old_tag}'.format(old_tag = old_tag, new_tag = new_tag))
+    git_exe.call_git(root_dir, 'tag -d {old_tag}'.format(old_tag = old_tag))
+    git_exe.call_git(root_dir, 'push origin {new_tag} :{old_tag}'.format(old_tag = old_tag, new_tag = new_tag))
+      
+  @classmethod
   def push_tag(clazz, root_dir, tag):
     git_exe.call_git(root_dir, [ 'push', 'origin', tag ])
 
@@ -545,7 +555,7 @@ class git(git_lfs):
     git_exe.call_git(root_dir, [ 'push', '--delete', 'origin', tag ])
 
   @classmethod
-  def delete_tag(clazz, root_dir, tag, where, dry_run):
+  def delete_tag(clazz, root_dir, tag, where, dry_run = False):
     git_ref_where.check_where(where)
 
     clazz.log.log_d('delete_tag: root_dir={} tag={} where={} dry_run={}'.format(root_dir,

@@ -228,6 +228,9 @@ class git_repo(object):
           annotation = None):
     git.tag(self.root, tag, allow_downgrade = allow_downgrade,
             push = push, annotation = annotation)
+
+  def tag_rename(self, old_tag, new_tag, push = False):
+    git.tag_rename(self.root, old_tag, new_tag, push = push)
     
   def has_remote_tag(self, tag):
     return git.has_remote_tag(self.root, tag)
@@ -241,8 +244,8 @@ class git_repo(object):
   def delete_remote_tag(self, tag):
     git.delete_remote_tag(self.root, tag)
 
-  def delete_tag(clazz, tag, where, dry_run):
-    return git.delete_tag(self.root, tag, where, dry_run)
+  def delete_tag(self, tag, where, dry_run = False):
+    return git.delete_tag(self.root, tag, where, dry_run = False)
 
   def push_tag(self, tag):
     git.push_tag(self.root, tag)

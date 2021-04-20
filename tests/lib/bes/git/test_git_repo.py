@@ -1170,6 +1170,42 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
 
     r.bump_tag('revision', push = False, prefix = 'test/v1/')
     self.assertEqual( 'test/v1/1.2.6', r.greatest_local_tag(prefix = 'test/v1/').name )
+
+  @git_temp_home_func()
+  def test_delete_tag(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: kiwi.txt
+tag 1.0.0 tag1 @commit1
+tag 1.0.1 tag2 @commit1
+tag 1.0.2 tag3 @commit1
+'''
+    r1 = git_temp_repo(remote = True, debug = self.DEBUG, config = config)
+    r2 = r1.make_temp_cloned_repo()
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.2' ], r1.list_remote_tags().names() )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.2' ], r2.list_remote_tags().names() )
+    r1.delete_tag('1.0.1', 'both')
+    self.assertEqual( [ '1.0.0', '1.0.2' ], r1.list_remote_tags().names() )
+    self.assertEqual( [ '1.0.0', '1.0.2' ], r2.list_remote_tags().names() )
+    
+  @git_temp_home_func()
+  def test_tag_rename(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: kiwi.txt
+tag 1.0.0 tag1 @commit1
+tag 1.0.1 tag2 @commit1
+tag 1.0.2 tag3 @commit1
+'''
+    r1 = git_temp_repo(remote = True, debug = self.DEBUG, config = config)
+    r2 = r1.make_temp_cloned_repo()
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.2' ], r1.list_remote_tags().names() )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.2' ], r2.list_remote_tags().names() )
+    r1.tag_rename('1.0.0', 'rel/v2/1.0.0', push = True)
+    r1.tag_rename('1.0.1', 'rel/v2/1.0.1', push = True)
+    r1.tag_rename('1.0.2', 'rel/v2/1.0.2', push = True)
+    self.assertEqual( [ 'rel/v2/1.0.0', 'rel/v2/1.0.1', 'rel/v2/1.0.2' ], r1.list_remote_tags().names() )
+    self.assertEqual( [ 'rel/v2/1.0.0', 'rel/v2/1.0.1', 'rel/v2/1.0.2' ], r2.list_remote_tags().names() )
     
 if __name__ == '__main__':
   unit_test.main()
