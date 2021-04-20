@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+from bes.testing.unit_test import unit_test
+
+from bes.version.semantic_version import semantic_version
+from bes.version.semantic_version_error import semantic_version_error
+
+class test_semantic_version(unit_test):
+
+  def test__tokens_to_string(self):
+    self.assertEqual( '1.0.0', semantic_version._tokens_to_string(semantic_version('1.0.0')._tokens) )
+
+  def test__tokens_to_string_different_delimiters(self):
+    self.assertEqual( '1.0.0-4', semantic_version._tokens_to_string(semantic_version('1.0.0-4')._tokens) )
+
+  def test__tokens_to_string_mixture(self):
+    self.assertEqual( 'rel/foo/1.2.3-4', semantic_version._tokens_to_string(semantic_version('rel/foo/1.2.3-4')._tokens) )
+
+  def test__tokens_to_string_empty_string(self):
+    self.assertEqual( '', semantic_version._tokens_to_string(semantic_version('')._tokens) )
+
+  def test__part_tokens(self):
+    self.assertEqual( '1234', semantic_version._tokens_to_string(semantic_version('rel/foo/1.2.3-4')._part_tokens) )
+
+  def test__part_tokens_with_gaps(self):
+    self.assertEqual( '1234', semantic_version._tokens_to_string(semantic_version('rel/v2/1.2.3-4')._part_tokens) )
+
+  def test_change_part_major(self):
+    self.assertEqual( 'rel/v2/2.2.3', str(semantic_version('rel/v2/1.2.3').change_part(0, 1)) )
+
+  def test_change_part_minor(self):
+    self.assertEqual( 'rel/v2/1.3.3', str(semantic_version('rel/v2/1.2.3').change_part(1, 1)) )
+
+  def test_change_part_revision(self):
+    self.assertEqual( 'rel/v2/1.2.4', str(semantic_version('rel/v2/1.2.3').change_part(2, 1)) )
+    
+  def test_change_part_invalid_part(self):
+    with self.assertRaises(semantic_version_error) as ctx:
+      semantic_version('rel/v2/1.2.3').change_part(4, 1)
+    
+if __name__ == '__main__':
+  unit_test.main()

@@ -9,31 +9,35 @@ from bes.version.semantic_version_lexer import semantic_version_lexer
 from bes.version.semantic_version_error import semantic_version_error
 
 def TDONE(x = 0, y = 0): return lexer_token(semantic_version_lexer.TOKEN_DONE, None, point(x, y))
-def TTEXT(s, x = 0, y = 0): return lexer_token(semantic_version_lexer.TOKEN_TEXT, s, point(x, y))
-def TPUN(s, x = 0, y = 0): return lexer_token(semantic_version_lexer.TOKEN_PUNCTUATION, s, point(x, y))
-def TNUM(s, x = 0, y = 0): return lexer_token(semantic_version_lexer.TOKEN_NUMBER, s, point(x, y))
-def TPD(s, x = 0, y = 0): return lexer_token(semantic_version_lexer.TOKEN_PART_DELIMITER, s, point(x, y))
+def TTEXT(value, x = 0, y = 0): return lexer_token(semantic_version_lexer.TOKEN_TEXT, value, point(x, y))
+def TPUN(value, x = 0, y = 0): return lexer_token(semantic_version_lexer.TOKEN_PUNCTUATION, value, point(x, y))
+def TPART(value, x = 0, y = 0): return lexer_token(semantic_version_lexer.TOKEN_PART, value, point(x, y))
+def TPD(value, x = 0, y = 0): return lexer_token(semantic_version_lexer.TOKEN_PART_DELIMITER, value, point(x, y))
 
 class test_semantic_version_lexer(unit_test):
 
   def test_empty_string(self):
-    self.assertEqual( [ TDONE(1) ],
+    self.assertEqual( [ TDONE(0) ],
                       self._tokenize(r'') )
 
-  def test_single_char(self):
+  def test_text_1_char(self):
     self.assertEqual( [ TTEXT('a', 0), TDONE(1) ],
                       self._tokenize(r'a') )
 
-  def test_dual_char(self):
+  def test_text_2_char(self):
     self.assertEqual( [ TTEXT('ab', 0), TDONE(2) ],
                       self._tokenize(r'ab') )
 
-  def test_single_number(self):
-    self.assertEqual( [ TNUM(1, 0), TDONE(1) ],
+  def test_text_3_chars(self):
+    self.assertEqual( [ TTEXT('abc', 0), TDONE(3) ],
+                      self._tokenize(r'abc') )
+
+  def test_single_part(self):
+    self.assertEqual( [ TPART(1, 0), TDONE(1) ],
                       self._tokenize(r'1') )
 
-  def test_dual_number(self):
-    self.assertEqual( [ TNUM(12, 0), TDONE(3) ],
+  def test_dual_part(self):
+    self.assertEqual( [ TPART(12, 0), TDONE(2) ],
                       self._tokenize(r'12') )
     
   def test_single_pun(self):
@@ -55,33 +59,37 @@ class test_semantic_version_lexer(unit_test):
   def test_pd_is_last_char(self):
     with self.assertRaises(semantic_version_error) as ctx:
       self._tokenize(r'1.')
+
+  def test_pd_error_after_text(self):
+    with self.assertRaises(semantic_version_error) as ctx:
+      self._tokenize(r'a.')
       
   def test_pd_1_part(self):
-    self.assertEqual( [ TNUM(1, 0), TPD('.', 1), TNUM(2, 2), TDONE(3) ],
+    self.assertEqual( [ TPART(1, 0), TPD('.', 1), TPART(2, 2), TDONE(3) ],
                       self._tokenize(r'1.2') )
 
   def test_pd_2_parts(self):
-    self.assertEqual( [ TNUM(1, 0), TPD('.', 1), TNUM(2, 2), TPD('.', 3), TNUM(3, 4), TDONE(5) ],
+    self.assertEqual( [ TPART(1, 0), TPD('.', 1), TPART(2, 2), TPD('.', 3), TPART(3, 4), TDONE(5) ],
                       self._tokenize(r'1.2.3') )
 
   def test_pd_3_parts(self):
-    self.assertEqual( [ TNUM(1, 0), TPD('.', 1), TNUM(2, 2), TPD('.', 3), TNUM(3, 4), TPD('-', 5), TNUM(4, 6), TDONE(7) ],
+    self.assertEqual( [ TPART(1, 0), TPD('.', 1), TPART(2, 2), TPD('.', 3), TPART(3, 4), TPD('-', 5), TPART(4, 6), TDONE(7) ],
                       self._tokenize(r'1.2.3-4') )
     
-  def test_number_and_text(self):
-    self.assertEqual( [ TNUM(1, 0), TTEXT('a', 1), TDONE(2) ],
+  def test_part_and_text(self):
+    self.assertEqual( [ TPART(1, 0), TTEXT('a', 1), TDONE(2) ],
                       self._tokenize(r'1a') )
     
-  def test_text_and_number(self):
-    self.assertEqual( [ TTEXT('a', 0), TNUM(1, 1), TDONE(2) ],
+  def test_text_and_part(self):
+    self.assertEqual( [ TTEXT('a', 0), TPART(1, 1), TDONE(2) ],
                       self._tokenize(r'a1') )
     
-  def test_text_pun_and_number(self):
-    self.assertEqual( [ TNUM(1, 0), TPUN('!', 1), TTEXT('a', 2), TDONE(3) ],
+  def test_text_pun_and_part(self):
+    self.assertEqual( [ TPART(1, 0), TPUN('!', 1), TTEXT('a', 2), TDONE(3) ],
                       self._tokenize(r'1!a') )
     
   def test_build_version_with_alpha(self):
-    self.assertEqual( [ TNUM(1, 0), TPD('.', 1), TNUM(2, 2), TPD('.', 3), TNUM(3, 4), TTEXT('a', 5), TDONE(6) ],
+    self.assertEqual( [ TPART(1, 0), TPD('.', 1), TPART(2, 2), TPD('.', 3), TPART(3, 4), TTEXT('a', 5), TDONE(6) ],
                       self._tokenize(r'1.2.3a') )
     
   @classmethod
