@@ -311,6 +311,10 @@ class _state_part_delimiter(_state):
       tokens.append(self.lexer.make_token_part_delimiter())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_PART
+    elif cr.ctype == self.lexer._semantic_lexer_char_types.TEXT:
+      tokens.append(self.lexer.make_token_punctuation())
+      self.lexer.buffer_reset(cr.char)
+      new_state = self.lexer.STATE_TEXT
     else:
       self._raise_unexpected_char_error(cr)
     self.lexer.change_state(new_state, cr)

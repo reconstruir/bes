@@ -5,7 +5,7 @@ from bes.compat.cmp import cmp
 from bes.text.lexer_token import lexer_token
 
 from .semantic_version import semantic_version
-from .software_version_lexer import software_version_lexer
+from .semantic_version_lexer import semantic_version_lexer
 
 from collections import namedtuple
 
@@ -26,31 +26,16 @@ class software_version(object):
 
   @classmethod
   def sort_versions(clazz, versions, reverse = False):
-    tversions = [ ( index, software_version_lexer.tokenize(v, 'sort_versions') ) for index, v in enumerate(versions) ]
-    tversions = [ ( [ p for p in software_version_lexer.tokenize(v, 'sort') ], i ) for i, v in enumerate(versions) ]
+    tversions = [ ( [ p for p in semantic_version_lexer.tokenize(v, 'sort') ], i ) for i, v in enumerate(versions) ]
     tsorted = sorted(tversions, reverse = reverse)
     return [ versions[i] for _, i in tsorted ]
 
   @classmethod
   def change_version(clazz, version, deltas):
-    tokens = software_version_lexer.tokenize(version, 'change_version')
-    tokens = [ t for t in tokens if t.token_type != software_version_lexer.TOKEN_DONE ]
-    number_tokens = [ token for token in tokens if token.token_type == software_version_lexer.TOKEN_NUMBER ]
-    if len(deltas) > len(number_tokens):
-      raise ValueError('Too many deltas (%s) for version: %s' % (str(deltas), version))
-    delta_iter = iter(deltas)
-    new_tokens = []
-    for token in tokens:
-      if token.token_type == software_version_lexer.TOKEN_NUMBER:
-        try:
-          delta = next(delta_iter)
-          new_token = lexer_token(token.token_type, token.value + delta, token.position)
-        except StopIteration as ex:
-          new_token = token
-      else:
-          new_token = token
-      new_tokens.append(new_token)
-    return ''.join([ str(token.value) for token in new_tokens ])
+    sv = semantic_version(version)
+    for i, delta in enumerate(deltas):
+      sv = sv.change_part(i, delta)
+    return str(sv)
 
   @classmethod
   def version_range(clazz, start_version, end_version, deltas):
@@ -72,11 +57,11 @@ class software_version(object):
   @classmethod
   def parse_version(clazz, version):
     'Parse the version and return the parts and delimiters in a _parsed_version tuple.'
-    tokens = [ token for token in software_version_lexer.tokenize(version, 'parse_version') ]
-    number_tokens = [ token for token in tokens if token.token_type == software_version_lexer.TOKEN_NUMBER ]
-    punctuation_tokens = [ token for token in tokens if token.token_type == software_version_lexer.TOKEN_PUNCTUATION ]
-    parts = tuple([token.value for token in number_tokens])
-    delimiters = tuple([token.value for token in punctuation_tokens])
+    tokens = [ token for token in semantic_version_lexer.tokenize(version, 'parse_version') ]
+    part_tokens = [ token for token in tokens if token.token_type == semantic_version_lexer.TOKEN_PART ]
+    part_delimiter_tokens = [ token for token in tokens if token.token_type == semantic_version_lexer.TOKEN_PART_DELIMITER ]
+    parts = tuple([token.value for token in part_tokens])
+    delimiters = tuple([token.value for token in part_delimiter_tokens])
     return clazz._parsed_version(parts, delimiters[0] if delimiters else '')
   
   MAJOR = 0
