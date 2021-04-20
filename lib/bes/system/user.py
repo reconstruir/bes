@@ -13,6 +13,8 @@ class user(object):
     HOME = info.pw_dir
   elif host.is_windows():
     USERNAME = os.environ.get('USERNAME')
-    HOME = os.environ.get('HOME_DIR')
+    d = os.environ.get('HOMEDRIVE')
+    h = os.environ.get('HOMEPATH')
+    HOME = d + h
   else:
     host.raise_unsupported_system()
