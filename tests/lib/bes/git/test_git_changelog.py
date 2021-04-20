@@ -192,12 +192,12 @@ class test_truncate_changelogs(unit_test):
   def test_three_repos_no_truncation(self):
     bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
-    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_kiwi.txt'))
+    something_eggs_commit_info = create_list_of_commit_info(self.data_path('original/log_kiwi.txt'))
 
     dict_commit_info = {
       'bes': bes_commit_info,
       'rebuild': rebuild_commit_info,
-      'ego_automation': ego_automation_commit_info
+      'something_eggs': something_eggs_commit_info
     }
 
     result = git_changelog.truncate_changelogs(dict_commit_info, options())
@@ -208,12 +208,12 @@ class test_truncate_changelogs(unit_test):
   def test_three_repos_max_chars_2000(self):
     bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
-    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_kiwi.txt'))
+    something_eggs_commit_info = create_list_of_commit_info(self.data_path('original/log_kiwi.txt'))
 
     dict_commit_info = {
       'bes': bes_commit_info,
       'rebuild': rebuild_commit_info,
-      'ego_automation': ego_automation_commit_info
+      'something_eggs': something_eggs_commit_info
     }
 
     result = git_changelog.truncate_changelogs(dict_commit_info, options(max_chars=2000))
@@ -224,12 +224,12 @@ class test_truncate_changelogs(unit_test):
   def test_three_repos_max_chars_1000(self):
     bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
-    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_kiwi.txt'))
+    something_eggs_commit_info = create_list_of_commit_info(self.data_path('original/log_kiwi.txt'))
 
     dict_commit_info = {
       'bes': bes_commit_info,
       'rebuild': rebuild_commit_info,
-      'ego_automation': ego_automation_commit_info
+      'something_eggs': something_eggs_commit_info
     }
 
     result = git_changelog.truncate_changelogs(dict_commit_info, options(max_chars=1000))
@@ -240,12 +240,12 @@ class test_truncate_changelogs(unit_test):
   def test_three_repos_max_chars_500(self):
     bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
-    ego_automation_commit_info = create_list_of_commit_info(self.data_path('original/log_kiwi.txt'))
+    something_eggs_commit_info = create_list_of_commit_info(self.data_path('original/log_kiwi.txt'))
 
     dict_commit_info = {
       'bes': bes_commit_info,
       'rebuild': rebuild_commit_info,
-      'ego_automation': ego_automation_commit_info
+      'something_eggs': something_eggs_commit_info
     }
 
     result = git_changelog.truncate_changelogs(dict_commit_info, options(max_chars=500))

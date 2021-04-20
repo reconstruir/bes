@@ -58,7 +58,7 @@ a71bbc4b9a5368d8adc6e20cdbf6c99f48312fa8 Sun Oct 13 22:32:57 2019 -0700 yevgenia
 e83d03fcb0f17d7a5087b65bc65df0c356c768a7 Sun Oct 13 22:11:05 2019 -0700 yevgenia add
 e1e494f306850b7a241a7b88f08fd2d2d92e78a2 Sun Oct 13 13:50:17 2019 -0700 yevgenia add retool.py
 
-ego_automation
+something_eggs
 7355f6062e191654cc7a0ab33a3f550fe2c7dcc4 Sun Mar 1 14:33:34 2020 -0800 yevgenia finish changelog.  final proper slicing of commits to support to and from revisions
 c9bd206dbd128e23a62450530d689adc459b3bca Sat Feb 29 13:21:41 2020 -0800 yevgenia cleanup resolve of to and from revisions for changelog()
 a6e40efdcfcd7efa871249e429c334904a0db679 Fri Feb 28 13:07:00 2020 -0800 yevgenia dont import until needed
