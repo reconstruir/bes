@@ -1,39 +1,39 @@
 6 Tue Mar 3 11:25:57 2020 +0300 arth.karpenko Use full log info
 8 Tue Mar 3 11:25:35 2020 +0300 arth.karpenko Add method that converts changelog from string to the commit_info list
-d Wed Feb 26 17:17:01 2020 -0800 user1234 dont use pkgutil to manage bes_shell.sh because it doesnt work under pkgutil.
-2 Sat Feb 22 20:11:57 2020 -0800 user1234 Merge branch 'master' of gitlab.com:rebuilder/bes
-c Fri Feb 21 23:31:28 2020 -0800 user1234 significant refactor to flesh out the interface
-d Fri Feb 21 23:17:19 2020 -0800 user1234 Merge branch 'master' of gitlab.com:rebuilder/bes
-b Fri Feb 21 21:02:03 2020 -0800 user1234 add support for using ~/.bes_test/bes_test.config to configure bes_test behavior.  Start by using it manage which environment variables should be kept when making the environment clean for test runs.
-1 Fri Feb 21 21:01:14 2020 -0800 user1234 change __str__ to print the info out in the same format as the changelog
-a Fri Feb 21 17:27:06 2020 -0800 user1234 rewrite parsing of entry keys annotations and values to be more robust and throw error for invalid keys.
+d Wed Feb 26 17:17:01 2020 -0800 yevgenia dont use pkgutil to manage bes_shell.sh because it doesnt work under pkgutil.
+2 Sat Feb 22 20:11:57 2020 -0800 yevgenia Merge branch 'master' of gitlab.com:rebuilder/bes
+c Fri Feb 21 23:31:28 2020 -0800 yevgenia significant refactor to flesh out the interface
+d Fri Feb 21 23:17:19 2020 -0800 yevgenia Merge branch 'master' of gitlab.com:rebuilder/bes
+b Fri Feb 21 21:02:03 2020 -0800 yevgenia add support for using ~/.bes_test/bes_test.config to configure bes_test behavior.  Start by using it manage which environment variables should be kept when making the environment clean for test runs.
+1 Fri Feb 21 21:01:14 2020 -0800 yevgenia change __str__ to print the info out in the same format as the changelog
+a Fri Feb 21 17:27:06 2020 -0800 yevgenia rewrite parsing of entry keys annotations and values to be more robust and throw error for invalid keys.
 b Fri Feb 21 00:04:10 2020 +0000 gitlab_rebuilder Merge branch 'git-changelog-upgrade' into 'master'  Git changelog upgrade  See merge request rebuilder/bes!3
-6 Thu Feb 20 13:09:46 2020 -0800 user1234 add update_config() and a unit test to prove it works.
+6 Thu Feb 20 13:09:46 2020 -0800 yevgenia add update_config() and a unit test to prove it works.
 5 Wed Feb 19 17:03:42 2020 +0300 arth.karpenko Create tests for truncate_changelogs
 b Wed Feb 19 17:03:24 2020 +0300 arth.karpenko Add support for multiple repos for truncate functionality
 6 Wed Feb 19 10:18:47 2020 +0300 arth.karpenko Move changelog_as_string to git module
-5 Tue Feb 18 15:30:34 2020 -0800 user1234 properly parse remote tags.
+5 Tue Feb 18 15:30:34 2020 -0800 yevgenia properly parse remote tags.
 1 Mon Feb 17 16:22:57 2020 +0300 arth.karpenko Enhance git_commit_info structure
 8 Mon Feb 17 15:13:44 2020 +0300 arth.karpenko Create new structure for git changelog
-6 Sun Feb 16 16:35:15 2020 -0800 user1234 cleanup search() function to accept some useful args.  rename if from grep()
-6 Sun Feb 16 13:30:35 2020 -0800 user1234 add utils
-3 Fri Feb 14 16:47:28 2020 -0800 user1234 Add git_repo.atexit_reset()
-8 Fri Feb 14 16:32:20 2020 -0800 user1234 fix a bug in git_repo.save_file() that assumed it was always getting added to the git index. Supress deprecation warnings that are harmless and got introduces in python 3.7 Cleanup the clean, reset and and atexit versions of those interfaces.
-9 Fri Feb 14 16:29:32 2020 -0800 user1234 deal with the + sign at the start of some submodule status
-3 Thu Feb 13 16:30:41 2020 -0800 user1234 Merge branch 'master' of gitlab.com:rebuilder/bes
-d Wed Feb 12 01:12:34 2020 -0800 user1234 add check_function_seq
-a Wed Feb 12 00:01:56 2020 -0800 user1234 cleanup the reset interface a bit.  add clean().  fix a bug where save_file() would always git add the file.  add option to not add. Add unit tests that prove that reset() and clean() work
-3 Mon Feb 10 23:21:51 2020 -0800 user1234 Merge branch 'master' of gitlab.com:rebuilder/bes
-8 Mon Feb 10 23:20:16 2020 -0800 user1234 add a timeout for python3
-4 Mon Feb 10 23:19:23 2020 -0800 user1234 if no address is given detect it
+6 Sun Feb 16 16:35:15 2020 -0800 yevgenia cleanup search() function to accept some useful args.  rename if from grep()
+6 Sun Feb 16 13:30:35 2020 -0800 yevgenia add utils
+3 Fri Feb 14 16:47:28 2020 -0800 yevgenia Add git_repo.atexit_reset()
+8 Fri Feb 14 16:32:20 2020 -0800 yevgenia fix a bug in git_repo.save_file() that assumed it was always getting added to the git index. Supress deprecation warnings that are harmless and got introduces in python 3.7 Cleanup the clean, reset and and atexit versions of those interfaces.
+9 Fri Feb 14 16:29:32 2020 -0800 yevgenia deal with the + sign at the start of some submodule status
+3 Thu Feb 13 16:30:41 2020 -0800 yevgenia Merge branch 'master' of gitlab.com:rebuilder/bes
+d Wed Feb 12 01:12:34 2020 -0800 yevgenia add check_function_seq
+a Wed Feb 12 00:01:56 2020 -0800 yevgenia cleanup the reset interface a bit.  add clean().  fix a bug where save_file() would always git add the file.  add option to not add. Add unit tests that prove that reset() and clean() work
+3 Mon Feb 10 23:21:51 2020 -0800 yevgenia Merge branch 'master' of gitlab.com:rebuilder/bes
+8 Mon Feb 10 23:20:16 2020 -0800 yevgenia add a timeout for python3
+4 Mon Feb 10 23:19:23 2020 -0800 yevgenia if no address is given detect it
 a Mon Feb 10 16:42:43 2020 +0000 gitlab_rebuilder Merge branch 'git-repo-fix' into 'master'  Git repo fix  See merge request rebuilder/bes!2
 f Mon Feb 10 12:45:45 2020 +0300 arth.karpenko Merge branch 'master' of gitlab.com:rebuilder/bes
 8 Mon Feb 10 12:45:23 2020 +0300 arth.karpenko Fix args in vfs_git_repo
-8 Sun Feb 9 18:41:10 2020 -0800 user1234 Merge branch 'master' of gitlab.com:rebuilder/bes
-e Sun Feb 9 12:02:04 2020 -0800 user1234 if the script is a python file then run it under the appropiate sys.executable
-d Sun Feb 9 11:06:58 2020 -0800 user1234 py3 fixes
-3 Sun Feb 9 10:34:08 2020 -0800 user1234 remove newlines to prevent line ending issues on non unix platforms.
-8 Sun Feb 9 02:03:42 2020 -0800 user1234 Merge branch 'master' of gitlab.com:rebuilder/bes
-1 Sun Feb 9 02:03:18 2020 -0800 user1234 fix list_local_branches and list_remote_branches.  add unit tests the prove they work
-a Sun Feb 9 01:31:54 2020 -0800 user1234 Merge branch 'master' of gitlab.com:rebuilder/bes
-0 Sun Feb 9 00:41:16 2020 -0800 user1234 remove rogue import
+8 Sun Feb 9 18:41:10 2020 -0800 yevgenia Merge branch 'master' of gitlab.com:rebuilder/bes
+e Sun Feb 9 12:02:04 2020 -0800 yevgenia if the script is a python file then run it under the appropiate sys.executable
+d Sun Feb 9 11:06:58 2020 -0800 yevgenia py3 fixes
+3 Sun Feb 9 10:34:08 2020 -0800 yevgenia remove newlines to prevent line ending issues on non unix platforms.
+8 Sun Feb 9 02:03:42 2020 -0800 yevgenia Merge branch 'master' of gitlab.com:rebuilder/bes
+1 Sun Feb 9 02:03:18 2020 -0800 yevgenia fix list_local_branches and list_remote_branches.  add unit tests the prove they work
+a Sun Feb 9 01:31:54 2020 -0800 yevgenia Merge branch 'master' of gitlab.com:rebuilder/bes
+0 Sun Feb 9 00:41:16 2020 -0800 yevgenia remove rogue import
