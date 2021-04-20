@@ -1,5 +1,5 @@
-65ca65eee1 Tue Mar 3 11:25:57 2020 +0300 arth.karpenko Use full log info
-8adf7669df Tue Mar 3 11:25:35 2020 +0300 arth.karpenko Add method that converts changelog from string to the commit_info list
+65ca65eee1 Tue Mar 3 11:25:57 2020 +0300 fred.flintsto Use full log info
+8adf7669df Tue Mar 3 11:25:35 2020 +0300 fred.flintsto Add method that converts changelog from string to the commit_info list
 d93e327559 Wed Feb 26 17:17:01 2020 -0800 yevgenia dont use pkgutil to manage bes_shell.sh because it doesnt work under pkgutil.
 2afb5f9dd8 Sat Feb 22 20:11:57 2020 -0800 yevgenia Merge branch 'master' of gitlab.com:rebuilder/bes
 cb6afd96d5 Fri Feb 21 23:31:28 2020 -0800 yevgenia significant refactor to flesh out the interface
@@ -9,12 +9,12 @@ bc22cd24fe Fri Feb 21 21:02:03 2020 -0800 yevgenia add support for using ~/.bes_
 a0d5903ea7 Fri Feb 21 17:27:06 2020 -0800 yevgenia rewrite parsing of entry keys annotations and values to be more robust and throw error for invalid keys.
 bf6ee7f192 Fri Feb 21 00:04:10 2020 +0000 gitlab_rebuilder Merge branch 'git-changelog-upgrade' into 'master'  Git changelog upgrade  See merge request rebuilder/bes!3
 660f29e0b1 Thu Feb 20 13:09:46 2020 -0800 yevgenia add update_config() and a unit test to prove it works.
-5f8109ac13 Wed Feb 19 17:03:42 2020 +0300 arth.karpenko Create tests for truncate_changelogs
-b2bc3eab81 Wed Feb 19 17:03:24 2020 +0300 arth.karpenko Add support for multiple repos for truncate functionality
-690f9630b2 Wed Feb 19 10:18:47 2020 +0300 arth.karpenko Move changelog_as_string to git module
+5f8109ac13 Wed Feb 19 17:03:42 2020 +0300 fred.flintsto Create tests for truncate_changelogs
+b2bc3eab81 Wed Feb 19 17:03:24 2020 +0300 fred.flintsto Add support for multiple repos for truncate functionality
+690f9630b2 Wed Feb 19 10:18:47 2020 +0300 fred.flintsto Move changelog_as_string to git module
 5fde2a19ad Tue Feb 18 15:30:34 2020 -0800 yevgenia properly parse remote tags.
-1f3d89713f Mon Feb 17 16:22:57 2020 +0300 arth.karpenko Enhance git_commit_info structure
-8925ee5852 Mon Feb 17 15:13:44 2020 +0300 arth.karpenko Create new structure for git changelog
+1f3d89713f Mon Feb 17 16:22:57 2020 +0300 fred.flintsto Enhance git_commit_info structure
+8925ee5852 Mon Feb 17 15:13:44 2020 +0300 fred.flintsto Create new structure for git changelog
 629431671c Sun Feb 16 16:35:15 2020 -0800 yevgenia cleanup search() function to accept some useful args.  rename if from grep()
 69657e1ca3 Sun Feb 16 13:30:35 2020 -0800 yevgenia add utils
 39bfc647c4 Fri Feb 14 16:47:28 2020 -0800 yevgenia Add git_repo.atexit_reset()
@@ -27,8 +27,8 @@ a20da4b402 Wed Feb 12 00:01:56 2020 -0800 yevgenia cleanup the reset interface a
 837bce7cda Mon Feb 10 23:20:16 2020 -0800 yevgenia add a timeout for python3
 43e476ff68 Mon Feb 10 23:19:23 2020 -0800 yevgenia if no address is given detect it
 ae38dc1531 Mon Feb 10 16:42:43 2020 +0000 gitlab_rebuilder Merge branch 'git-repo-fix' into 'master'  Git repo fix  See merge request rebuilder/bes!2
-f24cb25379 Mon Feb 10 12:45:45 2020 +0300 arth.karpenko Merge branch 'master' of gitlab.com:rebuilder/bes
-884e006b47 Mon Feb 10 12:45:23 2020 +0300 arth.karpenko Fix args in vfs_git_repo
+f24cb25379 Mon Feb 10 12:45:45 2020 +0300 fred.flintsto Merge branch 'master' of gitlab.com:rebuilder/bes
+884e006b47 Mon Feb 10 12:45:23 2020 +0300 fred.flintsto Fix args in vfs_git_repo
 803ae1ccab Sun Feb 9 18:41:10 2020 -0800 yevgenia Merge branch 'master' of gitlab.com:rebuilder/bes
 ed21369798 Sun Feb 9 12:02:04 2020 -0800 yevgenia if the script is a python file then run it under the appropiate sys.executable
 dc02b63cf9 Sun Feb 9 11:06:58 2020 -0800 yevgenia py3 fixes

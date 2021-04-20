@@ -1,5 +1,5 @@
-65ca65e arth.karpenko Use full log info
-8adf766 arth.karpenko Add method that converts changelog from string to the commit_info list
+65ca65e fred.flintsto Use full log info
+8adf766 fred.flintsto Add method that converts changelog from string to the commit_info list
 d93e327 yevgenia dont use pkgutil to manage bes_shell.sh because it doesnt work under pkgutil.
 2afb5f9 yevgenia Merge branch 'master' of gitlab.com:rebuilder/bes
 cb6afd9 yevgenia significant refactor to flesh out the interface
@@ -9,12 +9,12 @@ bc22cd2 yevgenia add support for using ~/.bes_test/bes_test.config to configure 
 a0d5903 yevgenia rewrite parsing of entry keys annotations and values to be more robust and throw error for invalid keys.
 bf6ee7f gitlab_rebuilder Merge branch 'git-changelog-upgrade' into 'master'  Git changelog upgrade  See merge request rebuilder/bes!3
 660f29e yevgenia add update_config() and a unit test to prove it works.
-5f8109a arth.karpenko Create tests for truncate_changelogs
-b2bc3ea arth.karpenko Add support for multiple repos for truncate functionality
-690f963 arth.karpenko Move changelog_as_string to git module
+5f8109a fred.flintsto Create tests for truncate_changelogs
+b2bc3ea fred.flintsto Add support for multiple repos for truncate functionality
+690f963 fred.flintsto Move changelog_as_string to git module
 5fde2a1 yevgenia properly parse remote tags.
-1f3d897 arth.karpenko Enhance git_commit_info structure
-8925ee5 arth.karpenko Create new structure for git changelog
+1f3d897 fred.flintsto Enhance git_commit_info structure
+8925ee5 fred.flintsto Create new structure for git changelog
 6294316 yevgenia cleanup search() function to accept some useful args.  rename if from grep()
 69657e1 yevgenia add utils
 39bfc64 yevgenia Add git_repo.atexit_reset()
@@ -27,8 +27,8 @@ a20da4b yevgenia cleanup the reset interface a bit.  add clean().  fix a bug whe
 837bce7 yevgenia add a timeout for python3
 43e476f yevgenia if no address is given detect it
 ae38dc1 gitlab_rebuilder Merge branch 'git-repo-fix' into 'master'  Git repo fix  See merge request rebuilder/bes!2
-f24cb25 arth.karpenko Merge branch 'master' of gitlab.com:rebuilder/bes
-884e006 arth.karpenko Fix args in vfs_git_repo
+f24cb25 fred.flintsto Merge branch 'master' of gitlab.com:rebuilder/bes
+884e006 fred.flintsto Fix args in vfs_git_repo
 803ae1c yevgenia Merge branch 'master' of gitlab.com:rebuilder/bes
 ed21369 yevgenia if the script is a python file then run it under the appropiate sys.executable
 dc02b63 yevgenia py3 fixes

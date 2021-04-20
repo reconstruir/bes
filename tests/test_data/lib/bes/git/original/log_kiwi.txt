@@ -1,165 +1,165 @@
 commit 7355f6062e191654cc7a0ab33a3f550fe2c7dcc4
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sun Mar 1 14:33:34 2020 -0800
 
     finish changelog.  final proper slicing of commits to support to and from
     revisions
 
 commit c9bd206dbd128e23a62450530d689adc459b3bca
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sat Feb 29 13:21:41 2020 -0800
 
     cleanup resolve of to and from revisions for changelog()
 
 commit a6e40efdcfcd7efa871249e429c334904a0db679
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Fri Feb 28 13:07:00 2020 -0800
 
     dont import until needed
 
 commit 2e07aae922fbcd57d3dde07ba1e9eb09245ccac3
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Fri Feb 28 13:06:50 2020 -0800
 
     dont import until needed
 
 commit d62085b8c2094cd68ea3ada5afcd32a994595739
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Fri Feb 28 13:01:13 2020 -0800
 
     have no default branch it will get determined
 
 commit ff9592117f1f8c29aed6ec45859339d520694889
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Fri Feb 28 13:00:49 2020 -0800
 
     move constant to a shareable place
 
 commit 7ab0777da572725a1d7e15329019a7972adeaa30
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Fri Feb 28 12:58:44 2020 -0800
 
     use the active branch of no branch is given
 
 commit 016342eedb81c788d624f82b41d9409993081dde
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Fri Feb 28 06:22:14 2020 -0800
 
     add
 
 commit 53956b3894a4bcdce0aeb3b5ea2d1e8348b96e9f
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Fri Feb 28 06:21:57 2020 -0800
 
     aff load_config_file(
 
 commit e213b92202fb7a7923d585952c76dbc0bf3c5771
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Fri Feb 28 03:51:15 2020 -0800
 
     make the commands to list branches and tags print nicer output
 
 commit 3157ef4e2ed102742b60db0a99e6688c7a74ad6d
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Thu Feb 27 11:34:15 2020 -0800
 
     add support for using both python2 and python3 at the same time
 
 commit 2138b93e8f2e64fa4dd4220e98f03fb3bcdc8a97
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Wed Feb 26 12:27:19 2020 -0800
 
     work in progess to fix the to and from revisions
 
 commit 8fe63ab73a2603c15d12dc15ef1cff30f29a0941
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sun Feb 23 22:43:05 2020 -0800
 
     more improvements on bitbucket changelog.  make page_length and num_commits work.
 
 commit 12ac389671a0c8acec88a79ac0287319bfbe976b
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sun Feb 23 21:43:00 2020 -0800
 
     flesh out the changelog api more.  Enhance the pagination api to accept
     page_size and max_num_pages
 
 commit c58fb7ac5894e154f8712cc07c3d93901e19dda1
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sun Feb 23 20:07:35 2020 -0800
 
     use _make_request() for all requests
 
 commit 4575611ed67c6ba8274ec99d1109bbe9f4132b45
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sat Feb 22 20:07:17 2020 -0800
 
     bump the version from 1.0.405 to 1.0.406
 
 commit 38120fcefde5d8235e007a6324db8b5e4011da65
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sat Feb 22 20:07:01 2020 -0800
 
     remove a rogue check.
 
 commit efd4830516666b7bf5fb7a9f9416cce2a0a31f56
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sat Feb 22 20:05:59 2020 -0800
 
     wip for bitbucket changelog
 
 commit 462ea05dcb3b51375e621e7443922af1c2ce9508
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sat Feb 22 16:13:43 2020 -0800
 
     bump the version from 1.0.404 to 1.0.405
 
 commit ef79f555e3a4cb04548dfb28548180ba049ad6b6
 Merge: e6a2645 e157a06
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sat Feb 22 16:13:23 2020 -0800
 
     Merge branch 'master' of bitbucket.org:imvu/ego-cicd-automation
 
 commit e6a2645b82cf558686705d94508005bd6d15ca6b
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sat Feb 22 16:12:55 2020 -0800
 
     fix checking of paams to support both dict and key_value_list
 
 commit e157a066c2b3f16cc9e641e7d513eef3da1d2a9d
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sat Feb 22 12:21:23 2020 -0800
 
     bump the version from 1.0.403 to 1.0.404
 
 commit 14c109e88afd3c53b97991eefb2bd1c7d90385e7
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sat Feb 22 12:21:13 2020 -0800
 
     always push master
 
 commit 255dd1459c40ca8cb418b283a74495b9944c13f2
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Sat Feb 22 12:18:26 2020 -0800
 
     bump bes from 1.0.186 to 1.0.187
 
 commit cef142af5786cd11960b184fc76ce99fe0247dfe
 Merge: 8d4a3ff beb4a3d
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Fri Feb 21 12:17:16 2020 -0800
 
     Merge branch 'changelog' of bitbucket.org:imvu/ego-cicd-automation into changelog
 
 commit 8d4a3ffacdd1f1ae9d9cc9212252068d557df80d
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Fri Feb 21 00:34:56 2020 -0800
 
     remove rogue paramters i hadent quite implemented
 
 commit de3b702261627be50489262d30c9eec54c4f7811
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Fri Feb 21 00:29:23 2020 -0800
 
     implement basic changelog.  needs work to to be useful.
@@ -168,24 +168,24 @@ Date:   Fri Feb 21 00:29:23 2020 -0800
     using ref info.
 
 commit 9586bfdfd89a3170c50bd79d5d58fde815e798c6
-Author: Ramiro Estrugo <yevgenia@imvu.com>
+Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Thu Feb 20 17:34:23 2020 -0800
 
     wip for changelog support in the bitbucket api
 
 commit 2635e91dab413d8479ca50ac54f90b25f9a0dced
 Merge: 9551235 e975e16
-Author: Anton  Breusov <abreusov@imvu.com>
+Author: Anton  Breusov <abreusov@example.com>
 Date:   Fri Feb 21 14:33:00 2020 +0000
 
     Merged in EGO-965-cicd-integration-with-new-android-build-system (pull request #37)
     
     Add 'x86_64' to the list of valid Android architectures.
     
-    Approved-by: Bogdan Mytnyk <bmytnyk@imvu.com>
+    Approved-by: Bogdan Mytnyk <bmytnyk@example.com>
 
 commit e975e163c9315c695908741028c80f74e7434246
-Author: Anton Breusov <abreusov@imvu.com>
+Author: Anton Breusov <abreusov@example.com>
 Date:   Fri Feb 21 15:32:41 2020 +0200
 
     Bumped KIWI_VERSION .
