@@ -19,10 +19,10 @@ class point(namedtuple('point', 'x, y')):
   def __str__(self):
     return '{},{}'.format(self.x, self.y)
 
-  def move(self, x, y):
-    return point(self.x + x, self.y + y)
+  def move(self, delta_x, delta_y):
+    return point(self.x + delta_x, self.y + delta_y)
 
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
-  
+
 check.register_class(point)
