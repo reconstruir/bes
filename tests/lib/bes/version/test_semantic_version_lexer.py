@@ -60,10 +60,10 @@ class test_semantic_version_lexer(unit_test):
     with self.assertRaises(semantic_version_error) as ctx:
       self._tokenize(r'1.')
 
-  def test_pd_error_after_text(self):
-    with self.assertRaises(semantic_version_error) as ctx:
-      self._tokenize(r'a.')
-      
+  def test_pd_after_text(self):
+    self.assertEqual( [ TTEXT('a', 0), TPUN('.', 1), TDONE(2) ],
+                      self._tokenize(r'a.') )
+
   def test_pd_1_part(self):
     self.assertEqual( [ TPART(1, 0), TPD('.', 1), TPART(2, 2), TDONE(3) ],
                       self._tokenize(r'1.2') )

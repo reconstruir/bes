@@ -46,7 +46,7 @@ class semantic_version_lexer(object):
     self.position = point(-1, 0)
     for c in self._chars_plus_eos(text):
       cr = self._char_type(c)
-      if cr.ctype == self._lexer_char_types.UNKNOWN:
+      if cr.ctype == self._semantic_lexer_char_types.UNKNOWN:
         raise semantic_version_error('unknown character: \"%s\"' % (c))
       tokens = self.state.handle_char(cr)
       for token in tokens:
@@ -127,7 +127,7 @@ class semantic_version_lexer(object):
         self.buffer_write('\\')
       self.buffer_write(c)
 
-  class _lexer_char_types(enum):
+  class _semantic_lexer_char_types(enum):
     EOS = 1
     PART = 2
     PART_DELIMITER = 3
@@ -143,17 +143,17 @@ class semantic_version_lexer(object):
   @classmethod
   def _char_type(clazz, c):
     if c in clazz._PART_DELIMITER_CHARS:
-      return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.PART_DELIMITER)
+      return clazz._char_result(clazz._char_to_string(c), clazz._semantic_lexer_char_types.PART_DELIMITER)
     elif c in clazz._PUNCTUATION_CHARS:
-      return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.PUNCTUATION)
+      return clazz._char_result(clazz._char_to_string(c), clazz._semantic_lexer_char_types.PUNCTUATION)
     elif c.isdigit():
-      return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.PART)
+      return clazz._char_result(clazz._char_to_string(c), clazz._semantic_lexer_char_types.PART)
     elif c.isalpha():
-      return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.TEXT)
+      return clazz._char_result(clazz._char_to_string(c), clazz._semantic_lexer_char_types.TEXT)
     elif c == clazz.EOS:
-      return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.EOS)
+      return clazz._char_result(clazz._char_to_string(c), clazz._semantic_lexer_char_types.EOS)
     else:
-      return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.UNKNOWN)
+      return clazz._char_result(clazz._char_to_string(c), clazz._semantic_lexer_char_types.UNKNOWN)
       
 class _state(object):
 
@@ -176,7 +176,7 @@ class _state(object):
     attributes = []
     if include_state:
       attributes.append('state=%s' % (self.name))
-    attributes.append('c=|%s(%s)|' % (cr.char, self.lexer._lexer_char_types.value_to_name(cr.ctype)))
+    attributes.append('c=|%s(%s)|' % (cr.char, self.lexer._semantic_lexer_char_types.value_to_name(cr.ctype)))
     try:
       attributes.append('buffer=%s' % (string_util.quote(self.lexer.buffer_value())))
     except AttributeError as ex:
@@ -198,16 +198,16 @@ class _state_begin(_state):
     self.log_handle_char(cr)
     new_state = None
     tokens = []
-    if cr.ctype == self.lexer._lexer_char_types.TEXT:
+    if cr.ctype == self.lexer._semantic_lexer_char_types.TEXT:
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_TEXT
-    elif cr.ctype == self.lexer._lexer_char_types.PART:
+    elif cr.ctype == self.lexer._semantic_lexer_char_types.PART:
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_PART
-    elif cr.ctype == self.lexer._lexer_char_types.PUNCTUATION:
+    elif cr.ctype == self.lexer._semantic_lexer_char_types.PUNCTUATION:
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_PUNCTUATION
-    elif cr.ctype == self.lexer._lexer_char_types.EOS:
+    elif cr.ctype == self.lexer._semantic_lexer_char_types.EOS:
       new_state = self.lexer.STATE_DONE
     else:
       self._raise_unexpected_char_error(cr)
@@ -222,22 +222,22 @@ class _state_part(_state):
     self.log_handle_char(cr)
     new_state = None
     tokens = []
-    if cr.ctype == self.lexer._lexer_char_types.TEXT:
+    if cr.ctype == self.lexer._semantic_lexer_char_types.TEXT:
       tokens.append(self.lexer.make_token_part())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_TEXT
-    elif cr.ctype == self.lexer._lexer_char_types.PART:
+    elif cr.ctype == self.lexer._semantic_lexer_char_types.PART:
       self.lexer.buffer_write(cr.char)
       new_state = self.lexer.STATE_PART
-    elif cr.ctype == self.lexer._lexer_char_types.PART_DELIMITER:
+    elif cr.ctype == self.lexer._semantic_lexer_char_types.PART_DELIMITER:
       tokens.append(self.lexer.make_token_part())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_PART_DELIMITER
-    elif cr.ctype == self.lexer._lexer_char_types.PUNCTUATION:
+    elif cr.ctype == self.lexer._semantic_lexer_char_types.PUNCTUATION:
       tokens.append(self.lexer.make_token_part())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_PUNCTUATION
-    elif cr.ctype == self.lexer._lexer_char_types.EOS:
+    elif cr.ctype == self.lexer._semantic_lexer_char_types.EOS:
       tokens.append(self.lexer.make_token_part())
       new_state = self.lexer.STATE_DONE
     else:
@@ -253,23 +253,20 @@ class _state_text(_state):
     self.log_handle_char(cr)
     new_state = None
     tokens = []
-    if cr.ctype == self.lexer._lexer_char_types.TEXT:
+    if cr.ctype == self.lexer._semantic_lexer_char_types.TEXT:
       self.lexer.buffer_write(cr.char)
       new_state = self.lexer.STATE_TEXT
-    elif cr.ctype == self.lexer._lexer_char_types.PART:
+    elif cr.ctype == self.lexer._semantic_lexer_char_types.PART:
       tokens.append(self.lexer.make_token_text())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_PART
-    elif cr.ctype == self.lexer._lexer_char_types.PUNCTUATION:
+    elif cr.ctype in ( self.lexer._semantic_lexer_char_types.PUNCTUATION, self.lexer._semantic_lexer_char_types.PART_DELIMITER ):
       tokens.append(self.lexer.make_token_text())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_PUNCTUATION
-    elif cr.ctype == self.lexer._lexer_char_types.EOS:
+    elif cr.ctype == self.lexer._semantic_lexer_char_types.EOS:
       tokens.append(self.lexer.make_token_text())
       new_state = self.lexer.STATE_DONE
-    elif cr.ctype == self.lexer._lexer_char_types.PART_DELIMITER:
-      self.lexer.buffer_write(cr.char)
-      new_state = self.lexer.STATE_TEXT
     else:
       self._raise_unexpected_char_error(cr)
     self.lexer.change_state(new_state, cr)
@@ -283,18 +280,18 @@ class _state_punctuation(_state):
     self.log_handle_char(cr)
     new_state = None
     tokens = []
-    if cr.ctype == self.lexer._lexer_char_types.TEXT:
+    if cr.ctype == self.lexer._semantic_lexer_char_types.TEXT:
       tokens.append(self.lexer.make_token_punctuation())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_TEXT
-    elif cr.ctype == self.lexer._lexer_char_types.PART:
+    elif cr.ctype == self.lexer._semantic_lexer_char_types.PART:
       tokens.append(self.lexer.make_token_punctuation())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_PART
-    elif cr.ctype == self.lexer._lexer_char_types.PUNCTUATION:
+    elif cr.ctype == self.lexer._semantic_lexer_char_types.PUNCTUATION:
       self.lexer.buffer_write(cr.char)
       new_state = self.lexer.STATE_PUNCTUATION
-    elif cr.ctype == self.lexer._lexer_char_types.EOS:
+    elif cr.ctype == self.lexer._semantic_lexer_char_types.EOS:
       tokens.append(self.lexer.make_token_punctuation())
       new_state = self.lexer.STATE_DONE
     else:
@@ -310,7 +307,7 @@ class _state_part_delimiter(_state):
     self.log_handle_char(cr)
     new_state = None
     tokens = []
-    if cr.ctype == self.lexer._lexer_char_types.PART:
+    if cr.ctype == self.lexer._semantic_lexer_char_types.PART:
       tokens.append(self.lexer.make_token_part_delimiter())
       self.lexer.buffer_reset(cr.char)
       new_state = self.lexer.STATE_PART
