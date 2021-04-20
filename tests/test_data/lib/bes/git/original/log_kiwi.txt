@@ -175,17 +175,17 @@ Date:   Thu Feb 20 17:34:23 2020 -0800
 
 commit 2635e91dab413d8479ca50ac54f90b25f9a0dced
 Merge: 9551235 e975e16
-Author: Anton  Breusov <abreusov@example.com>
+Author: Anton  Breusov <yevgenia@example.com>
 Date:   Fri Feb 21 14:33:00 2020 +0000
 
     Merged in EGO-965-cicd-integration-with-new-android-build-system (pull request #37)
     
     Add 'x86_64' to the list of valid Android architectures.
     
-    Approved-by: Bogdan Mytnyk <bmytnyk@example.com>
+    Approved-by: Fred Flintstone <bmytnyk@example.com>
 
 commit e975e163c9315c695908741028c80f74e7434246
-Author: Anton Breusov <abreusov@example.com>
+Author: Anton Breusov <yevgenia@example.com>
 Date:   Fri Feb 21 15:32:41 2020 +0200
 
     Bumped KIWI_VERSION .
