@@ -188,4 +188,4 @@ commit e975e163c9315c695908741028c80f74e7434246
 Author: Anton Breusov <abreusov@imvu.com>
 Date:   Fri Feb 21 15:32:41 2020 +0200
 
-    Bumped EGO_AUTOMATION_VERSION .
+    Bumped KIWI_VERSION .
