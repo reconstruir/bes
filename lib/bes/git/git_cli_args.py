@@ -38,8 +38,6 @@ class git_cli_args(object):
                    help = 'Reset the lower components to zero. [ False ]')
     p.add_argument('--prefix', action = 'store', type = str, default = None,
                    help = 'Optional tag prefix. [ None ]')
-    p.add_argument('--dry-run', action = 'store_stru', default = False,
-                   help = 'Dry run only print what would happen. [ None ]')
     self._git_add_common_args(p)
 
     # git_delete_tags
