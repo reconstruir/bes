@@ -549,6 +549,10 @@ class git(git_lfs):
     git_exe.call_git(root_dir, [ 'push', 'origin', tag ])
 
   @classmethod
+  def tags_fetch(clazz, root_dir, tag):
+    git_exe.call_git(root_dir, 'fetch --tags')
+    
+  @classmethod
   def delete_local_tag(clazz, root_dir, tag):
     clazz.log.log_d('delete_local_tag: root_dir={} tag={}'.format(root_dir, tag))
     git_exe.call_git(root_dir, [ 'tag', '--delete', tag ])
