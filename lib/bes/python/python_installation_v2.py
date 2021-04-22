@@ -4,6 +4,7 @@ from collections import namedtuple
 import os.path as path
 import re
 
+from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.property.cached_property import cached_property
 from bes.system.host import host
@@ -172,13 +173,8 @@ class python_installation_v2(object):
 
   @cached_property
   def PATH(self):
-    if self.system in ( host.LINUX, host.MACOS ):
-      return [ path.dirname(self.python_exe) ]
-    elif self.system == host.WINDOWS:
-      return [
-        path.dirname(self.python_exe),
-        path.dirname(self.pip_exe),
-      ]
+    possible_exes = [ self.python_exe, self.pip_exe ]
+    return algorithm.unique([ path.dirname(exe) for exe in possible_exes if exe ])
 
   @cached_property
   def PYTHONPATH(self):
