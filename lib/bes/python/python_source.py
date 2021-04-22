@@ -40,4 +40,9 @@ class python_source(python_source_base):
   def possible_python_exe_patterns(clazz):
     'Return a list of possible python exe fnmatch patters.'
     return clazz._impl_class.possible_python_exe_patterns()
-  
+
+  @classmethod
+  #@abstractmethod
+  def possible_python_dir_should_be_ignored(clazz, dirname):
+    'Return True if dirname should be ignored as a possible python bin dir.'
+    return clazz._impl_class.possible_python_dir_should_be_ignored(dirname)

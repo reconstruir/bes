@@ -38,3 +38,11 @@ class python_source_windows(python_source_base):
       'python[0-9].bat',
       'python[0-9].[0-9].bat',
     ]
+
+  @classmethod
+  #@abstractmethod
+  def possible_python_dir_should_be_ignored(clazz, dirname):
+    'Return True if dirname should be ignored as a possible python bin dir.'
+    if r'Microsoft\WindowsApps' in dirname:
+      return True
+    return False

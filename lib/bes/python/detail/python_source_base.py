@@ -26,3 +26,9 @@ class python_source_base(with_metaclass(ABCMeta, object)):
   def possible_python_exe_patterns(clazz):
     'Return a list of possible python exe fnmatch patters.'
     raise NotImplemented('possible_python_exe_patterns')
+
+  @classmethod
+  @abstractmethod
+  def possible_python_dir_should_be_ignored(clazz, dirname):
+    'Return True if dirname should be ignored as a possible python bin dir.'
+    raise NotImplemented('possible_python_dir_should_be_ignored')
