@@ -8,7 +8,7 @@ class python_source_windows(python_source_base):
   #@abstractmethod
   def exe_source(self, exe):
     'Return the source of the python executable.  Stuff like brew, xcode, system, python.org.'
-    assert False
+    return 'unknown'
 
   @classmethod
   #@abstractmethod

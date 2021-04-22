@@ -8,7 +8,10 @@ class python_source_linux(python_source_unix):
   #@abstractmethod
   def exe_source(self, exe):
     'Return the source of the python executable.  Stuff like brew, xcode, system, python.org.'
-    raise NotImplemented('exe_source')
+    if self._source_is_unix_system(exe):
+      return 'system'
+    else:
+      return 'unknown'
 
   @classmethod
   #@abstractmethod

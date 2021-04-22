@@ -13,18 +13,16 @@ from bes.common.string_util import string_util
 from bes.fs.file_path import file_path
 from bes.fs.file_symlink import file_symlink
 from bes.fs.file_util import file_util
-from bes.fs.temp_file import temp_file
 from bes.system.execute import execute
-from bes.system.host import host
 from bes.system.log import logger
 from bes.system.os_env import os_env_var
 from bes.system.which import which
-from bes.unix.brew.brew import brew
 from bes.version.software_version import software_version
 
 from .python_error import python_error
 from .python_version import python_version
 from .python_source import python_source
+from .python_script import python_script
 
 class python_exe(object):
   'Class to deal with the python executable.'
@@ -95,109 +93,6 @@ class python_exe(object):
     return clazz.find_full_version(full_version) != None
 
   @classmethod
-  def source(clazz, exe):
-    '''Return the source of the python executable.  One of:
-          brew: brew (macos or linux)
-    python.org: python.org (macos)
-        system: builtin to system (macos or linux)
-       unknown: none of the above
-         xcode: part of xcode
-    '''
-    clazz.check_exe(exe)
-
-    if host.is_macos():
-      result = clazz._determine_source_macos(exe)
-    elif host.is_linux():
-      result = clazz._determine_source_linux(exe)
-    elif host.is_windows():
-      result = clazz._determine_source_windows(exe)
-    else:
-      host.raise_unsupported_system()
-    return result
-
-  @classmethod
-  def _determine_source_macos(clazz, exe):
-    'Determine the source of a python exe on macos'
-
-    if clazz._source_is_xcode(exe):
-      return 'xcode'
-    elif clazz._source_is_unix_system(exe):
-      return 'system'
-    elif clazz._source_is_brew(exe):
-      return 'brew'
-    elif clazz._source_is_python_org(exe):
-      return 'python.org'
-    else:
-      return 'unknown'
-
-  @classmethod
-  def _determine_source_windows(clazz, exe):
-    'Determine the source of a python exe on windows'
-
-    return 'unknown'
-
-  @classmethod
-  def _determine_source_linux(clazz, exe):
-    'Determine the source of a python exe on linux'
-
-    if clazz._source_is_unix_system(exe):
-      return 'system'
-    else:
-      return 'unknown'
-  
-  @classmethod
-  def _source_is_brew(clazz, exe):
-    'Return True if python executable is from brew'
-
-    if not brew.has_brew():
-      return False
-
-    # This is slighlty faster than checking inodes, but it does
-    # not always work depending on the python version and perhaps
-    # whether its the main one
-    if host.is_macos():
-      actual_exe = file_symlink.resolve(exe)
-      if 'cellar' in actual_exe.lower():
-        return True
-
-    # Check if the inode for exe matches a file in a python package in brew.
-    # Checking the inode deals with links, indirection and other tricks
-    # brew does to obfuscate the real exe
-    exe_inode = file_util.inode_number(exe)
-    b = brew()
-    packages = b.installed()
-    python_packages = [ p for p in packages if p.startswith('python@') ]
-    for next_package in python_packages:
-      files = b.files(next_package)
-      for f in files:
-        next_file_inode = file_util.inode_number(f)
-        if exe_inode == next_file_inode:
-          return True
-    return False
-
-  @classmethod
-  def _source_is_xcode(clazz, exe):
-    'Return True if python executable is from brew'
-
-    real_exe = clazz.sys_executable(exe)
-    return 'Applications/Xcode.app' in real_exe
-      
-  @classmethod
-  def _source_is_unix_system(clazz, exe):
-    'Return True if the given python executable came builtin to the current system'
-
-    if host.is_unix():
-      return exe.lower().startswith('/usr/bin/python')
-    else:
-      host.raise_unsupported_system()
-
-  @classmethod
-  def _source_is_python_org(clazz, exe):
-    'Return True if the given python executable is from python.org'
-
-    return False
-      
-  @classmethod
   def check_exe(clazz, python_exe, check_abs = True):
     'Check that python_exe appears to be a valid python exe and raise an error if not'
     check.check_string(python_exe)
@@ -211,67 +106,6 @@ class python_exe(object):
 
     return clazz.full_version(python_exe)
 
-  _run_script_result = namedtuple('_run_script_result', 'exit_code, output')
-  @classmethod
-  def run_script(clazz, exe, script, args = None):
-    'Run the script and return the result.'
-    clazz.check_exe(exe)
-    check.check_string(script)
-    check.check_string_seq(args, allow_none = True)
-
-    args = list(args or [])
-    tmp_script = temp_file.make_temp_file(content = script, suffix = '.py')
-    cmd = [ exe, tmp_script ] + args
-    clazz._log.log_d('run_script: exe={} cmd={}'.format(exe, cmd))
-    clazz._log.log_d('run_script: script=\n{}\n'.format(script))
-
-    try:
-      output_bytes = subprocess.check_output(cmd, stderr = subprocess.STDOUT)
-      exit_code = 0
-      clazz._log.log_d('run_script: success')
-    except subprocess.CalledProcessError as ex:
-      clazz._log.log_d('run_script: caught: {}'.format(str(ex)))
-      output_bytes = ex.output
-      exit_code = ex.returncode
-      clazz._log.log_d('run_script: failed')
-    finally:
-      file_util.remove(tmp_script)
-    output = codecs.decode(output_bytes, 'utf-8').strip()
-    clazz._log.log_d('run_script: exit_code={} output="{}"')
-    return clazz._run_script_result(exit_code, output)
-    
-  @classmethod
-  def sys_executable(clazz, exe):
-    'Return the value of sys.executable for the given python executable'
-    clazz.check_exe(exe)
-
-    script = r'''\
-import sys
-assert len(sys.argv) == 2
-_filename = sys.argv[1]
-with open(_filename, 'w') as f:
-  f.write(sys.executable)
-raise SystemExit(0)
-'''
-    tmp_output = temp_file.make_temp_file()
-    clazz.run_script(exe, script, [ tmp_output ])
-    return file_util.read(tmp_output, codec = 'utf-8').strip()
-
-  @classmethod
-  def site_packages_path(clazz, exe):
-    'Return a list of paths needed for the site-packages of the given python'
-    clazz.check_exe(exe)
-
-    script = r'''\
-import site
-for p in site.getsitepackages():
-  print(p)
-raise SystemExit(0)
-'''
-    rv = clazz.run_script(exe, script)
-    lines = [ line for line in rv.output.splitlines() if line ]
-    return lines
-  
   _python_exe_info = namedtuple('_python_exe_info', 'exe, version, full_version, source, sys_executable, real_executable, exe_links, pip_exe')
   @classmethod
   def info(clazz, exe):
@@ -281,9 +115,9 @@ raise SystemExit(0)
     main_exe, exe_links = clazz._determine_main_exe_and_links(exe)
     from .python_installation_v2 import python_installation_v2
     piv = python_installation_v2(main_exe)
-    sys_executable = clazz.sys_executable(main_exe)
+    sys_executable = python_script.sys_executable(main_exe)
     real_executable = file_symlink.resolve(sys_executable)
-    source = clazz.source(main_exe)
+    source = python_source.exe_source(main_exe)
     version = clazz.version(main_exe)
     full_version = clazz.full_version(main_exe)
     return clazz._python_exe_info(main_exe,

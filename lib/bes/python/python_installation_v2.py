@@ -15,6 +15,7 @@ from .python_error import python_error
 from .python_exe import python_exe
 from .python_pip_exe import python_pip_exe
 from .python_version import python_version
+from .python_script import python_script
 
 class python_installation_v2(object):
   'Class to determine the filename and directory values of a pip installatiuon.'
@@ -181,7 +182,7 @@ class python_installation_v2(object):
 
   @cached_property
   def PYTHONPATH(self):
-    return python_exe.site_packages_path(self.python_exe)
+    return python_script.site_packages_path(self.python_exe)
 
   @cached_property
   def windows_versioned_install_dirname(self):
