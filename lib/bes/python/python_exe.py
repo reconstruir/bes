@@ -354,27 +354,16 @@ raise SystemExit(0)
   @classmethod
   def _find_all_exes_in_PATH(clazz):
     'Return all the executables in PATH that match any patterns'
-    patterns = [
-      'python',
-      'python[0-9]',
-      'python[0-9].[0-9]',
-    ]
-    patterns_with_extensions = []
-    for pattern in patterns:
-      if host.is_windows():
-        patterns_with_extensions.extend([ pattern + os.extsep + ext for ext in which.EXE_EXTENSIONS ])
-      elif host.is_unix():
-        patterns_with_extensions.append(pattern)
-      else:
-        host.raise_unsupported_system()
+    exe_patterns = python_source.possible_python_exe_patterns()
     extra_path = python_source.possible_python_bin_dirs()
     env_path = os_env_var('PATH').path + extra_path
     sanitized_env_path = clazz._sanitize_env_path(env_path)
-    result = file_path.glob(sanitized_env_path, patterns_with_extensions)
-    clazz._log.log_d('patterns_with_extensions={}'.format(patterns_with_extensions))
-    clazz._log.log_d('                env_path={}'.format(env_path))
-    clazz._log.log_d('      sanitized_env_path={}'.format(sanitized_env_path))
-    clazz._log.log_d('                  result={}'.format(result))
+    result = file_path.glob(sanitized_env_path, exe_patterns)
+    clazz._log.log_d('      exe_patterns={}'.format(exe_patterns))
+    clazz._log.log_d('          env_path={}'.format(env_path))
+    clazz._log.log_d('        extra_path={}'.format(extra_path))
+    clazz._log.log_d('sanitized_env_path={}'.format(sanitized_env_path))
+    clazz._log.log_d('            result={}'.format(result))
     return result
 
   @classmethod

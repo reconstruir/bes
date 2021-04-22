@@ -34,3 +34,10 @@ class python_source(python_source_base):
   def possible_python_bin_dirs(clazz):
     'Return a list of possible dirs where the python executable might be.'
     return clazz._impl_class.possible_python_bin_dirs()
+
+  @classmethod
+  #@abstractmethod
+  def possible_python_exe_patterns(clazz):
+    'Return a list of possible python exe fnmatch patters.'
+    return clazz._impl_class.possible_python_exe_patterns()
+  

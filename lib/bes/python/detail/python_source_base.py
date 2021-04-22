@@ -20,3 +20,9 @@ class python_source_base(with_metaclass(ABCMeta, object)):
   def possible_python_bin_dirs(self):
     'Return a list of possible dirs where the python executable might be.'
     raise NotImplemented('possible_python_bin_dirs')
+
+  @classmethod
+  @abstractmethod
+  def possible_python_exe_patterns(clazz):
+    'Return a list of possible python exe fnmatch patters.'
+    raise NotImplemented('possible_python_exe_patterns')

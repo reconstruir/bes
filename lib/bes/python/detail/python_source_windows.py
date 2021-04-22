@@ -20,3 +20,21 @@ class python_source_windows(python_source_base):
       r'C:\Program Files\Python39',
       r'C:\Python27',
     ]
+
+  @classmethod
+  #@abstractmethod
+  def possible_python_exe_patterns(clazz):
+    'Return a list of possible python exe fnmatch patters.'
+    # There are no official pythons with cmd, bat or extensions
+    # but unit tests create such files to prove the api works
+    return [
+      'python.exe',
+      'python[0-9].exe',
+      'python[0-9].[0-9].exe',
+      'python.cmd',
+      'python[0-9].cmd',
+      'python[0-9].[0-9].cmd',
+      'python.bat',
+      'python[0-9].bat',
+      'python[0-9].[0-9].bat',
+    ]

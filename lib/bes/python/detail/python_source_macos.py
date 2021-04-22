@@ -1,12 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os
-import subprocess
+from .python_source_unix import python_source_unix
 
-from .python_source_base import python_source_base
-from bes.system.compat import compat
-
-class python_source_macos(python_source_base):
+class python_source_macos(python_source_unix):
 
   @classmethod
   #@abstractmethod
