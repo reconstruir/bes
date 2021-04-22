@@ -3,13 +3,8 @@
 from __future__ import print_function
 import ctypes
 from ctypes import wintypes
-import os
-import platform
-import sys
 
 from .filesystem_base import filesystem_base
-
-from bes.system.execute import execute
 
 GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
 GetCurrentProcess.restype = wintypes.HANDLE
