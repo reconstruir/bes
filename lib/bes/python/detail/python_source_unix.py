@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
+
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 from bes.system.user import user
@@ -32,3 +34,9 @@ class python_source_unix(with_metaclass(ABCMeta, object)):
   def _source_is_unix_system(clazz, exe):
     'Return True if the given python executable came builtin to the current system'
     return exe.lower().startswith('/usr/bin/python')
+
+  @classmethod
+  #@abstractmethod
+  def exe_name(self, exe):
+    'Return the name of a python exe.  without possible extensions or absolute paths.'
+    return path.basename(exe)

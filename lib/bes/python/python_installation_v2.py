@@ -15,8 +15,9 @@ from bes.fs.filename_util import filename_util
 from .python_error import python_error
 from .python_exe import python_exe
 from .python_pip_exe import python_pip_exe
-from .python_version import python_version
 from .python_script import python_script
+from .python_source import python_source
+from .python_version import python_version
 
 class python_installation_v2(object):
   'Class to determine the filename and directory values of a pip installatiuon.'
@@ -71,6 +72,13 @@ class python_installation_v2(object):
     else:
       root = basename
     f = re.findall(r'^{}(\d.*)$'.format(exe_type), root)
+    if not f:
+      return None
+    return f[0]
+
+  def exe_filename_version(clazz, exe_type, filename):
+    name = python_source.exe_name(filename)
+    f = re.findall(r'^{}(\d.*)$'.format(exe_type), name)
     if not f:
       return None
     return f[0]

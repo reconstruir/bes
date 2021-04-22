@@ -32,3 +32,9 @@ class python_source_base(with_metaclass(ABCMeta, object)):
   def possible_python_dir_should_be_ignored(clazz, dirname):
     'Return True if dirname should be ignored as a possible python bin dir.'
     raise NotImplemented('possible_python_dir_should_be_ignored')
+
+  @classmethod
+  @abstractmethod
+  def exe_name(self, exe):
+    'Return the name of a python exe.  without possible extensions or absolute paths.'
+    raise NotImplemented('exe_name')

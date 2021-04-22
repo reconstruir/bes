@@ -1,5 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
+
+from bes.fs.filename_util import filename_util
+from bes.python.python_error import python_error
+
 from .python_source_base import python_source_base
 
 class python_source_windows(python_source_base):
@@ -46,3 +51,12 @@ class python_source_windows(python_source_base):
     if r'Microsoft\WindowsApps' in dirname:
       return True
     return False
+
+  @classmethod
+  #@abstractmethod
+  def exe_name(self, exe):
+    'Return the name of a python exe.  without possible extensions or absolute paths.'
+    basename = path.basename(exe).lower()
+    if not filename_util.has_any_extension(exe, ( 'exe', 'bat', 'cmd' )):
+      raise python_error('windows executable filename not valid.  should have exe, cmd or bat extension: "{}"'.format(exe))
+    return filename_util.without_extension(basename)
