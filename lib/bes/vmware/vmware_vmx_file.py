@@ -23,7 +23,6 @@ class vmware_vmx_file(vmware_properties_file):
   @cached_property
   def nickname(self):
     'Return the nickname for a the vmx file'
-    print(self.filename)
     i = self.filename.rfind(os.sep)
     if i < 0:
       return None
