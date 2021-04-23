@@ -50,6 +50,22 @@ class vmware_local_vm(object):
   def snapshots(self):
     return self._runner.vm_snapshots(self.vmx_filename)
 
+  @cached_property
+  def system(self):
+    return self.vmx.system
+  
+  @cached_property
+  def system_info(self):
+    return self.vmx.system_info
+
+  @property
+  def display_name(self):
+    return self.vmx.display_name
+
+  @property
+  def interpreter(self):
+    return self.vmx.interpreter
+  
 #  @classmethod
 #  def _find_command_interpreter_class(clazz):
 #    from bes.system.host import host

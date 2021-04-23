@@ -621,13 +621,22 @@ class vmware(object):
 
     vm = self._resolve_vmx_to_local_vm(vm_id)
     data = [
-      (  'vmx_filename', vm.vmx_filename, ),
-      (  'nickname', vm.nickname, ),
-      (  'uuid', vm.uuid ),
-      (  'snapshots', ' '.join(vm.snapshots) ),
-      (  'is_running', vm.is_running ),
-      (  'ip_address', vm.ip_address ),
+      ( 'vmx_filename', vm.vmx_filename, ),
+      ( 'display_name', vm.display_name ),
+      ( 'interpreter', vm.interpreter ),
+      ( 'ip_address', vm.ip_address ),
+      ( 'is_running', vm.is_running ),
+      ( 'nickname', vm.nickname, ),
+      ( 'system arch', vm.system_info.arch ),
+      ( 'system distro', vm.system_info.distro or '' ),
+      ( 'system family', vm.system_info.family or '' ),
+      ( 'system version', vm.system_info.version ),
+      ( 'system', vm.system_info.system ),
+      ( 'uuid', vm.uuid ),
     ]
+    for i, snapshot in enumerate(vm.snapshots):
+      data.append( ( 'snapshot {}'.format(i + 1), snapshot ) )
+      
     tt = text_table(data = data)
     print(tt)
     #tt.set_labels( tuple([ f.upper() for f in vms[0]._fields ]) )
