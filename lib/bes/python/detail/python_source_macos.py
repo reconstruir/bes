@@ -2,8 +2,8 @@
 
 from bes.fs.file_symlink import file_symlink
 from bes.fs.file_util import file_util
+from bes.fs.file_path import file_path
 from bes.python.python_script import python_script
-from bes.unix.brew.brew import brew
 
 from .python_source_unix import python_source_unix
 
@@ -45,27 +45,16 @@ class python_source_macos(python_source_unix):
   def _source_is_brew(clazz, exe):
     'Return True if python executable is from brew'
     
-    if not brew.has_brew():
-      return False
-
-    # This is slighlty faster than checking inodes, but it does
-    # not always work depending on the python version and perhaps
-    # whether its the main one
+    # First check the exe itself to see if its in the brew "cellar"
     actual_exe = file_symlink.resolve(exe)
     if 'cellar' in actual_exe.lower():
       return True
 
-    # Check if the inode for exe matches a file in a python package in brew.
-    # Checking the inode deals with links, indirection and other tricks
-    # brew does to obfuscate the real exe
-    exe_inode = file_util.inode_number(exe)
-    b = brew()
-    packages = b.installed()
-    python_packages = [ p for p in packages if p.startswith('python@') ]
-    for next_package in python_packages:
-      files = b.files(next_package)
-      for f in files:
-        next_file_inode = file_util.inode_number(f)
-        if exe_inode == next_file_inode:
-          return True
+    # Next check the exe prefix standard to brew to check if that is in the brew "cellar"
+    if actual_exe.startswith('/usr/local/opt/python@'):
+      parts = file_path.split(actual_exe)
+      prefix = file_path.join(parts[0:5])
+      actual_prefix = file_symlink.resolve(prefix)
+      if 'cellar' in actual_prefix.lower():
+        return True
     return False
