@@ -3,17 +3,16 @@
 import pprint
 import os.path as path
 
-from abc import abstractmethod, ABCMeta
-
-from bes.system.compat import with_metaclass
 from bes.common.dict_util import dict_util
 from bes.common.check import check
 from bes.config.simple_config import simple_config
 from bes.system.log import logger
 
+from .cli_options_base import cli_options_base
+
 _HINT_CACHE = {}
 
-class cli_options(with_metaclass(ABCMeta, object)):
+class cli_options(cli_options_base):
 
   _log = logger('cli_options')
   
@@ -35,43 +34,6 @@ class cli_options(with_metaclass(ABCMeta, object)):
     d = dict_util.hide_passwords(self.__dict__, sensitive_keys)
     return pprint.pformat(d)
     
-  @classmethod
-  @abstractmethod
-  def default_values(clazz):
-    'Return a dict of default values for these options.'
-    raise NotImplemented('default_values')
-
-  @classmethod
-  @abstractmethod
-  def sensitive_keys(clazz):
-    'Return a tuple of keys that are secrets and should be protected from __str__.'
-    raise NotImplemented('sensitive_keys')
-
-  @classmethod
-  @abstractmethod
-  def value_type_hints(clazz):
-    raise NotImplemented('morph_value_types')
-
-  @classmethod
-  @abstractmethod
-  def config_file_key(clazz):
-    raise NotImplemented('config_file_key')
-
-  @classmethod
-  @abstractmethod
-  def config_file_section(clazz):
-    raise NotImplemented('config_file_section')
-
-  @classmethod
-  @abstractmethod
-  def error_class(clazz):
-    raise NotImplemented('error_class')
-
-  @abstractmethod
-  def check_value_types(self):
-    'Check the type of each option.'
-    raise NotImplemented('check_value_types')
-  
   def _valid_keys(self):
     'Return a list of valid keys for values in these options'
     return [ key for key in self.__dict__.keys() ]
@@ -91,6 +53,8 @@ class cli_options(with_metaclass(ABCMeta, object)):
     self._log.log_d('_do_update_values: update after: {}'.format(str(self)))
 
   def _get_value_type_hint(self, key):
+    # use a global hint cache to not pollute either self or self.__class__
+    # with attributes that will get confused with option ones
     global _HINT_CACHE
     if not self.__class__ in _HINT_CACHE:
       _HINT_CACHE[self.__class__] = self.value_type_hints()
