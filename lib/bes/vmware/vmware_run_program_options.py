@@ -45,6 +45,11 @@ class vmware_run_program_options(cli_options):
 
   @classmethod
   #@abstractmethod
+  def config_file_env_var_name(clazz):
+    return None
+  
+  @classmethod
+  #@abstractmethod
   def config_file_section(clazz):
     return None
 

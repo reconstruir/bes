@@ -3,10 +3,11 @@
 import pprint
 import os.path as path
 
-from bes.common.dict_util import dict_util
 from bes.common.check import check
+from bes.common.dict_util import dict_util
 from bes.config.simple_config import simple_config
 from bes.system.log import logger
+from bes.system.os_env import os_env_var
 
 from .cli_options_base import cli_options_base
 
@@ -73,17 +74,31 @@ class cli_options(cli_options_base):
   def _read_config_file(clazz, cli_values):
     check.check_dict(cli_values)
 
-    config_file_key = clazz.config_file_key()
-    if not config_file_key:
-      return {}
+    clazz._log.log_d('_read_config_file: cli_values={}'.format(cli_values))
     
-    config_filename = None
-    if config_file_key in cli_values:
-      config_filename = cli_values[config_file_key]
-      del cli_values[config_file_key]
+    config_filename = None    
+    config_file_env_var_name = clazz.config_file_env_var_name()
+    clazz._log.log_d('_read_config_file: config_file_env_var_name={}'.format(config_file_env_var_name))
+    if config_file_env_var_name:
+      v = os_env_var(config_file_env_var_name)
+      if v.is_set:
+        clazz._log.log_d('_read_config_file: using env config file {}'.format(v.value))
+        config_filename = v.value
+        
+    if not config_filename:
+      config_file_key = clazz.config_file_key()
+      clazz._log.log_d('_read_config_file: config_file_key={}'.format(config_file_key))
+      if not config_file_key:
+        return {}
+    
+      if config_file_key in cli_values:
+        config_filename = cli_values[config_file_key]
+        clazz._log.log_d('_read_config_file: using config file {}'.format(config_filename))
+        del cli_values[config_file_key]
 
     if config_filename == None:
       return {}
+    clazz._log.log_d('_read_config_file: loading config file filename {}'.format(config_filename))
     return clazz._values_from_config_file(config_filename)
 
   def _extract_valid_non_default_values(clazz, values, default_values):

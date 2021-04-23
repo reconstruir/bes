@@ -29,6 +29,11 @@ class cli_options_base(with_metaclass(ABCMeta, object)):
 
   @classmethod
   @abstractmethod
+  def config_file_env_var_name(clazz):
+    raise NotImplemented('config_file_env_var_name')
+  
+  @classmethod
+  @abstractmethod
   def config_file_section(clazz):
     raise NotImplemented('config_file_section')
 

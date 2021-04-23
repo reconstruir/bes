@@ -14,7 +14,11 @@ class vmware_local_vm(object):
 
   logger = logger('vmware_local_vm')
   
-  def __init__(self, vmx_filename):
+  def __init__(self, runner, vmx_filename):
+    check.check_vmware_vmrun(runner)
+    check.check_string(vmx_filename)
+
+    self._runner = runner
     self.vmx_filename = path.abspath(vmx_filename)
     self.vmx = vmware_vmx_file(self.vmx_filename)
     #command_interpreter_class = self._find_command_interpreter_class()
@@ -34,6 +38,18 @@ class vmware_local_vm(object):
   def uuid(self):
     return self.vmx.uuid
 
+  @property
+  def is_running(self):
+    return self._runner.vm_is_running(self.vmx_filename)
+
+  @property
+  def ip_address(self):
+    return self._runner.vm_get_ip_address(self.vmx_filename)
+
+  @property
+  def snapshots(self):
+    return self._runner.vm_snapshots(self.vmx_filename)
+
 #  @classmethod
 #  def _find_command_interpreter_class(clazz):
 #    from bes.system.host import host
@@ -48,3 +64,4 @@ class vmware_local_vm(object):
 #      return vmware_command_interpreter_windows
 #    else:
 #      host.raise_unsupported_system()
+check.register_class(vmware_local_vm)

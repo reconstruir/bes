@@ -9,16 +9,17 @@ import time
 import tempfile
 import inspect
 
-from bes.system.log import logger
-from bes.system.command_line import command_line
-from bes.system.host import host
-from bes.common.time_util import time_util
+from bes.archive.archiver import archiver
 from bes.common.check import check
 from bes.common.string_util import string_util
+from bes.common.time_util import time_util
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
-from bes.archive.archiver import archiver
+from bes.system.command_line import command_line
+from bes.system.host import host
+from bes.system.log import logger
+from bes.text.text_table import text_table
 
 from .vmware_app import vmware_app
 from .vmware_command_interpreter_manager import vmware_command_interpreter_manager
@@ -54,7 +55,7 @@ class vmware(object):
     local_vms = {}
     vmx_files = file_find.find(self._vm_dir, relative = False, match_patterns = [ '*.vmx' ])
     for vmx_filename in vmx_files:
-      local_vm = vmware_local_vm(vmx_filename)
+      local_vm = vmware_local_vm(self._runner, vmx_filename)
       local_vms[vmx_filename] = local_vm
     return local_vms
     
@@ -471,6 +472,10 @@ class vmware(object):
       raise vmware_error('failed to resolve vmx filename for id: "{}"'.format(vm_id))
     self._log.log_d('_resolve_vmx_filename: vm_id={} vmx_filename={}'.format(vm_id, vmx_filename))
     return vmx_filename
+
+  def _resolve_vmx_to_local_vm(self, vm_id, raise_error = True):
+    vmx_filename = self._resolve_vmx_filename(vm_id, raise_error = raise_error)
+    return vmware_local_vm(self._runner, vmx_filename)
   
   def _resolve_vmx_filename_local_vms(self, vm_id):
     if vmware_vmx_file.is_vmx_file(vm_id):
@@ -602,7 +607,27 @@ class vmware(object):
     for snapshot in snapshots:
       print(snapshot)
 
-  def vms(self):
+  def vms(self, show_info):
+    check.check_bool(show_info)
+    
     self._log.log_method_d()
     for _, vm in self.local_vms.items():
       print(vm)
+
+  def vm_info(self, vm_id):
+    check.check_string(vm_id)
+
+    self._log.log_method_d()
+
+    vm = self._resolve_vmx_to_local_vm(vm_id)
+    data = [
+      (  'vmx_filename', vm.vmx_filename, ),
+      (  'nickname', vm.nickname, ),
+      (  'uuid', vm.uuid ),
+      (  'snapshots', ' '.join(vm.snapshots) ),
+      (  'is_running', vm.is_running ),
+      (  'ip_address', vm.ip_address ),
+    ]
+    tt = text_table(data = data)
+    print(tt)
+    #tt.set_labels( tuple([ f.upper() for f in vms[0]._fields ]) )
