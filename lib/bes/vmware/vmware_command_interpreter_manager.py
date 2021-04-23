@@ -2,12 +2,14 @@
 
 from bes.common.check import check
 from bes.system.host import host
+from bes.common.singleton import singleton
 
 from .vmware_command_interpreter_registry import vmware_command_interpreter_registry
 from .vmware_error import vmware_error
 
 from .command_interpreters import *
 
+@singleton
 class vmware_command_interpreter_manager(object):
 
   def __init__(self):
