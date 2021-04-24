@@ -23,11 +23,9 @@ class vmware_vmrun(object):
 
   _log = logger('vmware_vmrun')
   
-  def __init__(self, login_credentials = None):
-    check.check_credentials(login_credentials, allow_none = True)
-
-    self._login_credentials = login_credentials
-    self._auth_args = self._make_vmrun_auth_args(self._login_credentials)
+  def __init__(self, options):
+    check.check_vmware_options(options)
+    self._options = options
 
   @classmethod
   def _make_vmrun_auth_args(clazz, cred):
@@ -38,8 +36,8 @@ class vmware_vmrun(object):
     return args
     
   _run_result = namedtuple('_run_result', 'output, exit_code, args')
-  def run(self, args, extra_env = None, no_output = False,
-          raise_error = False, error_message = None):
+  def run(self, args, login_credentials = None, extra_env = None,
+          no_output = False, raise_error = False, error_message = None):
     check.check_string_seq(args)
     check.check_dict(extra_env, allow_none = True)
     check.check_bool(raise_error)
@@ -47,7 +45,8 @@ class vmware_vmrun(object):
 
     self._log.log_method_d()
     exe = vmware_app.vmrun_exe_path()
-    vmrun_args = [ exe ] + self._auth_args + list(args)
+    auth_args = self._make_vmrun_auth_args(login_credentials)
+    vmrun_args = [ exe ] + auth_args + list(args)
     self._log.log_d('run: vmrun_args={}'.format(vmrun_args))
     env = os_env.clone_current_env(d = extra_env)
     process = subprocess.Popen(vmrun_args,
@@ -226,11 +225,13 @@ class vmware_vmrun(object):
                     raise_error = True,
                     error_message = 'Failed to delete vm: {}'.format(vmx_filename))
 
-  def vm_run_program(self, vmx_filename, program, program_args, run_program_options):
+  def vm_run_program(self, vmx_filename, program, program_args,
+                     run_program_options, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(program)
     check.check_string_seq(program_args)
     check.check_vmware_run_program_options(run_program_options)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -239,13 +240,15 @@ class vmware_vmrun(object):
     ] + run_program_options.to_vmrun_command_line_args() + [
       program,
     ] + list(program_args)
-    return self.run(args, raise_error = False)
+    return self.run(args, login_credentials = login_credentials, raise_error = False)
   
-  def vm_run_script(self, vmx_filename, interpreter_path, script_text, run_program_options):
+  def vm_run_script(self, vmx_filename, interpreter_path, script_text,
+                    run_program_options, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(interpreter_path)
     check.check_string(script_text)
     check.check_vmware_run_program_options(run_program_options)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -255,7 +258,7 @@ class vmware_vmrun(object):
       interpreter_path,
       script_text,
     ]
-    return self.run(args, raise_error = False)
+    return self.run(args, login_credentials = login_credentials, raise_error = False)
   
   def running_vms(self):
     self._log.log_method_d()

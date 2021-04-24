@@ -16,13 +16,15 @@ class vmware_local_vm(object):
 
   _log = logger('vmware_local_vm')
   
-  def __init__(self, runner, vmx_filename):
+  def __init__(self, runner, vmx_filename, login_credentials):
     check.check_vmware_vmrun(runner)
     check.check_string(vmx_filename)
+    check.check_credentials(login_credentials)
 
     self._runner = runner
     self.vmx_filename = path.abspath(vmx_filename)
     self.vmx = vmware_vmx_file(self.vmx_filename)
+    self.login_credentials = login_credentials
     
   def __str__(self):
     return self.vmx_filename
@@ -85,7 +87,8 @@ class vmware_local_vm(object):
     rv = self._runner.vm_run_script(self.vmx_filename,
                                     command.interpreter_path,
                                     command.script_text,
-                                    run_program_options)
+                                    run_program_options,
+                                    self.login_credentials)
     self._log.log_d('can_run_programs: exit_code={}'.format(rv.exit_code))
     return rv.exit_code == 0
 

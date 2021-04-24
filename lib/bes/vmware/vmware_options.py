@@ -108,4 +108,35 @@ class vmware_options(cli_options):
       return None
     return credentials('<cli>', username = self.login_username, password = self.login_password)
   
+  def resolve_login_username(self, vm_name):
+    check.check_string(vm_name)
+    config = self.config_file
+    if not config:
+      return self.login_username
+    has = config.has_section(vm_name)
+    if config.has_section(vm_name):
+      return config.get_value_with_default(vm_name, 'login_username', self.login_username)
+    return self.login_username
+
+  def resolve_login_password(self, vm_name):
+    check.check_string(vm_name)
+    config = self.config_file
+    if not config:
+      return self.login_password
+    if config.has_section(vm_name):
+      return config.get_value_with_default(vm_name, 'login_password', self.login_password)
+    return self.login_password
+
+  def resolve_login_credentials(self, vm_name):
+    login_username = self.resolve_login_username(vm_name)
+    login_password = self.resolve_login_password(vm_name)
+    if login_username and not login_password:
+      raise vmware_error('both login_username and login_password need to be given.')
+    if login_password and not login_username:
+      raise vmware_error('both login_password and login_username need to be given.')
+    if not login_username:
+      assert not login_password
+      return None
+    return credentials('<cli>', username = login_username, password = login_password)
+  
 check.register_class(vmware_options)

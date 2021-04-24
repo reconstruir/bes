@@ -47,7 +47,7 @@ class vmware(object):
     if not self._vm_dir:
       raise vmware_error('no vm_dir given in options and no default configured in {}'.format(self._preferences_filename))
     self._session = None
-    self._runner = vmware_vmrun(login_credentials = self._options.login_credentials)
+    self._runner = vmware_vmrun(self._options)
     self._command_interpreter_manager = vmware_command_interpreter_manager.instance()
 
   @property
@@ -55,7 +55,9 @@ class vmware(object):
     local_vms = {}
     vmx_files = file_find.find(self._vm_dir, relative = False, match_patterns = [ '*.vmx' ])
     for vmx_filename in vmx_files:
-      local_vm = vmware_local_vm(self._runner, vmx_filename)
+      nickname = vmware_vmx_file(vmx_filename).nickname
+      login_credentials = self._options.resolve_login_credentials(nickname)
+      local_vm = vmware_local_vm(self._runner, vmx_filename, login_credentials)
       local_vms[vmx_filename] = local_vm
     return local_vms
     
@@ -510,7 +512,9 @@ class vmware(object):
 
   def _resolve_vmx_to_local_vm(self, vm_id, raise_error = True):
     vmx_filename = self._resolve_vmx_filename(vm_id, raise_error = raise_error)
-    return vmware_local_vm(self._runner, vmx_filename)
+    nickname = vmware_vmx_file(vmx_filename).nickname
+    login_credentials = self._options.resolve_login_credentials(nickname)
+    return vmware_local_vm(self._runner, vmx_filename, login_credentials)
   
   def _resolve_vmx_filename_local_vms(self, vm_id):
     if vmware_vmx_file.is_vmx_file(vm_id):
