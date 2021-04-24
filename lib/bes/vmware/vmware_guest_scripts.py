@@ -169,3 +169,45 @@ class package_caller(object):
 if __name__ == '__main__':
   package_caller.run()
 '''  
+
+  RUN_SCRIPT_WINDOWS_CMD = r'''
+$_DEBUG=$false
+#$_DEBUG=$true
+
+function bes_script_name() {
+  $argv_0=&{ $myInvocation.ScriptName }
+  $argv0_info = New-Object System.IO.FileInfo($argv_0)
+  $name = $argv0_info.BaseName + $argv0_info.Extension
+  return $name
+}
+$_SCRIPT_NAME=bes_script_name
+
+function bes_log($message) {
+  if (-not $_DEBUG) {
+    return
+  }
+  write-host "${_SCRIPT_NAME}: $message"
+}
+
+function main($main_args) {
+  $num=$main_args.Length
+  if ( $num -lt 2 ) {
+    write-host "usage ${_SCRIPT_NAME} script log_file <args>"
+    return 1
+  }
+  bes_log "main_args: $main_args"
+  $script=$main_args[0]
+  $log_file=$main_args[1]
+  $rest_args=$main_args[2..$main_args.Length]
+  bes_log "rest_args: $rest_args"  
+  bes_log "${_SCRIPT_NAME}: script=$script log_file=$log_file"
+  & $script $rest_args 2>&1 > $log_file
+  bes_log "args. ps1:LASTEXITCODE=$LASTEXITCODE"
+  $script_rv=$LASTEXITCODE
+  return $script_rv
+}
+
+$rv=main $Args
+bes_log "${_SCRIPT_NAME}: rv=" $rv
+exit $rv
+'''
