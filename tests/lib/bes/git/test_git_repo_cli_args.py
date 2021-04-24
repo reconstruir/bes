@@ -186,7 +186,7 @@ push origin master
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
     r2 = git_repo(tmp_dir)
-    self.assertEqual( '1.0.1', r2.greatest_local_tag() )
+    self.assertEqual( '1.0.1', r2.greatest_local_tag().name )
     self.assertEqual( [
       'kiwi.txt',
     ], r2.find_all_files() )
@@ -211,7 +211,7 @@ push origin master
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
     r2 = git_repo(tmp_dir)
-    self.assertEqual( '1.0.1', r2.greatest_local_tag() )
+    self.assertEqual( '1.0.1', r2.greatest_local_tag().name )
     self.assertEqual( [
       'kiwi.txt',
     ], r2.find_all_files() )

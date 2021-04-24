@@ -16,12 +16,22 @@ class matcher_filename(matcher_base):
       
   def match(self, text):
     if self._ignore_case:
-      return fnmatch.fnmatch(text.lower(), self._escaped_pattern)
+      match_text = text.lower()
+      func = fnmatch.fnmatch
     else:
-      return fnmatch.fnmatchcase(text, self._escaped_pattern)
+      match_text = text
+      func = fnmatch.fnmatchcase
+    result = func(match_text, self._escaped_pattern)
+    if False:
+      print('match: text="{}" match-text="{}" pattern="{}" func={} => {}'.format(text,
+                                                                                 match_text,
+                                                                                 self._escaped_pattern,
+                                                                                 func,
+                                                                                 result))
+    return result
 
   def __str__(self):
-    return '(%s, %s)' % (self._pattern, self._ignore_case)
+    return '({}, {})'.format(self._pattern, self._ignore_case)
 
   @classmethod
   def _escape_pattern(clazz, pattern):

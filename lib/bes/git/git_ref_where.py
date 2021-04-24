@@ -8,6 +8,7 @@ class git_ref_where(object):
   'Enumeration indicating where a ref came from.  local, remote or both'
 
   WHERES = ( 'local', 'remote', 'both' )
+  DEFAULT_WHERE = 'local'
   
   @classmethod
   def where_is_valid(clazz, where):
@@ -15,6 +16,8 @@ class git_ref_where(object):
 
   @classmethod
   def check_where(clazz, where):
+    if not where:
+      return clazz.DEFAULT_WHERE
     if not clazz.where_is_valid(where):
       raise git_error('invalid "where": "{}" - should be one of local remote or both'.format(where))
     return where

@@ -31,7 +31,7 @@ class test_file_mime(unit_test):
     
   @skip_if_not_windows()
   def test_is_binary_windows(self):
-    self.assertTrue( file_mime.is_text(sys.executable) )
+    self.assertTrue( file_mime.is_binary(sys.executable) )
     
   def test_is_text(self):
     self.assertTrue( file_mime.is_text(self.make_temp_file(content = 'this is text\n', suffix = '.txt')) )

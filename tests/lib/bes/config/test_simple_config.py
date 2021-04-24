@@ -4,9 +4,13 @@
 from __future__ import unicode_literals
 
 import os
+import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.config.simple_config import simple_config
+from bes.config.simple_config_options import simple_config_options
 from bes.system.env_override import env_override
+from bes.system.host import host
+from bes.system.user import user
 from bes.key_value.key_value_list import key_value_list as KVL
 
 class test_simple_config(unit_test):
@@ -251,7 +255,7 @@ fruit
   def test_invalid_key(self):
     text = '''\
 foo
-  in.valid: bar
+  in@valid: bar
 '''
     with self.assertRaises(simple_config.error) as ctx:
       simple_config.from_text(text)
@@ -574,7 +578,7 @@ kiwi extends fruit foo
     self.assertEqual( 'foo', section.header_.extra_text )
 
   @classmethod
-  def _parse_ssh_config_entry(clazz, text, origin = None, validate_key_characters = False):
+  def _parse_ssh_config_entry(clazz, text, origin, options):
     from bes.common.check import check
     from bes.common.string_util import string_util
     from bes.key_value.key_value import key_value
@@ -582,6 +586,8 @@ kiwi extends fruit foo
 
     check.check_string(text)
     check.check_simple_config_origin(origin)
+    check.check_simple_config_options(options)
+    
     hints = {}
     if '=' in text:
       kv = key_value.parse(text)
@@ -622,7 +628,7 @@ Host *
     c = simple_config.from_text(text,
                                 entry_parser = self._parse_ssh_config_entry,
                                 entry_formatter = self._ssh_config_entry_formatter)
-    self.assertMultiLineEqual( text.strip(), str(c).strip() )
+    self.assert_string_equal( text, str(c), strip = True, native_line_breaks = True )
       
   def test_multi_line_values(self):
     text = '''
@@ -686,7 +692,7 @@ abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
 abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz12
 -----END RSA PRIVATE KEY-----'''
     
-    self.assertMultiLineEqual( key_expected, c.kiwi.key )
+    self.assert_string_equal( key_expected, c.kiwi.key, native_line_breaks = True )
 
   def test_clear_value(self):
     text = '''\
@@ -786,17 +792,17 @@ cheese
   color: cream
 '''
     s1 = simple_config.from_text(text)
-    self.assertEqual( text, str(s1) )
+    self.assert_string_equal( text, str(s1), native_line_breaks = True )
 
     s2 = s1.clone()
-    self.assertEqual( text, str(s2) )
+    self.assert_string_equal( text, str(s2), native_line_breaks = True )
 
     s2.remove_section('wine')
-    self.assertEqual( text, str(s1) )
+    self.assert_string_equal( text, str(s1), native_line_breaks = True )
     self.assertNotEqual( text, str(s2) )
 
     s2.cheese.add_value('price', '100')
-    self.assertEqual( text, str(s1) )
+    self.assert_string_equal( text, str(s1), native_line_breaks = True )
     self.assertNotEqual( text, str(s2) )
 
   def xtest_unicode(self):
@@ -808,6 +814,215 @@ cheese
 s1
   v1: this Д is cyrillic
 ''', str(c) )
+
+  def test_set_value(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( 'tart', s.get_value('fruit', 'flavor') )
+    s.set_value('fruit', 'flavor', 'sweet')
+    self.assertEqual( 'sweet', s.get_value('fruit', 'flavor') )
+    
+  def test_set_values(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+'''
+    s = simple_config.from_text(text)
+    self.assertEqual( {
+      'name': 'lemon',
+      'flavor': 'tart',
+      'color': 'yellow'
+    }, s.get_values('fruit') )
+    s.set_values('fruit', {
+      'name': 'kiwi',
+      'color': 'green',
+      'where': 'new zealand',
+    })
+    self.assertEqual( {
+      'name': 'kiwi',
+      'flavor': 'tart',
+      'color': 'green',
+      'where': 'new zealand',
+    }, s.get_values('fruit') )
+
+  def test_set_value_new_section(self):
+    text = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+'''
+    s = simple_config.from_text(text)
+    s.set_value('cheese', 'name', 'brie')
+    s.set_value('cheese', 'texture', 'creamy')
+    self.assertEqual( 'brie', s.get_value('cheese', 'name') )
+    self.assertEqual( 'creamy', s.get_value('cheese', 'texture') )
+
+    expected = '''\
+fruit
+  name: lemon
+  flavor: tart
+  color: yellow
+
+cheese
+  name: brie
+  texture: creamy
+'''
+    self.assert_string_equal( expected, str(s), strip = True, native_line_breaks = True, multi_line = True )
+
+  def test_empty_content(self):
+    s = simple_config(source = '<unit_test>')
+    s.set_values('cheese', { 'name': 'brie', 'texture': 'creamy' })
+    expected = '''\
+cheese
+  name: brie
+  texture: creamy
+'''
+
+    self.assert_string_equal( expected, str(s), strip = True, native_line_breaks = True, multi_line = True )
+    
+  def test_empty_content(self):
+    s = simple_config.from_text('')
+    self.assertEqual( [], s.section_names() )
+
+  def test_dots_in_keys(self):
+    text = '''\
+foo
+  kiwi_3.8: a
+  kiwi_3.9: b
+
+bar
+  kiwi_3.8: c
+  kiwi_3.9: d
+'''
+    options = simple_config_options(key_check_type = simple_config_options.KEY_CHECK_ANY)
+    s = simple_config.from_text(text, options = options)
+    self.assertEqual( 'a', s.get_value('foo', 'kiwi_3.8') )
+    self.assertEqual( 'b', s.get_value('foo', 'kiwi_3.9') )
+    self.assertEqual( 'c', s.get_value('bar', 'kiwi_3.8') )
+    self.assertEqual( 'd', s.get_value('bar', 'kiwi_3.9') )
+    
+  def test_variables_section(self):
+    text = '''\
+kiwi
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+
+apple
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+
+lemon
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+'''
+    tmp = self.make_temp_file(content = text, suffix = '.config')
+    s = simple_config.from_file(tmp)
+    s.kiwi.set_variables({
+      'COLOR': 'green',
+      'FLAVOR': 'tart',
+    })
+    s.apple.set_variables({
+      'COLOR': 'red',
+      'FLAVOR': 'sweet',
+    })
+    self.assertEqual( 'small', s.kiwi.size )
+    self.assertEqual( 'green', s.kiwi.color )
+    self.assertEqual( 'tart', s.kiwi.flavor )
+
+    self.assertEqual( 'small', s.apple.size )
+    self.assertEqual( 'red', s.apple.color )
+    self.assertEqual( 'sweet', s.apple.flavor )
+
+    self.assertEqual( 'small', s.lemon.size )
+    with self.assertRaises(simple_config.error):
+      s.lemon.color
+    with self.assertRaises(simple_config.error):
+      s.lemon.flavor
+
+  def test_variables_global(self):
+    text = '''\
+kiwi
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+
+apple
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+
+lemon
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+'''
+    tmp = self.make_temp_file(content = text, suffix = '.config')
+    s = simple_config.from_file(tmp)
+    s.set_variables({
+      'COLOR': 'green',
+      'FLAVOR': 'tart',
+    })
+    self.assertEqual( 'small', s.kiwi.size )
+    self.assertEqual( 'green', s.kiwi.color )
+    self.assertEqual( 'tart', s.kiwi.flavor )
+
+    self.assertEqual( 'small', s.apple.size )
+    self.assertEqual( 'green', s.apple.color )
+    self.assertEqual( 'tart', s.apple.flavor )
+
+    self.assertEqual( 'small', s.lemon.size )
+    self.assertEqual( 'green', s.lemon.color )
+    self.assertEqual( 'tart', s.lemon.flavor )
+
+  def test_variables_global_and_section(self):
+    text = '''\
+kiwi
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+
+apple
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+
+lemon
+  color: ${COLOR}
+  flavor: ${FLAVOR}
+  size: small
+'''
+    tmp = self.make_temp_file(content = text, suffix = '.config')
+    s = simple_config.from_file(tmp)
+    s.set_variables({
+      'COLOR': 'green',
+      'FLAVOR': 'tart',
+    })
+    s.apple.set_variables({
+      'COLOR': 'red',
+      'FLAVOR': 'sweet',
+    })
+    self.assertEqual( 'small', s.kiwi.size )
+    self.assertEqual( 'green', s.kiwi.color )
+    self.assertEqual( 'tart', s.kiwi.flavor )
+
+    self.assertEqual( 'small', s.apple.size )
+    self.assertEqual( 'red', s.apple.color )
+    self.assertEqual( 'sweet', s.apple.flavor )
+
+    self.assertEqual( 'small', s.lemon.size )
+    self.assertEqual( 'green', s.lemon.color )
+    self.assertEqual( 'tart', s.lemon.flavor )
     
 if __name__ == '__main__':
   unit_test.main()

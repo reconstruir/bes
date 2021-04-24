@@ -1,8 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from functools import wraps
-import unittest
-from os import path
+import os
+import os.path as path
 
 from bes.fs.file_util import file_util
 from bes.testing.unit_test import unit_test
@@ -15,15 +15,21 @@ class git_unit_test(object):
 
   @classmethod
   def set_identity(clazz):
-    if not path.exists(path.expanduser('~/.gitconfig')):
+    if not path.exists(path.expanduser(clazz.gitconfig_filename())):
       git.config_set_identity('Unit Test', 'unittest@example.com')
       setattr(clazz, '_did_set_git_identity', True)
 
   @classmethod
   def unset_identity(clazz):
     if getattr(clazz, '_did_set_git_identity', False):
-      file_util.remove(path.expanduser('~/.gitconfig'))
+      file_util.remove(clazz.gitconfig_filename())
 
+  @classmethod
+  def gitconfig_filename(clazz):
+    # Dont use path.expanduser() because starting with python 3.8 on windows
+    # it no longer uses the value of %HOME%
+    return path.join(os.environ.get('HOME'), '.gitconfig')
+      
 def git_temp_home_func():
   'A decorator to override HOME for a function.'
   def _wrap(func):

@@ -10,23 +10,23 @@ from bes.fs.file_util import file_util
 class test_file_util(unit_test):
 
   def test_lstrip_sep(self):
-    self.assertEqual( self.p('foo'), file_util.lstrip_sep('foo') )
-    self.assertEqual( self.p('foo'), file_util.lstrip_sep(self.p('/foo')) )
-    self.assertEqual( self.p('foo/'), file_util.lstrip_sep(self.p('/foo/')) )
-    self.assertEqual( self.p(''), file_util.lstrip_sep(self.p('/')) )
-    self.assertEqual( self.p('foo.txt'), file_util.lstrip_sep(self.p('/foo.txt')) )
+    self.assertEqual( self.native_filename('foo'), file_util.lstrip_sep('foo') )
+    self.assertEqual( self.native_filename('foo'), file_util.lstrip_sep(self.native_filename('/foo')) )
+    self.assertEqual( self.native_filename('foo/'), file_util.lstrip_sep(self.native_filename('/foo/')) )
+    self.assertEqual( self.native_filename(''), file_util.lstrip_sep(self.native_filename('/')) )
+    self.assertEqual( self.native_filename('foo.txt'), file_util.lstrip_sep(self.native_filename('/foo.txt')) )
 
   def test_rstrip_sep(self):
-    self.assertEqual( self.p('foo'), file_util.rstrip_sep(self.p('foo')) )
-    self.assertEqual( self.p('/foo'), file_util.rstrip_sep(self.p('/foo')) )
-    self.assertEqual( self.p('/foo'), file_util.rstrip_sep(self.p('/foo/')) )
-    self.assertEqual( self.p(''), file_util.rstrip_sep(self.p('/')) )
+    self.assertEqual( self.native_filename('foo'), file_util.rstrip_sep(self.native_filename('foo')) )
+    self.assertEqual( self.native_filename('/foo'), file_util.rstrip_sep(self.native_filename('/foo')) )
+    self.assertEqual( self.native_filename('/foo'), file_util.rstrip_sep(self.native_filename('/foo/')) )
+    self.assertEqual( self.native_filename(''), file_util.rstrip_sep(self.native_filename('/')) )
 
   def test_strip_sep(self):
-    self.assertEqual( self.p('foo'), file_util.strip_sep(self.p('foo')) )
-    self.assertEqual( self.p('foo'), file_util.strip_sep(self.p('/foo')) )
-    self.assertEqual( self.p('foo'), file_util.strip_sep(self.p('/foo/')) )
-    self.assertEqual( self.p(''), file_util.strip_sep(self.p('/')) )
+    self.assertEqual( self.native_filename('foo'), file_util.strip_sep(self.native_filename('foo')) )
+    self.assertEqual( self.native_filename('foo'), file_util.strip_sep(self.native_filename('/foo')) )
+    self.assertEqual( self.native_filename('foo'), file_util.strip_sep(self.native_filename('/foo/')) )
+    self.assertEqual( self.native_filename(''), file_util.strip_sep(self.native_filename('/')) )
 
   def test_extension(self):
     self.assertEqual( 'zip', file_util.extension('foo.zip') )
@@ -36,40 +36,40 @@ class test_file_util(unit_test):
     self.assertEqual( '/foo/bar/kiwi', file_util.remove_extension('/foo/bar/kiwi.zip') )
 
   def test_ensure_rsep(self):
-    self.assertEqual( self.p('bar/'), file_util.ensure_rsep(self.p('bar')) )
-    self.assertEqual( self.p('bar/'), file_util.ensure_rsep(self.p('bar/')) )
-    self.assertEqual( self.p('/bar/'), file_util.ensure_rsep(self.p('/bar/')) )
-    self.assertEqual( self.p('/'), file_util.ensure_rsep(self.p('')) )
-    self.assertEqual( self.p('/'), file_util.ensure_rsep(self.p('/')) )
-    self.assertEqual( self.p('foo/bar/'), file_util.ensure_rsep(self.p('foo/bar')) )
-    self.assertEqual( self.p('/foo/bar/'), file_util.ensure_rsep(self.p('/foo/bar')) )
-    self.assertEqual( self.p('foo/bar/'), file_util.ensure_rsep(self.p('foo/bar/')) )
-    self.assertEqual( self.p('/foo/bar/'), file_util.ensure_rsep(self.p('/foo/bar/')) )
+    self.assertEqual( self.native_filename('bar/'), file_util.ensure_rsep(self.native_filename('bar')) )
+    self.assertEqual( self.native_filename('bar/'), file_util.ensure_rsep(self.native_filename('bar/')) )
+    self.assertEqual( self.native_filename('/bar/'), file_util.ensure_rsep(self.native_filename('/bar/')) )
+    self.assertEqual( self.native_filename('/'), file_util.ensure_rsep(self.native_filename('')) )
+    self.assertEqual( self.native_filename('/'), file_util.ensure_rsep(self.native_filename('/')) )
+    self.assertEqual( self.native_filename('foo/bar/'), file_util.ensure_rsep(self.native_filename('foo/bar')) )
+    self.assertEqual( self.native_filename('/foo/bar/'), file_util.ensure_rsep(self.native_filename('/foo/bar')) )
+    self.assertEqual( self.native_filename('foo/bar/'), file_util.ensure_rsep(self.native_filename('foo/bar/')) )
+    self.assertEqual( self.native_filename('/foo/bar/'), file_util.ensure_rsep(self.native_filename('/foo/bar/')) )
 
   def test_ensure_lsep(self):
-    self.assertEqual( self.p('/bar'), file_util.ensure_lsep(self.p('bar')) )
-    self.assertEqual( self.p('/bar/'), file_util.ensure_lsep(self.p('bar/')) )
-    self.assertEqual( self.p('/bar'), file_util.ensure_lsep(self.p('/bar')) )
-    self.assertEqual( self.p('/bar/'), file_util.ensure_lsep(self.p('/bar/')) )
-    self.assertEqual( self.p('/'), file_util.ensure_lsep(self.p('')) )
-    self.assertEqual( self.p('/'), file_util.ensure_lsep(self.p('/')) )
-    self.assertEqual( self.p('/foo/bar'), file_util.ensure_lsep(self.p('foo/bar')) )
-    self.assertEqual( self.p('/foo/bar/'), file_util.ensure_lsep(self.p('foo/bar/')) )
+    self.assertEqual( self.native_filename('/bar'), file_util.ensure_lsep(self.native_filename('bar')) )
+    self.assertEqual( self.native_filename('/bar/'), file_util.ensure_lsep(self.native_filename('bar/')) )
+    self.assertEqual( self.native_filename('/bar'), file_util.ensure_lsep(self.native_filename('/bar')) )
+    self.assertEqual( self.native_filename('/bar/'), file_util.ensure_lsep(self.native_filename('/bar/')) )
+    self.assertEqual( self.native_filename('/'), file_util.ensure_lsep(self.native_filename('')) )
+    self.assertEqual( self.native_filename('/'), file_util.ensure_lsep(self.native_filename('/')) )
+    self.assertEqual( self.native_filename('/foo/bar'), file_util.ensure_lsep(self.native_filename('foo/bar')) )
+    self.assertEqual( self.native_filename('/foo/bar/'), file_util.ensure_lsep(self.native_filename('foo/bar/')) )
 
   def test_remove_head(self):
-    self.assertEqual( self.p('bar'), file_util.remove_head(self.p('foo/bar'), self.p('foo')) )
-    self.assertEqual( self.p('bar/baz'), file_util.remove_head(self.p('foo/bar/baz'), self.p('foo')) )
-    self.assertEqual( self.p('foo'), file_util.remove_head(self.p('foo'), self.p('foo/')) )
-    self.assertEqual( self.p('foo'), file_util.remove_head(self.p('foo'), self.p('foo')) )
-    self.assertEqual( self.p(''), file_util.remove_head(self.p('foo/'), self.p('foo/')) )
+    self.assertEqual( self.native_filename('bar'), file_util.remove_head(self.native_filename('foo/bar'), self.native_filename('foo')) )
+    self.assertEqual( self.native_filename('bar/baz'), file_util.remove_head(self.native_filename('foo/bar/baz'), self.native_filename('foo')) )
+    self.assertEqual( self.native_filename('foo'), file_util.remove_head(self.native_filename('foo'), self.native_filename('foo/')) )
+    self.assertEqual( self.native_filename('foo'), file_util.remove_head(self.native_filename('foo'), self.native_filename('foo')) )
+    self.assertEqual( self.native_filename(''), file_util.remove_head(self.native_filename('foo/'), self.native_filename('foo/')) )
 
   def test_remove_tail(self):
-    self.assertEqual( self.p('/foo'), file_util.remove_tail(self.p('/foo/bar'), self.p('bar')) )
-    self.assertEqual( self.p('foo'), file_util.remove_tail(self.p('foo/bar'), self.p('bar')) )
-    self.assertEqual( self.p('foo'), file_util.remove_tail(self.p('foo/bar'), self.p('/bar')) )
+    self.assertEqual( self.native_filename('/foo'), file_util.remove_tail(self.native_filename('/foo/bar'), self.native_filename('bar')) )
+    self.assertEqual( self.native_filename('foo'), file_util.remove_tail(self.native_filename('foo/bar'), self.native_filename('bar')) )
+    self.assertEqual( self.native_filename('foo'), file_util.remove_tail(self.native_filename('foo/bar'), self.native_filename('/bar')) )
     
   def test_remove_head_unicode(self):
-    self.assertEqual( self.p(u'bar'), file_util.remove_head(self.p(u'foo/bar'), self.p(u'foo')) )
+    self.assertEqual( self.native_filename(u'bar'), file_util.remove_head(self.native_filename(u'foo/bar'), self.native_filename(u'foo')) )
 
   def test_is_basename(self):
     self.assertEqual( True, file_util.is_basename('foo.txt') )

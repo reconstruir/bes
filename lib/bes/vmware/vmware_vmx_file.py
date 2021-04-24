@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 import os.path as path
 
 from bes.common.check import check
@@ -22,7 +23,7 @@ class vmware_vmx_file(vmware_properties_file):
   @cached_property
   def nickname(self):
     'Return the nickname for a the vmx file'
-    i = self.filename.rfind('/')
+    i = self.filename.rfind(os.sep)
     if i < 0:
       return None
     vmx = self.filename[i + 1:]

@@ -1,35 +1,45 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+import os.path as path
 import fnmatch
 
 from bes.common.algorithm import algorithm
 from bes.common.bool_util import bool_util
 from bes.common.check import check
-from bes.common.variable import variable
-from bes.common.string_util import string_util
 from bes.common.list_util import list_util
+from bes.common.string_util import string_util
+from bes.common.tuple_util import tuple_util
+from bes.common.variable import variable
 from bes.compat.StringIO import StringIO
 from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
 from bes.system.env_var import os_env_var
-from bes.common.tuple_util import tuple_util
 
 from collections import namedtuple
 
+from .simple_config_entry import simple_config_entry
 from .simple_config_error import simple_config_error
 from .simple_config_origin import simple_config_origin
-from .simple_config_entry import simple_config_entry
 from .simple_config_section_header import simple_config_section_header
+from .simple_config_variables import simple_config_variables
 
-class simple_config_section(namedtuple('simple_config_section', 'header_, entries_, origin_, extends_section_')):
+class simple_config_section(namedtuple('simple_config_section', 'header_, entries_, origin_, extends_section_, variables_, parent_variables_')):
 
-  def __new__(clazz, header_, entries_, origin_, extends_section_ = None):
+  def __new__(clazz, header_, entries_, origin_, extends_section_ = None, parent_variables_ = None):
     check.check_simple_config_section_header(header_)
     check.check_simple_config_entry_seq(entries_, allow_none = True)
     check.check_simple_config_origin(origin_, allow_none = True)
     check.check_simple_config_section(extends_section_, allow_none = True)
+    check.check_simple_config_variables(parent_variables_, allow_none = True)
     
-    return clazz.__bases__[0].__new__(clazz, header_, entries_ or [], origin_, extends_section_)
+    return clazz.__bases__[0].__new__(clazz,
+                                      header_,
+                                      entries_ or [],
+                                      origin_,
+                                      extends_section_,
+                                      simple_config_variables(),
+                                      parent_variables_ or simple_config_variables())
 
   def __iter__(self):
     return iter(self.entries_)
@@ -113,10 +123,14 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
       if fnmatch.fnmatch(entry.value.key, pattern):
         return entry
     return None
-  
-  def has_key(self, key):
-    return self.find_by_key(key, raise_error = False, resolve_env_vars = False) is not None
 
+  # deprecate this
+  def has_key(self, key):
+    return self.has_value(key)
+
+  def has_value(self, key):
+    return self.find_by_key(key, raise_error = False, resolve_env_vars = False) is not None
+  
   def get_value(self, key):
     return self.find_by_key(key, raise_error = True, resolve_env_vars = True)
 
@@ -227,24 +241,51 @@ class simple_config_section(namedtuple('simple_config_section', 'header_, entrie
   def clear_values(self):
     while len(self.entries_):
       self.entries_.pop()
-      
-  @classmethod
-  def _resolve_variables(clazz, value, origin):
+
+  def _resolve_variables(self, value, origin):
     variables = variable.find_variables(value)
     if variables:
-      substitutions = clazz._substitutions_for_value(value, origin)
+      substitutions = self._substitutions_for_value(value, variables, origin)
       return variable.substitute(value, substitutions)
     return value
   
-  @classmethod
-  def _substitutions_for_value(clazz, v, origin):
+  def _substitutions_for_value(self, v, variables, origin):
     result = {}
-    variables = variable.find_variables(v)
     for var in variables:
       os_var = os_env_var(var)
-      if not os_var.is_set:
-        raise simple_config_error('Not set in the current environment: %s' % (v), origin)
-      result[var] = os_var.value
+      found = False
+      if os_var.is_set:
+        value = os_var.value
+        found = True
+      else:
+        if var in self.variables_:
+          value = self.variables_[var]
+          found = True
+        elif var in self.parent_variables_:
+          value = self.parent_variables_[var]
+          found = True
+      if not found:  
+        raise simple_config_error('Not set in the current environment: "{}"'.format(v), origin)
+      result[var] = value
     return result
+
+  def set_variable(self, key, value):
+    check.check_string(key)
+    check.check_value(value)
+
+    self.variables_.set_variable(key, value)
+
+  def set_variables(self, variables):
+    check.check_dict(variables, check.STRING_TYPES, check.STRING_TYPES)
+
+    self.variables_.set_variables(variables)
+
+  def update_variables(self, variables):
+    check.check_dict(variables, check.STRING_TYPES, check.STRING_TYPES)
+
+    self.variables_.update_variables(variables)
+    
+  def variables(self):
+    return self.variables_.variables()
   
 check.register_class(simple_config_section)

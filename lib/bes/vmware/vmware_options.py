@@ -55,6 +55,11 @@ class vmware_options(cli_options):
 
   @classmethod
   #@abstractmethod
+  def config_file_env_var_name(clazz):
+    return 'BES_VMWARE_CONFIG_FILE'
+  
+  @classmethod
+  #@abstractmethod
   def config_file_section(clazz):
     return 'vmware'
 

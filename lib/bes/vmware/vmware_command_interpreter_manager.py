@@ -2,12 +2,14 @@
 
 from bes.common.check import check
 from bes.system.host import host
+from bes.common.singleton import singleton
 
 from .vmware_command_interpreter_registry import vmware_command_interpreter_registry
 from .vmware_error import vmware_error
 
 from .command_interpreters import *
 
+@singleton
 class vmware_command_interpreter_manager(object):
 
   def __init__(self):
@@ -89,20 +91,3 @@ class vmware_command_interpreter_manager(object):
     else:
       interpreter = self.find_interpreter(system, name)
     return interpreter
-  
-  x='''
-  @classmethod
-  def interpreter_is_valid(clazz, name):
-    'Return True if this system interpreter is valid.'
-    check.check_string(name)
-    
-    return name in clazz.interpreters()
-  
-  @classmethod
-  def check_interpreter(clazz, name):
-    'Raise an exception if the interpreter is not valid.'
-    check.check_string(name)
-    
-    if not clazz.interpreter_is_valid(name):
-      raise vmware_error('Invalid interpreter: "{}"  Should be one of: {}"'.format(name, ' '.join(clazz.interpreters())))
-'''

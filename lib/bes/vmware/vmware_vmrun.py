@@ -341,3 +341,5 @@ class vmware_vmrun(object):
                                          strip_text = True,
                                          remove_empties = True)
     return lines[1:]
+  
+check.register_class(vmware_vmrun)

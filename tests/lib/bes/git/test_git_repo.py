@@ -108,7 +108,7 @@ class test_git_repo(unit_test):
     r2 = git_repo(tmp_dir, address = r1.root)
     r2.clone()
     r2.pull()
-    self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt') ], r2.find_all_files() )
+    self.assertEqual([ self.native_filename('a/b/c/foo.txt'), self.native_filename('d/e/bar.txt') ], r2.find_all_files() )
 
     r1.write_temp_content([
       'file kiwi.txt "kiwi" 644',
@@ -116,7 +116,7 @@ class test_git_repo(unit_test):
     r1.add('kiwi.txt')
     r1.commit('foo', 'kiwi.txt')
     r2.pull()
-    self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt'), 'kiwi.txt' ], r2.find_all_files() )
+    self.assertEqual([ self.native_filename('a/b/c/foo.txt'), self.native_filename('d/e/bar.txt'), 'kiwi.txt' ], r2.find_all_files() )
 
   @git_temp_home_func()
   def test_clone_or_pull(self):
@@ -132,7 +132,7 @@ class test_git_repo(unit_test):
     tmp_dir = temp_file.make_temp_dir()
     r2 = git_repo(tmp_dir, address = r1.root)
     r2.clone_or_pull()
-    self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt')], r2.find_all_files() )
+    self.assertEqual([ self.native_filename('a/b/c/foo.txt'), self.native_filename('d/e/bar.txt')], r2.find_all_files() )
 
     r1.write_temp_content([
       'file kiwi.txt "kiwi" 644',
@@ -140,7 +140,7 @@ class test_git_repo(unit_test):
     r1.add('kiwi.txt')
     r1.commit('foo', 'kiwi.txt')
     r2.pull()
-    self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt'), 'kiwi.txt' ], r2.find_all_files() )
+    self.assertEqual([ self.native_filename('a/b/c/foo.txt'), self.native_filename('d/e/bar.txt'), 'kiwi.txt' ], r2.find_all_files() )
     
   @git_temp_home_func()
   def test_find_all_files(self):
@@ -153,7 +153,7 @@ class test_git_repo(unit_test):
     ])
     r.add('.')
     r.commit('foo', '.')
-    self.assertEqual([ self.xp_path('a/b/c/foo.txt'), self.xp_path('d/e/bar.txt')], r.find_all_files() )
+    self.assertEqual([ self.native_filename('a/b/c/foo.txt'), self.native_filename('d/e/bar.txt')], r.find_all_files() )
    
   @git_temp_home_func()
   def test_push(self):
@@ -178,10 +178,10 @@ class test_git_repo(unit_test):
     r1.push_tag('1.0.0')
     r1.tag('1.0.1')
     r1.push_tag('1.0.1')
-    self.assertEqual( [ '1.0.0', '1.0.1' ], r2.list_remote_tags() )
+    self.assertEqual( [ '1.0.0', '1.0.1' ], r2.list_remote_tags().names() )
     r1.delete_local_tag('1.0.1')
     r1.delete_remote_tag('1.0.1')
-    self.assertEqual( [ '1.0.0' ], r2.list_remote_tags() )
+    self.assertEqual( [ '1.0.0' ], r2.list_remote_tags().names() )
 
   @git_temp_home_func()
   def test_list_remote_tags(self):
@@ -193,7 +193,7 @@ class test_git_repo(unit_test):
     r1.push_tag('1.0.0')
     r1.tag('1.0.1')
     r1.push_tag('1.0.1')
-    self.assertEqual( [ '1.0.0', '1.0.1' ], r2.list_remote_tags() )
+    self.assertEqual( [ '1.0.0', '1.0.1' ], r2.list_remote_tags().names() )
 
   @git_temp_home_func()
   def test_bump_tag(self):
@@ -202,11 +202,11 @@ class test_git_repo(unit_test):
     r1.push('origin', 'master')
     r1.tag('1.0.0')
     r1.push_tag('1.0.0')
-    self.assertEqual( '1.0.0', r1.greatest_local_tag() )
+    self.assertEqual( '1.0.0', r1.greatest_local_tag().name )
     r1.bump_tag('revision', reset_lower = True)
 
     r2 = r1.make_temp_cloned_repo()
-    self.assertEqual( '1.0.1', r2.greatest_local_tag() )
+    self.assertEqual( '1.0.1', r2.greatest_local_tag().name )
 
   @git_temp_home_func()
   def test_bump_tag_empty(self):
@@ -217,7 +217,7 @@ class test_git_repo(unit_test):
     r1.bump_tag('revision', reset_lower = True)
 
     r2 = r1.make_temp_cloned_repo()
-    self.assertEqual( '1.0.0', r2.greatest_local_tag() )
+    self.assertEqual( '1.0.0', r2.greatest_local_tag().name )
 
   @git_temp_home_func()
   def test_bump_two_components(self):
@@ -226,11 +226,11 @@ class test_git_repo(unit_test):
     r1.push('origin', 'master')
     r1.tag('1.0')
     r1.push_tag('1.0')
-    self.assertEqual( '1.0', r1.greatest_local_tag() )
+    self.assertEqual( '1.0', r1.greatest_local_tag().name )
     r1.bump_tag('minor', reset_lower = True)
 
     r2 = r1.make_temp_cloned_repo()
-    self.assertEqual( '1.1', r2.greatest_local_tag() )
+    self.assertEqual( '1.1', r2.greatest_local_tag().name )
     
   @git_temp_home_func()
   def test_list_local_tags_by_version(self):
@@ -242,10 +242,10 @@ class test_git_repo(unit_test):
     r.tag('1.0.5')
     r.tag('1.0.9')
     r.tag('1.0.11')
-    self.assertEqual( [ '1.0.9', '1.0.11' ], r.list_local_tags_gt('1.0.5') )
-    self.assertEqual( [ '1.0.5', '1.0.9', '1.0.11' ], r.list_local_tags_ge('1.0.5') )
-    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4' ], r.list_local_tags_lt('1.0.5') )
-    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4', '1.0.5' ], r.list_local_tags_le('1.0.5') )
+    self.assertEqual( [ '1.0.9', '1.0.11' ], r.list_local_tags_gt('1.0.5').names() )
+    self.assertEqual( [ '1.0.5', '1.0.9', '1.0.11' ], r.list_local_tags_ge('1.0.5').names() )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4' ], r.list_local_tags_lt('1.0.5').names() )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4', '1.0.5' ], r.list_local_tags_le('1.0.5').names() )
     
   @git_temp_home_func()
   def test_list_remote_tags_by_version(self):
@@ -257,11 +257,11 @@ class test_git_repo(unit_test):
     for tag in all_tags:
       r1.tag(tag)
       r1.push_tag(tag)
-    self.assertEqual( all_tags, r2.list_remote_tags() )
-    self.assertEqual( [ '1.0.9', '1.0.11' ], r2.list_remote_tags_gt('1.0.5') )
-    self.assertEqual( [ '1.0.5', '1.0.9', '1.0.11' ], r2.list_remote_tags_ge('1.0.5') )
-    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4' ], r2.list_remote_tags_lt('1.0.5') )
-    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4', '1.0.5' ], r2.list_remote_tags_le('1.0.5') )
+    self.assertEqual( all_tags, r2.list_remote_tags().names() )
+    self.assertEqual( [ '1.0.9', '1.0.11' ], r2.list_remote_tags_gt('1.0.5').names() )
+    self.assertEqual( [ '1.0.5', '1.0.9', '1.0.11' ], r2.list_remote_tags_ge('1.0.5').names() )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4' ], r2.list_remote_tags_lt('1.0.5').names() )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.4', '1.0.5' ], r2.list_remote_tags_le('1.0.5').names() )
 
   @git_temp_home_func()
   def test_save_file_first_time(self):
@@ -556,7 +556,7 @@ class test_git_repo(unit_test):
     r.submodule_add(sub_repo.address, 'mod')
     r.commit('add mod submodule', '.')
     r.push()
-    self.assertEqual( [ 'foo.txt', 'mod/subfoo.txt' ], r.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.native_filename('mod/subfoo.txt') ], r.find_all_files() )
 
     r2 = git_repo(self.make_temp_dir(), address = r.address)
     r2.clone()
@@ -564,7 +564,7 @@ class test_git_repo(unit_test):
                       r2.submodule_status_one('mod') )
     self.assertEqual( [ 'foo.txt' ], r2.find_all_files() )
     r2.submodule_init(submodule = 'mod')
-    self.assertEqual( [ 'foo.txt', 'mod/subfoo.txt' ], r2.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.native_filename('mod/subfoo.txt') ], r2.find_all_files() )
     self.assertEqual( ( 'mod', None, sub_repo.last_commit_hash(), sub_repo.last_commit_hash(short_hash = True), True, 'heads/master' ),
                       r2.submodule_status_one('mod') )
     
@@ -585,7 +585,7 @@ class test_git_repo(unit_test):
     r1.submodule_add(sub_repo.address, 'mod')
     r1.commit('add mod submodule', '.')
     r1.push()
-    self.assertEqual( [ 'foo.txt', 'mod/subfoo.txt' ], r1.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.native_filename('mod/subfoo.txt') ], r1.find_all_files() )
 
     rev2 = sub_repo.add_file('sub_kiwi.txt', 'this is sub_kiwi.txt', push = True)
     
@@ -707,15 +707,17 @@ class test_git_repo(unit_test):
 
     tmp_script_content = '''\
 from bes.git.git_repo import git_repo
-r = git_repo("{}", address = "{}")
+r = git_repo(r'{}', address = r'{}')
 r.atexit_reset(revision = 'HEAD')
 r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
 '''.format(r.root, r.address)
     
-    tmp_script = self.make_temp_file(content = tmp_script_content, perm = 0o0755)
+    tmp_script = self.make_temp_file(content = tmp_script_content,
+                                     suffix = '.py',
+                                     perm = 0o755)
 
-    cmd = [ sys.executable, tmp_script, r.root ]
-    execute.execute(cmd)
+    cmd = [ tmp_script, r.root ]
+    execute.execute(cmd, shell = True)
 
     self.assertFalse( r.has_changes() )
 
@@ -786,7 +788,7 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r1.submodule_add(sub_repo.address, 'mod')
     r1.commit('add mod submodule', '.')
     r1.push()
-    self.assertEqual( [ 'foo.txt', 'mod/sub_kiwi.txt', 'mod/subfoo.txt' ], r1.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.native_filename('mod/sub_kiwi.txt'), self.native_filename('mod/subfoo.txt') ], r1.find_all_files() )
     self.assertFalse( r1.has_changes(submodules = True) )
 
     rv = r1.submodule_update_revision('mod', rev1)
@@ -813,7 +815,7 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r1.submodule_add(sub_repo.address, 'mod')
     r1.commit('add mod submodule', '.')
     r1.push()
-    self.assertEqual( [ 'foo.txt', 'mod/sub_kiwi.txt', 'mod/subfoo.txt' ], r1.find_all_files() )
+    self.assertEqual( [ 'foo.txt', self.native_filename('mod/sub_kiwi.txt'), self.native_filename('mod/subfoo.txt') ], r1.find_all_files() )
     self.assertFalse( r1.has_changes() )
 
     r1.save_file('mod/untracked_junk.txt', content = 'this is untracked junk', add = False, commit = False)
@@ -1075,5 +1077,161 @@ r.save_file('foo.txt', content = 'i hacked you', add = False, commit = False)
     r.tag('t3', commit = c1)
     self.assertEqual( c3, r.ref_info('t3').commit_short )
 
+  @git_temp_home_func()
+  def test_list_remote_tags_with_limit(self):
+    r1 = self._make_repo()
+    r2 = r1.make_temp_cloned_repo()
+    r1.add_file('readme.txt', 'readme is good')
+    r1.push('origin', 'master')
+    all_tags = [ '1.0.0', '1.0.1','1.0.4','1.0.5','1.0.9','1.0.11' ]
+    for tag in all_tags:
+      r1.tag(tag)
+      r1.push_tag(tag)
+    self.assertEqual( [], r2.list_remote_tags(limit = 0).names() )
+    self.assertEqual( [ '1.0.0' ], r2.list_remote_tags(limit = 1).names() )
+    self.assertEqual( [ '1.0.0', '1.0.1' ], r2.list_remote_tags(limit = 2).names() )
+    self.assertEqual( all_tags, r2.list_remote_tags(limit = 666).names() )
+
+  @git_temp_home_func()
+  def test_list_remote_tags_with_prefix(self):
+    r1 = self._make_repo()
+    r2 = r1.make_temp_cloned_repo()
+    r1.add_file('readme.txt', 'readme is good')
+    r1.push('origin', 'master')
+    all_tags = [ 'rel/kiwi/1.0.0', 'rel/kiwi/1.0.5', 'rel/kiwi/1.0.11', 'pur/mac/latest', 'pur/lin/testing', 'pur/win/build' ]
+    for tag in all_tags:
+      r1.tag(tag)
+      r1.push_tag(tag)
+    self.assertEqual( [ 'pur/lin/testing', 'pur/mac/latest', 'pur/win/build', 'rel/kiwi/1.0.0', 'rel/kiwi/1.0.5', 'rel/kiwi/1.0.11' ], r2.list_remote_tags().names() )
+    self.assertEqual( [ 'rel/kiwi/1.0.0', 'rel/kiwi/1.0.5', 'rel/kiwi/1.0.11' ], r2.list_remote_tags(prefix = 'rel/').names() )
+    self.assertEqual( [ 'pur/lin/testing', 'pur/mac/latest', 'pur/win/build' ], r2.list_remote_tags(prefix = 'pur/').names() )
+    self.assertEqual( [], r2.list_remote_tags(prefix = 'nothere/').names() )
+
+  @git_temp_home_func()
+  def test_greatest_local_tag_with_prefix(self):
+    r = self._make_repo()
+    r.add_file('readme.txt', 'readme is good')
+    r.push('origin', 'master')
+    r.tag('rel/v2/1.0.0')
+    r.tag('rel/v2/1.0.1')
+    r.tag('rel/v2/1.0.2')
+    r.tag('rel/v2/1.0.3')
+    r.tag('test/v1/1.0.0')
+    r.tag('test/v1/1.0.1')
+    r.tag('test/v1/1.0.2')
+    r.tag('test/v1/1.0.9')
+    r.tag('test/v1/1.0.11')
+    
+    self.assertEqual( 'rel/v2/1.0.3', r.greatest_local_tag().name )
+    self.assertEqual( 'rel/v2/1.0.3', r.greatest_local_tag(prefix = 'rel/v2/').name )
+    self.assertEqual( 'test/v1/1.0.11', r.greatest_local_tag(prefix = 'test/v1/').name )
+
+  @git_temp_home_func()
+  def test_greatest_remote_tag_with_prefix(self):
+    r = self._make_repo()
+    r.add_file('readme.txt', 'readme is good')
+    r.push('origin', 'master')
+    r.tag('rel/v2/1.0.0', push = True)
+    r.tag('rel/v2/1.0.1', push = True)
+    r.tag('rel/v2/1.0.2', push = True)
+    r.tag('rel/v2/1.0.3', push = False)
+    r.tag('test/v1/1.0.0', push = True)
+    r.tag('test/v1/1.0.1', push = True)
+    r.tag('test/v1/1.0.2', push = True)
+    r.tag('test/v1/1.0.9', push = True)
+    r.tag('test/v1/1.0.11', push = False)
+    
+    self.assertEqual( 'rel/v2/1.0.2', r.greatest_remote_tag().name )
+    self.assertEqual( 'rel/v2/1.0.2', r.greatest_remote_tag(prefix = 'rel/v2/').name )
+    self.assertEqual( 'test/v1/1.0.9', r.greatest_remote_tag(prefix = 'test/v1/').name )
+
+  @git_temp_home_func()
+  def test_bump_local_tag_first_with_prefix(self):
+    r = self._make_repo()
+    r.add_file('readme.txt', 'readme is good')
+    r.push('origin', 'master')
+    r.bump_tag('revision', push = False, prefix = 'rel/v2/')
+    self.assertEqual( 'rel/v2/1.0.0', r.greatest_local_tag(prefix = 'rel/v2/').name )
+    
+  @git_temp_home_func()
+  def test_bump_local_tag_with_prefix(self):
+    r = self._make_repo()
+    r.add_file('readme.txt', 'readme is good')
+    r.push('origin', 'master')
+    r.tag('rel/v2/1.0.0')
+    r.tag('rel/v2/1.0.1')
+    r.tag('test/v1/1.2.3')
+    r.tag('test/v1/1.2.4')
+    r.tag('test/v1/1.2.5')
+    self.assertEqual( 'rel/v2/1.0.1', r.greatest_local_tag(prefix = 'rel/v2/').name )
+
+    r.bump_tag('revision', push = False, prefix = 'rel/v2/')
+    self.assertEqual( 'rel/v2/1.0.2', r.greatest_local_tag(prefix = 'rel/v2/').name )
+
+    r.bump_tag('revision', push = False, prefix = 'test/v1/')
+    self.assertEqual( 'test/v1/1.2.6', r.greatest_local_tag(prefix = 'test/v1/').name )
+
+  @git_temp_home_func()
+  def test_delete_tag(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: kiwi.txt
+
+tag 1.0.0 tag1 @commit1
+tag 1.0.1 tag2 @commit1
+tag 1.0.2 tag3 @commit1
+'''
+    r1 = git_temp_repo(remote = True, debug = self.DEBUG, config = config)
+    r2 = r1.make_temp_cloned_repo()
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.2' ], r1.list_remote_tags().names() )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.2' ], r2.list_remote_tags().names() )
+    r1.delete_tag('1.0.1', 'both')
+    self.assertEqual( [ '1.0.0', '1.0.2' ], r1.list_remote_tags().names() )
+    self.assertEqual( [ '1.0.0', '1.0.2' ], r2.list_remote_tags().names() )
+    
+  @git_temp_home_func()
+  def test_tag_rename(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: kiwi.txt
+add commit2 commit2
+  lemon.txt: lemon.txt
+add commit3 commit3
+  blueberry.txt: blueberry.txt
+tag 1.0.0 tag1 @commit1
+tag 1.0.1 tag2 @commit2
+  annotation: annotation 1.0.1 is good
+tag 1.0.2 tag3 @commit3
+'''
+
+    r1 = git_temp_repo(remote = True, debug = self.DEBUG, config = config)
+    r2 = r1.make_temp_cloned_repo()
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.2' ], r1.list_remote_tags().names() )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.2' ], r2.list_remote_tags().names() )
+    r1.tag_rename('1.0.0', 'rel/v2/1.0.0', push = True)
+    r1.tag_rename('1.0.1', 'rel/v2/1.0.1', push = True)
+    r1.tag_rename('1.0.2', 'rel/v2/1.0.2', push = True)
+    self.assertEqual( [ 'rel/v2/1.0.0', 'rel/v2/1.0.1', 'rel/v2/1.0.2' ], r1.list_remote_tags().names() )
+    self.assertEqual( [ 'rel/v2/1.0.0', 'rel/v2/1.0.1', 'rel/v2/1.0.2' ], r2.list_remote_tags().names() )
+
+  @git_temp_home_func()
+  def test_tag_annotation(self):
+    config = '''\
+add commit1 commit1
+  kiwi.txt: kiwi.txt
+add commit2 commit2
+  lemon.txt: lemon.txt
+tag 1.0.0 tag1
+  from_commit: @commit1
+tag 1.0.1 tag2
+  from_commit: @commit2
+  annotation: annotation 1.0.1 is good
+'''
+    r = git_temp_repo(remote = True, debug = self.DEBUG, config = config)
+    self.assertEqual( [ '1.0.0', '1.0.1' ], r.list_local_tags().names() )
+    self.assertFalse( r.tag_has_annotation('1.0.0') )
+    self.assertTrue( r.tag_has_annotation('1.0.1') )
+    self.assertEqual( 'annotation 1.0.1 is good', r.tag_annotation('1.0.1') )
+    
 if __name__ == '__main__':
   unit_test.main()

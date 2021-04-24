@@ -35,7 +35,7 @@ class vmware_app_macos(vmware_app_base):
     'Ensure vmware is running.'
     if clazz.is_running():
       return
-    execute.execute('open -g /Applications/VMware\ Fusion.app')
+    execute.execute(r'open -g /Applications/VMware\ Fusion.app')
 
   @classmethod
   #@abstractmethod

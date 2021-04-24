@@ -32,12 +32,12 @@ class git_cli_args(object):
     p.add_argument('--component', action = 'store', type = str, default = None,
                    choices = ( 'major', 'minor', 'revision' ),
                    help = 'What part of the version to bump. [ None ]')
-    p.add_argument('--dont-push',
-                   action = 'store_true',
+    p.add_argument('--dont-push', action = 'store_true',
                    help = 'Dont push the new tag to the origin. [ False ]')
-    p.add_argument('--reset-lower',
-                   action = 'store_true',
+    p.add_argument('--reset-lower', action = 'store_true',
                    help = 'Reset the lower components to zero. [ False ]')
+    p.add_argument('--prefix', action = 'store', type = str, default = None,
+                   help = 'Optional tag prefix. [ None ]')
     self._git_add_common_args(p)
 
     # git_delete_tags

@@ -7,3 +7,6 @@ class host_info(namedtuple('host_info', 'system, version_major, version_minor, a
   def __new__(clazz, system, version_major, version_minor, arch, distro, family):
     return clazz.__bases__[0].__new__(clazz, system, version_major, version_minor, arch, distro, family)
 
+  @property
+  def version(self):
+    return '{}.{}'.format(self.version_major, self.version_minor)

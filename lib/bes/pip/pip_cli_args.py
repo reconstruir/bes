@@ -9,38 +9,39 @@ class pip_cli_args(object):
 
     # pip_version
     p = subparser.add_parser('ver', help = 'Print pip version.')
-    p.add_argument('py_exe', action = 'store', type = str, default = None,
-                   help = 'The python executable [ None ]')
+    self.__pip_add_common_args(p)
+    p.add_argument('pip_exe', action = 'store', type = str, default = None,
+                   help = 'The pip executable [ None ]')
     
     # pip_info
     p = subparser.add_parser('info', help = 'Print pip info.')
-    p.add_argument('py_exe', action = 'store', type = str, default = None,
-                   help = 'The python executable [ None ]')
+    self.__pip_add_common_args(p)
+    p.add_argument('pip_exe', action = 'store', type = str, default = None,
+                   help = 'The pip executable [ None ]')
 
-    # pip_present
-    p = subparser.add_parser('present', help = 'Return 0 if pip is present for the python executable.')
-    p.add_argument('py_exe', action = 'store', type = str, default = None,
-                   help = 'The python executable [ None ]')
-    p.add_argument('-v', '--verbose', action = 'store_true',
-                   default = False, help = 'Verbose output')
+    # pip_filename_info
+    p = subparser.add_parser('filename_info', help = 'Print pip filename info.')
+    self.__pip_add_common_args(p)
+    p.add_argument('pip_exe', action = 'store', type = str, default = None,
+                   help = 'The pip executable [ None ]')
 
-    # pip_update
-    p = subparser.add_parser('update', help = 'Update pip to a specific version or install it if needed.')
-    p.add_argument('py_exe', action = 'store', type = str, default = None,
+    # pip_exe_for_python
+    p = subparser.add_parser('exe_for_python', help = 'Find pip executable for a specific python exe.')
+    self.__pip_add_common_args(p)
+    p.add_argument('python_exe', action = 'store', type = str, default = None,
                    help = 'The python executable [ None ]')
-    p.add_argument('pip_version', action = 'store', type = str, default = None,
-                   help = 'The pip version [ None ]')
-    p.add_argument('-v', '--verbose', action = 'store_true',
-                   default = False, help = 'Verbose output')
-
-    # pip_uninstall
-    p = subparser.add_parser('uninstall', help = 'Uninstall pip.')
-    p.add_argument('py_exe', action = 'store', type = str, default = None,
-                   help = 'The python executable [ None ]')
-    p.add_argument('-v', '--verbose', action = 'store_true',
-                   default = False, help = 'Verbose output')
     
+  def __pip_add_common_args(self, p):
+    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
+                   help = 'Verbose output [ False ]')
+#    p.add_argument('-r', '--root-dir', action = 'store', default = None,
+#                   help = 'The root directory where to install pip [ None ]')
+#    p.add_argument('-p', '--python', action = 'store', default = None,
+#                   dest = 'python_exe',
+#                   help = 'The python executable to use [ None ]')
+#    p.add_argument('name', action = 'store', type = str, default = None,
+#                   help = 'The name for this pip installation [ None ]')
+     
   def _command_pip(self, command, *args, **kargs):
-    from .pip_cli_command import pip_cli_command
-    return pip_cli_command.handle_command(command, **kargs)
-  
+    from .pip_cli_handler import pip_cli_handler
+    return pip_cli_handler(kargs).handle_command(command)

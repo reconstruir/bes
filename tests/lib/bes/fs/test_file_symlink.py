@@ -11,7 +11,7 @@ class test_file_symlink(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    raise_skip_if(not file_symlink.has_support, 'No support or priviledge for symlinks')
+    raise_skip_if(file_symlink.has_support(), 'No support or priviledge for symlinks')
   
   def test_is_broken_true(self):
     tmp = tempfile.NamedTemporaryFile()
@@ -28,5 +28,37 @@ class test_file_symlink(unit_test):
     self.assertEqual( True, path.islink(tmp1.name) )
     self.assertEqual( False, file_symlink.is_broken(tmp1.name) )
 
-if __name__ == "__main__":
+  def test_resolve_one_level(self):
+    tmp1 = self.make_temp_file(suffix = '-one')
+    tmp2 = self.make_temp_file(suffix = '-two')
+    file_util.remove(tmp2)
+    os.symlink(tmp1, tmp2)
+    self.assertEqual( tmp1, file_symlink.resolve(tmp1) )
+    self.assertEqual( tmp1, file_symlink.resolve(tmp2) )
+
+  def test_resolve_two_levels(self):
+    tmp1 = self.make_temp_file()
+    tmp2 = self.make_temp_file()
+    tmp3 = self.make_temp_file()
+    file_util.remove(tmp2)
+    file_util.remove(tmp3)
+    os.symlink(tmp1, tmp2)
+    os.symlink(tmp2, tmp3)
+    self.assertEqual( tmp1, file_symlink.resolve(tmp1) )
+    self.assertEqual( tmp1, file_symlink.resolve(tmp2) )
+    self.assertEqual( tmp1, file_symlink.resolve(tmp3) )
+
+  def test_resolve_cyclic_error(self):
+    tmp1 = self.make_temp_file(suffix = '-one')
+    tmp2 = self.make_temp_file(suffix = '-two')
+    file_util.remove(tmp2)
+    os.symlink(tmp1, tmp2)
+    file_util.remove(tmp1)
+    os.symlink(tmp2, tmp1)
+    with self.assertRaises(IOError) as ctx:
+      file_symlink.resolve(tmp1)
+    self.assertTrue( 'Cyclic error' in str(ctx.exception) )
+      
+    
+if __name__ == '__main__':
   unit_test.main()

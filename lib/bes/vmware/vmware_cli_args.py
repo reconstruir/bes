@@ -7,7 +7,7 @@ class vmware_cli_args(object):
 
   def vmware_add_args(self, subparser):
 
-    from vmware_options_cli_args import vmware_options_cli_args
+    from .vmware_options_cli_args import vmware_options_cli_args
     
     # vm_run_program
     p = subparser.add_parser('vm_run_program', help = 'Run a program in a vm.')
@@ -173,9 +173,18 @@ class vmware_cli_args(object):
                    help = 'The vm id [ ]')
     p.add_argument('--tree', action = 'store_true', default = False,
                    help = 'Show as a tree []')
+
+    # vm_info
+    p = subparser.add_parser('vm_info', help = 'Print all known info about a vm.')
+    vmware_options_cli_args.add_arguments(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
     
     # vms
     p = subparser.add_parser('vms', help = 'List vms.')
+    p.add_argument('--info', action = 'store_true', default = False,
+                   dest = 'show_info',
+                   help = 'Show as all known info about a vm [ False ]')
     vmware_options_cli_args.add_arguments(p)
     
   def __vmware_add_common_run_program_args(self, p):

@@ -22,12 +22,12 @@ class test_config_env(unit_test):
 
   def test_find_config_files(self):
     expected_files = [
-      self.p('citrus/env/citrus.bescfg'),
-      self.p('fiber/env/fiber.bescfg'),
-      self.p('fruit/env/fruit.bescfg'),
-      self.p('kiwi/env/kiwi.bescfg'),
-      self.p('orange/env/orange.bescfg'),
-      self.p('water/env/water.bescfg')
+      self.native_filename('citrus/env/citrus.bescfg'),
+      self.native_filename('fiber/env/fiber.bescfg'),
+      self.native_filename('fruit/env/fruit.bescfg'),
+      self.native_filename('kiwi/env/kiwi.bescfg'),
+      self.native_filename('orange/env/orange.bescfg'),
+      self.native_filename('water/env/water.bescfg')
     ]
     with env_override.clean_env() as ctx:
       actual = CE._find_config_files(self.data_dir())

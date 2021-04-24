@@ -5,8 +5,8 @@ import os.path as path
 
 from bes.common.check import check
 from bes.common.object_util import object_util
-from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
 from bes.version.software_version import software_version
@@ -19,6 +19,7 @@ from .git_error import git_error
 from .git_exe import git_exe
 from .git_modules_file import git_modules_file
 from .git_operation_base import git_operation_base
+from .git_tag import git_tag_list
 
 #import warnings
 #with warnings.catch_warnings():
@@ -164,65 +165,78 @@ class git_repo(object):
   def file_path(self, filename):
     return path.join(self.root, filename)
 
-  def greatest_local_tag(self):
-    return git.greatest_local_tag(self.root)
+  def greatest_local_tag(self, prefix = None):
+    return git.greatest_local_tag(self.root, prefix = prefix)
 
-  def greatest_remote_tag(self):
-    return git.greatest_remote_tag(self.root)
+  def greatest_remote_tag(self, prefix = None):
+    return git.greatest_remote_tag(self.root, prefix = prefix)
 
-  def list_tags(self, where = None, sort_type = None, reverse = False):
-    return git.list_tags(self.root, where = where, sort_type = sort_type, reverse = reverse)
+  def list_tags(self, where = None, sort_type = None, reverse = False,
+                limit = None, prefix = None):
+    return git.list_tags(self.root, where = where, sort_type = sort_type, reverse = reverse,
+                         limit = limit, prefix = prefix)
   
-  def list_local_tags(self, lexical = False, reverse = False):
-    return git.list_local_tags(self.root, lexical = lexical, reverse = reverse)
+  def list_local_tags(self, sort_type = None, reverse = False,
+                      limit = None, prefix = None):
+    return git.list_local_tags(self.root, sort_type = sort_type, reverse = reverse,
+                               limit = limit, prefix = prefix)
 
-  def list_local_tags_gt(self, tag, lexical = False, reverse = False):
+  def list_local_tags_gt(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags greater than tag'
-    tags = self.list_local_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if software_version.compare(t, tag) > 0 ]
+    tags = self.list_local_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) > 0 ])
 
-  def list_local_tags_ge(self, tag, lexical = False, reverse = False):
+  def list_local_tags_ge(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags greater or equal to tag'
-    tags = self.list_local_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if software_version.compare(t, tag) >= 0 ]
+    tags = self.list_local_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) >= 0 ])
 
-  def list_local_tags_le(self, tag, lexical = False, reverse = False):
+  def list_local_tags_le(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags lesser or equal to tag'
-    tags = self.list_local_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if software_version.compare(t, tag) <= 0 ]
+    tags = self.list_local_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) <= 0 ])
 
-  def list_local_tags_lt(self, tag, lexical = False, reverse = False):
+  def list_local_tags_lt(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags lesser than tag'
-    tags = self.list_local_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if software_version.compare(t, tag) < 0 ]
+    tags = self.list_local_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) < 0 ])
 
-  def list_remote_tags(self, lexical = False, reverse = False):
-    return git.list_remote_tags(self.root, lexical = lexical, reverse = reverse)
+  def list_remote_tags(self, sort_type = None, reverse = False, limit = None, prefix = None):
+    return git.list_remote_tags(self.root, sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
 
-  def list_remote_tags_gt(self, tag, lexical = False, reverse = False):
+  def list_remote_tags_gt(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags greater than tag'
-    tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if software_version.compare(t, tag) > 0 ]
+    tags = self.list_remote_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) > 0 ])
 
-  def list_remote_tags_ge(self, tag, lexical = False, reverse = False):
+  def list_remote_tags_ge(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags greater or equal to tag'
-    tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if software_version.compare(t, tag) >= 0 ]
+    tags = self.list_remote_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) >= 0 ])
 
-  def list_remote_tags_le(self, tag, lexical = False, reverse = False):
+  def list_remote_tags_le(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags lesser or equal to tag'
-    tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if software_version.compare(t, tag) <= 0 ]
+    tags = self.list_remote_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) <= 0 ])
 
-  def list_remote_tags_lt(self, tag, lexical = False, reverse = False):
+  def list_remote_tags_lt(self, tag, sort_type = None, reverse = False, limit = None, prefix = None):
     'List tags lesser than tag'
-    tags = self.list_remote_tags(lexical = lexical, reverse = reverse)
-    return [ t for t in tags if software_version.compare(t, tag) < 0 ]
+    tags = self.list_remote_tags(sort_type = sort_type, reverse = reverse, limit = limit, prefix = prefix)
+    return git_tag_list([ t for t in tags if software_version.compare(t.name, tag) < 0 ])
 
   def tag(self, tag, allow_downgrade = True, push = False, commit = None,
           annotation = None):
     git.tag(self.root, tag, allow_downgrade = allow_downgrade,
             push = push, annotation = annotation)
+
+  def tag_rename(self, old_tag, new_tag, push = False):
+    git.tag_rename(self.root, old_tag, new_tag, push = push)
+
+  def tag_has_annotation(self, tag_name):
+    return git.tag_has_annotation(self.root, tag_name)
+
+  def tag_annotation(self, tag_name):
+    return git.tag_annotation(self.root, tag_name)
     
   def has_remote_tag(self, tag):
     return git.has_remote_tag(self.root, tag)
@@ -236,15 +250,16 @@ class git_repo(object):
   def delete_remote_tag(self, tag):
     git.delete_remote_tag(self.root, tag)
 
-  def delete_tag(clazz, tag, where, dry_run):
-    return git.delete_tag(self.root, tag, where, dry_run)
+  def delete_tag(self, tag, where, dry_run = False):
+    return git.delete_tag(self.root, tag, where, dry_run = False)
 
   def push_tag(self, tag):
     git.push_tag(self.root, tag)
 
-  def bump_tag(self, component, push = True, dry_run = False, default_tag = None, reset_lower = False):
+  def bump_tag(self, component, push = True, dry_run = False, default_tag = None,
+               reset_lower = False, prefix = None):
     return git.bump_tag(self.root, component, push = push, dry_run = dry_run,
-                        default_tag = default_tag, reset_lower = reset_lower)
+                        default_tag = default_tag, reset_lower = reset_lower, prefix = prefix)
 
   def reset(self, revision = None, submodules = False):
     git.reset(self.root, revision = revision)
