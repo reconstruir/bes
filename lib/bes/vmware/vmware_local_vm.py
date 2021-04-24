@@ -71,31 +71,20 @@ class vmware_local_vm(object):
   def can_run_programs(self, run_program_options = None):
     'Return True if the vm can run programs'
     check.check_vmware_run_program_options(run_program_options, allow_none = True)
-    
-    run_program_options = run_program_options or vmware_run_program_options()
 
     self._log.log_method_d()
-    
-    if not self.ip_address:
-      return False
-    cim = vmware_command_interpreter_manager.instance()
-    default_interpreter = cim.find_default_interpreter(self.system)
-
     # "exit 0" works on all the default interpreters for both windows and unix
-    command = default_interpreter.build_command('exit 0')
-    
-    rv = self._runner.vm_run_script(self.vmx_filename,
-                                    command.interpreter_path,
-                                    command.script_text,
-                                    run_program_options,
-                                    self.login_credentials)
-    self._log.log_d('can_run_programs: exit_code={}'.format(rv.exit_code))
+    script = 'exit 0'
+    rv = self.run_script(script,
+                         run_program_options = run_program_options,
+                         interpreter_name = None)
     return rv.exit_code == 0
 
   def run_script(self,
                  script,
                  run_program_options = None,
                  interpreter_name = None):
+    'Return True if the vm can run programs'
     check.check_string(script)
     check.check_vmware_run_program_options(run_program_options, allow_none = True)
     check.check_string(interpreter_name, allow_none = True)
@@ -103,7 +92,10 @@ class vmware_local_vm(object):
     run_program_options = run_program_options or vmware_run_program_options()
 
     self._log.log_method_d()
-
+    
+    if not self.ip_address:
+      raise vmware_error('vm not running: {}'.format(self.nickname))
+  
     cim = vmware_command_interpreter_manager.instance()
     interpreter = cim.resolve_interpreter(self.system, interpreter_name)
     self._log.log_d('run_script: interpreter={}'.format(interpreter))
@@ -113,7 +105,9 @@ class vmware_local_vm(object):
     rv = self._runner.vm_run_script(self.vmx_filename,
                                     command.interpreter_path,
                                     command.script_text,
-                                    run_program_options)
+                                    run_program_options,
+                                    self.login_credentials)
+    self._log.log_d('run_script: exit_code={}'.format(rv.exit_code))
     return rv
   
 check.register_class(vmware_local_vm)
