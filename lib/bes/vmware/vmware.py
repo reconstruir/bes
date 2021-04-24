@@ -163,6 +163,8 @@ class vmware(object):
 
     if self._options.clone_vm and not self._options.debug:
       self._runner.vm_stop(target_vmx_filename)
+      # need to fully stop the vmware app otherwise the subsequent delete
+      # is flaky
       vmware_app.ensure_stopped()
       self._runner.vm_delete(target_vmx_filename)
 
