@@ -161,7 +161,8 @@ class vmware(object):
     rv = self._runner.vm_run_script(target_vmx_filename,
                                     command.interpreter_path,
                                     command.script_text,
-                                    run_program_options)
+                                    run_program_options,
+                                    local_vm.login_credentials)
 
     if self._options.clone_vm and not self._options.debug:
       self._runner.vm_stop(target_vmx_filename)
