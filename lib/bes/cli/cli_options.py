@@ -171,5 +171,6 @@ class _special_attributes(object):
   @classmethod
   def get_value(clazz, the_class, key, default_value):
     clazz.ensure_class(the_class)
-    assert clazz.has_key(the_class, key)
+    if not clazz.has_key(the_class, key):
+      return None
     return clazz._attribs[the_class].get(key, default_value)
