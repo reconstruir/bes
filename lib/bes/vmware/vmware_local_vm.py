@@ -67,7 +67,9 @@ class vmware_local_vm(object):
     return self.vmx.interpreter
 
   def can_run_programs(self, run_program_options = None):
+    'Return True if the vm can run programs'
     check.check_vmware_run_program_options(run_program_options, allow_none = True)
+    
     run_program_options = run_program_options or vmware_run_program_options()
 
     self._log.log_method_d()
@@ -86,5 +88,29 @@ class vmware_local_vm(object):
                                     run_program_options)
     self._log.log_d('can_run_programs: exit_code={}'.format(rv.exit_code))
     return rv.exit_code == 0
+
+  def run_script(self,
+                 script,
+                 run_program_options = None,
+                 interpreter_name = None):
+    check.check_string(script)
+    check.check_vmware_run_program_options(run_program_options, allow_none = True)
+    check.check_string(interpreter_name, allow_none = True)
+
+    run_program_options = run_program_options or vmware_run_program_options()
+
+    self._log.log_method_d()
+
+    cim = vmware_command_interpreter_manager.instance()
+    interpreter = cim.resolve_interpreter(self.system, interpreter_name)
+    self._log.log_d('run_script: interpreter={}'.format(interpreter))
+    command = interpreter.build_command(script)
+    self._log.log_d('run_script: command={}'.format(command))
+
+    rv = self._runner.vm_run_script(self.vmx_filename,
+                                    command.interpreter_path,
+                                    command.script_text,
+                                    run_program_options)
+    return rv
   
 check.register_class(vmware_local_vm)
