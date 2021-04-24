@@ -81,7 +81,7 @@ class vmware_command_interpreter_manager(object):
       raise vmware_error('Default interpreter for system "{}" not found'.format(system))
     return result
 
-  def resolve_interpreter(self, system, name):
+  def resolve_interpreter(self, system, name, raise_error = True):
     check.check_string(system)
     host.check_system(system)
     check.check_string(name, allow_none = True)
@@ -90,4 +90,8 @@ class vmware_command_interpreter_manager(object):
       interpreter = self.find_default_interpreter(system)
     else:
       interpreter = self.find_interpreter(system, name)
+
+    if raise_error and not interpreter:
+      raise vmware_error('Failed to resolve interpreter "{}" for system {}'.format(name, system))
+    
     return interpreter
