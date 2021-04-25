@@ -29,10 +29,7 @@ class vmware_cli_args(object):
     p.add_argument('--interpreter', action = 'store', default = None,
                    dest = 'interpreter_name',
                    help = 'The name of the interpreter [ ]')
-    p.add_argument('--file', action = 'store_true', default = False,
-                   dest = 'script_is_file',
-                   help = 'Use script as a filename instead of script text [ ]')
-    p.add_argument('script', action = 'store', default = None,
+    p.add_argument('script_text', action = 'store', default = None,
                    help = 'The script text [ ]')
 
     # vm_run_script_file
@@ -46,8 +43,6 @@ class vmware_cli_args(object):
                    help = 'The name of the interpreter [ ]')
     p.add_argument('script_filename', action = 'store', default = None,
                    help = 'The script filename [ ]')
-    p.add_argument('script_args', action = 'store', default = [], nargs = '*',
-                   help = 'Optional arguments to the script [ ]')
     
     # vm_run_package
     p = subparser.add_parser('vm_run_package', help = 'Run a package in a vm.')
