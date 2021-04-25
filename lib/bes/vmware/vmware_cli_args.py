@@ -60,9 +60,6 @@ class vmware_cli_args(object):
     # vm_clone
     p = subparser.add_parser('vm_clone', help = 'Clone a vm.')
     vmware_options_cli_args.add_arguments(p)
-    p.add_argument('--name', action = 'store', type = str, default = None,
-                   dest = 'clone_name',
-                   help = 'The clone name []')
     p.add_argument('--where', action = 'store', default = None,
                    help = 'Where to store the cloned vm files []')
     p.add_argument('--full', action = 'store_true', default = False,
@@ -74,7 +71,21 @@ class vmware_cli_args(object):
                    help = 'Whether to shutdown the source vm first []')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
+    p.add_argument('clone_name', action = 'store', type = str, default = None,
+                   help = 'The clone name []')
 
+    # vm_snapshot_and_clone
+    p = subparser.add_parser('vm_snapshot_and_clone', help = 'Snapshot and clone a vm from it.')
+    vmware_options_cli_args.add_arguments(p)
+    p.add_argument('--where', action = 'store', default = None,
+                   help = 'Where to store the cloned vm files []')
+    p.add_argument('--full', action = 'store_true', default = False,
+                   help = 'Whether to do full instead of linked clone []')
+    p.add_argument('--shutdown', action = 'store_true', default = False,
+                   help = 'Whether to shutdown the source vm first []')
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    
     # vm_file_copy_to
     p = subparser.add_parser('vm_file_copy_to', help = 'Copy a local file to a vm.')
     vmware_options_cli_args.add_arguments(p)
@@ -177,7 +188,7 @@ class vmware_cli_args(object):
     
     # vms
     p = subparser.add_parser('vms', help = 'List vms.')
-    p.add_argument('--info', action = 'store_true', default = False,
+    p.add_argument('-i', '--info', action = 'store_true', default = False,
                    dest = 'show_info',
                    help = 'Show as all known info about a vm [ False ]')
     vmware_options_cli_args.add_arguments(p)

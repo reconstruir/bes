@@ -12,6 +12,7 @@ import inspect
 from bes.archive.archiver import archiver
 from bes.common.check import check
 from bes.common.string_util import string_util
+from bes.common.table import table
 from bes.common.time_util import time_util
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
@@ -65,13 +66,6 @@ class vmware(object):
     if self._preferences.has_value('prefvmx.defaultVMPath'):
       return self._preferences.get_value('prefvmx.defaultVMPath')
     return None
-
-  @classmethod
-  def _tmp_nickname_part(clazz):
-    d = tempfile.mkdtemp(prefix = 'foo')
-    b = path.basename(d)
-    file_util.remove(d)
-    return string_util.remove_head(b, 'foo')
 
   _cloned_vm_names = namedtuple('_cloned_vm_names', 'src_vmx_filename, dst_vmx_filename, dst_vmx_nickname')
   def _make_cloned_vm_names(clazz, src_vmx_filename, clone_name, where):
@@ -134,32 +128,33 @@ class vmware(object):
 
     vmware_app.ensure_running()
 
-#    if script_is_file:
-#      if not path.exists(script):
-#        raise vmware_error('script file not found: "{}"'.format(script))
-#      if not path.isfile(script):
-#        raise vmware_error('script is not a file: "{}"'.format(script))
-#      script_text = file_util.read(script, codec = 'utf8')
-#    else:
-#      script_text = script
-
     vm = self._resolve_vmx_to_local_vm(vm_id)
-    rv = vm.run_script(script_text,
-                       run_program_options = run_program_options,
-                       interpreter_name = interpreter_name)
+    vm_was_running = vm.is_running
+    if self._options.clone_vm:
+      cloned_vm = vm.snapshot_and_clone(clone_name = None,
+                                        where = None,
+                                        full = False,
+                                        shutdown = True)
+      target_vm = cloned_vm
+    else:
+      target_vm = vm
+    if not self._options.dont_ensure or self._options.clone_vm:
+      self.vm_ensure_started(target_vm.vmx_filename,
+                             True,
+                             run_program_options = run_program_options,
+                             gui = True)
+    rv = target_vm.run_script(script_text,
+                              run_program_options = run_program_options,
+                              interpreter_name = interpreter_name)
+    if self._options.clone_vm and not self._options.debug:
+      cloned_vm.stop()
+      # need to fully stop the vmware app otherwise the subsequent delete
+      # is flaky
+      vmware_app.ensure_stopped()
+      self._runner.vm_delete(target_vmx_filename)
+    
     return rv
-    vmx_filename = self._resolve_vmx_filename(vm_id)
-    local_vm = self.local_vms[vmx_filename]
-    system = local_vm.vmx.system
-    interpreter = self._command_interpreter_manager.resolve_interpreter(system, interpreter_name)
-    if not interpreter:
-      raise vmware_error('Failed to resolve interpreter for "{}": "{}"'.format(vm_id, interpreter))
-    self._log.log_d('vm_run_script: interpreter={}'.format(interpreter))
-    command = interpreter.build_command(script_text)
-    self._log.log_d('vm_run_script: command={}'.format(command))
-    target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
-                                                                 vmx_filename,
-                                                                 self._options.clone_vm)
+  
     if not self._options.dont_ensure or self._options.clone_vm:
       self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
 
@@ -236,7 +231,6 @@ class vmware(object):
     check.check_vmware_run_program_options(run_program_options)
 
     self._log.log_method_d()
-
     vm = self._resolve_vmx_to_local_vm(vm_id)
     return vm.can_run_programs(run_program_options = run_program_options)
 
@@ -412,37 +406,41 @@ class vmware(object):
       return
     self._runner.vm_set_power_state(vmx_filename, 'stop')
   
-  _clone_result = namedtuple('_clone_result', 'src_vmx_filename, dst_vmx_filename')
-  def vm_clone(self, vm_id, clone_name = None, where = None, full = False,
+  _clone_result = namedtuple('_clone_result', 'src_vm, dst_vm')
+  def vm_clone(self, vm_id, clone_name, where = None, full = False,
                snapshot_name = None, shutdown = False):
     check.check_string(vm_id)
-    check.check_string(clone_name, allow_none = True)
+    check.check_string(clone_name)
     check.check_string(where, allow_none = True)
     check.check_bool(full)
     check.check_string(snapshot_name, allow_none = True)
     check.check_bool(shutdown)
 
     self._log.log_method_d()
-    
-    src_vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('vm_clone: src_vmx_filename={}'.format(src_vmx_filename))
 
-    names = self._make_cloned_vm_names(src_vmx_filename, clone_name, where)
-    self._log.log_d('vm_clone: dst_vmx_filename={} dst_vmx_nickname={}'.format(names.dst_vmx_filename,
-                                                                                names.dst_vmx_nickname))
-    if path.exists(names.dst_vmx_filename):
-      raise vmware_error('Clones vmx file already exists: "{}"'.format(names.dst_vmx_filename))
-
-    if shutdown:
-      self._stop_vm_if_needed(src_vmx_filename)
-      
-    self._runner.vm_clone(src_vmx_filename,
-                          names.dst_vmx_filename,
+    src_vm = self._resolve_vmx_to_local_vm(vm_id)
+    dst_vm = src_vm.clone(clone_name,
+                          where = where,
                           full = full,
                           snapshot_name = snapshot_name,
-                          clone_name = names.dst_vmx_nickname)
-    return self._clone_result(src_vmx_filename, names.dst_vmx_filename)
+                          shutdown = shutdown)
+    return self._clone_result(src_vm, dst_vm)
 
+  def vm_snapshot_and_clone(self, vm_id, where = None, full = False,
+                            shutdown = False):
+    check.check_string(vm_id)
+    check.check_string(where, allow_none = True)
+    check.check_bool(full)
+    check.check_bool(shutdown)
+
+    self._log.log_method_d()
+
+    src_vm = self._resolve_vmx_to_local_vm(vm_id)
+    dst_vm = src_vm.snapshot_and_clone(where = where,
+                                       full = full,
+                                       shutdown = shutdown)
+    return self._clone_result(src_vm, dst_vm)
+  
   def vm_delete(self, vm_id, shutdown = False):
     check.check_string(vm_id)
     check.check_bool(shutdown)
@@ -627,33 +625,34 @@ class vmware(object):
     check.check_bool(show_info)
     
     self._log.log_method_d()
-    for _, vm in self.local_vms.items():
-      print(vm)
+    vms = self.local_vms.items()
+    if show_info:
+      data = [ self._make_vm_data(vm) for _, vm in self.local_vms.items() ]
+      tt = text_table(data = data)
+      tt.set_labels(self._INFO_LABELS)
+      print(tt)
+    else:
+      for _, vm in self.local_vms.items():
+        print(vm)
 
+  _INFO_LABELS = ( 'NAME', 'VMX_FILENAME', 'IP_ADDRESS', 'ON', 'CAN_RUN', 'SYSTEM', 'VERSION' )
   def vm_info(self, vm_id):
     check.check_string(vm_id)
 
     self._log.log_method_d()
-
     vm = self._resolve_vmx_to_local_vm(vm_id)
-    data = [
-      ( 'vmx_filename', vm.vmx_filename, ),
-      ( 'display_name', vm.display_name ),
-      ( 'interpreter', vm.interpreter ),
-      ( 'ip_address', vm.ip_address ),
-      ( 'is_running', vm.is_running ),
-      ( 'can_run_programs', vm.can_run_programs() ),
-      ( 'nickname', vm.nickname, ),
-      ( 'system arch', vm.system_info.arch ),
-      ( 'system distro', vm.system_info.distro or '' ),
-      ( 'system family', vm.system_info.family or '' ),
-      ( 'system version', vm.system_info.version ),
-      ( 'system', vm.system_info.system ),
-      ( 'uuid', vm.uuid ),
-    ]
-    for i, snapshot in enumerate(vm.snapshots):
-      data.append( ( 'snapshot {}'.format(i + 1), snapshot ) )
-      
-    tt = text_table(data = data)
+    tt = text_table(data = [ self._make_vm_data(vm) ])
+    tt.set_labels(self._INFO_LABELS)
     print(tt)
-    #tt.set_labels( tuple([ f.upper() for f in vms[0]._fields ]) )
+
+  def _make_vm_data(self, vm):
+    info = vm.info
+    return (
+      info.nickname,
+      info.vmx_filename,
+      info.ip_address,
+      info.is_running,
+      info.can_run_programs,
+      info.system,
+      info.system_version
+    )
