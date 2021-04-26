@@ -112,29 +112,27 @@ class vmware(object):
     self._log.log_method_d()
 
     vmware_app.ensure_running()
-
     vm = self._resolve_vmx_to_local_vm(vm_id)
-    vm_needs_start = False
+
     if run_program_options.clone_vm:
-      vm_needs_start = vm.is_running
+      state = self._save_running_vms_state()
       vm.stop()
       cloned_vm = vm.snapshot_and_clone(where = None, full = False)
-      target_vm = cloned_vm
-    else:
-      target_vm = vm
-    if not self._options.dont_ensure or run_program_options.clone_vm:
-      target_vm.start(gui = True,
-                      wait = True,
+      cloned_vm.start(gui = True, wait = True,
                       run_program_options = run_program_options)
-    rv = target_vm.run_script(script_text,
-                              run_program_options = run_program_options,
-                              interpreter_name = interpreter_name)
-    if run_program_options.clone_vm:
-      if not self._options.debug:
-        self._handle_vm_delete(cloned_vm, stop = True, shutdown = True)
-      if vm_needs_start:
-        vm.start()
-    
+      rv = cloned_vm.run_script(script_text,
+                                run_program_options = run_program_options,
+                                interpreter_name = interpreter_name)
+      cloned_vm.delete(stop = True, shutdown = True)
+      self._restore_running_vms_state(state)
+    else:
+      if not self._options.dont_ensure:
+        vm.start(gui = True,
+                 wait = True,
+                 run_program_options = run_program_options)
+      rv = vm.run_script(script_text,
+                         run_program_options = run_program_options,
+                         interpreter_name = interpreter_name)
     return rv
   
   def vm_run_script_file(self, vm_id, script_filename, run_program_options,
@@ -431,13 +429,17 @@ class vmware(object):
       for next_vm in running_vms:
         next_vm.start()
         
-  def _running_vms(self):
-    vms = []
+  def _save_running_vms_state(self):
+    state = []
     for _, vm in self.local_vms.items():
       if vm.is_running:
-        vms.append(vm)
-    return vms
-    
+        state.append(vm)
+    return state
+
+  def _restore_running_vms_state(self, vms):
+    for vm in vms:
+      vm.start()
+  
   def vm_is_running(self, vm_id):
     check.check_string(vm_id)
 

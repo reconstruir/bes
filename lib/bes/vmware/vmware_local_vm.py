@@ -10,12 +10,13 @@ from bes.fs.file_find import file_find
 from bes.property.cached_property import cached_property
 from bes.system.log import logger
 
+from .vmware_app import vmware_app
+from .vmware_clone_util import vmware_clone_util
 from .vmware_clone_util import vmware_clone_util
 from .vmware_command_interpreter_manager import vmware_command_interpreter_manager
 from .vmware_error import vmware_error
 from .vmware_run_program_options import vmware_run_program_options
 from .vmware_vmx_file import vmware_vmx_file
-from .vmware_clone_util import vmware_clone_util
 
 class vmware_local_vm(object):
 
@@ -210,7 +211,6 @@ class vmware_local_vm(object):
                       stop = stop)
 
   def delete(self, stop = False, shutdown = False):
-    check.check_vmware_local_vm(vm)
     check.check_bool(stop)
     check.check_bool(shutdown)
 
@@ -223,7 +223,9 @@ class vmware_local_vm(object):
         raise vmware_error('cannot delete a running vm: "{}"'.format(self.vmx_filename))
     if shutdown:
       vmware_app.ensure_stopped()
-    self._runner.vm_delete(vm.vmx_filename)
+    self._runner.vm_delete(self.vmx_filename)
+    if shutdown:
+      vmware_app.ensure_running()
   
   _info = namedtuple('_info', 'nickname, display_name, vmx_filename, interpreter, ip_address, is_running, can_run_programs, system, system_arch, system_distro, system_family, system_version, uuid')
 
