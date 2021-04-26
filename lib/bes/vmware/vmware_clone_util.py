@@ -45,7 +45,7 @@ class vmware_clone_util(object):
   def make_dst_vmx_filename(clazz, src_vmx_filename, clone_name, where):
     check.check_string(src_vmx_filename)
     check.check_string(clone_name)
-    check.check_string(where)
+    check.check_string(where, allow_none = True)
     
     vms_root_dir = path.normpath(path.join(path.dirname(src_vmx_filename), path.pardir))
     new_vm_root_dir_basename = '{}.vmwarevm'.format(clone_name)

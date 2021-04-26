@@ -143,20 +143,20 @@ class vmware_local_vm(object):
     dst_vmx_filename = vmware_clone_util.make_dst_vmx_filename(self.vmx_filename,
                                                                clone_name,
                                                                where)
-    self._log.log_d('clone: dst_vmx_filename={}'.format(names.dst_vmx_filename))
-    if path.exists(names.dst_vmx_filename):
-      raise vmware_error('Cloned vm already exists: "{}"'.format(names.dst_vmx_filename))
+    self._log.log_d('clone: dst_vmx_filename={}'.format(dst_vmx_filename))
+    if path.exists(dst_vmx_filename):
+      raise vmware_error('Cloned vm already exists: "{}"'.format(dst_vmx_filename))
 
     if shutdown:
       self.stop()
       
     self._runner.vm_clone(self.vmx_filename,
-                          names.dst_vmx_filename,
+                          dst_vmx_filename,
                           full = full,
                           snapshot_name = snapshot_name,
                           clone_name = clone_name)
     return vmware_local_vm(self._runner,
-                           names.dst_vmx_filename,
+                           dst_vmx_filename,
                            self.login_credentials)
 
   def snapshot(self, snapshot_name):

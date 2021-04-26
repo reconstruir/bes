@@ -64,7 +64,7 @@ class vmware_vmrun(object):
     if exit_code != 0 and raise_error:
       if not error_message:
         args_flat = ' '.join(vmrun_args)
-        error_message or 'vmrun command failed: {}\n{}'.format(args_flat, output)
+        error_message = 'vmrun command failed: {}\n{}'.format(args_flat, output)
       raise vmware_error(error_message, status_code = exit_code)
     result = self._run_result(output, exit_code, vmrun_args)
     self._log.log_d('run: result: {} - {}'.format(result.exit_code, result.output))
