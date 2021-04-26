@@ -145,10 +145,6 @@ class vmware_cli_args(object):
     # vm_stop
     p = subparser.add_parser('vm_stop', help = 'Stop a vm.')
     vmware_options_cli_args.add_arguments(p)
-    p.add_argument('--wait', action = 'store_true', default = False,
-                   help = 'Wait until the vm can run programs [ False ]')
-    p.add_argument('--gui', action = 'store_true', default = False,
-                   help = 'Show the GUI [ False ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
     

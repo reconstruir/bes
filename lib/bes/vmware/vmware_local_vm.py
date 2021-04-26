@@ -3,6 +3,7 @@
 from collections import namedtuple
 
 from os import path
+import time
 
 from bes.common.check import check
 from bes.fs.file_find import file_find
@@ -79,15 +80,16 @@ class vmware_local_vm(object):
     snapshot_name = 'snapshot_{}'.format(timestamp)
     return self._clone_names(clone_name, snapshot_name)
   
-  def stop(self, gui = False):
+  def stop(self):
     if not self.is_running:
       return
-    self._runner.vm_set_power_state(self.vmx_filename, 'stop', gui = gui)
+    self._runner.vm_set_power_state(self.vmx_filename, 'stop')
 
-  def start(self, gui = False):
-    if self.is_running:
-      return
-    self._runner.vm_set_power_state(self.vmx_filename, 'start', gui = gui)
+  def start(self, wait = False, gui = False, run_program_options = None):
+    if not self.is_running:
+      self._runner.vm_set_power_state(self.vmx_filename, 'start', gui = gui)
+    if wait:
+      self.wait_for_can_run_programs(run_program_options = run_program_options)
     
   def can_run_programs(self, run_program_options = None):
     'Return True if the vm can run programs'
@@ -107,6 +109,26 @@ class vmware_local_vm(object):
                          interpreter_name = None)
     return rv.exit_code == 0
 
+  def wait_for_can_run_programs(self, run_program_options = None):
+    check.check_vmware_run_program_options(run_program_options, allow_none = True)
+    run_program_options = run_program_options or vmware_run_program_options()
+
+    self._log.log_method_d()
+    
+    num_tries = run_program_options.wait_programs_num_tries
+    sleep_time = run_program_options.wait_programs_sleep_time
+    self._log.log_d('wait_for_can_run_programs: num_tries={} sleep_time={}'.format(num_tries,
+                                                                                      sleep_time))
+    for i in range(1, num_tries + 1):
+      self._log.log_d('wait_for_can_run_programs: try {} of {}'.format(i, num_tries))
+      if self.can_run_programs(run_program_options = run_program_options):
+        self._log.log_d('wait_for_can_run_programs: try {} success'.format(i))
+        return
+      self._log.log_d('wait_for_can_run_programs: sleeping for {} seconds'.format(sleep_time))
+      time.sleep(sleep_time)
+    self._log.log_d('wait_for_can_run_programs: timed out waiting for vm to be able to run programs.')
+    raise vmware_error('wait_for_can_run_programs: timed out waiting for vm to be able to run programs.')
+  
   def run_script(self,
                  script,
                  run_program_options = None,
@@ -187,6 +209,22 @@ class vmware_local_vm(object):
                       snapshot_name = snapshot_name,
                       stop = stop)
 
+  def delete(self, stop = False, shutdown = False):
+    check.check_vmware_local_vm(vm)
+    check.check_bool(stop)
+    check.check_bool(shutdown)
+
+    self._log.log_method_d()
+
+    if stop:
+      self.stop()
+    else:
+      if self.is_running:
+        raise vmware_error('cannot delete a running vm: "{}"'.format(self.vmx_filename))
+    if shutdown:
+      vmware_app.ensure_stopped()
+    self._runner.vm_delete(vm.vmx_filename)
+  
   _info = namedtuple('_info', 'nickname, display_name, vmx_filename, interpreter, ip_address, is_running, can_run_programs, system, system_arch, system_distro, system_family, system_version, uuid')
 
   @property

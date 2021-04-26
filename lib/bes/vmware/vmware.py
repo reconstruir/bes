@@ -123,10 +123,9 @@ class vmware(object):
     else:
       target_vm = vm
     if not self._options.dont_ensure or run_program_options.clone_vm:
-      self.vm_ensure_started(target_vm.vmx_filename,
-                             True,
-                             run_program_options = run_program_options,
-                             gui = True)
+      target_vm.start(gui = True,
+                      wait = True,
+                      run_program_options = run_program_options)
     rv = target_vm.run_script(script_text,
                               run_program_options = run_program_options,
                               interpreter_name = interpreter_name)
@@ -573,19 +572,15 @@ class vmware(object):
     if wait:
       self.vm_wait_for_can_run_programs(vm_id, vmware_run_program_options())
 
-  def vm_stop(self, vm_id, wait = False, gui = False):
+  def vm_stop(self, vm_id):
     check.check_string(vm_id)
-    check.check_bool(wait)
-    check.check_bool(gui)
 
     self._log.log_method_d()
     
     vmware_app.ensure_running()
 
     vm = self._resolve_vmx_to_local_vm(vm_id)
-    vm.stop(gui = gui)
-    if wait:
-      pass #self.vm_wait_for_can_run_programs(vm_id, vmware_run_program_options())
+    vm.stop()
       
   def vm_command(self, vm_id, command, command_args):
     check.check_string(vm_id)
