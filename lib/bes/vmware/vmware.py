@@ -89,14 +89,14 @@ class vmware(object):
     vmx_filename = self._resolve_vmx_filename(vm_id)
     target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
                                                                  vmx_filename,
-                                                                 self._options.clone_vm)
+                                                                 run_program_options.clone_vm)
     
-    if not self._options.dont_ensure or self._options.clone_vm:
+    if not self._options.dont_ensure or run_program_options.clone_vm:
       self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
       
     rv = self._runner.vm_run_program(target_vmx_filename, program, program_args, run_program_options)
 
-    if self._options.clone_vm and not self._options.debug:
+    if run_program_options.clone_vm and not self._options.debug:
       self._runner.vm_stop(target_vmx_filename)
       self._runner.vm_delete(target_vmx_filename)
 
@@ -115,14 +115,14 @@ class vmware(object):
 
     vm = self._resolve_vmx_to_local_vm(vm_id)
     vm_needs_start = False
-    if self._options.clone_vm:
+    if run_program_options.clone_vm:
       vm_needs_start = vm.is_running
       vm.stop()
       cloned_vm = vm.snapshot_and_clone(where = None, full = False)
       target_vm = cloned_vm
     else:
       target_vm = vm
-    if not self._options.dont_ensure or self._options.clone_vm:
+    if not self._options.dont_ensure or run_program_options.clone_vm:
       self.vm_ensure_started(target_vm.vmx_filename,
                              True,
                              run_program_options = run_program_options,
@@ -130,7 +130,7 @@ class vmware(object):
     rv = target_vm.run_script(script_text,
                               run_program_options = run_program_options,
                               interpreter_name = interpreter_name)
-    if self._options.clone_vm:
+    if run_program_options.clone_vm:
       if not self._options.debug:
         self._handle_vm_delete(cloned_vm, stop = True, shutdown = True)
       if vm_needs_start:
@@ -198,8 +198,8 @@ class vmware(object):
 
     self._log.log_method_d()
     
-    num_tries = self._options.wait_programs_num_tries
-    sleep_time = self._options.wait_programs_sleep_time
+    num_tries = run_program_options.wait_programs_num_tries
+    sleep_time = run_program_options.wait_programs_sleep_time
     self._log.log_d('vm_wait_for_can_run_programs: num_tries={} sleep_time={}'.format(num_tries,
                                                                                       sleep_time))
     for i in range(1, num_tries + 1):
@@ -232,13 +232,13 @@ class vmware(object):
 
     target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
                                                                  vmx_filename,
-                                                                 self._options.clone_vm)
+                                                                 run_program_options.clone_vm)
     assert target_vm_id
     assert path.isfile(target_vmx_filename)
     self._log.log_d('vm_run_package: target_vm_id={} target_vmx_filename={}'.format(target_vm_id,
                                                                                     target_vmx_filename))
     
-    if not self._options.dont_ensure or self._options.clone_vm:
+    if not self._options.dont_ensure or run_program_options.clone_vm:
       self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
       
     tmp_dir_local = temp_file.make_temp_dir(suffix = '-run_package.dir', delete = not debug)
@@ -322,7 +322,7 @@ class vmware(object):
     if not debug:
       self._runner.vm_dir_delete(target_vmx_filename, tmp_remote_dir)
 
-    if self._options.clone_vm and not self._options.debug:
+    if run_program_options.clone_vm and not self._options.debug:
       self._runner.vm_stop(target_vmx_filename)
       self._runner.vm_delete(target_vmx_filename)
       

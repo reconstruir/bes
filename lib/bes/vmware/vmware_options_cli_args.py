@@ -26,12 +26,6 @@ class vmware_options_cli_args(object):
                    help = 'Dont ensure that both vmware and the vm are running [ False ]')
     p.add_argument('--tty', action = 'store', default = None,
                    help = 'tty to log to in debug mode [ False ]')
-    p.add_argument('--clone-vm', action = 'store_true', default = False,
-                   help = 'Run programs in a clone of the vm [ False ]')
     p.add_argument('--config', action = 'store', type = str, default = None,
                    dest = 'config_filename',
                    help = 'Use config filename [ False ]')
-    p.add_argument('--wait-programs-num-tries', action = 'store', type = int, default = 60,
-                   help = 'The number of tries when waiting for vm to be able to run programs [ False ]')
-    p.add_argument('--wait-programs-sleep-time', action = 'store', type = float, default = 2.0,
-                   help = 'Amount of time in seconds to sleep between wait for programs retries [ False ]')

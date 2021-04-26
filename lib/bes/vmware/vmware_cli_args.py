@@ -242,6 +242,12 @@ class vmware_cli_args(object):
     p.add_argument('-o', '--output', action = 'store', default = None,
                    dest = 'output_filename',
                    help = 'Output the log to filename instead of stdout [ False ]')
+    p.add_argument('--wait-programs-num-tries', action = 'store', type = int, default = 60,
+                   help = 'The number of tries when waiting for vm to be able to run programs [ False ]')
+    p.add_argument('--wait-programs-sleep-time', action = 'store', type = float, default = 2.0,
+                   help = 'Amount of time in seconds to sleep between wait for programs retries [ False ]')
+    p.add_argument('--clone-vm', action = 'store_true', default = False,
+                   help = 'Run programs in a clone of the vm [ False ]')
     
   def _command_vmware(self, __bes_command__, *args, **kargs):
     from .vmware_cli_handler import vmware_cli_handler

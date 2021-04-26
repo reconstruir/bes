@@ -27,10 +27,7 @@ class vmware_options(cli_options):
       'login_password': None,
       'dont_ensure': False,
       'tty': None,
-      'clone_vm': False,
       'vm_dir': None,
-      'wait_programs_num_tries': 60,
-      'wait_programs_sleep_time': 2.0,
     }
   
   @classmethod
@@ -44,8 +41,6 @@ class vmware_options(cli_options):
   def value_type_hints(clazz):
     return {
       'vmrest_port': int,
-      'wait_programs_num_tries': int,
-      'wait_programs_sleep_time': float,
     }
 
   @classmethod
@@ -81,10 +76,7 @@ class vmware_options(cli_options):
     check.check_string(self.login_password, allow_none = True)
     check.check_bool(self.dont_ensure)
     check.check_string(self.tty, allow_none = True)
-    check.check_bool(self.clone_vm)
     check.check_string(self.vm_dir, allow_none = True)
-    check.check_int(self.wait_programs_num_tries)
-    check.check_float(self.wait_programs_sleep_time)
   
   @property
   def vmrest_credentials(self):
