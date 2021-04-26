@@ -628,6 +628,7 @@ class vmware(object):
     vms = self.local_vms.items()
     if show_info:
       data = [ self._make_vm_data(vm) for _, vm in self.local_vms.items() ]
+      data = sorted(data, key = lambda row: row[0])
       tt = text_table(data = data)
       tt.set_labels(self._INFO_LABELS)
       print(tt)
