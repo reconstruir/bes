@@ -114,12 +114,11 @@ class vmware(object):
     vmware_app.ensure_running()
 
     vm = self._resolve_vmx_to_local_vm(vm_id)
-    vm_was_running = vm.is_running
+    vm_needs_start = False
     if self._options.clone_vm:
+      vm_needs_start = vm.is_running
       vm.stop()
-      cloned_vm = vm.snapshot_and_clone(clone_name = None,
-                                        where = None,
-                                        full = False)
+      cloned_vm = vm.snapshot_and_clone(where = None, full = False)
       target_vm = cloned_vm
     else:
       target_vm = vm
@@ -131,12 +130,11 @@ class vmware(object):
     rv = target_vm.run_script(script_text,
                               run_program_options = run_program_options,
                               interpreter_name = interpreter_name)
-    if self._options.clone_vm and not self._options.debug:
-      cloned_vm.stop()
-      # need to fully stop the vmware app otherwise the subsequent delete
-      # is flaky
-      vmware_app.ensure_stopped()
-      self._runner.vm_delete(target_vmx_filename)
+    if self._options.clone_vm:
+      if not self._options.debug:
+        self._handle_vm_delete(cloned_vm, stop = True, shutdown = True)
+      if vm_needs_start:
+        vm.start()
     
     return rv
   
@@ -408,8 +406,16 @@ class vmware(object):
     check.check_bool(shutdown)
 
     self._log.log_method_d()
-
     vm = self._resolve_vmx_to_local_vm(vm_id)
+    self._handle_vm_delete(vm, stop, shutdown)
+
+  def _handle_vm_delete(self, vm, stop = False, shutdown = False):
+    check.check_vmware_local_vm(vm)
+    check.check_bool(stop)
+    check.check_bool(shutdown)
+
+    self._log.log_method_d()
+
     if stop:
       vm.stop()
     else:
@@ -422,10 +428,10 @@ class vmware(object):
     self._runner.vm_delete(vm.vmx_filename)
     if shutdown:
       vmware_app.ensure_running()
-      assert running_vms
+      assert running_vms != None
       for next_vm in running_vms:
         next_vm.start()
-                 
+        
   def _running_vms(self):
     vms = []
     for _, vm in self.local_vms.items():
