@@ -138,12 +138,12 @@ class vmware_local_vm(object):
     return rv
 
   def clone(self, clone_name, where = None, full = False,
-            snapshot_name = None, shutdown = False):
+            snapshot_name = None, stop = False):
     check.check_string(clone_name)
     check.check_string(where, allow_none = True)
     check.check_bool(full)
     check.check_string(snapshot_name, allow_none = True)
-    check.check_bool(shutdown)
+    check.check_bool(stop)
 
     self._log.log_method_d()
 
@@ -154,7 +154,7 @@ class vmware_local_vm(object):
     if path.exists(dst_vmx_filename):
       raise vmware_error('Cloned vm already exists: "{}"'.format(dst_vmx_filename))
 
-    if shutdown:
+    if stop:
       self.stop()
       
     self._runner.vm_clone(self.vmx_filename,
@@ -170,11 +170,10 @@ class vmware_local_vm(object):
     self._log.log_method_d()
     self._runner.vm_snapshot_create(self.vmx_filename, snapshot_name)
   
-  def snapshot_and_clone(self, where = None, full = False,
-                         shutdown = False):
+  def snapshot_and_clone(self, where = None, full = False, stop = False):
     check.check_string(where, allow_none = True)
     check.check_bool(full)
-    check.check_bool(shutdown)
+    check.check_bool(stop)
 
     self._log.log_method_d()
     clone_name, snapshot_name = self.make_clone_names()
@@ -186,7 +185,7 @@ class vmware_local_vm(object):
                       where = where,
                       full = full,
                       snapshot_name = snapshot_name,
-                      shutdown = shutdown)
+                      stop = stop)
 
   _info = namedtuple('_info', 'nickname, display_name, vmx_filename, interpreter, ip_address, is_running, can_run_programs, system, system_arch, system_distro, system_family, system_version, uuid')
 

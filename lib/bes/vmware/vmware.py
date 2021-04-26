@@ -67,21 +67,6 @@ class vmware(object):
       return self._preferences.get_value('prefvmx.defaultVMPath')
     return None
 
-  _cloned_vm_names = namedtuple('_cloned_vm_names', 'src_vmx_filename, dst_vmx_filename, dst_vmx_nickname')
-  def _make_cloned_vm_names(clazz, src_vmx_filename, clone_name, where):
-    vms_root_dir = path.normpath(path.join(path.dirname(src_vmx_filename), path.pardir))
-    src_vmx_nickname = vmware_vmx_file(src_vmx_filename).nickname
-    tmp_nickname_part = clazz._tmp_nickname_part()
-    if not clone_name:
-      clone_name = '{}_clone_{}'.format(src_vmx_nickname, tmp_nickname_part)
-    new_vm_root_dir_basename = '{}.vmwarevm'.format(clone_name)
-    if not where:
-      where = path.join(vms_root_dir, new_vm_root_dir_basename)
-    file_util.mkdir(where)
-    dst_vmx_basename = '{}.vmx'.format(clone_name)
-    dst_vmx_filename = path.join(where, dst_vmx_basename)
-    return clazz._cloned_vm_names(src_vmx_filename, dst_vmx_filename, clone_name)
-  
   @property
   def session(self):
     if not self._session:
@@ -131,10 +116,10 @@ class vmware(object):
     vm = self._resolve_vmx_to_local_vm(vm_id)
     vm_was_running = vm.is_running
     if self._options.clone_vm:
+      vm.stop()
       cloned_vm = vm.snapshot_and_clone(clone_name = None,
                                         where = None,
-                                        full = False,
-                                        shutdown = True)
+                                        full = False)
       target_vm = cloned_vm
     else:
       target_vm = vm
@@ -155,24 +140,6 @@ class vmware(object):
     
     return rv
   
-    if not self._options.dont_ensure or self._options.clone_vm:
-      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
-
-    rv = self._runner.vm_run_script(target_vmx_filename,
-                                    command.interpreter_path,
-                                    command.script_text,
-                                    run_program_options,
-                                    local_vm.login_credentials)
-
-    if self._options.clone_vm and not self._options.debug:
-      self._runner.vm_stop(target_vmx_filename)
-      # need to fully stop the vmware app otherwise the subsequent delete
-      # is flaky
-      vmware_app.ensure_stopped()
-      self._runner.vm_delete(target_vmx_filename)
-
-    return rv
-
   def vm_run_script_file(self, vm_id, script_filename, run_program_options,
                          interpreter_name = None):
     check.check_string(vm_id)
@@ -192,13 +159,6 @@ class vmware(object):
                               run_program_options,
                               interpreter_name = interpreter_name)
   
-  @classmethod
-  def _tmp_nickname_part(clazz):
-    d = tempfile.mkdtemp()
-    b = path.basename(d)
-    file_util.remove(d)
-    return string_util.remove_head(b, 'tmp')
-
   @classmethod
   def _clone_timestamp(clazz):
     return time_util.timestamp(delimiter = '-', milliseconds = False)
@@ -220,7 +180,7 @@ class vmware(object):
     self._runner.vm_snapshot_create(vmx_filename, snapshot_name)
     self._log.log_d('_clone_vm_if_needed: cloning snapshot')
     rv = self.vm_clone(vm_id, clone_name = clone_name, full = False,
-                       snapshot_name = snapshot_name, shutdown = True)
+                       snapshot_name = snapshot_name, stop = True)
     dst_vm_id = self._vmx_filename_to_id(rv.dst_vmx_filename)
     assert dst_vm_id
     self._log.log_d('_clone_vm_if_needed: dst_mv_id={} dst_vmx_filename={}'.format(dst_vm_id, rv.dst_vmx_filename))
@@ -409,13 +369,13 @@ class vmware(object):
   
   _clone_result = namedtuple('_clone_result', 'src_vm, dst_vm')
   def vm_clone(self, vm_id, clone_name, where = None, full = False,
-               snapshot_name = None, shutdown = False):
+               snapshot_name = None, stop = False):
     check.check_string(vm_id)
     check.check_string(clone_name)
     check.check_string(where, allow_none = True)
     check.check_bool(full)
     check.check_string(snapshot_name, allow_none = True)
-    check.check_bool(shutdown)
+    check.check_bool(stop)
 
     self._log.log_method_d()
 
@@ -424,22 +384,22 @@ class vmware(object):
                           where = where,
                           full = full,
                           snapshot_name = snapshot_name,
-                          shutdown = shutdown)
+                          stop = stop)
     return self._clone_result(src_vm, dst_vm)
 
   def vm_snapshot_and_clone(self, vm_id, where = None, full = False,
-                            shutdown = False):
+                            stop = False):
     check.check_string(vm_id)
     check.check_string(where, allow_none = True)
     check.check_bool(full)
-    check.check_bool(shutdown)
+    check.check_bool(stop)
 
     self._log.log_method_d()
 
     src_vm = self._resolve_vmx_to_local_vm(vm_id)
     dst_vm = src_vm.snapshot_and_clone(where = where,
                                        full = full,
-                                       shutdown = shutdown)
+                                       stop = stop)
     return self._clone_result(src_vm, dst_vm)
   
   def vm_delete(self, vm_id, stop = False, shutdown = False):

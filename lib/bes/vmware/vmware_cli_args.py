@@ -43,6 +43,18 @@ class vmware_cli_args(object):
                    help = 'The name of the interpreter [ ]')
     p.add_argument('script_filename', action = 'store', default = None,
                    help = 'The script filename [ ]')
+
+    # vm_run_program
+    p = subparser.add_parser('vm_run_program', help = 'Run a program in a vm.')
+    vmware_options_cli_args.add_arguments(p)
+    self.__vmware_add_common_run_program_args(p)
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    p.add_argument('program', action = 'store', default = None,
+                   help = 'The program [ ]')
+    p.add_argument('program_args', action = 'store', default = None,
+                   nargs = '*',
+                   help = 'Optional program args [ ]')
     
     # vm_run_package
     p = subparser.add_parser('vm_run_package', help = 'Run a package in a vm.')
@@ -67,10 +79,10 @@ class vmware_cli_args(object):
     p.add_argument('--snapshot', action = 'store', type = str, default = None,
                    dest = 'snapshot_name',
                    help = 'The snapshot name []')
-    p.add_argument('--shutdown', action = 'store_true', default = False,
-                   help = 'Whether to shutdown the source vm first []')
+    p.add_argument('--stop', action = 'store_true', default = False,
+                   help = 'Whether to stop the source vm first []')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
-                   help = 'The vm id [ ]')
+                   help = 'The source vm id [ ]')
     p.add_argument('clone_name', action = 'store', type = str, default = None,
                    help = 'The clone name []')
 
@@ -81,10 +93,10 @@ class vmware_cli_args(object):
                    help = 'Where to store the cloned vm files []')
     p.add_argument('--full', action = 'store_true', default = False,
                    help = 'Whether to do full instead of linked clone []')
-    p.add_argument('--shutdown', action = 'store_true', default = False,
-                   help = 'Whether to shutdown the source vm first []')
+    p.add_argument('--stop', action = 'store_true', default = False,
+                   help = 'Whether to stop the source vm first []')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
-                   help = 'The vm id [ ]')
+                   help = 'The vm source id [ ]')
     
     # vm_file_copy_to
     p = subparser.add_parser('vm_file_copy_to', help = 'Copy a local file to a vm.')
