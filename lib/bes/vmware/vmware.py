@@ -447,11 +447,13 @@ class vmware(object):
 
     self._log.log_method_d()
 
-    vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('vm_delete: vmx_filename={}'.format(vmx_filename))
+    vm = self._resolve_vmx_to_local_vm(vm_id)
     if shutdown:
-      self._stop_vm_if_needed(vmx_filename)
-    self._runner.vm_delete(vmx_filename)
+      vm.stop()
+    else:
+      if vm.is_running:
+        raise vmware_error('cannot delete a running vm: "{}"'.format(vm_id))
+    self._runner.vm_delete(vm.vmx_filename)
 
   def vm_is_running(self, vm_id):
     check.check_string(vm_id)

@@ -38,8 +38,8 @@ class vmware_clone_util(object):
     return clazz._cloned_vm_names(src_vmx_filename, dst_vmx_filename, clone_name)
   
   @classmethod
-  def timestamp(clazz, name):
-    return time_util.timestamp(delimiter = '-', milliseconds = False)
+  def timestamp(clazz):
+    return time_util.timestamp(delimiter = '', milliseconds = False)
 
   @classmethod
   def make_dst_vmx_filename(clazz, src_vmx_filename, clone_name, where):

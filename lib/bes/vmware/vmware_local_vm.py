@@ -74,10 +74,9 @@ class vmware_local_vm(object):
 
   _clone_names = namedtuple('_clone_names', 'clone_name, snapshot_name')
   def make_clone_names(self):
-    local_vm = self.local_vms[vmx_filename]
     timestamp = vmware_clone_util.timestamp()
     clone_name = '{}_clone_{}'.format(self.nickname, timestamp)
-    snapshot_name = 'snapshot_{}'.format(self.nickname, timestamp)
+    snapshot_name = 'snapshot_{}'.format(timestamp)
     return self._clone_names(clone_name, snapshot_name)
   
   def stop(self):
@@ -93,6 +92,9 @@ class vmware_local_vm(object):
     if not self.is_running:
       return False
 
+    if not self.ip_address:
+      return False
+    
     # "exit 0" works on all the default interpreters for both windows and unix
     script = 'exit 0'
     rv = self.run_script(script,
