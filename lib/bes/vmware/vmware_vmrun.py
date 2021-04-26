@@ -91,6 +91,10 @@ class vmware_vmrun(object):
         args.append('hard')
       else:
         args.append('soft')
+      if gui:
+        args.append('gui')
+      else:
+        args.append('nogui')
     elif state in ( 'pause', 'unpause' ):
       pass
     return self.run(args, raise_error = False, no_output = True)
@@ -212,18 +216,10 @@ class vmware_vmrun(object):
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [ 'deleteVM', vmx_filename ]
-    self.run(args,
-             raise_error = True,
-             error_message = 'Failed to delete vm: {}'.format(vmx_filename))
-
-  def vm_delete(self, vmx_filename):
-    check.check_string(vmx_filename)
-
-    vmware_vmx_file.check_vmx_file(vmx_filename)
-    args = [ 'deleteVM', vmx_filename ]
-    return self.run(args,
-                    raise_error = True,
-                    error_message = 'Failed to delete vm: {}'.format(vmx_filename))
+    rv = self.run(args, raise_error = False)
+    if rv.exit_code != 0:
+      error_message = 'Failed to delete vm: {} - {}'.format(vmx_filename, rv.output)
+      raise vmware_error(error_message, status_code = rv.exit_code)
 
   def vm_run_program(self, vmx_filename, program, program_args,
                      run_program_options, login_credentials):

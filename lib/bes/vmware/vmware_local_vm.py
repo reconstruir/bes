@@ -79,11 +79,16 @@ class vmware_local_vm(object):
     snapshot_name = 'snapshot_{}'.format(timestamp)
     return self._clone_names(clone_name, snapshot_name)
   
-  def stop(self):
+  def stop(self, gui = False):
     if not self.is_running:
       return
-    self._runner.vm_set_power_state(self.vmx_filename, 'stop')
-  
+    self._runner.vm_set_power_state(self.vmx_filename, 'stop', gui = gui)
+
+  def start(self, gui = False):
+    if self.is_running:
+      return
+    self._runner.vm_set_power_state(self.vmx_filename, 'start', gui = gui)
+    
   def can_run_programs(self, run_program_options = None):
     'Return True if the vm can run programs'
     check.check_vmware_run_program_options(run_program_options, allow_none = True)

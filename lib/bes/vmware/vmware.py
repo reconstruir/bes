@@ -388,6 +388,7 @@ class vmware(object):
   def vm_ensure_started(self, vm_id, wait, run_program_options = None, gui = False):
     check.check_string(vm_id)
     check.check_bool(wait)
+    check.check_bool(gui)
     check.check_vmware_run_program_options(run_program_options)
 
     run_program_options = run_program_options or vmware_run_program_options()
@@ -441,20 +442,37 @@ class vmware(object):
                                        shutdown = shutdown)
     return self._clone_result(src_vm, dst_vm)
   
-  def vm_delete(self, vm_id, shutdown = False):
+  def vm_delete(self, vm_id, stop = False, shutdown = False):
     check.check_string(vm_id)
+    check.check_bool(stop)
     check.check_bool(shutdown)
 
     self._log.log_method_d()
 
     vm = self._resolve_vmx_to_local_vm(vm_id)
-    if shutdown:
+    if stop:
       vm.stop()
     else:
       if vm.is_running:
         raise vmware_error('cannot delete a running vm: "{}"'.format(vm_id))
+    if shutdown:
+      running_vms = self._running_vms()
+      assert vm not in running_vms
+      vmware_app.ensure_stopped()
     self._runner.vm_delete(vm.vmx_filename)
-
+    if shutdown:
+      vmware_app.ensure_running()
+      assert running_vms
+      for next_vm in running_vms:
+        next_vm.start()
+                 
+  def _running_vms(self):
+    vms = []
+    for _, vm in self.local_vms.items():
+      if vm.is_running:
+        vms.append(vm)
+    return vms
+    
   def vm_is_running(self, vm_id):
     check.check_string(vm_id)
 
@@ -556,6 +574,7 @@ class vmware(object):
     check.check_string(vm_id)
     check.check_string(state)
     check.check_bool(wait)
+    check.check_bool(gui)
 
     self._log.log_method_d()
     
@@ -574,6 +593,34 @@ class vmware(object):
       self.vm_wait_for_can_run_programs(vm_id, vmware_run_program_options())
     return result
 
+  def vm_start(self, vm_id, wait = False, gui = False):
+    check.check_string(vm_id)
+    check.check_bool(wait)
+    check.check_bool(gui)
+
+    self._log.log_method_d()
+    
+    vmware_app.ensure_running()
+
+    vm = self._resolve_vmx_to_local_vm(vm_id)
+    vm.start(gui = gui)
+    if wait:
+      self.vm_wait_for_can_run_programs(vm_id, vmware_run_program_options())
+
+  def vm_stop(self, vm_id, wait = False, gui = False):
+    check.check_string(vm_id)
+    check.check_bool(wait)
+    check.check_bool(gui)
+
+    self._log.log_method_d()
+    
+    vmware_app.ensure_running()
+
+    vm = self._resolve_vmx_to_local_vm(vm_id)
+    vm.stop(gui = gui)
+    if wait:
+      pass #self.vm_wait_for_can_run_programs(vm_id, vmware_run_program_options())
+      
   def vm_command(self, vm_id, command, command_args):
     check.check_string(vm_id)
     check.check_string(command)

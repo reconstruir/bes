@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
+import time
 
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
@@ -51,6 +52,7 @@ end tell
     tmp_applescript = temp_file.make_temp_file(content = tmp_applescript_content, suffix = '.scpt')
     cmd = [ 'osascript', tmp_applescript ]
     execute.execute(cmd)
+    time.sleep(1.0)
 
   @classmethod
   #@abstractmethod

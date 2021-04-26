@@ -112,12 +112,34 @@ class vmware_cli_args(object):
     vmware_options_cli_args.add_arguments(p)
     p.add_argument('--wait', action = 'store_true', default = False,
                    help = 'Wait until the vm can run programs [ False ]')
+    p.add_argument('--gui', action = 'store_true', default = False,
+                   help = 'Show the GUI [ False ]')
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
     p.add_argument('state', action = 'store', type = str, default = None, nargs = '?',
                    choices = vmware_power.STATES,
                    help = 'The new power state [ ]')
 
+    # vm_start
+    p = subparser.add_parser('vm_start', help = 'Start a vm.')
+    vmware_options_cli_args.add_arguments(p)
+    p.add_argument('--wait', action = 'store_true', default = False,
+                   help = 'Wait until the vm can run programs [ False ]')
+    p.add_argument('--gui', action = 'store_true', default = False,
+                   help = 'Show the GUI [ False ]')
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+
+    # vm_stop
+    p = subparser.add_parser('vm_stop', help = 'Stop a vm.')
+    vmware_options_cli_args.add_arguments(p)
+    p.add_argument('--wait', action = 'store_true', default = False,
+                   help = 'Wait until the vm can run programs [ False ]')
+    p.add_argument('--gui', action = 'store_true', default = False,
+                   help = 'Show the GUI [ False ]')
+    p.add_argument('vm_id', action = 'store', type = str, default = None,
+                   help = 'The vm id [ ]')
+    
     # vm_command
     p = subparser.add_parser('vm_command', help = 'Run a generic vmrun command that take a vmx file as its first argument.')
     vmware_options_cli_args.add_arguments(p)
@@ -133,8 +155,10 @@ class vmware_cli_args(object):
     vmware_options_cli_args.add_arguments(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
+    p.add_argument('--stop', action = 'store_true', default = False,
+                   help = 'Whether to stop the vm first if needed []')
     p.add_argument('--shutdown', action = 'store_true', default = False,
-                   help = 'Whether to shutdown the source vm first []')
+                   help = 'Whether to shutdown vmware completely to avoid flakiness []')
 
     # vm_can_run_programs
     p = subparser.add_parser('vm_can_run_programs', help = 'Return 0 if the vm can run programs otherwise 1.')
@@ -185,7 +209,7 @@ class vmware_cli_args(object):
     vmware_options_cli_args.add_arguments(p)
     p.add_argument('vm_id', action = 'store', type = str, default = None,
                    help = 'The vm id [ ]')
-    
+
     # vms
     p = subparser.add_parser('vms', help = 'List vms.')
     p.add_argument('-i', '--info', action = 'store_true', default = False,
