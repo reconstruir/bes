@@ -13,7 +13,12 @@ from .vmware_error import vmware_error
 from .vmware_properties_file import vmware_properties_file
 
 class vmware_inventory(vmware_properties_file):
-
+  '''
+  Class to deal with the vmware fusion/workstation vm inventory
+  macos: ~/Library/Application Support/VMware Fusion/vmInventory
+  linux: ?
+  windows: ?
+  '''
   def __init__(self, filename = None, backup = False):
     super(vmware_inventory, self).__init__(filename, backup = backup)
 
