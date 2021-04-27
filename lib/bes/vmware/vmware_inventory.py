@@ -23,6 +23,7 @@ class vmware_inventory(vmware_properties_file):
     super(vmware_inventory, self).__init__(filename, backup = backup)
 
   def remove_vm(self, vmx_filename):
+    'Remove a vm from the inventory'
     check.check_string(vmx_filename)
     
     section = self._section_for_vm(vmx_filename)
@@ -32,7 +33,34 @@ class vmware_inventory(vmware_properties_file):
     if index == None:
       raise vmware_error('no vm found in indeces: "{}"'.format(vmx_filename))
     self._remove_section(section, index)
-    
+
+  def remove_missing_vms(self):
+    'Remove any vm that has a missing vmx file'
+    missing_vms = self._missing_vms()
+    for x in missing_vms:
+      print('X: {}'.format(x))
+    for missing_vm in missing_vms:
+      assert missing_vm
+      self.remove_vm(missing_vm)
+
+  def _missing_vms(self):
+    result = []
+    for vm in self.all_vms():
+      if not path.exists(vm):
+        result.append(vm)
+    return result
+
+  def all_vms(self):
+    result = []
+    d = self._to_dict()
+    for section, values in d.items():
+      if section.startswith('vmlist'):
+        if 'config' in values:
+          config = values['config']
+          if config:
+            result.append(config)
+    return result
+  
   def _remove_section(self, section, index):
     keys = [ key for key in self.keys() ]
     for key in keys:
