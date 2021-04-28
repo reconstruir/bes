@@ -31,6 +31,7 @@ from .vmware_options import vmware_options
 from .vmware_power import vmware_power
 from .vmware_preferences import vmware_preferences
 from .vmware_run_program_options import vmware_run_program_options
+from .vmware_run_program_session import vmware_run_program_session
 from .vmware_session import vmware_session
 from .vmware_vm import vmware_vm
 from .vmware_vmrun import vmware_vmrun
