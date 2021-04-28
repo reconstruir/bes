@@ -266,6 +266,14 @@ class vmware_local_vm(object):
     self._runner.vm_dir_delete(self.vmx_filename,
                                remote_dir,
                                self.login_credentials)
+
+  def dir_list(self, remote_dir):
+    check.check_string(remote_dir)
+
+    self._log.log_method_d()
+    return self._runner.vm_dir_list(self.vmx_filename,
+                                    remote_dir,
+                                    self.login_credentials)
     
   def file_copy_to(self, local_filename, remote_filename):
     check.check_string(local_filename)

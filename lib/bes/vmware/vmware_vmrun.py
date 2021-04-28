@@ -197,7 +197,25 @@ class vmware_vmrun(object):
              raise_error = True,
              login_credentials = login_credentials,
              error_message = 'Failed to delete dir: {}'.format(remote_directory))
-  
+
+  def vm_dir_list(self, vmx_filename, remote_directory, login_credentials):
+    check.check_string(vmx_filename)
+    check.check_string(remote_directory)
+    check.check_credentials(login_credentials)
+
+    vmware_vmx_file.check_vmx_file(vmx_filename)
+    args = [
+      'listDirectoryInGuest',
+      vmx_filename,
+      remote_directory,
+    ]
+    rv = self.run(args,
+                  raise_error = True,
+                  login_credentials = login_credentials,
+                  error_message = 'Failed to list dir: {}'.format(remote_directory))
+    lines = self._parse_lines(rv.output)
+    return sorted(lines[1:])
+    
   def vm_clone(self, src_vmx_filename, dst_vmx_filename, full = False, snapshot_name = None, clone_name = None):
     check.check_string(src_vmx_filename)
     check.check_string(dst_vmx_filename)
@@ -276,12 +294,15 @@ class vmware_vmrun(object):
     self._log.log_method_d()
     args = [ 'list' ]
     rv = self.run(args, raise_error = True)
-    lines = text_line_parser.parse_lines(rv.output,
-                                         strip_comments = False,
-                                         strip_text = True,
-                                         remove_empties = True)
+    lines = self._parse_lines(rv.output)
     return lines[1:]
 
+  def _parse_lines(self, text):
+    return text_line_parser.parse_lines(text,
+                                        strip_comments = False,
+                                        strip_text = True,
+                                        remove_empties = True)
+  
   def vm_is_running(self, vmx_filename):
     vmware_vmx_file.check_vmx_file(vmx_filename)
 

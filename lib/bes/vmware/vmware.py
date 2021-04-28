@@ -244,6 +244,7 @@ class vmware(object):
                                    caller_args,
                                    run_program_options = run_program_options)
         target_vm.file_copy_from(tmp_output_log.remote, tmp_output_log.local)
+        target_vm.dir_delete(tmp_remote_dir)
 
         with file_util.open_with_default(filename = run_program_options.output_filename) as f:
           log_content = file_util.read(tmp_output_log.local, codec = 'utf-8')
