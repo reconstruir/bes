@@ -31,11 +31,12 @@ from .vmware_options import vmware_options
 from .vmware_power import vmware_power
 from .vmware_preferences import vmware_preferences
 from .vmware_run_program_options import vmware_run_program_options
-from .vmware_run_program_session import vmware_run_program_session
+from .vmware_restore_vm_running_state import vmware_restore_vm_running_state
 from .vmware_session import vmware_session
 from .vmware_vm import vmware_vm
 from .vmware_vmrun import vmware_vmrun
 from .vmware_vmx_file import vmware_vmx_file
+from .vmware_run_operation import vmware_run_operation
 
 class vmware(object):
 
@@ -115,25 +116,11 @@ class vmware(object):
     vmware_app.ensure_running()
     vm = self._resolve_vmx_to_local_vm(vm_id)
 
-    if run_program_options.clone_vm:
-      state = self._save_running_vms_state()
-      vm.stop()
-      cloned_vm = vm.snapshot_and_clone(where = None, full = False)
-      cloned_vm.start(gui = True, wait = True,
-                      run_program_options = run_program_options)
-      rv = cloned_vm.run_script(script_text,
-                                run_program_options = run_program_options,
-                                interpreter_name = interpreter_name)
-      cloned_vm.delete(stop = True, shutdown = True)
-      self._restore_running_vms_state(state)
-    else:
-      if not self._options.dont_ensure:
-        vm.start(gui = True,
-                 wait = True,
-                 run_program_options = run_program_options)
-      rv = vm.run_script(script_text,
-                         run_program_options = run_program_options,
-                         interpreter_name = interpreter_name)
+    with vmware_restore_vm_running_state(self) as _:
+      with vmware_run_operation(vm, self._options.dont_ensure, run_program_options) as target_vm:
+        rv = target_vm.run_script(script_text,
+                                  run_program_options = run_program_options,
+                                  interpreter_name = interpreter_name)
     return rv
   
   def vm_run_script_file(self, vm_id, script_filename, run_program_options,
