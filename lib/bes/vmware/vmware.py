@@ -210,7 +210,7 @@ class vmware(object):
     tmp_remote_dir = path.join('/tmp', path.basename(tmp_dir_local))
     self._log.log_d('vm_run_package: tmp_remote_dir={}'.format(tmp_remote_dir))
 
-    tmp_package = self._make_tmp_file_pair(tmp_dir_local, 'package.zip')
+    tmp_package = self._make_tmp_file_pair(tmp_dir_local, 'package.tar.gz')
     tmp_caller_script = self._make_tmp_file_pair(tmp_dir_local, 'caller_script.py')
     tmp_output_log = self._make_tmp_file_pair(tmp_dir_local, 'output.log')
 
