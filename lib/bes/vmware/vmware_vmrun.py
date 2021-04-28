@@ -99,10 +99,11 @@ class vmware_vmrun(object):
       pass
     return self.run(args, raise_error = False, no_output = True)
 
-  def vm_file_copy_to(self, vmx_filename, local_filename, remote_filename):
+  def vm_file_copy_to(self, vmx_filename, local_filename, remote_filename, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(local_filename)
     check.check_string(remote_filename)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     self._log.log_method_d()
@@ -112,12 +113,15 @@ class vmware_vmrun(object):
       local_filename,
       remote_filename,
     ]
-    return self.run(args, raise_error = True)
+    self.run(args,
+             login_credentials = login_credentials,
+             raise_error = True)
 
-  def vm_file_copy_from(self, vmx_filename, remote_filename, local_filename):
+  def vm_file_copy_from(self, vmx_filename, remote_filename, local_filename, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(remote_filename)
     check.check_string(local_filename)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -126,11 +130,14 @@ class vmware_vmrun(object):
       remote_filename,
       local_filename,
     ]
-    return self.run(args, raise_error = True)
+    self.run(args,
+             login_credentials = login_credentials,
+             raise_error = True)
 
-  def vm_file_exists(self, vmx_filename, remote_filename):
+  def vm_file_exists(self, vmx_filename, remote_filename, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(remote_filename)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -138,12 +145,15 @@ class vmware_vmrun(object):
       vmx_filename,
       remote_filename,
     ]
-    rv = self.run(args, raise_error = False)
+    rv = self.run(args,
+                  login_credentials = login_credentials,
+                  raise_error = False)
     return rv.exit_code == 0
   
-  def vm_dir_exists(self, vmx_filename, remote_directory):
+  def vm_dir_exists(self, vmx_filename, remote_directory, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(remote_directory)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -151,12 +161,15 @@ class vmware_vmrun(object):
       vmx_filename,
       remote_directory,
     ]
-    rv = self.run(args, raise_error = False)
+    rv = self.run(args,
+                  login_credentials = login_credentials,
+                  raise_error = False)
     return rv.exit_code == 0
   
-  def vm_dir_create(self, vmx_filename, remote_directory):
+  def vm_dir_create(self, vmx_filename, remote_directory, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(remote_directory)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -166,11 +179,13 @@ class vmware_vmrun(object):
     ]
     self.run(args,
              raise_error = True,
+             login_credentials = login_credentials,
              error_message = 'Failed to create dir: {}'.format(remote_directory))
 
-  def vm_dir_delete(self, vmx_filename, remote_directory):
+  def vm_dir_delete(self, vmx_filename, remote_directory, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(remote_directory)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -180,6 +195,7 @@ class vmware_vmrun(object):
     ]
     self.run(args,
              raise_error = True,
+             login_credentials = login_credentials,
              error_message = 'Failed to delete dir: {}'.format(remote_directory))
   
   def vm_clone(self, src_vmx_filename, dst_vmx_filename, full = False, snapshot_name = None, clone_name = None):

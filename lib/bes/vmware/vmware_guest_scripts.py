@@ -2,7 +2,7 @@
 
 class vmware_guest_scripts(object):
 
-  RUN_PACKAGE_CALLER = r'''#!/usr/bin/env python
+  RUN_PACKAGE_CALLER = r'''#!/usr/bin/env python3
 import argparse
 import os
 import os.path as path
@@ -62,7 +62,7 @@ class package_caller(object):
                               args.entry_command,
                               args.output_log,
                               args.entry_command_args)
-    self._stop_socket(args.tail_log_port)
+    self._stop_socket()
     return exit_code
 
   def _start_socket(self, port):
@@ -74,7 +74,8 @@ class package_caller(object):
     self._socket.bind(address)
 
   def _stop_socket(self):
-    self._socket.close()
+    if self._socket:
+      self._socket.close()
     self._socket = None
     
   def _execute(self, dest_dir, command, output_log, entry_command_args):

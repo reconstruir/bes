@@ -197,25 +197,27 @@ class vmware(object):
 
     self._log.log_method_d()
 
+    vm = self._resolve_vmx_to_local_vm(vm_id)
+    target_vm = vm
     debug = self._options.debug
     
     if not path.isdir(package_dir):
       raise vmware_error('package_dir not found or not a dir: "{}"'.format(package_dir))
 
-    vmx_filename = self._resolve_vmx_filename(vm_id)
-    self._log.log_d('vm_run_package: vmx_filename={} dont_ensure={}'.format(vmx_filename,
-                                                                            run_program_options.dont_ensure))
+#    vmx_filename = self._resolve_vmx_filename(vm_id)
+#    self._log.log_d('vm_run_package: vmx_filename={} dont_ensure={}'.format(vmx_filename,
+#                                                                            run_program_options.dont_ensure))
 
-    target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
-                                                                 vmx_filename,
-                                                                 run_program_options.clone_vm)
-    assert target_vm_id
-    assert path.isfile(target_vmx_filename)
-    self._log.log_d('vm_run_package: target_vm_id={} target_vmx_filename={}'.format(target_vm_id,
-                                                                                    target_vmx_filename))
-    
-    if not run_program_options.dont_ensure or run_program_options.clone_vm:
-      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
+#    target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
+#                                                                 vmx_filename,
+#                                                                 run_program_options.clone_vm)
+#    assert target_vm_id
+#    assert path.isfile(target_vmx_filename)
+#    self._log.log_d('vm_run_package: target_vm_id={} target_vmx_filename={}'.format(target_vm_id,
+#                                                                                    target_vmx_filename))
+#    
+#    if not run_program_options.dont_ensure or run_program_options.clone_vm:
+#      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
       
     tmp_dir_local = temp_file.make_temp_dir(suffix = '-run_package.dir', delete = not debug)
     if debug:
@@ -224,7 +226,7 @@ class vmware(object):
     tmp_remote_dir = path.join('/tmp', path.basename(tmp_dir_local))
     self._log.log_d('vm_run_package: tmp_remote_dir={}'.format(tmp_remote_dir))
 
-    self._runner.vm_dir_create(target_vmx_filename, tmp_remote_dir)
+    target_vm.dir_create(tmp_remote_dir)
     
     tmp_package = self._make_tmp_file_pair(tmp_dir_local, 'package.zip')
     tmp_caller_script = self._make_tmp_file_pair(tmp_dir_local, 'caller_script.py')
@@ -238,8 +240,8 @@ class vmware(object):
     self._log.log_d('vm_run_package: tmp_caller_script={}'.format(tmp_caller_script))
     self._log.log_d('vm_run_package: tmp_output_log={}'.format(tmp_output_log))
 
-    self._runner.vm_file_copy_to(target_vmx_filename, tmp_package.local, tmp_package.remote)
-    self._runner.vm_file_copy_to(target_vmx_filename, tmp_caller_script.local, tmp_caller_script.remote)
+    target_vm.file_copy_to(tmp_package.local, tmp_package.remote)
+    target_vm.file_copy_to(tmp_caller_script.local, tmp_caller_script.remote)
 
     parsed_entry_command_args = command_line.parse_args(entry_command_args)
     debug_args = []
@@ -248,63 +250,52 @@ class vmware(object):
     if self._options.tty:
       debug_args.extend([ '--tty', tty ])
 
-    process = None
-    if run_program_options.tail_log:
-      assert False # not working
-      debug_args.extend([ '--tail-log-port', str(9000) ])
-      resolved_target_vm_id = self.session.resolve_vm_id(target_vm_id)
-      ip_address = self.session.call_client('vm_get_ip_address', resolved_target_vm_id)
-      print('ip_address={}'.format(ip_address))
-
-      def _process_main(*args, **kargs):
-        print('_process_main: args={}'.format(args))
-        print('_process_main: kargs={}'.format(kargs))
-        ip_address = args[0]
-        port = args[1]
-        print('_process_main: ip_address={} port={}'.format(ip_address, port))
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        address = ( ip_address, port )
-        print('client connecting...')
-        sock.connect(address)
-        while True:
-          data = sock.recv(1024)
-          s = data.decode('utf-8')
-          print('client got: "{}"'.format(s))
-          if s == 'byebye':
-            break
-        return 0
-      
-      process = multiprocessing.Process(name = 'caca', target = _process_main, args = ( ip_address, 9000 ))
-      process.daemon = True
-      process.start()
-
+#####    process = None
+#####    if run_program_options.tail_log:
+#####      assert False # not working
+#####      debug_args.extend([ '--tail-log-port', str(9000) ])
+#####      resolved_target_vm_id = self.session.resolve_vm_id(target_vm_id)
+#####      ip_address = self.session.call_client('vm_get_ip_address', resolved_target_vm_id)
+#####      print('ip_address={}'.format(ip_address))
+#####
+#####      def _process_main(*args, **kargs):
+#####        print('_process_main: args={}'.format(args))
+#####        print('_process_main: kargs={}'.format(kargs))
+#####        ip_address = args[0]
+#####        port = args[1]
+#####        print('_process_main: ip_address={} port={}'.format(ip_address, port))
+#####        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#####        address = ( ip_address, port )
+#####        print('client connecting...')
+#####        sock.connect(address)
+#####        while True:
+#####          data = sock.recv(1024)
+#####          s = data.decode('utf-8')
+#####          print('client got: "{}"'.format(s))
+#####          if s == 'byebye':
+#####            break
+#####        return 0
+#####      
+#####      process = multiprocessing.Process(name = 'caca', target = _process_main, args = ( ip_address, 9000 ))
+#####      process.daemon = True
+#####      process.start()
     caller_args = debug_args + [
       tmp_package.remote,      
       entry_command,
       tmp_output_log.remote,      
     ] + parsed_entry_command_args
-    rv = self._runner.vm_run_program(target_vmx_filename,
-                                     tmp_caller_script.remote,
-                                     caller_args,
-                                     run_program_options)
-
-    self._runner.vm_file_copy_from(target_vmx_filename, tmp_output_log.remote, tmp_output_log.local)
+    rv = target_vm.run_program(tmp_caller_script.remote,
+                               caller_args,
+                               run_program_options = run_program_options)
+    target_vm.file_copy_from(tmp_output_log.remote, tmp_output_log.local)
 
     with file_util.open_with_default(filename = run_program_options.output_filename) as f:
       log_content = file_util.read(tmp_output_log.local, codec = 'utf-8')
       f.write(log_content)
 
-    # cleanup the tmp dir but only if debug is False
-    if not debug:
-      self._runner.vm_dir_delete(target_vmx_filename, tmp_remote_dir)
-
-    if run_program_options.clone_vm and not self._options.debug:
-      self._runner.vm_stop(target_vmx_filename)
-      self._runner.vm_delete(target_vmx_filename)
-      
-    if process:
-      print('joining process')
-      process.join()
+#####    if process:
+#####      print('joining process')
+#####      process.join()
       
     return rv
 

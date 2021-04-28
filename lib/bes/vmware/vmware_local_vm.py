@@ -250,7 +250,43 @@ class vmware_local_vm(object):
     inventory.remove_missing_vms()
     if shutdown:
       vmware_app.ensure_running()
-  
+
+  def dir_create(self, remote_dir):
+    check.check_string(remote_dir)
+
+    self._log.log_method_d()
+    self._runner.vm_dir_create(self.vmx_filename,
+                               remote_dir,
+                               self.login_credentials)
+
+  def dir_delete(self, remote_dir):
+    check.check_string(remote_dir)
+
+    self._log.log_method_d()
+    self._runner.vm_dir_delete(self.vmx_filename,
+                               remote_dir,
+                               self.login_credentials)
+    
+  def file_copy_to(self, local_filename, remote_filename):
+    check.check_string(local_filename)
+    check.check_string(remote_filename)
+
+    self._log.log_method_d()
+    self._runner.vm_file_copy_to(self.vmx_filename,
+                                 local_filename,
+                                 remote_filename,
+                                 self.login_credentials)
+
+  def file_copy_from(self, remote_filename, local_filename):
+    check.check_string(remote_filename)
+    check.check_string(local_filename)
+
+    self._log.log_method_d()
+    self._runner.vm_file_copy_from(self.vmx_filename,
+                                   remote_filename,
+                                   local_filename,
+                                   self.login_credentials)
+    
   _info = namedtuple('_info', 'nickname, display_name, vmx_filename, interpreter, ip_address, is_running, can_run_programs, system, system_arch, system_distro, system_family, system_version, uuid')
 
   @property
