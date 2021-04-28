@@ -9,7 +9,7 @@ class vmware_restore_vm_running_state(object):
   def __enter__(self):
     self._state = self._running_vms(self._vmware)
 
-  def __exit__(self, type, value, traceback):
+  def __exit__(self, exception_type, exception_value, traceback):
     assert self._state != None
     self._restore_running_vms_state(self._state)
     self._state = None

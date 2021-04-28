@@ -25,6 +25,6 @@ class vmware_run_operation(object):
       self._target_vm = self._vm
     return self._target_vm
 
-  def __exit__(self, type, value, traceback):
+  def __exit__(self, exception_type, exception_value, traceback):
     if self._run_program_options.clone_vm:
       self._target_vm.delete(stop = True, shutdown = True)
