@@ -93,7 +93,7 @@ class vmware(object):
                                                                  vmx_filename,
                                                                  run_program_options.clone_vm)
     
-    if not self._options.dont_ensure or run_program_options.clone_vm:
+    if not run_program_options.dont_ensure or run_program_options.clone_vm:
       self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
       
     rv = self._runner.vm_run_program(target_vmx_filename, program, program_args, run_program_options)
@@ -117,7 +117,7 @@ class vmware(object):
     vm = self._resolve_vmx_to_local_vm(vm_id)
 
     with vmware_restore_vm_running_state(self) as _:
-      with vmware_run_operation(vm, self._options.dont_ensure, run_program_options) as target_vm:
+      with vmware_run_operation(vm, run_program_options) as target_vm:
         rv = target_vm.run_script(script_text,
                                   run_program_options = run_program_options,
                                   interpreter_name = interpreter_name)
@@ -213,7 +213,7 @@ class vmware(object):
 
     vmx_filename = self._resolve_vmx_filename(vm_id)
     self._log.log_d('vm_run_package: vmx_filename={} dont_ensure={}'.format(vmx_filename,
-                                                                            self._options.dont_ensure))
+                                                                            run_program_options.dont_ensure))
 
     target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
                                                                  vmx_filename,
@@ -223,7 +223,7 @@ class vmware(object):
     self._log.log_d('vm_run_package: target_vm_id={} target_vmx_filename={}'.format(target_vm_id,
                                                                                     target_vmx_filename))
     
-    if not self._options.dont_ensure or run_program_options.clone_vm:
+    if not run_program_options.dont_ensure or run_program_options.clone_vm:
       self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
       
     tmp_dir_local = temp_file.make_temp_dir(suffix = '-run_package.dir', delete = not debug)

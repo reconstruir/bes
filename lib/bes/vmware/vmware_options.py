@@ -25,7 +25,6 @@ class vmware_options(cli_options):
       'vmrest_port': None,
       'login_username': None,
       'login_password': None,
-      'dont_ensure': False,
       'tty': None,
       'vm_dir': None,
     }
@@ -74,7 +73,6 @@ class vmware_options(cli_options):
     check.check_int(self.vmrest_port, allow_none = True)
     check.check_string(self.login_username, allow_none = True)
     check.check_string(self.login_password, allow_none = True)
-    check.check_bool(self.dont_ensure)
     check.check_string(self.tty, allow_none = True)
     check.check_string(self.vm_dir, allow_none = True)
   

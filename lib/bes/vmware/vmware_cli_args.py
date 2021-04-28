@@ -244,6 +244,9 @@ class vmware_cli_args(object):
                    help = 'Amount of time in seconds to sleep between wait for programs retries [ False ]')
     p.add_argument('--clone-vm', action = 'store_true', default = False,
                    help = 'Run programs in a clone of the vm [ False ]')
+    p.add_argument('--dont-ensure', action = 'store_true', default = False,
+                   dest = 'dont_ensure',
+                   help = 'Do not ensure that the vm is running [ False ]')
     
   def _command_vmware(self, __bes_command__, *args, **kargs):
     from .vmware_cli_handler import vmware_cli_handler

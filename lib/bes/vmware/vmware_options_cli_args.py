@@ -21,9 +21,6 @@ class vmware_options_cli_args(object):
     p.add_argument('--password', action = 'store', type = str, default = None,
                    dest = 'login_password',
                    help = 'Password for vm user login [ ]')
-    p.add_argument('--dont-ensure', action = 'store_true', default = False,
-                   dest = 'dont_ensure',
-                   help = 'Dont ensure that both vmware and the vm are running [ False ]')
     p.add_argument('--tty', action = 'store', default = None,
                    help = 'tty to log to in debug mode [ False ]')
     p.add_argument('--config', action = 'store', type = str, default = None,

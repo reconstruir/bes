@@ -17,6 +17,7 @@ class vmware_run_program_options(cli_options):
     return {
       'active_window': False,
       'clone_vm': False,
+      'dont_ensure': False,
       'interactive': False,
       'no_wait': False,
       'output_filename': None,
@@ -37,6 +38,7 @@ class vmware_run_program_options(cli_options):
     return {
       'active_window': bool,
       'clone_vm': bool,
+      'dont_ensure': bool,
       'interactive': bool,
       'no_wait': bool,
       'tail_log': bool,
@@ -75,6 +77,7 @@ class vmware_run_program_options(cli_options):
     check.check_int(self.wait_programs_num_tries)
     check.check_float(self.wait_programs_sleep_time)
     check.check_bool(self.clone_vm)
+    check.check_bool(self.dont_ensure)
 
   def to_vmrun_command_line_args(self):
     args = []

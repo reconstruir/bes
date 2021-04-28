@@ -2,9 +2,8 @@
 
 class vmware_run_operation(object):
 
-  def __init__(self, vm, dont_ensure, run_program_options):
+  def __init__(self, vm, run_program_options):
     self._vm = vm
-    self._dont_ensure = dont_ensure
     self._target_vm = None
     self._run_program_options = run_program_options
 
@@ -19,7 +18,7 @@ class vmware_run_operation(object):
       self._target_vm.start(gui = True, wait = True,
                             run_program_options = self._run_program_options)
     else:
-      if not self._dont_ensure:
+      if not self._run_program_options.dont_ensure:
         self._vm.start(gui = True,
                        wait = True,
                        run_program_options = self._run_program_options)
