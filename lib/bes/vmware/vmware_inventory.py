@@ -22,6 +22,10 @@ class vmware_inventory(vmware_properties_file):
   def __init__(self, filename = None, backup = False):
     super(vmware_inventory, self).__init__(filename, backup = backup)
 
+  @classmethod
+  def default_inventory_filename(clazz):
+    return vmware_app.inventory_filename()
+    
   def remove_vm(self, vmx_filename):
     'Remove a vm from the inventory'
     check.check_string(vmx_filename)

@@ -59,7 +59,7 @@ class vmware_app(vmware_app_base):
   @classmethod
   #@abstractmethod
   def preferences_filename(clazz):
-    'The full path to the preferneces filename.'
+    'The full path to the preferences filename.'
     return clazz._impl.preferences_filename()
 
   @classmethod

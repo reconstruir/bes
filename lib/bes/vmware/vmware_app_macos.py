@@ -63,9 +63,15 @@ end tell
   @classmethod
   #@abstractmethod
   def preferences_filename(clazz):
-    'The full path to the preferneces filename.'
+    'The full path to the preferences filename.'
     return path.expanduser('~/Library/Preferences/VMware Fusion/preferences')
 
+  @classmethod
+  #@abstractmethod
+  def inventory_filename(clazz):
+    'The full path to the preferences filename.'
+    return path.expanduser('~/Library/Application Support/VMware Fusion/vmInventory')
+  
   @classmethod
   #@abstractmethod
   def vmrun_exe_path(clazz):
