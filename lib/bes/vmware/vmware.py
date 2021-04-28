@@ -42,11 +42,11 @@ class vmware(object):
   
   def __init__(self, options = None):
     self._options = options or vmware_options()
-    self._preferences_filename = vmware_preferences.default_preferences_filename()
-    self._preferences = vmware_preferences(self._preferences_filename)
+    preferences_filename = vmware_preferences.default_preferences_filename()
+    self._preferences = vmware_preferences(preferences_filename)
     self._vm_dir = self._options.vm_dir or self._default_vm_dir()
     if not self._vm_dir:
-      raise vmware_error('no vm_dir given in options and no default configured in {}'.format(self._preferences_filename))
+      raise vmware_error('no vm_dir given in options and no default configured in {}'.format(preferences_filename))
     self._session = None
     self._runner = vmware_vmrun(self._options)
     self._command_interpreter_manager = vmware_command_interpreter_manager.instance()

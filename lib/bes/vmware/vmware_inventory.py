@@ -41,8 +41,6 @@ class vmware_inventory(vmware_properties_file):
   def remove_missing_vms(self):
     'Remove any vm that has a missing vmx file'
     missing_vms = self._missing_vms()
-    for x in missing_vms:
-      print('X: {}'.format(x))
     for missing_vm in missing_vms:
       assert missing_vm
       self.remove_vm(missing_vm)

@@ -64,6 +64,12 @@ class vmware_app(vmware_app_base):
 
   @classmethod
   #@abstractmethod
+  def inventory_filename(clazz):
+    'The full path to the inventory filename.'
+    return clazz._impl.inventory_filename()
+  
+  @classmethod
+  #@abstractmethod
   def vmrun_exe_path(clazz):
     'The full path to the vmrun executable.'
     return clazz._impl.vmrun_exe_path()

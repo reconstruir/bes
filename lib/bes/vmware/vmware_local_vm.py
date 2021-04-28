@@ -12,9 +12,9 @@ from bes.system.log import logger
 
 from .vmware_app import vmware_app
 from .vmware_clone_util import vmware_clone_util
-from .vmware_clone_util import vmware_clone_util
 from .vmware_command_interpreter_manager import vmware_command_interpreter_manager
 from .vmware_error import vmware_error
+from .vmware_inventory import vmware_inventory
 from .vmware_run_program_options import vmware_run_program_options
 from .vmware_vmx_file import vmware_vmx_file
 
@@ -224,6 +224,9 @@ class vmware_local_vm(object):
     if shutdown:
       vmware_app.ensure_stopped()
     self._runner.vm_delete(self.vmx_filename)
+    inventory_filename = vmware_inventory.default_inventory_filename()
+    inventory = vmware_inventory(inventory_filename)
+    inventory.remove_missing_vms()
     if shutdown:
       vmware_app.ensure_running()
   
