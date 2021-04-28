@@ -160,6 +160,27 @@ class vmware_local_vm(object):
     self._log.log_d('run_script: exit_code={}'.format(rv.exit_code))
     return rv
 
+  def run_program(self, program, program_args, run_program_options = None):
+    'Return True if the vm can run programs'
+    check.check_string(program)
+    check.check_string_seq(program_args)
+    check.check_vmware_run_program_options(run_program_options, allow_none = True)
+
+    run_program_options = run_program_options or vmware_run_program_options()
+
+    self._log.log_method_d()
+    
+    if not self.ip_address:
+      raise vmware_error('vm not running: {}'.format(self.nickname))
+  
+    rv = self._runner.vm_run_program(self.vmx_filename,
+                                     program,
+                                     program_args,
+                                     run_program_options,
+                                     self.login_credentials)
+    self._log.log_d('run_program: exit_code={}'.format(rv.exit_code))
+    return rv
+  
   def clone(self, clone_name, where = None, full = False,
             snapshot_name = None, stop = False):
     check.check_string(clone_name)

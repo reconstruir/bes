@@ -88,22 +88,14 @@ class vmware(object):
 
     self._log.log_method_d()
     
-    vmx_filename = self._resolve_vmx_filename(vm_id)
-    target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
-                                                                 vmx_filename,
-                                                                 run_program_options.clone_vm)
-    
-    if not run_program_options.dont_ensure or run_program_options.clone_vm:
-      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
+    vmware_app.ensure_running()
+    vm = self._resolve_vmx_to_local_vm(vm_id)
+
+    with vmware_restore_vm_running_state(self) as _:
+      with vmware_run_operation(vm, run_program_options) as target_vm:
+        return target_vm.run_program(program, program_args,
+                                     run_program_options = run_program_options)
       
-    rv = self._runner.vm_run_program(target_vmx_filename, program, program_args, run_program_options)
-
-    if run_program_options.clone_vm and not self._options.debug:
-      self._runner.vm_stop(target_vmx_filename)
-      self._runner.vm_delete(target_vmx_filename)
-
-    return rv
-
   def vm_run_script(self, vm_id, script_text, run_program_options,
                     interpreter_name = None, script_is_file = False):
     check.check_string(vm_id)
@@ -118,10 +110,9 @@ class vmware(object):
 
     with vmware_restore_vm_running_state(self) as _:
       with vmware_run_operation(vm, run_program_options) as target_vm:
-        rv = target_vm.run_script(script_text,
-                                  run_program_options = run_program_options,
-                                  interpreter_name = interpreter_name)
-    return rv
+        return target_vm.run_script(script_text,
+                                    run_program_options = run_program_options,
+                                    interpreter_name = interpreter_name)
   
   def vm_run_script_file(self, vm_id, script_filename, run_program_options,
                          interpreter_name = None):
