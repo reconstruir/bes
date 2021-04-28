@@ -11,6 +11,8 @@ class test_file_cache(unit_test):
   def test_cached_filename(self):
     tmp_cache_dir = self.make_temp_dir(prefix = 'test_cached_root_', suffix = '.dir')
     tmp_filename = self.make_temp_file(content = 'foo\n')
+    #print('tmp_cache_dir={}'.format(tmp_cache_dir))
+    #print('tmp_filename={}'.format(tmp_filename))
     expected_content = file_util.read(tmp_filename)
     cached_filename = file_cache.cached_filename(tmp_filename, cache_dir = tmp_cache_dir)
     actual_content = file_util.read(cached_filename)
@@ -26,5 +28,5 @@ class test_file_cache(unit_test):
 
     self.assertEqual( expected_content, actual_content )
 
-if __name__ == "__main__":
+if __name__ == '__main__':
   unit_test.main()

@@ -23,13 +23,21 @@ class vmware_cli_handler(cli_command_handler):
     check.check_vmware_options(self.options)
     self._vmware = vmware(self.options)
 
+  _COMMANDS_WITH_RUN_PROGRAM_OPTIONS = (
+    'vm_can_run_programs',
+    'vm_run_package',
+    'vm_run_program',
+    'vm_run_script',
+    'vm_run_script_file',
+  )
+    
   def _comand_handler_delegate(self, command_name, options, *args, **kwargs):
     check.check_string(command_name)
     check.check_vmware_options(options)
     check.check_tuple(args)
     check.check_dict(kwargs)
 
-    if command_name in ( 'vm_run_program', 'vm_run_script', 'vm_run_package', 'vm_can_run_programs' ):
+    if command_name in self._COMMANDS_WITH_RUN_PROGRAM_OPTIONS:
       options, left_over_args = self.make_options(vmware_run_program_options, kwargs)
       function_args = left_over_args
       function_args['run_program_options'] = options

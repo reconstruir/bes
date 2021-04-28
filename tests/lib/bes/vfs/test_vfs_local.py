@@ -291,7 +291,7 @@ class test_vfs_local(unit_test):
 
   def test_upload_file_new_file(self):
     tester = self._make_tester()
-    self.assertEqual( [
+    self.assert_filename_list_equal( [
       'emptyfile.txt',
       'foo.txt',
       'subdir/bar.txt',
@@ -299,7 +299,7 @@ class test_vfs_local(unit_test):
     ], file_find.find(tester.local_root_dir) )
     tmp_file = self.make_temp_file(content = 'this is kiwi.txt')
     tester.upload_file(tmp_file, 'kiwi.txt')
-    self.assertEqual( [
+    self.assert_filename_list_equal( [
       'emptyfile.txt',
       'foo.txt',
       'kiwi.txt',

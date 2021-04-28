@@ -6,14 +6,14 @@ from bes.common.table import table
 from bes.common.size import size
 from bes.compat.StringIO import StringIO
 
-from .text_box import text_box_unicode
+from .text_box import text_box_ascii
 from .white_space import white_space
   
 class text_table_style(object):
 
   def __init__(self, spacing = None, box = None):
     self.spacing = check.check_int(spacing if spacing is not None else 1)
-    self.box = check.check_text_box(box or text_box_unicode())
+    self.box = check.check_text_box(box or text_box_ascii())
     
 check.register_class(text_table_style)
     

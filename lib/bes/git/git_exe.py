@@ -1,6 +1,7 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os
+import time
 
 from bes.common.check import check
 from bes.common.object_util import object_util
@@ -35,7 +36,10 @@ class git_exe(object):
     check.check_int(num_tries, allow_none = True)
     check.check_float(retry_wait_seconds, allow_none = True)
 
-    args = object_util.listify(args)
+    if isinstance(args, ( list, tuple )):
+      parsed_args = list(args)
+    else:
+      parsed_args = command_line.parse_args(args)
     
     num_tries = num_tries if num_tries != None else clazz._DEFAULT_NUM_TRIES
     retry_wait_seconds = retry_wait_seconds if retry_wait_seconds != None else clazz._DEFAULT_RETRY_WAIT_SECONDS
@@ -55,13 +59,14 @@ class git_exe(object):
         raise git_error('git exe not found in: {}'.format(' '.join(os.environ['PATH'].split(os.pathsep))))
       setattr(clazz, '_git_exe', git_exe)
     git_exe = getattr(clazz, '_git_exe')
-    cmd = [ git_exe ] + args
+    cmd = [ git_exe ] + parsed_args
     clazz.log.log_d('root=%s; cmd=%s' % (root, ' '.join(cmd)))
     extra_env = extra_env or {}
     env = os_env.clone_current_env(d = extra_env, prepend = True)
 
     last_try_exception = None
     num_failed_attempts = 0
+    rv = None
     for i in range(0, num_tries):
       try:
         clazz.log.log_d('call_git: attempt {} of {}: {}'.format(i + 1, num_tries, ' '.join(cmd)))
@@ -76,9 +81,16 @@ class git_exe(object):
         num_failed_attempts += 1
         clazz.log.log_w('call_git: failed {} of {}: {}'.format(i + 1, num_tries, ' '.join(cmd)))
         clazz.log.log_d('call_git: exception: {}'.format(str(ex)))
-        clazz.log.log_d('call_git: sleeping {} seconds'.format(options.retry_wait_seconds))
-        time.sleep(options.retry_wait_seconds)
+        clazz.log.log_d('call_git: sleeping {} seconds'.format(retry_wait_seconds))
+        time.sleep(retry_wait_seconds)
         last_try_exception = ex
+
+    if not rv:
+      message = 'git command attempt failed {} times: {} in {}'.format(num_tries,
+                                                                       ' '.join(cmd),
+                                                                       root)
+      clazz.log.log_w('call_git: {}'.format(message))
+      raise git_error(message, execute_result = None)
         
     # first handle the retry failure
     if num_tries > 1 and num_failed_attempts == num_tries and last_try_exception:

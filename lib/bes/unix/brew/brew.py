@@ -3,43 +3,30 @@
 import re
 
 from bes.common.check import check
-from bes.common.string_util import string_util
-from bes.system.execute import execute
-from bes.system.host import host
 from bes.system.log import logger
-from bes.system.which import which
 
+from .brew_command import brew_command
 from .brew_error import brew_error
+from .brew_options import brew_options
 
 class brew(object):
-  'Class to install and uninstall brew on unix.'
+  'Class to deal with unix brew.'
 
   _log = logger('brew')
-  
+
+  def __init__(self, options = None):
+    self._options = options or brew_options()
+    self._command = brew_command()
+
   @classmethod
   def has_brew(clazz):
-    'Return True if brew is installed.'
-
-    clazz.check_system()
-    return clazz.brew_exe() != None
+    'Return True if brew is supported and installed.'
+    return brew_command().has_command()
     
-  @classmethod
-  def check_system(clazz):
-    if host.SYSTEM in [ host.MACOS, host.LINUX ]:
-      return
-    raise brew_error('brew is only for macos or linux: "{}"'.format(host.SYSTEM))
-
-  @classmethod
-  def brew_exe(clazz):
-    'Return the brew exe path.'
-    return which.which('brew')
-
-  @classmethod
-  def version(clazz):
+  def version(self):
     'Return the version of brew.'
-    if not clazz.has_brew():
-      raise brew_error('brew not installed')
-    rv = clazz.call_brew([ '--version' ])
+
+    rv = self._command.call_command([ '--version' ])
     f = re.findall(r'^Homebrew\s+(.+)\n', rv.stdout)
     if not f:
       raise brew_error('failed to determine brew version.')
@@ -47,36 +34,29 @@ class brew(object):
       raise brew_error('failed to determine brew version.')
     return f[0]
 
-  @classmethod
-  def call_brew(clazz, args):
-    'Call brew.'
-    if not clazz.has_brew():
-      raise brew_error('brew not installed')
-    cmd = [ clazz.brew_exe() ] + args
-    return execute.execute(cmd)
-
-  @classmethod
-  def available(clazz):
+  def available(self):
     'Return a list of all available packages.'
-    rv = clazz.call_brew([ 'formulae' ])
-    return sorted(string_util.split_by_white_space(rv.stdout, strip = True))
+    return self._command.call_command_parse_lines([ 'formulae', '-1' ], sort = True)
 
-  @classmethod
-  def installed(clazz):
+  def installed(self):
     'Return a list of all installed packages.'
-    rv = clazz.call_brew([ 'list' ])
-    return sorted(string_util.split_by_white_space(rv.stdout, strip = True))
+    return self._command.call_command_parse_lines([ 'list', '-1' ], sort = True)
   
-  @classmethod
-  def uninstall(clazz, package_name):
+  def uninstall(self, package_name):
     'Uninstall a package.'
     check.check_string(package_name)
     
-    clazz.call_brew([ 'uninstall', package_name ])
+    self._command.call_command([ 'uninstall', package_name ])
 
-  @classmethod
-  def install(clazz, package_name):
+  def install(self, package_name):
     'Install a package.'
     check.check_string(package_name)
     
-    clazz.call_brew([ 'install', package_name ])
+    self._command.call_command([ 'install', package_name ])
+
+  def files(self, package_name):
+    'Return a list of files for a package.'
+    check.check_string(package_name)
+
+    return self._command.call_command_parse_lines([ 'list', '-1', package_name ], sort = True)
+    

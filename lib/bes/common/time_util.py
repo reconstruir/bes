@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
 from datetime import datetime
 import time
 
@@ -24,3 +25,22 @@ class time_util(object):
   def timezone(clazz):
     'Return the current timezone (ie PST).'
     return time.strftime('%Z')
+
+  _ms_tuple = namedtuple('_ms_tuple', 'hours, minutes, seconds')
+  @classmethod
+  def ms_to_tuple(clazz, ms):
+    check.check_int(ms)
+    
+    seconds = (ms / 1000) % 60
+    minutes = (ms / (1000 * 60)) % 60
+    hours = (ms / (1000 * 60 * 60)) % 24
+    return clazz._ms_tuple(hours, minutes, seconds)
+
+  @classmethod
+  def ms_to_string(clazz, ms):
+    check.check_int(ms)
+
+    t = clazz.ms_to_tuple(ms)
+    return '{}:{}:{}'.format(str(t.hours).zfill(2),
+                             str(t.minutes).zfill(2),
+                             str(t.seconds).zfill(2))

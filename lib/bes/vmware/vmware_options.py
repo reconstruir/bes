@@ -25,12 +25,8 @@ class vmware_options(cli_options):
       'vmrest_port': None,
       'login_username': None,
       'login_password': None,
-      'dont_ensure': False,
       'tty': None,
-      'clone_vm': False,
       'vm_dir': None,
-      'wait_programs_num_tries': 60,
-      'wait_programs_sleep_time': 2.0,
     }
   
   @classmethod
@@ -44,8 +40,6 @@ class vmware_options(cli_options):
   def value_type_hints(clazz):
     return {
       'vmrest_port': int,
-      'wait_programs_num_tries': int,
-      'wait_programs_sleep_time': float,
     }
 
   @classmethod
@@ -53,6 +47,11 @@ class vmware_options(cli_options):
   def config_file_key(clazz):
     return 'config_filename'
 
+  @classmethod
+  #@abstractmethod
+  def config_file_env_var_name(clazz):
+    return 'BES_VMWARE_CONFIG_FILE'
+  
   @classmethod
   #@abstractmethod
   def config_file_section(clazz):
@@ -74,12 +73,8 @@ class vmware_options(cli_options):
     check.check_int(self.vmrest_port, allow_none = True)
     check.check_string(self.login_username, allow_none = True)
     check.check_string(self.login_password, allow_none = True)
-    check.check_bool(self.dont_ensure)
     check.check_string(self.tty, allow_none = True)
-    check.check_bool(self.clone_vm)
     check.check_string(self.vm_dir, allow_none = True)
-    check.check_int(self.wait_programs_num_tries)
-    check.check_float(self.wait_programs_sleep_time)
   
   @property
   def vmrest_credentials(self):
@@ -102,5 +97,36 @@ class vmware_options(cli_options):
       assert not self.login_password
       return None
     return credentials('<cli>', username = self.login_username, password = self.login_password)
+  
+  def resolve_login_username(self, vm_name):
+    check.check_string(vm_name)
+    config = self.config_file
+    if not config:
+      return self.login_username
+    has = config.has_section(vm_name)
+    if config.has_section(vm_name):
+      return config.get_value_with_default(vm_name, 'login_username', self.login_username)
+    return self.login_username
+
+  def resolve_login_password(self, vm_name):
+    check.check_string(vm_name)
+    config = self.config_file
+    if not config:
+      return self.login_password
+    if config.has_section(vm_name):
+      return config.get_value_with_default(vm_name, 'login_password', self.login_password)
+    return self.login_password
+
+  def resolve_login_credentials(self, vm_name):
+    login_username = self.resolve_login_username(vm_name)
+    login_password = self.resolve_login_password(vm_name)
+    if login_username and not login_password:
+      raise vmware_error('both login_username and login_password need to be given.')
+    if login_password and not login_username:
+      raise vmware_error('both login_password and login_username need to be given.')
+    if not login_username:
+      assert not login_password
+      return None
+    return credentials('<cli>', username = login_username, password = login_password)
   
 check.register_class(vmware_options)

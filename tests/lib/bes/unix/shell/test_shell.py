@@ -5,9 +5,14 @@ import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.unix.shell.shell import shell
 from bes.system.user import user
+from bes.testing.unit_test_skip import raise_skip_if_not_unix
 
 class test_shell(unit_test):
 
+  @classmethod
+  def setUpClass(clazz):
+    raise_skip_if_not_unix()
+  
   def test_valid_shells(self):
     v = shell.valid_shells()
     self.assertTrue( '/bin/bash' in v )

@@ -61,6 +61,14 @@ class properties_editor(object):
     self._check_file_exists()
     return self._properties.keys()
 
+  def values(self):
+    self._check_file_exists()
+    return self._properties.values()
+
+  def items(self):
+    self._check_file_exists()
+    return self._properties.items()
+  
   def bump_version(self, key, component, reset_lower = False):
     check.check_string(key)
     self._properties.bump_version(key, component, reset_lower = reset_lower)

@@ -11,6 +11,7 @@ from bes.dependency.dependency_resolver import dependency_resolver
 from bes.dependency.dependency_resolver import missing_dependency_error
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
+from bes.system.host import host
 from bes.system.log import logger
 
 from collections import namedtuple
@@ -27,7 +28,7 @@ class simple_config_files(object):
 
   _found_config = namedtuple('_found_config', 'where, filename, abs_path, config')
 
-  log = logger('simple_config')
+  _log = logger('simple_config')
   
   def __init__(self, search_path, glob_expression):
     self._search_path = self.parse_search_path(search_path)
@@ -42,7 +43,7 @@ class simple_config_files(object):
   @classmethod
   def parse_search_path(clazz, search_path):
     if check.is_string(search_path):
-      result = search_path.split(':')
+      result = search_path.split(os.pathsep)
     elif check.is_string_seq(search_path):
       result = [ x for x in search_path ]
     else:
@@ -158,6 +159,10 @@ class simple_config_files(object):
     check.check_string(config_path)
     check.check_string(section_name)
     check.check_string(extension)
+
+    clazz._log.log_d('load_and_find_section: config_path={} section_name={} extension={}'.format(config_path,
+                                                                                                 section_name,
+                                                                                                 extension))
     
     if config_path and not section_name:
       raise ValueError('section_name needs to be given when config_path is given.')
@@ -168,9 +173,9 @@ class simple_config_files(object):
       return None
 
     glob_expression = '*.{}'.format(extension)
-    clazz.log.log_d('using config_path={} glob_expression={} section_name={}'.format(config_path,
-                                                                                    glob_expression,
-                                                                                    section_name))
+    clazz._log.log_d('using config_path={} glob_expression={} section_name={}'.format(config_path,
+                                                                                      glob_expression,
+                                                                                      section_name))
     config = simple_config_files(config_path, glob_expression)
     config.load()
     if not config.files:
@@ -184,8 +189,9 @@ class simple_config_files(object):
   def load_config(clazz, config):
     if not config:
       return {}
-
+    clazz._log.log_d('load_config: config={}'.format(config))
     parsed_config = clazz._parse_config(config)
+    clazz._log.log_d('load_config: parsed_config={}'.format(parsed_config))
     if parsed_config.section:
       section_name = parsed_config.section
     else:
@@ -194,8 +200,9 @@ class simple_config_files(object):
       if not sections:
         raise simple_config_error('No sections found in config: "{}"'.format(parsed_config.filename))
       section_name = sections[0]
-
+    clazz._log.log_d('load_config: section_name={}'.format(section_name))
     config_path = path.dirname(parsed_config.filename)
+    clazz._log.log_d('load_config: config_path={}'.format(config_path))
     return clazz.load_and_find_section(config_path, section_name, parsed_config.extension).to_dict()
     
   _parsed_config = namedtuple('_parsed_config', 'filename, section, extension')
@@ -203,9 +210,19 @@ class simple_config_files(object):
   def _parse_config(clazz, config):
     if not config:
       return None
-    i = config.rfind(':')
+    i = clazz._find_section_delimiter_index(config)
     if i < 0:
       return clazz._parsed_config(config, None, file_util.extension(config))
     filename = config[0:i]
     section = config[i+1:]
     return clazz._parsed_config(filename, section, file_util.extension(filename))
+
+  @classmethod
+  def _find_section_delimiter_index(clazz, config):
+    if host.is_windows():
+      _, filename = path.splitdrive(config)
+    else:
+      filename = config
+    if ':' not in filename:
+      return -1
+    return config.rfind(':')

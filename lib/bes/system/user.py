@@ -8,6 +8,13 @@ class user(object):
 
   if host.is_unix():
     import pwd
-    USERNAME = pwd.getpwuid(os.getuid()).pw_name
+    info = pwd.getpwuid(os.getuid())
+    USERNAME = info.pw_name
+    HOME = info.pw_dir
   elif host.is_windows():
     USERNAME = os.environ.get('USERNAME')
+    d = os.environ.get('HOMEDRIVE')
+    h = os.environ.get('HOMEPATH')
+    HOME = d + h
+  else:
+    host.raise_unsupported_system()

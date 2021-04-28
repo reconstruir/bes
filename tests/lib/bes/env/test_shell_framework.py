@@ -10,10 +10,13 @@ from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.os_env import os_env
 from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_skip import raise_skip_if_not_unix
 
 class test_shell_framework(unit_test):
 
-  DEBUG = unit_test.DEBUG
+  @classmethod
+  def setUpClass(clazz):
+    raise_skip_if_not_unix()
 
   def test_extract(self):
     tmp_dir = temp_file.make_temp_dir(delete = not self.DEBUG)

@@ -21,6 +21,9 @@ class python_cli_args(object):
     p = subparser.add_parser('exes', help = 'Print all the pythons found in PATH.')
     p.add_argument('-i', '--info', action = 'store_true', dest = 'show_info',
                    default = False, help = 'Print info about the executable')
+
+    # default_exe
+    p = subparser.add_parser('default_exe', help = 'Print the default python exe.')
     
   def _command_python(self, command, *args, **kargs):
     from .python_cli_handler import python_cli_handler

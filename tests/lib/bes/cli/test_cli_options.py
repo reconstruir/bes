@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from bes.cli.cli_options import cli_options
 from bes.common.check import check
 from bes.credentials.credentials import credentials
+from bes.system.env_override import env_override
 from bes.testing.unit_test import unit_test
-
-from bes.cli.cli_options import cli_options
 
 class _test_cli_options_error(Exception):
   def __init__(self, message, status_code = None):
@@ -55,6 +55,11 @@ class _test_cli_options(cli_options):
   def config_file_key(clazz):
     return 'config_filename'
 
+  @classmethod
+  #@abstractmethod
+  def config_file_env_var_name(clazz):
+    return '_BES_CLI_OPTIONS_UNIT_TEST_CONFIG_FILE'
+  
   @classmethod
   #@abstractmethod
   def config_file_section(clazz):
@@ -151,7 +156,6 @@ class test_cli_options(unit_test):
     }, o.__dict__ )
     
   def test_from_config_file(self):
-
     content = '''\
 fruit
   username: foo
@@ -164,6 +168,20 @@ fruit
     self.assertEqual( 'sekret', o.password )
     self.assertEqual( 9999, o.port )
 
+  def test_from_config_file_from_env(self):
+    content = '''\
+fruit
+  username: foo
+  password: sekret
+  port: 9999
+'''
+    tmp_config = self.make_temp_file(content = content)
+    with env_override( { '_BES_CLI_OPTIONS_UNIT_TEST_CONFIG_FILE': tmp_config }) as env:
+      o = _test_cli_options()
+      self.assertEqual( 'foo', o.username )
+      self.assertEqual( 'sekret', o.password )
+      self.assertEqual( 9999, o.port )
+    
   def test_unknown_value_from_config_file(self):
     content = '''\
 fruit

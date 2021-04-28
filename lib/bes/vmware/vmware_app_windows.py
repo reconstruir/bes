@@ -38,9 +38,15 @@ class vmware_app_windows(vmware_app_base):
   @classmethod
   #@abstractmethod
   def preferences_filename(clazz):
-    'The full path to the preferneces filename.'
+    'The full path to the preferences filename.'
     return r'C:\Documents and Settings\All Users\Application Data\VMware\VMware Workstation\config.ini'
 
+  @classmethod
+  #@abstractmethod
+  def inventory_filename(self):
+    'The full path to the inventory filename.'
+    raise NotImplemented('inventory_filename')
+  
   @classmethod
   #@abstractmethod
   def vmrun_exe_path(clazz):

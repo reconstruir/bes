@@ -81,6 +81,10 @@ class table(object):
     self.set_row(y, row)
 
   @property
+  def data(self):
+    return self._rows
+    
+  @property
   def empty(self):
     return self.width == 0 or self.height == 0
   

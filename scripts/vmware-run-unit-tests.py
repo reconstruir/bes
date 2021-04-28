@@ -38,6 +38,8 @@ class vmware_tester(object):
     p.add_argument('-o', '--output', action = 'store', default = None,
                    dest = 'output_filename',
                    help = 'Output the log to filename instead of stdout [ False ]')
+    p.add_argument('--clone-vm', action = 'store_true', default = False,
+                   help = 'Run programs in a clone of the vm [ False ]')
     p.add_argument('vm_id', action = 'store', default = None,
                    help = 'The vmware vmx filename for the vm to test [ None ]')
     p.add_argument('entry_command_args', action = 'store', default = [], nargs = '*',
@@ -117,7 +119,7 @@ class vmware_tester(object):
   _ENTRY_COMMAND_CONTENT = r'''#!/bin/bash
 set -e
 export PYTHONPATH=$(pwd)/lib
-python ./bin/bes_test.py --dont-hack-env --root-dir . ${1+"$@"}
+python3 ./bin/bes_test.py --dont-hack-env --root-dir . ${1+"$@"}
 exit $?
 '''
   

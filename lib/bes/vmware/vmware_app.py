@@ -59,9 +59,15 @@ class vmware_app(vmware_app_base):
   @classmethod
   #@abstractmethod
   def preferences_filename(clazz):
-    'The full path to the preferneces filename.'
+    'The full path to the preferences filename.'
     return clazz._impl.preferences_filename()
 
+  @classmethod
+  #@abstractmethod
+  def inventory_filename(clazz):
+    'The full path to the inventory filename.'
+    return clazz._impl.inventory_filename()
+  
   @classmethod
   #@abstractmethod
   def vmrun_exe_path(clazz):

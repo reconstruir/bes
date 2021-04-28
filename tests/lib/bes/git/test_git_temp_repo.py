@@ -58,19 +58,18 @@ remove remove1
     r = git_temp_repo(remote = True)
     self.assertEqual( [], r.find_all_files() )
     r.apply_config_text(config)
-    self.assertEqual( [
+    self.assertEqual( self.native_filename_list([
       'copy_of_something2.txt',
       'foo.txt',
       'scripts/go.sh',
       'subdir/bar.txt',
-    ], r.find_all_files() )
+    ]), r.find_all_files() )
 
-    self.assertEqual( 'this is subdir/bar.txt', r.read_file('subdir/bar.txt') )
-
-    self.assertEqual( '''\
+    expected = '''\
 this is my content
 it can be multi line
-or not''', r.read_file('copy_of_something2.txt') )
+or not'''
+    self.assert_text_file_equal( expected, r.file_path('copy_of_something2.txt'), codec = 'utf-8', native_line_breaks = True )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -39,7 +39,7 @@ class test_temp_content(unit_test):
       self.assertEqual( 'this is foo\nhaha', fin.read() )
     shutil.rmtree(tmp_dir)
     
-  @skip_if_not_unix
+  @skip_if_not_unix()
   def test_write_mode(self):
     i = I(I.FILE, 'foo.txt', 'this is foo\nhaha', 0o644)
     tmp_dir = tempfile.mkdtemp()
@@ -73,9 +73,9 @@ class test_temp_content(unit_test):
       'file d/e/bar.txt "bar content" 644',
       'dir  baz     ""            700',
     ], tmp_dir)
-    self.assertTrue( path.isfile(path.join(tmp_dir, self.p('a/b/c/foo.txt'))) )
-    self.assertTrue( path.isfile(path.join(tmp_dir, self.p('d/e/bar.txt'))) )
-    self.assertTrue( path.isdir(path.join(tmp_dir, self.p('baz'))) )
+    self.assertTrue( path.isfile(path.join(tmp_dir, self.native_filename('a/b/c/foo.txt'))) )
+    self.assertTrue( path.isfile(path.join(tmp_dir, self.native_filename('d/e/bar.txt'))) )
+    self.assertTrue( path.isdir(path.join(tmp_dir, self.native_filename('baz'))) )
     shutil.rmtree(tmp_dir)
 
   def test_write_items_with_parse(self):
@@ -86,9 +86,9 @@ class test_temp_content(unit_test):
     ])
     tmp_dir = tempfile.mkdtemp()
     I.write_items(items, tmp_dir)
-    self.assertTrue( path.isfile(path.join(tmp_dir, self.p('a/b/c/foo.txt'))) )
-    self.assertTrue( path.isfile(path.join(tmp_dir, self.p('d/e/bar.txt'))) )
-    self.assertTrue( path.isdir(path.join(tmp_dir, self.p('baz'))) )
+    self.assertTrue( path.isfile(path.join(tmp_dir, self.native_filename('a/b/c/foo.txt'))) )
+    self.assertTrue( path.isfile(path.join(tmp_dir, self.native_filename('d/e/bar.txt'))) )
+    self.assertTrue( path.isdir(path.join(tmp_dir, self.native_filename('baz'))) )
     shutil.rmtree(tmp_dir)
 
 if __name__ == "__main__":

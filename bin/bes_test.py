@@ -27,6 +27,7 @@ from bes.system.python import python as python
 from bes.testing.framework.argument_resolver import argument_resolver
 from bes.testing.framework.printer import printer
 from bes.testing.framework.unit_test_output import unit_test_output
+from bes.text.line_break import line_break
 from bes.version.version_cli import version_cli
 
 # TODO:
@@ -595,11 +596,12 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
                                env = env)
     communicate_args = {}
     if sys.version_info.major >= 3:
-      communicate_args['timeout'] = 60.0
+      communicate_args['timeout'] = 60.0 * 5
     output = process.communicate(**communicate_args)
     exit_code = process.wait()
     elapsed_time = time.time() - time_start
     decoded_output = output[0].decode('utf-8')
+    fixed_output = _fix_output(decoded_output)
     success = exit_code == 0
     writeln_output = not success or options.verbose
     if success:
@@ -609,10 +611,11 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
     if writeln_output:
       printer.writeln_name('%7s: %s' % (label, short_filename))
       try:
-        printer.writeln(decoded_output)
+        printer.writeln(fixed_output)
       except UnicodeEncodeError as ex:
-        printer.writeln(decoded_output.encode('ascii', 'replace'))
-    return test_result(success, wanted_unit_tests, elapsed_time, decoded_output)
+        fixed_output = decoded_output.encode('ascii', 'replace')
+        printer.writeln(fixed_output)
+    return test_result(success, wanted_unit_tests, elapsed_time, fixed_output)
   except Exception as ex:
     ex_output = traceback.format_exc()
     printer.writeln_name('Caught exception on {}\n{}'.format(filename, ex_output))
@@ -620,6 +623,21 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
       printer.writeln_name(s)
     return test_result(False, wanted_unit_tests, 0.0, ex_output)
 
+def _fix_output(output):
+  'For some reason python3 unit tests print the output as bytes.  Fix it'
+  if host.is_windows():
+    marker = "\r\nb'"
+  else:
+    marker = "\nb'"
+  i = output.find(marker)
+  if i < 0:
+    return output
+  j = output.find(line_break.DEFAULT_LINE_BREAK, i + len(marker))
+  traceback_str = output[i:j]
+  traceback_str_fixed = traceback_str.replace(line_break.DEFAULT_LINE_BREAK_RAW,
+                                              line_break.DEFAULT_LINE_BREAK)
+  return output.replace(traceback_str, traceback_str_fixed)
+  
 def _count_tests(test_map, tests):
   total = 0
   for test in tests:

@@ -2,6 +2,7 @@
 
 from os import path
 from bes.compat.ConfigParser import ConfigParser
+from bes.config_file.config import config
 
 from .credentials import credentials
 from .credentials_source import credentials_source
@@ -38,7 +39,7 @@ class credentials_source_aws(credentials_source):
         
   @classmethod
   def _read_section(clazz, parser, fin):
-    parser.readfp(fin)
+    config.read_stream(parser, fin)
     section = parser.items('default')
     result = {}
     for key, value in section:

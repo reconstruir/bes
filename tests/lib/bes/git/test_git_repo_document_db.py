@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.testing.unit_test import unit_test
-from bes.fs.temp_file import temp_file
-from bes.git.git_temp_repo import git_temp_repo
-from bes.git.git_unit_test import git_temp_home_func
-from bes.git.git_repo_document_db import git_repo_document_db
-
 import multiprocessing
 
+from bes.fs.temp_file import temp_file
+from bes.git.git_repo_document_db import git_repo_document_db
+from bes.git.git_temp_repo import git_temp_repo
+from bes.git.git_unit_test import git_temp_home_func
+from bes.testing.unit_test import unit_test
+from bes.text.line_break import line_break
 
 class test_git_repo_document_db(unit_test):
 
@@ -35,14 +35,16 @@ class test_git_repo_document_db(unit_test):
     # And check that the file really exists via the repo interface and has the
     # content in it. The repo file side effect is part of the contract.
     repo.pull()
-    self.assertEqual('a\n', repo.read_file('testdoc.txt'))
+    self.assert_text_file_equal( 'a', repo.file_path('testdoc.txt'), codec = 'utf-8', strip = True, native_line_breaks = True)
 
     # Now modify the file further and retrieve it again.
     db.update_document('testdoc.txt', lambda content: content + 'b\n', 'test commit message 2')
-    content = db.load_document('testdoc.txt')
-    self.assertEqual(content, 'a\nb\n')
+    expected = '''\
+a
+b
+'''
     repo.pull()
-    self.assertEqual('a\nb\n', repo.read_file('testdoc.txt'))
+    self.assert_string_equal( expected, db.load_document('testdoc.txt'), strip = True, native_line_breaks = True )
 
     # Try replacing everything.
     db.update_document('testdoc.txt', lambda content: 'foo', 'test commit message 3')
@@ -81,10 +83,9 @@ class test_git_repo_document_db(unit_test):
     # check the results.
     repo.pull()
     contents = repo.read_file('retries.txt')
-    actual = sorted(contents.split('\n'))
-    expected = [str(n) for n in range(num_jobs)]
-    self.assertEqual(actual, expected)
-
+    actual = sorted(contents.split(line_break.DEFAULT_LINE_BREAK))
+    expected = [ str(n) for n in range(num_jobs) ]
+    self.assertEqual( actual, expected )
 
 if __name__ == '__main__':
   unit_test.main()

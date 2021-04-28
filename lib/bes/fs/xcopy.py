@@ -2,6 +2,7 @@
 
 import os.path as path, os, re
 from bes.system.execute import execute
+from bes.system.which import which
 
 from .file_util import file_util
 from .temp_file import temp_file
@@ -14,19 +15,20 @@ class xcopy(object):
     if not path.isdir(src_dir):
       raise RuntimeError('src_dir is not a directory: %s' % (src_dir))
     file_util.mkdir(dst_dir)
+    xcopy_exe = which.which('robocopy.exe')
     cmd = [
-      'xcopy',
+      xcopy_exe,
       '"{}"'.format(src_dir),
       '"{}"'.format(dst_dir),
-      '/q', # Suppresses the display of xcopy messages.
-      '/e', # Copies all subdirectories, even if they are empty
-      '/k', # Copies all subdirectories, even if they are empty
-      '/h', # Copies files with hidden and system file attributes. By default, xcopy does not copy hidden or system files
-      '/r', # Copies read-only files.
-      '/y', # Suppresses prompting to confirm that you want to overwrite an existing destination file.
+      '/E', # Copies all subdirectories, even if they are empty
     ]
     if excludes:
-      content = '\r\n'.join(excludes)
-      excludes_filename = temp_file.make_temp_file(content = content)
-      cmd.append('/exclude:{}'.format(excludes_filename))
-    execute.execute(cmd, shell = True)
+      for exclude in excludes:
+        cmd.extend([ '/XF', '"{}"'.format(exclude) ])
+    rv = execute.execute(cmd,
+                         shell = True,
+                         raise_error = False,
+                         stderr_to_stdout = True)
+    if rv.exit_code >= 0 and rv.exit_code <= 7:
+      return
+    raise RuntimError('robocopy failed: "{}" - {}'.format(' '.join(cmd), str(rv.stdout)))

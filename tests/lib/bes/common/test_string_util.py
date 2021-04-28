@@ -163,14 +163,15 @@ class test_string_util(unittest.TestCase):
   def test_replace_many_parts(self):
     f = SU.replace
     r = {
-      'ego_app': 'ea',
-      'bkom-CookingTogether': 'bk',
-      'hitpoint-Escaperoom': 'hp',
-      'imvu': 'im',
-      'timecode-EscapeRoom': 'tc',
+      'kiwi': 'ea',
+      'lemon-CookingTogether': 'bk',
+      'potato-Escaperoom': 'hp',
+      'coffee': 'im',
+      'butter-EscapeRoom': 'tc',
     }
-    self.assertEqual( 'withmedev2_support-ea-d64c314_bk-0.6.51_hp-0.154_im-2e2b480_tc-0.3.46',
-                      f('withmedev2_support-ego_app-d64c314_bkom-CookingTogether-0.6.51_hitpoint-Escaperoom-0.154_imvu-2e2b480_timecode-EscapeRoom-0.3.46', r, word_boundary = False) )
+
+    self.assertEqual( 'prefix_support-ea-abcdef0_lemon-park-0.6.51_potato-pond-0.154_im-abcdef0_butter-pond-0.3.46',
+                      f('prefix_support-kiwi-abcdef0_lemon-park-0.6.51_potato-pond-0.154_coffee-abcdef0_butter-pond-0.3.46', r, word_boundary = False) )
     
 if __name__ == "__main__":
   unittest.main()

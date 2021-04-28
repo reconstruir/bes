@@ -33,7 +33,7 @@ class git_changelog(object):
       email = re.search(r'Author: .*\s+<(.+)>', commit_parts[index]).group(1)
       author = email.split('@')[0]
       date = re.search(r'Date:\s+(.+)', commit_parts[index + 1]).group(1)
-      message = ' '.join(commit_parts[index + 2:])
+      message = ' '.join(commit_parts[index + 2:]).strip()
 
       result.append(git_commit_info(revision, message, author, email, date, is_merge_commit))
 
