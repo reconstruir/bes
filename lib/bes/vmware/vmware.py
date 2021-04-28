@@ -198,36 +198,18 @@ class vmware(object):
     self._log.log_method_d()
 
     vm = self._resolve_vmx_to_local_vm(vm_id)
-    target_vm = vm
-    debug = self._options.debug
-    
+
     if not path.isdir(package_dir):
       raise vmware_error('package_dir not found or not a dir: "{}"'.format(package_dir))
 
-#    vmx_filename = self._resolve_vmx_filename(vm_id)
-#    self._log.log_d('vm_run_package: vmx_filename={} dont_ensure={}'.format(vmx_filename,
-#                                                                            run_program_options.dont_ensure))
-
-#    target_vm_id, target_vmx_filename = self._clone_vm_if_needed(vm_id,
-#                                                                 vmx_filename,
-#                                                                 run_program_options.clone_vm)
-#    assert target_vm_id
-#    assert path.isfile(target_vmx_filename)
-#    self._log.log_d('vm_run_package: target_vm_id={} target_vmx_filename={}'.format(target_vm_id,
-#                                                                                    target_vmx_filename))
-#    
-#    if not run_program_options.dont_ensure or run_program_options.clone_vm:
-#      self.vm_ensure_started(target_vm_id, True, run_program_options = run_program_options, gui = True)
-      
-    tmp_dir_local = temp_file.make_temp_dir(suffix = '-run_package.dir', delete = not debug)
-    if debug:
+    tmp_dir_local = temp_file.make_temp_dir(suffix = '-run_package.dir',
+                                            delete = not self._options.debug)
+    if self._options.debug:
       print('tmp_dir_local={}'.format(tmp_dir_local))
 
     tmp_remote_dir = path.join('/tmp', path.basename(tmp_dir_local))
     self._log.log_d('vm_run_package: tmp_remote_dir={}'.format(tmp_remote_dir))
 
-    target_vm.dir_create(tmp_remote_dir)
-    
     tmp_package = self._make_tmp_file_pair(tmp_dir_local, 'package.zip')
     tmp_caller_script = self._make_tmp_file_pair(tmp_dir_local, 'caller_script.py')
     tmp_output_log = self._make_tmp_file_pair(tmp_dir_local, 'output.log')
@@ -240,15 +222,33 @@ class vmware(object):
     self._log.log_d('vm_run_package: tmp_caller_script={}'.format(tmp_caller_script))
     self._log.log_d('vm_run_package: tmp_output_log={}'.format(tmp_output_log))
 
-    target_vm.file_copy_to(tmp_package.local, tmp_package.remote)
-    target_vm.file_copy_to(tmp_caller_script.local, tmp_caller_script.remote)
-
     parsed_entry_command_args = command_line.parse_args(entry_command_args)
     debug_args = []
     if self._options.debug:
       debug_args.append('--debug')
     if self._options.tty:
       debug_args.extend([ '--tty', tty ])
+
+    caller_args = debug_args + [
+      tmp_package.remote,      
+      entry_command,
+      tmp_output_log.remote,      
+    ] + parsed_entry_command_args
+      
+    with vmware_restore_vm_running_state(self) as _:
+      with vmware_run_operation(vm, run_program_options) as target_vm:
+        target_vm.dir_create(tmp_remote_dir)
+        target_vm.file_copy_to(tmp_package.local, tmp_package.remote)
+        target_vm.file_copy_to(tmp_caller_script.local, tmp_caller_script.remote)
+        rv = target_vm.run_program(tmp_caller_script.remote,
+                                   caller_args,
+                                   run_program_options = run_program_options)
+        target_vm.file_copy_from(tmp_output_log.remote, tmp_output_log.local)
+
+        with file_util.open_with_default(filename = run_program_options.output_filename) as f:
+          log_content = file_util.read(tmp_output_log.local, codec = 'utf-8')
+          f.write(log_content)
+    return rv
 
 #####    process = None
 #####    if run_program_options.tail_log:
@@ -279,25 +279,10 @@ class vmware(object):
 #####      process = multiprocessing.Process(name = 'caca', target = _process_main, args = ( ip_address, 9000 ))
 #####      process.daemon = True
 #####      process.start()
-    caller_args = debug_args + [
-      tmp_package.remote,      
-      entry_command,
-      tmp_output_log.remote,      
-    ] + parsed_entry_command_args
-    rv = target_vm.run_program(tmp_caller_script.remote,
-                               caller_args,
-                               run_program_options = run_program_options)
-    target_vm.file_copy_from(tmp_output_log.remote, tmp_output_log.local)
-
-    with file_util.open_with_default(filename = run_program_options.output_filename) as f:
-      log_content = file_util.read(tmp_output_log.local, codec = 'utf-8')
-      f.write(log_content)
 
 #####    if process:
 #####      print('joining process')
 #####      process.join()
-      
-    return rv
 
   _tmp_file_pair = namedtuple('_tmp_file_pair', 'local, remote')
   def _make_tmp_file_pair(self, tmp_dir_local, name):
