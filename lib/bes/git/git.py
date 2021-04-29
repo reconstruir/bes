@@ -1036,7 +1036,7 @@ class git(git_lfs):
     if not clazz.tag_has_annotation(root_dir, tag_name):
       raise git_error('not an annotated tag: "{}"'.format(tag_name))
     rv = git_exe.call_git(root_dir, [ 'tag', '-n', '--format=%(subject)', tag_name ])
-    return rv.stdout.strip()
+    return string_util.unquote(rv.stdout.strip())
 
   @classmethod
   def is_branch(clazz, root_dir, ref_name):
