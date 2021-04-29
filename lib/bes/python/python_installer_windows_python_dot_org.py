@@ -25,7 +25,7 @@ class python_installer_windows_python_dot_org(python_installer_base):
     'Return a list of python versions available to install.'
     check.check_int(num)
 
-    return python_python_dot_org.available_versions(num)
+    return python_python_dot_org.available_versions('windows', num)
     
   #@abstractmethod
   def installed_versions(self):
@@ -124,6 +124,7 @@ class python_installer_windows_python_dot_org(python_installer_base):
     if not full_version:
       raise python_error('Not installed: "{}"'.format(version_or_full_version))
 
+    assert False
     version = python_version.version(full_version)
     parsed = python_version.parse(full_version)
     where = r'C:\Program Files\Python{}{}'.format(parsed.major, parsed.minor)
@@ -132,7 +133,4 @@ class python_installer_windows_python_dot_org(python_installer_base):
   #@abstractmethod
   def download(self, full_version, debug = False):
     'Download the major.minor.revision full version of python to a temporary file.'
-    url = python_python_dot_org.windows_package_url(full_version)
-    tmp_pkg = python_python_dot_org.downlod_package_to_temp_file(url,
-                                                                 debug = False)
-    return tmp_pkg
+    return python_python_dot_org.download_package('windows', full_version, debug = debug)
