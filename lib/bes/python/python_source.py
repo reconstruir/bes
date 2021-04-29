@@ -49,6 +49,6 @@ class python_source(python_source_base):
 
   @classmethod
   #@abstractmethod
-  def exe_name(self, exe):
+  def exe_name(clazz, exe):
     'Return the name of a python exe.  without possible extensions or absolute paths.'
     return clazz._impl_class.exe_name(exe)
