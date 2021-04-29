@@ -44,6 +44,10 @@ class python_testing(object):
       return python_exe.find_version('3.9', exclude_sources = self._EXCLUDE_SOURCES)
 
     @cached_property
+    def PYTHON_310(self):
+      return python_exe.find_version('3.10', exclude_sources = self._EXCLUDE_SOURCES)
+
+    @cached_property
     def ALL_PYTHONS(self):
       return [ p for p in [ self.PYTHON_27, self.PYTHON_37, self.PYTHON_38, self.PYTHON_39 ] if p ]
     
@@ -70,7 +74,7 @@ class python_testing(object):
     _log.log_d('ANY_PYTHON2: {}'.format(_PYTHONS.ANY_PYTHON2))
     _log.log_d('ANY_PYTHON3: {}'.format(_PYTHONS.ANY_PYTHON3))
 
-  PYTHON_VERSIONS = ( '2.7', '3.7', '3.8', '3.9' )
+  PYTHON_VERSIONS = ( '2.7', '3.7', '3.8', '3.9', '3.10' )
   @classmethod
   def make_fake_python_installation(clazz, root_dir, py_version, pip_version,
                                     source, system = None):

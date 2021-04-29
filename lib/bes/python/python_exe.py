@@ -133,7 +133,7 @@ class python_exe(object):
   def _determine_main_exe_and_links(clazz, exe):
     'Return info for python executables'
     inode = file_util.inode_number(exe)
-    exes = clazz._find_all_exes_in_PATH()
+    exes = clazz._find_all_exes()
     inode_map = clazz._inode_map(exes)
     if not inode in inode_map:
       return exe, []
@@ -144,7 +144,7 @@ class python_exe(object):
   @classmethod
   def find_all_exes(clazz):
     'Return all the executables in PATH that match any patterns'
-    all_exes = clazz._find_all_exes_in_PATH()
+    all_exes = clazz._find_all_exes()
     inode_map = clazz._inode_map(all_exes)
     result = []
     for inode, exes in inode_map.items():
@@ -166,6 +166,7 @@ class python_exe(object):
     '3.7',
     '3.8',
     '3.9',
+    '3.10',
     '2.7',
   ]
   @classmethod
@@ -185,8 +186,8 @@ class python_exe(object):
     return by_version.items()[0].exe
   
   @classmethod
-  def _find_all_exes_in_PATH(clazz):
-    'Return all the executables in PATH that match any patterns'
+  def _find_all_exes(clazz):
+    'Return all the executables in PATH and other platform specific places'
     exe_patterns = python_source.possible_python_exe_patterns()
     extra_path = python_source.possible_python_bin_dirs()
     env_path = os_env_var('PATH').path + extra_path

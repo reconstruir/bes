@@ -12,6 +12,7 @@ from bes.version.software_version import software_version
 from bes.text.text_line_parser import text_line_parser
 
 from .python_version import python_version
+from .python_error import python_error
 
 class python_python_dot_org(object):
   'Class to deal with python.org listings and downloads'
@@ -65,6 +66,8 @@ class python_python_dot_org(object):
 
   @classmethod
   def downlod_package_to_temp_file(clazz, url, debug = False):
+    if not url_util.exists(url):
+      raise python_error('No python.org package found: "{}"'.format(url))
     tmp_dir = temp_file.make_temp_dir(suffix = '-python-download')
     basename = path.basename(url)
     tmp_package = path.join(tmp_dir, basename)
