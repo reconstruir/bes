@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_skip import skip_if_not_unix
 from bes.fs.file_util import file_util
 
 from bes.vmware.vmware_inventory import vmware_inventory
@@ -411,6 +412,7 @@ vmlist9.config = ""
     i.remove_vm('/Users/fred/vms/ubuntu-20.04_clone_20210427134019.vmwarevm/ubuntu-20.04_clone_20210427134019.vmx')
     self.assert_text_file_equal( expected_content, i.filename, strip = True, native_line_breaks = True)
 
+  @skip_if_not_unix()
   def test_remove_missing_vms_none_missing(self):
     tmp_vm_dir = self.make_temp_dir(suffix = '.vms')
     tmp_vmx_content = '''
