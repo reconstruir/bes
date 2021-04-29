@@ -9,22 +9,27 @@ from .python_source_base import python_source_base
 
 class python_source_windows(python_source_base):
 
+  _PYTHON_DOT_ORG_DIRS = [
+    r'C:\Program Files\Python37',
+    r'C:\Program Files\Python38',
+    r'C:\Program Files\Python39',
+    r'C:\Python27',
+  ]
+  
   @classmethod
   #@abstractmethod
   def exe_source(self, exe):
     'Return the source of the python executable.  Stuff like brew, xcode, system, python.org.'
+    for d in self._PYTHON_DOT_ORG_DIRS:
+      if exe.lower().startswith(d.lower()):
+        return 'python.org'
     return 'unknown'
 
   @classmethod
   #@abstractmethod
   def possible_python_bin_dirs(self):
     'Return a list of possible dirs where the python executable might be.'
-    return [
-      r'C:\Program Files\Python37',
-      r'C:\Program Files\Python38',
-      r'C:\Program Files\Python39',
-      r'C:\Python27',
-    ]
+    return self._PYTHON_DOT_ORG_DIRS
 
   @classmethod
   #@abstractmethod
