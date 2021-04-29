@@ -25,6 +25,7 @@ class python_installer(python_installer_base):
 
   _DEFAULT_INSTALLER_CLASS = {
     host.MACOS: 'brew',
+    host.WINDOWS: 'python.org',
   }
   
   def __init__(self, installer_name, system, blurber):

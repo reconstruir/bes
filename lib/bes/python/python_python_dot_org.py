@@ -29,7 +29,7 @@ class python_python_dot_org(object):
       return modern_index
     version_table = {}
     for any_version in modern_index:
-      major_version = python_version.any_version_to_version(any_version)
+      major_version = python_version.version(any_version)
       if not major_version in version_table:
         version_table[major_version] = []
       version_table[major_version].append(any_version)
