@@ -141,11 +141,25 @@ class url_util(object):
     response = url_compat.urlopen(req)
     return response
 
+  # this mess needs to be cleaned up with requests
+  @classmethod
+  def _get_py3(clazz, url, params = None, method = None):
+    if params:
+      data = url_compat.urlencode(params).encode('utf-8')
+    else:
+      data = None
+    req = url_compat.Request(url, data = data, method = method)
+    response = url_compat.urlopen(req)
+    content = response.read()
+    headers = response.headers.items()
+    status_code = response.getcode()
+    return clazz._response(status_code, content, headers)
+  
   @classmethod
   def exists(clazz, url):
     'Return True if url exists by issuing a HEAD request for it.'
     try:
-      response = clazz.get(url, method = 'HEAD')
+      response = clazz._get_py3(url, method = 'HEAD')
       return response.status_code == 200
     except Exception as ex:
       pass
