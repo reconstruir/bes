@@ -23,18 +23,20 @@ class vmware_vmx_file(vmware_properties_file):
   @cached_property
   def nickname(self):
     'Return the nickname for a the vmx file'
-    print(self.filename)
     i = self.filename.rfind(os.sep)
     if i < 0:
       return None
     vmx = self.filename[i + 1:]
     return string_util.remove_tail(vmx, '.vmx')
 
+  _UNKNOWN_GUEST_OS_DETAILED_DATA="""bitness='64' distroName='Unknown' distroVersion='0.0' familyName='Linux' kernelVersion='0.0' prettyName='Unknown Linux'"""
+  
   @cached_property
   def system_info(self):
     'Return guest system info in bes.system.host_info format'
     guest_os = self.get_value_with_default('guestOS', None) or self.get_value_with_default('guestos', None)
-    guest_os_detailed_data = self.get_value('guestOS.detailed.data')
+    guest_os_detailed_data = self.get_value_with_default('guestOS.detailed.data',
+                                                         self._UNKNOWN_GUEST_OS_DETAILED_DATA)
     return vmware_system_info.system_info(guest_os, guest_os_detailed_data)
 
   @cached_property

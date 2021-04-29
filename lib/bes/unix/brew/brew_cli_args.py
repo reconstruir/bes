@@ -24,10 +24,13 @@ class brew_cli_args(object):
     p.add_argument('package_name', action = 'store', default = None,
                    help = 'The package to print files for []')
     
+    # available
+    p = subparser.add_parser('available', help = 'Print packages available to install.')
+    
   def __brew_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
-    
+
   def _command_brew(self, command, *args, **kargs):
     from .brew_cli_handler import brew_cli_handler
     return brew_cli_handler(kargs).handle_command(command)

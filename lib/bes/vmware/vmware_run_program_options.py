@@ -15,11 +15,15 @@ class vmware_run_program_options(cli_options):
   def default_values(clazz):
     'Return a dict of defaults for these options.'
     return {
+      'active_window': False,
+      'clone_vm': False,
+      'dont_ensure': False,
       'interactive': False,
       'no_wait': False,
-      'active_window': False,
-      'tail_log': False,
       'output_filename': None,
+      'tail_log': False,
+      'wait_programs_num_tries': 60,
+      'wait_programs_sleep_time': 2.0,
     }
   
   @classmethod
@@ -32,10 +36,14 @@ class vmware_run_program_options(cli_options):
   #@abstractmethod
   def value_type_hints(clazz):
     return {
+      'active_window': bool,
+      'clone_vm': bool,
+      'dont_ensure': bool,
       'interactive': bool,
       'no_wait': bool,
-      'active_window': bool,
       'tail_log': bool,
+      'wait_programs_num_tries': int,
+      'wait_programs_sleep_time': float,
     }
 
   @classmethod
@@ -43,6 +51,11 @@ class vmware_run_program_options(cli_options):
   def config_file_key(clazz):
     return None
 
+  @classmethod
+  #@abstractmethod
+  def config_file_env_var_name(clazz):
+    return None
+  
   @classmethod
   #@abstractmethod
   def config_file_section(clazz):
@@ -61,6 +74,10 @@ class vmware_run_program_options(cli_options):
     check.check_bool(self.active_window)
     check.check_bool(self.tail_log)
     check.check_string(self.output_filename, allow_none = True)
+    check.check_int(self.wait_programs_num_tries)
+    check.check_float(self.wait_programs_sleep_time)
+    check.check_bool(self.clone_vm)
+    check.check_bool(self.dont_ensure)
 
   def to_vmrun_command_line_args(self):
     args = []

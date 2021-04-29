@@ -1,9 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
+
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.Script import Script
 from bes.common.check import check
 from bes.script.blurber import blurber
+from bes.fs.file_util import file_util
 
 from .python_installer import python_installer
 from .python_installer_options import python_installer_options
@@ -16,7 +19,9 @@ class python_installer_cli_handler(cli_command_handler):
     check.check_python_installer_options(self.options)
     bl = blurber(Script.name())
     bl.set_verbose(self.options.verbose)
-    self.installer = python_installer(self.options.installer_name, bl)
+    self.installer = python_installer(self.options.installer_name,
+                                      self.options.system,
+                                      bl)
 
   def installers(self, system):
     check.check_string(system, allow_none = True)
@@ -39,7 +44,7 @@ class python_installer_cli_handler(cli_command_handler):
 
     self.installer.install(full_version)
     return 0
-
+  
   def uninstall(self, full_version):
     check.check_string(full_version)
 
@@ -58,3 +63,13 @@ class python_installer_cli_handler(cli_command_handler):
     self.installer.uninstall(full_version)
     self.installer.install(full_version)
     return 0
+
+  def download(self, full_version, output_filename):
+    check.check_string(full_version)
+    check.check_string(output_filename, allow_none = True)
+
+    tmp_package = self.installer.download(full_version)
+    output_filename = output_filename or path.basename(tmp_package)
+    file_util.rename(tmp_package, output_filename)
+    return 0
+  

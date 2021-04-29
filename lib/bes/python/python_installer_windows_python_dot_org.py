@@ -1,53 +1,59 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common.check import check
+import os, re
+from os import path
 
-from bes.unix.brew.brew import brew
+from bes.common.check import check
+from bes.fs.dir_util import dir_util
+from bes.system.execute import execute
+from bes.fs.file_symlink import file_symlink
+from bes.fs.file_util import file_util
+
+from bes.native_package.native_package import native_package
+from bes.unix.sudo.sudo import sudo
+from bes.unix.sudo.sudo_cli_options import sudo_cli_options
 
 from .python_error import python_error
 from .python_exe import python_exe
 from .python_installer_base import python_installer_base
+from .python_python_dot_org import python_python_dot_org
+from .python_version import python_version
 
-class python_installer_macos_brew(python_installer_base):
-  'Python installer for macos from python.org'
+class python_installer_windows_python_dot_org(python_installer_base):
+  'Python installer for windows from python.org'
   
   def __init__(self, blurber):
-    if not brew.has_brew():
-      raise python_error('Please install brew first.')
-    super(python_installer_macos_brew, self).__init__(blurber)
+    super(python_installer_windows_python_dot_org, self).__init__(blurber)
 
   #@abstractmethod
   def available_versions(self, num):
     'Return a list of python versions available to install.'
     check.check_int(num)
 
-    return self._filter_python_packages(brew.available())
+    return python_python_dot_org.available_versions(num)
     
   #@abstractmethod
   def installed_versions(self):
     'Return a list of installed python versions.'
-    return self._filter_python_packages(brew.installed())
+    assert False
     
   #@abstractmethod
   def install(self, full_version):
     'Install the major.minor.revision full version of python.'
     check.check_string(full_version)
 
-    brew.install(full_version)
+    assert False
         
   #@abstractmethod
   def uninstall(self, version_or_full_version):
     'Uninstall a python by version or full_version.'
     check.check_string(version_or_full_version)
-    
-    brew.uninstall(version_or_full_version)
+
+    assert False
 
   #@abstractmethod
   def download(self, full_version):
     'Download the major.minor.revision full version of python to a temporary file.'
-    raise python_error('download not supported.')
-    
-  #@abstractmethod
-  def _filter_python_packages(self, packages):
-    'Filter a list of brew packages so it only contains python packages.'
-    return sorted([ p for p in packages if p.startswith('python@') ])
+    url = python_python_dot_org.windows_package_url(full_version)
+    tmp_pkg = python_python_dot_org.downlod_package_to_temp_file(url)
+    return tmp_pkg

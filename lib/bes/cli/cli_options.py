@@ -3,17 +3,16 @@
 import pprint
 import os.path as path
 
-from abc import abstractmethod, ABCMeta
-
-from bes.system.compat import with_metaclass
-from bes.common.dict_util import dict_util
 from bes.common.check import check
+from bes.common.dict_util import dict_util
 from bes.config.simple_config import simple_config
+from bes.config.simple_config_editor import simple_config_editor
 from bes.system.log import logger
+from bes.system.os_env import os_env_var
 
-_HINT_CACHE = {}
+from .cli_options_base import cli_options_base
 
-class cli_options(with_metaclass(ABCMeta, object)):
+class cli_options(cli_options_base):
 
   _log = logger('cli_options')
   
@@ -35,43 +34,6 @@ class cli_options(with_metaclass(ABCMeta, object)):
     d = dict_util.hide_passwords(self.__dict__, sensitive_keys)
     return pprint.pformat(d)
     
-  @classmethod
-  @abstractmethod
-  def default_values(clazz):
-    'Return a dict of default values for these options.'
-    raise NotImplemented('default_values')
-
-  @classmethod
-  @abstractmethod
-  def sensitive_keys(clazz):
-    'Return a tuple of keys that are secrets and should be protected from __str__.'
-    raise NotImplemented('sensitive_keys')
-
-  @classmethod
-  @abstractmethod
-  def value_type_hints(clazz):
-    raise NotImplemented('morph_value_types')
-
-  @classmethod
-  @abstractmethod
-  def config_file_key(clazz):
-    raise NotImplemented('config_file_key')
-
-  @classmethod
-  @abstractmethod
-  def config_file_section(clazz):
-    raise NotImplemented('config_file_section')
-
-  @classmethod
-  @abstractmethod
-  def error_class(clazz):
-    raise NotImplemented('error_class')
-
-  @abstractmethod
-  def check_value_types(self):
-    'Check the type of each option.'
-    raise NotImplemented('check_value_types')
-  
   def _valid_keys(self):
     'Return a list of valid keys for values in these options'
     return [ key for key in self.__dict__.keys() ]
@@ -91,10 +53,9 @@ class cli_options(with_metaclass(ABCMeta, object)):
     self._log.log_d('_do_update_values: update after: {}'.format(str(self)))
 
   def _get_value_type_hint(self, key):
-    global _HINT_CACHE
-    if not self.__class__ in _HINT_CACHE:
-      _HINT_CACHE[self.__class__] = self.value_type_hints()
-    value_type_hints = _HINT_CACHE[self.__class__]
+    if not _special_attributes.has_key(self.__class__, 'value_type_hints'):
+      _special_attributes.set_value(self.__class__, 'value_type_hints', self.value_type_hints())
+    value_type_hints = _special_attributes.get_value(self.__class__, 'value_type_hints', None)
     return value_type_hints.get(key, None)
     
   def _do_set_value(self, key, value):
@@ -109,17 +70,34 @@ class cli_options(with_metaclass(ABCMeta, object)):
   def _read_config_file(clazz, cli_values):
     check.check_dict(cli_values)
 
-    config_file_key = clazz.config_file_key()
-    if not config_file_key:
-      return {}
+    clazz._log.log_d('_read_config_file: cli_values={}'.format(cli_values))
     
-    config_filename = None
-    if config_file_key in cli_values:
-      config_filename = cli_values[config_file_key]
-      del cli_values[config_file_key]
+    config_filename = None    
+    config_file_env_var_name = clazz.config_file_env_var_name()
+    clazz._log.log_d('_read_config_file: config_file_env_var_name={}'.format(config_file_env_var_name))
+    if config_file_env_var_name:
+      v = os_env_var(config_file_env_var_name)
+      if v.is_set:
+        clazz._log.log_d('_read_config_file: using env config file {}'.format(v.value))
+        config_filename = v.value
+        
+    if not config_filename:
+      config_file_key = clazz.config_file_key()
+      clazz._log.log_d('_read_config_file: config_file_key={}'.format(config_file_key))
+      if not config_file_key:
+        return {}
+    
+      if config_file_key in cli_values:
+        config_filename = cli_values[config_file_key]
+        clazz._log.log_d('_read_config_file: using config file {}'.format(config_filename))
+        del cli_values[config_file_key]
 
     if config_filename == None:
       return {}
+    clazz._log.log_d('_read_config_file: loading config file filename {}'.format(config_filename))
+    if not _special_attributes.has_key(clazz, 'config_file'):
+      ed = simple_config_editor(config_filename)
+      _special_attributes.set_value(clazz, 'config_file', ed)
     return clazz._values_from_config_file(config_filename)
 
   def _extract_valid_non_default_values(clazz, values, default_values):
@@ -161,3 +139,38 @@ class cli_options(with_metaclass(ABCMeta, object)):
   def from_config_file(clazz, config_filename):
     values = clazz._values_from_config_file(config_filename)
     return clazz(**values)
+
+  @property
+  def config_file(self):
+    return _special_attributes.get_value(self.__class__, 'config_file', None)
+
+class _special_attributes(object):
+  '''
+  Use a global dict to store special attributes to not pollute either
+  self or self.__class__ attributes of cli_options otherwise attributes
+  get confused with option ones
+  '''
+
+  _attribs = {}
+  
+  @classmethod
+  def ensure_class(clazz, the_class):
+    if not the_class in clazz._attribs:
+      clazz._attribs[the_class] = {}
+
+  @classmethod
+  def has_key(clazz, the_class, key):
+    clazz.ensure_class(the_class)
+    return key in clazz._attribs[the_class]
+
+  @classmethod
+  def set_value(clazz, the_class, key, value):
+    clazz.ensure_class(the_class)
+    clazz._attribs[the_class][key] = value
+
+  @classmethod
+  def get_value(clazz, the_class, key, default_value):
+    clazz.ensure_class(the_class)
+    if not clazz.has_key(the_class, key):
+      return None
+    return clazz._attribs[the_class].get(key, default_value)

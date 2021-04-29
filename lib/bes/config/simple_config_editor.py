@@ -99,4 +99,8 @@ class simple_config_editor(object):
     else:
       return simple_config(source = '<simple_config_editor>')
 
+  @property
+  def filename(self):
+    return self._filename
+    
 check.register_class(simple_config_editor, include_seq = False)

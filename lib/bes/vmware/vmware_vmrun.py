@@ -23,11 +23,9 @@ class vmware_vmrun(object):
 
   _log = logger('vmware_vmrun')
   
-  def __init__(self, login_credentials = None):
-    check.check_credentials(login_credentials, allow_none = True)
-
-    self._login_credentials = login_credentials
-    self._auth_args = self._make_vmrun_auth_args(self._login_credentials)
+  def __init__(self, options):
+    check.check_vmware_options(options)
+    self._options = options
 
   @classmethod
   def _make_vmrun_auth_args(clazz, cred):
@@ -38,8 +36,8 @@ class vmware_vmrun(object):
     return args
     
   _run_result = namedtuple('_run_result', 'output, exit_code, args')
-  def run(self, args, extra_env = None, no_output = False,
-          raise_error = False, error_message = None):
+  def run(self, args, login_credentials = None, extra_env = None,
+          no_output = False, raise_error = False, error_message = None):
     check.check_string_seq(args)
     check.check_dict(extra_env, allow_none = True)
     check.check_bool(raise_error)
@@ -47,7 +45,8 @@ class vmware_vmrun(object):
 
     self._log.log_method_d()
     exe = vmware_app.vmrun_exe_path()
-    vmrun_args = [ exe ] + self._auth_args + list(args)
+    auth_args = self._make_vmrun_auth_args(login_credentials)
+    vmrun_args = [ exe ] + auth_args + list(args)
     self._log.log_d('run: vmrun_args={}'.format(vmrun_args))
     env = os_env.clone_current_env(d = extra_env)
     process = subprocess.Popen(vmrun_args,
@@ -65,7 +64,7 @@ class vmware_vmrun(object):
     if exit_code != 0 and raise_error:
       if not error_message:
         args_flat = ' '.join(vmrun_args)
-        error_message or 'vmrun command failed: {}\n{}'.format(args_flat, output)
+        error_message = 'vmrun command failed: {}\n{}'.format(args_flat, output)
       raise vmware_error(error_message, status_code = exit_code)
     result = self._run_result(output, exit_code, vmrun_args)
     self._log.log_d('run: result: {} - {}'.format(result.exit_code, result.output))
@@ -92,14 +91,19 @@ class vmware_vmrun(object):
         args.append('hard')
       else:
         args.append('soft')
+      if gui:
+        args.append('gui')
+      else:
+        args.append('nogui')
     elif state in ( 'pause', 'unpause' ):
       pass
     return self.run(args, raise_error = False, no_output = True)
 
-  def vm_file_copy_to(self, vmx_filename, local_filename, remote_filename):
+  def vm_file_copy_to(self, vmx_filename, local_filename, remote_filename, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(local_filename)
     check.check_string(remote_filename)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     self._log.log_method_d()
@@ -109,12 +113,15 @@ class vmware_vmrun(object):
       local_filename,
       remote_filename,
     ]
-    return self.run(args, raise_error = True)
+    self.run(args,
+             login_credentials = login_credentials,
+             raise_error = True)
 
-  def vm_file_copy_from(self, vmx_filename, remote_filename, local_filename):
+  def vm_file_copy_from(self, vmx_filename, remote_filename, local_filename, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(remote_filename)
     check.check_string(local_filename)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -123,11 +130,14 @@ class vmware_vmrun(object):
       remote_filename,
       local_filename,
     ]
-    return self.run(args, raise_error = True)
+    self.run(args,
+             login_credentials = login_credentials,
+             raise_error = True)
 
-  def vm_file_exists(self, vmx_filename, remote_filename):
+  def vm_file_exists(self, vmx_filename, remote_filename, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(remote_filename)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -135,12 +145,15 @@ class vmware_vmrun(object):
       vmx_filename,
       remote_filename,
     ]
-    rv = self.run(args, raise_error = False)
+    rv = self.run(args,
+                  login_credentials = login_credentials,
+                  raise_error = False)
     return rv.exit_code == 0
   
-  def vm_dir_exists(self, vmx_filename, remote_directory):
+  def vm_dir_exists(self, vmx_filename, remote_directory, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(remote_directory)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -148,12 +161,15 @@ class vmware_vmrun(object):
       vmx_filename,
       remote_directory,
     ]
-    rv = self.run(args, raise_error = False)
+    rv = self.run(args,
+                  login_credentials = login_credentials,
+                  raise_error = False)
     return rv.exit_code == 0
   
-  def vm_dir_create(self, vmx_filename, remote_directory):
+  def vm_dir_create(self, vmx_filename, remote_directory, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(remote_directory)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -163,11 +179,13 @@ class vmware_vmrun(object):
     ]
     self.run(args,
              raise_error = True,
+             login_credentials = login_credentials,
              error_message = 'Failed to create dir: {}'.format(remote_directory))
 
-  def vm_dir_delete(self, vmx_filename, remote_directory):
+  def vm_dir_delete(self, vmx_filename, remote_directory, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(remote_directory)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -177,8 +195,27 @@ class vmware_vmrun(object):
     ]
     self.run(args,
              raise_error = True,
+             login_credentials = login_credentials,
              error_message = 'Failed to delete dir: {}'.format(remote_directory))
-  
+
+  def vm_dir_list(self, vmx_filename, remote_directory, login_credentials):
+    check.check_string(vmx_filename)
+    check.check_string(remote_directory)
+    check.check_credentials(login_credentials)
+
+    vmware_vmx_file.check_vmx_file(vmx_filename)
+    args = [
+      'listDirectoryInGuest',
+      vmx_filename,
+      remote_directory,
+    ]
+    rv = self.run(args,
+                  raise_error = True,
+                  login_credentials = login_credentials,
+                  error_message = 'Failed to list dir: {}'.format(remote_directory))
+    lines = self._parse_lines(rv.output)
+    return sorted(lines[1:])
+    
   def vm_clone(self, src_vmx_filename, dst_vmx_filename, full = False, snapshot_name = None, clone_name = None):
     check.check_string(src_vmx_filename)
     check.check_string(dst_vmx_filename)
@@ -213,24 +250,18 @@ class vmware_vmrun(object):
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [ 'deleteVM', vmx_filename ]
-    self.run(args,
-             raise_error = True,
-             error_message = 'Failed to delete vm: {}'.format(vmx_filename))
+    rv = self.run(args, raise_error = False)
+    if rv.exit_code != 0:
+      error_message = 'Failed to delete vm: {} - {}'.format(vmx_filename, rv.output)
+      raise vmware_error(error_message, status_code = rv.exit_code)
 
-  def vm_delete(self, vmx_filename):
-    check.check_string(vmx_filename)
-
-    vmware_vmx_file.check_vmx_file(vmx_filename)
-    args = [ 'deleteVM', vmx_filename ]
-    return self.run(args,
-                    raise_error = True,
-                    error_message = 'Failed to delete vm: {}'.format(vmx_filename))
-
-  def vm_run_program(self, vmx_filename, program, program_args, run_program_options):
+  def vm_run_program(self, vmx_filename, program, program_args,
+                     run_program_options, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(program)
     check.check_string_seq(program_args)
     check.check_vmware_run_program_options(run_program_options)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -239,13 +270,15 @@ class vmware_vmrun(object):
     ] + run_program_options.to_vmrun_command_line_args() + [
       program,
     ] + list(program_args)
-    return self.run(args, raise_error = False)
+    return self.run(args, login_credentials = login_credentials, raise_error = False)
   
-  def vm_run_script(self, vmx_filename, interpreter_path, script_text, run_program_options):
+  def vm_run_script(self, vmx_filename, interpreter_path, script_text,
+                    run_program_options, login_credentials):
     check.check_string(vmx_filename)
     check.check_string(interpreter_path)
     check.check_string(script_text)
     check.check_vmware_run_program_options(run_program_options)
+    check.check_credentials(login_credentials)
 
     vmware_vmx_file.check_vmx_file(vmx_filename)
     args = [
@@ -255,18 +288,21 @@ class vmware_vmrun(object):
       interpreter_path,
       script_text,
     ]
-    return self.run(args, raise_error = False)
+    return self.run(args, login_credentials = login_credentials, raise_error = False)
   
   def running_vms(self):
     self._log.log_method_d()
     args = [ 'list' ]
     rv = self.run(args, raise_error = True)
-    lines = text_line_parser.parse_lines(rv.output,
-                                         strip_comments = False,
-                                         strip_text = True,
-                                         remove_empties = True)
+    lines = self._parse_lines(rv.output)
     return lines[1:]
 
+  def _parse_lines(self, text):
+    return text_line_parser.parse_lines(text,
+                                        strip_comments = False,
+                                        strip_text = True,
+                                        remove_empties = True)
+  
   def vm_is_running(self, vmx_filename):
     vmware_vmx_file.check_vmx_file(vmx_filename)
 
@@ -341,3 +377,5 @@ class vmware_vmrun(object):
                                          strip_text = True,
                                          remove_empties = True)
     return lines[1:]
+  
+check.register_class(vmware_vmrun)

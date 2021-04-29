@@ -18,3 +18,4 @@ class vmware_vm(namedtuple('vmware_vm', 'name, vm_id, vmx_filename')):
                                       name,
                                       vm_id,
                                       vmx_filename)
+check.register_class(vmware_vm)
