@@ -4,6 +4,7 @@
 from os import path
 
 from bes.python.python_exe_filename import python_exe_filename
+from bes.system.host import host
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_skip import skip_if
 
