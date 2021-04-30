@@ -126,7 +126,7 @@ class python_testing(object):
 
   @classmethod
   def _make_fake_python_installation_macos_brew(clazz, root_dir, py_version, pip_version):
-    python_major_version = python_version.major_version(py_version)
+    python_major_version = python_version(py_version).major
     bin_dir = path.join(root_dir, 'bin')
     fake_python = path.join(bin_dir, 'python')
     fake_python_with_version = path.join(bin_dir, 'python{}'.format(py_version))
@@ -145,7 +145,7 @@ class python_testing(object):
     
   @classmethod
   def _make_fake_python_installation_macos_xcode(clazz, root_dir, py_version, pip_version):
-    python_major_version = python_version.major_version(py_version)
+    python_major_version = python_version(py_version).major
     bin_dir = path.join(root_dir, 'bin')
     fake_python_major_version = path.join(bin_dir, 'python{}'.format(python_major_version))
     fake_pip_major_version = path.join(bin_dir, 'pip{}'.format(python_major_version))
@@ -155,7 +155,7 @@ class python_testing(object):
   @classmethod
   def _make_fake_python_installation_macos_system(clazz, root_dir, py_version, pip_version):
     assert py_version == '2.7'
-    python_major_version = python_version.major_version(py_version)
+    python_major_version = python_version(py_version).major
     bin_dir = path.join(root_dir, 'bin')
     fake_python = path.join(bin_dir, 'python')
     fake_python_with_major_version = path.join(bin_dir, 'python2')
@@ -170,7 +170,7 @@ class python_testing(object):
 
   @classmethod
   def _make_fake_python_installation_windows(clazz, root_dir, py_version, pip_version, source):
-    python_major_version = python_version.major_version(py_version)
+    python_major_version = python_version(py_version).major
     fake_python = path.join(root_dir, 'python.bat')
     fake_python_with_version = path.join(root_dir, 'python{}.bat'.format(py_version))
     fake_python_major_version = path.join(root_dir, 'python{}.bat'.format(python_major_version))

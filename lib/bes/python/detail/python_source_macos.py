@@ -1,8 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from bes.common.check import check
+from bes.compat import url_compat
+from bes.fs.file_path import file_path
 from bes.fs.file_symlink import file_symlink
 from bes.fs.file_util import file_util
-from bes.fs.file_path import file_path
 from bes.python.python_script import python_script
 
 from .python_source_unix import python_source_unix
@@ -58,3 +60,13 @@ class python_source_macos(python_source_unix):
       if 'cellar' in actual_prefix.lower():
         return True
     return False
+
+  @classmethod
+  #@abstractmethod
+  def possible_python_dot_org_installer_filenames(self, full_version):
+    'Return a list of possible python.org installer filenames for full version.'
+    check.check_python_version(full_version)
+
+    template = '{full_version}/python-{full_version}-macosx10.9.pkg'
+    return [ template.format(full_version = full_version) ]
+  

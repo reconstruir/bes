@@ -52,7 +52,7 @@ class pip_project_v2(object):
 
   @cached_property
   def user_base_dir(self):
-    return path.join(self.project_dir, self._installation.python_version)
+    return path.join(self.project_dir, str(self._installation.python_version))
   
   @cached_property
   def user_base_install_dir(self):

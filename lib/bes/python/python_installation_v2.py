@@ -114,7 +114,7 @@ class python_installation_v2(object):
     clazz._log.log_d('_determine_stuff_windows: root_dir={}'.format(root_dir))
     clazz._log.log_d('_determine_stuff_windows: py_version={}'.format(py_version))
 
-    py_major_version = python_version.major_version(py_version)
+    py_major_version = python_version(py_version).major_str
 
     possible_pythons = []
     for ext in clazz._WINDOWS_PYTHON_EXTENSIONS:
@@ -151,7 +151,7 @@ class python_installation_v2(object):
     clazz._log.log_d('_determine_stuff_unix: bin_dir={}'.format(bin_dir))
     clazz._log.log_d('_determine_stuff_unix: py_version={}'.format(py_version))
 
-    py_major_version = python_version.major_version(py_version)
+    py_major_version = python_version(py_version).major_version_str
 
     possible_pythons = [
       path.join(bin_dir, 'python{}'.format(py_version)),
@@ -190,6 +190,5 @@ class python_installation_v2(object):
 
   @cached_property
   def windows_versioned_install_dirname(self):
-    parsed_version = python_version.parse(self.python_version)
-    return 'Python{}{}'.format(parsed_version.major,
-                               parsed_version.minor)
+    version = python_version(self.python_version)
+    return 'Python{}{}'.format(version.major, version.minor)

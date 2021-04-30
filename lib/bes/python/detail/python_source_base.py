@@ -38,3 +38,9 @@ class python_source_base(with_metaclass(ABCMeta, object)):
   def exe_name(self, exe):
     'Return the name of a python exe.  without possible extensions or absolute paths.'
     raise NotImplemented('exe_name')
+
+  @classmethod
+  @abstractmethod
+  def possible_python_dot_org_installer_filenames(self, full_version):
+    'Return a list of possible python.org installer filenames for full version.'
+    raise NotImplemented('possible_python_dot_org_installer_filenames')

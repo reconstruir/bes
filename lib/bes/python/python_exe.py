@@ -17,7 +17,6 @@ from bes.system.execute import execute
 from bes.system.log import logger
 from bes.system.os_env import os_env_var
 from bes.system.which import which
-from bes.version.software_version import software_version
 
 from .python_error import python_error
 from .python_version import python_version
@@ -39,58 +38,54 @@ class python_exe(object):
       raise python_error('not a valid python version for {}: "{}"'.format(exe, rv.stdout))
     if parts[0] != 'Python':
       raise python_error('not a valid python name for {}: "{}"'.format(exe, rv.stdout))
-    return parts[1]
+    return python_version(parts[1])
 
   @classmethod
   def version(clazz, exe):
     'Return the major.minor version of a python executable'
-    full_version = clazz.full_version(exe)
-    sv = software_version.parse_version(full_version)
-    return '{}.{}'.format(sv.parts[0], sv.parts[1])
+    return clazz.full_version(exe).version
 
   @classmethod
   def major_version(clazz, exe):
     'Return the major version of a python executable'
-    full_version = clazz.full_version(exe)
-    sv = software_version.parse_version(full_version)
-    return sv.parts[0]
+    return clazz.full_version(exe).major_version
   
   @classmethod
-  def find_version(clazz, version, exclude_sources = None):
+  def find_version(clazz, version, exclude_sources = None, sanitize_path = True):
     'Return the python executable for major.minor version or None if not found'
     check.check_string(version)
     check.check_seq(exclude_sources, check.STRING_TYPES, allow_none = True)
     
-    exclude_sources = set(exclude_sources or [])
-    all_info = python_exe.find_all_exes_info()
+    all_info = clazz.find_all_exes_info(exclude_sources = exclude_sources,
+                                        sanitize_path = sanitize_path)
     for next_exe, info in all_info.items():
-      next_version = clazz.version(next_exe)
-      if exclude_sources and info.source in exclude_sources:
-        continue
-      if next_version == version:
+      print('checking: {} {} vs {}'.format(next_exe, info.version, version))
+      if info.version == version:
         return next_exe
     return None
 
   @classmethod
-  def find_full_version(clazz, full_version):
-    'Return the python executable for major.minor.revision full_version or None if not found'
-    version = python_version.version(full_version)
-    exe = clazz.find_version(version)
-    if not exe:
-      return None
-    if clazz.full_version(exe) != full_version:
-      return None
-    return exe
+  def find_full_version(clazz, full_version, exclude_sources = None, sanitize_path = True):
+    'Return the python executable for major.minor version or None if not found'
+    check.check_string(full_version)
+    check.check_seq(exclude_sources, check.STRING_TYPES, allow_none = True)
+    
+    all_info = clazz.find_all_exes_info(exclude_sources = exclude_sources,
+                                             sanitize_path = sanitize_path)
+    for next_exe, info in all_info.items():
+      if str(clazz.full_version(next_exe)) == full_version:
+        return next_exe
+    return None
   
   @classmethod
-  def has_version(clazz, version):
+  def has_version(clazz, version, sanitize_path = True):
     'Return True if python version major.minor is found'
-    return clazz.find_version(version) != None
+    return clazz.find_version(version, sanitize_path = sanitize_path) != None
 
   @classmethod
-  def has_full_version(clazz, full_version):
+  def has_full_version(clazz, full_version, sanitize_path = True):
     'Return True if python version major.minor.revision is found'
-    return clazz.find_full_version(full_version) != None
+    return clazz.find_full_version(full_version, sanitize_path = sanitize_path) != None
 
   @classmethod
   def check_exe(clazz, python_exe, check_abs = True):
@@ -142,9 +137,9 @@ class python_exe(object):
     return main_exe, links
   
   @classmethod
-  def find_all_exes(clazz):
+  def find_all_exes(clazz, sanitize_path = True):
     'Return all the executables in PATH that match any patterns'
-    all_exes = clazz._find_all_exes()
+    all_exes = clazz._find_all_exes(sanitize_path = sanitize_path)
     inode_map = clazz._inode_map(all_exes)
     result = []
     for inode, exes in inode_map.items():
@@ -153,12 +148,17 @@ class python_exe(object):
     return result
   
   @classmethod
-  def find_all_exes_info(clazz):
+  def find_all_exes_info(clazz, exclude_sources = None, sanitize_path = True):
     'Return info about all the executables in PATH that match any patterns'
-    all_exes = clazz.find_all_exes()
+    check.check_seq(exclude_sources, check.STRING_TYPES, allow_none = True)
+
+    exclude_sources = set(exclude_sources or [])
+    all_exes = clazz.find_all_exes(sanitize_path = sanitize_path)
     result = {}
     for next_exe in all_exes:
-      result[next_exe] = clazz.info(next_exe)
+      info = clazz.info(next_exe)
+      if info.source not in exclude_sources:
+        result[next_exe] = info
     return result
 
   # Order in which versions are checked to return the default exe
@@ -173,7 +173,7 @@ class python_exe(object):
   def default_exe(clazz):
     'Return the default python executable'
 
-    all_info = python_exe.find_all_exes_info()
+    all_info = clazz.find_all_exes_info()
     if not all_info:
       return None
     by_version = {}
@@ -186,12 +186,15 @@ class python_exe(object):
     return by_version.items()[0].exe
   
   @classmethod
-  def _find_all_exes(clazz):
+  def _find_all_exes(clazz, sanitize_path = True):
     'Return all the executables in PATH and other platform specific places'
     exe_patterns = python_source.possible_python_exe_patterns()
     extra_path = python_source.possible_python_bin_dirs()
     env_path = os_env_var('PATH').path + extra_path
-    sanitized_env_path = clazz._sanitize_env_path(env_path)
+    if sanitize_path:
+      sanitized_env_path = clazz._sanitize_env_path(env_path)
+    else:
+      sanitized_env_path = env_path
     result = file_path.glob(sanitized_env_path, exe_patterns)
     clazz._log.log_d('      exe_patterns={}'.format(exe_patterns))
     clazz._log.log_d('          env_path={}'.format(env_path))

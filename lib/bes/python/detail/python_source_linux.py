@@ -22,3 +22,9 @@ class python_source_linux(python_source_unix):
       '/usr/local/bin',
       '/opt/local/bin',
     ]
+  
+  @classmethod
+  #@abstractmethod
+  def possible_python_dot_org_installer_filenames(self):
+    'Return a list of possible python.org installer filenames.'
+    raise NotImplemented('possible_python_dot_org_installer_filenames')

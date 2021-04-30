@@ -2,6 +2,7 @@
 
 import os.path as path
 
+from bes.common.check import check
 from bes.fs.filename_util import filename_util
 from bes.python.python_error import python_error
 from bes.system.user import user
@@ -68,3 +69,15 @@ class python_source_windows(python_source_base):
     if not filename_util.has_any_extension(exe, ( 'exe', 'bat', 'cmd' )):
       raise python_error('windows executable filename not valid.  should have exe, cmd or bat extension: "{}"'.format(exe))
     return filename_util.without_extension(basename)
+
+  @classmethod
+  #@abstractmethod
+  def possible_python_dot_org_installer_filenames(self, full_version):
+    'Return a list of possible python.org installer filenames for full version.'
+    check.check_python_version(full_version)
+
+    template = '{full_version}/python-{full_version}{delimiter}amd64.{extension}'
+    return [ 
+      template.format(full_version = full_version, extension = 'msi', delimiter = '.'),
+      template.format(full_version = full_version, extension = 'exe', delimiter = '-'),
+    ]

@@ -139,10 +139,7 @@ class pip_installer_v2(object):
     version = python_exe.version(py_exe)
     if version == '2.7':
       return clazz._GET_PIP_27_URL
-    major, minor = version.split('.')
-    major = int(major)
-    minor = int(minor)
-    if major == 3:
-      if minor >= 6:
+    if version.major == 3:
+      if version.minor >= 6:
         return clazz._GET_PIP_36_URL
     raise pip_error('Unsupported python version "{}" for {}'.format(version, py_exe))
