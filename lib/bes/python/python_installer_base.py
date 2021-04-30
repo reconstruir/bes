@@ -7,12 +7,14 @@ from bes.common.check import check
 from bes.system.compat import with_metaclass
 from bes.script.blurber import blurber
 
+from .python_installer_options import python_installer_options
+
 class python_installer_base(with_metaclass(ABCMeta, object)):
 
-  def __init__(self, blurber):
-    check.check_blurber(blurber)
-    
-    self.blurber = blurber
+  def __init__(self, options):
+    check.check_python_installer_options(options)
+
+    self.options = options
   
   @abstractmethod
   def available_versions(self, num):
@@ -46,9 +48,9 @@ class python_installer_base(with_metaclass(ABCMeta, object)):
   
   def blurb(self, message, output = None, fit = False):
     'Print a blurb'
-    self.blurber.blurb(message, output = output, fit = fit)
+    self.options.blurber.blurb(message, output = output, fit = fit)
 
   def blurb_verbose(self, message, output = None, fit = False):
     'Print a blurb but only in verbose mode'
-    self.blurber.blurb_verbose(message, output = output, fit = fit)
+    self.options.blurber.blurb_verbose(message, output = output, fit = fit)
     

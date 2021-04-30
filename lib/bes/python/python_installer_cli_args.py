@@ -58,6 +58,8 @@ class python_installer_cli_args(object):
     p.add_argument('--system', action = 'store', default = None, type = str,
                    choices = ( 'linux', 'macos', 'windows' ),
                    help = 'The target system [ False ]')
+    p.add_argument('--dry-run', action = 'store_true', default = False,
+                   help = 'Do not do any work just print what would happen [ False ]')
     
   def _command_python_installer(self, command, *args, **kargs):
     from .python_installer_cli_handler import python_installer_cli_handler
