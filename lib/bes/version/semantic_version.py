@@ -22,11 +22,35 @@ class semantic_version(object):
   def __str__(self):
     return self._version_string
 
+  def __repr__(self):
+    return self._version_string
+  
   def __getitem__(self, i):
     return self.parts[i]
 
   def __setitem__(self, i, value):
     raise AttributeError('values are read-only')
+
+  def __len__(self):
+    return len(self.parts)
+
+  def __eq__(self, other):
+    return self._tokens == other._tokens
+
+  def __ne__(self, other):
+    return self._tokens != other._tokens
+
+  def __lt__(self, other):
+    return self._tokens < other._tokens
+
+  def __le__(self, other):
+    return self._tokens <= other._tokens
+
+  def __gt__(self, other):
+    return self._tokens > other._tokens
+
+  def __ge__(self, other):
+    return self._tokens >= other._tokens
   
   @cached_property
   def _tokens(self):

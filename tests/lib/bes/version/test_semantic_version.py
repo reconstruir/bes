@@ -78,6 +78,36 @@ class test_semantic_version(unit_test):
     self.assertEqual( 1, semantic_version('rel/v2/1.2.3')[0] )
     self.assertEqual( 2, semantic_version('rel/v2/1.2.3')[1] )
     self.assertEqual( 3, semantic_version('rel/v2/1.2.3')[2] )
+
+  def test___eq__(self):
+    self.assertTrue( semantic_version('rel/v2/1.2.1') == semantic_version('rel/v2/1.2.1') )
+    self.assertFalse( semantic_version('sel/v2/1.2.1') == semantic_version('rel/v2/1.2.1') )
+    self.assertFalse( semantic_version('rels/v2/1.2.1') == semantic_version('rel/v2/1.2.1') )
+
+  def test___ne__(self):
+    self.assertFalse( semantic_version('rel/v2/1.2.1') != semantic_version('rel/v2/1.2.1') )
+    self.assertTrue( semantic_version('sel/v2/1.2.1') != semantic_version('rel/v2/1.2.1') )
+    self.assertTrue( semantic_version('rels/v2/1.2.1') != semantic_version('rel/v2/1.2.1') )
+    
+  def test___lt__(self):
+    self.assertTrue( semantic_version('rel/v2/1.2.1') < semantic_version('rel/v2/1.2.10') )
+    self.assertFalse( semantic_version('rel/v2/1.2.1') < semantic_version('rel/v2/1.2.1') )
+    self.assertFalse( semantic_version('rel/v2/1.2.10') < semantic_version('rel/v2/1.2.1') )
+
+  def test___le__(self):
+    self.assertTrue( semantic_version('rel/v2/1.2.1') <= semantic_version('rel/v2/1.2.10') )
+    self.assertTrue( semantic_version('rel/v2/1.2.1') <= semantic_version('rel/v2/1.2.1') )
+    self.assertFalse( semantic_version('rel/v2/1.2.10') <= semantic_version('rel/v2/1.2.1') )
+
+  def test___gt__(self):
+    self.assertFalse( semantic_version('rel/v2/1.2.1') > semantic_version('rel/v2/1.2.10') )
+    self.assertFalse( semantic_version('rel/v2/1.2.1') > semantic_version('rel/v2/1.2.1') )
+    self.assertTrue( semantic_version('rel/v2/1.2.10') > semantic_version('rel/v2/1.2.1') )
+
+  def test___ge__(self):
+    self.assertFalse( semantic_version('rel/v2/1.2.1') >= semantic_version('rel/v2/1.2.10') )
+    self.assertTrue( semantic_version('rel/v2/1.2.1') >= semantic_version('rel/v2/1.2.1') )
+    self.assertTrue( semantic_version('rel/v2/1.2.10') >= semantic_version('rel/v2/1.2.1') )
     
 if __name__ == '__main__':
   unit_test.main()
