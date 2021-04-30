@@ -83,6 +83,10 @@ class python_installer_windows_python_dot_org(python_installer_base):
     if full_version in installed_versions:
       self.blurb('already installed: {}'.format(full_version))
       return False
+
+    version = python_version.version(full_version)
+    matching_versions = python_version.filter_by_version(available_versions, any_version)
+    self._log.log_d('install: version={} matching_versions={}'.format(version, matching_versions))
     
     tmp_package = self.download(full_version, debug = True)
     self._log.log_d('install: tmp_package={}'.format(tmp_package))
