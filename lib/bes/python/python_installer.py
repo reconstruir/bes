@@ -2,6 +2,7 @@
 
 from bes.common.check import check
 from bes.system.host import host
+from bes.system.log import logger
 
 from .python_error import python_error
 from .python_installer_base import python_installer_base
@@ -9,8 +10,11 @@ from .python_installer_macos_brew import python_installer_macos_brew
 from .python_installer_macos_python_dot_org import python_installer_macos_python_dot_org
 from .python_installer_windows_python_dot_org import python_installer_windows_python_dot_org
 
+
 class python_installer(python_installer_base):
 
+  _log = logger('python_installer')
+  
   _INSTALLER_CLASSES = {
     host.MACOS: {
       'python.org': python_installer_macos_python_dot_org,
@@ -35,22 +39,27 @@ class python_installer(python_installer_base):
     host.check_system(options.system)
 
     super(python_installer, self).__init__(options)
-    
+
+    self._log.log_d('options={}'.format(options))
     if not options.installer_name:
       default_installer_class_name = self._DEFAULT_INSTALLER_CLASS.get(options.system, None)
       if not default_installer_class_name:
         raise python_error('No default python installer found for this system: {}'.format(options.system))
       options.installer_name = default_installer_class_name
     
+    self._log.log_d('installer_name={}'.format(options.installer_name))
     system_installer_classes = self._INSTALLER_CLASSES.get(options.system, None)
+    self._log.log_d('system_installer_classes={}'.format(system_installer_classes))
     if not system_installer_classes:
       raise python_error('No python installer named "{}" found for system: {}'.format(options.installer_name,
                                                                                       options.system))
     installer_class = system_installer_classes.get(options.installer_name, None)
+    self._log.log_d('installer_class={}'.format(installer_class))
     if not installer_class:
       raise python_error('No python installer named "{}" found for system: {}'.format(options.installer_name,
                                                                                       options.system))
     self.installer = installer_class(options)
+    self._log.log_d('installer={}'.format(self.installer))
 
   @classmethod
   def available_installers(self, system):

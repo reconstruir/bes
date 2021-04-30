@@ -9,12 +9,12 @@ from bes.url.url_util import url_util
 from bes.system.execute import execute
 from bes.system.log import logger
 
-from .python_exe import python_exe
 from .python_error import python_error
+from .python_exe import python_exe
 from .python_installer_base import python_installer_base
+from .python_installer_options import python_installer_options
 from .python_python_dot_org import python_python_dot_org
 from .python_version import python_version
-from .python_installer_options import python_installer_options
 
 class python_installer_windows_python_dot_org(python_installer_base):
   'Python installer for windows from python.org'

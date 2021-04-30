@@ -7,6 +7,7 @@ from bes.unix.brew.brew import brew
 from .python_error import python_error
 from .python_exe import python_exe
 from .python_installer_base import python_installer_base
+from .python_python_dot_org import python_python_dot_org
 
 class python_installer_macos_brew(python_installer_base):
   'Python installer for macos from python.org'
@@ -21,7 +22,7 @@ class python_installer_macos_brew(python_installer_base):
     'Return a list of python versions available to install.'
     check.check_int(num)
 
-    return self._filter_python_packages(brew.available())
+    return python_python_dot_org.available_versions('macos', num)
     
   #@abstractmethod
   def installed_versions(self):
