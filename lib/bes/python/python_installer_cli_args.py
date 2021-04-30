@@ -16,6 +16,11 @@ class python_installer_cli_args(object):
     self.__python_installer_add_common_args(p)
     p.add_argument('full_version', action = 'store', help = 'The full version of python to install')
 
+    # install_package
+    p = subparser.add_parser('install_package', help = 'Install a python package file directly.')
+    self.__python_installer_add_common_args(p)
+    p.add_argument('package_filename', action = 'store', help = 'The package filename')
+    
     # uninstall
     p = subparser.add_parser('uninstall', help = 'Uninstall python.')
     self.__python_installer_add_common_args(p)

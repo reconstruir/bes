@@ -34,7 +34,12 @@ class python_installer_macos_brew(python_installer_base):
     check.check_string(full_version)
 
     brew.install(full_version)
-        
+
+  #@abstractmethod
+  def install_package(self, package_filename):
+    'Install a python package directly.  Not always supported.'
+    raise python_error('direct package installation not supported.')
+    
   #@abstractmethod
   def uninstall(self, version_or_full_version):
     'Uninstall a python by version or full_version.'

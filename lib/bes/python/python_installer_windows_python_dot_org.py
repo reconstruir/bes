@@ -40,7 +40,11 @@ class python_installer_windows_python_dot_org(python_installer_base):
     
   #@abstractmethod
   def install(self, full_version):
-    'Install the major.minor.revision full version of python.'
+    '''
+    Install the major.minor.revision full version of python.
+    The python.org windows installer exe is documented here:
+    https://docs.python.org/3/using/windows.html
+    '''
     check.check_string(full_version)
 
     version = python_version.version(full_version)
@@ -58,32 +62,41 @@ class python_installer_windows_python_dot_org(python_installer_base):
     tmp_package = self.download(full_version, debug = True)
     print('pack: {}'.format(tmp_package))
 
-    username = 'admin'
-    password = 'caca'
-
-    installer_cmd = '{} /quiet InstallAllUsers=1 PrependPath=1'.format(tmp_package)
     cmd = [
-      'runas',
-      '/noprofile',
-      '/user:{}'.format(username),
-      installer_cmd,
+      tmp_package,
+      '/quiet',
+      'InstallAllUsers=1',
+      'PrependPath=0',
+      'Shortcuts=0',
+      'AssociateFiles=0',
+      'Include_doc=0',
+      'Include_launcher=0',
+      'InstallLauncherAllUsers=0',
     ]
-    print('cmd={}'.format(' '.join(cmd)))
-    process = subprocess.Popen(cmd,
-                               stdin = subprocess.PIPE,
-                               stdout = subprocess.PIPE,
-                               stderr = subprocess.STDOUT,
-                               shell = True)
-    import time
-    time.sleep(5.0)
-    process.stdin.write(codecs.encode(password, 'ascii'))
-    process.stdin.write(b'\r')
-    process.stdin.write(b'\n')
-    output = process.communicate()
-    exit_code = process.wait()
-    print('output={}'.format(output))
-    print('exit_code={}'.format(exit_code))
+    rv = execute.execute(cmd)
+    print('rv={}'.format(rv))
 
+  #@abstractmethod
+  def install_package(self, package_filename):
+    'Install a python package directly.  Not always supported.'
+    check.check_string(package_filename)
+
+    print('package: {}'.format(package_filename))
+
+    cmd = [
+      package_filename,
+      '/quiet',
+      'InstallAllUsers=1',
+      'PrependPath=0',
+      'Shortcuts=0',
+      'AssociateFiles=0',
+      'Include_doc=0',
+      'Include_launcher=0',
+      'InstallLauncherAllUsers=0',
+    ]
+    rv = execute.execute(cmd)
+    print('rv={}'.format(rv))
+    
   #@abstractmethod
   def _is_installed_full_version(self, full_version):
     check.check_string(full_version)
@@ -113,22 +126,21 @@ class python_installer_windows_python_dot_org(python_installer_base):
     'Uninstall a python by version or full_version.'
     check.check_string(version_or_full_version)
 
+    installed = self.installed_versions()
     full_version = None
     if python_version.is_full_version(version_or_full_version):
-      full_version = self._is_installed_full_version(version_or_full_version)
+      if version_or_full_version not in installed:
+        raise python_error('Not installed: {}'.format(version_or_full_version))
+      full_version = version_or_full_version
     elif python_version.is_version(version_or_full_version):
-      full_version = self._is_installed_version(version_or_full_version)
-    else:
+      assert False, 'fixme'
+    else: 
       raise python_error('Invalid version: "{}"'.format(version_or_full_version))
-      
-    if not full_version:
-      raise python_error('Not installed: "{}"'.format(version_or_full_version))
 
-    assert False
-    version = python_version.version(full_version)
-    parsed = python_version.parse(full_version)
-    where = r'C:\Program Files\Python{}{}'.format(parsed.major, parsed.minor)
-    file_util.remove(where)
+    assert full_version
+
+    old_package = self.download(full_version)
+    print('old_package={}'.format(old_package))
 
   #@abstractmethod
   def download(self, full_version, debug = False):

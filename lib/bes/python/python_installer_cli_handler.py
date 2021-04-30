@@ -44,6 +44,12 @@ class python_installer_cli_handler(cli_command_handler):
 
     self.installer.install(full_version)
     return 0
+
+  def install_package(self, package_filename):
+    check.check_string(package_filename)
+
+    self.installer.install_package(package_filename)
+    return 0
   
   def uninstall(self, full_version):
     check.check_string(full_version)

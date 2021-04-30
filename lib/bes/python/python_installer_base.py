@@ -30,6 +30,11 @@ class python_installer_base(with_metaclass(ABCMeta, object)):
     raise NotImplemented('install_full_version')
 
   @abstractmethod
+  def install_package(self, package_filename):
+    'Install a python package directly.  Not always supported.'
+    raise NotImplemented('install_package')
+  
+  @abstractmethod
   def uninstall(self, full_version):
     'Uninstall the major.minor.revision full version of python.'
     raise NotImplemented('uninstall_full_version')

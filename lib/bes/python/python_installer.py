@@ -73,7 +73,12 @@ class python_installer(python_installer_base):
   def install(self, full_version):
     'Install the major.minor.revision full version of python.'
     return self.installer.install(full_version)
-        
+
+  #@abstractmethod
+  def install_package(self, package_filename):
+    'Install a python package directly.  Not always supported.'
+    self.installer.install_package(package_filename)
+  
   #@abstractmethod
   def uninstall(self, version_or_full_version):
     'Uninstall a python by version or full_version.'
