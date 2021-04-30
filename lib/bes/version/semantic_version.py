@@ -21,7 +21,13 @@ class semantic_version(object):
 
   def __str__(self):
     return self._version_string
-    
+
+  def __getitem__(self, i):
+    return self.parts[i]
+
+  def __setitem__(self, i, value):
+    raise AttributeError('values are read-only')
+  
   @cached_property
   def _tokens(self):
     'Tokenize a version and return a list of tokens for it.'
@@ -46,6 +52,10 @@ class semantic_version(object):
   @cached_property
   def num_parts(self):
     return len(self._part_tokens)
+
+  @cached_property
+  def parts(self):
+    return tuple([ token.value for token in self._part_tokens ])
   
   @classmethod
   def _tokens_to_string(clazz, tokens):

@@ -68,6 +68,16 @@ class test_semantic_version(unit_test):
     self.assertEqual( 'rel/v2/6.2.3', str(semantic_version('rel/v2/1.2.3').set_part(0, 6)) )
     self.assertEqual( 'rel/v2/1.6.3', str(semantic_version('rel/v2/1.2.3').set_part(1, 6)) )
     self.assertEqual( 'rel/v2/1.2.6', str(semantic_version('rel/v2/1.2.3').set_part(2, 6)) )
+
+  def test_parts(self):
+    self.assertEqual( ( 1, 2, 3 ), semantic_version('rel/v2/1.2.3').parts )
+    self.assertEqual( ( 1, 2 ), semantic_version('1.2').parts )
+    self.assertEqual( ( 1, ), semantic_version('1').parts )
+
+  def test___getitem__(self):
+    self.assertEqual( 1, semantic_version('rel/v2/1.2.3')[0] )
+    self.assertEqual( 2, semantic_version('rel/v2/1.2.3')[1] )
+    self.assertEqual( 3, semantic_version('rel/v2/1.2.3')[2] )
     
 if __name__ == '__main__':
   unit_test.main()
