@@ -11,15 +11,15 @@ class test_file_finder(unit_test):
   
   def xtest_find_python_files(self):
     expected = [
-      self.p('lib/orange/common/__init__.py'),
-      self.p('lib/orange/common/orange_util.py'),
-      self.p('tests/lib/orange/common/test_orange_util.py'),
+      self.native_filename('lib/orange/common/__init__.py'),
+      self.native_filename('lib/orange/common/orange_util.py'),
+      self.native_filename('tests/lib/orange/common/test_orange_util.py'),
     ]
     self.assertEqual( [ path.join(self.data_dir(), f) for f in expected ], FF.find_python_files(self.data_dir()) )
     
   def xtest_find_tests(self):
     expected = [
-      self.p('tests/lib/orange/common/test_orange_util.py'),
+      self.native_filename('tests/lib/orange/common/test_orange_util.py'),
     ]
     self.assertEqual( [ path.join(self.data_dir(), f) for f in expected ], FF.find_tests(self.data_dir()) )
     

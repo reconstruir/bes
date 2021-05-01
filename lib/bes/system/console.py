@@ -2,9 +2,9 @@
 
 from os import path
 import os, sys
+import subprocess
 
 from .host import host
-from .execute import execute
 
 class console(object):
   'Class to deal with the console in a cross platform manner.'
@@ -72,7 +72,7 @@ class console(object):
       return False
     elif host.is_unix():
       try:
-        dev = execute.execute('tty').stdout.strip()
+        dev = subprocess.check_outpout('tty').stdout.strip()
         with open(dev, 'r') as f:
           if os.isatty(f.fileno()):
             return dev

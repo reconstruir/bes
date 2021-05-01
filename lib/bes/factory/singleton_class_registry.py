@@ -18,9 +18,13 @@ class singleton_class_registry(object):
     return registry
   
   @classmethod
-  def register(clazz, registree):
-    return clazz._get_registry().register(registree)
+  def register(clazz, registree, name = None):
+    return clazz._get_registry().register(registree, name = name)
     
   @classmethod
   def get(clazz, class_name):
     return clazz._get_registry().get(class_name)
+
+  @classmethod
+  def items(clazz):
+    return clazz._get_registry().items()

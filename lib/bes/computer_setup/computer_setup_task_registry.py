@@ -2,6 +2,6 @@
 
 from bes.factory.singleton_class_registry import singleton_class_registry
 
-class computer_setup_registry(singleton_class_registry):
-  __registry_class_name_prefix__ = 'computer_setup_'
+class computer_setup_task_registry(singleton_class_registry):
+  __registry_class_name_prefix__ = 'computer_setup_task_'
   __registry_raise_on_existing__ = True

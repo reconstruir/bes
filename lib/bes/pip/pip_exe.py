@@ -1,45 +1,97 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import codecs
 from os import path
+import subprocess
 
 import re
 
 from collections import namedtuple
 
 from bes.common.check import check
+from bes.common.string_util import string_util
+from bes.fs.file_mime import file_mime
+from bes.fs.file_path import file_path
+from bes.fs.filename_util import filename_util
+from bes.system.env_override import env_override
 from bes.system.execute import execute
+from bes.system.host import host
+from bes.system.log import logger
 
-from bes.python.python_exe import python_exe
-from bes.python.python_version import python_version
+from bes.python.python_error import python_error
+from bes.python.python_exe import python_exe as bes_python_exe
+from bes.python.python_pip_exe import python_pip_exe as python_pip_exe
+from bes.python.python_version import python_version as bes_python_version
 
 from .pip_error import pip_error
 
 class pip_exe(object):
-  'Class to deal with the python executable.'
+  'Class to deal with the pip executable.'
 
-  _PIP_VERSION_PATTERN = r'^pip\s+([\d\.]+)\s+from\s+(.+)\s+\(python\s+(\d+\.\d+)\)$'
+  _log = logger('pip')
   
-  _pip_version_info = namedtuple('_pip_version_info', 'version, where, python_version')
   @classmethod
   def version_info(clazz, pip_exe):
     'Return the version info of a pip executable'
     check.check_string(pip_exe)
+
+    filename_info = clazz.filename_info(pip_exe)
+    pythonpath = [ filename_info.libdir ] if filename_info.libdir else None
+    try:
+      return python_pip_exe.version_info(pip_exe, pythonpath = pythonpath)
+    except python_error as ex:
+      raise pip_error(ex.message, status_code = ex.status_code)
+
+  _pip_filename_info = namedtuple('_pip_filename_info', 'version, libdir')
+  @classmethod
+  def filename_info(clazz, pip_exe):
+    'Return info about the pip exe filename'
+    check.check_string(pip_exe)
+
+    if host.is_windows():
+      pip_exe_lower = pip_exe.lower()
+      ext = filename_util.extension(pip_exe_lower)
+      if ext in ( 'cmd', 'exe', 'bat', 'ps1' ):
+        basename = filename_util.without_extension(path.basename(pip_exe_lower))
+      else:
+        basename = path.basename(pip_exe_lower)
+    else:
+      basename = path.basename(pip_exe)
+    if not basename.startswith('pip'):
+      return clazz._pip_filename_info(None, None)
+    version = string_util.remove_head(basename, 'pip')
+    version_parts = [ p for p in version.split('.') if p ]
+    num_version_parts = len(version_parts)
+    if num_version_parts not in ( 1, 2 ):
+      version = None
+    libdir = clazz._pip_exe_determine_libdir(pip_exe, version)
+    return clazz._pip_filename_info(version, libdir)
+
+  @classmethod
+  def _pip_exe_determine_libdir(clazz, pip_exe, version):
+    'Determine the PYTHONPATH needed to run a pip exe'
+    assert pip_exe
+
+    if clazz.is_binary(pip_exe):
+      return None
     
-    cmd = [ pip_exe, '--version' ]
-    rv = execute.execute(cmd, stderr_to_stdout = True, print_failure = False)
-    if rv.exit_code != 0:
-      raise pip_error(str(ex))
-
-    f = re.findall(clazz._PIP_VERSION_PATTERN, rv.stdout)
-    if not f:
-      raise pip_error('not a valid pip version for {}: "{}"'.format(pip_exe, rv.stdout))
-    if len(f[0]) != 3:
-      raise pip_error('not a valid pip version for {}: "{}"'.format(pip_exe, rv.stdout))
-    version = f[0][0]
-    where = f[0][1]
-    python_version = f[0][2]
-    return clazz._pip_version_info(version, where, python_version)
-
+    root_dir = path.dirname(pip_exe)
+    lib_dir = path.normpath(path.join(path.join(root_dir, path.pardir), 'lib'))
+    possible_python_libdirs = file_path.glob(lib_dir, 'python*')
+    num_possible_python_libdirs = len(possible_python_libdirs)
+    if num_possible_python_libdirs == 1:
+      python_libdir = possible_python_libdirs[0]
+    else:
+      python_libdir = None
+    if not python_libdir:
+      return None
+    if not python_libdir:
+      return None
+    possible_site_packages_dir = path.join(python_libdir, 'site-packages')
+    if path.isdir(possible_site_packages_dir):
+      return possible_site_packages_dir
+    return None
+  
   @classmethod
   def version(clazz, pip_exe):
     'Return the version of a pip executable'
@@ -48,45 +100,57 @@ class pip_exe(object):
     return clazz.version_info(pip_exe).version
 
   @classmethod
-  def pip_exe(clazz, py_exe):
-    'Return the pip executable for the given python'
-    check.check_string(py_exe)
-
-    python_exe.check_exe(py_exe)
-    py_version = python_exe.version(py_exe)
-
-    exe = clazz._pip_exe_for_python_exe(py_exe)
-    if not exe:
-      raise pip_error('No pip found for python exe: "{}"'.format(py_exe))
-    return exe
-
-  @classmethod
-  def pip_exe_is_valid(clazz, pip_exe):
-    'Return True if the given pip exeecutable is valid'
+  def is_binary(clazz, pip_exe):
+    'Return True if the pip_exe is an executable instead of a python script'
     check.check_string(pip_exe)
 
-    try:
-      clazz.version_info(pip_exe)
-      return True
-    except Exception as ex:
-      pass
-    return False
+    return file_mime.is_binary(pip_exe)
+  
+  @classmethod
+  def find_exe_for_python(clazz, python_exe):
+    'Find pip executable for a specific python exe'
+    bes_python_exe.check_exe(python_exe)
+
+    if host.is_windows():
+      result = clazz._find_exe_for_python_windows(python_exe)
+    elif host.is_unix():
+      result = clazz._find_exe_for_python_unix(python_exe)
+    else:
+      host.raise_unsupported_system()
+    return result
 
   @classmethod
-  def _pip_exe_for_python_exe(clazz, py_exe):
-    'Return the pip executable for the given python'
-    check.check_string(py_exe)
-
-    python_exe.check_exe(py_exe)
-    py_version = python_exe.version(py_exe)
-    python_bin_dir = path.dirname(py_exe)
-    possible_basenames = [
-      'pip{}'.format(py_version),
-      'pip{}'.format(python_version.any_version_to_major_version(py_version)),
+  def _find_exe_for_python_windows(clazz, python_exe):
+    version = bes_python_exe.version(python_exe)
+    major_version = bes_python_version.major_version(version)
+    clazz._log.log_d('_find_exe_for_python_windows: python_exe={} version={} major_version={}'.format(python_exe,
+                                                                                                      version,
+                                                                                                      major_version))
+    dirname = path.dirname(python_exe)
+    possible_pips = [
+      path.join(dirname, 'pip{}.exe'.format(version)),
+      path.join(dirname, 'pip{}.exe'.format(major_version)),
+      path.join(dirname, 'Scripts', 'pip{}.exe'.format(version)),
+      path.join(dirname, 'Scripts', 'pip{}.exe'.format(major_version)),
     ]
-    for possible_basename in possible_basenames:
-      possible_pip_exe = path.join(python_bin_dir, possible_basename)
-      if path.exists(possible_pip_exe):
-        return possible_pip_exe
+    for p in possible_pips:
+      if path.exists(p):
+        return p
     return None
   
+  @classmethod
+  def _find_exe_for_python_unix(clazz, python_exe):
+    version = bes_python_exe.version(python_exe)
+    major_version = bes_python_version.major_version(version)
+    clazz._log.log_d('_find_exe_for_python_unix: python_exe={} version={} major_version={}'.format(python_exe,
+                                                                                                  version,
+                                                                                                  major_version))
+    dirname = path.dirname(python_exe)
+    possible_pips = [
+      path.join(dirname, 'pip{}'.format(version)),
+      path.join(dirname, 'pip{}'.format(major_version)),
+    ]
+    for p in possible_pips:
+      if path.exists(p):
+        return p
+    return None

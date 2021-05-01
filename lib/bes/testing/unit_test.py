@@ -40,28 +40,74 @@ class unit_test(unittest.TestCase):
       parts.append(self._HOST)
     result = path.join(*parts)
     if where:
-      return path.join(result, where)
-    else:
-      return result
+      result = path.join(result, where)
+    return self.native_filename(result)
 
   def platform_data_dir(self): 
     return self.data_dir(platform_specific = True)
 
-  def data(self, filename, platform_specific = False):
+  def data(self, filename, platform_specific = False, codec = 'utf-8', native_line_breaks = False):
     data_path = self.data_path(filename, platform_specific = platform_specific)
     with open(data_path, 'rb') as fin:
-      return fin.read()
+      data = fin.read()
+      if codec:
+        data = data.decode(codec)
+      if native_line_breaks:
+        data = self.native_line_breaks(data)
+      return data
 
+  def assert_string_equal(self, s1, s2, strip = False, multi_line = False,
+                          ignore_white_space = False, native_line_breaks = False):
+    'Assert s1 equals s2 with ioptional features.'
+    self.maxDiff = None
+    s1_save = s1
+    s2_save = s2
+    s1_to_compare = s1
+    s2_to_compare = s2
+    if strip:
+      s1 = s1.strip()
+      s2 = s2.strip()
+    if ignore_white_space:
+      s1 = re.sub(r'\s+', ' ', s1)
+      s2 = re.sub(r'\s+', ' ', s2)
+    if native_line_breaks:
+      s1 = self.native_line_breaks(s1)
+      s2 = self.native_line_breaks(s2)
+      s1_to_compare = self.native_line_breaks(s1_to_compare)
+      s2_to_compare = self.native_line_breaks(s2_to_compare)
+    if s1 == s2:
+      return
+    if multi_line:
+      self.assertMultiLineEqual( s1_to_compare, s2_to_compare )
+    else:
+      self.assertEqual( s1_to_compare, s2_to_compare )
+    
   def assertEqualIgnoreWhiteSpace(self, s1, s2):
     'Assert s1 equals s2 ignoreing minor white space differences.'
     self.maxDiff = None
-    s1 = re.sub(r'\s+', ' ', s1).strip()
-    s2 = re.sub(r'\s+', ' ', s2).strip()
+    s1_stripped = re.sub(r'\s+', ' ', s1).strip()
+    s2_stripped = re.sub(r'\s+', ' ', s2).strip()
+    if s1_stripped == s2_stripped:
+      return
     self.assertMultiLineEqual( s1, s2 )
 
-  def assert_string_equal_strip(self, s1, s2):
+  def assert_string_equal_strip(self, s1, s2, native_line_breaks = False):
     self.maxDiff = None
-    self.assertEqual( s1.strip(), s2.strip() )
+
+    s1_stripped = s1.strip()
+    s2_stripped = s2.strip()
+
+    if native_line_breaks:
+      s1_stripped = self.native_line_breaks(s1_stripped)
+      s2_stripped = self.native_line_breaks(s2_stripped)
+    
+    if s1_stripped == s2_stripped:
+      return
+    
+    if native_line_breaks:
+      self.assertMultiLineEqual( self.native_line_breaks(s1_stripped), self.native_line_breaks(s2_stripped) )
+    else:
+      self.assertMultiLineEqual( s1, s2 )
 
   def assert_dict_equal(self, d1, d2):
     self.assertMultiLineEqual( pprint.pformat(d1, indent = 2), pprint.pformat(d2, indent = 2) )
@@ -73,21 +119,39 @@ class unit_test(unittest.TestCase):
   def _dict_to_str(clazz, d):
     return '\n'.join([ '%s=%s' % x for x in sorted(d.items()) ])
 
-  def assert_file_content_equal(self, expected, filename, strip = True):
+  def assert_binary_file_equal(self, expected, filename):
     self.maxDiff = None
     with open(filename, 'rb') as fin:
-      content = fin.read()
-      if strip:
-        expected = expected.strip()
-        content = content.strip()
-    self.assertEqual( expected, content )
-    
+      actual = fin.read()
+      self.assertEqual( expected, actual )
+
+  def assert_text_file_equal(self, expected, filename, strip = True, codec = 'utf-8',
+                             preprocess_func = None, ignore_white_space = False, native_line_breaks = False):
+    self.maxDiff = None
+    with open(filename, 'rb') as fin:
+      actual = fin.read().decode(codec)
+      if preprocess_func:
+        actual = preprocess_func(actual)
+        expected = preprocess_func(expected)
+      self.assert_string_equal(expected, actual,
+                               strip = strip,
+                               multi_line = True,
+                               ignore_white_space = ignore_white_space,
+                               native_line_breaks = native_line_breaks)
+
+  def assert_json_file_equal(self, expected, filename):
+    self.assert_text_file_equal(expected, filename,
+                                multi_line = True,
+                                strip = True,
+                                codec = 'utf-8',
+                                preprocess_func = self._json_normalize)
+
   @classmethod
   def _get_data_dir(clazz): 
     right = getattr(clazz, '__unit_test_data_dir__', None)
     if not right:
       raise RuntimeError('%s does not have a __unit_test_data_dir__ attribute.' % (clazz))
-    right = clazz.xp_path(right)
+    right = clazz.xp_filename(right)
     right = clazz._substitute_test_data_dir(right)
     if path.isabs(right):
       result = path.join(right)
@@ -113,7 +177,12 @@ class unit_test(unittest.TestCase):
     self.assertMultiLineEqual(self._json_normalize(expected),
                               self._json_normalize(actual))
                                
-
+  def assert_json_object_equal(self, o1, o2):
+    json1 = self._json_normalize(json.dumps(o1, indent = 2))
+    json2 = self._json_normalize(json.dumps(o2, indent = 2))
+    self.assert_string_equal(json1, json2, strip = True, multi_line = True,
+                             ignore_white_space = True, native_line_breaks = True)
+                               
   @classmethod
   def decode_hex(clazz, s):
     return hexdata.string_to_bytes(s)
@@ -205,25 +274,87 @@ class unit_test(unittest.TestCase):
     return getattr(clazz, '_console_fp')
 
   @classmethod
-  def xp_path(clazz, s, pathsep = ':', sep = '/'):
-    result = s.replace(pathsep, os.pathsep)
-    result = result.replace(sep, os.sep)
+  def xp_filename(clazz, p, sep = None):
+    if p == None:
+      return None
+    if clazz._HOST == 'windows':
+      return clazz._xp_filename_windows(p, sep = sep)
+    elif clazz._HOST in ( 'linux', 'macos' ):
+      return clazz._xp_filename_unix(p, sep = sep)
+    else:
+      assert False
+
+  @classmethod
+  def native_filename(clazz, p):
+    return clazz.xp_filename(p, sep = os.sep)
+      
+  @classmethod
+  def xp_filename_list(clazz, l, sep = None):
+    if l == None:
+      return None
+    assert isinstance(l, list)
+    return [ clazz.xp_filename(n, sep = sep) for n in l ]
+
+  @classmethod
+  def native_filename_list(clazz, l):
+    return clazz.xp_filename_list(l, sep = os.sep)
+      
+  _XP_SEP = '/'
+  @classmethod
+  def _xp_filename_windows(clazz, p, sep = None):
+    sep = sep or clazz._XP_SEP
+    _, split_path = path.splitdrive(p)
+    xp_split_path = split_path.replace('\\', sep)
+    xp_split_path = xp_split_path.replace('/', sep)
+    result = p.replace(split_path, xp_split_path)
+    return result
+  
+  @classmethod
+  def _xp_filename_unix(clazz, p, sep = None):
+    sep = sep or clazz._XP_SEP
+    result = p.replace('/', sep)
+    result = result.replace('\\', sep)
+    return result
+
+  _XP_PATHSEP = ':'
+  @classmethod
+  def xp_path(clazz, p, pathsep = None):
+    pathsep = pathsep or clazz._XP_PATHSEP
+    result = p.replace(':', pathsep)
+    result = result.replace(';', pathsep)
     return result
 
   @classmethod
-  def xp_new_lines(clazz, s, ending = '\n'):
-    result = s.replace('\n\r', ending)
-    result = result.replace('\r\n', ending)
+  def native_path(clazz, p):
+    return clazz.xp_path(p, pathsep = os.pathsep)
+  
+  if _HOST == 'windows':
+    _NATIVE_LINE_BREAK = '\r\n'
+    _NATIVE_LINE_BREAK_RAW = r'\r\n'
+  elif _HOST in ( 'linux', 'macos' ):
+    _NATIVE_LINE_BREAK = '\n'
+    _NATIVE_LINE_BREAK_RAW = r'\n'
+  else:
+    assert False
+  _XP_LINE_BREAK = '\n'
+  _XP_LINE_BREAK_RAW = r'\n'
+  
+  @classmethod
+  def xp_line_breaks(clazz, text, line_break = None):
+    line_break = line_break or clazz._XP_LINE_BREAK
+    result = text.replace(clazz._NATIVE_LINE_BREAK, line_break)
     return result
 
   @classmethod
-  def p(clazz, s, pathsep = ':', sep = '/'):
-    return clazz.xp_path(s, pathsep = pathsep, sep = sep)
-
+  def native_line_breaks(clazz, text):
+    return clazz.xp_line_breaks(text, line_break = clazz._XP_LINE_BREAK)
+  
   _DEFAULT_PREFIX = path.splitext(path.basename(sys.argv[0]))[0] + '-tmp-'
 
   @classmethod
-  def make_temp_file(clazz, content = None, prefix = None, suffix = None, dir = None, mode = 'w+b', perm = None, mtime = None, delete = True):
+  def make_temp_file(clazz, content = None, prefix = None, suffix = None,
+                     dir = None, mode = 'w+b', perm = None, mtime = None,
+                     delete = True, xp_filename = False):
     'Write content to a temporary file.  Returns the file object.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or ''
@@ -250,10 +381,14 @@ class unit_test(unittest.TestCase):
     if mtime:
       assert isinstance(mtime, datetime)
       clazz._set_mtime(tmp.name, mtime)
-    return tmp.name
+    result = tmp.name
+    if xp_filename:
+      result = clazz.xp_filename(result, sep = '/')
+    return result
 
   @classmethod
-  def make_temp_dir(clazz, prefix = None, suffix = None, dir = None, mtime = None):
+  def make_temp_dir(clazz, prefix = None, suffix = None, dir = None,
+                    mtime = None, xp_filename = False):
     'Make a temporary directory.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or '.dir'
@@ -268,6 +403,8 @@ class unit_test(unittest.TestCase):
     if mtime:
       assert isinstance(mtime, datetime)
       clazz._set_mtime(tmp_dir, mtime)
+    if xp_filename:
+      tmp_dir = clazz.xp_filename(tmp_dir, sep = '/')
     return tmp_dir
 
   @classmethod
@@ -340,3 +477,17 @@ class unit_test(unittest.TestCase):
       
         diff_rv = difflib.unified_diff(lines1, lines2, fromfile = label1, tofile = label2, n = n)
         return ''.join(diff_rv)
+
+  def assert_filename_equal(self, f1, f2):
+    'Assert that 2 filenames are the same using cross platform paths.'
+    self.maxDiff = None
+    xp_f1 = self.xp_filename(f1)
+    xp_f2 = self.xp_filename(f2)
+    self.assertEqual( xp_f1, xp_f2 )
+      
+  def assert_filename_list_equal(self, pl1, pl2):
+    'Assert that 2 filename lists are the same using cross platform paths.'
+    self.maxDiff = None
+    xp_pl1 = self.xp_filename_list(pl1)
+    xp_pl2 = self.xp_filename_list(pl2)
+    self.assertEqual( xp_pl1, xp_pl2 )

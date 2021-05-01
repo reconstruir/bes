@@ -77,6 +77,27 @@ class file_path(object):
     if d == path.sep:
       return None
     return path.normpath(path.join(d, os.pardir))
+  
+#  @classmethod
+#  def parent_dir(clazz, p, levels = 1):
+#    check.check_string(p)
+#    check.check_int(levels)
+#
+#    if p == path.sep:
+#      return None
+#    
+#    add_sep = ''
+#    if p.endswith(path.sep):
+#      add_sep = path.sep
+#    p = path.normpath(p) + add_sep
+#    
+#    for i in range(0, levels):
+#      dirname = path.dirname(p)
+#      if dirname == path.sep:
+#        return None
+#      parent = path.join(dirname, path.pardir)
+#      p = path.normpath(parent)
+#    return p
 
   @classmethod
   def common_ancestor(clazz, filenames):
@@ -177,3 +198,16 @@ class file_path(object):
   def normalize_sep(clazz, p, sep = None):
     sep = sep or os.sep
     return path.normpath(sep.join(re.split(r'\\|/', p)))
+
+  @classmethod
+  def xp_path(clazz, s, pathsep = ':', sep = '/'):
+    result = s.replace(pathsep, os.pathsep)
+    result = result.replace(sep, os.sep)
+    return result
+
+  @classmethod
+  def xp_path_list(clazz, l, pathsep = ':', sep = '/'):
+    if l == None:
+      return None
+    assert isinstance(l, list)
+    return [ clazz.xp_path(n) for n in l ]

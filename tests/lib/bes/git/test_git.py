@@ -86,15 +86,15 @@ class test_git(unit_test):
     git.add(tmp_repo, new_files)
     git.commit(tmp_repo, 'nomsg\n', '.')
     git.tag(tmp_repo, '1.0.0')
-    self.assertEqual( [ '1.0.0' ], git.list_local_tags(tmp_repo) )
+    self.assertEqual( [ '1.0.0' ], git.list_local_tags(tmp_repo).names() )
     git.tag(tmp_repo, '1.0.1')
-    self.assertEqual( [ '1.0.0', '1.0.1' ], git.list_local_tags(tmp_repo) )
+    self.assertEqual( [ '1.0.0', '1.0.1' ], git.list_local_tags(tmp_repo).names() )
     git.tag(tmp_repo, '1.0.9')
     git.tag(tmp_repo, '1.0.10')
-    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.9', '1.0.10' ], git.list_local_tags(tmp_repo) )
-    self.assertEqual( '1.0.10', git.greatest_local_tag(tmp_repo) )
-    self.assertEqual( ['1.0.0', '1.0.1', '1.0.10', '1.0.9'], git.list_local_tags(tmp_repo, lexical = True) )
-    self.assertEqual( [ '1.0.10', '1.0.9', '1.0.1', '1.0.0' ], git.list_local_tags(tmp_repo, reverse = True) )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.9', '1.0.10' ], git.list_local_tags(tmp_repo).names() )
+    self.assertEqual( '1.0.10', git.greatest_local_tag(tmp_repo).name )
+    self.assertEqual( ['1.0.0', '1.0.1', '1.0.10', '1.0.9'], git.list_local_tags(tmp_repo, sort_type = 'lexical').names() )
+    self.assertEqual( [ '1.0.10', '1.0.9', '1.0.1', '1.0.0' ], git.list_local_tags(tmp_repo, reverse = True).names() )
 
   @git_temp_home_func()
   def test_delete_local_tag(self):
@@ -106,15 +106,15 @@ class test_git(unit_test):
     git.tag(tmp_repo, '1.0.1')
     git.tag(tmp_repo, '1.0.9')
     git.tag(tmp_repo, '1.0.10')
-    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.9', '1.0.10' ], git.list_local_tags(tmp_repo) )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.9', '1.0.10' ], git.list_local_tags(tmp_repo).names() )
     git.delete_local_tag(tmp_repo, '1.0.9')
-    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.10' ], git.list_local_tags(tmp_repo) )
+    self.assertEqual( [ '1.0.0', '1.0.1', '1.0.10' ], git.list_local_tags(tmp_repo).names() )
     git.delete_local_tag(tmp_repo, '1.0.0')
-    self.assertEqual( [ '1.0.1', '1.0.10' ], git.list_local_tags(tmp_repo) )
+    self.assertEqual( [ '1.0.1', '1.0.10' ], git.list_local_tags(tmp_repo).names() )
     git.delete_local_tag(tmp_repo, '1.0.10')
-    self.assertEqual( [ '1.0.1' ], git.list_local_tags(tmp_repo) )
+    self.assertEqual( [ '1.0.1' ], git.list_local_tags(tmp_repo).names() )
     git.delete_local_tag(tmp_repo, '1.0.1')
-    self.assertEqual( [], git.list_local_tags(tmp_repo) )
+    self.assertEqual( [], git.list_local_tags(tmp_repo).names() )
 
   @git_temp_home_func()
   def test_tag_allow_downgrade_error(self):
@@ -123,7 +123,7 @@ class test_git(unit_test):
     git.add(tmp_repo, new_files)
     git.commit(tmp_repo, 'nomsg\n', '.')
     git.tag(tmp_repo, '1.0.100')
-    self.assertEqual( '1.0.100', git.greatest_local_tag(tmp_repo) )
+    self.assertEqual( '1.0.100', git.greatest_local_tag(tmp_repo).name )
     with self.assertRaises(ValueError) as ctx:
       git.tag(tmp_repo, '1.0.99')
     
@@ -134,10 +134,10 @@ class test_git(unit_test):
     git.add(tmp_repo, new_files)
     git.commit(tmp_repo, 'nomsg\n', '.')
     git.tag(tmp_repo, '1.0.100')
-    self.assertEqual( '1.0.100', git.greatest_local_tag(tmp_repo) )
+    self.assertEqual( '1.0.100', git.greatest_local_tag(tmp_repo).name )
     git.tag(tmp_repo, '1.0.99', allow_downgrade = True)
-    self.assertEqual( '1.0.100', git.greatest_local_tag(tmp_repo) )
-    self.assertEqual( [ '1.0.99', '1.0.100' ], git.list_local_tags(tmp_repo) )
+    self.assertEqual( '1.0.100', git.greatest_local_tag(tmp_repo).name )
+    self.assertEqual( [ '1.0.99', '1.0.100' ], git.list_local_tags(tmp_repo).names() )
     
   @git_temp_home_func()
   def test_read_gitignore(self):
@@ -249,13 +249,6 @@ class test_git(unit_test):
     self.assertTrue( git.has_changes(tmp_repo) )
     git.commit(tmp_repo, 'nomsg\n', '.')
     self.assertFalse( git.has_changes(tmp_repo) )
-
-  @git_temp_home_func()
-  def test_has_determine_where(self):
-    self.assertEqual( 'both', git.determine_where(True, True) )
-    self.assertEqual( 'local', git.determine_where(True, False) )
-    self.assertEqual( 'remote', git.determine_where(False, True) )
-    self.assertEqual( 'both', git.determine_where(None, None) )
 
   @git_temp_home_func()
   def test_is_long_hash(self):

@@ -1,14 +1,18 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
-#
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
 from bes.native_package.native_package import native_package
 from bes.testing.unit_test_skip import skip_if
 from bes.system.host import host
+from bes.testing.unit_test_skip_class import unit_test_skip_class
 
 class test_native_package(unit_test):
 
+  @classmethod
+  def setUpClass(clazz):
+    unit_test_skip_class.raise_skip_if_not_macos()
+  
   _MACOS_EXAMPLE_PKG = 'com.apple.pkg.Core'
   
   def test_installed_packages(self):

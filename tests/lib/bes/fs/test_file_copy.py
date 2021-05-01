@@ -23,17 +23,17 @@ class test_file_copy(unit_test):
     file_copy.copy_tree(src_tmp_dir, dst_tmp_dir)
     
     expected_files = [
-      self.xp_path('1'),
-      self.xp_path('1/2'),
-      self.xp_path('1/2/3'),
-      self.xp_path('1/2/3/4'),
-      self.xp_path('1/2/3/4/5'),
-      self.xp_path('1/2/3/4/5/apple.txt'),
-      self.xp_path('1/2/3/4/5/kiwi.txt'),
-      self.xp_path('bar.txt'),
-      self.xp_path('empty'),
-      self.xp_path('foo.txt'),
-      self.xp_path('kiwi_link.txt'),
+      self.native_filename('1'),
+      self.native_filename('1/2'),
+      self.native_filename('1/2/3'),
+      self.native_filename('1/2/3/4'),
+      self.native_filename('1/2/3/4/5'),
+      self.native_filename('1/2/3/4/5/apple.txt'),
+      self.native_filename('1/2/3/4/5/kiwi.txt'),
+      self.native_filename('bar.txt'),
+      self.native_filename('empty'),
+      self.native_filename('foo.txt'),
+      self.native_filename('kiwi_link.txt'),
     ]
     actual_files = file_find.find(dst_tmp_dir, file_type = file_find.ANY)
     self.assertEqual( expected_files, actual_files )
@@ -48,15 +48,15 @@ class test_file_copy(unit_test):
       file_copy.copy_tree(src_tmp_dir, dst_tmp_dir, excludes = [ 'bar.txt', 'foo.txt' ])
     
     expected_files = [
-      self.xp_path('1'),
-      self.xp_path('1/2'),
-      self.xp_path('1/2/3'),
-      self.xp_path('1/2/3/4'),
-      self.xp_path('1/2/3/4/5'),
-      self.xp_path('1/2/3/4/5/apple.txt'),
-      self.xp_path('1/2/3/4/5/kiwi.txt'),
-      self.xp_path('empty'),
-      self.xp_path('kiwi_link.txt'),
+      self.native_filename('1'),
+      self.native_filename('1/2'),
+      self.native_filename('1/2/3'),
+      self.native_filename('1/2/3/4'),
+      self.native_filename('1/2/3/4/5'),
+      self.native_filename('1/2/3/4/5/apple.txt'),
+      self.native_filename('1/2/3/4/5/kiwi.txt'),
+      self.native_filename('empty'),
+      self.native_filename('kiwi_link.txt'),
     ]
     actual_files = file_find.find(dst_tmp_dir, file_type = file_find.ANY)
     self.assertEqual( expected_files, actual_files )
@@ -71,17 +71,17 @@ class test_file_copy(unit_test):
     file_copy.copy_tree(src_tmp_dir, dst_tmp_dir)
     
     expected_files = [
-      self.xp_path('1'),
-      self.xp_path('1/2'),
-      self.xp_path('1/2/3'),
-      self.xp_path('1/2/3/4'),
-      self.xp_path('1/2/3/4/5'),
-      self.xp_path('1/2/3/4/5/apple.txt'),
-      self.xp_path('1/2/3/4/5/kiwi.txt'),
-      self.xp_path('bar.txt'),
-      self.xp_path('empty'),
-      self.xp_path('foo.txt'),
-      self.xp_path('kiwi_link.txt'),
+      self.native_filename('1'),
+      self.native_filename('1/2'),
+      self.native_filename('1/2/3'),
+      self.native_filename('1/2/3/4'),
+      self.native_filename('1/2/3/4/5'),
+      self.native_filename('1/2/3/4/5/apple.txt'),
+      self.native_filename('1/2/3/4/5/kiwi.txt'),
+      self.native_filename('bar.txt'),
+      self.native_filename('empty'),
+      self.native_filename('foo.txt'),
+      self.native_filename('kiwi_link.txt'),
     ]
     actual_files = file_find.find(dst_tmp_dir, file_type = file_find.ANY)
     self.assertEqual( expected_files, actual_files )
@@ -101,13 +101,13 @@ class test_file_copy(unit_test):
       'file .hushlogin "" 644',
     ], src_dir)
     expected = [
-      self.xp_path('.hidden'),
-      self.xp_path('.hushlogin'),
-      self.xp_path('bar.txt'),
-      self.xp_path('foo.txt'),
-      self.xp_path('script.sh'),
-      self.xp_path('sub1/sub2/baz.txt'),
-      self.xp_path('yyy/zzz/vvv.txt'),
+      self.native_filename('.hidden'),
+      self.native_filename('.hushlogin'),
+      self.native_filename('bar.txt'),
+      self.native_filename('foo.txt'),
+      self.native_filename('script.sh'),
+      self.native_filename('sub1/sub2/baz.txt'),
+      self.native_filename('yyy/zzz/vvv.txt'),
     ]
     self.assertEqual( expected, file_find.find(src_dir, relative = True))
     file_copy.move_files(src_dir, dst_dir)

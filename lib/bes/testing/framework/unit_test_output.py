@@ -15,7 +15,7 @@ class unit_test_output(object):
     errors = []
     for line in reversed(output.split('\n')):
       for error_type in [ 'FAIL', 'ERROR' ]:
-        exp = '^\s*%s:\s+(.+)\s+\(__main__\.(.+)\)\s*$' % (error_type)
+        exp = r'^\s*%s:\s+(.+)\s+\(__main__\.(.+)\)\s*$' % (error_type)
         r = re.findall(exp, line)
         if r:
           fixture = r[0][1]

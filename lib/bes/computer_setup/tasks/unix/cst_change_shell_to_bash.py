@@ -24,7 +24,7 @@ class cst_change_shell_to_bash(computer_setup_task):
     'Average duration in seconds.'
     return 0
 
-  @abstractmethod
+  #@abstractmethod
   def is_needed(self):
     'Return True of the task needs to run.'
     return not shell.shell_is_bash()

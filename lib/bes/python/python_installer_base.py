@@ -7,15 +7,17 @@ from bes.common.check import check
 from bes.system.compat import with_metaclass
 from bes.script.blurber import blurber
 
+from .python_installer_options import python_installer_options
+
 class python_installer_base(with_metaclass(ABCMeta, object)):
 
-  def __init__(self, blurber):
-    check.check_blurber(blurber)
-    
-    self.blurber = blurber
+  def __init__(self, options):
+    check.check_python_installer_options(options)
+
+    self.options = options
   
   @abstractmethod
-  def available_versions(self, include_all):
+  def available_versions(self, num):
     'Return a list of python versions available to install.'
     raise NotImplemented('available_versions')
   
@@ -30,15 +32,25 @@ class python_installer_base(with_metaclass(ABCMeta, object)):
     raise NotImplemented('install_full_version')
 
   @abstractmethod
+  def install_package(self, package_filename):
+    'Install a python package directly.  Not always supported.'
+    raise NotImplemented('install_package')
+  
+  @abstractmethod
   def uninstall(self, full_version):
     'Uninstall the major.minor.revision full version of python.'
     raise NotImplemented('uninstall_full_version')
+
+  @abstractmethod
+  def download(self, full_version):
+    'Download the major.minor.revision full version of python to a temporary file.'
+    raise NotImplemented('download')
   
   def blurb(self, message, output = None, fit = False):
     'Print a blurb'
-    self.blurber.blurb(message, output = output, fit = fit)
+    self.options.blurber.blurb(message, output = output, fit = fit)
 
   def blurb_verbose(self, message, output = None, fit = False):
     'Print a blurb but only in verbose mode'
-    self.blurber.blurb_verbose(message, output = output, fit = fit)
+    self.options.blurber.blurb_verbose(message, output = output, fit = fit)
     

@@ -10,6 +10,8 @@ from bes.system.log import log
 from bes.fs.file_check import file_check
 from bes.git.git import git
 
+from .cli_options import cli_options
+
 class argparser_handler(object):
   'A class to simplify the process of calling functions to handle argparser commands'
 
@@ -17,8 +19,8 @@ class argparser_handler(object):
   def main(clazz, log_tag, parser, handler_object, command_group = None, args = None):
     log = logger(log_tag)
     args = parser.parse_args(args = args)
-    command_group = getattr(args, 'command_group', command_group)
-    command = getattr(args, 'command', None)
+    command_group = getattr(args, '__bes_command_group__', command_group)
+    command = getattr(args, '__bes_command__', None)
     log.log_d('command={} command_group={}'.format(command, command_group))
     possible_names = clazz._possible_method_names(command_group, command)
     log.log_d('possible_names={}'.format(possible_names))
@@ -41,7 +43,7 @@ class argparser_handler(object):
 
     if keywords:
       dict_args = copy.deepcopy(args.__dict__)
-      for key in [ 'command', 'command_group' ]:
+      for key in [ '__bes_command__', '__bes_command_group__' ]:
         if key in dict_args:
           del dict_args[key]
       args_blurb = '; '.join([ '{}={}'.format(key, value) for key, value in sorted(dict_args.items()) ])
@@ -143,13 +145,30 @@ class argparser_handler(object):
     return clazz.resolve_file(dirname, root_dir = root_dir)
   
   @classmethod
-  def filter_keywords_args(clazz, clazz_for_instance, kargs):
-    check.check_class(clazz)
-    
-    instance = clazz_for_instance()
-    fields = [ field for field in dir(instance) if not field.startswith('_') ]
+  def filter_keywords_args(clazz, options_clazz, kargs):
+    check.check_class(options_clazz)
+
+    fields = clazz._options_clazz_all_attributes(options_clazz)
     copied_args = copy.deepcopy(kargs)
     for field in fields:
       if field in copied_args:
         del copied_args[field]
     return copied_args
+  
+  @classmethod
+  def _options_clazz_attributes(clazz, options_clazz):
+    result = []
+    instance = options_clazz()
+    for name, _ in inspect.getmembers(instance, lambda m: not callable(m)):
+      if not name.startswith('_'):
+        result.append(name)
+    return result
+  
+  @classmethod
+  def _options_clazz_all_attributes(clazz, options_clazz):
+    result = []
+    result.extend(clazz._options_clazz_attributes(options_clazz))
+    for base_clazz in options_clazz.__bases__:
+      if base_clazz != cli_options:
+        result.extend(clazz._options_clazz_attributes(base_clazz))
+    return result

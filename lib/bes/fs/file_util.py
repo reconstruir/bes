@@ -12,6 +12,7 @@ from bes.system.log import log
 
 from bes.system.env_var import os_env_var
 from bes.system.which import which
+from bes.system.filesystem import filesystem
 
 class file_util(object):
 
@@ -188,6 +189,8 @@ class file_util(object):
 
   @classmethod
   def copy(clazz, src, dst, use_hard_link = False):
+    if src == dst:
+      raise IOError('src and dst files are the same: "{}"'.format(src))
     dirname = path.dirname(dst)
     if dirname:
       clazz.mkdir(dirname)
@@ -302,8 +305,8 @@ class file_util(object):
 
   @classmethod
   def is_hidden(clazz, filename):
-    'Return True if the file is hidden.  Starts with "." on unix.'
-    if filename.startswith('.') or filename.startswith('/.'):
+    'Return True if the file is unix-ish hidden.  Starts with "."'
+    if filename.startswith('.') or filename.startswith('{}.'.format(os.sep)):
       return True
     return path.basename(filename).startswith('.')
 
@@ -330,20 +333,18 @@ class file_util(object):
   @classmethod
   def sync(clazz):
     'Call unix sync()'
-    if compat.IS_PYTHON3:
-      os.sync()
-    else:
-      subprocess.call([ 'sync' ])
+    filesystem.sync()
 
   @classmethod
   @contextlib.contextmanager
-  def open_with_default(clazz, filename = None):
+  def open_with_default(clazz, filename = None, mode = None):
     '''
     Return an open file managed with contextmanager or sys.stdout if None
     From: https://stackoverflow.com/a/17603000
     '''
+    mode = mode or 'w'
     if filename and filename != '-':
-      fh = open(filename, 'w')
+      fh = open(filename, mode)
     else:
       fh = sys.stdout
     try:

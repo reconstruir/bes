@@ -10,8 +10,10 @@ from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_copy import file_copy
+from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
+from bes.system.host import host
 from bes.system.log import logger
 from bes.version.software_version import software_version
 
@@ -30,8 +32,11 @@ from .git_lfs import git_lfs
 from .git_modules_file import git_modules_file
 from .git_ref import git_ref
 from .git_ref_info import git_ref_info
+from .git_ref_where import git_ref_where
 from .git_status import git_status
 from .git_submodule_info import git_submodule_info
+from .git_tag import git_tag
+from .git_tag_sort_type import git_tag_sort_type
 
 class git(git_lfs):
   'A class to deal with git.'
@@ -148,7 +153,10 @@ class git(git_lfs):
         raise git_error('root_dir "{}" is not a directory.'.format(root_dir))
       if options.enforce_empty_dir:
         if not dir_util.is_empty(root_dir):
-          raise git_error('root_dir "{}" is not empty.'.format(root_dir))
+          files = dir_util.list(root_dir, relative = True)
+          sorted_files = sorted(files, key = lambda f: f.lower())
+          printed_files = '\n  '.join(sorted_files).strip()
+          raise git_error('root_dir "{}" is not empty:\n  {}\n'.format(root_dir, printed_files))
     else:
       file_util.mkdir(root_dir)
       
@@ -496,94 +504,142 @@ class git(git_lfs):
     return [ item.filename for item in items if 'M' in item.action ]
 
   @classmethod
-  def tag(clazz, root_dir, tag, allow_downgrade = False, push = False, commit = None):
+  def tag(clazz, root_dir, tag, allow_downgrade = False, push = False,
+          commit = None, annotation = None):
     check.check_string(root_dir)
     check.check_string(tag)
     check.check_bool(allow_downgrade)
     check.check_bool(push)
     check.check_string(commit, allow_none = True)
+    check.check_string(annotation, allow_none = True)
 
-    greatest_tag = git.greatest_local_tag(root_dir)
-    if greatest_tag and not allow_downgrade:
-      if software_version.compare(greatest_tag, tag) >= 0:
-        raise ValueError('new tag \"%s\" is older than \"%s\".  Use allow_downgrade to force it.' % (tag, greatest_tag))
+    if not allow_downgrade:
+      greatest_tag = git.greatest_local_tag(root_dir)
+      if greatest_tag:
+        if software_version.compare(greatest_tag.name, tag) >= 0:
+          raise ValueError('new tag \"{}\" is older than \"{}\".  Use allow_downgrade to force it.'.format(tag,
+                                                                                                           greatest_tag.name))
     if not commit:
       commit = clazz.last_commit_hash(root_dir, short_hash = True)
     args = [ 'tag', tag, commit ]
+    if annotation:
+      args.append('--annotate')
+      args.append('--message')
+      args.append(string_util.quote(annotation))
     rv = git_exe.call_git(root_dir, args)
     if push:
       clazz.push_tag(root_dir, tag)
 
   @classmethod
-  def push_tag(clazz, root, tag):
-    git_exe.call_git(root, [ 'push', 'origin', tag ])
+  def tag_rename(clazz, root_dir, old_tag, new_tag, push = False):
+    clazz.log.log_d('tag_rename: root_dir={} old_tag={} new_tag={} push={}'.format(root_dir,
+                                                                                   old_tag,
+                                                                                   new_tag,
+                                                                                   push))
+    if clazz.tag_has_annotation(root_dir, old_tag):
+      annotation = clazz.tag_annotation(root_dir, old_tag)
+    else:
+      annotation = None
+    clazz.tag(root_dir, new_tag, allow_downgrade = True, commit = old_tag, annotation = annotation)
+    clazz.push_tag(root_dir, new_tag)
+    clazz.delete_tag(root_dir, old_tag, 'both')
+      
+  @classmethod
+  def push_tag(clazz, root_dir, tag):
+    git_exe.call_git(root_dir, [ 'push', 'origin', tag ])
 
   @classmethod
-  def delete_local_tag(clazz, root, tag):
-    git_exe.call_git(root, [ 'tag', '--delete', tag ])
+  def tags_fetch(clazz, root_dir, tag):
+    git_exe.call_git(root_dir, 'fetch --tags')
+    
+  @classmethod
+  def delete_local_tag(clazz, root_dir, tag):
+    clazz.log.log_d('delete_local_tag: root_dir={} tag={}'.format(root_dir, tag))
+    git_exe.call_git(root_dir, [ 'tag', '--delete', tag ])
 
   @classmethod
-  def delete_remote_tag(clazz, root, tag):
-    git_exe.call_git(root, [ 'push', '--delete', 'origin', tag ])
+  def delete_remote_tag(clazz, root_dir, tag):
+    clazz.log.log_d('delete_remote_tag: root_dir={} tag={}'.format(root_dir, tag))
+    git_exe.call_git(root_dir, [ 'push', '--delete', 'origin', tag ])
 
   @classmethod
-  def delete_tag(clazz, root, tag, where, dry_run):
-    clazz.check_where(where)
-    if where in [ 'local', 'both' ]:
-      local_tags = git.list_local_tags(root)
-      if tag in local_tags:
+  def delete_tag(clazz, root_dir, tag, where, dry_run = False):
+    git_ref_where.check_where(where)
+
+    clazz.log.log_d('delete_tag: root_dir={} tag={} where={} dry_run={}'.format(root_dir,
+                                                                                tag,
+                                                                                where,
+                                                                                dry_run))
+    
+    if where in ( 'local', 'both' ):
+      if git.has_local_tag(root_dir, tag):
         if dry_run:
           print('would delete local tag \"{tag}\"'.format(tag = tag))
         else:
-          clazz.delete_local_tag(root, tag)
-    if where in [ 'remote', 'both' ]:
-      remote_tags = git.list_remote_tags(root)
-      if tag in remote_tags:
+          clazz.delete_local_tag(root_dir, tag)
+    if where in ( 'remote', 'both' ):
+      if git.has_remote_tag(root_dir, tag):
         if dry_run:
           print('would delete remote tag \"{tag}\"'.format(tag = tag))
         else:
-          clazz.delete_remote_tag(root, tag)
+          clazz.delete_remote_tag(root_dir, tag)
 
   @classmethod
-  def list_local_tags(clazz, root, lexical = False, reverse = False):
-    if lexical:
-      sort_arg = '--sort={reverse}refname'.format(reverse = '-' if reverse else '')
+  def list_tags(clazz, root_dir, where = None, sort_type = None, reverse = False,
+                limit = None, prefix = None):
+    where = git_ref_where.check_where(where)
+    if where == 'both':
+      raise git_error('where needs to be "local" or "remote" only: {}'.format(where))
+    sort_type = git_tag_sort_type.check_sort_type(sort_type)
+    if where == 'local':
+      tags = clazz.list_local_tags(root_dir,
+                                   sort_type = sort_type,
+                                   reverse = reverse,
+                                   limit = limit,
+                                   prefix = prefix)
     else:
-      sort_arg = '--sort={reverse}version:refname'.format(reverse = '-' if reverse else '')
-    rv = git_exe.call_git(root, [ 'tag', '-l', sort_arg ])
-    return git_exe.parse_lines(rv.stdout)
-
-  @classmethod
-  def greatest_local_tag(clazz, root):
-    tags = clazz.list_local_tags(root)
-    if not tags:
-      return None
-    return tags[-1]
-
-  @classmethod
-  def list_remote_tags(clazz, root, lexical = False, reverse = False):
-    rv = git_exe.call_git(root, [ 'ls-remote', '--tags' ])
-    lines = git_exe.parse_lines(rv.stdout)
-    tags = [ clazz._parse_remote_tag_line(line) for line in lines ]
-    if lexical:
-      return sorted(tags, reverse = reverse)
-    else:
-      return software_version.sort_versions(tags, reverse = reverse)
+      tags = clazz.list_remote_tags(root_dir,
+                                   sort_type = sort_type,
+                                   reverse = reverse,
+                                   limit = limit,
+                                   prefix = prefix)
     return tags
-
+          
   @classmethod
-  def greatest_remote_tag(clazz, root):
-    tags = clazz.list_remote_tags(root)
+  def list_local_tags(clazz, root_dir, sort_type = None, reverse = False,
+                      limit = None, prefix = None):
+    sort_type = git_tag_sort_type.check_sort_type(sort_type)
+    rv = git_exe.call_git(root_dir, [ 'tag', '-l', '--format="%(objectname) %(refname)"' ])
+    return git_tag.parse_show_ref_output(rv.stdout,
+                                         sort_type = sort_type,
+                                         reverse = reverse,
+                                         limit = limit,
+                                         prefix = prefix)
+    
+  @classmethod
+  def greatest_local_tag(clazz, root, prefix = None):
+    tags = clazz.list_local_tags(root, sort_type = 'version', prefix = prefix)
     if not tags:
       return None
     return tags[-1]
 
   @classmethod
-  def _parse_remote_tag_line(clazz, s):
-    f = re.findall(r'^[0-9a-f]{40}\s+refs/tags/(.+)$', s)
-    if f and len(f) == 1:
-      return string_util.remove_tail(f[0], '^{}')
-    return None
+  def list_remote_tags(clazz, root, sort_type = None, reverse = False,
+                       limit = None, prefix = None):
+    rv = git_exe.call_git(root, [ 'ls-remote', '--tags' ])
+    clazz.log.log_d('list_remote_tags: stdout="{}"'.format(rv.stdout))
+    return git_tag.parse_show_ref_output(rv.stdout,
+                                         sort_type = sort_type,
+                                         reverse = reverse,
+                                         limit = limit,
+                                         prefix = prefix)
+
+  @classmethod
+  def greatest_remote_tag(clazz, root, prefix = None):
+    tags = clazz.list_remote_tags(root, sort_type = 'version', prefix = prefix)
+    if not tags:
+      return None
+    return tags[-1]
 
   @classmethod
   def commit_timestamp(clazz, root, commit):
@@ -638,41 +694,25 @@ class git(git_lfs):
 
   _bump_tag_result = namedtuple('_bump_tag_result', 'old_tag, new_tag')
   @classmethod
-  def bump_tag(clazz, root_dir, component, push = True, dry_run = False, default_tag = None, reset_lower = False):
-    old_tag = git.greatest_local_tag(root_dir)
+  def bump_tag(clazz, root_dir, component, push = True, dry_run = False,
+               default_tag = None, reset_lower = False, prefix = None):
+    default_tag = default_tag or '1.0.0'
+    old_tag = git.greatest_local_tag(root_dir, prefix = prefix)
     if old_tag:
-      new_tag = software_version.bump_version(old_tag, component, reset_lower = reset_lower)
+      old_tag_name = old_tag.name
+      new_tag_name = software_version.bump_version(old_tag.name, component, reset_lower = reset_lower)
     else:
-      new_tag = default_tag or '1.0.0'
+      old_tag_name = None
+      if prefix:
+        new_tag_name = '{}{}'.format(prefix, default_tag)
+      else:
+        new_tag_name = default_tag
+        
     if not dry_run:
-      git.tag(root_dir, new_tag)
+      git.tag(root_dir, new_tag_name, allow_downgrade = prefix != None)
       if push:
-        git.push_tag(root_dir, new_tag)
-    return clazz._bump_tag_result(old_tag, new_tag)
-
-  @classmethod
-  def where_is_valid(clazz, where):
-    return where in [ 'local', 'remote', 'both' ]
-
-  @classmethod
-  def check_where(clazz, where):
-    if not clazz.where_is_valid(where):
-      raise ValueError('where should be local, remote or both instead of: {}'.format(where))
-    return where
-
-  @classmethod
-  def determine_where(clazz, local, remote, default_value = 'both'):
-    if local is None and remote is None:
-      return default_value
-    local = bool(local)
-    remote = bool(remote)
-    if local and remote:
-      return 'both'
-    elif local:
-      return 'local'
-    elif remote:
-      return 'remote'
-    assert False
+        git.push_tag(root_dir, new_tag_name)
+    return clazz._bump_tag_result(old_tag_name, new_tag_name)
 
   @classmethod
   def active_branch(clazz, root):
@@ -680,7 +720,8 @@ class git(git_lfs):
 
   @classmethod
   def list_branches(clazz, root, where):
-    clazz.check_where(where)
+    git_ref_where.check_where(where)
+    
     if where == 'local':
       branches = clazz.list_local_branches(root)
     elif where == 'remote':
@@ -747,13 +788,17 @@ class git(git_lfs):
     return clazz._branch_list_determine_authors(root, result)
 
   @classmethod
-  def branch_create(clazz, root, branch_name, checkout = False, push = False):
+  def branch_create(clazz, root, branch_name, checkout = False, push = False,
+                    start_point = None):
     branches = clazz.list_branches(root, 'both')
     if branches.has_remote(branch_name):
       raise ValueError('branch already exists remotely: {}'.format(branch_name))
     if branches.has_local(branch_name):
       raise ValueError('branch already exists locally: {}'.format(branch_name))
-    git_exe.call_git(root, [ 'branch', branch_name ])
+    args = [ 'branch', branch_name ]
+    if start_point:
+      args.append(start_point)
+    git_exe.call_git(root, args)
     if checkout:
       clazz.checkout(root, branch_name)
     if push:
@@ -869,6 +914,11 @@ class git(git_lfs):
     check.check_string(root)
     check.check_string(address)
     check.check_string(local_path)
+
+    # submodule urls that are local paths need to use unix like
+    # separators even on windows.
+    if path.exists(address):
+      address = address.replace('\\', '/') #file_path.xp_path(address, sep = '/')
     args = [ 'submodule', 'add', address, local_path ]
     git_exe.call_git(root, args)
 
@@ -892,12 +942,12 @@ class git(git_lfs):
     return True
 
   @classmethod
-  def has_remote_tag(clazz, root, tag):
-    return tag in clazz.list_remote_tags(root)
+  def has_remote_tag(clazz, root_dir, tag):
+    return clazz.list_remote_tags(root_dir).has_name(tag)
 
   @classmethod
-  def has_local_tag(clazz, root, tag):
-    return tag in clazz.list_local_tags(root)
+  def has_local_tag(clazz, root_dir, tag):
+    return clazz.list_local_tags(root_dir).has_name(tag)
 
   @classmethod
   def has_commit(clazz, root, commit):
@@ -967,6 +1017,28 @@ class git(git_lfs):
       return False
 
   @classmethod
+  def tag_has_annotation(clazz, root_dir, tag_name):
+    'Return True if tag_name has an annotation.'
+    check.check_string(root_dir)
+    check.check_string(tag_name)
+
+    rv = git_exe.call_git(root_dir, [ 'cat-file', '-t', tag_name ])
+    tag_type = rv.stdout.strip()
+    assert tag_type in ( 'tag', 'commit' )
+    return tag_type == 'tag'
+
+  @classmethod
+  def tag_annotation(clazz, root_dir, tag_name):
+    'Return the annotation for tag_name or raise an error it is not annotated.'
+    check.check_string(root_dir)
+    check.check_string(tag_name)
+
+    if not clazz.tag_has_annotation(root_dir, tag_name):
+      raise git_error('not an annotated tag: "{}"'.format(tag_name))
+    rv = git_exe.call_git(root_dir, [ 'tag', '-n', '--format=%(subject)', tag_name ])
+    return string_util.unquote(rv.stdout.strip())
+
+  @classmethod
   def is_branch(clazz, root_dir, ref_name):
     'Return True if ref is a branch.'
     check.check_string(root_dir)
@@ -998,7 +1070,10 @@ class git(git_lfs):
     rv = git_exe.call_git(start_dir, [ 'rev-parse', '--show-toplevel' ], raise_error = False)
     if rv.exit_code != 0:
       return None
-    return rv.stdout.strip()
+    result = rv.stdout.strip()
+    if host.SYSTEM == host.WINDOWS:
+      result = result.replace('/', os.sep)
+    return result
 
   @classmethod
   def commit_message(clazz, root_dir, revision):

@@ -33,19 +33,19 @@ class host(with_metaclass(_host_info_holder, object)):
   MACOS = 'macos'
   WINDOWS = 'windows'
 
-  SYSTEMS = [ LINUX, MACOS, WINDOWS ]
+  SYSTEMS = ( LINUX, MACOS, WINDOWS )
 
   # distros
   RASPBIAN = 'raspbian'
   UBUNTU = 'ubuntu'
 
-  DISTROS = [ RASPBIAN, UBUNTU ]
+  DISTROS = ( RASPBIAN, UBUNTU )
 
   # families
   FAMILY_DEBIAN = 'debian'
   FAMILY_REDHAT = 'redhat'
 
-  FAMILIES = [ FAMILY_DEBIAN, FAMILY_REDHAT ]
+  FAMILIES = ( FAMILY_DEBIAN, FAMILY_REDHAT )
 
   @classmethod
   def init(clazz):
@@ -82,8 +82,14 @@ class host(with_metaclass(_host_info_holder, object)):
   def raise_unsupported_system(clazz, system = None):
     'Raise a RuntimeError about the system being unsupported.  If system is None host.SYSTEM is used.'
     system = system or host.SYSTEM
-    raise host_error('unsupported system: {}'.format(system))
+    raise host_error('unsupported system: "{}"'.format(system))
 
+  @classmethod
+  def raise_unsupported_distro(clazz, distro = None):
+    'Raise a RuntimeError about the distro being unsupported.  If distro is None host.DISTRO is used.'
+    distro = distro or host.DISTRO
+    raise host_error('unsupported distro: "{}"'.format(distro))
+  
   @classmethod
   def check_is_macos(clazz):
     'Raise host_error if system is not macos.'
@@ -95,6 +101,26 @@ class host(with_metaclass(_host_info_holder, object)):
     'Raise host_error if system is not linux.'
     if clazz.SYSTEM != clazz.LINUX:
       raise host_error('not linux')
+
+  @classmethod
+  def check_system(clazz, system):
+    'Raise a RuntimeError about the system being unsupported.  If system is None host.SYSTEM is used.'
+    if not system in clazz.SYSTEMS:
+      clazz.raise_unsupported_system(clazz, system = system)
+
+  @classmethod
+  def check_distro(clazz, system, distro):
+    'Raise a RuntimeError about the distro being unsupported.  If distro is None host.DISTRO is used.'
+    clazz.check_system(system)
+
+    if system != clazz.LINUX:
+      raise RuntimeError('distro is only valid when system is linux instead of "{}": "{}'.format(system, distro))
+
+    if not distro:
+      raise RuntimeError('invalid distro for {}: "{}'.format(system, distro))
     
+    if not distro in clazz.DISTROS:
+      clazz.raise_unsupported_distro(clazz, distro = distro)
+      
 host.init()
 

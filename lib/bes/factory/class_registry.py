@@ -10,8 +10,8 @@ class class_registry(object):
     self._raise_on_existing = raise_on_existing
     self._registry = {}
   
-  def register(self, registree):
-    name = registree.__name__
+  def register(self, registree, name = None):
+    name = name or registree.__name__
     existing = self._registry.get(name, None)
     if existing:
       if self._raise_on_existing:
@@ -30,6 +30,9 @@ class class_registry(object):
     object_class = self.get(class_name)
     return object_class()
 
+  def items(self):
+    return self._registry.items()
+  
   @classmethod
   def _add_to_global_sys_modules(clazz, registree):
     '''

@@ -78,7 +78,7 @@ class _file_attributes_windows(_file_attributes_base):
         content = fp.read().decode('utf-8')
         fp.close()
         return key_value_list.parse(content).to_dict()
-    except FileNotFoundError as ex:
+    except Exception as ex:
       return None
       
   @classmethod

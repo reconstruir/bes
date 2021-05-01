@@ -8,22 +8,26 @@ class command_line(object):
   'command_line'
 
   @classmethod
-  def parse_args(clazz, args, quote = False):
+  def parse_args(clazz, args, quote = False, system = None):
     'Parse arguments to use for execute.'
-    if host.SYSTEM == host.WINDOWS:
+    system = system or host.SYSTEM
+    if system == host.WINDOWS:
       return clazz._parse_args_windows(args, quote = quote)
-    else:
+    elif system in ( host.MACOS, host.LINUX ):
       return clazz._parse_args_unix(args, quote = quote)
+    elif system in ( host.MACOS, host.LINUX ):
+      host.raise_unsupported_system(system = system)
     
   @classmethod
   def _parse_args_unix(clazz, args, quote = False):
     assert args != None
-    
     flat_args = None
     if compat.is_string(args):
       flat_args = args
     elif isinstance(args, ( list, tuple )):
-      for arg in args:
+      for i, arg in enumerate(args, 1):
+        if arg == None:
+          raise TypeError('arg number {} cannot be "None":  "{}"'.format(i, args))
         if not compat.is_string(arg):
           raise TypeError('arg should be a string instead of: "{}" - {}'.format(args, type(arg)))
       flat_args = ' '.join(args)

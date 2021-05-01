@@ -18,4 +18,4 @@ class computer_setup_cli_args(object):
     
   def _command_computer_setup(self, command, *args, **kargs):
     from .computer_setup_cli_command import computer_setup_cli_command
-    return computer_setup_cli_command.handle_command(command, **kargs)
+    return computer_setup_cli_command(kargs).handle_command(command)

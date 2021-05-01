@@ -22,7 +22,7 @@ class test_file_type(unit_test):
     self.assertTrue( file_type.matches(tmp_file, file_type.DIR | file_type.FILE) )
     self.assertTrue( file_type.matches(tmp_dir, file_type.DIR | file_type.FILE) )
 
-  @skip_if_not_unix
+  @skip_if_not_unix()
   def test_char(self):
     self.assertTrue( file_type.matches('/dev/null', file_type.CHAR) )
 

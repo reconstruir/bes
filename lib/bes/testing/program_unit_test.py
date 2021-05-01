@@ -6,19 +6,49 @@ from collections import namedtuple
 import codecs, sys
 import subprocess
 import os.path as path
+import platform
 
 from .unit_test import unit_test
 
 class program_unit_test(unit_test):
 
-  def _make_command(self, program, args):
+  @classmethod
+  def _make_command(clazz, program, args):
     cmd = []
     if program.lower().endswith('.py'):
       cmd.append(sys.executable)
     cmd.append(program)
-    cmd.extend(list(args))
+    cmd.extend(clazz._fix_args(args))
     return cmd
 
+  @classmethod
+  def _fix_args(clazz, args):
+    '''
+    Fix any arg that is a path to use unix style slashes
+    Windows supports them and using them bypasses a bunch
+    of quoting issues'
+    '''
+    result = []
+    for arg in args:
+      result.append(clazz._fix_arg(arg))
+    return result
+
+  @classmethod
+  def _fix_arg(clazz, arg):
+    if not platform.system() == 'Windows':
+      return arg
+    if path.exists(arg):
+      return arg.replace('\\', '/')
+    if isinstance(arg, list):
+      fixed_arg = []
+      for next_item in arg:
+        if path.exists(next_item):
+          fixed_arg.append(next_item.replace('\\', '/'))
+        else:
+          fixed_arg.append(next_item)
+      arg = fixed_arg
+    return arg
+  
   def run_program(self, program, args, cwd = None, env = None):
     rv = self.run_program_raw(program, args, cwd = cwd, env = env)
     if isinstance(rv.output, bytes):

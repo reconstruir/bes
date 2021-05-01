@@ -18,7 +18,7 @@ bd2bd69 comment out java for now
 f208072 [dropped]
 68c2d18 [dropped]
 
-ego_automation:
+something_eggs:
 7355f60 finish changelog.  final proper slicing of commits to support to and from revisions
 c9bd206 cleanup resolve of to and from revisions for changelog()
 a6e40ef dont import until needed
