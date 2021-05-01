@@ -37,7 +37,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
     'Return a list of installed python versions.'
 
     result = []
-    np = native_package(self.blurber)
+    np = native_package(self.options.blurber)
     all_packages = np.installed_packages()
     for package_name in all_packages:
       if 'PythonFramework' in package_name:
@@ -72,22 +72,29 @@ class python_installer_macos_python_dot_org(python_installer_base):
     url = python_python_dot_org.macos_package_url(full_version)
     tmp_pkg = python_python_dot_org.downlod_package_to_temp_file(url)
     
-    np = native_package(self.blurber)
-    
     for old_full_version in versions_to_uninstall:
       self.blurb('Uninstalling python {}'.format(old_full_version))
       self.uninstall(old_full_version)
 
     self.blurb('Installing python {}'.format(full_version))
     self.blurb_verbose('Installing: {}'.format(tmp_pkg))
-    np.install(tmp_pkg)
+
+    self.install_package(tmp_pkg)
+
+    return True
+
+  #@abstractmethod
+  def install_package(self, package_filename):
+    'Install a python package directly.  Not always supported.'
+    check.check_string(package_filename)
+
+    np = native_package(self.blurber)
+    np.install(package_filename)
 
     self._run_commands(np, version)
     self._cleanup_links()
     #self._fix_symlinks(np, full_version)
-
-    return True
-        
+    
   #@abstractmethod
   def uninstall(self, version_or_full_version):
     'Uninstall a python by version or full_version.'

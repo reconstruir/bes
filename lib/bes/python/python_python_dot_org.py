@@ -79,6 +79,8 @@ class python_python_dot_org(object):
   @classmethod
   def possible_package_urls(clazz, system, full_version):
     'Return the package url for a specific version of python for system.'
+    if check.is_string(full_version):
+      full_version = python_version(full_version)
     check.check_python_version(full_version)
 
     source = python_source.find_impl(system)
@@ -110,16 +112,38 @@ class python_python_dot_org(object):
   def _downlod_url(clazz, url, debug = False):
     if not url_util.exists(url):
       raise python_error('No python.org package found: "{}"'.format(url))
-    tmp_dir = temp_file.make_temp_dir(suffix = '-python-download')
+    tmp_dir = temp_file.make_temp_dir(suffix = '-python-download', delete = not debug)
     basename = path.basename(url)
     tmp_package = path.join(tmp_dir, basename)
     url_util.download_to_file(url, tmp_package)
+    if debug:
+      print('tmp python package download: {}'.format(tmp_package))
+    expected_checksum = clazz._fetch_checksum(url)
+    if not expected_checksum:
+      raise python_error('Failed to determine checksum for: {}'.format(url))
+    actual_checksum = file_util.checksum('md5', tmp_package)
+    if expected_checksum != actual_checksum:
+      msg = '''
+CHECKSUM MISMATCH: url={url}
+CHECKSUM MISMATCH: expected={expected}
+CHECKSUM MISMATCH: actual={actual}
+CHECKSUM MISMATCH: filename={filename}
+CHECKSUM MISMATCH: run with --debug to keep and debug the download
+'''.format(url = url,
+           expected = expected_checksum,
+           actual = actual_checksum,
+           filename = tmp_package)
+      raise python_error(msg)
     return tmp_package
 
   @classmethod
   def download_package(clazz, system, full_version, debug = False):
     'Download the major.minor.revision full version of python to a temporary file.'
-    url = clazz.possible_package_urls(system, full_version)
+    if check.is_string(full_version):
+      full_version = python_version(full_version)
+    check.check_python_version(full_version)
+
+    url = clazz.find_package_url(system, full_version)
     return clazz._downlod_url(url, debug = False)
   
   @classmethod
@@ -137,4 +161,39 @@ class python_python_dot_org(object):
         if v.is_full_version():
           result.append(v)
     return result
+
+  @classmethod
+  def _full_version_for_url(clazz, url):
+    'Download the major.minor.revision full version of python to a temporary file.'
+
+    f = re.findall(r'^https://www.python.org/ftp/python/(\d+\.\d+\.\d+)/.*$', url)
+    if not f:
+      return None
+    if len(f) != 1:
+      return None
+    return python_version(f[0])
   
+  @classmethod
+  def _checksum_index_url(clazz, url):
+    full_version = clazz._full_version_for_url(url)
+    assert full_version
+    return 'https://www.python.org/downloads/release/python-{}/'.format(full_version.join_parts(''))
+
+  @classmethod
+  def _fetch_checksum(clazz, url):
+    index_url = clazz._checksum_index_url(url)
+    response = url_util.get(index_url)
+    content = response.content.decode('utf-8')
+    parser = text_line_parser(content)
+    start_pattern = url
+    end_pattern = url + '.asc'
+    section = parser.cut_lines(start_pattern, end_pattern, include_pattern = False)
+    if len(section) != 4:
+      return None
+    line = section[2].text
+    f = re.findall(r'^\s*\<td\>([0-9a-f]+)\<\/td\>\s*$', line)
+    if not f:
+      return None
+    if len(f) != 1:
+      return None
+    return f[0]

@@ -201,5 +201,10 @@ class python_version(object):
         return version
     except python_error as ex:
       raise
+
+  def join_parts(self, delimiter):
+    'Check version is a x version or raise an error if not'
+    check.check_string(delimiter)
+    return delimiter.join([ str(p) for p in self.parts ])
     
 check.register_class(python_version, include_seq = False)

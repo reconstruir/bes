@@ -54,6 +54,11 @@ class test_python_version(unit_test):
     self.assertEqual( 6, python_version('6').major )
     self.assertEqual( 6, python_version('6.7').major )
     self.assertEqual( 6, python_version('6.8').major )
+
+  def test_join_parts(self):
+    self.assertEqual( '6', python_version('6').join_parts('') )
+    self.assertEqual( '67', python_version('6.7').join_parts('') )
+    self.assertEqual( '678', python_version('6.7.8').join_parts('') )
     
 if __name__ == '__main__':
   unit_test.main()
