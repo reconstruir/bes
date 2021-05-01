@@ -59,7 +59,6 @@ class python_exe(object):
     all_info = clazz.find_all_exes_info(exclude_sources = exclude_sources,
                                         sanitize_path = sanitize_path)
     for next_exe, info in all_info.items():
-      print('checking: {} {} vs {}'.format(next_exe, info.version, version))
       if info.version == version:
         return next_exe
     return None
