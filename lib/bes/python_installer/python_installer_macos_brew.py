@@ -1,19 +1,23 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common.check import check
+import re
 
+from bes.common.check import check
+from bes.python.python_exe import python_exe
+from bes.python.python_version import python_version
+from bes.python.python_version_list import python_version_list
+from bes.system.log import logger
 from bes.unix.brew.brew import brew
 from bes.unix.brew.brew_options import brew_options
 
-from bes.python.python_exe import python_exe
-from bes.python.python_version import python_version
-
-from .python_installer_error import python_installer_error
 from .python_installer_base import python_installer_base
+from .python_installer_error import python_installer_error
 from .python_python_dot_org import python_python_dot_org
 
 class python_installer_macos_brew(python_installer_base):
   'Python installer for macos from python.org'
+
+  _log = logger('python_installer')
   
   def __init__(self, options):
     check.check_python_installer_options(options)
@@ -34,7 +38,18 @@ class python_installer_macos_brew(python_installer_base):
   #@abstractmethod
   def installed_versions(self):
     'Return a list of installed python versions.'
-    return self._filter_python_packages(self._brew.installed())
+
+    packages = self._filter_python_packages(self._brew.installed())
+    self._log.log_d('installed_versions: packages: {}'.format(packages))
+    versions = [ self._brew_formula_to_python_version(p) for p in packages ]
+    self._log.log_d('installed_versions: versions: {}'.format(versions))
+
+    result = python_version_list()
+    for next_version in versions:
+      info = python_exe.find_version_info(next_version)
+      assert info
+      result.append(info.full_version)
+    return result
 
   #@abstractmethod
   def install(self, version):
@@ -76,3 +91,15 @@ class python_installer_macos_brew(python_installer_base):
   def _filter_python_packages(self, packages):
     'Filter a list of brew packages so it only contains python packages.'
     return sorted([ p for p in packages if p.startswith('python@') ])
+
+  @classmethod
+  def _brew_formula_to_python_version(clazz, brew_version):
+    check.check_string(brew_version)
+
+    f = re.findall(r'^python\@(\d\.\d)$', brew_version)
+    if not f:
+      return None
+    if len(f) != 1:
+      return None
+    return python_version(f[0])
+  

@@ -172,7 +172,8 @@ class python_version(object):
   @classmethod
   def check_version(clazz, version):
     'Check version is a x.y version or raise an error if not'
-    check.check_string(version)
+    if not check.is_python_version(version):
+      check.check_string(version)
 
     try:
       v = python_version(version)
@@ -184,7 +185,8 @@ class python_version(object):
   @classmethod
   def check_full_version(clazz, version):
     'Check version is a x.y.z version or raise an error if not'
-    check.check_string(version)
+    if not check.is_python_version(version):
+      check.check_string(version)
 
     try:
       v = python_version(version)
@@ -196,7 +198,8 @@ class python_version(object):
   @classmethod
   def check_major_version(clazz, version):
     'Check version is a major version or raise an error'
-    check.check_string(version)
+    if not check.is_python_version(version):
+      check.check_string(version)
 
     try:
       v = python_version(version)
@@ -208,7 +211,8 @@ class python_version(object):
   @classmethod
   def check_version_or_full_version(clazz, version):
     'Check version is a major.minor.revision or manor.minor version or raise an error'
-    check.check_string(version)
+    if not check.is_python_version(version):
+      check.check_string(version)
 
     try:
       v = python_version(version)
@@ -220,7 +224,8 @@ class python_version(object):
   @classmethod
   def check_version_any(clazz, version):
     'Check version is a major.minor.revision or manor.minor or just major version or raise an error'
-    check.check_string(version)
+    if not check.is_python_version(version):
+      check.check_string(version)
 
     try:
       return python_version(version)
