@@ -5,19 +5,18 @@ from os import path
 
 from bes.common.check import check
 from bes.fs.dir_util import dir_util
-from bes.system.execute import execute
 from bes.fs.file_symlink import file_symlink
 from bes.fs.file_util import file_util
-
 from bes.native_package.native_package import native_package
+from bes.python.python_exe import python_exe
+from bes.python.python_version import python_version
+from bes.system.execute import execute
 from bes.unix.sudo.sudo import sudo
 from bes.unix.sudo.sudo_cli_options import sudo_cli_options
 
-from .python_error import python_error
-from .python_exe import python_exe
+from .python_installer_error import python_installer_error
 from .python_installer_base import python_installer_base
 from .python_python_dot_org import python_python_dot_org
-from .python_version import python_version
 
 class python_installer_macos_python_dot_org(python_installer_base):
   'Python installer for macos from python.org'
@@ -43,7 +42,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
       if 'PythonFramework' in package_name:
         exe = self._python_exe_for_package(np, package_name)
         if not exe:
-          raise python_error('Failed to determine the python executable for possibly corrupted package: "{}"'.format(package_name))
+          raise python_installer_error('Failed to determine the python executable for possibly corrupted package: "{}"'.format(package_name))
         full_version = python_exe.full_version(exe)
         result.append(full_version)
     return sorted(result)
@@ -104,7 +103,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
     elif python_version.is_full_version(version_or_full_version):
       result = self._uninstall_full_version(version_or_full_version)
     else:
-      raise python_error('Invalid python version: "{}"'.format(version_or_full_version))
+      raise python_installer_error('Invalid python version: "{}"'.format(version_or_full_version))
     return result
 
   #@abstractmethod
@@ -154,10 +153,10 @@ class python_installer_macos_python_dot_org(python_installer_base):
     if np.has_package(package_name):
       exe = self._python_exe_for_package(np, package_name)
       if not exe:
-        raise python_error('Failed to determine the python executable for possibly corrupted package: "{}"'.format(package_name))
+        raise python_installer_error('Failed to determine the python executable for possibly corrupted package: "{}"'.format(package_name))
       actual_full_version = python_exe.full_version(exe)
       if actual_full_version != full_version:
-        raise python_error('Python version mismatch.  expected={} actual={}'.format(full_version, actual_full_version))
+        raise python_installer_error('Python version mismatch.  expected={} actual={}'.format(full_version, actual_full_version))
 
     return self._uninstall_version(version)
 
@@ -243,7 +242,7 @@ class python_installer_macos_python_dot_org(python_installer_base):
     version_root_dir = path.join(self._FRAMEWORK_LINK_VERSIONS_ROOT_DIR, version)
 
     if not path.exists(version_root_dir):
-      raise python_error('Trying to create framework symlinks for missing python version: {}'.format(version_root_dir))
+      raise python_installer_error('Trying to create framework symlinks for missing python version: {}'.format(version_root_dir))
 
     file_symlink.symlink(version, self._FRAMEWORK_LINK_CURRENT_ROOT_DIR)
     file_symlink.symlink('Versions/Current/Headers', path.join(self._FRAMEWORK_LINK_ROOT_DIR, 'Headers'))

@@ -5,16 +5,16 @@ from os import path
 import subprocess
 
 from bes.common.check import check
-from bes.url.url_util import url_util
+from bes.python.python_exe import python_exe
+from bes.python.python_version import python_version
 from bes.system.execute import execute
 from bes.system.log import logger
+from bes.url.url_util import url_util
 
-from .python_error import python_error
-from .python_exe import python_exe
 from .python_installer_base import python_installer_base
+from .python_installer_error import python_installer_error
 from .python_installer_options import python_installer_options
 from .python_python_dot_org import python_python_dot_org
-from .python_version import python_version
 
 class python_installer_windows_python_dot_org(python_installer_base):
   'Python installer for windows from python.org'
@@ -65,15 +65,15 @@ class python_installer_windows_python_dot_org(python_installer_base):
     elif python_version.is_version(any_version):
       matching_versions = python_version.filter_by_version(available_versions, any_version)
       if not matching_versions:
-        raise python_error('No versions available for: {}'.format(any_version))
+        raise python_installer_error('No versions available for: {}'.format(any_version))
       full_version = matching_versions[0]
     elif python_version.is_major_version(any_version):
       matching_versions = python_version.filter_by_major_version(available_versions, any_version)
       if not matching_versions:
-        raise python_error('No versions available for: {}'.format(any_version))
+        raise python_installer_error('No versions available for: {}'.format(any_version))
       full_version = matching_versions[0]
     else:
-      raise python_error('Invalid version: "{}"'.format(version_or_full_version))
+      raise python_installer_error('Invalid version: "{}"'.format(version_or_full_version))
 
     if self.options.dry_run:
       url = python_python_dot_org.package_url('windows', full_version)
@@ -150,17 +150,17 @@ class python_installer_windows_python_dot_org(python_installer_base):
     full_version = None
     if python_version.is_full_version(version_or_full_version):
       if version_or_full_version not in installed:
-        raise python_error('Not installed: {}'.format(version_or_full_version))
+        raise python_installer_error('Not installed: {}'.format(version_or_full_version))
       full_version = version_or_full_version
     elif python_version.is_version(version_or_full_version):
       matching_versions = python_version.filter_by_version(installed, version_or_full_version)
       if not matching_versions:
-        raise python_error('Not installed: {}'.format(version_or_full_version))
+        raise python_installer_error('Not installed: {}'.format(version_or_full_version))
       if len(matching_versions) > 1:
-        raise python_error('Multiple python versions found: {}'.format(' '.join(matching_versions)))
+        raise python_installer_error('Multiple python versions found: {}'.format(' '.join(matching_versions)))
       full_version = matching_versions[0]
     else: 
-      raise python_error('Invalid version: "{}"'.format(version_or_full_version))
+      raise python_installer_error('Invalid version: "{}"'.format(version_or_full_version))
 
     assert full_version
 

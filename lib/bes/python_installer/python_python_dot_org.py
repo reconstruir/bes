@@ -7,15 +7,15 @@ from bes.common.check import check
 from bes.compat import url_compat
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
+from bes.python.python_source import python_source
+from bes.python.python_version import python_version
+from bes.python.python_version_list import python_version_list
 from bes.system.host import host
 from bes.system.log import logger
 from bes.text.text_line_parser import text_line_parser
 from bes.url.url_util import url_util
 
-from .python_error import python_error
-from .python_source import python_source
-from .python_version import python_version
-from .python_version_list import python_version_list
+from .python_installer_error import python_installer_error
 
 class python_python_dot_org(object):
   'Class to deal with python.org listings and downloads'
@@ -111,7 +111,7 @@ class python_python_dot_org(object):
   @classmethod
   def _downlod_url(clazz, url, debug = False):
     if not url_util.exists(url):
-      raise python_error('No python.org package found: "{}"'.format(url))
+      raise python_installer_error('No python.org package found: "{}"'.format(url))
     tmp_dir = temp_file.make_temp_dir(suffix = '-python-download', delete = not debug)
     basename = path.basename(url)
     tmp_package = path.join(tmp_dir, basename)
@@ -120,7 +120,7 @@ class python_python_dot_org(object):
       print('tmp python package download: {}'.format(tmp_package))
     expected_checksum = clazz._fetch_checksum(url)
     if not expected_checksum:
-      raise python_error('Failed to determine checksum for: {}'.format(url))
+      raise python_installer_error('Failed to determine checksum for: {}'.format(url))
     actual_checksum = file_util.checksum('md5', tmp_package)
     if expected_checksum != actual_checksum:
       msg = '''
@@ -133,7 +133,7 @@ CHECKSUM MISMATCH: run with --debug to keep and debug the download
            expected = expected_checksum,
            actual = actual_checksum,
            filename = tmp_package)
-      raise python_error(msg)
+      raise python_installer_error(msg)
     return tmp_package
 
   @classmethod
