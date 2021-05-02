@@ -9,6 +9,7 @@ from .python_error import python_error
 from .python_exe import python_exe
 from .python_installer_base import python_installer_base
 from .python_python_dot_org import python_python_dot_org
+from .python_version import python_version
 
 class python_installer_macos_brew(python_installer_base):
   'Python installer for macos from python.org'
@@ -26,25 +27,33 @@ class python_installer_macos_brew(python_installer_base):
   def available_versions(self, num):
     'Return a list of python versions available to install.'
     check.check_int(num)
-    return python_python_dot_org.available_versions('macos', num)
+
+    return self._filter_python_packages(self._brew.available())
     
   #@abstractmethod
   def installed_versions(self):
     'Return a list of installed python versions.'
-    brew_packages = self._brew.installed()
-    return self._filter_python_packages(brew_packages)
-    
+    return self._filter_python_packages(self._brew.installed())
+
   #@abstractmethod
-  def install(self, full_version):
-    'Install the major.minor.revision full version of python.'
-    check.check_string(full_version)
+  def install(self, version):
+    'Install the major.minor.revision or major.minor version of python.'
+    v = python_version.check_version_or_full_version(version)
+    if v.is_full_version():
+      raise python_error('Install by full_version not supported by this installer.')
+    assert v.is_version()
+    self._brew.install(version)
 
-    self._brew.install(full_version)
-
+  #@abstractmethod
+  def update(self, version):
+    'Update to the latest major.minor version of python.'
+    python_version.check_version(version)
+    assert False
+    
   #@abstractmethod
   def install_package(self, package_filename):
     'Install a python package directly.  Not always supported.'
-    raise python_error('direct package installation not supported.')
+    raise python_error('Direct package installation not supported by this installer.')
     
   #@abstractmethod
   def uninstall(self, version_or_full_version):
@@ -56,8 +65,13 @@ class python_installer_macos_brew(python_installer_base):
   #@abstractmethod
   def download(self, full_version):
     'Download the major.minor.revision full version of python to a temporary file.'
-    raise python_error('download not supported.')
-    
+    raise python_error('Download not supported.')
+
+  #@abstractmethod
+  def supports_full_version(self):
+    'Return True if this installer supports installing by full version.'
+    return False
+  
   def _filter_python_packages(self, packages):
     'Filter a list of brew packages so it only contains python packages.'
     return sorted([ p for p in packages if p.startswith('python@') ])

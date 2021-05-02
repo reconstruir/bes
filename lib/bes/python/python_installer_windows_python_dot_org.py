@@ -183,3 +183,9 @@ class python_installer_windows_python_dot_org(python_installer_base):
   def download(self, full_version, debug = False):
     'Download the major.minor.revision full version of python to a temporary file.'
     return python_python_dot_org.download_package('windows', full_version, debug = debug)
+
+  #@abstractmethod
+  def supports_full_version(self):
+    'Return True if this installer supports installing by full version.'
+    return True
+  

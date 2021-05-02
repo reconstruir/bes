@@ -49,11 +49,10 @@ class python_installer_macos_python_dot_org(python_installer_base):
     return sorted(result)
     
   #@abstractmethod
-  def install(self, full_version):
+  def install(self, version):
     'Install the major.minor.revision full version of python.'
-    check.check_string(full_version)
+    check.check_python_version(version)
 
-    version = python_version.version(full_version)
     installed_versions = self.installed_versions()
     
     if full_version in installed_versions:
@@ -272,3 +271,9 @@ class python_installer_macos_python_dot_org(python_installer_base):
       if 'Library/Frameworks/Python.framework/Versions' in target:
         self.blurb_verbose('Removing broken /usr/local link: {}'.format(broken_link))
         file_util.remove(broken_link)
+
+  #@abstractmethod
+  def supports_full_version(self):
+    'Return True if this installer supports installing by full version.'
+    return True
+        

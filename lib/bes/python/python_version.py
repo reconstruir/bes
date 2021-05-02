@@ -176,9 +176,9 @@ class python_version(object):
 
     try:
       if python_version(version).is_version():
-        return version
+        return python_version(version)
     except python_error as ex:
-      raise
+      raise python_error('Not a valid version: "{}"'.format(version))
 
   @classmethod
   def check_full_version(clazz, version):
@@ -187,9 +187,9 @@ class python_version(object):
 
     try:
       if python_version(version).is_full_version():
-        return version
+        return python_version(version)
     except python_error as ex:
-      raise
+      raise python_error('Not a valid full version: "{}"'.format(version))
 
   @classmethod
   def check_major_version(clazz, version):
@@ -198,10 +198,22 @@ class python_version(object):
 
     try:
       if python_version(version).is_major_version():
-        return version
+        return python_version(version)
     except python_error as ex:
-      raise
+      raise python_error('Not a valid major version: "{}"'.format(version))
 
+  @classmethod
+  def check_version_or_full_version(clazz, version):
+    'Check version is a x.y.z or x.y version or raise an error if not'
+    check.check_string(version)
+
+    try:
+      v = python_version(version)
+      if v.is_version() or v.is_full_version():
+        return python_version(version)
+    except python_error as ex:
+      raise python_error('Not a valid version or full_version: "{}"'.format(version))
+    
   def join_parts(self, delimiter):
     'Check version is a x version or raise an error if not'
     check.check_string(delimiter)

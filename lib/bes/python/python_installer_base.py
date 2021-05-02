@@ -27,10 +27,15 @@ class python_installer_base(with_metaclass(ABCMeta, object)):
     raise NotImplemented('installed_versions')
 
   @abstractmethod
-  def install(self, full_version):
-    'Install the major.minor.revision full version of python.'
-    raise NotImplemented('install_full_version')
+  def install(self, version):
+    'Install the major.minor.revision or major.minor version of python.'
+    raise NotImplemented('install')
 
+  @abstractmethod
+  def update(self, version):
+    'Update to the latest major.minor version of python.'
+    raise NotImplemented('update')
+  
   @abstractmethod
   def install_package(self, package_filename):
     'Install a python package directly.  Not always supported.'
@@ -45,6 +50,11 @@ class python_installer_base(with_metaclass(ABCMeta, object)):
   def download(self, full_version):
     'Download the major.minor.revision full version of python to a temporary file.'
     raise NotImplemented('download')
+
+  @abstractmethod
+  def supports_full_version(self):
+    'Return True if this installer supports installing by full version.'
+    raise NotImplemented('supports_full_version')
   
   def blurb(self, message, output = None, fit = False):
     'Print a blurb'

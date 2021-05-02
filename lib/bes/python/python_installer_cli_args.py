@@ -14,8 +14,13 @@ class python_installer_cli_args(object):
     # install
     p = subparser.add_parser('install', help = 'Install python.')
     self.__python_installer_add_common_args(p)
-    p.add_argument('full_version', action = 'store', help = 'The full version of python to install')
+    p.add_argument('version', action = 'store', help = 'The version of python to install')
 
+    # update
+    p = subparser.add_parser('install', help = 'Update python.')
+    self.__python_installer_add_common_args(p)
+    p.add_argument('version', action = 'store', help = 'The version of python to update')
+    
     # install_package
     p = subparser.add_parser('install_package', help = 'Install a python package file directly.')
     self.__python_installer_add_common_args(p)

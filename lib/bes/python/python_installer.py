@@ -80,9 +80,14 @@ class python_installer(python_installer_base):
     return self.installer.installed_versions()
     
   #@abstractmethod
-  def install(self, full_version):
-    'Install the major.minor.revision full version of python.'
-    return self.installer.install(full_version)
+  def install(self, version):
+    'Install the major.minor.revision or major.minor version of python.'
+    return self.installer.install(version)
+
+  #@abstractmethod
+  def update(self, version):
+    'Update to the latest major.minor version of python.'
+    return self.installer.update_version(version)
 
   #@abstractmethod
   def install_package(self, package_filename):
@@ -98,5 +103,10 @@ class python_installer(python_installer_base):
   def download(self, full_version):
     'Download the major.minor.revision full version of python to a temporary file.'
     return self.installer.download(full_version)
+
+  #@abstractmethod
+  def supports_full_version(self):
+    'Return True if this installer supports installing by full version.'
+    return self.installer.supports_full_version()
   
 check.register_class(python_installer, include_seq = False)
