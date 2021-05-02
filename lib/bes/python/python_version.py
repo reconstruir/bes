@@ -175,8 +175,9 @@ class python_version(object):
     check.check_string(version)
 
     try:
-      if python_version(version).is_version():
-        return python_version(version)
+      v = python_version(version)
+      if v.is_version():
+        return v
     except python_error as ex:
       raise python_error('Not a valid version: "{}"'.format(version))
 
@@ -186,33 +187,45 @@ class python_version(object):
     check.check_string(version)
 
     try:
-      if python_version(version).is_full_version():
-        return python_version(version)
+      v = python_version(version)
+      if vis_full_version():
+        return v
     except python_error as ex:
       raise python_error('Not a valid full version: "{}"'.format(version))
 
   @classmethod
   def check_major_version(clazz, version):
-    'Check version is a x version or raise an error if not'
+    'Check version is a major version or raise an error'
     check.check_string(version)
 
     try:
-      if python_version(version).is_major_version():
-        return python_version(version)
+      v = python_version(version)
+      if vis_major_version():
+        return v
     except python_error as ex:
       raise python_error('Not a valid major version: "{}"'.format(version))
 
   @classmethod
   def check_version_or_full_version(clazz, version):
-    'Check version is a x.y.z or x.y version or raise an error if not'
+    'Check version is a major.minor.revision or manor.minor version or raise an error'
     check.check_string(version)
 
     try:
       v = python_version(version)
       if v.is_version() or v.is_full_version():
-        return python_version(version)
+        return v
     except python_error as ex:
       raise python_error('Not a valid version or full_version: "{}"'.format(version))
+
+  @classmethod
+  def check_version_any(clazz, version):
+    'Check version is a major.minor.revision or manor.minor or just major version or raise an error'
+    check.check_string(version)
+
+    try:
+      return python_version(version)
+    except python_error as ex:
+      raise python_error('Not a valid version, full_version or major versio: "{}"'.format(version))
     
   def join_parts(self, delimiter):
     'Check version is a x version or raise an error if not'

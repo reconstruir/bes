@@ -3,13 +3,13 @@
 from bes.common.check import check
 from bes.system.host import host
 from bes.system.log import logger
+from bes.python.python_version import python_version
 
-from .python_installer_error import python_installer_error
 from .python_installer_base import python_installer_base
+from .python_installer_error import python_installer_error
 from .python_installer_macos_brew import python_installer_macos_brew
 from .python_installer_macos_python_dot_org import python_installer_macos_python_dot_org
 from .python_installer_windows_python_dot_org import python_installer_windows_python_dot_org
-
 
 class python_installer(python_installer_base):
 
@@ -108,5 +108,17 @@ class python_installer(python_installer_base):
   def supports_full_version(self):
     'Return True if this installer supports installing by full version.'
     return self.installer.supports_full_version()
+
+  def is_installed(self, version):
+    'Return True if a python matching version is installed.'
+    v = python_version.check_version_any(version)
+
+    installed = self.installed_versions()
+
+    for x in installed:
+      print('INSTALLED: {}'.format(x))
+    
+    #installed_versions(self):    
+    #return self.installer.download(full_version)
   
 check.register_class(python_installer, include_seq = False)

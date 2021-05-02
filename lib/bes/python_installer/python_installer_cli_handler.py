@@ -25,7 +25,13 @@ class python_installer_cli_handler(cli_command_handler):
     for installer in installers:
       print(installer)
     return 0
-    
+
+  def installed(self):
+    installed = self.installer.installed_versions()
+    for full_version in installed:
+      print(full_version)
+    return 0
+  
   def available(self, num):
     check.check_int(num)
 
@@ -34,35 +40,35 @@ class python_installer_cli_handler(cli_command_handler):
       print(full_version)
     return 0
   
-  def install(self, full_version):
-    check.check_string(full_version)
+  def install(self, version):
+    check.check_string(version)
 
-    self.installer.install(full_version)
+    self.installer.install(version)
     return 0
 
+  def update(self, version):
+    check.check_string(version)
+
+    self.installer.update(version)
+    return 0
+  
   def install_package(self, package_filename):
     check.check_string(package_filename)
 
     self.installer.install_package(package_filename)
     return 0
   
-  def uninstall(self, full_version):
-    check.check_string(full_version)
+  def uninstall(self, version):
+    check.check_string(version)
 
-    self.installer.uninstall(full_version)
+    self.installer.uninstall(version)
     return 0
 
-  def installed(self):
-    installed = self.installer.installed_versions()
-    for full_version in installed:
-      print(full_version)
-    return 0
-  
-  def reinstall(self, full_version):
-    check.check_string(full_version)
+  def reinstall(self, version):
+    check.check_string(version)
 
-    self.installer.uninstall(full_version)
-    self.installer.install(full_version)
+    self.installer.uninstall(version)
+    self.installer.install(version)
     return 0
 
   def download(self, full_version, output_filename):

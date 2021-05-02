@@ -11,6 +11,11 @@ class python_installer_cli_args(object):
     p = subparser.add_parser('installed', help = 'Return the full versions for all installed pythons.')
     self.__python_installer_add_common_args(p)
 
+    # is_installed
+    p = subparser.add_parser('is_installedinstall', help = 'Check if python is installed.')
+    self.__python_installer_add_common_args(p)
+    p.add_argument('version', action = 'store', help = 'The version of python to check')
+    
     # install
     p = subparser.add_parser('install', help = 'Install python.')
     self.__python_installer_add_common_args(p)
@@ -29,12 +34,12 @@ class python_installer_cli_args(object):
     # uninstall
     p = subparser.add_parser('uninstall', help = 'Uninstall python.')
     self.__python_installer_add_common_args(p)
-    p.add_argument('full_version', action = 'store', help = 'The full version of python to uninstall')
+    p.add_argument('version', action = 'store', help = 'The version of python to uninstall')
 
     # reinstall
     p = subparser.add_parser('reinstall', help = 'Reinstall python.')
     self.__python_installer_add_common_args(p)
-    p.add_argument('full_version', action = 'store', help = 'The full version of python to reinstall')
+    p.add_argument('version', action = 'store', help = 'The version of python to reinstall')
 
     # available
     p = subparser.add_parser('available', help = 'List python versions available to install.')
@@ -65,6 +70,8 @@ class python_installer_cli_args(object):
                    help = 'The target system [ False ]')
     p.add_argument('--dry-run', action = 'store_true', default = False,
                    help = 'Do not do any work just print what would happen [ False ]')
+    p.add_argument('--debug', action = 'store_true', default = False,
+                   help = 'Debug mode.  Keep temp files and logs for debugging [ False ]')
     
   def _command_python_installer(self, command, *args, **kargs):
     from .python_installer_cli_handler import python_installer_cli_handler

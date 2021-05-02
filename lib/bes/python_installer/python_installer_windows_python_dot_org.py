@@ -5,8 +5,11 @@ from os import path
 import subprocess
 
 from bes.common.check import check
+from bes.fs.temp_file import temp_file
+from bes.fs.file_util import file_util
 from bes.python.python_exe import python_exe
 from bes.python.python_version import python_version
+from bes.python.python_version_list import python_version_list
 from bes.system.execute import execute
 from bes.system.log import logger
 from bes.url.url_util import url_util
@@ -35,16 +38,17 @@ class python_installer_windows_python_dot_org(python_installer_base):
   #@abstractmethod
   def installed_versions(self):
     'Return a list of installed python versions.'
-    result = []
+    result = python_version_list()
     exes = python_exe.find_all_exes_info()
     for exe, info in exes.items():
       if info.source == 'python.org':
         full_version = python_exe.full_version(exe)
         result.append(full_version)
+    result.sort()
     return result
     
   #@abstractmethod
-  def install(self, any_version):
+  def install(self, version):
     '''
     Install any python version using any of these forms:
     major.minor.revision
@@ -53,45 +57,48 @@ class python_installer_windows_python_dot_org(python_installer_base):
     The python.org windows installer exe is documented here:
     https://docs.python.org/3/using/windows.html
     '''
-    check.check_string(any_version)
+    version = python_version.check_version_any(version)
+    
     self._log.log_method_d()
     available_versions = self.available_versions(0)
+    self._log.log_d('install: available_versions: {}'.format(available_versions.to_string()))
     installed_versions = self.installed_versions()
-    self._log.log_d('install: available_versions: {}'.format(' '.join(available_versions)))
-    self._log.log_d('install: installed_versions: {}'.format(' '.join(installed_versions)))
+    self._log.log_d('install: installed_versions: {}'.format(installed_versions.to_string()))
 
-    if python_version.is_full_version(any_version):
-      full_version = any_version
-    elif python_version.is_version(any_version):
-      matching_versions = python_version.filter_by_version(available_versions, any_version)
-      if not matching_versions:
-        raise python_installer_error('No versions available for: {}'.format(any_version))
-      full_version = matching_versions[0]
-    elif python_version.is_major_version(any_version):
-      matching_versions = python_version.filter_by_major_version(available_versions, any_version)
-      if not matching_versions:
-        raise python_installer_error('No versions available for: {}'.format(any_version))
-      full_version = matching_versions[0]
+    matching_versions = available_versions.filter_by_version(version)
+    matching_versions.sort()
+    self._log.log_d('install: matching_versions: {}'.format(matching_versions.to_string()))
+
+    if not matching_versions:
+      raise python_installer_error('No python versions available for: {}'.format(version))
+    
+    if version.is_full_version():
+      assert version == matching_versions[0]
+      full_version = version
     else:
-      raise python_installer_error('Invalid version: "{}"'.format(version_or_full_version))
+      full_version = matching_versions[-1]
 
+    self._log.log_d('install: full_version: {}'.format(full_version))
+
+    if full_version in installed_versions:
+      raise python_installer_error('Already installed: {}'.format(full_version))
+    
     if self.options.dry_run:
       url = python_python_dot_org.package_url('windows', full_version)
       self.blurb('dry-run: would install {}'.format(url))
       return
 
-    if full_version in installed_versions:
-      self.blurb('already installed: {}'.format(full_version))
-      return False
-
-    version = python_version.version(full_version)
-    matching_versions = python_version.filter_by_version(available_versions, any_version)
-    self._log.log_d('install: version={} matching_versions={}'.format(version, matching_versions))
-    
-    tmp_package = self.download(full_version, debug = True)
+    tmp_package = self.download(full_version)
     self._log.log_d('install: tmp_package={}'.format(tmp_package))
     self.install_package(tmp_package)
+    return True
 
+  #@abstractmethod
+  def update(self, version):
+    'Update to the latest major.minor version of python.'
+    python_version.check_version(version)
+    assert False
+    
   #@abstractmethod
   def install_package(self, package_filename):
     'Install a python package directly.  Not always supported.'
@@ -99,10 +106,15 @@ class python_installer_windows_python_dot_org(python_installer_base):
 
     self._log.log_method_d()
 
+    log_dir = temp_file.make_temp_dir(prefix = 'python_install_',
+                                      suffix = '.dir',
+                                      delete = not self.options.debug)
+    install_log = path.join(log_dir, 'install.log')
+    self._log.log_d('install_package: log_dir={}'.format(log_dir))
     cmd = [
       package_filename,
       '/log',
-      r'C:\tmp\pinstall.log',
+      log_dir,
       '/quiet',
       '/silent',
       'InstallAllUsers=1',
@@ -116,6 +128,8 @@ class python_installer_windows_python_dot_org(python_installer_base):
     self._log.log_d('install_package: command={}'.format(' '.join(cmd)))
     rv = execute.execute(cmd, stderr_to_stdout = True, raise_error = False)
     self._log.log_d('install_package: exit_code={} output={}'.format(rv.exit_code, rv.stdout))
+    if rv.exit_code != 0:
+      print(file_util.read(install_log, codec = 'utf-8'))
     
   #@abstractmethod
   def _is_installed_full_version(self, full_version):
@@ -142,36 +156,38 @@ class python_installer_windows_python_dot_org(python_installer_base):
     return None
     
   #@abstractmethod
-  def uninstall(self, version_or_full_version):
-    'Uninstall a python by version or full_version.'
-    check.check_string(version_or_full_version)
+  def uninstall(self, version):
+    '''Uninstall a python by version or full_version.'
+    Uninstall a python version using any of these forms:
+    major.minor.revision
+    major.minor
+    '''
+    version = python_version.check_version_any(version)
 
-    installed = self.installed_versions()
-    full_version = None
-    if python_version.is_full_version(version_or_full_version):
-      if version_or_full_version not in installed:
-        raise python_installer_error('Not installed: {}'.format(version_or_full_version))
-      full_version = version_or_full_version
-    elif python_version.is_version(version_or_full_version):
-      matching_versions = python_version.filter_by_version(installed, version_or_full_version)
-      if not matching_versions:
-        raise python_installer_error('Not installed: {}'.format(version_or_full_version))
-      if len(matching_versions) > 1:
-        raise python_installer_error('Multiple python versions found: {}'.format(' '.join(matching_versions)))
-      full_version = matching_versions[0]
-    else: 
-      raise python_installer_error('Invalid version: "{}"'.format(version_or_full_version))
+    installed_versions = self.installed_versions()
+    self._log.log_d('uninstall: installed_versions: {}'.format(installed_versions.to_string()))
 
+    matching_versions = installed_versions.filter_by_version(version)
+    matching_versions.sort()
+    self._log.log_d('uninstall: matching_versions: {}'.format(matching_versions.to_string()))
+
+    if not matching_versions:
+      raise python_installer_error('Not installed: {}'.format(version))
+
+    if len(matching_versions) != 1:
+      raise python_installer_error('Somehow multiple installed versions found for {}: {}'.format(versiom,
+                                                                                                 matching_versions.to_string()))
+    full_version = matching_versions[0]
+    self._log.log_d('uninstall: full_version: {}'.format(full_version))
     assert full_version
 
     old_package = self.download(full_version)
-    print('old_package={}'.format(old_package))
+    self._log.log_d('uninstall: old_package={}'.format(old_package))
     cmd = [
       old_package,
       '/uninstall',
       '/log',
       r'C:\tmp\puninstall.log',
-#      '/passive',
       '/quiet',
       '/silent',
     ]
@@ -180,9 +196,11 @@ class python_installer_windows_python_dot_org(python_installer_base):
     self._log.log_d('uninstall: exit_code={} output={}'.format(rv.exit_code, rv.stdout))
 
   #@abstractmethod
-  def download(self, full_version, debug = False):
+  def download(self, full_version):
     'Download the major.minor.revision full version of python to a temporary file.'
-    return python_python_dot_org.download_package('windows', full_version, debug = debug)
+    return python_python_dot_org.download_package('windows',
+                                                  full_version,
+                                                  debug = self.options.debug)
 
   #@abstractmethod
   def supports_full_version(self):

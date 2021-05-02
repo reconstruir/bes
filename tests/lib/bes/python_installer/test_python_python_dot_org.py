@@ -3,7 +3,7 @@
 
 from os import path
 
-from bes.python.python_python_dot_org import python_python_dot_org
+from bes.python_installer.python_python_dot_org import python_python_dot_org
 from bes.testing.unit_test import unit_test
 
 class test_python_python_dot_org(unit_test):
