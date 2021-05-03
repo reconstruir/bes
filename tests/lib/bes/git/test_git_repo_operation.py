@@ -22,7 +22,7 @@ class test_git_repo(unit_test):
 
   @git_temp_home_func()
   def test_operation_with_reset_basic(self):
-    r1 = self._make_repo()
+    r1 = self._make_repo(prefix = 'operation_with_reset_basic')
     r1.write_temp_content([
       'file foo.txt "this is foo" 644',
     ])
@@ -47,7 +47,7 @@ class test_git_repo(unit_test):
 
   @git_temp_home_func()
   def test_operation_with_reset_basic_interface(self):
-    r1 = self._make_repo()
+    r1 = self._make_repo(prefix = 'operation_with_reset_basic_interface')
     r1.write_temp_content([
       'file foo.txt "this is foo" 644',
     ])
@@ -73,7 +73,7 @@ class test_git_repo(unit_test):
 
   @git_temp_home_func()
   def test_operation_with_reset_seq_interface(self):
-    r1 = self._make_repo()
+    r1 = self._make_repo(prefix = 'operation_with_reset_seq_interface')
     r1.write_temp_content([
       'file foo.txt "this is foo" 644',
     ])
@@ -108,7 +108,7 @@ class test_git_repo(unit_test):
     
   @git_temp_home_func()
   def test_operation_with_reset_with_conflict(self):
-    r1 = self._make_repo()
+    r1 = self._make_repo(prefix = 'operation_with_reset_with_conflict')
     r1.write_temp_content([
       'file foo.txt "this is foo" 644',
     ])
@@ -156,7 +156,7 @@ class test_git_repo(unit_test):
     Create a bunch of processes trying to push to the same repo.
     This sometimes creates a git locking issue and tests the operation push retry code.
     '''
-    r1 = self._make_repo()
+    r1 = self._make_repo(prefix = 'operation_with_reset_with_multiprocess_conflict')
     r1.write_temp_content([
       'file foo.txt "_foo" 644',
     ])
@@ -191,7 +191,7 @@ class test_git_repo(unit_test):
 
   @git_temp_home_func()
   def test_operation_with_reset_wrong_function_args(self):
-    r1 = self._make_repo()
+    r1 = self._make_repo(prefix = 'operation_with_reset_wrong_function_args')
     r1.write_temp_content([
       'file foo.txt "this is foo" 644',
     ])
