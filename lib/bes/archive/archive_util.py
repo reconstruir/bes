@@ -30,7 +30,7 @@ class archive_util(object):
     tmp_dir = archiver.extract_all_temp_dir(archive, delete = not debug)
     if debug:
       print('tmp_dir: {}'.format(tmp_dir))
-    members = [ path.join(tmp_dir, m) for m in members ]
+    members = [ path.normpath(path.join(tmp_dir, m)) for m in members ]
     file_util.remove(members)
     archiver.create(archive, tmp_dir)
 
