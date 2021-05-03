@@ -58,9 +58,6 @@ class temp_archive(object):
     elif ext_type == 'xz':
       clazz._make_temp_archive_xz(items, temp_archive_filename, archive_mode)
 
-    if delete:
-      temp_file.atexit_delete(temp_archive_filename)
-
     return temp_archive_filename
 
   @classmethod
