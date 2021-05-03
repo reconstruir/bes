@@ -98,6 +98,25 @@ class python_installer_windows_python_dot_org(python_installer_base):
     'Update to the latest major.minor version of python.'
     python_version.check_version(version)
     assert False
+
+  #@abstractmethod
+  def needs_update(self, version):
+    'Return True if python version major.minor needs update.'
+    self._log.log_method_d()
+
+    version = python_version.check_version(version)
+    
+    available_versions = self.available_versions(0)
+    self._log.log_d('needs_update: available_versions: {}'.format(available_versions.to_string()))
+    installed_versions = self.installed_versions()
+    self._log.log_d('needs_update: installed_versions: {}'.format(installed_versions.to_string()))
+
+    filtered_available_versions = available_versions.filter_by_version(version)
+    self._log.log_d('needs_update: available_versions: {}'.format(available_versions.to_string()))
+    filtered_installed_versions = installed_versions.filter_by_version(version)
+    self._log.log_d('needs_update: installed_versions: {}'.format(installed_versions.to_string()))
+    
+    return False
     
   #@abstractmethod
   def install_package(self, package_filename):
@@ -110,11 +129,11 @@ class python_installer_windows_python_dot_org(python_installer_base):
                                       suffix = '.dir',
                                       delete = not self.options.debug)
     install_log = path.join(log_dir, 'install.log')
-    self._log.log_d('install_package: log_dir={}'.format(log_dir))
+    self._log.log_d('install_package: install_log={}'.format(install_log))
     cmd = [
       package_filename,
       '/log',
-      log_dir,
+      install_log,
       '/quiet',
       '/silent',
       'InstallAllUsers=1',
@@ -183,11 +202,16 @@ class python_installer_windows_python_dot_org(python_installer_base):
 
     old_package = self.download(full_version)
     self._log.log_d('uninstall: old_package={}'.format(old_package))
+    log_dir = temp_file.make_temp_dir(prefix = 'python_install_',
+                                      suffix = '.dir',
+                                      delete = not self.options.debug)
+    uninstall_log = path.join(log_dir, 'uninstall.log')
+    self._log.log_d('uninstall: uninstall_log={}'.format(uninstall_log))
     cmd = [
       old_package,
       '/uninstall',
       '/log',
-      r'C:\tmp\puninstall.log',
+      uninstall_log,
       '/quiet',
       '/silent',
     ]
