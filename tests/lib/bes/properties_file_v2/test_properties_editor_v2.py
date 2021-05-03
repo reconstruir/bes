@@ -12,7 +12,7 @@ class test_properties_editor_v2(unit_test):
 
   def test_set_value_non_existent_file(self):
     'Set the first value for a non existent properties file.'
-    tmp = temp_file.make_temp_file()
+    tmp = self.make_temp_file(prefix = 'set_value_non_existent_file')
     file_util.remove(tmp)
     e = PE(tmp)
     e.set_value('fruit', 'kiwi')
@@ -21,7 +21,7 @@ class test_properties_editor_v2(unit_test):
     
   def test_set_value_empty_file(self):
     'Set the first value for a non existent properties file.'
-    tmp = temp_file.make_temp_file(content = '')
+    tmp = self.make_temp_file(prefix = 'set_value_empty_file', content = '')
     e = PE(tmp)
     e.set_value('fruit', 'kiwi')
     expected = """fruit: kiwi\n"""
@@ -29,7 +29,7 @@ class test_properties_editor_v2(unit_test):
     
   def test_replace_value(self):
     'Set the first value for a non existent properties file.'
-    tmp = temp_file.make_temp_file(content = '')
+    tmp = self.make_temp_file(content = '', prefix = 'replace_value')
     e = PE(tmp)
     e.set_value('fruit', 'kiwi')
     expected = """fruit: kiwi\n"""
@@ -41,7 +41,7 @@ class test_properties_editor_v2(unit_test):
     
   def test_set_value_many_values(self):
     'Set the first value for a non existent properties file.'
-    tmp = temp_file.make_temp_file(content = '')
+    tmp = self.make_temp_file(content = '', prefix = 'set_value_many_values')
     e = PE(tmp)
     e.set_value('fruit', 'kiwi')
     e.set_value('version', '1.2.3')
@@ -58,7 +58,7 @@ version: 1.2.3
     content = """\
 fruit: 'kiwi'
 """
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = self.make_temp_file(content = content, prefix = 'set_value_existing_file')
     e = PE(tmp)
     self.assert_text_file_equal( content, tmp )
     e.set_value('status', 'doomed')
@@ -73,7 +73,7 @@ status: doomed
     content = """\
 fruit: kiwi
 """
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = self.make_temp_file(content = content, prefix = 'keys')
     e = PE(tmp)
     self.assertEqual( [ 'fruit' ], e.keys() )
 
@@ -82,7 +82,7 @@ fruit: kiwi
 color: 'green'
 fruit: 'kiwi'
 """
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = self.make_temp_file(content = content, prefix = 'get_value')
     e = PE(tmp)
     self.assertEqual( 'green', e.get_value('color') )
     self.assertEqual( 'kiwi', e.get_value('fruit') )
@@ -92,7 +92,7 @@ fruit: 'kiwi'
 color: 'green'
 fruit: 'kiwi'
 """
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = self.make_temp_file(content = content, prefix = 'remove_value')
     e = PE(tmp)
     self.assertEqual( 'green', e.get_value('color') )
     e.remove_value('color')
@@ -104,7 +104,7 @@ fruit: 'kiwi'
 color: 'green'
 fruit: 'kiwi'
 """
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = self.make_temp_file(content = content, prefix = 'values')
     e = PE(tmp)
     self.assertEqual( { 'color': 'green', 'fruit': 'kiwi' }, e.values() )
     
@@ -112,7 +112,7 @@ fruit: 'kiwi'
     content = """\
 version: 1.2.3
 """
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = self.make_temp_file(content = content, prefix = 'bump_version')
     e = PE(tmp)
     e.bump_version('version', 'major')
     self.assertEqual( '2.2.3', e.get_value('version') )
@@ -121,14 +121,15 @@ version: 1.2.3
     content = """\
 version: 1.2.3
 """
-    tmp = temp_file.make_temp_file(content = content)
+    tmp = self.make_temp_file(content = content, prefix = 'change_version')
     e = PE(tmp)
     e.change_version('version', 'major', 9)
     self.assertEqual( '9.2.3', e.get_value('version') )
 
   def test_backup(self):
     'Set the first value for a non existent properties file.'
-    tmp = temp_file.make_temp_file(content = '')
+    tmp_dir = self.make_temp_dir(prefix = 'backup')
+    tmp = file_util.save(path.join(tmp_dir, 'foo.props'), content = '')
     tmp_backup = tmp + '.bak'
     e = PE(tmp, backup = True)
     e.set_value('fruit', 'kiwi')
