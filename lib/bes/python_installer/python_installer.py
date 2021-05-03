@@ -1,9 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.common.check import check
+from bes.python.python_version import python_version
+from bes.python.python_version_list import python_version_list
 from bes.system.host import host
 from bes.system.log import logger
-from bes.python.python_version import python_version
 
 from .python_installer_base import python_installer_base
 from .python_installer_error import python_installer_error
@@ -113,16 +114,22 @@ class python_installer(python_installer_base):
     'Return True if this installer supports installing by full version.'
     return self.installer.supports_full_version()
 
+  def installed_versions_matching(self, version):
+    'Return installed versions matching version only.'
+    version = python_version.check_version_or_full_version(version)
+
+    installed_versions = self.installed_versions()
+    self._log.log_d('installed_versions_matching: installed_versions: {}'.format(installed_versions.to_string()))
+
+    matching_versions = installed_versions.filter_by_version(version)
+    matching_versions.sort()
+    self._log.log_d('installed_versions_matching: matching_versions: {}'.format(matching_versions.to_string()))
+    return matching_versions
+  
   def is_installed(self, version):
     'Return True if a python matching version is installed.'
-    v = python_version.check_version_any(version)
-
-    installed = self.installed_versions()
-
-    for x in installed:
-      print('INSTALLED: {}'.format(x))
-    
-    #installed_versions(self):    
-    #return self.installer.download(full_version)
+    version = python_version.check_version_or_full_version(version)
+    matching_versions = self.installed_versions_matching(version)
+    return len(matching_versions) > 0
   
 check.register_class(python_installer, include_seq = False)

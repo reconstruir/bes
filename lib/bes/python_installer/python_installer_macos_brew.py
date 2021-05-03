@@ -58,11 +58,14 @@ class python_installer_macos_brew(python_installer_base):
   #@abstractmethod
   def install(self, version):
     'Install the major.minor.revision or major.minor version of python.'
-    v = python_version.check_version_or_full_version(version)
-    if v.is_full_version():
-      raise python_installer_error('Install by full_version not supported by this installer.')
-    assert v.is_version()
-    self._brew.install(version)
+    version = python_version.check_version_or_full_version(version)
+
+    if not version.is_version():
+      raise python_installer_error('Only major.minor versions are supported by this installer.')
+
+    package_name = self._python_version_to_brew_formula(version)
+    self._log.log_d('install: package_name={}'.format(package_name))
+    self._brew.install(package_name)
 
   #@abstractmethod
   def update(self, version):
@@ -85,13 +88,7 @@ class python_installer_macos_brew(python_installer_base):
     check.check_string(version)
 
     version = python_version.check_version_or_full_version(version)
-
-    installed_versions = self.installed_versions()
-    self._log.log_d('uninstall: installed_versions: {}'.format(installed_versions.to_string()))
-
-    matching_versions = installed_versions.filter_by_version(version)
-    matching_versions.sort()
-    self._log.log_d('uninstall: matching_versions: {}'.format(matching_versions.to_string()))
+    matching_versions = self.installed_versions_matching(version)
 
     if not matching_versions:
       raise python_installer_error('Not installed: {}'.format(version))
@@ -102,7 +99,7 @@ class python_installer_macos_brew(python_installer_base):
     full_version = matching_versions[0]
     self._log.log_d('uninstall: full_version={}'.format(full_version))
     assert full_version
-    package_name = 'python@{}'.format(full_version.version)
+    package_name = self._python_version_to_brew_formula(full_version.version)
     self._log.log_d('uninstall: package_name={}'.format(package_name))
     self._brew.uninstall(package_name)
 
@@ -130,4 +127,9 @@ class python_installer_macos_brew(python_installer_base):
     if len(f) != 1:
       return None
     return python_version(f[0])
+  
+  @classmethod
+  def _python_version_to_brew_formula(clazz, version):
+    version = python_version.check_version(version)
+    return 'python@{}'.format(version)
   

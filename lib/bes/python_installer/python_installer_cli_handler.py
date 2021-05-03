@@ -80,3 +80,10 @@ class python_installer_cli_handler(cli_command_handler):
     file_util.rename(tmp_package, output_filename)
     return 0
   
+  def is_installed(self, version):
+    check.check_string(version)
+
+    installed = self.installer.is_installed(version)
+    if self.options.verbose:
+      print(str(installed))
+    return 0 if installed else 1

@@ -12,7 +12,7 @@ class python_installer_cli_args(object):
     self.__python_installer_add_common_args(p)
 
     # is_installed
-    p = subparser.add_parser('is_installedinstall', help = 'Check if python is installed.')
+    p = subparser.add_parser('is_installed', help = 'Check if python is installed.')
     self.__python_installer_add_common_args(p)
     p.add_argument('version', action = 'store', help = 'The version of python to check')
     
