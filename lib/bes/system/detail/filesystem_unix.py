@@ -37,5 +37,4 @@ class filesystem_unix(filesystem_base):
   #@abstractmethod
   def remove_directory(self, d):
     'Recursively remove a directory.'
-
     shutil.rmtree(d)
