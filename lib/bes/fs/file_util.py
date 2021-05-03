@@ -36,7 +36,7 @@ class file_util(object):
     for f in files:
       try:
         if path.isdir(f):
-          shutil.rmtree(f)
+          filesystem.remove_directory(f)
         else:
           os.remove(f)
       except Exception as ex:

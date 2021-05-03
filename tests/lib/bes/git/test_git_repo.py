@@ -1227,7 +1227,7 @@ tag 1.0.1 tag2
   from_commit: @commit2
   annotation: annotation 1.0.1 is good
 '''
-    r = git_temp_repo(remote = True, debug = self.DEBUG, config = config)
+    r = git_temp_repo(remote = True, debug = self.DEBUG, config = config, prefix = 'caca')
     self.assertEqual( [ '1.0.0', '1.0.1' ], r.list_local_tags().names() )
     self.assertFalse( r.tag_has_annotation('1.0.0') )
     self.assertTrue( r.tag_has_annotation('1.0.1') )
