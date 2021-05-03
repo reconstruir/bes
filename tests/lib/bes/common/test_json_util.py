@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+import os.path as path
 import tempfile
 from collections import namedtuple
 
 from bes.testing.unit_test import unit_test
 from bes.common.json_util import json_util
 from bes.common.tuple_util import tuple_util
+from bes.system.filesystem import filesystem
 
 class test_json_util(unit_test):
 
@@ -32,10 +35,12 @@ class test_json_util(unit_test):
   def test_read_save(self):
     self.assertEqual( '[5, "hi"]', json_util.to_json(tuple_util.dict_to_named_tuple('MyClass4', { 'a': 5, 'b': 'hi' })) )
     expected_object = { 'a': 5, 'b': 'hi' }
-    tmp = tempfile.NamedTemporaryFile(mode = 'w', delete = not self.DEBUG)
-    json_util.save_file(tmp.name, expected_object, indent = 2)
-    actual_object = json_util.read_file(tmp.name)
+    tmp_dir = tempfile.mkdtemp(prefix = 'tead_save', suffix = '.json')
+    tmp = path.join(tmp_dir, 'foo.json')
+    json_util.save_file(tmp, expected_object, indent = 2)
+    actual_object = json_util.read_file(tmp)
     self.assertEqual( expected_object, actual_object )
+    filesystem.remove_directory(tmp_dir)
     
 if __name__ == "__main__":
   unit_test.main()
