@@ -56,6 +56,13 @@ class brew(object):
     
     self._command.call_command([ 'install', package_name ])
 
+  def upgrade(self, package_name):
+    'Upgrade a package.  Returns True if it updated.'
+    check.check_string(package_name)
+
+    cmd = [ 'upgrade', package_name ]
+    self._command.call_command(cmd)
+    
   def files(self, package_name):
     'Return a list of files for a package.'
     check.check_string(package_name)
@@ -86,6 +93,9 @@ class brew(object):
     'Return a dictionary of outdated packages'
     check.check_string(package_name)
 
+    if not package_name in self.installed():
+      return self._needs_update_result(True, None)
+    
     self.update()
     cmd = [
       'outdated',

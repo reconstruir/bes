@@ -86,7 +86,7 @@ class python_installer(python_installer_base):
   #@abstractmethod
   def update(self, version):
     'Update to the latest major.minor version of python.'
-    return self.installer.update_version(version)
+    return self.installer.update(version)
 
   #@abstractmethod
   def needs_update(self, version):

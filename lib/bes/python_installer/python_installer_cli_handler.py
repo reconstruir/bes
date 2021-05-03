@@ -50,6 +50,10 @@ class python_installer_cli_handler(cli_command_handler):
   def update(self, version):
     check.check_string(version)
 
+    if not self.installer.needs_update(version):
+      print('does not need update: {}'.format(version))
+      return 0
+    
     self.installer.update(version)
     return 0
 

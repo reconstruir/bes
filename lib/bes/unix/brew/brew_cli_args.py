@@ -40,6 +40,25 @@ class brew_cli_args(object):
     # available
     p = subparser.add_parser('available', help = 'Print packages available to install.')
     self.__brew_add_common_args(p)
+
+    # install
+    p = subparser.add_parser('install', help = 'Install a package.')
+    self.__brew_add_common_args(p)
+    p.add_argument('package_name', action = 'store', default = None,
+                   help = 'The package to install []')
+
+    # uninstall
+    p = subparser.add_parser('uninstall', help = 'Uninstall a package.')
+    self.__brew_add_common_args(p)
+    p.add_argument('package_name', action = 'store', default = None,
+                   help = 'The package to uninstall []')
+    
+    # files
+    p = subparser.add_parser('upgrade', help = 'Upgrade a package.')
+    self.__brew_add_common_args(p)
+    p.add_argument('package_name', action = 'store', default = None,
+                   help = 'The package to upgrade []')
+
     
   def __brew_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,

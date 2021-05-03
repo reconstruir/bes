@@ -68,8 +68,10 @@ class python_installer_macos_brew(python_installer_base):
   def update(self, version):
     'Update to the latest major.minor version of python.'
     python_version.check_version(version)
-    assert False
 
+    if not self.is_installed(version):
+      self.install(version)
+      
   #@abstractmethod
   def needs_update(self, version):
     'Return True if python version major.minor needs update.'

@@ -59,3 +59,22 @@ class brew_cli_handler(cli_command_handler):
     result = self._brew.needs_update(package_name)
     return self.handle_boolean_result(result.needs_update,
                                       self.options.verbose)
+
+  def install(self, package_name):
+    check.check_string(package_name)
+    
+    self._brew.install(package_name)
+    return 0
+
+  def uninstall(self, package_name):
+    check.check_string(package_name)
+    
+    self._brew.uninstall(package_name)
+    return 0
+  
+  def upgrade(self, package_name):
+    check.check_string(package_name)
+    
+    self._brew.upgrade(package_name)
+    return 0
+    

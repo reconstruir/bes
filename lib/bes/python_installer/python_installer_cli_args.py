@@ -22,7 +22,7 @@ class python_installer_cli_args(object):
     p.add_argument('version', action = 'store', help = 'The version of python to install')
 
     # update
-    p = subparser.add_parser('install', help = 'Update python.')
+    p = subparser.add_parser('update', help = 'Update python.')
     self.__python_installer_add_common_args(p)
     p.add_argument('version', action = 'store', help = 'The version of python to update')
 
