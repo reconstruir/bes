@@ -25,6 +25,11 @@ class python_installer_cli_args(object):
     p = subparser.add_parser('install', help = 'Update python.')
     self.__python_installer_add_common_args(p)
     p.add_argument('version', action = 'store', help = 'The version of python to update')
+
+    # needs_update
+    p = subparser.add_parser('needs_update', help = 'Check if python version needs update.')
+    self.__python_installer_add_common_args(p)
+    p.add_argument('version', action = 'store', help = 'The version of python to check for update')
     
     # install_package
     p = subparser.add_parser('install_package', help = 'Install a python package file directly.')

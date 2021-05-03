@@ -89,6 +89,11 @@ class python_installer(python_installer_base):
     return self.installer.update_version(version)
 
   #@abstractmethod
+  def needs_update(self, version):
+    'Return True if python version major.minor needs update.'
+    return self.installer.needs_update(version)
+  
+  #@abstractmethod
   def install_package(self, package_filename):
     'Install a python package directly.  Not always supported.'
     self.installer.install_package(package_filename)

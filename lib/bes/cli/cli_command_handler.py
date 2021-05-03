@@ -53,3 +53,10 @@ class cli_command_handler(object):
     if False in ( bool(spec.args), len(spec.args) == 3, bool(spec.varargs), bool(spec.keywords) ):
       msg = 'delegte signature should be exactly (self, command_name, options, *args, **kwargs) - {}'.format(delegate)
       raise RuntimeError(msg)
+
+  def handle_boolean_result(self, result, verbose):
+    if verbose:
+      print(str(result))
+    return 0 if result else 1
+  
+    

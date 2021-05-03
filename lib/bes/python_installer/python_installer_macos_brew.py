@@ -58,10 +58,7 @@ class python_installer_macos_brew(python_installer_base):
   #@abstractmethod
   def install(self, version):
     'Install the major.minor.revision or major.minor version of python.'
-    version = python_version.check_version_or_full_version(version)
-
-    if not version.is_version():
-      raise python_installer_error('Only major.minor versions are supported by this installer.')
+    version = python_version.check_version(version)
 
     package_name = self._python_version_to_brew_formula(version)
     self._log.log_d('install: package_name={}'.format(package_name))
@@ -72,7 +69,19 @@ class python_installer_macos_brew(python_installer_base):
     'Update to the latest major.minor version of python.'
     python_version.check_version(version)
     assert False
-    
+
+  #@abstractmethod
+  def needs_update(self, version):
+    'Return True if python version major.minor needs update.'
+    version = python_version.check_version(version)
+
+    self._log.log_method_d()
+
+    package_name = self._python_version_to_brew_formula(version)
+    self._log.log_d('needs_update: package_name={}'.format(package_name))
+    result = self._brew.needs_update(package_name)
+    return result.needs_update
+  
   #@abstractmethod
   def install_package(self, package_filename):
     'Install a python package directly.  Not always supported.'

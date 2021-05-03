@@ -51,6 +51,12 @@ class python_installer_cli_handler(cli_command_handler):
 
     self.installer.update(version)
     return 0
+
+  def needs_update(self, version):
+    check.check_string(version)
+
+    return self.handle_boolean_result(self.installer.needs_update(version),
+                                      self.options.verbose)
   
   def install_package(self, package_filename):
     check.check_string(package_filename)
@@ -84,7 +90,5 @@ class python_installer_cli_handler(cli_command_handler):
   def is_installed(self, version):
     check.check_string(version)
 
-    installed = self.installer.is_installed(version)
-    if self.options.verbose:
-      print(str(installed))
-    return 0 if installed else 1
+    return self.handle_boolean_result(self.installer.is_installed(version),
+                                      self.options.verbose)

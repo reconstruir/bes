@@ -40,6 +40,11 @@ class python_installer_base(with_metaclass(ABCMeta, object)):
   def update(self, version):
     'Update to the latest major.minor version of python.'
     raise NotImplemented('update')
+
+  @abstractmethod
+  def needs_update(self, version):
+    'Return True if python version major.minor needs update.'
+    raise NotImplemented('needs_update')
   
   @abstractmethod
   def install_package(self, package_filename):
