@@ -96,7 +96,8 @@ class python_installer_windows_python_dot_org(python_installer_base):
   #@abstractmethod
   def update(self, version):
     'Update to the latest major.minor version of python.'
-    python_version.check_version(version)
+    version = python_version.check_version(version)
+
     assert False
 
   #@abstractmethod
@@ -114,6 +115,8 @@ class python_installer_windows_python_dot_org(python_installer_base):
     self._log.log_d('needs_update: filtered_available_versions: {}'.format(filtered_available_versions.to_string()))
     filtered_installed_versions = installed_versions.filter_by_version(version)
     self._log.log_d('needs_update: filtered_installed_versions: {}'.format(filtered_installed_versions.to_string()))
+    if not filtered_installed_versions:
+      return True
     assert len(filtered_installed_versions) == 1
     installed_version = filtered_installed_versions[0]
     latest_available_version = filtered_available_versions[-1]
@@ -152,30 +155,6 @@ class python_installer_windows_python_dot_org(python_installer_base):
     self._log.log_d('install_package: exit_code={} output={}'.format(rv.exit_code, rv.stdout))
     if rv.exit_code != 0:
       print(file_util.read(install_log, codec = 'utf-8'))
-    
-  #@abstractmethod
-  def _is_installed_full_version(self, full_version):
-    check.check_string(full_version)
-
-    exes = python_exe.find_all_exes_info()
-    for exe, info in exes.items():
-      if info.source == 'python.org':
-        next_full_version = python_exe.full_version(exe)
-        if full_version == next_full_version:
-          return full_version
-    return None
-
-  #@abstractmethod
-  def _is_installed_version(self, version):
-    check.check_string(version)
-
-    exes = python_exe.find_all_exes_info()
-    for exe, info in exes.items():
-      if info.source == 'python.org':
-        next_version = python_exe.version(exe)
-        if version == next_version:
-          return python_exe.full_version(exe)
-    return None
     
   #@abstractmethod
   def uninstall(self, version):
