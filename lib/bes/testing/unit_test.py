@@ -450,7 +450,8 @@ class unit_test(unittest.TestCase):
     for f in files:
       try:
         if path.isdir(f):
-          shutil.rmtree(f)
+          from bes.system.filesystem import filesystem
+          filesystem.remove_directory(f)
         else:
           os.remove(f)
       except Exception as ex:

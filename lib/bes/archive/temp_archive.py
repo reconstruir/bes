@@ -44,7 +44,9 @@ class temp_archive(object):
     ext_type = clazz._determine_type(extension)
     assert ext_type
 
-    temp_archive_filename = temp_file.make_temp_file(suffix = '.' + extension, prefix = prefix, delete = False)
+    temp_archive_filename = temp_file.make_temp_file(suffix = '.' + extension,
+                                                     prefix = prefix,
+                                                     delete = delete)
     archive_mode = archive_extension.write_format(extension)
 
     if ext_type == 'zip':

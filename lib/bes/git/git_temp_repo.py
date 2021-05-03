@@ -33,7 +33,6 @@ class git_temp_repo(object):
   
   def __init__(self, remote = True, content = None, debug = False,
                prefix = None, commit_message = None, config = None):
-    print('remote={} debug={}'.format(remote, debug))
     self._debug = debug
     if remote:
       self._init_remote(content, prefix, commit_message = commit_message)
