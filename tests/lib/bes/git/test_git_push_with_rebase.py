@@ -52,6 +52,7 @@ class test_git_push_with_rebase(unit_test):
     repo.clone_or_pull()
     repo.add_file(fruit, content = fruit, commit = True)
     repo.push_with_rebase(num_tries = 10, retry_wait_seconds = 0.250)
+    file_util.remove(tmp_dir)
     return 0
   
   @git_temp_home_func()
