@@ -4,13 +4,18 @@ from abc import abstractmethod, ABCMeta
 from collections import namedtuple
 
 from bes.common.check import check
-from bes.system.compat import with_metaclass
+from bes.python.python_version import python_version
+from bes.python.python_version_list import python_version_list
 from bes.script.blurber import blurber
+from bes.system.compat import with_metaclass
+from bes.system.log import logger
 
 from .python_installer_options import python_installer_options
 
 class python_installer_base(with_metaclass(ABCMeta, object)):
 
+  _log = logger('python_installer')
+  
   def __init__(self, options):
     check.check_python_installer_options(options)
 
@@ -64,3 +69,20 @@ class python_installer_base(with_metaclass(ABCMeta, object)):
     'Print a blurb but only in verbose mode'
     self.options.blurber.blurb_verbose(message, output = output, fit = fit)
     
+  def installed_versions_matching(self, version):
+    'Return installed versions matching version only.'
+    version = python_version.check_version_or_full_version(version)
+
+    installed_versions = self.installed_versions()
+    self._log.log_d('installed_versions_matching: installed_versions: {}'.format(installed_versions.to_string()))
+
+    matching_versions = installed_versions.filter_by_version(version)
+    matching_versions.sort()
+    self._log.log_d('installed_versions_matching: matching_versions: {}'.format(matching_versions.to_string()))
+    return matching_versions
+  
+  def is_installed(self, version):
+    'Return True if a python matching version is installed.'
+    version = python_version.check_version_or_full_version(version)
+    matching_versions = self.installed_versions_matching(version)
+    return len(matching_versions) > 0

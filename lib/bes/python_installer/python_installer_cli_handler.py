@@ -67,7 +67,8 @@ class python_installer_cli_handler(cli_command_handler):
   def reinstall(self, version):
     check.check_string(version)
 
-    self.installer.uninstall(version)
+    if self.is_installed(version):
+      self.installer.uninstall(version)
     self.installer.install(version)
     return 0
 
