@@ -98,6 +98,7 @@ class python_installer_windows_python_dot_org(python_installer_base):
     'Update to the latest major.minor version of python.'
     version = python_version.check_version(version)
 
+    
     assert False
 
   #@abstractmethod
