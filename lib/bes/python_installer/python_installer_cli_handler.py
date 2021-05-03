@@ -5,8 +5,9 @@ import os.path as path
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.Script import Script
 from bes.common.check import check
-from bes.script.blurber import blurber
 from bes.fs.file_util import file_util
+from bes.python.python_version import python_version
+from bes.script.blurber import blurber
 
 from .python_installer import python_installer
 from .python_installer_options import python_installer_options
@@ -55,8 +56,11 @@ class python_installer_cli_handler(cli_command_handler):
   def needs_update(self, version):
     check.check_string(version)
 
-    return self.handle_boolean_result(self.installer.needs_update(version),
-                                      self.options.verbose)
+    if not self.installer.is_installed(version):
+      result = True
+    else:
+      result = self.installer.needs_update(version)
+    return self.handle_boolean_result(result, self.options.verbose)
   
   def install_package(self, package_filename):
     check.check_string(package_filename)

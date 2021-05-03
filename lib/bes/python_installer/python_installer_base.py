@@ -89,5 +89,9 @@ class python_installer_base(with_metaclass(ABCMeta, object)):
   def is_installed(self, version):
     'Return True if a python matching version is installed.'
     version = python_version.check_version_or_full_version(version)
+    self._log.log_d('is_installed: version={}'.format(version))
     matching_versions = self.installed_versions_matching(version)
-    return len(matching_versions) > 0
+    self._log.log_d('is_installed: matching_versions={}'.format(matching_versions))
+    result = len(matching_versions) > 0
+    self._log.log_d('is_installed: result={}'.format(result))
+    return result
