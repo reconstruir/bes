@@ -110,13 +110,16 @@ class python_installer_windows_python_dot_org(python_installer_base):
     self._log.log_d('needs_update: available_versions: {}'.format(available_versions.to_string()))
     installed_versions = self.installed_versions()
     self._log.log_d('needs_update: installed_versions: {}'.format(installed_versions.to_string()))
-
     filtered_available_versions = available_versions.filter_by_version(version)
-    self._log.log_d('needs_update: available_versions: {}'.format(available_versions.to_string()))
+    self._log.log_d('needs_update: filtered_available_versions: {}'.format(filtered_available_versions.to_string()))
     filtered_installed_versions = installed_versions.filter_by_version(version)
-    self._log.log_d('needs_update: installed_versions: {}'.format(installed_versions.to_string()))
-    
-    return False
+    self._log.log_d('needs_update: filtered_installed_versions: {}'.format(filtered_installed_versions.to_string()))
+    assert len(filtered_installed_versions) == 1
+    installed_version = filtered_installed_versions[0]
+    latest_available_version = filtered_available_versions[-1]
+    self._log.log_d('needs_update: installed_version={} latest_available_version={}'.format(installed_version,
+                                                                                            latest_available_version))
+    return installed_version < latest_available_version
     
   #@abstractmethod
   def install_package(self, package_filename):
