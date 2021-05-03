@@ -56,12 +56,12 @@ class env_override(object):
   @classmethod
   def temp_home(clazz):
     'Return an env_override object with a temporary HOME'
-    tmp_dir = tempfile.mkdtemp(suffix = '.home')
+    tmp_dir = tempfile.mkdtemp(suffix = '-tmp-home.dir')
 
     def _delete_tmp_dir(*args, **kargs):
       _arg_tmp_dir = args[0]
       filesystem.remove_directory(_arg_tmp_dir)
-    atexit.register(_delete_tmp_dir, [ tmp_dir ])
+    atexit.register(_delete_tmp_dir, tmp_dir)
 
     if host.is_unix():
       env = { 'HOME': tmp_dir }
