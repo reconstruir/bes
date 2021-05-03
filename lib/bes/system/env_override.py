@@ -1,12 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import atexit
 from os import path
 import copy, os, tempfile
 from functools import wraps
 
-from .os_env import os_env
-from .host import host
 from .env_var import env_var
+from .filesystem import filesystem
+from .host import host
+from .os_env import os_env
 
 class env_override(object):
 
@@ -50,10 +52,17 @@ class env_override(object):
   def to_dict(self):
     return copy.deepcopy(os.environ)
 
+  
   @classmethod
   def temp_home(clazz):
     'Return an env_override object with a temporary HOME'
     tmp_dir = tempfile.mkdtemp(suffix = '.home')
+
+    def _delete_tmp_dir(*args, **kargs):
+      _arg_tmp_dir = args[0]
+      filesystem.remove_directory(_arg_tmp_dir)
+    atexit.register(_delete_tmp_dir, [ tmp_dir ])
+
     if host.is_unix():
       env = { 'HOME': tmp_dir }
     elif host.is_windows():

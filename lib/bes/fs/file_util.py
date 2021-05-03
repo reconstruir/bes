@@ -36,12 +36,11 @@ class file_util(object):
     for f in files:
       try:
         if path.isdir(f):
-          shutil.rmtree(f)
+          filesystem.remove_directory(f)
         else:
           os.remove(f)
       except Exception as ex:
         clazz.log_d('file_util.remove: Caught exception %s removing %s' % (ex, f))
-        pass
 
   @classmethod
   def save(clazz, filename, content = None, mode = None, codec = 'utf-8'):

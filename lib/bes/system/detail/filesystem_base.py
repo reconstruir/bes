@@ -23,3 +23,10 @@ class filesystem_base(with_metaclass(ABCMeta, object)):
   def has_symlinks(self):
     'Return True if this system has support for symlinks.'
     raise NotImplemented('has_symlinks')
+
+  @classmethod
+  @abstractmethod
+  def remove_directory(self, d):
+    'Recursively remove a directory.'
+    raise NotImplemented('remove_directory')
+  

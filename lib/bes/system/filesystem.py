@@ -40,3 +40,8 @@ class filesystem(filesystem_base):
     'Return True if this system has support for symlinks.'
     return clazz._impl_class.has_symlinks()
   
+  @classmethod
+  #@abstractmethod
+  def remove_directory(clazz, d):
+    'Recursively remove a directory.'
+    return clazz._impl_class.remove_directory(d)
