@@ -32,7 +32,7 @@ class test_json_util(unit_test):
   def test_read_save(self):
     self.assertEqual( '[5, "hi"]', json_util.to_json(tuple_util.dict_to_named_tuple('MyClass4', { 'a': 5, 'b': 'hi' })) )
     expected_object = { 'a': 5, 'b': 'hi' }
-    tmp = tempfile.NamedTemporaryFile(mode = 'w', delete = False)
+    tmp = tempfile.NamedTemporaryFile(mode = 'w', delete = not self.DEBUG)
     json_util.save_file(tmp.name, expected_object, indent = 2)
     actual_object = json_util.read_file(tmp.name)
     self.assertEqual( expected_object, actual_object )
