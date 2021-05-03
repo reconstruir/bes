@@ -162,7 +162,7 @@ class python_installer_windows_python_dot_org(python_installer_base):
     major.minor.revision
     major.minor
     '''
-    version = python_version.check_version_any(version)
+    version = python_version.check_version_or_full_version(version)
 
     installed_versions = self.installed_versions()
     self._log.log_d('uninstall: installed_versions: {}'.format(installed_versions.to_string()))

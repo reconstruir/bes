@@ -96,7 +96,11 @@ class python_installer(python_installer_base):
   
   #@abstractmethod
   def uninstall(self, version_or_full_version):
-    'Uninstall a python by version or full_version.'
+    '''Uninstall a python by version or full_version.'
+    Uninstall a python version using any of these forms:
+    major.minor.revision
+    major.minor
+    '''
     return self.installer.uninstall(version_or_full_version)
 
   #@abstractmethod

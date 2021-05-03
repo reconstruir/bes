@@ -33,7 +33,11 @@ class python_installer_macos_brew(python_installer_base):
     'Return a list of python versions available to install.'
     check.check_int(num)
 
-    return self._filter_python_packages(self._brew.available())
+    packages = self._filter_python_packages(self._brew.available())
+    self._log.log_d('available_versions: packages: {}'.format(packages))
+    versions = [ self._brew_formula_to_python_version(p) for p in packages ]
+    self._log.log_d('available_versions: versions: {}'.format(versions))
+    return python_version_list(versions)
     
   #@abstractmethod
   def installed_versions(self):
@@ -72,11 +76,35 @@ class python_installer_macos_brew(python_installer_base):
     raise python_installer_error('Direct package installation not supported by this installer.')
     
   #@abstractmethod
-  def uninstall(self, version_or_full_version):
-    'Uninstall a python by version or full_version.'
-    check.check_string(version_or_full_version)
-    
-    self._brew.uninstall(version_or_full_version)
+  def uninstall(self, version):
+    '''Uninstall a python by version or full_version.'
+    Uninstall a python version using any of these forms:
+    major.minor.revision
+    major.minor
+    '''
+    check.check_string(version)
+
+    version = python_version.check_version_or_full_version(version)
+
+    installed_versions = self.installed_versions()
+    self._log.log_d('uninstall: installed_versions: {}'.format(installed_versions.to_string()))
+
+    matching_versions = installed_versions.filter_by_version(version)
+    matching_versions.sort()
+    self._log.log_d('uninstall: matching_versions: {}'.format(matching_versions.to_string()))
+
+    if not matching_versions:
+      raise python_installer_error('Not installed: {}'.format(version))
+
+    if len(matching_versions) != 1:
+      raise python_installer_error('Somehow multiple installed versions found for {}: {}'.format(versiom,
+                                                                                                 matching_versions.to_string()))
+    full_version = matching_versions[0]
+    self._log.log_d('uninstall: full_version={}'.format(full_version))
+    assert full_version
+    package_name = 'python@{}'.format(full_version.version)
+    self._log.log_d('uninstall: package_name={}'.format(package_name))
+    self._brew.uninstall(package_name)
 
   #@abstractmethod
   def download(self, full_version):
