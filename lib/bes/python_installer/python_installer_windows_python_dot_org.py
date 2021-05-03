@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
 import codecs
 from os import path
 import subprocess
@@ -98,8 +99,11 @@ class python_installer_windows_python_dot_org(python_installer_base):
     'Update to the latest major.minor version of python.'
     version = python_version.check_version(version)
 
-    
-    assert False
+    needs_update, available_versions = self._do_needs_update(version)
+    if not needs_update:
+      return False
+    self.install(available_versions[-1])
+    return True
 
   #@abstractmethod
   def needs_update(self, version):
@@ -107,24 +111,38 @@ class python_installer_windows_python_dot_org(python_installer_base):
     self._log.log_method_d()
 
     version = python_version.check_version(version)
+
+    needs_update, _ = self._do_needs_update(version)
+    return needs_update
+
+  _needs_update_result = namedtuple('_needs_update_result', 'needs_update, available_versions')
+  #@abstractmethod
+  def _do_needs_update(self, version):
+    'Return True if python version major.minor needs update.'
+    self._log.log_method_d()
+
+    version = python_version.check_version(version)
     
     available_versions = self.available_versions(0)
     self._log.log_d('needs_update: available_versions: {}'.format(available_versions.to_string()))
-    installed_versions = self.installed_versions()
-    self._log.log_d('needs_update: installed_versions: {}'.format(installed_versions.to_string()))
     filtered_available_versions = available_versions.filter_by_version(version)
     self._log.log_d('needs_update: filtered_available_versions: {}'.format(filtered_available_versions.to_string()))
+
+    installed_versions = self.installed_versions()
+    self._log.log_d('needs_update: installed_versions: {}'.format(installed_versions.to_string()))
     filtered_installed_versions = installed_versions.filter_by_version(version)
     self._log.log_d('needs_update: filtered_installed_versions: {}'.format(filtered_installed_versions.to_string()))
+
     if not filtered_installed_versions:
-      return True
+      return self._needs_update_result(True, filtered_available_versions)
     assert len(filtered_installed_versions) == 1
     installed_version = filtered_installed_versions[0]
     latest_available_version = filtered_available_versions[-1]
     self._log.log_d('needs_update: installed_version={} latest_available_version={}'.format(installed_version,
                                                                                             latest_available_version))
-    return installed_version < latest_available_version
-    
+    return self._needs_update_result(installed_version < latest_available_version,
+                                     filtered_available_versions)
+  
   #@abstractmethod
   def install_package(self, package_filename):
     'Install a python package directly.  Not always supported.'
