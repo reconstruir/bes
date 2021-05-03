@@ -39,8 +39,11 @@ class file_util(object):
           filesystem.remove_directory(f)
         else:
           os.remove(f)
+      except OSError as ex:
+        if ex.errno != errno.ENOENT:
+          raise
       except Exception as ex:
-        clazz.log_d('file_util.remove: Caught exception %s removing %s' % (ex, f))
+        clazz.log_e('file_util.remove: Caught exception {}:{} removing "{}"'.format(str(ex), type(ex), f))
 
   @classmethod
   def save(clazz, filename, content = None, mode = None, codec = 'utf-8'):
