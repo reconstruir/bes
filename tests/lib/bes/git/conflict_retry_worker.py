@@ -1,12 +1,12 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.fs.temp_file import temp_file
+from bes.fs.file_util import file_util
 from bes.git.git_unit_test import git_temp_home_func
 from bes.git.git_repo_document_db import git_repo_document_db
 
 import multiprocessing
 
-@git_temp_home_func()
 def worker(n, address, debug):
   tmp_working_dir = temp_file.make_temp_dir(delete = not debug)
   db = git_repo_document_db(tmp_working_dir, address, 'master')
@@ -24,3 +24,5 @@ def worker(n, address, debug):
     return '{}\n{}'.format(content, n)
 
   db.update_document('retries.txt', attempt_update, 'a commit message')
+  if not debug:
+    file_util.remove(tmp_working_dir)

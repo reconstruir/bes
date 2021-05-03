@@ -20,7 +20,7 @@ class test_git_repo_document_db(unit_test):
     repo = git_temp_repo(debug=self.DEBUG)
     repo.add_file('dummy.txt', 'dummy')
     repo.push('origin', 'master')
-    tmp_working_dir = temp_file.make_temp_dir(delete=not self.DEBUG)
+    tmp_working_dir = self.make_temp_dir()
 
     # Set up the test DB.
     db = git_repo_document_db(tmp_working_dir, repo.address, 'master')
