@@ -14,7 +14,7 @@ from bes.git.git_operation_base import git_operation_base
 from bes.testing.unit_test import unit_test
 from bes.text.line_break import line_break
 
-class test_git_repo(unit_test):
+class test_git_repo_operation(unit_test):
 
   def _make_repo(self, remote = True, content = None, prefix = None, commit_message = None):
     return git_temp_repo(remote = remote, content = content, prefix = prefix,
@@ -149,6 +149,7 @@ class test_git_repo(unit_test):
       file_util.save(fp, content = new_content, codec = 'utf8', mode = 0o644)
         
     worker_repo.operation_with_reset(_op, 'from worker {}'.format(n))
+    file_util.remove(worker_tmp_root)
     
   @git_temp_home_func()
   def test_operation_with_reset_with_multiprocess_conflict(self):
