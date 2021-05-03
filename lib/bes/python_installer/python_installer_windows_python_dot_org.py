@@ -218,6 +218,8 @@ class python_installer_windows_python_dot_org(python_installer_base):
     self._log.log_d('uninstall: command={}'.format(' '.join(cmd)))
     rv = execute.execute(cmd, stderr_to_stdout = True, raise_error = False)
     self._log.log_d('uninstall: exit_code={} output={}'.format(rv.exit_code, rv.stdout))
+    if rv.exit_code != 0:
+      print(file_util.read(uninstall_log, codec = 'utf-8'))
 
   #@abstractmethod
   def download(self, full_version):
