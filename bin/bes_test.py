@@ -505,20 +505,23 @@ def main():
 
   current_cwd = os.getcwd()
   if current_cwd != tmp_cwd:
+    rv = 1
     printer.writeln_name('SIDE EFFECT: working directory was changed from %s to %s' % (tmp_cwd, current_cwd))
     
   cwd_droppings = file_find.find(current_cwd, relative = False, file_type = file_find.ANY)
   for cwd_dropping in cwd_droppings:
+    rv = 1
     printer.writeln_name('SIDE EFFECT: cwd dropping found: %s' % (cwd_dropping))
 
   for test, items in sorted(side_effects.items()):
     for item in items:
+      rv = 1
       filename = item.filename
       filename = filename.replace(tmp_home, '$HOME')
       filename = filename.replace(tmp_tmp, '$TMPDIR')
-      print('SIDE EFFECT:{}:{} {}'.format(test.replace(user.HOME, '~'),
-                                          item.label,
-                                          filename))
+      print('SIDE EFFECT [{}] {} {}'.format(item.label,
+                                            test.replace(cwd + os.sep, ''),
+                                            filename))
       
   os.chdir('/tmp')
     
