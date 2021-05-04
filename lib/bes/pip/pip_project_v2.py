@@ -7,6 +7,7 @@ import os
 from os import path
 
 from bes.common.check import check
+from bes.fs.file_find import file_find
 from bes.property.cached_property import cached_property
 from bes.python.python_installation_v2 import python_installation_v2
 from bes.python.python_version import python_version
@@ -37,6 +38,7 @@ class pip_project_v2(object):
     self._pip_cache_dir = path.join(self._droppings_dir, 'pip-cache')
     self._pipenv_cache_dir = path.join(self._droppings_dir, 'pipenv-cache')
     self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
+    self._fake_tmp_dir = path.join(self._droppings_dir, 'fake-tmp')
 
     self._installation = python_installation_v2(self._python_exe)
 
@@ -93,6 +95,9 @@ class pip_project_v2(object):
     env_var(clean_env, 'PYTHONPATH').path = self.PYTHONPATH
     env_var(clean_env, 'PATH').prepend(self.PATH)
     env_var(clean_env, 'HOME').value = self._fake_home_dir
+    env_var(clean_env, 'TMPDIR').value = self._fake_tmp_dir
+    env_var(clean_env, 'TMP').value = self._fake_tmp_dir
+    env_var(clean_env, 'TEMP').value = self._fake_tmp_dir
     return clean_env
 
   @cached_property
@@ -190,8 +195,9 @@ class pip_project_v2(object):
                          env = self.env,
                          raise_error = raise_error)
     self._log.log_d('call_pip: exit_code={} stdout="{}" stderr="{}"'.format(rv.exit_code,
-                                                                        rv.stdout,
-                                                                        rv.stderr))
+                                                                            rv.stdout,
+                                                                            rv.stderr))
+    self._cleanup_tmpdir()
     return rv
 
   def _make_cmd_python_part(self):
@@ -255,3 +261,9 @@ class pip_project_v2(object):
     
     return execute.execute(parsed_args, **kargs)
     
+  def _cleanup_tmpdir(self):
+    if not path.isdir(self._fake_tmp_dir):
+      return
+    files = file_find.find(self._fake_tmp_dir, file_type = file_find.FILE_OR_LINK)
+    for f in files:
+      print('cleanup: {}'.format(f))

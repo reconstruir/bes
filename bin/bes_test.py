@@ -517,8 +517,8 @@ def main():
     for item in items:
       rv = 1
       filename = item.filename
-      filename = filename.replace(tmp_home, '$HOME')
-      filename = filename.replace(tmp_tmp, '$TMPDIR')
+      #filename = filename.replace(tmp_home, '$HOME')
+      #filename = filename.replace(tmp_tmp, '$TMPDIR')
       print('SIDE EFFECT [{}] {} {}'.format(item.label,
                                             test.replace(cwd + os.sep, ''),
                                             filename))
