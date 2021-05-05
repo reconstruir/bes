@@ -8,11 +8,10 @@ from bes.common.check import check
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.system.compat import compat
-from bes.system.log import log
-
 from bes.system.env_var import os_env_var
-from bes.system.which import which
 from bes.system.filesystem import filesystem
+from bes.system.log import log
+from bes.system.which import which
 
 class file_util(object):
 
@@ -33,17 +32,7 @@ class file_util(object):
   @classmethod
   def remove(clazz, files):
     files = object_util.listify(files)
-    for f in files:
-      try:
-        if path.isdir(f):
-          filesystem.remove_directory(f)
-        else:
-          os.remove(f)
-      except OSError as ex:
-        if ex.errno != errno.ENOENT:
-          raise
-      except Exception as ex:
-        clazz.log_e('file_util.remove: Caught exception {}:{} removing "{}"'.format(str(ex), type(ex), f))
+    filesystem.remove(files, raise_not_found_error = False)
 
   @classmethod
   def save(clazz, filename, content = None, mode = None, codec = 'utf-8'):

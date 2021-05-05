@@ -2,7 +2,9 @@
 
 from collections import namedtuple
 
-import atexit, os, os.path as path, sys, tempfile
+from bes.system.filesystem import filesystem
+
+import os, os.path as path, sys, tempfile
 from .file_util import file_util
 
 class temp_item(namedtuple('temp_item', 'filename, content, mode')):
@@ -44,7 +46,7 @@ class temp_file(object):
       os.chmod(tmp.name, perm)
     os.fsync(tmp.fileno())
     if delete:
-      clazz.atexit_delete(tmp.name)
+      filesystem.atexit_remove(tmp.name)
     tmp.close()
     return tmp.name
 
@@ -61,7 +63,7 @@ class temp_file(object):
       clazz.write_temp_files(tmp_dir, items)
       
     if delete:
-      clazz.atexit_delete(tmp_dir)
+      filesystem.atexit_remove(tmp_dir)
     return tmp_dir
 
   @classmethod
@@ -77,10 +79,7 @@ class temp_file(object):
   @classmethod
   def atexit_delete(clazz, filename):
     'Delete filename atexit time.'
-    def _delete_file(*args, **kargs):
-      filename = args[0]
-      file_util.remove(filename)
-    atexit.register(_delete_file, [ filename ])
+    filesystem.atexit_remove(filename)
 
   @classmethod
   def write_temp_files(clazz, root_dir, items):
