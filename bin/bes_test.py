@@ -178,6 +178,10 @@ def main():
                       action = 'store',
                       default = None,
                       help = 'The directory to use for tmp files overriding the system default.  [ None ]')
+  parser.add_argument('--keep-side-effects',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Dont delete side effects - for debugging. [ False ]')
 
   found_git_exe = git_exe.find_git_exe()
   if not found_git_exe:
@@ -423,8 +427,8 @@ def main():
       timings[filename] = []
     for python_exe in args.python:
       result = _test_execute(python_exe, ar.inspect_map, filename, test_desc.tests, options, i + 1, total_files, cwd, env)
-      _collect_side_effects(side_effects, filename, tmp_home, 'home')
-      _collect_side_effects(side_effects, filename, tmp_tmp, 'tmp')
+      _collect_side_effects(side_effects, filename, tmp_home, 'home', args.keep_side_effects)
+      _collect_side_effects(side_effects, filename, tmp_tmp, 'tmp', args.keep_side_effects)
       timings[filename].append(result.elapsed_time)
       total_num_tests += result.num_tests_run
       num_executed += 1
@@ -517,29 +521,29 @@ def main():
     for item in items:
       rv = 1
       filename = item.filename
-      #filename = filename.replace(tmp_home, '$HOME')
-      #filename = filename.replace(tmp_tmp, '$TMPDIR')
       print('SIDE EFFECT [{}] {} {}'.format(item.label,
                                             test.replace(cwd + os.sep, ''),
                                             filename))
       
   os.chdir('/tmp')
-    
-  file_util.remove(tmp_cwd)
-  file_util.remove(tmp_home)
-  file_util.remove(tmp_tmp)
+
+  if not args.keep_side_effects:
+    file_util.remove(tmp_cwd)
+    file_util.remove(tmp_home)
+    file_util.remove(tmp_tmp)
 
   return rv
 
 side_effect = namedtuple('side_effect', 'where, filename, label')
-def _collect_side_effects(table, test, where, label):
+def _collect_side_effects(table, test, where, label, keep_side_effects):
   droppings = file_find.find(where, relative = False, file_type = file_find.ANY)
   for next_dropping in droppings:
     if not test in table:
       table[test] = []
     se = side_effect(where, next_dropping, label)
     table[test].append(se)
-    file_util.remove(next_dropping)
+    if not keep_side_effects:
+      file_util.remove(next_dropping)
 
 def _timing_average(l):
   return float(sum(l)) / float(len(l))
