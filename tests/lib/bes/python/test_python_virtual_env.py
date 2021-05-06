@@ -21,16 +21,8 @@ class test_pip_installer_v2(unit_test):
   def setUpClass(clazz):
     pass
     #raise_skip('Not ready')
-  
-  @skip_if(not python_testing._PYTHONS.PYTHON_27, 'test_install_python_27 - python 2.7 not found', warning = True)
-  def xtest_install_python_27(self):
-    tester = pip_installer_tester_v2(python_testing._PYTHONS.PYTHON_27, 'test', debug = self.DEBUG)
-    self.assertFalse( path.exists(tester.installer.pip_exe) )
-    tester.installer.install('latest', False)
-    self.assertTrue( path.exists(tester.installer.pip_exe) )
-    self.assertEqual( 1, software_version.compare(tester.installer.pip_version(), '19.0.0') )
 
-  @skip_if_not_unix(warning = True)
+  @skip_if_not_unix()
   @skip_if(not python_testing._PYTHONS.PYTHON_37, 'test_venv_python_37 - python 3.7 not found', warning = True)
   def test_venv_unix_python_37(self):
     tmp_dir = self.make_temp_dir()
@@ -39,35 +31,65 @@ class test_pip_installer_v2(unit_test):
     self.assertEqual( expected_exe, venv.python_exe )
     self.assertEqual( expected_exe, venv.installation.python_exe )
 
-  @skip_if(not python_testing._PYTHONS.PYTHON_38, 'test_install_python_38 - python 3.8 not found', warning = True)
-  def xtest_install_python_38(self):
-    tester = pip_installer_tester_v2(python_testing._PYTHONS.PYTHON_38, 'test', debug = self.DEBUG)
-    self.assertFalse( path.exists(tester.installer.pip_exe) )
-    tester.installer.install('latest', False)
-    self.assertTrue( path.exists(tester.installer.pip_exe) )
-    self.assertEqual( 1, software_version.compare(tester.installer.pip_version(), '19.0.0') )
+  @skip_if_not_windows()
+  @skip_if(not python_testing._PYTHONS.PYTHON_27, 'test_venv_python_27 - python 2.7 not found', warning = True)
+  def test_venv_windows_python_27(self):
+    tmp_dir = self.make_temp_dir()
+    venv = python_virtual_env(python_testing._PYTHONS.PYTHON_27, tmp_dir)
+    expected_bin_dir = path.join(expected_bin_dir)
+    expected_exe = path.join(expected_bin_dir, 'python.exe')
+    expected_pip_exe = path.join(expected_bin_dir, 'pip2.7.exe')
+    self.assertEqual( expected_exe, venv.python_exe )
+    self.assertEqual( expected_exe, venv.installation.python_exe )
+    self.assertEqual( '2.7', venv.installation.python_version )
+    self.assert_filename_equal( expected_exe, venv.installation.python_exe )
+    self.assert_filename_equal( expected_pip_exe, venv.installation.pip_exe )
+    self.assert_filename_list_equal( [ expected_bin_dir ], venv.installation.PATH )
+    
+  @skip_if_not_windows()
+  @skip_if(not python_testing._PYTHONS.PYTHON_37, 'test_venv_python_37 - python 3.7 not found', warning = True)
+  def test_venv_windows_python_37(self):
+    tmp_dir = self.make_temp_dir()
+    venv = python_virtual_env(python_testing._PYTHONS.PYTHON_37, tmp_dir)
+    expected_bin_dir = path.join(expected_bin_dir)
+    expected_exe = path.join(expected_bin_dir, 'python.exe')
+    expected_pip_exe = path.join(expected_bin_dir, 'pip3.7.exe')
+    self.assertEqual( expected_exe, venv.python_exe )
+    self.assertEqual( expected_exe, venv.installation.python_exe )
+    self.assertEqual( '3.7', venv.installation.python_version )
+    self.assert_filename_equal( expected_exe, venv.installation.python_exe )
+    self.assert_filename_equal( expected_pip_exe, venv.installation.pip_exe )
+    self.assert_filename_list_equal( [ expected_bin_dir ], venv.installation.PATH )
 
-  @skip_if(not python_testing._PYTHONS.PYTHON_39, 'test_install_python_39 - python 3.9 not found', warning = True)
-  def xtest_install_python_39(self):
-    tester = pip_installer_tester_v2(python_testing._PYTHONS.PYTHON_39, 'test', debug = self.DEBUG)
-    self.assertFalse( path.exists(tester.installer.pip_exe) )
-    tester.installer.install('latest', False)
-    self.assertTrue( path.exists(tester.installer.pip_exe) )
-    self.assertEqual( 1, software_version.compare(tester.installer.pip_version(), '19.0.0') )
+  @skip_if_not_windows()
+  @skip_if(not python_testing._PYTHONS.PYTHON_38, 'test_venv_python_38 - python 3.8 not found', warning = True)
+  def test_venv_windows_python_38(self):
+    tmp_dir = self.make_temp_dir()
+    venv = python_virtual_env(python_testing._PYTHONS.PYTHON_38, tmp_dir)
+    expected_bin_dir = path.join(expected_bin_dir)
+    expected_exe = path.join(expected_bin_dir, 'python.exe')
+    expected_pip_exe = path.join(expected_bin_dir, 'pip3.8.exe')
+    self.assertEqual( expected_exe, venv.python_exe )
+    self.assertEqual( expected_exe, venv.installation.python_exe )
+    self.assertEqual( '3.8', venv.installation.python_version )
+    self.assert_filename_equal( expected_exe, venv.installation.python_exe )
+    self.assert_filename_equal( expected_pip_exe, venv.installation.pip_exe )
+    self.assert_filename_list_equal( [ expected_bin_dir ], venv.installation.PATH )
 
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_uninstall_python3 - python 3 not found', warning = True)
-  def xtest_uninstall_python3(self):
-    tester = pip_installer_tester_v2(python_testing._PYTHONS.ANY_PYTHON3, 'test', debug = self.DEBUG)
-    tester.installer.install('latest', False)
-    self.assertTrue( tester.installer.is_installed() )
-    tester.installer.uninstall()
-    self.assertFalse( tester.installer.is_installed() )
-
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_specific_version - python 3 not found', warning = True)
-  def xtest_install_specific_version(self):
-    tester = pip_installer_tester_v2(python_testing._PYTHONS.ANY_PYTHON3, 'test', debug = self.DEBUG)
-    tester.installer.install('19.2.3', False)
-    self.assertEqual( '19.2.3', tester.installer.pip_version() )
+  @skip_if_not_windows()
+  @skip_if(not python_testing._PYTHONS.PYTHON_39, 'test_venv_python_39 - python 3.9 not found', warning = True)
+  def test_venv_windows_python_39(self):
+    tmp_dir = self.make_temp_dir()
+    venv = python_virtual_env(python_testing._PYTHONS.PYTHON_39, tmp_dir)
+    expected_bin_dir = path.join(expected_bin_dir)
+    expected_exe = path.join(expected_bin_dir, 'python.exe')
+    expected_pip_exe = path.join(expected_bin_dir, 'pip3.9.exe')
+    self.assertEqual( expected_exe, venv.python_exe )
+    self.assertEqual( expected_exe, venv.installation.python_exe )
+    self.assertEqual( '3.9', venv.installation.python_version )
+    self.assert_filename_equal( expected_exe, venv.installation.python_exe )
+    self.assert_filename_equal( expected_pip_exe, venv.installation.pip_exe )
+    self.assert_filename_list_equal( [ expected_bin_dir ], venv.installation.PATH )
     
 if __name__ == '__main__':
   unit_test.main()
