@@ -63,3 +63,9 @@ class python_source(python_source_base):
   def find_impl(clazz, system):
     'Return the system specific python source impl.'
     return clazz._find_impl_class(system)
+
+  @classmethod
+  #@abstractmethod
+  def virtual_env_python_exe(clazz, root_dir, version):
+    'Return the absolute path the python exe in a virtual env.'
+    return clazz._impl_class.virtual_env_python_exe(root_dir, version)

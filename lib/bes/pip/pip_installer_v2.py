@@ -8,7 +8,6 @@ from bes.fs.dir_util import dir_util
 from bes.fs.file_util import file_util
 from bes.system.execute import execute
 from bes.system.log import logger
-from bes.system.os_env import os_env
 from bes.url.url_util import url_util
 
 from bes.python.python_exe import python_exe

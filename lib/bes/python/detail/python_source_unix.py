@@ -3,6 +3,7 @@
 import os.path as path
 
 from abc import abstractmethod, ABCMeta
+from bes.python.python_version import python_version
 from bes.system.compat import with_metaclass
 from bes.system.user import user
 
@@ -37,6 +38,15 @@ class python_source_unix(with_metaclass(ABCMeta, object)):
 
   @classmethod
   #@abstractmethod
-  def exe_name(self, exe):
+  def exe_name(clazz, exe):
     'Return the name of a python exe.  without possible extensions or absolute paths.'
     return path.basename(exe)
+
+  @classmethod
+  #@abstractmethod
+  def virtual_env_python_exe(clazz, root_dir, version):
+    'Return the absolute path the python exe in a virtual env.'
+    version = python_version.check_version(version)
+
+    exe_basename = 'python{}'.format(version)
+    return path.join(root_dir, 'bin', exe_basename)

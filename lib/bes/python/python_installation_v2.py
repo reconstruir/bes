@@ -20,7 +20,7 @@ from .python_source import python_source
 from .python_version import python_version
 
 class python_installation_v2(object):
-  'Class to determine the filename and directory values of a pip installatiuon.'
+  'Class to determine the filename and directory values of a python installatiuon.'
 
   _log = logger('python')
   
