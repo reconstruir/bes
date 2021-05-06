@@ -88,5 +88,4 @@ class python_source_windows(python_source_base):
   def virtual_env_python_exe(clazz, root_dir, version):
     'Return the absolute path the python exe in a virtual env.'
     version = python_version.check_version(version)
-
     return path.join(root_dir, 'Scripts', 'python.exe')
