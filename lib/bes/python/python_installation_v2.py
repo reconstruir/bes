@@ -103,6 +103,7 @@ class python_installation_v2(object):
     clazz._log.log_d('_determine_stuff_windows: exe_type={} exe_version={}'.format(exe_type, exe_version))
 
     root_dir = path.dirname(exe)
+    clazz._log.log_d('_determine_stuff_windows: root_dir={}'.format(root_dir))
     
     if exe_type == 'pip':
       vi = python_pip_exe.version_info(exe)
@@ -126,8 +127,11 @@ class python_installation_v2(object):
         path.join(root_dir, 'Scripts', 'pip{}.{}'.format(py_version, ext)),
         path.join(root_dir, 'Scripts', 'pip{}.{}'.format(py_major_version, ext)),
         path.join(root_dir, 'Scripts', 'pip.{}'.format(ext)),
+        path.join(root_dir, 'pip{}.{}'.format(py_version, ext)),
+        path.join(root_dir, 'pip{}.{}'.format(py_major_version, ext)),
+        path.join(root_dir, 'pip.{}'.format(ext)),
     ])
-      
+
     py_exe = clazz._find_possible_exe(possible_pythons)
     pip_exe = clazz._find_possible_exe(possible_pips)
     clazz._log.log_d('_determine_stuff_windows: py_exe={} pip_exe={}'.format(py_exe, pip_exe))

@@ -28,6 +28,9 @@ class python_virtual_env(object):
     check.check_string(root_dir)
 
     self._original_exe = exe
+    self._original_version = python_exe.version(self._original_exe)
+    if self._original_version < '3.7':
+      raise python_error('Python version "{}" not supported.  Minimum supported version is 3.7.'.format(self._original_version))
     self._root_dir = root_dir
     self._call_venv(exe, self._root_dir)
     
