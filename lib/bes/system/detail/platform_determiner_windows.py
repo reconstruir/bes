@@ -34,10 +34,12 @@ class platform_determiner_windows(platform_determiner_base):
   def version_minor(self):
     'distro version minor number.'
     return platform.version().split('.')[1]
-  
+
+  _ARCH_MAP = {
+    'amd64': 'x86_64',
+  }
   #@abstractmethod
   def arch(self):
     'arch.'
-    # this is broken for some reason
-    #return self._platform.machine().lower()
-    return 'amd64'
+    arch = self._platform.machine().lower()
+    return self._ARCH_MAP.get(arch, arch)
