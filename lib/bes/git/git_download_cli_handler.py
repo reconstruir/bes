@@ -4,6 +4,7 @@ from os import path
 
 from bes.common.check import check
 from bes.cli.cli_command_handler import cli_command_handler
+from bes.system.log import logger
 
 from .git_download import git_download
 from .git_download_options import git_download_options
@@ -12,9 +13,12 @@ from .git_util import git_util
 
 class git_download_cli_handler(cli_command_handler):
 
+  _log = logger('git_download')
+  
   def __init__(self, cli_args):
     super(git_download_cli_handler, self).__init__(cli_args, options_class = git_download_options)
     check.check_git_download_options(self.options)
+    self._log.log_d('options={}'.format(self.options))
   
   def fetch(self, address, revision, output_filename):
     check.check_string(address)

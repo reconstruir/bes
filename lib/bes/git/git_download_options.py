@@ -23,6 +23,8 @@ class git_download_options(git_clone_options):
       'debug': False,
       'ssh_public_key': None,
       'ssh_private_key': None,
+      'username': None,
+      'host_key_type': 'rsa',
     })
     return v
 
@@ -30,7 +32,7 @@ class git_download_options(git_clone_options):
   #@abstractmethod
   def sensitive_keys(clazz):
     'Return list of keys that are secrets and should be protected from __str__.'
-    return ( 'ssh_public_key', 'ssh_private_key' )
+    return ( 'ssh_public_key', 'ssh_private_key', 'username', 'host_key_type' )
 
   @classmethod
   #@abstractmethod
@@ -70,21 +72,20 @@ class git_download_options(git_clone_options):
     check.check_bool(self.debug)
     check.check_string(self.ssh_public_key, allow_none = True)
     check.check_string(self.ssh_private_key, allow_none = True)
+    check.check_string(self.username, allow_none = True)
+    check.check_string(self.host_key_type, allow_none = True)
 
-  def _check_both_ssh_keys(self):
-    if self.ssh_public_key and not self.ssh_private_key:
-      raise git_error('both ssh_public_key and ssh_private_key need to be given.')
-    if self.ssh_private_key and not self.ssh_public_key:
-      raise git_error('both ssh_private_key and ssh_public_key need to be given.')
+  def _check_ssh_credentials(self):
+    if None in ( self.ssh_private_key, self.ssh_public_key, self.username, self.host_key_type ):
+      raise git_error('ssh_public_key, ssh_private_key, username and host_key_type need to be given.')
     
-  @property
-  def has_ssh_key(self):
-    self._check_both_ssh_keys()
-    return self.ssh_private_key and self.ssh_public_key
+  def has_ssh_credentials(self):
+    self._check_ssh_credentials()
+    return None not in ( self.ssh_private_key, self.ssh_public_key, self.username, self.host_key_type )
     
-  @property
-  def ssh_key_pair(self):
-    self._check_both_ssh_keys()
+  def ssh_credentials(self):
+    self._check_ssh_credentials()
+    
     if not self.ssh_public_key:
       assert not self.ssh_private_key
       return None
@@ -99,7 +100,9 @@ class git_download_options(git_clone_options):
       raise git_error('Failed to ready private ssh key: "{}" - {}'.format(self.ssh_private_key,
                                                                          str(ex)))
     return credentials('<cli>',
-                       ssh_public_key = ssh_public_key_content,
-                       ssh_private_key = ssh_private_key_content)
+                       public_key = ssh_public_key_content,
+                       private_key = ssh_private_key_content,
+                       username = self.username,
+                       host_key_type = self.host_key_type)
     
 check.register_class(git_download_options)

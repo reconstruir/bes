@@ -63,13 +63,16 @@ class env_override(object):
     return copy.deepcopy(os.environ)
 
   @classmethod
-  def temp_home(clazz, enter_functions = None, exit_functions = None):
+  def temp_home(clazz, enter_functions = None, exit_functions = None, use_temp_home = None):
     'Return an env_override object with a temporary HOME'
     check.check_function_seq(enter_functions, allow_none = True)
     check.check_function_seq(exit_functions, allow_none = True)
-    
-    tmp_home = tempfile.mkdtemp(suffix = '-tmp-home.dir')
-    filesystem.atexit_remove(tmp_home)
+
+    if use_temp_home:
+      tmp_home = use_temp_home
+    else:
+      tmp_home = tempfile.mkdtemp(suffix = '-tmp-home.dir')
+      filesystem.atexit_remove(tmp_home)
     
     if host.is_unix():
       env = { 'HOME': tmp_home }

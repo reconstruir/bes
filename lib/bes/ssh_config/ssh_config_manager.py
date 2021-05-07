@@ -61,17 +61,20 @@ class ssh_config_manager(object):
     self._authorized_keys.add_authorized_key(authorized_key)
     
   def install_key_pair_for_host(self, public_key, private_key, hostname, username = None,
-                                include_ip_address = True, include_comment = True):
+                                include_ip_address = True, include_comment = True,
+                                host_key_type = None):
     check.check_string(public_key)
     check.check_string(private_key)
     check.check_string(hostname)
     check.check_string(username, allow_none = True)
+    check.check_string(host_key_type, allow_none = True)
     check.check_bool(include_ip_address)
     check.check_bool(include_comment)
 
     known_host = ssh_key_scan.scan(hostname,
                                    include_ip_address = include_ip_address,
-                                   include_comment = include_comment)
+                                   include_comment = include_comment,
+                                   key_type = host_key_type)
     self._known_hosts.add_known_host(known_host)
     
     filename = 'id_rsa_' + hostname.replace('.', '_')

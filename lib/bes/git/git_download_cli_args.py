@@ -46,6 +46,10 @@ class git_download_cli_args(object):
                    help = 'The public ssh key. [ None ]')
     p.add_argument('--ssh-private-key', action = 'store', type = str, default = None,
                    help = 'The private ssh key. [ None ]')
+    p.add_argument('--username', action = 'store', type = str, default = None,
+                   help = 'The ssh username. [ None ]')
+    p.add_argument('--host-key-type', action = 'store', type = str, default = None,
+                   help = 'The host key type for ssh-keyscan. [ None ]')
 
   def _command_git_download(self, command, *args, **kargs):
     from .git_download_cli_handler import git_download_cli_handler
