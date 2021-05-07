@@ -20,6 +20,8 @@ class git_download_cli_handler(cli_command_handler):
     check.check_string(address)
     check.check_string(revision)
     check.check_string(output_filename, allow_none = True)
+
+#    if self.options.has_ssh_key()
     return 0
 
   def available(self, address, prefix, limit, sort_type, reverse):

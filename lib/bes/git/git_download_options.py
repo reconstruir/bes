@@ -67,13 +67,21 @@ class git_download_options(git_clone_options):
     check.check_bool(self.verbose)
     check.check_string(self.ssh_public_key, allow_none = True)
     check.check_string(self.ssh_private_key, allow_none = True)
-  
-  @property
-  def ssh_key_pair(self):
+
+  def _check_both_ssh_keys(self):
     if self.ssh_public_key and not self.ssh_private_key:
       raise git_error('both ssh_public_key and ssh_private_key need to be given.')
     if self.ssh_private_key and not self.ssh_public_key:
       raise git_error('both ssh_private_key and ssh_public_key need to be given.')
+    
+  @property
+  def has_ssh_key(self):
+    self._check_both_ssh_keys()
+    return self.ssh_private_key and self.ssh_public_key
+    
+  @property
+  def ssh_key_pair(self):
+    self._check_both_ssh_keys()
     if not self.ssh_public_key:
       assert not self.ssh_private_key
       return None

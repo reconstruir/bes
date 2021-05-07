@@ -6,6 +6,7 @@ import tempfile
 import copy
 from functools import wraps
 
+from .check import check
 from .env_var import env_var
 from .filesystem import filesystem
 from .host import host
@@ -13,16 +14,27 @@ from .os_env import os_env
 
 class env_override(object):
 
-  def __init__(self, env = None):
+  def __init__(self, env = None, enter_functions = None, exit_functions = None):
+    check.check_dict(env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
+    check.check_function_seq(enter_functions, allow_none = True)
+    check.check_function_seq(exit_functions, allow_none = True)
+
     self._original_env = os_env.clone_current_env()
+    self._enter_functions = enter_functions or []
+    self._exit_functions = exit_functions or []
+    
     self._stack = []
     if env:
       self.update(env)
     
   def __enter__(self):
+    for func in self._enter_functions:
+      func()
     return self
   
   def __exit__(self, type, value, traceback):
+    for func in self._exit_functions:
+      func()
     os_env.set_current_env(self._original_env)
     
   def __getitem__(self, key):
@@ -51,8 +63,11 @@ class env_override(object):
     return copy.deepcopy(os.environ)
 
   @classmethod
-  def temp_home(clazz):
+  def temp_home(clazz, enter_functions = None, exit_functions = None):
     'Return an env_override object with a temporary HOME'
+    check.check_function_seq(enter_functions, allow_none = True)
+    check.check_function_seq(exit_functions, allow_none = True)
+    
     tmp_home = tempfile.mkdtemp(suffix = '-tmp-home.dir')
     filesystem.atexit_remove(tmp_home)
     
@@ -66,7 +81,9 @@ class env_override(object):
         'HOMEPATH': homepath,
         'APPDATA': path.join(tmp_home, 'AppData\\Roaming')
       }
-    return env_override(env = env)
+    return env_override(env = env,
+                        enter_functions = enter_functions,
+                        exit_functions = exit_functions)
 
   @classmethod
   def temp_tmpdir(clazz):
