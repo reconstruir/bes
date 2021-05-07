@@ -1,28 +1,87 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import pprint
+from bes.cli.cli_options import cli_options
 from bes.common.check import check
 
-class git_clone_options(object):
+from .git_error import git_error
+
+class git_clone_options(cli_options):
+
+  def __init__(self, **kargs):
+    super(git_clone_options, self).__init__(**kargs)
+
+  @classmethod
+  #@abstractmethod
+  def default_values(clazz):
+    'Return a dict of defaults for these options.'
+    return {
+      'branch': None,
+      'clean': False,
+      'clean_immaculate': False,
+      'depth': None,
+      'enforce_empty_dir': True,
+      'jobs': None,
+      'lfs': False,
+      'no_network': False,
+      'num_tries': 1,
+      'reset_to_head': False,
+      'retry_wait_seconds': 10.0,
+      'shallow_submodules': False,
+      'submodule_list': None,
+      'submodules': False,
+      'submodules_recursive': False,
+    }
   
-  def __init__(self, *args, **kargs):
-    self.enforce_empty_dir = True
-    self.depth = None
-    self.lfs = False
-    self.jobs = None
-    self.submodules = False
-    self.submodules_recursive = False
-    self.submodule_list = None
-    self.branch = None
-    self.reset_to_head = False
-    self.clean = False
-    self.clean_immaculate = False
-    self.no_network = False
-    self.num_tries = 1
-    self.retry_wait_seconds = 10.0
-    self.shallow_submodules = False
-    for key, value in kargs.items():
-      setattr(self, key, value)
+  @classmethod
+  #@abstractmethod
+  def sensitive_keys(clazz):
+    'Return a tuple of keys that are secrets and should be protected from __str__.'
+    return None
+  
+  @classmethod
+  #@abstractmethod
+  def value_type_hints(clazz):
+    return {
+      'branch': str,
+      'clean': bool,
+      'clean_immaculate': bool,
+      'depth': int,
+      'enforce_empty_dir': bool,
+      'jobs': int,
+      'lfs': bool,
+      'no_network': bool,
+      'num_tries': int,
+      'reset_to_head': bool,
+      'retry_wait_seconds': float,
+      'shallow_submodules': bool,
+      'submodule_list': list,
+      'submodules': bool,
+      'submodules_recursive': bool,
+    }
+
+  @classmethod
+  #@abstractmethod
+  def config_file_key(clazz):
+    return None
+
+  @classmethod
+  #@abstractmethod
+  def config_file_env_var_name(clazz):
+    return None
+  
+  @classmethod
+  #@abstractmethod
+  def config_file_section(clazz):
+    return None
+
+  @classmethod
+  #@abstractmethod
+  def error_class(clazz):
+    return git_error
+
+  #@abstractmethod
+  def check_value_types(self):
+    'Check the type of each option.'
     check.check_bool(self.enforce_empty_dir)
     check.check_int(self.depth, allow_none = True)
     check.check_bool(self.lfs)
@@ -38,11 +97,5 @@ class git_clone_options(object):
     check.check_int(self.num_tries)
     check.check_float(self.retry_wait_seconds)
     check.check_bool(self.shallow_submodules)
-
-  def __str__(self):
-    return str(self.__dict__)
-
-  def pformat(self):
-    return pprint.pformat(self.__dict__)
   
 check.register_class(git_clone_options)
