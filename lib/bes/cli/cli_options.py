@@ -9,6 +9,7 @@ from bes.config.simple_config import simple_config
 from bes.config.simple_config_editor import simple_config_editor
 from bes.system.log import logger
 from bes.system.os_env import os_env_var
+from bes.common.bool_util import bool_util
 
 from .cli_options_base import cli_options_base
 
@@ -61,11 +62,20 @@ class cli_options(cli_options_base):
   def _do_set_value(self, key, value):
     'update one value'
     self._log.log_d('_do_update_value: setattr({}, {}, {}:{})'.format(id(self), key, value, type(value)))
-    value_type_hint = self._get_value_type_hint(key)
-    if value_type_hint and value != None:
-      value = value_type_hint(value)
+    type_hint = self._get_value_type_hint(key)
+    value = self._cast_value_if_needed(value, type_hint)
     setattr(self, key, value)
 
+  @classmethod
+  def _cast_value_if_needed(clazz, value, type_hint):
+    if not type_hint:
+      return value
+    if value == None:
+      return value
+    if type_hint == bool:
+      return bool_util.parse_bool(value)
+    return type_hint(value)
+    
   @classmethod
   def _read_config_file(clazz, cli_values):
     check.check_dict(cli_values)

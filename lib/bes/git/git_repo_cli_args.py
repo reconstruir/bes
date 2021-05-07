@@ -37,6 +37,12 @@ class git_repo_cli_args(object):
   @classmethod
   def _git_repo_add_common_args(clazz, p):
     git_cli_common_args.git_cli_add_common_args(p)
+    clazz._git_repo_add_clone_args(p)
+    p.add_argument('address', action = 'store', type = str, default = None,
+                   help = 'The git repo address to clone. [ None ]')
+
+  @classmethod
+  def _git_repo_add_clone_args(clazz, p):
     p.add_argument('--depth', action = 'store', type = int, default = None,
                    help = 'Clone depth. [ None ]')
     p.add_argument('--lfs', action = 'store_true', default = False,
@@ -51,9 +57,7 @@ class git_repo_cli_args(object):
                    help = 'List of submodules to clone (otherwise all get cloned) [ None ]')
     p.add_argument('--branch', action = 'store', default = None,
                    help = 'The branch to checkout after cloning [ None ]')
-    p.add_argument('address', action = 'store', type = str, default = None,
-                   help = 'The git repo address to clone. [ None ]')
-
+    
   def _command_git_repo(self, command, *args, **kargs):
     from .git_repo_cli_command import git_repo_cli_command
     return git_repo_cli_command(kargs).handle_command(command)

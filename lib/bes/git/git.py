@@ -3,6 +3,7 @@
 import os, os.path as path, re, time
 from datetime import datetime
 from collections import namedtuple
+import tempfile
 
 from bes.archive.archiver import archiver
 from bes.common.check import check
@@ -146,7 +147,7 @@ class git(git_lfs):
     
     address = git_address_util.resolve(address)
     options = options or git_clone_options()
-    clazz.log.log_d('clone: address={} root_dir={} options={}'.format(address, root_dir, options.pformat()))
+    clazz.log.log_d('clone: address={} root_dir={} options={}'.format(address, root_dir, options))
     
     if path.exists(root_dir):
       if not path.isdir(root_dir):
@@ -239,7 +240,7 @@ class git(git_lfs):
     
     options = options or git_clone_options()
     branch_name = branch_name or options.branch
-    clazz.log.log_d('pull: root_dir={} branch_name={} options={}'.format(root_dir, branch_name, options.pformat()))
+    clazz.log.log_d('pull: root_dir={} branch_name={} options={}'.format(root_dir, branch_name, options))
 
     args = []
     if remote_name:
@@ -364,7 +365,7 @@ class git(git_lfs):
     options = options or git_clone_options()
     clazz.log.log_d('clone_or_pull: address={} root_dir={} options={}'.format(address,
                                                                               root_dir,
-                                                                              options.pformat()))
+                                                                              options))
     if clazz.is_repo(root_dir):
       clazz.pull(root_dir, options = options)
     else:
@@ -634,6 +635,17 @@ class git(git_lfs):
                                          limit = limit,
                                          prefix = prefix)
 
+  @classmethod
+  def list_remote_tags_for_address(clazz, address, sort_type = None, reverse = False,
+                                   limit = None, prefix = None):
+    rv = git_exe.call_git(tempfile.gettempdir(), [ 'ls-remote', '--tags', address ])
+    clazz.log.log_d('list_remote_tags_for_address: stdout="{}"'.format(rv.stdout))
+    return git_tag.parse_show_ref_output(rv.stdout,
+                                         sort_type = sort_type,
+                                         reverse = reverse,
+                                         limit = limit,
+                                         prefix = prefix)
+  
   @classmethod
   def greatest_remote_tag(clazz, root, prefix = None):
     tags = clazz.list_remote_tags(root, sort_type = 'version', prefix = prefix)

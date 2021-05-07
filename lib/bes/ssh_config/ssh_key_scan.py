@@ -19,7 +19,7 @@ from .ssh_known_host import ssh_known_host
 class ssh_key_scan(object):
   'Class to deal with ssh-keyscan'
   
-  VALID_KEY_TYPES = ( 'dsa', 'ecdsa', 'ed25519', 'rsa' )
+  VALID_KEY_TYPES = ( 'dsa', 'ecdsa', 'ed25519', 'rsa', 'ecdsa-sha2-nistp256' )
   DEFAULT_KEY_TYPE = 'rsa'
   
   @classmethod

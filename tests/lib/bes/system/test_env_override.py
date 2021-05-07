@@ -6,6 +6,7 @@ from os import path
 from bes.testing.unit_test import unit_test
 from bes.system.env_override import env_override
 from bes.system.os_env import os_env
+from bes.fs.file_util import file_util
 
 class test_env_override(unit_test):
 
@@ -46,6 +47,14 @@ class test_env_override(unit_test):
         raise TypeError('Argument %d is not a dict' % (i + 1))
       result.update(copy.deepcopy(n))
     return result
-    
+
+  def test_env_override_temp_home_enter_functions(self):
+
+    def _setup_fruit_txt():
+      file_util.save(path.expanduser('~/fruit.txt'), content = 'kiwi')
+      
+    with env_override.temp_home(enter_functions = [ _setup_fruit_txt ]) as env:
+      self.assert_text_file_equal( 'kiwi', path.expanduser('~/fruit.txt'), strip = True )
+  
 if __name__ == '__main__':
   unit_test.main()

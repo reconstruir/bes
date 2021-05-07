@@ -87,7 +87,6 @@ class git_cli_command(cli_command_handler):
     check.check_bool(remote, allow_none = True)
     check.check_string(prefix, allow_none = True)
     check.check_int(limit, allow_none = True)
-    check.check_string(prefix, allow_none = True)
     check.check_string(sort_type, allow_none = True)
     check.check_bool(reverse)
 
