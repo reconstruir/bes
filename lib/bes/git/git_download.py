@@ -5,6 +5,7 @@ from datetime import datetime
 from collections import namedtuple
 
 from bes.common.check import check
+from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.ssh_config.ssh_config_manager import ssh_config_manager
 from bes.system.env_override import env_override
@@ -58,7 +59,7 @@ class git_download(object):
   @classmethod
   def _do_download(clazz, address, revision, output_filename,
                    base_name, download_options):
-    clazz._log.log_d('_do_download: home={} home={}'.format(user.HOME, path.expanduser('~')))
+    clazz._log.log_d('_do_download: home={} real_home={}'.format(path.expanduser('~'), user.HOME))
     tmp_root_dir = temp_file.make_temp_dir(delete = not download_options.debug)
     if download_options.debug:
       print('tmp_root_dir={}'.format(tmp_root_dir))
@@ -87,12 +88,11 @@ class git_download(object):
                                              host_key_type = ssh_credentials.host_key_type,
                                              include_ip_address = True,
                                              include_comment = True)
-    def _setup_git(self):
-      pass
-
+    # use a temporary HOME with custom git and ssh config just for this download
     with env_override.temp_home(use_temp_home = temp_home) as env:
       git_config.set_identity('test', 'test@example.com')
       ssh_config_file = path.join(temp_ssh_dir, 'config')
       ssh_command = 'ssh -F {}'.format(ssh_config_file)
       git_config.set_value('core.sshCommand', ssh_command)
       clazz._do_download(address, revision, output_filename, base_name, download_options)
+      file_util.remove(temp_home)
