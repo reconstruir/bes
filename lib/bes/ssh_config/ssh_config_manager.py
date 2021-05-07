@@ -16,7 +16,7 @@ from .ssh_known_host import ssh_known_host
 from .ssh_known_hosts_file import ssh_known_hosts_file
 
 class ssh_config_manager(object):
-  'Class to manager ssh client installations'
+  'Class to manage ssh client installations'
 
   def __init__(self, dot_ssh_dir):
     self._dot_ssh_dir = dot_ssh_dir

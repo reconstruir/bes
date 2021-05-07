@@ -20,6 +20,7 @@ class git_download_options(git_clone_options):
     v = super(git_download_options, clazz).default_values()
     v.update({
       'verbose': False,
+      'debug': False,
       'ssh_public_key': None,
       'ssh_private_key': None,
     })
@@ -37,6 +38,7 @@ class git_download_options(git_clone_options):
     v = super(git_download_options, clazz).value_type_hints()
     v.update({
       'verbose': bool,
+      'debug': bool,
     })
     return v
 
@@ -65,6 +67,7 @@ class git_download_options(git_clone_options):
     'Check the type of each option.'
     super(git_download_options, self).check_value_types()
     check.check_bool(self.verbose)
+    check.check_bool(self.debug)
     check.check_string(self.ssh_public_key, allow_none = True)
     check.check_string(self.ssh_private_key, allow_none = True)
 

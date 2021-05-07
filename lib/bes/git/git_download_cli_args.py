@@ -10,7 +10,7 @@ class git_download_cli_args(object):
   def git_download_add_args(self, subparser):
 
     # download
-    p = subparser.add_parser('download', help = 'Download.')
+    p = subparser.add_parser('fetch', help = 'Download.')
     self._git_download_add_common_args(p)
     p.add_argument('address', action = 'store', type = str, default = None,
                    help = 'The git repo address to clone. [ None ]')
@@ -38,6 +38,10 @@ class git_download_cli_args(object):
   def _git_download_add_common_args(clazz, p):
     from .git_repo_cli_args import git_repo_cli_args
     git_repo_cli_args._git_repo_add_clone_args(p)
+    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
+                   help = 'Verbose output. [ None ]')
+    p.add_argument('--debug', action = 'store_true', default = False,
+                   help = 'Debug mode.  Save temporary files and downloads for debugging. [ None ]')
     p.add_argument('--ssh-public-key', action = 'store', type = str, default = None,
                    help = 'The public ssh key. [ None ]')
     p.add_argument('--ssh-private-key', action = 'store', type = str, default = None,
