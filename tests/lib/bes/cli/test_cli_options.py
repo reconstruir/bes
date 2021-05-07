@@ -92,6 +92,78 @@ class _test_cli_options(cli_options):
       return None
     return credentials('<cli>', username = self.username, password = self.password)
 
+class _test_cli_options_subclass(_test_cli_options):
+
+  def __init__(self, **kargs):
+    super(_test_cli_options_subclass, self).__init__(**kargs)
+
+  @classmethod
+  #@abstractmethod
+  def default_values(clazz):
+    'Return a dict of defaults for these options.'
+    v = super(_test_cli_options_subclass, clazz).default_values()
+    v.update({
+      'sub_can_do': True,
+      'sub_fruit': 'kiwi',
+      'sub_username': None,
+      'sub_password': None,
+    })
+    return v
+  
+  @classmethod
+  #@abstractmethod
+  def sensitive_keys(clazz):
+    'Return a tuple of keys that are secrets and should be protected from __str__.'
+    v = super(_test_cli_options_subclass, clazz).sensitive_keys()
+    return v + ( 'sub_password', )
+  
+  @classmethod
+  #@abstractmethod
+  def value_type_hints(clazz):
+    v = super(_test_cli_options_subclass, clazz).value_type_hints()
+    v.update({
+      'sub_can_do': bool,
+      'sub_fruit': str,
+      'sub_username': str,
+      'sub_password': str,
+    })
+    return v
+
+  @classmethod
+  #@abstractmethod
+  def config_file_key(clazz):
+    return super(_test_cli_options_subclass, clazz).config_file_key()
+
+  @classmethod
+  #@abstractmethod
+  def config_file_env_var_name(clazz):
+    return '_BES_CLI_OPTIONS_UNIT_TEST_CONFIG_FILE_SUBCLASS'
+  
+  @classmethod
+  #@abstractmethod
+  def config_file_section(clazz):
+    return super(_test_cli_options_subclass, clazz).config_file_section()
+
+  #@abstractmethod
+  def check_value_types(self):
+    'Check the type of each option.'
+    super(_test_cli_options_subclass, self).check_value_types()
+    check.check_bool(self.sub_can_do)
+    check.check_string(self.sub_fruit)
+    check.check_string(self.sub_username, allow_none = True)
+    check.check_string(self.sub_password, allow_none = True)
+  
+  @property
+  def sub_credentials(self):
+    if self.sub_username and not self.sub_password:
+      raise _test_cli_options_error('both sub_username and sub_password need to be given.')
+    if self.sub_password and not self.sub_username:
+      raise _test_cli_options_error('both sub_password and sub_username need to be given.')
+    if not self.sub_username:
+      assert not self.sub_password
+      return None
+    return credentials('<cli>', username = self.sub_username, password = self.sub_password)
+  
 class test_cli_options(unit_test):
 
   def test___init__(self):
@@ -178,6 +250,138 @@ fruit
     tmp_config = self.make_temp_file(content = content)
     with env_override( { '_BES_CLI_OPTIONS_UNIT_TEST_CONFIG_FILE': tmp_config }) as env:
       o = _test_cli_options()
+      self.assertEqual( 'foo', o.username )
+      self.assertEqual( 'sekret', o.password )
+      self.assertEqual( 9999, o.port )
+    
+  def test_unknown_value_from_config_file(self):
+    content = '''\
+fruit
+  username: foo
+  password: sekret
+  something_unknown: kiwi
+'''
+    tmp_config = self.make_temp_file(content = content)
+    o = _test_cli_options.from_config_file(tmp_config)
+    self.assertTrue( hasattr(o, 'username') )
+    self.assertTrue( hasattr(o, 'password') )
+    self.assertTrue( hasattr(o, 'port') )
+    self.assertFalse( hasattr(o, 'something_unknown') )
+
+class test_cli_options_subclass(unit_test):
+
+  def test___init__(self):
+    values = {
+      'username': 'foo',
+      'password': 'sekret',
+      'port': 9999,
+      'sub_can_do': False,
+      'sub_fruit': 'papaya',
+      'sub_username': 'fred',
+      'sub_password': 'flintpass',
+    }
+    o = _test_cli_options_subclass(**values)
+    self.assertEqual( 'foo', o.username )
+    self.assertEqual( 'sekret', o.password )
+    self.assertEqual( 9999, o.port )
+    self.assertEqual( False, o.sub_can_do )
+    self.assertEqual( 'papaya', o.sub_fruit )
+    self.assertEqual( 'fred', o.sub_username )
+    self.assertEqual( 'flintpass', o.sub_password )
+    self.assertEqual( {
+      'debug': False,
+      'num_tries': 10,
+      'password': 'sekret',
+      'port': 9999,
+      'sleep_time': 5.0,
+      'username': 'foo',
+      'verbose': False,
+      'sub_can_do': False,
+      'sub_fruit': 'papaya',
+      'sub_username': 'fred',
+      'sub_password': 'flintpass',
+    }, o.__dict__ )
+
+  def test___init__with_type_hints(self):
+    values = {
+      'username': 'foo',
+      'password': 'sekret',
+      'port': '9999', # string but value type is int
+      'sub_can_do': 'False', # string but value type is bool
+      'sub_fruit': 'papaya',
+      'sub_username': 'fred',
+      'sub_password': 'flintpass',
+    }
+    o = _test_cli_options_subclass(**values)
+    self.assertEqual( 'foo', o.username )
+    self.assertEqual( 'sekret', o.password )
+    self.assertEqual( 9999, o.port )
+    self.assertEqual( False, o.sub_can_do )
+    self.assertEqual( 'papaya', o.sub_fruit )
+    self.assertEqual( 'fred', o.sub_username )
+    self.assertEqual( 'flintpass', o.sub_password )
+    self.assertEqual( {
+      'debug': False,
+      'num_tries': 10,
+      'password': 'sekret',
+      'port': 9999,
+      'sleep_time': 5.0,
+      'username': 'foo',
+      'verbose': False,
+      'sub_can_do': False,
+      'sub_fruit': 'papaya',
+      'sub_username': 'fred',
+      'sub_password': 'flintpass',
+    }, o.__dict__ )
+
+  def test___init___unknown_value(self):
+    values = {
+      'username': 'foo',
+      'password': 'sekret',
+      'port': 9999,
+      'something_unknown': 'kiwi',
+    }
+    o = _test_cli_options_subclass(**values)
+    self.assertEqual( 'foo', o.username )
+    self.assertEqual( 'sekret', o.password )
+    self.assertEqual( 9999, o.port )
+    self.assertEqual( {
+      'debug': False,
+      'num_tries': 10,
+      'password': 'sekret',
+      'port': 9999,
+      'sleep_time': 5.0,
+      'username': 'foo',
+      'verbose': False,
+      'sub_can_do': True,
+      'sub_fruit': 'kiwi',
+      'sub_username': None,
+      'sub_password': None,
+    }, o.__dict__ )
+    
+  def test_from_config_file(self):
+    content = '''\
+fruit
+  username: foo
+  password: sekret
+  port: 9999
+'''
+    tmp_config = self.make_temp_file(content = content)
+    o = _test_cli_options.from_config_file(tmp_config)
+    self.assertEqual( 'foo', o.username )
+    self.assertEqual( 'sekret', o.password )
+    self.assertEqual( 9999, o.port )
+
+  def test_from_config_file_from_env(self):
+    content = '''\
+fruit
+  username: foo
+  password: sekret
+  port: 9999
+'''
+    tmp_config = self.make_temp_file(content = content)
+    with env_override( { '_BES_CLI_OPTIONS_UNIT_TEST_CONFIG_FILE_SUBCLASS': tmp_config }) as env:
+      o = _test_cli_options_subclass()
       self.assertEqual( 'foo', o.username )
       self.assertEqual( 'sekret', o.password )
       self.assertEqual( 9999, o.port )
