@@ -3,378 +3,59 @@
 import os, os.path as path, re, time
 from datetime import datetime
 from collections import namedtuple
-import tempfile
 
-from bes.archive.archiver import archiver
+#from bes.archive.archiver import archiver
 from bes.common.check import check
-from bes.common.object_util import object_util
-from bes.common.string_util import string_util
-from bes.fs.dir_util import dir_util
-from bes.fs.file_copy import file_copy
-from bes.fs.file_path import file_path
-from bes.fs.file_util import file_util
-from bes.fs.temp_file import temp_file
-from bes.system.host import host
-from bes.system.log import logger
-from bes.version.software_version import software_version
-
-from .git_address_util import git_address_util
-from .git_branch import git_branch
-from .git_branch_list import git_branch_list
-from .git_changelog import git_changelog
+#from bes.common.object_util import object_util
+#from bes.common.string_util import string_util
+#from bes.fs.dir_util import dir_util
+#from bes.fs.file_copy import file_copy
+#from bes.fs.file_path import file_path
+#from bes.fs.file_util import file_util
+#from bes.fs.temp_file import temp_file
+#from bes.system.host import host
+#from bes.system.log import logger
+#from bes.version.software_version import software_version
+#
+#from .git_address_util import git_address_util
+#from .git_branch import git_branch
+#from .git_branch_list import git_branch_list
+#from .git_changelog import git_changelog
 from .git_clone_options import git_clone_options
-from .git_commit_hash import git_commit_hash
-from .git_config import git_config
+from .git_download_options import git_download_options
+#from .git_commit_hash import git_commit_hash
+#from .git_config import git_config
 from .git_error import git_error
 from .git_exe import git_exe
-from .git_head_info import git_head_info
-from .git_ignore import git_ignore
-from .git_lfs import git_lfs
-from .git_modules_file import git_modules_file
-from .git_ref import git_ref
-from .git_ref_info import git_ref_info
-from .git_ref_where import git_ref_where
-from .git_status import git_status
-from .git_submodule_info import git_submodule_info
-from .git_tag import git_tag
-from .git_tag_sort_type import git_tag_sort_type
+#from .git_head_info import git_head_info
+#from .git_ignore import git_ignore
+#from .git_lfs import git_lfs
+#from .git_modules_file import git_modules_file
+#from .git_ref import git_ref
+#from .git_ref_info import git_ref_info
+#from .git_ref_where import git_ref_where
+#from .git_status import git_status
+#from .git_submodule_info import git_submodule_info
+#from .git_tag import git_tag
+#from .git_tag_sort_type import git_tag_sort_type
 
-class git(git_lfs):
-  'A class to deal with git.'
+class git_download(object):
+  'A class to deal with downloading revision tarballs wholesale.'
 
-  log = logger('git')
-
-  @classmethod
-  def status(clazz, root, filenames, abspath = False, untracked_files = True):
-    filenames = object_util.listify(filenames)
-    flags = [ '--porcelain' ]
-    if untracked_files:
-      flags.append('--untracked-files=normal')
-    else:
-      flags.append('--untracked-files=no')
-    args = [ 'status' ] + flags + filenames
-    rv = git_exe.call_git(root, args)
-    result = git_status.parse(rv.stdout)
-    if abspath:
-      for r in result:
-        r.filename = path.join(root, r.filename)
-    return result
+  log = logger('git_download')
 
   @classmethod
-  def branch_status(clazz, root):
-    rv = git_exe.call_git(root, [ 'status', '-b', '--porcelain' ])
-    return git_branch.parse_branch_status(rv.stdout)
-
-  @classmethod
-  def remote_update(clazz, root):
-    return git_exe.call_git(root, [ 'remote', 'update' ])
-
-  @classmethod
-  def remote_origin_url(clazz, root):
-    return clazz.remote_get_url(root, name = 'origin')
-
-  @classmethod
-  def remote_set_url(clazz, root_dir, url, name = 'origin'):
-    check.check_string(root_dir)
-    check.check_string(url)
-    check.check_string(name)
-    
-    args = [ 'remote', 'set-url', name, url ]
-    git_exe.call_git(root_dir, args)
-
-  @classmethod
-  def remote_get_url(clazz, root_dir, name = 'origin'):
-    check.check_string(root_dir)
-    check.check_string(name)
-
-    args = [ 'remote', 'get-url', name ]
-    try:
-      rv = git_exe.call_git(root_dir, args)
-      return rv.stdout.strip()
-    except git_error as ex:
-      return None
-    
-  @classmethod
-  def has_changes(clazz, root_dir, untracked_files = False):
-    return clazz.status(root_dir, '.', untracked_files = untracked_files) != []
-
-  @classmethod
-  def add(clazz, root_dir, filenames):
-    filenames = object_util.listify(filenames)
-    args = [ 'add' ] + filenames
-    return git_exe.call_git(root_dir, args)
-
-  @classmethod
-  def move(clazz, root_dir, src, dst):
-    args = [ 'mv', src, dst ]
-    return git_exe.call_git(root_dir, args)
-
-  @classmethod
-  def init(clazz, root_dir, *args):
-    args = [ 'init', '.' ] + list(args or [])
-    return git_exe.call_git(root_dir, args)
-
-  @classmethod
-  def is_bare_repo(clazz, root_dir):
-    'Return True if d is a bare git repo meaning it has git files.'
-    expected_files = [ 'HEAD', 'config', 'description', 'hooks', 'info', 'objects', 'refs' ]
-    for f in expected_files:
-      if not path.exists(path.join(root_dir, f)):
-        return False
-    return True
-
-  @classmethod
-  def is_repo(clazz, root_dir):
-    'Return True if d is a git repo meaning it has a .git dir with git files.'
-    dot_git_dir = path.join(root_dir, '.git')
-    return path.isdir(dot_git_dir) and clazz.is_bare_repo(dot_git_dir)
-
-  @classmethod
-  def check_is_repo(clazz, d):
-    'Raise an error if d is not a valid git repo.'
-    if not clazz.is_repo(d):
-      raise git_error('Not a git repo: "{}"'.format(d))
-
-  @classmethod
-  def check_is_bare_repo(clazz, d):
-    'Raise an error if d is not a valid bare repo.'
-    if not clazz.is_bare_repo(d):
-      raise git_error('Not a bare git repo: "{}"'.format(d))
-    
-  @classmethod
-  def clone(clazz, address, root_dir, options = None):
-    check.check_git_clone_options(options, allow_none = True)
-    
-    address = git_address_util.resolve(address)
-    options = options or git_clone_options()
-    clazz.log.log_d('clone: address={} root_dir={} options={}'.format(address, root_dir, options))
-    
-    if path.exists(root_dir):
-      if not path.isdir(root_dir):
-        raise git_error('root_dir "{}" is not a directory.'.format(root_dir))
-      if options.enforce_empty_dir:
-        if not dir_util.is_empty(root_dir):
-          files = dir_util.list(root_dir, relative = True)
-          sorted_files = sorted(files, key = lambda f: f.lower())
-          printed_files = '\n  '.join(sorted_files).strip()
-          raise git_error('root_dir "{}" is not empty:\n  {}\n'.format(root_dir, printed_files))
-    else:
-      file_util.mkdir(root_dir)
-      
-    args = [ 'clone' ]
-    if options.depth:
-      args.extend([ '--depth', str(options.depth) ])
-    if options.jobs:
-      args.extend([ '--jobs', str(options.jobs) ])
-    if options.branch:
-      args.extend([ '--branch', options.branch ])
-    if options.submodules_recursive:
-      args.extend([ '--recursive' ])
-    if options.shallow_submodules:
-      args.extend([ '--shallow-submodules' ])
-    args.append(address)
-    args.append(root_dir)
-    extra_env = git_lfs.lfs_make_env(options.lfs)
-    clazz.log.log_d('clone: args="{}" extra_env={}'.format(' '.join(args), extra_env))
-    clone_rv = git_exe.call_git(os.getcwd(),
-                                args,
-                                extra_env = extra_env,
-                                num_tries = options.num_tries,
-                                retry_wait_seconds = options.retry_wait_seconds)
-    clazz.log.log_d('clone: clone_rv="{}"'.format(str(clone_rv)))
-    sub_rv = None
-    if options.branch:
-      git.checkout(root_dir, options.branch)
-    if options.submodules or options.submodule_list:
-      sub_rv = clazz._submodule_init(root_dir, options)
-    return clone_rv, sub_rv
-
-  @classmethod
-  def _submodule_init(clazz, root_dir, options):
-    assert options.submodules or options.submodule_list
-
-    lfs_env = git_lfs.lfs_make_env(options.lfs)
-    sub_args = [ 'submodule', 'update', '--init' ]
-    if options.jobs:
-      sub_args.extend([ '--jobs', str(options.jobs) ])
-    if options.submodules_recursive:
-      sub_args.append('--recursive')
-    if options.submodule_list:
-      sub_args.extend(options.submodule_list)
-    clazz.log.log_d('_submodule_init: sub_args="{}" lfs_env={}'.format(' '.join(sub_args), lfs_env))
-    sub_rv = git_exe.call_git(root_dir, sub_args, extra_env = lfs_env)
-    clazz.log.log_d('_submodule_init: sub_rv="{}"'.format(str(sub_rv)))
-
-    if options.submodule_list:
-      submodule_to_reset = options.submodule_list
-    else:
-      submodule_to_reset = [ info.name for info in clazz.submodule_status_all(root_dir) ]
-
-    for submodule in submodule_to_reset:
-      submodule_root_dir = path.join(root_dir, submodule)
-      if options.reset_to_head:
-        clazz.reset_to_revision(submodule_root_dir, 'HEAD')
-      if options.clean:
-        clazz.clean(submodule_root_dir, immaculate = options.clean_immaculate)
-    
-    return sub_rv
-  
-  @classmethod
-  def sync(clazz, address, root_dir, options = None):
-    check.check_git_clone_options(options, allow_none = True)
-
-    if clazz.is_repo(root_dir):
-      clazz.checkout(root_dir, 'master')
-    clazz.clone_or_pull(address, root_dir, options = options)
-    branches = clazz.list_branches(root_dir, 'both')
-    for needed_branch in branches.difference:
-      clazz.branch_track(root_dir, needed_branch)
-    git_exe.call_git(root_dir, 'fetch --all')
-    git_exe.call_git(root_dir, 'pull --all')
-
-  # FIXME: branch_name is for backwards compatiblity but it should be removed.
-  @classmethod
-  def pull(clazz, root_dir, remote_name = None, branch_name = None, options = None):
-    check.check_string(root_dir)
-    check.check_git_clone_options(options, allow_none = True)
-    
-    options = options or git_clone_options()
-    branch_name = branch_name or options.branch
-    clazz.log.log_d('pull: root_dir={} branch_name={} options={}'.format(root_dir, branch_name, options))
-
-    args = []
-    if remote_name:
-      args.append(remote_name)
-
-    if options.reset_to_head:
-      clazz.reset_to_revision(root_dir, 'HEAD')
-
-    if options.clean:
-      clazz.clean(root_dir, immaculate = options.clean_immaculate)
-        
-    if options.submodules or options.submodule_list:
-      clazz._submodule_init(root_dir, options)
-
-    if clazz.has_changes(root_dir):
-      status = git_exe.call_git(root_dir, [ 'status', '--porcelain' ]).stdout.strip()
-      raise git_error('root_dir "{}" has changes:\n{}\n'.format(root_dir, status))
-
-    info = clazz.head_info(root_dir)
-
-    if branch_name:
-      git_exe.call_git(root_dir, [ 'fetch', 'origin', branch_name ])
-
-    if info.is_detached:
-      clazz.checkout(root_dir, 'master')
-
-    if not options.no_network:
-      git_exe.call_git(root_dir, 'fetch --tags')
-      clazz._call_pull(root_dir, *args)
-
-    if options.branch:
-      clazz.checkout(root_dir, options.branch)
-      if not options.no_network:
-        clazz._call_pull(root_dir, *args)
-
-  @classmethod
-  def _call_pull(clazz, root_dir, *args):
-    check.check_string(root_dir)
-    
-    args = [ 'pull', '--verbose' ] + list(args)
-    git_exe.call_git(root_dir, args)
-        
-  @classmethod
-  def checkout(clazz, root, revision):
-    args = [ 'checkout', revision ]
-    return git_exe.call_git(root, args)
-
-  @classmethod
-  def push(clazz, root, *args):
-    args = [ 'push', '--verbose' ] + list(args or [])
-    return git_exe.call_git(root, args)
-
-  @classmethod
-  def push_with_rebase(clazz, root, remote_name = None, num_tries = None, retry_wait_seconds = None):
-    'Push, but call "pull --rebase origin master" first to be up to date.  With multiple optional retries.'
-    check.check_string(root)
-    check.check_string(remote_name, allow_none = True)
-    check.check_int(num_tries, allow_none = True)
-    check.check_float(retry_wait_seconds, allow_none = True)
-
-    if num_tries != None:
-      if num_tries <= 0 or num_tries > 100:
-        raise git_error('num_tries should be between 1 and 100: {}'.format(num_tries))
-
-    num_tries = num_tries or 1
-    save_ex = None
-    origin = clazz.remote_origin_url(root) or '<unknown>'
-    remote_name = remote_name or 'origin'
-    active_branch = clazz.active_branch(root)
-    retry_wait_seconds = retry_wait_seconds or 0.500
-
-    pull_command = 'pull --rebase {} {}'.format(remote_name, active_branch)
-
-    clazz.log.log_d('push_with_rebase: num_tries={} pull_command="{}" retry_wait_seconds={}'.format(num_tries,
-                                                                                               pull_command,
-                                                                                               retry_wait_seconds))
-    for i in range(0, num_tries):
-      try:
-        clazz.log.log_d('push_with_rebase: attempt {} of {} pushing to {}'.format(i + 1, num_tries, origin))
-        git_exe.call_git(root, pull_command)
-        clazz.push(root)
-        clazz.log.log_i('push_with_rebase: success {} of {} pushing to {}'.format(i + 1, num_tries, origin))
-        return
-      except git_error as ex:
-        clazz.log.log_w('push_with_rebase: failed {} of {} pushing to {}'.format(i + 1, num_tries, origin))
-        time.sleep(retry_wait_seconds)
-        save_ex = ex
-    raise save_ex
-
-  @classmethod
-  def diff(clazz, root):
-    args = [ 'diff' ]
-    return git_exe.call_git(root, args).stdout
-
-  @classmethod
-  def patch_apply(clazz, root, patch_file):
-    args = [ 'apply', patch_file ]
-    return git_exe.call_git(root, args)
-
-  @classmethod
-  def patch_make(clazz, root, patch_file):
-    args = [ 'diff', '--patch' ]
-    rv = git_exe.call_git(root, args)
-    file_util.save(patch_file, content = rv.stdout)
-
-  @classmethod
-  def commit(clazz, root_dir, message, filenames):
-    filenames = object_util.listify(filenames)
-    tmp_msg = temp_file.make_temp_file(content = message)
-    args = [ 'commit', '-F', tmp_msg ] + filenames
-    try:
-      rv = git_exe.call_git(root_dir, args)
-    finally:
-      file_util.remove(tmp_msg)
-    return clazz.last_commit_hash(root_dir, short_hash = True)
-
-  @classmethod
-  def clone_or_pull(clazz, address, root_dir, options = None):
-    check.check_string(root_dir)
-    check.check_git_clone_options(options, allow_none = True)
-
-    options = options or git_clone_options()
-    clazz.log.log_d('clone_or_pull: address={} root_dir={} options={}'.format(address,
-                                                                              root_dir,
-                                                                              options))
-    if clazz.is_repo(root_dir):
-      clazz.pull(root_dir, options = options)
-    else:
-      clazz.clone(address, root_dir, options = options)
-
-  @classmethod
-  def archive(clazz, address, revision, base_name, output_filename,
-              untracked = False, override_gitignore = None, debug = False):
+  def download(clazz, address, revision, base_name, output_filename,
+               base_name = None, clone_options = None, download_options = None):
     'git archive with additional support to include untracked files for local repos.'
+    check.check_string(address)
+    check.check_revision(revision)
+    check.check_revision(base_name, allow_none = True)
+    check.check_revision(output_filename)
+    check.check_git_clone_options(clone_options, allow_none = True)
+
+    clone_options = clone_options or git_clone_options()
+    base_name = base_name or     
     tmp_repo_dir = temp_file.make_temp_dir(delete = not debug)
     
     if path.isdir(address):
@@ -635,17 +316,6 @@ class git(git_lfs):
                                          limit = limit,
                                          prefix = prefix)
 
-  @classmethod
-  def list_remote_tags_for_address(clazz, address, sort_type = None, reverse = False,
-                                   limit = None, prefix = None):
-    rv = git_exe.call_git(tempfile.gettempdir(), [ 'ls-remote', '--tags', address ])
-    clazz.log.log_d('list_remote_tags_for_address: stdout="{}"'.format(rv.stdout))
-    return git_tag.parse_show_ref_output(rv.stdout,
-                                         sort_type = sort_type,
-                                         reverse = reverse,
-                                         limit = limit,
-                                         prefix = prefix)
-  
   @classmethod
   def greatest_remote_tag(clazz, root, prefix = None):
     tags = clazz.list_remote_tags(root, sort_type = 'version', prefix = prefix)
