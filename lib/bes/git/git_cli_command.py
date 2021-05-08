@@ -131,16 +131,17 @@ class git_cli_command(cli_command_handler):
     print(tt)
     return 0
 
-  def tag(self, tag, local, remote, commit):
+  def tag(self, tag, local, remote, commit, annotation):
     check.check_bool(local, allow_none = True)
     check.check_bool(remote, allow_none = True)
     check.check_string(commit, allow_none = True)
+    check.check_string(annotation, allow_none = True)
     
     where = git_ref_where.determine_where(local, remote)
     if not tag:
       self._tag_print(self.options.root_dir, where)
     else:
-      self._tag_set(self.options.root_dir, tag, where, commit)
+      self._tag_set(self.options.root_dir, tag, where, commit, annotation)
     return 0
     
   @classmethod
@@ -158,8 +159,8 @@ class git_cli_command(cli_command_handler):
       print(msg)
 
   @classmethod
-  def _tag_set(clazz, root_dir, tag, where, commit):
-    git.tag(root_dir, tag, allow_downgrade = True, commit = commit)
+  def _tag_set(clazz, root_dir, tag, where, commit, annotation):
+    git.tag(root_dir, tag, allow_downgrade = True, commit = commit, annotation = annotation)
     git.push_tag(root_dir, tag)
     
   def retag(self, tag = None):

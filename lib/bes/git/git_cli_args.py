@@ -19,6 +19,9 @@ class git_cli_args(object):
                    help = 'Show local tags. [ False ]')
     p.add_argument('-r', '--remote', action = 'store_true', default = None,
                    help = 'Show remote tags. [ False ]')
+    p.add_argument('--annotate', action = 'store', type = str,
+                   dest = 'annotation',
+                   help = 'Annotate the tag with the given message. [ None ]')
     self._git_add_common_args(p)
     
     # git_retag
