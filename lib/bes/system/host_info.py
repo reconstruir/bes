@@ -2,6 +2,8 @@
 
 from collections import namedtuple
 
+from .check import check
+
 class host_info(namedtuple('host_info', 'system, version_major, version_minor, arch, distro, family')):
 
   def __new__(clazz, system, version_major, version_minor, arch, distro, family):
@@ -36,3 +38,5 @@ class host_info(namedtuple('host_info', 'system, version_major, version_minor, a
     else:
       assert False, 'fix for loonix'
     return host_info(system, version_major, version_minor, arch, distro, family)
+
+check.register_class(host_info, include_seq = False)
