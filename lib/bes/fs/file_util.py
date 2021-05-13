@@ -325,7 +325,7 @@ class file_util(object):
   def sync(clazz):
     'Call unix sync()'
     filesystem.sync()
-
+    
   @classmethod
   @contextlib.contextmanager
   def open_with_default(clazz, filename = None, mode = None):
@@ -336,12 +336,14 @@ class file_util(object):
     mode = mode or 'w'
     if filename and filename != '-':
       fh = open(filename, mode)
+      using_stdout = False
     else:
-      fh = sys.stdout
+      fh = os.fdopen(sys.stdout.fileno(), mode, closefd = False)
+      using_stdout = True
     try:
       yield fh
     finally:
-      if fh is not sys.stdout:
+      if not using_stdout:
         fh.close()
 
   @classmethod
