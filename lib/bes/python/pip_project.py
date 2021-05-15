@@ -5,6 +5,7 @@ import copy
 import json
 import os
 from os import path
+import pprint
 
 from bes.common.check import check
 from bes.fs.file_find import file_find
@@ -156,13 +157,15 @@ class pip_project(object):
     ]
     rv = self.call_pip(args)
     outdated = json.loads(rv.stdout)
+
     result = {}
     for next_item in outdated:
-      op = self._outdated_package(next_item['name'],
+      op = self._outdated_package(next_item['name'].lower(),
                                   next_item['version'],
                                   next_item['latest_version'],
                                   next_item['latest_filetype'])
       result[op.name] = op
+    self._log.log_d('outdated: outdated={}'.format(pprint.pformat(result)))
     return result
 
   _installed_package = namedtuple('_installed_package', 'name, version')
@@ -174,9 +177,11 @@ class pip_project(object):
     ]
     rv = self.call_pip(args)
     installed = json.loads(rv.stdout)
+    self._log.log_d('installed: installed={}'.format(pprint.pformat(installed)))
     result = []
     for next_item in installed:
-      result.append(self._installed_package(next_item['name'], next_item['version']))
+      result.append(self._installed_package(next_item['name'].lower(),
+                                            next_item['version']))
     return sorted(result, key = lambda item: item.name)
   
   def pip(self, args):
@@ -221,20 +226,26 @@ class pip_project(object):
     'Install a package with optional version'
     check.check_string(package_name)
     check.check_string(version, allow_none = True)
-    
+
+    args = []
     if version:
-      package_args = [ '{}=={}'.format(package_name, version) ]
+      args.append('{}=={}'.format(package_name, version))
     else:
-      package_args = [ package_name ]
+      args.append(package_name)
+    error_message = 'Failed to install "{}" version "{}"'.format(package_name, version or '')
+    self._call_install(args, error_message = error_message)
+
+  def _call_install(self, args, error_message = None):
     args = [
       'install',
-    ] + package_args
+    ] + args
     rv = self.call_pip(args, raise_error = False)
     if rv.exit_code != 0:
-      msg = 'Failed to install "{}" version "{}" - {}'.format(package_name, version or '', rv.stderr)
-      self._log.log_w('install: {}'.format(msg))
-      raise pip_error(msg)
-
+      error_message = error_message or 'Failed to install: "{}"'.format(' '.join(args))
+      error_message = error_message + ' - {}'.format(rv.stderr)
+      self._log.log_w('install: {}'.format(error_message))
+      raise pip_error(error_message)
+    
   def install_requirements(self, requirements_file):
     'Install packages from a requirements file'
     check.check_string(requirements_file)
@@ -294,3 +305,26 @@ class pip_project(object):
     files = file_find.find(self._fake_tmp_dir, file_type = file_find.FILE_OR_LINK)
     for f in files:
       print('cleanup: {}'.format(f))
+
+  def needs_upgrade(self, package_name):
+    'Return True if package_name needs update'
+    return package_name in self.outdated()
+
+  def version(self, package_name):
+    'Return the version of an installed package'
+    installed = self.installed()
+    for p in self.installed():
+      print('checking {} vs {}'.format(p.name, package_name))
+      if p.name == package_name:
+        print('found {} {}'.format(package_name, p.version))
+        return p.version
+    raise pip_error('Package not found: "{}"'.format(package_name))
+  
+  def upgrade(self, package_name):
+    'Upgrade a package to the latest version'
+    check.check_string(package_name)
+
+    args = [ '--upgrade', package_name ]
+    error_message = 'Failed to upgrade "{}"'.format(package_name)
+    self._call_install(args, error_message = error_message)
+  
