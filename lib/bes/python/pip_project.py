@@ -32,7 +32,7 @@ class pip_project(object):
     check.check_string(name)
     check.check_string(root_dir)
 
-    self._python_exe = python_exe
+    self._original_python_exe = python_exe
     self._name = name
     self._root_dir = path.abspath(root_dir)
     self._droppings_dir = path.join(self.project_dir, '.droppings')
@@ -50,12 +50,16 @@ class pip_project(object):
 
   @cached_property
   def virtual_env(self):
-    return python_virtual_env(self._python_exe, self.project_dir)
+    return python_virtual_env(self._original_python_exe, self.project_dir)
 
   @cached_property
   def installation(self):
     return self.virtual_env.installation
-    
+
+  @cached_property
+  def python_exe(self):
+    return self.installation.python_exe
+  
   @cached_property
   def project_dir(self):
     return path.join(self._root_dir, self._name)
@@ -117,7 +121,7 @@ class pip_project(object):
   @cached_property
   def PATH(self):
     return [
-      path.dirname(self._python_exe),
+      path.dirname(self.python_exe),
       self.bin_dir,
     ] + self.installation.PATH
   
@@ -147,7 +151,6 @@ class pip_project(object):
     'Return a dictionary of outdated packages'
     args = [
       'list',
-#      '--user',
       '--outdated',
       '--format', 'json',
     ]
@@ -167,7 +170,6 @@ class pip_project(object):
     'Return a list of installed packages'
     args = [
       'list',
-#      '--user',
       '--format', 'json',
     ]
     rv = self.call_pip(args)
@@ -191,7 +193,7 @@ class pip_project(object):
 
     self._log.log_method_d()
     self._log.log_d('call_pip: root_dir={} python_exe={}'.format(self._root_dir,
-                                                                 self._python_exe))
+                                                                 self.python_exe))
     
     cmd = self._make_cmd_python_part() + [
       self.pip_exe,
@@ -212,7 +214,7 @@ class pip_project(object):
     if pip_exe.is_binary(self.pip_exe):
       cmd_python = []
     else:
-      cmd_python = [ self._python_exe ]
+      cmd_python = [ self.python_exe ]
     return cmd_python
     
   def install(self, package_name, version = None):
@@ -223,7 +225,6 @@ class pip_project(object):
       package_args = [ package_name ]
     args = [
       'install',
-#      '--user',
     ] + package_args
     rv = self.call_pip(args, raise_error = False)
     if rv.exit_code != 0:
