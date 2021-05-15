@@ -9,7 +9,7 @@ from os import path
 from bes.common.check import check
 from bes.fs.file_find import file_find
 from bes.property.cached_property import cached_property
-from bes.python.python_installation_v2 import python_installation_v2
+from bes.python.python_installation import python_installation
 from bes.python.python_version import python_version
 from bes.system.command_line import command_line
 from bes.system.env_var import env_var
@@ -22,7 +22,7 @@ from bes.url.url_util import url_util
 from .pip_error import pip_error
 from .pip_exe import pip_exe
 
-class pip_project_v2(object):
+class pip_project(object):
   'Pip project.'
 
   _log = logger('pip')
@@ -40,7 +40,7 @@ class pip_project_v2(object):
     self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
     self._fake_tmp_dir = path.join(self._droppings_dir, 'fake-tmp')
 
-    self._installation = python_installation_v2(self._python_exe)
+    self._installation = python_installation(self._python_exe)
 
     self._common_pip_args = [
       '--cache-dir', self._pip_cache_dir,

@@ -14,7 +14,7 @@ from bes.property.cached_property import cached_property
 
 from .python_error import python_error
 from .python_exe import python_exe
-from .python_installation_v2 import python_installation_v2
+from .python_installation import python_installation
 from .python_source import python_source
 from .python_version import python_version
 
@@ -49,7 +49,7 @@ class python_virtual_env(object):
 
   @cached_property
   def installation(self):
-    return python_installation_v2(self.python_exe)
+    return python_installation(self.python_exe)
   
   @classmethod
   def _call_venv(clazz, exe, root_dir):

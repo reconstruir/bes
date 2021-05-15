@@ -8,10 +8,10 @@ from bes.fs.temp_file import temp_file
 from bes.python.python_exe import python_exe as bes_python_exe
 from bes.python.python_version import python_version
 
-from .pip_installer_v2 import pip_installer_v2
+from .pip_installer import pip_installer
 from .pip_installer_options import pip_installer_options
 
-class pip_installer_tester_v2(object):
+class pip_installer_tester(object):
   'Pip installer tester.'
 
   def __init__(self, python_exe, name, debug = False):
@@ -27,5 +27,5 @@ class pip_installer_tester_v2(object):
                                     python_exe = self.python_exe,
                                     verbose = debug,
                                     name = self.name)
-    self.installer = pip_installer_v2(options)
+    self.installer = pip_installer(options)
     self.python_exe_version = bes_python_exe.version(self.python_exe)

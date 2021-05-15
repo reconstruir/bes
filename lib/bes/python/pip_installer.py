@@ -16,9 +16,9 @@ from bes.python.python_version import python_version
 from .pip_error import pip_error
 from .pip_exe import pip_exe
 from .pip_installer_options import pip_installer_options
-from .pip_project_v2 import pip_project_v2
+from .pip_project import pip_project
 
-class pip_installer_v2(object):
+class pip_installer(object):
   'Pip installer.'
 
   _log = logger('pip')
@@ -35,7 +35,7 @@ class pip_installer_v2(object):
     self._common_pip_args = [
       '--cache-dir', self._cache_dir,
     ]
-    self._project = pip_project_v2(self._options.name,
+    self._project = pip_project(self._options.name,
                                    self._options.resolve_root_dir(),
                                    self._options.resolve_python_exe())
     

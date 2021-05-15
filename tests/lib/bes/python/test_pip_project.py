@@ -6,8 +6,8 @@ from os import path
 from bes.python.pip_exe import pip_exe
 from bes.python.pip_error import pip_error
 from bes.python.pip_installer_options import pip_installer_options
-from bes.python.pip_installer_tester_v2 import pip_installer_tester_v2
-from bes.python.pip_project_v2 import pip_project_v2
+from bes.python.pip_installer_tester import pip_installer_tester
+from bes.python.pip_project import pip_project
 from bes.python.python_testing import python_testing
 from bes.fs.file_find import file_find
 from bes.testing.unit_test import unit_test
@@ -15,7 +15,7 @@ from bes.testing.unit_test_skip import skip_if
 from bes.version.software_version import software_version
 from bes.testing.unit_test_skip import raise_skip
 
-class test_pip_project_v2(unit_test):
+class test_pip_project(unit_test):
 
   @classmethod
   def setUpClass(clazz):
@@ -24,7 +24,7 @@ class test_pip_project_v2(unit_test):
 
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_invalid_package - no python3 found', warning = True)
   def test_install_invalid_package(self):
-    tester = pip_installer_tester_v2(python_testing._PYTHONS.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
+    tester = pip_installer_tester(python_testing._PYTHONS.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
     tester.installer.install('latest', False)
     project = tester.installer._project
     with self.assertRaises(pip_error) as ctx:
@@ -33,7 +33,7 @@ class test_pip_project_v2(unit_test):
 
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_invalid_version - no python3 found', warning = True)
   def test_install_invalid_version(self):
-    tester = pip_installer_tester_v2(python_testing._PYTHONS.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
+    tester = pip_installer_tester(python_testing._PYTHONS.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
     tester.installer.install('latest', False)
     project = tester.installer._project
     with self.assertRaises(pip_error) as ctx:
@@ -42,7 +42,7 @@ class test_pip_project_v2(unit_test):
     
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_latest_version - no python3 found', warning = True)
   def test_install_latest_version(self):
-    tester = pip_installer_tester_v2(python_testing._PYTHONS.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
+    tester = pip_installer_tester(python_testing._PYTHONS.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
     tester.installer.install('latest', False)
     project = tester.installer._project
     project.install('pyinstaller')
@@ -51,7 +51,7 @@ class test_pip_project_v2(unit_test):
     
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_install_specific_version(self):
-    tester = pip_installer_tester_v2(python_testing._PYTHONS.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
+    tester = pip_installer_tester(python_testing._PYTHONS.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
     tester.installer.install('latest', False)
     project = tester.installer._project
     project.install('pyinstaller', version = '3.5')

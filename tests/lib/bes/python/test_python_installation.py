@@ -3,13 +3,13 @@
 
 from os import path
 
-from bes.python.python_installation_v2 import python_installation_v2
+from bes.python.python_installation import python_installation
 from bes.python.python_testing import python_testing
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_skip import skip_if
 
-class test_python_installation_v2(unit_test):
+class test_python_installation(unit_test):
 
   @skip_if(not host.is_macos(), 'not macos')
   def test_macos_xcode_38(self):
@@ -19,7 +19,7 @@ class test_python_installation_v2(unit_test):
                                                                 system = 'macos',
                                                                 debug = self.DEBUG)
 
-    piv = python_installation_v2(path.join(tmp_dir, 'bin/python3'), system = 'macos')
+    piv = python_installation(path.join(tmp_dir, 'bin/python3'), system = 'macos')
     self.assertEqual( '3.8', piv.python_version )
     self.assert_filename_equal( path.join(tmp_dir, 'bin/python3'), piv.python_exe )
     self.assert_filename_equal( path.join(tmp_dir, 'bin/pip3'), piv.pip_exe )
@@ -33,7 +33,7 @@ class test_python_installation_v2(unit_test):
                                                                 system = 'macos',
                                                                 debug = self.DEBUG)
 
-    piv = python_installation_v2(path.join(tmp_dir, 'bin/python'), system = 'macos')
+    piv = python_installation(path.join(tmp_dir, 'bin/python'), system = 'macos')
     self.assertEqual( '2.7', piv.python_version )
     self.assert_filename_equal( path.join(tmp_dir, 'bin/python2.7'), piv.python_exe )
     self.assert_filename_equal( None, piv.pip_exe )
@@ -47,7 +47,7 @@ class test_python_installation_v2(unit_test):
                                                                 system = 'macos',
                                                                 debug = self.DEBUG)
 
-    piv = python_installation_v2(path.join(tmp_dir, 'bin/python3.7'), system = 'macos')
+    piv = python_installation(path.join(tmp_dir, 'bin/python3.7'), system = 'macos')
     self.assertEqual( '3.7', piv.python_version )
     self.assert_filename_equal( path.join(tmp_dir, 'bin/python3.7'), piv.python_exe )
     self.assert_filename_equal( path.join(tmp_dir, 'bin/pip3.7'), piv.pip_exe )
@@ -61,7 +61,7 @@ class test_python_installation_v2(unit_test):
                                                                 system = 'windows',
                                                                 debug = self.DEBUG)
 
-    piv = python_installation_v2(path.join(tmp_dir, 'python.bat'), system = 'windows')
+    piv = python_installation(path.join(tmp_dir, 'python.bat'), system = 'windows')
     self.assertEqual( '3.8', piv.python_version )
     self.assert_filename_equal( path.join(tmp_dir, 'python.bat'), piv.python_exe )
     self.assert_filename_equal( path.join(tmp_dir, 'Scripts', 'pip3.8.bat'), piv.pip_exe )
@@ -78,7 +78,7 @@ class test_python_installation_v2(unit_test):
                                                                 system = 'windows',
                                                                 debug = self.DEBUG)
 
-    piv = python_installation_v2(path.join(tmp_dir, 'python.bat'), system = 'windows')
+    piv = python_installation(path.join(tmp_dir, 'python.bat'), system = 'windows')
     self.assertEqual( '2.7', piv.python_version )
     self.assert_filename_equal( path.join(tmp_dir, 'python.bat'), piv.python_exe )
     self.assert_filename_equal( path.join(tmp_dir, 'Scripts', 'pip2.7.bat'), piv.pip_exe )

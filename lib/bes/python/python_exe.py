@@ -127,8 +127,8 @@ class python_exe(object):
     clazz.check_exe(exe)
     
     main_exe, exe_links = clazz._determine_main_exe_and_links(exe)
-    from .python_installation_v2 import python_installation_v2
-    piv = python_installation_v2(main_exe)
+    from .python_installation import python_installation
+    piv = python_installation(main_exe)
     sys_executable = python_script.sys_executable(main_exe)
     real_executable = file_symlink.resolve(sys_executable)
     source = python_source.exe_source(main_exe)

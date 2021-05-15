@@ -8,7 +8,7 @@ from bes.common.check import check
 from bes.text.text_table import text_table
 
 from .pip_error import pip_error
-from .pip_project_v2 import pip_project_v2
+from .pip_project import pip_project
 from .pip_project_options import pip_project_options
 
 class pip_project_cli_handler(cli_command_handler):
@@ -18,7 +18,7 @@ class pip_project_cli_handler(cli_command_handler):
     super(pip_project_cli_handler, self).__init__(cli_args, options_class = pip_project_options)
     check.check_pip_project_options(self.options)
     self.options.blurber.set_verbose(self.options.verbose)
-    self._project = pip_project_v2(self.options.name,
+    self._project = pip_project(self.options.name,
                                    self.options.root_dir,
                                    self.options.python_exe,
                                    debug = self.options.debug)

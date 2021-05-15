@@ -11,7 +11,7 @@ from bes.testing.unit_test_skip import skip_if
 from bes.testing.unit_test_skip import skip_if_not_unix
 from bes.testing.unit_test_skip import skip_if_not_windows
 
-class test_pip_installer_v2(unit_test):
+class test_pip_installer(unit_test):
 
   @skip_if_not_unix()
   @skip_if(not python_testing._PYTHONS.PYTHON_37, 'test_venv_python_37 - python 3.7 not found', warning = True)
