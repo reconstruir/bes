@@ -24,36 +24,32 @@ class test_pip_project(unit_test):
 
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_invalid_package - no python3 found', warning = True)
   def test_install_invalid_package(self):
-    tester = pip_installer_tester(python_testing._PYTHONS.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
-    tester.installer.install('latest', False)
-    project = tester.installer._project
+    tmp_dir = self.make_temp_dir()
+    project = pip_project('kiwi', tmp_dir, python_testing._PYTHONS.ANY_PYTHON3, debug = self.DEBUG)
     with self.assertRaises(pip_error) as ctx:
       project.install('somethingthatdoesntexistshaha')
     self.assertTrue( 'no matching distribution found for somethingthatdoesntexistshaha' in str(ctx.exception).lower() )
 
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_invalid_version - no python3 found', warning = True)
   def test_install_invalid_version(self):
-    tester = pip_installer_tester(python_testing._PYTHONS.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
-    tester.installer.install('latest', False)
-    project = tester.installer._project
+    tmp_dir = self.make_temp_dir()
+    project = pip_project('kiwi', tmp_dir, python_testing._PYTHONS.ANY_PYTHON3, debug = self.DEBUG)
     with self.assertRaises(pip_error) as ctx:
       project.install('pyinstaller', version = '666.666.666.666.666')
     self.assertTrue( 'no matching distribution found for pyinstaller==666.666.666.666.666' in str(ctx.exception).lower() )
     
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_latest_version - no python3 found', warning = True)
   def test_install_latest_version(self):
-    tester = pip_installer_tester(python_testing._PYTHONS.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
-    tester.installer.install('latest', False)
-    project = tester.installer._project
+    tmp_dir = self.make_temp_dir()
+    project = pip_project('kiwi', tmp_dir, python_testing._PYTHONS.ANY_PYTHON3, debug = self.DEBUG)
     project.install('pyinstaller')
     rv = project.call_program([ 'pyinstaller', '--version' ])
     self.assertEqual( 0, rv.exit_code )
     
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_install_specific_version(self):
-    tester = pip_installer_tester(python_testing._PYTHONS.ANY_PYTHON3, 'kiwi', debug = self.DEBUG)
-    tester.installer.install('latest', False)
-    project = tester.installer._project
+    tmp_dir = self.make_temp_dir()
+    project = pip_project('kiwi', tmp_dir, python_testing._PYTHONS.ANY_PYTHON3, debug = self.DEBUG)
     project.install('pyinstaller', version = '3.5')
     rv = project.call_program([ 'pyinstaller', '--version' ])
     self.assertEqual( '3.5', rv.stdout.strip() )

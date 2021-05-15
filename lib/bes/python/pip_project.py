@@ -9,8 +9,6 @@ from os import path
 from bes.common.check import check
 from bes.fs.file_find import file_find
 from bes.property.cached_property import cached_property
-from bes.python.python_installation import python_installation
-from bes.python.python_version import python_version
 from bes.system.command_line import command_line
 from bes.system.env_var import env_var
 from bes.system.execute import execute
@@ -19,6 +17,9 @@ from bes.system.log import logger
 from bes.system.os_env import os_env
 from bes.url.url_util import url_util
 
+from .python_installation import python_installation
+from .python_virtual_env import python_virtual_env
+from .python_version import python_version
 from .pip_error import pip_error
 from .pip_exe import pip_exe
 
@@ -40,26 +41,33 @@ class pip_project(object):
     self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
     self._fake_tmp_dir = path.join(self._droppings_dir, 'fake-tmp')
 
-    self._installation = python_installation(self._python_exe)
-
     self._common_pip_args = [
       '--cache-dir', self._pip_cache_dir,
     ]
     self._log.log_d('pip_project: pip_exe={} pip_env={} project_dir={}'.format(self.pip_exe,
                                                                                self.env,
                                                                                self.project_dir))
+
+  @cached_property
+  def virtual_env(self):
+    return python_virtual_env(self._python_exe, self.project_dir)
+
+  @cached_property
+  def installation(self):
+    return self.virtual_env.installation
+    
   @cached_property
   def project_dir(self):
     return path.join(self._root_dir, self._name)
 
   @cached_property
   def user_base_dir(self):
-    return path.join(self.project_dir, str(self._installation.python_version))
+    return path.join(self.project_dir, str(self.installation.python_version))
   
   @cached_property
   def user_base_install_dir(self):
     if host.is_windows():
-      user_base_install_dir = path.join(self.user_base_dir, self._installation.windows_versioned_install_dirname)
+      user_base_install_dir = path.join(self.user_base_dir, self.installation.windows_versioned_install_dirname)
     elif host.is_unix():
       user_base_install_dir = self.user_base_dir
     else:
@@ -102,7 +110,7 @@ class pip_project(object):
 
   @cached_property
   def PYTHONPATH(self):
-    return self._installation.PYTHONPATH + [
+    return self.installation.PYTHONPATH + [
       self.site_packages_dir,
     ]
 
@@ -111,15 +119,15 @@ class pip_project(object):
     return [
       path.dirname(self._python_exe),
       self.bin_dir,
-    ] + self._installation.PATH
+    ] + self.installation.PATH
   
   @cached_property
   def python_exe(self):
-    return self._installation.python_exe
+    return self.installation.python_exe
 
   @cached_property
   def pip_exe(self):
-    return self._installation.pip_exe
+    return self.installation.pip_exe
   
   @property
   def pip_version(self):
