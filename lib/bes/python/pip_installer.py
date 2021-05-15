@@ -10,8 +10,8 @@ from bes.system.execute import execute
 from bes.system.log import logger
 from bes.url.url_util import url_util
 
-from bes.python.python_exe import python_exe
-from bes.python.python_version import python_version
+from .python_exe import python_exe
+from .python_version import python_version
 
 from .pip_error import pip_error
 from .pip_exe import pip_exe

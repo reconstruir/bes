@@ -24,7 +24,7 @@ class pip_installer_options(object):
   def resolve_python_exe(self):
     if self.python_exe:
       return self.python_exe
-    from bes.python.python_exe import python_exe
+    from .python_exe import python_exe
     return python_exe.default_exe()
 
   def resolve_root_dir(self):

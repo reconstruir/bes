@@ -8,7 +8,7 @@ from bes.system.host import host
 
 from bes.config.simple_config_editor import simple_config_editor
 from bes.config.simple_config_options import simple_config_options
-from bes.python.python_version import python_version
+from .python_version import python_version
 
 from .python_error import python_error
 

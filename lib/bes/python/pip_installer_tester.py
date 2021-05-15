@@ -5,8 +5,8 @@ from os import path
 from bes.common.check import check
 from bes.fs.temp_file import temp_file
 
-from bes.python.python_exe import python_exe as bes_python_exe
-from bes.python.python_version import python_version
+from .python_exe import python_exe as bes_python_exe
+from .python_version import python_version
 
 from .pip_installer import pip_installer
 from .pip_installer_options import pip_installer_options
