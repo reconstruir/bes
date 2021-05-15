@@ -19,10 +19,10 @@ class pip_project_cli_handler(cli_command_handler):
     check.check_pip_project_options(self.options)
     self.options.blurber.set_verbose(self.options.verbose)
     self._project = pip_project(self.options.name,
-                                   self.options.root_dir,
-                                   self.options.python_exe,
-                                   debug = self.options.debug)
-
+                                self.options.root_dir,
+                                self.options.resolve_python_exe(),
+                                debug = self.options.debug)
+    
   def outdated(self):
     outdated = self._project.outdated()
     print(pprint.pformat(outdated))
@@ -42,5 +42,15 @@ class pip_project_cli_handler(cli_command_handler):
 
     rv = self._project.pip(args)
     print(rv.stdout)
+    return 0
+
+  def install(self, package_name, version):
+    check.check_string(package_name)
+    check.check_string(version, allow_none = True)
+
+    self._project.install(package_name, version = version)
+    return 0
+
+  def init(self):
     return 0
   

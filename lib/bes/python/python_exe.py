@@ -197,7 +197,7 @@ class python_exe(object):
       return None
     by_version = {}
     for _, next_info in all_info.items():
-      by_version[next_info.version] = next_info
+      by_version[str(next_info.version)] = next_info
     for version in clazz._DEFAULT_EXE_VERSION_LOOKUP_ORDER:
       info = by_version.get(version, None)
       if info:

@@ -147,7 +147,7 @@ class pip_project(object):
     'Return a dictionary of outdated packages'
     args = [
       'list',
-      '--user',
+#      '--user',
       '--outdated',
       '--format', 'json',
     ]
@@ -167,7 +167,7 @@ class pip_project(object):
     'Return a list of installed packages'
     args = [
       'list',
-      '--user',
+#      '--user',
       '--format', 'json',
     ]
     rv = self.call_pip(args)
@@ -223,7 +223,7 @@ class pip_project(object):
       package_args = [ package_name ]
     args = [
       'install',
-      '--user',
+#      '--user',
     ] + package_args
     rv = self.call_pip(args, raise_error = False)
     if rv.exit_code != 0:

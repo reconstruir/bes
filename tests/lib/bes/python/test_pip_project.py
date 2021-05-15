@@ -36,6 +36,7 @@ class test_pip_project(unit_test):
     project = pip_project('kiwi', tmp_dir, python_testing._PYTHONS.ANY_PYTHON3, debug = self.DEBUG)
     with self.assertRaises(pip_error) as ctx:
       project.install('pyinstaller', version = '666.666.666.666.666')
+    print('ex={}'.format(str(ctx.exception).lower()))
     self.assertTrue( 'no matching distribution found for pyinstaller==666.666.666.666.666' in str(ctx.exception).lower() )
     
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_latest_version - no python3 found', warning = True)

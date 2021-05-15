@@ -7,6 +7,22 @@ class pip_project_cli_args(object):
   
   def pip_project_add_args(self, subparser):
 
+    # pip_project_init
+    p = subparser.add_parser('init', help = 'Initialize a project.')
+    self.__pip_project_add_common_args(p)
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The name for this pip project [ None ]')
+
+    # pip_project_install
+    p = subparser.add_parser('install', help = 'Install a package.')
+    self.__pip_project_add_common_args(p)
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The name for this pip project [ None ]')
+    p.add_argument('package_name', action = 'store', type = str, default = None,
+                   help = 'The name of the package to install [ None ]')
+    p.add_argument('--version', action = 'store', type = str, default = None,
+                   help = 'Optional package version.  [ latest ]')
+    
     # pip_project_outdated
     p = subparser.add_parser('outdated', help = 'Print outdated packages.')
     self.__pip_project_add_common_args(p)
@@ -35,9 +51,9 @@ class pip_project_cli_args(object):
     p.add_argument('-p', '--python-version', action = 'store', default = None,
                    dest = 'python_version',
                    help = 'The python version to use [ None ]')
-    p.add_argument('-c', '--config', action = 'store', default = None,
-                   dest = 'config_filename',
-                   help = 'The config filename to use [ None ]')
+#    p.add_argument('-c', '--config', action = 'store', default = None,
+#                   dest = 'config_filename',
+#                   help = 'The config filename to use [ None ]')
      
   def _command_pip_project(self, command, *args, **kargs):
     from .pip_project_cli_handler import pip_project_cli_handler
