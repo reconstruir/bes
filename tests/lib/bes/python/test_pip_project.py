@@ -3,11 +3,11 @@
 
 from os import path
 
-from bes.pip.pip_exe import pip_exe
-from bes.pip.pip_installer import pip_installer
-from bes.pip.pip_installer_options import pip_installer_options
-from bes.pip.pip_installer_tester import pip_installer_tester
-from bes.pip.pip_project import pip_project
+from bes.python.pip_exe import pip_exe
+from bes.python.pip_installer import pip_installer
+from bes.python.pip_installer_options import pip_installer_options
+from bes.python.pip_installer_tester import pip_installer_tester
+from bes.python.pip_project import pip_project
 from bes.python.python_testing import python_testing
 from bes.fs.file_find import file_find
 from bes.testing.unit_test import unit_test

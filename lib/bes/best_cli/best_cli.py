@@ -53,9 +53,9 @@ class best_cli(cli):
   from bes.git.git_repo_document_cli_args import git_repo_document_cli_args
   from bes.git.git_repo_script_cli_args import git_repo_script_cli_args
   from bes.native_package.native_package_cli_args import native_package_cli_args
-  from bes.pip.pip_cli_args import pip_cli_args
-  from bes.pip.pip_installer_cli_args import pip_installer_cli_args
-  from bes.pip.pip_project_cli_args import pip_project_cli_args
+  from bes.python.pip_cli_args import pip_cli_args
+  from bes.python.pip_installer_cli_args import pip_installer_cli_args
+  from bes.python.pip_project_cli_args import pip_project_cli_args
   from bes.properties_file_v2.properties_file_cli_args import properties_file_cli_args
   from bes.python.python_cli_args import python_cli_args
   from bes.python_installer.python_installer_cli_args import python_installer_cli_args

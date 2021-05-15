@@ -3,7 +3,7 @@
 
 from os import path
 
-from bes.pip.pip_project_config import pip_project_config
+from bes.python.pip_project_config import pip_project_config
 from bes.testing.unit_test import unit_test
 
 class test_pip_project_config(unit_test):

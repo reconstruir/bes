@@ -3,9 +3,9 @@
 
 from os import path
 
-from bes.pip.pip_exe import pip_exe
-from bes.pip.pip_installer_options import pip_installer_options
-from bes.pip.pip_installer_tester import pip_installer_tester
+from bes.python.pip_exe import pip_exe
+from bes.python.pip_installer_options import pip_installer_options
+from bes.python.pip_installer_tester import pip_installer_tester
 from bes.python.python_testing import python_testing
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_skip import skip_if

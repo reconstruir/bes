@@ -4,7 +4,7 @@
 from os import path
 
 from bes.fs.file_util import file_util
-from bes.pip.pip_exe import pip_exe
+from bes.python.pip_exe import pip_exe
 from bes.python.python_testing import python_testing
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
