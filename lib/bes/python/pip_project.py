@@ -218,7 +218,10 @@ class pip_project(object):
     return cmd_python
     
   def install(self, package_name, version = None):
-    'Install a packagepackages'
+    'Install a package with optional version'
+    check.check_string(package_name)
+    check.check_string(version, allow_none = True)
+    
     if version:
       package_args = [ '{}=={}'.format(package_name, version) ]
     else:
@@ -232,6 +235,21 @@ class pip_project(object):
       self._log.log_w('install: {}'.format(msg))
       raise pip_error(msg)
 
+  def install_requirements(self, requirements_file):
+    'Install packages from a requirements file'
+    check.check_string(requirements_file)
+    
+    args = [
+      'install',
+      '-r',
+      requirements_file,
+    ]
+    rv = self.call_pip(args, raise_error = False)
+    if rv.exit_code != 0:
+      msg = 'Failed to install requirements: "{}"'.format(requirements_file, rv.stderr)
+      self._log.log_w('install: {}'.format(msg))
+      raise pip_error(msg)
+    
   def call_program(self, args, **kargs):
     'Call a program with the right environment'
     command_line.check_args_type(args)

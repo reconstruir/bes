@@ -22,6 +22,14 @@ class pip_project_cli_args(object):
                    help = 'The name of the package to install [ None ]')
     p.add_argument('--version', action = 'store', type = str, default = None,
                    help = 'Optional package version.  [ latest ]')
+
+    # pip_project_install_requirements
+    p = subparser.add_parser('install_requirements', help = 'Install packages from a requirements file.')
+    self.__pip_project_add_common_args(p)
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The name for this pip project [ None ]')
+    p.add_argument('requirements_file', action = 'store', type = str, default = None,
+                   help = 'The requirements file [ None ]')
     
     # pip_project_outdated
     p = subparser.add_parser('outdated', help = 'Print outdated packages.')
