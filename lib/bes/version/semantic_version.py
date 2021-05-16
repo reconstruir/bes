@@ -35,21 +35,33 @@ class semantic_version(object):
     return len(self.parts)
 
   def __eq__(self, other):
+    if check.is_string(other):
+      other = semantic_version(other)
     return self._tokens == other._tokens
 
   def __ne__(self, other):
+    if check.is_string(other):
+      other = semantic_version(other)
     return self._tokens != other._tokens
 
   def __lt__(self, other):
+    if check.is_string(other):
+      other = semantic_version(other)
     return self._tokens < other._tokens
 
   def __le__(self, other):
+    if check.is_string(other):
+      other = semantic_version(other)
     return self._tokens <= other._tokens
 
   def __gt__(self, other):
+    if check.is_string(other):
+      other = semantic_version(other)
     return self._tokens > other._tokens
 
   def __ge__(self, other):
+    if check.is_string(other):
+      other = semantic_version(other)
     return self._tokens >= other._tokens
   
   @cached_property

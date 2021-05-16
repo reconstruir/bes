@@ -24,7 +24,7 @@ class pip_project_options(object):
     check.check_string(self.name, allow_none = True)
 
   def resolve_python_exe(self):
-    from bes.python.python_exe import python_exe
+    from .python_exe import python_exe
     if not self.python_version:
       exe = python_exe.default_exe()
       if not exe:

@@ -18,10 +18,10 @@ from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
 
-from bes.python.python_error import python_error
-from bes.python.python_exe import python_exe as bes_python_exe
-from bes.python.python_pip_exe import python_pip_exe as python_pip_exe
-from bes.python.python_version import python_version as bes_python_version
+from .python_error import python_error
+from .python_exe import python_exe as bes_python_exe
+from .python_pip_exe import python_pip_exe as python_pip_exe
+from .python_version import python_version as bes_python_version
 
 from .pip_error import pip_error
 

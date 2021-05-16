@@ -51,6 +51,19 @@ class pip_project_cli_handler(cli_command_handler):
     self._project.install(package_name, version = version)
     return 0
 
+  def install_requirements(self, requirements_file):
+    check.check_string(requirements_file)
+
+    self._project.install_requirements(requirements_file)
+    return 0
+
   def init(self):
+    return 0
+  
+  def activate_script(self, variant):
+    check.check_string(variant, allow_none = True)
+
+    script = self._project.activate_script(variant = variant)
+    print(script)
     return 0
   
