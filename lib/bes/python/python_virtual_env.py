@@ -54,6 +54,12 @@ class python_virtual_env(object):
   @classmethod
   def _call_venv(clazz, exe, root_dir):
     clazz._log.log_method_d()
+
+    venv_config = path.join(root_dir, 'pyvenv.cfg')
+    
+    if path.isfile(venv_config):
+      return
+    
     cmd = [
       exe,
       '-m',
@@ -68,4 +74,7 @@ class python_virtual_env(object):
     
     clazz._log.log_d('_call_venv: env={}'.format(pprint.pformat(env)))
     clazz._log.log_d('_call_venv: cmd={}'.format(' '.join(cmd)))
-    execute.execute(cmd, env = env, raise_error = True)
+    rv = execute.execute(cmd, env = env, raise_error = False)
+    if rv.exit_code != 0:
+      raise python_error('failed to init virtual env: "{}" - {}'.format(' '.join(cmd),
+                                                                        rv.stderr))
