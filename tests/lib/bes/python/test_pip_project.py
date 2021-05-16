@@ -68,6 +68,18 @@ class test_pip_project(unit_test):
     project.upgrade('pyinstaller')
     new_version = semantic_version(project.version('pyinstaller'))
     self.assertTrue( new_version > old_version )
+
+  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
+  def test_persistence(self):
+    tmp_dir = self.make_temp_dir()
+    p1 = pip_project('kiwi', tmp_dir, python_testing._PYTHONS.ANY_PYTHON3, debug = self.DEBUG)
+    p1.install('pyinstaller', version = '3.5')
+    rv = p1.call_program([ 'pyinstaller', '--version' ])
+    self.assertEqual( '3.5', p1.version('pyinstaller') )
+    p2 = pip_project('kiwi', tmp_dir, python_testing._PYTHONS.ANY_PYTHON3, debug = self.DEBUG)
+    p2.install('pyinstaller', version = '3.5')
+    rv = p2.call_program([ 'pyinstaller', '--version' ])
+    self.assertEqual( '3.5', p2.version('pyinstaller') )
     
 if __name__ == '__main__':
   unit_test.main()
