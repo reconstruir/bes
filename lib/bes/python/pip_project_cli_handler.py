@@ -60,3 +60,10 @@ class pip_project_cli_handler(cli_command_handler):
   def init(self):
     return 0
   
+  def activate_script(self, variant):
+    check.check_string(variant, allow_none = True)
+
+    script = self._project.activate_script(variant = variant)
+    print(script)
+    return 0
+  

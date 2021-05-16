@@ -18,11 +18,12 @@ from bes.system.log import logger
 from bes.system.os_env import os_env
 from bes.url.url_util import url_util
 
-from .python_installation import python_installation
-from .python_virtual_env import python_virtual_env
-from .python_version import python_version
 from .pip_error import pip_error
 from .pip_exe import pip_exe
+from .python_installation import python_installation
+from .python_source import python_source
+from .python_version import python_version
+from .python_virtual_env import python_virtual_env
 
 class pip_project(object):
   'Pip project.'
@@ -133,6 +134,10 @@ class pip_project(object):
   @cached_property
   def pip_exe(self):
     return self.installation.pip_exe
+
+  def activate_script(self, variant = None):
+    'Return the activate script for the virtual env'
+    return python_source.virtual_env_activate_script(self.project_dir, variant)
   
   @property
   def pip_version(self):

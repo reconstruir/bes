@@ -4,8 +4,10 @@ import os.path as path
 
 from abc import abstractmethod, ABCMeta
 from bes.python.python_version import python_version
+from bes.python.python_error import python_error
 from bes.system.compat import with_metaclass
 from bes.system.user import user
+from bes.system.check import check
 
 class python_source_unix(with_metaclass(ABCMeta, object)):
   '''
@@ -50,3 +52,20 @@ class python_source_unix(with_metaclass(ABCMeta, object)):
 
     exe_basename = 'python{}'.format(version)
     return path.join(root_dir, 'bin', exe_basename)
+
+  @classmethod
+  #@abstractmethod
+  def virtual_env_activate_script(clazz, root_dir, variant):
+    'Return the absolute path the the acitivate script of a virtual env.'
+    check.check_string(root_dir)
+    check.check_string(variant, allow_none = True)
+
+    if variant == None:
+      f = 'bin/activate'
+    elif variant == 'fish':
+      f = 'bin/activate.fish'
+    elif variant == 'csh':
+      f = 'bin/activate.csh'
+    else:
+      raise python_error('unknown activate script variant: "{}"'.format(variant))
+    return path.join(root_dir, f)

@@ -89,3 +89,17 @@ class python_source_windows(python_source_base):
     'Return the absolute path the python exe in a virtual env.'
     version = python_version.check_version(version)
     return path.join(root_dir, 'Scripts', 'python.exe')
+
+  @classmethod
+  #@abstractmethod
+  def virtual_env_activate_script(clazz, root_dir, variant):
+    'Return the absolute path the the acitivate script of a virtual env.'
+    check.check_string(root_dir)
+    check.check_string(variant, allow_none = True)
+
+    if variant == None:
+      f = r'Scripts\activate.bat'
+    elif variant == 'ps1':
+      f = r'Scripts\Activate.ps1'
+      raise python_error('unknown activate script variant: "{}"'.format(variant))
+    return path.join(root_dir, f)
