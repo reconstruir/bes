@@ -168,6 +168,6 @@ class semantic_version(object):
     check.check_string(v1)
     check.check_string(v2)
     
-    tokens1 = [ token for token in semantic_version_lexer.tokenize(v1, 'semantic_version') ]
-    tokens2 = [ token for token in semantic_version_lexer.tokenize(v2, 'semantic_version') ]
-    return cmp(tokens1, tokens2)
+    sv1 = semantic_version(v1)
+    sv2 = semantic_version(v2)
+    return cmp(sv1._tokens, sv2._tokens)
