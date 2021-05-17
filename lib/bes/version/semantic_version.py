@@ -92,7 +92,18 @@ class semantic_version(object):
   @cached_property
   def parts(self):
     return tuple([ token.value for token in self._part_tokens ])
-  
+
+  @cached_property
+  def has_only_semantic_tokens(self):
+    '''
+    True if the tokens in version are pursely semantic such as:
+      1.2.3
+    but not
+      1.2.3a
+      1.2.alpha
+    '''
+    return len(self._tokens) == len(self._semantic_tokens)
+    
   @classmethod
   def _tokens_to_string(clazz, tokens):
     buf = StringIO()
@@ -123,7 +134,7 @@ class semantic_version(object):
     check.check_int(value)
 
     return self._change_part_func(part_index, lambda _: value)
-  
+
   def _change_part_func(self, part_index, func):
     check.check_int(part_index)
 

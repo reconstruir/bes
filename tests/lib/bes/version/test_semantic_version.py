@@ -114,6 +114,14 @@ class test_semantic_version(unit_test):
     self.assertFalse( 'rel/v2/1.2.1' >= semantic_version('rel/v2/1.2.10') )
     self.assertTrue( 'rel/v2/1.2.1' >= semantic_version('rel/v2/1.2.1') )
     self.assertTrue( 'rel/v2/1.2.10' >= semantic_version('rel/v2/1.2.1') )
+
+  def test_has_only_semantic_tokens(self):
+    self.assertTrue( semantic_version('1.2.3').has_only_semantic_tokens )
+    self.assertTrue( semantic_version('1.2;3').has_only_semantic_tokens )
+    self.assertTrue( semantic_version('1.2-3').has_only_semantic_tokens )
+    self.assertFalse( semantic_version('1.2.alpha').has_only_semantic_tokens )
+    self.assertFalse( semantic_version('1.2.3a').has_only_semantic_tokens )
+    self.assertFalse( semantic_version('amazing/1.2.3').has_only_semantic_tokens )
     
 if __name__ == '__main__':
   unit_test.main()
