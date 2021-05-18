@@ -4,9 +4,9 @@ set -e
 
 function main()
 {
-  source $(_this_dir_venv_setup)/../bes_shell/bes_all.sh
+  source $(_this_dir_bes_venv_setup)/../bes_shell/bes_all.sh
 
-  local _this_dir="$(_this_dir_venv_setup)"
+  local _this_dir="$(_this_dir_bes_venv_setup)"
   local _root_dir="$(bes_abs_path ${_this_dir}/..)"
   local _best="${_root_dir}/bin/best.py"
 
@@ -20,7 +20,7 @@ function main()
   return 0
 }
 
-function _this_dir_venv_setup()
+function _this_dir_bes_venv_setup()
 {
   echo "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
   return 0
