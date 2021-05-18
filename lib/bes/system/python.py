@@ -74,7 +74,7 @@ raise SystemExit(0)
     try:
       exit_code = subprocess.check_call([ sys.executable, tmp.name ])
     except Exception as ex:
-      exit_code == 1
+      exit_code = 1
     finally:
       os.remove(tmp.name)
     if exit_code == 0:
