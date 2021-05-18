@@ -19,6 +19,7 @@ class vfs_file_info(namedtuple('vfs_file_info', 'filename, ftype, modification_d
 
   FILE = 'file'
   DIR = 'dir'
+  SEP = '/'
   
   def __new__(clazz, filename, ftype, modification_date, size = None, checksums = None, attributes = None, children = None):
     check.check_string(filename)
@@ -57,9 +58,14 @@ class vfs_file_info(namedtuple('vfs_file_info', 'filename, ftype, modification_d
     return vfs_path_util.basename(self.filename)
 
   @cached_property
+  def parts(self):
+    'The split parts of the filename path'
+    return self.filename.split(self.SEP)
+  
+  @cached_property
   def display_filename(self):
     if self.ftype == self.DIR:
-      return self.filename + '/'
+      return self.filename + self.SEP
     elif self.ftype == self.FILE:
       return self.filename
     else:
