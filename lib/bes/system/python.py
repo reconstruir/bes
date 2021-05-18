@@ -28,7 +28,7 @@ class python(object):
       for exe in clazz._UNIX_POSSIBLE_EXE:
         if which.which(exe):
           return path.basename(exe)
-      raise RuntimeError('no suitable python found.')
+      raise RuntimeError('no suitable python3 found.')
     elif host.is_windows():
       return 'python.exe'
     else:
