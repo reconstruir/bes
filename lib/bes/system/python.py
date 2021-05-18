@@ -73,7 +73,7 @@ raise SystemExit(0)
     tmp.close()
     try:
       exit_code = subprocess.check_call([ sys.executable, tmp.name ])
-    except subprocess.CalledProcessError as ex:
+    except Exception as ex:
       exit_code == 1
     finally:
       os.remove(tmp.name)
