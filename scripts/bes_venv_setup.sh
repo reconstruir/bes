@@ -12,8 +12,10 @@ function main()
 
   local _projects_root_dir="${_root_dir}/VE"
   local _requirements="${_root_dir}/requirements.txt"
+  local _requirements_test="${_root_dir}/requirements-test.txt"
   
   ${_best} pip_project install_requirements --root-dir "${_projects_root_dir}" bes_deps "${_requirements}"
+  ${_best} pip_project install_requirements --root-dir "${_projects_root_dir}" bes_deps "${_requirements_test}"
   
   return 0
 }
