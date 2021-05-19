@@ -39,7 +39,8 @@ class pyinstaller_exe(object):
                          cwd = cwd,
                          stderr_to_stdout = True,
                          non_blocking = non_blocking,
-                         raise_error = False)
+                         raise_error = False,
+                         check_python_script = False)
     if rv.exit_code != 0:
       cmd_flag = ' '.join(cmd)
       msg = 'pyinstaller command failed: {}\n{}'.format(cmd_flag, rv.stdout)
