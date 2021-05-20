@@ -50,7 +50,15 @@ class cli_command_handler(object):
   @classmethod
   def _check_delegate(clazz, delegate):
     spec = inspect_util.getargspec(delegate)
-    if False in ( bool(spec.args), len(spec.args) == 3, bool(spec.varargs), bool(spec.keywords) ):
+
+    criteria = []
+    criteria.append(bool(spec.args))
+    criteria.append(len(spec.args) == 3)
+    criteria.append(bool(spec.varargs))
+    if hasattr(spec, 'keywords'):
+      criteria.append(bool(spec.keywords))
+    
+    if False in criteria:
       msg = 'delegte signature should be exactly (self, command_name, options, *args, **kwargs) - {}'.format(delegate)
       raise RuntimeError(msg)
 
