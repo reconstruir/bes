@@ -20,19 +20,7 @@ class python(object):
     exe_name = clazz._python_exe_name()
     return which.which(exe_name)
 
-  @classmethod
-  def exe_version(clazz, exe, revision = False):
-    'Return the result of python --version.'
-    which_exe = which.which(exe)
-    if not which_exe:
-      raise RuntimeError('python not found: {}'.format(exe))
-    s = subprocess.check_output([ which_exe, '--version' ], stderr = subprocess.STDOUT).decode('utf-8').strip()
-    version = s.split(' ')[1]
-    if revision:
-      return version
-    return '.'.join(version.split('.')[0:2])
-
-  _UNIX_POSSIBLE_EXE = [ 'python2', 'python2.7', 'python', 'python3' ]
+  _UNIX_POSSIBLE_EXE = [ 'python3.7', 'python3.8', 'python3.9', 'python3' ]
   @classmethod
   def _python_exe_name(clazz):
     'Return the platform specific name of the python exe.'
@@ -40,7 +28,7 @@ class python(object):
       for exe in clazz._UNIX_POSSIBLE_EXE:
         if which.which(exe):
           return path.basename(exe)
-      raise RuntimeError('python not found.')
+      raise RuntimeError('no suitable python3 found.')
     elif host.is_windows():
       return 'python.exe'
     else:
@@ -71,8 +59,12 @@ raise SystemExit(0)
     tmp.write(content)
     tmp.flush()
     tmp.close()
-    exit_code = subprocess.check_call([ sys.executable, tmp.name ])
-    os.remove(tmp.name)
+    try:
+      exit_code = subprocess.check_call([ sys.executable, tmp.name ])
+    except Exception as ex:
+      exit_code = 1
+    finally:
+      os.remove(tmp.name)
     if exit_code == 0:
       return sys.executable
     return None

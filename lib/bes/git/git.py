@@ -99,9 +99,10 @@ class git(git_lfs):
     return clazz.status(root_dir, '.', untracked_files = untracked_files) != []
 
   @classmethod
-  def add(clazz, root_dir, filenames):
+  def add(clazz, root_dir, filenames, force = False):
     filenames = object_util.listify(filenames)
-    args = [ 'add' ] + filenames
+    force_args = [ '--force' ] if force else []
+    args = [ 'add' ] + force_args + filenames
     return git_exe.call_git(root_dir, args)
 
   @classmethod

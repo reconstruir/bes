@@ -4,6 +4,7 @@ import pprint
 
 from bes.common.check import check
 from bes.fs.file_util import file_util
+from bes.fs.file_path import file_path
 from bes.system.os_env import os_env
 from bes.system.which import which
 from bes.system.command_line import command_line
@@ -18,10 +19,12 @@ class pyinstaller_exe(object):
   _log = logger('pyinstaller')
   
   @classmethod
-  def call_pyinstaller(clazz, args, cwd = None, replace_env = None, non_blocking = False):
-    exe = clazz.find_exe()
+  def call_pyinstaller(clazz, args, cwd = None, replace_env = None, non_blocking = False, exe = None):
+    exe = exe or clazz.find_exe()
     if not exe:
       raise pyinstaller_error('pyinstaller not found')
+    if not file_path.is_executable(exe):
+      raise pyinstaller_error('not an executable: {}'.format(exe))
     cmd = [ exe ] + command_line.parse_args(args)
     replace_env = replace_env or {}
     env = os_env.clone_current_env(d = {})
@@ -36,7 +39,8 @@ class pyinstaller_exe(object):
                          cwd = cwd,
                          stderr_to_stdout = True,
                          non_blocking = non_blocking,
-                         raise_error = False)
+                         raise_error = False,
+                         check_python_script = False)
     if rv.exit_code != 0:
       cmd_flag = ' '.join(cmd)
       msg = 'pyinstaller command failed: {}\n{}'.format(cmd_flag, rv.stdout)

@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import copy
 import os, re
 from os import path
 
@@ -25,7 +26,9 @@ class pyinstaller_build(object):
             excludes = None,
             hidden_imports = None,
             verbose = False,
-            cwd = None):
+            cwd = None,
+            replace_env = None,
+            exe = None):
     check.check_string(script_filename)
     check.check_string_seq(python_path, allow_none = True)
     check.check_string(log_level, allow_none = True)
@@ -33,6 +36,7 @@ class pyinstaller_build(object):
     check.check_string_seq(hidden_imports, allow_none = True)
     check.check_string(cwd, allow_none = True)
     check.check_bool(verbose)
+    check.check_string(exe, allow_none = True)
 
     if not path.isfile(script_filename):
       raise pyinstaller_error('script filename not found: "{}"'.format(script_filename))
@@ -56,14 +60,15 @@ class pyinstaller_build(object):
 
     args = basic_args + log_args + excludes_args + hidden_imports_args + [ script_filename ]
 
-    replace_env = {}
+    replace_env = copy.deepcopy(replace_env or {})
     if python_path:
       replace_env['PYTHONPATH'] = os.pathsep.join(python_path)
     
     pyinstaller_exe.call_pyinstaller(args,
                                      replace_env = replace_env,
                                      non_blocking = verbose,
-                                     cwd = cwd)
+                                     cwd = cwd,
+                                     exe = exe)
 
   @classmethod
   def _make_arg_pair_list(clazz, flag, items):

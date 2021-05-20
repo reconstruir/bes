@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
+
+import codecs
 import os.path as path
 import subprocess
 
@@ -66,7 +68,7 @@ class vmware_vmrun(object):
         args_flat = ' '.join(vmrun_args)
         error_message = 'vmrun command failed: {}\n{}'.format(args_flat, output)
       raise vmware_error(error_message, status_code = exit_code)
-    result = self._run_result(output, exit_code, vmrun_args)
+    result = self._run_result(codecs.decode(output, 'utf-8'), exit_code, vmrun_args)
     self._log.log_d('run: result: {} - {}'.format(result.exit_code, result.output))
     return result
   

@@ -61,8 +61,8 @@ class git_repo(object):
   def init(self, *args):
     return git.init(self.root, *args)
 
-  def add(self, filenames):
-    return git.add(self.root, filenames)
+  def add(self, filenames, force = False):
+    return git.add(self.root, filenames, force = force)
 
   def remove(self, filenames):
     return git.remove(self.root, filenames)

@@ -67,15 +67,11 @@ class pip_project(object):
     return path.join(self._root_dir, self._name)
 
   @cached_property
-  def user_base_dir(self):
-    return path.join(self.project_dir, str(self.installation.python_version))
-  
-  @cached_property
   def user_base_install_dir(self):
     if host.is_windows():
-      user_base_install_dir = path.join(self.user_base_dir, self.installation.windows_versioned_install_dirname)
+      user_base_install_dir = path.join(self.project_dir, self.installation.windows_versioned_install_dirname)
     elif host.is_unix():
-      user_base_install_dir = self.user_base_dir
+      user_base_install_dir = self.project_dir
     else:
       host.raise_unsupported_system()
     return user_base_install_dir
@@ -105,7 +101,7 @@ class pip_project(object):
     'Make a clean environment for python or pip'
     clean_env = os_env.make_clean_env()
 
-    env_var(clean_env, 'PYTHONUSERBASE').value = self.user_base_dir
+    env_var(clean_env, 'PYTHONUSERBASE').value = self.project_dir
     env_var(clean_env, 'PYTHONPATH').path = self.PYTHONPATH
     env_var(clean_env, 'PATH').prepend(self.PATH)
     env_var(clean_env, 'HOME').value = self._fake_home_dir
@@ -333,3 +329,8 @@ class pip_project(object):
     error_message = 'Failed to upgrade "{}"'.format(package_name)
     self._call_install(args, error_message = error_message)
   
+  def program_path(self, program):
+    'Return the abs path for program in the venv'
+    check.check_string(program)
+
+    return path.join(self.bin_dir, program)
