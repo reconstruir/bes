@@ -1,0 +1,33 @@
+diff --git a/lib/bes/common/json_util.py b/lib/bes/common/json_util.py
+index 1b48ebc2..72ad5514 100644
+--- a/lib/bes/common/json_util.py
++++ b/lib/bes/common/json_util.py
+@@ -37,16 +37,24 @@ class json_util(object):
+ 
+   @classmethod
+   def read_file(clazz, filename, codec = None):
+-    with open(filename, 'r') as f:
++    if codec:
++      mode = 'rb'
++    else:
++      mode = 'r'
++    with open(filename, mode) as f:
+       content = f.read()
+       if codec:
+         content = codecs.decode(content, codec)
+       return json.loads(content)
+-    return None
+     
+   @classmethod
+-  def save_file(clazz, filename, o, indent = None, sort_keys = False):
++  def save_file(clazz, filename, o, indent = None, sort_keys = False, codec = None):
+     content = clazz.to_json(o, indent = indent, sort_keys = sort_keys)
+-    with open(filename, 'w') as f:
++    if codec:
++      content = codecs.encode(content, codec)
++      mode = 'wb'
++    else:
++      mode = 'w'
++    with open(filename, mode) as f:
+       f.write(content)
+ 
