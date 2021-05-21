@@ -49,5 +49,5 @@ class git_identity_cli_command(object):
     name = identity.name or name
     email = identity.email or email
     if not identity.name or not identity.email:
-      clazz.set_identity(name, email)
+      git_config.set_identity(name, email)
     return 0
