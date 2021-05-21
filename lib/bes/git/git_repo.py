@@ -624,5 +624,10 @@ class git_repo(object):
     src_path = src_repo.path(src_dir)
     dst_path = self.path(dst_dir)
 
-    
+  def tags_fetch(self):
+    return git.tags_fetch(self.root)
+
+  def commit_message(self, revision):
+    return git.commit_message(self.root, revision)
+
 check.register_class(git_repo)
