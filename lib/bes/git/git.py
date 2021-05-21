@@ -269,7 +269,7 @@ class git(git_lfs):
       clazz.checkout(root_dir, 'master')
 
     if not options.no_network:
-      clazz.tags_fetch(root_dir)
+      clazz.tags_fetch(root_dir, force = True)
       clazz._call_pull(root_dir, *args)
 
     if options.branch:
@@ -551,8 +551,11 @@ class git(git_lfs):
     git_exe.call_git(root_dir, [ 'push', 'origin', tag ])
 
   @classmethod
-  def tags_fetch(clazz, root_dir):
-    git_exe.call_git(root_dir, 'fetch --tags')
+  def tags_fetch(clazz, root_dir, force = False):
+    args = [ 'fetch', '--tags' ]
+    if force:
+      args.append('--force')
+    git_exe.call_git(root_dir, args)
     
   @classmethod
   def delete_local_tag(clazz, root_dir, tag):
