@@ -3,13 +3,13 @@
 import argparse, pprint
 from abc import abstractmethod, ABCMeta
 
-from .argparser_handler import argparser_handler
 from bes.common.check import check
 from bes.script.blurb import blurb
 from bes.system.compat import with_metaclass
 from bes.system.log import log
 from bes.version.version_cli import version_cli
 
+from .argparser_handler import argparser_handler
 from .cli_command_list import cli_command_list
 
 class cli(with_metaclass(ABCMeta, object)):

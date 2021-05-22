@@ -1,7 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from os import path
-import copy, inspect
+import copy
+import inspect
+import os.path as path
+import sys
 
 from bes.system.log import logger
 from bes.common.check import check
@@ -10,6 +12,7 @@ from bes.system.log import log
 from bes.fs.file_check import file_check
 from bes.git.git import git
 
+from .cli_missing_command_error import cli_missing_command_error
 from .cli_options import cli_options
 
 class argparser_handler(object):
@@ -18,8 +21,15 @@ class argparser_handler(object):
   @classmethod
   def main(clazz, log_tag, parser, handler_object, command_group = None, args = None):
     log = logger(log_tag)
-    args = parser.parse_args(args = args)
+    if args != None:
+      original_args = copy.deepcopy(args)
+    else:
+      original_args = None
+    args = parser.parse_args(args = original_args)
     command_group = getattr(args, '__bes_command_group__', command_group)
+    if not command_group:
+      parser.print_help(sys.stderr)
+      raise SystemExit(1)
     command = getattr(args, '__bes_command__', None)
     log.log_d('command={} command_group={}'.format(command, command_group))
     possible_names = clazz._possible_method_names(command_group, command)
@@ -50,7 +60,18 @@ class argparser_handler(object):
       log.log_d('handler.__name__={}'.format(handler.__name__))
       log.log_d('calling {}({})'.format(handler.__name__, args_blurb))
       if command == None:
-        exit_code = handler(None, **dict_args)
+        try:
+          exit_code = handler(None, **dict_args)
+        except cli_missing_command_error as ex:
+          if original_args == None:
+            original_args_with_help = sys.argv[1:]
+          else:
+            original_args_with_help = original_args[:]
+          original_args_with_help.append('--help')
+          parser.parse_args(args = original_args_with_help)
+          assert False, 'not reached'
+        except Exception as ex:
+          raise
       elif handler.__name__.endswith(command):
         exit_code = handler(**dict_args)
       else:
@@ -82,6 +103,8 @@ class argparser_handler(object):
 
   @classmethod
   def _possible_method_names(clazz, command_group, command):
+    if not command_group:
+      return []
     if not command:
       assert command_group
       return [ clazz._handler_method_name(command_group, None) ]
