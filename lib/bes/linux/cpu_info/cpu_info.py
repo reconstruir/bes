@@ -64,6 +64,10 @@ class cpu_info(object):
   @property
   def processor(self):
     return self._values.processor
+
+  @property
+  def is_vm(self):
+    return 'hypervisor' in self.flags 
   
   @classmethod
   def parse_text(clazz, text):
@@ -108,5 +112,16 @@ class cpu_info_list(type_checked_list):
       value = cpu_info.parse_text(chunk)
       values.append(value)
     return values
-  
+
+  @classmethod
+  def parse_proc_cpuinfo(clazz):
+    with open('/proc/cpuinfo', 'r') as fin:
+      text = fin.read()
+      return clazz.parse_text(text)
+
+  def is_vm(self):
+    for value in self:
+      if value.is_vm:
+        return True
+    
 check.register_class(cpu_info_list, include_seq = False)
