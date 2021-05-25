@@ -28,7 +28,7 @@ class computer_setup_manager(object):
         if self._options.dry_run:
           print('DRY_RUN: would run: {}'.format(task.name()))
         else:
-          task.run()
+          task.run(self._options, )
 
   def add_task(self, task):
     check.check_computer_setup_task(task)

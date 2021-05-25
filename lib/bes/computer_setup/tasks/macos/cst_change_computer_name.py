@@ -34,11 +34,17 @@ class cst_change_computer_name(computer_setup_task):
     return ComputerName != computer_name or LocalHostName != computer_name or HostName or computer_name    
   
   #@abstractmethod
-  def run(self, options, args):
+  def run(self, options):
     'Run the task.'
 
     computer_name = 'caca1'
+    print(self.values)
+
+    print(scutil.get_value('ComputerName'))
+    print(scutil.get_value('LocalHostName'))
+    print(scutil.get_value('HostName'))
+
+    #scutil.set_value('ComputerName', computer_name)
+    #scutil.set_value('LocalHostName', computer_name)
+    #scutil.set_value('HostName', computer_name)
     
-    scutil.get_value('ComputerName', computer_name)
-    scutil.get_value('LocalHostName', computer_name)
-    scutil.get_value('HostName', computer_name)

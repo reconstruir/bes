@@ -46,7 +46,7 @@ class computer_setup_task(with_metaclass(_computer_setup_register_meta, object))
     raise NotImplemented('is_needed')
 
   @abstractmethod
-  def run(self, options, args):
+  def run(self, options):
     'Run the task.'
     raise NotImplemented('run')
 
