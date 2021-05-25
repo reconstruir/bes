@@ -8,6 +8,7 @@ from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.fs.file_path import file_path
 from bes.script.blurber import blurber
+from bes.key_value.key_value_list import key_value_list
 
 from .computer_setup_error import computer_setup_error
 from .computer_setup_manager import computer_setup_manager
@@ -43,11 +44,14 @@ class computer_setup_cli_handler(cli_command_handler):
 #    np = computer_setup(bl)
 #    return func(np, **kargs)
   
-  def update(self, config_filename):
+  def update(self, config_filename, values):
     check.check_string(config_filename)
+    check.check_string_seq(values)
+
+    parsed_values = key_value_list.parse(' '.join(values))
 
     self._csm.add_tasks_from_config(config_filename)
-    self._csm.run()
+    self._csm.run(parsed_values.to_dict())
 
     return 0
 
