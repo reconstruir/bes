@@ -25,15 +25,15 @@ class pyinstaller_cli_handler(cli_command_handler):
     file_check.check_file(script_filename)
     check.check_string(output_filename)
 
-  def build(clazz, script_filename,
-            python_path = None,
-            log_level = None,
-            excludes = None,
-            hidden_imports = None,
-            verbose = False,
-            cwd = None,
-            replace_env = None,
-            exe = None):
-    
-    
+    build_dir = path.abspath(self.options.build_dir)
+    script_filename_abs = path.abspath(script_filename)
+
+    pyinstaller_build.build(script_filename_abs,
+                            log_level = self.options.log_level,
+                            excludes = self.options.excludes,
+                            hidden_imports = self.options.hidden_imports,
+                            verbose = self.options.verbose,
+                            cwd = build_dir,
+                            replace_env = None,
+                            exe = None)
     return 0
