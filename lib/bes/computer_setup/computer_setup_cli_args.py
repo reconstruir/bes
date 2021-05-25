@@ -17,5 +17,5 @@ class computer_setup_cli_args(object):
                    default = False, help = 'Do not do any work just print what would happen')
     
   def _command_computer_setup(self, command, *args, **kargs):
-    from .computer_setup_cli_command import computer_setup_cli_command
-    return computer_setup_cli_command(kargs).handle_command(command)
+    from .computer_setup_cli_handler import computer_setup_cli_handler
+    return computer_setup_cli_handler(kargs).handle_command(command)

@@ -16,11 +16,11 @@ from .computer_setup_options import computer_setup_options
 from .tasks.macos import *
 from .tasks.unix import *
 
-class computer_setup_cli_command(cli_command_handler):
+class computer_setup_cli_handler(cli_command_handler):
   'computer_setup cli handler.'
 
   def __init__(self, cli_args):
-    super(computer_setup_cli_command, self).__init__(cli_args, options_class = computer_setup_options)
+    super(computer_setup_cli_handler, self).__init__(cli_args, options_class = computer_setup_options)
     check.check_computer_setup_options(self.options)
     
     self._csm = computer_setup_manager(options = self.options)
@@ -33,10 +33,10 @@ class computer_setup_cli_command(cli_command_handler):
 ###    options = computer_setup_options(**kargs)
 ###    csm = computer_setup_manager(options = options)
 ###    filtered_args = argparser_handler.filter_keywords_args(computer_setup_options, kargs)
-###    func = getattr(computer_setup_cli_command, command)
+###    func = getattr(computer_setup_cli_handler, command)
 ###    return func(csm, **filtered_args)
 #    kargs = copy.deepcopy(kargs)
-#    func = getattr(computer_setup_cli_command, command)
+#    func = getattr(computer_setup_cli_handler, command)
 #    bl = blurber(Script.name())
 #    verbose = kargs.pop('verbose')
 #    bl.set_verbose(verbose)
