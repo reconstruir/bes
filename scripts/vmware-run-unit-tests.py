@@ -72,6 +72,7 @@ class vmware_tester(object):
     if args.output_filename:
       extra_args.extend([ '--output', args.output_filename ])
     if args.config_filename:
+      print(config_filename)
       extra_args.extend([ '--config', args.config_filename ])
     if args.vmrest_username:
       extra_args.extend([ '--vmrest-username', args.vmrest_username ])
