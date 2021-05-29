@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+import os.path as path
 import pprint
 
 from bes.common.check import check
@@ -10,8 +12,11 @@ from bes.system.which import which
 from bes.system.command_line import command_line
 from bes.system.execute import execute
 from bes.system.log import logger
+from bes.system.env_override import env_override
 
 from .pyinstaller_error import pyinstaller_error
+
+from PyInstaller.__main__ import run as PyInstaller_run
 
 class pyinstaller_exe(object):
   'Class to deal with the pyinstaller executable.'
@@ -19,34 +24,31 @@ class pyinstaller_exe(object):
   _log = logger('pyinstaller')
   
   @classmethod
-  def call_pyinstaller(clazz, args, cwd = None, replace_env = None, non_blocking = False, exe = None):
-    exe = exe or clazz.find_exe()
-    if not exe:
-      raise pyinstaller_error('pyinstaller not found')
-    if not file_path.is_executable(exe):
-      raise pyinstaller_error('not an executable: {}'.format(exe))
-    cmd = [ exe ] + command_line.parse_args(args)
+  def call_pyinstaller(clazz, args, build_dir = None, replace_env = None):
+    check.check_string_seq(args)
+    check.check_string(build_dir, allow_none = True)
+    check.check_dict(replace_env, check.STRING_TYPES, check.STRING_TYPES)
+    
+    cmd = command_line.parse_args(args)
     replace_env = replace_env or {}
     env = os_env.clone_current_env(d = {})
     env.update(replace_env)
     clazz._log.log_d('using env: {}'.format(pprint.pformat(env)))
     clazz._log.log_d('calling pyinstaller: {}'.format(' '.join(cmd)))
-    if cwd:
-      file_util.mkdir(cwd)
-    rv = execute.execute(cmd,
-                         env = env,
-                         shell = False,
-                         cwd = cwd,
-                         stderr_to_stdout = True,
-                         non_blocking = non_blocking,
-                         raise_error = False,
-                         check_python_script = False)
-    if rv.exit_code != 0:
-      cmd_flag = ' '.join(cmd)
-      msg = 'pyinstaller command failed: {}\n{}'.format(cmd_flag, rv.stdout)
-      raise pyinstaller_error(msg)
-    return rv
-
+    if build_dir:
+      file_util.mkdir(build_dir)
+    dist_dir = path.join(build_dir, 'dist')
+    work_dir = path.join(build_dir, 'work')
+    args = args[:]
+    args.extend([ '--distpath', dist_dir ])
+    try:
+      with env_override(env = env) as _:
+        PyInstaller_run(pyi_args = args, pyi_config = None)
+    except Exception as ex:
+      print('caught: {}'.format(str(ex)))
+      raise
+    #raise pyinstaller_error(str(ex))
+ 
   @classmethod
   def find_exe(clazz, raise_error = False):
     'Return the pyinstaller executable or None if not found'
