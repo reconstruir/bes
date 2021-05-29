@@ -17,6 +17,7 @@ from bes.system.env_override import env_override
 from .pyinstaller_error import pyinstaller_error
 
 from PyInstaller.__main__ import run as PyInstaller_run
+from PyInstaller import __version__ as PyInstaller_version
 
 class pyinstaller_exe(object):
   'Class to deal with the pyinstaller executable.'
@@ -45,22 +46,16 @@ class pyinstaller_exe(object):
       with env_override(env = env) as _:
         PyInstaller_run(pyi_args = args, pyi_config = None)
     except Exception as ex:
-      print('caught: {}'.format(str(ex)))
-      raise
-    #raise pyinstaller_error(str(ex))
- 
+      raise pyinstaller_error(str(ex))
+
   @classmethod
   def find_exe(clazz, raise_error = False):
     'Return the pyinstaller executable or None if not found'
     return which.which('pyinstaller', raise_error = raise_error)
-
+    
   @classmethod
   def exe_version(clazz, pyinstaller_exe):
     'Return the pyinstaller executable version'
     check.check_string(pyinstaller_exe)
-    
-    cmd = [ pyinstaller_exe, '--version' ]
-    rv = execute.execute(cmd, stderr_to_stdout = True, print_failure = False)
-    if rv.exit_code != 0:
-      raise pyinstaller_error(str(ex))
-    return rv.stdout.strip()
+
+    return PyInstaller_version
