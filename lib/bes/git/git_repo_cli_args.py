@@ -59,5 +59,5 @@ class git_repo_cli_args(object):
                    help = 'The branch to checkout after cloning [ None ]')
     
   def _command_git_repo(self, command, *args, **kargs):
-    from .git_repo_cli_command import git_repo_cli_command
-    return git_repo_cli_command(kargs).handle_command(command)
+    from .git_repo_cli_handler import git_repo_cli_handler
+    return git_repo_cli_handler(kargs).handle_command(command)

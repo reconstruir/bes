@@ -10,10 +10,10 @@ from .git_output import git_output
 from .git_repo_cli_options import git_repo_cli_options
 from .git_util import git_util
 
-class git_repo_cli_command(cli_command_handler):
+class git_repo_cli_handler(cli_command_handler):
 
   def __init__(self, cli_args):
-    super(git_repo_cli_command, self).__init__(cli_args, options_class = git_repo_cli_options)
+    super(git_repo_cli_handler, self).__init__(cli_args, options_class = git_repo_cli_options)
     check.check_git_repo_cli_options(self.options)
   
   def bump_tag(self, component, reset_lower):
