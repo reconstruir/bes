@@ -255,7 +255,7 @@ class git_cli_command(cli_command_handler):
 
     repo = git_repo(self.options.root_dir)
     url = repo.remote_get_url(name = name)
-    print(url)
+    print(url or '')
     return 0
 
   def remote_replace(self, name, new_url, test):
