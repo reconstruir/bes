@@ -46,4 +46,35 @@ class brew_cli_handler(cli_command_handler):
         inode = ''
       print('{}{}'.format(inode, f))
     return 0
+
+  def outdated(self):
+    outdated = self._brew.outdated()
+    for name, info in sorted(outdated.items()):
+      print('{}: {}'.format(name, info))
+    return 0
   
+  def needs_update(self, package_name):
+    check.check_string(package_name)
+
+    result = self._brew.needs_update(package_name)
+    return self.handle_boolean_result(result.needs_update,
+                                      self.options.verbose)
+
+  def install(self, package_name):
+    check.check_string(package_name)
+    
+    self._brew.install(package_name)
+    return 0
+
+  def uninstall(self, package_name):
+    check.check_string(package_name)
+    
+    self._brew.uninstall(package_name)
+    return 0
+  
+  def upgrade(self, package_name):
+    check.check_string(package_name)
+    
+    self._brew.upgrade(package_name)
+    return 0
+    

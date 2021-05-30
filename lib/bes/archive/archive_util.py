@@ -30,7 +30,7 @@ class archive_util(object):
     tmp_dir = archiver.extract_all_temp_dir(archive, delete = not debug)
     if debug:
       print('tmp_dir: {}'.format(tmp_dir))
-    members = [ path.join(tmp_dir, m) for m in members ]
+    members = [ path.normpath(path.join(tmp_dir, m)) for m in members ]
     file_util.remove(members)
     archiver.create(archive, tmp_dir)
 
@@ -196,7 +196,7 @@ class archive_util(object):
   @classmethod
   def diff_contents(clazz, archive1, archive2, strip_common_ancestor = False):
     'Return the output of diffing the contents of 2 archives.'
-    tmp_dir = temp_file.make_temp_dir(delete = False)
+    tmp_dir = temp_file.make_temp_dir(delete = True)
     tmp_dir1 = path.join(tmp_dir, 'a')
     tmp_dir2 = path.join(tmp_dir, 'b')
     archiver.extract_all(archive1, tmp_dir1, strip_common_ancestor = strip_common_ancestor)

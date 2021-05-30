@@ -1227,11 +1227,31 @@ tag 1.0.1 tag2
   from_commit: @commit2
   annotation: annotation 1.0.1 is good
 '''
-    r = git_temp_repo(remote = True, debug = self.DEBUG, config = config)
+    r = git_temp_repo(remote = True, debug = self.DEBUG, config = config, prefix = 'caca')
     self.assertEqual( [ '1.0.0', '1.0.1' ], r.list_local_tags().names() )
     self.assertFalse( r.tag_has_annotation('1.0.0') )
     self.assertTrue( r.tag_has_annotation('1.0.1') )
     self.assertEqual( 'annotation 1.0.1 is good', r.tag_annotation('1.0.1') )
+
+  @git_temp_home_func()
+  def test_add_with_force(self):
+    r = self._make_repo()
+    ignore_content = '''\
+*.foo
+    '''
+    r.add_file('.gitignore', ignore_content)
+    r.push('origin', 'master')
+
+    file_util.save(r.file_path('kiwi.notfoo'), content = 'kiwi.notfoo')
+    r.add(['kiwi.notfoo'])
+    r.commit('add', ['kiwi.notfoo'])
+
+    file_util.save(r.file_path('lemon.foo'), content = 'lemon.foo')
+    with self.assertRaises(git_error) as ctx:
+      r.add(['lemon.foo'])
+    r.add(['lemon.foo'], force = True)
+    r.commit('add', ['lemon.foo'])
+    r.push('origin', 'master')
     
 if __name__ == '__main__':
   unit_test.main()

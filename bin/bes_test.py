@@ -21,6 +21,7 @@ from bes.system.env_var import env_var
 from bes.system.env_var import os_env_var
 from bes.system.execute import execute
 from bes.system.host import host
+from bes.system.user import user
 from bes.system.log import logger
 from bes.system.os_env import os_env
 from bes.system.python import python as python
@@ -177,6 +178,10 @@ def main():
                       action = 'store',
                       default = None,
                       help = 'The directory to use for tmp files overriding the system default.  [ None ]')
+  parser.add_argument('--keep-side-effects',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Dont delete side effects - for debugging. [ False ]')
 
   found_git_exe = git_exe.find_git_exe()
   if not found_git_exe:
@@ -303,6 +308,7 @@ def main():
   if args.dont_hack_env:
     keep_keys.extend([ 'PATH', 'PYTHONPATH'])
 
+  keep_keys.extend([ 'TMPDIR', 'TEMP', 'TMP' ])
   env = os_env.make_clean_env(keep_keys = keep_keys, keep_func = lambda key: _env_var_should_keep(key, keep_patterns))
   env_var(env, 'PATH').prepend(path.dirname(found_git_exe))
   for python_exe in args.python:
@@ -326,7 +332,16 @@ def main():
    
   # Update env with whatever was given in --env
   env.update(args.env)
-    
+
+  # Use a custom TMP dir so that we can catch temporary side effects and flag them
+  tmp_tmp = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.dir', delete = False)
+  env.update({
+    'TMPDIR': tmp_tmp,
+    'TEMP': tmp_tmp,
+    'TMP': tmp_tmp,
+  })  
+  side_effects = {}
+  
   num_passed = 0
   num_failed = 0
   num_executed = 0
@@ -412,6 +427,8 @@ def main():
       timings[filename] = []
     for python_exe in args.python:
       result = _test_execute(python_exe, ar.inspect_map, filename, test_desc.tests, options, i + 1, total_files, cwd, env)
+      _collect_side_effects(side_effects, filename, tmp_home, 'home', args.keep_side_effects)
+      _collect_side_effects(side_effects, filename, tmp_tmp, 'tmp', args.keep_side_effects)
       timings[filename].append(result.elapsed_time)
       total_num_tests += result.num_tests_run
       num_executed += 1
@@ -492,21 +509,41 @@ def main():
 
   current_cwd = os.getcwd()
   if current_cwd != tmp_cwd:
+    rv = 1
     printer.writeln_name('SIDE EFFECT: working directory was changed from %s to %s' % (tmp_cwd, current_cwd))
+    
   cwd_droppings = file_find.find(current_cwd, relative = False, file_type = file_find.ANY)
   for cwd_dropping in cwd_droppings:
+    rv = 1
     printer.writeln_name('SIDE EFFECT: cwd dropping found: %s' % (cwd_dropping))
 
-  home_droppings = file_find.find(tmp_home, relative = False, file_type = file_find.ANY)
-  for home_dropping in home_droppings:
-    printer.writeln_name('SIDE EFFECT: home dropping found: %s' % (home_dropping))
-
+  for test, items in sorted(side_effects.items()):
+    for item in items:
+      rv = 1
+      filename = item.filename
+      print('SIDE EFFECT [{}] {} {}'.format(item.label,
+                                            test.replace(cwd + os.sep, ''),
+                                            filename))
+      
   os.chdir('/tmp')
-    
-  file_util.remove(tmp_cwd)
-  file_util.remove(tmp_home)
+
+  if not args.keep_side_effects:
+    file_util.remove(tmp_cwd)
+    file_util.remove(tmp_home)
+    file_util.remove(tmp_tmp)
 
   return rv
+
+side_effect = namedtuple('side_effect', 'where, filename, label')
+def _collect_side_effects(table, test, where, label, keep_side_effects):
+  droppings = file_find.find(where, relative = False, file_type = file_find.ANY)
+  for next_dropping in droppings:
+    if not test in table:
+      table[test] = []
+    se = side_effect(where, next_dropping, label)
+    table[test].append(se)
+    if not keep_side_effects:
+      file_util.remove(next_dropping)
 
 def _timing_average(l):
   return float(sum(l)) / float(len(l))

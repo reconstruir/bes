@@ -14,7 +14,7 @@ from bes.git.git_operation_base import git_operation_base
 from bes.testing.unit_test import unit_test
 from bes.text.line_break import line_break
 
-class test_git_repo(unit_test):
+class test_git_repo_operation(unit_test):
 
   def _make_repo(self, remote = True, content = None, prefix = None, commit_message = None):
     return git_temp_repo(remote = remote, content = content, prefix = prefix,
@@ -22,7 +22,7 @@ class test_git_repo(unit_test):
 
   @git_temp_home_func()
   def test_operation_with_reset_basic(self):
-    r1 = self._make_repo()
+    r1 = self._make_repo(prefix = 'operation_with_reset_basic')
     r1.write_temp_content([
       'file foo.txt "this is foo" 644',
     ])
@@ -47,7 +47,7 @@ class test_git_repo(unit_test):
 
   @git_temp_home_func()
   def test_operation_with_reset_basic_interface(self):
-    r1 = self._make_repo()
+    r1 = self._make_repo(prefix = 'operation_with_reset_basic_interface')
     r1.write_temp_content([
       'file foo.txt "this is foo" 644',
     ])
@@ -73,7 +73,7 @@ class test_git_repo(unit_test):
 
   @git_temp_home_func()
   def test_operation_with_reset_seq_interface(self):
-    r1 = self._make_repo()
+    r1 = self._make_repo(prefix = 'operation_with_reset_seq_interface')
     r1.write_temp_content([
       'file foo.txt "this is foo" 644',
     ])
@@ -108,7 +108,7 @@ class test_git_repo(unit_test):
     
   @git_temp_home_func()
   def test_operation_with_reset_with_conflict(self):
-    r1 = self._make_repo()
+    r1 = self._make_repo(prefix = 'operation_with_reset_with_conflict')
     r1.write_temp_content([
       'file foo.txt "this is foo" 644',
     ])
@@ -149,6 +149,7 @@ class test_git_repo(unit_test):
       file_util.save(fp, content = new_content, codec = 'utf8', mode = 0o644)
         
     worker_repo.operation_with_reset(_op, 'from worker {}'.format(n))
+    file_util.remove(worker_tmp_root)
     
   @git_temp_home_func()
   def test_operation_with_reset_with_multiprocess_conflict(self):
@@ -156,7 +157,7 @@ class test_git_repo(unit_test):
     Create a bunch of processes trying to push to the same repo.
     This sometimes creates a git locking issue and tests the operation push retry code.
     '''
-    r1 = self._make_repo()
+    r1 = self._make_repo(prefix = 'operation_with_reset_with_multiprocess_conflict')
     r1.write_temp_content([
       'file foo.txt "_foo" 644',
     ])
@@ -191,7 +192,7 @@ class test_git_repo(unit_test):
 
   @git_temp_home_func()
   def test_operation_with_reset_wrong_function_args(self):
-    r1 = self._make_repo()
+    r1 = self._make_repo(prefix = 'operation_with_reset_wrong_function_args')
     r1.write_temp_content([
       'file foo.txt "this is foo" 644',
     ])

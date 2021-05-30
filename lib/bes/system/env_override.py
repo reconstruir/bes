@@ -1,26 +1,41 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 from os import path
-import copy, os, tempfile
+import tempfile
+import copy
 from functools import wraps
 
-from .os_env import os_env
-from .host import host
+from .check import check
 from .env_var import env_var
+from .filesystem import filesystem
+from .host import host
+from .os_env import os_env
 
 class env_override(object):
 
-  def __init__(self, env = None):
+  def __init__(self, env = None, enter_functions = None, exit_functions = None):
+    check.check_dict(env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
+    check.check_function_seq(enter_functions, allow_none = True)
+    check.check_function_seq(exit_functions, allow_none = True)
+
     self._original_env = os_env.clone_current_env()
+    self._enter_functions = enter_functions or []
+    self._exit_functions = exit_functions or []
+    
     self._stack = []
     if env:
       self.update(env)
     
   def __enter__(self):
+    for func in self._enter_functions:
+      func()
     return self
   
   def __exit__(self, type, value, traceback):
-    self.reset()
+    for func in self._exit_functions:
+      func()
+    os_env.set_current_env(self._original_env)
     
   def __getitem__(self, key):
     return os.environ.get(key)
@@ -28,9 +43,6 @@ class env_override(object):
   def __setitem__(self, key, value):
     os.environ[key] = value
     
-  def reset(self):
-    os_env.set_current_env(self._original_env)
-
   def push(self):
     self._stack.append(os_env.clone_current_env())
 
@@ -51,19 +63,41 @@ class env_override(object):
     return copy.deepcopy(os.environ)
 
   @classmethod
-  def temp_home(clazz):
+  def temp_home(clazz, enter_functions = None, exit_functions = None, use_temp_home = None):
     'Return an env_override object with a temporary HOME'
-    tmp_dir = tempfile.mkdtemp(suffix = '.home')
+    check.check_function_seq(enter_functions, allow_none = True)
+    check.check_function_seq(exit_functions, allow_none = True)
+
+    if use_temp_home:
+      tmp_home = use_temp_home
+    else:
+      tmp_home = tempfile.mkdtemp(suffix = '-tmp-home.dir')
+      filesystem.atexit_remove(tmp_home)
+    
     if host.is_unix():
-      env = { 'HOME': tmp_dir }
+      env = { 'HOME': tmp_home }
     elif host.is_windows():
-      homedrive, homepath = path.splitdrive(tmp_dir)
+      homedrive, homepath = path.splitdrive(tmp_home)
       env = {
-        'HOME': tmp_dir,
+        'HOME': tmp_home,
         'HOMEDRIVE': homedrive,
         'HOMEPATH': homepath,
-        'APPDATA': path.join(tmp_dir, 'AppData\\Roaming')
+        'APPDATA': path.join(tmp_home, 'AppData\\Roaming')
       }
+    return env_override(env = env,
+                        enter_functions = enter_functions,
+                        exit_functions = exit_functions)
+
+  @classmethod
+  def temp_tmpdir(clazz):
+    'Return an env_override object with a temporary TMPDIR'
+    tmp_tmpdir = tempfile.mkdtemp(suffix = '-tmp-tmpdir.dir')
+    filesystem.atexit_remove(tmp_tmpdir)
+    env = {
+      'TMPDIR': tmp_tmpdir,
+      'TEMP': tmp_tmpdir,
+      'TMP': tmp_tmpdir,
+    }
     return env_override(env = env)
 
   @classmethod
@@ -78,6 +112,12 @@ class env_override(object):
     v.append(p)
     env = { 'PATH': v.value }
     return env_override(env = env)
+  
+  @classmethod
+  def tmpdir_files(clazz):
+    tmpdir = tempfile.gettempdir()
+    files = os.listdir(tmpdir)
+    return sorted([ path.join(tmpdir, f) for f in files ])
 
 def env_override_temp_home_func():
   'A decarator to override HOME for a function.'

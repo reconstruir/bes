@@ -10,6 +10,7 @@ from .semantic_version_lexer import semantic_version_lexer
 from collections import namedtuple
 
 class software_version(object):
+  'This class is obsolote.  Pleas use smeantic_version instead.'
   'Class to manipulate, sort and compare softeware versions numerically.'
   
   @classmethod

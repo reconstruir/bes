@@ -100,8 +100,9 @@ class git_temp_repo(object):
     return r
       
   @classmethod
-  def _make_temp_repo(clazz, init_args = None, content = None, debug = False, prefix = None, commit_message = None):
-    tmp_dir = temp_file.make_temp_dir(delete = not debug, prefix = prefix)
+  def _make_temp_repo(clazz, init_args = None, content = None, debug = False,
+                      prefix = None, commit_message = None, suffix = None):
+    tmp_dir = temp_file.make_temp_dir(delete = not debug, prefix = prefix, suffix = suffix)
     if debug:
       print('git_temp_repo: tmp_dir: %s' % (tmp_dir))
     r = git_repo(tmp_dir, address = None)

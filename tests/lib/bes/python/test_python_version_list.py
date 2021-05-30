@@ -11,13 +11,25 @@ class test_python_version_list(unit_test):
     self.assertEqual( self._make_list( '1.2.1 1.2.2 1.2.10'),
                       self._make_sorted_list('1.2.1 1.2.10 1.2.2') )
 
+  def test_sort_reversed(self):
+    self.assertEqual( self._make_list( '1.2.10 1.2.2 1.2.1'),
+                      self._make_sorted_list('1.2.1 1.2.10 1.2.2', reverse = True) )
+    
   def test_filter_by_version(self):
     self.assertEqual( self._make_list('1.2.1 1.2.2 1.2.10'),
-                      self._make_filter_by_version_list('1.2.1 1.2.10 1.2.2 1.3.1 1.3.2 1.4.9', '1.2') )
+                      self._make_filter_list('1.2.1 1.2.10 1.2.2 1.3.1 1.3.2 1.4.9', '1.2') )
+
+  def test_filter_by_version_no_match(self):
+    self.assertEqual( self._make_list(''),
+                      self._make_filter_list('1.2.1 1.2.10 1.2.2 1.3.1 1.3.2 1.4.9', '9.9') )
+    
+  def test_filter_by_full_version(self):
+    self.assertEqual( self._make_list('1.2.2'),
+                      self._make_filter_list('1.2.1 1.2.10 1.2.2 1.3.1 1.3.2 1.4.9', '1.2.2') )
 
   def test_filter_by_major_version(self):
     self.assertEqual( self._make_list('1.2.1 1.2.10'),
-                      self._make_filter_by_major_version_list('1.2.1 1.2.10 2.1.1 3.4.5 5.6.7', '1') )
+                      self._make_filter_list('1.2.1 1.2.10 2.1.1 3.4.5 5.6.7', '1') )
 
   def test__make_version_map(self):
     self.assertEqual( {
@@ -52,10 +64,11 @@ class test_python_version_list(unit_test):
 
   @classmethod                      
   def _make_list(clazz, s):
-    return python_version_list([ python_version(v) for v in s.split(' ') ])
+    parts = [ p for p in s.split(' ') if p ]
+    return python_version_list([ python_version(p) for p in parts ])
 
   @classmethod                      
-  def _make_filter_by_version_list(clazz, s, v):
+  def _make_filter_list(clazz, s, v):
     l = clazz._make_list(s)
     return l.filter_by_version(python_version(v))
 

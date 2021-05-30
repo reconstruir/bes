@@ -149,7 +149,9 @@ class git_util(object):
         print('DRY_RUN: {}: would bump "{}" component of tag {} to {}'.format(address, options.bump_tag_component, rv.old_tag, rv.new_tag))
       else:
         repo.bump_tag(options.bump_tag_component, push = True)
-    return clazz._run_scripts_result(scripts_results, repo.call_git([ 'status', '.' ]).stdout, repo.diff())
+    result = clazz._run_scripts_result(scripts_results, repo.call_git([ 'status', '.' ]).stdout, repo.diff())
+    file_util.remove(tmp_dir)
+    return result
 
   @classmethod
   def repo_run_operation(clazz, address, operation, commit_message, options = None):
@@ -176,6 +178,7 @@ class git_util(object):
                                 num_tries = options.num_tries,
                                 retry_wait_seconds = options.retry_wait_seconds,
                                 files_to_commit = options.files_to_commit)
+    file_util.remove(tmp_dir)
 
   @classmethod
   def repo_update_submodule(clazz, address, submodule, branch, revision, dry_run, blurber = None):

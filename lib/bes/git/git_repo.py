@@ -61,8 +61,8 @@ class git_repo(object):
   def init(self, *args):
     return git.init(self.root, *args)
 
-  def add(self, filenames):
-    return git.add(self.root, filenames)
+  def add(self, filenames, force = False):
+    return git.add(self.root, filenames, force = force)
 
   def remove(self, filenames):
     return git.remove(self.root, filenames)
@@ -624,5 +624,10 @@ class git_repo(object):
     src_path = src_repo.path(src_dir)
     dst_path = self.path(dst_dir)
 
-    
+  def tags_fetch(self, force = False):
+    return git.tags_fetch(self.root, force = force)
+
+  def commit_message(self, revision):
+    return git.commit_message(self.root, revision)
+
 check.register_class(git_repo)

@@ -6,19 +6,25 @@ from bes.common.check import check
 class file_check(object):
 
   @classmethod
-  def check_file(clazz, filename):
+  def check_file(clazz, filename, exception_class = None):
     check.check_string(filename)
+    check.check_class(exception_class, allow_none = True)
+
+    exception_class = exception_class or IOError
     if not path.exists(filename):
-      raise IOError('File not found: %s' % (filename))
+      raise exception_class('File not found: %s' % (filename))
     if not path.isfile(filename) or path.islink(filename):
-      raise IOError('Not a file: %s' % (filename))
+      raise exception_class('Not a file: %s' % (filename))
     return filename
 
   @classmethod
-  def check_dir(clazz, dirname):
+  def check_dir(clazz, dirname, exception_class = None):
     check.check_string(dirname)
+    check.check_class(exception_class, allow_none = True)
+
+    exception_class = exception_class or IOError
     if not path.exists(dirname):
-      raise IOError('Directory not found: %s' % (dirname))
+      raise exception_class('Directory not found: %s' % (dirname))
     if not path.isdir(dirname):
-      raise IOError('Not a directory: %s' % (dirname))
+      raise exception_class('Not a directory: %s' % (dirname))
     return dirname

@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import copy
 from collections import namedtuple
 
 from abc import abstractmethod, ABCMeta
@@ -15,16 +16,13 @@ class _computer_setup_register_meta(ABCMeta):
   
   def __new__(meta, name, bases, class_dict):
     clazz = ABCMeta.__new__(meta, name, bases, class_dict)
-    if name != 'computer_setup_base':
+    if name != 'computer_setup_task':
       #print('register: {}'.format(clazz.__name__))
       computer_setup_task_registry.register(clazz)
     return clazz
   
 class computer_setup_task(with_metaclass(_computer_setup_register_meta, object)):
 
-  def __init__(self):
-    self.values = key_value_list()
-  
   @abstractmethod
   def name(self):
     'Name for task.'
@@ -46,7 +44,7 @@ class computer_setup_task(with_metaclass(_computer_setup_register_meta, object))
     raise NotImplemented('is_needed')
 
   @abstractmethod
-  def run(self, options, args):
+  def run(self, options):
     'Run the task.'
     raise NotImplemented('run')
 

@@ -7,6 +7,7 @@ from bes.cli.argparser_handler import argparser_handler
 from bes.common.check import check
 from bes.common.inspect_util import inspect_util
 
+from .cli_missing_command_error import cli_missing_command_error
 from .cli_options import cli_options
 
 class cli_command_handler(object):
@@ -37,6 +38,8 @@ class cli_command_handler(object):
       return options, args
     
   def handle_command(self, command_name):
+    if not command_name:
+      raise cli_missing_command_error('{}.handle_command() - missing command'.format(self.__class__))
     check.check_string(command_name)
 
     if self._delegate:
@@ -50,6 +53,21 @@ class cli_command_handler(object):
   @classmethod
   def _check_delegate(clazz, delegate):
     spec = inspect_util.getargspec(delegate)
-    if False in ( bool(spec.args), len(spec.args) == 3, bool(spec.varargs), bool(spec.keywords) ):
+
+    criteria = []
+    criteria.append(bool(spec.args))
+    criteria.append(len(spec.args) == 3)
+    criteria.append(bool(spec.varargs))
+    if hasattr(spec, 'keywords'):
+      criteria.append(bool(spec.keywords))
+    
+    if False in criteria:
       msg = 'delegte signature should be exactly (self, command_name, options, *args, **kwargs) - {}'.format(delegate)
       raise RuntimeError(msg)
+
+  def handle_boolean_result(self, result, verbose):
+    if verbose:
+      print(str(result))
+    return 0 if result else 1
+  
+    

@@ -47,17 +47,19 @@ class best_cli(cli):
   from bes.docker.docker_cli_args import docker_cli_args
   from bes.egg.egg_cli_args import egg_cli_args
   from bes.git.git_cli_args import git_cli_args
+  from bes.git.git_download_cli_args import git_download_cli_args
   from bes.git.git_identity_cli_args import git_identity_cli_args
   from bes.git.git_repo_cli_args import git_repo_cli_args
   from bes.git.git_repo_document_cli_args import git_repo_document_cli_args
   from bes.git.git_repo_script_cli_args import git_repo_script_cli_args
   from bes.native_package.native_package_cli_args import native_package_cli_args
-  from bes.pip.pip_cli_args import pip_cli_args
-  from bes.pip.pip_installer_cli_args import pip_installer_cli_args
-  from bes.pip.pip_project_cli_args import pip_project_cli_args
   from bes.properties_file_v2.properties_file_cli_args import properties_file_cli_args
+  from bes.pyinstaller.pyinstaller_cli_args import pyinstaller_cli_args
+  from bes.python.pip_cli_args import pip_cli_args
+  from bes.python.pip_installer_cli_args import pip_installer_cli_args
+  from bes.python.pip_project_cli_args import pip_project_cli_args
   from bes.python.python_cli_args import python_cli_args
-  from bes.python.python_installer_cli_args import python_installer_cli_args
+  from bes.python_installer.python_installer_cli_args import python_installer_cli_args
   from bes.vm_builder.vm_builder_cli_args import vm_builder_cli_args
   from bes.vmware.vmware_app_cli_args import vmware_app_cli_args
   from bes.vmware.vmware_cli_args import vmware_cli_args
@@ -76,6 +78,7 @@ class best_cli(cli):
     cli_command('git', 'git_add_args', 'Deal with git', git_cli_args),
     cli_command('git_identity', 'git_identity_add_args', 'Deal with git identity', git_identity_cli_args),
     cli_command('git_repo', 'git_repo_add_args', 'Deal with git repos', git_repo_cli_args),
+    cli_command('git_download', 'git_download_add_args', 'Deal with git downloads', git_download_cli_args),
     cli_command('git_repo_document', 'git_repo_document_add_args', 'Deal with git documents', git_repo_document_cli_args),
     cli_command('git_repo_script', 'git_repo_script_add_args', 'Deal with git repo scipts', git_repo_script_cli_args),
     cli_command('native_package', 'native_package_add_args', 'Deal with native packages', native_package_cli_args),
@@ -85,6 +88,7 @@ class best_cli(cli):
     cli_command('properties_file', 'properties_file_add_args', 'Deal with properties files', properties_file_cli_args),
     cli_command('python', 'python_add_args', 'Deal with python', python_cli_args),
     cli_command('python_installer', 'python_installer_add_args', 'Deal with python install', python_installer_cli_args),
+    cli_command('pyinstaller', 'pyinstaller_add_args', 'Deal with PyInstaller', pyinstaller_cli_args),
     cli_command('system', 'system_add_args', 'Deal with system', system_cli_args),
     cli_command('vm_builder', 'vm_builder_add_args', 'VM Builder stuff', vm_builder_cli_args),
     cli_command('vmware', 'vmware_add_args', 'Deal with vmware', vmware_cli_args),    

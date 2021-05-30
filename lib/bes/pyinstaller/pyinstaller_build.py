@@ -1,9 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os, re
+from collections import namedtuple
+
+import copy
+import os
 from os import path
 
 from bes.common.check import check
+from bes.fs.file_util import file_util
+from bes.fs.filename_util import filename_util
 from bes.fs.temp_file import temp_file
 from bes.system.command_line import command_line
 from bes.system.log import logger
@@ -17,7 +22,8 @@ class pyinstaller_build(object):
   log = logger('pyinstaller')
 
   VALID_LOG_LEVELS = [ 'DEBUG', 'INFO' ]
-  
+
+  _build_result = namedtuple('_build_result', 'output_exe')
   @classmethod
   def build(clazz, script_filename,
             python_path = None,
@@ -25,13 +31,14 @@ class pyinstaller_build(object):
             excludes = None,
             hidden_imports = None,
             verbose = False,
-            cwd = None):
+            build_dir = None,
+            replace_env = None):
     check.check_string(script_filename)
     check.check_string_seq(python_path, allow_none = True)
     check.check_string(log_level, allow_none = True)
     check.check_string_seq(excludes, allow_none = True)
     check.check_string_seq(hidden_imports, allow_none = True)
-    check.check_string(cwd, allow_none = True)
+    check.check_string(build_dir, allow_none = True)
     check.check_bool(verbose)
 
     if not path.isfile(script_filename):
@@ -56,17 +63,22 @@ class pyinstaller_build(object):
 
     args = basic_args + log_args + excludes_args + hidden_imports_args + [ script_filename ]
 
-    replace_env = {}
+    replace_env = copy.deepcopy(replace_env or {})
     if python_path:
       replace_env['PYTHONPATH'] = os.pathsep.join(python_path)
-    
+
+    output_exe = path.join(build_dir, 'dist', clazz._binary_basename(script_filename))
     pyinstaller_exe.call_pyinstaller(args,
                                      replace_env = replace_env,
-                                     non_blocking = verbose,
-                                     cwd = cwd)
+                                     build_dir = build_dir)
+    return clazz._build_result(output_exe)
 
   @classmethod
   def _make_arg_pair_list(clazz, flag, items):
     pairs = [ '{} {}'.format(flag, item) for item in items ]
     flat = ' '.join(pairs)
     return command_line.parse_args(flat)
+
+  @classmethod                          
+  def _binary_basename(clazz, script_filename):
+    return path.basename(filename_util.without_extension(script_filename))

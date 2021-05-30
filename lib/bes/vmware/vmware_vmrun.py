@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
+
+import codecs
 import os.path as path
 import subprocess
 
@@ -58,7 +60,9 @@ class vmware_vmrun(object):
     if no_output:
       output = None
     else:
-      output, _ = process.communicate()
+      output_bytes, _ = process.communicate()
+      output = codecs.decode(output_bytes, 'utf-8')
+      
     exit_code = process.wait()
     self._log.log_d('run: exit_code={} output="{}"'.format(exit_code, output))
     if exit_code != 0 and raise_error:

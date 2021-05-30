@@ -50,6 +50,14 @@ class filename_util(object):
     left, _ = path.splitext(filename)
     return left
 
+  @classmethod
+  def add_extension(clazz, filename, extension):
+    'Return the filename with extension.'
+    check.check_string(filename)
+    check.check_string(extension)
+
+    return filename + path.extsep + extension
+  
   _split_filename = namedtuple('_split_filename', 'root, extension')
   @classmethod
   def split_extension(clazz, filename):

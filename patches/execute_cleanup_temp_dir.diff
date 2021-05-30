@@ -1,0 +1,66 @@
+diff --git a/lib/bes/system/execute.py b/lib/bes/system/execute.py
+index 60dde9ef..63dd5c89 100755
+--- a/lib/bes/system/execute.py
++++ b/lib/bes/system/execute.py
+@@ -6,6 +6,7 @@ from collections import namedtuple
+ 
+ from .command_line import command_line
+ from .compat import compat
++from .filesystem import filesystem
+ from .host import host
+ from .log import logger
+ from .python import python
+@@ -20,9 +21,10 @@ class execute(object):
+   @classmethod
+   def execute(clazz, args, raise_error = True, non_blocking = False, stderr_to_stdout = False,
+               cwd = None, env = None, shell = False, input_data = None, universal_newlines = True,
+-              codec = None, print_failure = True, quote = False, check_python_script = True):
++              codec = None, print_failure = True, quote = False, check_python_script = True,
++              cleanup_tmp_dir = False):
+     'Execute a command'
+-    clazz._log.log_d('raise_error={raise_error} non_blocking={non_blocking} stderr_to_stdout={stderr_to_stdout} cwd={cwd} shell={shell} input_data={input_data} universal_newlines={universal_newlines} print_failure={print_failure} quote={quote}'.format(**locals()))
++    clazz._log.log_d('raise_error={raise_error} non_blocking={non_blocking} stderr_to_stdout={stderr_to_stdout} cwd={cwd} shell={shell} input_data={input_data} universal_newlines={universal_newlines} print_failure={print_failure} quote={quote} cleanup_tmp_dir={cleanup_tmp_dir}'.format(**locals()))
+     
+     parsed_args = command_line.parse_args(args, quote = quote)
+     stdout_pipe = subprocess.PIPE
+@@ -44,6 +46,10 @@ class execute(object):
+       # FIXME: quoting ?
+ 
+     clazz._log.log_d('parsed_args={}'.format(parsed_args))
++    if cleanup_tmp_dir:
++      tmpdir_files_before = clazz._tmpdir_files()
++    else:
++      tmpdir_files_before = None
+     try:
+       process = subprocess.Popen(parsed_args,
+                                  stdout = stdout_pipe,
+@@ -59,6 +65,16 @@ class execute(object):
+         sys.stderr.write('\n')
+         sys.stderr.flush()
+       raise
++    finally:
++      if cleanup_tmp_dir:
++        assert tmpdir_files_before != None
++        tmpdir_files_after = clazz._tmpdir_files()
++        delta = list(set(tmpdir_files_after) - set(tmpdir_files_before))
++        from .log import log
++        log.console('delta={}'.format(delta))
++        raise SystemExit(0)
++        if delta:
++          filesystem.remove(delta)
+ 
+     # http://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
+     stdout_lines = []
+@@ -139,3 +155,12 @@ class execute(object):
+       raise
+     finally:
+       os.remove(tmp)
++
++  @classmethod
++  def _tmpdir_files(clazz):
++    filesystem.sync()
++    tmpdir = tempfile.gettempdir()
++    from .log import log
++    log.console('tmpdir={}'.format(tmpdir))
++    files = os.listdir(tmpdir)
++    return sorted([ path.join(tmpdir, f) for f in files ])

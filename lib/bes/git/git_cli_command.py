@@ -9,6 +9,7 @@ from bes.common.table import table
 from bes.git.git import git
 from bes.git.git_ref_where import git_ref_where
 from bes.git.git_repo import git_repo
+from bes.git.git_error import git_error
 from bes.system.log import logger
 from bes.text.text_box import text_box_colon
 from bes.text.text_box import text_box_unicode
@@ -87,7 +88,6 @@ class git_cli_command(cli_command_handler):
     check.check_bool(remote, allow_none = True)
     check.check_string(prefix, allow_none = True)
     check.check_int(limit, allow_none = True)
-    check.check_string(prefix, allow_none = True)
     check.check_string(sort_type, allow_none = True)
     check.check_bool(reverse)
 
@@ -132,16 +132,17 @@ class git_cli_command(cli_command_handler):
     print(tt)
     return 0
 
-  def tag(self, tag, local, remote, commit):
+  def tag(self, tag, local, remote, commit, annotation):
     check.check_bool(local, allow_none = True)
     check.check_bool(remote, allow_none = True)
     check.check_string(commit, allow_none = True)
+    check.check_string(annotation, allow_none = True)
     
     where = git_ref_where.determine_where(local, remote)
     if not tag:
       self._tag_print(self.options.root_dir, where)
     else:
-      self._tag_set(self.options.root_dir, tag, where, commit)
+      self._tag_set(self.options.root_dir, tag, where, commit, annotation)
     return 0
     
   @classmethod
@@ -159,8 +160,8 @@ class git_cli_command(cli_command_handler):
       print(msg)
 
   @classmethod
-  def _tag_set(clazz, root_dir, tag, where, commit):
-    git.tag(root_dir, tag, allow_downgrade = True, commit = commit)
+  def _tag_set(clazz, root_dir, tag, where, commit, annotation):
+    git.tag(root_dir, tag, allow_downgrade = True, commit = commit, annotation = annotation)
     git.push_tag(root_dir, tag)
     
   def retag(self, tag = None):
@@ -247,4 +248,32 @@ class git_cli_command(cli_command_handler):
   def long_commit(self, commit):
     long_commit = git.long_hash(self.options.root_dir, commit)
     print(long_commit)
+    return 0
+
+  def remote_print(self, name):
+    check.check_string(name)
+
+    repo = git_repo(self.options.root_dir)
+    url = repo.remote_get_url(name = name)
+    print(url or '')
+    return 0
+
+  def remote_replace(self, name, new_url, test):
+    check.check_string(name)
+    check.check_string(new_url)
+    check.check_bool(test)
+
+    repo = git_repo(self.options.root_dir)
+    old_url = repo.remote_get_url(name = name)
+    repo.remote_set_url(new_url, name = name)
+    revert = False
+    if test:
+      try:
+        repo.list_remote_tags()
+      except git_error as ex:
+        revert = True
+    if revert:
+      print('Failed to test url {}'.format(new_url))
+      repo.remote_set_url(old_url, name = name)
+      print('Reverted to {}'.format(old_url))
     return 0

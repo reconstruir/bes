@@ -51,30 +51,50 @@ class python_exe(object):
     return clazz.full_version(exe).major_version
   
   @classmethod
-  def find_version(clazz, version, exclude_sources = None, sanitize_path = True):
+  def find_version_info(clazz, version, exclude_sources = None, sanitize_path = True):
     'Return the python executable for major.minor version or None if not found'
-    check.check_string(version)
+    version = python_version.check_version(version)
     check.check_seq(exclude_sources, check.STRING_TYPES, allow_none = True)
     
     all_info = clazz.find_all_exes_info(exclude_sources = exclude_sources,
                                         sanitize_path = sanitize_path)
     for next_exe, info in all_info.items():
       if info.version == version:
-        return next_exe
+        return info
     return None
 
   @classmethod
-  def find_full_version(clazz, full_version, exclude_sources = None, sanitize_path = True):
+  def find_version(clazz, version, exclude_sources = None, sanitize_path = True):
     'Return the python executable for major.minor version or None if not found'
-    check.check_string(full_version)
+    info = clazz.find_version_info(version,
+                                   exclude_sources = exclude_sources,
+                                   sanitize_path = sanitize_path)
+    if not info:
+      return None
+    return info.exe
+  
+  @classmethod
+  def find_full_version_info(clazz, full_version, exclude_sources = None, sanitize_path = True):
+    'Return the python executable for major.minor version or None if not found'
+    version = python_version.check_version(full_version)
     check.check_seq(exclude_sources, check.STRING_TYPES, allow_none = True)
     
     all_info = clazz.find_all_exes_info(exclude_sources = exclude_sources,
                                              sanitize_path = sanitize_path)
     for next_exe, info in all_info.items():
-      if str(clazz.full_version(next_exe)) == full_version:
-        return next_exe
+      if info.full_version == full_version:
+        return info
     return None
+
+  @classmethod
+  def find_full_version(clazz, full_version, exclude_sources = None, sanitize_path = True):
+    'Return the python executable for major.minor version or None if not found'
+    info = clazz.find_full_version_info(full_version,
+                                        exclude_sources = exclude_sources,
+                                        sanitize_path = sanitize_path)
+    if not info:
+      return None
+    return info.exe
   
   @classmethod
   def has_version(clazz, version, sanitize_path = True):
@@ -107,8 +127,8 @@ class python_exe(object):
     clazz.check_exe(exe)
     
     main_exe, exe_links = clazz._determine_main_exe_and_links(exe)
-    from .python_installation_v2 import python_installation_v2
-    piv = python_installation_v2(main_exe)
+    from .python_installation import python_installation
+    piv = python_installation(main_exe)
     sys_executable = python_script.sys_executable(main_exe)
     real_executable = file_symlink.resolve(sys_executable)
     source = python_source.exe_source(main_exe)
@@ -177,7 +197,7 @@ class python_exe(object):
       return None
     by_version = {}
     for _, next_info in all_info.items():
-      by_version[next_info.version] = next_info
+      by_version[str(next_info.version)] = next_info
     for version in clazz._DEFAULT_EXE_VERSION_LOOKUP_ORDER:
       info = by_version.get(version, None)
       if info:

@@ -3,6 +3,7 @@
 import os, os.path as path, re, time
 from datetime import datetime
 from collections import namedtuple
+import tempfile
 
 from bes.archive.archiver import archiver
 from bes.common.check import check
@@ -98,9 +99,10 @@ class git(git_lfs):
     return clazz.status(root_dir, '.', untracked_files = untracked_files) != []
 
   @classmethod
-  def add(clazz, root_dir, filenames):
+  def add(clazz, root_dir, filenames, force = False):
     filenames = object_util.listify(filenames)
-    args = [ 'add' ] + filenames
+    force_args = [ '--force' ] if force else []
+    args = [ 'add' ] + force_args + filenames
     return git_exe.call_git(root_dir, args)
 
   @classmethod
@@ -146,7 +148,7 @@ class git(git_lfs):
     
     address = git_address_util.resolve(address)
     options = options or git_clone_options()
-    clazz.log.log_d('clone: address={} root_dir={} options={}'.format(address, root_dir, options.pformat()))
+    clazz.log.log_d('clone: address={} root_dir={} options={}'.format(address, root_dir, options))
     
     if path.exists(root_dir):
       if not path.isdir(root_dir):
@@ -239,7 +241,7 @@ class git(git_lfs):
     
     options = options or git_clone_options()
     branch_name = branch_name or options.branch
-    clazz.log.log_d('pull: root_dir={} branch_name={} options={}'.format(root_dir, branch_name, options.pformat()))
+    clazz.log.log_d('pull: root_dir={} branch_name={} options={}'.format(root_dir, branch_name, options))
 
     args = []
     if remote_name:
@@ -267,7 +269,7 @@ class git(git_lfs):
       clazz.checkout(root_dir, 'master')
 
     if not options.no_network:
-      git_exe.call_git(root_dir, 'fetch --tags')
+      clazz.tags_fetch(root_dir, force = True)
       clazz._call_pull(root_dir, *args)
 
     if options.branch:
@@ -364,7 +366,7 @@ class git(git_lfs):
     options = options or git_clone_options()
     clazz.log.log_d('clone_or_pull: address={} root_dir={} options={}'.format(address,
                                                                               root_dir,
-                                                                              options.pformat()))
+                                                                              options))
     if clazz.is_repo(root_dir):
       clazz.pull(root_dir, options = options)
     else:
@@ -549,8 +551,11 @@ class git(git_lfs):
     git_exe.call_git(root_dir, [ 'push', 'origin', tag ])
 
   @classmethod
-  def tags_fetch(clazz, root_dir, tag):
-    git_exe.call_git(root_dir, 'fetch --tags')
+  def tags_fetch(clazz, root_dir, force = False):
+    args = [ 'fetch', '--tags' ]
+    if force:
+      args.append('--force')
+    git_exe.call_git(root_dir, args)
     
   @classmethod
   def delete_local_tag(clazz, root_dir, tag):
@@ -574,13 +579,13 @@ class git(git_lfs):
     if where in ( 'local', 'both' ):
       if git.has_local_tag(root_dir, tag):
         if dry_run:
-          print('would delete local tag \"{tag}\"'.format(tag = tag))
+          print('DRY_RUN: would delete local tag \"{tag}\"'.format(tag = tag))
         else:
           clazz.delete_local_tag(root_dir, tag)
     if where in ( 'remote', 'both' ):
       if git.has_remote_tag(root_dir, tag):
         if dry_run:
-          print('would delete remote tag \"{tag}\"'.format(tag = tag))
+          print('DRY_RUN: would delete remote tag \"{tag}\"'.format(tag = tag))
         else:
           clazz.delete_remote_tag(root_dir, tag)
 
@@ -634,6 +639,17 @@ class git(git_lfs):
                                          limit = limit,
                                          prefix = prefix)
 
+  @classmethod
+  def list_remote_tags_for_address(clazz, address, sort_type = None, reverse = False,
+                                   limit = None, prefix = None):
+    rv = git_exe.call_git(tempfile.gettempdir(), [ 'ls-remote', '--tags', address ])
+    clazz.log.log_d('list_remote_tags_for_address: stdout="{}"'.format(rv.stdout))
+    return git_tag.parse_show_ref_output(rv.stdout,
+                                         sort_type = sort_type,
+                                         reverse = reverse,
+                                         limit = limit,
+                                         prefix = prefix)
+  
   @classmethod
   def greatest_remote_tag(clazz, root, prefix = None):
     tags = clazz.list_remote_tags(root, sort_type = 'version', prefix = prefix)

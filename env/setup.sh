@@ -6,21 +6,20 @@ _bes_dev_root()
   return 0
 }
 
-_BES_DEV_ROOT="$(_bes_dev_root)"
-
-source ${_BES_DEV_ROOT}/bes_shell/bes_shell.sh
+source "$(_bes_dev_root)/bes_shell/bes_shell.sh"
 
 bes_dev()
 {
-#  source ~/.rebuild/bes_deps/setup.sh
-#  bes_deps_setup
-  bes_setup ${_BES_DEV_ROOT} ${1+"$@"}
+  local _root_dir=$(_bes_dev_root)
+  bes_setup "${_root_dir}" ${1+"$@"}
+  source "${_root_dir}/env/bes_venv_activate.bash"
   return 0
 }
 
 bes_undev()
 {
-  bes_unsetup ${_BES_DEV_ROOT}
+  local _root_dir=$(_bes_dev_root)
+  bes_unsetup ${_root_dir}
   return 0
 }
 

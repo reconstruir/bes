@@ -8,11 +8,10 @@ from bes.common.check import check
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.system.compat import compat
-from bes.system.log import log
-
 from bes.system.env_var import os_env_var
-from bes.system.which import which
 from bes.system.filesystem import filesystem
+from bes.system.log import log
+from bes.system.which import which
 
 class file_util(object):
 
@@ -33,15 +32,7 @@ class file_util(object):
   @classmethod
   def remove(clazz, files):
     files = object_util.listify(files)
-    for f in files:
-      try:
-        if path.isdir(f):
-          shutil.rmtree(f)
-        else:
-          os.remove(f)
-      except Exception as ex:
-        clazz.log_d('file_util.remove: Caught exception %s removing %s' % (ex, f))
-        pass
+    filesystem.remove(files, raise_not_found_error = False)
 
   @classmethod
   def save(clazz, filename, content = None, mode = None, codec = 'utf-8'):
@@ -334,7 +325,7 @@ class file_util(object):
   def sync(clazz):
     'Call unix sync()'
     filesystem.sync()
-
+    
   @classmethod
   @contextlib.contextmanager
   def open_with_default(clazz, filename = None, mode = None):
@@ -345,12 +336,14 @@ class file_util(object):
     mode = mode or 'w'
     if filename and filename != '-':
       fh = open(filename, mode)
+      using_stdout = False
     else:
-      fh = sys.stdout
+      fh = os.fdopen(sys.stdout.fileno(), mode, closefd = False)
+      using_stdout = True
     try:
       yield fh
     finally:
-      if fh is not sys.stdout:
+      if not using_stdout:
         fh.close()
 
   @classmethod

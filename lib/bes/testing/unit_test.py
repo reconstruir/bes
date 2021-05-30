@@ -141,7 +141,6 @@ class unit_test(unittest.TestCase):
 
   def assert_json_file_equal(self, expected, filename):
     self.assert_text_file_equal(expected, filename,
-                                multi_line = True,
                                 strip = True,
                                 codec = 'utf-8',
                                 preprocess_func = self._json_normalize)
@@ -450,7 +449,8 @@ class unit_test(unittest.TestCase):
     for f in files:
       try:
         if path.isdir(f):
-          shutil.rmtree(f)
+          from bes.system.filesystem import filesystem
+          filesystem.remove_directory(f)
         else:
           os.remove(f)
       except Exception as ex:

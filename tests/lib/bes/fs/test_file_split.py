@@ -26,26 +26,31 @@ class test_file_split(unit_test):
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit(unsplit_tmp_archive, files)
     self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
-
+    file_util.remove(files)
+    
     files = file_split.split(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 2)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit(unsplit_tmp_archive, files)
     self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
+    file_util.remove(files)
 
     files = file_split.split(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 3)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit(unsplit_tmp_archive, files)
     self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
+    file_util.remove(files)
     
     files = file_split.split(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 4)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit(unsplit_tmp_archive, files)
     self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
+    file_util.remove(files)
     
     files = file_split.split(tmp_archive, int(math.floor(file_util.size(tmp_archive) / 5)))
     unsplit_tmp_archive = self.make_temp_file()
     file_split.unsplit(unsplit_tmp_archive, files)
     self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
+    file_util.remove(files)
     
   @classmethod
   def _make_content(clazz, size):

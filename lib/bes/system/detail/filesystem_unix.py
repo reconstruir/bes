@@ -1,10 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os
+import shutil
 import subprocess
 
-from .filesystem_base import filesystem_base
 from bes.system.compat import compat
+
+from .filesystem_base import filesystem_base
 
 class filesystem_unix(filesystem_base):
 
@@ -30,3 +32,9 @@ class filesystem_unix(filesystem_base):
   def has_symlinks(self):
     'Return True if this system has support for symlinks.'
     return True
+
+  @classmethod
+  #@abstractmethod
+  def remove_directory(self, d):
+    'Recursively remove a directory.'
+    shutil.rmtree(d)

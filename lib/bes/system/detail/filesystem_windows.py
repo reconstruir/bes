@@ -1,6 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
-
 from __future__ import print_function
+
+import os
+import os.path as path
+import subprocess
 import ctypes
 from ctypes import wintypes
 
@@ -221,3 +224,17 @@ class filesystem_windows(filesystem_base):
     # https://stackoverflow.com/questions/2094663/determine-if-windows-process-has-privilege-to-create-symbolic-link
     return enable_symlink_privilege()
   
+  @classmethod
+  #@abstractmethod
+  def remove_directory(self, d):
+    'Recursively remove a directory.'
+
+    if 'SYSTEMROOT' in os.environ:
+      system_root = os.environ['SYSTEMROOT']
+    else:
+      system_root = r'C:\Windows'
+    cmd_exe = path.join(system_root, 'system32', 'cmd.exe')
+    cmd = [
+      cmd_exe, '/C', 'rmdir', '/S', '/Q', d,
+    ]
+    subprocess.check_call(cmd)

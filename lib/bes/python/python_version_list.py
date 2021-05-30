@@ -34,31 +34,14 @@ class python_version_list(type_checked_list):
     
   def filter_by_version(self, version):
     check.check_python_version(version)
-    if not check.is_python_version(version):
-      major_version = python_version(version)
-    assert version.is_version()
 
     result = python_version_list()
-    for next_full_version in self:
-      if not next_full_version.is_full_version():
-        raise python_error('Not a python full version: "{}"'.format(next_full_version))
-      if next_full_version.version == version:
-        result.append(next_full_version)
-    result.sort()
-    return result
-
-  def filter_by_major_version(self, major_version):
-    if not check.is_python_version(major_version):
-      major_version = python_version(major_version)
-    check.check_python_version(major_version)
-    assert major_version.is_major_version()
-
-    result = python_version_list()
-    for next_full_version in self:
-      if not next_full_version.is_full_version():
-        raise python_error('Not a python full version: "{}"'.format(next_full_version))
-      if next_full_version.major_version == major_version:
-        result.append(next_full_version)
+    if version.is_full_version():
+      result.extend([ v for v in self if v.is_full_version() and v == version ])
+    elif version.is_version():
+      result.extend([ v for v in self if len(v) >= 2 and v.version == version ])
+    elif version.is_major_version():
+      result.extend([ v for v in self if len(v) >= 1 and v.major_version == version ])
     result.sort()
     return result
 
