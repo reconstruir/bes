@@ -4,7 +4,7 @@ from bes.common.check import check
 
 from .git_config import git_config
 
-class git_identity_cli_command(object):
+class git_identity_cli_handler(object):
 
   @classmethod
   def handle_command(clazz, command, **kargs):

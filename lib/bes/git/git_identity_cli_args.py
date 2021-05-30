@@ -38,5 +38,5 @@ class git_identity_cli_args(object):
                    help = 'The email of the git user. []')
 
   def _command_git_identity(self, command, *args, **kargs):
-    from .git_identity_cli_command import git_identity_cli_command
-    return git_identity_cli_command.handle_command(command, **kargs)
+    from .git_identity_cli_handler import git_identity_cli_handler
+    return git_identity_cli_handler.handle_command(command, **kargs)

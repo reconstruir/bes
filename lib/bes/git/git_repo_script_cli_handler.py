@@ -9,13 +9,13 @@ from bes.system.command_line import command_line
 from .git_repo_script_options import git_repo_script_options
 from .git_util import git_util
 
-class git_repo_script_cli_command(object):
+class git_repo_script_cli_handler(object):
 
   @classmethod
   def handle_command(clazz, command, **kargs):
     options = git_repo_script_options(**kargs)
     filtered_args = argparser_handler.filter_keywords_args(git_repo_script_options, kargs)
-    func = getattr(git_repo_script_cli_command, command)
+    func = getattr(git_repo_script_cli_handler, command)
     return func(options, **filtered_args)
   
   @classmethod

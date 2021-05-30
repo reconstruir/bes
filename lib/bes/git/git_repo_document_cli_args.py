@@ -48,5 +48,5 @@ class git_repo_document_cli_args(object):
                      os.path.relpath(default_working_dir)))
 
   def _command_git_repo_document(self, command, *args, **kargs):
-    from .git_repo_document_cli_command import git_repo_document_cli_command
-    return git_repo_document_cli_command.handle_command(command, **kargs)
+    from .git_repo_document_cli_handler import git_repo_document_cli_handler
+    return git_repo_document_cli_handler.handle_command(command, **kargs)
