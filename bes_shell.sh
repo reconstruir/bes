@@ -1166,6 +1166,27 @@ function bes_atexit_message_successful()
   return ${_actual_exit_code}
 }
 
+function bes_atexit_remove_dir_handler()
+{
+  local _actual_exit_code=$?
+  if [[ $# != 1 ]]; then
+    bes_message "Usage: _bes_atexit_remove_dir_handler dir"
+    return 1
+  fi
+  local _dir="${1}"
+  if [[ -e "${_dir}" ]]; then
+    if [[ ! -d "${_dir}" ]]; then
+      bes_message "_bes_atexit_remove_dir_handler: not a directory: ${_dir}"
+      return 1
+    fi
+    bes_debug_message "_bes_atexit_remove_dir_handler: removing ${_dir}"
+    /bin/rm -rf ${_dir}
+  else
+    bes_debug_message "_bes_atexit_remove_dir_handler: directory not found ${_dir}"
+  fi
+  return ${_actual_exit_code}
+}
+
 # DEPRECATED: use bes_abs_dir instead
 # Return the absolute path for the path arg
 function bes_abs_path()
@@ -1229,7 +1250,7 @@ function bes_str_split()
   return 0
 }
 
-# reuturn just the extension of a file
+# return just the extension of a file
 function bes_file_extension()
 {
   if [[ $# < 1 ]]; then
@@ -1240,6 +1261,19 @@ function bes_file_extension()
   local _base=$($_BES_BASENAME_EXE -- "${_filename}")
   local _ext="${_base##*.}"
   echo "${_ext}"
+  return 0
+}
+
+# print the file size in bytes
+function bes_file_size()
+{
+  if [[ $# < 1 ]]; then
+    bes_message "usage: bes_file_size filename"
+    return 1
+  fi
+  local _filename="${1}"
+  local _file_size=$(wc -c < "${_filename}" | tr -d ' ')
+  echo "${_file_size}"
   return 0
 }
 
