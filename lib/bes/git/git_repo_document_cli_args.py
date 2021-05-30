@@ -7,7 +7,7 @@ from bes.common.check import check
 from bes.git.git_repo_script_options import git_repo_script_options
 from bes.git.git_clone_options import git_clone_options
 
-from .git_cli_command import git_cli_command
+from .git_cli_handler import git_cli_handler
 
 class git_repo_document_cli_args(object):
 

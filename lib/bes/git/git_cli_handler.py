@@ -23,12 +23,12 @@ from .git_cli_util import git_cli_util
 from .git_output import git_output
 from .git_tag import git_tag_list
 
-class git_cli_command(cli_command_handler):
+class git_cli_handler(cli_command_handler):
 
   _log = logger('git_cli')
   
   def __init__(self, cli_args):
-    super(git_cli_command, self).__init__(cli_args, options_class = git_cli_options)
+    super(git_cli_handler, self).__init__(cli_args, options_class = git_cli_options)
     check.check_git_cli_options(self.options)
 
   _DELTA_MAP = {
@@ -175,7 +175,7 @@ class git_cli_command(cli_command_handler):
 
   class branch_active_cell_renderer(text_cell_renderer):
     def __init__(self, *args, **kargs):
-      super(git_cli_command.branch_active_cell_renderer, self).__init__(*args, **kargs)
+      super(git_cli_handler.branch_active_cell_renderer, self).__init__(*args, **kargs)
     def render(self, value, width = None, is_label = False):
       if is_label:
         return value
@@ -183,7 +183,7 @@ class git_cli_command(cli_command_handler):
       
   class branch_ahead_behind_cell_renderer(text_cell_renderer):
     def __init__(self, *args, **kargs):
-      super(git_cli_command.branch_ahead_behind_cell_renderer, self).__init__(*args, **kargs)
+      super(git_cli_handler.branch_ahead_behind_cell_renderer, self).__init__(*args, **kargs)
     def render(self, value, width = None, is_label = False):
       if is_label:
         return value
