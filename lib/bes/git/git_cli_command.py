@@ -9,6 +9,7 @@ from bes.common.table import table
 from bes.git.git import git
 from bes.git.git_ref_where import git_ref_where
 from bes.git.git_repo import git_repo
+from bes.git.git_error import git_error
 from bes.system.log import logger
 from bes.text.text_box import text_box_colon
 from bes.text.text_box import text_box_unicode
@@ -247,4 +248,32 @@ class git_cli_command(cli_command_handler):
   def long_commit(self, commit):
     long_commit = git.long_hash(self.options.root_dir, commit)
     print(long_commit)
+    return 0
+
+  def remote_print(self, name):
+    check.check_string(name)
+
+    repo = git_repo(self.options.root_dir)
+    url = repo.remote_get_url(name = name)
+    print(url)
+    return 0
+
+  def remote_replace(self, name, new_url, test):
+    check.check_string(name)
+    check.check_string(new_url)
+    check.check_bool(test)
+
+    repo = git_repo(self.options.root_dir)
+    old_url = repo.remote_get_url(name = name)
+    repo.remote_set_url(new_url, name = name)
+    revert = False
+    if test:
+      try:
+        repo.list_remote_tags()
+      except git_error as ex:
+        revert = True
+    if revert:
+      print('Failed to test url {}'.format(new_url))
+      repo.remote_set_url(old_url, name = name)
+      print('Reverted to {}'.format(old_url))
     return 0

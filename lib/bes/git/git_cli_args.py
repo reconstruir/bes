@@ -96,6 +96,30 @@ class git_cli_args(object):
                    help = 'The git commit hash. [ None ]')
     self._git_add_common_args(p)
 
+#2. rename the origin
+#cd rebuild
+#git remote rename origin upstream
+#
+#3. add the new remote origin
+#git remote add origin git@github.com:reconstruir/rebuild.git
+#git remote add origin https://github.com/reconstruir/rebuild.git
+    
+    # git_remote_print
+    p = subparser.add_parser('remote_print', help = 'Print the remote url.')
+    p.add_argument('--name', action = 'store', type = str, default = 'origin',
+                   help = 'The remote name.  Usually origin. [ origin ]')
+    self._git_add_common_args(p)
+
+    # git_remote_replace
+    p = subparser.add_parser('remote_replace', help = 'Replace the remote url with a new one.')
+    p.add_argument('--name', action = 'store', type = str, default = 'origin',
+                   help = 'The remote name.  Usually origin. [ origin ]')
+    p.add_argument('--test', action = 'store_true', default = False,
+                   help = 'Test whether the new remote works. [ False ]')
+    p.add_argument('url', action = 'store', type = str, default = None,
+                   help = 'The url for the remote. []')
+    self._git_add_common_args(p)
+    
   @classmethod
   def _git_add_common_args(clazz, p):
     p.add_argument('--root-dir', action = 'store', default = None,
