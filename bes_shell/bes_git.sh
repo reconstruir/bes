@@ -394,7 +394,7 @@ function bes_git_pack_size()
   else
     _repo="$(pwd)"
   fi
-  local _pack_size=$(bes_git_call "${_repo}" && ${BES_GIT_EXE:-git} count-objects -v | grep size-pack  | awk '{ print $2; }')
+  local _pack_size=$(bes_git_call "${_repo}" count-objects -v | grep size-pack  | awk '{ print $2; }')
   echo ${_pack_size}
   return 0
 }
@@ -497,10 +497,11 @@ function bes_git_list_remote_tags()
     return 1
   fi
   bes_git_call "${_root_dir}" \
-    ls-remote --tags --sort=version:refname 2> "${_BES_GIT_LOG_FILE}" | \
+    ls-remote --tags 2> "${_BES_GIT_LOG_FILE}" | \
     awk '{ print $2; }' | \
     sed 's/refs\/tags\///' | \
     sed 's/\^{}//' | \
+    sort -V | \
     uniq
   return 0
 }
@@ -637,7 +638,7 @@ function bes_git_repo_latest_tag()
   rm -rf "${_tmp}"
   mkdir -p "${_tmp}"
   git clone ${_address} "${_tmp}" >& /dev/null
-  local _latest_tag=$(cd "${_tmp}" && git tag -l --sort=version:refname | tail -1)
+  local _latest_tag=$(cd "${_tmp}" && git tag -l | sort -V | tail -1)
   rm -rf "${_tmp}"
   echo ${_latest_tag}
   return 0
