@@ -2,8 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from rebuild.base.requirement import requirement as R
-from rebuild.base.requirement_list import requirement_list as RL
+from bes.build.requirement import requirement as R
+from bes.build.requirement_list import requirement_list as RL
 
 class test_requirement_list(unit_test):
 

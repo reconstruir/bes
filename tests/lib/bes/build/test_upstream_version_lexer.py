@@ -5,7 +5,7 @@ from bes.testing.unit_test import unit_test
 from bes.text.lexer_token import lexer_token
 from bes.common.point import point
 
-from rebuild.base.upstream_version_lexer import upstream_version_lexer
+from bes.build.upstream_version_lexer import upstream_version_lexer
 
 def TDONE(x = 1, y = 1): return lexer_token(upstream_version_lexer.TOKEN_DONE, None, point(x, y))
 def TTEXT(s, x = 1, y = 1): return lexer_token(upstream_version_lexer.TOKEN_TEXT, s, point(x, y))

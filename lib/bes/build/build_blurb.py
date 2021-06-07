@@ -61,13 +61,13 @@ class build_blurb(object):
 
   @staticmethod
   def _transplant_blurb(obj, message, output = sys.stdout, fit = False):
-    assert getattr(obj, 'rebuild_blurb_label__', None) != None
-    build_blurb.blurb(obj.rebuild_blurb_label__, message, output = output, fit = fit)
+    assert getattr(obj, 'bes_blurb_label__', None) != None
+    build_blurb.blurb(obj.bes_blurb_label__, message, output = output, fit = fit)
 
   @staticmethod
   def _transplant_blurb_verbose(obj, message, output = sys.stdout, fit = False):
-    assert getattr(obj, 'rebuild_blurb_verbose_label__', None) != None
-    build_blurb.blurb_verbose(obj.rebuild_blurb_verbose_label__, message, output = output, fit = fit)
+    assert getattr(obj, 'bes_blurb_verbose_label__', None) != None
+    build_blurb.blurb_verbose(obj.bes_blurb_verbose_label__, message, output = output, fit = fit)
 
   @classmethod
   def add_blurb(clazz, obj, label = None):
@@ -77,7 +77,7 @@ class build_blurb(object):
     else:
       object_class = obj.__class__
 
-    if getattr(object_class, 'rebuild_blurb_label__', False):
+    if getattr(object_class, 'bes_blurb_label__', False):
       return
       
     if getattr(object_class, 'blurb', None):
@@ -85,10 +85,10 @@ class build_blurb(object):
 
     label = label or object_class.__class__.__name__
     add_method(clazz._transplant_blurb, object_class, 'blurb')
-    setattr(object_class, 'rebuild_blurb_label__', label)
+    setattr(object_class, 'bes_blurb_label__', label)
 
     add_method(clazz._transplant_blurb_verbose, object_class, 'blurb_verbose')
-    setattr(object_class, 'rebuild_blurb_verbose_label__', label)
+    setattr(object_class, 'bes_blurb_verbose_label__', label)
     
   @classmethod
   def set_process_name(clazz, process_name):

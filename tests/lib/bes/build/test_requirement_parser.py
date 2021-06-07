@@ -2,8 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from rebuild.base.requirement_parser import requirement_parser as RP
-from rebuild.base.requirement import requirement_hardness
+from bes.build.requirement_parser import requirement_parser as RP
+from bes.build.requirement import requirement_hardness
 
 class test_requirement_parser(unit_test):
 

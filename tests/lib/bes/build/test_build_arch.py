@@ -2,8 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from rebuild.base.build_arch import build_arch as BA
-from rebuild.base.build_system import build_system as BS
+from bes.build.build_arch import build_arch as BA
+from bes.build.build_system import build_system as BS
 
 class test_build_arch(unit_test):
 

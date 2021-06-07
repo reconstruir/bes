@@ -3,7 +3,7 @@
 
 import os.path as path
 from bes.testing.unit_test import unit_test
-from rebuild.base.artifact_descriptor import artifact_descriptor as AD
+from bes.build.artifact_descriptor import artifact_descriptor as AD
 
 class test_artifact_descriptor(unit_test):
 
