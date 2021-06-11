@@ -11,13 +11,13 @@ from bes.script.blurber import blurber
 from .native_package_error import native_package_error
 from .native_package import native_package
 
-class native_package_cli_command(object):
+class native_package_cli_handler(object):
   'native_package cli commands.'
 
   @classmethod
   def handle_command(clazz, command, **kargs):
     kargs = copy.deepcopy(kargs)
-    func = getattr(native_package_cli_command, command)
+    func = getattr(native_package_cli_handler, command)
     bl = blurber(Script.name())
     verbose = kargs.pop('verbose')
     bl.set_verbose(verbose)
