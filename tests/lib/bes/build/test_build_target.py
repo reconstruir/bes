@@ -22,17 +22,17 @@ class test_build_target(unit_test):
     self.assertEqual( 'linux/x86_64/release', BT('linux', 'none', '', None, 'x86_64', 'release').build_path )
     
   def test_parse_path(self):
-    self.assertEqual( BT('macos', '', '10', '', 'x86_64', 'release'), BT.parse_path('macos-10/x86_64/release') )
-    self.assertEqual( BT('macos', '', '10', '10', 'x86_64', 'release'), BT.parse_path('macos-10.10/x86_64/release') )
+    self.assertEqual( BT('macos', None, '10', None, 'x86_64', 'release'), BT.parse_path('macos-10/x86_64/release') )
+    self.assertEqual( BT('macos', None, '10', '10', 'x86_64', 'release'), BT.parse_path('macos-10.10/x86_64/release') )
     self.assertEqual( BT('linux', 'ubuntu', '18', None, 'x86_64', 'release'), BT.parse_path('linux-ubuntu-18/x86_64/release') )
-    self.assertEqual( BT('linux', '', '', None, 'x86_64', 'release'), BT.parse_path('linux/x86_64/release') )
-    self.assertEqual( BT('ios', '', '12', None, 'armv7,arm64', 'release'), BT.parse_path('ios-12/arm64-armv7/release') )
-    self.assertEqual( BT('ios', '', '12', None, 'armv7,arm64', 'debug'), BT.parse_path('ios-12/arm64-armv7/debug') )
-    self.assertEqual( BT('macos', '', '10', '', 'x86_64', 'debug'), BT.parse_path('macos-10/x86_64/debug') )
-    self.assertEqual( BT('macos', '', '10', '', 'x86_64', 'release'), BT.parse_path('macos-10/x86_64') )
-    self.assertEqual( BT('linux', '', '', '', 'x86_64', 'release'), BT.parse_path('linux/x86_64') )
-    self.assertEqual( BT('linux', '', '', '', 'x86_64', 'release'), BT.parse_path('linux/x86_64/release') )
-    self.assertEqual( BT('linux', '', '', '', 'x86_64', 'debug'), BT.parse_path('linux/x86_64/debug') )
+    self.assertEqual( BT('linux', None, None, None, 'x86_64', 'release'), BT.parse_path('linux/x86_64/release') )
+    self.assertEqual( BT('ios', None, '12', None, 'armv7,arm64', 'release'), BT.parse_path('ios-12/arm64-armv7/release') )
+    self.assertEqual( BT('ios', None, '12', None, 'armv7,arm64', 'debug'), BT.parse_path('ios-12/arm64-armv7/debug') )
+    self.assertEqual( BT('macos', None, '10', None, 'x86_64', 'debug'), BT.parse_path('macos-10/x86_64/debug') )
+    self.assertEqual( BT('macos', None, '10', None, 'x86_64', 'release'), BT.parse_path('macos-10/x86_64') )
+    self.assertEqual( BT('linux', None, None, None, 'x86_64', 'release'), BT.parse_path('linux/x86_64') )
+    self.assertEqual( BT('linux', None, None, None, 'x86_64', 'release'), BT.parse_path('linux/x86_64/release') )
+    self.assertEqual( BT('linux', None, None, None, 'x86_64', 'debug'), BT.parse_path('linux/x86_64/debug') )
     
   def test_parse_expression(self):
     F = self._parse_exp
@@ -76,6 +76,33 @@ class test_build_target(unit_test):
     #self.assertTrue( self._match('linux-fedora-29/x86_64/release', 'linux-any-any/x86_64/release') )
     #self.assertTrue( self._match('linux-fedora-29/x86_64/release', 'any-any-any/x86_64/release') )
     #self.assertTrue( self._match('macos-10/x86_64/release', 'any-any-any/x86_64/release') )
+
+  def test_make_build_path(self):
+    bt = BT('macos', '', '10', '10', 'x86_64', 'release')
+    self.assertEqual( 'macos-10.10;x86_64;release', bt.make_build_path(delimiter = ';') )
+    self.assertEqual( 'macos-10.10/x86_64', bt.make_build_path(include_level = False) )
+    self.assertEqual( 'macos-10/x86_64', bt.make_build_path(include_level = False, include_minor_version = False) )
+    self.assertEqual( 'macos-10', bt.make_build_path(include_level = False, include_minor_version = False, include_arch = False) )
+
+  def _match_text(self, what, text):
+    return BT.parse_path(what).match_text(text)
+    
+  def test_match_text(self):
+    self.assertTrue( self._match_text('macos-10.10/x86_64/release', 'macos') )
+
+  def test__parse_version(self):
+    self.assertEqual( ( '10', '10' ), BT._parse_version('10.10', None) )
+    self.assertEqual( ( '*', '*' ), BT._parse_version('*.*', None) )
+    self.assertEqual( ( '10', None ), BT._parse_version('10', None) )
+    self.assertEqual( ( None, None ), BT._parse_version('', None) )
+    self.assertEqual( ( None, None ), BT._parse_version(None, None) )
+
+  def test__parse_with_default_value(self):
+    self.assertEqual( ( '10', '10' ), BT._parse_version('10.10', 'foo') )
+    self.assertEqual( ( '*', '*' ), BT._parse_version('*.*', 'foo') )
+    self.assertEqual( ( '10', 'foo' ), BT._parse_version('10', 'foo') )
+    self.assertEqual( ( 'foo', 'foo' ), BT._parse_version('', 'foo') )
+    self.assertEqual( ( 'foo', 'foo' ), BT._parse_version(None, 'foo') )
     
 if __name__ == '__main__':
   unit_test.main()

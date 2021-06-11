@@ -25,19 +25,19 @@ class test_artifact_descriptor(unit_test):
     self.assertEqual( la, lb )
     
   def test_parse(self):
-    self.assertEqual( AD('water', '1.0.0', 2, 0, 'linux', 'release', 'x86_64', 'ubuntu', '18', ''),
+    self.assertEqual( AD('water', '1.0.0', 2, 0, 'linux', 'release', 'x86_64', 'ubuntu', '18', None),
                       AD.parse('water;1.0.0;2;0;linux;release;x86_64;ubuntu;18;') )
 
   def test_parse_artifact_path(self):
-    self.assertEqual( AD('milk', '1.0.9', 0, 0, 'macos', 'release', 'x86_64', '', '10', ''),
+    self.assertEqual( AD('milk', '1.0.9', 0, 0, 'macos', 'release', 'x86_64', '', '10', None),
                       AD.parse_artifact_path('macos-10/x86_64/release/milk-1.0.9.tar.gz') )
-    self.assertEqual( AD('milk', '1.0.9', 0, 0, 'macos', 'release', 'x86_64', '', '10', ''),
+    self.assertEqual( AD('milk', '1.0.9', 0, 0, 'macos', 'release', 'x86_64', '', '10', None),
                       AD.parse_artifact_path('macos-10/x86_64/release/milk-1.0.9-0.tar.gz') )
-    self.assertEqual( AD('milk', '1.0.9', 5, 0, 'macos', 'release', 'x86_64', '', '10', ''),
+    self.assertEqual( AD('milk', '1.0.9', 5, 0, 'macos', 'release', 'x86_64', '', '10', None),
                       AD.parse_artifact_path('macos-10/x86_64/release/milk-1.0.9-5.tar.gz') )
     self.assertEqual( AD('milk', '1.0.9', 5, 0, 'macos', 'release', 'x86_64', '', '10', '14'),
                       AD.parse_artifact_path('macos-10.14/x86_64/release/milk-1.0.9-5.tar.gz') )
-    self.assertEqual( AD('milk', '1.0.9', 5, 0, 'linux', 'release', 'x86_64', 'ubuntu', '18', ''),
+    self.assertEqual( AD('milk', '1.0.9', 5, 0, 'linux', 'release', 'x86_64', 'ubuntu', '18', None),
                       AD.parse_artifact_path('linux-ubuntu-18/x86_64/release/milk-1.0.9-5.tar.gz') )
 
   def test_compare(self):

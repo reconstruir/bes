@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import fnmatch
+
 from bes.system.compat import with_metaclass
 from bes.system.host import host
 from bes.common.check import check
@@ -7,6 +9,7 @@ from bes.common.dict_util import dict_util
 from bes.common.string_util import string_util
 from bes.common.tuple_util import tuple_util
 from bes.common.variable import variable
+from bes.system.log import logger
 from bes.property.cached_property import cached_property
 
 from .build_arch import build_arch
@@ -17,19 +20,58 @@ from collections import namedtuple
 
 class build_target(namedtuple('build_target', 'system, distro, distro_version_major, distro_version_minor, arch, level')):
 
+  _log = logger('build_target')
+  
+  DEFAULT_DISTRO_WINDOWS = ''
+  DEFAULT_DISTRO_MACOS = ''
+  
+  DEFAULT_VERSIONS = {
+    host.WINDOWS: {
+      DEFAULT_DISTRO_WINDOWS: ( '10', '10' ),
+    },
+    host.MACOS: {
+      DEFAULT_DISTRO_MACOS: ( '10', '0' ),
+    },
+    host.LINUX: {
+      host.DEBIAN: ( '10', '9' ),
+      host.FEDORA: ( '34', '0' ),
+      host.UBUNTU: ( '20', '04' ),
+    },
+  }
+  DEFAULT_ARCHS = {
+    host.WINDOWS: {
+      DEFAULT_DISTRO_WINDOWS: ( build_arch.X86_64, ),
+    },
+    host.MACOS: {
+      DEFAULT_DISTRO_MACOS: ( build_arch.X86_64, ),
+    },
+    host.LINUX: {
+      host.DEBIAN: ( build_arch.X86_64, ),
+      host.FEDORA: ( build_arch.X86_64, ),
+      host.UBUNTU: ( build_arch.X86_64, ),
+    },
+  }
+  
   def __new__(clazz, system, distro, distro_version_major, distro_version_minor, arch, level):
     check.check_string(system)
     check.check_string(distro, allow_none = True)
-    distro = clazz.resolve_distro(distro)
     check.check_string(distro_version_major, allow_none = True)
     check.check_string(distro_version_minor, allow_none = True)
-    arch = build_arch.check_arch(arch, system, distro)
-    check.check_string(level)
+    check.check_string_seq(arch, allow_none = True)
+    check.check_string(level, allow_none = True)
+    
+    distro = clazz.resolve_distro(distro)
     system = build_system.parse_system(system)
-    arch = build_arch.determine_arch(arch, system, distro)
-    level = build_level.parse_level(level)
-    distro_version_major = clazz.resolve_distro_version(distro_version_major)
-    distro_version_minor = clazz.resolve_distro_version(distro_version_minor)
+
+    if arch != ( '*', ):
+      arch = build_arch.check_arch(arch, system, distro)
+      arch = build_arch.determine_arch(arch, system, distro)
+    if level != '*':
+      level = build_level.parse_level(level)
+    if distro_version_major != '*':
+      distro_version_major = clazz.resolve_distro_version(distro_version_major)
+    if distro_version_minor != '*':
+      distro_version_minor = clazz.resolve_distro_version(distro_version_minor)
     if system != host.LINUX and distro not in [ '', 'any', 'none' ]:
       raise ValueError('distro for \"%s\" should be empty/none instead of \"%s\"' % (system, distro))
     if system == host.LINUX and not distro:
@@ -44,28 +86,40 @@ class build_target(namedtuple('build_target', 'system, distro, distro_version_ma
   
   @cached_property
   def build_path(self):
-    return self._make_build_path(self.system, self.distro, self.distro_version_major, self.distro_version_minor, self.arch, self.level)    
-  
+    return self.make_build_path(delimiter = '/')
+
+  @cached_property
+  def distro_version(self):
+    if not self.distro_version_major:
+      return None
+    parts = [ self.distro_version_major ]
+    if self.distro_version_minor:
+      parts.append(self.distro_version_minor)
+    return '.'.join(parts)
+
   @classmethod
   def _arch_to_string(clazz, arch):
     return build_arch.join(arch, delimiter = '-')
-  
-  @classmethod
-  def _make_build_path(clazz, system, distro, distro_version_major, distro_version_minor, arch, level):
-    system_parts = [ system ]
-    if distro and distro != system:
-      system_parts += [ distro ]
+
+  def make_build_path(self, delimiter = '/', include_level = True, include_minor_version = True, include_arch = True):
+    system_parts = [ self.system ]
+    if self.distro and self.distro != self.system:
+      system_parts += [ self.distro ]
     version_parts = []
-    if distro_version_major:
-      version_parts.append(distro_version_major)
-    if distro_version_minor:
-      version_parts.append(distro_version_minor)
+    if self.distro_version_major:
+      version_parts.append(self.distro_version_major)
+    if include_minor_version and self.distro_version_minor:
+      version_parts.append(self.distro_version_minor)
     version = '.'.join(version_parts)
     if version:
       system_parts += [ version ]
     system_path = '-'.join(system_parts)
-    parts = [ system_path, clazz._arch_to_string(arch), level ]
-    return '/'.join(parts)
+    parts = [ system_path ]
+    if include_arch:
+      parts.append(self._arch_to_string(self.arch))
+    if include_level:
+      parts.append(self.level)
+    return delimiter.join(parts)
 
   def is_darwin(self):
     return self.system in [ build_system.MACOS, build_system.IOS ]
@@ -115,43 +169,68 @@ class build_target(namedtuple('build_target', 'system, distro, distro_version_ma
     return eval(exp_with_consts)
 
   @classmethod
-  def parse_path(clazz, s):
-    parts = s.split('/')
+  def parse_path(clazz, s, delimiter = '/', arch_delimiter = '-', default_value = None):
+    parts = s.split(delimiter)
     num_parts = len(parts)
-    if num_parts < 2:
+    if num_parts < 1:
       raise ValueError('Invalid build path: %s' % (s))
-    system = parts[0]
-    arch = parts[1]
-    level = parts[2] if num_parts > 2 else 'release'
-    system, distro, distro_version_major, distro_version_minor = clazz._parse_system(system)
-    arch = build_arch.split(arch, delimiter = '-')
-    return build_target(system, distro, distro_version_major, distro_version_minor, arch, level)
+    system_string = parts.pop(0)
+    system, distro, distro_version_major, distro_version_minor = clazz._parse_system(system_string,
+                                                                                     default_value)
+    if parts:
+      arch_string = parts.pop(0)
+      arch = build_arch.split(arch_string, delimiter = arch_delimiter)
+    else:
+      if default_value == None:
+        arch = clazz.DEFAULT_ARCHS[system][distro]
+      else:
+        arch = ( default_value, )
+    if parts:
+      level = parts.pop(0)
+    else:
+      if default_value == None:
+        level = build_level.DEFAULT_LEVEL
+      else:
+        level = default_value
+    clazz._log.log_d(f'parse_path: system="{system}" distro="{distro}" distro_version_major="{distro_version_major}" distro_version_minor="{distro_version_minor}"')
+    result = build_target(system, distro, distro_version_major, distro_version_minor, arch, level)
+    clazz._log.log_d('parse_path: result={}'.format(result))
+    return result
 
   @classmethod
-  def _parse_system(clazz, s):
+  def _parse_system(clazz, s, default_value):
     parts = s.split('-')
+    clazz._log.log_d(f'_parse_system: s="{s}" default_value="{default_value}" parts="{parts}"')
     if len(parts) < 1:
-      raise ValueError('Invalid system: %s' % (s))
+      raise ValueError('Invalid system: {}'.format(s))
     distro = ''
-    distro_version_major = ''
-    distro_version_minor = None
+    distro_version_major = default_value
+    distro_version_minor = default_value
     system = parts.pop(0)
-    if len(parts) == 1:
-      distro_version_major, distro_version_minor = clazz._parse_version(parts[0])
-    elif len(parts) == 2:
-      distro = parts[0]
-      distro_version_major, distro_version_minor = clazz._parse_version(parts[1])
-    elif len(parts) > 2:
-      raise ValueError('Invalid system: %s' % (s))
+
+    if len(parts) == 2:
+      distro = parts.pop(0)
+
+    if parts:
+      distro_version_major, distro_version_minor = clazz._parse_version(parts.pop(0), default_value)
+    if parts:
+      raise ValueError('Invalid system: {}'.format(s))
+    
     return system, distro, distro_version_major, distro_version_minor
 
   @classmethod
-  def _parse_version(clazz, s):
+  def _parse_version(clazz, s, default_value):
+    clazz._log.log_d(f'_parse_version: s={s} default_value={default_value}')
+    if not s:
+      return ( default_value, default_value )
     parts = s.split('.')
-    if not parts:
-      return None, None
+    assert len(parts) >= 1
     distro_version_major = parts.pop(0)
-    distro_version_minor = parts.pop(0) if parts else None
+    if parts:
+      distro_version_minor = parts.pop(0)
+    else:
+      distro_version_minor = default_value
+    clazz._log.log_d(f'_parse_version: distro_version_major={distro_version_major} distro_version_minor={distro_version_minor}')
     return distro_version_major, distro_version_minor
   
   @classmethod
@@ -172,9 +251,9 @@ class build_target(namedtuple('build_target', 'system, distro, distro_version_ma
   def resolve_distro_version(clazz, version):
     if check.is_string(version):
       if version.lower() == 'none':
-        version = ''
+        version = None
     elif version is None:
-      version = ''
+      version = None
     return version
   
   @classmethod
@@ -196,5 +275,34 @@ class build_target(namedtuple('build_target', 'system, distro, distro_version_ma
       (other.distro_version_minor == 'any' or (self.distro_version_minor == other.distro_version_minor)) and \
       (other.arch == 'any' or (self.arch == other.arch)) and \
       (other.level == 'any' or (self.level == other.level))
+
+  def match_caca(self, other):
+    'Return True if this build target matches text'
+    check.check_build_target(other)
+
+    self._log.log_d(f'match_caca: self={self} other={other}')
+    if not fnmatch.fnmatch(self.system, other.system):
+      return False
+    if not fnmatch.fnmatch(self.distro, other.distro):
+      return False
+    if not fnmatch.fnmatch(self.distro_version, other.distro_version):
+      return False
+    if not fnmatch.fnmatch(self.distro_version_minor, other.distro_version_minor):
+      return False
+    if not fnmatch.fnmatch(self.level, other.level):
+      return False
+    if len(other.arch) != 1:
+      raise ValueError('arch should be just one arch or wildcard: {}'.format(other.arch))
+    for arch in self.arch:
+      if fnmatch.fnmatch(arch, other.arch[0]):
+        return True
+    return False
+
+  def match_text(self, text, delimiter = '/', arch_delimiter = '-'):
+    'Return True if this build target matches text'
+    check.check_string(text)
+
+    other = self.parse_path(text, delimiter = delimiter, arch_delimiter = arch_delimiter, default_value = '*')
+    return self.match_caca(other)
   
 check.register_class(build_target)

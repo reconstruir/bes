@@ -4,10 +4,10 @@ from collections import namedtuple
 
 from .check import check
 
-class host_info(namedtuple('host_info', 'system, version_major, version_minor, arch, distro, family')):
+class host_info(namedtuple('host_info', 'system, version_major, version_minor, arch, distro, family, codename')):
 
-  def __new__(clazz, system, version_major, version_minor, arch, distro, family):
-    return clazz.__bases__[0].__new__(clazz, system, version_major, version_minor, arch, distro, family)
+  def __new__(clazz, system, version_major, version_minor, arch, distro, family, codename):
+    return clazz.__bases__[0].__new__(clazz, system, version_major, version_minor, arch, distro, family, codename)
 
   @property
   def version(self):
@@ -35,8 +35,9 @@ class host_info(namedtuple('host_info', 'system, version_major, version_minor, a
         arch = 'x86_64'
       distro = ''
       family = None
+      codename = None
     else:
       assert False, 'fix for loonix'
-    return host_info(system, version_major, version_minor, arch, distro, family)
+    return host_info(system, version_major, version_minor, arch, distro, family, codename)
 
 check.register_class(host_info, include_seq = False)

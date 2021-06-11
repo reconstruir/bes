@@ -2,19 +2,21 @@
 
 from .platform_determiner_base import platform_determiner_base
 from .linux_os_release import linux_os_release
+from .linux_lsb_release import linux_lsb_release
 
 class platform_determiner_linux_lsb_release(platform_determiner_base):
   'linux platform determiner that uses lsb_release -v -a'
 
   def __init__(self, platform, lsb_release):
     self._platform = platform
-    parsed_lsb_release = self._parse_lsb_release(lsb_release)
+    parsed_lsb_release = linux_lsb_release.parse_lsb_release(lsb_release)
     self._distro = parsed_lsb_release.get('Distributor ID', None).lower()
     if not self._distro:
       raise RuntimeError('lsb_release missing valid "Distributor ID"')
     self._version_major, self._version_minor = linux_os_release.parse_version_major_minor(parsed_lsb_release.get('Release', ''))
     if not self._version_major:
       raise RuntimeError('lsb_release missing valid "Release"').lower()
+    self._codename = parsed_lsb_release.get('Codename', None).lower()
   
   #@abstractmethod
   def system(self):
@@ -26,6 +28,11 @@ class platform_determiner_linux_lsb_release(platform_determiner_base):
     'distro.'
     return self._distro
 
+  #@abstractmethod
+  def codename(self):
+    'codename.'
+    return self._codename
+  
   FAMILIES = {
     'debian': 'debian',
     'ubuntu': 'debian',
@@ -63,14 +70,3 @@ class platform_determiner_linux_lsb_release(platform_determiner_base):
     if arch.startswith('armv7'):
       return 'armv7'
     return arch
-
-  @classmethod
-  def _parse_lsb_release(clazz, lsb_release):
-    result = {}
-    lines = lsb_release.strip().split('\n')
-    for line in lines:
-      parts = line.partition(':')
-      if parts[1] != ':':
-        raise RuntimeError('Invalid lsb_release entry: "%s"' % (line))
-      result[parts[0].strip()] = parts[2].strip()
-    return result

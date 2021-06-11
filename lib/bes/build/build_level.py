@@ -8,6 +8,7 @@ class build_level(object):
   RELEASE = 'release'
   ANY = 'any'
   LEVELS = [ DEBUG, RELEASE, ANY ]
+  DEFAULT_LEVEL = RELEASE
 
   @classmethod
   def level_is_valid(clazz, build_level):

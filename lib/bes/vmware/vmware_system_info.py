@@ -68,7 +68,7 @@ class vmware_system_info(object):
     distro_version = details.get('distroVersion', None)
     assert distro_version
     version_parts = distro_version.split('.')
-    return host_info('linux', version_parts[0], version_parts[1], arch, distro_name.lower(), None)
+    return host_info('linux', version_parts[0], version_parts[1], arch, distro_name.lower(), None, None)
 
   @classmethod
   def _system_info_darwin(clazz, details):
@@ -76,7 +76,7 @@ class vmware_system_info(object):
     distro_version = details.get('distroVersion', None)
     assert distro_version
     version_parts = distro_version.split('.')
-    return host_info('macos', version_parts[0], version_parts[1], arch, '', None)
+    return host_info('macos', version_parts[0], version_parts[1], arch, '', None, None)
   
   @classmethod
   def _determine_arch(clazz, details):
@@ -87,6 +87,6 @@ class vmware_system_info(object):
     return arch
 
   _WITHOUT_DETAILS_TABLE = {
-    'windows9-64': host_info('windows', '10', '0', 'x86_64', '', None),
-    'windows9': host_info('windows', '10', '0', 'i386', '', None),
+    'windows9-64': host_info('windows', '10', '0', 'x86_64', '', None, None),
+    'windows9': host_info('windows', '10', '0', 'i386', '', None, None),
   }

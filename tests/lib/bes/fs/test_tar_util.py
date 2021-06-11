@@ -131,7 +131,7 @@ class test_tar_util(unit_test):
     actual_files = file_find.find(tmp_dir, file_type = file_find.ANY)
     self.assertEqual( expected_files, actual_files )
 
-  @host_override_func(host_info('linux', '3', '10', 'x86_64', 'alpine', 'alpine'))
+  @host_override_func(host_info('linux', '3', '10', 'x86_64', 'alpine', 'alpine', None))
   @is_running_under_docker_override_func(False)
   def test_extract_alpine_linux_without_docker(self):
     tmp_dir = self.make_temp_dir()
@@ -152,7 +152,7 @@ class test_tar_util(unit_test):
     actual_files = file_find.find(tmp_dir, file_type = file_find.ANY)
     self.assertEqual( expected_files, actual_files )
 
-  @host_override_func(host_info('linux', '3', '10', 'x86_64', 'alpine', 'alpine'))
+  @host_override_func(host_info('linux', '3', '10', 'x86_64', 'alpine', 'alpine', None))
   @is_running_under_docker_override_func(True)
   def test_extract_alpine_linux_with_docker(self):
     tmp_tar_exe_dir = self.make_temp_dir()

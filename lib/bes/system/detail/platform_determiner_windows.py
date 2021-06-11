@@ -19,6 +19,11 @@ class platform_determiner_windows(platform_determiner_base):
   def distro(self):
     'distro.'
     return ''
+
+  #@abstractmethod
+  def codename(self):
+    'codename.'
+    return None
   
   #@abstractmethod
   def family(self):

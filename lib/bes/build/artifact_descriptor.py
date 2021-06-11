@@ -34,7 +34,7 @@ class artifact_descriptor(namedtuple('artifact_descriptor', 'name, version, revi
     distro = build_target.resolve_distro(distro)
     check.check_string(distro_version_major)
     distro_version_major = build_target.resolve_distro_version(distro_version_major)
-    check.check_string(distro_version_minor)
+    check.check_string(distro_version_minor, allow_none = True)
     distro_version_minor = build_target.resolve_distro_version(distro_version_minor)
     return clazz.__bases__[0].__new__(clazz, name, version, revision, epoch,
                                       system, level, arch, distro,
@@ -43,7 +43,7 @@ class artifact_descriptor(namedtuple('artifact_descriptor', 'name, version, revi
   def __str__(self):
     arch_str = ','.join(self.arch)
     return '%s;%s;%s;%s;%s;%s;%s;%s;%s;%s' % (self.name, self.version, self.revision, self.epoch, self.system, self.level,
-                                              arch_str, self.distro, self.distro_version_major, self.distro_version_minor)
+                                              arch_str, self.distro or '', self.distro_version_major, self.distro_version_minor)
 
   def __hash__(self):
     return hash(str(self))
@@ -68,7 +68,7 @@ class artifact_descriptor(namedtuple('artifact_descriptor', 'name, version, revi
       self.revision,
       self.epoch,
       self.system,
-      self.distro,
+      self.distro or '',
       self.distro_version_major,
       self.distro_version_minor,
       self._sql_encode_string_list(self.arch),

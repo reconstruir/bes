@@ -30,6 +30,11 @@ class platform_determiner(platform_determiner_base):
   def distro(self):
     'distro.'
     return self._impl.distro()
+
+  #@abstractmethod
+  def codename(self):
+    'codename.'
+    return self._impl.codename()
   
   #@abstractmethod
   def family(self):
