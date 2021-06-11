@@ -64,4 +64,4 @@ class native_package_cli_args(object):
     
   def _command_native_package(self, command, *args, **kargs):
     from .native_package_cli_handler import native_package_cli_handler
-    return native_package_cli_handler.handle_command(command, **kargs)
+    return native_package_cli_handler(kargs).handle_command(command)
