@@ -334,7 +334,7 @@ def main():
   env.update(args.env)
 
   # Use a custom TMP dir so that we can catch temporary side effects and flag them
-  tmp_tmp = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.dir', delete = False)
+  tmp_tmp = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.tmp.dir', delete = False)
   env.update({
     'TMPDIR': tmp_tmp,
     'TEMP': tmp_tmp,
@@ -380,8 +380,8 @@ def main():
   ar.cleanup_python_compiled_files()
 
   # Do all our work with a temporary working directory to be able to check for side effects
-  tmp_cwd = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.dir', delete = False)
-  tmp_home = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.home.dir', delete = False)
+  tmp_cwd = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.cwd.dir', delete = False)
+  tmp_home = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.home.dir', delete = False)
   os.environ['HOME'] = tmp_home
   os.chdir(tmp_cwd)
   
