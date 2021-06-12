@@ -6,6 +6,7 @@ import os
 from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.common.string_list_util import string_list_util
+from bes.common.string_util import string_util
 from bes.compat.plistlib import plistlib_loads
 from bes.fs.dir_util import dir_util
 from bes.fs.file_mime import file_mime
@@ -28,27 +29,27 @@ class native_package_macos(native_package_base):
   def installed_packages(self):
     'Return a list of installed pacakge.'
     cmd = 'pkgutil --packages'
-    rv = pkgutil.call_pkgutil('--packages')
+    rv = pkgutil.call_pkgutil(['--packages'])
     return native_package_util.parse_lines(rv.stdout, sort = True, unique = True)
 
   #@abstractmethod
   def package_files(self, package_name):
     'Return a list of installed files for the given package.'
-    return self._package_manifest(package_name, '--only-files')
+    return self._package_manifest(package_name, [ '--only-files' ])
 
   #@abstractmethod
   def package_dirs(self, package_name):
     'Return a list of installed files for the given package.'
-    return self._package_manifest(package_name, '--only-dirs')
+    return self._package_manifest(package_name, [ '--only-dirs' ])
 
   _CONTENTS_BLACKLIST = [
     '.vol',
   ]
 
   def _package_manifest(clazz, package_name, flags):
-    args = '--files {}'.format(package_name)
+    args = [ '--files', string_util.quote_if_needed(package_name) ]
     if flags:
-      args = args + ' ' + flags
+      args.extend(flags)
     rv = pkgutil.call_pkgutil(args)
     files = native_package_util.parse_lines(rv.stdout, sort = True, unique = True)
     files = string_list_util.remove_if(files, clazz._CONTENTS_BLACKLIST)
@@ -69,7 +70,7 @@ class native_package_macos(native_package_base):
   #@abstractmethod
   def owner(self, filename):
     'Return the package that owns filename.'
-    args = '--file-info-plist {}'.format(filename)
+    args = [ '--file-info-plist', filename ]
     msg = 'Failed to get owner for filename: "{}"'.format(filename)
     rv = pkgutil.call_pkgutil(args, msg = msg)
     pi = plistlib_loads(rv.stdout.encode('utf-8')).get('path-info', None)
@@ -80,7 +81,7 @@ class native_package_macos(native_package_base):
   #@abstractmethod
   def package_info(self, package_name):
     'Return platform specific information about a package.'
-    args = '--pkg-info-plist {}'.format(package_name)
+    args = [ '--pkg-info-plist', package_name ]
     msg = 'Failed to get info for package: "{}"'.format(package_name)
     rv = pkgutil.call_pkgutil(args, msg = msg)
     pi = plistlib_loads(rv.stdout.encode('utf-8'))

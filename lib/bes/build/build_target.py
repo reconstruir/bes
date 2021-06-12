@@ -61,7 +61,8 @@ class build_target(namedtuple('build_target', 'system, distro, distro_version_ma
     check.check_string(level, allow_none = True)
     
     distro = clazz.resolve_distro(distro)
-    system = build_system.parse_system(system)
+    if system != '*':
+      system = build_system.parse_system(system)
 
     if arch != ( '*', ):
       arch = build_arch.check_arch(arch, system, distro)
@@ -72,7 +73,7 @@ class build_target(namedtuple('build_target', 'system, distro, distro_version_ma
       distro_version_major = clazz.resolve_distro_version(distro_version_major)
     if distro_version_minor != '*':
       distro_version_minor = clazz.resolve_distro_version(distro_version_minor)
-    if system != host.LINUX and distro not in [ '', 'any', 'none' ]:
+    if system != host.LINUX and distro not in [ '', '*' ]:
       raise ValueError('distro for \"%s\" should be empty/none instead of \"%s\"' % (system, distro))
     if system == host.LINUX and not distro:
       if distro_version_major:
@@ -264,23 +265,12 @@ class build_target(namedtuple('build_target', 'system, distro, distro_version_ma
     elif distro is None:
       distro = ''
     return distro
-  
-  def match(self, other):
-    'Return True if self matches other build_target'
-    check.check_build_target(other)
-    return \
-      (other.system == 'any' or (self.system == other.system)) and \
-      (other.distro == 'any' or (self.distro == other.distro)) and \
-      (other.distro_version_major == 'any' or (self.distro_version_major == other.distro_version_major)) and \
-      (other.distro_version_minor == 'any' or (self.distro_version_minor == other.distro_version_minor)) and \
-      (other.arch == 'any' or (self.arch == other.arch)) and \
-      (other.level == 'any' or (self.level == other.level))
 
-  def match_caca(self, other):
+  def match(self, other):
     'Return True if this build target matches text'
     check.check_build_target(other)
 
-    self._log.log_d(f'match_caca: self={self} other={other}')
+    self._log.log_d(f'match: self={self} other={other}')
     if not fnmatch.fnmatch(self.system, other.system):
       return False
     if not fnmatch.fnmatch(self.distro, other.distro):
@@ -303,6 +293,6 @@ class build_target(namedtuple('build_target', 'system, distro, distro_version_ma
     check.check_string(text)
 
     other = self.parse_path(text, delimiter = delimiter, arch_delimiter = arch_delimiter, default_value = '*')
-    return self.match_caca(other)
+    return self.match(other)
   
 check.register_class(build_target)

@@ -6,8 +6,7 @@ class build_level(object):
 
   DEBUG = 'debug'
   RELEASE = 'release'
-  ANY = 'any'
-  LEVELS = [ DEBUG, RELEASE, ANY ]
+  LEVELS = [ DEBUG, RELEASE ]
   DEFAULT_LEVEL = RELEASE
 
   @classmethod

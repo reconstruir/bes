@@ -45,11 +45,6 @@ class test_build_target(unit_test):
     self.assertTrue( F('linux-ubuntu-18/x86_64/release', '${system} is MACOS or (${system} is LINUX and ${distro} is not RASPBIAN)') )
     self.assertTrue( F('linux-ubuntu-18/x86_64/debug', '${system} is MACOS or (${system} is LINUX and ${distro} is not RASPBIAN)') )
 
-#  def test_wildcard(self):
-#    # FIXME: wildcard doesnt work yet
-#    self.assertEqual( 'macos-10.any/x86_64/any', BT('macos', '', '10', 'any', 'x86_64', 'any').build_path )
-#    self.assertEqual( 'linux-any-any/x86_64/any', BT('linux', 'any', '', 'any', 'x86_64', 'any').build_path )
-
   def test_clone(self):
     p = BT.parse_path
     self.assertEqual( 'macos-10.10/x86_64/release',
@@ -64,19 +59,6 @@ class test_build_target(unit_test):
   def _parse_exp(self, bt_path, exp):
     return BT.parse_path(bt_path).parse_expression(exp)
 
-  def _match(self, a, b):
-    return BT.parse_path(a).match(BT.parse_path(b))
-
-  def test_match(self):
-    self.assertTrue( self._match('macos-10.10/x86_64/release', 'macos-10.10/x86_64/release') )
-    self.assertFalse( self._match('linux-ubuntu-18/x86_64/release', 'macos-10.10/x86_64/release') )
-    self.assertTrue( self._match('linux-ubuntu-18/x86_64/release', 'linux-ubuntu-any/x86_64/release') )
-    # FIXME: wildcard doesnt work yet
-    #self.assertTrue( self._match('linux-ubuntu-18/x86_64/release', 'linux-any-any/x86_64/release') )
-    #self.assertTrue( self._match('linux-fedora-29/x86_64/release', 'linux-any-any/x86_64/release') )
-    #self.assertTrue( self._match('linux-fedora-29/x86_64/release', 'any-any-any/x86_64/release') )
-    #self.assertTrue( self._match('macos-10/x86_64/release', 'any-any-any/x86_64/release') )
-
   def test_make_build_path(self):
     bt = BT('macos', '', '10', '10', 'x86_64', 'release')
     self.assertEqual( 'macos-10.10;x86_64;release', bt.make_build_path(delimiter = ';') )
@@ -89,7 +71,19 @@ class test_build_target(unit_test):
     
   def test_match_text(self):
     self.assertTrue( self._match_text('macos-10.10/x86_64/release', 'macos') )
+    self.assertTrue( self._match_text('macos-10.10/x86_64/release', 'macos-10') )
+    self.assertTrue( self._match_text('macos-10.10/x86_64/release', 'macos-10.10') )
+    self.assertTrue( self._match_text('macos-10.10/x86_64/release', 'macos-10.10/x86_64') )
+    self.assertTrue( self._match_text('macos-10.10/x86_64/release', 'macos-10.10/x86_64/release') )
 
+    self.assertFalse( self._match_text('macos-10.10/x86_64/release', 'macos-10.20') )
+    self.assertFalse( self._match_text('macos-10.10/x86_64/release', 'windows-10.0') )
+    self.assertFalse( self._match_text('macos-10.10/x86_64/release', 'macos-10.10/x86_64/debug') )
+
+    self.assertTrue( self._match_text('macos-10.10/x86_64/release', '*') )
+    self.assertTrue( self._match_text('macos-10.10/x86_64/release', 'macos-*/x86_64/*') )
+    self.assertTrue( self._match_text('macos-10.10/x86_64/debug', 'macos-*/x86_64/*') )
+    
   def test__parse_version(self):
     self.assertEqual( ( '10', '10' ), BT._parse_version('10.10', None) )
     self.assertEqual( ( '*', '*' ), BT._parse_version('*.*', None) )

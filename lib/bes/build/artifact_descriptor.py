@@ -32,7 +32,7 @@ class artifact_descriptor(namedtuple('artifact_descriptor', 'name, version, revi
     check.check_tuple(arch)
     check.check_string(distro)
     distro = build_target.resolve_distro(distro)
-    check.check_string(distro_version_major)
+    check.check_string(distro_version_major, allow_none = True)
     distro_version_major = build_target.resolve_distro_version(distro_version_major)
     check.check_string(distro_version_minor, allow_none = True)
     distro_version_minor = build_target.resolve_distro_version(distro_version_minor)
@@ -42,8 +42,16 @@ class artifact_descriptor(namedtuple('artifact_descriptor', 'name, version, revi
 
   def __str__(self):
     arch_str = ','.join(self.arch)
-    return '%s;%s;%s;%s;%s;%s;%s;%s;%s;%s' % (self.name, self.version, self.revision, self.epoch, self.system, self.level,
-                                              arch_str, self.distro or '', self.distro_version_major, self.distro_version_minor)
+    return '{};{};{};{};{};{};{};{};{};{}'.format(self.name,
+                                                  self.version,
+                                                  self.revision,
+                                                  self.epoch,
+                                                  self.system,
+                                                  self.level,
+                                                  arch_str,
+                                                  self.distro or '',
+                                                  self.distro_version_major,
+                                                  self.distro_version_minor or '')
 
   def __hash__(self):
     return hash(str(self))
