@@ -8,6 +8,8 @@ from bes.computer_setup.computer_setup_options import computer_setup_options
 from bes.computer_setup.computer_setup_error import computer_setup_error
 
 from bes.common.check import check
+from bes.system.host_override import host_override_func
+from bes.system.host_info import host_info
 
 class _test_tesk1(computer_setup_task):
   
@@ -51,11 +53,12 @@ class _test_tesk1(computer_setup_task):
 
 class test_computer_setup_manager(unit_test):
 
+  @host_override_func(host_info('linux', '18', None, 'x86_64', 'ubuntu', 'debian', 'bionic'))
   def test_is_needed_true(self):
     setup_content = '''\
 task change_computer_name
   class: _test_tesk1
-  system: macos
+  system: linux
   value: fruit=kiwi
 '''
     setup = self.make_temp_file(content = setup_content, suffix = '.cst')
@@ -66,11 +69,12 @@ task change_computer_name
     task_values = { 'name': 'lemon', '_db': db }
     self.assertTrue( csm.is_needed(task_values) )
 
+  @host_override_func(host_info('linux', '18', None, 'x86_64', 'ubuntu', 'debian', 'bionic'))
   def test_is_needed_false(self):
     setup_content = '''\
 task change_computer_name
   class: _test_tesk1
-  system: macos
+  system: linux
   value: fruit=kiwi
 '''
     setup = self.make_temp_file(content = setup_content, suffix = '.cst')
@@ -80,12 +84,13 @@ task change_computer_name
     db = { 'name': 'lemon' }
     task_values = { 'name': 'lemon', '_db': db }
     self.assertFalse( csm.is_needed(task_values) )
-    
+
+  @host_override_func(host_info('linux', '18', None, 'x86_64', 'ubuntu', 'debian', 'bionic'))
   def test_run(self):
     setup_content = '''\
 task change_computer_name
   class: _test_tesk1
-  system: macos
+  system: linux
   value: fruit=kiwi
 '''
     setup = self.make_temp_file(content = setup_content, suffix = '.cst')
@@ -97,6 +102,6 @@ task change_computer_name
     self.assertTrue( csm.is_needed(task_values) )
     csm.run(task_values)
     self.assertFalse( csm.is_needed(task_values) )
-    
+
 if __name__ == '__main__':
   unit_test.main()
