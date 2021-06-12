@@ -42,6 +42,7 @@ class pyinstaller_exe(object):
     work_dir = path.join(build_dir, 'work')
     args = args[:]
     args.extend([ '--distpath', dist_dir ])
+    args.extend([ '--workpath', work_dir ])
     try:
       with env_override(env = env) as _:
         PyInstaller_run(pyi_args = args, pyi_config = None)
