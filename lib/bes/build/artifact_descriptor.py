@@ -50,7 +50,7 @@ class artifact_descriptor(namedtuple('artifact_descriptor', 'name, version, revi
                                                   self.level,
                                                   arch_str,
                                                   self.distro or '',
-                                                  self.distro_version_major,
+                                                  self.distro_version_major or '',
                                                   self.distro_version_minor or '')
 
   def __hash__(self):
@@ -77,8 +77,8 @@ class artifact_descriptor(namedtuple('artifact_descriptor', 'name, version, revi
       self.epoch,
       self.system,
       self.distro or '',
-      self.distro_version_major,
-      self.distro_version_minor,
+      self.distro_version_major or '',
+      self.distro_version_minor or '',
       self._sql_encode_string_list(self.arch),
       self.level,
     )
