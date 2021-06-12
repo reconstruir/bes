@@ -334,7 +334,7 @@ def main():
   env.update(args.env)
 
   # Use a custom TMP dir so that we can catch temporary side effects and flag them
-  tmp_tmp = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.dir', delete = False)
+  tmp_tmp = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.tmp.dir', delete = False)
   env.update({
     'TMPDIR': tmp_tmp,
     'TEMP': tmp_tmp,
@@ -380,8 +380,8 @@ def main():
   ar.cleanup_python_compiled_files()
 
   # Do all our work with a temporary working directory to be able to check for side effects
-  tmp_cwd = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.dir', delete = False)
-  tmp_home = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.home.dir', delete = False)
+  tmp_cwd = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.cwd.dir', delete = False)
+  tmp_home = temp_file.make_temp_dir(prefix = 'bes_test_', suffix = '.tmp.home.dir', delete = False)
   os.environ['HOME'] = tmp_home
   os.chdir(tmp_cwd)
   
@@ -429,6 +429,7 @@ def main():
       result = _test_execute(python_exe, ar.inspect_map, filename, test_desc.tests, options, i + 1, total_files, cwd, env)
       _collect_side_effects(side_effects, filename, tmp_home, 'home', args.keep_side_effects)
       _collect_side_effects(side_effects, filename, tmp_tmp, 'tmp', args.keep_side_effects)
+      _collect_side_effects(side_effects, filename, os.getcwd(), 'cwd', args.keep_side_effects)
       timings[filename].append(result.elapsed_time)
       total_num_tests += result.num_tests_run
       num_executed += 1
@@ -512,11 +513,6 @@ def main():
     rv = 1
     printer.writeln_name('SIDE EFFECT: working directory was changed from %s to %s' % (tmp_cwd, current_cwd))
     
-  cwd_droppings = file_find.find(current_cwd, relative = False, file_type = file_find.ANY)
-  for cwd_dropping in cwd_droppings:
-    rv = 1
-    printer.writeln_name('SIDE EFFECT: cwd dropping found: %s' % (cwd_dropping))
-
   for test, items in sorted(side_effects.items()):
     for item in items:
       rv = 1

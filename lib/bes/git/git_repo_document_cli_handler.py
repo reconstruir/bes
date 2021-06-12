@@ -8,7 +8,7 @@ from bes.fs.file_util import file_util
 
 from .git_repo_document_db import git_repo_document_db
 
-class git_repo_document_cli_command(object):
+class git_repo_document_cli_handler(object):
 
   @classmethod
   def handle_command(clazz, command, **kargs):

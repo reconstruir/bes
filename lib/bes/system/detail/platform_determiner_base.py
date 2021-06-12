@@ -15,6 +15,11 @@ class platform_determiner_base(with_metaclass(ABCMeta, object)):
   def distro(self):
     'distro.'
     pass
+
+  @abstractmethod
+  def codename(self):
+    'codename.'
+    pass
   
   @abstractmethod
   def family(self):

@@ -7,6 +7,7 @@ from bes.cli.argparser_handler import argparser_handler
 from bes.common.check import check
 from bes.common.inspect_util import inspect_util
 
+from .cli_missing_command_error import cli_missing_command_error
 from .cli_options import cli_options
 
 class cli_command_handler(object):
@@ -37,6 +38,8 @@ class cli_command_handler(object):
       return options, args
     
   def handle_command(self, command_name):
+    if not command_name:
+      raise cli_missing_command_error('{}.handle_command() - missing command'.format(self.__class__))
     check.check_string(command_name)
 
     if self._delegate:

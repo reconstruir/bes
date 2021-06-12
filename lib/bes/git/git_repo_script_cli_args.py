@@ -5,7 +5,7 @@ from bes.common.check import check
 from bes.git.git_repo_script_options import git_repo_script_options
 from bes.git.git_clone_options import git_clone_options
 
-from .git_cli_command import git_cli_command
+from .git_cli_handler import git_cli_handler
 
 class git_repo_script_cli_args(object):
 
@@ -32,5 +32,5 @@ class git_repo_script_cli_args(object):
                    help = 'Debug mode.  Print out the tmp dirs and do not delete them. [ False ]')
 
   def _command_git_repo_script(self, command, *args, **kargs):
-    from .git_repo_script_cli_command import git_repo_script_cli_command
-    return git_repo_script_cli_command.handle_command(command, **kargs)
+    from .git_repo_script_cli_handler import git_repo_script_cli_handler
+    return git_repo_script_cli_handler.handle_command(command, **kargs)

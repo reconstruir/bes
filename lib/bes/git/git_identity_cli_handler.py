@@ -4,7 +4,7 @@ from bes.common.check import check
 
 from .git_config import git_config
 
-class git_identity_cli_command(object):
+class git_identity_cli_handler(object):
 
   @classmethod
   def handle_command(clazz, command, **kargs):
@@ -49,5 +49,5 @@ class git_identity_cli_command(object):
     name = identity.name or name
     email = identity.email or email
     if not identity.name or not identity.email:
-      clazz.set_identity(name, email)
+      git_config.set_identity(name, email)
     return 0

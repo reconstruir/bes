@@ -269,7 +269,7 @@ class git(git_lfs):
       clazz.checkout(root_dir, 'master')
 
     if not options.no_network:
-      git_exe.call_git(root_dir, 'fetch --tags')
+      clazz.tags_fetch(root_dir, force = True)
       clazz._call_pull(root_dir, *args)
 
     if options.branch:
@@ -551,8 +551,11 @@ class git(git_lfs):
     git_exe.call_git(root_dir, [ 'push', 'origin', tag ])
 
   @classmethod
-  def tags_fetch(clazz, root_dir, tag):
-    git_exe.call_git(root_dir, 'fetch --tags')
+  def tags_fetch(clazz, root_dir, force = False):
+    args = [ 'fetch', '--tags' ]
+    if force:
+      args.append('--force')
+    git_exe.call_git(root_dir, args)
     
   @classmethod
   def delete_local_tag(clazz, root_dir, tag):
@@ -576,13 +579,13 @@ class git(git_lfs):
     if where in ( 'local', 'both' ):
       if git.has_local_tag(root_dir, tag):
         if dry_run:
-          print('would delete local tag \"{tag}\"'.format(tag = tag))
+          print('DRY_RUN: would delete local tag \"{tag}\"'.format(tag = tag))
         else:
           clazz.delete_local_tag(root_dir, tag)
     if where in ( 'remote', 'both' ):
       if git.has_remote_tag(root_dir, tag):
         if dry_run:
-          print('would delete remote tag \"{tag}\"'.format(tag = tag))
+          print('DRY_RUN: would delete remote tag \"{tag}\"'.format(tag = tag))
         else:
           clazz.delete_remote_tag(root_dir, tag)
 

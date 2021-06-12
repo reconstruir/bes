@@ -18,7 +18,7 @@ add commit1 commit1
   kiwi.txt: kiwi.txt
 tag 1.0.0 tag1 @commit1
 '''
-    r = git_temp_repo(remote = True, config = config)
+    r = git_temp_repo(remote = True, config = config, debug = self.DEBUG)
     self.assertEqual( '1.0.0', r.greatest_local_tag().name )
     args = [
       'git',
@@ -115,7 +115,7 @@ add commit3 commit3
   melon.txt: melon.txt
 tag rel/1.0.2 tag3 @commit3
 '''
-    r = git_temp_repo(remote = True, config = config)
+    r = git_temp_repo(remote = True, config = config, debug = self.DEBUG)
     tmp_output_file = self.make_temp_file(suffix = '.txt')
     args = [
       'git',
@@ -149,7 +149,7 @@ add commit4 commit4
 tag test/v3/1.0.0 tag4 @commit4
 tag test/v3/1.0.1 tag5 @commit4
 '''
-    r = git_temp_repo(remote = True, config = config)
+    r = git_temp_repo(remote = True, config = config, debug = self.DEBUG)
     args = [
       'git',
       'bump_tag',
@@ -179,7 +179,7 @@ add commit3 commit3
   melon.txt: melon.txt
 tag rel/1.0.2 tag3 @commit3
 '''
-    r = git_temp_repo(remote = True, config = config)
+    r = git_temp_repo(remote = True, config = config, debug = self.DEBUG)
     self.assertEqual( [ 'rel/1.0.0', 'rel/1.0.1', 'rel/1.0.2' ], r.list_local_tags().names() )
     self.assertEqual( [ 'rel/1.0.0', 'rel/1.0.1', 'rel/1.0.2' ], r.list_remote_tags().names() )
     args = [
@@ -192,6 +192,40 @@ tag rel/1.0.2 tag3 @commit3
     self.assertEqual(0, rv.exit_code)
     self.assertEqual( [ 'rel/1.0.0', 'rel/1.0.2' ], r.list_local_tags().names() )
     self.assertEqual( [ 'rel/1.0.0', 'rel/1.0.2' ], r.list_remote_tags().names() )
+
+  @git_temp_home_func()
+  def test_remote_print(self):
+    r = git_temp_repo(remote = True)
+    args = [
+      'git',
+      'remote_print',
+      '--root-dir', r.root,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    self.assertEqual( r.address, rv.output.strip() )
+
+  @git_temp_home_func()
+  def test_remote_replace(self):
+    new_url = git_temp_repo(remote = True, debug = self.DEBUG).address
+    r = git_temp_repo(remote = True, debug = self.DEBUG)
+    args = [
+      'git',
+      'remote_replace',
+      '--root-dir', r.root,
+      new_url,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+
+    args = [
+      'git',
+      'remote_print',
+      '--root-dir', r.root,
+    ]
+    rv = self.run_program(self._program, args)
+    self.assertEqual(0, rv.exit_code)
+    self.assertEqual( new_url, rv.output.strip() )
     
 if __name__ == '__main__':
   program_unit_test.main()

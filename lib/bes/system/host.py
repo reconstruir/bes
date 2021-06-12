@@ -7,7 +7,7 @@ from .compat import with_metaclass
 
 class _host_info_holder(type):
   
-  _VALID_KEYS = [ 'ARCH', 'DISTRO', 'FAMILY', 'SYSTEM', 'VERSION_MAJOR', 'VERSION_MINOR' ]
+  _VALID_KEYS = [ 'ARCH', 'DISTRO', 'FAMILY', 'SYSTEM', 'VERSION_MAJOR', 'VERSION_MINOR', 'CODENAME' ]
   
   def __getattr__(clazz, key):
     if not key in clazz._VALID_KEYS:
@@ -38,6 +38,8 @@ class host(with_metaclass(_host_info_holder, object)):
   # distros
   RASPBIAN = 'raspbian'
   UBUNTU = 'ubuntu'
+  FEDORA = 'fedora'
+  DEBIAN = 'fedora'
 
   DISTROS = ( RASPBIAN, UBUNTU )
 
@@ -55,7 +57,8 @@ class host(with_metaclass(_host_info_holder, object)):
                                 determiner.version_minor(),
                                 determiner.arch(),
                                 determiner.distro(),
-                                determiner.family())
+                                determiner.family(),
+                                determiner.codename())
     del clazz.init
     
   @classmethod

@@ -5,14 +5,18 @@ import re
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 
+from .check import check
 from .command_line import command_line
 from .compat import compat
 from .execute import execute
 from .host import host
+from .log import logger
 from .which import which
 
 class system_command(with_metaclass(ABCMeta, object)):
   'Abstract base class for dealing with system commands.'
+
+  _log = logger('system_command')
   
   @abstractmethod
   def exe_name(self):
@@ -53,10 +57,16 @@ class system_command(with_metaclass(ABCMeta, object)):
       
     raise error_class('Failed to find {}'.format(exe_name))
 
-  def call_command(self, args, raise_error = True):
+  def call_command(self, args, raise_error = True, env = None, use_sudo = False):
     'Call the command'
+    check.check_string_seq(args)
+    check.check_bool(raise_error)
+    check.check_dict(env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
+    check.check_bool(use_sudo)
 
     self.check_supported()
+
+    self._log.log_d('call_command: args={}'.format(' '.join(args)))
     
     if isinstance(args, ( list, tuple )):
       parsed_args = list(args)
@@ -65,14 +75,21 @@ class system_command(with_metaclass(ABCMeta, object)):
     else:
       raise TypeError('Invalid args type.  Should be tuple, list or string: {} - {}'.format(args,
                                                                                             type(args)))
+    self._log.log_d('call_command: parsed_args={}'.format(' '.join(parsed_args)))
 
     exe = self._find_exe()
     static_args = self.static_args() or []
     if not isinstance(static_args, ( list, tuple )):
       raise TypeError('Return value of static_args() should be list or tuple: {} - {}'.format(static_args,
                                                                                               type(static_args)))
-    cmd = [ exe ] + list(static_args) + args
-    return execute.execute(cmd, raise_error = raise_error)
+    cmd = []
+    if use_sudo:
+      cmd.append('sudo')
+    cmd.append(exe)
+    cmd.extend(list(static_args))
+    cmd.extend(args)
+    self._log.log_d('call_command: cmd={}'.format(' '.join(cmd)))
+    return execute.execute(cmd, raise_error = raise_error, env = env)
 
   def call_command_parse_lines(self, args, sort = False):
     'Call a command that returns a list of lines'

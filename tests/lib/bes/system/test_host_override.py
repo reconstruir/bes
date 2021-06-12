@@ -10,21 +10,23 @@ from bes.system.host_override import host_override_func
 class test_host_override(unit_test):
 
   def test_basic(self):
-    info = host_info('foo', '666', '42', 'x86_64', 'woof', 'deviant')
+    info = host_info('foo', '666', '42', 'x86_64', 'woof', 'deviant', 'codered')
     with host_override(info) as over:
       self.assertEqual( 'foo', host.SYSTEM )
       self.assertEqual( '666', host.VERSION_MAJOR )
       self.assertEqual( '42', host.VERSION_MINOR )
       self.assertEqual( 'woof', host.DISTRO )
       self.assertEqual( 'deviant', host.FAMILY )
+      self.assertEqual( 'codered', host.CODENAME )
 
-  @host_override_func(host_info('bar', '123', '43', 'i386', 'meow', 'frubunto'))
+  @host_override_func(host_info('bar', '123', '43', 'i386', 'meow', 'frubunto', 'codered'))
   def test_decorator(self):
     self.assertEqual( 'bar', host.SYSTEM )
     self.assertEqual( '123', host.VERSION_MAJOR )
     self.assertEqual( '43', host.VERSION_MINOR )
     self.assertEqual( 'meow', host.DISTRO )
     self.assertEqual( 'frubunto', host.FAMILY )
+    self.assertEqual( 'codered', host.CODENAME )
 
 if __name__ == "__main__":
   unit_test.main()

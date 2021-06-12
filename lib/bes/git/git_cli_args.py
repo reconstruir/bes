@@ -95,7 +95,23 @@ class git_cli_args(object):
     p.add_argument('commit', action = 'store', type = str, default = None,
                    help = 'The git commit hash. [ None ]')
     self._git_add_common_args(p)
+    
+    # git_remote_print
+    p = subparser.add_parser('remote_print', help = 'Print the remote url.')
+    p.add_argument('--name', action = 'store', type = str, default = 'origin',
+                   help = 'The remote name.  Usually origin. [ origin ]')
+    self._git_add_common_args(p)
 
+    # git_remote_replace
+    p = subparser.add_parser('remote_replace', help = 'Replace the remote url with a new one.')
+    p.add_argument('--name', action = 'store', type = str, default = 'origin',
+                   help = 'The remote name.  Usually origin. [ origin ]')
+    p.add_argument('--test', action = 'store_true', default = False,
+                   help = 'Test whether the new remote works. [ False ]')
+    p.add_argument('new_url', action = 'store', type = str, default = None,
+                   help = 'The new url for the remote. []')
+    self._git_add_common_args(p)
+    
   @classmethod
   def _git_add_common_args(clazz, p):
     p.add_argument('--root-dir', action = 'store', default = None,
@@ -103,5 +119,5 @@ class git_cli_args(object):
     git_cli_common_args.git_cli_add_common_args(p)
     
   def _command_git(self, command, *args, **kargs):
-    from .git_cli_command import git_cli_command
-    return git_cli_command(kargs).handle_command(command)
+    from .git_cli_handler import git_cli_handler
+    return git_cli_handler(kargs).handle_command(command)

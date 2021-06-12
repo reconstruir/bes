@@ -9,6 +9,7 @@ from bes.common.table import table
 from bes.git.git import git
 from bes.git.git_ref_where import git_ref_where
 from bes.git.git_repo import git_repo
+from bes.git.git_error import git_error
 from bes.system.log import logger
 from bes.text.text_box import text_box_colon
 from bes.text.text_box import text_box_unicode
@@ -22,12 +23,12 @@ from .git_cli_util import git_cli_util
 from .git_output import git_output
 from .git_tag import git_tag_list
 
-class git_cli_command(cli_command_handler):
+class git_cli_handler(cli_command_handler):
 
   _log = logger('git_cli')
   
   def __init__(self, cli_args):
-    super(git_cli_command, self).__init__(cli_args, options_class = git_cli_options)
+    super(git_cli_handler, self).__init__(cli_args, options_class = git_cli_options)
     check.check_git_cli_options(self.options)
 
   _DELTA_MAP = {
@@ -174,7 +175,7 @@ class git_cli_command(cli_command_handler):
 
   class branch_active_cell_renderer(text_cell_renderer):
     def __init__(self, *args, **kargs):
-      super(git_cli_command.branch_active_cell_renderer, self).__init__(*args, **kargs)
+      super(git_cli_handler.branch_active_cell_renderer, self).__init__(*args, **kargs)
     def render(self, value, width = None, is_label = False):
       if is_label:
         return value
@@ -182,7 +183,7 @@ class git_cli_command(cli_command_handler):
       
   class branch_ahead_behind_cell_renderer(text_cell_renderer):
     def __init__(self, *args, **kargs):
-      super(git_cli_command.branch_ahead_behind_cell_renderer, self).__init__(*args, **kargs)
+      super(git_cli_handler.branch_ahead_behind_cell_renderer, self).__init__(*args, **kargs)
     def render(self, value, width = None, is_label = False):
       if is_label:
         return value
@@ -247,4 +248,32 @@ class git_cli_command(cli_command_handler):
   def long_commit(self, commit):
     long_commit = git.long_hash(self.options.root_dir, commit)
     print(long_commit)
+    return 0
+
+  def remote_print(self, name):
+    check.check_string(name)
+
+    repo = git_repo(self.options.root_dir)
+    url = repo.remote_get_url(name = name)
+    print(url or '')
+    return 0
+
+  def remote_replace(self, name, new_url, test):
+    check.check_string(name)
+    check.check_string(new_url)
+    check.check_bool(test)
+
+    repo = git_repo(self.options.root_dir)
+    old_url = repo.remote_get_url(name = name)
+    repo.remote_set_url(new_url, name = name)
+    revert = False
+    if test:
+      try:
+        repo.list_remote_tags()
+      except git_error as ex:
+        revert = True
+    if revert:
+      print('Failed to test url {}'.format(new_url))
+      repo.remote_set_url(old_url, name = name)
+      print('Reverted to {}'.format(old_url))
     return 0

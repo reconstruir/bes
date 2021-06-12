@@ -28,7 +28,7 @@ class test_pyinstaller_builder(unit_test):
 
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_build(self):
-    tmp_dir = self.make_temp_dir()
+    tmp_dir = self.make_temp_dir(suffix = '.test_pyinstaller_build')
     if self.DEBUG:
       print('tmp_dir: {}'.format(tmp_dir))
     venvs_dir = path.join(tmp_dir, 'venvs')
@@ -125,16 +125,15 @@ class fakelib2(object):
     file_util.save(path.join(tmp_dir, 'program', 'fakelib1.py'), content = fakelib1_content)
     file_util.save(path.join(tmp_dir, 'program', 'fakelib2.py'), content = fakelib2_content)
     
-    work_dir = path.join(tmp_dir, 'work')
-    pyinstaller_build.build(program_source,
-                            log_level = 'INFO',
-                            hidden_imports = [ 'json', 'fakelib1', 'fakelib2' ],
-                            verbose = True,
-                            cwd = work_dir,
-                            exe = project.program_path('pyinstaller'),
-                            replace_env = project.env)
-    program_exe = path.join(work_dir, 'dist/program')
-    rv = execute.execute(program_exe, raise_error = False)
+    build_dir = path.join(tmp_dir, 'BUILD')
+    build_result = pyinstaller_build.build(program_source,
+                                           log_level = 'INFO',
+                                           hidden_imports = [ 'json', 'fakelib1', 'fakelib2' ],
+                                           verbose = True,
+                                           build_dir = build_dir,
+                                           replace_env = project.env)
+    self.assertTrue( path.exists(build_result.output_exe) )
+    rv = execute.execute(build_result.output_exe, raise_error = False)
     self.assertEqual( 0, rv.exit_code )
     expected = 'test_re:test_threading:test_subprocess:test_subprocess_with_shell:test_json_hidden:test_fakelib1:test_fakelib2_hidden:'
     self.assertEqual( expected, rv.stdout.strip() )

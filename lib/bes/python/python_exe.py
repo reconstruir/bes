@@ -4,7 +4,6 @@ import codecs
 import os
 import os.path as path
 import sys
-import subprocess
 
 from collections import namedtuple
 

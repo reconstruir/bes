@@ -1,8 +1,8 @@
 function _bes_venv_activate_main()
 {
-  source $(_this_dir_bes_venv_activate)/../bes_shell/bes_all.sh
+  source $(_bes_venv_activate_this_dir)/../bes_shell/bes_all.sh
 
-  local _this_dir="$(_this_dir_bes_venv_activate)"
+  local _this_dir="$(_bes_venv_activate_this_dir)"
   local _root_dir="$(bes_abs_path ${_this_dir}/..)"
   local _best="${_root_dir}/bin/best.py"
 
@@ -16,7 +16,7 @@ function _bes_venv_activate_main()
   return 0
 }
 
-function _this_dir_bes_venv_activate()
+function _bes_venv_activate_this_dir()
 {
   echo "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
   return 0
@@ -24,4 +24,4 @@ function _this_dir_bes_venv_activate()
 
 source $(_bes_venv_activate_main ${1+"$@"})
 unset -f _bes_venv_activate_main
-unset -f _this_dir_bes_venv_activate
+unset -f _bes_venv_activate_this_dir
