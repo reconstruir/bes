@@ -28,7 +28,7 @@ class test_pyinstaller_builder(unit_test):
 
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_build(self):
-    tmp_dir = self.make_temp_dir()
+    tmp_dir = self.make_temp_dir(suffix = '.test_pyinstaller_build')
     if self.DEBUG:
       print('tmp_dir: {}'.format(tmp_dir))
     venvs_dir = path.join(tmp_dir, 'venvs')
