@@ -429,6 +429,7 @@ def main():
       result = _test_execute(python_exe, ar.inspect_map, filename, test_desc.tests, options, i + 1, total_files, cwd, env)
       _collect_side_effects(side_effects, filename, tmp_home, 'home', args.keep_side_effects)
       _collect_side_effects(side_effects, filename, tmp_tmp, 'tmp', args.keep_side_effects)
+      _collect_side_effects(side_effects, filename, os.getcwd(), 'cwd', args.keep_side_effects)
       timings[filename].append(result.elapsed_time)
       total_num_tests += result.num_tests_run
       num_executed += 1
@@ -512,11 +513,6 @@ def main():
     rv = 1
     printer.writeln_name('SIDE EFFECT: working directory was changed from %s to %s' % (tmp_cwd, current_cwd))
     
-  cwd_droppings = file_find.find(current_cwd, relative = False, file_type = file_find.ANY)
-  for cwd_dropping in cwd_droppings:
-    rv = 1
-    printer.writeln_name('SIDE EFFECT: cwd dropping found: %s' % (cwd_dropping))
-
   for test, items in sorted(side_effects.items()):
     for item in items:
       rv = 1
