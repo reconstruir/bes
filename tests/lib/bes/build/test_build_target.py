@@ -39,11 +39,11 @@ class test_build_target(unit_test):
     self.assertTrue( F('macos-10.10/x86_64/release', '${system} == MACOS and ${level} == RELEASE') )
     self.assertFalse( F('macos-10.10/x86_64/release', '${system} == MACOS and ${level} != RELEASE') )
     self.assertTrue( F('linux-raspbian-9/x86_64/release', '${system} == LINUX and ${distro} == RASPBIAN') )
-    self.assertFalse( F('linux-raspbian-9/x86_64/release', '${system} is MACOS or (${system} is LINUX and ${distro} is not RASPBIAN)') )
-    self.assertTrue( F('macos-10.10/x86_64/release', '${system} is MACOS or (${system} is LINUX and ${distro} is not RASPBIAN)') )
-    self.assertTrue( F('macos-10.10/x86_64/debug', '${system} is MACOS or (${system} is LINUX and ${distro} is not RASPBIAN)') )
-    self.assertTrue( F('linux-ubuntu-18/x86_64/release', '${system} is MACOS or (${system} is LINUX and ${distro} is not RASPBIAN)') )
-    self.assertTrue( F('linux-ubuntu-18/x86_64/debug', '${system} is MACOS or (${system} is LINUX and ${distro} is not RASPBIAN)') )
+    self.assertFalse( F('linux-raspbian-9/x86_64/release', '${system} == MACOS or (${system} == LINUX and ${distro} != RASPBIAN)') )
+    self.assertTrue( F('macos-10.10/x86_64/release', '${system} == MACOS or (${system} == LINUX and ${distro} != RASPBIAN)') )
+    self.assertTrue( F('macos-10.10/x86_64/debug', '${system} == MACOS or (${system} == LINUX and ${distro} != RASPBIAN)') )
+    self.assertTrue( F('linux-ubuntu-18/x86_64/release', '${system} == MACOS or (${system} == LINUX and ${distro} != RASPBIAN)') )
+    self.assertTrue( F('linux-ubuntu-18/x86_64/debug', '${system} == MACOS or (${system} == LINUX and ${distro} != RASPBIAN)') )
 
   def test_clone(self):
     p = BT.parse_path
