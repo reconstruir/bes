@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source "${_BES_DEV_ROOT}/bes_shell/bes_shell.sh"
+source "${_BES_DEV_ROOT}/bes_shell/bes_shell.bash"
+source "${_BES_DEV_ROOT}/bes_shell/bes_testing.bash"
 
 function test_bes_var_set()
 {
@@ -40,18 +41,6 @@ function test_bes_path_sanitize()
   bes_assert "[ $(bes_path_sanitize :a\ b:c\ d | tr ' ' '_') = a_b:c_d ]"
   bes_assert "[ $(bes_path_sanitize a\ b:c\ d: | tr ' ' '_') = a_b:c_d ]"
   bes_assert "[ $(bes_path_sanitize :a\ b:c\ d:a\ b: | tr ' ' '_') = a_b:c_d ]"
-}
-
-function test_bes_path_append()
-{
-  bes_assert "[ $(bes_path_append /bin /foo/bin) = /bin:/foo/bin ]"
-  bes_assert "[ $(bes_path_append /bin:/foo/bin /foo/bin) = /bin:/foo/bin ]"
-  bes_assert "[ $(bes_path_append /bin:/foo/bin /foo/bin /bar/bin) = /bin:/foo/bin:/bar/bin ]"
-  bes_assert "[ $(bes_path_append /bin:/foo/bin /bin) = /foo/bin:/bin ]"
-  bes_assert "[ $(bes_path_append foo bar) = foo:bar ]"
-  bes_assert "[ $(bes_path_append foo bar bar foo) = bar:foo ]"
-  bes_assert "[ $(bes_path_append /bin:/foo/bin /a\ b | tr ' ' '_') = /bin:/foo/bin:/a_b ]"
-  bes_assert "[ $(bes_path_append : /bin/foo) = /bin/foo ]"
 }
 
 function test_bes_path_prepend()

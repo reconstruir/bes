@@ -1,6 +1,6 @@
 function _bes_venv_activate_main()
 {
-  source $(_bes_venv_activate_this_dir)/../bes_shell/bes_all.sh
+  source $(_bes_venv_activate_this_dir)/../bes_shell/bes_all.bash
 
   local _this_dir="$(_bes_venv_activate_this_dir)"
   local _root_dir="$(bes_abs_path ${_this_dir}/..)"

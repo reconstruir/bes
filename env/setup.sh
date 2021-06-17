@@ -6,7 +6,7 @@ _bes_dev_root()
   return 0
 }
 
-source "$(_bes_dev_root)/bes_shell/bes_shell.sh"
+source "$(_bes_dev_root)/bes_shell/bes_shell.bash"
 
 bes_dev()
 {
