@@ -167,19 +167,19 @@ function bes_path_prepend()
     echo "Usage: bes_path_prepend path p1 p2 ... pN"
     return 1
   fi
-  bes_log path debug bes_path_prepend ARGS $*
-  bes_log path debug bes_path_prepend NUM ${#}
+  bes_log path debug "bes_path_prepend ARGS $*"
+  bes_log path debug "bes_path_prepend NUM ${#}"
   local _right
   IFS=':' read -ra _right <<< "${1}"
-  bes_log path debug bes_path_prepend ${#_right[@]} _right=${_right[@]}
+  bes_log path debug "bes_path_prepend _right=${_right[*]} num=${#_right[*]}"
   shift
   local _left=()
   local i
-  bes_log path debug bes_path_prepend num args ${#}
+  bes_log path debug "bes_path_prepend num args ${#}"
   for ((i = 1; i <= ${#}; i++)); do
     _left+=("${!i}")
   done
-  bes_log path debug bes_path_prepend ${#_left[@]} _left=${_left[@]}
+  bes_log path debug "bes_path_prepend _left=${_left[*]} num=${#_left[*]}"
   local _new_path=()
   for ((i = 0; i < ${#_left[@]}; i++)); do
     _new_path+=("${_left[${i}]}")
@@ -244,43 +244,13 @@ function bes_env_path_prepend()
 
   local _var_name=$(bes_variable_map $1)
   shift
-  bes_log path debug bes_env_path_prepend "_var_name=${_var_name}"
+  bes_log path debug "bes_env_path_prepend _var_name=${_var_name}"
   local _value=$(bes_var_get ${_var_name})
-  bes_log path debug bes_env_path_prepend _value=${_value}
+  bes_log path debug "bes_env_path_prepend _value=${_value}"
   local _new_value=$(bes_path_prepend "${_value}" "${@}")
   bes_var_set ${_var_name} "$_new_value"
   export ${_var_name}
-  bes_log path debug bes_env_path_prepend "result ${_new_value}"
-  return 0
-}
-
-function bes_env_path_prepend2()
-{
-  bes_log_trace_function path $*
-
-  local _var_name=$(bes_variable_map $1)
-  shift
-  local _new_parts=()
-  local _next_part
-  local i
-
-  for ((i = 1; i <= ${#}; i++)); do
-    _new_parts+=("${!i}")
-  done
-  
-  local _right_parts=($(bes_var_get ${_var_name}))
-  local _next_part
-  for _next_part in "${_right_parts[@]}"; do
-    _new_parts+=("${_next_part}")
-  done
-  local _new_value=$(for ((i = 0; i < ${#_new_parts[@]}; i++)); do
-    if [[ $i != 0 ]]; then
-       printf ":"
-    fi
-    printf "%s" "${_new_parts[${i}]}"
-  done)
-  bes_var_set ${_var_name} "${_new_value}"
-  export ${_var_name}
+  bes_log path debug "bes_env_path_prepend result ${_new_value}"
   return 0
 }
 
