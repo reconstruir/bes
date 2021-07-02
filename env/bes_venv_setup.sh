@@ -15,8 +15,8 @@ function main()
   local _requirements="${_root_dir}/requirements.txt"
   local _requirements_test="${_root_dir}/requirements-dev.txt"
   
-  ${_python} ${_best} pip_project install_requirements --root-dir "${_projects_root_dir}" bes_venv "${_requirements}"
-  ${_python} ${_best} pip_project install_requirements --root-dir "${_projects_root_dir}" bes_venv "${_requirements_test}"
+  ${_python} ${_best} pip_project install_requirements --root-dir "${_projects_root_dir}" bes "${_requirements}"
+  ${_python} ${_best} pip_project install_requirements --root-dir "${_projects_root_dir}" bes "${_requirements_test}"
   
   return 0
 }

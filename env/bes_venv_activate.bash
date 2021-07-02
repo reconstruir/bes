@@ -10,7 +10,7 @@ function _bes_venv_activate_main()
   local _requirements="${_root_dir}/requirements.txt"
 
   ${_this_dir}/bes_venv_setup.sh
-  local _activate_script=$(${_best} pip_project activate_script --root-dir "${_projects_root_dir}" bes_venv)
+  local _activate_script=$(${_best} pip_project activate_script --root-dir "${_projects_root_dir}" bes)
   echo ${_activate_script}
   
   return 0
