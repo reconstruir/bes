@@ -151,6 +151,8 @@ EOF
 
   _bes_trace_function $*
 
+  echo fuck2 BEFORE $*
+
   local _set_title=false
   local _change_dir=false
   local _set_path=false
@@ -213,6 +215,8 @@ EOF
   
   set -- "${positional_args[@]}" # restore positional parameters
 
+  echo fuck2  AFTER $*
+  
   local _root_dir=
   if [[ $# < 1 ]]; then
     _bes_setup_v2_help
