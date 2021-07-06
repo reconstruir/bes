@@ -103,11 +103,11 @@ function test_bes_variable_map_macos()
   bes_assert "[ $(bes_variable_map DYLD_LIBRARY_PATH) = DYLD_LIBRARY_PATH ]"
 }
 
-function test_bes_to_lower()
+function test_bes_str_to_lower()
 {
-  bes_assert "[[ $(bes_to_lower FoO) == foo ]]"
-  bes_assert "[[ $(bes_to_lower FOO) == foo ]]"
-  bes_assert "[[ $(bes_to_lower foo) == foo ]]"
+  bes_assert "[[ $(bes_str_to_lower FoO) == foo ]]"
+  bes_assert "[[ $(bes_str_to_lower FOO) == foo ]]"
+  bes_assert "[[ $(bes_str_to_lower foo) == foo ]]"
 }  
 
 function test_bes_is_true()
