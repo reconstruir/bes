@@ -7,26 +7,27 @@ _bes_dev_root()
 }
 
 source "$(_bes_dev_root)/bes_shell/bes_shell.bash"
+source "$(_bes_dev_root)/bes_shell/bes_dev.bash"
 
 bes_dev()
 {
-  local _root_dir="$(_bes_dev_root)"
-  local _virtual_env_setup="${_root_dir}/env/bes_venv_activate.bash"
-  bes_setup_v2 "${_root_dir}" \
-               --set-path \
-               --set-python-path \
-               --set-title \
-               --venv-config "${_virtual_env_setup}" \
-               --venv-activate \
-               --change-dir \
-               ${1+"$@"}
+  local _bes_root_dir="$(_bes_dev_root)"
+  local _virtual_env_setup="${_bes_root_dir}/env/bes_venv_activate.bash"
+  bes_dev_setup "${_bes_root_dir}" \
+                --set-path \
+                --set-python-path \
+                --set-title \
+                --venv-config "${_virtual_env_setup}" \
+                --venv-activate \
+                --change-dir
+                ${1+"$@"}
   return $?
 }
 
 bes_undev()
 {
-  local _root_dir="$(_bes_dev_root)"
-  bes_unsetup "${_root_dir}"
+  local _bes_root_dir="$(_bes_dev_root)"
+  bes_dev_unsetup "${_bes_root_dir}"
   return 0
 }
 
