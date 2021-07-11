@@ -1,0 +1,5 @@
+task change_computer_name
+  class: cst_change_computer_name
+  system: macos
+  value: computer_name="caca_de_vaca"
+  value: fruit=kiwi
