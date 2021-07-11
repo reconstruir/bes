@@ -72,7 +72,7 @@ class console(object):
       return False
     elif host.is_unix():
       try:
-        dev = subprocess.check_outpout('tty').stdout.strip()
+        dev = subprocess.check_output('tty').stdout.strip()
         with open(dev, 'r') as f:
           if os.isatty(f.fileno()):
             return dev

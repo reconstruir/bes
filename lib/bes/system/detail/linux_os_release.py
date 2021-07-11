@@ -1,14 +1,15 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from os import path
 from collections import namedtuple
+from os import path
+import re
 
 class linux_os_release(object):
   'Parse /etc/os-release'
 
   OS_RELEASE = '/etc/os-release'
   
-  _parse_result = namedtuple('_parse_result', 'distro, version_major, version_minor, family')
+  _parse_result = namedtuple('_parse_result', 'distro, version_major, version_minor, family, codename')
   @classmethod
   def parse_os_release(clazz, text, filename):
     'Parse the os-release content and return a namedtuple of the values.'
@@ -25,7 +26,15 @@ class linux_os_release(object):
       family = clazz._parse_family(d['ID_LIKE'])
     else:
       family = clazz._guess_family(distro)
-    return clazz._parse_result(distro, version_major, version_minor, family)
+    codename = None
+    if 'VERSION_CODENAME' in d:
+      codename = d['VERSION_CODENAME'].strip().lower()
+    elif 'PRETTY_NAME' in d:
+      pretty_name = d['PRETTY_NAME'].strip().lower()
+      f = re.findall(r'.*\s+\((.+)\).*', pretty_name)
+      if f and len(f) == 1:
+        codename = f[0].strip()
+    return clazz._parse_result(distro, version_major, version_minor, family, codename)
 
   @classmethod
   def has_os_release(clazz):

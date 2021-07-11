@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source "${_BES_DEV_ROOT}/bes_shell/bes_shell.sh"
+source "${_BES_DEV_ROOT}/bes_shell/bes_shell.bash"
+source "${_BES_DEV_ROOT}/bes_shell/bes_testing.bash"
 
 function test_bes_var_set()
 {
@@ -40,18 +41,6 @@ function test_bes_path_sanitize()
   bes_assert "[ $(bes_path_sanitize :a\ b:c\ d | tr ' ' '_') = a_b:c_d ]"
   bes_assert "[ $(bes_path_sanitize a\ b:c\ d: | tr ' ' '_') = a_b:c_d ]"
   bes_assert "[ $(bes_path_sanitize :a\ b:c\ d:a\ b: | tr ' ' '_') = a_b:c_d ]"
-}
-
-function test_bes_path_append()
-{
-  bes_assert "[ $(bes_path_append /bin /foo/bin) = /bin:/foo/bin ]"
-  bes_assert "[ $(bes_path_append /bin:/foo/bin /foo/bin) = /bin:/foo/bin ]"
-  bes_assert "[ $(bes_path_append /bin:/foo/bin /foo/bin /bar/bin) = /bin:/foo/bin:/bar/bin ]"
-  bes_assert "[ $(bes_path_append /bin:/foo/bin /bin) = /foo/bin:/bin ]"
-  bes_assert "[ $(bes_path_append foo bar) = foo:bar ]"
-  bes_assert "[ $(bes_path_append foo bar bar foo) = bar:foo ]"
-  bes_assert "[ $(bes_path_append /bin:/foo/bin /a\ b | tr ' ' '_') = /bin:/foo/bin:/a_b ]"
-  bes_assert "[ $(bes_path_append : /bin/foo) = /bin/foo ]"
 }
 
 function test_bes_path_prepend()
@@ -114,28 +103,11 @@ function test_bes_variable_map_macos()
   bes_assert "[ $(bes_variable_map DYLD_LIBRARY_PATH) = DYLD_LIBRARY_PATH ]"
 }
 
-function test_bes_source_dir()
+function test_bes_str_to_lower()
 {
-  local _pid=$$
-  local _tmp=/tmp/test_bes_source_dir_${_pid}
-  mkdir -p ${_tmp}
-  echo "FOO=foo_${_pid}" > $_tmp/1.sh
-  echo "BAR=bar_${_pid}" > $_tmp/2.sh
-  echo "BAZ=baz_${_pid}" > $_tmp/3.sh
-  (
-    bes_source_dir ${_tmp}
-    bes_assert "[ ${FOO} = foo_${_pid} ]"
-    bes_assert "[ ${BAR} = bar_${_pid} ]"
-    bes_assert "[ ${BAZ} = baz_${_pid} ]"
-  )
-  rm -rf ${_tmp}
-}  
-
-function test_bes_to_lower()
-{
-  bes_assert "[[ $(bes_to_lower FoO) == foo ]]"
-  bes_assert "[[ $(bes_to_lower FOO) == foo ]]"
-  bes_assert "[[ $(bes_to_lower foo) == foo ]]"
+  bes_assert "[[ $(bes_str_to_lower FoO) == foo ]]"
+  bes_assert "[[ $(bes_str_to_lower FOO) == foo ]]"
+  bes_assert "[[ $(bes_str_to_lower foo) == foo ]]"
 }  
 
 function test_bes_is_true()

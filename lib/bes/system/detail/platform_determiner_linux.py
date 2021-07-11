@@ -26,14 +26,6 @@ class platform_determiner_linux(platform_determiner_base):
     else:
       return None
    
-  @classmethod
-  def _etc_issue_content(clazz):
-    try:
-      with open('/etc/issue', 'r') as fin:
-        return fin.read()
-    except Exception as ex:
-      return None
-    
   #@abstractmethod
   def system(self):
     'system.'
@@ -43,6 +35,11 @@ class platform_determiner_linux(platform_determiner_base):
   def distro(self):
     'distro.'
     return self._impl.distro()
+
+  #@abstractmethod
+  def codename(self):
+    'codename.'
+    return self._impl.codename()
   
   #@abstractmethod
   def family(self):

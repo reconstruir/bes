@@ -76,7 +76,6 @@ class file_mime(object):
     try:
       with open(filename, "r") as f:
         for l in f:
-          print('l={}'.format(l))
           pass
       return True
     except UnicodeDecodeError as ex:

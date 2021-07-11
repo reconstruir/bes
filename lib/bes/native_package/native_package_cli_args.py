@@ -63,5 +63,5 @@ class native_package_cli_args(object):
                    default = False, help = 'Verbose output')
     
   def _command_native_package(self, command, *args, **kargs):
-    from .native_package_cli_command import native_package_cli_command
-    return native_package_cli_command.handle_command(command, **kargs)
+    from .native_package_cli_handler import native_package_cli_handler
+    return native_package_cli_handler(kargs).handle_command(command)

@@ -22,6 +22,11 @@ class platform_determiner_linux_os_release(platform_determiner_base):
     return self._os_release.distro
 
   #@abstractmethod
+  def codename(self):
+    'codename.'
+    return self._os_release.codename
+  
+  #@abstractmethod
   def family(self):
     'distro family.'
     return self._os_release.family
@@ -31,11 +36,6 @@ class platform_determiner_linux_os_release(platform_determiner_base):
     'the distro distributor.'
     return 'dunno'
   
-  #@abstractmethod
-  def codename(self):
-    'distro codename.'
-    return 'dunno'
-
   #@abstractmethod
   def version_major(self):
     'distro version major.'

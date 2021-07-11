@@ -1,6 +1,6 @@
 function _bes_venv_activate_main()
 {
-  source $(_bes_venv_activate_this_dir)/../bes_shell/bes_all.sh
+  source $(_bes_venv_activate_this_dir)/../bes_shell/bes_all.bash
 
   local _this_dir="$(_bes_venv_activate_this_dir)"
   local _root_dir="$(bes_abs_path ${_this_dir}/..)"
@@ -10,7 +10,7 @@ function _bes_venv_activate_main()
   local _requirements="${_root_dir}/requirements.txt"
 
   ${_this_dir}/bes_venv_setup.sh
-  local _activate_script=$(${_best} pip_project activate_script --root-dir "${_projects_root_dir}" bes_deps)
+  local _activate_script=$(${_best} pip_project activate_script --root-dir "${_projects_root_dir}" bes)
   echo ${_activate_script}
   
   return 0

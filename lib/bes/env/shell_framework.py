@@ -347,7 +347,7 @@ function bes_source_dir()
 }
 
 # Convert a single argument string to lower case
-function bes_to_lower()
+function bes_str_to_lower()
 {
   local _result=$( echo "$@" | $_BES_TR_EXE '[:upper:]' '[:lower:]' )
   echo ${_result}
@@ -361,7 +361,7 @@ function bes_is_true()
     printf "\nUsage: bes_is_true what\n\n"
     return 1
   fi
-  local _what=$(bes_to_lower "$1")
+  local _what=$(bes_str_to_lower "$1")
   local _rv
   case "${_what}" in
     true|1|t|y|yes)

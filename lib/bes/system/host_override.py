@@ -30,13 +30,3 @@ def host_override_func(info):
         return func(self, *args, **kwargs)
     return _caller
   return _wrap
-
-def host_override_func(info):
-  'A decarator to override host.HOST_INFO.'
-  def _wrap(func):
-    @wraps(func)
-    def _caller(self, *args, **kwargs):
-      with host_override(info) as over:
-        return func(self, *args, **kwargs)
-    return _caller
-  return _wrap

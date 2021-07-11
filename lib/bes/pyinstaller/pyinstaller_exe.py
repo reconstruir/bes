@@ -40,8 +40,11 @@ class pyinstaller_exe(object):
       file_util.mkdir(build_dir)
     dist_dir = path.join(build_dir, 'dist')
     work_dir = path.join(build_dir, 'work')
+    spec_dir = path.join(build_dir, 'spec')
     args = args[:]
     args.extend([ '--distpath', dist_dir ])
+    args.extend([ '--workpath', work_dir ])
+    args.extend([ '--specpath', spec_dir ])
     try:
       with env_override(env = env) as _:
         PyInstaller_run(pyi_args = args, pyi_config = None)

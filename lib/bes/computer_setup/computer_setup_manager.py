@@ -23,6 +23,8 @@ class computer_setup_manager(object):
     self._tasks = []
 
   def run(self, values):
+    check.check_dict(values)
+    
     num_tasks = len(self._tasks)
     for i, task_item in enumerate(self._tasks, start = 1):
       task = task_item.task
@@ -77,6 +79,7 @@ class computer_setup_manager(object):
     values = section.to_dict(resolve_env_vars = True)
 
     system = values.pop('system', None)
+    self._log.log_d('_parse_task: system={} host.SYSTEM={}'.format(system, host.SYSTEM))
     if system and system != host.SYSTEM:
       self._log.log_d('system {} does not match us {}'.format(system, host.SYSTEM))
       return None

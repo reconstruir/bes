@@ -119,5 +119,5 @@ class git_cli_args(object):
     git_cli_common_args.git_cli_add_common_args(p)
     
   def _command_git(self, command, *args, **kargs):
-    from .git_cli_command import git_cli_command
-    return git_cli_command(kargs).handle_command(command)
+    from .git_cli_handler import git_cli_handler
+    return git_cli_handler(kargs).handle_command(command)
