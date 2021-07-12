@@ -20,5 +20,5 @@ class softwareupdater_cli_args(object):
                    help = 'Verbose output [ False ]')
     
   def _command_softwareupdater(self, command, *args, **kargs):
-    from .softwareupdater_cli_command import softwareupdater_cli_command
-    return softwareupdater_cli_command.handle_command(command, **kargs)
+    from .softwareupdater_cli_handler import softwareupdater_cli_handler
+    return softwareupdater_cli_handler.handle_command(command, **kargs)

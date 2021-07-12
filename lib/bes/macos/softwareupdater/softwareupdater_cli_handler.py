@@ -8,11 +8,11 @@ from .softwareupdater import softwareupdater
 
 from bes.macos.command_line_tools.command_line_tools_force import command_line_tools_force
 
-class softwareupdater_cli_command(object):
+class softwareupdater_cli_handler(object):
 
   @classmethod
   def handle_command(clazz, command, **kargs):
-    func = getattr(softwareupdater_cli_command, command)
+    func = getattr(softwareupdater_cli_handler, command)
     return func(**kargs)
   
   @classmethod
