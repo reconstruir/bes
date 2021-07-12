@@ -21,4 +21,4 @@ class softwareupdater_cli_args(object):
     
   def _command_softwareupdater(self, command, *args, **kargs):
     from .softwareupdater_cli_handler import softwareupdater_cli_handler
-    return softwareupdater_cli_handler.handle_command(command, **kargs)
+    return softwareupdater_cli_handler(kargs).handle_command(command)

@@ -21,17 +21,20 @@ class softwareupdater(object):
   'Class to deal with the macos softwareupdate program.'
 
   _log = logger('softwareupdater')
-  
-  @classmethod
-  def available(clazz):
+
+  def __init__(self, options):
+    check.check_softwareupdater_options(options)
+    self._options = options
+    
+  def available(self):
     'Return a list of available software update items.'
     host.check_is_macos()
 
-    rv = clazz._call_softwareupdate('--list', False)
-    return clazz._parse_list_output(rv.stdout)
+    rv = self._call_softwareupdate('--list', False)
+    return self._parse_list_output(rv.stdout)
 
   @classmethod
-  def _parse_list_output(clazz, text):
+  def _parse_list_output(self, text):
     'Parse the output of softwareupdate --list.'
     result = []
     seen_labels = set()
@@ -47,16 +50,16 @@ class softwareupdater(object):
       assert attribute_index >= 0
       attributes_line = lp[attribute_index]
       if 'Label' in label_line.text:
-        item = clazz._parse_item_catalina(label_line, attributes_line)
+        item = self._parse_item_catalina(label_line, attributes_line)
       else:
-        item = clazz._parse_item_mojave(label_line, attributes_line)
+        item = self._parse_item_mojave(label_line, attributes_line)
       if not item.label in seen_labels:
         result.append(item)
         seen_labels.add(item.label)
     return sorted(result)
   
   @classmethod
-  def install(clazz, label, verbose):
+  def install(self, label, verbose):
     'Install an item by label.'
     check.check_string(label)
     check.check_bool(verbose)
@@ -67,7 +70,7 @@ class softwareupdater(object):
       #'--agree-to-license', # big sur only
       '"{}"'.format(label),
     ]
-    clazz._call_softwareupdate(args, verbose)
+    self._call_softwareupdate(args, verbose)
 
   @classmethod
   def _parse_item_catalina(clazz, label_line, attributes_line):

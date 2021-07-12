@@ -2,31 +2,30 @@
 
 from os import path
 
+from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
 
 from .softwareupdater import softwareupdater
+from .softwareupdater_options import softwareupdater_options
 
 from bes.macos.command_line_tools.command_line_tools_force import command_line_tools_force
 
-class softwareupdater_cli_handler(object):
+class softwareupdater_cli_handler(cli_command_handler):
 
-  @classmethod
-  def handle_command(clazz, command, **kargs):
-    func = getattr(softwareupdater_cli_handler, command)
-    return func(**kargs)
+  def __init__(self, cli_args):
+    super(softwareupdater_cli_handler, self).__init__(cli_args, options_class = softwareupdater_options)
+    check.check_softwareupdater_options(self.options)
+    self._softwareupdater = softwareupdater(self.options)
   
-  @classmethod
-  def available(clazz, force_command_line_tools):
+  def available(self, force_command_line_tools):
     with command_line_tools_force(force = force_command_line_tools) as force:
-      items = softwareupdater.available()
+      items = self._softwareupdater.available()
       for item in items:
         print('{} - {} - {}'.format(item.label, item.version, item.size))
       return 0
 
-  @classmethod
-  def install(clazz, label, verbose):
+  def install(self, label, verbose):
     check.check_string(label)
 
-    softwareupdater.install(label, verbose)
+    self._softwareupdater.install(label, verbose)
     return 0
-  
