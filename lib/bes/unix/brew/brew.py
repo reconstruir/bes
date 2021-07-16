@@ -42,7 +42,7 @@ class brew(object):
 
   def installed(self):
     'Return a list of all installed packages.'
-    return self._command.call_command_parse_lines([ 'list', '-1' ], sort = True)
+    return self._command.call_command_parse_lines([ 'list', '--formulae', '-1' ], sort = True)
   
   def uninstall(self, package_name):
     'Uninstall a package.'
