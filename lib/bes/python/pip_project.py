@@ -156,7 +156,7 @@ class pip_project(object):
       '--outdated',
       '--format', 'json',
     ]
-    rv = self.call_pip(args)
+    rv = self.call_pip(args, stderr_to_stdout = False)
     outdated = json.loads(rv.stdout)
 
     result = {}
@@ -176,7 +176,7 @@ class pip_project(object):
       'list',
       '--format', 'json',
     ]
-    rv = self.call_pip(args)
+    rv = self.call_pip(args, stderr_to_stdout = False)
     installed = json.loads(rv.stdout)
     self._log.log_d('installed: installed={}'.format(pprint.pformat(installed)))
     result = []
@@ -192,7 +192,7 @@ class pip_project(object):
     pip_args = args + self._common_pip_args
     return self.call_pip(args)
 
-  def call_pip(self, args, raise_error = True):
+  def call_pip(self, args, raise_error = True, stderr_to_stdout = True):
     'Call pip'
 
     self.check_pip_is_installed()
@@ -209,7 +209,8 @@ class pip_project(object):
     self._log.log_d('call_pip: cmd="{}" raise_error={}'.format(' '.join(cmd), raise_error))
     rv = execute.execute(cmd,
                          env = self.env,
-                         raise_error = raise_error)
+                         raise_error = raise_error,
+                         stderr_to_stdout = stderr_to_stdout)
     self._log.log_d('call_pip: exit_code={} stdout="{}" stderr="{}"'.format(rv.exit_code,
                                                                             rv.stdout,
                                                                             rv.stderr))
@@ -243,7 +244,7 @@ class pip_project(object):
     rv = self.call_pip(args, raise_error = False)
     if rv.exit_code != 0:
       error_message = error_message or 'Failed to install: "{}"'.format(' '.join(args))
-      error_message = error_message + ' - {}'.format(rv.stderr)
+      error_message = error_message + ' - {}'.format(rv.stdout)
       self._log.log_w('install: {}'.format(error_message))
       raise pip_error(error_message)
     
@@ -258,7 +259,7 @@ class pip_project(object):
     ]
     rv = self.call_pip(args, raise_error = False)
     if rv.exit_code != 0:
-      msg = 'Failed to install requirements: "{}"'.format(requirements_file, rv.stderr)
+      msg = 'Failed to install requirements: "{}"\n{}\n'.format(requirements_file, rv.stdout)
       self._log.log_w('install: {}'.format(msg))
       raise pip_error(msg)
     

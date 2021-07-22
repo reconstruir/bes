@@ -6,12 +6,12 @@ from bes.git.git_status import git_status as S
 
 class test_status(unit_test):
 
-  def test_as_tuple(self):
-    self.assertEqual( ( 'R', 'foo.py', 'bar.py' ), S('R', 'foo.py', 'bar.py').as_tuple() )
-  
   def test___eq__(self):
     self.assertEqual( ( 'R', 'foo.py', 'bar.py' ), S('R', 'foo.py', 'bar.py') )
 
+  def test_as_tuple(self):
+    self.assertEqual( ( 'R', 'foo.py', 'bar.py' ), S('R', 'foo.py', 'bar.py').as_tuple() )
+  
   def test_parse_line(self):
     self.assertEqual( S( 'A', 'foo.py' ), S.parse_line('A  foo.py') )
 

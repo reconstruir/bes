@@ -9,7 +9,7 @@ from bes.common.string_util import string_util
 from bes.common.tuple_util import tuple_util
 from bes.compat.cmp import cmp
 
-git_branch_status = namedtuple('git_branch_status', 'ahead, behind')
+from .git_branch_status import git_branch_status
 
 class git_branch(namedtuple('git_branch', 'name, where, active, ahead, behind, commit, author, comment')):
 

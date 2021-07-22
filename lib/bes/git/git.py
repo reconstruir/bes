@@ -34,7 +34,7 @@ from .git_modules_file import git_modules_file
 from .git_ref import git_ref
 from .git_ref_info import git_ref_info
 from .git_ref_where import git_ref_where
-from .git_status import git_status
+from .git_status import git_status, git_status_list
 from .git_submodule_info import git_submodule_info
 from .git_tag import git_tag
 from .git_tag_sort_type import git_tag_sort_type
@@ -54,7 +54,7 @@ class git(git_lfs):
       flags.append('--untracked-files=no')
     args = [ 'status' ] + flags + filenames
     rv = git_exe.call_git(root, args)
-    result = git_status.parse(rv.stdout)
+    result = git_status_list.parse(rv.stdout)
     if abspath:
       for r in result:
         r.filename = path.join(root, r.filename)
@@ -78,9 +78,14 @@ class git(git_lfs):
     check.check_string(root_dir)
     check.check_string(url)
     check.check_string(name)
-    
-    args = [ 'remote', 'set-url', name, url ]
-    git_exe.call_git(root_dir, args)
+
+    current_remote_url = clazz.remote_get_url(root_dir, name = name)
+    if current_remote_url == None:
+      args = [ 'remote', 'add', name, url ]
+      git_exe.call_git(root_dir, args)
+    else:
+      args = [ 'remote', 'set-url', name, url ]
+      git_exe.call_git(root_dir, args)
 
   @classmethod
   def remote_get_url(clazz, root_dir, name = 'origin'):

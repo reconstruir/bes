@@ -134,4 +134,3 @@ class git_tag_list(type_checked_list):
     return git_tag_list([ tag for tag in self if tag.name.startswith(prefix) ])
         
 check.register_class(git_tag_list, include_seq = False)
-  
