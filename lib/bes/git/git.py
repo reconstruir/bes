@@ -24,6 +24,7 @@ from .git_branch_list import git_branch_list
 from .git_changelog import git_changelog
 from .git_clone_options import git_clone_options
 from .git_commit_hash import git_commit_hash
+from .git_commit_info import git_commit_info
 from .git_config import git_config
 from .git_error import git_error
 from .git_exe import git_exe
@@ -1101,3 +1102,9 @@ class git(git_lfs):
     'Return the commit message for a single revision'
     rv = git_exe.call_git(root_dir, 'log -n 1 --pretty=format:%s {}'.format(revision))
     return rv.stdout.strip()
+
+  @classmethod
+  def commit_info(clazz, root_dir, commit_hash):
+    'Return the commit message for a single revision'
+    rv = git_exe.call_git(root_dir, [ 'show', '--quiet', commit_hash ])
+    return git_commit_info.parse_log_output(rv.stdout)

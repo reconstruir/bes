@@ -35,7 +35,7 @@ class git_exe(object):
     check.check_dict(extra_env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
     check.check_int(num_tries, allow_none = True)
     check.check_float(retry_wait_seconds, allow_none = True)
-
+    #print('args={}'.format(args))
     if isinstance(args, ( list, tuple )):
       parsed_args = list(args)
     else:
@@ -112,6 +112,7 @@ class git_exe(object):
                                                                   rv.stdout)
       clazz.log.log_w('call_git: {}'.format(message))
       raise git_error(message, execute_result = rv)
+    #print('rv={}'.format(rv))
     return rv
 
   @classmethod

@@ -19,6 +19,8 @@ from .git_error import git_error
 from .git_exe import git_exe
 from .git_modules_file import git_modules_file
 from .git_operation_base import git_operation_base
+from .git_repo_status import git_repo_status
+from .git_repo_status_options import git_repo_status_options
 from .git_tag import git_tag_list
 
 #import warnings
@@ -629,5 +631,49 @@ class git_repo(object):
 
   def commit_message(self, revision):
     return git.commit_message(self.root, revision)
+  
+  def commit_info(self, commit_hash):
+    return git.commit_info(self.root, commit_hash)
+  
+  def repo_status(self, options = None):
+    check.check_git_repo_status_options(options, allow_none = True)
 
-check.register_class(git_repo)
+    options = options or git_repo_status_options()
+
+    change_status = self.status([ '.' ])
+    branch_status = self.branch_status()
+    active_branch = self.active_branch()
+    last_commit_hash = self.last_commit_hash(short_hash = options.short_hash)
+    last_commit = self.commit_info(last_commit_hash)
+
+    return git_repo_status(change_status,
+                           branch_status,
+                           active_branch,
+                           last_commit)
+    
+check.register_class(git_repo, include_seq = False)
+
+'''
+  @classmethod
+  def get_status(self, root_dir):
+    'Get the repo status for one git project'
+    status = git.status(git_dir, [ '.' ])
+    last_commit_hash = git.last_commit_hash(git_dir, short_hash = True)
+    if not no_remote:
+      git.remote_update(git_dir)
+    branch_status = git.branch_status(git_dir)
+    if untracked:
+      changes = status
+    else:
+      changes = [ item for item in status if '?' not in item.action ]
+    result = {
+      'git_dir': git_dir,
+      'status': status,
+      'last_commit': last_commit_hash,
+      'branch_status': { 'ahead': branch_status.ahead, 'behind': branch_status.behind },
+      'active_branch': git.active_branch(git_dir),
+      'changes': changes,
+      'remote_origin_url': git.remote_origin_url(git_dir),
+    } 
+    return result
+'''

@@ -93,4 +93,3 @@ class git_status_list(type_checked_list):
     return git_status_list([ git_status.parse_line(line) for line in lines  ])
     
 check.register_class(git_status_list, include_seq = False)
-

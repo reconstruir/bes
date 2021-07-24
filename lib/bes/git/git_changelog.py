@@ -21,21 +21,8 @@ class git_changelog(object):
     commits = [elem.strip() for elem in changelog_string.split('\ncommit ') if elem]
 
     for commit in commits:
-      commit_parts = [elem.strip() for elem in commit.split('\n') if elem]
-      revision = commit_parts[0].split('commit ')[-1]
-      revision = re.search(r'(\w+)\s*.*', revision).group(1)
-
-      index = 1
-      is_merge_commit = False
-      if commit_parts[1].startswith('Merge: '):
-        index += 1
-        is_merge_commit = True
-      email = re.search(r'Author: .*\s+<(.+)>', commit_parts[index]).group(1)
-      author = email.split('@')[0]
-      date = re.search(r'Date:\s+(.+)', commit_parts[index + 1]).group(1)
-      message = ' '.join(commit_parts[index + 2:]).strip()
-
-      result.append(git_commit_info(revision, message, author, email, date, is_merge_commit))
+      ci = git_commit_info.parse_log_output(commit)
+      result.append(ci)
 
     return result
 

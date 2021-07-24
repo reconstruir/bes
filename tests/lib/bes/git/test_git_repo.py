@@ -1227,7 +1227,7 @@ tag 1.0.1 tag2
   from_commit: @commit2
   annotation: annotation 1.0.1 is good
 '''
-    r = git_temp_repo(remote = True, debug = self.DEBUG, config = config, prefix = 'caca')
+    r = git_temp_repo(remote = True, debug = self.DEBUG, config = config, prefix = 'annotation')
     self.assertEqual( [ '1.0.0', '1.0.1' ], r.list_local_tags().names() )
     self.assertFalse( r.tag_has_annotation('1.0.0') )
     self.assertTrue( r.tag_has_annotation('1.0.1') )
@@ -1252,6 +1252,25 @@ tag 1.0.1 tag2
     r.add(['lemon.foo'], force = True)
     r.commit('add', ['lemon.foo'])
     r.push('origin', 'master')
+    
+  @git_temp_home_func()
+  def test_repo_status(self):
+    self.maxDiff = -1
+    config = '''\
+add commit1 commit1
+  kiwi.txt: this is kiwi.txt
+add commit2 commit2
+  lemon.txt: this is lemon.txt
+'''
+    r = git_temp_repo(remote = True, debug = self.DEBUG, config = config, prefix = 'status')
+    st = r.repo_status()
+    self.assertEqual( 'master', st.active_branch )
+    self.assertEqual( r.last_commit_hash(), st.last_commit.commit_hash_long )
+    self.assertEqual( 'add lemon.txt', st.last_commit.message )
+    self.assertEqual( 'unittest', st.last_commit.author )
+    self.assertEqual( 'unittest@example.com', st.last_commit.email )
+    self.assertEqual( False, st.last_commit.is_merge_commit )
+    self.assertEqual( ( 0, 0 ), st.branch_status )
     
 if __name__ == '__main__':
   unit_test.main()

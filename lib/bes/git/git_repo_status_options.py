@@ -20,6 +20,7 @@ class git_repo_status_options(cli_options):
       'force_show': False,
       'verbose': False,
       'debug': False,
+      'short_hash': True,
     }
   
   @classmethod
@@ -37,6 +38,7 @@ class git_repo_status_options(cli_options):
       'force_show': bool,
       'verbose': bool,
       'debug': bool,
+      'short_hash': bool,
     }
 
   @classmethod
