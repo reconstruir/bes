@@ -651,7 +651,7 @@ class git_repo(object):
                            active_branch,
                            last_commit)
     
-check.register_class(git_repo, include_seq = False)
+check.register_class(git_repo, include_seq = True)
 
 '''
   @classmethod

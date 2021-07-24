@@ -21,6 +21,8 @@ class git_repo_status_options(cli_options):
       'verbose': False,
       'debug': False,
       'short_hash': True,
+      'num_tries': 10,
+      'retry_sleep_time': 0.100,
     }
   
   @classmethod
@@ -39,6 +41,8 @@ class git_repo_status_options(cli_options):
       'verbose': bool,
       'debug': bool,
       'short_hash': bool,
+      'num_tries': int,
+      'retry_sleep_time': float,
     }
 
   @classmethod
