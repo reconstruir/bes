@@ -19,8 +19,8 @@ class test_git_status_getter(unit_test):
   @git_temp_home_func()
   def test_repo_status(self):
 
-    NUM_REPOS = 42
-    NUM_THREADS = 5
+    NUM_REPOS = 9
+    NUM_THREADS = 3
 
     options = git_repo_status_options(num_threads = NUM_THREADS)
     
