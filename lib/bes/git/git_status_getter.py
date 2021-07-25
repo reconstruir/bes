@@ -4,8 +4,6 @@ import multiprocessing
 import os.path as path
 import time
 
-from collections import namedtuple
-
 from bes.thread.thread_pool import thread_pool
 from bes.system.log import logger
 from bes.common.check import check
@@ -15,15 +13,13 @@ from .git_repo import git_repo
 from .git_repo_status_options import git_repo_status_options
 from .git_util import git_util
 
-class git_multi_repo_status(object):
+class git_status_getter(object):
   'Some higher level git utilities.'
 
   _LOG = logger('git')
 
   def __init__(self):
     pass
-
-  _caca = namedtuple('_caca', 'repo, status')
 
   @classmethod
   def status(clazz, repos, options = None):

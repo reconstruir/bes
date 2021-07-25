@@ -12,12 +12,12 @@ from bes.git.git_repo import git_repo
 from bes.git.git_status import git_status
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
-from bes.git.git_multi_repo_status import git_multi_repo_status
+from bes.git.git_status_getter import git_status_getter
 from bes.system.env_override import env_override_temp_home_func
 from bes.system.execute import execute
 from bes.testing.unit_test import unit_test
 
-class test_git_multi_repo_status(unit_test):
+class test_git_status_getter(unit_test):
 
   @git_temp_home_func()
   def test_repo_status(self):
@@ -29,7 +29,7 @@ add commit2 commit2
   lemon.txt: this is lemon.txt
 '''
     r = git_temp_repo(remote = True, debug = self.DEBUG, config = config, prefix = 'status')
-    result = git_multi_repo_status.status([ r.repo ]) #, options = None):
+    result = git_status_getter.status([ r.repo ]) #, options = None):
     st = result[r.repo]
     self.assertEqual( 'master', st.active_branch )
     self.assertEqual( r.last_commit_hash(), st.last_commit.commit_hash_long )
