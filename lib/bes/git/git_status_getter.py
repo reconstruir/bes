@@ -22,7 +22,7 @@ class git_status_getter(object):
     pass
 
   @classmethod
-  def get_repo_status(clazz, repos, options = None):
+  def get_status(clazz, repos, options = None):
     check.check_git_repo_seq(repos)
     check.check_git_repo_status_options(options, allow_none = True)
 
