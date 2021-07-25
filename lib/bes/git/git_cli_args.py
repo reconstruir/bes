@@ -111,7 +111,7 @@ class git_cli_args(object):
     p.add_argument('new_url', action = 'store', type = str, default = None,
                    help = 'The new url for the remote. []')
     self._git_add_common_args(p)
-    
+
   @classmethod
   def _git_add_common_args(clazz, p):
     p.add_argument('--root-dir', action = 'store', default = None,
