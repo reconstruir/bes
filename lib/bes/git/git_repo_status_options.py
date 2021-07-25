@@ -23,6 +23,7 @@ class git_repo_status_options(cli_options):
       'short_hash': True,
       'num_tries': 10,
       'retry_sleep_time': 0.100,
+      'num_threads': 10,
     }
   
   @classmethod
@@ -42,6 +43,7 @@ class git_repo_status_options(cli_options):
       'debug': bool,
       'short_hash': bool,
       'num_tries': int,
+      'num_threads': int,
       'retry_sleep_time': float,
     }
 

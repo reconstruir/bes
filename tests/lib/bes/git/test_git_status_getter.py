@@ -5,39 +5,50 @@ import sys
 import os.path as path
 
 from bes.fs.file_util import file_util
-from bes.fs.temp_file import temp_file
-from bes.git.git import git
 from bes.git.git_error import git_error
 from bes.git.git_repo import git_repo
-from bes.git.git_status import git_status
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
 from bes.git.git_status_getter import git_status_getter
 from bes.system.env_override import env_override_temp_home_func
-from bes.system.execute import execute
 from bes.testing.unit_test import unit_test
+from bes.git.git_repo_status_options import git_repo_status_options
 
 class test_git_status_getter(unit_test):
 
   @git_temp_home_func()
   def test_repo_status(self):
-    self.maxDiff = -1
-    config = '''\
+
+    NUM_REPOS = 42
+    NUM_THREADS = 5
+
+    options = git_repo_status_options(num_threads = NUM_THREADS)
+    
+    repos = []
+
+    repo_index_map = {}
+    
+    for i in range(0, NUM_REPOS):
+      config = '''\
 add commit1 commit1
-  kiwi.txt: this is kiwi.txt
+  kiwi{index}.txt: this is kiwi{index}.txt
 add commit2 commit2
-  lemon.txt: this is lemon.txt
-'''
-    r = git_temp_repo(remote = True, debug = self.DEBUG, config = config, prefix = 'status')
-    result = git_status_getter.status([ r.repo ]) #, options = None):
-    st = result[r.repo]
-    self.assertEqual( 'master', st.active_branch )
-    self.assertEqual( r.last_commit_hash(), st.last_commit.commit_hash_long )
-    self.assertEqual( 'add lemon.txt', st.last_commit.message )
-    self.assertEqual( 'unittest', st.last_commit.author )
-    self.assertEqual( 'unittest@example.com', st.last_commit.email )
-    self.assertEqual( False, st.last_commit.is_merge_commit )
-    self.assertEqual( ( 0, 0 ), st.branch_status )
+  lemon{index}.txt: this is lemon{index}.txt
+'''.format(index = i)
+      r = git_temp_repo(remote = True, debug = self.DEBUG, config = config, prefix = 'status')
+      repos.append(r.repo)
+      repo_index_map[r.repo] = i
+        
+    result = git_status_getter.get_repo_status(repos, options = options)
+    for repo, status in result.items():
+      index = repo_index_map[repo]
+      self.assertEqual( 'master', status.active_branch )
+      self.assertEqual( repo.last_commit_hash(), status.last_commit.commit_hash_long )
+      self.assertEqual( 'add lemon{index}.txt'.format(index = index), status.last_commit.message )
+      self.assertEqual( 'unittest', status.last_commit.author )
+      self.assertEqual( 'unittest@example.com', status.last_commit.email )
+      self.assertEqual( False, status.last_commit.is_merge_commit )
+      self.assertEqual( ( 0, 0 ), status.branch_status )
     
 if __name__ == '__main__':
   unit_test.main()

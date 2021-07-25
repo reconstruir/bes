@@ -16,20 +16,20 @@ from .git_util import git_util
 class git_status_getter(object):
   'Some higher level git utilities.'
 
-  _LOG = logger('git')
+  _log = logger('git')
 
   def __init__(self):
     pass
 
   @classmethod
-  def status(clazz, repos, options = None):
+  def get_repo_status(clazz, repos, options = None):
     check.check_git_repo_seq(repos)
     check.check_git_repo_status_options(options, allow_none = True)
 
-    pool = thread_pool(8)
-    queue = multiprocessing.Queue()
-    
     options = options or git_repo_status_options()
+    
+    pool = thread_pool(options.num_threads)
+    queue = multiprocessing.Queue()
 
     repo_map = {}
     for next_repo in repos:
@@ -38,6 +38,7 @@ class git_status_getter(object):
       repo_map[next_repo.root] = next_repo
     
     def _task(task_repo_root_, task_options_):
+      clazz._log.log_d('here {}'.format(task_repo_root_))
       task_repo_ = git_repo(task_repo_root_)
       status = None
       for i in range(0, task_options_.num_tries):
