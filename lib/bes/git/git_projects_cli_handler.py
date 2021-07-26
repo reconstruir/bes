@@ -14,16 +14,16 @@ from .git_repo_status_options import git_repo_status_options
 from .git_status_getter import git_status_getter
 from .git_util import git_util
 
-class git_status_cli_handler(cli_command_handler):
+class git_projects_cli_handler(cli_command_handler):
 
   _log = logger('git_status')
   
   def __init__(self, cli_args):
-    super(git_status_cli_handler, self).__init__(cli_args, options_class = git_repo_status_options)
+    super(git_projects_cli_handler, self).__init__(cli_args, options_class = git_repo_status_options)
     check.check_git_repo_status_options(self.options)
     self._log.log_d('options={}'.format(self.options))
   
-  def get(self, dirs):
+  def status(self, dirs):
     check.check_string_seq(dirs)
 
     git_dirs = git_dir._resolve_git_dirs(dirs)
