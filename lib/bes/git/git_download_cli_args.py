@@ -9,7 +9,7 @@ class git_download_cli_args(object):
   
   def git_download_add_args(self, subparser):
 
-    # download
+    # fetch
     p = subparser.add_parser('fetch', help = 'Download.')
     self._git_download_add_common_args(p)
     p.add_argument('address', action = 'store', type = str, default = None,

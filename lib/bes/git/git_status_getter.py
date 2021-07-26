@@ -28,7 +28,7 @@ class git_status_getter(object):
 
     options = options or git_repo_status_options()
     
-    pool = thread_pool(options.num_threads)
+    pool = thread_pool(options.num_jobs)
     queue = multiprocessing.Queue()
 
     repo_map = {}
@@ -62,7 +62,7 @@ class git_status_getter(object):
       next_repo = repo_map[next_repo_root]
       result[next_repo] = next_status
     return result
-  
+
   @classmethod
   def _find_git_dirs(clazz, dirs):
     'Return the first .git dir found in any dir in dirs.'

@@ -85,11 +85,14 @@ class git_status_list(type_checked_list):
   def __init__(self, values = None):
     super(git_status_list, self).__init__(values = values)
 
+  def remove_untracked(self):
+    self._values = [ v for v in self._values if not v.is_untracked() ]
+    
   @classmethod  
   def parse(clazz, text):
     check.check_string(text)
     
     lines = text_line_parser.parse_lines(text, strip_comments = False, strip_text = True, remove_empties = True)
     return git_status_list([ git_status.parse_line(line) for line in lines  ])
-    
+
 check.register_class(git_status_list, include_seq = False)

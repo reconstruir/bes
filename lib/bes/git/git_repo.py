@@ -641,6 +641,10 @@ class git_repo(object):
     options = options or git_repo_status_options()
 
     change_status = self.status([ '.' ])
+
+    if not options.show_untracked:
+      change_status.remove_untracked()
+      
     branch_status = self.branch_status()
     active_branch = self.active_branch()
     last_commit_hash = self.last_commit_hash(short_hash = options.short_hash)

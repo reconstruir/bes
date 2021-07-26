@@ -16,14 +16,14 @@ class git_repo_status_options(cli_options):
     'Return a dict of defaults for these options.'
     return {
       'no_remote_update': False,
-      'include_untracked': False,
+      'show_untracked': False,
       'force_show': False,
       'verbose': False,
       'debug': False,
       'short_hash': True,
       'num_tries': 10,
       'retry_sleep_time': 0.100,
-      'num_threads': 10,
+      'num_jobs': 10,
     }
   
   @classmethod
@@ -37,13 +37,13 @@ class git_repo_status_options(cli_options):
   def value_type_hints(clazz):
     return {
       'no_remote_update': bool,
-      'include_untracked': bool,
+      'show_untracked': bool,
       'force_show': bool,
       'verbose': bool,
       'debug': bool,
       'short_hash': bool,
       'num_tries': int,
-      'num_threads': int,
+      'num_jobs': int,
       'retry_sleep_time': float,
     }
 
@@ -71,9 +71,13 @@ class git_repo_status_options(cli_options):
   def check_value_types(self):
     'Check the type of each option.'
     check.check_bool(self.no_remote_update)
-    check.check_bool(self.include_untracked)
+    check.check_bool(self.show_untracked)
     check.check_bool(self.force_show)
     check.check_bool(self.verbose)
     check.check_bool(self.debug)
-  
+    check.check_bool(self.short_hash)
+    check.check_int(self.num_tries)
+    check.check_int(self.num_jobs)
+    check.check_float(self.retry_sleep_time)
+    
 check.register_class(git_repo_status_options)
