@@ -39,8 +39,9 @@ add commit2 commit2
       repos.append(r.repo)
       repo_index_map[r.repo] = i
         
-    result = git_status_getter.get_status(repos, options = options)
-    for repo, status in result.items():
+    for item in git_status_getter.get_status(repos, options = options):
+      repo = item.repo
+      status = item.status
       index = repo_index_map[repo]
       self.assertEqual( 'master', status.active_branch )
       self.assertEqual( repo.last_commit_hash(), status.last_commit.commit_hash_long )

@@ -29,10 +29,8 @@ class git_projects_cli_handler(cli_command_handler):
     git_dirs = git_dir._resolve_git_dirs(dirs)
     repos = [ git_repo(d) for d in git_dirs ]
 
-    result = git_status_getter.get_status(repos, options = self.options)
-
-    for next_repo, next_status in result.items():
-      self._print_status2(next_repo, next_status, self.options)
+    for item in git_status_getter.get_status(repos, options = self.options):
+      self._print_status2(item.repo, item.status, self.options)
     
     return 0
 

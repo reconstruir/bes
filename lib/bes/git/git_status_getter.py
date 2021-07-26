@@ -3,6 +3,7 @@
 import multiprocessing
 import os.path as path
 import time
+from collections import namedtuple
 
 from bes.thread.thread_pool import thread_pool
 from bes.system.log import logger
@@ -21,6 +22,7 @@ class git_status_getter(object):
   def __init__(self):
     pass
 
+  _get_status_item = namedtuple('_get_status_item', 'repo, status')
   @classmethod
   def get_status(clazz, repos, options = None):
     check.check_git_repo_seq(repos)
@@ -53,15 +55,15 @@ class git_status_getter(object):
     for next_repo in repos:
       pool.add_task(_task, next_repo.root, options)
 
-    pool.wait_completion()
-
     result = {}
     for i in range(0, len(repos)):
       next_repo_root, next_status = queue.get()
       assert next_repo_root in repo_map
       next_repo = repo_map[next_repo_root]
-      result[next_repo] = next_status
-    return result
+      item = clazz._get_status_item(next_repo, next_status)
+      yield item
+
+    pool.wait_completion()
 
   @classmethod
   def _find_git_dirs(clazz, dirs):
