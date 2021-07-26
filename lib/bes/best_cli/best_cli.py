@@ -52,6 +52,7 @@ class best_cli(cli):
   from bes.git.git_repo_cli_args import git_repo_cli_args
   from bes.git.git_repo_document_cli_args import git_repo_document_cli_args
   from bes.git.git_repo_script_cli_args import git_repo_script_cli_args
+  from bes.git.git_status_cli_args import git_status_cli_args
   from bes.native_package.native_package_cli_args import native_package_cli_args
   from bes.properties_file_v2.properties_file_cli_args import properties_file_cli_args
   from bes.pyinstaller.pyinstaller_cli_args import pyinstaller_cli_args
@@ -79,6 +80,7 @@ class best_cli(cli):
     cli_command('git_identity', 'git_identity_add_args', 'Deal with git identity', git_identity_cli_args),
     cli_command('git_repo', 'git_repo_add_args', 'Deal with git repos', git_repo_cli_args),
     cli_command('git_download', 'git_download_add_args', 'Deal with git downloads', git_download_cli_args),
+    cli_command('git_status', 'git_status_add_args', 'Deal with git status', git_status_cli_args),    
     cli_command('git_repo_document', 'git_repo_document_add_args', 'Deal with git documents', git_repo_document_cli_args),
     cli_command('git_repo_script', 'git_repo_script_add_args', 'Deal with git repo scipts', git_repo_script_cli_args),
     cli_command('native_package', 'native_package_add_args', 'Deal with native packages', native_package_cli_args),
