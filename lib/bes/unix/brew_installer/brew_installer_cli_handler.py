@@ -9,13 +9,13 @@ from bes.fs.file_util import file_util
 from .brew_installer import brew_installer
 from .brew_installer_options import brew_installer_options
 
-class brew_installer_cli_command(object):
+class brew_installer_cli_handler(object):
 
   @classmethod
   def handle_command(clazz, command, **kargs):
     options = brew_installer_options(**kargs)
     filtered_args = argparser_handler.filter_keywords_args(brew_installer_options, kargs)
-    func = getattr(brew_installer_cli_command, command)
+    func = getattr(brew_installer_cli_handler, command)
     return func(options, **filtered_args)
   
   @classmethod

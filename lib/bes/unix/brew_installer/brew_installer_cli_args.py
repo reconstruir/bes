@@ -41,5 +41,5 @@ class brew_installer_cli_args(object):
                    help = 'The sudo password to use [ ]')
     
   def _command_brew_installer(self, command, *args, **kargs):
-    from .brew_installer_cli_command import brew_installer_cli_command
-    return brew_installer_cli_command.handle_command(command, **kargs)
+    from .brew_installer_cli_handler import brew_installer_cli_handler
+    return brew_installer_cli_handler.handle_command(command, **kargs)
