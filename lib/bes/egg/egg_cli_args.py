@@ -43,5 +43,5 @@ class egg_cli_args(object):
                    help = 'Be verbose about what is happening [ False ]')
     
   def _command_egg(self, command, *args, **kargs):
-    from .egg_cli_command import egg_cli_command
-    return egg_cli_command.handle_command(command, **kargs)
+    from .egg_cli_handler import egg_cli_handler
+    return egg_cli_handler.handle_command(command, **kargs)

@@ -6,11 +6,11 @@ from bes.fs.file_util import file_util
 
 from .egg import egg
 
-class egg_cli_command(cli_helper):
+class egg_cli_handler(cli_helper):
 
   @classmethod
   def handle_command(clazz, command, **kargs):
-    func = getattr(egg_cli_command, command)
+    func = getattr(egg_cli_handler, command)
     return func(**kargs)
   
   @classmethod
