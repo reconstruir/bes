@@ -3,29 +3,24 @@
 from os import path
 
 from bes.common.check import check
-from bes.cli.argparser_handler import argparser_handler
+from bes.cli.cli_command_handler import cli_command_handler
 from bes.system.command_line import command_line
 
 from .git_repo_script_options import git_repo_script_options
 from .git_util import git_util
 
-class git_repo_script_cli_handler(object):
+class git_repo_script_cli_handler(cli_command_handler):
 
-  @classmethod
-  def handle_command(clazz, command, **kargs):
-    options = git_repo_script_options(**kargs)
-    filtered_args = argparser_handler.filter_keywords_args(git_repo_script_options, kargs)
-    func = getattr(git_repo_script_cli_handler, command)
-    return func(options, **filtered_args)
+  def __init__(self, cli_args):
+    super(git_repo_script_cli_handler, self).__init__(cli_args, options_class = git_repo_script_options)
+    check.check_git_repo_script_options(self.options)
   
-  @classmethod
-  def repo_run_scripts(clazz, options, address, scripts):
-    check.check_git_repo_script_options(options)
+  def repo_run_scripts(self, address, scripts):
     check.check_string(address)
 
-    v = [ clazz._parse_script(script) for script in scripts ]
-    result = git_util.repo_run_scripts(address, v, options = options)
-    if options.verbose:
+    v = [ self._parse_script(script) for script in scripts ]
+    result = git_util.repo_run_scripts(address, v, options = self.options)
+    if self.options.verbose:
       print('status:\n{}\n'.format(result.status))
       print('  diff:\n{}\n'.format(result.diff))
       for rv in result.results:

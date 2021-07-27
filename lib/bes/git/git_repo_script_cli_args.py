@@ -33,4 +33,5 @@ class git_repo_script_cli_args(object):
 
   def _command_git_repo_script(self, command, *args, **kargs):
     from .git_repo_script_cli_handler import git_repo_script_cli_handler
-    return git_repo_script_cli_handler.handle_command(command, **kargs)
+    return git_repo_script_cli_handler(kargs).handle_command(command)
+  
