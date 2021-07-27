@@ -40,4 +40,4 @@ class sudo_cli_args(object):
     
   def _command_sudo(self, command, *args, **kargs):
     from .sudo_cli_handler import sudo_cli_handler
-    return sudo_cli_handler.handle_command(command, **kargs)
+    return sudo_cli_handler(kargs).handle_command(command)

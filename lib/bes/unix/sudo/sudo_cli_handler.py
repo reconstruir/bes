@@ -4,47 +4,34 @@ from os import path
 
 from bes.cli.argparser_handler import argparser_handler
 from bes.common.check import check
+from bes.cli.cli_command_handler import cli_command_handler
 
 from .sudo import sudo
 from .sudo_cli_options import sudo_cli_options
 
-class sudo_cli_handler(object):
+class sudo_cli_handler(cli_command_handler):
 
-  @classmethod
-  def handle_command(clazz, command, **kargs):
-    options = sudo_cli_options(**kargs)
-    filtered_args = argparser_handler.filter_keywords_args(sudo_cli_options, kargs)
-    func = getattr(sudo_cli_handler, command)
-    return func(options, **filtered_args)
+  def __init__(self, cli_args):
+    super(sudo_cli_handler, self).__init__(cli_args, options_class = sudo_cli_options)
+    check.check_sudo_cli_options(self.options)
   
-  @classmethod
-  def run(clazz, options, cmd):
-    check.check_sudo_cli_options(options)
+  def run(self, cmd):
     check.check_string_seq(cmd)
 
-    sudo.call_sudo(cmd, options)
+    sudo.call_sudo(cmd, self.options)
     return 0
 
-  @classmethod
-  def authenticate(clazz, options):
-    check.check_sudo_cli_options(options)
-
-    sudo.authenticate(options)
+  def authenticate(self):
+    sudo.authenticate(self.options)
     return 0
 
-  @classmethod
-  def is_authenticated(clazz, options):
-    check.check_sudo_cli_options(options)
-
-    if sudo.is_authenticated(options):
+  def is_authenticated(self):
+    if sudo.is_authenticated(self.options):
       return 0
     else:
       return 1
 
-  @classmethod
-  def reset(clazz, options):
-    check.check_sudo_cli_options(options)
-
-    sudo.reset(options)
+  def reset(self):
+    sudo.reset(self.options)
     return 0
   
