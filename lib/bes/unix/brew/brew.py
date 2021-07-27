@@ -116,3 +116,7 @@ class brew(object):
                                   item['installed_versions'],
                                   item['current_version'])
     return self._needs_update_result(True, info)
+
+  @classmethod
+  def check_system(clazz):
+    return brew_command().is_supported()

@@ -94,7 +94,7 @@ class brew_installer(object):
 
     brew.check_system()
     if brew.has_brew():
-      options.blurber.blurb('brew already installed at version {}'.format(brew.version()))
+      options.blurber.blurb('brew already installed at version {}'.format(brew().version()))
       return
     clazz.install(options)
     

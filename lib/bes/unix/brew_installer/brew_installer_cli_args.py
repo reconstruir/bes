@@ -42,4 +42,4 @@ class brew_installer_cli_args(object):
     
   def _command_brew_installer(self, command, *args, **kargs):
     from .brew_installer_cli_handler import brew_installer_cli_handler
-    return brew_installer_cli_handler.handle_command(command, **kargs)
+    return brew_installer_cli_handler(kargs).handle_command(command)

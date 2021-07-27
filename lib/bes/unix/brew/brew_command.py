@@ -30,4 +30,3 @@ class brew_command(system_command):
   def supported_systems(self):
     'Return a list of supported systems.'
     return ( 'linux', 'macos' )
-  
