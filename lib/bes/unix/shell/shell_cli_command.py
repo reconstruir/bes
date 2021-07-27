@@ -10,8 +10,6 @@ class shell_cli_command(object):
 
   @classmethod
   def handle_command(clazz, command, **kargs):
-    #options = shell_cli_options(**kargs)
-    #filtered_args = argparser_handler.filter_keywords_args(shell_cli_options, kargs)
     func = getattr(shell_cli_command, command)
     return func(**kargs)
   
