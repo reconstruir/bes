@@ -8,13 +8,13 @@ from bes.common.check import check
 from .sudo import sudo
 from .sudo_cli_options import sudo_cli_options
 
-class sudo_cli_command(object):
+class sudo_cli_handler(object):
 
   @classmethod
   def handle_command(clazz, command, **kargs):
     options = sudo_cli_options(**kargs)
     filtered_args = argparser_handler.filter_keywords_args(sudo_cli_options, kargs)
-    func = getattr(sudo_cli_command, command)
+    func = getattr(sudo_cli_handler, command)
     return func(options, **filtered_args)
   
   @classmethod

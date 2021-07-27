@@ -39,5 +39,5 @@ class sudo_cli_args(object):
                    help = 'The sudo password to use [ ]')
     
   def _command_sudo(self, command, *args, **kargs):
-    from .sudo_cli_command import sudo_cli_command
-    return sudo_cli_command.handle_command(command, **kargs)
+    from .sudo_cli_handler import sudo_cli_handler
+    return sudo_cli_handler.handle_command(command, **kargs)
