@@ -30,7 +30,7 @@ class cli_command_handler(object):
       return None, copy.deepcopy(cli_args)
     else:
       options = options_class(**cli_args)
-      args = argparser_handler.filter_keywords_args(options_class, cli_args)
+      args = clazz._filter_keywords_args(options_class, cli_args)
       if isinstance(options, cli_options):
         config_file_key = options.config_file_key()
         if config_file_key and config_file_key in args:
@@ -70,4 +70,33 @@ class cli_command_handler(object):
       print(str(result))
     return 0 if result else 1
   
-    
+  @classmethod
+  def _filter_keywords_args(clazz, options_clazz, kargs):
+    check.check_class(options_clazz)
+
+    fields = clazz._options_clazz_all_attributes(options_clazz)
+    copied_args = copy.deepcopy(kargs)
+    for field in fields:
+      if field in copied_args:
+        del copied_args[field]
+    return copied_args
+
+  
+  @classmethod
+  def _options_clazz_attributes(clazz, options_clazz):
+    result = []
+    instance = options_clazz()
+    for name, _ in inspect.getmembers(instance, lambda m: not callable(m)):
+      if not name.startswith('_'):
+        result.append(name)
+    return result
+  
+  @classmethod
+  def _options_clazz_all_attributes(clazz, options_clazz):
+    result = []
+    result.extend(clazz._options_clazz_attributes(options_clazz))
+    for base_clazz in options_clazz.__bases__:
+      if base_clazz != cli_options:
+        result.extend(clazz._options_clazz_attributes(base_clazz))
+    return result
+  

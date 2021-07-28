@@ -73,15 +73,3 @@ class cli_helper(object):
   @classmethod
   def resolve_dir(clazz, dirname, root_dir = None):
     return clazz.resolve_file(dirname, root_dir = root_dir)
-
-  @classmethod
-  def filter_keywords_args(clazz, clazz_for_instance, kargs):
-    check.check_class(clazz)
-    
-    instance = clazz_for_instance()
-    fields = [ field for field in dir(instance) if not field.startswith('_') ]
-    copied_args = copy.deepcopy(kargs)
-    for field in fields:
-      if field in copied_args:
-        del copied_args[field]
-    return copied_args
