@@ -182,6 +182,10 @@ def main():
                       action = 'store_true',
                       default = False,
                       help = 'Dont delete side effects - for debugging. [ False ]')
+  parser.add_argument('--ignore-side-effects',
+                      action = 'store_true',
+                      default = False,
+                      help = 'Dont delete side effects - for debugging. [ False ]')
 
   found_git_exe = git_exe.find_git_exe()
   if not found_git_exe:
@@ -512,14 +516,15 @@ def main():
   if current_cwd != tmp_cwd:
     rv = 1
     printer.writeln_name('SIDE EFFECT: working directory was changed from %s to %s' % (tmp_cwd, current_cwd))
-    
-  for test, items in sorted(side_effects.items()):
-    for item in items:
-      rv = 1
-      filename = item.filename
-      print('SIDE EFFECT [{}] {} {}'.format(item.label,
-                                            test.replace(cwd + os.sep, ''),
-                                            filename))
+
+  if not args.ignore_side_effects:
+    for test, items in sorted(side_effects.items()):
+      for item in items:
+        rv = 1
+        filename = item.filename
+        print('SIDE EFFECT [{}] {} {}'.format(item.label,
+                                              test.replace(cwd + os.sep, ''),
+                                              filename))
       
   os.chdir('/tmp')
 

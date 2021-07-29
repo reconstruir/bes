@@ -79,29 +79,30 @@ class git_util(object):
   @classmethod
   def repo_greatest_tag(clazz, address):
     'Return the greatest numeric tag of a git project by address.'
-    tmp_dir, repo = clazz._clone_to_temp_dir(address)
+    repo = clazz.clone_to_temp_dir(address)
     greatest_tag = repo.greatest_local_tag()
-    file_util.remove(tmp_dir)
+    file_util.remove(repo.root)
     return greatest_tag
 
   @classmethod
   def repo_bump_tag(clazz, address, component, dry_run, reset_lower = False):
     'Bump the tag of a repo by address.'
-    tmp_dir, repo = clazz._clone_to_temp_dir(address)
+    repo = clazz.clone_to_temp_dir(address)
     result = repo.bump_tag(component, push = True, dry_run = dry_run, reset_lower = reset_lower)
-    file_util.remove(tmp_dir)
+    file_util.remove(repo.root)
     return result
 
   @classmethod
-  def _clone_to_temp_dir(clazz, address, options = None, debug = False):
+  def clone_to_temp_dir(clazz, address, options = None, debug = False):
     'Clone a git address to a temp dir'
     tmp_dir = temp_file.make_temp_dir(delete = not debug)
-    clazz._LOG.log_d('_clone_to_temp_dir: tmp_dir={}'.format(tmp_dir))
+    clazz._LOG.log_d('clone_to_temp_dir: tmp_dir={}'.format(tmp_dir))
     if debug:
-      print('_clone_to_temp_dir: tmp_dir={}'.format(tmp_dir))
-    r = git_repo(tmp_dir, address = address)
-    r.clone(options = options)
-    return tmp_dir, r
+      print('clone_to_temp_dir: tmp_dir={}'.format(tmp_dir))
+    repo = git_repo(tmp_dir, address = address)
+    repo.clone(options = options)
+    assert repo.root == tmp_dir
+    return repo
 
   script = namedtuple('script', 'filename, args')
   _one_script_result = namedtuple('_one_script_result', 'script, stdout')
@@ -112,9 +113,9 @@ class git_util(object):
     options = options or git_repo_script_options()
     if options.verbose:
       print('repo_run_scripts: cloning {}'.format(address))
-    tmp_dir, repo = clazz._clone_to_temp_dir(address, options = options, debug = options.debug)
+    repo = clazz.clone_to_temp_dir(address, options = options, debug = options.debug)
     if options.debug:
-      msg = 'repo_run_scripts: tmp_dir={} repo.root={}'.format(tmp_dir, repo.root)
+      msg = 'repo_run_scripts: repo.root={}'.format(repo.root)
       print(msg)
       clazz._LOG.log_d(msg)
     scripts_results = []
@@ -150,7 +151,7 @@ class git_util(object):
       else:
         repo.bump_tag(options.bump_tag_component, push = True)
     result = clazz._run_scripts_result(scripts_results, repo.call_git([ 'status', '.' ]).stdout, repo.diff())
-    file_util.remove(tmp_dir)
+    file_util.remove(repo.root)
     return result
 
   @classmethod
@@ -163,9 +164,9 @@ class git_util(object):
     options = options or git_repo_operation_options()
     if options.verbose:
       print('repo_run_operation: cloning {}'.format(address))
-    tmp_dir, repo = clazz._clone_to_temp_dir(address, options = options, debug = options.debug)
+    repo = clazz.clone_to_temp_dir(address, options = options, debug = options.debug)
     if options.debug:
-      msg = 'repo_run_operation: tmp_dir={} repo.root={}'.format(tmp_dir, repo.root)
+      msg = 'repo_run_operation: repo.root={}'.format(repo.root)
       print(msg)
       clazz._LOG.log_d(msg)
     if options.dry_run:
@@ -178,7 +179,7 @@ class git_util(object):
                                 num_tries = options.num_tries,
                                 retry_wait_seconds = options.retry_wait_seconds,
                                 files_to_commit = options.files_to_commit)
-    file_util.remove(tmp_dir)
+    file_util.remove(repo.root)
 
   @classmethod
   def repo_update_submodule(clazz, address, submodule, branch, revision, dry_run, blurber = None):

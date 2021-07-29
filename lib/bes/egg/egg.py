@@ -1,12 +1,21 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import copy, glob, os, os.path as path, shutil, tempfile
+import glob
+import os.path as path
+
 from bes.archive.archiver import archiver
-from bes.system.execute import execute
+from bes.common.check import check
+from bes.common.time_util import time_util
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.git.git import git 
+from bes.git.git_clone_options import git_clone_options
+from bes.git.git_remote import git_remote
+from bes.git.git_util import git_util
+from bes.python.python_exe import python_exe
+from bes.system.execute import execute
+from bes.system.os_env import os_env
+from bes.version.version_info import version_info
 
 class egg(object):
 
@@ -27,9 +36,8 @@ class egg(object):
       print('tmp_extract_dir: %s' % (tmp_extract_dir))
     archiver.extract_all(tmp_archive_filename, tmp_extract_dir, strip_common_ancestor = True)
 
-    cmd = [ 'python', setup_filename, 'bdist_egg' ]
-    env = copy.deepcopy(os.environ)
-    env['PYTHONDONTWRITEBYTECODE'] = '1'
+    cmd = [ python_exe.default_exe(), setup_filename, 'bdist_egg' ]
+    env = os_env.clone_current_env(d = { 'PYTHONDONTWRITEBYTECODE': '1' }, allow_override = True)
     #print('cmd=%s; cwd=%s; evn=%s' % (cmd, tmp_extract_dir, env))
     execute.execute(cmd, shell = False, cwd = tmp_extract_dir, env = env, non_blocking = debug)
     eggs = glob.glob('%s/dist/*.egg' % (tmp_extract_dir))
@@ -39,6 +47,47 @@ class egg(object):
       raise RuntimeError('too many eggs got laid (probably downloaded requirements): %s - %s' % (root_dir, setup_filename))
     return eggs[0]
 
+  @classmethod
+  def make_from_address(clazz,
+                        address,
+                        revision,
+                        setup_filename,
+                        version_filename = None,
+                        project_name = None,
+                        debug = False,
+                        verbose = False):
+    'Make an egg from a git address'
+    check.check_string(address)
+    check.check_string(revision)
+    check.check_string(setup_filename)
+    check.check_string(project_name, allow_none = True)
+    check.check_string(version_filename, allow_none = True)
+    check.check_bool(debug)
+    check.check_bool(verbose)
+
+    options = git_clone_options(branch = revision)
+    repo = git_util.clone_to_temp_dir(address, options = options, debug = debug)
+    remote_info = git_remote.parse(address)
+    project_name = project_name or remote_info.project
+
+    if version_filename:
+      version_filename_abs = path.join(repo.root, version_filename)
+      vi = version_info.read_file(version_filename_abs)
+      timestamp = time_util.timestamp(delimiter = '-', milliseconds = False)
+      vi = vi.change(version = revision, address = address, tag = revision, timestamp = timestamp)
+      vi.save_file(version_filename_abs)
+
+    cmd = [ python_exe.default_exe(), setup_filename, 'bdist_egg' ]
+    env = os_env.clone_current_env(d = { 'PYTHONDONTWRITEBYTECODE': '1' }, allow_override = True)
+    env['PYTHONDONTWRITEBYTECODE'] = '1'
+    execute.execute(cmd, shell = False, cwd = repo.root, env = env, non_blocking = verbose)
+    eggs = glob.glob('{}/dist/*.egg'.format(repo.root))
+    if len(eggs) == 0:
+      raise RuntimeError('no egg got laid: %s - %s' % (root_dir, setup_filename))
+    if len(eggs) > 1:
+      raise RuntimeError('too many eggs got laid (probably downloaded requirements): %s - %s' % (root_dir, setup_filename))
+    return eggs[0]
+  
   @classmethod
   def unpack(clazz, egg_filename, output_dir):
     if not archiver.is_valid(egg_filename):

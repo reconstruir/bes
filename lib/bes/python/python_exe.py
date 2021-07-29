@@ -187,6 +187,7 @@ class python_exe(object):
     '3.10',
     '2.7',
   ]
+  
   @classmethod
   def default_exe(clazz):
     'Return the default python executable'

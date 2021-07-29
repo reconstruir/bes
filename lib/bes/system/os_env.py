@@ -166,9 +166,12 @@ class os_env(object):
     return env
 
   @classmethod
-  def clone_current_env(clazz, d = None, prepend = False):
+  def clone_current_env(clazz, d = None, prepend = False, allow_override = False):
     'Clone the current environment and update it with d taking into account paths that needed to be appended or prepended.'
-    return clazz.clone_and_update(dict(os.environ), d = d, prepend = prepend)
+    return clazz.clone_and_update(dict(os.environ),
+                                  d = d,
+                                  prepend = prepend,
+                                  allow_override = allow_override)
     
   @classmethod
   def set_current_env(clazz, d):
