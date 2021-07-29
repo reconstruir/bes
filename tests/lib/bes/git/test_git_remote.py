@@ -11,6 +11,10 @@ class test_git_remote(unit_test):
   def test_parse_remote_url_bitbucket_http(self):
     self.assertEqual( ( 'http', 'bitbucket.org', 'owner', 'project' ), git_remote.parse('http://bitbucket.org/owner/project') )
     self.assertEqual( ( 'ssh', 'bitbucket.org', 'owner', 'project' ), git_remote.parse('git@bitbucket.org:owner/project.git') )
+
+  def test_parse_remote_url_gitlab_https(self):
+    f = git_remote.parse('https://gitlab.com/owner/project.git')
+    self.assertEqual( ( 'https', 'gitlab.com', 'owner', 'project' ), git_remote.parse('https://gitlab.com/owner/project.git') )
     
   def test_parse_remote_url_bitbucket_ssh(self):
     self.assertEqual( ( 'ssh', 'bitbucket.org', 'owner', 'project' ), git_remote.parse('git@bitbucket.org:owner/project.git') )

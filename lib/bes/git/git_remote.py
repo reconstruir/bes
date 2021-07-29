@@ -4,14 +4,16 @@ from os import path
 import re
 from collections import namedtuple
 
+from bes.common.string_util import string_util
+
 from .git_error import git_error
 from .git import git
 
 class git_remote(object):
   'Class to deal with git remote "urls"'
 
-  _SSH_PATTERN = r'^git\@(.+)\:(.+)\/(.+)\.git$'
-  _HTTP_PATTERN = r'^http\:\/\/(.+)\/(.+)\/(.+)$'
+  _SSH_PATTERN = r'^(git)\@(.+)\:(.+)\/(.+)\.git$'
+  _HTTP_PATTERN = r'^(https?)\:\/\/(.+)\/(.+)\/(.+)$'
   
   _parsed_remote = namedtuple('_parsed_remote', 'scheme, service, owner, project')
   @classmethod
@@ -24,22 +26,22 @@ class git_remote(object):
         return clazz._parsed_remote('bare_local', None, None, remote)
       else:
         raise git_error('Not a git repo: "{}"'.format(remote))
-        
-    found = re.findall(clazz._SSH_PATTERN, remote)
-    scheme = None
-    if found:
-      scheme = 'ssh'
-    else:
-      found = re.findall(clazz._HTTP_PATTERN, remote)
-      if found:
-        scheme = 'http'
-    if not scheme:
-      raise git_error('Not a valid ssh or http remote: "{}"'.format(remote))
-    if len(found) != 1:
-      raise git_error('Not a valid ssh or http remote: "{}"'.format(remote))
-    if len(found[0]) != 3:
-      raise git_error('Not a valid ssh or http remote: "{}"'.format(remote))
-    service = found[0][0]
-    owner = found[0][1]
-    project = found[0][2]
+
+    found = clazz._find_match(remote)
+    if not found:
+      raise git_error('Not a valid git remote: "{}"'.format(remote))
+    scheme = found[0]
+    service = found[1]
+    owner = found[2]
+    project = string_util.remove_tail(found[3], '.git')
     return clazz._parsed_remote(scheme, service, owner, project)
+
+  @classmethod
+  def _find_match(clazz, remote):
+    for pattern in [ clazz._SSH_PATTERN, clazz._HTTP_PATTERN ]:
+      found = re.findall(pattern, remote)
+      if found:
+        assert len(found) == 1
+        assert len(found[0]) == 4
+        return found[0]
+    return None
