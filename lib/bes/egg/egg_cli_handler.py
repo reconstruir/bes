@@ -2,20 +2,23 @@
 
 from bes.common.check import check
 from bes.cli.cli_helper import cli_helper
+from bes.cli.cli_command_handler import cli_command_handler
 from bes.fs.file_util import file_util
 
 from .egg import egg
+from .egg_options import egg_options
 
-class egg_cli_handler(cli_helper):
+class egg_cli_handler(cli_command_handler, cli_helper):
 
-  @classmethod
-  def handle_command(clazz, command, **kargs):
-    func = getattr(egg_cli_handler, command)
-    return func(**kargs)
+  def __init__(self, cli_args):
+    super(egg_cli_handler, self).__init__(cli_args, options_class = egg_options)
+    check.check_egg_options(self.options)
   
-  @classmethod
-  def make(clazz, root_dir, setup_filename, revision, output_dir, untracked, verbose, debug):
-    root_dir = clazz.resolve_dir(root_dir)
+  def make_from_address(self, address):
+    check.check_string(address)
+
+    egg_filename = egg.make_from_address(
+    root_dir = self.resolve_dir(root_dir)
     resolved_setup_filename = clazz.resolve_file(setup_filename, root_dir = root_dir)
     clazz.check_dir(root_dir)
     clazz.check_file(resolved_setup_filename)
