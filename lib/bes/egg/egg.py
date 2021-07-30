@@ -22,33 +22,36 @@ from .egg_error import egg_error
 class egg(object):
 
   @classmethod
-  def make_from_git_archive(clazz, root_dir, revision, setup_filename, untracked = False, debug = False):
+  def make_from_git_archive(clazz,
+                            root_dir,
+                            revision,
+                            setup_filename,
+                            version_filename = None,
+                            untracked = False,
+                            debug = False):
     'Make an egg from a git root_dir.  setup_filename is relative to that root'
     git.check_is_repo(root_dir)
     
-    base_name = path.basename(root_dir)
+    project_name = path.basename(root_dir)
     tmp_archive_filename = temp_file.make_temp_file(delete = not debug,
-                                                    prefix = '%s.egg.' % (base_name),
+                                                    prefix = '%s.egg.' % (project_name),
                                                     suffix = '.tar.gz')
     if debug:
       print('tmp_archive_filename: %s' % (tmp_archive_filename))
-    git.archive(root_dir, revision, base_name, tmp_archive_filename, untracked = untracked)
+    git.archive(root_dir, revision, project_name, tmp_archive_filename, untracked = untracked)
       
     tmp_extract_dir = temp_file.make_temp_dir(delete = not debug)
     if debug:
       print('tmp_extract_dir: %s' % (tmp_extract_dir))
     archiver.extract_all(tmp_archive_filename, tmp_extract_dir, strip_common_ancestor = True)
-
-    cmd = [ python_exe.default_exe(), setup_filename, 'bdist_egg' ]
-    env = os_env.clone_current_env(d = { 'PYTHONDONTWRITEBYTECODE': '1' }, allow_override = True)
-    #print('cmd=%s; cwd=%s; evn=%s' % (cmd, tmp_extract_dir, env))
-    execute.execute(cmd, shell = False, cwd = tmp_extract_dir, env = env, non_blocking = debug)
-    eggs = glob.glob('%s/dist/*.egg' % (tmp_extract_dir))
-    if len(eggs) == 0:
-      raise egg_error('no egg got laid: %s - %s' % (root_dir, setup_filename))
-    if len(eggs) > 1:
-      raise egg_error('too many eggs got laid (probably downloaded requirements): %s - %s' % (root_dir, setup_filename))
-    return eggs[0]
+    return clazz.make_from_dir(tmp_extract_dir,
+                               revision,
+                               setup_filename,
+                               address = address,
+                               version_filename = version_filename,
+                               project_name = project_name,
+                               debug = debug,
+                               verbose = verbose)
 
   @classmethod
   def make_from_dir(clazz,
