@@ -14,18 +14,13 @@ class egg_cli_handler(cli_command_handler, cli_helper):
     super(egg_cli_handler, self).__init__(cli_args, options_class = egg_options)
     check.check_egg_options(self.options)
   
-  def make_from_address(self, address):
+  def make_from_address(self, address, revision):
     check.check_string(address)
+    check.check_string(revision)
 
-    egg_filename = egg.make_from_address(
-    root_dir = self.resolve_dir(root_dir)
-    resolved_setup_filename = clazz.resolve_file(setup_filename, root_dir = root_dir)
-    clazz.check_dir(root_dir)
-    clazz.check_file(resolved_setup_filename)
-    clazz.check_dir(output_dir)
-    tmp_egg = egg.make(root_dir, revision, setup_filename, untracked = untracked, debug = debug)
-    dst_egg = file_util.relocate_file(tmp_egg, output_dir)
-    if verbose:
+    tmp_egg = egg.make_from_address(address, revision, options = self.options)
+    dst_egg = file_util.relocate_file(tmp_egg, self.options.output_dir)
+    if self.options.verbose:
       print(dst_egg)
     return 0
 
