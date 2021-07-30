@@ -17,12 +17,15 @@ from bes.system.execute import execute
 from bes.system.os_env import os_env
 from bes.version.version_info import version_info
 
+from .egg_error import egg_error
+
 class egg(object):
 
   @classmethod
-  def make(clazz, root_dir, revision, setup_filename, untracked = False, debug = False):
+  def make_from_git_archive(clazz, root_dir, revision, setup_filename, untracked = False, debug = False):
     'Make an egg from a git root_dir.  setup_filename is relative to that root'
     git.check_is_repo(root_dir)
+    
     base_name = path.basename(root_dir)
     tmp_archive_filename = temp_file.make_temp_file(delete = not debug,
                                                     prefix = '%s.egg.' % (base_name),
@@ -42,11 +45,51 @@ class egg(object):
     execute.execute(cmd, shell = False, cwd = tmp_extract_dir, env = env, non_blocking = debug)
     eggs = glob.glob('%s/dist/*.egg' % (tmp_extract_dir))
     if len(eggs) == 0:
-      raise RuntimeError('no egg got laid: %s - %s' % (root_dir, setup_filename))
+      raise egg_error('no egg got laid: %s - %s' % (root_dir, setup_filename))
     if len(eggs) > 1:
-      raise RuntimeError('too many eggs got laid (probably downloaded requirements): %s - %s' % (root_dir, setup_filename))
+      raise egg_error('too many eggs got laid (probably downloaded requirements): %s - %s' % (root_dir, setup_filename))
     return eggs[0]
 
+  @classmethod
+  def make_from_dir(clazz,
+                    local_dir,
+                    revision,
+                    setup_filename,
+                    address = None,
+                    version_filename = None,
+                    project_name = None,
+                    debug = False,
+                    verbose = False):
+    'Make an egg from a local directory'
+    check.check_string(local_dir)
+    check.check_string(revision)
+    check.check_string(setup_filename)
+    check.check_string(address, allow_none = True)
+    check.check_string(project_name, allow_none = True)
+    check.check_string(version_filename, allow_none = True)
+    check.check_bool(debug)
+    check.check_bool(verbose)
+
+    project_name = project_name or path.basename(local_dir)
+
+    if version_filename:
+      version_filename_abs = path.join(local_dir, version_filename)
+      vi = version_info.read_file(version_filename_abs)
+      timestamp = time_util.timestamp(delimiter = '-', milliseconds = False)
+      vi = vi.change(version = revision, address = address, tag = revision, timestamp = timestamp)
+      vi.save_file(version_filename_abs)
+
+    cmd = [ python_exe.default_exe(), setup_filename, 'bdist_egg' ]
+    env = os_env.clone_current_env(d = { 'PYTHONDONTWRITEBYTECODE': '1' }, allow_override = True)
+    env['PYTHONDONTWRITEBYTECODE'] = '1'
+    execute.execute(cmd, shell = False, cwd = local_dir, env = env, non_blocking = verbose)
+    eggs = glob.glob('{}/dist/*.egg'.format(local_dir))
+    if len(eggs) == 0:
+      raise egg_error('no egg got laid:  {} - {}'.format(local_dir, setup_filename))
+    if len(eggs) > 1:
+      raise egg_error('too many eggs got laid (probably downloaded requirements): {} - {}'.format(local_dir, setup_filename))
+    return eggs[0]
+  
   @classmethod
   def make_from_address(clazz,
                         address,
@@ -70,27 +113,18 @@ class egg(object):
     remote_info = git_remote.parse(address)
     project_name = project_name or remote_info.project
 
-    if version_filename:
-      version_filename_abs = path.join(repo.root, version_filename)
-      vi = version_info.read_file(version_filename_abs)
-      timestamp = time_util.timestamp(delimiter = '-', milliseconds = False)
-      vi = vi.change(version = revision, address = address, tag = revision, timestamp = timestamp)
-      vi.save_file(version_filename_abs)
+    return clazz.make_from_dir(repo.root,
+                               revision,
+                               setup_filename,
+                               address = address,
+                               version_filename = version_filename,
+                               project_name = project_name,
+                               debug = debug,
+                               verbose = verbose)
 
-    cmd = [ python_exe.default_exe(), setup_filename, 'bdist_egg' ]
-    env = os_env.clone_current_env(d = { 'PYTHONDONTWRITEBYTECODE': '1' }, allow_override = True)
-    env['PYTHONDONTWRITEBYTECODE'] = '1'
-    execute.execute(cmd, shell = False, cwd = repo.root, env = env, non_blocking = verbose)
-    eggs = glob.glob('{}/dist/*.egg'.format(repo.root))
-    if len(eggs) == 0:
-      raise RuntimeError('no egg got laid: %s - %s' % (root_dir, setup_filename))
-    if len(eggs) > 1:
-      raise RuntimeError('too many eggs got laid (probably downloaded requirements): %s - %s' % (root_dir, setup_filename))
-    return eggs[0]
-  
   @classmethod
   def unpack(clazz, egg_filename, output_dir):
     if not archiver.is_valid(egg_filename):
-      raise RuntimeError('not a valid egg: ' % (egg_filename))
+      raise egg_error('not a valid egg: ' % (egg_filename))
     file_util.mkdir(output_dir)
     archiver.extract_all(egg_filename, output_dir)
