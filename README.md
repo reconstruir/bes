@@ -1,9 +1,19 @@
 # bes
 
-**bes** is a set collection of generic python (2 and 3) classes to help
-write tools.
+**bes** is a experimental collection of python3 modules to help
+automate tasks related to:
 
-**bes** is a work in progress.
+- build automation
+- cicd
+- command line tools
+- programming aids
+- programmatically dealing with source control such as git
+- programmatically dealing with unix tools such as sudo, brew and others
+- programatically bootraping python
+- programatically creating and using python virtual environments
+
+
+**bes** is a work in progress and experimental.
 
 ## Overview
 
