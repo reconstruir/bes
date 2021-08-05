@@ -41,7 +41,9 @@ class pip_project(object):
     self._pip_cache_dir = path.join(self._droppings_dir, 'pip-cache')
     self._pipenv_cache_dir = path.join(self._droppings_dir, 'pipenv-cache')
     self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
+    file_util.mkdir(self._fake_home_dir)
     self._fake_tmp_dir = path.join(self._droppings_dir, 'fake-tmp')
+    file_util.mkdir(self._fake_tmp_dir)
 
     self._common_pip_args = [
       '--cache-dir', self._pip_cache_dir,
