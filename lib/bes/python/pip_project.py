@@ -8,6 +8,7 @@ from os import path
 import pprint
 
 from bes.common.check import check
+from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
 from bes.property.cached_property import cached_property
 from bes.system.command_line import command_line
