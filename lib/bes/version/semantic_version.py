@@ -171,3 +171,6 @@ class semantic_version(object):
     sv1 = semantic_version(v1)
     sv2 = semantic_version(v2)
     return cmp(sv1._tokens, sv2._tokens)
+
+check.register_class(semantic_version, include_seq = False)
+  
