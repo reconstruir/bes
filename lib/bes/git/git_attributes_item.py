@@ -4,10 +4,12 @@ from collections import namedtuple
 
 from bes.common.check import check
 from bes.common.type_checked_list import type_checked_list
+from bes.compat.StringIO import StringIO
 from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
+from bes.text.line_break import line_break
 from bes.text.string_list_parser import string_list_parser
-from bes.compat.StringIO import StringIO
+from bes.text.text_line_parser import text_line_parser
 
 class git_attributes_item(namedtuple('git_attributes_item', 'pattern, attributes')):
   'A class to represent one .gitattributes file item'
@@ -69,7 +71,17 @@ class git_attributes_item_list(type_checked_list):
   def __init__(self, values = None):
     super(git_attributes_item_list, self).__init__(values = values)
 
-  def sort_lexical(self, reverse = False):
+  def __str__(self):
+    return self.to_string(delimiter = line_break.DEFAULT_LINE_BREAK) + line_break.DEFAULT_LINE_BREAK
+
+  @classmethod
+  def parse(clazz, text):
+    check.check_string(text)
+
+    lines = text_line_parser.parse_lines(text, strip_comments = False, strip_text = True, remove_empties = True)
+    return git_attributes_item_list([ git_attributes_item.parse(line) for line in lines ])
+  
+  def sort(self, reverse = False):
     return self.sort(key = lambda item: item.pattern, reverse = reverse)
     
   def to_dict(self, short_hash = False):
@@ -84,9 +96,9 @@ class git_attributes_item_list(type_checked_list):
     d = self.to_dict(short_hash = short_hash)
     return json_util.to_json(d, indent = 2, sort_keys = True)
   
-  def output(self, style, output_filename = None):
-    git_output_style.check_style(style)
-
+  def output(self, output_filename = None):
+    check.check_string(output_filename, allow_none = True)
+    
     with file_util.open_with_default(filename = output_filename) as fout:
       if style == 'brief':
         for tag in self:
