@@ -6,6 +6,7 @@ from bes.common.string_util import string_util
 from bes.common.point import point
 from bes.system.log import log
 from bes.enum.flag_enum import flag_enum
+
 from .lexer_token import lexer_token
 
 class string_lexer_options(flag_enum):
