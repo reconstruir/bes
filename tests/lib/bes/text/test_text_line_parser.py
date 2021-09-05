@@ -2,27 +2,27 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.text.text_line_parser import text_line_parser as LTP
-from bes.text.text_line import text_line as LT
-from bes.text.string_list import string_list as SL
+from bes.text.text_line_parser import text_line_parser
+from bes.text.text_line import text_line as text_line
+from bes.text.string_list import string_list
 
 class test_text_line_parser(unit_test):
 
   def test___init__invalid_text(self):
     with self.assertRaises(TypeError) as ex:
-      LTP(None)
+      text_line_parser(None)
 
     with self.assertRaises(TypeError) as ex:
-      LTP(5)
+      text_line_parser(5)
       
   def test___init__empty(self):
-    l = LTP('')
+    l = text_line_parser('')
     self.assertEqual( 0, len(l) )
 
   def test___init__with_lines(self):
-    l1 = LTP('apple\nkiwi\npear\nmelon')
+    l1 = text_line_parser('apple\nkiwi\npear\nmelon')
     self.assertEqual( 4, len(l1) )
-    l2 = LTP(l1)
+    l2 = text_line_parser(l1)
     self.assertEqual( 4, len(l2) )
     self.assertEqual( ( 1, 'apple' ), l2[0] )
     self.assertEqual( ( 2, 'kiwi' ), l2[1] )
@@ -30,8 +30,8 @@ class test_text_line_parser(unit_test):
     self.assertEqual( ( 4, 'melon' ), l2[3] )
     
   def test___init__with_text_line_seq(self):
-    lines = [ LT( 1, 'apple' ), LT( 2, 'kiwi' ), LT( 3, 'pear' ), LT( 4, 'melon' ) ]
-    l = LTP(lines)
+    lines = [ text_line( 1, 'apple' ), text_line( 2, 'kiwi' ), text_line( 3, 'pear' ), text_line( 4, 'melon' ) ]
+    l = text_line_parser(lines)
     self.assertEqual( 4, len(l) )
     self.assertEqual( ( 1, 'apple' ), l[0] )
     self.assertEqual( ( 2, 'kiwi' ), l[1] )
@@ -40,7 +40,7 @@ class test_text_line_parser(unit_test):
     
   def test___init__with_tuple_seq(self):
     lines = [ ( 1, 'apple' ), ( 2, 'kiwi' ), ( 3, 'pear' ), ( 4, 'melon' ) ]
-    l = LTP(lines)
+    l = text_line_parser(lines)
     self.assertEqual( 4, len(l) )
     self.assertEqual( ( 1, 'apple' ), l[0] )
     self.assertEqual( ( 2, 'kiwi' ), l[1] )
@@ -49,12 +49,12 @@ class test_text_line_parser(unit_test):
 
   def test___init__with_text_line_seq_invalid_line_number(self):
     with self.assertRaises(ValueError) as ex:
-      LTP([ LT( 1, 'apple' ), LT( 1, 'kiwi' ) ])
+      text_line_parser([ text_line( 1, 'apple' ), text_line( 1, 'kiwi' ) ])
 
   def test___init__with_lines_and_starting_line_number(self):
-    l1 = LTP('apple\nkiwi\npear\nmelon', starting_line_number = 5)
+    l1 = text_line_parser('apple\nkiwi\npear\nmelon', starting_line_number = 5)
     self.assertEqual( 4, len(l1) )
-    l2 = LTP(l1)
+    l2 = text_line_parser(l1)
     self.assertEqual( 4, len(l2) )
     self.assertEqual( ( 5, 'apple' ), l2[0] )
     self.assertEqual( ( 6, 'kiwi' ), l2[1] )
@@ -62,12 +62,12 @@ class test_text_line_parser(unit_test):
     self.assertEqual( ( 8, 'melon' ), l2[3] )
       
   def test_1_line(self):
-    l = LTP('foo')
+    l = text_line_parser('foo')
     self.assertEqual( 1, len(l) )
     self.assertEqual( 'foo', l[0].text )
     
   def test_1_line_with_newline(self):
-    l = LTP('foo\n')
+    l = text_line_parser('foo\n')
     self.assertEqual( 1, len(l) )
     self.assertEqual( 'foo', l[0].text )
     self.assertMultiLineEqual(
@@ -76,7 +76,7 @@ class test_text_line_parser(unit_test):
       str(l) )
     
   def test_1_empty_line(self):
-    l = LTP('\n')
+    l = text_line_parser('\n')
     self.assertEqual( 1, len(l) )
     self.assertEqual( '', l[0].text )
     self.assertMultiLineEqual(
@@ -85,18 +85,18 @@ class test_text_line_parser(unit_test):
       str(l) )
     
   def test_basic(self):
-    l = LTP('foo bar\napple kiwi')
+    l = text_line_parser('foo bar\napple kiwi')
     self.assertEqual( 2, len(l) )
     self.assertEqual( 'foo bar', l[0].text )
     self.assertEqual( 'apple kiwi', l[1].text )
     
   def test___setitem__(self):
-    l = LTP('foo bar\napple kiwi')
+    l = text_line_parser('foo bar\napple kiwi')
     with self.assertRaises(RuntimeError) as context:
       l[0] = 'foo'
 
   def test_add_line_numbers(self):
-    l = LTP('foo\nbar\n')
+    l = text_line_parser('foo\nbar\n')
     l.add_line_numbers()
     self.assertMultiLineEqual(
       '''1|foo
@@ -104,7 +104,7 @@ class test_text_line_parser(unit_test):
 ''',
       str(l) )
 
-    l = LTP('foo\nbar')
+    l = text_line_parser('foo\nbar')
     l.add_line_numbers()
     self.assertMultiLineEqual(
       '''1|foo
@@ -112,7 +112,7 @@ class test_text_line_parser(unit_test):
       str(l) )
     
   def test_prepend(self):
-    l = LTP('foo\nbar\n')
+    l = text_line_parser('foo\nbar\n')
     l.prepend('ABC: ')
     self.assertMultiLineEqual(
       '''ABC: foo
@@ -121,7 +121,7 @@ ABC: bar
       str(l) )
 
   def test_prepend_with_index(self):
-    l = LTP('1234\n5678')
+    l = text_line_parser('1234\n5678')
     l.prepend('_', index = 1)
     self.assertMultiLineEqual(
       '''1_234
@@ -129,7 +129,7 @@ ABC: bar
       str(l) )
 
   def test_prepend_with_negative_index(self):
-    l = LTP('1234\n5678')
+    l = text_line_parser('1234\n5678')
     l.prepend('_', index = -2)
     self.assertMultiLineEqual(
       '''12_34
@@ -138,7 +138,7 @@ ABC: bar
 
     
   def test_append(self):
-    l = LTP('foo\nbar\n')
+    l = text_line_parser('foo\nbar\n')
     l.append(':ABC')
     self.assertMultiLineEqual(
       '''foo:ABC
@@ -157,7 +157,7 @@ peanut \
 walnut \
 rum
 coke'''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.merge_continuations()
     l.add_line_numbers()
     self.assertMultiLineEqual(
@@ -184,7 +184,7 @@ peanut # comment
 walnut # comment
 rum
 coke'''
-    l = LTP(text)
+    l = text_line_parser(text)
     self.assertMultiLineEqual(
       '''foo bar
 kiwi
@@ -220,7 +220,7 @@ coke'''
       'walnut # comment',
       'rum',
       'coke'
-    ], LTP(text).to_string_list() )
+    ], text_line_parser(text).to_string_list() )
     
   def test_to_string_list_strip_comments(self):
     text = r'''foo bar # comment
@@ -244,16 +244,16 @@ coke'''
       'walnut',
       'rum',
       'coke'
-    ], LTP(text).to_string_list(strip_comments = True) )
+    ], text_line_parser(text).to_string_list(strip_comments = True) )
 
   def test_parse_lines(self):
-    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('foo\nbar\n') )
-    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('foo\nbar') )
-    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\nfoo\nbar') )
-    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\n foo\nbar') )
-    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\n foo\nbar ') )
-    self.assertEqual( [ 'foo', 'bar' ], LTP.parse_lines('\n foo\nbar \n') )
-    self.assertEqual( [], LTP.parse_lines('\n\n\n') )
+    self.assertEqual( [ 'foo', 'bar' ], text_line_parser.parse_lines('foo\nbar\n') )
+    self.assertEqual( [ 'foo', 'bar' ], text_line_parser.parse_lines('foo\nbar') )
+    self.assertEqual( [ 'foo', 'bar' ], text_line_parser.parse_lines('\nfoo\nbar') )
+    self.assertEqual( [ 'foo', 'bar' ], text_line_parser.parse_lines('\n foo\nbar') )
+    self.assertEqual( [ 'foo', 'bar' ], text_line_parser.parse_lines('\n foo\nbar ') )
+    self.assertEqual( [ 'foo', 'bar' ], text_line_parser.parse_lines('\n foo\nbar \n') )
+    self.assertEqual( [], text_line_parser.parse_lines('\n\n\n') )
     
   def test_match_first(self):
     text = '''
@@ -261,7 +261,7 @@ coke'''
   Test Name                                              Results                               Reference Range               Lab
      CHLORIDE                                                                      101                   98-110 mmol/L
 '''
-    l = LTP(text)
+    l = text_line_parser(text)
     patterns = [
       r'^\s*Test\s+Name\s\s+Result\s\s+Flag\s\s+Reference\s+Range\s\s+Lab\s*$',
       r'^\s*Test\s+Name\s\s+Results\s\s+Reference\s+Range\s\s+Lab\s*$',
@@ -277,7 +277,7 @@ strawberry
 banana
 kiwi2
 '''
-    l = LTP(text)
+    l = text_line_parser(text)
     self.assertEqual( 1, l.match_first([ '^apple.*$' ]).line.line_number )
     self.assertEqual( 'apple1', l.match_first([ '^apple.*$' ]).line.text )
     self.assertEqual( 3, l.match_first([ '^apple.*$' ], line_number = 2).line.line_number )
@@ -294,7 +294,7 @@ kiwi2
 
 
 '''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.remove_empties()
     self.assertEqual( [ 'foo', 'bar', 'baz' ], l.to_string_list(strip_text = True) )
 
@@ -304,7 +304,7 @@ kiwi2
     kiwi
     orange
     '''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.strip()
     self.assertEqual( [ '', 'apple', 'kiwi', 'orange', '' ], l.to_string_list() )
     
@@ -316,7 +316,7 @@ kiwi2
     apricot
     banana
     watermelon'''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.remove_empties()
     l.strip()
     self.assertEqual( [ 'kiwi', 'orange', 'apricot' ], l.cut_lines('^ap.*$', '^ba.*$').to_string_list() )
@@ -332,7 +332,7 @@ kiwi2
     banana
     watermelon
     '''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.remove_empties()
     l.strip()
     self.assertEqual( [ 'kiwi', 'orange', 'apricot' ], l.cut_lines('^ap.*$', '^ba.*$').to_string_list() )
@@ -348,7 +348,7 @@ kiwi2
     banana
     watermelon
     '''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.remove_empties()
     l.strip()
     self.assertEqual( [ 'apple', 'kiwi', 'orange', 'apricot', 'banana' ], l.cut_lines('^ap.*$', '^ba.*$', include_pattern = True).to_string_list() )
@@ -362,7 +362,7 @@ kiwi2
     apricot
     banana
     watermelon'''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.strip()
     self.assertEqual( 0, l.find_by_line_number(1) )
     self.assertEqual( 3, l.find_by_line_number(4) )
@@ -376,7 +376,7 @@ kiwi2
     apricot
     banana
     watermelon'''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.strip()
     self.assertEqual( None, l.remove_line_number(666) )
     self.assertEqual( ( 1, 'apple' ), l.remove_line_number(1) )
@@ -393,7 +393,7 @@ kiwi2
     apricot
     banana
     watermelon'''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.strip()
     l.combine_lines(1, 2)
     self.assertEqual( [ 'apple kiwi', 'orange', 'apricot', 'banana', 'watermelon' ], l.to_string_list() )
@@ -413,14 +413,14 @@ kiwi2
     apricot
     banana
     watermelon'''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.strip()
     self.assertEqual( [ ( 1, 'apple' ), ( 4, 'apricot' ) ], l.match_all('^a.*$') )
     self.assertEqual( [], l.match_all('^nothere.*$') )
     self.assertEqual( [ ( 1, 'apple' ) ], l.match_all('^app.*$') )
 
   def test_match_backwards(self):
-    l = LTP([ ( 1, 'apple' ), ( 2, 'kiwi' ), ( 3, 'orange' ), ( 4, 'apricot' ), ( 5, 'banana' ), ( 6, 'watermelon' ) ])
+    l = text_line_parser([ ( 1, 'apple' ), ( 2, 'kiwi' ), ( 3, 'orange' ), ( 4, 'apricot' ), ( 5, 'banana' ), ( 6, 'watermelon' ) ])
     self.assertEqual( ( 2, 'kiwi' ), l.match_backwards(5, '^ki.*$').line )
 
   def test_cut_sections(self):
@@ -441,7 +441,7 @@ h
 i
 
 '''
-    l = LTP(text)
+    l = text_line_parser(text)
     sections = l.cut_sections(r'^section\:.*$', r'^\s*$', include_pattern = True)
     self.assertEqual( 3, len(sections) )
     self.assertEqual( ( 1, 'section:1' ), sections[0][0] )
@@ -460,7 +460,7 @@ i
     self.assertEqual( ( 14, 'i' ), sections[2][3] )
 
   def test_annotate_line(self):
-    l = LTP('01234\n56789\nabcde')
+    l = text_line_parser('01234\n56789\nabcde')
     l.annotate_line('-> ', '   ', 1, index = 0)
     self.assertMultiLineEqual(
       '''-> 01234
@@ -468,7 +468,7 @@ i
    abcde''',
       str(l) )
     
-    l = LTP('01234\n56789\nabcde')
+    l = text_line_parser('01234\n56789\nabcde')
     l.annotate_line('-> ', '   ', 2, index = 0)
     self.assertMultiLineEqual(
       '''   01234
@@ -476,7 +476,7 @@ i
    abcde''',
       str(l) )
 
-    l = LTP('01234\n56789\nabcde')
+    l = text_line_parser('01234\n56789\nabcde')
     l.annotate_line('-> ', '   ', 3, index = 0)
     self.assertMultiLineEqual(
       '''   01234
@@ -494,7 +494,7 @@ wine
 milk
 eggs'''
 
-    l = LTP(text)
+    l = text_line_parser(text)
     l._remove_range(0, 0)
     self.assertMultiLineEqual( '''\
 apple
@@ -504,7 +504,7 @@ wine
 milk
 eggs''', str(l) )
 
-    l = LTP(text)
+    l = text_line_parser(text)
     l._remove_range(0, 1)
     self.assertMultiLineEqual( '''\
 melon
@@ -513,7 +513,7 @@ wine
 milk
 eggs''', str(l) )
 
-    l = LTP(text)
+    l = text_line_parser(text)
     l._remove_range(0, 2)
     self.assertMultiLineEqual( '''\
 cheese
@@ -521,7 +521,7 @@ wine
 milk
 eggs''', str(l) )
     
-    l = LTP(text)
+    l = text_line_parser(text)
     l._remove_range(0, 1)
     self.assertMultiLineEqual( '''\
 melon
@@ -531,7 +531,7 @@ milk
 eggs''', str(l) )
     
     
-    l = LTP(text)
+    l = text_line_parser(text)
     l._remove_range(1, 1)
     self.assertMultiLineEqual( '''\
 kiwi
@@ -541,7 +541,7 @@ wine
 milk
 eggs''', str(l) )
     
-    l = LTP(text)
+    l = text_line_parser(text)
     l._remove_range(1, 2)
     self.assertMultiLineEqual( '''\
 kiwi
@@ -550,7 +550,7 @@ wine
 milk
 eggs''', str(l) )
     
-    l = LTP(text)
+    l = text_line_parser(text)
     l._remove_range(6, 6)
     self.assertMultiLineEqual( '''\
 kiwi
@@ -560,7 +560,7 @@ cheese
 wine
 milk''', str(l) )
 
-    l = LTP(text)
+    l = text_line_parser(text)
     l._remove_range(5, 6)
     self.assertMultiLineEqual( '''\
 kiwi
@@ -569,7 +569,7 @@ melon
 cheese
 wine''', str(l) )
 
-    l = LTP(text)
+    l = text_line_parser(text)
     l._remove_range(4, 6)
     self.assertMultiLineEqual( '''\
 kiwi
@@ -577,7 +577,7 @@ apple
 melon
 cheese''', str(l) )
 
-    l = LTP(text)
+    l = text_line_parser(text)
     l._remove_range(4, 5)
     self.assertMultiLineEqual( '''\
 kiwi
@@ -587,7 +587,7 @@ cheese
 eggs''', str(l) )
 
 
-    l = LTP(text)
+    l = text_line_parser(text)
     l._remove_range(4, 4)
     self.assertMultiLineEqual( '''\
 kiwi
@@ -597,7 +597,7 @@ cheese
 milk
 eggs''', str(l) )
 
-    l = LTP(text)
+    l = text_line_parser(text)
     l._remove_range(0, 6)
     self.assertMultiLineEqual( '''''', str(l) )
 
@@ -610,7 +610,7 @@ cheese
 wine
 milk
 eggs'''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.fold_by_lines(1, 2, 'cream')
     self.assertMultiLineEqual( '''\
 cream
@@ -626,7 +626,7 @@ kiwi
 apple
 melon
 eggs'''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.replace_line_text(3, 'whiskey')
     self.assertMultiLineEqual( '''\
 kiwi
@@ -640,7 +640,7 @@ kiwi
 apple
 melon
 eggs'''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.append_line('wine')
     self.assertMultiLineEqual( '''\
 kiwi
@@ -656,7 +656,7 @@ wine''', str(l) )
 3 melon
 4 eggs
 5 wine'''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.remove_lines([ 1 ])
     self.assertMultiLineEqual( '''\
 2 apple
@@ -664,7 +664,7 @@ wine''', str(l) )
 4 eggs
 5 wine''', str(l) )
     
-    l = LTP(text)
+    l = text_line_parser(text)
     l.remove_lines([ 2 ])
     self.assertMultiLineEqual( '''\
 1 kiwi
@@ -672,7 +672,7 @@ wine''', str(l) )
 4 eggs
 5 wine''', str(l) )
 
-    l = LTP(text)
+    l = text_line_parser(text)
     l.remove_lines([  5 ])
     self.assertMultiLineEqual( '''\
 1 kiwi
@@ -680,7 +680,7 @@ wine''', str(l) )
 3 melon
 4 eggs''', str(l) )
     
-    l = LTP(text)
+    l = text_line_parser(text)
     l.remove_lines([ 1, 3, 5 ])
     self.assertMultiLineEqual( '''\
 2 apple
@@ -692,7 +692,7 @@ kiwi
 apple
 melon
 cheese'''
-    l = LTP(text)
+    l = text_line_parser(text)
     l.add_empty_lines()
     self.assertMultiLineEqual( '''\
 kiwi
@@ -709,9 +709,9 @@ kiwi
 apple
 melon
 cheese'''
-    l = LTP(text)
+    l = text_line_parser(text)
     self.assertEqual( [ 1, 2, 3, 4 ], l.line_numbers() )
-    l.replace_line_with_lines(2, SL(['wine', 'pepper']))
+    l.replace_line_with_lines(2, string_list(['wine', 'pepper']))
     self.assertMultiLineEqual( '''\
 kiwi
 wine
@@ -726,8 +726,8 @@ kiwi
 apple
 melon
 cheese'''
-    l = LTP(text)
-    l.replace_line_with_lines(1, SL(['wine', 'pepper']))
+    l = text_line_parser(text)
+    l.replace_line_with_lines(1, string_list(['wine', 'pepper']))
     self.assertMultiLineEqual( '''\
 wine
 pepper
@@ -741,8 +741,8 @@ kiwi
 apple
 melon
 cheese'''
-    l = LTP(text)
-    l.replace_line_with_lines(4, SL(['wine', 'pepper']))
+    l = text_line_parser(text)
+    l.replace_line_with_lines(4, string_list(['wine', 'pepper']))
     self.assertMultiLineEqual( '''\
 kiwi
 apple
@@ -757,7 +757,7 @@ kiwi
 apple
 melon
 cheese'''
-    l = LTP(text)
+    l = text_line_parser(text)
     self.assertEqual( [ 1, 2, 3, 4 ], l.line_numbers() )
     l.remove_line_number(2)
     self.assertEqual( [ 1, 3, 4 ], l.line_numbers() )
@@ -765,7 +765,7 @@ cheese'''
     self.assertEqual( [ 1, 2, 3 ], l.line_numbers() )
     
   def test_renumber_empty(self):
-    l = LTP('')
+    l = text_line_parser('')
     self.assertEqual( [], l.line_numbers() )
     l.renumber()
     self.assertEqual( [], l.line_numbers() )
@@ -779,7 +779,7 @@ apple
 melon
 
 cheese'''
-    l = LTP(text)
+    l = text_line_parser(text)
     self.assertEqual( [
       ( 1, 'kiwi' ), 
       ( 2, '' ), 
@@ -810,7 +810,7 @@ cheese'''
   def test_windows_line_break(self):
     'Test that windows line breaks are interpreted and preserved correctly.'
     text = '''kiwi\r\napple\r\nmelon\r\ncheese\r\n'''
-    l = LTP(text)
+    l = text_line_parser(text)
     self.assertEqual( [
       ( 1, 'kiwi' ), 
       ( 2, 'apple' ), 
@@ -821,7 +821,7 @@ cheese'''
     
   def test_expand_continuations(self):
     text = '''foo\\bar\\baz'''
-    l = LTP(text)
+    l = text_line_parser(text)
     self.assertEqual( [
       ( 1, 'foo\\bar\\baz' ), 
     ], l.lines )
@@ -834,7 +834,7 @@ cheese'''
     
   def test_expand_continuations_with_indent(self):
     text = '''foo\\bar\\baz'''
-    l = LTP(text)
+    l = text_line_parser(text)
     self.assertEqual( [
       ( 1, 'foo\\bar\\baz' ), 
     ], l.lines )
@@ -851,7 +851,7 @@ cheese = brie;
 fruit = kiwi;
 wine = barolo;
 '''
-    l = LTP(text)
+    l = text_line_parser(text)
     pattern = r'cheese\s+=\s+(.*);'
     l.re_sub(r'cheese\s+=\s+(.*);', 'cheese = fontina;')
 
@@ -869,7 +869,7 @@ fruit = kiwi;
 wine = barolo;
 cheese = cheddar;
 '''
-    l = LTP(text)
+    l = text_line_parser(text)
     pattern = r'cheese\s+=\s+(.*);'
     self.assertEqual( [
       ( 0, ( 1, 'cheese = brie;' ), ['brie'] ),
