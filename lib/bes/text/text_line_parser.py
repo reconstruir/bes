@@ -19,21 +19,34 @@ from .string_list import string_list
 class text_line_parser(object):
   'Manage text as lines.'
 
-  def __init__(self, what, delimiter = line_break.DEFAULT_LINE_BREAK, starting_line_number = None):
+  def __init__(self,
+               what,
+               delimiter = line_break.DEFAULT_LINE_BREAK,
+               starting_line_number = None,
+               text_line_class = None):
+    check.check_string(delimiter, allow_none = True)
+    check.check_int(starting_line_number, allow_none = True)
+    check.check_class(text_line_class, allow_none = True)
+    
     log.add_logging(self, 'text_line_parser')
     self._line_break = line_break.DEFAULT_LINE_BREAK
+
+    text_line_class = text_line_class or text_line
+    if not issubclass(text_line_class, text_line):
+      raise TypeError('Not a subclass of "text_line" - {} - {}'.format(text_line_class, type(text_line_class)))
+    self._text_line_class = text_line_class
     if isinstance(what, text_line_parser):
       self._assign_text_line_seq(what._lines, starting_line_number)
       self._ends_with_line_break = False
     elif check.is_text_line_seq(what):
       self._assign_text_line_seq(what, starting_line_number)
     elif check.is_seq(what, tuple):
-      lines = [ text_line(*line) for line in what ]
+      lines = [ self._text_line_class(*line) for line in what ]
       self._assign_text_line_seq(lines, starting_line_number)
     else:
       check.check_string(what)
       self._line_break = line_break.guess_line_break(what) or line_break.DEFAULT_LINE_BREAK
-      self._lines = self._parse(what, starting_line_number)
+      self._lines = self._parse(what, starting_line_number, self._text_line_class)
       self._ends_with_line_break = what and line_break.ends_with_line_break(what)
 
   @property
@@ -103,11 +116,11 @@ class text_line_parser(object):
     raise RuntimeError('lines are read only.')
 
   @classmethod
-  def _parse(clazz, text, starting_line_number):
+  def _parse(clazz, text, starting_line_number, text_line_class):
     starting_line_number = starting_line_number or 1
     texts = text.splitlines()
     line_numbers = range(starting_line_number, len(texts) + starting_line_number)
-    return [ text_line(*item) for item in zip(line_numbers, texts) ]
+    return [ text_line_class(*item) for item in zip(line_numbers, texts) ]
 
   def add_line_numbers(self, delimiter = '|'):
     width = math.trunc(math.log10(len(self._lines)) + 1)
@@ -115,12 +128,12 @@ class text_line_parser(object):
     for i, line in enumerate(self._lines):
       line_number_text = fmt % line.line_number
       text = '%s%s%s' % (line_number_text, delimiter, line.text)
-      self._lines[i] = text_line(line.line_number, text)
+      self._lines[i] = self._text_line_class(line.line_number, text)
   
   def prepend(self, s, index = 0):
     for i, line in enumerate(self._lines):
       new_text = string_util.insert(line.text, s, index)
-      self._lines[i] = text_line(line.line_number, new_text)
+      self._lines[i] = self._text_line_class(line.line_number, new_text)
 
   def annotate_line(self, annotation, indent, line_number, index = 0):
     'annotate a line with annotation.  all other lines are indented with indent.'
@@ -129,11 +142,11 @@ class text_line_parser(object):
     for i, line in enumerate(self._lines):
       s = annotation if line.line_number == line_number else indent
       new_text = string_util.insert(line.text, s, index)
-      self._lines[i] = text_line(line.line_number, new_text)
+      self._lines[i] = self._text_line_class(line.line_number, new_text)
       
   def append(self, s):
     for i, line in enumerate(self._lines):
-      self._lines[i] = text_line(line.line_number, '%s%s' % (line.text, s))
+      self._lines[i] = self._text_line_class(line.line_number, '%s%s' % (line.text, s))
   
   def merge_continuations(self):
     self._lines = line_continuation_merger.merge_to_list(self._lines)
@@ -276,7 +289,7 @@ class text_line_parser(object):
     return text_line_parser([ line for line in self._lines if start_comp(line.line_number, head.line.line_number) and end_comp(line.line_number, tail.line.line_number) ])
 
   def find_by_line_number(self, line_number):
-    target = text_line(line_number, '')
+    target = self._text_line_class(line_number, '')
     return algorithm.binary_search(self._lines, target, self._line_number_comparator)
   
   @staticmethod
@@ -309,7 +322,7 @@ class text_line_parser(object):
     line2 = self._lines[index2]
     del self._lines[index2]
     new_text = '%s%s%s' % (line1.text, delimiter, line2.text)
-    new_line = text_line(line1.line_number, new_text)
+    new_line = self._text_line_class(line1.line_number, new_text)
     self._lines[index1] = new_line
 
   def cut_sections(self, start_pattern, end_pattern, include_pattern = False, line_number = None):
@@ -351,7 +364,7 @@ class text_line_parser(object):
     max_index = len(self._lines) - 1
     if end_index > max_index:
       raise IndexError('end_index %d should be <= %d' % (end_index, max_index))
-    folded_line = text_line(self._lines[start_index].line_number, text)
+    folded_line = self._text_line_class(self._lines[start_index].line_number, text)
     if start_index != end_index:
       self._remove_range(start_index + 1, end_index)
     self._lines[start_index] = folded_line
@@ -362,7 +375,7 @@ class text_line_parser(object):
     if index < 0:
       raise IndexError('no line_number %d found' % (line_number))
     old_line = self._lines[index]
-    self._lines[index] = text_line(old_line.line_number, new_text)
+    self._lines[index] = self._text_line_class(old_line.line_number, new_text)
 
   def replace_line_with_lines(self, line_number, texts, renumber = True):
     'Replace the text at line_number with new_text.'
@@ -380,7 +393,7 @@ class text_line_parser(object):
         new_line_number = old_line.line_number + i
       else:
         new_line_number = 0
-      new_lines.append(text_line(new_line_number, text))
+      new_lines.append(self._text_line_class(new_line_number, text))
     self._lines = self._lines[0:index] + new_lines + self._lines[index + 1:]
     if renumber:
       self.renumber(starting = line_number)
@@ -391,7 +404,7 @@ class text_line_parser(object):
       new_line_number = self._lines[-1].line_number
     else:
       new_line_number = 1
-    self._lines.append(text_line(new_line_number, text))
+    self._lines.append(self._text_line_class(new_line_number, text))
 
   def add_empty_lines(self):
     'Add an empty line between every line.  This will renumber line numbers.'
@@ -399,7 +412,7 @@ class text_line_parser(object):
     for i, line in enumerate(self._lines):
       line_number = i + 1
       if i > 0:
-        new_lines.append(text_line(line_number, ''))
+        new_lines.append(self._text_line_class(line_number, ''))
       new_lines.append(line)
     self._lines = new_lines
 
