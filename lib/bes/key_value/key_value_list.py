@@ -11,7 +11,7 @@ from bes.text.string_lexer import string_lexer_options
 from .key_value_parser import key_value_parser
 from .key_value import key_value
 
-class key_value_list(type_checked_list, string_lexer_options.CONSTANTS):
+class key_value_list(type_checked_list):
 
   __value_type__ = key_value
   

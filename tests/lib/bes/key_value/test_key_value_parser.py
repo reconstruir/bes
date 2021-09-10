@@ -4,6 +4,7 @@
 import unittest
 from bes.key_value.key_value_parser import key_value_parser as P
 from bes.key_value.key_value import key_value as KV
+from bes.text.string_lexer_options import string_lexer_options
 
 class test_key_value_parser(unittest.TestCase):
 
@@ -72,12 +73,12 @@ class test_key_value_parser(unittest.TestCase):
 
   def test_parse_keep_quotes(self):
     self.assertEqual( { 'foo': 'a b c' }, P.parse_to_dict('foo="a b c"', options = 0) )
-    self.assertEqual( { 'foo': '"a b c"' }, P.parse_to_dict('foo="a b c"', options = P.KEEP_QUOTES) )
-    self.assertEqual( { 'foo': '""a b c""' }, P.parse_to_dict(r'foo=\""a b c\""', options = P.KEEP_QUOTES) )
-    self.assertEqual( { 'foo': 'abc' }, P.parse_to_dict('foo=abc', options = P.KEEP_QUOTES) )
-    self.assertEqual( { 'foo': None }, P.parse_to_dict('foo=', options = P.KEEP_QUOTES) )
-    self.assertEqual( { 'foo': 'bar:"a b"' }, P.parse_to_dict(r'foo=bar\:"a b"', options = P.KEEP_QUOTES) )
-    self.assertEqual( { 'foo': 'bar:\\"a b\\"' }, P.parse_to_dict(r'foo=bar\:"a b"', options = P.KEEP_QUOTES | P.ESCAPE_QUOTES) )
+    self.assertEqual( { 'foo': '"a b c"' }, P.parse_to_dict('foo="a b c"', options = string_lexer_options.KEEP_QUOTES) )
+    self.assertEqual( { 'foo': '""a b c""' }, P.parse_to_dict(r'foo=\""a b c\""', options = string_lexer_options.KEEP_QUOTES) )
+    self.assertEqual( { 'foo': 'abc' }, P.parse_to_dict('foo=abc', options = string_lexer_options.KEEP_QUOTES) )
+    self.assertEqual( { 'foo': None }, P.parse_to_dict('foo=', options = string_lexer_options.KEEP_QUOTES) )
+    self.assertEqual( { 'foo': 'bar:"a b"' }, P.parse_to_dict(r'foo=bar\:"a b"', options = string_lexer_options.KEEP_QUOTES) )
+    self.assertEqual( { 'foo': 'bar:\\"a b\\"' }, P.parse_to_dict(r'foo=bar\:"a b"', options = string_lexer_options.KEEP_QUOTES | string_lexer_options.ESCAPE_QUOTES) )
 
   def test_comment_in_quote(self):
     self.assertEqual( { 'foo': 'a #b c' }, P.parse_to_dict('foo="a #b c"') )
@@ -97,11 +98,11 @@ class test_key_value_parser(unittest.TestCase):
              empty_value = None):
     options = 0
     if keep_quotes:
-      options |= P.KEEP_QUOTES
+      options |= string_lexer_options.KEEP_QUOTES
     if escape_quotes:
-      options |= P.ESCAPE_QUOTES
+      options |= string_lexer_options.ESCAPE_QUOTES
     if ignore_comments:
-      options |= P.IGNORE_COMMENTS
+      options |= string_lexer_options.IGNORE_COMMENTS
     return P.parse_to_list(text, options = options, empty_value = empty_value, log_tag = 'test_key_value_parser')
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ from bes.common.variable import variable
 from .string_list_parser import string_list_parser
 from .string_lexer import string_lexer_options
 
-class string_list(type_checked_list, string_lexer_options.CONSTANTS):
+class string_list(type_checked_list):
 
   __value_type__ = compat.STRING_TYPES
   

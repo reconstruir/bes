@@ -4,6 +4,7 @@
 import unittest
 from bes.text.lexer_token import lexer_token
 from bes.text.string_lexer import string_lexer as L
+from bes.text.string_lexer_options import string_lexer_options
 from helpers.token_test_helper import *
 
 class test_string_lexer(unittest.TestCase):
@@ -174,11 +175,11 @@ class test_string_lexer(unittest.TestCase):
                  ignore_comments = False):
     options = 0
     if keep_quotes:
-      options |= L.KEEP_QUOTES
+      options |= string_lexer_options.KEEP_QUOTES
     if escape_quotes:
-      options |= L.ESCAPE_QUOTES
+      options |= string_lexer_options.ESCAPE_QUOTES
     if ignore_comments:
-      options |= L.IGNORE_COMMENTS
+      options |= string_lexer_options.IGNORE_COMMENTS
     return [ token for token in L.tokenize(text, delimiter, options = options) ]
 
   def assertEqual(self, expected, actual):

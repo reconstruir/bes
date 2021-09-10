@@ -3,6 +3,7 @@
 
 import unittest
 from bes.key_value.key_value_lexer import key_value_lexer as L
+from bes.text.string_lexer_options import string_lexer_options
 
 import os.path as path, sys
 sys.path.append(path.join(path.dirname(__file__), '../text'))
@@ -168,13 +169,13 @@ class test_key_value_lexer(unittest.TestCase):
                  ignore_spaces = False):
     options = 0
     if keep_quotes:
-      options |= L.KEEP_QUOTES
+      options |= string_lexer_options.KEEP_QUOTES
     if escape_quotes:
-      options |= L.ESCAPE_QUOTES
+      options |= string_lexer_options.ESCAPE_QUOTES
     if ignore_comments:
-      options |= L.IGNORE_COMMENTS
+      options |= string_lexer_options.IGNORE_COMMENTS
     if ignore_spaces:
-      options |= L.IGNORE_SPACES
+      options |= string_lexer_options.IGNORE_SPACES
     return [ token for token in L.tokenize(text, delimiter, options = options) ]
 
   def assertEqual(self, expected, actual):

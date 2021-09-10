@@ -3,7 +3,7 @@
 from bes.system.log import logger
 from .string_lexer import string_lexer, string_lexer_options
 
-class string_list_parser(string_lexer_options.CONSTANTS):
+class string_list_parser(object):
 
   _log = logger('string_list_parser')
   

@@ -1,21 +1,17 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import string
+from enum import IntFlag
+
 from bes.compat.StringIO import StringIO
 from bes.common.string_util import string_util
 from bes.common.point import point
 from bes.system.log import log
-from bes.enum.flag_enum import flag_enum
 
 from .lexer_token import lexer_token
+from .string_lexer_options import string_lexer_options
 
-class string_lexer_options(flag_enum):
-  KEEP_QUOTES = 0x01
-  ESCAPE_QUOTES = 0x02
-  IGNORE_COMMENTS = 0x04
-  DEFAULT_OPTIONS = 0x00
-  
-class string_lexer(string_lexer_options.CONSTANTS):
+class string_lexer(object):
   TOKEN_COMMENT = 'comment'
   TOKEN_DONE = 'done'
   TOKEN_SPACE = 'space'
@@ -30,10 +26,10 @@ class string_lexer(string_lexer_options.CONSTANTS):
   def __init__(self, log_tag, options):
     log.add_logging(self, tag = log_tag)
 
-    self._options = options or self.DEFAULT_OPTIONS
-    self._keep_quotes = (self._options & self.KEEP_QUOTES) != 0
-    self._escape_quotes = (self._options & self.ESCAPE_QUOTES) != 0
-    self._ignore_comments = (self._options & self.IGNORE_COMMENTS) != 0
+    self._options = options or string_lexer_options.DEFAULT_OPTIONS
+    self._keep_quotes = (self._options & string_lexer_options.KEEP_QUOTES) != 0
+    self._escape_quotes = (self._options & string_lexer_options.ESCAPE_QUOTES) != 0
+    self._ignore_comments = (self._options & string_lexer_options.IGNORE_COMMENTS) != 0
     self._buffer = None
     self._is_escaping = False
     self._last_char = None
