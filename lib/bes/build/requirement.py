@@ -22,15 +22,17 @@ class requirement(namedtuple('requirement', 'name, operator, version, system_mas
     check.check_string(version, allow_none = True)
     check.check_string(system_mask, allow_none = True)
     if hardness:
-      hardness = requirement_hardness(hardness)
+      if check.is_string(hardness):
+        hardness = requirement_hardness[hardness]
     check.check_requirement_hardness(hardness, allow_none = True)
     check.check_string(expression, allow_none = True)
+    
     return clazz.__bases__[0].__new__(clazz, name, operator, version, system_mask, hardness, expression)
 
   def __str__(self):
     buf = StringIO()
     if self.hardness:
-      buf.write(str(self.hardness))
+      buf.write(self.hardness.name)
       buf.write(' ')
     buf.write(self.name)
     if self.system_mask and self.system_mask != 'all':
@@ -83,7 +85,7 @@ class requirement(namedtuple('requirement', 'name, operator, version, system_mas
       raise ValueError('invalid hardness: %s - %s' % (str(hardness), type(hardness)))
     self_hardness = self.hardness or requirement_hardness.DEFAULT
     for h in hardness:
-      if self_hardness == requirement_hardness(h):
+      if self_hardness == requirement_hardness[h]:
         return True
     return False
 

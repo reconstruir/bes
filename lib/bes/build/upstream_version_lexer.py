@@ -2,14 +2,13 @@
 
 import string
 from collections import namedtuple
+from enum import IntEnum
 
 from bes.compat.StringIO import StringIO
 from bes.common.string_util import string_util
 from bes.common.point import point
 from bes.system.log import log
-from bes.enum.flag_enum import flag_enum
 from bes.text.lexer_token import lexer_token
-from bes.enum.enum import enum
 
 from collections import namedtuple
 
@@ -112,7 +111,7 @@ class upstream_version_lexer(object):
         self.buffer_write('\\')
       self.buffer_write(c)
 
-  class _char_types(enum):
+  class _char_types(IntEnum):
     EOS = 1
     NUMBER = 2
     PUNCTUATION = 3
@@ -155,7 +154,7 @@ class _state(object):
     attributes = []
     if include_state:
       attributes.append('state=%s' % (self.name))
-    attributes.append('c=|%s(%s)|' % (cr.char, self.lexer._char_types.value_to_name(cr.ctype)))
+    attributes.append('c=|%s(%s)|' % (cr.char, cr.ctype.name))
     try:
       attributes.append('buffer=%s' % (string_util.quote(self.lexer.buffer_value())))
     except AttributeError as ex:

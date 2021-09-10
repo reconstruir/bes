@@ -1,18 +1,19 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+from enum import IntEnum
+
 from bes.common.check import check
 from bes.common.node import node
 from bes.common.string_util import string_util
 from bes.compat.StringIO import StringIO
-from bes.enum.enum import enum
 from bes.text.string_list import string_list
 from bes.text.text_line_parser import text_line_parser
-from collections import namedtuple
 
 from .comments import comments
 from .white_space import white_space
 
-class text_traversal(enum):
+class text_traversal(IntEnum):
   NODE = 1
   NODE_FLAT = 2
   CHILDREN_FLAT = 3
@@ -156,8 +157,8 @@ class _text_node(node):
   def _ensure_enum(clazz):
     if hasattr(clazz, '__enum_present'):
       return
-    for name, value in text_traversal:
-      setattr(clazz, name, value)
+    for e in text_traversal:
+      setattr(clazz, e.name, e.value)
     setattr(clazz, '__enum_present', True)
 
   def find_child_by_text(self, text):

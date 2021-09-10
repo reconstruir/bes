@@ -42,6 +42,8 @@ class type_checked_list(object):
       return len_cmp
     other_values = self._get_values(other)
     for a, b in zip(self._values, other_values):
+#      if isinstance(b, tuple):
+#        b = self.__value_type__(*b)
       next_cmp = cmp(a, b)
       if next_cmp != 0:
         return next_cmp

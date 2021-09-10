@@ -123,14 +123,14 @@ class test_requirement_parser(unit_test):
   def test_hardness(self):
     r = self._parse('all: RUN foo >= 1.2.3')
     self.assertEqual( [
-      ( 'foo', '>=', '1.2.3', 'all', 'RUN', None ),
+      ( 'foo', '>=', '1.2.3', 'all', requirement_hardness.RUN, None ),
     ], r )
 
   def test_hardness_multiple(self):
     r = self._parse('all: RUN foo >= 1.2.3 BUILD bar >= 6.6.6')
     self.assertEqual( [
-      ( 'foo', '>=', '1.2.3', 'all', 'RUN', None ),
-      ( 'bar', '>=', '6.6.6', 'all', 'BUILD', None ),
+      ( 'foo', '>=', '1.2.3', 'all', requirement_hardness.RUN, None ),
+      ( 'bar', '>=', '6.6.6', 'all', requirement_hardness.BUILD, None ),
     ], r )
     self.assertTrue( isinstance(r[0][4], requirement_hardness) )
     self.assertTrue( isinstance(r[1][4], requirement_hardness) )
