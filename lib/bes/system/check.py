@@ -213,10 +213,12 @@ class check(object):
     def __call__(self, *args, **kwargs):
       assert len(args) == 1
       obj = args[0]
+      allow_none = kwargs.get('allow_none', False)
+      if allow_none and obj == None:
+        return None
       if not isinstance(obj, self.object_type) and self.cast_func:
         obj = self.cast_func(obj)
       type_blurb = kwargs.get('type_blurb', None)
-      allow_none = kwargs.get('allow_none', False)
       return check._check(obj, self.object_type, 2, type_blurb = type_blurb, allow_none = allow_none)
     
   class _is_type_helper(object):
