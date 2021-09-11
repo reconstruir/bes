@@ -214,7 +214,7 @@ class check(object):
       assert len(args) == 1
       obj = args[0]
       allow_none = kwargs.get('allow_none', False)
-      if allow_none and obj == None:
+      if allow_none and obj is None:
         return None
       if not isinstance(obj, self.object_type) and self.cast_func:
         obj = self.cast_func(obj)
