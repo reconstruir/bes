@@ -33,7 +33,14 @@ class test_checked_int_enum(unit_test):
       'LEMON': self._fruit.LEMON,
       'ORANGE': self._fruit.ORANGE,
       'PEACH': self._fruit.PEACH,
-    }, self._fruit.name_to_value_dict )
+    }, self._fruit.name_to_item_dict )
+
+  def test_caseless_name_to_item_dict(self):
+    self.assertEqual( {
+      'lemon': self._fruit.LEMON,
+      'orange': self._fruit.ORANGE,
+      'peach': self._fruit.PEACH,
+    }, self._fruit.caseless_name_to_item_dict )
     
   def test_value_to_name_dict(self):
     self.assertEqual( {
@@ -46,6 +53,10 @@ class test_checked_int_enum(unit_test):
     self.assertEqual( self._fruit.LEMON, self._fruit.parse('LEMON') )
     self.assertEqual( self._fruit.LEMON, self._fruit.parse(1) )
     self.assertEqual( self._fruit.LEMON, self._fruit.parse(self._fruit.LEMON) )
+
+  def test_parse_ignore_case(self):
+    self.assertEqual( self._fruit.LEMON, self._fruit.parse('lemon', ignore_case = True) )
+    self.assertEqual( self._fruit.LEMON, self._fruit.parse('Lemon', ignore_case = True) )
     
 if __name__ == '__main__':
   unit_test.main()

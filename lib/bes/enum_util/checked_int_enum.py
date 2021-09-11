@@ -58,6 +58,14 @@ class checked_int_enum(IntEnum):
     for item in clazz:
       result[item.name] = item
     return result
+
+  @cached_class_property
+  def caseless_name_to_item_dict(clazz):
+    'Return a dict of names to items.'
+    result = {}
+    for item in clazz:
+      result[item.name.lower()] = item
+    return result
   
   @cached_class_property
   def name_to_value_dict(clazz):
@@ -89,17 +97,20 @@ class checked_int_enum(IntEnum):
   @classmethod
   def parse(clazz, what, ignore_case = False):
     'Parse a string, int or enum return an enum item or raise an error if name is invalid.'
+
+    item_dict = clazz.caseless_name_to_item_dict if ignore_case else clazz.name_to_item_dict
     if check.is_string(what):
-      if not what in clazz.name_to_item_dict:
+      key = what.lower() if ignore_case else what
+      if not key in item_dict:
         raise ValueError('Not a valid enumeration name: "{}"'.format(what))
-      return clazz.name_to_item_dict[what]
+      return item_dict[key]
     elif check.is_int(what):
       if not what in clazz.value_to_name_dict:
         raise ValueError('Not a valid enumeration value: "{}"'.format(what))
       names = clazz.value_to_name_dict[what]
       assert len(names) >= 1
       name = next(iter(names))
-      return clazz.name_to_item_dict[name]
+      return item_dict[name]
     elif isinstance(what, clazz):
       return what
     else:
