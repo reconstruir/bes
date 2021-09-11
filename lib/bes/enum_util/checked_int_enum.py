@@ -39,7 +39,6 @@ class checked_int_enum(IntEnum):
   @cached_class_property
   def values(clazz):
     'Return a set all values.'
-    print('clazz={}'.format(clazz))
     return set([ item.value for item in clazz ])
 
   @cached_class_property
@@ -52,6 +51,14 @@ class checked_int_enum(IntEnum):
     'Return a set all names in lower case.'
     return set([ item.name.lower() for item in clazz ])
 
+  @cached_class_property
+  def name_to_item_dict(clazz):
+    'Return a dict of names to items.'
+    result = {}
+    for item in clazz:
+      result[item.name] = item
+    return result
+  
   @cached_class_property
   def name_to_value_dict(clazz):
     'Return a dict of names to enum values.'
@@ -80,10 +87,20 @@ class checked_int_enum(IntEnum):
     return name in names
 
   @classmethod
-  def parse(clazz, s, ignore_case = False):
-    'Parse a string and return an enum or raise an error if name is invalid.'
-    check.check_string(s)
-
-    if not s in clazz.value_to_name_dict:
-      raise ValueError('Not a valid enumeration: "{}"'.format(s))
-    return clazz.value_to_name_dict[s]
+  def parse(clazz, what, ignore_case = False):
+    'Parse a string, int or enum return an enum item or raise an error if name is invalid.'
+    if check.is_string(what):
+      if not what in clazz.name_to_item_dict:
+        raise ValueError('Not a valid enumeration name: "{}"'.format(what))
+      return clazz.name_to_item_dict[what]
+    elif check.is_int(what):
+      if not what in clazz.value_to_name_dict:
+        raise ValueError('Not a valid enumeration value: "{}"'.format(what))
+      names = clazz.value_to_name_dict[what]
+      assert len(names) >= 1
+      name = next(iter(names))
+      return clazz.name_to_item_dict[name]
+    elif isinstance(what, clazz):
+      return what
+    else:
+      raise TypeError('Invalid enumeration value: "{}" - {}'.format(what, type(what)))
