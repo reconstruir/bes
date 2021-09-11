@@ -6,8 +6,34 @@ from bes.enum_util.checked_int_enum import checked_int_enum
 
 class test_checked_int_enum(unit_test):
 
-  def test_foo(self):
-    self.assertTrue( True )
+  class _fruit(checked_int_enum):
+    LEMON = 1
+    PEACH = 2
+    ORANGE = 3
     
+  def test_value_is_valid(self):
+    self.assertTrue( self._fruit.value_is_valid(1) )
+    self.assertTrue( self._fruit.value_is_valid(2) )
+    self.assertFalse( self._fruit.value_is_valid(4) )
+
+  def test_name_is_valid(self):
+    self.assertTrue( self._fruit.name_is_valid('LEMON') )
+    self.assertTrue( self._fruit.name_is_valid('PEACH') )
+    self.assertFalse( self._fruit.name_is_valid('COCONUT') )
+
+  def test_name_to_value_dict(self):
+    self.assertEqual( {
+      'LEMON': 1,
+      'ORANGE': 3,
+      'PEACH': 2,
+    }, self._fruit.name_to_value_dict )
+
+  def test_value_to_name_dict(self):
+    self.assertEqual( {
+      1: { 'LEMON' },
+      2: { 'PEACH' },
+      3: { 'ORANGE' },
+    }, self._fruit.value_to_name_dict )
+
 if __name__ == '__main__':
   unit_test.main()
