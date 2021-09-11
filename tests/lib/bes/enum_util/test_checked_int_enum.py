@@ -3,6 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 from bes.enum_util.checked_int_enum import checked_int_enum
+from bes.system.check import check
 
 class test_checked_int_enum(unit_test):
 
@@ -35,13 +36,6 @@ class test_checked_int_enum(unit_test):
       'PEACH': self._fruit.PEACH,
     }, self._fruit.name_to_item_dict )
 
-  def test_caseless_name_to_item_dict(self):
-    self.assertEqual( {
-      'lemon': self._fruit.LEMON,
-      'orange': self._fruit.ORANGE,
-      'peach': self._fruit.PEACH,
-    }, self._fruit.caseless_name_to_item_dict )
-    
   def test_value_to_name_dict(self):
     self.assertEqual( {
       1: { 'LEMON' },
@@ -54,9 +48,35 @@ class test_checked_int_enum(unit_test):
     self.assertEqual( self._fruit.LEMON, self._fruit.parse(1) )
     self.assertEqual( self._fruit.LEMON, self._fruit.parse(self._fruit.LEMON) )
 
-  def test_parse_ignore_case(self):
-    self.assertEqual( self._fruit.LEMON, self._fruit.parse('lemon', ignore_case = True) )
-    self.assertEqual( self._fruit.LEMON, self._fruit.parse('Lemon', ignore_case = True) )
+  def test_parse_invalid_type(self):
+    class circus(object):
+      pass
+    with self.assertRaises(TypeError) as ctx:
+      self._fruit.parse(circus())
+    
+  def test_check(self):
+    class _cheese(checked_int_enum):
+      BRIE = 1
+      CHEDDAR = 2
+      GOUDA = 3
+    check.register_class(_cheese)
+    check.check__cheese(_cheese.GOUDA)
+
+    with self.assertRaises(TypeError) as ctx:
+      check.check__cheese(1)
+      
+    with self.assertRaises(TypeError) as ctx:
+      check.check__cheese('GOUDA')
+
+  def test_check_with_cast_func(self):
+    class _wine(checked_int_enum):
+      SANCERRE = 1
+      CHABLIS = 2
+      OPORTO = 3
+    check.register_class(_wine, cast_func = _wine.parse)
+    check.check__wine(_wine.OPORTO)
+    check.check__wine(1)
+    check.check__wine('OPORTO')
     
 if __name__ == '__main__':
   unit_test.main()

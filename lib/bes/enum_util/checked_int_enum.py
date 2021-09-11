@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from enum import IntEnum
+from enum import EnumMeta
 
 from bes.system.check import check
 from bes.system.compat import compat
@@ -47,11 +48,6 @@ class checked_int_enum(IntEnum):
     return set([ item.name for item in clazz ])
 
   @cached_class_property
-  def names_lower_case(clazz):
-    'Return a set all names in lower case.'
-    return set([ item.name.lower() for item in clazz ])
-
-  @cached_class_property
   def name_to_item_dict(clazz):
     'Return a dict of names to items.'
     result = {}
@@ -59,14 +55,6 @@ class checked_int_enum(IntEnum):
       result[item.name] = item
     return result
 
-  @cached_class_property
-  def caseless_name_to_item_dict(clazz):
-    'Return a dict of names to items.'
-    result = {}
-    for item in clazz:
-      result[item.name.lower()] = item
-    return result
-  
   @cached_class_property
   def name_to_value_dict(clazz):
     'Return a dict of names to enum values.'
@@ -86,32 +74,21 @@ class checked_int_enum(IntEnum):
     return result
   
   @classmethod
-  def name_is_valid(clazz, name, ignore_case = False):
+  def name_is_valid(clazz, name):
     'Return True if name is valid.'
     check.check_string(name)
 
-    name = name.lower() if ignore_case else name
-    names = clazz.names_lower_case if ignore_case else clazz.names
-    return name in names
+    return name in clazz.names
 
   @classmethod
-  def parse(clazz, what, ignore_case = False):
+  def parse(clazz, what):
     'Parse a string, int or enum return an enum item or raise an error if name is invalid.'
-
-    item_dict = clazz.caseless_name_to_item_dict if ignore_case else clazz.name_to_item_dict
-    if check.is_string(what):
-      key = what.lower() if ignore_case else what
-      if not key in item_dict:
-        raise ValueError('Not a valid enumeration name: "{}"'.format(what))
-      return item_dict[key]
-    elif check.is_int(what):
-      if not what in clazz.value_to_name_dict:
-        raise ValueError('Not a valid enumeration value: "{}"'.format(what))
-      names = clazz.value_to_name_dict[what]
-      assert len(names) >= 1
-      name = next(iter(names))
-      return item_dict[name]
-    elif isinstance(what, clazz):
+    
+    if isinstance(what, clazz):
       return what
+    elif check.is_string(what):
+      return clazz[what]
+    elif check.is_int(what):
+      return clazz(what)
     else:
       raise TypeError('Invalid enumeration value: "{}" - {}'.format(what, type(what)))
