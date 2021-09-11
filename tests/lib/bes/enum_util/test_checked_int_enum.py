@@ -74,9 +74,9 @@ class test_checked_int_enum(unit_test):
       CHABLIS = 2
       OPORTO = 3
     check.register_class(_wine, cast_func = _wine.parse)
-    check.check__wine(_wine.OPORTO)
-    check.check__wine(1)
-    check.check__wine('OPORTO')
+    self.assertEqual( _wine.OPORTO, check.check__wine(_wine.OPORTO) )
+    self.assertEqual( _wine.SANCERRE, check.check__wine(1) )
+    self.assertEqual( _wine.CHABLIS, check.check__wine('CHABLIS') )
     
 if __name__ == '__main__':
   unit_test.main()
