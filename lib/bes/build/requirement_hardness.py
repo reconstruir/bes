@@ -4,8 +4,9 @@ from enum import IntEnum
 
 from bes.common.check import check
 from bes.system.compat import compat
+from bes.enum_util.checked_int_enum import checked_int_enum
 
-class requirement_hardness(IntEnum):
+class requirement_hardness(checked_int_enum):
   # Requirement needed at runtime.  For example a dynamically linked library.
   RUN = 1
 
@@ -20,32 +21,6 @@ class requirement_hardness(IntEnum):
     
   DEFAULT = RUN
 
-  @classmethod
-  def is_valid(clazz, value):
-    if compat.is_int(value):
-      return clazz.value_is_valid(value)
-    elif compat.is_string(value):
-      return clazz.name_is_valid(value)
-    elif isinstance(value, clazz):
-      return True
-    else:
-      raise TypeError('invalid type for value: {} - {}'.format(value, type(value)))
-  
-  @classmethod
-  def is_valid_seq(clazz, seq):
-    for s in iter(seq):
-      if clazz.is_valid(s):
-        return True
-    return False
-    
-  @classmethod
-  def value_is_valid(clazz, value):
-    values = set([ item.value for item in clazz ])
-    return value in values
-
-  @classmethod
-  def name_is_valid(clazz, name):
-    names = set([ item.name for item in clazz ])
-    return name in names
-  
-check.register_class(requirement_hardness, include_seq = False)
+check.register_class(requirement_hardness,
+                     include_seq = False,
+                     cast_func = requirement_hardness.parse)
