@@ -3,6 +3,6 @@
 import enum
 from .checked_enum_mixin import checked_enum_mixin
 
-class checked_int_enum(checked_enum_mixin, enum.IntEnum):
+class checked_enum(checked_enum_mixin, enum.Enum):
   'A IntEnum helper with methods for checking and parsing values'
   pass
