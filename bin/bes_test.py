@@ -39,6 +39,8 @@ from bes.version.version_cli import version_cli
 _LOG = logger('bes_test')
 
 def main():
+  DEBUG = os.environ.get('DEBUG', False)
+
   import bes
   vcli = version_cli(bes)
   parser = argparse.ArgumentParser()
@@ -180,11 +182,11 @@ def main():
                       help = 'The directory to use for tmp files overriding the system default.  [ None ]')
   parser.add_argument('--keep-side-effects',
                       action = 'store_true',
-                      default = False,
+                      default = DEBUG,
                       help = 'Dont delete side effects - for debugging. [ False ]')
   parser.add_argument('--ignore-side-effects',
                       action = 'store_true',
-                      default = False,
+                      default = DEBUG,
                       help = 'Dont delete side effects - for debugging. [ False ]')
 
   found_git_exe = git_exe.find_git_exe()
@@ -218,7 +220,7 @@ def main():
     file_util.mkdir(args.temp_dir)
     tempfile.tempdir = args.temp_dir
 
-  if os.environ.get('DEBUG', False):
+  if DEBUG:
     args.verbose = True
     
   cwd = os.getcwd()
