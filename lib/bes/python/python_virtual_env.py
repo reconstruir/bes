@@ -1,7 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import pprint
 import os.path as path
+import pprint
+import tempfile
 
 from bes.common.check import check
 
@@ -9,6 +10,7 @@ from bes.system.log import logger
 from bes.system.execute import execute
 from bes.system.os_env import os_env
 from bes.system.env_var import env_var
+from bes.fs.dir_cleanup import dir_cleanup
 
 from bes.property.cached_property import cached_property
 
@@ -74,7 +76,9 @@ class python_virtual_env(object):
     
     clazz._log.log_d('_call_venv: env={}'.format(pprint.pformat(env)))
     clazz._log.log_d('_call_venv: cmd={}'.format(' '.join(cmd)))
-    rv = execute.execute(cmd, env = env, raise_error = False)
+
+    with dir_cleanup(tempfile.gettempdir()) as ctx:
+      rv = execute.execute(cmd, env = env, raise_error = False)
     if rv.exit_code != 0:
       raise python_error('failed to init virtual env: "{}" - {}'.format(' '.join(cmd),
                                                                         rv.stderr))
