@@ -35,7 +35,7 @@ class shell_framework(object):
     return path.join(self._options.dest_dir, self._options.revision_basename)
 
   @cached_property
-  def old_revision(self):
+  def current_revision(self):
     if not path.exists(self.revision_filename):
       return None
     if not path.isfile(self.revision_filename):
@@ -62,10 +62,10 @@ class shell_framework(object):
     self._log.log_d('     framework_dir: {}'.format(self.framework_dir))
     self._log.log_d(' revision_basename: {}'.format(self._options.revision_basename))
     self._log.log_d(' revision_filename: {}'.format(self.revision_filename))
-    self._log.log_d('      old_revision: {}'.format(self.old_revision))
+    self._log.log_d('  current_revision: {}'.format(self.current_revision))
     self._log.log_d('      new_revision: {}'.format(self.new_revision))
       
-    if self.old_revision == self.new_revision:
+    if self.current_revision == self.new_revision:
       self._log.log_d('already at revision: {}'.format(self.new_revision))
       return False
     
@@ -78,7 +78,7 @@ class shell_framework(object):
   
   def _fetch_framework(self):
     tmp_dir = temp_file.make_temp_dir(prefix = path.basename(self.framework_dir),
-                                      dir = path.join(self.framework_dir, os.pardir),
+                                      dir = path.normpath(path.join(self.framework_dir, path.pardir)),
                                       delete = False)
     options = git_clone_options(depth = 1,
                                 num_tries = 3,
@@ -87,4 +87,6 @@ class shell_framework(object):
     repo = git_repo(tmp_dir, address = self._options.address)
     repo.clone(options = options)
     file_util.remove(self.framework_dir)
-    file_util.rename(tmp_dir, self.framework_dir)
+    src_dir = path.join(tmp_dir, 'bash', 'bes_shell')
+    file_util.rename(src_dir, self.framework_dir)
+    file_util.remove(tmp_dir)

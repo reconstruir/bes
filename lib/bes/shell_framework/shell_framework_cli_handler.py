@@ -21,6 +21,10 @@ class shell_framework_cli_handler(cli_command_handler):
     print(self._shell_framework.latest_revision)
     return 0
 
+  def current(self):
+    print(self._shell_framework.current_revision)
+    return 0
+  
   def update(self):
     self._shell_framework.update()
     return 0

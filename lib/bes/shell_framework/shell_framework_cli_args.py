@@ -12,9 +12,13 @@ class shell_framework_cli_args(object):
     self.__shell_framework_add_common_args(p)
 
     # latest
-    p = subparser.add_parser('latest', help = 'Print the latest git revision available.')
+    p = subparser.add_parser('latest', help = 'Print the revision for the latest framework.')
     self.__shell_framework_add_common_args(p)
 
+    # current
+    p = subparser.add_parser('current', help = 'Print the revision for the current framework.')
+    self.__shell_framework_add_common_args(p)
+    
   def __shell_framework_add_common_args(self, p):
     from .shell_framework_defaults import shell_framework_defaults
     
