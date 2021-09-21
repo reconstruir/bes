@@ -34,7 +34,7 @@ class shell_framework(object):
   def revision_filename(self):
     return path.join(self._options.dest_dir, self._options.revision_basename)
 
-  @cached_property
+  @property
   def current_revision(self):
     if not path.exists(self.revision_filename):
       return None
@@ -42,48 +42,52 @@ class shell_framework(object):
       raise IOError('Not a file: "{}"'.format(self.revision_filename))
     return file_util.read(self.revision_filename, codec = 'utf-8').strip()
 
-  @cached_property
+  @property
   def latest_revision(self):
     tag = git_util.repo_greatest_tag(self._options.address)
     if not tag:
       return None
     return tag.name
   
-  @cached_property
-  def new_revision(self):
-    if self._options.revision == self.LATEST_REVISION:
+  @classmethod
+  def _resolve_revision(self, revision):
+    if revision == self.LATEST_REVISION:
       return self.latest_revision
     else:
-      return self._options.revision
+      return revision
   
-  def update(self):
+  def update(self, revision):
+    check.check_string(revision)
+
+    resolved_revision = self._resolve_revision(revision)
     self._log.log_d('           address: {}'.format(self._options.address))
     self._log.log_d('framework_basename: {}'.format(self._options.framework_basename))
     self._log.log_d('     framework_dir: {}'.format(self.framework_dir))
     self._log.log_d(' revision_basename: {}'.format(self._options.revision_basename))
     self._log.log_d(' revision_filename: {}'.format(self.revision_filename))
     self._log.log_d('  current_revision: {}'.format(self.current_revision))
-    self._log.log_d('      new_revision: {}'.format(self.new_revision))
+    self._log.log_d('          revision: {}'.format(revision))
+    self._log.log_d(' resolved_revision: {}'.format(resolved_revision))
       
-    if self.current_revision == self.new_revision:
-      self._log.log_d('already at revision: {}'.format(self.new_revision))
+    if self.current_revision == revision:
+      self._log.log_d('already at revision: {}'.format(revision))
       return False
     
-    self._fetch_framework()
-    self._save_revision_filename()
+    self._fetch_framework(revision)
+    self._save_revision_filename(revision)
     return True
 
-  def _save_revision_filename(self):
-    file_util.save(self.revision_filename, self.new_revision.strip() + line_break.DEFAULT_LINE_BREAK)
+  def _save_revision_filename(self, revision):
+    file_util.save(self.revision_filename, revision.strip() + line_break.DEFAULT_LINE_BREAK)
   
-  def _fetch_framework(self):
+  def _fetch_framework(self, revision):
     tmp_dir = temp_file.make_temp_dir(prefix = path.basename(self.framework_dir),
                                       dir = path.normpath(path.join(self.framework_dir, path.pardir)),
                                       delete = False)
     options = git_clone_options(depth = 1,
                                 num_tries = 3,
                                 retry_wait_seconds = 5,
-                                branch = self.new_revision)
+                                branch = revision)
     repo = git_repo(tmp_dir, address = self._options.address)
     repo.clone(options = options)
     file_util.remove(self.framework_dir)

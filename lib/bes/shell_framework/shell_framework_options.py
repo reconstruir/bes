@@ -23,7 +23,6 @@ class shell_framework_options(cli_options):
       'address': shell_framework_defaults.ADDRESS,
       'framework_basename': shell_framework_defaults.FRAMEWORK_BASENAME,
       'revision_basename': shell_framework_defaults.REVISION_BASENAME,
-      'revision': shell_framework_defaults.REVISION,
       'dest_dir': shell_framework_defaults.DEST_DIR,
     }
   
@@ -70,7 +69,6 @@ class shell_framework_options(cli_options):
     check.check_string(self.address)
     check.check_string(self.framework_basename)
     check.check_string(self.revision_basename)
-    check.check_string(self.revision)
     check.check_string(self.dest_dir)
     
 check.register_class(shell_framework_options)

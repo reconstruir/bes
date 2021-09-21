@@ -10,6 +10,8 @@ class shell_framework_cli_args(object):
     # update
     p = subparser.add_parser('update', help = 'Update the framework.')
     self.__shell_framework_add_common_args(p)
+    p.add_argument('-r', '--revision', action = 'store', default = shell_framework_defaults.REVISION,
+                   help = 'The git revision [ {} ]'.format(shell_framework_defaults.REVISION))
 
     # latest
     p = subparser.add_parser('latest', help = 'Print the revision for the latest framework.')
@@ -34,8 +36,6 @@ class shell_framework_cli_args(object):
                    help = 'The framework directory basename [ {} ]'.format(shell_framework_defaults.FRAMEWORK_BASENAME))
     p.add_argument('--revision-basename', action = 'store', default = shell_framework_defaults.REVISION_BASENAME,
                    help = 'The revision filename basename [ {} ]'.format(shell_framework_defaults.REVISION_BASENAME))
-    p.add_argument('-r', '--revision', action = 'store', default = shell_framework_defaults.REVISION,
-                   help = 'The git revision [ {} ]'.format(shell_framework_defaults.REVISION))
     
   def _command_shell_framework(self, command, *args, **kargs):
     from .shell_framework_cli_handler import shell_framework_cli_handler
