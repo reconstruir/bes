@@ -56,9 +56,16 @@ class test_shell_framework(unit_test):
     test.framework.update('1.2.3')
     self.assertEqual( '1.2.3', test.framework.current_revision )
     files = file_find.find(test.tmp_dir)
-    self.assertTrue( 'framework/bes_all.bash' in files )
-    self.assertTrue( 'revision.txt' in files )
-  
+    self.assertTrue( 'bes_shell_framework/bes_all.bash' in files )
+    self.assertTrue( 'bes_shell_framework_revision.txt' in files )
+
+  def test_update_to_latest(self):
+    test = self._make_test_shell_framework()
+    test.repo.tag('1.2.3', push = True)
+    test.repo.tag('1.2.4', push = True)
+    test.framework.update('latest')
+    self.assertEqual( '1.2.4', test.framework.current_revision )
+    
   def test_use_framework(self):
     test = self._make_test_shell_framework()
     test.repo.tag('1.2.3', push = True)
@@ -72,7 +79,7 @@ fi
 _WHERE="$( command cd -P "$_root" > /dev/null && command pwd -P )"
 unset _this_file
 unset _root
-source ${_WHERE}/framework/bes_all.bash
+source ${_WHERE}/bes_shell_framework/bes_all.bash
 bes_env_path_append PATH /foo/bin
 '''
     my_script_path = path.join(test.tmp_dir, 'my_script.sh')

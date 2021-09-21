@@ -14,6 +14,7 @@ from bes.system.log import logger
 from bes.text.line_break import line_break
 
 from .shell_framework_defaults import shell_framework_defaults
+from .shell_framework_options import shell_framework_options
 
 class shell_framework(object):
 
@@ -49,7 +50,6 @@ class shell_framework(object):
       return None
     return tag.name
   
-  @classmethod
   def _resolve_revision(self, revision):
     if revision == self.LATEST_REVISION:
       return self.latest_revision
@@ -69,18 +69,20 @@ class shell_framework(object):
     self._log.log_d('          revision: {}'.format(revision))
     self._log.log_d(' resolved_revision: {}'.format(resolved_revision))
       
-    if self.current_revision == revision:
-      self._log.log_d('already at revision: {}'.format(revision))
+    if self.current_revision == resolved_revision:
+      self._log.log_d('already at revision: {}'.format(resolved_revision))
       return False
     
-    self._fetch_framework(revision)
-    self._save_revision_filename(revision)
+    self._fetch_framework(resolved_revision)
+    self._save_revision_filename(resolved_revision)
     return True
 
   def _save_revision_filename(self, revision):
     file_util.save(self.revision_filename, revision.strip() + line_break.DEFAULT_LINE_BREAK)
   
   def _fetch_framework(self, revision):
+    assert revision != 'latest'
+    
     tmp_dir = temp_file.make_temp_dir(prefix = path.basename(self.framework_dir),
                                       dir = path.normpath(path.join(self.framework_dir, path.pardir)),
                                       delete = False)
@@ -94,3 +96,19 @@ class shell_framework(object):
     src_dir = path.join(tmp_dir, 'bash', 'bes_shell')
     file_util.rename(src_dir, self.framework_dir)
     file_util.remove(tmp_dir)
+
+  @classmethod
+  def ensure(self, dest_dir, revision, address = None, framework_basename = None, revision_basename = None):
+    check.check_string(dest_dir)
+    check.check_string(revision)
+
+    options = shell_framework_options()
+    options.dest_dir = dest_dir
+    if address:
+      options.address = address
+    if framework_basename:
+      options.framework_basename = framework_basename
+    if revision_basename:
+      options.revision_basename = revision_basename
+    framework = shell_framework(options = options)
+    framework.update(revision)

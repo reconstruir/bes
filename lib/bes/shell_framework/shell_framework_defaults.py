@@ -5,7 +5,7 @@ import os
 class shell_framework_defaults(object):
 
   ADDRESS = 'https://gitlab.com/rebuilder/bes_shell.git'
-  FRAMEWORK_BASENAME = 'framework'
-  REVISION_BASENAME = 'revision.txt'
+  FRAMEWORK_BASENAME = 'bes_shell_framework'
+  REVISION_BASENAME = 'bes_shell_framework_revision.txt'
   REVISION = 'latest'
   DEST_DIR = os.getcwd()
