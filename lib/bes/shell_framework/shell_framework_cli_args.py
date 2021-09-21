@@ -6,6 +6,7 @@ class shell_framework_cli_args(object):
     pass
 
   def shell_framework_add_args(self, subparser):
+    from .shell_framework_defaults import shell_framework_defaults
 
     # update
     p = subparser.add_parser('update', help = 'Update the framework.')
