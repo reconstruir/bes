@@ -8,16 +8,38 @@ function _bes_shell_this_dir()
 
 _BES_SHELL_THIS_DIR="$(_bes_shell_this_dir)"
 
-source "${_BES_SHELL_THIS_DIR}/bes_var.bash"
-source "${_BES_SHELL_THIS_DIR}/bes_log.bash"
-source "${_BES_SHELL_THIS_DIR}/bes_system.bash"
-source "${_BES_SHELL_THIS_DIR}/bes_list.bash"
-source "${_BES_SHELL_THIS_DIR}/bes_path.bash"
-source "${_BES_SHELL_THIS_DIR}/bes_string.bash"
-source "${_BES_SHELL_THIS_DIR}/bes_file.bash"
-source "${_BES_SHELL_THIS_DIR}/bes_filename.bash"
+function _bes_trace() ( if [[ "$_BES_TRACE" == "1" ]]; then printf '_BES_TRACE: %s\n' "$*"; fi )
+function _bes_trace_function() ( _bes_trace "func: ${FUNCNAME[1]}($*)" )
+function _bes_trace_file() ( _bes_trace "file: ${BASH_SOURCE}: $*" )
 
-_bes_trace_file "begin"
+function bes_import()
+{
+  _bes_trace_function $*
+
+  if [[ $# != 1 ]]; then
+    echo "usage: bes_import filename"
+    return 1
+  fi
+
+  local _filename="${1}"
+  local _this_dir="$(_bes_shell_this_dir)"
+  local _filename_abs="${_this_dir}/${_filename}"
+  if [[ ! -f "${_filename_abs}" ]]; then
+    local _basename="$(basename ${_filename_abs})"
+    echo "bes_import: ${BASH_SOURCE[1]}:${BASH_LINENO[0]}: file \"${_basename}\"not found in ${_this_dir}"
+    exit 1
+  fi
+
+  local _sanitized_filename=$(echo ${_filename} | tr '[:punct:]' '_' | tr '[:space:]' '_')
+  local _var_name=__imported_${_sanitized_filename}__
+  local _var_value=$(eval 'printf "%s\n" "${'"${_var_name}"'}"')
+  if [[ "${_var_value}" == "true" ]]; then
+    return 0
+  fi
+  source "${_filename_abs}"
+  eval "${_var_name}=\"true\""
+  return 0
+}
 
 # Source a shell file or print an error if it does not exist
 function bes_source_file()
@@ -38,14 +60,6 @@ function bes_source_file()
   fi
   source "${_filename}"
   return 0
-}
-
-# deprecated
-function bes_source()
-{
-  _bes_trace_function $*
-  bes_source_file $@
-  return $?
 }
 
 # Source a shell file but only if it exists
@@ -71,7 +85,7 @@ function bes_is_true()
     printf "\nUsage: bes_is_true what\n\n"
     return 1
   fi
-  local _what=$(bes_str_to_lower "$1")
+  local _what=$( echo "$1" | $_BES_TR_EXE '[:upper:]' '[:lower:]' )
   local _rv
   case "${_what}" in
     true|1|t|y|yes)
@@ -82,21 +96,6 @@ function bes_is_true()
       ;;
   esac
   return ${_rv}
-}
-
-function bes_PATH()
-{
-  bes_env_path_print PATH
-}
-
-function bes_PYTHONPATH()
-{
-  bes_env_path_print PYTHONPATH
-}
-
-function bes_LD_LIBRARY_PATH()
-{
-  bes_env_path_print LD_LIBRARY_PATH
 }
 
 function bes_script_name()
@@ -142,14 +141,6 @@ function bes_debug_message()
     echo ${_message}
   fi
   return 0
-}
-
-function bes_is_ci()
-{
-  if [[ -n "${CI}"|| -n "${HUDSON_COOKIE}" ]]; then
-    return 0
-  fi
-  return 1
 }
 
 function bes_console_message()
@@ -222,12 +213,6 @@ function bes_function_invoke_if()
   return ${_rv}
 }
 
-# FIXME: retire this one
-function bes_invoke()
-{
-  bes_function_invoke_if ${1+"$@"}
-}
-
 # atexit function suitable for trapping and printing the exit code
 # trap "bes_atexit_message_successful ${_remote_name}" EXIT
 function bes_atexit_message_successful()
@@ -261,82 +246,3 @@ function bes_atexit_remove_dir_handler()
   fi
   return ${_actual_exit_code}
 }
-
-# DEPRECATED: use bes_abs_dir instead
-# Return the absolute path for the path arg
-function bes_abs_path()
-{
-  if [[ $# < 1 ]]; then
-    bes_message "usage: bes_abs_path path"
-    return 1
-  fi
-  local _path="${1}"
-  echo $(cd ${_path} && pwd)
-  return 0
-}
-
-# Return the absolute dir path for path.  Note that path will be created
-# if it doesnt exist so that this function can be used for paths that
-# dont yet exist.  That is useful for scripts that want to normalize
-# their file input/output arguments.
-function bes_abs_dir()
-{
-  if [[ $# < 1 ]]; then
-    bes_message "usage: bes_abs_dir path"
-    return 1
-  fi
-  local _path="${1}"
-  if [[ ! -d "${_path}" ]]; then
-    $_BES_MKDIR_EXE -p "${_path}"
-  fi
-  local _result="$(cd "${_path}" && $_BES_PWD_EXE)"
-  echo ${_result}
-  return 0
-}
-
-function bes_abs_file()
-{
-  if [[ $# < 1 ]]; then
-    bes_message "usage: bes_abs_file filename"
-    return 1
-  fi
-  local _filename="${1}"
-  local _dirname="$($_BES_DIRNAME_EXE "${_filename}")"
-  local _basename="$($_BES_BASENAME_EXE "${_filename}")"
-  local _abs_dirname="$(bes_abs_dir "${_dirname}")"
-  local _result="${_abs_dirname}"/"${_basename}"
-  echo ${_result}
-  return 0
-}
-
-function bes_question_yes_no()
-{
-  if [[ $# != 2 ]]; then
-    echo "usage: bes_question_yes_no var_name message"
-    return 1
-  fi
-  local _CHOICES="[y]es [n]o"
-  local _var_name="${1}"
-  local _message="${2}"
-  local _local_answer
-  local _result=1
-  while true; do
-    read -p "${_message} - ${_CHOICES}: " _local_answer
-    case "${_local_answer}" in
-      y|Y|yes|YES)
-        _result=yes
-        break
-        ;;
-      n|N|no|NO)
-        _result=no
-        break
-        ;;
-      *)
-        bes_message "Invalid answer: ${_local_answer}.  Please answer: ${_CHOICES}"
-    esac
-  done
-  eval ${_var_name}=${_result}
-  return 0
-}
-
-_bes_trace_file "end"
