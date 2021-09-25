@@ -1,5 +1,9 @@
 #-*- coding:utf-8; mode:shell-script; indent-tabs-mode: nil; sh-basic-offset: 2; tab-width: 2 -*-
 
+bes_import "bes_list.bash"
+bes_import "bes_log.bash"
+bes_import "bes_var.bash"
+
 bes_log_trace_file path "begin"
 
 # return a colon separated path without the head item
@@ -400,6 +404,55 @@ function bes_path_is_symlink()
     return 0
   fi
   return 1
+}
+
+function bes_PATH()
+{
+  bes_env_path_print PATH
+}
+
+function bes_PYTHONPATH()
+{
+  bes_env_path_print PYTHONPATH
+}
+
+function bes_LD_LIBRARY_PATH()
+{
+  bes_env_path_print LD_LIBRARY_PATH
+}
+
+# Return the absolute dir path for path.  Note that path will be created
+# if it doesnt exist so that this function can be used for paths that
+# dont yet exist.  That is useful for scripts that want to normalize
+# their file input/output arguments.
+function bes_path_abs_dir()
+{
+  if [[ $# < 1 ]]; then
+    bes_message "usage: bes_path_abs_dir path"
+    return 1
+  fi
+  local _path="${1}"
+  if [[ ! -d "${_path}" ]]; then
+    $_BES_MKDIR_EXE -p "${_path}"
+  fi
+  local _result="$(cd "${_path}" && $_BES_PWD_EXE)"
+  echo ${_result}
+  return 0
+}
+
+function bes_path_abs_file()
+{
+  if [[ $# < 1 ]]; then
+    bes_message "usage: bes_path_abs_file filename"
+    return 1
+  fi
+  local _filename="${1}"
+  local _dirname="$($_BES_DIRNAME_EXE "${_filename}")"
+  local _basename="$($_BES_BASENAME_EXE "${_filename}")"
+  local _abs_dirname="$(bes_path_abs_dir "${_dirname}")"
+  local _result="${_abs_dirname}"/"${_basename}"
+  echo ${_result}
+  return 0
 }
 
 bes_log_trace_file path "end"
