@@ -1,8 +1,6 @@
 #-*- coding:utf-8; mode:shell-script; indent-tabs-mode: nil; sh-basic-offset: 2; tab-width: 2 -*-
 
-function _bes_trace() ( if [[ "$_BES_TRACE" == "1" ]]; then printf '_BES_TRACE: %s\n' "$*"; fi )
-function _bes_trace_function() ( _bes_trace "func: ${FUNCNAME[1]}($*)" )
-function _bes_trace_file() ( _bes_trace "file: ${BASH_SOURCE}: $*" )
+bes_import "bes_var.bash"
 
 _bes_trace_file "begin"
 
@@ -202,8 +200,5 @@ function bes_log_set_log_file()
   _BES_LOG_FILE="${_log_file}"
   return 0
 }
-
-#_bes_trace_function() ( _bes_trace "func: ${FUNCNAME[1]}($*)" )
-#function _bes_trace_file() ( _bes_trace "file: ${BASH_SOURCE}: $*" )
 
 _bes_trace_file "end"
