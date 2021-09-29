@@ -56,8 +56,10 @@ class test_shell_framework(unit_test):
     test.framework.update('1.2.3')
     self.assertEqual( '1.2.3', test.framework.current_revision )
     files = file_find.find(test.tmp_dir)
-    self.assertTrue( 'bes_shell_framework/bes_all.bash' in files )
-    self.assertTrue( 'bes_shell_framework_revision.txt' in files )
+    self.assertEqual( [
+      'bes_shell_framework/bes_bash.bash',
+      'bes_shell_framework_revision.txt',
+    ], files )
 
   def test_update_to_latest(self):
     test = self._make_test_shell_framework()
@@ -79,7 +81,7 @@ fi
 _WHERE="$( command cd -P "$_root" > /dev/null && command pwd -P )"
 unset _this_file
 unset _root
-source ${_WHERE}/bes_shell_framework/bes_all.bash
+source ${_WHERE}/bes_shell_framework/bes_bash.bash
 bes_env_path_append PATH /foo/bin
 '''
     my_script_path = path.join(test.tmp_dir, 'my_script.sh')
@@ -95,8 +97,8 @@ bes_env_path_append PATH /foo/bin
   @classmethod
   def _make_test_repo(clazz):
     repo = git_temp_repo(debug = clazz.DEBUG)
-    src_dir = path.normpath(path.join(path.dirname(__file__), '../../../../bes_shell'))
-    dst_dir = path.join(repo.root, 'bash/bes_shell')
+    src_dir = path.normpath(path.join(path.dirname(__file__), '../../../../bes_bash'))
+    dst_dir = path.join(repo.root, 'bash/bes_bash_one_file')
     tar_util.copy_tree(src_dir, dst_dir)
     repo.add([ 'bash' ])
     repo.commit('add', [ 'bash' ])

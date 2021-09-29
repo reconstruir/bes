@@ -93,7 +93,7 @@ class shell_framework(object):
     repo = git_repo(tmp_dir, address = self._options.address)
     repo.clone(options = options)
     file_util.remove(self.framework_dir)
-    src_dir = path.join(tmp_dir, 'bash', 'bes_shell')
+    src_dir = path.join(tmp_dir, 'bash', 'bes_bash_one_file')
     file_util.rename(src_dir, self.framework_dir)
     file_util.remove(tmp_dir)
 

@@ -1,7 +1,7 @@
 bes:
 65ca65e Use full log info
 8adf766 Add method that converts changelog from string to the commit_info list
-d93e327 dont use pkgutil to manage bes_shell.sh because it doesnt work under pkgutil.
+d93e327 dont use pkgutil to manage something.sh because it doesnt work under pkgutil.
 2afb5f9 [dropped]
 cb6afd9 significant refactor to flesh out the interface
 da72ada [dropped]

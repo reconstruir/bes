@@ -1,6 +1,6 @@
 6 Tue Mar 3 11:25:57 2020 +0300 fred.flintsto Use full log info
 8 Tue Mar 3 11:25:35 2020 +0300 fred.flintsto Add method that converts changelog from string to the commit_info list
-d Wed Feb 26 17:17:01 2020 -0800 yevgenia dont use pkgutil to manage bes_shell.sh because it doesnt work under pkgutil.
+d Wed Feb 26 17:17:01 2020 -0800 yevgenia dont use pkgutil to manage something.sh because it doesnt work under pkgutil.
 2 Sat Feb 22 20:11:57 2020 -0800 yevgenia Merge branch 'master' of gitlab.com:rebuilder/bes
 c Fri Feb 21 23:31:28 2020 -0800 yevgenia significant refactor to flesh out the interface
 d Fri Feb 21 23:17:19 2020 -0800 yevgenia Merge branch 'master' of gitlab.com:rebuilder/bes

@@ -1,8 +1,6 @@
 #!/bin/bash
 
-source "${_BES_DEV_ROOT}/bes_shell/bes_shell.bash"
-bes_import "bes_testing.bash"
-bes_import "bes_all.bash"
+source "${_BES_DEV_ROOT}/bes_bash/bes_bash.bash"
 
 function test_bes_var_set()
 {
