@@ -14,7 +14,7 @@ commit d93e32755915e35d154a8db2546c49e68bcf2f3f (origin/master, origin/HEAD, mas
 Author: Ramiro Estrugo <yevgenia@example.com>
 Date:   Wed Feb 26 17:17:01 2020 -0800
 
-    dont use pkgutil to manage bes_shell.sh because it doesnt work
+    dont use pkgutil to manage something.sh because it doesnt work
     under pkgutil.
 
 commit 2afb5f9dd83e3802ce42ebb50e67b9fbf8fa55dd

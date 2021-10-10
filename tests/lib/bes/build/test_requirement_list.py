@@ -4,6 +4,7 @@
 from bes.testing.unit_test import unit_test
 from bes.build.requirement import requirement as R
 from bes.build.requirement_list import requirement_list as RL
+from bes.build.requirement_hardness import requirement_hardness
 
 class test_requirement_list(unit_test):
 
@@ -83,14 +84,14 @@ class test_requirement_list(unit_test):
     r = RL.parse(text)
     self.assertEqual( [
       ( 'a', '>=', '1.2', None, None, None ),
-      ( 'b', '>=', '2.3', None, 'RUN', None ),
+      ( 'b', '>=', '2.3', None, requirement_hardness.RUN, None ),
       ( 'e', '>=', '6.7', None, None, None ),
     ], r.filter_by_hardness('RUN') )
     self.assertEqual( [
-      ( 'c', '>=', '3.4', None, 'TOOL', None ),
+      ( 'c', '>=', '3.4', None, requirement_hardness.TOOL, None ),
     ], r.filter_by_hardness('TOOL') )
     self.assertEqual( [
-      ( 'd', '>=', '5.6', None, 'BUILD', None ),
+      ( 'd', '>=', '5.6', None, requirement_hardness.BUILD, None ),
     ], r.filter_by_hardness('BUILD') )
 
   def test_filter_by_system(self):

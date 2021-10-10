@@ -72,7 +72,7 @@ class requirement_list(type_checked_list):
     else:
       return [ req.name for req in self ]
 
-  @staticmethod
+  @classmethod
   def _check_cast_func(clazz, obj):
     return requirement_list([ x for x in (obj or []) ])
 

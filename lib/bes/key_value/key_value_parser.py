@@ -9,7 +9,7 @@ from bes.text.string_lexer import string_lexer_options
 from bes.text.sentence_lexer import sentence_lexer as lexer
 from .key_value import key_value
 
-class key_value_parser(string_lexer_options.CONSTANTS):
+class key_value_parser(object):
 
   def __init__(self, options, delimiter, empty_value, log_tag):
     log.add_logging(self, tag = log_tag or 'key_value_parser')

@@ -3,6 +3,7 @@
 
 import unittest
 from bes.text.string_list_parser import string_list_parser as P
+from bes.text.string_lexer_options import string_lexer_options
 
 class test_string_list_parser(unittest.TestCase):
 
@@ -38,11 +39,11 @@ class test_string_list_parser(unittest.TestCase):
              ignore_comments = False):
     options = 0
     if keep_quotes:
-      options |= P.KEEP_QUOTES
+      options |= string_lexer_options.KEEP_QUOTES
     if escape_quotes:
-      options |= P.ESCAPE_QUOTES
+      options |= string_lexer_options.ESCAPE_QUOTES
     if ignore_comments:
-      options |= P.IGNORE_COMMENTS
+      options |= string_lexer_options.IGNORE_COMMENTS
     return P.parse_to_list(text, options = options)
 
 if __name__ == "__main__":

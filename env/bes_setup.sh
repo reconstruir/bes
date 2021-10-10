@@ -9,8 +9,7 @@ _bes_dev_root()
 bes_dev()
 {
   local _bes_root_dir="$(_bes_dev_root)"
-  source "$(_bes_dev_root)/bes_shell/bes_shell.bash"
-  source "$(_bes_dev_root)/bes_shell/bes_dev.bash"
+  source "$(_bes_dev_root)/bes_bash/bes_bash.bash"
   local _virtual_env_setup="${_bes_root_dir}/env/bes_venv_activate.bash"
   bes_dev_setup "${_bes_root_dir}" \
                 --set-path \
@@ -26,8 +25,7 @@ bes_dev()
 bes_undev()
 {
   local _bes_root_dir="$(_bes_dev_root)"
-  source "$(_bes_dev_root)/bes_shell/bes_shell.bash"
-  source "$(_bes_dev_root)/bes_shell/bes_dev.bash"
+  source "$(_bes_dev_root)/bes_bash/bes_bash.bash"
   bes_dev_unsetup "${_bes_root_dir}"
   return 0
 }

@@ -1,9 +1,9 @@
 function _bes_venv_activate_main()
 {
-  source $(_bes_venv_activate_this_dir)/../bes_shell/bes_all.bash
+  source $(_bes_venv_activate_this_dir)/../bes_bash/bes_bash.bash
 
   local _this_dir="$(_bes_venv_activate_this_dir)"
-  local _root_dir="$(bes_abs_path ${_this_dir}/..)"
+  local _root_dir="$(bes_path_abs_dir ${_this_dir}/..)"
   local _best="${_root_dir}/bin/best.py"
 
   local _projects_root_dir="${_root_dir}/VE"

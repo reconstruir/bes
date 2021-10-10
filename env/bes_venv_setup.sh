@@ -4,10 +4,10 @@ set -e
 
 function main()
 {
-  source $(_bes_venv_setup_this_dir)/../bes_shell/bes_all.bash
+  source $(_bes_venv_setup_this_dir)/../bes_bash/bes_bash.bash
 
   local _this_dir="$(_bes_venv_setup_this_dir)"
-  local _root_dir="$(bes_abs_path ${_this_dir}/..)"
+  local _root_dir="$(bes_path_abs_dir ${_this_dir}/..)"
   local _best="${_root_dir}/bin/best.py"
   local _python="$(which python3.8)"
 

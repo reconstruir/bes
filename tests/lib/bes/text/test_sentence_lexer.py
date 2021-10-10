@@ -4,6 +4,7 @@
 from bes.testing.unit_test import unit_test
 from bes.text.sentence_lexer import sentence_lexer as L
 from bes.text.lexer_token import lexer_token
+from bes.text.string_lexer_options import string_lexer_options
 from helpers.token_test_helper import *
 
 def TPUNCT(s, x = 1, y = 1): return lexer_token(L.TOKEN_PUNCTUATION, s, (x, y))
@@ -179,13 +180,13 @@ class test_sentence_lexer(unit_test):
                 ignore_spaces = False):
     options = 0
     if keep_quotes:
-      options |= L.KEEP_QUOTES
+      options |= string_lexer_options.KEEP_QUOTES
     if escape_quotes:
-      options |= L.ESCAPE_QUOTES
+      options |= string_lexer_options.ESCAPE_QUOTES
     if ignore_comments:
-      options |= L.IGNORE_COMMENTS
+      options |= string_lexer_options.IGNORE_COMMENTS
     if ignore_spaces:
-      options |= L.IGNORE_SPACES
+      options |= string_lexer_options.IGNORE_SPACES
     return [ token for token in L.tokenize(text, options = options) ]
 
   def assertEqual(self, expected, actual):

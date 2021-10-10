@@ -1,6 +1,6 @@
 65ca65eee1e27b5901dc99589a32b8519bbf756a Use full log info
 8adf7669df9b61b6e42ad8a0ec6cbf39932de28a Add method that converts changelog from string to the commit_info list
-d93e32755915e35d154a8db2546c49e68bcf2f3f dont use pkgutil to manage bes_shell.sh because it doesnt work under pkgutil.
+d93e32755915e35d154a8db2546c49e68bcf2f3f dont use pkgutil to manage something.sh because it doesnt work under pkgutil.
 2afb5f9dd83e3802ce42ebb50e67b9fbf8fa55dd Merge branch 'master' of gitlab.com:rebuilder/bes
 cb6afd96d52fedd6aebd72ddc85598ca3eccf9f0 significant refactor to flesh out the interface
 da72ada689430260ff0f8011bd74b255fccc0258 Merge branch 'master' of gitlab.com:rebuilder/bes

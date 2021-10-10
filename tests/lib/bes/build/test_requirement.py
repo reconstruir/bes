@@ -32,8 +32,8 @@ class test_requirement(unit_test):
   def test_clone_replace_hardness(self):
     r1 = R('foo', '>=', '1.2.3', 'linux', 'RUN')
     r2 = r1.clone_replace_hardness('BUILD')
-    self.assertEqual( 'RUN', str(r1.hardness) )
-    self.assertEqual( 'BUILD', str(r2.hardness) )
+    self.assertEqual( 'RUN', r1.hardness.name )
+    self.assertEqual( 'BUILD', r2.hardness.name )
     
   def test_clone_replace_system_mask(self):
     r1 = R('foo', '>=', '1.2.3', 'linux', 'RUN')

@@ -4,6 +4,7 @@ from bes.common.string_util import string_util
 from bes.compat.StringIO import StringIO
 
 from .string_lexer import string_lexer
+from .string_lexer_options import string_lexer_options
 
 class comments(object):
 
@@ -19,7 +20,7 @@ class comments(object):
   def _strip_line_allow_quoted(clazz, text, strip_head = False, strip_tail = False):
     'Strip comments from one line allowing for # to appear in quoted strings .'
     buf = StringIO()
-    for token in string_lexer.tokenize(text, 'comments_strip_line', options = string_lexer.KEEP_QUOTES):
+    for token in string_lexer.tokenize(text, 'comments_strip_line', options = string_lexer_options.KEEP_QUOTES):
       if token.token_type not in [ string_lexer.TOKEN_DONE, string_lexer.TOKEN_COMMENT ]:
         buf.write(token.value)
     return string_util.strip_ends(buf.getvalue(), strip_head = strip_head, strip_tail = strip_tail)

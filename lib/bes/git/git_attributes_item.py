@@ -8,6 +8,7 @@ from bes.key_value.key_value import key_value
 from bes.key_value.key_value_list import key_value_list
 from bes.text.line_break import line_break
 from bes.text.string_list_parser import string_list_parser
+from bes.text.string_lexer_options import string_lexer_options
 
 class git_attributes_item(namedtuple('git_attributes_item', 'pattern, attributes')):
   'A class to represent one .gitattributes file item'
@@ -38,14 +39,14 @@ class git_attributes_item(namedtuple('git_attributes_item', 'pattern, attributes
   def parse(clazz, text):
     check.check_string(text)
 
-    parsed = [ p for p in string_list_parser.parse(text, options = string_list_parser.KEEP_QUOTES) ]
+    parsed = [ p for p in string_list_parser.parse(text, options = string_lexer_options.KEEP_QUOTES) ]
     if not parsed:
       raise ValueError('Invalid git attribute item.  Missing pattern: "{}"'.format(text))
     pattern = parsed.pop(0)
     attributes = key_value_list()
     for p in parsed:
       if '=' in p:
-        attributes.extend(key_value_list.parse(p, key_value_list.KEEP_QUOTES))
+        attributes.extend(key_value_list.parse(p, string_lexer_options.KEEP_QUOTES))
       else:
         attributes.append(clazz._parse_bool_attribute(p))
     return git_attributes_item(pattern, attributes)
