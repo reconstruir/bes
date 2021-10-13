@@ -225,7 +225,7 @@ tag rel/1.0.2 tag3 @commit3
     ]
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
-    self.assertEqual( self.xp_filename(new_url), self.xp_filename(rv.output.strip()) )
+    self.assert_filename_equal( new_url, rv.output.strip() )
     
 if __name__ == '__main__':
   program_unit_test.main()
