@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import sys
 from os import path
 
 from bes.python.pip_exe import pip_exe
@@ -17,7 +18,6 @@ from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_skip import skip_if
 from bes.version.semantic_version import semantic_version
 from bes.testing.unit_test_skip import raise_skip
-from bes.pyinstaller.pyinstaller_build import pyinstaller_build
 
 class test_pyinstaller_builder(unit_test):
 
@@ -124,7 +124,12 @@ class fakelib2(object):
 
     file_util.save(path.join(tmp_dir, 'program', 'fakelib1.py'), content = fakelib1_content)
     file_util.save(path.join(tmp_dir, 'program', 'fakelib2.py'), content = fakelib2_content)
-    
+
+    for p in project.PYTHONPATH:
+      sys.path.insert(0, p)
+
+    from bes.pyinstaller.pyinstaller_build import pyinstaller_build
+      
     build_dir = path.join(tmp_dir, 'BUILD')
     build_result = pyinstaller_build.build(program_source,
                                            log_level = 'INFO',
