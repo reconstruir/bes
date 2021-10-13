@@ -41,8 +41,8 @@ class test_archive_cli_args(program_unit_test):
     rv = self.run_program(self._program, args)
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( 'zip', archiver.format_name(tmp_archive) )
-    self.assertEqual( [
-      '{}/'.format(prefix),
+    self.assert_filename_list_equal( [
+#      '{}/'.format(prefix),
       '{}/a/'.format(prefix),
       '{}/a/b/'.format(prefix),
       '{}/a/b/c/'.format(prefix),
@@ -78,8 +78,8 @@ class test_archive_cli_args(program_unit_test):
     rv = self.run_program(self._program, args)
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( 'tgz', archiver.format_name(tmp_archive) )
-    self.assertEqual( [
-      '{}/'.format(prefix),
+    self.assert_filename_list_equal( [
+#      '{}/'.format(prefix),
       '{}/a/'.format(prefix),
       '{}/a/b/'.format(prefix),
       '{}/a/b/c/'.format(prefix),
