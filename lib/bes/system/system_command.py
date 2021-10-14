@@ -18,55 +18,62 @@ class system_command(with_metaclass(ABCMeta, object)):
 
   _log = logger('system_command')
   
+  @classmethod
   @abstractmethod
-  def exe_name(self):
+  def exe_name(clazz):
     'The name of the executable.'
     raise NotImplemented('exe_name')
 
+  @classmethod
   @abstractmethod
-  def extra_path(self):
+  def extra_path(clazz):
     'List of extra paths where to find the command.'
     raise NotImplemented('extra_path')
 
+  @classmethod
   @abstractmethod
-  def error_class(self):
+  def error_class(clazz):
     'The error exception class to raise when errors happen.'
     raise NotImplemented('error_class')
 
+  @classmethod
   @abstractmethod
-  def static_args(self):
+  def static_args(clazz):
     'List of static arg for all calls of the command.'
     raise NotImplemented('static_args')
 
+  @classmethod
   @abstractmethod
-  def supported_systems(self):
+  def supported_systems(clazz):
     'Return a list of supported systems.'
     raise NotImplemented('supported_systems')
   
-  def _find_exe(self):
+  @classmethod
+  def _find_exe(clazz):
     'Find the exe'
-    extra_path = self.extra_path()
-    exe_name = self.exe_name()
-    exe = which.which(exe_name, extra_path = self.extra_path())
+    extra_path = clazz.extra_path()
+    exe_name = clazz.exe_name()
+    exe = which.which(exe_name, extra_path = clazz.extra_path())
     if exe:
       return exe
-    error_class = self.error_class()
+    error_class = clazz.error_class()
     if not isinstance(error_class, Exception.__class__):
       raise TypeError('Return value of error_clas() should be an Exception type: {} - {}'.format(error_class,
                                                                                                  type(error_class)))
       
     raise error_class('Failed to find {}'.format(exe_name))
 
-  def call_command(self, args, raise_error = True, env = None, use_sudo = False):
+  @classmethod
+  def call_command(clazz, args, raise_error = True, env = None, use_sudo = False):
     'Call the command'
     check.check_string_seq(args)
     check.check_bool(raise_error)
     check.check_dict(env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
     check.check_bool(use_sudo)
 
-    self.check_supported()
+    clazz.check_supported()
 
-    self._log.log_d('call_command: args={}'.format(' '.join(args)))
+    clazz._log.log_d('call_command: args={}'.format(' '.join(args)))
     
     if isinstance(args, ( list, tuple )):
       parsed_args = list(args)
@@ -75,10 +82,10 @@ class system_command(with_metaclass(ABCMeta, object)):
     else:
       raise TypeError('Invalid args type.  Should be tuple, list or string: {} - {}'.format(args,
                                                                                             type(args)))
-    self._log.log_d('call_command: parsed_args={}'.format(' '.join(parsed_args)))
+    clazz._log.log_d('call_command: parsed_args={}'.format(' '.join(parsed_args)))
 
-    exe = self._find_exe()
-    static_args = self.static_args() or []
+    exe = clazz._find_exe()
+    static_args = clazz.static_args() or []
     if not isinstance(static_args, ( list, tuple )):
       raise TypeError('Return value of static_args() should be list or tuple: {} - {}'.format(static_args,
                                                                                               type(static_args)))
@@ -88,48 +95,52 @@ class system_command(with_metaclass(ABCMeta, object)):
     cmd.append(exe)
     cmd.extend(list(static_args))
     cmd.extend(args)
-    self._log.log_d('call_command: cmd={}'.format(' '.join(cmd)))
+    clazz._log.log_d('call_command: cmd={}'.format(' '.join(cmd)))
     return execute.execute(cmd, raise_error = raise_error, env = env)
 
-  def call_command_parse_lines(self, args, sort = False):
+  @classmethod
+  def call_command_parse_lines(clazz, args, sort = False):
     'Call a command that returns a list of lines'
-    rv = self.call_command(args, raise_error = True)
-    result = self.split_lines(rv.stdout)
+    rv = clazz.call_command(args, raise_error = True)
+    result = clazz.split_lines(rv.stdout)
     if sort:
       result = sorted(result)
     return result
 
-  def is_supported(self):
+  @classmethod
+  def is_supported(clazz):
     'Return True if this command is support on the current system'
-    return host.SYSTEM in self.supported_systems()
+    return host.SYSTEM in clazz.supported_systems()
   
-  def check_supported(self):
+  @classmethod
+  def check_supported(clazz):
     'Check that the current system supports this command otherwise raise an error'
-    if self.is_supported():
+    if clazz.is_supported():
       return
-    raise error_class('{} is not supported on {} - only {}'.format(self.exe_name(),
+    raise error_class('{} is not supported on {} - only {}'.format(clazz.exe_name(),
                                                                    host.SYSTEM,
-                                                                   ' '.join(self.supported_systems())))
+                                                                   ' '.join(clazz.supported_systems())))
   
-  def has_command(self):
+  @classmethod
+  def has_command(clazz):
     'Return True if the command is found'
-    if not self.is_supported():
+    if not clazz.is_supported():
       return False
     try:
-      exe = self._find_exe()
+      exe = clazz._find_exe()
       return True
-    except self.error_class() as ex:
+    except clazz.error_class() as ex:
       pass
     return False
   
   @classmethod
-  def split_lines(self, text):
+  def split_lines(clazz, text):
     lines = text.splitlines()
     lines = [ line.strip() for line in lines ]
     return [ line for line in lines if line ]
 
   @classmethod
-  def split_by_white_space(self, line):
+  def split_by_white_space(clazz, line):
     parts = []
     for part in re.split(r'\s+', line):
       part = part.strip()

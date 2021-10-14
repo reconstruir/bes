@@ -19,6 +19,5 @@ class lsof(object):
     args = []
     if pid:
       args.extend([ '-p', str(pid)])
-    cmd = lsof_command()
-    rv = cmd.call_command(args)
+    rv = lsof_command.call_command(args)
     return lsof_output_parser.parse_lsof_output(rv.stdout)

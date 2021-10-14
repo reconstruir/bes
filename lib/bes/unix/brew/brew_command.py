@@ -6,27 +6,32 @@ from .brew_error import brew_error
 
 class brew_command(system_command):
 
+  @classmethod
   #@abstractmethod
-  def exe_name(self):
+  def exe_name(clazz):
     'The name of the executable.'
     return 'brew'
 
+  @classmethod
   #@abstractmethod
-  def extra_path(self):
+  def extra_path(clazz):
     'List of extra paths where to find the command.'
     return None
 
+  @classmethod
   #@abstractmethod
-  def error_class(self):
+  def error_class(clazz):
     'The error exception class to raise when errors happen.'
     return brew_error
   
+  @classmethod
   #@abstractmethod
-  def static_args(self):
+  def static_args(clazz):
     'List of static arg for all calls of the command.'
     return None
 
+  @classmethod
   #@abstractmethod
-  def supported_systems(self):
+  def supported_systems(clazz):
     'Return a list of supported systems.'
     return ( 'linux', 'macos' )
