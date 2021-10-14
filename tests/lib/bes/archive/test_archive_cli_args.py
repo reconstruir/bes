@@ -52,10 +52,6 @@ class test_archive_cli_args(program_unit_test):
       '{}/d/e/bar.txt'.format(prefix),
     ]
     actual = archiver.members(tmp_archive)
-    for x in expected:
-      print('EXP: {}'.format(x))
-    for x in actual:
-      print('ACT: {}'.format(x))
     self.assert_filename_list_equal( expected, actual )
     
   @git_temp_home_func()
