@@ -73,11 +73,6 @@ class archive(archive_base):
   @classmethod
   def _normalize_members(clazz, members):
     'Return a sorted and unique list of members.'
-    # on windows, the root directory of the archive is sometimes missing
-    cb = clazz._common_base_for_members(members)
-    if cb in members:
-      members = members[:]
-      members.remove(cb)
     return sorted(algorithm.unique(members))
 
   # Some archives have some dumb members that are immaterial to common base

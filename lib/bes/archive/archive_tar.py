@@ -5,6 +5,7 @@ import os.path as path
 import tarfile
 
 from bes.fs.tar_util import tar_util
+from bes.system.log import logger
 
 from .archive import archive
 from .archive_extension import archive_extension
@@ -12,6 +13,8 @@ from .archive_extension import archive_extension
 class archive_tar(archive):
   'A Tar archive class.'
 
+  _log = logger('archive_tar')
+  
   def __init__(self, filename):
     super(archive_tar, self).__init__(filename)
 
@@ -85,7 +88,12 @@ class archive_tar(archive):
              extension = None):
     self._pre_create()
     items = self._find(root_dir, base_dir, extra_items, include, exclude)
-    mode = archive_extension.write_format_for_filename(extension or self.filename)
+    self._log.log_d('create: extension={} filename={}'.format(extension, self.filename))
+    if extension:
+      mode = archive_extension.write_format(extension)
+    else:
+      mode = archive_extension.write_format_for_filename(self.filename)
+    self._log.log_d('create: mode={}'.format(mode))
     with tarfile.open(self.filename, mode = mode) as archive:
       for item in items:
         archive.add(item.filename, arcname = item.arcname)

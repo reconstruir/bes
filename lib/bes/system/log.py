@@ -481,7 +481,7 @@ class logger(object):
   def log_method(self, level, depth = 1):
     '''
     Log a instance or clazz method including name and all arguments
-    Please not this method is *slow*.  Around 50ms on a fast modern
+    Please note this method is *slow*.  Around 50ms on a fast modern
     macbook pro.  So don't use it in performance sensitive code.
     '''
     current_frame = inspect.currentframe()
