@@ -66,6 +66,14 @@ class pip_project_cli_args(object):
                    help = 'The name for this pip project [ None ]')
     p.add_argument('--variant', action = 'store', type = str, default = None,
                    help = 'The virtual env variant (csh, fish, ps1) [ None ]')
+
+    # version
+    p = subparser.add_parser('version', help = 'Print version of a package.')
+    self.__pip_project_add_common_args(p)
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The name for this pip project [ None ]')
+    p.add_argument('package_name', action = 'store', type = str, default = None,
+                   help = 'The name of the package to install [ None ]')
     
   def __pip_project_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,

@@ -320,9 +320,7 @@ class pip_project(object):
     'Return the version of an installed package'
     installed = self.installed()
     for p in self.installed():
-      print('checking {} vs {}'.format(p.name, package_name))
       if p.name == package_name:
-        print('found {} {}'.format(package_name, p.version))
         return p.version
     raise pip_error('Package not found: "{}"'.format(package_name))
   

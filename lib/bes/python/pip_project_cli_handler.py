@@ -70,3 +70,9 @@ class pip_project_cli_handler(cli_command_handler):
     print(script)
     return 0
   
+  def version(self, package_name):
+    check.check_string(package_name)
+
+    version = self._project.version(package_name)
+    print(version)
+    return 0
