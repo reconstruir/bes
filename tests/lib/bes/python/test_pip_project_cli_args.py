@@ -4,6 +4,7 @@
 from collections import namedtuple
 from os import path
 
+from bes.common.json_util import json_util
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.python.python_exe import python_exe
@@ -41,12 +42,28 @@ class _pip_project_tester(object):
   def outdated(self):
     return self._list_command('outdated')
 
+  def installed_json(self):
+    return self._json_command('installed')
+
+  def installed_dict(self):
+    result = {}
+    for item in self.installed_json():
+      result[item['name']] = item['version']
+    return result
+  
   def _list_command(self, command):
     tmp = self._unit_test.make_temp_file()
     rv = self._unit_test.run_program(self._unit_test._program,
                                      self.make_args(command, '--style', 'brief', '--output', tmp))
     self._unit_test.assertEqual(0, rv.exit_code)
     return system_command.split_lines(file_util.read(tmp, codec = 'utf-8'))
+
+  def _json_command(self, command):
+    tmp = self._unit_test.make_temp_file()
+    rv = self._unit_test.run_program(self._unit_test._program,
+                                     self.make_args(command, '--style', 'json', '--output', tmp))
+    self._unit_test.assertEqual(0, rv.exit_code)
+    return json_util.read_file(tmp)
   
 class test_pip_project_cli_args(program_unit_test):
 
@@ -80,7 +97,7 @@ class test_pip_project_cli_args(program_unit_test):
     self.assertEqual(0, rv.exit_code)
     self.assertTrue( 'chardet' in set(tester.outdated()) )
 
-  def xtest_upgrade(self):
+  def test_upgrade(self):
     tester = _pip_project_tester(self, 'kiwi')
     rv = self.run_program(self._program, tester.make_args('init'))
     self.assertEqual(0, rv.exit_code)
@@ -89,9 +106,16 @@ class test_pip_project_cli_args(program_unit_test):
     
     rv = self.run_program(self._program, tester.make_args('install', 'chardet', '--version', str(old_version)))
     self.assertEqual(0, rv.exit_code)
-    #self.assertEqual( { 'chardet' }, set(tester.outdated()) )
 
-    #old_version = semantic_version('3.0.4')
+    installed_before = tester.installed_dict()
+    self.assertEqual( str(old_version), installed_before['chardet'] )
+    
+    rv = self.run_program(self._program, tester.make_args('upgrade', 'chardet'))
+    self.assertEqual(0, rv.exit_code)
+
+    installed_after = tester.installed_dict()
+    new_version = semantic_version(installed_after['chardet'])
+    self.assertTrue( new_version > old_version )
     
 if __name__ == '__main__':
   program_unit_test.main()
