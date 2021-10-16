@@ -97,7 +97,7 @@ class test_pip_project_cli_args(program_unit_test):
     self.assertEqual(0, rv.exit_code)
     self.assertTrue( 'chardet' in set(tester.outdated()) )
 
-  def test_upgrade(self):
+  def test_upgrade_one_package(self):
     tester = _pip_project_tester(self, 'kiwi')
     rv = self.run_program(self._program, tester.make_args('init'))
     self.assertEqual(0, rv.exit_code)
@@ -116,6 +116,74 @@ class test_pip_project_cli_args(program_unit_test):
     installed_after = tester.installed_dict()
     new_version = semantic_version(installed_after['chardet'])
     self.assertTrue( new_version > old_version )
+
+  def xtest_upgrade_many_packages(self):
+    tester = _pip_project_tester(self, 'kiwi')
+    rv = self.run_program(self._program, tester.make_args('init'))
+    self.assertEqual(0, rv.exit_code)
+
+    version_idna = '2.7'
+    version_chardet = '3.0.4' 
+    version_certifi = '2021.5.30' 
+    old_version = semantic_version('3.0.4')
+    
+    rv = self.run_program(self._program, tester.make_args('install', 'chardet', '--version', str(old_version)))
+    self.assertEqual(0, rv.exit_code)
+
+    installed_before = tester.installed_dict()
+    self.assertEqual( str(old_version), installed_before['chardet'] )
+    
+    rv = self.run_program(self._program, tester.make_args('upgrade', 'chardet'))
+    self.assertEqual(0, rv.exit_code)
+
+    installed_after = tester.installed_dict()
+    new_version = semantic_version(installed_after['chardet'])
+    self.assertTrue( new_version > old_version )
+
+  def test_upgrade_many_packages(self):
+    requirements_content = '''\
+idna == 2.7
+chardet == 3.0.4
+certifi == 2021.5.30
+'''
+    tmp_requirements = self.make_temp_file(content = requirements_content)
+    
+    tester = _pip_project_tester(self, 'kiwi')
+    rv = self.run_program(self._program, tester.make_args('init'))
+    self.assertEqual(0, rv.exit_code)
+
+    rv = self.run_program(self._program, tester.make_args('install_requirements', tmp_requirements))
+    self.assertEqual(0, rv.exit_code)
+    installed_before = tester.installed_dict()
+    self.assertEqual( '2.7', installed_before['idna'] )
+    self.assertEqual( '3.0.4', installed_before['chardet'] )
+    self.assertEqual( '2021.5.30', installed_before['certifi'] )
+
+    rv = self.run_program(self._program, tester.make_args('upgrade', 'idna', 'chardet', 'certifi'))
+    self.assertEqual(0, rv.exit_code)
+    installed_after = tester.installed_dict()
+    self.assertTrue( semantic_version(installed_after['idna']) > semantic_version('2.7') )
+    self.assertTrue( semantic_version(installed_after['chardet']) > semantic_version('3.0.4') )
+    self.assertTrue( semantic_version(installed_after['certifi']) > semantic_version('2021.5.30') )
+    
+  def test_install_requirements(self):
+    requirements_content = '''\
+idna == 2.7
+chardet == 3.0.4
+certifi == 2021.5.30
+'''
+    tmp_requirements = self.make_temp_file(content = requirements_content)
+    
+    tester = _pip_project_tester(self, 'kiwi')
+    rv = self.run_program(self._program, tester.make_args('init'))
+    self.assertEqual(0, rv.exit_code)
+
+    rv = self.run_program(self._program, tester.make_args('install_requirements', tmp_requirements))
+    self.assertEqual(0, rv.exit_code)
+    installed = tester.installed_dict()
+    self.assertEqual( '2.7', installed['idna'] )
+    self.assertEqual( '3.0.4', installed['chardet'] )
+    self.assertEqual( '2021.5.30', installed['certifi'] )
     
 if __name__ == '__main__':
   program_unit_test.main()

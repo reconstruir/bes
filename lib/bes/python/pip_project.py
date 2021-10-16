@@ -8,6 +8,7 @@ from os import path
 import pprint
 
 from bes.common.check import check
+from bes.common.object_util import object_util
 from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
 from bes.property.cached_property import cached_property
@@ -325,12 +326,13 @@ class pip_project(object):
         return p.version
     raise pip_error('Package not found: "{}"'.format(package_name))
   
-  def upgrade(self, package_name):
+  def upgrade(self, packages):
     'Upgrade a package to the latest version'
-    check.check_string(package_name)
+    packages = object_util.listify(packages)
+    check.check_string_seq(packages)
 
-    args = [ '--upgrade', package_name ]
-    error_message = 'Failed to upgrade "{}"'.format(package_name)
+    args = [ '--upgrade' ] + list(packages)
+    error_message = 'Failed to upgrade "{}"'.format(' '.join(packages))
     self._call_install(args, error_message = error_message)
   
   def program_path(self, program):

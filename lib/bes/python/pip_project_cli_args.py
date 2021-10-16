@@ -28,8 +28,8 @@ class pip_project_cli_args(object):
     self.__pip_project_add_common_args(p)
     p.add_argument('name', action = 'store', type = str, default = None,
                    help = 'The name for this pip project [ None ]')
-    p.add_argument('package_name', action = 'store', type = str, default = None,
-                   help = 'The name of the package to install [ None ]')
+    p.add_argument('packages', action = 'store', default = [], nargs = '+',
+                   help = 'The name of the packages to upgrade [ None ]')
     
     # install_requirements
     p = subparser.add_parser('install_requirements', help = 'Install packages from a requirements file.')

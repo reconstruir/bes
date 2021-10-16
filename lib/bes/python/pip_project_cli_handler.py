@@ -48,10 +48,10 @@ class pip_project_cli_handler(cli_command_handler):
     self._project.install(package_name, version = version)
     return 0
 
-  def upgrade(self, package_name):
-    check.check_string(package_name)
+  def upgrade(self, packages):
+    check.check_string_seq(packages)
 
-    self._project.upgrade(package_name)
+    self._project.upgrade(packages)
     return 0
 
   def install_requirements(self, requirements_file):
