@@ -33,13 +33,14 @@ class pip_project(object):
 
   _log = logger('pip')
   
-  def __init__(self, name, root_dir, python_exe, debug = False):
+  def __init__(self, name, options = None):
     check.check_string(name)
-    check.check_string(root_dir)
+    check.check_pip_project_options(options)
 
-    self._original_python_exe = python_exe
+    self._options = options or check_pip_project_options()
+    self._original_python_exe = self._options.resolve_python_exe()
     self._name = name
-    self._root_dir = path.abspath(root_dir)
+    self._root_dir = path.abspath(self._options.root_dir)
     self._droppings_dir = path.join(self.project_dir, '.droppings')
     self._pip_cache_dir = path.join(self._droppings_dir, 'pip-cache')
     self._pipenv_cache_dir = path.join(self._droppings_dir, 'pipenv-cache')

@@ -19,60 +19,77 @@ class pip_project_cli_handler(cli_command_handler):
     super(pip_project_cli_handler, self).__init__(cli_args, options_class = pip_project_options)
     check.check_pip_project_options(self.options)
     self.options.blurber.set_verbose(self.options.verbose)
-    self._project = pip_project(self.options.name,
-                                self.options.root_dir,
-                                self.options.resolve_python_exe(),
-                                debug = self.options.debug)
     
-  def outdated(self):
-    outdated = self._project.outdated()
+  def outdated(self, name):
+    check.check_string(name)
+
+    project = pip_project(name, options = self.options)
+    outdated = project.outdated()
     data_output.output_table(outdated, options = self.options.data_output_options)
     return 0
 
-  def installed(self):
-    installed = self._project.installed()
+  def installed(self, name):
+    check.check_string(name)
+
+    project = pip_project(name, options = self.options)
+    installed = project.installed()
     data_output.output_table(installed, options = self.options.data_output_options)
     return 0
   
-  def pip(self, args):
+  def pip(self, name, args):
+    check.check_string(name)
     check.check_string_seq(args)
 
-    rv = self._project.pip(args)
+    project = pip_project(name, options = self.options)
+    rv = project.pip(args)
     print(rv.stdout)
     return 0
 
-  def install(self, package_name, version):
+  def install(self, name, package_name, version):
+    check.check_string(name)
     check.check_string(package_name)
     check.check_string(version, allow_none = True)
 
-    self._project.install(package_name, version = version)
+    project = pip_project(name, options = self.options)
+    project.install(package_name, version = version)
     return 0
 
-  def upgrade(self, packages):
+  def upgrade(self, name, packages):
+    check.check_string(name)
     check.check_string_seq(packages)
 
-    self._project.upgrade(packages)
+    project = pip_project(name, options = self.options)
+    project.upgrade(packages)
     return 0
 
-  def install_requirements(self, requirements_file):
+  def install_requirements(self, name, requirements_file):
+    check.check_string(name)
     check.check_string(requirements_file)
 
-    self._project.install_requirements(requirements_file)
+    project = pip_project(name, options = self.options)
+    project.install_requirements(requirements_file)
     return 0
 
-  def init(self):
+  def init(self, name):
+    check.check_string(name)
+
+    project = pip_project(name, options = self.options)
     return 0
   
-  def activate_script(self, variant):
+  def activate_script(self, name, variant):
+    check.check_string(name)
     check.check_string(variant, allow_none = True)
 
-    script = self._project.activate_script(variant = variant)
+    project = pip_project(name, options = self.options)
+    script = project.activate_script(variant = variant)
     print(script)
     return 0
   
-  def version(self, package_name):
+  def version(self, name, package_name):
+    check.check_string(name)
     check.check_string(package_name)
 
-    version = self._project.version(package_name)
+    project = pip_project(name, options = self.options)
+    version = project.version(package_name)
     print(version)
     return 0
