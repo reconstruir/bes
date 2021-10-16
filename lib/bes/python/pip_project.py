@@ -43,7 +43,7 @@ class pip_project(object):
     self._root_dir = path.abspath(self._options.root_dir)
     self._droppings_dir = path.join(self.project_dir, '.droppings')
     self._pip_cache_dir = path.join(self._droppings_dir, 'pip-cache')
-    self._pipenv_cache_dir = path.join(self._droppings_dir, 'pipenv-cache')
+    #self._pipenv_cache_dir = path.join(self._droppings_dir, 'pipenv-cache')
     self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
     file_util.mkdir(self._fake_home_dir)
     self._fake_tmp_dir = path.join(self._droppings_dir, 'fake-tmp')
