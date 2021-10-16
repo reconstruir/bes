@@ -9,6 +9,7 @@ from bes.python.pip_error import pip_error
 from bes.python.pip_installer_options import pip_installer_options
 from bes.python.pip_installer_tester import pip_installer_tester
 from bes.python.pip_project import pip_project
+from bes.python.pip_project_options import pip_project_options
 from bes.python.python_testing import python_testing
 from bes.python.python_testing import python_testing
 from bes.fs.file_find import file_find
@@ -32,7 +33,10 @@ class test_pyinstaller_builder(unit_test):
     if self.DEBUG:
       print('tmp_dir: {}'.format(tmp_dir))
     venvs_dir = path.join(tmp_dir, 'venvs')
-    project = pip_project('kiwi', venvs_dir, python_testing._PYTHONS.ANY_PYTHON3, debug = self.DEBUG)
+    options = pip_project_options(root_dir = venvs_dir,
+                                  python_exe = python_testing._PYTHONS.ANY_PYTHON3,
+                                  debug = self.DEBUG)
+    project = pip_project('kiwi', options = options)
     project.install('pyinstaller', version = '4.3')
 
     program_content = r'''
