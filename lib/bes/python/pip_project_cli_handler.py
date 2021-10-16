@@ -6,6 +6,7 @@ import pprint
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
 from bes.text.text_table import text_table
+from bes.data_output.data_output import data_output
 
 from .pip_error import pip_error
 from .pip_project import pip_project
@@ -25,16 +26,12 @@ class pip_project_cli_handler(cli_command_handler):
     
   def outdated(self):
     outdated = self._project.outdated()
-    print(pprint.pformat(outdated))
+    data_output.output_table(installed, options = self.options.data_output_options)
     return 0
 
   def installed(self):
     installed = self._project.installed()
-
-    tt = text_table(data = installed)
-#    tt.set_labels(installed[0]._fields)
-    print(tt)
-    
+    data_output.output_table(installed, options = self.options.data_output_options)
     return 0
   
   def pip(self, args):

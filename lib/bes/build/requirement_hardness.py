@@ -1,9 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from enum import IntEnum
-
 from bes.common.check import check
-from bes.system.compat import compat
 from bes.enum_util.checked_int_enum import checked_int_enum
 
 class requirement_hardness(checked_int_enum):

@@ -35,6 +35,13 @@ class tuple_util(object):
     return check.is_tuple(o) and getattr(o, '_fields', None) is not None
 
   @staticmethod
+  def named_tuple_to_dict(o):
+    'Convert a namedtuple to a dictionary.'
+    if not tuple_util.is_named_tuple(o):
+      raise TypeError('Not a namedtuple: {} - {}'.format(str(o), type(o)))
+    return dict(o._asdict())
+  
+  @staticmethod
   def clone(t, mutations = None):
     mutations = mutations or {}
     'Clone a namedtuple with optional field mutations.'
