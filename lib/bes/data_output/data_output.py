@@ -29,26 +29,39 @@ class data_output(object):
         stream.write(str(item[options.brief_column]))
         stream.write(line_break.DEFAULT_LINE_BREAK)
     elif options.style == data_output_style.JSON:
-      data = clazz._table_dictify(data)
+      data = clazz._normalize_structured_data(data)
       stream.write(json_util.to_json(data, indent = 2, sort_keys = True))
     elif options.style == data_output_style.PLAIN:
       for item in data:
         stream.write(options.plain_delimiter.join(item))
         stream.write(line_break.DEFAULT_LINE_BREAK)
     elif options.style == data_output_style.PPRINT:
-      data = clazz._table_dictify(data)
+      data = clazz._normalize_structured_data(data)
       stream.write(pprint.pformat(data))
       stream.write(line_break.DEFAULT_LINE_BREAK)
     elif options.style == data_output_style.TABLE:
+      data = clazz._normalize_data(data)
       tt = text_table(data = data)
       stream.write(str(tt))
       stream.write(line_break.DEFAULT_LINE_BREAK)
 
   @classmethod
-  def _table_dictify(clazz, data):
+  def _normalize_data(clazz, data):
+    if isinstance(data, dict):
+      return clazz._normalize_dict(data)
+    return data
+
+  @classmethod
+  def _normalize_dict(clazz, data):
+    assert isinstance(data, dict)
+    return [ item for item in data.items() ]
+
+  @classmethod
+  def _normalize_structured_data(clazz, data):
     result = []
     for item in data:
       if tuple_util.is_named_tuple(item):
         item = tuple_util.named_tuple_to_dict(item)
       result.append(item)
     return result
+  

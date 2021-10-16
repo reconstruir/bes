@@ -26,7 +26,7 @@ class pip_project_cli_handler(cli_command_handler):
     
   def outdated(self):
     outdated = self._project.outdated()
-    data_output.output_table(installed, options = self.options.data_output_options)
+    data_output.output_table(outdated, options = self.options.data_output_options)
     return 0
 
   def installed(self):
@@ -46,6 +46,12 @@ class pip_project_cli_handler(cli_command_handler):
     check.check_string(version, allow_none = True)
 
     self._project.install(package_name, version = version)
+    return 0
+
+  def upgrade(self, package_name):
+    check.check_string(package_name)
+
+    self._project.upgrade(package_name)
     return 0
 
   def install_requirements(self, requirements_file):

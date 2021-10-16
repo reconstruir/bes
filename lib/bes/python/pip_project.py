@@ -153,7 +153,7 @@ class pip_project(object):
 
   _outdated_package = namedtuple('_outdated_package', 'name, current_version, latest_version, latest_filetype')
   def outdated(self):
-    'Return a dictionary of outdated packages'
+    'Return a list of outdated packages'
     args = [
       'list',
       '--outdated',
@@ -162,13 +162,13 @@ class pip_project(object):
     rv = self.call_pip(args, stderr_to_stdout = False)
     outdated = json.loads(rv.stdout)
 
-    result = {}
+    result = []
     for next_item in outdated:
       op = self._outdated_package(next_item['name'].lower(),
                                   next_item['version'],
                                   next_item['latest_version'],
                                   next_item['latest_filetype'])
-      result[op.name] = op
+      result.append(op)
     self._log.log_d('outdated: outdated={}'.format(pprint.pformat(result)))
     return result
 

@@ -23,6 +23,14 @@ class pip_project_cli_args(object):
     p.add_argument('--version', action = 'store', type = str, default = None,
                    help = 'Optional package version.  [ latest ]')
 
+    # upgrade
+    p = subparser.add_parser('upgrade', help = 'Upgrade a package.')
+    self.__pip_project_add_common_args(p)
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The name for this pip project [ None ]')
+    p.add_argument('package_name', action = 'store', type = str, default = None,
+                   help = 'The name of the package to install [ None ]')
+    
     # install_requirements
     p = subparser.add_parser('install_requirements', help = 'Install packages from a requirements file.')
     self.__pip_project_add_common_args(p)
