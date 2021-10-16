@@ -33,7 +33,7 @@ class _pip_project_tester(object):
 
   def installed(self):
     rv = self._unit_test.run_program(self._unit_test._program,
-                                     self.make_args('installed'))
+                                     self.make_args('installed', '--style', 'brief'))
     self._unit_test.assertEqual(0, rv.exit_code)
     return system_command.split_lines(rv.output)
   
@@ -58,9 +58,9 @@ class test_pip_project_cli_args(program_unit_test):
     files2 = tester.root_files()
     installed2 = tester.installed()
     
-    delta = sorted(list(set(installed2) - set(installed1)))
-    for d in delta:
-      print('DIFF: {}'.format(d))
+    actual = set(installed2) - set(installed1)
+    expected = { 'certifi', 'charset-normalizer', 'idna', 'requests', 'urllib3' }
+    self.assertEqual( expected, actual )
     
 if __name__ == '__main__':
   program_unit_test.main()
