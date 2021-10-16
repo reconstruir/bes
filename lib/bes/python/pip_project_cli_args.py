@@ -80,10 +80,11 @@ class pip_project_cli_args(object):
                    help = 'Verbose output [ False ]')
     p.add_argument('-r', '--root-dir', action = 'store', default = None,
                    help = 'The root directory where to install pip [ None ]')
-    p.add_argument('-p', '--python-version', action = 'store', default = None,
-                   dest = 'python_version',
+    p.add_argument('--python-version', action = 'store', default = None,
                    help = 'The python version to use [ None ]')
-    p.add_argument('-o', '--output', action = 'store', default = None,
+    p.add_argument('--python-exe', action = 'store', default = None,
+                   help = 'The python exe to use [ None ]')
+    p.add_argument('--output', action = 'store', default = None,
                    dest = 'output_filename',
                    help = 'Optional output filename [ None ]')
     from bes.data_output.data_output_style import data_output_style

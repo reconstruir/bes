@@ -96,35 +96,12 @@ class test_pip_project_cli_args(program_unit_test):
     rv = self.run_program(self._program, tester.make_args('install', 'chardet', '--version', '3.0.4'))
     self.assertEqual(0, rv.exit_code)
     self.assertTrue( 'chardet' in set(tester.outdated()) )
-
+    
   def test_upgrade_one_package(self):
     tester = _pip_project_tester(self, 'kiwi')
     rv = self.run_program(self._program, tester.make_args('init'))
     self.assertEqual(0, rv.exit_code)
 
-    old_version = semantic_version('3.0.4')
-    
-    rv = self.run_program(self._program, tester.make_args('install', 'chardet', '--version', str(old_version)))
-    self.assertEqual(0, rv.exit_code)
-
-    installed_before = tester.installed_dict()
-    self.assertEqual( str(old_version), installed_before['chardet'] )
-    
-    rv = self.run_program(self._program, tester.make_args('upgrade', 'chardet'))
-    self.assertEqual(0, rv.exit_code)
-
-    installed_after = tester.installed_dict()
-    new_version = semantic_version(installed_after['chardet'])
-    self.assertTrue( new_version > old_version )
-
-  def xtest_upgrade_many_packages(self):
-    tester = _pip_project_tester(self, 'kiwi')
-    rv = self.run_program(self._program, tester.make_args('init'))
-    self.assertEqual(0, rv.exit_code)
-
-    version_idna = '2.7'
-    version_chardet = '3.0.4' 
-    version_certifi = '2021.5.30' 
     old_version = semantic_version('3.0.4')
     
     rv = self.run_program(self._program, tester.make_args('install', 'chardet', '--version', str(old_version)))

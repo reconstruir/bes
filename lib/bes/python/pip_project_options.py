@@ -24,6 +24,7 @@ class pip_project_options(cli_options):
       'verbose': False,
       'debug': False,
       'root_dir': None,
+      'python_exe': None,
       'python_version': None,
       'name': None,
       'output_style': data_output_style.TABLE,
@@ -73,11 +74,15 @@ class pip_project_options(cli_options):
     check.check_bool(self.debug)
     check.check_string(self.root_dir, allow_none = True)
     check.check_string(self.python_version, allow_none = True)
+    check.check_string(self.python_exe, allow_none = True)
     check.check_string(self.name, allow_none = True)
     check.check_string(self.output_filename, allow_none = True)
     check.check_data_output_style(self.output_style, allow_none = True)
 
   def resolve_python_exe(self):
+    if self.python_exe:
+      return self.python_exe
+
     from .python_exe import python_exe
     if not self.python_version:
       exe = python_exe.default_exe()

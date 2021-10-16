@@ -22,6 +22,7 @@ from bes.url.url_util import url_util
 
 from .pip_error import pip_error
 from .pip_exe import pip_exe
+from .pip_project_options import pip_project_options
 from .python_installation import python_installation
 from .python_source import python_source
 from .python_version import python_version
@@ -314,7 +315,10 @@ class pip_project(object):
 
   def needs_upgrade(self, package_name):
     'Return True if package_name needs update'
-    return package_name in self.outdated()
+    for item in self.outdated():
+      if item.name == package_name:
+        return True
+    return False
 
   def version(self, package_name):
     'Return the version of an installed package'
