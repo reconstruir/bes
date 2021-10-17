@@ -1,33 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-#from collections import namedtuple
-#import copy
-#import json
-#import os
-#from os import path
-#import pprint
-#
+import os.path as path
+
 from bes.common.check import check
-#from bes.fs.file_util import file_util
-#from bes.fs.file_find import file_find
-#from bes.property.cached_property import cached_property
-#from bes.system.command_line import command_line
-#from bes.system.env_var import env_var
-#from bes.system.execute import execute
-#from bes.system.host import host
 from bes.system.log import logger
-#from bes.system.os_env import os_env
-#from bes.url.url_util import url_util
-#
-#from .pipenv_project_error import pipenv_project_error
-#from .pip_exe import pip_exe
-#from .python_installation import python_installation
-#from .python_source import python_source
-#from .python_version import python_version
-#from .python_virtual_env import python_virtual_env
 
 from bes.python.pip_project import pip_project
 from bes.python.pip_project_options import pip_project_options
+from bes.pipenv.pipenv_exe import pipenv_exe
+from bes.system.command_line import command_line
 
 from .pipenv_project_options import pipenv_project_options
 
@@ -36,7 +17,8 @@ class pipenv_project(object):
 
   _log = logger('pipenv')
   
-  def __init__(self, options = None):
+  def __init__(self, name, options = None):
+    check.check_string(name)
     check.check_pipenv_project_options(options, allow_none = True)
 
     self._options = options or pipenv_project_options()
@@ -44,18 +26,43 @@ class pipenv_project(object):
                                      verbose = self._options.verbose,
                                      blurber = self._options.blurber,
                                      root_dir = self._options.root_dir,
-                                     python_version = self._options.python_version,
-                                     name = self._options.name)
-    self._pip_project = pip_project(pp_options.name,
-                                    pp_options.root_dir,
-                                    pp_options.resolve_python_exe(),
-                                    debug = pp_options.debug)
-      
-  @property
-  def pip_project(self):
-    return self._pip_project
+                                     python_version = self._options.python_version)
+    self._pip_project = pip_project(name, pp_options)
+    self._pipenv_cache_dir = path.join(self._pip_project.droppings_dir, 'pipenv-cache')
+    extra_env = {
+      'WORKON_HOME': self._pip_project.project_dir,
+      'PIPENV_VENV_IN_PROJECT': '1',
+      'PIPENV_CACHE_DIR': self._pipenv_cache_dir,
+    }
+    self._pip_project.extra_env = extra_env
+    self._ensure_pipenv_installed()
+    
+  def pipenv_is_installed(self):
+    return self._pip_project.has_program('pipenv')
 
-######  @cached_property
+  def check_pipenv_is_installed(self):
+    if not self.pipenv_is_installed():
+      raise pipenv_project_error('pipenv not installed')
+      
+  def pipenv_version(self):
+    return pipenv_exe.version(self._pip_project.program_path('pipenv'))
+
+  def call_pipenv(self, args, **kargs):
+    command_line.check_args_type(args)
+
+    args = [ 'pipenv' ] + list(args)
+    return self._pip_project.call_program(args, **kargs)
+  
+  def _ensure_pipenv_installed(self):
+    wanted_version = self._options.pipenv_version
+    if self.pipenv_is_installed():
+      if not wanted_version:
+        return
+      if wanted_version == self.pipenv_version():
+        return
+    self._pip_project.install('pipenv', version = wanted_version)
+
+    ######  @cached_property
 ######  def installation(self):
 ######    return self.virtual_env.installation
 ######

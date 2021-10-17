@@ -70,7 +70,7 @@ class pip_project_cli_handler(cli_command_handler):
     project.install_requirements(requirements_file)
     return 0
 
-  def init(self, name):
+  def create(self, name):
     check.check_string(name)
 
     project = pip_project(name, options = self.options)

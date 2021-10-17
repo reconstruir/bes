@@ -37,16 +37,15 @@ class pip_project(object):
     check.check_string(name)
     check.check_pip_project_options(options)
 
+    self._extra_env = {}
     self._options = options or check_pip_project_options()
     self._original_python_exe = self._options.resolve_python_exe()
     self._name = name
     self._root_dir = path.abspath(self._options.root_dir)
-    self._droppings_dir = path.join(self.project_dir, '.droppings')
-    self._pip_cache_dir = path.join(self._droppings_dir, 'pip-cache')
-    #self._pipenv_cache_dir = path.join(self._droppings_dir, 'pipenv-cache')
-    self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
+    self._pip_cache_dir = path.join(self.droppings_dir, 'pip-cache')
+    self._fake_home_dir = path.join(self.droppings_dir, 'fake-home')
     file_util.mkdir(self._fake_home_dir)
-    self._fake_tmp_dir = path.join(self._droppings_dir, 'fake-tmp')
+    self._fake_tmp_dir = path.join(self.droppings_dir, 'fake-tmp')
     file_util.mkdir(self._fake_tmp_dir)
 
     self._common_pip_args = [
@@ -72,6 +71,10 @@ class pip_project(object):
   def project_dir(self):
     return path.join(self._root_dir, self._name)
 
+  @cached_property
+  def droppings_dir(self):
+    return path.join(self.project_dir, '.droppings')
+    
   @cached_property
   def user_base_install_dir(self):
     if host.is_windows():
@@ -106,7 +109,6 @@ class pip_project(object):
   def env(self):
     'Make a clean environment for python or pip'
     clean_env = os_env.make_clean_env()
-
     env_var(clean_env, 'PYTHONUSERBASE').value = self.project_dir
     env_var(clean_env, 'PYTHONPATH').path = self.PYTHONPATH
     env_var(clean_env, 'PATH').prepend(self.PATH)
@@ -114,6 +116,7 @@ class pip_project(object):
     env_var(clean_env, 'TMPDIR').value = self._fake_tmp_dir
     env_var(clean_env, 'TMP').value = self._fake_tmp_dir
     env_var(clean_env, 'TEMP').value = self._fake_tmp_dir
+    clean_env.update(self._extra_env)
     return clean_env
 
   @cached_property
@@ -343,3 +346,35 @@ class pip_project(object):
     check.check_string(program)
 
     return path.join(self.bin_dir, program)
+
+  def has_program(self, program):
+    'Return True if the project has program'
+    check.check_string(program)
+
+    return path.exists(self.program_path(program))
+  
+  @property
+  def extra_env(self):
+    return self._extra_env
+
+  # These env vars cannot be overwritten by extra_env because they mess up
+  # the virtual environment operations
+  _EXTRA_ENV_RESTRICTIONS = {
+    'PYTHONUSERBASE',
+    'PYTHONPATH',
+    'PATH',
+    'HOME',
+    'TMPDIR',
+    'TMP',
+    'TEMP',
+  }  
+  @extra_env.setter
+  def extra_env(self, extra_env):
+    'Set extra environment to add to the env for the project.'
+    check.check_dict(extra_env, check.STRING_TYPES, check.STRING_TYPES)
+
+    for key in extra_env.keys():
+      if key in self._EXTRA_ENV_RESTRICTIONS:
+        raise pip_error('Canot overwrite env var with extra_env: {}'.format(key))
+        
+    self._extra_env = extra_env

@@ -7,8 +7,8 @@ class pip_project_cli_args(object):
   
   def pip_project_add_args(self, subparser):
 
-    # init
-    p = subparser.add_parser('init', help = 'Initialize a project.')
+    # create
+    p = subparser.add_parser('create', help = 'Create a pip project.')
     self.__pip_project_add_common_args(p)
     p.add_argument('name', action = 'store', type = str, default = None,
                    help = 'The name for this pip project [ None ]')

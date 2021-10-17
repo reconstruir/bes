@@ -20,10 +20,9 @@ class pipenv_project_options(cli_options):
       'blurber': blurber(),
       'verbose': False,
       'debug': False,
-      'pipenv_version': 'latest',
+      'pipenv_version': None,
       'root_dir': None,
       'python_version': None,
-      'name': None,
     }
   
   @classmethod
@@ -66,10 +65,9 @@ class pipenv_project_options(cli_options):
     check.check_blurber(self.blurber)
     check.check_bool(self.verbose)
     check.check_bool(self.debug)
-    check.check_string(self.pipenv_version)
+    check.check_string(self.pipenv_version, allow_none = True)
     check.check_string(self.root_dir, allow_none = True)
     check.check_string(self.python_version, allow_none = True)
-    check.check_string(self.name, allow_none = True)
 
   def resolve_root_dir(self):
     if self.root_dir:
