@@ -1,12 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from os import path
+
 from bes.cli.cli_options import cli_options
 from bes.common.check import check
 from bes.credentials.credentials import credentials
-from bes.script.blurber import blurber
-from bes.data_output.data_output_style import data_output_style
 from bes.data_output.data_output_options import data_output_options
+from bes.data_output.data_output_style import data_output_style
 from bes.property.cached_property import cached_property
+from bes.script.blurber import blurber
 
 from .pip_error import pip_error
 
@@ -21,13 +23,13 @@ class pip_project_options(cli_options):
     'Return a dict of defaults for these options.'
     return {
       'blurber': blurber(),
-      'verbose': False,
       'debug': False,
-      'root_dir': None,
+      'output_filename': None,
+      'output_style': data_output_style.TABLE,
       'python_exe': None,
       'python_version': None,
-      'output_style': data_output_style.TABLE,
-      'output_filename': None,
+      'root_dir': None,
+      'verbose': False,
     }
   
   @classmethod
@@ -94,7 +96,7 @@ class pip_project_options(cli_options):
 
   def resolve_root_dir(self):
     if self.root_dir:
-      return self.root_dir
+      return path.abspath(self.root_dir)
     import os
     import os.path as path
     return path.join(os.getcwd(), 'BES_PIP_ROOT')

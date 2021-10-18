@@ -41,7 +41,7 @@ class pip_project(object):
     self._options = options or check_pip_project_options()
     self._original_python_exe = self._options.resolve_python_exe()
     self._name = name
-    self._root_dir = path.abspath(self._options.root_dir)
+    self._root_dir = self._options.resolve_root_dir()
     self._pip_cache_dir = path.join(self.droppings_dir, 'pip-cache')
     self._fake_home_dir = path.join(self.droppings_dir, 'fake-home')
     file_util.mkdir(self._fake_home_dir)

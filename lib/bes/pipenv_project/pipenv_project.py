@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import copy
 import os.path as path
 
 from bes.common.check import check
@@ -50,6 +51,10 @@ class pipenv_project(object):
   def call_pipenv(self, args, **kargs):
     command_line.check_args_type(args)
 
+    kargs = copy.deepcopy(kargs)
+    if 'cwd' in kargs:
+      raise pipenv_project_error('Cannot override the cwd: "{}"'.format(kargs['cwd']))
+    #kargs['cwd'] = self._pip_project.project_dir
     args = [ 'pipenv' ] + list(args)
     return self._pip_project.call_program(args, **kargs)
   
@@ -61,6 +66,7 @@ class pipenv_project(object):
       if wanted_version == self.pipenv_version():
         return
     self._pip_project.install('pipenv', version = wanted_version)
+    self.call_pipenv([ 'install' ])
 
     ######  @cached_property
 ######  def installation(self):

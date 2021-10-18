@@ -11,6 +11,7 @@ from bes.python.python_testing import python_testing
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_skip import skip_if
 from bes.testing.unit_test_skip import raise_skip
+from bes.fs.file_find import file_find
 
 class test_pipenv_project(unit_test):
 
@@ -22,9 +23,11 @@ class test_pipenv_project(unit_test):
     project = pipenv_project('kiwi', options = options)
     rv = project.call_pipenv([ '--version' ])
     self.assertTrue( rv.stdout.strip().startswith('pipenv, version') )
+    rv = project.call_pipenv([ 'graph' ])
+    print(rv.stdout)
 
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_create - no python3 found', warning = True)
-  def test_create(self):
+  def xtest_create(self):
     tmp_dir = self.make_temp_dir()
     options = pipenv_project_options(root_dir = tmp_dir,
                                      debug = self.DEBUG)
