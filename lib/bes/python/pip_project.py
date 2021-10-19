@@ -31,7 +31,7 @@ from .python_virtual_env import python_virtual_env
 class pip_project(object):
   'Pip project.'
 
-  _log = logger('pip')
+  _log = logger('pip_project')
   
   def __init__(self, name, options = None):
     check.check_string(name)
@@ -105,7 +105,7 @@ class pip_project(object):
       host.raise_unsupported_system()
     return site_packages_dir
   
-  @cached_property
+  @property
   def env(self):
     'Make a clean environment for python or pip'
     clean_env = os_env.make_clean_env()
@@ -285,7 +285,7 @@ class pip_project(object):
     self._log.log_d('call_program: parsed_args={}'.format(parsed_args))
 
     env = os_env.clone_current_env()
-    env['HOME'] = self._fake_home_dir
+    env.update(self.env)
     PATH = env_var(env, 'PATH')
     PYTHONPATH = env_var(env, 'PYTHONPATH')
     
@@ -307,6 +307,9 @@ class pip_project(object):
 
     kargs['shell'] = True
     kargs['check_python_script'] = False
+
+    for key, value in sorted(env.items()):
+      self._log.log_d('call_program({}): ENV: {}={}'.format(args[0], key, value))
     
     return execute.execute(parsed_args, **kargs)
     
