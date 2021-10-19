@@ -97,6 +97,8 @@ class pipenv_project_cli_args(object):
     p.add_argument('--output', action = 'store', default = None,
                    dest = 'output_filename',
                    help = 'Optional output filename [ None ]')
+    p.add_argument('--pipfile-dir', action = 'store', default = None,
+                   help = 'Directory where to store Pipfile and Pifile.lock [ project_dir ]')
     from bes.data_output.data_output_style import data_output_style
     p.add_argument('--style', action = 'store', default = data_output_style.TABLE,
                    dest = 'output_style',

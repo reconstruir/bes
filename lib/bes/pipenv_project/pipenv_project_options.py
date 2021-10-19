@@ -28,6 +28,7 @@ class pipenv_project_options(cli_options):
       'python_version': None,
       'root_dir': None,
       'verbose': False,
+      'pipfile_dir': None,
     }
   
   @classmethod
@@ -42,6 +43,7 @@ class pipenv_project_options(cli_options):
     return {
       'verbose': bool,
       'debug': bool,
+      'pipfile_dir': None,
     }
 
   @classmethod

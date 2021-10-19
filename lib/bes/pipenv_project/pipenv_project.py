@@ -6,9 +6,10 @@ import os.path as path
 from bes.common.check import check
 from bes.system.log import logger
 
+from bes.pipenv.pipenv_exe import pipenv_exe
+from bes.property.cached_property import cached_property
 from bes.python.pip_project import pip_project
 from bes.python.pip_project_options import pip_project_options
-from bes.pipenv.pipenv_exe import pipenv_exe
 from bes.system.command_line import command_line
 
 from .pipenv_project_options import pipenv_project_options
@@ -36,15 +37,44 @@ class pipenv_project(object):
       'PIPENV_CACHE_DIR': self._pipenv_cache_dir,
     }
     self._pip_project.extra_env = extra_env
-    self._ensure_pipenv_installed()
-    
+    self._ensure_installed()
+
+  @cached_property
+  def pipfile_dir(self):
+    if self._options.pipfile_dir:
+      return self._options.pipfile_dir
+    else:
+      return self._pip_project.project_dir
+
+  @cached_property
+  def pipfile(self):
+    return path.join(self.pipfile_dir, 'Pipfile')
+
+  @cached_property
+  def pipfile_lock(self):
+    return path.join(self.pipfile_dir, 'Pipfile.lock')
+  
   def pipenv_is_installed(self):
     return self._pip_project.has_program('pipenv')
 
   def check_pipenv_is_installed(self):
     if not self.pipenv_is_installed():
       raise pipenv_project_error('pipenv not installed')
-      
+
+  def pipfile_exists(self):
+    return path.exists(self.pipfile)
+
+  def pipfile_lock_exists(self):
+    return path.exists(self.pipfile_lock)
+
+  def check_pipfile_exists(self):
+    if not self.pipfile_exists():
+      raise pipenv_project_error('Pipfile does not exist: {}'.format(self.pipfile))
+
+  def check_pipfile_lock_exists(self):
+    if not self.pipfile_lock_exists():
+      raise pipenv_project_error('Pipfile.lock does not exist: {}'.format(self.pipfile_lock))
+    
   def pipenv_version(self):
     return pipenv_exe.version(self._pip_project.program_path('pipenv'))
 
@@ -54,20 +84,25 @@ class pipenv_project(object):
     kargs = copy.deepcopy(kargs)
     if 'cwd' in kargs:
       raise pipenv_project_error('Cannot override the cwd: "{}"'.format(kargs['cwd']))
-    #kargs['cwd'] = self._pip_project.project_dir
+    kargs['cwd'] = self.pipfile_dir
     args = [ 'pipenv' ] + list(args)
     return self._pip_project.call_program(args, **kargs)
   
-  def _ensure_pipenv_installed(self):
-    wanted_version = self._options.pipenv_version
-    if self.pipenv_is_installed():
-      if not wanted_version:
-        return
-      if wanted_version == self.pipenv_version():
-        return
-    self._pip_project.install('pipenv', version = wanted_version)
-    self.call_pipenv([ 'install' ])
+  def _ensure_installed(self):
+    self._ensure_pipenv_installed()
+    self._ensure_pipfile_is_created()
 
+  def _ensure_pipenv_installed(self):
+    if self.pipenv_is_installed():
+      return
+    self._pip_project.install('pipenv', version = self._options.pipenv_version)
+
+  def _ensure_pipfile_is_created(self):
+    self.check_pipenv_is_installed()
+    if self.pipfile_exists() and self.pipfile_lock_exists():
+      return
+    self.call_pipenv([ 'install' ])
+    
     ######  @cached_property
 ######  def installation(self):
 ######    return self.virtual_env.installation
