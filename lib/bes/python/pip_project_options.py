@@ -4,7 +4,6 @@ from os import path
 
 from bes.cli.cli_options import cli_options
 from bes.common.check import check
-from bes.credentials.credentials import credentials
 from bes.data_output.data_output_options import data_output_options
 from bes.data_output.data_output_style import data_output_style
 from bes.property.cached_property import cached_property
@@ -95,10 +94,10 @@ class pip_project_options(cli_options):
     return exe
 
   def resolve_root_dir(self):
+    import os.path as path
     if self.root_dir:
       return path.abspath(self.root_dir)
     import os
-    import os.path as path
     return path.join(os.getcwd(), 'BES_PIP_ROOT')
 
   @cached_property  
