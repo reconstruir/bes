@@ -13,6 +13,7 @@ from bes.system.log import logger
 from bes.text.tree_text_parser import tree_text_parser
 
 from .pipenv_project_options import pipenv_project_options
+from .pipenv_project_error import pipenv_project_error
 
 class pipenv_project(object):
   'Pipenv project.'
