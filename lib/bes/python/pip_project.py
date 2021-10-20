@@ -8,6 +8,7 @@ from os import path
 import pprint
 
 from bes.common.check import check
+from bes.common.object_util import object_util
 from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
 from bes.property.cached_property import cached_property
@@ -21,6 +22,7 @@ from bes.url.url_util import url_util
 
 from .pip_error import pip_error
 from .pip_exe import pip_exe
+from .pip_project_options import pip_project_options
 from .python_installation import python_installation
 from .python_source import python_source
 from .python_version import python_version
@@ -29,21 +31,21 @@ from .python_virtual_env import python_virtual_env
 class pip_project(object):
   'Pip project.'
 
-  _log = logger('pip')
+  _log = logger('pip_project')
   
-  def __init__(self, name, root_dir, python_exe, debug = False):
+  def __init__(self, name, options = None):
     check.check_string(name)
-    check.check_string(root_dir)
+    check.check_pip_project_options(options)
 
-    self._original_python_exe = python_exe
+    self._extra_env = {}
+    self._options = options or check_pip_project_options()
+    self._original_python_exe = self._options.resolve_python_exe()
     self._name = name
-    self._root_dir = path.abspath(root_dir)
-    self._droppings_dir = path.join(self.project_dir, '.droppings')
-    self._pip_cache_dir = path.join(self._droppings_dir, 'pip-cache')
-    self._pipenv_cache_dir = path.join(self._droppings_dir, 'pipenv-cache')
-    self._fake_home_dir = path.join(self._droppings_dir, 'fake-home')
+    self._root_dir = self._options.resolve_root_dir()
+    self._pip_cache_dir = path.join(self.droppings_dir, 'pip-cache')
+    self._fake_home_dir = path.join(self.droppings_dir, 'fake-home')
     file_util.mkdir(self._fake_home_dir)
-    self._fake_tmp_dir = path.join(self._droppings_dir, 'fake-tmp')
+    self._fake_tmp_dir = path.join(self.droppings_dir, 'fake-tmp')
     file_util.mkdir(self._fake_tmp_dir)
 
     self._common_pip_args = [
@@ -69,6 +71,10 @@ class pip_project(object):
   def project_dir(self):
     return path.join(self._root_dir, self._name)
 
+  @cached_property
+  def droppings_dir(self):
+    return path.join(self.project_dir, '.droppings')
+    
   @cached_property
   def user_base_install_dir(self):
     if host.is_windows():
@@ -99,11 +105,10 @@ class pip_project(object):
       host.raise_unsupported_system()
     return site_packages_dir
   
-  @cached_property
+  @property
   def env(self):
     'Make a clean environment for python or pip'
     clean_env = os_env.make_clean_env()
-
     env_var(clean_env, 'PYTHONUSERBASE').value = self.project_dir
     env_var(clean_env, 'PYTHONPATH').path = self.PYTHONPATH
     env_var(clean_env, 'PATH').prepend(self.PATH)
@@ -111,6 +116,7 @@ class pip_project(object):
     env_var(clean_env, 'TMPDIR').value = self._fake_tmp_dir
     env_var(clean_env, 'TMP').value = self._fake_tmp_dir
     env_var(clean_env, 'TEMP').value = self._fake_tmp_dir
+    clean_env.update(self._extra_env)
     return clean_env
 
   @cached_property
@@ -153,7 +159,7 @@ class pip_project(object):
 
   _outdated_package = namedtuple('_outdated_package', 'name, current_version, latest_version, latest_filetype')
   def outdated(self):
-    'Return a dictionary of outdated packages'
+    'Return a list of outdated packages'
     args = [
       'list',
       '--outdated',
@@ -162,13 +168,13 @@ class pip_project(object):
     rv = self.call_pip(args, stderr_to_stdout = False)
     outdated = json.loads(rv.stdout)
 
-    result = {}
+    result = []
     for next_item in outdated:
       op = self._outdated_package(next_item['name'].lower(),
                                   next_item['version'],
                                   next_item['latest_version'],
                                   next_item['latest_filetype'])
-      result[op.name] = op
+      result.append(op)
     self._log.log_d('outdated: outdated={}'.format(pprint.pformat(result)))
     return result
 
@@ -279,7 +285,7 @@ class pip_project(object):
     self._log.log_d('call_program: parsed_args={}'.format(parsed_args))
 
     env = os_env.clone_current_env()
-    env['HOME'] = self._fake_home_dir
+    env.update(self.env)
     PATH = env_var(env, 'PATH')
     PYTHONPATH = env_var(env, 'PYTHONPATH')
     
@@ -301,6 +307,9 @@ class pip_project(object):
 
     kargs['shell'] = True
     kargs['check_python_script'] = False
+
+    for key, value in sorted(env.items()):
+      self._log.log_d('call_program({}): ENV: {}={}'.format(args[0], key, value))
     
     return execute.execute(parsed_args, **kargs)
     
@@ -313,24 +322,26 @@ class pip_project(object):
 
   def needs_upgrade(self, package_name):
     'Return True if package_name needs update'
-    return package_name in self.outdated()
+    for item in self.outdated():
+      if item.name == package_name:
+        return True
+    return False
 
   def version(self, package_name):
     'Return the version of an installed package'
     installed = self.installed()
     for p in self.installed():
-      print('checking {} vs {}'.format(p.name, package_name))
       if p.name == package_name:
-        print('found {} {}'.format(package_name, p.version))
         return p.version
     raise pip_error('Package not found: "{}"'.format(package_name))
   
-  def upgrade(self, package_name):
+  def upgrade(self, packages):
     'Upgrade a package to the latest version'
-    check.check_string(package_name)
+    packages = object_util.listify(packages)
+    check.check_string_seq(packages)
 
-    args = [ '--upgrade', package_name ]
-    error_message = 'Failed to upgrade "{}"'.format(package_name)
+    args = [ '--upgrade' ] + list(packages)
+    error_message = 'Failed to upgrade "{}"'.format(' '.join(packages))
     self._call_install(args, error_message = error_message)
   
   def program_path(self, program):
@@ -338,3 +349,35 @@ class pip_project(object):
     check.check_string(program)
 
     return path.join(self.bin_dir, program)
+
+  def has_program(self, program):
+    'Return True if the project has program'
+    check.check_string(program)
+
+    return path.exists(self.program_path(program))
+  
+  @property
+  def extra_env(self):
+    return self._extra_env
+
+  # These env vars cannot be overwritten by extra_env because they mess up
+  # the virtual environment operations
+  _EXTRA_ENV_RESTRICTIONS = {
+    'PYTHONUSERBASE',
+    'PYTHONPATH',
+    'PATH',
+    'HOME',
+    'TMPDIR',
+    'TMP',
+    'TEMP',
+  }  
+  @extra_env.setter
+  def extra_env(self, extra_env):
+    'Set extra environment to add to the env for the project.'
+    check.check_dict(extra_env, check.STRING_TYPES, check.STRING_TYPES)
+
+    for key in extra_env.keys():
+      if key in self._EXTRA_ENV_RESTRICTIONS:
+        raise pip_error('Canot overwrite env var with extra_env: {}'.format(key))
+        
+    self._extra_env = extra_env
