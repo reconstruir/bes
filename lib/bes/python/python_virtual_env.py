@@ -46,7 +46,7 @@ class python_virtual_env(object):
     if exe_version != original_version:
       raise python_error('version mismatch {} instead of {} for {}'.format(exe_version,
                                                                            original_version,
-                                                                           exe))
+                                                                           venv_exe))
     return venv_exe
 
   @cached_property
