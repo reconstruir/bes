@@ -49,9 +49,15 @@ class python_source_unix(with_metaclass(ABCMeta, object)):
   def virtual_env_python_exe(clazz, root_dir, version):
     'Return the absolute path the python exe in a virtual env.'
     version = python_version.check_version(version)
-
-    exe_basename = 'python{}'.format(version)
-    return path.join(root_dir, 'bin', exe_basename)
+    version_exe_basename = 'python{}'.format(str(version))
+    exe = path.join(root_dir, 'bin', version_exe_basename)
+    if path.exists(exe):
+      return exe
+    major_version_exe_basename = 'python{}'.format(str(version.major_version))
+    exe = path.join(root_dir, 'bin', major_version_exe_basename)
+    if path.exists(exe):
+      return exe
+    raise python_error('No exe found for python version "{}" in "{}"'.format(version, root_dir))
 
   @classmethod
   #@abstractmethod
