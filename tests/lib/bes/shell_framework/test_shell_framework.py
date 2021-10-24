@@ -15,6 +15,7 @@ from bes.system.os_env import os_env
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_skip import raise_skip_if_not_unix
 from bes.git.git_temp_repo import git_temp_repo
+from bes.git.git_unit_test import git_temp_home_func
 
 class test_shell_framework(unit_test):
 
@@ -22,6 +23,7 @@ class test_shell_framework(unit_test):
   def setUpClass(clazz):
     raise_skip_if_not_unix()
 
+  @git_temp_home_func()
   def test_latest_revision(self):
     test = self._make_test_shell_framework()
     self.assertEqual( None, test.framework.latest_revision )
@@ -30,6 +32,7 @@ class test_shell_framework(unit_test):
     test.repo.tag('1.2.2', push = True)
     self.assertEqual( '1.2.3', test.framework.latest_revision )
 
+  @git_temp_home_func()
   def test_current_revision(self):
     test = self._make_test_shell_framework()
     test.repo.tag('1.2.3', push = True)
@@ -40,6 +43,7 @@ class test_shell_framework(unit_test):
     test.framework.update('1.2.4')
     self.assertEqual( '1.2.4', test.framework.current_revision )
 
+  @git_temp_home_func()
   def test_current_revision(self):
     test = self._make_test_shell_framework()
     test.repo.tag('1.2.3', push = True)
@@ -50,6 +54,7 @@ class test_shell_framework(unit_test):
     test.framework.update('1.2.4')
     self.assertEqual( '1.2.4', test.framework.current_revision )
     
+  @git_temp_home_func()
   def test_update(self):
     test = self._make_test_shell_framework()
     test.repo.tag('1.2.3', push = True)
@@ -61,6 +66,7 @@ class test_shell_framework(unit_test):
       'bes_shell_framework_revision.txt',
     ], files )
 
+  @git_temp_home_func()
   def test_update_to_latest(self):
     test = self._make_test_shell_framework()
     test.repo.tag('1.2.3', push = True)
@@ -68,6 +74,7 @@ class test_shell_framework(unit_test):
     test.framework.update('latest')
     self.assertEqual( '1.2.4', test.framework.current_revision )
     
+  @git_temp_home_func()
   def test_use_framework(self):
     test = self._make_test_shell_framework()
     test.repo.tag('1.2.3', push = True)
