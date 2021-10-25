@@ -18,6 +18,11 @@ class test_filename_util(unit_test):
     self.assertTrue( filename_util.has_extension('a.foo', 'foo') )
     self.assertFalse( filename_util.has_extension('a.foo', 'png') )
 
+  def test_has_extension_with_ignore_case(self):
+    self.assertTrue( filename_util.has_extension('a.foo', 'Foo', ignore_case = True) )
+    self.assertFalse( filename_util.has_extension('a.foo', 'PNG', ignore_case = True) )
+    self.assertFalse( filename_util.has_extension('a.foo', 'Foo', ignore_case = False) )
+    
   def test_has_any_extension(self):
     self.assertTrue( filename_util.has_any_extension('a.foo', ( 'foo', 'png' )) )
     self.assertFalse( filename_util.has_any_extension('a.foo', ( 'png', 'jpg' )) )
