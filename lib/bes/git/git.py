@@ -412,7 +412,7 @@ class git(git_lfs):
   @classmethod
   def archive_to_file(clazz, root, prefix, revision, output_filename,
                       archive_format = None, short_hash = True):
-    'git archive with additional support to include untracked files for local repos.'
+    'git archive to a archive file.'
     prefix = file_util.ensure_rsep(prefix)
     archive_format = archive_format or 'tgz'
     output_filename = path.abspath(output_filename)
@@ -420,16 +420,10 @@ class git(git_lfs):
     if short_hash:
       if clazz.is_long_hash(revision):
         revision = clazz.short_hash(root, revision)
-
-    args = [
-      'archive',
-      '--format={}'.format(archive_format),
-      '--prefix={}'.format(prefix),
-      '-o',
-      output_filename,
-      revision
-    ]
-    git_exe.call_git(root, args)
+    clazz.log.log_d('archive_to_file: revision={} output_filename={} archive_format={}'.format(revision, output_filename, archive_format))
+    tmp_dir = temp_file.make_temp_dir()
+    clazz.archive_to_dir(root, revision, tmp_dir)
+    archiver.create(output_filename, tmp_dir, base_dir = prefix, extension = archive_format)
 
   @classmethod
   def archive_to_dir(clazz, root, revision, output_dir):

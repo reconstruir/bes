@@ -1,10 +1,13 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.fs.file_util import file_util
+from bes.system.log import logger
 
 class archive_extension(object):
   'Constants for different archive types.'
 
+  _log = logger('archive_extension')
+  
   BZ2 = 'bz2'
   GZ = 'gz'
   TAR = 'tar'
@@ -62,10 +65,12 @@ class archive_extension(object):
 
   @classmethod
   def write_format(clazz, extension):
+    clazz._log.log_method_d()
     return clazz.WRITE_FORMAT_MAP[extension.lower()]
 
   @classmethod
   def write_format_for_filename(clazz, filename):
+    clazz._log.log_method_d()
     return clazz.write_format(file_util.extension(filename))
 
   @classmethod

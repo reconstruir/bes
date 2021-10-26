@@ -22,11 +22,14 @@ class filename_util(object):
     return ext[1:]
   
   @classmethod
-  def has_extension(clazz, filename, extension):
+  def has_extension(clazz, filename, extension, ignore_case = False):
     'Return True if filename has extension.'
     check.check_string(filename)
     check.check_string(extension)
-    
+
+    if ignore_case:
+      filename = filename.lower()
+      extension = extension.lower()
     return clazz.extension(filename) == extension
   
   @classmethod

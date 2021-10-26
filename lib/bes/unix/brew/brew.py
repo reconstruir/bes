@@ -18,17 +18,16 @@ class brew(object):
 
   def __init__(self, options = None):
     self._options = options or brew_options()
-    self._command = brew_command()
 
   @classmethod
   def has_brew(clazz):
     'Return True if brew is supported and installed.'
-    return brew_command().has_command()
+    return brew_command.has_command()
     
   def version(self):
     'Return the version of brew.'
 
-    rv = self._command.call_command([ '--version' ])
+    rv = brew_command.call_command([ '--version' ])
     f = re.findall(r'^Homebrew\s+(.+)\n', rv.stdout)
     if not f:
       raise brew_error('failed to determine brew version.')
@@ -38,47 +37,47 @@ class brew(object):
 
   def available(self):
     'Return a list of all available packages.'
-    return self._command.call_command_parse_lines([ 'formulae', '-1' ], sort = True)
+    return brew_command.call_command_parse_lines([ 'formulae', '-1' ], sort = True)
 
   def installed(self):
     'Return a list of all installed packages.'
-    return self._command.call_command_parse_lines([ 'list', '--formulae', '-1' ], sort = True)
+    return brew_command.call_command_parse_lines([ 'list', '--formulae', '-1' ], sort = True)
   
   def uninstall(self, package_name):
     'Uninstall a package.'
     check.check_string(package_name)
     
-    self._command.call_command([ 'uninstall', package_name ])
+    brew_command.call_command([ 'uninstall', package_name ])
 
   def install(self, package_name):
     'Install a package.'
     check.check_string(package_name)
     
-    self._command.call_command([ 'install', package_name ])
+    brew_command.call_command([ 'install', package_name ])
 
   def upgrade(self, package_name):
     'Upgrade a package.  Returns True if it updated.'
     check.check_string(package_name)
 
     cmd = [ 'upgrade', package_name ]
-    self._command.call_command(cmd)
+    brew_command.call_command(cmd)
     
   def files(self, package_name):
     'Return a list of files for a package.'
     check.check_string(package_name)
 
-    return self._command.call_command_parse_lines([ 'list', '-1', package_name ], sort = True)
+    return brew_command.call_command_parse_lines([ 'list', '-1', package_name ], sort = True)
 
   def update(self):
     'Update brew to get the lastes package defininitions.'
-    self._command.call_command([ 'update' ])
+    brew_command.call_command([ 'update' ])
     
   _outdated_package = namedtuple('_outdated_package', 'name, installed_versions, latest_version')
   def outdated(self):
     'Return a dictionary of outdated packages'
     self.update()
     cmd = [ 'outdated', '--json' ]
-    rv = self._command.call_command(cmd)
+    rv = brew_command.call_command(cmd)
     outdated = json.loads(rv.stdout)
     result = {}
     for next_item in outdated['formulae']:
@@ -102,7 +101,7 @@ class brew(object):
       '--json',
       package_name,
     ]
-    rv = self._command.call_command(cmd, raise_error = False)
+    rv = brew_command.call_command(cmd, raise_error = False)
     if rv.exit_code == 0:
       return self._needs_update_result(False, None)
     if rv.stderr:
@@ -119,4 +118,4 @@ class brew(object):
 
   @classmethod
   def check_system(clazz):
-    return brew_command().is_supported()
+    return brew_command.is_supported()

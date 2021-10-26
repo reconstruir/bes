@@ -11,6 +11,7 @@ class test_computer_setup_cli_args(program_unit_test):
 
   _program = program_unit_test.resolve_program(__file__, '..', '..', '..', '..', 'bin', 'best.py')
 
+  @git_temp_home_func()
   def test_update(self):
     config = '''\
 add commit1 commit1
@@ -224,7 +225,7 @@ tag rel/1.0.2 tag3 @commit3
     ]
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
-    self.assertEqual( new_url, rv.output.strip() )
+    self.assert_filename_equal( new_url, rv.output.strip() )
     
 if __name__ == '__main__':
   program_unit_test.main()

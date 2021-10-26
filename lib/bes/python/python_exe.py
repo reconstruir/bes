@@ -191,7 +191,6 @@ class python_exe(object):
   @classmethod
   def default_exe(clazz):
     'Return the default python executable'
-
     all_info = clazz.find_all_exes_info()
     if not all_info:
       return None
@@ -203,6 +202,14 @@ class python_exe(object):
       if info:
         return info.exe
     return by_version.items()[0].exe
+
+  @classmethod
+  def default_exe_version(clazz):
+    'Return the version for the default python executable'
+    exe = clazz.default_exe()
+    if not exe:
+      return None
+    return clazz.version(exe)
   
   @classmethod
   def _find_all_exes(clazz, sanitize_path = True):

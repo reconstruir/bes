@@ -41,16 +41,12 @@ class test_archive_cli_args(program_unit_test):
     rv = self.run_program(self._program, args)
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( 'zip', archiver.format_name(tmp_archive) )
-    self.assertEqual( [
-      '{}/'.format(prefix),
-      '{}/a/'.format(prefix),
-      '{}/a/b/'.format(prefix),
-      '{}/a/b/c/'.format(prefix),
+    expected = [
       '{}/a/b/c/foo.txt'.format(prefix),
-      '{}/d/'.format(prefix),
-      '{}/d/e/'.format(prefix),
       '{}/d/e/bar.txt'.format(prefix),
-    ], archiver.members(tmp_archive) )
+    ]
+    actual = archiver.members(tmp_archive)
+    self.assert_filename_list_equal( expected, actual )
     
   @git_temp_home_func()
   def test_create_git_tgz(self):
@@ -78,16 +74,12 @@ class test_archive_cli_args(program_unit_test):
     rv = self.run_program(self._program, args)
     self.assertEqual( 0, rv.exit_code )
     self.assertEqual( 'tgz', archiver.format_name(tmp_archive) )
-    self.assertEqual( [
-      '{}/'.format(prefix),
-      '{}/a/'.format(prefix),
-      '{}/a/b/'.format(prefix),
-      '{}/a/b/c/'.format(prefix),
+    expected = [
       '{}/a/b/c/foo.txt'.format(prefix),
-      '{}/d/'.format(prefix),
-      '{}/d/e/'.format(prefix),
       '{}/d/e/bar.txt'.format(prefix),
-    ], archiver.members(tmp_archive) )
+    ]
+    actual = archiver.members(tmp_archive)
+    self.assert_filename_list_equal( expected, actual )
     
 if __name__ == '__main__':
   program_unit_test.main()

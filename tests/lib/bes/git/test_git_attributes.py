@@ -16,10 +16,10 @@ class test_git_attributes(unit_test):
       git_attributes_item('*.png', key_value_list.parse('filter=lfs diff=lfs merge=lfs') + [ key_value('text', False) ]),
       git_attributes_item('*.txt', key_value_list([ key_value('text', True) ])),
     ])
-    self.assertEqual( '''\
+    self.assert_string_equal( '''\
 *.png filter=lfs diff=lfs merge=lfs -text
 *.txt text
-''', str(l) )
+''', str(l), native_line_breaks = True )
     
   @git_temp_home_func()
   def test_parse(self):

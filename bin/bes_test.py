@@ -722,9 +722,8 @@ def _resolve_python_exe_list(l):
   result = []
   for exe in l:
     resolved_exe = file_path.which(exe)
-    if not resolved_exe:
-      raise RuntimeError('No python found: {}'.format(exe))
-    result.append(resolved_exe)
+    if resolved_exe:
+      result.append(resolved_exe)
   return result
 
 def _read_config_file():

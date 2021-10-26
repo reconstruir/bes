@@ -2,15 +2,15 @@
 
 from bes.system.system_command import system_command
 
-from .brew_error import brew_error
+from .pipenv_error import pipenv_error
 
-class brew_command(system_command):
+class pipenv_command(system_command):
 
   @classmethod
   #@abstractmethod
   def exe_name(clazz):
     'The name of the executable.'
-    return 'brew'
+    return 'pipenv'
 
   @classmethod
   #@abstractmethod
@@ -22,7 +22,7 @@ class brew_command(system_command):
   #@abstractmethod
   def error_class(clazz):
     'The error exception class to raise when errors happen.'
-    return brew_error
+    return pipenv_error
   
   @classmethod
   #@abstractmethod
@@ -34,4 +34,4 @@ class brew_command(system_command):
   #@abstractmethod
   def supported_systems(clazz):
     'Return a list of supported systems.'
-    return ( 'linux', 'macos' )
+    return ( 'linux', 'macos', 'windows' )
