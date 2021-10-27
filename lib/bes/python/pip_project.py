@@ -159,7 +159,7 @@ class pip_project(object):
 
   def activate_script(self, variant = None):
     'Return the activate script for the virtual env'
-    return python_source.virtual_env_activate_script(self.project_dir, variant)
+    return python_source.activate_script(self.project_dir, variant)
   
   @property
   def pip_version(self):

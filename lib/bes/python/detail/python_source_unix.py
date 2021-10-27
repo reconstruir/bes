@@ -46,22 +46,25 @@ class python_source_unix(with_metaclass(ABCMeta, object)):
 
   @classmethod
   #@abstractmethod
-  def virtual_env_python_exe(clazz, root_dir, version):
-    'Return the absolute path the python exe in a virtual env.'
+  def versioned_python_exe(clazz, root_dir, version):
+    'Return the absolute path the python exe with major.minor version in a virtual env.'
     version = python_version.check_version(version)
     version_exe_basename = 'python{}'.format(str(version))
     exe = path.join(root_dir, 'bin', version_exe_basename)
-    if path.exists(exe):
-      return exe
-    major_version_exe_basename = 'python{}'.format(str(version.major_version))
-    exe = path.join(root_dir, 'bin', major_version_exe_basename)
-    if path.exists(exe):
-      return exe
-    raise python_error('No exe found for python version "{}" in "{}"'.format(version, root_dir))
+    return exe
 
   @classmethod
   #@abstractmethod
-  def virtual_env_activate_script(clazz, root_dir, variant):
+  def python_exe(clazz, root_dir, version):
+    'Return the absolute path the python exe with major version in a virtual env.'
+    version = python_version.check_version(version)
+    major_version_exe_basename = 'python{}'.format(str(version.major_version))
+    exe = path.join(root_dir, 'bin', major_version_exe_basename)
+    return exe
+  
+  @classmethod
+  #@abstractmethod
+  def activate_script(clazz, root_dir, variant):
     'Return the absolute path the the acitivate script of a virtual env.'
     check.check_string(root_dir)
     check.check_string(variant, allow_none = True)
