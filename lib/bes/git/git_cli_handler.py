@@ -199,6 +199,8 @@ class git_cli_handler(cli_command_handler):
     if not no_fetch:
       git.fetch(self.options.root_dir)
     branches = git.list_branches(self.options.root_dir, where)
+    if not branches:
+      return 0
 #    # sort the branches using software version so numeric versions of branch sort properly
 #    branches.sort(key = lambda b: tuple(list(software_version.parse_version(b.name)) + [ b.name, b.where ]) )
     if difference:
