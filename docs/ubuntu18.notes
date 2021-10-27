@@ -1,0 +1,5 @@
+had to do this on ubuntu 18.04 to get pip and pipenv and egg tests to pass
+sudo apt-get install python3.7-venv
+sudo apt-get install python3-wheel
+sudo apt-get install python3-setuptools
+
