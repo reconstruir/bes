@@ -147,7 +147,20 @@ class git(git_lfs):
     'Raise an error if d is not a valid bare repo.'
     if not clazz.is_bare_repo(d):
       raise git_error('Not a bare git repo: "{}"'.format(d))
-    
+
+  @classmethod
+  def is_empty(clazz, root_dir):
+    'Return True of repo is empty.'
+    return not clazz.has_commits(root_dir) and clazz.list_branches(root_dir, 'local') == []
+
+  @classmethod
+  def has_commits(clazz, root_dir):
+    'Return True of repo has commits.'
+    rv = git_exe.call_git(root_dir, [ 'log' ], raise_error = False)
+    if rv.exit_code == 0:
+      return True
+    return 'does not have any commits' not in rv.stderr
+  
   @classmethod
   def clone(clazz, address, root_dir, options = None):
     check.check_git_clone_options(options, allow_none = True)
