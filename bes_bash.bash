@@ -1,12 +1,12 @@
 #-*- coding:utf-8; mode:shell-script; indent-tabs-mode: nil; sh-basic-offset: 2; tab-width: 2 -*-
 
-function _bes_shell_this_dir()
+function _bes_bash_this_dir()
 {
   echo "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
   return 0
 }
 
-_BES_SHELL_THIS_DIR="$(_bes_shell_this_dir)"
+_BES_BASH_THIS_DIR="$(_bes_bash_this_dir)"
 
 function _bes_trace() ( if [[ "$_BES_TRACE" == "1" ]]; then printf '_BES_TRACE: %s\n' "$*"; fi )
 function _bes_trace_function() ( _bes_trace "func: ${FUNCNAME[1]}($*)" )
@@ -22,7 +22,7 @@ function bes_import()
   fi
 
   local _filename="${1}"
-  local _this_dir="$(_bes_shell_this_dir)"
+  local _this_dir="$(_bes_bash_this_dir)"
   local _filename_abs="${_this_dir}/${_filename}"
 
   if _bes_import_filename_is_imported "${_filename_abs}"; then
@@ -146,7 +146,7 @@ function bes_script_name()
     return 0
   fi
   if [[ ${0} =~ .+bash$ ]]; then
-    echo "bes_shell"
+    echo "bes_bash"
     return 0
   fi
   echo $(basename "${0}")
@@ -2176,7 +2176,7 @@ function bes_git_subtree_update_with_temp_repo()
   local _tmp_branch_name=tmp-split-branch-${_remote_name}
   local _my_name=$(basename ${_my_address} | sed 's/.git//')
 
-  local _tmp_dir="${TMPDIR}/bes_git_subtree_update_tmp-${_my_name}-$$"
+  local _tmp_dir="$(mktemp -d)/bes_git_subtree_update_tmp-${_my_name}-$$"
   if ! git clone ${_my_address} "${_tmp_dir}"; then
     bes_message "bes_git_subtree_update_with_temp_repo: Failed to clone ${_my_address}"
     return 3
@@ -3197,6 +3197,21 @@ function bes_python_check_python_exe()
   return 0
 }
 
+# Find the best possible python preferring the latest 3.x
+function bes_python_find()
+{
+  local _possible_python
+  for _possible_version in 3.9 3.8 3.7 3 2.7; do
+    if bes_has_python ${_possible_version}; then
+      local _python_exe="$(${_BES_WHICH_EXE} python${_possible_version})"
+      echo ${_python_exe}
+      return 0
+    fi
+  done
+  echo ""
+  return 1
+}
+
 _bes_trace_file "end"
 #-*- coding:utf-8; mode:shell-script; indent-tabs-mode: nil; sh-basic-offset: 2; tab-width: 2 -*-
 
@@ -3687,6 +3702,10 @@ bes_log_trace_file system "end"
 
 bes_import "bes_system.bash"
 
+# The total number of tests and the current test index
+_BES_TESTS_NUM_TOTAL=0
+_BES_TESTS_INDEX=0
+
 # Print all the unit tests defined in this script environment (functions starting with test_)
 function bes_testing_print_unit_tests()
 {
@@ -3718,7 +3737,7 @@ function bes_testing_call_function()
 
 function _bes_testing_exit_code_filename()
 {
-  local _exit_code_filename="${TMPDIR}/_bes_testing_exit_code_$$"
+  local _exit_code_filename="/tmp/_bes_testing_exit_code_$$"
   echo "${_exit_code_filename}"
   return 0
 }
@@ -3734,7 +3753,6 @@ function _bes_testing_exit_code_set()
 {
   local _exit_code_filename="$(_bes_testing_exit_code_filename)"
   echo $1 > "${_exit_code_filename}"
-  echo set ${_exit_code_filename} to 1
   return 0
 }
 
@@ -3755,7 +3773,12 @@ function bes_testing_run_unit_tests()
   local _tests=$(bes_testing_print_unit_tests)
   local _test
   local _rv
+  local _index=$(expr 0)
+  local _num_total=$(expr $(echo ${_tests} | wc -w))
+  _BES_TESTS_NUM_TOTAL=${_num_total}
   for _test in $_tests; do
+    _index=$(expr ${_index} + 1)
+    _BES_TESTS_INDEX=${_index}
     ${_test}
   done
   local _exit_code="$(_bes_testing_exit_code_get)"
@@ -3766,18 +3789,32 @@ function bes_testing_run_unit_tests()
 # Run that an expression argument is true and print that
 function bes_assert()
 {
+  function _bes_testing_make_counter()
+  {
+    local _num_total=${1}
+    local _index=${2}
+    local _num_digits=$(expr $(printf ${_num_total} | wc -c))
+    local _format="%${_num_digits}d"
+    local _counter=$(printf "[${_format} of ${_format}]" ${_index} ${_num_total})
+    echo "${_counter}"
+    return 0
+  }
+  
   local _filename=$($_BES_BASENAME_EXE ${BASH_SOURCE[1]})
   local _line=${BASH_LINENO[0]}
   local _function=${FUNCNAME[1]}
+  local _counter="$(_bes_testing_make_counter ${_BES_TESTS_NUM_TOTAL} ${_BES_TESTS_INDEX})"
+  local _header_passed="${_filename} ${_counter} passed: ${_function}"
+  local _header_failed="${_filename} ${_counter} FAILED: ${_function}"
   eval "${1}"
   if [[ $? -ne 0 ]]; then
-    echo "failed: ${_function} $_filename:$_line: " ${1}
+    echo "${_header_failed}: ${_filename}:${_line}: ${1}"
     if [[ -n ${BES_UNIT_TEST_FAIL} ]]; then
         exit 1
     fi
     _bes_testing_exit_code_set 1
   else
-    echo "$_filename $_function: passed"
+    echo "${_header_passed}"
   fi
 }
 
@@ -3791,7 +3828,7 @@ function bes_testing_make_temp_dir()
   local _label="${1}"
   local _pid=$$
   local _basename="${_label}_${_pid}"
-  local _tmpdir="${TMPDIR}/${_basename}"
+  local _tmpdir="$(mktemp -d)/${_basename}"
   mkdir -p "${_tmpdir}"
   local _normalized_tmpdir="$(command cd -P "${_tmpdir}" > /dev/null && command pwd -P )"
   echo "${_normalized_tmpdir}"
