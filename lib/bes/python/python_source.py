@@ -66,13 +66,19 @@ class python_source(python_source_base):
 
   @classmethod
   #@abstractmethod
-  def virtual_env_python_exe(clazz, root_dir, version):
-    'Return the absolute path the python exe in a virtual env.'
-    return clazz._impl_class.virtual_env_python_exe(root_dir, version)
+  def versioned_python_exe(clazz, root_dir, version):
+    'Return the absolute path the python exe with major.minor version in a virtual env.'
+    return clazz._impl_class.versioned_python_exe(root_dir, version)
 
   @classmethod
   #@abstractmethod
-  def virtual_env_activate_script(clazz, root_dir, variant):
+  def python_exe(clazz, root_dir, version):
+    'Return the absolute path the python exe with major version in a virtual env.'
+    return clazz._impl_class.python_exe(root_dir, version)
+  
+  @classmethod
+  #@abstractmethod
+  def activate_script(clazz, root_dir, variant):
     'Return the absolute path the the acitivate script of a virtual env.'
-    return clazz._impl_class.virtual_env_activate_script(root_dir, variant)
+    return clazz._impl_class.activate_script(root_dir, variant)
   

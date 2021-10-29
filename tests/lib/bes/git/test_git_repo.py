@@ -1271,6 +1271,13 @@ add commit2 commit2
     self.assertEqual( 'unittest@example.com', st.last_commit.email )
     self.assertEqual( False, st.last_commit.is_merge_commit )
     self.assertEqual( ( 0, 0 ), st.branch_status )
+
+  @git_temp_home_func()
+  def test_is_empty(self):
+    r = self._make_repo(remote = False)
+    self.assertTrue( r.is_empty() )
+    r.add_file('readme.txt', 'readme is good')
+    self.assertFalse( r.is_empty() )
     
 if __name__ == '__main__':
   unit_test.main()

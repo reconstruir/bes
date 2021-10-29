@@ -9,7 +9,7 @@ function main()
   local _this_dir="$(_bes_venv_setup_this_dir)"
   local _root_dir="$(bes_path_abs_dir ${_this_dir}/..)"
   local _best="${_root_dir}/bin/best.py"
-  local _python="$(which python3.8)"
+  local _python="$(bes_python_find)"
 
   local _projects_root_dir="${_root_dir}/VE"
   local _requirements="${_root_dir}/requirements.txt"

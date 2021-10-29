@@ -634,6 +634,12 @@ class git_repo(object):
   
   def commit_info(self, commit_hash):
     return git.commit_info(self.root, commit_hash)
+
+  def is_empty(self):
+    return git.is_empty(self.root)
+
+  def has_commits(self):
+    return git.has_commits(self.root)
   
   def repo_status(self, options = None):
     check.check_git_repo_status_options(options, allow_none = True)

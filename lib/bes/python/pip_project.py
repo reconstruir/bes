@@ -54,7 +54,24 @@ class pip_project(object):
     self._log.log_d('pip_project: pip_exe={} pip_env={} project_dir={}'.format(self.pip_exe,
                                                                                self.env,
                                                                                self.project_dir))
+    self._reinstall_pip_if_needed()
+    self._ensure_basic_packages()
 
+  def _reinstall_pip_if_needed(self):
+    'On linux there are problem with old python versions that get fixed by forcing a reinstall of pip'
+    if not host.is_linux():
+      return
+    args = [
+      'install',
+      '--ignore-installed',
+      'pip',
+    ]
+    rv = self.call_pip(args)
+
+  def _ensure_basic_packages(self):
+    'On some python installations, installing some pip packages means building them and wheel is needed for that.'
+    self.install('wheel')
+    
   @cached_property
   def virtual_env(self):
     return python_virtual_env(self._original_python_exe, self.project_dir)
@@ -142,7 +159,7 @@ class pip_project(object):
 
   def activate_script(self, variant = None):
     'Return the activate script for the virtual env'
-    return python_source.virtual_env_activate_script(self.project_dir, variant)
+    return python_source.activate_script(self.project_dir, variant)
   
   @property
   def pip_version(self):
@@ -260,7 +277,7 @@ class pip_project(object):
   def install_requirements(self, requirements_file):
     'Install packages from a requirements file'
     check.check_string(requirements_file)
-    
+
     args = [
       'install',
       '-r',
