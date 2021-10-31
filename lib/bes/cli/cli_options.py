@@ -154,54 +154,78 @@ class cli_options(cli_options_base):
   def config_file(self):
     return _special_attributes.get_value(self.__class__, 'config_file', None)
 
-
   @classmethod
-  def _call_super_method(clazz, method_name, values):
-    'Call all the superclasses method.'
+  def _collect_super_method_values(clazz, method_name):
+    'Collect all the results of the mro classes for the given method.'
     check.check_string(method_name)
-    check.check_dict(values)
 
-    IGNORE_CLASSES = {
+    ignore_classes = {
       cli_options_base,
       cli_options,
       object,
+      clazz,
     }
-    result = {}
-    classes = [ c for c in clazz.__mro__ if not c in IGNORE_CLASSES ]
-    for c in classes:
-      print('CLASS: {}'.format(c))
-#    assert False
+    result = []
+    classes = [ c for c in clazz.__mro__ if not c in ignore_classes ]
     for next_class in classes:
       next_method = getattr(next_class, method_name)
       if not next_method:
         error_class = clazz.error_class()
         raise error_class('Method "{}" not found in {}'.format(method_name, next_class))
       next_values = next_method()
+      result.append(next_values)
+    return result
+  
+  @classmethod
+  def _call_super_method_dict(clazz, method_name, values):
+    'Call all the superclasses method.'
+    check.check_string(method_name)
+    check.check_dict(values, allow_none = True)
+
+    values = values or {}
+    result = {}
+    collected_values = clazz._collect_super_method_values(method_name)
+    for next_values in collected_values:
+      assert isinstance(next_values, dict)
       result.update(next_values)
     result.update(values)
     return result
 
   @classmethod
-  def super_default_values(clazz, values):
-    'Return a dict of defaults for these options.'
-    check.check_dict(values)
+  def _call_super_method_tuple(clazz, method_name, values):
+    'Call all the superclasses method.'
+    check.check_string(method_name)
+    check.check_tuple(values, allow_none = True)
 
-    return dict_util.combine(super(clazz, clazz).default_values(), values)
+    values = values or ()
+    result = ()
+    collected_values = clazz._collect_super_method_values(method_name)
+    for next_values in collected_values:
+      assert isinstance(next_values, tuple)
+      result += next_values
+    result += values
+    return result
   
   @classmethod
-  def super_value_type_hints(clazz, values):
+  def super_default_values(clazz, values = None):
     'Return a dict of defaults for these options.'
-    check.check_dict(values)
+    check.check_dict(values, allow_none = True)
 
-    return dict_util.combine(super(clazz, clazz).value_type_hints(), values)
+    return clazz._call_super_method_dict('default_values', values)
+  
+  @classmethod
+  def super_value_type_hints(clazz, values = None):
+    'Return a dict of defaults for these options.'
+    check.check_dict(values, allow_none = True)
+
+    return clazz._call_super_method_dict('value_type_hints', values)
 
   @classmethod
-  def super_sensitive_keys(clazz, keys):
+  def super_sensitive_keys(clazz, values):
     'Return a dict of defaults for these options.'
-    check.check_tuple(keys, allow_none = True)
+    check.check_tuple(values, allow_none = True)
 
-    return super(clazz, clazz).sensitive_keys() or () + keys
-  
+    return clazz._call_super_method_tuple('sensitive_keys', values)
   
 class _special_attributes(object):
   '''

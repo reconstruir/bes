@@ -16,22 +16,15 @@ class git_repo_cli_options(git_cli_common_options, git_clone_options):
   #@abstractmethod
   def default_values(clazz):
     'Return a dict of defaults for these options.'
-    d1 = git_cli_common_options.default_values()
-    d2 = git_clone_options.default_values()
-    d3 = {
+    return clazz.super_default_values({
       'address': None,
-    }
-    return dict_util.combine(d1, d2, d3)
+    })
 
   @classmethod
   #@abstractmethod
   def value_type_hints(clazz):
     'Return a dict of defaults for these options.'
-    d1 = git_cli_common_options.value_type_hints()
-    d2 = git_clone_options.value_type_hints()
-    d3 = {}
-    return dict_util.combine(d1, d2, d3)
-  
+    return clazz.super_value_type_hints()
   
   #@abstractmethod
   def check_value_types(self):
