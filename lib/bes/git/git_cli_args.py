@@ -22,13 +22,13 @@ class git_cli_args(object):
     p.add_argument('--annotate', action = 'store', type = str,
                    dest = 'annotation',
                    help = 'Annotate the tag with the given message. [ None ]')
-    self._git_add_common_args(p)
+    self.__git_add_common_args(p)
     
     # git_retag
     p = subparser.add_parser('retag', help = 'Delete the current latest tag and retag with the same tag.')
     p.add_argument('tag', action = 'store', nargs = '?',
                    help = 'The tag to use or None to choose the last tag. [ None ]')
-    self._git_add_common_args(p)
+    self.__git_add_common_args(p)
     
     # git_bump_tag
     p = subparser.add_parser('bump_tag', help = 'Bump the tag version and tag.')
@@ -41,7 +41,7 @@ class git_cli_args(object):
                    help = 'Reset the lower components to zero. [ False ]')
     p.add_argument('--prefix', action = 'store', type = str, default = None,
                    help = 'Optional tag prefix. [ None ]')
-    self._git_add_common_args(p)
+    self.__git_add_common_args(p)
 
     # git_delete_tags
     p = subparser.add_parser('delete_tags', help = 'Delete a tag locally and/or remotely.')
@@ -53,7 +53,7 @@ class git_cli_args(object):
                    help = 'Show remote tags. [ False ]')
     p.add_argument('--from-file', action = 'store',
                    help = 'Read the tags to delete from the given file. [ None ]')
-    self._git_add_common_args(p)
+    self.__git_add_common_args(p)
     
     # git_tags
     p = subparser.add_parser('tags', help = 'List local and/or remote tags.')
@@ -70,9 +70,9 @@ class git_cli_args(object):
                    help = 'Sort type.  Either version or lexical. [ version ]')
     p.add_argument('--reverse', action = 'store_true', default = False,
                    help = 'Reverse the tag order such that greatest version is first. [ None ]')
-    self._git_add_common_args(p)
+    self.__git_add_common_args(p)
     
-    # git_branches
+    # branches
     p = subparser.add_parser('branches', help = 'List local and remote branches.')
     p.add_argument('-l', '--local', action = 'store_true', default = None,
                    help = 'Show local tags. [ False ]')
@@ -82,25 +82,25 @@ class git_cli_args(object):
                    help = 'Show remote branches not already tracked locally. [ False ]')
     p.add_argument('-n', '--no-fetch', action = 'store_true', default = False,
                    help = 'Do not call git fetch first. [ False ]')
-    self._git_add_common_args(p)
+    self.__git_add_common_args(p)
 
     # git_short
     p = subparser.add_parser('short', help = 'Print short commit hash.')
     p.add_argument('commit', action = 'store', type = str, default = None,
                    help = 'The git commit hash. [ None ]')
-    self._git_add_common_args(p)
+    self.__git_add_common_args(p)
     
     # git_long
     p = subparser.add_parser('long', help = 'Print long commit hash.')
     p.add_argument('commit', action = 'store', type = str, default = None,
                    help = 'The git commit hash. [ None ]')
-    self._git_add_common_args(p)
+    self.__git_add_common_args(p)
     
     # git_remote_print
     p = subparser.add_parser('remote_print', help = 'Print the remote url.')
     p.add_argument('--name', action = 'store', type = str, default = 'origin',
                    help = 'The remote name.  Usually origin. [ origin ]')
-    self._git_add_common_args(p)
+    self.__git_add_common_args(p)
 
     # git_remote_replace
     p = subparser.add_parser('remote_replace', help = 'Replace the remote url with a new one.')
@@ -110,10 +110,10 @@ class git_cli_args(object):
                    help = 'Test whether the new remote works. [ False ]')
     p.add_argument('new_url', action = 'store', type = str, default = None,
                    help = 'The new url for the remote. []')
-    self._git_add_common_args(p)
+    self.__git_add_common_args(p)
 
   @classmethod
-  def _git_add_common_args(clazz, p):
+  def __git_add_common_args(clazz, p):
     p.add_argument('--root-dir', action = 'store', default = None,
                    help = 'The root dir of the git repo to archive. [ None ]')
     git_cli_common_args.git_cli_add_common_args(p)

@@ -14,22 +14,18 @@ class pipenv_project_options(pip_project_options):
   #@abstractmethod
   def default_values(clazz):
     'Return a dict of defaults for these options.'
-    d = super(pipenv_project_options, clazz).default_values()
-    d.update({
+    return clazz.super_default_values({
       'isolated_cache_dir': False,
       'pipenv_version': None,
       'pipfile_dir': None,
     })
-    return d
   
   @classmethod
   #@abstractmethod
   def value_type_hints(clazz):
-    d = super(pipenv_project_options, clazz).value_type_hints()
-    d.update({
+    return clazz.super_value_type_hints({
       'isolated_cache_dir': bool,
     })
-    return d
 
   @classmethod
   #@abstractmethod
@@ -39,6 +35,7 @@ class pipenv_project_options(pip_project_options):
   #@abstractmethod
   def check_value_types(self):
     'Check the type of each option.'
+    super(pipenv_project_options, self).check_value_types()
     check.check_bool(self.isolated_cache_dir)
     check.check_string(self.pipfile_dir, allow_none = True)
     check.check_string(self.pipenv_version, allow_none = True)

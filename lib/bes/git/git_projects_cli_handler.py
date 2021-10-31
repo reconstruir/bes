@@ -8,7 +8,6 @@ from bes.system.log import logger
 
 from .git_dir import git_dir
 from .git_download import git_download
-from .git_output import git_output
 from .git_repo import git_repo
 from .git_repo_status_options import git_repo_status_options
 from .git_status_getter import git_status_getter

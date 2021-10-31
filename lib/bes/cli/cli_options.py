@@ -154,6 +154,55 @@ class cli_options(cli_options_base):
   def config_file(self):
     return _special_attributes.get_value(self.__class__, 'config_file', None)
 
+
+  @classmethod
+  def _call_super_method(clazz, method_name, values):
+    'Call all the superclasses method.'
+    check.check_string(method_name)
+    check.check_dict(values)
+
+    IGNORE_CLASSES = {
+      cli_options_base,
+      cli_options,
+      object,
+    }
+    result = {}
+    classes = [ c for c in clazz.__mro__ if not c in IGNORE_CLASSES ]
+    for c in classes:
+      print('CLASS: {}'.format(c))
+#    assert False
+    for next_class in classes:
+      next_method = getattr(next_class, method_name)
+      if not next_method:
+        error_class = clazz.error_class()
+        raise error_class('Method "{}" not found in {}'.format(method_name, next_class))
+      next_values = next_method()
+      result.update(next_values)
+    result.update(values)
+    return result
+
+  @classmethod
+  def super_default_values(clazz, values):
+    'Return a dict of defaults for these options.'
+    check.check_dict(values)
+
+    return dict_util.combine(super(clazz, clazz).default_values(), values)
+  
+  @classmethod
+  def super_value_type_hints(clazz, values):
+    'Return a dict of defaults for these options.'
+    check.check_dict(values)
+
+    return dict_util.combine(super(clazz, clazz).value_type_hints(), values)
+
+  @classmethod
+  def super_sensitive_keys(clazz, keys):
+    'Return a dict of defaults for these options.'
+    check.check_tuple(keys, allow_none = True)
+
+    return super(clazz, clazz).sensitive_keys() or () + keys
+  
+  
 class _special_attributes(object):
   '''
   Use a global dict to store special attributes to not pollute either
@@ -184,3 +233,4 @@ class _special_attributes(object):
     if not clazz.has_key(the_class, key):
       return None
     return clazz._attribs[the_class].get(key, default_value)
+

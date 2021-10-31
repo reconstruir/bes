@@ -20,7 +20,6 @@ from bes.version.software_version import software_version
 
 from .git_cli_options import git_cli_options
 from .git_cli_util import git_cli_util
-from .git_output import git_output
 from .git_tag import git_tag_list
 
 class git_cli_handler(cli_command_handler):
@@ -199,6 +198,9 @@ class git_cli_handler(cli_command_handler):
     if not no_fetch:
       git.fetch(self.options.root_dir)
     branches = git.list_branches(self.options.root_dir, where)
+#    for branch in branches:
+#      print(branch)
+#    return 0
     if not branches:
       return 0
 #    # sort the branches using software version so numeric versions of branch sort properly
