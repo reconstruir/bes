@@ -21,7 +21,7 @@ class data_output(object):
     options = options or data_output_options()
     with file_util.open_with_default(filename = options.output_filename) as fout:
       clazz._output_table_to_stream(data, fout, options)
-
+      
   @classmethod
   def _output_table_to_stream(clazz, data, stream, options):
     if options.style == data_output_style.BRIEF:
@@ -31,14 +31,11 @@ class data_output(object):
     elif options.style == data_output_style.JSON:
       data = clazz._normalize_structured_data(data)
       stream.write(json_util.to_json(data, indent = 2, sort_keys = True))
-    elif options.style == data_output_style.PLAIN:
+    elif options.style == data_output_style.CSV:
       for item in data:
-        stream.write(options.plain_delimiter.join(item))
+        item = clazz._normalize_table_item(item)
+        stream.write(options.csv_delimiter.join(item))
         stream.write(line_break.DEFAULT_LINE_BREAK)
-    elif options.style == data_output_style.PPRINT:
-      data = clazz._normalize_structured_data(data)
-      stream.write(pprint.pformat(data))
-      stream.write(line_break.DEFAULT_LINE_BREAK)
     elif options.style == data_output_style.TABLE:
       data = clazz._normalize_data(data)
       tt = text_table(data = data)
@@ -51,6 +48,12 @@ class data_output(object):
       return clazz._normalize_dict(data)
     return data
 
+  @classmethod
+  def _normalize_table_item(clazz, item):
+    if check.is_tuple(item) or check.is_list(item):
+      return tuple([ str(x) for x in item])
+    return item
+  
   @classmethod
   def _normalize_dict(clazz, data):
     assert isinstance(data, dict)

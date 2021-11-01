@@ -4,12 +4,6 @@ class git_cli_common_args(object):
 
   @classmethod
   def git_cli_add_common_args(clazz, p):
-#    p.add_argument('-s', '--style', action = 'store', default = 'table',
-#                   dest = 'output_style', choices = ( 'brief', 'json', 'plain', 'table' ),
-#                   help = 'Output style. [ table ]')
-#    p.add_argument('-o', '--output', action = 'store', default = None,
-#                   dest = 'output_filename',
-#                   help = 'Write output to filename instead of stdout. [ None ]')
     p.add_argument('--output', action = 'store', default = None,
                    dest = 'output_filename',
                    help = 'Optional output filename [ None ]')

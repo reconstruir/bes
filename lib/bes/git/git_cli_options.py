@@ -22,6 +22,7 @@ class git_cli_options(git_cli_common_options):
   def check_value_types(self):
     'Check the type of each option.'
     super(git_cli_options, self).check_value_types()
-    check.check_string(self.root_dir)
+    self.root_dir = self.root_dir or os.getcwd()
+    check.check_string(self.root_dir, allow_none = True)
     
 check.register_class(git_cli_options)

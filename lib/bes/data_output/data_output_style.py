@@ -5,9 +5,8 @@ from bes.enum_util.checked_enum import checked_enum
 
 class data_output_style(checked_enum):
   BRIEF = 'brief'
+  CSV = 'csv'
   JSON = 'json'
-  PLAIN = 'plain'
-  PPRINT = 'pprint'
   TABLE = 'table'
 
 check.register_class(data_output_style,
