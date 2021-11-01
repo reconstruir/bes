@@ -81,6 +81,13 @@ class unit_test(unittest.TestCase):
       self.assertMultiLineEqual( s1_to_compare, s2_to_compare )
     else:
       self.assertEqual( s1_to_compare, s2_to_compare )
+
+  def assert_string_equal_fuzzy(self, s1, s2):
+    return self.assert_string_equal(s1, s2,
+                                    strip = True,
+                                    multi_line = True,
+                                    ignore_white_space = True,
+                                    native_line_breaks = True)
     
   def assertEqualIgnoreWhiteSpace(self, s1, s2):
     'Assert s1 equals s2 ignoreing minor white space differences.'
