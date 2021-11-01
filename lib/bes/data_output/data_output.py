@@ -8,6 +8,7 @@ from bes.common.tuple_util import tuple_util
 from bes.fs.file_util import file_util
 from bes.text.line_break import line_break
 from bes.text.text_table import text_table
+from bes.common.table import table
 
 from .data_output_options import data_output_options
 from .data_output_style import data_output_style
@@ -29,7 +30,7 @@ class data_output(object):
         stream.write(str(item[options.brief_column]))
         stream.write(line_break.DEFAULT_LINE_BREAK)
     elif options.style == data_output_style.JSON:
-      data = clazz._normalize_structured_data(data)
+      data = clazz._normalize_table_for_structured_data(data)
       stream.write(json_util.to_json(data, indent = 2, sort_keys = True))
     elif options.style == data_output_style.CSV:
       for item in data:
@@ -38,7 +39,12 @@ class data_output(object):
         stream.write(line_break.DEFAULT_LINE_BREAK)
     elif options.style == data_output_style.TABLE:
       data = clazz._normalize_data(data)
-      tt = text_table(data = data)
+      table_data = table(data = data)
+      for column in sorted(options.remove_columns or [], reverse = True):
+        table_data.remove_column(column)
+      tt = text_table(data = table_data)
+      if options.table_labels:
+        tt.set_labels(options.table_labels)
       stream.write(str(tt))
       stream.write(line_break.DEFAULT_LINE_BREAK)
 
@@ -60,7 +66,7 @@ class data_output(object):
     return [ item for item in data.items() ]
 
   @classmethod
-  def _normalize_structured_data(clazz, data):
+  def _normalize_table_for_structured_data(clazz, data):
     result = []
     for item in data:
       if tuple_util.is_named_tuple(item):

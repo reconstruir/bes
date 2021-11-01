@@ -7,14 +7,11 @@ from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.common.json_util import json_util
 from bes.common.string_util import string_util
-from bes.common.table import table
 from bes.common.type_checked_list import type_checked_list
 from bes.data_output.data_output import data_output
 from bes.data_output.data_output_style import data_output_style
 from bes.data_output.data_output_options import data_output_options
-from bes.fs.file_util import file_util
 from bes.text.text_line_parser import text_line_parser
-from bes.text.text_table import text_table
 from bes.version.software_version import software_version
 
 from .git_commit_hash import git_commit_hash
@@ -108,30 +105,10 @@ class git_tag_list(type_checked_list):
 
     options = data_output_options(brief_column = 0,
                                   output_filename = output_filename,
-                                  style = style)
+                                  style = style,
+                                  remove_columns = ( 1, 3 ),
+                                  table_labels = ( 'TAG', 'COMMIT' ) )
     data_output.output_table(self._values, options = options)
-    return
-    with file_util.open_with_default(filename = output_filename) as fout:
-      if style == data_output_style.BRIEF:
-        for tag in self:
-          fout.write(tag.name)
-          fout.write('\n')
-      elif style == data_output_style.TABLE:
-        data = table(data = self._values)
-        data.remove_column(3)
-        data.remove_column(1)
-        tt = text_table(data = data)
-        tt.set_labels( ( 'TAG', 'COMMIT' ) )
-        print(tt)
-      elif style == data_output_style.JSON:
-        fout.write(self.to_json(short_hash = True))
-        fout.write('\n')
-      elif style == data_output_style.CSV:
-        for value in self._values:
-          fout.write(value.name)
-          fout.write(',')
-          fout.write(value.commit_short)
-          fout.write('\n')
 
   def names(self):
     return algorithm.unique([ tag.name for tag in self ])
