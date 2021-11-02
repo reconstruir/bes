@@ -5,6 +5,7 @@ import os, sys
 import subprocess
 
 from .host import host
+from .compat import compat
 
 class console(object):
   'Class to deal with the console in a cross platform manner.'
@@ -69,33 +70,37 @@ class console(object):
   def terminal_device(clazz):
     'Return the current terminal device or None if not a terminal.'
     if host.is_windows():
-      return False
-    elif host.is_unix():
-      try:
-        dev = subprocess.check_output('tty').stdout.strip()
-        with open(dev, 'r') as f:
-          if os.isatty(f.fileno()):
-            return dev
-          else:
-            return None
-      except Exception as ex:
-        print(ex)
-        return None
-    else:
+      return 'con:'
+    elif not host.is_unix():
       host.raise_unsupported_system()
+
+    try:
+      dev = subprocess.check_output('tty').strip()
+      with open(dev, 'r') as f:
+        if os.isatty(f.fileno()):
+          return dev
+        else:
+          return None
+    except Exception as ex:
+      print(ex)
+      return None
 
   @classmethod
   def terminal_size(clazz):
     'Return a 2-tuple ( width, height ) size of the current terminal or None if not a terminal.'
+    if compat.IS_PYTHON3:
+      ts = os.get_terminal_size()
+      return ( ts.columns, ts.lines )
+    if not host.is_unix():
+      host.raise_unsupported_system()
     dev = clazz.terminal_device()
     if not dev:
       return None
-    assert host.is_unix() # for now only unix
     try:
       with open(dev, 'r') as f:
         cmd = 'stty size < {}'.format(dev)
         s = os.popen(cmd, 'r').read().split()
-        return int(s[1]), int(s[0])
+        return ( int(s[1]), int(s[0]) )
     except Exception as ex:
       print(ex)
       return None
