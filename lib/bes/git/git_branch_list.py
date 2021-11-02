@@ -1,9 +1,17 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os, os.path as path, re
-from collections import namedtuple
-
+from bes.common.string_util import string_util
 from bes.common.type_checked_list import type_checked_list
+from bes.data_output.data_output import data_output
+from bes.data_output.data_output_options import data_output_options
+from bes.data_output.data_output_style import data_output_style
+from bes.system.check import check
+
+from bes.text.text_box import text_box_colon
+from bes.text.text_box import text_box_unicode
+from bes.text.text_table import text_cell_renderer
+from bes.text.text_table import text_table
+from bes.text.text_table import text_table_style
 
 from .git_branch import git_branch 
 
@@ -59,3 +67,47 @@ class git_branch_list(type_checked_list):
       if b.name == name:
         return b
     return None
+
+  def output(self, style, output_filename = None, table_title = None):
+    style = check.check_data_output_style(style)
+    check.check_string(output_filename, allow_none = True)
+    check.check_string(table_title, allow_none = True)
+
+    r = { 'AHEAD': 'AH', 'BEHIND': 'BE', 'ACTIVE': '*' }
+    table_labels = tuple([ string_util.replace(f.upper(), r) for f in self._values[0]._fields ])
+    longest_comment = 60 # self.longest_comment
+    table_cell_renderers = {
+      '*': self._branch_active_cell_renderer(),
+      'AH': self._branch_ahead_behind_cell_renderer(),
+      'BE': self._branch_ahead_behind_cell_renderer(),
+      'NAME': text_cell_renderer(width = self.longest_name),
+      'COMMENT': text_cell_renderer(width = longest_comment),
+    }
+    options = data_output_options(brief_column = 0,
+                                  output_filename = output_filename,
+                                  style = style,
+                                  table_labels = table_labels,
+                                  table_cell_renderers = table_cell_renderers,
+                                  table_title = table_title)
+    data_output.output_table(self._values, options = options)
+  
+  class _branch_active_cell_renderer(text_cell_renderer):
+
+    def __init__(self, *args, **kargs):
+      text_cell_renderer.__init__(self, *args, **kargs)
+      
+    def render(self, value, width = None, is_label = False):
+      if is_label:
+        return value
+      return '*' if value else ' '
+
+  class _branch_ahead_behind_cell_renderer(text_cell_renderer):
+
+    def __init__(self, *args, **kargs):
+      text_cell_renderer.__init__(self, *args, **kargs)
+
+    def render(self, value, width = None, is_label = False):
+      if is_label:
+        return value
+      return str(value).center(2) if value else ' ' * 2
+    

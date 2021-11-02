@@ -3,6 +3,7 @@
 import pprint
 
 from bes.common.check import check
+from bes.text.text_table import text_cell_renderer
 
 from .data_output_style import data_output_style
 
@@ -15,6 +16,8 @@ class data_output_options(object):
     self.csv_delimiter = ','
     self.remove_columns = None
     self.table_labels = None
+    self.table_cell_renderers = None
+    self.table_title = None
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_int(self.brief_column)
@@ -23,6 +26,11 @@ class data_output_options(object):
     check.check_string(self.csv_delimiter)
     check.check_tuple(self.remove_columns, allow_none = True, value_type = check.INTEGER_TYPES)
     check.check_tuple(self.table_labels, allow_none = True, value_type = check.STRING_TYPES)
+    check.check_dict(self.table_cell_renderers,
+                     key_type = check.STRING_TYPES,
+                     value_type = text_cell_renderer,
+                     allow_none = True)
+    check.check_string(self.table_title, allow_none = True)
 
   def __str__(self):
     return pprint.pformat(self.__dict__)

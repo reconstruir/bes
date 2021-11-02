@@ -37,7 +37,7 @@ from .git_ref_info import git_ref_info
 from .git_ref_where import git_ref_where
 from .git_status import git_status, git_status_list
 from .git_submodule_info import git_submodule_info
-from .git_tag import git_tag
+from .git_tag_list import git_tag_list
 from .git_tag_sort_type import git_tag_sort_type
 
 class git(git_lfs):
@@ -628,11 +628,11 @@ class git(git_lfs):
                       limit = None, prefix = None):
     sort_type = git_tag_sort_type.check_sort_type(sort_type)
     rv = git_exe.call_git(root_dir, [ 'tag', '-l', '--format="%(objectname) %(refname)"' ])
-    return git_tag.parse_show_ref_output(rv.stdout,
-                                         sort_type = sort_type,
-                                         reverse = reverse,
-                                         limit = limit,
-                                         prefix = prefix)
+    return git_tag_list.parse_show_ref_output(rv.stdout,
+                                              sort_type = sort_type,
+                                              reverse = reverse,
+                                              limit = limit,
+                                              prefix = prefix)
     
   @classmethod
   def greatest_local_tag(clazz, root, prefix = None):
@@ -646,22 +646,22 @@ class git(git_lfs):
                        limit = None, prefix = None):
     rv = git_exe.call_git(root, [ 'ls-remote', '--tags' ])
     clazz.log.log_d('list_remote_tags: stdout="{}"'.format(rv.stdout))
-    return git_tag.parse_show_ref_output(rv.stdout,
-                                         sort_type = sort_type,
-                                         reverse = reverse,
-                                         limit = limit,
-                                         prefix = prefix)
+    return git_tag_list.parse_show_ref_output(rv.stdout,
+                                              sort_type = sort_type,
+                                              reverse = reverse,
+                                              limit = limit,
+                                              prefix = prefix)
 
   @classmethod
   def list_remote_tags_for_address(clazz, address, sort_type = None, reverse = False,
                                    limit = None, prefix = None):
     rv = git_exe.call_git(tempfile.gettempdir(), [ 'ls-remote', '--tags', address ])
     clazz.log.log_d('list_remote_tags_for_address: stdout="{}"'.format(rv.stdout))
-    return git_tag.parse_show_ref_output(rv.stdout,
-                                         sort_type = sort_type,
-                                         reverse = reverse,
-                                         limit = limit,
-                                         prefix = prefix)
+    return git_tag_list.parse_show_ref_output(rv.stdout,
+                                              sort_type = sort_type,
+                                              reverse = reverse,
+                                              limit = limit,
+                                              prefix = prefix)
   
   @classmethod
   def greatest_remote_tag(clazz, root, prefix = None):

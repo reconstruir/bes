@@ -21,7 +21,7 @@ from .git_modules_file import git_modules_file
 from .git_operation_base import git_operation_base
 from .git_repo_status import git_repo_status
 from .git_repo_status_options import git_repo_status_options
-from .git_tag import git_tag_list
+from .git_tag_list import git_tag_list
 
 #import warnings
 #with warnings.catch_warnings():

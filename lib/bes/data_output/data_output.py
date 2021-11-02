@@ -45,6 +45,11 @@ class data_output(object):
       tt = text_table(data = table_data)
       if options.table_labels:
         tt.set_labels(options.table_labels)
+      if options.table_cell_renderers:
+        for column_name, renderer in options.table_cell_renderers.items():
+          tt.set_col_renderer(column_name, renderer)
+      if options.table_title:
+        tt.set_title(options.table_title)
       stream.write(str(tt))
       stream.write(line_break.DEFAULT_LINE_BREAK)
 

@@ -11,16 +11,12 @@ from bes.git.git_ref_where import git_ref_where
 from bes.git.git_repo import git_repo
 from bes.git.git_error import git_error
 from bes.system.log import logger
-from bes.text.text_box import text_box_colon
-from bes.text.text_box import text_box_unicode
-from bes.text.text_table import text_cell_renderer
 from bes.text.text_table import text_table
-from bes.text.text_table import text_table_style
 from bes.version.software_version import software_version
 
 from .git_cli_options import git_cli_options
 from .git_cli_util import git_cli_util
-from .git_tag import git_tag_list
+from .git_tag_list import git_tag_list
 
 class git_cli_handler(cli_command_handler):
 
@@ -171,22 +167,6 @@ class git_cli_handler(cli_command_handler):
     if self.options.verbose:
       print('old_tag={} new_tag={}'.format(tag, tag))
     return 0
-
-  class branch_active_cell_renderer(text_cell_renderer):
-    def __init__(self, *args, **kargs):
-      super(git_cli_handler.branch_active_cell_renderer, self).__init__(*args, **kargs)
-    def render(self, value, width = None, is_label = False):
-      if is_label:
-        return value
-      return '*' if value else ' '
-      
-  class branch_ahead_behind_cell_renderer(text_cell_renderer):
-    def __init__(self, *args, **kargs):
-      super(git_cli_handler.branch_ahead_behind_cell_renderer, self).__init__(*args, **kargs)
-    def render(self, value, width = None, is_label = False):
-      if is_label:
-        return value
-      return str(value).center(2) if value else ' ' * 2
       
   def branches(self, local, remote, difference, no_fetch):
     check.check_bool(local, allow_none = True)
@@ -198,9 +178,6 @@ class git_cli_handler(cli_command_handler):
     if not no_fetch:
       git.fetch(self.options.root_dir)
     branches = git.list_branches(self.options.root_dir, where)
-#    for branch in branches:
-#      print(branch)
-#    return 0
     if not branches:
       return 0
 #    # sort the branches using software version so numeric versions of branch sort properly
@@ -209,40 +186,10 @@ class git_cli_handler(cli_command_handler):
       for branch in branches.difference:
         print(branch)
       return 0
-    if self.options.output_style == 'brief':
-      for branch in branches.names:
-        print(branch)
-      return 0
-    title = git.remote_origin_url(self.options.root_dir)
-    self._print_branches(title, branches, branches.longest_name, branches.longest_comment,
-                          self.options.output_style)
+    branches.output(self.options.output_style,
+                    output_filename = self.options.output_filename,
+                    table_title = git.remote_origin_url(self.options.root_dir))
     return 0
-
-  def _print_branches(self, title, branches, longest_name, longest_comment, style):
-    longest_comment = 60
-    if not branches:
-      return
-
-    if style == 'plain':
-      style = text_table_style(spacing = 1, box = text_box_colon())
-    else:
-      style = text_table_style(spacing = 1, box = text_box_unicode())
-
-    r = { 'AHEAD': 'AH', 'BEHIND': 'BE', 'ACTIVE': '*' }
-    labels = tuple([ string_util.replace(f.upper(), r) for f in branches[0]._fields ])
-
-    t = table(data = branches)
-    t.column_names = labels
-    tt = text_table(data = t, style = style)
-    if not style == 'plain':
-      tt.set_title(title)
-      tt.set_labels(labels)
-    tt.set_col_renderer('NAME', text_cell_renderer(width = longest_name))
-    tt.set_col_renderer('*', self.branch_active_cell_renderer())
-    tt.set_col_renderer('AH', self.branch_ahead_behind_cell_renderer())
-    tt.set_col_renderer('BE', self.branch_ahead_behind_cell_renderer())
-    tt.set_col_renderer('COMMENT', text_cell_renderer(width = longest_comment))
-    print(tt)
 
   def short_commit(self, commit):
     short_commit = git.short_hash(self.options.root_dir, commit)
