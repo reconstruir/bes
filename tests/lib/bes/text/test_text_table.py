@@ -29,7 +29,7 @@ class test_text_table(unit_test):
 | blueberry | YES      | purple | 9         | 4      | 3.0   |
 | lemon     |          | yellow | 2         | 10     | 1.0   |
 +------------------------------------------------------------+'''
-    self.assertEqual( expected, t.to_string(strip_rows = True) )
+    self.assertEqual( expected, str(t) )
     
   def test_cell_style(self):
     self.maxDiff = None
@@ -60,7 +60,7 @@ class test_text_table(unit_test):
 | BLUEBERRY | YES      | PURPLE | 9         | 4      | 3.0   |
 | LEMON     |          | YELLOW | 2         | 10     | 1.0   |
 +------------------------------------------------------------+'''
-    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+    self.assert_string_equal_fuzzy( expected, str(t) )
 
   def xtest_unicode(self):
     data = [
@@ -86,7 +86,7 @@ class test_text_table(unit_test):
 | blueberry | YES      | purple |
 | lemon     |          | yellow |
 +-------------------------------+'''
-    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+    self.assert_string_equal_fuzzy( expected, str(t) )
 
   def test_sort_by_column(self):
     data = [
@@ -106,7 +106,7 @@ class test_text_table(unit_test):
 | kiwi      | YES      | green  |
 | lemon     | NO       | yellow |
 +-------------------------------+'''
-    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+    self.assert_string_equal_fuzzy( expected, str(t) )
 
     t.sort_by_column(1)
     expected = '''\
@@ -117,7 +117,7 @@ class test_text_table(unit_test):
 | blueberry | YES      | purple |
 | kiwi      | YES      | green  |
 +-------------------------------+'''
-    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+    self.assert_string_equal_fuzzy( expected, str(t) )
 
     t.sort_by_column(2)
     expected = '''\
@@ -128,7 +128,7 @@ class test_text_table(unit_test):
 | banana    | NO       | yellow |
 | lemon     | NO       | yellow |
 +-------------------------------+'''
-    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+    self.assert_string_equal_fuzzy( expected, str(t) )
     
   def test_sort_by_column_named(self):
     data = [
@@ -149,7 +149,7 @@ class test_text_table(unit_test):
 | kiwi      | YES      | green  |
 | lemon     | NO       | yellow |
 +-------------------------------+'''
-    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+    self.assert_string_equal_fuzzy( expected, str(t) )
     t.sort_by_column('FAVORITE')
     expected = '''\
 |-------------------------------|
@@ -160,7 +160,7 @@ class test_text_table(unit_test):
 | blueberry | YES      | purple |
 | kiwi      | YES      | green  |
 +-------------------------------+'''
-    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+    self.assert_string_equal_fuzzy( expected, str(t) )
 
     t.sort_by_column('COLOR')
     expected = '''\
@@ -172,7 +172,7 @@ class test_text_table(unit_test):
 | banana    | NO       | yellow |
 | lemon     | NO       | yellow |
 +-------------------------------+'''
-    self.assertMultiLineEqual( expected, t.to_string(strip_rows = True) )
+    self.assert_string_equal_fuzzy( expected, str(t) )
     
   def _make_text_table(self, data):
     return TT(data = data, style = self._STYLE)
