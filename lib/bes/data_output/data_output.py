@@ -51,9 +51,9 @@ class data_output(object):
       if options.table_title:
         tt.set_title(options.table_title)
 
+      text = str(tt)
       if options.table_flexible_column:
         flexible_index = table_data.resolve_x(options.table_flexible_column)
-        text = str(tt)
         lines = text.split(line_break.DEFAULT_LINE_BREAK)
         render_width = len(lines[0])
 
@@ -75,7 +75,9 @@ class data_output(object):
       
       stream.write(text)
       stream.write(line_break.DEFAULT_LINE_BREAK)
-
+    else:
+      raise RuntimeError('Unhandled data output style: {}'.format(style))
+      
   @classmethod
   def _normalize_data(clazz, data):
     if isinstance(data, dict):
