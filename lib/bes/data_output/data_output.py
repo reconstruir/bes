@@ -7,8 +7,13 @@ from bes.common.tuple_util import tuple_util
 from bes.fs.file_util import file_util
 from bes.system.console import console
 from bes.text.line_break import line_break
+from bes.text.text_box import text_box_colon
+from bes.text.text_box import text_box_unicode
+from bes.text.text_box import text_box_space
+from bes.text.text_box import text_box_ascii
 from bes.text.text_table import text_cell_renderer
 from bes.text.text_table import text_table
+from bes.text.text_table import text_table_style
 
 from .data_output_options import data_output_options
 from .data_output_style import data_output_style
@@ -37,18 +42,27 @@ class data_output(object):
         item = clazz._normalize_table_item(item)
         stream.write(options.csv_delimiter.join(item))
         stream.write(line_break.DEFAULT_LINE_BREAK)
-    elif options.style == data_output_style.TABLE:
+    elif options.style in [ data_output_style.TABLE, data_output_style.PLAIN_TABLE ]:
       data = clazz._normalize_data(data)
       table_data = table(data = data, column_names = options.table_labels)
+      is_plain = options.style == data_output_style.PLAIN_TABLE
+      if is_plain:
+        table_style = text_table_style(spacing = 1, box = text_box_space())
+      else:
+        #table_style = text_table_style(spacing = 1, box = text_box_unicode())
+        table_style = text_table_style(spacing = 1, box = text_box_ascii())
+      
       for column in sorted(options.remove_columns or [], reverse = True):
         table_data.remove_column(column)
-      tt = text_table(data = table_data)
+      tt = text_table(data = table_data, style = table_style)
       if options.table_labels:
-        tt.set_labels(options.table_labels)
+        if not is_plain:
+          tt.set_labels(options.table_labels)
+        tt.set_column_names(options.table_labels)
       if options.table_cell_renderers:
         for column_name, renderer in options.table_cell_renderers.items():
           tt.set_col_renderer(column_name, renderer)
-      if options.table_title:
+      if options.table_title and not is_plain:
         tt.set_title(options.table_title)
 
       text = str(tt)

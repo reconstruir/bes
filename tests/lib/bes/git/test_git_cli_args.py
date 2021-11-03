@@ -30,7 +30,7 @@ tag 1.0.0 tag1 @commit1
     self.assert_string_equal_fuzzy( '''\
 local: 1.0.0
 remote: 1.0.0
-''', rv.output, native_line_breaks = True )
+''', rv.output )
   
   @git_temp_home_func()
   def test_bump_tag_revision(self):
