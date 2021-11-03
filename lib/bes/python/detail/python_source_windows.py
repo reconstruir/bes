@@ -87,7 +87,7 @@ class python_source_windows(python_source_base):
   #@abstractmethod
   def versioned_python_exe(clazz, root_dir, version):
     'Return the absolute path the python exe with major.minor version in a virtual env.'
-    return self.python_exe(root_dir, version)
+    return clazz.python_exe(root_dir, version)
 
   @classmethod
   #@abstractmethod
