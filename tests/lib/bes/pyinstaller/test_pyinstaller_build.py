@@ -29,7 +29,7 @@ class test_pyinstaller_builder(unit_test):
 
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_build(self):
-    tmp_dir = self.make_temp_dir(suffix = '.test_pyinstaller_build')
+    tmp_dir = self.make_temp_dir(suffix = '.test_pyinstaller_build', )
     if self.DEBUG:
       print('tmp_dir: {}'.format(tmp_dir))
     venvs_dir = path.join(tmp_dir, 'venvs')
@@ -64,8 +64,14 @@ def test_threading():
 def test_subprocess():
   'Test that subprocess works'
   import subprocess
-  p = subprocess.check_output([ 'echo', 'test_subprocess:' ])
+  import platform
+  if platform.system() == 'Windows':
+    args = [ 'cmd', '/c', 'echo test_subprocess:' ]
+  else:
+    args = [ 'echo', 'test_subprocess:' ]
+  p = subprocess.check_output(args)
   sys.stdout.write(p.decode('utf8').strip())
+
   
 def test_subprocess_with_shell():
   'Test that subprocess with shell = True works'
