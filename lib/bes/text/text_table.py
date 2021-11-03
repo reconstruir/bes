@@ -108,27 +108,27 @@ class text_table(object):
     
     if self._title:
       box.write_top(buf, h_width)
-      buf.write(line_break.DEFAULT_LINE_BREAK)
+      buf.write('\n')
       box.write_centered_text(buf, h_width, self._title)
-      buf.write(line_break.DEFAULT_LINE_BREAK)
+      buf.write('\n')
       if not self._labels:
         box.write_bottom(buf, h_width)
-        buf.write(line_break.DEFAULT_LINE_BREAK)
+        buf.write('\n')
     
     if self._labels:
       box.write_middle(buf, h_width)
-      buf.write(line_break.DEFAULT_LINE_BREAK)
+      buf.write('\n')
       buf.write(box.v_bar.char)
       for x in range(0, self._table.width):
         buf.write(column_spacing)
         self._write_label(x, buf, col_widths[x])
         buf.write(column_spacing)
         buf.write(box.v_bar.char)
-      buf.write(line_break.DEFAULT_LINE_BREAK)
+      buf.write('\n')
 
     if not self._title or self._labels:
       box.write_top(buf, h_width)
-      buf.write(line_break.DEFAULT_LINE_BREAK)
+      buf.write('\n')
       
     for y in range(0, self._table.height):
       row = self._table.row(y)
@@ -147,9 +147,9 @@ class text_table(object):
       if strip_rows:
         row_str = row_str.strip()
       buf.write(row_str)
-      buf.write(line_break.DEFAULT_LINE_BREAK)
+      buf.write('\n')
     box.write_bottom(buf, h_width)
-    buf.write(line_break.DEFAULT_LINE_BREAK)
+    buf.write('\n')
     value = buf.getvalue()
     # strip head and tail newlines
     return white_space.strip_new_lines(value)
