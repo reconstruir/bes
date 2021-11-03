@@ -1,14 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import pprint
 from bes.common.check import check
-
 from bes.common.json_util import json_util
+from bes.common.table import table
 from bes.common.tuple_util import tuple_util
 from bes.fs.file_util import file_util
+from bes.system.console import console
 from bes.text.line_break import line_break
+from bes.text.text_table import text_cell_renderer
 from bes.text.text_table import text_table
-from bes.common.table import table
 
 from .data_output_options import data_output_options
 from .data_output_style import data_output_style
@@ -39,7 +39,7 @@ class data_output(object):
         stream.write(line_break.DEFAULT_LINE_BREAK)
     elif options.style == data_output_style.TABLE:
       data = clazz._normalize_data(data)
-      table_data = table(data = data)
+      table_data = table(data = data, column_names = options.table_labels)
       for column in sorted(options.remove_columns or [], reverse = True):
         table_data.remove_column(column)
       tt = text_table(data = table_data)
@@ -50,7 +50,30 @@ class data_output(object):
           tt.set_col_renderer(column_name, renderer)
       if options.table_title:
         tt.set_title(options.table_title)
-      stream.write(str(tt))
+
+      if options.table_flexible_column:
+        flexible_index = table_data.resolve_x(options.table_flexible_column)
+        text = str(tt)
+        lines = text.split(line_break.DEFAULT_LINE_BREAK)
+        render_width = len(lines[0])
+
+        try:
+          terminal_width = console.terminal_width()
+        except Exception as ex:
+          terminal_width = None
+
+        if terminal_width != None:
+          max_column_width = tt._max_column_width(flexible_index)
+          if terminal_width < render_width:
+            overflow = render_width - terminal_width + 1
+            new_column_width = max(max_column_width - overflow, 0)
+          else:
+            new_column_width = max_column_width
+          
+          tt.set_col_renderer(options.table_flexible_column, text_cell_renderer(width = new_column_width))
+          text = str(tt)
+      
+      stream.write(text)
       stream.write(line_break.DEFAULT_LINE_BREAK)
 
   @classmethod

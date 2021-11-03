@@ -18,6 +18,7 @@ class data_output_options(object):
     self.table_labels = None
     self.table_cell_renderers = None
     self.table_title = None
+    self.table_flexible_column = None
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check_int(self.brief_column)
@@ -31,6 +32,7 @@ class data_output_options(object):
                      value_type = text_cell_renderer,
                      allow_none = True)
     check.check_string(self.table_title, allow_none = True)
+    check.check_string(self.table_flexible_column, allow_none = True)
 
   def __str__(self):
     return pprint.pformat(self.__dict__)

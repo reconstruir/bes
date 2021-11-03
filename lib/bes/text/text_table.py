@@ -2,9 +2,10 @@
 
 from bes.common.check import check
 from bes.common.object_util import object_util
-from bes.common.table import table
 from bes.common.size import size
+from bes.common.table import table
 from bes.compat.StringIO import StringIO
+from bes.text.line_break import line_break
 
 from .text_box import text_box_ascii
 from .white_space import white_space
@@ -107,27 +108,27 @@ class text_table(object):
     
     if self._title:
       box.write_top(buf, h_width)
-      buf.write('\n')
+      buf.write(line_break.DEFAULT_LINE_BREAK)
       box.write_centered_text(buf, h_width, self._title)
-      buf.write('\n')
+      buf.write(line_break.DEFAULT_LINE_BREAK)
       if not self._labels:
         box.write_bottom(buf, h_width)
-        buf.write('\n')
+        buf.write(line_break.DEFAULT_LINE_BREAK)
     
     if self._labels:
       box.write_middle(buf, h_width)
-      buf.write('\n')
+      buf.write(line_break.DEFAULT_LINE_BREAK)
       buf.write(box.v_bar.char)
       for x in range(0, self._table.width):
         buf.write(column_spacing)
         self._write_label(x, buf, col_widths[x])
         buf.write(column_spacing)
         buf.write(box.v_bar.char)
-      buf.write('\n')
+      buf.write(line_break.DEFAULT_LINE_BREAK)
 
     if not self._title or self._labels:
       box.write_top(buf, h_width)
-      buf.write('\n')
+      buf.write(line_break.DEFAULT_LINE_BREAK)
       
     for y in range(0, self._table.height):
       row = self._table.row(y)
@@ -146,9 +147,9 @@ class text_table(object):
       if strip_rows:
         row_str = row_str.strip()
       buf.write(row_str)
-      buf.write('\n')
+      buf.write(line_break.DEFAULT_LINE_BREAK)
     box.write_bottom(buf, h_width)
-    buf.write('\n')
+    buf.write(line_break.DEFAULT_LINE_BREAK)
     value = buf.getvalue()
     # strip head and tail newlines
     return white_space.strip_new_lines(value)
