@@ -146,6 +146,16 @@ class unit_test(unittest.TestCase):
                                ignore_white_space = ignore_white_space,
                                native_line_breaks = native_line_breaks)
 
+  def assert_text_file_equal_fuzzy(self, expected, filename, codec = 'utf-8',
+                                   preprocess_func = None):
+    self.maxDiff = None
+    with open(filename, 'rb') as fin:
+      actual = fin.read().decode(codec)
+      if preprocess_func:
+        actual = preprocess_func(actual)
+        expected = preprocess_func(expected)
+      self.assert_string_equal_fuzzy(expected, actual)
+      
   def assert_json_file_equal(self, expected, filename):
     self.assert_text_file_equal(expected, filename,
                                 strip = True,
