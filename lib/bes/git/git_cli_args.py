@@ -55,7 +55,7 @@ class git_cli_args(object):
                    help = 'Read the tags to delete from the given file. [ None ]')
     self.__git_add_common_args(p)
     
-    # git_tags
+    # tags
     p = subparser.add_parser('tags', help = 'List local and/or remote tags.')
     p.add_argument('-l', '--local', action = 'store_true', default = None,
                    help = 'Show local tags. [ False ]')
@@ -74,14 +74,16 @@ class git_cli_args(object):
     
     # branches
     p = subparser.add_parser('branches', help = 'List local and remote branches.')
-    p.add_argument('-l', '--local', action = 'store_true', default = None,
+    p.add_argument('--local', action = 'store_true', default = None,
                    help = 'Show local tags. [ False ]')
-    p.add_argument('-r', '--remote', action = 'store_true', default = None,
+    p.add_argument('--remote', action = 'store_true', default = None,
                    help = 'Show remote tags. [ False ]')
     p.add_argument('-d', '--difference', action = 'store_true', default = False,
                    help = 'Show remote branches not already tracked locally. [ False ]')
     p.add_argument('-n', '--no-fetch', action = 'store_true', default = False,
                    help = 'Do not call git fetch first. [ False ]')
+    p.add_argument('--limit', action = 'store', default = None, type = int,
+                   help = 'Limit number of tags shown. [ None ]')
     self.__git_add_common_args(p)
 
     # git_short

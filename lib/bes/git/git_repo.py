@@ -281,11 +281,11 @@ class git_repo(object):
   def list_branches(self, where):
     return git.list_branches(self.root, where)
 
-  def list_remote_branches(self):
-    return git.list_remote_branches(self.root)
+  def list_remote_branches(self, limit = None):
+    return git.list_remote_branches(self.root, limit = limit)
 
-  def list_local_branches(self):
-    return git.list_local_branches(self.root)
+  def list_local_branches(self, limit = None):
+    return git.list_local_branches(self.root, limit = limit)
   
   def has_remote_branch(self, branch):
     return git.has_remote_branch(self.root, branch)

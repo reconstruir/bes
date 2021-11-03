@@ -748,15 +748,17 @@ class git(git_lfs):
     return [ i for i in clazz.list_branches(root, 'local') if i.active ][0].name
 
   @classmethod
-  def list_branches(clazz, root, where):
-    git_ref_where.check_where(where)
+  def list_branches(clazz, root, where, limit = None):
+    check.check_string(root)
+    where = git_ref_where.check_where(where)
+    check.check_int(limit, allow_none = True)
     
     if where == 'local':
-      branches = clazz.list_local_branches(root)
+      branches = clazz.list_local_branches(root, limit = limit)
     elif where == 'remote':
-      branches = clazz.list_remote_branches(root)
+      branches = clazz.list_remote_branches(root, limit = limit)
     else:
-      branches = clazz._list_both_branches(root)
+      branches = clazz._list_both_branches(root, limit = limit)
     return git_branch_list(branches)
 
   @classmethod
@@ -767,20 +769,32 @@ class git(git_lfs):
     return result
 
   @classmethod
-  def list_remote_branches(clazz, root):
+  def list_remote_branches(clazz, root, limit = None):
+    check.check_string(root)
+    check.check_int(limit, allow_none = True)
+    
     rv = git_exe.call_git(root, [ 'branch', '--verbose', '--list', '--no-color', '--remote' ])
     lines = git_exe.parse_lines(rv.stdout)
     lines = [ line for line in lines if not ' -> ' in line ]
     lines = [ string_util.remove_head(line, 'origin/') for line in lines ]
     branches = git_branch_list([ git_branch.parse_branch(line, 'remote') for line in lines ])
-    return clazz._branch_list_determine_authors(root, branches)
+    branches = clazz._branch_list_determine_authors(root, branches)
+    if limit != None:
+      branches = branches[0:limit]
+    return branches
 
   @classmethod
-  def list_local_branches(clazz, root):
+  def list_local_branches(clazz, root, limit = None):
+    check.check_string(root)
+    check.check_int(limit, allow_none = True)
+
     rv = git_exe.call_git(root, [ 'branch', '--verbose', '--list', '--no-color' ])
     lines = git_exe.parse_lines(rv.stdout)
     branches = git_branch_list([ git_branch.parse_branch(line, 'local') for line in lines ])
-    return clazz._branch_list_determine_authors(root, branches)
+    branches = clazz._branch_list_determine_authors(root, branches)
+    if limit != None:
+      branches = branches[0:limit]
+    return branches
 
   @classmethod
   def has_remote_branch(clazz, root, branch):
@@ -791,7 +805,7 @@ class git(git_lfs):
     return branch in clazz.list_local_branches(root).names
   
   @classmethod
-  def _list_both_branches(clazz, root):
+  def _list_both_branches(clazz, root, limit):
     local_branches = clazz.list_local_branches(root)
     remote_branches = clazz.list_remote_branches(root)
     branch_map = {}
@@ -814,7 +828,10 @@ class git(git_lfs):
     for _, branches in branch_map.items():
       result.extend(branches)
     result.sort()
-    return clazz._branch_list_determine_authors(root, result)
+    result = clazz._branch_list_determine_authors(root, result)
+    if limit != None:
+      result = result[0:limit]
+    return result
 
   @classmethod
   def branch_create(clazz, root, branch_name, checkout = False, push = False,

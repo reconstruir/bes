@@ -168,16 +168,17 @@ class git_cli_handler(cli_command_handler):
       print('old_tag={} new_tag={}'.format(tag, tag))
     return 0
       
-  def branches(self, local, remote, difference, no_fetch):
+  def branches(self, local, remote, difference, no_fetch, limit):
     check.check_bool(local, allow_none = True)
     check.check_bool(remote, allow_none = True)
     check.check_bool(difference)
     check.check_bool(no_fetch)
+    check.check_int(limit, allow_none = True)
     
     where = git_ref_where.determine_where(local, remote)
     if not no_fetch:
       git.fetch(self.options.root_dir)
-    branches = git.list_branches(self.options.root_dir, where)
+    branches = git.list_branches(self.options.root_dir, where, limit = limit)
     if not branches:
       return 0
 #    # sort the branches using software version so numeric versions of branch sort properly

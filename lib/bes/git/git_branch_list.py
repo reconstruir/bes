@@ -72,7 +72,17 @@ class git_branch_list(type_checked_list):
     style = check.check_data_output_style(style)
     check.check_string(output_filename, allow_none = True)
     check.check_string(table_title, allow_none = True)
+    
+    from bes.system.console import console
+    from bes.system.log import log
 
+    try:
+      width = console.terminal_width()
+    except Exception as ex:
+      width = None
+
+    #log.console('width={}'.format(width))
+      
     r = { 'AHEAD': 'AH', 'BEHIND': 'BE', 'ACTIVE': '*' }
     table_labels = tuple([ string_util.replace(f.upper(), r) for f in self._values[0]._fields ])
     longest_comment = 60 # self.longest_comment
