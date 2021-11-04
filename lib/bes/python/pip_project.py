@@ -11,6 +11,7 @@ from bes.common.check import check
 from bes.common.object_util import object_util
 from bes.fs.file_util import file_util
 from bes.fs.file_find import file_find
+from bes.fs.filename_util import filename_util
 from bes.property.cached_property import cached_property
 from bes.system.command_line import command_line
 from bes.system.env_var import env_var
@@ -94,13 +95,15 @@ class pip_project(object):
     
   @cached_property
   def user_base_install_dir(self):
-    if host.is_windows():
-      user_base_install_dir = path.join(self.project_dir, self.installation.windows_versioned_install_dirname)
-    elif host.is_unix():
-      user_base_install_dir = self.project_dir
-    else:
-      host.raise_unsupported_system()
-    return user_base_install_dir
+#    if host.is_windows():
+#      user_base_install_dir = path.join(self.project_dir, self.installation.windows_versioned_install_dirname)
+#    elif host.is_unix():
+#      user_base_install_dir = self.project_dir
+#    else:
+#      host.raise_unsupported_system()
+#    user_base_install_dir = self.project_dir
+#    return user_base_install_dir
+    return self.project_dir
   
   @cached_property
   def bin_dir(self):
@@ -365,6 +368,17 @@ class pip_project(object):
     'Return the abs path for program in the venv'
     check.check_string(program)
 
+    print('CACA:    bin_dir={}'.format(self.bin_dir))
+    
+    from bes.fs.file_find import file_find
+
+    for f in file_find.find(self.project_dir, relative = False):
+      if f.endswith('pipenv.exe'):
+        print('CACA: pipenv.exe={}'.format(f))
+      
+    if host.is_windows():
+      if not filename_util.has_extension(program, 'exe', ignore_case = True):
+        program = filename_util.add_extension(program, 'exe')
     return path.join(self.bin_dir, program)
 
   def has_program(self, program):
