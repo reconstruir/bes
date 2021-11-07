@@ -40,8 +40,7 @@ class pipenv_project_cli_handler(cli_command_handler):
     check.check_bool(dev)
 
     project = pipenv_project(name, options = self.options)
-    rv = project.install(packages, dev = dev)
-    print(rv.stdout)
+    project.install(packages, dev = dev)
     return 0
 
   def graph(self, name):
@@ -51,3 +50,11 @@ class pipenv_project_cli_handler(cli_command_handler):
     tree = project.graph()
     print(tree)
     return 0
+
+  def shell(self, name):
+    check.check_string(name)
+
+    project = pipenv_project(name, options = self.options)
+    project.shell()
+    return 0
+  

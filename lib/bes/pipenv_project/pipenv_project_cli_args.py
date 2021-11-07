@@ -25,7 +25,7 @@ class pipenv_project_cli_args(object):
     p = subparser.add_parser('install', help = 'Install packages.')
     self.__pipenv_project_add_common_args(p)
     p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip project [ None ]')
+                   help = 'The name for this pipenv project [ None ]')
     p.add_argument('packages', action = 'store', default = [], nargs = '+',
                    help = 'The name of the packages to install [ None ]')
     p.add_argument('--dev', action = 'store_true', default = False,
@@ -35,7 +35,13 @@ class pipenv_project_cli_args(object):
     p = subparser.add_parser('graph', help = 'Print graph of packages.')
     self.__pipenv_project_add_common_args(p)
     p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip project [ None ]')
+                   help = 'The name for this pipenv project [ None ]')
+
+    # shell
+    p = subparser.add_parser('shell', help = 'Spawn a shell.')
+    self.__pipenv_project_add_common_args(p)
+    p.add_argument('name', action = 'store', type = str, default = None,
+                   help = 'The name for this pipenv project [ None ]')
     
   def __pipenv_project_add_common_args(self, p):
     p.add_argument('-v', '--verbose', action = 'store_true', default = False,

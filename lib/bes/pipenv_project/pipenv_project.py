@@ -117,3 +117,6 @@ class pipenv_project(object):
     tree = tree_text_parser.parse(rv.stdout, strip_comments = True)
     print(tree)
     return tree
+
+  def shell(self):
+    return self.call_pipenv([ 'shell' ])
