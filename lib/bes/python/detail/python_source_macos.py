@@ -32,10 +32,7 @@ class python_source_macos(python_source_unix):
       '/opt/local/bin',
       '/usr/bin',
       '/usr/local/bin',
-      '/usr/local/opt/python@3.7/bin',
-      '/usr/local/opt/python@3.8/bin',
-      '/usr/local/opt/python@3.9/bin',
-    ]
+    ] + file_path.glob('/usr/local/opt/', 'python@*')
 
   @classmethod
   def _source_is_xcode(clazz, exe):
