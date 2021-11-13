@@ -6,6 +6,7 @@ from bes.fs.file_path import file_path
 from bes.fs.file_symlink import file_symlink
 from bes.fs.file_util import file_util
 from bes.python.python_script import python_script
+from bes.version.semantic_version import semantic_version
 
 from .python_source_unix import python_source_unix
 
@@ -28,12 +29,20 @@ class python_source_macos(python_source_unix):
   #@abstractmethod
   def possible_python_bin_dirs(self):
     'Return a list of possible dirs where the python executable might be.'
-    return [
+    result = []
+    brew_pythons = file_path.glob('/usr/local/opt/', 'python@?.*/bin')
+    sorted_brew_pythons = semantic_version.sort_string_list(brew_pythons, reverse = True)
+    result.extend(sorted_brew_pythons)
+    brew_pythons = file_path.glob('/usr/local/opt/', 'python@?/bin')
+    sorted_brew_pythons = semantic_version.sort_string_list(brew_pythons, reverse = True)
+    result.extend(sorted_brew_pythons)
+    result.extend([
       '/opt/local/bin',
       '/usr/bin',
       '/usr/local/bin',
-    ] + file_path.glob('/usr/local/opt/', 'python@*')
-
+    ])
+    return result
+  
   @classmethod
   def _source_is_xcode(clazz, exe):
     'Return True if python executable is from brew'

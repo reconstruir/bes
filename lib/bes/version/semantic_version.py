@@ -172,5 +172,11 @@ class semantic_version(object):
     sv2 = semantic_version(v2)
     return cmp(sv1._tokens, sv2._tokens)
 
+  @classmethod
+  def sort_string_list(clazz, l, reverse = False):
+    'Sort a string list using semantic_version'
+    check.check_list(l, check.STRING_TYPES)
+    return sorted(l, key = lambda v: semantic_version(v)._tokens,  reverse = reverse)
+  
 check.register_class(semantic_version, include_seq = False)
   

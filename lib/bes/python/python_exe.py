@@ -16,6 +16,7 @@ from bes.system.execute import execute
 from bes.system.log import logger
 from bes.system.os_env import os_env_var
 from bes.system.which import which
+from bes.version.semantic_version import semantic_version
 
 from .python_error import python_error
 from .python_version import python_version
@@ -227,7 +228,7 @@ class python_exe(object):
     clazz._log.log_d('        extra_path={}'.format(extra_path))
     clazz._log.log_d('sanitized_env_path={}'.format(sanitized_env_path))
     clazz._log.log_d('            result={}'.format(result))
-    return result
+    return sorted(result, key = lambda exe: semantic_version(str(clazz.version(exe)))._tokens, reverse = True)
 
   @classmethod
   def _sanitize_env_path(clazz, env_path):
