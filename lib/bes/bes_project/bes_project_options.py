@@ -9,7 +9,7 @@ from bes.data_output.data_output_style import data_output_style
 from bes.property.cached_property import cached_property
 from bes.script.blurber import blurber
 
-from .pip_error import pip_error
+from .bes_project_error import bes_project_error
 
 class bes_project_options(cli_options):
 
@@ -64,7 +64,7 @@ class bes_project_options(cli_options):
   @classmethod
   #@abstractmethod
   def error_class(clazz):
-    return pip_error
+    return bes_project_error
 
   #@abstractmethod
   def check_value_types(self):
@@ -86,11 +86,11 @@ class bes_project_options(cli_options):
     if not self.python_version:
       exe = python_exe.default_exe()
       if not exe:
-        raise pip_error('No default python found')
+        raise bes_project_error('No default python found')
     else:
       exe = python_exe.find_version(self.python_version)
       if not exe:
-        raise pip_error('No python found for version "{}"'.format(self.python_version))
+        raise bes_project_error('No python found for version "{}"'.format(self.python_version))
     return exe
 
   def resolve_root_dir(self):

@@ -6,6 +6,7 @@ import os.path as path
 import sys
 
 from collections import namedtuple
+from collections import OrderedDict
 
 from bes.common.check import check
 from bes.common.string_util import string_util
@@ -168,18 +169,25 @@ class python_exe(object):
   
   @classmethod
   def find_all_exes_info(clazz, exclude_sources = None, sanitize_path = True):
-    'Return info about all the executables in PATH that match any patterns'
+    'Return an ordered dict of info about all the executables in PATH that match any patterns'
     check.check_seq(exclude_sources, check.STRING_TYPES, allow_none = True)
 
     exclude_sources = set(exclude_sources or [])
     all_exes = clazz.find_all_exes(sanitize_path = sanitize_path)
-    result = {}
+    result = OrderedDict()
     for next_exe in all_exes:
       info = clazz.info(next_exe)
       if info.source not in exclude_sources:
         result[next_exe] = info
     return result
 
+  @classmethod
+  def available_versions(clazz):
+    'Return a set of all available python versions'
+    infos = clazz.find_all_exes_info()
+    return set([ str(info.version) for _, info in infos.items() ])
+  
+  # FIXME: get rid of this and simply do it in newest python order
   # Order in which versions are checked to return the default exe
   _DEFAULT_EXE_VERSION_LOOKUP_ORDER = [
     '3.7',

@@ -43,6 +43,7 @@ class best_cli(cli):
     ]
     
   from bes.archive.archive_cli_args import archive_cli_args
+  from bes.bes_project.bes_project_cli_args import bes_project_cli_args
   from bes.computer_setup.computer_setup_cli_args import computer_setup_cli_args
   from bes.docker.docker_cli_args import docker_cli_args
   from bes.egg.egg_cli_args import egg_cli_args
@@ -89,6 +90,7 @@ class best_cli(cli):
     cli_command('pip', 'pip_add_args', 'Pip stuff', pip_cli_args),
     cli_command('pip_installer', 'pip_installer_add_args', 'Pip installer stuff', pip_installer_cli_args),
     cli_command('pip_project', 'pip_project_add_args', 'Pip project stuff', pip_project_cli_args),
+    cli_command('bes_project', 'bes_project_add_args', 'Bes project stuff', bes_project_cli_args),    
     cli_command('pipenv_project', 'pipenv_project_add_args', 'Pipenv project stuff', pipenv_project_cli_args),
     cli_command('properties_file', 'properties_file_add_args', 'Deal with properties files', properties_file_cli_args),
     cli_command('python', 'python_add_args', 'Deal with python', python_cli_args),
