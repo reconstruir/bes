@@ -168,7 +168,7 @@ class python_exe(object):
     return result
   
   @classmethod
-  def find_all_exes_info(clazz, exclude_sources = None, sanitize_path = True):
+  def find_all_exes_info(clazz, exclude_sources = None, sanitize_path = True, key_by_version = False):
     'Return an ordered dict of info about all the executables in PATH that match any patterns'
     check.check_seq(exclude_sources, check.STRING_TYPES, allow_none = True)
 
@@ -178,7 +178,11 @@ class python_exe(object):
     for next_exe in all_exes:
       info = clazz.info(next_exe)
       if info.source not in exclude_sources:
-        result[next_exe] = info
+        if key_by_version:
+          key = str(info.version)
+        else:
+          key = next_exe
+        result[key] = info
     return result
 
   @classmethod

@@ -38,7 +38,9 @@ class bes_project(object):
   
   def __init__(self, name, options = None):
     check.check_string(name)
-    check.check_bes_project_options(options)
+    check.check_bes_project_options(options, allow_none = True)
+
+    self._options = options or bes_project_options()
 
   def activate_script(self, variant = None):
     'Return the activate script for the virtual env'
@@ -54,8 +56,13 @@ class bes_project(object):
         versions_str = ' '.join(available_versions)
         raise bes_project_error('Python version "{}" not found.  Should be one of {}'.format(python_version,
                                                                                              versions_str))
+
+    infos = python_exe.find_all_exes_info(key_by_version = True)
+    for key, value in infos.items():
+      print('{}: {}'.format(key, value))
     print('    name: {}'.format(name))
     print('versions: {}'.format(resolved_python_versions))
+    print(' options: {}'.format(self._options))
 
   @classmethod
   def _resolve_python_versions(clazz, python_versions):
@@ -69,11 +76,14 @@ class bes_project(object):
 
   @classmethod
   def _resolve_one_version(clazz, python_version):
-    if python_version == 'all':
-      infos = python_exe.find_all_exes_info()
+    infos = python_exe.find_all_exes_info()
+    if python_version in [ 'all', 'all3' ]:
+      return [ str(info.version) for _, info in infos.items() if info.version.major_version == 3 ]
+    elif python_version == 'all2':
+      return [ str(info.version) for _, info in infos.items() if info.version.major_version == 2 ]
+    elif python_version == 'all23':
       return [ str(info.version) for _, info in infos.items() ]
-    if python_version == 'latest':
-      infos = python_exe.find_all_exes_info()
+    elif python_version == 'latest':
       if not infos:
         return []
       info = [ item[1] for item in infos.items() ][0]
@@ -87,4 +97,3 @@ class bes_project(object):
       next_versions = [ pv.lower().strip() for pv in next_pv.split(',') ]
       result.extend(next_versions)
     return algorithm.unique(result)
-  
