@@ -1,7 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from collections import OrderedDict
 import time
+
+from functools import wraps
+from collections import OrderedDict
 from bes.system.log import log
 
 class debug_timer(object):
@@ -46,3 +48,28 @@ class debug_timer(object):
     thing, started = self.starts.popitem()
     elapsed = self.round(time.time() - started)
     self.log(self._level, u'{0} {1}{2} {3}'.format(elapsed, self.columns(len(self.starts) - 1), self.BOX_UP_AND_RIGHT, thing))
+
+def timed_method(timer_name):
+  def _wrap(func):
+    @wraps(func)
+    def _caller(self, *args, **kwargs):
+      timer = self.__getattribute__(timer_name)
+      assert timer, 'Instance "%s" needs to have a "%s" attribute' % (self, timer_name)
+      timer.start('{}()'.format(func.__name__))
+      try:
+        return func(self, *args, **kwargs)
+      finally:
+        timer.stop()
+    return _caller
+  return _wrap
+
+def timed_function(timer):
+  def _wrap(f):
+    def _caller(*args, **kw):
+      timer.start('{}()'.format(f.__name__))
+      try:
+        return f(*args, **kw)
+      finally:
+        timer.stop()
+    return _caller
+  return _wrap
