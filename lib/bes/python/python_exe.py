@@ -218,7 +218,7 @@ class python_exe(object):
     exe = clazz.default_exe()
     if not exe:
       return None
-    return clazz.version(exe)
+    return clazz.version(exe).version
 
   _all_exes_cache = {}
   @classmethod

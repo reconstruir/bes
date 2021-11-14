@@ -28,9 +28,9 @@ class bes_project_cli_handler(cli_command_handler):
     print(script)
     return 0
   
-  def create(self, python_versions):
+  def ensure(self, python_versions):
     check.check_string_seq(python_versions)
 
     project = bes_project(options = self.options)
-    project.create(python_versions)
+    project.ensure(python_versions)
     return 0

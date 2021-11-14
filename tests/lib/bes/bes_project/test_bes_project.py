@@ -5,7 +5,7 @@ from os import path
 
 from bes.fs.file_find import file_find
 #from bes.python.pip_error import pip_error
-#from bes.python.pip_exe import pip_exe
+from bes.python.python_exe import python_exe
 #from bes.python.pip_installer_options import pip_installer_options
 #from bes.python.pip_installer_tester import pip_installer_tester
 from bes.bes_project.bes_project import bes_project
@@ -47,12 +47,13 @@ class test_bes_project(unit_test):
     self.assertTrue( 'no matching distribution found for pyinstaller==666.666.666.666.666' in str(ctx.exception).lower() )
     
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_latest_version - no python3 found', warning = True)
-  def test_create(self):
+  def test_ensure(self):
     tmp_dir = self.make_temp_dir()
     options = bes_project_options(root_dir = tmp_dir,
                                   debug = self.DEBUG)
     project = bes_project(options = options)
-    project.create([ '3.8' ])
+    version = python_exe.default_exe_version()
+    project.ensure([ version ])
     #rv = project.call_program([ 'pyinstaller', '--version' ])
     #self.assertEqual( 0, rv.exit_code )
     

@@ -30,8 +30,8 @@ class bes_project(object):
     return 'foo'
   
   @timed_method('_timer')
-  def create(self, python_versions):
-    'Ensure a bes project is created'
+  def ensure(self, python_versions):
+    'Ensure a bes project is ensured'
     self._timer.start('resolve')
     resolved_python_versions = self._resolve_python_versions(python_versions)
     self._timer.stop()
@@ -50,13 +50,13 @@ class bes_project(object):
     infos = python_exe.find_all_exes_info(key_by_version = True)
     self._timer.stop()
 
-    self._timer.start('create_all')
+    self._timer.start('ensure_all')
     for python_version in resolved_python_versions:
       assert python_version in infos
       info = infos[python_version]
       pp_root_dir = path.join(self._options.root_dir, python_version)
       if not path.isdir(pp_root_dir):
-        self._timer.start('create_{}'.format(python_version))
+        self._timer.start('ensure_{}'.format(python_version))
         pp_options = pip_project_options(debug = self._options.debug,
                                          verbose = self._options.verbose,
                                          blurber = self._options.blurber,
@@ -103,6 +103,6 @@ class bes_project(object):
   def _flatten_python_versions(self, python_versions):
     result = []
     for next_pv in python_versions:
-      next_versions = [ pv.lower().strip() for pv in next_pv.split(',') ]
+      next_versions = [ pv.lower().strip() for pv in str(next_pv).split(',') ]
       result.extend(next_versions)
     return algorithm.unique(result)
