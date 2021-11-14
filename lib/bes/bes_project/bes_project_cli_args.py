@@ -10,8 +10,6 @@ class bes_project_cli_args(object):
     # setup
     p = subparser.add_parser('setup', help = 'Setup a pip project.')
     self.__bes_project_add_common_args(p)
-    p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip project [ None ]')
     p.add_argument('--version', action = 'append', type = str, default = [],
                    dest = 'python_versions',
                    help = 'The version of python to use.  Multiple versions can be used along with "all" and "latest" [ None ]')
@@ -19,8 +17,6 @@ class bes_project_cli_args(object):
     # activate_script
     p = subparser.add_parser('activate_script', help = 'Print the activate script for the virtual env.')
     self.__bes_project_add_common_args(p)
-    p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip project [ None ]')
     p.add_argument('--variant', action = 'store', type = str, default = None,
                    help = 'The virtual env variant (csh, fish, ps1) [ None ]')
     

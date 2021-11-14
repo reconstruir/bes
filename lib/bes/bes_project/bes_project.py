@@ -36,8 +36,7 @@ class bes_project(object):
 
   _log = logger('bes_project')
   
-  def __init__(self, name, options = None):
-    check.check_string(name)
+  def __init__(self, options = None):
     check.check_bes_project_options(options, allow_none = True)
 
     self._options = options or bes_project_options()
@@ -46,7 +45,7 @@ class bes_project(object):
     'Return the activate script for the virtual env'
     return 'foo'
   
-  def setup(self, name, python_versions):
+  def setup(self, python_versions):
     'Setup'
     resolved_python_versions = self._resolve_python_versions(python_versions)
 
@@ -60,7 +59,6 @@ class bes_project(object):
     infos = python_exe.find_all_exes_info(key_by_version = True)
     for key, value in infos.items():
       print('{}: {}'.format(key, value))
-    print('    name: {}'.format(name))
     print('versions: {}'.format(resolved_python_versions))
     print(' options: {}'.format(self._options))
 

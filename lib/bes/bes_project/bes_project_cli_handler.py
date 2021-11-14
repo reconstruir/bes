@@ -20,19 +20,17 @@ class bes_project_cli_handler(cli_command_handler):
     check.check_bes_project_options(self.options)
     self.options.blurber.set_verbose(self.options.verbose)
     
-  def activate_script(self, name, variant):
-    check.check_string(name)
+  def activate_script(self, variant):
     check.check_string(variant, allow_none = True)
 
-    project = bes_project(name, options = self.options)
+    project = bes_project(options = self.options)
     script = project.activate_script(variant = variant)
     print(script)
     return 0
   
-  def setup(self, name, python_versions):
-    check.check_string(name)
+  def setup(self, python_versions):
     check.check_string_seq(python_versions)
 
-    project = bes_project(name, options = self.options)
-    project.setup(name, python_versions)
+    project = bes_project(options = self.options)
+    project.setup(python_versions)
     return 0
