@@ -209,10 +209,8 @@ class python_exe(object):
     all_info = clazz.find_all_exes_info()
     if not all_info:
       return None
-    by_version = {}
-    for _, next_info in all_info.items():
-      by_version[str(next_info.version)] = next_info
-    return by_version.items()[0].exe
+    items = [ item for _, item in all_info.items() ]
+    return items[0].exe
 
   @classmethod
   def default_exe_version(clazz):
