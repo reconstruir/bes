@@ -20,7 +20,7 @@ class test_pipenv_project(unit_test):
     tmp_dir = self.make_temp_dir()
     options = pipenv_project_options(root_dir = tmp_dir,
                                      debug = self.DEBUG)
-    project = pipenv_project('kiwi', options = options)
+    project = pipenv_project(options = options)
     rv = project.call_pipenv([ '--version' ])
     self.assertTrue( rv.stdout.strip().startswith('pipenv, version') )
     rv = project.call_pipenv([ 'graph' ])
@@ -31,7 +31,7 @@ class test_pipenv_project(unit_test):
     tmp_dir = self.make_temp_dir()
     options = pipenv_project_options(root_dir = tmp_dir,
                                      debug = self.DEBUG)
-    project = pipenv_project('kiwi', options = options)
+    project = pipenv_project(options = options)
     rv = project.call_pipenv([ '--version' ])
     self.assertTrue( rv.stdout.strip().startswith('pipenv, version') )
     

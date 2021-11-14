@@ -29,7 +29,7 @@ class test_pip_project(unit_test):
     options = pip_project_options(root_dir = tmp_dir,
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
-    project = pip_project('kiwi', options = options)
+    project = pip_project(options = options)
     with self.assertRaises(pip_error) as ctx:
       project.install('somethingthatdoesntexistshaha')
     self.assertTrue( 'no matching distribution found for somethingthatdoesntexistshaha' in str(ctx.exception).lower() )
@@ -40,7 +40,7 @@ class test_pip_project(unit_test):
     options = pip_project_options(root_dir = tmp_dir,
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
-    project = pip_project('kiwi', options = options)
+    project = pip_project(options = options)
     with self.assertRaises(pip_error) as ctx:
       project.install('pyinstaller', version = '666.666.666.666.666')
     print('ex={}'.format(str(ctx.exception).lower()))
@@ -52,7 +52,7 @@ class test_pip_project(unit_test):
     options = pip_project_options(root_dir = tmp_dir,
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
-    project = pip_project('kiwi', options = options)
+    project = pip_project(options = options)
     project.install('pyinstaller')
     rv = project.call_program([ 'pyinstaller', '--version' ])
     self.assertEqual( 0, rv.exit_code )
@@ -63,7 +63,7 @@ class test_pip_project(unit_test):
     options = pip_project_options(root_dir = tmp_dir,
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
-    project = pip_project('kiwi', options = options)
+    project = pip_project(options = options)
     project.install('pyinstaller', version = '3.5')
     rv = project.call_program([ 'pyinstaller', '--version' ])
     self.assertEqual( '3.5', rv.stdout.strip() )
@@ -76,7 +76,7 @@ class test_pip_project(unit_test):
     options = pip_project_options(root_dir = tmp_dir,
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
-    project = pip_project('kiwi', options = options)
+    project = pip_project(options = options)
     project.install('pyinstaller', version = '3.5')
     rv = project.call_program([ 'pyinstaller', '--version' ])
     old_version = semantic_version(project.version('pyinstaller'))
@@ -91,11 +91,11 @@ class test_pip_project(unit_test):
     options = pip_project_options(root_dir = tmp_dir,
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
-    p1 = pip_project('kiwi', options = options)
+    p1 = pip_project(options = options)
     p1.install('pyinstaller', version = '3.5')
     rv = p1.call_program([ 'pyinstaller', '--version' ])
     self.assertEqual( '3.5', p1.version('pyinstaller') )
-    p2 = pip_project('kiwi', options = options)
+    p2 = pip_project(options = options)
     p2.install('pyinstaller', version = '3.5')
     rv = p2.call_program([ 'pyinstaller', '--version' ])
     self.assertEqual( '3.5', p2.version('pyinstaller') )

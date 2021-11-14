@@ -19,14 +19,11 @@ class pipenv_project_cli_handler(cli_command_handler):
     check.check_pipenv_project_options(self.options)
     self.options.blurber.set_verbose(self.options.verbose)
 
-  def create(self, name):
-    check.check_string(name)
-
+  def create(self):
     project = pipenv_project(name, options = self.options)
     return 0
 
-  def command(self, name, args):
-    check.check_string(name)
+  def command(self, args):
     check.check_string_seq(args)
 
     project = pipenv_project(name, options = self.options)
@@ -34,8 +31,7 @@ class pipenv_project_cli_handler(cli_command_handler):
     print(rv.stdout)
     return rv.exit_code
 
-  def install(self, name, packages, dev):
-    check.check_string(name)
+  def install(self, packages, dev):
     check.check_string_seq(packages)
     check.check_bool(dev)
 
@@ -44,9 +40,7 @@ class pipenv_project_cli_handler(cli_command_handler):
     print(rv.stdout)
     return 0
 
-  def graph(self, name):
-    check.check_string(name)
-
+  def graph(self):
     project = pipenv_project(name, options = self.options)
     tree = project.graph()
     print(tree)

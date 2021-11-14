@@ -34,14 +34,12 @@ class pip_project(object):
 
   _log = logger('pip_project')
   
-  def __init__(self, name, options = None):
-    check.check_string(name)
+  def __init__(self, options = None):
     check.check_pip_project_options(options)
 
     self._extra_env = {}
     self._options = options or check_pip_project_options()
     self._original_python_exe = self._options.resolve_python_exe()
-    self._name = name
     self._root_dir = self._options.resolve_root_dir()
     self._pip_cache_dir = path.join(self.droppings_dir, 'pip-cache')
     self._fake_home_dir = path.join(self.droppings_dir, 'fake-home')
@@ -54,7 +52,7 @@ class pip_project(object):
     ]
     self._log.log_d('pip_project: pip_exe={} pip_env={} project_dir={}'.format(self.pip_exe,
                                                                                self.env,
-                                                                               self.project_dir))
+                                                                               self.root_dir))
     self._reinstall_pip_if_needed()
     self._ensure_basic_packages()
 
@@ -75,7 +73,7 @@ class pip_project(object):
     
   @cached_property
   def virtual_env(self):
-    return python_virtual_env(self._original_python_exe, self.project_dir)
+    return python_virtual_env(self._original_python_exe, self.root_dir)
 
   @cached_property
   def installation(self):
@@ -86,24 +84,24 @@ class pip_project(object):
     return self.installation.python_exe
   
   @cached_property
-  def project_dir(self):
-    return path.join(self._root_dir, self._name)
+  def root_dir(self):
+    return self._root_dir
 
   @cached_property
   def droppings_dir(self):
-    return path.join(self.project_dir, '.droppings')
+    return path.join(self.root_dir, '.droppings')
     
   @cached_property
   def user_base_install_dir(self):
 #    if host.is_windows():
-#      user_base_install_dir = path.join(self.project_dir, self.installation.windows_versioned_install_dirname)
+#      user_base_install_dir = path.join(self.root_dir, self.installation.windows_versioned_install_dirname)
 #    elif host.is_unix():
-#      user_base_install_dir = self.project_dir
+#      user_base_install_dir = self.root_dir
 #    else:
 #      host.raise_unsupported_system()
-#    user_base_install_dir = self.project_dir
+#    user_base_install_dir = self.root_dir
 #    return user_base_install_dir
-    return self.project_dir
+    return self.root_dir
   
   @cached_property
   def bin_dir(self):
@@ -129,7 +127,7 @@ class pip_project(object):
   def env(self):
     'Make a clean environment for python or pip'
     clean_env = os_env.make_clean_env()
-    env_var(clean_env, 'PYTHONUSERBASE').value = self.project_dir
+    env_var(clean_env, 'PYTHONUSERBASE').value = self.root_dir
     env_var(clean_env, 'PYTHONPATH').path = self.PYTHONPATH
     env_var(clean_env, 'PATH').prepend(self.PATH)
     env_var(clean_env, 'HOME').value = self._fake_home_dir
@@ -162,7 +160,7 @@ class pip_project(object):
 
   def activate_script(self, variant = None):
     'Return the activate script for the virtual env'
-    return python_source.activate_script(self.project_dir, variant)
+    return python_source.activate_script(self.root_dir, variant)
   
   @property
   def pip_version(self):
@@ -368,14 +366,6 @@ class pip_project(object):
     'Return the abs path for program in the venv'
     check.check_string(program)
 
-    print('CACA:    bin_dir={}'.format(self.bin_dir))
-    
-    from bes.fs.file_find import file_find
-
-    for f in file_find.find(self.project_dir, relative = False):
-      if f.endswith('pipenv.exe'):
-        print('CACA: pipenv.exe={}'.format(f))
-      
     if host.is_windows():
       if not filename_util.has_extension(program, 'exe', ignore_case = True):
         program = filename_util.add_extension(program, 'exe')

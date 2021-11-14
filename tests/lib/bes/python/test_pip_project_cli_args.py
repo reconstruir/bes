@@ -15,9 +15,8 @@ from bes.version.semantic_version import semantic_version
 
 class _pip_project_tester(object):
 
-  def __init__(self, ut, name):
+  def __init__(self, ut):
     self._unit_test = ut
-    self.name = name
     self.tmp_dir = self._unit_test.make_temp_dir()
     self.root_dir = path.join(self.tmp_dir, 'root')
     self.python_version = str(python_exe.default_exe_version())
@@ -28,7 +27,6 @@ class _pip_project_tester(object):
       command,
       '--root-dir', self.root_dir,
       '--python-version', self.python_version,
-      self.name,
     ] + list(extra_args)
     #print('args={}'.format(args))
     return args
@@ -74,12 +72,12 @@ class test_pip_project_cli_args(program_unit_test):
   _program = program_unit_test.resolve_program(__file__, '../../../../bin/best.py')
 
   def test_create(self):
-    tester = _pip_project_tester(self, 'kiwi')
+    tester = _pip_project_tester(self)
     rv = tester.create()
     self.assertEqual( 0, rv.exit_code )
 
   def test_install(self):
-    tester = _pip_project_tester(self, 'kiwi')
+    tester = _pip_project_tester(self)
     rv = tester.create()
     self.assertEqual( 0, rv.exit_code )
     installed1 = tester.installed()
@@ -93,7 +91,7 @@ class test_pip_project_cli_args(program_unit_test):
     self.assertEqual( expected, actual )
 
   def test_outdated(self):
-    tester = _pip_project_tester(self, 'kiwi')
+    tester = _pip_project_tester(self)
     rv = tester.create()
     self.assertEqual( 0, rv.exit_code )
 
@@ -102,7 +100,7 @@ class test_pip_project_cli_args(program_unit_test):
     self.assertTrue( 'chardet' in set(tester.outdated()) )
     
   def test_upgrade_one_package(self):
-    tester = _pip_project_tester(self, 'kiwi')
+    tester = _pip_project_tester(self)
     rv = tester.create()
     self.assertEqual( 0, rv.exit_code )
 
@@ -129,7 +127,7 @@ certifi == 2021.5.30
 '''
     tmp_requirements = self.make_temp_file(content = requirements_content)
     
-    tester = _pip_project_tester(self, 'kiwi')
+    tester = _pip_project_tester(self)
     rv = tester.create()
     self.assertEqual( 0, rv.exit_code )
 
@@ -155,7 +153,7 @@ certifi == 2021.5.30
 '''
     tmp_requirements = self.make_temp_file(content = requirements_content)
     
-    tester = _pip_project_tester(self, 'kiwi')
+    tester = _pip_project_tester(self)
     rv = tester.create()
     self.assertEqual( 0, rv.exit_code )
 

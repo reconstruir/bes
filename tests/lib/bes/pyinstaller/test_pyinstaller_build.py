@@ -36,7 +36,7 @@ class test_pyinstaller_builder(unit_test):
     options = pip_project_options(root_dir = venvs_dir,
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
-    project = pip_project('kiwi', options = options)
+    project = pip_project(options = options)
     project.install('pyinstaller', version = '4.3')
 
     program_content = r'''
