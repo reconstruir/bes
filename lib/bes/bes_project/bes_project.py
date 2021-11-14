@@ -30,8 +30,8 @@ class bes_project(object):
     return 'foo'
   
   @timed_method('_timer')
-  def setup(self, python_versions):
-    'Setup'
+  def create(self, python_versions):
+    'Ensure a bes project is created'
     self._timer.start('resolve')
     resolved_python_versions = self._resolve_python_versions(python_versions)
     self._timer.stop()

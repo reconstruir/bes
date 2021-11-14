@@ -7,8 +7,8 @@ class bes_project_cli_args(object):
   
   def bes_project_add_args(self, subparser):
 
-    # setup
-    p = subparser.add_parser('setup', help = 'Setup a pip project.')
+    # create
+    p = subparser.add_parser('create', help = 'Create a bes project.')
     self.__bes_project_add_common_args(p)
     p.add_argument('--version', action = 'append', type = str, default = [],
                    dest = 'python_versions',
