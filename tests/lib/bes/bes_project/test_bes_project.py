@@ -59,8 +59,7 @@ beautifulsoup4==4.9.3 # https://github.com/waylan/beautifulsoup
     '''
     requirements_tmp = self.make_temp_file(content = requirements_content)
     project.ensure([ str(version) ], requirements_tmp)
-    #rv = project.call_program([ 'pyinstaller', '--version' ])
-    #self.assertEqual( 0, rv.exit_code )
+    self.assertEqual( [ version ], project.versions )
     
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def xtest_install_specific_version(self):
