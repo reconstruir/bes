@@ -25,8 +25,6 @@ class bes_project_options(cli_options):
       'debug': False,
       'output_filename': None,
       'output_style': data_output_style.TABLE,
-      'python_exe': None,
-      'python_version': None,
       'root_dir': None,
       'verbose': False,
     }
@@ -73,25 +71,8 @@ class bes_project_options(cli_options):
     check.check_bool(self.verbose)
     check.check_bool(self.debug)
     check.check_string(self.root_dir, allow_none = True)
-    check.check_string(self.python_version, allow_none = True)
-    check.check_string(self.python_exe, allow_none = True)
     check.check_string(self.output_filename, allow_none = True)
     check.check_data_output_style(self.output_style, allow_none = True)
-
-  def resolve_python_exe(self):
-    if self.python_exe:
-      return self.python_exe
-
-    from .python_exe import python_exe
-    if not self.python_version:
-      exe = python_exe.default_exe()
-      if not exe:
-        raise bes_project_error('No default python found')
-    else:
-      exe = python_exe.find_version(self.python_version)
-      if not exe:
-        raise bes_project_error('No python found for version "{}"'.format(self.python_version))
-    return exe
 
   def resolve_root_dir(self):
     import os.path as path

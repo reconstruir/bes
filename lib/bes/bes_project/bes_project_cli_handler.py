@@ -1,12 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
-import pprint
 
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
-from bes.text.text_table import text_table
 from bes.data_output.data_output import data_output
+from bes.fs.file_check import file_check
+from bes.text.text_table import text_table
 
 from .bes_project_error import bes_project_error
 from .bes_project import bes_project
@@ -28,9 +28,11 @@ class bes_project_cli_handler(cli_command_handler):
     print(script)
     return 0
   
-  def ensure(self, python_versions):
-    check.check_string_seq(python_versions)
+  def ensure(self, versions, requirements, requirements_dev):
+    check.check_string_seq(versions)
+    requirements = file_check.check_file(requirements)
+    requirements_dev = file_check.check_file(requirements_dev, allow_none = True)
 
     project = bes_project(options = self.options)
-    project.ensure(python_versions)
+    project.ensure(versions, requirements, requirements_dev = requirements_dev)
     return 0

@@ -53,7 +53,12 @@ class test_bes_project(unit_test):
                                   debug = self.DEBUG)
     project = bes_project(options = options)
     version = python_exe.default_exe_version()
-    project.ensure([ version ])
+    requirements_content = '''\
+# Requests
+beautifulsoup4==4.9.3 # https://github.com/waylan/beautifulsoup
+    '''
+    requirements_tmp = self.make_temp_file(content = requirements_content)
+    project.ensure([ str(version) ], requirements_tmp)
     #rv = project.call_program([ 'pyinstaller', '--version' ])
     #self.assertEqual( 0, rv.exit_code )
     

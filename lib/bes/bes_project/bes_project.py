@@ -4,12 +4,13 @@ from os import path
 
 from bes.common.algorithm import algorithm
 from bes.common.check import check
+from bes.debug.debug_timer import debug_timer
+from bes.debug.debug_timer import timed_method
+from bes.fs.file_check import file_check
 from bes.python.pip_project import pip_project
 from bes.python.pip_project_options import pip_project_options
 from bes.python.python_exe import python_exe
 from bes.system.log import logger
-from bes.debug.debug_timer import debug_timer
-from bes.debug.debug_timer import timed_method
 
 from .bes_project_error import bes_project_error
 from .bes_project_options import bes_project_options
@@ -30,16 +31,23 @@ class bes_project(object):
     return 'foo'
   
   @timed_method('_timer')
-  def ensure(self, python_versions):
+  def ensure(self, versions, requirements, requirements_dev = None):
     'Ensure a bes project is ensured'
+    check.check_string_seq(versions)
+    requirements = file_check.check_file(requirements)
+    requirements_dev = file_check.check_file(requirements_dev, allow_none = True)
+
+    print('CACA: requirements={}'.format(requirements))
+    print('CACA: requirements_dev={}'.format(requirements_dev))
+    
     self._timer.start('resolve')
-    resolved_python_versions = self._resolve_python_versions(python_versions)
+    resolved_versions = self._resolve_versions(versions)
     self._timer.stop()
     self._timer.start('available')
     available_versions = python_exe.available_versions()
     self._timer.stop()
     self._timer.start('check')
-    for python_version in resolved_python_versions:
+    for python_version in resolved_versions:
       if not python_version in available_versions:
         versions_str = ' '.join(available_versions)
         raise bes_project_error('Python version "{}" not found.  Should be one of {}'.format(python_version,
@@ -51,7 +59,7 @@ class bes_project(object):
     self._timer.stop()
 
     self._timer.start('ensure_all')
-    for python_version in resolved_python_versions:
+    for python_version in resolved_versions:
       assert python_version in infos
       info = infos[python_version]
       pp_root_dir = path.join(self._options.root_dir, python_version)
@@ -67,18 +75,18 @@ class bes_project(object):
     self._timer.stop()
 
   @timed_method('_timer')
-  def _resolve_python_versions(self, python_versions):
+  def _resolve_versions(self, versions):
     result = []
-    if not python_versions:
-      self._timer.start('_resolve_python_versions: call default_exe_version()')
+    if not versions:
+      self._timer.start('_resolve_versions: call default_exe_version()')
       result = [ str(python_exe.default_exe_version()) ]
       self._timer.stop()
     else:
-      self._timer.start('_resolve_python_versions: call _flatten_python_versions()')
-      versions = self._flatten_python_versions(python_versions)
+      self._timer.start('_resolve_versions: call _flatten_versions()')
+      flat_versions = self._flatten_versions(versions)
       self._timer.stop()
-      for next_version in versions:
-        self._timer.start('_resolve_python_versions: call _resolve_one_version()')
+      for next_version in flat_versions:
+        self._timer.start('_resolve_versions: call _resolve_one_version()')
         result.extend(self._resolve_one_version(next_version))
         self._timer.stop()
     return algorithm.unique(result)
@@ -100,9 +108,9 @@ class bes_project(object):
     return [ python_version ]
 
   @timed_method('_timer')
-  def _flatten_python_versions(self, python_versions):
+  def _flatten_versions(self, versions):
     result = []
-    for next_pv in python_versions:
-      next_versions = [ pv.lower().strip() for pv in str(next_pv).split(',') ]
+    for next_version in versions:
+      next_versions = [ pv.lower().strip() for pv in str(next_version).split(',') ]
       result.extend(next_versions)
     return algorithm.unique(result)

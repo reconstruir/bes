@@ -15,24 +15,22 @@ from bes.version.semantic_version import semantic_version
 
 class _bes_project_tester(object):
 
-  def __init__(self, ut, name):
+  def __init__(self, ut):
     self._unit_test = ut
-    self.name = name
     self.tmp_dir = self._unit_test.make_temp_dir()
     self.root_dir = path.join(self.tmp_dir, 'root')
-    self.python_version = str(python_exe.default_exe_version())
 
   def make_args(self, command, *extra_args):
     args = [
       'bes_project',
       command,
       '--root-dir', self.root_dir,
-      '--python-version', self.python_version,
-      self.name,
     ] + list(extra_args)
     #print('args={}'.format(args))
     return args
 
+#    version = python_exe.default_exe_version()
+  
   def root_files(self):
     return file_find.find(self.root_dir)
 
@@ -63,8 +61,11 @@ class _bes_project_tester(object):
     self._unit_test.assertEqual( 0, rv.exit_code )
     return json_util.read_file(tmp)
 
-  def create(self):
-    return self.run(self.make_args('create'))
+  def ensure(self, requirements, requirements_dev = None):
+    requirements_args = [ requirements ]
+    if requirements_dev:
+      requirements_args.extend([ '--requirements-dev', requirements_dev ])
+    return self.run(self.make_args('ensure', *requirements_args))
 
   def run(self, args, cwd = None, env = None):
     return self._unit_test.run_program(self._unit_test._program, args, cwd = cwd, env = env)
@@ -73,98 +74,15 @@ class test_bes_project_cli_args(program_unit_test):
 
   _program = program_unit_test.resolve_program(__file__, '../../../../bin/best.py')
 
-  def test_create(self):
-    tester = _bes_project_tester(self, 'kiwi')
-    rv = tester.create()
-    self.assertEqual( 0, rv.exit_code )
-
-  def test_install(self):
-    tester = _bes_project_tester(self, 'kiwi')
-    rv = tester.create()
-    self.assertEqual( 0, rv.exit_code )
-    installed1 = tester.installed()
-
-    rv = self.run_program(self._program, tester.make_args('install', 'chardet'))
-    self.assertEqual( 0, rv.exit_code )
-    installed2 = tester.installed()
-    
-    actual = set(installed2) - set(installed1)
-    expected = { 'chardet' }
-    self.assertEqual( expected, actual )
-
-  def test_outdated(self):
-    tester = _bes_project_tester(self, 'kiwi')
-    rv = tester.create()
-    self.assertEqual( 0, rv.exit_code )
-
-    rv = self.run_program(self._program, tester.make_args('install', 'chardet', '--version', '3.0.4'))
-    self.assertEqual( 0, rv.exit_code )
-    self.assertTrue( 'chardet' in set(tester.outdated()) )
-    
-  def test_upgrade_one_package(self):
-    tester = _bes_project_tester(self, 'kiwi')
-    rv = tester.create()
-    self.assertEqual( 0, rv.exit_code )
-
-    old_version = semantic_version('3.0.4')
-    
-    rv = self.run_program(self._program, tester.make_args('install', 'chardet', '--version', str(old_version)))
-    self.assertEqual( 0, rv.exit_code )
-
-    installed_before = tester.installed_dict()
-    self.assertEqual( str(old_version), installed_before['chardet'] )
-    
-    rv = self.run_program(self._program, tester.make_args('upgrade', 'chardet'))
-    self.assertEqual( 0, rv.exit_code )
-
-    installed_after = tester.installed_dict()
-    new_version = semantic_version(installed_after['chardet'])
-    self.assertTrue( new_version > old_version )
-
-  def test_upgrade_many_packages(self):
+  def test_ensure(self):
+    tester = _bes_project_tester(self)
     requirements_content = '''\
-idna == 2.7
-chardet == 3.0.4
-certifi == 2021.5.30
-'''
-    tmp_requirements = self.make_temp_file(content = requirements_content)
-    
-    tester = _bes_project_tester(self, 'kiwi')
-    rv = tester.create()
+# Requests
+beautifulsoup4==4.9.3 # https://github.com/waylan/beautifulsoup
+    '''
+    requirements_tmp = self.make_temp_file(content = requirements_content)
+    rv = tester.ensure(requirements_tmp)
     self.assertEqual( 0, rv.exit_code )
 
-    rv = self.run_program(self._program, tester.make_args('install_requirements', tmp_requirements))
-    self.assertEqual( 0, rv.exit_code )
-    installed_before = tester.installed_dict()
-    self.assertEqual( '2.7', installed_before['idna'] )
-    self.assertEqual( '3.0.4', installed_before['chardet'] )
-    self.assertEqual( '2021.5.30', installed_before['certifi'] )
-
-    rv = self.run_program(self._program, tester.make_args('upgrade', 'idna', 'chardet', 'certifi'))
-    self.assertEqual( 0, rv.exit_code )
-    installed_after = tester.installed_dict()
-    self.assertTrue( semantic_version(installed_after['idna']) > semantic_version('2.7') )
-    self.assertTrue( semantic_version(installed_after['chardet']) > semantic_version('3.0.4') )
-    self.assertTrue( semantic_version(installed_after['certifi']) > semantic_version('2021.5.30') )
-    
-  def test_install_requirements(self):
-    requirements_content = '''\
-idna == 2.7
-chardet == 3.0.4
-certifi == 2021.5.30
-'''
-    tmp_requirements = self.make_temp_file(content = requirements_content)
-    
-    tester = _bes_project_tester(self, 'kiwi')
-    rv = tester.create()
-    self.assertEqual( 0, rv.exit_code )
-
-    rv = self.run_program(self._program, tester.make_args('install_requirements', tmp_requirements))
-    self.assertEqual( 0, rv.exit_code )
-    installed = tester.installed_dict()
-    self.assertEqual( '2.7', installed['idna'] )
-    self.assertEqual( '3.0.4', installed['chardet'] )
-    self.assertEqual( '2021.5.30', installed['certifi'] )
-    
 if __name__ == '__main__':
   program_unit_test.main()
