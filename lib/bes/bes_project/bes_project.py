@@ -7,6 +7,7 @@ from bes.common.check import check
 from bes.debug.debug_timer import debug_timer
 from bes.debug.debug_timer import timed_method
 from bes.fs.file_check import file_check
+from bes.fs.file_util import file_util
 from bes.fs.dir_util import dir_util
 from bes.python.pip_project import pip_project
 from bes.python.pip_project_options import pip_project_options
@@ -77,6 +78,11 @@ class bes_project(object):
   def ensure(self, versions, requirements, requirements_dev = None):
     'Ensure a bes project is ensured'
     check.check_string_seq(versions)
+
+    old_versions = set(self.versions)
+    new_versions = set(versions)
+    to_remove = old_versions - new_versions
+    
     requirements = file_check.check_file(requirements)
     requirements_dev = file_check.check_file(requirements_dev, allow_none = True)
 
@@ -102,7 +108,7 @@ class bes_project(object):
     for python_version in resolved_versions:
       assert python_version in infos
       info = infos[python_version]
-      pp_root_dir = path.join(self._options.root_dir, python_version)
+      pp_root_dir = self._dir_for_version(python_version)
       pp_options = pip_project_options(debug = self._options.debug,
                                        verbose = self._options.verbose,
                                        blurber = self._options.blurber,
@@ -112,9 +118,20 @@ class bes_project(object):
       pp.install_requirements(requirements)
       if requirements_dev:
         pp.install_requirements(requirements_dev)
-        
+
+    for next_version_to_remove in to_remove:
+      self._remove_dir(next_version_to_remove)
+      
     self._timer.stop()
 
+  def _dir_for_version(self, version):
+    return path.join(self._options.root_dir, version)
+
+  def _remove_dir(self, version):
+    p = self._dir_for_version(version)
+    if path.exists(p):
+      file_util.remove(p)
+  
   @property
   def versions(self):
     'Return the python versions on disk'

@@ -17,37 +17,9 @@ from bes.testing.unit_test_skip import skip_if
 from bes.version.semantic_version import semantic_version
 
 class test_bes_project(unit_test):
-
-  @classmethod
-  def setUpClass(clazz):
-    #raise_skip('Not ready')
-    pass
-
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_invalid_package - no python3 found', warning = True)
-  def xtest_install_invalid_package(self):
-    tmp_dir = self.make_temp_dir()
-    options = bes_project_options(root_dir = tmp_dir,
-                                  #python_exe = python_testing._PYTHONS.ANY_PYTHON3,
-                                  debug = self.DEBUG)
-    project = bes_project(options = options)
-    with self.assertRaises(pip_error) as ctx:
-      project.install('somethingthatdoesntexistshaha')
-    self.assertTrue( 'no matching distribution found for somethingthatdoesntexistshaha' in str(ctx.exception).lower() )
-
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_invalid_version - no python3 found', warning = True)
-  def xtest_install_invalid_version(self):
-    tmp_dir = self.make_temp_dir()
-    options = bes_project_options(root_dir = tmp_dir,
-                                  python_exe = python_testing._PYTHONS.ANY_PYTHON3,
-                                  debug = self.DEBUG)
-    project = bes_project('kiwi', options = options)
-    with self.assertRaises(pip_error) as ctx:
-      project.install('pyinstaller', version = '666.666.666.666.666')
-    print('ex={}'.format(str(ctx.exception).lower()))
-    self.assertTrue( 'no matching distribution found for pyinstaller==666.666.666.666.666' in str(ctx.exception).lower() )
-    
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_latest_version - no python3 found', warning = True)
-  def test_ensure(self):
+  
+  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_ensure_one_version - no python3 found', warning = True)
+  def test_ensure_one_version(self):
     tmp_dir = self.make_temp_dir()
     options = bes_project_options(root_dir = tmp_dir,
                                   debug = self.DEBUG)
@@ -60,49 +32,48 @@ beautifulsoup4==4.9.3 # https://github.com/waylan/beautifulsoup
     requirements_tmp = self.make_temp_file(content = requirements_content)
     project.ensure([ str(version) ], requirements_tmp)
     self.assertEqual( [ version ], project.versions )
-    
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
-  def xtest_install_specific_version(self):
-    tmp_dir = self.make_temp_dir()
-    options = bes_project_options(root_dir = tmp_dir,
-                                  python_exe = python_testing._PYTHONS.ANY_PYTHON3,
-                                  debug = self.DEBUG)
-    project = bes_project('kiwi', options = options)
-    project.install('pyinstaller', version = '3.5')
-    rv = project.call_program([ 'pyinstaller', '--version' ])
-    self.assertEqual( '3.5', rv.stdout.strip() )
-    self.assertEqual( '3.5', project.version('pyinstaller') )
-    self.assertTrue( project.needs_upgrade('pyinstaller') )
 
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
-  def xtest_upgrade(self):
+  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_ensure_many_version - no python3 found', warning = True)
+  def test_ensure_many_version(self):
     tmp_dir = self.make_temp_dir()
     options = bes_project_options(root_dir = tmp_dir,
-                                  python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
-    project = bes_project('kiwi', options = options)
-    project.install('pyinstaller', version = '3.5')
-    rv = project.call_program([ 'pyinstaller', '--version' ])
-    old_version = semantic_version(project.version('pyinstaller'))
-    self.assertEqual( '3.5', old_version )
-    project.upgrade('pyinstaller')
-    new_version = semantic_version(project.version('pyinstaller'))
-    self.assertTrue( new_version > old_version )
-
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
-  def xtest_persistence(self):
-    tmp_dir = self.make_temp_dir()
-    options = bes_project_options(root_dir = tmp_dir,
-                                  python_exe = python_testing._PYTHONS.ANY_PYTHON3,
-                                  debug = self.DEBUG)
-    p1 = bes_project('kiwi', options = options)
-    p1.install('pyinstaller', version = '3.5')
-    rv = p1.call_program([ 'pyinstaller', '--version' ])
-    self.assertEqual( '3.5', p1.version('pyinstaller') )
-    p2 = bes_project('kiwi', options = options)
-    p2.install('pyinstaller', version = '3.5')
-    rv = p2.call_program([ 'pyinstaller', '--version' ])
-    self.assertEqual( '3.5', p2.version('pyinstaller') )
+    project = bes_project(options = options)
+    versions = self._available_versions()
+    requirements_content = '''\
+# Requests
+beautifulsoup4==4.9.3 # https://github.com/waylan/beautifulsoup
+    '''
+    requirements_tmp = self.make_temp_file(content = requirements_content)
+    project.ensure(versions, requirements_tmp)
+    print('        versions: {} - {}'.format(versions, type(versions)))
+    print('project.versions: {} - {}'.format(versions, type(project.versions)))
+    self.assertEqual( set(versions), set(project.versions) )
     
+  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_ensure_remove_one - no python3 found', warning = True)
+  def test_ensure_remove_one(self):
+    tmp_dir = self.make_temp_dir()
+    options = bes_project_options(root_dir = tmp_dir,
+                                  debug = self.DEBUG)
+    project = bes_project(options = options)
+    versions = self._available_versions()
+    requirements_content = '''\
+# Requests
+beautifulsoup4==4.9.3 # https://github.com/waylan/beautifulsoup
+    '''
+    requirements_tmp = self.make_temp_file(content = requirements_content)
+    project.ensure(versions, requirements_tmp)
+    self.assertEqual( set(versions), set(project.versions) )
+    only_version = python_exe.default_exe_version()
+    project.ensure([ str(only_version) ], requirements_tmp)
+    self.assertEqual( [ only_version ], project.versions )
+
+  @classmethod
+  def _available_versions(clazz):
+    versions = python_exe.available_versions()
+    if '2.7' in versions:
+      versions.remove('2.7')
+    return versions
+
 if __name__ == '__main__':
   unit_test.main()
