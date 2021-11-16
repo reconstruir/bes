@@ -26,10 +26,7 @@ class _bes_project_tester(object):
       command,
       '--root-dir', self.root_dir,
     ] + list(extra_args)
-    #print('args={}'.format(args))
     return args
-
-#    version = python_exe.default_exe_version()
   
   def root_files(self):
     return file_find.find(self.root_dir)
@@ -61,12 +58,21 @@ class _bes_project_tester(object):
     self._unit_test.assertEqual( 0, rv.exit_code )
     return json_util.read_file(tmp)
 
-  def ensure(self, requirements, requirements_dev = None):
+  def ensure(self, requirements, requirements_dev = None, versions = None):
     requirements_args = [ requirements ]
     if requirements_dev:
       requirements_args.extend([ '--requirements-dev', requirements_dev ])
-    return self.run(self.make_args('ensure', *requirements_args))
+    versions_args = []
+    for version in versions or []:
+      versions_args.extend([ '--version', version ])
+    return self.run(self.make_args('ensure', *requirements_args, *versions_args))
 
+  def activate_script(self, version, variant = None):
+    variant_args = []
+    if variant:
+      variant_args.extend([ '--variant', variant ])
+    return self.run(self.make_args('activate_script', version, *variant_args))
+  
   def run(self, args, cwd = None, env = None):
     return self._unit_test.run_program(self._unit_test._program, args, cwd = cwd, env = env)
     
@@ -84,5 +90,20 @@ beautifulsoup4==4.9.3 # https://github.com/waylan/beautifulsoup
     rv = tester.ensure(requirements_tmp)
     self.assertEqual( 0, rv.exit_code )
 
+  def test_activate_script(self):
+    tester = _bes_project_tester(self)
+    requirements_content = '''\
+# Requests
+beautifulsoup4==4.9.3 # https://github.com/waylan/beautifulsoup
+    '''
+    requirements_tmp = self.make_temp_file(content = requirements_content)
+    version = str(python_exe.default_exe_version())
+    rv = tester.ensure(requirements_tmp, versions = [ version ])
+    self.assertEqual( 0, rv.exit_code )
+    rv = tester.activate_script(version)
+    self.assertEqual( 0, rv.exit_code )
+    expected = path.join(tester.root_dir, version, 'bin/activate')
+    self.assertEqual( expected, rv.output )
+    
 if __name__ == '__main__':
   program_unit_test.main()
