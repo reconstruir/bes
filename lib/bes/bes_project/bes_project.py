@@ -29,10 +29,6 @@ class bes_project(object):
 
     self._options = options or bes_project_options()
 
-  def activate_script(self, variant = None):
-    'Return the activate script for the virtual env'
-    return 'foo'
-  
   @timed_method('_timer')
   def _resolve_versions(self, versions):
     result = []
@@ -100,21 +96,10 @@ class bes_project(object):
                                                                                              versions_str))
 
     self._timer.stop()
-    self._timer.start('infos')
-    infos = python_exe.find_all_exes_info(key_by_version = True)
-    self._timer.stop()
 
     self._timer.start('ensure_all')
     for python_version in resolved_versions:
-      assert python_version in infos
-      info = infos[python_version]
-      pp_root_dir = self._dir_for_version(python_version)
-      pp_options = pip_project_options(debug = self._options.debug,
-                                       verbose = self._options.verbose,
-                                       blurber = self._options.blurber,
-                                       root_dir = pp_root_dir,
-                                       python_exe = info.exe)
-      pp = pip_project(pp_options)
+      pp = self._make_pip_project(python_version)
       pp.install_requirements(requirements)
       if requirements_dev:
         pp.install_requirements(requirements_dev)
@@ -131,9 +116,29 @@ class bes_project(object):
     p = self._dir_for_version(version)
     if path.exists(p):
       file_util.remove(p)
-  
+
+  def _make_pip_project(self, version):
+    infos = python_exe.find_all_exes_info(key_by_version = True)
+    assert version in infos
+    info = infos[version]
+    pp_root_dir = self._dir_for_version(version)
+    pp_options = pip_project_options(debug = self._options.debug,
+                                     verbose = self._options.verbose,
+                                     blurber = self._options.blurber,
+                                     root_dir = pp_root_dir,
+                                     python_exe = info.exe)
+    return pip_project(pp_options)
+      
   @property
   def versions(self):
     'Return the python versions on disk'
+    if not path.exists(self._options.root_dir):
+      return []
     dirs = dir_util.list(self._options.root_dir, relative = True)
     return semantic_version.sort_string_list(dirs)
+
+  def activate_script(self, version, variant = None):
+    pp = self._make_pip_project(version)
+    return pp.activate_script(variant = variant)
+    
+    

@@ -32,7 +32,7 @@ beautifulsoup4==4.9.3 # https://github.com/waylan/beautifulsoup
     requirements_tmp = self.make_temp_file(content = requirements_content)
     project.ensure([ str(version) ], requirements_tmp)
     self.assertEqual( [ version ], project.versions )
-
+    
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_ensure_many_version - no python3 found', warning = True)
   def test_ensure_many_version(self):
     tmp_dir = self.make_temp_dir()

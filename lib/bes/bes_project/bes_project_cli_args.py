@@ -21,6 +21,8 @@ class bes_project_cli_args(object):
     # activate_script
     p = subparser.add_parser('activate_script', help = 'Print the activate script for the virtual env.')
     self.__bes_project_add_common_args(p)
+    p.add_argument('version', action = 'store', type = str, default = None,
+                   help = 'The version of python [ None ]')
     p.add_argument('--variant', action = 'store', type = str, default = None,
                    help = 'The virtual env variant (csh, fish, ps1) [ None ]')
     
