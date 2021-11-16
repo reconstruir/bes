@@ -7,8 +7,8 @@ from bes.fs.file_util import file_util
 
 class dir_cleanup(object):
   '''
-  A context manager to cleanup a directory.  An files the exist
-  only after exit are removed.
+  A context manager to cleanup a directory.  An files that exist
+  between enter and exit are removed.
   '''
   
   def __init__(self, where):
