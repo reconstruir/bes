@@ -13,13 +13,13 @@ class dir_split(object):
   'A class to split directories'
 
   @classmethod
-  def split(clazz, d, dst_dir, prefix, chunk_size):
-    d = file_check.check_dir(d)
+  def split(clazz, src_dir, dst_dir, chunk_size, prefix):
+    d = file_check.check_dir(src_dir)
     check.check_string(dst_dir)
-    check.check_string(prefix)
     check.check_int(chunk_size)
+    check.check_string(prefix)
 
-    files = [ f for f in dir_util.list(d) if path.isfile(f) ]
+    files = [ f for f in dir_util.list(src_dir) if path.isfile(f) ]
     chunks = [ chunk for chunk in object_util.chunks(files, chunk_size) ]
     num_chunks = len(chunks)
     num_digits = len(str(num_chunks))

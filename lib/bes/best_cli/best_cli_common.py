@@ -7,6 +7,7 @@ from bes.bes_project.bes_project_cli_args import bes_project_cli_args
 from bes.computer_setup.computer_setup_cli_args import computer_setup_cli_args
 from bes.docker.docker_cli_args import docker_cli_args
 from bes.egg.egg_cli_args import egg_cli_args
+from bes.fs.dir_cli_args import dir_cli_args
 from bes.git.git_cli_args import git_cli_args
 from bes.git.git_download_cli_args import git_download_cli_args
 from bes.git.git_identity_cli_args import git_identity_cli_args
@@ -35,26 +36,27 @@ from .system_cli_args import system_cli_args
   
 COMMON_COMMAND_GROUPS = [
   cli_command('archive', 'archive_add_args', 'Deal with archive', archive_cli_args),
+  cli_command('bes_project', 'bes_project_add_args', 'Bes project stuff', bes_project_cli_args),    
   cli_command('computer_setup', 'computer_setup_add_args', 'Deal with computer setup', computer_setup_cli_args),
+  cli_command('dir', 'dir_add_args', 'Dir stuff', dir_cli_args),
   cli_command('docker', 'docker_add_args', 'Docker stuff', docker_cli_args),
   cli_command('egg', 'egg_add_args', 'Deal with eggs', egg_cli_args),
   cli_command('git', 'git_add_args', 'Deal with git', git_cli_args),
-  cli_command('git_identity', 'git_identity_add_args', 'Deal with git identity', git_identity_cli_args),
-  cli_command('git_repo', 'git_repo_add_args', 'Deal with git repos', git_repo_cli_args),
   cli_command('git_download', 'git_download_add_args', 'Deal with git downloads', git_download_cli_args),
+  cli_command('git_identity', 'git_identity_add_args', 'Deal with git identity', git_identity_cli_args),
   cli_command('git_projects', 'git_projects_add_args', 'Deal with git projects', git_projects_cli_args),    
+  cli_command('git_repo', 'git_repo_add_args', 'Deal with git repos', git_repo_cli_args),
   cli_command('git_repo_document', 'git_repo_document_add_args', 'Deal with git documents', git_repo_document_cli_args),
   cli_command('git_repo_script', 'git_repo_script_add_args', 'Deal with git repo scipts', git_repo_script_cli_args),
   cli_command('native_package', 'native_package_add_args', 'Deal with native packages', native_package_cli_args),
   cli_command('pip', 'pip_add_args', 'Pip stuff', pip_cli_args),
   cli_command('pip_installer', 'pip_installer_add_args', 'Pip installer stuff', pip_installer_cli_args),
   cli_command('pip_project', 'pip_project_add_args', 'Pip project stuff', pip_project_cli_args),
-  cli_command('bes_project', 'bes_project_add_args', 'Bes project stuff', bes_project_cli_args),    
   cli_command('pipenv_project', 'pipenv_project_add_args', 'Pipenv project stuff', pipenv_project_cli_args),
   cli_command('properties_file', 'properties_file_add_args', 'Deal with properties files', properties_file_cli_args),
+  cli_command('pyinstaller', 'pyinstaller_add_args', 'Deal with PyInstaller', pyinstaller_cli_args),
   cli_command('python', 'python_add_args', 'Deal with python', python_cli_args),
   cli_command('python_installer', 'python_installer_add_args', 'Deal with python install', python_installer_cli_args),
-  cli_command('pyinstaller', 'pyinstaller_add_args', 'Deal with PyInstaller', pyinstaller_cli_args),
   cli_command('shell_framework', 'shell_framework_add_args', 'Deal with the bes_shell framework', shell_framework_cli_args),
   cli_command('vm_builder', 'vm_builder_add_args', 'VM Builder stuff', vm_builder_cli_args),
   cli_command('vmware', 'vmware_add_args', 'Deal with vmware', vmware_cli_args),    

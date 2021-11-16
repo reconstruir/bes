@@ -13,8 +13,66 @@ from bes.fs.testing.temp_content import temp_content
 class test_dir_split(unit_test):
 
   _content = namedtuple('_content', 'name, num')
- 
-  def test_split(self):
+
+  def test_split_chunks_of_two(self):
+    t = self._do_test([
+      self._content('apple', 5),
+      self._content('kiwi', 2),
+      self._content('lemon', 3),
+      self._content('blueberry', 1),
+    ], 1, 2)
+    expected = [
+      'chunk-1/apple1.txt',
+      'chunk-1/apple2.txt',
+      'chunk-2/apple3.txt',
+      'chunk-2/apple4.txt',
+      'chunk-3/apple5.txt',
+      'chunk-3/blueberry1.txt',
+      'chunk-4/kiwi1.txt',
+      'chunk-4/kiwi2.txt',
+      'chunk-5/lemon1.txt',
+      'chunk-5/lemon2.txt',
+      'chunk-6/lemon3.txt',
+    ]
+    self.assertEqual( expected, t.dst_files )
+    self.assertEqual( [], t.src_files )
+
+  def test_split_chunks_of_one(self):
+    t = self._do_test([
+      self._content('apple', 5),
+      self._content('kiwi', 2),
+      self._content('lemon', 3),
+      self._content('blueberry', 1),
+    ], 1, 1)
+    expected = [
+      'chunk-01/apple1.txt',
+      'chunk-02/apple2.txt',
+      'chunk-03/apple3.txt',
+      'chunk-04/apple4.txt',
+      'chunk-05/apple5.txt',
+      'chunk-06/blueberry1.txt',
+      'chunk-07/kiwi1.txt',
+      'chunk-08/kiwi2.txt',
+      'chunk-09/lemon1.txt',
+      'chunk-10/lemon2.txt',
+      'chunk-11/lemon3.txt',
+    ]
+    self.assertEqual( expected, t.dst_files )
+    self.assertEqual( [], t.src_files )
+
+  def test_split_one_chunk(self):
+    t = self._do_test([
+      self._content('apple', 1),
+      self._content('kiwi', 1),
+    ], 1, 3)
+    expected = [
+      'chunk-1/apple1.txt',
+      'chunk-1/kiwi1.txt',
+    ]
+    self.assertEqual( expected, t.dst_files )
+    self.assertEqual( [], t.src_files )
+    
+  def test_split_larger_dir(self):
     t = self._do_test([
       self._content('apple', 5),
       self._content('kiwi', 2),
@@ -22,44 +80,46 @@ class test_dir_split(unit_test):
       self._content('blueberry', 1),
     ], 3, 3)
     expected = [
-      'split-01/apple1.txt',
-      'split-01/apple10.txt',
-      'split-01/apple11.txt',
-      'split-02/apple12.txt',
-      'split-02/apple13.txt',
-      'split-02/apple14.txt',
-      'split-03/apple15.txt',
-      'split-03/apple2.txt',
-      'split-03/apple3.txt',
-      'split-04/apple4.txt',
-      'split-04/apple5.txt',
-      'split-04/apple6.txt',
-      'split-05/apple7.txt',
-      'split-05/apple8.txt',
-      'split-05/apple9.txt',
-      'split-06/blueberry1.txt',
-      'split-06/blueberry2.txt',
-      'split-06/blueberry3.txt',
-      'split-07/kiwi1.txt',
-      'split-07/kiwi2.txt',
-      'split-07/kiwi3.txt',
-      'split-08/kiwi4.txt',
-      'split-08/kiwi5.txt',
-      'split-08/kiwi6.txt',
-      'split-09/lemon1.txt',
-      'split-09/lemon2.txt',
-      'split-09/lemon3.txt',
-      'split-10/lemon4.txt',
-      'split-10/lemon5.txt',
-      'split-10/lemon6.txt',
-      'split-11/lemon7.txt',
-      'split-11/lemon8.txt',
-      'split-11/lemon9.txt',
+      'chunk-01/apple1.txt',
+      'chunk-01/apple10.txt',
+      'chunk-01/apple11.txt',
+      'chunk-02/apple12.txt',
+      'chunk-02/apple13.txt',
+      'chunk-02/apple14.txt',
+      'chunk-03/apple15.txt',
+      'chunk-03/apple2.txt',
+      'chunk-03/apple3.txt',
+      'chunk-04/apple4.txt',
+      'chunk-04/apple5.txt',
+      'chunk-04/apple6.txt',
+      'chunk-05/apple7.txt',
+      'chunk-05/apple8.txt',
+      'chunk-05/apple9.txt',
+      'chunk-06/blueberry1.txt',
+      'chunk-06/blueberry2.txt',
+      'chunk-06/blueberry3.txt',
+      'chunk-07/kiwi1.txt',
+      'chunk-07/kiwi2.txt',
+      'chunk-07/kiwi3.txt',
+      'chunk-08/kiwi4.txt',
+      'chunk-08/kiwi5.txt',
+      'chunk-08/kiwi6.txt',
+      'chunk-09/lemon1.txt',
+      'chunk-09/lemon2.txt',
+      'chunk-09/lemon3.txt',
+      'chunk-10/lemon4.txt',
+      'chunk-10/lemon5.txt',
+      'chunk-10/lemon6.txt',
+      'chunk-11/lemon7.txt',
+      'chunk-11/lemon8.txt',
+      'chunk-11/lemon9.txt',
     ]
     self.assertEqual( expected, t.dst_files )
+    self.assertEqual( [], t.src_files )
 
   _test = namedtuple('_test', 'tmp_dir, src_dir, dst_dir, src_files, dst_files')
-  def _do_test(self, content_desc, content_multiplier, num_chunks):
+  def _do_test(self, content_desc, content_multiplier, num_chunks, extra_content_items = None):
+    extra_content_items = extra_content_items or []
     content_desc = [ self._content(c.name, c.num * content_multiplier) for c in content_desc ]
     content_items = []
     for next_desc in content_desc:
@@ -68,10 +128,11 @@ class test_dir_split(unit_test):
         text = 'this is {}'.format(filename)
         desc = 'file src/{} "{}" 644'.format(filename, text)
         content_items.append(desc)
+    content_items.extend(extra_content_items)
     tmp_dir = temp_content.write_items_to_temp_dir(content_items)
     src_dir = path.join(tmp_dir, 'src')
     dst_dir = path.join(tmp_dir, 'dst')
-    dir_split.split(src_dir, dst_dir, 'split-', num_chunks)
+    dir_split.split(src_dir, dst_dir, num_chunks, 'chunk-')
     src_files = file_find.find(src_dir, relative = True)
     dst_files = file_find.find(dst_dir, relative = True)
     return self._test(tmp_dir, src_dir, dst_dir, src_files, dst_files)
