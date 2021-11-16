@@ -17,6 +17,8 @@ class dir_cli_args(object):
                    help = 'The chunk size for the split directories [ None ]')
     p.add_argument('--prefix', action = 'store', type = str, default = 'split-',
                    help = 'Prefix for the split directory names [ None ]')
+    p.add_argument('--dry-run', action = 'store_true', default = False,
+                   help = 'Dont do anything just print what would happen [ None ]')
      
   def _command_dir(self, command, *args, **kargs):
     from .dir_cli_handler import dir_cli_handler

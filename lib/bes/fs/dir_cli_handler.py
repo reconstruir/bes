@@ -14,11 +14,17 @@ class dir_cli_handler(cli_command_handler):
   def __init__(self, cli_args):
     super(dir_cli_handler, self).__init__(cli_args)
     
-  def split(self, src_dir, dst_dir, chunk_size, prefix):
+  def split(self, src_dir, dst_dir, chunk_size, prefix, dry_run):
     src_dir = file_check.check_dir(src_dir)
     check.check_string(dst_dir)
     check.check_int(chunk_size)
     check.check_string(prefix)
+    check.check_bool(dry_run)
 
-    dir_split.split(src_dir, dst_dir, chunk_size, prefix)
+    if dry_run:
+      items = dir_split.split_items(src_dir, dst_dir, chunk_size, prefix)
+      for item in items:
+        print('{} => {}'.format(item.src_filename, item.dst_filename))
+    else:
+      dir_split.split(src_dir, dst_dir, chunk_size, prefix)
     return 0
