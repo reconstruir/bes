@@ -4,7 +4,7 @@ import sys
 
 from bes.common.check import check
 from bes.system.log import logger
-from bes.testing.unit_test_skip_class import unit_test_skip_class
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class pyinstaller(object):
   'Class to deal with general pyinstaller things.'
@@ -28,4 +28,4 @@ class pyinstaller(object):
     in order to skip tests that are not meant to run in frozen binary mode
     '''
     if clazz.is_binary():
-      unit_test_skip_class.raise_skip('not supported in frozen binary mode.')
+      unit_test_class_skip.raise_skip('not supported in frozen binary mode.')

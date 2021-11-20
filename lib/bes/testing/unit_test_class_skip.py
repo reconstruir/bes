@@ -5,7 +5,7 @@
 import unittest, sys
 from bes.system.host import host
 
-class unit_test_skip_class(object):
+class unit_test_class_skip(object):
 
   @classmethod
   def raise_skip(clazz, message):

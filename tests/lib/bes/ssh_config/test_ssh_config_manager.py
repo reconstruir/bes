@@ -8,13 +8,13 @@ from bes.fs.file_util import file_util
 from bes.pyinstaller.pyinstaller import pyinstaller
 from bes.ssh_config.ssh_config_manager import ssh_config_manager
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip_class import unit_test_skip_class
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class test_ssh_config_manager(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    unit_test_skip_class.raise_skip_if_not_unix()
+    unit_test_class_skip.raise_skip_if_not_unix()
     pyinstaller.raise_skip_if_is_binary()
 
   def test_nothing(self):
