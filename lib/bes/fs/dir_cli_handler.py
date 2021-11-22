@@ -7,24 +7,23 @@ from bes.common.check import check
 from bes.fs.file_check import file_check
 
 from .dir_split import dir_split
+from .dir_split_options import dir_split_options
 
 class dir_cli_handler(cli_command_handler):
   'dir project cli handler.'
 
   def __init__(self, cli_args):
-    super(dir_cli_handler, self).__init__(cli_args)
-    
-  def split(self, src_dir, dst_dir, chunk_size, prefix, dry_run):
+    super(dir_cli_handler, self).__init__(cli_args, options_class = dir_split_options)
+    check.check_dir_split_options(self.options)
+  
+  def split(self, src_dir, dst_dir):
     src_dir = file_check.check_dir(src_dir)
     check.check_string(dst_dir)
-    check.check_int(chunk_size)
-    check.check_string(prefix)
-    check.check_bool(dry_run)
 
-    if dry_run:
-      items = dir_split.split_items(src_dir, dst_dir, chunk_size, prefix)
+    if self.options.dry_run:
+      items = dir_split.split_items(src_dir, dst_dir, self.options)
       for item in items:
         print('{} => {}'.format(item.src_filename, item.dst_filename))
     else:
-      dir_split.split(src_dir, dst_dir, chunk_size, prefix)
+      dir_split.split(src_dir, dst_dir, self.options)
     return 0
