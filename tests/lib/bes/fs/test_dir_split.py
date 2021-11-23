@@ -41,16 +41,22 @@ class test_dir_split(unit_test):
       dir_split_tester._content('blueberry', 1),
     ], 1, 2)
     expected = [
+      'chunk-1',
       'chunk-1/apple1.txt',
       'chunk-1/apple2.txt',
+      'chunk-2',
       'chunk-2/apple3.txt',
       'chunk-2/apple4.txt',
+      'chunk-3',
       'chunk-3/apple5.txt',
       'chunk-3/blueberry1.txt',
+      'chunk-4',
       'chunk-4/kiwi1.txt',
       'chunk-4/kiwi2.txt',
+      'chunk-5',
       'chunk-5/lemon1.txt',
       'chunk-5/lemon2.txt',
+      'chunk-6',
       'chunk-6/lemon3.txt',
     ]
     self.assertEqual( expected, t.dst_files )
@@ -64,16 +70,27 @@ class test_dir_split(unit_test):
       dir_split_tester._content('blueberry', 1),
     ], 1, 1)
     expected = [
+      'chunk-01',
       'chunk-01/apple1.txt',
+      'chunk-02',
       'chunk-02/apple2.txt',
+      'chunk-03',
       'chunk-03/apple3.txt',
+      'chunk-04',
       'chunk-04/apple4.txt',
+      'chunk-05',
       'chunk-05/apple5.txt',
+      'chunk-06',
       'chunk-06/blueberry1.txt',
+      'chunk-07',
       'chunk-07/kiwi1.txt',
+      'chunk-08',
       'chunk-08/kiwi2.txt',
+      'chunk-09',
       'chunk-09/lemon1.txt',
+      'chunk-10',
       'chunk-10/lemon2.txt',
+      'chunk-11',
       'chunk-11/lemon3.txt',
     ]
     self.assertEqual( expected, t.dst_files )
@@ -85,6 +102,7 @@ class test_dir_split(unit_test):
       dir_split_tester._content('kiwi', 1),
     ], 1, 3)
     expected = [
+      'chunk-1',
       'chunk-1/apple1.txt',
       'chunk-1/kiwi1.txt',
     ]
@@ -99,36 +117,47 @@ class test_dir_split(unit_test):
       dir_split_tester._content('blueberry', 1),
     ], 3, 3)
     expected = [
+      'chunk-01',
       'chunk-01/apple1.txt',
       'chunk-01/apple10.txt',
       'chunk-01/apple11.txt',
+      'chunk-02',
       'chunk-02/apple12.txt',
       'chunk-02/apple13.txt',
       'chunk-02/apple14.txt',
+      'chunk-03',
       'chunk-03/apple15.txt',
       'chunk-03/apple2.txt',
       'chunk-03/apple3.txt',
+      'chunk-04',
       'chunk-04/apple4.txt',
       'chunk-04/apple5.txt',
       'chunk-04/apple6.txt',
+      'chunk-05',
       'chunk-05/apple7.txt',
       'chunk-05/apple8.txt',
       'chunk-05/apple9.txt',
+      'chunk-06',
       'chunk-06/blueberry1.txt',
       'chunk-06/blueberry2.txt',
       'chunk-06/blueberry3.txt',
+      'chunk-07',
       'chunk-07/kiwi1.txt',
       'chunk-07/kiwi2.txt',
       'chunk-07/kiwi3.txt',
+      'chunk-08',
       'chunk-08/kiwi4.txt',
       'chunk-08/kiwi5.txt',
       'chunk-08/kiwi6.txt',
+      'chunk-09',
       'chunk-09/lemon1.txt',
       'chunk-09/lemon2.txt',
       'chunk-09/lemon3.txt',
+      'chunk-10',
       'chunk-10/lemon4.txt',
       'chunk-10/lemon5.txt',
       'chunk-10/lemon6.txt',
+      'chunk-11',
       'chunk-11/lemon7.txt',
       'chunk-11/lemon8.txt',
       'chunk-11/lemon9.txt',
@@ -136,6 +165,44 @@ class test_dir_split(unit_test):
     self.assertEqual( expected, t.dst_files )
     self.assertEqual( [], t.src_files )
 
+  def test_split_existing_dst(self):
+    extra_content_items = [
+      'file dst/chunk-1/existing1.txt "this is existing1.txt" 644',
+      'file dst/chunk-1/existing2.txt "this is existing2.txt" 644',
+      'file dst/chunk-2/existing3.txt "this is existing3.txt" 644',
+    ]
+    t = self._do_test([
+      dir_split_tester._content('apple', 5),
+      dir_split_tester._content('kiwi', 2),
+      dir_split_tester._content('lemon', 3),
+      dir_split_tester._content('blueberry', 1),
+    ], 1, 2, extra_content_items = extra_content_items)
+    expected = [
+      'chunk-1',
+      'chunk-1/existing1.txt',
+      'chunk-1/existing2.txt',
+      'chunk-2',
+      'chunk-2/apple1.txt',
+      'chunk-2/existing3.txt',
+      'chunk-3',
+      'chunk-3/apple2.txt',
+      'chunk-3/apple3.txt',
+      'chunk-4',
+      'chunk-4/apple4.txt',
+      'chunk-4/apple5.txt',
+      'chunk-5',
+      'chunk-5/blueberry1.txt',
+      'chunk-5/kiwi1.txt',
+      'chunk-6',
+      'chunk-6/kiwi2.txt',
+      'chunk-6/lemon1.txt',
+      'chunk-7',
+      'chunk-7/lemon2.txt',
+      'chunk-7/lemon3.txt',
+    ]
+    self.assertEqual( expected, t.dst_files )
+    self.assertEqual( [], t.src_files )
+    
   def _do_test(self, content_desc, content_multiplier, chunk_size, extra_content_items = None):
     options = dir_split_options(chunk_size = chunk_size,
                                 prefix = 'chunk-')
@@ -145,8 +212,8 @@ class test_dir_split(unit_test):
     src_dir = path.join(tmp_dir, 'src')
     dst_dir = path.join(tmp_dir, 'dst')
     dir_split.split(src_dir, dst_dir, options)
-    src_files = file_find.find(src_dir, relative = True)
-    dst_files = file_find.find(dst_dir, relative = True)
+    src_files = file_find.find(src_dir, relative = True, file_type = file_find.ANY)
+    dst_files = file_find.find(dst_dir, relative = True, file_type = file_find.ANY)
     return dir_split_tester._test_result(tmp_dir, src_dir, dst_dir, src_files, dst_files, None)
     
 if __name__ == '__main__':
