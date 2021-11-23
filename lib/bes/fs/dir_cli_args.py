@@ -19,6 +19,8 @@ class dir_cli_args(object):
                    help = 'Prefix for the split directory names [ None ]')
     p.add_argument('--dry-run', action = 'store_true', default = False,
                    help = 'Dont do anything just print what would happen [ None ]')
+    p.add_argument('--recursive', action = 'store_true', default = False,
+                   help = 'Split directories recursively [ None ]')
      
   def _command_dir(self, command, *args, **kargs):
     from .dir_cli_handler import dir_cli_handler

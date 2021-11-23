@@ -13,20 +13,36 @@ class dir_util(object):
     return clazz.list(d) == []
 
   @classmethod
-  def list(clazz, d, relative = False, patterns = None):
+  def list(clazz, d, relative = False, patterns = None, function = None, basename = False):
     'Return a list of a d contents.  Returns absolute paths unless relative is True.'
-    result = sorted(os.listdir(d))
-    if not relative:
-      result = [ path.join(d, f) for f in result ]
+    files = sorted(os.listdir(d))
+    files_abs = [ path.join(d, f) for f in files ]
     if patterns:
-      result = file_match.match_fnmatch(result, patterns, file_match.ANY)
-    return result
+      files_abs = file_match.match_fnmatch(files_abs, patterns, match_type = file_match.ANY, basename = basename)
+    if function:
+      files_abs = file_match.match_function(files_abs, function, match_type = file_match.ANY, basename = basename)
+    if not relative:
+      return files_abs
+    return [ file_util.remove_head(f, d + path.sep) for f in files_abs ]
 
   @classmethod
-  def list_dirs(clazz, d):
+  def list_dirs(clazz, d, relative = False, patterns = None, basename = False):
     'Like list() but only returns dirs.'
-    return [ f for f in clazz.list(d, full_path = True) if path.isdir(f) ]
+    return [ f for f in clazz.list(d,
+                                   relative = relative,
+                                   patterns = patterns,
+                                   function = path.isdir,
+                                   basename = basename) ]
 
+  @classmethod
+  def list_files(clazz, d, relative = False, patterns = None, basename = False):
+    'Like list() but only returns files.'
+    return [ f for f in clazz.list(d,
+                                   relative = relative,
+                                   patterns = patterns,
+                                   function = path.isfile,
+                                   basename = basename) ]
+  
   @classmethod
   def empty_dirs(clazz, d):
     return [ f for f in clazz.list_dirs(d) if clazz.is_empty(f) ]
