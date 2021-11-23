@@ -41,35 +41,3 @@ def skip_if_not_unix(warning = False):
 
 def skip_if_not_windows(warning = False):
   return skip_if(not host.is_windows(), 'not windows', warning = warning)
-
-#def raise_skip(message):
-#  raise unittest.SkipTest(message)
-#
-#def raise_skip_if(conditional, message):
-#  if not conditional:
-#    raise unittest.SkipTest(message)
-#
-#def raise_skip_if_not_platform(system):
-#  raise_skip_if(system == host.SYSTEM, 'not {}: {}'.format(system, host.SYSTEM))
-#
-#def raise_skip_if_not_unix():
-#  raise_skip_if(host.is_unix(), 'not unix: {}'.format(host.SYSTEM))
-#
-#def raise_skip_if_not_windows():
-#  raise_skip_if_not_platform(host.WINDOWS)
-#
-#def raise_skip_if_not_macos():
-#  raise_skip_if_not_platform(host.MACOS)
-#  
-#def raise_skip_if_not_linux():
-#  raise_skip_if_not_platform(host.LINUX)
-#
-#def raise_skip_if_python_version_matches(major, minor, message):
-#  if sys.version_info.major == major and sys.version_info.minor == minor:
-#    raise unittest.SkipTest(message)
-#
-#def raise_skip_if_python_major_version_matches(major, message):
-#  if sys.version_info.major == major:
-#    raise unittest.SkipTest(message)
-#  
-#

@@ -8,10 +8,12 @@ from bes.system.compat import compat
 
 class unit_test_function_skip(object):
 
-  def _id(clazz, obj):
+  @staticmethod
+  def _id(obj):
     return obj
 
-  def skip(clazz, reason):
+  @staticmethod
+  def skip(reason):
     """Unconditionally skip a test."""
     def decorator(test_item):
       if not isinstance(test_item, compat.CLASS_TYPES):
@@ -30,16 +32,19 @@ class unit_test_function_skip(object):
       return test_item
     return decorator
 
-  def skip_if(clazz, condition, reason, warning = False):
+  @staticmethod
+  def skip_if(condition, reason, warning = False):
     """Skip a test if the condition is true."""
     if condition:
       if warning:
         print('SKIPPED: %s' % (reason))
-      return clazz.skip(reason)
-    return clazz._id
+      return unit_test_function_skip.skip(reason)
+    return unit_test_function_skip._id
 
-  def skip_if_not_unix(clazz, warning = False):
-    return clazz.skip_if(not host.is_unix(), 'not unix', warning = warning)
+  @staticmethod
+  def skip_if_not_unix(warning = False):
+    return unit_test_function_skip.skip_if(not host.is_unix(), 'not unix', warning = warning)
 
-  def skip_if_not_windows(clazz, warning = False):
-    return clazz.skip_if(not host.is_windows(), 'not windows', warning = warning)
+  @staticmethod
+  def skip_if_not_windows(warning = False):
+    return unit_test_function_skip.skip_if(not host.is_windows(), 'not windows', warning = warning)
