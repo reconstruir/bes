@@ -196,3 +196,14 @@ class file_find(object):
                       max_depth = max_depth,
                       match_function = lambda f: dir_util.is_empty(f),
                       match_basename = False)
+
+  @classmethod
+  def remove_empty_dirs(clazz, root_dir, min_depth = None, max_depth = None):
+    while True:
+      empties = clazz.find_empty_dirs(root_dir, relative = False, min_depth = min_depth, max_depth = max_depth)
+      if not empties:
+        break
+      for next_empty in empties:
+        dir_util.remove(next_empty)
+    if dir_util.is_empty(root_dir):
+      dir_util.remove(root_dir)
