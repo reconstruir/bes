@@ -13,7 +13,7 @@ from bes.system.env_override import env_override
 from bes.system.env_var import os_env_var
 
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip import raise_skip_if_not_unix
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class test_tar_util(unit_test):
 
@@ -21,7 +21,7 @@ class test_tar_util(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    raise_skip_if_not_unix()
+    unit_test_class_skip.raise_skip_if_not_unix()
   
   def test_copy_tree(self):
     self.maxDiff = None

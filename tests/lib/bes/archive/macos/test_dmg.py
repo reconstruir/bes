@@ -9,7 +9,7 @@ from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.host import host
 from bes.archive.macos.dmg import dmg
-from bes.testing.unit_test_skip import raise_skip_if_not_platform
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class test_dmg(unit_test):
 
@@ -23,7 +23,7 @@ class test_dmg(unit_test):
   
   @classmethod
   def setUpClass(clazz):
-    raise_skip_if_not_platform(host.MACOS)
+    unit_test_class_skip.raise_skip_if_not_platform(host.MACOS)
 
   def test_info(self):
     info = dmg.info()

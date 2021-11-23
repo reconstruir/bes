@@ -10,7 +10,6 @@ from bes.pipenv_project.pipenv_project_error import pipenv_project_error
 from bes.python.python_testing import python_testing
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_skip import skip_if
-from bes.testing.unit_test_skip import raise_skip
 from bes.fs.file_find import file_find
 
 class test_pipenv_project(unit_test):

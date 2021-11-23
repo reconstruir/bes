@@ -18,14 +18,8 @@ from bes.system.execute import execute
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_skip import skip_if
 from bes.version.semantic_version import semantic_version
-from bes.testing.unit_test_skip import raise_skip
 
 class test_pyinstaller_builder(unit_test):
-
-  @classmethod
-  def setUpClass(clazz):
-    #raise_skip('Not ready')
-    pass
 
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_build(self):

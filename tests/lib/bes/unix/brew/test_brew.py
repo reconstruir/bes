@@ -5,8 +5,8 @@ import os.path as path
 
 from bes.testing.unit_test import unit_test
 from bes.unix.brew.brew import brew
-from bes.testing.unit_test_skip import raise_skip_if_not_unix
 from bes.testing.unit_test_skip import skip_if
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class test_brew(unit_test):
   '''
@@ -16,7 +16,7 @@ class test_brew(unit_test):
   
   @classmethod
   def setUpClass(clazz):
-    raise_skip_if_not_unix()
+    unit_test_class_skip.raise_skip_if_not_unix()
 
   @skip_if(not brew.has_brew(), 'brew not installed')
   def test_available(self):

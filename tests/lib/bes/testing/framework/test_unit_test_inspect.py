@@ -6,13 +6,13 @@ from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.testing.unit_test import unit_test
 from bes.testing.framework import unit_test_inspect as UTI
-from bes.testing.unit_test_skip import raise_skip
+from bes.testing.unit_test_class_skip import unit_test_class_skip
   
 class test_unit_test_inspect(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    raise_skip('broken')
+    unit_test_class_skip.raise_skip('broken')
   
   def test_inspect_file(self):
     content = '''

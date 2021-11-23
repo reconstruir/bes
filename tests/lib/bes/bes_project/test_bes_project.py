@@ -4,15 +4,11 @@
 from os import path
 
 from bes.fs.file_find import file_find
-#from bes.python.pip_error import pip_error
 from bes.python.python_exe import python_exe
-#from bes.python.pip_installer_options import pip_installer_options
-#from bes.python.pip_installer_tester import pip_installer_tester
 from bes.bes_project.bes_project import bes_project
 from bes.bes_project.bes_project_options import bes_project_options
 from bes.python.python_testing import python_testing
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip import raise_skip
 from bes.testing.unit_test_skip import skip_if
 from bes.version.semantic_version import semantic_version
 

@@ -10,13 +10,13 @@ from bes.python.python_testing import python_testing
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_skip import skip_if
 from bes.version.software_version import software_version
-from bes.testing.unit_test_skip import raise_skip
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class test_pip_installer(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    raise_skip('Not ready')
+    unit_test_class_skip.raise_skip('Not ready')
     pass
   
   @skip_if(not python_testing._PYTHONS.PYTHON_27, 'test_install_python_27 - python 2.7 not found', warning = True)

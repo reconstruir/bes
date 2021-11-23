@@ -12,16 +12,10 @@ from bes.python.pip_project import pip_project
 from bes.python.pip_project_options import pip_project_options
 from bes.python.python_testing import python_testing
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip import raise_skip
 from bes.testing.unit_test_skip import skip_if
 from bes.version.semantic_version import semantic_version
 
 class test_pip_project(unit_test):
-
-  @classmethod
-  def setUpClass(clazz):
-    #raise_skip('Not ready')
-    pass
 
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_invalid_package - no python3 found', warning = True)
   def test_install_invalid_package(self):

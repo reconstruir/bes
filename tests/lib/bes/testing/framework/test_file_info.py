@@ -8,13 +8,13 @@ from bes.testing.framework.file_info import file_info as FI
 from bes.fs.temp_file import temp_file
 from bes.git.git import git
 from bes.git.git_temp_repo import git_temp_repo
-from bes.testing.unit_test_skip import raise_skip
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class test_file_info(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    raise_skip('broken')
+    unit_test_class_skip.raise_skip('broken')
   
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/testing/framework'
 

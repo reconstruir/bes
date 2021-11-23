@@ -6,7 +6,7 @@ from bes.fs.temp_file import temp_file
 from bes.archive.archive_extension import archive_extension
 from bes.archive.temp_archive import temp_archive
 from bes.archive.archive_unix_tar import archive_unix_tar
-from bes.testing.unit_test_skip import raise_skip
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 from archive_tester import archive_tester
 
@@ -18,8 +18,7 @@ class test_archive_unix_tar(unit_test):
   
   @classmethod
   def setUpClass(clazz):
-    pass
-    raise_skip('broken')
+    unit_test_class_skip.raise_skip('broken')
   
   def test_init(self):
     self.assertEqual( 'foo.tar', archive_unix_tar('foo.tar').filename )

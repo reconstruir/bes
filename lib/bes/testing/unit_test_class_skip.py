@@ -11,6 +11,10 @@ class unit_test_class_skip(object):
   def raise_skip(clazz, message):
     raise unittest.SkipTest(message)
 
+  def raise_skip_if(conditional, message):
+    if not conditional:
+      raise unittest.SkipTest(message)
+  
   @classmethod
   def raise_skip_if_not(clazz, conditional, message):
     if not conditional:
