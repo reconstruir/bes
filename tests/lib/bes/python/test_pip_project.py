@@ -18,11 +18,6 @@ from bes.version.semantic_version import semantic_version
 
 class test_pip_project(unit_test):
 
-  @classmethod
-  def setUpClass(clazz):
-    #raise_skip('Not ready')
-    pass
-
   @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_invalid_package - no python3 found', warning = True)
   def test_install_invalid_package(self):
     tmp_dir = self.make_temp_dir()
