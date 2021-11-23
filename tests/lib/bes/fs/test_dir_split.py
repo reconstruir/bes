@@ -297,15 +297,49 @@ class test_dir_split(unit_test):
       'unrelated-2/bar.txt',
     ]
     self.assertEqual( expected, t.src_files )
+
+  def test_split_dst_dir_same_as_src(self):
+    t = self._do_test([
+      dir_split_tester._content('apple', 5),
+      dir_split_tester._content('kiwi', 2),
+      dir_split_tester._content('lemon', 3),
+      dir_split_tester._content('blueberry', 1),
+    ], 1, 2, dst_dir_same_as_src = True)
+    expected = [
+      'chunk-1',
+      'chunk-1/apple1.txt',
+      'chunk-1/apple2.txt',
+      'chunk-2',
+      'chunk-2/apple3.txt',
+      'chunk-2/apple4.txt',
+      'chunk-3',
+      'chunk-3/apple5.txt',
+      'chunk-3/blueberry1.txt',
+      'chunk-4',
+      'chunk-4/kiwi1.txt',
+      'chunk-4/kiwi2.txt',
+      'chunk-5',
+      'chunk-5/lemon1.txt',
+      'chunk-5/lemon2.txt',
+      'chunk-6',
+      'chunk-6/lemon3.txt',
+    ]
+    self.assertEqual( t.dst_dir, t.src_dir )
+    self.assertEqual( expected, t.dst_files )
+    self.assertEqual( expected, t.src_files )
     
-  def _do_test(self, content_desc, content_multiplier, chunk_size, extra_content_items = None):
+  def _do_test(self, content_desc, content_multiplier, chunk_size,
+               extra_content_items = None, dst_dir_same_as_src = False):
     options = dir_split_options(chunk_size = chunk_size,
                                 prefix = 'chunk-')
     tmp_dir = dir_split_tester.make_content(content_desc,
                                             content_multiplier,
                                             extra_content_items = extra_content_items)
     src_dir = path.join(tmp_dir, 'src')
-    dst_dir = path.join(tmp_dir, 'dst')
+    if dst_dir_same_as_src:
+      dst_dir = src_dir
+    else:
+      dst_dir = path.join(tmp_dir, 'dst')
     dir_split.split(src_dir, dst_dir, options)
     src_files = file_find.find(src_dir, relative = True, file_type = file_find.ANY)
     dst_files = file_find.find(dst_dir, relative = True, file_type = file_find.ANY)
