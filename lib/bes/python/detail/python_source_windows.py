@@ -25,7 +25,7 @@ class python_source_windows(python_source_base):
   #@abstractmethod
   def possible_python_bin_dirs(clazz):
     'Return a list of possible dirs where the python executable might be.'
-    return dir_util.list(r'C:\Program Files', patterns = 'Python*')
+    return dir_util.list(r'C:\Program Files', patterns = 'Python*', basename = True)
 
   @classmethod
   #@abstractmethod
