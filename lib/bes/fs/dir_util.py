@@ -35,6 +35,15 @@ class dir_util(object):
                                    basename = basename) ]
 
   @classmethod
+  def list_files(clazz, d, relative = False, patterns = None, basename = False):
+    'Like list() but only returns files.'
+    return [ f for f in clazz.list(d,
+                                   relative = relative,
+                                   patterns = patterns,
+                                   function = path.isfile,
+                                   basename = basename) ]
+  
+  @classmethod
   def empty_dirs(clazz, d):
     return [ f for f in clazz.list_dirs(d) if clazz.is_empty(f) ]
 
