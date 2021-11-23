@@ -2,6 +2,7 @@
 
 from bes.cli.cli_options import cli_options
 from bes.common.check import check
+from bes.common.time_util import time_util
 
 class dir_split_options(cli_options):
 
@@ -19,6 +20,8 @@ class dir_split_options(cli_options):
       'recursive': False,
       'verbose': False,
       'dry_run': False,
+      'dup_file_timestamp': time_util.timestamp(),
+      'dup_file_count': 1,
     }
   
   @classmethod
@@ -36,6 +39,7 @@ class dir_split_options(cli_options):
       'recursive': bool,
       'verbose': bool,
       'dry_run': bool,
+      'dup_file_count': int,
     }
 
   @classmethod
@@ -67,5 +71,7 @@ class dir_split_options(cli_options):
     check.check_bool(self.recursive)
     check.check_int(self.chunk_size)
     check.check_string(self.prefix)
+    check.check_string(self.dup_file_timestamp)
+    check.check_int(self.dup_file_count)
 
 check.register_class(dir_split_options)

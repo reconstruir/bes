@@ -29,9 +29,11 @@ class dir_split(object):
 
     options = options or dir_split_options()
     info = clazz._split_info(src_dir, dst_dir, options = options)
-    for item in info.items:
-      file_util.rename(item.src_filename, item.dst_filename)
 
+    clazz._move_files(info.items,
+                      options.dup_file_timestamp,
+                      options.dup_file_count)
+    
     for d in info.existing_split_dirs:
       if dir_util.is_empty(d):
         file_util.remove(d)
@@ -110,4 +112,22 @@ class dir_split(object):
     if len(lengths) == 1:
       return lengths[0]
     return None
-  
+
+  @classmethod
+  def _files_are_the_same(clazz, filename1, filename2):
+    checksum1 = file_util.checksum('sha256', filename1)
+    checksum2 = file_util.checksum('sha256', filename2)
+    return checksum1 == checksum2
+
+  @classmethod
+  def _move_files(clazz, items, timestamp, count):
+    for item in items:
+      dst_filename = item.dst_filename
+      if path.exists(item.dst_filename):
+        if not clazz._files_are_the_same(item.src_filename, item.dst_filename):
+          basename = path.basename(item.dst_filename)
+          dirname = path.dirname(item.dst_filename)
+          dst_basename = '{}-{}-{}'.format(timestamp, count, basename)
+          dst_filename = path.join(dirname, dst_basename)
+          count += 1
+      file_util.rename(item.src_filename, dst_filename)

@@ -29,7 +29,7 @@ class dir_split_tester(object):
     tmp_dir = temp_content.write_items_to_temp_dir(content_items)
     return tmp_dir
 
-  _test_result = namedtuple('_test', 'tmp_dir, src_dir, dst_dir, src_files, dst_files, rv')
+  _test_result = namedtuple('_test', 'tmp_dir, src_dir, dst_dir, src_files, dst_files, src_files_before, rv')
   
 class test_dir_split(unit_test):
 
@@ -385,6 +385,22 @@ class test_dir_split(unit_test):
     ]
     self.assert_filename_list_equal( expected, t.dst_files )
     self.assert_filename_list_equal( [], t.src_files )
+
+  def test_split_recursive_duplicate_filenames(self):
+    extra_content_items = [
+      'file src/foo.txt "this is foo.txt 1" 644',
+      'file src/sub1/foo.txt "this is sub1/foo.txt" 644',
+      'file src/sub2/foo.txt "this is sub2/foo.txt" 644',
+    ]
+    t = self._do_test([], 1, 3, extra_content_items = extra_content_items, recursive = True)
+    expected = [
+      'chunk-1',
+      'chunk-1/dup-timestamp-1-foo.txt',
+      'chunk-1/dup-timestamp-2-foo.txt',
+      'chunk-1/foo.txt',
+    ]
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
     
   def _do_test(self,
                content_desc,
@@ -395,7 +411,8 @@ class test_dir_split(unit_test):
                recursive = False):
     options = dir_split_options(chunk_size = chunk_size,
                                 prefix = 'chunk-',
-                                recursive = recursive)
+                                recursive = recursive,
+                                dup_file_timestamp = 'dup-timestamp')
     tmp_dir = dir_split_tester.make_content(content_desc,
                                             content_multiplier,
                                             extra_content_items = extra_content_items)
@@ -404,10 +421,11 @@ class test_dir_split(unit_test):
       dst_dir = src_dir
     else:
       dst_dir = path.join(tmp_dir, 'dst')
+    src_files_before = file_find.find(src_dir, relative = True, file_type = file_find.ANY)
     dir_split.split(src_dir, dst_dir, options)
     src_files = file_find.find(src_dir, relative = True, file_type = file_find.ANY)
     dst_files = file_find.find(dst_dir, relative = True, file_type = file_find.ANY)
-    return dir_split_tester._test_result(tmp_dir, src_dir, dst_dir, src_files, dst_files, None)
+    return dir_split_tester._test_result(tmp_dir, src_dir, dst_dir, src_files, dst_files, src_files_before, None)
     
 if __name__ == '__main__':
   unit_test.main()
