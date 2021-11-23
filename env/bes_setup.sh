@@ -17,7 +17,7 @@ bes_dev()
                 --set-title \
                 --venv-config "${_virtual_env_setup}" \
                 --venv-activate \
-                --change-dir
+                --change-dir \
                 ${1+"$@"}
   return $?
 }

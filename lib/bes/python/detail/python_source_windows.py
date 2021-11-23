@@ -3,6 +3,7 @@
 import os.path as path
 
 from bes.common.check import check
+from bes.fs.dir_util import dir_util
 from bes.fs.filename_util import filename_util
 from bes.python.python_error import python_error
 from bes.python.python_version import python_version
@@ -12,27 +13,19 @@ from .python_source_base import python_source_base
 
 class python_source_windows(python_source_base):
 
-  _PYTHON_DOT_ORG_DIRS = [
-    r'C:\Program Files\Python37',
-    r'C:\Program Files\Python38',
-    r'C:\Program Files\Python39',
-    r'C:\Python27',
-  ]
-  
   @classmethod
   #@abstractmethod
   def exe_source(clazz, exe):
     'Return the source of the python executable.  Stuff like brew, xcode, system, python.org.'
-    for d in clazz._PYTHON_DOT_ORG_DIRS:
-      if exe.lower().startswith(d.lower()):
-        return 'python.org'
+    if exe.lower().startswith(r'C:\Program Files\Python'.lower()):
+      return 'python.org'
     return 'unknown'
 
   @classmethod
   #@abstractmethod
   def possible_python_bin_dirs(clazz):
     'Return a list of possible dirs where the python executable might be.'
-    return clazz._PYTHON_DOT_ORG_DIRS
+    return dir_util.list(r'C:\Program Files', patterns = 'Python*')
 
   @classmethod
   #@abstractmethod

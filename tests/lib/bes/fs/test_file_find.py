@@ -358,5 +358,5 @@ class test_file_find(unit_test):
       'fruit/strawberry.fruit',
     ]), file_find.find(tmp_dir, match_re = [ r'^f.*$' ], match_basename = False) )
     
-if __name__ == "__main__":
+if __name__ == '__main__':
   unit_test.main()
