@@ -3,14 +3,17 @@
 from collections import namedtuple
 import os.path as path
 
-from bes.system.check import check
-from bes.system.log import logger
+from bes.common.algorithm import algorithm
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
+from bes.system.check import check
+from bes.system.log import logger
 
 from .dir_split_options import dir_split_options
 from .dir_util import dir_util
 from .file_check import file_check
+from .file_find import file_find
+from .file_path import file_path
 from .file_util import file_util
 
 class dir_split(object):
@@ -33,8 +36,18 @@ class dir_split(object):
       if dir_util.is_empty(d):
         file_util.remove(d)
 
+    for next_possible_empty_root in info.possible_empty_dirs_roots:
+      while True:
+        empties = file_find.find_empty_dirs(next_possible_empty_root, relative = False)
+        if not empties:
+          break
+        for next_empty in empties:
+          file_util.remove(next_empty)
+      assert dir_util.is_empty(next_possible_empty_root)
+      file_util.remove(next_possible_empty_root)
+
   _split_item = namedtuple('_split_item', 'src_filename, dst_filename')
-  _split_items_info = namedtuple('_split_items_info', 'items, existing_split_dirs')
+  _split_items_info = namedtuple('_split_items_info', 'items, existing_split_dirs, possible_empty_dirs_roots')
   @classmethod
   def _split_info(clazz, src_dir, dst_dir, options = None):
     d = file_check.check_dir(src_dir)
@@ -49,8 +62,21 @@ class dir_split(object):
     
     options = options or dir_split_options()
     items = []
-    new_files = dir_util.list_files(src_dir)
-    files = old_files + new_files
+    if options.recursive:
+      new_files = file_find.find(src_dir, relative = False, file_type = file_find.FILE)
+      possible_empty_dirs_roots = []
+      dirs = algorithm.unique([ path.dirname(f) for f in new_files ])
+      for d in dirs:
+        if d != src_dir:
+          d_relative = file_util.remove_head(d, src_dir + path.sep)
+          d_root = path.join(src_dir, file_path.split(d_relative)[0])
+          possible_empty_dirs_roots.append(d_root)
+      possible_empty_dirs_roots = algorithm.unique(possible_empty_dirs_roots)
+    else:
+      new_files = dir_util.list_files(src_dir)
+      possible_empty_dirs_roots = []
+    
+    files = algorithm.unique(old_files + new_files)
     chunks = [ chunk for chunk in object_util.chunks(files, options.chunk_size) ]
     num_chunks = len(chunks)
     num_digits = len(str(num_chunks))
@@ -60,7 +86,7 @@ class dir_split(object):
       for f in chunk:
         dst_filename = path.join(chunk_dst_dir, path.basename(f))
         items.append(clazz._split_item(f, dst_filename))
-    return clazz._split_items_info(items, existing_split_dirs)
+    return clazz._split_items_info(items, existing_split_dirs, possible_empty_dirs_roots)
 
   @classmethod
   def split_items(clazz, src_dir, dst_dir, options = None):

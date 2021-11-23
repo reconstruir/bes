@@ -327,11 +327,75 @@ class test_dir_split(unit_test):
     self.assertEqual( t.dst_dir, t.src_dir )
     self.assertEqual( expected, t.dst_files )
     self.assertEqual( expected, t.src_files )
+
+  def test_split_recursive(self):
+    extra_content_items = [
+      'file src/more-1/more-1-foo-1.txt "this is more-1-foo-1.txt" 644',
+      'file src/more-1/more-1-foo-2.txt "this is more-1-foo-2.txt" 644',
+      'file src/more-1/more-1-foo-3.txt "this is more-1-foo-3.txt" 644',
+      'file src/more-2/more-2-bar-1.txt "this is more-2-bar-1.txt" 644',
+      'file src/more-2/more-2-bar-2.txt "this is more-2-bar-2.txt" 644',
+      'file src/more-3/sub1/more-3-sub1-bar-1.txt "this is more-3-sub1-bar-1.txt" 644',
+      'file src/more-3/sub1/more-3-sub1-bar-2.txt "this is more-3-sub1-bar-2.txt" 644',
+      'file src/more-3/sub1/more-3-sub2-bar-1.txt "this is more-3-sub2-bar-1.txt" 644',
+      'file src/more-3/sub1/more-3-sub2-bar-2.txt "this is more-3-sub2-bar-2.txt" 644',
+      'file src/more-3/sub1/sub2/more-3-sub12-bar-1.txt "this is more-3-sub12-bar-1.txt" 644',
+      'file src/more-3/sub1/sub2/more-3-sub12-bar-2.txt "this is more-3-sub12-bar-2.txt" 644',
+    ]
+    t = self._do_test([
+      dir_split_tester._content('apple', 5),
+      dir_split_tester._content('kiwi', 2),
+      dir_split_tester._content('lemon', 3),
+      dir_split_tester._content('blueberry', 1),
+    ], 1, 2, extra_content_items = extra_content_items, recursive = True)
+    expected = [
+      'chunk-01',
+      'chunk-01/apple1.txt',
+      'chunk-01/apple2.txt',
+      'chunk-02',
+      'chunk-02/apple3.txt',
+      'chunk-02/apple4.txt',
+      'chunk-03',
+      'chunk-03/apple5.txt',
+      'chunk-03/blueberry1.txt',
+      'chunk-04',
+      'chunk-04/kiwi1.txt',
+      'chunk-04/kiwi2.txt',
+      'chunk-05',
+      'chunk-05/lemon1.txt',
+      'chunk-05/lemon2.txt',
+      'chunk-06',
+      'chunk-06/lemon3.txt',
+      'chunk-06/more-1-foo-1.txt',
+      'chunk-07',
+      'chunk-07/more-1-foo-2.txt',
+      'chunk-07/more-1-foo-3.txt',
+      'chunk-08',
+      'chunk-08/more-2-bar-1.txt',
+      'chunk-08/more-2-bar-2.txt',
+      'chunk-09',
+      'chunk-09/more-3-sub1-bar-1.txt',
+      'chunk-09/more-3-sub1-bar-2.txt',
+      'chunk-10',
+      'chunk-10/more-3-sub2-bar-1.txt',
+      'chunk-10/more-3-sub2-bar-2.txt',
+      'chunk-11',
+      'chunk-11/more-3-sub12-bar-1.txt',
+      'chunk-11/more-3-sub12-bar-2.txt',
+    ]
+    self.assertEqual( expected, t.dst_files )
+    self.assertEqual( [], t.src_files )
     
-  def _do_test(self, content_desc, content_multiplier, chunk_size,
-               extra_content_items = None, dst_dir_same_as_src = False):
+  def _do_test(self,
+               content_desc,
+               content_multiplier,
+               chunk_size,
+               extra_content_items = None,
+               dst_dir_same_as_src = False,
+               recursive = False):
     options = dir_split_options(chunk_size = chunk_size,
-                                prefix = 'chunk-')
+                                prefix = 'chunk-',
+                                recursive = recursive)
     tmp_dir = dir_split_tester.make_content(content_desc,
                                             content_multiplier,
                                             extra_content_items = extra_content_items)
