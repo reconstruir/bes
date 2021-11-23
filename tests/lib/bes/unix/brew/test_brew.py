@@ -5,7 +5,7 @@ import os.path as path
 
 from bes.testing.unit_test import unit_test
 from bes.unix.brew.brew import brew
-from bes.testing.unit_test_skip import skip_if
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class test_brew(unit_test):
@@ -18,17 +18,17 @@ class test_brew(unit_test):
   def setUpClass(clazz):
     unit_test_class_skip.raise_skip_if_not_unix()
 
-  @skip_if(not brew.has_brew(), 'brew not installed')
+  @unit_test_function_skip.skip_if(not brew.has_brew(), 'brew not installed')
   def test_available(self):
     for package_name in brew().available():
       self.assertTrue( bool(package_name) )
 
-  @skip_if(not brew.has_brew(), 'brew not installed')
+  @unit_test_function_skip.skip_if(not brew.has_brew(), 'brew not installed')
   def test_installed(self):
     for package_name in brew().installed():
       self.assertTrue( bool(package_name) )
 
-  @skip_if(not brew.has_brew(), 'brew not installed')
+  @unit_test_function_skip.skip_if(not brew.has_brew(), 'brew not installed')
   def test_files(self):
     b = brew()
     packages = b.installed()

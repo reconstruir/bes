@@ -16,12 +16,12 @@ from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.system.execute import execute
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip import skip_if
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 from bes.version.semantic_version import semantic_version
 
 class test_pyinstaller_builder(unit_test):
 
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
+  @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_build(self):
     tmp_dir = self.make_temp_dir(suffix = '.test_pyinstaller_build', )
     if self.DEBUG:

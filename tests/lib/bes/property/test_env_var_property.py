@@ -6,7 +6,7 @@ from bes.system.env_override import env_override
 from bes.testing.unit_test import unit_test
 from bes.property.env_var_property import env_var_property
 from bes.system.host import host
-from bes.testing.unit_test_skip import skip_if
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 class test_env_var_property(unit_test):
 
@@ -47,14 +47,14 @@ class test_env_var_property(unit_test):
       self.assertEqual( 'yellow', f.color )
       self.assertEqual( 'tart', f.flavor )
 
-  @skip_if(not host.is_unix(), 'not unix')
+  @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_env_var_tilde(self):
     f = self.fruit('yellow', '~/tart')
     with env_override( { 'HOME': '/tmp/foo' }) as env:
       self.assertEqual( 'yellow', f.color )
       self.assertEqual( '/tmp/foo/tart', f.flavor )
     
-  @skip_if(not host.is_unix(), 'not unix')
+  @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_env_var_tilde_and_var(self):
     f = self.fruit('yellow', '~/${FLAVOR}')
     with env_override( { 'HOME': '/tmp/foo', 'FLAVOR': 'tart' }) as env:

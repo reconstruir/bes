@@ -12,12 +12,12 @@ from bes.python.pip_project import pip_project
 from bes.python.pip_project_options import pip_project_options
 from bes.python.python_testing import python_testing
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip import skip_if
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 from bes.version.semantic_version import semantic_version
 
 class test_pip_project(unit_test):
 
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_invalid_package - no python3 found', warning = True)
+  @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_invalid_package - no python3 found', warning = True)
   def test_install_invalid_package(self):
     tmp_dir = self.make_temp_dir()
     options = pip_project_options(root_dir = tmp_dir,
@@ -28,7 +28,7 @@ class test_pip_project(unit_test):
       project.install('somethingthatdoesntexistshaha')
     self.assertTrue( 'no matching distribution found for somethingthatdoesntexistshaha' in str(ctx.exception).lower() )
 
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_invalid_version - no python3 found', warning = True)
+  @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_invalid_version - no python3 found', warning = True)
   def test_install_invalid_version(self):
     tmp_dir = self.make_temp_dir()
     options = pip_project_options(root_dir = tmp_dir,
@@ -40,7 +40,7 @@ class test_pip_project(unit_test):
     print('ex={}'.format(str(ctx.exception).lower()))
     self.assertTrue( 'no matching distribution found for pyinstaller==666.666.666.666.666' in str(ctx.exception).lower() )
     
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_latest_version - no python3 found', warning = True)
+  @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install_latest_version - no python3 found', warning = True)
   def test_install_latest_version(self):
     tmp_dir = self.make_temp_dir()
     options = pip_project_options(root_dir = tmp_dir,
@@ -51,7 +51,7 @@ class test_pip_project(unit_test):
     rv = project.call_program([ 'pyinstaller', '--version' ])
     self.assertEqual( 0, rv.exit_code )
     
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
+  @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_install_specific_version(self):
     tmp_dir = self.make_temp_dir()
     options = pip_project_options(root_dir = tmp_dir,
@@ -64,7 +64,7 @@ class test_pip_project(unit_test):
     self.assertEqual( '3.5', project.version('pyinstaller') )
     self.assertTrue( project.needs_upgrade('pyinstaller') )
 
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
+  @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_upgrade(self):
     tmp_dir = self.make_temp_dir()
     options = pip_project_options(root_dir = tmp_dir,
@@ -79,7 +79,7 @@ class test_pip_project(unit_test):
     new_version = semantic_version(project.version('pyinstaller'))
     self.assertTrue( new_version > old_version )
 
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
+  @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_persistence(self):
     tmp_dir = self.make_temp_dir()
     options = pip_project_options(root_dir = tmp_dir,

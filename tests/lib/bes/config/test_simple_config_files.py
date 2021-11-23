@@ -13,7 +13,7 @@ from bes.fs.testing.temp_content import temp_content
 from bes.system.env_override import env_override
 from bes.testing.unit_test import unit_test
 from bes.system.host import host
-from bes.testing.unit_test_skip import skip_if
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 class test_simple_config_files(unit_test):
 
@@ -274,7 +274,7 @@ chimp extends ape
       self.assertEqual( 'eggs', s.section('chimp').find_by_key('snack') )
       self.assertEqual( 'kiwi', s.section('bonobo').find_by_key('snack') )
 
-  @skip_if(not host.is_unix(), 'not unix')
+  @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_search_path_expanduser(self):
     content = '''\
 ape

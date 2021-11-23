@@ -10,7 +10,7 @@ from bes.python.python_testing import python_testing
 from bes.system.env_override import env_override
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip import skip_if
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 class test_python_exe(unit_test):
 
@@ -26,7 +26,7 @@ class test_python_exe(unit_test):
     fake_exe = python_testing.make_temp_fake_python('python6.7', '6.7.666')
     self.assertEqual( '6.7.666', python_exe.check_exe(fake_exe) )
 
-  @skip_if(not host.is_unix(), 'not unix')
+  @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_check_exe_not_executable(self):
     fake_exe = python_testing.make_temp_fake_python('python6.7', '6.7.666', mode = 0o0600)
     with self.assertRaises(python_error) as ctx:
