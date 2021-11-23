@@ -36,18 +36,13 @@ class dir_split(object):
     
     for d in info.existing_split_dirs:
       if dir_util.is_empty(d):
-        file_util.remove(d)
+        dir_util.remove(d)
 
     for next_possible_empty_root in info.possible_empty_dirs_roots:
-      while True:
-        empties = file_find.find_empty_dirs(next_possible_empty_root, relative = False)
-        if not empties:
-          break
-        for next_empty in empties:
-          file_util.remove(next_empty)
-      assert dir_util.is_empty(next_possible_empty_root)
-      file_util.remove(next_possible_empty_root)
+      clazz._remove_empty_dirs(next_possible_empty_root)
 
+    clazz._remove_empty_dirs(dst_dir)
+      
   _split_item = namedtuple('_split_item', 'src_filename, dst_filename')
   _split_items_info = namedtuple('_split_items_info', 'items, existing_split_dirs, possible_empty_dirs_roots')
   @classmethod
@@ -71,8 +66,9 @@ class dir_split(object):
       for d in dirs:
         if d != src_dir:
           d_relative = file_util.remove_head(d, src_dir + path.sep)
-          d_root = path.join(src_dir, file_path.split(d_relative)[0])
-          possible_empty_dirs_roots.append(d_root)
+          if not d_relative.startswith(options.prefix):
+            d_root = path.join(src_dir, file_path.split(d_relative)[0])
+            possible_empty_dirs_roots.append(d_root)
       possible_empty_dirs_roots = algorithm.unique(possible_empty_dirs_roots)
     else:
       new_files = dir_util.list_files(src_dir)
@@ -131,3 +127,14 @@ class dir_split(object):
           dst_filename = path.join(dirname, dst_basename)
           count += 1
       file_util.rename(item.src_filename, dst_filename)
+
+  @classmethod
+  def _remove_empty_dirs(clazz, d):
+    while True:
+      empties = file_find.find_empty_dirs(d, relative = False)
+      if not empties:
+        break
+      for next_empty in empties:
+        file_util.remove(next_empty)
+    if dir_util.is_empty(d):
+      dir_util.remove(d)
