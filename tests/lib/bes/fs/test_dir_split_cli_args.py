@@ -34,8 +34,8 @@ class test_dir_split_cli_args(program_unit_test):
       'chunk-6/lemon3.txt',
     ]
     self.assertEqual( 0, t.rv.exit_code )
-    self.assertEqual( expected, t.dst_files )
-    self.assertEqual( [], t.src_files )
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
 
   def _do_test(self, content_desc, content_multiplier, chunk_size, extra_content_items = None):
     tmp_dir = dir_split_tester.make_content(content_desc,
