@@ -59,8 +59,8 @@ class test_dir_split(unit_test):
       'chunk-6',
       'chunk-6/lemon3.txt',
     ]
-    self.assertEqual( expected, t.dst_files )
-    self.assertEqual( [], t.src_files )
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
 
   def test_split_chunks_of_one(self):
     t = self._do_test([
@@ -93,8 +93,8 @@ class test_dir_split(unit_test):
       'chunk-11',
       'chunk-11/lemon3.txt',
     ]
-    self.assertEqual( expected, t.dst_files )
-    self.assertEqual( [], t.src_files )
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
 
   def test_split_one_chunk(self):
     t = self._do_test([
@@ -106,8 +106,8 @@ class test_dir_split(unit_test):
       'chunk-1/apple1.txt',
       'chunk-1/kiwi1.txt',
     ]
-    self.assertEqual( expected, t.dst_files )
-    self.assertEqual( [], t.src_files )
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
     
   def test_split_larger_dir(self):
     t = self._do_test([
@@ -162,8 +162,8 @@ class test_dir_split(unit_test):
       'chunk-11/lemon8.txt',
       'chunk-11/lemon9.txt',
     ]
-    self.assertEqual( expected, t.dst_files )
-    self.assertEqual( [], t.src_files )
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
 
   def test_split_existing_dst(self):
     extra_content_items = [
@@ -200,8 +200,8 @@ class test_dir_split(unit_test):
       'chunk-7/lemon2.txt',
       'chunk-7/lemon3.txt',
     ]
-    self.assertEqual( expected, t.dst_files )
-    self.assertEqual( [], t.src_files )
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
 
   def test_split_existing_dst_grow_split_digits(self):
     extra_content_items = [
@@ -256,8 +256,8 @@ class test_dir_split(unit_test):
       'chunk-11',
       'chunk-11/lemon3.txt',
     ]
-    self.assertEqual( expected, t.dst_files )
-    self.assertEqual( [], t.src_files )
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
 
   def test_split_unrelated_src_dirs(self):
     extra_content_items = [
@@ -289,14 +289,14 @@ class test_dir_split(unit_test):
       'chunk-6',
       'chunk-6/lemon3.txt',
     ]
-    self.assertEqual( expected, t.dst_files )
+    self.assert_filename_list_equal( expected, t.dst_files )
     expected = [
       'unrelated-1',
       'unrelated-1/foo.txt',
       'unrelated-2',
       'unrelated-2/bar.txt',
     ]
-    self.assertEqual( expected, t.src_files )
+    self.assert_filename_list_equal( expected, t.src_files )
 
   def test_split_dst_dir_same_as_src(self):
     t = self._do_test([
@@ -324,9 +324,9 @@ class test_dir_split(unit_test):
       'chunk-6',
       'chunk-6/lemon3.txt',
     ]
-    self.assertEqual( t.dst_dir, t.src_dir )
-    self.assertEqual( expected, t.dst_files )
-    self.assertEqual( expected, t.src_files )
+    self.assert_filename_equal( t.dst_dir, t.src_dir )
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( expected, t.src_files )
 
   def test_split_recursive(self):
     extra_content_items = [
@@ -383,8 +383,8 @@ class test_dir_split(unit_test):
       'chunk-11/more-3-sub12-bar-1.txt',
       'chunk-11/more-3-sub12-bar-2.txt',
     ]
-    self.assertEqual( expected, t.dst_files )
-    self.assertEqual( [], t.src_files )
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
     
   def _do_test(self,
                content_desc,
