@@ -34,3 +34,13 @@ class file_check(object):
     if not path.isdir(dirname):
       raise exception_class('Not a directory: %s' % (dirname))
     return path.abspath(dirname)
+
+  @classmethod
+  def check_dir_seq(clazz, dirs, exception_class = None):
+    check.check_string_seq(dirs)
+    check.check_class(exception_class, allow_none = True)
+
+    result = []
+    for d in dirs:
+      result.append(clazz.check_dir(d, exception_class = exception_class))
+    return result
