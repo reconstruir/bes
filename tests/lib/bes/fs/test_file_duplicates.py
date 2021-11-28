@@ -16,12 +16,16 @@ class test_file_duplicates(unit_test):
 
   def test_find_duplicates(self):
     self.assertEqual( [
-      ( '${_root}/a/lemon.txt', [ '${_root}/a/lemon_dup.txt' ] ),
+      ( '${_root}/a/lemon.txt', [
+        '${_root}/a/lemon_dup.txt',
+        '${_root}/b/lemon_dup2.txt',
+      ] ),
     ], self._test([ 
       'file a/lemon.txt "this is lemon.txt" 644',
       'file a/kiwi.txt "this is kiwi.txt" 644',
       'file a/lemon_dup.txt "this is lemon.txt" 644',
-    ], [ 'a' ]) )
+      'file b/lemon_dup2.txt "this is lemon.txt" 644',
+    ], [ 'a', 'b' ]) )
 
   _test_result = namedtuple('_test_result', 'tmp_dir, dups, files')
   def _test(self, items, dirs):
