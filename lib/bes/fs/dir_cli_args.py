@@ -31,6 +31,7 @@ class dir_cli_args(object):
     p.add_argument('--dry-run', action = 'store_true', default = False,
                    help = 'Dont do anything just print what would happen [ None ]')
     p.add_argument('--verbose', action = 'store_true', default = False,
+                   help = 'Verbose output [ False ]')
     p.add_argument('--sort', action = 'store', default = 'filename',
                    dest = 'sort_order',
                    help = 'How to sort files before splitting [ None ]')

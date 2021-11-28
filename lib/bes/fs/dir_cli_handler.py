@@ -8,11 +8,8 @@ from bes.fs.file_check import file_check
 
 from .dir_split import dir_split
 from .dir_split_options import dir_split_options
-<<<<<<< HEAD
 from .file_duplicates import file_duplicates
-=======
 from .file_find import file_find
->>>>>>> master
 
 class dir_cli_handler(cli_command_handler):
   'dir project cli handler.'
