@@ -12,7 +12,7 @@ from .file_util import file_util
 
 class file_duplicates(object):
 
-  _dup_item = namedtuple('_find_dups_result', 'filename, duplicates')
+  _dup_item = namedtuple('_dup_item', 'filename, duplicates')
   _ordered_filename = namedtuple('_ordered_filename', 'filename, checksum, order')
   @classmethod
   def find_duplicates(clazz, dirs):

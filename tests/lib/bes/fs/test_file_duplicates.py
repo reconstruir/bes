@@ -4,12 +4,14 @@
 from collections import namedtuple
 from os import path
 
-from bes.testing.unit_test import unit_test
-from bes.fs.file_util import file_util
-from bes.fs.file_find import file_find
+from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_duplicates import file_duplicates
-from bes.common.string_util import string_util
+from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
+from bes.system.which import which
+from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 from bes.fs.testing.temp_content import temp_content
   
@@ -40,8 +42,22 @@ class test_file_duplicates(unit_test):
       'file a/lemon_dup.txt "this is lemon.txt" 644',
       'file b/lemon_dup2.txt "this is lemon.txt" 644',
     ], [ 'b', 'a' ]) )
+
+  @unit_test_function_skip.skip_if_not_unix()
+  def test_find_duplicates_no_write_permission(self):
+    sh_exe = which.which('sh')
+    bin_dir = path.dirname(sh_exe)
+    tmp_dir = self.make_temp_dir()
+    sh_exe_dup = path.join(tmp_dir, 'dupsh.exe')
+    file_util.copy(sh_exe, sh_exe_dup)
+    result = self._test([ 
+    ], [], extra_dirs_before = [
+      self._extra_dir(bin_dir, '${_bin}'),
+      self._extra_dir(tmp_dir, '${_tmp}'),
+    ] )
+    self.assertTrue( file_duplicates._dup_item('${_bin}/sh', [ '${_tmp}/dupsh.exe']) in result )
     
-  _extra_dir = namedtuple('_extra_dir', 'dir, label')
+  _extra_dir = namedtuple('_extra_dir', 'dirname, label')
   _test_result = namedtuple('_test_result', 'tmp_dir, dups, files')
   def _test(self, items, dirs, extra_dirs_before = [], extra_dirs_after = []):
     tmp_root = temp_content.write_items_to_temp_dir(items)
@@ -53,6 +69,9 @@ class test_file_duplicates(unit_test):
     replacements = {
       tmp_root: '${_root}',
     }
+    for extra_dir in extra_dirs_before + extra_dirs_after:
+      assert extra_dir.dirname not in replacements
+      replacements[extra_dir.dirname] = extra_dir.label
     return self._hack_dup_item_list(dups, replacements)
 
   @classmethod
