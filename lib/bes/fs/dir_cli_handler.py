@@ -8,7 +8,11 @@ from bes.fs.file_check import file_check
 
 from .dir_split import dir_split
 from .dir_split_options import dir_split_options
+<<<<<<< HEAD
 from .file_duplicates import file_duplicates
+=======
+from .file_find import file_find
+>>>>>>> master
 
 class dir_cli_handler(cli_command_handler):
   'dir project cli handler.'
@@ -39,5 +43,16 @@ class dir_cli_handler(cli_command_handler):
         print('DRY_RUN: {}: {}'.format(dup.filename, ','.join(dup.duplicates)))
       else:
         file_util.remove(dup.duplicates)
+    return 0
         
+  def remove_empty(self, where):
+    where = file_check.check_dir(where)
+    max_depth = None if self.options.recursive else 1
+    if self.options.dry_run:
+      empties = file_find.find_empty_dirs(where, relative = False, max_depth = max_depth)
+      for empty in empties:
+        print(empty)
+    else:
+      file_find.remove_empty_dirs(where, max_depth = max_depth)
+      
     return 0

@@ -9,6 +9,7 @@ from bes.common.string_util import string_util
 from bes.system.check import check
 from bes.system.log import logger
 
+from .dir_sort_order import dir_sort_order
 from .dir_split_options import dir_split_options
 from .dir_util import dir_util
 from .file_check import file_check
@@ -36,18 +37,13 @@ class dir_split(object):
     
     for d in info.existing_split_dirs:
       if dir_util.is_empty(d):
-        file_util.remove(d)
+        dir_util.remove(d)
 
     for next_possible_empty_root in info.possible_empty_dirs_roots:
-      while True:
-        empties = file_find.find_empty_dirs(next_possible_empty_root, relative = False)
-        if not empties:
-          break
-        for next_empty in empties:
-          file_util.remove(next_empty)
-      assert dir_util.is_empty(next_possible_empty_root)
-      file_util.remove(next_possible_empty_root)
+      file_find.remove_empty_dirs(next_possible_empty_root)
 
+    file_find.remove_empty_dirs(dst_dir)
+      
   _split_item = namedtuple('_split_item', 'src_filename, dst_filename')
   _split_items_info = namedtuple('_split_items_info', 'items, existing_split_dirs, possible_empty_dirs_roots')
   @classmethod
@@ -71,15 +67,17 @@ class dir_split(object):
       for d in dirs:
         if d != src_dir:
           d_relative = file_util.remove_head(d, src_dir + path.sep)
-          d_root = path.join(src_dir, file_path.split(d_relative)[0])
-          possible_empty_dirs_roots.append(d_root)
+          if not d_relative.startswith(options.prefix):
+            d_root = path.join(src_dir, file_path.split(d_relative)[0])
+            possible_empty_dirs_roots.append(d_root)
       possible_empty_dirs_roots = algorithm.unique(possible_empty_dirs_roots)
     else:
       new_files = dir_util.list_files(src_dir)
       possible_empty_dirs_roots = []
     
     files = algorithm.unique(old_files + new_files)
-    chunks = [ chunk for chunk in object_util.chunks(files, options.chunk_size) ]
+    sorted_files = clazz._sort_files(files, options.sort_order, options.sort_reverse)
+    chunks = [ chunk for chunk in object_util.chunks(sorted_files, options.chunk_size) ]
     num_chunks = len(chunks)
     num_digits = len(str(num_chunks))
     for i, chunk in enumerate(chunks):
@@ -131,3 +129,15 @@ class dir_split(object):
           dst_filename = path.join(dirname, dst_basename)
           count += 1
       file_util.rename(item.src_filename, dst_filename)
+
+  @classmethod
+  def _sort_files(clazz, files, order, reverse):
+    if order == dir_sort_order.FILENAME:
+      key = lambda f: f
+    elif order == dir_sort_order.SIZE:
+      key = lambda f: file_util.size(f)
+    elif order == dir_sort_order.DATE:
+      key = lambda f: file_util.get_modification_date(f)
+    else:
+      assert False
+    return sorted(files, key = key, reverse = reverse)

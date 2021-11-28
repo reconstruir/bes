@@ -51,10 +51,11 @@ class test_dir_split_cli_args(program_unit_test):
       dst_dir,
       str(chunk_size),
     ]
+    src_files_before = file_find.find(src_dir, relative = True, file_type = file_find.ANY)
     rv = self.run_program(self._program, args)
     src_files = file_find.find(src_dir, relative = True)
     dst_files = file_find.find(dst_dir, relative = True)
-    return dir_split_tester._test_result(tmp_dir, src_dir, dst_dir, src_files, dst_files, rv)
+    return dir_split_tester._test_result(tmp_dir, src_dir, dst_dir, src_files, dst_files, src_files_before, rv)
     
 if __name__ == '__main__':
   program_unit_test.main()

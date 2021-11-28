@@ -31,7 +31,21 @@ class dir_cli_args(object):
     p.add_argument('--dry-run', action = 'store_true', default = False,
                    help = 'Dont do anything just print what would happen [ None ]')
     p.add_argument('--verbose', action = 'store_true', default = False,
-                   help = 'Split directories recursively [ None ]')
+    p.add_argument('--sort', action = 'store', default = 'filename',
+                   dest = 'sort_order',
+                   help = 'How to sort files before splitting [ None ]')
+    p.add_argument('--reverse', action = 'store_true', default = False,
+                   dest = 'sort_reverse',
+                   help = 'Whether to reverse the file order after sorting [ None ]')
+
+    # remove_empty
+    p = subparser.add_parser('remove_empty', help = 'Remove empty directories.')
+    p.add_argument('where', action = 'store', type = str, default = None,
+                   help = 'Where to start [ None ]')
+    p.add_argument('--dry-run', action = 'store_true', default = False,
+                   help = 'Dont do anything just print what would happen [ None ]')
+    p.add_argument('--recursive', action = 'store_true', default = False,
+                   help = 'Whether to recurse into subdirectories [ False ]')
     
   def _command_dir(self, command, *args, **kargs):
     from .dir_cli_handler import dir_cli_handler
