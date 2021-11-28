@@ -13,16 +13,24 @@ from bes.fs.testing.temp_content import temp_content
 
 class dir_split_tester(object):
 
-  _content = namedtuple('_content', 'name, num')
+  class _content(namedtuple('_content', 'name, num, size')):
+    def __new__(clazz, name, num, size = None):
+      return clazz.__bases__[0].__new__(clazz, name, num, size)
+
   @classmethod
   def make_content(clazz, content_desc, content_multiplier, extra_content_items = None):
     extra_content_items = extra_content_items or []
-    content_desc = [ clazz._content(c.name, c.num * content_multiplier) for c in content_desc ]
+    content_desc = [ clazz._content(c.name, c.num * content_multiplier, size = c.size) for c in content_desc ]
     content_items = []
     for next_desc in content_desc:
       for i in range(1, next_desc.num + 1):
         filename = '{}{}.txt'.format(next_desc.name, i)
         text = 'this is {}'.format(filename)
+        if next_desc.size != None:
+          assert(next_desc.size > len(text))
+          num_needed = next_desc.size - len(text)
+          text += (num_needed * 'x')
+          assert len(text) == next_desc.size
         desc = 'file src/{} "{}" 644'.format(filename, text)
         content_items.append(desc)
     content_items.extend(extra_content_items)
@@ -401,6 +409,52 @@ class test_dir_split(unit_test):
     ]
     self.assert_filename_list_equal( expected, t.dst_files )
     self.assert_filename_list_equal( [], t.src_files )
+
+  def test_sort_order(self):
+    t = self._do_test([
+      dir_split_tester._content('apple', 1, size = 100),
+      dir_split_tester._content('kiwi', 1, size = 200),
+      dir_split_tester._content('lemon', 1, size = 300),
+      dir_split_tester._content('blueberry', 1, size = 400),
+      dir_split_tester._content('watermelon', 1, size = 500),
+      dir_split_tester._content('grapefruit', 1, size = 600),
+    ], 1, 2, sort_order = 'size', sort_reverse = False)
+    expected = [
+      'chunk-1',
+      'chunk-1/apple1.txt',
+      'chunk-1/kiwi1.txt',
+      'chunk-2',
+      'chunk-2/blueberry1.txt',
+      'chunk-2/lemon1.txt',
+      'chunk-3',
+      'chunk-3/grapefruit1.txt',
+      'chunk-3/watermelon1.txt',
+    ]
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
+
+  def test_sort_order_reverse(self):
+    t = self._do_test([
+      dir_split_tester._content('apple', 1, size = 100),
+      dir_split_tester._content('kiwi', 1, size = 200),
+      dir_split_tester._content('lemon', 1, size = 300),
+      dir_split_tester._content('blueberry', 1, size = 400),
+      dir_split_tester._content('watermelon', 1, size = 500),
+      dir_split_tester._content('grapefruit', 1, size = 600),
+    ], 1, 2, sort_order = 'size', sort_reverse = True)
+    expected = [
+      'chunk-1',
+      'chunk-1/grapefruit1.txt',
+      'chunk-1/watermelon1.txt',
+      'chunk-2',
+      'chunk-2/blueberry1.txt',
+      'chunk-2/lemon1.txt',
+      'chunk-3',
+      'chunk-3/apple1.txt',
+      'chunk-3/kiwi1.txt',
+    ]
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
     
   def _do_test(self,
                content_desc,
@@ -408,11 +462,15 @@ class test_dir_split(unit_test):
                chunk_size,
                extra_content_items = None,
                dst_dir_same_as_src = False,
-               recursive = False):
+               recursive = False,
+               sort_order = 'filename',
+               sort_reverse = False):
     options = dir_split_options(chunk_size = chunk_size,
                                 prefix = 'chunk-',
                                 recursive = recursive,
-                                dup_file_timestamp = 'dup-timestamp')
+                                dup_file_timestamp = 'dup-timestamp',
+                                sort_order = sort_order,
+                                sort_reverse = sort_reverse)
     tmp_dir = dir_split_tester.make_content(content_desc,
                                             content_multiplier,
                                             extra_content_items = extra_content_items)

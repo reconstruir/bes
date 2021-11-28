@@ -110,3 +110,10 @@ class checked_enum_mixin:
     except ValueError as ex:
       pass
     raise ValueError('Invalid enumeration value: "{}" - {}'.format(what, type(what)))
+
+  @classmethod
+  def register_check_class(clazz):
+    check.register_class(clazz,
+                         include_seq = False,
+                         cast_func = clazz.parse)
+  

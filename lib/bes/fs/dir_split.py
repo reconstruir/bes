@@ -9,6 +9,7 @@ from bes.common.string_util import string_util
 from bes.system.check import check
 from bes.system.log import logger
 
+from .dir_sort_order import dir_sort_order
 from .dir_split_options import dir_split_options
 from .dir_util import dir_util
 from .file_check import file_check
@@ -75,7 +76,8 @@ class dir_split(object):
       possible_empty_dirs_roots = []
     
     files = algorithm.unique(old_files + new_files)
-    chunks = [ chunk for chunk in object_util.chunks(files, options.chunk_size) ]
+    sorted_files = clazz._sort_files(files, options.sort_order, options.sort_reverse)
+    chunks = [ chunk for chunk in object_util.chunks(sorted_files, options.chunk_size) ]
     num_chunks = len(chunks)
     num_digits = len(str(num_chunks))
     for i, chunk in enumerate(chunks):
@@ -127,3 +129,15 @@ class dir_split(object):
           dst_filename = path.join(dirname, dst_basename)
           count += 1
       file_util.rename(item.src_filename, dst_filename)
+
+  @classmethod
+  def _sort_files(clazz, files, order, reverse):
+    if order == dir_sort_order.FILENAME:
+      key = lambda f: f
+    elif order == dir_sort_order.SIZE:
+      key = lambda f: file_util.size(f)
+    elif order == dir_sort_order.DATE:
+      key = lambda f: file_util.get_modification_date(f)
+    else:
+      assert False
+    return sorted(files, key = key, reverse = reverse)
