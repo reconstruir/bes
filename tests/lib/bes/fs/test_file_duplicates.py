@@ -21,12 +21,12 @@ class test_file_duplicates(unit_test):
       'file a/lemon.txt "this is lemon.txt" 644',
       'file a/kiwi.txt "this is kiwi.txt" 644',
       'file a/lemon_dup.txt "this is lemon.txt" 644',
-    ]) )
+    ], [ 'a' ]) )
 
   _test_result = namedtuple('_test_result', 'tmp_dir, dups, files')
-  def _test(self, items):
+  def _test(self, items, dirs):
     tmp_dir = temp_content.write_items_to_temp_dir(items)
-    dirs = dir_util.list_dirs(tmp_dir)
+    dirs = [ path.join(tmp_dir, d) for d in dirs ]
     dups = file_duplicates.find_duplicates(dirs)
     return self._hack_dup_item_list(dups, tmp_dir, '${_root}')
 
