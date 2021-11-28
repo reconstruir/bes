@@ -27,6 +27,19 @@ class test_file_duplicates(unit_test):
       'file b/lemon_dup2.txt "this is lemon.txt" 644',
     ], [ 'a', 'b' ]) )
 
+  def test_find_duplicates_order(self):
+    self.assertEqual( [
+      ( '${_root}/b/lemon_dup2.txt', [
+        '${_root}/a/lemon.txt',
+        '${_root}/a/lemon_dup.txt',
+      ] ),
+    ], self._test([ 
+      'file a/lemon.txt "this is lemon.txt" 644',
+      'file a/kiwi.txt "this is kiwi.txt" 644',
+      'file a/lemon_dup.txt "this is lemon.txt" 644',
+      'file b/lemon_dup2.txt "this is lemon.txt" 644',
+    ], [ 'b', 'a' ]) )
+    
   _test_result = namedtuple('_test_result', 'tmp_dir, dups, files')
   def _test(self, items, dirs):
     tmp_dir = temp_content.write_items_to_temp_dir(items)
