@@ -282,6 +282,7 @@ class file_util(object):
     with open(filename, 'rb') as fin: 
       for chunk in iter(lambda: fin.read(chunk_size), b''): 
         hasher.update(chunk)
+    print('did checksum {}'.format(filename))
     return hasher.hexdigest()
 
   @classmethod

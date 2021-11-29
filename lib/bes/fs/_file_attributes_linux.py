@@ -6,6 +6,7 @@ from bes.common.check import check
 from bes.system.execute import execute
 
 from ._file_attributes_base import _file_attributes_base
+from .file_attributes_error import file_attributes_error
 
 class _file_attributes_linux(_file_attributes_base):
 
@@ -22,7 +23,7 @@ class _file_attributes_linux(_file_attributes_base):
       if path.exists(filename) and os.access(filename, os.R_OK):
         return None
       else:
-        raise RuntimeError('error getting \"%s\" for %s' % (key, filename))
+        raise file_attributes_error('error getting \"%s\" for %s' % (key, filename))
 
   @classmethod
   #@abstractmethod
@@ -32,10 +33,10 @@ class _file_attributes_linux(_file_attributes_base):
     check.check_string(key)
     check.check_string(value)
     if ' ' in key:
-      raise ValueError('space not supported in key: \"%s\"' % (key))
+      raise file_attributes_error('space not supported in key: \"%s\"' % (key))
     rv = clazz._call_attr('-q', '-s', key, '-V', value, filename)
     if rv.exit_code != 0:
-      raise RuntimeError('error setting attribute \"%s\" for %s: %s' % (key, filename, rv.stdout.strip()))
+      raise file_attributes_error('error setting attribute \"%s\" for %s: %s' % (key, filename, rv.stdout.strip()))
   
   @classmethod
   #@abstractmethod
@@ -51,7 +52,7 @@ class _file_attributes_linux(_file_attributes_base):
     'Return all the keys set for filename.'
     rv = clazz._call_attr('-q', '-l', filename)
     if rv.exit_code != 0:
-      raise RuntimeError('error getting keys for %s: %s' % (filename, rv.stdout.strip()))
+      raise file_attributes_error('error getting keys for %s: %s' % (filename, rv.stdout.strip()))
     text = rv.stdout.strip()
     keys = [ line for line in text.split('\n') if line.strip() ]
     return sorted(keys)

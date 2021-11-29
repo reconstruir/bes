@@ -7,6 +7,7 @@ from bes.fs.file_check import file_check
 from bes.key_value.key_value_list import key_value_list
 
 from ._file_attributes_base import _file_attributes_base
+from .file_attributes_error import file_attributes_error
 
 class _file_attributes_windows(_file_attributes_base):
   'file_attributes implementation that uses windows ADS (alternative data streams)'
@@ -97,7 +98,7 @@ class _file_attributes_windows(_file_attributes_base):
     'Make an ADS filename from a regular filename.'
     basename = path.basename(filename)
     if ':' in basename:
-      raise ValueError('filename cannot contain \":\": {}'.format(filename))
+      raise file_attributes_error('filename cannot contain \":\": {}'.format(filename))
     if ':' in stream_name:
-      raise ValueError('stream_name cannot contain \":\": {}'.format(stream_name))
+      raise file_attributes_error('stream_name cannot contain \":\": {}'.format(stream_name))
     return '{}:{}'.format(filename, stream_name)

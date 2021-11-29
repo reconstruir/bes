@@ -4,6 +4,7 @@ from bes.common.check import check
 from bes.system.execute import execute
 
 from ._file_attributes_base import _file_attributes_base
+from .file_attributes_error import file_attributes_error
 
 class _file_attributes_macos(_file_attributes_base):
 
@@ -19,7 +20,7 @@ class _file_attributes_macos(_file_attributes_base):
     elif 'No such xattr' in rv.stderr:
       return None
     else:
-      raise RuntimeError('error getting \"%s\" for %s' % (key, filename))
+      raise file_attributes_error('error getting \"%s\" for %s' % (key, filename))
     
   @classmethod
   #@abstractmethod
@@ -32,7 +33,7 @@ class _file_attributes_macos(_file_attributes_base):
       raise ValueError('space not supported in key: \"%s\"' % (key))
     rv = clazz._call_xattr('-w', key, value, filename)
     if rv.exit_code != 0:
-      raise RuntimeError('error setting attribute \"%s\" for %s: %s' % (key, filename, rv.stdout.strip()))
+      raise file_attributes_error('error setting attribute \"%s\" for %s: %s' % (key, filename, rv.stdout.strip()))
   
   @classmethod
   #@abstractmethod
@@ -49,7 +50,7 @@ class _file_attributes_macos(_file_attributes_base):
     check.check_string(filename)
     rv = clazz._call_xattr('-l', filename)
     if rv.exit_code != 0:
-      raise RuntimeError('error getting keys for %s: %s' % (filename, rv.stdout.strip()))
+      raise file_attributes_error('error getting keys for %s: %s' % (filename, rv.stdout.strip()))
     text = rv.stdout.strip()
     lines = [ line for line in text.split('\n') if line.strip() ]
     keys = [ clazz._parse_key(line) for line in lines ]

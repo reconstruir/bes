@@ -6,6 +6,7 @@ from bes.system.execute import execute
 import xattr
 
 from ._file_attributes_base import _file_attributes_base
+from .file_attributes_error import file_attributes_error
 
 class _file_attributes_xattr(_file_attributes_base):
 
@@ -17,6 +18,8 @@ class _file_attributes_xattr(_file_attributes_base):
     check.check_string(key)
     try:
       return xattr.getxattr(filename, key)
+    except OSError as ex:
+      return None
     except KeyError as ex:
       return None
     

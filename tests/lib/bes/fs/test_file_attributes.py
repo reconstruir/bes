@@ -19,8 +19,8 @@ class test_file_attributes(unit_test):
   
   def test_set_get(self):
     tmp = self._make_temp_file('this is foo\n')
-    FA.set(tmp, 'foo', 'hi')
-    self.assertEqual( 'hi', FA.get(tmp, 'foo'))
+    FA.set(tmp, 'foo', 'hi'.encode('utf-8'))
+    self.assertEqual( 'hi', FA.get(tmp, 'foo').decode('utf-8') )
 
   def test_empty_keys(self):
     tmp = self._make_temp_file('this is foo\n')
@@ -28,14 +28,14 @@ class test_file_attributes(unit_test):
 
   def test_keys(self):
     tmp = self._make_temp_file('this is foo\n')
-    FA.set(tmp, 'foo', 'hi')
-    FA.set(tmp, 'bar', '99')
+    FA.set(tmp, 'foo', 'hi'.encode('utf-8'))
+    FA.set(tmp, 'bar', '99'.encode('utf-8'))
     self.assertEqual( [ 'bar', 'foo' ], self._munge_attr_keys(FA.keys(tmp)) )
     
   def test_clear(self):
     tmp = self._make_temp_file('this is foo\n')
-    FA.set(tmp, 'foo', 'hi')
-    FA.set(tmp, 'bar', '99')
+    FA.set(tmp, 'foo', 'hi'.encode('utf-8'))
+    FA.set(tmp, 'bar', '99'.encode('utf-8'))
     self.assertEqual( [ 'bar', 'foo' ], self._munge_attr_keys(FA.keys(tmp)) )
     FA.clear(tmp)
     self.assertEqual( [], self._munge_attr_keys(FA.keys(tmp)) )
