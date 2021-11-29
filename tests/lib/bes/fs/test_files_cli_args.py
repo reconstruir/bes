@@ -9,7 +9,7 @@ from bes.fs.file_find import file_find
 
 from test_dir_split import dir_split_tester
 
-class test_dir_split_cli_args(program_unit_test):
+class test_files_cli_args(program_unit_test):
 
   _program = program_unit_test.resolve_program(__file__, '../../../../bin/best.py')
 
