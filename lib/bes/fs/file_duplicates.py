@@ -7,6 +7,8 @@ from bes.common.object_util import object_util
 from bes.system.check import check
 from bes.fs.file_check import file_check
 
+from .file_checksum_getter_attributes import file_checksum_getter_attributes
+from .file_checksum_getter_db import file_checksum_getter_db
 from .file_find import file_find
 from .file_util import file_util
 
@@ -23,7 +25,7 @@ class file_duplicates(object):
     checksum_to_files = OrderedDict()
     ordered_files = []
     for order, f in enumerate(files):
-      checksum = file_util.checksum('sha256', f)
+      checksum = clazz._file_checksum(f)
       if not checksum in checksum_to_files:
         checksum_to_files[checksum] = []
       checksum_to_files[checksum].append(clazz._ordered_filename(f, checksum, order))
@@ -36,3 +38,7 @@ class file_duplicates(object):
         duplicates = [ f.filename for f in sorted_ordered_files[1:] ]
         result.append(clazz._dup_item(filename, duplicates))
     return result
+
+  @classmethod
+  def _file_checksum(clazz, filename):
+    return file_util.checksum('sha256', filename)

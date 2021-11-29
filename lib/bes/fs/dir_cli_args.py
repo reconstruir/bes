@@ -24,7 +24,7 @@ class dir_cli_args(object):
 
     # dups
     p = subparser.add_parser('dups', help = 'Find duplicate files in directories.')
-    p.add_argument('dirs', action = 'append', default = [], nargs = '+',
+    p.add_argument('dirs', action = 'store', default = [], nargs = '+',
                    help = 'One or more directories to check for dups [ None ]')
     p.add_argument('--delete', action = 'store_true', default = False,
                    help = 'Prefix for the split directory names [ None ]')
