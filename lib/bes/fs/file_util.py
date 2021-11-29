@@ -10,11 +10,13 @@ from bes.common.string_util import string_util
 from bes.system.compat import compat
 from bes.system.env_var import os_env_var
 from bes.system.filesystem import filesystem
-from bes.system.log import log
+from bes.system.log import logger
 from bes.system.which import which
 
 class file_util(object):
 
+  _log = logger('file_util')
+  
   @classmethod
   def mkdir(clazz, p, mode = None):
     if path.isdir(p):
@@ -277,12 +279,12 @@ class file_util(object):
   # https://stackoverflow.com/questions/1131220/get-md5-hash-of-big-files-in-python
   @classmethod
   def checksum(clazz, function_name, filename, chunk_size = None):
+    clazz._log.log_method_d()
     chunk_size = chunk_size or (1024 * 1024)
     hasher = hashlib.new(function_name)
     with open(filename, 'rb') as fin: 
       for chunk in iter(lambda: fin.read(chunk_size), b''): 
         hasher.update(chunk)
-    print('did checksum {}'.format(filename))
     return hasher.hexdigest()
 
   @classmethod
@@ -362,5 +364,3 @@ class file_util(object):
     if not pager:
       raise RuntimeError('Pager not found')
     subprocess.call([ pager, filename ])
-        
-log.add_logging(file_util, 'file_util')

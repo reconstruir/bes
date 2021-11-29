@@ -28,6 +28,8 @@ class file_checksum_db(object):
   def __init__(self, root_dir, db_filename = None):
     check.check_string(root_dir)
     check.check_string(db_filename, allow_none = True)
+    db_filename = db_filename or self.DEFAULT_CHECKSUM_DB_FILENAME
+    
     self._metadata = file_metadata(root_dir, db_filename = db_filename)
     self._count = 0
 

@@ -36,8 +36,8 @@ class file_checksum_attributes(object):
     checksum = file_util.checksum(algorithm, filename)
     checksum_key = clazz._ALGORITHM_TO_KEY.get(algorithm, None)
     try:
-      file_attributes.set(filename, clazz._KEY_BES_MTIME, mtime)
-      file_attributes.set(filename, checksum_key, checksum)
+      file_attributes.set(filename, clazz._KEY_BES_MTIME, mtime.encode('utf-8'))
+      file_attributes.set(filename, checksum_key, checksum.encode('utf-8'))
     finally:
       pass
 #      try:

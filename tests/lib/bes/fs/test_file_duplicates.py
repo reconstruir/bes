@@ -21,6 +21,9 @@ class _file_duplicate_tester_base(with_metaclass(ABCMeta, object)):
 
   _extra_dir = namedtuple('_extra_dir', 'dirname, label')
   _test_result = namedtuple('_test_result', 'tmp_dir, dups, files')
+
+  def __init__(self, ut):
+    self._ut = ut
   
   @abstractmethod
   def find_dups(self, dirs):
@@ -32,7 +35,10 @@ class _file_duplicate_tester_base(with_metaclass(ABCMeta, object)):
     dirs_for_find_dups_before = [ d.dirname for d in extra_dirs_before ]
     dirs_for_find_dups_after = [ d.dirname for d in extra_dirs_after ]
     dirs_for_find_dups = dirs_for_find_dups_before + tmp_root_dirs + dirs_for_find_dups_after
-    dups = file_duplicates.find_duplicates(dirs_for_find_dups)
+    tmp_checksum_dir = self._ut.make_temp_dir()
+    tmp_checksum_db_filename = path.join(tmp_checksum_dir, 'db.sqlite')
+    dups = file_duplicates.find_duplicates(dirs_for_find_dups,
+                                           checksum_db_filename = tmp_checksum_db_filename)
     replacements = {
       tmp_root: '${_root}',
     }
@@ -104,7 +110,7 @@ class test_file_duplicates(unit_test):
     self.assertTrue( file_duplicates._dup_item('${_bin}/sh', [ '${_tmp}/dupsh.exe']) in result )
 
   def _test(self, items, dirs, extra_dirs_before = [], extra_dirs_after = []):
-    tester = _file_duplicate_tester_object()
+    tester = _file_duplicate_tester_object(self)
     return tester.test(items,
                        dirs,
                        extra_dirs_before = extra_dirs_before,
