@@ -26,10 +26,10 @@ class file_duplicates(object):
   _ordered_filename = namedtuple('_ordered_filename', 'filename, checksum, order')
   @classmethod
   def find_duplicates(clazz, dirs, checksum_db_filename = None):
-    assert checksum_db_filename
-    dirs = file_check.check_dir_seq(object_util.listify(dirs))
-    checksum_db_filename = check.check_string(checksum_db_filename, allow_none = True)
+    check.check_string(checksum_db_filename, allow_none = True)
     checksum_db_filename = checksum_db_filename or clazz.DEFAULT_CHECKSUM_DB
+    
+    dirs = file_check.check_dir_seq(object_util.listify(dirs))
 
     for d in dirs:
       clazz._log.log_d('find_duplicates: dirs: {}'.format(d))
