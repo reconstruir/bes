@@ -1,11 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-class dir_cli_args(object):
+class files_cli_args(object):
 
   def __init__(self):
     pass
   
-  def dir_add_args(self, subparser):
+  def files_add_args(self, subparser):
 
     # split
     p = subparser.add_parser('split', help = 'Split a directory into many directories.')
@@ -48,6 +48,6 @@ class dir_cli_args(object):
     p.add_argument('--recursive', action = 'store_true', default = False,
                    help = 'Whether to recurse into subdirectories [ False ]')
     
-  def _command_dir(self, command, *args, **kargs):
-    from .dir_cli_handler import dir_cli_handler
-    return dir_cli_handler(kargs).handle_command(command)
+  def _command_files(self, command, *args, **kargs):
+    from .files_cli_handler import files_cli_handler
+    return files_cli_handler(kargs).handle_command(command)

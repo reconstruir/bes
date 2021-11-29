@@ -11,11 +11,11 @@ from .dir_split_options import dir_split_options
 from .file_duplicates import file_duplicates
 from .file_find import file_find
 
-class dir_cli_handler(cli_command_handler):
+class files_cli_handler(cli_command_handler):
   'dir project cli handler.'
 
   def __init__(self, cli_args):
-    super(dir_cli_handler, self).__init__(cli_args, options_class = dir_split_options)
+    super(files_cli_handler, self).__init__(cli_args, options_class = dir_split_options)
     check.check_dir_split_options(self.options)
   
   def split(self, src_dir, dst_dir):

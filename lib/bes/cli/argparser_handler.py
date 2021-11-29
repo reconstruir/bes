@@ -37,7 +37,8 @@ class argparser_handler(object):
     handler = clazz._find_handler(handler_object, possible_names)
     log.log_d('handler={}'.format(handler))
     if not handler:
-      raise RuntimeError('No method found for command: %s' % (' '.join(possible_names)))
+      raise RuntimeError('No method found for command "{}"  Should be one of: {}'.format(command,
+                                                                                         ' '.join(possible_names)))
     handler_spec = inspect_util.getargspec(handler)
     log.log_d('handler_spec={}'.format(handler_spec))
 

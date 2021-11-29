@@ -7,7 +7,7 @@ from bes.bes_project.bes_project_cli_args import bes_project_cli_args
 from bes.computer_setup.computer_setup_cli_args import computer_setup_cli_args
 from bes.docker.docker_cli_args import docker_cli_args
 from bes.egg.egg_cli_args import egg_cli_args
-from bes.fs.dir_cli_args import dir_cli_args
+from bes.fs.files_cli_args import files_cli_args
 from bes.git.git_cli_args import git_cli_args
 from bes.git.git_download_cli_args import git_download_cli_args
 from bes.git.git_identity_cli_args import git_identity_cli_args
@@ -32,15 +32,16 @@ from bes.vmware.vmware_client_cli_args import vmware_client_cli_args
 from bes.vmware.vmware_preferences_cli_args import vmware_preferences_cli_args
 from bes.vmware.vmware_server_cli_args import vmware_server_cli_args
 from bes.vmware.vmware_session_cli_args import vmware_session_cli_args
+
 from .system_cli_args import system_cli_args
   
 COMMON_COMMAND_GROUPS = [
   cli_command('archive', 'archive_add_args', 'Deal with archive', archive_cli_args),
   cli_command('bes_project', 'bes_project_add_args', 'Bes project stuff', bes_project_cli_args),    
   cli_command('computer_setup', 'computer_setup_add_args', 'Deal with computer setup', computer_setup_cli_args),
-  cli_command('dir', 'dir_add_args', 'Dir stuff', dir_cli_args),
   cli_command('docker', 'docker_add_args', 'Docker stuff', docker_cli_args),
   cli_command('egg', 'egg_add_args', 'Deal with eggs', egg_cli_args),
+  cli_command('files', 'files_add_args', 'File stuff', files_cli_args),
   cli_command('git', 'git_add_args', 'Deal with git', git_cli_args),
   cli_command('git_download', 'git_download_add_args', 'Deal with git downloads', git_download_cli_args),
   cli_command('git_identity', 'git_identity_add_args', 'Deal with git identity', git_identity_cli_args),

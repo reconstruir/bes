@@ -44,7 +44,7 @@ class test_dir_split_cli_args(program_unit_test):
     src_dir = path.join(tmp_dir, 'src')
     dst_dir = path.join(tmp_dir, 'dst')
     args = [
-      'dir',
+      'files',
       'split',
       '--prefix', 'chunk-',
       src_dir,
