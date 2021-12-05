@@ -10,7 +10,7 @@ from .dir_split import dir_split
 from .dir_split_options import dir_split_options
 from .file_duplicates import file_duplicates
 from .file_find import file_find
-from .file_resolve import file_resolve
+from .file_resolver import file_resolver
 
 class files_cli_handler(cli_command_handler):
   'dir project cli handler.'
@@ -45,16 +45,9 @@ class files_cli_handler(cli_command_handler):
 
   def checksums(self, files, algorithm):
     check.check_string_seq(files)
-    files = file_resolve.
-    dirs = file_check.check_dir_seq(dirs)
-    check.check_string(algorithm)
-
-#    dups = file_duplicates.find_duplicates(dirs)
-#    for dup in dups:
-#      if self.options.dry_run:
-#        print('DRY_RUN: {}: {}'.format(dup.filename, ','.join(dup.duplicates)))
-#      else:
-#        file_util.remove(dup.duplicates)
+    files = file_resolver.resolve_files(files, recursive = self.options.recursive)
+    for f in files:
+      print(f)
     return 0
   
   def remove_empty(self, where):

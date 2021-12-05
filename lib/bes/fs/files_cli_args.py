@@ -50,6 +50,8 @@ class files_cli_args(object):
     p.add_argument('-a', '--algorithm', action = 'store', default = 'sha256',
                    choices = ( 'md5', 'sha1', 'sha256' ),
                    help = 'The checksum algorithm to use [ sha256 ]')
+    p.add_argument('--recursive', action = 'store_true', default = False,
+                   help = 'Whether to recurse into subdirectories [ False ]')
     
     # remove_empty
     p = subparser.add_parser('remove_empty', help = 'Remove empty directories.')

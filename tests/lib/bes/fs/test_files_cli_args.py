@@ -79,6 +79,19 @@ class test_files_cli_args(program_unit_test):
       'file a/lemon_dup.txt "this is lemon.txt" 644',
       'file b/lemon_dup2.txt "this is lemon.txt" 644',
     ], [ 'b', 'a' ]) )
+
+  def test_checksums(self):
+    self.assertEqual( [
+      ( '${_root}/a/lemon.txt', [
+        '${_root}/a/lemon_dup.txt',
+        '${_root}/b/lemon_dup2.txt',
+      ] ),
+    ], self._dups_test([ 
+      'file a/lemon.txt "this is lemon.txt" 644',
+      'file a/kiwi.txt "this is kiwi.txt" 644',
+      'file a/lemon_dup.txt "this is lemon.txt" 644',
+      'file b/lemon_dup2.txt "this is lemon.txt" 644',
+    ], [ 'a', 'b' ]) )
     
   def _split_test(self, content_desc, content_multiplier, chunk_size, extra_content_items = None):
     tmp_dir = dir_split_tester.make_content(content_desc,
