@@ -13,7 +13,7 @@ from bes.fs.file_util import file_util
 
 class file_resolve(object):
 
-  resolved_file = namedtuple('resolved_file', 'where, filename, filename_abs')
+  resolved_file = namedtuple('resolved_file', 'root_dir, filename, filename_abs')
   
   @classmethod
   def filepath_normalize(clazz, filepath):
@@ -49,7 +49,7 @@ class file_resolve(object):
     for f in files:
       fabs = path.join(d, f)
       result.append(clazz.resolved_file(d, f, fabs))
-    return sorted(result)
+    return sorted(result, key = lambda f: f.filename_abs)
 
   @classmethod
   def resolve_mixed(clazz, base_dir, files_or_dirs, patterns = None, match_type = None):
@@ -82,8 +82,8 @@ class file_resolve(object):
 
   @classmethod
   def _fix_resolved_file_filenames(clazz, rf, base_dir):
-    base_dir_basename = file_util.remove_head(rf.where, base_dir)
-    where = base_dir
+    base_dir_basename = file_util.remove_head(rf.root_dir, base_dir)
+    root_dir = base_dir
     filename = path.join(base_dir_basename, rf.filename)
-    filename_abs = path.join(where, filename)
-    return clazz.resolved_file(where, filename, filename_abs)
+    filename_abs = path.join(root_dir, filename)
+    return clazz.resolved_file(root_dir, filename, filename_abs)
