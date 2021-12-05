@@ -39,6 +39,18 @@ class files_cli_args(object):
                    dest = 'sort_reverse',
                    help = 'Whether to reverse the file order after sorting [ None ]')
 
+    # checksums
+    p = subparser.add_parser('checksums', help = 'Print checksums for files.')
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more directories to check for dups [ None ]')
+    p.add_argument('--dry-run', action = 'store_true', default = False,
+                   help = 'Dont do anything just print what would happen [ None ]')
+    p.add_argument('--verbose', action = 'store_true', default = False,
+                   help = 'Verbose output [ False ]')
+    p.add_argument('-a', '--algorithm', action = 'store', default = 'sha256',
+                   choices = ( 'md5', 'sha1', 'sha256' ),
+                   help = 'The checksum algorithm to use [ sha256 ]')
+    
     # remove_empty
     p = subparser.add_parser('remove_empty', help = 'Remove empty directories.')
     p.add_argument('where', action = 'store', type = str, default = None,
