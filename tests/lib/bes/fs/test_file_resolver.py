@@ -7,7 +7,7 @@ from bes.fs.testing.temp_content import temp_content
 
 class test_file_resolve(unit_test):
 
-  def test_resolve_files_one_dir(self):
+  def test_resolve_files_just_root_dir(self):
     self.assertEqual( [
       ( '${tmp_dir}', 'cheese.txt', '${tmp_dir}/cheese.txt', 0 ),
     ], self._test([
@@ -16,8 +16,38 @@ class test_file_resolve(unit_test):
       'file b/kiwi.txt "this is kiwi.txt" 644',
       'file subdir/orange.txt "this is orange.txt" 644',
       'file subdir/apple.txt "this is apple.txt" 644',
-    ], '${tmp_dir}', recursive = False) )
+    ], [ '${tmp_dir}' ], recursive = False) )
 
+  def test_resolve_files_just_root_dir_recursive(self):
+    self.assertEqual( [
+      ( '${tmp_dir}', 'a/lemon.txt', '${tmp_dir}/a/lemon.txt', 0 ),
+      ( '${tmp_dir}', 'b/kiwi.txt', '${tmp_dir}/b/kiwi.txt', 1 ),
+      ( '${tmp_dir}', 'cheese.txt', '${tmp_dir}/cheese.txt', 2 ),
+      ( '${tmp_dir}', 'subdir/apple.txt', '${tmp_dir}/subdir/apple.txt', 3 ),
+      ( '${tmp_dir}', 'subdir/orange.txt', '${tmp_dir}/subdir/orange.txt', 4 ),
+    ], self._test([
+      'file cheese.txt "this is cheese.txt" 644',
+      'file a/lemon.txt "this is lemon.txt" 644',
+      'file b/kiwi.txt "this is kiwi.txt" 644',
+      'file subdir/orange.txt "this is orange.txt" 644',
+      'file subdir/apple.txt "this is apple.txt" 644',
+    ], [ '${tmp_dir}' ], recursive = True) )
+
+  def test_resolve_files_two_dirs(self):
+    self.assertEqual( [
+      ( '${tmp_dir}/a', 'lemon.txt', '${tmp_dir}/a/lemon.txt', 0 ),
+      ( '${tmp_dir}/b', 'kiwi.txt', '${tmp_dir}/b/kiwi.txt', 1 ),
+#      ( '${tmp_dir}', 'cheese.txt', '${tmp_dir}/cheese.txt', 2 ),
+#      ( '${tmp_dir}', 'subdir/apple.txt', '${tmp_dir}/subdir/apple.txt', 3 ),
+#      ( '${tmp_dir}', 'subdir/orange.txt', '${tmp_dir}/subdir/orange.txt', 4 ),
+    ], self._test([
+      'file cheese.txt "this is cheese.txt" 644',
+      'file a/lemon.txt "this is lemon.txt" 644',
+      'file b/kiwi.txt "this is kiwi.txt" 644',
+      'file subdir/orange.txt "this is orange.txt" 644',
+      'file subdir/apple.txt "this is apple.txt" 644',
+    ], [ '${tmp_dir}/a', '${tmp_dir}/b' ], recursive = False) )
+    
   def _test(self,
             items,
             files,
@@ -29,8 +59,8 @@ class test_file_resolve(unit_test):
             match_re = None):
     tmp_dir = self.make_temp_dir()
     temp_content.write_items(items, tmp_dir)
-    files = [ f.replace(tmp_dir, '${tmp_dir}') for f in files ]
-    result = file_resolver.resolve_files(tmp_dir,
+    files = [ f.replace('${tmp_dir}', tmp_dir) for f in files ]
+    result = file_resolver.resolve_files(files,
                                          recursive = recursive,
                                          match_patterns = match_patterns,
                                          match_type = match_type,

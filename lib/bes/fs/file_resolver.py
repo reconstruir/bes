@@ -6,6 +6,7 @@ from collections import namedtuple
 
 from bes.common.algorithm import algorithm
 from bes.common.object_util import object_util
+from bes.system.log import logger
 
 from .dir_util import dir_util
 from .file_find import file_find
@@ -16,6 +17,8 @@ from .file_path import file_path
 class file_resolver(object):
 
   _resolved_file = namedtuple('_resolved_file', 'root_dir, filename, filename_abs, order')
+
+  _log = logger('file_resolver')
   
   @classmethod
   def resolve_files(clazz,
@@ -27,6 +30,8 @@ class file_resolver(object):
                     match_function = None,
                     match_re = None):
     'Resolve a mixed list of files and directories into a list of files.'
+    clazz._log.log_method_d()
+    
     files = object_util.listify(files)
     result = []
     order = 0
@@ -50,7 +55,7 @@ class file_resolver(object):
                                               match_re)
         order += len(next_entries)
         result.extend(next_entries)
-      return result
+    return result
 
   @classmethod
   def _resolve_one_dir(clazz, root_dir, recursive, starting_order,
@@ -69,9 +74,8 @@ class file_resolver(object):
                                  match_function = match_function,
                                  match_re = match_re,
                                  max_depth = max_depth)
-#    for x in found_files:
-#      print('X: {}'.format(x))
     for order, next_filename in enumerate(found_files, start = starting_order):
+      clazz._log.log_d('_resolve_one_dir:{}: next_filename={}'.format(order, next_filename))
       filename_abs = path.join(root_dir, next_filename)
       filename = path.relpath(filename_abs, start = root_dir)
       result.append(clazz._resolved_file(root_dir, filename, filename_abs, order))
