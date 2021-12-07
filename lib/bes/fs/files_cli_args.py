@@ -21,6 +21,12 @@ class files_cli_args(object):
                    help = 'Dont do anything just print what would happen [ None ]')
     p.add_argument('--recursive', action = 'store_true', default = False,
                    help = 'Split directories recursively [ None ]')
+    p.add_argument('--sort', action = 'store', default = 'filename',
+                   dest = 'sort_order',
+                   help = 'How to sort files before splitting [ None ]')
+    p.add_argument('--reverse', action = 'store_true', default = False,
+                   dest = 'sort_reverse',
+                   help = 'Whether to reverse the file order after sorting [ None ]')
 
     # dups
     p = subparser.add_parser('dups', help = 'Find duplicate files in directories.')
@@ -32,12 +38,6 @@ class files_cli_args(object):
                    help = 'Dont do anything just print what would happen [ None ]')
     p.add_argument('--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
-    p.add_argument('--sort', action = 'store', default = 'filename',
-                   dest = 'sort_order',
-                   help = 'How to sort files before splitting [ None ]')
-    p.add_argument('--reverse', action = 'store_true', default = False,
-                   dest = 'sort_reverse',
-                   help = 'Whether to reverse the file order after sorting [ None ]')
 
     # checksums
     p = subparser.add_parser('checksums', help = 'Print checksums for files.')
