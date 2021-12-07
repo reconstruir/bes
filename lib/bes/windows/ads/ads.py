@@ -1,5 +1,6 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import pickle
 from os import path
 
 from bes.common.check import check
@@ -44,8 +45,12 @@ class ads(object):
     check.check_bytes(value)
     
     ads_filename = clazz._make_ads_filename(filename, stream_name)
+    clazz._log.log_d('write_stream: ads_filename={}'.format(ads_filename))
+    clazz._log.log_d('write_stream: value={}'.format(value))
     with open(ads_filename, 'wb') as fp:
       fp.write(value)
+      fp.flush()
+    assert value == clazz.read_stream(filename, stream_name)
 
   @classmethod
   def remove_stream(clazz, filename, stream_name):
@@ -63,7 +68,29 @@ class ads(object):
     if ':' in stream_name:
       raise ads_error('filename cannot contain \":\": {}'.format(stream_name))
     return stream_name
-      
+
+  @classmethod
+  def write_values(clazz, filename, stream_name, values):
+    'Write the content of stream_name for filename as values.'
+    filename = file_check.check_file(filename)
+    stream_name = clazz.check_stream_name(stream_name)
+    check.check_dict(values)
+
+    value = pickle.dumps(values)
+    clazz.write_stream(filename, stream_name, value)
+    assert value == clazz.read_stream(filename, stream_name)
+
+  @classmethod
+  def read_values(clazz, filename, stream_name):
+    'Read the content of stream_name for filename as values.'
+    filename = file_check.check_file(filename)
+    stream_name = clazz.check_stream_name(stream_name)
+
+    value = clazz.read_stream(filename, stream_name)
+    if not value:
+      return {}
+    return pickle.loads(value)
+    
   @classmethod
   def _make_ads_filename(clazz, filename, stream_name):
     'Make an ADS filename from a regular filename.'

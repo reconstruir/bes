@@ -1,45 +1,54 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-#import os.path as path
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
+
+from bes.common.check import check
 
 class _file_attributes_base(with_metaclass(ABCMeta, object)):
 
   @classmethod
   @abstractmethod
+  def has_key(clazz, filename, key):
+    'Return True if filename has an attributed with key.'
+    raise NotImplemented('has_key')
+  
+  @classmethod
+  @abstractmethod
   def get(clazz, filename, key):
     'Return the attribute value with key for filename.'
-    pass
+    raise NotImplemented('get')
 
   @classmethod
   @abstractmethod
   def set(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
-    pass
+    raise NotImplemented('set')
   
   @classmethod
   @abstractmethod
   def remove(clazz, filename, key):
     'Remove the attirbute with key from filename.'
-    pass
+    raise NotImplemented('remove')
   
   @classmethod
   @abstractmethod
   def keys(clazz, filename):
     'Return all the keys set for filename.'
-    pass
+    raise NotImplemented('keys')
 
   @classmethod
   @abstractmethod
   def clear(clazz, filename):
     'Create all attributes.'
-    pass
+    raise NotImplemented('clear')
 
   @classmethod
   def _check_key(clazz, key):
+    check.check_string(key)
     if ' ' in key:
       raise ValueError('space not supported in key: \"{}\"'.format(key))
+    return key
 
   @classmethod
   def get_all(clazz, filename):

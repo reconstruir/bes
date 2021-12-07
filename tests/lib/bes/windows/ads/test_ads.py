@@ -40,6 +40,15 @@ class test_ads(unit_test):
     self.assertTrue( ads.has_stream(tmp, 'foo') )
     ads.remove_stream(tmp, 'foo')
     self.assertFalse( ads.has_stream(tmp, 'foo') )
-      
+
+  def test_write_and_read_values(self):
+    values = {
+      'foo': 'hi',
+      'bar': 666,
+    }
+    tmp = self.make_temp_file()
+    ads.write_values(tmp, 'foo', values)
+    self.assertEqual( values, ads.read_values(tmp, 'foo') )
+    
 if __name__ == '__main__':
   unit_test.main()
