@@ -42,6 +42,10 @@ class check(object):
     return isinstance(o, bool)
 
   @classmethod
+  def is_bytes(clazz, o):
+    return isinstance(o, bytes)
+
+  @classmethod
   def is_dict(clazz, o):
     return isinstance(o, dict)
 
@@ -103,6 +107,10 @@ class check(object):
   @classmethod
   def check_bool(clazz, o, allow_none = False):
     return clazz._check(o, bool, 2, allow_none = allow_none)
+
+  @classmethod
+  def check_bytes(clazz, o, allow_none = False):
+    return clazz._check(o, bytes, 2, allow_none = allow_none)
 
   @classmethod
   def check_float(clazz, o, allow_none = False):
