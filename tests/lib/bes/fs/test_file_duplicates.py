@@ -47,19 +47,19 @@ class _file_duplicate_tester_base(with_metaclass(ABCMeta, object)):
       replacements[extra_dir.dirname] = extra_dir.label
     return self._hack_dup_item_list(dups, replacements)
 
-  @classmethod
-  def _hack_dup_item(clazz, dup_item, replacements):
+  def _hack_dup_item(self, dup_item, replacements):
     new_filename = string_util.replace(dup_item.filename, replacements)
     new_duplicates = []
     for dup in dup_item.duplicates:
       new_duplicates.append(string_util.replace(dup, replacements))
+    new_filename = self._ut.xp_filename(new_filename)
+    new_duplicates = self._ut.xp_filename_list(new_duplicates)
     return file_duplicates._dup_item(new_filename, new_duplicates)
     
-  @classmethod
-  def _hack_dup_item_list(clazz, dup_item_list, replacements):
+  def _hack_dup_item_list(self, dup_item_list, replacements):
     result = []
     for dup_item in dup_item_list:
-      result.append(clazz._hack_dup_item(dup_item, replacements))
+      result.append(self._hack_dup_item(dup_item, replacements))
     return result
   
 class _file_duplicate_tester_object(_file_duplicate_tester_base):
