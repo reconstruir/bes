@@ -73,76 +73,16 @@ class test_file_resolve(unit_test):
   def _fix_one_resolved_file(clazz, resolved_file, tmp_dir):
     if resolved_file.root_dir != None:
       new_root_dir = resolved_file.root_dir.replace(tmp_dir, '${tmp_dir}')
+      new_root_dir = clazz.xp_filename(new_root_dir)
+      
     else:
       new_root_dir = None
     new_filename_abs = resolved_file.filename_abs.replace(tmp_dir, '${tmp_dir}')
     return file_resolver._resolved_file(new_root_dir,
-                                        resolved_file.filename,
-                                        new_filename_abs,
+                                        clazz.xp_filename(resolved_file.filename),
+                                        clazz.xp_filename(new_filename_abs),
                                         resolved_file.order)
   
-  def xtest_resolve_dir_with_patterns(self):
-    tmp_dir = self._make_temp_content()
-    self.assertEqual( [
-      ( '${root_dir}', self.native_filename('cheese/hard/cheddar.cheese'), self.native_filename('${root_dir}/cheese/hard/cheddar.cheese') ),
-      ( '${root_dir}', self.native_filename('cheese/soft/brie.cheese'), self.native_filename('${root_dir}/cheese/soft/brie.cheese') ),
-    ], self._munge_result(file_resolve.resolve_dir(tmp_dir, patterns = [ '*.cheese' ])) )
-
-  def xtest_resolve_mixed_dirs_only(self):
-    tmp_dir = self._make_temp_content()
-
-    self.assertEqual( [
-      ( '${root_dir}', self.native_filename('cheese/hard/cheddar.cheese'), self.native_filename('${root_dir}/cheese/hard/cheddar.cheese') ),
-      ( '${root_dir}', self.native_filename('cheese/soft/brie.cheese'), self.native_filename('${root_dir}/cheese/soft/brie.cheese') ),
-    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'cheese' ])) )
-
-    self.assertEqual( [
-      ( '${root_dir}', self.native_filename('fruit/kiwi.fruit'), self.native_filename('${root_dir}/fruit/kiwi.fruit') ),
-      ( '${root_dir}', self.native_filename('fruit/orange.fruit'), self.native_filename('${root_dir}/fruit/orange.fruit') ),
-    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'fruit' ])) )
-    
-    self.assertEqual( [
-      ( '${root_dir}', self.native_filename('cheese/hard/cheddar.cheese'), self.native_filename('${root_dir}/cheese/hard/cheddar.cheese') ),
-      ( '${root_dir}', self.native_filename('cheese/soft/brie.cheese'), self.native_filename('${root_dir}/cheese/soft/brie.cheese') ),
-      ( '${root_dir}', self.native_filename('fruit/kiwi.fruit'), self.native_filename('${root_dir}/fruit/kiwi.fruit') ),
-      ( '${root_dir}', self.native_filename('fruit/orange.fruit'), self.native_filename('${root_dir}/fruit/orange.fruit') ),
-    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'cheese', 'fruit' ])) )
-    
-  def xtest_resolve_mixed_dirs_only_duplicates(self):
-    tmp_dir = self._make_temp_content()
-
-    self.assertEqual( [
-      ( '${root_dir}', self.native_filename('cheese/hard/cheddar.cheese'), self.native_filename('${root_dir}/cheese/hard/cheddar.cheese') ),
-      ( '${root_dir}', self.native_filename('cheese/soft/brie.cheese'), self.native_filename('${root_dir}/cheese/soft/brie.cheese') ),
-    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'cheese', 'cheese' ])) )
-
-  def xtest_resolve_mixed_dirs_and_files(self):
-    tmp_dir = self._make_temp_content()
-
-    self.assertEqual( [
-      ( '${root_dir}', self.native_filename('cheese/hard/cheddar.cheese'), self.native_filename('${root_dir}/cheese/hard/cheddar.cheese') ),
-      ( '${root_dir}', self.native_filename('cheese/soft/brie.cheese'), self.native_filename('${root_dir}/cheese/soft/brie.cheese') ),
-      ( '${root_dir}', self.native_filename('fruit/orange.fruit'), self.native_filename('${root_dir}/fruit/orange.fruit') ),
-    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'cheese', self.native_filename('fruit/orange.fruit') ])) )
-
-  def xtest_resolve_mixed_dirs_only_with_patterns(self):
-    tmp_dir = self._make_temp_content()
-
-    self.assertEqual( [
-      ( '${root_dir}', self.native_filename('cheese/hard/cheddar.cheese'), self.native_filename('${root_dir}/cheese/hard/cheddar.cheese') ),
-      ( '${root_dir}', self.native_filename('cheese/soft/brie.cheese'), self.native_filename('${root_dir}/cheese/soft/brie.cheese') ),
-    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [ 'cheese', 'fruit' ], patterns = [ '*.cheese' ])) )
-    
-  def xtest_resolve_mixed_no_args(self):
-    tmp_dir = self._make_temp_content()
-
-    self.assertEqual( [
-      ( '${root_dir}', self.native_filename('cheese/hard/cheddar.cheese'), self.native_filename('${root_dir}/cheese/hard/cheddar.cheese') ),
-      ( '${root_dir}', self.native_filename('cheese/soft/brie.cheese'), self.native_filename('${root_dir}/cheese/soft/brie.cheese') ),
-      ( '${root_dir}', self.native_filename('fruit/kiwi.fruit'), self.native_filename('${root_dir}/fruit/kiwi.fruit') ),
-      ( '${root_dir}', self.native_filename('fruit/orange.fruit'), self.native_filename('${root_dir}/fruit/orange.fruit') ),
-    ], self._munge_result(file_resolve.resolve_mixed(tmp_dir, [])) )
-    
   def _make_temp_content(self):
     tmp_dir = self.make_temp_dir()
     items = [
@@ -153,19 +93,6 @@ class test_file_resolve(unit_test):
     ]
     temp_content.write_items(items, tmp_dir)
     return tmp_dir
-    
-  @classmethod
-  def _munge_result(clazz, result):
-    return sorted([ clazz._munge_one_result(rf) for rf in result ])
-
-  @classmethod
-  def _munge_one_result(clazz, rf):
-    root_dir = '${root_dir}'
-    filename = rf.filename
-    filename_abs = rf.filename_abs.replace(rf.root_dir, root_dir)
-    return file_resolve.resolved_file(root_dir,
-                                      filename,
-                                      filename_abs)
     
 if __name__ == "__main__":
   unit_test.main()
