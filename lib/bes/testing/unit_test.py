@@ -60,16 +60,16 @@ class unit_test(unittest.TestCase):
                           ignore_white_space = False, native_line_breaks = False):
     'Assert s1 equals s2 with ioptional features.'
     self.maxDiff = None
-    s1_save = s1
-    s2_save = s2
     s1_to_compare = s1
     s2_to_compare = s2
     if strip:
       s1 = s1.strip()
       s2 = s2.strip()
     if ignore_white_space:
-      s1 = re.sub(r'\s+', ' ', s1)
-      s2 = re.sub(r'\s+', ' ', s2)
+      s1 = self._strip_white_space(s1)
+      s2 = self._strip_white_space(s2)
+      s1_to_compare = s1
+      s2_to_compare = s2
     if native_line_breaks:
       s1 = self.native_line_breaks(s1)
       s2 = self.native_line_breaks(s2)
@@ -82,6 +82,14 @@ class unit_test(unittest.TestCase):
     else:
       self.assertEqual( s1_to_compare, s2_to_compare )
 
+  @classmethod
+  def _strip_white_space(clazz, s):
+    'Strip white space from s but preserve line breaks'
+    lines = s.splitlines()
+    lines = [ re.sub(r'\s+', ' ', line) for line in lines ]
+    lines = [ line.strip() for line in lines ]
+    return '\n'.join(lines).strip()
+      
   def assert_string_equal_fuzzy(self, s1, s2):
     return self.assert_string_equal(s1, s2,
                                     strip = True,
