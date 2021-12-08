@@ -2,12 +2,16 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.windows.ads.ads import ads
 from bes.windows.ads.ads_error import ads_error
 
 class test_ads(unit_test):
 
+  @classmethod
+  def setUpClass(clazz):
+    unit_test_class_skip.raise_skip_if_not_windows()
+  
   def test_check_stream_name(self):
     with self.assertRaises(ads_error) as _:
       ads.check_stream_name('foo:bar')
