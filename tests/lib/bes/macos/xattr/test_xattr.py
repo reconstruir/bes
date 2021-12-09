@@ -5,9 +5,14 @@ from bes.macos.xattr.xattr import xattr
 
 class test_xattr(unit_test):
 
-  def test_foo(self):
+  def test_keys(self):
     tmp = self.make_temp_file()
     self.assertEqual( [], xattr.keys(tmp) )
+
+  def test_set_string_get_string(self):
+    tmp = self.make_temp_file()
+    xattr.set_string(tmp, 'foo', 'hi')
+    self.assertEqual( 'hi', xattr.get_string(tmp, 'foo') )
     
 if __name__ == '__main__':
   unit_test.main()

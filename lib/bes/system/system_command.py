@@ -75,7 +75,8 @@ class system_command(with_metaclass(ABCMeta, object)):
                    env = None,
                    use_sudo = False,
                    stderr_to_stdout = False,
-                   check_python_script = True):
+                   check_python_script = True,
+                   codec = None):
     'Call the command'
     check.check_string_seq(args)
     check.check_bool(raise_error)
@@ -111,7 +112,8 @@ class system_command(with_metaclass(ABCMeta, object)):
                            raise_error = raise_error,
                            env = env,
                            stderr_to_stdout = stderr_to_stdout,
-                           check_python_script = check_python_script)
+                           check_python_script = check_python_script,
+                           codec = codec)
 
   @classmethod
   def call_command_parse_lines(clazz, args, sort = False):
