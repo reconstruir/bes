@@ -16,6 +16,16 @@ class xattr(object):
   _log = logger('xattr')
 
   @classmethod
+  def has_key(clazz, filename, key):
+    'Return all the keys set for filename.'
+    check.check_string(filename)
+    check.check_string(key)
+
+    args = [ '-p', key, filename ]
+    rv = clazz._call_xattr(args)
+    return rv.exit_code == 0
+  
+  @classmethod
   def keys(clazz, filename):
     'Return all the keys set for filename.'
     check.check_string(filename)
@@ -27,7 +37,6 @@ class xattr(object):
     return sorted(keys)
 
   @classmethod
-  #@abstractmethod
   def set_bytes(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
     filename = file_check.check_file(filename)
@@ -40,7 +49,6 @@ class xattr(object):
     xattr_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
 
   @classmethod
-  #@abstractmethod
   def set_string(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
     filename = file_check.check_file(filename)
@@ -52,7 +60,6 @@ class xattr(object):
     xattr_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
     
   @classmethod
-  #@abstractmethod
   def get_string(clazz, filename, key):
     'Get the value of attribute as a string.'
     filename = file_check.check_file(filename)
@@ -64,7 +71,6 @@ class xattr(object):
     return rv.stdout.strip()
 
   @classmethod
-  #@abstractmethod
   def get_bytes(clazz, filename, key):
     'Get the value of attribute as as bytes.'
     filename = file_check.check_file(filename)
@@ -75,7 +81,26 @@ class xattr(object):
     xattr_command.check_result(rv, message = 'Failed to get key="{}" for "{}"'.format(key, filename))
     hex_text = rv.stdout.replace(' ', '').strip()
     return codecs.decode(hex_text, encoding = 'hex')
-  
+
+  @classmethod
+  def remove(clazz, filename, key):
+    'Remove the attirbute with key from filename.'
+    filename = file_check.check_file(filename)
+    check.check_string(key)
+    
+    args = [ '-d', key, filename ]
+    rv = clazz._call_xattr(args)
+    xattr_command.check_result(rv, message = 'Failed to get delete key "{}" for "{}"'.format(key, filename))
+
+  @classmethod
+  def clear(clazz, filename):
+    'Remove the attirbute with key from filename.'
+    filename = file_check.check_file(filename)
+    
+    args = [ '-c', filename ]
+    rv = clazz._call_xattr(args)
+    xattr_command.check_result(rv, message = 'Failed to clear values for "{}"'.format(filename))
+    
   @classmethod
   def _call_xattr(clazz, args, codec = None):
     # The default macos xattr in /usr/bin/xattr needs to be used
