@@ -9,6 +9,7 @@ from bes.fs.file_check import file_check
 from bes.system.log import logger
 
 from .xattr_error import xattr_error
+from .xattr_error import xattr_permission_error
 from .xattr_command import xattr_command
 
 class xattr(object):
@@ -38,6 +39,14 @@ class xattr(object):
     return sorted(keys)
 
   @classmethod
+  def _check_permission_error(clazz, result, message):
+    if result.exit_code != 1:
+      return
+    if 'Operation not permitted' not in result.stderr:
+      return
+    raise xattr_permission_error(message)
+  
+  @classmethod
   def set_bytes(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
     filename = file_check.check_file(filename)
@@ -48,6 +57,7 @@ class xattr(object):
     clazz._log.log_d('set_bytes: hex_value={}'.format(hex_value))
     args = [ '-w', '-x', key, hex_value, filename ]
     rv = clazz._call_xattr(args)
+    clazz._check_permission_error(rv, 'Permission error setting key="{}" value="{}" for "{}"'.format(key, value, filename))
     xattr_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
 
   @classmethod
@@ -59,6 +69,7 @@ class xattr(object):
 
     args = [ '-w', key, value, filename ]
     rv = clazz._call_xattr(args)
+    clazz._check_permission_error(rv, 'Permission error setting key="{}" value="{}" for "{}"'.format(key, value, filename))
     xattr_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
     
   @classmethod

@@ -7,6 +7,7 @@ import xattr
 
 from ._file_attributes_base import _file_attributes_base
 from .file_attributes_error import file_attributes_error
+from .file_attributes_error import file_attributes_permission_error
 
 class _file_attributes_xattr(_file_attributes_base):
 
@@ -33,7 +34,11 @@ class _file_attributes_xattr(_file_attributes_base):
   #@abstractmethod
   def set(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
-    xattr.setxattr(filename, key, value)
+    try:
+      xattr.setxattr(filename, key, value)
+    except IOError as ex:
+      if ex.errno == 1 and 'Operation not permitted' in str(ex):
+        raise file_attributes_permission_error(str(ex))
   
   @classmethod
   #@abstractmethod

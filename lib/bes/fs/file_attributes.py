@@ -10,6 +10,8 @@ try:
 except ImportError as ex:
   pass
 
+#_has_xattr = False
+
 if _has_xattr:
   from ._file_attributes_xattr import _file_attributes_xattr as _file_attributes_super_class
 elif host.SYSTEM == host.MACOS:
