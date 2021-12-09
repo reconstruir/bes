@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import codecs
+
 from bes.common.check import check
 from bes.debug.hexdump import hexdump
 from bes.fs.file_check import file_check
@@ -63,17 +65,17 @@ class xattr(object):
 
   @classmethod
   #@abstractmethod
-  def get_value(clazz, filename, key, value):
-    'Get the value of attribute with key to value for filename.'
+  def get_bytes(clazz, filename, key):
+    'Get the value of attribute as as bytes.'
     filename = file_check.check_file(filename)
     check.check_string(key)
-    check.check_bytes(value)
 
-    hex_value = hexdump.data(value, delimiter = '')
-    args = [ '-w', '-x', key, hex_value, filename ]
-    rv = clazz._call_xattr('-w', key, hex_value, filename)
-    xattr_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
-    
+    args = [ '-p', '-x', key, filename ]
+    rv = clazz._call_xattr(args)
+    xattr_command.check_result(rv, message = 'Failed to get key="{}" for "{}"'.format(key, filename))
+    hex_text = rv.stdout.replace(' ', '').strip()
+    return codecs.decode(hex_text, encoding = 'hex')
+  
   @classmethod
   def _call_xattr(clazz, args, codec = None):
     # The default macos xattr in /usr/bin/xattr needs to be used
