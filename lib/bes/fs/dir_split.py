@@ -24,12 +24,13 @@ class dir_split(object):
 
   @classmethod
   def split(clazz, src_dir, dst_dir, options = None):
-    d = file_check.check_dir(src_dir)
+    src_dir_abs = file_check.check_dir(src_dir)
     check.check_string(dst_dir)
+    dst_dir_abs = path.abspath(dst_dir)
     check.check_dir_split_options(options, allow_none = True)
 
     options = options or dir_split_options()
-    info = clazz._split_info(src_dir, dst_dir, options = options)
+    info = clazz._split_info(src_dir_abs, dst_dir_abs, options)
 
     clazz._move_files(info.items,
                       options.dup_file_timestamp,
@@ -42,15 +43,14 @@ class dir_split(object):
     for next_possible_empty_root in info.possible_empty_dirs_roots:
       file_find.remove_empty_dirs(next_possible_empty_root)
 
-    file_find.remove_empty_dirs(dst_dir)
+    file_find.remove_empty_dirs(dst_dir_abs)
       
   _split_item = namedtuple('_split_item', 'src_filename, dst_filename')
   _split_items_info = namedtuple('_split_items_info', 'items, existing_split_dirs, possible_empty_dirs_roots')
   @classmethod
-  def _split_info(clazz, src_dir, dst_dir, options = None):
-    d = file_check.check_dir(src_dir)
-    check.check_string(dst_dir)
-    check.check_dir_split_options(options, allow_none = True)
+  def _split_info(clazz, src_dir, dst_dir, options):
+    assert path.isabs(src_dir)
+    assert path.isabs(dst_dir)
 
     old_files = []
     existing_split_dirs = clazz._existing_split_dirs(dst_dir, options.prefix)
@@ -91,7 +91,12 @@ class dir_split(object):
   @classmethod
   def split_items(clazz, src_dir, dst_dir, options = None):
     'Return a list of split items that when renaming each item implements split.'
-    info = clazz._split_info(src_dir, dst_dir, options = options)
+    src_dir_abs = file_check.check_dir(src_dir)
+    check.check_string(dst_dir)
+    dst_dir_abs = path.abspath(dst_dir)
+    check.check_dir_split_options(options, allow_none = True)
+
+    info = clazz._split_info(src_dir_abs, dst_dir_abs, options)
     return info.items
   
   @classmethod
