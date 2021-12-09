@@ -24,10 +24,10 @@ class xattr(object):
 
   @classmethod
   def _call_command(clazz, args):
-    env = {
-      'PYTHONPATH': '',
-      'PATH': '',
-    }
+    # The default macos xattr in /usr/bin/xattr needs to be used
+    # completely independenly of potential virtual env installations
+    # of xattr
+    env = { 'PYTHONPATH': '', 'PATH': '' }
     return xattr_command.call_command(args,
                                       raise_error = False,
                                       env = env,
