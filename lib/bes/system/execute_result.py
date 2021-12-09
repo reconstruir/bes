@@ -19,4 +19,10 @@ class execute_result(namedtuple('execute_result', 'stdout, stderr, exit_code, co
 #    ss = '-' if self.is_pointer else '*'
 #    return '{} {} {}'.format(self.oid, ss, self.filename)
 
+  def stdout_lines(self):
+    'Return stdout as stripped lines'
+    lines = [ line.strip() for line in self.stdout.splitlines() ]
+    lines = [ line for line in lines if line ]
+    return lines
+
 check.register_class(execute_result)
