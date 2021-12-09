@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import re
+from os import path
 
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
@@ -54,7 +55,10 @@ class system_command(with_metaclass(ABCMeta, object)):
     'Find the exe'
     extra_path = clazz.extra_path()
     exe_name = clazz.exe_name()
-    exe = which.which(exe_name, extra_path = clazz.extra_path())
+    if path.isabs(exe_name):
+      exe = exe_name
+    else:
+      exe = which.which(exe_name, extra_path = clazz.extra_path())
     if exe:
       return exe
     error_class = clazz.error_class()
@@ -70,7 +74,8 @@ class system_command(with_metaclass(ABCMeta, object)):
                    raise_error = True,
                    env = None,
                    use_sudo = False,
-                   stderr_to_stdout = False):
+                   stderr_to_stdout = False,
+                   check_python_script = True):
     'Call the command'
     check.check_string_seq(args)
     check.check_bool(raise_error)
@@ -101,11 +106,12 @@ class system_command(with_metaclass(ABCMeta, object)):
     cmd.append(exe)
     cmd.extend(list(static_args))
     cmd.extend(args)
-    clazz._log.log_d('call_command: cmd={}'.format(' '.join(cmd)))
+    clazz._log.log_d('call_command: cmd={} env={}'.format(' '.join(cmd), env))
     return execute.execute(cmd,
                            raise_error = raise_error,
                            env = env,
-                           stderr_to_stdout = stderr_to_stdout)
+                           stderr_to_stdout = stderr_to_stdout,
+                           check_python_script = check_python_script)
 
   @classmethod
   def call_command_parse_lines(clazz, args, sort = False):
@@ -163,9 +169,9 @@ class system_command(with_metaclass(ABCMeta, object)):
     check.check_string(message, allow_none = True)
     check.check_execute_result(result)
     
-    if rv.exit_code == 0:
+    if result.exit_code == 0:
       return
     message = message or 'Failed to execute: {}'.format(' '.join(result.command))
     outputs = [ o.strip() for o in [ result.stdout, result.stderr ] if o.strip() ]
-    error_message = '{} - {} - {}'.format(message, ' - '.join(outputs))
-    raise clazz.error_class(error_message)
+    error_message = '{} - {}'.format(message, ' - '.join(outputs))
+    raise clazz.error_class()(error_message)
