@@ -12,6 +12,12 @@ class _file_attributes_xattr(_file_attributes_base):
 
   @classmethod
   #@abstractmethod
+  def has_key(clazz, filename, key):
+    'Return True if filename has an attributed with key.'
+    return key in clazz.keys(filename)
+  
+  @classmethod
+  #@abstractmethod
   def get(clazz, filename, key):
     'Return the attribute value with key for filename.'
     check.check_string(filename)
