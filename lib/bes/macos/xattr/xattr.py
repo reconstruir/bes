@@ -3,6 +3,7 @@
 import codecs
 
 from bes.common.check import check
+from bes.common.string_util import string_util
 from bes.debug.hexdump import hexdump
 from bes.fs.file_check import file_check
 from bes.system.log import logger
@@ -43,7 +44,8 @@ class xattr(object):
     check.check_string(key)
     check.check_bytes(value)
 
-    hex_value = hexdump.data(value, delimiter = '')
+    hex_value = hexdump.data(value, delimiter = '', line_delimiter = '')
+    clazz._log.log_d('set_bytes: hex_value={}'.format(hex_value))
     args = [ '-w', '-x', key, hex_value, filename ]
     rv = clazz._call_xattr(args)
     xattr_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
@@ -78,8 +80,10 @@ class xattr(object):
 
     args = [ '-p', '-x', key, filename ]
     rv = clazz._call_xattr(args)
+    clazz._log.log_d('get_bytes: stdout={}'.format(rv.stdout))
     xattr_command.check_result(rv, message = 'Failed to get key="{}" for "{}"'.format(key, filename))
-    hex_text = rv.stdout.replace(' ', '').strip()
+    hex_text = string_util.replace_white_space(rv.stdout, '')
+    clazz._log.log_d('get_bytes: hex_text={}'.format(hex_text))
     return codecs.decode(hex_text, encoding = 'hex')
 
   @classmethod
