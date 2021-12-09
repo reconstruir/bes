@@ -9,6 +9,7 @@ from .check import check
 from .command_line import command_line
 from .compat import compat
 from .execute import execute
+from .execute_result import execute_result
 from .host import host
 from .log import logger
 from .which import which
@@ -64,7 +65,12 @@ class system_command(with_metaclass(ABCMeta, object)):
     raise error_class('Failed to find {}'.format(exe_name))
 
   @classmethod
-  def call_command(clazz, args, raise_error = True, env = None, use_sudo = False):
+  def call_command(clazz,
+                   args,
+                   raise_error = True,
+                   env = None,
+                   use_sudo = False,
+                   stderr_to_stdout = False):
     'Call the command'
     check.check_string_seq(args)
     check.check_bool(raise_error)
@@ -96,7 +102,10 @@ class system_command(with_metaclass(ABCMeta, object)):
     cmd.extend(list(static_args))
     cmd.extend(args)
     clazz._log.log_d('call_command: cmd={}'.format(' '.join(cmd)))
-    return execute.execute(cmd, raise_error = raise_error, env = env)
+    return execute.execute(cmd,
+                           raise_error = raise_error,
+                           env = env,
+                           stderr_to_stdout = stderr_to_stdout)
 
   @classmethod
   def call_command_parse_lines(clazz, args, sort = False):
@@ -117,9 +126,9 @@ class system_command(with_metaclass(ABCMeta, object)):
     'Check that the current system supports this command otherwise raise an error'
     if clazz.is_supported():
       return
-    raise error_class('{} is not supported on {} - only {}'.format(clazz.exe_name(),
-                                                                   host.SYSTEM,
-                                                                   ' '.join(clazz.supported_systems())))
+    raise clazz.error_class('{} is not supported on {} - only {}'.format(clazz.exe_name(),
+                                                                         host.SYSTEM,
+                                                                         ' '.join(clazz.supported_systems())))
   
   @classmethod
   def has_command(clazz):
@@ -147,3 +156,16 @@ class system_command(with_metaclass(ABCMeta, object)):
       if part:
         parts.append(part)
     return parts
+
+  @classmethod
+  def check_result(clazz, result, message = None):
+    'Check that a result is successful or raise an exceptions from it.'
+    check.check_string(message, allow_none = True)
+    check.check_execute_result(result)
+    
+    if rv.exit_code == 0:
+      return
+    message = message or 'Failed to execute: {}'.format(' '.join(result.command))
+    outputs = [ o.strip() for o in [ result.stdout, result.stderr ] if o.strip() ]
+    error_message = '{} - {} - {}'.format(message, ' - '.join(outputs))
+    raise clazz.error_class(error_message)

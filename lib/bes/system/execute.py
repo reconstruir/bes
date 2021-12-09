@@ -6,23 +6,22 @@ from collections import namedtuple
 
 from .command_line import command_line
 from .compat import compat
+from .execute_result import execute_result
 from .host import host
 from .log import logger
 from .python import python
 
 class execute(object):
-  'execute'
+  'Class to execute system commands with help for common usages.'
 
   _log = logger('execute')
   
-  Result = namedtuple('Result', 'stdout, stderr, exit_code, command')
-
   @classmethod
   def execute(clazz, args, raise_error = True, non_blocking = False, stderr_to_stdout = False,
               cwd = None, env = None, shell = False, input_data = None, universal_newlines = True,
               codec = None, print_failure = True, quote = False, check_python_script = True):
     'Execute a command'
-    clazz._log.log_d('raise_error={raise_error} non_blocking={non_blocking} stderr_to_stdout={stderr_to_stdout} cwd={cwd} shell={shell} input_data={input_data} universal_newlines={universal_newlines} print_failure={print_failure} quote={quote}'.format(**locals()))
+    clazz._log.log_method_d()
     
     parsed_args = command_line.parse_args(args, quote = quote)
     stdout_pipe = subprocess.PIPE
@@ -89,7 +88,7 @@ class execute(object):
     else:
       stdout = output[0]
       stderr = output[1]
-    rv = clazz.Result(stdout, stderr, exit_code, parsed_args)
+    rv = execute_result(stdout, stderr, exit_code, parsed_args)
     if raise_error:
       if rv.exit_code != 0:
         clazz._log.log_d(rv.exit_code)
