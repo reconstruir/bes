@@ -17,12 +17,11 @@ class pkgutil(object):
     check.check_string(msg, allow_none = True)
     check.check_bool(use_sudo)
 
-    cmd = pkgutil_command()
     env = os_env.clone_current_env(d = {})
-    rv = cmd.call_command(args, raise_error = False, env = env, use_sudo = use_sudo)
+    rv = pkgutil_command.call_command(args, raise_error = False, env = env, use_sudo = use_sudo)
     if rv.exit_code != 0:
       if not msg:
-        cmd_flag = ' '.join(cmd)
-        msg = 'pkgutil command failed: {}\n{}'.format(cmd_flag, rv.stdout)
+        cmd_flat = ' '.join(args)
+        msg = 'pkgutil command failed: {}\n{}'.format(cmd_flat, rv.stdout)
       raise pkgutil_error(msg)
     return rv
