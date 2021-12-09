@@ -15,40 +15,28 @@ class best_cli(cli):
     super(best_cli, self).__init__('best')
     
   from bes.system.host import host
-    
-  MACOS_COMMAND_GROUPS = []
+
+  _command_groups = []
+
   if host.is_macos():
-    from bes.macos.command_line_tools.command_line_tools_cli_args import command_line_tools_cli_args
-    from bes.macos.defaults.defaults_cli_args import defaults_cli_args
-    from bes.macos.scutil.scutil_cli_args import scutil_cli_args
-    from bes.macos.softwareupdater.softwareupdater_cli_args import softwareupdater_cli_args
-    MACOS_COMMAND_GROUPS = [
-      cli_command('command_line_tools', 'command_line_tools_add_args', 'Deal with command line tools', command_line_tools_cli_args),
-      cli_command('defaults', 'defaults_add_args', 'Deal with defaults', defaults_cli_args),
-      cli_command('scutil', 'scutil_add_args', 'Deal with scutil', scutil_cli_args),
-      cli_command('softwareupdater', 'softwareupdater_add_args', 'Deal with macos softwareupdate', softwareupdater_cli_args),
-    ]
+    from .best_cli_macos import MACOS_COMMAND_GROUPS
+    _command_groups.extend(MACOS_COMMAND_GROUPS)
 
-  UNIX_COMMAND_GROUPS = []
   if host.is_unix():
-    from bes.unix.brew.brew_cli_args import brew_cli_args
-    from bes.unix.brew_installer.brew_installer_cli_args import brew_installer_cli_args
-    from bes.unix.shell.shell_cli_args import shell_cli_args
-    from bes.unix.sudo.sudo_cli_args import sudo_cli_args
-    UNIX_COMMAND_GROUPS = [
-      cli_command('brew', 'brew_add_args', 'Deal with brew', brew_cli_args),
-      cli_command('brew_installer', 'brew_installer_add_args', 'Deal with brew install', brew_installer_cli_args),
-      cli_command('shell', 'shell_add_args', 'Deal with shell', shell_cli_args),
-      cli_command('sudo', 'sudo_add_args', 'Deal with sudo', sudo_cli_args),
-    ]
-
+    from .best_cli_unix import UNIX_COMMAND_GROUPS
+    _command_groups.extend(UNIX_COMMAND_GROUPS)
+    
+  if host.is_windows():
+    from .best_cli_windows import WINDOWS_COMMAND_GROUPS
+    _command_groups.extend(WINDOWS_COMMAND_GROUPS)
+    
   from .best_cli_common import COMMON_COMMAND_GROUPS
-  COMMAND_GROUPS = COMMON_COMMAND_GROUPS + MACOS_COMMAND_GROUPS + UNIX_COMMAND_GROUPS
+  _command_groups.extend(COMMON_COMMAND_GROUPS)
   
   #@abstractmethod
   def command_group_list(self):
     'Return a list of command groups for this cli.'
-    return self.COMMAND_GROUPS
+    return self._command_groups
 
   from bes.cli.cli_env_cli_args import cli_env_cli_args
   from bes.cli.cli_version_cli_args import cli_version_cli_args
