@@ -31,11 +31,11 @@ class linux_attr(object):
   def keys(clazz, filename):
     'Return all the keys set for filename.'
     check.check_string(filename)
-
-    args = [ '-l', filename ]
+    
+    args = [ '-q', '-l', filename ]
     rv = clazz._call_linux_attr(args)
     linux_attr_command.check_result(rv, message = 'Failed to get keys for {}'.format(filename))
-    keys = [ clazz._parse_key(line) for line in rv.stdout_lines() ]
+    keys = rv.stdout_lines()
     return sorted(keys)
 
   @classmethod
@@ -53,10 +53,8 @@ class linux_attr(object):
     check.check_string(key)
     check.check_bytes(value)
 
-    hex_value = hexdump.data(value, delimiter = '', line_delimiter = '')
-    clazz._log.log_d('set_bytes: hex_value={}'.format(hex_value))
-    args = [ '-w', '-x', key, hex_value, filename ]
-    rv = clazz._call_linux_attr(args)
+    args = [ '-q', '-s', key, filename)
+    rv = clazz._call_linux_attr(args, input_data = value)
     clazz._check_permission_error(rv, 'Permission error setting key="{}" value="{}" for "{}"'.format(key, value, filename))
     linux_attr_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
 
@@ -67,7 +65,7 @@ class linux_attr(object):
     check.check_string(key)
     check.check_string(value)
 
-    args = [ '-w', key, value, filename ]
+    args = [ '-q', '-s', key, '-V', value, filename ]
     rv = clazz._call_linux_attr(args)
     clazz._check_permission_error(rv, 'Permission error setting key="{}" value="{}" for "{}"'.format(key, value, filename))
     linux_attr_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
@@ -78,7 +76,15 @@ class linux_attr(object):
     filename = file_check.check_file(filename)
     check.check_string(key)
 
-    args = [ '-p', key, filename ]
+#    if rv.exit_code == 0:
+#      return rv.stdout.strip()
+#    else:
+#      if path.exists(filename) and os.access(filename, os.R_OK):
+#        return None
+#      else:
+#        raise file_attributes_error('error getting \"%s\" for %s' % (key, filename))
+    
+    args = [ '-q', '-g', key, filename ]
     rv = clazz._call_linux_attr(args)
     linux_attr_command.check_result(rv, message = 'Failed to get key="{}" for "{}"'.format(key, filename))
     return rv.stdout.strip()
@@ -117,16 +123,10 @@ class linux_attr(object):
     linux_attr_command.check_result(rv, message = 'Failed to clear values for "{}"'.format(filename))
     
   @classmethod
-  def _call_linux_attr(clazz, args, codec = None):
-    # The default macos linux_attr in /usr/bin/linux_attr needs to be used
-    # completely independenly of potential virtual env installations
-    # of linux_attr
-    env = { 'PYTHONPATH': '', 'PATH': '' }
+  def _call_linux_attr(clazz, args, input_data = None):
     return linux_attr_command.call_command(args,
-                                      raise_error = False,
-                                      env = env,
-                                      check_python_script = False,
-                                      codec = codec)
+                                           raise_error = False,
+                                           input_data = input_data)
   
   @classmethod
   def _parse_key(clazz, s):

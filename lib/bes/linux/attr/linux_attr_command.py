@@ -10,7 +10,7 @@ class linux_attr_command(system_command):
   #@abstractmethod
   def exe_name(clazz):
     'The name of the executable.'
-    return '/usr/bin/linux_attr'
+    return 'attr'
   
   @classmethod
   #@abstractmethod
@@ -34,4 +34,4 @@ class linux_attr_command(system_command):
   #@abstractmethod
   def supported_systems(clazz):
     'Return a list of supported systems.'
-    return ( 'macos', )
+    return ( 'linux', )
