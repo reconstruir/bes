@@ -76,12 +76,14 @@ class system_command(with_metaclass(ABCMeta, object)):
                    use_sudo = False,
                    stderr_to_stdout = False,
                    check_python_script = True,
-                   codec = None):
+                   codec = None,
+                   input_data = None):
     'Call the command'
     check.check_string_seq(args)
     check.check_bool(raise_error)
     check.check_dict(env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
     check.check_bool(use_sudo)
+    check.check_bytes(input_data, allone_none = True)
 
     clazz.check_supported()
 
@@ -113,7 +115,8 @@ class system_command(with_metaclass(ABCMeta, object)):
                            env = env,
                            stderr_to_stdout = stderr_to_stdout,
                            check_python_script = check_python_script,
-                           codec = codec)
+                           codec = codec,
+                           input_data = input_data)
 
   @classmethod
   def call_command_parse_lines(clazz, args, sort = False):
