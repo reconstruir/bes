@@ -4,6 +4,7 @@ import codecs, os, os.path as path, re, subprocess, sys, tempfile
 
 from collections import namedtuple
 
+from .check import check
 from .command_line import command_line
 from .compat import compat
 from .execute_result import execute_result
@@ -21,6 +22,8 @@ class execute(object):
               cwd = None, env = None, shell = False, input_data = None, universal_newlines = True,
               codec = None, print_failure = True, quote = False, check_python_script = True):
     'Execute a command'
+    check.check_bytes(input_data, allow_none = True)
+    
     clazz._log.log_method_d()
     
     parsed_args = command_line.parse_args(args, quote = quote)
