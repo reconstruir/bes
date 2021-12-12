@@ -11,7 +11,7 @@ from .add_method import add_method
 from .compat import compat
 from .console import console as system_console
 
-from .detail.log_writer_list import log_writer_list
+from ._detail.log_writer_list import log_writer_list
 
 import logging as pylog
 

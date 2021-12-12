@@ -3,7 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 
-from bes.system.detail.ps_output_parser import ps_output_parser as P
+from bes.system._detail.ps_output_parser import ps_output_parser as P
 
 class test_ps_output_parser(unit_test):
 

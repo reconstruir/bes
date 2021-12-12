@@ -3,7 +3,7 @@
 
 import unittest
 
-from bes.system.detail.linux_os_release import linux_os_release as P
+from bes.system._detail.linux_os_release import linux_os_release as P
 
 class test_linux_os_release(unittest.TestCase):
 

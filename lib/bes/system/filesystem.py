@@ -9,7 +9,7 @@ from .compat import compat
 from .host import host
 from .log import logger
 
-from .detail.filesystem_base import filesystem_base
+from ._detail.filesystem_base import filesystem_base
 
 class filesystem(filesystem_base):
 
@@ -18,10 +18,10 @@ class filesystem(filesystem_base):
   def _find_impl_class():
     result = None
     if host.is_unix():
-      from .detail.filesystem_unix import filesystem_unix
+      from ._detail.filesystem_unix import filesystem_unix
       result = filesystem_unix
     elif host.is_windows():
-      from .detail.filesystem_windows import filesystem_windows
+      from ._detail.filesystem_windows import filesystem_windows
       result = filesystem_windows
     return result
   
