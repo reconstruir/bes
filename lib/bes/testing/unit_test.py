@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+
 import atexit, codecs, copy, difflib, json, inspect, os, os.path as path
 import platform, pprint, re, sys, shutil, subprocess, tempfile, time, unittest
 from datetime import datetime
@@ -87,8 +89,8 @@ class unit_test(unittest.TestCase):
     'Strip white space from s but preserve line breaks'
     lines = s.splitlines()
     lines = [ re.sub(r'\s+', ' ', line) for line in lines ]
-    lines = [ line.strip() for line in lines ]
-    return '\n'.join(lines).strip()
+    lines = [ line.strip() for line in lines if line.strip() ]
+    return os.linesep.join(lines).strip()
       
   def assert_string_equal_fuzzy(self, s1, s2):
     return self.assert_string_equal(s1, s2,
@@ -132,7 +134,7 @@ class unit_test(unittest.TestCase):
 
   @classmethod
   def _dict_to_str(clazz, d):
-    return '\n'.join([ '%s=%s' % x for x in sorted(d.items()) ])
+    return os.linesep.join([ '%s=%s' % x for x in sorted(d.items()) ])
 
   def assert_binary_file_equal(self, expected, filename):
     self.maxDiff = None
@@ -268,7 +270,7 @@ class unit_test(unittest.TestCase):
   @classmethod
   def spew(clazz, s):
     sys.stdout.write(s)
-    sys.stdout.write('\n')
+    sys.stdout.write(os.linesep)
     sys.stdout.flush()
 
   @classmethod
@@ -287,7 +289,7 @@ class unit_test(unittest.TestCase):
   def spew_console(clazz, s):
     c = clazz._console()
     c.write(s)
-    c.write('\n')
+    c.write(os.linesep)
     c.flush()
 
   @classmethod
@@ -352,21 +354,12 @@ class unit_test(unittest.TestCase):
   def native_path(clazz, p):
     return clazz.xp_path(p, pathsep = os.pathsep)
   
-  if _HOST == 'windows':
-    _NATIVE_LINE_BREAK = '\r\n'
-    _NATIVE_LINE_BREAK_RAW = r'\r\n'
-  elif _HOST in ( 'linux', 'macos' ):
-    _NATIVE_LINE_BREAK = '\n'
-    _NATIVE_LINE_BREAK_RAW = r'\n'
-  else:
-    assert False
   _XP_LINE_BREAK = '\n'
-  _XP_LINE_BREAK_RAW = r'\n'
   
   @classmethod
   def xp_line_breaks(clazz, text, line_break = None):
-    line_break = line_break or clazz._XP_LINE_BREAK
-    result = text.replace(clazz._NATIVE_LINE_BREAK, line_break)
+    line_break = line_break or os.linesep
+    result = text.replace(os.linesep, line_break)
     return result
 
   @classmethod
