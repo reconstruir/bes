@@ -21,7 +21,7 @@ class _file_attributes_xattr(file_attributes_base):
   
   @classmethod
   #@abstractmethod
-  def get(clazz, filename, key):
+  def get_bytes(clazz, filename, key):
     'Return the attribute value with key for filename.'
     check.check_string(filename)
     check.check_string(key)
@@ -34,7 +34,7 @@ class _file_attributes_xattr(file_attributes_base):
     
   @classmethod
   #@abstractmethod
-  def set(clazz, filename, key, value):
+  def set_bytes(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
     try:
       xattr.setxattr(filename, clazz._encode_key(key), value)

@@ -15,15 +15,15 @@ class file_attributes_base(with_metaclass(ABCMeta, object)):
   
   @classmethod
   @abstractmethod
-  def get(clazz, filename, key):
-    'Return the attribute value with key for filename.'
-    raise NotImplemented('get')
+  def get_bytes(clazz, filename, key):
+    'Return the attribute value with key for filename as bytes.'
+    raise NotImplemented('get_bytes')
 
   @classmethod
   @abstractmethod
-  def set(clazz, filename, key, value):
-    'Set the value of attribute with key to value for filename.'
-    raise NotImplemented('set')
+  def set_bytes(clazz, filename, key, value):
+    'Set the value of attribute with key to value for filename as bytes.'
+    raise NotImplemented('set_bytes')
   
   @classmethod
   @abstractmethod

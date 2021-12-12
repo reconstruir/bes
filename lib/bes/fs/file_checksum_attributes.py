@@ -21,8 +21,8 @@ class file_checksum_attributes(object):
     checksum_key = clazz._ALGORITHM_TO_KEY.get(algorithm, None)
     if not checksum_key:
       raise ValueError('invalid algorithm: %s' % (algorithm))
-    attr_mtime = file_attributes.get(filename, clazz._KEY_BES_MTIME)
-    attr_checksum = file_attributes.get(filename, checksum_key)
+    attr_mtime = file_attributes.get_bytes(filename, clazz._KEY_BES_MTIME)
+    attr_checksum = file_attributes.get_bytes(filename, checksum_key)
     if attr_mtime is not None and attr_checksum is not None:
       if attr_mtime == str(file_util.mtime(filename)):
         #print('GOOD: %s' % (filename))
@@ -36,8 +36,8 @@ class file_checksum_attributes(object):
     checksum = file_util.checksum(algorithm, filename)
     checksum_key = clazz._ALGORITHM_TO_KEY.get(algorithm, None)
     try:
-      file_attributes.set(filename, clazz._KEY_BES_MTIME, mtime.encode('utf-8'))
-      file_attributes.set(filename, checksum_key, checksum.encode('utf-8'))
+      file_attributes.set_bytes(filename, clazz._KEY_BES_MTIME, mtime.encode('utf-8'))
+      file_attributes.set_bytes(filename, checksum_key, checksum.encode('utf-8'))
     finally:
       pass
 #      try:

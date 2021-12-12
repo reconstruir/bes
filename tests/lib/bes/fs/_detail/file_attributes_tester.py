@@ -19,19 +19,19 @@ def make_test_case(impl):
   
     def test_has_key_true(self):
       tmp = self._make_temp_file('this is foo\n')
-      impl.set(tmp, 'foo', 'hi'.encode('utf-8'))
+      impl.set_bytes(tmp, 'foo', 'hi'.encode('utf-8'))
       self.assertTrue( impl.has_key(tmp, 'foo') )
     
-    def test_get_never_set(self):
+    def test_get_bytes_never_set(self):
       tmp = self._make_temp_file('this is foo\n')
-      self.assertEqual( None, impl.get(tmp, 'foo') )
+      self.assertEqual( None, impl.get_bytes(tmp, 'foo') )
   
-    def test_set_get(self):
+    def test_set_bytes_get_bytes(self):
       tmp = self._make_temp_file('this is foo\n')
-      impl.set(tmp, 'foo', 'hi'.encode('utf-8'))
-      self.assertEqual( 'hi', impl.get(tmp, 'foo').decode('utf-8') )
-      impl.set(tmp, 'bar', '99'.encode('utf-8'))
-      self.assertEqual( '99', impl.get(tmp, 'bar').decode('utf-8') )
+      impl.set_bytes(tmp, 'foo', 'hi'.encode('utf-8'))
+      self.assertEqual( 'hi', impl.get_bytes(tmp, 'foo').decode('utf-8') )
+      impl.set_bytes(tmp, 'bar', '99'.encode('utf-8'))
+      self.assertEqual( '99', impl.get_bytes(tmp, 'bar').decode('utf-8') )
 
     def test_empty_keys(self):
       tmp = self._make_temp_file('this is foo\n')
@@ -39,22 +39,22 @@ def make_test_case(impl):
 
     def test_keys(self):
       tmp = self._make_temp_file('this is foo\n')
-      impl.set(tmp, 'foo', 'hi'.encode('utf-8'))
-      impl.set(tmp, 'bar', '99'.encode('utf-8'))
+      impl.set_bytes(tmp, 'foo', 'hi'.encode('utf-8'))
+      impl.set_bytes(tmp, 'bar', '99'.encode('utf-8'))
       self.assertEqual( [ 'bar', 'foo' ], self._munge_attr_keys(impl.keys(tmp)) )
     
     def test_clear(self):
       tmp = self._make_temp_file('this is foo\n')
-      impl.set(tmp, 'foo', 'hi'.encode('utf-8'))
-      impl.set(tmp, 'bar', '99'.encode('utf-8'))
+      impl.set_bytes(tmp, 'foo', 'hi'.encode('utf-8'))
+      impl.set_bytes(tmp, 'bar', '99'.encode('utf-8'))
       self.assertEqual( [ 'bar', 'foo' ], self._munge_attr_keys(impl.keys(tmp)) )
       impl.clear(tmp)
       self.assertEqual( [], self._munge_attr_keys(impl.keys(tmp)) )
 
     def test_set_png_get_png(self):
       tmp = self._make_temp_file('this is foo\n')
-      impl.set(tmp, 'picture', self._TEST_DATA_BYTES)
-      self.assertEqual( self._TEST_DATA_BYTES, impl.get(tmp, 'picture') )
+      impl.set_bytes(tmp, 'picture', self._TEST_DATA_BYTES)
+      self.assertEqual( self._TEST_DATA_BYTES, impl.get_bytes(tmp, 'picture') )
   
     @classmethod
     def _munge_attr_keys(clazz, keys):

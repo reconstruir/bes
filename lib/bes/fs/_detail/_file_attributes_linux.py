@@ -27,7 +27,7 @@ class _file_attributes_linux(file_attributes_base):
 
   @classmethod
   #@abstractmethod
-  def get(clazz, filename, key):
+  def get_bytes(clazz, filename, key):
     'Return the attribute value with key for filename.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
@@ -39,7 +39,7 @@ class _file_attributes_linux(file_attributes_base):
     
   @classmethod
   #@abstractmethod
-  def set(clazz, filename, key, value):
+  def set_bytes(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
