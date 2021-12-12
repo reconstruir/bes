@@ -11,7 +11,7 @@ import unittest
 class unit_test_inspect(object):
 
   @classmethod
-  def inspect_file(clazz, filename, unit_test_class_names = None):
+  def inspect_file(clazz, filename):
     result = []    
     try:
       result = pytest.inspect_file(filename)

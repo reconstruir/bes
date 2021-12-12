@@ -29,7 +29,7 @@ class argument_resolver(object):
   log = logger('testing')
   
   def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None,
-               check_git = False, git_commit = None, use_env_deps = True, unit_test_class_names = None):
+               check_git = False, git_commit = None, use_env_deps = True):
     self._num_iterations = 1
     self._randomize = False
     self._raw_test_descriptions = []
@@ -67,7 +67,7 @@ class argument_resolver(object):
     self.log.log_d('argument_resolver: config_env={}'.format(config_env))
     self.all_files = ignore.filter_files(files)
     self.log.log_d('argument_resolver: self.all_files={}'.format(self.all_files))
-    file_infos = file_info_list([ file_info(self.config_env, f, unit_test_class_names = unit_test_class_names) for f in self.all_files ])
+    file_infos = file_info_list([ file_info(self.config_env, f) for f in self.all_files ])
     file_infos += self._tests_for_many_files(file_infos)
     file_infos.remove_dups()
     file_infos = file_infos.filter_by_filenames(filter_patterns)
