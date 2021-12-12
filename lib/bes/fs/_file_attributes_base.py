@@ -48,6 +48,8 @@ class _file_attributes_base(with_metaclass(ABCMeta, object)):
     check.check_string(key)
     if ' ' in key:
       raise ValueError('space not supported in key: \"{}\"'.format(key))
+    if ':' in key:
+      raise ValueError('colon not supported in key: \"{}\"'.format(key))
     return key
 
   @classmethod

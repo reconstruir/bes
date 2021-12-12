@@ -11,6 +11,7 @@ from bes.fs.file_check import file_check
 
 from .file_checksum_getter_attributes import file_checksum_getter_attributes
 from .file_checksum_getter_db import file_checksum_getter_db
+from .file_attributes_error import file_attributes_permission_error 
 from .file_find import file_find
 from .file_util import file_util
 
@@ -60,6 +61,6 @@ class file_duplicates(object):
     try:
       getter = file_checksum_getter_attributes()
       return getter.checksum('sha256', filename)
-    except PermissionError as ex:
+    except file_attributes_permission_error as ex:
       db = file_checksum_getter_db(checksum_db_filename)
       return db.checksum('sha256', filename)

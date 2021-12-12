@@ -3,14 +3,17 @@
 from bes.system.host import host
 from .file_attributes_error import file_attributes_error
 
-_has_xattr=False
+HAS_XATTR = False
 try:
   import xattr
-  _has_xattr=True
-except ImportError as ex:
+  HAS_XATTR = True
+except ModuleNotFoundError as ex:
   pass
 
-if _has_xattr:
+#HAS_XATTR = False
+#print('HAS_XATTR={}'.format(HAS_XATTR))
+
+if HAS_XATTR:
   from ._file_attributes_xattr import _file_attributes_xattr as _file_attributes_super_class
 elif host.SYSTEM == host.MACOS:
   from ._file_attributes_macos import _file_attributes_macos as _file_attributes_super_class
@@ -21,5 +24,7 @@ elif host.SYSTEM == host.WINDOWS:
 else:
   host.raise_unsupported_system()
 
+#print('_file_attributes_super_class={}'.format(_file_attributes_super_class))
+  
 class file_attributes(_file_attributes_super_class):
   pass

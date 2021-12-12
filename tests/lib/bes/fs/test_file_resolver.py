@@ -8,45 +8,67 @@ from bes.fs.testing.temp_content import temp_content
 class test_file_resolve(unit_test):
 
   def test_resolve_files_just_root_dir(self):
-    self.assertEqual( [
-      ( '${tmp_dir}', 'cheese.txt', '${tmp_dir}/cheese.txt', 0 ),
-    ], self._test([
+    expected = '''\
+    ${tmp_dir} cheese.txt ${tmp_dir}/cheese.txt 0
+    '''
+    actual = self._test([
       'file cheese.txt "this is cheese.txt" 644',
       'file a/lemon.txt "this is lemon.txt" 644',
       'file b/kiwi.txt "this is kiwi.txt" 644',
       'file subdir/orange.txt "this is orange.txt" 644',
       'file subdir/apple.txt "this is apple.txt" 644',
-    ], [ '${tmp_dir}' ], recursive = False) )
+    ], [ '${tmp_dir}' ], recursive = False)
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
 
   def test_resolve_files_just_root_dir_recursive(self):
-    self.assertEqual( [
-      ( '${tmp_dir}', 'a/lemon.txt', '${tmp_dir}/a/lemon.txt', 0 ),
-      ( '${tmp_dir}', 'b/kiwi.txt', '${tmp_dir}/b/kiwi.txt', 1 ),
-      ( '${tmp_dir}', 'cheese.txt', '${tmp_dir}/cheese.txt', 2 ),
-      ( '${tmp_dir}', 'subdir/apple.txt', '${tmp_dir}/subdir/apple.txt', 3 ),
-      ( '${tmp_dir}', 'subdir/orange.txt', '${tmp_dir}/subdir/orange.txt', 4 ),
-    ], self._test([
+    expected = '''\
+    ${tmp_dir} a/lemon.txt ${tmp_dir}/a/lemon.txt 0
+    ${tmp_dir} b/kiwi.txt ${tmp_dir}/b/kiwi.txt 1
+    ${tmp_dir} cheese.txt ${tmp_dir}/cheese.txt 2
+    ${tmp_dir} subdir/apple.txt ${tmp_dir}/subdir/apple.txt 3
+    ${tmp_dir} subdir/orange.txt ${tmp_dir}/subdir/orange.txt 4
+    '''
+    actual = self._test([
       'file cheese.txt "this is cheese.txt" 644',
       'file a/lemon.txt "this is lemon.txt" 644',
       'file b/kiwi.txt "this is kiwi.txt" 644',
       'file subdir/orange.txt "this is orange.txt" 644',
       'file subdir/apple.txt "this is apple.txt" 644',
-    ], [ '${tmp_dir}' ], recursive = True) )
+    ], [ '${tmp_dir}' ], recursive = True)
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
 
   def test_resolve_files_two_dirs(self):
-    self.assertEqual( [
-      ( '${tmp_dir}/a', 'lemon.txt', '${tmp_dir}/a/lemon.txt', 0 ),
-      ( '${tmp_dir}/b', 'kiwi.txt', '${tmp_dir}/b/kiwi.txt', 1 ),
-#      ( '${tmp_dir}', 'cheese.txt', '${tmp_dir}/cheese.txt', 2 ),
-#      ( '${tmp_dir}', 'subdir/apple.txt', '${tmp_dir}/subdir/apple.txt', 3 ),
-#      ( '${tmp_dir}', 'subdir/orange.txt', '${tmp_dir}/subdir/orange.txt', 4 ),
-    ], self._test([
+    expected = '''\
+    ${tmp_dir}/a lemon.txt ${tmp_dir}/a/lemon.txt 0
+    ${tmp_dir}/b kiwi.txt ${tmp_dir}/b/kiwi.txt 1
+    '''
+    actual = self._test([
       'file cheese.txt "this is cheese.txt" 644',
       'file a/lemon.txt "this is lemon.txt" 644',
       'file b/kiwi.txt "this is kiwi.txt" 644',
       'file subdir/orange.txt "this is orange.txt" 644',
       'file subdir/apple.txt "this is apple.txt" 644',
-    ], [ '${tmp_dir}/a', '${tmp_dir}/b' ], recursive = False) )
+    ], [ '${tmp_dir}/a', '${tmp_dir}/b' ], recursive = False)
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
+
+  def test_resolve_files_two_dirs_recursive(self):
+    expected = '''\
+    ${tmp_dir}/a suba1/orange.txt      ${tmp_dir}/a/suba1/orange.txt      0
+    ${tmp_dir}/a suba1/suba2/lemon.txt ${tmp_dir}/a/suba1/suba2/lemon.txt 1
+    ${tmp_dir}/a watermelon.txt        ${tmp_dir}/a/watermelon.txt        2
+    ${tmp_dir}/b pineapple.txt         ${tmp_dir}/b/pineapple.txt         3
+    ${tmp_dir}/b subb1/cherry.txt      ${tmp_dir}/b/subb1/cherry.txt      4
+    ${tmp_dir}/b subb1/subb2/kiwi.txt  ${tmp_dir}/b/subb1/subb2/kiwi.txt  5
+    '''
+    actual = self._test([
+      'file a/suba1/orange.txt "this is orange.txt" 644',
+      'file a/suba1/suba2/lemon.txt "this is lemon.txt" 644',
+      'file a/watermelon.txt "this is watermelon.txt" 644',
+      'file b/pineapple.txt "this is pineapple.txt" 644',
+      'file b/subb1/cherry.txt "this is cherry.txt" 644',
+      'file b/subb1/subb2/kiwi.txt "this is kiwi.txt" 644',
+    ], [ '${tmp_dir}/a', '${tmp_dir}/b' ], recursive = True)
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
     
   def _test(self,
             items,
@@ -67,7 +89,7 @@ class test_file_resolve(unit_test):
                                          match_basename = match_basename,
                                          match_function = match_function,
                                          match_re = match_re)
-    return [ self._fix_one_resolved_file(f, tmp_dir) for f in result ] 
+    return '\n'.join([ self._fix_one_resolved_file(f, tmp_dir) for f in result ])
 
   @classmethod
   def _fix_one_resolved_file(clazz, resolved_file, tmp_dir):
@@ -78,10 +100,11 @@ class test_file_resolve(unit_test):
     else:
       new_root_dir = None
     new_filename_abs = resolved_file.filename_abs.replace(tmp_dir, '${tmp_dir}')
-    return file_resolver._resolved_file(new_root_dir,
+    item = file_resolver._resolved_file(new_root_dir,
                                         clazz.xp_filename(resolved_file.filename),
                                         clazz.xp_filename(new_filename_abs),
                                         resolved_file.order)
+    return '{} {} {} {}'.format(item.root_dir, item.filename, item.filename_abs, item.order)
   
   def _make_temp_content(self):
     tmp_dir = self.make_temp_dir()

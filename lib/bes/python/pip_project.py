@@ -9,8 +9,9 @@ import pprint
 
 from bes.common.check import check
 from bes.common.object_util import object_util
-from bes.fs.file_util import file_util
+from bes.fs.dir_util import dir_util
 from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
 from bes.fs.filename_util import filename_util
 from bes.property.cached_property import cached_property
 from bes.system.command_line import command_line
@@ -24,6 +25,7 @@ from bes.url.url_util import url_util
 from .pip_error import pip_error
 from .pip_exe import pip_exe
 from .pip_project_options import pip_project_options
+from .python_error import python_error
 from .python_installation import python_installation
 from .python_source import python_source
 from .python_version import python_version
@@ -50,7 +52,18 @@ class pip_project(object):
     self._common_pip_args = [
       '--cache-dir', self._pip_cache_dir,
     ]
-    self._log.log_d('pip_project: pip_exe={} pip_env={} project_dir={}'.format(self.pip_exe,
+    try:
+      self._do_init(1)
+    except python_error as ex:
+      if 'version mismatch' in ex.message:
+        self._options.blurber.blurb('{} - Fixing automagically.'.format(ex.message))
+        self._options.blurber.blurb('removing {}'.format(self._root_dir))
+        file_util.remove(self._root_dir)
+        self._do_init(2)
+
+  def _do_init(self, attempt_number):
+    self._log.log_d('_do_init:{}: pip_exe={} pip_env={} project_dir={}'.format(attempt_number,
+                                                                               self.pip_exe,
                                                                                self.env,
                                                                                self.root_dir))
     self._reinstall_pip_if_needed()

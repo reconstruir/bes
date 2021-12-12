@@ -1,9 +1,10 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import binascii, codecs
 from io import BytesIO
 from collections import namedtuple
+
+from bes.text.line_break import line_break
 
 class hexdump(object):
 
@@ -11,9 +12,22 @@ class hexdump(object):
   _word = namedtuple('_word', 'hexlified, asciified')
 
   @classmethod
-  def stream(clazz, stream, wordsize = 4, columns = 8, delimiter = ' ', show_ascii = False, show_offset = False):
+  def stream(clazz,
+             stream,
+             wordsize = 4,
+             columns = 8,
+             delimiter = None,
+             show_ascii = False,
+             show_offset = False,
+             line_delimiter = None):
     'hexdump a stream to a string.'
 
+    if delimiter == None:
+      delimiter = ' '
+    
+    if line_delimiter == None:
+      line_delimiter = line_break.DEFAULT_LINE_BREAK_RAW
+    
     items = [ clazz._make_item(b) for b in iter(lambda: stream.read(1), b'') ]
     words = []
     for chunk in clazz._chunks(items, wordsize):
@@ -40,20 +54,35 @@ class hexdump(object):
       line = ' '.join(parts)
       lines.append(line)
       offset += columns
-    return '\n'.join(lines)
+    return line_delimiter.join(lines)
 
   @classmethod
-  def data(clazz, data, wordsize = 4, columns = 8, delimiter = ' ', show_ascii = False, show_offset = False):
+  def data(clazz,
+           data,
+           wordsize = 4,
+           columns = 8,
+           delimiter = None,
+           show_ascii = False,
+           show_offset = False,
+           line_delimiter = None):
     'hexdump bytes to a string.'
     return clazz.stream(BytesIO(data),
                         wordsize = wordsize,
                         columns = columns,
                         delimiter = delimiter,
                         show_ascii = show_ascii,
-                        show_offset = show_offset)
+                        show_offset = show_offset,
+                        line_delimiter = line_delimiter)
 
   @classmethod
-  def filename(clazz, filename, wordsize = 4, columns = 8, delimiter = ' ', show_ascii = False, show_offset = False):
+  def filename(clazz,
+               filename,
+               wordsize = 4,
+               columns = 8,
+               delimiter = None,
+               show_ascii = False,
+               show_offset = False,
+               line_delimiter = None):
     'hexdump bytes to a string.'
     with open(filename, 'r') as stream:
        return clazz.stream(stream,
@@ -61,7 +90,8 @@ class hexdump(object):
                            columns = columns,
                            delimiter = delimiter,
                            show_ascii = show_ascii,
-                           show_offset = show_offset)
+                           show_offset = show_offset,
+                           line_delimiter = line_delimiter)
 
   # http://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
   @classmethod

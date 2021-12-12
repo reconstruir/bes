@@ -7,3 +7,12 @@ class file_attributes_error(Exception):
 
   def __str__(self):
     return self.message
+
+class file_attributes_permission_error(Exception):
+  def __init__(self, message):
+    super(file_attributes_permission_error, self).__init__()
+    self.message = message
+
+  def __str__(self):
+    return self.message
+  
