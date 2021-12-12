@@ -14,7 +14,7 @@ class test_egg(unit_test):
                           version_filename = 'lib/bes/ver.py',
                           verbose = self.DEBUG,
                           debug = self.DEBUG)
-    result = egg.make_from_address('https://gitlab.com/rebuilder/bes.git', '1.2.62', options = options)
+    result = egg.make_from_address('https://github.com/reconstruir/bes.git', '1.2.62', options = options)
     print('result={}'.format(result))
 
 if __name__ == '__main__':
