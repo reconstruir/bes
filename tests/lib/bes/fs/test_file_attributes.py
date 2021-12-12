@@ -10,11 +10,7 @@ from bes.fs.file_attributes import HAS_XATTR
 from bes.fs.file_util import file_util
 from bes.docker.docker import docker
 from bes.testing.unit_test_class_skip import unit_test_class_skip
-
-from bes.fs._file_attributes_linux import _file_attributes_linux
-from bes.fs._file_attributes_macos import _file_attributes_macos
-from bes.fs._file_attributes_windows import _file_attributes_windows
-from bes.fs._file_attributes_xattr import _file_attributes_xattr
+from bes.system.host import host
 
 def _test_case(impl):
   
@@ -89,34 +85,42 @@ class test_file_attributes(_test_case(file_attributes)):
   def setUpClass(clazz):
     docker.raise_skip_if_running_under_docker()
 
-class test__file_attributes_macos(_test_case(_file_attributes_macos)):
+if host.is_macos():
+  from bes.fs._file_attributes_macos import _file_attributes_macos
+  class test__file_attributes_macos(_test_case(_file_attributes_macos)):
 
-  @classmethod
-  def setUpClass(clazz):
-    unit_test_class_skip.raise_skip_if_not_macos()
-    docker.raise_skip_if_running_under_docker()
+    @classmethod
+    def setUpClass(clazz):
+      unit_test_class_skip.raise_skip_if_not_macos()
+      docker.raise_skip_if_running_under_docker()
 
-class test__file_attributes_linux(_test_case(_file_attributes_linux)):
+if host.is_linux():
+  from bes.fs._file_attributes_linux import _file_attributes_linux
+  class test__file_attributes_linux(_test_case(_file_attributes_linux)):
 
-  @classmethod
-  def setUpClass(clazz):
-    unit_test_class_skip.raise_skip_if_not_linux()
-    docker.raise_skip_if_running_under_docker()
+    @classmethod
+    def setUpClass(clazz):
+      unit_test_class_skip.raise_skip_if_not_linux()
+      docker.raise_skip_if_running_under_docker()
 
-class test__file_attributes_windows(_test_case(_file_attributes_windows)):
+if host.is_windows():    
+  from bes.fs._file_attributes_windows import _file_attributes_windows
+  class test__file_attributes_windows(_test_case(_file_attributes_windows)):
 
-  @classmethod
-  def setUpClass(clazz):
-    unit_test_class_skip.raise_skip_if_not_windows()
-    docker.raise_skip_if_running_under_docker()
-    
-class test__file_attributes_xattr(_test_case(_file_attributes_xattr)):
+    @classmethod
+    def setUpClass(clazz):
+      unit_test_class_skip.raise_skip_if_not_windows()
+      docker.raise_skip_if_running_under_docker()
 
-  @classmethod
-  def setUpClass(clazz):
-    unit_test_class_skip.raise_skip_if_not_unix()
-    unit_test_class_skip.raise_skip_if(HAS_XATTR, 'xattr not found')
-    docker.raise_skip_if_running_under_docker()
+if HAS_XATTR:
+  from bes.fs._file_attributes_xattr import _file_attributes_xattr
+  class test__file_attributes_xattr(_test_case(_file_attributes_xattr)):
+
+    @classmethod
+    def setUpClass(clazz):
+      unit_test_class_skip.raise_skip_if_not_unix()
+      unit_test_class_skip.raise_skip_if(HAS_XATTR, 'xattr not found')
+      docker.raise_skip_if_running_under_docker()
     
 if __name__ == '__main__':
   unit_test.main()
