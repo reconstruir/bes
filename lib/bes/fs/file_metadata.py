@@ -6,7 +6,7 @@ from bes.common.check import check
 from bes.sqlite.sqlite import sqlite
 from bes.fs.file_util import file_util
 
-from .detail.file_metadata_db import file_metadata_db
+from ._detail.file_metadata_db import file_metadata_db
 
 class file_metadata(object):
   'Metadata for files using an sql db.'

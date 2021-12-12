@@ -112,10 +112,10 @@ class file_mime(object):
     if not hasattr(clazz, '_mime_type_impl'):
       impl = None
       if host.is_unix():
-        from .detail.file_mime_type_unix_file_exe import file_mime_type_unix_file_exe
+        from ._detail.file_mime_type_unix_file_exe import file_mime_type_unix_file_exe
         impl = file_mime_type_unix_file_exe
       elif host.is_windows():
-        from .detail.file_mime_type_windows import file_mime_type_windows
+        from ._detail.file_mime_type_windows import file_mime_type_windows
         impl = file_mime_type_windows
       else:
         raise RuntimeError('Unknown system: {}'.format(host.SYSTEM))
