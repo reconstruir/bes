@@ -5,7 +5,7 @@ from bes.system.compat import with_metaclass
 
 from bes.common.check import check
 
-class _file_attributes_base(with_metaclass(ABCMeta, object)):
+class file_attributes_base(with_metaclass(ABCMeta, object)):
 
   @classmethod
   @abstractmethod

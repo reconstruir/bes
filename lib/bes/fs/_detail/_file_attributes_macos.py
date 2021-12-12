@@ -8,11 +8,11 @@ from bes.macos.xattr.xattr import xattr
 from bes.macos.xattr.xattr_error import xattr_error
 from bes.macos.xattr.xattr_error import xattr_permission_error
 
-from ._file_attributes_base import _file_attributes_base
-from .file_attributes_error import file_attributes_error
-from .file_attributes_error import file_attributes_permission_error
+from bes.fs.file_attributes_base import file_attributes_base
+from bes.fs.file_attributes_error import file_attributes_error
+from bes.fs.file_attributes_error import file_attributes_permission_error
 
-class _file_attributes_macos(_file_attributes_base):
+class _file_attributes_macos(file_attributes_base):
 
   _log = logger('_file_attributes_macos')
   

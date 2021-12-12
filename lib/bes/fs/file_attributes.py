@@ -14,13 +14,13 @@ except ModuleNotFoundError as ex:
 #print('HAS_XATTR={}'.format(HAS_XATTR))
 
 if HAS_XATTR:
-  from ._file_attributes_xattr import _file_attributes_xattr as _file_attributes_super_class
+  from ._detail._file_attributes_xattr import _file_attributes_xattr as _file_attributes_super_class
 elif host.SYSTEM == host.MACOS:
-  from ._file_attributes_macos import _file_attributes_macos as _file_attributes_super_class
+  from ._detail._file_attributes_macos import _file_attributes_macos as _file_attributes_super_class
 elif host.SYSTEM == host.LINUX:
-  from ._file_attributes_linux import _file_attributes_linux as _file_attributes_super_class
+  from ._detail._file_attributes_linux import _file_attributes_linux as _file_attributes_super_class
 elif host.SYSTEM == host.WINDOWS:
-  from ._file_attributes_windows import _file_attributes_windows as _file_attributes_super_class
+  from ._detail._file_attributes_windows import _file_attributes_windows as _file_attributes_super_class
 else:
   host.raise_unsupported_system()
 

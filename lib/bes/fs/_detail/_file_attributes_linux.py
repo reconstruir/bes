@@ -8,11 +8,11 @@ from bes.linux.attr.linux_attr import linux_attr
 from bes.linux.attr.linux_attr_error import linux_attr_error
 from bes.linux.attr.linux_attr_error import linux_attr_permission_error
 
-from ._file_attributes_base import _file_attributes_base
-from .file_attributes_error import file_attributes_error
-from .file_attributes_error import file_attributes_permission_error
+from bes.fs.file_attributes_base import file_attributes_base
+from bes.fs.file_attributes_error import file_attributes_error
+from bes.fs.file_attributes_error import file_attributes_permission_error
 
-class _file_attributes_linux(_file_attributes_base):
+class _file_attributes_linux(file_attributes_base):
 
   _log = logger('_file_attributes_linux')
   

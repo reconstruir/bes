@@ -7,11 +7,11 @@ from bes.system.host import host
 
 import xattr
 
-from ._file_attributes_base import _file_attributes_base
-from .file_attributes_error import file_attributes_error
-from .file_attributes_error import file_attributes_permission_error
+from bes.fs.file_attributes_base import file_attributes_base
+from bes.fs.file_attributes_error import file_attributes_error
+from bes.fs.file_attributes_error import file_attributes_permission_error
 
-class _file_attributes_xattr(_file_attributes_base):
+class _file_attributes_xattr(file_attributes_base):
 
   @classmethod
   #@abstractmethod
