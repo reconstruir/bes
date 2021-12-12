@@ -19,4 +19,4 @@ class unit_test_inspect(object):
       print('WARNING: failed to inspect unit test %s: %s' % (path.relpath(filename), str(ex)))
       raise
       #return None
-    return sorted(algorithm.unique(result), key = lambda x: x.function)
+    return sorted(algorithm.unique(result), key = lambda x: ( x.fixture, x.function ))
