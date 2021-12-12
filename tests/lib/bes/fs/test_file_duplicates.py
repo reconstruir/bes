@@ -14,6 +14,7 @@ from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
+from bes.system.host import host
 
 from bes.fs.testing.temp_content import temp_content
 
@@ -97,7 +98,12 @@ class test_file_duplicates(unit_test):
 
   @unit_test_function_skip.skip_if_not_unix()
   def test_find_duplicates_no_write_permission(self):
-    sh_exe = which.which('sh')
+    if host.is_linux():
+      shell = 'dash'
+    else:
+      shell = 'sh'
+      
+    sh_exe = which.which(shell)
     bin_dir = path.dirname(sh_exe)
     tmp_dir = self.make_temp_dir()
     sh_exe_dup = path.join(tmp_dir, 'dupsh.exe')
@@ -107,7 +113,7 @@ class test_file_duplicates(unit_test):
       _file_duplicate_tester_object._extra_dir(bin_dir, '${_bin}'),
       _file_duplicate_tester_object._extra_dir(tmp_dir, '${_tmp}'),
     ] )
-    self.assertTrue( file_duplicates._dup_item('${_bin}/sh', [ '${_tmp}/dupsh.exe']) in result )
+    self.assertTrue( file_duplicates._dup_item('${{_bin}}/{}'.format(shell), [ '${_tmp}/dupsh.exe']) in result )
 
   def _test(self, items, dirs, extra_dirs_before = [], extra_dirs_after = []):
     tester = _file_duplicate_tester_object(self)

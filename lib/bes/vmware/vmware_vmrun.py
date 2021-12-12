@@ -55,8 +55,7 @@ class vmware_vmrun(object):
                                stdout = subprocess.PIPE,
                                stderr = subprocess.STDOUT,
                                shell = False,
-                               env = env,
-                               universal_newlines = False)
+                               env = env)
     if no_output:
       output = None
     else:

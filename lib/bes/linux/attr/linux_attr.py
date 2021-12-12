@@ -1,7 +1,5 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs
-
 from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.debug.hexdump import hexdump
@@ -23,15 +21,13 @@ class linux_attr(object):
     check.check_string(filename)
     check.check_string(key)
 
-    args = [ '-p', key, filename ]
-    rv = clazz._call_linux_attr(args)
-    return rv.exit_code == 0
+    return key in clazz.keys(filename)
   
   @classmethod
   def keys(clazz, filename):
     'Return all the keys set for filename.'
     check.check_string(filename)
-    
+
     args = [ '-q', '-l', filename ]
     rv = clazz._call_linux_attr(args)
     linux_attr_command.check_result(rv, message = 'Failed to get keys for {}'.format(filename))
@@ -40,9 +36,10 @@ class linux_attr(object):
 
   @classmethod
   def _check_permission_error(clazz, result, message):
+    #print('result={}'.format(result))
     if result.exit_code != 1:
       return
-    if 'Operation not permitted' not in result.stderr:
+    if 'Permission denied' not in result.stderr:
       return
     raise linux_attr_permission_error(message)
   
@@ -53,7 +50,7 @@ class linux_attr(object):
     check.check_string(key)
     check.check_bytes(value)
 
-    args = [ '-q', '-s', key, filename)
+    args = [ '-q', '-s', key, filename ]
     rv = clazz._call_linux_attr(args, input_data = value)
     clazz._check_permission_error(rv, 'Permission error setting key="{}" value="{}" for "{}"'.format(key, value, filename))
     linux_attr_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
@@ -95,32 +92,29 @@ class linux_attr(object):
     filename = file_check.check_file(filename)
     check.check_string(key)
 
-    args = [ '-p', '-x', key, filename ]
+    args = [ '-q', '-g', key, filename ]
     rv = clazz._call_linux_attr(args)
     clazz._log.log_d('get_bytes: stdout={}'.format(rv.stdout))
     linux_attr_command.check_result(rv, message = 'Failed to get key="{}" for "{}"'.format(key, filename))
-    hex_text = string_util.replace_white_space(rv.stdout, '')
-    clazz._log.log_d('get_bytes: hex_text={}'.format(hex_text))
-    return codecs.decode(hex_text, encoding = 'hex')
-
+    return rv.stdout_bytes
+  
   @classmethod
   def remove(clazz, filename, key):
     'Remove the attirbute with key from filename.'
     filename = file_check.check_file(filename)
     check.check_string(key)
-    
-    args = [ '-d', key, filename ]
+
+    args = [ '-r', key, filename ]
     rv = clazz._call_linux_attr(args)
-    linux_attr_command.check_result(rv, message = 'Failed to get delete key "{}" for "{}"'.format(key, filename))
+    linux_attr_command.check_result(rv, message = 'Failed to delete key "{}" for "{}"'.format(key, filename))
 
   @classmethod
   def clear(clazz, filename):
     'Remove the attirbute with key from filename.'
     filename = file_check.check_file(filename)
-    
-    args = [ '-c', filename ]
-    rv = clazz._call_linux_attr(args)
-    linux_attr_command.check_result(rv, message = 'Failed to clear values for "{}"'.format(filename))
+
+    for key in clazz.keys(filename):
+      clazz.remove(filename, key)
     
   @classmethod
   def _call_linux_attr(clazz, args, input_data = None):
