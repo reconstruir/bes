@@ -117,7 +117,7 @@ class xattr(object):
     xattr_command.check_result(rv, message = 'Failed to clear values for "{}"'.format(filename))
     
   @classmethod
-  def _call_xattr(clazz, args, codec = None):
+  def _call_xattr(clazz, args):
     # The default macos xattr in /usr/bin/xattr needs to be used
     # completely independenly of potential virtual env installations
     # of xattr
@@ -125,8 +125,7 @@ class xattr(object):
     return xattr_command.call_command(args,
                                       raise_error = False,
                                       env = env,
-                                      check_python_script = False,
-                                      codec = codec)
+                                      check_python_script = False)
   
   @classmethod
   def _parse_key(clazz, s):
