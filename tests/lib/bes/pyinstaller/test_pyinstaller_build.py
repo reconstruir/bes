@@ -4,28 +4,19 @@
 import sys
 from os import path
 
-from bes.python.pip_exe import pip_exe
-from bes.python.pip_error import pip_error
-from bes.python.pip_installer_options import pip_installer_options
-from bes.python.pip_installer_tester import pip_installer_tester
 from bes.python.pip_project import pip_project
 from bes.python.pip_project_options import pip_project_options
 from bes.python.python_testing import python_testing
-from bes.python.python_testing import python_testing
-from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.system.execute import execute
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
-from bes.version.semantic_version import semantic_version
 
 class test_pyinstaller_builder(unit_test):
 
   @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_build(self):
     tmp_dir = self.make_temp_dir(suffix = '.test_pyinstaller_build', )
-    if self.DEBUG:
-      print('tmp_dir: {}'.format(tmp_dir))
     venvs_dir = path.join(tmp_dir, 'venvs')
     options = pip_project_options(root_dir = venvs_dir,
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
