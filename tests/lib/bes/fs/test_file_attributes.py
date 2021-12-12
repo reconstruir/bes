@@ -57,30 +57,25 @@ class test_file_attributes(unit_test):
     file_attributes.clear(tmp)
     self.assertEqual( [], self._munge_attr_keys(file_attributes.keys(tmp)) )
 
+  def test_set_png_get_png(self):
+    tmp = self._make_temp_file('this is foo\n')
+    file_attributes.set(tmp, 'picture', self._TEST_DATA_BYTES)
+    self.assertEqual( self._TEST_DATA_BYTES, file_attributes.get(tmp, 'picture') )
+  
   @classmethod
   def _munge_attr_keys(clazz, keys):
     'On some linux systems, there is an extra selinux key in many attr results'
+    # FIXME: move this to the linux implementation and perhaps add a show system
+    # attributes boolean somewhere
     assert isinstance(keys, list)
     return [ key for key in keys if key != 'selinux' ]
 
   def _make_temp_file(self, content):
-    # Use a temporary directory in the same filesystem ad the code to avoid the
+    # Use a temporary directory in the same filesystem as the code to avoid the
     # issue that on some platforms the tmp dir filesystem might have attributes disabled.
     tmp_dir = path.join(path.dirname(__file__), '.tmp')
     return self.make_temp_file(content = content, dir = tmp_dir, suffix = '.txt')
 
-  def test_set_png_get_png(self):
-    tmp = self._make_temp_file('this is foo\n')
-    file_attributes.set(tmp, 'foo', 'hi'.encode('utf-8'))
-    self.assertEqual( 'hi', file_attributes.get(tmp, 'foo').decode('utf-8') )
-    self.assertEqual( 'hi', file_attributes.get(tmp, 'foo').decode('utf-8') )
-
-#    tmp = self.make_temp_file()
-#    xattr.set_bytes(tmp, 'picture', self._TEST_DATA_BYTES)
-#    tmp = self.make_temp_file()
-#    xattr.set_bytes(tmp, 'picture', self._TEST_DATA_BYTES)
-#    self.assertEqual( self._TEST_DATA_BYTES, xattr.get_bytes(tmp, 'picture') )
-  
 if __name__ == '__main__':
   unit_test.main()
     
