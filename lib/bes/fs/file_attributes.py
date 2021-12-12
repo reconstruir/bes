@@ -7,10 +7,11 @@ HAS_XATTR = False
 try:
   import xattr
   HAS_XATTR = True
-except ImportError as ex:
+except ModuleNotFoundError as ex:
   pass
 
 #HAS_XATTR = False
+#print('HAS_XATTR={}'.format(HAS_XATTR))
 
 if HAS_XATTR:
   from ._file_attributes_xattr import _file_attributes_xattr as _file_attributes_super_class
