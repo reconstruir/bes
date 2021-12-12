@@ -3,16 +3,16 @@
 from bes.system.host import host
 from .file_attributes_error import file_attributes_error
 
-_has_xattr=False
+HAS_XATTR = False
 try:
   import xattr
-  _has_xattr=True
+  HAS_XATTR = True
 except ImportError as ex:
   pass
 
-#_has_xattr = False
+#HAS_XATTR = False
 
-if _has_xattr:
+if HAS_XATTR:
   from ._file_attributes_xattr import _file_attributes_xattr as _file_attributes_super_class
 elif host.SYSTEM == host.MACOS:
   from ._file_attributes_macos import _file_attributes_macos as _file_attributes_super_class

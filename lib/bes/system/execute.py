@@ -2,8 +2,6 @@
 
 import os, os.path as path, re, subprocess, sys, tempfile
 
-from collections import namedtuple
-
 from .check import check
 from .command_line import command_line
 from .compat import compat
@@ -114,17 +112,7 @@ class execute(object):
     rv = execute_result(stdout_bytes, stderr_bytes, exit_code, parsed_args)
     if raise_error:
       if rv.exit_code != 0:
-        clazz._log.log_d(rv.exit_code)
-        # FIXME: check if stdout is printable
-        ex = RuntimeError(rv.stdout)
-        setattr(ex, 'execute_result', rv)
-        clazz._log.log_d('stderr={}'.format(rv.stderr))
-        clazz._log.log_d('stdout={}'.format(rv.stdout))
-        clazz._log.log_d('ex={}'.format(str(ex)))
-        print(rv.stdout)
-        print(rv.stderr)
-        print(str(ex))
-        raise ex
+        rv.raise_error(log_error = True, print_error = True)
     return rv
 
   @classmethod
