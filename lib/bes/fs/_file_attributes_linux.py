@@ -31,7 +31,6 @@ class _file_attributes_linux(_file_attributes_base):
     'Return the attribute value with key for filename.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
-    print('FUCKE HERE')
 
     try:
       return linux_attr.get_bytes(filename, key)
