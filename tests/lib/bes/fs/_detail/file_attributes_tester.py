@@ -1,6 +1,5 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import binascii
 import os.path as path
 
 from bes.testing.unit_test import unit_test

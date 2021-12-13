@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import binascii, os, sys
+import os
+import sys
 from os import path
 
 from bes.testing.unit_test import unit_test
