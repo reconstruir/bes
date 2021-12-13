@@ -90,5 +90,11 @@ class test_file_mime(unit_test):
   def test_mp4_wrong_extension(self):
     self.assertEqual( 'video/mp4', file_mime.mime_type(self._mp4_file_wrong_extension).mime_type )
 
+  def test_media_type(self):
+    self.assertEqual( 'video', file_mime.media_type(self._mp4_file) )
+    self.assertEqual( 'image', file_mime.media_type(self._png_file) )
+    self.assertEqual( 'image', file_mime.media_type(self._jpg_file) )
+    self.assertEqual( 'unknown', file_mime.media_type(self.make_temp_file(content = 'this is foo.\n')) )
+    
 if __name__ == '__main__':
   unit_test.main()

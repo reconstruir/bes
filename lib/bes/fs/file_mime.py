@@ -133,7 +133,7 @@ class file_mime(object):
   ])
   
   @classmethod
-  def get_media_type(clazz, filename):
+  def media_type(clazz, filename):
     mt = clazz.mime_type(filename).mime_type
     for media_type, pattern in clazz.MEDIA_TYPES.items():
       if fnmatch.fnmatch(mt, pattern):
