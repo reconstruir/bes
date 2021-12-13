@@ -50,7 +50,8 @@ class files_cli_handler(cli_command_handler):
     check.check_string_seq(files)
     files = file_resolver.resolve_files(files, recursive = self.options.recursive)
     for f in files:
-      print(f)
+      checksum = file_util.checksum('sha256', f.filename_abs)
+      print('{}: {}'.format(f.filename_abs, checksum))
     return 0
   
   def remove_empty(self, where):
