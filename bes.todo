@@ -118,7 +118,6 @@ s/matcher_multiple_filename/matcher_multiple_patterns/
  - when best test fails print a report of all the failed tests
  
 2018-05-30
- - fix test_archive_unix_tar.py
  - fix broken unt tests: test_unit_test_inspect, test_argument_resolver, test_file_info
  
 
