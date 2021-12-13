@@ -127,15 +127,17 @@ class file_mime(object):
       setattr(clazz, '_mime_type_impl', impl)
     return getattr(clazz, '_mime_type_impl', None)
 
-  MEDIA_TYPES = OrderedDict( [
+  _MEDIA_TYPE_PATTERNS = OrderedDict( [
     ( 'video', 'video/*' ),
     ( 'image', 'image/*' ),
   ])
+
+  MEDIA_TYPES = frozenset(_MEDIA_TYPE_PATTERNS.keys())
   
   @classmethod
   def media_type(clazz, filename):
     mt = clazz.mime_type(filename).mime_type
-    for media_type, pattern in clazz.MEDIA_TYPES.items():
+    for media_type, pattern in clazz._MEDIA_TYPE_PATTERNS.items():
       if fnmatch.fnmatch(mt, pattern):
         return media_type
     return 'unknown'
