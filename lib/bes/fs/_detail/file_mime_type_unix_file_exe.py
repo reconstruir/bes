@@ -2,18 +2,25 @@
 
 from os import path
 import re
-from bes.compat.map import map
-from bes.system.execute import execute
-from bes.key_value.key_value_list import key_value_list
-from bes.text.text_line_parser import text_line_parser
+
 from bes.common.algorithm import algorithm
+from bes.common.string_util import string_util
+from bes.compat.map import map
+from bes.key_value.key_value_list import key_value_list
+from bes.system.execute import execute
+from bes.text.text_line_parser import text_line_parser
 
 class file_mime_type_unix_file_exe(object):
   'Detect mime types using the file utility on unix.'
     
   @classmethod
   def mime_type(clazz, filename):
-    cmd = 'file --brief --mime %s' % (filename)
+    cmd = [
+      'file',
+      '--brief',
+      '--mime',
+      string_util.quote_if_needed(filename),
+    ]
     if not path.isfile(filename):
       raise IOError('file not found: "{}"'.format(filename))
     rv = execute.execute(cmd, raise_error = False)
