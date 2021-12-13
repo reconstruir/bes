@@ -1,16 +1,19 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import binascii
 from os import path
 
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
-from bes.fs.file_check import file_check
+from bes.debug.hexdump import hexdump
 
 from .dir_split import dir_split
 from .dir_split_options import dir_split_options
+from .file_check import file_check
 from .file_duplicates import file_duplicates
 from .file_find import file_find
 from .file_resolver import file_resolver
+from .file_util import file_util
 
 class files_cli_handler(cli_command_handler):
   'dir project cli handler.'
@@ -60,4 +63,11 @@ class files_cli_handler(cli_command_handler):
     else:
       file_find.remove_empty_dirs(where, max_depth = max_depth)
       
+    return 0
+
+  def hexify(self, filename):
+    filename = file_check.check_file(filename)
+
+    dump = hexdump.filename(filename, line_delimiter = '\n')
+    print(dump)
     return 0
