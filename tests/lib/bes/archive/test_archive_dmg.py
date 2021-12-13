@@ -10,8 +10,6 @@ from bes.archive.temp_archive import temp_archive
 from bes.archive.archive_dmg import archive_dmg
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 
-from archive_tester import archive_tester
-
 class test_archive_dmg(unit_test):
 
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/archive/dmg'
