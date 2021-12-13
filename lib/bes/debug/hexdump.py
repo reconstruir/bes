@@ -84,7 +84,7 @@ class hexdump(object):
                show_offset = False,
                line_delimiter = None):
     'hexdump bytes to a string.'
-    with open(filename, 'r') as stream:
+    with open(filename, 'rb') as stream:
        return clazz.stream(stream,
                            wordsize = wordsize,
                            columns = columns,
