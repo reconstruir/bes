@@ -69,18 +69,21 @@ class test_file_mime(unit_test):
   def test_png(self):
     self.assertEqual( 'image/png', file_mime.mime_type(self._png_file).mime_type )
 
+  @unit_test_function_skip.skip_if_not_unix(warning = True)
   def test_png_wrong_extension(self):
     self.assertEqual( 'image/png', file_mime.mime_type(self._png_file_wrong_extension).mime_type )
     
   def test_jpg(self):
     self.assertEqual( 'image/jpeg', file_mime.mime_type(self._jpg_file).mime_type )
 
+  @unit_test_function_skip.skip_if_not_unix(warning = True)
   def test_jpg_wrong_extension(self):
     self.assertEqual( 'image/jpeg', file_mime.mime_type(self._jpg_file_wrong_extension).mime_type )
 
   def test_mp4(self):
     self.assertEqual( 'video/mp4', file_mime.mime_type(self._mp4_file).mime_type )
 
+  @unit_test_function_skip.skip_if_not_unix(warning = True)
   def test_mp4_wrong_extension(self):
     self.assertEqual( 'video/mp4', file_mime.mime_type(self._mp4_file_wrong_extension).mime_type )
     
