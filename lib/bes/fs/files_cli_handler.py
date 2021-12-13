@@ -12,6 +12,7 @@ from .dir_split_options import dir_split_options
 from .file_check import file_check
 from .file_duplicates import file_duplicates
 from .file_find import file_find
+from .file_mime import file_mime
 from .file_resolver import file_resolver
 from .file_util import file_util
 
@@ -48,10 +49,20 @@ class files_cli_handler(cli_command_handler):
 
   def checksums(self, files, algorithm):
     check.check_string_seq(files)
+
     files = file_resolver.resolve_files(files, recursive = self.options.recursive)
     for f in files:
-      checksum = file_util.checksum('sha256', f.filename_abs)
+      checksum = file_util.checksum(algorithm, f.filename_abs)
       print('{}: {}'.format(f.filename_abs, checksum))
+    return 0
+
+  def media_types(self, files, algorithm):
+    check.check_string_seq(files)
+
+    files = file_resolver.resolve_files(files, recursive = self.options.recursive)
+    for f in files:
+      media_type = file_mime.media_type(f.filename_abs)
+      print('{}: {}'.format(media_type, f.filename_abs))
     return 0
   
   def remove_empty(self, where):
