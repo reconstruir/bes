@@ -8,21 +8,10 @@ class file_mime_type_windows(object):
     
   @classmethod
   def mime_type(clazz, filename):
-    mime_type, charset = clazz._guess_mime_type(filename)
+    mime_type = clazz._guess_mime_type(filename)
     if not mime_type:
-      mime_type, charset = mimetypes.guess_type(filename)
-    charset = clazz._fudge_charset(filename, mime_type, charset)
-    return ( mime_type, charset )
-
-  @classmethod
-  def _fudge_charset(clazz, filename, mime_type, charset):
-    '''Fudge the charset to be compatible with the unix implementation.
-    This is obviously bs and we need a better overall mime type strategy
-    that is cross platform and doest fudge one thing a time.
-    '''
-    if mime_type == 'text/plain' and not charset:
-      return 'us-ascii'
-    return charset
+      mime_type, _ = mimetypes.guess_type(filename)
+    return mime_type
 
   @classmethod
   def _guess_mime_type(clazz, filename):
@@ -30,19 +19,18 @@ class file_mime_type_windows(object):
     This is obviously bs and we need a better overall mime type strategy
     that is cross platform and doest fudge one thing a time.
     '''
-    if clazz._is_python_code(filename):
-      return 'text/x-python', 'us-ascii'
+    if clazz._is_python_script(filename):
+      return 'text/x-python'
     elif clazz._is_zip(filename):
-      return 'application/zip', 'binary'
-    return None, None
+      return 'application/zip'
+    return None
 
   @classmethod
-  def _is_python_code(clazz, filename):
+  def _is_python_script(clazz, filename):
     try:
       with open(filename, 'r') as fin:
         content = fin.read(32)
-        return content.startswith('#!/usr/bin/env python')
-        return result
+        return content.startswith('#!') and 'python' in content
     except Exception as ex:
       pass
     return False

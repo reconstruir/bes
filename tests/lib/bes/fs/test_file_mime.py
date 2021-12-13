@@ -41,10 +41,7 @@ class test_file_mime(unit_test):
   
   def test_mime_type(self):
     tmp = self.make_temp_file(content = 'this is text\n', suffix = '.txt')
-    mt = file_mime.mime_type(tmp)
-    self.assertEqual( 'text/plain', mt.mime_type )
-    if mt.charset:
-      self.assertEqual( 'us-ascii', mt.charset )
+    self.assertEqual( 'text/plain', file_mime.mime_type(tmp) )
 
   def test_is_binary_false(self):
     self.assertFalse( file_mime.is_binary(self.make_temp_file(content = 'this is text\n', suffix = '.txt')) )
@@ -70,25 +67,25 @@ class test_file_mime(unit_test):
     self.assertFalse( file_mime.content_is_text(self.make_temp_file(content = unit_test_media.PNG_SMALLEST_POSSIBLE, suffix = '.png')) )
 
   def test_png(self):
-    self.assertEqual( 'image/png', file_mime.mime_type(self._png_file).mime_type )
+    self.assertEqual( 'image/png', file_mime.mime_type(self._png_file) )
 
   @unit_test_function_skip.skip_if_not_unix(warning = True)
   def test_png_wrong_extension(self):
-    self.assertEqual( 'image/png', file_mime.mime_type(self._png_file_wrong_extension).mime_type )
+    self.assertEqual( 'image/png', file_mime.mime_type(self._png_file_wrong_extension) )
     
   def test_jpg(self):
-    self.assertEqual( 'image/jpeg', file_mime.mime_type(self._jpg_file).mime_type )
+    self.assertEqual( 'image/jpeg', file_mime.mime_type(self._jpg_file) )
 
   @unit_test_function_skip.skip_if_not_unix(warning = True)
   def test_jpg_wrong_extension(self):
-    self.assertEqual( 'image/jpeg', file_mime.mime_type(self._jpg_file_wrong_extension).mime_type )
+    self.assertEqual( 'image/jpeg', file_mime.mime_type(self._jpg_file_wrong_extension) )
 
   def test_mp4(self):
-    self.assertEqual( 'video/mp4', file_mime.mime_type(self._mp4_file).mime_type )
+    self.assertEqual( 'video/mp4', file_mime.mime_type(self._mp4_file) )
 
   @unit_test_function_skip.skip_if_not_unix(warning = True)
   def test_mp4_wrong_extension(self):
-    self.assertEqual( 'video/mp4', file_mime.mime_type(self._mp4_file_wrong_extension).mime_type )
+    self.assertEqual( 'video/mp4', file_mime.mime_type(self._mp4_file_wrong_extension) )
 
   def test_media_type(self):
     self.assertEqual( 'video', file_mime.media_type(self._mp4_file) )
