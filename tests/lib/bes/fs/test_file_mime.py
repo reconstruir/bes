@@ -40,6 +40,18 @@ class test_file_mime(unit_test):
     
   def test_content_is_text_false(self):
     self.assertFalse( file_mime.content_is_text(self.make_temp_file(content = unit_test_media.PNG_SMALLEST_POSSIBLE, suffix = '.png')) )
+
+  def test_png(self):
+    png = self.make_temp_file(content = unit_test_media.PNG_SMALLEST_POSSIBLE, suffix = '.png')
+    self.assertEqual( ( 'image/png', 'binary' ), file_mime.mime_type(png) )
+
+  def test_jpg(self):
+    jpg = self.make_temp_file(content = unit_test_media.JPG_SMALLEST_POSSIBLE, suffix = '.jpg')
+    self.assertEqual( ( 'image/jpeg', 'binary' ), file_mime.mime_type(jpg) )
+
+  def test_mp4(self):
+    mp4 = self.make_temp_file(content = unit_test_media.MP4_SMALLEST_POSSIBLE, suffix = '.mp4')
+    self.assertEqual( ( 'video/mp4', 'binary' ), file_mime.mime_type(mp4) )
     
   @unit_test_function_skip.skip_if_not_unix()
   def test_is_text_false_unix(self):
