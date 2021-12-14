@@ -3,3 +3,5 @@ requests                                 # https://github.com/kennethreitz/reque
 six >= 1.16.0; python_version < '3.3'    # https://github.com/benjaminp/six
 enum34 >= 1.1.10; python_version < '3.4' # https://github.com/GoodRx/enum34
 xattr >= 0.9.8; sys_platform != "win32"  # https://github.com/xattr/xattr
+puremagic                                # https://github.com/cdgriffith/puremagic
+python-magic-bin                         # https://github.com/julian-r/python-magic

@@ -12,33 +12,10 @@ from bes.testing.unit_test_function_skip import unit_test_function_skip
 from bes.property.cached_property import cached_property
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
+from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
 
-class test_file_mime(unit_test):
+class test_file_mime(unit_test, unit_test_media_files):
 
-  @cached_property
-  def _png_file(self):
-    return self.make_temp_file(content = unit_test_media.PNG_SMALLEST_POSSIBLE, suffix = '.png')
-  
-  @cached_property
-  def _png_file_wrong_extension(self):
-    return self.make_temp_file(content = unit_test_media.PNG_SMALLEST_POSSIBLE, suffix = '.txt')
-
-  @cached_property
-  def _jpg_file(self):
-    return self.make_temp_file(content = unit_test_media.JPG_SMALLEST_POSSIBLE, suffix = '.jpg')
-  
-  @cached_property
-  def _jpg_file_wrong_extension(self):
-    return self.make_temp_file(content = unit_test_media.JPG_SMALLEST_POSSIBLE, suffix = '.txt')
-
-  @cached_property
-  def _mp4_file(self):
-    return self.make_temp_file(content = unit_test_media.MP4_SMALLEST_POSSIBLE, suffix = '.mp4')
-  
-  @cached_property
-  def _mp4_file_wrong_extension(self):
-    return self.make_temp_file(content = unit_test_media.MP4_SMALLEST_POSSIBLE, suffix = '.txt')
-  
   def test_mime_type(self):
     tmp = self.make_temp_file(content = 'this is text\n', suffix = '.txt')
     self.assertEqual( 'text/plain', file_mime.mime_type(tmp) )
@@ -58,39 +35,33 @@ class test_file_mime(unit_test):
     self.assertTrue( file_mime.is_text(self.make_temp_file(content = 'this is text\n', suffix = '.txt')) )
 
   def test_is_text_false(self):
-    self.assertFalse( file_mime.is_text(self._png_file) )
+    self.assertFalse( file_mime.is_text(self.png_file) )
     
-  def test_content_is_text_true(self):
-    self.assertTrue( file_mime.content_is_text(self.make_temp_file(content = 'this is text\n', suffix = '.txt')) )
-    
-  def test_content_is_text_false(self):
-    self.assertFalse( file_mime.content_is_text(self.make_temp_file(content = unit_test_media.PNG_SMALLEST_POSSIBLE, suffix = '.png')) )
-
   def test_png(self):
-    self.assertEqual( 'image/png', file_mime.mime_type(self._png_file) )
+    self.assertEqual( 'image/png', file_mime.mime_type(self.png_file) )
 
   @unit_test_function_skip.skip_if_not_unix(warning = True)
   def test_png_wrong_extension(self):
-    self.assertEqual( 'image/png', file_mime.mime_type(self._png_file_wrong_extension) )
+    self.assertEqual( 'image/png', file_mime.mime_type(self.png_file_wrong_extension) )
     
   def test_jpg(self):
-    self.assertEqual( 'image/jpeg', file_mime.mime_type(self._jpg_file) )
+    self.assertEqual( 'image/jpeg', file_mime.mime_type(self.jpg_file) )
 
   @unit_test_function_skip.skip_if_not_unix(warning = True)
   def test_jpg_wrong_extension(self):
-    self.assertEqual( 'image/jpeg', file_mime.mime_type(self._jpg_file_wrong_extension) )
+    self.assertEqual( 'image/jpeg', file_mime.mime_type(self.jpg_file_wrong_extension) )
 
   def test_mp4(self):
-    self.assertEqual( 'video/mp4', file_mime.mime_type(self._mp4_file) )
+    self.assertEqual( 'video/mp4', file_mime.mime_type(self.mp4_file) )
 
   @unit_test_function_skip.skip_if_not_unix(warning = True)
   def test_mp4_wrong_extension(self):
-    self.assertEqual( 'video/mp4', file_mime.mime_type(self._mp4_file_wrong_extension) )
+    self.assertEqual( 'video/mp4', file_mime.mime_type(self.mp4_file_wrong_extension) )
 
   def test_media_type(self):
-    self.assertEqual( 'video', file_mime.media_type(self._mp4_file) )
-    self.assertEqual( 'image', file_mime.media_type(self._png_file) )
-    self.assertEqual( 'image', file_mime.media_type(self._jpg_file) )
+    self.assertEqual( 'video', file_mime.media_type(self.mp4_file) )
+    self.assertEqual( 'image', file_mime.media_type(self.png_file) )
+    self.assertEqual( 'image', file_mime.media_type(self.jpg_file) )
     self.assertEqual( 'unknown', file_mime.media_type(self.make_temp_file(content = 'this is foo.\n')) )
     
 if __name__ == '__main__':

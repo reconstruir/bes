@@ -7,6 +7,8 @@ from bes.system.compat import compat
 
 class text_detect(object):
 
+  # FIXME: some illegal seuqences cause this to choke: /Users/ramiro/software/tmp/builds/flex-2.6.0_rev1_2016-02-07-05-14-52-769130/deps/installation/share/gettext/po/boldquot.sed 
+
   @classmethod
   def file_is_text(clazz, filename):
     if compat.IS_PYTHON2:

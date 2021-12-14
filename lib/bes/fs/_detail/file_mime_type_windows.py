@@ -2,6 +2,7 @@
 
 import mimetypes
 from bes.system.compat import compat
+from bes.system.python import python
 
 class file_mime_type_windows(object):
   'Determine mime type using the file utility on unix.'
@@ -18,22 +19,15 @@ class file_mime_type_windows(object):
     '''guess the mime type of a file.
     This is obviously bs and we need a better overall mime type strategy
     that is cross platform and doest fudge one thing a time.
+    These 2 specific types are handled here because there is code in bes
+    that depends on detecting these files properly and mimetypes does not
+    when the extension is incorrect.
     '''
-    if clazz._is_python_script(filename):
+    if python.is_python_script(filename):
       return 'text/x-python'
     elif clazz._is_zip(filename):
       return 'application/zip'
     return None
-
-  @classmethod
-  def _is_python_script(clazz, filename):
-    try:
-      with open(filename, 'r') as fin:
-        content = fin.read(32)
-        return content.startswith('#!') and 'python' in content
-    except Exception as ex:
-      pass
-    return False
 
   # https://en.wikipedia.org/wiki/List_of_file_signatures
   _ZIP_MAGICS = {

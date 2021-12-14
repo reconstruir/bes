@@ -15,10 +15,7 @@ class _file_mime_type_detector_magic(_file_mime_type_detector_base):
     'Detect the mime type for file.'
     filename = file_check.check_file(filename)
 
-    rv = magic.magic_file(filename)
-    print('rv={}'.format(rv))
-#    for x in rv:
-#      print('X: {}'.format(rv))
+    rv = magic.from_file(filename, mime = True)
     if not rv:
       return None
-    return clazz._find_mime_type(rv)
+    return rv
