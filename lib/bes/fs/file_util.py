@@ -317,8 +317,9 @@ class file_util(object):
   @classmethod
   def set_modification_date(clazz, filename, mtime):
     check.check(mtime, datetime)
-    mktime = time.mktime(mtime.timetuple())
-    os.utime(filename, ( mktime, mktime ))
+
+    ts = mtime.timestamp()
+    os.utime(filename, ( ts, ts ))
 
   @classmethod
   def un_expanduser(clazz, p):
