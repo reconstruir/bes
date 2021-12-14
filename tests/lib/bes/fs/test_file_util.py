@@ -81,7 +81,7 @@ class test_file_util(unit_test):
     self.assertEqual( False, file_util.is_basename('a/b/c') )
     self.assertEqual( True, file_util.is_basename('') )
 
-  def test_set_modification_date(self):
+  def test_modification_date(self):
     yesterday = datetime.now() - timedelta(days = 1)
     tmp = self.make_temp_file()
     m1 = file_util.get_modification_date(tmp)
