@@ -116,10 +116,6 @@ s/matcher_multiple_filename/matcher_multiple_patterns/
 
 2018-05-06
  - when best test fails print a report of all the failed tests
- 
-2018-05-30
- - fix broken unt tests: test_unit_test_inspect, test_argument_resolver, test_file_info
- 
 
 archive:
 create for archive_unix_tar not working for all formats plus unit tests

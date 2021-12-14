@@ -3,7 +3,7 @@
 from collections import namedtuple
 from bes.common.check import check
 
-class unit_test_description(namedtuple('unit_test_description', 'filename,fixture,function')):
+class unit_test_description(namedtuple('unit_test_description', 'filename, fixture, function')):
 
   def __new__(clazz, filename, fixture, function):
     if filename is not None:

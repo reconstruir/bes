@@ -15,6 +15,7 @@ class file_filter(object):
       return [ clazz.test_descriptor(finfo, None) for finfo in finfos ]
     result = []
     for finfo in finfos:
+      #assert False
       matching_tests = clazz._matching_tests(finfo.inspection, patterns)
       if matching_tests:
         result.append(clazz.test_descriptor(finfo, matching_tests))

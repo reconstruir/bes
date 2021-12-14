@@ -8,6 +8,7 @@ from bes.common.check import check
 from bes.common.type_checked_list import type_checked_list
 
 from .file_info import file_info
+from .pytest import pytest
 
 class file_info_list(type_checked_list):
 
@@ -30,11 +31,13 @@ class file_info_list(type_checked_list):
     return self.to_string()
 
   def make_inspect_map(self):
+    files = [ finfo.filename for finfo in self ]
+    tests = pytest.inspect_files(files)
     result = {}
-    for finfo in iter(self):
-      assert finfo.filename not in result
-      if finfo.inspection:
-        result[finfo.filename] = finfo.inspection
+    for test in tests:
+      if not test.filename in result:
+        result[test.filename] = []
+      result[test.filename].append(test)
     return result
 
   def remove_dups(self):
