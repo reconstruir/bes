@@ -4,6 +4,9 @@
 # log.configure('file_util=debug')
 
 import os, os.path as path, tempfile
+from datetime import datetime
+from datetime import timedelta
+
 from bes.testing.unit_test import unit_test
 from bes.fs.file_util import file_util
 
@@ -78,5 +81,13 @@ class test_file_util(unit_test):
     self.assertEqual( False, file_util.is_basename('a/b/c') )
     self.assertEqual( True, file_util.is_basename('') )
 
-if __name__ == "__main__":
+  def test_set_modification_date(self):
+    yesterday = datetime.now() - timedelta(days = 1)
+    tmp = self.make_temp_file()
+    m1 = file_util.get_modification_date(tmp)
+    file_util.set_modification_date(tmp, yesterday)
+    self.assertEqual( yesterday, file_util.get_modification_date(tmp) )
+    self.assertNotEqual( m1, file_util.get_modification_date(tmp) )
+    
+if __name__ == '__main__':
   unit_test.main()
