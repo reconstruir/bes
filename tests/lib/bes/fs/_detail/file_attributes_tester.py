@@ -2,9 +2,11 @@
 
 from datetime import datetime
 import os.path as path
+import stat
 
-from bes.fs.file_symlink import file_symlink
 from bes.fs.file_attributes_error import file_attributes_permission_error
+from bes.fs.file_symlink import file_symlink
+from bes.system.host import host
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 
@@ -79,11 +81,35 @@ def make_test_case(impl):
       self.assertEqual( d, impl.get_all(tmp) )
 
     @unit_test_function_skip.skip_if_not_unix()
-    def test_set_no_permission_unix(self):
-      exe = file_symlink.resolve('/bin/sh')
+    def test_set_no_write_permission_unix(self):
+      tmp = self._make_read_only_temp_file()
       with self.assertRaises(file_attributes_permission_error) as ctx:
-        impl.set_string(exe, 'foo', 'hi')
-      
+        impl.set_string(tmp, 'foo', 'hi')
+
+    @unit_test_function_skip.skip_if_not_unix()
+    def test_remove_no_write_permission_unix(self):
+      tmp = self._make_read_only_temp_file()
+      with self.assertRaises(file_attributes_permission_error) as ctx:
+        impl.remove(tmp, 'foo')
+
+    @unit_test_function_skip.skip_if_not_unix()
+    def xtest_clear_no_write_permission_unix(self):
+      tmp = self._make_read_only_temp_file()
+      with self.assertRaises(file_attributes_permission_error) as ctx:
+        impl.clear(tmp)
+        
+    def _make_read_only_temp_file(self):
+      tmp = self._make_temp_file('this is foo\n')
+      import os
+      os.chmod(tmp, stat.S_IREAD)
+      return tmp
+      if host.is_unix():
+        return file_symlink.resolve('/bin/sh')
+      elif host.is_windows():
+        return r'C:\Windows\System32\cmd.exe'
+      else:
+        host.raise_unsupported_system()
+        
     @classmethod
     def _munge_attr_keys(clazz, keys):
       'On some linux systems, there is an extra selinux key in many attr results'
