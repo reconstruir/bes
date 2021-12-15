@@ -185,7 +185,7 @@ class argument_resolver(object):
     test_fragment = path.dirname(finfo.relative_filename)
     test_full_path = path.join(finfo.config.root_dir, 'tests', test_fragment, test_basename)
     if path.isfile(test_full_path):
-      return file_info(self.config_env, test_full_path)
+      return file_info(self.config_env, test_full_path, None)
     return None
 
   def _tests_for_many_files(self, finfos):
