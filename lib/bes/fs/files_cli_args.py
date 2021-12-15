@@ -19,7 +19,7 @@ class files_cli_args(object):
                    help = 'Prefix for the split directory names [ None ]')
     p.add_argument('--dry-run', action = 'store_true', default = False,
                    help = 'Dont do anything just print what would happen [ None ]')
-    p.add_argument('--recursive', action = 'store_true', default = False,
+    p.add_argument('-r', '--recursive', action = 'store_true', default = False,
                    help = 'Split directories recursively [ None ]')
     p.add_argument('--sort', action = 'store', default = 'filename',
                    dest = 'sort_order',
@@ -50,7 +50,7 @@ class files_cli_args(object):
     p.add_argument('-a', '--algorithm', action = 'store', default = 'sha256',
                    choices = ( 'md5', 'sha1', 'sha256' ),
                    help = 'The checksum algorithm to use [ sha256 ]')
-    p.add_argument('--recursive', action = 'store_true', default = False,
+    p.add_argument('-r', '--recursive', action = 'store_true', default = False,
                    help = 'Whether to recurse into subdirectories [ False ]')
 
     # media_types
@@ -61,7 +61,7 @@ class files_cli_args(object):
                    help = 'Dont do anything just print what would happen [ None ]')
     p.add_argument('--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
-    p.add_argument('--recursive', action = 'store_true', default = False,
+    p.add_argument('-r', '--recursive', action = 'store_true', default = False,
                    help = 'Whether to recurse into subdirectories [ False ]')
 
     # mime_types
@@ -81,7 +81,7 @@ class files_cli_args(object):
                    help = 'Where to start [ None ]')
     p.add_argument('--dry-run', action = 'store_true', default = False,
                    help = 'Dont do anything just print what would happen [ None ]')
-    p.add_argument('--recursive', action = 'store_true', default = False,
+    p.add_argument('-r', '--recursive', action = 'store_true', default = False,
                    help = 'Whether to recurse into subdirectories [ False ]')
 
     # hexify
