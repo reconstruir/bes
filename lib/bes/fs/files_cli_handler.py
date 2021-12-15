@@ -9,6 +9,7 @@ from bes.debug.hexdump import hexdump
 
 from .dir_split import dir_split
 from .dir_split_options import dir_split_options
+from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
 from .file_duplicates import file_duplicates
 from .file_find import file_find
@@ -64,6 +65,17 @@ class files_cli_handler(cli_command_handler):
       media_type = file_mime.media_type(f.filename_abs)
       print('{}: {}'.format(media_type, f.filename_abs))
     return 0
+
+  def mime_types(self, files):
+    check.check_string_seq(files)
+
+    files = file_resolver.resolve_files(files, recursive = self.options.recursive)
+    for f in files:
+      mime_type = file_mime.mime_type(f.filename_abs)
+      print('{}: {}'.format(mime_type, f.filename_abs))
+    return 0
+  
+#file_attributes_metadata
   
   def remove_empty(self, where):
     where = file_check.check_dir(where)

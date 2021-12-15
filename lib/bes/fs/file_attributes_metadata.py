@@ -37,10 +37,12 @@ class file_attributes_metadata(object):
 
   @classmethod
   def get_mime_type(clazz, filename):
+    check.check_string(filename)
+
     def _value_maker():
       return file_mime.mime_type(filename).encode('utf-8')
     return clazz.get_bytes(filename, clazz._KEY_BES_MIME_TYPE, _value_maker).decode('utf-8')
-    
+
   @classmethod
   def _make_mtime_key(clazz, key):
     return '__bes_mtime_{}__'.format(key)
