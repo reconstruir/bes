@@ -12,7 +12,10 @@ from bes.fs.file_util import file_util
 from bes.fs.file_attributes_metadata import file_attributes_metadata
 from bes.fs.file_attributes import file_attributes
 
-class test_file_attributes_metadata(unit_test):
+from _bes_unit_test_common.unit_test_media import unit_test_media
+from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
+
+class test_file_attributes_metadata(unit_test, unit_test_media_files):
 
   def test_get_bytes(self):
     tmp = self.make_temp_file(content = 'this is foo', suffix = '.txt')
@@ -57,14 +60,12 @@ class test_file_attributes_metadata(unit_test):
       '__bes_mtime_foo__': str(new_mtime.timestamp()).encode('utf-8'),
       'foo': b'667',
     }, file_attributes.get_all(tmp) )
-    
-#  def test_modification_date(self):
-#    yesterday = datetime.now() - timedelta(days = 1)
-#    tmp = self.make_temp_file()
-#    m1 = file_util.get_modification_date(tmp)
-#    file_util.set_modification_date(tmp, yesterday)
-#    self.assertEqual( yesterday, file_util.get_modification_date(tmp) )
-#    self.assertNotEqual( m1, file_util.get_modification_date(tmp) )
+
+  def test_mime_type_jpeg(self):
+    self.assertEqual( 'image/jpeg', file_attributes_metadata.get_mime_type(self.jpg_file) )
+
+  def test_mime_type_png(self):
+    self.assertEqual( 'image/png', file_attributes_metadata.get_mime_type(self.png_file) )
     
 if __name__ == '__main__':
   unit_test.main()
