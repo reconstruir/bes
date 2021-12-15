@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import shlex
+
 from os import path
 
 from bes.system.execute import execute
@@ -9,7 +11,7 @@ class file_mime_type_unix_file_exe(object):
     
   @classmethod
   def mime_type(clazz, filename):
-    cmd = [ 'file', '--brief', '--mime', filename ]
+    cmd = [ 'file', '--brief', '--mime', shlex.quote(filename) ]
     if not path.isfile(filename):
       raise IOError('file not found: "{}"'.format(filename))
     rv = execute.execute(cmd, raise_error = False, quote = True)
