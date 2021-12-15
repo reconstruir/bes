@@ -71,7 +71,8 @@ class files_cli_handler(cli_command_handler):
 
     files = file_resolver.resolve_files(files, recursive = self.options.recursive)
     for f in files:
-      mime_type = file_mime.mime_type(f.filename_abs)
+      #mime_type = file_mime.mime_type(f.filename_abs)
+      mime_type = file_attributes_metadata.get_mime_type(f.filename_abs)
       print('{}: {}'.format(mime_type, f.filename_abs))
     return 0
   
