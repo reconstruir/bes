@@ -8,14 +8,14 @@ from bes.debug.hexdump import hexdump
 from bes.fs.file_check import file_check
 from bes.system.log import logger
 
-from .xattr_error import xattr_error
-from .xattr_error import xattr_permission_error
-from .xattr_command import xattr_command
+from .xattr_exe_error import xattr_exe_error
+from .xattr_exe_error import xattr_exe_permission_error
+from .xattr_exe_command import xattr_exe_command
 
-class xattr(object):
-  'Class to deal with the macos xattr program.'
+class xattr_exe(object):
+  'Class to deal with the macos xattr_exe program.'
 
-  _log = logger('xattr')
+  _log = logger('xattr_exe')
 
   @classmethod
   def has_key(clazz, filename, key):
@@ -24,7 +24,7 @@ class xattr(object):
     check.check_string(key)
 
     args = [ '-p', key, filename ]
-    rv = clazz._call_xattr(args)
+    rv = clazz._call_xattr_exe(args)
     return rv.exit_code == 0
   
   @classmethod
@@ -33,8 +33,8 @@ class xattr(object):
     check.check_string(filename)
 
     args = [ '-l', filename ]
-    rv = clazz._call_xattr(args)
-    xattr_command.check_result(rv, message = 'Failed to get keys for {}'.format(filename))
+    rv = clazz._call_xattr_exe(args)
+    xattr_exe_command.check_result(rv, message = 'Failed to get keys for {}'.format(filename))
     keys = [ clazz._parse_key(line) for line in rv.stdout_lines() ]
     return sorted(keys)
 
@@ -45,7 +45,7 @@ class xattr(object):
       return
     if 'Operation not permitted' not in result.stderr:
       return
-    raise xattr_permission_error(message)
+    raise xattr_exe_permission_error(message)
   
   @classmethod
   def set_bytes(clazz, filename, key, value):
@@ -57,9 +57,9 @@ class xattr(object):
     hex_value = hexdump.data(value, delimiter = '', line_delimiter = '')
     clazz._log.log_d('set_bytes: hex_value={}'.format(hex_value))
     args = [ '-w', '-x', key, hex_value, filename ]
-    rv = clazz._call_xattr(args)
+    rv = clazz._call_xattr_exe(args)
     clazz._check_permission_error(rv, 'Permission error setting key="{}" value="{}" for "{}"'.format(key, value, filename))
-    xattr_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
+    xattr_exe_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
 
   @classmethod
   def set_string(clazz, filename, key, value):
@@ -69,9 +69,9 @@ class xattr(object):
     check.check_string(value)
 
     args = [ '-w', key, value, filename ]
-    rv = clazz._call_xattr(args)
+    rv = clazz._call_xattr_exe(args)
     clazz._check_permission_error(rv, 'Permission error setting key="{}" value="{}" for "{}"'.format(key, value, filename))
-    xattr_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
+    xattr_exe_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
     
   @classmethod
   def get_string(clazz, filename, key):
@@ -80,8 +80,8 @@ class xattr(object):
     check.check_string(key)
 
     args = [ '-p', key, filename ]
-    rv = clazz._call_xattr(args)
-    xattr_command.check_result(rv, message = 'Failed to get key="{}" for "{}"'.format(key, filename))
+    rv = clazz._call_xattr_exe(args)
+    xattr_exe_command.check_result(rv, message = 'Failed to get key="{}" for "{}"'.format(key, filename))
     return rv.stdout.strip()
 
   @classmethod
@@ -91,9 +91,9 @@ class xattr(object):
     check.check_string(key)
 
     args = [ '-p', '-x', key, filename ]
-    rv = clazz._call_xattr(args)
+    rv = clazz._call_xattr_exe(args)
     clazz._log.log_d('get_bytes: stdout={}'.format(rv.stdout))
-    xattr_command.check_result(rv, message = 'Failed to get key="{}" for "{}"'.format(key, filename))
+    xattr_exe_command.check_result(rv, message = 'Failed to get key="{}" for "{}"'.format(key, filename))
     hex_text = string_util.replace_white_space(rv.stdout, '')
     clazz._log.log_d('get_bytes: hex_text={}'.format(hex_text))
     return codecs.decode(hex_text, encoding = 'hex')
@@ -105,9 +105,9 @@ class xattr(object):
     check.check_string(key)
     
     args = [ '-d', key, filename ]
-    rv = clazz._call_xattr(args)
+    rv = clazz._call_xattr_exe(args)
     clazz._check_permission_error(rv, 'Permission error removing key="{}" for "{}"'.format(key, filename))
-    xattr_command.check_result(rv, message = 'Failed to delete key "{}" for "{}"'.format(key, filename))
+    xattr_exe_command.check_result(rv, message = 'Failed to delete key "{}" for "{}"'.format(key, filename))
 
   @classmethod
   def clear(clazz, filename):
@@ -115,17 +115,17 @@ class xattr(object):
     filename = file_check.check_file(filename)
     
     args = [ '-c', filename ]
-    rv = clazz._call_xattr(args)
+    rv = clazz._call_xattr_exe(args)
     clazz._check_permission_error(rv, 'Permission error clearing all values for "{}"'.format(filename))
-    xattr_command.check_result(rv, message = 'Failed to clear values for "{}"'.format(filename))
+    xattr_exe_command.check_result(rv, message = 'Failed to clear values for "{}"'.format(filename))
     
   @classmethod
-  def _call_xattr(clazz, args):
-    # The default macos xattr in /usr/bin/xattr needs to be used
+  def _call_xattr_exe(clazz, args):
+    # The default macos xattr_exe in /usr/bin/xattr_exe needs to be used
     # completely independenly of potential virtual env installations
-    # of xattr
+    # of xattr_exe
     env = { 'PYTHONPATH': '', 'PATH': '' }
-    return xattr_command.call_command(args,
+    return xattr_exe_command.call_command(args,
                                       raise_error = False,
                                       env = env,
                                       check_python_script = False)

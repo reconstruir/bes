@@ -2,9 +2,9 @@
 
 from bes.system.system_command import system_command
 
-from .xattr_error import xattr_error
+from .xattr_exe_error import xattr_exe_error
 
-class xattr_command(system_command):
+class xattr_exe_command(system_command):
 
   @classmethod
   #@abstractmethod
@@ -22,7 +22,7 @@ class xattr_command(system_command):
   #@abstractmethod
   def error_class(clazz):
     'The error exception class to raise when errors happen.'
-    return xattr_error
+    return xattr_exe_error
   
   @classmethod
   #@abstractmethod

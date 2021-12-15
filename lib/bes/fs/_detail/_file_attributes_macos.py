@@ -4,9 +4,9 @@ from bes.common.check import check
 from bes.system.log import logger
 from bes.fs.file_check import file_check
 
-from bes.macos.xattr.xattr import xattr
-from bes.macos.xattr.xattr_error import xattr_error
-from bes.macos.xattr.xattr_error import xattr_permission_error
+from bes.macos.xattr_exe.xattr_exe import xattr_exe
+from bes.macos.xattr_exe.xattr_exe_error import xattr_exe_error
+from bes.macos.xattr_exe.xattr_exe_error import xattr_exe_permission_error
 
 from bes.fs.file_attributes_base import file_attributes_base
 from bes.fs.file_attributes_error import file_attributes_error
@@ -23,7 +23,7 @@ class _file_attributes_macos(file_attributes_base):
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
 
-    return xattr.has_key(filename, key)
+    return xattr_exe.has_key(filename, key)
 
   @classmethod
   #@abstractmethod
@@ -33,8 +33,8 @@ class _file_attributes_macos(file_attributes_base):
     key = clazz._check_key(key)
 
     try:
-      return xattr.get_bytes(filename, key)
-    except xattr_error as ex:
+      return xattr_exe.get_bytes(filename, key)
+    except xattr_exe_error as ex:
       return None
     
   @classmethod
@@ -48,8 +48,8 @@ class _file_attributes_macos(file_attributes_base):
     clazz._log.log_method_d()
 
     try:
-      xattr.set_bytes(filename, key, value)
-    except xattr_permission_error as ex:
+      xattr_exe.set_bytes(filename, key, value)
+    except xattr_exe_permission_error as ex:
       raise file_attributes_permission_error(ex.message)
   
   @classmethod
@@ -60,8 +60,8 @@ class _file_attributes_macos(file_attributes_base):
     key = clazz._check_key(key)
     
     try:
-      xattr.remove(filename, key)
-    except xattr_permission_error as ex:
+      xattr_exe.remove(filename, key)
+    except xattr_exe_permission_error as ex:
       raise file_attributes_permission_error(ex.message)
   
   @classmethod
@@ -71,8 +71,8 @@ class _file_attributes_macos(file_attributes_base):
     check.check_string(filename)
 
     try:
-      return xattr.keys(filename)
-    except xattr_error as ex:
+      return xattr_exe.keys(filename)
+    except xattr_exe_error as ex:
       raise file_attributes_error(ex.message)
     
   @classmethod
@@ -82,6 +82,6 @@ class _file_attributes_macos(file_attributes_base):
     check.check_string(filename)
 
     try:
-      xattr.clear(filename)
-    except xattr_permission_error as ex:
+      xattr_exe.clear(filename)
+    except xattr_exe_permission_error as ex:
       raise file_attributes_permission_error(ex.message)
