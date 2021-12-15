@@ -65,7 +65,7 @@ def make_test_case(impl):
       now = datetime.now()
       impl.set_date(tmp, 'foo', now)
       self.assertEqual( now, impl.get_date(tmp, 'foo') )
-      
+
     @classmethod
     def _munge_attr_keys(clazz, keys):
       'On some linux systems, there is an extra selinux key in many attr results'
