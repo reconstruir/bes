@@ -29,9 +29,9 @@ class file_attributes_metadata(object):
 
     if attr_mtime == None:
       value = value_maker()
+      clazz._log.log_d('get_bytes:{}:{}: creating new value "{}"'.format(filename, key, value))
       file_attributes.set_bytes(filename, key, value)
       file_attributes.set_date(filename, mtime_key, file_mtime)
-      clazz._log.log_d('get_bytes:{}:{}: creating new value "{}"'.format(filename, key, value))
       return value
 
     if attr_mtime == file_mtime:
