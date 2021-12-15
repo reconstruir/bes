@@ -3,7 +3,10 @@
 from datetime import datetime
 import os.path as path
 
+from bes.fs.file_symlink import file_symlink
+from bes.fs.file_attributes_error import file_attributes_permission_error
 from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 
@@ -74,6 +77,12 @@ def make_test_case(impl):
       }
       impl.set_all(tmp, d)
       self.assertEqual( d, impl.get_all(tmp) )
+
+    @unit_test_function_skip.skip_if_not_unix()
+    def test_set_no_permission_unix(self):
+      exe = file_symlink.resolve('/bin/sh')
+      with self.assertRaises(file_attributes_permission_error) as ctx:
+        impl.set_string(exe, 'foo', 'hi')
       
     @classmethod
     def _munge_attr_keys(clazz, keys):
