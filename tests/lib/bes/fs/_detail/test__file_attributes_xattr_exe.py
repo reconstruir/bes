@@ -9,8 +9,8 @@ from bes.system.host import host
 from file_attributes_tester import make_test_case
     
 if host.is_macos():
-  from bes.fs._detail._file_attributes_macos import _file_attributes_macos
-  class test__file_attributes_macos(make_test_case(_file_attributes_macos)):
+  from bes.fs._detail._file_attributes_xattr_exe import _file_attributes_xattr_exe
+  class test__file_attributes_xattr_exe(make_test_case(_file_attributes_xattr_exe)):
 
     @classmethod
     def setUpClass(clazz):
