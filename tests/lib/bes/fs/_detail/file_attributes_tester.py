@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from datetime import datetime
 import os.path as path
 
 from bes.testing.unit_test import unit_test
@@ -53,7 +54,18 @@ def make_test_case(impl):
       data = unit_test_media.PNG_SMALLEST_POSSIBLE
       impl.set_bytes(tmp, 'picture', data)
       self.assertEqual( data, impl.get_bytes(tmp, 'picture') )
-  
+
+    def test_set_string_get_string(self):
+      tmp = self._make_temp_file('this is foo\n')
+      impl.set_string(tmp, 'foo', 'hi')
+      self.assertEqual( 'hi', impl.get_string(tmp, 'foo') )
+      
+    def test_set_date_get_date(self):
+      tmp = self._make_temp_file('this is foo\n')
+      now = datetime.now()
+      impl.set_date(tmp, 'foo', now)
+      self.assertEqual( now, impl.get_date(tmp, 'foo') )
+      
     @classmethod
     def _munge_attr_keys(clazz, keys):
       'On some linux systems, there is an extra selinux key in many attr results'

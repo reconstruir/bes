@@ -1,9 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from datetime import datetime
+
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 
 from bes.common.check import check
+from bes.fs.file_check import file_check
 
 class file_attributes_base(with_metaclass(ABCMeta, object)):
 
@@ -66,3 +69,39 @@ class file_attributes_base(with_metaclass(ABCMeta, object)):
     'Set all file attributes.'
     for key, value in attributes.items():
       clazz.set(filename, key, value)
+
+  @classmethod
+  @abstractmethod
+  def get_string(clazz, filename, key, encoding = 'utf-8'):
+    'Return the attribute value with key for filename as string.'
+    filename = file_check.check_file(filename)
+    key = clazz._check_key(key)
+    return clazz.get_bytes(filename, key).decode(encoding)
+
+  @classmethod
+  @abstractmethod
+  def set_string(clazz, filename, key, value, encoding = 'utf-8'):
+    'Set the value of attribute with key to value for filename as string.'
+    filename = file_check.check_file(filename)
+    key = clazz._check_key(key)
+    check.check_string(value)
+    clazz.set_bytes(filename, key, value.encode(encoding))
+
+  @classmethod
+  @abstractmethod
+  def get_date(clazz, filename, key):
+    'Return the attribute value with key for filename as string.'
+    filename = file_check.check_file(filename)
+    key = clazz._check_key(key)
+    timestamp = float(clazz.get_string(filename, key))
+    return datetime.fromtimestamp(timestamp)
+
+  @classmethod
+  @abstractmethod
+  def set_date(clazz, filename, key, value, encoding = 'utf-8'):
+    'Set the value of attribute with key to value for filename as string.'
+    filename = file_check.check_file(filename)
+    key = clazz._check_key(key)
+    check.check(value, datetime)
+    
+    clazz.set_string(filename, key, str(value.timestamp()))

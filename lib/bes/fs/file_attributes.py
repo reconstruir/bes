@@ -24,7 +24,5 @@ elif host.SYSTEM == host.WINDOWS:
 else:
   host.raise_unsupported_system()
 
-#print('_file_attributes_super_class={}'.format(_file_attributes_super_class))
-  
 class file_attributes(_file_attributes_super_class):
   pass
