@@ -76,7 +76,10 @@ class file_attributes_base(with_metaclass(ABCMeta, object)):
     'Return the attribute value with key for filename as string.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
-    return clazz.get_bytes(filename, key).decode(encoding)
+    value = clazz.get_bytes(filename, key)
+    if value == None:
+      return None
+    return value.decode(encoding)
 
   @classmethod
   @abstractmethod
@@ -93,7 +96,10 @@ class file_attributes_base(with_metaclass(ABCMeta, object)):
     'Return the attribute value with key for filename as string.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
-    timestamp = float(clazz.get_string(filename, key))
+    value = clazz.get_string(filename, key)
+    if value == None:
+      return None
+    timestamp = float(value)
     return datetime.fromtimestamp(timestamp)
 
   @classmethod
