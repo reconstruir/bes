@@ -26,23 +26,12 @@ class file_mime(object):
 
   # FIXME: some illegal seuqences cause this to choke: /Users/ramiro/software/tmp/builds/flex-2.6.0_rev1_2016-02-07-05-14-52-769130/deps/installation/share/gettext/po/boldquot.sed 
 
-  class _mime_type_and_charset(namedtuple('_mime_type_and_charset', 'mime_type, charset')):
-
-    def __new__(clazz, mime_type, charset):
-      return clazz.__bases__[0].__new__(clazz, mime_type, charset)
-  
-    def __str__(self):
-      return '%s; charset=%s' % (self.mime_type, self.charset)
-
-    def __hash__(self):
-      return hash(str(self))
-    
   @classmethod
   def mime_type(clazz, filename):
     impl = clazz._get_impl()
     assert impl
     t = impl.mime_type(filename)
-    return clazz._mime_type_and_charset(t[0], t[1])
+    return t
     
   @classmethod
   def is_text(clazz, filename):
@@ -50,22 +39,22 @@ class file_mime(object):
 
   @classmethod
   def mime_type_is_text(clazz, filename):
-    return clazz.mime_type(filename).mime_type.startswith(clazz.TEXT)
+    return clazz.mime_type(filename).startswith(clazz.TEXT)
 
   @classmethod
   def is_binary(clazz, filename):
-    return clazz.mime_type(filename).mime_type in clazz.BINARY_TYPES
+    return clazz.mime_type(filename) in clazz.BINARY_TYPES
 
   _GZIP_MIME_TYPES = [ 'application/x-gzip', 'application/gzip', 'application/x-tar' ]
   _ZIP_MIME_TYPES = [ 'application/zip', 'application/x-zip-compressed' ]
   
   @classmethod
   def is_gzip(clazz, filename):
-    return clazz.mime_type(filename).mime_type in clazz._GZIP_MIME_TYPES
+    return clazz.mime_type(filename) in clazz._GZIP_MIME_TYPES
 
   @classmethod
   def is_zip(clazz, filename):
-    return clazz.mime_type(filename).mime_type in clazz._ZIP_MIME_TYPES
+    return clazz.mime_type(filename) in clazz._ZIP_MIME_TYPES
 
   @classmethod
   def content_is_text(clazz, filename):
@@ -136,7 +125,7 @@ class file_mime(object):
   
   @classmethod
   def media_type(clazz, filename):
-    mt = clazz.mime_type(filename).mime_type
+    mt = clazz.mime_type(filename)
     for media_type, pattern in clazz._MEDIA_TYPE_PATTERNS.items():
       if fnmatch.fnmatch(mt, pattern):
         return media_type
