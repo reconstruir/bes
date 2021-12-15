@@ -66,6 +66,15 @@ def make_test_case(impl):
       impl.set_date(tmp, 'foo', now)
       self.assertEqual( now, impl.get_date(tmp, 'foo') )
 
+    def test_set_all_get_all(self):
+      tmp = self._make_temp_file('this is foo\n')
+      d = {
+        'foo': b'hi',
+        'bar': b'666',
+      }
+      impl.set_all(tmp, d)
+      self.assertEqual( d, impl.get_all(tmp) )
+      
     @classmethod
     def _munge_attr_keys(clazz, keys):
       'On some linux systems, there is an extra selinux key in many attr results'
