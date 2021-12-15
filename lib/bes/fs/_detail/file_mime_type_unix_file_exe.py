@@ -15,15 +15,10 @@ class file_mime_type_unix_file_exe(object):
     
   @classmethod
   def mime_type(clazz, filename):
-    cmd = [
-      'file',
-      '--brief',
-      '--mime',
-      string_util.quote_if_needed(filename),
-    ]
+    cmd = [ 'file', '--brief', '--mime', filename ]
     if not path.isfile(filename):
       raise IOError('file not found: "{}"'.format(filename))
-    rv = execute.execute(cmd, raise_error = False)
+    rv = execute.execute(cmd, raise_error = False, quote = True)
     if rv.exit_code != 0:
       return ( None, None )
     text = rv.stdout.strip()
