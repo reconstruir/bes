@@ -61,8 +61,8 @@ class _file_attributes_macos(file_attributes_base):
     
     try:
       xattr.remove(filename, key)
-    except xattr_error as ex:
-      raise file_attributes_error(ex.message)
+    except xattr_permission_error as ex:
+      raise file_attributes_permission_error(ex.message)
   
   @classmethod
   #@abstractmethod
@@ -83,5 +83,5 @@ class _file_attributes_macos(file_attributes_base):
 
     try:
       xattr.clear(filename)
-    except xattr_error as ex:
-      raise file_attributes_error(ex.message)
+    except xattr_permission_error as ex:
+      raise file_attributes_permission_error(ex.message)
