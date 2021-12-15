@@ -76,6 +76,8 @@ class file_mime(object):
   @classmethod
   def media_type(clazz, filename):
     mt = clazz.mime_type(filename)
+    if mt == None:
+      return 'unknown'
     for media_type, pattern in clazz._MEDIA_TYPE_PATTERNS.items():
       if fnmatch.fnmatch(mt, pattern):
         return media_type

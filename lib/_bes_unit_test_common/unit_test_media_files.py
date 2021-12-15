@@ -29,3 +29,12 @@ class unit_test_media_files(object):
   @cached_property
   def mp4_file_wrong_extension(self):
     return self.make_temp_file(content = unit_test_media.MP4_SMALLEST_POSSIBLE, suffix = '.txt')
+
+  @cached_property
+  def unknown_file(self):
+    return self.make_temp_file(content = unit_test_media.UNKNOWN, suffix = '.notaknownext')
+  
+  @cached_property
+  def unknown_file_wrong_extension(self):
+    return self.make_temp_file(content = unit_test_media.UNKNOWN, suffix = '.png')
+  
