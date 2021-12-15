@@ -1,11 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import xattr
+
 from bes.common.check import check
 from bes.common.string_util import string_util
 from bes.system.execute import execute
 from bes.system.host import host
-
-import xattr
+from bes.system.log import logger
 
 from bes.fs.file_attributes_base import file_attributes_base
 from bes.fs.file_attributes_error import file_attributes_error
@@ -13,6 +14,8 @@ from bes.fs.file_attributes_error import file_attributes_permission_error
 
 class _file_attributes_xattr(file_attributes_base):
 
+  _log = logger('_file_attributes_xattr')
+  
   @classmethod
   #@abstractmethod
   def has_key(clazz, filename, key):
@@ -36,9 +39,25 @@ class _file_attributes_xattr(file_attributes_base):
   #@abstractmethod
   def set_bytes(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
+    clazz._log.log_method_d()
     try:
-      xattr.setxattr(filename, clazz._encode_key(key), value)
+      encoded_key = clazz._encode_key(key)
+      clazz._log.log_d('set_bytes:{}:{}: calling xattr.setxattr with value "{}"'.format(filename,
+                                                                                        encoded_key,
+                                                                                        value))
+      rv = xattr.setxattr(filename, clazz._encode_key(key), value)
+      clazz._log.log_d('set_bytes:{}:{}: xattr.setxattr returns with rv "{}"'.format(filename,
+                                                                                     encoded_key,
+                                                                                     rv))
+    except PermissionError as ex:
+      clazz._log.log_d('set_bytes:{}:{}: caught PermissionError: {}'.format(filename,
+                                                                            encoded_key,
+                                                                            str(ex)))
+      raise file_attributes_permission_error(str(ex))
     except IOError as ex:
+      clazz._log.log_d('set_bytes:{}:{}: caught IOError: {}'.format(filename,
+                                                                    encoded_key,
+                                                                    str(ex)))
       if ex.errno == 1 and 'Operation not permitted' in str(ex):
         raise file_attributes_permission_error(str(ex))
   
@@ -49,7 +68,16 @@ class _file_attributes_xattr(file_attributes_base):
     check.check_string(filename)
     check.check_string(key)
 
-    xattr.removexattr(filename, clazz._encode_key(key))
+    clazz._log.log_method_d()
+    
+    try:
+      encoded_key = clazz._encode_key(key)
+      xattr.removexattr(filename, encoded_key)
+    except PermissionError as ex:
+      clazz._log.log_d('remove:{}:{}: caught PermissionError: {}'.format(filename,
+                                                                         encoded_key,
+                                                                         str(ex)))
+      raise file_attributes_permission_error(str(ex))
   
   @classmethod
   #@abstractmethod
@@ -63,8 +91,14 @@ class _file_attributes_xattr(file_attributes_base):
   def clear(clazz, filename):
     'Create all attributes.'
     check.check_string(filename)
-    xattr.xattr(filename).clear()
-  
+
+    try:
+      xattr.xattr(filename).clear()
+    except PermissionError as ex:
+      clazz._log.log_d('clear:{}: caught PermissionError: {}'.format(filename,
+                                                                     str(ex)))
+      raise file_attributes_permission_error(str(ex))
+      
   @classmethod
   def _parse_key(clazz, s):
     'Return all the keys set for filename.'
