@@ -80,8 +80,8 @@ def make_test_case(impl):
       impl.set_all(tmp, d)
       self.assertEqual( d, impl.get_all(tmp) )
 
-    @unit_xtest_function_skip.skip_if_not_unix()
-    def test_set_no_write_permission_unix(self):
+    @unit_test_function_skip.skip_if_not_unix()
+    def xtest_set_no_write_permission_unix(self):
       tmp = self._make_read_only_temp_file()
       with self.assertRaises(file_attributes_permission_error) as ctx:
         impl.set_string(tmp, 'foo', 'hi')
