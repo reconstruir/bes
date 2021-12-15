@@ -61,14 +61,14 @@ class file_attributes_base(with_metaclass(ABCMeta, object)):
     keys = clazz.keys(filename)
     result = {}
     for key in keys:
-      result[key] = clazz.get(filename, key)
+      result[key] = clazz.get_bytes(filename, key)
     return result
 
   @classmethod
   def set_all(clazz, filename, attributes):
     'Set all file attributes.'
     for key, value in attributes.items():
-      clazz.set(filename, key, value)
+      clazz.set_bytes(filename, key, value)
 
   @classmethod
   @abstractmethod
