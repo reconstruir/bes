@@ -40,6 +40,7 @@ class xattr(object):
 
   @classmethod
   def _check_permission_error(clazz, result, message):
+    clazz._log.log_d('_check_permission_error: result="{}" message="{}"'.format(result, message))
     if result.exit_code != 1:
       return
     if 'Operation not permitted' not in result.stderr:
@@ -105,7 +106,8 @@ class xattr(object):
     
     args = [ '-d', key, filename ]
     rv = clazz._call_xattr(args)
-    xattr_command.check_result(rv, message = 'Failed to get delete key "{}" for "{}"'.format(key, filename))
+    clazz._check_permission_error(rv, 'Permission error removing key="{}" for "{}"'.format(key, filename))
+    xattr_command.check_result(rv, message = 'Failed to delete key "{}" for "{}"'.format(key, filename))
 
   @classmethod
   def clear(clazz, filename):
@@ -114,6 +116,7 @@ class xattr(object):
     
     args = [ '-c', filename ]
     rv = clazz._call_xattr(args)
+    clazz._check_permission_error(rv, 'Permission error clearing all values for "{}"'.format(filename))
     xattr_command.check_result(rv, message = 'Failed to clear values for "{}"'.format(filename))
     
   @classmethod
