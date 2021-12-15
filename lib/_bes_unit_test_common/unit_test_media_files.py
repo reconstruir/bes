@@ -35,6 +35,18 @@ class unit_test_media_files(object):
     return self.make_temp_file(content = unit_test_media.UNKNOWN, suffix = '.notaknownext')
   
   @cached_property
-  def unknown_file_wrong_extension(self):
+  def unknown_file_png_extension(self):
     return self.make_temp_file(content = unit_test_media.UNKNOWN, suffix = '.png')
+
+  @cached_property
+  def unknown_file_jpg_extension(self):
+    return self.make_temp_file(content = unit_test_media.UNKNOWN, suffix = '.jpg')
+
+  @cached_property
+  def unknown_file_mp4_extension(self):
+    return self.make_temp_file(content = unit_test_media.UNKNOWN, suffix = '.mp4')
+  
+  @cached_property
+  def unknown_file_txt_extension(self):
+    return self.make_temp_file(content = unit_test_media.UNKNOWN, suffix = '.txt')
   
