@@ -302,10 +302,9 @@ class argument_resolver(object):
 
   @classmethod
   def _git_files_for_commit(clazz, commit):
-    git_dir = git.find_root_dir()
-    root = path.dirname(git_dir)
-    files = git.files_for_commit(root, commit)
-    files = [ path.join(root, f) for f in files ]
+    root_dir = git.find_root_dir()
+    files = git.files_for_commit(root_dir, commit)
+    files = [ path.join(root_dir, f) for f in files ]
     return files
 
   def supports_test_dependency_files(self):
