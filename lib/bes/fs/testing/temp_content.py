@@ -6,10 +6,11 @@ from datetime import datetime
 
 from bes.text.string_list_parser import string_list_parser
 from bes.common.string_util import string_util
+from bes.system.check import check
 from bes.fs.temp_file import temp_file
 from bes.fs.file_path import file_path
 
-class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')):
+class temp_content(namedtuple('temp_content', 'item_type, filename, content, mode')):
   'Temporary files, directories and content for easier testing.'
   
   FILE = 'file'
@@ -120,7 +121,7 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
   def _determine_content(self):
     if not self.content:
       return b''
-    if self.content.startswith('file:'):
+    if check.is_string(self.content) and self.content.startswith('file:'):
       _, _, source_filename = self.content.partition(':')
       source_filename = source_filename.strip()
       if not path.isfile(source_filename):
