@@ -26,6 +26,7 @@ class dir_split_options(cli_options):
       'dup_file_count': 1,
       'sort_order': dir_sort_order.FILENAME,
       'sort_reverse': False,
+      'partition': False,
     }
   
   @classmethod
@@ -46,6 +47,7 @@ class dir_split_options(cli_options):
       'dup_file_count': int,
       'sort_order': dir_sort_order,
       'sort_reverse': bool,
+      'partition': bool,
     }
 
   @classmethod

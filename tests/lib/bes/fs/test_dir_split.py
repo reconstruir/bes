@@ -4,12 +4,15 @@
 from collections import namedtuple
 from os import path
 
-from bes.testing.unit_test import unit_test
-from bes.fs.file_util import file_util
-from bes.fs.file_find import file_find
 from bes.fs.dir_split import dir_split
 from bes.fs.dir_split_options import dir_split_options
+from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
+from bes.testing.unit_test import unit_test
+
+from _bes_unit_test_common.unit_test_media import unit_test_media
+from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
 
 class dir_split_tester(object):
 
@@ -39,7 +42,7 @@ class dir_split_tester(object):
 
   _test_result = namedtuple('_test', 'tmp_dir, src_dir, dst_dir, src_files, dst_files, src_files_before, rv')
   
-class test_dir_split(unit_test):
+class test_dir_split(unit_test, unit_test_media_files):
 
   def test_split_chunks_of_two(self):
     t = self._do_test([
@@ -455,6 +458,55 @@ class test_dir_split(unit_test):
     ]
     self.assert_filename_list_equal( expected, t.dst_files )
     self.assert_filename_list_equal( [], t.src_files )
+
+  def test_one_file(self):
+    extra_content_items = [
+      temp_content('file', 'src/foo.txt', b'this is foo.txt', 0o0644),
+    ]
+    t = self._do_test([], 1, 1, extra_content_items = extra_content_items, recursive = True)
+    expected = [
+      'chunk-1',
+      'chunk-1/foo.txt',
+    ]
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
+    
+  def test_partition(self):
+    extra_content_items = [
+      temp_content('file', 'src/apple.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/barolo.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/brie.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/chablis.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/cheddar.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/kiwi.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/lemon.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/malbec.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/swiss.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/yogurt.foo', unit_test_media.UNKNOWN, 0o0644),
+      temp_content('file', 'src/zabaglione.foo', unit_test_media.UNKNOWN, 0o0644),
+    ]
+    t = self._do_test([], 0, 3, extra_content_items = extra_content_items, partition = True)
+    expected = [
+      'chunk-1',
+      'chunk-1/apple.jpg',
+      'chunk-1/brie.png',
+      'chunk-1/cheddar.png',
+      'chunk-2',
+      'chunk-2/kiwi.jpg',
+      'chunk-2/lemon.jpg',
+      'chunk-2/swiss.png',
+      'chunk-3',
+      'chunk-3/unknown',
+      'chunk-3/unknown/yogurt.foo',
+      'chunk-3/unknown/zabaglione.foo',
+      'chunk-3/video',
+      'chunk-3/video/barolo.mp4',
+      'chunk-4',
+      'chunk-4/chablis.mp4',
+      'chunk-4/malbec.mp4',
+    ]
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
     
   def _do_test(self,
                content_desc,
@@ -464,13 +516,15 @@ class test_dir_split(unit_test):
                dst_dir_same_as_src = False,
                recursive = False,
                sort_order = 'filename',
-               sort_reverse = False):
+               sort_reverse = False,
+               partition = False):
     options = dir_split_options(chunk_size = chunk_size,
                                 prefix = 'chunk-',
                                 recursive = recursive,
                                 dup_file_timestamp = 'dup-timestamp',
                                 sort_order = sort_order,
-                                sort_reverse = sort_reverse)
+                                sort_reverse = sort_reverse,
+                                partition = partition)
     tmp_dir = dir_split_tester.make_content(content_desc,
                                             content_multiplier,
                                             extra_content_items = extra_content_items)

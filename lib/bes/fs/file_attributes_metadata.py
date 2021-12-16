@@ -4,6 +4,7 @@ from bes.system.check import check
 from bes.system.log import logger
 
 from .file_attributes import file_attributes
+from .file_attributes_error import file_attributes_permission_error
 from .file_mime import file_mime
 from .file_util import file_util
 
@@ -47,12 +48,28 @@ class file_attributes_metadata(object):
     return value
 
   @classmethod
-  def get_mime_type(clazz, filename):
+  def get_bytes_fallback(clazz, filename, key, value_maker):
     check.check_string(filename)
+    check.check_string(key)
+    check.check_function(value_maker)
+
+    try:
+      return clazz.get_bytes(filename, key, value_maker)
+    except file_attributes_permission_error as ex:
+      return value_maker()
+  
+  @classmethod
+  def get_mime_type(clazz, filename, fallback = False):
+    check.check_string(filename)
+    check.check_bool(fallback)
 
     def _value_maker():
       return file_mime.mime_type(filename).encode('utf-8')
-    return clazz.get_bytes(filename, clazz._KEY_BES_MIME_TYPE, _value_maker).decode('utf-8')
+    if fallback:
+      value = clazz.get_bytes_fallback(filename, clazz._KEY_BES_MIME_TYPE, _value_maker)
+    else:
+      value = clazz.get_bytes(filename, clazz._KEY_BES_MIME_TYPE, _value_maker)
+    return value.decode('utf-8')
 
   @classmethod
   def _make_mtime_key(clazz, key):

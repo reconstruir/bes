@@ -74,11 +74,16 @@ class file_mime(object):
   MEDIA_TYPES = frozenset(_MEDIA_TYPE_PATTERNS.keys())
   
   @classmethod
-  def media_type(clazz, filename):
-    mt = clazz.mime_type(filename)
-    if mt == None:
+  def media_type_for_file(clazz, filename):
+    mime_type = clazz.mime_type(filename)
+    return clazz.media_type_for_mime_type(mime_type)
+
+  @classmethod
+  def media_type_for_mime_type(clazz, mime_type):
+    if mime_type == None:
       return 'unknown'
     for media_type, pattern in clazz._MEDIA_TYPE_PATTERNS.items():
-      if fnmatch.fnmatch(mt, pattern):
+      if fnmatch.fnmatch(mime_type, pattern):
         return media_type
     return 'unknown'
+  

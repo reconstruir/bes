@@ -12,8 +12,10 @@ from bes.system.log import logger
 from .dir_sort_order import dir_sort_order
 from .dir_split_options import dir_split_options
 from .dir_util import dir_util
+from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
 from .file_find import file_find
+from .file_mime import file_mime
 from .file_path import file_path
 from .file_util import file_util
 
@@ -45,7 +47,8 @@ class dir_split(object):
 
     file_find.remove_empty_dirs(dst_dir_abs)
       
-  _split_item = namedtuple('_split_item', 'src_filename, dst_filename')
+  _file_info = namedtuple('_file_info', 'filename, media_type')
+  _split_item = namedtuple('_split_item', 'src_filename, dst_filename, chunk_number, dst_basename, media_type')
   _split_items_info = namedtuple('_split_items_info', 'items, existing_split_dirs, possible_empty_dirs_roots')
   @classmethod
   def _split_info(clazz, src_dir, dst_dir, options):
@@ -76,16 +79,27 @@ class dir_split(object):
       possible_empty_dirs_roots = []
     
     files = algorithm.unique(old_files + new_files)
-    sorted_files = clazz._sort_files(files, options.sort_order, options.sort_reverse)
-    chunks = [ chunk for chunk in object_util.chunks(sorted_files, options.chunk_size) ]
+    file_info_list = clazz._make_file_info_list(files, options.partition)
+    sorted_file_info_list = clazz._sort_file_info_list(file_info_list,
+                                                       options.sort_order,
+                                                       options.sort_reverse,
+                                                       options.partition)
+    chunks = [ chunk for chunk in object_util.chunks(sorted_file_info_list, options.chunk_size) ]
     num_chunks = len(chunks)
     num_digits = len(str(num_chunks))
-    for i, chunk in enumerate(chunks):
-      dst_basename = '{}{}'.format(options.prefix, str(i + 1).zfill(num_digits))
+    for chunk_number, chunk in enumerate(chunks, start = 1):
+      dst_basename = '{}{}'.format(options.prefix, str(chunk_number).zfill(num_digits))
       chunk_dst_dir = path.join(dst_dir, dst_basename)
-      for f in chunk:
-        dst_filename = path.join(chunk_dst_dir, path.basename(f))
-        items.append(clazz._split_item(f, dst_filename))
+      for finfo in chunk:
+        dst_filename = path.join(chunk_dst_dir, path.basename(finfo.filename))
+        item = clazz._split_item(finfo.filename,
+                                 dst_filename,
+                                 chunk_number,
+                                 dst_basename,
+                                 finfo.media_type)
+        items.append(item)
+    if options.partition:
+      items = clazz._partition_split_items(items)
     return clazz._split_items_info(items, existing_split_dirs, possible_empty_dirs_roots)
 
   @classmethod
@@ -136,13 +150,74 @@ class dir_split(object):
       file_util.rename(item.src_filename, dst_filename)
 
   @classmethod
-  def _sort_files(clazz, files, order, reverse):
-    if order == dir_sort_order.FILENAME:
-      key = lambda f: f
-    elif order == dir_sort_order.SIZE:
-      key = lambda f: file_util.size(f)
-    elif order == dir_sort_order.DATE:
-      key = lambda f: file_util.get_modification_date(f)
-    else:
-      assert False
-    return sorted(files, key = key, reverse = reverse)
+  def _sort_file_info_list(clazz, file_info_list, order, reverse, partition):
+    def _sort_key(finfo):
+      criteria = []
+      if partition:
+        criteria.append(finfo.media_type)
+      if order == dir_sort_order.FILENAME:
+        criteria.append(finfo.filename)
+      elif order == dir_sort_order.SIZE:
+        criteria.append(file_util.size(finfo.filename))
+      elif order == dir_sort_order.DATE:
+        criteria.append(file_util.get_modification_date(finfo.filename))
+      else:
+        assert False
+      return tuple(criteria)
+    return sorted(file_info_list, key = _sort_key, reverse = reverse)
+
+  @classmethod
+  def _make_file_info_list(clazz, files, partition):
+    result = []
+    for filename in files:
+      if partition:
+        mime_type = file_attributes_metadata.get_mime_type(filename, fallback = True)
+        media_type = file_mime.media_type_for_mime_type(mime_type)
+      else:
+        media_type = None
+      result.append(clazz._file_info(filename, media_type))
+    return result
+  
+  @classmethod
+  def _partition_split_items(clazz, items):
+    result = []
+    dst_basename_map = clazz._make_dst_basename_map(items)
+    for dst_basename, media_type_map in dst_basename_map.items():
+      num_media_types = len(media_type_map)
+      if num_media_types > 1:
+        for media_type, items in media_type_map.items():
+          for item in items:
+            new_dst_filename = file_path.insert(item.dst_filename, -1, media_type)
+            new_item = clazz._split_item(item.src_filename,
+                                         new_dst_filename,
+                                         item.chunk_number,
+                                         item.dst_basename,
+                                         item.media_type)
+            result.append(new_item)
+      else:
+        for _, items in media_type_map.items():
+          result.extend(items)
+
+    return result
+
+  @classmethod
+  def _make_dst_basename_map(clazz, items):
+    result_one = {}
+    for item in items:
+      if not item.dst_basename in result_one:
+        result_one[item.dst_basename] = []
+      result_one[item.dst_basename].append(item)
+    result_two = {}
+    for dst_basename, items in result_one.items():
+      result_two[dst_basename] = clazz._make_media_type_map(items)
+    return result_two
+  
+  @classmethod
+  def _make_media_type_map(clazz, items):
+    result = {}
+    for item in items:
+      if not item.media_type in result:
+        result[item.media_type] = []
+      result[item.media_type].append(item)
+    return result
+  

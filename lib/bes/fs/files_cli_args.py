@@ -27,6 +27,8 @@ class files_cli_args(object):
     p.add_argument('--reverse', action = 'store_true', default = False,
                    dest = 'sort_reverse',
                    help = 'Whether to reverse the file order after sorting [ None ]')
+    p.add_argument('--partition', action = 'store_true', default = False,
+                   help = 'Partition the split directories by media type [ None ]')
 
     # dups
     p = subparser.add_parser('dups', help = 'Find duplicate files in directories.')

@@ -192,3 +192,5 @@ New
 - the url util methods that choose python or requests need to raise the same exception
   it varies between RuntimeError and HTTPErro depending which one is chosen.  ths
   unit tests catch both
+
+add file_attributes_metadata tests to cover write permissions and ownership
