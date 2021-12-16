@@ -52,7 +52,15 @@ class sqlite(object):
     try:
       self._cursor.execute(sql, *args, **kwargs)
     except Exception as ex:
-      print('Failed SQL: %s' % (sql))
+      print('Failed execute SQL: %s' % (sql))
+      raise
+      
+  def executemany(self, sql, *args, **kwargs):
+    self.log_i('%s: executemany(%s, %s, %s)' % (self._filename_log_label, sql, args, kwargs))
+    try:
+      self._cursor.executemany(sql, *args, **kwargs)
+    except Exception as ex:
+      print('Failed executemany SQL: %s' % (sql))
       raise
       
   def begin(self):
