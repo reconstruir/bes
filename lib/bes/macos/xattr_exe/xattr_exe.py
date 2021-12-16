@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import codecs
+import shlex
 
 from bes.common.check import check
 from bes.common.string_util import string_util
@@ -23,7 +24,7 @@ class xattr_exe(object):
     check.check_string(filename)
     check.check_string(key)
 
-    args = [ '-p', key, filename ]
+    args = [ '-p', key, shlex.quote(filename) ]
     rv = clazz._call_xattr_exe(args)
     return rv.exit_code == 0
   
@@ -32,7 +33,7 @@ class xattr_exe(object):
     'Return all the keys set for filename.'
     check.check_string(filename)
 
-    args = [ '-l', filename ]
+    args = [ '-l', shlex.quote(filename) ]
     rv = clazz._call_xattr_exe(args)
     xattr_exe_command.check_result(rv, message = 'Failed to get keys for {}'.format(filename))
     keys = [ clazz._parse_key(line) for line in rv.stdout_lines() ]
@@ -56,7 +57,7 @@ class xattr_exe(object):
 
     hex_value = hexdump.data(value, delimiter = '', line_delimiter = '')
     clazz._log.log_d('set_bytes: hex_value={}'.format(hex_value))
-    args = [ '-w', '-x', key, hex_value, filename ]
+    args = [ '-w', '-x', key, hex_value, shlex.quote(filename) ]
     rv = clazz._call_xattr_exe(args)
     clazz._check_permission_error(rv, 'Permission error setting key="{}" value="{}" for "{}"'.format(key, value, filename))
     xattr_exe_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
@@ -68,7 +69,7 @@ class xattr_exe(object):
     check.check_string(key)
     check.check_string(value)
 
-    args = [ '-w', key, value, filename ]
+    args = [ '-w', key, value, shlex.quote(filename) ]
     rv = clazz._call_xattr_exe(args)
     clazz._check_permission_error(rv, 'Permission error setting key="{}" value="{}" for "{}"'.format(key, value, filename))
     xattr_exe_command.check_result(rv, message = 'Failed to set key="{}" value="{}" for "{}"'.format(key, value, filename))
@@ -79,7 +80,7 @@ class xattr_exe(object):
     filename = file_check.check_file(filename)
     check.check_string(key)
 
-    args = [ '-p', key, filename ]
+    args = [ '-p', key, shlex.quote(filename) ]
     rv = clazz._call_xattr_exe(args)
     xattr_exe_command.check_result(rv, message = 'Failed to get key="{}" for "{}"'.format(key, filename))
     return rv.stdout.strip()
@@ -90,7 +91,7 @@ class xattr_exe(object):
     filename = file_check.check_file(filename)
     check.check_string(key)
 
-    args = [ '-p', '-x', key, filename ]
+    args = [ '-p', '-x', key, shlex.quote(filename) ]
     rv = clazz._call_xattr_exe(args)
     clazz._log.log_d('get_bytes: stdout={}'.format(rv.stdout))
     xattr_exe_command.check_result(rv, message = 'Failed to get key="{}" for "{}"'.format(key, filename))
@@ -104,7 +105,7 @@ class xattr_exe(object):
     filename = file_check.check_file(filename)
     check.check_string(key)
     
-    args = [ '-d', key, filename ]
+    args = [ '-d', key, shlex.quote(filename) ]
     rv = clazz._call_xattr_exe(args)
     clazz._check_permission_error(rv, 'Permission error removing key="{}" for "{}"'.format(key, filename))
     xattr_exe_command.check_result(rv, message = 'Failed to delete key "{}" for "{}"'.format(key, filename))
@@ -114,7 +115,7 @@ class xattr_exe(object):
     'Remove the attirbute with key from filename.'
     filename = file_check.check_file(filename)
     
-    args = [ '-c', filename ]
+    args = [ '-c', shlex.quote(filename) ]
     rv = clazz._call_xattr_exe(args)
     clazz._check_permission_error(rv, 'Permission error clearing all values for "{}"'.format(filename))
     xattr_exe_command.check_result(rv, message = 'Failed to clear values for "{}"'.format(filename))
