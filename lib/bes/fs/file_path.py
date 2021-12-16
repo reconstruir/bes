@@ -206,8 +206,15 @@ class file_path(object):
     return result
 
   @classmethod
+  def insert(clazz, p, index, part):
+    parts = clazz.split(p)
+    parts.insert(index, part)
+    return clazz.join(parts)
+
+  @classmethod
   def xp_path_list(clazz, l, pathsep = ':', sep = '/'):
     if l == None:
       return None
     assert isinstance(l, list)
     return [ clazz.xp_path(n) for n in l ]
+  
