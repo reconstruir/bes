@@ -134,3 +134,25 @@ class file_attributes_base(with_metaclass(ABCMeta, object)):
     
     clazz.set_string(filename, key, str(value).lower())
     
+  @classmethod
+  @abstractmethod
+  def get_int(clazz, filename, key):
+    'Return the attribute value with key for filename as string.'
+    filename = file_check.check_file(filename)
+    key = clazz._check_key(key)
+    
+    value = clazz.get_string(filename, key)
+    if value == None:
+      return None
+    return int(value)
+
+  @classmethod
+  @abstractmethod
+  def set_int(clazz, filename, key, value, encoding = 'utf-8'):
+    'Set the value of attribute with key to value for filename as string.'
+    filename = file_check.check_file(filename)
+    key = clazz._check_key(key)
+    check.check_int(value)
+    
+    clazz.set_string(filename, key, str(value))
+    
