@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+
 import glob, os.path as path, os, re
 from bes.common.check import check
 from bes.common.algorithm import algorithm
@@ -218,3 +220,16 @@ class file_path(object):
     assert isinstance(l, list)
     return [ clazz.xp_path(n) for n in l ]
   
+  _access_result = namedtuple('_access_result', 'filename, exists, can_read, can_write, can_execute')
+  @classmethod
+  def access(clazz, p):
+    exists = os.access(p, os.F_OK)
+    if exists:
+      can_read = os.access(p, os.R_OK)
+      can_write = os.access(p, os.W_OK)
+      can_execute = os.access(p, os.X_OK)
+    else:
+      can_read = False
+      can_write = False
+      can_execute = False
+    return clazz._access_result(p, exists, can_read, can_write, can_execute)

@@ -90,6 +90,19 @@ class files_cli_args(object):
     p = subparser.add_parser('hexify', help = 'Hexify a binary such that it can be included in python code.')
     p.add_argument('filename', action = 'store', type = str, default = None,
                    help = 'The filename [ None ]')
+
+    # check_access 
+    p = subparser.add_parser('check_access', help = 'Check access for files.')
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more directories to check for dups [ None ]')
+    p.add_argument('--verbose', action = 'store_true', default = False,
+                   help = 'Verbose output [ False ]')
+    p.add_argument('-r', '--recursive', action = 'store_true', default = False,
+                   help = 'Whether to recurse into subdirectories [ False ]')
+    p.add_argument('-l', '--level', action = 'append', default = [ 'write' ],
+                   choices = ( 'exists', 'read', 'write', 'execute' ),
+                   dest = 'levels',
+                   help = 'The level of access to check for [ write ]')
     
   def _command_files(self, command, *args, **kargs):
     from .files_cli_handler import files_cli_handler

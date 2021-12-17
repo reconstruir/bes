@@ -4,6 +4,7 @@ import binascii
 from os import path
 
 from bes.cli.cli_command_handler import cli_command_handler
+from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.debug.hexdump import hexdump
 
@@ -15,6 +16,7 @@ from .file_duplicates import file_duplicates
 from .file_find import file_find
 from .file_mime import file_mime
 from .file_resolver import file_resolver
+from .file_path import file_path
 from .file_util import file_util
 
 class files_cli_handler(cli_command_handler):
@@ -96,3 +98,16 @@ class files_cli_handler(cli_command_handler):
     dump = hexdump.filename(filename, line_delimiter = '\n')
     print(dump)
     return 0
+
+  def check_access(self, files, level):
+    check.check_string_seq(files)
+    check.check_string_seq(levels)
+
+    levels = algorithm.unique(levels)
+    
+    files = file_resolver.resolve_files(files, recursive = self.options.recursive)
+    for f in files:
+      access = file_path.access(f.filename_abs)
+      print('{}: {}'.format(f.filename_abs, access))
+    return 0
+  
