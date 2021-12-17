@@ -80,6 +80,13 @@ def make_test_case(impl):
       impl.set_all(tmp, d)
       self.assertEqual( d, impl.get_all(tmp) )
 
+    def test_set_bool_get_bool(self):
+      tmp = self._make_temp_file('this is foo\n')
+      impl.set_bool(tmp, 'foo', True)
+      impl.set_bool(tmp, 'bar', False)
+      self.assertEqual( True, impl.get_bool(tmp, 'foo') )
+      self.assertEqual( False, impl.get_bool(tmp, 'bar') )
+      
     @unit_test_function_skip.skip_if_not_unix()
     def xtest_set_no_write_permission_unix(self):
       tmp = self._make_read_only_temp_file()

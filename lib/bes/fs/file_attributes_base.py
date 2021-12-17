@@ -6,6 +6,7 @@ from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 
 from bes.common.check import check
+from bes.common.bool_util import bool_util
 from bes.fs.file_check import file_check
 
 class file_attributes_base(with_metaclass(ABCMeta, object)):
@@ -111,3 +112,25 @@ class file_attributes_base(with_metaclass(ABCMeta, object)):
     check.check(value, datetime)
     
     clazz.set_string(filename, key, str(value.timestamp()))
+
+  @classmethod
+  @abstractmethod
+  def get_bool(clazz, filename, key):
+    'Return the attribute value with key for filename as string.'
+    filename = file_check.check_file(filename)
+    key = clazz._check_key(key)
+    value = clazz.get_string(filename, key)
+    if value == None:
+      return None
+    return bool_util.parse_bool(value)
+
+  @classmethod
+  @abstractmethod
+  def set_bool(clazz, filename, key, value, encoding = 'utf-8'):
+    'Set the value of attribute with key to value for filename as string.'
+    filename = file_check.check_file(filename)
+    key = clazz._check_key(key)
+    check.check_bool(value)
+    
+    clazz.set_string(filename, key, str(value).lower())
+    
