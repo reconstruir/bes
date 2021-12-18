@@ -15,7 +15,7 @@ from bes.fs.file_path import file_path
 from bes.fs.file_replace import file_replace
 from bes.fs.file_search import file_search
 from bes.fs.file_util import file_util
-from bes.git import git
+from bes.git.git import git
 from bes.text.string_list import string_list
 from bes.text.text_line_parser import text_line_parser
 
@@ -114,7 +114,7 @@ class files(object):
   def _rename(clazz, old, new):
     try:
       git.move(os.getcwd(), old, new)
-    except:
+    except Exception as ex:
       file_util.rename(old, new)
 
   @classmethod
