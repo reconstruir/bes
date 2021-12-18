@@ -3,6 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 from bes.fs.file_resolver import file_resolver
+from bes.fs.file_resolver_options import file_resolver_options
 from bes.fs.testing.temp_content import temp_content
 
 class test_file_resolve(unit_test):
@@ -82,8 +83,9 @@ class test_file_resolve(unit_test):
     tmp_dir = self.make_temp_dir()
     temp_content.write_items(items, tmp_dir)
     files = [ f.replace('${tmp_dir}', tmp_dir) for f in files ]
+    options = file_resolver_options(recursive = recursive)
     result = file_resolver.resolve_files(files,
-                                         recursive = recursive,
+                                         options = options,
                                          match_patterns = match_patterns,
                                          match_type = match_type,
                                          match_basename = match_basename,

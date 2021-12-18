@@ -5,14 +5,16 @@ import os.path as path
 from collections import namedtuple
 
 from bes.common.algorithm import algorithm
+from bes.system.check import check
 from bes.common.object_util import object_util
 from bes.system.log import logger
 
 from .dir_util import dir_util
 from .file_find import file_find
 from .file_match import file_match
-from .file_util import file_util
 from .file_path import file_path
+from .file_resolver_options import file_resolver_options
+from .file_util import file_util
 
 class file_resolver(object):
 
@@ -23,14 +25,17 @@ class file_resolver(object):
   @classmethod
   def resolve_files(clazz,
                     files,
-                    recursive = True,
+                    options = None,
                     match_patterns = None,
                     match_type = None,
                     match_basename = True,
                     match_function = None,
                     match_re = None):
     'Resolve a mixed list of files and directories into a list of files.'
+    check.check_file_resolver_options(options, allow_none = True)
+    
     clazz._log.log_method_d()
+    options = options or file_resolver_options()
     
     files = object_util.listify(files)
     result = []
@@ -46,7 +51,7 @@ class file_resolver(object):
         order += 1
       elif path.isdir(filename_abs):
         next_entries = clazz._resolve_one_dir(filename_abs,
-                                              recursive,
+                                              options,
                                               order,
                                               match_patterns,
                                               match_type,
@@ -58,11 +63,11 @@ class file_resolver(object):
     return result
 
   @classmethod
-  def _resolve_one_dir(clazz, root_dir, recursive, starting_order,
+  def _resolve_one_dir(clazz, root_dir, options, starting_order,
                        match_patterns, match_type, match_basename,
                        match_function, match_re):
     result = []
-    if recursive:
+    if options.recursive:
       max_depth = None
     else:
       max_depth = 1
