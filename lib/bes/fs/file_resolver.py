@@ -19,7 +19,7 @@ from .file_sort_order import file_sort_order
 
 class file_resolver(object):
 
-  _resolved_file = namedtuple('_resolved_file', 'root_dir, filename, filename_abs, index')
+  _resolved_file = namedtuple('_resolved_file', 'root_dir, filename, filename_abs, index, found_index')
 
   _log = logger('file_resolver')
   
@@ -48,7 +48,7 @@ class file_resolver(object):
         raise IOError('File or directory not found: "{}"'.format(filename_abs))
       if path.isfile(filename_abs):
         filename = path.relpath(filename_abs)
-        result.append(clazz._resolved_file(None, filename, filename_abs, index))
+        result.append(clazz._resolved_file(None, filename, filename_abs, index, index))
         index += 1
       elif path.isdir(filename_abs):
         next_entries = clazz._resolve_one_dir(filename_abs,
@@ -83,7 +83,7 @@ class file_resolver(object):
     return sorted(result, key = _sort_key, reverse = reverse)
   
   @classmethod
-  def _resolve_one_dir(clazz, root_dir, options, starting_order,
+  def _resolve_one_dir(clazz, root_dir, options, starting_index,
                        match_patterns, match_type, match_basename,
                        match_function, match_re):
     result = []
@@ -99,11 +99,11 @@ class file_resolver(object):
                                  match_function = match_function,
                                  match_re = match_re,
                                  max_depth = max_depth)
-    for order, next_filename in enumerate(found_files, start = starting_order):
-      clazz._log.log_d('_resolve_one_dir:{}: next_filename={}'.format(order, next_filename))
+    for index, next_filename in enumerate(found_files, start = starting_index):
+      clazz._log.log_d('_resolve_one_dir:{}: next_filename={}'.format(index, next_filename))
       filename_abs = path.join(root_dir, next_filename)
       filename = path.relpath(filename_abs, start = root_dir)
-      result.append(clazz._resolved_file(root_dir, filename, filename_abs, order))
+      result.append(clazz._resolved_file(root_dir, filename, filename_abs, index, index))
     return result
     
   @classmethod
@@ -112,9 +112,9 @@ class file_resolver(object):
     files = file_find.find(d, file_type = file_find.FILE, relative = True,
                            match_patterns = patterns, match_type = match_type)
     result = []
-    for order, f in enumerate(files):
+    for index, f in enumerate(files):
       fabs = path.join(d, f)
-      result.append(clazz.resolved_file(d, f, fabs, order))
+      result.append(clazz.resolved_file(d, f, fabs, index, index))
     return sorted(result, key = lambda f: f.filename_abs)
 
   @classmethod
