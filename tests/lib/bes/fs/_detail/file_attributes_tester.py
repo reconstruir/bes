@@ -94,11 +94,9 @@ def make_test_case(impl):
       self.assertEqual( 666, impl.get_int(tmp, 'foo') )
       self.assertEqual( -1024, impl.get_int(tmp, 'bar') )
       
-    @unit_test_function_skip.skip_if_not_unix()
     def test_set_no_write_permission_unix(self):
       tmp = self._make_read_only_temp_file()
       with self.assertRaises(file_attributes_permission_error) as ctx:
-        print('impl={}'.format(impl))
         impl.set_string(tmp, 'foo', 'hi')
 
     @unit_test_function_skip.skip_if_not_unix()
