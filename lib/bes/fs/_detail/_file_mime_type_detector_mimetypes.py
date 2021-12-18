@@ -21,6 +21,8 @@ class _file_mime_type_detector_mimetypes(_file_mime_type_detector_base):
     mime_type = clazz._guess_mime_type(filename)
     if not mime_type:
       mime_type, _ = mimetypes.guess_type(filename)
+    if not mime_type:
+      mime_type = 'application/octet-stream'
     return mime_type
 
   @classmethod

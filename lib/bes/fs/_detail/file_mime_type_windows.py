@@ -12,6 +12,8 @@ class file_mime_type_windows(object):
     mime_type = clazz._guess_mime_type(filename)
     if not mime_type:
       mime_type, _ = mimetypes.guess_type(filename)
+    if not mime_type:
+      mime_type = 'application/octet-stream'
     return mime_type
 
   @classmethod
