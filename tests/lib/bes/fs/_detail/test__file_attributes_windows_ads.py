@@ -9,8 +9,8 @@ from bes.system.host import host
 from file_attributes_tester import make_test_case
 
 if host.is_windows():    
-  from bes.fs._detail._file_attributes_windows import _file_attributes_windows
-  class test__file_attributes_windows(make_test_case(_file_attributes_windows)):
+  from bes.fs._detail._file_attributes_windows_ads import _file_attributes_windows_ads
+  class test__file_attributes_windows_ads(make_test_case(_file_attributes_windows_ads)):
 
     @classmethod
     def setUpClass(clazz):
