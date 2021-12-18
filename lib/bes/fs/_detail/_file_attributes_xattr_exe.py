@@ -22,7 +22,8 @@ class _file_attributes_xattr_exe(file_attributes_base):
     'Return True if filename has an attributed with key.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
-
+    clazz.check_file_is_readable(filename)
+    
     return xattr_exe.has_key(filename, key)
 
   @classmethod
@@ -31,11 +32,12 @@ class _file_attributes_xattr_exe(file_attributes_base):
     'Return the attribute value with key for filename.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
+    clazz.check_file_is_readable(filename)
 
-    try:
-      return xattr_exe.get_bytes(filename, key)
-    except xattr_exe_error as ex:
+    if not xattr_exe.has_key(filename, key):
       return None
+    
+    return xattr_exe.get_bytes(filename, key)
     
   @classmethod
   #@abstractmethod
@@ -44,13 +46,10 @@ class _file_attributes_xattr_exe(file_attributes_base):
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
     check.check_bytes(value)
+    clazz.check_file_is_writable(filename)
 
     clazz._log.log_method_d()
-
-    try:
-      xattr_exe.set_bytes(filename, key, value)
-    except xattr_exe_permission_error as ex:
-      raise file_attributes_permission_error(ex.message)
+    xattr_exe.set_bytes(filename, key, value)
   
   @classmethod
   #@abstractmethod
@@ -58,30 +57,24 @@ class _file_attributes_xattr_exe(file_attributes_base):
     'Remove the attirbute with key from filename.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
+    clazz.check_file_is_writable(filename)
     
-    try:
-      xattr_exe.remove(filename, key)
-    except xattr_exe_permission_error as ex:
-      raise file_attributes_permission_error(ex.message)
+    xattr_exe.remove(filename, key)
   
   @classmethod
   #@abstractmethod
   def keys(clazz, filename):
     'Return all the keys set for filename.'
     check.check_string(filename)
+    clazz.check_file_is_readable(filename)
 
-    try:
-      return xattr_exe.keys(filename)
-    except xattr_exe_error as ex:
-      raise file_attributes_error(ex.message)
+    return xattr_exe.keys(filename)
     
   @classmethod
   #@abstractmethod
   def clear(clazz, filename):
     'Create all attributes.'
     check.check_string(filename)
+    clazz.check_file_is_writable(filename)
 
-    try:
-      xattr_exe.clear(filename)
-    except xattr_exe_permission_error as ex:
-      raise file_attributes_permission_error(ex.message)
+    xattr_exe.clear(filename)

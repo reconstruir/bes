@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+
 from datetime import datetime
 
 from abc import abstractmethod, ABCMeta
@@ -8,6 +10,8 @@ from bes.system.compat import with_metaclass
 from bes.common.check import check
 from bes.common.bool_util import bool_util
 from bes.fs.file_check import file_check
+
+from .file_attributes_error import file_attributes_permission_error
 
 class file_attributes_base(with_metaclass(ABCMeta, object)):
 
@@ -156,3 +160,19 @@ class file_attributes_base(with_metaclass(ABCMeta, object)):
     
     clazz.set_string(filename, key, str(value))
     
+  @classmethod
+  def check_file_is_readable(clazz, filename):
+    'Check that filename is readable and raise a permission error if not.'
+    filename = file_check.check_file(filename)
+
+    if not os.access(filename, os.R_OK):
+      raise file_attributes_permission_error('File is not readable: {}'.format(filename))
+
+  @classmethod
+  def check_file_is_writable(clazz, filename):
+    'Check that filename is writable and raise a permission error if not.'
+    filename = file_check.check_file(filename)
+
+    if not os.access(filename, os.W_OK):
+      raise file_attributes_permission_error('File is not writable: {}'.format(filename))
+      
