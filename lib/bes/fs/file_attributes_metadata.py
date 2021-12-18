@@ -43,9 +43,7 @@ class file_attributes_metadata(object):
         clazz._log.log_d(f'{label}: no write access')
         return value
       clazz._log.log_d(f'{label}: creating new value "{value}"')
-      clazz._caca(filename, key, value, mtime_key)
-      #file_attributes.set_bytes(filename, key, value)
-      #file_attributes.set_date(filename, mtime_key, file_mtime)
+      clazz._refresh_value(filename, key, value, mtime_key)
       return value
 
     if attr_mtime == file_mtime:
@@ -58,17 +56,20 @@ class file_attributes_metadata(object):
     if fallback and not os.access(filename, os.W_OK):
       clazz._log.log_d(f'{label}: no write access')
       return value
-    clazz._caca(filename, key, value, mtime_key)
-    #file_attributes.set_bytes(filename, key, value)
-    #file_attributes.set_date(filename, mtime_key, file_mtime)
+    clazz._refresh_value(filename, key, value, mtime_key)
     clazz._log.log_d(f'{label}: refreshing value "{value}"')
     return value
 
   @classmethod
-  def _caca(clazz, filename, key, value, mtime_key):
+  def _refresh_value(clazz, filename, key, value, mtime_key):
     file_attributes.set_bytes(filename, key, value)
     file_mtime = file_util.get_modification_date(filename)
     file_attributes.set_date(filename, mtime_key, file_mtime)
+    # setting the date in the line above has the side effect
+    # of changing the mtime in some implementations.  so we
+    # force it to be what it was right after setting the value
+    # which is in the past (usually microseconds) but guranteed
+    # to match what what was set in set_date()
     file_util.set_modification_date(filename, file_mtime)
     
   @classmethod
