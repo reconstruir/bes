@@ -319,7 +319,26 @@ class test_file_find(unit_test):
     self.assertEqual( self.native_filename_list([
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
-    ]), file_find.find(tmp_dir, match_re = [ r'^.*\.cheese$' ]) )
+    ]), file_find.find(tmp_dir, match_re = r'^.*\.cheese$') )
+
+  def test_file_find_with_re_list(self):
+    self.maxDiff = None
+    tmp_dir = self._make_temp_content([
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+      'file wine/barolo.wine',
+      'file wine/chablis.wine',
+    ])
+    self.assertEqual( self.native_filename_list([
+      'cheese/brie.cheese',
+      'cheese/cheddar.cheese',
+      'wine/barolo.wine',
+      'wine/chablis.wine',
+    ]), file_find.find(tmp_dir, match_re = [ r'^.*\.cheese$',  r'^.*\.wine$' ]) )
     
   def test_file_find_with_re_and_match_type(self):
     self.maxDiff = None
