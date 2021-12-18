@@ -149,9 +149,9 @@ class test_file_path(unit_test):
       'file drinks/dairy/yogurt.config "yogurt.config" 644',
       'dir  nothing                 ""                 700',
     ])
-    self.assertEqual( [
-      path.join(tmp_dir, self.native_filename('drinks/alcohol/beer.config')),
-      path.join(tmp_dir, self.native_filename('drinks/alcohol/wine.config')),
+    self.assert_filename_list_equal( [
+      f'{tmp_dir}/drinks/alcohol/beer.config',
+      f'{tmp_dir}/drinks/alcohol/wine.config',
     ], file_path.glob(path.join(tmp_dir, self.native_filename('drinks/alcohol')), '*.config') )
     
   def test_glob_search_path(self):
@@ -171,13 +171,13 @@ class test_file_path(unit_test):
       [ 'drinks', 'dairy' ],
     ]
     search_path = [ path.join(tmp_dir, *x) for x in search_path ]
-    self.assertEqual( [
-      path.join(tmp_dir, self.native_filename('cheese/cheese.config')),
-      path.join(tmp_dir, self.native_filename('drinks/alcohol/beer.config')),
-      path.join(tmp_dir, self.native_filename('drinks/alcohol/wine.config')),
-      path.join(tmp_dir, self.native_filename('drinks/dairy/milk.config')),
-      path.join(tmp_dir, self.native_filename('drinks/dairy/yogurt.config')),
-      path.join(tmp_dir, self.native_filename('fruit/fruit.config')),
+    self.assert_filename_list_equal( [
+      f'{tmp_dir}/cheese/cheese.config',
+      f'{tmp_dir}/drinks/alcohol/beer.config',
+      f'{tmp_dir}/drinks/alcohol/wine.config',
+      f'{tmp_dir}/drinks/dairy/milk.config',
+      f'{tmp_dir}/drinks/dairy/yogurt.config',
+      f'{tmp_dir}/fruit/fruit.config',
     ], file_path.glob(search_path, '*.config') )
 
   def xtest_glob_env_search_path(self):
@@ -214,8 +214,8 @@ class test_file_path(unit_test):
     self.assertFalse( file_path.has_glob_pattern('foo.py') )
 
   def test_insert(self):
-    self.assertEqual( '/foo/bar/baz/x.png', file_path.insert('/foo/bar/x.png', -1, 'baz') )
-    self.assertEqual( '/baz/foo/bar/x.png', file_path.insert('/foo/bar/x.png', 1, 'baz') )
+    self.assert_filename_equal( '/foo/bar/baz/x.png', file_path.insert('/foo/bar/x.png', -1, 'baz') )
+    self.assert_filename_equal( '/baz/foo/bar/x.png', file_path.insert('/foo/bar/x.png', 1, 'baz') )
     
 if __name__ == "__main__":
   unit_test.main()
