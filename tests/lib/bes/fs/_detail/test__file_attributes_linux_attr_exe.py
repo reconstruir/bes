@@ -15,8 +15,8 @@ from bes.system.host import host
 from file_attributes_tester import make_test_case
 
 if host.is_linux():
-  from bes.fs._detail._file_attributes_linux import _file_attributes_linux
-  class test__file_attributes_linux(make_test_case(_file_attributes_linux)):
+  from bes.fs._detail._file_attributes_linux_attr_exe import _file_attributes_linux_attr_exe
+  class test__file_attributes_linux_attr_exe(make_test_case(_file_attributes_linux_attr_exe)):
 
     @classmethod
     def setUpClass(clazz):

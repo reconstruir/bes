@@ -12,9 +12,9 @@ from bes.fs.file_attributes_base import file_attributes_base
 from bes.fs.file_attributes_error import file_attributes_error
 from bes.fs.file_attributes_error import file_attributes_permission_error
 
-class _file_attributes_linux(file_attributes_base):
+class _file_attributes_linux_attr_exe(file_attributes_base):
 
-  _log = logger('_file_attributes_linux')
+  _log = logger('_file_attributes_linux_attr_exe')
   
   @classmethod
   #@abstractmethod

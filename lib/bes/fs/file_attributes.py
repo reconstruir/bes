@@ -18,7 +18,7 @@ if HAS_XATTR:
 elif host.SYSTEM == host.MACOS:
   from ._detail._file_attributes_macos_xattr_exe import _file_attributes_macos_xattr_exe as _file_attributes_super_class
 elif host.SYSTEM == host.LINUX:
-  from ._detail._file_attributes_linux import _file_attributes_linux as _file_attributes_super_class
+  from ._detail._file_attributes_linux_attr_exe import _file_attributes_linux_attr_exe as _file_attributes_super_class
 elif host.SYSTEM == host.WINDOWS:
   from ._detail._file_attributes_windows import _file_attributes_windows as _file_attributes_super_class
 else:
