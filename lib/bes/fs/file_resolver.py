@@ -69,6 +69,7 @@ class file_resolver(object):
 
   @classmethod
   def _sort_result(clazz, result, order, reverse):
+    assert order
     def _sort_key(resolved_file):
       criteria = []
       if order == file_sort_order.FILENAME:
@@ -80,7 +81,19 @@ class file_resolver(object):
       else:
         assert False
       return tuple(criteria)
-    return sorted(result, key = _sort_key, reverse = reverse)
+    sorted_result = sorted(result, key = _sort_key, reverse = reverse)
+    return clazz._reindex_result(sorted_result)
+
+  @classmethod
+  def _reindex_result(clazz, result):
+    reindexed_result = []
+    for index, item in enumerate(result):
+      reindexed_result.append(clazz._resolved_file(item.root_dir,
+                                                   item.filename,
+                                                   item.filename_abs,
+                                                   index,
+                                                   item.found_index))
+    return reindexed_result
   
   @classmethod
   def _resolve_one_dir(clazz, root_dir, options, starting_index,
