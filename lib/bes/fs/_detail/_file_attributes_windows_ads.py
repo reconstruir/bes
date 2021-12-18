@@ -8,9 +8,6 @@ from bes.system.log import logger
 from bes.windows.ads.ads import ads
 from bes.windows.ads.ads_error import ads_error
 
-from bes.fs.file_attributes_base import file_attributes_base
-from bes.fs.file_attributes_error import file_attributes_error
-
 class _file_attributes_windows_ads(file_attributes_base):
   'file_attributes implementation that uses windows ADS (alternative data streams)'
   
@@ -24,6 +21,7 @@ class _file_attributes_windows_ads(file_attributes_base):
     'Return True if filename has an attributed with key.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
+    clazz.check_file_is_readable(filename)
 
     clazz._log.log_method_d()
     
@@ -37,10 +35,11 @@ class _file_attributes_windows_ads(file_attributes_base):
     'Return the attribute value with key for filename.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
+    clazz.check_file_is_readable(filename)
 
     values = clazz._read_values(filename)
     if not key in values:
-      return None #raise file_attributes_error('Key not found: {}'.format(key))
+      return None
     value = values.get(key)
     assert check.is_bytes(value)
     return value
@@ -52,6 +51,7 @@ class _file_attributes_windows_ads(file_attributes_base):
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
     check.check_bytes(value)
+    clazz.check_file_is_writable(filename)
 
     values = clazz._read_values(filename)
     clazz._log.log_d('set: before: values={}'.format(values))
@@ -66,6 +66,7 @@ class _file_attributes_windows_ads(file_attributes_base):
     'Remove the attirbute with key from filename.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
+    clazz.check_file_is_writable(filename)
 
     values = clazz._read_values(filename)
     if not key in values:
@@ -77,7 +78,8 @@ class _file_attributes_windows_ads(file_attributes_base):
   #@abstractmethod
   def keys(clazz, filename):
     'Return all the keys set for filename.'
-    filename = file_check.check_file(filename)
+    check.check_string(filename)
+    clazz.check_file_is_readable(filename)
 
     values = clazz._read_values(filename)
     return sorted([ key for key in values.keys() ])
@@ -87,7 +89,7 @@ class _file_attributes_windows_ads(file_attributes_base):
   def clear(clazz, filename):
     'Create all attributes.'
     check.check_string(filename)
-    filename = file_check.check_file(filename)
+    clazz.check_file_is_writable(filename)
 
     ads.write_values(filename, clazz._ADS_STREAM_NAME, {})
 
