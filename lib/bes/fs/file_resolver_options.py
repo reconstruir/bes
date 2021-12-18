@@ -17,8 +17,10 @@ class file_resolver_options(cli_options):
     'Return a dict of defaults for these options.'
     return {
       'recursive': True,
-      'sort_order': file_sort_order.FILENAME,
+      'sort_order': None,
       'sort_reverse': False,
+      'limit': None,
+      'exclude_patterns': None,
     }
   
   @classmethod
@@ -34,6 +36,8 @@ class file_resolver_options(cli_options):
       'recursive': bool,
       'sort_order': file_sort_order,
       'sort_reverse': bool,
+      'limit': int,
+      'exclude_patterns': list,
     }
 
   @classmethod
@@ -62,5 +66,7 @@ class file_resolver_options(cli_options):
     check.check_bool(self.recursive)
     check.check_file_sort_order(self.sort_order, allow_none = True)
     check.check_bool(self.sort_reverse)
+    check.check_int(self.limit, allow_none = True)
+    check.check_string_seq(self.exclude_patterns, allow_none = True)
 
 check.register_class(file_resolver_options)

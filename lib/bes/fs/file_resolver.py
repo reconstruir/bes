@@ -15,10 +15,11 @@ from .file_match import file_match
 from .file_path import file_path
 from .file_resolver_options import file_resolver_options
 from .file_util import file_util
+from .file_sort_order import file_sort_order
 
 class file_resolver(object):
 
-  _resolved_file = namedtuple('_resolved_file', 'root_dir, filename, filename_abs, order')
+  _resolved_file = namedtuple('_resolved_file', 'root_dir, filename, filename_abs, index')
 
   _log = logger('file_resolver')
   
@@ -39,7 +40,7 @@ class file_resolver(object):
     
     files = object_util.listify(files)
     result = []
-    order = 0
+    index = 0
     for next_file in files:
       filename_abs = file_path.normalize(next_file)
       
@@ -47,21 +48,40 @@ class file_resolver(object):
         raise IOError('File or directory not found: "{}"'.format(filename_abs))
       if path.isfile(filename_abs):
         filename = path.relpath(filename_abs)
-        result.append(clazz._resolved_file(None, filename, filename_abs, order))
-        order += 1
+        result.append(clazz._resolved_file(None, filename, filename_abs, index))
+        index += 1
       elif path.isdir(filename_abs):
         next_entries = clazz._resolve_one_dir(filename_abs,
                                               options,
-                                              order,
+                                              index,
                                               match_patterns,
                                               match_type,
                                               match_basename,
                                               match_function,
                                               match_re)
-        order += len(next_entries)
+        index += len(next_entries)
         result.extend(next_entries)
+    if options.sort_order:
+      result = _clazz._sort_result(result, options.sort_order, options.sort_reverse)
+    if options.limit:
+      result = result[0 : options.limit]
     return result
 
+  @classmethod
+  def _sort_result(clazz, result, order, reverse):
+    def _sort_key(resolved_file):
+      criteria = []
+      if order == file_sort_order.FILENAME:
+        criteria.append(resolved_file.filename_abs)
+      elif order == file_sort_order.SIZE:
+        criteria.append(file_util.size(resolved_file.filename_abs))
+      elif order == file_sort_order.DATE:
+        criteria.append(file_util.get_modification_date(resolved_file.filename_abs))
+      else:
+        assert False
+      return tuple(criteria)
+    return sorted(result, key = _sort_key, reverse = reverse)
+  
   @classmethod
   def _resolve_one_dir(clazz, root_dir, options, starting_order,
                        match_patterns, match_type, match_basename,

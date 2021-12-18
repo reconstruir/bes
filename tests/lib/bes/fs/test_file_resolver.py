@@ -70,11 +70,41 @@ class test_file_resolve(unit_test):
       'file b/subb1/subb2/kiwi.txt "this is kiwi.txt" 644',
     ], [ '${tmp_dir}/a', '${tmp_dir}/b' ], recursive = True)
     self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
+
+  def test_resolve_files_with_limit(self):
+    expected = '''\
+    ${tmp_dir}/a suba1/orange.txt      ${tmp_dir}/a/suba1/orange.txt      0
+    '''
+    actual = self._test([
+      'file a/suba1/orange.txt "this is orange.txt" 644',
+      'file a/suba1/suba2/lemon.txt "this is lemon.txt" 644',
+      'file a/watermelon.txt "this is watermelon.txt" 644',
+      'file b/pineapple.txt "this is pineapple.txt" 644',
+      'file b/subb1/cherry.txt "this is cherry.txt" 644',
+      'file b/subb1/subb2/kiwi.txt "this is kiwi.txt" 644',
+    ], [ '${tmp_dir}/a', '${tmp_dir}/b' ], recursive = True, limit = 1)
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
+
+  def test_resolve_files_with_limit(self):
+    expected = '''\
+    ${tmp_dir}/a suba1/orange.txt      ${tmp_dir}/a/suba1/orange.txt      0
+    ${tmp_dir}/a suba1/suba2/lemon.txt ${tmp_dir}/a/suba1/suba2/lemon.txt 1
+    '''
+    actual = self._test([
+      'file a/suba1/orange.txt "this is orange.txt" 644',
+      'file a/suba1/suba2/lemon.txt "this is lemon.txt" 644',
+      'file a/watermelon.txt "this is watermelon.txt" 644',
+      'file b/pineapple.txt "this is pineapple.txt" 644',
+      'file b/subb1/cherry.txt "this is cherry.txt" 644',
+      'file b/subb1/subb2/kiwi.txt "this is kiwi.txt" 644',
+    ], [ '${tmp_dir}/a', '${tmp_dir}/b' ], recursive = True, limit = 2)
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
     
   def _test(self,
             items,
             files,
             recursive = True,
+            limit = None,
             match_patterns = None,
             match_type = None,
             match_basename = True,
@@ -83,7 +113,8 @@ class test_file_resolve(unit_test):
     tmp_dir = self.make_temp_dir()
     temp_content.write_items(items, tmp_dir)
     files = [ f.replace('${tmp_dir}', tmp_dir) for f in files ]
-    options = file_resolver_options(recursive = recursive)
+    options = file_resolver_options(recursive = recursive,
+                                    limit = limit)
     result = file_resolver.resolve_files(files,
                                          options = options,
                                          match_patterns = match_patterns,
@@ -105,8 +136,8 @@ class test_file_resolve(unit_test):
     item = file_resolver._resolved_file(new_root_dir,
                                         clazz.xp_filename(resolved_file.filename),
                                         clazz.xp_filename(new_filename_abs),
-                                        resolved_file.order)
-    return '{} {} {} {}'.format(item.root_dir, item.filename, item.filename_abs, item.order)
+                                        resolved_file.index)
+    return '{} {} {} {}'.format(item.root_dir, item.filename, item.filename_abs, item.index)
   
   def _make_temp_content(self):
     tmp_dir = self.make_temp_dir()
