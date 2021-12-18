@@ -99,14 +99,12 @@ def make_test_case(impl):
       with self.assertRaises(file_attributes_permission_error) as ctx:
         impl.set_string(tmp, 'foo', 'hi')
 
-    @unit_test_function_skip.skip_if_not_unix()
-    def xtest_remove_no_write_permission_unix(self):
+    def test_remove_no_write_permission_unix(self):
       tmp = self._make_read_only_temp_file()
       with self.assertRaises(file_attributes_permission_error) as ctx:
         impl.remove(tmp, 'foo')
 
-    @unit_test_function_skip.skip_if_not_unix()
-    def xtest_clear_no_write_permission_unix(self):
+    def test_clear_no_write_permission_unix(self):
       tmp = self._make_read_only_temp_file()
       with self.assertRaises(file_attributes_permission_error) as ctx:
         impl.clear(tmp)
