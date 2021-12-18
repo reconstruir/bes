@@ -16,7 +16,7 @@ except ModuleNotFoundError as ex:
 if HAS_XATTR:
   from ._detail._file_attributes_xattr import _file_attributes_xattr as _file_attributes_super_class
 elif host.SYSTEM == host.MACOS:
-  from ._detail._file_attributes_xattr_exe import _file_attributes_xattr_exe as _file_attributes_super_class
+  from ._detail._file_attributes_macos_xattr_exe import _file_attributes_macos_xattr_exe as _file_attributes_super_class
 elif host.SYSTEM == host.LINUX:
   from ._detail._file_attributes_linux import _file_attributes_linux as _file_attributes_super_class
 elif host.SYSTEM == host.WINDOWS:
