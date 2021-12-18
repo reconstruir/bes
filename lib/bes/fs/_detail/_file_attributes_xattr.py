@@ -10,8 +10,6 @@ from bes.system.host import host
 from bes.system.log import logger
 
 from bes.fs.file_attributes_base import file_attributes_base
-#from bes.fs.file_attributes_error import file_attributes_error
-#from bes.fs.file_attributes_error import file_attributes_permission_error
 
 class _file_attributes_xattr(file_attributes_base):
 
@@ -25,7 +23,8 @@ class _file_attributes_xattr(file_attributes_base):
     key = clazz._check_key(key)
     clazz.check_file_is_readable(filename)
 
-    return xattr.xattr(filename).has_key(key)
+    encoded_key = clazz._encode_key(key)
+    return xattr.xattr(filename).has_key(encoded_key)
   
   @classmethod
   #@abstractmethod
@@ -35,9 +34,10 @@ class _file_attributes_xattr(file_attributes_base):
     key = clazz._check_key(key)
     clazz.check_file_is_writable(filename)
 
-    if not xattr.xattr(filename).has_key(key):
+    encoded_key = clazz._encode_key(key)
+    if not xattr.xattr(filename).has_key(encoded_key):
       return None
-    return xattr.getxattr(filename, clazz._encode_key(key))
+    return xattr.getxattr(filename, encoded_key)
     
   @classmethod
   #@abstractmethod
