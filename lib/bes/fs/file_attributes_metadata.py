@@ -27,41 +27,50 @@ class file_attributes_metadata(object):
     clazz._log.log_method_d()
 
     if fallback and not os.access(filename, os.R_OK):
-      clazz._log.log_d('get_bytes:{}:{}: no read access'.format(filename, key))
+      clazz._log.log_d('get_bytes:{filename}:{key}: no read access')
       return value_maker()
     
     mtime_key = clazz._make_mtime_key(key)
     attr_mtime = file_attributes.get_date(filename, mtime_key)
     file_mtime = file_util.get_modification_date(filename)
 
-    clazz._log.log_d('get_bytes: mtime_key={} attr_mtime={} file_mtime={}'.format(mtime_key,
-                                                                                  attr_mtime,
-                                                                                  file_mtime))
+    label = f'get_bytes:{filename}:{key}'
+    
+    clazz._log.log_d(f'{label}: attr_mtime={attr_mtime} file_mtime={file_mtime}')
     if attr_mtime == None:
       value = value_maker()
       if fallback and not os.access(filename, os.W_OK):
-        clazz._log.log_d('get_bytes:{}:{}: no write access'.format(filename, key))
+        clazz._log.log_d(f'{label}: no write access')
         return value
-      clazz._log.log_d('get_bytes:{}:{}: creating new value "{}"'.format(filename, key, value))
-      file_attributes.set_bytes(filename, key, value)
-      file_attributes.set_date(filename, mtime_key, file_mtime)
+      clazz._log.log_d(f'{label}: creating new value "{value}"')
+      clazz._caca(filename, key, value, mtime_key)
+      #file_attributes.set_bytes(filename, key, value)
+      #file_attributes.set_date(filename, mtime_key, file_mtime)
       return value
 
     if attr_mtime == file_mtime:
       if file_attributes.has_key(filename, key):
         value = file_attributes.get_bytes(filename, key)
-        clazz._log.log_d('get_bytes:{}:{}: using cached value "{}"'.format(filename, key, value))
+        clazz._log.log_d(f'{label}: using cached value "{value}"')
         return value
 
     value = value_maker()
     if fallback and not os.access(filename, os.W_OK):
-      clazz._log.log_d('get_bytes:{}:{}: no write access'.format(filename, key))
+      clazz._log.log_d(f'{label}: no write access')
       return value
-    file_attributes.set_bytes(filename, key, value)
-    file_attributes.set_date(filename, mtime_key, file_mtime)
-    clazz._log.log_d('get_bytes:{}:{}: refreshing value "{}"'.format(filename, key, value))
+    clazz._caca(filename, key, value, mtime_key)
+    #file_attributes.set_bytes(filename, key, value)
+    #file_attributes.set_date(filename, mtime_key, file_mtime)
+    clazz._log.log_d(f'{label}: refreshing value "{value}"')
     return value
 
+  @classmethod
+  def _caca(clazz, filename, key, value, mtime_key):
+    file_attributes.set_bytes(filename, key, value)
+    file_mtime = file_util.get_modification_date(filename)
+    file_attributes.set_date(filename, mtime_key, file_mtime)
+    file_util.set_modification_date(filename, file_mtime)
+    
   @classmethod
   def get_string(clazz, filename, key, value_maker, fallback = False):
     check.check_string(filename)

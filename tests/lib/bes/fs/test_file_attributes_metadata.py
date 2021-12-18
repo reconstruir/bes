@@ -38,8 +38,9 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
     self.assertEqual( 1, counter )
     self.assertEqual( b'666', file_attributes_metadata.get_bytes(tmp, 'foo', _value_maker1) )
     self.assertEqual( 1, counter )
+    mtime = file_util.get_modification_date(tmp)
     self.assertEqual( {
-      '__bes_mtime_foo__': str(yesterday.timestamp()).encode('utf-8'),
+      '__bes_mtime_foo__': str(mtime.timestamp()).encode('utf-8'),
       'foo': b'666',
     }, file_attributes.get_all(tmp) )
 
@@ -49,13 +50,13 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
 
     self.assertEqual( 'this is foo more text', file_util.read(tmp, codec = 'utf-8') )
 
+    self.assertEqual( b'667', file_attributes_metadata.get_bytes(tmp, 'foo', _value_maker2) )
+    self.assertEqual( 2, counter )
+    self.assertEqual( b'667', file_attributes_metadata.get_bytes(tmp, 'foo', _value_maker2) )
+    self.assertEqual( 2, counter )
+
     new_mtime = file_util.get_modification_date(tmp)
-
-    self.assertEqual( b'667', file_attributes_metadata.get_bytes(tmp, 'foo', _value_maker2) )
-    self.assertEqual( 2, counter )
-    self.assertEqual( b'667', file_attributes_metadata.get_bytes(tmp, 'foo', _value_maker2) )
-    self.assertEqual( 2, counter )
-
+    
     self.assertEqual( {
       '__bes_mtime_foo__': str(new_mtime.timestamp()).encode('utf-8'),
       'foo': b'667',
