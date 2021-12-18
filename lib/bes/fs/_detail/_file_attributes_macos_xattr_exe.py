@@ -9,8 +9,6 @@ from bes.macos.xattr_exe.xattr_exe_error import xattr_exe_error
 from bes.macos.xattr_exe.xattr_exe_error import xattr_exe_permission_error
 
 from bes.fs.file_attributes_base import file_attributes_base
-from bes.fs.file_attributes_error import file_attributes_error
-from bes.fs.file_attributes_error import file_attributes_permission_error
 
 class _file_attributes_macos_xattr_exe(file_attributes_base):
 

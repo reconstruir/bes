@@ -9,8 +9,6 @@ from bes.linux.attr.linux_attr_error import linux_attr_error
 from bes.linux.attr.linux_attr_error import linux_attr_permission_error
 
 from bes.fs.file_attributes_base import file_attributes_base
-from bes.fs.file_attributes_error import file_attributes_error
-from bes.fs.file_attributes_error import file_attributes_permission_error
 
 class _file_attributes_linux_attr_exe(file_attributes_base):
 
@@ -22,6 +20,7 @@ class _file_attributes_linux_attr_exe(file_attributes_base):
     'Return True if filename has an attributed with key.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
+    clazz.check_file_is_readable(filename)
 
     return linux_attr.has_key(filename, key)
 
@@ -31,11 +30,12 @@ class _file_attributes_linux_attr_exe(file_attributes_base):
     'Return the attribute value with key for filename.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
+    clazz.check_file_is_readable(filename)
 
-    try:
-      return linux_attr.get_bytes(filename, key)
-    except linux_attr_error as ex:
+    if not linux_attr.has_key(filename, key):
       return None
+      
+    return linux_attr.get_bytes(filename, key)
     
   @classmethod
   #@abstractmethod
@@ -44,13 +44,11 @@ class _file_attributes_linux_attr_exe(file_attributes_base):
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
     check.check_bytes(value)
+    clazz.check_file_is_writable(filename)
 
     clazz._log.log_method_d()
 
-    try:
-      linux_attr.set_bytes(filename, key, value)
-    except linux_attr_permission_error as ex:
-      raise file_attributes_permission_error(ex.message)
+    linux_attr.set_bytes(filename, key, value)
   
   @classmethod
   #@abstractmethod
@@ -58,30 +56,24 @@ class _file_attributes_linux_attr_exe(file_attributes_base):
     'Remove the attirbute with key from filename.'
     filename = file_check.check_file(filename)
     key = clazz._check_key(key)
+    clazz.check_file_is_writable(filename)
     
-    try:
-      linux_attr.remove(filename, key)
-    except linux_attr_error as ex:
-      raise file_attributes_error(ex.message)
+    linux_attr.remove(filename, key)
   
   @classmethod
   #@abstractmethod
   def keys(clazz, filename):
     'Return all the keys set for filename.'
     check.check_string(filename)
+    clazz.check_file_is_readable(filename)
 
-    try:
-      return linux_attr.keys(filename)
-    except linux_attr_error as ex:
-      raise file_attributes_error(ex.message)
+    return linux_attr.keys(filename)
     
   @classmethod
   #@abstractmethod
   def clear(clazz, filename):
     'Create all attributes.'
     check.check_string(filename)
+    clazz.check_file_is_writable(filename)
 
-    try:
-      linux_attr.clear(filename)
-    except linux_attr_error as ex:
-      raise file_attributes_error(ex.message)
+    linux_attr.clear(filename)
