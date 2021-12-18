@@ -62,7 +62,7 @@ class file_resolver(object):
         index += len(next_entries)
         result.extend(next_entries)
     if options.sort_order:
-      result = _clazz._sort_result(result, options.sort_order, options.sort_reverse)
+      result = clazz._sort_result(result, options.sort_order, options.sort_reverse)
     if options.limit:
       result = result[0 : options.limit]
     return result

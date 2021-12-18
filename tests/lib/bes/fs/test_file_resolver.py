@@ -4,6 +4,7 @@
 from bes.testing.unit_test import unit_test
 from bes.fs.file_resolver import file_resolver
 from bes.fs.file_resolver_options import file_resolver_options
+from bes.fs.file_sort_order import file_sort_order
 from bes.fs.testing.temp_content import temp_content
 
 class test_file_resolve(unit_test):
@@ -85,19 +86,23 @@ class test_file_resolve(unit_test):
     ], [ '${tmp_dir}/a', '${tmp_dir}/b' ], recursive = True, limit = 1)
     self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
 
-  def test_resolve_files_with_limit(self):
+  def test_resolve_files_with_sort_order(self):
     expected = '''\
-    ${tmp_dir}/a suba1/orange.txt      ${tmp_dir}/a/suba1/orange.txt      0
+    ${tmp_dir}/b subb1/cherry.txt      ${tmp_dir}/b/subb1/cherry.txt      4
+    ${tmp_dir}/b pineapple.txt         ${tmp_dir}/b/pineapple.txt         3
+    ${tmp_dir}/b subb1/subb2/kiwi.txt  ${tmp_dir}/b/subb1/subb2/kiwi.txt  5
     ${tmp_dir}/a suba1/suba2/lemon.txt ${tmp_dir}/a/suba1/suba2/lemon.txt 1
+    ${tmp_dir}/a suba1/orange.txt      ${tmp_dir}/a/suba1/orange.txt      0
+    ${tmp_dir}/a watermelon.txt        ${tmp_dir}/a/watermelon.txt        2
     '''
     actual = self._test([
-      'file a/suba1/orange.txt "this is orange.txt" 644',
-      'file a/suba1/suba2/lemon.txt "this is lemon.txt" 644',
-      'file a/watermelon.txt "this is watermelon.txt" 644',
-      'file b/pineapple.txt "this is pineapple.txt" 644',
-      'file b/subb1/cherry.txt "this is cherry.txt" 644',
-      'file b/subb1/subb2/kiwi.txt "this is kiwi.txt" 644',
-    ], [ '${tmp_dir}/a', '${tmp_dir}/b' ], recursive = True, limit = 2)
+      'file b/subb1/cherry.txt "1" 644',         # 1 byte
+      'file b/pineapple.txt "12" 644',           # 2 bytes
+      'file b/subb1/subb2/kiwi.txt "123" 644',   # 3 bytes
+      'file a/suba1/suba2/lemon.txt "1234" 644', # 4 bytes
+      'file a/suba1/orange.txt "12345" 644',     # 5 bytes
+      'file a/watermelon.txt "123456" 644',      # 6 bytes
+    ], [ '${tmp_dir}/a', '${tmp_dir}/b' ], recursive = True, sort_order = 'size')
     self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
     
   def _test(self,
@@ -105,6 +110,8 @@ class test_file_resolve(unit_test):
             files,
             recursive = True,
             limit = None,
+            sort_order = None,
+            sort_reverse = False,
             match_patterns = None,
             match_type = None,
             match_basename = True,
@@ -114,7 +121,9 @@ class test_file_resolve(unit_test):
     temp_content.write_items(items, tmp_dir)
     files = [ f.replace('${tmp_dir}', tmp_dir) for f in files ]
     options = file_resolver_options(recursive = recursive,
-                                    limit = limit)
+                                    limit = limit,
+                                    sort_order = sort_order,
+                                    sort_reverse = sort_reverse)
     result = file_resolver.resolve_files(files,
                                          options = options,
                                          match_patterns = match_patterns,
