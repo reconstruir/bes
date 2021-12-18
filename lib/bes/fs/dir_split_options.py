@@ -4,7 +4,7 @@ from bes.cli.cli_options import cli_options
 from bes.common.check import check
 from bes.common.time_util import time_util
 
-from .dir_sort_order import dir_sort_order
+from .file_sort_order import file_sort_order
 
 class dir_split_options(cli_options):
 
@@ -24,7 +24,7 @@ class dir_split_options(cli_options):
       'dry_run': False,
       'dup_file_timestamp': time_util.timestamp(),
       'dup_file_count': 1,
-      'sort_order': dir_sort_order.FILENAME,
+      'sort_order': file_sort_order.FILENAME,
       'sort_reverse': False,
       'partition': False,
     }
@@ -45,7 +45,7 @@ class dir_split_options(cli_options):
       'verbose': bool,
       'dry_run': bool,
       'dup_file_count': int,
-      'sort_order': dir_sort_order,
+      'sort_order': file_sort_order,
       'sort_reverse': bool,
       'partition': bool,
     }
@@ -81,7 +81,7 @@ class dir_split_options(cli_options):
     check.check_string(self.prefix)
     check.check_string(self.dup_file_timestamp)
     check.check_int(self.dup_file_count)
-    check.check_dir_sort_order(self.sort_order, allow_none = True)
+    check.check_file_sort_order(self.sort_order, allow_none = True)
     check.check_bool(self.sort_reverse)
 
 check.register_class(dir_split_options)

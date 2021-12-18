@@ -9,7 +9,7 @@ from bes.common.string_util import string_util
 from bes.system.check import check
 from bes.system.log import logger
 
-from .dir_sort_order import dir_sort_order
+from .file_sort_order import file_sort_order
 from .dir_split_options import dir_split_options
 from .dir_util import dir_util
 from .file_attributes_metadata import file_attributes_metadata
@@ -155,11 +155,11 @@ class dir_split(object):
       criteria = []
       if partition:
         criteria.append(finfo.media_type)
-      if order == dir_sort_order.FILENAME:
+      if order == file_sort_order.FILENAME:
         criteria.append(finfo.filename)
-      elif order == dir_sort_order.SIZE:
+      elif order == file_sort_order.SIZE:
         criteria.append(file_util.size(finfo.filename))
-      elif order == dir_sort_order.DATE:
+      elif order == file_sort_order.DATE:
         criteria.append(file_util.get_modification_date(finfo.filename))
       else:
         assert False
