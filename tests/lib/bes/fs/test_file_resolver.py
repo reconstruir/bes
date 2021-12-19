@@ -164,15 +164,34 @@ class test_file_resolve(unit_test):
     expected = '''\
     ${tmp_dir} a ${tmp_dir}/a 0 0
     ${tmp_dir} b ${tmp_dir}/b 1 1
-    ${tmp_dir} subdir ${tmp_dir}/subdir 2 2
+    ${tmp_dir} subdir1 ${tmp_dir}/subdir1 2 2
+    ${tmp_dir} subdir2 ${tmp_dir}/subdir2 3 3
     '''
     actual = self._test_resolve_dirs([
       'file cheese.txt "this is cheese.txt" 644',
       'file a/lemon.txt "this is lemon.txt" 644',
       'file b/kiwi.txt "this is kiwi.txt" 644',
-      'file subdir/orange.txt "this is orange.txt" 644',
-      'file subdir/apple.txt "this is apple.txt" 644',
+      'file subdir1/subdir3/orange.txt "this is orange.txt" 644',
+      'file subdir2/subdir4/apple.txt "this is apple.txt" 644',
     ], [ '${tmp_dir}' ], recursive = False)
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
+
+  def test_resolve_dirs_just_root_dir_recursive(self):
+    expected = '''\
+    ${tmp_dir} a ${tmp_dir}/a 0 0
+    ${tmp_dir} b ${tmp_dir}/b 1 1
+    ${tmp_dir} subdir1 ${tmp_dir}/subdir1 2 2
+    ${tmp_dir} subdir1/subdir3 ${tmp_dir}/subdir1/subdir3 3 3
+    ${tmp_dir} subdir2 ${tmp_dir}/subdir2 4 4
+    ${tmp_dir} subdir2/subdir4 ${tmp_dir}/subdir2/subdir4 5 5
+    '''
+    actual = self._test_resolve_dirs([
+      'file cheese.txt "this is cheese.txt" 644',
+      'file a/lemon.txt "this is lemon.txt" 644',
+      'file b/kiwi.txt "this is kiwi.txt" 644',
+      'file subdir1/subdir3/orange.txt "this is orange.txt" 644',
+      'file subdir2/subdir4/apple.txt "this is apple.txt" 644',
+    ], [ '${tmp_dir}' ], recursive = True)
     self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
     
   def _test_resolve_files(self,
