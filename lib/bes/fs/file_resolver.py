@@ -17,9 +17,9 @@ from .file_resolver_options import file_resolver_options
 from .file_util import file_util
 from .file_sort_order import file_sort_order
 
-class file_resolver(object):
+from .file_resolver_item import file_resolver_item
 
-  _resolved_file = namedtuple('_resolved_file', 'root_dir, filename, filename_abs, index, found_index')
+class file_resolver(object):
 
   _log = logger('file_resolver')
   
@@ -41,7 +41,7 @@ class file_resolver(object):
         raise IOError('File or directory not found: "{}"'.format(filename_abs))
       if path.isfile(filename_abs):
         filename = path.relpath(filename_abs)
-        result.append(clazz._resolved_file(None, filename, filename_abs, index, index))
+        result.append(file_resolver_item(None, filename, filename_abs, index, index))
         index += 1
       elif path.isdir(filename_abs):
         next_entries = clazz._resolve_one_dir(filename_abs, options, index)
@@ -74,11 +74,11 @@ class file_resolver(object):
   def _reindex_result(clazz, result):
     reindexed_result = []
     for index, item in enumerate(result):
-      reindexed_result.append(clazz._resolved_file(item.root_dir,
-                                                   item.filename,
-                                                   item.filename_abs,
-                                                   index,
-                                                   item.found_index))
+      reindexed_result.append(file_resolver_item(item.root_dir,
+                                                 item.filename,
+                                                 item.filename_abs,
+                                                 index,
+                                                 item.found_index))
     return reindexed_result
   
   @classmethod
@@ -100,5 +100,5 @@ class file_resolver(object):
       clazz._log.log_d('_resolve_one_dir:{}: next_filename={}'.format(index, next_filename))
       filename_abs = path.join(root_dir, next_filename)
       filename = path.relpath(filename_abs, start = root_dir)
-      result.append(clazz._resolved_file(root_dir, filename, filename_abs, index, index))
+      result.append(file_resolver_item(root_dir, filename, filename_abs, index, index))
     return result

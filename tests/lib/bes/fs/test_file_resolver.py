@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.testing.unit_test import unit_test
 from bes.fs.file_resolver import file_resolver
+from bes.fs.file_resolver_item import file_resolver_item
 from bes.fs.file_resolver_options import file_resolver_options
 from bes.fs.file_sort_order import file_sort_order
 from bes.fs.testing.temp_content import temp_content
+from bes.testing.unit_test import unit_test
 
 class test_file_resolve(unit_test):
 
@@ -193,16 +194,12 @@ class test_file_resolve(unit_test):
     else:
       new_root_dir = None
     new_filename_abs = resolved_file.filename_abs.replace(tmp_dir, '${tmp_dir}')
-    item = file_resolver._resolved_file(new_root_dir,
-                                        clazz.xp_filename(resolved_file.filename),
-                                        clazz.xp_filename(new_filename_abs),
-                                        resolved_file.index,
-                                        resolved_file.found_index)
-    return '{} {} {} {} {}'.format(item.root_dir,
-                                   item.filename,
-                                   item.filename_abs,
-                                   item.index,
-                                   item.found_index)
+    item = file_resolver_item(new_root_dir,
+                              clazz.xp_filename(resolved_file.filename),
+                              clazz.xp_filename(new_filename_abs),
+                              resolved_file.index,
+                              resolved_file.found_index)
+    return ' '.join([ str(part) for part in item ])
   
   def _make_temp_content(self):
     tmp_dir = self.make_temp_dir()
