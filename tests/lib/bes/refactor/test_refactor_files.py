@@ -2,9 +2,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
-from bes.testing.unit_test import unit_test
-from bes.refactor.refactor_files import refactor_files
+
+from bes.fs.file_find import file_find
 from bes.fs.testing.temp_content import temp_content
+from bes.refactor.refactor_files import refactor_files
+from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
@@ -39,8 +41,36 @@ class test_refactor_files(unit_test, unit_test_media_files):
 
   def test_search_files(self):
     self.maxDiff = None
+    
+    tmp_dir = self._make_temp_content([
+      temp_content('file', 'lib/fruit/kiwi.py', self.KIWI_PY, 0o0644),
+      temp_content('file', 'lib/fruit/lemon.py', self.LEMON_PY, 0o0644),
+      temp_content('file', 'lib/fruit/constants.py', self.CONSTANTS_PY, 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_kiwi.py', self.TEST_KIWI_py, 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_lemon.py', self.TEST_LEMON_py, 0o0644),
+    ])
+    self.assert_filename_list_equal( [
+      f'{tmp_dir}/lib/fruit/kiwi.py',
+      f'{tmp_dir}/tests/lib/fruit/test_kiwi.py',
+    ], refactor_files.search_files( file_find.find(tmp_dir, relative = False), 'kiwi', word_boundary = False, ignore_case = False) )
 
-    kiwi_py = '''\
+  def test_search_files_ignore_case(self):
+    self.maxDiff = None
+    
+    tmp_dir = self._make_temp_content([
+      temp_content('file', 'lib/fruit/kiwi.py', self.KIWI_PY, 0o0644),
+      temp_content('file', 'lib/fruit/lemon.py', self.LEMON_PY, 0o0644),
+      temp_content('file', 'lib/fruit/constants.py', self.CONSTANTS_PY, 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_kiwi.py', self.TEST_KIWI_py, 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_lemon.py', self.TEST_LEMON_py, 0o0644),
+    ])
+    self.assert_filename_list_equal( [
+      f'{tmp_dir}/lib/fruit/constants.py',
+      f'{tmp_dir}/lib/fruit/kiwi.py',
+      f'{tmp_dir}/tests/lib/fruit/test_kiwi.py',
+    ], refactor_files.search_files( file_find.find(tmp_dir, relative = False), 'kiwi', word_boundary = False, ignore_case = True) )
+
+  KIWI_PY = '''\
 class kiwi(object):
   def __init__(self, x):
     self._x = x
@@ -54,7 +84,7 @@ class kiwi(object):
     return kiwi(x)
 '''
 
-    test_kiwi_py = '''\
+  TEST_KIWI_py = '''\
 from bes.testing.unit_test import unit_test
 class test_kiwi(unit_test):
 
@@ -64,19 +94,38 @@ class test_kiwi(unit_test):
 if __name__ == '__main__':
   unit_test.main()
 '''
-    
-    tmp_dir = self._make_temp_content([
-      temp_content('file', 'lib/fruit/kiwi.py', kiwi_py, 0o0644),
-      temp_content('file', 'tests/lib/fruit/test_kiwi.py', test_kiwi_py, 0o0644),
-    ])
-    [ path.join(tmp_dir, f) for f in [ 'fruit', 'wine', 'foo.py' ] ]
-    self.assert_filename_list_equal( [
-      f'{tmp_dir}/lib/fruit/kiwi.py',
-      f'{tmp_dir}/tests/lib/fruit/test_kiwi.py',
-    ], refactor_files.search_files([
-      f'{tmp_dir}/lib/fruit/kiwi.py',
-      f'{tmp_dir}/tests/lib/fruit/test_kiwi.py',
-    ], 'kiwi', word_boundary = False, ignore_case = False) )
+
+  LEMON_PY = '''\
+class lemon(object):
+  def __init__(self, x):
+    self._x = x
+
+  @property
+  def x(self):
+    return self._x
+
+  @classmethod
+  def make_lemon(clazz, x):
+    return lemon(x)
+'''
+
+  TEST_LEMON_py = '''\
+from bes.testing.unit_test import unit_test
+class test_lemon(unit_test):
+
+  def test__init__(self):
+    self.assertEqual( 666, lemon(666).x )
+
+if __name__ == '__main__':
+  unit_test.main()
+'''
+
+  CONSTANTS_PY = '''\
+_KIWI = 666
+_KIWIFRUIT = 667
+_LEMON = 668
+_LEMONTHYME = 669
+'''
     
 if __name__ == '__main__':
   unit_test.main()
