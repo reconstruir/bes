@@ -9,7 +9,6 @@ from bes.common.string_util import string_util
 from bes.system.check import check
 from bes.system.log import logger
 
-from .file_sort_order import file_sort_order
 from .dir_split_options import dir_split_options
 from .dir_util import dir_util
 from .file_attributes_metadata import file_attributes_metadata
@@ -17,6 +16,7 @@ from .file_check import file_check
 from .file_find import file_find
 from .file_mime import file_mime
 from .file_path import file_path
+from .file_sort_order import file_sort_order
 from .file_util import file_util
 
 class dir_split(object):
@@ -161,6 +161,8 @@ class dir_split(object):
         criteria.append(file_util.size(finfo.filename))
       elif order == file_sort_order.DATE:
         criteria.append(file_util.get_modification_date(finfo.filename))
+      elif order == file_sort_order.DEPTH:
+        criteria.append(file_path.depth(finfo.filename))
       else:
         assert False
       return tuple(criteria)

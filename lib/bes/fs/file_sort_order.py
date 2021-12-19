@@ -4,6 +4,7 @@ from bes.enum_util.checked_enum import checked_enum
 
 class file_sort_order(checked_enum):
   DATE = 'date'
+  DEPTH = 'depth'
   FILENAME = 'filename'
   SIZE = 'size'
 

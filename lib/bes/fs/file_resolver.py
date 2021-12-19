@@ -84,6 +84,8 @@ class file_resolver(object):
         criteria.append(file_util.size(resolved_file.filename_abs))
       elif order == file_sort_order.DATE:
         criteria.append(file_util.get_modification_date(resolved_file.filename_abs))
+      elif order == file_sort_order.DEPTH:
+        criteria.append(file_path.depth(resolved_file.filename_abs))
       else:
         assert False
       return tuple(criteria)
