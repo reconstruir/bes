@@ -7,7 +7,7 @@ from .file_resolver_item import file_resolver_item
 
 class file_resolver_item_list(type_checked_list):
 
-  __value_type__ = file_checksum
+  __value_type__ = file_resolver_item
   
   def __init__(self, values = None):
     super(file_resolver_item_list, self).__init__(values = values)

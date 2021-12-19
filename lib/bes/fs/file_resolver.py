@@ -18,6 +18,7 @@ from .file_util import file_util
 from .file_sort_order import file_sort_order
 
 from .file_resolver_item import file_resolver_item
+from .file_resolver_item_list import file_resolver_item_list
 
 class file_resolver(object):
 
@@ -32,7 +33,7 @@ class file_resolver(object):
     options = options or file_resolver_options()
     
     files = object_util.listify(files)
-    result = []
+    result = file_resolver_item_list()
     index = 0
     for next_file in files:
       filename_abs = file_path.normalize(next_file)
@@ -72,7 +73,7 @@ class file_resolver(object):
 
   @classmethod
   def _reindex_result(clazz, result):
-    reindexed_result = []
+    reindexed_result = file_resolver_item_list()
     for index, item in enumerate(result):
       reindexed_result.append(file_resolver_item(item.root_dir,
                                                  item.filename,
