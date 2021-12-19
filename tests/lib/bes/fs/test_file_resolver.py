@@ -123,6 +123,22 @@ class test_file_resolve(unit_test):
       'file a/watermelon.txt "123456" 644',      # 6 bytes
     ], [ '${tmp_dir}/a', '${tmp_dir}/b' ], recursive = True, sort_order = 'size', sort_reverse = True)
     self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
+
+  def test_resolve_files_with_one_pattern(self):
+    expected = '''\
+    ${tmp_dir}/a suba1/suba2/two.lemon ${tmp_dir}/a/suba1/suba2/two.lemon 0 0
+    ${tmp_dir}/b subb1/five.lemon ${tmp_dir}/b/subb1/five.lemon 1 1
+'''
+    actual = self._test([
+      'file a/suba1/one.orange "this is one.orange" 644',
+      'file a/suba1/suba2/two.lemon "this is two.lemon" 644',
+      'file a/three.orange "this is three.orange" 644',
+      'file b/four.pineapple "this is four.pineapple" 644',
+      'file b/subb1/five.lemon "this is five.lemon" 644',
+      'file b/subb1/subb2/six.kiwi "this is six.kiwi" 644',
+    ], [ '${tmp_dir}/a', '${tmp_dir}/b' ], recursive = True, match_patterns = [ '*.lemon' ])
+
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
     
   def _test(self,
             items,
