@@ -10,12 +10,13 @@ from bes.common.object_util import object_util
 from bes.system.log import logger
 
 from .dir_util import dir_util
+from .file_check import file_check
 from .file_find import file_find
 from .file_match import file_match
 from .file_path import file_path
 from .file_resolver_options import file_resolver_options
-from .file_util import file_util
 from .file_sort_order import file_sort_order
+from .file_util import file_util
 
 from .file_resolver_item import file_resolver_item
 from .file_resolver_item_list import file_resolver_item_list
@@ -34,6 +35,18 @@ class file_resolver(object):
     options = options or file_resolver_options()
     return clazz._do_resolve_files(files, options, file_find.FILE_OR_LINK)
 
+  @classmethod
+  def resolve_dirs(clazz, dirs, options = None):
+    'Resolve a directories only.'
+    check.check_file_resolver_options(options, allow_none = True)
+    
+    clazz._log.log_method_d()
+
+    dirs = object_util.listify(dirs)
+    file_check.check_dir_seq(dirs)
+    options = options or file_resolver_options()
+    return clazz._do_resolve_files(dirs, options, file_find.DIR)
+  
   @classmethod
   def _do_resolve_files(clazz, files, options, file_type):
     'Resolve a mixed list of files and directories into a list of files.'

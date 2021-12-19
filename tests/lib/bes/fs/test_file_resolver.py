@@ -16,7 +16,7 @@ class test_file_resolve(unit_test):
     expected = '''\
     ${tmp_dir} cheese.txt ${tmp_dir}/cheese.txt 0 0
     '''
-    actual = self._test([
+    actual = self._test_resolve_files([
       'file cheese.txt "this is cheese.txt" 644',
       'file a/lemon.txt "this is lemon.txt" 644',
       'file b/kiwi.txt "this is kiwi.txt" 644',
@@ -33,7 +33,7 @@ class test_file_resolve(unit_test):
     ${tmp_dir} subdir/apple.txt ${tmp_dir}/subdir/apple.txt 3 3
     ${tmp_dir} subdir/orange.txt ${tmp_dir}/subdir/orange.txt 4 4
     '''
-    actual = self._test([
+    actual = self._test_resolve_files([
       'file cheese.txt "this is cheese.txt" 644',
       'file a/lemon.txt "this is lemon.txt" 644',
       'file b/kiwi.txt "this is kiwi.txt" 644',
@@ -47,7 +47,7 @@ class test_file_resolve(unit_test):
     ${tmp_dir}/a lemon.txt ${tmp_dir}/a/lemon.txt 0 0
     ${tmp_dir}/b kiwi.txt ${tmp_dir}/b/kiwi.txt 1 1
     '''
-    actual = self._test([
+    actual = self._test_resolve_files([
       'file cheese.txt "this is cheese.txt" 644',
       'file a/lemon.txt "this is lemon.txt" 644',
       'file b/kiwi.txt "this is kiwi.txt" 644',
@@ -65,7 +65,7 @@ class test_file_resolve(unit_test):
     ${tmp_dir}/b subb1/cherry.txt      ${tmp_dir}/b/subb1/cherry.txt      4 4
     ${tmp_dir}/b subb1/subb2/kiwi.txt  ${tmp_dir}/b/subb1/subb2/kiwi.txt  5 5
     '''
-    actual = self._test([
+    actual = self._test_resolve_files([
       'file a/suba1/orange.txt "this is orange.txt" 644',
       'file a/suba1/suba2/lemon.txt "this is lemon.txt" 644',
       'file a/watermelon.txt "this is watermelon.txt" 644',
@@ -79,7 +79,7 @@ class test_file_resolve(unit_test):
     expected = '''\
     ${tmp_dir}/a suba1/orange.txt      ${tmp_dir}/a/suba1/orange.txt      0 0
     '''
-    actual = self._test([
+    actual = self._test_resolve_files([
       'file a/suba1/orange.txt "this is orange.txt" 644',
       'file a/suba1/suba2/lemon.txt "this is lemon.txt" 644',
       'file a/watermelon.txt "this is watermelon.txt" 644',
@@ -98,7 +98,7 @@ class test_file_resolve(unit_test):
     ${tmp_dir}/a suba1/orange.txt      ${tmp_dir}/a/suba1/orange.txt      4 0
     ${tmp_dir}/a watermelon.txt        ${tmp_dir}/a/watermelon.txt        5 2
     '''
-    actual = self._test([
+    actual = self._test_resolve_files([
       'file b/subb1/cherry.txt "1" 644',         # 1 byte
       'file b/pineapple.txt "12" 644',           # 2 bytes
       'file b/subb1/subb2/kiwi.txt "123" 644',   # 3 bytes
@@ -117,7 +117,7 @@ class test_file_resolve(unit_test):
     ${tmp_dir}/b pineapple.txt         ${tmp_dir}/b/pineapple.txt         4 3
     ${tmp_dir}/b subb1/cherry.txt      ${tmp_dir}/b/subb1/cherry.txt      5 4
     '''
-    actual = self._test([
+    actual = self._test_resolve_files([
       'file b/subb1/cherry.txt "1" 644',         # 1 byte
       'file b/pineapple.txt "12" 644',           # 2 bytes
       'file b/subb1/subb2/kiwi.txt "123" 644',   # 3 bytes
@@ -132,7 +132,7 @@ class test_file_resolve(unit_test):
     ${tmp_dir}/a suba1/suba2/two.lemon ${tmp_dir}/a/suba1/suba2/two.lemon 0 0
     ${tmp_dir}/b subb1/five.lemon ${tmp_dir}/b/subb1/five.lemon 1 1
 '''
-    actual = self._test([
+    actual = self._test_resolve_files([
       'file a/suba1/one.orange "this is one.orange" 644',
       'file a/suba1/suba2/two.lemon "this is two.lemon" 644',
       'file a/three.orange "this is three.orange" 644',
@@ -149,7 +149,7 @@ class test_file_resolve(unit_test):
     ${tmp_dir}/b subb1/five.lemon ${tmp_dir}/b/subb1/five.lemon 2 2
     ${tmp_dir}/b subb1/subb2/six.kiwi ${tmp_dir}/b/subb1/subb2/six.kiwi 3 3
 '''
-    actual = self._test([
+    actual = self._test_resolve_files([
       'file a/suba1/one.orange "this is one.orange" 644',
       'file a/suba1/suba2/two.lemon "this is two.lemon" 644',
       'file a/three.orange "this is three.orange" 644',
@@ -159,19 +159,85 @@ class test_file_resolve(unit_test):
       'file b/subb1/subb2/seven.orange "this is seven.orange" 644',
     ], [ '${tmp_dir}/a', '${tmp_dir}/b' ], recursive = True, match_patterns = [ '*.lemon', 'three.orange', '*.kiwi' ])
     self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
+
+  def test_resolve_dirs_just_root_dir(self):
+    expected = '''\
+    ${tmp_dir} a ${tmp_dir}/a 0 0
+    ${tmp_dir} b ${tmp_dir}/b 1 1
+    ${tmp_dir} subdir ${tmp_dir}/subdir 2 2
+    '''
+    actual = self._test_resolve_dirs([
+      'file cheese.txt "this is cheese.txt" 644',
+      'file a/lemon.txt "this is lemon.txt" 644',
+      'file b/kiwi.txt "this is kiwi.txt" 644',
+      'file subdir/orange.txt "this is orange.txt" 644',
+      'file subdir/apple.txt "this is apple.txt" 644',
+    ], [ '${tmp_dir}' ], recursive = False)
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
     
-  def _test(self,
-            items,
-            files,
-            recursive = True,
-            limit = None,
-            sort_order = None,
-            sort_reverse = False,
-            match_patterns = None,
-            match_type = None,
-            match_basename = True,
-            match_function = None,
-            match_re = None):
+  def _test_resolve_files(self,
+                          items,
+                          files,
+                          recursive = True,
+                          limit = None,
+                          sort_order = None,
+                          sort_reverse = False,
+                          match_patterns = None,
+                          match_type = None,
+                          match_basename = True,
+                          match_function = None,
+                          match_re = None):
+    return self._test_resolve(file_resolver.resolve_files,
+                               items,
+                               files,
+                               recursive = recursive,
+                               limit = limit,
+                               sort_order = sort_order,
+                               sort_reverse = sort_reverse,
+                               match_patterns = match_patterns,
+                               match_type = match_type,
+                               match_basename = match_basename,
+                               match_function = match_function,
+                               match_re = match_re)
+
+  def _test_resolve_dirs(self,
+                         items,
+                         files,
+                         recursive = True,
+                         limit = None,
+                         sort_order = None,
+                         sort_reverse = False,
+                         match_patterns = None,
+                         match_type = None,
+                         match_basename = True,
+                         match_function = None,
+                         match_re = None):
+    return self._test_resolve(file_resolver.resolve_dirs,
+                              items,
+                              files,
+                              recursive = recursive,
+                              limit = limit,
+                              sort_order = sort_order,
+                              sort_reverse = sort_reverse,
+                              match_patterns = match_patterns,
+                              match_type = match_type,
+                              match_basename = match_basename,
+                              match_function = match_function,
+                              match_re = match_re)
+  
+  def _test_resolve(self,
+                    func,
+                    items,
+                    files,
+                    recursive = True,
+                    limit = None,
+                    sort_order = None,
+                    sort_reverse = False,
+                    match_patterns = None,
+                    match_type = None,
+                    match_basename = True,
+                    match_function = None,
+                    match_re = None):
     tmp_dir = self.make_temp_dir()
     temp_content.write_items(items, tmp_dir)
     files = [ f.replace('${tmp_dir}', tmp_dir) for f in files ]
@@ -184,9 +250,9 @@ class test_file_resolve(unit_test):
                                     match_basename = match_basename,
                                     match_function = match_function,
                                     match_re = match_re)
-    result = file_resolver.resolve_files(files, options = options)
+    result = func(files, options = options)
     return '\n'.join([ self._fix_one_resolved_file(f, tmp_dir) for f in result ])
-
+  
   @classmethod
   def _fix_one_resolved_file(clazz, resolved_file, tmp_dir):
     if resolved_file.root_dir != None:
