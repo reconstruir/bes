@@ -90,7 +90,7 @@ class file_resolver(object):
     else:
       max_depth = 1
     found_files = file_find.find(root_dir,
-                                 relative = True,
+                                 relative = False,
                                  match_patterns = options.match_patterns,
                                  match_type = options.match_type,
                                  match_basename = options.match_basename,
@@ -99,7 +99,8 @@ class file_resolver(object):
                                  max_depth = max_depth)
     for index, next_filename in enumerate(found_files, start = starting_index):
       clazz._log.log_d('_resolve_one_dir:{}: next_filename={}'.format(index, next_filename))
-      filename_abs = path.join(root_dir, next_filename)
+      filename_abs = next_filename
       filename = path.relpath(filename_abs, start = root_dir)
       result.append(file_resolver_item(root_dir, filename, filename_abs, index, index))
     return result
+  
