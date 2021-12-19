@@ -24,14 +24,7 @@ class file_resolver(object):
   _log = logger('file_resolver')
   
   @classmethod
-  def resolve_files(clazz,
-                    files,
-                    options = None,
-                    match_patterns = None,
-                    match_type = None,
-                    match_basename = True,
-                    match_function = None,
-                    match_re = None):
+  def resolve_files(clazz, files, options = None):
     'Resolve a mixed list of files and directories into a list of files.'
     check.check_file_resolver_options(options, allow_none = True)
     
@@ -51,14 +44,7 @@ class file_resolver(object):
         result.append(clazz._resolved_file(None, filename, filename_abs, index, index))
         index += 1
       elif path.isdir(filename_abs):
-        next_entries = clazz._resolve_one_dir(filename_abs,
-                                              options,
-                                              index,
-                                              match_patterns,
-                                              match_type,
-                                              match_basename,
-                                              match_function,
-                                              match_re)
+        next_entries = clazz._resolve_one_dir(filename_abs, options, index)
         index += len(next_entries)
         result.extend(next_entries)
     if options.sort_order:
@@ -96,9 +82,7 @@ class file_resolver(object):
     return reindexed_result
   
   @classmethod
-  def _resolve_one_dir(clazz, root_dir, options, starting_index,
-                       match_patterns, match_type, match_basename,
-                       match_function, match_re):
+  def _resolve_one_dir(clazz, root_dir, options, starting_index):
     result = []
     if options.recursive:
       max_depth = None
@@ -106,11 +90,11 @@ class file_resolver(object):
       max_depth = 1
     found_files = file_find.find(root_dir,
                                  relative = True,
-                                 match_patterns = match_patterns,
-                                 match_type = match_type,
-                                 match_basename = match_basename,
-                                 match_function = match_function,
-                                 match_re = match_re,
+                                 match_patterns = options.match_patterns,
+                                 match_type = options.match_type,
+                                 match_basename = options.match_basename,
+                                 match_function = options.match_function,
+                                 match_re = options.match_re,
                                  max_depth = max_depth)
     for index, next_filename in enumerate(found_files, start = starting_index):
       clazz._log.log_d('_resolve_one_dir:{}: next_filename={}'.format(index, next_filename))
@@ -118,7 +102,8 @@ class file_resolver(object):
       filename = path.relpath(filename_abs, start = root_dir)
       result.append(clazz._resolved_file(root_dir, filename, filename_abs, index, index))
     return result
-    
+
+  '''
   @classmethod
   def resolve_dir(clazz, d, patterns = None, match_type = None):
     d = path.normpath(d)
@@ -166,3 +151,5 @@ class file_resolver(object):
     filename = path.join(base_dir_basename, rf.filename)
     filename_abs = path.join(root_dir, filename)
     return clazz.resolved_file(root_dir, filename, filename_abs)
+'''
+  

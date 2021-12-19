@@ -142,14 +142,13 @@ class test_file_resolve(unit_test):
     options = file_resolver_options(recursive = recursive,
                                     limit = limit,
                                     sort_order = sort_order,
-                                    sort_reverse = sort_reverse)
-    result = file_resolver.resolve_files(files,
-                                         options = options,
-                                         match_patterns = match_patterns,
-                                         match_type = match_type,
-                                         match_basename = match_basename,
-                                         match_function = match_function,
-                                         match_re = match_re)
+                                    sort_reverse = sort_reverse,
+                                    match_patterns = match_patterns,
+                                    match_type = match_type,
+                                    match_basename = match_basename,
+                                    match_function = match_function,
+                                    match_re = match_re)
+    result = file_resolver.resolve_files(files, options = options)
     return '\n'.join([ self._fix_one_resolved_file(f, tmp_dir) for f in result ])
 
   @classmethod

@@ -3,6 +3,7 @@
 import argparse, os.path as path
 
 from bes.fs.file_resolve import file_resolve
+from bes.fs.file_resolver import file_resolver
 
 from .import_expand import import_expand
 

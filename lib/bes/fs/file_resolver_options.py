@@ -20,9 +20,13 @@ class file_resolver_options(cli_options):
       'sort_order': None,
       'sort_reverse': False,
       'limit': None,
-      'exclude_patterns': None,
+      'match_patterns': None,
+      'match_type': None,
+      'match_basename': True,
+      'match_function': None,
+      'match_re': None
     }
-  
+
   @classmethod
   #@abstractmethod
   def sensitive_keys(clazz):
@@ -38,6 +42,11 @@ class file_resolver_options(cli_options):
       'sort_reverse': bool,
       'limit': int,
       'exclude_patterns': list,
+      'match_patterns': list,
+      #'match_type': None,
+      #'match_basename': True,
+      #'match_function': None,
+      #'match_re': list,
     }
 
   @classmethod
@@ -67,6 +76,10 @@ class file_resolver_options(cli_options):
     check.check_file_sort_order(self.sort_order, allow_none = True)
     check.check_bool(self.sort_reverse)
     check.check_int(self.limit, allow_none = True)
-    check.check_string_seq(self.exclude_patterns, allow_none = True)
-
+    check.check_string_seq(self.match_patterns, allow_none = True)
+    #check.check_string_seq(self.match_type, allow_none = True)
+    check.check_bool(self.match_basename)
+    check.check_function(self.match_function, allow_none = True)
+    check.check_string_seq(self.match_re, allow_none = True)
+    
 check.register_class(file_resolver_options)
