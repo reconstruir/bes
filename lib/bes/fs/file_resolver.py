@@ -103,4 +103,3 @@ class file_resolver(object):
       filename = path.relpath(filename_abs, start = root_dir)
       result.append(file_resolver_item(root_dir, filename, filename_abs, index, index))
     return result
-  
