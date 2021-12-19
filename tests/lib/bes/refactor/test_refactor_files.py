@@ -19,14 +19,23 @@ class test_refactor_files(unit_test, unit_test_media_files):
     self.maxDiff = None
     tmp_dir = self._make_temp_content([
       temp_content('file', 'fruit/icons/kiwi.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'fruit/icons/wrong_extension.py', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'fruit/src/lemon.py', "class foo(object): pass", 0o0644),
-      temp_content('file', 'fruit/bin/script', "#!/usr/bin/env python3\na=666\n", 0o0755),
+      temp_content('file', 'fruit/icons/berry_wrong.py', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'fruit/src/lemon.py', "class barolo(object): pass", 0o0644),
+      temp_content('file', 'fruit/bin/fscript', "#!/usr/bin/env python3\na=666\n", 0o0755),
+      temp_content('file', 'wine/icons/chablis.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'wine/icons/sherry_wrong.py', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'wine/src/barolo.py', "class barolo(object): pass", 0o0644),
+      temp_content('file', 'wine/bin/wscript', "#!/usr/bin/env python3\na=666\n", 0o0755),
+      temp_content('file', 'foo.py', "class foo(object): pass", 0o0644),
     ])
+    [ path.join(tmp_dir, f) for f in [ 'fruit', 'wine', 'foo.py' ] ]
     self.assert_filename_list_equal( [
-      f'{tmp_dir}/fruit/bin/script',
+      f'{tmp_dir}/foo.py',
+      f'{tmp_dir}/fruit/bin/fscript',
       f'{tmp_dir}/fruit/src/lemon.py',
-    ], refactor_files.resolve_python_files(tmp_dir) )
+      f'{tmp_dir}/wine/bin/wscript',
+      f'{tmp_dir}/wine/src/barolo.py',
+    ], refactor_files.resolve_python_files([ path.join(tmp_dir, f) for f in [ 'fruit', 'wine', 'foo.py' ] ]) )
     
 if __name__ == '__main__':
   unit_test.main()
