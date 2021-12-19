@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+# todo:
+#  - symlink unit tests
 from bes.fs.file_resolver import file_resolver
 from bes.fs.file_resolver_item import file_resolver_item
 from bes.fs.file_resolver_options import file_resolver_options

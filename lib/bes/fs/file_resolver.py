@@ -30,8 +30,14 @@ class file_resolver(object):
     check.check_file_resolver_options(options, allow_none = True)
     
     clazz._log.log_method_d()
+
     options = options or file_resolver_options()
-    
+    return clazz._do_resolve_files(files, options, file_find.FILE_OR_LINK)
+
+  @classmethod
+  def _do_resolve_files(clazz, files, options, file_type):
+    'Resolve a mixed list of files and directories into a list of files.'
+
     files = object_util.listify(files)
     result = file_resolver_item_list()
     index = 0
@@ -45,7 +51,7 @@ class file_resolver(object):
         result.append(file_resolver_item(None, filename, filename_abs, index, index))
         index += 1
       elif path.isdir(filename_abs):
-        next_entries = clazz._resolve_one_dir(filename_abs, options, index)
+        next_entries = clazz._resolve_one_dir(filename_abs, options, index, file_type)
         index += len(next_entries)
         result.extend(next_entries)
     if options.sort_order:
@@ -53,7 +59,7 @@ class file_resolver(object):
     if options.limit:
       result = result[0 : options.limit]
     return result
-
+    
   @classmethod
   def _sort_result(clazz, result, order, reverse):
     assert order
@@ -83,7 +89,7 @@ class file_resolver(object):
     return reindexed_result
   
   @classmethod
-  def _resolve_one_dir(clazz, root_dir, options, starting_index):
+  def _resolve_one_dir(clazz, root_dir, options, starting_index, file_type):
     result = []
     if options.recursive:
       max_depth = None
@@ -91,6 +97,7 @@ class file_resolver(object):
       max_depth = 1
     found_files = file_find.find(root_dir,
                                  relative = False,
+                                 file_type = file_type,
                                  match_patterns = options.match_patterns,
                                  match_type = options.match_type,
                                  match_basename = options.match_basename,
