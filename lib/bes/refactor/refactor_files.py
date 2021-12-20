@@ -37,6 +37,17 @@ class refactor_files(object):
     return resolved.files()
 
   @classmethod
+  def resolve_text_files(clazz, files):
+    'Resolve text files.'
+    
+    def _match_function(filename):
+      return file_mime.is_text(filename)
+    options = file_resolver_options(match_function = _match_function,
+                                    match_basename = False)
+    resolved = file_resolver.resolve_files(files, options = options)
+    return resolved.files()
+  
+  @classmethod
   def search_files(clazz, files, text, word_boundary = False, ignore_case = False):
     'Search for text in files.'
     
