@@ -216,6 +216,10 @@ class test_file_path(unit_test):
   def test_insert(self):
     self.assert_filename_equal( '/foo/bar/baz/x.png', file_path.insert('/foo/bar/x.png', -1, 'baz') )
     self.assert_filename_equal( '/baz/foo/bar/x.png', file_path.insert('/foo/bar/x.png', 1, 'baz') )
+
+  def test_replace_all(self):
+    self.assert_filename_equal( '/foo/apple', file_path.replace_all('/foo/bar', 'bar', 'apple') )
+    self.assert_filename_equal( '/apple/foo/apple', file_path.replace_all('/bar/foo/bar', 'bar', 'apple') )
     
 if __name__ == "__main__":
   unit_test.main()

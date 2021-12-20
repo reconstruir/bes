@@ -65,6 +65,34 @@ class file_path(object):
     return clazz.join(v)
 
   @classmethod
+  def part_is_valid(clazz, c):
+    'Check that a part has only valid basename chars.'
+    if path.sep in c:
+      return False
+    if path.curdir in c:
+      return False
+    if path.pardir in c:
+      return False
+    return True
+  
+  @classmethod
+  def check_part(clazz, part):
+    'Check that a part has only valid basename chars.'
+    if not clazz.part_is_valid(part):
+      raise ValueError('Invalid part: "{}"'.format(part))
+  
+  @classmethod
+  def replace_all(clazz, p, src, dst):
+    'Replace src with dst on all parts of the path.'
+    clazz.check_part(src)
+    clazz.check_part(dst)
+    
+    v = clazz.split(p)
+    for i, part in enumerate(v):
+      v[i] = v[i].replace(src, dst)
+    return clazz.join(v)
+  
+  @classmethod
   def depth(clazz, p):
     'Return the depth of p.'
     return len(clazz.split(p))
