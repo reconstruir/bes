@@ -498,16 +498,16 @@ class logger(object):
   def log_method_d(self):
     self.log_method(log.DEBUG, depth = 2)
 
-  def log_method_i(self, msg):
+  def log_method_i(self):
     self.log_method(log.INFO, depth = 2)
 
-  def log_method_c(self, msg):
+  def log_method_c(self):
     self.log_method(log.CRITICAL, depth = 2)
     
-  def log_method_e(self, msg):
+  def log_method_e(self):
     self.log_method(log.ERROR, depth = 2)
     
-  def log_method_w(self, msg):
+  def log_method_w(self):
     self.log_method(log.WARNING, depth = 2)
     
   critical = log_c
