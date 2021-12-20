@@ -1,7 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
-import re
 
 from bes.common.algorithm import algorithm
 from bes.fs.file_check import file_check
@@ -50,19 +49,19 @@ class refactor_files(object):
     return resolved.absolute_files(sort = True)
   
   @classmethod
-  def search_files(clazz, files, text, word_boundary = False, ignore_case = False):
+  def search_files(clazz, files, text, word_boundary = False):
     'Search for text in files.'
     
     result = []
     for filename in files:
       next_matches = file_search.search_file(filename, text,
-                                             word_boundary = word_boundary,
-                                             ignore_case = ignore_case)
+                                             word_boundary = word_boundary)
       result.extend(next_matches)
     return sorted(algorithm.unique([ item.filename for item in result ]))
 
   @classmethod
-  def rename_dirs(clazz, src_pattern, dst_pattern, root_dir, word_boundary = False):
+  def rename_dirs(clazz, src_pattern, dst_pattern, root_dir,
+                  word_boundary = False):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_string(root_dir)
@@ -106,7 +105,8 @@ class refactor_files(object):
       clazz._rename_one(src_filename_abs, dst_filename_abs, try_git)
         
   @classmethod
-  def rename_files(clazz, src_pattern, dst_pattern, root_dir, word_boundary = False):
+  def rename_files(clazz, src_pattern, dst_pattern, root_dir,
+                   word_boundary = False):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_string(root_dir)
@@ -123,16 +123,31 @@ class refactor_files(object):
       
   @classmethod
   def _make_file_resolver_options(clazz, src_pattern, word_boundary):
-    escaped_src_pattern = re.escape(src_pattern)
-    if word_boundary:
-      expression = r'.*\b{}\b.*'.format(escaped_src_pattern)
-    else:
-      expression = r'.*{}.*'.format(escaped_src_pattern)
-
     def _match_function(d):
-      return file_match.match_re(d, expression, match_type = file_match.ANY, basename = True)
-    
+      return clazz._match_basename(path.basename(d), src_pattern, word_boundary)
     return file_resolver_options(match_function = _match_function,
                                  match_basename = False,
                                  sort_order = 'depth',
                                  sort_reverse = True)
+
+  @classmethod
+  def _match_basename(clazz, basename, pattern, word_boundary):
+    i = basename.find(pattern)
+    if i < 0:
+      return False
+    if not word_boundary:
+      return True
+    if i > 0:
+      left_index = i - 1
+    else:
+      left_index = None
+    right_index = i + len(pattern)
+    if right_index == len(basename):
+      right_index = None
+    if left_index != None:
+      if basename[left_index].isalnum():
+        return False
+    if right_index != None:
+      if basename[right_index].isalnum():
+        return False
+    return True

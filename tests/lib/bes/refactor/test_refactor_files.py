@@ -63,28 +63,32 @@ class test_refactor_files(unit_test, unit_test_media_files):
     ], refactor_files.resolve_text_files(tmp_dir) )
     
   def test_search_files(self):
-    tmp_dir = self._make_search_files_content()
+    tmp_dir = self._make_temp_content([
+      temp_content('file', 'lib/fruit/kiwi.py', self.KIWI_PY, 0o0644),
+      temp_content('file', 'lib/fruit/lemon.py', self.LEMON_PY, 0o0644),
+      temp_content('file', 'lib/fruit/constants.py', self.CONSTANTS_PY, 0o0644),
+      temp_content('file', 'lib/fruit/constants2.py', self.CONSTANTS2_PY, 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_kiwi.py', self.TEST_KIWI_py, 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_lemon.py', self.TEST_LEMON_py, 0o0644),
+    ])
     self.assert_filename_list_equal( [
       f'{tmp_dir}/lib/fruit/kiwi.py',
       f'{tmp_dir}/tests/lib/fruit/test_kiwi.py',
-    ], refactor_files.search_files( file_find.find(tmp_dir, relative = False), 'kiwi', word_boundary = False, ignore_case = False) )
-
-  def test_search_files_ignore_case(self):
-    tmp_dir = self._make_search_files_content()
-    self.assert_filename_list_equal( [
-      f'{tmp_dir}/lib/fruit/constants.py',
-      f'{tmp_dir}/lib/fruit/constants2.py',
-      f'{tmp_dir}/lib/fruit/kiwi.py',
-      f'{tmp_dir}/tests/lib/fruit/test_kiwi.py',
-    ], refactor_files.search_files( file_find.find(tmp_dir, relative = False), 'kiwi', word_boundary = False, ignore_case = True) )
+    ], refactor_files.search_files( file_find.find(tmp_dir, relative = False), 'kiwi', word_boundary = False) )
 
   def test_search_files_with_word_boundary(self):
-    tmp_dir = self._make_search_files_content()
+    tmp_dir = self._make_temp_content([
+      temp_content('file', 'lib/fruit/kiwi.py', self.KIWI_PY, 0o0644),
+      temp_content('file', 'lib/fruit/lemon.py', self.LEMON_PY, 0o0644),
+      temp_content('file', 'lib/fruit/constants.py', self.CONSTANTS_PY, 0o0644),
+      temp_content('file', 'lib/fruit/constants2.py', self.CONSTANTS2_PY, 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_kiwi.py', self.TEST_KIWI_py, 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_lemon.py', self.TEST_LEMON_py, 0o0644),
+    ])
     self.assert_filename_list_equal( [
-      f'{tmp_dir}/lib/fruit/constants.py',
       f'{tmp_dir}/lib/fruit/kiwi.py',
       f'{tmp_dir}/tests/lib/fruit/test_kiwi.py',
-    ], refactor_files.search_files( file_find.find(tmp_dir, relative = False), 'kiwi', word_boundary = True, ignore_case = True) )
+    ], refactor_files.search_files( file_find.find(tmp_dir, relative = False), 'kiwi', word_boundary = True) )
 
   def test_rename_dirs(self):
     tmp_dir = self._make_temp_content([
@@ -158,36 +162,70 @@ class test_refactor_files(unit_test, unit_test_media_files):
 
   def test_rename_files(self):
     tmp_dir = self._make_temp_content([
-      temp_content('file', 'fruit/lib/fruit/kiwi.py', self.KIWI_PY, 0o0644),
-      temp_content('file', 'fruit/lib/fruit/lemon.py', self.LEMON_PY, 0o0644),
       temp_content('file', 'fruit/lib/fruit/constants.py', self.CONSTANTS_PY, 0o0644),
       temp_content('file', 'fruit/lib/fruit/constants2.py', self.CONSTANTS2_PY, 0o0644),
+      temp_content('file', 'fruit/lib/fruit/kiwi.py', self.KIWI_PY, 0o0644),
+      temp_content('file', 'fruit/lib/fruit/kiwifruit.py', self.KIWI_PY, 0o0644),
+      temp_content('file', 'fruit/lib/fruit/lemon.py', self.LEMON_PY, 0o0644),
       temp_content('file', 'fruit/lib/fruity/constants2b.py', self.CONSTANTS2_PY, 0o0644),
       temp_content('file', 'fruit/tests/lib/fruit/test_kiwi.py', self.TEST_KIWI_py, 0o0644),
+      temp_content('file', 'fruit/tests/lib/fruit/test_kiwifruit.py', self.TEST_KIWI_py, 0o0644),
       temp_content('file', 'fruit/tests/lib/fruit/test_lemon.py', self.TEST_LEMON_py, 0o0644),
       temp_content('file', 'fruit/tests/lib/fruity/test_lemonb.py', self.TEST_LEMON_py, 0o0644),
     ])
     refactor_files.rename_files('kiwi', 'chocolate', tmp_dir, word_boundary = False)
     self.assert_filename_list_equal( [
       'fruit/lib/fruit/chocolate.py',
+      'fruit/lib/fruit/chocolatefruit.py',
       'fruit/lib/fruit/constants.py',
       'fruit/lib/fruit/constants2.py',
       'fruit/lib/fruit/lemon.py',
       'fruit/lib/fruity/constants2b.py',
       'fruit/tests/lib/fruit/test_chocolate.py',
+      'fruit/tests/lib/fruit/test_chocolatefruit.py',
       'fruit/tests/lib/fruit/test_lemon.py',
       'fruit/tests/lib/fruity/test_lemonb.py',
     ], file_find.find(tmp_dir) )
-    
-  def _make_search_files_content(self):
-    return self._make_temp_content([
-      temp_content('file', 'lib/fruit/kiwi.py', self.KIWI_PY, 0o0644),
-      temp_content('file', 'lib/fruit/lemon.py', self.LEMON_PY, 0o0644),
-      temp_content('file', 'lib/fruit/constants.py', self.CONSTANTS_PY, 0o0644),
-      temp_content('file', 'lib/fruit/constants2.py', self.CONSTANTS2_PY, 0o0644),
-      temp_content('file', 'tests/lib/fruit/test_kiwi.py', self.TEST_KIWI_py, 0o0644),
-      temp_content('file', 'tests/lib/fruit/test_lemon.py', self.TEST_LEMON_py, 0o0644),
+
+  def test_rename_files_with_word_boundary(self):
+    tmp_dir = self._make_temp_content([
+      temp_content('file', 'fruit/lib/fruit/constants.py', self.CONSTANTS_PY, 0o0644),
+      temp_content('file', 'fruit/lib/fruit/constants2.py', self.CONSTANTS2_PY, 0o0644),
+      temp_content('file', 'fruit/lib/fruit/kiwi.py', self.KIWI_PY, 0o0644),
+      temp_content('file', 'fruit/lib/fruit/kiwifruit.py', self.KIWI_PY, 0o0644),
+      temp_content('file', 'fruit/lib/fruit/lemon.py', self.LEMON_PY, 0o0644),
+      temp_content('file', 'fruit/lib/fruity/constants2b.py', self.CONSTANTS2_PY, 0o0644),
+      temp_content('file', 'fruit/tests/lib/fruit/test_kiwi.py', self.TEST_KIWI_py, 0o0644),
+      temp_content('file', 'fruit/tests/lib/fruit/test_kiwifruit.py', self.TEST_KIWI_py, 0o0644),
+      temp_content('file', 'fruit/tests/lib/fruit/test_lemon.py', self.TEST_LEMON_py, 0o0644),
+      temp_content('file', 'fruit/tests/lib/fruity/test_lemonb.py', self.TEST_LEMON_py, 0o0644),
     ])
+    refactor_files.rename_files('kiwi', 'chocolate', tmp_dir, word_boundary = True)
+    self.assert_filename_list_equal( [
+      'fruit/lib/fruit/chocolate.py',
+      'fruit/lib/fruit/constants.py',
+      'fruit/lib/fruit/constants2.py',
+      'fruit/lib/fruit/kiwifruit.py',
+      'fruit/lib/fruit/lemon.py',
+      'fruit/lib/fruity/constants2b.py',
+      'fruit/tests/lib/fruit/test_chocolate.py',
+      'fruit/tests/lib/fruit/test_kiwifruit.py',
+      'fruit/tests/lib/fruit/test_lemon.py',
+      'fruit/tests/lib/fruity/test_lemonb.py',
+    ], file_find.find(tmp_dir) )
+
+  def test__match_basename(self):
+    self.assertEqual( True, refactor_files._match_basename('kiwi.py', 'kiwi', False) )
+    self.assertEqual( True, refactor_files._match_basename('kiwis.py', 'kiwi', False) )
+    self.assertEqual( False, refactor_files._match_basename('kiwi.py', 'kiwis', False) )
+    self.assertEqual( True, refactor_files._match_basename('kiwi_fruit.py', 'kiwi', False) )
+
+  def test__match_basename_word_boundary(self):
+    self.assertEqual( True, refactor_files._match_basename('kiwi.py', 'kiwi', True) )
+    self.assertEqual( False, refactor_files._match_basename('kiwis.py', 'kiwi', True) )
+    self.assertEqual( False, refactor_files._match_basename('kiwi.py', 'kiwis', True) )
+    self.assertEqual( True, refactor_files._match_basename('kiwi_fruit.py', 'kiwi', True) )
+    self.assertEqual( False, refactor_files._match_basename('yummykiwi.py', 'kiwi', True) )
 
   KIWI_PY = '''\
 class kiwi(object):
