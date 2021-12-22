@@ -78,6 +78,12 @@ class files_cli_args(object):
                    dest = 'levels',
                    help = 'The level of access to check for [ write ]')
 
+    # resolve
+    p = subparser.add_parser('resolve', help = 'Resolve a mixture of files and directories into just files.')
+    self.__files_cli_add_add_common_args(p)
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more directories to check for dups [ None ]')
+    
   @classmethod
   def __files_cli_add_add_common_args(clazz, p):
     p.add_argument('--dry-run', action = 'store_true', default = False,

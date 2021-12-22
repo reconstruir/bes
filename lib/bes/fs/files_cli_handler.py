@@ -113,3 +113,11 @@ class files_cli_handler(cli_command_handler):
       print('{}: {}'.format(f.filename_abs, access))
     return 0
   
+  def resolve(self, files):
+    check.check_string_seq(files)
+
+    files = file_resolver.resolve_files(files, options = self._resolver_options)
+    for f in files:
+      print(f'{f.filename_abs}')
+    return 0
+  
