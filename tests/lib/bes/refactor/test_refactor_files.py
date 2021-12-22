@@ -205,7 +205,6 @@ class test_refactor_files(unit_test, unit_test_media_files):
       'xdata',
       'xdata/chocolate_stuff',
       'xdata/chocolate_stuff/chocolate.png',
-#      'xdata/kiwi_stuff',
     ], file_find.find(tmp_dir, file_type = file_find.ANY) )
 
   def xtest_rename_files_with_word_boundary(self):
