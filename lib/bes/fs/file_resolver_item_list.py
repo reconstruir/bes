@@ -1,9 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.common.type_checked_list import type_checked_list
 
 from .file_resolver_item import file_resolver_item
+from .file_path import file_path
 
 class file_resolver_item_list(type_checked_list):
 
@@ -18,10 +20,16 @@ class file_resolver_item_list(type_checked_list):
       result = sorted(result)
     return result
 
+  def absolute_common_ancestor(self):
+    return file_path.common_ancestor(self.absolute_files())
+  
   def relative_files(self, sort = False):
     result = [ item.filename for item in self ]
     if sort:
       result = sorted(result)
     return result
+  
+  def root_dirs(self):
+    return sorted(algorithm.unique([ item.root_dir for item in self ]))
   
 check.register_class(file_resolver_item_list, include_seq = False)

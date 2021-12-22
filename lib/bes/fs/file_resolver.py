@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 import os.path as path
 
 from collections import namedtuple
@@ -51,28 +52,36 @@ class file_resolver(object):
   def _do_resolve_files(clazz, files, options, file_type):
     'Resolve a mixed list of files and directories into a list of files.'
 
-    files = object_util.listify(files)
+    found_files = clazz._find_files(files, options, file_type)
+    common_ancestor = file_path.common_ancestor(found_files)
     result = file_resolver_item_list()
-    index = 0
-    for next_file in files:
-      filename_abs = file_path.normalize(next_file)
-      
-      if not path.exists(filename_abs):
-        raise IOError('File or directory not found: "{}"'.format(filename_abs))
-      if path.isfile(filename_abs):
-        filename = path.relpath(filename_abs)
-        result.append(file_resolver_item(None, filename, filename_abs, index, index))
-        index += 1
-      elif path.isdir(filename_abs):
-        next_entries = clazz._resolve_one_dir(filename_abs, options, index, file_type)
-        index += len(next_entries)
-        result.extend(next_entries)
+    for index, filename_abs in enumerate(found_files):
+      filename_rel = path.relpath(filename_abs, start = common_ancestor)
+      item = file_resolver_item(common_ancestor, filename_rel, filename_abs, index, index)
+      result.append(item)
     if options.sort_order:
       result = clazz._sort_result(result, options.sort_order, options.sort_reverse)
     if options.limit:
       result = result[0 : options.limit]
     return result
-    
+
+  @classmethod
+  def _find_files(clazz, files, options, file_type):
+    'Resolve a mixed list of files and directories into a list of files.'
+
+    files = object_util.listify(files)
+    result = []
+    for next_file in files:
+      filename_abs = file_path.normalize(next_file)
+      if not path.exists(filename_abs):
+        raise IOError('File or directory not found: "{}"'.format(filename_abs))
+      if path.isfile(filename_abs):
+        result.append(filename_abs)
+      elif path.isdir(filename_abs):
+        next_entries = clazz._find_files_in_dir(filename_abs, options, 0, file_type)
+        result.extend(next_entries)
+    return result
+  
   @classmethod
   def _sort_result(clazz, result, order, reverse):
     assert order
@@ -104,7 +113,7 @@ class file_resolver(object):
     return reindexed_result
   
   @classmethod
-  def _resolve_one_dir(clazz, root_dir, options, starting_index, file_type):
+  def _find_files_in_dir(clazz, root_dir, options, starting_index, file_type):
     result = []
     if options.recursive:
       max_depth = None
@@ -119,9 +128,4 @@ class file_resolver(object):
                                  match_function = options.match_function,
                                  match_re = options.match_re,
                                  max_depth = max_depth)
-    for index, next_filename in enumerate(found_files, start = starting_index):
-      clazz._log.log_d('_resolve_one_dir:{}: next_filename={}'.format(index, next_filename))
-      filename_abs = next_filename
-      filename = path.relpath(filename_abs, start = root_dir)
-      result.append(file_resolver_item(root_dir, filename, filename_abs, index, index))
-    return result
+    return found_files
