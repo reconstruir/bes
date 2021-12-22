@@ -1,10 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import re, string, sys
+import re
+import string
+import sys
 
 from bes.compat.StringIO import StringIO
 from bes.system.compat import compat
-from .check import check
+from bes.system.check import check
+
+from .char_util import char_util
 
 class string_util(object):
   'String util'
@@ -100,13 +104,80 @@ class string_util(object):
     return s
 
   @classmethod
+  def find_all(clazz, s, sub_string):
+    'Yields all the indeces of sub_string in s'
+    check.check_string(s)
+    check.check_string(sub_string)
+
+    i = 0
+    while True:
+      i = s.find(sub_string, i)
+      if i < 0:
+        return
+      yield i
+      i += len(sub_string)
+
+  @classmethod
+  def replace_span(clazz, s, i, n, replacement, word_boundary = False, underscore = False):
+    'Replace a span of text in s starting at i with a length of n'
+    check.check_string(s)
+    check.check_int(i)
+    check.check_int(n)
+    check.check_string(replacement)
+    check.check_bool(word_boundary)
+    check.check_bool(underscore)
+
+    if i < 0:
+      raise ValueError('i should be greater than 0')
+    length = len(s)
+    if i >= len(s):
+      raise ValueError(f'n should be less than the length of s - {length}')
+    if n < 1:
+      raise ValueError('n should be at least 1')
+    
+    j = i + n - 1
+    assert j >= i
+
+    if word_boundary:
+      if i >= 1:
+        prev_char = s[i - 1]
+        if not char_util.is_word_boundary(prev_char, underscore = underscore):
+          return s
+      if j < (length - 1):
+        next_char = s[j + 1]
+        if not char_util.is_word_boundary(next_char, underscore = underscore):
+          return s
+    
+    left = s[:i]
+    right = s[j + 1:]
+    return left + replacement + right
+      
+  @classmethod
+  def replace_all(clazz, s, src_string, dst_string, word_boundary = True, underscore = False):
+    'Replace src_string with dst_string optionally respecting word boundaries.'
+    check.check_string(s)
+    check.check_string(src_string)
+    check.check_string(dst_string)
+    check.check_bool(word_boundary)
+    check.check_bool(underscore)
+
+    indeces = [ i for i in clazz.find_all(s, src_string) ]
+    rindeces = reversed(indeces)
+    n = len(src_string)
+    for i in reversed(indeces):
+      s = clazz.replace_span(s, i, n, dst_string,
+                             word_boundary = word_boundary,
+                             underscore = word_boundary)
+    return s
+  
+  @classmethod
   def is_string(clazz, s):
     'Return True if s is a string.'
     return compat.is_string(s)
     
   @classmethod
   def is_char(clazz, s):
-    'Return True if s is 1 line character.'
+    'Return True if s is 1 character.'
     return clazz.is_string(s) and len(s) == 1
 
   @classmethod
@@ -115,9 +186,23 @@ class string_util(object):
     try:
       s.decode('ascii')
       return True
-    except:
+    except Exception as ex:
       return False
 
+  _NOT_WORD_BOUNDARY_CHARS = {
+    'True': string.ascii_letters + string.digits,
+    'False': string.ascii_letters + string.digits + '_',
+  }
+  @classmethod
+  def is_word_boundary(clazz, s, exclude_underscore = False):
+    'Return True if s is ascii.'
+    return s not in clazz._NOT_WORD_BOUNDARY_CHARS
+    try:
+      s.decode('ascii')
+      return True
+    except Exception as ex:
+      return False
+    
   @classmethod
   def replace_punctuation(clazz, s, replacement):
     'Replace punctuation in s with replacement.'

@@ -40,8 +40,16 @@ class test_string_util(unittest.TestCase):
   def test_replace(self):
     self.assertEqual( 'foo bar', SU.replace('a b', { 'a': 'foo', 'b': 'bar' }) )
 
-  def test_replace_word_boundary(self):
-    self.assertEqual( 'foo and bar but not aba', SU.replace('a and b but not aba', { 'a': 'foo', 'b': 'bar' }) )
+  def test_replace_with_word_boundary(self):
+    self.assertEqual( 'apple and bar but not aba', SU.replace('a and b but not aba', { 'a': 'apple', 'b': 'bar' }) )
+    self.assertEqual( 'applebar', SU.replace('applebar', { 'apple': 'kiwi' }, word_boundary = True) )
+    self.assertEqual( 'apple_bar', SU.replace('apple_bar', { 'apple': 'kiwi' }, word_boundary = True) )
+    self.assertEqual( '1apple', SU.replace('1apple', { 'apple': 'kiwi' }, word_boundary = True) )
+    self.assertEqual( 'apple1', SU.replace('apple1', { 'apple': 'kiwi' }, word_boundary = True) )
+    self.assertEqual( 'kiwi.', SU.replace('apple.', { 'apple': 'kiwi' }, word_boundary = True) )
+    self.assertEqual( 'kiwi', SU.replace('apple', { 'apple': 'kiwi' }, word_boundary = True) )
+    self.assertEqual( ' kiwi', SU.replace(' apple', { 'apple': 'kiwi' }, word_boundary = True) )
+    self.assertEqual( 'kiwi ', SU.replace('apple ', { 'apple': 'kiwi' }, word_boundary = True) )
 
   def test_replace_dont_word_boundary(self):
     self.assertEqual( 'foo foond bar barut not foobarfoo', SU.replace('a and b but not aba', { 'a': 'foo', 'b': 'bar' }, word_boundary = False) )
@@ -172,6 +180,61 @@ class test_string_util(unittest.TestCase):
 
     self.assertEqual( 'prefix_support-ea-abcdef0_lemon-park-0.6.51_potato-pond-0.154_im-abcdef0_butter-pond-0.3.46',
                       f('prefix_support-kiwi-abcdef0_lemon-park-0.6.51_potato-pond-0.154_coffee-abcdef0_butter-pond-0.3.46', r, word_boundary = False) )
+
+  def test_find_all(self):
+    def f(s, sub_string):
+      return [ x for x in SU.find_all(s, sub_string) ]
+    self.assertEqual( [ 0, 12, 20 ], f('foo and bar foo and foo', 'foo') )
+    self.assertEqual( [], f('bar', 'foo') )
+    self.assertEqual( [ 0 ], f('foo', 'foo') )
+    self.assertEqual( [ 4, 16 ], f('foo and bar foo and foo', 'and') )
+
+  def test_replace_span(self):
+    f = SU.replace_span
+    self.assertEqual( 'foo & bar foo and foo', f('foo and bar foo and foo', 4, 3, '&', word_boundary = False) )
+    self.assertEqual( 'xoo', f('foo', 0, 1, 'x', word_boundary = False) )
+    self.assertEqual( 'fxo', f('foo', 1, 1, 'x', word_boundary = False) )
+    self.assertEqual( 'fox', f('foo', 2, 1, 'x', word_boundary = False) )
+
+    with self.assertRaises(ValueError) as ctx:
+      f('foo', 3, 1, 'x')
+    with self.assertRaises(ValueError) as ctx:
+      f('foo', -1, 1, 'x')
+    with self.assertRaises(ValueError) as ctx:
+      f('foo', 0, 0, 'x')
+
+  def test_replace_span_with_word_boundary(self):
+    f = SU.replace_span
+    self.assertEqual( 'foo.&:bar', f('foo.and:bar', 4, 3, '&', word_boundary = True) )
+    self.assertEqual( 'fooxandybar', f('fooxandybar', 4, 3, '&', word_boundary = True) )
+    self.assertEqual( 'x', f('foo', 0, 3, 'x', word_boundary = True) )
+    self.assertEqual( 'foo_', f('foo_', 0, 3, 'x', word_boundary = True) )
+    self.assertEqual( '_foo', f('_foo', 1, 3, 'x', word_boundary = True) )
+
+  def test_replace_span_with_word_boundary_and_underscore(self):
+    f = SU.replace_span
+    self.assertEqual( 'x', f('foo', 0, 3, 'x', word_boundary = True, underscore = True) )
+    self.assertEqual( 'x_', f('foo_', 0, 3, 'x', word_boundary = True, underscore = True) )
+    self.assertEqual( '_x', f('_foo', 1, 3, 'x', word_boundary = True, underscore = True) )
+    
+  def test_replace_all(self):
+    f = SU.replace_all
+    self.assertEqual( 'foo & bar foo & foo', f('foo and bar foo and foo', 'and', '&', word_boundary = False) )
+    self.assertEqual( 'foo and bar foo and foo', f('foo and bar foo and foo', 'kiwi', '&', word_boundary = False) )
+    self.assertEqual( 'fxx', f('foo', 'o', 'x', word_boundary = False) )
+    self.assertEqual( 'foo', f('foo', 'o', 'o', word_boundary = False) )
+    self.assertEqual( 'fxxxx', f('foo', 'o', 'xx', word_boundary = False) )
+    self.assertEqual( 'foooo', f('foo', 'o', 'oo', word_boundary = False) )
+
+  def test_replace_all_with_word_boundary(self):
+    f = SU.replace_all
+    self.assertEqual( 'foo & bar foo & foo', f('foo and bar foo and foo', 'and', '&', word_boundary = True) )
+    self.assertEqual( 'foo and bar foo and foo', f('foo and bar foo and foo', 'kiwi', '&', word_boundary = True) )
+    self.assertEqual( 'foo', f('foo', 'o', 'x', word_boundary = True) )
+    self.assertEqual( 'foo', f('foo', 'o', 'o', word_boundary = True) )
+    self.assertEqual( 'foo', f('foo', 'o', 'xx', word_boundary = True) )
+    self.assertEqual( 'foo', f('foo', 'o', 'oo', word_boundary = True) )
+    self.assertEqual( 'o', f('foo', 'foo', 'o', word_boundary = True) )
     
 if __name__ == "__main__":
   unittest.main()

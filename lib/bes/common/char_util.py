@@ -17,6 +17,8 @@ class char_util(object):
   }
   
   @classmethod
-  def is_word_boundary(clazz, s, underscore = False):
+  def is_word_boundary(clazz, c, underscore = False):
     'Return True if s is a word boundary character.'
-    return s not in clazz._NOT_WORD_BOUNDARY_CHARS[underscore]
+    assert len(c) == 1
+    
+    return c not in clazz._NOT_WORD_BOUNDARY_CHARS[underscore]
