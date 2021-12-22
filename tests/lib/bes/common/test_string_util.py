@@ -41,7 +41,8 @@ class test_string_util(unittest.TestCase):
     self.assertEqual( 'foo bar', SU.replace('a b', { 'a': 'foo', 'b': 'bar' }) )
 
   def test_replace_with_word_boundary(self):
-    self.assertEqual( 'apple and bar but not aba', SU.replace('a and b but not aba', { 'a': 'apple', 'b': 'bar' }) )
+    self.assertEqual( 'apple and bar but not aba',
+                      SU.replace('a and b but not aba', { 'a': 'apple', 'b': 'bar' }, word_boundary = True) )
     self.assertEqual( 'applebar', SU.replace('applebar', { 'apple': 'kiwi' }, word_boundary = True) )
     self.assertEqual( 'apple_bar', SU.replace('apple_bar', { 'apple': 'kiwi' }, word_boundary = True) )
     self.assertEqual( '1apple', SU.replace('1apple', { 'apple': 'kiwi' }, word_boundary = True) )
@@ -51,7 +52,11 @@ class test_string_util(unittest.TestCase):
     self.assertEqual( ' kiwi', SU.replace(' apple', { 'apple': 'kiwi' }, word_boundary = True) )
     self.assertEqual( 'kiwi ', SU.replace('apple ', { 'apple': 'kiwi' }, word_boundary = True) )
 
-  def test_replace_dont_word_boundary(self):
+  def test_replace_with_word_boundary_and_underscore(self):
+    self.assertEqual( 'applebar', SU.replace('applebar', { 'apple': 'kiwi' }, word_boundary = True, underscore = True) )
+    self.assertEqual( 'kiwi_bar', SU.replace('apple_bar', { 'apple': 'kiwi' }, word_boundary = True, underscore = True) )
+    
+  def test_replace_no_word_boundary(self):
     self.assertEqual( 'foo foond bar barut not foobarfoo', SU.replace('a and b but not aba', { 'a': 'foo', 'b': 'bar' }, word_boundary = False) )
 
   def xtest_replace_escaped(self):

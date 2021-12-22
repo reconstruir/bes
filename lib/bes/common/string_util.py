@@ -83,24 +83,17 @@ class string_util(object):
       return s
 
   @classmethod
-  def replace(clazz, s, replacements, word_boundary = True):
+  def replace(clazz, s, replacements, word_boundary = True, underscore = False):
     'Replace all instances of dict d in string s.'
     check.check_string(s)
-    check.check_dict(replacements)
-    assert clazz.is_string(s)
-    for key, value in replacements.items():
-      assert key
-      if word_boundary:
-        pattern_parts = []
-        if key[0].isalnum():
-          pattern_parts.append(r'\b')
-        pattern_parts.append(re.escape(key))
-        if key[-1].isalnum():
-          pattern_parts.append(r'\b')
-        pattern = ''.join(pattern_parts)
-        s = re.sub(pattern, value, s)
-      else:
-        s = s.replace(key, value)
+    check.check_dict(replacements, check.STRING_TYPES, check.STRING_TYPES)
+    check.check_bool(word_boundary)
+    check.check_bool(underscore)
+
+    for src_string, dst_string in replacements.items():
+      s = clazz.replace_all(s, src_string, dst_string,
+                            word_boundary = word_boundary,
+                            underscore = underscore)
     return s
 
   @classmethod
@@ -138,14 +131,19 @@ class string_util(object):
     j = i + n - 1
     assert j >= i
 
+    #print(f's={s} i={i} n={n}')
     if word_boundary:
       if i >= 1:
         prev_char = s[i - 1]
-        if not char_util.is_word_boundary(prev_char, underscore = underscore):
+        prev_char_is_boundary = char_util.is_word_boundary(prev_char, underscore = underscore)
+        #print(f'prev_char={prev_char} prev_char_is_boundary={prev_char_is_boundary}')
+        if not prev_char_is_boundary:
           return s
       if j < (length - 1):
         next_char = s[j + 1]
-        if not char_util.is_word_boundary(next_char, underscore = underscore):
+        next_char_is_boundary = char_util.is_word_boundary(next_char, underscore = underscore)
+        #print(f'next_char={next_char} next_char_is_boundary={next_char_is_boundary}')
+        if not next_char_is_boundary:
           return s
     
     left = s[:i]
@@ -167,7 +165,7 @@ class string_util(object):
     for i in reversed(indeces):
       s = clazz.replace_span(s, i, n, dst_string,
                              word_boundary = word_boundary,
-                             underscore = word_boundary)
+                             underscore = underscore)
     return s
   
   @classmethod
@@ -189,20 +187,6 @@ class string_util(object):
     except Exception as ex:
       return False
 
-  _NOT_WORD_BOUNDARY_CHARS = {
-    'True': string.ascii_letters + string.digits,
-    'False': string.ascii_letters + string.digits + '_',
-  }
-  @classmethod
-  def is_word_boundary(clazz, s, exclude_underscore = False):
-    'Return True if s is ascii.'
-    return s not in clazz._NOT_WORD_BOUNDARY_CHARS
-    try:
-      s.decode('ascii')
-      return True
-    except Exception as ex:
-      return False
-    
   @classmethod
   def replace_punctuation(clazz, s, replacement):
     'Replace punctuation in s with replacement.'
