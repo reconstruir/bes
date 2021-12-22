@@ -225,6 +225,15 @@ class test_file_path(unit_test):
   def test_replace_all(self):
     self.assert_filename_equal( '/foo/apple', file_path.replace_all('/foo/bar', 'bar', 'apple') )
     self.assert_filename_equal( '/apple/foo/apple', file_path.replace_all('/bar/foo/bar', 'bar', 'apple') )
+    self.assert_filename_equal( '/applefruit/apple_fruit/foo', file_path.replace_all('/kiwifruit/kiwi_fruit/foo', 'kiwi', 'apple') )
+
+  def test_replace_all_with_word_boundary(self):
+    self.assert_filename_equal( '/kiwifruit/kiwi_fruit/foo',
+                                file_path.replace_all('/kiwifruit/kiwi_fruit/foo', 'kiwi', 'apple', word_boundary = True) )
+    
+  def test_replace_all_with_word_boundary_and_underscore(self):
+    self.assert_filename_equal( '/kiwifruit/apple_fruit/foo',
+                                file_path.replace_all('/kiwifruit/kiwi_fruit/foo', 'kiwi', 'apple', word_boundary = True, underscore = True) )
     
 if __name__ == '__main__':
   unit_test.main()

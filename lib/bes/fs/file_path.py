@@ -44,7 +44,7 @@ class file_path(object):
     return os.sep.join(p)
 
   @classmethod
-  def replace(clazz, p, src, dst, count = None, backwards = False):
+  def replace(clazz, p, src, dst, count = None, backwards = False, word_boundary = False, underscore = False):
     'Replace src in path components with dst.'
     v = clazz.split(p)
     r = range(0, len(v))
@@ -82,15 +82,17 @@ class file_path(object):
       raise ValueError('Invalid part: "{}"'.format(part))
   
   @classmethod
-  def replace_all(clazz, p, src, dst):
+  def replace_all(clazz, p, src, dst, word_boundary = False, underscore = False):
     'Replace src with dst on all parts of the path.'
     clazz.check_part(src)
     clazz.check_part(dst)
-    
-    v = clazz.split(p)
-    for i, part in enumerate(v):
-      v[i] = v[i].replace(src, dst)
-    return clazz.join(v)
+
+    result = []
+    for part in clazz.split(p):
+      result.append(string_util.replace_all(part, src, dst,
+                                            word_boundary = word_boundary,
+                                            underscore = underscore))
+    return clazz.join(result)
   
   @classmethod
   def depth(clazz, p):
