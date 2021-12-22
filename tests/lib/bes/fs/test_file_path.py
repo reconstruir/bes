@@ -18,16 +18,17 @@ class test_file_path(unit_test):
     self.assertEqual( [ '', 'foo', 'bar' ], file_path.split('/foo/bar//') )
     self.assertEqual( [ 'foo', 'bar' ], file_path.split('foo/bar') )
 
+#    assert_filename_equal
   def test_join(self):
-    self.assertEqual( self.native_filename('/foo/bar'), file_path.join([ '', 'foo', 'bar' ]) )
-    self.assertEqual( self.native_filename('/foo/bar'), file_path.join([ '', 'foo', 'bar' ]) )
-    self.assertEqual( self.native_filename('foo/bar'), file_path.join([ 'foo', 'bar' ]) )
+    self.assert_filename_equal( '/foo/bar', file_path.join([ '', 'foo', 'bar' ]) )
+    self.assert_filename_equal( '/foo/bar', file_path.join([ '', 'foo', 'bar' ]) )
+    self.assert_filename_equal( 'foo/bar', file_path.join([ 'foo', 'bar' ]) )
 
   def test_replace(self):
-    self.assertEqual( self.native_filename('/foo/apple'), file_path.replace(self.native_filename('/foo/bar'), 'bar', 'apple') )
-    self.assertEqual( self.native_filename('/apple/apple'), file_path.replace(self.native_filename('/bar/bar'), 'bar', 'apple') )
-    self.assertEqual( self.native_filename('/apple/bar'), file_path.replace(self.native_filename('/bar/bar'), 'bar', 'apple', count = 1) )
-    self.assertEqual( self.native_filename('/bar/apple'), file_path.replace(self.native_filename('/bar/bar'), 'bar', 'apple', count = 1, backwards = True) )
+    self.assert_filename_equal( '/foo/apple', file_path.replace(self.native_filename('/foo/bar'), 'bar', 'apple') )
+    self.assert_filename_equal( '/apple/apple', file_path.replace(self.native_filename('/bar/bar'), 'bar', 'apple') )
+    self.assert_filename_equal( '/apple/bar', file_path.replace(self.native_filename('/bar/bar'), 'bar', 'apple', count = 1) )
+    self.assert_filename_equal( '/bar/apple', file_path.replace(self.native_filename('/bar/bar'), 'bar', 'apple', count = 1, backwards = True) )
 
   def test_depth(self):
     self.assertEqual( 3, file_path.depth('/foo/bar') )
@@ -78,14 +79,14 @@ class test_file_path(unit_test):
     ]) )
 
   def test_common_ancestor_multiple_ancestors(self):
-    self.assertEqual( self.native_filename('foo/base-1.2.3'), file_path.common_ancestor([
+    self.assert_filename_equal( 'foo/base-1.2.3', file_path.common_ancestor([
       'foo/base-1.2.3/foo.txt',
       'foo/base-1.2.3/bar.txt',
       'foo/base-1.2.3/',
     ]) )
 
   def test_common_ancestor_more_multiple_ancestors(self):
-    self.assertEqual( self.native_filename('foo/bar/base-1.2.3'), file_path.common_ancestor([
+    self.assert_filename_equal( 'foo/bar/base-1.2.3', file_path.common_ancestor([
       'foo/bar/base-1.2.3/foo.txt',
       'foo/bar/base-1.2.3/bar.txt',
       'foo/bar/base-1.2.3/',
@@ -98,7 +99,7 @@ class test_file_path(unit_test):
     ]) )
     
   def test_common_ancestor_multiple_ancestors_absolute(self):
-    self.assertEqual( self.native_filename('/foo/base-1.2.3'), file_path.common_ancestor([
+    self.assert_filename_equal( '/foo/base-1.2.3', file_path.common_ancestor([
       '/foo/base-1.2.3/foo.txt',
       '/foo/base-1.2.3/bar.txt',
       '/foo/base-1.2.3/',
@@ -113,7 +114,7 @@ class test_file_path(unit_test):
     ]) )
 
   def test_common_ancestor_just_one_deep_entry(self):
-    self.assertEqual( self.native_filename('foo/base-1.2.3'), file_path.common_ancestor([
+    self.assert_filename_equal( 'foo/base-1.2.3', file_path.common_ancestor([
       'foo/base-1.2.3/foo.txt',
     ]) )
     
@@ -124,9 +125,9 @@ class test_file_path(unit_test):
     self.assertEqual( [], file_path.decompose(self.native_filename('/')) )
 
   def test_normalize_sep(self):
-    self.assertEqual( self.native_filename('/foo/bar'), file_path.normalize_sep('/foo/bar') )
-    self.assertEqual( self.native_filename('/foo/bar'), file_path.normalize_sep('/foo\\bar') )
-    self.assertEqual( self.native_filename('/foo/bar'), file_path.normalize_sep('\\foo\\bar') )
+    self.assert_filename_equal( '/foo/bar', file_path.normalize_sep('/foo/bar') )
+    self.assert_filename_equal( '/foo/bar', file_path.normalize_sep('/foo\\bar') )
+    self.assert_filename_equal( '/foo/bar', file_path.normalize_sep('\\foo\\bar') )
     
   def test_which(self):
     'Test which()  Looks like a windows only test but works on unix as well.'
@@ -221,5 +222,5 @@ class test_file_path(unit_test):
     self.assert_filename_equal( '/foo/apple', file_path.replace_all('/foo/bar', 'bar', 'apple') )
     self.assert_filename_equal( '/apple/foo/apple', file_path.replace_all('/bar/foo/bar', 'bar', 'apple') )
     
-if __name__ == "__main__":
+if __name__ == '__main__':
   unit_test.main()
