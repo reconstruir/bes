@@ -25,10 +25,10 @@ class test_file_path(unit_test):
     self.assert_filename_equal( 'foo/bar', file_path.join([ 'foo', 'bar' ]) )
 
   def test_replace(self):
-    self.assert_filename_equal( '/foo/apple', file_path.replace(self.native_filename('/foo/bar'), 'bar', 'apple') )
-    self.assert_filename_equal( '/apple/apple', file_path.replace(self.native_filename('/bar/bar'), 'bar', 'apple') )
-    self.assert_filename_equal( '/apple/bar', file_path.replace(self.native_filename('/bar/bar'), 'bar', 'apple', count = 1) )
-    self.assert_filename_equal( '/bar/apple', file_path.replace(self.native_filename('/bar/bar'), 'bar', 'apple', count = 1, backwards = True) )
+    self.assert_filename_equal( '/foo/apple', file_path.replace('/foo/bar', 'bar', 'apple') )
+    self.assert_filename_equal( '/apple/apple', file_path.replace('/bar/bar', 'bar', 'apple') )
+    self.assert_filename_equal( '/apple/bar', file_path.replace('/bar/bar', 'bar', 'apple', count = 1) )
+    self.assert_filename_equal( '/bar/apple', file_path.replace('/bar/bar', 'bar', 'apple', count = 1, backwards = True) )
 
   def test_depth(self):
     self.assertEqual( 3, file_path.depth('/foo/bar') )
@@ -119,10 +119,14 @@ class test_file_path(unit_test):
     ]) )
     
   def test_decompose(self):
-    self.assertEqual( [ self.native_filename('/foo'), self.native_filename('/foo/bar'), self.native_filename('/foo/bar/baz') ], file_path.decompose(self.native_filename('/foo/bar/baz')) )
-    self.assertEqual( [ self.native_filename('/foo'), self.native_filename('/foo/bar') ], file_path.decompose(self.native_filename('/foo/bar')) )
-    self.assertEqual( [ self.native_filename('/foo'), ], file_path.decompose(self.native_filename('/foo')) )
-    self.assertEqual( [], file_path.decompose(self.native_filename('/')) )
+    self.assert_filename_list_equal( [ '/foo', '/foo/bar', '/foo/bar/baz' ],
+                                     file_path.decompose('/foo/bar/baz') )
+    self.assert_filename_list_equal( [ '/foo', '/foo/bar' ],
+                                     file_path.decompose('/foo/bar') )
+    self.assert_filename_list_equal( [ '/foo' ],
+                                     file_path.decompose('/foo') )
+    self.assert_filename_list_equal( [],
+                                     file_path.decompose('/') )
 
   def test_normalize_sep(self):
     self.assert_filename_equal( '/foo/bar', file_path.normalize_sep('/foo/bar') )
@@ -153,7 +157,7 @@ class test_file_path(unit_test):
     self.assert_filename_list_equal( [
       f'{tmp_dir}/drinks/alcohol/beer.config',
       f'{tmp_dir}/drinks/alcohol/wine.config',
-    ], file_path.glob(path.join(tmp_dir, self.native_filename('drinks/alcohol')), '*.config') )
+    ], file_path.glob(path.join(tmp_dir, 'drinks/alcohol'), '*.config') )
     
   def test_glob_search_path(self):
     tmp_dir = temp_content.write_items_to_temp_dir([
@@ -198,13 +202,13 @@ class test_file_path(unit_test):
       [ 'drinks', 'dairy' ],
     ]
     search_path = [ '{}/{}'.format(tmp_dir, path.join(x)) for x in search_path ]
-    self.assertEqual( [
-      path.join(tmp_dir, self.native_filename('cheese/cheese.config')),
-      path.join(tmp_dir, self.native_filename('drinks/alcohol/beer.config')),
-      path.join(tmp_dir, self.native_filename('drinks/alcohol/wine.config')),
-      path.join(tmp_dir, self.native_filename('drinks/dairy/milk.config')),
-      path.join(tmp_dir, self.native_filename('drinks/dairy/yogurt.config')),
-      path.join(tmp_dir, self.native_filename('fruit/fruit.config')),
+    self.assert_filename_list_equal( [
+      f'{tmp_dir}/cheese/cheese.config',
+      f'{tmp_dir}/drinks/alcohol/beer.config',
+      f'{tmp_dir}/drinks/alcohol/wine.config',
+      f'{tmp_dir}/drinks/dairy/milk.config',
+      f'{tmp_dir}/drinks/dairy/yogurt.config',
+      f'{tmp_dir}/fruit/fruit.config',
     ], file_path.glob(search_path, '*.config') )
 
   def test_has_glob_pattern_true(self):
