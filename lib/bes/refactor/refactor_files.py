@@ -59,17 +59,26 @@ class refactor_files(object):
   _affected_dir = namedtuple('_affected_dir', 'root_dir, dirname')
   _log = logger('refactor')
   @classmethod
-  def rename_files(clazz, files, src_pattern, dst_pattern, word_boundary = False, try_git = False):
+  def rename_files(clazz, files, src_pattern, dst_pattern,
+                   word_boundary = False,
+                   underscore = False,
+                   try_git = False):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_bool(word_boundary)
+    check.check_bool(underscore)
+    check.check_bool(try_git)
 
     clazz._log.log_method_d()
 
     options = file_resolver_options(sort_order = 'depth',
                                     sort_reverse = True)
     resolved_files = file_resolver.resolve_files(files, options = options)
-    rename_items, affected_dirs = clazz._make_rename_items(resolved_files, src_pattern, dst_pattern)
+    rename_items, affected_dirs = clazz._make_rename_items(resolved_files,
+                                                           src_pattern,
+                                                           dst_pattern,
+                                                           word_boundary,
+                                                           underscore)
     new_dirs = algorithm.unique([ path.dirname(item.dst_filename) for item in rename_items ])
     new_dirs = [ d for d in new_dirs if d and not path.exists(d) ]
     for next_new_dir in new_dirs:
@@ -83,12 +92,17 @@ class refactor_files(object):
         dir_util.remove(d)
 
   @classmethod
-  def _make_rename_items(clazz, resolved_files, src_pattern, dst_pattern):
+  def _make_rename_items(clazz, resolved_files, src_pattern, dst_pattern,
+                         word_boundary, underscore):
     rename_items = []
     affected_dirs = []
     for f in resolved_files:
       src_filename_rel = f.filename
-      dst_filename_rel = file_path.replace_all(src_filename_rel, src_pattern, dst_pattern)
+      dst_filename_rel = file_path.replace_all(src_filename_rel,
+                                               src_pattern,
+                                               dst_pattern,
+                                               word_boundary = word_boundary,
+                                               underscore = underscore)
       if src_filename_rel != dst_filename_rel:
         affected_dirs.append(clazz._affected_dir(f.root_dir, path.dirname(f.filename)))
         src_filename_abs = path.join(f.root_dir, src_filename_rel)
