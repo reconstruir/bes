@@ -211,6 +211,37 @@ class test_file_resolve(unit_test):
       'file subdir2/subdir4/apple.txt "this is apple.txt" 644',
     ], [ '${tmp_dir}' ], recursive = True, sort_order = 'depth')
     self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
+
+  def test_resolve_files_one_file(self):
+    expected = '''\
+    ${tmp_dir}/subdir apple.txt ${tmp_dir}/subdir/apple.txt 0 0
+    '''
+    actual = self._test_resolve_files([
+      'file subdir/apple.txt "this is apple.txt" 644',
+    ], [ '${tmp_dir}' ], recursive = True)
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
+
+  def test_resolve_files_two_files_same_subdir(self):
+    expected = '''\
+    ${tmp_dir}/subdir apple.txt ${tmp_dir}/subdir/apple.txt 0 0
+    ${tmp_dir}/subdir kiwi.txt ${tmp_dir}/subdir/kiwi.txt 1 1
+    '''
+    actual = self._test_resolve_files([
+      'file subdir/apple.txt "this is apple.txt" 644',
+      'file subdir/kiwi.txt "this is kiwi.txt" 644',
+    ], [ '${tmp_dir}' ], recursive = True)
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
+
+  def test_resolve_files_two_files_root_and_subdir(self):
+    expected = '''\
+    ${tmp_dir} apple.txt ${tmp_dir}/apple.txt 0 0
+    ${tmp_dir} subdir/kiwi.txt ${tmp_dir}/subdir/kiwi.txt 1 1
+    '''
+    actual = self._test_resolve_files([
+      'file apple.txt "this is apple.txt" 644',
+      'file subdir/kiwi.txt "this is kiwi.txt" 644',
+    ], [ '${tmp_dir}' ], recursive = True)
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
     
   def _test_resolve_files(self,
                           items,
