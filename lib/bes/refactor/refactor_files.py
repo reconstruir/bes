@@ -1,9 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+
+import os
 from os import path
 
 from bes.common.algorithm import algorithm
+from bes.fs.dir_util import dir_util
 from bes.fs.file_check import file_check
+from bes.fs.file_find import file_find
 from bes.fs.file_find import file_find
 from bes.fs.file_match import file_match
 from bes.fs.file_mime import file_mime
@@ -14,14 +19,16 @@ from bes.fs.file_resolver_options import file_resolver_options
 from bes.fs.file_search import file_search
 from bes.fs.file_util import file_util
 from bes.fs.filename_util import filename_util
-from bes.system.check import check
-from bes.system.python import python
 from bes.git.git import git
+from bes.git.git_error import git_error
+from bes.system.check import check
+from bes.system.log import logger
+from bes.system.python import python
 
 from .refactor_error import refactor_error
 
 class refactor_files(object):
-
+  
   @classmethod
   def resolve_python_files(clazz, files):
     'Resolve python files.'
@@ -47,37 +54,57 @@ class refactor_files(object):
                                     match_basename = False)
     resolved = file_resolver.resolve_files(files, options = options)
     return resolved.absolute_files(sort = True)
-  
-  @classmethod
-  def search_files(clazz, files, text, word_boundary = False):
-    'Search for text in files.'
-    
-    result = []
-    for filename in files:
-      next_matches = file_search.search_file(filename, text,
-                                             word_boundary = word_boundary)
-      result.extend(next_matches)
-    return sorted(algorithm.unique([ item.filename for item in result ]))
 
+  _rename_item = namedtuple('_rename_item', 'src_filename, dst_filename')
+  _affected_dir = namedtuple('_affected_dir', 'root_dir, dirname')
+  _log = logger('refactor')
   @classmethod
-  def rename_dirs(clazz, src_pattern, dst_pattern, root_dir,
-                  word_boundary = False):
+  def rename_files(clazz, files, src_pattern, dst_pattern, word_boundary = False, try_git = False):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
-    check.check_string(root_dir)
     check.check_bool(word_boundary)
 
-    if src_pattern in dst_pattern:
-      raise refactor_error(f'src_pattern "{src_pattern}" cannot be a substring in dst_pattern "{dst_pattern}"')
-    if dst_pattern in src_pattern:
-      raise refactor_error(f'dst_pattern "{dst_pattern}" cannot be a substring in src_pattern "{src_pattern}"')
+    clazz._log.log_method_d()
 
-    options = clazz._make_file_resolver_options(src_pattern, word_boundary)
-    while True:
-      resolved_dirs = file_resolver.resolve_dirs(root_dir, options = options)
-      if not resolved_dirs:
-        break;
-      clazz._rename_many(resolved_dirs.relative_files(), root_dir, src_pattern, dst_pattern, False)
+    options = file_resolver_options(sort_order = 'depth',
+                                    sort_reverse = True)
+    resolved_files = file_resolver.resolve_files(files, options = options)
+    rename_items, affected_dirs = clazz._make_rename_items(resolved_files, src_pattern, dst_pattern)
+    new_dirs = algorithm.unique([ path.dirname(item.dst_filename) for item in rename_items ])
+    new_dirs = [ d for d in new_dirs if d and not path.exists(d) ]
+    for next_new_dir in new_dirs:
+      file_util.mkdir(next_new_dir)
+    for next_rename_item in rename_items:
+      clazz._rename_one(next_rename_item.src_filename,
+                        next_rename_item.dst_filename,
+                        try_git)
+    for d in affected_dirs:
+      if dir_util.is_empty(d):
+        dir_util.remove(d)
+
+  @classmethod
+  def _make_rename_items(clazz, resolved_files, src_pattern, dst_pattern):
+    rename_items = []
+    affected_dirs = []
+    for f in resolved_files:
+      src_filename_rel = f.filename
+      dst_filename_rel = file_path.replace_all(src_filename_rel, src_pattern, dst_pattern)
+      if src_filename_rel != dst_filename_rel:
+        affected_dirs.append(clazz._affected_dir(f.root_dir, path.dirname(f.filename)))
+        src_filename_abs = path.join(f.root_dir, src_filename_rel)
+        dst_filename_abs = path.join(f.root_dir, dst_filename_rel)
+        item = clazz._rename_item(src_filename_abs, dst_filename_abs)
+        rename_items.append(item)
+    affected_dirs = sorted(algorithm.unique(affected_dirs))
+    decomposed_affected_items = []
+    for f in affected_dirs:
+      next_paths = file_path.decompose(path.sep + f.dirname)
+      for next_path in next_paths:
+        item = clazz._affected_dir(f.root_dir, file_util.lstrip_sep(next_path))
+        decomposed_affected_items.append(item)
+    decomposed_affected_items = sorted(decomposed_affected_items, key = lambda item: file_path.depth(item.dirname), reverse = True)
+    decomposed_affected_dirs = [ path.join(item.root_dir, item.dirname) for item in decomposed_affected_items ]
+    return rename_items, decomposed_affected_dirs
 
   @classmethod
   def _rename_one(clazz, src, dst, try_git):
@@ -86,68 +113,20 @@ class refactor_files(object):
       try:
         git.move(os.getcwd(), src, dst)
         renamed = True
-      except Exception as ex:
-        pass
+      except git_error as ex:
+        print(f'caught: {ex}')
     if not renamed:
       file_util.rename(src, dst)
-        
+  
   @classmethod
-  def _rename_many(clazz, files, root_dir, src_pattern, dst_pattern, try_git):
-    for next_filename in files:
-      replaced_filename = file_path.replace(next_filename,
-                                            src_pattern,
-                                            dst_pattern,
-                                            count = 1,
-                                            backwards = True)
-      assert replaced_filename != next_filename
-      src_filename_abs = path.join(root_dir, next_filename)
-      dst_filename_abs = path.join(root_dir, replaced_filename)
-      clazz._rename_one(src_filename_abs, dst_filename_abs, try_git)
-        
-  @classmethod
-  def rename_files(clazz, src_pattern, dst_pattern, root_dir,
-                   word_boundary = False):
-    check.check_string(src_pattern)
-    check.check_string(dst_pattern)
-    check.check_string(root_dir)
-    check.check_bool(word_boundary)
-
-    if src_pattern in dst_pattern:
-      raise refactor_error(f'src_pattern "{src_pattern}" cannot be a substring in dst_pattern "{dst_pattern}"')
-    if dst_pattern in src_pattern:
-      raise refactor_error(f'dst_pattern "{dst_pattern}" cannot be a substring in src_pattern "{src_pattern}"')
-
-    options = clazz._make_file_resolver_options(src_pattern, word_boundary)
-    resolved_files = file_resolver.resolve_files(root_dir, options = options)
-    clazz._rename_many(resolved_files.relative_files(), root_dir, src_pattern, dst_pattern, False)
-      
-  @classmethod
-  def _make_file_resolver_options(clazz, src_pattern, word_boundary):
-    def _match_function(d):
-      return clazz._match_basename(path.basename(d), src_pattern, word_boundary)
-    return file_resolver_options(match_function = _match_function,
-                                 match_basename = False,
-                                 sort_order = 'depth',
-                                 sort_reverse = True)
+  def search_files(clazz, filenames, text, word_boundary = False, ignore_case = False):
+    'Return only the text files in filesnames.'
+    result = []
+    for filename in filenames:
+      result += file_search.search_file(filename, text, word_boundary = word_boundary, ignore_case = ignore_case)
+    return result
 
   @classmethod
-  def _match_basename(clazz, basename, pattern, word_boundary):
-    i = basename.find(pattern)
-    if i < 0:
-      return False
-    if not word_boundary:
-      return True
-    if i > 0:
-      left_index = i - 1
-    else:
-      left_index = None
-    right_index = i + len(pattern)
-    if right_index == len(basename):
-      right_index = None
-    if left_index != None:
-      if basename[left_index].isalnum():
-        return False
-    if right_index != None:
-      if basename[right_index].isalnum():
-        return False
-    return True
+  def match_files(clazz, filenames, text, word_boundary = False, ignore_case = False):
+    search_rv = clazz.search_files(filenames, text, word_boundary = word_boundary)
+    return sorted(algorithm.unique([ s.filename for s in search_rv ]))
