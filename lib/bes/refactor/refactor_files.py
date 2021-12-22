@@ -71,10 +71,42 @@ class refactor_files(object):
 
     clazz._log.log_method_d()
 
+    clazz._do_rename_files_or_dirs(file_resolver.resolve_files,
+                                   files,
+                                   src_pattern,
+                                   dst_pattern,
+                                   word_boundary = word_boundary,
+                                   underscore = underscore,
+                                   try_git = try_git)
+
+  @classmethod
+  def rename_dirs(clazz, dirs, src_pattern, dst_pattern,
+                  word_boundary = False,
+                  underscore = False):
+    check.check_string(src_pattern)
+    check.check_string(dst_pattern)
+    check.check_bool(word_boundary)
+    check.check_bool(underscore)
+
+    clazz._log.log_method_d()
+
+    clazz._do_rename_files_or_dirs(file_resolver.resolve_dirs,
+                                   dirs,
+                                   src_pattern,
+                                   dst_pattern,
+                                   word_boundary = word_boundary,
+                                   underscore = underscore,
+                                   try_git = False)
+
+  @classmethod
+  def _do_rename_files_or_dirs(clazz, resolver_func, dirs, src_pattern, dst_pattern,
+                               word_boundary = False,
+                               underscore = False,
+                              try_git = False):
     options = file_resolver_options(sort_order = 'depth',
                                     sort_reverse = True)
-    resolved_files = file_resolver.resolve_files(files, options = options)
-    rename_items, affected_dirs = clazz._make_rename_items(resolved_files,
+    resolved_dirs = resolver_func(dirs, options = options)
+    rename_items, affected_dirs = clazz._make_rename_items(resolved_dirs,
                                                            src_pattern,
                                                            dst_pattern,
                                                            word_boundary,
@@ -90,7 +122,7 @@ class refactor_files(object):
     for d in affected_dirs:
       if dir_util.is_empty(d):
         dir_util.remove(d)
-
+        
   @classmethod
   def _make_rename_items(clazz, resolved_files, src_pattern, dst_pattern,
                          word_boundary, underscore):
