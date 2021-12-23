@@ -34,13 +34,13 @@ class refactor_files(object):
   def resolve_python_files(clazz, files):
     'Resolve python files.'
     
-    def _match_function(filename):
+    def _match_python_files(filename):
       if not file_mime.is_text(filename):
         return False
       if python.is_python_script(filename):
         return True
       return filename_util.has_extension(filename.lower(), 'py')
-    options = file_resolver_options(match_function = _match_function,
+    options = file_resolver_options(match_function = _match_python_files,
                                     match_basename = False)
     resolved = file_resolver.resolve_files(files, options = options)
     return resolved.absolute_files(sort = True)
@@ -49,9 +49,9 @@ class refactor_files(object):
   def resolve_text_files(clazz, files):
     'Resolve text files.'
     
-    def _match_function(filename):
+    def _match_text_files(filename):
       return file_mime.is_text(filename)
-    options = file_resolver_options(match_function = _match_function,
+    options = file_resolver_options(match_function = _match_text_files,
                                     match_basename = False)
     resolved = file_resolver.resolve_files(files, options = options)
     return resolved.absolute_files(sort = True)
@@ -72,42 +72,65 @@ class refactor_files(object):
 
     clazz._log.log_method_d()
 
-    clazz._do_rename_files_or_dirs(file_resolver.resolve_files,
-                                   files,
-                                   src_pattern,
-                                   dst_pattern,
-                                   word_boundary = word_boundary,
-                                   underscore = underscore,
-                                   try_git = try_git)
+    clazz._do_rename_files(False,
+                           files,
+                           src_pattern,
+                           dst_pattern,
+                           word_boundary = word_boundary,
+                           underscore = underscore,
+                           try_git = try_git)
 
   @classmethod
-  def xrename_dirs(clazz, dirs, src_pattern, dst_pattern,
+  def rename_dirs(clazz, dirs, src_pattern, dst_pattern,
                   word_boundary = False,
-                  underscore = False):
+                  underscore = False,
+                  try_git = False):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_bool(word_boundary)
     check.check_bool(underscore)
+    check.check_bool(try_git)
 
     clazz._log.log_method_d()
 
-    clazz._do_rename_files_or_dirs(file_resolver.resolve_dirs,
-                                   dirs,
-                                   src_pattern,
-                                   dst_pattern,
-                                   word_boundary = word_boundary,
-                                   underscore = underscore,
-                                   try_git = False)
+    resolved_empty_dirs = file_resolver.resolve_empty_dirs(dirs)
+    empty_dirs_rename_items, empty_dirs_affected_dirs = clazz._make_rename_items(False,
+                                                                                 resolved_empty_dirs,
+                                                                                 src_pattern,
+                                                                                 dst_pattern,
+                                                                                 word_boundary,
+                                                                                 underscore)
+    clazz._do_rename_files(True,
+                           dirs,
+                           src_pattern,
+                           dst_pattern,
+                           word_boundary = word_boundary,
+                           underscore = underscore,
+                           try_git = try_git)
+
+    for item in empty_dirs_rename_items:
+      file_util.mkdir(item.dst_filename)
+      assert dir_util.is_empty(item.src_filename)
+      dir_util.remove(item.src_filename)
+    
+    for d in empty_dirs_affected_dirs:
+      if path.exists(d) and dir_util.is_empty(d):
+        dir_util.remove(d)
 
   @classmethod
-  def _do_rename_files_or_dirs(clazz, resolver_func, dirs, src_pattern, dst_pattern,
-                               word_boundary = False,
-                               underscore = False,
-                              try_git = False):
+  def _do_rename_files(clazz,
+                       dirname_only,
+                       dirs,
+                       src_pattern,
+                       dst_pattern,
+                       word_boundary = False,
+                       underscore = False,
+                       try_git = False):
     options = file_resolver_options(sort_order = 'depth',
                                     sort_reverse = True)
-    resolved_dirs = resolver_func(dirs, options = options)
-    rename_items, affected_dirs = clazz._make_rename_items(resolved_dirs,
+    resolved_files = file_resolver.resolve_files(dirs, options = options)
+    rename_items, affected_dirs = clazz._make_rename_items(dirname_only,
+                                                           resolved_files,
                                                            src_pattern,
                                                            dst_pattern,
                                                            word_boundary,
@@ -123,19 +146,39 @@ class refactor_files(object):
     for d in affected_dirs:
       if path.exists(d) and dir_util.is_empty(d):
         dir_util.remove(d)
+
+  @classmethod
+  def _make_rename_filename(clazz, dirname_only, filename, src_pattern, dst_pattern,
+                            word_boundary, underscore):
+    if dirname_only:
+      basename = path.basename(filename)
+      dirname = path.dirname(filename)
+      replaced_dirname = file_path.replace_all(dirname,
+                                               src_pattern,
+                                               dst_pattern,
+                                               word_boundary = word_boundary,
+                                               underscore = underscore)
+      return path.join(replaced_dirname, basename)
+    else:
+      return file_path.replace_all(filename,
+                                   src_pattern,
+                                   dst_pattern,
+                                   word_boundary = word_boundary,
+                                   underscore = underscore)
         
   @classmethod
-  def _make_rename_items(clazz, resolved_files, src_pattern, dst_pattern,
+  def _make_rename_items(clazz, dirname_only, resolved_files, src_pattern, dst_pattern,
                          word_boundary, underscore):
     rename_items = []
     affected_dirs = []
     for f in resolved_files:
       src_filename_rel = f.filename
-      dst_filename_rel = file_path.replace_all(src_filename_rel,
-                                               src_pattern,
-                                               dst_pattern,
-                                               word_boundary = word_boundary,
-                                               underscore = underscore)
+      dst_filename_rel = clazz._make_rename_filename(dirname_only,
+                                                     src_filename_rel,
+                                                     src_pattern,
+                                                     dst_pattern,
+                                                     word_boundary,
+                                                     underscore)
       if src_filename_rel != dst_filename_rel:
         affected_dirs.append(clazz._affected_dir(f.root_dir, path.dirname(f.filename)))
         src_filename_abs = path.join(f.root_dir, src_filename_rel)
@@ -177,45 +220,3 @@ class refactor_files(object):
   def match_files(clazz, filenames, text, word_boundary = False, ignore_case = False):
     search_rv = clazz.search_files(filenames, text, word_boundary = word_boundary)
     return sorted(algorithm.unique([ s.filename for s in search_rv ]))
-
-  @classmethod
-  def rename_dirs(clazz, dirs, src_pattern, dst_pattern, word_boundary = False):
-    check.check_string(src_pattern)
-    check.check_string(dst_pattern)
-    check.check_bool(word_boundary)
-
-    if src_pattern in dst_pattern:
-      raise refactor_error(f'src_pattern "{src_pattern}" cannot be a substring in dst_pattern "{dst_pattern}"')
-    if dst_pattern in src_pattern:
-      raise refactor_error(f'dst_pattern "{dst_pattern}" cannot be a substring in src_pattern "{src_pattern}"')
-
-    escaped_src_pattern = re.escape(src_pattern)
-    if word_boundary:
-      expression = r'.*\b{}\b.*'.format(escaped_src_pattern)
-    else:
-      expression = r'.*{}.*'.format(escaped_src_pattern)
-
-    def _match_function(d):
-      assert path.isdir(d)
-      return file_match.match_re(d, expression, match_type = file_match.ANY, basename = True)
-    options = file_resolver_options(match_function = _match_function,
-                                    match_basename = False,
-                                    sort_order = 'depth',
-                                    sort_reverse = True)
-
-    while True:
-      resolved_dirs = file_resolver.resolve_dirs(dirs, options = options)
-      if not resolved_dirs:
-        break;
-      
-      for next_resolved_dir in resolved_dirs:
-        next_dir_rel = next_resolved_dir.filename
-        replaced_dir = file_path.replace(next_dir_rel,
-                                         src_pattern,
-                                         dst_pattern,
-                                         count = 1,
-                                         backwards = True)
-        assert replaced_dir != next_dir_rel
-        src_dir_abs = path.join(next_resolved_dir.root_dir, next_dir_rel)
-        dst_dir_abs = path.join(next_resolved_dir.root_dir, replaced_dir)
-        file_util.rename(src_dir_abs, dst_dir_abs)

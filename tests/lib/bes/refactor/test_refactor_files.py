@@ -440,6 +440,18 @@ class test_refactor_files(unit_test, unit_test_media_files):
       'xdata/chocolate_stuff',
       'xdata/chocolate_stuff/chocolate.png',
     ], file_find.find(tmp_dir, file_type = file_find.ANY) )
+
+  def test_rename_dirs_caca(self):
+    tmp_dir = self._make_temp_content([
+      temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+    ])
+    refactor_files.rename_dirs(tmp_dir, 'kiwi', 'kiwifruit', word_boundary = False)
+    self.assert_filename_list_equal( [
+      'kiwifruit',
+      'kiwifruit/xdata2',
+      'kiwifruit/xdata2/kiwifruit_stuff2',
+      'kiwifruit/xdata2/kiwifruit_stuff2/kiwi2.png',
+    ], file_find.find(tmp_dir, file_type = file_find.ANY) )
     
   KIWI_PY = '''\
 class kiwi(object):
