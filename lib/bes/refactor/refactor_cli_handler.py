@@ -60,3 +60,15 @@ class refactor_cli_handler(cli_command_handler):
                                 try_git = True)
     return 0
   
+  def replace_text(self, files, src_pattern, dst_pattern):
+    check.check_string_seq(files)
+    check.check_string(src_pattern)
+    check.check_string(dst_pattern)
+
+    refactor_rename.replace_text(files,
+                                 src_pattern,
+                                 dst_pattern,
+                                 word_boundary = self.options.word_boundary,
+                                 underscore = True)
+    return 0
+  

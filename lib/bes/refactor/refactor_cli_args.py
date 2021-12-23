@@ -36,6 +36,16 @@ class refactor_cli_args(object):
                    help = 'The dst pattern to rename to. []')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more file and/or directories to rename [ None ]')
+
+    # replace_text
+    p = subparser.add_parser('replace_text', help = 'Global search and replace of text in files.')
+    self.__refactor_cli_add_add_common_args(p)
+    p.add_argument('src_pattern', action = 'store', default = None,
+                   help = 'The src pattern to rename from. []')
+    p.add_argument('dst_pattern', action = 'store', default = None,
+                   help = 'The dst pattern to rename to. []')
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more file and/or directories to replace text in [ None ]')
     
   @classmethod
   def __refactor_cli_add_add_common_args(clazz, p):
