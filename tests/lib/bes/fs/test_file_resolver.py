@@ -214,7 +214,7 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_one_file(self):
     expected = '''\
-    ${tmp_dir}/subdir apple.txt ${tmp_dir}/subdir/apple.txt 0 0
+    ${tmp_dir} subdir/apple.txt ${tmp_dir}/subdir/apple.txt 0 0
     '''
     actual = self._test_resolve_files([
       'file subdir/apple.txt "this is apple.txt" 644',
@@ -223,8 +223,8 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_two_files_same_subdir(self):
     expected = '''\
-    ${tmp_dir}/subdir apple.txt ${tmp_dir}/subdir/apple.txt 0 0
-    ${tmp_dir}/subdir kiwi.txt ${tmp_dir}/subdir/kiwi.txt 1 1
+    ${tmp_dir} subdir/apple.txt ${tmp_dir}/subdir/apple.txt 0 0
+    ${tmp_dir} subdir/kiwi.txt ${tmp_dir}/subdir/kiwi.txt 1 1
     '''
     actual = self._test_resolve_files([
       'file subdir/apple.txt "this is apple.txt" 644',

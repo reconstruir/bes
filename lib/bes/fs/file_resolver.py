@@ -52,12 +52,11 @@ class file_resolver(object):
   def _do_resolve_files(clazz, files, options, file_type):
     'Resolve a mixed list of files and directories into a list of files.'
 
-    found_files = clazz._find_files(files, options, file_type)
-    common_ancestor = file_path.common_ancestor(found_files)
+    found_files, root_dir = clazz._find_files(files, options, file_type)
     result = file_resolver_item_list()
     for index, filename_abs in enumerate(found_files):
-      filename_rel = path.relpath(filename_abs, start = common_ancestor)
-      item = file_resolver_item(common_ancestor, filename_rel, filename_abs, index, index)
+      filename_rel = path.relpath(filename_abs, start = root_dir)
+      item = file_resolver_item(root_dir, filename_rel, filename_abs, index, index)
       result.append(item)
     if options.sort_order:
       result = clazz._sort_result(result, options.sort_order, options.sort_reverse)
@@ -80,7 +79,11 @@ class file_resolver(object):
       elif path.isdir(filename_abs):
         next_entries = clazz._find_files_in_dir(filename_abs, options, 0, file_type)
         result.extend(next_entries)
-    return result
+    if len(files) == 1:
+      root_dir = files[0]
+    else:
+      root_dir = file_path.common_ancestor(result)
+    return result, root_dir
   
   @classmethod
   def _sort_result(clazz, result, order, reverse):
