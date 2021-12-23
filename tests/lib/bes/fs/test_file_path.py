@@ -18,7 +18,6 @@ class test_file_path(unit_test):
     self.assertEqual( [ '', 'foo', 'bar' ], file_path.split('/foo/bar//') )
     self.assertEqual( [ 'foo', 'bar' ], file_path.split('foo/bar') )
 
-#    assert_filename_equal
   def test_join(self):
     self.assert_filename_equal( '/foo/bar', file_path.join([ '', 'foo', 'bar' ]) )
     self.assert_filename_equal( '/foo/bar', file_path.join([ '', 'foo', 'bar' ]) )

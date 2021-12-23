@@ -37,14 +37,21 @@ class refactor_rename(object):
   _rename_item = namedtuple('_rename_item', 'src, dst')
   _log = logger('refactor')
   @classmethod
-  def rename(clazz, files, src_pattern, dst_pattern, word_boundary = False):
+  def rename(clazz, files, src_pattern, dst_pattern,
+             word_boundary = False,
+             underscore = False,
+             try_git = False):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_bool(word_boundary)
+    check.check_bool(try_git)
 
     clazz._log.log_method_d()
 
-    refactor_files.rename_files(files, src_pattern, dst_pattern, word_boundary = word_boundary)
+    refactor_files.rename_files(files, src_pattern, dst_pattern,
+                                word_boundary = word_boundary,
+                                underscore = underscore,
+                                try_git = try_git)
     text_files = refactor_files.resolve_text_files(files)
     matching_files = clazz.match_files(text_files, src_pattern, word_boundary = word_boundary)
     replacements = { src_pattern: dst_pattern }

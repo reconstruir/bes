@@ -44,7 +44,8 @@ class file_path(object):
     return os.sep.join(p)
 
   @classmethod
-  def replace(clazz, p, src, dst, count = None, backwards = False, word_boundary = False, underscore = False):
+  def replace(clazz, p, src, dst, count = None, backwards = False,
+              word_boundary = False, underscore = False):
     'Replace src in path components with dst.'
     v = clazz.split(p)
     r = range(0, len(v))
@@ -56,7 +57,9 @@ class file_path(object):
     current_count = 0
     for i in r:
       part = v[i]
-      new_part = part.replace(src, dst)
+      new_part = string_util.replace(part, { src: dst },
+                                     word_boundary = word_boundary,
+                                     underscore = underscore)
       if part != new_part:
         current_count += 1
         if current_count > count:

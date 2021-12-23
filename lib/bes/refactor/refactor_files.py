@@ -3,6 +3,7 @@
 from collections import namedtuple
 
 import os
+import re
 from os import path
 
 from bes.common.algorithm import algorithm
@@ -69,6 +70,11 @@ class refactor_files(object):
     check.check_bool(underscore)
     check.check_bool(try_git)
 
+    if src_pattern in dst_pattern:
+      raise refactor_error(f'src_pattern "{src_pattern}" cannot be a substring in dst_pattern "{dst_pattern}"')
+    if dst_pattern in src_pattern:
+      raise refactor_error(f'dst_pattern "{dst_pattern}" cannot be a substring in src_pattern "{src_pattern}"')
+    
     clazz._log.log_method_d()
 
     clazz._do_rename_files_or_dirs(file_resolver.resolve_files,
@@ -80,7 +86,7 @@ class refactor_files(object):
                                    try_git = try_git)
 
   @classmethod
-  def rename_dirs(clazz, dirs, src_pattern, dst_pattern,
+  def xrename_dirs(clazz, dirs, src_pattern, dst_pattern,
                   word_boundary = False,
                   underscore = False):
     check.check_string(src_pattern)
@@ -120,7 +126,7 @@ class refactor_files(object):
                         next_rename_item.dst_filename,
                         try_git)
     for d in affected_dirs:
-      if dir_util.is_empty(d):
+      if path.exists(d) and dir_util.is_empty(d):
         dir_util.remove(d)
         
   @classmethod
@@ -176,3 +182,45 @@ class refactor_files(object):
   def match_files(clazz, filenames, text, word_boundary = False, ignore_case = False):
     search_rv = clazz.search_files(filenames, text, word_boundary = word_boundary)
     return sorted(algorithm.unique([ s.filename for s in search_rv ]))
+
+  @classmethod
+  def rename_dirs(clazz, dirs, src_pattern, dst_pattern, word_boundary = False):
+    check.check_string(src_pattern)
+    check.check_string(dst_pattern)
+    check.check_bool(word_boundary)
+
+    if src_pattern in dst_pattern:
+      raise refactor_error(f'src_pattern "{src_pattern}" cannot be a substring in dst_pattern "{dst_pattern}"')
+    if dst_pattern in src_pattern:
+      raise refactor_error(f'dst_pattern "{dst_pattern}" cannot be a substring in src_pattern "{src_pattern}"')
+
+    escaped_src_pattern = re.escape(src_pattern)
+    if word_boundary:
+      expression = r'.*\b{}\b.*'.format(escaped_src_pattern)
+    else:
+      expression = r'.*{}.*'.format(escaped_src_pattern)
+
+    def _match_function(d):
+      assert path.isdir(d)
+      return file_match.match_re(d, expression, match_type = file_match.ANY, basename = True)
+    options = file_resolver_options(match_function = _match_function,
+                                    match_basename = False,
+                                    sort_order = 'depth',
+                                    sort_reverse = True)
+
+    while True:
+      resolved_dirs = file_resolver.resolve_dirs(dirs, options = options)
+      if not resolved_dirs:
+        break;
+      
+      for next_resolved_dir in resolved_dirs:
+        next_dir_rel = next_resolved_dir.filename
+        replaced_dir = file_path.replace(next_dir_rel,
+                                         src_pattern,
+                                         dst_pattern,
+                                         count = 1,
+                                         backwards = True)
+        assert replaced_dir != next_dir_rel
+        src_dir_abs = path.join(next_resolved_dir.root_dir, next_dir_rel)
+        dst_dir_abs = path.join(next_resolved_dir.root_dir, replaced_dir)
+        file_util.rename(src_dir_abs, dst_dir_abs)
