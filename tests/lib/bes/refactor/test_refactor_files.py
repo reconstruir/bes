@@ -92,6 +92,62 @@ class test_refactor_files(unit_test, unit_test_media_files):
 
   def test_rename_dirs(self):
     tmp_dir = self._make_temp_content([
+#      temp_content('dir', 'empty_rootdir', None, 0o0755),
+#      temp_content('dir', 'lib/fruit/emptydir', None, 0o0755),
+#      temp_content('file', 'lib/fruit/constants.py', self.CONSTANTS_PY, 0o0644),
+#      temp_content('file', 'lib/fruit/constants2.py', self.CONSTANTS2_PY, 0o0644),
+#      temp_content('file', 'lib/fruit/kiwi.py', self.KIWI_PY, 0o0644),
+#      temp_content('file', 'lib/fruit/kiwifruit.py', self.KIWI_PY, 0o0644),
+#      temp_content('file', 'lib/fruit/kiwi_fruit.py', self.KIWI_PY, 0o0644),
+#      temp_content('file', 'lib/fruit/lemon.py', self.LEMON_PY, 0o0644),
+#      temp_content('file', 'lib/fruity/constants2b.py', self.CONSTANTS2_PY, 0o0644),
+#      temp_content('file', 'tests/lib/fruit/test_kiwi.py', self.TEST_KIWI_py, 0o0644),
+#      temp_content('file', 'tests/lib/fruit/test_kiwifruit.py', self.TEST_KIWI_py, 0o0644),
+#      temp_content('file', 'tests/lib/fruit/test_kiwi_fruit.py', self.TEST_KIWI_py, 0o0644),
+#      temp_content('file', 'tests/lib/fruit/test_lemon.py', self.TEST_LEMON_py, 0o0644),
+#      temp_content('file', 'tests/lib/fruity/test_lemonb.py', self.TEST_LEMON_py, 0o0644),
+#      temp_content('file', 'xdata/kiwi_stuff/kiwi.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+    ])
+    for x in file_find.find(tmp_dir, file_type = file_find.ANY):
+      print(f'B4: {x}')
+    refactor_files.rename_dirs(tmp_dir, 'kiwi', 'chocolate', word_boundary = False)
+    for x in file_find.find(tmp_dir, file_type = file_find.ANY):
+      print(f'AF: {x}')
+    
+    self.assert_filename_list_equal( [
+      'chocolate',
+      'chocolate/xdata2',
+      'chocolate/xdata2/chocolate_stuff2',
+      'chocolate/xdata2/chocolate_stuff2/kiwi2.png',
+#      'empty_rootdir',
+#      'lib',
+#      'lib/fruit',
+#      'lib/fruit/constants.py',
+#      'lib/fruit/constants2.py',
+#      'lib/fruit/emptydir',
+#      'lib/fruit/kiwi.py',
+#      'lib/fruit/kiwi_fruit.py',
+#      'lib/fruit/kiwifruit.py',
+#      'lib/fruit/lemon.py',
+#      'lib/fruity',
+#      'lib/fruity/constants2b.py',
+#      'tests',
+#      'tests/lib',
+#      'tests/lib/fruit',
+#      'tests/lib/fruit/test_kiwi.py',
+#      'tests/lib/fruit/test_kiwi_fruit.py',
+#      'tests/lib/fruit/test_kiwifruit.py',
+#      'tests/lib/fruit/test_lemon.py',
+#      'tests/lib/fruity',
+#      'tests/lib/fruity/test_lemonb.py',
+#      'xdata',
+#      'xdata/chocolate_stuff',
+#      'xdata/chocolate_stuff/kiwi.png',
+    ], file_find.find(tmp_dir, file_type = file_find.ANY) )
+    
+  def xtest_rename_dirs(self):
+    tmp_dir = self._make_temp_content([
       temp_content('file', 'lib/fruit/kiwi.py', self.KIWI_PY, 0o0644),
       temp_content('file', 'lib/fruit/lemon.py', self.LEMON_PY, 0o0644),
       temp_content('file', 'lib/fruit/constants.py', self.CONSTANTS_PY, 0o0644),
