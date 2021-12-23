@@ -46,4 +46,17 @@ class refactor_cli_handler(cli_command_handler):
                                underscore = True,
                                try_git = True)
     return 0
+
+  def rename_files(self, files, src_pattern, dst_pattern):
+    check.check_string_seq(files)
+    check.check_string(src_pattern)
+    check.check_string(dst_pattern)
+
+    refactor_files.rename_files(files,
+                                src_pattern,
+                                dst_pattern,
+                                word_boundary = self.options.word_boundary,
+                                underscore = True,
+                                try_git = True)
+    return 0
   
