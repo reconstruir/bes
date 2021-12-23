@@ -132,3 +132,15 @@ class file_resolver(object):
                                  match_re = options.match_re,
                                  max_depth = max_depth)
     return found_files
+
+  @classmethod
+  def resolve_empty_dirs(clazz, dirs):
+    'Resolve empty dirs.'
+    
+    def _match_empty_dirs(d):
+      assert path.isdir(d)
+      return dir_util.is_empty(d)
+    
+    options = file_resolver_options(match_function = _match_empty_dirs,
+                                    match_basename = False)
+    return file_resolver.resolve_dirs(dirs, options = options)
