@@ -8,15 +8,25 @@ class refactor_cli_args(object):
   def refactor_add_args(self, subparser):
 
     # rename
-    p = subparser.add_parser('rename', help = 'Global rename of dirs, files and conent.')
+    p = subparser.add_parser('rename', help = 'Global rename of dirs, files and content.')
     self.__refactor_cli_add_add_common_args(p)
     p.add_argument('src_pattern', action = 'store', default = None,
                    help = 'The src pattern to rename from. []')
     p.add_argument('dst_pattern', action = 'store', default = None,
                    help = 'The dst pattern to rename to. []')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
-                   help = 'One or more directories to check for dups [ None ]')
+                   help = 'One or more files and/or directories to check for dups [ None ]')
 
+    # rename_dirs
+    p = subparser.add_parser('rename_dirs', help = 'Global rename of dirs only.')
+    self.__refactor_cli_add_add_common_args(p)
+    p.add_argument('src_pattern', action = 'store', default = None,
+                   help = 'The src pattern to rename from. []')
+    p.add_argument('dst_pattern', action = 'store', default = None,
+                   help = 'The dst pattern to rename to. []')
+    p.add_argument('dirs', action = 'store', default = [], nargs = '+',
+                   help = 'One or more directories to check for dups [ None ]')
+    
   @classmethod
   def __refactor_cli_add_add_common_args(clazz, p):
     p.add_argument('--dry-run', action = 'store_true', default = False,

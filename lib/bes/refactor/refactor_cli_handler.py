@@ -10,6 +10,7 @@ from bes.fs.file_check import file_check
 from bes.script.blurber import blurber
 
 from .refactor_rename import refactor_rename
+from .refactor_files import refactor_files
 from .refactor_options import refactor_options
 
 class refactor_cli_handler(cli_command_handler):
@@ -32,3 +33,17 @@ class refactor_cli_handler(cli_command_handler):
                            underscore = True,
                            try_git = True)
     return 0
+
+  def rename_dirs(self, dirs, src_pattern, dst_pattern):
+    check.check_string_seq(dirs)
+    check.check_string(src_pattern)
+    check.check_string(dst_pattern)
+
+    refactor_files.rename_dirs(dirs,
+                               src_pattern,
+                               dst_pattern,
+                               word_boundary = self.options.word_boundary,
+                               underscore = True,
+                               try_git = True)
+    return 0
+  
