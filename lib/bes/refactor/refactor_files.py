@@ -70,11 +70,6 @@ class refactor_files(object):
     check.check_bool(underscore)
     check.check_bool(try_git)
 
-    if src_pattern in dst_pattern:
-      raise refactor_error(f'src_pattern "{src_pattern}" cannot be a substring in dst_pattern "{dst_pattern}"')
-    if dst_pattern in src_pattern:
-      raise refactor_error(f'dst_pattern "{dst_pattern}" cannot be a substring in src_pattern "{src_pattern}"')
-    
     clazz._log.log_method_d()
 
     clazz._do_rename_files_or_dirs(file_resolver.resolve_files,
