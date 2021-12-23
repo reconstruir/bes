@@ -101,7 +101,7 @@ class test_refactor_files(unit_test, unit_test_media_files):
       'chocolate/xdata2/chocolate_stuff2',
       'chocolate/xdata2/chocolate_stuff2/kiwi2.png',
     ], file_find.find(tmp_dir, file_type = file_find.ANY) )
-    
+
   def test_rename_dirs(self):
     tmp_dir = self._make_temp_content([
       temp_content('dir', 'empty_rootdir', None, 0o0755),
@@ -255,7 +255,7 @@ class test_refactor_files(unit_test, unit_test_media_files):
       'xdata/kiwi_stuff/kiwi.png',                                     
     ], file_find.find(tmp_dir, file_type = file_find.ANY) )
     
-  def xtest_rename_dirs_wont_leak_above_root_dir(self):
+  def test_rename_dirs_wont_leak_above_root_dir(self):
     'Test that we only rename dirs starting at root_dir'
     tmp_dir = self._make_temp_content([
       temp_content('file', 'fruit/fruit/lib/fruit/kiwi.py', self.KIWI_PY, 0o0644),
@@ -267,15 +267,24 @@ class test_refactor_files(unit_test, unit_test_media_files):
       temp_content('file', 'fruit/fruit/tests/lib/fruit/test_lemon.py', self.TEST_LEMON_py, 0o0644),
       temp_content('file', 'fruit/fruit/tests/lib/fruity/test_lemonb.py', self.TEST_LEMON_py, 0o0644),
     ])
-    refactor_files.rename_dirs('fruit', 'cheese', path.join(tmp_dir, 'fruit'), word_boundary = False)
+    refactor_files.rename_dirs(path.join(tmp_dir, 'fruit'), 'fruit', 'cheese', word_boundary = False)
     self.assert_filename_list_equal( [
+      'fruit',
+      'fruit/cheese',
+      'fruit/cheese/lib',
+      'fruit/cheese/lib/cheese',
       'fruit/cheese/lib/cheese/constants.py',
       'fruit/cheese/lib/cheese/constants2.py',
       'fruit/cheese/lib/cheese/kiwi.py',
       'fruit/cheese/lib/cheese/lemon.py',
+      'fruit/cheese/lib/cheesey',
       'fruit/cheese/lib/cheesey/constants2b.py',      
+      'fruit/cheese/tests',
+      'fruit/cheese/tests/lib',
+      'fruit/cheese/tests/lib/cheese',
       'fruit/cheese/tests/lib/cheese/test_kiwi.py',
       'fruit/cheese/tests/lib/cheese/test_lemon.py',
+      'fruit/cheese/tests/lib/cheesey',
       'fruit/cheese/tests/lib/cheesey/test_lemonb.py',
     ], file_find.find(tmp_dir, file_type = file_find.ANY) )
 
