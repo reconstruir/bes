@@ -44,4 +44,4 @@ class git_address_util(object):
     'Return a local path sanitized from an address.  Suitable for local caching of remote git stuff.'
     check.check_string(address)
 
-    return string_util.replace(address, { ':': '_', '/': '_' })
+    return string_util.replace(address, { ':': '_', '/': '_' }, word_boundary = False)
