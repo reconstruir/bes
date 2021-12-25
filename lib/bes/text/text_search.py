@@ -3,6 +3,7 @@
 from collections import namedtuple
 
 from bes.system.check import check
+from bes.compat.StringIO import StringIO
 
 from .word_boundary import word_boundary
 
@@ -46,17 +47,14 @@ class text_search(object):
         do_yield = True
       if do_yield:
         yield clazz._span(start, end)
-  
-'''      
+
   @classmethod
-  def replace_span(clazz, s, i, n, replacement, word_boundary = False, underscore = False):
+  def replace_span(clazz, s, i, n, replacement):
     'Replace a span of text in s starting at i with a length of n'
     check.check_string(s)
     check.check_int(i)
     check.check_int(n)
     check.check_string(replacement)
-    check.check_bool(word_boundary)
-    check.check_bool(underscore)
 
     if i < 0:
       raise ValueError('i should be greater than 0')
@@ -69,25 +67,29 @@ class text_search(object):
     j = i + n - 1
     assert j >= i
 
-    #print(f's={s} i={i} n={n}')
-    if word_boundary:
-      if i >= 1:
-        prev_char = s[i - 1]
-        prev_char_is_boundary = char_util.is_word_boundary(prev_char, underscore = underscore)
-        #print(f'prev_char={prev_char} prev_char_is_boundary={prev_char_is_boundary}')
-        if not prev_char_is_boundary:
-          return s
-      if j < (length - 1):
-        next_char = s[j + 1]
-        next_char_is_boundary = char_util.is_word_boundary(next_char, underscore = underscore)
-        #print(f'next_char={next_char} next_char_is_boundary={next_char_is_boundary}')
-        if not next_char_is_boundary:
-          return s
-    
     left = s[:i]
     right = s[j + 1:]
     return left + replacement + right
-      
+
+  @classmethod
+  def replace_all(clazz, s, src_string, dst_string, word_boundary = True, underscore = False):
+    'Replace src_string with dst_string optionally respecting word boundaries.'
+    check.check_string(s)
+    check.check_string(src_string)
+    check.check_string(dst_string)
+    check.check_bool(word_boundary)
+    check.check_bool(underscore)
+
+    indeces = [ i for i in clazz.find_all(s, src_string) ]
+    rindeces = reversed(indeces)
+    n = len(src_string)
+    for i in reversed(indeces):
+      s = clazz.replace_span(s, i, n, dst_string,
+                             word_boundary = word_boundary,
+                             underscore = underscore)
+    return s
+  
+'''      
   @classmethod
   def replace_all(clazz, s, src_string, dst_string, word_boundary = True, underscore = False):
     'Replace src_string with dst_string optionally respecting word boundaries.'

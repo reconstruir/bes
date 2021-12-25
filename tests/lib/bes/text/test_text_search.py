@@ -17,6 +17,20 @@ class test_text_search(unit_test):
     self.assertEqual( [
       ( 12, 14 ),
     ], text_search.find_all_word_boundary('foo1and bar foo and fooy', 'foo') )
+
+  def test_replace_span(self):
+    f = text_search.replace_span
+    self.assertEqual( 'foo & bar foo and foo', f('foo and bar foo and foo', 4, 3, '&') )
+    self.assertEqual( 'xoo', f('foo', 0, 1, 'x') )
+    self.assertEqual( 'fxo', f('foo', 1, 1, 'x') )
+    self.assertEqual( 'fox', f('foo', 2, 1, 'x') )
+
+    with self.assertRaises(ValueError) as ctx:
+      f('foo', 3, 1, 'x')
+    with self.assertRaises(ValueError) as ctx:
+      f('foo', -1, 1, 'x')
+    with self.assertRaises(ValueError) as ctx:
+      f('foo', 0, 0, 'x')
     
 #    self.assertEqual( [], f('bar', 'foo') )
 #    self.assertEqual( [ 0 ], f('foo', 'foo') )
