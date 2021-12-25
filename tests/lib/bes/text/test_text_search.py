@@ -12,6 +12,12 @@ class test_text_search(unit_test):
       ( 12, 14 ),
       ( 20, 22 ),
     ], text_search.find_all('foo and bar foo and foo', 'foo') )
+
+  def test_find_all_word_boundary(self):
+    self.assertEqual( [
+      ( 12, 14 ),
+    ], text_search.find_all_word_boundary('foo1and bar foo and fooy', 'foo') )
+    
 #    self.assertEqual( [], f('bar', 'foo') )
 #    self.assertEqual( [ 0 ], f('foo', 'foo') )
 #    self.assertEqual( [ 4, 16 ], f('foo and bar foo and foo', 'and') )
