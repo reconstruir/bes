@@ -5,33 +5,33 @@ from collections import namedtuple
 from bes.system.check import check
 from bes.compat.StringIO import StringIO
 
-from .word_boundary import word_boundary
+from .word_boundary import word_boundary as word_boundary_module
 
 class text_search(object):
   'Class to deal with text search and replace'
 
   _span = namedtuple('_span', 'start, end')
-
   @classmethod
-  def find_all_word_boundary(clazz, text, sub_string, boundary_chars = None):
+  def find_all(clazz, text, sub_string, word_boundary = False, boundary_chars = None):
     'Returns a list of of all the spans containing sub_string in text'
     check.check_string(text)
     check.check_string(sub_string)
+    check.check_bool(word_boundary)
     check.check_set(boundary_chars, allow_none = True)
 
-    boundary_chars = boundary_chars or word_boundary.CHARS_UNDERSCORE
-    return [ span for span in clazz._do_find_all(text, sub_string, boundary_chars) ]
-  
+    return [ span for span in clazz.find_all_generator(text,
+                                                       sub_string,
+                                                       word_boundary = word_boundary,
+                                                       boundary_chars = boundary_chars) ]
+
   @classmethod
-  def find_all(clazz, text, sub_string):
-    'Returns a list of of all the spans containing sub_string in text'
+  def find_all_generator(clazz, text, sub_string, word_boundary = False, boundary_chars = None):
     check.check_string(text)
     check.check_string(sub_string)
+    check.check_bool(word_boundary)
+    check.check_set(boundary_chars, allow_none = True)
 
-    return [ span for span in clazz._do_find_all(text, sub_string, None) ]
-
-  @classmethod
-  def _do_find_all(clazz, text, sub_string, boundary_chars):
+    boundary_chars = boundary_chars or word_boundary_module.CHARS
     sub_string_length = len(sub_string)
     i = 0
     while True:
@@ -41,53 +41,52 @@ class text_search(object):
       start = i
       end = i + sub_string_length - 1
       i += sub_string_length
-      if boundary_chars != None:
-        do_yield = word_boundary.word_has_boundary(text, start, end, boundary_chars = boundary_chars)
+      if word_boundary:
+        assert boundary_chars
+        do_yield = word_boundary_module.word_has_boundary(text, start, end, boundary_chars = boundary_chars)
       else:
         do_yield = True
       if do_yield:
         yield clazz._span(start, end)
 
   @classmethod
-  def replace_span(clazz, s, i, n, replacement):
-    'Replace a span of text in s starting at i with a length of n'
-    check.check_string(s)
-    check.check_int(i)
-    check.check_int(n)
+  def replace_span(clazz, text, start, end, replacement):
+    'Replace a span of text from start to end with replacement'
+    check.check_string(text)
+    check.check_int(start)
+    check.check_int(end)
     check.check_string(replacement)
 
-    if i < 0:
-      raise ValueError('i should be greater than 0')
-    length = len(s)
-    if i >= len(s):
-      raise ValueError(f'n should be less than the length of s - {length}')
-    if n < 1:
-      raise ValueError('n should be at least 1')
+    length = len(text)
     
-    j = i + n - 1
-    assert j >= i
-
-    left = s[:i]
-    right = s[j + 1:]
+    if start < 0:
+      raise ValueError('start should be greater than 0')
+    if start >= length:
+      raise ValueError(f'end should be less than the length of text - {length}')
+    if end < start:
+      raise ValueError(f'end({end}) should be greater than start({start})')
+    if end >= length:
+      raise ValueError(f'end({end}) should be less than the length of text - {length}')
+    
+    left = text[:start]
+    right = text[end + 1:]
     return left + replacement + right
 
   @classmethod
-  def replace_all(clazz, s, src_string, dst_string, word_boundary = True, underscore = False):
+  def replace_all(clazz, text, src_string, dst_string, word_boundary = False, boundary_chars = None):
     'Replace src_string with dst_string optionally respecting word boundaries.'
-    check.check_string(s)
+    check.check_string(text)
     check.check_string(src_string)
     check.check_string(dst_string)
     check.check_bool(word_boundary)
-    check.check_bool(underscore)
+    check.check_set(boundary_chars, allow_none = True)
 
-    indeces = [ i for i in clazz.find_all(s, src_string) ]
-    rindeces = reversed(indeces)
-    n = len(src_string)
-    for i in reversed(indeces):
-      s = clazz.replace_span(s, i, n, dst_string,
-                             word_boundary = word_boundary,
-                             underscore = underscore)
-    return s
+    spans = clazz.find_all(text, src_string, word_boundary = word_boundary, boundary_chars = boundary_chars)
+    for span in reversed(spans):
+      text = clazz.replace_span(text, span.start, span.end, dst_string,
+                                word_boundary = word_boundary,
+                                underscore = underscore)
+    return text
   
 '''      
   @classmethod
