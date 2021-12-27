@@ -42,8 +42,7 @@ class file_search(object):
   @classmethod
   def search_file(clazz, filename, text,
                   word_boundary = False,
-                  boundary_chars = None,
-                  ignore_case = False):
+                  boundary_chars = None):
     #assert string_util.is_string(text)
     try:
       content = file_util.read(filename, 'utf-8')
@@ -52,51 +51,40 @@ class file_search(object):
     result = clazz.search_string(content,
                                  text,
                                  word_boundary = word_boundary,
-                                 boundary_chars = boundary_chars,
-                                 ignore_case = ignore_case)
+                                 boundary_chars = boundary_chars)
     return [ clazz.search_item(filename, item.line_number, item.pattern, item.line, item.span) for item in result ]
 
   @classmethod
   def search_string(clazz, content, patterns,
                     word_boundary = False,
-                    boundary_chars = None,
-                    ignore_case = False):
+                    boundary_chars = None):
     assert string_util.is_string(content)
     patterns = object_util.listify(patterns)
     result = []
     original_patterns = None
     if word_boundary:
       original_patterns = patterns[:]
-      patterns = [ clazz._make_expresion(p, ignore_case) for p in patterns ]
-    else:
-      if ignore_case:
-        original_patterns = patterns[:]
-        patterns = [ p.lower() for p in patterns ]
+      patterns = [ clazz._make_expresion(p) for p in patterns ]
     original_patterns = original_patterns or patterns
     patterns = list(zip(patterns, original_patterns))
     for line_number, line in enumerate(content.splitlines(), 1):
       if word_boundary:
         result += clazz._search_line_with_re(line, patterns, '<unknown>', line_number)
       else:
-        result += clazz._search_line_with_find(line, patterns, '<unknown>', line_number, ignore_case)
+        result += clazz._search_line_with_find(line, patterns, '<unknown>', line_number)
     return result
 
   @classmethod
-  def _make_expresion(clazz, text, ignore_case):
-    flags = 0
-    if ignore_case:
-      flags = re.IGNORECASE
-    return re.compile(r'\b%s\b' % (re.escape(text)), flags = flags)
+  def _make_expresion(clazz, text):
+    return re.compile(r'\b%s\b' % (re.escape(text)))
 
   @classmethod
-  def _search_line_with_find(clazz, line, patterns, filename, line_number, ignore_case):
+  def _search_line_with_find(clazz, line, patterns, filename, line_number):
     check.check_list(patterns)
     assert len(patterns) > 0
     
     result = []
     original_line = line
-    if ignore_case:
-      line = line.lower()
     for pattern, original_pattern in patterns:
       check.check_string(pattern)
       check.check_string(original_pattern)
