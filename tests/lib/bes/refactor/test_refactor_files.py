@@ -29,7 +29,6 @@ class test_refactor_files(unit_test):
       temp_content('file', 'wine/bin/wscript', "#!/usr/bin/env python3\na=666\n", 0o0755),
       temp_content('file', 'foo.py', "class foo(object): pass", 0o0644),
     ])
-    [ path.join(tmp_dir, f) for f in [ 'fruit', 'wine', 'foo.py' ] ]
     self.assert_filename_list_equal( [
       f'{tmp_dir}/foo.py',
       f'{tmp_dir}/fruit/bin/fscript',
@@ -52,7 +51,6 @@ class test_refactor_files(unit_test):
       temp_content('file', 'README.MD', "this is README.MD", 0o0644),
       temp_content('file', 'data/foo.data', b'\x00\xde\xad\xbe\xef\x00', 0o0644),
     ])
-    [ path.join(tmp_dir, f) for f in [ 'fruit', 'wine', 'foo.py' ] ]
     self.assert_filename_list_equal( [
       f'{tmp_dir}/README.MD',
       f'{tmp_dir}/foo.py',
