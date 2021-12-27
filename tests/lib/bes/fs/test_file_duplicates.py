@@ -4,7 +4,6 @@
 from collections import namedtuple
 from os import path
 
-from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_duplicates import file_duplicates
 from bes.fs.file_find import file_find
@@ -15,6 +14,7 @@ from bes.testing.unit_test_function_skip import unit_test_function_skip
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 from bes.system.host import host
+from bes.text.text_replace import text_replace
 
 from bes.fs.testing.temp_content import temp_content
 
@@ -49,10 +49,10 @@ class _file_duplicate_tester_base(with_metaclass(ABCMeta, object)):
     return self._hack_dup_item_list(dups, replacements)
 
   def _hack_dup_item(self, dup_item, replacements):
-    new_filename = string_util.replace(dup_item.filename, replacements)
+    new_filename = text_replace.replace(dup_item.filename, replacements, word_boundary = True)
     new_duplicates = []
     for dup in dup_item.duplicates:
-      new_duplicates.append(string_util.replace(dup, replacements))
+      new_duplicates.append(text_replace.replace(dup, replacements, word_boundary = True))
     new_filename = self._ut.xp_filename(new_filename)
     new_duplicates = self._ut.xp_filename_list(new_duplicates)
     return file_duplicates._dup_item(new_filename, new_duplicates)

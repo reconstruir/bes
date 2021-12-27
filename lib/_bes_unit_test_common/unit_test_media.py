@@ -2,12 +2,12 @@
 
 import binascii
 
-from bes.common.string_util import string_util
+from bes.text.text_replace import text_replace
 
 class unit_test_media(object):
   
   def _decode(s):
-    stripped = string_util.replace_white_space(s, '').strip()
+    stripped = text_replace.replace_white_space(s, '').strip()
     return binascii.unhexlify(stripped)
     
   # 1x1 PNG file

@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 import os.path as path
-from bes.common.string_util import string_util
+from bes.text.text_replace import text_replace
 from bes.common.variable import variable
 from .file_util import file_util
 
@@ -14,7 +14,7 @@ class file_replace(object):
   def replace(clazz, filename, replacements, backup = True, word_boundary = False):
     assert isinstance(replacements, dict)
     content = file_util.read(filename, codec = 'utf-8')
-    new_content = string_util.replace(content, replacements, word_boundary = word_boundary)
+    new_content = text_replace.replace(content, replacements, word_boundary = word_boundary)
     if content == new_content:
       return False
     if backup:

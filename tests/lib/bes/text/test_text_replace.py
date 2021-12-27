@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import OrderedDict
-from bes.text.text_search import text_replace
+from bes.text.text_replace import text_replace
 from bes.testing.unit_test import unit_test
 
 class test_text_replace(unit_test):

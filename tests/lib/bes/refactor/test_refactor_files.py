@@ -6,6 +6,7 @@ import os.path as path
 from bes.fs.file_find import file_find
 from bes.fs.testing.temp_content import temp_content
 from bes.refactor.refactor_files import refactor_files
+from bes.text.word_boundary import word_boundary
 from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
@@ -409,7 +410,7 @@ class test_refactor_files(unit_test, unit_test_media_files):
       temp_content('file', 'xdata/kiwi_stuff/kiwi.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
     ])
-    refactor_files.rename_files(tmp_dir, 'kiwi', 'chocolate', word_boundary = True, underscore = True)
+    refactor_files.rename_files(tmp_dir, 'kiwi', 'chocolate', word_boundary = True, boundary_chars = word_boundary.CHARS_UNDERSCORE)
     self.assert_filename_list_equal( [
       'chocolate',
       'chocolate/xdata2',

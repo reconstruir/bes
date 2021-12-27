@@ -5,13 +5,14 @@ import string
 from bes.system.check import check
 from bes.compat.StringIO import StringIO
 
-from .text_find import text_find
+from .text_search import text_search
 
 class text_replace(object):
   'Class to deal with text replace'
 
   @classmethod
-  def replace_all(clazz, text, src_string, dst_string, word_boundary = False, boundary_chars = None):
+  def replace_all(clazz, text, src_string, dst_string,
+                  word_boundary = False, boundary_chars = None):
     'Replace src_string with dst_string optionally respecting word boundaries.'
     check.check_string(text)
     check.check_string(src_string)
@@ -19,10 +20,10 @@ class text_replace(object):
     check.check_bool(word_boundary)
     check.check_set(boundary_chars, allow_none = True)
 
-    spans = text_find.find_all(text,
-                               src_string,
-                               word_boundary = word_boundary,
-                               boundary_chars = boundary_chars)
+    spans = text_search.find_all(text,
+                                 src_string,
+                                 word_boundary = word_boundary,
+                                 boundary_chars = boundary_chars)
     if not spans:
       return text
     last_start = 0

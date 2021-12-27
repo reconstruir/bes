@@ -1,14 +1,13 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common.string_util import string_util
 from bes.common.type_checked_list import type_checked_list
 from bes.data_output.data_output import data_output
 from bes.data_output.data_output_options import data_output_options
 from bes.data_output.data_output_style import data_output_style
 from bes.system.check import check
-
 from bes.text.text_box import text_box_colon
 from bes.text.text_box import text_box_unicode
+from bes.text.text_replace import text_replace
 from bes.text.text_table import text_cell_renderer
 from bes.text.text_table import text_table
 from bes.text.text_table import text_table_style
@@ -74,7 +73,7 @@ class git_branch_list(type_checked_list):
     check.check_string(table_title, allow_none = True)
     
     r = { 'AHEAD': 'AH', 'BEHIND': 'BE', 'ACTIVE': '*' }
-    table_labels = tuple([ string_util.replace(f.upper(), r) for f in self._values[0]._fields ])
+    table_labels = tuple([ text_replace.replace(f.upper(), r, word_boundary = True) for f in self._values[0]._fields ])
     longest_comment = self.longest_comment
     table_cell_renderers = {
       '*': self._branch_active_cell_renderer(),

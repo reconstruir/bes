@@ -9,6 +9,7 @@ from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
 from bes.system.env_override import env_override
+from bes.text.word_boundary import word_boundary
 
 class test_file_path(unit_test):
 
@@ -232,7 +233,11 @@ class test_file_path(unit_test):
     
   def test_replace_all_with_word_boundary_and_underscore(self):
     self.assert_filename_equal( '/kiwifruit/apple_fruit/foo',
-                                file_path.replace_all('/kiwifruit/kiwi_fruit/foo', 'kiwi', 'apple', word_boundary = True, underscore = True) )
+                                file_path.replace_all('/kiwifruit/kiwi_fruit/foo',
+                                                      'kiwi',
+                                                      'apple',
+                                                      word_boundary = True,
+                                                      boundary_chars = word_boundary.CHARS_UNDERSCORE) )
     
 if __name__ == '__main__':
   unit_test.main()
