@@ -2,55 +2,14 @@
 
 import string
 
-from collections import namedtuple
-
 from bes.system.check import check
 from bes.compat.StringIO import StringIO
 
-from .word_boundary import word_boundary as word_boundary_module
+from .text_find import text_find
 
-class text_search(object):
-  'Class to deal with text search and replace'
+class text_replace(object):
+  'Class to deal with text replace'
 
-  _span = namedtuple('_span', 'start, end')
-  @classmethod
-  def find_all(clazz, text, sub_string, word_boundary = False, boundary_chars = None):
-    'Returns a list of of all the spans containing sub_string in text'
-    check.check_string(text)
-    check.check_string(sub_string)
-    check.check_bool(word_boundary)
-    check.check_set(boundary_chars, allow_none = True)
-
-    return [ span for span in clazz.find_all_generator(text,
-                                                       sub_string,
-                                                       word_boundary = word_boundary,
-                                                       boundary_chars = boundary_chars) ]
-
-  @classmethod
-  def find_all_generator(clazz, text, sub_string, word_boundary = False, boundary_chars = None):
-    check.check_string(text)
-    check.check_string(sub_string)
-    check.check_bool(word_boundary)
-    check.check_set(boundary_chars, allow_none = True)
-
-    boundary_chars = boundary_chars or word_boundary_module.CHARS
-    sub_string_length = len(sub_string)
-    i = 0
-    while True:
-      i = text.find(sub_string, i)
-      if i < 0:
-        return
-      start = i
-      end = i + sub_string_length - 1
-      i += sub_string_length
-      if word_boundary:
-        assert boundary_chars
-        do_yield = word_boundary_module.word_has_boundary(text, start, end, boundary_chars = boundary_chars)
-      else:
-        do_yield = True
-      if do_yield:
-        yield clazz._span(start, end)
-        
   @classmethod
   def replace_all(clazz, text, src_string, dst_string, word_boundary = False, boundary_chars = None):
     'Replace src_string with dst_string optionally respecting word boundaries.'
@@ -60,10 +19,10 @@ class text_search(object):
     check.check_bool(word_boundary)
     check.check_set(boundary_chars, allow_none = True)
 
-    spans = clazz.find_all(text,
-                           src_string,
-                           word_boundary = word_boundary,
-                           boundary_chars = boundary_chars)
+    spans = text_find.find_all(text,
+                               src_string,
+                               word_boundary = word_boundary,
+                               boundary_chars = boundary_chars)
     if not spans:
       return text
     last_start = 0
