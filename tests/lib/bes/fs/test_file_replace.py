@@ -12,13 +12,14 @@ class test_file_replace(unit_test):
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/fs/file_replace'
 
   def test_file_replace_ascii(self):
-    tmp_file = self._make_temp_replace_file('ascii.txt')
+    tmp = self.make_temp_file(content = 'This is foo.\n')
     replacements = {
       'This': 'That',
       'foo': 'bar',
     }
-    file_replace.replace(tmp_file, replacements, backup = False, word_boundary = True)
-    self.assertEqualIgnoreWhiteSpace('That is bar.\n', file_util.read(tmp_file, codec = 'utf-8'))
+    file_replace.replace(tmp, replacements, backup = False, word_boundary = True)
+    self.assert_text_file_equal( 'That is bar.\n', tmp )
+#    assertEqualIgnoreWhiteSpace('That is bar.\n', file_util.read(tmp_file, codec = 'utf-8'))
     
   def test_file_replace_utf8(self):
     tmp_file = self._make_temp_replace_file('utf8.txt')
