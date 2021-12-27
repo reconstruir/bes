@@ -87,23 +87,6 @@ class text_search(object):
                            src_string,
                            word_boundary = word_boundary,
                            boundary_chars = boundary_chars)
-    for span in reversed(spans):
-      text = clazz.replace_span(text, span.start, span.end, dst_string)
-    return text
-
-  @classmethod
-  def replace_all_fast(clazz, text, src_string, dst_string, word_boundary = False, boundary_chars = None):
-    'Replace src_string with dst_string optionally respecting word boundaries.'
-    check.check_string(text)
-    check.check_string(src_string)
-    check.check_string(dst_string)
-    check.check_bool(word_boundary)
-    check.check_set(boundary_chars, allow_none = True)
-
-    spans = clazz.find_all(text,
-                           src_string,
-                           word_boundary = word_boundary,
-                           boundary_chars = boundary_chars)
     if not spans:
       return text
     last_start = 0
@@ -154,3 +137,16 @@ class text_search(object):
           state = STATE_CHAR
     return buf.getvalue()
   
+  @classmethod
+  def replace(clazz, s, replacements, word_boundary = False, boundary_chars = None):
+    'Replace all instances of dict d in string s.'
+    check.check_string(s)
+    check.check_dict(replacements, check.STRING_TYPES, check.STRING_TYPES)
+    check.check_bool(word_boundary)
+    check.check_set(boundary_chars, allow_none = True)
+
+    for src_string, dst_string in replacements.items():
+      s = clazz.replace_all(s, src_string, dst_string,
+                            word_boundary = word_boundary,
+                            boundary_chars = boundary_chars)
+    return s
