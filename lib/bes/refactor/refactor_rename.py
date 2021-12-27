@@ -70,23 +70,20 @@ class refactor_rename(object):
   @classmethod
   def search_files(clazz, filenames, text,
                    word_boundary = False,
-                   boundary_chars = None,
-                   ignore_case = False):
+                   boundary_chars = None):
     'Return only the text files in filesnames.'
     result = []
     for filename in filenames:
       result += file_search.search_file(filename,
                                         text,
                                         word_boundary = word_boundary,
-                                        boundary_chars = boundary_chars,
-                                        ignore_case = ignore_case)
+                                        boundary_chars = boundary_chars)
     return result
 
   @classmethod
   def match_files(clazz, filenames, text,
                   word_boundary = False,
-                  boundary_chars = None,
-                  ignore_case = False):
+                  boundary_chars = None):
     search_rv = clazz.search_files(filenames,
                                    text,
                                    word_boundary = word_boundary,
