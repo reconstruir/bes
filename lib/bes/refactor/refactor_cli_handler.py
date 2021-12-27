@@ -8,6 +8,7 @@ from bes.common.check import check
 from bes.fs.file_util import file_util
 from bes.fs.file_check import file_check
 from bes.script.blurber import blurber
+from bes.text.word_boundary import word_boundary
 
 from .refactor_rename import refactor_rename
 from .refactor_files import refactor_files
@@ -30,7 +31,7 @@ class refactor_cli_handler(cli_command_handler):
                            src_pattern,
                            dst_pattern,
                            word_boundary = self.options.word_boundary,
-                           underscore = True,
+                           boundary_chars = word_boundary.CHARS_UNDERSCORE,
                            try_git = True)
     return 0
 
@@ -43,7 +44,7 @@ class refactor_cli_handler(cli_command_handler):
                                src_pattern,
                                dst_pattern,
                                word_boundary = self.options.word_boundary,
-                               underscore = True,
+                               boundary_chars = word_boundary.CHARS_UNDERSCORE,
                                try_git = True)
     return 0
 
@@ -56,7 +57,7 @@ class refactor_cli_handler(cli_command_handler):
                                 src_pattern,
                                 dst_pattern,
                                 word_boundary = self.options.word_boundary,
-                                underscore = True,
+                                boundary_chars = word_boundary.CHARS_UNDERSCORE,
                                 try_git = True)
     return 0
   
@@ -69,6 +70,6 @@ class refactor_cli_handler(cli_command_handler):
                                  src_pattern,
                                  dst_pattern,
                                  word_boundary = self.options.word_boundary,
-                                 underscore = True)
+                                 boundary_chars = word_boundary.CHARS_UNDERSCORE)
     return 0
   

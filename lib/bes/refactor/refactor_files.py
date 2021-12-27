@@ -209,14 +209,14 @@ class refactor_files(object):
       file_util.rename(src, dst)
   
   @classmethod
-  def search_files(clazz, filenames, text, word_boundary = False, ignore_case = False):
+  def search_files(clazz, filenames, text, word_boundary = False):
     'Return only the text files in filesnames.'
     result = []
     for filename in filenames:
-      result += file_search.search_file(filename, text, word_boundary = word_boundary, ignore_case = ignore_case)
+      result += file_search.search_file(filename, text, word_boundary = word_boundary)
     return result
 
   @classmethod
-  def match_files(clazz, filenames, text, word_boundary = False, ignore_case = False):
+  def match_files(clazz, filenames, text, word_boundary = False):
     search_rv = clazz.search_files(filenames, text, word_boundary = word_boundary)
     return sorted(algorithm.unique([ s.filename for s in search_rv ]))
