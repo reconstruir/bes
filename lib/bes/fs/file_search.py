@@ -8,6 +8,7 @@ from bes.common.algorithm import algorithm
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.common.check import check
+
 from .file_find import file_find
 from .file_replace import file_replace
 from .file_util import file_util
@@ -39,17 +40,27 @@ class file_search(object):
     return items
 
   @classmethod
-  def search_file(clazz, filename, text, word_boundary = False, ignore_case = False):
+  def search_file(clazz, filename, text,
+                  word_boundary = False,
+                  boundary_chars = None,
+                  ignore_case = False):
     #assert string_util.is_string(text)
     try:
       content = file_util.read(filename, 'utf-8')
     except UnicodeDecodeError as ex:
       return []
-    result = clazz.search_string(content, text, word_boundary = word_boundary, ignore_case = ignore_case)
+    result = clazz.search_string(content,
+                                 text,
+                                 word_boundary = word_boundary,
+                                 boundary_chars = boundary_chars,
+                                 ignore_case = ignore_case)
     return [ clazz.search_item(filename, item.line_number, item.pattern, item.line, item.span) for item in result ]
 
   @classmethod
-  def search_string(clazz, content, patterns, word_boundary = False, ignore_case = False):
+  def search_string(clazz, content, patterns,
+                    word_boundary = False,
+                    boundary_chars = None,
+                    ignore_case = False):
     assert string_util.is_string(content)
     patterns = object_util.listify(patterns)
     result = []
