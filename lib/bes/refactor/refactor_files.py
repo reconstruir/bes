@@ -207,16 +207,27 @@ class refactor_files(object):
         print(f'caught: {ex}')
     if not renamed:
       file_util.rename(src, dst)
-  
+
   @classmethod
-  def search_files(clazz, filenames, text, word_boundary = False):
+  def search_files(clazz, filenames, text,
+                   word_boundary = False,
+                   boundary_chars = None):
     'Return only the text files in filesnames.'
     result = []
     for filename in filenames:
-      result += file_search.search_file(filename, text, word_boundary = word_boundary)
+      result += file_search.search_file(filename,
+                                        text,
+                                        word_boundary = word_boundary,
+                                        boundary_chars = boundary_chars)
     return result
 
   @classmethod
-  def match_files(clazz, filenames, text, word_boundary = False):
-    search_rv = clazz.search_files(filenames, text, word_boundary = word_boundary)
-    return sorted(algorithm.unique([ s.filename for s in search_rv ]))
+  def match_files(clazz, filenames, text,
+                  word_boundary = False,
+                  boundary_chars = None):
+    search_rv = clazz.search_files(filenames,
+                                   text,
+                                   word_boundary = word_boundary,
+                                   boundary_chars = boundary_chars)
+    return algorithm.unique([ s.filename for s in search_rv ])
+      

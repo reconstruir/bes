@@ -55,10 +55,10 @@ class refactor_rename(object):
     clazz._log.log_method_d()
 
     text_files = refactor_files.resolve_text_files(files)
-    matching_files = clazz.match_files(text_files,
-                                       src_pattern,
-                                       word_boundary = word_boundary,
-                                       boundary_chars = boundary_chars)
+    matching_files = refactor_files.match_files(text_files,
+                                                src_pattern,
+                                                word_boundary = word_boundary,
+                                                boundary_chars = boundary_chars)
     replacements = { src_pattern: dst_pattern }
     for filename in matching_files:
       file_replace.replace(filename,
@@ -66,26 +66,3 @@ class refactor_rename(object):
                            backup = False,
                            word_boundary = word_boundary,
                            boundary_chars = boundary_chars)
-      
-  @classmethod
-  def search_files(clazz, filenames, text,
-                   word_boundary = False,
-                   boundary_chars = None):
-    'Return only the text files in filesnames.'
-    result = []
-    for filename in filenames:
-      result += file_search.search_file(filename,
-                                        text,
-                                        word_boundary = word_boundary,
-                                        boundary_chars = boundary_chars)
-    return result
-
-  @classmethod
-  def match_files(clazz, filenames, text,
-                  word_boundary = False,
-                  boundary_chars = None):
-    search_rv = clazz.search_files(filenames,
-                                   text,
-                                   word_boundary = word_boundary,
-                                   boundary_chars = boundary_chars)
-    return algorithm.unique([ s.filename for s in search_rv ])
