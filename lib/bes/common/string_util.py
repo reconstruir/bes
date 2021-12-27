@@ -14,27 +14,6 @@ class string_util(object):
   'String util'
 
   @classmethod
-  def replace_white_space(clazz, s, replacement):
-    'Replace white space sequences in s with replacement.'
-    buf = StringIO()
-    STATE_CHAR = 1
-    STATE_SPACE = 2
-
-    state = STATE_CHAR
-    for c in s:
-      if state == STATE_CHAR:
-        if c.isspace():
-          buf.write(replacement)
-          state = STATE_SPACE
-        else:
-          buf.write(c)
-      elif state == STATE_SPACE:
-        if not c.isspace():
-          buf.write(c)
-          state = STATE_CHAR
-    return buf.getvalue()
-
-  @classmethod
   def split_by_white_space(clazz, s, strip = False):
     'Split the string into tokens by white space.'
     tokens = re.split(r'\s+', s)
@@ -81,92 +60,6 @@ class string_util(object):
       for t in tail:
         s = clazz.remove_tail(s, t)
       return s
-
-  @classmethod
-  def replace(clazz, s, replacements, word_boundary = True, underscore = False):
-    'Replace all instances of dict d in string s.'
-    check.check_string(s)
-    check.check_dict(replacements, check.STRING_TYPES, check.STRING_TYPES)
-    check.check_bool(word_boundary)
-    check.check_bool(underscore)
-
-    for src_string, dst_string in replacements.items():
-      s = clazz.replace_all(s, src_string, dst_string,
-                            word_boundary = word_boundary,
-                            underscore = underscore)
-    return s
-
-  @classmethod
-  def find_all(clazz, s, sub_string):
-    'Yields all the indeces of sub_string in s'
-    check.check_string(s)
-    check.check_string(sub_string)
-
-    i = 0
-    while True:
-      i = s.find(sub_string, i)
-      if i < 0:
-        return
-      yield i
-      i += len(sub_string)
-
-  @classmethod
-  def replace_span(clazz, s, i, n, replacement, word_boundary = False, underscore = False):
-    'Replace a span of text in s starting at i with a length of n'
-    check.check_string(s)
-    check.check_int(i)
-    check.check_int(n)
-    check.check_string(replacement)
-    check.check_bool(word_boundary)
-    check.check_bool(underscore)
-
-    if i < 0:
-      raise ValueError('i should be greater than 0')
-    length = len(s)
-    if i >= len(s):
-      raise ValueError(f'n should be less than the length of s - {length}')
-    if n < 1:
-      raise ValueError('n should be at least 1')
-    
-    j = i + n - 1
-    assert j >= i
-
-    #print(f's={s} i={i} n={n}')
-    if word_boundary:
-      if i >= 1:
-        prev_char = s[i - 1]
-        prev_char_is_boundary = char_util.is_word_boundary(prev_char, underscore = underscore)
-        #print(f'prev_char={prev_char} prev_char_is_boundary={prev_char_is_boundary}')
-        if not prev_char_is_boundary:
-          return s
-      if j < (length - 1):
-        next_char = s[j + 1]
-        next_char_is_boundary = char_util.is_word_boundary(next_char, underscore = underscore)
-        #print(f'next_char={next_char} next_char_is_boundary={next_char_is_boundary}')
-        if not next_char_is_boundary:
-          return s
-    
-    left = s[:i]
-    right = s[j + 1:]
-    return left + replacement + right
-      
-  @classmethod
-  def replace_all(clazz, s, src_string, dst_string, word_boundary = True, underscore = False):
-    'Replace src_string with dst_string optionally respecting word boundaries.'
-    check.check_string(s)
-    check.check_string(src_string)
-    check.check_string(dst_string)
-    check.check_bool(word_boundary)
-    check.check_bool(underscore)
-
-    indeces = [ i for i in clazz.find_all(s, src_string) ]
-    rindeces = reversed(indeces)
-    n = len(src_string)
-    for i in reversed(indeces):
-      s = clazz.replace_span(s, i, n, dst_string,
-                             word_boundary = word_boundary,
-                             underscore = underscore)
-    return s
   
   @classmethod
   def is_string(clazz, s):
@@ -186,18 +79,6 @@ class string_util(object):
       return True
     except Exception as ex:
       return False
-
-  @classmethod
-  def replace_punctuation(clazz, s, replacement):
-    'Replace punctuation in s with replacement.'
-    buf = StringIO()
-    for c in s:
-      if c in string.punctuation:
-        if replacement:
-          buf.write(replacement)
-      else:
-        buf.write(c)
-    return buf.getvalue()
 
   @classmethod
   def flatten(clazz, s, delimiter = ' '):
