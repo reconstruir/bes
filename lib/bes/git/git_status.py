@@ -87,7 +87,9 @@ class git_status(namedtuple('git_status', 'action, filename, renamed_filename'))
   def __gt__(self, other):
     if check.is_string(other):
       other = self.parse_line(other)
-    return self.as_tuple() > other.as_tuple()
+    elif check.is_git_status(other):
+      other = other.as_tuple()
+    return self.as_tuple() > other
   
 check.register_class(git_status, include_seq = False)
 
