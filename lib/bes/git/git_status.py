@@ -10,7 +10,7 @@ from bes.common.type_checked_list import type_checked_list
 from bes.compat.StringIO import StringIO
 from bes.text.text_line_parser import text_line_parser
 
-class git_status(namedtuple('git_status', 'action, filename')):
+class git_status(namedtuple('git_status', 'action, filename, renamed_filename')):
 
   MODIFIED = 'M'
   ADDED = 'A'
@@ -20,8 +20,11 @@ class git_status(namedtuple('git_status', 'action, filename')):
   UNMERGED = 'U'
   UNTRACKED = '??'
   
-  def __new__(clazz, action, filename):
-    return clazz.__bases__[0].__new__(clazz, action, filename)
+  def __new__(clazz, action, filename, renamed_filename):
+    check.check_string(filename)
+    check.check_string(renamed_filename, allow_none = True)
+    
+    return clazz.__bases__[0].__new__(clazz, action, filename, renamed_filename)
 
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
@@ -36,6 +39,9 @@ class git_status(namedtuple('git_status', 'action, filename')):
     buf.write(self.action.rjust(2))
     buf.write(' ')
     buf.write(self.filename)
+    if self.renamed_filename:
+      buf.write(' -> ')
+      buf.write(self.renamed_filename)
     return buf.getvalue()
 
   def __repr__(self):
@@ -50,7 +56,7 @@ class git_status(namedtuple('git_status', 'action, filename')):
       raise TypeError('invalid type for equality comparison: %s - %s' % (str(other), type(other)))
 
   def as_tuple(self):
-    return tuple([ self.action, self.filename ])
+    return tuple([ self.action, self.filename, self.renamed_filename ])
   
   def is_untracked(self):
     return self.action == '??'
@@ -61,9 +67,15 @@ class git_status(namedtuple('git_status', 'action, filename')):
     
     v = string_util.split_by_white_space(s)
     #print(f'v={v}')
-    action = v[0]
-    filename = v[1]
-    return git_status(action, filename)
+    action = v.pop(0)
+    filename = v.pop(0)
+    renamed_filename = None
+    if v:
+      arrow = v.pop(0)
+      if arrow == '->':
+        assert len(v) > 0
+        renamed_filename = v.pop(0)
+    return git_status(action, filename, renamed_filename)
 
   def __eq__(self, other):
     if check.is_string(other):

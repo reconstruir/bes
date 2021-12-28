@@ -48,8 +48,8 @@ class test_git_repo(unit_test):
     ])
     r.add('.')
     self.assertEqual( [
-      git_status(git_status.ADDED, 'a/b/c/foo.txt'),
-      git_status(git_status.ADDED, 'd/e/bar.txt'),
+      git_status(git_status.ADDED, 'a/b/c/foo.txt', None),
+      git_status(git_status.ADDED, 'd/e/bar.txt', None),
     ], r.status('.') )
     
   @git_temp_home_func()
@@ -62,8 +62,8 @@ class test_git_repo(unit_test):
     ])
     r.add('.')
     self.assertEqual( [
-      git_status(git_status.ADDED, 'a/b/c/foo.txt'),
-      git_status(git_status.ADDED, 'd/e/bar.txt'),
+      git_status(git_status.ADDED, 'a/b/c/foo.txt', None),
+      git_status(git_status.ADDED, 'd/e/bar.txt', None),
     ], r.status('.') )
     r.commit('foo', '.')
     self.assertEqual( [], r.status('.') )
