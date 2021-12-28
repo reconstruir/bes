@@ -57,8 +57,7 @@ class git(git_lfs):
     rv = git_exe.call_git(root, args)
     result = git_status_list.parse(rv.stdout)
     if abspath:
-      for r in result:
-        r.filename = path.join(root, r.filename)
+      result.become_absolute(root)
     return result
 
   @classmethod
