@@ -200,8 +200,9 @@ class refactor_files(object):
   def _rename_one(clazz, src, dst, try_git):
     renamed = False
     if try_git:
+      root_dir = git.find_root_dir(start_dir = path.dirname(src))
       try:
-        git.move(os.getcwd(), src, dst)
+        git.move(root_dir, src, dst)
         renamed = True
       except git_error as ex:
         print(f'caught: {ex}')
