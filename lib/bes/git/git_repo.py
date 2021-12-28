@@ -114,8 +114,8 @@ class git_repo(object):
   def _dot_git_path(self):
     return path.join(self.root, '.git')
 
-  def find_all_files(self):
-    files = file_find.find(self.root, relative = True, file_type = file_find.FILE|file_find.LINK)
+  def find_all_files(self, file_type = file_find.FILE_OR_LINK):
+    files = file_find.find(self.root, relative = True, file_type = file_type)
     is_git = lambda f: f.startswith('.git') or f.endswith('.git')
     files = [ f for f in files if not is_git(f) ]
     return files
