@@ -10,17 +10,12 @@ from bes.common.type_checked_list import type_checked_list
 from bes.compat.StringIO import StringIO
 from bes.text.text_line_parser import text_line_parser
 
+from .git_status_action import git_status_action
+
 class git_status(namedtuple('git_status', 'action, filename, renamed_filename')):
 
-  MODIFIED = 'M'
-  ADDED = 'A'
-  DELETED = 'D'
-  RENAMED = 'R'
-  COPIED = 'C'
-  UNMERGED = 'U'
-  UNTRACKED = '??'
-  
   def __new__(clazz, action, filename, renamed_filename):
+    check.check_git_status_action(action)
     check.check_string(filename)
     check.check_string(renamed_filename, allow_none = True)
     
@@ -36,7 +31,7 @@ class git_status(namedtuple('git_status', 'action, filename, renamed_filename'))
   
   def __str__(self):
     buf = StringIO()
-    buf.write(self.action.rjust(2))
+    buf.write(self.action.value.rjust(2))
     buf.write(' ')
     buf.write(self.filename)
     if self.renamed_filename:
@@ -59,7 +54,7 @@ class git_status(namedtuple('git_status', 'action, filename, renamed_filename'))
     return tuple([ self.action, self.filename, self.renamed_filename ])
   
   def is_untracked(self):
-    return self.action == '??'
+    return self.action == git_status.action.UNTRACKED
 
   @classmethod
   def parse_line(clazz, s):
@@ -67,7 +62,7 @@ class git_status(namedtuple('git_status', 'action, filename, renamed_filename'))
     
     v = string_util.split_by_white_space(s)
     #print(f'v={v}')
-    action = v.pop(0)
+    action = git_status_action.parse(v.pop(0))
     filename = v.pop(0)
     renamed_filename = None
     if v:

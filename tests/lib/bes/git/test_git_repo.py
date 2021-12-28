@@ -10,6 +10,7 @@ from bes.git.git import git
 from bes.git.git_error import git_error
 from bes.git.git_repo import git_repo
 from bes.git.git_status import git_status
+from bes.git.git_status_action import git_status_action
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
 from bes.system.env_override import env_override_temp_home_func
@@ -48,8 +49,8 @@ class test_git_repo(unit_test):
     ])
     r.add('.')
     self.assertEqual( [
-      git_status(git_status.ADDED, 'a/b/c/foo.txt', None),
-      git_status(git_status.ADDED, 'd/e/bar.txt', None),
+      git_status(git_status_action.ADDED, 'a/b/c/foo.txt', None),
+      git_status(git_status_action.ADDED, 'd/e/bar.txt', None),
     ], r.status('.') )
     
   @git_temp_home_func()
@@ -62,8 +63,8 @@ class test_git_repo(unit_test):
     ])
     r.add('.')
     self.assertEqual( [
-      git_status(git_status.ADDED, 'a/b/c/foo.txt', None),
-      git_status(git_status.ADDED, 'd/e/bar.txt', None),
+      git_status(git_status_action.ADDED, 'a/b/c/foo.txt', None),
+      git_status(git_status_action.ADDED, 'd/e/bar.txt', None),
     ], r.status('.') )
     r.commit('foo', '.')
     self.assertEqual( [], r.status('.') )
