@@ -55,12 +55,22 @@ class test_refactor_rename(unit_test, unit_test_media_files):
     ]
     refactor_rename.rename(args, 'fruit', 'cheese', word_boundary = False, try_git = True)
     files = r.find_all_files(file_type = file_find.ANY)
-    for f in files:
-      print(f'FILE: {f}')
-    st = r.status('.')
-    for x in st:
-      print(f'STATUS: {x}')
-    return
+    self.assertEqual( [
+      ( 'R', 'lib/fruit/constants.py', 'lib/cheese/constants.py' ),
+      ( 'R', 'lib/fruit/constants2.py', 'lib/cheese/constants2.py' ),
+      ( 'R', 'lib/fruit/kiwi.py', 'lib/cheese/kiwi.py' ),
+      ( 'R', 'lib/fruit/kiwi_fruit.py', 'lib/cheese/kiwi_cheese.py' ),
+      ( 'R', 'lib/fruit/kiwifruit.py', 'lib/cheese/kiwicheese.py' ),
+      ( 'R', 'lib/fruit/lemon.py', 'lib/cheese/lemon.py' ),
+      ( 'R', 'lib/fruity/constants2b.py', 'lib/cheesey/constants2b.py' ),
+      ( 'R', 'tests/lib/fruit/test_kiwi.py', 'tests/lib/cheese/test_kiwi.py' ),
+      ( 'R', 'tests/lib/fruit/test_kiwi_fruit.py', 'tests/lib/cheese/test_kiwi_cheese.py' ),
+      ( 'R', 'tests/lib/fruit/test_kiwifruit.py', 'tests/lib/cheese/test_kiwicheese.py' ),
+      ( 'R', 'tests/lib/fruit/test_lemon.py', 'tests/lib/cheese/test_lemon.py' ),
+      ( 'R', 'tests/lib/fruity/test_lemonb.py', 'tests/lib/cheesey/test_lemonb.py' ),
+    ], r.status('.') )
+
+    return    
     self.assert_filename_list_equal( [
       'empty_rootdir',
       'kiwi',
