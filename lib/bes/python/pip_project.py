@@ -81,8 +81,9 @@ class pip_project(object):
     rv = self.call_pip(args)
 
   def _ensure_basic_packages(self):
-    'On some python installations, installing some pip packages means building them and wheel is needed for that.'
+    'Ensure that some basic python packages are installed.'
     self.install('wheel')
+    self.install('setuptools')
     
   @cached_property
   def virtual_env(self):

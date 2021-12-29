@@ -28,7 +28,6 @@ class test_egg(unit_test):
                                      python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                      debug = self.DEBUG)
     project = pip_project(options = pp_options)
-    project.install('setuptools')
 
     for p in project.PYTHONPATH:
       sys.path.insert(0, p)
