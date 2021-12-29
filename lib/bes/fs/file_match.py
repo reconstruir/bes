@@ -79,11 +79,13 @@ class file_match(object):
 
   @classmethod
   def match_fnmatch(clazz, filenames, patterns, match_type = None, basename = True):
+    patterns = object_util.listify(patterns)
     match_type = match_type or clazz.ANY
     return clazz._match(filenames, patterns, fnmatch.fnmatch, match_type, basename = basename)
 
   @classmethod
   def match_re(clazz, filenames, expressions, match_type = None, basename = True):
+    expressions = object_util.listify(expressions)
     match_type = match_type or clazz.ANY
     expressions = [ re.compile(expression) for expression in expressions ]
     def _match_re(filename, expression):

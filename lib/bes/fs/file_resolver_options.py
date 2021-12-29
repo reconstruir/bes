@@ -6,29 +6,27 @@ from bes.common.time_util import time_util
 
 from .file_sort_order import file_sort_order
 
-class dir_split_options(cli_options):
+class file_resolver_options(cli_options):
 
   def __init__(self, **kargs):
-    super(dir_split_options, self).__init__(**kargs)
+    super(file_resolver_options, self).__init__(**kargs)
 
   @classmethod
   #@abstractmethod
   def default_values(clazz):
     'Return a dict of defaults for these options.'
     return {
-      'chunk_size': 250,
-      'debug': False,
-      'prefix': 'split-',
-      'recursive': False,
-      'verbose': False,
-      'dry_run': False,
-      'dup_file_timestamp': time_util.timestamp(),
-      'dup_file_count': 1,
-      'sort_order': file_sort_order.FILENAME,
+      'recursive': True,
+      'sort_order': None,
       'sort_reverse': False,
-      'partition': False,
+      'limit': None,
+      'match_patterns': None,
+      'match_type': None,
+      'match_basename': True,
+      'match_function': None,
+      'match_re': None
     }
-  
+
   @classmethod
   #@abstractmethod
   def sensitive_keys(clazz):
@@ -39,15 +37,16 @@ class dir_split_options(cli_options):
   #@abstractmethod
   def value_type_hints(clazz):
     return {
-      'chunk_size': int,
-      'debug': bool,
       'recursive': bool,
-      'verbose': bool,
-      'dry_run': bool,
-      'dup_file_count': int,
       'sort_order': file_sort_order,
       'sort_reverse': bool,
-      'partition': bool,
+      'limit': int,
+      'exclude_patterns': list,
+      'match_patterns': list,
+      #'match_type': None,
+      #'match_basename': True,
+      #'match_function': None,
+      #'match_re': list,
     }
 
   @classmethod
@@ -73,15 +72,14 @@ class dir_split_options(cli_options):
   #@abstractmethod
   def check_value_types(self):
     'Check the type of each option.'
-    check.check_bool(self.verbose)
-    check.check_bool(self.dry_run)
-    check.check_bool(self.debug)
     check.check_bool(self.recursive)
-    check.check_int(self.chunk_size)
-    check.check_string(self.prefix)
-    check.check_string(self.dup_file_timestamp)
-    check.check_int(self.dup_file_count)
     check.check_file_sort_order(self.sort_order, allow_none = True)
     check.check_bool(self.sort_reverse)
-
-check.register_class(dir_split_options)
+    check.check_int(self.limit, allow_none = True)
+    check.check_string_seq(self.match_patterns, allow_none = True)
+    #check.check_string_seq(self.match_type, allow_none = True)
+    check.check_bool(self.match_basename)
+    check.check_function(self.match_function, allow_none = True)
+    check.check_string_seq(self.match_re, allow_none = True)
+    
+check.register_class(file_resolver_options)

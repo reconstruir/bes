@@ -6,7 +6,7 @@ from bes.system.compat import with_metaclass
 from bes.system.host import host
 from bes.common.check import check
 from bes.common.dict_util import dict_util
-from bes.common.string_util import string_util
+from bes.text.text_replace import text_replace
 from bes.common.tuple_util import tuple_util
 from bes.common.variable import variable
 from bes.system.log import logger
@@ -166,7 +166,7 @@ class build_target(namedtuple('build_target', 'system, distro, distro_version_ma
       'RASPBIAN': 'raspbian',
     }
     dict_util.quote_strings(constants)
-    exp_with_consts = string_util.replace(exp_with_vars, constants, word_boundary = True)
+    exp_with_consts = text_replace.replace(exp_with_vars, constants, word_boundary = True)
     return eval(exp_with_consts)
 
   @classmethod

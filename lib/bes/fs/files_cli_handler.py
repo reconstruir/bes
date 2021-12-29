@@ -16,6 +16,7 @@ from .file_duplicates import file_duplicates
 from .file_find import file_find
 from .file_mime import file_mime
 from .file_resolver import file_resolver
+from .file_resolver_options import file_resolver_options
 from .file_path import file_path
 from .file_util import file_util
 
@@ -25,6 +26,7 @@ class files_cli_handler(cli_command_handler):
   def __init__(self, cli_args):
     super(files_cli_handler, self).__init__(cli_args, options_class = dir_split_options)
     check.check_dir_split_options(self.options)
+    self._resolver_options = file_resolver_options(recursive = self.options.recursive)
   
   def split(self, src_dir, dst_dir):
     src_dir = file_check.check_dir(src_dir)
@@ -53,7 +55,7 @@ class files_cli_handler(cli_command_handler):
   def checksums(self, files, algorithm):
     check.check_string_seq(files)
 
-    files = file_resolver.resolve_files(files, recursive = self.options.recursive)
+    files = file_resolver.resolve_files(files, options = self._resolver_options)
     for f in files:
       checksum = file_util.checksum(algorithm, f.filename_abs)
       print('{}: {}'.format(f.filename_abs, checksum))
@@ -62,7 +64,7 @@ class files_cli_handler(cli_command_handler):
   def media_types(self, files):
     check.check_string_seq(files)
 
-    files = file_resolver.resolve_files(files, recursive = self.options.recursive)
+    files = file_resolver.resolve_files(files, options = self._resolver_options)
     for f in files:
       media_type = file_mime.media_type(f.filename_abs)
       print('{}: {}'.format(media_type, f.filename_abs))
@@ -71,7 +73,7 @@ class files_cli_handler(cli_command_handler):
   def mime_types(self, files):
     check.check_string_seq(files)
 
-    files = file_resolver.resolve_files(files, recursive = self.options.recursive)
+    files = file_resolver.resolve_files(files, options = self._resolver_options)
     for f in files:
       #mime_type = file_mime.mime_type(f.filename_abs)
       mime_type = file_attributes_metadata.get_mime_type(f.filename_abs)
@@ -105,9 +107,17 @@ class files_cli_handler(cli_command_handler):
 
     levels = algorithm.unique(levels)
     
-    files = file_resolver.resolve_files(files, recursive = self.options.recursive)
+    files = file_resolver.resolve_files(files, options = self._resolver_options)
     for f in files:
       access = file_path.access(f.filename_abs)
       print('{}: {}'.format(f.filename_abs, access))
+    return 0
+  
+  def resolve(self, files):
+    check.check_string_seq(files)
+
+    files = file_resolver.resolve_files(files, options = self._resolver_options)
+    for f in files:
+      print(f'{f.filename_abs}')
     return 0
   

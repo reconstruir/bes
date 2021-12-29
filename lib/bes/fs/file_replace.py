@@ -1,20 +1,32 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
+
 import os.path as path
-from bes.common.string_util import string_util
+
 from bes.common.variable import variable
+from bes.system.check import check
+from bes.text.text_replace import text_replace
+
 from .file_util import file_util
 
 class file_replace(object):
 
-  ReplaceResult = namedtuple('ReplaceResult', 'included_filenames,excluded_filenames,replaced_filenames')
+  ReplaceResult = namedtuple('ReplaceResult', 'included_filenames, excluded_filenames, replaced_filenames')
 
   @classmethod
-  def replace(clazz, filename, replacements, backup = True, word_boundary = False):
-    assert isinstance(replacements, dict)
+  def replace(clazz, filename, replacements, backup = True,
+              word_boundary = False, boundary_chars = None):
+    check.check_string(filename)
+    check.check_dict(replacements, check.STRING_TYPES, check.STRING_TYPES)
+    check.check_bool(backup)
+    check.check_bool(word_boundary)
+    check.check_set(boundary_chars, allow_none = True)
+    
     content = file_util.read(filename, codec = 'utf-8')
-    new_content = string_util.replace(content, replacements, word_boundary = word_boundary)
+    new_content = text_replace.replace(content, replacements,
+                                       word_boundary = word_boundary,
+                                       boundary_chars = boundary_chars)
     if content == new_content:
       return False
     if backup:

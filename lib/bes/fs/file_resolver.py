@@ -1,130 +1,146 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 import os.path as path
 
 from collections import namedtuple
 
 from bes.common.algorithm import algorithm
+from bes.system.check import check
 from bes.common.object_util import object_util
 from bes.system.log import logger
 
 from .dir_util import dir_util
+from .file_check import file_check
 from .file_find import file_find
 from .file_match import file_match
-from .file_util import file_util
 from .file_path import file_path
+from .file_resolver_options import file_resolver_options
+from .file_sort_order import file_sort_order
+from .file_util import file_util
+
+from .file_resolver_item import file_resolver_item
+from .file_resolver_item_list import file_resolver_item_list
 
 class file_resolver(object):
-
-  _resolved_file = namedtuple('_resolved_file', 'root_dir, filename, filename_abs, order')
 
   _log = logger('file_resolver')
   
   @classmethod
-  def resolve_files(clazz,
-                    files,
-                    recursive = True,
-                    match_patterns = None,
-                    match_type = None,
-                    match_basename = True,
-                    match_function = None,
-                    match_re = None):
+  def resolve_files(clazz, files, options = None):
     'Resolve a mixed list of files and directories into a list of files.'
-    clazz._log.log_method_d()
+    check.check_file_resolver_options(options, allow_none = True)
     
-    files = object_util.listify(files)
-    result = []
-    order = 0
-    for next_file in files:
-      filename_abs = file_path.normalize(next_file)
-      
-      if not path.exists(filename_abs):
-        raise IOError('File or directory not found: "{}"'.format(filename_abs))
-      if path.isfile(filename_abs):
-        filename = path.relpath(filename_abs)
-        result.append(clazz._resolved_file(None, filename, filename_abs, order))
-        order += 1
-      elif path.isdir(filename_abs):
-        next_entries = clazz._resolve_one_dir(filename_abs,
-                                              recursive,
-                                              order,
-                                              match_patterns,
-                                              match_type,
-                                              match_basename,
-                                              match_function,
-                                              match_re)
-        order += len(next_entries)
-        result.extend(next_entries)
+    clazz._log.log_method_d()
+
+    options = options or file_resolver_options()
+    return clazz._do_resolve_files(files, options, file_find.FILE_OR_LINK)
+
+  @classmethod
+  def resolve_dirs(clazz, dirs, options = None):
+    'Resolve a directories only.'
+    check.check_file_resolver_options(options, allow_none = True)
+    
+    clazz._log.log_method_d()
+
+    dirs = object_util.listify(dirs)
+    file_check.check_dir_seq(dirs)
+    options = options or file_resolver_options()
+    return clazz._do_resolve_files(dirs, options, file_find.DIR)
+  
+  @classmethod
+  def _do_resolve_files(clazz, files, options, file_type):
+    'Resolve a mixed list of files and directories into a list of files.'
+
+    found_files, root_dir = clazz._find_files(files, options, file_type)
+    result = file_resolver_item_list()
+    for index, filename_abs in enumerate(found_files):
+      filename_rel = path.relpath(filename_abs, start = root_dir)
+      item = file_resolver_item(root_dir, filename_rel, filename_abs, index, index)
+      result.append(item)
+    if options.sort_order:
+      result = clazz._sort_result(result, options.sort_order, options.sort_reverse)
+    if options.limit:
+      result = result[0 : options.limit]
     return result
 
   @classmethod
-  def _resolve_one_dir(clazz, root_dir, recursive, starting_order,
-                       match_patterns, match_type, match_basename,
-                       match_function, match_re):
+  def _find_files(clazz, files, options, file_type):
+    'Resolve a mixed list of files and directories into a list of files.'
+
+    files = object_util.listify(files)
     result = []
-    if recursive:
+    for next_file in files:
+      filename_abs = file_path.normalize(next_file)
+      if not path.exists(filename_abs):
+        raise IOError('File or directory not found: "{}"'.format(filename_abs))
+      if path.isfile(filename_abs):
+        result.append(filename_abs)
+      elif path.isdir(filename_abs):
+        next_entries = clazz._find_files_in_dir(filename_abs, options, 0, file_type)
+        result.extend(next_entries)
+    if len(files) == 1:
+      root_dir = files[0]
+    else:
+      root_dir = file_path.common_ancestor(result)
+    return result, root_dir
+  
+  @classmethod
+  def _sort_result(clazz, result, order, reverse):
+    assert order
+    def _sort_key(resolved_file):
+      criteria = []
+      if order == file_sort_order.FILENAME:
+        criteria.append(resolved_file.filename_abs)
+      elif order == file_sort_order.SIZE:
+        criteria.append(file_util.size(resolved_file.filename_abs))
+      elif order == file_sort_order.DATE:
+        criteria.append(file_util.get_modification_date(resolved_file.filename_abs))
+      elif order == file_sort_order.DEPTH:
+        criteria.append(file_path.depth(resolved_file.filename_abs))
+      else:
+        assert False
+      return tuple(criteria)
+    sorted_result = sorted(result, key = _sort_key, reverse = reverse)
+    return clazz._reindex_result(sorted_result)
+
+  @classmethod
+  def _reindex_result(clazz, result):
+    reindexed_result = file_resolver_item_list()
+    for index, item in enumerate(result):
+      reindexed_result.append(file_resolver_item(item.root_dir,
+                                                 item.filename,
+                                                 item.filename_abs,
+                                                 index,
+                                                 item.found_index))
+    return reindexed_result
+  
+  @classmethod
+  def _find_files_in_dir(clazz, root_dir, options, starting_index, file_type):
+    result = []
+    if options.recursive:
       max_depth = None
     else:
       max_depth = 1
     found_files = file_find.find(root_dir,
-                                 relative = True,
-                                 match_patterns = match_patterns,
-                                 match_type = match_type,
-                                 match_basename = match_basename,
-                                 match_function = match_function,
-                                 match_re = match_re,
+                                 relative = False,
+                                 file_type = file_type,
+                                 match_patterns = options.match_patterns,
+                                 match_type = options.match_type,
+                                 match_basename = options.match_basename,
+                                 match_function = options.match_function,
+                                 match_re = options.match_re,
                                  max_depth = max_depth)
-    for order, next_filename in enumerate(found_files, start = starting_order):
-      clazz._log.log_d('_resolve_one_dir:{}: next_filename={}'.format(order, next_filename))
-      filename_abs = path.join(root_dir, next_filename)
-      filename = path.relpath(filename_abs, start = root_dir)
-      result.append(clazz._resolved_file(root_dir, filename, filename_abs, order))
-    return result
+    return found_files
+
+  @classmethod
+  def resolve_empty_dirs(clazz, dirs):
+    'Resolve empty dirs.'
     
-  @classmethod
-  def resolve_dir(clazz, d, patterns = None, match_type = None):
-    d = path.normpath(d)
-    files = file_find.find(d, file_type = file_find.FILE, relative = True,
-                           match_patterns = patterns, match_type = match_type)
-    result = []
-    for order, f in enumerate(files):
-      fabs = path.join(d, f)
-      result.append(clazz.resolved_file(d, f, fabs, order))
-    return sorted(result, key = lambda f: f.filename_abs)
-
-  @classmethod
-  def resolve_mixed(clazz, base_dir, files_or_dirs, patterns = None, match_type = None):
-    files_or_dirs = object_util.listify(files_or_dirs)
-
-    if not files_or_dirs:
-      files_or_dirs = dir_util.list(base_dir, relative = True)
-
-    result = []
-    for f in files_or_dirs:
-      if path.isabs(f):
-        frel = file_util.remove_head(f, base_dir)
-        fabs = f
-      else:
-        frel = f
-        fabs = path.join(base_dir, f)
-      if not path.exists(fabs):
-        raise IOError('File or directory not found: "{}"'.format(fabs))
-      if path.isfile(fabs):
-        include = True
-        if patterns:
-          include = file_match.match_fnmatch(f, patterns, match_type = match_type)
-        if include:
-          result.append(clazz.resolved_file(base_dir, frel, fabs))
-      elif path.isdir(fabs):
-        next_result = clazz.resolve_dir(fabs, patterns = patterns, match_type = match_type)
-        next_result = [ clazz._fix_resolved_file_filenames(rf, base_dir) for rf in next_result ]
-        result += next_result
-    return sorted(algorithm.unique(result))
-
-  @classmethod
-  def _fix_resolved_file_filenames(clazz, rf, base_dir):
-    base_dir_basename = file_util.remove_head(rf.root_dir, base_dir)
-    root_dir = base_dir
-    filename = path.join(base_dir_basename, rf.filename)
-    filename_abs = path.join(root_dir, filename)
-    return clazz.resolved_file(root_dir, filename, filename_abs)
+    def _match_empty_dirs(d):
+      assert path.isdir(d)
+      return dir_util.is_empty(d)
+    
+    options = file_resolver_options(match_function = _match_empty_dirs,
+                                    match_basename = False)
+    return file_resolver.resolve_dirs(dirs, options = options)

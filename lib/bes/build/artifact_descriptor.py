@@ -10,6 +10,7 @@ from bes.property.cached_property import cached_property
 from bes.archive.archive_extension import archive_extension
 from bes.compat.cmp import cmp
 from bes.fs.file_util import file_util
+from bes.text.text_replace import text_replace
 
 from .build_arch import build_arch
 from .build_target import build_target
@@ -66,7 +67,7 @@ class artifact_descriptor(namedtuple('artifact_descriptor', 'name, version, revi
 
   @cached_property
   def sql_table_name(self):
-    return string_util.replace_punctuation(str(self), '_')
+    return text_replace.replace_punctuation(str(self), '_')
 
   @cached_property
   def sql_tuple(self):

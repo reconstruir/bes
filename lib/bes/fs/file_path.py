@@ -1,15 +1,19 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
+import glob
+from os import path
+import os
+import re
 
-import glob, os.path as path, os, re
-from bes.common.check import check
 from bes.common.algorithm import algorithm
+from bes.common.check import check
+from bes.common.object_util import object_util
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
-from bes.system.which import which
 from bes.system.os_env import os_env_var
-from bes.common.object_util import object_util
+from bes.system.which import which
+from bes.text.text_replace import text_replace
 
 from .file_util import file_util
 
@@ -44,8 +48,17 @@ class file_path(object):
     return os.sep.join(p)
 
   @classmethod
-  def replace(clazz, p, src, dst, count = None, backwards = False):
+  def replace(clazz, p, src, dst, count = None, backwards = False,
+              word_boundary = False, boundary_chars = None):
     'Replace src in path components with dst.'
+    check.check_string(p)
+    check.check_string(src)
+    check.check_string(dst)
+    check.check_int(count, allow_none = True)
+    check.check_bool(backwards)
+    check.check_bool(word_boundary)
+    check.check_set(boundary_chars, allow_none = True)
+    
     v = clazz.split(p)
     r = range(0, len(v))
     if backwards:
@@ -56,7 +69,9 @@ class file_path(object):
     current_count = 0
     for i in r:
       part = v[i]
-      new_part = part.replace(src, dst)
+      new_part = text_replace.replace(part, { src: dst },
+                                      word_boundary = word_boundary,
+                                      boundary_chars = boundary_chars)
       if part != new_part:
         current_count += 1
         if current_count > count:
@@ -64,6 +79,39 @@ class file_path(object):
         v[i] = new_part
     return clazz.join(v)
 
+  @classmethod
+  def part_is_valid(clazz, c):
+    'Check that a part has only valid basename chars.'
+    if path.sep in c:
+      return False
+    if path.curdir in c:
+      return False
+    if path.pardir in c:
+      return False
+    return True
+  
+  @classmethod
+  def check_part(clazz, part):
+    'Check that a part has only valid basename chars.'
+    if not clazz.part_is_valid(part):
+      raise ValueError('Invalid part: "{}"'.format(part))
+  
+  @classmethod
+  def replace_all(clazz, p, src, dst, word_boundary = False, boundary_chars = None):
+    'Replace src with dst on all parts of the path.'
+    check.check_string(p)
+    check.check_string(src)
+    check.check_string(dst)
+    check.check_bool(word_boundary)
+    check.check_set(boundary_chars, allow_none = True)
+    
+    result = []
+    for part in clazz.split(p):
+      result.append(text_replace.replace_all(part, src, dst,
+                                             word_boundary = word_boundary,
+                                             boundary_chars = boundary_chars))
+    return clazz.join(result)
+  
   @classmethod
   def depth(clazz, p):
     'Return the depth of p.'

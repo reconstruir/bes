@@ -2,9 +2,10 @@
 
 from bes.enum_util.checked_enum import checked_enum
 
-class dir_sort_order(checked_enum):
+class file_sort_order(checked_enum):
   DATE = 'date'
+  DEPTH = 'depth'
   FILENAME = 'filename'
   SIZE = 'size'
 
-dir_sort_order.register_check_class()
+file_sort_order.register_check_class()

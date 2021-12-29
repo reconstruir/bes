@@ -8,6 +8,7 @@ from bes.common.string_util import string_util
 from bes.debug.hexdump import hexdump
 from bes.fs.file_check import file_check
 from bes.system.log import logger
+from bes.text.text_replace import text_replace
 
 from .xattr_exe_error import xattr_exe_error
 from .xattr_exe_error import xattr_exe_permission_error
@@ -95,7 +96,7 @@ class xattr_exe(object):
     rv = clazz._call_xattr_exe(args)
     clazz._log.log_d('get_bytes: stdout={}'.format(rv.stdout))
     xattr_exe_command.check_result(rv, message = 'Failed to get key="{}" for "{}"'.format(key, filename))
-    hex_text = string_util.replace_white_space(rv.stdout, '')
+    hex_text = text_replace.replace_white_space(rv.stdout, '')
     clazz._log.log_d('get_bytes: hex_text={}'.format(hex_text))
     return codecs.decode(hex_text, encoding = 'hex')
 
