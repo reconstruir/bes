@@ -10,10 +10,6 @@ from archive_tester import make_test_case
 
 class test_archive_xz(make_test_case(archive_xz, archive_extension.XZ)):
 
-    @classmethod
-    def setUpClass(clazz):
-      pass
-
     def test_init(self):
       self.assertEqual( 'foo.xz', archive_xz('foo.xz').filename )
   
