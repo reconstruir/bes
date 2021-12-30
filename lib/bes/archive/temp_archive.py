@@ -56,7 +56,8 @@ class temp_archive(object):
     elif ext_type == 'dmg':
       clazz._make_temp_archive_dmg(items, temp_archive_filename, archive_mode)
     elif ext_type == 'xz':
-      clazz._make_temp_archive_xz(items, temp_archive_filename, archive_mode)
+      clazz._make_temp_archive_tar(items, temp_archive_filename, archive_mode)
+#      clazz._make_temp_archive_xz(items, temp_archive_filename, archive_mode)
 
     return temp_archive_filename
 

@@ -36,7 +36,7 @@ class archive_extension(object):
     TGZ : 'w:gz',
     ZIP : 'w',
     DMG : 'w',
-    XZ : 'w',
+    XZ : 'w:xz',
   }
 
   @classmethod
