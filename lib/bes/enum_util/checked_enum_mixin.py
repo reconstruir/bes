@@ -117,3 +117,20 @@ class checked_enum_mixin:
                          include_seq = False,
                          cast_func = clazz.parse)
   
+
+  def __gt__(self, other):
+    if isinstance(other, enum.Enum):
+      return self.value > other.value
+    if check.is_string(other):
+      return self.__gt__(self.parse(other))
+    return super(checked_enum_mixin, self).__gt__(other)
+
+  def __eq__(self, other):
+    if isinstance(other, enum.Enum):
+      return self.value == other.value
+    if check.is_string(other):
+      return self.__eq__(self.parse(other))
+    return super(checked_enum_mixin, self).__eq__(other)
+
+  def __hash__(self):
+    return hash(str(self))

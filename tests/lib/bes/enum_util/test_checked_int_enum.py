@@ -68,15 +68,28 @@ class test_checked_int_enum(unit_test):
     with self.assertRaises(TypeError) as ctx:
       check.check__cheese('GOUDA')
 
+  class _wine(checked_int_enum):
+    SANCERRE = 1
+    CHABLIS = 2
+    OPORTO = 3
+    
   def test_check_with_cast_func(self):
-    class _wine(checked_int_enum):
-      SANCERRE = 1
-      CHABLIS = 2
-      OPORTO = 3
-    check.register_class(_wine, cast_func = _wine.parse)
-    self.assertEqual( _wine.OPORTO, check.check__wine(_wine.OPORTO) )
-    self.assertEqual( _wine.SANCERRE, check.check__wine(1) )
-    self.assertEqual( _wine.CHABLIS, check.check__wine('CHABLIS') )
+    check.register_class(self._wine, cast_func = self._wine.parse)
+    self.assertEqual( self._wine.OPORTO, check.check__wine(self._wine.OPORTO) )
+    self.assertEqual( self._wine.SANCERRE, check.check__wine(1) )
+    self.assertEqual( self._wine.CHABLIS, check.check__wine('CHABLIS') )
+    check.unregister_class(self._wine)
+
+  def test___gt__(self):
+    self.assertTrue( self._wine.OPORTO > self._wine.CHABLIS )
+    self.assertTrue( self._wine.OPORTO > 'CHABLIS' )
+    self.assertTrue( self._wine.OPORTO > 2 )
+
+  def test___eq__(self):
+    self.assertTrue( self._wine.OPORTO == self._wine.OPORTO )
+    self.assertFalse( self._wine.OPORTO == self._wine.CHABLIS )
+    self.assertTrue( self._wine.OPORTO == 'OPORTO' )
+    self.assertTrue( self._wine.OPORTO == 3 )
     
 if __name__ == '__main__':
   unit_test.main()
