@@ -268,8 +268,9 @@ class check(object):
   def register_class(clazz, object_type, name = None, cast_func = None, include_seq = True):
     'Add a check method to check for object type with name.'
     clazz.check_class(object_type)
+    clazz.check_string(name, allow_none = True)
+
     name = name or object_type.__name__
-    clazz.check_string(name)
     check_method_name = 'check_%s' % (name)
     if getattr(clazz, check_method_name, None):
       existing_object_type = clazz._check_method_map[check_method_name]
@@ -294,6 +295,30 @@ class check(object):
         raise RuntimeError('check already has a method named \"%s\"' % (check_seq_method_name))
       clazz._check_seq_helper(clazz, check_seq_method_name, object_type)
 
+  @classmethod
+  def unregister_class(clazz, object_type, name = None):
+    'Remove check method from check for object type with name.'
+    clazz.check_class(object_type)
+    clazz.check_string(name, allow_none = True)
+    
+    name = name or object_type.__name__
+    check_method_name = 'check_%s' % (name)
+    if getattr(clazz, check_method_name, None):
+      del clazz._check_method_map[check_method_name]
+      delattr(clazz, check_method_name)
+      
+    is_method_name = 'is_%s' % (name)
+    if getattr(clazz, is_method_name, None):
+      delattr(clazz, is_method_name)
+
+    is_seq_method_name = 'is_%s_seq' % (name)
+    if getattr(clazz, is_seq_method_name, None):
+      delattr(clazz, is_seq_method_name)
+      
+    check_seq_method_name = 'check_%s_seq' % (name)
+    if getattr(clazz, check_seq_method_name, None):
+      delattr(clazz, check_seq_method_name)
+      
   @classmethod
   def _previous_frame_object_name(clazz, obj, depth):
     'Return the name for obj in the previous frame.'
