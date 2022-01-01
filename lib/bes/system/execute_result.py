@@ -50,7 +50,7 @@ class execute_result(namedtuple('execute_result', 'stdout_bytes, stderr_bytes, e
     raise ex
 
   def print_error(self):
-    sys.stdout.write('  command: {}\n'.format(' '.join(self.command)))
+    sys.stdout.write('  command: {}'.format(self._command_to_string()))
     sys.stdout.write('exit_code: {}\n'.format(self.exit_code))
     sys.stdout.write('   stderr: {}\n'.format(self.stderr))
     sys.stdout.write('   stdout: {}\n'.format(self.stdout))
@@ -58,9 +58,14 @@ class execute_result(namedtuple('execute_result', 'stdout_bytes, stderr_bytes, e
   
   def log_error(self, tag = None):
     tag = tag or 'execute'
-    log.log_d(tag, '  command: {}'.format(' '.join(self.command)))
+    log.log_d(tag, '  command: {}'.format(self._command_to_string()))
     log.log_d(tag, 'exit_code: {}'.format(self.exit_code))
     log.log_d(tag, '   stderr: {}'.format(self.stderr))
     log.log_d(tag, '   stdout: {}'.format(self.stdout))
-  
+
+  def _command_to_string(self):
+    if check.is_string(self.command):
+      return self.command
+    return ' '.join(self.command)
+    
 check.register_class(execute_result)
