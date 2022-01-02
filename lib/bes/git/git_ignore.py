@@ -3,7 +3,7 @@
 from os import path
 
 from bes.common.check import check
-from bes.fs.file_ignore import ignore_file_data
+from bes.fs.file_ignore import file_ignore_item
 from bes.fs.temp_file import temp_file
 
 class git_ignore(object):
@@ -20,7 +20,7 @@ class git_ignore(object):
   @classmethod
   def read_ignore_file(clazz, filename):
     'Return the contents of an ignore file with comments stripped.'
-    return ignore_file_data.read_file(filename).patterns
+    return file_ignore_item.read_file(filename).patterns
 
   @classmethod
   def read_gitignore_text(clazz, text):

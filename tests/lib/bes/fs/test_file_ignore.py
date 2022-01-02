@@ -5,10 +5,11 @@ import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.fs.file_ignore import file_ignore as FI
 from bes.fs.temp_file import temp_file
-from bes.fs.file_ignore import ignore_file_data as IFD
+from bes.fs.file_ignore import file_ignore_item as IFD
 
-class test_ignore_file_data(unit_test):
+class test_file_ignore_item(unit_test):
 
+  
   __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.fs/file_ignore'
   
   def test__init__(self):
