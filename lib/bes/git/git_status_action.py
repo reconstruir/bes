@@ -5,6 +5,7 @@ from bes.enum_util.checked_enum import checked_enum
 
 class git_status_action(checked_enum):
   ADDED = 'A'
+  ADDED_MODIFIED = 'AM'
   COPIED = 'C'
   DELETED = 'D'
   MODIFIED = 'M'
