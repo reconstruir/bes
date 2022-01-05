@@ -23,6 +23,7 @@ class python_source_unix(with_metaclass(ABCMeta, object)):
       'python',
       'python[0-9]',
       'python[0-9].[0-9]',
+      'python[0-9].[0-9][0-9]',
     ]
 
   @classmethod

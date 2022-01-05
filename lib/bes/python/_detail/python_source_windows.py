@@ -37,12 +37,15 @@ class python_source_windows(python_source_base):
       'python.exe',
       'python[0-9].exe',
       'python[0-9].[0-9].exe',
+      'python[0-9].[0-9][0-9].exe',
       'python.cmd',
       'python[0-9].cmd',
       'python[0-9].[0-9].cmd',
+      'python[0-9].[0-9][0-9].cmd',
       'python.bat',
       'python[0-9].bat',
       'python[0-9].[0-9].bat',
+      'python[0-9].[0-9][0-9].bat',
     ]
 
   @classmethod
