@@ -4,6 +4,9 @@ import os
 
 import atexit, codecs, copy, difflib, json, inspect, os, os.path as path
 import platform, pprint, re, sys, shutil, subprocess, tempfile, time, unittest
+
+from bes.system.filesystem import filesystem
+
 from datetime import datetime
 
 from .hexdata import hexdata
@@ -371,8 +374,8 @@ class unit_test(unittest.TestCase):
   @classmethod
   def make_temp_file(clazz, content = None, prefix = None, suffix = None,
                      dir = None, mode = 'w+b', perm = None, mtime = None,
-                     delete = True, xp_filename = False):
-    'Write content to a temporary file.  Returns the file object.'
+                     delete = True, xp_filename = False, non_existent = False):
+    'Write content to a temporary file.  Returns the filename.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or ''
     if dir and not path.isdir(dir):
@@ -401,6 +404,8 @@ class unit_test(unittest.TestCase):
     result = tmp.name
     if xp_filename:
       result = clazz.xp_filename(result, sep = '/')
+    if non_existent:
+      filesystem.remove(result)
     return result
 
   @classmethod
@@ -467,7 +472,6 @@ class unit_test(unittest.TestCase):
     for f in files:
       try:
         if path.isdir(f):
-          from bes.system.filesystem import filesystem
           filesystem.remove_directory(f)
         else:
           os.remove(f)
