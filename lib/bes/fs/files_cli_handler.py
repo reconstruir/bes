@@ -15,9 +15,9 @@ from .file_check import file_check
 from .file_duplicates import file_duplicates
 from .file_find import file_find
 from .file_mime import file_mime
+from .file_path import file_path
 from .file_resolver import file_resolver
 from .file_resolver_options import file_resolver_options
-from .file_path import file_path
 from .file_util import file_util
 from .filename_list import filename_list
 
