@@ -19,6 +19,7 @@ from .file_resolver import file_resolver
 from .file_resolver_options import file_resolver_options
 from .file_path import file_path
 from .file_util import file_util
+from .filename_list import filename_list
 
 class files_cli_handler(cli_command_handler):
   'dir project cli handler.'
@@ -120,4 +121,12 @@ class files_cli_handler(cli_command_handler):
     for f in files:
       print(f'{f.filename_abs}')
     return 0
-  
+    
+  def prefixes(self, files):
+    check.check_string_seq(files)
+
+    files = file_resolver.resolve_files(files, options = self._resolver_options)
+    prefixes = filename_list.prefixes([ f.filename_abs for f in files ])
+    for prefix in sorted(list(prefixes)):
+      print(prefix)
+    return 0

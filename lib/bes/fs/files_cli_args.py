@@ -31,7 +31,7 @@ class files_cli_args(object):
     p = subparser.add_parser('dups', help = 'Find duplicate files in directories.')
     self.__files_cli_add_add_common_args(p)
     p.add_argument('dirs', action = 'store', default = [], nargs = '+',
-                   help = 'One or more directories to check for dups [ None ]')
+                   help = 'One or more files or dirs to check for dups [ None ]')
     p.add_argument('--delete', action = 'store_true', default = False,
                    help = 'Prefix for the split directory names [ None ]')
 
@@ -39,7 +39,7 @@ class files_cli_args(object):
     p = subparser.add_parser('checksums', help = 'Print checksums for files.')
     self.__files_cli_add_add_common_args(p)
     p.add_argument('files', action = 'store', default = [], nargs = '+',
-                   help = 'One or more directories to check for dups [ None ]')
+                   help = 'One or more files or dirs to print checksums for [ None ]')
     p.add_argument('-a', '--algorithm', action = 'store', default = 'sha256',
                    choices = ( 'md5', 'sha1', 'sha256' ),
                    help = 'The checksum algorithm to use [ sha256 ]')
@@ -48,13 +48,13 @@ class files_cli_args(object):
     p = subparser.add_parser('media_types', help = 'Print media types for files.')
     self.__files_cli_add_add_common_args(p)
     p.add_argument('files', action = 'store', default = [], nargs = '+',
-                   help = 'One or more directories to check for dups [ None ]')
+                   help = 'One or more files or dirs to print media types for [ None ]')
 
     # mime_types
     p = subparser.add_parser('mime_types', help = 'Print mime types for files.')
     self.__files_cli_add_add_common_args(p)
     p.add_argument('files', action = 'store', default = [], nargs = '+',
-                   help = 'One or more directories to check for dups [ None ]')
+                   help = 'One or more files or dirs to print mime types for [ None ]')
     
     # remove_empty
     p = subparser.add_parser('remove_empty', help = 'Remove empty directories.')
@@ -72,7 +72,7 @@ class files_cli_args(object):
     p = subparser.add_parser('check_access', help = 'Check access for files.')
     self.__files_cli_add_add_common_args(p)
     p.add_argument('files', action = 'store', default = [], nargs = '+',
-                   help = 'One or more directories to check for dups [ None ]')
+                   help = 'One or more files or dirs to check access for [ None ]')
     p.add_argument('-l', '--level', action = 'append', default = [ 'write' ],
                    choices = ( 'exists', 'read', 'write', 'execute' ),
                    dest = 'levels',
@@ -82,7 +82,13 @@ class files_cli_args(object):
     p = subparser.add_parser('resolve', help = 'Resolve a mixture of files and directories into just files.')
     self.__files_cli_add_add_common_args(p)
     p.add_argument('files', action = 'store', default = [], nargs = '+',
-                   help = 'One or more directories to check for dups [ None ]')
+                   help = 'One or more files or dirs to resolve [ None ]')
+
+    # prefixes
+    p = subparser.add_parser('prefixes', help = 'Print all detected prefixes for files.')
+    self.__files_cli_add_add_common_args(p)
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more files or dirs to detect prefixes for [ None ]')
     
   @classmethod
   def __files_cli_add_add_common_args(clazz, p):
