@@ -22,3 +22,10 @@ class char_util(object):
     assert len(c) == 1
     
     return c not in clazz._NOT_WORD_BOUNDARY_CHARS[underscore]
+
+  @classmethod
+  def is_punctuation(clazz, c):
+    'Return True if c is punctuation.'
+    assert len(c) == 1
+    return c in string.punctuation
+  
