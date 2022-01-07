@@ -7,13 +7,15 @@ class filename_list(object):
   'Class to deal with file lists'
 
   @classmethod
-  def prefixes(clazz, filenames):
+  def prefixes(clazz, filenames, ignore_case = False):
     'Return a set of all the prefixes in filenames.'
     check.check_string_seq(filenames)
 
     prefixes = set()
     for filename in filenames:
       prefix = clazz._prefix(filename)
+      if ignore_case:
+        prefix = prefix.lower()
       if prefix and prefix not in prefixes:
         prefixes.add(prefix)
     return prefixes
