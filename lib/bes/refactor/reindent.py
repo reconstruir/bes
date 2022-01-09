@@ -51,6 +51,7 @@ import sys
 verbose = False
 recurse = False
 dryrun = False
+indent = 4
 makebackup = True
 # A specified newline to be used in the output (set by --newline option)
 spec_newline = None
@@ -68,10 +69,10 @@ def errprint(*args):
 
 def main():
     import getopt
-    global verbose, recurse, dryrun, makebackup, spec_newline
+    global verbose, recurse, dryrun, makebackup, spec_newline, indent
     try:
         opts, args = getopt.getopt(sys.argv[1:], "drnvh",
-            ["dryrun", "recurse", "nobackup", "verbose", "newline=", "help"])
+            ["dryrun", "recurse", "nobackup", "verbose", "newline=", "indent=", "help"])
     except getopt.error as msg:
         usage(msg)
         return
@@ -89,6 +90,8 @@ def main():
                 usage()
                 return
             spec_newline = dict(CRLF='\r\n', LF='\n')[a.upper()]
+        elif o in ('--indent',):
+            indent = int(a)
         elif o in ('-h', '--help'):
             usage()
             return
@@ -221,7 +224,7 @@ class Reindenter:
             thisstmt, thislevel = stats[i]
             nextstmt = stats[i + 1][0]
             have = getlspace(lines[thisstmt])
-            want = thislevel * 4
+            want = thislevel * indent
             if want < 0:
                 # A comment line.
                 if have:
@@ -235,7 +238,7 @@ class Reindenter:
                             jline, jlevel = stats[j]
                             if jlevel >= 0:
                                 if have == getlspace(lines[jline]):
-                                    want = jlevel * 4
+                                    want = jlevel * indent
                                 break
                     if want < 0:           # Maybe it's a hanging
                                            # comment like this one,
