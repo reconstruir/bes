@@ -17,6 +17,16 @@ class refactor_cli_args(object):
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files and/or directories to rename [ None ]')
 
+    # clone
+    p = subparser.add_parser('clone', help = 'Global clone of dirs, files and content.')
+    self.__refactor_cli_add_add_common_args(p)
+    p.add_argument('src_pattern', action = 'store', default = None,
+                   help = 'The src pattern to clone from. []')
+    p.add_argument('dst_pattern', action = 'store', default = None,
+                   help = 'The dst pattern to clone to. []')
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more files and/or directories to clone [ None ]')
+    
     # rename_dirs
     p = subparser.add_parser('rename_dirs', help = 'Global rename of dirs only.')
     self.__refactor_cli_add_add_common_args(p)

@@ -451,5 +451,64 @@ class test_refactor_files(unit_test):
       'kiwifruit/xdata2/kiwifruit_stuff2/kiwi2.txt',
     ], file_find.find(tmp_dir, file_type = file_find.ANY) )
 
+  def xtest_copy_files(self):
+    tmp_dir = self._make_temp_content([
+      temp_content('dir', 'empty_rootdir', None, 0o0755),
+      temp_content('dir', 'lib/fruit/emptydir', None, 0o0755),
+      temp_content('file', 'lib/fruit/constants.py', 'this is constants', 0o0644),
+      temp_content('file', 'lib/fruit/constants2.py', 'this is constants2', 0o0644),
+      temp_content('file', 'lib/fruit/kiwi.py', 'this is kiwi', 0o0644),
+      temp_content('file', 'lib/fruit/kiwifruit.py', 'this is kiwi', 0o0644),
+      temp_content('file', 'lib/fruit/kiwi_fruit.py', 'this is kiwi', 0o0644),
+      temp_content('file', 'lib/fruit/lemon.py', 'this is lemon', 0o0644),
+      temp_content('file', 'lib/fruity/constants2b.py', 'this is constants2', 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_kiwi.py', 'this is test kiwi', 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_kiwifruit.py', 'this is test kiwi', 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_kiwi_fruit.py', 'this is test kiwi', 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_lemon.py', 'this is test lemon', 0o0644),
+      temp_content('file', 'tests/lib/fruity/test_lemonb.py', 'this is test lemon', 0o0644),
+      temp_content('file', 'xdata/kiwi_stuff/kiwi.txt', 'foo.txt', 0o0644),
+      temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
+    ])
+#    chocolate/xdata2/chocolate_stuff2
+    refactor_files.copy_files(tmp_dir, 'kiwi', 'chocolate', word_boundary = False)
+    self.assert_filename_list_equal( [
+      'chocolate',
+      'chocolate/xdata2',
+      'chocolate/xdata2/chocolate_stuff2',
+      'chocolate/xdata2/chocolate_stuff2/chocolate2.txt',
+      'empty_rootdir',
+      'lib',
+      'lib/fruit',
+      'lib/fruit/chocolate.py',
+      'lib/fruit/chocolate_fruit.py',
+      'lib/fruit/chocolatefruit.py',
+      'lib/fruit/constants.py',
+      'lib/fruit/constants2.py',
+      'lib/fruit/emptydir',
+      'lib/fruit/kiwi.py',
+      'lib/fruit/kiwi_fruit.py',
+      'lib/fruit/kiwifruit.py',
+      'lib/fruit/lemon.py',
+      'lib/fruity',
+      'lib/fruity/constants2b.py',
+      'tests',
+      'tests/lib',
+      'tests/lib/fruit',
+      'tests/lib/fruit/test_chocolate.py',
+      'tests/lib/fruit/test_chocolate_fruit.py',
+      'tests/lib/fruit/test_chocolatefruit.py',
+      'tests/lib/fruit/test_kiwi.py',
+      'tests/lib/fruit/test_kiwi_fruit.py',
+      'tests/lib/fruit/test_kiwifruit.py',
+      'tests/lib/fruit/test_lemon.py',
+      'tests/lib/fruity',
+      'tests/lib/fruity/test_lemonb.py',
+      'xdata',
+      'xdata/chocolate_stuff',
+      'xdata/chocolate_stuff/chocolate.txt',
+      'xdata/chocolate_stuff/kiwi.txt',
+    ], file_find.find(tmp_dir, file_type = file_find.ANY) )
+    
 if __name__ == '__main__':
   unit_test.main()

@@ -21,6 +21,7 @@ class refactor_options(cli_options):
       'dry_run': False,
       'verbose': False,
       'word_boundary': False,
+      'try_git': False,
     }
 
   @classmethod
@@ -37,6 +38,7 @@ class refactor_options(cli_options):
       'verbose': bool,
       'dry_run': bool,
       'word_boundary': bool,
+      'try_git': bool,
     }
 
   @classmethod
@@ -66,5 +68,6 @@ class refactor_options(cli_options):
     check.check_bool(self.verbose)
     check.check_bool(self.debug)
     check.check_bool(self.word_boundary)
+    check.check_bool(self.try_git)
 
 check.register_class(refactor_options, include_seq = False)

@@ -32,9 +32,22 @@ class refactor_cli_handler(cli_command_handler):
                            dst_pattern,
                            word_boundary = self.options.word_boundary,
                            boundary_chars = word_boundary.CHARS_UNDERSCORE,
-                           try_git = True)
+                           try_git = self.options.try_git)
     return 0
 
+  def clone(self, files, src_pattern, dst_pattern):
+    check.check_string_seq(files)
+    check.check_string(src_pattern)
+    check.check_string(dst_pattern)
+
+    refactor_rename.clone(files,
+                          src_pattern,
+                          dst_pattern,
+                          word_boundary = self.options.word_boundary,
+                          boundary_chars = word_boundary.CHARS_UNDERSCORE,
+                          try_git = self.options.try_git)
+    return 0
+  
   def rename_dirs(self, dirs, src_pattern, dst_pattern):
     check.check_string_seq(dirs)
     check.check_string(src_pattern)

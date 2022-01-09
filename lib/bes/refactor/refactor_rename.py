@@ -66,3 +66,37 @@ class refactor_rename(object):
                            backup = False,
                            word_boundary = word_boundary,
                            boundary_chars = boundary_chars)
+
+  @classmethod
+  def copy(clazz, files, src_pattern, dst_pattern,
+           word_boundary = False, boundary_chars = None,
+           try_git = False):
+    check.check_string(src_pattern)
+    check.check_string(dst_pattern)
+    check.check_bool(word_boundary)
+    check.check_set(boundary_chars, allow_none = True)
+    check.check_bool(try_git)
+
+    clazz._log.log_method_d()
+
+#  def copy_files(clazz,
+#                 files,
+#                 src_pattern,
+#                 dst_pattern,
+#                 word_boundary = False,
+#                 boundary_chars = None,
+#                 try_git = False):
+    
+    copied_files = refactor_files.copy_files(files,
+                                             src_pattern,
+                                             dst_pattern,
+                                             word_boundary = word_boundary,
+                                             boundary_chars = boundary_chars,
+                                             try_git = try_git)
+    print('copied_files={}'.format(copied_files))
+    clazz.replace_text(copied_files,
+                       src_pattern,
+                       dst_pattern,
+                       word_boundary = word_boundary,
+                       boundary_chars = boundary_chars)
+      
