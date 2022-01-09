@@ -20,7 +20,7 @@ from .refactor_files import refactor_files
 class refactor_project(object):
 
   _log = logger('refactor')
-  
+
   _rename_item = namedtuple('_rename_item', 'src, dst')
   @classmethod
   def rename(clazz, files, src_pattern, dst_pattern,
@@ -86,7 +86,7 @@ class refactor_project(object):
 #                 word_boundary = False,
 #                 boundary_chars = None,
 #                 try_git = False):
-    
+
     copied_files = refactor_files.copy_files(files,
                                              src_pattern,
                                              dst_pattern,
@@ -99,4 +99,3 @@ class refactor_project(object):
                        dst_pattern,
                        word_boundary = word_boundary,
                        boundary_chars = boundary_chars)
-      

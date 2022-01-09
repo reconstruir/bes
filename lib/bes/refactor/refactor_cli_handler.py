@@ -47,7 +47,7 @@ class refactor_cli_handler(cli_command_handler):
                           boundary_chars = word_boundary.CHARS_UNDERSCORE,
                           try_git = self.options.try_git)
     return 0
-  
+
   def rename_dirs(self, dirs, src_pattern, dst_pattern):
     check.check_string_seq(dirs)
     check.check_string(src_pattern)
@@ -73,7 +73,7 @@ class refactor_cli_handler(cli_command_handler):
                                 boundary_chars = word_boundary.CHARS_UNDERSCORE,
                                 try_git = True)
     return 0
-  
+
   def replace_text(self, files, src_pattern, dst_pattern):
     check.check_string_seq(files)
     check.check_string(src_pattern)
@@ -85,4 +85,3 @@ class refactor_cli_handler(cli_command_handler):
                                  word_boundary = self.options.word_boundary,
                                  boundary_chars = word_boundary.CHARS_UNDERSCORE)
     return 0
-  
