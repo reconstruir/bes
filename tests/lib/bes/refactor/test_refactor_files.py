@@ -451,7 +451,7 @@ class test_refactor_files(unit_test):
       'kiwifruit/xdata2/kiwifruit_stuff2/kiwi2.txt',
     ], file_find.find(tmp_dir, file_type = file_find.ANY) )
 
-  def xtest_copy_files(self):
+  def test_copy_files(self):
     tmp_dir = self._make_temp_content([
       temp_content('dir', 'empty_rootdir', None, 0o0755),
       temp_content('dir', 'lib/fruit/emptydir', None, 0o0755),
@@ -470,14 +470,14 @@ class test_refactor_files(unit_test):
       temp_content('file', 'xdata/kiwi_stuff/kiwi.txt', 'foo.txt', 0o0644),
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
     ])
-#    chocolate/xdata2/chocolate_stuff2
     refactor_files.copy_files(tmp_dir, 'kiwi', 'chocolate', word_boundary = False)
     self.assert_filename_list_equal( [
-      'chocolate',
-      'chocolate/xdata2',
-      'chocolate/xdata2/chocolate_stuff2',
-      'chocolate/xdata2/chocolate_stuff2/chocolate2.txt',
       'empty_rootdir',
+      'kiwi',
+      'kiwi/xdata2',
+      'kiwi/xdata2/kiwi_stuff2',
+      'kiwi/xdata2/kiwi_stuff2/chocolate2.txt',
+      'kiwi/xdata2/kiwi_stuff2/kiwi2.txt',
       'lib',
       'lib/fruit',
       'lib/fruit/chocolate.py',
@@ -505,9 +505,9 @@ class test_refactor_files(unit_test):
       'tests/lib/fruity',
       'tests/lib/fruity/test_lemonb.py',
       'xdata',
-      'xdata/chocolate_stuff',
-      'xdata/chocolate_stuff/chocolate.txt',
-      'xdata/chocolate_stuff/kiwi.txt',
+      'xdata/kiwi_stuff',
+      'xdata/kiwi_stuff/chocolate.txt',
+      'xdata/kiwi_stuff/kiwi.txt',
     ], file_find.find(tmp_dir, file_type = file_find.ANY) )
     
 if __name__ == '__main__':

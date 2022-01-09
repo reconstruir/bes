@@ -82,7 +82,6 @@ class refactor_files(object):
                         files,
                         src_pattern,
                         dst_pattern,
-                        match_basename = False,
                         word_boundary = word_boundary,
                         boundary_chars = boundary_chars,
                         try_git = try_git)
@@ -107,7 +106,6 @@ class refactor_files(object):
                         files,
                         src_pattern,
                         dst_pattern,
-                        match_basename = True,
                         word_boundary = word_boundary,
                         boundary_chars = boundary_chars,
                         try_git = try_git)
@@ -136,7 +134,6 @@ class refactor_files(object):
                         dirs,
                         src_pattern,
                         dst_pattern,
-                        match_basename = False,
                         word_boundary = word_boundary,
                         boundary_chars = boundary_chars,
                         try_git = try_git)
@@ -156,13 +153,11 @@ class refactor_files(object):
                     dirs,
                     src_pattern,
                     dst_pattern,
-                    match_basename = True,
                     word_boundary = False,
                     boundary_chars = None,
                     try_git = False):
     options = file_resolver_options(sort_order = 'depth',
-                                    sort_reverse = True,
-                                    match_basename = match_basename)
+                                    sort_reverse = True)
     resolved_files = file_resolver.resolve_files(dirs, options = options)
     rename_items, affected_dirs = clazz._make_rename_items(operation,
                                                            resolved_files,
@@ -217,7 +212,14 @@ class refactor_files(object):
                                    word_boundary = word_boundary,
                                    boundary_chars = boundary_chars)
     elif operation == clazz._refactor_operation.COPY_FILES:
-      assert False
+      basename = path.basename(filename)
+      dirname = path.dirname(filename)
+      replaced_basename = file_path.replace_all(basename,
+                                                src_pattern,
+                                                dst_pattern,
+                                                word_boundary = word_boundary,
+                                                boundary_chars = boundary_chars)
+      return path.join(dirname, replaced_basename)
         
   @classmethod
   def _make_rename_items(clazz,
