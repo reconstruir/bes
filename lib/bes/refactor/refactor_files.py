@@ -28,6 +28,7 @@ from bes.system.log import logger
 from bes.system.python import python
 
 from .refactor_error import refactor_error
+from .refactor_reindent import refactor_reindent
 
 class refactor_files(object):
 
@@ -302,3 +303,13 @@ class refactor_files(object):
                                    boundary_chars = boundary_chars)
     return algorithm.unique([ s.filename for s in search_rv ])
       
+  @classmethod
+  def reindent_files(clazz, files, indent, backup):
+    check.check_int(indent)
+    check.check_bool(backup)
+
+    clazz._log.log_method_d()
+
+    python_files = clazz.resolve_python_files(files)
+    for filename in python_files:
+      refactor_reindent.reindent_file(filename, indent, backup)

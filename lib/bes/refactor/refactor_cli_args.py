@@ -56,6 +56,16 @@ class refactor_cli_args(object):
                    help = 'The dst pattern to rename to. []')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more file and/or directories to replace text in [ None ]')
+
+    # reindent
+    p = subparser.add_parser('reindent', help = 'Global reindent of python code.')
+    self.__refactor_cli_add_add_common_args(p)
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more files and/or directories to rename [ None ]')
+    p.add_argument('-i', '--indent', action = 'store', default = 2, type = int,
+                   help = 'Indent depth [ 2 ]')
+    p.add_argument('--backup', action = 'store_true', default = False,
+                   help = 'Make backups for reindented files [ False ]')
     
   @classmethod
   def __refactor_cli_add_add_common_args(clazz, p):

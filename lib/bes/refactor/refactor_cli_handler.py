@@ -85,3 +85,11 @@ class refactor_cli_handler(cli_command_handler):
                                  word_boundary = self.options.word_boundary,
                                  boundary_chars = word_boundary.CHARS_UNDERSCORE)
     return 0
+
+  def reindent(self, files, indent, backup):
+    check.check_string_seq(files)
+    check.check_int(indent)
+    check.check_bool(backup)
+
+    refactor_files.reindent_files(files, indent, backup)
+    return 0
