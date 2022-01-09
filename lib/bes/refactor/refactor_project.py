@@ -17,7 +17,7 @@ from bes.fs.file_resolver_options import file_resolver_options
 from .refactor_error import refactor_error
 from .refactor_files import refactor_files
 
-class refactor_rename(object):
+class refactor_project(object):
 
   _log = logger('refactor')
   

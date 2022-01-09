@@ -10,7 +10,7 @@ from bes.fs.file_check import file_check
 from bes.script.blurber import blurber
 from bes.text.word_boundary import word_boundary
 
-from .refactor_rename import refactor_rename
+from .refactor_project import refactor_project
 from .refactor_files import refactor_files
 from .refactor_options import refactor_options
 
@@ -27,7 +27,7 @@ class refactor_cli_handler(cli_command_handler):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
 
-    refactor_rename.rename(files,
+    refactor_project.rename(files,
                            src_pattern,
                            dst_pattern,
                            word_boundary = self.options.word_boundary,
@@ -40,7 +40,7 @@ class refactor_cli_handler(cli_command_handler):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
 
-    refactor_rename.clone(files,
+    refactor_project.clone(files,
                           src_pattern,
                           dst_pattern,
                           word_boundary = self.options.word_boundary,
@@ -79,7 +79,7 @@ class refactor_cli_handler(cli_command_handler):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
 
-    refactor_rename.replace_text(files,
+    refactor_project.replace_text(files,
                                  src_pattern,
                                  dst_pattern,
                                  word_boundary = self.options.word_boundary,
