@@ -67,11 +67,12 @@ def errprint(*args):
     sys.stderr.write(" ".join(str(arg) for arg in args))
     sys.stderr.write("\n")
 
-def main():
+    
+def main(args = sys.argv[1:]):
     import getopt
     global verbose, recurse, dryrun, makebackup, spec_newline, indent
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "drnvh",
+        opts, args = getopt.getopt(args, "drnvh",
             ["dryrun", "recurse", "nobackup", "verbose", "newline=", "indent=", "help"])
     except getopt.error as msg:
         usage(msg)
