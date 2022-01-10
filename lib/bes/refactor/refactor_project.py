@@ -79,14 +79,6 @@ class refactor_project(object):
 
     clazz._log.log_method_d()
 
-#  def copy_files(clazz,
-#                 files,
-#                 src_pattern,
-#                 dst_pattern,
-#                 word_boundary = False,
-#                 boundary_chars = None,
-#                 try_git = False):
-
     copied_files = refactor_files.copy_files(files,
                                              src_pattern,
                                              dst_pattern,

@@ -63,7 +63,7 @@ class refactor_files(object):
     resolved = file_resolver.resolve_files(files, options = options)
     return resolved.absolute_files(sort = True)
 
-  _rename_item = namedtuple('_rename_item', 'src_filename, dst_filename')
+  _operation_item = namedtuple('_operation_item', 'src_filename, dst_filename')
   _affected_dir = namedtuple('_affected_dir', 'root_dir, dirname')
   _log = logger('refactor')
   @classmethod
@@ -125,12 +125,13 @@ class refactor_files(object):
     clazz._log.log_method_d()
 
     resolved_empty_dirs = file_resolver.resolve_empty_dirs(dirs)
-    empty_dirs_rename_items, empty_dirs_affected_dirs = clazz._make_rename_items(clazz._refactor_operation.RENAME_DIRS,
-                                                                                 resolved_empty_dirs,
-                                                                                 src_pattern,
-                                                                                 dst_pattern,
-                                                                                 word_boundary,
-                                                                                 boundary_chars)
+    empty_dirs_operation_items, empty_dirs_affected_dirs = \
+      clazz._make_operation_items(clazz._refactor_operation.RENAME_DIRS,
+                                  resolved_empty_dirs,
+                                  src_pattern,
+                                  dst_pattern,
+                                  word_boundary,
+                                  boundary_chars)
     clazz._do_operation(clazz._refactor_operation.RENAME_DIRS,
                         dirs,
                         src_pattern,
@@ -139,7 +140,7 @@ class refactor_files(object):
                         boundary_chars = boundary_chars,
                         try_git = try_git)
 
-    for item in empty_dirs_rename_items:
+    for item in empty_dirs_operation_items:
       file_util.mkdir(item.dst_filename)
       assert dir_util.is_empty(item.src_filename)
       dir_util.remove(item.src_filename)
@@ -160,12 +161,12 @@ class refactor_files(object):
     options = file_resolver_options(sort_order = 'depth',
                                     sort_reverse = True)
     resolved_files = file_resolver.resolve_files(dirs, options = options)
-    rename_items, affected_dirs = clazz._make_rename_items(operation,
-                                                           resolved_files,
-                                                           src_pattern,
-                                                           dst_pattern,
-                                                           word_boundary,
-                                                           boundary_chars)
+    rename_items, affected_dirs = clazz._make_operation_items(operation,
+                                                              resolved_files,
+                                                              src_pattern,
+                                                              dst_pattern,
+                                                              word_boundary,
+                                                              boundary_chars)
     new_dirs = algorithm.unique([ path.dirname(item.dst_filename) for item in rename_items ])
     new_dirs = [ d for d in new_dirs if d and not path.exists(d) ]
     for next_new_dir in new_dirs:
@@ -173,14 +174,14 @@ class refactor_files(object):
         print(f'next_new_dir={next_new_dir}')
         assert False
       file_util.mkdir(next_new_dir)
-    for next_rename_item in rename_items:
+    for next_operation_item in rename_items:
       if operation == clazz._refactor_operation.COPY_FILES:
-        clazz._copy_one(next_rename_item.src_filename,
-                        next_rename_item.dst_filename,
+        clazz._copy_one(next_operation_item.src_filename,
+                        next_operation_item.dst_filename,
                         try_git)
       else:
-        clazz._rename_one(next_rename_item.src_filename,
-                          next_rename_item.dst_filename,
+        clazz._rename_one(next_operation_item.src_filename,
+                          next_operation_item.dst_filename,
                           try_git)
     if operation != clazz._refactor_operation.COPY_FILES:
       for d in affected_dirs:
@@ -223,13 +224,13 @@ class refactor_files(object):
       return path.join(dirname, replaced_basename)
         
   @classmethod
-  def _make_rename_items(clazz,
-                         operation,
-                         resolved_files,
-                         src_pattern,
-                         dst_pattern,
-                         word_boundary,
-                         boundary_chars):
+  def _make_operation_items(clazz,
+                            operation,
+                            resolved_files,
+                            src_pattern,
+                            dst_pattern,
+                            word_boundary,
+                            boundary_chars):
     rename_items = []
     affected_dirs = []
     for f in resolved_files:
@@ -244,7 +245,7 @@ class refactor_files(object):
         affected_dirs.append(clazz._affected_dir(f.root_dir, path.dirname(f.filename)))
         src_filename_abs = path.join(f.root_dir, src_filename_rel)
         dst_filename_abs = path.join(f.root_dir, dst_filename_rel)
-        item = clazz._rename_item(src_filename_abs, dst_filename_abs)
+        item = clazz._operation_item(src_filename_abs, dst_filename_abs)
         rename_items.append(item)
     affected_dirs = sorted(algorithm.unique(affected_dirs))
     decomposed_affected_items = []
