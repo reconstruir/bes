@@ -18,8 +18,6 @@ from bes.fs.file_resolver_options import file_resolver_options
 from bes.fs.file_search import file_search
 from bes.fs.file_util import file_util
 from bes.fs.filename_util import filename_util
-from bes.git.git import git
-from bes.git.git_error import git_error
 from bes.system.check import check
 from bes.system.log import logger
 from bes.system.python import python
@@ -168,10 +166,7 @@ class refactor_files(object):
         assert False
       file_util.mkdir(next_new_dir)
     for next_operation_item in rename_items:
-      if operation == refactor_operation_type.COPY_FILES:
-        clazz._copy_one(next_operation_item, try_git)
-      else:
-        clazz._rename_one(next_operation_item, try_git)
+      next_operation_item.apply_operation(operation, try_git)
     if operation != refactor_operation_type.COPY_FILES:
       for d in affected_dirs:
         if path.exists(d) and dir_util.is_empty(d):
@@ -246,29 +241,6 @@ class refactor_files(object):
     decomposed_affected_items = sorted(decomposed_affected_items, key = lambda item: file_path.depth(item.dirname), reverse = True)
     decomposed_affected_dirs = [ path.join(item.root_dir, item.dirname) for item in decomposed_affected_items ]
     return rename_items, decomposed_affected_dirs
-
-  @classmethod
-  def _rename_one(clazz, item, try_git):
-    renamed = False
-    if try_git:
-      root_dir = git.find_root_dir(start_dir = path.dirname(item.src))
-      try:
-        git.move(root_dir, item.src, item.dst)
-        renamed = True
-      except git_error as ex:
-        print(f'caught: {ex}')
-    if not renamed:
-      file_util.rename(item.src, item.dst)
-
-  @classmethod
-  def _copy_one(clazz, item, try_git):
-    file_util.copy(item.src, item.dst)
-    if try_git:
-      root_dir = git.find_root_dir(start_dir = path.dirname(item.dst))
-      try:
-        git.add(root_dir, [ item.dst ])
-      except git_error as ex:
-        print(f'caught: {ex}')
 
   @classmethod
   def search_files(clazz, filenames, text,
