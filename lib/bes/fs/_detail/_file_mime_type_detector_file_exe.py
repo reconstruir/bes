@@ -5,11 +5,18 @@ from os import path
 from bes.common.check import check
 from bes.fs.file_check import file_check
 from bes.system.execute import execute
+from bes.system.host import host
 
 from ._file_mime_type_detector_base import _file_mime_type_detector_base
 
 class _file_mime_type_detector_file_exe(_file_mime_type_detector_base):
 
+  @classmethod
+  #@abstractmethod
+  def is_supported(clazz):
+    'Return True if this class is supported on the current platform.'
+    return host.is_unix()
+  
   @classmethod
   #@abstractmethod
   def detect_mime_type(clazz, filename):

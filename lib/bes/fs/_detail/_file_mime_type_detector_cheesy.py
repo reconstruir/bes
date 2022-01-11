@@ -4,24 +4,23 @@ from os import path
 
 from bes.common.check import check
 from bes.fs.file_check import file_check
-import mimetypes
 from bes.system.compat import compat
 from bes.system.python import python
 
 from ._file_mime_type_detector_base import _file_mime_type_detector_base
 
-class _file_mime_type_detector_mimetypes(_file_mime_type_detector_base):
+class _file_mime_type_detector_cheesy(_file_mime_type_detector_base):
+  '''
+  A very cheesy mime type detecter that is very limited to some types
+  needed for bes things to work in the absolute disaster case where no
+  third party mime type detector exists in the platform.
+  '''
 
   @classmethod
   #@abstractmethod
   def is_supported(clazz):
     'Return True if this class is supported on the current platform.'
-    try:
-      import mimetypes
-      return True
-    except ModuleNotFoundError as ex:
-      pass
-    return False
+    return True
   
   @classmethod
   #@abstractmethod
@@ -29,13 +28,7 @@ class _file_mime_type_detector_mimetypes(_file_mime_type_detector_base):
     'Detect the mime type for file.'
     filename = file_check.check_file(filename)
 
-    mime_type = clazz._guess_mime_type(filename)
-    if not mime_type:
-      import mimetypes      
-      mime_type, _ = mimetypes.guess_type(filename)
-    if not mime_type:
-      mime_type = 'application/octet-stream'
-    return mime_type
+    return clazz._guess_mime_type(filename)
 
   @classmethod
   def _guess_mime_type(clazz, filename):
@@ -65,6 +58,9 @@ class _file_mime_type_detector_mimetypes(_file_mime_type_detector_base):
     ( 0x50, 0x4B, 0x05, 0x06 ),
     ( 0x50, 0x4B, 0x07, 0x08 ),
   }
+
+#  # https://tukaani.org/xz/xz-file-format.txt
+#  _MAGIC = b'\xfd\x37\x7a\x58\x5a\x00'
   
   @classmethod
   def _is_zip(clazz, filename):

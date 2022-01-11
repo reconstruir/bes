@@ -16,7 +16,7 @@ def make_test_case(impl):
       tmp = self.make_temp_file(content = 'this is text\n', suffix = '.txt')
       self.assertEqual( 'text/plain', impl.detect_mime_type(tmp) )
 
-    def xtest_png(self):
+    def test_png(self):
       self.assertEqual( 'image/png', impl.detect_mime_type(self.png_file) )
   
     @unit_test_function_skip.skip_if_not_unix(warning = True)
