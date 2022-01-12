@@ -7,33 +7,13 @@ class files_cli_args(object):
   
   def files_add_args(self, subparser):
 
-    # split
-    p = subparser.add_parser('split', help = 'Split a directory into many directories.')
-    self.__files_cli_add_add_common_args(p)
-    p.add_argument('src_dir', action = 'store', type = str, default = None,
-                   help = 'The source directory [ None ]')
-    p.add_argument('dst_dir', action = 'store', type = str, default = None,
-                   help = 'The destination directory [ None ]')
-    p.add_argument('chunk_size', action = 'store', type = int, default = None,
-                   help = 'The chunk size for the split directories [ None ]')
-    p.add_argument('--prefix', action = 'store', type = str, default = 'split-',
-                   help = 'Prefix for the split directory names [ None ]')
-    p.add_argument('--sort', action = 'store', default = 'filename',
-                   dest = 'sort_order',
-                   help = 'How to sort files before splitting [ None ]')
-    p.add_argument('--reverse', action = 'store_true', default = False,
-                   dest = 'sort_reverse',
-                   help = 'Whether to reverse the file order after sorting [ None ]')
-    p.add_argument('--partition', action = 'store_true', default = False,
-                   help = 'Partition the split directories by media type [ None ]')
-
     # dups
     p = subparser.add_parser('dups', help = 'Find duplicate files in directories.')
     self.__files_cli_add_add_common_args(p)
     p.add_argument('dirs', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to check for dups [ None ]')
     p.add_argument('--delete', action = 'store_true', default = False,
-                   help = 'Prefix for the split directory names [ None ]')
+                   help = 'Delete the duplicates [ False ]')
 
     # checksums
     p = subparser.add_parser('checksums', help = 'Print checksums for files.')
@@ -95,7 +75,7 @@ class files_cli_args(object):
     p.add_argument('--dry-run', action = 'store_true', default = False,
                    help = 'Dont do anything just print what would happen [ None ]')
     p.add_argument('-r', '--recursive', action = 'store_true', default = False,
-                   help = 'Split directories recursively [ None ]')
+                   help = 'Find files recursively [ False ]')
     p.add_argument('--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
     

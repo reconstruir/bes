@@ -74,6 +74,8 @@ class argparser_handler(object):
         except Exception as ex:
           raise
       elif handler.__name__.endswith(command):
+        dict_args = copy.deepcopy(dict_args)
+        dict_args['command'] = command        
         exit_code = handler(**dict_args)
       else:
         exit_code = handler(command, **dict_args)

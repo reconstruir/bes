@@ -8,8 +8,7 @@ from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.debug.hexdump import hexdump
 
-from .dir_split import dir_split
-from .dir_split_options import dir_split_options
+from .files_cli_options import files_cli_options
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
 from .file_duplicates import file_duplicates
@@ -25,22 +24,10 @@ class files_cli_handler(cli_command_handler):
   'dir project cli handler.'
 
   def __init__(self, cli_args):
-    super(files_cli_handler, self).__init__(cli_args, options_class = dir_split_options)
-    check.check_dir_split_options(self.options)
+    super(files_cli_handler, self).__init__(cli_args, options_class = files_cli_options)
+    check.check_files_cli_options(self.options)
     self._resolver_options = file_resolver_options(recursive = self.options.recursive)
   
-  def split(self, src_dir, dst_dir):
-    src_dir = file_check.check_dir(src_dir)
-    check.check_string(dst_dir)
-
-    if self.options.dry_run:
-      items = dir_split.split_items(src_dir, dst_dir, self.options)
-      for item in items:
-        print('{} => {}'.format(item.src_filename, item.dst_filename))
-    else:
-      dir_split.split(src_dir, dst_dir, self.options)
-    return 0
-
   def dups(self, dirs, delete):
     dirs = file_check.check_dir_seq(dirs)
     check.check_bool(delete)

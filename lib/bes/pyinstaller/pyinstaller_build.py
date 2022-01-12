@@ -5,6 +5,7 @@ from collections import namedtuple
 import copy
 import os
 from os import path
+import sys
 
 from bes.common.check import check
 from bes.common.string_util import string_util
@@ -63,7 +64,12 @@ class pyinstaller_build(object):
     excludes_args = clazz._make_arg_pair_list('--exclude', excludes)
     hidden_imports_args = clazz._make_arg_pair_list('--hidden-import', hidden_imports)
 
-    args = basic_args + log_args + excludes_args + hidden_imports_args + [ script_filename ]
+    if sys.version_info.minor >= 10:
+      python_10_args = [ '--exclude-module', '_bootlocale' ]
+    else:
+      python_10_args = []
+    
+    args = basic_args + log_args + excludes_args + hidden_imports_args + python_10_args + [ script_filename ]
 
     replace_env = copy.deepcopy(replace_env or {})
     if python_path:
