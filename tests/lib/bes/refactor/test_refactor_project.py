@@ -66,7 +66,6 @@ class test_refactor_project(unit_test, unit_test_media_files):
       ( 'R', 'tests/lib/fruit/test_lemon.py', 'tests/lib/cheese/test_lemon.py' ),
       ( 'R', 'tests/lib/fruity/test_lemonb.py', 'tests/lib/cheesey/test_lemonb.py' ),
     ], r.status('.') )
-
     self.assert_filename_list_equal( [
       'empty_rootdir',
       'kiwi',
@@ -125,28 +124,34 @@ class test_refactor_project(unit_test, unit_test_media_files):
       f'{r.root}/xdata',
       f'{r.root}/kiwi',
     ]
-    refactor_project.copy(args, 'fruit', 'cheese', word_boundary = False, try_git = True)
+    refactor_project.copy(args, 'kiwi', 'cheese', word_boundary = False, try_git = True)
     self.assertEqual( [
-      ( 'A', 'lib/fruit/kiwi_cheese.py', None ),
-      ( 'A', 'lib/fruit/kiwicheese.py', None ),
-      ( 'A', 'tests/lib/fruit/test_kiwi_cheese.py', None ),
-      ( 'A', 'tests/lib/fruit/test_kiwicheese.py', None ),
+      ( 'A', 'kiwi/xdata2/kiwi_stuff2/cheese2.png', None ),
+      ( 'AM', 'lib/fruit/cheese.py', None ),
+      ( 'AM', 'lib/fruit/cheese_fruit.py', None ),
+      ( 'AM', 'lib/fruit/cheesefruit.py', None ),
+      ( 'AM', 'tests/lib/fruit/test_cheese.py', None ),
+      ( 'AM', 'tests/lib/fruit/test_cheese_fruit.py', None ),
+      ( 'AM', 'tests/lib/fruit/test_cheesefruit.py', None ),
+      ( 'A', 'xdata/kiwi_stuff/cheese.png', None ),
     ], r.status('.') )
     self.assert_filename_list_equal( [
       'empty_rootdir',
       'kiwi',
       'kiwi/xdata2',
       'kiwi/xdata2/kiwi_stuff2',
+      'kiwi/xdata2/kiwi_stuff2/cheese2.png',
       'kiwi/xdata2/kiwi_stuff2/kiwi2.png',
       'lib',
       'lib/fruit',
+      'lib/fruit/cheese.py',
+      'lib/fruit/cheese_fruit.py',
+      'lib/fruit/cheesefruit.py',
       'lib/fruit/constants.py',
       'lib/fruit/constants2.py',
       'lib/fruit/emptydir',
       'lib/fruit/kiwi.py',
-      'lib/fruit/kiwi_cheese.py',
       'lib/fruit/kiwi_fruit.py',
-      'lib/fruit/kiwicheese.py',
       'lib/fruit/kiwifruit.py',
       'lib/fruit/lemon.py',
       'lib/fruity',
@@ -154,19 +159,36 @@ class test_refactor_project(unit_test, unit_test_media_files):
       'tests',
       'tests/lib',
       'tests/lib/fruit',
+      'tests/lib/fruit/test_cheese.py',
+      'tests/lib/fruit/test_cheese_fruit.py',
+      'tests/lib/fruit/test_cheesefruit.py',
       'tests/lib/fruit/test_kiwi.py',
-      'tests/lib/fruit/test_kiwi_cheese.py',
       'tests/lib/fruit/test_kiwi_fruit.py',
-      'tests/lib/fruit/test_kiwicheese.py',
       'tests/lib/fruit/test_kiwifruit.py',
       'tests/lib/fruit/test_lemon.py',
       'tests/lib/fruity',
       'tests/lib/fruity/test_lemonb.py',
       'xdata',
       'xdata/kiwi_stuff',
+      'xdata/kiwi_stuff/cheese.png',
       'xdata/kiwi_stuff/kiwi.png',
     ], r.find_all_files(file_type = file_find.ANY) )
 
+    self.assert_text_file_equal_fuzzy(self.KIWI_PY, r.file_path('lib/fruit/kiwi.py') )
+    self.assert_text_file_equal_fuzzy('''\
+class cheese(object):
+  def __init__(self, x):
+    self._x = x
+
+  @property
+  def x(self):
+    return self._x
+
+  @classmethod
+  def make_cheese(clazz, x):
+    return cheese(x)
+''', r.file_path('lib/fruit/cheese.py') )
+    
   KIWI_PY = '''\
 class kiwi(object):
   def __init__(self, x):
