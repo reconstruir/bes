@@ -70,13 +70,13 @@ class refactor_files(object):
 
     clazz._log.log_method_d()
 
-    clazz._do_operation(refactor_operation_type.RENAME_FILES,
-                        files,
-                        src_pattern,
-                        dst_pattern,
-                        word_boundary = word_boundary,
-                        boundary_chars = boundary_chars,
-                        try_git = try_git)
+    return clazz._do_operation(refactor_operation_type.RENAME_FILES,
+                               files,
+                               src_pattern,
+                               dst_pattern,
+                               word_boundary = word_boundary,
+                               boundary_chars = boundary_chars,
+                               try_git = try_git)
 
   @classmethod
   def copy_files(clazz,
@@ -94,13 +94,13 @@ class refactor_files(object):
 
     clazz._log.log_method_d()
 
-    clazz._do_operation(refactor_operation_type.COPY_FILES,
-                        files,
-                        src_pattern,
-                        dst_pattern,
-                        word_boundary = word_boundary,
-                        boundary_chars = boundary_chars,
-                        try_git = try_git)
+    return clazz._do_operation(refactor_operation_type.COPY_FILES,
+                               files,
+                               src_pattern,
+                               dst_pattern,
+                               word_boundary = word_boundary,
+                               boundary_chars = boundary_chars,
+                               try_git = try_git)
     
   @classmethod
   def rename_dirs(clazz, dirs, src_pattern, dst_pattern,
@@ -123,14 +123,14 @@ class refactor_files(object):
                                   dst_pattern,
                                   word_boundary,
                                   boundary_chars)
-    clazz._do_operation(refactor_operation_type.RENAME_DIRS,
-                        dirs,
-                        src_pattern,
-                        dst_pattern,
-                        word_boundary = word_boundary,
-                        boundary_chars = boundary_chars,
-                        try_git = try_git)
-
+    result = clazz._do_operation(refactor_operation_type.RENAME_DIRS,
+                                 dirs,
+                                 src_pattern,
+                                 dst_pattern,
+                                 word_boundary = word_boundary,
+                                 boundary_chars = boundary_chars,
+                                 try_git = try_git)
+  
     for item in empty_dirs_operation_items:
       file_util.mkdir(item.dst)
       assert dir_util.is_empty(item.src)
@@ -139,6 +139,7 @@ class refactor_files(object):
     for d in empty_dirs_affected_dirs:
       if path.exists(d) and dir_util.is_empty(d):
         dir_util.remove(d)
+    return result
 
   @classmethod
   def _do_operation(clazz,
