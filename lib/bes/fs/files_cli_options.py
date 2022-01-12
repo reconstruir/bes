@@ -16,17 +16,10 @@ class files_cli_options(cli_options):
   def default_values(clazz):
     'Return a dict of defaults for these options.'
     return {
-      'chunk_size': 250,
       'debug': False,
-      'prefix': 'split-',
       'recursive': False,
       'verbose': False,
       'dry_run': False,
-      'dup_file_timestamp': time_util.timestamp(),
-      'dup_file_count': 1,
-      'sort_order': file_sort_order.FILENAME,
-      'sort_reverse': False,
-      'partition': False,
     }
   
   @classmethod
@@ -39,15 +32,10 @@ class files_cli_options(cli_options):
   #@abstractmethod
   def value_type_hints(clazz):
     return {
-      'chunk_size': int,
       'debug': bool,
       'recursive': bool,
       'verbose': bool,
       'dry_run': bool,
-      'dup_file_count': int,
-      'sort_order': file_sort_order,
-      'sort_reverse': bool,
-      'partition': bool,
     }
 
   @classmethod
@@ -77,11 +65,5 @@ class files_cli_options(cli_options):
     check.check_bool(self.dry_run)
     check.check_bool(self.debug)
     check.check_bool(self.recursive)
-    check.check_int(self.chunk_size)
-    check.check_string(self.prefix)
-    check.check_string(self.dup_file_timestamp)
-    check.check_int(self.dup_file_count)
-    check.check_file_sort_order(self.sort_order, allow_none = True)
-    check.check_bool(self.sort_reverse)
 
 check.register_class(files_cli_options)
