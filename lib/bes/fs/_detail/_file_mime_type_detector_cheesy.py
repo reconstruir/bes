@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
 from os import path
 
 from bes.common.check import check
@@ -41,34 +42,42 @@ class _file_mime_type_detector_cheesy(_file_mime_type_detector_base):
     '''
     if python.is_python_script(filename):
       return 'text/x-python'
-    elif clazz._is_zip(filename):
-      return 'application/zip'
-    return None
+    return clazz._guess_mime_type_with_magic_bytes(filename)
 
-  # https://en.wikipedia.org/wiki/List_of_file_signatures
-  _ZIP_MAGICS = {
-    ( 0x50, 0x4B, 0x03, 0x04 ),
-    ( 0x50, 0x4B, 0x05, 0x06 ),
-    ( 0x50, 0x4B, 0x07, 0x08 ),
-  }
-
-  # https://en.wikipedia.org/wiki/List_of_file_signatures
-  _ZIP_MAGICS = {
-    ( 0x50, 0x4B, 0x03, 0x04 ),
-    ( 0x50, 0x4B, 0x05, 0x06 ),
-    ( 0x50, 0x4B, 0x07, 0x08 ),
-  }
-
-#  # https://tukaani.org/xz/xz-file-format.txt
-#  _MAGIC = b'\xfd\x37\x7a\x58\x5a\x00'
+  _magic_item = namedtuple('_magic_item', 'mime_type, offset, signatures')
+  _MAGIC = [
+    _magic_item('application/x-xz', 0, {
+      b'\xfd\x37\x7a\x58\x5a\x00',
+    }),
+    _magic_item('application/zip', 0, {
+      b'\x50\x4b\x03\x04',
+      b'\x50\x4b\x05\x06',
+      b'\x50\x4b\x07\x08',
+    }),
+    _magic_item('image/png', 0, {
+      b'\x89\x50\x4e\x47\x0d\x0a\x1a\x0a',
+    }),
+    _magic_item('image/jpeg', 0, {
+      b'\xff\xd8\xff\xe0',
+    }),
+    _magic_item('video/mp4', 4, {
+      b'\x66\x74\x79\x70\x33\x67\x70\x35',
+      b'\x66\x74\x79\x70\x4d\x34\x56\x20',
+      b'\x66\x74\x79\x70\x4d\x53\x4e\x56',
+      b'\x66\x74\x79\x70\x66\x34\x76\x20',
+      b'\x66\x74\x79\x70\x69\x73\x6f\x6d',
+      b'\x66\x74\x79\x70\x6D\x70\x34\x32',
+    }),
+  ]
   
+  _NUM_BYTES = 32
   @classmethod
-  def _is_zip(clazz, filename):
+  def _guess_mime_type_with_magic_bytes(clazz, filename):
     with open(filename, 'rb') as fin:
-      data = fin.read(4)
-      # FIXME: figure out this ridiculousness
-      if compat.IS_PYTHON2:
-        magic = ( ord(data[0]), ord(data[1]), ord(data[2]), ord(data[3]) )
-      else:
-        magic = ( data[0], data[1], data[2], data[3] )
-      return magic in clazz._ZIP_MAGICS
+      head = fin.read(clazz._NUM_BYTES)
+      for item in clazz._MAGIC:
+        offsetted_head = head[item.offset:]
+        for signature in item.signatures:
+          if offsetted_head.startswith(signature):
+            return item.mime_type
+    return None
