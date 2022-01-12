@@ -153,12 +153,13 @@ class refactor_files(object):
     options = file_resolver_options(sort_order = 'depth',
                                     sort_reverse = True)
     resolved_files = file_resolver.resolve_files(dirs, options = options)
-    operation_items, affected_dirs = clazz._make_operation_items(operation,
-                                                              resolved_files,
-                                                              src_pattern,
-                                                              dst_pattern,
-                                                              word_boundary,
-                                                              boundary_chars)
+    operation_items, affected_dirs = \
+      clazz._make_operation_items(operation,
+                                  resolved_files,
+                                  src_pattern,
+                                  dst_pattern,
+                                  word_boundary,
+                                  boundary_chars)
     new_dirs = algorithm.unique([ path.dirname(item.dst) for item in operation_items ])
     new_dirs = [ d for d in new_dirs if d and not path.exists(d) ]
     for next_new_dir in new_dirs:
@@ -175,13 +176,13 @@ class refactor_files(object):
     return operation_items
 
   @classmethod
-  def _make_rename_filename(clazz,
-                            operation,
-                            filename,
-                            src_pattern,
-                            dst_pattern,
-                            word_boundary,
-                            boundary_chars):
+  def _make_dst_filename(clazz,
+                         operation,
+                         filename,
+                         src_pattern,
+                         dst_pattern,
+                         word_boundary,
+                         boundary_chars):
     assert isinstance(operation, refactor_operation_type)
 
     if operation == refactor_operation_type.RENAME_DIRS:
@@ -221,12 +222,12 @@ class refactor_files(object):
     affected_dirs = []
     for f in resolved_files:
       src_filename_rel = f.filename
-      dst_filename_rel = clazz._make_rename_filename(operation,
-                                                     src_filename_rel,
-                                                     src_pattern,
-                                                     dst_pattern,
-                                                     word_boundary,
-                                                     boundary_chars)
+      dst_filename_rel = clazz._make_dst_filename(operation,
+                                                  src_filename_rel,
+                                                  src_pattern,
+                                                  dst_pattern,
+                                                  word_boundary,
+                                                  boundary_chars)
       if src_filename_rel != dst_filename_rel:
         affected_dirs.append(clazz._affected_dir(f.root_dir, path.dirname(f.filename)))
         src_filename_abs = path.join(f.root_dir, src_filename_rel)

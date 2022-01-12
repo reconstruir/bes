@@ -79,13 +79,13 @@ class refactor_project(object):
 
     clazz._log.log_method_d()
 
-    copied_files = refactor_files.copy_files(files,
+    copied_items = refactor_files.copy_files(files,
                                              src_pattern,
                                              dst_pattern,
                                              word_boundary = word_boundary,
                                              boundary_chars = boundary_chars,
                                              try_git = try_git)
-    print('copied_files={}'.format(copied_files))
+    copied_files = sorted([ item.dst for item in copied_items ])
     clazz.replace_text(copied_files,
                        src_pattern,
                        dst_pattern,
