@@ -470,7 +470,27 @@ class test_refactor_files(unit_test):
       temp_content('file', 'xdata/kiwi_stuff/kiwi.txt', 'foo.txt', 0o0644),
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
     ])
-    refactor_files.copy_files(tmp_dir, 'kiwi', 'chocolate', word_boundary = False)
+    items = refactor_files.copy_files(tmp_dir, 'kiwi', 'chocolate', word_boundary = False)
+    self.assert_filename_list_equal( [
+      f'{tmp_dir}/kiwi/xdata2/kiwi_stuff2/kiwi2.txt',
+      f'{tmp_dir}/lib/fruit/kiwi.py',
+      f'{tmp_dir}/lib/fruit/kiwi_fruit.py',
+      f'{tmp_dir}/lib/fruit/kiwifruit.py',
+      f'{tmp_dir}/tests/lib/fruit/test_kiwi.py',
+      f'{tmp_dir}/tests/lib/fruit/test_kiwi_fruit.py',
+      f'{tmp_dir}/tests/lib/fruit/test_kiwifruit.py',
+      f'{tmp_dir}/xdata/kiwi_stuff/kiwi.txt',
+    ], sorted([ item.src for item in items ]) )
+    self.assert_filename_list_equal( [
+      f'{tmp_dir}/kiwi/xdata2/kiwi_stuff2/chocolate2.txt',
+      f'{tmp_dir}/lib/fruit/chocolate.py',
+      f'{tmp_dir}/lib/fruit/chocolate_fruit.py',
+      f'{tmp_dir}/lib/fruit/chocolatefruit.py',
+      f'{tmp_dir}/tests/lib/fruit/test_chocolate.py',
+      f'{tmp_dir}/tests/lib/fruit/test_chocolate_fruit.py',
+      f'{tmp_dir}/tests/lib/fruit/test_chocolatefruit.py',
+      f'{tmp_dir}/xdata/kiwi_stuff/chocolate.txt',
+    ], sorted([ item.dst for item in items ]) )
     self.assert_filename_list_equal( [
       'empty_rootdir',
       'kiwi',
