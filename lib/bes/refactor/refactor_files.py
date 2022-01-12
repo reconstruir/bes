@@ -152,25 +152,26 @@ class refactor_files(object):
     options = file_resolver_options(sort_order = 'depth',
                                     sort_reverse = True)
     resolved_files = file_resolver.resolve_files(dirs, options = options)
-    rename_items, affected_dirs = clazz._make_operation_items(operation,
+    operation_items, affected_dirs = clazz._make_operation_items(operation,
                                                               resolved_files,
                                                               src_pattern,
                                                               dst_pattern,
                                                               word_boundary,
                                                               boundary_chars)
-    new_dirs = algorithm.unique([ path.dirname(item.dst) for item in rename_items ])
+    new_dirs = algorithm.unique([ path.dirname(item.dst) for item in operation_items ])
     new_dirs = [ d for d in new_dirs if d and not path.exists(d) ]
     for next_new_dir in new_dirs:
       if operation == refactor_operation_type.COPY_FILES:
         print(f'next_new_dir={next_new_dir}')
         assert False
       file_util.mkdir(next_new_dir)
-    for next_operation_item in rename_items:
+    for next_operation_item in operation_items:
       next_operation_item.apply_operation(operation, try_git)
     if operation != refactor_operation_type.COPY_FILES:
       for d in affected_dirs:
         if path.exists(d) and dir_util.is_empty(d):
           dir_util.remove(d)
+    return operation_items
 
   @classmethod
   def _make_rename_filename(clazz,
@@ -215,7 +216,7 @@ class refactor_files(object):
                             dst_pattern,
                             word_boundary,
                             boundary_chars):
-    rename_items = []
+    operation_items = []
     affected_dirs = []
     for f in resolved_files:
       src_filename_rel = f.filename
@@ -230,7 +231,7 @@ class refactor_files(object):
         src_filename_abs = path.join(f.root_dir, src_filename_rel)
         dst_filename_abs = path.join(f.root_dir, dst_filename_rel)
         item = refactor_item(src_filename_abs, dst_filename_abs)
-        rename_items.append(item)
+        operation_items.append(item)
     affected_dirs = sorted(algorithm.unique(affected_dirs))
     decomposed_affected_items = []
     for f in affected_dirs:
@@ -240,7 +241,7 @@ class refactor_files(object):
         decomposed_affected_items.append(item)
     decomposed_affected_items = sorted(decomposed_affected_items, key = lambda item: file_path.depth(item.dirname), reverse = True)
     decomposed_affected_dirs = [ path.join(item.root_dir, item.dirname) for item in decomposed_affected_items ]
-    return rename_items, decomposed_affected_dirs
+    return operation_items, decomposed_affected_dirs
 
   @classmethod
   def search_files(clazz, filenames, text,
