@@ -74,3 +74,15 @@ class unit_test_media_files(object):
   def unknown_file_xz_extension(self):
     return self.make_temp_file(content = unit_test_media.UNKNOWN, suffix = '.xz')
   
+  @cached_property
+  def windows_exe_file(self):
+    return self.make_temp_file(content = unit_test_media.WINDOWS_EXE, suffix = '.exe')
+  
+  @cached_property
+  def windows_exe_file_wrong_extension(self):
+    return self.make_temp_file(content = unit_test_media.WINDOWS_EXE, suffix = '.txt')
+
+  @cached_property
+  def unknown_file_windows_exe_extension(self):
+    return self.make_temp_file(content = unit_test_media.UNKNOWN, suffix = '.exe')
+  

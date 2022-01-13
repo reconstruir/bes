@@ -13,6 +13,7 @@ class test_text_detect(unit_test, unit_test_media_files):
 
   def test_file_is_text_false(self):
     self.assertFalse( text_detect.file_is_text(self.png_file) )
+    self.assertFalse( text_detect.file_is_text(self.windows_exe_file) )
     
 if __name__ == '__main__':
   unit_test.main()
