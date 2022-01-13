@@ -10,6 +10,12 @@ class _file_mime_type_detector_attributes(_file_mime_type_detector_base):
 
   @classmethod
   #@abstractmethod
+  def is_supported(clazz):
+    'Return True if this class is supported on the current platform.'
+    return True
+  
+  @classmethod
+  #@abstractmethod
   def detect_mime_type(clazz, filename):
     'Detect the mime type for file.'
     filename = file_check.check_file(filename)

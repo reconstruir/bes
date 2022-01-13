@@ -64,10 +64,11 @@ class pyinstaller_build(object):
     excludes_args = clazz._make_arg_pair_list('--exclude', excludes)
     hidden_imports_args = clazz._make_arg_pair_list('--hidden-import', hidden_imports)
 
-    if sys.version_info.minor >= 10:
-      python_10_args = [ '--exclude-module', '_bootlocale' ]
-    else:
-      python_10_args = []
+#    if sys.version_info.minor >= 10:
+#      python_10_args = [ '--exclude-module', '_bootlocale' ]
+#    else:
+#      python_10_args = []
+    python_10_args = []
     
     args = basic_args + log_args + excludes_args + hidden_imports_args + python_10_args + [ script_filename ]
 

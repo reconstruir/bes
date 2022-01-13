@@ -7,6 +7,8 @@ from collections import OrderedDict
 from bes.text.text_detect import text_detect
 from bes.system.host import host
 
+from .file_mime_type_detector import file_mime_type_detector
+
 class file_mime(object):
 
   TEXT = 'text'
@@ -22,10 +24,7 @@ class file_mime(object):
 
   @classmethod
   def mime_type(clazz, filename):
-    impl = clazz._get_impl()
-    assert impl
-    t = impl.mime_type(filename)
-    return t
+    return file_mime_type_detector.detect_mime_type(filename)
     
   @classmethod
   def is_text(clazz, filename):
@@ -50,22 +49,6 @@ class file_mime(object):
   def is_zip(clazz, filename):
     return clazz.mime_type(filename) in clazz._ZIP_MIME_TYPES
 
-  @classmethod
-  def _get_impl(clazz):
-    if not hasattr(clazz, '_mime_type_impl'):
-      impl = None
-      if host.is_unix():
-        from ._detail.file_mime_type_unix_file_exe import file_mime_type_unix_file_exe
-        impl = file_mime_type_unix_file_exe
-      elif host.is_windows():
-        from ._detail.file_mime_type_windows import file_mime_type_windows
-        impl = file_mime_type_windows
-      else:
-        raise RuntimeError('Unknown system: {}'.format(host.SYSTEM))
-      assert impl
-      setattr(clazz, '_mime_type_impl', impl)
-    return getattr(clazz, '_mime_type_impl', None)
-  
   _MEDIA_TYPE_PATTERNS = OrderedDict( [
     ( 'video', 'video/*' ),
     ( 'image', 'image/*' ),
