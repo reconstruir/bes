@@ -471,7 +471,7 @@ class test_dir_split(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( expected, t.dst_files )
     self.assert_filename_list_equal( [], t.src_files )
     
-  def test_partition(self):
+  def test_partition_media_type(self):
     extra_content_items = [
       temp_content('file', 'src/apple.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
       temp_content('file', 'src/barolo.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
@@ -485,7 +485,7 @@ class test_dir_split(unit_test, unit_test_media_files):
       temp_content('file', 'src/yogurt.foo', unit_test_media.UNKNOWN, 0o0644),
       temp_content('file', 'src/zabaglione.foo', unit_test_media.UNKNOWN, 0o0644),
     ]
-    t = self._do_test([], 0, 3, extra_content_items = extra_content_items, partition = True)
+    t = self._do_test([], 0, 3, extra_content_items = extra_content_items, partition = 'media_type')
     expected = [
       'chunk-1',
       'chunk-1/apple.jpg',
@@ -517,7 +517,7 @@ class test_dir_split(unit_test, unit_test_media_files):
                recursive = False,
                sort_order = 'filename',
                sort_reverse = False,
-               partition = False):
+               partition = None):
     options = dir_split_options(chunk_size = chunk_size,
                                 prefix = 'chunk-',
                                 recursive = recursive,

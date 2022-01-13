@@ -23,8 +23,8 @@ class dir_split_cli_args(object):
     p.add_argument('--reverse', action = 'store_true', default = False,
                    dest = 'sort_reverse',
                    help = 'Whether to reverse the file order after sorting [ None ]')
-    p.add_argument('--partition', action = 'store_true', default = False,
-                   help = 'Partition the split directories by media type [ None ]')
+    p.add_argument('--partition', action = 'store', default = None,
+                   help = 'Partition the split directories by partition criteria [ None ]')
     
   @classmethod
   def __dir_split_cli_add_add_common_args(clazz, p):

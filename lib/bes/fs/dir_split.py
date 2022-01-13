@@ -10,6 +10,7 @@ from bes.system.check import check
 from bes.system.log import logger
 
 from .dir_split_options import dir_split_options
+from .dir_partition_type import dir_partition_type
 from .dir_util import dir_util
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
@@ -97,8 +98,7 @@ class dir_split(object):
                                  chunk_number,
                                  dst_basename)
         items.append(item)
-    if options.partition:
-      items = clazz._partition_split_items(items)
+    items = clazz._partition_split_items(items, options.partition)
     return clazz._split_items_info(items, existing_split_dirs, possible_empty_dirs_roots)
 
   @classmethod
@@ -152,8 +152,12 @@ class dir_split(object):
   def _sort_file_info_list(clazz, file_info_list, order, reverse, partition):
     def _sort_key(finfo):
       criteria = []
-      if partition:
+      if partition == None:
+        pass
+      elif partition == dir_partition_type.MEDIA_TYPE:
         criteria.append(clazz._file_media_type(finfo.filename))
+      else:
+        assert False, f'unsupported partition type {partition}'
       if order == file_sort_order.FILENAME:
         criteria.append(finfo.filename)
       elif order == file_sort_order.SIZE:
@@ -189,7 +193,16 @@ class dir_split(object):
     return result
   
   @classmethod
-  def _partition_split_items(clazz, items):
+  def _partition_split_items(clazz, items, partition):
+    if partition == None:
+      return items
+    elif partition == dir_partition_type.MEDIA_TYPE:
+      return clazz._partition_split_items_by_media_type(items)
+    else:
+      assert False
+
+  @classmethod
+  def _partition_split_items_by_media_type(clazz, items):
     result = []
     dst_basename_map = clazz._make_dst_basename_map(items)
     for dst_basename, media_type_map in dst_basename_map.items():
@@ -208,7 +221,7 @@ class dir_split(object):
           result.extend(items)
 
     return result
-
+  
   @classmethod
   def _make_dst_basename_map(clazz, items):
     result_one = {}

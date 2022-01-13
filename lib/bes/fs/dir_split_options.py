@@ -6,6 +6,7 @@ from bes.common.time_util import time_util
 
 from .file_sort_order import file_sort_order
 from .files_cli_options import files_cli_options
+from .dir_partition_type import dir_partition_type
 
 class dir_split_options(files_cli_options):
 
@@ -23,7 +24,7 @@ class dir_split_options(files_cli_options):
       'dup_file_count': 1,
       'sort_order': file_sort_order.FILENAME,
       'sort_reverse': False,
-      'partition': False,
+      'partition': None,
     })
   
   @classmethod
@@ -34,7 +35,7 @@ class dir_split_options(files_cli_options):
       'dup_file_count': int,
       'sort_order': file_sort_order,
       'sort_reverse': bool,
-      'partition': bool,
+      'partition': dir_partition_type,
     })
 
   #@abstractmethod
@@ -47,5 +48,6 @@ class dir_split_options(files_cli_options):
     check.check_int(self.dup_file_count)
     check.check_file_sort_order(self.sort_order, allow_none = True)
     check.check_bool(self.sort_reverse)
+    check.check_dir_partition_type(self.partition, allow_none = True)
 
 check.register_class(dir_split_options)
