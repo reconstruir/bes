@@ -4,9 +4,6 @@ from os import path
 
 from bes.common.check import check
 from bes.fs.file_check import file_check
-import mimetypes
-from bes.system.compat import compat
-from bes.system.python import python
 
 from ._file_mime_type_detector_base import _file_mime_type_detector_base
 

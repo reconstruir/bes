@@ -26,9 +26,6 @@ class _file_mime_type_detector_puremagic(_file_mime_type_detector_base):
 
     import puremagic
     rv = puremagic.magic_file(filename)
-    print('rv={}'.format(rv))
-#    for x in rv:
-#      print('X: {}'.format(rv))
     if not rv:
       return None
     return clazz._find_mime_type(rv)
