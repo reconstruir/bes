@@ -169,12 +169,16 @@ class dir_split(object):
     return sorted(file_info_list, key = _sort_key, reverse = reverse)
 
   @classmethod
+  def _file_media_type(clazz, filename):
+    mime_type = file_attributes_metadata.get_mime_type(filename, fallback = True)
+    return file_mime.media_type_for_mime_type(mime_type)
+  
+  @classmethod
   def _make_file_info_list(clazz, files, partition):
     result = []
     for filename in files:
       if partition:
-        mime_type = file_attributes_metadata.get_mime_type(filename, fallback = True)
-        media_type = file_mime.media_type_for_mime_type(mime_type)
+        media_type = clazz._file_media_type(filename)
       else:
         media_type = None
       result.append(clazz._file_info(filename, media_type))
