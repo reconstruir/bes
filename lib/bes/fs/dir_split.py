@@ -47,7 +47,7 @@ class dir_split(object):
 
     file_find.remove_empty_dirs(dst_dir_abs)
       
-  _file_info = namedtuple('_file_info', 'filename, media_type')
+  _file_info = namedtuple('_file_info', 'filename')
   _split_item = namedtuple('_split_item', 'src_filename, dst_filename, chunk_number, dst_basename, media_type')
   _split_items_info = namedtuple('_split_items_info', 'items, existing_split_dirs, possible_empty_dirs_roots')
   @classmethod
@@ -79,7 +79,7 @@ class dir_split(object):
       possible_empty_dirs_roots = []
     
     files = algorithm.unique(old_files + new_files)
-    file_info_list = clazz._make_file_info_list(files, options.partition)
+    file_info_list = clazz._make_file_info_list(files)
     sorted_file_info_list = clazz._sort_file_info_list(file_info_list,
                                                        options.sort_order,
                                                        options.sort_reverse,
@@ -92,11 +92,15 @@ class dir_split(object):
       chunk_dst_dir = path.join(dst_dir, dst_basename)
       for finfo in chunk:
         dst_filename = path.join(chunk_dst_dir, path.basename(finfo.filename))
+        if options.partition:
+          media_type = clazz._file_media_type(finfo.filename)
+        else:
+          media_type = None
         item = clazz._split_item(finfo.filename,
                                  dst_filename,
                                  chunk_number,
                                  dst_basename,
-                                 finfo.media_type)
+                                 media_type)
         items.append(item)
     if options.partition:
       items = clazz._partition_split_items(items)
@@ -154,7 +158,7 @@ class dir_split(object):
     def _sort_key(finfo):
       criteria = []
       if partition:
-        criteria.append(finfo.media_type)
+        criteria.append(clazz._file_media_type(finfo.filename))
       if order == file_sort_order.FILENAME:
         criteria.append(finfo.filename)
       elif order == file_sort_order.SIZE:
@@ -168,20 +172,25 @@ class dir_split(object):
       return tuple(criteria)
     return sorted(file_info_list, key = _sort_key, reverse = reverse)
 
+  _MEDIA_TYPE_CACHE = {}
+  @classmethod
+  def _file_media_type(clazz, filename):
+    assert path.isabs(filename)
+    if not filename in clazz._MEDIA_TYPE_CACHE:
+      mime_type = file_attributes_metadata.get_mime_type(filename, fallback = True)
+      clazz._MEDIA_TYPE_CACHE[filename] = file_mime.media_type_for_mime_type(mime_type)
+    return clazz._MEDIA_TYPE_CACHE[filename]
+  
   @classmethod
   def _file_media_type(clazz, filename):
     mime_type = file_attributes_metadata.get_mime_type(filename, fallback = True)
     return file_mime.media_type_for_mime_type(mime_type)
   
   @classmethod
-  def _make_file_info_list(clazz, files, partition):
+  def _make_file_info_list(clazz, files):
     result = []
     for filename in files:
-      if partition:
-        media_type = clazz._file_media_type(filename)
-      else:
-        media_type = None
-      result.append(clazz._file_info(filename, media_type))
+      result.append(clazz._file_info(filename))
     return result
   
   @classmethod
