@@ -6,6 +6,10 @@ import sys, warnings
 if sys.version_info.major == 2 and sys.version_info.minor == 7:
   warnings.filterwarnings(action = 'ignore', module = 'OpenSSL')
 
+# So for Python 3.8 we supress SyntaxWarning warnings
+if sys.version_info.major == 3 and sys.version_info.minor >= 8:
+  warnings.filterwarnings('ignore', category = SyntaxWarning)
+  
 from bes.cli.cli import cli
 from bes.cli.cli_command import cli_command
 
