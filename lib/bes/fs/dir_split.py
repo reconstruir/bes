@@ -48,7 +48,7 @@ class dir_split(object):
     file_find.remove_empty_dirs(dst_dir_abs)
       
   _file_info = namedtuple('_file_info', 'filename')
-  _split_item = namedtuple('_split_item', 'src_filename, dst_filename, chunk_number, dst_basename, media_type')
+  _split_item = namedtuple('_split_item', 'src_filename, dst_filename, chunk_number, dst_basename')
   _split_items_info = namedtuple('_split_items_info', 'items, existing_split_dirs, possible_empty_dirs_roots')
   @classmethod
   def _split_info(clazz, src_dir, dst_dir, options):
@@ -92,15 +92,10 @@ class dir_split(object):
       chunk_dst_dir = path.join(dst_dir, dst_basename)
       for finfo in chunk:
         dst_filename = path.join(chunk_dst_dir, path.basename(finfo.filename))
-        if options.partition:
-          media_type = clazz._file_media_type(finfo.filename)
-        else:
-          media_type = None
         item = clazz._split_item(finfo.filename,
                                  dst_filename,
                                  chunk_number,
-                                 dst_basename,
-                                 media_type)
+                                 dst_basename)
         items.append(item)
     if options.partition:
       items = clazz._partition_split_items(items)
@@ -206,8 +201,7 @@ class dir_split(object):
             new_item = clazz._split_item(item.src_filename,
                                          new_dst_filename,
                                          item.chunk_number,
-                                         item.dst_basename,
-                                         item.media_type)
+                                         item.dst_basename)
             result.append(new_item)
       else:
         for _, items in media_type_map.items():
@@ -231,8 +225,17 @@ class dir_split(object):
   def _make_media_type_map(clazz, items):
     result = {}
     for item in items:
+      media_type = clazz._file_media_type(item.src_filename)
+      if not media_type in result:
+        result[media_type] = []
+      result[media_type].append(item)
+    return result
+  
+  @classmethod
+  def x_make_media_type_map(clazz, items):
+    result = {}
+    for item in items:
       if not item.media_type in result:
         result[item.media_type] = []
       result[item.media_type].append(item)
     return result
-  
