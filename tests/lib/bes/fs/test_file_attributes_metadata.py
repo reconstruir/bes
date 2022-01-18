@@ -62,11 +62,33 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
       'foo': b'667',
     }, file_attributes.get_all(tmp) )
 
-  def test_mime_type_jpeg(self):
+  def test_get_mime_type_jpeg(self):
     self.assertEqual( 'image/jpeg', file_attributes_metadata.get_mime_type(self.jpg_file) )
 
-  def test_mime_type_png(self):
+  def test_get_mime_type_png(self):
     self.assertEqual( 'image/png', file_attributes_metadata.get_mime_type(self.png_file) )
+
+  def test_get_media_type(self):
+    self.assertEqual( 'image', file_attributes_metadata.get_media_type(self.jpg_file) )
+    self.assertEqual( 'image', file_attributes_metadata.get_media_type(self.png_file) )
+    self.assertEqual( 'video', file_attributes_metadata.get_media_type(self.mp4_file) )
+    self.assertEqual( 'unknown', file_attributes_metadata.get_media_type(self.unknown_file) )
+    
+  def test_get_mime_type_change(self):
+    tmp_file = self.make_temp_file(suffix = '.jpg')
+    file_util.copy(self.png_file, tmp_file)
+    self.assertEqual( 'image/png', file_attributes_metadata.get_mime_type(tmp_file) )
+    with open(tmp_file, 'wb') as to_file:
+      with open(self.jpg_file, 'rb') as from_file:
+        to_file.write(from_file.read())
+    self.assertEqual( 'image/jpeg', file_attributes_metadata.get_mime_type(tmp_file) )
+
+  def test_get_mime_type_cached(self):
+    tmp_file = self.make_temp_file(suffix = '.jpg')
+    file_util.copy(self.png_file, tmp_file)
+    self.assertEqual( 'image/png', file_attributes_metadata.get_mime_type_cached(tmp_file) )
+    file_util.copy(self.jpg_file, tmp_file)
+    self.assertEqual( 'image/jpeg', file_attributes_metadata.get_mime_type_cached(tmp_file) )
     
 if __name__ == '__main__':
   unit_test.main()

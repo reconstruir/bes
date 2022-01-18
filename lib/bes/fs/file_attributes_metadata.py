@@ -3,6 +3,8 @@
 import os
 
 from bes.common.bool_util import bool_util
+from bes.common.hash_util import hash_util
+from bes.common.time_util import time_util
 from bes.system.check import check
 from bes.system.log import logger
 
@@ -17,6 +19,7 @@ class file_attributes_metadata(object):
   _log = logger('file_attributes_metadata')
   
   _KEY_BES_MIME_TYPE = 'bes_mime_type'
+  _KEY_BES_MEDIA_TYPE = 'bes_media_type'
   
   @classmethod
   def get_bytes(clazz, filename, key, value_maker, fallback = False):
@@ -106,5 +109,43 @@ class file_attributes_metadata(object):
     return clazz.get_string(filename, clazz._KEY_BES_MIME_TYPE, _value_maker, fallback = fallback)
 
   @classmethod
+  def get_media_type(clazz, filename, fallback = False):
+    check.check_string(filename)
+    check.check_bool(fallback)
+
+    def _value_maker():
+      mime_type = clazz.get_mime_type(filename, fallback = fallback)
+      return file_mime.media_type_for_mime_type(mime_type).encode('utf-8')
+    return clazz.get_string(filename, clazz._KEY_BES_MEDIA_TYPE, _value_maker, fallback = fallback)
+
+  _MIME_TYPE_CACHE = {}
+  @classmethod
+  def get_mime_type_cached(clazz, filename, fallback = False):
+    check.check_string(filename)
+    check.check_bool(fallback)
+
+    cache_key = clazz._make_cache_key(filename)
+    if not cache_key in clazz._MIME_TYPE_CACHE:
+      clazz._MIME_TYPE_CACHE[cache_key] = clazz.get_mime_type(filename, fallback = fallback)
+    return clazz._MIME_TYPE_CACHE[cache_key]
+
+  _MEDIA_TYPE_CACHE = {}
+  @classmethod
+  def get_media_type_cached(clazz, filename, fallback = False):
+    check.check_string(filename)
+    check.check_bool(fallback)
+
+    cache_key = clazz._make_cache_key(filename)
+    if not cache_key in clazz._MEDIA_TYPE_CACHE:
+      clazz._MEDIA_TYPE_CACHE[cache_key] = clazz.get_media_type(filename, fallback = fallback)
+    return clazz._MEDIA_TYPE_CACHE[cache_key]
+  
+  @classmethod
+  def _make_cache_key(clazz, filename):
+    hashed_filename = hash_util.hash_string_sha256(filename)
+    mtime_string = time_util.timestamp(when = file_util.get_modification_date(filename))
+    return f'{hashed_filename}_{mtime_string}'
+  
+  @classmethod
   def _make_mtime_key(clazz, key):
-    return '__bes_mtime_{}__'.format(key)
+    return f'__bes_mtime_{key}__'
