@@ -13,6 +13,8 @@ from bes.system.filesystem import filesystem
 from bes.system.log import logger
 from bes.system.which import which
 
+from .file_check import file_check
+
 class file_util(object):
 
   _log = logger('file_util')
@@ -365,3 +367,36 @@ class file_util(object):
     if not pager:
       raise RuntimeError('Pager not found')
     subprocess.call([ pager, filename ])
+
+  @classmethod
+  def files_are_the_same(clazz, filename1, filename2):
+    filename1 = file_check.check_file(filename1)
+    filename2 = file_check.check_file(filename2)
+
+    if clazz.size(filename1) != clazz.size(filename2):
+      return False
+
+    with open(filename1, 'rb') as f1:
+      with open(filename2, 'rb') as f2:
+        if f1.read(1024) != f2.read(1024):
+          return False
+    return True
+
+  @classmethod
+  def move_with_duplicate(clazz, src, dst, prefix):
+    src = file_check.check_file(src)
+    check.check_string(prefix)
+    
+    if not path.exists(dst):
+      clazz.rename(src, dst)
+      return False
+
+    if clazz.files_are_the_same(src, dst):
+      return False
+    
+    basename = path.basename(dst)
+    dirname = path.dirname(dst)
+    dst_basename = f'{prefix}-{basename}'
+    dst_filename = path.join(dirname, dst_basename)
+    file_util.rename(src, dst_filename)
+    return True

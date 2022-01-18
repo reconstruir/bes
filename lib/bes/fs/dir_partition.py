@@ -10,7 +10,7 @@ from bes.system.check import check
 from bes.system.log import logger
 
 from .dir_partition_type import dir_partition_type
-from .dir_split_options import dir_split_options
+from .dir_partition_options import dir_partition_options
 from .dir_util import dir_util
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
@@ -21,21 +21,24 @@ from .file_sort_order import file_sort_order
 from .file_util import file_util
 from .filename_list import filename_list
 
-class dir_split(object):
-  'A class to split directories'
+from bes.fs.file_resolver import file_resolver
+from bes.fs.file_resolver_options import file_resolver_options
 
-  _log = logger('dir_split')
+
+class dir_partition(object):
+  'A class to partition directories'
+
+  _log = logger('dir_partition')
 
   @classmethod
-  def split(clazz, src_dir, dst_dir, options = None):
-    src_dir_abs = file_check.check_dir(src_dir)
-    check.check_string(dst_dir)
+  def partition(clazz, files, dst_dir, options = None):
+    check.check_dir_partition_options(options, allow_none = True)
+
     dst_dir_abs = path.abspath(dst_dir)
-    check.check_dir_split_options(options, allow_none = True)
 
-    options = options or dir_split_options()
-    info = clazz._split_info(src_dir_abs, dst_dir_abs, options)
-
+    options = options or dir_partition_options()
+    info = clazz._partition_info(files, dst_dir_abs, options)
+    return
     clazz._move_files(info.items,
                       options.dup_file_timestamp,
                       options.dup_file_count)
@@ -51,20 +54,26 @@ class dir_split(object):
       file_find.remove_empty_dirs(dst_dir_abs)
       
   _file_info = namedtuple('_file_info', 'filename')
-  _split_item = namedtuple('_split_item', 'src_filename, dst_filename, chunk_number, dst_basename')
-  _split_items_info = namedtuple('_split_items_info', 'items, existing_split_dirs, possible_empty_dirs_roots')
+  _partition_item = namedtuple('_partition_item', 'src_filename, dst_filename, chunk_number, dst_basename')
+  _partition_items_info = namedtuple('_partition_items_info', 'items, existing_split_dirs, possible_empty_dirs_roots')
   @classmethod
-  def _split_info(clazz, src_dir, dst_dir, options):
-    assert path.isabs(src_dir)
-    assert path.isabs(dst_dir)
+  def _partition_info(clazz, files, dst_dir, options):
+#    assert path.isabs(src_dir)
+#    assert path.isabs(dst_dir)
 
+    resolver_options = file_resolver_options(sort_order = 'depth',
+                                             sort_reverse = True)
+    resolved_files = file_resolver.resolve_files(files, options = resolver_options)
+    for f in resolved_files:
+      print(f'RESOVLED: {f}')
+    return
     old_files = []
     existing_split_dirs = clazz._existing_split_dirs(dst_dir, options.prefix)
     for old_dir in existing_split_dirs:
       old_files.extend(dir_util.list_files(old_dir))
     clazz._log.log_d('old_files={}'.format(old_files))
     
-    options = options or dir_split_options()
+    options = options or dir_partition_options()
     items = []
     if options.recursive:
       new_files = file_find.find(src_dir, relative = False, file_type = file_find.FILE)
@@ -95,23 +104,23 @@ class dir_split(object):
       chunk_dst_dir = path.join(dst_dir, dst_basename)
       for finfo in chunk:
         dst_filename = path.join(chunk_dst_dir, path.basename(finfo.filename))
-        item = clazz._split_item(finfo.filename,
+        item = clazz._partition_item(finfo.filename,
                                  dst_filename,
                                  chunk_number,
                                  dst_basename)
         items.append(item)
-    items = clazz._partition_split_items(items, options.partition)
-    return clazz._split_items_info(items, existing_split_dirs, possible_empty_dirs_roots)
+    items = clazz._partition_partition_items(items, options.partition)
+    return clazz._partition_items_info(items, existing_split_dirs, possible_empty_dirs_roots)
 
   @classmethod
-  def split_items(clazz, src_dir, dst_dir, options = None):
+  def partition_items(clazz, src_dir, dst_dir, options = None):
     'Return a list of split items that when renaming each item implements split.'
     src_dir_abs = file_check.check_dir(src_dir)
     check.check_string(dst_dir)
     dst_dir_abs = path.abspath(dst_dir)
-    check.check_dir_split_options(options, allow_none = True)
+    check.check_dir_partition_options(options, allow_none = True)
 
-    info = clazz._split_info(src_dir_abs, dst_dir_abs, options)
+    info = clazz._partition_info(src_dir_abs, dst_dir_abs, options)
     return info.items
   
   @classmethod
@@ -132,13 +141,24 @@ class dir_split(object):
     return None
 
   @classmethod
+  def _files_are_the_same(clazz, filename1, filename2):
+    checksum1 = file_util.checksum('sha256', filename1)
+    checksum2 = file_util.checksum('sha256', filename2)
+    return checksum1 == checksum2
+
+  @classmethod
   def _move_files(clazz, items, timestamp, count):
     for item in items:
-      if file_util.move_with_duplicate(item.src_filename,
-                                       item.dst_filename,
-                                       f'{timestamp}-{count}'):
-        count += 1
-  
+      dst_filename = item.dst_filename
+      if path.exists(item.dst_filename):
+        if not clazz._files_are_the_same(item.src_filename, item.dst_filename):
+          basename = path.basename(item.dst_filename)
+          dirname = path.dirname(item.dst_filename)
+          dst_basename = '{}-{}-{}'.format(timestamp, count, basename)
+          dst_filename = path.join(dirname, dst_basename)
+          count += 1
+      file_util.rename(item.src_filename, dst_filename)
+
   @classmethod
   def _sort_file_info_list(clazz, file_info_list, order, reverse, partition):
     def _sort_key(finfo):
@@ -186,18 +206,18 @@ class dir_split(object):
     return result
   
   @classmethod
-  def _partition_split_items(clazz, items, partition):
+  def _partition_partition_items(clazz, items, partition):
     if partition == None:
       return items
     elif partition == dir_partition_type.MEDIA_TYPE:
-      return clazz._partition_split_items_by_media_type(items)
+      return clazz._partition_partition_items_by_media_type(items)
     elif partition == dir_partition_type.PREFIX:
-      return clazz._partition_split_items_by_prefix(items)
+      return clazz._partition_partition_items_by_prefix(items)
     else:
       assert False
 
   @classmethod
-  def _partition_split_items_by_media_type(clazz, items):
+  def _partition_partition_items_by_media_type(clazz, items):
     result = []
     dst_basename_map = clazz._make_dst_basename_map(items)
     for dst_basename, media_type_map in dst_basename_map.items():
@@ -206,7 +226,7 @@ class dir_split(object):
         for media_type, items in media_type_map.items():
           for item in items:
             new_dst_filename = file_path.insert(item.dst_filename, -1, media_type)
-            new_item = clazz._split_item(item.src_filename,
+            new_item = clazz._partition_item(item.src_filename,
                                          new_dst_filename,
                                          item.chunk_number,
                                          item.dst_basename)
@@ -217,7 +237,7 @@ class dir_split(object):
     return result
 
   @classmethod
-  def _partition_split_items_by_prefix(clazz, items):
+  def _partition_partition_items_by_prefix(clazz, items):
     basenames = [ item.dst_basename for item in items ]
     prefixes = filename_list.prefixes([ item.dst_basename for item in items ])
     print(f'items={items}')
@@ -231,7 +251,7 @@ class dir_split(object):
         for media_type, items in media_type_map.items():
           for item in items:
             new_dst_filename = file_path.insert(item.dst_filename, -1, media_type)
-            new_item = clazz._split_item(item.src_filename,
+            new_item = clazz._partition_item(item.src_filename,
                                          new_dst_filename,
                                          item.chunk_number,
                                          item.dst_basename)

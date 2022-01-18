@@ -25,5 +25,8 @@ class file_resolver_item(namedtuple('file_resolver_item', 'root_dir, filename, f
 
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
+
+  def clone(self, mutations = None):
+    return tuple_util.clone(self, mutations = mutations)
   
 check.register_class(file_resolver_item, include_seq = False)

@@ -28,6 +28,12 @@ class file_resolver_item_list(type_checked_list):
     if sort:
       result = sorted(result)
     return result
+
+  def basenames(self, sort = False):
+    result = [ item.filename_abs for item in self ]
+    if sort:
+      result = sorted(result)
+    return result
   
   def root_dirs(self):
     return sorted(algorithm.unique([ item.root_dir for item in self ]))
