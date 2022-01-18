@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from os import path
+
 from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.common.type_checked_list import type_checked_list
@@ -30,7 +32,7 @@ class file_resolver_item_list(type_checked_list):
     return result
 
   def basenames(self, sort = False):
-    result = [ item.filename_abs for item in self ]
+    result = [ path.basename(item.filename_abs) for item in self ]
     if sort:
       result = sorted(result)
     return result

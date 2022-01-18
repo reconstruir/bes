@@ -20,6 +20,8 @@ class dir_partition_options(files_cli_options):
       'dup_file_timestamp': time_util.timestamp(),
       'dup_file_count': 1,
       'partition_type': None,
+      'flat': False,
+      'threshold': 2,
     })
   
   @classmethod
@@ -28,6 +30,8 @@ class dir_partition_options(files_cli_options):
     return clazz.super_value_type_hints({
       'dup_file_count': int,
       'partition_type': dir_partition_type,
+      'flat': bool,
+      'threshold': int,
     })
 
   #@abstractmethod
@@ -37,5 +41,7 @@ class dir_partition_options(files_cli_options):
     check.check_string(self.dup_file_timestamp)
     check.check_int(self.dup_file_count)
     check.check_dir_partition_type(self.partition_type, allow_none = True)
+    check.check_bool(self.flat)
+    check.check_int(self.threshold)
 
 check.register_class(dir_partition_options)

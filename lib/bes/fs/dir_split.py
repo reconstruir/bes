@@ -20,6 +20,7 @@ from .file_path import file_path
 from .file_sort_order import file_sort_order
 from .file_util import file_util
 from .filename_list import filename_list
+from .dir_operation_util import dir_operation_util
 
 class dir_split(object):
   'A class to split directories'
@@ -36,9 +37,9 @@ class dir_split(object):
     options = options or dir_split_options()
     info = clazz._split_info(src_dir_abs, dst_dir_abs, options)
 
-    clazz._move_files(info.items,
-                      options.dup_file_timestamp,
-                      options.dup_file_count)
+    dir_operation_util.move_files(info.items,
+                                  options.dup_file_timestamp,
+                                  options.dup_file_count)
     
     for d in info.existing_split_dirs:
       if dir_util.is_empty(d):
@@ -131,14 +132,6 @@ class dir_split(object):
       return lengths[0]
     return None
 
-  @classmethod
-  def _move_files(clazz, items, timestamp, count):
-    for item in items:
-      if file_util.move_with_duplicate(item.src_filename,
-                                       item.dst_filename,
-                                       f'{timestamp}-{count}'):
-        count += 1
-  
   @classmethod
   def _sort_file_info_list(clazz, file_info_list, order, reverse, partition):
     def _sort_key(finfo):

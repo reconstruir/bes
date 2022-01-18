@@ -57,12 +57,15 @@ class test_dir_partition(unit_test, unit_test_media_files):
     
   def test_partition_with_prefix(self):
     tmp_dir = temp_content.write_items_to_temp_dir([
+      temp_content('file', 'src/readme.md', 'readme.md', 0o0644),
       temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
       temp_content('file', 'src/a/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
       temp_content('file', 'src/a/kiwi-30.jpg', 'kiwi-30.txt', 0o0644),
       temp_content('file', 'src/b/lemon-10.jpg', 'lemon-10.txt', 0o0644),
       temp_content('file', 'src/b/lemon-20.jpg', 'lemon-20.txt', 0o0644),
       temp_content('file', 'src/b/lemon-30.jpg', 'lemon-30.txt', 0o0644),
+      temp_content('file', 'src/c/cheese-10.jpg', 'cheese-10.jpg', 0o0644),
+      temp_content('file', 'src/icons/foo.png', 'foo.png', 0o0644),
     ])
     partition_options = dir_partition_options(dup_file_timestamp = 'dup-timestamp',
                                               partition_type = 'prefix')
