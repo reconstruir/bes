@@ -13,6 +13,7 @@ class dir_operation_util(object):
   @classmethod
   def move_files(clazz, items, timestamp, count):
     for item in items:
+      #print(f'moving: {item}')
       if file_util.move_with_duplicate(item.src_filename,
                                        item.dst_filename,
                                        f'{timestamp}-{count}'):

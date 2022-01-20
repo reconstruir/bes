@@ -20,7 +20,6 @@ from .file_util import file_util
 from .filename_list import filename_list
 from .dir_operation_util import dir_operation_util
 
-
 class dir_partition(object):
   'A class to partition directories'
 

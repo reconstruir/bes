@@ -13,9 +13,8 @@ from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
+from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
-from test_dir_split import dir_split_tester
-  
 class test_dir_partition(unit_test, unit_test_media_files):
 
   def xtest_partition_with_media_type(self):
@@ -56,7 +55,7 @@ class test_dir_partition(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( [], t.src_files )
     
   def test_partition_with_prefix(self):
-    tmp_dir = temp_content.write_items_to_temp_dir([
+    items = [
       temp_content('file', 'src/readme.md', 'readme.md', 0o0644),
       temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
       temp_content('file', 'src/a/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
@@ -66,17 +65,18 @@ class test_dir_partition(unit_test, unit_test_media_files):
       temp_content('file', 'src/b/lemon-30.jpg', 'lemon-30.txt', 0o0644),
       temp_content('file', 'src/c/cheese-10.jpg', 'cheese-10.jpg', 0o0644),
       temp_content('file', 'src/icons/foo.png', 'foo.png', 0o0644),
-    ])
-    partition_options = dir_partition_options(dup_file_timestamp = 'dup-timestamp',
-                                              partition_type = 'prefix')
-    rv = dir_partition.partition(path.join(tmp_dir, 'src'),
-                                 path.join(tmp_dir, 'dst'),
-                                 options = partition_options)
+    ]
+    t = self._partition_test(extra_content_items = items,
+                             dst_dir_same_as_src = False,
+                             recursive = False,
+                             partition_type = 'prefix')
+    for f in t.src_files_before:
+      print(f'SRC BEFORE: {f}')
+    for f in t.dst_files:
+      print(f'DST: {f}')
+    for f in t.src_files:
+      print(f' SRC AFTER: {f}')
     return
-    t = self._do_test([], 0, 2, extra_content_items = extra_content_items,
-                      partition_type = 'prefix', recursive = True)
-    for x in t.src_files_before:
-      print(f'BEFORE: {x}')
     expected = [
       'chunk-1',
       'chunk-1/apple.jpg',
@@ -99,34 +99,19 @@ class test_dir_partition(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( expected, t.dst_files )
     self.assert_filename_list_equal( [], t.src_files )
     
-  def _do_test(self,
-               content_desc,
-               content_multiplier,
-               extra_content_items = None,
-               dst_dir_same_as_src = False,
-               recursive = False,
-               sort_order = 'filename',
-               sort_reverse = False,
-               partition_type = None):
+  def _partition_test(self,
+                      extra_content_items = None,
+                      dst_dir_same_as_src = False,
+                      recursive = False,
+                      partition_type = None):
     options = dir_partition_options(recursive = recursive,
                                     dup_file_timestamp = 'dup-timestamp',
                                     partition_type = partition_type)
-    tmp_dir = dir_split_tester.make_content(content_desc,
-                                            content_multiplier,
-                                            extra_content_items = extra_content_items)
-    src_dir = path.join(tmp_dir, 'src')
-    if dst_dir_same_as_src:
-      dst_dir = src_dir
-    else:
-      dst_dir = path.join(tmp_dir, 'dst')
-    src_files_before = file_find.find(src_dir, relative = True, file_type = file_find.ANY)
-    dir_partition.partition(files, dst_dir, options)
-    src_files = file_find.find(src_dir, relative = True, file_type = file_find.ANY)
-    if path.exists(dst_dir):
-      dst_files = file_find.find(dst_dir, relative = True, file_type = file_find.ANY)
-    else:
-      dst_files = []
-    return dir_split_tester._test_result(tmp_dir, src_dir, dst_dir, src_files, dst_files, src_files_before, None)
+    with dir_operation_tester(extra_content_items = extra_content_items) as test:
+      test.result = dir_partition.partition(test.src_dir,
+                                            test.dst_dir,
+                                            options = options)
+    return test
     
 if __name__ == '__main__':
   unit_test.main()

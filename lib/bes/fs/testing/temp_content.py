@@ -171,11 +171,15 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
     return root_dir
 
   @classmethod
-  def write_multiplied_items_to_temp_dir(clazz, content_desc, content_multiplier, extra_content_items = None):
+  def write_multiplied_items_to_temp_dir(clazz,
+                                         multiplied_content_items = None,
+                                         content_multiplier = 1,
+                                         extra_content_items = None):
+    multiplied_content_items = multiplied_content_items or []
     extra_content_items = extra_content_items or []
-    content_desc = [ multiplied_temp_content(c.name, c.num * content_multiplier, size = c.size) for c in content_desc ]
+    multiplied_content_items = [ multiplied_temp_content(c.name, c.num * content_multiplier, size = c.size) for c in multiplied_content_items ]
     content_items = []
-    for next_desc in content_desc:
+    for next_desc in multiplied_content_items:
       for i in range(1, next_desc.num + 1):
         filename = '{}{}.txt'.format(next_desc.name, i)
         text = 'this is {}'.format(filename)
