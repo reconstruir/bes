@@ -38,6 +38,11 @@ class file_resolver_item_list(type_checked_list):
     return result
   
   def root_dirs(self):
-    return sorted(algorithm.unique([ item.root_dir for item in self ]))
+    return set([ item.root_dir for item in self ])
   
+  def output(self, label = None):
+    label = label or ''
+    for item in self:
+      print(f'{label}{item.index}:{item.root_dir}:{item.filename}')
+
 check.register_class(file_resolver_item_list, include_seq = False)

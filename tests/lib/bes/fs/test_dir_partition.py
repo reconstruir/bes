@@ -1,13 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from collections import namedtuple
-from os import path
-
 from bes.fs.dir_partition import dir_partition
 from bes.fs.dir_partition_options import dir_partition_options
-from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
 
@@ -70,34 +65,25 @@ class test_dir_partition(unit_test, unit_test_media_files):
                              dst_dir_same_as_src = False,
                              recursive = False,
                              partition_type = 'prefix')
-    for f in t.src_files_before:
-      print(f'SRC BEFORE: {f}')
-    for f in t.dst_files:
-      print(f'DST: {f}')
-    for f in t.src_files:
-      print(f' SRC AFTER: {f}')
-    return
-    expected = [
-      'chunk-1',
-      'chunk-1/apple.jpg',
-      'chunk-1/brie.png',
-      'chunk-1/cheddar.png',
-      'chunk-2',
-      'chunk-2/kiwi.jpg',
-      'chunk-2/lemon.jpg',
-      'chunk-2/swiss.png',
-      'chunk-3',
-      'chunk-3/unknown',
-      'chunk-3/unknown/yogurt.foo',
-      'chunk-3/unknown/zabaglione.foo',
-      'chunk-3/video',
-      'chunk-3/video/barolo.mp4',
-      'chunk-4',
-      'chunk-4/chablis.mp4',
-      'chunk-4/malbec.mp4',
+    dst_after_expected = [
+      'kiwi',
+      'kiwi/kiwi-10.jpg',
+      'kiwi/kiwi-20.jpg',
+      'kiwi/kiwi-30.jpg',
+      'lemon',
+      'lemon/lemon-10.jpg',
+      'lemon/lemon-20.jpg',
+      'lemon/lemon-30.jpg',
     ]
-    self.assert_filename_list_equal( expected, t.dst_files )
-    self.assert_filename_list_equal( [], t.src_files )
+    self.assert_filename_list_equal( dst_after_expected, t.dst_files )
+    src_after_expected = [
+      'c',
+      'c/cheese-10.jpg',
+      'icons',
+      'icons/foo.png',
+      'readme.md',
+    ]
+    self.assert_filename_list_equal( src_after_expected, t.src_files )
     
   def _partition_test(self,
                       extra_content_items = None,

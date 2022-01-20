@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from os import path
 from bes.testing.program_unit_test import program_unit_test
 from bes.fs.testing.temp_content import temp_content
 from bes.fs.testing.temp_content import multiplied_temp_content
-
-from bes.fs.file_find import file_find
 
 from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 

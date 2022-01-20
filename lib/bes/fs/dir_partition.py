@@ -18,6 +18,7 @@ from .dir_partition_options import dir_partition_options
 from .dir_partition_type import dir_partition_type
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
+from .file_find import file_find
 from .file_path import file_path
 from .file_util import file_util
 from .filename_list import filename_list
@@ -34,13 +35,15 @@ class dir_partition(object):
     dst_dir_abs = path.abspath(dst_dir)
 
     options = options or dir_partition_options()
-    items = clazz.partition_info(files, dst_dir_abs, options)
-
+    items, resolved_files = clazz.partition_info(files, dst_dir_abs, options)
     dir_operation_util.move_files(items,
                                   options.dup_file_timestamp,
                                   options.dup_file_count)
+    root_dirs = resolved_files.root_dirs()
+    for next_possible_empty_root in root_dirs:
+      file_find.remove_empty_dirs(next_possible_empty_root)
       
-  _partition_items_info = namedtuple('_partition_items_info', 'items, existing_split_dirs, possible_empty_dirs_roots')
+  _partition_info_result = namedtuple('_partition_items_info', 'items, resolved_files, possible_empty_dirs_roots')
   @classmethod
   def partition_info(clazz, files, dst_dir, options):
     if options.partition_type == None:
@@ -69,7 +72,7 @@ class dir_partition(object):
           dst_filename = path.join(dst_dir, prefix, path.basename(src_filename))
           item = dir_operation_item(src_filename, dst_filename)
           items.append(item)
-    return items
+    return items, resolved_files
 
   @classmethod
   def _make_buckets(clazz, prefixes, files):

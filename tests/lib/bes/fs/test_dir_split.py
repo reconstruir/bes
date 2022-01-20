@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from collections import namedtuple
 from os import path
 
 from bes.fs.dir_split import dir_split
 from bes.fs.dir_split_options import dir_split_options
-from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
 from bes.fs.testing.temp_content import multiplied_temp_content
 from bes.testing.unit_test import unit_test
