@@ -9,6 +9,9 @@ from bes.common.string_util import string_util
 from bes.system.check import check
 from bes.system.log import logger
 
+from .dir_operation_item import dir_operation_item
+from .dir_operation_item_list import dir_operation_item_list
+from .dir_operation_util import dir_operation_util
 from .dir_partition_type import dir_partition_type
 from .dir_split_options import dir_split_options
 from .dir_util import dir_util
@@ -20,7 +23,6 @@ from .file_path import file_path
 from .file_sort_order import file_sort_order
 from .file_util import file_util
 from .filename_list import filename_list
-from .dir_operation_util import dir_operation_util
 
 class dir_split(object):
   'A class to split directories'
@@ -52,7 +54,6 @@ class dir_split(object):
       file_find.remove_empty_dirs(dst_dir_abs)
       
   _file_info = namedtuple('_file_info', 'filename')
-  _split_item = namedtuple('_split_item', 'src_filename, dst_filename, chunk_number, dst_basename')
   _split_items_info = namedtuple('_split_items_info', 'items, existing_split_dirs, possible_empty_dirs_roots')
   @classmethod
   def _split_info(clazz, src_dir, dst_dir, options):
@@ -66,16 +67,17 @@ class dir_split(object):
     clazz._log.log_d('old_files={}'.format(old_files))
     
     options = options or dir_split_options()
-    items = []
+    items = dir_operation_item_list()
     if options.recursive:
       new_files = file_find.find(src_dir, relative = False, file_type = file_find.FILE)
+
       possible_empty_dirs_roots = []
       dirs = algorithm.unique([ path.dirname(f) for f in new_files ])
       for d in dirs:
         if d != src_dir:
           d_relative = file_util.remove_head(d, src_dir + path.sep)
           if not d_relative.startswith(options.prefix):
-            d_root = path.join(src_dir, file_path.split(d_relative)[0])
+            d_root = path.join(src_dir, file_path.part(d_relative, 0))
             possible_empty_dirs_roots.append(d_root)
       possible_empty_dirs_roots = algorithm.unique(possible_empty_dirs_roots)
     else:
@@ -96,10 +98,8 @@ class dir_split(object):
       chunk_dst_dir = path.join(dst_dir, dst_basename)
       for finfo in chunk:
         dst_filename = path.join(chunk_dst_dir, path.basename(finfo.filename))
-        item = clazz._split_item(finfo.filename,
-                                 dst_filename,
-                                 chunk_number,
-                                 dst_basename)
+        #print(f'making item:\nfinfo.filename={finfo.filename}\ndst_filename={dst_filename}\ndst_basename={dst_basename}')
+        item = dir_operation_item(finfo.filename, dst_filename)
         items.append(item)
     items = clazz._partition_split_items(items, options.partition)
     return clazz._split_items_info(items, existing_split_dirs, possible_empty_dirs_roots)
@@ -184,14 +184,12 @@ class dir_split(object):
       return items
     elif partition == dir_partition_type.MEDIA_TYPE:
       return clazz._partition_split_items_by_media_type(items)
-    elif partition == dir_partition_type.PREFIX:
-      return clazz._partition_split_items_by_prefix(items)
     else:
       assert False
 
   @classmethod
   def _partition_split_items_by_media_type(clazz, items):
-    result = []
+    result = dir_operation_item_list()
     dst_basename_map = clazz._make_dst_basename_map(items)
     for dst_basename, media_type_map in dst_basename_map.items():
       num_media_types = len(media_type_map)
@@ -199,10 +197,7 @@ class dir_split(object):
         for media_type, items in media_type_map.items():
           for item in items:
             new_dst_filename = file_path.insert(item.dst_filename, -1, media_type)
-            new_item = clazz._split_item(item.src_filename,
-                                         new_dst_filename,
-                                         item.chunk_number,
-                                         item.dst_basename)
+            new_item = dir_operation_item(item.src_filename, new_dst_filename)
             result.append(new_item)
       else:
         for _, items in media_type_map.items():
@@ -210,34 +205,10 @@ class dir_split(object):
     return result
 
   @classmethod
-  def _partition_split_items_by_prefix(clazz, items):
-    basenames = [ item.dst_basename for item in items ]
-    prefixes = filename_list.prefixes([ item.dst_basename for item in items ])
-    print(f'items={items}')
-    print(f'basenames={basenames}')
-    print(f'prefixes={prefixes}')
-    result = []
-    dst_basename_map = clazz._make_dst_basename_map(items)
-    for dst_basename, media_type_map in dst_basename_map.items():
-      num_media_types = len(media_type_map)
-      if num_media_types > 1:
-        for media_type, items in media_type_map.items():
-          for item in items:
-            new_dst_filename = file_path.insert(item.dst_filename, -1, media_type)
-            new_item = clazz._split_item(item.src_filename,
-                                         new_dst_filename,
-                                         item.chunk_number,
-                                         item.dst_basename)
-            result.append(new_item)
-      else:
-        for _, items in media_type_map.items():
-          result.extend(items)
-    return result
-  
-  @classmethod
   def _make_dst_basename_map(clazz, items):
     result_one = {}
     for item in items:
+      #dst_basename = file_path.part(item.dst_filename, -2)
       if not item.dst_basename in result_one:
         result_one[item.dst_basename] = []
       result_one[item.dst_basename].append(item)

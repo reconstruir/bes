@@ -42,6 +42,12 @@ class file_path(object):
     return p.split(os.sep)
 
   @classmethod
+  def part(clazz, p, index):
+    'Return a part of a path by index.'
+    v = clazz.split(p)
+    return v[index]
+  
+  @classmethod
   def join(clazz, p):
     'Join a path.'
     assert isinstance(p, list)

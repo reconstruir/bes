@@ -482,40 +482,6 @@ class test_dir_split(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( expected, t.dst_files )
     self.assert_filename_list_equal( [], t.src_files )
     
-  def xtest_partition_with_prefix(self):
-    extra_content_items = [
-      temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
-      temp_content('file', 'src/a/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
-      temp_content('file', 'src/a/kiwi-30.jpg', 'kiwi-30.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-10.jpg', 'lemon-10.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-20.jpg', 'lemon-20.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-30.jpg', 'lemon-30.txt', 0o0644),
-    ]
-    t = self._split_test([], 0, 2, extra_content_items = extra_content_items, partition = 'prefix', recursive = True)
-    for x in t.src_files_before:
-      print(f'BEFORE: {x}')
-    expected = [
-      'chunk-1',
-      'chunk-1/apple.jpg',
-      'chunk-1/brie.png',
-      'chunk-1/cheddar.png',
-      'chunk-2',
-      'chunk-2/kiwi.jpg',
-      'chunk-2/lemon.jpg',
-      'chunk-2/swiss.png',
-      'chunk-3',
-      'chunk-3/unknown',
-      'chunk-3/unknown/yogurt.foo',
-      'chunk-3/unknown/zabaglione.foo',
-      'chunk-3/video',
-      'chunk-3/video/barolo.mp4',
-      'chunk-4',
-      'chunk-4/chablis.mp4',
-      'chunk-4/malbec.mp4',
-    ]
-    self.assert_filename_list_equal( expected, t.dst_files )
-    self.assert_filename_list_equal( [], t.src_files )
-    
   def _split_test(self,
                   multiplied_content_items,
                   content_multiplier,
