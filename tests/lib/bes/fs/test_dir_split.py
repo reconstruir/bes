@@ -442,43 +442,6 @@ class test_dir_split(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( expected, t.dst_files )
     self.assert_filename_list_equal( [], t.src_files )
     
-  def test_partition_with_media_type(self):
-    extra_content_items = [
-      temp_content('file', 'src/apple.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/barolo.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/brie.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/chablis.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/cheddar.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/kiwi.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/lemon.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/malbec.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/swiss.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/yogurt.foo', unit_test_media.UNKNOWN, 0o0644),
-      temp_content('file', 'src/zabaglione.foo', unit_test_media.UNKNOWN, 0o0644),
-    ]
-    t = self._split_test([], 0, 3, extra_content_items = extra_content_items, partition = 'media_type')
-    expected = [
-      'chunk-1',
-      'chunk-1/apple.jpg',
-      'chunk-1/brie.png',
-      'chunk-1/cheddar.png',
-      'chunk-2',
-      'chunk-2/kiwi.jpg',
-      'chunk-2/lemon.jpg',
-      'chunk-2/swiss.png',
-      'chunk-3',
-      'chunk-3/unknown',
-      'chunk-3/unknown/yogurt.foo',
-      'chunk-3/unknown/zabaglione.foo',
-      'chunk-3/video',
-      'chunk-3/video/barolo.mp4',
-      'chunk-4',
-      'chunk-4/chablis.mp4',
-      'chunk-4/malbec.mp4',
-    ]
-    self.assert_filename_list_equal( expected, t.dst_files )
-    self.assert_filename_list_equal( [], t.src_files )
-    
   def _split_test(self,
                   multiplied_content_items,
                   content_multiplier,
@@ -487,15 +450,13 @@ class test_dir_split(unit_test, unit_test_media_files):
                   dst_dir_same_as_src = False,
                   recursive = False,
                   sort_order = 'filename',
-                  sort_reverse = False,
-                  partition = None):
+                  sort_reverse = False):
     options = dir_split_options(chunk_size = chunk_size,
                                 prefix = 'chunk-',
                                 recursive = recursive,
                                 dup_file_timestamp = 'dup-timestamp',
                                 sort_order = sort_order,
-                                sort_reverse = sort_reverse,
-                                partition = partition)
+                                sort_reverse = sort_reverse)
 
     with dir_operation_tester(multiplied_content_items = multiplied_content_items,
                               content_multiplier = content_multiplier,

@@ -12,7 +12,6 @@ from bes.system.log import logger
 from .dir_operation_item import dir_operation_item
 from .dir_operation_item_list import dir_operation_item_list
 from .dir_operation_util import dir_operation_util
-from .dir_partition_type import dir_partition_type
 from .dir_split_options import dir_split_options
 from .dir_util import dir_util
 from .file_attributes_metadata import file_attributes_metadata
@@ -88,8 +87,7 @@ class dir_split(object):
     file_info_list = clazz._make_file_info_list(files)
     sorted_file_info_list = clazz._sort_file_info_list(file_info_list,
                                                        options.sort_order,
-                                                       options.sort_reverse,
-                                                       options.partition)
+                                                       options.sort_reverse)
     chunks = [ chunk for chunk in object_util.chunks(sorted_file_info_list, options.chunk_size) ]
     num_chunks = len(chunks)
     num_digits = len(str(num_chunks))
@@ -101,7 +99,6 @@ class dir_split(object):
         #print(f'making item:\nfinfo.filename={finfo.filename}\ndst_filename={dst_filename}\ndst_basename={dst_basename}')
         item = dir_operation_item(finfo.filename, dst_filename)
         items.append(item)
-    items = clazz._partition_split_items(items, options.partition)
     return clazz._split_items_info(items, existing_split_dirs, possible_empty_dirs_roots)
 
   @classmethod
@@ -133,17 +130,9 @@ class dir_split(object):
     return None
 
   @classmethod
-  def _sort_file_info_list(clazz, file_info_list, order, reverse, partition):
+  def _sort_file_info_list(clazz, file_info_list, order, reverse):
     def _sort_key(finfo):
       criteria = []
-      if partition == None:
-        pass
-      elif partition == dir_partition_type.MEDIA_TYPE:
-        criteria.append(clazz._file_media_type(finfo.filename))
-      elif partition == dir_partition_type.PREFIX:
-        pass
-      else:
-        assert False, f'unsupported partition type {partition}'
       if order == file_sort_order.FILENAME:
         criteria.append(finfo.filename)
       elif order == file_sort_order.SIZE:
@@ -176,53 +165,4 @@ class dir_split(object):
     result = []
     for filename in files:
       result.append(clazz._file_info(filename))
-    return result
-  
-  @classmethod
-  def _partition_split_items(clazz, items, partition):
-    if partition == None:
-      return items
-    elif partition == dir_partition_type.MEDIA_TYPE:
-      return clazz._partition_split_items_by_media_type(items)
-    else:
-      assert False
-
-  @classmethod
-  def _partition_split_items_by_media_type(clazz, items):
-    result = dir_operation_item_list()
-    dst_basename_map = clazz._make_dst_basename_map(items)
-    for dst_basename, media_type_map in dst_basename_map.items():
-      num_media_types = len(media_type_map)
-      if num_media_types > 1:
-        for media_type, items in media_type_map.items():
-          for item in items:
-            new_dst_filename = file_path.insert(item.dst_filename, -1, media_type)
-            new_item = dir_operation_item(item.src_filename, new_dst_filename)
-            result.append(new_item)
-      else:
-        for _, items in media_type_map.items():
-          result.extend(items)
-    return result
-
-  @classmethod
-  def _make_dst_basename_map(clazz, items):
-    result_one = {}
-    for item in items:
-      #dst_basename = file_path.part(item.dst_filename, -2)
-      if not item.dst_basename in result_one:
-        result_one[item.dst_basename] = []
-      result_one[item.dst_basename].append(item)
-    result_two = {}
-    for dst_basename, items in result_one.items():
-      result_two[dst_basename] = clazz._make_media_type_map(items)
-    return result_two
-  
-  @classmethod
-  def _make_media_type_map(clazz, items):
-    result = {}
-    for item in items:
-      media_type = clazz._file_media_type(item.src_filename)
-      if not media_type in result:
-        result[media_type] = []
-      result[media_type].append(item)
     return result
