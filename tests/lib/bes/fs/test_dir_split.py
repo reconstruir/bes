@@ -14,14 +14,12 @@ from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
+from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
-class dir_split_tester(object):
-  _test_result = namedtuple('_test', 'tmp_dir, src_dir, dst_dir, src_files, dst_files, src_files_before, rv')
-  
 class test_dir_split(unit_test, unit_test_media_files):
 
   def test_split_chunks_of_two(self):
-    t = self._do_test([
+    t = self._split_test([
       multiplied_temp_content('apple', 5),
       multiplied_temp_content('kiwi', 2),
       multiplied_temp_content('lemon', 3),
@@ -50,7 +48,7 @@ class test_dir_split(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( [], t.src_files )
 
   def test_split_chunks_of_one(self):
-    t = self._do_test([
+    t = self._split_test([
       multiplied_temp_content('apple', 5),
       multiplied_temp_content('kiwi', 2),
       multiplied_temp_content('lemon', 3),
@@ -84,7 +82,7 @@ class test_dir_split(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( [], t.src_files )
 
   def test_split_one_chunk(self):
-    t = self._do_test([
+    t = self._split_test([
       multiplied_temp_content('apple', 1),
       multiplied_temp_content('kiwi', 1),
     ], 1, 3)
@@ -97,7 +95,7 @@ class test_dir_split(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( [], t.src_files )
     
   def test_split_larger_dir(self):
-    t = self._do_test([
+    t = self._split_test([
       multiplied_temp_content('apple', 5),
       multiplied_temp_content('kiwi', 2),
       multiplied_temp_content('lemon', 3),
@@ -158,7 +156,7 @@ class test_dir_split(unit_test, unit_test_media_files):
       'file dst/chunk-1/existing2.txt "this is existing2.txt" 644',
       'file dst/chunk-2/existing3.txt "this is existing3.txt" 644',
     ]
-    t = self._do_test([
+    t = self._split_test([
       multiplied_temp_content('apple', 5),
       multiplied_temp_content('kiwi', 2),
       multiplied_temp_content('lemon', 3),
@@ -203,7 +201,7 @@ class test_dir_split(unit_test, unit_test_media_files):
       'file dst/chunk-1/existing09.txt "this is existing09.txt" 644',
       'file dst/chunk-1/existing10.txt "this is existing01.txt" 644',
     ]
-    t = self._do_test([
+    t = self._split_test([
       multiplied_temp_content('apple', 5),
       multiplied_temp_content('kiwi', 2),
       multiplied_temp_content('lemon', 3),
@@ -251,7 +249,7 @@ class test_dir_split(unit_test, unit_test_media_files):
       'file src/unrelated-1/foo.txt "this is foo.txt" 644',
       'file src/unrelated-2/bar.txt "this is bar.txt" 644',
     ]
-    t = self._do_test([
+    t = self._split_test([
       multiplied_temp_content('apple', 5),
       multiplied_temp_content('kiwi', 2),
       multiplied_temp_content('lemon', 3),
@@ -286,7 +284,7 @@ class test_dir_split(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( expected, t.src_files )
 
   def test_split_dst_dir_same_as_src(self):
-    t = self._do_test([
+    t = self._split_test([
       multiplied_temp_content('apple', 5),
       multiplied_temp_content('kiwi', 2),
       multiplied_temp_content('lemon', 3),
@@ -329,7 +327,7 @@ class test_dir_split(unit_test, unit_test_media_files):
       'file src/more-3/sub1/sub2/more-3-sub12-bar-1.txt "this is more-3-sub12-bar-1.txt" 644',
       'file src/more-3/sub1/sub2/more-3-sub12-bar-2.txt "this is more-3-sub12-bar-2.txt" 644',
     ]
-    t = self._do_test([
+    t = self._split_test([
       multiplied_temp_content('apple', 5),
       multiplied_temp_content('kiwi', 2),
       multiplied_temp_content('lemon', 3),
@@ -379,7 +377,7 @@ class test_dir_split(unit_test, unit_test_media_files):
       'file src/sub1/foo.txt "this is sub1/foo.txt" 644',
       'file src/sub2/foo.txt "this is sub2/foo.txt" 644',
     ]
-    t = self._do_test([], 1, 3, extra_content_items = extra_content_items, recursive = True)
+    t = self._split_test([], 1, 3, extra_content_items = extra_content_items, recursive = True)
     expected = [
       'chunk-1',
       'chunk-1/dup-timestamp-1-foo.txt',
@@ -390,7 +388,7 @@ class test_dir_split(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( [], t.src_files )
 
   def test_sort_order(self):
-    t = self._do_test([
+    t = self._split_test([
       multiplied_temp_content('apple', 1, size = 100),
       multiplied_temp_content('kiwi', 1, size = 200),
       multiplied_temp_content('lemon', 1, size = 300),
@@ -413,7 +411,7 @@ class test_dir_split(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( [], t.src_files )
 
   def test_sort_order_reverse(self):
-    t = self._do_test([
+    t = self._split_test([
       multiplied_temp_content('apple', 1, size = 100),
       multiplied_temp_content('kiwi', 1, size = 200),
       multiplied_temp_content('lemon', 1, size = 300),
@@ -439,7 +437,7 @@ class test_dir_split(unit_test, unit_test_media_files):
     extra_content_items = [
       temp_content('file', 'src/foo.txt', b'this is foo.txt', 0o0644),
     ]
-    t = self._do_test([], 1, 1, extra_content_items = extra_content_items, recursive = True)
+    t = self._split_test([], 1, 1, extra_content_items = extra_content_items, recursive = True)
     expected = [
       'chunk-1',
       'chunk-1/foo.txt',
@@ -461,7 +459,7 @@ class test_dir_split(unit_test, unit_test_media_files):
       temp_content('file', 'src/yogurt.foo', unit_test_media.UNKNOWN, 0o0644),
       temp_content('file', 'src/zabaglione.foo', unit_test_media.UNKNOWN, 0o0644),
     ]
-    t = self._do_test([], 0, 3, extra_content_items = extra_content_items, partition = 'media_type')
+    t = self._split_test([], 0, 3, extra_content_items = extra_content_items, partition = 'media_type')
     expected = [
       'chunk-1',
       'chunk-1/apple.jpg',
@@ -493,7 +491,7 @@ class test_dir_split(unit_test, unit_test_media_files):
       temp_content('file', 'src/b/lemon-20.jpg', 'lemon-20.txt', 0o0644),
       temp_content('file', 'src/b/lemon-30.jpg', 'lemon-30.txt', 0o0644),
     ]
-    t = self._do_test([], 0, 2, extra_content_items = extra_content_items, partition = 'prefix', recursive = True)
+    t = self._split_test([], 0, 2, extra_content_items = extra_content_items, partition = 'prefix', recursive = True)
     for x in t.src_files_before:
       print(f'BEFORE: {x}')
     expected = [
@@ -518,16 +516,16 @@ class test_dir_split(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( expected, t.dst_files )
     self.assert_filename_list_equal( [], t.src_files )
     
-  def _do_test(self,
-               content_desc,
-               content_multiplier,
-               chunk_size,
-               extra_content_items = None,
-               dst_dir_same_as_src = False,
-               recursive = False,
-               sort_order = 'filename',
-               sort_reverse = False,
-               partition = None):
+  def _split_test(self,
+                  content_desc,
+                  content_multiplier,
+                  chunk_size,
+                  extra_content_items = None,
+                  dst_dir_same_as_src = False,
+                  recursive = False,
+                  sort_order = 'filename',
+                  sort_reverse = False,
+                  partition = None):
     options = dir_split_options(chunk_size = chunk_size,
                                 prefix = 'chunk-',
                                 recursive = recursive,
@@ -535,22 +533,13 @@ class test_dir_split(unit_test, unit_test_media_files):
                                 sort_order = sort_order,
                                 sort_reverse = sort_reverse,
                                 partition = partition)
-    tmp_dir = temp_content.write_multiplied_items_to_temp_dir(content_desc,
-                                                              content_multiplier,
-                                                              extra_content_items = extra_content_items)
-    src_dir = path.join(tmp_dir, 'src')
-    if dst_dir_same_as_src:
-      dst_dir = src_dir
-    else:
-      dst_dir = path.join(tmp_dir, 'dst')
-    src_files_before = file_find.find(src_dir, relative = True, file_type = file_find.ANY)
-    dir_split.split(src_dir, dst_dir, options)
-    src_files = file_find.find(src_dir, relative = True, file_type = file_find.ANY)
-    if path.exists(dst_dir):
-      dst_files = file_find.find(dst_dir, relative = True, file_type = file_find.ANY)
-    else:
-      dst_files = []
-    return dir_split_tester._test_result(tmp_dir, src_dir, dst_dir, src_files, dst_files, src_files_before, None)
+
+    with dir_operation_tester(multiplied_content_items = content_desc,
+                              content_multiplier = content_multiplier,
+                              extra_content_items = extra_content_items,
+                              dst_dir_same_as_src = dst_dir_same_as_src) as test:
+      dir_split.split(test.src_dir, test.dst_dir, options)
+    return test
     
 if __name__ == '__main__':
   unit_test.main()
