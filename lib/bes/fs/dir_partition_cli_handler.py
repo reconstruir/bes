@@ -19,7 +19,7 @@ class dir_partition_cli_handler(cli_command_handler):
     check.check_string_seq(files)
 
     if self.options.dry_run:
-      info = dir_partition.partition_info(files, dst_dir, options = options)
+      info = dir_partition.partition_info(files, dst_dir, options = self.options)
       for item in info.items:
         print('{} => {}'.format(item.src_filename, item.dst_filename))
     else:

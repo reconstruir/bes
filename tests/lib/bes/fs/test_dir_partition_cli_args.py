@@ -45,6 +45,52 @@ class test_dir_partition_cli_args(program_unit_test):
       'readme.md',
     ]
     self.assert_filename_list_equal( src_after_expected, t.src_files )
+
+  def test_partition_with_prefix_dry_run(self):
+    items = [
+      temp_content('file', 'src/readme.md', 'readme.md', 0o0644),
+      temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
+      temp_content('file', 'src/a/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
+      temp_content('file', 'src/a/kiwi-30.jpg', 'kiwi-30.txt', 0o0644),
+      temp_content('file', 'src/b/lemon-10.jpg', 'lemon-10.txt', 0o0644),
+      temp_content('file', 'src/b/lemon-20.jpg', 'lemon-20.txt', 0o0644),
+      temp_content('file', 'src/b/lemon-30.jpg', 'lemon-30.txt', 0o0644),
+      temp_content('file', 'src/c/cheese-10.jpg', 'cheese-10.jpg', 0o0644),
+      temp_content('file', 'src/icons/foo.png', 'foo.png', 0o0644),
+    ]
+    t = self._partition_test(extra_content_items = items,
+                             dst_dir_same_as_src = False,
+                             recursive = False,
+                             partition_type = 'prefix',
+                             dry_run = True)
+    dst_after_expected = [
+    ]
+    self.assert_filename_list_equal( dst_after_expected, t.dst_files )
+    src_after_expected = [
+      'a',
+      'a/kiwi-10.jpg',
+      'a/kiwi-20.jpg',
+      'a/kiwi-30.jpg',
+      'b',
+      'b/lemon-10.jpg',
+      'b/lemon-20.jpg',
+      'b/lemon-30.jpg',
+      'c',
+      'c/cheese-10.jpg',
+      'icons',
+      'icons/foo.png',
+      'readme.md',
+    ]
+    self.assert_filename_list_equal( src_after_expected, t.src_files )
+
+    self.assert_string_equal_fuzzy(f'''\
+{t.src_dir}/a/kiwi-10.jpg => {t.dst_dir}/kiwi/kiwi-10.jpg
+{t.src_dir}/a/kiwi-20.jpg => {t.dst_dir}/kiwi/kiwi-20.jpg
+{t.src_dir}/a/kiwi-30.jpg => {t.dst_dir}/kiwi/kiwi-30.jpg 
+{t.src_dir}/b/lemon-10.jpg => {t.dst_dir}/lemon/lemon-10.jpg 
+{t.src_dir}/b/lemon-20.jpg => {t.dst_dir}/lemon/lemon-20.jpg 
+{t.src_dir}/b/lemon-30.jpg => {t.dst_dir}/lemon/lemon-30.jpg 
+''', t.result.output )
     
   def _partition_test(self,
                       extra_content_items = None,
@@ -61,6 +107,8 @@ class test_dir_partition_cli_args(program_unit_test):
         test.dst_dir,
         test.src_dir,
       ]
+      if dry_run:
+        args.append('--dry-run')
       test.result = self.run_program(self._program, args)
     return test
 
