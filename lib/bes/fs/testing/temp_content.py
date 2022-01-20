@@ -10,6 +10,11 @@ from bes.system.check import check
 from bes.fs.temp_file import temp_file
 from bes.fs.file_path import file_path
 
+class multiplied_temp_content(namedtuple('multiplied_temp_content', 'name, num, size')):
+    
+  def __new__(clazz, name, num, size = None):
+    return clazz.__bases__[0].__new__(clazz, name, num, size)
+
 class temp_content(namedtuple('temp_content', 'item_type, filename, content, mode')):
   'Temporary files, directories and content for easier testing.'
   
@@ -164,3 +169,23 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
     root_dir = temp_file.make_temp_dir(delete = delete)
     clazz.write_items(items, root_dir)
     return root_dir
+
+  @classmethod
+  def write_multiplied_items_to_temp_dir(clazz, content_desc, content_multiplier, extra_content_items = None):
+    extra_content_items = extra_content_items or []
+    content_desc = [ multiplied_temp_content(c.name, c.num * content_multiplier, size = c.size) for c in content_desc ]
+    content_items = []
+    for next_desc in content_desc:
+      for i in range(1, next_desc.num + 1):
+        filename = '{}{}.txt'.format(next_desc.name, i)
+        text = 'this is {}'.format(filename)
+        if next_desc.size != None:
+          assert(next_desc.size > len(text))
+          num_needed = next_desc.size - len(text)
+          text += (num_needed * 'x')
+          assert len(text) == next_desc.size
+        desc = 'file src/{} "{}" 644'.format(filename, text)
+        content_items.append(desc)
+    content_items.extend(extra_content_items)
+    tmp_dir = clazz.write_items_to_temp_dir(content_items)
+    return tmp_dir

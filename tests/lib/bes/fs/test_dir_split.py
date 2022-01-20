@@ -9,6 +9,7 @@ from bes.fs.dir_split_options import dir_split_options
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
+from bes.fs.testing.temp_content import multiplied_temp_content
 from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
@@ -20,36 +21,16 @@ class dir_split_tester(object):
     def __new__(clazz, name, num, size = None):
       return clazz.__bases__[0].__new__(clazz, name, num, size)
 
-  @classmethod
-  def make_content(clazz, content_desc, content_multiplier, extra_content_items = None):
-    extra_content_items = extra_content_items or []
-    content_desc = [ clazz._content(c.name, c.num * content_multiplier, size = c.size) for c in content_desc ]
-    content_items = []
-    for next_desc in content_desc:
-      for i in range(1, next_desc.num + 1):
-        filename = '{}{}.txt'.format(next_desc.name, i)
-        text = 'this is {}'.format(filename)
-        if next_desc.size != None:
-          assert(next_desc.size > len(text))
-          num_needed = next_desc.size - len(text)
-          text += (num_needed * 'x')
-          assert len(text) == next_desc.size
-        desc = 'file src/{} "{}" 644'.format(filename, text)
-        content_items.append(desc)
-    content_items.extend(extra_content_items)
-    tmp_dir = temp_content.write_items_to_temp_dir(content_items)
-    return tmp_dir
-
   _test_result = namedtuple('_test', 'tmp_dir, src_dir, dst_dir, src_files, dst_files, src_files_before, rv')
   
 class test_dir_split(unit_test, unit_test_media_files):
 
   def test_split_chunks_of_two(self):
     t = self._do_test([
-      dir_split_tester._content('apple', 5),
-      dir_split_tester._content('kiwi', 2),
-      dir_split_tester._content('lemon', 3),
-      dir_split_tester._content('blueberry', 1),
+      multiplied_temp_content('apple', 5),
+      multiplied_temp_content('kiwi', 2),
+      multiplied_temp_content('lemon', 3),
+      multiplied_temp_content('blueberry', 1),
     ], 1, 2)
     expected = [
       'chunk-1',
@@ -75,10 +56,10 @@ class test_dir_split(unit_test, unit_test_media_files):
 
   def test_split_chunks_of_one(self):
     t = self._do_test([
-      dir_split_tester._content('apple', 5),
-      dir_split_tester._content('kiwi', 2),
-      dir_split_tester._content('lemon', 3),
-      dir_split_tester._content('blueberry', 1),
+      multiplied_temp_content('apple', 5),
+      multiplied_temp_content('kiwi', 2),
+      multiplied_temp_content('lemon', 3),
+      multiplied_temp_content('blueberry', 1),
     ], 1, 1)
     expected = [
       'chunk-01',
@@ -109,8 +90,8 @@ class test_dir_split(unit_test, unit_test_media_files):
 
   def test_split_one_chunk(self):
     t = self._do_test([
-      dir_split_tester._content('apple', 1),
-      dir_split_tester._content('kiwi', 1),
+      multiplied_temp_content('apple', 1),
+      multiplied_temp_content('kiwi', 1),
     ], 1, 3)
     expected = [
       'chunk-1',
@@ -122,10 +103,10 @@ class test_dir_split(unit_test, unit_test_media_files):
     
   def test_split_larger_dir(self):
     t = self._do_test([
-      dir_split_tester._content('apple', 5),
-      dir_split_tester._content('kiwi', 2),
-      dir_split_tester._content('lemon', 3),
-      dir_split_tester._content('blueberry', 1),
+      multiplied_temp_content('apple', 5),
+      multiplied_temp_content('kiwi', 2),
+      multiplied_temp_content('lemon', 3),
+      multiplied_temp_content('blueberry', 1),
     ], 3, 3)
     expected = [
       'chunk-01',
@@ -183,10 +164,10 @@ class test_dir_split(unit_test, unit_test_media_files):
       'file dst/chunk-2/existing3.txt "this is existing3.txt" 644',
     ]
     t = self._do_test([
-      dir_split_tester._content('apple', 5),
-      dir_split_tester._content('kiwi', 2),
-      dir_split_tester._content('lemon', 3),
-      dir_split_tester._content('blueberry', 1),
+      multiplied_temp_content('apple', 5),
+      multiplied_temp_content('kiwi', 2),
+      multiplied_temp_content('lemon', 3),
+      multiplied_temp_content('blueberry', 1),
     ], 1, 2, extra_content_items = extra_content_items)
     expected = [
       'chunk-1',
@@ -228,10 +209,10 @@ class test_dir_split(unit_test, unit_test_media_files):
       'file dst/chunk-1/existing10.txt "this is existing01.txt" 644',
     ]
     t = self._do_test([
-      dir_split_tester._content('apple', 5),
-      dir_split_tester._content('kiwi', 2),
-      dir_split_tester._content('lemon', 3),
-      dir_split_tester._content('blueberry', 1),
+      multiplied_temp_content('apple', 5),
+      multiplied_temp_content('kiwi', 2),
+      multiplied_temp_content('lemon', 3),
+      multiplied_temp_content('blueberry', 1),
     ], 1, 2, extra_content_items = extra_content_items)
     expected = [
       'chunk-01',
@@ -276,10 +257,10 @@ class test_dir_split(unit_test, unit_test_media_files):
       'file src/unrelated-2/bar.txt "this is bar.txt" 644',
     ]
     t = self._do_test([
-      dir_split_tester._content('apple', 5),
-      dir_split_tester._content('kiwi', 2),
-      dir_split_tester._content('lemon', 3),
-      dir_split_tester._content('blueberry', 1),
+      multiplied_temp_content('apple', 5),
+      multiplied_temp_content('kiwi', 2),
+      multiplied_temp_content('lemon', 3),
+      multiplied_temp_content('blueberry', 1),
     ], 1, 2, extra_content_items = extra_content_items)
     expected = [
       'chunk-1',
@@ -311,10 +292,10 @@ class test_dir_split(unit_test, unit_test_media_files):
 
   def test_split_dst_dir_same_as_src(self):
     t = self._do_test([
-      dir_split_tester._content('apple', 5),
-      dir_split_tester._content('kiwi', 2),
-      dir_split_tester._content('lemon', 3),
-      dir_split_tester._content('blueberry', 1),
+      multiplied_temp_content('apple', 5),
+      multiplied_temp_content('kiwi', 2),
+      multiplied_temp_content('lemon', 3),
+      multiplied_temp_content('blueberry', 1),
     ], 1, 2, dst_dir_same_as_src = True)
     expected = [
       'chunk-1',
@@ -354,10 +335,10 @@ class test_dir_split(unit_test, unit_test_media_files):
       'file src/more-3/sub1/sub2/more-3-sub12-bar-2.txt "this is more-3-sub12-bar-2.txt" 644',
     ]
     t = self._do_test([
-      dir_split_tester._content('apple', 5),
-      dir_split_tester._content('kiwi', 2),
-      dir_split_tester._content('lemon', 3),
-      dir_split_tester._content('blueberry', 1),
+      multiplied_temp_content('apple', 5),
+      multiplied_temp_content('kiwi', 2),
+      multiplied_temp_content('lemon', 3),
+      multiplied_temp_content('blueberry', 1),
     ], 1, 2, extra_content_items = extra_content_items, recursive = True)
     expected = [
       'chunk-01',
@@ -415,12 +396,12 @@ class test_dir_split(unit_test, unit_test_media_files):
 
   def test_sort_order(self):
     t = self._do_test([
-      dir_split_tester._content('apple', 1, size = 100),
-      dir_split_tester._content('kiwi', 1, size = 200),
-      dir_split_tester._content('lemon', 1, size = 300),
-      dir_split_tester._content('blueberry', 1, size = 400),
-      dir_split_tester._content('watermelon', 1, size = 500),
-      dir_split_tester._content('grapefruit', 1, size = 600),
+      multiplied_temp_content('apple', 1, size = 100),
+      multiplied_temp_content('kiwi', 1, size = 200),
+      multiplied_temp_content('lemon', 1, size = 300),
+      multiplied_temp_content('blueberry', 1, size = 400),
+      multiplied_temp_content('watermelon', 1, size = 500),
+      multiplied_temp_content('grapefruit', 1, size = 600),
     ], 1, 2, sort_order = 'size', sort_reverse = False)
     expected = [
       'chunk-1',
@@ -438,12 +419,12 @@ class test_dir_split(unit_test, unit_test_media_files):
 
   def test_sort_order_reverse(self):
     t = self._do_test([
-      dir_split_tester._content('apple', 1, size = 100),
-      dir_split_tester._content('kiwi', 1, size = 200),
-      dir_split_tester._content('lemon', 1, size = 300),
-      dir_split_tester._content('blueberry', 1, size = 400),
-      dir_split_tester._content('watermelon', 1, size = 500),
-      dir_split_tester._content('grapefruit', 1, size = 600),
+      multiplied_temp_content('apple', 1, size = 100),
+      multiplied_temp_content('kiwi', 1, size = 200),
+      multiplied_temp_content('lemon', 1, size = 300),
+      multiplied_temp_content('blueberry', 1, size = 400),
+      multiplied_temp_content('watermelon', 1, size = 500),
+      multiplied_temp_content('grapefruit', 1, size = 600),
     ], 1, 2, sort_order = 'size', sort_reverse = True)
     expected = [
       'chunk-1',
@@ -559,9 +540,9 @@ class test_dir_split(unit_test, unit_test_media_files):
                                 sort_order = sort_order,
                                 sort_reverse = sort_reverse,
                                 partition = partition)
-    tmp_dir = dir_split_tester.make_content(content_desc,
-                                            content_multiplier,
-                                            extra_content_items = extra_content_items)
+    tmp_dir = temp_content.write_multiplied_items_to_temp_dir(content_desc,
+                                                              content_multiplier,
+                                                              extra_content_items = extra_content_items)
     src_dir = path.join(tmp_dir, 'src')
     if dst_dir_same_as_src:
       dst_dir = src_dir

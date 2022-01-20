@@ -3,6 +3,8 @@
 
 from os import path
 from bes.testing.program_unit_test import program_unit_test
+from bes.fs.testing.temp_content import temp_content
+from bes.fs.testing.temp_content import multiplied_temp_content
 
 from bes.fs.file_find import file_find
 
@@ -14,10 +16,10 @@ class test_dir_split_cli_args(program_unit_test):
 
   def test_split_chunks_of_two(self):
     t = self._split_test([
-      dir_split_tester._content('apple', 5),
-      dir_split_tester._content('kiwi', 2),
-      dir_split_tester._content('lemon', 3),
-      dir_split_tester._content('blueberry', 1),
+      multiplied_temp_content('apple', 5),
+      multiplied_temp_content('kiwi', 2),
+      multiplied_temp_content('lemon', 3),
+      multiplied_temp_content('blueberry', 1),
     ], 1, 2)
     expected = [
       'chunk-1/apple1.txt',
@@ -37,9 +39,9 @@ class test_dir_split_cli_args(program_unit_test):
     self.assert_filename_list_equal( [], t.src_files )
     
   def _split_test(self, content_desc, content_multiplier, chunk_size, extra_content_items = None):
-    tmp_dir = dir_split_tester.make_content(content_desc,
-                                            content_multiplier,
-                                            extra_content_items = extra_content_items)
+    tmp_dir = temp_content.write_multiplied_items_to_temp_dir(content_desc,
+                                                              content_multiplier,
+                                                              extra_content_items = extra_content_items)
     src_dir = path.join(tmp_dir, 'src')
     dst_dir = path.join(tmp_dir, 'dst')
     args = [
