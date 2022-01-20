@@ -44,8 +44,8 @@ class test_dir_split_cli_args(program_unit_test):
     self.assert_filename_list_equal( expected, t.dst_files )
     self.assert_filename_list_equal( [], t.src_files )
     
-  def _split_test(self, content_desc, content_multiplier, chunk_size, extra_content_items = None):
-    with dir_operation_tester(multiplied_content_items = content_desc,
+  def _split_test(self, multiplied_content_items, content_multiplier, chunk_size, extra_content_items = None):
+    with dir_operation_tester(multiplied_content_items = multiplied_content_items,
                               content_multiplier = content_multiplier,
                               extra_content_items = extra_content_items) as test:
       args = [

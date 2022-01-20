@@ -26,8 +26,8 @@ class dir_operation_tester(object):
     
   @cached_property
   def tmp_dir(self):
-    return temp_content.write_multiplied_items_to_temp_dir(self._multiplied_content_items,
-                                                           self._content_multiplier,
+    return temp_content.write_multiplied_items_to_temp_dir(multiplied_content_items = self._multiplied_content_items,
+                                                           content_multiplier = self._content_multiplier,
                                                            extra_content_items = self._extra_content_items)
 
   @cached_property

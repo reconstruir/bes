@@ -517,7 +517,7 @@ class test_dir_split(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( [], t.src_files )
     
   def _split_test(self,
-                  content_desc,
+                  multiplied_content_items,
                   content_multiplier,
                   chunk_size,
                   extra_content_items = None,
@@ -534,7 +534,7 @@ class test_dir_split(unit_test, unit_test_media_files):
                                 sort_reverse = sort_reverse,
                                 partition = partition)
 
-    with dir_operation_tester(multiplied_content_items = content_desc,
+    with dir_operation_tester(multiplied_content_items = multiplied_content_items,
                               content_multiplier = content_multiplier,
                               extra_content_items = extra_content_items,
                               dst_dir_same_as_src = dst_dir_same_as_src) as test:
