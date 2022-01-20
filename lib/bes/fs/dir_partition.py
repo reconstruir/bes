@@ -30,34 +30,42 @@ class dir_partition(object):
 
   @classmethod
   def partition(clazz, files, dst_dir, options = None):
+    check.check_string_seq(files)
     check.check_dir_partition_options(options, allow_none = True)
-
-    dst_dir_abs = path.abspath(dst_dir)
+    check.check_string(dst_dir)
 
     options = options or dir_partition_options()
-    items, resolved_files = clazz.partition_info(files, dst_dir_abs, options)
-    dir_operation_util.move_files(items,
+    
+    info = clazz.partition_info(files, dst_dir, options = options)
+    dir_operation_util.move_files(info.items,
                                   options.dup_file_timestamp,
                                   options.dup_file_count)
-    root_dirs = resolved_files.root_dirs()
+    root_dirs = info.resolved_files.root_dirs()
     for next_possible_empty_root in root_dirs:
       file_find.remove_empty_dirs(next_possible_empty_root)
       
-  _partition_info_result = namedtuple('_partition_items_info', 'items, resolved_files, possible_empty_dirs_roots')
+  _partition_info_result = namedtuple('_partition_items_info', 'items, resolved_files')
   @classmethod
-  def partition_info(clazz, files, dst_dir, options):
+  def partition_info(clazz, files, dst_dir, options = None):
+    check.check_string_seq(files)
+    check.check_dir_partition_options(options, allow_none = True)
+    check.check_string(dst_dir)
+
+    dst_dir_abs = path.abspath(dst_dir)
+    options = options or dir_partition_options()
+
     if options.partition_type == None:
       return items
     elif options.partition_type == dir_partition_type.MEDIA_TYPE:
-      result = clazz._partition_info_by_media_type(files, dst_dir, options)
+      result = clazz._partition_info_by_media_type(files, dst_dir_abs, options)
     elif options.partition_type == dir_partition_type.PREFIX:
-      result = clazz._partition_info_by_prefix(files, dst_dir, options)
+      result = clazz._partition_info_by_prefix(files, dst_dir_abs, options)
     else:
       assert False
     return result
 
   @classmethod
-  def _partition_info_by_prefix(clazz, files, dst_dir, options):
+  def _partition_info_by_prefix(clazz, files, dst_dir_abs, options):
     resolver_options = file_resolver_options(sort_order = 'depth',
                                              sort_reverse = True)
     resolved_files = file_resolver.resolve_files(files, options = resolver_options)
@@ -69,10 +77,10 @@ class dir_partition(object):
       num_files = len(filenames)
       if num_files >= options.threshold:
         for src_filename in filenames:
-          dst_filename = path.join(dst_dir, prefix, path.basename(src_filename))
+          dst_filename = path.join(dst_dir_abs, prefix, path.basename(src_filename))
           item = dir_operation_item(src_filename, dst_filename)
           items.append(item)
-    return items, resolved_files
+    return clazz._partition_info_result(items, resolved_files)
 
   @classmethod
   def _make_buckets(clazz, prefixes, files):
@@ -87,7 +95,7 @@ class dir_partition(object):
     return buckets
 
   @classmethod
-  def _partition_info_by_media_type(clazz, files, dst_dir, options):
+  def _partition_info_by_media_type(clazz, files, dst_dir_abs, options):
     assert False
     
   '''

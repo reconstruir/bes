@@ -56,6 +56,5 @@ class test_dir_split_cli_args(program_unit_test):
       test.result = self.run_program(self._program, args)
     return test
 
-  
 if __name__ == '__main__':
   program_unit_test.main()
