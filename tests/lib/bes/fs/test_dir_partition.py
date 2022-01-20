@@ -12,43 +12,6 @@ from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
 class test_dir_partition(unit_test, unit_test_media_files):
 
-  def xtest_partition_with_media_type(self):
-    extra_content_items = [
-      temp_content('file', 'src/apple.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/barolo.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/brie.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/chablis.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/cheddar.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/kiwi.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/lemon.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/malbec.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/swiss.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/yogurt.foo', unit_test_media.UNKNOWN, 0o0644),
-      temp_content('file', 'src/zabaglione.foo', unit_test_media.UNKNOWN, 0o0644),
-    ]
-    t = self._do_test([], 0, 3, extra_content_items = extra_content_items, partition = 'media_type')
-    expected = [
-      'chunk-1',
-      'chunk-1/apple.jpg',
-      'chunk-1/brie.png',
-      'chunk-1/cheddar.png',
-      'chunk-2',
-      'chunk-2/kiwi.jpg',
-      'chunk-2/lemon.jpg',
-      'chunk-2/swiss.png',
-      'chunk-3',
-      'chunk-3/unknown',
-      'chunk-3/unknown/yogurt.foo',
-      'chunk-3/unknown/zabaglione.foo',
-      'chunk-3/video',
-      'chunk-3/video/barolo.mp4',
-      'chunk-4',
-      'chunk-4/chablis.mp4',
-      'chunk-4/malbec.mp4',
-    ]
-    self.assert_filename_list_equal( expected, t.dst_files )
-    self.assert_filename_list_equal( [], t.src_files )
-    
   def test_partition_with_prefix(self):
     items = [
       temp_content('file', 'src/readme.md', 'readme.md', 0o0644),
@@ -82,6 +45,44 @@ class test_dir_partition(unit_test, unit_test_media_files):
       'icons',
       'icons/foo.png',
       'readme.md',
+    ]
+    self.assert_filename_list_equal( src_after_expected, t.src_files )
+
+  def test_partition_with_media_type(self):
+    items = [
+      temp_content('file', 'src/apple.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/barolo.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/brie.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/chablis.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/cheddar.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/kiwi.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/lemon.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/malbec.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/swiss.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/yogurt.foo', unit_test_media.UNKNOWN, 0o0644),
+      temp_content('file', 'src/zabaglione.foo', unit_test_media.UNKNOWN, 0o0644),
+    ]
+    t = self._partition_test(extra_content_items = items,
+                             dst_dir_same_as_src = False,
+                             recursive = False,
+                             partition_type = 'media_type')
+    dst_after_expected = [
+      'image',
+      'image/apple.jpg',
+      'image/brie.png',
+      'image/cheddar.png',
+      'image/kiwi.jpg',
+      'image/lemon.jpg',
+      'image/swiss.png',
+      'video',
+      'video/barolo.mp4',
+      'video/chablis.mp4',
+      'video/malbec.mp4',
+    ]
+    self.assert_filename_list_equal( dst_after_expected, t.dst_files )
+    src_after_expected = [
+      'yogurt.foo',
+      'zabaglione.foo',
     ]
     self.assert_filename_list_equal( src_after_expected, t.src_files )
     

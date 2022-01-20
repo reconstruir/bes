@@ -65,13 +65,17 @@ class dir_partition(object):
     return result
 
   @classmethod
-  def _partition_info_by_prefix(clazz, files, dst_dir_abs, options):
+  def _resolve_files(clazz, files):
     resolver_options = file_resolver_options(sort_order = 'depth',
                                              sort_reverse = True)
-    resolved_files = file_resolver.resolve_files(files, options = resolver_options)
+    return file_resolver.resolve_files(files, options = resolver_options)
+  
+  @classmethod
+  def _partition_info_by_prefix(clazz, files, dst_dir_abs, options):
+    resolved_files = clazz._resolve_files(files)
     basenames = resolved_files.basenames(sort = True)
     prefixes = filename_list.prefixes(basenames)
-    buckets = clazz._make_buckets(prefixes, resolved_files.absolute_files(sort = True))
+    buckets = clazz._make_prefix_buckets(prefixes, resolved_files.absolute_files(sort = True))
     items = dir_operation_item_list()
     for prefix, filenames in buckets.items():
       num_files = len(filenames)
@@ -83,7 +87,7 @@ class dir_partition(object):
     return clazz._partition_info_result(items, resolved_files)
 
   @classmethod
-  def _make_buckets(clazz, prefixes, files):
+  def _make_prefix_buckets(clazz, prefixes, files):
     buckets = {}
     for f in files:
       basename = path.basename(f)
@@ -96,23 +100,12 @@ class dir_partition(object):
 
   @classmethod
   def _partition_info_by_media_type(clazz, files, dst_dir_abs, options):
-    assert False
-    
-  '''
-  @classmethod
-  def _partition_partition_items_by_media_type(clazz, items):
-    result = []
-    dst_basename_map = clazz._make_dst_basename_map(items)
-    for dst_basename, media_type_map in dst_basename_map.items():
-      num_media_types = len(media_type_map)
-      if num_media_types > 1:
-        for media_type, items in media_type_map.items():
-          for item in items:
-            new_dst_filename = file_path.insert(item.dst_filename, -1, media_type)
-            new_item = dir_operation_item(item.src_filename, new_dst_filename)
-            result.append(new_item)
-      else:
-        for _, items in media_type_map.items():
-          result.extend(items)
-    return result
-'''
+    resolved_files = clazz._resolve_files(files)
+    items = dir_operation_item_list()
+    for f in resolved_files:
+      media_type = file_attributes_metadata.get_media_type_cached(f.filename_abs, fallback = True)
+      if media_type != 'unknown':
+        dst_filename = path.join(dst_dir_abs, media_type, path.basename(f.filename_abs))
+        item = dir_operation_item(f.filename_abs, dst_filename)
+        items.append(item)
+    return clazz._partition_info_result(items, resolved_files)
