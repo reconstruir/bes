@@ -16,11 +16,6 @@ from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
 
 class dir_split_tester(object):
-
-  class _content(namedtuple('_content', 'name, num, size')):
-    def __new__(clazz, name, num, size = None):
-      return clazz.__bases__[0].__new__(clazz, name, num, size)
-
   _test_result = namedtuple('_test', 'tmp_dir, src_dir, dst_dir, src_files, dst_files, src_files_before, rv')
   
 class test_dir_split(unit_test, unit_test_media_files):
