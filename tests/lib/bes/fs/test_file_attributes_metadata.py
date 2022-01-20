@@ -6,11 +6,13 @@ from datetime import timedelta
 
 from os import path
 
-from bes.testing.unit_test import unit_test
+from bes.fs.file_attributes import file_attributes
+from bes.fs.file_attributes_metadata import file_attributes_metadata
 from bes.fs.file_mime import file_mime
 from bes.fs.file_util import file_util
-from bes.fs.file_attributes_metadata import file_attributes_metadata
-from bes.fs.file_attributes import file_attributes
+from bes.system.filesystem import filesystem
+from bes.system.host import host
+from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
@@ -75,19 +77,26 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
     self.assertEqual( 'unknown', file_attributes_metadata.get_media_type(self.unknown_file) )
     
   def test_get_mime_type_change(self):
-    tmp_file = self.make_temp_file(suffix = '.jpg')
+    tmp_file = self.make_temp_file(suffix = '.png')
     file_util.copy(self.png_file, tmp_file)
     self.assertEqual( 'image/png', file_attributes_metadata.get_mime_type(tmp_file) )
     with open(tmp_file, 'wb') as to_file:
       with open(self.jpg_file, 'rb') as from_file:
         to_file.write(from_file.read())
+        to_file.flush()
+        # for some reason on some linuxes the modification date does not change
+        # when we clobber the png file with jpg content
+        if host.is_linux():
+          file_util.set_modification_date(tmp_file, datetime.now())
     self.assertEqual( 'image/jpeg', file_attributes_metadata.get_mime_type(tmp_file) )
 
   def test_get_mime_type_cached(self):
-    tmp_file = self.make_temp_file(suffix = '.jpg')
+    tmp_file = self.make_temp_file(suffix = '.png')
     file_util.copy(self.png_file, tmp_file)
     self.assertEqual( 'image/png', file_attributes_metadata.get_mime_type_cached(tmp_file) )
     file_util.copy(self.jpg_file, tmp_file)
+    if host.is_linux():
+      file_util.set_modification_date(tmp_file, datetime.now())
     self.assertEqual( 'image/jpeg', file_attributes_metadata.get_mime_type_cached(tmp_file) )
     
 if __name__ == '__main__':
