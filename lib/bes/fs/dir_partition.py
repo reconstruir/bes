@@ -65,14 +65,15 @@ class dir_partition(object):
     return result
 
   @classmethod
-  def _resolve_files(clazz, files):
+  def _resolve_files(clazz, files, recursive):
     resolver_options = file_resolver_options(sort_order = 'depth',
-                                             sort_reverse = True)
+                                             sort_reverse = True,
+                                             recursive = recursive)
     return file_resolver.resolve_files(files, options = resolver_options)
   
   @classmethod
   def _partition_info_by_prefix(clazz, files, dst_dir_abs, options):
-    resolved_files = clazz._resolve_files(files)
+    resolved_files = clazz._resolve_files(files, options.recursive)
     basenames = resolved_files.basenames(sort = True)
     prefixes = filename_list.prefixes(basenames)
     buckets = clazz._make_prefix_buckets(prefixes, resolved_files.absolute_files(sort = True))
@@ -100,7 +101,7 @@ class dir_partition(object):
 
   @classmethod
   def _partition_info_by_media_type(clazz, files, dst_dir_abs, options):
-    resolved_files = clazz._resolve_files(files)
+    resolved_files = clazz._resolve_files(files, options.recursive)
     items = dir_operation_item_list()
     for f in resolved_files:
       media_type = file_attributes_metadata.get_media_type_cached(f.filename_abs, fallback = True)

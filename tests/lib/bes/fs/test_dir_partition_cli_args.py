@@ -24,7 +24,7 @@ class test_dir_partition_cli_args(program_unit_test):
     ]
     t = self._partition_test(extra_content_items = items,
                              dst_dir_same_as_src = False,
-                             recursive = False,
+                             recursive = True,
                              partition_type = 'prefix')
     dst_after_expected = [
       'kiwi',
@@ -60,7 +60,7 @@ class test_dir_partition_cli_args(program_unit_test):
     ]
     t = self._partition_test(extra_content_items = items,
                              dst_dir_same_as_src = False,
-                             recursive = False,
+                             recursive = True,
                              partition_type = 'prefix',
                              dry_run = True)
     dst_after_expected = [
@@ -107,6 +107,8 @@ class test_dir_partition_cli_args(program_unit_test):
         test.dst_dir,
         test.src_dir,
       ]
+      if recursive:
+        args.append('--recursive')
       if dry_run:
         args.append('--dry-run')
       test.result = self.run_program(self._program, args)

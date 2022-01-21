@@ -16,7 +16,7 @@ class file_resolver_options(cli_options):
   def default_values(clazz):
     'Return a dict of defaults for these options.'
     return {
-      'recursive': True,
+      'recursive': False,
       'sort_order': None,
       'sort_reverse': False,
       'limit': None,
