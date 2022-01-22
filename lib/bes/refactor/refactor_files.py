@@ -39,7 +39,8 @@ class refactor_files(object):
       if python.is_python_script(filename):
         return True
       return filename_util.has_extension(filename.lower(), 'py')
-    options = file_resolver_options(match_function = _match_python_files,
+    options = file_resolver_options(recursive = True,
+                                    match_function = _match_python_files,
                                     match_basename = False)
     resolved = file_resolver.resolve_files(files, options = options)
     return resolved.absolute_files(sort = True)
@@ -50,7 +51,8 @@ class refactor_files(object):
     
     def _match_text_files(filename):
       return file_mime.is_text(filename)
-    options = file_resolver_options(match_function = _match_text_files,
+    options = file_resolver_options(recursive = True,
+                                    match_function = _match_text_files,
                                     match_basename = False)
     resolved = file_resolver.resolve_files(files, options = options)
     return resolved.absolute_files(sort = True)
@@ -115,7 +117,7 @@ class refactor_files(object):
 
     clazz._log.log_method_d()
 
-    resolved_empty_dirs = file_resolver.resolve_empty_dirs(dirs)
+    resolved_empty_dirs = file_resolver.resolve_empty_dirs(dirs, recursive = True)
     empty_dirs_operation_items, empty_dirs_affected_dirs = \
       clazz._make_operation_items(refactor_operation_type.RENAME_DIRS,
                                   resolved_empty_dirs,
@@ -150,7 +152,8 @@ class refactor_files(object):
                     word_boundary = False,
                     boundary_chars = None,
                     try_git = False):
-    options = file_resolver_options(sort_order = 'depth',
+    options = file_resolver_options(recursive = True,
+                                    sort_order = 'depth',
                                     sort_reverse = True)
     resolved_files = file_resolver.resolve_files(dirs, options = options)
     operation_items, affected_dirs = \

@@ -5,14 +5,9 @@ from collections import namedtuple
 import os
 from os import path
 
-from bes.common.algorithm import algorithm
 from bes.fs.file_replace import file_replace
-from bes.fs.file_search import file_search
 from bes.system.check import check
 from bes.system.log import logger
-
-from bes.fs.file_resolver import file_resolver
-from bes.fs.file_resolver_options import file_resolver_options
 
 from .refactor_error import refactor_error
 from .refactor_files import refactor_files

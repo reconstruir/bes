@@ -134,13 +134,14 @@ class file_resolver(object):
     return found_files
 
   @classmethod
-  def resolve_empty_dirs(clazz, dirs):
+  def resolve_empty_dirs(clazz, dirs, recursive = False):
     'Resolve empty dirs.'
     
     def _match_empty_dirs(d):
       assert path.isdir(d)
       return dir_util.is_empty(d)
     
-    options = file_resolver_options(match_function = _match_empty_dirs,
+    options = file_resolver_options(recursive = recursive,
+                                    match_function = _match_empty_dirs,
                                     match_basename = False)
     return file_resolver.resolve_dirs(dirs, options = options)
