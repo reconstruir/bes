@@ -45,4 +45,7 @@ class file_resolver_item_list(type_checked_list):
     for item in self:
       print(f'{label}{item.index}:{item.root_dir}:{item.filename}')
 
+  def media_types(self):
+    return set([ file_attributes_metadata.get_media_type_cached(f.filename_abs, fallback = True) for f in self ])
+      
 check.register_class(file_resolver_item_list, include_seq = False)
