@@ -387,14 +387,15 @@ class file_util(object):
     src = file_check.check_file(src)
     check.check_string(prefix)
 
-    #print(f'move_with_duplicate({src}, {dst}, {prefix})')
-    
     if not path.exists(dst):
-      #print(f'here1')
       clazz.rename(src, dst)
       return False
 
     if clazz.files_are_the_same(src, dst):
+      print('HERE2')
+      assert path.isfile(src)
+      file_util.remove(src)
+      #print(f'move_with_duplicate({src}, {dst}, {prefix})')
       #print(f'here2')
       return False
     

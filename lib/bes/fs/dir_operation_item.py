@@ -29,10 +29,12 @@ class dir_operation_item(namedtuple('dir_operation_item', 'src_filename, dst_fil
 
   def execute_operation(self, prefix):
     if self.operation_type == dir_operation_item_type.MOVE:
+      print(f'EXECUTING: MOVE: {self.src_filename} => {self.dst_filename}')
       return file_util.move_with_duplicate(self.src_filename,
                                            self.dst_filename,
                                            prefix)
     elif self.operation_type == dir_operation_item_type.REMOVE:
+      print(f'EXECUTING: REMOVE: {self.src_filename}')
       if path.exists(self.src_filename):
         file_util.remove(self.src_filename)
         return True

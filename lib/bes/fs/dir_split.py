@@ -37,6 +37,9 @@ class dir_split(object):
 
     options = options or dir_split_options()
     info = clazz._split_info(src_dir_abs, dst_dir_abs, options)
+    #assert len(info.items) > 0
+    #for x in info.items:
+    #  print(f'CACA: {x}')
 
     info.items.execute_operation(options.dup_file_timestamp,
                                  options.dup_file_count)
@@ -57,11 +60,19 @@ class dir_split(object):
     assert path.isabs(src_dir)
     assert path.isabs(dst_dir)
 
+    print(f'src_dir={src_dir}')
+    print(f'dst_dir={dst_dir}')
+    for f in file_find.find(src_dir):
+      print(f'SRC FILE: {f}')
+    for f in file_find.find(dst_dir):
+      print(f'DST FILE: {f}')
     old_files = []
     existing_split_dirs = clazz._existing_split_dirs(dst_dir, options.prefix)
+    print(f'existing_split_dirs={existing_split_dirs}')
     for old_dir in existing_split_dirs:
       old_files.extend(dir_util.list_files(old_dir))
     clazz._log.log_d('old_files={}'.format(old_files))
+    print(f'old_files={old_files}')
     
     options = options or dir_split_options()
     items = dir_operation_item_list()
@@ -93,7 +104,7 @@ class dir_split(object):
       chunk_dst_dir = path.join(dst_dir, dst_basename)
       for filename in chunk:
         dst_filename = path.join(chunk_dst_dir, path.basename(filename))
-        #print(f'making item:\filename={filename}\ndst_filename={dst_filename}\ndst_basename={dst_basename}')
+        print(f'making item:\nfilename={filename}\ndst_filename={dst_filename}\ndst_basename={dst_basename}')
         item = dir_operation_item(filename, dst_filename, dir_operation_item_type.MOVE)
         items.append(item)
     return clazz._split_items_info(items, existing_split_dirs, possible_empty_dirs_roots)

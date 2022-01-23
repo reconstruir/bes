@@ -448,6 +448,10 @@ class test_dir_split(unit_test, unit_test_media_files):
       'file src/chunk-1/apple2.txt "this is chunk-1/apple2.txt" 644',
       'file src/chunk-2/kiwi1.txt "this is chunk-2/kiwi1.txt" 644',
       'file src/chunk-2/kiwi2.txt "this is chunk-2/kiwi2.txt" 644',
+      'file dst/chunk-1/apple1.txt "this is chunk-1/apple1.txt" 644',
+      'file dst/chunk-1/apple2.txt "this is chunk-1/apple2.txt" 644',
+      'file dst/chunk-2/kiwi1.txt "this is chunk-2/kiwi1.txt" 644',
+      'file dst/chunk-2/kiwi2.txt "this is chunk-2/kiwi2.txt" 644',
     ]
     t = self._split_test(None, 1, 2, extra_content_items = extra_content_items)
     expected = [
