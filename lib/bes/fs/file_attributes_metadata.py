@@ -145,6 +145,26 @@ class file_attributes_metadata(object):
     hashed_filename = hash_util.hash_string_sha256(filename)
     mtime_string = time_util.timestamp(when = file_util.get_modification_date(filename))
     return f'{hashed_filename}_{mtime_string}'
+
+  @classmethod
+  def get_checksum(clazz, filename, fallback = False):
+    check.check_string(filename)
+    check.check_bool(fallback)
+
+    def _value_maker():
+      return file_util.checksum('sha256', filename).encode('utf-8')
+    return clazz.get_string(filename, clazz._KEY_BES_CHECKSUM, _value_maker, fallback = fallback)
+
+  _CHECKSUM_CACHE = {}
+  @classmethod
+  def get_checksum_cached(clazz, filename, fallback = False):
+    check.check_string(filename)
+    check.check_bool(fallback)
+
+    cache_key = clazz._make_cache_key(filename)
+    if not cache_key in clazz._CHECKSUM_CACHE:
+      clazz._CHECKSUM_CACHE[cache_key] = clazz.get_checksum(filename, fallback = fallback)
+    return clazz._CHECKSUM_CACHE[cache_key]
   
   @classmethod
   def _make_mtime_key(clazz, key):

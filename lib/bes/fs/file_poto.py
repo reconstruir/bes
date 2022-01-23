@@ -3,25 +3,15 @@
 from collections import namedtuple
 import os.path as path
 
-from bes.common.algorithm import algorithm
-from bes.common.object_util import object_util
-from bes.common.string_util import string_util
 from bes.system.check import check
 from bes.system.log import logger
 from bes.fs.file_resolver import file_resolver
 from bes.fs.file_resolver_options import file_resolver_options
 
-from .dir_operation_item import dir_operation_item
-from .dir_operation_item_list import dir_operation_item_list
-from .dir_operation_util import dir_operation_util
 from .file_poto_options import file_poto_options
-from .file_poto_type import file_poto_type
-from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
-from .file_find import file_find
-from .file_path import file_path
 from .file_util import file_util
-from .filename_list import filename_list
+from .file_attributes_metadata import file_attributes_metadata
 
 class file_poto(object):
   'A class to find duplicate files'
@@ -39,7 +29,7 @@ class file_poto(object):
     resolved_files = clazz._resolve_files(files, options.recursive)
     dmap = resolved_files.duplicate_size_map()
     flat_size_dups = clazz._flat_duplicate_files(dmap)
-    small_checksum_map = clazz._small_checksum_map(flat_size_dups, 1024)
+    small_checksum_map = clazz._small_checksum_map(flat_size_dups, options.small_checksum_size)
     dup_small_checksum_map = clazz._duplicate_small_checksum_map(small_checksum_map)
     items = []
     for small_checksum, files in sorted(dup_small_checksum_map.items()):

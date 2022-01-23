@@ -18,11 +18,11 @@ class file_poto_cli_handler(cli_command_handler):
     check.check_string_seq(files)
     check.check_bool(delete)
 
-    dup_items = file_poto.find_duplicates(files, options = self.options)
-    for item in dup_items:
-      print(f'{item.filename}')
-      for f in item.duplicates:
-        print(f'  {f}')
+    dups = file_poto.find_duplicates(files, options = self.options)
+    for item in dups.items:
+      print(f'{item}')
+#      for f in item.duplicates:
+#        print(f'  {f}')
 #        if delete:
 #          if self.options.dry_run:
     return 0
