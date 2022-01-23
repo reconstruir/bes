@@ -386,12 +386,16 @@ class file_util(object):
   def move_with_duplicate(clazz, src, dst, prefix):
     src = file_check.check_file(src)
     check.check_string(prefix)
+
+    #print(f'move_with_duplicate({src}, {dst}, {prefix})')
     
     if not path.exists(dst):
+      #print(f'here1')
       clazz.rename(src, dst)
       return False
 
     if clazz.files_are_the_same(src, dst):
+      #print(f'here2')
       return False
     
     basename = path.basename(dst)
@@ -399,4 +403,5 @@ class file_util(object):
     dst_basename = f'{prefix}-{basename}'
     dst_filename = path.join(dirname, dst_basename)
     file_util.rename(src, dst_filename)
+    #print(f'here3')
     return True

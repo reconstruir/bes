@@ -15,5 +15,10 @@ class dir_operation_item_list(type_checked_list):
   
   def __init__(self, values = None):
     super(dir_operation_item_list, self).__init__(values = values)
-  
+
+  def execute_operation(self, timestamp, count):
+    for item in self:
+      if item.execute_operation(f'{timestamp}-{count}'):
+        count += 1
+    
 check.register_class(dir_operation_item_list, include_seq = False)

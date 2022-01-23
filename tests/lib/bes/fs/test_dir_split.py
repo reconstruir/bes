@@ -441,6 +441,25 @@ class test_dir_split(unit_test, unit_test_media_files):
     ]
     self.assert_filename_list_equal( expected, t.dst_files )
     self.assert_filename_list_equal( [], t.src_files )
+
+  def test_split_info_with_existing(self):
+    extra_content_items = [
+      'file src/chunk-1/apple1.txt "this is chunk-1/apple1.txt" 644',
+      'file src/chunk-1/apple2.txt "this is chunk-1/apple2.txt" 644',
+      'file src/chunk-2/kiwi1.txt "this is chunk-2/kiwi1.txt" 644',
+      'file src/chunk-2/kiwi2.txt "this is chunk-2/kiwi2.txt" 644',
+    ]
+    t = self._split_test(None, 1, 2, extra_content_items = extra_content_items)
+    expected = [
+      'chunk-1',
+      'chunk-1/apple1.txt',
+      'chunk-1/apple2.txt',
+      'chunk-2',
+      'chunk-2/apple1.txt',
+      'chunk-2/apple2.txt',
+    ]
+#    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
     
   def _split_test(self,
                   multiplied_content_items,
@@ -462,6 +481,10 @@ class test_dir_split(unit_test, unit_test_media_files):
                               content_multiplier = content_multiplier,
                               extra_content_items = extra_content_items,
                               dst_dir_same_as_src = dst_dir_same_as_src) as test:
+      for f in test.src_files_before:
+        print(f'1f={f}')
+      for f in test.src_files:
+        print(f'2f={f}')
       dir_split.split(test.src_dir, test.dst_dir, options)
     return test
     

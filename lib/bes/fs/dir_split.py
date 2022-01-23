@@ -10,8 +10,8 @@ from bes.system.check import check
 from bes.system.log import logger
 
 from .dir_operation_item import dir_operation_item
+from .dir_operation_item_type import dir_operation_item_type
 from .dir_operation_item_list import dir_operation_item_list
-from .dir_operation_util import dir_operation_util
 from .dir_split_options import dir_split_options
 from .dir_util import dir_util
 from .file_attributes_metadata import file_attributes_metadata
@@ -38,9 +38,8 @@ class dir_split(object):
     options = options or dir_split_options()
     info = clazz._split_info(src_dir_abs, dst_dir_abs, options)
 
-    dir_operation_util.move_files(info.items,
-                                  options.dup_file_timestamp,
-                                  options.dup_file_count)
+    info.items.execute_operation(options.dup_file_timestamp,
+                                 options.dup_file_count)
     
     for d in info.existing_split_dirs:
       if dir_util.is_empty(d):
@@ -97,7 +96,7 @@ class dir_split(object):
       for finfo in chunk:
         dst_filename = path.join(chunk_dst_dir, path.basename(finfo.filename))
         #print(f'making item:\nfinfo.filename={finfo.filename}\ndst_filename={dst_filename}\ndst_basename={dst_basename}')
-        item = dir_operation_item(finfo.filename, dst_filename)
+        item = dir_operation_item(finfo.filename, dst_filename, dir_operation_item_type.MOVE)
         items.append(item)
     return clazz._split_items_info(items, existing_split_dirs, possible_empty_dirs_roots)
 
