@@ -7,6 +7,7 @@ from bes.bes_project.bes_project_cli_args import bes_project_cli_args
 from bes.computer_setup.computer_setup_cli_args import computer_setup_cli_args
 from bes.docker.docker_cli_args import docker_cli_args
 from bes.egg.egg_cli_args import egg_cli_args
+from bes.fs.dir_combine_cli_args import dir_combine_cli_args
 from bes.fs.dir_partition_cli_args import dir_partition_cli_args
 from bes.fs.dir_split_cli_args import dir_split_cli_args
 from bes.fs.files_cli_args import files_cli_args
@@ -42,6 +43,7 @@ COMMON_COMMAND_GROUPS = [
   cli_command('archive', 'archive_add_args', 'Deal with archive', archive_cli_args),
   cli_command('bes_project', 'bes_project_add_args', 'Bes project stuff', bes_project_cli_args),    
   cli_command('computer_setup', 'computer_setup_add_args', 'Deal with computer setup', computer_setup_cli_args),
+  cli_command('dir_combine', 'dir_combine_add_args', 'Directory combine', dir_combine_cli_args),
   cli_command('dir_partition', 'dir_partition_add_args', 'Directory partition', dir_partition_cli_args),
   cli_command('dir_split', 'dir_split_add_args', 'Directory split', dir_split_cli_args),
   cli_command('docker', 'docker_add_args', 'Docker stuff', docker_cli_args),

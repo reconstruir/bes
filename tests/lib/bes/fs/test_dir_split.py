@@ -443,9 +443,9 @@ class test_dir_split(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( [], t.src_files )
     
   def _split_test(self,
-                  multiplied_content_items,
-                  content_multiplier,
-                  chunk_size,
+                  multiplied_content_items = None,
+                  content_multiplier = 1,
+                  chunk_size = 250,
                   extra_content_items = None,
                   dst_dir_same_as_src = False,
                   recursive = False,
