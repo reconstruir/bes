@@ -15,6 +15,12 @@ class files_cli_args(object):
     p.add_argument('--delete', action = 'store_true', default = False,
                    help = 'Delete the duplicates [ False ]')
 
+    # dup_basenames
+    p = subparser.add_parser('dup_basenames', help = 'Find duplicate basenames.')
+    self.__files_cli_add_add_common_args(p)
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more files or dirs to check for dup basenames [ None ]')
+    
     # checksums
     p = subparser.add_parser('checksums', help = 'Print checksums for files.')
     self.__files_cli_add_add_common_args(p)

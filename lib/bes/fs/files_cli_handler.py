@@ -117,3 +117,15 @@ class files_cli_handler(cli_command_handler):
     for prefix in sorted(list(prefixes)):
       print(prefix)
     return 0
+
+  def dup_basenames(self, files):
+    check.check_string_seq(files)
+
+    resolved_files = file_resolver.resolve_files(files, options = self._resolver_options)
+    dmap = resolved_files.duplicate_basename_map()
+    for basename, dup_files in sorted(resolved_files.duplicate_basename_map().items()):
+      print(f'{basename}:')
+      for dup_file in dup_files:
+        print(f'  {dup_file}')
+    return 0
+  

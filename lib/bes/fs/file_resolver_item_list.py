@@ -47,5 +47,21 @@ class file_resolver_item_list(type_checked_list):
 
   def media_types(self):
     return set([ file_attributes_metadata.get_media_type_cached(f.filename_abs, fallback = True) for f in self ])
-      
+
+  def basename_map(self):
+    result = {}
+    for item in self:
+      if not item.basename in result:
+        result[item.basename] = file_resolver_item_list()
+      result[item.basename].append(item)
+    return result
+  
+  def duplicate_basename_map(self):
+    result = {}
+    for basename, items in self.basename_map().items():
+      if len(items) > 1:
+        assert basename not in result
+        result[basename] = items.absolute_files(sort = True)
+    return result
+  
 check.register_class(file_resolver_item_list, include_seq = False)

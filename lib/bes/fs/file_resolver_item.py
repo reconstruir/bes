@@ -5,6 +5,7 @@ from collections import namedtuple
 
 from bes.common.check import check
 from bes.common.tuple_util import tuple_util
+from bes.property.cached_property import cached_property
 
 class file_resolver_item(namedtuple('file_resolver_item', 'root_dir, filename, filename_abs, index, found_index')):
 
@@ -26,4 +27,8 @@ class file_resolver_item(namedtuple('file_resolver_item', 'root_dir, filename, f
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
 
+  @cached_property
+  def basename(self):
+    return path.basename(self.filename_abs)
+  
 check.register_class(file_resolver_item, include_seq = False)
