@@ -14,14 +14,15 @@ class file_poto_cli_handler(cli_command_handler):
     super(file_poto_cli_handler, self).__init__(cli_args, options_class = file_poto_options)
     check.check_file_poto_options(self.options)
   
-  def partition(self, dst_dir, files):
-    check.check_string(dst_dir)
+  def dups(self, files, delete):
     check.check_string_seq(files)
+    check.check_bool(delete)
 
-    if self.options.dry_run:
-      info = file_poto.partition_info(files, dst_dir, options = self.options)
-      for item in info.items:
-        print('{} => {}'.format(item.src_filename, item.dst_filename))
-    else:
-      file_poto.partition(files, dst_dir, options = self.options)
+    dup_items = file_poto.find_duplicates(files, options = self.options)
+    for item in dup_items:
+      print(f'{item.filename}')
+      for f in item.duplicates:
+        print(f'  {f}')
+#        if delete:
+#          if self.options.dry_run:
     return 0

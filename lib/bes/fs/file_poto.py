@@ -24,89 +24,60 @@ from .file_util import file_util
 from .filename_list import filename_list
 
 class file_poto(object):
-  'A class to partition directories'
+  'A class to find duplicate files'
 
   _log = logger('file_poto')
 
+  _dup_item = namedtuple('_dup_item', 'filename, duplicates')
+  _find_duplicates_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
   @classmethod
-  def partition(clazz, files, dst_dir, options = None):
+  def find_duplicates(clazz, files, options = None):
     check.check_string_seq(files)
     check.check_file_poto_options(options, allow_none = True)
-    check.check_string(dst_dir)
 
     options = options or file_poto_options()
-    
-    info = clazz.partition_info(files, dst_dir, options = options)
-    dir_operation_util.move_files(info.items,
-                                  options.dup_file_timestamp,
-                                  options.dup_file_count)
-    root_dirs = info.resolved_files.root_dirs()
-    for next_possible_empty_root in root_dirs:
-      file_find.remove_empty_dirs(next_possible_empty_root)
-      
-  _partition_info_result = namedtuple('_partition_items_info', 'items, resolved_files')
+    resolved_files = clazz._resolve_files(files, options.recursive)
+    dmap = resolved_files.duplicate_size_map()
+    flat_size_dups = clazz._flat_duplicate_files(dmap)
+    small_checksum_map = clazz._small_checksum_map(flat_size_dups, 1024)
+    dup_small_checksum_map = clazz._duplicate_small_checksum_map(small_checksum_map)
+    items = []
+    for small_checksum, files in sorted(dup_small_checksum_map.items()):
+      filename = files[0]
+      duplicates = files[1:]
+      item = clazz._dup_item(filename, duplicates)
+      items.append(item)
+    return clazz._find_duplicates_result(items, resolved_files)
+
   @classmethod
-  def partition_info(clazz, files, dst_dir, options = None):
-    check.check_string_seq(files)
-    check.check_file_poto_options(options, allow_none = True)
-    check.check_string(dst_dir)
+  def _flat_duplicate_files(clazz, dmap):
+    result = []
+    for size, files in sorted(dmap.items()):
+      result.extend(files)
+    return sorted(result)
+  
+  @classmethod
+  def _resolve_files(clazz, files, recursive):
+    #sort_order = 'depth',
+    #sort_reverse = True,
+    resolver_options = file_resolver_options(recursive = recursive)
+    return file_resolver.resolve_files(files, options = resolver_options)
 
-    dst_dir_abs = path.abspath(dst_dir)
-    options = options or file_poto_options()
-
-    if options.partition_type == None:
-      return items
-    elif options.partition_type == file_poto_type.MEDIA_TYPE:
-      result = clazz._partition_info_by_media_type(files, dst_dir_abs, options)
-    elif options.partition_type == file_poto_type.PREFIX:
-      result = clazz._partition_info_by_prefix(files, dst_dir_abs, options)
-    else:
-      assert False
+  @classmethod
+  def _small_checksum_map(clazz, files, num_bytes):
+    result = {}
+    for filename in files:
+      small_checksum = file_util.checksum('sha256', filename, chunk_size = num_bytes, num_chunks = 1)
+      if not small_checksum in result:
+        result[small_checksum] = []
+      result[small_checksum].append(filename)
     return result
 
   @classmethod
-  def _resolve_files(clazz, files, recursive):
-    resolver_options = file_resolver_options(sort_order = 'depth',
-                                             sort_reverse = True,
-                                             recursive = recursive)
-    return file_resolver.resolve_files(files, options = resolver_options)
-  
-  @classmethod
-  def _partition_info_by_prefix(clazz, files, dst_dir_abs, options):
-    resolved_files = clazz._resolve_files(files, options.recursive)
-    basenames = resolved_files.basenames(sort = True)
-    prefixes = filename_list.prefixes(basenames)
-    buckets = clazz._make_prefix_buckets(prefixes, resolved_files.absolute_files(sort = True))
-    items = dir_operation_item_list()
-    for prefix, filenames in buckets.items():
-      num_files = len(filenames)
-      if num_files >= options.threshold:
-        for src_filename in filenames:
-          dst_filename = path.join(dst_dir_abs, prefix, path.basename(src_filename))
-          item = dir_operation_item(src_filename, dst_filename)
-          items.append(item)
-    return clazz._partition_info_result(items, resolved_files)
-
-  @classmethod
-  def _make_prefix_buckets(clazz, prefixes, files):
-    buckets = {}
-    for f in files:
-      basename = path.basename(f)
-      for prefix in prefixes:
-        if basename.startswith(prefix):
-          if not prefix in buckets:
-            buckets[prefix] = []
-          buckets[prefix].append(f)
-    return buckets
-
-  @classmethod
-  def _partition_info_by_media_type(clazz, files, dst_dir_abs, options):
-    resolved_files = clazz._resolve_files(files, options.recursive)
-    items = dir_operation_item_list()
-    for f in resolved_files:
-      media_type = file_attributes_metadata.get_media_type_cached(f.filename_abs, fallback = True)
-      if media_type != 'unknown':
-        dst_filename = path.join(dst_dir_abs, media_type, path.basename(f.filename_abs))
-        item = dir_operation_item(f.filename_abs, dst_filename)
-        items.append(item)
-    return clazz._partition_info_result(items, resolved_files)
+  def _duplicate_small_checksum_map(clazz, dmap):
+    result = {}
+    for small_checksum, files in sorted(dmap.items()):
+      if len(files) > 1:
+        assert small_checksum not in result
+        result[small_checksum] = files
+    return result

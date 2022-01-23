@@ -63,5 +63,21 @@ class file_resolver_item_list(type_checked_list):
         assert basename not in result
         result[basename] = items.absolute_files(sort = True)
     return result
+
+  def size_map(self):
+    result = {}
+    for item in self:
+      if not item.size in result:
+        result[item.size] = file_resolver_item_list()
+      result[item.size].append(item)
+    return result
+
+  def duplicate_size_map(self):
+    result = {}
+    for size, items in self.size_map().items():
+      if len(items) > 1:
+        assert size not in result
+        result[size] = items.absolute_files(sort = True)
+    return result
   
 check.register_class(file_resolver_item_list, include_seq = False)

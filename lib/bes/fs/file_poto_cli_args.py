@@ -6,26 +6,20 @@ class file_poto_cli_args(object):
     pass
   
   def file_poto_add_args(self, subparser):
-    # partition
-    p = subparser.add_parser('partition', help = 'Partition a directory into many directories.')
+    # dups
+    p = subparser.add_parser('dups', help = 'Find dups in files or directories.')
     self.__file_poto_cli_add_add_common_args(p)
-    p.add_argument('dst_dir', action = 'store', default = None,
-                   help = 'Destination directory [ None ]')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
-                   help = 'One or more files or dirs to partition [ None ]')
-    p.add_argument('--type', action = 'store', default = 'prefix',
-                   dest = 'partition_type',
-                   help = 'Partition type to use [ None ]')
-    p.add_argument('--threshold', action = 'store', default = 2,
-                   type = int,
-                   help = 'Threshold of files needed to partition a directory [ 2 ]')
+                   help = 'One or more files or dirs to find dups in [ None ]')
+    p.add_argument('--delete', action = 'store_true', default = False,
+                   help = 'Delete the duplicates [ False ]')
     
   @classmethod
   def __file_poto_cli_add_add_common_args(clazz, p):
     p.add_argument('--dry-run', action = 'store_true', default = False,
                    help = 'Dont do anything just print what would happen [ None ]')
     p.add_argument('-r', '--recursive', action = 'store_true', default = False,
-                   help = 'Partition directories recursively [ None ]')
+                   help = 'Find dups recursively [ None ]')
     p.add_argument('--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
     

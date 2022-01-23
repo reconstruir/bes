@@ -12,142 +12,30 @@ from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
 class test_file_poto(unit_test, unit_test_media_files):
 
-  def test_partition_with_prefix(self):
+  def test_find_duplicates(self):
     items = [
-      temp_content('file', 'src/readme.md', 'readme.md', 0o0644),
-      temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
-      temp_content('file', 'src/a/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
-      temp_content('file', 'src/a/kiwi-30.jpg', 'kiwi-30.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-10.jpg', 'lemon-10.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-20.jpg', 'lemon-20.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-30.jpg', 'lemon-30.txt', 0o0644),
-      temp_content('file', 'src/c/cheese-10.jpg', 'cheese-10.jpg', 0o0644),
-      temp_content('file', 'src/icons/foo.png', 'foo.png', 0o0644),
-      temp_content('file', 'src/kiwi-40.jpg', 'kiwi-40.txt', 0o0644),
-      temp_content('file', 'src/kiwi-50.jpg', 'kiwi-50.txt', 0o0644),
-      temp_content('file', 'src/lemon-40.jpg', 'lemon-40.txt', 0o0644),
-      temp_content('file', 'src/lemon-50.jpg', 'lemon-50.txt', 0o0644),
+      temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
     ]
-    t = self._partition_test(extra_content_items = items,
-                             dst_dir_same_as_src = False,
-                             recursive = False,
-                             partition_type = 'prefix')
-    dst_after_expected = [
-      'kiwi',
-      'kiwi/kiwi-40.jpg',
-      'kiwi/kiwi-50.jpg',
-      'lemon',
-      'lemon/lemon-40.jpg',
-      'lemon/lemon-50.jpg',
-    ]
-    self.assert_filename_list_equal( dst_after_expected, t.dst_files )
-    src_after_expected = [
-      'a',
-      'a/kiwi-10.jpg',
-      'a/kiwi-20.jpg',
-      'a/kiwi-30.jpg',
-      'b',
-      'b/lemon-10.jpg',
-      'b/lemon-20.jpg',
-      'b/lemon-30.jpg',
-      'c',
-      'c/cheese-10.jpg',
-      'icons',
-      'icons/foo.png',
-      'readme.md',
-    ]
-    self.assert_filename_list_equal( src_after_expected, t.src_files )
+    t = self._find_dups_test(extra_content_items = items,
+                             recursive = True)
+    self.assertEqual( [
+      ( f'{t.src_dir}/a/kiwi.jpg', [
+        f'{t.src_dir}/b/kiwi_dup1.jpg',
+        f'{t.src_dir}/c/kiwi_dup2.jpg',
+      ] ),
+    ], t.result.items )
   
-  def test_partition_with_prefix_recursive(self):
-    items = [
-      temp_content('file', 'src/readme.md', 'readme.md', 0o0644),
-      temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
-      temp_content('file', 'src/a/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
-      temp_content('file', 'src/a/kiwi-30.jpg', 'kiwi-30.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-10.jpg', 'lemon-10.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-20.jpg', 'lemon-20.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-30.jpg', 'lemon-30.txt', 0o0644),
-      temp_content('file', 'src/c/cheese-10.jpg', 'cheese-10.jpg', 0o0644),
-      temp_content('file', 'src/icons/foo.png', 'foo.png', 0o0644),
-      temp_content('file', 'src/kiwi-40.jpg', 'kiwi-40.txt', 0o0644),
-      temp_content('file', 'src/lemon-40.jpg', 'lemon-40.txt', 0o0644),
-    ]
-    t = self._partition_test(extra_content_items = items,
-                             dst_dir_same_as_src = False,
-                             recursive = True,
-                             partition_type = 'prefix')
-    dst_after_expected = [
-      'kiwi',
-      'kiwi/kiwi-10.jpg',
-      'kiwi/kiwi-20.jpg',
-      'kiwi/kiwi-30.jpg',
-      'kiwi/kiwi-40.jpg',
-      'lemon',
-      'lemon/lemon-10.jpg',
-      'lemon/lemon-20.jpg',
-      'lemon/lemon-30.jpg',
-      'lemon/lemon-40.jpg',
-    ]
-    self.assert_filename_list_equal( dst_after_expected, t.dst_files )
-    src_after_expected = [
-      'c',
-      'c/cheese-10.jpg',
-      'icons',
-      'icons/foo.png',
-      'readme.md',
-    ]
-    self.assert_filename_list_equal( src_after_expected, t.src_files )
-
-  def test_partition_with_media_type(self):
-    items = [
-      temp_content('file', 'src/apple.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/barolo.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/brie.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/chablis.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/cheddar.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/kiwi.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/lemon.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/malbec.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/swiss.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
-      temp_content('file', 'src/yogurt.foo', unit_test_media.UNKNOWN, 0o0644),
-      temp_content('file', 'src/zabaglione.foo', unit_test_media.UNKNOWN, 0o0644),
-    ]
-    t = self._partition_test(extra_content_items = items,
-                             dst_dir_same_as_src = False,
-                             recursive = False,
-                             partition_type = 'media_type')
-    dst_after_expected = [
-      'image',
-      'image/apple.jpg',
-      'image/brie.png',
-      'image/cheddar.png',
-      'image/kiwi.jpg',
-      'image/lemon.jpg',
-      'image/swiss.png',
-      'video',
-      'video/barolo.mp4',
-      'video/chablis.mp4',
-      'video/malbec.mp4',
-    ]
-    self.assert_filename_list_equal( dst_after_expected, t.dst_files )
-    src_after_expected = [
-      'yogurt.foo',
-      'zabaglione.foo',
-    ]
-    self.assert_filename_list_equal( src_after_expected, t.src_files )
-    
-  def _partition_test(self,
+  def _find_dups_test(self,
                       extra_content_items = None,
-                      dst_dir_same_as_src = False,
-                      recursive = False,
-                      partition_type = None):
-    options = file_poto_options(recursive = recursive,
-                                    dup_file_timestamp = 'dup-timestamp',
-                                    partition_type = partition_type)
+                      recursive = False):
+    options = file_poto_options(recursive = recursive)
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
-      test.result = file_poto.partition(test.src_dir,
-                                            test.dst_dir,
-                                            options = options)
+      test.result = file_poto.find_duplicates([ test.src_dir ],
+                                              options = options)
     return test
     
 if __name__ == '__main__':

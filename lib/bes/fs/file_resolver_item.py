@@ -7,6 +7,8 @@ from bes.common.check import check
 from bes.common.tuple_util import tuple_util
 from bes.property.cached_property import cached_property
 
+from .file_util import file_util
+
 class file_resolver_item(namedtuple('file_resolver_item', 'root_dir, filename, filename_abs, index, found_index')):
 
   def __new__(clazz, root_dir, filename, filename_abs, index, found_index):
@@ -30,5 +32,9 @@ class file_resolver_item(namedtuple('file_resolver_item', 'root_dir, filename, f
   @cached_property
   def basename(self):
     return path.basename(self.filename_abs)
+
+  @cached_property
+  def size(self):
+    return file_util.size(self.filename_abs)
   
 check.register_class(file_resolver_item, include_seq = False)
