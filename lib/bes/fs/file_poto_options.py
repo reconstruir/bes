@@ -17,7 +17,7 @@ class file_poto_options(files_cli_options):
     'Return a dict of defaults for these options.'
     return clazz.super_default_values({
       'small_checksum_size': 1024 * 1024,
-      'prefer_list': None,
+      'prefer_prefixes': None,
     })
   
   @classmethod
@@ -25,7 +25,7 @@ class file_poto_options(files_cli_options):
   def value_type_hints(clazz):
     return clazz.super_value_type_hints({
       'small_checksum_size': int,
-      'prefer_list': list,
+      'prefer_prefixes': list,
     })
 
   #@abstractmethod
@@ -33,6 +33,6 @@ class file_poto_options(files_cli_options):
     'Check the type of each option.'
     super(file_poto_options, self).check_value_types()
     check.check_int(self.small_checksum_size)
-    check.check_string_seq(self.prefer_list, allow_none = True)
+    check.check_string_seq(self.prefer_prefixes, allow_none = True)
 
 check.register_class(file_poto_options)

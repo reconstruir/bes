@@ -38,7 +38,7 @@ class file_poto(object):
 
     items = []
     for checksum, files in sorted(dup_checksum_map.items()):
-      sorted_files = clazz._sort_filename_list_by_prefer_list(files, options.prefer_list)
+      sorted_files = clazz._sort_filename_list_by_prefer_prefixes(files, options.prefer_prefixes)
       filename = sorted_files[0]
       duplicates = sorted_files[1:]
       item = clazz._dup_item(filename, duplicates)
@@ -53,10 +53,10 @@ class file_poto(object):
     return sorted(result)
 
   @classmethod
-  def _file_is_preferred(clazz, filename, prefer_list):
-    if not prefer_list:
+  def _file_is_preferred(clazz, filename, prefer_prefixes):
+    if not prefer_prefixes:
       return False
-    for p in prefer_list:
+    for p in prefer_prefixes:
       if filename.startswith(p):
         return True
     return False
@@ -67,10 +67,10 @@ class file_poto(object):
     return file_resolver.resolve_files(files, options = resolver_options)
 
   @classmethod
-  def _sort_filename_list_by_prefer_list(clazz, filenames, prefer_list):
+  def _sort_filename_list_by_prefer_prefixes(clazz, filenames, prefer_prefixes):
     def _sort_key(filename):
       criteria = []
-      if clazz._file_is_preferred(filename, prefer_list):
+      if clazz._file_is_preferred(filename, prefer_prefixes):
         criteria.append(0)
       else:
         criteria.append(1)

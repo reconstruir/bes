@@ -64,7 +64,7 @@ class test_file_poto(unit_test, unit_test_media_files):
       ] ),
     ], t.result.items )
 
-  def test_find_duplicates_with_prefer_list(self):
+  def test_find_duplicates_with_prefer_prefixes(self):
     items = [
       temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
       temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
@@ -74,7 +74,7 @@ class test_file_poto(unit_test, unit_test_media_files):
     ]
     t = self._find_dups_test(extra_content_items = items,
                              recursive = True,
-                             prefer_list = [
+                             prefer_prefixes = [
                                "f'{test.src_dir}/z'",
                              ])
     self.assertEqual( [
@@ -88,14 +88,14 @@ class test_file_poto(unit_test, unit_test_media_files):
                       extra_content_items = None,
                       recursive = False,
                       small_checksum_size = 1024 * 1024,
-                      prefer_list = None):
+                      prefer_prefixes = None):
     options = file_poto_options(recursive = recursive,
                                 small_checksum_size = small_checksum_size)
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
-      if prefer_list:
+      if prefer_prefixes:
         xglobals = { 'test': test }
-        prefer_list = [ eval(x, xglobals) for x in prefer_list ]
-        options.prefer_list = prefer_list
+        prefer_prefixes = [ eval(x, xglobals) for x in prefer_prefixes ]
+        options.prefer_prefixes = prefer_prefixes
       test.result = file_poto.find_duplicates([ test.src_dir ],
                                               options = options)
     return test
