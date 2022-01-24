@@ -392,11 +392,8 @@ class file_util(object):
       return False
 
     if clazz.files_are_the_same(src, dst):
-      print('HERE2')
       assert path.isfile(src)
       file_util.remove(src)
-      #print(f'move_with_duplicate({src}, {dst}, {prefix})')
-      #print(f'here2')
       return False
     
     basename = path.basename(dst)
@@ -404,5 +401,4 @@ class file_util(object):
     dst_basename = f'{prefix}-{basename}'
     dst_filename = path.join(dirname, dst_basename)
     file_util.rename(src, dst_filename)
-    #print(f'here3')
     return True

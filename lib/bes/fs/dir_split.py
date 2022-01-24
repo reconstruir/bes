@@ -43,7 +43,8 @@ class dir_split(object):
 
     info.items.execute_operation(options.dup_file_timestamp,
                                  options.dup_file_count)
-    
+
+    #print(f'info.existing_split_dirs={info.existing_split_dirs}')
     for d in info.existing_split_dirs:
       if dir_util.is_empty(d):
         dir_util.remove(d)
@@ -60,19 +61,19 @@ class dir_split(object):
     assert path.isabs(src_dir)
     assert path.isabs(dst_dir)
 
-    print(f'src_dir={src_dir}')
-    print(f'dst_dir={dst_dir}')
-    for f in file_find.find(src_dir):
-      print(f'SRC FILE: {f}')
-    for f in file_find.find(dst_dir):
-      print(f'DST FILE: {f}')
+    #print(f'src_dir={src_dir}')
+    #print(f'dst_dir={dst_dir}')
+    #for f in file_find.find(src_dir):
+    #  print(f'SRC FILE: {f}')
+    #for f in file_find.find(dst_dir):
+    #  print(f'DST FILE: {f}')
     old_files = []
     existing_split_dirs = clazz._existing_split_dirs(dst_dir, options.prefix)
-    print(f'existing_split_dirs={existing_split_dirs}')
+    #print(f'existing_split_dirs={existing_split_dirs}')
     for old_dir in existing_split_dirs:
       old_files.extend(dir_util.list_files(old_dir))
     clazz._log.log_d('old_files={}'.format(old_files))
-    print(f'old_files={old_files}')
+    #print(f'old_files={old_files}')
     
     options = options or dir_split_options()
     items = dir_operation_item_list()
@@ -91,7 +92,12 @@ class dir_split(object):
     else:
       new_files = dir_util.list_files(src_dir)
       possible_empty_dirs_roots = []
-    
+
+#    for x in old_files:
+#      print(f'OLD: {x}')
+#    for x in new_files:
+#      print(f'NEW: {x}')
+      
     files = algorithm.unique(old_files + new_files)
     sorted_files = clazz._sort_files(files,
                                      options.sort_order,
@@ -100,11 +106,15 @@ class dir_split(object):
     num_chunks = len(chunks)
     num_digits = len(str(num_chunks))
     for chunk_number, chunk in enumerate(chunks, start = 1):
-      dst_basename = '{}{}'.format(options.prefix, str(chunk_number).zfill(num_digits))
+      formatted_chunk_number = str(chunk_number).zfill(num_digits)
+      dst_basename = f'{options.prefix}{formatted_chunk_number}'
       chunk_dst_dir = path.join(dst_dir, dst_basename)
+      print(f'formatted_chunk_number={formatted_chunk_number}')
+      print(f'dst_basename={dst_basename}')
+      print(f'chunk_dst_dir={chunk_dst_dir}')
       for filename in chunk:
         dst_filename = path.join(chunk_dst_dir, path.basename(filename))
-        print(f'making item:\nfilename={filename}\ndst_filename={dst_filename}\ndst_basename={dst_basename}')
+        #print(f'making item:\nfilename={filename}\ndst_filename={dst_filename}\ndst_basename={dst_basename}')
         item = dir_operation_item(filename, dst_filename, dir_operation_item_type.MOVE)
         items.append(item)
     return clazz._split_items_info(items, existing_split_dirs, possible_empty_dirs_roots)

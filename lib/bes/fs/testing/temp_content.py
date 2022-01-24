@@ -174,7 +174,8 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
   def write_multiplied_items_to_temp_dir(clazz,
                                          multiplied_content_items = None,
                                          content_multiplier = 1,
-                                         extra_content_items = None):
+                                         extra_content_items = None,
+                                         delete = True):
     multiplied_content_items = multiplied_content_items or []
     extra_content_items = extra_content_items or []
     multiplied_content_items = [ multiplied_temp_content(c.name, c.num * content_multiplier, size = c.size) for c in multiplied_content_items ]
@@ -191,5 +192,5 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
         desc = 'file src/{} "{}" 644'.format(filename, text)
         content_items.append(desc)
     content_items.extend(extra_content_items)
-    tmp_dir = clazz.write_items_to_temp_dir(content_items)
+    tmp_dir = clazz.write_items_to_temp_dir(content_items, delete = delete)
     return tmp_dir

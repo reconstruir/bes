@@ -12,11 +12,13 @@ class dir_operation_tester(object):
                multiplied_content_items = None,
                content_multiplier = 1,
                extra_content_items = None,
-               dst_dir_same_as_src = False):
+               dst_dir_same_as_src = False,
+               debug = False):
     self._multiplied_content_items = multiplied_content_items
     self._content_multiplier = content_multiplier
     self._extra_content_items = extra_content_items
     self._dst_dir_same_as_src = dst_dir_same_as_src
+    self._debug = debug
 
     self.dst_files = []
     self.src_files = []
@@ -27,7 +29,8 @@ class dir_operation_tester(object):
   def tmp_dir(self):
     return temp_content.write_multiplied_items_to_temp_dir(multiplied_content_items = self._multiplied_content_items,
                                                            content_multiplier = self._content_multiplier,
-                                                           extra_content_items = self._extra_content_items)
+                                                           extra_content_items = self._extra_content_items,
+                                                           delete = not self._debug)
 
   @cached_property
   def src_dir(self):
