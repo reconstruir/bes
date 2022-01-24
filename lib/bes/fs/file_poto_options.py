@@ -18,6 +18,7 @@ class file_poto_options(files_cli_options):
     return clazz.super_default_values({
       'small_checksum_size': 1024 * 1024,
       'prefer_prefixes': None,
+      'prefer_function': None,
     })
   
   @classmethod
@@ -26,6 +27,7 @@ class file_poto_options(files_cli_options):
     return clazz.super_value_type_hints({
       'small_checksum_size': int,
       'prefer_prefixes': list,
+      #'prefer_function': callable,
     })
 
   #@abstractmethod
@@ -34,5 +36,6 @@ class file_poto_options(files_cli_options):
     super(file_poto_options, self).check_value_types()
     check.check_int(self.small_checksum_size)
     check.check_string_seq(self.prefer_prefixes, allow_none = True)
+    check.check_function(self.prefer_function, allow_none = True)
 
 check.register_class(file_poto_options)

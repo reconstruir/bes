@@ -194,3 +194,7 @@ New
   unit tests catch both
 
 add file_attributes_metadata tests to cover write permissions and ownership
+
+2022-01-24
+ - s/check_function/check_callable/
+ 
