@@ -63,14 +63,39 @@ class test_file_poto(unit_test, unit_test_media_files):
         f'{t.src_dir}/z/kiwi.jpg',
       ] ),
     ], t.result.items )
+
+  def test_find_duplicates_with_prefer_list(self):
+    items = [
+      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/z/kiwi.jpg', 'this is kiwi', 0o0644),
+    ]
+    t = self._find_dups_test(extra_content_items = items,
+                             recursive = True,
+                             prefer_list = [
+                               "f'{test.src_dir}/z'",
+                             ])
+    self.assertEqual( [
+      ( f'{t.src_dir}/z/kiwi.jpg', [
+        f'{t.src_dir}/b/kiwi_dup1.jpg',
+        f'{t.src_dir}/c/kiwi_dup2.jpg',
+      ] ),
+    ], t.result.items )
     
   def _find_dups_test(self,
                       extra_content_items = None,
                       recursive = False,
-                      small_checksum_size = 1024 * 1024):
+                      small_checksum_size = 1024 * 1024,
+                      prefer_list = None):
     options = file_poto_options(recursive = recursive,
                                 small_checksum_size = small_checksum_size)
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
+      if prefer_list:
+        xglobals = { 'test': test }
+        prefer_list = [ eval(x, xglobals) for x in prefer_list ]
+        options.prefer_list = prefer_list
       test.result = file_poto.find_duplicates([ test.src_dir ],
                                               options = options)
     return test

@@ -6,6 +6,7 @@ import os.path as path
 from bes.system.check import check
 from bes.system.log import logger
 from bes.fs.file_resolver import file_resolver
+from bes.fs.file_resolver_item_list import file_resolver_item_list
 from bes.fs.file_resolver_options import file_resolver_options
 
 from .file_poto_options import file_poto_options
@@ -37,8 +38,9 @@ class file_poto(object):
 
     items = []
     for checksum, files in sorted(dup_checksum_map.items()):
-      filename = files[0]
-      duplicates = files[1:]
+      sorted_files = clazz._sort_filename_list_by_prefer_list(files, options.prefer_list)
+      filename = sorted_files[0]
+      duplicates = sorted_files[1:]
       item = clazz._dup_item(filename, duplicates)
       items.append(item)
     return clazz._find_duplicates_result(items, resolved_files)
@@ -49,12 +51,33 @@ class file_poto(object):
     for size, files in sorted(dmap.items()):
       result.extend(files)
     return sorted(result)
+
+  @classmethod
+  def _file_is_preferred(clazz, filename, prefer_list):
+    if not prefer_list:
+      return False
+    for p in prefer_list:
+      if filename.startswith(p):
+        return True
+    return False
   
   @classmethod
   def _resolve_files(clazz, files, recursive):
     resolver_options = file_resolver_options(recursive = recursive)
     return file_resolver.resolve_files(files, options = resolver_options)
 
+  @classmethod
+  def _sort_filename_list_by_prefer_list(clazz, filenames, prefer_list):
+    def _sort_key(filename):
+      criteria = []
+      if clazz._file_is_preferred(filename, prefer_list):
+        criteria.append(0)
+      else:
+        criteria.append(1)
+      criteria.append(filename)
+      return tuple(criteria)
+    return sorted(filenames, key = _sort_key)
+  
   @classmethod
   def _small_checksum_map(clazz, files, num_bytes):
     result = {}
