@@ -55,16 +55,21 @@ class file_poto(object):
     return sorted(result)
 
   @classmethod
-  def _file_is_preferred(clazz, filename, prefer_prefixes, prefer_function):
-    if prefer_function:
-      if prefer_function(filename):
-        return True
+  def _sort_criteria_by_prefer_prefixes(clazz, filename, prefer_prefixes):
     if not prefer_prefixes:
-      return False
+      return None
     for p in prefer_prefixes:
       if filename.startswith(p):
-        return True
-    return False
+        return 0
+    return 1
+
+  @classmethod
+  def _sort_criteria_by_prefer_function(clazz, filename, prefer_function):
+    if not prefer_function:
+      return None
+    result = prefer_function(filename)
+    assert result != None
+    return result
   
   @classmethod
   def _resolve_files(clazz, files, recursive):
@@ -75,11 +80,14 @@ class file_poto(object):
   def _sort_filename_list_by_preference(clazz, filenames, prefer_prefixes, prefer_function):
     def _sort_key(filename):
       criteria = []
-      if clazz._file_is_preferred(filename, prefer_prefixes, prefer_function):
-        criteria.append(0)
-      else:
-        criteria.append(1)
+      function_criteria = clazz._sort_criteria_by_prefer_function(filename, prefer_function)
+      if function_criteria != None:
+        criteria.append(function_criteria)
+      prefixes_criteria = clazz._sort_criteria_by_prefer_prefixes(filename, prefer_prefixes)
+      if prefixes_criteria != None:
+        criteria.append(prefixes_criteria)
       criteria.append(filename)
+      print(f'f={filename} c={criteria}')
       return tuple(criteria)
     return sorted(filenames, key = _sort_key)
   
@@ -104,6 +112,17 @@ class file_poto(object):
 
   @classmethod
   def _checksum_map(clazz, files):
+    result = {}
+    for filename in files:
+      checksum = file_attributes_metadata.get_checksum_cached(filename, fallback = True)
+      if not checksum in result:
+        result[checksum] = []
+      result[checksum].append(filename)
+    return result
+  
+  @staticmethod
+  def prefer_function(filename):
+    
     result = {}
     for filename in files:
       checksum = file_attributes_metadata.get_checksum_cached(filename, fallback = True)

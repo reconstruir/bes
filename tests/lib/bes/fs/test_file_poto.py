@@ -93,7 +93,7 @@ class test_file_poto(unit_test, unit_test_media_files):
       temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
       temp_content('file', 'src/z/kiwi.jpg', 'this is kiwi', 0o0644),
     ]
-    prefer_function = lambda filename: 'z' in file_path.split(filename)
+    prefer_function = lambda filename: 0 if 'z' in file_path.split(filename) else 1
     t = self._find_dups_test(extra_content_items = items,
                              recursive = True,
                              prefer_function = prefer_function)
