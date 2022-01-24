@@ -32,7 +32,6 @@ class test_file_poto(unit_test, unit_test_media_files):
   def test_find_duplicates_with_small_checksum_size(self):
     items = [
       temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
-#      temp_content('file', 'src/a/kiwi2.jpg', 'this is kiwi2', 0o0644),
       temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
       temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
       temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
@@ -45,6 +44,23 @@ class test_file_poto(unit_test, unit_test_media_files):
       ( f'{t.src_dir}/a/kiwi.jpg', [
         f'{t.src_dir}/b/kiwi_dup1.jpg',
         f'{t.src_dir}/c/kiwi_dup2.jpg',
+      ] ),
+    ], t.result.items )
+
+  def test_find_duplicates_correct_order(self):
+    items = [
+      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/z/kiwi.jpg', 'this is kiwi', 0o0644),
+    ]
+    t = self._find_dups_test(extra_content_items = items,
+                             recursive = True)
+    self.assertEqual( [
+      ( f'{t.src_dir}/b/kiwi_dup1.jpg', [
+        f'{t.src_dir}/c/kiwi_dup2.jpg',
+        f'{t.src_dir}/z/kiwi.jpg',
       ] ),
     ], t.result.items )
     
