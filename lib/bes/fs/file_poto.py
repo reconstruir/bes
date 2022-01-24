@@ -28,11 +28,15 @@ class file_poto(object):
     options = options or file_poto_options()
     resolved_files = clazz._resolve_files(files, options.recursive)
     dmap = resolved_files.duplicate_size_map()
-    flat_size_dups = clazz._flat_duplicate_files(dmap)
-    small_checksum_map = clazz._small_checksum_map(flat_size_dups, options.small_checksum_size)
+    flat_size_dup_files = clazz._flat_duplicate_files(dmap)
+    small_checksum_map = clazz._small_checksum_map(flat_size_dup_files, options.small_checksum_size)
     dup_small_checksum_map = clazz._duplicate_small_checksum_map(small_checksum_map)
+    flat_small_checksum_dup_files = clazz._flat_duplicate_files(dup_small_checksum_map)
+    checksum_map = clazz._checksum_map(flat_small_checksum_dup_files)
+    dup_checksum_map = clazz._duplicate_small_checksum_map(checksum_map)
+
     items = []
-    for small_checksum, files in sorted(dup_small_checksum_map.items()):
+    for checksum, files in sorted(dup_checksum_map.items()):
       filename = files[0]
       duplicates = files[1:]
       item = clazz._dup_item(filename, duplicates)
@@ -48,8 +52,6 @@ class file_poto(object):
   
   @classmethod
   def _resolve_files(clazz, files, recursive):
-    #sort_order = 'depth',
-    #sort_reverse = True,
     resolver_options = file_resolver_options(recursive = recursive)
     return file_resolver.resolve_files(files, options = resolver_options)
 
@@ -71,3 +73,14 @@ class file_poto(object):
         assert small_checksum not in result
         result[small_checksum] = files
     return result
+
+  @classmethod
+  def _checksum_map(clazz, files):
+    result = {}
+    for filename in files:
+      checksum = file_attributes_metadata.get_checksum_cached(filename, fallback = True)
+      if not checksum in result:
+        result[checksum] = []
+      result[checksum].append(filename)
+    return result
+  

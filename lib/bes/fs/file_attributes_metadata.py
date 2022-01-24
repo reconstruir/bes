@@ -20,6 +20,7 @@ class file_attributes_metadata(object):
   
   _KEY_BES_MIME_TYPE = 'bes_mime_type'
   _KEY_BES_MEDIA_TYPE = 'bes_media_type'
+  _KEY_BES_CHECKSUM_SHA256 = 'bes_checksum_sha256'
   
   @classmethod
   def get_bytes(clazz, filename, key, value_maker, fallback = False):
@@ -153,7 +154,7 @@ class file_attributes_metadata(object):
 
     def _value_maker():
       return file_util.checksum('sha256', filename).encode('utf-8')
-    return clazz.get_string(filename, clazz._KEY_BES_CHECKSUM, _value_maker, fallback = fallback)
+    return clazz.get_string(filename, clazz._KEY_BES_CHECKSUM_SHA256, _value_maker, fallback = fallback)
 
   _CHECKSUM_CACHE = {}
   @classmethod
