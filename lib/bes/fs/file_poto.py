@@ -40,7 +40,7 @@ class file_poto(object):
     for checksum, files in sorted(dup_checksum_map.items()):
       sorted_files = clazz._sort_filename_list_by_preference(files,
                                                              options.prefer_prefixes,
-                                                             options.prefer_function)
+                                                             options.sort_key)
       filename = sorted_files[0]
       duplicates = sorted_files[1:]
       item = clazz._dup_item(filename, duplicates)
@@ -64,10 +64,10 @@ class file_poto(object):
     return 1
 
   @classmethod
-  def _sort_criteria_by_prefer_function(clazz, filename, prefer_function):
-    if not prefer_function:
+  def _sort_criteria_by_sort_key(clazz, filename, sort_key):
+    if not sort_key:
       return None
-    result = prefer_function(filename)
+    result = sort_key(filename)
     assert result != None
     return result
   
@@ -77,10 +77,10 @@ class file_poto(object):
     return file_resolver.resolve_files(files, options = resolver_options)
 
   @classmethod
-  def _sort_filename_list_by_preference(clazz, filenames, prefer_prefixes, prefer_function):
+  def _sort_filename_list_by_preference(clazz, filenames, prefer_prefixes, sort_key):
     def _sort_key(filename):
       criteria = []
-      function_criteria = clazz._sort_criteria_by_prefer_function(filename, prefer_function)
+      function_criteria = clazz._sort_criteria_by_sort_key(filename, sort_key)
       if function_criteria != None:
         criteria.append(function_criteria)
       prefixes_criteria = clazz._sort_criteria_by_prefer_prefixes(filename, prefer_prefixes)
@@ -121,7 +121,7 @@ class file_poto(object):
     return result
   
   @staticmethod
-  def prefer_function(filename):
+  def sort_key(filename):
     
     result = {}
     for filename in files:
