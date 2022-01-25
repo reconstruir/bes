@@ -22,6 +22,7 @@ class file_duplicates_options(files_cli_options):
       'small_checksum_size': 1024 * 1024,
       'prefer_prefixes': None,
       'sort_key': None,
+      'include_empty_files': False,
     })
   
   @classmethod
@@ -30,6 +31,7 @@ class file_duplicates_options(files_cli_options):
     return clazz.super_value_type_hints({
       'small_checksum_size': int,
       'prefer_prefixes': list,
+      'include_empty_files': bool,
       #'sort_key': callable,
     })
 
@@ -40,6 +42,7 @@ class file_duplicates_options(files_cli_options):
     check.check_int(self.small_checksum_size)
     check.check_string_seq(self.prefer_prefixes, allow_none = True)
     check.check_function(self.sort_key, allow_none = True)
+    check.check_bool(self.include_empty_files)
 
   @staticmethod
   def sort_key_modification_date(filename):
@@ -51,6 +54,8 @@ class file_duplicates_options(files_cli_options):
 
   @staticmethod
   def sort_key(filename):
-    return file_duplicates_options.sort_key_modification_date() + file_duplicates_options.sort_key_basename_length() 
+    mtime = file_duplicates_options.sort_key_modification_date(filename)
+    length = file_duplicates_options.sort_key_basename_length(filename)
+    return ( mtime, length )
 
 check.register_class(file_duplicates_options)

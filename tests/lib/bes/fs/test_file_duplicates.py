@@ -171,6 +171,37 @@ class test_file_duplicates(unit_test):
       _file_duplicate_tester_object._extra_dir(tmp_dir, '${_tmp}'),
     ] )
     self.assertTrue( file_duplicates._dup_item('${{_bin}}/{}'.format(shell), [ '${_tmp}/dupsh.exe']) in result )
+
+  def test_find_duplicates_with_empty_files(self):
+    items = [
+      temp_content('file', 'src/a/empty.jpg', '', 0o0644),
+      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/empty_dup1.jpg', '', 0o0644),
+      temp_content('file', 'src/c/empty_dup2.jpg', '', 0o0644),
+    ]
+    t = self._find_dups_test(extra_content_items = items,
+                             recursive = True,
+                             include_empty_files = True)
+    self.assertEqual( [
+      ( f'{t.src_dir}/a/empty.jpg', [
+        f'{t.src_dir}/b/empty_dup1.jpg',
+        f'{t.src_dir}/c/empty_dup2.jpg',
+      ] ),
+    ], t.result.items )
+
+  def test_find_duplicates_without_empty_files(self):
+    items = [
+      temp_content('file', 'src/a/empty.jpg', '', 0o0644),
+      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/empty_dup1.jpg', '', 0o0644),
+      temp_content('file', 'src/c/empty_dup2.jpg', '', 0o0644),
+    ]
+    t = self._find_dups_test(extra_content_items = items,
+                             recursive = True,
+                             include_empty_files = False)
+    self.assertEqual( [], t.result.items )
     
   def _find_dups_test(self,
                       extra_content_items = None,
@@ -178,10 +209,12 @@ class test_file_duplicates(unit_test):
                       small_checksum_size = 1024 * 1024,
                       prefer_prefixes = None,
                       sort_key = None,
-                      pre_test_function = None):
+                      pre_test_function = None,
+                      include_empty_files = False):
     options = file_duplicates_options(recursive = recursive,
-                                small_checksum_size = small_checksum_size,
-                                sort_key = sort_key)
+                                      small_checksum_size = small_checksum_size,
+                                      sort_key = sort_key,
+                                      include_empty_files = include_empty_files)
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
       if pre_test_function:
         pre_test_function(test)

@@ -13,6 +13,7 @@ class file_duplicates_cli_handler(cli_command_handler):
   def __init__(self, cli_args):
     super(file_duplicates_cli_handler, self).__init__(cli_args, options_class = file_duplicates_options)
     check.check_file_duplicates_options(self.options)
+    self.options.sort_key = file_duplicates_options.sort_key
   
   def dups(self, files, delete):
     check.check_string_seq(files)

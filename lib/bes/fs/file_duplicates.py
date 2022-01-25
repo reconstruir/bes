@@ -27,7 +27,9 @@ class file_duplicates(object):
     check.check_file_duplicates_options(options, allow_none = True)
 
     options = options or file_duplicates_options()
-    resolved_files = clazz._resolve_files(files, options.recursive)
+    resolved_files = clazz._resolve_files(files,
+                                          options.recursive,
+                                          options.include_empty_files)
     dmap = resolved_files.duplicate_size_map()
     flat_size_dup_files = clazz._flat_duplicate_files(dmap)
     small_checksum_map = clazz._small_checksum_map(flat_size_dup_files, options.small_checksum_size)
@@ -72,8 +74,14 @@ class file_duplicates(object):
     return result
   
   @classmethod
-  def _resolve_files(clazz, files, recursive):
-    resolver_options = file_resolver_options(recursive = recursive)
+  def _resolve_files(clazz, files, recursive, include_empty_files):
+    if include_empty_files:
+      match_function = None
+    else:
+      match_function = lambda filename: not file_util.is_empty(filename)
+    resolver_options = file_resolver_options(recursive = recursive,
+                                             match_basename = False,
+                                             match_function = match_function)
     return file_resolver.resolve_files(files, options = resolver_options)
 
   @classmethod
