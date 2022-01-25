@@ -22,18 +22,18 @@ _DEFAULT_FILE_SPLIT_OPTIONS = file_split_options()
 
 class test_file_split(unit_test):
 
-  def test_find_and_unsplit(self):
+  def test_xfind_and_unsplit(self):
     items = [
       temp_content('file', 'src/a/foo/kiwi.txt', 'this is kiwi', 0o0644),
       temp_content('file', 'src/a/parts/xfoo.txt.001', 'garbage', 0o0644),
-      temp_content('file', 'src/a/parts/foo.txt.001', 'part001', 0o0644),
-      temp_content('file', 'src/a/parts/foo.txt.002', 'part002', 0o0644),
-      temp_content('file', 'src/a/parts/foo.txt.003', 'part003', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.001', 'foo001', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.002', 'foo002', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.003', 'foo003', 0o0644),
       temp_content('file', 'src/a/parts/foo.txt.xx4', 'garbage', 0o0644),
       temp_content('file', 'src/a/parts/foo.txt.003.garbage', 'garbage', 0o0644),
-      temp_content('file', 'src/b/icons/lemon.jpg.01', 'part01', 0o0644),
-      temp_content('file', 'src/b/icons/lemon.jpg.02', 'part02', 0o0644),
-      temp_content('file', 'src/b/icons/lemon.jpg.03', 'part03', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.01', 'lemon01', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.02', 'lemon02', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.03', 'lemon03', 0o0644),
     ]
     t = self._find_and_unsplit_test(extra_content_items = items,
                            recursive = True)
@@ -50,6 +50,8 @@ class test_file_split(unit_test):
       'b/icons',
       'b/icons/lemon.jpg',
     ], t.src_files )
+    self.assert_text_file_equal( 'foo001foo002foo003', f'{t.src_dir}/a/parts/foo.txt' )
+    self.assert_text_file_equal( 'lemon01lemon02lemon03', f'{t.src_dir}/b/icons/lemon.jpg' )
 
   def test_find_and_unsplit_incomplete_set(self):
     items = [

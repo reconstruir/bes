@@ -50,8 +50,6 @@ class file_split(object):
     files_group = clazz._files_group(first_filename)
     if len(files_group) == 1:
       return
-    for x in files_group:
-      print(f'x={x}')
     if not clazz._files_group_is_complete(files_group):
       raise file_split_error('Incomplete group:\n  {}'.format('\n  '.join(files_group)))
     target_filename = filename_util.without_extension(first_filename)
