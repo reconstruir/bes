@@ -17,6 +17,13 @@ class file_split_cli_handler(cli_command_handler):
   
   def unsplit(self, files):
     check.check_string_seq(files)
-    
-    file_split.find_and_unsplit(files, options = self.options)
+
+    if self.options.dry_run:
+      info = file_split.find_and_unsplit_info(files, options = self.options)
+      for item in info.items:
+        print(f'{item.target}:')
+        for filename in item.files:
+          print(f'  {filename}')
+    else:
+      file_split.find_and_unsplit(files, options = self.options)
     return 0
