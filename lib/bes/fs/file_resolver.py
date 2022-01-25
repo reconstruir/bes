@@ -34,7 +34,7 @@ class file_resolver(object):
     clazz._log.log_method_d()
 
     options = options or file_resolver_options()
-    return clazz._do_resolve_files(files, options, file_find.FILE_OR_LINK)
+    return clazz._do_resolve_files(files, options, file_find.FILE)
 
   @classmethod
   def resolve_dirs(clazz, dirs, options = None):
