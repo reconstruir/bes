@@ -19,7 +19,7 @@ class file_split_options(files_cli_options):
     'Return a dict of defaults for these options.'
     return clazz.super_default_values({
       'blurber': blurber(),
-      'check_downloading': True,
+      'check_downloading': False,
       'check_downloading_extension': 'part',
       'check_modified': False,
       'check_modified_interval': 250.0,

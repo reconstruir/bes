@@ -22,7 +22,7 @@ _DEFAULT_FILE_SPLIT_OPTIONS = file_split_options()
 
 class test_file_split(unit_test):
 
-  def test_xfind_and_unsplit(self):
+  def test_find_and_unsplit(self):
     items = [
       temp_content('file', 'src/a/foo/kiwi.txt', 'this is kiwi', 0o0644),
       temp_content('file', 'src/a/parts/xfoo.txt.001', 'garbage', 0o0644),

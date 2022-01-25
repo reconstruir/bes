@@ -6,22 +6,11 @@ class file_split_cli_args(object):
     pass
   
   def file_split_add_args(self, subparser):
-    # dups
-    p = subparser.add_parser('dups', help = 'Find dups in files or directories.')
+    # unsplit
+    p = subparser.add_parser('unsplit', help = 'Insplit files.')
     self.__file_split_cli_add_add_common_args(p)
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to find dups in [ None ]')
-    p.add_argument('--delete', action = 'store_true', default = False,
-                   help = 'Delete the duplicates [ False ]')
-    p.add_argument('--empty', action = 'store_true', default = False,
-                   dest = 'include_empty_files',
-                   help = 'Include empty files [ False ]')
-    p.add_argument('--keep', action = 'store_true', default = False,
-                   dest = 'keep_empty_dirs',
-                   help = 'Keep empty directories after removing dups [ False ]')
-    default_small_checksum_size = 1024 * 1024
-    p.add_argument('--small-checksum-size', action = 'store', default = default_small_checksum_size,
-                   help = f'Small checksum [ {default_small_checksum_size} ]')
     
   @classmethod
   def __file_split_cli_add_add_common_args(clazz, p):
@@ -31,6 +20,12 @@ class file_split_cli_args(object):
                    help = 'Find dups recursively [ None ]')
     p.add_argument('--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
+    p.add_argument('--downloading', action = 'store_true', default = False,
+                   dest = 'check_downloading',
+                   help = 'Check if files are still downloading [ False ]')
+    p.add_argument('--downloading-ext', action = 'store', default = 'part',
+                   type = str, dest = 'check_downloading_extension',
+                   help = 'Extension to check for downloding files [ False ]')
     
   def _command_file_split(self, command, *args, **kargs):
     from .file_split_cli_handler import file_split_cli_handler
