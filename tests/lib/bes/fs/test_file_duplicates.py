@@ -5,8 +5,8 @@ from datetime import datetime
 from datetime import timedelta
 
 from bes.fs.file_path import file_path
-from bes.fs.file_poto import file_poto
-from bes.fs.file_poto_options import file_poto_options
+from bes.fs.file_duplicates import file_duplicates
+from bes.fs.file_duplicates_options import file_duplicates_options
 from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
@@ -14,7 +14,7 @@ from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
-class test_file_poto(unit_test):
+class test_file_duplicates(unit_test):
 
   def test_find_duplicates(self):
     items = [
@@ -117,7 +117,7 @@ class test_file_poto(unit_test):
     ]
     t = self._find_dups_test(extra_content_items = items,
                              recursive = True,
-                             sort_key = file_poto_options.sort_key_basename_length)
+                             sort_key = file_duplicates_options.sort_key_basename_length)
     self.assertEqual( [
       ( f'{t.src_dir}/c/kiwi_123.jpg', [
         f'{t.src_dir}/b/kiwi_1234.jpg',
@@ -142,7 +142,7 @@ class test_file_poto(unit_test):
                                       datetime.now() - timedelta(days = 2))
     t = self._find_dups_test(extra_content_items = items,
                              recursive = True,
-                             sort_key = file_poto_options.sort_key_modification_date,
+                             sort_key = file_duplicates_options.sort_key_modification_date,
                              pre_test_function = _ptf)
     self.assertEqual( [
       ( f'{t.src_dir}/a/kiwi_03.jpg', [
@@ -170,7 +170,7 @@ class test_file_poto(unit_test):
       _file_duplicate_tester_object._extra_dir(bin_dir, '${_bin}'),
       _file_duplicate_tester_object._extra_dir(tmp_dir, '${_tmp}'),
     ] )
-    self.assertTrue( file_poto._dup_item('${{_bin}}/{}'.format(shell), [ '${_tmp}/dupsh.exe']) in result )
+    self.assertTrue( file_duplicates._dup_item('${{_bin}}/{}'.format(shell), [ '${_tmp}/dupsh.exe']) in result )
     
   def _find_dups_test(self,
                       extra_content_items = None,
@@ -179,7 +179,7 @@ class test_file_poto(unit_test):
                       prefer_prefixes = None,
                       sort_key = None,
                       pre_test_function = None):
-    options = file_poto_options(recursive = recursive,
+    options = file_duplicates_options(recursive = recursive,
                                 small_checksum_size = small_checksum_size,
                                 sort_key = sort_key)
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
@@ -189,7 +189,7 @@ class test_file_poto(unit_test):
         xglobals = { 'test': test }
         prefer_prefixes = [ eval(x, xglobals) for x in prefer_prefixes ]
         options.prefer_prefixes = prefer_prefixes
-      test.result = file_poto.find_duplicates([ test.src_dir ],
+      test.result = file_duplicates.find_duplicates([ test.src_dir ],
                                               options = options)
     return test
     

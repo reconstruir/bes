@@ -9,24 +9,24 @@ from bes.fs.file_resolver import file_resolver
 from bes.fs.file_resolver_item_list import file_resolver_item_list
 from bes.fs.file_resolver_options import file_resolver_options
 
-from .file_poto_options import file_poto_options
+from .file_duplicates_options import file_duplicates_options
 from .file_check import file_check
 from .file_util import file_util
 from .file_attributes_metadata import file_attributes_metadata
 
-class file_poto(object):
+class file_duplicates(object):
   'A class to find duplicate files'
 
-  _log = logger('file_poto')
+  _log = logger('file_duplicates')
 
   _dup_item = namedtuple('_dup_item', 'filename, duplicates')
   _find_duplicates_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
   @classmethod
   def find_duplicates(clazz, files, options = None):
     check.check_string_seq(files)
-    check.check_file_poto_options(options, allow_none = True)
+    check.check_file_duplicates_options(options, allow_none = True)
 
-    options = options or file_poto_options()
+    options = options or file_duplicates_options()
     resolved_files = clazz._resolve_files(files, options.recursive)
     dmap = resolved_files.duplicate_size_map()
     flat_size_dup_files = clazz._flat_duplicate_files(dmap)

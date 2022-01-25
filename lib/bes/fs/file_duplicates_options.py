@@ -9,10 +9,10 @@ from bes.common.time_util import time_util
 from .files_cli_options import files_cli_options
 from .file_util import file_util
 
-class file_poto_options(files_cli_options):
+class file_duplicates_options(files_cli_options):
 
   def __init__(self, **kargs):
-    super(file_poto_options, self).__init__(**kargs)
+    super(file_duplicates_options, self).__init__(**kargs)
 
   @classmethod
   #@abstractmethod
@@ -36,7 +36,7 @@ class file_poto_options(files_cli_options):
   #@abstractmethod
   def check_value_types(self):
     'Check the type of each option.'
-    super(file_poto_options, self).check_value_types()
+    super(file_duplicates_options, self).check_value_types()
     check.check_int(self.small_checksum_size)
     check.check_string_seq(self.prefer_prefixes, allow_none = True)
     check.check_function(self.sort_key, allow_none = True)
@@ -51,6 +51,6 @@ class file_poto_options(files_cli_options):
 
   @staticmethod
   def sort_key(filename):
-    return file_poto_options.sort_key_modification_date() + file_poto_options.sort_key_basename_length() 
+    return file_duplicates_options.sort_key_modification_date() + file_duplicates_options.sort_key_basename_length() 
 
-check.register_class(file_poto_options)
+check.register_class(file_duplicates_options)

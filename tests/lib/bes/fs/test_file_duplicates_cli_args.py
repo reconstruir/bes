@@ -6,7 +6,7 @@ from bes.fs.testing.temp_content import temp_content
 
 from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
-class test_file_poto_cli_args(program_unit_test):
+class test_file_duplicates_cli_args(program_unit_test):
 
   _program = program_unit_test.resolve_program(__file__, '../../../../bin/best.py')
 
@@ -33,7 +33,7 @@ class test_file_poto_cli_args(program_unit_test):
                       prefer_prefixes = None):
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
       args = [
-        'file_poto',
+        'file_duplicates',
         'dups',
         test.src_dir,
       ]
