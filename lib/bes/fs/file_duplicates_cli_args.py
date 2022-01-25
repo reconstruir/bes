@@ -16,6 +16,9 @@ class file_duplicates_cli_args(object):
     p.add_argument('--empty', action = 'store_true', default = False,
                    dest = 'include_empty_files',
                    help = 'Include empty files [ False ]')
+    p.add_argument('--keep', action = 'store_true', default = False,
+                   dest = 'keep_empty_dirs',
+                   help = 'Keep empty directories after removing dups [ False ]')
     default_small_checksum_size = 1024 * 1024
     p.add_argument('--small-checksum-size', action = 'store', default = default_small_checksum_size,
                    help = f'Small checksum [ {default_small_checksum_size} ]')

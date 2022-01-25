@@ -2,10 +2,12 @@
 
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.check import check
+from bes.common.algorithm import algorithm
 
+from .file_check import file_check
 from .file_duplicates import file_duplicates
 from .file_duplicates_options import file_duplicates_options
-from .file_check import file_check
+from .file_find import file_find
 from .file_util import file_util
 
 class file_duplicates_cli_handler(cli_command_handler):
@@ -16,9 +18,10 @@ class file_duplicates_cli_handler(cli_command_handler):
     check.check_file_duplicates_options(self.options)
     self.options.sort_key = file_duplicates_options.sort_key
   
-  def dups(self, files, delete):
+  def dups(self, files, delete, keep_empty_dirs):
     check.check_string_seq(files)
     check.check_bool(delete)
+    check.check_bool(keep_empty_dirs)
 
     dups = file_duplicates.find_duplicates(files, options = self.options)
     dup_filenames = []
@@ -34,5 +37,13 @@ class file_duplicates_cli_handler(cli_command_handler):
           print(f'DRY_RUN: delete {f}')
       else:
         file_util.remove(dup_filenames)
-        
+        if not keep_empty_dirs:
+          fmap = dups.resolved_files.filename_abs_map()
+          possible_empty_dir_roots = []
+          for f in dup_filenames:
+            item = fmap[f]
+            possible_empty_dir_roots.append(item.root_dir)
+          possible_empty_dir_roots = algorithm.unique(possible_empty_dir_roots)
+          for d in possible_empty_dir_roots:
+            file_find.remove_empty_dirs(d)
     return 0

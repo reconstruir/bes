@@ -55,6 +55,13 @@ class file_resolver_item_list(type_checked_list):
         result[item.basename] = file_resolver_item_list()
       result[item.basename].append(item)
     return result
+
+  def filename_abs_map(self):
+    result = {}
+    for item in self:
+      assert not item.filename_abs in result
+      result[item.filename_abs] = item
+    return result
   
   def duplicate_basename_map(self):
     result = {}
