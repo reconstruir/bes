@@ -20,19 +20,19 @@ class refactor_project(object):
   @classmethod
   def rename(clazz, files, src_pattern, dst_pattern,
              word_boundary = False, word_boundary_chars = None,
-             try_git = False):
+             options = None):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_bool(word_boundary)
     check.check_set(word_boundary_chars, allow_none = True)
-    check.check_bool(try_git)
+    check.check_refactor_options(options, allow_none = True)
 
     clazz._log.log_method_d()
 
     refactor_files.rename_files(files, src_pattern, dst_pattern,
                                 word_boundary = word_boundary,
                                 word_boundary_chars = word_boundary_chars,
-                                try_git = try_git)
+                                options = options)
     clazz.replace_text(files,
                        src_pattern,
                        dst_pattern,
@@ -65,12 +65,12 @@ class refactor_project(object):
   @classmethod
   def copy(clazz, files, src_pattern, dst_pattern,
            word_boundary = False, word_boundary_chars = None,
-           try_git = False):
+           options = None):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_bool(word_boundary)
     check.check_set(word_boundary_chars, allow_none = True)
-    check.check_bool(try_git)
+    check.check_refactor_options(options, allow_none = True)
 
     clazz._log.log_method_d()
 
@@ -79,7 +79,7 @@ class refactor_project(object):
                                              dst_pattern,
                                              word_boundary = word_boundary,
                                              word_boundary_chars = word_boundary_chars,
-                                             try_git = try_git)
+                                             options = options)
     copied_files = sorted([ item.dst for item in copied_items ])
     clazz.replace_text(copied_files,
                        src_pattern,

@@ -25,6 +25,7 @@ from bes.system.python import python
 from .refactor_error import refactor_error
 from .refactor_item import refactor_item
 from .refactor_operation_type import refactor_operation_type
+from .refactor_options import refactor_options
 from .refactor_reindent import refactor_reindent
 
 class refactor_files(object):
@@ -39,10 +40,10 @@ class refactor_files(object):
       if python.is_python_script(filename):
         return True
       return filename_util.has_extension(filename.lower(), 'py')
-    options = file_resolver_options(recursive = True,
-                                    match_function = _match_python_files,
-                                    match_basename = False)
-    resolved = file_resolver.resolve_files(files, options = options)
+    resolver_options = file_resolver_options(recursive = True,
+                                             match_function = _match_python_files,
+                                             match_basename = False)
+    resolved = file_resolver.resolve_files(files, options = resolver_options)
     return resolved.absolute_files(sort = True)
 
   @classmethod
@@ -53,10 +54,10 @@ class refactor_files(object):
       if path.islink(filename):
         return False
       return file_mime.is_text(filename)
-    options = file_resolver_options(recursive = True,
-                                    match_function = _match_text_files,
-                                    match_basename = False)
-    resolved = file_resolver.resolve_files(files, options = options)
+    resolver_options = file_resolver_options(recursive = True,
+                                             match_function = _match_text_files,
+                                             match_basename = False)
+    resolved = file_resolver.resolve_files(files, options = resolver_options)
     return resolved.absolute_files(sort = True)
 
   _affected_dir = namedtuple('_affected_dir', 'root_dir, dirname')
@@ -65,22 +66,22 @@ class refactor_files(object):
   def rename_files(clazz, files, src_pattern, dst_pattern,
                    word_boundary = False,
                    word_boundary_chars = None,
-                   try_git = False):
+                   options = None):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_bool(word_boundary)
     check.check_set(word_boundary_chars, allow_none = True)
-    check.check_bool(try_git)
+    check.check_refactor_options(options, allow_none = True)
 
     clazz._log.log_method_d()
-
+    options = options or refactor_options()
     return clazz._do_operation(refactor_operation_type.RENAME_FILES,
                                files,
                                src_pattern,
                                dst_pattern,
+                               options,
                                word_boundary = word_boundary,
-                               word_boundary_chars = word_boundary_chars,
-                               try_git = try_git)
+                               word_boundary_chars = word_boundary_chars)
 
   @classmethod
   def copy_files(clazz,
@@ -89,34 +90,35 @@ class refactor_files(object):
                  dst_pattern,
                  word_boundary = False,
                  word_boundary_chars = None,
-                 try_git = False):
+                 options = None):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_bool(word_boundary)
     check.check_set(word_boundary_chars, allow_none = True)
-    check.check_bool(try_git)
+    check.check_refactor_options(options, allow_none = True)
 
     clazz._log.log_method_d()
-
+    options = options or refactor_options()
     return clazz._do_operation(refactor_operation_type.COPY_FILES,
                                files,
                                src_pattern,
                                dst_pattern,
+                               options,
                                word_boundary = word_boundary,
-                               word_boundary_chars = word_boundary_chars,
-                               try_git = try_git)
+                               word_boundary_chars = word_boundary_chars)
     
   @classmethod
   def rename_dirs(clazz, dirs, src_pattern, dst_pattern,
                   word_boundary = False,
                   word_boundary_chars = None,
-                  try_git = False):
+                  options = None):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_bool(word_boundary)
     check.check_set(word_boundary_chars, allow_none = True)
-    check.check_bool(try_git)
-
+    check.check_refactor_options(options, allow_none = True)
+    
+    options = options or refactor_options()
     clazz._log.log_method_d()
 
     resolved_empty_dirs = file_resolver.resolve_empty_dirs(dirs, recursive = True)
@@ -131,9 +133,9 @@ class refactor_files(object):
                                  dirs,
                                  src_pattern,
                                  dst_pattern,
+                                 options,
                                  word_boundary = word_boundary,
-                                 word_boundary_chars = word_boundary_chars,
-                                 try_git = try_git)
+                                 word_boundary_chars = word_boundary_chars)
   
     for item in empty_dirs_operation_items:
       file_util.mkdir(item.dst)
@@ -151,13 +153,14 @@ class refactor_files(object):
                     dirs,
                     src_pattern,
                     dst_pattern,
+                    options,
                     word_boundary = False,
-                    word_boundary_chars = None,
-                    try_git = False):
-    options = file_resolver_options(recursive = True,
-                                    sort_order = 'depth',
-                                    sort_reverse = True)
-    resolved_files = file_resolver.resolve_files(dirs, options = options)
+                    word_boundary_chars = None):
+    assert options
+    resolver_options = file_resolver_options(recursive = True,
+                                             sort_order = 'depth',
+                                             sort_reverse = True)
+    resolved_files = file_resolver.resolve_files(dirs, options = resolver_options)
     operation_items, affected_dirs = \
       clazz._make_operation_items(operation,
                                   resolved_files,
@@ -173,7 +176,7 @@ class refactor_files(object):
         assert False
       file_util.mkdir(next_new_dir)
     for next_operation_item in operation_items:
-      next_operation_item.apply_operation(operation, try_git)
+      next_operation_item.apply_operation(operation, options.try_git)
     if operation != refactor_operation_type.COPY_FILES:
       for d in affected_dirs:
         if path.exists(d) and dir_util.is_empty(d):
