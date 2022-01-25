@@ -38,6 +38,7 @@ class file_split(object):
 
     info = clazz.find_and_unsplit_info(files, options = options)
     for item in info.items:
+      options.blurber.blurb_verbose(f'Unsplitting {item.target} - {len(item.files)} parts.')
       tmp = temp_file.make_temp_file(prefix = path.basename(item.target), dir = path.dirname(item.target))
       clazz.unsplit_files(tmp, item.files)
       target = None
@@ -53,6 +54,7 @@ class file_split(object):
       else:
         target = item.target
       if target:
+        options.blurber.blurb(f'{item.target} already exists but is different.  Renaming to {target}')
         file_util.rename(tmp, target)
       file_util.remove(item.files)
 

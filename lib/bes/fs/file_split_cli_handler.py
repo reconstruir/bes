@@ -14,6 +14,7 @@ class file_split_cli_handler(cli_command_handler):
   def __init__(self, cli_args):
     super(file_split_cli_handler, self).__init__(cli_args, options_class = file_split_options)
     check.check_file_split_options(self.options)
+    self.options.blurber.set_verbose(self.options.verbose)
   
   def unsplit(self, files):
     check.check_string_seq(files)
