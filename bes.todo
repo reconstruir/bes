@@ -200,5 +200,5 @@ add file_attributes_metadata tests to cover write permissions and ownership
  - add tests to test_files_cli_args.py
  - best.py refactor rename --dry-run flag is broken
  - get rid of match_basename is file find its very confusing
- 
+ - add support for ignoring files when refactoring like foo.py~
  
