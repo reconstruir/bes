@@ -149,6 +149,27 @@ class test_file_poto(unit_test):
         f'{t.src_dir}/c/kiwi_01.jpg',
       ] ),
     ], t.result.items )
+
+  # FIXME: this test would prove the dups thing works
+  # even with no write permissions for files
+  @unit_test_function_skip.skip_if_not_unix()
+  def xtest_find_duplicates_no_write_permission(self):
+    if host.is_linux():
+      shell = 'dash'
+    else:
+      shell = 'sh'
+      
+    sh_exe = which.which(shell)
+    bin_dir = path.dirname(sh_exe)
+    tmp_dir = self.make_temp_dir()
+    sh_exe_dup = path.join(tmp_dir, 'dupsh.exe')
+    file_util.copy(sh_exe, sh_exe_dup)
+    result = self._test([ 
+    ], [], extra_dirs_before = [
+      _file_duplicate_tester_object._extra_dir(bin_dir, '${_bin}'),
+      _file_duplicate_tester_object._extra_dir(tmp_dir, '${_tmp}'),
+    ] )
+    self.assertTrue( file_poto._dup_item('${{_bin}}/{}'.format(shell), [ '${_tmp}/dupsh.exe']) in result )
     
   def _find_dups_test(self,
                       extra_content_items = None,

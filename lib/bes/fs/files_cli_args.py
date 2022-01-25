@@ -6,15 +6,6 @@ class files_cli_args(object):
     pass
   
   def files_add_args(self, subparser):
-
-    # dups
-    p = subparser.add_parser('dups', help = 'Find duplicate files in directories.')
-    self.__files_cli_add_add_common_args(p)
-    p.add_argument('dirs', action = 'store', default = [], nargs = '+',
-                   help = 'One or more files or dirs to check for dups [ None ]')
-    p.add_argument('--delete', action = 'store_true', default = False,
-                   help = 'Delete the duplicates [ False ]')
-
     # dup_basenames
     p = subparser.add_parser('dup_basenames', help = 'Find duplicate basenames.')
     self.__files_cli_add_add_common_args(p)
