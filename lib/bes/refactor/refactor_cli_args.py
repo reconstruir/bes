@@ -80,6 +80,8 @@ class refactor_cli_args(object):
     p.add_argument('-g', '--git', action = 'store_true', default = False,
                    dest = 'try_git',
                    help = 'Use git to move or add files [ False ]')
+    p.add_argument('--unsafe', action = 'store_true', default = False,
+                   help = 'Ignore unsafe operations like clobbering existsing files [ False ]')
     
   def _command_refactor(self, command, *args, **kargs):
     from .refactor_cli_handler import refactor_cli_handler
