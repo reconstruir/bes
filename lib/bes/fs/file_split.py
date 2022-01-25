@@ -29,10 +29,20 @@ class file_split(object):
   def _match_unsplit_files(clazz, filename):
     return filename_util.has_any_extension(filename, clazz._UNSPLIT_EXTENSIONS)
   
-  _dup_item = namedtuple('_dup_item', 'filename, duplicates')
-  _find_duplicates_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
   @classmethod
   def find_and_unsplit(clazz, files, options = None):
+    check.check_string_seq(files)
+    check.check_file_split_options(options, allow_none = True)
+
+    info = clazz.find_and_unsplit_info(files, options = options)
+    for item in info.items:
+      clazz.unsplit_files(item.target, item.files)
+      file_util.remove(item.files)
+
+  _split_item = namedtuple('_split_item', 'target, files')
+  _split_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
+  @classmethod
+  def find_and_unsplit_info(clazz, files, options = None):
     check.check_string_seq(files)
     check.check_file_split_options(options, allow_none = True)
 
@@ -41,29 +51,30 @@ class file_split(object):
                                              match_basename = True,
                                              match_function = clazz._match_unsplit_files)
     resolved_files = file_resolver.resolve_files(files, options = resolver_options)
-
+    items = []
     for f in resolved_files:
-      clazz._unsplit_one(f.filename_abs, options)
-
+      item = clazz._unsplit_one_info(f.filename_abs, options)
+      if item:
+        items.append(item)
+    return clazz._split_result(items, resolved_files)
+      
   @classmethod
-  def _unsplit_one(clazz, first_filename, options):
+  def _unsplit_one_info(clazz, first_filename, options):
     files_group = clazz._files_group(first_filename)
     if len(files_group) == 1:
-      return
+      return None
     if options.check_downloading_extension:
       dl_files = clazz._files_group_is_still_downloading(files_group, options.check_downloading_extension)
       if dl_files:
         for f in dl_files:
           options.blurber.blurb('Still downloading: {f}')
-        return
+        return None
     if not clazz._files_group_is_complete(files_group):
       raise file_split_error('Incomplete group:\n  {}'.format('\n  '.join(files_group)))
     
     target_filename = filename_util.without_extension(first_filename)
-    for x in files_group:
-      clazz.unsplit_files(target_filename, files_group)
-    file_util.remove(files_group)
-
+    return clazz._split_item(target_filename, files_group)
+    
   @classmethod
   def _files_group(clazz, first_filename):
     ext = filename_util.extension(first_filename)
