@@ -20,9 +20,7 @@ class file_poto_cli_handler(cli_command_handler):
 
     dups = file_poto.find_duplicates(files, options = self.options)
     for item in dups.items:
-      print(f'{item}')
-#      for f in item.duplicates:
-#        print(f'  {f}')
-#        if delete:
-#          if self.options.dry_run:
+      print(f'{item.filename}:')
+      for dup in item.duplicates:
+        print(f'  {dup}')
     return 0
