@@ -21,13 +21,18 @@ class file_duplicates_cli_handler(cli_command_handler):
     check.check_bool(delete)
 
     dups = file_duplicates.find_duplicates(files, options = self.options)
+    dup_filenames = []
     for item in dups.items:
       print(f'{item.filename}:')
       for dup in item.duplicates:
         print(f'  {dup}')
-        if delete:
-          if self.options.dry_run:
-            print(f'DRY_RUN: delete {dup}')
-          else:
-            file_util.remove(dup)
+        dup_filenames.append(dup)
+
+    if delete:
+      if self.options.dry_run:
+        for f in dup_filenames:
+          print(f'DRY_RUN: delete {f}')
+      else:
+        file_util.remove(dup_filenames)
+        
     return 0
