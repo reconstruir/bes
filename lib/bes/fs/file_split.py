@@ -5,6 +5,7 @@ import os.path as path
 import math
 
 from bes.common.check import check
+from bes.common.time_util import time_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_resolver import file_resolver
 from bes.fs.file_resolver_item_list import file_resolver_item_list
@@ -13,11 +14,12 @@ from bes.fs.file_util import file_util
 from bes.system.check import check
 from bes.system.log import logger
 
-from .file_split_options import file_split_options
-from .file_split_error import file_split_error
 from .file_check import file_check
+from .file_split_error import file_split_error
+from .file_split_options import file_split_options
 from .file_util import file_util
 from .filename_util import filename_util
+from .temp_file import temp_file
 
 class file_split(object):
   'A class to find duplicate files'
@@ -36,9 +38,33 @@ class file_split(object):
 
     info = clazz.find_and_unsplit_info(files, options = options)
     for item in info.items:
-      clazz.unsplit_files(item.target, item.files)
+      tmp = temp_file.make_temp_file(prefix = path.basename(item.target), dir = path.dirname(item.target))
+      clazz.unsplit_files(tmp, item.files)
+      target = None
+      if path.exists(item.target):
+        if file_util.files_are_the_same(tmp, item.target):
+          options.blurber.blurb(f'{item.target} already exists and is the same')
+          file_util.remove(tmp)
+        else:
+          ts = time_util.timestamp(delimiter = '',
+                                   milliseconds = False,
+                                   when = options.existing_file_timestamp)
+          target = clazz._make_timestamp_filename(item.target, ts)
+      else:
+        target = item.target
+      if target:
+        file_util.rename(tmp, target)
       file_util.remove(item.files)
 
+  @classmethod
+  def _make_timestamp_filename(clazz, filename, ts):
+    dirname = path.dirname(filename)
+    basename = path.basename(filename)
+    basename_without_extension = filename_util.without_extension(basename)
+    ext = filename_util.extension(basename)
+    new_basename = filename_util.add_extension(f'{basename_without_extension}-{ts}', ext)
+    return path.join(dirname, new_basename)
+      
   _split_item = namedtuple('_split_item', 'target, files')
   _split_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
   @classmethod

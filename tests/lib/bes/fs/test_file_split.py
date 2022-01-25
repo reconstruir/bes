@@ -5,7 +5,6 @@ import math
 import random
 import string
 from datetime import datetime
-from datetime import timedelta
 
 from bes.archive.temp_archive import temp_archive
 from bes.fs.file_split import file_split
@@ -34,9 +33,10 @@ class test_file_split(unit_test):
       temp_content('file', 'src/b/icons/lemon.jpg.01', 'lemon01', 0o0644),
       temp_content('file', 'src/b/icons/lemon.jpg.02', 'lemon02', 0o0644),
       temp_content('file', 'src/b/icons/lemon.jpg.03', 'lemon03', 0o0644),
+      temp_content('file', 'src/c/noext', 'garbage', 0o0644),
     ]
     t = self._find_and_unsplit_test(extra_content_items = items,
-                           recursive = True)
+                                    recursive = True)
     self.assertEqual( [
       'a',
       'a/foo',
@@ -49,6 +49,8 @@ class test_file_split(unit_test):
       'b',
       'b/icons',
       'b/icons/lemon.jpg',
+      'c',
+      'c/noext',
     ], t.src_files )
     self.assert_text_file_equal( 'foo001foo002foo003', f'{t.src_dir}/a/parts/foo.txt' )
     self.assert_text_file_equal( 'lemon01lemon02lemon03', f'{t.src_dir}/b/icons/lemon.jpg' )
@@ -93,7 +95,63 @@ class test_file_split(unit_test):
       'b/icons',
       'b/icons/lemon.jpg',
     ], t.src_files )
-      
+
+  def test_find_and_unsplit_existing_target_same(self):
+    items = [
+      temp_content('file', 'src/a/foo/kiwi.txt', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt', 'foo001foo002foo003', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.001', 'foo001', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.002', 'foo002', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.003', 'foo003', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.01', 'lemon01', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.02', 'lemon02', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.03', 'lemon03', 0o0644),
+    ]
+    t = self._find_and_unsplit_test(extra_content_items = items,
+                                    recursive = True)
+    self.assertEqual( [
+      'a',
+      'a/foo',
+      'a/foo/kiwi.txt',
+      'a/parts',
+      'a/parts/foo.txt',
+      'b',
+      'b/icons',
+      'b/icons/lemon.jpg',
+    ], t.src_files )
+    self.assert_text_file_equal( 'foo001foo002foo003', f'{t.src_dir}/a/parts/foo.txt' )
+    self.assert_text_file_equal( 'lemon01lemon02lemon03', f'{t.src_dir}/b/icons/lemon.jpg' )
+
+  def test_find_and_unsplit_existing_target_different(self):
+    items = [
+      temp_content('file', 'src/a/foo/kiwi.txt', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt', 'different', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.001', 'foo001', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.002', 'foo002', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.003', 'foo003', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.01', 'lemon01', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.02', 'lemon02', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.03', 'lemon03', 0o0644),
+    ]
+    ts = datetime(year = 2000, month = 1, day = 1, hour = 1, second = 1)
+    t = self._find_and_unsplit_test(extra_content_items = items,
+                                    recursive = True,
+                                    existing_file_timestamp = ts)
+    self.assertEqual( [
+      'a',
+      'a/foo',
+      'a/foo/kiwi.txt',
+      'a/parts',
+      'a/parts/foo-20000101010001.txt',
+      'a/parts/foo.txt',
+      'b',
+      'b/icons',
+      'b/icons/lemon.jpg',
+    ], t.src_files )
+    self.assert_text_file_equal( 'foo001foo002foo003', f'{t.src_dir}/a/parts/foo-20000101010001.txt' )
+    self.assert_text_file_equal( 'different', f'{t.src_dir}/a/parts/foo.txt' )
+    self.assert_text_file_equal( 'lemon01lemon02lemon03', f'{t.src_dir}/b/icons/lemon.jpg' )
+    
   def test_split_file_basic(self):
     NUM_ITEMS = 10
     CONTENT_SIZE = 1024 * 100
@@ -148,9 +206,11 @@ class test_file_split(unit_test):
                              recursive = False,
                              check_downloading = _DEFAULT_FILE_SPLIT_OPTIONS.check_downloading,
                              check_modified = _DEFAULT_FILE_SPLIT_OPTIONS.check_modified,
-                             check_modified_interval = _DEFAULT_FILE_SPLIT_OPTIONS.check_modified_interval):
+                             check_modified_interval = _DEFAULT_FILE_SPLIT_OPTIONS.check_modified_interval,
+                             existing_file_timestamp = None):
     options = file_split_options(recursive = recursive,
-                                 check_downloading = check_downloading)
+                                 check_downloading = check_downloading,
+                                 existing_file_timestamp = existing_file_timestamp)
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
       test.result = file_split.find_and_unsplit([ test.src_dir ],
                                                 options = options)

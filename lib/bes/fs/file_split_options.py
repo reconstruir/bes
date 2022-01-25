@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from datetime import datetime
 from os import path
 
 from bes.cli.cli_options import cli_options
@@ -23,6 +24,7 @@ class file_split_options(files_cli_options):
       'check_downloading_extension': 'part',
       'check_modified': False,
       'check_modified_interval': 250.0,
+      'existing_file_timestamp': datetime.now(),
     })
   
   @classmethod
@@ -32,6 +34,7 @@ class file_split_options(files_cli_options):
       'check_downloading': bool,
       'check_modified': bool,
       'check_modified_interval': float,
+#      'existing_file_timestamp': datetime,
     })
 
   #@abstractmethod
@@ -43,5 +46,6 @@ class file_split_options(files_cli_options):
     check.check_bool(self.check_modified)
     check.check_float(self.check_modified_interval)
     check.check_blurber(self.blurber)
+    check.check(self.existing_file_timestamp, datetime, allow_none = True)
 
 check.register_class(file_split_options)
