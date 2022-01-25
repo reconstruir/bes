@@ -5,12 +5,13 @@ import os.path as path
 
 from bes.fs.file_find import file_find
 from bes.fs.testing.temp_content import temp_content
-from bes.refactor.refactor_project import refactor_project
-from bes.text.word_boundary import word_boundary
-from bes.testing.unit_test import unit_test
 from bes.git.git_repo import git_repo
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
+from bes.refactor.refactor_options import refactor_options
+from bes.refactor.refactor_project import refactor_project
+from bes.testing.unit_test import unit_test
+from bes.text.word_boundary import word_boundary
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
@@ -51,7 +52,9 @@ class test_refactor_project(unit_test, unit_test_media_files):
       f'{r.root}/xdata',
       f'{r.root}/kiwi',
     ]
-    refactor_project.rename(args, 'fruit', 'cheese', word_boundary = False, try_git = True)
+    options = refactor_options(try_git = True,
+                               word_boundary = False)
+    refactor_project.rename(args, 'fruit', 'cheese', options = options)
     self.assertEqual( [
       ( 'R', 'lib/fruit/constants.py', 'lib/cheese/constants.py' ),
       ( 'R', 'lib/fruit/constants2.py', 'lib/cheese/constants2.py' ),
@@ -124,7 +127,9 @@ class test_refactor_project(unit_test, unit_test_media_files):
       f'{r.root}/xdata',
       f'{r.root}/kiwi',
     ]
-    refactor_project.copy(args, 'kiwi', 'cheese', word_boundary = False, try_git = True)
+    options = refactor_options(try_git = True,
+                               word_boundary = False)
+    refactor_project.copy(args, 'kiwi', 'cheese', options = options)
     self.assertEqual( [
       ( 'A', 'kiwi/xdata2/kiwi_stuff2/cheese2.png', None ),
       ( 'AM', 'lib/fruit/cheese.py', None ),
