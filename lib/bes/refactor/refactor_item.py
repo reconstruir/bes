@@ -59,6 +59,7 @@ class refactor_item(namedtuple('refactor_item', 'src, dst')):
 
   def _apply_operation_copy(self, try_git):
     file_util.copy(self.src, self.dst)
+    file_util.copy_mode(self.src, self.dst)
     if try_git:
       root_dir = git.find_root_dir(start_dir = path.dirname(self.dst))
       try:

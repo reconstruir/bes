@@ -6,7 +6,6 @@ import math, string, random
 from bes.testing.unit_test import unit_test
 
 from bes.archive.temp_archive import temp_archive
-from bes.archive.archiver import archiver
 from bes.fs.file_util import file_util
 from bes.fs.file_split import file_split
 

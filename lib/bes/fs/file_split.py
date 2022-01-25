@@ -13,22 +13,20 @@ class file_split(object):
   log = logger('file_split')
   
   @classmethod
-  def split(clazz, filename, max_size):
+  def split(clazz, filename, chunk_size):
     check.check_string(filename)
-    check.check_int(max_size)
+    check.check_int(chunk_size)
     
     file_size = file_util.size(filename)
     
-    clazz.log.log_d('split: filename={} max_size={} file_size={}'.format(filename,
-                                                                         file_util.format_size(max_size),
-                                                                         file_util.format_size(file_size)))
+    clazz.log.log_d('split: filename={filename} chunk_size={file_util.format_size(chunk_size)} file_size={file_util.format_size(file_size)}')
     
-    num_total = int(math.ceil(float(file_size) / float(max_size)))
+    num_total = int(math.ceil(float(file_size) / float(chunk_size)))
     result_file_list = []
     with open(filename, 'rb') as fin:
       index = 0
       while True:
-        data = fin.read(max_size)
+        data = fin.read(chunk_size)
         if not data:
           break
         next_filename = clazz._make_split_filename(filename, index + 1, num_total)
@@ -45,8 +43,12 @@ class file_split(object):
     return '{}.split.{}of{}'.format(filename, index_s, total_s)
   
   @classmethod
-  def unsplit(clazz, output_filename, files):
+  def unsplit(clazz, output_filename, files, buffer_size = 1024 * 1204):
     with open(output_filename, 'wb') as fout:
       for next_filename in files:
         with open(next_filename, 'rb') as fin:
-          fout.write(fin.read())
+          while True:
+            data = fin.read(buffer_size)
+            if not data:
+              break
+            fout.write(data)
