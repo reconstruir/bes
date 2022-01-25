@@ -50,6 +50,8 @@ class refactor_files(object):
     'Resolve text files.'
     
     def _match_text_files(filename):
+      if path.islink(filename):
+        return False
       return file_mime.is_text(filename)
     options = file_resolver_options(recursive = True,
                                     match_function = _match_text_files,
