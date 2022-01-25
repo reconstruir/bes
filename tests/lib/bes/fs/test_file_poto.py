@@ -103,17 +103,38 @@ class test_file_poto(unit_test, unit_test_media_files):
         f'{t.src_dir}/c/kiwi_dup2.jpg',
       ] ),
     ], t.result.items )
+
+  def test_find_duplicates_with_sort_key_basename_length(self):
+    items = [
+      temp_content('file', 'src/a/kiwi_12345.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/kiwi_1234.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/c/kiwi_123.jpg', 'this is kiwi', 0o0644),
+    ]
+    t = self._find_dups_test(extra_content_items = items,
+                             recursive = True,
+                             sort_key = file_poto_options.sort_key_basename_length)
+    self.assertEqual( [
+      ( f'{t.src_dir}/c/kiwi_123.jpg', [
+        f'{t.src_dir}/b/kiwi_1234.jpg',
+        f'{t.src_dir}/a/kiwi_12345.jpg',
+      ] ),
+    ], t.result.items )
     
   def _find_dups_test(self,
                       extra_content_items = None,
                       recursive = False,
                       small_checksum_size = 1024 * 1024,
                       prefer_prefixes = None,
-                      sort_key = None):
+                      sort_key = None,
+                      pre_test_function = None):
     options = file_poto_options(recursive = recursive,
                                 small_checksum_size = small_checksum_size,
                                 sort_key = sort_key)
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
+      if pre_test_function:
+        pre_test_function(test)
       if prefer_prefixes:
         xglobals = { 'test': test }
         prefer_prefixes = [ eval(x, xglobals) for x in prefer_prefixes ]

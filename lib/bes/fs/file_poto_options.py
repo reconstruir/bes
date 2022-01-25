@@ -1,10 +1,13 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from os import path
+
 from bes.cli.cli_options import cli_options
 from bes.common.check import check
 from bes.common.time_util import time_util
 
 from .files_cli_options import files_cli_options
+from .file_util import file_util
 
 class file_poto_options(files_cli_options):
 
@@ -37,5 +40,17 @@ class file_poto_options(files_cli_options):
     check.check_int(self.small_checksum_size)
     check.check_string_seq(self.prefer_prefixes, allow_none = True)
     check.check_function(self.sort_key, allow_none = True)
+
+  @staticmethod
+  def sort_key_modification_date(filename):
+    return ( file_util.get_modification_date(filename), )
+
+  @staticmethod
+  def sort_key_basename_length(filename):
+    return ( len(path.basename(filename)),  )
+
+  @staticmethod
+  def sort_key(filename):
+    return file_poto_options.sort_key_modification_date() + file_poto_options.sort_key_basename_length() 
 
 check.register_class(file_poto_options)

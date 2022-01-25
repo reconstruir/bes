@@ -87,7 +87,6 @@ class file_poto(object):
       if prefixes_criteria != None:
         criteria.append(prefixes_criteria)
       criteria.append(filename)
-      print(f'f={filename} c={criteria}')
       return tuple(criteria)
     return sorted(filenames, key = _sort_key)
   
@@ -119,15 +118,3 @@ class file_poto(object):
         result[checksum] = []
       result[checksum].append(filename)
     return result
-  
-  @staticmethod
-  def sort_key(filename):
-    
-    result = {}
-    for filename in files:
-      checksum = file_attributes_metadata.get_checksum_cached(filename, fallback = True)
-      if not checksum in result:
-        result[checksum] = []
-      result[checksum].append(filename)
-    return result
-  
