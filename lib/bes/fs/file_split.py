@@ -51,10 +51,10 @@ class file_split(object):
                                    milliseconds = False,
                                    when = options.existing_file_timestamp)
           target = clazz._make_timestamp_filename(item.target, ts)
+          options.blurber.blurb(f'{item.target} already exists but is different.  Renaming to {target}')
       else:
         target = item.target
       if target:
-        options.blurber.blurb(f'{item.target} already exists but is different.  Renaming to {target}')
         file_util.rename(tmp, target)
       file_util.remove(item.files)
 
