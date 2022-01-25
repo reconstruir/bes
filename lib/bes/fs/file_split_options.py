@@ -20,6 +20,7 @@ class file_split_options(files_cli_options):
     return clazz.super_default_values({
       'blurber': blurber(),
       'check_downloading': True,
+      'check_downloading_extension': 'part',
       'check_modified': False,
       'check_modified_interval': 250.0,
     })
@@ -38,6 +39,7 @@ class file_split_options(files_cli_options):
     'Check the type of each option.'
     super(file_split_options, self).check_value_types()
     check.check_bool(self.check_downloading)
+    check.check_string(self.check_downloading_extension)
     check.check_bool(self.check_modified)
     check.check_float(self.check_modified_interval)
     check.check_blurber(self.blurber)

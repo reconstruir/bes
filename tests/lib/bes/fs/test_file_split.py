@@ -66,7 +66,7 @@ class test_file_split(unit_test):
       self._find_and_unsplit_test(extra_content_items = items,
                                   recursive = True)
 
-  def xtest_find_and_unsplit_with_check_downloading(self):
+  def test_find_and_unsplit_with_check_downloading(self):
     items = [
       temp_content('file', 'src/a/foo/kiwi.txt', 'this is kiwi', 0o0644),
       temp_content('file', 'src/a/parts/foo.txt.001', 'part001', 0o0644),

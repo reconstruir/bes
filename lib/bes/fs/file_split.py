@@ -43,15 +43,22 @@ class file_split(object):
     resolved_files = file_resolver.resolve_files(files, options = resolver_options)
 
     for f in resolved_files:
-      clazz._unsplit_one(f.filename_abs)
+      clazz._unsplit_one(f.filename_abs, options)
 
   @classmethod
-  def _unsplit_one(clazz, first_filename):
+  def _unsplit_one(clazz, first_filename, options):
     files_group = clazz._files_group(first_filename)
     if len(files_group) == 1:
       return
+    if options.check_downloading_extension:
+      dl_files = clazz._files_group_is_still_downloading(files_group, options.check_downloading_extension)
+      if dl_files:
+        for f in dl_files:
+          options.blurber.blurb('Still downloading: {f}')
+        return
     if not clazz._files_group_is_complete(files_group):
       raise file_split_error('Incomplete group:\n  {}'.format('\n  '.join(files_group)))
+    
     target_filename = filename_util.without_extension(first_filename)
     for x in files_group:
       clazz.unsplit_files(target_filename, files_group)
@@ -88,6 +95,15 @@ class file_split(object):
     last_ext = filename_util.extension(files[-1])
     last_index = int(last_ext)
     return len(files) == last_index
+
+  @classmethod
+  def _files_group_is_still_downloading(clazz, files, downloading_extension):
+    result = []
+    for filename in files:
+      downloading_sentinel = filename_util.add_extension(filename, downloading_extension)
+      if path.exists(downloading_sentinel):
+        result.append(filename)
+    return result
   
   @classmethod
   def split_file(clazz, filename, chunk_size):
