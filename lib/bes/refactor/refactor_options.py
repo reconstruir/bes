@@ -3,6 +3,7 @@
 from bes.cli.cli_options import cli_options
 from bes.common.check import check
 from bes.script.blurber import blurber
+from bes.text.word_boundary import word_boundary
 
 from .refactor_error import refactor_error
 
@@ -21,7 +22,9 @@ class refactor_options(cli_options):
       'dry_run': False,
       'verbose': False,
       'word_boundary': False,
+      'word_boundary_chars': word_boundary.CHARS_UNDERSCORE,
       'try_git': False,
+      'unsafe': False,
     }
 
   @classmethod
@@ -39,6 +42,8 @@ class refactor_options(cli_options):
       'dry_run': bool,
       'word_boundary': bool,
       'try_git': bool,
+      'unsafe': bool,
+      'word_boundary_chars': set,
     }
 
   @classmethod
@@ -68,6 +73,8 @@ class refactor_options(cli_options):
     check.check_bool(self.verbose)
     check.check_bool(self.debug)
     check.check_bool(self.word_boundary)
+    check.check_set(self.word_boundary_chars)
     check.check_bool(self.try_git)
+    check.check_bool(self.unsafe)
 
 check.register_class(refactor_options, include_seq = False)
