@@ -407,7 +407,7 @@ class test_refactor_files(unit_test):
       temp_content('file', 'xdata/kiwi_stuff/kiwi.txt', 'foo.txt', 0o0644),
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
     ])
-    refactor_files.rename_files(tmp_dir, 'kiwi', 'chocolate', word_boundary = True, boundary_chars = word_boundary.CHARS_UNDERSCORE)
+    refactor_files.rename_files(tmp_dir, 'kiwi', 'chocolate', word_boundary = True, word_boundary_chars = word_boundary.CHARS_UNDERSCORE)
     self.assert_filename_list_equal( [
       'chocolate',
       'chocolate/xdata2',

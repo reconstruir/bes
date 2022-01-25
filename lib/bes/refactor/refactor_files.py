@@ -64,12 +64,12 @@ class refactor_files(object):
   @classmethod
   def rename_files(clazz, files, src_pattern, dst_pattern,
                    word_boundary = False,
-                   boundary_chars = None,
+                   word_boundary_chars = None,
                    try_git = False):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_bool(word_boundary)
-    check.check_set(boundary_chars, allow_none = True)
+    check.check_set(word_boundary_chars, allow_none = True)
     check.check_bool(try_git)
 
     clazz._log.log_method_d()
@@ -79,7 +79,7 @@ class refactor_files(object):
                                src_pattern,
                                dst_pattern,
                                word_boundary = word_boundary,
-                               boundary_chars = boundary_chars,
+                               word_boundary_chars = word_boundary_chars,
                                try_git = try_git)
 
   @classmethod
@@ -88,12 +88,12 @@ class refactor_files(object):
                  src_pattern,
                  dst_pattern,
                  word_boundary = False,
-                 boundary_chars = None,
+                 word_boundary_chars = None,
                  try_git = False):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_bool(word_boundary)
-    check.check_set(boundary_chars, allow_none = True)
+    check.check_set(word_boundary_chars, allow_none = True)
     check.check_bool(try_git)
 
     clazz._log.log_method_d()
@@ -103,18 +103,18 @@ class refactor_files(object):
                                src_pattern,
                                dst_pattern,
                                word_boundary = word_boundary,
-                               boundary_chars = boundary_chars,
+                               word_boundary_chars = word_boundary_chars,
                                try_git = try_git)
     
   @classmethod
   def rename_dirs(clazz, dirs, src_pattern, dst_pattern,
                   word_boundary = False,
-                  boundary_chars = None,
+                  word_boundary_chars = None,
                   try_git = False):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_bool(word_boundary)
-    check.check_set(boundary_chars, allow_none = True)
+    check.check_set(word_boundary_chars, allow_none = True)
     check.check_bool(try_git)
 
     clazz._log.log_method_d()
@@ -126,13 +126,13 @@ class refactor_files(object):
                                   src_pattern,
                                   dst_pattern,
                                   word_boundary,
-                                  boundary_chars)
+                                  word_boundary_chars)
     result = clazz._do_operation(refactor_operation_type.RENAME_DIRS,
                                  dirs,
                                  src_pattern,
                                  dst_pattern,
                                  word_boundary = word_boundary,
-                                 boundary_chars = boundary_chars,
+                                 word_boundary_chars = word_boundary_chars,
                                  try_git = try_git)
   
     for item in empty_dirs_operation_items:
@@ -152,7 +152,7 @@ class refactor_files(object):
                     src_pattern,
                     dst_pattern,
                     word_boundary = False,
-                    boundary_chars = None,
+                    word_boundary_chars = None,
                     try_git = False):
     options = file_resolver_options(recursive = True,
                                     sort_order = 'depth',
@@ -164,7 +164,7 @@ class refactor_files(object):
                                   src_pattern,
                                   dst_pattern,
                                   word_boundary,
-                                  boundary_chars)
+                                  word_boundary_chars)
     new_dirs = algorithm.unique([ path.dirname(item.dst) for item in operation_items ])
     new_dirs = [ d for d in new_dirs if d and not path.exists(d) ]
     for next_new_dir in new_dirs:
@@ -187,7 +187,7 @@ class refactor_files(object):
                          src_pattern,
                          dst_pattern,
                          word_boundary,
-                         boundary_chars):
+                         word_boundary_chars):
     assert isinstance(operation, refactor_operation_type)
 
     if operation == refactor_operation_type.RENAME_DIRS:
@@ -197,14 +197,14 @@ class refactor_files(object):
                                                src_pattern,
                                                dst_pattern,
                                                word_boundary = word_boundary,
-                                               boundary_chars = boundary_chars)
+                                               word_boundary_chars = word_boundary_chars)
       return path.join(replaced_dirname, basename)
     elif operation == refactor_operation_type.RENAME_FILES:
       return file_path.replace_all(filename,
                                    src_pattern,
                                    dst_pattern,
                                    word_boundary = word_boundary,
-                                   boundary_chars = boundary_chars)
+                                   word_boundary_chars = word_boundary_chars)
     elif operation == refactor_operation_type.COPY_FILES:
       basename = path.basename(filename)
       dirname = path.dirname(filename)
@@ -212,7 +212,7 @@ class refactor_files(object):
                                                 src_pattern,
                                                 dst_pattern,
                                                 word_boundary = word_boundary,
-                                                boundary_chars = boundary_chars)
+                                                word_boundary_chars = word_boundary_chars)
       return path.join(dirname, replaced_basename)
         
   @classmethod
@@ -222,7 +222,7 @@ class refactor_files(object):
                             src_pattern,
                             dst_pattern,
                             word_boundary,
-                            boundary_chars):
+                            word_boundary_chars):
     operation_items = []
     affected_dirs = []
     for f in resolved_files:
@@ -232,7 +232,7 @@ class refactor_files(object):
                                                   src_pattern,
                                                   dst_pattern,
                                                   word_boundary,
-                                                  boundary_chars)
+                                                  word_boundary_chars)
       if src_filename_rel != dst_filename_rel:
         affected_dirs.append(clazz._affected_dir(f.root_dir, path.dirname(f.filename)))
         src_filename_abs = path.join(f.root_dir, src_filename_rel)
@@ -253,24 +253,24 @@ class refactor_files(object):
   @classmethod
   def search_files(clazz, filenames, text,
                    word_boundary = False,
-                   boundary_chars = None):
+                   word_boundary_chars = None):
     'Return only the text files in filesnames.'
     result = []
     for filename in filenames:
       result += file_search.search_file(filename,
                                         text,
                                         word_boundary = word_boundary,
-                                        boundary_chars = boundary_chars)
+                                        word_boundary_chars = word_boundary_chars)
     return result
 
   @classmethod
   def match_files(clazz, filenames, text,
                   word_boundary = False,
-                  boundary_chars = None):
+                  word_boundary_chars = None):
     search_rv = clazz.search_files(filenames,
                                    text,
                                    word_boundary = word_boundary,
-                                   boundary_chars = boundary_chars)
+                                   word_boundary_chars = word_boundary_chars)
     return algorithm.unique([ s.filename for s in search_rv ])
       
   @classmethod

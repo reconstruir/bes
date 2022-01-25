@@ -31,7 +31,7 @@ class refactor_cli_handler(cli_command_handler):
                            src_pattern,
                            dst_pattern,
                            word_boundary = self.options.word_boundary,
-                           boundary_chars = word_boundary.CHARS_UNDERSCORE,
+                           word_boundary_chars = word_boundary.CHARS_UNDERSCORE,
                            try_git = self.options.try_git)
     return 0
 
@@ -44,7 +44,7 @@ class refactor_cli_handler(cli_command_handler):
                           src_pattern,
                           dst_pattern,
                           word_boundary = self.options.word_boundary,
-                          boundary_chars = word_boundary.CHARS_UNDERSCORE,
+                          word_boundary_chars = word_boundary.CHARS_UNDERSCORE,
                           try_git = self.options.try_git)
     return 0
 
@@ -57,7 +57,7 @@ class refactor_cli_handler(cli_command_handler):
                                src_pattern,
                                dst_pattern,
                                word_boundary = self.options.word_boundary,
-                               boundary_chars = word_boundary.CHARS_UNDERSCORE,
+                               word_boundary_chars = word_boundary.CHARS_UNDERSCORE,
                                try_git = True)
     return 0
 
@@ -70,7 +70,7 @@ class refactor_cli_handler(cli_command_handler):
                                 src_pattern,
                                 dst_pattern,
                                 word_boundary = self.options.word_boundary,
-                                boundary_chars = word_boundary.CHARS_UNDERSCORE,
+                                word_boundary_chars = word_boundary.CHARS_UNDERSCORE,
                                 try_git = True)
     return 0
 
@@ -83,7 +83,7 @@ class refactor_cli_handler(cli_command_handler):
                                  src_pattern,
                                  dst_pattern,
                                  word_boundary = self.options.word_boundary,
-                                 boundary_chars = word_boundary.CHARS_UNDERSCORE)
+                                 word_boundary_chars = word_boundary.CHARS_UNDERSCORE)
     return 0
 
   def reindent(self, files, indent, backup):
