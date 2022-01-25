@@ -139,7 +139,7 @@ class refactor_files(object):
       is_safe = next_operation_item.is_safe(operation)
       if not is_safe.safe:
         if options.unsafe:
-          options.blurber.blurb('UNSAFE: {is_safe.reason}')
+          options.blurber.blurb(f'UNSAFE: {is_safe.reason}')
         else:
           raise RuntimeError(is_safe.reason)
       
