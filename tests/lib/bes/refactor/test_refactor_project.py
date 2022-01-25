@@ -52,8 +52,9 @@ class test_refactor_project(unit_test, unit_test_media_files):
       f'{r.root}/xdata',
       f'{r.root}/kiwi',
     ]
-    options = refactor_options(try_git = True)
-    refactor_project.rename(args, 'fruit', 'cheese', word_boundary = False, options = options)
+    options = refactor_options(try_git = True,
+                               word_boundary = False)
+    refactor_project.rename(args, 'fruit', 'cheese', options = options)
     self.assertEqual( [
       ( 'R', 'lib/fruit/constants.py', 'lib/cheese/constants.py' ),
       ( 'R', 'lib/fruit/constants2.py', 'lib/cheese/constants2.py' ),
@@ -126,8 +127,9 @@ class test_refactor_project(unit_test, unit_test_media_files):
       f'{r.root}/xdata',
       f'{r.root}/kiwi',
     ]
-    options = refactor_options(try_git = True)
-    refactor_project.copy(args, 'kiwi', 'cheese', word_boundary = False, options = options)
+    options = refactor_options(try_git = True,
+                               word_boundary = False)
+    refactor_project.copy(args, 'kiwi', 'cheese', options = options)
     self.assertEqual( [
       ( 'A', 'kiwi/xdata2/kiwi_stuff2/cheese2.png', None ),
       ( 'AM', 'lib/fruit/cheese.py', None ),

@@ -63,14 +63,9 @@ class refactor_files(object):
   _affected_dir = namedtuple('_affected_dir', 'root_dir, dirname')
   _log = logger('refactor')
   @classmethod
-  def rename_files(clazz, files, src_pattern, dst_pattern,
-                   word_boundary = False,
-                   word_boundary_chars = None,
-                   options = None):
+  def rename_files(clazz, files, src_pattern, dst_pattern, options = None):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
-    check.check_bool(word_boundary)
-    check.check_set(word_boundary_chars, allow_none = True)
     check.check_refactor_options(options, allow_none = True)
 
     clazz._log.log_method_d()
@@ -79,43 +74,23 @@ class refactor_files(object):
                                files,
                                src_pattern,
                                dst_pattern,
-                               options,
-                               word_boundary = word_boundary,
-                               word_boundary_chars = word_boundary_chars)
+                               options)
 
   @classmethod
-  def copy_files(clazz,
-                 files,
-                 src_pattern,
-                 dst_pattern,
-                 word_boundary = False,
-                 word_boundary_chars = None,
-                 options = None):
+  def copy_files(clazz, files, src_pattern, dst_pattern, options = None):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
-    check.check_bool(word_boundary)
-    check.check_set(word_boundary_chars, allow_none = True)
     check.check_refactor_options(options, allow_none = True)
 
     clazz._log.log_method_d()
     options = options or refactor_options()
     return clazz._do_operation(refactor_operation_type.COPY_FILES,
-                               files,
-                               src_pattern,
-                               dst_pattern,
-                               options,
-                               word_boundary = word_boundary,
-                               word_boundary_chars = word_boundary_chars)
+                               files, src_pattern, dst_pattern, options)
     
   @classmethod
-  def rename_dirs(clazz, dirs, src_pattern, dst_pattern,
-                  word_boundary = False,
-                  word_boundary_chars = None,
-                  options = None):
+  def rename_dirs(clazz, dirs, src_pattern, dst_pattern, options = None):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
-    check.check_bool(word_boundary)
-    check.check_set(word_boundary_chars, allow_none = True)
     check.check_refactor_options(options, allow_none = True)
     
     options = options or refactor_options()
@@ -127,15 +102,13 @@ class refactor_files(object):
                                   resolved_empty_dirs,
                                   src_pattern,
                                   dst_pattern,
-                                  word_boundary,
-                                  word_boundary_chars)
+                                  options.word_boundary,
+                                  options.word_boundary_chars)
     result = clazz._do_operation(refactor_operation_type.RENAME_DIRS,
                                  dirs,
                                  src_pattern,
                                  dst_pattern,
-                                 options,
-                                 word_boundary = word_boundary,
-                                 word_boundary_chars = word_boundary_chars)
+                                 options)
   
     for item in empty_dirs_operation_items:
       file_util.mkdir(item.dst)
@@ -148,14 +121,7 @@ class refactor_files(object):
     return result
 
   @classmethod
-  def _do_operation(clazz,
-                    operation,
-                    dirs,
-                    src_pattern,
-                    dst_pattern,
-                    options,
-                    word_boundary = False,
-                    word_boundary_chars = None):
+  def _do_operation(clazz, operation, dirs, src_pattern, dst_pattern, options):
     assert options
     resolver_options = file_resolver_options(recursive = True,
                                              sort_order = 'depth',
@@ -166,8 +132,8 @@ class refactor_files(object):
                                   resolved_files,
                                   src_pattern,
                                   dst_pattern,
-                                  word_boundary,
-                                  word_boundary_chars)
+                                  options.word_boundary,
+                                  options.word_boundary_chars)
     new_dirs = algorithm.unique([ path.dirname(item.dst) for item in operation_items ])
     new_dirs = [ d for d in new_dirs if d and not path.exists(d) ]
     for next_new_dir in new_dirs:
@@ -254,26 +220,21 @@ class refactor_files(object):
     return operation_items, decomposed_affected_dirs
 
   @classmethod
-  def search_files(clazz, filenames, text,
-                   word_boundary = False,
-                   word_boundary_chars = None):
+  def search_files(clazz, filenames, text, options = None):
     'Return only the text files in filesnames.'
+    options = options or refactor_options()
     result = []
     for filename in filenames:
       result += file_search.search_file(filename,
                                         text,
-                                        word_boundary = word_boundary,
-                                        word_boundary_chars = word_boundary_chars)
+                                        word_boundary = options.word_boundary,
+                                        word_boundary_chars = options.word_boundary_chars)
     return result
 
   @classmethod
-  def match_files(clazz, filenames, text,
-                  word_boundary = False,
-                  word_boundary_chars = None):
-    search_rv = clazz.search_files(filenames,
-                                   text,
-                                   word_boundary = word_boundary,
-                                   word_boundary_chars = word_boundary_chars)
+  def match_files(clazz, filenames, text, options = None):
+    options = options or refactor_options()
+    search_rv = clazz.search_files(filenames, text, options = options)
     return algorithm.unique([ s.filename for s in search_rv ])
       
   @classmethod

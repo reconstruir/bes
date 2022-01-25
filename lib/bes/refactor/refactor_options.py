@@ -22,7 +22,7 @@ class refactor_options(cli_options):
       'dry_run': False,
       'verbose': False,
       'word_boundary': False,
-      'word_boundary_chars': word_boundary.CHARS_UNDERSCORE,
+      'word_boundary_chars': word_boundary.CHARS,
       'try_git': False,
       'unsafe': False,
     }
