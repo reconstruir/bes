@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from datetime import datetime
+from datetime import timedelta
+
 from bes.fs.file_path import file_path
 from bes.fs.file_poto import file_poto
 from bes.fs.file_poto_options import file_poto_options
+from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
 
-from _bes_unit_test_common.unit_test_media import unit_test_media
-from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
 from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
-class test_file_poto(unit_test, unit_test_media_files):
+class test_file_poto(unit_test):
 
   def test_find_duplicates(self):
     items = [
@@ -119,6 +121,32 @@ class test_file_poto(unit_test, unit_test_media_files):
       ( f'{t.src_dir}/c/kiwi_123.jpg', [
         f'{t.src_dir}/b/kiwi_1234.jpg',
         f'{t.src_dir}/a/kiwi_12345.jpg',
+      ] ),
+    ], t.result.items )
+
+  def test_find_duplicates_with_sort_key_modification_date(self):
+    items = [
+      temp_content('file', 'src/a/kiwi_03.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/b/kiwi_02.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/c/kiwi_01.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
+    ]
+    def _ptf(test):
+      file_util.set_modification_date(f'{test.src_dir}/c/kiwi_01.jpg',
+                                      datetime.now())
+      file_util.set_modification_date(f'{test.src_dir}/b/kiwi_02.jpg',
+                                      datetime.now() - timedelta(days = 1))
+      file_util.set_modification_date(f'{test.src_dir}/a/kiwi_03.jpg',
+                                      datetime.now() - timedelta(days = 2))
+    t = self._find_dups_test(extra_content_items = items,
+                             recursive = True,
+                             sort_key = file_poto_options.sort_key_modification_date,
+                             pre_test_function = _ptf)
+    self.assertEqual( [
+      ( f'{t.src_dir}/a/kiwi_03.jpg', [
+        f'{t.src_dir}/b/kiwi_02.jpg',
+        f'{t.src_dir}/c/kiwi_01.jpg',
       ] ),
     ], t.result.items )
     
