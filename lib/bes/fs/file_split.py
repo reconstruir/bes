@@ -67,7 +67,7 @@ class file_split(object):
       dl_files = clazz._files_group_is_still_downloading(files_group, options.check_downloading_extension)
       if dl_files:
         for f in dl_files:
-          options.blurber.blurb('Still downloading: {f}')
+          options.blurber.blurb(f'Still downloading: {f}')
         return None
     if not clazz._files_group_is_complete(files_group):
       raise file_split_error('Incomplete group:\n  {}'.format('\n  '.join(files_group)))
@@ -89,6 +89,8 @@ class file_split(object):
       basename = path.basename(filename)
       basename_without_extension = filename_util.without_extension(basename)
       ext = filename_util.extension(basename)
+      if not ext:
+        return False
       ext_len = len(ext)
       if basename_without_extension != first_basename_without_extension:
         return False
