@@ -6,6 +6,7 @@ from bes.common.check import check
 from .file_duplicates import file_duplicates
 from .file_duplicates_options import file_duplicates_options
 from .file_check import file_check
+from .file_util import file_util
 
 class file_duplicates_cli_handler(cli_command_handler):
   'dir project cli handler.'
@@ -24,4 +25,9 @@ class file_duplicates_cli_handler(cli_command_handler):
       print(f'{item.filename}:')
       for dup in item.duplicates:
         print(f'  {dup}')
+        if delete:
+          if self.options.dry_run:
+            print(f'DRY_RUN: delete {dup}')
+          else:
+            file_util.remove(dup)
     return 0
