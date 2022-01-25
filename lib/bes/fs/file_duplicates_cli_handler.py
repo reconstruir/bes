@@ -37,6 +37,9 @@ class file_duplicates_cli_handler(cli_command_handler):
           print(f'DRY_RUN: delete {f}')
       else:
         file_util.remove(dup_filenames)
+        if self.options.verbose:
+          for f in dup_filenames:
+            print(f'DELETED file: {f}')
         if not keep_empty_dirs:
           fmap = dups.resolved_files.filename_abs_map()
           possible_empty_dir_roots = []
@@ -44,6 +47,11 @@ class file_duplicates_cli_handler(cli_command_handler):
             item = fmap[f]
             possible_empty_dir_roots.append(item.root_dir)
           possible_empty_dir_roots = algorithm.unique(possible_empty_dir_roots)
+          deleted_dirs = []
           for d in possible_empty_dir_roots:
-            file_find.remove_empty_dirs(d)
+            next_deleted_dirs = file_find.remove_empty_dirs(d)
+            deleted_dirs.extend(next_deleted_dirs)
+          if self.options.verbose:
+            for d in deleted_dirs:
+              print(f'DELETED empty dir: {d}')
     return 0
