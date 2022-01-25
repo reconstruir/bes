@@ -10,6 +10,7 @@ from datetime import timedelta
 from bes.archive.temp_archive import temp_archive
 from bes.fs.file_split import file_split
 from bes.fs.file_split_options import file_split_options
+from bes.fs.file_split_error import file_split_error
 from bes.fs.file_split import file_split
 from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
@@ -42,6 +43,19 @@ class test_file_split(unit_test):
       'b/icons/lemon.jpg',
     ], t.src_files )
 
+  def test_find_and_unsplit_incomplete_set(self):
+    items = [
+      temp_content('file', 'src/a/foo/kiwi.txt', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.001', 'part001', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.003', 'part003', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.01', 'part01', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.02', 'part02', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.03', 'part03', 0o0644),
+    ]
+    with self.assertRaises(file_split_error) as ctx:
+      self._find_and_unsplit_test(extra_content_items = items,
+                                  recursive = True)
+    
   def test_split_file_basic(self):
     NUM_ITEMS = 10
     CONTENT_SIZE = 1024 * 100

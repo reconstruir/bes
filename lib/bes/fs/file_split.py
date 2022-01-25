@@ -48,6 +48,8 @@ class file_split(object):
   @classmethod
   def _unsplit_one(clazz, first_filename):
     all_in_set = clazz._all_in_set(first_filename)
+    if not clazz._file_set_is_complete(all_in_set):
+      raise file_split_error('Incomplete set:\n  {}'.format('\n  '.join(all_in_set)))
     target_filename = filename_util.without_extension(first_filename)
     for x in all_in_set:
       clazz.unsplit_files(target_filename, all_in_set)
@@ -65,6 +67,12 @@ class file_split(object):
     assert len(files) > 0
     assert files[0] == first_filename
     return files
+
+  @classmethod
+  def _file_set_is_complete(clazz, files):
+    last_ext = filename_util.extension(files[-1])
+    last_index = int(last_ext)
+    return len(files) == last_index
   
   @classmethod
   def split_file(clazz, filename, chunk_size):
