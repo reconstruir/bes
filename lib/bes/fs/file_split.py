@@ -14,6 +14,7 @@ from bes.system.check import check
 from bes.system.log import logger
 
 from .file_split_options import file_split_options
+from .file_split_error import file_split_error
 from .file_check import file_check
 from .file_util import file_util
 from .filename_util import filename_util
@@ -31,7 +32,7 @@ class file_split(object):
   _dup_item = namedtuple('_dup_item', 'filename, duplicates')
   _find_duplicates_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
   @classmethod
-  def unsplit(clazz, files, options = None):
+  def find_and_unsplit(clazz, files, options = None):
     check.check_string_seq(files)
     check.check_file_split_options(options, allow_none = True)
 

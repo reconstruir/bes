@@ -4,6 +4,7 @@ from os import path
 
 from bes.cli.cli_options import cli_options
 from bes.common.check import check
+from bes.script.blurber import blurber
 
 from .files_cli_options import files_cli_options
 
@@ -17,19 +18,22 @@ class file_split_options(files_cli_options):
   def default_values(clazz):
     'Return a dict of defaults for these options.'
     return clazz.super_default_values({
-      'target_extension': 'zip',
+      'blurber': blurber(),
+      'check_downloading': True,
     })
   
   @classmethod
   #@abstractmethod
   def value_type_hints(clazz):
     return clazz.super_value_type_hints({
+      'check_downloading': bool,
     })
 
   #@abstractmethod
   def check_value_types(self):
     'Check the type of each option.'
     super(file_split_options, self).check_value_types()
-    check.check_string(self.target_extension)
+    check.check_bool(self.check_downloading)
+    check.check_blurber(self.blurber)
 
 check.register_class(file_split_options)

@@ -19,7 +19,7 @@ from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
 class test_file_split(unit_test):
 
-  def test_unsplit(self):
+  def test_find_and_unsplit(self):
     items = [
       temp_content('file', 'src/a/foo/kiwi.txt', 'this is kiwi', 0o0644),
       temp_content('file', 'src/a/parts/foo.txt.001', 'part001', 0o0644),
@@ -29,8 +29,7 @@ class test_file_split(unit_test):
       temp_content('file', 'src/b/icons/lemon.jpg.02', 'part02', 0o0644),
       temp_content('file', 'src/b/icons/lemon.jpg.03', 'part03', 0o0644),
     ]
-    return
-    t = self._unsplit_test(extra_content_items = items,
+    t = self._find_and_unsplit_test(extra_content_items = items,
                            recursive = True)
     self.assertEqual( [
       'a',
@@ -92,14 +91,13 @@ class test_file_split(unit_test):
       v.append(chars[i])
     return ''.join(v)
     
-  def _unsplit_test(self,
-                    extra_content_items = None,
-                    recursive = False,
-                    ):
+  def _find_and_unsplit_test(self,
+                             extra_content_items = None,
+                             recursive = False):
     options = file_split_options(recursive = recursive)
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
-      test.result = file_split.unsplit_files([ test.src_dir ],
-                                             options = options)
+      test.result = file_split.find_and_unsplit([ test.src_dir ],
+                                                options = options)
     return test
     
 if __name__ == '__main__':
