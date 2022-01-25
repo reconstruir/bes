@@ -20,6 +20,8 @@ class file_split_options(files_cli_options):
     return clazz.super_default_values({
       'blurber': blurber(),
       'check_downloading': True,
+      'check_modified': False,
+      'check_modified_interval': 250.0,
     })
   
   @classmethod
@@ -27,6 +29,8 @@ class file_split_options(files_cli_options):
   def value_type_hints(clazz):
     return clazz.super_value_type_hints({
       'check_downloading': bool,
+      'check_modified': bool,
+      'check_modified_interval': float,
     })
 
   #@abstractmethod
@@ -34,6 +38,8 @@ class file_split_options(files_cli_options):
     'Check the type of each option.'
     super(file_split_options, self).check_value_types()
     check.check_bool(self.check_downloading)
+    check.check_bool(self.check_modified)
+    check.check_float(self.check_modified_interval)
     check.check_blurber(self.blurber)
 
 check.register_class(file_split_options)

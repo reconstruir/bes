@@ -47,29 +47,46 @@ class file_split(object):
 
   @classmethod
   def _unsplit_one(clazz, first_filename):
-    all_in_set = clazz._all_in_set(first_filename)
-    if not clazz._file_set_is_complete(all_in_set):
-      raise file_split_error('Incomplete set:\n  {}'.format('\n  '.join(all_in_set)))
+    files_group = clazz._files_group(first_filename)
+    if len(files_group) == 1:
+      return
+    for x in files_group:
+      print(f'x={x}')
+    if not clazz._files_group_is_complete(files_group):
+      raise file_split_error('Incomplete group:\n  {}'.format('\n  '.join(files_group)))
     target_filename = filename_util.without_extension(first_filename)
-    for x in all_in_set:
-      clazz.unsplit_files(target_filename, all_in_set)
-    file_util.remove(all_in_set)
+    for x in files_group:
+      clazz.unsplit_files(target_filename, files_group)
+    file_util.remove(files_group)
 
   @classmethod
-  def _all_in_set(clazz, first_filename):
+  def _files_group(clazz, first_filename):
     ext = filename_util.extension(first_filename)
     base = path.basename(filename_util.without_extension(first_filename))
-    ext_pattern = r'\d' * len(ext)
-    pattern = rf'{base}\.{ext_pattern}'
+
+    first_basename = path.basename(first_filename)
+    first_basename_without_extension = filename_util.without_extension(first_basename)
+    first_ext = filename_util.extension(first_basename)
+    first_ext_len = len(first_ext)
+    
+    def _is_group_file(filename):
+      basename = path.basename(filename)
+      basename_without_extension = filename_util.without_extension(basename)
+      ext = filename_util.extension(basename)
+      ext_len = len(ext)
+      if basename_without_extension != first_basename_without_extension:
+        return False
+      if ext_len != first_ext_len:
+        return False
+      return ext.isdigit()
     files = dir_util.list(path.dirname(first_filename),
-                          expressions = pattern,
-                          basename = True)
+                          function = _is_group_file)
     assert len(files) > 0
     assert files[0] == first_filename
     return files
 
   @classmethod
-  def _file_set_is_complete(clazz, files):
+  def _files_group_is_complete(clazz, files):
     last_ext = filename_util.extension(files[-1])
     last_index = int(last_ext)
     return len(files) == last_index

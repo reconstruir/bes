@@ -18,14 +18,18 @@ from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
+_DEFAULT_FILE_SPLIT_OPTIONS = file_split_options()
+
 class test_file_split(unit_test):
 
   def test_find_and_unsplit(self):
     items = [
       temp_content('file', 'src/a/foo/kiwi.txt', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/parts/xfoo.txt.001', 'garbage', 0o0644),
       temp_content('file', 'src/a/parts/foo.txt.001', 'part001', 0o0644),
       temp_content('file', 'src/a/parts/foo.txt.002', 'part002', 0o0644),
       temp_content('file', 'src/a/parts/foo.txt.003', 'part003', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.003.garbage', 'garbage', 0o0644),
       temp_content('file', 'src/b/icons/lemon.jpg.01', 'part01', 0o0644),
       temp_content('file', 'src/b/icons/lemon.jpg.02', 'part02', 0o0644),
       temp_content('file', 'src/b/icons/lemon.jpg.03', 'part03', 0o0644),
@@ -38,6 +42,8 @@ class test_file_split(unit_test):
       'a/foo/kiwi.txt',
       'a/parts',
       'a/parts/foo.txt',
+      'a/parts/foo.txt.003.garbage',
+      'a/parts/xfoo.txt.001',
       'b',
       'b/icons',
       'b/icons/lemon.jpg',
@@ -55,7 +61,35 @@ class test_file_split(unit_test):
     with self.assertRaises(file_split_error) as ctx:
       self._find_and_unsplit_test(extra_content_items = items,
                                   recursive = True)
-    
+
+  def xtest_find_and_unsplit_with_check_downloading(self):
+    items = [
+      temp_content('file', 'src/a/foo/kiwi.txt', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.001', 'part001', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.002', 'part002', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.003', 'part003', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.003.part', 'foo', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.01', 'part01', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.02', 'part02', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.03', 'part03', 0o0644),
+    ]
+    t = self._find_and_unsplit_test(extra_content_items = items,
+                                    recursive = True,
+                                    check_downloading = True)
+    self.assertEqual( [
+      'a',
+      'a/foo',
+      'a/foo/kiwi.txt',
+      'a/parts',
+      'a/parts/foo.txt.001',
+      'a/parts/foo.txt.002',
+      'a/parts/foo.txt.003',
+      'a/parts/foo.txt.003.part',
+      'b',
+      'b/icons',
+      'b/icons/lemon.jpg',
+    ], t.src_files )
+      
   def test_split_file_basic(self):
     NUM_ITEMS = 10
     CONTENT_SIZE = 1024 * 100
@@ -104,11 +138,15 @@ class test_file_split(unit_test):
       i = random.randint(0, (len(chars) - 1))
       v.append(chars[i])
     return ''.join(v)
-    
+
   def _find_and_unsplit_test(self,
                              extra_content_items = None,
-                             recursive = False):
-    options = file_split_options(recursive = recursive)
+                             recursive = False,
+                             check_downloading = _DEFAULT_FILE_SPLIT_OPTIONS.check_downloading,
+                             check_modified = _DEFAULT_FILE_SPLIT_OPTIONS.check_modified,
+                             check_modified_interval = _DEFAULT_FILE_SPLIT_OPTIONS.check_modified_interval):
+    options = file_split_options(recursive = recursive,
+                                 check_downloading = check_downloading)
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
       test.result = file_split.find_and_unsplit([ test.src_dir ],
                                                 options = options)
