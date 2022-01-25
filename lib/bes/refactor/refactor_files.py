@@ -138,7 +138,10 @@ class refactor_files(object):
     for next_operation_item in operation_items:
       is_safe = next_operation_item.is_safe(operation)
       if not is_safe.safe:
-        raise RuntimeError(is_safe.reason)
+        if options.unsafe:
+          options.blurber.blurb('UNSAFE: {is_safe.reason}')
+        else:
+          raise RuntimeError(is_safe.reason)
       
     new_dirs = algorithm.unique([ path.dirname(item.dst) for item in operation_items ])
     new_dirs = [ d for d in new_dirs if d and not path.exists(d) ]
