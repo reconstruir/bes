@@ -165,11 +165,15 @@ class refactor_files(object):
                                   dst_pattern,
                                   word_boundary,
                                   boundary_chars)
+
+    for next_operation_item in operation_items:
+      is_safe = next_operation_item.is_safe(operation)
+      if not is_safe.safe:
+        raise RuntimeError(is_safe.reason)
     new_dirs = algorithm.unique([ path.dirname(item.dst) for item in operation_items ])
     new_dirs = [ d for d in new_dirs if d and not path.exists(d) ]
     for next_new_dir in new_dirs:
       if operation == refactor_operation_type.COPY_FILES:
-        print(f'next_new_dir={next_new_dir}')
         assert False
       file_util.mkdir(next_new_dir)
     for next_operation_item in operation_items:
