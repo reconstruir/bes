@@ -36,7 +36,7 @@ class dir_split(object):
     check.check_dir_split_options(options, allow_none = True)
 
     options = options or dir_split_options()
-    info = clazz._split_info(src_dir_abs, dst_dir_abs, options)
+    info = clazz.split_info(src_dir_abs, dst_dir_abs, options)
     #assert len(info.items) > 0
     #for x in info.items:
     #  print(f'CACA: {x}')
@@ -57,7 +57,7 @@ class dir_split(object):
       
   _split_items_info = namedtuple('_split_items_info', 'items, existing_split_dirs, possible_empty_dirs_roots')
   @classmethod
-  def _split_info(clazz, src_dir, dst_dir, options):
+  def split_info(clazz, src_dir, dst_dir, options):
     assert path.isabs(src_dir)
     assert path.isabs(dst_dir)
 
@@ -93,10 +93,10 @@ class dir_split(object):
       new_files = dir_util.list_files(src_dir)
       possible_empty_dirs_roots = []
 
-#    for x in old_files:
-#      print(f'OLD: {x}')
-#    for x in new_files:
-#      print(f'NEW: {x}')
+    for x in old_files:
+      print(f'OLD: {x}')
+    for x in new_files:
+      print(f'NEW: {x}')
       
     files = algorithm.unique(old_files + new_files)
     sorted_files = clazz._sort_files(files,
@@ -109,9 +109,9 @@ class dir_split(object):
       formatted_chunk_number = str(chunk_number).zfill(num_digits)
       dst_basename = f'{options.prefix}{formatted_chunk_number}'
       chunk_dst_dir = path.join(dst_dir, dst_basename)
-      print(f'formatted_chunk_number={formatted_chunk_number}')
-      print(f'dst_basename={dst_basename}')
-      print(f'chunk_dst_dir={chunk_dst_dir}')
+      print(f'{chunk_number}: formatted_chunk_number={formatted_chunk_number}')
+      print(f'{chunk_number}: dst_basename={dst_basename}')
+      print(f'{chunk_number}: chunk_dst_dir={chunk_dst_dir}')
       for filename in chunk:
         dst_filename = path.join(chunk_dst_dir, path.basename(filename))
         #print(f'making item:\nfilename={filename}\ndst_filename={dst_filename}\ndst_basename={dst_basename}')
@@ -127,7 +127,7 @@ class dir_split(object):
     dst_dir_abs = path.abspath(dst_dir)
     check.check_dir_split_options(options, allow_none = True)
 
-    info = clazz._split_info(src_dir_abs, dst_dir_abs, options)
+    info = clazz.split_info(src_dir_abs, dst_dir_abs, options)
     return info.items
   
   @classmethod

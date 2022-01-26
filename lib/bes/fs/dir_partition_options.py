@@ -4,8 +4,8 @@ from bes.cli.cli_options import cli_options
 from bes.common.check import check
 from bes.common.time_util import time_util
 
-from .files_cli_options import files_cli_options
 from .dir_partition_type import dir_partition_type
+from .files_cli_options import files_cli_options
 
 class dir_partition_options(files_cli_options):
 
