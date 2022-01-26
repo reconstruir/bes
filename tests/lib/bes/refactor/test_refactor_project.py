@@ -55,52 +55,130 @@ class test_refactor_project(unit_test, unit_test_media_files):
     options = refactor_options(try_git = True,
                                word_boundary = False)
     refactor_project.rename(args, 'fruit', 'cheese', options = options)
-    self.assertEqual( [
-      ( 'R', 'lib/fruit/constants.py', 'lib/cheese/constants.py' ),
-      ( 'R', 'lib/fruit/constants2.py', 'lib/cheese/constants2.py' ),
-      ( 'R', 'lib/fruit/kiwi.py', 'lib/cheese/kiwi.py' ),
-      ( 'R', 'lib/fruit/kiwi_fruit.py', 'lib/cheese/kiwi_cheese.py' ),
-      ( 'R', 'lib/fruit/kiwifruit.py', 'lib/cheese/kiwicheese.py' ),
-      ( 'R', 'lib/fruit/lemon.py', 'lib/cheese/lemon.py' ),
-      ( 'R', 'lib/fruity/constants2b.py', 'lib/cheesey/constants2b.py' ),
-      ( 'R', 'tests/lib/fruit/test_kiwi.py', 'tests/lib/cheese/test_kiwi.py' ),
-      ( 'R', 'tests/lib/fruit/test_kiwi_fruit.py', 'tests/lib/cheese/test_kiwi_cheese.py' ),
-      ( 'R', 'tests/lib/fruit/test_kiwifruit.py', 'tests/lib/cheese/test_kiwicheese.py' ),
-      ( 'R', 'tests/lib/fruit/test_lemon.py', 'tests/lib/cheese/test_lemon.py' ),
-      ( 'R', 'tests/lib/fruity/test_lemonb.py', 'tests/lib/cheesey/test_lemonb.py' ),
-    ], r.status('.') )
-    self.assert_filename_list_equal( [
-      'empty_rootdir',
-      'kiwi',
-      'kiwi/xdata2',
-      'kiwi/xdata2/kiwi_stuff2',
-      'kiwi/xdata2/kiwi_stuff2/kiwi2.png',
-      'lib',
-      'lib/cheese',
-      'lib/cheese/constants.py',
-      'lib/cheese/constants2.py',
-      'lib/cheese/kiwi.py',
-      'lib/cheese/kiwi_cheese.py',
-      'lib/cheese/kiwicheese.py',
-      'lib/cheese/lemon.py',
-      'lib/cheesey',
-      'lib/cheesey/constants2b.py',
-      'lib/fruit',
-      'lib/fruit/emptydir',
-      'tests',
-      'tests/lib',
-      'tests/lib/cheese',
-      'tests/lib/cheese/test_kiwi.py',
-      'tests/lib/cheese/test_kiwi_cheese.py',
-      'tests/lib/cheese/test_kiwicheese.py',
-      'tests/lib/cheese/test_lemon.py',
-      'tests/lib/cheesey',
-      'tests/lib/cheesey/test_lemonb.py',
-      'xdata',
-      'xdata/kiwi_stuff',
-      'xdata/kiwi_stuff/kiwi.png',
-    ], r.find_all_files(file_type = file_find.ANY) )
+    self.assert_string_equal_fuzzy( '''\
+R lib/fruit/constants.py -> lib/cheese/constants.py
+R lib/fruit/constants2.py -> lib/cheese/constants2.py
+R lib/fruit/kiwi.py -> lib/cheese/kiwi.py
+R lib/fruit/kiwi_fruit.py -> lib/cheese/kiwi_cheese.py
+R lib/fruit/kiwifruit.py -> lib/cheese/kiwicheese.py
+R lib/fruit/lemon.py -> lib/cheese/lemon.py
+R lib/fruity/constants2b.py -> lib/cheesey/constants2b.py
+R tests/lib/fruit/test_kiwi.py -> tests/lib/cheese/test_kiwi.py
+R tests/lib/fruit/test_kiwi_fruit.py -> tests/lib/cheese/test_kiwi_cheese.py
+R tests/lib/fruit/test_kiwifruit.py -> tests/lib/cheese/test_kiwicheese.py
+R tests/lib/fruit/test_lemon.py -> tests/lib/cheese/test_lemon.py
+R tests/lib/fruity/test_lemonb.py -> tests/lib/cheesey/test_lemonb.py
+''', r.status_as_string('.') )
+    self.assert_string_equal_fuzzy( '''\
+empty_rootdir
+kiwi
+kiwi/xdata2
+kiwi/xdata2/kiwi_stuff2
+kiwi/xdata2/kiwi_stuff2/kiwi2.png
+lib
+lib/cheese
+lib/cheese/constants.py
+lib/cheese/constants2.py
+lib/cheese/kiwi.py
+lib/cheese/kiwi_cheese.py
+lib/cheese/kiwicheese.py
+lib/cheese/lemon.py
+lib/cheesey
+lib/cheesey/constants2b.py
+lib/fruit
+lib/fruit/emptydir
+tests
+tests/lib
+tests/lib/cheese
+tests/lib/cheese/test_kiwi.py
+tests/lib/cheese/test_kiwi_cheese.py
+tests/lib/cheese/test_kiwicheese.py
+tests/lib/cheese/test_lemon.py
+tests/lib/cheesey
+tests/lib/cheesey/test_lemonb.py
+xdata
+xdata/kiwi_stuff
+xdata/kiwi_stuff/kiwi.png
+''', r.find_all_files_as_string(file_type = file_find.ANY) )
 
+  @git_temp_home_func()
+  def test_rename_with_gitignore(self):
+    r = self._make_temp_content([
+      temp_content('dir', 'empty_rootdir', None, 0o0755),
+      temp_content('dir', 'lib/fruit/emptydir', None, 0o0755),
+      temp_content('file', '.gitignore', '*~\n', 0o0644),
+      temp_content('file', 'lib/fruit/constants.py', self.CONSTANTS_PY, 0o0644),
+      temp_content('file', 'lib/fruit/constants2.py', self.CONSTANTS2_PY, 0o0644),
+      temp_content('file', 'lib/fruit/kiwi.py', self.KIWI_PY, 0o0644),
+      temp_content('file', 'lib/fruit/kiwifruit.py', self.KIWI_PY, 0o0644),
+      temp_content('file', 'lib/fruit/kiwi_fruit.py', self.KIWI_PY, 0o0644),
+      temp_content('file', 'lib/fruit/lemon.py', self.LEMON_PY, 0o0644),
+      temp_content('file', 'lib/fruity/constants2b.py', self.CONSTANTS2_PY, 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_kiwi.py', self.TEST_KIWI_py, 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_kiwifruit.py', self.TEST_KIWI_py, 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_kiwifruit.py~', self.TEST_KIWI_py, 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_kiwi_fruit.py', self.TEST_KIWI_py, 0o0644),
+      temp_content('file', 'tests/lib/fruit/test_lemon.py', self.TEST_LEMON_py, 0o0644),
+      temp_content('file', 'tests/lib/fruity/test_lemonb.py', self.TEST_LEMON_py, 0o0644),
+      temp_content('file', 'xdata/kiwi_stuff/kiwi.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.png', unit_test_media.PNG_SMALLEST_POSSIBLE, 0o0644),
+    ])
+    args = [
+      f'{r.root}/lib',
+      f'{r.root}/tests',
+      f'{r.root}/xdata',
+      f'{r.root}/kiwi',
+    ]
+    options = refactor_options(try_git = True,
+                               word_boundary = False)
+    refactor_project.rename(args, 'fruit', 'cheese', options = options)
+    self.assert_string_equal_fuzzy( '''\
+R lib/fruit/constants.py -> lib/cheese/constants.py
+R lib/fruit/constants2.py -> lib/cheese/constants2.py
+R lib/fruit/kiwi.py -> lib/cheese/kiwi.py
+R lib/fruit/kiwi_fruit.py -> lib/cheese/kiwi_cheese.py
+R lib/fruit/kiwifruit.py -> lib/cheese/kiwicheese.py
+R lib/fruit/lemon.py -> lib/cheese/lemon.py
+R lib/fruity/constants2b.py -> lib/cheesey/constants2b.py
+R tests/lib/fruit/test_kiwi.py -> tests/lib/cheese/test_kiwi.py
+R tests/lib/fruit/test_kiwi_fruit.py -> tests/lib/cheese/test_kiwi_cheese.py
+R tests/lib/fruit/test_kiwifruit.py -> tests/lib/cheese/test_kiwicheese.py
+R tests/lib/fruit/test_lemon.py -> tests/lib/cheese/test_lemon.py
+R tests/lib/fruity/test_lemonb.py -> tests/lib/cheesey/test_lemonb.py
+''', r.status_as_string('.') )
+    self.assert_string_equal_fuzzy( '''\
+empty_rootdir
+kiwi
+kiwi/xdata2
+kiwi/xdata2/kiwi_stuff2
+kiwi/xdata2/kiwi_stuff2/kiwi2.png
+lib
+lib/cheese
+lib/cheese/constants.py
+lib/cheese/constants2.py
+lib/cheese/kiwi.py
+lib/cheese/kiwi_cheese.py
+lib/cheese/kiwicheese.py
+lib/cheese/lemon.py
+lib/cheesey
+lib/cheesey/constants2b.py
+lib/fruit
+lib/fruit/emptydir
+tests
+tests/lib
+tests/lib/cheese
+tests/lib/cheese/test_kiwi.py
+tests/lib/cheese/test_kiwi_cheese.py
+tests/lib/cheese/test_kiwicheese.py
+tests/lib/cheese/test_kiwicheese.py~
+tests/lib/cheese/test_lemon.py
+tests/lib/cheesey
+tests/lib/cheesey/test_lemonb.py
+xdata
+xdata/kiwi_stuff
+xdata/kiwi_stuff/kiwi.png
+''', r.find_all_files_as_string(file_type = file_find.ANY) )
+    
   @git_temp_home_func()
   def test_copy(self):
     r = self._make_temp_content([
