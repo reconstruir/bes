@@ -5,6 +5,7 @@ from os import path
 from bes.cli.cli_options import cli_options
 from bes.common.check import check
 from bes.common.time_util import time_util
+from bes.script.blurber import blurber
 
 from .files_cli_options import files_cli_options
 from .file_util import file_util
@@ -19,6 +20,7 @@ class file_duplicates_options(files_cli_options):
   def default_values(clazz):
     'Return a dict of defaults for these options.'
     return clazz.super_default_values({
+      'blurber': blurber(),
       'small_checksum_size': 1024 * 1024,
       'prefer_prefixes': None,
       'sort_key': None,
@@ -43,6 +45,7 @@ class file_duplicates_options(files_cli_options):
     check.check_string_seq(self.prefer_prefixes, allow_none = True)
     check.check_function(self.sort_key, allow_none = True)
     check.check_bool(self.include_empty_files)
+    check.check_blurber(self.blurber)
 
   @staticmethod
   def sort_key_modification_date(filename):
