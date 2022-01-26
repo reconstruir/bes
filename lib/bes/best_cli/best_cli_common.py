@@ -9,6 +9,8 @@ from bes.docker.docker_cli_args import docker_cli_args
 from bes.egg.egg_cli_args import egg_cli_args
 from bes.fs.dir_partition_cli_args import dir_partition_cli_args
 from bes.fs.dir_split_cli_args import dir_split_cli_args
+from bes.fs.file_duplicates_cli_args import file_duplicates_cli_args
+from bes.fs.file_split_cli_args import file_split_cli_args
 from bes.fs.files_cli_args import files_cli_args
 from bes.git.git_cli_args import git_cli_args
 from bes.git.git_download_cli_args import git_download_cli_args
@@ -46,6 +48,8 @@ COMMON_COMMAND_GROUPS = [
   cli_command('dir_split', 'dir_split_add_args', 'Directory split', dir_split_cli_args),
   cli_command('docker', 'docker_add_args', 'Docker stuff', docker_cli_args),
   cli_command('egg', 'egg_add_args', 'Deal with eggs', egg_cli_args),
+  cli_command('file_duplicates', 'file_duplicates_add_args', 'Directory partition', file_duplicates_cli_args),
+  cli_command('file_split', 'file_split_add_args', 'Directory partition', file_split_cli_args),
   cli_command('files', 'files_add_args', 'File stuff', files_cli_args),
   cli_command('git', 'git_add_args', 'Deal with git', git_cli_args),
   cli_command('git_download', 'git_download_add_args', 'Deal with git downloads', git_download_cli_args),

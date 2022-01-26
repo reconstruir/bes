@@ -21,18 +21,14 @@ class refactor_cli_handler(cli_command_handler):
     super(refactor_cli_handler, self).__init__(cli_args, options_class = refactor_options)
     check.check_refactor_options(self.options)
     self.options.blurber.set_verbose(self.options.verbose)
+    self.options.word_boundary_chars = word_boundary.CHARS_UNDERSCORE
 
   def rename(self, files, src_pattern, dst_pattern):
     check.check_string_seq(files)
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
 
-    refactor_project.rename(files,
-                           src_pattern,
-                           dst_pattern,
-                           word_boundary = self.options.word_boundary,
-                           boundary_chars = word_boundary.CHARS_UNDERSCORE,
-                           try_git = self.options.try_git)
+    refactor_project.rename(files, src_pattern, dst_pattern, options = self.options)
     return 0
 
   def copy(self, files, src_pattern, dst_pattern):
@@ -40,12 +36,7 @@ class refactor_cli_handler(cli_command_handler):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
 
-    refactor_project.copy(files,
-                          src_pattern,
-                          dst_pattern,
-                          word_boundary = self.options.word_boundary,
-                          boundary_chars = word_boundary.CHARS_UNDERSCORE,
-                          try_git = self.options.try_git)
+    refactor_project.copy(files, src_pattern, dst_pattern, options = self.options)
     return 0
 
   def rename_dirs(self, dirs, src_pattern, dst_pattern):
@@ -53,12 +44,7 @@ class refactor_cli_handler(cli_command_handler):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
 
-    refactor_files.rename_dirs(dirs,
-                               src_pattern,
-                               dst_pattern,
-                               word_boundary = self.options.word_boundary,
-                               boundary_chars = word_boundary.CHARS_UNDERSCORE,
-                               try_git = True)
+    refactor_files.rename_dirs(dirs, src_pattern, dst_pattern, options = self.options)
     return 0
 
   def rename_files(self, files, src_pattern, dst_pattern):
@@ -66,12 +52,7 @@ class refactor_cli_handler(cli_command_handler):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
 
-    refactor_files.rename_files(files,
-                                src_pattern,
-                                dst_pattern,
-                                word_boundary = self.options.word_boundary,
-                                boundary_chars = word_boundary.CHARS_UNDERSCORE,
-                                try_git = True)
+    refactor_files.rename_files(files, src_pattern, dst_pattern, options = self.options)
     return 0
 
   def replace_text(self, files, src_pattern, dst_pattern):
@@ -79,11 +60,7 @@ class refactor_cli_handler(cli_command_handler):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
 
-    refactor_project.replace_text(files,
-                                 src_pattern,
-                                 dst_pattern,
-                                 word_boundary = self.options.word_boundary,
-                                 boundary_chars = word_boundary.CHARS_UNDERSCORE)
+    refactor_project.replace_text(files, src_pattern, dst_pattern, options = self.options)
     return 0
 
   def reindent(self, files, indent, backup):

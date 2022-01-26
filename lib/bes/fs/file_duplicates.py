@@ -1,66 +1,128 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
-from collections import OrderedDict
-from os import path
+import os.path as path
 
-from bes.common.object_util import object_util
 from bes.system.check import check
 from bes.system.log import logger
-from bes.fs.file_check import file_check
+from bes.fs.file_resolver import file_resolver
+from bes.fs.file_resolver_item_list import file_resolver_item_list
+from bes.fs.file_resolver_options import file_resolver_options
 
-from .file_checksum_getter_attributes import file_checksum_getter_attributes
-from .file_checksum_getter_db import file_checksum_getter_db
-from .file_attributes_error import file_attributes_permission_error 
-from .file_find import file_find
+from .file_duplicates_options import file_duplicates_options
+from .file_check import file_check
 from .file_util import file_util
+from .file_attributes_metadata import file_attributes_metadata
 
 class file_duplicates(object):
+  'A class to find duplicate files'
 
   _log = logger('file_duplicates')
 
-  DEFAULT_CHECKSUM_DB = path.expanduser('~/.bes/dups/checksum.db')
-
-  _file_checksum_getter_attributes = file_checksum_getter_attributes()
-  
   _dup_item = namedtuple('_dup_item', 'filename, duplicates')
-  _ordered_filename = namedtuple('_ordered_filename', 'filename, checksum, order')
+  _find_duplicates_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
   @classmethod
-  def find_duplicates(clazz, dirs, checksum_db_filename = None):
-    check.check_string(checksum_db_filename, allow_none = True)
-    checksum_db_filename = checksum_db_filename or clazz.DEFAULT_CHECKSUM_DB
-    
-    dirs = file_check.check_dir_seq(object_util.listify(dirs))
+  def find_duplicates(clazz, files, options = None):
+    check.check_string_seq(files)
+    check.check_file_duplicates_options(options, allow_none = True)
 
-    for d in dirs:
-      clazz._log.log_d('find_duplicates: dirs: {}'.format(d))
-    
-    files = []
-    for d in dirs:
-      files.extend(file_find.find(d, relative = False, file_type = file_find.FILE))
-    checksum_to_files = OrderedDict()
-    ordered_files = []
-    for order, f in enumerate(files):
-      checksum = clazz._file_checksum(f, checksum_db_filename)
-      if not checksum in checksum_to_files:
-        checksum_to_files[checksum] = []
-      checksum_to_files[checksum].append(clazz._ordered_filename(f, checksum, order))
-      #print('done {} of {}'.format(order + 1, len(files)))
+    options = options or file_duplicates_options()
+    resolved_files = clazz._resolve_files(files,
+                                          options.recursive,
+                                          options.include_empty_files)
+    dmap = resolved_files.duplicate_size_map()
+    flat_size_dup_files = clazz._flat_duplicate_files(dmap)
+    small_checksum_map = clazz._small_checksum_map(flat_size_dup_files, options.small_checksum_size)
+    dup_small_checksum_map = clazz._duplicate_small_checksum_map(small_checksum_map)
+    flat_small_checksum_dup_files = clazz._flat_duplicate_files(dup_small_checksum_map)
+    checksum_map = clazz._checksum_map(flat_small_checksum_dup_files)
+    dup_checksum_map = clazz._duplicate_small_checksum_map(checksum_map)
 
+    items = []
+    for checksum, files in sorted(dup_checksum_map.items()):
+      sorted_files = clazz._sort_filename_list_by_preference(files,
+                                                             options.prefer_prefixes,
+                                                             options.sort_key)
+      filename = sorted_files[0]
+      duplicates = sorted_files[1:]
+      item = clazz._dup_item(filename, duplicates)
+      items.append(item)
+    return clazz._find_duplicates_result(items, resolved_files)
+
+  @classmethod
+  def _flat_duplicate_files(clazz, dmap):
     result = []
-    for checksum, ordered_files in checksum_to_files.items():
-      if len(ordered_files) > 1:
-        sorted_ordered_files = sorted(ordered_files, key = lambda x: x.order)
-        filename = sorted_ordered_files[0].filename
-        duplicates = [ f.filename for f in sorted_ordered_files[1:] ]
-        result.append(clazz._dup_item(filename, duplicates))
+    for size, files in sorted(dmap.items()):
+      result.extend(files)
+    return sorted(result)
+
+  @classmethod
+  def _sort_criteria_by_prefer_prefixes(clazz, filename, prefer_prefixes):
+    if not prefer_prefixes:
+      return None
+    for p in prefer_prefixes:
+      if filename.startswith(p):
+        return 0
+    return 1
+
+  @classmethod
+  def _sort_criteria_by_sort_key(clazz, filename, sort_key):
+    if not sort_key:
+      return None
+    result = sort_key(filename)
+    assert result != None
+    return result
+  
+  @classmethod
+  def _resolve_files(clazz, files, recursive, include_empty_files):
+    if include_empty_files:
+      match_function = None
+    else:
+      match_function = lambda filename: not file_util.is_empty(filename)
+    resolver_options = file_resolver_options(recursive = recursive,
+                                             match_basename = False,
+                                             match_function = match_function)
+    return file_resolver.resolve_files(files, options = resolver_options)
+
+  @classmethod
+  def _sort_filename_list_by_preference(clazz, filenames, prefer_prefixes, sort_key):
+    def _sort_key(filename):
+      criteria = []
+      function_criteria = clazz._sort_criteria_by_sort_key(filename, sort_key)
+      if function_criteria != None:
+        criteria.append(function_criteria)
+      prefixes_criteria = clazz._sort_criteria_by_prefer_prefixes(filename, prefer_prefixes)
+      if prefixes_criteria != None:
+        criteria.append(prefixes_criteria)
+      criteria.append(filename)
+      return tuple(criteria)
+    return sorted(filenames, key = _sort_key)
+  
+  @classmethod
+  def _small_checksum_map(clazz, files, num_bytes):
+    result = {}
+    for filename in files:
+      small_checksum = file_util.checksum('sha256', filename, chunk_size = num_bytes, num_chunks = 1)
+      if not small_checksum in result:
+        result[small_checksum] = []
+      result[small_checksum].append(filename)
     return result
 
   @classmethod
-  def _file_checksum(clazz, filename, checksum_db_filename):
-    try:
-      getter = file_checksum_getter_attributes()
-      return getter.checksum('sha256', filename)
-    except file_attributes_permission_error as ex:
-      db = file_checksum_getter_db(checksum_db_filename)
-      return db.checksum('sha256', filename)
+  def _duplicate_small_checksum_map(clazz, dmap):
+    result = {}
+    for small_checksum, files in sorted(dmap.items()):
+      if len(files) > 1:
+        assert small_checksum not in result
+        result[small_checksum] = files
+    return result
+
+  @classmethod
+  def _checksum_map(clazz, files):
+    result = {}
+    for filename in files:
+      checksum = file_attributes_metadata.get_checksum_cached(filename, fallback = True)
+      if not checksum in result:
+        result[checksum] = []
+      result[checksum].append(filename)
+    return result

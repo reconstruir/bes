@@ -55,7 +55,7 @@ class file_path(object):
 
   @classmethod
   def replace(clazz, p, src, dst, count = None, backwards = False,
-              word_boundary = False, boundary_chars = None):
+              word_boundary = False, word_boundary_chars = None):
     'Replace src in path components with dst.'
     check.check_string(p)
     check.check_string(src)
@@ -63,7 +63,7 @@ class file_path(object):
     check.check_int(count, allow_none = True)
     check.check_bool(backwards)
     check.check_bool(word_boundary)
-    check.check_set(boundary_chars, allow_none = True)
+    check.check_set(word_boundary_chars, allow_none = True)
     
     v = clazz.split(p)
     r = range(0, len(v))
@@ -77,7 +77,7 @@ class file_path(object):
       part = v[i]
       new_part = text_replace.replace(part, { src: dst },
                                       word_boundary = word_boundary,
-                                      boundary_chars = boundary_chars)
+                                      word_boundary_chars = word_boundary_chars)
       if part != new_part:
         current_count += 1
         if current_count > count:
@@ -103,19 +103,19 @@ class file_path(object):
       raise ValueError('Invalid part: "{}"'.format(part))
   
   @classmethod
-  def replace_all(clazz, p, src, dst, word_boundary = False, boundary_chars = None):
+  def replace_all(clazz, p, src, dst, word_boundary = False, word_boundary_chars = None):
     'Replace src with dst on all parts of the path.'
     check.check_string(p)
     check.check_string(src)
     check.check_string(dst)
     check.check_bool(word_boundary)
-    check.check_set(boundary_chars, allow_none = True)
+    check.check_set(word_boundary_chars, allow_none = True)
     
     result = []
     for part in clazz.split(p):
       result.append(text_replace.replace_all(part, src, dst,
                                              word_boundary = word_boundary,
-                                             boundary_chars = boundary_chars))
+                                             word_boundary_chars = word_boundary_chars))
     return clazz.join(result)
   
   @classmethod

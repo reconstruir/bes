@@ -237,7 +237,7 @@ class test_file_path(unit_test):
                                                       'kiwi',
                                                       'apple',
                                                       word_boundary = True,
-                                                      boundary_chars = word_boundary.CHARS_UNDERSCORE) )
+                                                      word_boundary_chars = word_boundary.CHARS_UNDERSCORE) )
     
 if __name__ == '__main__':
   unit_test.main()

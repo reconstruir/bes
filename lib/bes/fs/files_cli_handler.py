@@ -11,7 +11,6 @@ from bes.debug.hexdump import hexdump
 from .files_cli_options import files_cli_options
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
-from .file_duplicates import file_duplicates
 from .file_find import file_find
 from .file_mime import file_mime
 from .file_path import file_path
@@ -28,18 +27,6 @@ class files_cli_handler(cli_command_handler):
     check.check_files_cli_options(self.options)
     self._resolver_options = file_resolver_options(recursive = self.options.recursive)
   
-  def dups(self, dirs, delete):
-    dirs = file_check.check_dir_seq(dirs)
-    check.check_bool(delete)
-
-    dups = file_duplicates.find_duplicates(dirs)
-    for dup in dups:
-      if self.options.dry_run:
-        print('DRY_RUN: {}: {}'.format(dup.filename, ','.join(dup.duplicates)))
-      else:
-        file_util.remove(dup.duplicates)
-    return 0
-
   def checksums(self, files, algorithm):
     check.check_string_seq(files)
 
@@ -117,3 +104,15 @@ class files_cli_handler(cli_command_handler):
     for prefix in sorted(list(prefixes)):
       print(prefix)
     return 0
+
+  def dup_basenames(self, files):
+    check.check_string_seq(files)
+
+    resolved_files = file_resolver.resolve_files(files, options = self._resolver_options)
+    dmap = resolved_files.duplicate_basename_map()
+    for basename, dup_files in sorted(resolved_files.duplicate_basename_map().items()):
+      print(f'{basename}:')
+      for dup_file in dup_files:
+        print(f'  {dup_file}')
+    return 0
+  

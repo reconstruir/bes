@@ -280,13 +280,16 @@ class file_util(object):
 
   # https://stackoverflow.com/questions/1131220/get-md5-hash-of-big-files-in-python
   @classmethod
-  def checksum(clazz, function_name, filename, chunk_size = None):
+  def checksum(clazz, function_name, filename, chunk_size = None, num_chunks = None):
     clazz._log.log_method_d()
     chunk_size = chunk_size or (1024 * 1024)
     hasher = hashlib.new(function_name)
     with open(filename, 'rb') as fin: 
-      for chunk in iter(lambda: fin.read(chunk_size), b''): 
+      for chunk_index, chunk in enumerate(iter(lambda: fin.read(chunk_size), b''), start = 1):
         hasher.update(chunk)
+        if num_chunks == chunk_index:
+          break
+#        print(f'chunk_size={chunk_size} chunk_number={chunk_number} num_chunks={num_chunks}')
     return hasher.hexdigest()
 
   @classmethod

@@ -40,7 +40,7 @@ class test_file_replace(unit_test):
       'This': 'That',
       'foo': 'kiwi',
     }
-    file_replace.replace(tmp, replacements, backup = False, word_boundary = True, boundary_chars = word_boundary.CHARS_UNDERSCORE)
+    file_replace.replace(tmp, replacements, backup = False, word_boundary = True, word_boundary_chars = word_boundary.CHARS_UNDERSCORE)
     self.assert_text_file_equal( 'That is kiwi kiwi_bar.\n', tmp )
     
 if __name__ == '__main__':
