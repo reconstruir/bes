@@ -67,5 +67,13 @@ class execute_result(namedtuple('execute_result', 'stdout_bytes, stderr_bytes, e
     if check.is_string(self.command):
       return self.command
     return ' '.join(self.command)
-    
+
+  @property
+  def succeeded(self):
+    return self.exit_code == 0
+
+  @property
+  def failed(self):
+    return self.exit_code != 0
+  
 check.register_class(execute_result)
