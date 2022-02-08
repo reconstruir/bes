@@ -21,6 +21,23 @@ class refactor_ast_item(namedtuple('refactor_ast_item', 'source, node, node_type
   def segment(self):
     return ast.get_source_segment(self.source.text, self.node, padded = False)
 
+  @cached_property
+  def filename(self):
+    return self.source.filename
+
+  @cached_property
+  def line_number(self):
+    return self.node.lineno
+
+  @cached_property
+  def name(self):
+    return self.node.name
+  
+  @cached_property
+  def line(self):
+    return self.source.lines[self.line_number - 1]
+#  Get source code segment of the source that generated node. If some location information (lineno, end_lineno, col_offset, or end_col_offset) is missing, return None.
+  
   '''
   FunctionDef
 

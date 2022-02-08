@@ -79,7 +79,9 @@ class refactor_cli_handler(cli_command_handler):
 
     items = refactor_ast.grep(files, text, node_type, options = self.options)
     for item in items:
-      print(f'{item.filename} {item.node.name} {item.node.lineno} {item.node.end_lineno} {item.segment}')
+      print(f'{item.filename}:')
+      print(f'{item.line_number}: {item.line}')
+      print('')
 #lineno, col_offset, end_lineno, and end_col_offset      
     return 0
   

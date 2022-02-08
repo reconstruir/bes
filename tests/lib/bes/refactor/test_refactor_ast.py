@@ -40,6 +40,12 @@ class orange(kiwi):
 
   def bar(self):
     return 2
+
+  def foo2(self):
+    return 3
+
+  def foo_prime(self):
+    return 3
 '''
     
     tmp_dir = self._make_temp_content([
@@ -49,7 +55,9 @@ class orange(kiwi):
     ])
     r = refactor_ast.grep([ tmp_dir ], 'foo', 'function')
     for item in r:
-      print(f'{item}')
+      #{item.segment}
+      print(f'{item.filename} {item.name} {item.line_number} {item.line}')
+      #print(f'{item}')
     
 if __name__ == '__main__':
   unit_test.main()

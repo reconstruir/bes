@@ -35,5 +35,5 @@ class refactor_ast_source(namedtuple('refactor_ast_source', 'filename')):
     check.check_refactor_ast_node_type(node_type)
 
     return refactor_ast_util.find_nodes(self.tree, node_type)
-  
+
 check.register_class(refactor_ast_source, include_seq = False)
