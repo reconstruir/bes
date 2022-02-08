@@ -46,15 +46,17 @@ class refactor_item(namedtuple('refactor_item', 'src, dst')):
     return self._is_safe_result(True, None)
       
   def _apply_operation_rename(self, try_git):
-    renamed = False
+    git_worked = False
     if try_git:
       root_dir = git.find_root_dir(start_dir = path.dirname(self.src))
-      try:
-        git.move(root_dir, self.src, self.dst)
-        renamed = True
-      except git_error as ex:
-        print(f'caught: {ex}')
-    if not renamed:
+      should_ignore = git.check_ignore(root_dir, self.src)
+      if not should_ignore:
+        try:
+          git.move(root_dir, self.src, self.dst)
+          git_worked = True
+        except git_error as ex:
+          print(f'caught: {ex}')
+    if not git_worked:
       file_util.rename(self.src, self.dst)
 
   def _apply_operation_copy(self, try_git):
@@ -62,9 +64,11 @@ class refactor_item(namedtuple('refactor_item', 'src, dst')):
     file_util.copy_mode(self.src, self.dst)
     if try_git:
       root_dir = git.find_root_dir(start_dir = path.dirname(self.dst))
-      try:
-        git.add(root_dir, [ self.dst ])
-      except git_error as ex:
-        print(f'caught: {ex}')
+      should_ignore = git.check_ignore(root_dir, self.src)
+      if not should_ignore:
+        try:
+          git.add(root_dir, [ self.dst ])
+        except git_error as ex:
+          print(f'caught: {ex}')
       
 check.register_class(refactor_item, include_seq = False)

@@ -46,3 +46,8 @@ class cli_options_base(with_metaclass(ABCMeta, object)):
   def check_value_types(self):
     'Check the type of each option.'
     raise NotImplemented('check_value_types')
+
+  @classmethod
+  def ignore_config_file_variables(clazz):
+    return False
+  

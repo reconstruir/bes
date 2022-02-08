@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
+from bes.common.check import check
 
 from bes.version.semantic_version import semantic_version
 from bes.version.semantic_version_error import semantic_version_error
@@ -122,6 +123,9 @@ class test_semantic_version(unit_test):
     self.assertFalse( semantic_version('1.2.alpha').has_only_semantic_tokens )
     self.assertFalse( semantic_version('1.2.3a').has_only_semantic_tokens )
     self.assertFalse( semantic_version('amazing/1.2.3').has_only_semantic_tokens )
+
+  def test_check_with_cast(self):
+    self.assertEqual( semantic_version('1.2.3'), check.check_semantic_version('1.2.3') )
     
 if __name__ == '__main__':
   unit_test.main()

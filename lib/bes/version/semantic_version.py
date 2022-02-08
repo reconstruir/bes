@@ -177,6 +177,12 @@ class semantic_version(object):
     'Sort a string list using semantic_version'
     check.check_list(l, check.STRING_TYPES)
     return sorted(l, key = lambda v: semantic_version(v)._tokens,  reverse = reverse)
+
+  @classmethod
+  def _check_cast_func(clazz, obj):
+    if check.is_string(obj):
+      return semantic_version(obj)
+    return obj
   
-check.register_class(semantic_version, include_seq = False)
+check.register_class(semantic_version, include_seq = False, cast_func = semantic_version._check_cast_func)
   

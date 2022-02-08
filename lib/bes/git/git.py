@@ -156,7 +156,7 @@ class git(git_lfs):
   def has_commits(clazz, root_dir):
     'Return True of repo has commits.'
     rv = git_exe.call_git(root_dir, [ 'log' ], raise_error = False)
-    if rv.exit_code == 0:
+    if rv.succeeded:
       return True
     return 'does not have any commits' not in rv.stderr
   
@@ -500,7 +500,7 @@ class git(git_lfs):
       cwd = path.dirname(filename)
     args = [ 'rev-parse', '--show-toplevel' ]
     rv = git_exe.call_git(cwd, args, raise_error = False)
-    if rv.exit_code != 0:
+    if rv.failed:
       return None
     l = git_exe.parse_lines(rv.stdout)
     assert len(l) == 1
@@ -510,7 +510,7 @@ class git(git_lfs):
   def is_tracked(clazz, root, filename):
     'Return True if the filename is tracked by a git repo.'
     args = [ 'ls-files', '--error-unmatch', filename ]
-    return git_exe.call_git(root, args, raise_error = False).exit_code == 0
+    return git_exe.call_git(root, args, raise_error = False).succeeded
 
   @classmethod
   def modified_files(clazz, root):
@@ -997,7 +997,7 @@ class git(git_lfs):
   @classmethod
   def has_commit(clazz, root, commit):
     args = [ 'cat-file', '-t', commit ]
-    return git_exe.call_git(root, args, raise_error = False).exit_code == 0
+    return git_exe.call_git(root, args, raise_error = False).succeeded
 
   @classmethod
   def has_revision(clazz, root, revision):
@@ -1113,7 +1113,7 @@ class git(git_lfs):
 
     start_dir = start_dir or os.getcwd()
     rv = git_exe.call_git(start_dir, [ 'rev-parse', '--show-toplevel' ], raise_error = False)
-    if rv.exit_code != 0:
+    if rv.failed:
       return None
     result = rv.stdout.strip()
     if host.SYSTEM == host.WINDOWS:
@@ -1131,3 +1131,9 @@ class git(git_lfs):
     'Return the commit message for a single revision'
     rv = git_exe.call_git(root_dir, [ 'show', '--quiet', commit_hash ])
     return git_commit_info.parse_log_output(rv.stdout)
+
+  @classmethod
+  def check_ignore(clazz, root_dir, filename):
+    'Return True if filename should be ignored by git.  filename can exist or not'
+    rv = git_exe.call_git(root_dir, [ 'check-ignore', filename ], raise_error = False)
+    return rv.succeeded
