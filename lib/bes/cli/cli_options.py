@@ -139,7 +139,7 @@ class cli_options(cli_options_base):
       raise error_class('No section "{}" found in config file: "{}"'.format(config_file_section,
                                                                                   config_filename))
     section = config.section(config_file_section)
-    values = section.to_dict()
+    values = section.to_dict(resolve_env_vars = not clazz.ignore_config_file_variables())
 
     valid_keys = clazz.default_values().keys()
     filtered_values = dict_util.filter_with_keys(values, valid_keys)
@@ -257,4 +257,3 @@ class _special_attributes(object):
     if not clazz.has_key(the_class, key):
       return None
     return clazz._attribs[the_class].get(key, default_value)
-
