@@ -36,7 +36,7 @@ class credentials(object):
     try:
       return env_var_property.resolve_value(value)
     except ValueError as ex:
-      raise ValueError('{}: {}'.format(self.__dict__['_config_source'], str(ex)))
+      return value
 
   def __setattr__(self, key, value):
     self.__dict__['_credentials'][key] = value
