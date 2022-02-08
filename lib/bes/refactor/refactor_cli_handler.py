@@ -13,6 +13,7 @@ from bes.text.word_boundary import word_boundary
 from .refactor_project import refactor_project
 from .refactor_files import refactor_files
 from .refactor_options import refactor_options
+from .refactor_ast import refactor_ast
 
 class refactor_cli_handler(cli_command_handler):
   'PyInstaller cli handler.'
@@ -70,3 +71,12 @@ class refactor_cli_handler(cli_command_handler):
 
     refactor_files.reindent_files(files, indent, backup)
     return 0
+
+  def grep(self, files, text, node_type, options = None):
+    check.check_string_seq(files)
+    check.check_string(text)
+    check.check_refactor_ast_node_type(node_type)
+
+    refactor_ast.grep(files, text, node_type, options = self.options)
+    return 0
+  

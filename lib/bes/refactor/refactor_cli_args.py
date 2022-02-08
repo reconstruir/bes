@@ -66,6 +66,19 @@ class refactor_cli_args(object):
                    help = 'Indent depth [ 2 ]')
     p.add_argument('--backup', action = 'store_true', default = False,
                    help = 'Make backups for reindented files [ False ]')
+
+    # grep
+    from .refactor_ast_node_type import refactor_ast_node_type
+    p = subparser.add_parser('grep', help = 'Grep python code taking into account structure.')
+    self.__refactor_cli_add_add_common_args(p)
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more files and/or directories to rename [ None ]')
+    p.add_argument('text', action = 'store', default = None,
+                   type = str,
+                   help = 'Text to grep for [ None ]')
+    p.add_argument('-t', '--type', action = 'store', default = refactor_ast_node_type.FUNCTION,
+                   dest = 'node_type', choices = refactor_ast_node_type.values,
+                   help = 'The type of node to grep [ FUNCTION ]')
     
   @classmethod
   def __refactor_cli_add_add_common_args(clazz, p):
