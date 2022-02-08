@@ -77,6 +77,9 @@ class refactor_cli_handler(cli_command_handler):
     check.check_string(text)
     check.check_refactor_ast_node_type(node_type)
 
-    refactor_ast.grep(files, text, node_type, options = self.options)
+    items = refactor_ast.grep(files, text, node_type, options = self.options)
+    for item in items:
+      print(f'{item.filename} {item.node.name} {item.node.lineno} {item.node.end_lineno} {item.segment}')
+#lineno, col_offset, end_lineno, and end_col_offset      
     return 0
   

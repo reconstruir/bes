@@ -5,10 +5,14 @@ from collections import namedtuple
 import ast
 
 from bes.common.check import check
+from bes.fs.file_util import file_util
 
 from .refactor_files import refactor_files
 from .refactor_ast_node_type import refactor_ast_node_type
 from .refactor_ast_file import refactor_ast_file
+from .refactor_ast_source import refactor_ast_source
+from .refactor_ast_item import refactor_ast_item
+from .refactor_ast_item_list import refactor_ast_item_list
 
 class refactor_ast(object):
 
@@ -30,10 +34,13 @@ class refactor_ast(object):
     check.check_string(text)
     check.check_refactor_ast_node_type(node_type)
     check.check_refactor_options(options, allow_none = True)
-    
+
+    result = refactor_ast_item_list()
     python_files = refactor_files.resolve_python_files(files)
     for filename in python_files:
-      nodes = refactor_ast_file.find_nodes(filename, node_type)
+      source = refactor_ast_source(filename)
+      nodes = source.find_nodes(node_type)
       for node in nodes:
-        print(f'{filename} {node}')
-    return 0
+        item = refactor_ast_item(source, node, node_type)
+        result.append(item)
+    return result
