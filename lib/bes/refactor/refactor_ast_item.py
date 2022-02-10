@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import ast
+import os
 
 from collections import namedtuple
 
@@ -30,13 +31,22 @@ class refactor_ast_item(namedtuple('refactor_ast_item', 'source, node, node_type
     return self.node.lineno
 
   @cached_property
+  def end_line_number(self):
+    return self.node.end_lineno
+
+  @cached_property
   def name(self):
     return self.node.name
   
   @cached_property
-  def line(self):
-    return self.source.lines[self.line_number - 1]
-#  Get source code segment of the source that generated node. If some location information (lineno, end_lineno, col_offset, or end_col_offset) is missing, return None.
+  def snippet(self):
+    print(dir(self.node))
+    raise SystemExit(0)
+#    print(f'FUCK {self.source.lines[self.line_number - 1]}: {self.line_number} : {self.end_line_number}')
+#    return self.source.lines[self.line_number - 1]
+    return os.linesep.join(self.source.lines[self.line_number - 1 : self.end_line_number])
+
+  #  Get source code segment of the source that generated node. If some location information (lineno, end_lineno, col_offset, or end_col_offset) is missing, return None.
   
   '''
   FunctionDef

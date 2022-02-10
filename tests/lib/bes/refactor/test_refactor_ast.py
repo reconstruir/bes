@@ -46,6 +46,22 @@ class orange(kiwi):
 
   def foo_prime(self):
     return 3
+
+  def foo_caca(self, *kargs, **kwargs):
+    return 3
+
+  def foo_caca2(self, a, b, sweet = True):
+    return 3
+
+  def foo_caca3(self, *kargs):
+    return 3
+
+  def foo_caca4(self, **kwargs):
+    return 3
+
+  def foo_caca5(self, a, b,
+                c, d):
+    return 3
 '''
     
     tmp_dir = self._make_temp_content([
@@ -55,9 +71,20 @@ class orange(kiwi):
     ])
     r = refactor_ast.grep([ tmp_dir ], 'foo', 'function')
     for item in r:
-      #{item.segment}
-      print(f'{item.filename} {item.name} {item.line_number} {item.line}')
-      #print(f'{item}')
-    
+      print(f'{item.filename}:')
+      print(f'{item.line_number}: {item.snippet}')
+      continue
+      print(f'   posonlyargs: {item.node.args.posonlyargs}')
+      print(f'          args: {[ arg.arg for arg in item.node.args.args ]}')
+      print(f'        vararg: {item.node.args.vararg}')
+      print(f'    kwonlyargs: {item.node.args.kwonlyargs}')
+      print(f'   kw_defaults: {item.node.args.kw_defaults}')
+      print(f'         kwarg: {item.node.args.kwarg}')
+      print(f'      defaults: {[ c.value for c in item.node.args.defaults ]}')
+      print('')
+
+# arg = (identifier arg, expr? annotation, string? type_comment)
+#           attributes (int lineno, int col_offset, int? end_lineno, int? end_col_offset)
+      
 if __name__ == '__main__':
   unit_test.main()

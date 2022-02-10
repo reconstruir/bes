@@ -80,8 +80,25 @@ class refactor_cli_handler(cli_command_handler):
     items = refactor_ast.grep(files, text, node_type, options = self.options)
     for item in items:
       print(f'{item.filename}:')
-      print(f'{item.line_number}: {item.line}')
-      print('')
-#lineno, col_offset, end_lineno, and end_col_offset      
+      print(f'{item.line_number}: {item.snippet}')
+#      print(f'   posonlyargs: {item.node.args.posonlyargs}')
+#      print(f'          args: {item.node.args.args}')
+#      print(f'        vararg: {item.node.args.vararg}')
+#      print(f'    kwonlyargs: {item.node.args.kwonlyargs}')
+#      print(f'   kw_defaults: {item.node.args.kw_defaults}')
+#      print(f'         kwarg: {item.node.args.kwarg}')
+#      print(f'      defaults: {item.node.args.defaults}')
+#      print('')
     return 0
   
+  def function_add_arg(self, files, function_name, arg_name, options = None):
+    check.check_string_seq(files)
+    check.check_string(function_name)
+    check.check_string(arg_name)
+
+    items = refactor_ast.grep(files, text, node_type, options = self.options)
+    for item in items:
+      print(f'{item.filename}:')
+      print(f'{item.line_number}: {item.line}')
+      print('')
+    return 0

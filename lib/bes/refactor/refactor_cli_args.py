@@ -79,6 +79,18 @@ class refactor_cli_args(object):
     p.add_argument('-t', '--type', action = 'store', default = refactor_ast_node_type.FUNCTION,
                    dest = 'node_type', choices = refactor_ast_node_type.values,
                    help = 'The type of node to grep [ FUNCTION ]')
+
+    # function_add_arg
+    p = subparser.add_parser('function_add_arg', help = 'Add an argument to all functions.')
+    self.__refactor_cli_add_add_common_args(p)
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more files and/or directories to rename [ None ]')
+    p.add_argument('function_name', action = 'store', default = None,
+                   type = str,
+                   help = 'The function name [ None ]')
+    p.add_argument('arg_name', action = 'store', default = None,
+                   type = str,
+                   help = 'The arg name [ None ]')
     
   @classmethod
   def __refactor_cli_add_add_common_args(clazz, p):
