@@ -50,6 +50,28 @@ class refactor_ast(object):
                                      word_boundary = options.word_boundary,
                                      word_boundary_chars = options.word_boundary_chars)
         if spans:
-          #print(f'name={item.name} spans={spans}')
           result.append(item)
     return result
+
+  @classmethod
+  def function_add_arg(clazz, files, function_name, arg_name, options = None):
+    'Resolve all python classes.'
+    check.check_string_seq(files)
+    check.check_string(function_name)
+    check.check_string(arg_name)
+    check.check_refactor_options(options, allow_none = True)
+
+    items = clazz.grep(files, function_name, refactor_ast_node_type.FUNCTION, options = options)
+    for item in items:
+      print(f'{item.filename}:')
+      for line in item.snippet_lines:
+        print(f'  S: {line}:')
+      print('---')
+      for line in item.definition_lines:
+        print(f'  D: {line}:')
+      continue
+      new_definition = item.definition_add_arg(arg_name)
+      print(f'{item.filename}:')
+      print(f'{item.line_number}: {item.definition}')
+      print(f'{new_definition}')
+    return None

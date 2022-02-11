@@ -72,7 +72,7 @@ class refactor_cli_handler(cli_command_handler):
     refactor_files.reindent_files(files, indent, backup)
     return 0
 
-  def grep(self, files, text, node_type, options = None):
+  def grep(self, files, text, node_type):
     check.check_string_seq(files)
     check.check_string(text)
     check.check_refactor_ast_node_type(node_type)
@@ -91,14 +91,10 @@ class refactor_cli_handler(cli_command_handler):
 #      print('')
     return 0
   
-  def function_add_arg(self, files, function_name, arg_name, options = None):
+  def function_add_arg(self, files, function_name, arg_name):
     check.check_string_seq(files)
     check.check_string(function_name)
     check.check_string(arg_name)
 
-    items = refactor_ast.grep(files, text, node_type, options = self.options)
-    for item in items:
-      print(f'{item.filename}:')
-      print(f'{item.line_number}: {item.line}')
-      print('')
+    items = refactor_ast.function_add_arg(files, function_name, arg_name, options = self.options)
     return 0
