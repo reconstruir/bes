@@ -64,12 +64,11 @@ class refactor_cli_handler(cli_command_handler):
     refactor_project.replace_text(files, src_pattern, dst_pattern, options = self.options)
     return 0
 
-  def reindent(self, files, indent, backup):
+  def reindent(self, files, indent):
     check.check_string_seq(files)
     check.check_int(indent)
-    check.check_bool(backup)
 
-    refactor_files.reindent_files(files, indent, backup)
+    refactor_files.reindent_files(files, indent, self.options.backup)
     return 0
 
   def grep(self, files, text, node_type):
@@ -81,14 +80,6 @@ class refactor_cli_handler(cli_command_handler):
     for item in items:
       print(f'{item.filename}:')
       print(f'{item.line_number}: {item.snippet}')
-#      print(f'   posonlyargs: {item.node.args.posonlyargs}')
-#      print(f'          args: {item.node.args.args}')
-#      print(f'        vararg: {item.node.args.vararg}')
-#      print(f'    kwonlyargs: {item.node.args.kwonlyargs}')
-#      print(f'   kw_defaults: {item.node.args.kw_defaults}')
-#      print(f'         kwarg: {item.node.args.kwarg}')
-#      print(f'      defaults: {item.node.args.defaults}')
-#      print('')
     return 0
   
   def function_add_arg(self, files, function_name, arg_name):
@@ -96,5 +87,5 @@ class refactor_cli_handler(cli_command_handler):
     check.check_string(function_name)
     check.check_string(arg_name)
 
-    items = refactor_ast.function_add_arg(files, function_name, arg_name, options = self.options)
+    refactor_ast.function_add_arg(files, function_name, arg_name, options = self.options)
     return 0

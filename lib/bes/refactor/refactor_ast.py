@@ -2,10 +2,9 @@
 
 from collections import namedtuple
 
-import ast
-
 from bes.common.check import check
 from bes.fs.file_util import file_util
+from bes.fs.file_replace import file_replace
 from bes.text.text_search import text_search
 
 from .refactor_ast_file import refactor_ast_file
@@ -55,23 +54,20 @@ class refactor_ast(object):
 
   @classmethod
   def function_add_arg(clazz, files, function_name, arg_name, options = None):
-    'Resolve all python classes.'
+    'Add a argument to all python functions found.'
     check.check_string_seq(files)
     check.check_string(function_name)
     check.check_string(arg_name)
     check.check_refactor_options(options, allow_none = True)
 
+    options = options or refactor_options()    
     items = clazz.grep(files, function_name, refactor_ast_node_type.FUNCTION, options = options)
-    for item in items:
-      print(f'{item.filename}:')
-      for line in item.snippet_lines:
-        print(f'  S: {line}:')
-      print('---')
-      for line in item.definition_lines:
-        print(f'  D: {line}:')
-      continue
-      new_definition = item.definition_add_arg(arg_name)
-      print(f'{item.filename}:')
-      print(f'{item.line_number}: {item.definition}')
-      print(f'{new_definition}')
-    return None
+    file_map = items.make_file_map()
+    for filename, file_items in file_map.items():
+      replacements = {}
+      for next_item in file_items:
+        replacements[next_item.definition] = next_item.definition_add_arg(arg_name)
+      file_replace.replace(filename, replacements,
+                           backup = options.backup,
+                           word_boundary = options.word_boundary,
+                           word_boundary_chars = options.word_boundary_chars)

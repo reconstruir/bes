@@ -17,14 +17,15 @@ class refactor_options(cli_options):
   def default_values(clazz):
     'Return a dict of defaults for these options.'
     return {
+      'backup': False,
       'blurber': blurber(),
       'debug': False,
       'dry_run': False,
+      'try_git': False,
+      'unsafe': False,
       'verbose': False,
       'word_boundary': False,
       'word_boundary_chars': word_boundary.CHARS,
-      'try_git': False,
-      'unsafe': False,
     }
 
   @classmethod
@@ -37,12 +38,13 @@ class refactor_options(cli_options):
   #@abstractmethod
   def value_type_hints(clazz):
     return {
+      'backup': bool,
       'debug': bool,
-      'verbose': bool,
       'dry_run': bool,
-      'word_boundary': bool,
       'try_git': bool,
       'unsafe': bool,
+      'verbose': bool,
+      'word_boundary': bool,
       'word_boundary_chars': set,
     }
 
@@ -76,5 +78,6 @@ class refactor_options(cli_options):
     check.check_set(self.word_boundary_chars)
     check.check_bool(self.try_git)
     check.check_bool(self.unsafe)
+    check.check_bool(self.backup)
 
 check.register_class(refactor_options, include_seq = False)

@@ -15,10 +15,6 @@ from bes.common.json_util import json_util
 
 class test_refactor_ast(unit_test):
 
-  @classmethod
-  def _make_temp_content(clazz, items):
-    return temp_content.write_items_to_temp_dir(items, delete = not clazz.DEBUG)
-
   def test_grep(self):
     t = self._test_grep([
       temp_content('file', 'fruit/lemon.py', f'{self._LEMON_PY}', 0o0644),
@@ -72,6 +68,64 @@ class test_refactor_ast(unit_test):
 ]
 ''', t.json )
 
+  def test_function_add_arg(self):
+    tmp_dir = self._make_temp_content([
+      temp_content('file', 'fruit/lemon.py', f'{self._LEMON_PY}', 0o0644),
+      temp_content('file', 'fruit/kiwi.py', f'{self._KIWI_PY}', 0o0644),
+      temp_content('file', 'orange.py', f'{self._ORANGE_PY}', 0o0644),
+    ])
+    options = refactor_options(word_boundary = True)
+    refactor_ast.function_add_arg([ tmp_dir ], 'foo', 'added_arg', options = options)
+    self.assert_text_file_equal_fuzzy('''\
+from .kiwi import kiwi
+class lemon(kiwi):
+  def foo(self, added_arg):
+    return 1
+
+  def bar(self):
+    return 2
+''', f'{tmp_dir}/fruit/lemon.py' )
+
+    self.assert_text_file_equal_fuzzy('''\
+class kiwi(object):
+  def foo(self, added_arg):
+    return 1
+
+  def bar(self):
+    return 2
+''', f'{tmp_dir}/fruit/kiwi.py' )
+
+    self.assert_text_file_equal_fuzzy('''\
+class orange(kiwi):
+  def foo(self, added_arg):
+    return 1
+
+  def bar(self):
+    return 2
+
+  def foo2(self):
+    return 3
+
+  def foo_prime(self):
+    return 3
+
+  def foo_test(self, *kargs, **kwargs):
+    return 3
+
+  def foo_test2(self, a, b, sweet = True):
+    return 3
+
+  def foo_test3(self, *kargs):
+    return 3
+
+  def foo_test4(self, **kwargs):
+    return 3
+
+  def foo_test5(self, a, b,
+                c, d):
+    return 3
+''', f'{tmp_dir}/orange.py' )
+    
   _KIWI_PY = r'''
 class kiwi(object):
   def foo(self):
@@ -120,10 +174,8 @@ class orange(kiwi):
                 c, d):
     return 3
 '''
-      
-# arg = (identifier arg, expr? annotation, string? type_comment)
-#           attributes (int lineno, int col_offset, int? end_lineno, int? end_col_offset)
-  _test = namedtuple('_test', 'tmp_dir, result, json')
+
+  _test_grep_result = namedtuple('_test_grep_result', 'tmp_dir, result, json')
   def _test_grep(self, content, text, node_type, word_boundary = False):
     tmp_dir = self._make_temp_content(content)
     options = refactor_options(word_boundary = word_boundary)
@@ -134,7 +186,11 @@ class orange(kiwi):
       t = ( filename, item.snippet, item.snippet_lines )
       result.append(t)
     json = json_util.to_json(result, indent = 2)
-    return self._test(tmp_dir, real_result, json)
-
+    return self._test_grep_result(tmp_dir, real_result, json)
+  
+  @classmethod
+  def _make_temp_content(clazz, items):
+    return temp_content.write_items_to_temp_dir(items, delete = not clazz.DEBUG)
+  
 if __name__ == '__main__':
   unit_test.main()
