@@ -40,7 +40,6 @@ class refactor_ast(object):
     result = refactor_ast_item_list()
     python_files = refactor_files.resolve_python_files(files)
     for filename in python_files:
-      
       source = refactor_ast_source(filename)
       nodes = source.find_nodes(node_type)
       for node in nodes:
@@ -65,8 +64,12 @@ class refactor_ast(object):
     file_map = items.make_file_map()
     for filename, file_items in file_map.items():
       replacements = {}
+      #print(f'filename={filename}')
       for next_item in file_items:
-        replacements[next_item.definition] = next_item.definition_add_arg(arg_name)
+        new_definition = next_item.definition_add_arg(arg_name)
+        replacements[next_item.definition] = new_definition
+        #print(f'old definition:\n{next_item.definition}\n---------------------')
+        #print(f'new definition:\n{new_definition}\n---------------------')
       file_replace.replace(filename, replacements,
                            backup = options.backup,
                            word_boundary = options.word_boundary,

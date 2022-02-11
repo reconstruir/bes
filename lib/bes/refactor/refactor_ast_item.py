@@ -2,7 +2,6 @@
 
 import ast
 import os
-import re
 
 from collections import namedtuple
 
@@ -12,6 +11,7 @@ from bes.text.text_line import text_line
 from bes.text.text_insert import text_insert
 
 from .refactor_ast_node_type import refactor_ast_node_type
+from .refactor_python import refactor_python
 
 class refactor_ast_item(namedtuple('refactor_ast_item', 'source, node, node_type')):
 
@@ -71,12 +71,7 @@ class refactor_ast_item(namedtuple('refactor_ast_item', 'source, node, node_type
     return result
       
   def _definition_for_function(self):
-    f = re.findall(rf'.*(def\s+{self.name}\s*\(.*\)):.*', self.snippet, re.DOTALL)
-    if not f:
-      return None
-    if len(f) != 1:
-      return None
-    return f[0]
+    return refactor_python.function_definition(self.snippet)
 
   def definition_add_arg(self, arg_name):
     if not self.definition:
