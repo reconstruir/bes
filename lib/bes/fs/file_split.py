@@ -88,7 +88,7 @@ class file_split(object):
       
   @classmethod
   def _unsplit_one_info(clazz, first_filename, options):
-    files_group = clazz._files_group(first_filename)
+    files_group = clazz._files_group(first_filename, options.ignore_extensions)
     if len(files_group) == 1:
       return None
     if options.check_downloading_extension:
@@ -104,32 +104,38 @@ class file_split(object):
     return clazz._split_item(target_filename, files_group)
     
   @classmethod
-  def _files_group(clazz, first_filename):
-    ext = filename_util.extension(first_filename)
-    base = path.basename(filename_util.without_extension(first_filename))
-
-    first_basename = path.basename(first_filename)
-    first_basename_without_extension = filename_util.without_extension(first_basename)
-    first_ext = filename_util.extension(first_basename)
-    first_ext_len = len(first_ext)
-    
+  def _files_group(clazz, first_filename, ignore_extensions):
     def _is_group_file(filename):
-      basename = path.basename(filename)
-      basename_without_extension = filename_util.without_extension(basename)
-      ext = filename_util.extension(basename)
-      if not ext:
-        return False
-      ext_len = len(ext)
-      if basename_without_extension != first_basename_without_extension:
-        return False
-      if ext_len != first_ext_len:
-        return False
-      return ext.isdigit()
+      return clazz._is_group_file(first_filename, filename, ignore_extensions)
     files = dir_util.list(path.dirname(first_filename),
                           function = _is_group_file)
     assert len(files) > 0
     assert files[0] == first_filename
     return files
+
+  @classmethod
+  def _is_group_file(clazz, first_filename, filename, ignore_extensions):
+    first_basename = path.basename(first_filename)
+    first_basename_without_extension = filename_util.without_extension(first_basename)
+    first_ext = filename_util.extension(first_basename)
+    first_ext_len = len(first_ext)
+
+    if ignore_extensions and filename_util.has_any_extension(filename,
+                                                             ignore_extensions,
+                                                             ignore_case = True):
+      filename = filename_util.without_extension(filename)
+    
+    basename = path.basename(filename)
+    basename_without_extension = filename_util.without_extension(basename)
+    ext = filename_util.extension(basename)
+    if not ext:
+      return False
+    ext_len = len(ext)
+    if basename_without_extension != first_basename_without_extension:
+      return False
+    if ext_len != first_ext_len:
+      return False
+    return ext.isdigit()
 
   @classmethod
   def _files_group_is_complete(clazz, files):

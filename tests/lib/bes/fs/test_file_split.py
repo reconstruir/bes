@@ -21,6 +21,17 @@ _DEFAULT_FILE_SPLIT_OPTIONS = file_split_options()
 
 class test_file_split(unit_test):
 
+  def test__is_group_file(self):
+    f = file_split._is_group_file
+    self.assertEqual( True, f('foo-128.001', 'foo-128.001', None) )
+    self.assertEqual( True, f('foo-128.001', 'foo-128.002', None) )
+    self.assertEqual( False, f('foo-128.001', 'foo-127.002', None) )
+    self.assertEqual( False, f('foo-128.001', 'foo-128.002.zip', None) )
+
+  def test__is_group_file_with_ignored_extension(self):
+    f = file_split._is_group_file
+    self.assertEqual( True, f('foo-128.001', 'foo-128.002.zip', ignore_extensions = ( 'zip', )) )
+    
   def test_find_and_unsplit(self):
     items = [
       temp_content('file', 'src/a/foo/kiwi.txt', 'this is kiwi', 0o0644),
@@ -151,6 +162,32 @@ class test_file_split(unit_test):
     self.assert_text_file_equal( 'foo001foo002foo003', f'{t.src_dir}/a/parts/foo-20000101010001.txt' )
     self.assert_text_file_equal( 'different', f'{t.src_dir}/a/parts/foo.txt' )
     self.assert_text_file_equal( 'lemon01lemon02lemon03', f'{t.src_dir}/b/icons/lemon.jpg' )
+
+  def test_find_and_unsplit_with_ignore_extensions(self):
+    items = [
+      temp_content('file', 'src/a/foo/kiwi.txt', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.001', 'foo001', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.002.zip', 'foo002', 0o0644),
+      temp_content('file', 'src/a/parts/foo.txt.003', 'foo003', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.01', 'lemon01', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.02.foo', 'lemon02', 0o0644),
+      temp_content('file', 'src/b/icons/lemon.jpg.03', 'lemon03', 0o0644),
+    ]
+    t = self._find_and_unsplit_test(extra_content_items = items,
+                                    recursive = True,
+                                    ignore_extensions = ( 'zip', 'foo' ) )
+    self.assertEqual( [
+      'a',
+      'a/foo',
+      'a/foo/kiwi.txt',
+      'a/parts',
+      'a/parts/foo.txt',
+      'b',
+      'b/icons',
+      'b/icons/lemon.jpg',
+    ], t.src_files )
+    self.assert_text_file_equal( 'foo001foo002foo003', f'{t.src_dir}/a/parts/foo.txt' )
+    self.assert_text_file_equal( 'lemon01lemon02lemon03', f'{t.src_dir}/b/icons/lemon.jpg' )
     
   def test_split_file_basic(self):
     NUM_ITEMS = 10
@@ -207,10 +244,12 @@ class test_file_split(unit_test):
                              check_downloading = _DEFAULT_FILE_SPLIT_OPTIONS.check_downloading,
                              check_modified = _DEFAULT_FILE_SPLIT_OPTIONS.check_modified,
                              check_modified_interval = _DEFAULT_FILE_SPLIT_OPTIONS.check_modified_interval,
-                             existing_file_timestamp = None):
+                             existing_file_timestamp = None,
+                             ignore_extensions = None):
     options = file_split_options(recursive = recursive,
                                  check_downloading = check_downloading,
-                                 existing_file_timestamp = existing_file_timestamp)
+                                 existing_file_timestamp = existing_file_timestamp,
+                                 ignore_extensions = ignore_extensions)
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
       test.result = file_split.find_and_unsplit([ test.src_dir ],
                                                 options = options)
