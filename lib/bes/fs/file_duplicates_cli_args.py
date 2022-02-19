@@ -18,10 +18,14 @@ class file_duplicates_cli_args(object):
                    help = 'Include empty files [ False ]')
     p.add_argument('--keep', action = 'store_true', default = False,
                    dest = 'keep_empty_dirs',
-                   help = 'Keep empty directories after removing dups [ False ]')
+                   help = 'Keep empty directories after deleting dups [ False ]')
     default_small_checksum_size = 1024 * 1024
     p.add_argument('--small-checksum-size', action = 'store', default = default_small_checksum_size,
                    help = f'Small checksum [ {default_small_checksum_size} ]')
+    p.add_argument('--prefer', action = 'append', dest = 'prefer_prefixes', default = [],
+                   help = 'Prefer the files starting at the given prefix.')
+    p.add_argument('--ignore', action = 'append', dest = 'ignore_files', default = [],
+                   help = 'Ignore file.')
     
   @classmethod
   def __file_duplicates_cli_add_add_common_args(clazz, p):
@@ -31,6 +35,8 @@ class file_duplicates_cli_args(object):
                    help = 'Find dups recursively [ None ]')
     p.add_argument('--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
+    p.add_argument('--quiet', action = 'store_true', default = False,
+                   help = 'Quiet output [ False ]')
     
   def _command_file_duplicates(self, command, *args, **kargs):
     from .file_duplicates_cli_handler import file_duplicates_cli_handler

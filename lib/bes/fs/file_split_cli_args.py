@@ -7,7 +7,7 @@ class file_split_cli_args(object):
   
   def file_split_add_args(self, subparser):
     # unsplit
-    p = subparser.add_parser('unsplit', help = 'Insplit files.')
+    p = subparser.add_parser('unsplit', help = 'Unsplit files.')
     self.__file_split_cli_add_add_common_args(p)
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to find dups in [ None ]')

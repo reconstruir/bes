@@ -53,6 +53,7 @@ class data_output(object):
         table_style = text_table_style(spacing = 1, box = text_box_ascii())
       
       for column in sorted(options.remove_columns or [], reverse = True):
+        print(f'removing {column}')
         table_data.remove_column(column)
       tt = text_table(data = table_data, style = table_style)
       if options.table_labels:

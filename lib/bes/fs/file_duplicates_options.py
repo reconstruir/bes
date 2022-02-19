@@ -5,6 +5,9 @@ from os import path
 from bes.cli.cli_options import cli_options
 from bes.common.check import check
 from bes.common.time_util import time_util
+from bes.fs.file_ignore_item import file_ignore_item
+from bes.fs.file_multi_ignore import file_multi_ignore
+from bes.property.cached_property import cached_property
 from bes.script.blurber import blurber
 
 from .files_cli_options import files_cli_options
@@ -25,6 +28,7 @@ class file_duplicates_options(files_cli_options):
       'prefer_prefixes': None,
       'sort_key': None,
       'include_empty_files': False,
+      'ignore_files': [],
     })
   
   @classmethod
@@ -34,6 +38,7 @@ class file_duplicates_options(files_cli_options):
       'small_checksum_size': int,
       'prefer_prefixes': list,
       'include_empty_files': bool,
+      'ignore_files': list,
       #'sort_key': callable,
     })
 
@@ -46,6 +51,7 @@ class file_duplicates_options(files_cli_options):
     check.check_function(self.sort_key, allow_none = True)
     check.check_bool(self.include_empty_files)
     check.check_blurber(self.blurber)
+    check.check_string_seq(self.ignore_files)
 
   @staticmethod
   def sort_key_modification_date(filename):
@@ -61,4 +67,11 @@ class file_duplicates_options(files_cli_options):
     length = file_duplicates_options.sort_key_basename_length(filename)
     return ( mtime, length )
 
+  @cached_property
+  def file_ignorer(self):
+    return file_multi_ignore(self.ignore_files)
+
+  def should_ignore_file(self, filename):
+    return self.file_ignorer.should_ignore(filename)
+  
 check.register_class(file_duplicates_options)

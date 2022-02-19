@@ -27,9 +27,11 @@ class file_duplicates_cli_handler(cli_command_handler):
     dups = file_duplicates.find_duplicates(files, options = self.options)
     dup_filenames = []
     for item in dups.items:
-      print(f'{item.filename}:')
+      if not self.options.quiet:
+        print(f'{item.filename}:')
       for dup in item.duplicates:
-        print(f'  {dup}')
+        if not self.options.quiet:
+          print(f'  {dup}')
         dup_filenames.append(dup)
 
     if delete:
