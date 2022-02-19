@@ -27,9 +27,11 @@ class file_duplicates_cli_handler(cli_command_handler):
     dups = file_duplicates.find_duplicates(files, options = self.options)
     dup_filenames = []
     for item in dups.items:
-      print(f'{item.filename}:')
+      if not self.options.quiet:
+        print(f'{item.filename}:')
       for dup in item.duplicates:
-        print(f'  {dup}')
+        if not self.options.quiet:
+          print(f'  {dup}')
         dup_filenames.append(dup)
 
     if delete:
@@ -40,7 +42,7 @@ class file_duplicates_cli_handler(cli_command_handler):
         file_util.remove(dup_filenames)
         if self.options.verbose:
           for f in dup_filenames:
-            self.options.blurber.blurb(f'DELETED file: {f}')
+            self.options.blurber.blurb_verbose(f'DELETED file: {f}')
         if not keep_empty_dirs:
           fmap = dups.resolved_files.filename_abs_map()
           possible_empty_dir_roots = []
@@ -54,5 +56,5 @@ class file_duplicates_cli_handler(cli_command_handler):
             deleted_dirs.extend(next_deleted_dirs)
           if self.options.verbose:
             for d in deleted_dirs:
-              self.options.blurber.blurb(f'DELETED empty dir: {d}')
+              self.options.blurber.blurb_verbose(f'DELETED empty dir: {d}')
     return 0

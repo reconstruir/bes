@@ -7,7 +7,7 @@ class file_split_cli_args(object):
   
   def file_split_add_args(self, subparser):
     # unsplit
-    p = subparser.add_parser('unsplit', help = 'Insplit files.')
+    p = subparser.add_parser('unsplit', help = 'Unsplit files.')
     self.__file_split_cli_add_add_common_args(p)
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to find dups in [ None ]')
@@ -26,6 +26,8 @@ class file_split_cli_args(object):
     p.add_argument('--downloading-ext', action = 'store', default = 'part',
                    type = str, dest = 'check_downloading_extension',
                    help = 'Extension to check for downloding files [ False ]')
+    p.add_argument('--ignore-ext', action = 'append', dest = 'ignore_extensions', default = [],
+                   help = 'Ignore these extenstions when appened to the split files.')
     
   def _command_file_split(self, command, *args, **kargs):
     from .file_split_cli_handler import file_split_cli_handler

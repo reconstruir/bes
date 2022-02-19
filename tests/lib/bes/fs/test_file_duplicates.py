@@ -151,6 +151,28 @@ class test_file_duplicates(unit_test):
       ] ),
     ], t.result.items )
 
+  def test_find_duplicates_with_ignore_files(self):
+    ignore_file = self.make_temp_file(content = r'''
+*.foo
+''')
+    items = [
+      temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/d/ignore.foo', 'this is kiwi', 0o0644),
+    ]
+    t = self._find_dups_test(extra_content_items = items,
+                             recursive = True,
+                             ignore_files = [ ignore_file ])
+    self.assertEqual( [
+      ( f'{t.src_dir}/a/kiwi.jpg', [
+        f'{t.src_dir}/b/kiwi_dup1.jpg',
+        f'{t.src_dir}/c/kiwi_dup2.jpg',
+      ] ),
+    ], t.result.items )
+    
   # FIXME: this test would prove the dups thing works
   # even with no write permissions for files
   @unit_test_function_skip.skip_if_not_unix()
@@ -210,11 +232,13 @@ class test_file_duplicates(unit_test):
                       prefer_prefixes = None,
                       sort_key = None,
                       pre_test_function = None,
-                      include_empty_files = False):
+                      include_empty_files = False,
+                      ignore_files = None):
     options = file_duplicates_options(recursive = recursive,
                                       small_checksum_size = small_checksum_size,
                                       sort_key = sort_key,
-                                      include_empty_files = include_empty_files)
+                                      include_empty_files = include_empty_files,
+                                      ignore_files = ignore_files)
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
       if pre_test_function:
         pre_test_function(test)
