@@ -233,7 +233,7 @@ class test_file_duplicates(unit_test):
                       sort_key = None,
                       pre_test_function = None,
                       include_empty_files = False,
-                      ignore_files = None):
+                      ignore_files = []):
     options = file_duplicates_options(recursive = recursive,
                                       small_checksum_size = small_checksum_size,
                                       sort_key = sort_key,
