@@ -2,10 +2,9 @@
 
 from collections import namedtuple
 
-import ast
-
 from bes.common.check import check
 from bes.fs.file_util import file_util
+from bes.fs.file_replace import file_replace
 from bes.text.text_search import text_search
 
 from .refactor_ast_file import refactor_ast_file
@@ -41,7 +40,6 @@ class refactor_ast(object):
     result = refactor_ast_item_list()
     python_files = refactor_files.resolve_python_files(files)
     for filename in python_files:
-      
       source = refactor_ast_source(filename)
       nodes = source.find_nodes(node_type)
       for node in nodes:
@@ -50,6 +48,29 @@ class refactor_ast(object):
                                      word_boundary = options.word_boundary,
                                      word_boundary_chars = options.word_boundary_chars)
         if spans:
-          #print(f'name={item.name} spans={spans}')
           result.append(item)
     return result
+
+  @classmethod
+  def function_add_arg(clazz, files, function_name, arg_name, options = None):
+    'Add a argument to all python functions found.'
+    check.check_string_seq(files)
+    check.check_string(function_name)
+    check.check_string(arg_name)
+    check.check_refactor_options(options, allow_none = True)
+
+    options = options or refactor_options()    
+    items = clazz.grep(files, function_name, refactor_ast_node_type.FUNCTION, options = options)
+    file_map = items.make_file_map()
+    for filename, file_items in file_map.items():
+      replacements = {}
+      #print(f'filename={filename}')
+      for next_item in file_items:
+        new_definition = next_item.definition_add_arg(arg_name)
+        replacements[next_item.definition] = new_definition
+        #print(f'old definition:\n{next_item.definition}\n---------------------')
+        #print(f'new definition:\n{new_definition}\n---------------------')
+      file_replace.replace(filename, replacements,
+                           backup = options.backup,
+                           word_boundary = options.word_boundary,
+                           word_boundary_chars = options.word_boundary_chars)

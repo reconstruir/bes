@@ -7,8 +7,11 @@ from collections import namedtuple
 
 from bes.common.check import check
 from bes.property.cached_property import cached_property
+from bes.text.text_line import text_line
+from bes.text.text_insert import text_insert
 
 from .refactor_ast_node_type import refactor_ast_node_type
+from .refactor_python import refactor_python
 
 class refactor_ast_item(namedtuple('refactor_ast_item', 'source, node, node_type')):
 
@@ -40,12 +43,47 @@ class refactor_ast_item(namedtuple('refactor_ast_item', 'source, node, node_type
   
   @cached_property
   def snippet(self):
-    print(dir(self.node))
-    raise SystemExit(0)
-#    print(f'FUCK {self.source.lines[self.line_number - 1]}: {self.line_number} : {self.end_line_number}')
-#    return self.source.lines[self.line_number - 1]
     return os.linesep.join(self.source.lines[self.line_number - 1 : self.end_line_number])
 
+  @cached_property
+  def snippet_lines(self):
+    lines = self.source.lines[self.line_number - 1 : self.end_line_number]
+    result = []
+    for line_number, line in enumerate(lines, start = self.line_number):
+      result.append(text_line(line_number, line))
+    return result
+  
+  @cached_property
+  def definition(self):
+    if isinstance(self.node, ast.FunctionDef):
+      return self._definition_for_function()
+    elif isinstance(self.node, ast.ClassDef):
+      return self._definition_for_class()
+    else:
+      assert False
+
+  @cached_property
+  def definition_lines(self):
+    lines = self.definition.splitlines()
+    result = []
+    for line_number, line in enumerate(lines, start = self.line_number):
+      result.append(text_line(line_number, line))
+    return result
+      
+  def _definition_for_function(self):
+    return refactor_python.function_definition(self.snippet)
+
+  def definition_add_arg(self, arg_name):
+    if not self.definition:
+      return None
+    i = self.definition.rfind(')')
+    if i < 0:
+      return None
+    return text_insert.insert(self.definition, i, f', {arg_name}')
+  
+  def _definition_for_class(self):
+    return 'bar'
+    
   #  Get source code segment of the source that generated node. If some location information (lineno, end_lineno, col_offset, or end_col_offset) is missing, return None.
   
   '''
