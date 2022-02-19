@@ -18,6 +18,8 @@ class dir_operation_tester(object):
     self._extra_content_items = extra_content_items
     self._dst_dir_same_as_src = dst_dir_same_as_src
 
+    self.dst_dirs = []
+    self.src_dirs = []
     self.dst_files = []
     self.src_files = []
     self.src_files_before = []
@@ -47,10 +49,13 @@ class dir_operation_tester(object):
   
   def __exit__(self, type, value, traceback):
     self.src_files = file_find.find(self.src_dir, relative = True, file_type = file_find.ANY)
+    self.src_dirs = file_find.find(self.src_dir, relative = True, file_type = file_find.DIR)
     if path.exists(self.dst_dir):
       self.dst_files = file_find.find(self.dst_dir, relative = True, file_type = file_find.ANY)
+      self.dst_dirs = file_find.find(self.dst_dir, relative = True, file_type = file_find.DIR)
     else:
       self.dst_files = []
+      self.dst_dirs = []
 
   @property
   def result(self):
@@ -61,3 +66,4 @@ class dir_operation_tester(object):
   @result.setter
   def result(self, result):
     self._result = result
+  

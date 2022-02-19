@@ -33,12 +33,6 @@ class files_cli_args(object):
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to print mime types for [ None ]')
     
-    # remove_empty
-    p = subparser.add_parser('remove_empty', help = 'Remove empty directories.')
-    self.__files_cli_add_add_common_args(p)
-    p.add_argument('where', action = 'store', type = str, default = None,
-                   help = 'Where to start [ None ]')
-
     # hexify
     p = subparser.add_parser('hexify', help = 'Hexify a binary such that it can be included in python code.')
     self.__files_cli_add_add_common_args(p)

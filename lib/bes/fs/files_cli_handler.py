@@ -11,7 +11,6 @@ from bes.debug.hexdump import hexdump
 from .files_cli_options import files_cli_options
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
-from .file_find import file_find
 from .file_mime import file_mime
 from .file_path import file_path
 from .file_resolver import file_resolver
@@ -55,18 +54,6 @@ class files_cli_handler(cli_command_handler):
       print('{}: {}'.format(mime_type, f.filename_abs))
     return 0
   
-  def remove_empty(self, where):
-    where = file_check.check_dir(where)
-    max_depth = None if self.options.recursive else 1
-    if self.options.dry_run:
-      empties = file_find.find_empty_dirs(where, relative = False, max_depth = max_depth)
-      for empty in empties:
-        print(empty)
-    else:
-      file_find.remove_empty_dirs(where, max_depth = max_depth)
-      
-    return 0
-
   def hexify(self, filename):
     filename = file_check.check_file(filename)
 
