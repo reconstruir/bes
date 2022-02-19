@@ -13,12 +13,14 @@ class dir_util(object):
     return clazz.list(d) == []
 
   @classmethod
-  def list(clazz, d, relative = False, patterns = None, function = None, basename = False):
+  def list(clazz, d, relative = False, patterns = None, function = None, expressions = None, basename = False):
     'Return a list of a d contents.  Returns absolute paths unless relative is True.'
     files = sorted(os.listdir(d))
     files_abs = [ path.join(d, f) for f in files ]
     if patterns:
       files_abs = file_match.match_fnmatch(files_abs, patterns, match_type = file_match.ANY, basename = basename)
+    if expressions:
+      files_abs = file_match.match_re(files_abs, expressions, match_type = file_match.ANY, basename = basename)
     if function:
       files_abs = file_match.match_function(files_abs, function, match_type = file_match.ANY, basename = basename)
     if not relative:

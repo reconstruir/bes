@@ -64,8 +64,31 @@ class refactor_cli_args(object):
                    help = 'One or more files and/or directories to rename [ None ]')
     p.add_argument('-i', '--indent', action = 'store', default = 2, type = int,
                    help = 'Indent depth [ 2 ]')
-    p.add_argument('--backup', action = 'store_true', default = False,
-                   help = 'Make backups for reindented files [ False ]')
+
+    # grep
+    from .refactor_ast_node_type import refactor_ast_node_type
+    p = subparser.add_parser('grep', help = 'Grep python code taking into account structure.')
+    self.__refactor_cli_add_add_common_args(p)
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more files and/or directories to rename [ None ]')
+    p.add_argument('text', action = 'store', default = None,
+                   type = str,
+                   help = 'Text to grep for [ None ]')
+    p.add_argument('-t', '--type', action = 'store', default = refactor_ast_node_type.FUNCTION,
+                   dest = 'node_type', choices = refactor_ast_node_type.values,
+                   help = 'The type of node to grep [ FUNCTION ]')
+
+    # function_add_arg
+    p = subparser.add_parser('function_add_arg', help = 'Add an argument to all functions.')
+    self.__refactor_cli_add_add_common_args(p)
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more files and/or directories to rename [ None ]')
+    p.add_argument('function_name', action = 'store', default = None,
+                   type = str,
+                   help = 'The function name [ None ]')
+    p.add_argument('arg_name', action = 'store', default = None,
+                   type = str,
+                   help = 'The arg name [ None ]')
     
   @classmethod
   def __refactor_cli_add_add_common_args(clazz, p):
@@ -80,6 +103,10 @@ class refactor_cli_args(object):
     p.add_argument('-g', '--git', action = 'store_true', default = False,
                    dest = 'try_git',
                    help = 'Use git to move or add files [ False ]')
+    p.add_argument('--unsafe', action = 'store_true', default = False,
+                   help = 'Ignore unsafe operations like clobbering existsing files [ False ]')
+    p.add_argument('--backup', action = 'store_true', default = False,
+                   help = 'Make backups for reindented files [ False ]')
     
   def _command_refactor(self, command, *args, **kargs):
     from .refactor_cli_handler import refactor_cli_handler

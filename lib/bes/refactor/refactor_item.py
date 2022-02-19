@@ -30,28 +30,45 @@ class refactor_item(namedtuple('refactor_item', 'src, dst')):
     
     if operation == refactor_operation_type.COPY_FILES:
       self._apply_operation_copy(try_git)
-    else:
+    elif operation in [ refactor_operation_type.RENAME_FILES, refactor_operation_type.RENAME_DIRS ]:
       self._apply_operation_rename(try_git)
 
+  _is_safe_result = namedtuple('_is_safe_result', 'safe, reason')
+  def is_safe(self, operation):
+    check.check_refactor_operation_type(operation)
+
+    if operation == refactor_operation_type.COPY_FILES:
+      if path.exists(self.dst):
+        return self._is_safe_result(False, f'Copied destination exists: {self.dst}')
+    elif operation in [ refactor_operation_type.RENAME_FILES, refactor_operation_type.RENAME_DIRS ]:
+      if path.exists(self.dst):
+        return self._is_safe_result(False, f'Renamed destination exists: {self.dst}')
+    return self._is_safe_result(True, None)
+      
   def _apply_operation_rename(self, try_git):
-    renamed = False
+    git_worked = False
     if try_git:
       root_dir = git.find_root_dir(start_dir = path.dirname(self.src))
-      try:
-        git.move(root_dir, self.src, self.dst)
-        renamed = True
-      except git_error as ex:
-        print(f'caught: {ex}')
-    if not renamed:
+      should_ignore = git.check_ignore(root_dir, self.src)
+      if not should_ignore:
+        try:
+          git.move(root_dir, self.src, self.dst)
+          git_worked = True
+        except git_error as ex:
+          print(f'caught: {ex}')
+    if not git_worked:
       file_util.rename(self.src, self.dst)
 
   def _apply_operation_copy(self, try_git):
     file_util.copy(self.src, self.dst)
+    file_util.copy_mode(self.src, self.dst)
     if try_git:
       root_dir = git.find_root_dir(start_dir = path.dirname(self.dst))
-      try:
-        git.add(root_dir, [ self.dst ])
-      except git_error as ex:
-        print(f'caught: {ex}')
+      should_ignore = git.check_ignore(root_dir, self.src)
+      if not should_ignore:
+        try:
+          git.add(root_dir, [ self.dst ])
+        except git_error as ex:
+          print(f'caught: {ex}')
       
 check.register_class(refactor_item, include_seq = False)

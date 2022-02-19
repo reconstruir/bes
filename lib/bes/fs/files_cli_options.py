@@ -17,9 +17,10 @@ class files_cli_options(cli_options):
     'Return a dict of defaults for these options.'
     return {
       'debug': False,
+      'dry_run': False,
+      'quiet': False,
       'recursive': False,
       'verbose': False,
-      'dry_run': False,
     }
   
   @classmethod
@@ -33,9 +34,10 @@ class files_cli_options(cli_options):
   def value_type_hints(clazz):
     return {
       'debug': bool,
+      'dry_run': bool,
+      'quiet': bool,
       'recursive': bool,
       'verbose': bool,
-      'dry_run': bool,
     }
 
   @classmethod
@@ -61,9 +63,10 @@ class files_cli_options(cli_options):
   #@abstractmethod
   def check_value_types(self):
     'Check the type of each option.'
-    check.check_bool(self.verbose)
-    check.check_bool(self.dry_run)
     check.check_bool(self.debug)
+    check.check_bool(self.dry_run)
+    check.check_bool(self.quiet)
     check.check_bool(self.recursive)
+    check.check_bool(self.verbose)
 
 check.register_class(files_cli_options)
