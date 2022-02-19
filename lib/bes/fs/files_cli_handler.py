@@ -55,8 +55,6 @@ class files_cli_handler(cli_command_handler):
       print('{}: {}'.format(mime_type, f.filename_abs))
     return 0
   
-#file_attributes_metadata
-  
   def remove_empty(self, where):
     where = file_check.check_dir(where)
     max_depth = None if self.options.recursive else 1
