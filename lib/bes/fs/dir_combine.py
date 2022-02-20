@@ -29,14 +29,14 @@ class dir_combine(object):
   _log = logger('dir_combine')
 
   @classmethod
-  def combine(clazz, files, dst_dir, options = None):
+  def combine(clazz, files, options = None):
     check.check_string_seq(files)
     check.check_dir_combine_options(options, allow_none = True)
-    check.check_string(dst_dir)
 
     options = options or dir_combine_options()
-    
-    info = clazz.combine_info(files, dst_dir, options = options)
+
+    info = clazz.combine_info(files, options = options)
+    print(f'FUCK: type={type(info.items)}')
     dir_operation_util.move_files(info.items,
                                   options.dup_file_timestamp,
                                   options.dup_file_count)
@@ -44,26 +44,34 @@ class dir_combine(object):
     for next_possible_empty_root in root_dirs:
       file_find.remove_empty_dirs(next_possible_empty_root)
       
-  _combine_info_result = namedtuple('_partition_items_info', 'items, resolved_files')
+  _combine_info_result = namedtuple('_combine_info_result', 'items, resolved_files')
   @classmethod
-  def combine_info(clazz, files, dst_dir, options = None):
+  def combine_info(clazz, files, options = None):
     check.check_string_seq(files)
     check.check_dir_combine_options(options, allow_none = True)
-    check.check_string(dst_dir)
 
-    dst_dir_abs = path.abspath(dst_dir)
     options = options or dir_combine_options()
-
+    from bes.system.log import log
+    log.console(f'CACA: files={files}')
     resolved_files = clazz._resolve_files(files, options.recursive)
-    basenames = resolved_files.basenames(sort = True)
-    prefixes = filename_list.prefixes(basenames)
-    buckets = clazz._make_prefix_buckets(prefixes, resolved_files.absolute_files(sort = True))
+    for f in resolved_files:
+      log.console(f'RESOLVED: {f.filename_abs}')
+    if not resolved_files:
+      return clazz._combine_info_result([], resolved_files)
+    destination_dir = options.destination_dir or resolved_files[0].filename_abs
+    destination_dir_abs = path.abspath(destination_dir)
+
     items = dir_operation_item_list()
-    for prefix, filenames in buckets.items():
-      num_files = len(filenames)
-      if num_files >= options.threshold:
-        for src_filename in filenames:
-          dst_filename = path.join(dst_dir_abs, prefix, path.basename(src_filename))
-          item = dir_operation_item(src_filename, dst_filename)
-          items.append(item)
+    for resolved_file in resolved_files:
+      src_filename = resolved_file.filename_abs
+      dst_filename = path.join(destination_dir_abs, path.basename(src_filename))
+      item = dir_operation_item(src_filename, dst_filename)
+      items.append(item)
     return clazz._combine_info_result(items, resolved_files)
+
+  @classmethod
+  def _resolve_files(clazz, files, recursive):
+    resolver_options = file_resolver_options(sort_order = 'depth',
+                                             sort_reverse = True,
+                                             recursive = recursive)
+    return file_resolver.resolve_files(files, options = resolver_options)

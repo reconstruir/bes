@@ -9,16 +9,13 @@ class dir_combine_cli_args(object):
     # combine
     p = subparser.add_parser('combine', help = 'Combine dirs and/or files into a single destination dir.')
     self.__dir_combine_cli_add_add_common_args(p)
-    p.add_argument('dst_dir', action = 'store', default = None,
-                   help = 'Destination directory [ None ]')
+    p.add_argument('--dest-dir', action = 'store', default = None,
+                   dest = 'destination_dir', help = 'Destination directory [ None ]')
+#    p.add_argument('--type', action = 'store', default = 'prefix',
+#                   dest = 'combine_type',
+#                   help = 'Combine type to use [ None ]')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to combine [ None ]')
-    p.add_argument('--type', action = 'store', default = 'prefix',
-                   dest = 'combine_type',
-                   help = 'Combine type to use [ None ]')
-    p.add_argument('--max-threshold', action = 'store', default = 50,
-                   type = int,
-                   help = 'Threshold of files needed to combine a directory [ 2 ]')
     
   @classmethod
   def __dir_combine_cli_add_add_common_args(clazz, p):

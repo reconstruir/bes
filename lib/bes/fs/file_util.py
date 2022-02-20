@@ -389,6 +389,9 @@ class file_util(object):
   def move_with_duplicate(clazz, src, dst, prefix):
     src = file_check.check_file(src)
     check.check_string(prefix)
+
+    if src == dst:
+      return False
     
     if not path.exists(dst):
       clazz.rename(src, dst)

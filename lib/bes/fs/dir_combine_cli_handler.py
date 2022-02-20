@@ -14,14 +14,13 @@ class dir_combine_cli_handler(cli_command_handler):
     super(dir_combine_cli_handler, self).__init__(cli_args, options_class = dir_combine_options)
     check.check_dir_combine_options(self.options)
   
-  def partition(self, dst_dir, files):
-    check.check_string(dst_dir)
+  def combine(self, files):
     check.check_string_seq(files)
 
     if self.options.dry_run:
-      info = dir_combine.partition_info(files, dst_dir, options = self.options)
+      info = dir_combine.combine_info(files, options = self.options)
       for item in info.items:
         print('{} => {}'.format(item.src_filename, item.dst_filename))
     else:
-      dir_combine.partition(files, dst_dir, options = self.options)
+      dir_combine.combine(files, options = self.options)
     return 0

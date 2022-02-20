@@ -18,6 +18,7 @@ class dir_combine_options(files_cli_options):
     return clazz.super_default_values({
       'dup_file_timestamp': time_util.timestamp(),
       'dup_file_count': 1,
+      'destination_dir': None,
     })
   
   @classmethod
@@ -33,5 +34,7 @@ class dir_combine_options(files_cli_options):
     super(dir_combine_options, self).check_value_types()
     check.check_string(self.dup_file_timestamp)
     check.check_int(self.dup_file_count)
+    check.check_string(self.destination_dir, allow_none = True)
+
 
 check.register_class(dir_combine_options)
