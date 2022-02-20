@@ -202,7 +202,6 @@ class test_file_split(unit_test, unit_test_media_files):
   def test_find_and_unsplit_with_unzip(self):
     tmp = temp_archive.make_temp_archive([
       temp_archive.item('kiwi.mp4', filename = self.mp4_file),
-      temp_archive.item('kiwi2.mp4', filename = self.mp4_file),
     ], 'zip')
     tmp_dir = self.make_temp_dir()
     files = file_split.split_file(tmp, int(file_util.size(tmp) / 3),
@@ -222,7 +221,29 @@ class test_file_split(unit_test, unit_test_media_files):
     ], t.src_files )
     self.assertEqual( True, file_util.files_are_the_same(f'{t.src_dir}/kiwi.mp4',
                                                          self.mp4_file) )
-                                                         
+
+  def test_find_and_unsplit_with_unzip_and_multiple_members(self):
+    tmp = temp_archive.make_temp_archive([
+      temp_archive.item('kiwi.mp4', filename = self.mp4_file),
+      temp_archive.item('lemon.jpg', filename = self.jpg_file),
+    ], 'zip')
+    tmp_dir = self.make_temp_dir()
+    files = file_split.split_file(tmp, int(file_util.size(tmp) / 3),
+                                  output_directory = tmp_dir,
+                                  zfill_length = 3)
+    self.assertEqual( 4, len(files) )
+    items = [
+      temp_content('file', 'src/kiwi.mp4.zip.001', file_util.read(files[0]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.002', file_util.read(files[1]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.003', file_util.read(files[2]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.004', file_util.read(files[3]), 0o0644),
+    ]
+    t = self._find_and_unsplit_test(extra_content_items = items,
+                                    unzip = True)
+    self.assertEqual( [
+      'kiwi.mp4.zip',
+    ], t.src_files )
+    
   def test_split_file_basic(self):
     NUM_ITEMS = 10
     CONTENT_SIZE = 1024 * 100
