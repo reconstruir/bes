@@ -11,7 +11,6 @@ from bes.system.log import logger
 
 from .dir_operation_item import dir_operation_item
 from .dir_operation_item_list import dir_operation_item_list
-from .dir_operation_util import dir_operation_util
 from .dir_split_options import dir_split_options
 from .dir_util import dir_util
 from .file_attributes_metadata import file_attributes_metadata
@@ -38,9 +37,8 @@ class dir_split(object):
     options = options or dir_split_options()
     info = clazz._split_info(src_dir_abs, dst_dir_abs, options)
 
-    dir_operation_util.move_files(info.items,
-                                  options.dup_file_timestamp,
-                                  options.dup_file_count)
+    info.items.move_files(options.dup_file_timestamp,
+                          options.dup_file_count)
     
     for d in info.existing_split_dirs:
       if dir_util.is_empty(d):

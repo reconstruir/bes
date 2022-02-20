@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from os import path
+
 from bes.fs.dir_combine import dir_combine
 from bes.fs.dir_combine_options import dir_combine_options
 from bes.fs.testing.temp_content import temp_content
@@ -12,7 +14,7 @@ from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
 class test_dir_combine(unit_test, unit_test_media_files):
 
-  def test_combine(self):
+  def xtest_combine(self):
     items = [
       temp_content('file', 'src/readme.md', 'readme.md', 0o0644),
       temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),

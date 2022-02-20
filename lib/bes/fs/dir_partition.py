@@ -13,7 +13,6 @@ from bes.fs.file_resolver_options import file_resolver_options
 
 from .dir_operation_item import dir_operation_item
 from .dir_operation_item_list import dir_operation_item_list
-from .dir_operation_util import dir_operation_util
 from .dir_partition_options import dir_partition_options
 from .dir_partition_type import dir_partition_type
 from .file_attributes_metadata import file_attributes_metadata
@@ -37,9 +36,8 @@ class dir_partition(object):
     options = options or dir_partition_options()
     
     info = clazz.partition_info(files, dst_dir, options = options)
-    dir_operation_util.move_files(info.items,
-                                  options.dup_file_timestamp,
-                                  options.dup_file_count)
+    info.items.move_files(options.dup_file_timestamp,
+                          options.dup_file_count)
     root_dirs = info.resolved_files.root_dirs()
     for next_possible_empty_root in root_dirs:
       file_find.remove_empty_dirs(next_possible_empty_root)
