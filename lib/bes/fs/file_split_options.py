@@ -26,6 +26,7 @@ class file_split_options(files_cli_options):
       'check_modified_interval': 250.0,
       'existing_file_timestamp': datetime.now(),
       'ignore_extensions': None,
+      'unzip': False,
     })
   
   @classmethod
@@ -35,6 +36,7 @@ class file_split_options(files_cli_options):
       'check_downloading': bool,
       'check_modified': bool,
       'check_modified_interval': float,
+      'unzip': bool,
 #      'ignore_extensions': set,
 #      'existing_file_timestamp': datetime,
     })
@@ -50,5 +52,6 @@ class file_split_options(files_cli_options):
     check.check_blurber(self.blurber)
     check.check(self.existing_file_timestamp, datetime, allow_none = True)
     check.check_string_seq(self.ignore_extensions, allow_none = True)
+    check.check_bool(self.unzip)
 
 check.register_class(file_split_options)

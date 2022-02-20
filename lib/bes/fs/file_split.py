@@ -4,17 +4,16 @@ from collections import namedtuple
 import os.path as path
 import math
 
+from bes.archive.archiver import archiver
 from bes.common.check import check
 from bes.common.time_util import time_util
-from bes.fs.dir_util import dir_util
-from bes.fs.file_resolver import file_resolver
-from bes.fs.file_resolver_item_list import file_resolver_item_list
-from bes.fs.file_resolver_options import file_resolver_options
-from bes.fs.file_util import file_util
 from bes.system.check import check
 from bes.system.log import logger
 
-from .file_check import file_check
+from .dir_util import dir_util
+from .file_resolver import file_resolver
+from .file_resolver_item_list import file_resolver_item_list
+from .file_resolver_options import file_resolver_options
 from .file_split_error import file_split_error
 from .file_split_options import file_split_options
 from .file_util import file_util
@@ -38,22 +37,41 @@ class file_split(object):
 
     info = clazz.find_and_unsplit_info(files, options = options)
     for item in info.items:
-      options.blurber.blurb_verbose(f'Unsplitting {item.target} - {len(item.files)} parts.')
-      tmp = temp_file.make_temp_file(prefix = path.basename(item.target), dir = path.dirname(item.target))
+      item_target = item.target
+      options.blurber.blurb_verbose(f'Unsplitting {item_target} - {len(item.files)} parts.')
+      tmp = temp_file.make_temp_file(prefix = path.basename(item_target), dir = path.dirname(item_target))
       clazz.unsplit_files(tmp, item.files)
+      if options.unzip:
+        if archiver.is_valid(tmp):
+          members = archiver.members(tmp)
+          num_members = len(members)
+          if num_members != 1:
+            options.blurber.blurb(f'{item_target} archive should have exactly 1 member instead of {num_members}')
+          else:
+            archive_filename = members[0]
+            archive_tmp_dir = temp_file.make_temp_dir(prefix = path.basename(archive_filename),
+                                                      dir = path.dirname(item_target),
+                                                      delete = False)
+            archiver.extract_all(tmp, archive_tmp_dir)
+            archive_tmp_file = path.join(archive_tmp_dir, archive_filename)
+            assert path.exists(archive_tmp_file)
+            file_util.rename(archive_tmp_file, tmp)
+            file_util.remove(archive_tmp_dir)
+            item_target = path.join(path.dirname(item_target), archive_filename)
+            
       target = None
-      if path.exists(item.target):
-        if file_util.files_are_the_same(tmp, item.target):
-          options.blurber.blurb(f'{item.target} already exists and is the same')
+      if path.exists(item_target):
+        if file_util.files_are_the_same(tmp, item_target):
+          options.blurber.blurb(f'{item_target} already exists and is the same')
           file_util.remove(tmp)
         else:
           ts = time_util.timestamp(delimiter = '',
                                    milliseconds = False,
                                    when = options.existing_file_timestamp)
-          target = clazz._make_timestamp_filename(item.target, ts)
-          options.blurber.blurb(f'{item.target} already exists but is different.  Renaming to {target}')
+          target = clazz._make_timestamp_filename(item_target, ts)
+          options.blurber.blurb(f'{item_target} already exists but is different.  Renaming to {target}')
       else:
-        target = item.target
+        target = item_target
       if target:
         file_util.rename(tmp, target)
       file_util.remove(item.files)
@@ -153,23 +171,29 @@ class file_split(object):
     return result
   
   @classmethod
-  def split_file(clazz, filename, chunk_size):
+  def split_file(clazz, filename, chunk_size, zfill_length = None, output_directory = None):
     check.check_string(filename)
     check.check_int(chunk_size)
+    check.check_int(zfill_length, allow_none = True)
     
     file_size = file_util.size(filename)
     
-    clazz._log.log_d('split: filename={filename} chunk_size={file_util.format_size(chunk_size)} file_size={file_util.format_size(file_size)}')
+    clazz._log.log_method_d()
     
     num_total = int(math.ceil(float(file_size) / float(chunk_size)))
     result_file_list = []
+    zfill_length = zfill_length or len(str(num_total))
+    output_directory = output_directory or path.dirname(filename)
     with open(filename, 'rb') as fin:
       index = 0
       while True:
         data = fin.read(chunk_size)
         if not data:
           break
-        next_filename = clazz._make_split_filename(filename, index + 1, num_total)
+        next_filename = clazz._make_split_filename(filename,
+                                                   output_directory,
+                                                   index + 1,
+                                                   zfill_length)
         with open(next_filename, 'wb') as fout:
           fout.write(data)
           result_file_list.append(next_filename)
@@ -177,10 +201,11 @@ class file_split(object):
     return result_file_list
 
   @classmethod
-  def _make_split_filename(clazz, filename, index, total):
-    index_s = str(index).zfill(2)
-    total_s = str(total).zfill(2)
-    return '{}.split.{}of{}'.format(filename, index_s, total_s)
+  def _make_split_filename(clazz, filename, output_directory, index, zfill_length):
+    basename = path.basename(filename)
+    split_filename = path.join(output_directory, basename)
+    extension = str(index).zfill(zfill_length)
+    return filename_util.add_extension(split_filename, extension)
   
   @classmethod
   def unsplit_files(clazz, target_filename, files, buffer_size = 1024 * 1204):

@@ -14,13 +14,23 @@ from bes.fs.file_split import file_split
 from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
+from bes.archive.temp_archive import temp_archive
 
 from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
+from _bes_unit_test_common.unit_test_media import unit_test_media
+from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
 
 _DEFAULT_FILE_SPLIT_OPTIONS = file_split_options()
 
-class test_file_split(unit_test):
+class test_file_split(unit_test, unit_test_media_files):
 
+  def test__make_split_filename(self):
+    f = file_split._make_split_filename
+    self.assertEqual( '/a/b/kiwi.mp4.001', f('/a/b/kiwi.mp4', '/a/b', 1, 3) )
+    self.assertEqual( '/a/b/kiwi.mp4.01', f('/a/b/kiwi.mp4', '/a/b', 1, 2) )
+    self.assertEqual( '/a/b/kiwi.mp4.1', f('/a/b/kiwi.mp4', '/a/b', 1, 1) )
+    self.assertEqual( '/foo/kiwi.mp4.001', f('/a/b/kiwi.mp4', '/foo', 1, 3) )
+  
   def test__is_group_file(self):
     f = file_split._is_group_file
     self.assertEqual( True, f('foo-128.001', 'foo-128.001', None) )
@@ -188,7 +198,31 @@ class test_file_split(unit_test):
     ], t.src_files )
     self.assert_text_file_equal( 'foo001foo002foo003', f'{t.src_dir}/a/parts/foo.txt' )
     self.assert_text_file_equal( 'lemon01lemon02lemon03', f'{t.src_dir}/b/icons/lemon.jpg' )
-    
+
+  def test_find_and_unsplit_with_unzip(self):
+    tmp = temp_archive.make_temp_archive([
+      temp_archive.item('kiwi.mp4', filename = self.mp4_file),
+      temp_archive.item('kiwi2.mp4', filename = self.mp4_file),
+    ], 'zip')
+    tmp_dir = self.make_temp_dir()
+    files = file_split.split_file(tmp, int(file_util.size(tmp) / 3),
+                                  output_directory = tmp_dir,
+                                  zfill_length = 3)
+    self.assertEqual( 4, len(files) )
+    items = [
+      temp_content('file', 'src/kiwi.mp4.zip.001', file_util.read(files[0]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.002', file_util.read(files[1]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.003', file_util.read(files[2]), 0o0644),
+      temp_content('file', 'src/kiwi.mp4.zip.004', file_util.read(files[3]), 0o0644),
+    ]
+    t = self._find_and_unsplit_test(extra_content_items = items,
+                                    unzip = True)
+    self.assertEqual( [
+      'kiwi.mp4',
+    ], t.src_files )
+    self.assertEqual( True, file_util.files_are_the_same(f'{t.src_dir}/kiwi.mp4',
+                                                         self.mp4_file) )
+                                                         
   def test_split_file_basic(self):
     NUM_ITEMS = 10
     CONTENT_SIZE = 1024 * 100
@@ -245,14 +279,17 @@ class test_file_split(unit_test):
                              check_modified = _DEFAULT_FILE_SPLIT_OPTIONS.check_modified,
                              check_modified_interval = _DEFAULT_FILE_SPLIT_OPTIONS.check_modified_interval,
                              existing_file_timestamp = None,
-                             ignore_extensions = None):
+                             ignore_extensions = None,
+                             files = None,
+                             unzip = False):
     options = file_split_options(recursive = recursive,
                                  check_downloading = check_downloading,
                                  existing_file_timestamp = existing_file_timestamp,
-                                 ignore_extensions = ignore_extensions)
+                                 ignore_extensions = ignore_extensions,
+                                 unzip = unzip)
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
-      test.result = file_split.find_and_unsplit([ test.src_dir ],
-                                                options = options)
+      files = files or [ test.src_dir ]
+      test.result = file_split.find_and_unsplit(files, options = options)
     return test
     
 if __name__ == '__main__':
