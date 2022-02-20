@@ -372,7 +372,7 @@ class file_util(object):
     subprocess.call([ pager, filename ])
 
   @classmethod
-  def files_are_the_same(clazz, filename1, filename2):
+  def files_are_the_same(clazz, filename1, filename2, read_size = 1024 * 1024):
     filename1 = file_check.check_file(filename1)
     filename2 = file_check.check_file(filename2)
 
@@ -381,7 +381,7 @@ class file_util(object):
 
     with open(filename1, 'rb') as f1:
       with open(filename2, 'rb') as f2:
-        if f1.read(1024) != f2.read(1024):
+        if f1.read(read_size) != f2.read(read_size):
           return False
     return True
 
