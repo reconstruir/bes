@@ -19,6 +19,7 @@ class dir_combine_options(files_cli_options):
       'dup_file_timestamp': time_util.timestamp(),
       'dup_file_count': 1,
       'destination_dir': None,
+      'ignore_empty': False,
     })
   
   @classmethod
@@ -26,6 +27,7 @@ class dir_combine_options(files_cli_options):
   def value_type_hints(clazz):
     return clazz.super_value_type_hints({
       'dup_file_count': int,
+      'ignore_empty': bool,
     })
 
   #@abstractmethod
@@ -35,6 +37,6 @@ class dir_combine_options(files_cli_options):
     check.check_string(self.dup_file_timestamp)
     check.check_int(self.dup_file_count)
     check.check_string(self.destination_dir, allow_none = True)
-
+    check.check_bool(self.ignore_empty)
 
 check.register_class(dir_combine_options)

@@ -20,6 +20,7 @@ from .file_check import file_check
 from .file_find import file_find
 from .file_path import file_path
 from .file_util import file_util
+from .dir_util import dir_util
 from .filename_list import filename_list
 
 class dir_combine(object):
@@ -35,7 +36,6 @@ class dir_combine(object):
     options = options or dir_combine_options()
 
     info = clazz.combine_info(files, options = options)
-    print(f'FUCK: type={type(info.items)}')
     info.items.move_files(options.dup_file_timestamp,
                           options.dup_file_count)
     root_dirs = info.resolved_files.root_dirs()
@@ -49,11 +49,14 @@ class dir_combine(object):
     check.check_dir_combine_options(options, allow_none = True)
 
     options = options or dir_combine_options()
-    from bes.system.log import log
-    log.console(f'CACA: files={files}')
+    
+    if options.ignore_empty:
+      should_ignore = lambda d: not path.exists(d) or dir_util.is_empty(d)
+      files = [ f for f in files if not should_ignore(f) ]
+      
     resolved_files = clazz._resolve_files(files, options.recursive)
-    for f in resolved_files:
-      log.console(f'RESOLVED: {f.filename_abs}')
+#    for f in resolved_files:
+#      log.console(f'RESOLVED: {f.filename_abs}')
     if not resolved_files:
       return clazz._combine_info_result([], resolved_files)
     destination_dir = options.destination_dir or resolved_files[0].filename_abs

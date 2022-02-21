@@ -11,6 +11,8 @@ class dir_combine_cli_args(object):
     self.__dir_combine_cli_add_add_common_args(p)
     p.add_argument('--dest-dir', action = 'store', default = None,
                    dest = 'destination_dir', help = 'Destination directory [ None ]')
+    p.add_argument('--ignore-empty', action = 'store_true', default = False,
+                   help = 'Ignore empty or non-existent directories [ None ]')
 #    p.add_argument('--type', action = 'store', default = 'prefix',
 #                   dest = 'combine_type',
 #                   help = 'Combine type to use [ None ]')
