@@ -36,6 +36,7 @@ class dir_combine(object):
     options = options or dir_combine_options()
 
     info = clazz.combine_info(files, options = options)
+    from bes.system.log import log
     info.items.move_files(options.dup_file_timestamp,
                           options.dup_file_count)
     root_dirs = info.resolved_files.root_dirs()
@@ -49,17 +50,17 @@ class dir_combine(object):
     check.check_dir_combine_options(options, allow_none = True)
 
     options = options or dir_combine_options()
+
+    from bes.system.log import log
     
     if options.ignore_empty:
       should_ignore = lambda d: not path.exists(d) or dir_util.is_empty(d)
       files = [ f for f in files if not should_ignore(f) ]
       
     resolved_files = clazz._resolve_files(files, options.recursive)
-#    for f in resolved_files:
-#      log.console(f'RESOLVED: {f.filename_abs}')
     if not resolved_files:
       return clazz._combine_info_result([], resolved_files)
-    destination_dir = options.destination_dir or resolved_files[0].filename_abs
+    destination_dir = options.destination_dir or resolved_files[0].dirname
     destination_dir_abs = path.abspath(destination_dir)
 
     items = dir_operation_item_list()

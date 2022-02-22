@@ -22,6 +22,10 @@ class dir_operation_item(namedtuple('dir_operation_item', 'src_filename, dst_fil
 
   @cached_property
   def dst_basename(self):
-    return file_path.part(self.dst_filename, -2)
+    return path.basename(self.dst_filename)
+
+  @cached_property
+  def dst_dirname(self):
+    return path.dirname(self.dst_filename)
   
 check.register_class(dir_operation_item, include_seq = False)

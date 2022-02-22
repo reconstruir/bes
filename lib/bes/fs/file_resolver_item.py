@@ -34,6 +34,10 @@ class file_resolver_item(namedtuple('file_resolver_item', 'root_dir, filename, f
     return path.basename(self.filename_abs)
 
   @cached_property
+  def dirname(self):
+    return path.dirname(self.filename_abs)
+  
+  @cached_property
   def size(self):
     return file_util.size(self.filename_abs)
   

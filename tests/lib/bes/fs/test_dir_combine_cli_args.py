@@ -24,20 +24,21 @@ class test_dir_combine_cli_args(program_unit_test):
       'file src/c/barolo-10.jpg    "barolo-10.txt"  644',
       'file src/c/chablis-10.jpg   "chablis-10.txt"  644',
       'file src/d/steak-10.jpg     "steak-10.txt"  644',
-    ], recursive = True, files = [ 'a', 'b', 'c' ])
+    ], recursive = True, files = [ 'a', 'b', 'c', 'd' ])
     expected = [
-      'a/kiwi-30.jpg',
-      'a/lemon-30.jpg',
-      'a/grape-30.jpg',
+      'a',
+      'a/barolo-10.jpg',
       'a/brie-30.jpg',
+      'a/chablis-10.jpg',
       'a/cheddar-30.jpg',
       'a/gouda-30.jpg',
-      'a/barolo-10.jpg',
-      'a/chablis-10.jpg',
+      'a/grape-30.jpg',
+      'a/kiwi-30.jpg',
+      'a/lemon-30.jpg',
       'a/steak-10.jpg',
     ]
     self.assertEqual( 0, t.result.exit_code )
-    self.assert_filename_list_equal( expected, t.src_dirs )
+    self.assert_filename_list_equal( expected, t.src_files )
 
   def xtest_remove_empty_recursive(self):
     t = self._test([
