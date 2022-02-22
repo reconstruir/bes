@@ -40,6 +40,33 @@ class test_dir_combine_cli_args(program_unit_test):
     self.assertEqual( 0, t.result.exit_code )
     self.assert_filename_list_equal( expected, t.src_files )
 
+  def test_combine_recursive_with_conflicts(self):
+    t = self._test([
+      'file src/a/kiwi-30.jpg      "kiwi-30.txt"      644',
+      'file src/a/lemon-30.jpg     "lemon-30.txt"     644',
+      'file src/a/grape-30.jpg     "grape-30.txt"     644',
+      'file src/b/brie-30.jpg      "brie-30.txt"      644',
+      'file src/b/kiwi-30.jpg      "kiwi-30-dup1.txt" 644',
+      'file src/b/gouda-30.jpg     "gouda-30.txt"     644',
+      'file src/c/barolo-10.jpg    "barolo-10.txt"    644',
+      'file src/c/kiwi-30.jpg      "kiwi-30-dup2.txt" 644',
+      'file src/d/steak-10.jpg     "steak-10.txt"     644',
+    ], recursive = True, files = [ 'a', 'b', 'c', 'd' ])
+    expected = [
+      'a',
+      'a/barolo-10.jpg',
+      'a/brie-30.jpg',
+      'a/dup-timestamp-42-kiwi-30.jpg',
+      'a/dup-timestamp-43-kiwi-30.jpg',
+      'a/gouda-30.jpg',
+      'a/grape-30.jpg',
+      'a/kiwi-30.jpg',
+      'a/lemon-30.jpg',
+      'a/steak-10.jpg',
+    ]
+    self.assertEqual( 0, t.result.exit_code )
+    self.assert_filename_list_equal( expected, t.src_files )
+    
   def xtest_remove_empty_recursive(self):
     t = self._test([
       'dir  src/empty1             ""              700',
@@ -104,6 +131,8 @@ DRY_RUN: would remove {t.src_dir}/foo/bar/baz/empty3
       args = [
         'dir_combine',
         'combine',
+        '--dup-file-timestamp', 'dup-timestamp',
+        '--dup-file-count',  '42',
       ] + files_args
       if recursive:
         args.append('--recursive')

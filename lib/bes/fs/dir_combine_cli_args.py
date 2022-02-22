@@ -13,6 +13,11 @@ class dir_combine_cli_args(object):
                    dest = 'destination_dir', help = 'Destination directory [ None ]')
     p.add_argument('--ignore-empty', action = 'store_true', default = False,
                    help = 'Ignore empty or non-existent directories [ None ]')
+    from bes.common.time_util import time_util
+    p.add_argument('--dup-file-timestamp', action = 'store', default = time_util.timestamp(),
+                   help = 'Timestamp for resolving duplicate files [ None ]')
+    p.add_argument('--dup-file-count', action = 'store', default = 1, type = int,
+                   help = 'Count to begin at for resolving duplicate files [ 1 ]')
 #    p.add_argument('--type', action = 'store', default = 'prefix',
 #                   dest = 'combine_type',
 #                   help = 'Combine type to use [ None ]')
