@@ -44,12 +44,19 @@ class dir_operation_tester(object):
     return dst_dir
 
   def __enter__(self):
-    self.src_files_before = file_find.find(self.src_dir, relative = True, file_type = file_find.ANY)
+    if path.exists(self.src_dir):
+      self.src_files_before = file_find.find(self.src_dir, relative = True, file_type = file_find.ANY)
+    else:
+      self.src_files_before = []
     return self
   
   def __exit__(self, type, value, traceback):
-    self.src_files = file_find.find(self.src_dir, relative = True, file_type = file_find.ANY)
-    self.src_dirs = file_find.find(self.src_dir, relative = True, file_type = file_find.DIR)
+    if path.exists(self.src_dir):
+      self.src_files = file_find.find(self.src_dir, relative = True, file_type = file_find.ANY)
+      self.src_dirs = file_find.find(self.src_dir, relative = True, file_type = file_find.DIR)
+    else:
+      self.src_files = []
+      self.src_dirs = []
     if path.exists(self.dst_dir):
       self.dst_files = file_find.find(self.dst_dir, relative = True, file_type = file_find.ANY)
       self.dst_dirs = file_find.find(self.dst_dir, relative = True, file_type = file_find.DIR)
