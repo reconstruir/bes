@@ -56,7 +56,7 @@ class dir_combine(object):
       
     resolved_files = clazz._resolve_files(files, options.recursive)
     if not resolved_files:
-      return clazz._combine_info_result([], resolved_files)
+      return clazz._combine_info_result(dir_operation_item_list(), resolved_files)
     destination_dir = options.destination_dir or resolved_files[0].dirname
     destination_dir_abs = path.abspath(destination_dir)
 

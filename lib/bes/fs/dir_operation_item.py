@@ -8,6 +8,7 @@ from bes.common.tuple_util import tuple_util
 from bes.property.cached_property import cached_property
 
 from .file_path import file_path
+from .file_util import file_util
 
 class dir_operation_item(namedtuple('dir_operation_item', 'src_filename, dst_filename')):
 
@@ -27,5 +28,14 @@ class dir_operation_item(namedtuple('dir_operation_item', 'src_filename, dst_fil
   @cached_property
   def dst_dirname(self):
     return path.dirname(self.dst_filename)
+
+  def src_and_dst_are_the_same(self):
+    return file_util.files_are_the_same(self.src_filename, self.dst_filename)
+
+  def src_exists(self):
+    return path.exists(self.src_filename)
+
+  def dst_exists(self):
+    return path.exists(self.dst_filename)
   
 check.register_class(dir_operation_item, include_seq = False)

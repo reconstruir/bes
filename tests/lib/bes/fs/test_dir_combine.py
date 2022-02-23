@@ -14,6 +14,8 @@ from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
 class test_dir_combine(unit_test, unit_test_media_files):
 
+  # add
+  # - case when theres nothing to combine
   def xtest_combine(self):
     items = [
       temp_content('file', 'src/readme.md', 'readme.md', 0o0644),

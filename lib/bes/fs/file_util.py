@@ -384,25 +384,3 @@ class file_util(object):
         if f1.read(read_size) != f2.read(read_size):
           return False
     return True
-
-  @classmethod
-  def move_with_duplicate(clazz, src, dst, prefix):
-    src = file_check.check_file(src)
-    check.check_string(prefix)
-
-    if src == dst:
-      return False
-    
-    if not path.exists(dst):
-      clazz.rename(src, dst)
-      return False
-
-    if clazz.files_are_the_same(src, dst):
-      return False
-    
-    basename = path.basename(dst)
-    dirname = path.dirname(dst)
-    dst_basename = f'{prefix}-{basename}'
-    dst_filename = path.join(dirname, dst_basename)
-    file_util.rename(src, dst_filename)
-    return True
