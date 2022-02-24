@@ -484,7 +484,7 @@ class test_refactor_files(unit_test):
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
     ])
     options = refactor_options(word_boundary = False)
-    items = refactor_files.copy_files(tmp_dir, 'kiwi', 'chocolate', options = options)
+    items = refactor_files.copy_files(tmp_dir, 'kiwi', 'chocolate', False, options = options)
     self.assert_filename_list_equal( [
       f'{tmp_dir}/kiwi/xdata2/kiwi_stuff2/kiwi2.txt',
       f'{tmp_dir}/lib/fruit/kiwi.py',

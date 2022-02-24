@@ -48,13 +48,14 @@ class refactor_project(object):
                            word_boundary_chars = options.word_boundary_chars)
 
   @classmethod
-  def copy(clazz, files, src_pattern, dst_pattern, options = None):
+  def copy(clazz, files, src_pattern, dst_pattern, copy_dirs, options = None):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_refactor_options(options, allow_none = True)
+    check.check_bool(copy_dirs)
 
     clazz._log.log_method_d()
 
-    copied_items = refactor_files.copy_files(files, src_pattern, dst_pattern, options = options)
+    copied_items = refactor_files.copy_files(files, src_pattern, dst_pattern, copy_dirs, options = options)
     copied_files = sorted([ item.dst for item in copied_items ])
     clazz.replace_text(copied_files, src_pattern, dst_pattern, options = options)

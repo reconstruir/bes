@@ -32,12 +32,13 @@ class refactor_cli_handler(cli_command_handler):
     refactor_project.rename(files, src_pattern, dst_pattern, options = self.options)
     return 0
 
-  def copy(self, files, src_pattern, dst_pattern):
+  def copy(self, files, src_pattern, dst_pattern, copy_dirs):
     check.check_string_seq(files)
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
+    check.check_bool(copy_dirs)
 
-    refactor_project.copy(files, src_pattern, dst_pattern, options = self.options)
+    refactor_project.copy(files, src_pattern, dst_pattern, copy_dirs, options = self.options)
     return 0
 
   def rename_dirs(self, dirs, src_pattern, dst_pattern):

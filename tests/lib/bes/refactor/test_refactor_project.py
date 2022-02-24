@@ -207,7 +207,7 @@ xdata/kiwi_stuff/kiwi.png
     ]
     options = refactor_options(try_git = True,
                                word_boundary = False)
-    refactor_project.copy(args, 'kiwi', 'cheese', options = options)
+    refactor_project.copy(args, 'kiwi', 'cheese', False, options = options)
     self.assertEqual( [
       ( 'A', 'kiwi/xdata2/kiwi_stuff2/cheese2.png', None ),
       ( 'AM', 'lib/fruit/cheese.py', None ),

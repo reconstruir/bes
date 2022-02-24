@@ -26,6 +26,9 @@ class refactor_cli_args(object):
                    help = 'The dst pattern to copy to. []')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files and/or directories to copy [ None ]')
+    p.add_argument('--dirs', action = 'store_true', default = False,
+                   dest = 'copy_dirs',
+                   help = 'Copy dirs as well if needed [ False ]')
     
     # rename_dirs
     p = subparser.add_parser('rename_dirs', help = 'Global rename of dirs only.')

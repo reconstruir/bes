@@ -73,10 +73,11 @@ class refactor_files(object):
                                options)
 
   @classmethod
-  def copy_files(clazz, files, src_pattern, dst_pattern, options = None):
+  def copy_files(clazz, files, src_pattern, dst_pattern, copy_dirs, options = None):
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_refactor_options(options, allow_none = True)
+    check.check_bool(copy_dirs)
 
     clazz._log.log_method_d()
     options = options or refactor_options()
