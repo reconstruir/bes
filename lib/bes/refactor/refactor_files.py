@@ -70,6 +70,7 @@ class refactor_files(object):
                                files,
                                src_pattern,
                                dst_pattern,
+                               False,
                                options)
 
   @classmethod
@@ -82,7 +83,7 @@ class refactor_files(object):
     clazz._log.log_method_d()
     options = options or refactor_options()
     return clazz._do_operation(refactor_operation_type.COPY_FILES,
-                               files, src_pattern, dst_pattern, options)
+                               files, src_pattern, dst_pattern, copy_dirs, options)
     
   @classmethod
   def rename_dirs(clazz, dirs, src_pattern, dst_pattern, options = None):
@@ -99,12 +100,14 @@ class refactor_files(object):
                                   resolved_empty_dirs,
                                   src_pattern,
                                   dst_pattern,
+                                  False,
                                   options.word_boundary,
                                   options.word_boundary_chars)
     result = clazz._do_operation(refactor_operation_type.RENAME_DIRS,
                                  dirs,
                                  src_pattern,
                                  dst_pattern,
+                                 False,
                                  options)
   
     for item in empty_dirs_operation_items:
@@ -118,7 +121,7 @@ class refactor_files(object):
     return result
 
   @classmethod
-  def _do_operation(clazz, operation, dirs, src_pattern, dst_pattern, options):
+  def _do_operation(clazz, operation, dirs, src_pattern, dst_pattern, copy_dirs, options):
     assert options
     resolver_options = file_resolver_options(recursive = True,
                                              sort_order = 'depth',
@@ -129,6 +132,7 @@ class refactor_files(object):
                                   resolved_files,
                                   src_pattern,
                                   dst_pattern,
+                                  copy_dirs,
                                   options.word_boundary,
                                   options.word_boundary_chars)
 
@@ -143,8 +147,6 @@ class refactor_files(object):
     new_dirs = algorithm.unique([ path.dirname(item.dst) for item in operation_items ])
     new_dirs = [ d for d in new_dirs if d and not path.exists(d) ]
     for next_new_dir in new_dirs:
-      if operation == refactor_operation_type.COPY_FILES:
-        assert False
       file_util.mkdir(next_new_dir)
     for next_operation_item in operation_items:
       next_operation_item.apply_operation(operation, options.try_git)
@@ -160,6 +162,7 @@ class refactor_files(object):
                          filename,
                          src_pattern,
                          dst_pattern,
+                         copy_dirs,
                          word_boundary,
                          word_boundary_chars):
     assert isinstance(operation, refactor_operation_type)
@@ -173,7 +176,7 @@ class refactor_files(object):
                                                word_boundary = word_boundary,
                                                word_boundary_chars = word_boundary_chars)
       return path.join(replaced_dirname, basename)
-    elif operation == refactor_operation_type.RENAME_FILES:
+    elif operation == refactor_operation_type.RENAME_FILES or copy_dirs:
       return file_path.replace_all(filename,
                                    src_pattern,
                                    dst_pattern,
@@ -195,6 +198,7 @@ class refactor_files(object):
                             resolved_files,
                             src_pattern,
                             dst_pattern,
+                            copy_dirs,
                             word_boundary,
                             word_boundary_chars):
     operation_items = []
@@ -205,6 +209,7 @@ class refactor_files(object):
                                                   src_filename_rel,
                                                   src_pattern,
                                                   dst_pattern,
+                                                  copy_dirs,
                                                   word_boundary,
                                                   word_boundary_chars)
       if src_filename_rel != dst_filename_rel:
