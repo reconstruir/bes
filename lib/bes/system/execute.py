@@ -77,15 +77,16 @@ class execute(object):
       raise
 
     # http://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
-    stdout_lines = []
+#    stdout_lines = []
     if non_blocking:
       # Poll process for new output until finished
       while True:
         nextline = process.stdout.readline()
-        if nextline == '' and process.poll() != None:
+        decoded_nextline = nextline.decode('utf-8', errors = 'ignore')
+        if decoded_nextline == '' and process.poll() != None:
             break
-        stdout_lines.append(nextline)
-        sys.stdout.write(nextline)
+#        stdout_lines.append(decoded_nextline)
+        sys.stdout.write(decoded_nextline)
         sys.stdout.flush()
 
     clazz._log.log_d('execute: calling communicate with input_data={}'.format(input_data))
@@ -93,8 +94,8 @@ class execute(object):
     exit_code = process.wait()
     clazz._log.log_d('execute: wait returned. exit_code={} output={}'.format(exit_code, output))
     
-    if stdout_lines:
-      output = ( '\n'.join(stdout_lines), output[1] )
+#    if stdout_lines:
+#      output = ( '\n'.join(stdout_lines), output[1] )
     
 #    if codec:
 #      stdout = codecs.decode(output[0], codec, 'ignore')
@@ -102,9 +103,9 @@ class execute(object):
 #        stderr = codecs.decode(output[1], codec, 'ignore')
 #      else:
 #        stderr = None
-    else:
-      stdout_bytes = output[0]
-      stderr_bytes = output[1] or b''
+#    else:
+    stdout_bytes = output[0]
+    stderr_bytes = output[1] or b''
     if stdout_bytes:
       assert check.is_bytes(stdout_bytes)
     if stderr_bytes:

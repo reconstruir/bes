@@ -5,6 +5,7 @@ import os.path as path
 from collections import namedtuple
 
 from bes.common.check import check
+from bes.common.string_util import string_util
 from bes.fs.file_util import file_util
 from bes.system.log import log
 
@@ -118,3 +119,15 @@ class sqlite(object):
   def create_function(self, name, num_params, func):
     self.log_i('%s: create_function(%s, %s, %s)' % (self._filename_log_label, name, num_params, func))
     self._connection.create_function(name, num_params, func)
+
+  @classmethod
+  def encode_string(clazz, s, quoted = True):
+    if s is None:
+      return 'null'
+    if quoted:
+      return string_util.quote(s, quote_char = "'")
+    return s
+    
+  @classmethod
+  def encode_bool(clazz, value):
+    return 'false' if value else 'true'
