@@ -9,8 +9,6 @@ class git_branch_status(namedtuple('git_branch_status', 'ahead, behind')):
     check.check_int(ahead)
     check.check_int(behind)
 
-    from bes.system.log import log
-    
     return clazz.__bases__[0].__new__(clazz, ahead, behind)
 
 check.register_class(git_branch_status, include_seq = False)
