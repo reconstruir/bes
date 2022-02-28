@@ -102,6 +102,10 @@ class test_string_list(unit_test):
     l = SL([ 'a', 'a is ${foo}', 'b', 'b is ${bar}' ])
     l.substitute_variables({ 'foo': 'apple', 'bar': 'kiwi' })
     self.assertEqual( SL([ 'a', 'a is apple', 'b', 'b is kiwi' ]), l )
+
+  def test_common_prefix(self):
+    self.assertEqual( 'kiwi', SL([ 'kiwi0', 'kiwi1', 'kiwi10', 'kiwi123' ]).common_prefix() )
+    self.assertEqual( '', SL([ 'kiwi0', 'kiwi1', 'kiwi10', 'lemon123' ]).common_prefix() )
     
 if __name__ == "__main__":
   unit_test.main()
