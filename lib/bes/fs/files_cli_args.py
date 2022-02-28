@@ -60,6 +60,16 @@ class files_cli_args(object):
     self.__files_cli_add_add_common_args(p)
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to detect prefixes for [ None ]')
+
+    # cat
+    p = subparser.add_parser('cat', help = 'Concatenate a bunch of files.')
+    self.__files_cli_add_add_common_args(p)
+    p.add_argument('--sort', action = 'store_true', default = False,
+                   help = 'Sort the files semantically first [ False ]')
+    p.add_argument('-o', '--output-filename', action = 'store', default = None,
+                   help = 'The output filename [ None ]')
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more files or dirs to concatenate [ None ]')
     
   @classmethod
   def __files_cli_add_add_common_args(clazz, p):

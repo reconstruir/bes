@@ -8,15 +8,16 @@ from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.debug.hexdump import hexdump
 
-from .files_cli_options import files_cli_options
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
 from .file_mime import file_mime
 from .file_path import file_path
 from .file_resolver import file_resolver
 from .file_resolver_options import file_resolver_options
+from .file_split import file_split
 from .file_util import file_util
 from .filename_list import filename_list
+from .files_cli_options import files_cli_options
 
 class files_cli_handler(cli_command_handler):
   'dir project cli handler.'
@@ -100,4 +101,24 @@ class files_cli_handler(cli_command_handler):
       for dup_file in dup_files:
         print(f'  {dup_file}')
     return 0
-  
+
+  def cat(self, files, sort, output_filename):
+    check.check_string_seq(files)
+    check.check_bool(sort)
+    check.check_string(output_filename, allow_none = True)
+
+    resolved_files = file_resolver.resolve_files(files, options = self._resolver_options)
+    files = resolved_files.absolute_files(sort = True)
+    assert files
+    output_filename = output_filename or self._make_output_filename(files)
+    file_split.unsplit_files(output_filename, files)
+    for f in files:
+      file_util.remove(f)
+    return 0
+
+  @classmethod
+  def _make_output_filename(clazz, files):
+    prefix = files.common_prefix()
+    if prefix:
+      return prefix
+    return files[0] + '.cat'
