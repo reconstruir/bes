@@ -128,14 +128,24 @@ exit 0
 
   @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_unix_shell_script_failure(self):
-    bat = self.data_path('unix_shell_script_false.sh')
+    script = '''\
+#!/bin/sh
+echo "$@"
+exit 1
+'''
+    bat = self.make_temp_file(content = script, perm = 0o0755)
     cmd = [ bat, 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = False, raise_error = False)
     self.assertEqual( 1, rv.exit_code )
 
   @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_unix_shell_script_failure_flat(self):
-    bat = self.data_path('unix_shell_script_false.sh')
+    script = '''\
+#!/bin/sh
+echo "$@"
+exit 1
+'''
+    bat = self.make_temp_file(content = script, perm = 0o0755)
     cmd = f'"{bat}" foo bar'
     rv = execute.execute(cmd, shell = False, raise_error = False)
     self.assertEqual( 1, rv.exit_code )
@@ -143,14 +153,24 @@ exit 0
     
   @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_unix_shell_script_failure_shell(self):
-    bat = self.data_path('unix_shell_script_false.sh')
+    script = '''\
+#!/bin/sh
+echo "$@"
+exit 1
+'''
+    bat = self.make_temp_file(content = script, perm = 0o0755)
     cmd = [ f'"{bat}"', 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
     self.assertEqual( 1, rv.exit_code )
 
   @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_unix_shell_script_failure_flat_shell(self):
-    bat = self.data_path('unix_shell_script_false.sh')
+    script = '''\
+#!/bin/sh
+echo "$@"
+exit 1
+'''
+    bat = self.make_temp_file(content = script, perm = 0o0755)
     cmd = f'"{bat}" foo bar'
     rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
     self.assertEqual( 1, rv.exit_code )
