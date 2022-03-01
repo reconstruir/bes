@@ -39,6 +39,12 @@ class execute_result(namedtuple('execute_result', 'stdout_bytes, stderr_bytes, e
     lines = [ line for line in lines if line ]
     return lines
 
+  def stderr_lines(self):
+    'Return stderr as stripped lines'
+    lines = [ line.strip() for line in self.stderr.splitlines() ]
+    lines = [ line for line in lines if line ]
+    return lines
+  
   def raise_error(self, print_error = False, log_error = False, tag = None):
     # FIXME: check if stdout is printable
     if log_error:
