@@ -7,6 +7,7 @@ from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.debug.hexdump import hexdump
+from bes.version.semantic_version import semantic_version
 
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
@@ -108,8 +109,10 @@ class files_cli_handler(cli_command_handler):
     check.check_string(output_filename, allow_none = True)
 
     resolved_files = file_resolver.resolve_files(files, options = self._resolver_options)
-    files = resolved_files.absolute_files(sort = True)
+    files = resolved_files.absolute_files(sort = False)
     assert files
+    if sort:
+      files = semantic_version.sort_string_list(files)
     output_filename = output_filename or self._make_output_filename(files)
     file_split.unsplit_files(output_filename, files)
     for f in files:
