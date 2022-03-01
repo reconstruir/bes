@@ -18,7 +18,7 @@ class test_execute(unit_test):
 echo %*
 exit 0
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, suffix = '.bat')
     cmd = [ bat, 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = False)
     self.assertEqual( 0, rv.exit_code )
@@ -31,7 +31,7 @@ exit 0
 echo %*
 exit 0
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, suffix = '.bat')
     cmd = f'{bat} foo bar'
     rv = execute.execute(cmd, shell = False)
     self.assertEqual( 0, rv.exit_code )
@@ -44,7 +44,7 @@ exit 0
 echo %*
 exit 0
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, suffix = '.bat')
     cmd = [ bat, 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = True, quote = True)
     self.assertEqual( 0, rv.exit_code )
@@ -57,7 +57,7 @@ exit 0
 echo %*
 exit 0
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, suffix = '.bat')
     cmd = f'"{bat}" foo bar'
     rv = execute.execute(cmd, shell = True, quote = True)
     self.assertEqual( 0, rv.exit_code )
@@ -70,7 +70,7 @@ exit 0
 echo %*
 exit 1
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, suffix = '.bat')
     cmd = [ bat, 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = False, raise_error = False)
     self.assertEqual( 1, rv.exit_code )
@@ -82,7 +82,7 @@ exit 1
 echo %*
 exit 1
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, suffix = '.bat')
     cmd = f'"{bat}" foo bar'
     rv = execute.execute(cmd, shell = False, raise_error = False)
     self.assertEqual( 1, rv.exit_code )
@@ -95,7 +95,7 @@ exit 1
 echo %*
 exit 1
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, suffix = '.bat')
     cmd = [ bat, 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
     self.assertEqual( 1, rv.exit_code )
@@ -107,7 +107,7 @@ exit 1
 echo %*
 exit 1
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, suffix = '.bat')
     cmd = f'"{bat}" foo bar'
     rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
     self.assertEqual( 1, rv.exit_code )
@@ -119,7 +119,7 @@ exit 1
 echo "$@"
 exit 0
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, perm = 0o0755, suffix = '.sh')
     cmd = [ bat, 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = False)
     self.assertEqual( 0, rv.exit_code )
@@ -132,7 +132,7 @@ exit 0
 echo "$@"
 exit 0
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, perm = 0o0755, suffix = '.sh')
     cmd = f'"{bat}" foo bar'
     rv = execute.execute(cmd, shell = False)
     self.assertEqual( 0, rv.exit_code )
@@ -145,7 +145,7 @@ exit 0
 echo "$@"
 exit 0
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, perm = 0o0755, suffix = '.sh')
     cmd = [ bat, 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = True, quote = True)
     self.assertEqual( 0, rv.exit_code )
@@ -158,7 +158,7 @@ exit 0
 echo "$@"
 exit 0
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, perm = 0o0755, suffix = '.sh')
     cmd = f'"{bat}" foo bar'
     rv = execute.execute(cmd, shell = True, quote = True)
     self.assertEqual( 0, rv.exit_code )
@@ -171,7 +171,7 @@ exit 0
 echo "$@"
 exit 1
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, perm = 0o0755, suffix = '.sh')
     cmd = [ bat, 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = False, raise_error = False)
     self.assertEqual( 1, rv.exit_code )
@@ -183,7 +183,7 @@ exit 1
 echo "$@"
 exit 1
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, perm = 0o0755, suffix = '.sh')
     cmd = f'"{bat}" foo bar'
     rv = execute.execute(cmd, shell = False, raise_error = False)
     self.assertEqual( 1, rv.exit_code )
@@ -196,7 +196,7 @@ exit 1
 echo "$@"
 exit 1
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, perm = 0o0755, suffix = '.sh')
     cmd = [ f'"{bat}"', 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
     self.assertEqual( 1, rv.exit_code )
@@ -208,7 +208,7 @@ exit 1
 echo "$@"
 exit 1
 '''
-    bat = self.make_temp_file(content = script, perm = 0o0755)
+    bat = self.make_temp_file(content = script, perm = 0o0755, suffix = '.sh')
     cmd = f'"{bat}" foo bar'
     rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
     self.assertEqual( 1, rv.exit_code )
