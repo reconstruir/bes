@@ -35,6 +35,10 @@ class git_branch_list(type_checked_list):
 
   @property
   def longest_name(self):
+    if len(self) == 0:
+      return 0
+    elif len(self) == 1:
+      return len(self._values[0])
     return max([ len(name) for name in self.names ])
 
   @property
@@ -71,7 +75,7 @@ class git_branch_list(type_checked_list):
     style = check.check_data_output_style(style)
     check.check_string(output_filename, allow_none = True)
     check.check_string(table_title, allow_none = True)
-    
+
     r = { 'AHEAD': 'AH', 'BEHIND': 'BE', 'ACTIVE': '*' }
     table_labels = tuple([ text_replace.replace(f.upper(), r, word_boundary = True) for f in self._values[0]._fields ])
     longest_comment = self.longest_comment
