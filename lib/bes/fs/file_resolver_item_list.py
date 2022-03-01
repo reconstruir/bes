@@ -5,7 +5,6 @@ from os import path
 from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.common.type_checked_list import type_checked_list
-from bes.version.semantic_version import semantic_version
 from bes.text.string_list import string_list
 
 from .file_resolver_item import file_resolver_item
@@ -21,7 +20,7 @@ class file_resolver_item_list(type_checked_list):
   def absolute_files(self, sort = False):
     result = [ item.filename_abs for item in self ]
     if sort:
-      result = semantic_version.sort_string_list(result)
+      result = sorted(result)
     return string_list(result)
 
   def absolute_common_ancestor(self):
@@ -30,13 +29,13 @@ class file_resolver_item_list(type_checked_list):
   def relative_files(self, sort = False):
     result = [ item.filename for item in self ]
     if sort:
-      result = semantic_version.sort_string_list(result)
+      result = sorted(result)
     return string_list(result)
 
   def basenames(self, sort = False):
     result = [ path.basename(item.filename_abs) for item in self ]
     if sort:
-      result = semantic_version.sort_string_list(result)
+      result = sorted(result)
     return string_list(result)
   
   def root_dirs(self):
