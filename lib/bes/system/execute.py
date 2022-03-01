@@ -77,7 +77,7 @@ class execute(object):
       raise
 
     # http://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
-#    stdout_lines = []
+    stdout_lines = []
     if non_blocking:
       # Poll process for new output until finished
       while True:
@@ -85,7 +85,7 @@ class execute(object):
         decoded_nextline = nextline.decode('utf-8', errors = 'ignore')
         if decoded_nextline == '' and process.poll() != None:
             break
-#        stdout_lines.append(decoded_nextline)
+        stdout_lines.append(decoded_nextline)
         sys.stdout.write(decoded_nextline)
         sys.stdout.flush()
 
