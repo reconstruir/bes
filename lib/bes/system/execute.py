@@ -29,13 +29,15 @@ class execute(object):
               print_failure = True,
               quote = False,
               check_python_script = True,
-              output_encoding = None):
+              output_encoding = None,
+              output_function = None):
     'Execute a command'
     check.check_bytes(input_data, allow_none = True)
     check.check_bool(print_failure)
     check.check_bool(quote)
     check.check_bool(check_python_script)
     check.check_string(output_encoding, allow_none = True)
+    check.check_function(output_function, allow_none = True)
 
     output_encoding = output_encoding or execute_result.DEFAULT_ENCODING
     
@@ -101,18 +103,28 @@ class execute(object):
         if stdout_is_empty and stderr_is_empty and process.poll() != None:
           clazz._log.log_d('execute: non_blocking: process done')
           break
-          
+
+        stdout_lines.append(stdout_decoded_nextline)
+        clazz._log.log_d(f'execute: non_blocking: stdout line: {stdout_decoded_nextline}')
+
+        output_function_stdout = None
+        if output_function:
+          output_function_stdout = stdout_decoded_nextline
+        else:
+          sys.stdout.write(stdout_decoded_nextline)
+          sys.stdout.flush()
+        
+        output_function_stderr = None
         if stderr_pipe == subprocess.PIPE:
           stderr_lines.append(stderr_decoded_nextline)
           clazz._log.log_d(f'execute: non_blocking: stderr line: {stderr_decoded_nextline}')
-          sys.stderr.write(stderr_decoded_nextline)
-          sys.stderr.flush()
-          
-        stdout_lines.append(stdout_decoded_nextline)
-        clazz._log.log_d(f'execute: non_blocking: stdout line: {stdout_decoded_nextline}')
-        sys.stdout.write(stdout_decoded_nextline)
-        sys.stdout.flush()
-
+          if output_function:
+            output_function_stderr = stderr_decoded_nextline
+          else:
+            sys.stderr.write(stderr_decoded_nextline)
+            sys.stderr.flush()
+        if output_function:
+          output_function(output_function_stdout, output_function_stderr)
 
     clazz._log.log_d('execute: calling communicate with input_data={}'.format(input_data))
     output = process.communicate(input = input_data)

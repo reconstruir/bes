@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 import os.path as path
 
 from bes.common.string_util import string_util
@@ -339,6 +340,56 @@ this_is_stderr 4
 ''', rv.stdout )
 
     self.assert_string_equal_fuzzy( '', rv.stderr )
+
+  @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
+  def test_execute_output_function_non_blocking(self):
+    script = '''\
+#!/bin/sh
+echo "this_is_stderr 1" >&2
+echo "this_is_stdout 1" >&1
+echo "this_is_stderr 2" >&2
+echo "this_is_stdout 2" >&1
+echo "this_is_stdout 3" >&1
+echo "this_is_stdout 4" >&1
+echo "this_is_stderr 3" >&2
+echo "this_is_stderr 4" >&2
+exit 0
+'''
+    stdout_lines = []
+    stderr_lines = []
+    def _func(stdout, stderr):
+      stdout_lines.append(stdout)
+      stderr_lines.append(stderr)
+    bat = self.make_temp_file(content = script, perm = 0o0755)
+    rv = execute.execute(bat, shell = False, raise_error = False, non_blocking = True, output_function = _func)
+    self.assertEqual( 0, rv.exit_code )
+    self.assert_string_equal_fuzzy( r'''
+this_is_stdout 1
+this_is_stdout 2
+this_is_stdout 3
+this_is_stdout 4
+''', rv.stdout )
+
+    self.assert_string_equal_fuzzy( r'''
+this_is_stderr 1
+this_is_stderr 2
+this_is_stderr 3
+this_is_stderr 4
+''', rv.stderr )
+
+    self.assert_string_equal_fuzzy( r'''
+this_is_stdout 1
+this_is_stdout 2
+this_is_stdout 3
+this_is_stdout 4
+''', os.linesep.join(stdout_lines) )
+
+    self.assert_string_equal_fuzzy( r'''
+this_is_stderr 1
+this_is_stderr 2
+this_is_stderr 3
+this_is_stderr 4
+''', os.linesep.join(stderr_lines) )
     
 if __name__ == '__main__':
   unit_test.main()
