@@ -11,11 +11,14 @@ from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 class test_execute(unit_test):
 
-  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/bes.common/shell'
-
   @unit_test_function_skip.skip_if(not host.is_windows(), 'not windows')
   def test_windows_batch_file_success(self):
-    bat = self.data_path('windows_batch_file_true.bat')
+    script = '''\
+@echo off
+echo %*
+exit 0
+'''
+    bat = self.make_temp_file(content = script, perm = 0o0755)
     cmd = [ bat, 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = False)
     self.assertEqual( 0, rv.exit_code )
@@ -23,7 +26,12 @@ class test_execute(unit_test):
 
   @unit_test_function_skip.skip_if(not host.is_windows(), 'not windows')
   def test_windows_batch_file_success_flat(self):
-    bat = self.data_path('windows_batch_file_true.bat')
+    script = '''\
+@echo off
+echo %*
+exit 0
+'''
+    bat = self.make_temp_file(content = script, perm = 0o0755)
     cmd = f'{bat} foo bar'
     rv = execute.execute(cmd, shell = False)
     self.assertEqual( 0, rv.exit_code )
@@ -31,7 +39,12 @@ class test_execute(unit_test):
     
   @unit_test_function_skip.skip_if(not host.is_windows(), 'not windows')
   def test_windows_batch_file_success_shell(self):
-    bat = self.data_path('windows_batch_file_true.bat')
+    script = '''\
+@echo off
+echo %*
+exit 0
+'''
+    bat = self.make_temp_file(content = script, perm = 0o0755)
     cmd = [ bat, 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = True, quote = True)
     self.assertEqual( 0, rv.exit_code )
@@ -39,7 +52,12 @@ class test_execute(unit_test):
 
   @unit_test_function_skip.skip_if(not host.is_windows(), 'not windows')
   def test_windows_batch_file_success_flat_shell(self):
-    bat = self.data_path('windows_batch_file_true.bat')
+    script = '''\
+@echo off
+echo %*
+exit 0
+'''
+    bat = self.make_temp_file(content = script, perm = 0o0755)
     cmd = f'"{bat}" foo bar'
     rv = execute.execute(cmd, shell = True, quote = True)
     self.assertEqual( 0, rv.exit_code )
@@ -47,14 +65,24 @@ class test_execute(unit_test):
 
   @unit_test_function_skip.skip_if(not host.is_windows(), 'not windows')
   def test_windows_batch_file_failure(self):
-    bat = self.data_path('windows_batch_file_false.bat')
+    script = '''\
+@echo off
+echo %*
+exit 1
+'''
+    bat = self.make_temp_file(content = script, perm = 0o0755)
     cmd = [ bat, 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = False, raise_error = False)
     self.assertEqual( 1, rv.exit_code )
 
   @unit_test_function_skip.skip_if(not host.is_windows(), 'not windows')
   def test_windows_batch_file_failure_flat(self):
-    bat = self.data_path('windows_batch_file_false.bat')
+    script = '''\
+@echo off
+echo %*
+exit 1
+'''
+    bat = self.make_temp_file(content = script, perm = 0o0755)
     cmd = f'"{bat}" foo bar'
     rv = execute.execute(cmd, shell = False, raise_error = False)
     self.assertEqual( 1, rv.exit_code )
@@ -62,14 +90,24 @@ class test_execute(unit_test):
     
   @unit_test_function_skip.skip_if(not host.is_windows(), 'not windows')
   def test_windows_batch_file_failure_shell(self):
-    bat = self.data_path('windows_batch_file_false.bat')
+    script = '''\
+@echo off
+echo %*
+exit 1
+'''
+    bat = self.make_temp_file(content = script, perm = 0o0755)
     cmd = [ bat, 'foo', 'bar' ]
     rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
     self.assertEqual( 1, rv.exit_code )
 
   @unit_test_function_skip.skip_if(not host.is_windows(), 'not windows')
   def test_windows_batch_file_failure_flat_shell(self):
-    bat = self.data_path('windows_batch_file_false.bat')
+    script = '''\
+@echo off
+echo %*
+exit 1
+'''
+    bat = self.make_temp_file(content = script, perm = 0o0755)
     cmd = f'"{bat}" foo bar'
     rv = execute.execute(cmd, shell = True, raise_error = False, quote = True)
     self.assertEqual( 1, rv.exit_code )
