@@ -11,7 +11,7 @@ from .log import log
 class execute_result(namedtuple('execute_result', 'stdout_bytes, stderr_bytes, exit_code, command')):
   'Class to deal with the result of execute.execute()'
 
-  _DEFAULT_ENCODING = locale.getpreferredencoding(False)
+  DEFAULT_ENCODING = locale.getpreferredencoding(False)
   
   def __new__(clazz, stdout_bytes, stderr_bytes, exit_code, command):
     check.check_bytes(stdout_bytes)
@@ -27,11 +27,11 @@ class execute_result(namedtuple('execute_result', 'stdout_bytes, stderr_bytes, e
 
   @property
   def stdout(self):
-    return self.stdout_bytes.decode(self._DEFAULT_ENCODING, errors = 'replace')
+    return self.stdout_bytes.decode(self.DEFAULT_ENCODING, errors = 'replace')
 
   @property
   def stderr(self):
-    return self.stderr_bytes.decode(self._DEFAULT_ENCODING, errors = 'replace')
+    return self.stderr_bytes.decode(self.DEFAULT_ENCODING, errors = 'replace')
   
   def stdout_lines(self):
     'Return stdout as stripped lines'

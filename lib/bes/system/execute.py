@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import locale
 import os, os.path as path, re, subprocess, sys, tempfile
 
 from .check import check
@@ -27,12 +28,16 @@ class execute(object):
               input_data = None,
               print_failure = True,
               quote = False,
-              check_python_script = True):
+              check_python_script = True,
+              output_encoding = None):
     'Execute a command'
     check.check_bytes(input_data, allow_none = True)
     check.check_bool(print_failure)
     check.check_bool(quote)
     check.check_bool(check_python_script)
+    check.check_string(output_encoding, allow_none = True)
+
+    output_encoding = output_encoding or execute_result.DEFAULT_ENCODING
     
     clazz._log.log_method_d()
     
@@ -78,34 +83,52 @@ class execute(object):
 
     # http://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
     stdout_lines = []
+    stderr_lines = []
     if non_blocking:
       # Poll process for new output until finished
       while True:
-        nextline = process.stdout.readline()
-        decoded_nextline = nextline.decode('utf-8', errors = 'ignore')
-        if decoded_nextline == '' and process.poll() != None:
-            break
-        stdout_lines.append(decoded_nextline)
-        sys.stdout.write(decoded_nextline)
+        stdout_nextline = process.stdout.readline()
+        stdout_decoded_nextline = stdout_nextline.decode(output_encoding, errors = 'ignore')
+        clazz._log.log_d(f'execute: read stdout: {stdout_decoded_nextline}')
+        stdout_is_empty = stdout_decoded_nextline == ''
+        stderr_is_empty = True
+        if stderr_pipe == subprocess.PIPE:
+          stderr_nextline = process.stderr.readline()
+          stderr_decoded_nextline = stderr_nextline.decode(output_encoding, errors = 'ignore')
+          clazz._log.log_d(f'execute: read stderr: {stderr_decoded_nextline}')
+          stderr_is_empty = stderr_decoded_nextline == ''
+
+        if stdout_is_empty and stderr_is_empty and process.poll() != None:
+          clazz._log.log_d('execute: non_blocking: process done')
+          break
+          
+        if stderr_pipe == subprocess.PIPE:
+          stderr_lines.append(stderr_decoded_nextline)
+          clazz._log.log_d(f'execute: non_blocking: stderr line: {stderr_decoded_nextline}')
+          sys.stderr.write(stderr_decoded_nextline)
+          sys.stderr.flush()
+          
+        stdout_lines.append(stdout_decoded_nextline)
+        clazz._log.log_d(f'execute: non_blocking: stdout line: {stdout_decoded_nextline}')
+        sys.stdout.write(stdout_decoded_nextline)
         sys.stdout.flush()
+
 
     clazz._log.log_d('execute: calling communicate with input_data={}'.format(input_data))
     output = process.communicate(input = input_data)
+
     exit_code = process.wait()
     clazz._log.log_d('execute: wait returned. exit_code={} output={}'.format(exit_code, output))
     
-#    if stdout_lines:
-#      output = ( '\n'.join(stdout_lines), output[1] )
-    
-#    if codec:
-#      stdout = codecs.decode(output[0], codec, 'ignore')
-#      if output[1]:
-#        stderr = codecs.decode(output[1], codec, 'ignore')
-#      else:
-#        stderr = None
-#    else:
-    stdout_bytes = output[0]
-    stderr_bytes = output[1] or b''
+    if non_blocking:
+      stdout = os.linesep.join(stdout_lines)
+      stdout_bytes = stdout.encode(output_encoding)
+      stderr = os.linesep.join(stderr_lines)
+      stderr_bytes = stderr.encode(output_encoding)
+    else:
+      stdout_bytes = output[0]
+      stderr_bytes = output[1] or b''
+      
     if stdout_bytes:
       assert check.is_bytes(stdout_bytes)
     if stderr_bytes:

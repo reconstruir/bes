@@ -278,6 +278,37 @@ this_is_stderr 2
 this_is_stderr 3
 this_is_stderr 4
 ''', rv.stderr )
+
+  @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
+  def test_execute_stdout_stderr_non_blocking(self):
+    script = '''\
+#!/bin/sh
+echo "this_is_stderr 1" >&2
+echo "this_is_stdout 1" >&1
+echo "this_is_stderr 2" >&2
+echo "this_is_stdout 2" >&1
+echo "this_is_stdout 3" >&1
+echo "this_is_stdout 4" >&1
+echo "this_is_stderr 3" >&2
+echo "this_is_stderr 4" >&2
+exit 0
+'''
+    bat = self.make_temp_file(content = script, perm = 0o0755)
+    rv = execute.execute(bat, shell = False, raise_error = False, non_blocking = True)
+    self.assertEqual( 0, rv.exit_code )
+    self.assert_string_equal_fuzzy( r'''
+this_is_stdout 1
+this_is_stdout 2
+this_is_stdout 3
+this_is_stdout 4
+''', rv.stdout )
+
+    self.assert_string_equal_fuzzy( r'''
+this_is_stderr 1
+this_is_stderr 2
+this_is_stderr 3
+this_is_stderr 4
+''', rv.stderr )
     
 if __name__ == '__main__':
   unit_test.main()
