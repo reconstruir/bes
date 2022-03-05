@@ -18,25 +18,25 @@ class file_resolver_item_list(type_checked_list):
     super(file_resolver_item_list, self).__init__(values = values)
 
   def absolute_files(self, sort = False):
-    result = [ item.filename_abs for item in self ]
+    result = string_list([ item.filename_abs for item in self ])
     if sort:
-      result = sorted(result)
-    return string_list(result)
+      result.sort()
+    return result
 
   def absolute_common_ancestor(self):
     return file_path.common_ancestor(self.absolute_files())
   
   def relative_files(self, sort = False):
-    result = [ item.filename for item in self ]
+    result = string_list([ item.filename for item in self ])
     if sort:
-      result = sorted(result)
-    return string_list(result)
+      result.sort()
+    return result
 
   def basenames(self, sort = False):
-    result = [ path.basename(item.filename_abs) for item in self ]
+    result = string_list([ path.basename(item.filename_abs) for item in self ])
     if sort:
-      result = sorted(result)
-    return string_list(result)
+      result.sort()
+    return result
   
   def root_dirs(self):
     return set([ item.root_dir for item in self ])
