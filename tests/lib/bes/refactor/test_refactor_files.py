@@ -36,7 +36,7 @@ class test_refactor_files(unit_test):
       f'{tmp_dir}/fruit/src/lemon.py',
       f'{tmp_dir}/wine/bin/wscript',
       f'{tmp_dir}/wine/src/barolo.py',
-    ], refactor_files.resolve_python_files([ path.join(tmp_dir, f) for f in [ 'fruit', 'wine', 'foo.py' ] ]) )
+    ], refactor_files.resolve_python_files([ path.join(tmp_dir, f) for f in [ 'fruit', 'wine', 'foo.py' ] ]).to_list() )
 
   def test_resolve_text_files(self):
     tmp_dir = self._make_temp_content([
@@ -59,7 +59,7 @@ class test_refactor_files(unit_test):
       f'{tmp_dir}/fruit/src/lemon.py',
       f'{tmp_dir}/wine/bin/wscript',
       f'{tmp_dir}/wine/src/barolo.py',
-    ], refactor_files.resolve_text_files(tmp_dir) )
+    ], refactor_files.resolve_text_files(tmp_dir).to_list() )
     
   def test_match_files(self):
     tmp_dir = self._make_temp_content([
