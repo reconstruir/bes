@@ -1,7 +1,13 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import locale
-import os, os.path as path, re, subprocess, sys, tempfile
+from collections import namedtuple
+from os import path
+
+import os
+import re
+import subprocess
+import sys
+import tempfile
 
 from .check import check
 from .command_line import command_line
@@ -15,7 +21,8 @@ class execute(object):
   'Class to execute system commands with help for common usages.'
 
   _log = logger('execute')
-  
+
+  _output = namedtuple('_output', 'stdout, stderr')
   @classmethod
   def execute(clazz,
               args,
@@ -124,7 +131,7 @@ class execute(object):
             sys.stderr.write(stderr_decoded_nextline)
             sys.stderr.flush()
         if output_function:
-          output_function(output_function_stdout, output_function_stderr)
+          output_function(clazz._output(output_function_stdout, output_function_stderr))
 
     clazz._log.log_d('execute: calling communicate with input_data={}'.format(input_data))
     output = process.communicate(input = input_data)

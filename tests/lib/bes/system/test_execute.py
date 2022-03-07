@@ -357,9 +357,9 @@ exit 0
 '''
     stdout_lines = []
     stderr_lines = []
-    def _func(stdout, stderr):
-      stdout_lines.append(stdout)
-      stderr_lines.append(stderr)
+    def _func(output):
+      stdout_lines.append(output.stdout)
+      stderr_lines.append(output.stderr)
     bat = self.make_temp_file(content = script, perm = 0o0755)
     rv = execute.execute(bat, shell = False, raise_error = False, non_blocking = True, output_function = _func)
     self.assertEqual( 0, rv.exit_code )
@@ -407,11 +407,11 @@ exit 0
 '''
     stdout_lines = []
     stderr_lines = []
-    def _func(stdout, stderr):
-      if stdout:
-        stdout_lines.append(stdout)
-      if stderr:
-        stderr_lines.append(stderr)
+    def _func(output):
+      if output.stdout:
+        stdout_lines.append(output.stdout)
+      if output.stderr:
+        stderr_lines.append(output.stderr)
     bat = self.make_temp_file(content = script, perm = 0o0755)
     rv = execute.execute(bat, shell = False, raise_error = False, non_blocking = True, output_function = _func, stderr_to_stdout = True)
     self.assertEqual( 0, rv.exit_code )
