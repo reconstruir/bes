@@ -21,11 +21,13 @@ class test_parsed_url(unit_test):
     self.assertEqual( 'example', _t('http://www.example.com/foo.cgi') )
     self.assertEqual( 'example', _t('http://example.com/foo.cgi') )
     self.assertEqual( 'example', _t('http://example.edu/foo.cgi') )
+    self.assertEqual( 'example', _t('http://something.example/foo.cgi') )
     
   def test_remove_query(self):
     def _t(s):
       return parsed_url.parse(s).remove_query()
     self.assertEqual( 'http://www.example.com/foo.cgi', _t('http://www.example.com/foo.cgi?a=6&b=7&foo=666') )
+    self.assertEqual( 'http://www.example.com/foo.cgi', _t('http://www.example.com/foo.cgi') )
 
   def test_normalized(self):
     def _t(s):
