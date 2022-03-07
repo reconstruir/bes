@@ -10,6 +10,39 @@ from urllib import parse as urllib_parse
 
 class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, fragment')):
 
+  _COMMON_SUFFIXES = set([
+    'au',
+    'ca',
+    'ch',
+    'com',
+    'de',
+    'edu',
+    'es',
+    'fr',
+    'gov',
+    'it',
+    'jp',
+    'mil',
+    'net',
+    'nl',
+    'no',
+    'org',
+    'ru',
+    'se',
+    'uk',
+    'us',
+  ])
+
+  _COMMON_PREFIXES = set([
+    'go',
+    'my',
+    'super',
+    'the',
+    'w3',
+    'web',
+    'www',
+  ])
+  
   def __new__(clazz, scheme, netloc, path, params, query, fragment):
     check.check_string(scheme)
     check.check_string(netloc)
@@ -29,6 +62,11 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
 
+  def __eq__(self, other):
+    if check.is_string(other):
+      other = self.parse(other)
+    return super().__eq__(other)
+  
   @classmethod
   def parse(clazz, s):
     check.check_string(s)
@@ -36,16 +74,15 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
     pr = urllib_parse.urlparse(s)
     return clazz.__bases__[0].__new__(clazz, *pr)
 
-  @cached_property
   def to_parse_result(self):
-    return urllib_parse.ParseResult(self.scheme, self.netloc, self.path,
-                                    self.params, self.query, self.fragment)
+    pr = urllib_parse.ParseResult(self.scheme, self.netloc, self.path,
+                                  self.params, self.query, self.fragment)
+    return pr
   
   @cached_property
   def query_attributes(self):
     return urllib_parse.parse_qs(self.query)
 
-  @cached_property
   def to_string(self):
     return urllib_parse.urlunparse(self.to_parse_result())
 
@@ -56,5 +93,23 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
       normalized_path = self.path
     quoted_path = urllib_parse.quote(normalized_path)
     return self.clone(mutations = { 'path': normalized_path })
+
+  @cached_property
+  def netloc_name(self):
+    parts = self.netloc.split('.')
+    if not parts:
+      return None
+    if parts[-1] in self._COMMON_SUFFIXES:
+      parts.pop(-1)
+    if parts[0] in self._COMMON_PREFIXES:
+      parts.pop(0)
+    if not parts:
+      return None
+    return parts[-1]
+
+  def remove_query(self):
+    r = self.clone(mutations = { 'query': '' })
+#    print(f't={type(r)} r={r}')
+    return self.clone(mutations = { 'query': '' })
   
 check.register_class(parsed_url, include_seq = False)
