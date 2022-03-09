@@ -51,6 +51,27 @@ class test_sqlite(unit_test):
     self.assertTrue( type(actual[0]) == tuple )
     self.assertTrue( type(actual[1]) == tuple )
     self.assertTrue( expected, actual )
+
+  def test_has_table(self):
+    db = self._make_tmp_db()
+    db.execute('create table fruits (name text primary key not null, version integer not null)')
+    db.commit()
+    self.assertEqual( True, db.has_table('fruits') )
+    self.assertEqual( False, db.has_table('cheese') )
+
+  def test_has_index(self):
+    db = self._make_tmp_db()
+    db.execute('create table fruits (name text primary key not null, version integer not null)')
+    db.execute('create index fruits_index on fruits(version)')
+    db.commit()
+    self.assertEqual( True, db.has_index('fruits_index') )
+    self.assertEqual( False, db.has_index('cheese_index') )
+
+  def test_user_version(self):
+    db = self._make_tmp_db()
+    self.assertEqual( 0, db.user_version )
+    db.user_version = 1
+    self.assertEqual( 1, db.user_version )
     
   @classmethod
   def _make_tmp_db(clazz):

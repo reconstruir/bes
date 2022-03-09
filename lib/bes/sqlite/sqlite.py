@@ -82,16 +82,31 @@ class sqlite(object):
 
   def has_table(self, table_name):
     check.check_string(table_name)
-    sql = """select count(*) from sqlite_master where type='table' and name='{table_name}'""".format(table_name = table_name)
-    self._cursor.execute(sql)
+
+    self._cursor.execute('select count(*) from sqlite_master where type=? and name=?',
+                         ( 'table', table_name, ))
     return self._cursor.fetchone()[0] == 1
-   
+    
+  def has_index(self, index_name):
+    check.check_string(index_name)
+    
+    self._cursor.execute('select count(*) from sqlite_master where type=? and name=?',
+                         ( 'index', index_name, ))
+    return self._cursor.fetchone()[0] == 1
+  
   def ensure_table(self, table_name, table_schema):
     check.check_string(table_name)
     check.check_string(table_schema)
     if self.has_table(table_name):
       return
     self._cursor.execute(table_schema)
+
+  def ensure_index(self, index_name, index_schema):
+    check.check_string(index_name)
+    check.check_string(index_schema)
+    if self.has_index(index_name):
+      return
+    self._cursor.execute(index_schema)
     
   def fetchone(self):
     return self._cursor.fetchone()
@@ -131,3 +146,15 @@ class sqlite(object):
   @classmethod
   def encode_bool(clazz, value):
     return 'false' if value else 'true'
+
+  @property
+  def user_version(self):
+    self._cursor.execute('PRAGMA user_version')
+    return self._cursor.fetchone()[0]
+    
+  @user_version.setter
+  def user_version(self, user_version):
+    check.check_int(user_version)
+    
+    self._cursor.execute(f'PRAGMA user_version = {user_version}')
+    self.commit()
