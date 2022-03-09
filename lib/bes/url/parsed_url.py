@@ -9,39 +9,6 @@ from bes.common.tuple_util import tuple_util
 from urllib import parse as urllib_parse
 
 class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, fragment')):
-
-  _COMMON_SUFFIXES = set([
-    'au',
-    'ca',
-    'ch',
-    'com',
-    'de',
-    'edu',
-    'es',
-    'fr',
-    'gov',
-    'it',
-    'jp',
-    'mil',
-    'net',
-    'nl',
-    'no',
-    'org',
-    'ru',
-    'se',
-    'uk',
-    'us',
-  ])
-
-  _COMMON_PREFIXES = set([
-    'go',
-    'my',
-    'super',
-    'the',
-    'w3',
-    'web',
-    'www',
-  ])
   
   def __new__(clazz, scheme, netloc, path, params, query, fragment):
     check.check_string(scheme)
@@ -109,7 +76,39 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
 
   def remove_query(self):
     r = self.clone(mutations = { 'query': '' })
-#    print(f't={type(r)} r={r}')
     return self.clone(mutations = { 'query': '' })
+
+  _COMMON_SUFFIXES = set([
+    'au',
+    'ca',
+    'ch',
+    'com',
+    'de',
+    'edu',
+    'es',
+    'fr',
+    'gov',
+    'it',
+    'jp',
+    'mil',
+    'net',
+    'nl',
+    'no',
+    'org',
+    'ru',
+    'se',
+    'uk',
+    'us',
+  ])
+
+  _COMMON_PREFIXES = set([
+    'go',
+    'my',
+    'super',
+    'the',
+    'w3',
+    'web',
+    'www',
+  ])
   
 check.register_class(parsed_url, include_seq = False)
