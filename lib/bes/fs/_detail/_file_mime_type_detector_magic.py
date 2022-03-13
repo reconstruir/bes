@@ -4,6 +4,8 @@ import sys, warnings
 
 from bes.common.check import check
 from bes.fs.file_check import file_check
+from bes.fs.file_check import file_check
+from bes.warnings.warnings_override import warnings_override
 
 from ._file_mime_type_detector_base import _file_mime_type_detector_base
 
@@ -13,15 +15,12 @@ class _file_mime_type_detector_magic(_file_mime_type_detector_base):
   #@abstractmethod
   def is_supported(clazz):
     'Return True if this class is supported on the current platform.'
-    try:
-      if sys.version_info.major == 3 and sys.version_info.minor >= 8:
-        warnings.filterwarnings('ignore', category = SyntaxWarning)
-      import magic
-      if sys.version_info.major == 3 and sys.version_info.minor >= 8:
-        warnings.resetwarnings()
-      return True
-    except ModuleNotFoundError as ex:
-      pass
+    with warnings_override(major_version = 3, minor_version = 8, action = 'ignore', category = SyntaxWarning) as _:
+      try:
+        import magic
+        return True
+      except ModuleNotFoundError as ex:
+        pass
     return False
   
   @classmethod
