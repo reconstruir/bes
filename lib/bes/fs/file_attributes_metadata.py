@@ -17,6 +17,8 @@ from .file_path import file_path
 from .file_util import file_util
 
 from .file_metadata_getter_base import file_metadata_getter_base
+from .file_metadata_getter_checksum_md5 import file_metadata_getter_checksum_md5
+from .file_metadata_getter_checksum_sha1 import file_metadata_getter_checksum_sha1
 from .file_metadata_getter_checksum_sha256 import file_metadata_getter_checksum_sha256
 from .file_metadata_getter_media_type import file_metadata_getter_media_type
 from .file_metadata_getter_mime_type import file_metadata_getter_mime_type
@@ -24,10 +26,6 @@ from .file_metadata_getter_mime_type import file_metadata_getter_mime_type
 class file_attributes_metadata(object):
 
   _log = logger('file_attributes_metadata')
-  
-  _KEY_BES_MIME_TYPE = 'bes_mime_type'
-  _KEY_BES_MEDIA_TYPE = 'bes_media_type'
-  _KEY_BES_CHECKSUM_SHA256 = 'bes_checksum_sha256'
   
   @classmethod
   def get_bytes(clazz, filename, key, value_maker, fallback = False):
@@ -113,27 +111,6 @@ class file_attributes_metadata(object):
     mtime_string = time_util.timestamp(when = file_util.get_modification_date(filename))
     return f'{hashed_filename}_{mtime_string}'
 
-  @classmethod
-  def get_checksum_sha256(clazz, filename, fallback = False, cached = False):
-    check.check_string(filename)
-    check.check_bool(fallback)
-
-    return clazz.get_value('checksum_sha256', filename, fallback = fallback, cached = cached)
-
-  @classmethod
-  def get_mime_type(clazz, filename, fallback = False, cached = False):
-    check.check_string(filename)
-    check.check_bool(fallback)
-
-    return clazz.get_value('mime_type', filename, fallback = fallback, cached = cached)
-
-  @classmethod
-  def get_media_type(clazz, filename, fallback = False, cached = False):
-    check.check_string(filename)
-    check.check_bool(fallback)
-
-    return clazz.get_value('media_type', filename, fallback = fallback, cached = cached)
-
   class _getter_item(object):
 
     def __init__(self, getter_class):
@@ -144,7 +121,6 @@ class file_attributes_metadata(object):
     def getter(self):
       return self._getter_class()
       
-#  _getter_item = namedtuple('_getter_item', 'getter_class, cache')
   _getters = {}
   @classmethod
   def register_getter(clazz, getter_class):
@@ -175,12 +151,33 @@ class file_attributes_metadata(object):
     
     def _value_maker(f):
       return getter_item.getter.get_value(clazz, f)
-    key = f'bes_{name}'
-    value = clazz.get_bytes(filename, key, _value_maker, fallback = fallback)
+    value = clazz.get_bytes(filename, name, _value_maker, fallback = fallback)
     return getter_item.getter.decode_value(value)
 
+  @classmethod
+  def get_checksum_sha256(clazz, filename, fallback = False, cached = False):
+    return clazz.get_value('bes_checksum_sha256', filename, fallback = fallback, cached = cached)
+
+  @classmethod
+  def get_checksum_sha1(clazz, filename, fallback = False, cached = False):
+    return clazz.get_value('bes_checksum_sha1', filename, fallback = fallback, cached = cached)
+
+  @classmethod
+  def get_checksum_md5(clazz, filename, fallback = False, cached = False):
+    return clazz.get_value('bes_checksum_md5', filename, fallback = fallback, cached = cached)
+  
+  @classmethod
+  def get_mime_type(clazz, filename, fallback = False, cached = False):
+    return clazz.get_value('bes_mime_type', filename, fallback = fallback, cached = cached)
+
+  @classmethod
+  def get_media_type(clazz, filename, fallback = False, cached = False):
+    return clazz.get_value('bes_media_type', filename, fallback = fallback, cached = cached)
+  
 check.register_class(file_attributes_metadata, include_seq = False)
 
+file_attributes_metadata.register_getter(file_metadata_getter_checksum_md5)
+file_attributes_metadata.register_getter(file_metadata_getter_checksum_sha1)
 file_attributes_metadata.register_getter(file_metadata_getter_checksum_sha256)
 file_attributes_metadata.register_getter(file_metadata_getter_media_type)
 file_attributes_metadata.register_getter(file_metadata_getter_mime_type)

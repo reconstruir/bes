@@ -2,13 +2,13 @@
 
 from .file_metadata_getter_checksum import file_metadata_getter_checksum
 
-class file_metadata_getter_checksum_sha256(file_metadata_getter_checksum):
+class file_metadata_getter_checksum_md5(file_metadata_getter_checksum):
 
   def __init__(self):
-    super().__init__('sha256')
+    super().__init__('md5')
 
   @classmethod
   #@abstractmethod
   def name(self):
     'Return the name of this getter.'
-    return 'bes_checksum_sha256'
+    return 'bes_checksum_md5'

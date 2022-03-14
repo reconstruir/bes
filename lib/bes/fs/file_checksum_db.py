@@ -4,7 +4,6 @@ from bes.common.check import check
 from bes.system.log import logger
 
 from .file_util import file_util
-from .file_checksum_attributes import file_checksum_attributes
 
 from .file_metadata import file_metadata
 

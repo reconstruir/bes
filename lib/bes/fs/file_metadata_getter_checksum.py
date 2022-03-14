@@ -4,23 +4,22 @@ from bes.common.check import check
 
 from .file_metadata_getter_base import file_metadata_getter_base
 from .file_check import file_check
-from .file_mime import file_mime
+from .file_util import file_util
 
-class file_metadata_getter_media_type(file_metadata_getter_base):
+class file_metadata_getter_checksum(file_metadata_getter_base):
 
-  @classmethod
-  #@abstractmethod
-  def name(self):
-    'Return the name of this getter.'
-    return 'bes_media_type'
+  def __init__(self, algorithm):
+    check.check_string(algorithm)
+
+    assert algorithm in ( 'sha1', 'sha256', 'md5' )
+    self._algorithm = algorithm
   
   #@abstractmethod
   def get_value(self, manager, filename):
     'Get a metadata value from filename and return it encoded as bytes.'
     file_check.check_file(filename)
 
-    mime_type = manager.get_mime_type(filename, fallback = True, cached = True)
-    return file_mime.media_type_for_mime_type(mime_type).encode('utf-8')
+    return file_util.checksum(self._algorithm, filename).encode('utf-8')
 
   #@abstractmethod
   def decode_value(self, value):

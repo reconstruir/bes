@@ -12,7 +12,7 @@ class file_metadata_getter_mime_type(file_metadata_getter_base):
   #@abstractmethod
   def name(self):
     'Return the name of this getter.'
-    return 'mime_type'
+    return 'bes_mime_type'
   
   #@abstractmethod
   def get_value(self, manager, filename):
