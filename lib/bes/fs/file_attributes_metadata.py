@@ -15,6 +15,10 @@ from .file_mime import file_mime
 from .file_path import file_path
 from .file_util import file_util
 
+from .file_metadata_getter_checksum_sha256 import file_metadata_getter_checksum_sha256
+from .file_metadata_getter_mime_type import file_metadata_getter_mime_type
+from .file_metadata_getter_base import file_metadata_getter_base
+
 class file_attributes_metadata(object):
 
   _log = logger('file_attributes_metadata')
@@ -35,7 +39,7 @@ class file_attributes_metadata(object):
       clazz._log.log_d('get_bytes:{filename}:{key}: no read access')
       return value_maker(filename)
     
-    mtime_key = clazz._make_mtime_key(key)
+    mtime_key = f'__bes_mtime_{key}__'
     attr_mtime = file_attributes.get_date(filename, mtime_key)
     file_mtime = file_util.get_modification_date(filename)
 
@@ -102,15 +106,6 @@ class file_attributes_metadata(object):
     return bool_util.parse_bool(value)
   
   @classmethod
-  def get_mime_type(clazz, filename, fallback = False):
-    check.check_string(filename)
-    check.check_bool(fallback)
-
-    def _value_maker(f):
-      return file_mime.mime_type(f).encode('utf-8')
-    return clazz.get_string(filename, clazz._KEY_BES_MIME_TYPE, _value_maker, fallback = fallback)
-
-  @classmethod
   def get_media_type(clazz, filename, fallback = False):
     check.check_string(filename)
     check.check_bool(fallback)
@@ -119,17 +114,6 @@ class file_attributes_metadata(object):
       mime_type = clazz.get_mime_type(f, fallback = fallback)
       return file_mime.media_type_for_mime_type(mime_type).encode('utf-8')
     return clazz.get_string(filename, clazz._KEY_BES_MEDIA_TYPE, _value_maker, fallback = fallback)
-
-  _MIME_TYPE_CACHE = {}
-  @classmethod
-  def get_mime_type_cached(clazz, filename, fallback = False):
-    check.check_string(filename)
-    check.check_bool(fallback)
-
-    cache_key = clazz._make_cache_key(filename)
-    if not cache_key in clazz._MIME_TYPE_CACHE:
-      clazz._MIME_TYPE_CACHE[cache_key] = clazz.get_mime_type(filename, fallback = fallback)
-    return clazz._MIME_TYPE_CACHE[cache_key]
 
   _MEDIA_TYPE_CACHE = {}
   @classmethod
@@ -149,64 +133,54 @@ class file_attributes_metadata(object):
     return f'{hashed_filename}_{mtime_string}'
 
   @classmethod
-  def get_checksum(clazz, filename, fallback = False):
+  def get_checksum_sha256(clazz, filename, fallback = False, cached = False):
     check.check_string(filename)
     check.check_bool(fallback)
 
-    def _value_maker(f):
-      return file_util.checksum('sha256', f).encode('utf-8')
-    return clazz.get_string(filename, clazz._KEY_BES_CHECKSUM_SHA256, _value_maker, fallback = fallback)
+    return clazz.get_value('checksum_sha256', filename, fallback = fallback, cached = cached)
 
-  _CHECKSUM_CACHE = {}
   @classmethod
-  def get_checksum_cached(clazz, filename, fallback = False):
+  def get_mime_type(clazz, filename, fallback = False, cached = False):
     check.check_string(filename)
     check.check_bool(fallback)
 
-    cache_key = clazz._make_cache_key(filename)
-    if not cache_key in clazz._CHECKSUM_CACHE:
-      clazz._CHECKSUM_CACHE[cache_key] = clazz.get_checksum(filename, fallback = fallback)
-    return clazz._CHECKSUM_CACHE[cache_key]
-
+    return clazz.get_value('mime_type', filename, fallback = fallback, cached = cached)
+  
   _getter_item = namedtuple('_getter_item', 'getter, cache')
   _GETTERS = {}
   @classmethod
-  def register_getter(clazz, getter):
-    check.check_file_metadata_getter(getter)
+  def register_getter(clazz, getter_class):
+    check.check_class(getter_class, file_metadata_getter_base)
 
-    name = getter.name()
+    name = getter_class.name()
     if name in clazz._GETTERS:
-      raise RuntimeError('Getter already registered: \"{name}\"')
-    clazz._GETTERS[name] = clazz._getter_item(getter, {})
+      raise RuntimeError(f'Getter already registered: \"{name}\"')
+    clazz._GETTERS[name] = clazz._getter_item(getter_class(), {})
 
   @classmethod
-  def get_value(clazz, name, filename, fallback = False):
+  def get_value(clazz, name, filename, fallback = False, cached = False):
     check.check_string(name)
     check.check_string(filename)
     check.check_bool(fallback)
+    check.check_bool(cached)
 
     if not name in clazz._GETTERS:
-      raise KeyError('No getter registered for: \"{name}\"')
+      raise KeyError(f'No getter registered for: \"{name}\"')
     getter_item = clazz._GETTERS[name]
-    def _value_maker(f):
-      return getter_item.getter(f)
-    return clazz.get_string(filename, clazz._KEY_BES_CHECKSUM_SHA256, _value_maker, fallback = fallback)
 
-  @classmethod
-  def get_value_cached(clazz, name, filename, fallback = False):
-    check.check_string(name)
-    check.check_string(filename)
-    check.check_bool(fallback)
-
-    if not name in clazz._GETTERS:
-      raise KeyError('No getter registered for: \"{name}\"')
-    getter_item = clazz._GETTERS[name]
+    if cached:
+      cache_key = clazz._make_cache_key(filename)
+      if not cache_key in getter_item.cache:
+        value = clazz.get_value(name, filename, fallback = fallback, cached = False)
+        getter_item.cache[cache_key] = value
+      return getter_item.cache[cache_key]
     
-    cache_key = clazz._make_cache_key(filename)
-    if not cache_key in getter_item.cache:
-      getter_item.cache[cache_key] = clazz.get_value(name, filename, fallback = fallback)
-    return getter_item.cache[cache_key]
-  
-  @classmethod
-  def _make_mtime_key(clazz, key):
-    return f'__bes_mtime_{key}__'
+    def _value_maker(f):
+      return getter_item.getter.get_value(clazz, f)
+    key = f'bes_{name}'
+    value = clazz.get_bytes(filename, key, _value_maker, fallback = fallback)
+    return getter_item.getter.decode_value(value)
+
+check.register_class(file_attributes_metadata, include_seq = False)
+file_attributes_metadata.register_getter(file_metadata_getter_checksum_sha256)
+file_attributes_metadata.register_getter(file_metadata_getter_mime_type)

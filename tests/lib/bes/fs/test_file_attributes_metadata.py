@@ -10,6 +10,7 @@ from bes.fs.file_attributes import file_attributes
 from bes.fs.file_attributes_metadata import file_attributes_metadata
 from bes.fs.file_mime import file_mime
 from bes.fs.file_util import file_util
+from bes.fs.file_metadata_getter_base import file_metadata_getter_base
 from bes.system.filesystem import filesystem
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
@@ -93,11 +94,35 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
   def test_get_mime_type_cached(self):
     tmp_file = self.make_temp_file(suffix = '.png')
     file_util.copy(self.png_file, tmp_file)
-    self.assertEqual( 'image/png', file_attributes_metadata.get_mime_type_cached(tmp_file) )
+    self.assertEqual( 'image/png', file_attributes_metadata.get_mime_type(tmp_file, cached = True) )
     file_util.copy(self.jpg_file, tmp_file)
     if host.is_linux():
       file_util.set_modification_date(tmp_file, datetime.now())
-    self.assertEqual( 'image/jpeg', file_attributes_metadata.get_mime_type_cached(tmp_file) )
+    self.assertEqual( 'image/jpeg', file_attributes_metadata.get_mime_type(tmp_file, cached = True) )
+
+  def test_register_getter(self):
+    class _test_getter_file_size(file_metadata_getter_base):
+
+      @classmethod
+      #@abstractmethod
+      def name(clazz):
+        return 'my_filename'
+
+      #@abstractmethod
+      def get_value(self, manager, filename):
+        value = 'kiwi:' + path.basename(filename)
+        return value.encode('utf-8')
+
+      #@abstractmethod
+      def decode_value(self, value):
+        return value.decode('utf-8')
+
+    file_attributes_metadata.register_getter(_test_getter_file_size)
+    tmp_file = self.make_temp_file(suffix = '.png')
+    file_util.copy(self.png_file, tmp_file)
+    self.assertEqual( 'kiwi:' + path.basename(tmp_file), file_attributes_metadata.get_value('my_filename',
+                                                                                            tmp_file,
+                                                                                            fallback = False) )
     
 if __name__ == '__main__':
   unit_test.main()

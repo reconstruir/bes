@@ -125,7 +125,7 @@ class file_duplicates(object):
   def _checksum_map(clazz, files):
     result = {}
     for filename in files:
-      checksum = file_attributes_metadata.get_checksum_cached(filename, fallback = True)
+      checksum = file_attributes_metadata.get_checksum_sha256(filename, fallback = True, cached = True)
       if not checksum in result:
         result[checksum] = []
       result[checksum].append(filename)

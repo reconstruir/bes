@@ -7,19 +7,20 @@ from bes.common.check import check
 
 class file_metadata_getter_base(with_metaclass(ABCMeta, object)):
 
+  @classmethod
   @abstractmethod
-  def name(self):
+  def name(clazz):
     'Return the name of this getter.'
     raise NotImplemented('name')
   
   @abstractmethod
-  def key_name(self):
-    'Return the key name.'
-    raise NotImplemented('key_name')
-  
-  @abstractmethod
   def get_value(self, filename):
-    'Get the metadata value from filename.'
+    'Get a metadata value from filename and return it encoded as bytes.'
     raise NotImplemented('get_value')
 
+  @abstractmethod
+  def decode_value(self, value):
+    'Decode a value given as bytes.'
+    raise NotImplemented('decode_value')
+  
 check.register_class(file_metadata_getter_base, name = 'file_metadata_getter', include_seq = False)
