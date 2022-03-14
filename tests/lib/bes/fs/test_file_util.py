@@ -83,11 +83,11 @@ class test_file_util(unit_test):
     self.assertEqual( True, file_util.is_basename('') )
 
   def test_modification_date(self):
-    yesterday = datetime.now() - timedelta(days = 1)
+    ago = datetime.now() - timedelta(minutes = 42)
     tmp = self.make_temp_file()
     m1 = file_util.get_modification_date(tmp)
-    file_util.set_modification_date(tmp, yesterday)
-    self.assertEqual( yesterday, file_util.get_modification_date(tmp) )
+    file_util.set_modification_date(tmp, ago)
+    self.assertEqual( ago, file_util.get_modification_date(tmp) )
     self.assertNotEqual( m1, file_util.get_modification_date(tmp) )
 
   def test_checksum_sha256(self):
