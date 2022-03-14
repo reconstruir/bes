@@ -25,12 +25,12 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
     file_util.set_modification_date(tmp, yesterday)
 
     counter = 0
-    def _value_maker1():
+    def _value_maker1(f):
       nonlocal counter
       counter += 1
       return b'666'
 
-    def _value_maker2():
+    def _value_maker2(f):
       nonlocal counter
       counter += 1
       return b'667'
