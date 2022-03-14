@@ -15,9 +15,10 @@ from .file_mime import file_mime
 from .file_path import file_path
 from .file_util import file_util
 
-from .file_metadata_getter_checksum_sha256 import file_metadata_getter_checksum_sha256
-from .file_metadata_getter_mime_type import file_metadata_getter_mime_type
 from .file_metadata_getter_base import file_metadata_getter_base
+from .file_metadata_getter_checksum_sha256 import file_metadata_getter_checksum_sha256
+from .file_metadata_getter_media_type import file_metadata_getter_media_type
+from .file_metadata_getter_mime_type import file_metadata_getter_mime_type
 
 class file_attributes_metadata(object):
 
@@ -106,27 +107,6 @@ class file_attributes_metadata(object):
     return bool_util.parse_bool(value)
   
   @classmethod
-  def get_media_type(clazz, filename, fallback = False):
-    check.check_string(filename)
-    check.check_bool(fallback)
-
-    def _value_maker(f):
-      mime_type = clazz.get_mime_type(f, fallback = fallback)
-      return file_mime.media_type_for_mime_type(mime_type).encode('utf-8')
-    return clazz.get_string(filename, clazz._KEY_BES_MEDIA_TYPE, _value_maker, fallback = fallback)
-
-  _MEDIA_TYPE_CACHE = {}
-  @classmethod
-  def get_media_type_cached(clazz, filename, fallback = False):
-    check.check_string(filename)
-    check.check_bool(fallback)
-
-    cache_key = clazz._make_cache_key(filename)
-    if not cache_key in clazz._MEDIA_TYPE_CACHE:
-      clazz._MEDIA_TYPE_CACHE[cache_key] = clazz.get_media_type(filename, fallback = fallback)
-    return clazz._MEDIA_TYPE_CACHE[cache_key]
-  
-  @classmethod
   def _make_cache_key(clazz, filename):
     hashed_filename = hash_util.hash_string_sha256(filename)
     mtime_string = time_util.timestamp(when = file_util.get_modification_date(filename))
@@ -145,6 +125,13 @@ class file_attributes_metadata(object):
     check.check_bool(fallback)
 
     return clazz.get_value('mime_type', filename, fallback = fallback, cached = cached)
+
+  @classmethod
+  def get_media_type(clazz, filename, fallback = False, cached = False):
+    check.check_string(filename)
+    check.check_bool(fallback)
+
+    return clazz.get_value('media_type', filename, fallback = fallback, cached = cached)
   
   _getter_item = namedtuple('_getter_item', 'getter, cache')
   _GETTERS = {}
@@ -182,5 +169,7 @@ class file_attributes_metadata(object):
     return getter_item.getter.decode_value(value)
 
 check.register_class(file_attributes_metadata, include_seq = False)
+
 file_attributes_metadata.register_getter(file_metadata_getter_checksum_sha256)
+file_attributes_metadata.register_getter(file_metadata_getter_media_type)
 file_attributes_metadata.register_getter(file_metadata_getter_mime_type)
