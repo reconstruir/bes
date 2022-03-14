@@ -8,6 +8,7 @@ from bes.common.hash_util import hash_util
 from bes.common.time_util import time_util
 from bes.system.check import check
 from bes.system.log import logger
+from bes.property.cached_property import cached_property
 
 from .file_attributes import file_attributes
 from .file_attributes_error import file_attributes_permission_error
@@ -132,17 +133,27 @@ class file_attributes_metadata(object):
     check.check_bool(fallback)
 
     return clazz.get_value('media_type', filename, fallback = fallback, cached = cached)
-  
-  _getter_item = namedtuple('_getter_item', 'getter, cache')
-  _GETTERS = {}
+
+  class _getter_item(object):
+
+    def __init__(self, getter_class):
+      self._getter_class = getter_class
+      self.cache = {}
+
+    @cached_property
+    def getter(self):
+      return self._getter_class()
+      
+#  _getter_item = namedtuple('_getter_item', 'getter_class, cache')
+  _getters = {}
   @classmethod
   def register_getter(clazz, getter_class):
     check.check_class(getter_class, file_metadata_getter_base)
 
     name = getter_class.name()
-    if name in clazz._GETTERS:
+    if name in clazz._getters:
       raise RuntimeError(f'Getter already registered: \"{name}\"')
-    clazz._GETTERS[name] = clazz._getter_item(getter_class(), {})
+    clazz._getters[name] = clazz._getter_item(getter_class)
 
   @classmethod
   def get_value(clazz, name, filename, fallback = False, cached = False):
@@ -151,9 +162,9 @@ class file_attributes_metadata(object):
     check.check_bool(fallback)
     check.check_bool(cached)
 
-    if not name in clazz._GETTERS:
+    if not name in clazz._getters:
       raise KeyError(f'No getter registered for: \"{name}\"')
-    getter_item = clazz._GETTERS[name]
+    getter_item = clazz._getters[name]
 
     if cached:
       cache_key = clazz._make_cache_key(filename)
