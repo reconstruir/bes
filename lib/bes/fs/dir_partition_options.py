@@ -6,6 +6,7 @@ from bes.common.time_util import time_util
 
 from .files_cli_options import files_cli_options
 from .dir_partition_type import dir_partition_type
+from .dir_partition_criteria_base import dir_partition_criteria_base
 
 class dir_partition_options(files_cli_options):
 
@@ -20,6 +21,7 @@ class dir_partition_options(files_cli_options):
       'dup_file_timestamp': time_util.timestamp(),
       'dup_file_count': 1,
       'partition_type': None,
+      'partition_criteria': None,
       'flat': False,
       'threshold': 2,
     })
@@ -30,6 +32,7 @@ class dir_partition_options(files_cli_options):
     return clazz.super_value_type_hints({
       'dup_file_count': int,
       'partition_type': dir_partition_type,
+#      'partition_criteria': dir_partition_criteria_base,
       'flat': bool,
       'threshold': int,
     })
@@ -41,6 +44,7 @@ class dir_partition_options(files_cli_options):
     check.check_string(self.dup_file_timestamp)
     check.check_int(self.dup_file_count)
     check.check_dir_partition_type(self.partition_type, allow_none = True)
+    check.check_dir_partition_criteria(self.partition_criteria, allow_none = True)
     check.check_bool(self.flat)
     check.check_int(self.threshold)
 

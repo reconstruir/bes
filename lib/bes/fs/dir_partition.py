@@ -58,6 +58,8 @@ class dir_partition(object):
       result = clazz._partition_info_by_media_type(files, dst_dir_abs, options)
     elif options.partition_type == dir_partition_type.PREFIX:
       result = clazz._partition_info_by_prefix(files, dst_dir_abs, options)
+    elif options.partition_type == dir_partition_type.CRITERIA:
+      result = clazz._partition_info_by_criteria(files, dst_dir_abs, options)
     else:
       assert False
     return result
@@ -108,3 +110,21 @@ class dir_partition(object):
         item = dir_operation_item(f.filename_abs, dst_filename)
         items.append(item)
     return clazz._partition_info_result(items, resolved_files)
+
+  @classmethod
+  def _partition_info_by_criteria(clazz, files, dst_dir_abs, options):
+    criteria = options.partition_criteria
+    if not criteria:
+      raise RuntimeError('No partition_criteria given for partition_type "criteria"')
+    resolved_files = clazz._resolve_files(files, options.recursive)
+    items = dir_operation_item_list()
+    for f in resolved_files:
+      classification = criteria.classify(f.filename_abs)
+      if classification != None:
+        if not check.is_string(classification):
+          raise TypeError(f'Classify should return a string: {criteria}')
+        dst_filename = path.join(dst_dir_abs, classification, path.basename(f.filename_abs))
+        item = dir_operation_item(f.filename_abs, dst_filename)
+        items.append(item)
+    return clazz._partition_info_result(items, resolved_files)
+  

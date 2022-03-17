@@ -3,7 +3,8 @@
 from bes.enum_util.checked_enum import checked_enum
 
 class dir_partition_type(checked_enum):
-  PREFIX = 'prefix'
+  CRITERIA = 'criteria'
   MEDIA_TYPE = 'media_type'
+  PREFIX = 'prefix'
 
 dir_partition_type.register_check_class()
