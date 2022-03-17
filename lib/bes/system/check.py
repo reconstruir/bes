@@ -3,6 +3,7 @@
 import inspect
 import os.path as path
 import types
+from datetime import datetime
 
 from .compat import compat
 
@@ -157,6 +158,14 @@ class check(object):
   def check_class(clazz, o, allow_none = False):
     return clazz._check(o, clazz.CLASS_TYPES, 2, allow_none = allow_none)
 
+  @classmethod
+  def is_datetime(clazz, o):
+    return isinstance(o, datetime)
+
+  @classmethod
+  def check_datetime(clazz, o, allow_none = False):
+    return clazz._check(o, datetime, 2, allow_none = allow_none)
+  
   @classmethod
   def check_function(clazz, o, allow_none = False):
     return clazz._check(o, clazz.CALLABLE_TYPES, 2, allow_none = allow_none)
