@@ -1,17 +1,17 @@
+
 function _bes_venv_activate_main()
 {
   source $(_bes_venv_activate_this_dir)/../bes_bash/bes_bash.bash
 
   local _this_dir="$(_bes_venv_activate_this_dir)"
   local _root_dir="$(bes_path_abs_dir ${_this_dir}/..)"
-  local _python="$(bes_python_find_default)"
-  local _best="${_root_dir}/bin/best.py"
-  local _projects_root_dir="${_root_dir}/VE/bes"
+  local _requirements=( "${_root_dir}/bes_requirements.txt" "${_root_dir}/bes_requirements_dev.txt" )
 
-  ${_this_dir}/bes_venv_setup.sh
-  local _activate_script=$(${_python} ${_best} pip_project activate_script --root-dir "${_projects_root_dir}")
-  echo ${_activate_script}
-  
+  if bes_pip_project_requirements_are_stale "${_root_dir}/VE/bes" ${_requirements[@]}; then
+    ${_this_dir}/bes_venv_setup.sh ${_requirements[@]}
+  fi
+
+  echo "${_root_dir}/VE/bes/bin/activate"
   return 0
 }
 

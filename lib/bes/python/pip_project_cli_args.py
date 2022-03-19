@@ -7,9 +7,6 @@ class pip_project_cli_args(object):
   
   def pip_project_add_args(self, subparser):
 
-    from bes.system.log import log
-    log.console('pip_project_add_args()')
-    
     # create
     p = subparser.add_parser('create', help = 'Create a pip project.')
     self.__pip_project_add_common_args(p)
@@ -53,6 +50,8 @@ class pip_project_cli_args(object):
     self.__pip_project_add_common_args(p)
     p.add_argument('--variant', action = 'store', type = str, default = None,
                    help = 'The virtual env variant (csh, fish, ps1) [ None ]')
+#    p.add_argument('--write-activate-script', action = 'store', default = None,
+#                   help = 'Write the activate script to the given file [ None ]')
 
     # version
     p = subparser.add_parser('version', help = 'Print version of a package.')

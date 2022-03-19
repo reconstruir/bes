@@ -7,6 +7,8 @@ import os
 from os import path
 import pprint
 
+#from bes.system.log import log
+
 from bes.common.check import check
 from bes.common.object_util import object_util
 from bes.common.hash_util import hash_util
@@ -302,12 +304,17 @@ class pip_project(object):
     check.check_string_seq(requirements_files)
 
     for requirements_file in requirements_files:
+      if not path.exists(requirements_file):
+        raise pip_error(f'Requirements file not found: "{requirements_file}"')
+    
+    for requirements_file in requirements_files:
       self._install_one_requirements_file(requirements_file)
 
   def _install_one_requirements_file(self, requirements_file):
     'Install packages from a requirements file'
     new_checksum = file_util.checksum('sha256', requirements_file)
     checksum_file = self._requirements_checksum_file(requirements_file)
+    
     if path.exists(checksum_file):
       old_checksum = file_util.read(checksum_file, codec = 'utf-8').strip()
       if old_checksum == new_checksum:
@@ -330,8 +337,8 @@ class pip_project(object):
     
   def _requirements_checksum_file(self, requirements_file):
     assert path.isabs(requirements_file)
-    hashed = hash_util.hash_string_sha256(requirements_file)
-    return path.join(self.root_dir, f'.{hashed}.checksum')
+    basename = path.basename(requirements_file)
+    return path.join(self.root_dir, '.requirements_checksums', basename)
     
   def call_program(self, args, **kargs):
     'Call a program with the right environment'
