@@ -7,6 +7,9 @@ class pip_project_cli_args(object):
   
   def pip_project_add_args(self, subparser):
 
+    from bes.system.log import log
+    log.console('pip_project_add_args()')
+    
     # create
     p = subparser.add_parser('create', help = 'Create a pip project.')
     self.__pip_project_add_common_args(p)
@@ -28,8 +31,8 @@ class pip_project_cli_args(object):
     # install_requirements
     p = subparser.add_parser('install_requirements', help = 'Install packages from a requirements file.')
     self.__pip_project_add_common_args(p)
-    p.add_argument('requirements_file', action = 'store', type = str, default = None,
-                   help = 'The requirements file [ None ]')
+    p.add_argument('requirements_files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more requirements files [ None ]')
     
     # outdated
     p = subparser.add_parser('outdated', help = 'Print outdated packages.')

@@ -4,14 +4,12 @@ from os import path
 
 from bes.cli.cli_options import cli_options
 from bes.common.check import check
-from bes.data_output.data_output_options import data_output_options
-from bes.data_output.data_output_style import data_output_style
-from bes.property.cached_property import cached_property
 from bes.script.blurber import blurber
+from bes.data_output.data_output_options_mixin import data_output_options_mixin
 
 from .pip_error import pip_error
 
-class pip_project_options(cli_options):
+class pip_project_options(cli_options, data_output_options_mixin):
 
   def __init__(self, **kargs):
     super(pip_project_options, self).__init__(**kargs)
@@ -24,7 +22,7 @@ class pip_project_options(cli_options):
       'blurber': blurber(),
       'debug': False,
       'output_filename': None,
-      'output_style': data_output_style.TABLE,
+      'output_style': 'table',
       'python_exe': None,
       'python_version': None,
       'root_dir': None,
@@ -43,7 +41,6 @@ class pip_project_options(cli_options):
     return {
       'verbose': bool,
       'debug': bool,
-#      'output_style': data_output_style,
     }
 
   @classmethod
@@ -100,9 +97,4 @@ class pip_project_options(cli_options):
     import os
     return path.join(os.getcwd(), 'BES_PIP_ROOT')
 
-  @cached_property  
-  def data_output_options(self):
-    return data_output_options(output_filename = self.output_filename,
-                               style = self.output_style)
-    
 check.register_class(pip_project_options)

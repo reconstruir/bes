@@ -55,11 +55,11 @@ class pip_project_cli_handler(cli_command_handler):
     project.upgrade(packages)
     return 0
 
-  def install_requirements(self, requirements_file):
-    check.check_string(requirements_file)
+  def install_requirements(self, requirements_files):
+    check.check_string_seq(requirements_files)
 
     project = pip_project(options = self.options)
-    project.install_requirements(requirements_file)
+    project.install_requirements(requirements_files)
     return 0
 
   def create(self):

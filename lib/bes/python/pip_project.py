@@ -9,6 +9,7 @@ import pprint
 
 from bes.common.check import check
 from bes.common.object_util import object_util
+from bes.common.hash_util import hash_util
 from bes.fs.dir_util import dir_util
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
@@ -41,7 +42,6 @@ class pip_project(object):
 
     self._extra_env = {}
     self._options = options or check_pip_project_options()
-    self._original_python_exe = self._options.resolve_python_exe()
     self._root_dir = self._options.resolve_root_dir()
     self._pip_cache_dir = path.join(self.droppings_dir, 'pip-cache')
     self._fake_home_dir = path.join(self.droppings_dir, 'fake-home')
@@ -82,8 +82,15 @@ class pip_project(object):
 
   def _ensure_basic_packages(self):
     'Ensure that some basic python packages are installed.'
-    self.install('wheel')
-    self.install('setuptools')
+    installed = set([ item.name for item in self.installed() ])
+    if not 'wheel' in installed:
+      self.install('wheel')
+    if not 'setuptools' in installed:
+      self.install('setuptools')
+
+  @cached_property
+  def _original_python_exe(self):
+    return self._options.resolve_python_exe()
     
   @cached_property
   def virtual_env(self):
@@ -225,7 +232,7 @@ class pip_project(object):
       result.append(self._installed_package(next_item['name'].lower(),
                                             next_item['version']))
     return sorted(result, key = lambda item: item.name)
-  
+
   def pip(self, args):
     'Run a pip command'
     check.check_string_seq(args)
@@ -289,10 +296,25 @@ class pip_project(object):
       self._log.log_w('install: {}'.format(error_message))
       raise pip_error(error_message)
     
-  def install_requirements(self, requirements_file):
+  def install_requirements(self, requirements_files):
     'Install packages from a requirements file'
-    check.check_string(requirements_file)
+    requirements_files = object_util.listify(requirements_files)
+    check.check_string_seq(requirements_files)
 
+    for requirements_file in requirements_files:
+      self._install_one_requirements_file(requirements_file)
+
+  def _install_one_requirements_file(self, requirements_file):
+    'Install packages from a requirements file'
+    new_checksum = file_util.checksum('sha256', requirements_file)
+    checksum_file = self._requirements_checksum_file(requirements_file)
+    if path.exists(checksum_file):
+      old_checksum = file_util.read(checksum_file, codec = 'utf-8').strip()
+      if old_checksum == new_checksum:
+        self._log.log_d(f'{requirements_file}: Old and new checksum are the same')
+        return
+      else:
+        self._log.log_d(f'{requirements_file}: Checksum changed')
     args = [
       'install',
       '-r',
@@ -303,6 +325,13 @@ class pip_project(object):
       msg = 'Failed to install requirements: "{}"\n{}\n'.format(requirements_file, rv.stdout)
       self._log.log_w('install: {}'.format(msg))
       raise pip_error(msg)
+    self._log.log_d(f'{requirements_file}: Saving new checksum {new_checksum} to {checksum_file}')
+    file_util.save(checksum_file, content = new_checksum)
+    
+  def _requirements_checksum_file(self, requirements_file):
+    assert path.isabs(requirements_file)
+    hashed = hash_util.hash_string_sha256(requirements_file)
+    return path.join(self.root_dir, f'.{hashed}.checksum')
     
   def call_program(self, args, **kargs):
     'Call a program with the right environment'
