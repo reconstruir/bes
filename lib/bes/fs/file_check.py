@@ -13,7 +13,7 @@ class file_check(object):
     check.check_class(exception_class, allow_none = True)
 
     exception_class = exception_class or IOError
-    filename = clazz._check_symlink(filename, exception_class)
+    filename = clazz._check_symlink(filename, exception_class, allow_none)
     
     if allow_none and filename == None:
       return None
@@ -29,7 +29,7 @@ class file_check(object):
     check.check_class(exception_class, allow_none = True)
 
     exception_class = exception_class or IOError
-    dirname = clazz._check_symlink(dirname, exception_class)
+    dirname = clazz._check_symlink(dirname, exception_class, allow_none)
 
     if allow_none and dirname == None:
       return None
@@ -55,7 +55,7 @@ class file_check(object):
     check.check_class(exception_class, allow_none = True)
 
     exception_class = exception_class or IOError
-    ford = clazz._check_symlink(ford, exception_class)
+    ford = clazz._check_symlink(ford, exception_class, allow_none)
 
     if allow_none and ford == None:
       return None
@@ -66,7 +66,9 @@ class file_check(object):
     return path.abspath(ford)
   
   @classmethod
-  def _check_symlink(clazz, filename, exception_class):
+  def _check_symlink(clazz, filename, exception_class, allow_none):
+    if allow_none and filename == None:
+      return None
     if not path.islink(filename):
       return filename
     if file_symlink.is_broken(filename):

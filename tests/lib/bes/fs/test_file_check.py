@@ -16,6 +16,9 @@ class test_file_check(unit_test):
     f = self.make_temp_file(content = 'kiwi')
     self.assertEqual( f, file_check.check_file(f) )
 
+  def test_check_file_allow_none(self):
+    self.assertEqual( None, file_check.check_file(None, allow_none = True) )
+    
   @unit_test_function_skip.skip_if_not_unix(warning = True)
   def test_check_file_failure(self):
     d = self.make_temp_dir()
