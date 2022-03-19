@@ -167,6 +167,14 @@ class check(object):
     return clazz._check(o, datetime, 2, allow_none = allow_none)
   
   @classmethod
+  def check_callable(clazz, o, allow_none = False):
+    return clazz._check(o, clazz.CALLABLE_TYPES, 2, allow_none = allow_none)
+
+  @classmethod
+  def check_callable_seq(clazz, o, allow_none = False):
+    return clazz._check_seq(o, clazz.CALLABLE_TYPES, 2, allow_none = allow_none)
+
+  @classmethod
   def check_function(clazz, o, allow_none = False):
     return clazz._check(o, clazz.CALLABLE_TYPES, 2, allow_none = allow_none)
 
