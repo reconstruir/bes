@@ -13,8 +13,6 @@ from bes.fs.temp_file import temp_file
   
 class test_file_checksum(unit_test):
 
-  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/fs/file_checksum'
-
   _DATA_1 = b'\xCA\xFE\xBA\xBE'
   _DATA_2 = b'\xDE\xAD\xBE\xEF'
 
