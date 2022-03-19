@@ -168,12 +168,10 @@ class cli_options(cli_options_base):
     result = []
     classes = [ c for c in clazz.__mro__ if not c in ignore_classes ]
     for next_class in classes:
-      next_method = getattr(next_class, method_name)
-      if not next_method:
-        error_class = clazz.error_class()
-        raise error_class('Method "{}" not found in {}'.format(method_name, next_class))
-      next_values = next_method()
-      result.append(next_values)
+      next_method = getattr(next_class, method_name, None)
+      if next_method:
+        next_values = next_method()
+        result.append(next_values)
     return result
   
   @classmethod
