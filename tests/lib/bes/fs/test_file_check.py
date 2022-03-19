@@ -24,6 +24,22 @@ class test_file_check(unit_test):
     s = self._make_temp_socket('kiwi.socket')
     with self.assertRaises(IOError) as ctx:
       file_check.check_file(s)
+
+  @unit_test_function_skip.skip_if_not_unix(warning = True)
+  def test_check_file_symlink_success(self):
+    f = self.make_temp_file(content = 'kiwi')
+    l = self.make_temp_file(content = 'link')
+    file_symlink.symlink(f, l)
+    self.assertEqual( f, file_check.check_file(l) )
+
+  @unit_test_function_skip.skip_if_not_unix(warning = True)
+  def test_check_file_symlink_broken(self):
+    f = self.make_temp_file(content = 'kiwi')
+    l = self.make_temp_file(content = 'link')
+    file_symlink.symlink(f, l)
+    file_util.remove(f)
+    with self.assertRaises(IOError) as ctx:
+      file_check.check_file(l)
     
   def test_check_dir_success(self):
     d = self.make_temp_dir()
@@ -37,7 +53,25 @@ class test_file_check(unit_test):
     s = self._make_temp_socket('kiwi.socket')
     with self.assertRaises(IOError) as ctx:
       file_check.check_dir(s)
-    
+
+  @unit_test_function_skip.skip_if_not_unix(warning = True)
+  def test_check_dir_symlink_success(self):
+    tmp_dir = self.make_temp_dir()
+    d = self.make_temp_dir(dir = tmp_dir)
+    l = self.make_temp_file(content = 'link', dir = tmp_dir)
+    file_symlink.symlink(d, l)
+    self.assertEqual( d, file_check.check_dir(l) )
+    file_util.remove(tmp_dir)
+      
+  @unit_test_function_skip.skip_if_not_unix(warning = True)
+  def test_check_dir_symlink_broken(self):
+    d = self.make_temp_dir()
+    l = self.make_temp_file(content = 'link')
+    file_symlink.symlink(d, l)
+    file_util.remove(d)
+    with self.assertRaises(IOError) as ctx:
+      file_check.check_dir(l)
+      
   def test_check_file_or_dir_success(self):
     f = self.make_temp_file(content = 'kiwi')
     d = self.make_temp_dir()
