@@ -7,8 +7,6 @@ import os
 from os import path
 import pprint
 
-#from bes.system.log import log
-
 from bes.common.check import check
 from bes.common.object_util import object_util
 from bes.common.hash_util import hash_util
