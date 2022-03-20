@@ -20,7 +20,8 @@ class file_metadata_getter_media_type(file_metadata_getter_base):
     file_check.check_file(filename)
 
     mime_type = manager.get_mime_type(filename, fallback = True, cached = True)
-    return file_mime.media_type_for_mime_type(mime_type).encode('utf-8')
+    media_type = file_mime.media_type_for_mime_type(mime_type)
+    return media_type.encode('utf-8')
 
   #@abstractmethod
   def decode_value(self, value):
