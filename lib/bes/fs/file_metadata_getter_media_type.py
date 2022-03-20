@@ -21,6 +21,8 @@ class file_metadata_getter_media_type(file_metadata_getter_base):
 
     mime_type = manager.get_mime_type(filename, fallback = True, cached = True)
     media_type = file_mime.media_type_for_mime_type(mime_type)
+    if media_type == None:
+      return None
     return media_type.encode('utf-8')
 
   #@abstractmethod

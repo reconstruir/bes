@@ -22,6 +22,22 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
 
   def test_get_bytes(self):
     tmp = self.make_temp_file(content = 'this is foo', suffix = '.txt')
+    value = '666'.encode('utf-8')
+    def _value_maker(f):
+      return value
+    self.assertEqual( value, file_attributes_metadata.get_bytes(tmp, 'foo', _value_maker) )
+    self.assertEqual( [ '__bes_mtime_foo__', 'foo' ], file_attributes.keys(tmp) )
+    self.assertEqual( '666', file_attributes.get_string(tmp, 'foo') )
+
+  def test_get_bytes_none_value(self):
+    tmp = self.make_temp_file(content = 'this is foo', suffix = '.txt')
+    def _value_maker(f):
+      return None
+    self.assertEqual( None, file_attributes_metadata.get_bytes(tmp, 'foo', _value_maker) )
+    self.assertEqual( [], file_attributes.keys(tmp) )
+    
+  def test_get_bytes_with_change(self):
+    tmp = self.make_temp_file(content = 'this is foo', suffix = '.txt')
     yesterday = datetime.now() - timedelta(days = 1)
     file_util.set_modification_date(tmp, yesterday)
 
@@ -75,7 +91,7 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
     self.assertEqual( 'image', file_attributes_metadata.get_media_type(self.jpg_file) )
     self.assertEqual( 'image', file_attributes_metadata.get_media_type(self.png_file) )
     self.assertEqual( 'video', file_attributes_metadata.get_media_type(self.mp4_file) )
-    self.assertEqual( 'unknown', file_attributes_metadata.get_media_type(self.unknown_file) )
+    self.assertEqual( None, file_attributes_metadata.get_media_type(self.unknown_file) )
     
   def test_get_mime_type_change(self):
     tmp_file = self.make_temp_file(suffix = '.png')
@@ -106,7 +122,7 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
       @classmethod
       #@abstractmethod
       def name(clazz):
-        return 'my_filename'
+        return 'my_file_size'
 
       #@abstractmethod
       def get_value(self, manager, filename):
@@ -120,9 +136,18 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
     file_attributes_metadata.register_getter(_test_getter_file_size)
     tmp_file = self.make_temp_file(suffix = '.png')
     file_util.copy(self.png_file, tmp_file)
-    self.assertEqual( 'kiwi:' + path.basename(tmp_file), file_attributes_metadata.get_value('my_filename',
-                                                                                            tmp_file,
+    self.assertEqual( 'kiwi:' + path.basename(tmp_file), file_attributes_metadata.get_value(tmp_file,
+                                                                                            'my_file_size',
                                                                                             fallback = False) )
+
+  def test_remove_value(self):
+    tmp = self.make_temp_file(content = 'this is foo', suffix = '.txt')
+    value = '666'.encode('utf-8')
+    def _value_maker(f):
+      return value
+    self.assertEqual( value, file_attributes_metadata.get_bytes(tmp, 'foo', _value_maker) )
+    self.assertEqual( [ '__bes_mtime_foo__', 'foo' ], file_attributes.keys(tmp) )
+    self.assertEqual( '666', file_attributes.get_string(tmp, 'foo') )
     
 if __name__ == '__main__':
   unit_test.main()

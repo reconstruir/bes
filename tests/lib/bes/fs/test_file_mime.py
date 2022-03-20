@@ -61,7 +61,7 @@ class test_file_mime(unit_test, unit_test_media_files):
     self.assertEqual( 'video', file_mime.media_type_for_file(self.mp4_file) )
     self.assertEqual( 'image', file_mime.media_type_for_file(self.png_file) )
     self.assertEqual( 'image', file_mime.media_type_for_file(self.jpg_file) )
-    self.assertEqual( 'unknown', file_mime.media_type_for_file(self.unknown_file) )
+    self.assertEqual( None, file_mime.media_type_for_file(self.unknown_file) )
 
   @unit_test_function_skip.skip_if_not_unix(warning = True)
   def test_media_type_wrong_extension(self):
@@ -69,10 +69,10 @@ class test_file_mime(unit_test, unit_test_media_files):
     self.assertEqual( 'image', file_mime.media_type_for_file(self.png_file_wrong_extension) )
     self.assertEqual( 'image', file_mime.media_type_for_file(self.jpg_file_wrong_extension) )
     
-    self.assertEqual( 'unknown', file_mime.media_type_for_file(self.unknown_file_png_extension) )
-    self.assertEqual( 'unknown', file_mime.media_type_for_file(self.unknown_file_jpg_extension) )
-    self.assertEqual( 'unknown', file_mime.media_type_for_file(self.unknown_file_mp4_extension) )
-    self.assertEqual( 'unknown', file_mime.media_type_for_file(self.unknown_file_txt_extension) )
+    self.assertEqual( None, file_mime.media_type_for_file(self.unknown_file_png_extension) )
+    self.assertEqual( None, file_mime.media_type_for_file(self.unknown_file_jpg_extension) )
+    self.assertEqual( None, file_mime.media_type_for_file(self.unknown_file_mp4_extension) )
+    self.assertEqual( None, file_mime.media_type_for_file(self.unknown_file_txt_extension) )
     
 if __name__ == '__main__':
   unit_test.main()

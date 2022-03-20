@@ -105,7 +105,7 @@ class dir_partition(object):
     items = dir_operation_item_list()
     for f in resolved_files:
       media_type = file_attributes_metadata.get_media_type(f.filename_abs, fallback = True, cached = True)
-      if media_type != 'unknown':
+      if media_type != None:
         dst_filename = path.join(dst_dir_abs, media_type, path.basename(f.filename_abs))
         item = dir_operation_item(f.filename_abs, dst_filename)
         items.append(item)

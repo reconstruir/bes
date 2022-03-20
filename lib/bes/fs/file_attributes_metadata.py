@@ -39,7 +39,7 @@ class file_attributes_metadata(object):
       clazz._log.log_d('get_bytes:{filename}:{key}: no read access')
       return value_maker(filename)
     
-    mtime_key = f'__bes_mtime_{key}__'
+    mtime_key = clazz._make_mtime_key(key)
     attr_mtime = file_attributes.get_date(filename, mtime_key)
     file_mtime = file_util.get_modification_date(filename)
 
@@ -48,10 +48,12 @@ class file_attributes_metadata(object):
     clazz._log.log_d(f'{label}: attr_mtime={attr_mtime} file_mtime={file_mtime}')
     if attr_mtime == None:
       value = value_maker(filename)
+      clazz._log.log_d(f'{label}: creating new value "{value}"')
       if fallback and not os.access(filename, os.W_OK):
         clazz._log.log_d(f'{label}: no write access')
         return value
-      clazz._log.log_d(f'{label}: creating new value "{value}"')
+      if value == None:
+        return None
       clazz._refresh_value(filename, key, value, mtime_key)
       return value
 
@@ -111,6 +113,10 @@ class file_attributes_metadata(object):
     mtime_string = time_util.timestamp(when = file_util.get_modification_date(filename))
     return f'{hashed_filename}_{mtime_string}'
 
+  @classmethod
+  def _make_mtime_key(clazz, key):
+    return f'__bes_mtime_{key}__'
+
   class _getter_item(object):
 
     def __init__(self, getter_class):
@@ -132,47 +138,66 @@ class file_attributes_metadata(object):
     clazz._getters[name] = clazz._getter_item(getter_class)
 
   @classmethod
-  def get_value(clazz, name, filename, fallback = False, cached = False):
-    check.check_string(name)
+  def get_value(clazz, filename, key, fallback = False, cached = False):
     check.check_string(filename)
+    check.check_string(key)
     check.check_bool(fallback)
     check.check_bool(cached)
 
-    if not name in clazz._getters:
-      raise KeyError(f'No getter registered for: \"{name}\"')
-    getter_item = clazz._getters[name]
+    if not key in clazz._getters:
+      raise KeyError(f'No getter registered for: \"{key}\"')
+    getter_item = clazz._getters[key]
 
     if cached:
       cache_key = clazz._make_cache_key(filename)
       if not cache_key in getter_item.cache:
-        value = clazz.get_value(name, filename, fallback = fallback, cached = False)
+        value = clazz.get_value(filename, key, fallback = fallback, cached = False)
         getter_item.cache[cache_key] = value
       return getter_item.cache[cache_key]
     
     def _value_maker(f):
       return getter_item.getter.get_value(clazz, f)
-    value = clazz.get_bytes(filename, name, _value_maker, fallback = fallback)
+    value = clazz.get_bytes(filename, key, _value_maker, fallback = fallback)
+    if value == None:
+      return None
     return getter_item.getter.decode_value(value)
 
   @classmethod
+  def remove_value(clazz, filename, key):
+    check.check_string(filename)
+    check.check_string(key)
+    
+    getter_item = clazz._getters.get(key, None)
+    if getter_item:
+      cache_key = clazz._make_cache_key(filename)
+      if cache_key in getter_item.cache:
+        del getter_item.cache[cache_key]
+
+    mtime_key = clazz._make_mtime_key(key)
+    if file_attributes.has_key(filename, mtime_key):
+      file_attributes.remove(filename, mtime_key)
+    if file_attributes.has_key(filename, key):
+      file_attributes.remove(filename, key)
+  
+  @classmethod
   def get_checksum_sha256(clazz, filename, fallback = False, cached = False):
-    return clazz.get_value('bes_checksum_sha256', filename, fallback = fallback, cached = cached)
+    return clazz.get_value(filename, 'bes_checksum_sha256', fallback = fallback, cached = cached)
 
   @classmethod
   def get_checksum_sha1(clazz, filename, fallback = False, cached = False):
-    return clazz.get_value('bes_checksum_sha1', filename, fallback = fallback, cached = cached)
+    return clazz.get_value(filename, 'bes_checksum_sha1', fallback = fallback, cached = cached)
 
   @classmethod
   def get_checksum_md5(clazz, filename, fallback = False, cached = False):
-    return clazz.get_value('bes_checksum_md5', filename, fallback = fallback, cached = cached)
+    return clazz.get_value(filename, 'bes_checksum_md5', fallback = fallback, cached = cached)
   
   @classmethod
   def get_mime_type(clazz, filename, fallback = False, cached = False):
-    return clazz.get_value('bes_mime_type', filename, fallback = fallback, cached = cached)
+    return clazz.get_value(filename, 'bes_mime_type', fallback = fallback, cached = cached)
 
   @classmethod
   def get_media_type(clazz, filename, fallback = False, cached = False):
-    return clazz.get_value('bes_media_type', filename, fallback = fallback, cached = cached)
+    return clazz.get_value(filename, 'bes_media_type', fallback = fallback, cached = cached)
   
 check.register_class(file_attributes_metadata, include_seq = False)
 
