@@ -15,7 +15,7 @@ class _file_mime_type_detector_magic(_file_mime_type_detector_base):
   #@abstractmethod
   def is_supported(clazz):
     'Return True if this class is supported on the current platform.'
-    with warnings_override(major_version = 3, minor_version = 8, action = 'ignore', category = SyntaxWarning) as _:
+    with warnings_override(clauses = '>= 3.8', action = 'ignore', category = SyntaxWarning) as _:
       try:
         import magic
         return True

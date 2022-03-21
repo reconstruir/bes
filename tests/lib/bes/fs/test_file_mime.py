@@ -10,7 +10,6 @@ from bes.fs.file_symlink import file_symlink
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 from bes.property.cached_property import cached_property
 
-from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
 
 class test_file_mime(unit_test, unit_test_media_files):

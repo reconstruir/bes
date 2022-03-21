@@ -126,6 +126,33 @@ class test_semantic_version(unit_test):
 
   def test_check_with_cast(self):
     self.assertEqual( semantic_version('1.2.3'), check.check_semantic_version('1.2.3') )
-    
+
+  def test__parse_clause(self):
+    f = semantic_version._parse_clause
+    self.assertEqual( ( '<', '3.8' ), f('< 3.8') )
+    self.assertEqual( ( '>', '3.8' ), f('> 3.8') )
+    self.assertEqual( ( '==', '3.8' ), f('== 3.8') )
+    self.assertEqual( ( '!=', '3.8' ), f('!= 3.8') )
+    self.assertEqual( ( '<=', '3.8' ), f('<= 3.8') )
+    self.assertEqual( ( '>=', '3.8' ), f('>= 3.8') )
+
+  def test__parse_clause_invalid_operator(self):
+    f = semantic_version._parse_clause
+    with self.assertRaises(ValueError) as _:
+      f('!! 3.8')
+
+  def test__parse_clause_invalid_version(self):
+    f = semantic_version._parse_clause
+    with self.assertRaises(ValueError) as _:
+      f('== 3.8alpha')
+
+  def test__match_clause(self):
+    self.assertEqual( True, semantic_version('3.9').match_clause('== 3.9') )
+    self.assertEqual( False, semantic_version('3.9').match_clause('!= 3.9') )
+    self.assertEqual( False, semantic_version('3.9').match_clause('< 3.9') )
+    self.assertEqual( True, semantic_version('3.9').match_clause('> 3.8') )
+    self.assertEqual( True, semantic_version('3.9').match_clause('<= 3.9') )
+    self.assertEqual( True, semantic_version('3.9').match_clause('>= 3.8') )
+      
 if __name__ == '__main__':
   unit_test.main()
