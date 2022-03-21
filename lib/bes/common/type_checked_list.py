@@ -36,7 +36,9 @@ class type_checked_list(object):
       self._values.append(v)
 
   def compare(self, other):
-    check.check(other, ( type_checked_list, list, tuple ))
+    check.check(other, ( type_checked_list, list, tuple ), allow_none = True)
+    if other == None:
+      return -1
     len_cmp = cmp(len(self), len(other))
     if len_cmp != 0:
       return len_cmp
