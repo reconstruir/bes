@@ -9,8 +9,9 @@ from bes.script.blurber import blurber
 
 from bes.fs.file_ignore_options_mixin import file_ignore_options_mixin
 
-from .files_cli_options import files_cli_options
+from .file_duplicates_preparation import file_duplicates_preparation
 from .file_util import file_util
+from .files_cli_options import files_cli_options
 
 class file_duplicates_options(files_cli_options, file_ignore_options_mixin):
 
@@ -28,6 +29,7 @@ class file_duplicates_options(files_cli_options, file_ignore_options_mixin):
       'sort_key': None,
       'include_empty_files': False,
       'ignore_files': [],
+      'preparation': None,
     })
   
   @classmethod
@@ -38,6 +40,7 @@ class file_duplicates_options(files_cli_options, file_ignore_options_mixin):
       'prefer_prefixes': list,
       'include_empty_files': bool,
       'ignore_files': list,
+      'preparation': file_duplicates_preparation,
       #'sort_key': callable,
     })
 
@@ -51,6 +54,7 @@ class file_duplicates_options(files_cli_options, file_ignore_options_mixin):
     check.check_bool(self.include_empty_files)
     check.check_blurber(self.blurber)
     check.check_string_seq(self.ignore_files)
+    check.check_file_duplicates_preparation(self.preparation, allow_none = True)
 
   @staticmethod
   def sort_key_modification_date(filename):
