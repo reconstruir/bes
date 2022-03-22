@@ -13,7 +13,7 @@ from bes.fs.file_resolver_options import file_resolver_options
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
 from .file_duplicates_options import file_duplicates_options
-from .file_duplicates_preparation import file_duplicates_preparation
+from .file_duplicates_setup import file_duplicates_setup
 from .file_util import file_util
 
 class file_duplicates(object):
@@ -43,7 +43,7 @@ class file_duplicates(object):
 
   @classmethod
   def find_duplicates_with_preparation(clazz, preparation):
-    check.check_file_duplicates_preparation(preparation)
+    check.check_file_duplicates_setup(preparation)
 
     items = []
     for checksum, preparation.files in sorted(preparation.dup_checksum_map.items()):
@@ -70,7 +70,7 @@ class file_duplicates(object):
     flat_small_checksum_dup_files = clazz._flat_duplicate_files(dup_small_checksum_map)
     checksum_map = clazz._checksum_map(flat_small_checksum_dup_files)
     dup_checksum_map = clazz._duplicate_small_checksum_map(checksum_map)
-    return file_duplicates_preparation(files, resolved_files, dup_checksum_map, options)
+    return file_duplicates_setup(files, resolved_files, dup_checksum_map, options)
     
   @classmethod
   def find_file_duplicates(clazz, filename, files, options = None):
