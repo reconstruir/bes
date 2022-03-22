@@ -29,9 +29,9 @@ class file_duplicates(object):
     check.check_file_duplicates_options(options, allow_none = True)
 
     options = options or file_duplicates_options()
-    preparation = clazz.prepare(files, options = options)
+    setup = clazz.setup(files, options = options)
     items = []
-    for checksum, files in sorted(preparation.dup_checksum_map.items()):
+    for checksum, files in sorted(setup.dup_checksum_map.items()):
       sorted_files = clazz._sort_filename_list_by_preference(files,
                                                              options.prefer_prefixes,
                                                              options.sort_key)
@@ -39,25 +39,25 @@ class file_duplicates(object):
       duplicates = sorted_files[1:]
       item = clazz._dup_item(filename, duplicates)
       items.append(item)
-    return clazz._find_duplicates_result(items, preparation.resolved_files)
+    return clazz._find_duplicates_result(items, setup.resolved_files)
 
   @classmethod
-  def find_duplicates_with_preparation(clazz, preparation):
-    check.check_file_duplicates_setup(preparation)
+  def find_duplicates_with_setup(clazz, setup):
+    check.check_file_duplicates_setup(setup)
 
     items = []
-    for checksum, preparation.files in sorted(preparation.dup_checksum_map.items()):
-      sorted_files = clazz._sort_filename_list_by_preference(preparation.files,
+    for checksum, setup.files in sorted(setup.dup_checksum_map.items()):
+      sorted_files = clazz._sort_filename_list_by_preference(setup.files,
                                                              options.prefer_prefixes,
                                                              options.sort_key)
       filename = sorted_files[0]
       duplicates = sorted_files[1:]
       item = clazz._dup_item(filename, duplicates)
       items.append(item)
-    return clazz._find_duplicates_result(items, preparation.resolved_files)
+    return clazz._find_duplicates_result(items, setup.resolved_files)
   
   @classmethod
-  def prepare(clazz, files, options = None):
+  def setup(clazz, files, options = None):
     check.check_string_seq(files)
     check.check_file_duplicates_options(options, allow_none = True)
 
