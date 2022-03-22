@@ -5,6 +5,7 @@ import os.path as path
 
 from bes.system.check import check
 from bes.system.log import logger
+from bes.fs.file_check import file_check
 from bes.fs.file_resolver import file_resolver
 from bes.fs.file_resolver_item_list import file_resolver_item_list
 from bes.fs.file_resolver_options import file_resolver_options
@@ -27,6 +28,25 @@ class file_duplicates(object):
     check.check_file_duplicates_options(options, allow_none = True)
 
     options = options or file_duplicates_options()
+    preparation = clazz.prepare(files, options = options)
+    items = []
+    for checksum, files in sorted(preparation.dup_checksum_map.items()):
+      sorted_files = clazz._sort_filename_list_by_preference(files,
+                                                             options.prefer_prefixes,
+                                                             options.sort_key)
+      filename = sorted_files[0]
+      duplicates = sorted_files[1:]
+      item = clazz._dup_item(filename, duplicates)
+      items.append(item)
+    return clazz._find_duplicates_result(items, preparation.resolved_files)
+
+  _preparation = namedtuple('_preparation', 'resolved_files, dup_checksum_map')
+  @classmethod
+  def prepare(clazz, files, options = None):
+    check.check_string_seq(files)
+    check.check_file_duplicates_options(options, allow_none = True)
+
+    options = options or file_duplicates_options()
     resolved_files = clazz._resolve_files(files, options)
     dmap = resolved_files.duplicate_size_map()
     flat_size_dup_files = clazz._flat_duplicate_files(dmap)
@@ -35,18 +55,23 @@ class file_duplicates(object):
     flat_small_checksum_dup_files = clazz._flat_duplicate_files(dup_small_checksum_map)
     checksum_map = clazz._checksum_map(flat_small_checksum_dup_files)
     dup_checksum_map = clazz._duplicate_small_checksum_map(checksum_map)
+    return clazz._preparation(resolved_files, dup_checksum_map)
+    
+  @classmethod
+  def find_file_duplicates(clazz, filename, files, options = None):
+    filename = file_check.check_file(filename)
+    check.check_string_seq(files)
+    check.check_file_duplicates_options(options, allow_none = True)
 
-    items = []
-    for checksum, files in sorted(dup_checksum_map.items()):
-      sorted_files = clazz._sort_filename_list_by_preference(files,
-                                                             options.prefer_prefixes,
-                                                             options.sort_key)
-      filename = sorted_files[0]
-      duplicates = sorted_files[1:]
-      item = clazz._dup_item(filename, duplicates)
-      items.append(item)
-    return clazz._find_duplicates_result(items, resolved_files)
-
+    dups_result = clazz.find_duplicates([ filename ] + files, options = options)
+    result = []
+    for item in dups_result.items:
+      all_files = set([ item.filename ] + item.duplicates)
+      if filename in all_files:
+        all_files.remove(filename)
+        result.extend(list(all_files))
+    return result
+  
   @classmethod
   def _flat_duplicate_files(clazz, dmap):
     result = []

@@ -440,6 +440,10 @@ class logger(object):
   def __init__(self, tag):
     self._tag = tag
 
+  @property
+  def tag(self):
+    return self._tag
+    
   def log(self, level, message, multi_line = False):
     log.log(self._tag, level, message, multi_line = multi_line)
 

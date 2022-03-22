@@ -3,13 +3,16 @@
 import pprint
 import os.path as path
 
+from bes.common.bool_util import bool_util
 from bes.common.check import check
+from bes.common.string_util import string_util
 from bes.common.dict_util import dict_util
 from bes.config.simple_config import simple_config
 from bes.config.simple_config_editor import simple_config_editor
 from bes.system.log import logger
 from bes.system.os_env import os_env_var
-from bes.common.bool_util import bool_util
+from bes.text.string_lexer_options import string_lexer_options
+from bes.text.string_list import string_list
 
 from .cli_options_base import cli_options_base
 
@@ -63,8 +66,8 @@ class cli_options(cli_options_base):
     'update one value'
     self._log.log_d('_do_update_value: setattr({}, {}, {}:{})'.format(id(self), key, value, type(value)))
     type_hint = self._get_value_type_hint(key)
-    value = self._cast_value_if_needed(value, type_hint)
-    setattr(self, key, value)
+    cast_value = self._cast_value_if_needed(value, type_hint)
+    setattr(self, key, cast_value)
 
   @classmethod
   def _cast_value_if_needed(clazz, value, type_hint):
@@ -74,6 +77,9 @@ class cli_options(cli_options_base):
       return value
     if type_hint == bool:
       return bool_util.parse_bool(value)
+    elif type_hint == list:
+      if check.is_string(value):
+        value = string_list.parse(value, options = string_lexer_options.KEEP_QUOTES).to_list()
     return type_hint(value)
     
   @classmethod
@@ -112,6 +118,7 @@ class cli_options(cli_options_base):
 
   def _extract_valid_non_default_values(clazz, values, default_values):
     'Extract and return only the valid non default values'
+
     result = {}
     for key, value in values.items():
       if key in default_values:
