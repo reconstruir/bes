@@ -14,6 +14,7 @@ from .file_duplicates_options import file_duplicates_options
 from .file_check import file_check
 from .file_util import file_util
 from .file_attributes_metadata import file_attributes_metadata
+from .file_duplicates_preparation import file_duplicates_preparation
 
 class file_duplicates(object):
   'A class to find duplicate files'
@@ -40,7 +41,6 @@ class file_duplicates(object):
       items.append(item)
     return clazz._find_duplicates_result(items, preparation.resolved_files)
 
-  _preparation = namedtuple('_preparation', 'resolved_files, dup_checksum_map')
   @classmethod
   def prepare(clazz, files, options = None):
     check.check_string_seq(files)
@@ -55,7 +55,7 @@ class file_duplicates(object):
     flat_small_checksum_dup_files = clazz._flat_duplicate_files(dup_small_checksum_map)
     checksum_map = clazz._checksum_map(flat_small_checksum_dup_files)
     dup_checksum_map = clazz._duplicate_small_checksum_map(checksum_map)
-    return clazz._preparation(resolved_files, dup_checksum_map)
+    return file_duplicates_preparation(resolved_files, dup_checksum_map)
     
   @classmethod
   def find_file_duplicates(clazz, filename, files, options = None):
