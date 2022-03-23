@@ -66,7 +66,7 @@ class dir_operation_tester(object):
 
   @property
   def result(self):
-    if not self._result:
+    if self._result == None:
       raise RuntimeError('result has not been set')
     return self._result
 

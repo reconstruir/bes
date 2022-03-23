@@ -24,12 +24,12 @@ class file_duplicates(object):
   _dup_item = namedtuple('_dup_item', 'filename, duplicates')
   _find_duplicates_result = namedtuple('_find_duplicates_result', 'items, resolved_files')
   @classmethod
-  def find_duplicates(clazz, files, options = None):
-    check.check_string_seq(files)
+  def find_duplicates(clazz, where, options = None):
+    check.check_string_seq(where)
     check.check_file_duplicates_options(options, allow_none = True)
 
     options = options or file_duplicates_options()
-    setup = clazz.setup(files, options = options)
+    setup = clazz.setup(where, options = options)
     return clazz.find_duplicates_with_setup(setup)
 
   @classmethod
@@ -37,23 +37,23 @@ class file_duplicates(object):
     check.check_file_duplicates_setup(setup)
 
     items = []
-    for checksum, files in sorted(setup.dup_checksum_map.items()):
-      sorted_files = clazz._sort_filename_list_by_preference(files,
+    for checksum, where in sorted(setup.dup_checksum_map.items()):
+      sorted_where = clazz._sort_filename_list_by_preference(where,
                                                              setup.options.prefer_prefixes,
                                                              setup.options.sort_key)
-      filename = sorted_files[0]
-      duplicates = sorted_files[1:]
+      filename = sorted_where[0]
+      duplicates = sorted_where[1:]
       item = clazz._dup_item(filename, duplicates)
       items.append(item)
     return clazz._find_duplicates_result(items, setup.resolved_files)
   
   @classmethod
-  def setup(clazz, files, options = None):
-    check.check_string_seq(files)
+  def setup(clazz, where, options = None):
+    check.check_string_seq(where)
     check.check_file_duplicates_options(options, allow_none = True)
 
     options = options or file_duplicates_options()
-    resolved_files = clazz._resolve_files(files, options)
+    resolved_files = clazz._resolve_files(where, options)
     dmap = resolved_files.duplicate_size_map()
     flat_size_dup_files = clazz._flat_duplicate_files(dmap)
     small_checksum_map = clazz._small_checksum_map(flat_size_dup_files, options.small_checksum_size)
@@ -61,15 +61,15 @@ class file_duplicates(object):
     flat_small_checksum_dup_files = clazz._flat_duplicate_files(dup_small_checksum_map)
     checksum_map = clazz._checksum_map(flat_small_checksum_dup_files)
     dup_checksum_map = clazz._duplicate_small_checksum_map(checksum_map)
-    return file_duplicates_setup(files, resolved_files, dup_checksum_map, options)
+    return file_duplicates_setup(where, resolved_files, dup_checksum_map, options)
     
   @classmethod
-  def find_file_duplicates(clazz, filename, files, options = None):
+  def find_file_duplicates(clazz, filename, where, options = None):
     filename = file_check.check_file(filename)
-    check.check_string_seq(files)
+    check.check_string_seq(where)
     check.check_file_duplicates_options(options, allow_none = True)
 
-    dups_result = clazz.find_duplicates([ filename ] + files,
+    dups_result = clazz.find_duplicates([ filename ] + where,
                                         options = options)
     result = []
     for item in dups_result.items:
@@ -77,7 +77,7 @@ class file_duplicates(object):
       if filename in all_files:
         all_files.remove(filename)
         result.extend(list(all_files))
-    return result
+    return sorted(result)
   
   @classmethod
   def _flat_duplicate_files(clazz, dmap):
