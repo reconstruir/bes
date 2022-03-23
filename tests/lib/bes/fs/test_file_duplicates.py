@@ -5,9 +5,9 @@ from os import path
 from datetime import datetime
 from datetime import timedelta
 
-from bes.fs.file_path import file_path
 from bes.fs.file_duplicates import file_duplicates
 from bes.fs.file_duplicates_options import file_duplicates_options
+from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
@@ -298,6 +298,34 @@ class test_file_duplicates(unit_test):
       dups = file_duplicates.find_file_duplicates_with_setup(f'{t.tmp_dir}/foo/cheese/brie.jpg', setup)
       self.assertEqual( [
         f'{t.src_dir}/a/kiwi.jpg',
+        f'{t.src_dir}/b/kiwi_dup1.jpg',
+        f'{t.src_dir}/c/kiwi_dup2.jpg',
+      ], dups )
+
+      dups = file_duplicates.find_file_duplicates_with_setup(f'{t.tmp_dir}/foo/cheese/gouda.jpg', setup)
+      self.assertEqual( [
+        f'{t.src_dir}/a/lemon.jpg',
+      ], dups )
+      
+  def test_find_file_duplicates_with_setup_and_removed_resolved_file(self):
+    items = [
+      temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'foo/cheese/brie.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'foo/cheese/cheddar.jpg', 'this is cheddar', 0o0644),
+      temp_content('file', 'foo/cheese/gouda.jpg', 'this is lemon', 0o0644),
+    ]
+    options = file_duplicates_options(recursive = True)
+    with dir_operation_tester(extra_content_items = items) as t:
+      setup = file_duplicates.setup([ t.src_dir ], options = options)
+
+      file_util.remove(f'{t.src_dir}/a/kiwi.jpg')
+      
+      dups = file_duplicates.find_file_duplicates_with_setup(f'{t.tmp_dir}/foo/cheese/brie.jpg', setup)
+      self.assertEqual( [
         f'{t.src_dir}/b/kiwi_dup1.jpg',
         f'{t.src_dir}/c/kiwi_dup2.jpg',
       ], dups )

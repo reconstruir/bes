@@ -63,10 +63,14 @@ class file_duplicates_setup(namedtuple('file_duplicates_setup', 'files, resolved
   def _checksum_map(clazz, files):
     result = {}
     for filename in files:
-      checksum = file_attributes_metadata.get_checksum_sha256(filename, fallback = True, cached = True)
-      if not checksum in result:
-        result[checksum] = []
-      result[checksum].append(filename)
+      try:
+        checksum = file_attributes_metadata.get_checksum_sha256(filename, fallback = True, cached = True)
+        if not checksum in result:
+          result[checksum] = []
+        result[checksum].append(filename)
+      except FileNotFoundError as ex:
+        pass
+      
     return result
   
 check.register_class(file_duplicates_setup, include_seq = False)

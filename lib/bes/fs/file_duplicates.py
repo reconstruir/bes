@@ -73,7 +73,6 @@ class file_duplicates(object):
     check.check_file_duplicates_setup(setup)
 
     resolved_one_file = clazz._resolve_one_file(filename)
-
     new_resolved_files = setup.resolved_files
     new_resolved_files.append(resolved_one_file)
     new_setup = setup.clone(mutations = { 'resolved_files': new_resolved_files })
@@ -116,12 +115,15 @@ class file_duplicates(object):
 
   @classmethod
   def _match_function(clazz, filename, options):
-    if not options.include_empty_files:
-      if file_util.is_empty(filename):
+    try:
+      if not options.include_empty_files:
+        if file_util.is_empty(filename):
+          return False
+      if options.should_ignore_file(filename):
         return False
-    if options.should_ignore_file(filename):
+      return True
+    except FileNotFoundError as ex:
       return False
-    return True
   
   @classmethod
   def _resolve_files(clazz, files, options):

@@ -75,9 +75,14 @@ class file_resolver_item_list(type_checked_list):
   def size_map(self):
     result = {}
     for item in self:
-      if not item.size in result:
-        result[item.size] = file_resolver_item_list()
-      result[item.size].append(item)
+      try:
+        size = item.size
+      except FileNotFoundError as ex:
+        size = None
+      if size != None:
+        if not item.size in result:
+          result[item.size] = file_resolver_item_list()
+        result[item.size].append(item)
     return result
 
   def duplicate_size_map(self):
