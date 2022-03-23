@@ -279,7 +279,34 @@ class test_file_duplicates(unit_test):
                                         extra_content_items = items,
                                         recursive = True)
     self.assertEqual( [], t.result )
-    
+
+  def test_find_file_duplicates_with_setup(self):
+    items = [
+      temp_content('file', 'src/a/kiwi.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/a/apple.jpg', 'this is apple', 0o0644),
+      temp_content('file', 'src/a/lemon.jpg', 'this is lemon', 0o0644),
+      temp_content('file', 'src/b/kiwi_dup1.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'src/c/kiwi_dup2.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'foo/cheese/brie.jpg', 'this is kiwi', 0o0644),
+      temp_content('file', 'foo/cheese/cheddar.jpg', 'this is cheddar', 0o0644),
+      temp_content('file', 'foo/cheese/gouda.jpg', 'this is lemon', 0o0644),
+    ]
+    options = file_duplicates_options(recursive = True)
+    with dir_operation_tester(extra_content_items = items) as t:
+      setup = file_duplicates.setup([ t.src_dir ], options = options)
+
+      dups = file_duplicates.find_file_duplicates_with_setup(f'{t.tmp_dir}/foo/cheese/brie.jpg', setup)
+      self.assertEqual( [
+        f'{t.src_dir}/a/kiwi.jpg',
+        f'{t.src_dir}/b/kiwi_dup1.jpg',
+        f'{t.src_dir}/c/kiwi_dup2.jpg',
+      ], dups )
+
+      dups = file_duplicates.find_file_duplicates_with_setup(f'{t.tmp_dir}/foo/cheese/gouda.jpg', setup)
+      self.assertEqual( [
+        f'{t.src_dir}/a/lemon.jpg',
+      ], dups )
+      
   def _call_find_duplicates(self,
                             extra_content_items = None,
                             recursive = False,

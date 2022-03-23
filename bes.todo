@@ -202,4 +202,7 @@ add file_attributes_metadata tests to cover write permissions and ownership
  - get rid of match_basename is file find its very confusing
  - add support for ignoring files when refactoring like foo.py~
  - simple config and credentials do not deal with $ and @ literals in passwords
+
+2022-03-23
+ - resolving a single file with file_resolver has a weird result
  

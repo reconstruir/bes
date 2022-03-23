@@ -3,12 +3,13 @@
 from collections import namedtuple
 import os.path as path
 
-from bes.system.check import check
-from bes.system.log import logger
 from bes.fs.file_check import file_check
 from bes.fs.file_resolver import file_resolver
+from bes.fs.file_resolver_item import file_resolver_item
 from bes.fs.file_resolver_item_list import file_resolver_item_list
 from bes.fs.file_resolver_options import file_resolver_options
+from bes.system.check import check
+from bes.system.log import logger
 
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
@@ -54,14 +55,7 @@ class file_duplicates(object):
 
     options = options or file_duplicates_options()
     resolved_files = clazz._resolve_files(where, options)
-    dmap = resolved_files.duplicate_size_map()
-    flat_size_dup_files = clazz._flat_duplicate_files(dmap)
-    small_checksum_map = clazz._small_checksum_map(flat_size_dup_files, options.small_checksum_size)
-    dup_small_checksum_map = clazz._duplicate_small_checksum_map(small_checksum_map)
-    flat_small_checksum_dup_files = clazz._flat_duplicate_files(dup_small_checksum_map)
-    checksum_map = clazz._checksum_map(flat_small_checksum_dup_files)
-    dup_checksum_map = clazz._duplicate_small_checksum_map(checksum_map)
-    return file_duplicates_setup(where, resolved_files, dup_checksum_map, options)
+    return file_duplicates_setup(where, resolved_files, options)
     
   @classmethod
   def find_file_duplicates(clazz, filename, where, options = None):
@@ -71,6 +65,23 @@ class file_duplicates(object):
 
     dups_result = clazz.find_duplicates([ filename ] + where,
                                         options = options)
+    return clazz._compute_file_duplicates(dups_result, filename)
+
+  @classmethod
+  def find_file_duplicates_with_setup(clazz, filename, setup):
+    filename = file_check.check_file(filename)
+    check.check_file_duplicates_setup(setup)
+
+    resolved_one_file = clazz._resolve_one_file(filename)
+
+    new_resolved_files = setup.resolved_files
+    new_resolved_files.append(resolved_one_file)
+    new_setup = setup.clone(mutations = { 'resolved_files': new_resolved_files })
+    dups_result = clazz.find_duplicates_with_setup(new_setup)
+    return clazz._compute_file_duplicates(dups_result, filename)
+
+  @classmethod
+  def _compute_file_duplicates(clazz, dups_result, filename):
     result = []
     for item in dups_result.items:
       all_files = set([ item.filename ] + item.duplicates)
@@ -120,6 +131,10 @@ class file_duplicates(object):
                                              match_function = match_function)
     return file_resolver.resolve_files(files, options = resolver_options)
 
+  @classmethod
+  def _resolve_one_file(clazz, filename):
+    return file_resolver_item(path.dirname(filename), path.basename(filename), filename, 0, 0)
+  
   @classmethod
   def _sort_filename_list_by_preference(clazz, filenames, prefer_prefixes, sort_key):
     def _sort_key(filename):
