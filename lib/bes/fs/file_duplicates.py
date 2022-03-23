@@ -30,26 +30,17 @@ class file_duplicates(object):
 
     options = options or file_duplicates_options()
     setup = clazz.setup(files, options = options)
-    items = []
-    for checksum, files in sorted(setup.dup_checksum_map.items()):
-      sorted_files = clazz._sort_filename_list_by_preference(files,
-                                                             options.prefer_prefixes,
-                                                             options.sort_key)
-      filename = sorted_files[0]
-      duplicates = sorted_files[1:]
-      item = clazz._dup_item(filename, duplicates)
-      items.append(item)
-    return clazz._find_duplicates_result(items, setup.resolved_files)
+    return clazz.find_duplicates_with_setup(setup)
 
   @classmethod
   def find_duplicates_with_setup(clazz, setup):
     check.check_file_duplicates_setup(setup)
 
     items = []
-    for checksum, setup.files in sorted(setup.dup_checksum_map.items()):
-      sorted_files = clazz._sort_filename_list_by_preference(setup.files,
-                                                             options.prefer_prefixes,
-                                                             options.sort_key)
+    for checksum, files in sorted(setup.dup_checksum_map.items()):
+      sorted_files = clazz._sort_filename_list_by_preference(files,
+                                                             setup.options.prefer_prefixes,
+                                                             setup.options.sort_key)
       filename = sorted_files[0]
       duplicates = sorted_files[1:]
       item = clazz._dup_item(filename, duplicates)
