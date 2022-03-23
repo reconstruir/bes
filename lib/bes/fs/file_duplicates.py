@@ -63,9 +63,9 @@ class file_duplicates(object):
     check.check_string_seq(where)
     check.check_file_duplicates_options(options, allow_none = True)
 
-    dups_result = clazz.find_duplicates([ filename ] + where,
-                                        options = options)
-    return clazz._compute_file_duplicates(dups_result, filename)
+    options = options or file_duplicates_options()
+    setup = clazz.setup(where, options = options)
+    return clazz.find_file_duplicates_with_setup(filename, setup)
 
   @classmethod
   def find_file_duplicates_with_setup(clazz, filename, setup):
