@@ -51,13 +51,9 @@ class _file_attributes_xattr(file_attributes_base):
     clazz._log.log_method_d()
 
     encoded_key = clazz._encode_key(key)
-    clazz._log.log_d('set_bytes:{}:{}: calling xattr.setxattr with value "{}"'.format(filename,
-                                                                                      encoded_key,
-                                                                                      value))
-    rv = xattr.setxattr(filename, clazz._encode_key(key), value)
-    clazz._log.log_d('set_bytes:{}:{}: xattr.setxattr returns with rv "{}"'.format(filename,
-                                                                                   encoded_key,
-                                                                                   rv))
+    clazz._log.log_d(f'set_bytes:{filename}:{encoded_key}: calling xattr.setxattr with value "{value}"')
+    rv = xattr.setxattr(filename, encoded_key, value)
+    clazz._log.log_d(f'set_bytes:{filename}:{encoded_key}: xattr.setxattr returns with rv "{rv}"')
   
   @classmethod
   #@abstractmethod
