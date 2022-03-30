@@ -368,7 +368,12 @@ class table(object):
   def _remove_column_name(clazz, column_names, x):
     if not column_names:
       return None
-    assert x >= 0 and x < len(column_names)
+    num_columns = len(column_names)
+    flat_names = ' '.join(column_names)
+    if x < 0:
+      raise ValueError(f'x should be >= 0: {x} - {flat_names}')
+    if x > num_columns:
+      raise ValueError(f'x should be <= {num_columns-1}: {x} - {flat_names}')
     l = list(column_names)
     l.pop(x)
     return tuple(l)
