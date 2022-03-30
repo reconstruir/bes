@@ -13,6 +13,7 @@ class check(object):
   INTEGER_TYPES = compat.INTEGER_TYPES
   CLASS_TYPES = compat.CLASS_TYPES
   CALLABLE_TYPES = ( types.FunctionType, types.MethodType )
+  INTEGER_OR_STRING_TYPES = INTEGER_TYPES + STRING_TYPES
 
   @classmethod
   def is_string(clazz, o):
