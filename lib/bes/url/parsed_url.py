@@ -20,6 +20,12 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
 
     return clazz.__bases__[0].__new__(clazz, scheme, netloc, path, params, query, fragment)
 
+  def to_dict(self):
+    return dict(self._asdict())
+
+  def to_ordered_dict(self):
+    return self._asdict()
+  
   def __str__(self):
     return self.to_string()
   
@@ -33,12 +39,18 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
     if check.is_string(other):
       other = self.parse(other)
     return super().__eq__(other)
+
+  @classmethod
+  def _resolve_entities(clazz, url):
+    # return deal with all entities
+    return url.replace('&amp;', '&')
   
   @classmethod
-  def parse(clazz, s):
-    check.check_string(s)
+  def parse(clazz, url):
+    check.check_string(url)
 
-    pr = urllib_parse.urlparse(s)
+    resolved_url = clazz._resolve_entities(url)
+    pr = urllib_parse.urlparse(resolved_url)
     return clazz.__bases__[0].__new__(clazz, *pr)
 
   def to_parse_result(self):
