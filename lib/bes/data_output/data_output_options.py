@@ -15,18 +15,18 @@ class data_output_options(object):
     self.style = data_output_style.TABLE
     self.csv_delimiter = ','
     self.remove_columns = None
-    self.table_labels = None
+    self.column_names = None
     self.table_cell_renderers = None
     self.table_title = None
     self.table_flexible_column = None
     for key, value in kargs.items():
       setattr(self, key, value)
-    check.check_int(self.brief_column)
+    check.check(self.brief_column, check.INTEGER_OR_STRING_TYPES)
     check.check_string(self.output_filename, allow_none = True)
     self.style = check.check_data_output_style(self.style, allow_none = True)
     check.check_string(self.csv_delimiter)
-    check.check_tuple(self.remove_columns, allow_none = True, value_type = check.INTEGER_TYPES)
-    check.check_tuple(self.table_labels, allow_none = True, value_type = check.STRING_TYPES)
+    check.check_tuple(self.remove_columns, allow_none = True, value_type = check.INTEGER_OR_STRING_TYPES)
+    check.check_tuple(self.column_names, allow_none = True, value_type = check.STRING_TYPES)
     check.check_dict(self.table_cell_renderers,
                      key_type = check.STRING_TYPES,
                      value_type = text_cell_renderer,

@@ -44,22 +44,28 @@ class data_output(object):
         stream.write(line_break.DEFAULT_LINE_BREAK)
     elif options.style in [ data_output_style.TABLE, data_output_style.PLAIN_TABLE ]:
       data = clazz._normalize_data(data)
-      table_data = table(data = data, column_names = options.table_labels)
+      table_data = table(data = data, column_names = options.column_names)
       is_plain = options.style == data_output_style.PLAIN_TABLE
       if is_plain:
         table_style = text_table_style(spacing = 1, box = text_box_space())
       else:
         #table_style = text_table_style(spacing = 1, box = text_box_unicode())
         table_style = text_table_style(spacing = 1, box = text_box_ascii())
-      
+
+      column_names = None
+      if options.column_names:
+        column_names = list(options.column_names)
       for column in sorted(options.remove_columns or [], reverse = True):
-        print(f'removing {column}')
         table_data.remove_column(column)
+        if column_names:
+          column_names.remove(column)
+      if column_names:
+        column_names = tuple(column_names)
       tt = text_table(data = table_data, style = table_style)
-      if options.table_labels:
+      if column_names:
         if not is_plain:
-          tt.set_labels(options.table_labels)
-        tt.set_column_names(options.table_labels)
+          tt.set_labels(column_names)
+        tt.set_column_names(column_names)
       if options.table_cell_renderers:
         for column_name, renderer in options.table_cell_renderers.items():
           tt.set_col_renderer(column_name, renderer)
