@@ -26,6 +26,10 @@ class dir_split_cli_args(object):
     p.add_argument('--reverse', action = 'store_true',
                    default = dir_split_defaults.SORT_REVERSE, dest = 'sort_reverse',
                    help = 'Whether to reverse the file order after sorting [ None ]')
+    p.add_argument('--threshold', action = 'store',
+                   default = dir_split_defaults.THRESHOLD,
+                   type = int,
+                   help = 'Threshold of files needed to split a directory [ None ]')
     
   @classmethod
   def __dir_split_cli_add_add_common_args(clazz, p):

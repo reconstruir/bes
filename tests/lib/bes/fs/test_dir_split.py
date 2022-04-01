@@ -5,8 +5,9 @@ from os import path
 
 from bes.fs.dir_split import dir_split
 from bes.fs.dir_split_options import dir_split_options
-from bes.fs.testing.temp_content import temp_content
+from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import multiplied_temp_content
+from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
@@ -441,6 +442,18 @@ class test_dir_split(unit_test, unit_test_media_files):
     ]
     self.assert_filename_list_equal( expected, t.dst_files )
     self.assert_filename_list_equal( [], t.src_files )
+
+  def test_nothing_to_split(self):
+    extra_content_items = [
+      temp_content('file', 'src/foo.txt', b'this is foo.txt', 0o0644),
+    ]
+    def _ptf(test):
+      file_util.remove(f'{test.src_dir}/foo.txt')
+      
+    t = self._split_test([], 1, 1, extra_content_items = extra_content_items, pre_test_function = _ptf)
+    expected = []
+    self.assert_filename_list_equal( expected, t.dst_files )
+    self.assert_filename_list_equal( [], t.src_files )
     
   def _split_test(self,
                   multiplied_content_items = None,
@@ -450,7 +463,8 @@ class test_dir_split(unit_test, unit_test_media_files):
                   dst_dir_same_as_src = False,
                   recursive = False,
                   sort_order = 'filename',
-                  sort_reverse = False):
+                  sort_reverse = False,
+                  pre_test_function = None):
     options = dir_split_options(chunk_size = chunk_size,
                                 prefix = 'chunk-',
                                 recursive = recursive,
@@ -462,6 +476,8 @@ class test_dir_split(unit_test, unit_test_media_files):
                               content_multiplier = content_multiplier,
                               extra_content_items = extra_content_items,
                               dst_dir_same_as_src = dst_dir_same_as_src) as test:
+      if pre_test_function:
+        pre_test_function(test)
       dir_split.split(test.src_dir, test.dst_dir, options)
     return test
     

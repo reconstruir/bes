@@ -37,6 +37,9 @@ class dir_split(object):
     options = options or dir_split_options()
     info = clazz._split_info(src_dir_abs, dst_dir_abs, options)
 
+    if not info.items:
+      return
+    
     info.items.move_files(options.dup_file_timestamp,
                           options.dup_file_count)
     
