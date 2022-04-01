@@ -4,9 +4,10 @@ from bes.cli.cli_options import cli_options
 from bes.common.check import check
 from bes.common.time_util import time_util
 
-from .files_cli_options import files_cli_options
-from .dir_partition_type import dir_partition_type
 from .dir_partition_criteria_base import dir_partition_criteria_base
+from .dir_partition_defaults import dir_partition_defaults
+from .dir_partition_type import dir_partition_type
+from .files_cli_options import files_cli_options
 
 class dir_partition_options(files_cli_options):
 
@@ -20,10 +21,10 @@ class dir_partition_options(files_cli_options):
     return clazz.super_default_values({
       'dup_file_timestamp': time_util.timestamp(),
       'dup_file_count': 1,
-      'partition_type': None,
+      'partition_type': dir_partition_defaults.PARTITION_TYPE,
       'partition_criteria': None,
       'flat': False,
-      'threshold': 2,
+      'threshold': dir_partition_defaults.THRESHOLD
     })
   
   @classmethod

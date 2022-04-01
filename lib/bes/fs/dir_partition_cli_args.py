@@ -7,16 +7,18 @@ class dir_partition_cli_args(object):
   
   def dir_partition_add_args(self, subparser):
     # partition
+    from .dir_partition_defaults import dir_partition_defaults
     p = subparser.add_parser('partition', help = 'Partition a directory into many directories.')
     self.__dir_partition_cli_add_add_common_args(p)
     p.add_argument('dst_dir', action = 'store', default = None,
                    help = 'Destination directory [ None ]')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to partition [ None ]')
-    p.add_argument('--type', action = 'store', default = 'prefix',
-                   dest = 'partition_type',
+    p.add_argument('--type', action = 'store',
+                   default = dir_partition_defaults.PARTITION_TYPE, dest = 'partition_type',
                    help = 'Partition type to use [ None ]')
-    p.add_argument('--threshold', action = 'store', default = 2,
+    p.add_argument('--threshold', action = 'store',
+                   default = dir_partition_defaults.THRESHOLD,
                    type = int,
                    help = 'Threshold of files needed to partition a directory [ 2 ]')
     
