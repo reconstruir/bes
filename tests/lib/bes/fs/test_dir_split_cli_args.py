@@ -49,9 +49,9 @@ class test_dir_split_cli_args(program_unit_test):
         'dir_split',
         'split',
         '--prefix', 'chunk-',
+        '--dst-dir', test.dst_dir,
+        '--chunk-size', str(chunk_size),
         test.src_dir,
-        test.dst_dir,
-        str(chunk_size),
       ]
       test.result = self.run_program(self._program, args)
     return test

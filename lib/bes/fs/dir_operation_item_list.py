@@ -17,6 +17,7 @@ class dir_operation_item_list(type_checked_list):
     super(dir_operation_item_list, self).__init__(values = values)
 
   def move_files(self, timestamp, count):
+    result = []
     resolved_items = self.resolve_for_move(timestamp, count)
     for item in resolved_items:
       need_move = False
@@ -26,8 +27,9 @@ class dir_operation_item_list(type_checked_list):
       else:
         need_move = True
       if need_move:
-        file_util.rename(item.src_filename,
-                         item.dst_filename)
+        file_util.rename(item.src_filename, item.dst_filename)
+        result.append(item.dst_filename)
+    return result
         
   @classmethod
   def _make_resolved_filename(clazz, filename, timestamp, count):

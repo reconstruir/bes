@@ -4,6 +4,7 @@ from bes.cli.cli_options import cli_options
 from bes.common.check import check
 from bes.common.time_util import time_util
 
+from .dir_split_defaults import dir_split_defaults
 from .file_sort_order import file_sort_order
 from .files_cli_options import files_cli_options
 
@@ -17,12 +18,12 @@ class dir_split_options(files_cli_options):
   def default_values(clazz):
     'Return a dict of defaults for these options.'
     return clazz.super_default_values({
-      'chunk_size': 250,
-      'prefix': 'split-',
+      'chunk_size': dir_split_defaults.CHUNK_SIZE,
+      'prefix': dir_split_defaults.PREFIX,
       'dup_file_timestamp': time_util.timestamp(),
       'dup_file_count': 1,
-      'sort_order': file_sort_order.FILENAME,
-      'sort_reverse': False,
+      'sort_order': dir_split_defaults.SORT_ORDER,
+      'sort_reverse': dir_split_defaults.SORT_REVERSE,
     })
   
   @classmethod
