@@ -39,7 +39,6 @@ class dir_split(object):
     num_items = len(info.items)
     if num_items == 0:
       return
-    print(f'threshold={options.threshold} num_items={num_items}')
     if options.threshold and num_items < options.threshold:
       return
     info.items.move_files(options.dup_file_timestamp,
