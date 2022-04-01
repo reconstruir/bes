@@ -24,3 +24,5 @@ class file_multi_ignore(object):
     check.check_string_seq(files)
     check.check_string_seq(files)
     return [ f for f in files if not self.should_ignore(f) ]
+
+check.register_class(file_multi_ignore, include_seq = False)
