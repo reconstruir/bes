@@ -206,4 +206,7 @@ add file_attributes_metadata tests to cover write permissions and ownership
 2022-03-23
  - resolving a single file with file_resolver has a weird result
  - file dups (and maybe other ops) unit tests where a resolved file is removed
+
+2022-04-01
+ - dir_partition_options.flat is unused
  

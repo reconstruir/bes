@@ -6,3 +6,4 @@ class dir_split_defaults(object):
   PREFIX = 'split-'
   SORT_ORDER = 'filename'
   SORT_REVERSE = False
+  THRESHOLD = None

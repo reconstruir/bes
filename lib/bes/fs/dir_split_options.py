@@ -24,6 +24,7 @@ class dir_split_options(files_cli_options):
       'dup_file_count': 1,
       'sort_order': dir_split_defaults.SORT_ORDER,
       'sort_reverse': dir_split_defaults.SORT_REVERSE,
+      'threshold': dir_split_defaults.THRESHOLD,
     })
   
   @classmethod
@@ -34,6 +35,7 @@ class dir_split_options(files_cli_options):
       'dup_file_count': int,
       'sort_order': file_sort_order,
       'sort_reverse': bool,
+      'threshold': int,
     })
 
   #@abstractmethod
@@ -46,5 +48,6 @@ class dir_split_options(files_cli_options):
     check.check_int(self.dup_file_count)
     check.check_file_sort_order(self.sort_order, allow_none = True)
     check.check_bool(self.sort_reverse)
+    check.check_int(self.threshold, allow_none = True)
 
 check.register_class(dir_split_options)
