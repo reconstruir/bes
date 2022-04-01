@@ -28,14 +28,13 @@ class dir_partition(object):
   _log = logger('dir_partition')
 
   @classmethod
-  def partition(clazz, files, dst_dir, options = None):
+  def partition(clazz, files, options = None):
     check.check_string_seq(files)
     check.check_dir_partition_options(options, allow_none = True)
-    check.check_string(dst_dir)
 
     options = options or dir_partition_options()
     
-    info = clazz.partition_info(files, dst_dir, options = options)
+    info = clazz.partition_info(files, options = options)
     info.items.move_files(options.dup_file_timestamp,
                           options.dup_file_count)
     root_dirs = info.resolved_files.root_dirs()
@@ -44,12 +43,11 @@ class dir_partition(object):
       
   _partition_info_result = namedtuple('_partition_items_info', 'items, resolved_files')
   @classmethod
-  def partition_info(clazz, files, dst_dir, options = None):
+  def partition_info(clazz, files, options = None):
     check.check_string_seq(files)
     check.check_dir_partition_options(options, allow_none = True)
-    check.check_string(dst_dir)
 
-    dst_dir_abs = path.abspath(dst_dir)
+    dst_dir_abs = path.abspath(options.dst_dir)
     options = options or dir_partition_options()
 
     if options.partition_type == None:

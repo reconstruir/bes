@@ -199,14 +199,14 @@ class test_dir_partition(unit_test, unit_test_media_files):
                       recursive = False,
                       partition_type = None,
                       partition_criteria = None):
-    options = dir_partition_options(recursive = recursive,
-                                    dup_file_timestamp = 'dup-timestamp',
-                                    partition_type = partition_type,
-                                    partition_criteria = partition_criteria)
-    with dir_operation_tester(extra_content_items = extra_content_items) as test:
-      test.result = dir_partition.partition(test.src_dir,
-                                            test.dst_dir,
-                                            options = options)
+    with dir_operation_tester(extra_content_items = extra_content_items,
+                              dst_dir_same_as_src = dst_dir_same_as_src) as test:
+      options = dir_partition_options(recursive = recursive,
+                                      dup_file_timestamp = 'dup-timestamp',
+                                      partition_type = partition_type,
+                                      partition_criteria = partition_criteria,
+                                      dst_dir = test.dst_dir)
+      test.result = dir_partition.partition(test.src_dir, options = options)
     return test
     
 if __name__ == '__main__':

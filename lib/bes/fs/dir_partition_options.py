@@ -24,7 +24,8 @@ class dir_partition_options(files_cli_options):
       'partition_type': dir_partition_defaults.PARTITION_TYPE,
       'partition_criteria': None,
       'flat': False,
-      'threshold': dir_partition_defaults.THRESHOLD
+      'threshold': dir_partition_defaults.THRESHOLD,
+      'dst_dir': dir_partition_defaults.DST_DIR,
     })
   
   @classmethod
@@ -48,5 +49,6 @@ class dir_partition_options(files_cli_options):
     check.check_dir_partition_criteria(self.partition_criteria, allow_none = True)
     check.check_bool(self.flat)
     check.check_int(self.threshold)
+    check.check_string(self.dst_dir)
 
 check.register_class(dir_partition_options)

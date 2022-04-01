@@ -14,14 +14,13 @@ class dir_partition_cli_handler(cli_command_handler):
     super(dir_partition_cli_handler, self).__init__(cli_args, options_class = dir_partition_options)
     check.check_dir_partition_options(self.options)
   
-  def partition(self, dst_dir, files):
-    check.check_string(dst_dir)
+  def partition(self, files):
     check.check_string_seq(files)
 
     if self.options.dry_run:
-      info = dir_partition.partition_info(files, dst_dir, options = self.options)
+      info = dir_partition.partition_info(files, options = self.options)
       for item in info.items:
         print('{} => {}'.format(item.src_filename, item.dst_filename))
     else:
-      dir_partition.partition(files, dst_dir, options = self.options)
+      dir_partition.partition(files, options = self.options)
     return 0

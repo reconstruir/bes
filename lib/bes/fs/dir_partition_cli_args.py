@@ -10,10 +10,11 @@ class dir_partition_cli_args(object):
     from .dir_partition_defaults import dir_partition_defaults
     p = subparser.add_parser('partition', help = 'Partition a directory into many directories.')
     self.__dir_partition_cli_add_add_common_args(p)
-    p.add_argument('dst_dir', action = 'store', default = None,
-                   help = 'Destination directory [ None ]')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to partition [ None ]')
+    p.add_argument('-d', '--dst-dir', action = 'store',
+                   default = dir_partition_defaults.DST_DIR,
+                   help = 'Destination directory [ None ]')
     p.add_argument('--type', action = 'store',
                    default = dir_partition_defaults.PARTITION_TYPE, dest = 'partition_type',
                    help = 'Partition type to use [ None ]')

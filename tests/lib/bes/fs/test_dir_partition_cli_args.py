@@ -104,7 +104,7 @@ class test_dir_partition_cli_args(program_unit_test):
         'dir_partition',
         'partition',
         '--type', partition_type,
-        test.dst_dir,
+        '--dst-dir', test.dst_dir,
         test.src_dir,
       ]
       if recursive:
