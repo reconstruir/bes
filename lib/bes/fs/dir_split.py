@@ -36,10 +36,12 @@ class dir_split(object):
 
     options = options or dir_split_options()
     info = clazz._split_info(src_dir_abs, dst_dir_abs, options)
-
-    if not info.items:
+    num_items = len(info.items)
+    if num_items == 0:
       return
-    
+    print(f'threshold={options.threshold} num_items={num_items}')
+    if options.threshold and num_items < options.threshold:
+      return
     info.items.move_files(options.dup_file_timestamp,
                           options.dup_file_count)
     

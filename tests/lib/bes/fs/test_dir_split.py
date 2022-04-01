@@ -443,6 +443,23 @@ class test_dir_split(unit_test, unit_test_media_files):
     self.assert_filename_list_equal( expected, t.dst_files )
     self.assert_filename_list_equal( [], t.src_files )
 
+  def test_threshold(self):
+    extra_content_items = [
+      temp_content('file', 'src/apple.txt', 'this is apple.txt', 0o0644),
+      temp_content('file', 'src/kiwi.txt', 'this is kiwi.txt', 0o0644),
+      temp_content('file', 'src/lemon.txt', 'this is lemon.txt', 0o0644),
+      temp_content('file', 'src/blueberry.txt', 'this is blueberry.txt', 0o0644),
+    ]
+    t = self._split_test(extra_content_items = extra_content_items, threshold = 5)
+    expected = [
+      'apple.txt',
+      'blueberry.txt',
+      'kiwi.txt',
+      'lemon.txt',
+    ]
+    self.assert_filename_list_equal( [], t.dst_files )
+    self.assert_filename_list_equal( expected, t.src_files )
+    
   def test_nothing_to_split(self):
     extra_content_items = [
       temp_content('file', 'src/foo.txt', b'this is foo.txt', 0o0644),
@@ -464,13 +481,15 @@ class test_dir_split(unit_test, unit_test_media_files):
                   recursive = False,
                   sort_order = 'filename',
                   sort_reverse = False,
-                  pre_test_function = None):
+                  pre_test_function = None,
+                  threshold = None):
     options = dir_split_options(chunk_size = chunk_size,
                                 prefix = 'chunk-',
                                 recursive = recursive,
                                 dup_file_timestamp = 'dup-timestamp',
                                 sort_order = sort_order,
-                                sort_reverse = sort_reverse)
+                                sort_reverse = sort_reverse,
+                                threshold = threshold)
 
     with dir_operation_tester(multiplied_content_items = multiplied_content_items,
                               content_multiplier = content_multiplier,
