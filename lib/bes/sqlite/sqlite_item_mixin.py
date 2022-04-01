@@ -20,3 +20,14 @@ class sqlite_item_mixin:
     values = ', '.join('?' * len(fields))
     keys = ', '.join(fields)
     return f'replace into {table_name}({keys}) values({values})'
+
+  @classmethod
+  def from_sql_row(clazz, row):
+    check.check_tuple(row)
+
+    length = len(row)
+    expected_length = len(clazz._fields)
+    if len(row) != len(clazz._fields):
+      raise vb_error('Length of row should be {expected_length} instead of {length} - {row}')
+    return clazz(*row)
+  
