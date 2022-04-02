@@ -38,7 +38,9 @@ class dir_partition(object):
     info.items.move_files(options.dup_file_timestamp,
                           options.dup_file_count)
     if options.delete_empty_dirs:
+      clazz._log.log_d(f'resolved_files={info.resolved_files}')
       root_dirs = info.resolved_files.root_dirs()
+      clazz._log.log_d(f'root_dirs={root_dirs}')
       for next_possible_empty_root in root_dirs:
         file_find.remove_empty_dirs(next_possible_empty_root)
       
@@ -127,6 +129,8 @@ class dir_partition(object):
     if not criteria:
       raise RuntimeError('No partition_criteria given for partition_type "criteria"')
     resolved_files = clazz._resolve_files(files, options.recursive)
+    for f in resolved_files:
+      clazz._log.log_d(f'resolved_file: {f.root_dir} - {f.filename}')
     items = dir_operation_item_list()
     for f in resolved_files:
       classification = criteria.classify(f.filename_abs)
