@@ -28,6 +28,8 @@ class test_dir_partition_cli_args(program_unit_test):
                              partition_type = 'prefix',
                              delete_empty_dirs = True)
     dst_after_expected = [
+      'cheese',
+      'cheese/cheese-10.jpg',
       'kiwi',
       'kiwi/kiwi-10.jpg',
       'kiwi/kiwi-20.jpg',
@@ -39,8 +41,6 @@ class test_dir_partition_cli_args(program_unit_test):
     ]
     self.assert_filename_list_equal( dst_after_expected, t.dst_files )
     src_after_expected = [
-      'c',
-      'c/cheese-10.jpg',
       'icons',
       'icons/foo.png',
       'readme.md',
@@ -92,6 +92,7 @@ class test_dir_partition_cli_args(program_unit_test):
 {t.src_dir}/b/lemon-10.jpg => {t.dst_dir}/lemon/lemon-10.jpg 
 {t.src_dir}/b/lemon-20.jpg => {t.dst_dir}/lemon/lemon-20.jpg 
 {t.src_dir}/b/lemon-30.jpg => {t.dst_dir}/lemon/lemon-30.jpg 
+{t.src_dir}/c/cheese-10.jpg => {t.dst_dir}/cheese/cheese-10.jpg
 ''', t.result.output )
     
   def _partition_test(self,
