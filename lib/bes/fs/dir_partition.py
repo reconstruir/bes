@@ -51,6 +51,8 @@ class dir_partition(object):
     dst_dir_abs = path.abspath(options.dst_dir)
     options = options or dir_partition_options()
 
+    clazz._log.log_d(f'options={options}')
+
     if options.partition_type == None:
       return items
     elif options.partition_type == dir_partition_type.MEDIA_TYPE:
@@ -73,17 +75,26 @@ class dir_partition(object):
   @classmethod
   def _partition_info_by_prefix(clazz, files, dst_dir_abs, options):
     resolved_files = clazz._resolve_files(files, options.recursive)
+    for f in resolved_files:
+      clazz._log.log_d(f'resolved_file: {f.root_dir} - {f.filename}')
     basenames = resolved_files.basenames(sort = True)
+    clazz._log.log_d(f'basenames={basenames}')
     prefixes = filename_list.prefixes(basenames)
+    clazz._log.log_d(f'prefixes={prefixes}')
     buckets = clazz._make_prefix_buckets(prefixes, resolved_files.absolute_files(sort = True))
+    clazz._log.log_d(f'buckets={buckets}')
     items = dir_operation_item_list()
     for prefix, filenames in buckets.items():
       num_files = len(filenames)
-      if num_files >= options.threshold:
+      threshold_met = options.threshold == None or num_files >= options.threshold
+      clazz._log.log_d(f'prefix={prefix} num_files={num_files} threshold_met={threshold_met}')
+      if threshold_met:
         for src_filename in filenames:
           dst_filename = path.join(dst_dir_abs, prefix, path.basename(src_filename))
           item = dir_operation_item(src_filename, dst_filename)
           items.append(item)
+    for item in items:
+      clazz._log.log_d(f'item: {item}')
     return clazz._partition_info_result(items, resolved_files)
 
   @classmethod

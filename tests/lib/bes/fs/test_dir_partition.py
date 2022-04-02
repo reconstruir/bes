@@ -81,6 +81,8 @@ class test_dir_partition(unit_test, unit_test_media_files):
                              partition_type = 'prefix',
                              delete_empty_dirs = True)
     dst_after_expected = [
+      'cheese',
+      'cheese/cheese-10.jpg',
       'kiwi',
       'kiwi/kiwi-10.jpg',
       'kiwi/kiwi-20.jpg',
@@ -94,8 +96,6 @@ class test_dir_partition(unit_test, unit_test_media_files):
     ]
     self.assert_filename_list_equal( dst_after_expected, t.dst_files )
     src_after_expected = [
-      'c',
-      'c/cheese-10.jpg',
       'icons',
       'icons/foo.png',
       'readme.md',
@@ -196,7 +196,7 @@ class test_dir_partition(unit_test, unit_test_media_files):
     ]
     self.assert_filename_list_equal( src_after_expected, t.src_files )
 
-  def test_partition_with_one_two_files_to_partition(self):
+  def test_partition_with_two_files_to_partition(self):
     items = [
       temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
       temp_content('file', 'src/b/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
@@ -216,6 +216,49 @@ class test_dir_partition(unit_test, unit_test_media_files):
     ]
     self.assert_filename_list_equal( src_after_expected, t.src_files )
 
+  def test_partition_with_one_file_to_partition(self):
+    items = [
+      temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
+    ]
+    t = self._partition_test(extra_content_items = items,
+                             dst_dir_same_as_src = False,
+                             recursive = True,
+                             partition_type = 'prefix',
+                             delete_empty_dirs = True)
+    dst_after_expected = [
+      'kiwi',
+      'kiwi/kiwi-10.jpg',
+    ]
+    self.assert_filename_list_equal( dst_after_expected, t.dst_files )
+    src_after_expected = [
+    ]
+    self.assert_filename_list_equal( src_after_expected, t.src_files )
+
+  def test_partition_with_threshold(self):
+    items = [
+      temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
+      temp_content('file', 'src/b/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
+      temp_content('file', 'src/c/kiwi-30.jpg', 'kiwi-30.txt', 0o0644),
+    ]
+    t = self._partition_test(extra_content_items = items,
+                             dst_dir_same_as_src = False,
+                             recursive = True,
+                             partition_type = 'prefix',
+                             delete_empty_dirs = True,
+                             threshold = 4)
+    dst_after_expected = [
+    ]
+    self.assert_filename_list_equal( dst_after_expected, t.dst_files )
+    src_after_expected = [
+      'a',
+      'a/kiwi-10.jpg',
+      'b',
+      'b/kiwi-20.jpg',
+      'c',
+      'c/kiwi-30.jpg',
+    ]
+    self.assert_filename_list_equal( src_after_expected, t.src_files )
+    
   def _partition_test(self,
                       extra_content_items = None,
                       dst_dir_same_as_src = False,

@@ -50,7 +50,7 @@ class dir_partition_options(files_cli_options):
     check.check_dir_partition_type(self.partition_type, allow_none = True)
     check.check_dir_partition_criteria(self.partition_criteria, allow_none = True)
     check.check_bool(self.flat)
-    check.check_int(self.threshold)
+    check.check_int(self.threshold, allow_none = True)
     check.check_string(self.dst_dir)
     check.check_bool(self.delete_empty_dirs)
 
