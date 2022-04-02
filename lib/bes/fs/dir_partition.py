@@ -13,6 +13,8 @@ from bes.fs.file_resolver_options import file_resolver_options
 
 from .dir_operation_item import dir_operation_item
 from .dir_operation_item_list import dir_operation_item_list
+from .dir_partition_criteria_media_type import dir_partition_criteria_media_type
+from .dir_partition_criteria_prefix import dir_partition_criteria_prefix
 from .dir_partition_options import dir_partition_options
 from .dir_partition_type import dir_partition_type
 from .file_attributes_metadata import file_attributes_metadata
@@ -58,14 +60,18 @@ class dir_partition(object):
     if options.partition_type == None:
       return items
     elif options.partition_type == dir_partition_type.MEDIA_TYPE:
-      result = clazz._partition_info_by_media_type(files, dst_dir_abs, options)
+      #result = clazz._partition_info_by_media_type(files, dst_dir_abs, options)
+      criteria = dir_partition_criteria_media_type()
+      result = clazz._partition_info_by_criteria(files, dst_dir_abs, criteria, options)
     elif options.partition_type == dir_partition_type.PREFIX:
       result = clazz._partition_info_by_prefix(files, dst_dir_abs, options)
     elif options.partition_type == dir_partition_type.CRITERIA:
-      result = clazz._partition_info_by_criteria(files, dst_dir_abs, options)
+      result = clazz._partition_info_by_criteria(files, dst_dir_abs, options.partition_criteria, options)
     else:
       assert False
     return result
+
+#  dir_partition_criteria_media_type
 
   @classmethod
   def _resolve_files(clazz, files, recursive):
@@ -112,33 +118,32 @@ class dir_partition(object):
     return buckets
 
   @classmethod
-  def _partition_info_by_media_type(clazz, files, dst_dir_abs, options):
-    resolved_files = clazz._resolve_files(files, options.recursive)
-    items = dir_operation_item_list()
-    for f in resolved_files:
-      media_type = file_attributes_metadata.get_media_type(f.filename_abs, fallback = True, cached = True)
-      if media_type != None:
-        dst_filename = path.join(dst_dir_abs, media_type, path.basename(f.filename_abs))
-        item = dir_operation_item(f.filename_abs, dst_filename)
-        items.append(item)
-    return clazz._partition_info_result(items, resolved_files)
-
-  @classmethod
-  def _partition_info_by_criteria(clazz, files, dst_dir_abs, options):
-    criteria = options.partition_criteria
+  def _partition_info_by_criteria(clazz, files, dst_dir_abs, criteria, options):
     if not criteria:
       raise RuntimeError('No partition_criteria given for partition_type "criteria"')
     resolved_files = clazz._resolve_files(files, options.recursive)
     for f in resolved_files:
       clazz._log.log_d(f'resolved_file: {f.root_dir} - {f.filename}')
-    items = dir_operation_item_list()
+
+    classifications = {}
     for f in resolved_files:
       classification = criteria.classify(f.filename_abs)
       if classification != None:
         if not check.is_string(classification):
           raise TypeError(f'Classify should return a string: {criteria}')
+        if not classification in classifications:
+          classifications[classification] = dir_operation_item_list()
         dst_filename = path.join(dst_dir_abs, classification, path.basename(f.filename_abs))
         item = dir_operation_item(f.filename_abs, dst_filename)
-        items.append(item)
+        classifications[classification].append(item)
+
+    items = dir_operation_item_list()
+    for classification, classification_items in classifications.items():
+      num_files = len(classification_items)
+      threshold_met = options.threshold == None or num_files >= options.threshold
+      clazz._log.log_d(f'classification={classification} num_files={num_files} threshold_met={threshold_met}')
+      if threshold_met:
+        items.extend(classification_items)
+    items.sort(key = lambda item: item.src_filename)
     return clazz._partition_info_result(items, resolved_files)
   
