@@ -4,6 +4,7 @@
 from bes.fs.dir_partition import dir_partition
 from bes.fs.dir_partition_options import dir_partition_options
 from bes.fs.dir_partition_criteria_base import dir_partition_criteria_base
+from bes.fs.dir_partition_defaults import dir_partition_defaults
 from bes.fs.file_util import file_util
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
@@ -77,7 +78,8 @@ class test_dir_partition(unit_test, unit_test_media_files):
     t = self._partition_test(extra_content_items = items,
                              dst_dir_same_as_src = False,
                              recursive = True,
-                             partition_type = 'prefix')
+                             partition_type = 'prefix',
+                             delete_empty_dirs = True)
     dst_after_expected = [
       'kiwi',
       'kiwi/kiwi-10.jpg',
@@ -165,7 +167,8 @@ class test_dir_partition(unit_test, unit_test_media_files):
                              dst_dir_same_as_src = False,
                              recursive = True,
                              partition_type = 'criteria',
-                             partition_criteria = _criteria())
+                             partition_criteria = _criteria(),
+                             delete_empty_dirs = True)
     dst_after_expected = [
       '4',
       '4/apple4.txt',
@@ -192,20 +195,52 @@ class test_dir_partition(unit_test, unit_test_media_files):
       'melon/melon1.txt',
     ]
     self.assert_filename_list_equal( src_after_expected, t.src_files )
-    
+
+  def test_partition_with_one_two_files_to_partition(self):
+    items = [
+      temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
+      temp_content('file', 'src/a/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
+      temp_content('file', 'src/b/lemon-10.jpg', 'lemon-10.txt', 0o0644),
+      temp_content('file', 'src/b/lemon-20.jpg', 'lemon-20.txt', 0o0644),
+    ]
+    t = self._partition_test(extra_content_items = items,
+                             dst_dir_same_as_src = False,
+                             recursive = True,
+                             partition_type = 'prefix',
+                             delete_empty_dirs = True)
+    dst_after_expected = [
+      'kiwi',
+      'kiwi/kiwi-10.jpg',
+      'kiwi/kiwi-20.jpg',
+      'lemon',
+      'lemon/lemon-10.jpg',
+      'lemon/lemon-20.jpg',
+    ]
+    self.assert_filename_list_equal( dst_after_expected, t.dst_files )
+    src_after_expected = [
+    ]
+    self.assert_filename_list_equal( src_after_expected, t.src_files )
+
   def _partition_test(self,
                       extra_content_items = None,
                       dst_dir_same_as_src = False,
                       recursive = False,
-                      partition_type = None,
-                      partition_criteria = None):
+                      partition_type = dir_partition_defaults.THRESHOLD,
+                      partition_criteria = None,
+                      pre_test_function = None,
+                      delete_empty_dirs = dir_partition_defaults.DELETE_EMPTY_DIRS,
+                      threshold = dir_partition_defaults.THRESHOLD):
     with dir_operation_tester(extra_content_items = extra_content_items,
                               dst_dir_same_as_src = dst_dir_same_as_src) as test:
       options = dir_partition_options(recursive = recursive,
                                       dup_file_timestamp = 'dup-timestamp',
                                       partition_type = partition_type,
                                       partition_criteria = partition_criteria,
+                                      delete_empty_dirs = delete_empty_dirs,
+                                      threshold = threshold,
                                       dst_dir = test.dst_dir)
+      if pre_test_function:
+        pre_test_function(test)
       test.result = dir_partition.partition(test.src_dir, options = options)
     return test
     

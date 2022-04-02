@@ -37,9 +37,10 @@ class dir_partition(object):
     info = clazz.partition_info(files, options = options)
     info.items.move_files(options.dup_file_timestamp,
                           options.dup_file_count)
-    root_dirs = info.resolved_files.root_dirs()
-    for next_possible_empty_root in root_dirs:
-      file_find.remove_empty_dirs(next_possible_empty_root)
+    if options.delete_empty_dirs:
+      root_dirs = info.resolved_files.root_dirs()
+      for next_possible_empty_root in root_dirs:
+        file_find.remove_empty_dirs(next_possible_empty_root)
       
   _partition_info_result = namedtuple('_partition_items_info', 'items, resolved_files')
   @classmethod

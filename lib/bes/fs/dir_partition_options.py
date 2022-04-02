@@ -26,6 +26,7 @@ class dir_partition_options(files_cli_options):
       'flat': False,
       'threshold': dir_partition_defaults.THRESHOLD,
       'dst_dir': dir_partition_defaults.DST_DIR,
+      'delete_empty_dirs': dir_partition_defaults.DELETE_EMPTY_DIRS,
     })
   
   @classmethod
@@ -37,6 +38,7 @@ class dir_partition_options(files_cli_options):
 #      'partition_criteria': dir_partition_criteria_base,
       'flat': bool,
       'threshold': int,
+      'delete_empty_dirs': bool,
     })
 
   #@abstractmethod
@@ -50,5 +52,6 @@ class dir_partition_options(files_cli_options):
     check.check_bool(self.flat)
     check.check_int(self.threshold)
     check.check_string(self.dst_dir)
+    check.check_bool(self.delete_empty_dirs)
 
 check.register_class(dir_partition_options)

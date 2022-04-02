@@ -25,7 +25,8 @@ class test_dir_partition_cli_args(program_unit_test):
     t = self._partition_test(extra_content_items = items,
                              dst_dir_same_as_src = False,
                              recursive = True,
-                             partition_type = 'prefix')
+                             partition_type = 'prefix',
+                             delete_empty_dirs = True)
     dst_after_expected = [
       'kiwi',
       'kiwi/kiwi-10.jpg',
@@ -62,7 +63,8 @@ class test_dir_partition_cli_args(program_unit_test):
                              dst_dir_same_as_src = False,
                              recursive = True,
                              partition_type = 'prefix',
-                             dry_run = True)
+                             dry_run = True,
+                             delete_empty_dirs = True)
     dst_after_expected = [
     ]
     self.assert_filename_list_equal( dst_after_expected, t.dst_files )
@@ -97,7 +99,8 @@ class test_dir_partition_cli_args(program_unit_test):
                       dst_dir_same_as_src = False,
                       recursive = False,
                       partition_type = None,
-                      dry_run = False):
+                      dry_run = False,
+                      delete_empty_dirs = False):
     with dir_operation_tester(extra_content_items = extra_content_items,
                               dst_dir_same_as_src = dst_dir_same_as_src) as test:
       args = [
@@ -111,6 +114,8 @@ class test_dir_partition_cli_args(program_unit_test):
         args.append('--recursive')
       if dry_run:
         args.append('--dry-run')
+      if delete_empty_dirs:
+        args.append('--delete-empty-dirs')
       test.result = self.run_program(self._program, args)
     return test
 
