@@ -52,7 +52,10 @@ class file_resolver(object):
   def _do_resolve_files(clazz, files, options, file_type):
     'Resolve a mixed list of files and directories into a list of files.'
 
+    clazz._log.log_d(f'_do_resolve_files(files={files} file_type={file_type}')
+    
     found_files, root_dir = clazz._find_files(files, options, file_type)
+    clazz._log.log_d(f'_do_resolve_files: found_files={found_files} root_dir={root_dir}')
     result = file_resolver_item_list()
     for index, filename_abs in enumerate(found_files):
       filename_rel = path.relpath(filename_abs, start = root_dir)
@@ -64,26 +67,33 @@ class file_resolver(object):
       result = result[0 : options.limit]
     return result
 
+  _resolved_item = namedtuple('_resolved_item', 'filename_abs, root_dir')
   @classmethod
   def _find_files(clazz, files, options, file_type):
     'Resolve a mixed list of files and directories into a list of files.'
 
     files = object_util.listify(files)
-    result = []
+    items = []
     for next_file in files:
       filename_abs = file_path.normalize(next_file)
       if not path.exists(filename_abs):
         raise IOError('File or directory not found: "{}"'.format(filename_abs))
       if path.isfile(filename_abs):
-        result.append(filename_abs)
+        item = clazz._resolved_item(filename_abs, path.dirname(filename_abs))
+        items.append(item)
       elif path.isdir(filename_abs):
         next_entries = clazz._find_files_in_dir(filename_abs, options, 0, file_type)
-        result.extend(next_entries)
-    if len(files) == 1:
-      root_dir = files[0]
+        for next_entry in next_entries:
+          item = clazz._resolved_item(next_entry, next_file)
+          items.append(item)
+    found_files = [ item.filename_abs for item in items ]
+    if len(found_files) == 1:
+      root_dir = items[0].root_dir
+      clazz._log.log_d(f'_find_files: one file: root_dir={root_dir}')
     else:
-      root_dir = file_path.common_ancestor(result)
-    return result, root_dir
+      root_dir = file_path.common_ancestor([ item.filename_abs for item in items ])
+      clazz._log.log_d(f'_find_files: many files: root_dir={root_dir}')
+    return found_files, root_dir
   
   @classmethod
   def _sort_result(clazz, result, order, reverse):
