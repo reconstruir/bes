@@ -4,6 +4,7 @@ from collections import namedtuple
 import os
 import os.path as path
 
+from bes.common.char_util import char_util
 from bes.common.check import check
 from bes.system.host import host
 
@@ -112,3 +113,20 @@ class filename_util(object):
     result = result.replace('\\', sep)
     return result
   
+  @classmethod
+  def prefix(clazz, filename):
+    'Return the prefix before punctuation.  foo-10.txt => foo.'
+
+    for i, c in enumerate(filename):
+      if c.isdigit():
+        return clazz._rstrip_punctiation(filename[0:i])
+    return None
+
+  @classmethod
+  def _rstrip_punctiation(clazz, filename):
+    for count, c in enumerate(reversed(filename)):
+      if not char_util.is_punctuation(c):
+        break
+    if count == 0:
+      return filename
+    return filename[0 : -count]

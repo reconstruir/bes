@@ -140,6 +140,32 @@ class test_dir_partition(unit_test, unit_test_media_files):
     ]
     self.assert_filename_list_equal( src_after_expected, t.src_files )
 
+  def test_partition_with_media_type_and_threshold(self):
+    items = [
+      temp_content('file', 'src/apple.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/kiwi.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/barolo.mp4', unit_test_media.MP4_SMALLEST_POSSIBLE, 0o0644),
+      temp_content('file', 'src/yogurt.foo', unit_test_media.UNKNOWN, 0o0644),
+      temp_content('file', 'src/zabaglione.foo', unit_test_media.UNKNOWN, 0o0644),
+    ]
+    t = self._partition_test(extra_content_items = items,
+                             dst_dir_same_as_src = False,
+                             recursive = False,
+                             partition_type = 'media_type',
+                             threshold = 2)
+    dst_after_expected = [
+      'image',
+      'image/apple.jpg',
+      'image/kiwi.jpg',
+    ]
+    self.assert_filename_list_equal( dst_after_expected, t.dst_files )
+    src_after_expected = [
+      'barolo.mp4',
+      'yogurt.foo',
+      'zabaglione.foo',
+    ]
+    self.assert_filename_list_equal( src_after_expected, t.src_files )
+    
   def test_partition_with_criteria(self):
     items = [
       temp_content('file', 'src/kiwi/kiwi4.txt', '1234', 0o0644),
