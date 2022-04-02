@@ -199,9 +199,7 @@ class test_dir_partition(unit_test, unit_test_media_files):
   def test_partition_with_one_two_files_to_partition(self):
     items = [
       temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
-      temp_content('file', 'src/a/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-10.jpg', 'lemon-10.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-20.jpg', 'lemon-20.txt', 0o0644),
+      temp_content('file', 'src/b/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
     ]
     t = self._partition_test(extra_content_items = items,
                              dst_dir_same_as_src = False,
@@ -212,9 +210,6 @@ class test_dir_partition(unit_test, unit_test_media_files):
       'kiwi',
       'kiwi/kiwi-10.jpg',
       'kiwi/kiwi-20.jpg',
-      'lemon',
-      'lemon/lemon-10.jpg',
-      'lemon/lemon-20.jpg',
     ]
     self.assert_filename_list_equal( dst_after_expected, t.dst_files )
     src_after_expected = [
