@@ -3,9 +3,6 @@
 from collections import namedtuple
 import os.path as path
 
-from bes.common.algorithm import algorithm
-from bes.common.object_util import object_util
-from bes.common.string_util import string_util
 from bes.system.check import check
 from bes.system.log import logger
 from bes.fs.file_resolver import file_resolver
@@ -17,7 +14,6 @@ from .dir_partition_criteria_media_type import dir_partition_criteria_media_type
 from .dir_partition_criteria_prefix import dir_partition_criteria_prefix
 from .dir_partition_options import dir_partition_options
 from .dir_partition_type import dir_partition_type
-from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
 from .file_find import file_find
 from .file_path import file_path
@@ -60,62 +56,23 @@ class dir_partition(object):
     if options.partition_type == None:
       return items
     elif options.partition_type == dir_partition_type.MEDIA_TYPE:
-      #result = clazz._partition_info_by_media_type(files, dst_dir_abs, options)
       criteria = dir_partition_criteria_media_type()
       result = clazz._partition_info_by_criteria(files, dst_dir_abs, criteria, options)
     elif options.partition_type == dir_partition_type.PREFIX:
-      result = clazz._partition_info_by_prefix(files, dst_dir_abs, options)
+      criteria = dir_partition_criteria_prefix()
+      result = clazz._partition_info_by_criteria(files, dst_dir_abs, criteria, options)
     elif options.partition_type == dir_partition_type.CRITERIA:
       result = clazz._partition_info_by_criteria(files, dst_dir_abs, options.partition_criteria, options)
     else:
       assert False
     return result
-
-#  dir_partition_criteria_media_type
-
+  
   @classmethod
   def _resolve_files(clazz, files, recursive):
     resolver_options = file_resolver_options(sort_order = 'depth',
                                              sort_reverse = True,
                                              recursive = recursive)
     return file_resolver.resolve_files(files, options = resolver_options)
-  
-  @classmethod
-  def _partition_info_by_prefix(clazz, files, dst_dir_abs, options):
-    resolved_files = clazz._resolve_files(files, options.recursive)
-    for f in resolved_files:
-      clazz._log.log_d(f'resolved_file: {f.root_dir} - {f.filename}')
-    basenames = resolved_files.basenames(sort = True)
-    clazz._log.log_d(f'basenames={basenames}')
-    prefixes = filename_list.prefixes(basenames)
-    clazz._log.log_d(f'prefixes={prefixes}')
-    buckets = clazz._make_prefix_buckets(prefixes, resolved_files.absolute_files(sort = True))
-    clazz._log.log_d(f'buckets={buckets}')
-    items = dir_operation_item_list()
-    for prefix, filenames in buckets.items():
-      num_files = len(filenames)
-      threshold_met = options.threshold == None or num_files >= options.threshold
-      clazz._log.log_d(f'prefix={prefix} num_files={num_files} threshold_met={threshold_met}')
-      if threshold_met:
-        for src_filename in filenames:
-          dst_filename = path.join(dst_dir_abs, prefix, path.basename(src_filename))
-          item = dir_operation_item(src_filename, dst_filename)
-          items.append(item)
-    for item in items:
-      clazz._log.log_d(f'item: {item}')
-    return clazz._partition_info_result(items, resolved_files)
-
-  @classmethod
-  def _make_prefix_buckets(clazz, prefixes, files):
-    buckets = {}
-    for f in files:
-      basename = path.basename(f)
-      for prefix in prefixes:
-        if basename.startswith(prefix):
-          if not prefix in buckets:
-            buckets[prefix] = []
-          buckets[prefix].append(f)
-    return buckets
 
   @classmethod
   def _partition_info_by_criteria(clazz, files, dst_dir_abs, criteria, options):
@@ -146,4 +103,3 @@ class dir_partition(object):
         items.extend(classification_items)
     items.sort(key = lambda item: item.src_filename)
     return clazz._partition_info_result(items, resolved_files)
-  
