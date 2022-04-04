@@ -57,10 +57,14 @@ class file_resolver(object):
     found_files, root_dir = clazz._find_files(files, options, file_type)
     clazz._log.log_d(f'_do_resolve_files: found_files={found_files} root_dir={root_dir}')
     result = file_resolver_item_list()
-    for index, filename_abs in enumerate(found_files):
+    index = 0
+    for filename_abs in found_files:
       filename_rel = path.relpath(filename_abs, start = root_dir)
-      item = file_resolver_item(root_dir, filename_rel, filename_abs, index, index)
-      result.append(item)
+      if not options.should_ignore_file(filename_abs):
+        item = file_resolver_item(root_dir, filename_rel, filename_abs, index, index)
+        result.append(item)
+        index = index + 1
+
     if options.sort_order:
       result = clazz._sort_result(result, options.sort_order, options.sort_reverse)
     if options.limit:

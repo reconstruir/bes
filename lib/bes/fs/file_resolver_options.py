@@ -3,10 +3,11 @@
 from bes.cli.cli_options import cli_options
 from bes.common.check import check
 from bes.common.time_util import time_util
+from bes.fs.file_ignore_options_mixin import file_ignore_options_mixin
 
 from .file_sort_order import file_sort_order
 
-class file_resolver_options(cli_options):
+class file_resolver_options(cli_options, file_ignore_options_mixin):
 
   def __init__(self, **kargs):
     super(file_resolver_options, self).__init__(**kargs)
@@ -24,7 +25,8 @@ class file_resolver_options(cli_options):
       'match_type': None,
       'match_basename': True,
       'match_function': None,
-      'match_re': None
+      'match_re': None,
+      'ignore_files': None,
     }
 
   @classmethod
@@ -47,6 +49,7 @@ class file_resolver_options(cli_options):
       #'match_basename': True,
       #'match_function': None,
       #'match_re': list,
+      'ignore_files': list,
     }
 
   @classmethod
@@ -81,5 +84,6 @@ class file_resolver_options(cli_options):
     check.check_bool(self.match_basename)
     check.check_function(self.match_function, allow_none = True)
     check.check_string_seq(self.match_re, allow_none = True)
+    check.check_string_seq(self.ignore_files, allow_none = True)
     
 check.register_class(file_resolver_options)
