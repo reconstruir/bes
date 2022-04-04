@@ -9,6 +9,7 @@ from bes.common.time_util import time_util
 
 from .dir_operation_item import dir_operation_item
 from .file_util import file_util
+from .filename_util import filename_util
 
 class dir_operation_item_list(type_checked_list):
 
@@ -20,12 +21,14 @@ class dir_operation_item_list(type_checked_list):
   def move_files(self, timestamp, count):
     check.check_string(timestamp, allow_none = True)
     check.check_int(count, allow_none = True)
-    
+
     result = []
     resolved_items = self.resolve_for_move(timestamp, count)
     for item in resolved_items:
       need_move = False
       if path.exists(item.dst_filename):
+        assert file_util.files_are_the_same(item.src_filename,
+                                            item.dst_filename)
         need_move = file_util.files_are_the_same(item.src_filename,
                                                  item.dst_filename)
       else:
@@ -39,7 +42,11 @@ class dir_operation_item_list(type_checked_list):
   def _make_resolved_filename(clazz, filename, timestamp, count):
     basename = path.basename(filename)
     dirname = path.dirname(filename)
-    return path.join(dirname, f'{timestamp}-{count}-{basename}')
+    basename_no_ext = filename_util.without_extension(basename)
+    ext = filename_util.extension(basename)
+    new_basename_no_ext = f'{basename_no_ext}-{timestamp}-{count}'
+    new_basename = filename_util.add_extension(new_basename_no_ext, ext)
+    return path.join(dirname, new_basename)
 
   def resolve_for_move(self, timestamp, count):
     check.check_string(timestamp, allow_none = True)
@@ -53,7 +60,7 @@ class dir_operation_item_list(type_checked_list):
       if not item.dst_dirname in main_map:
         main_map[item.dst_dirname] = {}
       dir_map = main_map[item.dst_dirname]
-      if item.dst_basename in dir_map:
+      if item.dst_basename in dir_map or (item.dst_exists() and not item.src_and_dst_are_the_same()):
         new_dst_filename = self._make_resolved_filename(item.dst_filename, timestamp, count)
         count += 1
         new_item = item.clone(mutations = { 'dst_filename': new_dst_filename })
@@ -66,5 +73,5 @@ class dir_operation_item_list(type_checked_list):
         result.append(item)
     result.sort(key = lambda item: item.dst_filename)
     return result
-        
+                                          
 check.register_class(dir_operation_item_list, include_seq = False)
