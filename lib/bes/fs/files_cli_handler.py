@@ -125,6 +125,10 @@ class files_cli_handler(cli_command_handler):
     src_dir = file_check.check_dir(src_dir)
     dst_dir = file_check.check_dir(dst_dir)
 
+    if src_dir == dst_dir:
+      print(f'src_dir and dst_dir cannot be the same.')
+      return 1
+    
     resolved_files = file_resolver.resolve_files([ src_dir ], options = self.options.file_resolver_options)
 
     items = dir_operation_item_list()
