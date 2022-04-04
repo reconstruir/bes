@@ -5,6 +5,7 @@ from os import path
 from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.common.type_checked_list import type_checked_list
+from bes.common.time_util import time_util
 
 from .dir_operation_item import dir_operation_item
 from .file_util import file_util
@@ -17,6 +18,9 @@ class dir_operation_item_list(type_checked_list):
     super(dir_operation_item_list, self).__init__(values = values)
 
   def move_files(self, timestamp, count):
+    check.check_string(timestamp, allow_none = True)
+    check.check_int(count, allow_none = True)
+    
     result = []
     resolved_items = self.resolve_for_move(timestamp, count)
     for item in resolved_items:
@@ -38,6 +42,12 @@ class dir_operation_item_list(type_checked_list):
     return path.join(dirname, f'{timestamp}-{count}-{basename}')
 
   def resolve_for_move(self, timestamp, count):
+    check.check_string(timestamp, allow_none = True)
+    check.check_int(count, allow_none = True)
+
+    timestamp = timestamp or time_util.timestamp()
+    count = count or 1
+    
     main_map = {}
     for item in self:
       if not item.dst_dirname in main_map:

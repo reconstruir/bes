@@ -70,6 +70,14 @@ class files_cli_args(object):
                    help = 'The output filename [ None ]')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to concatenate [ None ]')
+
+    # move
+    p = subparser.add_parser('move', help = 'Move files from one dir hierarchy to another without clobbering dup filenames.')
+    self.__files_cli_add_add_common_args(p)
+    p.add_argument('src_dir', action = 'store', default = None,
+                   help = 'The src directory [ None ]')
+    p.add_argument('dst_dir', action = 'store', default = None,
+                   help = 'The dst directory [ None ]')
     
   @classmethod
   def __files_cli_add_add_common_args(clazz, p):
@@ -79,6 +87,12 @@ class files_cli_args(object):
                    help = 'Find files recursively [ False ]')
     p.add_argument('--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
+    p.add_argument('--ignore', action = 'append', dest = 'ignore_files', default = [],
+                   help = 'Ignore file.')
+    p.add_argument('--dup-file-timestamp', action = 'store', default = None,
+                   help = 'Timestamp for resolving duplicate files [ None ]')
+    p.add_argument('--dup-file-count', action = 'store', default = None, type = int,
+                   help = 'Count to begin at for resolving duplicate files [ 1 ]')
     
   def _command_files(self, command, *args, **kargs):
     from .files_cli_handler import files_cli_handler

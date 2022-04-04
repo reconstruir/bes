@@ -6,6 +6,7 @@ from collections import namedtuple
 from bes.common.check import check
 from bes.common.tuple_util import tuple_util
 from bes.property.cached_property import cached_property
+from bes.common.time_util import time_util
 
 from .file_path import file_path
 from .file_util import file_util
