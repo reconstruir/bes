@@ -30,6 +30,8 @@ class file_split_cli_args(object):
                    help = 'Ignore these extenstions when appened to the split files.')
     p.add_argument('--unzip', action = 'store_true', default = False,
                    help = 'If the unsplit file is an archive, then unzip it [ False ]')
+    p.add_argument('--ignore-incomplete', action = 'store_true', default = False,
+                   help = 'Ignore incomplete sets instead of raising errors [ False ]')
     
   def _command_file_split(self, command, *args, **kargs):
     from .file_split_cli_handler import file_split_cli_handler
