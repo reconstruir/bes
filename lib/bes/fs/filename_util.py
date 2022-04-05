@@ -58,8 +58,10 @@ class filename_util(object):
   def add_extension(clazz, filename, extension):
     'Return the filename with extension.'
     check.check_string(filename)
-    check.check_string(extension)
+    check.check_string(extension, allow_none = True)
 
+    if not extension:
+      return filename
     return filename + path.extsep + extension
   
   _split_filename = namedtuple('_split_filename', 'root, extension')
