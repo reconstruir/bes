@@ -2,6 +2,8 @@
 
 from os import path
 
+from collections import OrderedDict
+
 from bes.common.algorithm import algorithm
 from bes.common.check import check
 from bes.common.type_checked_list import type_checked_list
@@ -57,6 +59,14 @@ class file_resolver_item_list(type_checked_list):
       result[item.basename].append(item)
     return result
 
+  def root_dir_map(self):
+    result = OrderedDict()
+    for item in self:
+      if not item.root_dir in result:
+        result[item.root_dir] = file_resolver_item_list()
+      result[item.root_dir].append(item)
+    return result
+  
   def filename_abs_map(self):
     result = {}
     for item in self:
