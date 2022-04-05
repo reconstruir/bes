@@ -18,9 +18,6 @@ class dir_combine_cli_args(object):
                    help = 'Timestamp for resolving duplicate files [ None ]')
     p.add_argument('--dup-file-count', action = 'store', default = 1, type = int,
                    help = 'Count to begin at for resolving duplicate files [ 1 ]')
-#    p.add_argument('--type', action = 'store', default = 'prefix',
-#                   dest = 'combine_type',
-#                   help = 'Combine type to use [ None ]')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to combine [ None ]')
     
