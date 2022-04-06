@@ -24,7 +24,7 @@ from .dir_util import dir_util
 from .filename_list import filename_list
 
 class dir_combine(object):
-  'A class to partition directories'
+  'A class to combine directories'
 
   _log = logger('dir_combine')
 
@@ -63,7 +63,11 @@ class dir_combine(object):
     items = dir_operation_item_list()
     for resolved_file in resolved_files:
       src_filename = resolved_file.filename_abs
-      dst_filename = path.join(destination_dir_abs, path.basename(src_filename))
+      if options.flatten:
+        src_basename = path.basename(src_filename)
+      else:
+        src_basename = resolved_file.filename
+      dst_filename = path.join(destination_dir_abs, src_basename)
       item = dir_operation_item(src_filename, dst_filename)
       items.append(item)
     return clazz._combine_info_result(items, resolved_files)

@@ -23,6 +23,12 @@ class dir_combine_cli_args(object):
                    help = f'Count to begin at for resolving duplicate files [ {dir_combine_defaults.DUP_FILE_COUNT} ]')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to combine [ None ]')
+    p.add_argument('--delete-empty-dirs', action = 'store_true',
+                   default = dir_combine_defaults.DELETE_EMPTY_DIRS,
+                   help = f'Delete empty directories after combining [ {dir_combine_defaults.DELETE_EMPTY_DIRS} ]')
+    p.add_argument('--flatten', action = 'store_true',
+                   default = dir_combine_defaults.FLATTEN,
+                   help = f'Flatten directory hierachies [ {dir_combine_defaults.FLATTEN} ]')
     
   @classmethod
   def __dir_combine_cli_add_add_common_args(clazz, p):

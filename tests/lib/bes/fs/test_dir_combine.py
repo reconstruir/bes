@@ -7,6 +7,7 @@ from bes.fs.dir_combine import dir_combine
 from bes.fs.dir_combine_options import dir_combine_options
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
+from bes.fs.dir_combine_defaults import dir_combine_defaults
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
@@ -25,7 +26,10 @@ class test_dir_combine(unit_test, unit_test_media_files):
       'file src/c/barolo-10.jpg    "barolo-10.txt"  644',
       'file src/c/chablis-10.jpg   "chablis-10.txt"  644',
       'file src/d/steak-10.jpg     "steak-10.txt"  644',
-    ], recursive = True, files = [ 'a', 'b', 'c', 'd' ])
+    ],
+                           recursive = True,
+                           files = [ 'a', 'b', 'c', 'd' ],
+                           flatten = True)
     expected = [
       'a',
       'a/barolo-10.jpg',
@@ -59,7 +63,7 @@ class test_dir_combine(unit_test, unit_test_media_files):
     t = self._combine_test(extra_content_items = items,
                            dst_dir_same_as_src = False,
                            recursive = False,
-                           partition_type = 'prefix')
+                           flatten = True)
     dst_after_expected = [
       'kiwi-40.jpg',
       'kiwi-50.jpg',
@@ -76,7 +80,7 @@ class test_dir_combine(unit_test, unit_test_media_files):
     t = self._combine_test(extra_content_items = items,
                            dst_dir_same_as_src = False,
                            recursive = False,
-                           partition_type = 'prefix')
+                           flatten = True)
     self.assert_filename_list_equal( [], t.src_files )
     
   def test_combine(self):
@@ -98,8 +102,8 @@ class test_dir_combine(unit_test, unit_test_media_files):
     t = self._combine_test(extra_content_items = items,
                            dst_dir_same_as_src = False,
                            recursive = False,
-                           partition_type = 'prefix',
-                           files = [ 'a', 'b' ])
+                           files = [ 'a', 'b' ],
+                           flatten = True)
     dst_after_expected = [
       'a',
       'a/kiwi-10.jpg',
@@ -124,11 +128,13 @@ class test_dir_combine(unit_test, unit_test_media_files):
                     extra_content_items = None,
                     dst_dir_same_as_src = False,
                     recursive = False,
-                    partition_type = None,
-                    files = None):
+                    files = None,
+                    flatten = dir_combine_defaults.FLATTEN,
+                    delete_empty_dirs = dir_combine_defaults.DELETE_EMPTY_DIRS):
     options = dir_combine_options(recursive = recursive,
                                   dup_file_timestamp = 'dup-timestamp',
-                                  partition_type = partition_type)
+                                  flatten = flatten,
+                                  delete_empty_dirs = delete_empty_dirs)
     with dir_operation_tester(extra_content_items = extra_content_items) as test:
       if files:
         files = [ path.join(test.src_dir, f) for f in files ]

@@ -6,6 +6,7 @@ from os import path
 from bes.testing.program_unit_test import program_unit_test
 from bes.fs.testing.temp_content import temp_content
 from bes.fs.testing.temp_content import multiplied_temp_content
+from bes.fs.dir_combine_defaults import dir_combine_defaults
 
 from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
@@ -24,7 +25,7 @@ class test_dir_combine_cli_args(program_unit_test):
       'file src/c/barolo-10.jpg    "barolo-10.txt"  644',
       'file src/c/chablis-10.jpg   "chablis-10.txt"  644',
       'file src/d/steak-10.jpg     "steak-10.txt"  644',
-    ], recursive = True, files = [ 'a', 'b', 'c', 'd' ])
+    ], recursive = True, files = [ 'a', 'b', 'c', 'd' ], flatten = True)
     expected = [
       'a',
       'a/barolo-10.jpg',
@@ -51,7 +52,7 @@ class test_dir_combine_cli_args(program_unit_test):
       'file src/c/barolo-10.jpg    "barolo-10.txt"    644',
       'file src/c/kiwi-30.jpg      "kiwi-30-dup2.txt" 644',
       'file src/d/steak-10.jpg     "steak-10.txt"     644',
-    ], recursive = True, files = [ 'a', 'b', 'c', 'd' ])
+    ], recursive = True, files = [ 'a', 'b', 'c', 'd' ], flatten = True)
     expected = [
       'a',
       'a/barolo-10.jpg',
@@ -79,7 +80,7 @@ class test_dir_combine_cli_args(program_unit_test):
       'file src/lemon-40.jpg       "lemon-40.txt"  644',
       'dir  src/a/empty2           ""              700',
       'dir  src/foo/bar/baz/empty3 "lemon-40.txt"  700',
-    ], recursive = True)
+    ], recursive = True, flatten = True)
     expected = [
       'a',
       'b',
@@ -101,7 +102,7 @@ class test_dir_combine_cli_args(program_unit_test):
       'file src/lemon-40.jpg       "lemon-40.txt"  644',
       'dir  src/a/empty2           ""              700',
       'dir  src/foo/bar/baz/empty3 "lemon-40.txt"  700',
-    ], recursive = True, dry_run = True)
+    ], recursive = True, dry_run = True, flatten = True)
     expected = [
       'a',
       'a/empty2',
@@ -122,7 +123,13 @@ DRY_RUN: would remove {t.src_dir}/empty1
 DRY_RUN: would remove {t.src_dir}/foo/bar/baz/empty3
 ''', t.result.output )
     
-  def _test(self, items, files = [], recursive = False, dry_run = False):
+  def _test(self,
+            items,
+            files = [],
+            recursive = False,
+            dry_run = False,
+            flatten = dir_combine_defaults.FLATTEN,
+            delete_empty_dirs = dir_combine_defaults.DELETE_EMPTY_DIRS):
     with dir_operation_tester(extra_content_items = items) as test:
       if files:
         files_args = [ path.join(test.src_dir, f) for f in files ]
@@ -138,6 +145,10 @@ DRY_RUN: would remove {t.src_dir}/foo/bar/baz/empty3
         args.append('--recursive')
       if dry_run:
         args.append('--dry-run')
+      if flatten:
+        args.append('--flatten')
+      if delete_empty_dirs:
+        args.append('--delete-empty-dirs')
       test.result = self.run_program(self._program, args)
     return test
 

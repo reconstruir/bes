@@ -21,6 +21,7 @@ class dir_combine_options(files_cli_options):
       'destination_dir': None,
       'ignore_empty': dir_combine_defaults.IGNORE_EMPTY,
       'flatten': dir_combine_defaults.FLATTEN,
+      'delete_empty_dirs': dir_combine_defaults.DELETE_EMPTY_DIRS,
     })
   
   @classmethod
@@ -30,6 +31,7 @@ class dir_combine_options(files_cli_options):
       'dup_file_count': int,
       'ignore_empty': bool,
       'flatten': bool,
+      'delete_empty_dirs': bool,
     })
 
   #@abstractmethod
@@ -41,5 +43,6 @@ class dir_combine_options(files_cli_options):
     check.check_string(self.destination_dir, allow_none = True)
     check.check_bool(self.ignore_empty)
     check.check_bool(self.flatten)
+    check.check_bool(self.delete_empty_dirs)
 
 check.register_class(dir_combine_options)
