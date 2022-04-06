@@ -20,7 +20,7 @@ class file_duplicates_cli_handler(cli_command_handler):
     self.options.sort_key = file_duplicates_options.sort_key
   
   def dups(self, files, delete, keep_empty_dirs):
-    check.check_string_seq(files)
+    files = file_check.check_file_or_dir_seq(files)
     check.check_bool(delete)
     check.check_bool(keep_empty_dirs)
 
@@ -53,6 +53,7 @@ class file_duplicates_cli_handler(cli_command_handler):
           deleted_dirs = []
           for d in possible_empty_dir_roots:
             next_deleted_dirs = file_find.remove_empty_dirs(d)
+            #print(f'next_deleted_dirs={next_deleted_dirs}')
             deleted_dirs.extend(next_deleted_dirs)
           if self.options.verbose:
             for d in deleted_dirs:

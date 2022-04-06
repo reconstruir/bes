@@ -12,6 +12,7 @@ from bes.fs.file_ignore_options_mixin import file_ignore_options_mixin
 from .file_duplicates_setup import file_duplicates_setup
 from .file_util import file_util
 from .files_cli_options import files_cli_options
+from .file_duplicates_defaults import file_duplicates_defaults
 
 class file_duplicates_options(files_cli_options, file_ignore_options_mixin):
 
@@ -24,12 +25,13 @@ class file_duplicates_options(files_cli_options, file_ignore_options_mixin):
     'Return a dict of defaults for these options.'
     return clazz.super_default_values({
       'blurber': blurber(),
-      'small_checksum_size': 1024 * 1024,
+      'small_checksum_size': file_duplicates_defaults.SMALL_CHECKSUM_SIZE,
       'prefer_prefixes': None,
       'sort_key': None,
-      'include_empty_files': False,
+      'include_empty_files': file_duplicates_defaults.INCLUDE_EMPTY_FILES,
       'ignore_files': [],
       'preparation': None,
+      'delete_empty_dirs': file_duplicates_defaults.DELETE_EMPTY_DIRS,
     })
   
   @classmethod
@@ -42,6 +44,7 @@ class file_duplicates_options(files_cli_options, file_ignore_options_mixin):
       'ignore_files': list,
       'preparation': file_duplicates_setup,
       #'sort_key': callable,
+      'delete_empty_dirs': bool,
     })
 
   #@abstractmethod
@@ -55,6 +58,7 @@ class file_duplicates_options(files_cli_options, file_ignore_options_mixin):
     check.check_blurber(self.blurber)
     check.check_string_seq(self.ignore_files)
     check.check_file_duplicates_setup(self.preparation, allow_none = True)
+    check.check_bool(self.delete_empty_dirs)
 
   @staticmethod
   def sort_key_modification_date(filename):

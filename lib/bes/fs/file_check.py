@@ -64,6 +64,16 @@ class file_check(object):
     if not (path.isfile(ford) or path.isdir(ford)):
       raise exception_class(f'Not a file or directory: {ford}')
     return path.abspath(ford)
+
+  @classmethod
+  def check_file_or_dir_seq(clazz, fords, exception_class = None):
+    check.check_string_seq(fords)
+    check.check_class(exception_class, allow_none = True)
+
+    result = []
+    for f in fords:
+      result.append(clazz.check_file_or_dir(f, exception_class = exception_class))
+    return result
   
   @classmethod
   def _check_symlink(clazz, filename, exception_class, allow_none):
