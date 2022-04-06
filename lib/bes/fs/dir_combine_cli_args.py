@@ -7,17 +7,20 @@ class dir_combine_cli_args(object):
   
   def dir_combine_add_args(self, subparser):
     # combine
+    from .dir_combine_defaults import dir_combine_defaults
     p = subparser.add_parser('combine', help = 'Combine dirs and/or files into a single destination dir.')
     self.__dir_combine_cli_add_add_common_args(p)
     p.add_argument('--dest-dir', action = 'store', default = None,
                    dest = 'destination_dir', help = 'Destination directory [ None ]')
-    p.add_argument('--ignore-empty', action = 'store_true', default = False,
-                   help = 'Ignore empty or non-existent directories [ None ]')
-    from bes.common.time_util import time_util
-    p.add_argument('--dup-file-timestamp', action = 'store', default = time_util.timestamp(),
-                   help = 'Timestamp for resolving duplicate files [ None ]')
-    p.add_argument('--dup-file-count', action = 'store', default = 1, type = int,
-                   help = 'Count to begin at for resolving duplicate files [ 1 ]')
+    p.add_argument('--ignore-empty', action = 'store_true',
+                   default = dir_combine_defaults.IGNORE_EMPTY,
+                   help = f'Ignore empty or non-existent directories [ {dir_combine_defaults.IGNORE_EMPTY} ]')
+    p.add_argument('--dup-file-timestamp', action = 'store',
+                   default = dir_combine_defaults.DUP_FILE_TIMESTAMP,
+                   help = f'Timestamp for resolving duplicate files [ {dir_combine_defaults.DUP_FILE_TIMESTAMP} ]')
+    p.add_argument('--dup-file-count', action = 'store', type = int,
+                   default = dir_combine_defaults.DUP_FILE_COUNT,
+                   help = f'Count to begin at for resolving duplicate files [ {dir_combine_defaults.DUP_FILE_COUNT} ]')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to combine [ None ]')
     

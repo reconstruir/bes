@@ -1,10 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.cli.cli_options import cli_options
-from bes.common.check import check
-from bes.common.time_util import time_util
+from ..cli.cli_options import cli_options
+from ..common.check import check
 
 from .files_cli_options import files_cli_options
+from .dir_combine_defaults import dir_combine_defaults
 
 class dir_combine_options(files_cli_options):
 
@@ -16,10 +16,11 @@ class dir_combine_options(files_cli_options):
   def default_values(clazz):
     'Return a dict of defaults for these options.'
     return clazz.super_default_values({
-      'dup_file_timestamp': time_util.timestamp(),
-      'dup_file_count': 1,
+      'dup_file_timestamp': dir_combine_defaults.DUP_FILE_TIMESTAMP,
+      'dup_file_count': dir_combine_defaults.DUP_FILE_COUNT,
       'destination_dir': None,
-      'ignore_empty': False,
+      'ignore_empty': dir_combine_defaults.IGNORE_EMPTY,
+      'flatten': dir_combine_defaults.FLATTEN,
     })
   
   @classmethod
@@ -28,6 +29,7 @@ class dir_combine_options(files_cli_options):
     return clazz.super_value_type_hints({
       'dup_file_count': int,
       'ignore_empty': bool,
+      'flatten': bool,
     })
 
   #@abstractmethod
@@ -38,5 +40,6 @@ class dir_combine_options(files_cli_options):
     check.check_int(self.dup_file_count)
     check.check_string(self.destination_dir, allow_none = True)
     check.check_bool(self.ignore_empty)
+    check.check_bool(self.flatten)
 
 check.register_class(dir_combine_options)
