@@ -14,7 +14,7 @@ from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
 class test_dir_combine(unit_test, unit_test_media_files):
 
-  def test_combine_recursive(self):
+  def test_combine_recursive_with_flatten(self):
     items = [
       'file src/a/kiwi-30.txt      "kiwi-30.txt"    644',
       'file src/a/lemon-30.txt     "lemon-30.txt"   644',
@@ -26,7 +26,7 @@ class test_dir_combine(unit_test, unit_test_media_files):
       'file src/c/chablis-10.txt   "chablis-10.txt"  644',
       'file src/d/steak-10.txt     "steak-10.txt"  644',
     ]
-    t = self._combine_test(items,
+    t = self._combine_test(extra_content_items = items,
                            recursive = True,
                            files = [ 'a', 'b', 'c', 'd' ],
                            flatten = True)
@@ -43,7 +43,8 @@ class test_dir_combine(unit_test, unit_test_media_files):
       'a/steak-10.txt',
     ]
     self.assert_filename_list_equal( expected, t.src_files )
-  
+
+    
   def test_combine(self):
     items = [
       'file src/readme.md "readme.md" 0644',
