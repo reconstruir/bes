@@ -4,8 +4,6 @@
 from os import path
 
 from bes.testing.program_unit_test import program_unit_test
-from bes.fs.testing.temp_content import temp_content
-from bes.fs.testing.temp_content import multiplied_temp_content
 from bes.fs.dir_combine_defaults import dir_combine_defaults
 
 from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
