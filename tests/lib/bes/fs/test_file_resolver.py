@@ -242,6 +242,38 @@ class test_file_resolve(unit_test):
       'file subdir/kiwi.txt "this is kiwi.txt" 644',
     ], [ '${tmp_dir}' ], recursive = True)
     self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
+
+  def test_resolve_files_with_ignore_files(self):
+    tmp_ignore_content1 = '''
+.config
+'''
+    tmp_ignore_file1 = self.make_temp_file(content = tmp_ignore_content1)
+    tmp_ignore_content2 = '''
+*.foo
+'''
+    tmp_ignore_file2 = self.make_temp_file(content = tmp_ignore_content2)
+    expected = '''\
+    ${tmp_dir} a/lemon.txt ${tmp_dir}/a/lemon.txt 0 0
+    ${tmp_dir} b/kiwi.txt ${tmp_dir}/b/kiwi.txt 1 1
+    ${tmp_dir} cheese.txt ${tmp_dir}/cheese.txt 2 2
+    ${tmp_dir} subdir/apple.txt ${tmp_dir}/subdir/apple.txt 3 3
+    ${tmp_dir} subdir/orange.txt ${tmp_dir}/subdir/orange.txt 4 4
+    '''
+    actual = self._test_resolve_files([
+      'file .config "this is .config" 644',
+      'file cheese.txt "this is cheese.txt" 644',
+      'file a/.config "this is a/.config" 644',
+      'file a/lemon.txt "this is lemon.txt" 644',
+      'file b/.config "this is b/.config" 644',
+      'file b/kiwi.txt "this is kiwi.txt" 644',
+      'file b/cotton.foo "this is cotton.foo" 644',
+      'file b/leather.foo "this is leather.foo" 644',
+      'file subdir/.config "this is subdir/.config" 644',
+      'file subdir/gasoline.foo "this is gasoline.foo" 644',
+      'file subdir/orange.txt "this is orange.txt" 644',
+      'file subdir/apple.txt "this is apple.txt" 644',
+    ], [ '${tmp_dir}' ], recursive = True, ignore_files = [ tmp_ignore_file1, tmp_ignore_file2 ] )
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
     
   def _test_resolve_files(self,
                           items,
@@ -254,19 +286,21 @@ class test_file_resolve(unit_test):
                           match_type = None,
                           match_basename = True,
                           match_function = None,
-                          match_re = None):
+                          match_re = None,
+                          ignore_files = None):
     return self._test_resolve(file_resolver.resolve_files,
-                               items,
-                               files,
-                               recursive = recursive,
-                               limit = limit,
-                               sort_order = sort_order,
-                               sort_reverse = sort_reverse,
-                               match_patterns = match_patterns,
-                               match_type = match_type,
-                               match_basename = match_basename,
-                               match_function = match_function,
-                               match_re = match_re)
+                              items,
+                              files,
+                              recursive = recursive,
+                              limit = limit,
+                              sort_order = sort_order,
+                              sort_reverse = sort_reverse,
+                              match_patterns = match_patterns,
+                              match_type = match_type,
+                              match_basename = match_basename,
+                              match_function = match_function,
+                              match_re = match_re,
+                              ignore_files = ignore_files)
 
   def _test_resolve_dirs(self,
                          items,
@@ -291,7 +325,8 @@ class test_file_resolve(unit_test):
                               match_type = match_type,
                               match_basename = match_basename,
                               match_function = match_function,
-                              match_re = match_re)
+                              match_re = match_re,
+                              ignore_files = None)
   
   def _test_resolve(self,
                     func,
@@ -305,7 +340,8 @@ class test_file_resolve(unit_test):
                     match_type = None,
                     match_basename = True,
                     match_function = None,
-                    match_re = None):
+                    match_re = None,
+                    ignore_files = None):
     tmp_dir = self.make_temp_dir()
     temp_content.write_items(items, tmp_dir)
     files = [ f.replace('${tmp_dir}', tmp_dir) for f in files ]
@@ -317,7 +353,8 @@ class test_file_resolve(unit_test):
                                     match_type = match_type,
                                     match_basename = match_basename,
                                     match_function = match_function,
-                                    match_re = match_re)
+                                    match_re = match_re,
+                                    ignore_files = ignore_files)
     result = func(files, options = options)
     return '\n'.join([ self._fix_one_resolved_file(f, tmp_dir) for f in result ])
   

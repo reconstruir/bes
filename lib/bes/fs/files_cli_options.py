@@ -1,12 +1,15 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from .file_resolver_options import file_resolver_options
 from bes.cli.cli_options import cli_options
 from bes.common.check import check
 from bes.common.time_util import time_util
+from bes.fs.file_ignore_options_mixin import file_ignore_options_mixin
+from bes.property.cached_property import cached_property
 
 from .file_sort_order import file_sort_order
 
-class files_cli_options(cli_options):
+class files_cli_options(cli_options, file_ignore_options_mixin):
 
   def __init__(self, **kargs):
     super(files_cli_options, self).__init__(**kargs)
@@ -21,6 +24,9 @@ class files_cli_options(cli_options):
       'quiet': False,
       'recursive': False,
       'verbose': False,
+      'ignore_files': [],
+      'dup_file_timestamp': time_util.timestamp(),
+      'dup_file_count': 1,
     }
   
   @classmethod
@@ -38,6 +44,8 @@ class files_cli_options(cli_options):
       'quiet': bool,
       'recursive': bool,
       'verbose': bool,
+      'ignore_files': list,
+      'dup_file_count': int,
     }
 
   @classmethod
@@ -68,5 +76,13 @@ class files_cli_options(cli_options):
     check.check_bool(self.quiet)
     check.check_bool(self.recursive)
     check.check_bool(self.verbose)
+    check.check_string_seq(self.ignore_files)
+    check.check_string(self.dup_file_timestamp, allow_none = True)
+    check.check_int(self.dup_file_count, allow_none = True)
 
+  @cached_property
+  def file_resolver_options(self):
+    return file_resolver_options(recursive = self.recursive,
+                                 ignore_files = self.ignore_files)
+    
 check.register_class(files_cli_options)

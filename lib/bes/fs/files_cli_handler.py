@@ -6,15 +6,18 @@ from os import path
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.algorithm import algorithm
 from bes.common.check import check
+from bes.common.time_util import time_util
 from bes.debug.hexdump import hexdump
 from bes.version.semantic_version import semantic_version
 
+from .dir_operation_item import dir_operation_item
+from .dir_operation_item_list import dir_operation_item_list
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
+from .file_find import file_find
 from .file_mime import file_mime
 from .file_path import file_path
 from .file_resolver import file_resolver
-from .file_resolver_options import file_resolver_options
 from .file_split import file_split
 from .file_util import file_util
 from .filename_list import filename_list
@@ -26,12 +29,11 @@ class files_cli_handler(cli_command_handler):
   def __init__(self, cli_args):
     super(files_cli_handler, self).__init__(cli_args, options_class = files_cli_options)
     check.check_files_cli_options(self.options)
-    self._resolver_options = file_resolver_options(recursive = self.options.recursive)
   
   def checksums(self, files, algorithm):
     check.check_string_seq(files)
 
-    files = file_resolver.resolve_files(files, options = self._resolver_options)
+    files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
     for f in files:
       checksum = file_util.checksum(algorithm, f.filename_abs)
       print('{}: {}'.format(f.filename_abs, checksum))
@@ -40,7 +42,7 @@ class files_cli_handler(cli_command_handler):
   def media_types(self, files):
     check.check_string_seq(files)
 
-    files = file_resolver.resolve_files(files, options = self._resolver_options)
+    files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
     for f in files:
       media_type = file_mime.media_type(f.filename_abs)
       print('{}: {}'.format(media_type, f.filename_abs))
@@ -49,7 +51,7 @@ class files_cli_handler(cli_command_handler):
   def mime_types(self, files):
     check.check_string_seq(files)
 
-    files = file_resolver.resolve_files(files, options = self._resolver_options)
+    files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
     for f in files:
       #mime_type = file_mime.mime_type(f.filename_abs)
       mime_type = file_attributes_metadata.get_mime_type(f.filename_abs)
@@ -69,7 +71,7 @@ class files_cli_handler(cli_command_handler):
 
     levels = algorithm.unique(levels)
     
-    files = file_resolver.resolve_files(files, options = self._resolver_options)
+    files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
     for f in files:
       access = file_path.access(f.filename_abs)
       print('{}: {}'.format(f.filename_abs, access))
@@ -78,7 +80,7 @@ class files_cli_handler(cli_command_handler):
   def resolve(self, files):
     check.check_string_seq(files)
 
-    files = file_resolver.resolve_files(files, options = self._resolver_options)
+    files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
     for f in files:
       print(f'{f.filename_abs}')
     return 0
@@ -86,7 +88,7 @@ class files_cli_handler(cli_command_handler):
   def prefixes(self, files):
     check.check_string_seq(files)
 
-    files = file_resolver.resolve_files(files, options = self._resolver_options)
+    files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
     prefixes = filename_list.prefixes([ f.filename_abs for f in files ])
     for prefix in sorted(list(prefixes)):
       print(prefix)
@@ -95,7 +97,7 @@ class files_cli_handler(cli_command_handler):
   def dup_basenames(self, files):
     check.check_string_seq(files)
 
-    resolved_files = file_resolver.resolve_files(files, options = self._resolver_options)
+    resolved_files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
     dmap = resolved_files.duplicate_basename_map()
     for basename, dup_files in sorted(resolved_files.duplicate_basename_map().items()):
       print(f'{basename}:')
@@ -108,7 +110,7 @@ class files_cli_handler(cli_command_handler):
     check.check_bool(sort)
     check.check_string(output_filename, allow_none = True)
 
-    resolved_files = file_resolver.resolve_files(files, options = self._resolver_options)
+    resolved_files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
     files = resolved_files.absolute_files(sort = False)
     assert files
     if sort:
@@ -119,6 +121,37 @@ class files_cli_handler(cli_command_handler):
       file_util.remove(f)
     return 0
 
+  def move(self, src_dir, dst_dir):
+    src_dir = file_check.check_dir(src_dir)
+    dst_dir = file_check.check_dir(dst_dir)
+
+    if src_dir == dst_dir:
+      print(f'src_dir and dst_dir cannot be the same.')
+      return 1
+    
+    resolved_files = file_resolver.resolve_files([ src_dir ], options = self.options.file_resolver_options)
+
+    items = dir_operation_item_list()
+    for resolved_file in resolved_files:
+      src_filename = resolved_file.filename_abs
+      dst_filename = path.join(dst_dir, resolved_file.filename)
+      item = dir_operation_item(src_filename, dst_filename)
+      items.append(item)
+
+    if self.options.dry_run:
+      resolved_items = items.resolve_for_move(self.options.dup_file_timestamp,
+                                              self.options.dup_file_count)
+      for i, item in enumerate(resolved_items, start = 1):
+        print(f'DRY_RUN: {item.src_filename} => {item.dst_filename}')
+      return 0
+
+    items.move_files(self.options.dup_file_timestamp,
+                     self.options.dup_file_count)
+
+    file_find.remove_empty_dirs(src_dir)
+    
+    return 0
+  
   @classmethod
   def _make_output_filename(clazz, files):
     prefix = files.common_prefix()

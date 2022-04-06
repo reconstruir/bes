@@ -116,7 +116,11 @@ class file_split(object):
           options.blurber.blurb(f'Still downloading: {f}')
         return None
     if not clazz._files_group_is_complete(files_group):
-      raise file_split_error('Incomplete group:\n  {}'.format('\n  '.join(files_group)))
+      if options.ignore_incomplete:
+        print('Ignoring incomplete group:\n  {}'.format('\n  '.join(files_group)))
+        return None
+      else:
+        raise file_split_error('Incomplete group:\n  {}'.format('\n  '.join(files_group)))
     
     target_filename = filename_util.without_extension(first_filename)
     return clazz._split_item(target_filename, files_group)

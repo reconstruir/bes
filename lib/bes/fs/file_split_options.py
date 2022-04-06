@@ -27,6 +27,7 @@ class file_split_options(files_cli_options):
       'existing_file_timestamp': datetime.now(),
       'ignore_extensions': None,
       'unzip': False,
+      'ignore_incomplete': False,
     })
   
   @classmethod
@@ -39,6 +40,7 @@ class file_split_options(files_cli_options):
       'unzip': bool,
 #      'ignore_extensions': set,
 #      'existing_file_timestamp': datetime,
+      'ignore_incomplete': bool,
     })
 
   #@abstractmethod
@@ -53,5 +55,6 @@ class file_split_options(files_cli_options):
     check.check(self.existing_file_timestamp, datetime, allow_none = True)
     check.check_string_seq(self.ignore_extensions, allow_none = True)
     check.check_bool(self.unzip)
+    check.check_bool(self.ignore_incomplete)
 
 check.register_class(file_split_options)

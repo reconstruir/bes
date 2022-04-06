@@ -1,10 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os
-
-class dir_partition_defaults:
+class file_duplicates_defaults:
 
   DELETE_EMPTY_DIRS = False
-  DST_DIR = os.getcwd()
-  PARTITION_TYPE = 'prefix'
-  THRESHOLD = None
+  INCLUDE_EMPTY_FILES = False
+  SMALL_CHECKSUM_SIZE = 1024 * 1024

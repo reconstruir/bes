@@ -53,6 +53,11 @@ class test_filename_util(unit_test):
     self.assertEqual( None, filename_util.prefix('foo-.txt') )
     self.assertEqual( 'foo', filename_util.prefix('foo-42.txt') )
     self.assertEqual( None, filename_util.prefix('') )
+
+  def test_add_extension(self):
+    self.assertEqual( 'foo.txt', filename_util.add_extension('foo', 'txt') )
+    self.assertEqual( 'foo', filename_util.add_extension('foo', '') )
+    self.assertEqual( 'foo', filename_util.add_extension('foo', None) )
     
 if __name__ == '__main__':
   unit_test.main()

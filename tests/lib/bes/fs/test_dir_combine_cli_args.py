@@ -4,8 +4,7 @@
 from os import path
 
 from bes.testing.program_unit_test import program_unit_test
-from bes.fs.testing.temp_content import temp_content
-from bes.fs.testing.temp_content import multiplied_temp_content
+from bes.fs.dir_combine_defaults import dir_combine_defaults
 
 from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
@@ -15,54 +14,54 @@ class test_dir_combine_cli_args(program_unit_test):
 
   def test_combine_recursive(self):
     t = self._test([
-      'file src/a/kiwi-30.jpg      "kiwi-30.txt"    644',
-      'file src/a/lemon-30.jpg     "lemon-30.txt"   644',
-      'file src/a/grape-30.jpg     "grape-30.txt"   644',
-      'file src/b/brie-30.jpg      "brie-30.txt"    644',
-      'file src/b/cheddar-30.jpg   "cheddar-30.txt" 644',
-      'file src/b/gouda-30.jpg     "gouda-30.txt"   644',
-      'file src/c/barolo-10.jpg    "barolo-10.txt"  644',
-      'file src/c/chablis-10.jpg   "chablis-10.txt"  644',
-      'file src/d/steak-10.jpg     "steak-10.txt"  644',
-    ], recursive = True, files = [ 'a', 'b', 'c', 'd' ])
+      'file src/a/kiwi-30.txt      "kiwi-30.txt"    644',
+      'file src/a/lemon-30.txt     "lemon-30.txt"   644',
+      'file src/a/grape-30.txt     "grape-30.txt"   644',
+      'file src/b/brie-30.txt      "brie-30.txt"    644',
+      'file src/b/cheddar-30.txt   "cheddar-30.txt" 644',
+      'file src/b/gouda-30.txt     "gouda-30.txt"   644',
+      'file src/c/barolo-10.txt    "barolo-10.txt"  644',
+      'file src/c/chablis-10.txt   "chablis-10.txt"  644',
+      'file src/d/steak-10.txt     "steak-10.txt"  644',
+    ], recursive = True, files = [ 'a', 'b', 'c', 'd' ], flatten = True)
     expected = [
       'a',
-      'a/barolo-10.jpg',
-      'a/brie-30.jpg',
-      'a/chablis-10.jpg',
-      'a/cheddar-30.jpg',
-      'a/gouda-30.jpg',
-      'a/grape-30.jpg',
-      'a/kiwi-30.jpg',
-      'a/lemon-30.jpg',
-      'a/steak-10.jpg',
+      'a/barolo-10.txt',
+      'a/brie-30.txt',
+      'a/chablis-10.txt',
+      'a/cheddar-30.txt',
+      'a/gouda-30.txt',
+      'a/grape-30.txt',
+      'a/kiwi-30.txt',
+      'a/lemon-30.txt',
+      'a/steak-10.txt',
     ]
     self.assertEqual( 0, t.result.exit_code )
     self.assert_filename_list_equal( expected, t.src_files )
 
   def test_combine_recursive_with_conflicts(self):
     t = self._test([
-      'file src/a/kiwi-30.jpg      "kiwi-30.txt"      644',
-      'file src/a/lemon-30.jpg     "lemon-30.txt"     644',
-      'file src/a/grape-30.jpg     "grape-30.txt"     644',
-      'file src/b/brie-30.jpg      "brie-30.txt"      644',
-      'file src/b/kiwi-30.jpg      "kiwi-30-dup1.txt" 644',
-      'file src/b/gouda-30.jpg     "gouda-30.txt"     644',
-      'file src/c/barolo-10.jpg    "barolo-10.txt"    644',
-      'file src/c/kiwi-30.jpg      "kiwi-30-dup2.txt" 644',
-      'file src/d/steak-10.jpg     "steak-10.txt"     644',
-    ], recursive = True, files = [ 'a', 'b', 'c', 'd' ])
+      'file src/a/kiwi-30.txt      "kiwi-30.txt"      644',
+      'file src/a/lemon-30.txt     "lemon-30.txt"     644',
+      'file src/a/grape-30.txt     "grape-30.txt"     644',
+      'file src/b/brie-30.txt      "brie-30.txt"      644',
+      'file src/b/kiwi-30.txt      "kiwi-30-dup1.txt" 644',
+      'file src/b/gouda-30.txt     "gouda-30.txt"     644',
+      'file src/c/barolo-10.txt    "barolo-10.txt"    644',
+      'file src/c/kiwi-30.txt      "kiwi-30-dup2.txt" 644',
+      'file src/d/steak-10.txt     "steak-10.txt"     644',
+    ], recursive = True, files = [ 'a', 'b', 'c', 'd' ], flatten = True)
     expected = [
       'a',
-      'a/barolo-10.jpg',
-      'a/brie-30.jpg',
-      'a/dup-timestamp-42-kiwi-30.jpg',
-      'a/dup-timestamp-43-kiwi-30.jpg',
-      'a/gouda-30.jpg',
-      'a/grape-30.jpg',
-      'a/kiwi-30.jpg',
-      'a/lemon-30.jpg',
-      'a/steak-10.jpg',
+      'a/barolo-10.txt',
+      'a/brie-30.txt',
+      'a/gouda-30.txt',
+      'a/grape-30.txt',
+      'a/kiwi-30-dup-timestamp-42.txt',
+      'a/kiwi-30-dup-timestamp-43.txt',
+      'a/kiwi-30.txt',
+      'a/lemon-30.txt',
+      'a/steak-10.txt',
     ]
     self.assertEqual( 0, t.result.exit_code )
     self.assert_filename_list_equal( expected, t.src_files )
@@ -71,15 +70,15 @@ class test_dir_combine_cli_args(program_unit_test):
     t = self._test([
       'dir  src/empty1             ""              700',
       'file src/readme.md          "readme.md"     644',
-      'file src/a/kiwi-30.jpg      "kiwi-30.txt"   644',
+      'file src/a/kiwi-30.txt      "kiwi-30.txt"   644',
       'dir  src/a/empty2           ""              700',
-      'file src/b/lemon-10.jpg     "lemon-10.txt"  644',
-      'file src/c/cheese-10.jpg    "cheese-10.jpg" 644',
-      'file src/icons/foo.png      "foo.png"       644',
-      'file src/lemon-40.jpg       "lemon-40.txt"  644',
+      'file src/b/lemon-10.txt     "lemon-10.txt"  644',
+      'file src/c/cheese-10.txt    "cheese-10.txt" 644',
+      'file src/icons/foo.note     "foo.note"       644',
+      'file src/lemon-40.txt       "lemon-40.txt"  644',
       'dir  src/a/empty2           ""              700',
       'dir  src/foo/bar/baz/empty3 "lemon-40.txt"  700',
-    ], recursive = True)
+    ], recursive = True, flatten = True)
     expected = [
       'a',
       'b',
@@ -93,15 +92,15 @@ class test_dir_combine_cli_args(program_unit_test):
     t = self._test([
       'dir  src/empty1             ""              700',
       'file src/readme.md          "readme.md"     644',
-      'file src/a/kiwi-30.jpg      "kiwi-30.txt"   644',
+      'file src/a/kiwi-30.txt      "kiwi-30.txt"   644',
       'dir  src/a/empty2           ""              700',
-      'file src/b/lemon-10.jpg     "lemon-10.txt"  644',
-      'file src/c/cheese-10.jpg    "cheese-10.jpg" 644',
-      'file src/icons/foo.png      "foo.png"       644',
-      'file src/lemon-40.jpg       "lemon-40.txt"  644',
+      'file src/b/lemon-10.txt     "lemon-10.txt"  644',
+      'file src/c/cheese-10.txt    "cheese-10.txt" 644',
+      'file src/icons/foo.note     "foo.note"       644',
+      'file src/lemon-40.txt       "lemon-40.txt"  644',
       'dir  src/a/empty2           ""              700',
       'dir  src/foo/bar/baz/empty3 "lemon-40.txt"  700',
-    ], recursive = True, dry_run = True)
+    ], recursive = True, dry_run = True, flatten = True)
     expected = [
       'a',
       'a/empty2',
@@ -122,7 +121,13 @@ DRY_RUN: would remove {t.src_dir}/empty1
 DRY_RUN: would remove {t.src_dir}/foo/bar/baz/empty3
 ''', t.result.output )
     
-  def _test(self, items, files = [], recursive = False, dry_run = False):
+  def _test(self,
+            items,
+            files = [],
+            recursive = False,
+            dry_run = False,
+            flatten = dir_combine_defaults.FLATTEN,
+            delete_empty_dirs = dir_combine_defaults.DELETE_EMPTY_DIRS):
     with dir_operation_tester(extra_content_items = items) as test:
       if files:
         files_args = [ path.join(test.src_dir, f) for f in files ]
@@ -138,6 +143,10 @@ DRY_RUN: would remove {t.src_dir}/foo/bar/baz/empty3
         args.append('--recursive')
       if dry_run:
         args.append('--dry-run')
+      if flatten:
+        args.append('--flatten')
+      if delete_empty_dirs:
+        args.append('--delete-empty-dirs')
       test.result = self.run_program(self._program, args)
     return test
 

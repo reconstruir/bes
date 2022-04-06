@@ -378,8 +378,8 @@ class test_dir_split(unit_test, unit_test_media_files):
     t = self._split_test([], 1, 3, extra_content_items = extra_content_items, recursive = True)
     expected = [
       'chunk-1',
-      'chunk-1/dup-timestamp-1-foo.txt',
-      'chunk-1/dup-timestamp-2-foo.txt',
+      'chunk-1/foo-dup-timestamp-1.txt',
+      'chunk-1/foo-dup-timestamp-2.txt',
       'chunk-1/foo.txt',
     ]
     self.assert_filename_list_equal( expected, t.dst_files )
