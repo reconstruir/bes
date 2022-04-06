@@ -15,7 +15,7 @@ from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 class test_dir_combine(unit_test, unit_test_media_files):
 
   def test_combine_recursive(self):
-    t = self._combine_test([
+    items = [
       'file src/a/kiwi-30.txt      "kiwi-30.txt"    644',
       'file src/a/lemon-30.txt     "lemon-30.txt"   644',
       'file src/a/grape-30.txt     "grape-30.txt"   644',
@@ -25,7 +25,8 @@ class test_dir_combine(unit_test, unit_test_media_files):
       'file src/c/barolo-10.txt    "barolo-10.txt"  644',
       'file src/c/chablis-10.txt   "chablis-10.txt"  644',
       'file src/d/steak-10.txt     "steak-10.txt"  644',
-    ],
+    ]
+    t = self._combine_test(items,
                            recursive = True,
                            files = [ 'a', 'b', 'c', 'd' ],
                            flatten = True)
