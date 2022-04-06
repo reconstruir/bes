@@ -2,7 +2,7 @@
 
 import os
 
-class dir_partition_defaults(object):
+class dir_partition_defaults:
 
   DELETE_EMPTY_DIRS = False
   DST_DIR = os.getcwd()
