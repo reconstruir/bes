@@ -86,6 +86,10 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
       return None
     return parts[-1]
 
+  @cached_property
+  def path_parts(self):
+    return self.path.split('/')
+  
   def remove_query(self):
     r = self.clone(mutations = { 'query': '' })
     return self.clone(mutations = { 'query': '' })
