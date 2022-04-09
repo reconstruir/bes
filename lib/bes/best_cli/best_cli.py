@@ -16,27 +16,27 @@ class best_cli(cli):
     
   from bes.system.host import host
 
-  _command_groups = []
+  COMMAND_GROUPS = []
 
   if host.is_macos():
     from .best_cli_macos import MACOS_COMMAND_GROUPS
-    _command_groups.extend(MACOS_COMMAND_GROUPS)
+    COMMAND_GROUPS.extend(MACOS_COMMAND_GROUPS)
 
   if host.is_unix():
     from .best_cli_unix import UNIX_COMMAND_GROUPS
-    _command_groups.extend(UNIX_COMMAND_GROUPS)
+    COMMAND_GROUPS.extend(UNIX_COMMAND_GROUPS)
     
   if host.is_windows():
     from .best_cli_windows import WINDOWS_COMMAND_GROUPS
-    _command_groups.extend(WINDOWS_COMMAND_GROUPS)
+    COMMAND_GROUPS.extend(WINDOWS_COMMAND_GROUPS)
     
   from .best_cli_common import COMMON_COMMAND_GROUPS
-  _command_groups.extend(COMMON_COMMAND_GROUPS)
+  COMMAND_GROUPS.extend(COMMON_COMMAND_GROUPS)
   
   #@abstractmethod
   def command_group_list(self):
     'Return a list of command groups for this cli.'
-    return self._command_groups
+    return self.COMMAND_GROUPS
 
   from bes.cli.cli_env_cli_args import cli_env_cli_args
   from bes.cli.cli_version_cli_args import cli_version_cli_args
