@@ -23,7 +23,7 @@ class dir_partition_options(files_cli_options):
       'dup_file_count': 1,
       'partition_type': dir_partition_defaults.PARTITION_TYPE,
       'partition_criteria': None,
-      'flat': False,
+      'flatten': dir_partition_defaults.FLATTEN,
       'threshold': dir_partition_defaults.THRESHOLD,
       'dst_dir': dir_partition_defaults.DST_DIR,
       'delete_empty_dirs': dir_partition_defaults.DELETE_EMPTY_DIRS,
@@ -35,8 +35,7 @@ class dir_partition_options(files_cli_options):
     return clazz.super_value_type_hints({
       'dup_file_count': int,
       'partition_type': dir_partition_type,
-#      'partition_criteria': dir_partition_criteria_base,
-      'flat': bool,
+      'flatten': bool,
       'threshold': int,
       'delete_empty_dirs': bool,
     })
@@ -49,7 +48,7 @@ class dir_partition_options(files_cli_options):
     check.check_int(self.dup_file_count)
     check.check_dir_partition_type(self.partition_type, allow_none = True)
     check.check_dir_partition_criteria(self.partition_criteria, allow_none = True)
-    check.check_bool(self.flat)
+    check.check_bool(self.flatten)
     check.check_int(self.threshold, allow_none = True)
     check.check_string(self.dst_dir)
     check.check_bool(self.delete_empty_dirs)

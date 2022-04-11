@@ -6,5 +6,6 @@ class dir_partition_defaults:
 
   DELETE_EMPTY_DIRS = False
   DST_DIR = os.getcwd()
+  FLATTEN = False
   PARTITION_TYPE = 'prefix'
   THRESHOLD = None

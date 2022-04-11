@@ -208,5 +208,4 @@ add file_attributes_metadata tests to cover write permissions and ownership
  - file dups (and maybe other ops) unit tests where a resolved file is removed
 
 2022-04-01
- - dir_partition_options.flat is unused
- 
+ - dir_partition_options.flatten is unused
