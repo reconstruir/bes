@@ -64,7 +64,7 @@ class dir_partition(object):
     elif options.partition_type == dir_partition_type.CRITERIA:
       result = clazz._partition_info_by_criteria(files, dst_dir_abs, options.partition_criteria, options)
     else:
-      assert False
+      raise RuntimeError(f'Unkown partition type: {options.partition_type}')
     return result
   
   @classmethod
@@ -90,7 +90,10 @@ class dir_partition(object):
           raise TypeError(f'Classify should return a string: {criteria}')
         if not classification in classifications:
           classifications[classification] = dir_operation_item_list()
-        dst_filename = path.join(dst_dir_abs, classification, path.basename(f.filename_abs))
+        if options.flatten:
+          dst_filename = path.join(dst_dir_abs, classification, path.basename(f.filename_abs))
+        else:
+          assert False
         item = dir_operation_item(f.filename_abs, dst_filename)
         classifications[classification].append(item)
 

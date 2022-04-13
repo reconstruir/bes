@@ -24,6 +24,9 @@ class dir_partition_cli_args(object):
                    help = 'Threshold of files needed to partition a directory [ 2 ]')
     p.add_argument('--delete-empty-dirs', action = 'store_true', default = False,
                    help = 'Delete empty directories after partitioning [ False ]')
+    p.add_argument('--flatten', action = 'store_true',
+                   default = dir_partition_defaults.FLATTEN,
+                   help = f'Flatten directory hierachies [ {dir_partition_defaults.FLATTEN} ]')
     
   @classmethod
   def __dir_partition_cli_add_add_common_args(clazz, p):

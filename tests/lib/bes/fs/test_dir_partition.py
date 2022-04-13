@@ -34,7 +34,8 @@ class test_dir_partition(unit_test, unit_test_media_files):
     t = self._partition_test(extra_content_items = items,
                              dst_dir_same_as_src = False,
                              recursive = False,
-                             partition_type = 'prefix')
+                             partition_type = 'prefix',
+                             flatten = True)
     dst_after_expected = [
       'kiwi',
       'kiwi/kiwi-40.jpg',
@@ -79,7 +80,8 @@ class test_dir_partition(unit_test, unit_test_media_files):
                              dst_dir_same_as_src = False,
                              recursive = True,
                              partition_type = 'prefix',
-                             delete_empty_dirs = True)
+                             delete_empty_dirs = True,
+                             flatten = True)
     dst_after_expected = [
       'cheese',
       'cheese/cheese-10.jpg',
@@ -119,7 +121,8 @@ class test_dir_partition(unit_test, unit_test_media_files):
     t = self._partition_test(extra_content_items = items,
                              dst_dir_same_as_src = False,
                              recursive = False,
-                             partition_type = 'media_type')
+                             partition_type = 'media_type',
+                             flatten = True)
     dst_after_expected = [
       'image',
       'image/apple.jpg',
@@ -152,7 +155,8 @@ class test_dir_partition(unit_test, unit_test_media_files):
                              dst_dir_same_as_src = False,
                              recursive = False,
                              partition_type = 'media_type',
-                             threshold = 2)
+                             threshold = 2,
+                             flatten = True)
     dst_after_expected = [
       'image',
       'image/apple.jpg',
@@ -194,7 +198,8 @@ class test_dir_partition(unit_test, unit_test_media_files):
                              recursive = True,
                              partition_type = 'criteria',
                              partition_criteria = _criteria(),
-                             delete_empty_dirs = True)
+                             delete_empty_dirs = True,
+                             flatten = True)
     dst_after_expected = [
       '4',
       '4/apple4.txt',
@@ -231,7 +236,8 @@ class test_dir_partition(unit_test, unit_test_media_files):
                              dst_dir_same_as_src = False,
                              recursive = True,
                              partition_type = 'prefix',
-                             delete_empty_dirs = True)
+                             delete_empty_dirs = True,
+                             flatten = True)
     dst_after_expected = [
       'kiwi',
       'kiwi/kiwi-10.jpg',
@@ -250,7 +256,8 @@ class test_dir_partition(unit_test, unit_test_media_files):
                              dst_dir_same_as_src = False,
                              recursive = True,
                              partition_type = 'prefix',
-                             delete_empty_dirs = True)
+                             delete_empty_dirs = True,
+                             flatten = True)
     dst_after_expected = [
       'kiwi',
       'kiwi/kiwi-10.jpg',
@@ -271,7 +278,8 @@ class test_dir_partition(unit_test, unit_test_media_files):
                              recursive = True,
                              partition_type = 'prefix',
                              delete_empty_dirs = True,
-                             threshold = 4)
+                             threshold = 4,
+                             flatten = True)
     dst_after_expected = [
     ]
     self.assert_filename_list_equal( dst_after_expected, t.dst_files )
@@ -289,11 +297,12 @@ class test_dir_partition(unit_test, unit_test_media_files):
                       extra_content_items = None,
                       dst_dir_same_as_src = False,
                       recursive = False,
-                      partition_type = dir_partition_defaults.THRESHOLD,
+                      partition_type = dir_partition_defaults.PARTITION_TYPE,
                       partition_criteria = None,
                       pre_test_function = None,
                       delete_empty_dirs = dir_partition_defaults.DELETE_EMPTY_DIRS,
-                      threshold = dir_partition_defaults.THRESHOLD):
+                      threshold = dir_partition_defaults.THRESHOLD,
+                      flatten = dir_partition_defaults.FLATTEN):
     with dir_operation_tester(extra_content_items = extra_content_items,
                               dst_dir_same_as_src = dst_dir_same_as_src) as test:
       options = dir_partition_options(recursive = recursive,
@@ -302,6 +311,7 @@ class test_dir_partition(unit_test, unit_test_media_files):
                                       partition_criteria = partition_criteria,
                                       delete_empty_dirs = delete_empty_dirs,
                                       threshold = threshold,
+                                      flatten = flatten,
                                       dst_dir = test.dst_dir)
       if pre_test_function:
         pre_test_function(test)

@@ -3,6 +3,7 @@
 
 from bes.testing.program_unit_test import program_unit_test
 from bes.fs.testing.temp_content import temp_content
+from bes.fs.dir_partition_defaults import dir_partition_defaults
 
 from _bes_unit_test_common.dir_operation_tester import dir_operation_tester
 
@@ -26,7 +27,8 @@ class test_dir_partition_cli_args(program_unit_test):
                              dst_dir_same_as_src = False,
                              recursive = True,
                              partition_type = 'prefix',
-                             delete_empty_dirs = True)
+                             delete_empty_dirs = True,
+                             flatten = True)
     dst_after_expected = [
       'cheese',
       'cheese/cheese-10.jpg',
@@ -64,7 +66,8 @@ class test_dir_partition_cli_args(program_unit_test):
                              recursive = True,
                              partition_type = 'prefix',
                              dry_run = True,
-                             delete_empty_dirs = True)
+                             delete_empty_dirs = True,
+                             flatten = True)
     dst_after_expected = [
     ]
     self.assert_filename_list_equal( dst_after_expected, t.dst_files )
@@ -99,9 +102,11 @@ class test_dir_partition_cli_args(program_unit_test):
                       extra_content_items = None,
                       dst_dir_same_as_src = False,
                       recursive = False,
-                      partition_type = None,
+                      partition_type = dir_partition_defaults.PARTITION_TYPE,
                       dry_run = False,
-                      delete_empty_dirs = False):
+                      delete_empty_dirs = dir_partition_defaults.DELETE_EMPTY_DIRS,
+                      threshold = dir_partition_defaults.THRESHOLD,
+                      flatten = dir_partition_defaults.FLATTEN):
     with dir_operation_tester(extra_content_items = extra_content_items,
                               dst_dir_same_as_src = dst_dir_same_as_src) as test:
       args = [
@@ -117,6 +122,10 @@ class test_dir_partition_cli_args(program_unit_test):
         args.append('--dry-run')
       if delete_empty_dirs:
         args.append('--delete-empty-dirs')
+      if threshold:
+        args.extend([ '--threshold', str(threshold) ])
+      if flatten:
+        args.append('--flatten')
       test.result = self.run_program(self._program, args)
     return test
 
