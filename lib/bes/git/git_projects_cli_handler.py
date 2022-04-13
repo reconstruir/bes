@@ -55,5 +55,5 @@ class git_projects_cli_handler(cli_command_handler):
 
       print('%s:' % (' '.join(blurb)))
       for item in status.change_status:
-        print('  %3s %s' % (item.action, item.filename))
+        print('  %3s %s' % (item.action.value, item.filename))
       print('')
