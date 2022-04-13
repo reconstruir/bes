@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.text.text_table import text_table
 
 from bes.fs.dir_util import dir_util

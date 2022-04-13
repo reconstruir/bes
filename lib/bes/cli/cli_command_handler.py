@@ -4,7 +4,7 @@ import copy
 import inspect
 
 from bes.cli.argparser_handler import argparser_handler
-from bes.common.check import check
+from ..system.check import check
 from bes.common.inspect_util import inspect_util
 
 from .cli_missing_command_error import cli_missing_command_error
@@ -15,7 +15,7 @@ class cli_command_handler(object):
   def __init__(self, cli_args, options_class = None, delegate = None):
     check.check_dict(cli_args)
     check.check_class(options_class, allow_none = True)
-    check.check_function(delegate, allow_none = True)
+    check.check_callable(delegate, allow_none = True)
 
     if delegate:
       self._check_delegate(delegate)

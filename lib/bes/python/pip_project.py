@@ -7,7 +7,7 @@ import os
 from os import path
 import pprint
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
 from bes.common.hash_util import hash_util
 from bes.fs.dir_util import dir_util

@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.system.log import logger
 

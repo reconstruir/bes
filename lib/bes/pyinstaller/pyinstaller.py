@@ -2,7 +2,7 @@
 
 import sys
 
-from bes.common.check import check
+from ..system.check import check
 from bes.system.log import logger
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 

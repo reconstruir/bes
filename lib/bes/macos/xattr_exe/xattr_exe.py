@@ -3,7 +3,7 @@
 import codecs
 import shlex
 
-from bes.common.check import check
+from bes.system.check import check
 from bes.common.string_util import string_util
 from bes.debug.hexdump import hexdump
 from bes.fs.file_check import file_check

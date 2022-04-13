@@ -3,7 +3,7 @@
 from collections import namedtuple
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.common.tuple_util import tuple_util
 from bes.common.type_checked_list import type_checked_list

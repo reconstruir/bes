@@ -3,7 +3,7 @@
 
 import csv, json
 
-from .check import check
+from ..system.check import check
 from .size import size
 from .string_util import string_util
 from bes.compat.StringIO import StringIO

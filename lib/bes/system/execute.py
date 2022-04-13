@@ -9,7 +9,7 @@ import subprocess
 import sys
 import tempfile
 
-from .check import check
+from ..system.check import check
 from .command_line import command_line
 from .compat import compat
 from .execute_result import execute_result
@@ -44,7 +44,7 @@ class execute(object):
     check.check_bool(quote)
     check.check_bool(check_python_script)
     check.check_string(output_encoding, allow_none = True)
-    check.check_function(output_function, allow_none = True)
+    check.check_callable(output_function, allow_none = True)
 
     output_encoding = output_encoding or execute_result.DEFAULT_ENCODING
     

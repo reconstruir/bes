@@ -3,7 +3,7 @@
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 
-from bes.common.check import check
+from bes.system.check import check
 
 class _file_mime_type_detector_base(with_metaclass(ABCMeta, object)):
 

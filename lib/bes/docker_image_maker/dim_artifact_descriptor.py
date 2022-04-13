@@ -4,7 +4,7 @@
 from os import path
     
 from bes.fs.file_util import file_util
-from bes.common.check import check
+from ..system.check import check
 from bes.property.cached_property import cached_property
 
 class dim_artifact_descriptor(object):

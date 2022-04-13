@@ -4,7 +4,7 @@ from collections import namedtuple
 import json
 import re
 
-from bes.common.check import check
+from bes.system.check import check
 from bes.system.log import logger
 
 from .brew_command import brew_command

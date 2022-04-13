@@ -4,7 +4,7 @@ from collections import namedtuple
 import math, re
 from bes.system.log import log
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.compat.StringIO import StringIO

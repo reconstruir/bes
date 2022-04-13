@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.cli.cli_options import cli_options
-from bes.common.check import check
+from ..system.check import check
 from bes.common.time_util import time_util
 from bes.fs.file_ignore_options_mixin import file_ignore_options_mixin
 
@@ -82,7 +82,7 @@ class file_resolver_options(cli_options, file_ignore_options_mixin):
     check.check_string_seq(self.match_patterns, allow_none = True)
     #check.check_string_seq(self.match_type, allow_none = True)
     check.check_bool(self.match_basename)
-    check.check_function(self.match_function, allow_none = True)
+    check.check_callable(self.match_function, allow_none = True)
     check.check_string_seq(self.match_re, allow_none = True)
     check.check_string_seq(self.ignore_files, allow_none = True)
     

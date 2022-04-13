@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system.log import log
-from bes.common.check import check
+from ..system.check import check
 
 from .text_line import text_line
 

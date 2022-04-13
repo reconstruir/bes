@@ -10,7 +10,7 @@ from collections import namedtuple
 from bes.compat.Queue import Empty as QueueEmptyException
 
 from bes.system.log import logger
-from bes.common.check import check
+from ..system.check import check
 
 from .vmware_error import vmware_error
 from .vmware_util import vmware_util

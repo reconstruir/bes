@@ -3,7 +3,7 @@
 from collections import namedtuple
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_util import file_util
 from bes.git.git import git
 from bes.git.git_error import git_error

@@ -5,7 +5,7 @@ from os import path
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.property.cached_property import cached_property
 
 class dim_task_result(namedtuple('dim_task_result', 'success, log, descriptor')):

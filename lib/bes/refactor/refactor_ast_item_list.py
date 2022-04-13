@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from ..system.check import check
 from bes.common.type_checked_list import type_checked_list
 
 from .refactor_ast_item import refactor_ast_item

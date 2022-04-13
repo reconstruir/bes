@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_ignore import file_ignore_item
 from bes.fs.temp_file import temp_file
 

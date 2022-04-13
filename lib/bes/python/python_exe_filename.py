@@ -5,7 +5,7 @@ import os.path as path
 import re
 
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from ..system.check import check
 from bes.property.cached_property import cached_property
 from bes.system.host import host
 from bes.system.log import logger

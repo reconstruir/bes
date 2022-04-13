@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.system.log import logger
 
 from bes.config.simple_config_editor import simple_config_editor

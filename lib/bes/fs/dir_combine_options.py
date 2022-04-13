@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from ..cli.cli_options import cli_options
-from ..common.check import check
+from ..system.check import check
 
 from .files_cli_options import files_cli_options
 from .dir_combine_defaults import dir_combine_defaults

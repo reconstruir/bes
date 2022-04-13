@@ -3,7 +3,7 @@
 import hashlib, json, os
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.json_util import json_util
 from bes.system.log import logger
 from bes.text.text_line_parser import text_line_parser

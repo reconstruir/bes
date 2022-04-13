@@ -196,7 +196,6 @@ New
 add file_attributes_metadata tests to cover write permissions and ownership
 
 2022-01-24
- - s/check_function/check_callable/
  - add tests to test_files_cli_args.py
  - best.py refactor rename --dry-run flag is broken
  - get rid of match_basename is file find its very confusing
@@ -204,8 +203,4 @@ add file_attributes_metadata tests to cover write permissions and ownership
  - simple config and credentials do not deal with $ and @ literals in passwords
 
 2022-03-23
- - resolving a single file with file_resolver has a weird result
  - file dups (and maybe other ops) unit tests where a resolved file is removed
-
-2022-04-01
- - dir_partition_options.flatten is unused

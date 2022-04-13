@@ -3,7 +3,7 @@
 import os, subprocess
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.node import node
 from bes.factory.factory_field import factory_field
 from bes.fs.checksum import checksum

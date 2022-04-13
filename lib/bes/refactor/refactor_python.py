@@ -2,7 +2,7 @@
 
 import re
 
-from bes.common.check import check
+from ..system.check import check
 
 class refactor_python(object):
 

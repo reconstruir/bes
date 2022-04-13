@@ -3,7 +3,7 @@
 from os import path
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.check import check
+from ..system.check import check
 
 from .shell_framework import shell_framework
 from .shell_framework_options import shell_framework_options

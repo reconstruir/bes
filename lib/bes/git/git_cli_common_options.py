@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.cli.cli_options import cli_options
-from bes.common.check import check
+from ..system.check import check
 from bes.data_output.data_output_options_mixin import data_output_options_mixin
 
 from .git_error import git_error

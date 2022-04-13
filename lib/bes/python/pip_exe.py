@@ -8,7 +8,7 @@ import re
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.fs.file_mime import file_mime
 from bes.fs.file_path import file_path

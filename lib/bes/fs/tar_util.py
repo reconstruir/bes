@@ -3,7 +3,7 @@
 import os.path as path, os, re
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.os_env import os_env

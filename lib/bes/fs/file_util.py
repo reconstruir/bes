@@ -4,7 +4,7 @@ import contextlib, codecs, errno, hashlib, subprocess
 import os.path as path, os, platform, shutil, sys, tempfile, time
 from datetime import datetime
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.system.compat import compat

@@ -5,7 +5,7 @@ import copy
 from bes.compat.StringIO import StringIO
 from bes.text.text_replace import text_replace
 
-from .check import check
+from ..system.check import check
 from .object_util import object_util
 from .string_util import string_util
 from .variable import variable

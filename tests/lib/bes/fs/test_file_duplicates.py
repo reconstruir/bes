@@ -4,7 +4,6 @@
 from os import path
 from datetime import datetime
 from datetime import timedelta
-
 from bes.fs.file_duplicates import file_duplicates
 from bes.fs.file_duplicates_options import file_duplicates_options
 from bes.fs.file_path import file_path

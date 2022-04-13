@@ -5,7 +5,7 @@ import os.path as path
 import math
 
 from bes.archive.archiver import archiver
-from bes.common.check import check
+from ..system.check import check
 from bes.common.time_util import time_util
 from bes.system.check import check
 from bes.system.log import logger

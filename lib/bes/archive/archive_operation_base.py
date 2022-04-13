@@ -2,7 +2,7 @@
 
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
-from bes.common.check import check
+from ..system.check import check
 
 class archive_operation_base(with_metaclass(ABCMeta, object)):
   'An archive operation interface.'

@@ -5,7 +5,7 @@ from os import path
 from collections import namedtuple
 
 from bes.system.log import log
-from bes.common.check import check
+from ..system.check import check
 from bes.properties_file.properties_file import properties_file
 from bes.credentials.credentials import credentials
 

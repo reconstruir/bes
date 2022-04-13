@@ -5,7 +5,7 @@ from collections import namedtuple
 import fnmatch
 
 from bes.property.cached_property import cached_property
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.temp_file import temp_file
 from bes.fs.file_util import file_util
 from bes.fs.compressed_file import compressed_file

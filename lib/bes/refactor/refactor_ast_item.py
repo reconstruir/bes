@@ -5,7 +5,7 @@ import os
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.property.cached_property import cached_property
 from bes.text.text_line import text_line
 from bes.text.text_insert import text_insert

@@ -2,7 +2,7 @@
 
 from os import path
 from collections import namedtuple
-from bes.common.check import check
+from ..system.check import check
 from bes.common.variable import variable
 from bes.system.env_var import os_env_var
 

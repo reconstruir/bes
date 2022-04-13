@@ -3,7 +3,7 @@
 from collections import namedtuple
 from enum import IntEnum
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.node import node
 from bes.text.text_replace import text_replace
 from bes.compat.StringIO import StringIO

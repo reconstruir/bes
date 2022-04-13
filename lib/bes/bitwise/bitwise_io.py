@@ -3,7 +3,7 @@
 import codecs
 
 from .bitwise_unpack import bitwise_unpack
-from bes.common.check import check
+from ..system.check import check
 
 class bitwise_io(object):
 

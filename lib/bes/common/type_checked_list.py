@@ -5,7 +5,7 @@ from bes.compat.StringIO import StringIO
 from bes.compat.cmp import cmp
 from bes.compat.zip import zip
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from ..system.check import check
 
 class type_checked_list(object):
 

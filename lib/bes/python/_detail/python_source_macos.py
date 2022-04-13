@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common.check import check
+from bes.system.check import check
 from bes.compat import url_compat
 from bes.fs.file_path import file_path
 from bes.fs.file_symlink import file_symlink

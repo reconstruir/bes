@@ -5,7 +5,7 @@ import os
 import os.path as path
 
 from bes.common.char_util import char_util
-from bes.common.check import check
+from ..system.check import check
 from bes.system.host import host
 
 class filename_util(object):

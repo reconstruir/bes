@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 
 from .git_error import git_error

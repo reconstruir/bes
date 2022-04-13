@@ -6,7 +6,7 @@ from collections import namedtuple
 
 from bes.fs.file_util import file_util
 from bes.fs.file_check import file_check
-from bes.common.check import check
+from ..system.check import check
 
 from .refactor_ast_node_type import refactor_ast_node_type
 from .refactor_ast_item import refactor_ast_item

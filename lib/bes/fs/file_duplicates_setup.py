@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from ..common.check import check
+from ..system.check import check
 from ..common.tuple_util import tuple_util
 from ..property.cached_property import cached_property
 

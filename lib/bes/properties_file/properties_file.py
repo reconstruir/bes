@@ -2,7 +2,6 @@
 
 from collections import namedtuple
 from os import path
-from bes.common import check
 
 from .properties_editor import properties_editor
 

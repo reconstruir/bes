@@ -3,7 +3,7 @@
 from os import path
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.tuple_util import tuple_util
 from bes.property.cached_property import cached_property
 

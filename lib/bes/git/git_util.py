@@ -5,7 +5,7 @@ import os.path as path
 import copy
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.common.object_util import object_util
 from bes.fs.file_type import file_type
@@ -157,7 +157,7 @@ class git_util(object):
   @classmethod
   def repo_run_operation(clazz, address, operation, commit_message, options = None):
     check.check_string(address)
-    check.check_function(operation)
+    check.check_callable(operation)
     check.check_string(commit_message)
     check.check_git_repo_operation_options(options, allow_none = True)
 

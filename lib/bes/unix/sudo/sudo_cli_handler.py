@@ -3,7 +3,7 @@
 from os import path
 
 from bes.cli.argparser_handler import argparser_handler
-from bes.common.check import check
+from bes.system.check import check
 from bes.cli.cli_command_handler import cli_command_handler
 
 from .sudo import sudo

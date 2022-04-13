@@ -2,7 +2,7 @@
 
 import pprint
 
-from bes.common.check import check
+from ..system.check import check
 from bes.key_value.key_value_list import key_value_list
 from bes.text.text_table import text_table
 from bes.text.text_replace import text_replace

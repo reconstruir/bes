@@ -4,7 +4,7 @@ import glob
 import os.path as path
 
 from bes.archive.archiver import archiver
-from bes.common.check import check
+from ..system.check import check
 from bes.common.time_util import time_util
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file

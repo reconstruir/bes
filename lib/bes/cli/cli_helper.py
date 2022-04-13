@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
 from bes.fs.file_check import file_check
 from bes.fs.file_find import file_find
@@ -19,7 +19,7 @@ class cli_helper(object):
     - a file
     - a directory to search for files
     '''
-    check.check_function(func, allow_none = True)
+    check.check_callable(func, allow_none = True)
     if not what:
       return []
     what = object_util.listify(what)

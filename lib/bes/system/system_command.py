@@ -6,7 +6,7 @@ from os import path
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 
-from .check import check
+from ..system.check import check
 from .command_line import command_line
 from .compat import compat
 from .execute import execute
@@ -88,7 +88,7 @@ class system_command(with_metaclass(ABCMeta, object)):
     check.check_bytes(input_data, allow_none = True)
     check.check_bool(non_blocking)
     check.check_string(output_encoding, allow_none = True)
-    check.check_function(output_function, allow_none = True)
+    check.check_callable(output_function, allow_none = True)
 
     clazz.check_supported()
 

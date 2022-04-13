@@ -3,7 +3,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 
 class dim_task_failed_entry(namedtuple('dim_task_failed_entry', 'descriptor, log')):
 

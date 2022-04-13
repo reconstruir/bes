@@ -7,7 +7,7 @@ import os
 from os import path
 import sys
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.fs.file_util import file_util
 from bes.fs.filename_util import filename_util

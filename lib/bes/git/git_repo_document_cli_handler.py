@@ -3,7 +3,7 @@
 import os
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_util import file_util
 
 from .git_repo_document_db import git_repo_document_db

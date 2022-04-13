@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from .check import check
+from ..system.check import check
 
 class host_info(namedtuple('host_info', 'system, version_major, version_minor, arch, distro, family, codename')):
 

@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.common.check import check
+from bes.system.check import check
 
 from bes.version.semantic_version import semantic_version
 from bes.version.semantic_version_error import semantic_version_error

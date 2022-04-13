@@ -3,7 +3,7 @@
 from os import path
 
 from bes.cli.cli_options import cli_options
-from bes.common.check import check
+from ..system.check import check
 from bes.common.time_util import time_util
 from bes.script.blurber import blurber
 
@@ -53,7 +53,7 @@ class file_duplicates_options(files_cli_options, file_ignore_options_mixin):
     super(file_duplicates_options, self).check_value_types()
     check.check_int(self.small_checksum_size)
     check.check_string_seq(self.prefer_prefixes, allow_none = True)
-    check.check_function(self.sort_key, allow_none = True)
+    check.check_callable(self.sort_key, allow_none = True)
     check.check_bool(self.include_empty_files)
     check.check_blurber(self.blurber)
     check.check_string_seq(self.ignore_files)

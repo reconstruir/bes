@@ -3,7 +3,7 @@
 import copy
 import os.path as path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.pipenv.pipenv_exe import pipenv_exe
 from bes.property.cached_property import cached_property
 from bes.python.pip_project import pip_project

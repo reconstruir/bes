@@ -3,7 +3,7 @@
 from os import path
 
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from ..system.check import check
 from bes.debug.debug_timer import debug_timer
 from bes.debug.debug_timer import timed_method
 from bes.fs.file_check import file_check

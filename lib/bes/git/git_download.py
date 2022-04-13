@@ -4,7 +4,7 @@ import os, os.path as path, re, time
 from datetime import datetime
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.ssh_config.ssh_config_manager import ssh_config_manager

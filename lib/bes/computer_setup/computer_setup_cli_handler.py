@@ -3,7 +3,7 @@
 import copy, os, pprint
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.check import check
+from ..system.check import check
 from bes.key_value.key_value_list import key_value_list
 
 from .computer_setup_error import computer_setup_error

@@ -3,7 +3,7 @@
 from os import path
 
 from bes.cli.cli_options import cli_options
-from bes.common.check import check
+from ..system.check import check
 from bes.script.blurber import blurber
 from bes.data_output.data_output_options_mixin import data_output_options_mixin
 

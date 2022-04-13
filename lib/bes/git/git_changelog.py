@@ -4,7 +4,7 @@
 import re
 import copy
 
-from bes.common.check import check
+from ..system.check import check
 
 from .git_commit_info import git_commit_info
 from .git_changelog_options import git_changelog_options

@@ -2,7 +2,7 @@
 
 from bes.compat.StringIO import StringIO
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from ..system.check import check
 from bes.common.type_checked_list import type_checked_list
 from .requirement import requirement
 from .requirement_hardness import requirement_hardness

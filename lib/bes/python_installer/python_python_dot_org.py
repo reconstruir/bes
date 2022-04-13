@@ -3,7 +3,7 @@
 import os.path as path
 import re
 
-from bes.common.check import check
+from ..system.check import check
 from bes.compat import url_compat
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file

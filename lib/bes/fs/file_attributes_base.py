@@ -7,7 +7,7 @@ from datetime import datetime
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.bool_util import bool_util
 from bes.fs.file_check import file_check
 

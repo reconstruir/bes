@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.property.cached_property import cached_property
 from bes.common.tuple_util import tuple_util
 

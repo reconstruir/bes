@@ -4,7 +4,7 @@ import fnmatch
 
 from bes.system.compat import with_metaclass
 from bes.system.host import host
-from bes.common.check import check
+from ..system.check import check
 from bes.common.dict_util import dict_util
 from bes.text.text_replace import text_replace
 from bes.common.tuple_util import tuple_util

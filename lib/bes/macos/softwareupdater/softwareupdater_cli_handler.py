@@ -3,7 +3,7 @@
 from os import path
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.check import check
+from ..system.check import check
 
 from .softwareupdater import softwareupdater
 from .softwareupdater_options import softwareupdater_options

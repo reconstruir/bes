@@ -5,7 +5,7 @@ from collections import namedtuple
 
 import base64
 
-from bes.common.check import check
+from ..system.check import check
 from bes.system.compat import compat
 from bes.compat import url_compat
 from bes.fs.file_util import file_util

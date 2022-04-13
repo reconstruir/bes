@@ -7,7 +7,7 @@ from bes.computer_setup.computer_setup_task import computer_setup_task
 from bes.computer_setup.computer_setup_options import computer_setup_options
 from bes.computer_setup.computer_setup_error import computer_setup_error
 
-from bes.common.check import check
+from bes.system.check import check
 from bes.system.host_override import host_override_func
 from bes.system.host_info import host_info
 

@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 class git_branch_status(namedtuple('git_branch_status', 'ahead, behind')):
 
   def __new__(clazz, ahead, behind):

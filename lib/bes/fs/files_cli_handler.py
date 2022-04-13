@@ -5,7 +5,7 @@ from os import path
 
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from ..system.check import check
 from bes.common.time_util import time_util
 from bes.debug.hexdump import hexdump
 from bes.version.semantic_version import semantic_version

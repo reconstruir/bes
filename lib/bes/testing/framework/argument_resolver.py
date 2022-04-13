@@ -6,7 +6,7 @@ import random
 import re
 
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from bes.system.check import check
 from bes.common.object_util import object_util
 from bes.fs.file_check import file_check
 from bes.fs.file_find import file_find

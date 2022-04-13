@@ -6,7 +6,7 @@ from collections import namedtuple
 import tempfile
 
 from bes.archive.archiver import archiver
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util

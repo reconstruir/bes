@@ -4,7 +4,7 @@ import pprint
 import os.path as path
 
 from bes.common.bool_util import bool_util
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.common.dict_util import dict_util
 from bes.config.simple_config import simple_config

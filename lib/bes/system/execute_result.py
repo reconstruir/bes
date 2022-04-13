@@ -5,7 +5,7 @@ import sys
 
 from collections import namedtuple
 
-from .check import check
+from ..system.check import check
 from .log import log
 
 class execute_result(namedtuple('execute_result', 'stdout_bytes, stderr_bytes, exit_code, command')):

@@ -6,7 +6,7 @@ import codecs
 import os.path as path
 import subprocess
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.credentials.credentials import credentials
 from bes.system.command_line import command_line

@@ -3,7 +3,7 @@
 from collections import namedtuple
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.config.simple_config import simple_config
 from bes.fs.file_util import file_util
 from bes.system.log import logger

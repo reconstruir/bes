@@ -4,7 +4,7 @@ from collections import namedtuple
 
 import copy, os, os.path as path, string
 
-from bes.common.check import check
+from bes.system.check import check
 from bes.common.string_util import string_util
 from bes.compat.StringIO import StringIO
 from bes.fs.file_path import file_path

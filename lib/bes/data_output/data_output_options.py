@@ -2,7 +2,7 @@
 
 import pprint
 
-from bes.common.check import check
+from ..system.check import check
 from bes.text.text_table import text_cell_renderer
 
 from .data_output_style import data_output_style

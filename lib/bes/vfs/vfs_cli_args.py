@@ -4,7 +4,7 @@ import os
 from os import path
 
 from bes.key_value.key_value_list import key_value_list
-from bes.common.check import check
+from ..system.check import check
 from bes.system.log import log
 
 from .vfs_cli_command import vfs_cli_command

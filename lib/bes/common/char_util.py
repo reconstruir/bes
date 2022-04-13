@@ -4,9 +4,9 @@ import re
 import string
 import sys
 
-from bes.compat.StringIO import StringIO
-from bes.system.compat import compat
-from .check import check
+from ..compat.StringIO import StringIO
+from ..system.compat import compat
+from ..system.check import check
 
 class char_util(object):
   'Class for misc dealings with characters'

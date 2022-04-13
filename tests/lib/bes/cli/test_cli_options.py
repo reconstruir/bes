@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.cli.cli_options import cli_options
-from bes.common.check import check
+from bes.system.check import check
 from bes.credentials.credentials import credentials
 from bes.system.env_override import env_override
 from bes.testing.unit_test import unit_test

@@ -3,7 +3,7 @@
 from os import path
 
 from bes.fs.file_util import file_util
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
 
 from .archive_operation_base import archive_operation_base

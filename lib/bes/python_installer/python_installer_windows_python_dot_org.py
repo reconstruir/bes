@@ -5,7 +5,7 @@ import codecs
 from os import path
 import subprocess
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.temp_file import temp_file
 from bes.fs.file_util import file_util
 from bes.python.python_exe import python_exe

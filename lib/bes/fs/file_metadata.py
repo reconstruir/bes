@@ -2,7 +2,7 @@
 
 import os
 import os.path as path
-from bes.common.check import check
+from ..system.check import check
 from bes.sqlite.sqlite import sqlite
 from bes.fs.file_util import file_util
 

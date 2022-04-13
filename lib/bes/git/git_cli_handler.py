@@ -3,7 +3,7 @@
 from os import path
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.common.table import table
 from bes.git.git import git

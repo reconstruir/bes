@@ -5,7 +5,7 @@ from collections import namedtuple
 
 from abc import abstractmethod, ABCMeta
 
-from bes.common.check import check
+from ..system.check import check
 from bes.key_value.key_value_list import key_value_list
 from bes.system.compat import compat
 from bes.system.compat import with_metaclass

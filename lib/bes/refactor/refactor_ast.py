@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_util import file_util
 from bes.fs.file_replace import file_replace
 from bes.text.text_search import text_search

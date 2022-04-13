@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.git.git import git
 
 class git_address(namedtuple('git_address', 'address, revision')):

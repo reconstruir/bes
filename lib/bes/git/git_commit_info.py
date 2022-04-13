@@ -2,7 +2,7 @@
 
 import re
 
-from bes.common.check import check
+from ..system.check import check
 from bes.property.cached_property import cached_property
 
 from .git_commit_hash import git_commit_hash

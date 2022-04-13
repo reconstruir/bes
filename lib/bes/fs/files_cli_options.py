@@ -2,7 +2,7 @@
 
 from .file_resolver_options import file_resolver_options
 from bes.cli.cli_options import cli_options
-from bes.common.check import check
+from ..system.check import check
 from bes.common.time_util import time_util
 from bes.fs.file_ignore_options_mixin import file_ignore_options_mixin
 from bes.property.cached_property import cached_property

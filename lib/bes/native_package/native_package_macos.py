@@ -4,7 +4,7 @@ import os.path as path
 import os
 
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_list_util import string_list_util
 from bes.common.string_util import string_util
 from bes.compat.plistlib import plistlib_loads

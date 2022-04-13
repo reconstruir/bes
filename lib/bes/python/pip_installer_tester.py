@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.temp_file import temp_file
 
 from .python_exe import python_exe as bes_python_exe

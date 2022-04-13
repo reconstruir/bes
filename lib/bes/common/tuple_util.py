@@ -3,7 +3,7 @@
 from collections import namedtuple
 from functools import reduce
 
-from .check import check
+from ..system.check import check
 
 class tuple_util(object):
   'Tuple util'

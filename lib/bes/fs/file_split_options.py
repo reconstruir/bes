@@ -4,7 +4,7 @@ from datetime import datetime
 from os import path
 
 from bes.cli.cli_options import cli_options
-from bes.common.check import check
+from ..system.check import check
 from bes.script.blurber import blurber
 
 from .files_cli_options import files_cli_options

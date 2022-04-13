@@ -2,7 +2,7 @@
 
 import os.path as path
 from collections import namedtuple
-from bes.common.check import check
+from bes.system.check import check
 from bes.property.cached_property import cached_property
 from bes.fs.file_util import file_util
 from bes.fs.file_symlink import file_symlink

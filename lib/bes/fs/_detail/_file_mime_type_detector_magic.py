@@ -2,7 +2,7 @@
 
 import sys, warnings
 
-from bes.common.check import check
+from bes.system.check import check
 from bes.fs.file_check import file_check
 from bes.fs.file_check import file_check
 from bes.warnings.warnings_override import warnings_override

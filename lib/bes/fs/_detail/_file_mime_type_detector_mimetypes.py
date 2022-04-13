@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.common.check import check
+from bes.system.check import check
 from bes.fs.file_check import file_check
 
 from ._file_mime_type_detector_base import _file_mime_type_detector_base

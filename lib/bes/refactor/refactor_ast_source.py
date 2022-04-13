@@ -4,7 +4,7 @@ import ast
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.property.cached_property import cached_property
 from bes.fs.file_util import file_util
 from bes.fs.file_check import file_check

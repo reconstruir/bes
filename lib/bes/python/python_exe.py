@@ -8,7 +8,7 @@ import sys
 from collections import namedtuple
 from collections import OrderedDict
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.debug.debug_timer import debug_timer
 from bes.fs.file_path import file_path

@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.version.software_version import software_version
 
 class git_tag(namedtuple('git_tag', 'name, commit, commit_short, peeled')):

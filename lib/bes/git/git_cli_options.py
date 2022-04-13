@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os
-from bes.common.check import check
+from ..system.check import check
 
 from .git_cli_common_options import git_cli_common_options
 

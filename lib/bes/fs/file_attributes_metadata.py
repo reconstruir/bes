@@ -31,7 +31,7 @@ class file_attributes_metadata(object):
   def get_bytes(clazz, filename, key, value_maker, fallback = False):
     check.check_string(filename)
     check.check_string(key)
-    check.check_function(value_maker)
+    check.check_callable(value_maker)
 
     clazz._log.log_method_d()
 
@@ -87,7 +87,7 @@ class file_attributes_metadata(object):
   def get_string(clazz, filename, key, value_maker, fallback = False):
     check.check_string(filename)
     check.check_string(key)
-    check.check_function(value_maker)
+    check.check_callable(value_maker)
     check.check_bool(fallback)
 
     value = clazz.get_bytes(filename, key, value_maker, fallback = fallback)
@@ -99,7 +99,7 @@ class file_attributes_metadata(object):
   def get_bool(clazz, filename, key, value_maker, fallback = False):
     check.check_string(filename)
     check.check_string(key)
-    check.check_function(value_maker)
+    check.check_callable(value_maker)
     check.check_bool(fallback)
 
     value = clazz.get_string(filename, key, value_maker, fallback = fallback)

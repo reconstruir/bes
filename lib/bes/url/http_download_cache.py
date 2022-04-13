@@ -3,7 +3,7 @@
 import shutil
 import os.path as path
 from bes.system.log import logger
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util

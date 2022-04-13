@@ -2,7 +2,7 @@
 
 import os.path as path, os, shutil, tempfile
 from abc import abstractmethod, ABCMeta
-from bes.common.check import check
+from ..system.check import check
 from bes.system.log import log
 from bes.thread.decorators import synchronized_method
 from bes.system.compat import with_metaclass

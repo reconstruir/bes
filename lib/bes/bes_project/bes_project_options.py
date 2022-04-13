@@ -3,7 +3,7 @@
 from os import path
 
 from bes.cli.cli_options import cli_options
-from bes.common.check import check
+from ..system.check import check
 from bes.data_output.data_output_options import data_output_options
 from bes.data_output.data_output_style import data_output_style
 from bes.property.cached_property import cached_property

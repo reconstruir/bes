@@ -2,7 +2,7 @@
 
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.Script import Script
-from bes.common.check import check
+from ..system.check import check
 from bes.script.blurber import blurber
 
 from .vmware_credentials import vmware_credentials

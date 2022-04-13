@@ -10,7 +10,7 @@ import tempfile
 import inspect
 
 from bes.archive.archiver import archiver
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.common.table import table
 from bes.common.time_util import time_util

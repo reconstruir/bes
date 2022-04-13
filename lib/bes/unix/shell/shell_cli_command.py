@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.common.check import check
+from bes.system.check import check
 
 from .shell import shell
 

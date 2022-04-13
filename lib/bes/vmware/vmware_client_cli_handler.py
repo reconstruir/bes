@@ -3,7 +3,7 @@
 import pprint
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.check import check
+from ..system.check import check
 
 from .vmware_client import vmware_client
 from .vmware_client_commands import vmware_client_commands

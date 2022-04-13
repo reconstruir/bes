@@ -4,7 +4,7 @@ import os
 import os.path as path
 import pprint
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_util import file_util
 from bes.fs.file_path import file_path
 from bes.system.os_env import os_env

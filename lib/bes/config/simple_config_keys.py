@@ -4,7 +4,7 @@ import string
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 
 from .simple_config_error import simple_config_error
 

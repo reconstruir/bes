@@ -4,7 +4,7 @@ from os import path
 import pprint
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.check import check
+from ..system.check import check
 from bes.text.text_table import text_table
 from bes.data_output.data_output import data_output
 

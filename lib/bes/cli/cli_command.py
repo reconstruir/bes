@@ -3,7 +3,7 @@
 from collections import namedtuple
 import inspect
 
-from bes.common.check import check
+from ..system.check import check
 
 class cli_command(namedtuple('cli_command', 'name, add_args_function, description, cli_args_class, filename')):
 

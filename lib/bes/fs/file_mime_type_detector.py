@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_check import file_check
 
 from ._detail._file_mime_type_detector_base import _file_mime_type_detector_base

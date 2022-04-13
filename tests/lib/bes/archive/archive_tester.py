@@ -4,7 +4,7 @@ import os, os.path as path
 
 from bes.testing.unit_test import unit_test
 from bes.archive.temp_archive import temp_archive
-from bes.common.check import check
+from bes.system.check import check
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.match.matcher_always_false import matcher_always_false

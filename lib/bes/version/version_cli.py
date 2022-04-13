@@ -2,7 +2,7 @@
 
 import sys
 from bes.compat.StringIO import StringIO
-from bes.common.check import check
+from ..system.check import check
 from bes.python.code import code
 
 from .version_info import version_info

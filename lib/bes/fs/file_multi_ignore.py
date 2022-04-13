@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
 
 from .file_path import file_path

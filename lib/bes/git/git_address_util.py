@@ -1,9 +1,9 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-#from bes.common.check import check
+#from ..system.check import check
 import os.path as path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.compat.StringIO import StringIO
 from bes.text.text_replace import text_replace

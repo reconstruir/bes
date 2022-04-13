@@ -3,7 +3,7 @@
 import re
 
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from ..system.check import check
 from bes.common.json_util import json_util
 from bes.common.string_util import string_util
 from bes.common.type_checked_list import type_checked_list

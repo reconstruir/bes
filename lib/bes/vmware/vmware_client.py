@@ -4,7 +4,7 @@ import pprint
 import requests
 import time
 
-from bes.common.check import check
+from ..system.check import check
 from bes.compat import url_compat
 from bes.net_util.port_probe import port_probe
 from bes.system.log import logger

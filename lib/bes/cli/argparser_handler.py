@@ -6,7 +6,7 @@ import os.path as path
 import sys
 
 from bes.system.log import logger
-from bes.common.check import check
+from ..system.check import check
 from bes.common.inspect_util import inspect_util
 from bes.system.log import log
 from bes.fs.file_check import file_check

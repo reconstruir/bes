@@ -4,7 +4,7 @@ from os import path
 import sys
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.check import check
+from ..system.check import check
 from bes.common.Script import Script
 from bes.script.blurber import blurber
 from bes.text.text_table import text_table

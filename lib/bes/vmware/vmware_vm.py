@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 
 from .vmware_vmx_file import vmware_vmx_file
 

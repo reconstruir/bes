@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 
 from .file_path import file_path
 from .file_ignore_item import file_ignore_item

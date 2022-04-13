@@ -3,7 +3,7 @@
 import os, re
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_replace import file_replace
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file

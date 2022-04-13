@@ -6,7 +6,7 @@ from os import path
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file

@@ -4,7 +4,7 @@ import fnmatch, os.path as path
 
 from bes.compat.StringIO import StringIO
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from bes.system.check import check
 from bes.common.type_checked_list import type_checked_list
 
 from .file_info import file_info

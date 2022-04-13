@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.common.check import check as C
+from bes.system.check import check as C
 from bes.system.compat import compat
 
 class test_check(unit_test):

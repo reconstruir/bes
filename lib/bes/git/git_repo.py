@@ -6,7 +6,7 @@ import atexit
 import os
 import time
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.inspect_util import inspect_util
 from bes.common.object_util import object_util
 from bes.fs.file_find import file_find

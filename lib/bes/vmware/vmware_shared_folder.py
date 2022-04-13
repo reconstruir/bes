@@ -4,7 +4,7 @@ import os.path as path
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.property.cached_property import cached_property
 from bes.common.type_checked_list import type_checked_list

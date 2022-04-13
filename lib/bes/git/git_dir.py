@@ -5,7 +5,7 @@ import os.path as path
 #import copy
 #from collections import namedtuple
 #
-#from bes.common.check import check
+#from ..system.check import check
 #from bes.common.string_util import string_util
 from bes.common.object_util import object_util
 #from bes.fs.file_type import file_type

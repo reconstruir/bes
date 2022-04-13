@@ -4,7 +4,7 @@ from os import path
 from abc import abstractmethod, ABCMeta
 
 from collections import namedtuple
-from bes.common.check import check
+from ..system.check import check
 from bes.common.variable import variable
 from bes.system.os_env import os_env
 from bes.system.compat import with_metaclass
