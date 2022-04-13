@@ -744,7 +744,11 @@ class git(git_lfs):
 
   @classmethod
   def active_branch(clazz, root):
-    return [ i for i in clazz.list_branches(root, 'local') if i.active ][0].name
+    branches = clazz.list_branches(root, 'local')
+    for branch in branches:
+      if branch.active:
+        return branch.name
+    return None
 
   @classmethod
   def list_branches(clazz, root, where, limit = None):

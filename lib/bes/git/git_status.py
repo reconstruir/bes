@@ -54,7 +54,7 @@ class git_status(namedtuple('git_status', 'action, filename, renamed_filename'))
     return tuple([ self.action, self.filename, self.renamed_filename ])
   
   def is_untracked(self):
-    return self.action == git_status.action.UNTRACKED
+    return self.action == git_status_action.UNTRACKED
 
   @classmethod
   def parse_line(clazz, s):
