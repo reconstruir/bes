@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from os import path
+
 from bes.fs.dir_partition import dir_partition
 from bes.fs.dir_partition_options import dir_partition_options
 from bes.fs.dir_partition_criteria_base import dir_partition_criteria_base
@@ -104,6 +106,49 @@ class test_dir_partition(unit_test, unit_test_media_files):
     ]
     self.assert_filename_list_equal( src_after_expected, t.src_files )
 
+  def test_partition_with_prefix_recursive_with_multiple_files(self):
+    items = [
+      temp_content('file', 'src/readme.md', 'readme.md', 0o0644),
+      temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
+      temp_content('file', 'src/a/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
+      temp_content('file', 'src/a/kiwi-30.jpg', 'kiwi-30.txt', 0o0644),
+      temp_content('file', 'src/b/lemon-10.jpg', 'lemon-10.txt', 0o0644),
+      temp_content('file', 'src/b/lemon-20.jpg', 'lemon-20.txt', 0o0644),
+      temp_content('file', 'src/b/lemon-30.jpg', 'lemon-30.txt', 0o0644),
+      temp_content('file', 'src/c/cheese-10.jpg', 'cheese-10.jpg', 0o0644),
+      temp_content('file', 'src/icons/foo.png', 'foo.png', 0o0644),
+      temp_content('file', 'src/kiwi-40.jpg', 'kiwi-40.txt', 0o0644),
+      temp_content('file', 'src/lemon-40.jpg', 'lemon-40.txt', 0o0644),
+    ]
+    t = self._partition_test(extra_content_items = items,
+                             dst_dir_same_as_src = False,
+                             recursive = True,
+                             partition_type = 'prefix',
+                             delete_empty_dirs = True,
+                             flatten = True,
+                             files = [ 'a', 'b' ])
+    dst_after_expected = [
+      'kiwi',
+      'kiwi/kiwi-10.jpg',
+      'kiwi/kiwi-20.jpg',
+      'kiwi/kiwi-30.jpg',
+      'lemon',
+      'lemon/lemon-10.jpg',
+      'lemon/lemon-20.jpg',
+      'lemon/lemon-30.jpg',
+    ]
+    self.assert_filename_list_equal( dst_after_expected, t.dst_files )
+    src_after_expected = [
+      'c',
+      'c/cheese-10.jpg',
+      'icons',
+      'icons/foo.png',
+      'kiwi-40.jpg',
+      'lemon-40.jpg',
+      'readme.md',
+    ]
+    self.assert_filename_list_equal( src_after_expected, t.src_files )
+    
   def test_partition_with_media_type(self):
     items = [
       temp_content('file', 'src/apple.jpg', unit_test_media.JPG_SMALLEST_POSSIBLE, 0o0644),
@@ -297,6 +342,7 @@ class test_dir_partition(unit_test, unit_test_media_files):
                       extra_content_items = None,
                       dst_dir_same_as_src = False,
                       recursive = False,
+                      files = None,
                       partition_type = dir_partition_defaults.PARTITION_TYPE,
                       partition_criteria = None,
                       pre_test_function = None,
@@ -315,7 +361,11 @@ class test_dir_partition(unit_test, unit_test_media_files):
                                       dst_dir = test.dst_dir)
       if pre_test_function:
         pre_test_function(test)
-      test.result = dir_partition.partition(test.src_dir, options = options)
+      if files:
+        files = [ path.join(test.src_dir, f) for f in files ]
+      else:
+        files = [ test.src_dir ]
+      test.result = dir_partition.partition(files, options = options)
     return test
     
 if __name__ == '__main__':

@@ -91,9 +91,10 @@ class dir_partition(object):
         if not classification in classifications:
           classifications[classification] = dir_operation_item_list()
         if options.flatten:
-          dst_filename = path.join(dst_dir_abs, classification, path.basename(f.filename_abs))
+          dst_basename = path.basename(f.filename_abs)
         else:
-          assert False
+          dst_basename = f.filename
+        dst_filename = path.join(dst_dir_abs, classification, dst_basename)
         item = dir_operation_item(f.filename_abs, dst_filename)
         classifications[classification].append(item)
 
