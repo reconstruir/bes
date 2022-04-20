@@ -26,12 +26,12 @@ class test_file_duplicates(unit_test):
     ]
     t = self._call_find_duplicates(extra_content_items = items,
                                    recursive = True)
-    self.assertEqual( [
+    self.assertEqual( self._xp_result_item_list([
       ( f'{t.src_dir}/a/kiwi.jpg', [
         f'{t.src_dir}/b/kiwi_dup1.jpg',
         f'{t.src_dir}/c/kiwi_dup2.jpg',
       ] ),
-    ], t.result.items )
+    ]), t.result.items )
 
   def test_find_duplicates_with_small_checksum_size(self):
     items = [
@@ -44,12 +44,12 @@ class test_file_duplicates(unit_test):
     t = self._call_find_duplicates(extra_content_items = items,
                                    recursive = True,
                                    small_checksum_size = 4)
-    self.assertEqual( [
+    self.assertEqual( self._xp_result_item_list([
       ( f'{t.src_dir}/a/kiwi.jpg', [
         f'{t.src_dir}/b/kiwi_dup1.jpg',
         f'{t.src_dir}/c/kiwi_dup2.jpg',
       ] ),
-    ], t.result.items )
+    ]), t.result.items )
 
   def test_find_duplicates_correct_order(self):
     items = [
@@ -61,12 +61,12 @@ class test_file_duplicates(unit_test):
     ]
     t = self._call_find_duplicates(extra_content_items = items,
                                    recursive = True)
-    self.assertEqual( [
+    self.assertEqual( self._xp_result_item_list([
       ( f'{t.src_dir}/b/kiwi_dup1.jpg', [
         f'{t.src_dir}/c/kiwi_dup2.jpg',
         f'{t.src_dir}/z/kiwi.jpg',
       ] ),
-    ], t.result.items )
+    ]), t.result.items )
 
   def test_find_duplicates_with_prefer_prefixes(self):
     items = [
@@ -81,12 +81,12 @@ class test_file_duplicates(unit_test):
                                    prefer_prefixes = [
                                      "f'{test.src_dir}/z'",
                                    ])
-    self.assertEqual( [
+    self.assertEqual( self._xp_result_item_list([
       ( f'{t.src_dir}/z/kiwi.jpg', [
         f'{t.src_dir}/b/kiwi_dup1.jpg',
         f'{t.src_dir}/c/kiwi_dup2.jpg',
       ] ),
-    ], t.result.items )
+    ]), t.result.items )
 
   def test_find_duplicates_with_sort_key(self):
     items = [
@@ -100,12 +100,12 @@ class test_file_duplicates(unit_test):
     t = self._call_find_duplicates(extra_content_items = items,
                                    recursive = True,
                                    sort_key = sort_key)
-    self.assertEqual( [
+    self.assertEqual( self._xp_result_item_list([
       ( f'{t.src_dir}/z/kiwi.jpg', [
         f'{t.src_dir}/b/kiwi_dup1.jpg',
         f'{t.src_dir}/c/kiwi_dup2.jpg',
       ] ),
-    ], t.result.items )
+    ]), t.result.items )
 
   def test_find_duplicates_with_sort_key_basename_length(self):
     items = [
@@ -118,12 +118,12 @@ class test_file_duplicates(unit_test):
     t = self._call_find_duplicates(extra_content_items = items,
                                    recursive = True,
                                    sort_key = file_duplicates_options.sort_key_basename_length)
-    self.assertEqual( [
+    self.assertEqual( self._xp_result_item_list([
       ( f'{t.src_dir}/c/kiwi_123.jpg', [
         f'{t.src_dir}/b/kiwi_1234.jpg',
         f'{t.src_dir}/a/kiwi_12345.jpg',
       ] ),
-    ], t.result.items )
+    ]), t.result.items )
 
   def test_find_duplicates_with_sort_key_modification_date(self):
     items = [
@@ -144,12 +144,12 @@ class test_file_duplicates(unit_test):
                                    recursive = True,
                                    sort_key = file_duplicates_options.sort_key_modification_date,
                                    pre_test_function = _ptf)
-    self.assertEqual( [
+    self.assertEqual( self._xp_result_item_list([
       ( f'{t.src_dir}/a/kiwi_03.jpg', [
         f'{t.src_dir}/b/kiwi_02.jpg',
         f'{t.src_dir}/c/kiwi_01.jpg',
       ] ),
-    ], t.result.items )
+    ]), t.result.items )
 
   def test_find_duplicates_with_ignore_files(self):
     ignore_file = self.make_temp_file(content = r'''
@@ -166,12 +166,12 @@ class test_file_duplicates(unit_test):
     t = self._call_find_duplicates(extra_content_items = items,
                                    recursive = True,
                                    ignore_files = [ ignore_file ])
-    self.assertEqual( [
+    self.assertEqual( self._xp_result_item_list([
       ( f'{t.src_dir}/a/kiwi.jpg', [
         f'{t.src_dir}/b/kiwi_dup1.jpg',
         f'{t.src_dir}/c/kiwi_dup2.jpg',
       ] ),
-    ], t.result.items )
+    ]), t.result.items )
     
   # FIXME: this test would prove the dups thing works
   # even with no write permissions for files
@@ -205,12 +205,12 @@ class test_file_duplicates(unit_test):
     t = self._call_find_duplicates(extra_content_items = items,
                                    recursive = True,
                                    include_empty_files = True)
-    self.assertEqual( [
+    self.assertEqual( self._xp_result_item_list([
       ( f'{t.src_dir}/a/empty.jpg', [
         f'{t.src_dir}/b/empty_dup1.jpg',
         f'{t.src_dir}/c/empty_dup2.jpg',
       ] ),
-    ], t.result.items )
+    ]), t.result.items )
 
   def test_find_duplicates_without_empty_files(self):
     items = [
@@ -223,7 +223,7 @@ class test_file_duplicates(unit_test):
     t = self._call_find_duplicates(extra_content_items = items,
                                    recursive = True,
                                    include_empty_files = False)
-    self.assertEqual( [], t.result.items )
+    self.assertEqual( self._xp_result_item_list([]), t.result.items )
 
   def test_find_duplicates_with_setup(self):
     items = [
@@ -238,12 +238,12 @@ class test_file_duplicates(unit_test):
       setup = file_duplicates.setup([ t.src_dir ], options = options)
       t.result = file_duplicates.find_duplicates_with_setup(setup)
       
-    self.assertEqual( [
+    self.assertEqual( self._xp_result_item_list([
       ( f'{t.src_dir}/a/kiwi.jpg', [
         f'{t.src_dir}/b/kiwi_dup1.jpg',
         f'{t.src_dir}/c/kiwi_dup2.jpg',
       ] ),
-    ], t.result.items )
+    ]), t.result.items )
 
   def test_find_file_duplicates(self):
     items = [
@@ -258,7 +258,7 @@ class test_file_duplicates(unit_test):
     t = self._call_find_file_duplicates('foo/cheese/brie.jpg',
                                         extra_content_items = items,
                                         recursive = True)
-    self.assertEqual( [
+    self.assert_filename_list_equal( [
       f'{t.src_dir}/a/kiwi.jpg',
       f'{t.src_dir}/b/kiwi_dup1.jpg',
       f'{t.src_dir}/c/kiwi_dup2.jpg',
@@ -404,6 +404,17 @@ class test_file_duplicates(unit_test):
                                                          [ test.src_dir ],
                                                          options = options)
     return test
+
+  def _xp_result_item(self, item):
+    return file_duplicates._dup_item(self.xp_filename(item[0], sep = path.sep),
+                                     self.xp_filename_list(item[1], sep = path.sep))
+
+  def _xp_result_item_list(self, items):
+    return [ self._xp_result_item(item) for item in items ]
+  
+  def _xp_result(self, result):
+    return file_duplicates._find_duplicates_result(self._xp_result_item_list(result.items),
+                                                   result.resolved_files)
   
 if __name__ == '__main__':
   unit_test.main()
