@@ -13,14 +13,15 @@ class file_mime(object):
 
   TEXT = 'text'
 
-  BINARY_TYPES = [
-    'application/x-sharedlib', # -pie vs -no-pie issue in gcc 7.3
+  BINARY_TYPES = set([
     'application/octet-stream',
+    'application/x-dosexec',
     'application/x-executable',
-    'application/x-pie-executable',
     'application/x-mach-binary', # This is new in macos sierra
     'application/x-msdownload',
-  ]
+    'application/x-pie-executable',
+    'application/x-sharedlib', # -pie vs -no-pie issue in gcc 7.3
+  ])
 
   @classmethod
   def mime_type(clazz, filename):
