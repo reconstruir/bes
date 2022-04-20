@@ -2,7 +2,7 @@
 
 import os.path as path
 
-from ..system.check import check
+from bes.system.check import check
 from bes.fs.dir_util import dir_util
 from bes.fs.filename_util import filename_util
 from bes.python.python_error import python_error
