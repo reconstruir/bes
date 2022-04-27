@@ -63,7 +63,7 @@ class env_override(object):
     return copy.deepcopy(os.environ)
 
   @classmethod
-  def temp_home(clazz, enter_functions = None, exit_functions = None, use_temp_home = None):
+  def temp_home(clazz, enter_functions = None, exit_functions = None, use_temp_home = None, extra_env = None):
     'Return an env_override object with a temporary HOME'
     check.check_callable_seq(enter_functions, allow_none = True)
     check.check_callable_seq(exit_functions, allow_none = True)
@@ -84,6 +84,11 @@ class env_override(object):
         'HOMEPATH': homepath,
         'APPDATA': path.join(tmp_home, 'AppData\\Roaming')
       }
+    if extra_env:
+      for key, value in env.items():
+        if key in extra_env:
+          raise RuntimeError(f'Invalid key: "{key}"')
+      env.update(extra_env)
     return env_override(env = env,
                         enter_functions = enter_functions,
                         exit_functions = exit_functions)
