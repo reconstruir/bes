@@ -31,8 +31,16 @@ class type_checked_list(object):
   def _assign(self, values):
     self._values = []
     for v in values or []:
-      v = self.cast_value(v)
-      check.check(v, self._value_type)
+      check_method = None
+      value_type_name = getattr(self._value_type, '__name__', None)
+      if value_type_name:
+        check_method_name = f'check_{value_type_name}'
+        check_method = getattr(check, check_method_name, None)
+      if check_method:
+        v = check_method(v)
+      else:
+        v = self.cast_value(v)
+        v = check.check(v, self._value_type)
       self._values.append(v)
 
   def compare(self, other):
