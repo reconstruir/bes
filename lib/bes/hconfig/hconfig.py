@@ -5,32 +5,23 @@ import pprint
 
 from bes.system.log import logger
 
+from .hconfig_error import hconfig_error
+from .hconfig_section import hconfig_section
+
 _log = logger('hconfig')
 
-class hsection(object):
-
-  def __init__(self, d):
-    _log.log_d(f'hsection.__init__({pprint.pformat(d)})')
-    self._dict = d
-
-  def __str__(self):
-    return pprint.pformat(self._dict)
-
-  def __repr__(self):
-    return str(self)
-  
-  def __getattribute__(self, key):
-    _log.log_d(f'hsection.__getattribute__({key})')
-    d = super().__getattribute__('_dict')
-    if key not in d:
-      raise AttributeError(f'No key \"{key}\" found')
-    value = d.get(key)
-    if isinstance(value, dict):
-      return hsection(value)
-    return value
-
-class hconfig(hsection):
+class hconfig(hconfig_section):
 
   def __init__(self, d):
     _log.log_d(f'hconfig.__init__({pprint.pformat(d)})')
-    super().__init__(copy.deepcopy(d))
+    super().__init__(copy.deepcopy(d), self, None)
+    self._types = {}
+
+  def register_caster(self, path, caster):
+    check.check_string(path)
+    check.check_hconfig_caster(caster)
+
+    _types = super().__getattribute__('_types')
+    if path in _types:
+      raise hconfig_error(f'Caster already registered for path: {path}')
+    _types[path] = caster

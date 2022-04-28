@@ -3,6 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 from bes.hconfig.hconfig import hconfig
+from bes.hconfig.hconfig_error import hconfig_error
 
 class test_hconfig(unit_test):
 
@@ -23,6 +24,8 @@ class test_hconfig(unit_test):
     c = hconfig(d)
     self.assertEqual( 666, c.timestamp )
     self.assertEqual( 'green', c.fruit.kiwi.color )
+    with self.assertRaises(hconfig_error) as ctx:
+      c.fruit.kiwi.price
     
 if __name__ == '__main__':
   unit_test.main()
