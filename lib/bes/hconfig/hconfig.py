@@ -3,9 +3,14 @@
 import copy
 import pprint
 
+from bes.system.log import logger
+
+_log = logger('hconfig')
+
 class hsection(object):
 
   def __init__(self, d):
+    _log.log_d(f'hsection.__init__({pprint.pformat(d)})')
     self._dict = d
 
   def __str__(self):
@@ -14,37 +19,18 @@ class hsection(object):
   def __repr__(self):
     return str(self)
   
-  def __getattr__(self, key):
-    if key not in self._dict:
+  def __getattribute__(self, key):
+    _log.log_d(f'hsection.__getattribute__({key})')
+    d = super().__getattribute__('_dict')
+    if key not in d:
       raise AttributeError(f'No key \"{key}\" found')
-    value = self._dict[key]
+    value = d.get(key)
     if isinstance(value, dict):
-      value = caca(value, do_copy = False)
+      return hsection(value)
     return value
 
-
-class hconfig(object):
+class hconfig(hsection):
 
   def __init__(self, d):
-    pass #self._original_dict = copy.deepcopy(d)
-
-  @classmethod
-  def caca(clazz, d):
-    self._dict = copy.deepcopy(d)
-    
-  def __str__(self):
-    return self._dict.__str__()
-
-  def __repr__(self):
-    return self._dict.__repr__()
-  
-  def __getattr__(self, key):
-    #print(f'key={key}')
-    #s = pprint.pformat(self._dict)
-    #print(f'dict={s}')
-    if key not in self._dict:
-      raise AttributeError(f'No key \"{key}\" found')
-    value = self._dict[key]
-    if isinstance(value, dict):
-      value = caca(value, do_copy = False)
-    return value
+    _log.log_d(f'hconfig.__init__({pprint.pformat(d)})')
+    super().__init__(copy.deepcopy(d))
