@@ -10,5 +10,5 @@ class hconfig_type_file(hconfig_type_base):
 
   @classmethod
   #@abstractmethod
-  def cast_value(clazz, value):
+  def cast(clazz, value):
     return path.expanduser(value)

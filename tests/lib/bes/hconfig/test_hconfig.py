@@ -74,7 +74,7 @@ class test_hconfig(unit_test):
 
       @classmethod
       #@abstractmethod
-      def cast_value(clazz, value):
+      def cast(clazz, value):
         check.check_hconfig_section(value)
         
         return _fruit(value.color, value.flavor, value.price)

@@ -9,6 +9,6 @@ class hconfig_type_bool(hconfig_type_base):
 
   @classmethod
   #@abstractmethod
-  def cast_value(clazz, value):
+  def cast(clazz, value):
     'Cast a value.'
     return bool_util.parse_bool(value)

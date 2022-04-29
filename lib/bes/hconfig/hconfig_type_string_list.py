@@ -11,7 +11,7 @@ class hconfig_type_string_list(hconfig_type_base):
 
   @classmethod
   #@abstractmethod
-  def cast_value(clazz, value):
+  def cast(clazz, value):
     'Cast a value.'
     check.check_string(value)
 
