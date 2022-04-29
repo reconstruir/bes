@@ -33,7 +33,7 @@ class test_hconfig(unit_test):
     with self.assertRaises(hconfig_error) as ctx:
       c.fruit.kiwi.price
 
-  def test_register_caster(self):
+  def test_register_type(self):
     d = {
       'timestamp': '666',
       'fruit': {
@@ -48,14 +48,14 @@ class test_hconfig(unit_test):
       },
     }
     c = hconfig(d)
-    c.register_caster('timestamp', hconfig_caster_int)
-    c.register_caster('*.*.price', hconfig_caster_float)
+    c.register_type('timestamp', hconfig_caster_int)
+    c.register_type('*.*.price', hconfig_caster_float)
 
     self.assertEqual( 666, c.timestamp )
     self.assertEqual( 1.2, c.fruit.kiwi.price )
     self.assertEqual( 777, c.wine.bordeaux.price )
 
-  def test_register_caster_cast_dict(self):
+  def test_register_type_cast_dict(self):
     d = {
       'timestamp': '666',
       'fruit': {
@@ -80,9 +80,9 @@ class test_hconfig(unit_test):
         return _fruit(value.color, value.flavor, value.price)
 
     c = hconfig(d)
-    c.register_caster('timestamp', hconfig_caster_int)
-    c.register_caster('fruit.*', _fruit_caster)
-    c.register_caster('fruit.*.price', hconfig_caster_float)
+    c.register_type('timestamp', hconfig_caster_int)
+    c.register_type('fruit.*', _fruit_caster)
+    c.register_type('fruit.*.price', hconfig_caster_float)
 
     self.assertEqual( _fruit('green', 'tart', 1.2), c.fruit.kiwi )
     

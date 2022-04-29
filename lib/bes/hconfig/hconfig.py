@@ -25,7 +25,7 @@ class hconfig(object):
   def __getattr__(self, key):
     return getattr(self._section, key)
     
-  def register_caster(self, path, caster):
+  def register_type(self, path, caster):
     check.check_string(path)
     if not issubclass(caster, hconfig_caster_base):
       raise TypeError(f'caster should be a subclass of hconfig_caster_base: {caster}')
