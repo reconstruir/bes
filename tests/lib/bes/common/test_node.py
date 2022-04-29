@@ -163,7 +163,7 @@ class test_node(unittest.TestCase):
       'cheeses/gouda',
       'cheeses/brie',
     ])
-    self.assertEqual( 'kiwi', n.find_child_by_path([ 'fruits', 'kiwi' ]).data )
+    self.assertEqual( 'kiwi', n.find_child_by_path_data([ 'fruits', 'kiwi' ]).data )
 
 if __name__ == "__main__":
   unittest.main()

@@ -2,6 +2,7 @@
 
 import copy
 import pprint
+import fnmatch
 
 from ..system.log import logger
 from ..system.check import check
@@ -28,7 +29,7 @@ class hconfig(object):
     check.check_hconfig_caster(caster)
 
     hpath = hconfig_path(path, wildcards = True)
-    if self._types.find_child_by_path(hpath.parts) != None:
+    if self._types.find_child_by_path_data(hpath.parts) != None:
       raise hconfig_error(f'Caster already registered for path: {path}')
     n = self._types.ensure_path(hpath.parts)
     setattr(n, '__bes_hconfig_caster__', caster)
@@ -37,7 +38,8 @@ class hconfig(object):
     check.check_string(path)
 
     hpath = hconfig_path(path, wildcards = True)
-    n = self._types.find_child_by_path(hpath.parts)
+    func = lambda n, part: fnmatch.fnmatch(part, n.data)
+    n = self._types.find_child_by_path(hpath.parts, func)
     if n == None:
       return value
     caster = getattr(n, '__bes_hconfig_caster__')

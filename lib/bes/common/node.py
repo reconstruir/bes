@@ -57,7 +57,7 @@ class node(object):
     if not found:
       return None
     return found[0].child
-
+  
   def _find_children(self, func, depth, recurse):
     result = []
     for child in self.children:
@@ -74,11 +74,18 @@ class node(object):
       current_node = current_node.ensure_child(part)
     return current_node
 
-  def find_child_by_path(self, path):
+  def find_child_by_path(self, path, func):
     current_node = self
     for part in path:
-      current_node = current_node.find_child_by_data(part, recurse = False)
+      func2 = lambda n: func(n, part)
+      current_node = current_node.find_child(func2, recurse = False)
+      if current_node == None:
+        return None
     return current_node
+
+  def find_child_by_path_data(self, path):
+    func = lambda n, part: n.data == part
+    return self.find_child_by_path(path, func)
   
   def to_string(self, depth = 0, indent = 2, data_func = None, rstrip = True):
     buf = StringIO()
