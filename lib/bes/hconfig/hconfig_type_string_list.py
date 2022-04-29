@@ -7,7 +7,7 @@ from ..system.check import check
 
 from .hconfig_type_base import hconfig_type_base
 
-class hconfig_caster_string_list(hconfig_type_base):
+class hconfig_type_string_list(hconfig_type_base):
 
   @classmethod
   #@abstractmethod

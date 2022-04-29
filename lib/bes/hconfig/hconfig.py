@@ -34,7 +34,7 @@ class hconfig(object):
     if self._types.find_child_by_path_data(hpath.parts) != None:
       raise hconfig_error(f'Caster already registered for path: {path}')
     n = self._types.ensure_path(hpath.parts)
-    setattr(n, '__bes_hconfig_caster__', caster)
+    setattr(n, '__bes_hconfig_type__', caster)
 
   def find_caster(self, path):
     check.check_string(path)
@@ -45,8 +45,8 @@ class hconfig(object):
     if n == None:
       return None
 #    print(f'n={n}')
-#    assert hasattr(n, '__bes_hconfig_caster__')
-    caster = getattr(n, '__bes_hconfig_caster__', None)
+#    assert hasattr(n, '__bes_hconfig_type__')
+    caster = getattr(n, '__bes_hconfig_type__', None)
     if caster == None:
       return None
     return caster

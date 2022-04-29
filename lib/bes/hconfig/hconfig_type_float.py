@@ -5,7 +5,7 @@ from ..system.check import check
 from .hconfig_type_base import hconfig_type_base
 from .hconfig_error import hconfig_error
 
-class hconfig_caster_float(hconfig_type_base):
+class hconfig_type_float(hconfig_type_base):
 
   @classmethod
   #@abstractmethod

@@ -13,4 +13,4 @@ class hconfig_type_base(with_metaclass(ABCMeta, object)):
     'Cast a value.'
     raise NotImplemented('cast_value')
 
-check.register_class(hconfig_type_base, name = 'hconfig_caster', include_seq = False)
+check.register_class(hconfig_type_base, name = 'hconfig_type', include_seq = False)

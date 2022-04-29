@@ -6,8 +6,8 @@ from collections import namedtuple
 from bes.testing.unit_test import unit_test
 from bes.hconfig.hconfig import hconfig
 from bes.hconfig.hconfig_error import hconfig_error
-from bes.hconfig.hconfig_caster_int import hconfig_caster_int
-from bes.hconfig.hconfig_caster_float import hconfig_caster_float
+from bes.hconfig.hconfig_type_int import hconfig_type_int
+from bes.hconfig.hconfig_type_float import hconfig_type_float
 from bes.hconfig.hconfig_type_base import hconfig_type_base
 from bes.system.check import check
 
@@ -48,8 +48,8 @@ class test_hconfig(unit_test):
       },
     }
     c = hconfig(d)
-    c.register_type('timestamp', hconfig_caster_int)
-    c.register_type('*.*.price', hconfig_caster_float)
+    c.register_type('timestamp', hconfig_type_int)
+    c.register_type('*.*.price', hconfig_type_float)
 
     self.assertEqual( 666, c.timestamp )
     self.assertEqual( 1.2, c.fruit.kiwi.price )
@@ -80,9 +80,9 @@ class test_hconfig(unit_test):
         return _fruit(value.color, value.flavor, value.price)
 
     c = hconfig(d)
-    c.register_type('timestamp', hconfig_caster_int)
+    c.register_type('timestamp', hconfig_type_int)
     c.register_type('fruit.*', _fruit_caster)
-    c.register_type('fruit.*.price', hconfig_caster_float)
+    c.register_type('fruit.*.price', hconfig_type_float)
 
     self.assertEqual( _fruit('green', 'tart', 1.2), c.fruit.kiwi )
     
