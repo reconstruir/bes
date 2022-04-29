@@ -3,7 +3,8 @@
 import copy
 import pprint
 
-from bes.system.log import logger
+from ..system.log import logger
+from ..system.check import check
 
 from .hconfig_error import hconfig_error
 
@@ -38,11 +39,15 @@ class hconfig_section(object):
       _path = _path + '.' + key
     else:
       _path = key
-    #print(f'_path={_path} _root={_root}')
+    _log.log_d(f'hconfig_section.__init__({pprint.pformat(d)})')
+#    _log.log_d(f'hconfig_section.__getattribute__(): _path={_path} _root={id(_root)}')
     if isinstance(value, dict):
-      _root = super().__getattribute__('_root')
-      return hconfig_section(value, _root, _path)
+      value_for_caster = hconfig_section(value, _root, _path)
+    else:
+      value_for_caster = value
     caster = _root.find_caster(_path)
-    if not caster:
-      return value
-    return caster.cast_value(value)
+    if caster:
+      return caster.cast_value(value_for_caster)
+    return value_for_caster
+
+check.register_class(hconfig_section, include_seq = False)

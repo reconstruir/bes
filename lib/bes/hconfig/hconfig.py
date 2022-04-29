@@ -42,6 +42,9 @@ class hconfig(object):
     n = self._types.find_child_by_path(hpath.parts, func)
     if n == None:
       return None
-    assert hasattr(n, '__bes_hconfig_caster__')
-    caster = getattr(n, '__bes_hconfig_caster__')
+#    print(f'n={n}')
+#    assert hasattr(n, '__bes_hconfig_caster__')
+    caster = getattr(n, '__bes_hconfig_caster__', None)
+    if caster == None:
+      return None
     return caster
