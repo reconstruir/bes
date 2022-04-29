@@ -3,10 +3,10 @@
 from os import path
 from ..system.check import check
 
-from .hconfig_caster_base import hconfig_caster_base
+from .hconfig_type_base import hconfig_type_base
 from .hconfig_error import hconfig_error
 
-class hconfig_caster_file(hconfig_caster_base):
+class hconfig_caster_file(hconfig_type_base):
 
   @classmethod
   #@abstractmethod

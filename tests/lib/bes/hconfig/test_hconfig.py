@@ -8,7 +8,7 @@ from bes.hconfig.hconfig import hconfig
 from bes.hconfig.hconfig_error import hconfig_error
 from bes.hconfig.hconfig_caster_int import hconfig_caster_int
 from bes.hconfig.hconfig_caster_float import hconfig_caster_float
-from bes.hconfig.hconfig_caster_base import hconfig_caster_base
+from bes.hconfig.hconfig_type_base import hconfig_type_base
 from bes.system.check import check
 
 class test_hconfig(unit_test):
@@ -70,7 +70,7 @@ class test_hconfig(unit_test):
       },
     }
     _fruit = namedtuple('_fruit', 'color, flavor, price')
-    class _fruit_caster(hconfig_caster_base):
+    class _fruit_caster(hconfig_type_base):
 
       @classmethod
       #@abstractmethod

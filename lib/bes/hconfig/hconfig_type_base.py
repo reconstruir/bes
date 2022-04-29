@@ -5,7 +5,7 @@ from abc import abstractmethod, ABCMeta
 from ..system.compat import with_metaclass
 from ..system.check import check
 
-class hconfig_caster_base(with_metaclass(ABCMeta, object)):
+class hconfig_type_base(with_metaclass(ABCMeta, object)):
 
   @classmethod
   @abstractmethod
@@ -13,4 +13,4 @@ class hconfig_caster_base(with_metaclass(ABCMeta, object)):
     'Cast a value.'
     raise NotImplemented('cast_value')
 
-check.register_class(hconfig_caster_base, name = 'hconfig_caster', include_seq = False)
+check.register_class(hconfig_type_base, name = 'hconfig_caster', include_seq = False)

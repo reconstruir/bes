@@ -3,9 +3,9 @@
 from ..common.bool_util import bool_util
 from ..system.check import check
 
-from .hconfig_caster_base import hconfig_caster_base
+from .hconfig_type_base import hconfig_type_base
 
-class hconfig_caster_bool(hconfig_caster_base):
+class hconfig_caster_bool(hconfig_type_base):
 
   @classmethod
   #@abstractmethod

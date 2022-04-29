@@ -5,9 +5,9 @@ from ..text.string_lexer import string_lexer_options
 
 from ..system.check import check
 
-from .hconfig_caster_base import hconfig_caster_base
+from .hconfig_type_base import hconfig_type_base
 
-class hconfig_caster_string_list(hconfig_caster_base):
+class hconfig_caster_string_list(hconfig_type_base):
 
   @classmethod
   #@abstractmethod
