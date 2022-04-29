@@ -23,7 +23,7 @@ class hconfig_path(object):
     parts = s.split('.')
     for part in parts:
       if not clazz._path_part_is_valid(part, wildcards):
-        raise hconfig_error(f'Invalid path path "{part}": {path}')
+        raise hconfig_error(f'Invalid path path "{part}": {s}')
     return parts
 
   _WILDCARD_CHARS = ( '?', '*', '[', ']', '!', '-' )

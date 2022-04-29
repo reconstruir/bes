@@ -11,6 +11,7 @@ from ..common.node import node
 from .hconfig_error import hconfig_error
 from .hconfig_path import hconfig_path
 from .hconfig_section import hconfig_section
+from .hconfig_caster_base import hconfig_caster_base
 
 _log = logger('hconfig')
 
@@ -26,7 +27,8 @@ class hconfig(object):
     
   def register_caster(self, path, caster):
     check.check_string(path)
-    check.check_hconfig_caster(caster)
+    if not issubclass(caster, hconfig_caster_base):
+      raise TypeError(f'caster should be a subclass of hconfig_caster_base: {caster}')
 
     hpath = hconfig_path(path, wildcards = True)
     if self._types.find_child_by_path_data(hpath.parts) != None:

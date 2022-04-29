@@ -40,8 +40,9 @@ class hconfig_section(object):
     else:
       _path = key
     _log.log_d(f'hconfig_section.__init__({pprint.pformat(d)})')
-#    _log.log_d(f'hconfig_section.__getattribute__(): _path={_path} _root={id(_root)}')
-    if isinstance(value, dict):
+    if isinstance(value, list):
+      value_for_caster = super().__getattribute__('_cast_list')(value, _path, _root)
+    elif isinstance(value, dict):
       value_for_caster = hconfig_section(value, _root, _path)
     else:
       value_for_caster = value
@@ -50,4 +51,20 @@ class hconfig_section(object):
       return caster.cast_value(value_for_caster)
     return value_for_caster
 
+  def _cast_list(self, value, path, root):
+    result = []
+    for i, item in enumerate(value):
+      item_path = path + '.' + '_' + str(i)
+      item_caster = root.find_caster(item_path)
+      if isinstance(item, dict):
+        value_for_caster = hconfig_section(item, root, item_path)
+      else:
+        value_for_caster = item
+      if item_caster:
+        casted_item = item_caster.cast_value(value_for_caster)
+      else:
+        casted_item = item
+      result.append(casted_item)
+    return result
+  
 check.register_class(hconfig_section, include_seq = False)
