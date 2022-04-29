@@ -34,13 +34,14 @@ class hconfig(object):
     n = self._types.ensure_path(hpath.parts)
     setattr(n, '__bes_hconfig_caster__', caster)
 
-  def cast_value(self, path, value):
+  def find_caster(self, path):
     check.check_string(path)
 
     hpath = hconfig_path(path, wildcards = True)
     func = lambda n, part: fnmatch.fnmatch(part, n.data)
     n = self._types.find_child_by_path(hpath.parts, func)
     if n == None:
-      return value
+      return None
+    assert hasattr(n, '__bes_hconfig_caster__')
     caster = getattr(n, '__bes_hconfig_caster__')
-    return caster.cast_value(value)
+    return caster

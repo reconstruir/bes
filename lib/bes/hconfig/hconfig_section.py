@@ -42,4 +42,7 @@ class hconfig_section(object):
     if isinstance(value, dict):
       _root = super().__getattribute__('_root')
       return hconfig_section(value, _root, _path)
-    return _root.cast_value(_path, value)
+    caster = _root.find_caster(_path)
+    if not caster:
+      return value
+    return caster.cast_value(value)
