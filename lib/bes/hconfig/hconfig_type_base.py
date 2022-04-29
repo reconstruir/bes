@@ -9,7 +9,7 @@ class hconfig_type_base(with_metaclass(ABCMeta, object)):
 
   @classmethod
   @abstractmethod
-  def cast(clazz, value):
+  def cast(clazz, value, root):
     'Cast a value.'
     raise NotImplemented('cast')
 

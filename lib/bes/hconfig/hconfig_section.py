@@ -48,7 +48,7 @@ class hconfig_section(object):
       value_for_caster = value
     caster = _root.find_caster(_path)
     if caster:
-      return caster.cast(value_for_caster)
+      return caster.cast(value_for_caster, _root)
     return value_for_caster
 
   def _cast_list(self, value, path, root):
@@ -61,7 +61,7 @@ class hconfig_section(object):
       else:
         value_for_caster = item
       if item_caster:
-        casted_item = item_caster.cast(value_for_caster)
+        casted_item = item_caster.cast(value_for_caster, root)
       else:
         casted_item = item
       result.append(casted_item)

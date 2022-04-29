@@ -10,7 +10,7 @@ class hconfig_type_int(hconfig_type_base):
 
   @classmethod
   #@abstractmethod
-  def cast(clazz, value):
+  def cast(clazz, value, root):
     'Cast a value.'
     if not number_util.string_is_int(value):
       raise hconfig_error(f'Not an int: {value}')

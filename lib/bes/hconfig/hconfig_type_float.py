@@ -9,7 +9,7 @@ class hconfig_type_float(hconfig_type_base):
 
   @classmethod
   #@abstractmethod
-  def cast(clazz, value):
+  def cast(clazz, value, root):
     'Cast a value.'
     try:
       return float(value)

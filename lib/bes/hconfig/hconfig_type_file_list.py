@@ -11,5 +11,5 @@ class hconfig_type_file_list(hconfig_type_base):
 
   @classmethod
   #@abstractmethod
-  def cast(clazz, value):
-    return [ hconfig_type_file.cast(x) for x in value ]
+  def cast(clazz, value, root):
+    return [ hconfig_type_file.cast(x, root) for x in value ]
