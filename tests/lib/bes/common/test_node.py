@@ -115,7 +115,6 @@ class test_node(unittest.TestCase):
     self.assertEqual( 'strawberry', found[3].child.data )
     self.assertEqual( 2, found[3].depth )
 
-    
   def test_find_child(self):
     n = self._make_tree([
       'fruits/kiwi',
@@ -154,6 +153,17 @@ class test_node(unittest.TestCase):
       [ 'root', 'wine', 'chianti' ],
       [ 'root', 'wine', 'sancere' ],
     ], [ x.path for x in paths ] )
-    
+
+  def test_find_child(self):
+    n = self._make_tree([
+      'fruits/kiwi',
+      'fruits/strawberry',
+      'fruits/melons/watermelon',
+      'fruits/melons/canteloupe',
+      'cheeses/gouda',
+      'cheeses/brie',
+    ])
+    self.assertEqual( 'kiwi', n.find_child_by_path([ 'fruits', 'kiwi' ]).data )
+
 if __name__ == "__main__":
   unittest.main()

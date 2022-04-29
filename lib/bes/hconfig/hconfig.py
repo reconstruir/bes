@@ -3,25 +3,42 @@
 import copy
 import pprint
 
-from bes.system.log import logger
+from ..system.log import logger
+from ..system.check import check
+from ..common.node import node
 
 from .hconfig_error import hconfig_error
+from .hconfig_path import hconfig_path
 from .hconfig_section import hconfig_section
 
 _log = logger('hconfig')
 
-class hconfig(hconfig_section):
+class hconfig(object):
 
   def __init__(self, d):
     _log.log_d(f'hconfig.__init__({pprint.pformat(d)})')
-    super().__init__(copy.deepcopy(d), self, None)
-    self._types = {}
+    self._section = hconfig_section(copy.deepcopy(d), self, None)
+    self._types = node('root')
 
+  def __getattr__(self, key):
+    return getattr(self._section, key)
+    
   def register_caster(self, path, caster):
     check.check_string(path)
     check.check_hconfig_caster(caster)
 
-    _types = super().__getattribute__('_types')
-    if path in _types:
+    hpath = hconfig_path(path, wildcards = True)
+    if self._types.find_child_by_path(hpath.parts) != None:
       raise hconfig_error(f'Caster already registered for path: {path}')
-    _types[path] = caster
+    n = self._types.ensure_path(hpath.parts)
+    setattr(n, '__bes_hconfig_caster__', caster)
+
+  def cast_value(self, path, value):
+    check.check_string(path)
+
+    hpath = hconfig_path(path, wildcards = True)
+    n = self._types.find_child_by_path(hpath.parts)
+    if n == None:
+      return value
+    caster = getattr(n, '__bes_hconfig_caster__')
+    return caster.cast_value(value)

@@ -12,6 +12,6 @@ class hconfig_caster_int(hconfig_caster_base):
   #@abstractmethod
   def cast_value(clazz, value):
     'Cast a value.'
-    if not string_is_int(value):
+    if not number_util.string_is_int(value):
       raise hconfig_error(f'Not an int: {value}')
-    return str(value)
+    return int(value)

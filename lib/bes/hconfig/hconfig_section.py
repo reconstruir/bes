@@ -22,6 +22,9 @@ class hconfig_section(object):
 
   def __repr__(self):
     return str(self)
+
+  def _super_getattribute(self, key):
+    return super().__getattribute__(key)
   
   def __getattribute__(self, key):
     _log.log_d(f'hconfig_section.__getattribute__({key})')
@@ -35,8 +38,8 @@ class hconfig_section(object):
       _path = _path + '.' + key
     else:
       _path = key
-    print(f'_path={_path} _root={_root}')
+    #print(f'_path={_path} _root={_root}')
     if isinstance(value, dict):
       _root = super().__getattribute__('_root')
       return hconfig_section(value, _root, _path)
-    return value
+    return _root.cast_value(_path, value)

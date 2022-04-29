@@ -24,6 +24,8 @@ class node(object):
     self._node_class = clazz
     
   def __eq__(self, other):
+    if other == None:
+      return False
     assert isinstance(other, node)
     return self.__dict__ == other.__dict__
 
@@ -70,6 +72,12 @@ class node(object):
     current_node = self
     for part in path:
       current_node = current_node.ensure_child(part)
+    return current_node
+
+  def find_child_by_path(self, path):
+    current_node = self
+    for part in path:
+      current_node = current_node.find_child_by_data(part, recurse = False)
     return current_node
   
   def to_string(self, depth = 0, indent = 2, data_func = None, rstrip = True):
