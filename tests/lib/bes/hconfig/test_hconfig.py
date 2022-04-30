@@ -9,6 +9,7 @@ from bes.hconfig.hconfig_error import hconfig_error
 from bes.hconfig.hconfig_type_int import hconfig_type_int
 from bes.hconfig.hconfig_type_float import hconfig_type_float
 from bes.hconfig.hconfig_type_base import hconfig_type_base
+from bes.hconfig.hconfig_value import hconfig_value
 from bes.system.check import check
 
 class test_hconfig(unit_test):
@@ -102,10 +103,10 @@ class test_hconfig(unit_test):
               'color': 'red',
               'body': 'medium',
               'price': '42.42',
-              'points': 99,
+              'points': '99',
               'notes': [
-                { 'tag': 'tasting', 'blurb': 'yummy' },
-                { 'tag': 'budget', 'blurb': 'expensive' },
+                { 'note_id': '1', 'tag': 'tasting', 'blurb': 'yummy' },
+                { 'note_id': '2', 'tag': 'budget', 'blurb': 'expensive' },
               ],
             },
           },
@@ -150,30 +151,36 @@ class test_hconfig(unit_test):
         }
       }
     }
-    _wine = namedtuple('_wine', 'color, body, price, points')
+    _wine = namedtuple('_wine', 'color, body, price, points, notes')
     class _wine_type(hconfig_type_base):
       @classmethod
       #@abstractmethod
       def cast(clazz, value, root):
-        try:
-          points = value.points
-        except hconfig_error as ex:
-          points = None
-        return _wine(value.color, value.body, value.price, value.points)
-    _wine_note = namedtuple('_wine_note', 'tag, blurb, points')
+        points = hconfig_value.get_with_default(value, 'points', None)
+        notes = hconfig_value.get_with_default(value, 'notes', None)
+        return _wine(value.color, value.body, value.price, points, notes)
+    _wine_note = namedtuple('_wine_note', 'note_id, tag, blurb')
     class _wine_note_type(hconfig_type_base):
       @classmethod
       #@abstractmethod
       def cast(clazz, value, root):
-        return _wine_note(value.tag, value.blurb, value.points)
+        return _wine_note(value.note_id, value.tag, value.blurb)
 
     c = hconfig(d)
     c.register_type('country.*.*.*', _wine_type)
     c.register_type('country.*.*.*.price', hconfig_type_float)
     c.register_type('country.*.*.*.notes.*', _wine_note_type)
+    c.register_type('country.*.*.*.notes.*.note_id', hconfig_type_int)
     c.register_type('country.*.*.*.points', hconfig_type_int)
-    
-    self.assertEqual( _wine('red', 'medium', 42.42, 99),
+
+    self.assertEqual( _wine('red', 'light', 27.50, None, None),
+                      c.country.italy.piedmont.grignolino )
+
+    notes = [
+      _wine_note(1, 'tasting', 'yummy'),
+      _wine_note(2, 'budget', 'expensive'),
+    ]
+    self.assertEqual( _wine('red', 'medium', 42.42, 99, notes),
                       c.country.italy.piedmont.nebbiolo )
     self.assertEqual( 42.42, c.country.italy.piedmont.nebbiolo.price )
     
