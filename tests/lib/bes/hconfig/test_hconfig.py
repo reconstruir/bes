@@ -70,8 +70,7 @@ class test_hconfig(unit_test):
       },
     }
     _fruit = namedtuple('_fruit', 'color, flavor, price')
-    class _fruit_caster(hconfig_type_base):
-
+    class _fruit_type(hconfig_type_base):
       @classmethod
       #@abstractmethod
       def cast(clazz, value, root):
@@ -81,10 +80,51 @@ class test_hconfig(unit_test):
 
     c = hconfig(d)
     c.register_type('timestamp', hconfig_type_int)
-    c.register_type('fruit.*', _fruit_caster)
+    c.register_type('fruit.*', _fruit_type)
     c.register_type('fruit.*.price', hconfig_type_float)
 
     self.assertEqual( _fruit('green', 'tart', 1.2), c.fruit.kiwi )
+
+  def test_register_type_cast_dict_deep(self):
+    d = {
+      'country': {
+        'italy': {
+          'piedmont': {
+            'barbera': { 'color': 'red', 'body': 'medium', 'price': '36' },
+            'grignolino': { 'color': 'red', 'body': 'light', 'price': '27.50' },
+            'nebbiolo': { 'color': 'red', 'body': 'medium', 'price': '42.42' },
+          },
+          'tuscany': {
+            'brunello': { 'color': 'red', 'body': 'medium', 'price': '88.40' },
+          'chianti': { 'color': 'red', 'body': 'light', 'price': '30.33' },
+          },
+        },
+        'france': {
+          'burgundy': {
+            'chablis': { 'color': 'white', 'body': 'light', 'price': '45.60' },
+            'Côte de Nuits': { 'color': 'red', 'body': 'medium', 'price': '99.99' },
+          },
+          'rhone': {
+            'chateauneuf du pape': { 'color': 'red', 'body': 'medium', 'price': '66.34' },
+            'gigondas': { 'color': 'red', 'body': 'medium', 'price': '34.45' },
+          },
+        }
+      }
+    }
+    _wine = namedtuple('_wine', 'color, body, price')
+    class _wine_type(hconfig_type_base):
+      @classmethod
+      #@abstractmethod
+      def cast(clazz, value, root):
+        return _wine(value.color, value.body, value.price)
+
+    c = hconfig(d)
+    c.register_type('country.*.*.*', _wine_type)
+    c.register_type('country.*.*.*.price', hconfig_type_float)
+    
+    self.assertEqual( _wine('red', 'medium', 42.42),
+                      c.country.italy.piedmont.nebbiolo )
+    self.assertEqual( 42.42, c.country.italy.piedmont.nebbiolo.price )
     
 if __name__ == '__main__':
   unit_test.main()
