@@ -74,8 +74,6 @@ class test_hconfig(unit_test):
       @classmethod
       #@abstractmethod
       def cast(clazz, value, root):
-        check.check_hconfig_section(value)
-        
         return _fruit(value.color, value.flavor, value.price)
 
     c = hconfig(d)
@@ -90,39 +88,92 @@ class test_hconfig(unit_test):
       'country': {
         'italy': {
           'piedmont': {
-            'barbera': { 'color': 'red', 'body': 'medium', 'price': '36' },
-            'grignolino': { 'color': 'red', 'body': 'light', 'price': '27.50' },
-            'nebbiolo': { 'color': 'red', 'body': 'medium', 'price': '42.42' },
+            'barbera': {
+              'color': 'red',
+              'body': 'medium',
+              'price': '36',
+            },
+            'grignolino': {
+              'color': 'red',
+              'body': 'light',
+              'price': '27.50',
+            },
+            'nebbiolo': {
+              'color': 'red',
+              'body': 'medium',
+              'price': '42.42',
+              'points': 99,
+              'notes': [
+                { 'tag': 'tasting', 'blurb': 'yummy' },
+                { 'tag': 'budget', 'blurb': 'expensive' },
+              ],
+            },
           },
           'tuscany': {
-            'brunello': { 'color': 'red', 'body': 'medium', 'price': '88.40' },
-          'chianti': { 'color': 'red', 'body': 'light', 'price': '30.33' },
+            'brunello': {
+              'color': 'red',
+              'body': 'medium',
+              'price': '88.40',
+            },
+            'chianti': {
+              'color': 'red',
+              'body': 'light',
+              'price': '30.33',
+            },
           },
         },
         'france': {
           'burgundy': {
-            'chablis': { 'color': 'white', 'body': 'light', 'price': '45.60' },
-            'Côte de Nuits': { 'color': 'red', 'body': 'medium', 'price': '99.99' },
+            'chablis': {
+              'color': 'white',
+              'body': 'light',
+              'price': '45.60',
+            },
+            'Côte de Nuits': {
+              'color': 'red',
+              'body': 'medium',
+              'price': '99.99',
+            },
           },
           'rhone': {
-            'chateauneuf du pape': { 'color': 'red', 'body': 'medium', 'price': '66.34' },
-            'gigondas': { 'color': 'red', 'body': 'medium', 'price': '34.45' },
+            'chateauneuf du pape': {
+              'color': 'red',
+              'body': 'medium',
+              'price': '66.34',
+            },
+            'gigondas': {
+              'color': 'red',
+              'body': 'medium',
+              'price': '34.45',
+            },
           },
         }
       }
     }
-    _wine = namedtuple('_wine', 'color, body, price')
+    _wine = namedtuple('_wine', 'color, body, price, points')
     class _wine_type(hconfig_type_base):
       @classmethod
       #@abstractmethod
       def cast(clazz, value, root):
-        return _wine(value.color, value.body, value.price)
+        try:
+          points = value.points
+        except hconfig_error as ex:
+          points = None
+        return _wine(value.color, value.body, value.price, value.points)
+    _wine_note = namedtuple('_wine_note', 'tag, blurb, points')
+    class _wine_note_type(hconfig_type_base):
+      @classmethod
+      #@abstractmethod
+      def cast(clazz, value, root):
+        return _wine_note(value.tag, value.blurb, value.points)
 
     c = hconfig(d)
     c.register_type('country.*.*.*', _wine_type)
     c.register_type('country.*.*.*.price', hconfig_type_float)
+    c.register_type('country.*.*.*.notes.*', _wine_note_type)
+    c.register_type('country.*.*.*.points', hconfig_type_int)
     
-    self.assertEqual( _wine('red', 'medium', 42.42),
+    self.assertEqual( _wine('red', 'medium', 42.42, 99),
                       c.country.italy.piedmont.nebbiolo )
     self.assertEqual( 42.42, c.country.italy.piedmont.nebbiolo.price )
     
