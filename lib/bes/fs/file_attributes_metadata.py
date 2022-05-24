@@ -6,9 +6,10 @@ import os
 from bes.common.bool_util import bool_util
 from bes.common.hash_util import hash_util
 from bes.common.time_util import time_util
+from bes.fs.file_check import file_check
+from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
-from bes.property.cached_property import cached_property
 
 from .file_attributes import file_attributes
 from .file_attributes_error import file_attributes_permission_error
@@ -178,7 +179,16 @@ class file_attributes_metadata(object):
       file_attributes.remove(filename, mtime_key)
     if file_attributes.has_key(filename, key):
       file_attributes.remove(filename, key)
-  
+
+  @classmethod
+  def remove_values(clazz, filename, func):
+    filename = file_check.check_file(filename)
+    check.check_callable(func)
+    
+    keys = [ key for key in file_attributes.keys(filename) if func(key) ]
+    for key in keys:
+      clazz.remove_value(filename, key)
+      
   @classmethod
   def get_checksum_sha256(clazz, filename, fallback = False, cached = False):
     return clazz.get_value(filename, 'bes_checksum_sha256', fallback = fallback, cached = cached)
@@ -198,6 +208,33 @@ class file_attributes_metadata(object):
   @classmethod
   def get_media_type(clazz, filename, fallback = False, cached = False):
     return clazz.get_value(filename, 'bes_media_type', fallback = fallback, cached = cached)
+
+  @classmethod
+  def get_metadata(clazz, filename, key, fallback = True, cached = True):
+    method_name = f'get_{key}'
+    method = getattr(clazz, method_name, None)
+    assert method != None
+    return method(filename, fallback = fallback, cached = cached)
+
+  @classmethod
+  def media_type_matches(clazz, filename, media_types):
+    filename = file_check.check_file(filename)
+    check.check_string_seq(media_types)
+    
+    media_type = clazz.get_metadata(filename, 'media_type')
+    return media_type in media_types
+  
+  @classmethod
+  def is_media(clazz, filename):
+    return clazz.media_type_matches(filename, ( 'image', 'video' ))
+  
+  @classmethod
+  def is_video(clazz, filename):
+    return clazz.media_type_matches(filename, ( 'video' ))
+  
+  @classmethod
+  def is_image(clazz, filename):
+    return clazz.media_type_matches(filename, ( 'image' ))
   
 check.register_class(file_attributes_metadata, include_seq = False)
 
