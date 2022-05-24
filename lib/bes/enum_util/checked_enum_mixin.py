@@ -2,8 +2,9 @@
 
 import enum
 
-from bes.system.check import check
+from bes.common.string_util import string_util
 from bes.property.cached_class_property import cached_class_property
+from bes.system.check import check
 
 class checked_enum_mixin:
   'An Enum or IntEnum mixin with with methods for checking and parsing values'
@@ -111,6 +112,14 @@ class checked_enum_mixin:
       pass
     raise ValueError('Invalid enumeration value: "{}" - {}'.format(what, type(what)))
 
+  @classmethod
+  def parse_list(clazz, s):
+    'Parse a space separated list of strings into a list of enumerations.'
+    check.check_string(s)
+    
+    strings = string_util.split_by_white_space(s, strip = True)
+    return [ clazz.parse(x) for x in strings ]
+  
   @classmethod
   def register_check_class(clazz):
     check.register_class(clazz,
