@@ -37,7 +37,27 @@ class dir_operation_item_list(type_checked_list):
         file_util.rename(item.src_filename, item.dst_filename)
         result.append(item.dst_filename)
     return result
-        
+
+  def copy_files(self, timestamp, count):
+    check.check_string(timestamp, allow_none = True)
+    check.check_int(count, allow_none = True)
+
+    result = []
+    resolved_items = self.resolve_for_move(timestamp, count)
+    for item in resolved_items:
+      need_move = False
+      if path.exists(item.dst_filename):
+        assert file_util.files_are_the_same(item.src_filename,
+                                            item.dst_filename)
+        need_copy = file_util.files_are_the_same(item.src_filename,
+                                                 item.dst_filename)
+      else:
+        need_copy = True
+      if need_copy:
+        file_util.copy(item.src_filename, item.dst_filename)
+        result.append(item.dst_filename)
+    return result
+  
   @classmethod
   def _make_resolved_filename(clazz, filename, timestamp, count):
     basename = path.basename(filename)
