@@ -23,7 +23,7 @@ class checked_enum_mixin:
     elif issubclass(clazz, enum.Enum):
       if check.is_string(what):
         return clazz.value_is_valid(what) or clazz.name_is_valid(what)
-    raise ValueError('Invalid enumeration value: {} - {}'.format(value, type(value)))
+    raise ValueError(f'{clazz.__name__}: Invalid enumeration value: {value} - {type(value)}')
   
   @classmethod
   def is_valid_seq(clazz, seq):
@@ -45,8 +45,8 @@ class checked_enum_mixin:
     elif issubclass(clazz, enum.Enum):
       if check.is_string(value):
         return value in clazz.values
-    raise ValueError('Invalid enumeration value: {} - {}'.format(value, type(value)))
-
+    raise ValueError(f'{clazz.__name__}: Invalid enumeration value: {value} - {type(value)}')
+  
   @cached_class_property
   def values(clazz):
     'Return a set all values.'
@@ -110,7 +110,7 @@ class checked_enum_mixin:
             return clazz.name_to_item_dict[what]
     except ValueError as ex:
       pass
-    raise ValueError('Invalid enumeration value: "{}" - {}'.format(what, type(what)))
+    raise ValueError(f'{clazz.__name__}: Invalid enumeration value: {what} - {type(what)}')
 
   @classmethod
   def parse_list(clazz, s):
