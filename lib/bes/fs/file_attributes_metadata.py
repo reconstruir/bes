@@ -222,6 +222,8 @@ class file_attributes_metadata(object):
     check.check_string_seq(media_types)
     
     media_type = clazz.get_metadata(filename, 'media_type')
+    if not media_type:
+      return False
     return media_type in media_types
   
   @classmethod
