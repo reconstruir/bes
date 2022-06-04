@@ -192,3 +192,7 @@ add file_attributes_metadata tests to cover write permissions and ownership
 
 2022-04-16
 - url_util.sanitize() is a very silly name for what it does
+
+2022-05-30
+- dir_operation_item_list.move() takes timestamp and count but resolve alreayd deals with it ?
+- dir_operation.filename should be .basename
