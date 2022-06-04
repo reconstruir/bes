@@ -63,6 +63,17 @@ class filename_util(object):
     if not extension:
       return filename
     return filename + path.extsep + extension
+
+  @classmethod
+  def replace_extension(clazz, filename, new_extension):
+    'Replace the extension.'
+    check.check_string(filename)
+    check.check_string(new_extension)
+
+    old_extension = clazz.extension(filename)
+    if not old_extension:
+      return filename
+    return filename[0:-len(old_extension)] + new_extension
   
   _split_filename = namedtuple('_split_filename', 'root, extension')
   @classmethod
