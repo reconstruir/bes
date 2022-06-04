@@ -2,11 +2,12 @@
 
 from collections import namedtuple
 
+from ..common.tuple_util import tuple_util
+from ..property.cached_property import cached_property
 from ..system.check import check
-from bes.property.cached_property import cached_property
-from bes.common.tuple_util import tuple_util
 
 from urllib import parse as urllib_parse
+from urllib.parse import unquote as urllib_unquote
 
 class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, fragment')):
   
@@ -89,6 +90,10 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
   @cached_property
   def path_parts(self):
     return self.path.split('/')
+
+  @cached_property
+  def path_unquoted(self):
+    return urllib_unquote(self.path)
   
   def remove_query(self):
     r = self.clone(mutations = { 'query': '' })
