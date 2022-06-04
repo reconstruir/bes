@@ -14,6 +14,11 @@ class test_output_capture(unit_test):
       sys.stderr.write('lemon')
       self.assertEqual( 'kiwi', c.stdout )
       self.assertEqual( 'lemon', c.stderr )
-    
+
+  def test_output_capture_binary(self):
+    with output_capture(binary = True) as c:
+      sys.stdout.write(b'\x66\x74\x79\x70\x6D\x70\x34\x32')
+      self.assertEqual( b'\x66\x74\x79\x70\x6D\x70\x34\x32', c.stdout )
+      
 if __name__ == '__main__':
   unit_test.main()
