@@ -124,14 +124,15 @@ class fakelib2(object):
       sys.path.insert(0, p)
 
     from bes.pyinstaller.pyinstaller_build import pyinstaller_build
+    from bes.pyinstaller.pyinstaller_options import pyinstaller_options
       
     build_dir = path.join(tmp_dir, 'BUILD')
-    build_result = pyinstaller_build.build(program_source,
-                                           log_level = 'INFO',
-                                           hidden_imports = [ 'json', 'fakelib1', 'fakelib2' ],
-                                           verbose = True,
-                                           build_dir = build_dir,
-                                           replace_env = project.env)
+    options = pyinstaller_options(verbose = True,
+                                  log_level = 'INFO',
+                                  hidden_imports = [ 'json', 'fakelib1', 'fakelib2' ],
+                                  build_dir = build_dir,
+                                  replace_env = project.env)
+    build_result = pyinstaller_build.build(program_source, options = options)
     self.assertTrue( path.exists(build_result.output_exe) )
     rv = execute.execute(build_result.output_exe, raise_error = False)
     self.assertEqual( 0, rv.exit_code )

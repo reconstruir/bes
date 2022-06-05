@@ -18,49 +18,41 @@ from bes.system.host import host
 
 from .pyinstaller_error import pyinstaller_error
 from .pyinstaller_exe import pyinstaller_exe
+from .pyinstaller_log_level import pyinstaller_log_level
 
 class pyinstaller_build(object):
   'Class to deal with pyinstaller build.'
   
   log = logger('pyinstaller')
 
-  VALID_LOG_LEVELS = [ 'DEBUG', 'INFO' ]
-
   _build_result = namedtuple('_build_result', 'output_exe')
   @classmethod
   def build(clazz, script_filename,
             python_path = None,
-            log_level = None,
-            excludes = None,
-            hidden_imports = None,
-            verbose = False,
-            build_dir = None,
-            replace_env = None):
+            options = None):
     check.check_string(script_filename)
     check.check_string_seq(python_path, allow_none = True)
-    check.check_string(log_level, allow_none = True)
-    check.check_string_seq(excludes, allow_none = True)
-    check.check_string_seq(hidden_imports, allow_none = True)
-    check.check_string(build_dir, allow_none = True)
-    check.check_bool(verbose)
+    check.check_pyinstaller_options(options, allow_none = True)
 
+    options = options or pyinstaller_options()
+    
     if not path.isfile(script_filename):
       raise pyinstaller_error('script filename not found: "{}"'.format(script_filename))
 
-    log_level = log_level or 'INFO'
-    if log_level not in clazz.VALID_LOG_LEVELS:
-      raise pyinstaller_error('Invalid log level: "{}" - Should be one of '.format(' '.join(clazz.VALID_LOG_LEVELS)))
-      
     python_path = python_path or []
     for p in python_path:
       if not path.isdir(p):
         raise pyinstaller_error('PYTHONPATH dir not found: "{}"'.format(p))
         
-    excludes = excludes or []
-    hidden_imports = hidden_imports or []
+    excludes = options.excludes or []
+    hidden_imports = options.hidden_imports or []
 
     basic_args = [ '--onefile' ]
-    log_args = [ '--log', log_level ]
+    if options.osx_bundle_identifier:
+      basic_args.extend([ '--osx-bundle-identifier', options.osx_bundle_identifier ])
+    if options.windowed:
+      basic_args.append('--windowed')
+    log_args = [ '--log-level', options.log_level.name ]
     excludes_args = clazz._make_arg_pair_list('--exclude', excludes)
     hidden_imports_args = clazz._make_arg_pair_list('--hidden-import', hidden_imports)
 
@@ -72,11 +64,16 @@ class pyinstaller_build(object):
     
     args = basic_args + log_args + excludes_args + hidden_imports_args + python_10_args + [ script_filename ]
 
-    replace_env = copy.deepcopy(replace_env or {})
+    replace_env = copy.deepcopy(options.replace_env or {})
     if python_path:
       replace_env['PYTHONPATH'] = os.pathsep.join(python_path)
 
+    build_dir = path.abspath(options.build_dir)
     output_exe = path.join(build_dir, 'dist', clazz._binary_filename(script_filename))
+
+    if options.clean:
+      file_util.remove(build_dir)
+    
     pyinstaller_exe.call_pyinstaller(args,
                                      replace_env = replace_env,
                                      build_dir = build_dir)
