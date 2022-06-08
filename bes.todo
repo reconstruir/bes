@@ -196,3 +196,7 @@ add file_attributes_metadata tests to cover write permissions and ownership
 2022-05-30
 - dir_operation_item_list.move() takes timestamp and count but resolve alreayd deals with it ?
 - dir_operation.filename should be .basename
+
+2022-06-05
+- dir_operation_item_list.copy_files() and move_files() should share more code
+
