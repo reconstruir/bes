@@ -18,8 +18,8 @@ class class_registry(object):
         raise ValueError('class with name \"%s\" already registered: %s' % (name, str(registree)))
       return
     self._registry[name] = registree
-    if self._class_name_prefix and name.startswith(self._class_name_prefix):
-      name_no_prefix = string_util.remove_head(name, self._class_name_prefix)
+    if self._class_name_prefix and self._class_name_prefix in name:
+      name_no_prefix = name.replace(self._class_name_prefix, '')
       self._registry[name_no_prefix] = registree
     self._add_to_global_sys_modules(registree)
       
