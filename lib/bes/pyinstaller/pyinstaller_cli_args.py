@@ -30,6 +30,7 @@ class pyinstaller_cli_args(object):
                    dest = 'hidden_imports',
                    help = 'Force include the given hidden import []')
     p.add_argument('--log-level', action = 'store', default = pyinstaller_defaults.LOG_LEVEL,
+                   choices = pyinstaller_defaults.LOG_LEVEL_CHOICES,
                    help = f'PyInstaller log level [ {pyinstaller_defaults.LOG_LEVEL.name} ]')
     p.add_argument('--python-version', action = 'store', default = '3.8',
                    help = 'The python version to use. [ 3.8 ]')

@@ -19,6 +19,7 @@ from bes.system.host import host
 from .pyinstaller_error import pyinstaller_error
 from .pyinstaller_exe import pyinstaller_exe
 from .pyinstaller_log_level import pyinstaller_log_level
+from .pyinstaller_options import pyinstaller_options
 
 class pyinstaller_build(object):
   'Class to deal with pyinstaller build.'
