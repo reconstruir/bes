@@ -18,13 +18,15 @@ class dir_operation_item_list(type_checked_list):
   def __init__(self, values = None):
     super(dir_operation_item_list, self).__init__(values = values)
 
-  def move_files(self, timestamp, count):
+  def move_files(self, timestamp, count, callback = None):
     check.check_string(timestamp, allow_none = True)
     check.check_int(count, allow_none = True)
+    check.check_callable(callback, allow_none = True)
 
     result = []
     resolved_items = self.resolve_for_move(timestamp, count)
-    for item in resolved_items:
+    num = len(resolved_items)
+    for i, item in enumerate(resolved_items, start = 1):
       need_move = False
       if path.exists(item.dst_filename):
         assert file_util.files_are_the_same(item.src_filename,
@@ -36,16 +38,20 @@ class dir_operation_item_list(type_checked_list):
       if need_move:
         file_util.rename(item.src_filename, item.dst_filename)
         result.append(item.dst_filename)
+      if callback:
+        callback(item, i, num)
     return result
 
-  def copy_files(self, timestamp, count):
+  def copy_files(self, timestamp, count, callback = None):
     check.check_string(timestamp, allow_none = True)
     check.check_int(count, allow_none = True)
+    check.check_callable(callback, allow_none = True)
 
     result = []
     resolved_items = self.resolve_for_move(timestamp, count)
-    for item in resolved_items:
-      need_move = False
+    num = len(resolved_items)
+    for i, item in enumerate(resolved_items, start = 1):
+      need_copy = False
       if path.exists(item.dst_filename):
         assert file_util.files_are_the_same(item.src_filename,
                                             item.dst_filename)
@@ -56,6 +62,8 @@ class dir_operation_item_list(type_checked_list):
       if need_copy:
         file_util.copy(item.src_filename, item.dst_filename)
         result.append(item.dst_filename)
+      if callback:
+        callback(item, i, num)
     return result
   
   @classmethod
