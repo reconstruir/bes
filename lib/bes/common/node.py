@@ -20,8 +20,8 @@ class node(object):
     self._child_class = clazz
     
   @property
-  def node_class(self, clazz):
-    self._node_class = clazz
+  def has_children(self):
+    return len(self.children) > 0
     
   def __eq__(self, other):
     if other == None:
