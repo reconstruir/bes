@@ -35,6 +35,9 @@ class class_registry(object):
   def items(self):
     return self._registry.items()
 
+  def keys(self):
+    return sorted([ key for key in self._registry.keys() ])
+  
   def registry(self):
     return copy.deepcopy(self._registry)
   

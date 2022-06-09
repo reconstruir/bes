@@ -31,7 +31,7 @@ class _fruit_base(with_metaclass(_fruit_register, object)):
     raise NotImplementedError('name')
   
   @abstractmethod
-  def price(self, amount):
+  def price(self):
     'Price for this fruit.'
     raise NotImplementedError('price')
   
@@ -45,7 +45,7 @@ class fruit_apple(_fruit_base):
     return 'apple'
   
   #@abstractmethod
-  def price(self, amount):
+  def price(self):
     return 666
 
 class fruit_kiwi(_fruit_base):
@@ -56,7 +56,7 @@ class fruit_kiwi(_fruit_base):
     return 'kiwi'
   
   #@abstractmethod
-  def price(self, amount):
+  def price(self):
     return 42
   
 class test_class_registry(unit_test):
@@ -68,6 +68,28 @@ class test_class_registry(unit_test):
       'fruit_kiwi': fruit_kiwi,
       'kiwi': fruit_kiwi,
       }, _fruit_registry.registry() )
+
+  def test_keys(self):
+    self.assertEqual( [
+      'apple',
+      'fruit_apple',
+      'fruit_kiwi',
+      'kiwi',
+    ], _fruit_registry.keys() )
+    
+  def test_get(self):
+    self.assertEqual( fruit_apple, _fruit_registry.get('fruit_apple') )
+    self.assertEqual( fruit_apple, _fruit_registry.get('apple') )
+
+  def test_make(self):
+    self.assertEqual( 'apple', _fruit_registry.make('fruit_apple').name() )
+    self.assertEqual( 666, _fruit_registry.make('fruit_apple').price() )
+    self.assertEqual( 'apple', _fruit_registry.make('apple').name() )
+    self.assertEqual( 666, _fruit_registry.make('apple').price() )
+    self.assertEqual( 'kiwi', _fruit_registry.make('fruit_kiwi').name() )
+    self.assertEqual( 42, _fruit_registry.make('fruit_kiwi').price() )
+    self.assertEqual( 'kiwi', _fruit_registry.make('kiwi').name() )
+    self.assertEqual( 42, _fruit_registry.make('kiwi').price() )
     
 if __name__ == '__main__':
   unit_test.main()

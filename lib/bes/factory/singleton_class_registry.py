@@ -1,35 +1,39 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from bes.property.cached_class_property import cached_class_property
+
 from .class_registry import class_registry
 
 class singleton_class_registry(object):
 
-  _registry = class_registry(class_name_prefix = 'step_', raise_on_existing = False)
-
-  @classmethod
-  def _get_registry(clazz):
-    registry = getattr(clazz, '__registry', None)
-    if not registry:
-      class_name_prefix = getattr(clazz, '__registry_class_name_prefix__', None)
-      raise_on_existing = getattr(clazz, '__registry_raise_on_existing__', False)
-      registry = class_registry(class_name_prefix = class_name_prefix,
-                                raise_on_existing = raise_on_existing)
-      setattr(clazz, '__registry', registry)
+  @cached_class_property
+  def _registry(clazz):
+    class_name_prefix = getattr(clazz, '__registry_class_name_prefix__', None)
+    raise_on_existing = getattr(clazz, '__registry_raise_on_existing__', False)
+    registry = class_registry(class_name_prefix = class_name_prefix,
+                              raise_on_existing = raise_on_existing)
     return registry
   
   @classmethod
   def register(clazz, registree, name = None):
-    return clazz._get_registry().register(registree, name = name)
+    return clazz._registry.register(registree, name = name)
     
   @classmethod
   def get(clazz, class_name):
-    return clazz._get_registry().get(class_name)
+    return clazz._registry.get(class_name)
 
   @classmethod
   def items(clazz):
-    return clazz._get_registry().items()
+    return clazz._registry.items()
 
   @classmethod
   def registry(clazz):
-    return clazz._get_registry().registry()
+    return clazz._registry.registry()
   
+  @classmethod
+  def keys(clazz):
+    return clazz._registry.keys()
+  
+  @classmethod
+  def make(clazz, class_name):
+    return clazz._registry.make(class_name)
