@@ -28,3 +28,8 @@ class singleton_class_registry(object):
   @classmethod
   def items(clazz):
     return clazz._get_registry().items()
+
+  @classmethod
+  def registry(clazz):
+    return clazz._get_registry().registry()
+  

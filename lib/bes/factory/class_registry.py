@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import copy
 import sys
+
 from bes.common.string_util import string_util
 
 class class_registry(object):
@@ -12,7 +14,7 @@ class class_registry(object):
   
   def register(self, registree, name = None):
     name = name or registree.__name__
-    existing = self._registry.get(name, None)
+    existing = self.get(name)
     if existing:
       if self._raise_on_existing:
         raise ValueError('class with name \"%s\" already registered: %s' % (name, str(registree)))
@@ -32,6 +34,9 @@ class class_registry(object):
 
   def items(self):
     return self._registry.items()
+
+  def registry(self):
+    return copy.deepcopy(self._registry)
   
   @classmethod
   def _add_to_global_sys_modules(clazz, registree):
