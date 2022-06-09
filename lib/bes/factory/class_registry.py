@@ -11,6 +11,7 @@ class class_registry(object):
     self._class_name_prefix = class_name_prefix
     self._raise_on_existing = raise_on_existing
     self._registry = {}
+    self._shortcuts = {}
   
   def register(self, registree, name = None):
     name = name or registree.__name__
@@ -21,13 +22,16 @@ class class_registry(object):
       return
     self._registry[name] = registree
     if self._class_name_prefix and self._class_name_prefix in name:
-      name_no_prefix = name.replace(self._class_name_prefix, '')
-      self._registry[name_no_prefix] = registree
+      shortcut_name = name.replace(self._class_name_prefix, '')
+      self._shortcuts[shortcut_name] = registree
     self._add_to_global_sys_modules(registree)
       
   def get(self, class_name):
-    return self._registry.get(class_name, None)
-
+    c = self._registry.get(class_name, None)
+    if c:
+      return c
+    return self._shortcuts.get(class_name, None)
+    
   def make(self, class_name):
     object_class = self.get(class_name)
     return object_class()
@@ -37,6 +41,9 @@ class class_registry(object):
 
   def keys(self):
     return sorted([ key for key in self._registry.keys() ])
+
+  def shortcut_keys(self):
+    return sorted([ key for key in self._shortcuts.keys() ])
   
   def registry(self):
     return copy.deepcopy(self._registry)

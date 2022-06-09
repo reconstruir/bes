@@ -33,6 +33,10 @@ class singleton_class_registry(object):
   @classmethod
   def keys(clazz):
     return clazz._registry.keys()
+
+  @classmethod
+  def shortcut_keys(clazz):
+    return clazz._registry.shortcut_keys()
   
   @classmethod
   def make(clazz, class_name):

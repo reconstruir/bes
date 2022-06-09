@@ -64,18 +64,20 @@ class test_class_registry(unit_test):
   def test_registry(self):
     self.assertEqual( {
       'fruit_apple': fruit_apple,
-      'apple': fruit_apple,
       'fruit_kiwi': fruit_kiwi,
-      'kiwi': fruit_kiwi,
       }, _fruit_registry.registry() )
 
   def test_keys(self):
     self.assertEqual( [
-      'apple',
       'fruit_apple',
       'fruit_kiwi',
-      'kiwi',
     ], _fruit_registry.keys() )
+
+  def test_shortcut_keys(self):
+    self.assertEqual( [
+      'apple',
+      'kiwi',
+    ], _fruit_registry.shortcut_keys() )
     
   def test_get(self):
     self.assertEqual( fruit_apple, _fruit_registry.get('fruit_apple') )
