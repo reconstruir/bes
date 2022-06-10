@@ -92,6 +92,12 @@ class test_class_registry(unit_test):
     self.assertEqual( 42, _fruit_registry.make('fruit_kiwi').price() )
     self.assertEqual( 'kiwi', _fruit_registry.make('kiwi').name() )
     self.assertEqual( 42, _fruit_registry.make('kiwi').price() )
+
+  def test_values(self):
+    self.assertEqual( [
+      fruit_apple,
+      fruit_kiwi,
+    ], _fruit_registry.values() )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -47,6 +47,9 @@ class class_registry(object):
   
   def registry(self):
     return copy.deepcopy(self._registry)
+
+  def values(self):
+    return sorted([ value for value in self._registry.values() ], key = lambda c: c.__name__)
   
   @classmethod
   def _add_to_global_sys_modules(clazz, registree):
