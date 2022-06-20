@@ -3,6 +3,7 @@
 import copy
 import sys
 
+from bes.system.check import check
 from bes.common.string_util import string_util
 
 class class_registry(object):
@@ -14,6 +15,9 @@ class class_registry(object):
     self._shortcuts = {}
   
   def register(self, registree, name = None):
+    check.check_class(registree)
+    check.check_string(name, allow_none = True)
+
     name = name or registree.__name__
     existing = self.get(name)
     if existing:
@@ -27,13 +31,20 @@ class class_registry(object):
     self._add_to_global_sys_modules(registree)
       
   def get(self, class_name):
+    check.check_string(class_name)
+
     c = self._registry.get(class_name, None)
     if c:
       return c
     return self._shortcuts.get(class_name, None)
     
   def make(self, class_name):
+    check.check_string(class_name)
+
     object_class = self.get(class_name)
+    if not object_class:
+      raise KeyError(f'Unknown class: {class_name}')
+    
     return object_class()
 
   def items(self):
