@@ -68,12 +68,13 @@ class check(object):
     return isinstance(o, clazz.CALLABLE_TYPES)
   
   @classmethod
-  def is_seq(clazz, o, t):
-    'Return True if l is iterable and all its entries are of a given type.'
+  def is_seq(clazz, o, t = None):
+    'Return True if l is iterable and optionally all its entries are of a given type.'
     try:
       for x in iter(o):
-        if not isinstance(x, t):
-          return False
+        if t != None:
+          if not isinstance(x, t):
+            return False
       return True
     except:
       return False
@@ -118,6 +119,10 @@ class check(object):
   def check_float(clazz, o, allow_none = False):
     return clazz._check(o, float, 2, allow_none = allow_none)
 
+  @classmethod
+  def check_number(clazz, o, allow_none = False):
+    return clazz._check(o, check.INTEGER_TYPES + ( float, ), 2, allow_none = allow_none)
+  
   @classmethod
   def check_tuple(clazz, o, allow_none = False, value_type = None):
     if allow_none and o is None:
