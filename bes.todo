@@ -200,3 +200,5 @@ add file_attributes_metadata tests to cover write permissions and ownership
 2022-06-05
 - dir_operation_item_list.copy_files() and move_files() should share more code
 
+2022-06-16
+- consider using file entries for file_find
