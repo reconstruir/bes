@@ -148,3 +148,11 @@ class type_checked_list(object):
       first = False
       buf.write(str(item))
     return buf.getvalue()
+
+  @classmethod
+  def check_cast_func(clazz, obj):
+    if isinstance(obj, clazz):
+      return obj
+    if check.is_seq(obj):
+      return clazz([ x for x in obj ])
+    return obj
