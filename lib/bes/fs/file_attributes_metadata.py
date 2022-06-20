@@ -213,7 +213,8 @@ class file_attributes_metadata(object):
   def get_metadata(clazz, filename, key, fallback = True, cached = True):
     method_name = f'get_{key}'
     method = getattr(clazz, method_name, None)
-    assert method != None
+    if method == None:
+      raise RuntimeError(f'No method "{method_name}" found in "{clazz}"')
     return method(filename, fallback = fallback, cached = cached)
 
   @classmethod
