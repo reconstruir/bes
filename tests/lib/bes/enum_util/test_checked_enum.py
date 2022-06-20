@@ -48,6 +48,13 @@ class test_checked_enum(unit_test):
     self.assertEqual( self._fruit.LEMON, self._fruit.parse(self._fruit.LEMON) )
     self.assertEqual( self._fruit.LEMON, self._fruit.parse('LEMON') )
 
+  def test_parse_list(self):
+    self.assertEqual( [
+      self._fruit.PEACH,
+      self._fruit.LEMON,
+      self._fruit.ORANGE,
+      ], self._fruit.parse_list('peach lemon orange') )
+    
   def test_parse_invalid_type(self):
     class _bread(object):
       pass

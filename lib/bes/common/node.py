@@ -20,10 +20,12 @@ class node(object):
     self._child_class = clazz
     
   @property
-  def node_class(self, clazz):
-    self._node_class = clazz
+  def has_children(self):
+    return len(self.children) > 0
     
   def __eq__(self, other):
+    if other == None:
+      return False
     assert isinstance(other, node)
     return self.__dict__ == other.__dict__
 
@@ -55,7 +57,7 @@ class node(object):
     if not found:
       return None
     return found[0].child
-
+  
   def _find_children(self, func, depth, recurse):
     result = []
     for child in self.children:
@@ -71,6 +73,19 @@ class node(object):
     for part in path:
       current_node = current_node.ensure_child(part)
     return current_node
+
+  def find_child_by_path(self, path, func):
+    current_node = self
+    for part in path:
+      func2 = lambda n: func(n, part)
+      current_node = current_node.find_child(func2, recurse = False)
+      if current_node == None:
+        return None
+    return current_node
+
+  def find_child_by_path_data(self, path):
+    func = lambda n, part: n.data == part
+    return self.find_child_by_path(path, func)
   
   def to_string(self, depth = 0, indent = 2, data_func = None, rstrip = True):
     buf = StringIO()

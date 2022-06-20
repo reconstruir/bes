@@ -5,6 +5,8 @@ from ..system.check import check
 from bes.script.blurber import blurber
 
 from .pyinstaller_error import pyinstaller_error
+from .pyinstaller_log_level import pyinstaller_log_level
+from .pyinstaller_defaults import pyinstaller_defaults
 
 class pyinstaller_options(cli_options):
 
@@ -17,14 +19,17 @@ class pyinstaller_options(cli_options):
     'Return a dict of defaults for these options.'
     return {
       'blurber': blurber(),
-      'build_dir': None,
+      'build_dir': pyinstaller_defaults.BUILD_DIR,
       'clean': True,
       'debug': False,
       'excludes': None,
       'hidden_imports': None,
-      'log_level': 'INFO',
+      'log_level': pyinstaller_defaults.LOG_LEVEL,
       'python_version': '3.8',
       'verbose': False,
+      'windowed': pyinstaller_defaults.WINDOWED,
+      'osx_bundle_identifier': None,
+      'replace_env': None,
     }
 
   @classmethod
@@ -42,6 +47,8 @@ class pyinstaller_options(cli_options):
       'excludes': list,
       'hidden_imports': list,
       'verbose': bool,
+      'windowed': bool,
+      'replace_env': dict,
     }
 
   @classmethod
@@ -72,7 +79,10 @@ class pyinstaller_options(cli_options):
     check.check_bool(self.debug)
     check.check_string(self.build_dir, allow_none = True)
     check.check_string(self.python_version)
-    check.check_string(self.log_level)
     check.check_bool(self.clean)
-
+    check.check_bool(self.windowed)
+    check.check_string(self.osx_bundle_identifier, allow_none = True)
+    self.log_level = check.check_pyinstaller_log_level(self.log_level)
+    check.check_dict(self.replace_env, allow_none = True)
+    
 check.register_class(pyinstaller_options, include_seq = False)

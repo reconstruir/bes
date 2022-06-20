@@ -40,6 +40,16 @@ class file_check(object):
     return path.abspath(dirname)
 
   @classmethod
+  def check_file_seq(clazz, files, exception_class = None):
+    check.check_string_seq(files)
+    check.check_class(exception_class, allow_none = True)
+
+    result = []
+    for filename in files:
+      result.append(clazz.check_file(filename, exception_class = exception_class))
+    return result
+  
+  @classmethod
   def check_dir_seq(clazz, dirs, exception_class = None):
     check.check_string_seq(dirs)
     check.check_class(exception_class, allow_none = True)

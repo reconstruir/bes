@@ -26,7 +26,7 @@ class temp_file(object):
   _DEFAULT_PREFIX = path.splitext(path.basename(sys.argv[0]))[0] + '-tmp-'
 
   @classmethod
-  def make_temp_file(clazz, content = None, prefix = None, suffix = None, dir = None, mode = 'w+b', delete = True, perm = None):
+  def make_temp_file(clazz, content = None, prefix = None, suffix = None, dir = None, mode = 'w+b', delete = True, perm = None, non_existent = False):
     'Write content to a temporary file.  Returns the file object.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or ''
@@ -48,6 +48,8 @@ class temp_file(object):
     if delete:
       filesystem.atexit_remove(tmp.name)
     tmp.close()
+    if non_existent:
+      file_util.remove(tmp.name)
     return tmp.name
 
   @classmethod
