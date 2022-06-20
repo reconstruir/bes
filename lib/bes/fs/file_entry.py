@@ -15,6 +15,10 @@ class file_entry(object):
   def __init__(self, filename):
     self._filename = file_check.check_file(filename)
 
+  @property
+  def exists(self):
+    return path.exists(self._filename)
+    
   @cached_property
   def stat(self):
     return os.stat(self._filename, follow_symlinks = True)
@@ -22,19 +26,27 @@ class file_entry(object):
   @cached_property
   def basename(self):
     return path.basename(self._filename)
-
+  
   @cached_property
   def basename_lowercase(self):
     return self.basename.lower()
+
+  @cached_property
+  def filename(self):
+    return self._filename
 
   @cached_property
   def filename_lowercase(self):
     return self.filename.lower()
   
   @cached_property
-  def filename(self):
-    return self._filename
+  def dirname(self):
+    return path.dirname(self._filename)
 
+  @cached_property
+  def dirname_lowercase(self):
+    return self.dirname.lower()
+  
   @cached_property
   def is_dir(self):
     return path.isdir(self._filename)
