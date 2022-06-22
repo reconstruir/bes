@@ -50,13 +50,15 @@ class file_check(object):
     return result
   
   @classmethod
-  def check_dir_seq(clazz, dirs, exception_class = None):
+  def check_dir_seq(clazz, dirs, exception_class = None, ignore_files = False):
     check.check_string_seq(dirs)
     check.check_class(exception_class, allow_none = True)
 
     result = []
     for d in dirs:
-      result.append(clazz.check_dir(d, exception_class = exception_class))
+      should_ignore = ignore_files and path.isfile(d)
+      if not should_ignore:
+        result.append(clazz.check_dir(d, exception_class = exception_class))
     return result
 
   @classmethod
