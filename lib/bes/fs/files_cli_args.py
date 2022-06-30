@@ -30,6 +30,8 @@ class files_cli_args(object):
     # mime_types
     p = subparser.add_parser('mime_types', help = 'Print mime types for files.')
     self.__files_cli_add_add_common_args(p)
+    p.add_argument('--cached', action = 'store_true', default = False,
+                   help = 'Use the value cached in file attributes if present [ False ]')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to print mime types for [ None ]')
     
@@ -78,6 +80,14 @@ class files_cli_args(object):
                    help = 'The src directory [ None ]')
     p.add_argument('dst_dir', action = 'store', default = None,
                    help = 'The dst directory [ None ]')
+
+    # delete
+    p = subparser.add_parser('delete', help = 'Delete files or diretories.')
+    self.__files_cli_add_add_common_args(p)
+    p.add_argument('--from-file', action = 'store', default = None,
+                   help = 'Read list of files to delete from a file [ None ]')
+    p.add_argument('files', action = 'store', default = [], nargs = '*',
+                   help = 'One or more files or dirs to print mime types for [ None ]')
     
   @classmethod
   def __files_cli_add_add_common_args(clazz, p):
