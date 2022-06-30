@@ -48,13 +48,17 @@ class files_cli_handler(cli_command_handler):
       print('{}: {}'.format(media_type, f.filename_abs))
     return 0
 
-  def mime_types(self, files):
+  def mime_types(self, files, cached):
     check.check_string_seq(files)
+    check.check_bool(cached)
 
     files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
     for f in files:
-      #mime_type = file_mime.mime_type(f.filename_abs)
-      mime_type = file_attributes_metadata.get_mime_type(f.filename_abs)
+      if cached:
+        mime_type = file_attributes_metadata.get_mime_type(f.filename_abs)
+      else:
+        mime_type = file_mime.mime_type(f.filename_abs)
+        
       print('{}: {}'.format(mime_type, f.filename_abs))
     return 0
   
@@ -158,3 +162,27 @@ class files_cli_handler(cli_command_handler):
     if prefix:
       return prefix
     return files[0] + '.cat'
+
+  def delete(self, files, from_file):
+    check.check_string_seq(files)
+    check.check_string(from_file, allow_none = True)
+
+    if not files and not from_file:
+      print(f'need to provide at least one filename')
+      return 1
+
+    from_file_files = []
+    if from_file:
+      with open(from_file, 'r') as fin:
+        lines = fin.readlines()
+        from_file_files = [ line.strip() for line in lines ]
+        from_file_files = [ f for f in from_file_files if f ]
+    
+    cli_files = list(file_resolver.resolve_files(files, options = self.options.file_resolver_options).absolute_files())
+    files = sorted(list(set(from_file_files + cli_files)))
+    for f in files:
+      if self.options.dry_run:
+        print(f'DRY_RUN: would remove {f}')
+      else:
+        file_util.remove(f)
+    return 0

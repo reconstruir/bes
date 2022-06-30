@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path
+from os import path
+
 from ..system.check import check
 
 from .file_symlink import file_symlink
@@ -13,6 +14,8 @@ class file_check(object):
     check.check_class(exception_class, allow_none = True)
 
     exception_class = exception_class or IOError
+    if filename:
+      filename = path.expanduser(filename)
     filename = clazz._check_symlink(filename, exception_class, allow_none)
     
     if allow_none and filename == None:
@@ -29,6 +32,8 @@ class file_check(object):
     check.check_class(exception_class, allow_none = True)
 
     exception_class = exception_class or IOError
+    if dirname:
+      dirname = path.expanduser(dirname)
     dirname = clazz._check_symlink(dirname, exception_class, allow_none)
 
     if allow_none and dirname == None:
@@ -67,6 +72,8 @@ class file_check(object):
     check.check_class(exception_class, allow_none = True)
 
     exception_class = exception_class or IOError
+    if ford:
+      ford = path.expanduser(ford)
     ford = clazz._check_symlink(ford, exception_class, allow_none)
 
     if allow_none and ford == None:

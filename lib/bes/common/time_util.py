@@ -3,6 +3,7 @@
 from collections import namedtuple
 from datetime import datetime
 import time
+import math
 
 from ..system.check import check
 
@@ -31,16 +32,20 @@ class time_util(object):
   def ms_to_tuple(clazz, ms):
     check.check_int(ms)
     
-    seconds = (ms / 1000) % 60
-    minutes = (ms / (1000 * 60)) % 60
-    hours = (ms / (1000 * 60 * 60)) % 24
+    seconds = math.floor(ms / 1000) % 60
+    minutes = math.floor(ms / (1000 * 60)) % 60
+    hours = math.floor(ms / (1000 * 60 * 60)) % 24
     return clazz._ms_tuple(hours, minutes, seconds)
 
   @classmethod
-  def ms_to_string(clazz, ms):
+  def ms_to_string(clazz, ms, show_hours = True):
     check.check_int(ms)
 
     t = clazz.ms_to_tuple(ms)
-    return '{}:{}:{}'.format(str(t.hours).zfill(2),
-                             str(t.minutes).zfill(2),
-                             str(t.seconds).zfill(2))
+    if t.hours or show_hours:
+      return '{}:{}:{}'.format(str(t.hours).zfill(2),
+                               str(t.minutes).zfill(2),
+                               str(t.seconds).zfill(2))
+    else:
+      return '{}:{}'.format(str(t.minutes).zfill(2),
+                            str(t.seconds).zfill(2))

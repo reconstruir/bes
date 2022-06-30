@@ -17,9 +17,10 @@ class file_metadata_getter_mime_type(file_metadata_getter_base):
   #@abstractmethod
   def get_value(self, manager, filename):
     'Get a metadata value from filename and return it encoded as bytes.'
-    file_check.check_file(filename)
+    filename = file_check.check_file(filename)
 
-    return file_mime.mime_type(filename).encode('utf-8')
+    value = file_mime.mime_type(filename)
+    return value.encode('utf-8')
 
   #@abstractmethod
   def decode_value(self, value):
