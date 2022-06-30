@@ -2,6 +2,7 @@
 
 from os import path
 
+from bes.common.string_util import string_util
 from bes.system.check import check
 from bes.fs.file_check import file_check
 from bes.system.execute import execute
@@ -24,7 +25,7 @@ class _file_mime_type_detector_file_exe(_file_mime_type_detector_base):
     'Detect the mime type for file.'
     filename = file_check.check_file(filename)
 
-    cmd = [ 'file', '--brief', '--mime', filename ]
+    cmd = [ 'file', '--brief', '--mime', string_util.quote_if_needed(filename) ]
     if not path.isfile(filename):
       raise IOError('file not found: "{}"'.format(filename))
     rv = execute.execute(cmd, raise_error = False, quote = True)
