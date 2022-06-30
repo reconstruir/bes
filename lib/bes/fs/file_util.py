@@ -76,11 +76,16 @@ class file_util(object):
   @classmethod
   def backup(clazz, filename, suffix = '.bak'):
     'Make a backup of filename if it exists.'
-    if path.exists(filename):
-      if path.isfile(filename):
-        clazz.copy(filename, filename + suffix)
-      else:
-        raise RuntimeError('Not a file: %s' % (filename))
+    if not path.exists(filename):
+      return
+    if not path.isfile(filename):
+      raise RuntimeError(f'Not a file: {filename}')
+
+    backup_filename = filename + suffix
+    # if the backup file exists and its the same dont touch it
+    if path.exists(backup_filename) and clazz.files_are_the_same(filename, backup_filename):
+      return
+    clazz.copy(filename, backup_filename)
 
   @classmethod
   def hard_link(clazz, src, dst):
