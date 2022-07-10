@@ -16,10 +16,18 @@ class test_sqlite_item_mixin(unit_test):
     self.assertEqual( 'insert into fruits(name, color, price) values(?, ?, ?)',
                       self._fruit('apple', 'red', 1.42).sql_for_insert('fruits') )
 
+  def test_sql_for_insert_with_exclude(self):
+    self.assertEqual( 'insert into fruits(name, price) values(?, ?)',
+                      self._fruit('apple', 'red', 1.42).sql_for_insert('fruits', exclude = set([ 'color' ])) )
+    
   def test_sql_for_replace(self):
     self.assertEqual( 'replace into fruits(name, color, price) values(?, ?, ?)',
                       self._fruit('apple', 'red', 1.42).sql_for_replace('fruits') )
 
+  def test_sql_for_replace_with_exclude(self):
+    self.assertEqual( 'replace into fruits(name, price) values(?, ?)',
+                      self._fruit('apple', 'red', 1.42).sql_for_replace('fruits', exclude = set([ 'color' ])) )
+    
   def test_from_sql_row(self):
     self.assertEqual( ( 'apple', 'red', 1.42 ), self._fruit.from_sql_row(( 'apple', 'red', 1.42 )) )
     

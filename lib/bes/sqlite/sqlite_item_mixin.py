@@ -7,22 +7,29 @@ from .sqlite_error import sqlite_error
 class sqlite_item_mixin:
   'This mixing assumes that "self" is a namedtuple'
 
-  def sql_for_insert(self, table_name):
+  def sql_for_insert(self, table_name, exclude = None):
     check.check_string(table_name)
-    
-    fields = self._fields
+    check.check_set(exclude, entry_type = check.STRING_TYPES, allow_none = True)
+
+    fields = self._resolve_fields(exclude)
     values = ', '.join('?' * len(fields))
     keys = ', '.join(fields)
     return f'insert into {table_name}({keys}) values({values})'
 
-  def sql_for_replace(self, table_name):
+  def sql_for_replace(self, table_name, exclude = None):
     check.check_string(table_name)
+    check.check_set(exclude, entry_type = check.STRING_TYPES, allow_none = True)
 
-    fields = self._fields
+    fields = self._resolve_fields(exclude)
     values = ', '.join('?' * len(fields))
     keys = ', '.join(fields)
     return f'replace into {table_name}({keys}) values({values})'
 
+  def _resolve_fields(self, exclude):
+    if exclude == None:
+      return self._fields
+    return tuple([ field for field in self._fields if field not in exclude ])
+  
   @classmethod
   def from_sql_row(clazz, row, error_class = None):
     check.check_tuple(row)
