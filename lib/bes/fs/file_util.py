@@ -389,3 +389,8 @@ class file_util(object):
         if f1.read(read_size) != f2.read(read_size):
           return False
     return True
+
+  @classmethod
+  def touch(clazz, filename):
+    'Update the modification date of filename to be now'
+    clazz.set_modification_date(filename, datetime.now())
