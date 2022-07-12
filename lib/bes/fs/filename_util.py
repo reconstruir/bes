@@ -137,6 +137,7 @@ class filename_util(object):
 
   @classmethod
   def _rstrip_punctiation(clazz, filename):
+    count = 0
     for count, c in enumerate(reversed(filename)):
       if not char_util.is_punctuation(c):
         break
