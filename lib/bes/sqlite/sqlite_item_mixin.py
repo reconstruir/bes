@@ -25,21 +25,34 @@ class sqlite_item_mixin:
     keys = ', '.join(fields)
     return f'replace into {table_name}({keys}) values({values})'
 
-  def _resolve_fields(self, exclude):
+  @classmethod
+  def _resolve_fields(clazz, exclude):
     if exclude == None:
-      return self._fields
-    return tuple([ field for field in self._fields if field not in exclude ])
+      return clazz._fields
+    return tuple([ field for field in clazz._fields if field not in exclude ])
   
   @classmethod
-  def from_sql_row(clazz, row, error_class = None):
+  def from_sql_row(clazz, row, error_class = None, exclude = None):
     check.check_tuple(row)
     check.check_class(error_class, allow_none = True)
-
-    error_class = error_class or sqlite_error
+    check.check_set(exclude, entry_type = check.STRING_TYPES, allow_none = True)
     
-    length = len(row)
+    error_class = error_class or sqlite_error
+
+    if exclude:
+      filled_row = []
+      row_copy = list(row[:])
+      for field in clazz._fields:
+        if field in exclude:
+          filled_row.append(None)
+        else:
+          filled_row.append(row_copy.pop(0))
+    else:
+      filled_row = row
+    
+    length = len(filled_row)
     expected_length = len(clazz._fields)
-    if len(row) != len(clazz._fields):
+    if length != expected_length:
       raise error_class(f'Length of row should be {expected_length} instead of {length} - {row}')
-    return clazz(*row)
+    return clazz(*filled_row)
   
