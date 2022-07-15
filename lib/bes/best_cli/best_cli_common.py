@@ -20,6 +20,7 @@ from bes.git.git_identity_cli_args import git_identity_cli_args
 from bes.git.git_projects_cli_args import git_projects_cli_args
 from bes.git.git_repo_cli_args import git_repo_cli_args
 from bes.git.git_repo_document_cli_args import git_repo_document_cli_args
+from bes.git.git_repo_migrate_cli_args import git_repo_migrate_cli_args
 from bes.git.git_repo_script_cli_args import git_repo_script_cli_args
 from bes.native_package.native_package_cli_args import native_package_cli_args
 from bes.pipenv_project.pipenv_project_cli_args import pipenv_project_cli_args
@@ -61,6 +62,7 @@ COMMON_COMMAND_GROUPS = [
   cli_command('git_projects', 'git_projects_add_args', 'Deal with git projects', git_projects_cli_args),    
   cli_command('git_repo', 'git_repo_add_args', 'Deal with git repos', git_repo_cli_args),
   cli_command('git_repo_document', 'git_repo_document_add_args', 'Deal with git documents', git_repo_document_cli_args),
+  cli_command('git_repo_migrate', 'git_repo_migrate_add_args', 'Deal with git repo scipts', git_repo_migrate_cli_args),
   cli_command('git_repo_script', 'git_repo_script_add_args', 'Deal with git repo scipts', git_repo_script_cli_args),
   cli_command('native_package', 'native_package_add_args', 'Deal with native packages', native_package_cli_args),
   cli_command('pip', 'pip_add_args', 'Pip stuff', pip_cli_args),
