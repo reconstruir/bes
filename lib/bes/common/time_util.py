@@ -13,6 +13,11 @@ class time_util(object):
   @classmethod
   def timestamp(clazz, delimiter = '-', milliseconds = True, timezone = False, when = None):
     'Return a timestamp string in the form YYYY-MM-DD-HH-MM-SS.'
+    check.check_string(delimiter)
+    check.check_bool(milliseconds)
+    check.check_bool(timezone)
+    check.check(when, datetime, allow_none = True)
+    
     delimiter = delimiter or ''
     fmt = [ '%Y', '%m', '%d', '%H', '%M', '%S' ]
     when = when or datetime.now()
@@ -49,3 +54,17 @@ class time_util(object):
     else:
       return '{}:{}'.format(str(t.minutes).zfill(2),
                             str(t.seconds).zfill(2))
+
+  @classmethod
+  def datetime_to_utc(clazz, when):
+    check.check(when, datetime)
+    return datetime.utcfromtimestamp(when.timestamp())
+
+  @classmethod
+  def timestamp_iso8601(clazz, when, milliseconds = True):
+    check.check(when, datetime)
+    fmt = [ '%Y', '%m', '%d', '%H', '%M', '%S' ]
+    fmt = '%Y-%m-%d %H:%M:%S'
+    if milliseconds:
+      fmt = fmt + ':%f'
+    return when.strftime(fmt)
