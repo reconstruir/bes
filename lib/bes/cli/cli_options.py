@@ -3,13 +3,16 @@
 import pprint
 import os.path as path
 
-from bes.common.check import check
+from bes.common.bool_util import bool_util
+from ..system.check import check
+from bes.common.string_util import string_util
 from bes.common.dict_util import dict_util
 from bes.config.simple_config import simple_config
 from bes.config.simple_config_editor import simple_config_editor
 from bes.system.log import logger
 from bes.system.os_env import os_env_var
-from bes.common.bool_util import bool_util
+from bes.text.string_lexer_options import string_lexer_options
+from bes.text.string_list import string_list
 
 from .cli_options_base import cli_options_base
 
@@ -63,8 +66,8 @@ class cli_options(cli_options_base):
     'update one value'
     self._log.log_d('_do_update_value: setattr({}, {}, {}:{})'.format(id(self), key, value, type(value)))
     type_hint = self._get_value_type_hint(key)
-    value = self._cast_value_if_needed(value, type_hint)
-    setattr(self, key, value)
+    cast_value = self._cast_value_if_needed(value, type_hint)
+    setattr(self, key, cast_value)
 
   @classmethod
   def _cast_value_if_needed(clazz, value, type_hint):
@@ -74,6 +77,9 @@ class cli_options(cli_options_base):
       return value
     if type_hint == bool:
       return bool_util.parse_bool(value)
+    elif type_hint == list:
+      if check.is_string(value):
+        value = string_list.parse(value, options = string_lexer_options.KEEP_QUOTES).to_list()
     return type_hint(value)
     
   @classmethod
@@ -112,6 +118,7 @@ class cli_options(cli_options_base):
 
   def _extract_valid_non_default_values(clazz, values, default_values):
     'Extract and return only the valid non default values'
+
     result = {}
     for key, value in values.items():
       if key in default_values:
@@ -139,7 +146,7 @@ class cli_options(cli_options_base):
       raise error_class('No section "{}" found in config file: "{}"'.format(config_file_section,
                                                                                   config_filename))
     section = config.section(config_file_section)
-    values = section.to_dict()
+    values = section.to_dict(resolve_env_vars = not clazz.ignore_config_file_variables())
 
     valid_keys = clazz.default_values().keys()
     filtered_values = dict_util.filter_with_keys(values, valid_keys)
@@ -154,6 +161,77 @@ class cli_options(cli_options_base):
   def config_file(self):
     return _special_attributes.get_value(self.__class__, 'config_file', None)
 
+  @classmethod
+  def _collect_super_method_values(clazz, method_name):
+    'Collect all the results of the mro classes for the given method.'
+    check.check_string(method_name)
+
+    ignore_classes = {
+      cli_options_base,
+      cli_options,
+      object,
+      clazz,
+    }
+    result = []
+    classes = [ c for c in clazz.__mro__ if not c in ignore_classes ]
+    for next_class in classes:
+      next_method = getattr(next_class, method_name, None)
+      if next_method:
+        next_values = next_method()
+        result.append(next_values)
+    return result
+  
+  @classmethod
+  def _call_super_method_dict(clazz, method_name, values):
+    'Call all the superclasses method.'
+    check.check_string(method_name)
+    check.check_dict(values, allow_none = True)
+
+    values = values or {}
+    result = {}
+    collected_values = clazz._collect_super_method_values(method_name)
+    for next_values in collected_values:
+      assert isinstance(next_values, dict)
+      result.update(next_values)
+    result.update(values)
+    return result
+
+  @classmethod
+  def _call_super_method_tuple(clazz, method_name, values):
+    'Call all the superclasses method.'
+    check.check_string(method_name)
+    check.check_tuple(values, allow_none = True)
+
+    values = values or ()
+    result = ()
+    collected_values = clazz._collect_super_method_values(method_name)
+    for next_values in collected_values:
+      assert isinstance(next_values, tuple)
+      result += next_values
+    result += values
+    return result
+  
+  @classmethod
+  def super_default_values(clazz, values = None):
+    'Return a dict of defaults for these options.'
+    check.check_dict(values, allow_none = True)
+
+    return clazz._call_super_method_dict('default_values', values)
+  
+  @classmethod
+  def super_value_type_hints(clazz, values = None):
+    'Return a dict of defaults for these options.'
+    check.check_dict(values, allow_none = True)
+
+    return clazz._call_super_method_dict('value_type_hints', values)
+
+  @classmethod
+  def super_sensitive_keys(clazz, values):
+    'Return a dict of defaults for these options.'
+    check.check_tuple(values, allow_none = True)
+
+    return clazz._call_super_method_tuple('sensitive_keys', values)
+  
 class _special_attributes(object):
   '''
   Use a global dict to store special attributes to not pollute either

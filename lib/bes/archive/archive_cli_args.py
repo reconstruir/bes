@@ -115,5 +115,6 @@ class archive_cli_args(object):
                    help = 'Only match whole words. [ ]')
 
   def _command_archive(self, command, *args, **kargs):
-    from .archive_cli_command import archive_cli_command
-    return archive_cli_command.handle_command(command, **kargs)
+    from .archive_cli_handler import archive_cli_handler
+    return archive_cli_handler(kargs).handle_command(command)
+  

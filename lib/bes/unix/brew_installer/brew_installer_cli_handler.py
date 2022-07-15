@@ -3,7 +3,7 @@
 from os import path
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.check import check
+from bes.system.check import check
 from bes.fs.file_util import file_util
 
 from .brew_installer import brew_installer

@@ -1,37 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path
-from collections import namedtuple
-from bes.common.check import check
-from bes.common.object_util import object_util
-from bes.text.text_line_parser import text_line_parser
+from os import path
+
+from ..system.check import check
 
 from .file_path import file_path
-from .file_util import file_util
-from .file_match import file_match
-
-class ignore_file_data(namedtuple('ignore_file_data', 'directory,patterns')):
-
-  def __new__(clazz, directory, patterns):
-    check.check_string(directory)
-    if patterns:
-      check.check_string_seq(patterns)
-    return clazz.__bases__[0].__new__(clazz, directory, patterns)
-
-  @classmethod
-  def read_file(clazz, filename):
-    filename = path.abspath(filename)
-    if not path.isfile(filename):
-      raise IOError('not a file: %s' % (filename))
-    text = file_util.read(filename, codec = 'utf-8')
-    patterns = text_line_parser.parse_lines(text).to_list()
-    return clazz(path.dirname(filename), patterns)
-  
-  def should_ignore(self, filename):
-    if not self.patterns:
-      return False
-    filename = path.basename(filename)
-    return file_match.match_fnmatch(filename, self.patterns, file_match.ANY)
+from .file_ignore_item import file_ignore_item
   
 class file_ignore(object):
   'Decide whether to ignore a file based on scheme similar to .gitignore'
@@ -67,26 +41,9 @@ class file_ignore(object):
     assert path.isabs(d)
     ignore_filename = path.join(d, self._ignore_filename)
     if not path.isfile(ignore_filename):
-      return ignore_file_data(d, None)
-    return ignore_file_data.read_file(ignore_filename)
+      return file_ignore_item(d, None)
+    return file_ignore_item.read_file(ignore_filename)
 
   def filter_files(self, files):
-    check.check_string_seq(files)
-    return [ f for f in files if not self.should_ignore(f) ]
-
-class file_multi_ignore(object):
-
-  def __init__(self, ignore_filenames):
-    ignore_filenames = object_util.listify(ignore_filenames)
-    self._ignorers = [ file_ignore(f) for f in ignore_filenames ]
-    
-  def should_ignore(self, ford):
-    for ignorer in self._ignorers:
-      if ignorer.should_ignore(ford):
-        return True
-    return False
-
-  def filter_files(self, files):
-    check.check_string_seq(files)
     check.check_string_seq(files)
     return [ f for f in files if not self.should_ignore(f) ]

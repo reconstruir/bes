@@ -3,7 +3,7 @@
 import copy
 import os.path as path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.pipenv.pipenv_exe import pipenv_exe
 from bes.property.cached_property import cached_property
 from bes.python.pip_project import pip_project
@@ -20,8 +20,7 @@ class pipenv_project(object):
 
   _log = logger('pipenv')
   
-  def __init__(self, name, options = None):
-    check.check_string(name)
+  def __init__(self, options = None):
     check.check_pipenv_project_options(options, allow_none = True)
 
     self._options = options or pipenv_project_options()
@@ -30,10 +29,10 @@ class pipenv_project(object):
                                      blurber = self._options.blurber,
                                      root_dir = self._options.root_dir,
                                      python_version = self._options.python_version)
-    self._pip_project = pip_project(name, pp_options)
+    self._pip_project = pip_project(pp_options)
     self._pipenv_cache_dir = path.join(self._pip_project.droppings_dir, 'pipenv-cache')
     extra_env = {
-      'WORKON_HOME': self._pip_project.project_dir,
+      'WORKON_HOME': self._pip_project.root_dir,
       'PIPENV_VENV_IN_PROJECT': '1',
       'PIPENV_CACHE_DIR': self._pipenv_cache_dir,
     }
@@ -45,7 +44,7 @@ class pipenv_project(object):
     if self._options.pipfile_dir:
       return self._options.pipfile_dir
     else:
-      return self._pip_project.project_dir
+      return self._pip_project.root_dir
 
   @cached_property
   def pipfile(self):

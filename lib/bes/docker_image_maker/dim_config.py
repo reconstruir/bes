@@ -3,7 +3,7 @@
 
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 
 class dim_config(object):
 

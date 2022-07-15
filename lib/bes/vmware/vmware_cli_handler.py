@@ -4,7 +4,7 @@ import copy
 import os.path as path
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.check import check
+from ..system.check import check
 from bes.system.log import logger
 
 from .vmware import vmware

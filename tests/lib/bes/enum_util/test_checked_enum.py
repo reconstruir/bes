@@ -48,6 +48,13 @@ class test_checked_enum(unit_test):
     self.assertEqual( self._fruit.LEMON, self._fruit.parse(self._fruit.LEMON) )
     self.assertEqual( self._fruit.LEMON, self._fruit.parse('LEMON') )
 
+  def test_parse_list(self):
+    self.assertEqual( [
+      self._fruit.PEACH,
+      self._fruit.LEMON,
+      self._fruit.ORANGE,
+      ], self._fruit.parse_list('peach lemon orange') )
+    
   def test_parse_invalid_type(self):
     class _bread(object):
       pass
@@ -68,15 +75,25 @@ class test_checked_enum(unit_test):
     with self.assertRaises(TypeError) as ctx:
       check.check__dessert('CHEESE')
 
+  class _spread(checked_enum):
+    CREAM_CHEESE = 'CREAM_CHEESE'
+    JAM = 'JAM'
+    BUTTER = 'BUTTER'
+    
   def test_check_with_cast_func(self):
-    class _spread(checked_enum):
-      CREAM_CHEESE = 'cream_cheese'
-      JAM = 'JAM'
-      BUTTER = 'BUTTER'
-    check.register_class(_spread, cast_func = _spread.parse)
-    self.assertEqual( _spread.BUTTER, check.check__spread(_spread.BUTTER) )
-    self.assertEqual( _spread.CREAM_CHEESE, check.check__spread('cream_cheese') )
-    self.assertEqual( _spread.JAM, check.check__spread('JAM') )
+    check.register_class(self._spread, cast_func = self._spread.parse)
+    self.assertEqual( self._spread.BUTTER, check.check__spread(self._spread.BUTTER) )
+    self.assertEqual( self._spread.CREAM_CHEESE, check.check__spread('CREAM_CHEESE') )
+    self.assertEqual( self._spread.JAM, check.check__spread('JAM') )
+    check.unregister_class(self._spread)
+
+  def test___gt__(self):
+    self.assertTrue( self._spread.JAM > self._spread.BUTTER )
+    self.assertTrue( self._spread.JAM > 'BUTTER' )
+
+  def test___eq__(self):
+    self.assertTrue( self._spread.JAM == 'JAM' )
+    self.assertTrue( self._spread.JAM == self._spread.JAM )
     
 if __name__ == '__main__':
   unit_test.main()

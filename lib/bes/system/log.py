@@ -11,7 +11,7 @@ from .add_method import add_method
 from .compat import compat
 from .console import console as system_console
 
-from .detail.log_writer_list import log_writer_list
+from ._detail.log_writer_list import log_writer_list
 
 import logging as pylog
 
@@ -440,6 +440,10 @@ class logger(object):
   def __init__(self, tag):
     self._tag = tag
 
+  @property
+  def tag(self):
+    return self._tag
+    
   def log(self, level, message, multi_line = False):
     log.log(self._tag, level, message, multi_line = multi_line)
 
@@ -498,16 +502,16 @@ class logger(object):
   def log_method_d(self):
     self.log_method(log.DEBUG, depth = 2)
 
-  def log_method_i(self, msg):
+  def log_method_i(self):
     self.log_method(log.INFO, depth = 2)
 
-  def log_method_c(self, msg):
+  def log_method_c(self):
     self.log_method(log.CRITICAL, depth = 2)
     
-  def log_method_e(self, msg):
+  def log_method_e(self):
     self.log_method(log.ERROR, depth = 2)
     
-  def log_method_w(self, msg):
+  def log_method_w(self):
     self.log_method(log.WARNING, depth = 2)
     
   critical = log_c

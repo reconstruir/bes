@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
 from bes.common.tuple_util import tuple_util
 from bes.compat.StringIO import StringIO

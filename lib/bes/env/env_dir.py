@@ -39,7 +39,7 @@ class env_dir(object):
           raise IOError('File not found: %s' % (p))
       return files
     else:
-      return dir_util.list(where, relative = True, patterns = [ '*.sh' ])
+      return dir_util.list(where, relative = True, patterns = [ '*.sh' ], basename = True)
 
   @property
   def files(self):

@@ -5,7 +5,7 @@ import os.path as path
 import sys
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.check import check
+from ..system.check import check
 
 from .properties_editor import properties_editor
 

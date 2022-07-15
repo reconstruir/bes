@@ -1,10 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common.check import check
+from ..system.check import check
 from bes.system.log import logger
 
 from .file_util import file_util
-from .file_checksum_attributes import file_checksum_attributes
 
 from .file_metadata import file_metadata
 
@@ -28,6 +27,8 @@ class file_checksum_db(object):
   def __init__(self, root_dir, db_filename = None):
     check.check_string(root_dir)
     check.check_string(db_filename, allow_none = True)
+    db_filename = db_filename or self.DEFAULT_CHECKSUM_DB_FILENAME
+    
     self._metadata = file_metadata(root_dir, db_filename = db_filename)
     self._count = 0
 

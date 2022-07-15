@@ -3,7 +3,7 @@
 import re
 from bes.text.comments import comments
 from collections import namedtuple
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from .requirement import requirement
 from .requirement_hardness import requirement_hardness

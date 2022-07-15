@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 
 class git_repo_status(namedtuple('git_repo_status', 'change_status, branch_status, active_branch, last_commit')):
   'A class to encapsulate everything about the status of a git repo.'

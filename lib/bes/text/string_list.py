@@ -1,9 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import json
+from itertools import takewhile
+
 from bes.system.compat import compat
 from bes.compat.StringIO import StringIO
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.common.type_checked_list import type_checked_list
 from bes.common.variable import variable
@@ -64,5 +66,9 @@ class string_list(type_checked_list):
   
   def pop(self, *args):
     return self._values.pop(*args)
-    
+
+  def common_prefix(self):
+    'Borrowed from https://www.geeksforgeeks.org/python-ways-to-determine-common-prefix-in-set-of-strings/'
+    return ''.join(c[0] for c in takewhile(lambda x: all(x[0] == y for y in x), zip(*self._values)))
+
 check.register_class(string_list, include_seq = False)

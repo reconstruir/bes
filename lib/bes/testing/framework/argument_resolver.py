@@ -1,20 +1,23 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import fnmatch, os.path as path, random, re
+import fnmatch
+from os import path
+import random
+import re
 
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from bes.system.check import check
 from bes.common.object_util import object_util
 from bes.fs.file_check import file_check
 from bes.fs.file_find import file_find
-from bes.fs.file_ignore import file_multi_ignore
+from bes.fs.file_multi_ignore import file_multi_ignore
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util
 from bes.git.git import git
-from bes.system.log import logger
 from bes.python.dependencies import dependencies
 from bes.system.env_var import env_var
 from bes.system.execute import execute
+from bes.system.log import logger
 from bes.text.text_line_parser import text_line_parser
 
 from .config_env import config_env
@@ -29,7 +32,7 @@ class argument_resolver(object):
   log = logger('testing')
   
   def __init__(self, working_dir, arguments, root_dir = None, file_ignore_filename = None,
-               check_git = False, git_commit = None, use_env_deps = True, unit_test_class_names = None):
+               check_git = False, git_commit = None, use_env_deps = True):
     self._num_iterations = 1
     self._randomize = False
     self._raw_test_descriptions = []
@@ -67,15 +70,19 @@ class argument_resolver(object):
     self.log.log_d('argument_resolver: config_env={}'.format(config_env))
     self.all_files = ignore.filter_files(files)
     self.log.log_d('argument_resolver: self.all_files={}'.format(self.all_files))
-    file_infos = file_info_list([ file_info(self.config_env, f, unit_test_class_names = unit_test_class_names) for f in self.all_files ])
-    file_infos += self._tests_for_many_files(file_infos)
-    file_infos.remove_dups()
-    file_infos = file_infos.filter_by_filenames(filter_patterns)
-    file_infos = file_infos.filter_by_test_filename_only()
-    self.inspect_map = file_infos.make_inspect_map()
+    pre_file_infos = file_info_list([ file_info(self.config_env, f, None) for f in self.all_files ])
+    pre_file_infos += self._tests_for_many_files(pre_file_infos)
+    pre_file_infos.remove_dups()
+    pre_file_infos = pre_file_infos.filter_by_filenames(filter_patterns)
+    pre_file_infos = pre_file_infos.filter_by_test_filename_only()
+    
+    self.inspect_map = pre_file_infos.make_inspect_map()
     self.log.log_d('argument_resolver: inspect_map={}'.format(self.inspect_map))
     # FIXME: change to ignore_without_tests()
-    file_infos = file_info_list([ f for f in file_infos if f.filename in self.inspect_map ])
+    file_infos = file_info_list()
+    for f in pre_file_infos:
+      if f.filename in self.inspect_map:
+        file_infos.append(file_info(self.config_env, f.filename, self.inspect_map[f.filename]))
     # FIXME: change to filter_with_patterns_tests()
     self._raw_test_descriptions = file_filter.filter_files(file_infos, filter_patterns)
     if use_env_deps:
@@ -181,7 +188,7 @@ class argument_resolver(object):
     test_fragment = path.dirname(finfo.relative_filename)
     test_full_path = path.join(finfo.config.root_dir, 'tests', test_fragment, test_basename)
     if path.isfile(test_full_path):
-      return file_info(self.config_env, test_full_path)
+      return file_info(self.config_env, test_full_path, None)
     return None
 
   def _tests_for_many_files(self, finfos):
@@ -267,7 +274,8 @@ class argument_resolver(object):
   def print_tests(self):
     longest_file_name = max([ len(path.relpath(desc.file_info.filename)) for desc in self._raw_test_descriptions ])
     for desc in self._raw_test_descriptions:
-      inspection = desc.file_info.inspection
+      assert desc.file_info.filename in self.inspect_map
+      inspection = self.inspect_map[desc.file_info.filename]
       for i in inspection:
         filename = path.relpath(i.filename).rjust(longest_file_name)
         print('%s %s.%s' % (filename, i.fixture, i.function))
@@ -297,10 +305,9 @@ class argument_resolver(object):
 
   @classmethod
   def _git_files_for_commit(clazz, commit):
-    git_dir = git.find_root_dir()
-    root = path.dirname(git_dir)
-    files = git.files_for_commit(root, commit)
-    files = [ path.join(root, f) for f in files ]
+    root_dir = git.find_root_dir()
+    files = git.files_for_commit(root_dir, commit)
+    files = [ path.join(root_dir, f) for f in files ]
     return files
 
   def supports_test_dependency_files(self):

@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.check import check
+from ..system.check import check
 
 from bes.system.process_lister import process_lister
 from bes.text.text_table import text_table

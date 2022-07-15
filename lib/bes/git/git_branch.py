@@ -4,7 +4,7 @@ import re
 from collections import namedtuple
 
 from bes.text.text_line_parser import text_line_parser
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.common.tuple_util import tuple_util
 from bes.compat.cmp import cmp

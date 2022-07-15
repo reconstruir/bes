@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip_class import unit_test_skip_class
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.pyinstaller.pyinstaller import pyinstaller
 
 _AVAILABLE=False
@@ -18,7 +18,7 @@ class test_dim_step_descriptor(unit_test):
   @classmethod
   def setUpClass(clazz):
     if not _AVAILABLE:
-      unit_test_skip_class.raise_skip('not available.')
+      unit_test_class_skip.raise_skip('not available.')
     pyinstaller.raise_skip_if_is_binary()
   
   def test_repo_name(self):

@@ -1,8 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs, json
+import json
+import shutil
 
 from .object_util import object_util
+
+from bes.system.check import check
 
 class json_util(object):
   'Json util'
@@ -18,6 +21,9 @@ class json_util(object):
 
   @classmethod
   def to_json(clazz, o, indent = None, sort_keys = False):
+    check.check_int(indent, allow_none = True)
+    check.check_bool(sort_keys)
+    
     '''
     Like json.dumps plus the following:
      - same white space results on both python 2 and 3
@@ -32,21 +38,42 @@ class json_util(object):
 
   @classmethod
   def normalize_text(clazz, text):
+    check.check_string(text)
+    
     o = json.loads(text)
     return json_util.to_json(o, indent = 2)
 
   @classmethod
   def read_file(clazz, filename, codec = None):
-    with open(filename, 'r') as f:
+    check.check_string(filename)
+    check.check_string(codec, allow_none = True)
+    
+    codec = codec or 'utf-8'
+    with open(filename, 'r', encoding = codec) as f:
       content = f.read()
-      if codec:
-        content = codecs.decode(content, codec)
       return json.loads(content)
     return None
     
   @classmethod
-  def save_file(clazz, filename, o, indent = None, sort_keys = False):
+  def save_file(clazz, filename, o, indent = None, sort_keys = False, codec = None):
+    check.check_string(filename)
+    check.check_int(indent, allow_none = True)
+    check.check_bool(sort_keys)
+    check.check_string(codec, allow_none = True)
+
     content = clazz.to_json(o, indent = indent, sort_keys = sort_keys)
-    with open(filename, 'w') as f:
+    codec = codec or 'utf-8'
+    with open(filename, 'w', encoding = codec) as f:
       f.write(content)
 
+  @classmethod
+  def normalize_file(clazz, filename, codec = None, backup = False):
+    check.check_string(filename)
+#    check.check_int(indent, allow_none = True)
+#    check.check_bool(sort_keys)
+    check.check_string(codec, allow_none = True)
+
+    o = clazz.read_file(filename, codec = codec)
+    if backup:
+      shutil.copy(filename, f'{filename.bak}')
+    clazz.save_file(filename, o, indent = 2, sort_keys = True, codec = codec)

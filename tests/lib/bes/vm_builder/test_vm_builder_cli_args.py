@@ -6,14 +6,14 @@ from os import path
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.system.host import host
-from bes.testing.unit_test_skip import skip_if
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 from bes.testing.program_unit_test import program_unit_test
 
 class test_vm_builder_cli_args(program_unit_test):
 
   _program = program_unit_test.resolve_program(__file__, '..', '..', '..', '..', 'bin', 'best.py')
   
-  @skip_if(not host.is_unix(), 'not unix')
+  @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_vm_builder_ssh_setup(self):
 
     git_access_ssh_public_key_content = r'''

@@ -7,11 +7,11 @@ from bes.python.python_installation import python_installation
 from bes.python.python_testing import python_testing
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip import skip_if
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 class test_python_installation(unit_test):
 
-  @skip_if(not host.is_macos(), 'not macos')
+  @unit_test_function_skip.skip_if(not host.is_macos(), 'not macos')
   def test_macos_xcode_38(self):
     tmp_dir = python_testing.make_temp_fake_python_installation('3.8',
                                                                 '19.2.3',
@@ -25,7 +25,7 @@ class test_python_installation(unit_test):
     self.assert_filename_equal( path.join(tmp_dir, 'bin/pip3'), piv.pip_exe )
     self.assert_filename_list_equal( [ path.join(tmp_dir, 'bin') ], piv.PATH )
 
-  @skip_if(not host.is_macos(), 'not macos')
+  @unit_test_function_skip.skip_if(not host.is_macos(), 'not macos')
   def test_macos_system_27(self):
     tmp_dir = python_testing.make_temp_fake_python_installation('2.7',
                                                                 None,
@@ -39,7 +39,7 @@ class test_python_installation(unit_test):
     self.assert_filename_equal( None, piv.pip_exe )
     self.assert_filename_list_equal( [ path.join(tmp_dir, 'bin') ], piv.PATH )
 
-  @skip_if(not host.is_macos(), 'not macos')
+  @unit_test_function_skip.skip_if(not host.is_macos(), 'not macos')
   def test_macos_brew_37(self):
     tmp_dir = python_testing.make_temp_fake_python_installation('3.7',
                                                                 '21.0.1',
@@ -53,7 +53,7 @@ class test_python_installation(unit_test):
     self.assert_filename_equal( path.join(tmp_dir, 'bin/pip3.7'), piv.pip_exe )
     self.assert_filename_list_equal( [ path.join(tmp_dir, 'bin') ], piv.PATH )
     
-  @skip_if(not host.is_windows(), 'not windows')
+  @unit_test_function_skip.skip_if(not host.is_windows(), 'not windows')
   def test_windows_python_38(self):
     tmp_dir = python_testing.make_temp_fake_python_installation('3.8',
                                                                 '19.2.3',
@@ -70,7 +70,7 @@ class test_python_installation(unit_test):
       path.join(tmp_dir, 'Scripts'),
     ], piv.PATH )
 
-  @skip_if(not host.is_windows(), 'not windows')
+  @unit_test_function_skip.skip_if(not host.is_windows(), 'not windows')
   def test_windows_python_27(self):
     tmp_dir = python_testing.make_temp_fake_python_installation('2.7',
                                                                 '20.3.4',

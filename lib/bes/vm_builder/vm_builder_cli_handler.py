@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common.check import check
+from ..system.check import check
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.system.log import logger
 from bes.fs.file_util import file_util

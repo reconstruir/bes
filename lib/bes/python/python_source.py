@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from .detail.python_source_base import python_source_base
+from ._detail.python_source_base import python_source_base
 
 from bes.system.host import host
 
@@ -9,13 +9,13 @@ class python_source(python_source_base):
   def _find_impl_class(system):
     result = None
     if system == host.LINUX:
-      from .detail.python_source_linux import python_source_linux
+      from ._detail.python_source_linux import python_source_linux
       result = python_source_linux
     elif system == host.MACOS:
-      from .detail.python_source_macos import python_source_macos
+      from ._detail.python_source_macos import python_source_macos
       result = python_source_macos
     elif system == host.WINDOWS:
-      from .detail.python_source_windows import python_source_windows
+      from ._detail.python_source_windows import python_source_windows
       result = python_source_windows
     else:
       host.raise_unsupported_system(system = system)

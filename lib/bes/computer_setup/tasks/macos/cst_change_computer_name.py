@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common.check import check
+from ..system.check import check
 
 from bes.computer_setup.computer_setup_task import computer_setup_task
 from bes.macos.scutil.scutil import scutil

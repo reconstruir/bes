@@ -4,7 +4,7 @@ import os.path as path
 import pprint
 import tempfile
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.dir_cleanup import dir_cleanup
 from bes.fs.file_symlink import file_symlink
 from bes.property.cached_property import cached_property

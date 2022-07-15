@@ -6,7 +6,7 @@ import tempfile
 import copy
 from functools import wraps
 
-from .check import check
+from ..system.check import check
 from .env_var import env_var
 from .filesystem import filesystem
 from .host import host
@@ -16,8 +16,8 @@ class env_override(object):
 
   def __init__(self, env = None, enter_functions = None, exit_functions = None):
     check.check_dict(env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
-    check.check_function_seq(enter_functions, allow_none = True)
-    check.check_function_seq(exit_functions, allow_none = True)
+    check.check_callable_seq(enter_functions, allow_none = True)
+    check.check_callable_seq(exit_functions, allow_none = True)
 
     self._original_env = os_env.clone_current_env()
     self._enter_functions = enter_functions or []
@@ -63,10 +63,10 @@ class env_override(object):
     return copy.deepcopy(os.environ)
 
   @classmethod
-  def temp_home(clazz, enter_functions = None, exit_functions = None, use_temp_home = None):
+  def temp_home(clazz, enter_functions = None, exit_functions = None, use_temp_home = None, extra_env = None):
     'Return an env_override object with a temporary HOME'
-    check.check_function_seq(enter_functions, allow_none = True)
-    check.check_function_seq(exit_functions, allow_none = True)
+    check.check_callable_seq(enter_functions, allow_none = True)
+    check.check_callable_seq(exit_functions, allow_none = True)
 
     if use_temp_home:
       tmp_home = use_temp_home
@@ -84,6 +84,11 @@ class env_override(object):
         'HOMEPATH': homepath,
         'APPDATA': path.join(tmp_home, 'AppData\\Roaming')
       }
+    if extra_env:
+      for key, value in env.items():
+        if key in extra_env:
+          raise RuntimeError(f'Invalid key: "{key}"')
+      env.update(extra_env)
     return env_override(env = env,
                         enter_functions = enter_functions,
                         exit_functions = exit_functions)

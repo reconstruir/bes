@@ -4,7 +4,8 @@ from collections import namedtuple
 import os
 import os.path as path
 
-from bes.common.check import check
+from bes.common.char_util import char_util
+from ..system.check import check
 from bes.system.host import host
 
 class filename_util(object):
@@ -57,9 +58,22 @@ class filename_util(object):
   def add_extension(clazz, filename, extension):
     'Return the filename with extension.'
     check.check_string(filename)
-    check.check_string(extension)
+    check.check_string(extension, allow_none = True)
 
+    if not extension:
+      return filename
     return filename + path.extsep + extension
+
+  @classmethod
+  def replace_extension(clazz, filename, new_extension):
+    'Replace the extension.'
+    check.check_string(filename)
+    check.check_string(new_extension)
+
+    old_extension = clazz.extension(filename)
+    if not old_extension:
+      return filename
+    return filename[0:-len(old_extension)] + new_extension
   
   _split_filename = namedtuple('_split_filename', 'root, extension')
   @classmethod
@@ -112,3 +126,21 @@ class filename_util(object):
     result = result.replace('\\', sep)
     return result
   
+  @classmethod
+  def prefix(clazz, filename):
+    'Return the prefix before punctuation.  foo-10.txt => foo.'
+
+    for i, c in enumerate(filename):
+      if c.isdigit():
+        return clazz._rstrip_punctiation(filename[0:i])
+    return None
+
+  @classmethod
+  def _rstrip_punctiation(clazz, filename):
+    count = 0
+    for count, c in enumerate(reversed(filename)):
+      if not char_util.is_punctuation(c):
+        break
+    if count == 0:
+      return filename
+    return filename[0 : -count]

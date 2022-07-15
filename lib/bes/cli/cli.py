@@ -3,7 +3,7 @@
 import argparse, pprint
 from abc import abstractmethod, ABCMeta
 
-from bes.common.check import check
+from ..system.check import check
 from bes.script.blurb import blurb
 from bes.system.compat import with_metaclass
 from bes.system.log import log

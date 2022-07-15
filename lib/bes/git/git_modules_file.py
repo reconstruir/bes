@@ -4,7 +4,7 @@ from os import path
 from collections import namedtuple
 import re
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.tuple_util import tuple_util
 from bes.compat.StringIO import StringIO
 from bes.fs.file_util import file_util

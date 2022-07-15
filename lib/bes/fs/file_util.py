@@ -4,17 +4,21 @@ import contextlib, codecs, errno, hashlib, subprocess
 import os.path as path, os, platform, shutil, sys, tempfile, time
 from datetime import datetime
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.system.compat import compat
 from bes.system.env_var import os_env_var
 from bes.system.filesystem import filesystem
-from bes.system.log import log
+from bes.system.log import logger
 from bes.system.which import which
+
+from .file_check import file_check
 
 class file_util(object):
 
+  _log = logger('file_util')
+  
   @classmethod
   def mkdir(clazz, p, mode = None):
     if path.isdir(p):
@@ -72,11 +76,16 @@ class file_util(object):
   @classmethod
   def backup(clazz, filename, suffix = '.bak'):
     'Make a backup of filename if it exists.'
-    if path.exists(filename):
-      if path.isfile(filename):
-        clazz.copy(filename, filename + suffix)
-      else:
-        raise RuntimeError('Not a file: %s' % (filename))
+    if not path.exists(filename):
+      return
+    if not path.isfile(filename):
+      raise RuntimeError(f'Not a file: {filename}')
+
+    backup_filename = filename + suffix
+    # if the backup file exists and its the same dont touch it
+    if path.exists(backup_filename) and clazz.files_are_the_same(filename, backup_filename):
+      return
+    clazz.copy(filename, backup_filename)
 
   @classmethod
   def hard_link(clazz, src, dst):
@@ -276,12 +285,16 @@ class file_util(object):
 
   # https://stackoverflow.com/questions/1131220/get-md5-hash-of-big-files-in-python
   @classmethod
-  def checksum(clazz, function_name, filename, chunk_size = None):
+  def checksum(clazz, function_name, filename, chunk_size = None, num_chunks = None):
+    clazz._log.log_method_d()
     chunk_size = chunk_size or (1024 * 1024)
     hasher = hashlib.new(function_name)
     with open(filename, 'rb') as fin: 
-      for chunk in iter(lambda: fin.read(chunk_size), b''): 
+      for chunk_index, chunk in enumerate(iter(lambda: fin.read(chunk_size), b''), start = 1):
         hasher.update(chunk)
+        if num_chunks == chunk_index:
+          break
+#        print(f'chunk_size={chunk_size} chunk_number={chunk_number} num_chunks={num_chunks}')
     return hasher.hexdigest()
 
   @classmethod
@@ -314,8 +327,9 @@ class file_util(object):
   @classmethod
   def set_modification_date(clazz, filename, mtime):
     check.check(mtime, datetime)
-    mktime = time.mktime(mtime.timetuple())
-    os.utime(filename, ( mktime, mktime ))
+
+    ts = mtime.timestamp()
+    os.utime(filename, ( ts, ts ))
 
   @classmethod
   def un_expanduser(clazz, p):
@@ -361,5 +375,22 @@ class file_util(object):
     if not pager:
       raise RuntimeError('Pager not found')
     subprocess.call([ pager, filename ])
-        
-log.add_logging(file_util, 'file_util')
+
+  @classmethod
+  def files_are_the_same(clazz, filename1, filename2, read_size = 1024 * 1024):
+    filename1 = file_check.check_file(filename1)
+    filename2 = file_check.check_file(filename2)
+
+    if clazz.size(filename1) != clazz.size(filename2):
+      return False
+
+    with open(filename1, 'rb') as f1:
+      with open(filename2, 'rb') as f2:
+        if f1.read(read_size) != f2.read(read_size):
+          return False
+    return True
+
+  @classmethod
+  def touch(clazz, filename):
+    'Update the modification date of filename to be now'
+    clazz.set_modification_date(filename, datetime.now())

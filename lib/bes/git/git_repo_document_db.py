@@ -5,7 +5,7 @@ from os import path
 from bes.git.git_address_util import git_address_util
 from bes.git.git_repo import git_repo
 from bes.fs.file_util import file_util
-from bes.common.check import check
+from ..system.check import check
 from bes.git.git_error import git_error
 from bes.common.inspect_util import inspect_util
 
@@ -23,7 +23,7 @@ class git_repo_document_db(object):
     Runs the update function (minimally 'lambda old_content: new_content') to update the document.
     Creates a file with the given name at the repo address that was provided on init.
     """
-    check.check_function(update_func)
+    check.check_callable(update_func)
     # Getting this error: 'module' object has no attribute 'getfullargspec'
     #update_func_spec = inspect_util.getargspec(update_func)
     #if len(update_func_spec[0]) != 1:

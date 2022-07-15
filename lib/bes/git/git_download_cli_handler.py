@@ -2,13 +2,12 @@
 
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.system.log import logger
 
 from .git_download import git_download
 from .git_download_options import git_download_options
-from .git_output import git_output
 from .git_util import git_util
 
 class git_download_cli_handler(cli_command_handler):

@@ -6,7 +6,7 @@ import os.path as path
 import sys
 
 from bes.system.log import logger
-from bes.common.check import check
+from ..system.check import check
 from bes.common.inspect_util import inspect_util
 from bes.system.log import log
 from bes.fs.file_check import file_check
@@ -37,7 +37,8 @@ class argparser_handler(object):
     handler = clazz._find_handler(handler_object, possible_names)
     log.log_d('handler={}'.format(handler))
     if not handler:
-      raise RuntimeError('No method found for command: %s' % (' '.join(possible_names)))
+      raise RuntimeError('No method found for command "{}"  Should be one of: {}'.format(command,
+                                                                                         ' '.join(possible_names)))
     handler_spec = inspect_util.getargspec(handler)
     log.log_d('handler_spec={}'.format(handler_spec))
 
@@ -73,6 +74,8 @@ class argparser_handler(object):
         except Exception as ex:
           raise
       elif handler.__name__.endswith(command):
+        dict_args = copy.deepcopy(dict_args)
+        dict_args['command'] = command        
         exit_code = handler(**dict_args)
       else:
         exit_code = handler(command, **dict_args)

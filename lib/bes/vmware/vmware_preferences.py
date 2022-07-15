@@ -3,7 +3,7 @@
 from os import path
 
 from bes.system.log import logger
-from bes.common.check import check
+from ..system.check import check
 from bes.system.host import host
 
 from .vmware_app import vmware_app

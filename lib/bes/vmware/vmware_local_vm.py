@@ -5,7 +5,7 @@ from collections import namedtuple
 from os import path
 import time
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_find import file_find
 from bes.property.cached_property import cached_property
 from bes.system.log import logger

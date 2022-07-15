@@ -4,7 +4,7 @@
 import os, os.path as path, tempfile
 from bes.testing.unit_test import unit_test
 from bes.fs.testing.temp_content import temp_content as I
-from bes.testing.unit_test_skip import skip_if_not_unix
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 class test_temp_content(unit_test):
 
@@ -37,7 +37,7 @@ class test_temp_content(unit_test):
     with open(p, 'r') as fin:
       self.assertEqual( 'this is foo\nhaha', fin.read() )
     
-  @skip_if_not_unix()
+  @unit_test_function_skip.skip_if_not_unix()
   def test_write_mode(self):
     i = I(I.FILE, 'foo.txt', 'this is foo\nhaha', 0o644)
     tmp_dir = self.make_temp_dir()

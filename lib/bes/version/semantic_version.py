@@ -1,10 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common.check import check
-from bes.compat.cmp import cmp
-from bes.text.lexer_token import lexer_token
-from bes.property.cached_property import cached_property
+from ..system.check import check
+from bes.common.string_util import string_util
+from bes.common.object_util import object_util
 from bes.compat.StringIO import StringIO
+from bes.compat.cmp import cmp
+from bes.property.cached_property import cached_property
+from bes.text.lexer_token import lexer_token
 
 from .semantic_version_lexer import semantic_version_lexer
 from .semantic_version_error import semantic_version_error
@@ -172,5 +174,60 @@ class semantic_version(object):
     sv2 = semantic_version(v2)
     return cmp(sv1._tokens, sv2._tokens)
 
-check.register_class(semantic_version, include_seq = False)
+  @classmethod
+  def sort_string_list(clazz, l, reverse = False):
+    'Sort a string list using semantic_version'
+    check.check_list(l, check.STRING_TYPES)
+    return sorted(l, key = lambda v: semantic_version(v)._tokens,  reverse = reverse)
+
+  @classmethod
+  def _check_cast_func(clazz, obj):
+    if check.is_string(obj):
+      return semantic_version(obj)
+    return obj
+
+  _clause = namedtuple('_clause', 'operator, version')
+  @classmethod
+  def _parse_clause(clazz, clause):
+    check.check_string(clause)
+
+    parts = string_util.split_by_white_space(clause, strip = True)
+    if len(parts) != 2:
+      raise ValueError(f'Invalid clause: "{clause}"')
+    operator = parts[0]
+    if operator not in ( '<', '>', '==', '<=', '>=', '!=' ):
+      raise ValueError(f'Invalid operator: "{operator}"')
+    version = semantic_version(parts[1])
+    if not version.has_only_semantic_tokens:
+      raise ValueError(f'Invalid version: "{version}"')
+    return clazz._clause(operator, version)
+
+  _OPERATOR_MAP = {
+    '==': '__eq__',
+    '!=': '__ne__',
+    '<=': '__le__',
+    '>=': '__ge__',
+     '>': '__gt__',
+     '<': '__lt__',
+  }
+
+  def _match_one_clause(self, clause):
+    parsed_clause = self._parse_clause(clause)
+    assert parsed_clause.operator in self._OPERATOR_MAP
+    method = getattr(self, self._OPERATOR_MAP[parsed_clause.operator])
+    return method(parsed_clause.version)
+
+  def match_clause(self, clause):
+    if check.is_tuple(clause):
+      clauses = list(clause)
+    else:
+      clauses = object_util.listify(clause)
+    check.check_string_seq(clauses)
+
+    for next_clause in clauses:
+      if not self._match_one_clause(next_clause):
+        return False
+    return True
+  
+check.register_class(semantic_version, include_seq = False, cast_func = semantic_version._check_cast_func)
   

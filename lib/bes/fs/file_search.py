@@ -7,7 +7,8 @@ import os.path as path, re
 from bes.common.algorithm import algorithm
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
-from bes.common.check import check
+from bes.system.check import check
+
 from .file_find import file_find
 from .file_replace import file_replace
 from .file_util import file_util
@@ -16,7 +17,7 @@ class file_search(object):
 
   class search_item(namedtuple('search_item', 'filename, line_number, pattern, line, span')):
 
-    def __new__(clazz, filename, line_number, pattern, line,span):
+    def __new__(clazz, filename, line_number, pattern, line, span):
       return clazz.__bases__[0].__new__(clazz, filename, line_number, pattern, line, span)
 
     def become_relative(self, root_dir):
@@ -27,7 +28,11 @@ class file_search(object):
   @classmethod
   def search(clazz, root_dir, text, relative = True, min_depth = None, max_depth = None):
     check.check_string(root_dir)
-    #assert string_util.is_string(text)
+    check.check_string(text)
+    check.check_bool(relative)
+    check.check_int(min_depth, allow_none = True)
+    check.check_int(max_depth, allow_none = True)
+    
     files = file_find.find(root_dir, relative = relative, min_depth = min_depth, max_depth = max_depth)
     items = []
     for f in files:
@@ -39,53 +44,51 @@ class file_search(object):
     return items
 
   @classmethod
-  def search_file(clazz, filename, text, word_boundary = False, ignore_case = False):
+  def search_file(clazz, filename, text,
+                  word_boundary = False,
+                  word_boundary_chars = None):
     #assert string_util.is_string(text)
     try:
       content = file_util.read(filename, 'utf-8')
     except UnicodeDecodeError as ex:
       return []
-    result = clazz.search_string(content, text, word_boundary = word_boundary, ignore_case = ignore_case)
+    result = clazz.search_string(content,
+                                 text,
+                                 word_boundary = word_boundary,
+                                 word_boundary_chars = word_boundary_chars)
     return [ clazz.search_item(filename, item.line_number, item.pattern, item.line, item.span) for item in result ]
 
   @classmethod
-  def search_string(clazz, content, patterns, word_boundary = False, ignore_case = False):
+  def search_string(clazz, content, patterns,
+                    word_boundary = False,
+                    word_boundary_chars = None):
     assert string_util.is_string(content)
     patterns = object_util.listify(patterns)
     result = []
     original_patterns = None
     if word_boundary:
       original_patterns = patterns[:]
-      patterns = [ clazz._make_expresion(p, ignore_case) for p in patterns ]
-    else:
-      if ignore_case:
-        original_patterns = patterns[:]
-        patterns = [ p.lower() for p in patterns ]
+      patterns = [ clazz._make_expresion(p) for p in patterns ]
     original_patterns = original_patterns or patterns
     patterns = list(zip(patterns, original_patterns))
     for line_number, line in enumerate(content.splitlines(), 1):
       if word_boundary:
         result += clazz._search_line_with_re(line, patterns, '<unknown>', line_number)
       else:
-        result += clazz._search_line_with_find(line, patterns, '<unknown>', line_number, ignore_case)
+        result += clazz._search_line_with_find(line, patterns, '<unknown>', line_number)
     return result
 
   @classmethod
-  def _make_expresion(clazz, text, ignore_case):
-    flags = 0
-    if ignore_case:
-      flags = re.IGNORECASE
-    return re.compile(r'\b%s\b' % (re.escape(text)), flags = flags)
+  def _make_expresion(clazz, text):
+    return re.compile(r'\b%s\b' % (re.escape(text)))
 
   @classmethod
-  def _search_line_with_find(clazz, line, patterns, filename, line_number, ignore_case):
+  def _search_line_with_find(clazz, line, patterns, filename, line_number):
     check.check_list(patterns)
     assert len(patterns) > 0
     
     result = []
     original_line = line
-    if ignore_case:
-      line = line.lower()
     for pattern, original_pattern in patterns:
       check.check_string(pattern)
       check.check_string(original_pattern)

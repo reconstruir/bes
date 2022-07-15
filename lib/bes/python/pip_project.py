@@ -7,10 +7,13 @@ import os
 from os import path
 import pprint
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
-from bes.fs.file_util import file_util
+from bes.common.hash_util import hash_util
+from bes.fs.dir_util import dir_util
 from bes.fs.file_find import file_find
+from bes.fs.file_util import file_util
+from bes.fs.filename_util import filename_util
 from bes.property.cached_property import cached_property
 from bes.system.command_line import command_line
 from bes.system.env_var import env_var
@@ -23,6 +26,7 @@ from bes.url.url_util import url_util
 from .pip_error import pip_error
 from .pip_exe import pip_exe
 from .pip_project_options import pip_project_options
+from .python_error import python_error
 from .python_installation import python_installation
 from .python_source import python_source
 from .python_version import python_version
@@ -33,14 +37,11 @@ class pip_project(object):
 
   _log = logger('pip_project')
   
-  def __init__(self, name, options = None):
-    check.check_string(name)
+  def __init__(self, options = None):
     check.check_pip_project_options(options)
 
     self._extra_env = {}
     self._options = options or check_pip_project_options()
-    self._original_python_exe = self._options.resolve_python_exe()
-    self._name = name
     self._root_dir = self._options.resolve_root_dir()
     self._pip_cache_dir = path.join(self.droppings_dir, 'pip-cache')
     self._fake_home_dir = path.join(self.droppings_dir, 'fake-home')
@@ -51,9 +52,20 @@ class pip_project(object):
     self._common_pip_args = [
       '--cache-dir', self._pip_cache_dir,
     ]
-    self._log.log_d('pip_project: pip_exe={} pip_env={} project_dir={}'.format(self.pip_exe,
+    try:
+      self._do_init(1)
+    except python_error as ex:
+      if 'version mismatch' in ex.message:
+        self._options.blurber.blurb('{} - Fixing automagically.'.format(ex.message))
+        self._options.blurber.blurb('removing {}'.format(self._root_dir))
+        file_util.remove(self._root_dir)
+        self._do_init(2)
+
+  def _do_init(self, attempt_number):
+    self._log.log_d('_do_init:{}: pip_exe={} pip_env={} project_dir={}'.format(attempt_number,
+                                                                               self.pip_exe,
                                                                                self.env,
-                                                                               self.project_dir))
+                                                                               self.root_dir))
     self._reinstall_pip_if_needed()
     self._ensure_basic_packages()
 
@@ -69,12 +81,20 @@ class pip_project(object):
     rv = self.call_pip(args)
 
   def _ensure_basic_packages(self):
-    'On some python installations, installing some pip packages means building them and wheel is needed for that.'
-    self.install('wheel')
+    'Ensure that some basic python packages are installed.'
+    installed = set([ item.name for item in self.installed() ])
+    if not 'wheel' in installed:
+      self.install('wheel')
+    if not 'setuptools' in installed:
+      self.install('setuptools')
+
+  @cached_property
+  def _original_python_exe(self):
+    return self._options.resolve_python_exe()
     
   @cached_property
   def virtual_env(self):
-    return python_virtual_env(self._original_python_exe, self.project_dir)
+    return python_virtual_env(self._original_python_exe, self.root_dir)
 
   @cached_property
   def installation(self):
@@ -85,22 +105,24 @@ class pip_project(object):
     return self.installation.python_exe
   
   @cached_property
-  def project_dir(self):
-    return path.join(self._root_dir, self._name)
+  def root_dir(self):
+    return self._root_dir
 
   @cached_property
   def droppings_dir(self):
-    return path.join(self.project_dir, '.droppings')
+    return path.join(self.root_dir, '.droppings')
     
   @cached_property
   def user_base_install_dir(self):
-    if host.is_windows():
-      user_base_install_dir = path.join(self.project_dir, self.installation.windows_versioned_install_dirname)
-    elif host.is_unix():
-      user_base_install_dir = self.project_dir
-    else:
-      host.raise_unsupported_system()
-    return user_base_install_dir
+#    if host.is_windows():
+#      user_base_install_dir = path.join(self.root_dir, self.installation.windows_versioned_install_dirname)
+#    elif host.is_unix():
+#      user_base_install_dir = self.root_dir
+#    else:
+#      host.raise_unsupported_system()
+#    user_base_install_dir = self.root_dir
+#    return user_base_install_dir
+    return self.root_dir
   
   @cached_property
   def bin_dir(self):
@@ -126,7 +148,7 @@ class pip_project(object):
   def env(self):
     'Make a clean environment for python or pip'
     clean_env = os_env.make_clean_env()
-    env_var(clean_env, 'PYTHONUSERBASE').value = self.project_dir
+    env_var(clean_env, 'PYTHONUSERBASE').value = self.root_dir
     env_var(clean_env, 'PYTHONPATH').path = self.PYTHONPATH
     env_var(clean_env, 'PATH').prepend(self.PATH)
     env_var(clean_env, 'HOME').value = self._fake_home_dir
@@ -159,7 +181,7 @@ class pip_project(object):
 
   def activate_script(self, variant = None):
     'Return the activate script for the virtual env'
-    return python_source.activate_script(self.project_dir, variant)
+    return python_source.activate_script(self.root_dir, variant)
   
   @property
   def pip_version(self):
@@ -210,7 +232,7 @@ class pip_project(object):
       result.append(self._installed_package(next_item['name'].lower(),
                                             next_item['version']))
     return sorted(result, key = lambda item: item.name)
-  
+
   def pip(self, args):
     'Run a pip command'
     check.check_string_seq(args)
@@ -274,10 +296,30 @@ class pip_project(object):
       self._log.log_w('install: {}'.format(error_message))
       raise pip_error(error_message)
     
-  def install_requirements(self, requirements_file):
+  def install_requirements(self, requirements_files):
     'Install packages from a requirements file'
-    check.check_string(requirements_file)
+    requirements_files = object_util.listify(requirements_files)
+    check.check_string_seq(requirements_files)
 
+    for requirements_file in requirements_files:
+      if not path.exists(requirements_file):
+        raise pip_error(f'Requirements file not found: "{requirements_file}"')
+    
+    for requirements_file in requirements_files:
+      self._install_one_requirements_file(requirements_file)
+
+  def _install_one_requirements_file(self, requirements_file):
+    'Install packages from a requirements file'
+    new_checksum = file_util.checksum('sha256', requirements_file)
+    checksum_file = self._requirements_checksum_file(requirements_file)
+    
+    if path.exists(checksum_file):
+      old_checksum = file_util.read(checksum_file, codec = 'utf-8').strip()
+      if old_checksum == new_checksum:
+        self._log.log_d(f'{requirements_file}: Old and new checksum are the same')
+        return
+      else:
+        self._log.log_d(f'{requirements_file}: Checksum changed')
     args = [
       'install',
       '-r',
@@ -288,6 +330,13 @@ class pip_project(object):
       msg = 'Failed to install requirements: "{}"\n{}\n'.format(requirements_file, rv.stdout)
       self._log.log_w('install: {}'.format(msg))
       raise pip_error(msg)
+    self._log.log_d(f'{requirements_file}: Saving new checksum {new_checksum} to {checksum_file}')
+    file_util.save(checksum_file, content = new_checksum)
+    
+  def _requirements_checksum_file(self, requirements_file):
+    assert path.isabs(requirements_file)
+    basename = path.basename(requirements_file)
+    return path.join(self.root_dir, '.requirements_checksums', basename)
     
   def call_program(self, args, **kargs):
     'Call a program with the right environment'
@@ -365,6 +414,9 @@ class pip_project(object):
     'Return the abs path for program in the venv'
     check.check_string(program)
 
+    if host.is_windows():
+      if not filename_util.has_extension(program, 'exe', ignore_case = True):
+        program = filename_util.add_extension(program, 'exe')
     return path.join(self.bin_dir, program)
 
   def has_program(self, program):

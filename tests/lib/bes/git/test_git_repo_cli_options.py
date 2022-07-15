@@ -5,6 +5,7 @@ from os import path
 from bes.testing.unit_test import unit_test
 
 from bes.git.git_repo_cli_options import git_repo_cli_options
+from bes.data_output.data_output_style import data_output_style
 
 class test_git_repo_cli_options(unit_test):
 
@@ -24,7 +25,7 @@ class test_git_repo_cli_options(unit_test):
       'no_network': False,
       'num_tries': 1,
       'output_filename': None,
-      'output_style': 'table',
+      'output_style': data_output_style.BRIEF,
       'reset_to_head': False,
       'retry_wait_seconds': 10.0,
       'shallow_submodules': False,
@@ -50,7 +51,7 @@ class test_git_repo_cli_options(unit_test):
       'no_network': False,
       'num_tries': 1,
       'output_filename': None,
-      'output_style': 'table',
+      'output_style': data_output_style.BRIEF,
       'reset_to_head': False,
       'retry_wait_seconds': 10.0,
       'shallow_submodules': False,

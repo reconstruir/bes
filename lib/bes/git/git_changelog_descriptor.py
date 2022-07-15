@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 
 class changelog_descriptor(namedtuple('changelog_descriptor', 'root_dir, from_revision, to_revision')):
   'A class to describe a git changelog.'

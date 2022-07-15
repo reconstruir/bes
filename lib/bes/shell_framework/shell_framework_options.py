@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.cli.cli_options import cli_options
-from bes.common.check import check
+from ..system.check import check
 from bes.script.blurber import blurber
 
 from .shell_framework_error import shell_framework_error

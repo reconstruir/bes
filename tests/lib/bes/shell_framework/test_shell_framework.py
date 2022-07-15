@@ -13,15 +13,15 @@ from bes.fs.tar_util import tar_util
 from bes.fs.temp_file import temp_file
 from bes.system.os_env import os_env
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip import raise_skip_if_not_unix
 from bes.git.git_temp_repo import git_temp_repo
 from bes.git.git_unit_test import git_temp_home_func
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class test_shell_framework(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    raise_skip_if_not_unix()
+    unit_test_class_skip.raise_skip_if_not_unix()
 
   @git_temp_home_func()
   def test_latest_revision(self):

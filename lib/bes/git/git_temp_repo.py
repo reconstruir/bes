@@ -3,7 +3,7 @@
 import inspect
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.fs.temp_file import temp_file
 from bes.fs.file_mode import file_mode

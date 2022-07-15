@@ -2,10 +2,10 @@
 
 import pprint
 
-from bes.common.check import check
-from bes.common.string_util import string_util
+from ..system.check import check
 from bes.key_value.key_value_list import key_value_list
 from bes.text.text_table import text_table
+from bes.text.text_replace import text_replace
 
 from .vmware_client import vmware_client
 from .vmware_client_options import vmware_client_options
@@ -68,7 +68,7 @@ class vmware_client_commands(object):
     check.check_string(endpoint)
 
     # Deal with situation where spacing around args is not consistent
-    flat_args = string_util.replace(' '.join(args), { ' =': '=', ' = ': '=', '= ': '=' })
+    flat_args = text_replace.replace(' '.join(args), { ' =': '=', ' = ': '=', '= ': '=' }, word_boundary = False)
     params = key_value_list.parse(flat_args).to_dict()
     data = self._client.request(endpoint, params or None)
     print(pprint.pformat(data))

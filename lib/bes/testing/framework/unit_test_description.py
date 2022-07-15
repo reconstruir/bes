@@ -1,9 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
-from bes.common.check import check
+from bes.system.check import check
 
-class unit_test_description(namedtuple('unit_test_description', 'filename,fixture,function')):
+class unit_test_description(namedtuple('unit_test_description', 'filename, fixture, function')):
 
   def __new__(clazz, filename, fixture, function):
     if filename is not None:

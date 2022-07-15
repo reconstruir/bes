@@ -1,13 +1,19 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import glob, os.path as path, os, re
-from bes.common.check import check
+from collections import namedtuple
+import glob
+from os import path
+import os
+import re
+
 from bes.common.algorithm import algorithm
+from ..system.check import check
+from bes.common.object_util import object_util
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
-from bes.system.which import which
 from bes.system.os_env import os_env_var
-from bes.common.object_util import object_util
+from bes.system.which import which
+from bes.text.text_replace import text_replace
 
 from .file_util import file_util
 
@@ -36,14 +42,29 @@ class file_path(object):
     return p.split(os.sep)
 
   @classmethod
+  def part(clazz, p, index):
+    'Return a part of a path by index.'
+    v = clazz.split(p)
+    return v[index]
+  
+  @classmethod
   def join(clazz, p):
     'Join a path.'
     assert isinstance(p, list)
     return os.sep.join(p)
 
   @classmethod
-  def replace(clazz, p, src, dst, count = None, backwards = False):
+  def replace(clazz, p, src, dst, count = None, backwards = False,
+              word_boundary = False, word_boundary_chars = None):
     'Replace src in path components with dst.'
+    check.check_string(p)
+    check.check_string(src)
+    check.check_string(dst)
+    check.check_int(count, allow_none = True)
+    check.check_bool(backwards)
+    check.check_bool(word_boundary)
+    check.check_set(word_boundary_chars, allow_none = True)
+    
     v = clazz.split(p)
     r = range(0, len(v))
     if backwards:
@@ -54,7 +75,9 @@ class file_path(object):
     current_count = 0
     for i in r:
       part = v[i]
-      new_part = part.replace(src, dst)
+      new_part = text_replace.replace(part, { src: dst },
+                                      word_boundary = word_boundary,
+                                      word_boundary_chars = word_boundary_chars)
       if part != new_part:
         current_count += 1
         if current_count > count:
@@ -62,6 +85,39 @@ class file_path(object):
         v[i] = new_part
     return clazz.join(v)
 
+  @classmethod
+  def part_is_valid(clazz, c):
+    'Check that a part has only valid basename chars.'
+    if path.sep in c:
+      return False
+    if path.curdir in c:
+      return False
+    if path.pardir in c:
+      return False
+    return True
+  
+  @classmethod
+  def check_part(clazz, part):
+    'Check that a part has only valid basename chars.'
+    if not clazz.part_is_valid(part):
+      raise ValueError('Invalid part: "{}"'.format(part))
+  
+  @classmethod
+  def replace_all(clazz, p, src, dst, word_boundary = False, word_boundary_chars = None):
+    'Replace src with dst on all parts of the path.'
+    check.check_string(p)
+    check.check_string(src)
+    check.check_string(dst)
+    check.check_bool(word_boundary)
+    check.check_set(word_boundary_chars, allow_none = True)
+    
+    result = []
+    for part in clazz.split(p):
+      result.append(text_replace.replace_all(part, src, dst,
+                                             word_boundary = word_boundary,
+                                             word_boundary_chars = word_boundary_chars))
+    return clazz.join(result)
+  
   @classmethod
   def depth(clazz, p):
     'Return the depth of p.'
@@ -206,8 +262,28 @@ class file_path(object):
     return result
 
   @classmethod
+  def insert(clazz, p, index, part):
+    parts = clazz.split(p)
+    parts.insert(index, part)
+    return clazz.join(parts)
+
+  @classmethod
   def xp_path_list(clazz, l, pathsep = ':', sep = '/'):
     if l == None:
       return None
     assert isinstance(l, list)
     return [ clazz.xp_path(n) for n in l ]
+  
+  _access_result = namedtuple('_access_result', 'filename, exists, can_read, can_write, can_execute')
+  @classmethod
+  def access(clazz, p):
+    exists = os.access(p, os.F_OK)
+    if exists:
+      can_read = os.access(p, os.R_OK)
+      can_write = os.access(p, os.W_OK)
+      can_execute = os.access(p, os.X_OK)
+    else:
+      can_read = False
+      can_write = False
+      can_execute = False
+    return clazz._access_result(p, exists, can_read, can_write, can_execute)

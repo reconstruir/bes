@@ -5,7 +5,7 @@ from os import path
 
 from datetime import datetime
 
-from bes.common.check import check
+from ..system.check import check
 from bes.system.log import logger
 from bes.python.code import code
 from bes.fs.file_util import file_util

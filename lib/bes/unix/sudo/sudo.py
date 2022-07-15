@@ -2,7 +2,7 @@
 
 import tempfile
 
-from bes.common.check import check
+from bes.system.check import check
 from bes.common.object_util import object_util
 from bes.system.command_line import command_line
 from bes.system.execute import execute

@@ -47,6 +47,25 @@ class test_filename_util(unit_test):
     self.assertEqual( ( 'a.tar', 'gz' ), filename_util.split_extension('a.tar.gz') )
     self.assertEqual( ( '.kiwi', 'png' ), filename_util.split_extension('.kiwi.png') )
     self.assertEqual( ( 'a', '' ), filename_util.split_extension('a.') )
+
+  def test_prefix(self):
+    self.assertEqual( None, filename_util.prefix('foo.txt') )
+    self.assertEqual( None, filename_util.prefix('foo-.txt') )
+    self.assertEqual( 'foo', filename_util.prefix('foo-42.txt') )
+    self.assertEqual( None, filename_util.prefix('') )
+
+  def test_add_extension(self):
+    self.assertEqual( 'foo.txt', filename_util.add_extension('foo', 'txt') )
+    self.assertEqual( 'foo', filename_util.add_extension('foo', '') )
+    self.assertEqual( 'foo', filename_util.add_extension('foo', None) )
+    self.assertEqual( '.txt', filename_util.add_extension('', 'txt') )
+
+  def test_replace_extension(self):
+    self.assertEqual( 'foo.txt', filename_util.replace_extension('foo.jpg', 'txt') )
+    self.assertEqual( 'something.jpg.foo.txt', filename_util.replace_extension('something.jpg.foo.jpg', 'txt') )
+    self.assertEqual( 'something', filename_util.replace_extension('something', 'txt') )
+    self.assertEqual( '', filename_util.replace_extension('', 'txt') )
+    self.assertEqual( 'foo.txt', filename_util.replace_extension('foo.txt', 'txt') )
     
 if __name__ == '__main__':
   unit_test.main()

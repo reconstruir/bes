@@ -4,7 +4,7 @@ import glob
 import os.path as path
 
 from bes.archive.archiver import archiver
-from bes.common.check import check
+from ..system.check import check
 from bes.common.time_util import time_util
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
@@ -23,7 +23,7 @@ from .egg_options import egg_options
 class egg(object):
 
   @classmethod
-  def make_from_git_archive(clazz, root_dir, revision, options = None):
+  def make_from_git_archive(clazz, root_dir, revision, options = None, python_exe = None):
     'Make an egg from a git root_dir.  setup_filename is relative to that root'
     git.check_is_repo(root_dir)
     check.check_string(revision)
@@ -49,18 +49,20 @@ class egg(object):
                                      version_filename = version_filename,
                                      project_name = project_name,
                                      debug = debug,
-                                     verbose = verbose)
+                                     verbose = verbose,
+                                     python_exe = python_exe)
 
   @classmethod
-  def make_from_local_dir(clazz, local_dir, revision, address = None, options = None):
+  def make_from_local_dir(clazz, local_dir, revision, address = None, options = None, python_exe = None):
     'Make an egg from a local directory'
     check.check_string(local_dir)
     check.check_string(revision)
     check.check_egg_options(options, allow_none = True)
-
+    
     options = options or egg_options()
     project_name = options.project_name or path.basename(local_dir)
-
+    python_exe = python_exe or python_exe.default_exe()
+    
     if options.version_filename:
       version_filename_abs = path.join(local_dir, options.version_filename)
       vi = version_info.read_file(version_filename_abs)
@@ -71,7 +73,7 @@ class egg(object):
                      timestamp = timestamp)
       vi.save_file(version_filename_abs)
 
-    cmd = [ python_exe.default_exe(), options.setup_filename, 'bdist_egg' ]
+    cmd = [ python_exe, options.setup_filename, 'bdist_egg' ]
     env = os_env.clone_current_env(d = { 'PYTHONDONTWRITEBYTECODE': '1' }, allow_override = True)
     env['PYTHONDONTWRITEBYTECODE'] = '1'
     execute.execute(cmd,
@@ -88,7 +90,7 @@ class egg(object):
     return eggs[0]
   
   @classmethod
-  def make_from_address(clazz, address, revision, options = None):
+  def make_from_address(clazz, address, revision, options = None, python_exe = None):
     'Make an egg from a git address'
     check.check_string(address)
     check.check_string(revision)
@@ -99,7 +101,11 @@ class egg(object):
     repo = git_util.clone_to_temp_dir(address, options = clone_options, debug = options.debug)
     remote_info = git_remote.parse(address)
     project_name = options.project_name or remote_info.project
-    return clazz.make_from_local_dir(repo.root, revision, address = address, options = options)
+    return clazz.make_from_local_dir(repo.root,
+                                     revision,
+                                     address = address,
+                                     options = options,
+                                     python_exe = python_exe)
 
   @classmethod
   def unpack(clazz, egg_filename, output_dir):

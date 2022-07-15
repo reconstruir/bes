@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from datetime import datetime
-from bes.common.check import check
+from ..system.check import check
 
 class vfs_file_info_options(object):
 

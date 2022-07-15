@@ -2,7 +2,7 @@
 
 import tempfile
 
-from bes.common.check import check
+from bes.system.check import check
 from bes.common.dict_util import dict_util
 from bes.script.blurber import blurber
 

@@ -8,11 +8,11 @@ from bes.system.env_override import env_override
 from bes.system.host import host
 from bes.system.which import which
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip import skip_if
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 class test_which(unit_test):
     
-  @skip_if(not host.is_unix(), 'not unix')
+  @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_which_unix(self):
     'Test which() in unix.'
     tmp_dir = self.make_temp_dir()
@@ -24,7 +24,7 @@ class test_which(unit_test):
       expected_path = path.join(bin_dir, 'fruit_kiwi_tool')
       self.assertEqual( expected_path, which.which('fruit_kiwi_tool') )
 
-  @skip_if(not host.is_windows(), 'not windows')
+  @unit_test_function_skip.skip_if(not host.is_windows(), 'not windows')
   def test_which_windows(self):
     'Test which() in unix.'
     tmp_dir = self.make_temp_dir()

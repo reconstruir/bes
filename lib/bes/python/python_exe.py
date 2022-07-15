@@ -6,9 +6,11 @@ import os.path as path
 import sys
 
 from collections import namedtuple
+from collections import OrderedDict
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
+from bes.debug.debug_timer import debug_timer
 from bes.fs.file_path import file_path
 from bes.fs.file_symlink import file_symlink
 from bes.fs.file_util import file_util
@@ -16,17 +18,20 @@ from bes.system.execute import execute
 from bes.system.log import logger
 from bes.system.os_env import os_env_var
 from bes.system.which import which
+from bes.version.semantic_version import semantic_version
+from bes.debug.debug_timer import timed_function
 
 from .python_error import python_error
 from .python_version import python_version
 from .python_source import python_source
 from .python_script import python_script
+from .python_debug import python_debug
 
 class python_exe(object):
   'Class to deal with the python executable.'
 
   _log = logger('python_exe')
-  
+
   @classmethod
   def full_version(clazz, exe):
     'Return the full version of a python executable'
@@ -119,12 +124,21 @@ class python_exe(object):
 
     return clazz.full_version(python_exe)
 
+  _info_cache = {}
   _python_exe_info = namedtuple('_python_exe_info', 'exe, version, full_version, source, sys_executable, real_executable, exe_links, pip_exe')
   @classmethod
+  #@timed_function(python_debug.timer)
   def info(clazz, exe):
     'Return info for python executables'
     clazz.check_exe(exe)
-    
+
+    if not exe in clazz._info_cache:
+      clazz._info_cache[exe] = clazz._make_info(exe)
+    assert exe in clazz._info_cache
+    return clazz._info_cache[exe]
+
+  @classmethod
+  def _make_info(clazz, exe):
     main_exe, exe_links = clazz._determine_main_exe_and_links(exe)
     from .python_installation import python_installation
     piv = python_installation(main_exe)
@@ -141,7 +155,7 @@ class python_exe(object):
                                   real_executable,
                                   exe_links,
                                   piv.pip_exe)
-
+  
   @classmethod
   def _determine_main_exe_and_links(clazz, exe):
     'Return info for python executables'
@@ -166,27 +180,28 @@ class python_exe(object):
     return result
   
   @classmethod
-  def find_all_exes_info(clazz, exclude_sources = None, sanitize_path = True):
-    'Return info about all the executables in PATH that match any patterns'
+  def find_all_exes_info(clazz, exclude_sources = None, sanitize_path = True, key_by_version = False):
+    'Return an ordered dict of info about all the executables in PATH that match any patterns'
     check.check_seq(exclude_sources, check.STRING_TYPES, allow_none = True)
 
     exclude_sources = set(exclude_sources or [])
     all_exes = clazz.find_all_exes(sanitize_path = sanitize_path)
-    result = {}
+    result = OrderedDict()
     for next_exe in all_exes:
       info = clazz.info(next_exe)
       if info.source not in exclude_sources:
-        result[next_exe] = info
+        if key_by_version:
+          key = str(info.version)
+        else:
+          key = next_exe
+        result[key] = info
     return result
 
-  # Order in which versions are checked to return the default exe
-  _DEFAULT_EXE_VERSION_LOOKUP_ORDER = [
-    '3.7',
-    '3.8',
-    '3.9',
-    '3.10',
-    '2.7',
-  ]
+  @classmethod
+  def available_versions(clazz):
+    'Return a set of all available python versions'
+    infos = clazz.find_all_exes_info()
+    return set([ str(info.version) for _, info in infos.items() ])
   
   @classmethod
   def default_exe(clazz):
@@ -194,14 +209,8 @@ class python_exe(object):
     all_info = clazz.find_all_exes_info()
     if not all_info:
       return None
-    by_version = {}
-    for _, next_info in all_info.items():
-      by_version[str(next_info.version)] = next_info
-    for version in clazz._DEFAULT_EXE_VERSION_LOOKUP_ORDER:
-      info = by_version.get(version, None)
-      if info:
-        return info.exe
-    return by_version.items()[0].exe
+    items = [ item for _, item in all_info.items() ]
+    return items[0].exe
 
   @classmethod
   def default_exe_version(clazz):
@@ -209,25 +218,29 @@ class python_exe(object):
     exe = clazz.default_exe()
     if not exe:
       return None
-    return clazz.version(exe)
-  
+    return clazz.version(exe).version
+
+  _all_exes_cache = {}
   @classmethod
+  #@timed_function(python_debug.timer)
   def _find_all_exes(clazz, sanitize_path = True):
     'Return all the executables in PATH and other platform specific places'
-    exe_patterns = python_source.possible_python_exe_patterns()
-    extra_path = python_source.possible_python_bin_dirs()
-    env_path = os_env_var('PATH').path + extra_path
-    if sanitize_path:
-      sanitized_env_path = clazz._sanitize_env_path(env_path)
-    else:
-      sanitized_env_path = env_path
-    result = file_path.glob(sanitized_env_path, exe_patterns)
-    clazz._log.log_d('      exe_patterns={}'.format(exe_patterns))
-    clazz._log.log_d('          env_path={}'.format(env_path))
-    clazz._log.log_d('        extra_path={}'.format(extra_path))
-    clazz._log.log_d('sanitized_env_path={}'.format(sanitized_env_path))
-    clazz._log.log_d('            result={}'.format(result))
-    return result
+    if not sanitize_path in clazz._all_exes_cache:
+      exe_patterns = python_source.possible_python_exe_patterns()
+      extra_path = python_source.possible_python_bin_dirs()
+      env_path = os_env_var('PATH').path + extra_path
+      if sanitize_path:
+        sanitized_env_path = clazz._sanitize_env_path(env_path)
+      else:
+        sanitized_env_path = env_path
+      result = file_path.glob(sanitized_env_path, exe_patterns)
+      clazz._log.log_d('      exe_patterns={}'.format(exe_patterns))
+      clazz._log.log_d('          env_path={}'.format(env_path))
+      clazz._log.log_d('        extra_path={}'.format(extra_path))
+      clazz._log.log_d('sanitized_env_path={}'.format(sanitized_env_path))
+      clazz._log.log_d('            result={}'.format(result))
+      clazz._all_exes_cache[sanitize_path] = sorted(result, key = lambda exe: semantic_version(str(clazz.version(exe)))._tokens, reverse = True)
+    return clazz._all_exes_cache[sanitize_path]
 
   @classmethod
   def _sanitize_env_path(clazz, env_path):

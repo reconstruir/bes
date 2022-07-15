@@ -5,7 +5,7 @@ from functools import wraps
 
 from bes.system.host import host
 from bes.fs.file_util import file_util
-from bes.testing.unit_test_skip import raise_skip_if
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class docker(object):
   'Class to deal with docker.'
@@ -29,7 +29,7 @@ class docker(object):
 
   @staticmethod
   def raise_skip_if_running_under_docker():
-    raise_skip_if(not docker.is_running_inside_docker(), 'running under docker')
+    unit_test_class_skip.raise_skip_if(not docker.is_running_inside_docker(), 'running under docker')
 
 class is_running_under_docker_override(object):
   'A class with context support for overriding whether running under docker.  Mostly for unit testing.'

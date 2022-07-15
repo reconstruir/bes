@@ -3,7 +3,7 @@
 import os.path as path, os, shutil, tempfile
 from multiprocessing import Lock, Queue, Process
 from abc import abstractmethod, ABCMeta
-from bes.common.check import check
+from bes.system.check import check
 from bes.system.log import log
 from bes.fs.dir_util import dir_util
 from bes.thread.decorators import synchronized_method

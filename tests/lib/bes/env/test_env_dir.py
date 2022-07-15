@@ -10,13 +10,13 @@ from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
 from bes.env.env_dir import env_dir
 from bes.env.env_dir import action
-from bes.testing.unit_test_skip import raise_skip_if_not_unix
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class test_env_dir(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    raise_skip_if_not_unix()
+    unit_test_class_skip.raise_skip_if_not_unix()
   
   _TEST_ITEMS = [
     'file 1.sh "export A=1\n" 644',

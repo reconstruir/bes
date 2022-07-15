@@ -6,7 +6,7 @@ import fnmatch
 
 from bes.common.algorithm import algorithm
 from bes.common.bool_util import bool_util
-from bes.common.check import check
+from ..system.check import check
 from bes.common.list_util import list_util
 from bes.common.string_util import string_util
 from bes.common.tuple_util import tuple_util

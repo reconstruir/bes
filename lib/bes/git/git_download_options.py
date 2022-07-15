@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.credentials.credentials import credentials
-from bes.common.check import check
+from ..system.check import check
 from bes.cli.cli_options import cli_options
 from bes.fs.file_util import file_util
 

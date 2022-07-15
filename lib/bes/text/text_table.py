@@ -1,10 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
-from bes.common.table import table
 from bes.common.size import size
+from bes.common.table import table
 from bes.compat.StringIO import StringIO
+from bes.text.line_break import line_break
 
 from .text_box import text_box_ascii
 from .white_space import white_space

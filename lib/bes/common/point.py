@@ -4,7 +4,7 @@ from collections import namedtuple
 
 from bes.common.tuple_util import tuple_util
 
-from .check import check
+from ..system.check import check
 
 class point(namedtuple('point', 'x, y')):
 

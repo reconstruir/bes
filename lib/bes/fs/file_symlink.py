@@ -5,8 +5,6 @@ import os.path as path
 
 from bes.system.filesystem import filesystem
 
-from .file_util import file_util
-
 class file_symlink(object):
   'Class to deal with symlinks.'
 
@@ -17,7 +15,7 @@ class file_symlink(object):
   
   @classmethod
   def symlink(clazz, src, dst):
-    file_util.remove(dst)
+    filesystem.remove(dst)
     os.symlink(src, dst)
 
   @classmethod

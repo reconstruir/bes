@@ -8,9 +8,7 @@ from bes.system.host import host
 from bes.archive.archive_extension import archive_extension
 from bes.archive.temp_archive import temp_archive
 from bes.archive.archive_dmg import archive_dmg
-from bes.testing.unit_test_skip import raise_skip_if_not_platform
-
-from archive_tester import archive_tester
+from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class test_archive_dmg(unit_test):
 
@@ -18,7 +16,7 @@ class test_archive_dmg(unit_test):
 
   @classmethod
   def setUpClass(clazz):
-    raise_skip_if_not_platform(host.MACOS)
+    unit_test_class_skip.raise_skip_if_not_platform(host.MACOS)
   
   def __init__(self, methodName = 'runTest'):
     super(test_archive_dmg, self).__init__(methodName)

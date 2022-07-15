@@ -4,7 +4,7 @@ import os.path as path
 
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.common.Script import Script
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_util import file_util
 from bes.fs.file_check import file_check
 from bes.script.blurber import blurber
@@ -24,19 +24,9 @@ class pyinstaller_cli_handler(cli_command_handler):
     file_check.check_file(script_filename)
     check.check_string(output_filename)
 
-    build_dir = path.abspath(self.options.build_dir)
     script_filename_abs = path.abspath(script_filename)
     output_filename_abs = path.abspath(output_filename)
 
-    if self.options.clean:
-      file_util.remove(build_dir)
-      
-    result = pyinstaller_build.build(script_filename_abs,
-                                     log_level = self.options.log_level,
-                                     excludes = self.options.excludes,
-                                     hidden_imports = self.options.hidden_imports,
-                                     verbose = self.options.verbose,
-                                     build_dir = build_dir,
-                                     replace_env = None)
+    result = pyinstaller_build.build(script_filename_abs)
     file_util.copy(result.output_exe, output_filename_abs)
     return 0

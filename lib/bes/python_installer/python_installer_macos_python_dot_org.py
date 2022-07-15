@@ -3,7 +3,7 @@
 import os, re
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.dir_util import dir_util
 from bes.fs.file_symlink import file_symlink
 from bes.fs.file_util import file_util

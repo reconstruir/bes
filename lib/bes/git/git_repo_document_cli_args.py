@@ -3,7 +3,7 @@
 import os
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.git.git_repo_script_options import git_repo_script_options
 from bes.git.git_clone_options import git_clone_options
 

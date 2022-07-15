@@ -8,9 +8,6 @@ dec 2020
 - also rename find_fnmatch to find_name
 - key value lexer parser tests for exception states
 
-sep 23
-- add refactor unit tests
-
 sep 30
 - add unit test for extract_member_to_string_cached
 
@@ -34,15 +31,8 @@ nov 2
 
 nov 8
 - tree text parser isspace might be wrong maybe should be == ' ' instead
-- maybe use TestLoader.discover() instead of custom discovery
-
-nov 23
-- check for flag_enum
 
 node.add_child() should be node.add_child_with_data()
-
-dec 20
-- decide if enums are case insensitive look at python 3
 
 dec 26
 - verify_key_value_list and is_key_value_list might not be needed
@@ -63,9 +53,6 @@ fix bes_test.py to ignore such files:
 readlink /Users/ramiro/proj/rebuild/lib/.#setup.py
 ramiro@queequeg.local.212
 
-feb 18
-- bes_test.py --git is messed
-
 erb 20
  - borken
   def test_string_seq(self):
@@ -81,7 +68,7 @@ feb 23
 - add git.root test
 
 feb 26
-- fix bes_test.py --ignore so that pattners are automati ally created 'foo' => '*foo*' i guess check whether pattern is patterns first
+- fix bes_test.py --ignore so that patterns are automatically created 'foo' => '*foo*' i guess check whether pattern is patterns first
 - write egg.py unit tests
 
 mar 2
@@ -116,12 +103,6 @@ s/matcher_multiple_filename/matcher_multiple_patterns/
 
 2018-05-06
  - when best test fails print a report of all the failed tests
- 
-2018-05-30
- - fix test_archive_unix_tar.py
- - unit_test_skip stuff is confusing because some are for skipping a function vs some are for skipping a testcase
- - fix broken unt tests: test_unit_test_inspect, test_argument_resolver, test_file_info
- 
 
 archive:
 create for archive_unix_tar not working for all formats plus unit tests
@@ -154,7 +135,6 @@ consider the locations of os_env env_var might be bes.env
 fix bes_env_path_append and friends to check the first argument to be a good shell var name
 
 tree text parser - tests for get_text()
-enum SIZE is weird
 
 tar_util.copy_tree() has no error checking and causes errors to be spewed to stdout instead
 of rasing a python exception
@@ -165,7 +145,6 @@ see: https://stackoverflow.com/questions/9393425/python-how-to-execute-shell-com
 
 2018-12-09
 - archive_base.item should have a mode field
-- the archive test hierarchy does not compute with bes_test.py
 
 2018-12-21
 - file_find s/find_function/find_by_function/
@@ -198,3 +177,28 @@ New
 - the url util methods that choose python or requests need to raise the same exception
   it varies between RuntimeError and HTTPErro depending which one is chosen.  ths
   unit tests catch both
+
+add file_attributes_metadata tests to cover write permissions and ownership
+
+2022-01-24
+ - add tests to test_files_cli_args.py
+ - best.py refactor rename --dry-run flag is broken
+ - get rid of match_basename is file find its very confusing
+ - add support for ignoring files when refactoring like foo.py~
+ - simple config and credentials do not deal with $ and @ literals in passwords
+
+2022-03-23
+ - file dups (and maybe other ops) unit tests where a resolved file is removed
+
+2022-04-16
+- url_util.sanitize() is a very silly name for what it does
+
+2022-05-30
+- dir_operation_item_list.move() takes timestamp and count but resolve alreayd deals with it ?
+- dir_operation.filename should be .basename
+
+2022-06-05
+- dir_operation_item_list.copy_files() and move_files() should share more code
+
+2022-06-16
+- consider using file entries for file_find

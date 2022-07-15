@@ -3,7 +3,7 @@
 import fnmatch, os.path as path
 from collections import namedtuple
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from bes.system.check import check
 
 class file_filter(object):
   test_descriptor = namedtuple('test_descriptor', 'file_info,tests')
@@ -15,6 +15,7 @@ class file_filter(object):
       return [ clazz.test_descriptor(finfo, None) for finfo in finfos ]
     result = []
     for finfo in finfos:
+      #assert False
       matching_tests = clazz._matching_tests(finfo.inspection, patterns)
       if matching_tests:
         result.append(clazz.test_descriptor(finfo, matching_tests))

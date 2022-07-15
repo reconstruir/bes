@@ -7,7 +7,7 @@ from collections import namedtuple
 
 from bes.thread.thread_pool import thread_pool
 from bes.system.log import logger
-from bes.common.check import check
+from ..system.check import check
 
 from .git_error import git_error
 from .git_repo import git_repo

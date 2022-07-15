@@ -1,34 +1,17 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import re, string, sys
+import re
+import string
+import sys
 
 from bes.compat.StringIO import StringIO
 from bes.system.compat import compat
-from .check import check
+from bes.system.check import check
+
+from .char_util import char_util
 
 class string_util(object):
   'String util'
-
-  @classmethod
-  def replace_white_space(clazz, s, replacement):
-    'Replace white space sequences in s with replacement.'
-    buf = StringIO()
-    STATE_CHAR = 1
-    STATE_SPACE = 2
-
-    state = STATE_CHAR
-    for c in s:
-      if state == STATE_CHAR:
-        if c.isspace():
-          buf.write(replacement)
-          state = STATE_SPACE
-        else:
-          buf.write(c)
-      elif state == STATE_SPACE:
-        if not c.isspace():
-          buf.write(c)
-          state = STATE_CHAR
-    return buf.getvalue()
 
   @classmethod
   def split_by_white_space(clazz, s, strip = False):
@@ -77,28 +60,7 @@ class string_util(object):
       for t in tail:
         s = clazz.remove_tail(s, t)
       return s
-
-  @classmethod
-  def replace(clazz, s, replacements, word_boundary = True):
-    'Replace all instances of dict d in string s.'
-    check.check_string(s)
-    check.check_dict(replacements)
-    assert clazz.is_string(s)
-    for key, value in replacements.items():
-      assert key
-      if word_boundary:
-        pattern_parts = []
-        if key[0].isalnum():
-          pattern_parts.append(r'\b')
-        pattern_parts.append(re.escape(key))
-        if key[-1].isalnum():
-          pattern_parts.append(r'\b')
-        pattern = ''.join(pattern_parts)
-        s = re.sub(pattern, value, s)
-      else:
-        s = s.replace(key, value)
-    return s
-
+  
   @classmethod
   def is_string(clazz, s):
     'Return True if s is a string.'
@@ -106,7 +68,7 @@ class string_util(object):
     
   @classmethod
   def is_char(clazz, s):
-    'Return True if s is 1 line character.'
+    'Return True if s is 1 character.'
     return clazz.is_string(s) and len(s) == 1
 
   @classmethod
@@ -115,20 +77,8 @@ class string_util(object):
     try:
       s.decode('ascii')
       return True
-    except:
+    except Exception as ex:
       return False
-
-  @classmethod
-  def replace_punctuation(clazz, s, replacement):
-    'Replace punctuation in s with replacement.'
-    buf = StringIO()
-    for c in s:
-      if c in string.punctuation:
-        if replacement:
-          buf.write(replacement)
-      else:
-        buf.write(c)
-    return buf.getvalue()
 
   @classmethod
   def flatten(clazz, s, delimiter = ' '):

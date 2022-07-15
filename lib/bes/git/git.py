@@ -6,7 +6,7 @@ from collections import namedtuple
 import tempfile
 
 from bes.archive.archiver import archiver
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
 from bes.common.string_util import string_util
 from bes.fs.dir_util import dir_util
@@ -37,7 +37,7 @@ from .git_ref_info import git_ref_info
 from .git_ref_where import git_ref_where
 from .git_status import git_status, git_status_list
 from .git_submodule_info import git_submodule_info
-from .git_tag import git_tag
+from .git_tag_list import git_tag_list
 from .git_tag_sort_type import git_tag_sort_type
 
 class git(git_lfs):
@@ -57,8 +57,7 @@ class git(git_lfs):
     rv = git_exe.call_git(root, args)
     result = git_status_list.parse(rv.stdout)
     if abspath:
-      for r in result:
-        r.filename = path.join(root, r.filename)
+      result.become_absolute(root)
     return result
 
   @classmethod
@@ -157,7 +156,7 @@ class git(git_lfs):
   def has_commits(clazz, root_dir):
     'Return True of repo has commits.'
     rv = git_exe.call_git(root_dir, [ 'log' ], raise_error = False)
-    if rv.exit_code == 0:
+    if rv.succeeded:
       return True
     return 'does not have any commits' not in rv.stderr
   
@@ -501,7 +500,7 @@ class git(git_lfs):
       cwd = path.dirname(filename)
     args = [ 'rev-parse', '--show-toplevel' ]
     rv = git_exe.call_git(cwd, args, raise_error = False)
-    if rv.exit_code != 0:
+    if rv.failed:
       return None
     l = git_exe.parse_lines(rv.stdout)
     assert len(l) == 1
@@ -511,7 +510,7 @@ class git(git_lfs):
   def is_tracked(clazz, root, filename):
     'Return True if the filename is tracked by a git repo.'
     args = [ 'ls-files', '--error-unmatch', filename ]
-    return git_exe.call_git(root, args, raise_error = False).exit_code == 0
+    return git_exe.call_git(root, args, raise_error = False).succeeded
 
   @classmethod
   def modified_files(clazz, root):
@@ -628,11 +627,11 @@ class git(git_lfs):
                       limit = None, prefix = None):
     sort_type = git_tag_sort_type.check_sort_type(sort_type)
     rv = git_exe.call_git(root_dir, [ 'tag', '-l', '--format="%(objectname) %(refname)"' ])
-    return git_tag.parse_show_ref_output(rv.stdout,
-                                         sort_type = sort_type,
-                                         reverse = reverse,
-                                         limit = limit,
-                                         prefix = prefix)
+    return git_tag_list.parse_show_ref_output(rv.stdout,
+                                              sort_type = sort_type,
+                                              reverse = reverse,
+                                              limit = limit,
+                                              prefix = prefix)
     
   @classmethod
   def greatest_local_tag(clazz, root, prefix = None):
@@ -646,22 +645,22 @@ class git(git_lfs):
                        limit = None, prefix = None):
     rv = git_exe.call_git(root, [ 'ls-remote', '--tags' ])
     clazz.log.log_d('list_remote_tags: stdout="{}"'.format(rv.stdout))
-    return git_tag.parse_show_ref_output(rv.stdout,
-                                         sort_type = sort_type,
-                                         reverse = reverse,
-                                         limit = limit,
-                                         prefix = prefix)
+    return git_tag_list.parse_show_ref_output(rv.stdout,
+                                              sort_type = sort_type,
+                                              reverse = reverse,
+                                              limit = limit,
+                                              prefix = prefix)
 
   @classmethod
   def list_remote_tags_for_address(clazz, address, sort_type = None, reverse = False,
                                    limit = None, prefix = None):
     rv = git_exe.call_git(tempfile.gettempdir(), [ 'ls-remote', '--tags', address ])
     clazz.log.log_d('list_remote_tags_for_address: stdout="{}"'.format(rv.stdout))
-    return git_tag.parse_show_ref_output(rv.stdout,
-                                         sort_type = sort_type,
-                                         reverse = reverse,
-                                         limit = limit,
-                                         prefix = prefix)
+    return git_tag_list.parse_show_ref_output(rv.stdout,
+                                              sort_type = sort_type,
+                                              reverse = reverse,
+                                              limit = limit,
+                                              prefix = prefix)
   
   @classmethod
   def greatest_remote_tag(clazz, root, prefix = None):
@@ -745,18 +744,24 @@ class git(git_lfs):
 
   @classmethod
   def active_branch(clazz, root):
-    return [ i for i in clazz.list_branches(root, 'local') if i.active ][0].name
+    branches = clazz.list_branches(root, 'local')
+    for branch in branches:
+      if branch.active:
+        return branch.name
+    return None
 
   @classmethod
-  def list_branches(clazz, root, where):
-    git_ref_where.check_where(where)
+  def list_branches(clazz, root, where, limit = None):
+    check.check_string(root)
+    where = git_ref_where.check_where(where)
+    check.check_int(limit, allow_none = True)
     
     if where == 'local':
-      branches = clazz.list_local_branches(root)
+      branches = clazz.list_local_branches(root, limit = limit)
     elif where == 'remote':
-      branches = clazz.list_remote_branches(root)
+      branches = clazz.list_remote_branches(root, limit = limit)
     else:
-      branches = clazz._list_both_branches(root)
+      branches = clazz._list_both_branches(root, limit = limit)
     return git_branch_list(branches)
 
   @classmethod
@@ -767,20 +772,32 @@ class git(git_lfs):
     return result
 
   @classmethod
-  def list_remote_branches(clazz, root):
+  def list_remote_branches(clazz, root, limit = None):
+    check.check_string(root)
+    check.check_int(limit, allow_none = True)
+    
     rv = git_exe.call_git(root, [ 'branch', '--verbose', '--list', '--no-color', '--remote' ])
     lines = git_exe.parse_lines(rv.stdout)
     lines = [ line for line in lines if not ' -> ' in line ]
     lines = [ string_util.remove_head(line, 'origin/') for line in lines ]
     branches = git_branch_list([ git_branch.parse_branch(line, 'remote') for line in lines ])
-    return clazz._branch_list_determine_authors(root, branches)
+    branches = clazz._branch_list_determine_authors(root, branches)
+    if limit != None:
+      branches = branches[0:limit]
+    return branches
 
   @classmethod
-  def list_local_branches(clazz, root):
+  def list_local_branches(clazz, root, limit = None):
+    check.check_string(root)
+    check.check_int(limit, allow_none = True)
+
     rv = git_exe.call_git(root, [ 'branch', '--verbose', '--list', '--no-color' ])
     lines = git_exe.parse_lines(rv.stdout)
     branches = git_branch_list([ git_branch.parse_branch(line, 'local') for line in lines ])
-    return clazz._branch_list_determine_authors(root, branches)
+    branches = clazz._branch_list_determine_authors(root, branches)
+    if limit != None:
+      branches = branches[0:limit]
+    return branches
 
   @classmethod
   def has_remote_branch(clazz, root, branch):
@@ -791,7 +808,7 @@ class git(git_lfs):
     return branch in clazz.list_local_branches(root).names
   
   @classmethod
-  def _list_both_branches(clazz, root):
+  def _list_both_branches(clazz, root, limit):
     local_branches = clazz.list_local_branches(root)
     remote_branches = clazz.list_remote_branches(root)
     branch_map = {}
@@ -814,7 +831,10 @@ class git(git_lfs):
     for _, branches in branch_map.items():
       result.extend(branches)
     result.sort()
-    return clazz._branch_list_determine_authors(root, result)
+    result = clazz._branch_list_determine_authors(root, result)
+    if limit != None:
+      result = result[0:limit]
+    return result
 
   @classmethod
   def branch_create(clazz, root, branch_name, checkout = False, push = False,
@@ -981,7 +1001,7 @@ class git(git_lfs):
   @classmethod
   def has_commit(clazz, root, commit):
     args = [ 'cat-file', '-t', commit ]
-    return git_exe.call_git(root, args, raise_error = False).exit_code == 0
+    return git_exe.call_git(root, args, raise_error = False).succeeded
 
   @classmethod
   def has_revision(clazz, root, revision):
@@ -1097,7 +1117,7 @@ class git(git_lfs):
 
     start_dir = start_dir or os.getcwd()
     rv = git_exe.call_git(start_dir, [ 'rev-parse', '--show-toplevel' ], raise_error = False)
-    if rv.exit_code != 0:
+    if rv.failed:
       return None
     result = rv.stdout.strip()
     if host.SYSTEM == host.WINDOWS:
@@ -1115,3 +1135,9 @@ class git(git_lfs):
     'Return the commit message for a single revision'
     rv = git_exe.call_git(root_dir, [ 'show', '--quiet', commit_hash ])
     return git_commit_info.parse_log_output(rv.stdout)
+
+  @classmethod
+  def check_ignore(clazz, root_dir, filename):
+    'Return True if filename should be ignored by git.  filename can exist or not'
+    rv = git_exe.call_git(root_dir, [ 'check-ignore', filename ], raise_error = False)
+    return rv.succeeded

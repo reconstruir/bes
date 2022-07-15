@@ -2,7 +2,7 @@
 
 import os.path as path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
 from bes.fs.file_cache import file_cache
 from bes.fs.file_find import file_find

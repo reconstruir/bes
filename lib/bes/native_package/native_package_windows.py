@@ -3,7 +3,7 @@
 import os
 import os.path as path
 
-from bes.common.check import check
+from ..system.check import check
 
 from .native_package_base import native_package_base
 from .native_package_error import native_package_error

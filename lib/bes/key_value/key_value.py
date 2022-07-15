@@ -2,9 +2,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
-from bes.compat.StringIO import StringIO
-from bes.common.check import check
-from bes.common.string_util import string_util
+
+from ..common.string_util import string_util
+from ..common.tuple_util import tuple_util
+from ..compat.StringIO import StringIO
+from ..system.check import check
 
 class key_value(namedtuple('key_value', 'key,value')):
 
@@ -39,4 +41,10 @@ class key_value(namedtuple('key_value', 'key,value')):
       raise ValueError('invalid key value: \"%s\"' % (text))
     return clazz(key.strip(), value.strip())
 
-check.register_class(key_value, include_seq = False)
+  @classmethod
+  def _check_cast_func(clazz, obj):
+    if check.is_tuple(obj):
+      return tuple_util.cast_seq_to_namedtuple(clazz, obj)
+    return obj
+  
+check.register_class(key_value, include_seq = False, cast_func = key_value._check_cast_func)

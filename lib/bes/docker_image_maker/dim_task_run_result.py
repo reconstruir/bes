@@ -3,7 +3,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 
 class dim_task_run_result(namedtuple('dim_task_run_result', 'success, failed_entries')):
 

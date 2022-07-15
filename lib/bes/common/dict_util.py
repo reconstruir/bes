@@ -1,8 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import copy
+
 from bes.compat.StringIO import StringIO
-from .check import check
+from bes.text.text_replace import text_replace
+
+from ..system.check import check
 from .object_util import object_util
 from .string_util import string_util
 from .variable import variable
@@ -89,7 +92,7 @@ class dict_util(object):
   @staticmethod
   def replace_values(d, replacements, word_boundary = True):
     for key in d.keys():
-      d[key] = string_util.replace(d[key], replacements)
+      d[key] = text_replace.replace(d[key], replacements, word_boundary = True)
       
   @staticmethod
   def del_keys(d, keys):

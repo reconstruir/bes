@@ -6,10 +6,16 @@ from datetime import datetime
 
 from bes.text.string_list_parser import string_list_parser
 from bes.common.string_util import string_util
+from bes.system.check import check
 from bes.fs.temp_file import temp_file
 from bes.fs.file_path import file_path
 
-class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')):
+class multiplied_temp_content(namedtuple('multiplied_temp_content', 'name, num, size')):
+    
+  def __new__(clazz, name, num, size = None):
+    return clazz.__bases__[0].__new__(clazz, name, num, size)
+
+class temp_content(namedtuple('temp_content', 'item_type, filename, content, mode')):
   'Temporary files, directories and content for easier testing.'
   
   FILE = 'file'
@@ -120,7 +126,7 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
   def _determine_content(self):
     if not self.content:
       return b''
-    if self.content.startswith('file:'):
+    if check.is_string(self.content) and self.content.startswith('file:'):
       _, _, source_filename = self.content.partition(':')
       source_filename = source_filename.strip()
       if not path.isfile(source_filename):
@@ -163,3 +169,27 @@ class temp_content(namedtuple('temp_content', 'item_type,filename,content,mode')
     root_dir = temp_file.make_temp_dir(delete = delete)
     clazz.write_items(items, root_dir)
     return root_dir
+
+  @classmethod
+  def write_multiplied_items_to_temp_dir(clazz,
+                                         multiplied_content_items = None,
+                                         content_multiplier = 1,
+                                         extra_content_items = None):
+    multiplied_content_items = multiplied_content_items or []
+    extra_content_items = extra_content_items or []
+    multiplied_content_items = [ multiplied_temp_content(c.name, c.num * content_multiplier, size = c.size) for c in multiplied_content_items ]
+    content_items = []
+    for next_desc in multiplied_content_items:
+      for i in range(1, next_desc.num + 1):
+        filename = '{}{}.txt'.format(next_desc.name, i)
+        text = 'this is {}'.format(filename)
+        if next_desc.size != None:
+          assert(next_desc.size > len(text))
+          num_needed = next_desc.size - len(text)
+          text += (num_needed * 'x')
+          assert len(text) == next_desc.size
+        desc = 'file src/{} "{}" 644'.format(filename, text)
+        content_items.append(desc)
+    content_items.extend(extra_content_items)
+    tmp_dir = clazz.write_items_to_temp_dir(content_items)
+    return tmp_dir

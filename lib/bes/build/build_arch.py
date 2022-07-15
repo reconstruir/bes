@@ -2,7 +2,7 @@
 
 import platform
 from .build_system import build_system
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 
 class build_arch(object):

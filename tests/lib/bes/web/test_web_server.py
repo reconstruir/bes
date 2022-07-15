@@ -15,7 +15,7 @@ from bes.fs.file_mime import file_mime
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.url.url_util import url_util
-from bes.testing.unit_test_skip import skip_if
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 from bes.system.host import host
 from bes.docker.docker import docker
 
@@ -151,7 +151,7 @@ class test_web_server(unit_test):
       
     server.stop()
     
-  @skip_if(host.DISTRO == 'fedora', 'FIXME: this test fails on fedora')
+  @unit_test_function_skip.skip_if(host.DISTRO == 'fedora', 'FIXME: this test fails on fedora')
   def test_tarball_large(self):
     server = web_server_controller(self._tarball_web_server)
     server.start()

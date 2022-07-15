@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.table import table
 from bes.compat.StringIO import StringIO
 from .text_line_parser import text_line_parser

@@ -3,7 +3,7 @@
 import copy
 from os import path
 from collections import namedtuple
-from bes.common.check import check
+from ..system.check import check
 from bes.common.variable import variable
 from bes.property.env_var_property import env_var_property
 from bes.compat.StringIO import StringIO
@@ -36,7 +36,7 @@ class credentials(object):
     try:
       return env_var_property.resolve_value(value)
     except ValueError as ex:
-      raise ValueError('{}: {}'.format(self.__dict__['_config_source'], str(ex)))
+      return value
 
   def __setattr__(self, key, value):
     self.__dict__['_credentials'][key] = value

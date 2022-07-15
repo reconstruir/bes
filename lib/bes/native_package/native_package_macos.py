@@ -4,7 +4,7 @@ import os.path as path
 import os
 
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_list_util import string_list_util
 from bes.common.string_util import string_util
 from bes.compat.plistlib import plistlib_loads
@@ -135,7 +135,7 @@ class native_package_macos(native_package_base):
     if not path.isfile(package_filename):
       raise native_package_error('Package file not found: "{}"'.format(package_filename))
 
-    mime_type = file_mime.mime_type(package_filename).mime_type
+    mime_type = file_mime.mime_type(package_filename)
     if mime_type != 'application/x-xar':
       raise native_package_error('Invalid package file: "{}"'.format(package_filename))
 

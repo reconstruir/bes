@@ -2,6 +2,7 @@
 
 import errno, os.path as path, os, stat
 
+from .dir_util import dir_util
 from .file_match import file_match
 from .file_path import file_path
 from .file_util import file_util
@@ -185,3 +186,28 @@ class file_find(object):
       if not os.access(filename_abs, os.R_OK):
         result.append(filename)
     return result
+
+  @classmethod
+  def find_empty_dirs(clazz, root_dir, relative = True, min_depth = None, max_depth = None):
+    return clazz.find(root_dir,
+                      relative = relative,
+                      file_type = clazz.DIR,
+                      min_depth = min_depth,
+                      max_depth = max_depth,
+                      match_function = lambda f: dir_util.is_empty(f),
+                      match_basename = False)
+
+  @classmethod
+  def remove_empty_dirs(clazz, root_dir, min_depth = None, max_depth = None):
+    result = []
+    while True:
+      empties = clazz.find_empty_dirs(root_dir, relative = False, min_depth = min_depth, max_depth = max_depth)
+      if not empties:
+        break
+      for next_empty in empties:
+        dir_util.remove(next_empty)
+        result.append(next_empty)
+    if dir_util.is_empty(root_dir):
+      dir_util.remove(root_dir)
+      result.append(root_dir)
+    return sorted(result)

@@ -13,6 +13,7 @@ from bes.system.host import host
 
 from bes.git.git import git
 from bes.git.git_status import git_status
+from bes.git.git_status_action import git_status_action
 
 class test_git(unit_test):
 
@@ -38,7 +39,7 @@ class test_git(unit_test):
     tmp_repo = self._create_tmp_repo()
     new_files = self._create_tmp_files(tmp_repo)
     git.add(tmp_repo, new_files)
-    expected_status = [ git_status(git_status.ADDED, f) for f in new_files ]
+    expected_status = [ git_status(git_status_action.ADDED, f, None) for f in new_files ]
     actual_status = git.status(tmp_repo, '.')
     self.assertEqual( expected_status, actual_status )
 

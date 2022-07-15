@@ -10,14 +10,10 @@ class pip_project_cli_args(object):
     # create
     p = subparser.add_parser('create', help = 'Create a pip project.')
     self.__pip_project_add_common_args(p)
-    p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip project [ None ]')
 
     # install
     p = subparser.add_parser('install', help = 'Install a package.')
     self.__pip_project_add_common_args(p)
-    p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip project [ None ]')
     p.add_argument('package_name', action = 'store', type = str, default = None,
                    help = 'The name of the package to install [ None ]')
     p.add_argument('--version', action = 'store', type = str, default = None,
@@ -26,52 +22,40 @@ class pip_project_cli_args(object):
     # upgrade
     p = subparser.add_parser('upgrade', help = 'Upgrade a package.')
     self.__pip_project_add_common_args(p)
-    p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip project [ None ]')
     p.add_argument('packages', action = 'store', default = [], nargs = '+',
                    help = 'The name of the packages to upgrade [ None ]')
     
     # install_requirements
     p = subparser.add_parser('install_requirements', help = 'Install packages from a requirements file.')
     self.__pip_project_add_common_args(p)
-    p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip project [ None ]')
-    p.add_argument('requirements_file', action = 'store', type = str, default = None,
-                   help = 'The requirements file [ None ]')
+    p.add_argument('requirements_files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more requirements files [ None ]')
     
     # outdated
     p = subparser.add_parser('outdated', help = 'Print outdated packages.')
     self.__pip_project_add_common_args(p)
-    p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip project [ None ]')
 
     # installed
     p = subparser.add_parser('installed', help = 'Print install packages.')
     self.__pip_project_add_common_args(p)
-    p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip project [ None ]')
     
     # project_pip
     p = subparser.add_parser('pip', help = 'Run pip command.')
     self.__pip_project_add_common_args(p)
-    p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip project [ None ]')
     p.add_argument('args', action = 'store', default = [], nargs = '+',
                    help = 'The pip args. [ None ]')
 
     # activate_script
     p = subparser.add_parser('activate_script', help = 'Print the activate script for the virtual env.')
     self.__pip_project_add_common_args(p)
-    p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip project [ None ]')
     p.add_argument('--variant', action = 'store', type = str, default = None,
                    help = 'The virtual env variant (csh, fish, ps1) [ None ]')
+#    p.add_argument('--write-activate-script', action = 'store', default = None,
+#                   help = 'Write the activate script to the given file [ None ]')
 
     # version
     p = subparser.add_parser('version', help = 'Print version of a package.')
     self.__pip_project_add_common_args(p)
-    p.add_argument('name', action = 'store', type = str, default = None,
-                   help = 'The name for this pip project [ None ]')
     p.add_argument('package_name', action = 'store', type = str, default = None,
                    help = 'The name of the package to install [ None ]')
     

@@ -3,7 +3,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.compat.StringIO import StringIO
 
 class version_info(namedtuple('version_info', 'version,author_name,author_email,address,tag,timestamp')):

@@ -2,7 +2,7 @@
 
 import re
 
-from bes.common.check import check
+from ..system.check import check
 from bes.python.python_exe import python_exe
 from bes.python.python_version import python_version
 from bes.python.python_version_list import python_version_list

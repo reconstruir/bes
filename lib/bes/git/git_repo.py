@@ -1,16 +1,20 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import atexit, inspect, time
-import os.path as path
+from os import path
 
-from bes.common.check import check
+import atexit
+import os
+import time
+
+from ..system.check import check
+from bes.common.inspect_util import inspect_util
 from bes.common.object_util import object_util
 from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
+from bes.text.line_break import line_break
 from bes.version.software_version import software_version
-from bes.common.inspect_util import inspect_util
 
 from .git import git
 from .git_address_util import git_address_util
@@ -21,7 +25,7 @@ from .git_modules_file import git_modules_file
 from .git_operation_base import git_operation_base
 from .git_repo_status import git_repo_status
 from .git_repo_status_options import git_repo_status_options
-from .git_tag import git_tag_list
+from .git_tag_list import git_tag_list
 
 #import warnings
 #with warnings.catch_warnings():
@@ -93,6 +97,9 @@ class git_repo(object):
   def status(self, filenames):
     return git.status(self.root, filenames)
 
+  def status_as_string(self, filenames):
+    return os.linesep.join([ str(st) for st in self.status(filenames) ])
+  
   def diff(self):
     return git.diff(self.root)
 
@@ -114,12 +121,15 @@ class git_repo(object):
   def _dot_git_path(self):
     return path.join(self.root, '.git')
 
-  def find_all_files(self):
-    files = file_find.find(self.root, relative = True, file_type = file_find.FILE|file_find.LINK)
+  def find_all_files(self, file_type = file_find.FILE_OR_LINK):
+    files = file_find.find(self.root, relative = True, file_type = file_type)
     is_git = lambda f: f.startswith('.git') or f.endswith('.git')
     files = [ f for f in files if not is_git(f) ]
     return files
 
+  def find_all_files_as_string(self, file_type = file_find.FILE_OR_LINK):
+    return os.linesep.join(self.find_all_files(file_type = file_type))
+  
   def last_commit_hash(self, short_hash = False):
     return git.last_commit_hash(self.root, short_hash = short_hash)
 
@@ -281,11 +291,11 @@ class git_repo(object):
   def list_branches(self, where):
     return git.list_branches(self.root, where)
 
-  def list_remote_branches(self):
-    return git.list_remote_branches(self.root)
+  def list_remote_branches(self, limit = None):
+    return git.list_remote_branches(self.root, limit = limit)
 
-  def list_local_branches(self):
-    return git.list_local_branches(self.root)
+  def list_local_branches(self, limit = None):
+    return git.list_local_branches(self.root, limit = limit)
   
   def has_remote_branch(self, branch):
     return git.has_remote_branch(self.root, branch)

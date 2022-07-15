@@ -72,9 +72,6 @@ class test_log(unit_test):
   def test_output(self):
     log.output('output to stdout')
       
-  def test_output_console(self):
-    log.output('output to console', console = True)
-
   @staticmethod
   def _test_log_func_stdout(args):
     l = logger('foo')

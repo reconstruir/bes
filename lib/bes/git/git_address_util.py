@@ -1,11 +1,12 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-#from bes.common.check import check
+#from ..system.check import check
 import os.path as path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.compat.StringIO import StringIO
+from bes.text.text_replace import text_replace
 
 from .git_error import git_error
 
@@ -44,4 +45,4 @@ class git_address_util(object):
     'Return a local path sanitized from an address.  Suitable for local caching of remote git stuff.'
     check.check_string(address)
 
-    return string_util.replace(address, { ':': '_', '/': '_' })
+    return text_replace.replace(address, { ':': '_', '/': '_' }, word_boundary = False)

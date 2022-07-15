@@ -4,8 +4,12 @@
 # log.configure('file_util=debug')
 
 import os, os.path as path, tempfile
+from datetime import datetime
+from datetime import timedelta
+
 from bes.testing.unit_test import unit_test
 from bes.fs.file_util import file_util
+from bes.common.hash_util import hash_util
 
 class test_file_util(unit_test):
 
@@ -78,5 +82,40 @@ class test_file_util(unit_test):
     self.assertEqual( False, file_util.is_basename('a/b/c') )
     self.assertEqual( True, file_util.is_basename('') )
 
-if __name__ == "__main__":
+  def test_modification_date(self):
+    ago = datetime.now() - timedelta(minutes = 42)
+    tmp = self.make_temp_file()
+    m1 = file_util.get_modification_date(tmp)
+    file_util.set_modification_date(tmp, ago)
+    self.assertEqual( ago, file_util.get_modification_date(tmp) )
+    self.assertNotEqual( m1, file_util.get_modification_date(tmp) )
+
+  def test_checksum_sha256(self):
+    content = 'this is kiwi'
+    tmp = self.make_temp_file()
+    with open(tmp, 'wb') as f:
+      f.write(content.encode('utf-8'))
+      f.flush()
+    actual = file_util.checksum('sha256', tmp)
+    self.assertEqual( hash_util.hash_string_sha256(content), actual )
+
+  def test_checksum_sha256_with_one_chunk(self):
+    content = 'this is kiwi'
+    tmp = self.make_temp_file()
+    with open(tmp, 'wb') as f:
+      f.write(content.encode('utf-8'))
+      f.flush()
+    actual = file_util.checksum('sha256', tmp, chunk_size = 4, num_chunks = 1)
+    self.assertEqual( hash_util.hash_string_sha256('this'), actual )
+
+  def test_checksum_sha256_with_two_chunks(self):
+    content = 'this is kiwi'
+    tmp = self.make_temp_file()
+    with open(tmp, 'wb') as f:
+      f.write(content.encode('utf-8'))
+      f.flush()
+    actual = file_util.checksum('sha256', tmp, chunk_size = 4, num_chunks = 2)
+    self.assertEqual( hash_util.hash_string_sha256('this is '), actual )
+    
+if __name__ == '__main__':
   unit_test.main()

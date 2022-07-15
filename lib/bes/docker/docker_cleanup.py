@@ -2,7 +2,7 @@
 
 import multiprocessing
 
-from bes.common.check import check
+from ..system.check import check
 from bes.system.log import logger
 
 from .docker_images import docker_images

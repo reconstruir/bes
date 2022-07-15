@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.common.check import check
+from ..system.check import check
 from bes.system.host_info import host_info
 from bes.key_value.key_value_list import key_value_list
 from bes.system.log import logger

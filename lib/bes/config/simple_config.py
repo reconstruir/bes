@@ -2,7 +2,7 @@
 
 import re
 
-from bes.common.check import check
+from ..system.check import check
 from bes.compat.StringIO import StringIO
 from bes.fs.file_util import file_util
 from bes.key_value.key_value import key_value
@@ -108,7 +108,7 @@ class simple_config(object):
   
   def remove_section(self, section_name, matcher = None):
     check.check_string(section_name)
-    check.check_function(matcher, allow_none = True)
+    check.check_callable(matcher, allow_none = True)
 
     matcher = matcher or self.default_section_matcher
     for i, section in enumerate(self._sections):
@@ -118,7 +118,7 @@ class simple_config(object):
 
   def has_unique_section(self, section_name, matcher = None):
     check.check_string(section_name)
-    check.check_function(matcher, allow_none = True)
+    check.check_callable(matcher, allow_none = True)
 
     matcher = matcher or self.default_section_matcher
     for section in self._sections:
@@ -128,7 +128,7 @@ class simple_config(object):
 
   def find_first_section(self, section_name, matcher = None):
     check.check_string(section_name)
-    check.check_function(matcher, allow_none = True)
+    check.check_callable(matcher, allow_none = True)
 
     matcher = matcher or self.default_section_matcher
     for section in self._sections:
@@ -138,7 +138,7 @@ class simple_config(object):
   
   def find_all_sections(self, section_name, raise_error = True, matcher = None):
     check.check_string(section_name)
-    check.check_function(matcher, allow_none = True)
+    check.check_callable(matcher, allow_none = True)
 
     matcher = matcher or self.default_section_matcher
     result = []
@@ -153,7 +153,7 @@ class simple_config(object):
 
   def find(self, section_name, matcher = None):
     check.check_string(section_name)
-    check.check_function(matcher, allow_none = True)
+    check.check_callable(matcher, allow_none = True)
 
     return self.section(section_name, matcher = matcher)
 
@@ -170,7 +170,7 @@ class simple_config(object):
   
   def section(self, section_name, matcher = None):
     check.check_string(section_name)
-    check.check_function(matcher, allow_none = True)
+    check.check_callable(matcher, allow_none = True)
 
     check.check_string(section_name)
     if not self.has_unique_section(section_name, matcher = matcher):
@@ -266,7 +266,7 @@ class simple_config(object):
                 options = None):
     check.check_node(node)
     check.check_bool(check_env_vars)
-    check.check_function(entry_parser, allow_none = True)
+    check.check_callable(entry_parser, allow_none = True)
     check.check_bool(ignore_extends)
     check.check_simple_config_options(options, allow_none = True)
 
@@ -316,7 +316,7 @@ class simple_config(object):
                      options):
     check.check_node(node)
     check.check_string(source)
-    check.check_function(entry_parser)
+    check.check_callable(entry_parser)
     check.check_simple_config_origin(origin)
     check.check_simple_config_section_header(header)
     check.check_simple_config_section(extends_section, allow_none = True)

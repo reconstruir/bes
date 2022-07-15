@@ -39,5 +39,10 @@ class test_white_space(unit_test):
     self.assertEqual( 'foo', WS.strip_new_lines('\nfoo') )
     self.assertEqual( 'foo', WS.strip_new_lines('\nfoo\n') )
     
-if __name__ == "__main__":
+  def test_shorten_multi_line_spaces(self):
+    f = WS.shorten_multi_line_spaces
+    self.assert_string_equal( '''\
+foo''', f('foo') )
+    
+if __name__ == '__main__':
   unit_test.main()

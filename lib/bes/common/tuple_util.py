@@ -3,7 +3,7 @@
 from collections import namedtuple
 from functools import reduce
 
-from .check import check
+from ..system.check import check
 
 class tuple_util(object):
   'Tuple util'
@@ -62,3 +62,15 @@ class tuple_util(object):
     if not tuple_util.is_named_tuple(t):
       raise TypeError('not a namedtuple: %s - %s' % (str(t), type(t)))
     return [ ( key, value ) for ( key, value ) in zip(t._fields, list(t)) ]
+
+  @staticmethod
+  def cast_seq_to_namedtuple(tuple_class, o):
+    fields = getattr(tuple_class, '_fields', None)
+    if not fields:
+      raise TypeError(f'tuple_class is not a namedtuple: {namedtuple}')
+    values = [ x for x in iter(o) ]
+    num_fields = len(fields)
+    num_values = len(values)
+    if num_values != num_fields:
+      raise ValueError(f'Length of o should be {num_fields} instead of {num_values}: {o}')
+    return tuple_class(*values)

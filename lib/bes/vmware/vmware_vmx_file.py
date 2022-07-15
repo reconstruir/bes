@@ -3,7 +3,7 @@
 import os
 import os.path as path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.fs.file_mime import file_mime
 from bes.fs.file_util import file_util

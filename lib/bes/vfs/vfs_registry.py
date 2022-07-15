@@ -3,7 +3,7 @@
 import copy
 
 from bes.factory.singleton_class_registry import singleton_class_registry
-from bes.common.check import check
+from ..system.check import check
 from bes.python.code import code
 from bes.fs.temp_file import temp_file
 

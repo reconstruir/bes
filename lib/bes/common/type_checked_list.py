@@ -5,7 +5,7 @@ from bes.compat.StringIO import StringIO
 from bes.compat.cmp import cmp
 from bes.compat.zip import zip
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from ..system.check import check
 
 class type_checked_list(object):
 
@@ -31,12 +31,22 @@ class type_checked_list(object):
   def _assign(self, values):
     self._values = []
     for v in values or []:
-      v = self.cast_value(v)
-      check.check(v, self._value_type)
+      check_method = None
+      value_type_name = getattr(self._value_type, '__name__', None)
+      if value_type_name:
+        check_method_name = f'check_{value_type_name}'
+        check_method = getattr(check, check_method_name, None)
+      if check_method:
+        v = check_method(v)
+      else:
+        v = self.cast_value(v)
+        v = check.check(v, self._value_type)
       self._values.append(v)
 
   def compare(self, other):
-    check.check(other, ( type_checked_list, list, tuple ))
+    check.check(other, ( type_checked_list, list, tuple ), allow_none = True)
+    if other == None:
+      return -1
     len_cmp = cmp(len(self), len(other))
     if len_cmp != 0:
       return len_cmp
@@ -138,3 +148,11 @@ class type_checked_list(object):
       first = False
       buf.write(str(item))
     return buf.getvalue()
+
+  @classmethod
+  def check_cast_func(clazz, obj):
+    if isinstance(obj, clazz):
+      return obj
+    if check.is_seq(obj):
+      return clazz([ x for x in obj ])
+    return obj

@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_util import file_util
 from bes.property.cached_property import cached_property
 from bes.text.text_line_parser import text_line_parser

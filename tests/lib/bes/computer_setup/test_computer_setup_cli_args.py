@@ -126,11 +126,11 @@ tag rel/1.0.2 tag3 @commit3
     ]
     rv = self.run_program(self._program, args)
     self.assertEqual(0, rv.exit_code)
-    self.assert_text_file_equal( '''\
+    self.assert_text_file_equal_fuzzy( '''\
 rel/1.0.0
 rel/1.0.1
 rel/1.0.2
-''', tmp_output_file, native_line_breaks = True )
+''', tmp_output_file )
 
   @git_temp_home_func()
   def test_bump_tag_with_prefix(self):

@@ -3,7 +3,7 @@
 import os, re
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.system.log import logger
 from bes.fs.temp_file import temp_file
 from bes.fs.file_mime import file_mime

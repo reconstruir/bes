@@ -4,7 +4,7 @@ from collections import namedtuple
 
 import copy
 
-from bes.common.check import check
+from ..system.check import check
 from bes.config.simple_config import simple_config
 from bes.key_value.key_value_list import key_value_list
 from bes.system.host import host

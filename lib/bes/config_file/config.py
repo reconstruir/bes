@@ -3,7 +3,7 @@
 from os import path
 import copy
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.compat.ConfigParser import ConfigParser
 from bes.compat.ConfigParser import NoOptionError

@@ -4,7 +4,7 @@ from collections import namedtuple
 import os.path as path
 import tempfile
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.common.time_util import time_util
 from bes.fs.file_util import file_util

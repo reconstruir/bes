@@ -5,7 +5,7 @@ import subprocess
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.log import logger

@@ -1,40 +1,42 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import copy
+from collections import namedtuple
+from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
+from bes.common.tuple_util import tuple_util
 from bes.common.type_checked_list import type_checked_list
 from bes.compat.StringIO import StringIO
 from bes.text.text_line_parser import text_line_parser
 
-class git_status(object):
-  'Git status of changes.'
+from .git_status_action import git_status_action
 
-  MODIFIED = 'M'
-  ADDED = 'A'
-  DELETED = 'D'
-  RENAMED = 'R'
-  COPIED = 'C'
-  UNMERGED = 'U'
-  UNTRACKED = '??'
+class git_status(namedtuple('git_status', 'action, filename, renamed_filename')):
 
-  def __init__(self, action, filename, *args):
-    args = args or ()
-    self.action = action
-    self.filename = filename
-    self.args = copy.deepcopy(args)
+  def __new__(clazz, action, filename, renamed_filename):
+    check.check_git_status_action(action)
+    check.check_string(filename)
+    check.check_string(renamed_filename, allow_none = True)
     
+    return clazz.__bases__[0].__new__(clazz, action, filename, renamed_filename)
+
+  def clone(self, mutations = None):
+    return tuple_util.clone(self, mutations = mutations)
+
+  def clone_with_abs_filename(self, root_dir):
+    check.check_string(root_dir)
+
+    return self.clone(mutations = { 'filename': path.join(root_dir, self.filename) })
+  
   def __str__(self):
     buf = StringIO()
-    buf.write(self.action.rjust(2))
+    buf.write(self.action.value.rjust(2))
     buf.write(' ')
     buf.write(self.filename)
-    for i, arg in enumerate(self.args):
-      if i == 0:
-        buf.write(' ')
-      assert string_util.is_string(arg)
-      buf.write(arg)
+    if self.renamed_filename:
+      buf.write(' -> ')
+      buf.write(self.renamed_filename)
     return buf.getvalue()
 
   def __repr__(self):
@@ -49,20 +51,26 @@ class git_status(object):
       raise TypeError('invalid type for equality comparison: %s - %s' % (str(other), type(other)))
 
   def as_tuple(self):
-    return tuple([ self.action, self.filename ] + list(self.args))
+    return tuple([ self.action, self.filename, self.renamed_filename ])
   
   def is_untracked(self):
-    return self.action == '??'
+    return self.action == git_status_action.UNTRACKED
 
   @classmethod
   def parse_line(clazz, s):
     check.check_string(s)
     
     v = string_util.split_by_white_space(s)
-    action = v[0]
-    filename = v[1]
-    args = tuple(v[2:0]) or ()
-    return git_status(action, filename, *args)
+    #print(f'v={v}')
+    action = git_status_action.parse(v.pop(0))
+    filename = v.pop(0)
+    renamed_filename = None
+    if v:
+      arrow = v.pop(0)
+      if arrow == '->':
+        assert len(v) > 0
+        renamed_filename = v.pop(0)
+    return git_status(action, filename, renamed_filename)
 
   def __eq__(self, other):
     if check.is_string(other):
@@ -73,8 +81,10 @@ class git_status(object):
 
   def __gt__(self, other):
     if check.is_string(other):
-      other = parse_line(other)
-    return self.as_tuple() > other.as_tuple()
+      other = self.parse_line(other)
+    elif check.is_git_status(other):
+      other = other.as_tuple()
+    return self.as_tuple() > other
   
 check.register_class(git_status, include_seq = False)
 
@@ -95,4 +105,10 @@ class git_status_list(type_checked_list):
     lines = text_line_parser.parse_lines(text, strip_comments = False, strip_text = True, remove_empties = True)
     return git_status_list([ git_status.parse_line(line) for line in lines  ])
 
+  def become_absolute(self, root_dir):
+    'Change all the item paths to be absolute starting at root_dir'
+    check.check_string(root_dir)
+
+    self._values = [ item.clone_with_abs_filename(root_dir) for item in self ]
+  
 check.register_class(git_status_list, include_seq = False)

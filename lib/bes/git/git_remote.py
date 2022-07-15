@@ -4,7 +4,7 @@ from os import path
 import re
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from .git_error import git_error
 from .git import git
 

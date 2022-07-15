@@ -3,7 +3,7 @@
 import os
 import time
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.object_util import object_util
 from bes.fs.file_path import file_path
 from bes.system.command_line import command_line

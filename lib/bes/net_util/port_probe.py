@@ -3,7 +3,7 @@
 import socket
 import errno
 
-from bes.common.check import check
+from ..system.check import check
 from bes.system.log import logger
 
 class port_probe(object):

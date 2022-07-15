@@ -4,40 +4,25 @@
 import sys
 from os import path
 
-from bes.python.pip_exe import pip_exe
-from bes.python.pip_error import pip_error
-from bes.python.pip_installer_options import pip_installer_options
-from bes.python.pip_installer_tester import pip_installer_tester
 from bes.python.pip_project import pip_project
 from bes.python.pip_project_options import pip_project_options
 from bes.python.python_testing import python_testing
-from bes.python.python_testing import python_testing
-from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.system.execute import execute
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip import skip_if
-from bes.version.semantic_version import semantic_version
-from bes.testing.unit_test_skip import raise_skip
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 class test_pyinstaller_builder(unit_test):
 
-  @classmethod
-  def setUpClass(clazz):
-    #raise_skip('Not ready')
-    pass
-
-  @skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
+  @unit_test_function_skip.skip_if(not python_testing._PYTHONS.ANY_PYTHON3, 'test_install - no python3 found', warning = True)
   def test_build(self):
-    tmp_dir = self.make_temp_dir(suffix = '.test_pyinstaller_build')
-    if self.DEBUG:
-      print('tmp_dir: {}'.format(tmp_dir))
+    tmp_dir = self.make_temp_dir(suffix = '.test_pyinstaller_build', )
     venvs_dir = path.join(tmp_dir, 'venvs')
     options = pip_project_options(root_dir = venvs_dir,
                                   python_exe = python_testing._PYTHONS.ANY_PYTHON3,
                                   debug = self.DEBUG)
-    project = pip_project('kiwi', options = options)
-    project.install('pyinstaller', version = '4.3')
+    project = pip_project(options = options)
+    project.install('pyinstaller', version = '4.8')
 
     program_content = r'''
 #!/usr/bin/env python3
@@ -64,8 +49,14 @@ def test_threading():
 def test_subprocess():
   'Test that subprocess works'
   import subprocess
-  p = subprocess.check_output([ 'echo', 'test_subprocess:' ])
+  import platform
+  if platform.system() == 'Windows':
+    args = [ 'cmd', '/c', 'echo test_subprocess:' ]
+  else:
+    args = [ 'echo', 'test_subprocess:' ]
+  p = subprocess.check_output(args)
   sys.stdout.write(p.decode('utf8').strip())
+
   
 def test_subprocess_with_shell():
   'Test that subprocess with shell = True works'
@@ -133,14 +124,15 @@ class fakelib2(object):
       sys.path.insert(0, p)
 
     from bes.pyinstaller.pyinstaller_build import pyinstaller_build
+    from bes.pyinstaller.pyinstaller_options import pyinstaller_options
       
     build_dir = path.join(tmp_dir, 'BUILD')
-    build_result = pyinstaller_build.build(program_source,
-                                           log_level = 'INFO',
-                                           hidden_imports = [ 'json', 'fakelib1', 'fakelib2' ],
-                                           verbose = True,
-                                           build_dir = build_dir,
-                                           replace_env = project.env)
+    options = pyinstaller_options(verbose = True,
+                                  log_level = 'INFO',
+                                  hidden_imports = [ 'json', 'fakelib1', 'fakelib2' ],
+                                  build_dir = build_dir,
+                                  replace_env = project.env)
+    build_result = pyinstaller_build.build(program_source, options = options)
     self.assertTrue( path.exists(build_result.output_exe) )
     rv = execute.execute(build_result.output_exe, raise_error = False)
     self.assertEqual( 0, rv.exit_code )

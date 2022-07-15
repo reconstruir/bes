@@ -2,7 +2,7 @@
 
 import re
 
-from .check import check
+from ..system.check import check
 
 class variable(object):
   'Class to find an substitute shell style variabels in the forms $foo and ${foo}'

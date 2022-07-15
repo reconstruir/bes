@@ -7,7 +7,7 @@ from collections import namedtuple
 
 from abc import abstractmethod, ABCMeta
 
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_mime import file_mime
 from bes.fs.file_path import file_path
 from bes.fs.file_util import file_util

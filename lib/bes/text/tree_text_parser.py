@@ -3,9 +3,9 @@
 from collections import namedtuple
 from enum import IntEnum
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.node import node
-from bes.common.string_util import string_util
+from bes.text.text_replace import text_replace
 from bes.compat.StringIO import StringIO
 from bes.text.string_list import string_list
 from bes.text.text_line_parser import text_line_parser
@@ -215,7 +215,7 @@ class _text_node(node):
 
   def replace_text(self, replacements):
     'Travese the tree and replace text in each node.'
-    new_text = string_util.replace(self.data.text, replacements)
+    new_text = text_replace.replace(self.data.text, replacements, word_boundary = True)
     self.data = self.data.__class__(new_text, self.data.line_number)
     for child in self.children:
       child.replace_text(replacements)

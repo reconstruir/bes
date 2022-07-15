@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.version.semantic_version import semantic_version
 from bes.property.cached_property import cached_property
 

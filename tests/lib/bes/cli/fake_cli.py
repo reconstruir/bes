@@ -2,7 +2,7 @@
 
 import argparse
 
-from bes.common.check import check
+from bes.system.check import check
 from bes.version.version_cli import version_cli
 from bes.cli.command_cli import command_cli
 

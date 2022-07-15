@@ -2,7 +2,7 @@
 
 import copy
 
-from bes.common.check import check
+from ..system.check import check
 
 class simple_config_variables(object):
 

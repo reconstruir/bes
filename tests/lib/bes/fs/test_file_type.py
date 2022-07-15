@@ -4,7 +4,7 @@
 from bes.testing.unit_test import unit_test
 from bes.fs.file_type import file_type
 from bes.fs.temp_file import temp_file
-from bes.testing.unit_test_skip import skip_if_not_unix
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 class test_file_type(unit_test):
   
@@ -22,7 +22,7 @@ class test_file_type(unit_test):
     self.assertTrue( file_type.matches(tmp_file, file_type.DIR | file_type.FILE) )
     self.assertTrue( file_type.matches(tmp_dir, file_type.DIR | file_type.FILE) )
 
-  @skip_if_not_unix()
+  @unit_test_function_skip.skip_if_not_unix()
   def test_char(self):
     self.assertTrue( file_type.matches('/dev/null', file_type.CHAR) )
 

@@ -3,7 +3,7 @@
 
 from bes.system.host import host
 from bes.common.algorithm import algorithm
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 
 class build_system(object):

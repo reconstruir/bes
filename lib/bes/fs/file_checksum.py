@@ -1,12 +1,18 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import json, os.path as path, hashlib
+import json
+from os import path
+import hashlib
+
 from collections import namedtuple
-from bes.common.check import check
-from bes.common.json_util import json_util
-from bes.common.object_util import object_util
-from bes.common.type_checked_list import type_checked_list
-from bes.compat.StringIO import StringIO
+
+from ..common.json_util import json_util
+from ..common.object_util import object_util
+from ..common.tuple_util import tuple_util
+from ..common.type_checked_list import type_checked_list
+from ..compat.StringIO import StringIO
+from ..system.check import check
+
 from .file_check import file_check
 from .file_util import file_util
 from .file_checksum_getter_raw import file_checksum_getter_raw
@@ -38,6 +44,12 @@ class file_checksum(namedtuple('file_checksum', 'filename, checksum')):
 
   def to_list(self):
     return [ self.filename, self.checksum ]
+
+  @classmethod
+  def _check_cast_func(clazz, obj):
+    if check.is_tuple(obj):
+      return tuple_util.cast_seq_to_namedtuple(clazz, obj)
+    return obj
   
 class file_checksum_list(type_checked_list):
 
@@ -138,5 +150,5 @@ class file_checksum_list(type_checked_list):
       result[value.filename] = value.checksum
     return result
 
-check.register_class(file_checksum, include_seq = False)
+check.register_class(file_checksum, include_seq = False, cast_func = file_checksum._check_cast_func)
 check.register_class(file_checksum_list, include_seq = False)

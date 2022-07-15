@@ -1,28 +1,54 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import codecs, os, os.path as path, re, subprocess, sys, tempfile
-
 from collections import namedtuple
+from os import path
 
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+from ..system.check import check
 from .command_line import command_line
 from .compat import compat
+from .execute_result import execute_result
 from .host import host
 from .log import logger
 from .python import python
 
 class execute(object):
-  'execute'
+  'Class to execute system commands with help for common usages.'
 
   _log = logger('execute')
-  
-  Result = namedtuple('Result', 'stdout, stderr, exit_code, command')
 
+  _output = namedtuple('_output', 'stdout, stderr')
   @classmethod
-  def execute(clazz, args, raise_error = True, non_blocking = False, stderr_to_stdout = False,
-              cwd = None, env = None, shell = False, input_data = None, universal_newlines = True,
-              codec = None, print_failure = True, quote = False, check_python_script = True):
+  def execute(clazz,
+              args,
+              raise_error = True,
+              non_blocking = False,
+              stderr_to_stdout = False,
+              cwd = None,
+              env = None,
+              shell = False,
+              input_data = None,
+              print_failure = True,
+              quote = False,
+              check_python_script = True,
+              output_encoding = None,
+              output_function = None):
     'Execute a command'
-    clazz._log.log_d('raise_error={raise_error} non_blocking={non_blocking} stderr_to_stdout={stderr_to_stdout} cwd={cwd} shell={shell} input_data={input_data} universal_newlines={universal_newlines} print_failure={print_failure} quote={quote}'.format(**locals()))
+    check.check_bytes(input_data, allow_none = True)
+    check.check_bool(print_failure)
+    check.check_bool(quote)
+    check.check_bool(check_python_script)
+    check.check_string(output_encoding, allow_none = True)
+    check.check_callable(output_function, allow_none = True)
+
+    output_encoding = output_encoding or execute_result.DEFAULT_ENCODING
+    
+    clazz._log.log_method_d()
     
     parsed_args = command_line.parse_args(args, quote = quote)
     stdout_pipe = subprocess.PIPE
@@ -30,6 +56,10 @@ class execute(object):
       stderr_pipe = subprocess.PIPE
     else:
       stderr_pipe = subprocess.STDOUT
+    if input_data != None:
+      stdin_pipe = subprocess.PIPE
+    else:
+      stdin_pipe = None
 
     # If the first argument is a python script, then run it with python always
     if check_python_script:
@@ -38,20 +68,20 @@ class execute(object):
         if ' ' in python_exe:
           python_exe = '"{}"'.format(python_exe)
         parsed_args.insert(0, python_exe)
-      
+
     if shell:
       parsed_args = ' '.join(parsed_args)
       # FIXME: quoting ?
-
+      
     clazz._log.log_d('parsed_args={}'.format(parsed_args))
     try:
       process = subprocess.Popen(parsed_args,
                                  stdout = stdout_pipe,
                                  stderr = stderr_pipe,
+                                 stdin = stdin_pipe,
                                  shell = shell,
                                  cwd = cwd,
-                                 env = env,
-                                 universal_newlines = universal_newlines)
+                                 env = env)
     except OSError as ex:
       if print_failure:
         message = 'failed: {} - {}'.format(str(parsed_args), str(ex))
@@ -62,46 +92,70 @@ class execute(object):
 
     # http://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
     stdout_lines = []
+    stderr_lines = []
     if non_blocking:
       # Poll process for new output until finished
       while True:
-        nextline = process.stdout.readline()
-        if nextline == '' and process.poll() != None:
-            break
-        stdout_lines.append(nextline)
-        sys.stdout.write(nextline)
-        sys.stdout.flush()
+        stdout_nextline = process.stdout.readline()
+        stdout_decoded_nextline = stdout_nextline.decode(output_encoding, errors = 'ignore')
+        clazz._log.log_d(f'execute: read stdout: {stdout_decoded_nextline}')
+        stdout_is_empty = stdout_decoded_nextline == ''
+        stderr_is_empty = True
+        if stderr_pipe == subprocess.PIPE:
+          stderr_nextline = process.stderr.readline()
+          stderr_decoded_nextline = stderr_nextline.decode(output_encoding, errors = 'ignore')
+          clazz._log.log_d(f'execute: read stderr: {stderr_decoded_nextline}')
+          stderr_is_empty = stderr_decoded_nextline == ''
 
-    output = process.communicate(input_data)
+        if stdout_is_empty and stderr_is_empty and process.poll() != None:
+          clazz._log.log_d('execute: non_blocking: process done')
+          break
+
+        stdout_lines.append(stdout_decoded_nextline)
+        clazz._log.log_d(f'execute: non_blocking: stdout line: {stdout_decoded_nextline}')
+
+        output_function_stdout = None
+        if output_function:
+          output_function_stdout = stdout_decoded_nextline
+        else:
+          sys.stdout.write(stdout_decoded_nextline)
+          sys.stdout.flush()
+        
+        output_function_stderr = None
+        if stderr_pipe == subprocess.PIPE:
+          stderr_lines.append(stderr_decoded_nextline)
+          clazz._log.log_d(f'execute: non_blocking: stderr line: {stderr_decoded_nextline}')
+          if output_function:
+            output_function_stderr = stderr_decoded_nextline
+          else:
+            sys.stderr.write(stderr_decoded_nextline)
+            sys.stderr.flush()
+        if output_function:
+          output_function(clazz._output(output_function_stdout, output_function_stderr))
+
+    clazz._log.log_d('execute: calling communicate with input_data={}'.format(input_data))
+    output = process.communicate(input = input_data)
+
     exit_code = process.wait()
-    clazz._log.log_d('output={}'.format(output))
-    clazz._log.log_d('exit_code={}'.format(exit_code))
+    clazz._log.log_d('execute: wait returned. exit_code={} output={}'.format(exit_code, output))
     
-    if stdout_lines:
-      output = ( '\n'.join(stdout_lines), output[1] )
-    
-    if codec:
-      stdout = codecs.decode(output[0], codec, 'ignore')
-      if output[1]:
-        stderr = codecs.decode(output[1], codec, 'ignore')
-      else:
-        stderr = None
+    if non_blocking:
+      stdout = os.linesep.join(stdout_lines)
+      stdout_bytes = stdout.encode(output_encoding)
+      stderr = os.linesep.join(stderr_lines)
+      stderr_bytes = stderr.encode(output_encoding)
     else:
-      stdout = output[0]
-      stderr = output[1]
-    rv = clazz.Result(stdout, stderr, exit_code, parsed_args)
+      stdout_bytes = output[0]
+      stderr_bytes = output[1] or b''
+      
+    if stdout_bytes:
+      assert check.is_bytes(stdout_bytes)
+    if stderr_bytes:
+      assert check.is_bytes(stderr_bytes)
+    rv = execute_result(stdout_bytes, stderr_bytes, exit_code, parsed_args)
     if raise_error:
       if rv.exit_code != 0:
-        clazz._log.log_d(rv.exit_code)
-        ex = RuntimeError(rv.stdout)
-        setattr(ex, 'execute_result', rv)
-        clazz._log.log_d('stderr={}'.format(rv.stderr))
-        clazz._log.log_d('stdout={}'.format(rv.stdout))
-        clazz._log.log_d('ex={}'.format(str(ex)))
-        print(rv.stdout)
-        print(rv.stderr)
-        print(str(ex))
-        raise ex
+        rv.raise_error(log_error = True, print_error = True)
     return rv
 
   @classmethod
@@ -122,9 +176,15 @@ class execute(object):
     return command_line.listify(command)
 
   @classmethod
-  def execute_from_string(clazz, content, raise_error = True, non_blocking = False, stderr_to_stdout = False,
-                          cwd = None, env = None, shell = False, input_data = None, universal_newlines = True,
-                          codec = None):
+  def execute_from_string(clazz,
+                          content,
+                          raise_error = True,
+                          non_blocking = False,
+                          stderr_to_stdout = False,
+                          cwd = None,
+                          env = None,
+                          shell = False,
+                          input_data = None):
     assert string_util.is_string(content)
     tmp = tempfile.mktemp()
     with open(tmp, 'w') as fout:
@@ -133,8 +193,7 @@ class execute(object):
     try:
       return clazz.execute(tmp, raise_error = raise_error, non_blocking = non_blocking,
                            stderr_to_stdout = stderr_to_stdout, cwd = cwd,
-                           env = env, shell = shell, input_data = input_data,
-                           universal_newlines = universal_newlines, codec = codec)
+                           env = env, shell = shell, input_data = input_data)
     except:
       raise
     finally:

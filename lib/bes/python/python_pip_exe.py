@@ -7,7 +7,7 @@ import subprocess
 
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.system.env_override import env_override
 from bes.system.log import logger
 

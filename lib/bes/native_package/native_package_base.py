@@ -3,7 +3,7 @@
 from abc import abstractmethod, ABCMeta
 from collections import namedtuple
 
-from bes.common.check import check
+from ..system.check import check
 from bes.script.blurber import blurber
 from bes.system.compat import with_metaclass
 

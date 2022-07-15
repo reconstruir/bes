@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from bes.common.check import check
+from bes.system.check import check
 
 class softwareupdater_item(namedtuple('softwareupdater_item', 'label, title, attributes')):
   'A class to deal with a single macos softwareupdater item.'

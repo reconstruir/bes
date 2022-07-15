@@ -7,15 +7,16 @@ from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
-from bes.testing.unit_test_skip import skip_if
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 class test_bash_scripts(unit_test):
 
-  @skip_if(not host.is_unix(), 'not unix')
+  @unit_test_function_skip.skip_if_not_unix()
   def test_bes_shell_sh(self):
     self.assertEqual( 0, self._run_test('test_bes_shell.sh') )
     
   def _run_test(self, script_name):
+    print('here')
     script = path.join(path.dirname(__file__), script_name)
     env = self._make_env()
     rv = execute.execute(script,

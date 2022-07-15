@@ -1,16 +1,16 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from .detail.process_lister_base import process_lister_base
+from ._detail.process_lister_base import process_lister_base
 from .host import host
 
 class process_lister(process_lister_base):
 
   def _find_impl_class():
     if host.is_unix():
-      from .detail.process_lister_unix import process_lister_unix
+      from ._detail.process_lister_unix import process_lister_unix
       return process_lister_unix
     elif host.is_windows():
-      from .detail.process_lister_windows import process_lister_windows
+      from ._detail.process_lister_windows import process_lister_windows
       return process_lister_windows
     else:
       host.raise_unsupported_system()

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, tzinfo
 
 import time
 
-from bes.common.check import check
+from ..system.check import check
 
 class timestamp(object):
   'Class to deal with timestamps'

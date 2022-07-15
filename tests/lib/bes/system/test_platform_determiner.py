@@ -2,9 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import unittest
-from bes.system.detail.platform_determiner_macos import platform_determiner_macos as PDMACOS
-from bes.system.detail.platform_determiner_linux_lsb_release import platform_determiner_linux_lsb_release as LINUX_LSB_REL
-from bes.system.detail.platform_determiner_linux_os_release import platform_determiner_linux_os_release as LINUX_OS_REL
+from bes.system._detail.platform_determiner_macos import platform_determiner_macos as PDMACOS
+from bes.system._detail.platform_determiner_linux_lsb_release import platform_determiner_linux_lsb_release as LINUX_LSB_REL
+from bes.system._detail.platform_determiner_linux_os_release import platform_determiner_linux_os_release as LINUX_OS_REL
 
 class test_platform_determiner(unittest.TestCase):
 

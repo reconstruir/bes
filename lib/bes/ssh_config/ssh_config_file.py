@@ -2,7 +2,7 @@
 
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.common.string_util import string_util
 from bes.config.simple_config import simple_config
 from bes.config.simple_config_entry import simple_config_entry

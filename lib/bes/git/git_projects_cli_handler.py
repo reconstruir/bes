@@ -2,13 +2,12 @@
 
 from os import path
 
-from bes.common.check import check
+from ..system.check import check
 from bes.cli.cli_command_handler import cli_command_handler
 from bes.system.log import logger
 
 from .git_dir import git_dir
 from .git_download import git_download
-from .git_output import git_output
 from .git_repo import git_repo
 from .git_repo_status_options import git_repo_status_options
 from .git_status_getter import git_status_getter
@@ -56,5 +55,5 @@ class git_projects_cli_handler(cli_command_handler):
 
       print('%s:' % (' '.join(blurb)))
       for item in status.change_status:
-        print('  %3s %s' % (item.action, item.filename))
+        print('  %3s %s' % (item.action.value, item.filename))
       print('')

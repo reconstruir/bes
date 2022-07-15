@@ -1,7 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+
 import atexit, codecs, copy, difflib, json, inspect, os, os.path as path
 import platform, pprint, re, sys, shutil, subprocess, tempfile, time, unittest
+
+from bes.system.filesystem import filesystem
+
 from datetime import datetime
 
 from .hexdata import hexdata
@@ -60,16 +65,16 @@ class unit_test(unittest.TestCase):
                           ignore_white_space = False, native_line_breaks = False):
     'Assert s1 equals s2 with ioptional features.'
     self.maxDiff = None
-    s1_save = s1
-    s2_save = s2
     s1_to_compare = s1
     s2_to_compare = s2
     if strip:
       s1 = s1.strip()
       s2 = s2.strip()
     if ignore_white_space:
-      s1 = re.sub(r'\s+', ' ', s1)
-      s2 = re.sub(r'\s+', ' ', s2)
+      s1 = self._strip_white_space(s1)
+      s2 = self._strip_white_space(s2)
+      s1_to_compare = s1
+      s2_to_compare = s2
     if native_line_breaks:
       s1 = self.native_line_breaks(s1)
       s2 = self.native_line_breaks(s2)
@@ -81,6 +86,21 @@ class unit_test(unittest.TestCase):
       self.assertMultiLineEqual( s1_to_compare, s2_to_compare )
     else:
       self.assertEqual( s1_to_compare, s2_to_compare )
+
+  @classmethod
+  def _strip_white_space(clazz, s):
+    'Strip white space from s but preserve line breaks'
+    lines = s.splitlines()
+    lines = [ re.sub(r'\s+', ' ', line) for line in lines ]
+    lines = [ line.strip() for line in lines if line.strip() ]
+    return os.linesep.join(lines).strip()
+      
+  def assert_string_equal_fuzzy(self, s1, s2):
+    return self.assert_string_equal(s1, s2,
+                                    strip = True,
+                                    multi_line = True,
+                                    ignore_white_space = True,
+                                    native_line_breaks = True)
     
   def assertEqualIgnoreWhiteSpace(self, s1, s2):
     'Assert s1 equals s2 ignoreing minor white space differences.'
@@ -117,7 +137,7 @@ class unit_test(unittest.TestCase):
 
   @classmethod
   def _dict_to_str(clazz, d):
-    return '\n'.join([ '%s=%s' % x for x in sorted(d.items()) ])
+    return os.linesep.join([ '%s=%s' % x for x in sorted(d.items()) ])
 
   def assert_binary_file_equal(self, expected, filename):
     self.maxDiff = None
@@ -139,6 +159,16 @@ class unit_test(unittest.TestCase):
                                ignore_white_space = ignore_white_space,
                                native_line_breaks = native_line_breaks)
 
+  def assert_text_file_equal_fuzzy(self, expected, filename, codec = 'utf-8',
+                                   preprocess_func = None):
+    self.maxDiff = None
+    with open(filename, 'rb') as fin:
+      actual = fin.read().decode(codec)
+      if preprocess_func:
+        actual = preprocess_func(actual)
+        expected = preprocess_func(expected)
+      self.assert_string_equal_fuzzy(expected, actual)
+      
   def assert_json_file_equal(self, expected, filename):
     self.assert_text_file_equal(expected, filename,
                                 strip = True,
@@ -243,7 +273,7 @@ class unit_test(unittest.TestCase):
   @classmethod
   def spew(clazz, s):
     sys.stdout.write(s)
-    sys.stdout.write('\n')
+    sys.stdout.write(os.linesep)
     sys.stdout.flush()
 
   @classmethod
@@ -262,7 +292,7 @@ class unit_test(unittest.TestCase):
   def spew_console(clazz, s):
     c = clazz._console()
     c.write(s)
-    c.write('\n')
+    c.write(os.linesep)
     c.flush()
 
   @classmethod
@@ -327,21 +357,12 @@ class unit_test(unittest.TestCase):
   def native_path(clazz, p):
     return clazz.xp_path(p, pathsep = os.pathsep)
   
-  if _HOST == 'windows':
-    _NATIVE_LINE_BREAK = '\r\n'
-    _NATIVE_LINE_BREAK_RAW = r'\r\n'
-  elif _HOST in ( 'linux', 'macos' ):
-    _NATIVE_LINE_BREAK = '\n'
-    _NATIVE_LINE_BREAK_RAW = r'\n'
-  else:
-    assert False
   _XP_LINE_BREAK = '\n'
-  _XP_LINE_BREAK_RAW = r'\n'
   
   @classmethod
   def xp_line_breaks(clazz, text, line_break = None):
-    line_break = line_break or clazz._XP_LINE_BREAK
-    result = text.replace(clazz._NATIVE_LINE_BREAK, line_break)
+    line_break = line_break or os.linesep
+    result = text.replace(os.linesep, line_break)
     return result
 
   @classmethod
@@ -353,8 +374,8 @@ class unit_test(unittest.TestCase):
   @classmethod
   def make_temp_file(clazz, content = None, prefix = None, suffix = None,
                      dir = None, mode = 'w+b', perm = None, mtime = None,
-                     delete = True, xp_filename = False):
-    'Write content to a temporary file.  Returns the file object.'
+                     delete = True, xp_filename = False, non_existent = False):
+    'Write content to a temporary file.  Returns the filename.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or ''
     if dir and not path.isdir(dir):
@@ -383,6 +404,8 @@ class unit_test(unittest.TestCase):
     result = tmp.name
     if xp_filename:
       result = clazz.xp_filename(result, sep = '/')
+    if non_existent:
+      filesystem.remove(result)
     return result
 
   @classmethod
@@ -449,7 +472,6 @@ class unit_test(unittest.TestCase):
     for f in files:
       try:
         if path.isdir(f):
-          from bes.system.filesystem import filesystem
           filesystem.remove_directory(f)
         else:
           os.remove(f)

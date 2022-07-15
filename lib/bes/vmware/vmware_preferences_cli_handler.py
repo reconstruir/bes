@@ -3,7 +3,7 @@
 import os.path as path
 
 from bes.cli.cli_command_handler import cli_command_handler
-from bes.common.check import check
+from ..system.check import check
 from bes.fs.file_util import file_util
 from bes.text.text_table import text_table
 

@@ -2,7 +2,7 @@
 
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
-from bes.common.check import check
+from ..system.check import check
 from bes.factory.singleton_class_registry import singleton_class_registry
 
 from .vfs_registry import vfs_registry

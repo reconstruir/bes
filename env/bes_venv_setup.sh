@@ -5,19 +5,14 @@ set -e
 function main()
 {
   source $(_bes_venv_setup_this_dir)/../bes_bash/bes_bash.bash
-
   local _this_dir="$(_bes_venv_setup_this_dir)"
   local _root_dir="$(bes_path_abs_dir ${_this_dir}/..)"
   local _best="${_root_dir}/bin/best.py"
-  local _python="$(bes_python_find)"
-
-  local _projects_root_dir="${_root_dir}/VE"
-  local _requirements="${_root_dir}/requirements.txt"
-  local _requirements_test="${_root_dir}/requirements-dev.txt"
+  local _python="$(bes_python_find_default)"
   
-  ${_python} ${_best} pip_project install_requirements --root-dir "${_projects_root_dir}" bes "${_requirements}"
-  ${_python} ${_best} pip_project install_requirements --root-dir "${_projects_root_dir}" bes "${_requirements_test}"
-  
+  ${_python} ${_best} pip_project install_requirements \
+             --root-dir "${_root_dir}/VE/bes" \
+             $@
   return 0
 }
 

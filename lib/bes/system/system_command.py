@@ -1,14 +1,16 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import re
+from os import path
 
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 
-from .check import check
+from ..system.check import check
 from .command_line import command_line
 from .compat import compat
 from .execute import execute
+from .execute_result import execute_result
 from .host import host
 from .log import logger
 from .which import which
@@ -53,7 +55,10 @@ class system_command(with_metaclass(ABCMeta, object)):
     'Find the exe'
     extra_path = clazz.extra_path()
     exe_name = clazz.exe_name()
-    exe = which.which(exe_name, extra_path = clazz.extra_path())
+    if path.isabs(exe_name):
+      exe = exe_name
+    else:
+      exe = which.which(exe_name, extra_path = clazz.extra_path())
     if exe:
       return exe
     error_class = clazz.error_class()
@@ -64,12 +69,26 @@ class system_command(with_metaclass(ABCMeta, object)):
     raise error_class('Failed to find {}'.format(exe_name))
 
   @classmethod
-  def call_command(clazz, args, raise_error = True, env = None, use_sudo = False):
+  def call_command(clazz,
+                   args,
+                   raise_error = True,
+                   env = None,
+                   use_sudo = False,
+                   stderr_to_stdout = False,
+                   check_python_script = True,
+                   input_data = None,
+                   non_blocking = False,
+                   output_encoding = None,
+                   output_function = None):
     'Call the command'
     check.check_string_seq(args)
     check.check_bool(raise_error)
     check.check_dict(env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
     check.check_bool(use_sudo)
+    check.check_bytes(input_data, allow_none = True)
+    check.check_bool(non_blocking)
+    check.check_string(output_encoding, allow_none = True)
+    check.check_callable(output_function, allow_none = True)
 
     clazz.check_supported()
 
@@ -95,8 +114,15 @@ class system_command(with_metaclass(ABCMeta, object)):
     cmd.append(exe)
     cmd.extend(list(static_args))
     cmd.extend(args)
-    clazz._log.log_d('call_command: cmd={}'.format(' '.join(cmd)))
-    return execute.execute(cmd, raise_error = raise_error, env = env)
+    clazz._log.log_d('call_command: cmd={} env={}'.format(' '.join(cmd), env))
+    return execute.execute(cmd,
+                           raise_error = raise_error,
+                           env = env,
+                           stderr_to_stdout = stderr_to_stdout,
+                           check_python_script = check_python_script,
+                           input_data = input_data,
+                           non_blocking = non_blocking,
+                           output_encoding = output_encoding)
 
   @classmethod
   def call_command_parse_lines(clazz, args, sort = False):
@@ -117,9 +143,9 @@ class system_command(with_metaclass(ABCMeta, object)):
     'Check that the current system supports this command otherwise raise an error'
     if clazz.is_supported():
       return
-    raise error_class('{} is not supported on {} - only {}'.format(clazz.exe_name(),
-                                                                   host.SYSTEM,
-                                                                   ' '.join(clazz.supported_systems())))
+    raise clazz.error_class('{} is not supported on {} - only {}'.format(clazz.exe_name(),
+                                                                         host.SYSTEM,
+                                                                         ' '.join(clazz.supported_systems())))
   
   @classmethod
   def has_command(clazz):
@@ -147,3 +173,16 @@ class system_command(with_metaclass(ABCMeta, object)):
       if part:
         parts.append(part)
     return parts
+
+  @classmethod
+  def check_result(clazz, result, message = None):
+    'Check that a result is successful or raise an exceptions from it.'
+    check.check_string(message, allow_none = True)
+    check.check_execute_result(result)
+    
+    if result.exit_code == 0:
+      return
+    message = message or 'Failed to execute: {}'.format(' '.join(result.command))
+    outputs = [ o.strip() for o in [ result.stdout, result.stderr ] if o.strip() ]
+    error_message = '{} - {}'.format(message, ' - '.join(outputs))
+    raise clazz.error_class()(error_message)

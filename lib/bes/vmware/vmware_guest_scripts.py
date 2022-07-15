@@ -92,8 +92,7 @@ class package_caller(object):
                                stdout = stdout_pipe,
                                stderr = stderr_pipe,
                                shell = False,
-                               cwd = dest_dir,
-                               universal_newlines = True)
+                               cwd = dest_dir)
 
     if self._socket:
       self._log('socket listening')

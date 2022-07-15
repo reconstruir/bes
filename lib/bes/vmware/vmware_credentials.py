@@ -5,7 +5,7 @@ import random
 import os.path as path
 import time
 
-from bes.common.check import check
+from ..system.check import check
 from bes.credentials.credentials import credentials
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file

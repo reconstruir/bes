@@ -579,7 +579,7 @@ kiwi extends fruit foo
 
   @classmethod
   def _parse_ssh_config_entry(clazz, text, origin, options):
-    from bes.common.check import check
+    from bes.system.check import check
     from bes.common.string_util import string_util
     from bes.key_value.key_value import key_value
     from bes.config.simple_config_entry import simple_config_entry
