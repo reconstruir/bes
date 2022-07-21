@@ -45,6 +45,8 @@ class data_output(object):
     elif options.style in [ data_output_style.TABLE, data_output_style.PLAIN_TABLE ]:
       data = clazz._normalize_data(data)
       table_data = table(data = data, column_names = options.column_names)
+      if table_data.empty:
+        return
       is_plain = options.style == data_output_style.PLAIN_TABLE
       if is_plain:
         table_style = text_table_style(spacing = 1, box = text_box_space())

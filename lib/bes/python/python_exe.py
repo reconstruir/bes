@@ -234,6 +234,7 @@ class python_exe(object):
       else:
         sanitized_env_path = env_path
       result = file_path.glob(sanitized_env_path, exe_patterns)
+      result = [ f for f in result if not file_symlink.is_broken(f) ]
       clazz._log.log_d('      exe_patterns={}'.format(exe_patterns))
       clazz._log.log_d('          env_path={}'.format(env_path))
       clazz._log.log_d('        extra_path={}'.format(extra_path))

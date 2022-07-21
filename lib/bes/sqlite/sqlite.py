@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import sqlite3
+import os
 import os.path as path
 from collections import namedtuple
 
@@ -30,7 +31,10 @@ class sqlite(object):
       file_util.ensure_file_dir(self._filename)
     self._filename_log_label = path.basename(self._filename)
     
-    self._connection = sqlite3.connect(self._filename, isolation_level = 'IMMEDIATE', factory = factory)
+    self._connection = sqlite3.connect(self._filename,
+                                       isolation_level = 'IMMEDIATE',
+                                       factory = factory,
+                                       detect_types = sqlite3.PARSE_DECLTYPES)
     self._cursor = self._connection.cursor()
 
   @property
@@ -97,6 +101,13 @@ class sqlite(object):
     self._cursor.execute('select count(*) from sqlite_master where type=? and name=?',
                          ( 'index', index_name, ))
     return self._cursor.fetchone()[0] == 1
+
+  def has_trigger(self, trigger_name):
+    check.check_string(trigger_name)
+    
+    self._cursor.execute('select count(*) from sqlite_master where type=? and name=?',
+                         ( 'trigger', trigger_name, ))
+    return self._cursor.fetchone()[0] == 1
   
   def ensure_table(self, table_name, table_schema):
     check.check_string(table_name)
@@ -111,6 +122,13 @@ class sqlite(object):
     if self.has_index(index_name):
       return
     self._cursor.execute(index_schema)
+    
+  def ensure_trigger(self, trigger_name, trigger_schema):
+    check.check_string(trigger_name)
+    check.check_string(trigger_schema)
+    if self.has_trigger(trigger_name):
+      return
+    self._cursor.execute(trigger_schema)
     
   def fetchone(self):
     return self._cursor.fetchone()
@@ -162,3 +180,11 @@ class sqlite(object):
     
     self._cursor.execute(f'PRAGMA user_version = {user_version}')
     self.commit()
+
+  def dump(self, filename):
+    check.check_string(filename)
+    
+    with open(filename, 'w') as fout:
+      for line in self._connection.iterdump():
+        fout.write(line)
+        fout.write(os.linesep)

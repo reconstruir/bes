@@ -42,7 +42,7 @@ class dir_operation_item_list(type_checked_list):
         callback(item, i, num)
     return result
 
-  def copy_files(self, timestamp, count, callback = None):
+  def copy_files(self, timestamp, count, callback = None, touch_files = False):
     check.check_string(timestamp, allow_none = True)
     check.check_int(count, allow_none = True)
     check.check_callable(callback, allow_none = True)
@@ -61,6 +61,8 @@ class dir_operation_item_list(type_checked_list):
         need_copy = True
       if need_copy:
         file_util.copy(item.src_filename, item.dst_filename)
+        if touch_files:
+          file_util.touch(item.dst_filename)
         result.append(item.dst_filename)
       if callback:
         callback(item, i, num)

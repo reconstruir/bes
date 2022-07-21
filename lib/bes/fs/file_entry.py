@@ -2,11 +2,11 @@
 
 import os
 from os import path
+from datetime import datetime
 
 from ..system.check import check
 from ..property.cached_property import cached_property
 from ..fs.file_attributes_metadata import file_attributes_metadata
-from ..fs.file_util import file_util
 from ..fs.file_check import file_check
 from ..compat.cmp import cmp
 
@@ -59,32 +59,40 @@ class file_entry(object):
   def size(self):
     return self.stat.st_size
   
-  @cached_property
+  @property
   def date(self):
-    return file_util.get_modification_date(self.filename)
+    ts = path.getmtime(self._filename)
+    return datetime.fromtimestamp(ts)
+
+  @date.setter
+  def date(self, mtime):
+    check.check(mtime, datetime)
+
+    ts = mtime.timestamp()
+    os.utime(self._filename, ( ts, ts ))
   
-  @cached_property
+  @property
   def media_type(self):
     return file_attributes_metadata.get_media_type(self._filename,
                                                    fallback = True,
                                                    cached = True)
 
-  @cached_property
+  @property
   def mime_type(self):
     return file_attributes_metadata.get_mime_type(self._filename,
                                                   fallback = True,
                                                   cached = True)
 
-  @cached_property
+  @property
   def is_media(self):
     return self.is_file and self.media_type in ( 'image', 'video' )
 
-  @cached_property
+  @property
   def is_image(self):
     return self.is_file and self.media_type in ( 'image' )
 
-  @cached_property
+  @property
   def is_video(self):
     return self.is_file and self.media_type in ( 'video' )
-  
+
 check.register_class(file_entry, include_seq = False)

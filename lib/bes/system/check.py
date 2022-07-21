@@ -149,6 +149,8 @@ class check(object):
   @classmethod
   def check_set(clazz, o, entry_type = None, allow_none = False):
     o = clazz._check(o, set, 2, allow_none = allow_none)
+    if allow_none and o is None:
+      return o
     if entry_type:
       clazz._check_seq(o, entry_type, 2)
     return o
@@ -156,6 +158,8 @@ class check(object):
   @classmethod
   def check_list(clazz, o, entry_type = None, allow_none = False):
     o = clazz._check(o, list, 2, allow_none = allow_none)
+    if allow_none and o is None:
+      return o
     if entry_type:
       clazz._check_seq(o, entry_type, 2)
     return o

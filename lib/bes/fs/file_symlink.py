@@ -20,7 +20,10 @@ class file_symlink(object):
 
   @classmethod
   def is_broken(clazz, filename):
-    return path.islink(filename) and not path.exists(os.readlink(filename))
+    if not path.islink(filename):
+      return False
+    resolved_link = clazz._resolve_symlink(filename)
+    return not path.exists(resolved_link)
 
   @classmethod
   def resolve(clazz, filename):

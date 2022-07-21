@@ -49,6 +49,8 @@ class refactor_files(object):
     def _match_text_files(filename):
       if path.islink(filename):
         return False
+      if file_util.is_empty(filename):
+        return False
       return file_mime.is_text(filename)
     resolver_options = file_resolver_options(recursive = True,
                                              match_function = _match_text_files,

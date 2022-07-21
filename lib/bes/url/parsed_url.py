@@ -3,6 +3,7 @@
 from collections import namedtuple
 
 from ..common.tuple_util import tuple_util
+from ..common.string_util import string_util
 from ..property.cached_property import cached_property
 from ..system.check import check
 
@@ -131,5 +132,11 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
     'web',
     'www',
   ])
+
+  @cached_property
+  def without_address(self):
+    'Return the url without scheme or netloc'
+    path = string_util.remove_head(self.path, '/')
+    return parsed_url('', '', path, self.params, self.query, self.fragment)
   
 check.register_class(parsed_url, include_seq = False)
