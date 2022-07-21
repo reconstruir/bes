@@ -36,6 +36,15 @@ class test_parsed_url(unit_test):
     self.assertEqual( 'http://www.example.com/', _t('http://www.example.com') )
     self.assertEqual( 'http://www.example.com/foo.cgi', _t('http://www.example.com/foo.cgi') )
 
+  def test_without_address(self):
+    def _t(s):
+      return parsed_url.parse(s).without_address
+    self.assertEqual( '', _t('http://www.example.com/') )
+    self.assertEqual( '', _t('http://www.example.com') )
+    self.assertEqual( 'foo.cgi', _t('http://www.example.com/foo.cgi') )
+    self.assertEqual( 'foo.cgi?x=42', _t('http://www.example.com/foo.cgi?x=42') )
+    self.assertEqual( 'foo.cgi?x=42&y=666', _t('http://www.example.com/foo.cgi?x=42&y=666') )
+    self.assertEqual( 'foo.cgi?x=42&y=666', _t('foo.cgi?x=42&y=666') )
 
 if __name__ == '__main__':
   unit_test.main()
