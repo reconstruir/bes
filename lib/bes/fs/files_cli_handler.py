@@ -12,6 +12,7 @@ from bes.version.semantic_version import semantic_version
 
 from .dir_operation_item import dir_operation_item
 from .dir_operation_item_list import dir_operation_item_list
+from .file_attributes import file_attributes
 from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
 from .file_find import file_find
@@ -60,6 +61,18 @@ class files_cli_handler(cli_command_handler):
         mime_type = file_mime.mime_type(f.filename_abs)
         
       print('{}: {}'.format(mime_type, f.filename_abs))
+    return 0
+
+  def attr(self, files):
+    check.check_string_seq(files)
+
+    files = file_resolver.resolve_files(files, options = self.options.file_resolver_options)
+    for f in files:
+      keys = file_attributes.keys(f.filename_abs)
+      print(f'{f.filename_abs}')
+      for key in keys:
+        value = file_attributes.get_bytes(f.filename_abs, key)
+        print(f'  {key}: {value}')
     return 0
   
   def hexify(self, filename):

@@ -34,6 +34,12 @@ class files_cli_args(object):
                    help = 'Use the value cached in file attributes if present [ False ]')
     p.add_argument('files', action = 'store', default = [], nargs = '+',
                    help = 'One or more files or dirs to print mime types for [ None ]')
+
+    # attr
+    p = subparser.add_parser('attr', help = 'Print attributes for files.')
+    self.__files_cli_add_add_common_args(p)
+    p.add_argument('files', action = 'store', default = [], nargs = '+',
+                   help = 'One or more files or dirs to print mime types for [ None ]')
     
     # hexify
     p = subparser.add_parser('hexify', help = 'Hexify a binary such that it can be included in python code.')
