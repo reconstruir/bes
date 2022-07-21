@@ -203,6 +203,7 @@ class pip_project(object):
       'list',
       '--outdated',
       '--format', 'json',
+      '--disable-pip-version-check',
     ]
     rv = self.call_pip(args, stderr_to_stdout = False)
     outdated = json.loads(rv.stdout)
@@ -223,6 +224,7 @@ class pip_project(object):
     args = [
       'list',
       '--format', 'json',
+      '--disable-pip-version-check',
     ]
     rv = self.call_pip(args, stderr_to_stdout = False)
     installed = json.loads(rv.stdout)
