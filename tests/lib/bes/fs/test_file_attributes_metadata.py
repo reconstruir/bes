@@ -91,7 +91,7 @@ class test_file_attributes_metadata(unit_test, unit_test_media_files):
     self.assertEqual( 'image', file_attributes_metadata.get_media_type(self.jpg_file) )
     self.assertEqual( 'image', file_attributes_metadata.get_media_type(self.png_file) )
     self.assertEqual( 'video', file_attributes_metadata.get_media_type(self.mp4_file) )
-    self.assertEqual( None, file_attributes_metadata.get_media_type(self.unknown_file) )
+    self.assertEqual( 'unknown', file_attributes_metadata.get_media_type(self.unknown_file) )
     
   def test_get_mime_type_change(self):
     tmp_file = self.make_temp_file(suffix = '.png')
