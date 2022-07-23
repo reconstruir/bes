@@ -3,10 +3,13 @@
 
 from collections import namedtuple
 
-import codecs, sys
-import subprocess
-import os.path as path
+from os import path
+import codecs
+import copy
+import os
 import platform
+import subprocess
+import sys
 
 from .unit_test import unit_test
 
@@ -49,8 +52,8 @@ class program_unit_test(unit_test):
       arg = fixed_arg
     return arg
   
-  def run_program(self, program, args, cwd = None, env = None):
-    rv = self.run_program_raw(program, args, cwd = cwd, env = env)
+  def run_program(self, program, args, cwd = None, env = None, extra_env = None):
+    rv = self.run_program_raw(program, args, cwd = cwd, env = env, extra_env = extra_env)
     if isinstance(rv.output, bytes):
       output = codecs.decode(rv.output, 'utf-8')
     else:
@@ -59,14 +62,21 @@ class program_unit_test(unit_test):
       print(rv.output)
     return self.exec_result(rv.exit_code, output)
 
-  def run_program_raw(self, program, args, cwd = None, env = None):
+  def run_program_raw(self, program, args, cwd = None, env = None, extra_env = None):
     cmd = self._make_command(program, args)
-    return self._exec(cmd, cwd, env)
+    return self._exec(cmd, cwd, env, extra_env)
   
   exec_result = namedtuple('exec_result', 'exit_code, output')
   @classmethod
-  def _exec(clazz, cmd, cwd, env):
-    process = subprocess.Popen(cmd, cwd = cwd, env = env, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell = False)
+  def _exec(clazz, cmd, cwd, env, extra_env):
+    copy_env = env or copy.deepcopy(dict(os.environ))
+    copy_env.update(extra_env or {})
+    process = subprocess.Popen(cmd,
+                               cwd = cwd,
+                               env = copy_env,
+                               stdout = subprocess.PIPE,
+                               stderr = subprocess.STDOUT,
+                               shell = False)
     stdout, _ = process.communicate()
     exit_code = process.wait()
     return clazz.exec_result(exit_code, stdout.strip())
