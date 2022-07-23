@@ -730,11 +730,11 @@ def _read_config_file():
   DEFAULT_CONFIG = '''\
 # config file for bes_test.py.  Goes in ~/.bes_test/bes_test.config
 environment
-  keep_keys: DEBUG
+  keep_keys: DEBUG VERBOSE
   keep_patterns: BES.* BES_.*
 
 python
-  keep_keys: DEBUG
+  keep_keys: DEBUG VERBOSE
   keep_patterns: BES.* BES_.*
 
 '''
