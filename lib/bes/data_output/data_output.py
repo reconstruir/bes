@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+
 from ..system.check import check
 from bes.common.json_util import json_util
 from bes.common.table import table
@@ -100,7 +102,11 @@ class data_output(object):
       stream.write(line_break.DEFAULT_LINE_BREAK)
     else:
       raise RuntimeError('Unhandled data output style: {}'.format(style))
-      
+
+  @classmethod
+  def _output_string_to_stream(clazz, s, stream):
+    stream.write(s)
+    
   @classmethod
   def _normalize_data(clazz, data):
     if isinstance(data, dict):
@@ -127,3 +133,16 @@ class data_output(object):
       result.append(item)
     return result
   
+  @classmethod
+  def output_value(clazz, data, key, options = None):
+    check.check_dict(data)
+    check.check_string(key)
+    check.check_data_output_options(options, allow_none = True)
+
+    options = options or data_output_options()
+    with file_util.open_with_default(filename = options.output_filename) as fout:
+      if options.style == data_output_style.BRIEF:
+        value = data[key]
+        clazz._output_string_to_stream(str(value) + os.linesep, fout)
+      else:
+        clazz._output_table_to_stream(data, fout, options)
