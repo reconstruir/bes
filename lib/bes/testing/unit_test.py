@@ -22,8 +22,8 @@ class unit_test(unittest.TestCase):
     return x.lower() in [ 't', 'true', 'y', 'yes', '1' ]
     
   DEBUG = _is_true(os.environ.get('DEBUG', ''))
-  VERBOSE = _is_true(os.environ.get('VERBOSE', ''))
   BES_VERBOSE = _is_true(os.environ.get('BES_VERBOSE', ''))
+  VERBOSE = _is_true(os.environ.get('VERBOSE', '')) or BES_VERBOSE
   BES_DONET = _is_true(os.environ.get('BES_DONET', ''))
   
   _temp_dir = os.environ.get('BES_TEMP_DIR', None)
