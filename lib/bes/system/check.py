@@ -92,20 +92,20 @@ class check(object):
     return clazz._check(o, clazz.STRING_TYPES, 2, allow_none = allow_none)
 
   @classmethod
-  def check_string_seq(clazz, o, allow_none = False):
-    return clazz._check_seq(o, clazz.STRING_TYPES, 2, allow_none = allow_none)
+  def check_string_seq(clazz, o, allow_none = False, allow_item_none = False):
+    return clazz._check_seq(o, clazz.STRING_TYPES, 2, allow_none = allow_none, allow_item_none = allow_item_none)
 
   @classmethod
-  def check_tuple_seq(clazz, o, allow_none = False):
-    return clazz._check_seq(o, tuple, 2, allow_none = allow_none)
+  def check_tuple_seq(clazz, o, allow_none = False, allow_item_none = False):
+    return clazz._check_seq(o, tuple, 2, allow_none = allow_none, allow_item_none = allow_item_none)
 
   @classmethod
   def check_int(clazz, o, allow_none = False):
     return clazz._check(o, clazz.INTEGER_TYPES, 2, allow_none = allow_none)
 
   @classmethod
-  def check_int_seq(clazz, o, allow_none = False):
-    return clazz._check_seq(o, clazz.INTEGER_TYPES, 2, allow_none = allow_none)
+  def check_int_seq(clazz, o, allow_none = False, allow_item_none = False):
+    return clazz._check_seq(o, clazz.INTEGER_TYPES, 2, allow_none = allow_none, allow_item_none = allow_item_none)
 
   @classmethod
   def check_bool(clazz, o, allow_none = False):
@@ -147,21 +147,21 @@ class check(object):
     return o
   
   @classmethod
-  def check_set(clazz, o, entry_type = None, allow_none = False):
+  def check_set(clazz, o, entry_type = None, allow_none = False, allow_item_none = False):
     o = clazz._check(o, set, 2, allow_none = allow_none)
     if allow_none and o is None:
       return o
     if entry_type:
-      clazz._check_seq(o, entry_type, 2)
+      clazz._check_seq(o, entry_type, 2, allow_item_none = allow_item_none)
     return o
 
   @classmethod
-  def check_list(clazz, o, entry_type = None, allow_none = False):
+  def check_list(clazz, o, entry_type = None, allow_none = False, allow_item_none = False):
     o = clazz._check(o, list, 2, allow_none = allow_none)
     if allow_none and o is None:
       return o
     if entry_type:
-      clazz._check_seq(o, entry_type, 2)
+      clazz._check_seq(o, entry_type, 2, allow_item_none = allow_item_none)
     return o
 
   @classmethod
@@ -181,8 +181,8 @@ class check(object):
     return clazz._check(o, clazz.CALLABLE_TYPES, 2, allow_none = allow_none)
 
   @classmethod
-  def check_callable_seq(clazz, o, allow_none = False):
-    return clazz._check_seq(o, clazz.CALLABLE_TYPES, 2, allow_none = allow_none)
+  def check_callable_seq(clazz, o, allow_none = False, allow_item_none = False):
+    return clazz._check_seq(o, clazz.CALLABLE_TYPES, 2, allow_none = allow_none, allow_item_none = allow_item_none)
 
   @classmethod
   def _check(clazz, o, t, depth, type_blurb = None, allow_none = False):
@@ -201,11 +201,11 @@ class check(object):
                                                                                          path.abspath(filename),
                                                                                          line_number))
   @classmethod
-  def check_seq(clazz, o, t, allow_none = False):
-    return clazz._check_seq(o, t, 2, allow_none = allow_none)
+  def check_seq(clazz, o, t, allow_none = False, allow_item_none = False):
+    return clazz._check_seq(o, t, 2, allow_none = allow_none, allow_item_none = allow_item_none)
 
   @classmethod
-  def _check_seq(clazz, o, t, depth, type_blurb = None, allow_none = False):
+  def _check_seq(clazz, o, t, depth, type_blurb = None, allow_none = False, allow_item_none = False):
     if allow_none and o is None:
       return o
     try:
@@ -213,7 +213,7 @@ class check(object):
     except:
       raise TypeError('t should be iterable instead of \"%s\"' % (str(t)))
     for index, entry in it:
-      clazz._check(entry, t, depth + 1, type_blurb = type_blurb)
+      clazz._check(entry, t, depth + 1, type_blurb = type_blurb, allow_none = allow_item_none)
     return o
 
   @classmethod
@@ -269,7 +269,8 @@ class check(object):
       assert len(args) == 1
       obj = args[0]
       allow_none = kwargs.get('allow_none', False)
-      return check._check_seq(obj, self.object_type, 2, type_blurb = None, allow_none = allow_none)
+      allow_item_none = kwargs.get('allow_item_none', False)
+      return check._check_seq(obj, self.object_type, 2, type_blurb = None, allow_none = allow_none, allow_item_none = allow_item_none)
     
   class _is_seq_helper(object):
     'Helper class to make check.is_foo_seq() methods work.'
