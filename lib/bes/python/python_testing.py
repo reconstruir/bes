@@ -8,6 +8,7 @@ from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.system.host import host
 from bes.system.log import logger
+from bes.version.semantic_version import semantic_version
 from bes.property.cached_property import cached_property
 
 from .python_exe import python_exe
@@ -190,11 +191,19 @@ class python_testing(object):
 
   @classmethod
   def _make_fake_python_unix(clazz, filename, version):
-    content = '''\
+    # python <= 2.7 outputs the version to stderr
+    content2 = f'''\
 #!/bin/bash
 echo Python {version} 1>&2
 exit 0
-'''.format(version = version)
+'''
+    # python >= 3.0 outputs the version to stdout
+    content3 = f'''\
+#!/bin/bash
+echo Python {version}
+exit 0
+'''
+    content = content2 if semantic_version(version) < '3.0' else content3
     return file_util.save(filename, content = content)
 
   @classmethod
