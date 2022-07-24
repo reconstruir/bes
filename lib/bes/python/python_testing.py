@@ -20,6 +20,10 @@ class python_testing(object):
 
   _log = logger('python_testing')
 
+  caca = python_exe.find_all_exes_info(exclude_sources = ( 'xcode', ))
+  for k, v in caca.items():
+    print(f'CACA: {k}: {v}')
+  
   class _python_constants(object):
 
     # The python 3.8 that comes with xcode is very non standard
