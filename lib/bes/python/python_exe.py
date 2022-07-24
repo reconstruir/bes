@@ -36,7 +36,7 @@ class python_exe(object):
   def full_version(clazz, exe):
     'Return the full version of a python executable'
     cmd = [ exe, '--version' ]
-    rv = execute.execute(cmd, stderr_to_stdout = True)
+    rv = execute.execute(cmd)
     parts = string_util.split_by_white_space(rv.stdout, strip = True)
     if len(parts) != 2:
       raise python_error('not a valid python version for {}: "{}"'.format(exe, rv.stdout))
