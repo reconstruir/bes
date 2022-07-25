@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from ..common.algorithm.algorithm import algorithm
+from ..common.algorithm import algorithm
 from ..property.cached_class_property import cached_class_property
 from ..system.check import check
 from ..system.log import logger
