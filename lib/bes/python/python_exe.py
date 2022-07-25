@@ -36,12 +36,15 @@ class python_exe(object):
   def full_version(clazz, exe):
     'Return the full version of a python executable'
     cmd = [ exe, '--version' ]
-    rv = execute.execute(cmd, stderr_to_stdout = True)
-    parts = string_util.split_by_white_space(rv.stdout, strip = True)
+    rv = execute.execute(cmd)
+    stdout = rv.stdout.strip()
+    stderr = rv.stderr.strip()
+    output = stdout or stderr
+    parts = string_util.split_by_white_space(output, strip = True)
     if len(parts) != 2:
-      raise python_error('not a valid python version for {}: "{}"'.format(exe, rv.stdout))
+      raise python_error(f'not a valid python version for {exe}: "{output}"')
     if parts[0] != 'Python':
-      raise python_error('not a valid python name for {}: "{}"'.format(exe, rv.stdout))
+      raise python_error(f'not a valid python name for {exe}: "{output}"')
     return python_version(parts[1])
 
   @classmethod
