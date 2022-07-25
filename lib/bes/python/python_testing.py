@@ -4,16 +4,18 @@ import os
 from os import path
 
 from ..system.check import check
-from bes.fs.file_util import file_util
-from bes.fs.temp_file import temp_file
-from bes.system.host import host
-from bes.system.log import logger
-from bes.version.semantic_version import semantic_version
-from bes.property.cached_property import cached_property
+from ..fs.file_util import file_util
+from ..fs.temp_file import temp_file
+from ..system.host import host
+from ..system.log import logger
+from ..version.semantic_version import semantic_version
+from ..property.cached_property import cached_property
+from ..testing.unit_test_function_skip import unit_test_function_skip
 
+from .python_discovery import python_discovery
+from .python_error import python_error
 from .python_exe import python_exe
 from .python_version import python_version
-from .python_error import python_error
 
 class python_testing(object):
   'Class to deal with the python testing.'
@@ -30,39 +32,39 @@ class python_testing(object):
 
     @cached_property
     def PYTHON_27(self):
-      return python_exe.find_version('2.7', exclude_sources = self._EXCLUDE_SOURCES)
+      return python_discovery.find_by_version('2.7')
 
     @cached_property
     def PYTHON_37(self):
-      return python_exe.find_version('3.7', exclude_sources = self._EXCLUDE_SOURCES)
+      return python_discovery.find_by_version('3.7')
 
     @cached_property
     def PYTHON_38(self):
-      return python_exe.find_version('3.8', exclude_sources = self._EXCLUDE_SOURCES)
+      return python_discovery.find_by_version('3.8')
 
     @cached_property
     def PYTHON_39(self):
-      return python_exe.find_version('3.9', exclude_sources = self._EXCLUDE_SOURCES)
+      return python_discovery.find_by_version('3.9')
 
     @cached_property
     def PYTHON_310(self):
-      return python_exe.find_version('3.10', exclude_sources = self._EXCLUDE_SOURCES)
+      return python_discovery.find_by_version('3.10')
 
     @cached_property
     def ALL_PYTHONS(self):
-      return [ p for p in [ self.PYTHON_27, self.PYTHON_37, self.PYTHON_38, self.PYTHON_39 ] if p ]
+      return python_discovery.all_exes()
     
     @cached_property
     def ANY_PYTHON(self):
-      return next(iter([ p for p in self.ALL_PYTHONS ]), None)
+      return python_discovery.any_exe()
     
     @cached_property
     def ANY_PYTHON2(self):
-      return next(iter([ p for p in self.ALL_PYTHONS if python_exe.major_version(p) == 2]), None)
+      return python_discovery.find_by_major_version(2)
     
     @cached_property
     def ANY_PYTHON3(self):
-      return next(iter([ p for p in self.ALL_PYTHONS if python_exe.major_version(p) == 3]), None)
+      return python_discovery.find_by_major_version(3)
 
   _PYTHONS = _python_constants()
   if False:
@@ -70,6 +72,7 @@ class python_testing(object):
     _log.log_d('  PYTHON_37: {}'.format(_PYTHONS.PYTHON_37))
     _log.log_d('  PYTHON_38: {}'.format(_PYTHONS.PYTHON_38))
     _log.log_d('  PYTHON_39: {}'.format(_PYTHONS.PYTHON_39))
+    _log.log_d(' PYTHON_310: {}'.format(_PYTHONS.PYTHON_310))
     _log.log_d('ALL_PYTHONS: {}'.format(' '.join(_PYTHONS.ALL_PYTHONS)))
     _log.log_d(' ANY_PYTHON: {}'.format(_PYTHONS.ANY_PYTHON))
     _log.log_d('ANY_PYTHON2: {}'.format(_PYTHONS.ANY_PYTHON2))
