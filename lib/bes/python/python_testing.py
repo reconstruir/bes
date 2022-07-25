@@ -24,12 +24,6 @@ class python_testing(object):
 
   class _python_constants(object):
 
-    # The python 3.8 that comes with xcode is very non standard
-    # crapping all kinds of droppings in non standard places such
-    # as ~/Library/Caches even though the --no-cache-dir was given
-    # so never use them for tests since they create side effects
-    _EXCLUDE_SOURCES = ( 'xcode', )
-
     @cached_property
     def PYTHON_27(self):
       return python_discovery.find_by_version('2.7')
