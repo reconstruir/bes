@@ -1,10 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from ..common.algorithm.algorithm import algorithm
+from ..property.cached_class_property import cached_class_property
 from ..system.check import check
 from ..system.log import logger
-from ..version.semantic_version import semantic_version
-from ..property.cached_class_property import cached_class_property
 from ..testing.unit_test_function_skip import unit_test_function_skip
+from ..version.semantic_version import semantic_version
 
 from .python_exe import python_exe
 from .python_version import python_version
@@ -62,5 +63,9 @@ class python_discovery(object):
     return [ exe for exe, _ in clazz._all_exes_items_sorted ]
 
   @classmethod
+  def all_versions(clazz):
+    return algorithm.unique([ info.version for _, info in clazz._all_exes_items_sorted ])
+  
+  @classmethod
   def any_exe(clazz):
-    return clazz._all_exes_items_sorted[0]
+    return clazz._all_exes_items_sorted[0][1].exe
