@@ -21,11 +21,12 @@ from bes.system.which import which
 from bes.version.semantic_version import semantic_version
 from bes.debug.debug_timer import timed_function
 
-from .python_error import python_error
-from .python_version import python_version
-from .python_source import python_source
-from .python_script import python_script
 from .python_debug import python_debug
+from .python_error import python_error
+from .python_exe_info import python_exe_info
+from .python_script import python_script
+from .python_source import python_source
+from .python_version import python_version
 
 class python_exe(object):
   'Class to deal with the python executable.'
@@ -128,7 +129,6 @@ class python_exe(object):
     return clazz.full_version(python_exe)
 
   _info_cache = {}
-  _python_exe_info = namedtuple('_python_exe_info', 'exe, version, full_version, source, sys_executable, real_executable, exe_links, pip_exe')
   @classmethod
   #@timed_function(python_debug.timer)
   def info(clazz, exe):
@@ -150,14 +150,13 @@ class python_exe(object):
     source = python_source.exe_source(main_exe)
     version = clazz.version(main_exe)
     full_version = clazz.full_version(main_exe)
-    return clazz._python_exe_info(main_exe,
-                                  version,
-                                  full_version,
-                                  source,
-                                  sys_executable,
-                                  real_executable,
-                                  exe_links,
-                                  piv.pip_exe)
+    return python_exe_info(main_exe,
+                           full_version,
+                           source,
+                           sys_executable,
+                           real_executable,
+                           exe_links,
+                           piv.pip_exe)
   
   @classmethod
   def _determine_main_exe_and_links(clazz, exe):
