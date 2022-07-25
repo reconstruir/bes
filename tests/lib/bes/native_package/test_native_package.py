@@ -66,7 +66,7 @@ class test_native_package(unit_test):
 
   @classmethod
   def _macos_example_pkg(clazz):
-    if host.CODENAME in ( 'big_sur', ):
+    if int(host.VERSION_MAJOR) >= 11:
       return 'com.apple.files.data-template'
     else:
       return 'com.apple.pkg.Core'
