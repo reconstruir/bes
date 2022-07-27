@@ -85,7 +85,11 @@ class refactor_files(object):
     clazz._log.log_method_d()
     options = options or refactor_options()
     return clazz._do_operation(refactor_operation_type.COPY_FILES,
-                               files, src_pattern, dst_pattern, copy_dirs, options)
+                               files,
+                               src_pattern,
+                               dst_pattern,
+                               copy_dirs,
+                               options)
     
   @classmethod
   def rename_dirs(clazz, dirs, src_pattern, dst_pattern, options = None):
@@ -111,7 +115,6 @@ class refactor_files(object):
                                  dst_pattern,
                                  False,
                                  options)
-  
     for item in empty_dirs_operation_items:
       file_util.mkdir(item.dst)
       assert dir_util.is_empty(item.src)
@@ -120,6 +123,7 @@ class refactor_files(object):
     for d in empty_dirs_affected_dirs:
       if path.exists(d) and dir_util.is_empty(d):
         dir_util.remove(d)
+        
     return result
 
   @classmethod
