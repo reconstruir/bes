@@ -230,7 +230,7 @@ class test_file_resolve(unit_test):
     actual = self._test_resolve_files([
       'file subdir/apple.txt "this is apple.txt" 644',
       'file subdir/kiwi.txt "this is kiwi.txt" 644',
-    ], [ '${tmp_dir}' ], recursive = True)
+    ], [ '${tmp_dir}/subdir' ], recursive = True)
     self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
 
   def test_resolve_files_two_files_root_and_subdir(self):
