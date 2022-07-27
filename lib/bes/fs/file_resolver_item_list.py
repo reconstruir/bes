@@ -1,13 +1,17 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+import sys
 from os import path
 
 from collections import OrderedDict
 
-from bes.common.algorithm import algorithm
+from ..common.algorithm import algorithm
+from ..common.number_util import number_util
+from ..common.type_checked_list import type_checked_list
+from ..fs.file_util import file_util
 from ..system.check import check
-from bes.common.type_checked_list import type_checked_list
-from bes.text.string_list import string_list
+from ..text.string_list import string_list
 
 from .file_resolver_item import file_resolver_item
 from .file_path import file_path
@@ -102,5 +106,14 @@ class file_resolver_item_list(type_checked_list):
         assert size not in result
         result[size] = items.absolute_files(sort = True)
     return result
+
+  def dump(self, label):
+    check.check_string(label)
+    
+    width = number_util.zfill_width(len(self))
+    for i, item in enumerate(self, start = 1):
+      index = number_util.zfill(i, width, c = ' ')
+      s = f'{label}: {index}: {item.root_dir} {item.filename}'
+      print(s)
   
 check.register_class(file_resolver_item_list, include_seq = False)
