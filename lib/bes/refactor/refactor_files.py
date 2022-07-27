@@ -101,6 +101,9 @@ class refactor_files(object):
     clazz._log.log_method_d()
 
     resolved_empty_dirs = file_resolver.resolve_empty_dirs(dirs, recursive = True)
+    # we need to figure out if there any empty directories that match the pattern
+    # so we can manually rename them, since the _do_operation function only deal
+    # with files.
     empty_dirs_operation_items, empty_dirs_affected_dirs = \
       clazz._make_operation_items(refactor_operation_type.RENAME_DIRS,
                                   resolved_empty_dirs,
