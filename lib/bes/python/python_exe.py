@@ -191,6 +191,39 @@ class python_exe(object):
     result = OrderedDict()
     for next_exe in all_exes:
       info = clazz.info(next_exe)
+  @classmethod
+  def _determine_main_exe_and_links(clazz, exe):
+    'Return info for python executables'
+    inode = file_util.inode_number(exe)
+    exes = clazz._find_all_exes()
+    inode_map = clazz._inode_map(exes)
+    if not inode in inode_map:
+      return exe, []
+    links = inode_map[inode]
+    main_exe = links.pop(0)
+    return main_exe, links
+  
+  @classmethod
+  def find_all_exes(clazz, sanitize_path = True):
+    'Return all the executables in PATH that match any patterns'
+    all_exes = clazz._find_all_exes(sanitize_path = sanitize_path)
+    inode_map = clazz._inode_map(all_exes)
+    result = []
+    for inode, exes in inode_map.items():
+      main_exe = exes.pop(0)
+      result.append(main_exe)
+    return result
+  
+  @classmethod
+  def find_all_exes_info(clazz, exclude_sources = None, sanitize_path = True, key_by_version = False):
+    'Return an ordered dict of info about all the executables in PATH that match any patterns'
+    check.check_seq(exclude_sources, check.STRING_TYPES, allow_none = True)
+
+    exclude_sources = set(exclude_sources or [])
+    all_exes = clazz.find_all_exes(sanitize_path = sanitize_path)
+    result = OrderedDict()
+    for next_exe in all_exes:
+      info = clazz.info(next_exe)
       if info.source not in exclude_sources:
         if key_by_version:
           key = str(info.version)

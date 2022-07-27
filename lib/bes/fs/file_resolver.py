@@ -18,6 +18,7 @@ from .file_path import file_path
 from .file_resolver_options import file_resolver_options
 from .file_sort_order import file_sort_order
 from .file_util import file_util
+from .filename_list import filename_list
 
 from .file_resolver_item import file_resolver_item
 from .file_resolver_item_list import file_resolver_item_list
@@ -78,6 +79,8 @@ class file_resolver(object):
 
     files = object_util.listify(files)
     items = []
+    for i, f in enumerate(files, start = 1):
+      clazz._log.log_d(f'_find_files: files: {i}: {f}')
     for next_file in files:
       filename_abs = file_path.normalize(next_file)
       if not path.exists(filename_abs):
@@ -91,11 +94,23 @@ class file_resolver(object):
           item = clazz._resolved_item(next_entry, next_file)
           items.append(item)
     found_files = [ item.filename_abs for item in items ]
+    for i, f in enumerate(found_files, start = 1):
+      clazz._log.log_d(f'_find_files: found_files: {i}: {f}')
     if len(found_files) == 1:
       root_dir = items[0].root_dir
       clazz._log.log_d(f'_find_files: one file: root_dir={root_dir}')
     else:
-      root_dir = file_path.common_ancestor([ item.filename_abs for item in items ])
+      filenames = [ item.filename_abs for item in items ]
+      root_dir = None
+      # FIXME: instead of checking for one file, we need to figure out
+      # dirs in files and then calssify all the found files according
+      # to that prefix
+      if len(files) == 1:
+        if filename_list.startswith(filenames, files[0]):
+          root_dir = files[0]
+      if not root_dir:
+        root_dir = file_path.common_ancestor(filenames)
+      assert root_dir
       clazz._log.log_d(f'_find_files: many files: root_dir={root_dir}')
     return found_files, root_dir
   

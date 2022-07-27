@@ -8,4 +8,7 @@ class dir_partition_criteria_media_type(dir_partition_criteria_base):
   
   def classify(self, filename):
     filename = file_check.check_file(filename)
-    return file_attributes_metadata.get_media_type(filename, fallback = True, cached = True)
+    media_type = file_attributes_metadata.get_media_type(filename, fallback = True, cached = True)
+    if media_type == 'unknown':
+      return None
+    return media_type

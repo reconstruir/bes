@@ -18,6 +18,8 @@ class file_resolver_item(namedtuple('file_resolver_item', 'root_dir, filename, f
     check.check_int(index)
     check.check_int(found_index)
 
+    assert path.join(root_dir, filename) == filename_abs
+    
     return clazz.__bases__[0].__new__(clazz, root_dir, filename, filename_abs, index, found_index)
 
   def __str__(self):
