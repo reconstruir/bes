@@ -71,5 +71,18 @@ class Testnumber_util(unittest.TestCase):
       self.assertEqual( 5, number_util.to_int(long(5)) )
       self.assertEqual( -5, number_util.to_int(long(-5)) )
 
+  def test_zfill_width(self):
+    self.assertEqual( 1, number_util.zfill_width(0) )
+    self.assertEqual( 1, number_util.zfill_width(1) )
+    self.assertEqual( 1, number_util.zfill_width(9) )
+    self.assertEqual( 2, number_util.zfill_width(10) )
+    self.assertEqual( 2, number_util.zfill_width(99) )
+    self.assertEqual( 3, number_util.zfill_width(100) )
+      
+  def test_zfill(self):
+    self.assertEqual( '_9', number_util.zfill(9, 2, '_') )
+    self.assertEqual( '99', number_util.zfill(99, 2, '_') )
+    self.assertEqual( '999', number_util.zfill(999, 2, '_') )
+      
 if __name__ == "__main__":
   unittest.main()
