@@ -12,7 +12,6 @@ from bes.system.log import logger
 
 from .dir_util import dir_util
 from .file_resolver import file_resolver
-from .file_resolver_item_list import file_resolver_item_list
 from .file_resolver_options import file_resolver_options
 from .file_split_error import file_split_error
 from .file_split_options import file_split_options

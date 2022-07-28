@@ -9,18 +9,15 @@ from bes.property.cached_property import cached_property
 
 from .file_util import file_util
 
-class file_resolver_item(namedtuple('file_resolver_item', 'root_dir, filename, filename_abs, index, found_index')):
+class file_resolver_item(namedtuple('file_resolver_item', 'root_dir, filename, index, found_index')):
 
-  def __new__(clazz, root_dir, filename, filename_abs, index, found_index):
+  def __new__(clazz, root_dir, filename, index, found_index):
     check.check_string(root_dir, allow_none = True)
     check.check_string(filename)
-    check.check_string(filename_abs)
     check.check_int(index)
     check.check_int(found_index)
 
-    assert path.join(root_dir, filename) == filename_abs
-    
-    return clazz.__bases__[0].__new__(clazz, root_dir, filename, filename_abs, index, found_index)
+    return clazz.__bases__[0].__new__(clazz, root_dir, filename, index, found_index)
 
   def __str__(self):
     return self.filename_abs
@@ -31,6 +28,10 @@ class file_resolver_item(namedtuple('file_resolver_item', 'root_dir, filename, f
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
 
+  @cached_property
+  def filename_abs(self):
+    return path.join(self.root_dir, self.filename)
+  
   @cached_property
   def basename(self):
     return path.basename(self.filename_abs)

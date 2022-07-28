@@ -135,7 +135,7 @@ class file_duplicates(object):
 
   @classmethod
   def _resolve_one_file(clazz, filename):
-    return file_resolver_item(path.dirname(filename), path.basename(filename), filename, 0, 0)
+    return file_resolver_item(path.dirname(filename), path.basename(filename), 0, 0)
   
   @classmethod
   def _sort_filename_list_by_preference(clazz, filenames, prefer_prefixes, sort_key):

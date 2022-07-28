@@ -62,7 +62,7 @@ class file_resolver(object):
     for filename_abs in found_files:
       filename_rel = path.relpath(filename_abs, start = root_dir)
       if not options.should_ignore_file(filename_abs):
-        item = file_resolver_item(root_dir, filename_rel, filename_abs, index, index)
+        item = file_resolver_item(root_dir, filename_rel, index, index)
         result.append(item)
         index = index + 1
 
@@ -70,6 +70,7 @@ class file_resolver(object):
       result = clazz._sort_result(result, options.sort_order, options.sort_reverse)
     if options.limit:
       result = result[0 : options.limit]
+
     return result
 
   _resolved_item = namedtuple('_resolved_item', 'filename_abs, root_dir')
@@ -112,7 +113,31 @@ class file_resolver(object):
         root_dir = file_path.common_ancestor(filenames)
       assert root_dir
       clazz._log.log_d(f'_find_files: many files: root_dir={root_dir}')
+
+
+    poto1 = sorted(list(set([ f for f in found_files ])))
+    poto2 = clazz._collect_files(files, options, file_type)
+
+    assert poto1 == poto2
+      
     return found_files, root_dir
+
+  @classmethod
+  def _collect_files(clazz, files_or_dirs, options, file_type):
+    'Collect all files in a mixed list of files and directories.'
+
+    files_or_dirs = object_util.listify(files_or_dirs)
+    result = []
+    for next_fod in files_or_dirs:
+      filename_abs = file_path.normalize(next_fod)
+      if not path.exists(filename_abs):
+        raise IOError('File or directory not found: "{}"'.format(filename_abs))
+      if path.isfile(filename_abs):
+        result.append(filename_abs)
+      elif path.isdir(filename_abs):
+        next_entries = clazz._find_files_in_dir(filename_abs, options, 0, file_type)
+        result.extend(next_entries)
+    return sorted(list(set(result)))
   
   @classmethod
   def _sort_result(clazz, result, order, reverse):
@@ -139,7 +164,6 @@ class file_resolver(object):
     for index, item in enumerate(result):
       reindexed_result.append(file_resolver_item(item.root_dir,
                                                  item.filename,
-                                                 item.filename_abs,
                                                  index,
                                                  item.found_index))
     return reindexed_result

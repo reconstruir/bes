@@ -9,8 +9,8 @@ class test_file_resolver_item_list(unit_test):
 
   def test_basename_map(self):
     l = file_resolver_item_list()
-    apple = file_resolver_item('/foo', 'a/apple.txt', '/foo/a/apple.txt', 0, 0)
-    kiwi = file_resolver_item('/foo', 'b/kiwi.txt', '/foo/b/kiwi.txt', 1, 1)
+    apple = file_resolver_item('/foo', 'a/apple.txt', 0, 0)
+    kiwi = file_resolver_item('/foo', 'b/kiwi.txt', 1, 1)
     l.append(apple)
     l.append(kiwi)
     self.assertEqual( {
@@ -20,12 +20,12 @@ class test_file_resolver_item_list(unit_test):
 
   def test_duplicate_basename_map(self):
     l = file_resolver_item_list()
-    apple = file_resolver_item('/foo', 'a/apple.txt', '/foo/a/apple.txt', 0, 0)
-    kiwi = file_resolver_item('/foo', 'b/kiwi.txt', '/foo/b/kiwi.txt', 1, 1)
+    apple = file_resolver_item('/foo', 'a/apple.txt', 0, 0)
+    kiwi = file_resolver_item('/foo', 'b/kiwi.txt', 1, 1)
     l.append(apple)
     l.append(kiwi)
     self.assertEqual( {}, l.duplicate_basename_map() )
-    kiwi2 = file_resolver_item('/foo', 'c/kiwi.txt', '/foo/c/kiwi.txt', 2, 2)
+    kiwi2 = file_resolver_item('/foo', 'c/kiwi.txt', 2, 2)
     l.append(kiwi2)
     self.assertEqual( {
       'kiwi.txt': [ '/foo/b/kiwi.txt', '/foo/c/kiwi.txt' ],

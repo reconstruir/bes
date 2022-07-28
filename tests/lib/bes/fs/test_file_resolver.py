@@ -15,7 +15,7 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_just_root_dir(self):
     expected = '''\
-    ${tmp_dir} cheese.txt ${tmp_dir}/cheese.txt 0 0
+    ${tmp_dir} cheese.txt 0 0
     '''
     actual = self._test_resolve_files([
       'file cheese.txt "this is cheese.txt" 644',
@@ -28,11 +28,11 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_just_root_dir_recursive(self):
     expected = '''\
-    ${tmp_dir} a/lemon.txt ${tmp_dir}/a/lemon.txt 0 0
-    ${tmp_dir} b/kiwi.txt ${tmp_dir}/b/kiwi.txt 1 1
-    ${tmp_dir} cheese.txt ${tmp_dir}/cheese.txt 2 2
-    ${tmp_dir} subdir/apple.txt ${tmp_dir}/subdir/apple.txt 3 3
-    ${tmp_dir} subdir/orange.txt ${tmp_dir}/subdir/orange.txt 4 4
+    ${tmp_dir} a/lemon.txt 0 0
+    ${tmp_dir} b/kiwi.txt 1 1
+    ${tmp_dir} cheese.txt 2 2
+    ${tmp_dir} subdir/apple.txt 3 3
+    ${tmp_dir} subdir/orange.txt 4 4
     '''
     actual = self._test_resolve_files([
       'file cheese.txt "this is cheese.txt" 644',
@@ -45,8 +45,8 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_two_dirs(self):
     expected = '''\
-    ${tmp_dir} a/lemon.txt ${tmp_dir}/a/lemon.txt 0 0
-    ${tmp_dir} b/kiwi.txt ${tmp_dir}/b/kiwi.txt 1 1
+    ${tmp_dir} a/lemon.txt 0 0
+    ${tmp_dir} b/kiwi.txt 1 1
     '''
     actual = self._test_resolve_files([
       'file cheese.txt "this is cheese.txt" 644',
@@ -59,12 +59,12 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_two_dirs_recursive(self):
     expected = '''\
-    ${tmp_dir} a/suba1/orange.txt      ${tmp_dir}/a/suba1/orange.txt      0 0
-    ${tmp_dir} a/suba1/suba2/lemon.txt ${tmp_dir}/a/suba1/suba2/lemon.txt 1 1
-    ${tmp_dir} a/watermelon.txt        ${tmp_dir}/a/watermelon.txt        2 2
-    ${tmp_dir} b/pineapple.txt         ${tmp_dir}/b/pineapple.txt         3 3
-    ${tmp_dir} b/subb1/cherry.txt      ${tmp_dir}/b/subb1/cherry.txt      4 4
-    ${tmp_dir} b/subb1/subb2/kiwi.txt  ${tmp_dir}/b/subb1/subb2/kiwi.txt  5 5
+    ${tmp_dir} a/suba1/orange.txt      0 0
+    ${tmp_dir} a/suba1/suba2/lemon.txt 1 1
+    ${tmp_dir} a/watermelon.txt        2 2
+    ${tmp_dir} b/pineapple.txt         3 3
+    ${tmp_dir} b/subb1/cherry.txt      4 4
+    ${tmp_dir} b/subb1/subb2/kiwi.txt  5 5
     '''
     actual = self._test_resolve_files([
       'file a/suba1/orange.txt "this is orange.txt" 644',
@@ -78,7 +78,7 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_with_limit(self):
     expected = '''\
-    ${tmp_dir} a/suba1/orange.txt      ${tmp_dir}/a/suba1/orange.txt      0 0
+    ${tmp_dir} a/suba1/orange.txt      0 0
     '''
     actual = self._test_resolve_files([
       'file a/suba1/orange.txt "this is orange.txt" 644',
@@ -92,12 +92,12 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_with_sort_order(self):
     expected = '''\
-    ${tmp_dir} b/subb1/cherry.txt      ${tmp_dir}/b/subb1/cherry.txt      0 4
-    ${tmp_dir} b/pineapple.txt         ${tmp_dir}/b/pineapple.txt         1 3
-    ${tmp_dir} b/subb1/subb2/kiwi.txt  ${tmp_dir}/b/subb1/subb2/kiwi.txt  2 5
-    ${tmp_dir} a/suba1/suba2/lemon.txt ${tmp_dir}/a/suba1/suba2/lemon.txt 3 1
-    ${tmp_dir} a/suba1/orange.txt      ${tmp_dir}/a/suba1/orange.txt      4 0
-    ${tmp_dir} a/watermelon.txt        ${tmp_dir}/a/watermelon.txt        5 2
+    ${tmp_dir} b/subb1/cherry.txt      0 4
+    ${tmp_dir} b/pineapple.txt         1 3
+    ${tmp_dir} b/subb1/subb2/kiwi.txt  2 5
+    ${tmp_dir} a/suba1/suba2/lemon.txt 3 1
+    ${tmp_dir} a/suba1/orange.txt      4 0
+    ${tmp_dir} a/watermelon.txt        5 2
     '''
     actual = self._test_resolve_files([
       'file b/subb1/cherry.txt "1" 644',         # 1 byte
@@ -111,12 +111,12 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_with_sort_order_reverse(self):
     expected = '''\
-    ${tmp_dir} a/watermelon.txt        ${tmp_dir}/a/watermelon.txt        0 2
-    ${tmp_dir} a/suba1/orange.txt      ${tmp_dir}/a/suba1/orange.txt      1 0
-    ${tmp_dir} a/suba1/suba2/lemon.txt ${tmp_dir}/a/suba1/suba2/lemon.txt 2 1
-    ${tmp_dir} b/subb1/subb2/kiwi.txt  ${tmp_dir}/b/subb1/subb2/kiwi.txt  3 5
-    ${tmp_dir} b/pineapple.txt         ${tmp_dir}/b/pineapple.txt         4 3
-    ${tmp_dir} b/subb1/cherry.txt      ${tmp_dir}/b/subb1/cherry.txt      5 4
+    ${tmp_dir} a/watermelon.txt        0 2
+    ${tmp_dir} a/suba1/orange.txt      1 0
+    ${tmp_dir} a/suba1/suba2/lemon.txt 2 1
+    ${tmp_dir} b/subb1/subb2/kiwi.txt  3 5
+    ${tmp_dir} b/pineapple.txt         4 3
+    ${tmp_dir} b/subb1/cherry.txt      5 4
     '''
     actual = self._test_resolve_files([
       'file b/subb1/cherry.txt "1" 644',         # 1 byte
@@ -130,8 +130,8 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_with_one_pattern(self):
     expected = '''\
-    ${tmp_dir} a/suba1/suba2/two.lemon ${tmp_dir}/a/suba1/suba2/two.lemon 0 0
-    ${tmp_dir} b/subb1/five.lemon ${tmp_dir}/b/subb1/five.lemon 1 1
+    ${tmp_dir} a/suba1/suba2/two.lemon 0 0
+    ${tmp_dir} b/subb1/five.lemon 1 1
 '''
     actual = self._test_resolve_files([
       'file a/suba1/one.orange "this is one.orange" 644',
@@ -145,10 +145,10 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_with_many_patterns(self):
     expected = '''\
-    ${tmp_dir} a/suba1/suba2/two.lemon ${tmp_dir}/a/suba1/suba2/two.lemon 0 0
-    ${tmp_dir} a/three.orange ${tmp_dir}/a/three.orange 1 1
-    ${tmp_dir} b/subb1/five.lemon ${tmp_dir}/b/subb1/five.lemon 2 2
-    ${tmp_dir} b/subb1/subb2/six.kiwi ${tmp_dir}/b/subb1/subb2/six.kiwi 3 3
+    ${tmp_dir} a/suba1/suba2/two.lemon 0 0
+    ${tmp_dir} a/three.orange 1 1
+    ${tmp_dir} b/subb1/five.lemon 2 2
+    ${tmp_dir} b/subb1/subb2/six.kiwi 3 3
 '''
     actual = self._test_resolve_files([
       'file a/suba1/one.orange "this is one.orange" 644',
@@ -163,10 +163,10 @@ class test_file_resolve(unit_test):
 
   def test_resolve_dirs_just_root_dir(self):
     expected = '''\
-    ${tmp_dir} a ${tmp_dir}/a 0 0
-    ${tmp_dir} b ${tmp_dir}/b 1 1
-    ${tmp_dir} subdir1 ${tmp_dir}/subdir1 2 2
-    ${tmp_dir} subdir2 ${tmp_dir}/subdir2 3 3
+    ${tmp_dir} a 0 0
+    ${tmp_dir} b 1 1
+    ${tmp_dir} subdir1 2 2
+    ${tmp_dir} subdir2 3 3
     '''
     actual = self._test_resolve_dirs([
       'file cheese.txt "this is cheese.txt" 644',
@@ -179,12 +179,12 @@ class test_file_resolve(unit_test):
 
   def test_resolve_dirs_just_root_dir_recursive(self):
     expected = '''\
-    ${tmp_dir} a ${tmp_dir}/a 0 0
-    ${tmp_dir} b ${tmp_dir}/b 1 1
-    ${tmp_dir} subdir1 ${tmp_dir}/subdir1 2 2
-    ${tmp_dir} subdir1/subdir3 ${tmp_dir}/subdir1/subdir3 3 3
-    ${tmp_dir} subdir2 ${tmp_dir}/subdir2 4 4
-    ${tmp_dir} subdir2/subdir4 ${tmp_dir}/subdir2/subdir4 5 5
+    ${tmp_dir} a 0 0
+    ${tmp_dir} b 1 1
+    ${tmp_dir} subdir1 2 2
+    ${tmp_dir} subdir1/subdir3 3 3
+    ${tmp_dir} subdir2 4 4
+    ${tmp_dir} subdir2/subdir4 5 5
     '''
     actual = self._test_resolve_dirs([
       'file cheese.txt "this is cheese.txt" 644',
@@ -197,12 +197,12 @@ class test_file_resolve(unit_test):
 
   def test_resolve_dirs_just_root_dir_recursive_sort_order_depth(self):
     expected = '''\
-    ${tmp_dir} a ${tmp_dir}/a 0 0
-    ${tmp_dir} b ${tmp_dir}/b 1 1
-    ${tmp_dir} subdir1 ${tmp_dir}/subdir1 2 2
-    ${tmp_dir} subdir2 ${tmp_dir}/subdir2 3 4
-    ${tmp_dir} subdir1/subdir3 ${tmp_dir}/subdir1/subdir3 4 3
-    ${tmp_dir} subdir2/subdir4 ${tmp_dir}/subdir2/subdir4 5 5
+    ${tmp_dir} a 0 0
+    ${tmp_dir} b 1 1
+    ${tmp_dir} subdir1 2 2
+    ${tmp_dir} subdir2 3 4
+    ${tmp_dir} subdir1/subdir3 4 3
+    ${tmp_dir} subdir2/subdir4 5 5
     '''
     actual = self._test_resolve_dirs([
       'file cheese.txt "this is cheese.txt" 644',
@@ -215,7 +215,7 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_one_file(self):
     expected = '''\
-    ${tmp_dir} subdir/apple.txt ${tmp_dir}/subdir/apple.txt 0 0
+    ${tmp_dir} subdir/apple.txt 0 0
     '''
     actual = self._test_resolve_files([
       'file subdir/apple.txt "this is apple.txt" 644',
@@ -224,8 +224,8 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_two_files_same_subdir(self):
     expected = '''\
-    ${tmp_dir}/subdir apple.txt ${tmp_dir}/subdir/apple.txt 0 0
-    ${tmp_dir}/subdir kiwi.txt ${tmp_dir}/subdir/kiwi.txt 1 1
+    ${tmp_dir}/subdir apple.txt 0 0
+    ${tmp_dir}/subdir kiwi.txt 1 1
     '''
     actual = self._test_resolve_files([
       'file subdir/apple.txt "this is apple.txt" 644',
@@ -235,8 +235,8 @@ class test_file_resolve(unit_test):
 
   def test_resolve_files_two_files_root_and_subdir(self):
     expected = '''\
-    ${tmp_dir} apple.txt ${tmp_dir}/apple.txt 0 0
-    ${tmp_dir} subdir/kiwi.txt ${tmp_dir}/subdir/kiwi.txt 1 1
+    ${tmp_dir} apple.txt 0 0
+    ${tmp_dir} subdir/kiwi.txt 1 1
     '''
     actual = self._test_resolve_files([
       'file apple.txt "this is apple.txt" 644',
@@ -254,11 +254,11 @@ class test_file_resolve(unit_test):
 '''
     tmp_ignore_file2 = self.make_temp_file(content = tmp_ignore_content2)
     expected = '''\
-    ${tmp_dir} a/lemon.txt ${tmp_dir}/a/lemon.txt 0 0
-    ${tmp_dir} b/kiwi.txt ${tmp_dir}/b/kiwi.txt 1 1
-    ${tmp_dir} cheese.txt ${tmp_dir}/cheese.txt 2 2
-    ${tmp_dir} subdir/apple.txt ${tmp_dir}/subdir/apple.txt 3 3
-    ${tmp_dir} subdir/orange.txt ${tmp_dir}/subdir/orange.txt 4 4
+    ${tmp_dir} a/lemon.txt 0 0
+    ${tmp_dir} b/kiwi.txt 1 1
+    ${tmp_dir} cheese.txt 2 2
+    ${tmp_dir} subdir/apple.txt 3 3
+    ${tmp_dir} subdir/orange.txt 4 4
     '''
     actual = self._test_resolve_files([
       'file .config "this is .config" 644',
@@ -370,7 +370,6 @@ class test_file_resolve(unit_test):
     new_filename_abs = resolved_file.filename_abs.replace(tmp_dir, '${tmp_dir}')
     item = file_resolver_item(new_root_dir,
                               clazz.xp_filename(resolved_file.filename),
-                              clazz.xp_filename(new_filename_abs),
                               resolved_file.index,
                               resolved_file.found_index)
     return ' '.join([ str(part) for part in item ])
@@ -386,10 +385,21 @@ class test_file_resolve(unit_test):
     temp_content.write_items(items, tmp_dir)
     return tmp_dir
 
-  def test_resolve_files_two_files_deep(self):
+  def test_resolve_files_one_common_prefix(self):
     expected = '''\
-    ${tmp_dir}/fruit fruit/tests/lib/fruit/test_kiwi.py ${tmp_dir}/fruit/fruit/tests/lib/fruit/test_kiwi.py 0 0
-    ${tmp_dir}/fruit fruit/tests/lib/fruit/test_lemon.py ${tmp_dir}/fruit/fruit/tests/lib/fruit/test_lemon.py 1 1
+    ${tmp_dir}/fruit fruit/tests/lib/fruit/test_kiwi.py 0 0
+    ${tmp_dir}/fruit fruit/tests/lib/fruit/test_lemon.py 1 1
+    '''
+    actual = self._test_resolve_files([
+      'file fruit/fruit/tests/lib/fruit/test_lemon.py "this is test lemon" 644',
+      'file fruit/fruit/tests/lib/fruit/test_kiwi.py "this is test kiwi" 644',
+    ], [ '${tmp_dir}/fruit' ], recursive = True)
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
+  
+  def xtest_resolve_files_two_common_prefixes(self):
+    expected = '''\
+    ${tmp_dir}/fruit fruit/tests/lib/fruit/test_kiwi.py 0 0
+    ${tmp_dir}/fruit fruit/tests/lib/fruit/test_lemon.py 1 1
     '''
     actual = self._test_resolve_files([
       'file fruit/fruit/tests/lib/fruit/test_lemon.py "this is test lemon" 644',
