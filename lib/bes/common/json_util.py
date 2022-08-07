@@ -37,11 +37,11 @@ class json_util(object):
     return json.loads(json_util.to_json(o, indent = 2))
 
   @classmethod
-  def normalize_text(clazz, text):
+  def normalize_text(clazz, text, sort_keys = False):
     check.check_string(text)
     
     o = json.loads(text)
-    return json_util.to_json(o, indent = 2)
+    return json_util.to_json(o, indent = 2, sort_keys = sort_keys)
 
   @classmethod
   def read_file(clazz, filename, codec = None):
