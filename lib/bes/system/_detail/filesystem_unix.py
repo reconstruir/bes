@@ -38,3 +38,15 @@ class filesystem_unix(filesystem_base):
   def remove_directory(self, d):
     'Recursively remove a directory.'
     shutil.rmtree(d)
+
+  @classmethod
+  #@abstractmethod
+  def max_filename_length(self):
+    'Return the maximum allowed length for a filename.'
+    return os.pathconf('/', 'PC_NAME_MAX')
+
+  @classmethod
+  #@abstractmethod
+  def max_path_length(self):
+    'Return the maximum allowed length for a path.'
+    return os.pathconf('/', 'PC_PATH_MAX')

@@ -238,3 +238,15 @@ class filesystem_windows(filesystem_base):
       cmd_exe, '/C', 'rmdir', '/S', '/Q', d,
     ]
     subprocess.check_call(cmd)
+
+  @classmethod
+  #@abstractmethod
+  def max_filename_length(self):
+    'Return the maximum allowed length for a filename.'
+    return wintypes.MAX_PATH
+
+  @classmethod
+  #@abstractmethod
+  def max_path_length(self):
+    'Return the maximum allowed length for a path.'
+    return wintypes.MAX_PATH

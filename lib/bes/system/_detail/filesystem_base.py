@@ -30,3 +30,14 @@ class filesystem_base(with_metaclass(ABCMeta, object)):
     'Recursively remove a directory.'
     raise NotImplemented('remove_directory')
   
+  @classmethod
+  @abstractmethod
+  def max_filename_length(self):
+    'Return the maximum allowed length for a filename.'
+    raise NotImplemented('max_filename_length')
+
+  @classmethod
+  @abstractmethod
+  def max_path_length(self):
+    'Return the maximum allowed length for a path.'
+    raise NotImplemented('max_path_length')
