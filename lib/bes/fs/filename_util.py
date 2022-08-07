@@ -4,9 +4,9 @@ from collections import namedtuple
 import os
 import os.path as path
 
-from bes.common.char_util import char_util
+from ..common.char_util import char_util
 from ..system.check import check
-from bes.system.host import host
+from ..system.host import host
 
 class filename_util(object):
   'Class to deal with file names'
