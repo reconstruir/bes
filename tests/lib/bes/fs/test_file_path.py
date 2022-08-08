@@ -258,6 +258,6 @@ class test_file_path(unit_test):
       self._test_shorten('/tmp/foo_bar.jpg', 9, 1000)
     with self.assertRaises(ValueError) as _:
       self._test_shorten('/tmp/foo_bar.jpg', 8, 1000)
-      
+
 if __name__ == '__main__':
   unit_test.main()

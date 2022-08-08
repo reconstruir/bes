@@ -55,6 +55,18 @@ class filesystem(filesystem_base):
   def remove_directory(clazz, d):
     'Recursively remove a directory.'
     return clazz._impl_class.remove_directory(d)
+
+  @classmethod
+  #@abstractmethod
+  def max_filename_length(clazz):
+    'Return the maximum allowed length for a filename.'
+    return clazz._impl_class.max_filename_length()
+
+  @classmethod
+  #@abstractmethod
+  def max_path_length(clazz):
+    'Return the maximum allowed length for a path.'
+    return clazz._impl_class.max_path_length()
   
   @classmethod
   def remove(clazz, files, raise_not_found_error = False):

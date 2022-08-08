@@ -8,36 +8,36 @@ class filesystem_base(with_metaclass(ABCMeta, object)):
 
   @classmethod
   @abstractmethod
-  def free_disk_space(self, directory):
+  def free_disk_space(clazz, directory):
     'Return the free space for directory in bytes.'
     raise NotImplemented('free_disk_space')
 
   @classmethod
   @abstractmethod
-  def sync(self):
+  def sync(clazz):
     'Sync the filesystem.  Only works for both unix and windows in python3.  Otherwise only unix.'
     raise NotImplemented('sync')
   
   @classmethod
   @abstractmethod
-  def has_symlinks(self):
+  def has_symlinks(clazz):
     'Return True if this system has support for symlinks.'
     raise NotImplemented('has_symlinks')
 
   @classmethod
   @abstractmethod
-  def remove_directory(self, d):
+  def remove_directory(clazz, d):
     'Recursively remove a directory.'
     raise NotImplemented('remove_directory')
   
   @classmethod
   @abstractmethod
-  def max_filename_length(self):
+  def max_filename_length(clazz):
     'Return the maximum allowed length for a filename.'
     raise NotImplemented('max_filename_length')
 
   @classmethod
   @abstractmethod
-  def max_path_length(self):
+  def max_path_length(clazz):
     'Return the maximum allowed length for a path.'
     raise NotImplemented('max_path_length')

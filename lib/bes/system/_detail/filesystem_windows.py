@@ -219,14 +219,14 @@ class filesystem_windows(filesystem_base):
 
   @classmethod
   #@abstractmethod
-  def has_symlinks(self):
+  def has_symlinks(clazz):
     'Return True if this system has support for symlinks.'
     # https://stackoverflow.com/questions/2094663/determine-if-windows-process-has-privilege-to-create-symbolic-link
     return enable_symlink_privilege()
   
   @classmethod
   #@abstractmethod
-  def remove_directory(self, d):
+  def remove_directory(clazz, d):
     'Recursively remove a directory.'
 
     if 'SYSTEMROOT' in os.environ:
@@ -241,12 +241,12 @@ class filesystem_windows(filesystem_base):
 
   @classmethod
   #@abstractmethod
-  def max_filename_length(self):
+  def max_filename_length(clazz):
     'Return the maximum allowed length for a filename.'
     return wintypes.MAX_PATH
 
   @classmethod
   #@abstractmethod
-  def max_path_length(self):
+  def max_path_length(clazz):
     'Return the maximum allowed length for a path.'
     return wintypes.MAX_PATH

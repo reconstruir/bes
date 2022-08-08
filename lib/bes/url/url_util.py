@@ -10,9 +10,8 @@ from bes.system.compat import compat
 from bes.compat import url_compat
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
-from bes.text.text_replace import text_replace
 
-from urllib import parse as urllib_parse #.parse import urlparse, urlunparse, quote
+from urllib import parse as urllib_parse
 
 class url_util(object):
   'Url util'
@@ -166,12 +165,6 @@ class url_util(object):
     except Exception as ex:
       pass
     return False
-
-  @classmethod
-  def sanitize(clazz, url):
-    s1 = text_replace.replace_punctuation(url, '_')
-    s2 = text_replace.replace_white_space(s1, '_')
-    return s2.strip()
 
   @classmethod
   def normalize(clazz, url):

@@ -29,24 +29,24 @@ class filesystem_unix(filesystem_base):
 
   @classmethod
   #@abstractmethod
-  def has_symlinks(self):
+  def has_symlinks(clazz):
     'Return True if this system has support for symlinks.'
     return True
 
   @classmethod
   #@abstractmethod
-  def remove_directory(self, d):
+  def remove_directory(clazz, d):
     'Recursively remove a directory.'
     shutil.rmtree(d)
 
   @classmethod
   #@abstractmethod
-  def max_filename_length(self):
+  def max_filename_length(clazz):
     'Return the maximum allowed length for a filename.'
     return os.pathconf('/', 'PC_NAME_MAX')
 
   @classmethod
   #@abstractmethod
-  def max_path_length(self):
+  def max_path_length(clazz):
     'Return the maximum allowed length for a path.'
     return os.pathconf('/', 'PC_PATH_MAX')
