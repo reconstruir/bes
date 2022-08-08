@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 # todo:
 #  - symlink unit tests
 from bes.fs.file_resolver import file_resolver
@@ -229,7 +230,7 @@ class test_file_resolve(unit_test):
     actual = self._test_resolve_files([
       'file subdir/apple.txt "this is apple.txt" 644',
       'file subdir/kiwi.txt "this is kiwi.txt" 644',
-    ], [ '${tmp_dir}' ], recursive = True)
+    ], [ '${tmp_dir}/subdir' ], recursive = True)
     self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
 
   def test_resolve_files_two_files_root_and_subdir(self):
@@ -356,7 +357,7 @@ class test_file_resolve(unit_test):
                                     match_re = match_re,
                                     ignore_files = ignore_files)
     result = func(files, options = options)
-    return '\n'.join([ self._fix_one_resolved_file(f, tmp_dir) for f in result ])
+    return os.linesep.join([ self._fix_one_resolved_file(f, tmp_dir) for f in result ])
   
   @classmethod
   def _fix_one_resolved_file(clazz, resolved_file, tmp_dir):
@@ -384,6 +385,17 @@ class test_file_resolve(unit_test):
     ]
     temp_content.write_items(items, tmp_dir)
     return tmp_dir
-    
+
+  def test_resolve_files_two_files_deep(self):
+    expected = '''\
+    ${tmp_dir}/fruit fruit/tests/lib/fruit/test_kiwi.py ${tmp_dir}/fruit/fruit/tests/lib/fruit/test_kiwi.py 0 0
+    ${tmp_dir}/fruit fruit/tests/lib/fruit/test_lemon.py ${tmp_dir}/fruit/fruit/tests/lib/fruit/test_lemon.py 1 1
+    '''
+    actual = self._test_resolve_files([
+      'file fruit/fruit/tests/lib/fruit/test_lemon.py "this is test lemon" 644',
+      'file fruit/fruit/tests/lib/fruit/test_kiwi.py "this is test kiwi" 644',
+    ], [ '${tmp_dir}/fruit' ], recursive = True)
+    self.assert_string_equal( expected, actual, ignore_white_space = True, multi_line = True )
+  
 if __name__ == "__main__":
   unit_test.main()

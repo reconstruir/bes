@@ -74,6 +74,9 @@ class unit_test(unittest.TestCase):
     if ignore_white_space:
       s1 = self._strip_white_space(s1)
       s2 = self._strip_white_space(s2)
+      if multi_line:
+        s1 = s1 + os.linesep
+        s2 = s2 + os.linesep
       s1_to_compare = s1
       s2_to_compare = s2
     if native_line_breaks:

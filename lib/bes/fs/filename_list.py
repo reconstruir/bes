@@ -20,3 +20,10 @@ class filename_list(object):
       if prefix and prefix not in prefixes:
         prefixes.add(prefix)
     return prefixes
+
+  @classmethod
+  def startswith(clazz, filenames, prefix):
+    'Return True if all filenames start with the same prefix.'
+    check.check_string_seq(filenames)
+
+    return all(f.startswith(prefix) for f in filenames)

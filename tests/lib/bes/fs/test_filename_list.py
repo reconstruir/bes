@@ -31,6 +31,11 @@ class test_filename_list(unit_test):
       'kiwi-100.txt',
       'kiwi-101.txt',
     ], ignore_case = True) )
+
+  def test_startswith(self):
+    self.assertEqual( True, filename_list.startswith([ 'kiwi/foo.txt', 'kiwi/bar.txt' ], 'kiwi/') )
+    self.assertEqual( False, filename_list.startswith([ 'kiwi/foo.txt', 'kiwi/bar.txt' ], 'apple/') )
+    self.assertEqual( False, filename_list.startswith([ 'kiwi/foo.txt', 'apple/bar.txt' ], 'apple/') )
     
 if __name__ == '__main__':
   unit_test.main()

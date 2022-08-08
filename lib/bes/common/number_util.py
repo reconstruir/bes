@@ -1,7 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import unittest
-from bes.system.compat import compat
+import math
+
+from ..system.compat import compat
+from ..system.check import check
 from .string_util import string_util
 
 class number_util(object):
@@ -49,4 +51,36 @@ class number_util(object):
     if not clazz.string_is_int(x):
       return None
     return int(x)
-  
+
+  @classmethod
+  def zfill(clazz, n, width, c = '0'):
+    check.check(n, check.INTEGER_TYPES + check.STRING_TYPES)
+    check.check_int(width)
+    check.check_string(c)
+
+    if not clazz.string_is_int(n):
+      raise ValueError('not a number: "{n}"')
+    
+    if width < 0:
+      raise ValueError('width should be positive: "{width}"')
+
+    if len(c) != 1:
+      raise ValueError('c should be exactly 1 character long: "{c}"')
+
+    s = str(n)
+    length = len(s)
+    if length >= width:
+      return s
+    delta = width - length
+    assert delta >= 1
+    prefix = c * delta
+    return prefix + s
+
+  @classmethod
+  def zfill_width(clazz, n):
+    'Return the zfill width for a number'
+    check.check_int(n)
+
+    if n == 0:
+      return 1
+    return int(math.log10(n)) + 1
