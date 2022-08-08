@@ -291,11 +291,14 @@ class file_path(object):
     return clazz._access_result(p, exists, can_read, can_write, can_execute)
 
   @classmethod
-  def shorten(clazz, p, max_filename_length = None, max_path_length = None):
+  def shorten(clazz, p, max_filename_length = None, max_path_length = None,
+              include_hash = False, hash_length = None):
     'Shorten a path preserving the dirname and extension'
     check.check_string(p)
     check.check_int(max_filename_length, allow_none = True)
     check.check_int(max_path_length, allow_none = True)
+    check.check_bool(include_hash)
+    check.check_int(hash_length, allow_none = True)
 
     if not path.isabs(p):
       raise ValueError(f'p should be an absolute path: "{p}"')
@@ -316,8 +319,12 @@ class file_path(object):
         raise ValueError(f'Path part "{next_part}" is too long ({next_part_length}).  Should be no more than {max_filename_length}')
       
     basename = path.basename(p)
-    ext = filename_util.extension(basename)
-    basename_no_ext = filename_util.without_extension(basename)
+    short_basename = filename_util.shorten(basename,
+                                           max_length = max_filename_length,
+                                           include_hash = include_hash,
+                                           hash_length = hash_length)
+    ext = filename_util.extension(short_basename)
+    basename_no_ext = filename_util.without_extension(short_basename)
     len_basename_no_ext = len(basename_no_ext)
 
     if ext:
@@ -337,52 +344,3 @@ class file_path(object):
 
     new_basename = filename_util.add_extension(basename_no_ext, ext)
     return path.join(dirname, new_basename)
-
-  @classmethod
-  def shorten(clazz, p, max_filename_length = None, max_path_length = None):
-    'Shorten a path preserving the dirname and extension'
-    check.check_string(p)
-    check.check_int(max_filename_length, allow_none = True)
-    check.check_int(max_path_length, allow_none = True)
-
-    if not path.isabs(p):
-      raise ValueError(f'p should be an absolute path: "{p}"')
-
-    if p.endswith(path.sep):
-      raise ValueError(f'p should be a file not a directory: "{p}"')
-
-    p = path.normpath(p)
-
-    max_filename_length = max_filename_length or filesystem.max_filename_length()
-    max_path_length = max_path_length or filesystem.max_path_length()
-    
-    dirname = path.dirname(p)
-    dirname_parts = clazz.split(dirname)
-    for next_part in dirname_parts[0:-1]:
-      next_part_length = len(next_part)
-      if next_part_length > max_filename_length:
-        raise ValueError(f'Path part "{next_part}" is too long ({next_part_length}).  Should be no more than {max_filename_length}')
-      
-    basename = path.basename(p)
-    ext = filename_util.extension(basename)
-    basename_no_ext = filename_util.without_extension(basename)
-    len_basename_no_ext = len(basename_no_ext)
-
-    if ext:
-      min_needed_ext = len(ext) + len(path.extsep)
-    else:
-      min_needed_ext = 0
-    min_needed_minus_basename_no_ext = len(dirname) + min_needed_ext
-    #print(f'p={p}')
-    #print(f'min_needed_minus_basename_no_ext={min_needed_minus_basename_no_ext}')
-    #print(f'max_path_length={max_path_length}')
-    if min_needed_minus_basename_no_ext >= (max_path_length - 1):
-      raise ValueError(f'Directory plus extension exceeds max path length({max_path_length}): "{p}"')
-    available = max_path_length - min_needed_minus_basename_no_ext
-    assert available >= 1
-    if available < len_basename_no_ext:
-      basename_no_ext = basename_no_ext[0:available-1]
-
-    new_basename = filename_util.add_extension(basename_no_ext, ext)
-    return path.join(dirname, new_basename)
-  
