@@ -110,7 +110,6 @@ class file_resolver(object):
           root_dir = files[0]
       if not root_dir:
         root_dir = file_path.common_ancestor(filenames)
-      assert root_dir
       clazz._log.log_d(f'_find_files: many files: root_dir={root_dir}')
     return found_files, root_dir
   
