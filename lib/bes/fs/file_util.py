@@ -21,9 +21,11 @@ class file_util(object):
   
   @classmethod
   def mkdir(clazz, p, mode = None):
-    if path.isdir(p):
-      return
-    os.makedirs(p)
+    try:
+      os.makedirs(p)
+    except OSError as ex:
+      if ex.errno != errno.EEXIST:
+        raise
     if mode:
       os.chmod(p, mode)
                   
