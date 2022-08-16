@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import json
+import os
 import shutil
 
 from .object_util import object_util
@@ -30,7 +31,8 @@ class json_util(object):
      - __dict__ is used when object is not json encodable
     '''
     def default(o): return o.__dict__
-    return json.dumps(o, indent = indent, default = default, sort_keys = sort_keys, separators = (', ', ': '))
+    js = json.dumps(o, indent = indent, default = default, sort_keys = sort_keys, separators = (', ', ': '))
+    return js + os.linesep
 
   @classmethod
   def normalize(clazz, o):
