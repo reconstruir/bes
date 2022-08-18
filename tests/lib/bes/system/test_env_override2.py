@@ -26,7 +26,7 @@ class test_env_override2(unit_test):
       os.environ['__BES_COLOR__'] = 'green'
     self.assertEqual( original_env, os_env.clone_current_env() )
     
-  def test_with_env_add(self):
+  def test_env_add(self):
     env_add = {
       'FRUIT': 'kiwi',
       'COLOR': 'green',
@@ -36,6 +36,31 @@ class test_env_override2(unit_test):
     with env_override2(options) as _:
       self.assertEqual( 'kiwi', os.environ['FRUIT'] )
       self.assertEqual( 'green', os.environ['COLOR'] )
+    self.assertEqual( original_env, os_env.clone_current_env() )
+
+  def test_env_override(self):
+    env_override = {
+      'INDEX': '1',
+    }
+    original_env = os_env.clone_current_env()
+    options = env_override_options(env_override = env_override)
+    with env_override2(options) as _:
+      self.assertEqual( env_override, dict(os.environ) )
+    self.assertEqual( original_env, os_env.clone_current_env() )
+
+  def test_env_add_and_env_override(self):
+    env_override = {
+      'INDEX': '1',
+    }
+    env_add = {
+      'FRUIT': 'kiwi',
+      'COLOR': 'green',
+    }
+    original_env = os_env.clone_current_env()
+    options = env_override_options(env_override = env_override,
+                                   env_add = env_add)
+    with env_override2(options) as _:
+      self.assertEqual( self._dict_combine(env_override, env_add), dict(os.environ) )
     self.assertEqual( original_env, os_env.clone_current_env() )
     
   def xtest_env_override_set(self):
