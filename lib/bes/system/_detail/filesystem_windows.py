@@ -250,3 +250,16 @@ class filesystem_windows(filesystem_base):
   def max_path_length(clazz):
     'Return the maximum allowed length for a path.'
     return wintypes.MAX_PATH
+
+  @classmethod
+  #@abstractmethod
+  def home_dir_env(clazz, home_dir):
+    'Return a dict with the environment needed to set the home directory.'
+
+    homedrive, homepath = path.splitdrive(home_dir)
+    return {
+      'HOME': home_dir,
+      'HOMEDRIVE': homedrive,
+      'HOMEPATH': homepath,
+      'APPDATA': path.join(home_dir, 'AppData\\Roaming')
+    }

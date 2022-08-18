@@ -50,3 +50,13 @@ class filesystem_unix(filesystem_base):
   def max_path_length(clazz):
     'Return the maximum allowed length for a path.'
     return os.pathconf('/', 'PC_PATH_MAX')
+
+  @classmethod
+  #@abstractmethod
+  def home_dir_env(clazz, home_dir):
+    'Return a dict with the environment needed to set the home directory.'
+
+    homedrive, homepath = path.splitdrive(home_dir)
+    return {
+      'HOME': home_dir,
+    }

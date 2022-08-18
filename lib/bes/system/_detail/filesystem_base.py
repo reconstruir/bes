@@ -41,3 +41,10 @@ class filesystem_base(with_metaclass(ABCMeta, object)):
   def max_path_length(clazz):
     'Return the maximum allowed length for a path.'
     raise NotImplemented('max_path_length')
+
+  @classmethod
+  @abstractmethod
+  def home_dir_env(clazz, home_dir):
+    'Return a dict with the environment needed to set the home directory.'
+    raise NotImplemented('home_dir_env')
+  
