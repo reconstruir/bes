@@ -94,7 +94,11 @@ class check(object):
   @classmethod
   def check_string_seq(clazz, o, allow_none = False, allow_item_none = False):
     if o != None and clazz.is_string(o):
-      raise TypeError(f'o should not be a string')
+      _, filename, line_number, _, _, _ = inspect.stack()[1]
+      name = clazz._previous_frame_object_name(o, 2)
+      typeo = type(o).__name__
+      fp = path.abspath(filename)
+      raise TypeError(f'\"{name}\" should be a string sequence instead of \"{typeo}\" at {fp}:{line_number}')
     return clazz._check_seq(o, clazz.STRING_TYPES, 2, allow_none = allow_none, allow_item_none = allow_item_none)
 
   @classmethod
