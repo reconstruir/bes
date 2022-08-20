@@ -93,6 +93,8 @@ class check(object):
 
   @classmethod
   def check_string_seq(clazz, o, allow_none = False, allow_item_none = False):
+    if o != None and clazz.is_string(o):
+      raise TypeError(f'o should not be a string')
     return clazz._check_seq(o, clazz.STRING_TYPES, 2, allow_none = allow_none, allow_item_none = allow_item_none)
 
   @classmethod
@@ -192,14 +194,13 @@ class check(object):
       return o
     type_blurb = type_blurb or clazz._make_type_blurb(t)
     if not type_blurb:
-      raise TypeError('t should be a type or tuple of types instead of \"%s\"' % (str(t)))
+      raise TypeError(f't should be a type or tuple of types instead of \"{t}\"')
     _, filename, line_number, _, _, _ = inspect.stack()[depth]
     name = clazz._previous_frame_object_name(o, depth)
-    raise TypeError('\"%s\" should be of type \"%s\" instead of \"%s\" at %s line %d' % (name,
-                                                                                         type_blurb,
-                                                                                         type(o).__name__,
-                                                                                         path.abspath(filename),
-                                                                                         line_number))
+    typeo = type(o).__name__
+    fp = path.abspath(filename)
+    raise TypeError(f'\"{name}\" should be of type \"{type_blurb}\" instead of \"{typeo}\" at {fp}:{line_number}')
+  
   @classmethod
   def check_seq(clazz, o, t, allow_none = False, allow_item_none = False):
     return clazz._check_seq(o, t, 2, allow_none = allow_none, allow_item_none = allow_item_none)

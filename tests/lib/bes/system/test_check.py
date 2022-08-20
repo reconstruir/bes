@@ -16,22 +16,25 @@ class test_check(unit_test):
   def test_string(self):
     check.check_string('x')
 
+  def test_string_int_error(self):
     with self.assertRaises(TypeError) as context:
       check.check_string(6)
 
+  def test_string_seq_error(self):
     with self.assertRaises(TypeError) as context:
       check.check_string([ 'a '])
-      
+
   def test_string_seq(self):
     check.check_string_seq(['x'])
 
+  def test_string_seq_int_error(self):
     with self.assertRaises(TypeError) as context:
       check.check_string_seq(6)
-      check.check_string(6)
 
-#    with self.assertRaises(TypeError) as context:
-#      check.check_string_seq('a')
-
+  def test_string_seq_string_error(self):
+    with self.assertRaises(TypeError) as context:
+      check.check_string_seq('foo')
+      
   def test_register_class(self):
     class _test_check_foo(object): pass
     check.register_class(_test_check_foo, '_test_check_foo')
