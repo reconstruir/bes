@@ -21,9 +21,10 @@ class json_util(object):
       return False
 
   @classmethod
-  def to_json(clazz, o, indent = None, sort_keys = False):
+  def to_json(clazz, o, indent = None, sort_keys = False, ensure_last_line_sep = False):
     check.check_int(indent, allow_none = True)
     check.check_bool(sort_keys)
+    check.check_bool(ensure_last_line_sep)
     
     '''
     Like json.dumps plus the following:
@@ -32,6 +33,8 @@ class json_util(object):
     '''
     def default(o): return o.__dict__
     js = json.dumps(o, indent = indent, default = default, sort_keys = sort_keys, separators = (', ', ': '))
+    if not ensure_last_line_sep:
+      return js
     return js + os.linesep
 
   @classmethod
