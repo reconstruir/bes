@@ -1,7 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
-import copy
 from os import path
 import tempfile
 import pprint
@@ -9,7 +8,6 @@ import pprint
 from .check import check
 from .env_var import env_var
 from .filesystem import filesystem
-from .os_env import os_env
 
 class env_override_options(object):
   
@@ -70,16 +68,6 @@ class env_override_options(object):
     if self.tmp_dir and self.tmp_dir_use_temp:
       raise ValueError(f'Only one of "tmp_dir" or "tmp_dir_use_temp" should be given.')
     
-    
-  def resolve_base_env(self):
-    if self.clean_env:
-      result = os_env.make_clean_env()
-    elif self.env:
-      result = copy.deepcopy(self.env)
-    else:
-      result = os_env.clone_current_env()
-    return result
-
   def resolve_PATH(self, env):
     check.check_dict(env, check.STRING_TYPES, check.STRING_TYPES)
     

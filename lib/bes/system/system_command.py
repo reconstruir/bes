@@ -4,11 +4,13 @@ import re
 from os import path
 
 from abc import abstractmethod, ABCMeta
-from bes.system.compat import with_metaclass
 
-from ..system.check import check
+from .compat import with_metaclass
+from .check import check
 from .command_line import command_line
 from .compat import compat
+from .env_override import env_override
+from .env_override_options import env_override_options
 from .execute import execute
 from .execute_result import execute_result
 from .host import host
@@ -80,8 +82,7 @@ class system_command(with_metaclass(ABCMeta, object)):
                    non_blocking = False,
                    output_encoding = None,
                    output_function = None,
-                   alternative_temp_dir = False,
-                   delete_alternative_temp_dir = True):
+                   env_options = None):
     'Call the command'
     check.check_string_seq(args)
     check.check_bool(raise_error)
@@ -91,8 +92,7 @@ class system_command(with_metaclass(ABCMeta, object)):
     check.check_bool(non_blocking)
     check.check_string(output_encoding, allow_none = True)
     check.check_callable(output_function, allow_none = True)
-    check.check_bool(alternative_temp_dir)
-    check.check_bool(delete_alternative_temp_dir)
+    check.check_env_override_options(env_options, allow_none = True)
 
     clazz.check_supported()
 
@@ -127,8 +127,7 @@ class system_command(with_metaclass(ABCMeta, object)):
                            input_data = input_data,
                            non_blocking = non_blocking,
                            output_encoding = output_encoding,
-                           alternative_temp_dir = alternative_temp_dir,
-                           delete_alternative_temp_dir = delete_alternative_temp_dir)
+                           env_options = env_options)
 
   @classmethod
   def call_command_parse_lines(clazz, args, sort = False):

@@ -12,7 +12,7 @@ import tempfile
 from .check import check
 from .command_line import command_line
 from .compat import compat
-#from .env_override import env_override
+from .env_override_options import env_override_options
 from .execute_result import execute_result
 from .host import host
 from .log import logger
@@ -39,8 +39,7 @@ class execute(object):
               check_python_script = True,
               output_encoding = None,
               output_function = None,
-              alternative_temp_dir = False,
-              delete_alternative_temp_dir = True):
+              env_options = None):
     'Execute a command'
     check.check_bytes(input_data, allow_none = True)
     check.check_bool(print_failure)
@@ -48,8 +47,7 @@ class execute(object):
     check.check_bool(check_python_script)
     check.check_string(output_encoding, allow_none = True)
     check.check_callable(output_function, allow_none = True)
-    check.check_bool(alternative_temp_dir)
-    check.check_bool(delete_alternative_temp_dir)
+    check.check_bool(env_options, allow_none = True)
 
     output_encoding = output_encoding or execute_result.DEFAULT_ENCODING
     
@@ -79,6 +77,7 @@ class execute(object):
       # FIXME: quoting ?
       
     clazz._log.log_d('parsed_args={}'.format(parsed_args))
+    #from .env_override import env_override
     try:
       process = subprocess.Popen(parsed_args,
                                  stdout = stdout_pipe,
@@ -168,19 +167,6 @@ class execute(object):
     'Parse arguments to use for execute.'
     return command_line.parse_args(args, quote = quote)
 
-  class _noop_context(object):
-    def __init__(self):
-      pass
-    def __enter__(self):
-      pass
-    def __exit__(self, type, value, traceback):
-      pass
-    
-  @classmethod
-  def _alternative_temp_dir_context(clazz, args, quote = False):
-    'Parse arguments to use for execute.'
-    return command_line.parse_args(args, quote = quote)
-  
   @classmethod
   def is_shell_script(clazz, filename):
     'Execute a command'

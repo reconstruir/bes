@@ -83,24 +83,23 @@ class test_env_dir(unit_test):
     ], ed.instructions(env) )
   
   def test_foo(self):
-    env_add = {
+    env = {
       'SOMETHINGIMADEUP': 'GOOD',
     }
     options = env_override_options(path_append = [ '/bin', '/usr/bin', '/my/path', '/sbin' ],
-                                   env_add = env_add)
+                                   env = env)
     with env_override(options = options) as tmp_env:
-      tmp_dir = self.make_temp_dir()
-      temp_content.write_items([
+      ed = self._make_temp_env_dir([
         'file 1.sh "export PATH=/bin:/usr/bin:/sbin\n" 644',
         'file 2.sh "export BAR=orange\n" 644',
         'file 3.sh "export PATH=/a/bin:$PATH\nexport PATH=/b/bin:$PATH\n" 644',
         'file 4.sh "export FOO=kiwi\n" 644',
         'file 5.sh "export PATH=$PATH:/x/bin\nPATH=$PATH:/y/bin\n" 644',
         'file 6.sh "unset SOMETHINGIMADEUP\n" 644',
-      ], tmp_dir)
-      ed = env_dir(tmp_dir)
+      ])
       self.assertEqual( [ '1.sh', '2.sh', '3.sh', '4.sh', '5.sh', '6.sh' ], ed.files )
-      self.assertEqual( [
+      instructions = ed.instructions(tmp_env.to_dict())
+      expected = [
         ( 'BAR', 'orange', action.SET ),
         ( 'FOO', 'kiwi', action.SET ),
         ( 'PATH', '/a/bin', action.PATH_PREPEND ),
@@ -109,20 +108,20 @@ class test_env_dir(unit_test):
         ( 'PATH', '/x/bin', action.PATH_APPEND ),
         ( 'PATH', '/y/bin', action.PATH_APPEND ),
         ( 'SOMETHINGIMADEUP', None, action.UNSET ),
-      ], ed.instructions(tmp_env.to_dict()) )
+      ]
 
-#      self.assertEqual( {
-#        'BAR': 'orange',
-#        'FOO': 'kiwi',
-#        'PATH': '/b/bin:/a/bin:/x/bin:/y/bin',
-#      }, ed.transform_env({}) )
+      self.assertEqual( {
+        'BAR': 'orange',
+        'FOO': 'kiwi',
+        'PATH': '/b/bin:/a/bin:/bin:/usr/bin:/sbin:/x/bin:/y/bin',
+      }, ed.transform_env({}) )
         
-#      self.assertEqual( {
-#        'BAR': 'orange',
-#        'FOO': 'kiwi',
-#        'PATH': '/b/bin:/a/bin:/x/bin:/y/bin',
-#      }, ed.transform_env({ 'SOMETHINGIMADEUP': 'yes' }) )
-#        
+      self.assertEqual( {
+        'BAR': 'orange',
+        'FOO': 'kiwi',
+        'PATH': '/b/bin:/a/bin:/bin:/usr/bin:/sbin:/x/bin:/y/bin',
+      }, ed.transform_env({ 'SOMETHINGIMADEUP': 'yes' }) )
+        
 #      self.assertEqual( {
 #        'BAR': 'orange',
 #        'FOO': 'kiwi',

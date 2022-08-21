@@ -6,13 +6,12 @@ import tempfile
 import copy
 from functools import wraps
 
-from ..system.check import check
+from .check import check
+from .env_override_options import env_override_options
 from .env_var import env_var
 from .filesystem import filesystem
 from .host import host
 from .os_env import os_env
-
-from .env_override_options import env_override_options
 
 class env_override(object):
 
@@ -35,7 +34,7 @@ class env_override(object):
     self._stack = []
 
   def _resolve_env(self):
-    env = self._options.resolve_base_env()
+    env = self._resolve_base_env(self._options)
     env_add = self._options.env_add or {}
     PATH = self._options.resolve_PATH(env)
     if PATH != None:
@@ -154,6 +153,16 @@ class env_override(object):
     files = os.listdir(tmpdir)
     return sorted([ path.join(tmpdir, f) for f in files ])
 
+  @classmethod
+  def _resolve_base_env(clazz, options):
+    if options.clean_env:
+      result = os_env.make_clean_env()
+    elif options.env:
+      result = copy.deepcopy(options.env)
+    else:
+      result = os_env.clone_current_env()
+    return result
+  
 def env_override_temp_home_func():
   'A decarator to override HOME for a function.'
   def _wrap(func):
