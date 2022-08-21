@@ -10,6 +10,7 @@ from .check import check
 from .env_override_options import env_override_options
 from .env_var import env_var
 from .filesystem import filesystem
+from .environment import environment
 from .host import host
 from .os_env import os_env
 
@@ -62,7 +63,7 @@ class env_override(object):
     
     home_dir = self._options.resolve_home_dir()
     if home_dir:
-      home_dir_env = filesystem.home_dir_env(home_dir.where)
+      home_dir_env = environment.home_dir_env(home_dir.where)
       if home_dir.delete:
         self._delete_tmp_dirs.append(home_dir.where)
       env.update(home_dir_env)

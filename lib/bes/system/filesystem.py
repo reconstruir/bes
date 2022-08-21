@@ -67,12 +67,6 @@ class filesystem(filesystem_base):
   def max_path_length(clazz):
     'Return the maximum allowed length for a path.'
     return clazz._impl_class.max_path_length()
-
-  @classmethod
-  #@abstractmethod
-  def home_dir_env(clazz, home_dir):
-    'Return a dict with the environment needed to set the home directory.'
-    return clazz._impl_class.home_dir_env(home_dir)
   
   @classmethod
   def remove(clazz, files, raise_not_found_error = False):
