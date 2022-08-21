@@ -33,26 +33,28 @@ class env_override(object):
     self._delete_tmp_dirs = []
     
     self._stack = []
-    #self._env = env
 
   def _resolve_env(self):
     env = self._options.resolve_base_env()
     env_add = self._options.env_add or {}
-    intersection_exception_keys = set()
     PATH = self._options.resolve_PATH(env)
     if PATH != None:
       env.update({ 'PATH': PATH })
-      intersection_exception_keys.add('PATH')
+    PYTHONPATH = self._options.resolve_PYTHONPATH(env)
+    if PYTHONPATH != None:
+      env.update({ 'PYTHONPATH': PYTHONPATH })
     env_keys = set([ key for key in env.keys() ])
     env_add_keys = set([ key for key in env_add.keys() ])
     intersection = env_keys.intersection(env_add_keys)
-    for key in intersection_exception_keys:
-      if key in intersection:
-        intersection.remove(x)
+    clobber_ignore_keys = self._options.clobber_ignore_keys()
+    intersection = intersection - clobber_ignore_keys
+    #for key in clobber_ignore_keys:
+    #  if key in intersection:
+    #    intersection.remove(x)
+    #assert intersection == poto
     if intersection:
       raise RuntimeError(f'the base env and env_add have clashing keys: {" ".join(intersection)}')
     env.update(env_add)
-    PATH = self._options.resolve_PATH(env)
     return env
     
   def __enter__(self):

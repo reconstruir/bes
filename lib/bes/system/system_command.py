@@ -79,7 +79,9 @@ class system_command(with_metaclass(ABCMeta, object)):
                    input_data = None,
                    non_blocking = False,
                    output_encoding = None,
-                   output_function = None):
+                   output_function = None,
+                   alternative_temp_dir = False,
+                   delete_alternative_temp_dir = True):
     'Call the command'
     check.check_string_seq(args)
     check.check_bool(raise_error)
@@ -89,6 +91,8 @@ class system_command(with_metaclass(ABCMeta, object)):
     check.check_bool(non_blocking)
     check.check_string(output_encoding, allow_none = True)
     check.check_callable(output_function, allow_none = True)
+    check.check_bool(alternative_temp_dir)
+    check.check_bool(delete_alternative_temp_dir)
 
     clazz.check_supported()
 
@@ -122,7 +126,9 @@ class system_command(with_metaclass(ABCMeta, object)):
                            check_python_script = check_python_script,
                            input_data = input_data,
                            non_blocking = non_blocking,
-                           output_encoding = output_encoding)
+                           output_encoding = output_encoding,
+                           alternative_temp_dir = alternative_temp_dir,
+                           delete_alternative_temp_dir = delete_alternative_temp_dir)
 
   @classmethod
   def call_command_parse_lines(clazz, args, sort = False):

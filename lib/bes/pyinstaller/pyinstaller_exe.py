@@ -13,6 +13,7 @@ from bes.system.command_line import command_line
 from bes.system.execute import execute
 from bes.system.log import logger
 from bes.system.env_override import env_override
+from bes.system.env_override_options import env_override_options
 
 from .pyinstaller_error import pyinstaller_error
 
@@ -28,14 +29,11 @@ class pyinstaller_exe(object):
   def call_pyinstaller(clazz, args, build_dir = None, replace_env = None):
     check.check_string_seq(args)
     check.check_string(build_dir, allow_none = True)
-    check.check_dict(replace_env, check.STRING_TYPES, check.STRING_TYPES)
+    check.check_dict(replace_env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
     
     cmd = command_line.parse_args(args)
-    replace_env = replace_env or {}
-    env = os_env.clone_current_env(d = {})
-    env.update(replace_env)
-    clazz._log.log_d('using env: {}'.format(pprint.pformat(env)))
-    clazz._log.log_d('calling pyinstaller: {}'.format(' '.join(cmd)))
+    clazz._log.log_d('replace_env={pprint.pformat(env)}')
+    clazz._log.log_d('calling pyinstaller: {" ".join(cmd)}')
     if build_dir:
       file_util.mkdir(build_dir)
     dist_dir = path.join(build_dir, 'dist')
@@ -45,8 +43,9 @@ class pyinstaller_exe(object):
     args.extend([ '--distpath', dist_dir ])
     args.extend([ '--workpath', work_dir ])
     args.extend([ '--specpath', spec_dir ])
+    options = env_override_options(env = replace_env)
     try:
-      with env_override(env = env) as _:
+      with env_override(options = options) as _:
         PyInstaller_run(pyi_args = args, pyi_config = None)
     except Exception as ex:
       raise pyinstaller_error(str(ex))

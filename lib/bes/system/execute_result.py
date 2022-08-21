@@ -18,7 +18,9 @@ class execute_result(namedtuple('execute_result', 'stdout_bytes, stderr_bytes, e
     check.check_bytes(stdout_bytes)
     check.check_bytes(stderr_bytes)
     check.check_int(exit_code)
-    check.check_string_seq(command)
+
+    if not (check.is_string(command) or check.is_string_seq(command)):
+      raise TypeError(f'command should be a string or string sequence instead of "{type(command)}"')
 
     return clazz.__bases__[0].__new__(clazz, stdout_bytes, stderr_bytes, exit_code, command)
 

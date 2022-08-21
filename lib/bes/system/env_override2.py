@@ -16,13 +16,17 @@ from .env_override_options import env_override_options
 
 class env_override2(object):
 
-  def __init__(self, options = None):
+  def __init__(self, env = None, options = None):
+    check.check_dict(env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
     check.check_env_override_options(options, allow_none = True)
 
+    if env and options:
+      raise ValueError(f'Only one of "env" or "options" should be given.')
     options = options or env_override_options()
-    
-    if options.env_override and options.clean_env:
-      raise ValueError(f'Only one of "env_override" or "clean_env" should be given.')
+    options.verify()
+
+    if env:
+      options.env_add = copy.deepcopy(env)
     
     self._options = options
     self._original_env = None
@@ -113,62 +117,30 @@ class env_override2(object):
     check.check_callable_seq(enter_functions, allow_none = True)
     check.check_callable_seq(exit_functions, allow_none = True)
 
-    exit_functions = exit_functions or []
-    
-    if use_temp_home:
-      tmp_home = use_temp_home
-    else:
-      tmp_home = tempfile.mkdtemp(suffix = '-tmp-home.dir')
-      filesystem.atexit_remove(tmp_home)
-      # There are some processes that dont call atexit because of
-      # being daemons or forker workers in multiprocessing pools or something
-      # so we always try to cleanup in the exit handler
-      exit_functions.append(lambda: filesystem.remove(tmp_home))
-
-    if host.is_unix():
-      env = { 'HOME': tmp_home }
-    elif host.is_windows():
-      homedrive, homepath = path.splitdrive(tmp_home)
-      env = {
-        'HOME': tmp_home,
-        'HOMEDRIVE': homedrive,
-        'HOMEPATH': homepath,
-        'APPDATA': path.join(tmp_home, 'AppData\\Roaming')
-      }
-    if extra_env:
-      for key, value in env.items():
-        if key in extra_env:
-          raise RuntimeError(f'key is already in env: "{key}"')
-      env.update(extra_env)
-    return env_override(env = env,
-                        enter_functions = enter_functions,
-                        exit_functions = exit_functions)
+    options = env_override_options(enter_functions = enter_functions,
+                                   exit_functions = exit_functions,
+                                   home_dir = use_temp_home,
+                                   env_add = extra_env)
+    return env_override2(options = options)
 
   @classmethod
   def temp_tmpdir(clazz):
     'Return an env_override object with a temporary TMPDIR'
-    tmp_tmpdir = tempfile.mkdtemp(suffix = '-tmp-tmpdir.dir')
-    filesystem.atexit_remove(tmp_tmpdir)
-    env = {
-      'TMPDIR': tmp_tmpdir,
-      'TEMP': tmp_tmpdir,
-      'TMP': tmp_tmpdir,
-    }
-    return env_override(env = env)
+    options = env_override_options(tmp_dir_use_temp = True)
+    return env_override2(options = options)
 
   @classmethod
   def clean_env(clazz):
     'Return a clean env useful for testing where a deterministic clean environment is needed.'
-    return env_override(env = os_env.make_clean_env())
+    options = env_override_options(clean_env = True)
+    return env_override2(options = options)
 
   @classmethod
   def path_append(clazz, p):
     'Return an env_override object with p appended to PATH'
-    v = env_var(os_env.clone_current_env(), 'PATH')
-    v.append(p)
-    env = { 'PATH': v.value }
-    return env_override(env = env)
-  
+    options = env_override_options(path_append = p)
+    return env_override2(options = options)
+
   @classmethod
   def tmpdir_files(clazz):
     tmpdir = tempfile.gettempdir()

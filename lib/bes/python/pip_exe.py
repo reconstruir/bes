@@ -13,7 +13,6 @@ from bes.common.string_util import string_util
 from bes.fs.file_mime import file_mime
 from bes.fs.file_path import file_path
 from bes.fs.filename_util import filename_util
-from bes.system.env_override import env_override
 from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger

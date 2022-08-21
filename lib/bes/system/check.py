@@ -95,7 +95,7 @@ class check(object):
   def check_string_seq(clazz, o, allow_none = False, allow_item_none = False):
     if o != None and clazz.is_string(o):
       _, filename, line_number, _, _, _ = inspect.stack()[1]
-      name = clazz._previous_frame_object_name(o, 2)
+      name = clazz._previous_frame_object_name(o, 1)
       typeo = type(o).__name__
       fp = path.abspath(filename)
       raise TypeError(f'\"{name}\" should be a string sequence instead of \"{typeo}\" at {fp}:{line_number}')

@@ -199,3 +199,12 @@ add file_attributes_metadata tests to cover write permissions and ownership
 
 2022-06-16
 - consider using file entries for file_find
+
+
+proj env:
+  - progress during first setup
+  - progress during long operations
+  - quiet flag to disable the above
+  - move as much as possible to python including the VE checksum thing
+  - pipenv or maybe poetry ?
+  - generation of env/

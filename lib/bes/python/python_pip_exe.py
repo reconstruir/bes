@@ -9,6 +9,7 @@ from collections import namedtuple
 
 from ..system.check import check
 from bes.system.env_override import env_override
+from bes.system.env_override_options import env_override_options
 from bes.system.log import logger
 
 from .python_error import python_error
@@ -31,7 +32,8 @@ class python_pip_exe(object):
     
     cmd = [ pip_exe, '--version' ]
     env_PYTHONPATH = os.pathsep.join(pythonpath)
-    with env_override(env = { 'PYTHONPATH': env_PYTHONPATH }) as env:
+    options = env_override_options(python_path_append = env_PYTHONPATH)
+    with env_override(options = options) as env:
       clazz._log.log_d('version_info: pip_exe={} PYTHONPATH={}'.format(pip_exe, env_PYTHONPATH))
       try:
         output_bytes = subprocess.check_output(cmd, stderr = subprocess.STDOUT)

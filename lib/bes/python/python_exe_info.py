@@ -19,12 +19,13 @@ class python_exe_info(namedtuple('python_exe_info', 'exe, full_version, source, 
     check.check_string(sys_executable)
     check.check_string(real_executable)
     check.check_string_seq(exe_links)
-    check.check_string_seq(pip_exe)
+    check.check_string(pip_exe)
 
     if not full_version.is_full_version():
       raise python_error('Not a full_version: "{full_version}"')
     
-    return clazz.__bases__[0].__new__(clazz, exe, full_version, source, sys_executable, real_executable, exe_links, pip_exe)
+    return clazz.__bases__[0].__new__(clazz, exe, full_version, source, sys_executable,
+                                      real_executable, exe_links, pip_exe)
 
   @cached_property
   def version(self):

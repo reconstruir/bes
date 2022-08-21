@@ -233,11 +233,11 @@ class file_attributes_metadata(object):
   
   @classmethod
   def is_video(clazz, filename):
-    return clazz.media_type_matches(filename, ( 'video' ))
+    return clazz.media_type_matches(filename, ( 'video', ))
   
   @classmethod
   def is_image(clazz, filename):
-    return clazz.media_type_matches(filename, ( 'image' ))
+    return clazz.media_type_matches(filename, ( 'image', ))
   
 check.register_class(file_attributes_metadata, include_seq = False)
 

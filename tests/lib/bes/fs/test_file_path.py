@@ -140,7 +140,7 @@ class test_file_path(unit_test):
     content = '@echo off\n\recho kiwi\n\rexit 0\n\r'
     temp_bat = file_util.save(path.join(bin_dir, 'kiwi_tool.bat'), content = content, mode = 0o0755)
     self.assertEqual( None, file_path.which('kiwi_tool.bat') )
-    with env_override.path_append(bin_dir) as env:
+    with env_override.path_append([ bin_dir ]) as env:
       expected_path = path.join(bin_dir, 'kiwi_tool.bat')
       self.assertEqual( expected_path, file_path.which('kiwi_tool.bat') )
 

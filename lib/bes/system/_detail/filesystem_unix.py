@@ -56,7 +56,6 @@ class filesystem_unix(filesystem_base):
   def home_dir_env(clazz, home_dir):
     'Return a dict with the environment needed to set the home directory.'
 
-    homedrive, homepath = path.splitdrive(home_dir)
     return {
       'HOME': home_dir,
     }

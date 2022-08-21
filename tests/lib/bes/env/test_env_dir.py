@@ -5,6 +5,7 @@ import copy, os, os.path as path
 from bes.testing.unit_test import unit_test
 from bes.system.os_env import os_env
 from bes.system.env_override import env_override
+from bes.system.env_override_options import env_override_options
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 from bes.fs.testing.temp_content import temp_content
@@ -82,11 +83,12 @@ class test_env_dir(unit_test):
     ], ed.instructions(env) )
   
   def test_foo(self):
-    env = {
+    env_add = {
       'SOMETHINGIMADEUP': 'GOOD',
-      'PATH': '/bin:/usr/bin:/my/path:/sbin'
     }
-    with env_override(env = env) as tmp_env:
+    options = env_override_options(path_append = [ '/bin', '/usr/bin', '/my/path', '/sbin' ],
+                                   env_add = env_add)
+    with env_override(options = options) as tmp_env:
       tmp_dir = self.make_temp_dir()
       temp_content.write_items([
         'file 1.sh "export PATH=/bin:/usr/bin:/sbin\n" 644',
