@@ -95,48 +95,13 @@ class execute(object):
         sys.stderr.flush()
       raise
 
-    # http://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
     stdout_lines = []
     stderr_lines = []
     if non_blocking:
-      # Poll process for new output until finished
-      while True:
-        stdout_nextline = process.stdout.readline()
-        stdout_decoded_nextline = stdout_nextline.decode(output_encoding, errors = 'ignore')
-        clazz._log.log_d(f'execute: read stdout: {stdout_decoded_nextline}')
-        stdout_is_empty = stdout_decoded_nextline == ''
-        stderr_is_empty = True
-        if stderr_pipe == subprocess.PIPE:
-          stderr_nextline = process.stderr.readline()
-          stderr_decoded_nextline = stderr_nextline.decode(output_encoding, errors = 'ignore')
-          clazz._log.log_d(f'execute: read stderr: {stderr_decoded_nextline}')
-          stderr_is_empty = stderr_decoded_nextline == ''
-
-        if stdout_is_empty and stderr_is_empty and process.poll() != None:
-          clazz._log.log_d('execute: non_blocking: process done')
-          break
-
-        stdout_lines.append(stdout_decoded_nextline)
-        clazz._log.log_d(f'execute: non_blocking: stdout line: {stdout_decoded_nextline}')
-
-        output_function_stdout = None
-        if output_function:
-          output_function_stdout = stdout_decoded_nextline
-        else:
-          sys.stdout.write(stdout_decoded_nextline)
-          sys.stdout.flush()
-        
-        output_function_stderr = None
-        if stderr_pipe == subprocess.PIPE:
-          stderr_lines.append(stderr_decoded_nextline)
-          clazz._log.log_d(f'execute: non_blocking: stderr line: {stderr_decoded_nextline}')
-          if output_function:
-            output_function_stderr = stderr_decoded_nextline
-          else:
-            sys.stderr.write(stderr_decoded_nextline)
-            sys.stderr.flush()
-        if output_function:
-          output_function(clazz._output(output_function_stdout, output_function_stderr))
+      stdout_lines, stderr_lines = clazz._poll_process(process,
+                                                       output_encoding,
+                                                       output_function,
+                                                       stderr_pipe)
 
     clazz._log.log_d('execute: calling communicate with input_data={}'.format(input_data))
     output = process.communicate(input = input_data)
@@ -163,6 +128,52 @@ class execute(object):
         rv.raise_error(log_error = True, print_error = True)
     return rv
 
+  @classmethod
+  def _poll_process(clazz, process, output_encoding, output_function, stderr_pipe):
+    # http://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
+    stdout_lines = []
+    stderr_lines = []
+
+    # Poll process for new output until finished
+    while True:
+      stdout_nextline = process.stdout.readline()
+      stdout_decoded_nextline = stdout_nextline.decode(output_encoding, errors = 'ignore')
+      clazz._log.log_d(f'execute: read stdout: {stdout_decoded_nextline}')
+      stdout_is_empty = stdout_decoded_nextline == ''
+      stderr_is_empty = True
+      if stderr_pipe == subprocess.PIPE:
+        stderr_nextline = process.stderr.readline()
+        stderr_decoded_nextline = stderr_nextline.decode(output_encoding, errors = 'ignore')
+        clazz._log.log_d(f'execute: read stderr: {stderr_decoded_nextline}')
+        stderr_is_empty = stderr_decoded_nextline == ''
+
+      if stdout_is_empty and stderr_is_empty and process.poll() != None:
+        clazz._log.log_d('execute: non_blocking: process done')
+        break
+
+      stdout_lines.append(stdout_decoded_nextline)
+      clazz._log.log_d(f'execute: non_blocking: stdout line: {stdout_decoded_nextline}')
+
+      output_function_stdout = None
+      if output_function:
+        output_function_stdout = stdout_decoded_nextline
+      else:
+        sys.stdout.write(stdout_decoded_nextline)
+        sys.stdout.flush()
+        
+      output_function_stderr = None
+      if stderr_pipe == subprocess.PIPE:
+        stderr_lines.append(stderr_decoded_nextline)
+        clazz._log.log_d(f'execute: non_blocking: stderr line: {stderr_decoded_nextline}')
+        if output_function:
+          output_function_stderr = stderr_decoded_nextline
+        else:
+          sys.stderr.write(stderr_decoded_nextline)
+          sys.stderr.flush()
+      if output_function:
+        output_function(clazz._output(output_function_stdout, output_function_stderr))
+    return stdout_lines, stderr_lines
+    
   @classmethod
   def parse_args(clazz, args, quote = False):
     'Parse arguments to use for execute.'
