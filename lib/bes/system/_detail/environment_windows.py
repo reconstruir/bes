@@ -19,3 +19,53 @@ class environment_windows(environment_base):
       'HOMEPATH': homepath,
       'APPDATA': path.join(home_dir, 'AppData\\Roaming')
     }
+
+  @classmethod
+  #@abstractmethod
+  def default_path(clazz):
+    'The default system PATH.'
+    return [
+      r'C:\WINDOWS\system32',
+      r'C:\WINDOWS',
+      r'C:\WINDOWS\System32\Wbem',
+    ]
+  
+  @classmethod
+  #@abstractmethod
+  def clean_path(clazz):
+    'A clean system PATH with only the bare minimum needed to run shell commands.'
+    return clazz.default_path()
+
+  @classmethod
+  #@abstractmethod
+  def clean_variables(clazz):
+    'A list of variables clean system PATH with only the bare minimum needed to run shell commands.'
+    return [
+      'ALLUSERSPROFILE',
+      'APPDATA',
+      'COMPUTERNAME',
+      'COMSPEC',
+      'DRIVERDATA',
+      'HOME',
+      'HOMEDRIVE',
+      'HOMEPATH',
+      'LOCALAPPDATA',
+      'LOGONSERVER',
+      'NUMBER_OF_PROCESSORS',
+      'OS',
+      'PATH',
+      'PATHEXT',
+      'PROCESSOR_ARCHITECTURE',
+      'PROCESSOR_IDENTIFIER',
+      'PROCESSOR_LEVEL',
+      'PROCESSOR_REVISION',
+      'SESSIONNAME',
+      'SYSTEMDRIVE',
+      'SYSTEMROOT',
+      'TEMP',
+      'TMP',
+      'TMPDIR',
+      'USERNAME',
+      'USERPROFILE',
+      'WINDIR',
+    ]

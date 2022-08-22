@@ -31,3 +31,21 @@ class environment(environment_base):
   def home_dir_env(clazz, home_dir):
     'Return a dict with the environment needed to set the home directory.'
     return clazz._impl_class.home_dir_env(home_dir)
+
+  @classmethod
+  #@abstractmethod
+  def default_path(clazz):
+    'The default system PATH.'
+    return clazz._impl_class.default_path()
+  
+  @classmethod
+  #@abstractmethod
+  def clean_path(clazz):
+    'A clean system PATH with only the bare minimum needed to run shell commands.'
+    return clazz._impl_class.clean_path()
+
+  @classmethod
+  #@abstractmethod
+  def clean_variables(clazz):
+    'A list of variables clean system PATH with only the bare minimum needed to run shell commands.'
+    return clazz._impl_class.clean_variables()

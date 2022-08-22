@@ -12,3 +12,21 @@ class environment_base(with_metaclass(ABCMeta, object)):
     'Return a dict with the environment needed to set the home directory.'
     raise NotImplemented('home_dir_env')
   
+  @classmethod
+  @abstractmethod
+  def default_path(clazz):
+    'The default system PATH.'
+    raise NotImplemented('default_path')
+  
+  @classmethod
+  @abstractmethod
+  def clean_path(clazz):
+    'A clean system PATH with only the bare minimum needed to run shell commands.'
+    raise NotImplemented('clean_path')
+
+  @classmethod
+  @abstractmethod
+  def clean_variables(clazz):
+    'A list of variables clean system PATH with only the bare minimum needed to run shell commands.'
+    raise NotImplemented('clean_variables')
+  

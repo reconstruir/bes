@@ -13,9 +13,11 @@ from .check import check
 from .command_line import command_line
 from .compat import compat
 from .env_override_options import env_override_options
+from .env_override import env_override
 from .execute_result import execute_result
 from .host import host
 from .log import logger
+#from .os_env import os_env
 from .python import python
 
 class execute(object):
@@ -77,7 +79,6 @@ class execute(object):
       # FIXME: quoting ?
       
     clazz._log.log_d('parsed_args={}'.format(parsed_args))
-    #from .env_override import env_override
     try:
       process = subprocess.Popen(parsed_args,
                                  stdout = stdout_pipe,
@@ -202,3 +203,12 @@ class execute(object):
       raise
     finally:
       os.remove(tmp)
+
+#  @classmethod
+#  def execute_python_script(clazz, cmd):
+#    fallback_python_path = path.normpath(path.join(path.dirname(__file__), '../../..'))
+#    env = clazz.make_clean_env(keep_keys = [ 'PYTHONPATH' ])
+#    env['PYTHONDONTWRITEBYTECODE'] = '1'
+#    env['PYTHONPATH'] = env['PYTHONPATH'] + ':' + fallback_python_path
+#    return execute.execute(cmd, env = env, raise_error = False, stderr_to_stdout = True)
+      
