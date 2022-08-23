@@ -79,54 +79,56 @@ class execute(object):
       # FIXME: quoting ?
       
     clazz._log.log_d('parsed_args={}'.format(parsed_args))
-    try:
-      process = subprocess.Popen(parsed_args,
-                                 stdout = stdout_pipe,
-                                 stderr = stderr_pipe,
-                                 stdin = stdin_pipe,
-                                 shell = shell,
-                                 cwd = cwd,
-                                 env = env)
-    except OSError as ex:
-      if print_failure:
-        message = 'failed: {} - {}'.format(str(parsed_args), str(ex))
-        sys.stderr.write(message)
-        sys.stderr.write('\n')
-        sys.stderr.flush()
-      raise
 
-    stdout_lines = []
-    stderr_lines = []
-    if non_blocking:
-      stdout_lines, stderr_lines = clazz._poll_process(process,
-                                                       output_encoding,
-                                                       output_function,
-                                                       stderr_pipe)
+    with env_override(options = env_options) as _:
+      try:
+        process = subprocess.Popen(parsed_args,
+                                   stdout = stdout_pipe,
+                                   stderr = stderr_pipe,
+                                   stdin = stdin_pipe,
+                                   shell = shell,
+                                   cwd = cwd,
+                                   env = env)
+      except OSError as ex:
+        if print_failure:
+          message = 'failed: {} - {}'.format(str(parsed_args), str(ex))
+          sys.stderr.write(message)
+          sys.stderr.write('\n')
+          sys.stderr.flush()
+        raise
 
-    clazz._log.log_d('execute: calling communicate with input_data={}'.format(input_data))
-    output = process.communicate(input = input_data)
+      stdout_lines = []
+      stderr_lines = []
+      if non_blocking:
+        stdout_lines, stderr_lines = clazz._poll_process(process,
+                                                         output_encoding,
+                                                         output_function,
+                                                         stderr_pipe)
 
-    exit_code = process.wait()
-    clazz._log.log_d('execute: wait returned. exit_code={} output={}'.format(exit_code, output))
+      clazz._log.log_d('execute: calling communicate with input_data={}'.format(input_data))
+      output = process.communicate(input = input_data)
+
+      exit_code = process.wait()
+      clazz._log.log_d('execute: wait returned. exit_code={} output={}'.format(exit_code, output))
     
-    if non_blocking:
-      stdout = os.linesep.join(stdout_lines)
-      stdout_bytes = stdout.encode(output_encoding)
-      stderr = os.linesep.join(stderr_lines)
-      stderr_bytes = stderr.encode(output_encoding)
-    else:
-      stdout_bytes = output[0]
-      stderr_bytes = output[1] or b''
+      if non_blocking:
+        stdout = os.linesep.join(stdout_lines)
+        stdout_bytes = stdout.encode(output_encoding)
+        stderr = os.linesep.join(stderr_lines)
+        stderr_bytes = stderr.encode(output_encoding)
+      else:
+        stdout_bytes = output[0]
+        stderr_bytes = output[1] or b''
       
-    if stdout_bytes:
-      assert check.is_bytes(stdout_bytes)
-    if stderr_bytes:
-      assert check.is_bytes(stderr_bytes)
-    rv = execute_result(stdout_bytes, stderr_bytes, exit_code, parsed_args)
-    if raise_error:
-      if rv.exit_code != 0:
-        rv.raise_error(log_error = True, print_error = True)
-    return rv
+      if stdout_bytes:
+        assert check.is_bytes(stdout_bytes)
+      if stderr_bytes:
+        assert check.is_bytes(stderr_bytes)
+      rv = execute_result(stdout_bytes, stderr_bytes, exit_code, parsed_args)
+      if raise_error:
+        if rv.exit_code != 0:
+          rv.raise_error(log_error = True, print_error = True)
+      return rv
 
   @classmethod
   def _poll_process(clazz, process, output_encoding, output_function, stderr_pipe):
