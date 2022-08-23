@@ -31,6 +31,7 @@ class env_override_options(object):
     self.tmp_dir_temp_prefix = None
     self.tmp_dir_temp_suffix = None
     self.tmp_dir_use_temp = False
+    self.allow_override_keys = None
 
     for key, value in kargs.items():
       setattr(self, key, value)
@@ -54,6 +55,7 @@ class env_override_options(object):
     check.check_string(self.tmp_dir_temp_suffix, allow_none = True)
     check.check_bool(self.tmp_dir_temp_delete)
     check.check_bool(self.tmp_dir_use_temp)
+    check.check_string_seq(self.allow_override_keys, allow_none = True)
 
   def __str__(self):
     return pprint.pformat(self.__dict__)

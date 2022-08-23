@@ -47,7 +47,8 @@ class env_override(object):
     env_add_keys = set([ key for key in env_add.keys() ])
     intersection = env_keys.intersection(env_add_keys)
     clobber_ignore_keys = self._options.clobber_ignore_keys()
-    intersection = intersection - clobber_ignore_keys
+    allow_override_keys = set(self._options.allow_override_keys or [])
+    intersection = intersection - clobber_ignore_keys - allow_override_keys
     #for key in clobber_ignore_keys:
     #  if key in intersection:
     #    intersection.remove(x)
