@@ -1,7 +1,5 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from ..system.check import check
-
 class docker_cli_args(object):
 
   def __init__(self):
@@ -65,5 +63,5 @@ class docker_cli_args(object):
                    help = 'Cleanup running containers. [ False ]')
 
   def _command_docker(self, command, *args, **kargs):
-    from .docker_cli_command import docker_cli_command
-    return docker_cli_command.handle_command(command, **kargs)
+    from .docker_cli_handler import docker_cli_handler
+    return docker_cli_handler(kargs).handle_command(command)

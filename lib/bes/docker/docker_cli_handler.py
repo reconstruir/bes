@@ -5,25 +5,26 @@ from os import path
 from ..system.check import check
 from bes.text.text_table import text_table
 
+from bes.cli.cli_command_handler import cli_command_handler
 from bes.fs.dir_util import dir_util
 from bes.fs.file_util import file_util
 from bes.script.blurber import blurber as script_blurber
+from bes.system.log import logger
 
 from .docker_cleanup import docker_cleanup
+from .docker_cli_options import docker_cli_options
 from .docker_container import docker_container
-from .docker_images import docker_images
 from .docker_image_stash import docker_image_stash
+from .docker_images import docker_images
 
-class docker_cli_command(object):
+class docker_cli_handler(cli_command_handler):
 
-  @classmethod
-  def handle_command(clazz, command, **kargs):
-    func = getattr(clazz, command)
-    return func(script_blurber(), **kargs)
+  _log = logger('docker')
   
-  @classmethod
-  def images(clazz, blurber, untagged, repo, style):
-    check.check_blurber(blurber)
+  def __init__(self, cli_args):
+    super().__init__(cli_args, options_class = docker_cli_options)
+  
+  def images(self, untagged, repo, style):
     check.check_bool(untagged)
     check.check_string(repo, allow_none = True)
     check.check_string(style)
@@ -50,8 +51,7 @@ class docker_cli_command(object):
         print(image.tagged_repository)
     return 0
 
-  @classmethod
-  def backup(clazz, blurber, tagged_repository, output_archive):
+  def backup(self, blurber, tagged_repository, output_archive):
     check.check_string(tagged_repository)
 
     images = docker_images.list_images()
@@ -64,8 +64,7 @@ class docker_cli_command(object):
     
     return 0
   
-  @classmethod
-  def stash_save(clazz, blurber, repo, where, force):
+  def stash_save(self, blurber, repo, where, force):
     check.check_blurber(blurber)
     check.check_string(repo)
     check.check_string(where)
@@ -73,15 +72,13 @@ class docker_cli_command(object):
 
     return docker_image_stash.save(blurber, repo, where, force)
 
-  @classmethod
-  def stash_restore(clazz, blurber, where):
+  def stash_restore(self, blurber, where):
     check.check_blurber(blurber)
     check.check_string(where)
                        
     return docker_image_stash.restore(blurber, where)
   
-  @classmethod
-  def ps(clazz, blurber, brief, status):
+  def ps(self, blurber, brief, status):
     check.check_blurber(blurber)
 
     containers = docker_container.list_containers()
@@ -98,8 +95,7 @@ class docker_cli_command(object):
     print(tt)
     return 0
   
-  @classmethod
-  def image_inspect(clazz, blurber, image, checksum):
+  def image_inspect(self, blurber, image, checksum):
     check.check_blurber(blurber)
 
     if checksum:
@@ -110,8 +106,7 @@ class docker_cli_command(object):
       print(data)
     return 0
 
-  @classmethod
-  def cleanup(clazz, blurber, untagged_images, exited_containers, running_containers):
+  def cleanup(self, blurber, untagged_images, exited_containers, running_containers):
     check.check_blurber(blurber)
 
     docker_cleanup.cleanup(untagged_images, exited_containers, running_containers)
