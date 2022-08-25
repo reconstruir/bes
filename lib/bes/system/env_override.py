@@ -72,14 +72,14 @@ class env_override(object):
     tmp_dir = self._options.resolve_tmp_dir()
     if tmp_dir:
       tmp_dir_env = {
-        'TMPDIR': tmp_dir,
-        'TEMP': tmp_dir,
-        'TMP': tmp_dir,
+        'TMPDIR': tmp_dir.where,
+        'TEMP': tmp_dir.where,
+        'TMP': tmp_dir.where,
       }
       if tmp_dir.delete:
         self._delete_tmp_dirs.append(tmp_dir.where)
       env.update(tmp_dir_env)
-      
+
     os_env.set_current_env(env)
     
     for func in self._options.enter_functions or []:

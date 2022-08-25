@@ -49,7 +49,7 @@ class execute(object):
     check.check_bool(check_python_script)
     check.check_string(output_encoding, allow_none = True)
     check.check_callable(output_function, allow_none = True)
-    check.check_bool(env_options, allow_none = True)
+    check.check_env_override_options(env_options, allow_none = True)
 
     output_encoding = output_encoding or execute_result.DEFAULT_ENCODING
     
