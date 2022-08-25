@@ -51,36 +51,32 @@ class docker_cli_handler(cli_command_handler):
         print(image.tagged_repository)
     return 0
 
-  def backup(self, blurber, tagged_repository, output_archive):
+  def backup(self, tagged_repository, output_archive):
     check.check_string(tagged_repository)
 
     images = docker_images.list_images()
     image = images.find_image(tagged_repository)
     if not image:
-      blurber.blurb('Image not found: "{}"'.format(tagged_repository))
+      self.options.blurber.blurb('Image not found: "{}"'.format(tagged_repository))
       return 1
 
     image.backup(output_archive)
     
     return 0
   
-  def stash_save(self, blurber, repo, where, force):
-    check.check_blurber(blurber)
+  def stash_save(self, repo, where, force):
     check.check_string(repo)
     check.check_string(where)
     check.check_bool(force)
 
-    return docker_image_stash.save(blurber, repo, where, force)
+    return docker_image_stash.save(self.options.blurber, repo, where, force)
 
-  def stash_restore(self, blurber, where):
-    check.check_blurber(blurber)
+  def stash_restore(self, where):
     check.check_string(where)
                        
-    return docker_image_stash.restore(blurber, where)
+    return docker_image_stash.restore(self.options.blurber, where)
   
-  def ps(self, blurber, brief, status):
-    check.check_blurber(blurber)
-
+  def ps(self, brief, status):
     containers = docker_container.list_containers()
     if status:
       containers = [ c for c in containers if c.status == status ]
@@ -95,8 +91,7 @@ class docker_cli_handler(cli_command_handler):
     print(tt)
     return 0
   
-  def image_inspect(self, blurber, image, checksum):
-    check.check_blurber(blurber)
+  def image_inspect(self, image, checksum):
 
     if checksum:
       chk = docker_images.inspect_checksum(image)
@@ -106,8 +101,6 @@ class docker_cli_handler(cli_command_handler):
       print(data)
     return 0
 
-  def cleanup(self, blurber, untagged_images, exited_containers, running_containers):
-    check.check_blurber(blurber)
-
+  def cleanup(self, untagged_images, exited_containers, running_containers):
     docker_cleanup.cleanup(untagged_images, exited_containers, running_containers)
     return 0
