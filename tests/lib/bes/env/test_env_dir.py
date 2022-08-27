@@ -82,52 +82,63 @@ class test_env_dir(unit_test):
       ( 'PATH', '/my/path', action.PATH_REMOVE ),
     ], ed.instructions(env) )
   
-  def test_foo(self):
+  def test_instructions_multiple(self):
     env = {
       'SOMETHINGIMADEUP': 'GOOD',
+      'PATH': '/my/path',
     }
-    options = env_override_options(path_append = [ '/bin', '/usr/bin', '/my/path', '/sbin' ],
-                                   env = env)
+    options = env_override_options(env = env)
     with env_override(options = options) as tmp_env:
+      import sys
+      import pprint
+      sys.stdout.write(f'POTO: transform_env: {pprint.pformat(tmp_env.to_dict())}')
+      sys.stdout.write('\n')
+      sys.stdout.flush()
       ed = self._make_temp_env_dir([
         'file 1.sh "export PATH=/bin:/usr/bin:/sbin\n" 644',
         'file 2.sh "export BAR=orange\n" 644',
         'file 3.sh "export PATH=/a/bin:$PATH\nexport PATH=/b/bin:$PATH\n" 644',
         'file 4.sh "export FOO=kiwi\n" 644',
-        'file 5.sh "export PATH=$PATH:/x/bin\nPATH=$PATH:/y/bin\n" 644',
+        'file 5.sh "export PATH=$PATH:/x/bin\nexport PATH=$PATH:/y/bin\n" 644',
         'file 6.sh "unset SOMETHINGIMADEUP\n" 644',
       ])
+
       self.assertEqual( [ '1.sh', '2.sh', '3.sh', '4.sh', '5.sh', '6.sh' ], ed.files )
-      instructions = ed.instructions(tmp_env.to_dict())
+      actual = ed.instructions(tmp_env.to_dict())
       expected = [
         ( 'BAR', 'orange', action.SET ),
         ( 'FOO', 'kiwi', action.SET ),
-        ( 'PATH', '/a/bin', action.PATH_PREPEND ),
-        ( 'PATH', '/b/bin', action.PATH_PREPEND ),
+        ( 'SOMETHINGIMADEUP', None, action.UNSET ),
         ( 'PATH', '/my/path', action.PATH_REMOVE ),
+        ( 'PATH', '/b/bin', action.PATH_APPEND ),
+        ( 'PATH', '/a/bin', action.PATH_APPEND ),
+        ( 'PATH', '/bin', action.PATH_APPEND ),
+        ( 'PATH', '/usr/bin', action.PATH_APPEND ),
+        ( 'PATH', '/sbin', action.PATH_APPEND ),
         ( 'PATH', '/x/bin', action.PATH_APPEND ),
         ( 'PATH', '/y/bin', action.PATH_APPEND ),
-        ( 'SOMETHINGIMADEUP', None, action.UNSET ),
       ]
+      self.assertEqual( expected, actual )
 
       self.assertEqual( {
         'BAR': 'orange',
         'FOO': 'kiwi',
         'PATH': '/b/bin:/a/bin:/bin:/usr/bin:/sbin:/x/bin:/y/bin',
-      }, ed.transform_env({}) )
-        
+      }, env_dir.transform_env({}, actual) )
+      
       self.assertEqual( {
         'BAR': 'orange',
         'FOO': 'kiwi',
         'PATH': '/b/bin:/a/bin:/bin:/usr/bin:/sbin:/x/bin:/y/bin',
-      }, ed.transform_env({ 'SOMETHINGIMADEUP': 'yes' }) )
-        
-#      self.assertEqual( {
-#        'BAR': 'orange',
-#        'FOO': 'kiwi',
+      }, env_dir.transform_env({ 'SOMETHINGIMADEUP': 'yes' }, actual) )
+      
+      self.assertEqual( {
+        'BAR': 'orange',
+        'FOO': 'kiwi',
 #        'PATH': '/b/bin:/a/bin:/usr/local/bin:/usr/foo/bin:/x/bin:/y/bin',
-#      }, ed.transform_env({ 'PATH': '/usr/local/bin:/usr/foo/bin' }) )
-        
+        'PATH': '/usr/local/bin:/usr/foo/bin:/b/bin:/a/bin:/bin:/usr/bin:/sbin:/x/bin:/y/bin',
+      }, ed.transform_env({ 'PATH': '/usr/local/bin:/usr/foo/bin' }, actual) )
+      
   def _make_temp_env_dir(self, items, files = None):
     tmp_dir = self.make_temp_dir()
     temp_content.write_items(items, tmp_dir)
@@ -137,7 +148,8 @@ class test_env_dir(unit_test):
     current_env = {}
     current_env_save = copy.deepcopy(current_env)
     ed = self._make_temp_env_dir([])
-    transformed_env = ed.transform_env(current_env)
+    instructions = ed.instructions(current_env)
+    transformed_env = env_dir.transform_env(current_env, instructions)
     self.assertEqual( current_env_save, current_env )
     expected = {
     }
@@ -153,7 +165,8 @@ class test_env_dir(unit_test):
       'file 1.sh "export PATH=$PATH:/foo/bin\n" 644',
       'file 2.sh "export PYTHONPATH=$PYTHONPATH:/foo/lib/python\n" 644',
     ])
-    transformed_env = ed.transform_env(current_env)
+    instructions = ed.instructions(current_env)
+    transformed_env = env_dir.transform_env(current_env, instructions)
     self.assertEqual( current_env_save, current_env )
     expected = {
       'PATH': '/p/bin:/foo/bin',
@@ -169,10 +182,11 @@ class test_env_dir(unit_test):
       'file 3.sh "export %s=$%s:/foo/lib\n" 644' % (os_env.LD_LIBRARY_PATH_VAR_NAME,
                                                     os_env.LD_LIBRARY_PATH_VAR_NAME),
     ])
-    transformed_env = ed.transform_env(current_env)
-    default_PATH = os_env.default_system_value('PATH')
+    instructions = ed.instructions(current_env)
+    transformed_env = env_dir.transform_env(current_env, instructions)
+    default_path = path.pathsep.join(os_env.DEFAULT_SYSTEM_PATH)
     self.assertEqual( {
-      'PATH': '%s:/foo/bin' % (default_PATH),
+      'PATH': f'{default_path}:/foo/bin',
       'PYTHONPATH': ':/foo/lib/python',
       os_env.LD_LIBRARY_PATH_VAR_NAME: ':/foo/lib',
     }, transformed_env )
@@ -184,7 +198,8 @@ class test_env_dir(unit_test):
       'file 2.sh "export BAR=bar\n" 644',
       'file 3.sh "unset FOO\n" 644',
     ])
-    transformed_env = ed.transform_env(current_env)
+    instructions = ed.instructions(current_env)
+    transformed_env = env_dir.transform_env(current_env, instructions)
     self.assertEqual( {
       'BAR': 'bar',
     }, transformed_env )

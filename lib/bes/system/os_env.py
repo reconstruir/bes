@@ -29,7 +29,7 @@ class os_env(object):
   CLEAN_ENV_VARS = environment.clean_variables()
 
   # keys for env vars that can be interpreted as paths ala PATH or PYTHONPATH
-  KEYS_THAT_ARE_PATHS = [
+  KEYS_THAT_ARE_PATHS = set([
     'CLASSPATH',
     'DYLD_LIBRARY_PATH',
     'LD_LIBRARY_PATH',
@@ -39,7 +39,7 @@ class os_env(object):
     'PERL_LIB',
     'PKG_CONFIG_PATH',
     'PYTHONPATH',
-   ]
+   ])
 
   @classmethod
   def make_clean_env(clazz, keep_keys = None, update = None, prepend = True,
