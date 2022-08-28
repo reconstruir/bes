@@ -2,7 +2,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from os import path
-import os, unittest
 
 from bes.testing.unit_test import unit_test
 from bes.system.env_override import env_override
