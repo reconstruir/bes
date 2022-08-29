@@ -423,7 +423,7 @@ class unit_test(unittest.TestCase):
     tmp_dir = tempfile.mkdtemp(prefix = prefix, suffix = suffix, dir = dir)
     assert path.isdir(tmp_dir)
     if clazz.DEBUG:
-      print('temp_dir: {}'.format(tmp_dir))
+      print(f'temp_dir: {tmp_dir}')
     else:
       clazz._atexit_delete(tmp_dir)
     if mtime:
@@ -480,7 +480,7 @@ class unit_test(unittest.TestCase):
         else:
           os.remove(f)
       except Exception as ex:
-        pass
+        print(f'unit_test.remove: caught exception: {str(ex)}')
 
   @classmethod
   def resolve_data_dir(clazz, module_file, *parts):
