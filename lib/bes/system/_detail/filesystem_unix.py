@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import errno
 import os
 import shutil
 import subprocess
@@ -37,7 +38,23 @@ class filesystem_unix(filesystem_base):
   #@abstractmethod
   def remove_directory(clazz, d):
     'Recursively remove a directory.'
-    shutil.rmtree(d)
+
+    # Sometimes rmtree will rise an exception becasue
+    # the "directory is not empty" which is bs.  It might
+    # related to permissions in the underling files.
+    #
+    # Whenever that happens, we try again with ignore_errors = True
+    # to workaround the issue.
+    #
+    # We *dont* always do this to not mask problems with other
+    # none ENOTEMPTY codes
+    try:
+      shutil.rmtree(d)
+      return
+    except OSError as ex:
+      if ex.errno != errno.ENOTEMPTY:
+        raise
+    shutil.rmtree(d, ignore_errors = True)
 
   @classmethod
   #@abstractmethod
