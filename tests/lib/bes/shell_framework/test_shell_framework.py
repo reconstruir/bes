@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
+import os
 import os.path as path
 
 from bes.env.env_dir import env_dir
@@ -96,9 +97,10 @@ bes_env_path_append PATH /foo/bin
     
     ed = env_dir(test.tmp_dir, files = [ 'my_script.sh' ])
     expected = {
-      'PATH': '%s:/foo/bin' % (os_env.DEFAULT_SYSTEM_PATH),
+      'PATH': f'{os_env.DEFAULT_SYSTEM_PATH}:/foo/bin',
     }
-    actual = ed.transform_env({ 'PATH': os_env.DEFAULT_SYSTEM_PATH })
+    instructions = ed.instructions(dict(os.environ))
+    actual = ed.transform_env({ 'PATH': os_env.DEFAULT_SYSTEM_PATH }, instructions)
     self.assertEqual( expected, actual )
 
   @classmethod

@@ -54,5 +54,14 @@ class test_env_var(unit_test):
     env_var(d, 'PATH').remove('bar')
     self.assertEqual( [ 'foo', 'baz' ], env_var(d, 'PATH').path )
 
+  def test_path_set(self):
+    d = {
+      'PATH': self.native_path('foo:bar:baz'),
+    }
+    v = env_var(d, 'PATH')
+    self.assertEqual( [ 'foo', 'bar', 'baz' ], v.path )
+    v.path = [ 'kiwi', 'lemon' ]
+    self.assertEqual( [ 'kiwi', 'lemon' ], v.path )
+    
 if __name__ == "__main__":
   unit_test.main()

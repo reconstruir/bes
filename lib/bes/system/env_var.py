@@ -1,13 +1,22 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os
-from .compat import compat
+
+from .check import check
+from .log import logger
+from .shell_path import shell_path
 
 class env_var(object):
 
+  _log = logger('env_var')
+  
   def __init__(self, target, name):
+    check.check(target, ( dict, os._Environ )) #check.STRING_TYPES, check.STRING_TYPES)
+    check.check_string(name)
+    
     self._target = target
     self._name = name
+    self._log.log_d(f'__init__: target={target} name={name}')
 
   @property
   def name(self):
@@ -15,10 +24,22 @@ class env_var(object):
 
   @property
   def value(self):
-    return self._target.get(self._name, None)
+    #return self._target.get(self._name, None)
+    value = self._target.get(self._name, None)
+    self._log.log_d(f'value.getter: value={value} - {type(value)}')
+    if value == None:
+      return None
+    if not check.is_string(value):
+      msg = f'Invalid value {value} - {type(value)} for key {self._name}'
+      self._log.log_e(msg)
+      raise ValueError(msg)
+    return value
 
   @value.setter
   def value(self, value):
+    check.check_string(value)
+    
+    self._log.log_d(f'value.setter: value={value} - {type(value)}')
     self._target[self._name] = value
 
   @property
@@ -26,13 +47,18 @@ class env_var(object):
     value = self.value
     if not value:
       return []
-    return self.path_cleanup(self.path_split(value))
+    assert check.is_string(value)
+    parts = shell_path.split(value)
+    unique_parts = shell_path.unique_parts(parts)
+    self._log.log_d(f'path.getter: parts={parts} unique_parts={unique_parts}')
+    return unique_parts
 
   @path.setter
-  def path(self, value):
-    assert isinstance(value, list)
-    clean_value = self.path_cleanup(value)
-    self.value = self.path_join(clean_value)
+  def path(self, parts):
+    check.check_seq(parts, check.STRING_TYPES)
+    unique_parts = shell_path.unique_parts(parts)
+    self._log.log_d(f'path.setter: parts={parts} unique_parts={unique_parts}')
+    self.value = self.path_join(unique_parts)
 
   def cleanup(self):
     self.path = self.path # the setter for path does the cleanup
@@ -40,13 +66,12 @@ class env_var(object):
   def append(self, p):
     self.remove(p)
     if not isinstance(p, list):
-      assert compat.is_string(p)
+      assert check.is_string(p)
       p = [ p ]
     self.path = self.path + p
 
   def remove(self, p):
-    path = [ item for item in self.path if item != p ]
-    self.path = path
+    self.path = [ item for item in self.path if item != p ]
 
   def prepend(self, p):
     if not isinstance(p, list):
@@ -54,20 +79,16 @@ class env_var(object):
     self.path = p + self.path
 
   @classmethod
-  def path_cleanup(clazz, value):
-    assert isinstance(value, list)
-    seen = {}
-    unique_value = [ seen.setdefault(x, x) for x in value if x not in seen ]
-    return [ x for x in unique_value if x ]
+  def path_cleanup(clazz, parts):
+    return shell_path.unique_parts(parts)
 
   @classmethod
   def path_split(clazz, p):
-    return p.split(os.pathsep)
+    return shell_path.split(p)
 
   @classmethod
   def path_join(clazz, l):
-    assert isinstance(l, list)
-    return os.pathsep.join(l)
+    return shell_path.join(l)
 
   def get(self, name, default_value = None):
     return self._target.get(name, default_value)

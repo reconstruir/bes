@@ -4,11 +4,11 @@ from collections import namedtuple
 from enum import IntEnum
 
 import difflib
+import os
 from os import path
 
-from ..common.algorithm import algorithm
-from ..system.check import check
-from ..system.log import logger
+from .check import check
+from .log import logger
 
 class _shell_path_diff_action(IntEnum):
   APPEND = 1
@@ -27,15 +27,17 @@ class shell_path(object):
   def split(clazz, p):
     'Split a path.'
     check.check_string(p, allow_none = True)
+    
     if p == None:
       return []
     return p.split(path.pathsep)
 
   @classmethod
-  def join(clazz, p):
+  def join(clazz, parts):
     'Join a path.'
-    check.check_seq(p, check.STRING_TYPES)
-    return path.pathsep.join(p)
+    check.check_seq(parts, check.STRING_TYPES)
+    
+    return path.pathsep.join(parts)
 
   @classmethod
   def remove_duplicates(clazz, p):
@@ -44,9 +46,17 @@ class shell_path(object):
     if p == '':
       return p
     parts = clazz.split(p)
-    unique_parts = algorithm.unique(parts)
+    unique_parts = clazz.unique_parts(parts)
     return clazz.join(unique_parts)
 
+  @classmethod
+  def unique_parts(clazz, parts):
+    check.check_list(parts)
+
+    seen = {}
+    unique_parts = [ seen.setdefault(x, x) for x in parts if x not in seen ]
+    return [ x for x in unique_parts if x ]
+  
   @classmethod
   def diff(clazz, p1, p2):
     check.check_string(p1)
@@ -55,14 +65,20 @@ class shell_path(object):
     up1 = clazz.remove_duplicates(p1)
     up2 = clazz.remove_duplicates(p2)
 
-    if not up1 in up2:
-      yield _shell_path_diff_instruction(_shell_path_diff_action.SET, up2)
-      return
+    clazz._log.log_d(f'shell_path.diff: up1={up1} up2={up2}')
+    
+#    if not up1 in up2:
+#      yield _shell_path_diff_instruction(_shell_path_diff_action.SET, up2)
+#      return
     
     parts1 = clazz.split(up1)
     parts2 = clazz.split(up2)
 
-    clazz._log.log_d(f'shell_path.diff: parts1={parts1} parts2={parts2}')
+    for i, p in enumerate(parts1):
+      clazz._log.log_d(f'shell_path.diff: parts1: {i}: {p}')
+
+    for i, p in enumerate(parts2):
+      clazz._log.log_d(f'shell_path.diff: parts2: {i}: {p}')
     
     sm = difflib.SequenceMatcher(isjunk = None, a = parts1, b = parts2)
 

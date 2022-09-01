@@ -85,7 +85,7 @@ class test_env_dir(unit_test):
   def test_instructions_multiple(self):
     env = {
       'SOMETHINGIMADEUP': 'GOOD',
-      'PATH': '/my/path',
+      'PATH': '/bin:/kiwi/bin:/sbin',
     }
     options = env_override_options(env = env)
     with env_override(options = options) as tmp_env:
@@ -184,7 +184,7 @@ class test_env_dir(unit_test):
     ])
     instructions = ed.instructions(current_env)
     transformed_env = env_dir.transform_env(current_env, instructions)
-    default_path = path.pathsep.join(os_env.DEFAULT_SYSTEM_PATH)
+    default_path = os_env.DEFAULT_SYSTEM_PATH
     self.assertEqual( {
       'PATH': f'{default_path}:/foo/bin',
       'PYTHONPATH': ':/foo/lib/python',

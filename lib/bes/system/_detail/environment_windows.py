@@ -24,11 +24,11 @@ class environment_windows(environment_base):
   #@abstractmethod
   def default_path(clazz):
     'The default system PATH.'
-    return [
+    return ';'.join([
       r'C:\WINDOWS\system32',
       r'C:\WINDOWS',
       r'C:\WINDOWS\System32\Wbem',
-    ]
+    ])
   
   @classmethod
   #@abstractmethod

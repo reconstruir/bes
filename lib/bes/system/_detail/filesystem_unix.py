@@ -39,7 +39,7 @@ class filesystem_unix(filesystem_base):
   def remove_directory(clazz, d):
     'Recursively remove a directory.'
 
-    # Sometimes rmtree will rise an exception becasue
+    # Sometimes rmtree will raise an exception becasue
     # the "directory is not empty" which is bs.  It might
     # related to permissions in the underling files.
     #

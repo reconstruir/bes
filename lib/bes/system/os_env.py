@@ -72,7 +72,7 @@ class os_env(object):
   @classmethod
   def path_reset(clazz):
     'Reset PATH to a very basic list of system specific defaults.'
-    os_env_var('PATH').path = environment.clean_path()
+    os_env_var('PATH').value = environment.clean_path()
 
   @classmethod
   def update(clazz, env, d, prepend = True, allow_override = False):

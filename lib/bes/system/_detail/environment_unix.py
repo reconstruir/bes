@@ -18,27 +18,28 @@ class environment_unix(environment_base):
       'HOME': home_dir,
     }
 
-  _CLEAN_PATH = [
+  _CLEAN_PATH = ':'.join([
     '/usr/local/bin',
     '/usr/bin',
     '/bin',
     '/usr/sbin',
     '/sbin',
-  ]
+  ])
   _DECLARE_PATTERN = re.compile(r'^declare\s+--\s+PATH="(.+)"$')
   @classmethod
   #@abstractmethod
   def default_path(clazz):
     'The default system PATH.'
     if host.SYSTEM == host.LINUX and host.DISTRO == 'alpine':
-      return [ '/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin:/bin' ]
+      return ':'.join([ '/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin' '/bin' ])
     cmd = [ 'env', '-i', 'bash', '--norc', '-c', 'declare -p PATH' ]
     try:
       rv = subprocess.run(cmd, capture_output = True, shell = False, check = True)
       f = clazz._DECLARE_PATTERN.findall(rv.stdout.decode())
       if not f:
         return clazz._CLEAN_PATH
-      return f[0].split(path.pathsep)
+      parts = f[0].split(path.pathsep)
+      return ':'.join(parts)
     except Exception as ex:
       pass
     return clazz._CLEAN_PATH

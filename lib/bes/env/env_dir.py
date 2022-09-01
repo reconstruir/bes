@@ -215,6 +215,8 @@ class env_dir(object):
       yield instruction(key, value2, action.SET)
       
     p1 = env_var.path_split(value1)
+#    p1.insert(0, '@@@HEAD@@@')
+#    p1.append('@@@TAIL@@@')
     p2 = env_var.path_split(value2)
     clazz._log.log_d(f'_determine_change_instructions: p1={p1} p2={p2}')
     sm = difflib.SequenceMatcher(isjunk = None, a = p1, b = p2)
@@ -236,3 +238,5 @@ class env_dir(object):
           yield instruction(key, p, action.PATH_REMOVE)
         for p in p2[j1:j2]:
           yield instruction(key, p, action.PATH_APPEND)
+      else:
+        clazz._log.log_e(f'_determine_change_instructions: unhandled diff tag {tag}')
