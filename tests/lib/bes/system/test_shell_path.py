@@ -23,12 +23,14 @@ class test_shell_path(unit_test):
     self.assertEqual( self.native_path('a'), shell_path.remove_duplicates('a') )
     self.assertEqual( self.native_path('a:b'), shell_path.remove_duplicates(self.native_path('a:b:a')) )
 
-  def xtest_diff(self):
-    self.assertEqual( [
-    ], self._call_diff(self.native_path('a:b'), self.native_path('b:c:d:a')) )
+  def test_diff(self):
+    self.assertEqual( ( [], [] ), self._call_diff('a:b', 'a:b') )
+    self.assertEqual( ( [], [] ), self._call_diff('a:b', 'b:a') )
+    self.assertEqual( ( [], [ 'b' ] ), self._call_diff('a:b', 'a') )
+    self.assertEqual( ( [ 'c', 'd' ], [] ), self._call_diff('a:b', 'b:c:d:a') )
 
   def _call_diff(self, p1, p2):
-    return [ inst for inst in shell_path.diff(p1, p2) ]
+    return shell_path.diff(self.native_path(p1), self.native_path(p2))
     
 if __name__ == '__main__':
   unit_test.main()
