@@ -7,21 +7,23 @@ import os
 from os import path
 import pprint
 
+from ..common.hash_util import hash_util
+from ..common.object_util import object_util
+from ..fs.dir_util import dir_util
+from ..fs.file_find import file_find
+from ..fs.file_util import file_util
+from ..fs.filename_util import filename_util
+from ..property.cached_property import cached_property
 from ..system.check import check
-from bes.common.object_util import object_util
-from bes.common.hash_util import hash_util
-from bes.fs.dir_util import dir_util
-from bes.fs.file_find import file_find
-from bes.fs.file_util import file_util
-from bes.fs.filename_util import filename_util
-from bes.property.cached_property import cached_property
-from bes.system.command_line import command_line
-from bes.system.env_var import env_var
-from bes.system.execute import execute
-from bes.system.host import host
-from bes.system.log import logger
-from bes.system.os_env import os_env
-from bes.url.url_util import url_util
+from ..system.command_line import command_line
+from ..system.env_override import env_override
+from ..system.env_override_options import env_override_options
+from ..system.env_var import env_var
+from ..system.execute import execute
+from ..system.host import host
+from ..system.log import logger
+from ..system.os_env import os_env
+from ..url.url_util import url_util
 
 from .pip_error import pip_error
 from .pip_exe import pip_exe
@@ -62,10 +64,7 @@ class pip_project(object):
         self._do_init(2)
 
   def _do_init(self, attempt_number):
-    self._log.log_d('_do_init:{}: pip_exe={} pip_env={} project_dir={}'.format(attempt_number,
-                                                                               self.pip_exe,
-                                                                               self.env,
-                                                                               self.root_dir))
+    self._log.log_d(f'_do_init:{attempt_number}: pip_exe={self.pip_exe} project_dir={self.root_dir}')
     self._reinstall_pip_if_needed()
     self._ensure_basic_packages()
 
@@ -143,9 +142,10 @@ class pip_project(object):
     else:
       host.raise_unsupported_system()
     return site_packages_dir
+
   
   @property
-  def env(self):
+  def xxxenv(self):
     'Make a clean environment for python or pip'
     clean_env = os_env.make_clean_env()
     env_var(clean_env, 'PYTHONUSERBASE').value = self.root_dir
@@ -158,6 +158,14 @@ class pip_project(object):
     clean_env.update(self._extra_env)
     return clean_env
 
+  @property
+  def env_options(self):
+    return env_override_options(env_add = { 'PYTHONUSERBASE': self.root_dir },
+                                path_prepend = self.PATH,
+                                pythonpath_prepend = self.PYTHONPATH,
+                                tmp_dir = self._fake_home_dir,
+                                home_dir = self._fake_tmp_dir)
+  
   @cached_property
   def PYTHONPATH(self):
     return self.installation.PYTHONPATH + [
@@ -248,17 +256,16 @@ class pip_project(object):
     self.check_pip_is_installed()
 
     self._log.log_method_d()
-    self._log.log_d('call_pip: root_dir={} python_exe={}'.format(self._root_dir,
-                                                                 self.python_exe))
+    self._log.log_d(f'call_pip: python_exe={self.python_exe} root_dir={self._root_dir}')
     
     cmd = self._make_cmd_python_part() + [
       self.pip_exe,
     ] + self._common_pip_args + args
-    for key, value in sorted(self.env.items()):
-      self._log.log_d('call_pip: ENV: {}={}'.format(key, value))
-    self._log.log_d('call_pip: cmd="{}" raise_error={}'.format(' '.join(cmd), raise_error))
+    env_options = self.env_options
+    self._log.log_d(f'call_pip: env_options={env_options}')
+    self._log.log_d(f'call_pip: cmd="" ".join(cmd)" raise_error={raise_error}')
     rv = execute.execute(cmd,
-                         env = self.env,
+                         env_options = env_options,
                          raise_error = raise_error,
                          stderr_to_stdout = stderr_to_stdout)
     self._log.log_d('call_pip: exit_code={} stdout="{}" stderr="{}"'.format(rv.exit_code,
@@ -345,40 +352,18 @@ class pip_project(object):
     command_line.check_args_type(args)
 
     kargs = copy.deepcopy(kargs)
-    
+
+    if 'env_options' in kargs:
+      raise ValueError(f'env_options should not be given to call_program')
+
     self._log.log_method_d()
     self._log.log_d('call_program: args={}'.format(args))
 
     parsed_args = command_line.parse_args(args)
     self._log.log_d('call_program: parsed_args={}'.format(parsed_args))
-
-    env = os_env.clone_current_env()
-    env.update(self.env)
-    PATH = env_var(env, 'PATH')
-    PYTHONPATH = env_var(env, 'PYTHONPATH')
-    
-    if 'env' in kargs:
-      kargs_env = kargs['env']
-      del kargs['env']
-      if 'PATH' in kargs_env:
-        PATH.append(kargs_env['PATH'])
-        del kargs_env['PATH']
-      if 'PYTHONPATH' in kargs_env:
-        PYTHONPATH.append(kargs_env['PYTHONPATH'])
-        del kargs_env['PYTHONPATH']
-      env.update(kargs_env)
-
-    PATH.prepend(self.PATH)
-    PYTHONPATH.prepend(self.PYTHONPATH)
-    kargs['env'] = env
-    self._log.log_d('call_program: env={}'.format(env))
-
     kargs['shell'] = True
     kargs['check_python_script'] = False
-
-    for key, value in sorted(env.items()):
-      self._log.log_d('call_program({}): ENV: {}={}'.format(args[0], key, value))
-    
+    kargs['env_options'] = self.env_options
     return execute.execute(parsed_args, **kargs)
     
   def _cleanup_tmpdir(self):

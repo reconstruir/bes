@@ -2,10 +2,10 @@
 
 from os import path
 
-from bes.cli.cli_options import cli_options
+from ..cli.cli_options import cli_options
+from ..data_output.data_output_options_mixin import data_output_options_mixin
+from ..script.blurber import blurber
 from ..system.check import check
-from bes.script.blurber import blurber
-from bes.data_output.data_output_options_mixin import data_output_options_mixin
 
 from .pip_error import pip_error
 
