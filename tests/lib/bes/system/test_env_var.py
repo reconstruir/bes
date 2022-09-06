@@ -37,22 +37,41 @@ class test_env_var(unit_test):
     d = {
       'PATH': self.native_path('foo:bar:baz'),
     }
-    env_var(d, 'PATH').append('apple')
-    self.assertEqual( [ 'foo', 'bar', 'baz', 'apple' ], env_var(d, 'PATH').path )
+    v = env_var(d, 'PATH')
+    v.append('apple')
+    self.assertEqual( [ 'foo', 'bar', 'baz', 'apple' ], v.path )
 
+  def test_path_append_seq(self):
+    d = {
+      'PATH': self.native_path('foo:bar:baz'),
+    }
+    v = env_var(d, 'PATH')
+    v.append([ 'apple', 'kiwi' ])
+    self.assertEqual( [ 'foo', 'bar', 'baz', 'apple', 'kiwi' ], v.path )
+    
   def test_path_prepend(self):
     d = {
       'PATH': self.native_path('foo:bar:baz'),
     }
-    env_var(d, 'PATH').prepend('apple')
-    self.assertEqual( [ 'apple', 'foo', 'bar', 'baz' ], env_var(d, 'PATH').path )
+    v = env_var(d, 'PATH')
+    v.prepend('apple')
+    self.assertEqual( [ 'apple', 'foo', 'bar', 'baz' ], v.path )
 
+  def test_path_prepend_seq(self):
+    d = {
+      'PATH': self.native_path('foo:bar:baz'),
+    }
+    v = env_var(d, 'PATH')
+    v.prepend([ 'apple', 'kiwi' ])
+    self.assertEqual( [ 'apple', 'kiwi', 'foo', 'bar', 'baz' ], v.path )
+    
   def test_path_remove(self):
     d = {
       'PATH': self.native_path('foo:bar:baz'),
     }
-    env_var(d, 'PATH').remove('bar')
-    self.assertEqual( [ 'foo', 'baz' ], env_var(d, 'PATH').path )
+    v = env_var(d, 'PATH')
+    v.remove('bar')
+    self.assertEqual( [ 'foo', 'baz' ], v.path )
 
   def test_path_set(self):
     d = {

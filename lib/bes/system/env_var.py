@@ -55,7 +55,15 @@ class env_var(object):
 
   @path.setter
   def path(self, parts):
-    check.check_seq(parts, check.STRING_TYPES)
+    if not parts:
+      self.value = ''
+      return
+    if not check.is_seq(parts):
+      raise TypeError(f'parts should be a sequence of strings: {parts} - {type(parts)}')
+    for part in parts:
+      if not check.is_string(part):
+        raise TypeError(f'part should be a string: {part} - {type(part)}')
+    
     unique_parts = shell_path.unique_parts(parts)
     self._log.log_d(f'path.setter: parts={parts} unique_parts={unique_parts}')
     self.value = self.path_join(unique_parts)
@@ -64,19 +72,13 @@ class env_var(object):
     self.path = self.path # the setter for path does the cleanup
 
   def append(self, p):
-    self.remove(p)
-    if not isinstance(p, list):
-      assert check.is_string(p)
-      p = [ p ]
-    self.path = self.path + p
+    self.value = shell_path.append(self.value, p)
 
   def remove(self, p):
-    self.path = [ item for item in self.path if item != p ]
-
+    self.value = shell_path.remove(self.value, p)
+    
   def prepend(self, p):
-    if not isinstance(p, list):
-      p = [ p ]
-    self.path = p + self.path
+    self.value = shell_path.prepend(self.value, p)
 
   @classmethod
   def path_cleanup(clazz, parts):
