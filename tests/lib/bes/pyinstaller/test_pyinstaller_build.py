@@ -9,6 +9,7 @@ from bes.python.pip_project_options import pip_project_options
 from bes.python.python_testing import python_testing
 from bes.fs.file_util import file_util
 from bes.system.execute import execute
+from bes.system.env_override_options import env_override_options
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 
@@ -127,11 +128,15 @@ class fakelib2(object):
     from bes.pyinstaller.pyinstaller_options import pyinstaller_options
       
     build_dir = path.join(tmp_dir, 'BUILD')
+#    env_options = env_override_options()
+
+#    print(f'CACA: env_options={project.env_options}')
+    
     options = pyinstaller_options(verbose = True,
                                   log_level = 'INFO',
                                   hidden_imports = [ 'json', 'fakelib1', 'fakelib2' ],
                                   build_dir = build_dir,
-                                  replace_env = project.env)
+                                  env_options = project.env_options)
     build_result = pyinstaller_build.build(program_source, options = options)
     self.assertTrue( path.exists(build_result.output_exe) )
     rv = execute.execute(build_result.output_exe, raise_error = False)

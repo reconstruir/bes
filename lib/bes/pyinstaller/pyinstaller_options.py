@@ -1,8 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.cli.cli_options import cli_options
+from ..cli.cli_options import cli_options
+from ..script.blurber import blurber
 from ..system.check import check
-from bes.script.blurber import blurber
+from ..system.env_override_options import env_override_options
 
 from .pyinstaller_error import pyinstaller_error
 from .pyinstaller_log_level import pyinstaller_log_level
@@ -29,7 +30,7 @@ class pyinstaller_options(cli_options):
       'verbose': False,
       'windowed': pyinstaller_defaults.WINDOWED,
       'osx_bundle_identifier': None,
-      'replace_env': None,
+      'env_options': None,
     }
 
   @classmethod
@@ -48,7 +49,7 @@ class pyinstaller_options(cli_options):
       'hidden_imports': list,
       'verbose': bool,
       'windowed': bool,
-      'replace_env': dict,
+      'env_override': env_override_options,
     }
 
   @classmethod
@@ -83,6 +84,6 @@ class pyinstaller_options(cli_options):
     check.check_bool(self.windowed)
     check.check_string(self.osx_bundle_identifier, allow_none = True)
     self.log_level = check.check_pyinstaller_log_level(self.log_level)
-    check.check_dict(self.replace_env, allow_none = True)
+    check.check_env_override_options(self.env_options, allow_none = True)
     
 check.register_class(pyinstaller_options, include_seq = False)

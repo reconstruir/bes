@@ -4,16 +4,16 @@ import os
 import os.path as path
 import pprint
 
+from ..fs.file_path import file_path
+from ..fs.file_util import file_util
 from ..system.check import check
-from bes.fs.file_util import file_util
-from bes.fs.file_path import file_path
-from bes.system.os_env import os_env
-from bes.system.which import which
-from bes.system.command_line import command_line
-from bes.system.execute import execute
-from bes.system.log import logger
-from bes.system.env_override import env_override
-from bes.system.env_override_options import env_override_options
+from ..system.command_line import command_line
+from ..system.env_override import env_override
+from ..system.env_override_options import env_override_options
+from ..system.execute import execute
+from ..system.log import logger
+from ..system.os_env import os_env
+from ..system.which import which
 
 from .pyinstaller_error import pyinstaller_error
 
@@ -26,13 +26,15 @@ class pyinstaller_exe(object):
   _log = logger('pyinstaller')
   
   @classmethod
-  def call_pyinstaller(clazz, args, build_dir = None, replace_env = None):
+  def call_pyinstaller(clazz, args, build_dir = None, env_options = None):
     check.check_string_seq(args)
     check.check_string(build_dir, allow_none = True)
-    check.check_dict(replace_env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
+    check.check_env_override_options(env_options, allow_none = True)
+
+    env_options = env_options or env_override_options()
     
     cmd = command_line.parse_args(args)
-    clazz._log.log_d('replace_env={pprint.pformat(env)}')
+    clazz._log.log_d('env_options={env_options}', multi_line = True)
     clazz._log.log_d('calling pyinstaller: {" ".join(cmd)}')
     if build_dir:
       file_util.mkdir(build_dir)
@@ -43,9 +45,8 @@ class pyinstaller_exe(object):
     args.extend([ '--distpath', dist_dir ])
     args.extend([ '--workpath', work_dir ])
     args.extend([ '--specpath', spec_dir ])
-    options = env_override_options(env = replace_env)
     try:
-      with env_override(options = options) as _:
+      with env_override(options = env_options) as _:
         PyInstaller_run(pyi_args = args, pyi_config = None)
     except Exception as ex:
       raise pyinstaller_error(str(ex))
