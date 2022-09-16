@@ -5,12 +5,15 @@ import os
 import shutil
 import subprocess
 
-from bes.system.compat import compat
+from ..compat import compat
+from ..log import logger
 
 from .filesystem_base import filesystem_base
 
 class filesystem_unix(filesystem_base):
 
+  _log = logger('filesystem')
+  
   @classmethod
   #@abstractmethod
   def free_disk_space(clazz, directory):
@@ -53,8 +56,13 @@ class filesystem_unix(filesystem_base):
       return
     except OSError as ex:
       if ex.errno != errno.ENOTEMPTY:
+        clazz._log.log_exception(ex)
         raise
-    shutil.rmtree(d, ignore_errors = True)
+    try:
+      shutil.rmtree(d, ignore_errors = True)
+    except OSError as ex:
+      clazz._log.log_exception(ex)
+      raise
 
   @classmethod
   #@abstractmethod
