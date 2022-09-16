@@ -38,13 +38,6 @@ class test_shell_path(unit_test):
     #self.assertEqual( self.native_path('a:b'), shell_path.normalize('a:b') )
     #self.assertEqual( self.native_path('a'), shell_path.normalize('a') )
     #self.assertEqual( self.native_path('a:b'), shell_path.normalize(self.native_path('a:b:a')) )
-    
-  def test_diff(self):
-    self.assertEqual( ( [], [], [] ), self._call_diff('/usr/bin:/bin', '/usr/bin:/bin') )
-    self.assertEqual( ( [ '/kiwi/bin' ], [], [ '/bin' ] ), self._call_diff('/usr/bin:/bin', '/usr/bin:/kiwi/bin') )
-    
-  def xtest_diff_prepend(self):
-    self.assertEqual( ( [], [ '/kiwi/bin' ], [ '/bin' ] ), self._call_diff('/usr/bin:/bin', '/kiwi/bin:/usr/bin') )
 
   def test_resolve(self):
     self.assertEqual( self.native_path(''), shell_path.resolve('') )
@@ -85,22 +78,67 @@ class test_shell_path(unit_test):
     self.assertEqual( '/usr/bin:/bin', self._call_prepend('/bin', '/usr/bin') )
     self.assertEqual( '/usr/bin:/bin', self._call_prepend('/bin:/usr/bin', '/usr/bin') )
     self.assertEqual( '/usr/bin:/bin', self._call_prepend('/usr/bin:/bin', '/usr/bin') )
-    
-  def xtest_diff_p1_in_p2(self):
-    self.assertEqual( (
-      [ '/lemon/bin' ],
-      [ '/kiwi/bin' ],
-      [],
-    ), self._call_diff('/bin:/usr/bin', '/kiwi/bin:/bin:/usr/bin:/lemon/bin') )
 
-    self.assertEqual( (
-      [ '/lemon/bin' ],
-      [ '/kiwi/bin' ],
-      [],
-    ), self._call_diff('/bin:/usr/bin:/bin', '/kiwi/bin:/bin:/usr/bin:/bin:/lemon/bin') )
+    
+  def test_diff_no_change(self):
+    self.assert_json_equal('''
+{
+  "appended": [],
+  "prepended": [],
+  "removed": []
+}
+''', self._call_diff('/usr/bin:/bin', '/usr/bin:/bin') )
+
+  def test_diff_remove_one_add_one(self):
+    self.assert_json_equal('''
+{
+  "appended": [ "/kiwi/bin" ],
+  "prepended": [],
+  "removed": [ "/bin" ]
+}
+''', self._call_diff('/usr/bin:/bin', '/usr/bin:/kiwi/bin') )
+    
+  def xtest_diff_prepend(self):
+    self.assertEqual( ( [], [ '/kiwi/bin' ], [ '/bin' ] ), self._call_diff('/usr/bin:/bin', '/kiwi/bin:/usr/bin') )
+    
+  def test_diff_reorder(self):
+    self.assert_json_equal( '''
+{
+  "appended": [],
+  "prepended": [ "/bin" ],
+  "removed": [ "/bin" ]
+}
+''', self._call_diff('/bin:/usr/bin', '/usr/bin:/bin') )
+    
+  def test_diff_p1_in_p2(self):
+    self.assert_json_equal( '''
+{
+  "appended": [ "/lemon/bin" ],
+  "prepended": [ "/kiwi/bin" ],
+  "removed": []
+}    
+''', self._call_diff('/bin:/usr/bin', '/kiwi/bin:/bin:/usr/bin:/lemon/bin') )
+
+  def test_diff_p1_in_p2_with_dups(self):
+    self.assert_json_equal( '''
+{
+  "appended": [ "/lemon/bin" ],
+  "prepended": [ "/kiwi/bin" ],
+  "removed": [ ]
+}
+''', self._call_diff('/bin:/usr/bin:/bin', '/kiwi/bin:/bin:/usr/bin:/bin:/lemon/bin') )
+
+  def test_diff_p1_in_p2_with_remove(self):
+    self.assert_json_equal( '''
+{
+  "appended": [ "/lemon/bin" ],
+  "prepended": [ "/kiwi/bin" ],
+  "removed": [ "/removed/bin" ]
+}
+''', self._call_diff('/bin:/usr/bin:/removed/bin', '/kiwi/bin:/bin:/usr/bin:/lemon/bin') )
     
   def _call_diff(self, p1, p2):
-    return shell_path.diff(self.native_path(p1), self.native_path(p2))
+    return shell_path.diff(self.native_path(p1), self.native_path(p2)).to_json()
     
 if __name__ == '__main__':
   unit_test.main()

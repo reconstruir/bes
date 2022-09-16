@@ -1,11 +1,10 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from collections import namedtuple
-
 from os import path
 
 from .check import check
 from .log import logger
+from .shell_path_diff_result import shell_path_diff_result
 
 class shell_path(object):
   'Class to deal with shell paths like PATH and PYTHONPATH'
@@ -144,7 +143,6 @@ class shell_path(object):
         break
     return count
       
-  _diff_result = namedtuple('_diff_result', 'appended, prepended, removed')
   @classmethod
   def diff(clazz, p1, p2):
     check.check_string(p1)
@@ -152,29 +150,39 @@ class shell_path(object):
 
     n1 = clazz.normalize(p1)
     n2 = clazz.normalize(p2)
-    
     clazz._log.log_d(f'shell_path.diff: p1="{p1}" p2="{p2}" n1="{n1}" n2="{n2}"')
 
-    if n1 in n2:
-      left, delimiter, right = n2.partition(n1)
+    up1 = clazz.remove_duplicates(p1)
+    up2 = clazz.remove_duplicates(p2)
+    clazz._log.log_d(f'shell_path.diff2: up1={up1} up2={up2}')
+
+    parts1 = clazz.split(up1)
+    parts2 = clazz.split(up2)
+    
+    import difflib
+    sm = difflib.SequenceMatcher(isjunk = None, a = parts1, b = parts2)
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+      poto1 = parts1[i1:i2]
+      poto2 = parts1[j1:j2]
+      clazz._log.log_d(f'shell_path.diff: CACA: tag={tag} i1={i1} i2={i2} j1={j1} j2={j2} poto1={poto1} poto2={poto2}')
+    
+    if up1 in up2:
+      left, delimiter, right = up2.partition(up1)
       nleft = clazz.normalize(left)
       nright = clazz.normalize(right)
-      assert delimiter == n1
+      assert delimiter == up1
       clazz._log.log_d(f'shell_path.diff1: nleft="{nleft}" nright="{nright}"')
       appended = clazz.split(nright)
       prepended = clazz.split(nleft)
       removed = []
       clazz._log.log_d(f'shell_path.diff1: appended={appended} prepended={prepended} removed={removed}')
-      return clazz._diff_result(appended, prepended, removed)
-    
-    up1 = clazz.remove_duplicates(p1)
-    up2 = clazz.remove_duplicates(p2)
-
-    clazz._log.log_d(f'shell_path.diff2: up1={up1} up2={up2}')
+      return shell_path_diff_result(appended, prepended, removed)
     
     parts1 = clazz.split(up1)
     parts2 = clazz.split(up2)
 
+#    indeces1 = clazz._indeces(parts1)
+    indeces2 = clazz._indeces(parts1)
     for i, p in enumerate(parts1):
       clazz._log.log_d(f'shell_path.diff2: parts1: {i}: {p}')
 
@@ -183,12 +191,23 @@ class shell_path(object):
 
     set1 = set(parts1)
     set2 = set(parts2)
+
+    xor_set = set1 ^ set2
+    clazz._log.log_d(f'shell_path.diff2: xor_set={xor_set}')
+    
     appended = [ part for part in parts2 if not part in set1 ]
     prepended = []
     removed = [ part for part in parts1 if not part in set2 ]
     clazz._log.log_d(f'shell_path.diff2: appended={appended} prepended={prepended} removed={removed}')
-    return clazz._diff_result(appended, prepended, removed)
+    return shell_path_diff_result(appended, prepended, removed)
 
+  @classmethod
+  def _indeces(clazz, parts):
+    result = {}
+    for i, part in enumerate(parts):
+      result[part] = i
+    return result
+  
   @classmethod
   def check_parts(clazz, parts):
     if not check.is_seq(parts):
