@@ -152,12 +152,12 @@ class test_dir_partition(unit_test, unit_test_media_files):
   def test_partition_with_not_flatten(self):
     items = [
       temp_content('file', 'src/readme.md', 'readme.md', 0o0644),
-      temp_content('file', 'src/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
-      temp_content('file', 'src/a/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
-      temp_content('file', 'src/a/kiwi-30.jpg', 'kiwi-30.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-10.jpg', 'lemon-10.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-20.jpg', 'lemon-20.txt', 0o0644),
-      temp_content('file', 'src/b/lemon-30.jpg', 'lemon-30.txt', 0o0644),
+      temp_content('file', 'src/d1/a/kiwi-10.jpg', 'kiwi-10.txt', 0o0644),
+      temp_content('file', 'src/d1/a/kiwi-20.jpg', 'kiwi-20.txt', 0o0644),
+      temp_content('file', 'src/d1/a/kiwi-30.jpg', 'kiwi-30.txt', 0o0644),
+      temp_content('file', 'src/d2/b/lemon-10.jpg', 'lemon-10.txt', 0o0644),
+      temp_content('file', 'src/d2/b/lemon-20.jpg', 'lemon-20.txt', 0o0644),
+      temp_content('file', 'src/d2/b/lemon-30.jpg', 'lemon-30.txt', 0o0644),
       temp_content('file', 'src/c/cheese-10.jpg', 'cheese-10.jpg', 0o0644),
       temp_content('file', 'src/icons/foo.png', 'foo.png', 0o0644),
       temp_content('file', 'src/kiwi-40.jpg', 'kiwi-40.txt', 0o0644),
@@ -169,7 +169,7 @@ class test_dir_partition(unit_test, unit_test_media_files):
                              partition_type = 'prefix',
                              delete_empty_dirs = True,
                              flatten = False,
-                             files = [ 'a', 'b' ])
+                             files = [ 'd1', 'd2' ])
     dst_after_expected = [
       'kiwi',
       'kiwi/a',

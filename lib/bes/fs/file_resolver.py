@@ -30,6 +30,7 @@ class file_resolver(object):
   @classmethod
   def resolve_files(clazz, files, options = None):
     'Resolve a mixed list of files and directories into a list of files.'
+    check.check_string_seq(files)
     check.check_file_resolver_options(options, allow_none = True)
     
     clazz._log.log_method_d()
@@ -55,14 +56,17 @@ class file_resolver(object):
 
     clazz._log.log_d(f'_do_resolve_files(files={files} file_type={file_type}')
     
-    found_files, root_dir = clazz._find_files(files, options, file_type)
-    clazz._log.log_d(f'_do_resolve_files: found_files={found_files} root_dir={root_dir}')
+    found_items = clazz._find_files(files, options, file_type)
+    num_items = len(found_items)
+    for i, item in enumerate(found_items, start = 1):
+      clazz._log.log_d(f'_do_resolve_files: item {i} of {num_items}: {item.root_dir} {item.filename_abs} {item.from_dir}')
+    
     result = file_resolver_item_list()
     index = 0
-    for filename_abs in found_files:
-      filename_rel = path.relpath(filename_abs, start = root_dir)
-      if not options.should_ignore_file(filename_abs):
-        item = file_resolver_item(root_dir, filename_rel, filename_abs, index, index)
+    for next_found_item in found_items:
+      if not options.should_ignore_file(next_found_item.filename_abs):
+        filename_rel = path.relpath(next_found_item.filename_abs, start = next_found_item.root_dir)
+        item = file_resolver_item(next_found_item.root_dir, filename_rel, next_found_item.filename_abs, index, index)
         result.append(item)
         index = index + 1
 
@@ -72,7 +76,7 @@ class file_resolver(object):
       result = result[0 : options.limit]
     return result
 
-  _resolved_item = namedtuple('_resolved_item', 'filename_abs, root_dir')
+  _resolved_item = namedtuple('_resolved_item', 'filename_abs, root_dir, from_dir')
   @classmethod
   def _find_files(clazz, files, options, file_type):
     'Resolve a mixed list of files and directories into a list of files.'
@@ -82,36 +86,19 @@ class file_resolver(object):
     for i, f in enumerate(files, start = 1):
       clazz._log.log_d(f'_find_files: files: {i}: {f}')
     for next_file in files:
+      clazz._log.log_d(f'_find_files: next_file={next_file}')
       filename_abs = file_path.normalize(next_file)
       if not path.exists(filename_abs):
         raise IOError('File or directory not found: "{}"'.format(filename_abs))
       if path.isfile(filename_abs):
-        item = clazz._resolved_item(filename_abs, path.dirname(filename_abs))
+        item = clazz._resolved_item(filename_abs, path.dirname(filename_abs), False)
         items.append(item)
       elif path.isdir(filename_abs):
         next_entries = clazz._find_files_in_dir(filename_abs, options, 0, file_type)
         for next_entry in next_entries:
-          item = clazz._resolved_item(next_entry, next_file)
+          item = clazz._resolved_item(next_entry, next_file, True)
           items.append(item)
-    found_files = [ item.filename_abs for item in items ]
-    for i, f in enumerate(found_files, start = 1):
-      clazz._log.log_d(f'_find_files: found_files: {i}: {f}')
-    if len(found_files) == 1:
-      root_dir = items[0].root_dir
-      clazz._log.log_d(f'_find_files: one file: root_dir={root_dir}')
-    else:
-      filenames = [ item.filename_abs for item in items ]
-      root_dir = None
-      # FIXME: instead of checking for one file, we need to figure out
-      # dirs in files and then calssify all the found files according
-      # to that prefix
-      if len(files) == 1:
-        if filename_list.startswith(filenames, files[0]):
-          root_dir = files[0]
-      if not root_dir:
-        root_dir = file_path.common_ancestor(filenames)
-      clazz._log.log_d(f'_find_files: many files: root_dir={root_dir}')
-    return found_files, root_dir
+    return items
   
   @classmethod
   def _sort_result(clazz, result, order, reverse):
