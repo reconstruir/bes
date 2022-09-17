@@ -41,6 +41,7 @@ class dir_partition(object):
       clazz._log.log_d(f'root_dirs={root_dirs}')
       for next_possible_empty_root in root_dirs:
         file_find.remove_empty_dirs(next_possible_empty_root)
+    return info
       
   _partition_info_result = namedtuple('_partition_items_info', 'items, resolved_files')
   @classmethod
