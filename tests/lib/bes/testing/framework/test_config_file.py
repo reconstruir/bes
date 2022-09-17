@@ -4,23 +4,25 @@
 import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.testing.framework.config_file import config_file as CF
-  
+
+from example_data import example_data
+
 class test_config_file(unit_test):
 
-  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/testing/framework'
-  
   def test_parse(self):
-    a = CF(self.data_path('fruit/env/fruit.bescfg'))
-    expected_root_dir = path.join(self.data_dir(), 'fruit')
-    expected_filename = self.data_path(self.native_filename('fruit/env/fruit.bescfg'))
+    tmp_dir = example_data.make_temp_content(delete = not self.DEBUG)
+    a = CF(path.join(tmp_dir, 'fruit/env/fruit.bescfg'))
+    expected_root_dir = path.join(tmp_dir, 'fruit')
+    expected_filename = path.join(tmp_dir, self.native_filename('fruit/env/fruit.bescfg'))
     expected_data = ( 'fruit', [ path.join('${root_dir}', 'bin') ], [ path.join('${root_dir}', 'lib') ], { 'water' }, [] )
     self.assertEqual( ( expected_root_dir, expected_filename, expected_data ), a )
 
   def test_substitute(self):
-    a = CF(self.data_path('fruit/env/fruit.bescfg'))
+    tmp_dir = example_data.make_temp_content(delete = not self.DEBUG)
+    a = CF(path.join(tmp_dir, 'fruit/env/fruit.bescfg'))
     b = a.substitute({})
-    expected_root_dir = path.join(self.data_dir(), 'fruit')
-    expected_filename = self.data_path(self.native_filename('fruit/env/fruit.bescfg'))
+    expected_root_dir = path.join(tmp_dir, 'fruit')
+    expected_filename = path.join(tmp_dir, self.native_filename('fruit/env/fruit.bescfg'))
     expected_data_a = ( 'fruit', [ path.join('${root_dir}', 'bin') ], [ path.join('${root_dir}', 'lib') ], { 'water' }, [] )
     self.assertEqual( ( expected_root_dir, expected_filename, expected_data_a ), a )
     expected_unixpath = [ path.join(expected_root_dir, 'bin') ]

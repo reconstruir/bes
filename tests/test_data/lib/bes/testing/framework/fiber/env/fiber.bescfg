@@ -1,5 +1,0 @@
-# fiber
-name: fiber
-unixpath: ${root_dir}/bin
-pythonpath: ${root_dir}/lib
-requires:
