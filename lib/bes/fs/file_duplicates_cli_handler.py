@@ -41,8 +41,9 @@ class file_duplicates_cli_handler(cli_command_handler):
       else:
         file_util.remove(dup_filenames)
         if self.options.verbose:
-          for f in dup_filenames:
-            self.options.blurber.blurb_verbose(f'DELETED file: {f}')
+          num = len(dup_filenames)
+          for i, f in enumerate(dup_filenames, start = 1):
+            self.options.blurber.blurb_verbose(f'DELETED file: {i} of {num}: {f}')
         if not keep_empty_dirs:
           fmap = dups.resolved_files.filename_abs_map()
           possible_empty_dir_roots = []
