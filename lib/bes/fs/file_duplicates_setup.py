@@ -25,9 +25,14 @@ class file_duplicates_setup(namedtuple('file_duplicates_setup', 'files, resolved
   @cached_property
   def dup_checksum_map(self):
     dmap = self.resolved_files.duplicate_size_map()
+    num_dmap = len(dmap)
+    self.options.blurber.blurb_verbose(f'found {num_dmap} duplicate sizes')
     flat_size_dup_files = self._flat_duplicate_files(dmap)
+    num_flat_size = len(flat_size_dup_files)
+    self.options.blurber.blurb_verbose(f'found {num_flat_size} files to check')
     small_checksum_map = self._small_checksum_map(flat_size_dup_files,
-                                                  self.options.small_checksum_size)
+                                                  self.options.small_checksum_size,
+                                                  self.options.blurber)
     dup_small_checksum_map = self._duplicate_small_checksum_map(small_checksum_map)
     flat_small_checksum_dup_files = self._flat_duplicate_files(dup_small_checksum_map)
     checksum_map = self._checksum_map(flat_small_checksum_dup_files)
@@ -41,9 +46,11 @@ class file_duplicates_setup(namedtuple('file_duplicates_setup', 'files, resolved
     return sorted(result)
 
   @classmethod
-  def _small_checksum_map(clazz, files, num_bytes):
+  def _small_checksum_map(clazz, files, num_bytes, blurber):
     result = {}
-    for filename in files:
+    num = len(files)
+    for i, filename in enumerate(files, start = 1):
+      blurber.blurb_verbose(f'checking {i} of {num}: {filename}')
       small_checksum = file_util.checksum('sha256', filename, chunk_size = num_bytes, num_chunks = 1)
       if not small_checksum in result:
         result[small_checksum] = []

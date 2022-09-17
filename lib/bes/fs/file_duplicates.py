@@ -38,7 +38,10 @@ class file_duplicates(object):
     check.check_file_duplicates_setup(setup)
 
     items = []
-    for checksum, where in sorted(setup.dup_checksum_map.items()):
+    i = 1
+    checksum_map_items = sorted(setup.dup_checksum_map.items())
+    num = len(checksum_map_items)
+    for checksum, where in checksum_map_items:
       sorted_where = clazz._sort_filename_list_by_preference(where,
                                                              setup.options.prefer_prefixes,
                                                              setup.options.sort_key)
@@ -46,6 +49,7 @@ class file_duplicates(object):
       duplicates = sorted_where[1:]
       item = clazz._dup_item(filename, duplicates)
       items.append(item)
+      i = i + 1
     return clazz._find_duplicates_result(items, setup.resolved_files)
   
   @classmethod
@@ -55,6 +59,7 @@ class file_duplicates(object):
 
     options = options or file_duplicates_options()
     resolved_files = clazz._resolve_files(where, options)
+    options.blurber.blurb_verbose(f'resolved {len(resolved_files)} files')
     return file_duplicates_setup(where, resolved_files, options)
     
   @classmethod
