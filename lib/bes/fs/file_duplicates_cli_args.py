@@ -38,7 +38,7 @@ class file_duplicates_cli_args(object):
                    help = 'Dont do anything just print what would happen [ None ]')
     p.add_argument('-r', '--recursive', action = 'store_true', default = False,
                    help = 'Find dups recursively [ None ]')
-    p.add_argument('--verbose', action = 'store_true', default = False,
+    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
                    help = 'Verbose output [ False ]')
     p.add_argument('--quiet', action = 'store_true', default = False,
                    help = 'Quiet output [ False ]')

@@ -29,6 +29,7 @@ class refactor_files(object):
   @classmethod
   def resolve_python_files(clazz, files):
     'Resolve python files.'
+    check.check_string_seq(files)
     
     def _match_python_files(filename):
       if not file_mime.is_text(filename):
@@ -45,6 +46,7 @@ class refactor_files(object):
   @classmethod
   def resolve_text_files(clazz, files):
     'Resolve text files.'
+    check.check_string_seq(files)
     
     def _match_text_files(filename):
       if path.islink(filename):
@@ -62,6 +64,7 @@ class refactor_files(object):
   _log = logger('refactor')
   @classmethod
   def rename_files(clazz, files, src_pattern, dst_pattern, options = None):
+    check.check_string_seq(files)
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_refactor_options(options, allow_none = True)
@@ -77,6 +80,7 @@ class refactor_files(object):
 
   @classmethod
   def copy_files(clazz, files, src_pattern, dst_pattern, copy_dirs, options = None):
+    check.check_string_seq(files)
     check.check_string(src_pattern)
     check.check_string(dst_pattern)
     check.check_refactor_options(options, allow_none = True)
@@ -258,6 +262,7 @@ class refactor_files(object):
       
   @classmethod
   def reindent_files(clazz, files, indent, backup):
+    check.check_string_seq(files)
     check.check_int(indent)
     check.check_bool(backup)
 
