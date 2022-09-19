@@ -25,14 +25,17 @@ class date_util(object):
     operator = check.check_date_util_compare_operator(operator)
 
     if operator == clazz.date_util_compare_operator.EQ:
-      return d1 == d2
+      result = d1 == d2
     elif operator == clazz.date_util_compare_operator.NE:
-      return d1 != d2
+      result = d1 != d2
     elif operator == clazz.date_util_compare_operator.LT:
-      return d1 < d2
+      result = d1 < d2
     elif operator == clazz.date_util_compare_operator.LE:
-      return d1 <= d2
+      result = d1 <= d2
     elif operator == clazz.date_util_compare_operator.GT:
-      return d1 > d2
+      result = d1 > d2
     elif operator == clazz.date_util_compare_operator.GE:
-      return d1 >= d2
+      result = d1 >= d2
+    else:
+      assert False, 'not reached'
+    return result
