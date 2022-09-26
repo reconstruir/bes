@@ -6,6 +6,7 @@ from bes.system.check import check
 from bes.compat.StringIO import StringIO
 
 from .text_search import text_search
+from .text_span import text_span
 
 class text_replace(object):
   'Class to deal with text replace'
@@ -87,3 +88,15 @@ class text_replace(object):
                             word_boundary = word_boundary,
                             word_boundary_chars = word_boundary_chars)
     return s
+
+  @classmethod
+  def replace_span(clazz, text, span, replacement):
+    'Replace src_string with dst_string optionally respecting word boundaries.'
+    check.check_string(text)
+    check.check_text_span(span)
+    check.check_string(replacement)
+
+    left = text[0:span.start]
+    right = text[span.end:]
+    return left + replacement + right
+    

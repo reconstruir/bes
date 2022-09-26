@@ -19,5 +19,10 @@ class test_text_search(unit_test):
       ( 12, 14 ),
     ], text_search.find_all('foo1and bar foo and fooy', 'foo', word_boundary = True) )
 
+  def test_rfind_span(self):
+    self.assertEqual( ( 13, 17 ), text_search.rfind_span('.png this foo.png', '.png') )
+    self.assertEqual( None, text_search.rfind_span('this foo.png', '.jpg') )
+    self.assertEqual( None, text_search.rfind_span('this foo.png', '') )
+    
 if __name__ == '__main__':
   unit_test.main()

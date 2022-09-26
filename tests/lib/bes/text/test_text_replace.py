@@ -3,6 +3,7 @@
 
 from collections import OrderedDict
 from bes.text.text_replace import text_replace
+from bes.text.text_span import text_span
 from bes.testing.unit_test import unit_test
 
 class test_text_replace(unit_test):
@@ -101,7 +102,11 @@ class test_text_replace(unit_test):
   def xtest_replace_escaped(self):
     self.assertEqual( 'foo c:\\tmp bar', f('foo ${root_dir} bar', { '${root_dir}': 'c:\\tmp' }) )
     self.assertEqual( 'fooc:\\tmpbar', f('foo${root_dir}bar', { '${root_dir}': 'c:\\tmp' }) )
-    
+
+  def test_replace_span(self):
+    self.assertEqual( 'this is foo.png', text_replace.replace_span('this is foo.jpg', text_span(11, 15), '.png') )
+    self.assertEqual( 'foo.jpg this is', text_replace.replace_span('foo.png this is', text_span(3, 7), '.jpg') )
+    self.assertEqual( 'this is foo', text_replace.replace_span('this is foo.jpg', text_span(11, 15), '') )
     
 if __name__ == '__main__':
   unit_test.main()
