@@ -208,3 +208,5 @@ proj env:
   - move as much as possible to python including the VE checksum thing
   - pipenv or maybe poetry ?
   - generation of env/
+
+unit test for mime type stuff for an empty file

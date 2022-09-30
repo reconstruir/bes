@@ -54,9 +54,10 @@ class file_resolver(object):
   def _do_resolve_files(clazz, files, options, file_type):
     'Resolve a mixed list of files and directories into a list of files.'
 
-    clazz._log.log_d(f'_do_resolve_files(files={files} file_type={file_type}')
-    
-    found_items = clazz._find_files(files, options, file_type)
+    clazz._log.log_d(f'_do_resolve_files: files={files} file_type={file_type}')
+
+    abs_files = [ path.abspath(f) for f in files ]
+    found_items = clazz._find_files(abs_files, options, file_type)
     num_items = len(found_items)
     for i, item in enumerate(found_items, start = 1):
       clazz._log.log_d(f'_do_resolve_files: item {i} of {num_items}: {item.root_dir} {item.filename_abs} {item.from_dir}')
@@ -84,6 +85,8 @@ class file_resolver(object):
     files = object_util.listify(files)
     items = []
     for i, f in enumerate(files, start = 1):
+      if not path.isabs(f):
+        raise ValueError(f'filename should be an absolute path: {f}')
       clazz._log.log_d(f'_find_files: files: {i}: {f}')
     for next_file in files:
       clazz._log.log_d(f'_find_files: next_file={next_file}')
