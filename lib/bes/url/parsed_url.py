@@ -138,5 +138,10 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
     'Return the url without scheme or netloc'
     path = string_util.remove_head(self.path, '/')
     return parsed_url('', '', path, self.params, self.query, self.fragment)
+
+  @cached_property
+  def base_url(self):
+    'Return just the base url without path or anything else'
+    return parsed_url(self.scheme, self.netloc, '', '', '', '')
   
 check.register_class(parsed_url, include_seq = False)
