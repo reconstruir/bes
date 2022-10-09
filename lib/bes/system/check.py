@@ -4,6 +4,7 @@ import inspect
 import os.path as path
 import types
 from datetime import datetime
+from datetime import timedelta
 
 from .compat import compat
 
@@ -181,6 +182,14 @@ class check(object):
   @classmethod
   def check_datetime(clazz, o, allow_none = False):
     return clazz._check(o, datetime, 2, allow_none = allow_none)
+
+  @classmethod
+  def is_timedelta(clazz, o):
+    return isinstance(o, timedelta)
+
+  @classmethod
+  def check_timedelta(clazz, o, allow_none = False):
+    return clazz._check(o, timedelta, 2, allow_none = allow_none)
   
   @classmethod
   def check_callable(clazz, o, allow_none = False):
