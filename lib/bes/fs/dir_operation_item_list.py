@@ -18,7 +18,7 @@ class dir_operation_item_list(type_checked_list):
   def __init__(self, values = None):
     super(dir_operation_item_list, self).__init__(values = values)
 
-  def move_files(self, timestamp, count, callback = None):
+  def move_files(self, timestamp, count, callback = None, touch = False):
     check.check_string(timestamp, allow_none = True)
     check.check_int(count, allow_none = True)
     check.check_callable(callback, allow_none = True)
@@ -37,6 +37,8 @@ class dir_operation_item_list(type_checked_list):
         need_move = True
       if need_move:
         file_util.rename(item.src_filename, item.dst_filename)
+        if touch:
+          file_util.touch(item.dst_filename)
         result.append(item.dst_filename)
       if callback:
         callback(item, i, num)
