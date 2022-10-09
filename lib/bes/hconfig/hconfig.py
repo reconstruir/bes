@@ -4,6 +4,7 @@ import copy
 import pprint
 import fnmatch
 
+from ..compat.StringIO import StringIO
 from ..system.log import logger
 from ..system.check import check
 from ..common.node import node
@@ -22,6 +23,11 @@ class hconfig(object):
     self._section = hconfig_section(copy.deepcopy(d), self, None)
     self._types = node('root')
 
+  def __str__(self):
+    buf = StringIO()
+    buf.write(str(self._section))
+    return buf.getvalue()
+    
   def __getattr__(self, key):
     return getattr(self._section, key)
     
