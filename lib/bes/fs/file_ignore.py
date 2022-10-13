@@ -16,7 +16,8 @@ class file_ignore(object):
     
   def should_ignore(self, ford):
     if not path.exists(ford):
-      raise IOError('not a file or directory: %s' % (ford))
+      print(f'ERROR: ignoring missing file {ford}')
+      return True #raise IOError('not a file or directory: %s' % (ford))
     if not self._ignore_filename:
       return False
     ancestors = file_path.decompose(ford)
