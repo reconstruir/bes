@@ -1,18 +1,20 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import pprint
+import json
 import os.path as path
 
-from bes.common.bool_util import bool_util
+from ..common.bool_util import bool_util
+from ..common.dict_util import dict_util
+from ..common.json_util import json_util
+from ..common.string_util import string_util
+from ..config.simple_config import simple_config
+from ..config.simple_config_editor import simple_config_editor
 from ..system.check import check
-from bes.common.string_util import string_util
-from bes.common.dict_util import dict_util
-from bes.config.simple_config import simple_config
-from bes.config.simple_config_editor import simple_config_editor
-from bes.system.log import logger
-from bes.system.os_env import os_env_var
-from bes.text.string_lexer_options import string_lexer_options
-from bes.text.string_list import string_list
+from ..system.log import logger
+from ..system.os_env import os_env_var
+from ..text.string_lexer_options import string_lexer_options
+from ..text.string_list import string_list
 
 from .cli_options_base import cli_options_base
 
@@ -32,12 +34,25 @@ class cli_options(cli_options_base):
     self._log.log_d('__init__: non_default_kargs={}'.format(pprint.pformat(non_default_kargs)))
     self._do_update_values(non_default_kargs)
     self.check_value_types()
-    
+
   def __str__(self):
+    return pprint.pformat(self.to_dict())
+    
+  def to_dict(self):
     sensitive_keys = self.sensitive_keys() or {}
     d = dict_util.hide_passwords(self.__dict__, sensitive_keys)
-    return pprint.pformat(d)
+    return d
+
+  def to_json(self):
+    return json_util.to_json(self.to_dict(), indent = 2, sort_keys = True, ensure_last_line_sep = True)
+
+  @classmethod
+  def from_json(clazz, text):
+    check.check_string(text)
     
+    d = json.loads(text)
+    return clazz(**d)
+  
   def _valid_keys(self):
     'Return a list of valid keys for values in these options'
     return [ key for key in self.__dict__.keys() ]
