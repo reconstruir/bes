@@ -14,5 +14,4 @@ class hconfig_type_string_list(hconfig_type_base):
   def cast(clazz, value, root):
     'Cast a value.'
     check.check_string(value)
-
     return string_list.parse(value, string_lexer_options.KEEP_QUOTES | string_lexer_options.IGNORE_COMMENTS)

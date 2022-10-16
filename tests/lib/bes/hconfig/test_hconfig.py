@@ -183,6 +183,35 @@ class test_hconfig(unit_test):
     self.assertEqual( _wine('red', 'medium', 42.42, 99, notes),
                       c.country.italy.piedmont.nebbiolo )
     self.assertEqual( 42.42, c.country.italy.piedmont.nebbiolo.price )
+
+  def test_to_dict(self):
+    d = {
+      'timestamp': '666',
+      'fruit': {
+        'kiwi': { 'color': 'green', 'flavor': 'tart' },
+        'apple': { 'color': 'red', 'flavor': 'sweet' },
+        'lemon': { 'color': 'yellow', 'flavor': 'tart' },
+      },
+      'wine': {
+        'barolo': { 'color': 'red', 'body': 'medium' },
+        'bordeaux': { 'color': 'red', 'body': 'full' },
+        'sancerre': { 'color': 'white', 'body': 'light' },
+      },
+    }
+    c = hconfig(d)
+    self.assertEqual( {
+      'fruit': {
+        'apple': {'color': 'red', 'flavor': 'sweet' },
+        'kiwi': {'color': 'green', 'flavor': 'tart' },
+        'lemon': {'color': 'yellow', 'flavor': 'tart' },
+      },
+      'timestamp': '666',
+      'wine': {
+        'barolo': {'body': 'medium', 'color': 'red' },
+        'bordeaux': {'body': 'full', 'color': 'red' },
+        'sancerre': {'body': 'light', 'color': 'white' },
+      }
+    }, c.to_dict() )
     
 if __name__ == '__main__':
   unit_test.main()

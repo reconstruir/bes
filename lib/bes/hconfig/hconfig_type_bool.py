@@ -11,4 +11,5 @@ class hconfig_type_bool(hconfig_type_base):
   #@abstractmethod
   def cast(clazz, value, root):
     'Cast a value.'
+    assert False
     return bool_util.parse_bool(value)

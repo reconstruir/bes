@@ -30,7 +30,10 @@ class hconfig(object):
     
   def __getattr__(self, key):
     return getattr(self._section, key)
-    
+
+  def to_dict(self):
+    return self._section.to_dict()
+  
   def register_type(self, path, caster):
     check.check_string(path)
     if not issubclass(caster, hconfig_type_base):
