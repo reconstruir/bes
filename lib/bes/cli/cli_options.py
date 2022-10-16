@@ -1,5 +1,6 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import copy
 import pprint
 import json
 import os.path as path
@@ -38,13 +39,17 @@ class cli_options(cli_options_base):
   def __str__(self):
     return pprint.pformat(self.to_dict())
     
-  def to_dict(self):
-    sensitive_keys = self.sensitive_keys() or {}
-    d = dict_util.hide_passwords(self.__dict__, sensitive_keys)
+  def to_dict(self, hide_sensitive_keys = True):
+    if hide_sensitive_keys:
+      sensitive_keys = self.sensitive_keys() or {}
+      d = dict_util.hide_passwords(self.__dict__, sensitive_keys)
+    else:
+      d = copy.deepcopy(self.__dict__)
     return d
 
-  def to_json(self):
-    return json_util.to_json(self.to_dict(), indent = 2, sort_keys = True, ensure_last_line_sep = True)
+  def to_json(self, hide_sensitive_keys = True):
+    d = self.to_dict(hide_sensitive_keys = hide_sensitive_keys)
+    return json_util.to_json(d, indent = 2, sort_keys = True, ensure_last_line_sep = True)
 
   @classmethod
   def from_json(clazz, text):
