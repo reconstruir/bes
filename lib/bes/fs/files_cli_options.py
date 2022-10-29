@@ -24,7 +24,7 @@ class files_cli_options(cli_options, file_ignore_options_mixin):
       'quiet': False,
       'recursive': False,
       'verbose': False,
-      'ignore_files': [],
+      'ignore_files': None,
       'dup_file_timestamp': time_util.timestamp(),
       'dup_file_count': 1,
     }
@@ -76,7 +76,7 @@ class files_cli_options(cli_options, file_ignore_options_mixin):
     check.check_bool(self.quiet)
     check.check_bool(self.recursive)
     check.check_bool(self.verbose)
-    check.check_string_seq(self.ignore_files)
+    check.check_string_seq(self.ignore_files, allow_none = True)
     check.check_string(self.dup_file_timestamp, allow_none = True)
     check.check_int(self.dup_file_count, allow_none = True)
 
