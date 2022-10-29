@@ -37,6 +37,7 @@ class file_duplicates(object):
   def find_duplicates_with_setup(clazz, setup):
     check.check_file_duplicates_setup(setup)
 
+    clazz._log.log_d('find_duplicates_with_setup: setup={setup.to_json()}', multi_line = True)
     items = []
     i = 1
     checksum_map_items = sorted(setup.dup_checksum_map.items())
