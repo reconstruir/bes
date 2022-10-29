@@ -15,6 +15,7 @@ class check(object):
   CLASS_TYPES = compat.CLASS_TYPES
   CALLABLE_TYPES = ( types.FunctionType, types.MethodType )
   INTEGER_OR_STRING_TYPES = INTEGER_TYPES + STRING_TYPES
+  NUMBER_TYPES = compat.INTEGER_TYPES + ( float, )
 
   @classmethod
   def is_string(clazz, o):
@@ -31,6 +32,14 @@ class check(object):
   @classmethod
   def is_int_seq(clazz, o):
     return clazz.is_seq(o, clazz.INTEGER_TYPES)
+
+  @classmethod
+  def is_number(clazz, o):
+    return isinstance(o, clazz.NUMBER_TYPES)
+
+  @classmethod
+  def is_number_seq(clazz, o):
+    return clazz.is_seq(o, clazz.NUMBER_TYPES)
   
   @classmethod
   def is_float(clazz, o):
