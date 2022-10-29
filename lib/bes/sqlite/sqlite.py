@@ -188,3 +188,10 @@ class sqlite(object):
       for line in self._connection.iterdump():
         fout.write(line)
         fout.write(os.linesep)
+
+  def table_num_columns(self, table_name):
+    check.check_string(table_name)
+    
+    self._cursor.execute(f'pragma table_info({table_name})')
+    columns = self._cursor.fetchall()
+    return len(columns)
