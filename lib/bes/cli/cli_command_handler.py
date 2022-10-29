@@ -113,4 +113,3 @@ class cli_command_handler(object):
       print(f'ERROR: no blurber in options')
       return
     blurber.blurb_verbose(*args, **kargs)
-  
