@@ -4,6 +4,7 @@ from collections import namedtuple
 
 from ..system.check import check
 from ..common.tuple_util import tuple_util
+from ..common.json_util import json_util
 from ..property.cached_property import cached_property
 
 from .file_attributes_metadata import file_attributes_metadata
@@ -22,6 +23,16 @@ class file_duplicates_setup(namedtuple('file_duplicates_setup', 'files, resolved
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
 
+  def to_dict(self):
+    return {
+      'files': self.files,
+      'resolved_files': self.resolved_files.to_list(),
+      'options': self.options.to_dict(),
+    }
+  
+  def to_json(self):
+    return json_util.to_json(self.to_dict(), indent = 2)
+  
   @cached_property
   def dup_checksum_map(self):
     dmap = self.resolved_files.duplicate_size_map()
