@@ -5,7 +5,6 @@ import os.path as path
 from bes.system.environment import environment
 from bes.testing.unit_test import unit_test
 from bes.unix.shell.shell import shell
-from bes.system.user import user
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class test_shell(unit_test):

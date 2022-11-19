@@ -21,7 +21,6 @@ from bes.system.env_var import env_var
 from bes.system.env_var import os_env_var
 from bes.system.execute import execute
 from bes.system.host import host
-from bes.system.user import user
 from bes.system.log import logger
 from bes.system.os_env import os_env
 from bes.system.python import python as python
