@@ -138,6 +138,10 @@ class check(object):
   @classmethod
   def check_number(clazz, o, allow_none = False):
     return clazz._check(o, check.INTEGER_TYPES + ( float, ), 2, allow_none = allow_none)
+
+  @classmethod
+  def check_number_seq(clazz, o, allow_none = False, allow_item_none = False):
+    return clazz._check_seq(o, clazz.NUMBER_TYPES, 2, allow_none = allow_none, allow_item_none = allow_item_none)
   
   @classmethod
   def check_tuple(clazz, o, allow_none = False, value_type = None):

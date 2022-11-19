@@ -2,19 +2,14 @@
 
 import os
 
-from .host import host
+from .environment import environment
 
 class user(object):
 
-  if host.is_unix():
-    import pwd
-    info = pwd.getpwuid(os.getuid())
-    USERNAME = info.pw_name
-    HOME = info.pw_dir
-  elif host.is_windows():
-    USERNAME = os.environ.get('USERNAME')
-    d = os.environ.get('HOMEDRIVE')
-    h = os.environ.get('HOMEPATH')
-    HOME = d + h
-  else:
-    host.raise_unsupported_system()
+  @classmethod
+  def home(self):
+    return environment.home_dir()
+
+  @classmethod
+  def username(self):
+    return environment.username()

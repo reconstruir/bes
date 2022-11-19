@@ -20,7 +20,8 @@ class hconfig(object):
 
   def __init__(self, d):
     _log.log_d(f'hconfig.__init__({pprint.pformat(d)})')
-    self._section = hconfig_section(copy.deepcopy(d), self, None)
+    #self._section = hconfig_section(copy.deepcopy(d), self, None)
+    self._section = hconfig_section(d, self, None)
     self._types = node('root')
 
   def __str__(self):

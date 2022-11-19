@@ -3,11 +3,11 @@
 import os.path as path
 
 from bes.system.check import check
+from bes.system.environment import environment
 from bes.fs.dir_util import dir_util
 from bes.fs.filename_util import filename_util
 from bes.python.python_error import python_error
 from bes.python.python_version import python_version
-from bes.system.user import user
 
 from .python_source_base import python_source_base
 
@@ -54,7 +54,7 @@ class python_source_windows(python_source_base):
     'Return True if dirname should be ignored as a possible python bin dir.'
     if r'Microsoft\WindowsApps' in dirname:
       return True
-    if dirname.lower().startswith(user.HOME.lower()):
+    if dirname.lower().startswith(environment.home_dir().lower()):
       return True
     return False
 

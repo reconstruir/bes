@@ -9,6 +9,21 @@ class environment_windows(environment_base):
 
   @classmethod
   #@abstractmethod
+  def home_dir(clazz):
+    'Return the current users home dir.'
+
+    home_drive = os.environ.get('HOMEDRIVE')
+    home_path = os.environ.get('HOMEPATH')
+    return home_drive + home_path
+
+  @classmethod
+  #@abstractmethod
+  def username(clazz):
+    'Return the current users username.'
+    return os.environ.get('USERNAME')
+  
+  @classmethod
+  #@abstractmethod
   def home_dir_env(clazz, home_dir):
     'Return a dict with the environment needed to set the home directory.'
 

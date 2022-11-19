@@ -9,13 +9,15 @@ from functools import wraps
 from .check import check
 from .env_override_options import env_override_options
 from .env_var import env_var
-from .filesystem import filesystem
 from .environment import environment
+from .filesystem import filesystem
 from .host import host
+from .log import logger
 from .os_env import os_env
 
 class env_override(object):
 
+  _log = logger('env_override')
   def __init__(self, env = None, options = None):
     check.check_dict(env, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
     check.check_env_override_options(options, allow_none = True)
@@ -63,6 +65,8 @@ class env_override(object):
     env = self._resolve_env()
     
     home_dir = self._options.resolve_home_dir()
+    self._poto_home_dir = home_dir
+    #self._log.log_e(f'__enter__: home_dir={home_dir}')
     if home_dir:
       home_dir_env = environment.home_dir_env(home_dir.where)
       if home_dir.delete:
@@ -86,12 +90,16 @@ class env_override(object):
       func()
     return self
   
-  def __exit__(self, type, value, traceback):
+  def __exit__(self, exception_type, exception_value, traceback):
+    #self._log.log_e(f'__enter__: home_dir={self._poto_home_dir}')
+    if exception_type:
+      self._log.log_e(f'exception_type={exception_type} exception_value={exception_value}')
     for func in self._options.exit_functions or []:
       func()
     os_env.set_current_env(self._original_env)
     for next_dir in self._delete_tmp_dirs:
       filesystem.remove_directory(next_dir)
+    return False
     
   def __getitem__(self, key):
     return os.environ.get(key)

@@ -8,6 +8,18 @@ class environment_base(with_metaclass(ABCMeta, object)):
 
   @classmethod
   @abstractmethod
+  def home_dir(clazz):
+    'Return the current users home dir.'
+    raise NotImplemented('home_dir')
+
+  @classmethod
+  @abstractmethod
+  def username(clazz):
+    'Return the current users username.'
+    raise NotImplemented('username')
+  
+  @classmethod
+  @abstractmethod
   def home_dir_env(clazz, home_dir):
     'Return a dict with the environment needed to set the home directory.'
     raise NotImplemented('home_dir_env')

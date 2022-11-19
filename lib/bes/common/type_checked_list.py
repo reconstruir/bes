@@ -27,7 +27,7 @@ class type_checked_list(object):
   
   def __repr__(self):
     return repr(self._values)
-    
+
   def _assign(self, values):
     self._values = []
     for v in values or []:

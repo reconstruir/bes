@@ -4,7 +4,7 @@ from os import path
 
 from bes.system.env_var import os_env_var
 from bes.system.host import host
-from bes.system.user import user
+from bes.system.environment import environment
 from bes.text.text_line_parser import text_line_parser
 from bes.fs.file_util import file_util
 from bes.unix.sudo.sudo import sudo
@@ -26,7 +26,7 @@ class shell(object):
   @classmethod
   def shell_for_user(clazz, username = None):
     'Return the shell for the given user.'
-    username = username or user.USERNAME
+    username = username or environment.username()
     if host.is_unix():
       return clazz._shell_for_user_unix(username)
     else:
@@ -56,7 +56,7 @@ class shell(object):
     cmd = [
       'chsh',
       '-s', new_shell,
-      user.USERNAME,
+      environment.username(),
     ]
     sudo_options = sudo_cli_options()
     sudo_options.error_message = 'Failed to read sudo password for chsh.'

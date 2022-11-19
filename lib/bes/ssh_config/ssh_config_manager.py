@@ -4,9 +4,9 @@ from os import path
 from collections import namedtuple
 
 from ..system.check import check
-from bes.common.string_util import string_util
-from bes.fs.file_util import file_util
-from bes.system.user import user
+from ..common.string_util import string_util
+from ..fs.file_util import file_util
+from ..system.environment import environment
 
 from .ssh_authorized_key import ssh_authorized_key
 from .ssh_authorized_keys_file import ssh_authorized_keys_file
@@ -84,7 +84,7 @@ class ssh_config_manager(object):
     values = {
       'IdentityFile': installed.private_key_filename,
       'Hostname': hostname,
-      'User': username or user.USERNAME,
+      'User': username or environment.username(),
     }
     self._config.update_host(hostname, values)
     return installed

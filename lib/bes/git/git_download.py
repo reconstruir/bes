@@ -4,13 +4,13 @@ import os, os.path as path, re, time
 from datetime import datetime
 from collections import namedtuple
 
+from ..fs.file_util import file_util
+from ..fs.temp_file import temp_file
+from ..ssh_config.ssh_config_manager import ssh_config_manager
 from ..system.check import check
-from bes.fs.file_util import file_util
-from bes.fs.temp_file import temp_file
-from bes.ssh_config.ssh_config_manager import ssh_config_manager
-from bes.system.env_override import env_override
-from bes.system.log import logger
-from bes.system.user import user
+from ..system.env_override import env_override
+from ..system.environment import environment
+from ..system.log import logger
 
 from .git_config import git_config
 from .git_download_options import git_download_options
@@ -59,7 +59,8 @@ class git_download(object):
   @classmethod
   def _do_download(clazz, address, revision, output_filename,
                    base_name, download_options):
-    clazz._log.log_d('_do_download: home={} real_home={}'.format(path.expanduser('~'), user.HOME))
+    clazz._log.log_d('_do_download: home={} real_home={}'.format(path.expanduser('~'),
+                                                                 environment.home_dir()))
     tmp_root_dir = temp_file.make_temp_dir(delete = not download_options.debug)
     if download_options.debug:
       print('tmp_root_dir={}'.format(tmp_root_dir))

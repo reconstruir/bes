@@ -28,6 +28,12 @@ class environment(environment_base):
 
   @classmethod
   #@abstractmethod
+  def home_dir(clazz):
+    'Return the current users home dir.'
+    return clazz._impl_class.home_dir()
+  
+  @classmethod
+  #@abstractmethod
   def home_dir_env(clazz, home_dir):
     'Return a dict with the environment needed to set the home directory.'
     return clazz._impl_class.home_dir_env(home_dir)

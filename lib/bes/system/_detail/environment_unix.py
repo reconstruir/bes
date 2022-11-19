@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import pwd
 import re
+import os
 import os.path as path
 import subprocess
 
@@ -9,6 +11,46 @@ from ..host import host
 
 class environment_unix(environment_base):
 
+  @classmethod
+  #@abstractmethod
+  def home_dir(clazz):
+    'Return the current users home dir.'
+
+    info = pwd.getpwuid(os.getuid())
+    return info.pw_dir
+
+  @classmethod
+  #@abstractmethod
+  def username(clazz):
+    'Return the current users username.'
+    info = pwd.getpwuid(os.getuid())
+    return info.pw_name
+  
+  _CLEAN_PATH = [
+    '/usr/local/bin',
+    '/usr/bin',
+    '/bin',
+    '/usr/sbin',
+    '/sbin',
+  ]
+  _DECLARE_PATTERN = re.compile(r'^declare\s+--\s+PATH="(.+)"$')
+  @classmethod
+  #@abstractmethod
+  def default_path(clazz):
+    'The default system PATH.'
+    if host.SYSTEM == host.LINUX and host.DISTRO == 'alpine':
+      return [ '/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin:/bin' ]
+    cmd = [ 'env', '-i', 'bash', '--norc', '-c', 'declare -p PATH' ]
+    try:
+      rv = subprocess.run(cmd, capture_output = True, shell = False, check = True)
+      f = clazz._DECLARE_PATTERN.findall(rv.stdout.decode())
+      if not f:
+        return clazz._CLEAN_PATH
+      return f[0].split(path.pathsep)
+    except Exception as ex:
+      pass
+    return clazz._CLEAN_PATH
+  
   @classmethod
   #@abstractmethod
   def home_dir_env(clazz, home_dir):

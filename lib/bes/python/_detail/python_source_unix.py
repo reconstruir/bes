@@ -3,11 +3,12 @@
 import os.path as path
 
 from abc import abstractmethod, ABCMeta
-from bes.python.python_version import python_version
+
 from bes.python.python_error import python_error
-from bes.system.compat import with_metaclass
-from bes.system.user import user
+from bes.python.python_version import python_version
 from bes.system.check import check
+from bes.system.compat import with_metaclass
+from bes.system.environment import environment
 
 class python_source_unix(with_metaclass(ABCMeta, object)):
   '''
@@ -30,7 +31,7 @@ class python_source_unix(with_metaclass(ABCMeta, object)):
   #@abstractmethod
   def possible_python_dir_should_be_ignored(clazz, dirname):
     'Return True if dirname should be ignored as a possible python bin dir.'
-    if dirname.startswith(user.HOME):
+    if dirname.startswith(environment.home_dir()):
       return True
     return False
 
