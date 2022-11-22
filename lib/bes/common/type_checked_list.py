@@ -127,6 +127,11 @@ class type_checked_list(object):
   def remove_dups(self):
     self._values = algorithm.unique(self._values)
 
+  def remove_in_set(self, s):
+    check.check_set(s, self._value_type)
+
+    self._values = [ item for item in self._values if item not in s ]
+    
   def to_list(self):
     return self._values[:]
   
@@ -139,6 +144,9 @@ class type_checked_list(object):
   def sort(self, key = None, reverse = False):
     self._values = sorted(self._values, key = key, reverse = reverse)
 
+  def sorted_(self, key = None, reverse = False):
+    return self.__class__(sorted(self._values, key = key, reverse = reverse))
+    
   def to_string(self, delimiter = ' '):
     buf = StringIO()
     first = True
@@ -148,6 +156,9 @@ class type_checked_list(object):
       first = False
       buf.write(str(item))
     return buf.getvalue()
+
+  def pop(self, index = -1):
+    return self._values.pop(index)
 
   @classmethod
   def check_cast_func(clazz, obj):
