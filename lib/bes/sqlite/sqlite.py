@@ -195,3 +195,12 @@ class sqlite(object):
     self._cursor.execute(f'pragma table_info({table_name})')
     columns = self._cursor.fetchall()
     return len(columns)
+
+  def has_row(self, table_name, column_name, column_value):
+    check.check_string(table_name)
+    check.check_string(column_name)
+    #check.check_int(column_value)
+
+    sql = f'select exists(select 1 from {table_name} where {column_name}=? limit 1)'
+    row = self.select_one(sql, ( column_value, ))
+    return bool(row[0])
