@@ -45,6 +45,7 @@ class type_checked_list(object):
 
   def compare(self, other):
     check.check(other, ( type_checked_list, list, tuple ), allow_none = True)
+
     if other == None:
       return -1
     len_cmp = cmp(len(self), len(other))
@@ -68,6 +69,8 @@ class type_checked_list(object):
       return obj
   
   def __eq__(self, other):
+    if other == None:
+      return False
     return self.compare(other) == 0
 
   def __ne__(self, other):
