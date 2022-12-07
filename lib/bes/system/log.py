@@ -6,10 +6,11 @@ import inspect
 from datetime import datetime
 import threading
 
-from .thread_id import thread_id
 from .add_method import add_method
+from .check import check
 from .compat import compat
 from .console import console as system_console
+from .thread_id import thread_id
 
 from ._detail.log_writer_list import log_writer_list
 
@@ -56,6 +57,7 @@ class log(object):
   _log_config_patterns = {}
   _longest_tag_length = 0
   _tag_width = None
+  _filters = []
 
   @classmethod
   def log(clazz, tag, level, message, multi_line = False):
@@ -76,12 +78,13 @@ class log(object):
       return
     timestamp = datetime.now()
     if multi_line:
-      lines = message.split('\n')
+      lines = message.split(os.linesep)
       messages = [ clazz._make_message_i(tag, level, line, timestamp) for line in lines ]
     else:
       messages = [ clazz._make_message_i(tag, level, message, timestamp) ]
     for m in messages:
-      clazz._log_writer.write(m + '\n')
+      m = clazz._filter_string_i(m, clazz._filters)
+      clazz._log_writer.write(m + os.linesep)
     clazz._log_writer.flush()
       
   @classmethod
@@ -226,6 +229,21 @@ class log(object):
     clazz._log_lock.release()
 
   @classmethod
+  def add_filter(clazz, filter_function):
+    'Configure levels.'
+    check.check_callable(filter_function)
+    
+    clazz._log_lock.acquire()
+    clazz._filters.append(filter_function)
+    clazz._log_lock.release()
+
+  @classmethod
+  def _filter_string_i(clazz, s, filters):
+    for next_filter in filters:
+      s = next_filter(s)
+    return s
+    
+  @classmethod
   def _flatten(clazz, s, delimiter = ' '):
     'Flatten the given collection to a string.'
     'If s is already a string just return it.'
@@ -252,7 +270,7 @@ class log(object):
       clazz._log_writer.configure(value)
     elif key == 'dump':
       lines = [ '%s: %s' % (key, clazz._level_to_string.get(level)) for key, level in sorted(clazz._tag_levels.items()) ]
-      message = '\n'.join(lines) + '\n'
+      message = os.linesep.join(lines) + os.linesep
       clazz.output(message, console = True)
     elif key == 'format':
       clazz._format = clazz._FORMATS.get(value, value)
@@ -391,7 +409,7 @@ class log(object):
   @classmethod
   def log_traceback_string(clazz, tag, ts):
     'Log a traceback string as an error.'
-    for s in ts.split('\n'):
+    for s in ts.split(os.linesep):
       clazz.log_e(tag, '  %s' % (s))
 
   @classmethod
@@ -495,7 +513,7 @@ class logger(object):
     args, _, _, values = inspect.getargvalues(caller_frame)
     args.pop(0)
     method_name = inspect.getframeinfo(caller_frame)[2]
-    args_strings = [ '{}={}'.format(key, str(values[key]).replace('\n', ' ')) for key in args ]
+    args_strings = [ '{}={}'.format(key, str(values[key]).replace(os.linesep, ' ')) for key in args ]
     msg = '{}: {}'.format(method_name, ' '.join(args_strings))
     self.log(level, msg, multi_line = True)
 
