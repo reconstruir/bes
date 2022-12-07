@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os
+import sys
 
 import atexit, codecs, copy, difflib, json, inspect, os, os.path as path
 import platform, pprint, re, sys, shutil, subprocess, tempfile, time, unittest
@@ -65,7 +66,6 @@ class unit_test(unittest.TestCase):
   def assert_string_equal(self, s1, s2, strip = False, multi_line = False,
                           ignore_white_space = False, native_line_breaks = False):
     'Assert s1 equals s2 with ioptional features.'
-    self.maxDiff = None
     s1_to_compare = s1
     s2_to_compare = s2
     if strip:
@@ -108,7 +108,6 @@ class unit_test(unittest.TestCase):
     
   def assertEqualIgnoreWhiteSpace(self, s1, s2):
     'Assert s1 equals s2 ignoreing minor white space differences.'
-    self.maxDiff = None
     s1_stripped = re.sub(r'\s+', ' ', s1).strip()
     s2_stripped = re.sub(r'\s+', ' ', s2).strip()
     if s1_stripped == s2_stripped:
@@ -116,8 +115,6 @@ class unit_test(unittest.TestCase):
     self.assertMultiLineEqual( s1, s2 )
 
   def assert_string_equal_strip(self, s1, s2, native_line_breaks = False):
-    self.maxDiff = None
-
     s1_stripped = s1.strip()
     s2_stripped = s2.strip()
 
@@ -144,14 +141,12 @@ class unit_test(unittest.TestCase):
     return os.linesep.join([ '%s=%s' % x for x in sorted(d.items()) ])
 
   def assert_binary_file_equal(self, expected, filename):
-    self.maxDiff = None
     with open(filename, 'rb') as fin:
       actual = fin.read()
       self.assertEqual( expected, actual )
 
   def assert_text_file_equal(self, expected, filename, strip = True, codec = 'utf-8',
                              preprocess_func = None, ignore_white_space = False, native_line_breaks = False):
-    self.maxDiff = None
     with open(filename, 'rb') as fin:
       actual = fin.read().decode(codec)
       if preprocess_func:
@@ -165,7 +160,6 @@ class unit_test(unittest.TestCase):
 
   def assert_text_file_equal_fuzzy(self, expected, filename, codec = 'utf-8',
                                    preprocess_func = None):
-    self.maxDiff = None
     with open(filename, 'rb') as fin:
       actual = fin.read().decode(codec)
       if preprocess_func:
@@ -506,14 +500,18 @@ class unit_test(unittest.TestCase):
 
   def assert_filename_equal(self, f1, f2):
     'Assert that 2 filenames are the same using cross platform paths.'
-    self.maxDiff = None
     xp_f1 = self.xp_filename(f1)
     xp_f2 = self.xp_filename(f2)
     self.assertEqual( xp_f1, xp_f2 )
       
   def assert_filename_list_equal(self, pl1, pl2):
     'Assert that 2 filename lists are the same using cross platform paths.'
-    self.maxDiff = None
     xp_pl1 = self.xp_filename_list(pl1)
     xp_pl2 = self.xp_filename_list(pl2)
-    self.assertEqual( xp_pl1, xp_pl2 )
+    self.assert_json_object_equal(xp_pl1, xp_pl2)
+    
+  def show_full_diff(self):
+    'From https://stackoverflow.com/questions/43842675/how-to-prevent-truncating-of-string-in-unit-test-python'
+    if 'unittest.util' in __import__('sys').modules:
+      # Show full diff in self.assertEqual.
+      __import__('sys').modules['unittest.util']._MAX_LENGTH = 999999999
