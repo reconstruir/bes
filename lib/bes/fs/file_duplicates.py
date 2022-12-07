@@ -37,7 +37,7 @@ class file_duplicates(object):
   def find_duplicates_with_setup(clazz, setup):
     check.check_file_duplicates_setup(setup)
 
-    clazz._log.log_d('find_duplicates_with_setup: setup={setup.to_json()}', multi_line = True)
+    clazz._log.log_d(f'find_duplicates_with_setup: setup={setup.to_json()}', multi_line = True)
     items = []
     i = 1
     checksum_map_items = sorted(setup.dup_checksum_map.items())
@@ -46,6 +46,10 @@ class file_duplicates(object):
       sorted_where = clazz._sort_filename_list_by_preference(where,
                                                              setup.options.prefer_prefixes,
                                                              setup.options.sort_key)
+      #for x in where:
+      #  clazz._log.log_d(f'fdws:        where: {x}')
+      #for x in sorted_where:
+      #  clazz._log.log_d(f'fdws: sorted_where: {x}')
       filename = sorted_where[0]
       duplicates = sorted_where[1:]
       item = clazz._dup_item(filename, duplicates)
@@ -89,10 +93,13 @@ class file_duplicates(object):
   def _compute_file_duplicates(clazz, dups_result, filename):
     result = []
     for item in dups_result.items:
+      #clazz._log.log_d(f'item={item}')
       all_files = set([ item.filename ] + item.duplicates)
+      #clazz._log.log_d(f'all_files={all_files}')
       if filename in all_files:
         all_files.remove(filename)
         result.extend(list(all_files))
+    #clazz._log.log_d(f'result={result}')
     return sorted(result)
   
   @classmethod
