@@ -19,7 +19,26 @@ class test_file_copy(unit_test):
     dst_tmp_dir = self.make_temp_dir(prefix = 'dst-')
     file_util.remove(dst_tmp_dir)
     with tarfile.open(self.data_path('test.tar'), mode = 'r') as f:
-      f.extractall(path = src_tmp_dir)
+      def is_within_directory(directory, target):
+          
+          abs_directory = os.path.abspath(directory)
+          abs_target = os.path.abspath(target)
+      
+          prefix = os.path.commonprefix([abs_directory, abs_target])
+          
+          return prefix == abs_directory
+      
+      def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+      
+          for member in tar.getmembers():
+              member_path = os.path.join(path, member.name)
+              if not is_within_directory(path, member_path):
+                  raise Exception("Attempted Path Traversal in Tar File")
+      
+          tar.extractall(path, members, numeric_owner=numeric_owner) 
+          
+      
+      safe_extract(f, path=src_tmp_dir)
     file_copy.copy_tree(src_tmp_dir, dst_tmp_dir)
     
     expected_files = [
@@ -44,7 +63,26 @@ class test_file_copy(unit_test):
     dst_tmp_dir = self.make_temp_dir(prefix = 'dst-')
     file_util.remove(dst_tmp_dir)
     with tarfile.open(self.data_path('test.tar'), mode = 'r') as f:
-      f.extractall(path = src_tmp_dir)
+      def is_within_directory(directory, target):
+          
+          abs_directory = os.path.abspath(directory)
+          abs_target = os.path.abspath(target)
+      
+          prefix = os.path.commonprefix([abs_directory, abs_target])
+          
+          return prefix == abs_directory
+      
+      def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+      
+          for member in tar.getmembers():
+              member_path = os.path.join(path, member.name)
+              if not is_within_directory(path, member_path):
+                  raise Exception("Attempted Path Traversal in Tar File")
+      
+          tar.extractall(path, members, numeric_owner=numeric_owner) 
+          
+      
+      safe_extract(f, path=src_tmp_dir)
       file_copy.copy_tree(src_tmp_dir, dst_tmp_dir, excludes = [ 'bar.txt', 'foo.txt' ])
     
     expected_files = [
@@ -67,7 +105,26 @@ class test_file_copy(unit_test):
     dst_tmp_dir = self.make_temp_dir(prefix = 'dst-', suffix = '-has 2 spaces-')
     file_util.remove(dst_tmp_dir)
     with tarfile.open(self.data_path('test.tar'), mode = 'r') as f:
-      f.extractall(path = src_tmp_dir)
+      def is_within_directory(directory, target):
+          
+          abs_directory = os.path.abspath(directory)
+          abs_target = os.path.abspath(target)
+      
+          prefix = os.path.commonprefix([abs_directory, abs_target])
+          
+          return prefix == abs_directory
+      
+      def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+      
+          for member in tar.getmembers():
+              member_path = os.path.join(path, member.name)
+              if not is_within_directory(path, member_path):
+                  raise Exception("Attempted Path Traversal in Tar File")
+      
+          tar.extractall(path, members, numeric_owner=numeric_owner) 
+          
+      
+      safe_extract(f, path=src_tmp_dir)
     file_copy.copy_tree(src_tmp_dir, dst_tmp_dir)
     
     expected_files = [
