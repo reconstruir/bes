@@ -7,13 +7,24 @@ from bes.testing.unit_test import unit_test
 
 class test_text_search(unit_test):
 
-  def test_find_all(self):
+  def test_find_all_case_sensitive(self):
     self.assertEqual( [
       ( 0, 2 ),
       ( 12, 14 ),
       ( 20, 22 ),
     ], text_search.find_all('foo and bar foo and foo', 'foo') )
 
+    self.assertEqual( [
+      ( 12, 14 ),
+    ], text_search.find_all('Foo and bar foo and foO', 'foo') )
+    
+  def test_find_all_case_insensitive(self):
+    self.assertEqual( [
+      ( 0, 2 ),
+      ( 12, 14 ),
+      ( 20, 22 ),
+    ], text_search.find_all('Foo and bar foo and foO', 'foo', case_insensitive = True) )
+    
   def test_find_all_with_limit(self):
     self.assertEqual( [
       ( 0, 2 ),
