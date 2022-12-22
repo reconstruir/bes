@@ -37,5 +37,5 @@ class date_util(object):
     elif operator == clazz.date_util_compare_operator.GE:
       result = d1 >= d2
     else:
-      assert False, 'not reached'
+      assert False, f'unexpected operator "{operator}"'
     return result
