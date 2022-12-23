@@ -104,31 +104,38 @@ class type_checked_list(object):
     return self._values[i]
   
   def __setitem__(self, i, v):
-    check.check(v, self._value_type)
+    check.check_int(i)
+    v = self._check_value(v)
+
     self._values[i] = v
 
   def __contains__(self, v):
     return v in self._values
     
   def __add__(self, other):
-    check.check(other, ( type_checked_list, list, tuple ))
     result = self.__class__()
-    for s in self._values:
-      result.append(s)
-    for s in self._get_values(other):
-      result.append(s)
+    result.extend(self)
+    result.extend(other)
     return result
     
   def extend(self, other):
-    check.check(other, ( type_checked_list, list, tuple ))
-    self._values.extend(self._get_values(other))
-
+    if isinstance(other, self.__class__):
+      self._values.extend(other._values)
+    elif check.is_seq(other):
+      for v in other:
+        v = self._check_value(v)
+        self._values.append(v)
+    else:
+      raise TypeError(f'Unknown type for other: {type(other)} - "{other}"')
+    
   def append(self, v):
-    check.check(v, self._value_type)
+    v = self._check_value(v)
+
     self._values.append(v)
 
   def remove(self, v):
-    check.check(v, self._value_type)
+    v = self._check_value(v)
+
     self._values.remove(v)
 
   def remove_dups(self):
