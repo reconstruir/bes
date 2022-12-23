@@ -11,6 +11,7 @@ from bes.common.object_util import object_util
 from bes.system.log import logger
 
 from .dir_util import dir_util
+from .file_attributes_metadata import file_attributes_metadata
 from .file_check import file_check
 from .file_find import file_find
 from .file_match import file_match
@@ -163,3 +164,55 @@ class file_resolver(object):
                                     match_function = _match_empty_dirs,
                                     match_basename = False)
     return file_resolver.resolve_dirs(dirs, options = options)
+
+  @classmethod
+  def easy_resolve_files(clazz, files, recursive, file_ignorer,
+                         sort_order = None, sort_reverse = False, limit = None,
+                         match_patterns = None):
+    check.check_string_seq(files)
+    check.check_bool(recursive)
+    check.check_file_multi_ignore(file_ignorer, allow_none = True)
+    check.check_file_sort_order(sort_order, allow_none = True)
+    check.check_bool(sort_reverse)
+    check.check_int(limit, allow_none = True)
+    check.check_string_seq(match_patterns, allow_none = True)
+    
+    resolver_options = file_resolver_options(recursive = recursive,
+                                             sort_order = sort_order,
+                                             sort_reverse = sort_reverse,
+                                             limit = limit,
+                                             match_patterns = match_patterns)
+    resolved_files = clazz.resolve_files(files, options = resolver_options)
+    result = []
+    for f in resolved_files:
+      should_ignore = False
+      if file_ignorer:
+        should_ignore = file_ignorer.should_ignore(f.filename_abs) or file_util.is_empty(f.filename_abs)
+      if not should_ignore:
+        result.append(f.filename_abs)
+    return sorted(result)
+  
+  @classmethod
+  def easy_resolve_media_files(clazz, files, recursive, file_ignorer, media_types,
+                               sort_order = None, sort_reverse = False, limit = None,
+                               match_patterns = None):
+    check.check_string_seq(files)
+    check.check_bool(recursive)
+    check.check_file_multi_ignore(file_ignorer, allow_none = True)
+    check.check_tuple(media_types, check.STRING_TYPES)
+    check.check_file_sort_order(sort_order, allow_none = True)
+    check.check_bool(sort_reverse)
+    check.check_int(limit, allow_none = True)
+    check.check_string_seq(match_patterns, allow_none = True)
+
+    rfiles = clazz.easy_resolve_files(files,
+                                      recursive,
+                                      file_ignorer,
+                                      sort_order = sort_order,
+                                      sort_reverse = sort_reverse,
+                                      limit = limit,
+                                      match_patterns = match_patterns)
+    def _caca_ignore(f):
+      return f.endswith('.part')
+    rfiles = [ f for f in rfiles if not _caca_ignore(f) ]
+    return [ f for f in rfiles if file_attributes_metadata.media_type_matches(f, media_types) ]
