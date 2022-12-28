@@ -10,6 +10,7 @@ from .data_output_style import data_output_style
 class data_output_options(object):
   
   def __init__(self, *args, **kargs):
+    self.limit_num_items = None
     self.brief_column = 0
     self.output_filename = None
     self.style = data_output_style.TABLE
