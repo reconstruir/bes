@@ -230,7 +230,7 @@ class file_attributes_metadata(object):
   @classmethod
   def is_media(clazz, filename):
     return clazz.media_type_matches(filename, ( 'image', 'video' ))
-  
+
   @classmethod
   def is_video(clazz, filename):
     return clazz.media_type_matches(filename, ( 'video', ))
@@ -238,6 +238,16 @@ class file_attributes_metadata(object):
   @classmethod
   def is_image(clazz, filename):
     return clazz.media_type_matches(filename, ( 'image', ))
+
+  @classmethod
+  def mime_type_matches(clazz, filename, mime_types):
+    filename = file_check.check_file(filename)
+    check.check_string_seq(mime_types)
+    
+    mime_type = clazz.get_metadata(filename, 'mime_type')
+    if not mime_type:
+      return False
+    return mime_type in mime_types
   
 check.register_class(file_attributes_metadata, include_seq = False)
 
