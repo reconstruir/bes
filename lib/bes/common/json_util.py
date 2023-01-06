@@ -60,13 +60,17 @@ class json_util(object):
     return None
     
   @classmethod
-  def save_file(clazz, filename, o, indent = None, sort_keys = False, codec = None):
+  def save_file(clazz, filename, o, indent = None, sort_keys = False, codec = None, ensure_last_line_sep = False):
     check.check_string(filename)
     check.check_int(indent, allow_none = True)
     check.check_bool(sort_keys)
     check.check_string(codec, allow_none = True)
+    check.check_bool(ensure_last_line_sep)
 
-    content = clazz.to_json(o, indent = indent, sort_keys = sort_keys)
+    content = clazz.to_json(o,
+                            indent = indent,
+                            sort_keys = sort_keys,
+                            ensure_last_line_sep = ensure_last_line_sep)
     codec = codec or 'utf-8'
     with open(filename, 'w', encoding = codec) as f:
       f.write(content)
