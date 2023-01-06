@@ -91,7 +91,7 @@ class text_replace(object):
 
   @classmethod
   def replace_span(clazz, text, span, replacement):
-    'Replace src_string with dst_string optionally respecting word boundaries.'
+    'Replace text span with replacement.'
     check.check_string(text)
     check.check_text_span(span)
     check.check_string(replacement)
