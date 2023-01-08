@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import itertools
+import random
+
 from bes.compat.StringIO import StringIO
 from bes.compat.cmp import cmp
 from bes.compat.zip import zip
@@ -181,3 +183,11 @@ class type_checked_list(object):
     if check.is_seq(obj):
       return clazz([ x for x in obj ])
     return obj
+
+  def shuffle(self):
+    random.shuffle(self._values)
+    
+  def shuffled(self):
+    values = self._values[:]
+    random.shuffle(values)
+    return self.__class__(values)
