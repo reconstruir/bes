@@ -98,4 +98,3 @@ class number_util(object):
     check.check_int(n)
 
     return (n % 2) == 0
-  
