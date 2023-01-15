@@ -80,23 +80,17 @@ class execute(object):
       
     clazz._log.log_d('parsed_args={}'.format(parsed_args))
 
-    with env_override(options = env_options) as _:
-      try:
-        process = subprocess.Popen(parsed_args,
-                                   stdout = stdout_pipe,
-                                   stderr = stderr_pipe,
-                                   stdin = stdin_pipe,
-                                   shell = shell,
-                                   cwd = cwd,
-                                   env = env)
-      except OSError as ex:
-        if print_failure:
-          message = 'failed: {} - {}'.format(str(parsed_args), str(ex))
-          sys.stderr.write(message)
-          sys.stderr.write('\n')
-          sys.stderr.flush()
-        raise
-
+    if True:
+      process = clazz.popen(args,
+                            stderr_to_stdout = stderr_to_stdout,
+                            cwd = cwd,
+                            env = env,
+                            shell = shell,
+                            input_data = input_data,
+                            print_failure = print_failure,
+                            quote = quote,
+                            check_python_script = check_python_script,
+                            env_options = env_options)
       stdout_lines = []
       stderr_lines = []
       if non_blocking:
@@ -130,6 +124,69 @@ class execute(object):
           rv.raise_error(log_error = True, print_error = True)
       return rv
 
+  @classmethod
+  def popen(clazz,
+            args = [],
+            stderr_to_stdout = False,
+            cwd = None,
+            env = None,
+            shell = False,
+            input_data = None,
+            print_failure = True,
+            quote = False,
+            check_python_script = True,
+            env_options = None):
+    'Call subprocess.Popen'
+    check.check_bytes(input_data, allow_none = True)
+    check.check_bool(print_failure)
+    check.check_bool(quote)
+    check.check_bool(check_python_script)
+    check.check_env_override_options(env_options, allow_none = True)
+
+    clazz._log.log_method_d()
+    
+    parsed_args = command_line.parse_args(args, quote = quote)
+    stdout_pipe = subprocess.PIPE
+    if not stderr_to_stdout:
+      stderr_pipe = subprocess.PIPE
+    else:
+      stderr_pipe = subprocess.STDOUT
+    if input_data != None:
+      stdin_pipe = subprocess.PIPE
+    else:
+      stdin_pipe = None
+
+    # If the first argument is a python script, then run it with python always
+    if check_python_script:
+      if path.exists(parsed_args[0]) and python.is_python_script(parsed_args[0]):
+        python_exe = python.find_python_exe()
+        if ' ' in python_exe:
+          python_exe = '"{}"'.format(python_exe)
+        parsed_args.insert(0, python_exe)
+
+    if shell:
+      parsed_args = ' '.join(parsed_args)
+      # FIXME: quoting ?
+      
+    clazz._log.log_d('parsed_args={}'.format(parsed_args))
+
+    with env_override(options = env_options) as _:
+      try:
+        return subprocess.Popen(parsed_args,
+                                stdout = stdout_pipe,
+                                stderr = stderr_pipe,
+                                stdin = stdin_pipe,
+                                shell = shell,
+                                cwd = cwd,
+                                env = env)
+      except OSError as ex:
+        if print_failure:
+          message = 'failed: {} - {}'.format(str(parsed_args), str(ex))
+          sys.stderr.write(message)
+          sys.stderr.write('\n')
+          sys.stderr.flush()
+        raise
+    
   @classmethod
   def _poll_process(clazz, process, output_encoding, output_function, stderr_pipe):
     # http://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
