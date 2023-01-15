@@ -1,5 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import io
 import inspect
 import os.path as path
 import types
@@ -10,13 +11,14 @@ from .compat import compat
 
 class check(object):
 
-  STRING_TYPES = compat.STRING_TYPES
-  INTEGER_TYPES = compat.INTEGER_TYPES
-  CLASS_TYPES = compat.CLASS_TYPES
   CALLABLE_TYPES = ( types.FunctionType, types.MethodType )
-  INTEGER_OR_STRING_TYPES = INTEGER_TYPES + STRING_TYPES
+  CLASS_TYPES = compat.CLASS_TYPES
+  FILE_LIKE_TYPES = ( io.TextIOBase, io.BufferedIOBase, io.RawIOBase, io.IOBase )
+  INTEGER_OR_STRING_TYPES = compat.INTEGER_TYPES + compat.STRING_TYPES
+  INTEGER_TYPES = compat.INTEGER_TYPES
   NUMBER_TYPES = compat.INTEGER_TYPES + ( float, )
-
+  STRING_TYPES = compat.STRING_TYPES
+  
   @classmethod
   def is_string(clazz, o):
     return isinstance(o, clazz.STRING_TYPES)
@@ -275,6 +277,17 @@ class check(object):
                         2,
                         allow_none = allow_none,
                         default_value = default_value)
+
+  @classmethod
+  def is_file_like(clazz, o):
+    return isinstance(o, clazz.FILE_LIKE_TYPES)
+
+  @classmethod
+  def check_file_like(clazz, o, allow_none = False):
+    return clazz._check(o,
+                        clazz.FILE_LIKE_TYPES,
+                        2,
+                        allow_none = allow_none)
   
   @classmethod
   def check_callable(clazz, o, allow_none = False, default_value = None):
