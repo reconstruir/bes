@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from os import path
 
-from bes.files.metadata.bfile_entry import bfile_entry
+from bes.files.bfile_entry import bfile_entry
 
 from bes.fs.file_attributes import file_attributes
 from bes.fs.file_attributes_metadata import file_attributes_metadata

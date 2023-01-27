@@ -23,6 +23,7 @@ class bfile_cached_attribute(object):
   @property
   def value(self):
     current_mtime = path.getmtime(self._filename)
+    print(f'value(): filename={self._filename} current_mtime={current_mtime} last_mtime={self._last_mtime}')
     if self._last_mtime != None:
       assert not self._last_mtime > current_mtime
       if current_mtime <= self._last_mtime:

@@ -10,7 +10,7 @@ from bes.system.filesystem import filesystem
   
 class test_bfile_cached_attribute(unit_test):
 
-  def test_foo(self):
+  def test_value(self):
     tmp = self.make_temp_file(content = 'kiwi')
     a = bfile_cached_attribute(tmp, lambda f: path.getsize(f))
     self.assertEqual( 0, a.count )
@@ -18,6 +18,22 @@ class test_bfile_cached_attribute(unit_test):
     self.assertEqual( 1, a.count )
     self.assertEqual( 4, a.value )
     self.assertEqual( 1, a.count )
+
+  def test_value_changes(self):
+    tmp = self.make_temp_file(content = 'kiwi')
+    a = bfile_cached_attribute(tmp, lambda f: path.getsize(f))
+    self.assertEqual( 0, a.count )
+    self.assertEqual( 4, a.value )
+    self.assertEqual( 1, a.count )
+    self.assertEqual( 4, a.value )
+    self.assertEqual( 1, a.count )
+    with open(tmp, 'w') as fout:
+      fout.write('kiwikiwi')
+    filesystem.sync()
+    self.assertEqual( 8, a.value )
+    self.assertEqual( 2, a.count )
+    self.assertEqual( 8, a.value )
+    self.assertEqual( 2, a.count )
     
 if __name__ == '__main__':
   unit_test.main()
