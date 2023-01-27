@@ -10,7 +10,8 @@ import os
 #from bes.fs.file_check import file_check
 #from bes.property.cached_property import cached_property
 from bes.system.check import check
-#from bes.system.log import logger
+from bes.system.log import logger
+from bes.fs.file_check import file_check
 #
 #from .file_attributes import file_attributes
 #from .file_attributes_error import file_attributes_permission_error
@@ -33,7 +34,7 @@ class bfile_cached_attributes(object):
   _log = logger('bfile_cached_attributes')
   
   def __init__(self, filename):
-    self._filename = file_check.check_file(filename)
+    self._filename = filename
     self._values = {}
 
   _value_makers = {}
@@ -78,5 +79,7 @@ class bfile_cached_attributes(object):
   @classmethod
   def register_common_value_makers(clazz):
     clazz.register_value_maker('stat', lambda filename: os.stat(filename, follow_symlinks = True))
-  
+
+bfile_cached_attributes.register_common_value_makers()
+
 check.register_class(bfile_cached_attributes, include_seq = False)
