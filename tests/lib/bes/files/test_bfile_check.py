@@ -5,7 +5,7 @@ import os.path as path
 import socket
 
 from bes.files.bfile_check import bfile_check
-from bes.fs.file_symlink import file_symlink
+from bes.files.bfile_symlink import bfile_symlink
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 from bes.system.filesystem import filesystem
@@ -32,14 +32,14 @@ class test_bfile_check(unit_test):
   def test_check_file_symlink_success(self):
     f = self.make_temp_file(content = 'kiwi')
     l = self.make_temp_file(content = 'link')
-    file_symlink.symlink(f, l)
+    bfile_symlink.symlink(f, l)
     self.assertEqual( f, bfile_check.check_file(l) )
 
   @unit_test_function_skip.skip_if_not_unix(warning = True)
   def test_check_file_symlink_broken(self):
     f = self.make_temp_file(content = 'kiwi')
     l = self.make_temp_file(content = 'link')
-    file_symlink.symlink(f, l)
+    bfile_symlink.symlink(f, l)
     filesystem.remove(f)
     with self.assertRaises(IOError) as ctx:
       bfile_check.check_file(l)
@@ -62,7 +62,7 @@ class test_bfile_check(unit_test):
     tmp_dir = self.make_temp_dir()
     d = self.make_temp_dir(dir = tmp_dir)
     l = self.make_temp_file(content = 'link', dir = tmp_dir)
-    file_symlink.symlink(d, l)
+    bfile_symlink.symlink(d, l)
     self.assertEqual( d, bfile_check.check_dir(l) )
     filesystem.remove(tmp_dir)
       
@@ -70,7 +70,7 @@ class test_bfile_check(unit_test):
   def test_check_dir_symlink_broken(self):
     d = self.make_temp_dir()
     l = self.make_temp_file(content = 'link')
-    file_symlink.symlink(d, l)
+    bfile_symlink.symlink(d, l)
     filesystem.remove(d)
     with self.assertRaises(IOError) as ctx:
       bfile_check.check_dir(l)

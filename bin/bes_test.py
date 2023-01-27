@@ -560,6 +560,8 @@ def _test_data_dir(filename):
   return data_dir or ''
 
 def _test_execute(python_exe, test_map, filename, tests, options, index, total_files, cwd, env):
+  python_exe = 'python3.9'
+  
   short_filename = file_util.remove_head(filename, cwd)
 
   cmd = [ '"{}"'.format(python_exe) ]
@@ -627,7 +629,9 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
       env['BES_TEMP_DIR'] = options.temp_dir
     env['HOME'] = options.home_dir
     time_start = time.time()
-    _LOG.log_d('cmd=={}'.format(cmd))
+    _LOG.log_d(f'cmd={" ".join(cmd)}')
+    #print(f'cmd={" ".join(cmd)}')
+    env = None
     process = subprocess.Popen(' '.join(cmd),
                                stdout = subprocess.PIPE,
                                stderr = subprocess.STDOUT,
