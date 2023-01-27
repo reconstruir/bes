@@ -13,10 +13,11 @@ from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
 
+from ..bfile_error import bfile_error
+from ..bfile_permission_error import bfile_permission_error
+
 from .bfile_cached_attributes import bfile_cached_attributes
-from .bfile_error import bfile_error
 from .bfile_metadata_getter_base import bfile_metadata_getter_base
-from .bfile_permission_error import bfile_permission_error
 
 class bfile_entry(object):
 

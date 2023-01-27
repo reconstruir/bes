@@ -26,8 +26,8 @@ from bes.fs.file_check import file_check
 #from .file_metadata_getter_media_type import file_metadata_getter_media_type
 #from .file_metadata_getter_mime_type import file_metadata_getter_mime_type
 
-from .bfile_permission_error import bfile_permission_error
-from .bfile_error import bfile_error
+from ..bfile_permission_error import bfile_permission_error
+from ..bfile_error import bfile_error
 
 class bfile_cached_attributes(object):
 
