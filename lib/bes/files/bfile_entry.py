@@ -8,16 +8,13 @@ from collections import namedtuple
 
 from bes.common.hash_util import hash_util
 from bes.common.time_util import time_util
-from bes.fs.file_check import file_check
 from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
 
-from ..bfile_error import bfile_error
-from ..bfile_permission_error import bfile_permission_error
-
-from .bfile_cached_attributes import bfile_cached_attributes
-from .bfile_metadata_getter_base import bfile_metadata_getter_base
+from .bfile_error import bfile_error
+from .bfile_permission_error import bfile_permission_error
+from .bfile_cached_attribute import bfile_cached_attribute
 
 class bfile_entry(object):
 

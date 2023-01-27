@@ -48,7 +48,7 @@ class bfile_cached_attributes(object):
     clazz._value_makers[key] = value_maker
     
   @property
-  def _mtime(self):
+  def mtime(self):
     return path.getmtime(self._filename)
 
   _value_item = namedtuple('_value_item', 'value, mtime')
@@ -64,15 +64,13 @@ class bfile_cached_attributes(object):
     if not value_maker:
       raise bfile_error(f'no value maker registered for "{key}"')
     
-    mtime = self._mtime
-
     item = self._values.get(key, None)
     if item:
-      if mtime > item.mtime:
+      if self.mtime > item.mtime:
         item = None
     if not item:
       value = value_maker(self._filename)
-      item = self._value_item(value, mtime)
+      item = self._value_item(value, self.mtime)
       self._values[key] = item
     return item.value
 
