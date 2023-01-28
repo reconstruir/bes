@@ -7,12 +7,8 @@ from datetime import timedelta
 from os import path
 
 from bes.files.bfile_entry import bfile_entry
+from bes.system.filesystem import filesystem
 
-from bes.fs.file_attributes import file_attributes
-from bes.fs.file_attributes_metadata import file_attributes_metadata
-from bes.fs.file_mime import file_mime
-from bes.fs.file_util import file_util
-from bes.fs.file_metadata_getter_base import file_metadata_getter_base
 from bes.system.filesystem import filesystem
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
@@ -36,7 +32,7 @@ class test_bfile_entry(unit_test, unit_test_media_files):
   def test_exits_false(self):
     e = self.F()
     self.assertEquals( True, e.exists )
-    file_util.remove(e.filename)
+    filesystem.remove(e.filename)
     self.assertEquals( False, e.exists )
 
   def test_access(self):
