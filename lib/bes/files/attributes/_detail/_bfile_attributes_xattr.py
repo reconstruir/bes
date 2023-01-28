@@ -9,11 +9,11 @@ from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
 
-from bes.fs.file_attributes_base import file_attributes_base
+from bes.fs.bfile_attributes_base import bfile_attributes_base
 
-class _file_attributes_xattr(file_attributes_base):
+class _bfile_attributes_xattr(bfile_attributes_base):
 
-  _log = logger('_file_attributes_xattr')
+  _log = logger('_bfile_attributes_xattr')
   
   @classmethod
   #@abstractmethod

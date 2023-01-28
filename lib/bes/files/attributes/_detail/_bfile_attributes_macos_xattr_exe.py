@@ -8,11 +8,11 @@ from bes.macos.xattr_exe.xattr_exe import xattr_exe
 from bes.macos.xattr_exe.xattr_exe_error import xattr_exe_error
 from bes.macos.xattr_exe.xattr_exe_error import xattr_exe_permission_error
 
-from bes.fs.file_attributes_base import file_attributes_base
+from bes.fs.bfile_attributes_base import bfile_attributes_base
 
-class _file_attributes_macos_xattr_exe(file_attributes_base):
+class _bfile_attributes_macos_xattr_exe(bfile_attributes_base):
 
-  _log = logger('_file_attributes_macos_xattr_exe')
+  _log = logger('_bfile_attributes_macos_xattr_exe')
   
   @classmethod
   #@abstractmethod

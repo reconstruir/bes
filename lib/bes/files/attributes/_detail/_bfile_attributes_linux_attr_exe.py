@@ -8,11 +8,11 @@ from bes.linux.attr.linux_attr import linux_attr
 from bes.linux.attr.linux_attr_error import linux_attr_error
 from bes.linux.attr.linux_attr_error import linux_attr_permission_error
 
-from bes.fs.file_attributes_base import file_attributes_base
+from bes.fs.bfile_attributes_base import bfile_attributes_base
 
-class _file_attributes_linux_attr_exe(file_attributes_base):
+class _bfile_attributes_linux_attr_exe(bfile_attributes_base):
 
-  _log = logger('_file_attributes_linux_attr_exe')
+  _log = logger('_bfile_attributes_linux_attr_exe')
   
   @classmethod
   #@abstractmethod

@@ -11,9 +11,9 @@ from ..system.check import check
 from bes.common.bool_util import bool_util
 from bes.fs.file_check import file_check
 
-from .file_attributes_error import file_attributes_permission_error
+from .bfile_attributes_error import bfile_attributes_permission_error
 
-class file_attributes_base(with_metaclass(ABCMeta, object)):
+class bfile_attributes_base(with_metaclass(ABCMeta, object)):
 
   @classmethod
   @abstractmethod
@@ -158,7 +158,7 @@ class file_attributes_base(with_metaclass(ABCMeta, object)):
     filename = file_check.check_file(filename)
 
     if not os.access(filename, os.R_OK):
-      raise file_attributes_permission_error('File is not readable: {}'.format(filename))
+      raise bfile_attributes_permission_error('File is not readable: {}'.format(filename))
 
   @classmethod
   def check_file_is_writable(clazz, filename):
@@ -166,5 +166,5 @@ class file_attributes_base(with_metaclass(ABCMeta, object)):
     filename = file_check.check_file(filename)
 
     if not os.access(filename, os.W_OK):
-      raise file_attributes_permission_error('File is not writable: {}'.format(filename))
+      raise bfile_attributes_permission_error('File is not writable: {}'.format(filename))
       

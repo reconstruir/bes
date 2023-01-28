@@ -11,8 +11,8 @@ from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
 
-from .file_attributes import file_attributes
-from .file_attributes_error import file_attributes_permission_error
+from .bfile_attributes import bfile_attributes
+from .bfile_attributes_error import bfile_attributes_permission_error
 from .file_mime import file_mime
 from .file_path import file_path
 from .file_util import file_util
@@ -24,9 +24,9 @@ from .file_metadata_getter_checksum_sha256 import file_metadata_getter_checksum_
 from .file_metadata_getter_media_type import file_metadata_getter_media_type
 from .file_metadata_getter_mime_type import file_metadata_getter_mime_type
 
-class file_attributes_metadata(object):
+class bfile_attributes_metadata(object):
 
-  _log = logger('file_attributes_metadata')
+  _log = logger('bfile_attributes_metadata')
   
   @classmethod
   def get_bytes(clazz, filename, key, value_maker, fallback = False):
@@ -41,7 +41,7 @@ class file_attributes_metadata(object):
       return value_maker(filename)
     
     mtime_key = clazz._make_mtime_key(key)
-    attr_mtime = file_attributes.get_date(filename, mtime_key)
+    attr_mtime = bfile_attributes.get_date(filename, mtime_key)
     file_mtime = file_util.get_modification_date(filename)
 
     label = f'get_bytes:{filename}:{key}'
@@ -59,8 +59,8 @@ class file_attributes_metadata(object):
       return value
 
     if attr_mtime == file_mtime:
-      if file_attributes.has_key(filename, key):
-        value = file_attributes.get_bytes(filename, key)
+      if bfile_attributes.has_key(filename, key):
+        value = bfile_attributes.get_bytes(filename, key)
         clazz._log.log_d(f'{label}: using cached value "{value}"')
         return value
 
@@ -74,9 +74,9 @@ class file_attributes_metadata(object):
 
   @classmethod
   def _refresh_value(clazz, filename, key, value, mtime_key):
-    file_attributes.set_bytes(filename, key, value)
+    bfile_attributes.set_bytes(filename, key, value)
     file_mtime = file_util.get_modification_date(filename)
-    file_attributes.set_date(filename, mtime_key, file_mtime)
+    bfile_attributes.set_date(filename, mtime_key, file_mtime)
     # setting the date in the line above has the side effect
     # of changing the mtime in some implementations.  so we
     # force it to be what it was right after setting the value
@@ -175,17 +175,17 @@ class file_attributes_metadata(object):
         del getter_item.cache[cache_key]
 
     mtime_key = clazz._make_mtime_key(key)
-    if file_attributes.has_key(filename, mtime_key):
-      file_attributes.remove(filename, mtime_key)
-    if file_attributes.has_key(filename, key):
-      file_attributes.remove(filename, key)
+    if bfile_attributes.has_key(filename, mtime_key):
+      bfile_attributes.remove(filename, mtime_key)
+    if bfile_attributes.has_key(filename, key):
+      bfile_attributes.remove(filename, key)
 
   @classmethod
   def remove_values(clazz, filename, func):
     filename = file_check.check_file(filename)
     check.check_callable(func)
     
-    keys = [ key for key in file_attributes.keys(filename) if func(key) ]
+    keys = [ key for key in bfile_attributes.keys(filename) if func(key) ]
     for key in keys:
       clazz.remove_value(filename, key)
       
@@ -249,10 +249,10 @@ class file_attributes_metadata(object):
       return False
     return mime_type in mime_types
   
-check.register_class(file_attributes_metadata, include_seq = False)
+check.register_class(bfile_attributes_metadata, include_seq = False)
 
-file_attributes_metadata.register_getter(file_metadata_getter_checksum_md5)
-file_attributes_metadata.register_getter(file_metadata_getter_checksum_sha1)
-file_attributes_metadata.register_getter(file_metadata_getter_checksum_sha256)
-file_attributes_metadata.register_getter(file_metadata_getter_media_type)
-file_attributes_metadata.register_getter(file_metadata_getter_mime_type)
+bfile_attributes_metadata.register_getter(file_metadata_getter_checksum_md5)
+bfile_attributes_metadata.register_getter(file_metadata_getter_checksum_sha1)
+bfile_attributes_metadata.register_getter(file_metadata_getter_checksum_sha256)
+bfile_attributes_metadata.register_getter(file_metadata_getter_media_type)
+bfile_attributes_metadata.register_getter(file_metadata_getter_mime_type)

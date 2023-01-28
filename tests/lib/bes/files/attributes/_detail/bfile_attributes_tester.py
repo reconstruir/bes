@@ -4,7 +4,7 @@ from datetime import datetime
 import os.path as path
 import stat
 
-from bes.fs.file_attributes_error import file_attributes_permission_error
+from bes.fs.bfile_attributes_error import bfile_attributes_permission_error
 from bes.fs.file_symlink import file_symlink
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
@@ -14,7 +14,7 @@ from _bes_unit_test_common.unit_test_media import unit_test_media
 
 def make_test_case(impl):
   
-  class _file_attributes_test_case(unit_test):
+  class _bfile_attributes_test_case(unit_test):
 
     def test_has_key_false(self):
       tmp = self._make_temp_file('this is foo\n')
@@ -96,17 +96,17 @@ def make_test_case(impl):
       
     def test_set_no_write_permission_unix(self):
       tmp = self._make_read_only_temp_file()
-      with self.assertRaises(file_attributes_permission_error) as ctx:
+      with self.assertRaises(bfile_attributes_permission_error) as ctx:
         impl.set_string(tmp, 'foo', 'hi')
 
     def test_remove_no_write_permission_unix(self):
       tmp = self._make_read_only_temp_file()
-      with self.assertRaises(file_attributes_permission_error) as ctx:
+      with self.assertRaises(bfile_attributes_permission_error) as ctx:
         impl.remove(tmp, 'foo')
 
     def test_clear_no_write_permission_unix(self):
       tmp = self._make_read_only_temp_file()
-      with self.assertRaises(file_attributes_permission_error) as ctx:
+      with self.assertRaises(bfile_attributes_permission_error) as ctx:
         impl.clear(tmp)
         
     def _make_read_only_temp_file(self):
@@ -139,4 +139,4 @@ def make_test_case(impl):
       tmp_dir = path.join(path.dirname(__file__), '.tmp')
       return self.make_temp_file(content = content, dir = tmp_dir, suffix = '.txt')
 
-  return _file_attributes_test_case
+  return _bfile_attributes_test_case

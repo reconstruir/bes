@@ -2,12 +2,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.fs.file_attributes import file_attributes
+from bes.fs.bfile_attributes import bfile_attributes
 from bes.docker.docker import docker
 
-from _detail.file_attributes_tester import make_test_case
+from _detail.bfile_attributes_tester import make_test_case
 
-class test_file_attributes(make_test_case(file_attributes)):
+class test_bfile_attributes(make_test_case(bfile_attributes)):
   
   @classmethod
   def setUpClass(clazz):
