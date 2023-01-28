@@ -22,8 +22,8 @@ class bfile_entry(object):
   
   def __init__(self, filename):
     self._filename = filename
-    self._cached_attributes = bfile_cached_attributes(self._filename)
-
+    self._stat = bfile_cached_attribute(self._filename, lambda f: os.stat(filename, follow_symlinks = True))
+    
   @property
   def exists(self):
     return  path.exists(self._filename)
@@ -56,7 +56,7 @@ class bfile_entry(object):
   
   @property
   def stat(self):
-    return self._cached_attributes.get_value('stat')
+    return self._stat.value
 
   @cached_property
   def hashed_filename_sha256(self):
