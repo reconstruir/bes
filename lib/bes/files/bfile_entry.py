@@ -12,9 +12,10 @@ from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
 
-from .bfile_error import bfile_error
-from .bfile_permission_error import bfile_permission_error
 from .bfile_cached_attribute import bfile_cached_attribute
+from .bfile_error import bfile_error
+from .bfile_filename import bfile_filename
+from .bfile_permission_error import bfile_permission_error
 
 class bfile_entry(object):
 
@@ -23,7 +24,35 @@ class bfile_entry(object):
   def __init__(self, filename):
     self._filename = filename
     self._stat = bfile_cached_attribute(self._filename, lambda f: os.stat(filename, follow_symlinks = True))
-    
+
+  @cached_property
+  def filename(self):
+    return self._filename
+
+  @cached_property
+  def filename_lowercase(self):
+    return self.filename.lower()
+  
+  @cached_property
+  def dirname(self):
+    return path.dirname(self._filename)
+
+  @cached_property
+  def dirname_lowercase(self):
+    return self.dirname.lower()
+  
+  @cached_property
+  def basename(self):
+    return path.basename(self._filename)
+
+  @cached_property
+  def extension(self):
+    return bfile_filename.extension(self._filename)
+
+  @cached_property
+  def extension_lowercase(self):
+    return self.extension.lower()
+  
   @property
   def exists(self):
     return  path.exists(self._filename)
@@ -61,31 +90,11 @@ class bfile_entry(object):
   @cached_property
   def hashed_filename_sha256(self):
     return hash_util.hash_string_sha256(self._filename)
-    
-  @cached_property
-  def basename(self):
-    return path.basename(self._filename)
   
   @cached_property
   def basename_lowercase(self):
     return self.basename.lower()
 
-  @cached_property
-  def filename(self):
-    return self._filename
-
-  @cached_property
-  def filename_lowercase(self):
-    return self.filename.lower()
-  
-  @cached_property
-  def dirname(self):
-    return path.dirname(self._filename)
-
-  @cached_property
-  def dirname_lowercase(self):
-    return self.dirname.lower()
-  
   @property
   def is_dir(self):
     return path.isdir(self._filename)
@@ -105,7 +114,10 @@ class bfile_entry(object):
 
   @modification_date.setter
   def modification_date(self, mtime):
-    check.check_datetime(datetime)
+    check.check_datetime(mtime)
+
+    ts = mtime.timestamp()
+    os.utime(self._filename, ( ts, ts ))
 
   @property
   def modification_date_timestamp(self):

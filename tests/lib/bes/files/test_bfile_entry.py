@@ -45,11 +45,20 @@ class test_bfile_entry(unit_test, unit_test_media_files):
     self.assertEquals( True, self.D().is_dir )
 
   def test_size(self):
-    self.assertEquals( 3, self.F(content = 'foo').size )
+    self.assertEquals( 4, self.F(content = 'kiwi').size )
+
+  def test_extension(self):
+    self.assertEquals( 'kiwi', self.F(suffix = '.kiwi').extension )
     
-  def test_modification_date(self):
+  def test_modification_date_get(self):
     e = self.F()
-#    self.assertEquals( 3, self.F(content = 'foo').size )
+    self.assertEqual( datetime.fromtimestamp(path.getmtime(e.filename)), e.modification_date )
+
+  def test_modification_date_set(self):
+    e = self.F()
+    d = datetime(year = 2000, month = 1, day = 1, hour = 1, second = 1)
+    e.modification_date = d
+    self.assertEqual( d, e.modification_date )
     
 if __name__ == '__main__':
   unit_test.main()
