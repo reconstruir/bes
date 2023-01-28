@@ -9,7 +9,7 @@ from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
 
-from bes.fs.bfile_attributes_base import bfile_attributes_base
+from bes.files.attributes.bfile_attributes_base import bfile_attributes_base
 
 class _bfile_attributes_xattr(bfile_attributes_base):
 

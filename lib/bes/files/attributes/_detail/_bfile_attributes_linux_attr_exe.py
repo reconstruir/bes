@@ -8,7 +8,7 @@ from bes.linux.attr.linux_attr import linux_attr
 from bes.linux.attr.linux_attr_error import linux_attr_error
 from bes.linux.attr.linux_attr_error import linux_attr_permission_error
 
-from bes.fs.bfile_attributes_base import bfile_attributes_base
+from bes.files.attributes.bfile_attributes_base import bfile_attributes_base
 
 class _bfile_attributes_linux_attr_exe(bfile_attributes_base):
 
