@@ -59,6 +59,11 @@ class test_bfile_entry(unit_test, unit_test_media_files):
     d = datetime(year = 2000, month = 1, day = 1, hour = 1, second = 1)
     e.modification_date = d
     self.assertEqual( d, e.modification_date )
-    
+
+  def test_modification_date_timestamp(self):
+    e = self.F()
+    e.modification_date = datetime(year = 2000, month = 1, day = 1, hour = 1, second = 1)
+    self.assertEqual( '2000-01-01-01-00-01', e.modification_date_timestamp )
+
 if __name__ == '__main__':
   unit_test.main()

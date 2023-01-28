@@ -121,7 +121,7 @@ class bfile_entry(object):
 
   @property
   def modification_date_timestamp(self):
-    return time_util.timestamp(when = self.modification_date)
+    return time_util.timestamp(when = self.modification_date, milliseconds = False)
 
   @property
   def _cache_key(self):
