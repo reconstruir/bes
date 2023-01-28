@@ -9,6 +9,7 @@ from bes.testing.unit_test import unit_test
 from bes.system.env_override import env_override
 
 from .git import git
+from .git_config import git_config
 
 class git_unit_test(object):
   'Class to help write unit tests that use git.'
@@ -37,6 +38,7 @@ def git_temp_home_func():
     def _caller(self, *args, **kwargs):
       with env_override.temp_home() as env:
         git_unit_test.set_identity()
+        git_config.set_value('protocol.file.allow', 'always')
         return func(self, *args, **kwargs)
     return _caller
   return _wrap
