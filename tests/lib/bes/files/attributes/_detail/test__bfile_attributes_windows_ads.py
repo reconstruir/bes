@@ -9,7 +9,7 @@ from bes.system.host import host
 from bfile_attributes_tester import make_test_case
 
 if host.is_windows():    
-  from bes.fs._detail._bfile_attributes_windows_ads import _bfile_attributes_windows_ads
+  from bes.files.attributes._detail._bfile_attributes_windows_ads import _bfile_attributes_windows_ads
   class test__bfile_attributes_windows_ads(make_test_case(_bfile_attributes_windows_ads)):
 
     @classmethod

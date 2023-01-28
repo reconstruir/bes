@@ -10,7 +10,7 @@ from bes.system.host import host
 from bfile_attributes_tester import make_test_case
 
 if HAS_XATTR:
-  from bes.fs._detail._bfile_attributes_xattr import _bfile_attributes_xattr
+  from bes.files.attributes._detail._bfile_attributes_xattr import _bfile_attributes_xattr
   class test__bfile_attributes_xattr(make_test_case(_bfile_attributes_xattr)):
 
     @classmethod

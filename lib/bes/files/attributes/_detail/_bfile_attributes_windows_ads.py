@@ -8,7 +8,7 @@ from bes.system.log import logger
 from bes.windows.ads.ads import ads
 from bes.windows.ads.ads_error import ads_error
 
-from bes.files.attributes.bfile_attributes_base import bfile_attributes_base
+from ..bfile_attributes_base import bfile_attributes_base
 
 class _bfile_attributes_windows_ads(bfile_attributes_base):
   'bfile_attributes implementation that uses windows ADS (alternative data streams)'

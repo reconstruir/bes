@@ -9,7 +9,7 @@ from bes.system.host import host
 from bfile_attributes_tester import make_test_case
     
 if host.is_macos():
-  from bes.fs._detail._bfile_attributes_macos_xattr_exe import _bfile_attributes_macos_xattr_exe
+  from bes.files.attributes._detail._bfile_attributes_macos_xattr_exe import _bfile_attributes_macos_xattr_exe
   class test__bfile_attributes_macos_xattr_exe(make_test_case(_bfile_attributes_macos_xattr_exe)):
 
     @classmethod
