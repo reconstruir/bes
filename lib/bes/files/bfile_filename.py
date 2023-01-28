@@ -10,7 +10,7 @@ from ..system.check import check
 from ..system.filesystem import filesystem
 from ..system.host import host
 
-class bfilename(object):
+class bfile_filename(object):
   'Class to deal with file names'
 
   @classmethod
