@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
 
 from bes.fs.file_util import file_util
 from bes.testing.unit_test import unit_test
 from bes.git.git_changelog import git_changelog
 from bes.git.git_changelog_options import git_changelog_options as options
-
 
 def create_list_of_commit_info(filename):
   log = file_util.read(filename, codec='utf-8')
@@ -14,10 +14,22 @@ def create_list_of_commit_info(filename):
 
   return git_changelog.convert_changelog_string(log)
 
-
 class test_truncate_changelog(unit_test):
-  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/git'
+  
+  def data(self, filename, platform_specific = False, codec = 'utf-8', native_line_breaks = False):
+    data_path = self.data_path(filename, platform_specific = platform_specific)
+    with open(data_path, 'rb') as fin:
+      data = fin.read()
+      if codec:
+        data = data.decode(codec)
+      if native_line_breaks:
+        data = self.native_line_breaks(data)
+      return data
 
+  def data_path(self, filename, platform_specific = False): 
+    d = path.join(path.dirname(__file__), 'example_data')
+    return path.join(d, filename)
+    
   def test_no_truncation(self):
     list_of_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     result_log = git_changelog.truncate_changelog(list_of_commit_info, options())
@@ -185,10 +197,6 @@ class test_truncate_changelog(unit_test):
       with self.assertRaises(TypeError):
         git_changelog.truncate_changelog([inner_type], options())
 
-
-class test_truncate_changelogs(unit_test):
-  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/git'
-
   def test_three_repos_no_truncation(self):
     bes_commit_info = create_list_of_commit_info(self.data_path('original/log.txt'))
     rebuild_commit_info = create_list_of_commit_info(self.data_path('original/log_rebuild.txt'))
@@ -252,7 +260,6 @@ class test_truncate_changelogs(unit_test):
     original_log = self.data('result/log_three_repos_max_chars_500.txt', codec='utf-8', native_line_breaks = True)
     original_log = original_log.strip()
     self.assertEqual(original_log, result)
-
 
 if __name__ == '__main__':
   unit_test.main()

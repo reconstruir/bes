@@ -34,7 +34,7 @@ class unit_test(unittest.TestCase):
     tempfile.tempdir = _temp_dir
   del _temp_dir
   
-  def data_path(self, filename, platform_specific = False): 
+  def xdata_path(self, filename, platform_specific = False): 
     assert filename
     return path.join(self.data_dir(platform_specific = platform_specific), filename)
 
@@ -53,7 +53,7 @@ class unit_test(unittest.TestCase):
   def platform_data_dir(self): 
     return self.data_dir(platform_specific = True)
 
-  def data(self, filename, platform_specific = False, codec = 'utf-8', native_line_breaks = False):
+  def xdata(self, filename, platform_specific = False, codec = 'utf-8', native_line_breaks = False):
     data_path = self.data_path(filename, platform_specific = platform_specific)
     with open(data_path, 'rb') as fin:
       data = fin.read()
