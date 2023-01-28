@@ -19,7 +19,7 @@ class hash_util(object):
   @classmethod
   def hash_string_unsigned(clazz, s, num_digits = None):
     check.check_string(s)
-    check.check_int(num_digits, allow_none = None)
+    check.check_int(num_digits, allow_none = True)
 
     h = int(hashlib.sha1(s.encode('utf-8')).hexdigest(), 16)
     if num_digits == None:
@@ -29,7 +29,7 @@ class hash_util(object):
   @classmethod
   def hash_string_zfilled(clazz, s, num_digits = None):
     check.check_string(s)
-    check.check_int(num_digits, allow_none = None)
+    check.check_int(num_digits, allow_none = True)
 
     hs = str(clazz.hash_string_unsigned(s, num_digits = num_digits))
     if num_digits == None:
