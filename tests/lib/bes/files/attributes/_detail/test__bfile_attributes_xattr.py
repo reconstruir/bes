@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.fs.bfile_attributes import HAS_XATTR
+from bes.files.attributes.bfile_attributes import HAS_XATTR
 from bes.docker.docker import docker
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.system.host import host

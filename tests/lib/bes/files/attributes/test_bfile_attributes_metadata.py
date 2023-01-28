@@ -6,8 +6,8 @@ from datetime import timedelta
 
 from os import path
 
-from bes.fs.bfile_attributes import bfile_attributes
-from bes.fs.bfile_attributes_metadata import bfile_attributes_metadata
+from bes.files.attributes.bfile_attributes import bfile_attributes
+from bes.files.attributes.bfile_attributes_metadata import bfile_attributes_metadata
 from bes.fs.file_mime import file_mime
 from bes.fs.file_util import file_util
 from bes.fs.file_metadata_getter_base import file_metadata_getter_base

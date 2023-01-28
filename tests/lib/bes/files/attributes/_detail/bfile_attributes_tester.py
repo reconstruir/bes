@@ -4,7 +4,7 @@ from datetime import datetime
 import os.path as path
 import stat
 
-from bes.fs.bfile_attributes_error import bfile_attributes_permission_error
+from bes.files.attributes.bfile_attributes_error import bfile_attributes_permission_error
 from bes.fs.file_symlink import file_symlink
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
