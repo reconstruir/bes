@@ -9,7 +9,7 @@ from bes.system.compat import with_metaclass
 
 from bes.system.check import check
 from bes.common.bool_util import bool_util
-from bes.fs.file_check import file_check
+from bes.files.bfile_check import bfile_check
 
 from .bfile_attributes_error import bfile_attributes_permission_error
 
@@ -78,7 +78,7 @@ class bfile_attributes_base(with_metaclass(ABCMeta, object)):
   @classmethod
   def get_string(clazz, filename, key, encoding = 'utf-8'):
     'Return the attribute value with key for filename as string.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     value = clazz.get_bytes(filename, key)
     if value == None:
@@ -88,7 +88,7 @@ class bfile_attributes_base(with_metaclass(ABCMeta, object)):
   @classmethod
   def set_string(clazz, filename, key, value, encoding = 'utf-8'):
     'Set the value of attribute with key to value for filename as string.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     check.check_string(value)
     clazz.set_bytes(filename, key, value.encode(encoding))
@@ -96,7 +96,7 @@ class bfile_attributes_base(with_metaclass(ABCMeta, object)):
   @classmethod
   def get_date(clazz, filename, key):
     'Return the attribute value with key for filename as string.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     value = clazz.get_string(filename, key)
     if value == None:
@@ -107,7 +107,7 @@ class bfile_attributes_base(with_metaclass(ABCMeta, object)):
   @classmethod
   def set_date(clazz, filename, key, value, encoding = 'utf-8'):
     'Set the value of attribute with key to value for filename as string.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     check.check(value, datetime)
     
@@ -116,7 +116,7 @@ class bfile_attributes_base(with_metaclass(ABCMeta, object)):
   @classmethod
   def get_bool(clazz, filename, key):
     'Return the attribute value with key for filename as string.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     value = clazz.get_string(filename, key)
     if value == None:
@@ -126,7 +126,7 @@ class bfile_attributes_base(with_metaclass(ABCMeta, object)):
   @classmethod
   def set_bool(clazz, filename, key, value, encoding = 'utf-8'):
     'Set the value of attribute with key to value for filename as string.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     check.check_bool(value)
     
@@ -135,7 +135,7 @@ class bfile_attributes_base(with_metaclass(ABCMeta, object)):
   @classmethod
   def get_int(clazz, filename, key):
     'Return the attribute value with key for filename as string.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     
     value = clazz.get_string(filename, key)
@@ -146,7 +146,7 @@ class bfile_attributes_base(with_metaclass(ABCMeta, object)):
   @classmethod
   def set_int(clazz, filename, key, value, encoding = 'utf-8'):
     'Set the value of attribute with key to value for filename as string.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     check.check_int(value)
     
@@ -155,7 +155,7 @@ class bfile_attributes_base(with_metaclass(ABCMeta, object)):
   @classmethod
   def check_file_is_readable(clazz, filename):
     'Check that filename is readable and raise a permission error if not.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
 
     if not os.access(filename, os.R_OK):
       raise bfile_attributes_permission_error('File is not readable: {}'.format(filename))
@@ -163,7 +163,7 @@ class bfile_attributes_base(with_metaclass(ABCMeta, object)):
   @classmethod
   def check_file_is_writable(clazz, filename):
     'Check that filename is writable and raise a permission error if not.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
 
     if not os.access(filename, os.W_OK):
       raise bfile_attributes_permission_error('File is not writable: {}'.format(filename))

@@ -2,7 +2,7 @@
 
 from bes.system.check import check
 from bes.system.log import logger
-from bes.fs.file_check import file_check
+from bes.files.bfile_check import bfile_check
 
 from bes.macos.xattr_exe.xattr_exe import xattr_exe
 from bes.macos.xattr_exe.xattr_exe_error import xattr_exe_error
@@ -18,7 +18,7 @@ class _bfile_attributes_macos_xattr_exe(bfile_attributes_base):
   #@abstractmethod
   def has_key(clazz, filename, key):
     'Return True if filename has an attributed with key.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     clazz.check_file_is_readable(filename)
     
@@ -28,7 +28,7 @@ class _bfile_attributes_macos_xattr_exe(bfile_attributes_base):
   #@abstractmethod
   def get_bytes(clazz, filename, key):
     'Return the attribute value with key for filename.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     clazz.check_file_is_readable(filename)
 
@@ -41,7 +41,7 @@ class _bfile_attributes_macos_xattr_exe(bfile_attributes_base):
   #@abstractmethod
   def set_bytes(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     check.check_bytes(value)
     clazz.check_file_is_writable(filename)
@@ -53,7 +53,7 @@ class _bfile_attributes_macos_xattr_exe(bfile_attributes_base):
   #@abstractmethod
   def remove(clazz, filename, key):
     'Remove the attirbute with key from filename.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     clazz.check_file_is_writable(filename)
     
