@@ -20,7 +20,7 @@ class _bfile_attributes_linux_attr_exe(_bfile_attributes_base):
     'Return True if filename has an attributed with key.'
     filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
-    clazz.check_file_is_readable(filename)
+    bfile_check.check_file_is_readable(filename)
 
     return linux_attr.has_key(filename, key)
 
@@ -30,7 +30,7 @@ class _bfile_attributes_linux_attr_exe(_bfile_attributes_base):
     'Return the attribute value with key for filename.'
     filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
-    clazz.check_file_is_readable(filename)
+    bfile_check.check_file_is_readable(filename)
 
     if not linux_attr.has_key(filename, key):
       return None
@@ -44,7 +44,7 @@ class _bfile_attributes_linux_attr_exe(_bfile_attributes_base):
     filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     check.check_bytes(value)
-    clazz.check_file_is_writable(filename)
+    bfile_check.check_file_is_writable(filename)
 
     clazz._log.log_method_d()
 
@@ -56,7 +56,7 @@ class _bfile_attributes_linux_attr_exe(_bfile_attributes_base):
     'Remove the attirbute with key from filename.'
     filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
-    clazz.check_file_is_writable(filename)
+    bfile_check.check_file_is_writable(filename)
     
     linux_attr.remove(filename, key)
   
@@ -65,7 +65,7 @@ class _bfile_attributes_linux_attr_exe(_bfile_attributes_base):
   def keys(clazz, filename):
     'Return all the keys set for filename.'
     check.check_string(filename)
-    clazz.check_file_is_readable(filename)
+    bfile_check.check_file_is_readable(filename)
 
     return linux_attr.keys(filename)
     
@@ -74,6 +74,6 @@ class _bfile_attributes_linux_attr_exe(_bfile_attributes_base):
   def clear(clazz, filename):
     'Create all attributes.'
     check.check_string(filename)
-    clazz.check_file_is_writable(filename)
+    bfile_check.check_file_is_writable(filename)
 
     linux_attr.clear(filename)

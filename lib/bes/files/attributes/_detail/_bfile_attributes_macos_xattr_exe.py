@@ -20,7 +20,7 @@ class _bfile_attributes_macos_xattr_exe(_bfile_attributes_base):
     'Return True if filename has an attributed with key.'
     filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
-    clazz.check_file_is_readable(filename)
+    bfile_check.check_file_is_readable(filename)
     
     return xattr_exe.has_key(filename, key)
 
@@ -30,7 +30,7 @@ class _bfile_attributes_macos_xattr_exe(_bfile_attributes_base):
     'Return the attribute value with key for filename.'
     filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
-    clazz.check_file_is_readable(filename)
+    bfile_check.check_file_is_readable(filename)
 
     if not xattr_exe.has_key(filename, key):
       return None
@@ -44,7 +44,7 @@ class _bfile_attributes_macos_xattr_exe(_bfile_attributes_base):
     filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     check.check_bytes(value)
-    clazz.check_file_is_writable(filename)
+    bfile_check.check_file_is_writable(filename)
 
     clazz._log.log_method_d()
     xattr_exe.set_bytes(filename, key, value)
@@ -55,7 +55,7 @@ class _bfile_attributes_macos_xattr_exe(_bfile_attributes_base):
     'Remove the attirbute with key from filename.'
     filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
-    clazz.check_file_is_writable(filename)
+    bfile_check.check_file_is_writable(filename)
     
     xattr_exe.remove(filename, key)
   
@@ -64,7 +64,7 @@ class _bfile_attributes_macos_xattr_exe(_bfile_attributes_base):
   def keys(clazz, filename):
     'Return all the keys set for filename.'
     check.check_string(filename)
-    clazz.check_file_is_readable(filename)
+    bfile_check.check_file_is_readable(filename)
 
     return xattr_exe.keys(filename)
     
@@ -73,6 +73,6 @@ class _bfile_attributes_macos_xattr_exe(_bfile_attributes_base):
   def clear(clazz, filename):
     'Create all attributes.'
     check.check_string(filename)
-    clazz.check_file_is_writable(filename)
+    bfile_check.check_file_is_writable(filename)
 
     xattr_exe.clear(filename)

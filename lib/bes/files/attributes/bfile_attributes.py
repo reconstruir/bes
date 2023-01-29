@@ -8,8 +8,6 @@ from bes.system.check import check
 from bes.common.bool_util import bool_util
 from bes.files.bfile_check import bfile_check
 
-from .bfile_attributes_error import bfile_attributes_permission_error
-
 from ._detail._bfile_attributes_super_class import _bfile_attributes_super_class
 
 class _bfile_attributes_mixin:
@@ -114,22 +112,6 @@ class _bfile_attributes_mixin:
     check.check_int(value)
     
     clazz.set_string(filename, key, str(value))
-    
-  @classmethod
-  def check_file_is_readable(clazz, filename):
-    'Check that filename is readable and raise a permission error if not.'
-    filename = bfile_check.check_file(filename)
-
-    if not os.access(filename, os.R_OK):
-      raise bfile_attributes_permission_error('File is not readable: {}'.format(filename))
-
-  @classmethod
-  def check_file_is_writable(clazz, filename):
-    'Check that filename is writable and raise a permission error if not.'
-    filename = bfile_check.check_file(filename)
-
-    if not os.access(filename, os.W_OK):
-      raise bfile_attributes_permission_error('File is not writable: {}'.format(filename))
 
 class bfile_attributes(_bfile_attributes_super_class, _bfile_attributes_mixin):
   pass

@@ -21,7 +21,7 @@ class _bfile_attributes_xattr(_bfile_attributes_base):
     'Return True if filename has an attributed with key.'
     filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
-    clazz.check_file_is_readable(filename)
+    bfile_check.check_file_is_readable(filename)
 
     encoded_key = clazz._encode_key(key)
     return xattr.xattr(filename).has_key(encoded_key)
@@ -32,7 +32,7 @@ class _bfile_attributes_xattr(_bfile_attributes_base):
     'Return the attribute value with key for filename.'
     filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
-    clazz.check_file_is_writable(filename)
+    bfile_check.check_file_is_writable(filename)
 
     encoded_key = clazz._encode_key(key)
     if not xattr.xattr(filename).has_key(encoded_key):
@@ -46,7 +46,7 @@ class _bfile_attributes_xattr(_bfile_attributes_base):
     filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     check.check_bytes(value)
-    clazz.check_file_is_writable(filename)
+    bfile_check.check_file_is_writable(filename)
 
     clazz._log.log_method_d()
 
@@ -61,7 +61,7 @@ class _bfile_attributes_xattr(_bfile_attributes_base):
     'Remove the attirbute with key from filename.'
     filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
-    clazz.check_file_is_writable(filename)
+    bfile_check.check_file_is_writable(filename)
 
     clazz._log.log_method_d()
     
@@ -73,7 +73,7 @@ class _bfile_attributes_xattr(_bfile_attributes_base):
   def keys(clazz, filename):
     'Return all the keys set for filename.'
     check.check_string(filename)
-    clazz.check_file_is_readable(filename)
+    bfile_check.check_file_is_readable(filename)
 
     raw_keys = [ key for key in xattr.xattr(filename).iterkeys() ]
     return sorted([ clazz._decode_key(key) for key in raw_keys ])
@@ -83,7 +83,7 @@ class _bfile_attributes_xattr(_bfile_attributes_base):
   def clear(clazz, filename):
     'Create all attributes.'
     check.check_string(filename)
-    clazz.check_file_is_writable(filename)
+    bfile_check.check_file_is_writable(filename)
 
     xattr.xattr(filename).clear()
       

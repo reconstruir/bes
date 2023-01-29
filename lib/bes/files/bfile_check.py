@@ -1,10 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 from os import path
 
 from ..system.check import check
 
 from .bfile_symlink import bfile_symlink
+from .bfile_permission_error import bfile_permission_error
 
 class bfile_check(object):
 
@@ -103,3 +105,19 @@ class bfile_check(object):
     if bfile_symlink.is_broken(filename):
       raise exception_class(f'Broken symlink: {filename}')
     return bfile_symlink.resolve(filename)
+
+  @classmethod
+  def check_file_is_readable(clazz, filename):
+    'Check that filename is readable and raise a permission error if not.'
+    filename = clazz.check_file(filename)
+
+    if not os.access(filename, os.R_OK):
+      raise bfile_permission_error(f'File is not readable: "{filename}"')
+
+  @classmethod
+  def check_file_is_writable(clazz, filename):
+    'Check that filename is writable and raise a permission error if not.'
+    filename = clazz.check_file(filename)
+
+    if not os.access(filename, os.W_OK):
+      raise bfile_permission_error(f'File is not writable: "{filename}"')

@@ -7,12 +7,3 @@ class bfile_attributes_error(Exception):
 
   def __str__(self):
     return self.message
-
-class bfile_attributes_permission_error(Exception):
-  def __init__(self, message):
-    super(bfile_attributes_permission_error, self).__init__()
-    self.message = message
-
-  def __str__(self):
-    return self.message
-  

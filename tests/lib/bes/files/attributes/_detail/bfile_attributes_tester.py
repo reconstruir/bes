@@ -4,7 +4,7 @@ from datetime import datetime
 import os.path as path
 import stat
 
-from bes.files.attributes.bfile_attributes_error import bfile_attributes_permission_error
+from bes.files.bfile_permission_error import bfile_permission_error
 from bes.files.bfile_symlink import bfile_symlink
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
@@ -96,17 +96,17 @@ def make_test_case(impl):
       
     def test_set_no_write_permission_unix(self):
       tmp = self._make_read_only_temp_file()
-      with self.assertRaises(bfile_attributes_permission_error) as ctx:
+      with self.assertRaises(bfile_permission_error) as ctx:
         impl.set_string(tmp, 'foo', 'hi')
 
     def test_remove_no_write_permission_unix(self):
       tmp = self._make_read_only_temp_file()
-      with self.assertRaises(bfile_attributes_permission_error) as ctx:
+      with self.assertRaises(bfile_permission_error) as ctx:
         impl.remove(tmp, 'foo')
 
     def test_clear_no_write_permission_unix(self):
       tmp = self._make_read_only_temp_file()
-      with self.assertRaises(bfile_attributes_permission_error) as ctx:
+      with self.assertRaises(bfile_permission_error) as ctx:
         impl.clear(tmp)
         
     def _make_read_only_temp_file(self):
