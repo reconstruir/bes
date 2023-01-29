@@ -10,7 +10,12 @@ from bfile_attributes_tester import make_test_case
     
 if host.is_macos():
   from bes.files.attributes._detail._bfile_attributes_macos_xattr_exe import _bfile_attributes_macos_xattr_exe
-  class test__bfile_attributes_macos_xattr_exe(make_test_case(_bfile_attributes_macos_xattr_exe)):
+  from bes.files.attributes.bfile_attributes import _bfile_attributes_mixin
+
+  class _test_super_class_macos_xattr_exe(_bfile_attributes_macos_xattr_exe, _bfile_attributes_mixin):
+    pass
+  
+  class test__bfile_attributes_macos_xattr_exe(make_test_case(_test_super_class_macos_xattr_exe)):
 
     @classmethod
     def setUpClass(clazz):

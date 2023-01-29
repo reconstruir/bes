@@ -8,9 +8,9 @@ from bes.linux.attr.linux_attr import linux_attr
 from bes.linux.attr.linux_attr_error import linux_attr_error
 from bes.linux.attr.linux_attr_error import linux_attr_permission_error
 
-from ..bfile_attributes_base import bfile_attributes_base
+from ._bfile_attributes_base import _bfile_attributes_base
 
-class _bfile_attributes_linux_attr_exe(bfile_attributes_base):
+class _bfile_attributes_linux_attr_exe(_bfile_attributes_base):
 
   _log = logger('_bfile_attributes_linux_attr_exe')
   

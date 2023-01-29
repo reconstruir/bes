@@ -9,9 +9,9 @@ from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.log import logger
 
-from ..bfile_attributes_base import bfile_attributes_base
+from ._bfile_attributes_base import _bfile_attributes_base
 
-class _bfile_attributes_xattr(bfile_attributes_base):
+class _bfile_attributes_xattr(_bfile_attributes_base):
 
   _log = logger('_bfile_attributes_xattr')
   
