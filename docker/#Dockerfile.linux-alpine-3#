@@ -1,0 +1,46 @@
+FROM alpine:3.12.2
+
+#ARG ART_TOOL_USER
+#ARG ART_TOOL_PASSWORD
+#ARG ART_BUILD_USER
+#ARG ART_BUILD_PASSWORD
+#ARG ECA_VERSION
+
+#RUN if [ -z "$ART_TOOL_USER" ]; then echo "ERROR: ART_TOOL_USER should be set"; exit 1; fi
+#RUN if [ -z "$ART_TOOL_PASSWORD" ]; then echo "ERROR: ART_TOOL_PASSWORD should be set"; exit 1; fi
+#RUN if [ -z "$ART_BUILD_USER" ]; then echo "ERROR: ART_BUILD_USER should be set"; exit 1; fi
+#RUN if [ -z "$ART_BUILD_PASSWORD" ]; then echo "ERROR: ART_BUILD_PASSWORD should be set"; exit 1; fi
+#RUN if [ -z "$ECA_VERSION" ]; then echo "ERROR: ECA_VERSION should be set"; exit 1; fi
+
+#COPY scripts/ego_update_automation.sh /eca/bin/ego_update_automation.sh
+#COPY scripts/ego_install_git_lfs.sh /tmp/ego_install_git_lfs.sh
+
+RUN \
+  apk -Uuv add bash python git git-subtree openssh curl zip unzip tar xz patch attr file && \
+  apk -Uuv add make patchelf && \
+  apk -Uuv add binutils gcc g++ linux-headers python2-dev && \
+  apk -Uuv add rsync && \
+  rm /var/cache/apk/* && \
+  addgroup ego && \
+  adduser -h /home/ego -D -s /bin/bash -G ego ego && \
+  mkdir /ego && \
+  /eca/bin/ego_update_automation.sh /eca ${ECA_VERSION} linux-alpine-3 && \
+  /tmp/ego_install_git_lfs.sh /usr/bin 2.7.1 && \
+  true
+
+COPY scripts/ego_bootstrap/ego_bootstrap.py /ego_bootstrap/ego_bootstrap.py
+COPY scripts/ego_bootstrap/ego_setup.sh /ego_bootstrap/ego_setup.sh
+COPY scripts/bes_shell/bes_shell.sh /ego_bootstrap/bes_shell.sh
+COPY scripts/ego_shell/ego_shell.sh /ego_bootstrap/ego_shell.sh
+COPY config/storage.config /eca/config/storage.config
+
+RUN \
+  chown -R ego:ego /ego /ego_bootstrap /eca && \
+  true
+
+RUN git lfs install
+
+ENV EGO_ROOT_DIR=/ego
+ENV PATH="/eca/bin:./ego-cicd/shared/bin:./ego-cicd/shared/studio/bin:./ego-cicd/local_scripts:${PATH}"
+CMD [ "bash", "-login" ]
+WORKDIR /tmp
