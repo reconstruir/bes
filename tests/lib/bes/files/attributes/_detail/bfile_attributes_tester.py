@@ -5,7 +5,7 @@ import os.path as path
 import stat
 
 from bes.files.attributes.bfile_attributes_error import bfile_attributes_permission_error
-from bes.fs.file_symlink import file_symlink
+from bes.files.bfile_symlink import bfile_symlink
 from bes.system.host import host
 from bes.testing.unit_test import unit_test
 from bes.testing.unit_test_function_skip import unit_test_function_skip
@@ -110,16 +110,12 @@ def make_test_case(impl):
         impl.clear(tmp)
         
     def _make_read_only_temp_file(self):
-      from bes.fs.file_util import file_util
       tmp = self._make_temp_file('this is foo\n')
-      print('B4: tmp={} mode={}'.format(tmp, file_util.mode(tmp)))
       import os
-#      os.chmod(tmp, stat.S_IREAD)
       os.chmod(tmp, 0o0400)
-      print('AF: tmp={} mode={}'.format(tmp, file_util.mode(tmp)))
       return tmp
       if host.is_unix():
-        return file_symlink.resolve('/bin/sh')
+        return bfile_symlink.resolve('/bin/sh')
       elif host.is_windows():
         return r'C:\Windows\System32\cmd.exe'
       else:

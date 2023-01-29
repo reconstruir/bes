@@ -1,13 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import binascii
-import os.path as path
-
 from bes.testing.unit_test import unit_test
-from bes.files.attributes.bfile_attributes import bfile_attributes
-from bes.files.attributes.bfile_attributes import HAS_XATTR
-from bes.fs.file_util import file_util
 from bes.docker.docker import docker
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.system.host import host
