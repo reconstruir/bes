@@ -4,15 +4,15 @@ from bes.system.check import check
 from bes.system.log import logger
 from bes.files.bfile_check import bfile_check
 
-from bes.macos.xattr_exe.xattr_exe import xattr_exe
-from bes.macos.xattr_exe.xattr_exe_error import xattr_exe_error
-from bes.macos.xattr_exe.xattr_exe_error import xattr_exe_permission_error
+from bes.linux.attr.linux_attr import linux_attr
+from bes.linux.attr.linux_attr_error import linux_attr_error
+from bes.linux.attr.linux_attr_error import linux_attr_permission_error
 
-from ._bfile_attributes_base import _bfile_attributes_base
+from ._bfile_attr_base import _bfile_attr_base
 
-class _bfile_attributes_macos_xattr_exe(_bfile_attributes_base):
+class _bfile_attr_linux_attr_exe(_bfile_attr_base):
 
-  _log = logger('_bfile_attributes_macos_xattr_exe')
+  _log = logger('_bfile_attr_linux_attr_exe')
   
   @classmethod
   #@abstractmethod
@@ -21,8 +21,8 @@ class _bfile_attributes_macos_xattr_exe(_bfile_attributes_base):
     filename = bfile_check.check_file(filename)
     key = clazz._check_key(key)
     bfile_check.check_file_is_readable(filename)
-    
-    return xattr_exe.has_key(filename, key)
+
+    return linux_attr.has_key(filename, key)
 
   @classmethod
   #@abstractmethod
@@ -32,10 +32,10 @@ class _bfile_attributes_macos_xattr_exe(_bfile_attributes_base):
     key = clazz._check_key(key)
     bfile_check.check_file_is_readable(filename)
 
-    if not xattr_exe.has_key(filename, key):
+    if not linux_attr.has_key(filename, key):
       return None
-    
-    return xattr_exe.get_bytes(filename, key)
+      
+    return linux_attr.get_bytes(filename, key)
     
   @classmethod
   #@abstractmethod
@@ -47,7 +47,8 @@ class _bfile_attributes_macos_xattr_exe(_bfile_attributes_base):
     bfile_check.check_file_is_writable(filename)
 
     clazz._log.log_method_d()
-    xattr_exe.set_bytes(filename, key, value)
+
+    linux_attr.set_bytes(filename, key, value)
   
   @classmethod
   #@abstractmethod
@@ -57,7 +58,7 @@ class _bfile_attributes_macos_xattr_exe(_bfile_attributes_base):
     key = clazz._check_key(key)
     bfile_check.check_file_is_writable(filename)
     
-    xattr_exe.remove(filename, key)
+    linux_attr.remove(filename, key)
   
   @classmethod
   #@abstractmethod
@@ -66,7 +67,7 @@ class _bfile_attributes_macos_xattr_exe(_bfile_attributes_base):
     check.check_string(filename)
     bfile_check.check_file_is_readable(filename)
 
-    return xattr_exe.keys(filename)
+    return linux_attr.keys(filename)
     
   @classmethod
   #@abstractmethod
@@ -75,4 +76,4 @@ class _bfile_attributes_macos_xattr_exe(_bfile_attributes_base):
     check.check_string(filename)
     bfile_check.check_file_is_writable(filename)
 
-    xattr_exe.clear(filename)
+    linux_attr.clear(filename)

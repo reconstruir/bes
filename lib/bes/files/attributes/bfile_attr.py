@@ -12,11 +12,11 @@ from bes.files.bfile_check import bfile_check
 
 from ..bfile_date import bfile_date
 
-from ._detail._bfile_attributes_super_class import _bfile_attributes_super_class
+from ._detail._bfile_attr_super_class import _bfile_attr_super_class
 
-from .bfile_attributes_error import bfile_attributes_error
+from .bfile_attr_error import bfile_attr_error
 
-class _bfile_attributes_mixin:
+class _bfile_attr_mixin:
 
   _log = logger('attributes')
   
@@ -24,9 +24,9 @@ class _bfile_attributes_mixin:
   def _check_key(clazz, key):
     check.check_string(key)
     if ' ' in key:
-      raise bfile_attributes_error('space not supported in key: \"{}\"'.format(key))
+      raise bfile_attr_error('space not supported in key: \"{}\"'.format(key))
     if ':' in key:
-      raise bfile_attributes_error('colon not supported in key: \"{}\"'.format(key))
+      raise bfile_attr_error('colon not supported in key: \"{}\"'.format(key))
     return key
 
   @classmethod
@@ -145,7 +145,7 @@ class _bfile_attributes_mixin:
     
     value = value_maker(filename)
     if value == None:
-      raise bfile_attributes_error(f'value should never be None')
+      raise bfile_attr_error(f'value should never be None')
 
     clazz.set_bytes(filename, key, value)
     clazz.set_date(filename, mtime_key, file_mtime)
@@ -161,5 +161,5 @@ class _bfile_attributes_mixin:
   def _make_mtime_key(clazz, key):
     return f'__bes_mtime_{key}__'
     
-class bfile_attributes(_bfile_attributes_super_class, _bfile_attributes_mixin):
+class bfile_attr(_bfile_attr_super_class, _bfile_attr_mixin):
   pass

@@ -5,7 +5,7 @@ from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 from bes.system.check import check
 
-class bfile_attributes_getter_base(with_metaclass(ABCMeta, object)):
+class bfile_attr_getter_base(with_metaclass(ABCMeta, object)):
 
   @classmethod
   @abstractmethod
@@ -29,4 +29,4 @@ class bfile_attributes_getter_base(with_metaclass(ABCMeta, object)):
     'Decode a value given as bytes.'
     raise NotImplemented('decode_value')
   
-check.register_class(bfile_attributes_getter_base, name = 'bfile_metadata_getter', include_seq = False)
+check.register_class(bfile_attr_getter_base, name = 'bfile_metadata_getter', include_seq = False)

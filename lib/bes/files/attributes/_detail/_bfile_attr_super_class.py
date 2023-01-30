@@ -13,15 +13,15 @@ except ModuleNotFoundError as ex:
 #print('HAS_XATTR={}'.format(HAS_XATTR))
 
 if HAS_XATTR:
-  from ._bfile_attributes_xattr import _bfile_attributes_xattr as _super_class
+  from ._bfile_attr_xattr import _bfile_attr_xattr as _super_class
 elif host.SYSTEM == host.MACOS:
-  from ._bfile_attributes_macos_xattr_exe import _bfile_attributes_macos_xattr_exe as _super_class
+  from ._bfile_attr_macos_xattr_exe import _bfile_attr_macos_xattr_exe as _super_class
 elif host.SYSTEM == host.LINUX:
-  from ._bfile_attributes_linux_attr_exe import _bfile_attributes_linux_attr_exe as _super_class
+  from ._bfile_attr_linux_attr_exe import _bfile_attr_linux_attr_exe as _super_class
 elif host.SYSTEM == host.WINDOWS:
-  from ._bfile_attributes_windows_ads import _bfile_attributes_windows_ads as _super_class
+  from ._bfile_attr_windows_ads import _bfile_attr_windows_ads as _super_class
 else:
   host.raise_unsupported_system()
 
-class _bfile_attributes_super_class(_super_class):
+class _bfile_attr_super_class(_super_class):
   pass

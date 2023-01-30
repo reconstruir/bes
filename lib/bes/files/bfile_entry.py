@@ -16,7 +16,7 @@ from .bfile_filename import bfile_filename
 from .bfile_permission_error import bfile_permission_error
 from .bfile_date import bfile_date
 
-from .attributes.bfile_attributes import bfile_attributes
+from .attributes.bfile_attr import bfile_attr
 
 class bfile_entry(object):
 
@@ -125,59 +125,59 @@ class bfile_entry(object):
   def attr_has_key(self, key):
     check.check_string(key)
 
-    return bfile_attributes.has_key(self._filename, key)
+    return bfile_attr.has_key(self._filename, key)
 
   def attr_get_bytes(self, key):
     check.check_string(key)
 
-    return bfile_attributes.get_bytes(self._filename, key)
+    return bfile_attr.get_bytes(self._filename, key)
 
   def attr_set_bytes(self, key, value):
     check.check_string(key)
     check.check_bytes(value)
 
-    bfile_attributes.set_bytes(self._filename, key, value)
+    bfile_attr.set_bytes(self._filename, key, value)
 
   def attr_remove(self, key):
     check.check_string(key)
 
-    bfile_attributes.remove(self._filename, key)
+    bfile_attr.remove(self._filename, key)
 
   def attr_keys(self):
-    return bfile_attributes.keys(self._filename)
+    return bfile_attr.keys(self._filename)
 
   def attr_clear(self):
-    bfile_attributes.clear(self._filename)
+    bfile_attr.clear(self._filename)
 
   def attr_get_all(self):
-    return bfile_attributes.get_all(self._filename)
+    return bfile_attr.get_all(self._filename)
 
   def attr_set_all(self, attributes):
-    bfile_attributes.set_all(self._filename, attributes)
+    bfile_attr.set_all(self._filename, attributes)
 
   def attr_get_string(self, key):
-    return bfile_attributes.get_string(self._filename, key)
+    return bfile_attr.get_string(self._filename, key)
 
   def attr_set_string(self, key, value):
-    bfile_attributes.set_string(self._filename, key, value)
+    bfile_attr.set_string(self._filename, key, value)
 
   def attr_get_date(self, key):
-    return bfile_attributes.get_date(self._filename, key)
+    return bfile_attr.get_date(self._filename, key)
 
   def attr_set_date(self, key, value):
-    bfile_attributes.set_date(self._filename, key, value)
+    bfile_attr.set_date(self._filename, key, value)
 
   def attr_get_bool(self, key):
-    return bfile_attributes.get_bool(self._filename, key)
+    return bfile_attr.get_bool(self._filename, key)
 
   def attr_set_bool(self, key, value):
-    bfile_attributes.set_bool(self._filename, key, value)
+    bfile_attr.set_bool(self._filename, key, value)
     
   def attr_get_int(self, key):
-    return bfile_attributes.get_int(self._filename, key)
+    return bfile_attr.get_int(self._filename, key)
 
   def attr_set_int(self, key, value):
-    bfile_attributes.set_int(self._filename, key, value)
+    bfile_attr.set_int(self._filename, key, value)
 
   '''
   @property
@@ -225,7 +225,7 @@ class bfile_entry(object):
   _getters = {}
   @classmethod
   def register_metadata_getter(clazz, getter_class):
-    check.check_class(getter_class, bfile_attributes_getter_base)
+    check.check_class(getter_class, bfile_attr_getter_base)
 
     domain = getter_class.domain()
     if not check.is_string(domain):

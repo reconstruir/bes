@@ -12,7 +12,7 @@ from _bes_unit_test_common.unit_test_media import unit_test_media
 
 def make_test_case(impl):
   
-  class _bfile_attributes_test_case(unit_test):
+  class _bfile_attr_test_case(unit_test):
 
     # Use a temporary directory in the same filesystem as the code to avoid the
     # issue that on some platforms the tmp dir filesystem might have attributes disabled.
@@ -175,4 +175,4 @@ def make_test_case(impl):
       assert isinstance(keys, list)
       return [ key for key in keys if key != 'selinux' ]
 
-  return _bfile_attributes_test_case
+  return _bfile_attr_test_case

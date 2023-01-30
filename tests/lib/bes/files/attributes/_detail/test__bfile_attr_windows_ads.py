@@ -6,16 +6,16 @@ from bes.docker.docker import docker
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.system.host import host
 
-from bfile_attributes_tester import make_test_case
+from bfile_attr_tester import make_test_case
 
 if host.is_windows():
-  from bes.files.attributes._detail._bfile_attributes_windows_ads import _bfile_attributes_windows_ads
-  from bes.files.attributes.bfile_attributes import _bfile_attributes_mixin
+  from bes.files.attributes._detail._bfile_attr_windows_ads import _bfile_attr_windows_ads
+  from bes.files.attributes.bfile_attr import _bfile_attr_mixin
 
-  class _test_super_class_windows_ads(_bfile_attributes_windows_ads, _bfile_attributes_mixin):
+  class _test_super_class_windows_ads(_bfile_attr_windows_ads, _bfile_attr_mixin):
     pass
   
-  class test__bfile_attributes_windows_ads(make_test_case(_test_super_class_windows_ads)):
+  class test__bfile_attr_windows_ads(make_test_case(_test_super_class_windows_ads)):
 
     @classmethod
     def setUpClass(clazz):

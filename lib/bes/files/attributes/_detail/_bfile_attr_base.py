@@ -3,7 +3,7 @@
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 
-class _bfile_attributes_base(with_metaclass(ABCMeta, object)):
+class _bfile_attr_base(with_metaclass(ABCMeta, object)):
 
   @classmethod
   @abstractmethod
