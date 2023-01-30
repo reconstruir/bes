@@ -1,9 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import time
 import os
 from os import path
-from datetime import datetime
 from collections import namedtuple
 
 from bes.common.hash_util import hash_util
@@ -16,6 +14,7 @@ from .bfile_cached_attribute import bfile_cached_attribute
 from .bfile_error import bfile_error
 from .bfile_filename import bfile_filename
 from .bfile_permission_error import bfile_permission_error
+from .bfile_date import bfile_date
 
 from .attributes.bfile_attributes import bfile_attributes
 
@@ -111,15 +110,13 @@ class bfile_entry(object):
   
   @property
   def modification_date(self):
-    ts = path.getmtime(self._filename)
-    return datetime.fromtimestamp(ts)
+    return bfile_date.get_modification_date(self._filename)
 
   @modification_date.setter
   def modification_date(self, mtime):
     check.check_datetime(mtime)
 
-    ts = mtime.timestamp()
-    os.utime(self._filename, ( ts, ts ))
+    bfile_date.set_modification_date(self._filename, mtime)
 
   @property
   def modification_date_timestamp(self):

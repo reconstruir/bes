@@ -29,7 +29,7 @@ class file_attributes_metadata(object):
   _log = logger('file_attributes_metadata')
   
   @classmethod
-  def get_bytes(clazz, filename, key, value_maker, fallback = False):
+  def get_bytes(clazz, filename, key, value_maker):
     check.check_string(filename)
     check.check_string(key)
     check.check_callable(value_maker)
