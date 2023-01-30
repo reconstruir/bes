@@ -151,7 +151,9 @@ def make_test_case(impl):
         f.write(' more text')
         f.flush()
 
-  #    self.assertEqual( 'this is foo more text', file_util.read(tmp, codec = 'utf-8') )
+      with open(tmp, 'r') as f:
+        tmp_content = f.read()
+        self.assertEqual( 'this is foo more text', tmp_content )
 
       self.assertEqual( b'667', impl.get_bytes_mtime_cached(tmp, 'foo', _value_maker2) )
       self.assertEqual( 2, counter )
