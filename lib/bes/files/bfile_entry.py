@@ -17,6 +17,8 @@ from .bfile_error import bfile_error
 from .bfile_filename import bfile_filename
 from .bfile_permission_error import bfile_permission_error
 
+from .attributes.bfile_attributes import bfile_attributes
+
 class bfile_entry(object):
 
   _log = logger('bfile_entry')
@@ -123,6 +125,64 @@ class bfile_entry(object):
   def modification_date_timestamp(self):
     return time_util.timestamp(when = self.modification_date, milliseconds = False)
 
+  def attr_has_key(self, key):
+    check.check_string(key)
+
+    return bfile_attributes.has_key(self._filename, key)
+
+  def attr_get_bytes(self, key):
+    check.check_string(key)
+
+    return bfile_attributes.get_bytes(self._filename, key)
+
+  def attr_set_bytes(self, key, value):
+    check.check_string(key)
+    check.check_bytes(value)
+
+    bfile_attributes.set_bytes(self._filename, key, value)
+
+  def attr_remove(self, key):
+    check.check_string(key)
+
+    bfile_attributes.remove(self._filename, key)
+
+  def attr_keys(self):
+    return bfile_attributes.keys(self._filename)
+
+  def attr_clear(self):
+    bfile_attributes.clear(self._filename)
+
+  def attr_get_all(self):
+    return bfile_attributes.get_all(self._filename)
+
+  def attr_set_all(self, attributes):
+    bfile_attributes.set_all(self._filename, attributes)
+
+  def attr_get_string(self, key):
+    return bfile_attributes.get_string(self._filename, key)
+
+  def attr_set_string(self, key, value):
+    bfile_attributes.set_string(self._filename, key, value)
+
+  def attr_get_date(self, key):
+    return bfile_attributes.get_date(self._filename, key)
+
+  def attr_set_date(self, key, value):
+    bfile_attributes.set_date(self._filename, key, value)
+
+  def attr_get_bool(self, key):
+    return bfile_attributes.get_bool(self._filename, key)
+
+  def attr_set_bool(self, key, value):
+    bfile_attributes.set_bool(self._filename, key, value)
+    
+  def attr_get_int(self, key):
+    return bfile_attributes.get_int(self._filename, key)
+
+  def attr_set_int(self, key, value):
+    bfile_attributes.set_int(self._filename, key, value)
+
+  '''
   @property
   def _cache_key(self):
     return f'{self.hashed_filename_sha256}_{self.modification_date_timestamp}'
@@ -275,15 +335,6 @@ class bfile_entry(object):
     # which is in the past (usually microseconds) but guranteed
     # to match what what was set in set_date()
     file_util.set_modification_date(filename, file_mtime)
-  
 '''
-#file_entry.register_metadata_getter('cv', 'faces', '1.0.0', clazz)
 
-fi = file_entry('/foo/caca.jpg')
-fi.tags.is_favorite = True
-fi.tags.checksum_sha256
-
-fi.get_metadata('checksum', 'sha256', '1.0.0')
-'''
-  
 check.register_class(bfile_entry, include_seq = False)
