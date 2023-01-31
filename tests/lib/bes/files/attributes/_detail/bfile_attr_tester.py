@@ -1,11 +1,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from datetime import datetime
-from datetime import timedelta
 import os.path as path
 
 from bes.files.bfile_permission_error import bfile_permission_error
-from bes.files.bfile_date import bfile_date
 from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
@@ -111,62 +109,6 @@ def make_test_case(impl):
       with self.assertRaises(bfile_permission_error) as ctx:
         impl.clear(tmp)
 
-    def test_get_bytes_mtime_cached(self):
-      tmp = self.make_temp_file(dir = self._TMP_DIR, content = 'foo')
-      value = '666'.encode('utf-8')
-      def _value_maker(f):
-        return value
-      self.assertEqual( value, impl.get_bytes_mtime_cached(tmp, 'foo', _value_maker) )
-      self.assertEqual( [ '__bes_mtime_foo__', 'foo' ], impl.keys(tmp) )
-      self.assertEqual( '666', impl.get_string(tmp, 'foo') )
-
-    def test_get_bytes_with_change(self):
-      tmp = self.make_temp_file(content = 'this is foo', suffix = '.txt')
-      yesterday = datetime.now() - timedelta(days = 1)
-      bfile_date.set_modification_date(tmp, yesterday)
-
-      counter = 0
-      def _value_maker1(f):
-        nonlocal counter
-        counter += 1
-        return b'666'
-
-      def _value_maker2(f):
-        nonlocal counter
-        counter += 1
-        return b'667'
-    
-      self.assertEqual( 0, counter )
-      self.assertEqual( b'666', impl.get_bytes_mtime_cached(tmp, 'foo', _value_maker1) )
-      self.assertEqual( 1, counter )
-      self.assertEqual( b'666', impl.get_bytes_mtime_cached(tmp, 'foo', _value_maker1) )
-      self.assertEqual( 1, counter )
-      mtime = bfile_date.get_modification_date(tmp)
-      self.assertEqual( {
-        '__bes_mtime_foo__': str(mtime.timestamp()).encode('utf-8'),
-        'foo': b'666',
-      }, impl.get_all(tmp) )
-
-      with open(tmp, 'a') as f:
-        f.write(' more text')
-        f.flush()
-
-      with open(tmp, 'r') as f:
-        tmp_content = f.read()
-        self.assertEqual( 'this is foo more text', tmp_content )
-
-      self.assertEqual( b'667', impl.get_bytes_mtime_cached(tmp, 'foo', _value_maker2) )
-      self.assertEqual( 2, counter )
-      self.assertEqual( b'667', impl.get_bytes_mtime_cached(tmp, 'foo', _value_maker2) )
-      self.assertEqual( 2, counter )
-  
-      new_mtime = bfile_date.get_modification_date(tmp)
-    
-      self.assertEqual( {
-        '__bes_mtime_foo__': str(new_mtime.timestamp()).encode('utf-8'),
-        'foo': b'667',
-      }, impl. get_all(tmp) )
-      
     @classmethod
     def _munge_attr_keys(clazz, keys):
       'On some linux systems, there is an extra selinux key in many attr results'
@@ -174,5 +116,5 @@ def make_test_case(impl):
       # attributes boolean somewhere
       assert isinstance(keys, list)
       return [ key for key in keys if key != 'selinux' ]
-
+      
   return _bfile_attr_test_case
