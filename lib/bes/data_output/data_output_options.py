@@ -20,6 +20,7 @@ class data_output_options(object):
     self.table_cell_renderers = None
     self.table_title = None
     self.table_flexible_column = None
+    self.raw = False
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check(self.brief_column, check.INTEGER_OR_STRING_TYPES)

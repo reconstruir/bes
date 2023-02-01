@@ -12,10 +12,9 @@ from bes.files.bfile_check import bfile_check
 
 from ..bfile_date import bfile_date
 
-#from ._detail._bfile_attr_super_class import _bfile_attr_super_class
-
-from .bfile_attr_error import bfile_attr_error
 from .bfile_attr import bfile_attr
+from .bfile_attr_error import bfile_attr_error
+from .bfile_attr_getter_base import bfile_attr_getter_base
 
 class bfile_cached_attr(bfile_attr):
 
@@ -60,6 +59,49 @@ class bfile_cached_attr(bfile_attr):
   @classmethod
   def _make_mtime_key(clazz, key):
     return f'__bes_mtime_{key}__'
+
+  class _getter_item(object):
+ 
+    def __init__(self, getter_class):
+      check.check_class(getter_class, bfile_attr_getter_base)
+
+      self._getter_class = getter_class
+      self.cache = {}
+
+    @cached_property
+    def getter(self):
+      return self._getter_class()
+  
+  _getters = {}
+  @classmethod
+  def register_attr_getter(clazz, getter_class):
+    check.check_class(getter_class, bfile_attr_getter_base)
+
+    domain = getter_class.domain()
+    if not check.is_string(domain):
+      raise bfile_error(f'domain should be a string: "{domain}" - {type(domain)}')
+    keys = getter_class.keys()
+    if not check.is_dict(keys):
+      raise bfile_error(f'keys should be a dict: "{keys}" - {type(keys)}')
+    for key, version in keys.items():
+      if not check.is_string(key):
+        raise bfile_error(f'key should be a string: "{key}" - {type(key)}')
+      if not check.is_string(version):
+        raise bfile_error(f'version should be a string: "{version}" - {type(version)}')
+      getter_key = clazz._make_metadata_getter_key(domain, key, version)
+      if getter_key in clazz._getters:
+        raise bfile_error(f'getter already registered: "{getter_key}"')
+      clazz._getters[getter_key] = clazz._getter_item(getter_class)
+
+  @classmethod
+  def _make_metadata_getter_key(clazz, domain, key, version):
+    return f'{domain}.{key}.{version}'
+
+  @classmethod
+  def _get_metadata_getter_item(clazz, domain, key, version):
+    getter_key = clazz._make_metadata_getter_key(domain, key, version)
+    return clazz._getters.get(getter_key, None)
+  
 
   '''
   @property
