@@ -5,12 +5,13 @@ import time
 
 from datetime import datetime
 
-from bes.system.check import check
 from bes.common.bool_util import bool_util
+from bes.property.cached_property import cached_property
+from bes.system.check import check
 from bes.system.log import logger
-from bes.files.bfile_check import bfile_check
 
 from ..bfile_date import bfile_date
+from ..bfile_check import bfile_check
 
 from .bfile_attr import bfile_attr
 from .bfile_attr_error import bfile_attr_error
