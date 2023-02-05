@@ -32,13 +32,13 @@ class binary_searcher(with_metaclass(ABCMeta, object)):
   
   def search(self, target):
     lower = self.low_index()
-    upper = self.high_index()
+    upper = self.high_index() + 1
     self._log.log_d(f'search: target={target} lower={lower} upper={upper}')
     while lower < upper:   # use < instead of <=
       x = lower + (upper - lower) // 2
       val = self.item_at_index(x)
       rv = self.compare(val, target)
-      self._log.log_d(f'search: x={x} val={val} rv={rv}')
+      self._log.log_d(f'search: lower={lower} upper={upper} x={x} val={val} rv={rv}')
       if rv == 0:
         return x
       elif rv < 0:

@@ -36,9 +36,9 @@ class test_binary_searcher(unit_test):
       def high_index(self):
         return len(self._array) - 1
 
-    l = [ 3, 42, 45, 55, 67, 90, 97, 101, 666, 999, 1001, 9999 ]
+    l = [ 3, 42, 45, 55, 67, 90, 97, 101, 666, 999, 1001, 9999, 10000 ]
     self.assertEqual( True, l == sorted(l) )
-    self.assertEqual( True, (len(l) % 2) == 0 )
+    self.assertEqual( True, (len(l) % 2) == 1 )
     s = _searcher(l)
     self.assertEqual( None, s.search(4545) )
     self.assertEqual( 0, s.search(3) )
@@ -52,7 +52,8 @@ class test_binary_searcher(unit_test):
     self.assertEqual( 8, s.search(666) )
     self.assertEqual( 9, s.search(999) )
     self.assertEqual( 10, s.search(1001) )
-#    self.assertEqual( 11, s.search(9999) )
+    self.assertEqual( 11, s.search(9999) )
+    self.assertEqual( 12, s.search(10000) )
     
 if __name__ == '__main__':
   unit_test.main()
