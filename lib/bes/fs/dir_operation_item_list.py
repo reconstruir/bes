@@ -31,7 +31,7 @@ class dir_operation_item_list(type_checked_list):
       if path.exists(item.dst_filename):
         #assert file_util.files_are_the_same(item.src_filename,
         #                                    item.dst_filename)
-        print(f'checking {item.src_filename} vs {item.dst_filename}')
+        #print(f'checking {item.src_filename} vs {item.dst_filename}')
         need_move = file_util.files_are_the_same(item.src_filename,
                                                  item.dst_filename)
       else:
