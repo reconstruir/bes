@@ -83,7 +83,8 @@ class system_command(with_metaclass(ABCMeta, object)):
                    non_blocking = False,
                    output_encoding = None,
                    output_function = None,
-                   env_options = None):
+                   env_options = None,
+                   quote = True):
     'Call the command'
     check.check_string_seq(args)
     check.check_bool(raise_error)
@@ -94,6 +95,7 @@ class system_command(with_metaclass(ABCMeta, object)):
     check.check_string(output_encoding, allow_none = True)
     check.check_callable(output_function, allow_none = True)
     check.check_env_override_options(env_options, allow_none = True)
+    check.check_bool(quote)
 
     clazz.check_supported()
 
@@ -128,7 +130,8 @@ class system_command(with_metaclass(ABCMeta, object)):
                            input_data = input_data,
                            non_blocking = non_blocking,
                            output_encoding = output_encoding,
-                           env_options = env_options)
+                           env_options = env_options,
+                           quote = quote)
 
   @classmethod
   def call_command_parse_lines(clazz, args, sort = False):
