@@ -19,60 +19,6 @@ from .bfile_attr_getter_base import bfile_attr_getter_base
 
 class bfile_cached_attr(bfile_attr):
 
-  _log = logger('attr')
-
-  @classmethod
-  def _get_bytes_mtime_cached(clazz, filename, key, value_maker):
-    filename = bfile_check.check_file(filename)
-    check.check_string(key)
-    check.check_callable(value_maker)
-
-    clazz._log.log_method_d()
-
-#    if fallback and not os.access(filename, os.R_OK):
-#      clazz._log.log_d('get_bytes:{filename}:{key}: no read access')
-#      return value_maker(filename)
-    
-    mtime_key = clazz._make_mtime_key(key)
-    attr_mtime = clazz.get_date(filename, mtime_key)
-    file_mtime = bfile_date.get_modification_date(filename)
-    value = None
-    
-    label = f'get_bytes:{filename}:{key}'
-
-    if file_mtime == attr_mtime:
-      return clazz.get_bytes(filename, key)
-    
-    value = value_maker(filename)
-    if value == None:
-      raise bfile_attr_error(f'value should never be None')
-
-    clazz.set_bytes(filename, key, value)
-    clazz.set_date(filename, mtime_key, file_mtime)
-    # setting the date in the line above has the side effect
-    # of changing the mtime in some implementations.  so we
-    # force it to be what it was right after setting the value
-    # which is in the past (usually microseconds) but guaranteed
-    # to match what what was set in set_date()
-    bfile_date.set_modification_date(filename, file_mtime)
-    return value
-
-  @classmethod
-  def _make_mtime_key(clazz, key):
-    return f'__bes_mtime_{key}__'
-
-  class _getter_item(object):
- 
-    def __init__(self, getter_class):
-      check.check_class(getter_class, bfile_attr_getter_base)
-
-      self._getter_class = getter_class
-      self.cache = {}
-
-    @cached_property
-    def getter(self):
-      return self._getter_class()
-  
   _getters = {}
   @classmethod
   def register_attr_getter(clazz, getter_class):
@@ -95,6 +41,56 @@ class bfile_cached_attr(bfile_attr):
       clazz._getters[getter_key] = clazz._getter_item(getter_class)
 
   @classmethod
+  def get_cached_bytes(clazz, filename, key, value_maker):
+    'Return the attribute value with key for filename as bytes.'
+    filename = bfile_check.check_file(filename)
+    check.check_string(key)
+    check.check_callable(value_maker)
+
+    clazz._log.log_method_d()
+
+    mtime_key = clazz._make_mtime_key(key)
+    attr_mtime = clazz.get_date(filename, mtime_key)
+    file_mtime = bfile_date.get_modification_date(filename)
+    value = None
+    
+    label = f'get_cached_bytes:{filename}:{key}'
+
+    if file_mtime == attr_mtime:
+      return clazz.get_bytes(filename, key)
+    
+    value = value_maker(filename)
+    if value == None:
+      raise bfile_attr_error(f'value should never be None')
+
+    clazz.set_bytes(filename, key, value)
+    clazz.set_date(filename, mtime_key, file_mtime)
+    # setting the date in the line above has the side effect
+    # of changing the mtime in some implementations.  so we
+    # force it to be what it was right after setting the value
+    # which is in the past (usually microseconds) but guaranteed
+    # to match what what was set in set_date()
+    bfile_date.set_modification_date(filename, file_mtime)
+    return value
+
+  @classmethod
+  def _make_mtime_key(clazz, key):
+    return f'__bes_mtime_{key}__'
+
+  '''
+  class _getter_item(object):
+ 
+    def __init__(self, getter_class):
+      check.check_class(getter_class, bfile_attr_getter_base)
+
+      self._getter_class = getter_class
+      self.cache = {}
+
+    @cached_property
+    def getter(self):
+      return self._getter_class()
+  
+  @classmethod
   def _make_metadata_getter_key(clazz, domain, key, version):
     return f'{domain}.{key}.{version}'
 
@@ -104,7 +100,6 @@ class bfile_cached_attr(bfile_attr):
     return clazz._getters.get(getter_key, None)
   
 
-  '''
   @property
   def _cache_key(self):
     return f'{self.hashed_filename_sha256}_{self.modification_date_timestamp}'

@@ -17,16 +17,16 @@ def make_test_case(impl):
     # issue that on some platforms the tmp dir filesystem might have attributes disabled.
     _TMP_DIR = path.join(path.dirname(__file__), '.tmp')
     
-    def test__get_bytes_mtime_cached(self):
+    def test_get_cached_bytes(self):
       tmp = self.make_temp_file(dir = self._TMP_DIR, content = 'foo')
       value = '666'.encode('utf-8')
       def _value_maker(f):
         return value
-      self.assertEqual( value, impl._get_bytes_mtime_cached(tmp, 'foo', _value_maker) )
+      self.assertEqual( value, impl.get_cached_bytes(tmp, 'foo', _value_maker) )
       self.assertEqual( [ '__bes_mtime_foo__', 'foo' ], impl.keys(tmp) )
       self.assertEqual( '666', impl.get_string(tmp, 'foo') )
 
-    def test__get_bytes_mtime_cached_with_change(self):
+    def test_get_cached_bytes_with_change(self):
       tmp = self.make_temp_file(content = 'this is foo', suffix = '.txt')
       yesterday = datetime.now() - timedelta(days = 1)
       bfile_date.set_modification_date(tmp, yesterday)
@@ -43,9 +43,9 @@ def make_test_case(impl):
         return b'667'
     
       self.assertEqual( 0, counter )
-      self.assertEqual( b'666', impl._get_bytes_mtime_cached(tmp, 'foo', _value_maker1) )
+      self.assertEqual( b'666', impl.get_cached_bytes(tmp, 'foo', _value_maker1) )
       self.assertEqual( 1, counter )
-      self.assertEqual( b'666', impl._get_bytes_mtime_cached(tmp, 'foo', _value_maker1) )
+      self.assertEqual( b'666', impl.get_cached_bytes(tmp, 'foo', _value_maker1) )
       self.assertEqual( 1, counter )
       mtime = bfile_date.get_modification_date(tmp)
       self.assertEqual( {
@@ -61,9 +61,9 @@ def make_test_case(impl):
         tmp_content = f.read()
         self.assertEqual( 'this is foo more text', tmp_content )
 
-      self.assertEqual( b'667', impl._get_bytes_mtime_cached(tmp, 'foo', _value_maker2) )
+      self.assertEqual( b'667', impl.get_cached_bytes(tmp, 'foo', _value_maker2) )
       self.assertEqual( 2, counter )
-      self.assertEqual( b'667', impl._get_bytes_mtime_cached(tmp, 'foo', _value_maker2) )
+      self.assertEqual( b'667', impl.get_cached_bytes(tmp, 'foo', _value_maker2) )
       self.assertEqual( 2, counter )
   
       new_mtime = bfile_date.get_modification_date(tmp)
