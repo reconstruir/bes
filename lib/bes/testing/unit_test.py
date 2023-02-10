@@ -7,6 +7,7 @@ import atexit, codecs, copy, difflib, json, inspect, os, os.path as path
 import platform, pprint, re, sys, shutil, subprocess, tempfile, time, unittest
 
 from bes.system.filesystem import filesystem
+from bes.system.compat import compat
 
 from datetime import datetime
 
@@ -376,17 +377,28 @@ class unit_test(unittest.TestCase):
     'Write content to a temporary file.  Returns the filename.'
     prefix = prefix or clazz._DEFAULT_PREFIX
     suffix = suffix or ''
-    if dir and not path.isdir(dir):
-      clazz.mkdir(dir)
+    if dir:
+      if path.isfile(dir):
+        dir = path.join(path.dirname(dir), '.tmp')
+      if not path.isdir(dir):
+        clazz.mkdir(dir)
     tmp = tempfile.NamedTemporaryFile(prefix = prefix,
                                       suffix = suffix,
                                       dir = dir,
                                       mode = mode,
                                       delete = False)
     if content:
-      if not isinstance(content, bytes):
+      if compat.is_string(content):
+        if path.isfile(content):
+          with open(content, 'rb') as f:
+            content = f.read()
+        else:
+          content = content.encode('utf-8')
+      elif not isinstance(content, bytes):
         content = content.encode('utf-8')
       tmp.write(content)
+    tmp.flush()
+      
     tmp.flush()
     if perm:
       os.chmod(tmp.name, perm)

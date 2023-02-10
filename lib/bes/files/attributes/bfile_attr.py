@@ -21,12 +21,13 @@ class _bfile_attr_mixin:
   _log = logger('attr')
   
   @classmethod
-  def _check_key(clazz, key):
+  def check_key(clazz, key):
     check.check_string(key)
+    
     if ' ' in key:
-      raise bfile_attr_error('space not supported in key: \"{}\"'.format(key))
+      raise bfile_attr_error(f'space not supported in key: "{key}"')
     if ':' in key:
-      raise bfile_attr_error('colon not supported in key: \"{}\"'.format(key))
+      raise bfile_attr_error(f'colon not supported in key: "{key}"')
     return key
 
   @classmethod
@@ -48,7 +49,7 @@ class _bfile_attr_mixin:
   def get_string(clazz, filename, key, encoding = 'utf-8'):
     'Return the attribute value with key for filename as string.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     value = clazz.get_bytes(filename, key)
     if value == None:
       return None
@@ -58,7 +59,7 @@ class _bfile_attr_mixin:
   def set_string(clazz, filename, key, value, encoding = 'utf-8'):
     'Set the value of attribute with key to value for filename as string.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     check.check_string(value)
     clazz.set_bytes(filename, key, value.encode(encoding))
 
@@ -66,7 +67,7 @@ class _bfile_attr_mixin:
   def get_date(clazz, filename, key):
     'Return the attribute value with key for filename as string.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     value = clazz.get_string(filename, key)
     if value == None:
       return None
@@ -77,7 +78,7 @@ class _bfile_attr_mixin:
   def set_date(clazz, filename, key, value, encoding = 'utf-8'):
     'Set the value of attribute with key to value for filename as string.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     check.check(value, datetime)
     
     clazz.set_string(filename, key, str(value.timestamp()))
@@ -86,7 +87,7 @@ class _bfile_attr_mixin:
   def get_bool(clazz, filename, key):
     'Return the attribute value with key for filename as string.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     value = clazz.get_string(filename, key)
     if value == None:
       return None
@@ -96,7 +97,7 @@ class _bfile_attr_mixin:
   def set_bool(clazz, filename, key, value, encoding = 'utf-8'):
     'Set the value of attribute with key to value for filename as string.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     check.check_bool(value)
     
     clazz.set_string(filename, key, str(value).lower())
@@ -105,7 +106,7 @@ class _bfile_attr_mixin:
   def get_int(clazz, filename, key):
     'Return the attribute value with key for filename as string.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     
     value = clazz.get_string(filename, key)
     if value == None:
@@ -116,7 +117,7 @@ class _bfile_attr_mixin:
   def set_int(clazz, filename, key, value, encoding = 'utf-8'):
     'Set the value of attribute with key to value for filename as string.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     check.check_int(value)
     
     clazz.set_string(filename, key, str(value))

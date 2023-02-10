@@ -4,15 +4,15 @@
 import os
 import os.path as path
 
-from bes.files.bfile_cached_attribute import bfile_cached_attribute
+from bes.files.bfile_mtime_cached_info import bfile_mtime_cached_info
 from bes.testing.unit_test import unit_test
 from bes.system.filesystem import filesystem
   
-class test_bfile_cached_attribute(unit_test):
+class test_bfile_mtime_cached_info(unit_test):
 
   def test_value(self):
     tmp = self.make_temp_file(content = 'kiwi')
-    a = bfile_cached_attribute(tmp, lambda f: path.getsize(f))
+    a = bfile_mtime_cached_info(tmp, lambda f: path.getsize(f))
     self.assertEqual( 0, a.count )
     self.assertEqual( 4, a.value )
     self.assertEqual( 1, a.count )
@@ -21,7 +21,7 @@ class test_bfile_cached_attribute(unit_test):
 
   def test_value_changes(self):
     tmp = self.make_temp_file(content = 'kiwi')
-    a = bfile_cached_attribute(tmp, lambda f: path.getsize(f))
+    a = bfile_mtime_cached_info(tmp, lambda f: path.getsize(f))
     self.assertEqual( 0, a.count )
     self.assertEqual( 4, a.value )
     self.assertEqual( 1, a.count )

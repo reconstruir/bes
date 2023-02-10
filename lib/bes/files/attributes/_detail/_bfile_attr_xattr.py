@@ -20,7 +20,7 @@ class _bfile_attr_xattr(_bfile_attr_base):
   def has_key(clazz, filename, key):
     'Return True if filename has an attributed with key.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     bfile_check.check_file_is_readable(filename)
 
     encoded_key = clazz._encode_key(key)
@@ -31,7 +31,7 @@ class _bfile_attr_xattr(_bfile_attr_base):
   def get_bytes(clazz, filename, key):
     'Return the attribute value with key for filename.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     bfile_check.check_file_is_writable(filename)
 
     encoded_key = clazz._encode_key(key)
@@ -44,7 +44,7 @@ class _bfile_attr_xattr(_bfile_attr_base):
   def set_bytes(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     check.check_bytes(value)
     bfile_check.check_file_is_writable(filename)
 
@@ -60,7 +60,7 @@ class _bfile_attr_xattr(_bfile_attr_base):
   def remove(clazz, filename, key):
     'Remove the attirbute with key from filename.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     bfile_check.check_file_is_writable(filename)
 
     clazz._log.log_method_d()
@@ -108,3 +108,12 @@ class _bfile_attr_xattr(_bfile_attr_base):
     if host.is_linux():
       key = string_util.remove_head(key, 'user.')
     return key
+
+#    @classmethod
+#    def _munge_attr_keys(clazz, keys):
+#      'On some linux systems, there is an extra selinux key in many attr results'
+#      # FIXME: move this to the linux implementation and perhaps add a show system
+#      # attributes boolean somewhere
+#      assert isinstance(keys, list)
+#      return [ key for key in keys if key != 'selinux' ]
+  
