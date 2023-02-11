@@ -2,7 +2,6 @@
 
 import math
 
-from ..system.compat import compat
 from ..system.check import check
 from .string_util import string_util
 
@@ -30,8 +29,13 @@ class number_util(object):
   @classmethod
   def is_int(clazz, x):
     'Return True if x is an int.'
-    return compat.is_int(x)
+    return check.is_int(x)
 
+  @classmethod
+  def is_float(clazz, x):
+    'Return True if x is a float.'
+    return check.is_float(x)
+  
   @classmethod
   def string_is_int(clazz, x):
     'Return True if x is either an int or a string that can cast to int.'
@@ -46,12 +50,38 @@ class number_util(object):
     return False
 
   @classmethod
-  def to_int(clazz, x):
+  def string_is_float(clazz, x):
+    'Return True if x is either a float or a string that can cast to float.'
+    if clazz.is_float(x):
+      return True
+    if string_util.is_string(x):
+      try:
+        float(x)
+        return True
+      except:
+        pass
+    return False
+  
+  @classmethod
+  def to_int(clazz, x, raise_error = False):
     'Return x as an int or None if x is not an int.'
     if not clazz.string_is_int(x):
-      return None
+      if raise_error:
+        raise ValueError(f'not an int: "{x}"')
+      else:
+        return None
     return int(x)
 
+  @classmethod
+  def to_float(clazz, x, raise_error = False):
+    'Return x as a float or None if x is not a float.'
+    if not clazz.string_is_float(x):
+      if raise_error:
+        raise ValueError(f'not a float: "{x}"')
+      else:
+        return None
+    return int(x)
+  
   @classmethod
   def zfill(clazz, n, width, c = '0'):
     check.check(n, check.INTEGER_TYPES + check.STRING_TYPES)
