@@ -16,6 +16,7 @@ from ..bfile_check import bfile_check
 from .bfile_attr import bfile_attr
 from .bfile_attr_error import bfile_attr_error
 from .bfile_attr_factory_base import bfile_attr_factory_base
+from .bfile_attr_factory_registry import bfile_attr_factory_registry
 from .bfile_attr_handler import bfile_attr_handler
 from .bfile_attr_handler_list import bfile_attr_handler_list
 
