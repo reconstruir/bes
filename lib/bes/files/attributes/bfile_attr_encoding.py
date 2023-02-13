@@ -7,7 +7,7 @@ from bes.common.number_util import number_util
 #from bes.system.compat import with_metaclass
 from bes.system.check import check
 
-class bfile_attr_decode(object):
+class bfile_attr_encoding(object):
 
   @classmethod
   def decode_int(clazz, value):
@@ -36,4 +36,18 @@ class bfile_attr_decode(object):
     check.check_float(value)
 
     return str(value).encode('utf-8')
+  
+  @classmethod
+  def decode_string(clazz, value):
+    'Decode a string'
+    check.check_bytes(value)
+    
+    return value.decode('utf-8')
+
+  @classmethod
+  def encode_string(clazz, value):
+    'Decode an string'
+    check.check_string(value)
+
+    return value.encode('utf-8')
   

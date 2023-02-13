@@ -5,9 +5,9 @@ from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 from bes.system.check import check
 
-from .bfile_attr_decode import bfile_attr_decode
+from .bfile_attr_encoding import bfile_attr_encoding
 
-class bfile_attr_factory_base(with_metaclass(ABCMeta, bfile_attr_decode)):
+class bfile_attr_factory_base(with_metaclass(ABCMeta, bfile_attr_encoding)):
 
   @classmethod
   @abstractmethod

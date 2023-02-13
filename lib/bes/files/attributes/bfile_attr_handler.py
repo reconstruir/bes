@@ -7,7 +7,7 @@ from bes.version.semantic_version import semantic_version
 from bes.common.tuple_util import tuple_util
 from bes.property.cached_property import cached_property
 
-from .bfile_attr_decode import bfile_attr_decode
+from .bfile_attr_encoding import bfile_attr_encoding
 
 class bfile_attr_handler(namedtuple('bfile_attr_handler', 'domain, name, version, getter, decoder, memory_only')):
 
