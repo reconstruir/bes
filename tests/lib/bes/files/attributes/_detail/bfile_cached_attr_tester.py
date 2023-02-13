@@ -125,6 +125,26 @@ def make_test_case(impl):
       self.assertEqual( 1, _test_fruits_factory._cherry_2_0_count )
       self.assertEqual( 2.5, impl.get_cached_metadata(tmp, 'fruit', 'cherry', '2.0') )
       self.assertEqual( 1, _test_fruits_factory._cherry_2_0_count )
+
+      with open(tmp, 'wb') as f:
+        f.write(b'1234567890')
+        f.flush()
+
+      self.assertEqual( 1, _test_fruits_factory._kiwi_1_0_count )
+      self.assertEqual( 10, impl.get_cached_metadata(tmp, 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 2, _test_fruits_factory._kiwi_1_0_count )
+      self.assertEqual( 10, impl.get_cached_metadata(tmp, 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 2, _test_fruits_factory._kiwi_1_0_count )
+
+      with open(tmp, 'wb') as f:
+        f.write(b'12')
+        f.flush()
+      
+      self.assertEqual( 1, _test_fruits_factory._cherry_2_0_count )
+      self.assertEqual( 1, impl.get_cached_metadata(tmp, 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 2, _test_fruits_factory._cherry_2_0_count )
+      self.assertEqual( 1, impl.get_cached_metadata(tmp, 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 2, _test_fruits_factory._cherry_2_0_count )
       
       bfile_attr_factory_registry.clear_all()
       
