@@ -85,7 +85,7 @@ class bfile_cached_attr(bfile_attr):
     bfile_date.set_modification_date(filename, file_mtime)
     return clazz._get_cached_bytes_result(value, file_mtime, False)
   
-  _cached_metadata = []
+  _cached_metadata = {}
   class _cached_metadata_item(object):
 
     def __init__(self):
@@ -102,6 +102,7 @@ class bfile_cached_attr(bfile_attr):
       file_dict[factory_key] = clazz._cached_metadata_item()
     return file_dict[factory_key]
     
+  @classmethod
   def get_cached_metadata(clazz, filename, domain, key, version):
     filename = bfile_check.check_file(filename)
     check.check_string(domain)
@@ -110,16 +111,16 @@ class bfile_cached_attr(bfile_attr):
 
     handler = bfile_attr_factory_registry.get_handler(domain, key, version)
     item = clazz._get_cached_metadata_item(filename, handler.factory_key)
-    current_mtime = path.getmtime(filename)
+    current_mtime = bfile_date.get_modification_date(filename)
     clazz._log.log_d(f'get_cached_metadata: filename={filename} current_mtime={current_mtime} last_mtime={item._last_mtime}')
     if item._last_mtime != None:
       assert not item._last_mtime > current_mtime
       if current_mtime <= item._last_mtime:
         assert item._value != None
         return item._value
-    item._last_mtime = path.getmtime(filename)
-    value_bytes = clazz.get_cached_bytes(filename, handler.factory_key, handler.getter)
+    value_bytes, mtime, _ = clazz._do_get_cached_bytes(filename, handler.factory_key, handler.getter)
     value = handler.decoder(value_bytes)
+    item._last_mtime = mtime
     item._value = value
     assert item._value != None
     item._count += 1

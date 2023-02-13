@@ -6,10 +6,12 @@ from datetime import datetime
 from datetime import timedelta
 import os.path as path
 
-from bes.files.bfile_date import bfile_date
 from bes.files.attributes.bfile_attr_factory_base import bfile_attr_factory_base
-from bes.files.attributes.bfile_cached_attr import bfile_cached_attr
+from bes.files.attributes.bfile_attr_factory_base import bfile_attr_factory_base
+from bes.files.attributes.bfile_attr_factory_registry import bfile_attr_factory_registry
 from bes.files.attributes.bfile_attr_handler import bfile_attr_handler
+from bes.files.attributes.bfile_cached_attr import bfile_cached_attr
+from bes.files.bfile_date import bfile_date
 from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
@@ -78,4 +80,52 @@ def make_test_case(impl):
         'foo': b'667',
       }, impl. get_all(tmp) )
 
+    def test_get_cached_metadata(self):
+      class _test_fruits_factory(bfile_attr_factory_base):
+      
+        @classmethod
+        #@abstractmethod
+        def handlers(clazz):
+          return [
+            ( 'fruit', 'kiwi', '1.0', clazz._get_kiwi_1_0, clazz._decode_kiwi_1_0, False ),
+            ( 'fruit', 'cherry', '2.0', clazz._get_cherry_2_0, clazz._decode_cherry_2_0, False ),
+          ]
+
+        _kiwi_1_0_count = 0
+        @classmethod
+        def _get_kiwi_1_0(clazz, filename):
+          clazz._kiwi_1_0_count += 1
+          return clazz.encode_int(os.stat(filename).st_size)
+
+        @classmethod
+        def _decode_kiwi_1_0(clazz, value):
+          return clazz.decode_int(value)
+        
+        _cherry_2_0_count = 0
+        @classmethod
+        def _get_cherry_2_0(clazz, filename):
+          clazz._cherry_2_0_count += 1
+          return clazz.encode_float(os.stat(filename).st_size / 2.0)
+
+        @classmethod
+        def _decode_cherry_2_0(clazz, value):
+          return clazz.decode_float(value)
+        
+      bfile_attr_factory_registry.register_factory(_test_fruits_factory)
+      tmp = self.make_temp_file(content = b'12345', suffix = '.data')
+
+      self.assertEqual( 0, _test_fruits_factory._kiwi_1_0_count )
+      self.assertEqual( 5, impl.get_cached_metadata(tmp, 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 1, _test_fruits_factory._kiwi_1_0_count )
+      self.assertEqual( 5, impl.get_cached_metadata(tmp, 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 1, _test_fruits_factory._kiwi_1_0_count )
+
+      self.assertEqual( 0, _test_fruits_factory._cherry_2_0_count )
+      self.assertEqual( 2.5, impl.get_cached_metadata(tmp, 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 1, _test_fruits_factory._cherry_2_0_count )
+      self.assertEqual( 2.5, impl.get_cached_metadata(tmp, 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 1, _test_fruits_factory._cherry_2_0_count )
+      
+      bfile_attr_factory_registry.clear_all()
+      
   return _bfile_cached_attr_test_case

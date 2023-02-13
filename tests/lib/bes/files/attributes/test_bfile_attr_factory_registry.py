@@ -39,6 +39,7 @@ class test_bfile_attr_factory_registry(unit_test):
     self.assertEqual( False, bfile_attr_factory_registry.has_handler('fruit', 'kiwi', '2.0') )
     self.assertEqual( False, bfile_attr_factory_registry.has_handler('fruit', 'cherry', '1.0') )
     self.assertEqual( True, bfile_attr_factory_registry.has_handler('fruit', 'cherry', '2.0') )
+    bfile_attr_factory_registry.clear_all()
                                                                     
 if __name__ == '__main__':
   unit_test.main()

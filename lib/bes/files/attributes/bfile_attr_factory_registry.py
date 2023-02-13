@@ -35,14 +35,17 @@ class bfile_attr_factory_registry(object):
       raise bfile_attr_error(f'handlers should be a sequence of "bfile_attr_handler" or tuples: "{raw_handlers_list}" - {type(raw_handlers_list)}')
     for handler in handlers:
       if handler.factory_key in clazz._factories:
-        raise bfile_error(f'getter already registered: "{handler.factory_key}"')
-      clazz._factories[handler.factory_key] = clazz._factory_item(factory_class)
+        raise bfile_attr_error(f'getter already registered: "{handler.factory_key}"')
+      clazz._factories[handler.factory_key] = handler
       clazz._log.log_d(f'registered handler {handler.factory_key} {handler.getter}')
 
   @classmethod
+  def clear_all(clazz):
+    clazz._factories = {}
+      
+  @classmethod
   def get_handler(clazz, domain, key, version, raise_error = True):
-    clazz._log.log_method_d()
-    clazz._log.log_d(f'handler_key={handler_key}')
+    handler_key = bfile_attr_handler.make_factory_key(domain, key, version)
     handler = clazz._factories.get(handler_key, None)
     clazz._log.log_d(f'handler_key={handler_key} handler={handler}')
     if raise_error and not handler:
@@ -51,7 +54,4 @@ class bfile_attr_factory_registry(object):
 
   @classmethod
   def has_handler(clazz, domain, key, version):
-    handler_key = bfile_attr_handler.make_factory_key(domain, key, version)
-    handler = clazz._factories.get(handler_key, None)
-    print(f'handler={handler}')
-    return handler != None
+    return clazz.get_handler(domain, key, version, raise_error = False) != None

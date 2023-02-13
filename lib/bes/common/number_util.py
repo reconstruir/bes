@@ -80,7 +80,7 @@ class number_util(object):
         raise ValueError(f'not a float: "{x}"')
       else:
         return None
-    return int(x)
+    return float(x)
   
   @classmethod
   def zfill(clazz, n, width, c = '0'):
