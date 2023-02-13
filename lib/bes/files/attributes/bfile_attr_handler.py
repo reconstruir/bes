@@ -39,4 +39,10 @@ class bfile_attr_handler(namedtuple('bfile_attr_handler', 'domain, name, version
   def decode(self, value):
     return self._decoder(value)
 
+  def get_and_decode(self, filename):
+    return self._decoder(self._getter(filename))
+
+  def decode(self, value):
+    return self._decoder(value)
+  
 check.register_class(bfile_attr_handler, include_seq = False, cast_func = bfile_attr_handler._check_cast_func)

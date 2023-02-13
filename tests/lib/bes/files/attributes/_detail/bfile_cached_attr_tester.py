@@ -78,34 +78,4 @@ def make_test_case(impl):
         'foo': b'667',
       }, impl. get_all(tmp) )
 
-    def test_register_attr_factory(self):
-      class _test_fruits_factory(bfile_attr_factory_base):
-      
-        @classmethod
-        #@abstractmethod
-        def handlers(clazz):
-          return [
-            ( 'fruit', 'kiwi', '1.0', clazz._get_kiwi_1_0, clazz._decode_kiwi_1_0, False ),
-            ( 'fruit', 'cherry', '2.0', clazz._get_cherry_2_0, clazz._decode_cherry_2_0, False ),
-          ]
-
-        @classmethod
-        def _get_kiwi_1_0(clazz, filename):
-          return os.stat(filename).st_size
-
-        @classmethod
-        def _decode_kiwi_1_0(clazz, value):
-          return clazz.decode_int(value)
-        
-        @classmethod
-        def _get_cherry_2_0(clazz, filename):
-          return os.stat(filename).st_size / 2.0
-
-        @classmethod
-        def _decode_cherry_2_0(clazz, value):
-          return clazz.decode_float(value)
-        
-      bfile_cached_attr.register_attr_factory(_test_fruits_factory)
-      tmp = self.make_temp_file(dir = self._TMP_DIR, content = 'foo')
-      
   return _bfile_cached_attr_test_case

@@ -20,7 +20,7 @@ class test_bfile_attr_factory_registry(unit_test):
 
       @classmethod
       def _get_kiwi_1_0(clazz, filename):
-        return os.stat(filename).st_size
+        return clazz.encode_int(os.stat(filename).st_size)
 
       @classmethod
       def _decode_kiwi_1_0(clazz, value):
@@ -28,7 +28,7 @@ class test_bfile_attr_factory_registry(unit_test):
         
       @classmethod
       def _get_cherry_2_0(clazz, filename):
-        return os.stat(filename).st_size / 2.0
+        return clazz.encode_float(os.stat(filename).st_size / 2.0)
 
       @classmethod
       def _decode_cherry_2_0(clazz, value):

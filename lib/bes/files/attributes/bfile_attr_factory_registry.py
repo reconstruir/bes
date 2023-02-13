@@ -17,7 +17,6 @@ class bfile_attr_factory_registry(object):
  
     def __init__(self, factory_class):
       self._factory_class = factory_class
-      self.cache = {}
 
     @cached_property
     def factory(self):

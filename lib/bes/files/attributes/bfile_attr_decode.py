@@ -17,8 +17,23 @@ class bfile_attr_decode(object):
     return number_util.to_int(value.decode('utf-8'))
 
   @classmethod
+  def encode_int(clazz, value):
+    'Decode an int'
+    check.check_int(value)
+
+    return str(value).encode('utf-8')
+  
+  @classmethod
   def decode_float(clazz, value):
     'Decode an int'
     check.check_bytes(value)
     
     return number_util.to_float(value.decode('utf-8'))
+
+  @classmethod
+  def encode_float(clazz, value):
+    'Decode an float'
+    check.check_float(value)
+
+    return str(value).encode('utf-8')
+  
