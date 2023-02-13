@@ -119,13 +119,22 @@ def make_test_case(impl):
       self.assertEqual( 1, _test_fruits_factory._kiwi_1_0_count )
       self.assertEqual( 5, impl.get_cached_metadata(tmp, 'fruit', 'kiwi', '1.0') )
       self.assertEqual( 1, _test_fruits_factory._kiwi_1_0_count )
+      kiwi_mtime = bfile_date.get_modification_date(tmp)
 
       self.assertEqual( 0, _test_fruits_factory._cherry_2_0_count )
       self.assertEqual( 2.5, impl.get_cached_metadata(tmp, 'fruit', 'cherry', '2.0') )
       self.assertEqual( 1, _test_fruits_factory._cherry_2_0_count )
       self.assertEqual( 2.5, impl.get_cached_metadata(tmp, 'fruit', 'cherry', '2.0') )
       self.assertEqual( 1, _test_fruits_factory._cherry_2_0_count )
+      cherry_mtime = bfile_date.get_modification_date(tmp)
 
+      self.assertEqual( {
+        '__bes_mtime_fruit.cherry.2.0__': str(cherry_mtime.timestamp()).encode('utf-8'),
+        '__bes_mtime_fruit.kiwi.1.0__': str(kiwi_mtime.timestamp()).encode('utf-8'),
+        'fruit.cherry.2.0': b'2.5',
+        'fruit.kiwi.1.0': b'5',
+      }, impl.get_all(tmp) )
+      
       with open(tmp, 'wb') as f:
         f.write(b'1234567890')
         f.flush()
@@ -135,7 +144,15 @@ def make_test_case(impl):
       self.assertEqual( 2, _test_fruits_factory._kiwi_1_0_count )
       self.assertEqual( 10, impl.get_cached_metadata(tmp, 'fruit', 'kiwi', '1.0') )
       self.assertEqual( 2, _test_fruits_factory._kiwi_1_0_count )
+      kiwi_mtime = bfile_date.get_modification_date(tmp)
 
+      self.assertEqual( {
+        '__bes_mtime_fruit.cherry.2.0__': str(cherry_mtime.timestamp()).encode('utf-8'),
+        '__bes_mtime_fruit.kiwi.1.0__': str(kiwi_mtime.timestamp()).encode('utf-8'),
+        'fruit.cherry.2.0': b'2.5',
+        'fruit.kiwi.1.0': b'10',
+      }, impl.get_all(tmp) )
+      
       with open(tmp, 'wb') as f:
         f.write(b'12')
         f.flush()
@@ -145,6 +162,14 @@ def make_test_case(impl):
       self.assertEqual( 2, _test_fruits_factory._cherry_2_0_count )
       self.assertEqual( 1, impl.get_cached_metadata(tmp, 'fruit', 'cherry', '2.0') )
       self.assertEqual( 2, _test_fruits_factory._cherry_2_0_count )
+      cherry_mtime = bfile_date.get_modification_date(tmp)
+
+      self.assertEqual( {
+        '__bes_mtime_fruit.cherry.2.0__': str(cherry_mtime.timestamp()).encode('utf-8'),
+        '__bes_mtime_fruit.kiwi.1.0__': str(kiwi_mtime.timestamp()).encode('utf-8'),
+        'fruit.cherry.2.0': b'1.0',
+        'fruit.kiwi.1.0': b'10',
+      }, impl.get_all(tmp) )
       
       bfile_attr_factory_registry.clear_all()
       
