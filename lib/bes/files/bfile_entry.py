@@ -10,7 +10,7 @@ from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
 
-from .bfile_cached_attribute import bfile_cached_attribute
+from .bfile_mtime_cached_attribute import bfile_mtime_cached_attribute
 from .bfile_error import bfile_error
 from .bfile_filename import bfile_filename
 from .bfile_permission_error import bfile_permission_error
@@ -24,7 +24,7 @@ class bfile_entry(object):
   
   def __init__(self, filename):
     self._filename = filename
-    self._stat = bfile_cached_attribute(self._filename, lambda f: os.stat(filename, follow_symlinks = True))
+    self._stat = bfile_mtime_cached_attribute(self._filename, lambda f: os.stat(filename, follow_symlinks = True))
 
   @cached_property
   def filename(self):
