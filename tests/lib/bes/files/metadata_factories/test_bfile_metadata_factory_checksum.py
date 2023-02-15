@@ -5,8 +5,8 @@ import os.path as path
 
 from bes.testing.unit_test import unit_test
 from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
-from bes.files.metadata.bfile_metadata_factory_checksum import bfile_metadata_factory_checksum
 from bes.files.metadata.bfile_metadata import bfile_metadata
+from bes.files.metadata_factories.bfile_metadata_factory_checksum import bfile_metadata_factory_checksum
 from bes.files.bfile_checksum import bfile_checksum
 
 class test_bfile_metadata_factory_checksum(unit_test):

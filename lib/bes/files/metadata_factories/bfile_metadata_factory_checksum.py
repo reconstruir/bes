@@ -5,7 +5,7 @@ from bes.system.log import logger
 
 from ..bfile_checksum import bfile_checksum
 
-from .bfile_metadata_factory_base import bfile_metadata_factory_base
+from ..metadata.bfile_metadata_factory_base import bfile_metadata_factory_base
 
 class bfile_metadata_factory_checksum(bfile_metadata_factory_base):
       
