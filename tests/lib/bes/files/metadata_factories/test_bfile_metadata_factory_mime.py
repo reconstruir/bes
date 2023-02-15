@@ -62,16 +62,5 @@ class test_bfile_metadata_factory_mime(unit_test, unit_test_media_files):
 #      
     self.assertEqual( 'image/jpeg', bfile_metadata.get_metadata(tmp, 'bes', 'mime', 'mime_type', '1.0') )
 
-  def xtest_get_mime_type_cached(self):
-    tmp_file = self.make_temp_file(suffix = '.png')
-    file_util.copy(self.png_file, tmp_file)
-    self.assertEqual( 'image/png', bfile_metadata.get_metadata(tmp_file, cached = True) )
-    file_util.copy(self.jpg_file, tmp_file)
-    if host.is_linux():
-      file_util.set_modification_date(tmp_file, datetime.now())
-    self.assertEqual( 'image/jpeg', bfile_metadata.get_metadata(tmp_file, cached = True) )
-    
-    bfile_metadata_factory_registry.clear_all()
-
 if __name__ == '__main__':
   unit_test.main()
