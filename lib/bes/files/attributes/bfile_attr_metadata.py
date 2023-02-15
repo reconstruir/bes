@@ -6,8 +6,8 @@ from bes.system.log import logger
 from ..bfile_date import bfile_date
 from ..bfile_check import bfile_check
 
+from .bfile_attr_error import bfile_attr_error
 from .bfile_attr_factory_registry import bfile_attr_factory_registry
-
 from .bfile_attr_mtime_cached import bfile_attr_mtime_cached
 
 class bfile_attr_metadata(bfile_attr_mtime_cached):
@@ -15,10 +15,10 @@ class bfile_attr_metadata(bfile_attr_mtime_cached):
   @classmethod
   def get_cached_metadata(clazz, filename, domain, group, name, version):
     filename = bfile_check.check_file(filename)
-    check.check_string(domain)
-    check.check_string(group)
-    check.check_string(name)
-    check.check_string(version)
+    clazz.check_part(domain)
+    clazz.check_part(group)
+    clazz.check_part(name)
+    clazz.check_part(version)
 
     handler = bfile_attr_factory_registry.get_handler(domain, group, name, version)
     item = clazz._get_cached_metadata_item(filename, handler.factory_key)
@@ -54,6 +54,13 @@ class bfile_attr_metadata(bfile_attr_mtime_cached):
     if not factory_key in file_dict:
       file_dict[factory_key] = clazz._cached_metadata_item()
     return file_dict[factory_key]
+
+  @classmethod
+  def check_part(clazz, part):
+    clazz.check_key(part)
+    
+    if '/' in part:
+      raise bfile_attr_error(f'"/" not supported in part: "{part}"')
   
   '''
   @property
@@ -79,27 +86,4 @@ class bfile_attr_metadata(bfile_attr_mtime_cached):
   @property
   def is_video(self):
     return self.is_file and self.media_type in ( 'video' )
-
-  def get_metadata_value(self, domain, group, name, version, cached = False):
-    check.check_string(domain)
-    check.check_string(key)
-    check.check_string(version)
-    check.check_bool(cached)
-
-    factory_item = self._get_factory_item(domain, group, name, version)
-    if not factory_item:
-      raise bfile_error(f'no getter registered: "{domain.key.version}"')
-    if cached:
-      cache_key = self._cache_key
-      if not cache_key in factory_item.cache:
-        value = clazz.get_value(filename, key, fallback = fallback, cached = False)
-        factory_item.cache[cache_key] = value
-      return factory_item.cache[cache_key]
-#    filename, domain, group, name, version
-    def _value_maker(f):
-      return factory_item.getter.get_value(clazz, f)
-    value = clazz.get_bytes(filename, key, _value_maker, fallback = fallback)
-    if value == None:
-      return None
-    return factory_item.getter.decode_value(value)
 '''

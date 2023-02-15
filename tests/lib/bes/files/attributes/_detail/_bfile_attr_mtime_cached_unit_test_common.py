@@ -29,7 +29,7 @@ def make_test_case(impl):
       self.assertEqual( '666', impl.get_string(tmp, 'foo') )
 
     def test_get_cached_bytes_with_change(self):
-      tmp = self.make_temp_file(content = 'this is foo', suffix = '.txt')
+      tmp = self.make_temp_file(dir = self._TMP_DIR, content = 'this is foo', suffix = '.txt')
       yesterday = datetime.now() - timedelta(days = 1)
       bfile_date.set_modification_date(tmp, yesterday)
 

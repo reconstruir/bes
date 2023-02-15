@@ -10,19 +10,19 @@ class test_bfile_checksum(unit_test):
   def test_checksum_sha256(self):
     content = 'this is kiwi'
     tmp = self.make_temp_file(content = content)
-    actual = bfile_checksum.checksum('sha256', tmp)
+    actual = bfile_checksum.checksum(tmp, 'sha256')
     self.assertEqual( hash_util.hash_string_sha256(content), actual )
 
   def test_checksum_sha256_with_one_chunk(self):
     content = 'this is kiwi'
     tmp = self.make_temp_file(content = content)
-    actual = bfile_checksum.checksum('sha256', tmp, chunk_size = 4, num_chunks = 1)
+    actual = bfile_checksum.checksum(tmp, 'sha256', chunk_size = 4, num_chunks = 1)
     self.assertEqual( hash_util.hash_string_sha256('this'), actual )
 
   def test_checksum_sha256_with_two_chunks(self):
     content = 'this is kiwi'
     tmp = self.make_temp_file(content = content)
-    actual = bfile_checksum.checksum('sha256', tmp, chunk_size = 4, num_chunks = 2)
+    actual = bfile_checksum.checksum(tmp, 'sha256', chunk_size = 4, num_chunks = 2)
     self.assertEqual( hash_util.hash_string_sha256('this is '), actual )
     
 if __name__ == '__main__':

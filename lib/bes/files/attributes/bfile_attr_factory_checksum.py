@@ -13,7 +13,11 @@ class bfile_attr_factory_checksum(bfile_attr_factory_base):
   #@abstractmethod
   def handlers(clazz):
     return [
-      ( 'bes', 'checksum_md5', '1.0', lambda f: bfile_checksum(f, 'md5', clazz.decode_string, False ),
-      ( 'bes', 'checksum_sha1', '1.0', lambda f: bfile_checksum(f, 'sha1', clazz.decode_string, False ),
-      ( 'bes', 'checksum_sha256', '1.0', lambda f: bfile_checksum(f, 'sha256', clazz.decode_string, False ),
+      ( 'bes', 'checksum', 'md5', '0.0', lambda f: clazz._checksum(f, 'md5'), clazz.decode_string, False ),
+      ( 'bes', 'checksum', 'sha1', '0.0', lambda f: clazz._checksum(f, 'sha1'), clazz.decode_string, False ),
+      ( 'bes', 'checksum', 'sha256', '0.0', lambda f: clazz._checksum(f, 'sha256'), clazz.decode_string, False ),
     ]
+
+  @classmethod
+  def _checksum(clazz, filename, function_name):
+    return clazz.encode_string(bfile_checksum.checksum(filename, function_name))
