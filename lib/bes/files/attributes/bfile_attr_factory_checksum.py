@@ -5,9 +5,9 @@ from bes.system.log import logger
 
 from ..bfile_checksum import bfile_checksum
 
-from .bfile_attr_factory_base import bfile_attr_factory_base
+from .bfile_metadata_factory_base import bfile_metadata_factory_base
 
-class bfile_attr_factory_checksum(bfile_attr_factory_base):
+class bfile_attr_factory_checksum(bfile_metadata_factory_base):
       
   @classmethod
   #@abstractmethod

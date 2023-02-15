@@ -7,9 +7,9 @@ from bes.version.semantic_version import semantic_version
 from bes.common.tuple_util import tuple_util
 from bes.property.cached_property import cached_property
 
-from .bfile_attr_encoding import bfile_attr_encoding
+from .bfile_metadata_encoding import bfile_metadata_encoding
 
-class bfile_attr_handler(namedtuple('bfile_attr_handler', 'domain, group, name, version, getter, decoder, memory_only')):
+class bfile_metadata_handler(namedtuple('bfile_metadata_handler', 'domain, group, name, version, getter, decoder, memory_only')):
 
   def __new__(clazz, domain, group, name, version, getter, decoder, memory_only):
     check.check_string(domain)
@@ -46,4 +46,4 @@ class bfile_attr_handler(namedtuple('bfile_attr_handler', 'domain, group, name, 
   def decode(self, value):
     return self._decoder(value)
   
-check.register_class(bfile_attr_handler, include_seq = False, cast_func = bfile_attr_handler._check_cast_func)
+check.register_class(bfile_metadata_handler, include_seq = False, cast_func = bfile_metadata_handler._check_cast_func)

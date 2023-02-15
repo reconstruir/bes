@@ -225,7 +225,7 @@ class bfile_entry(object):
   _getters = {}
   @classmethod
   def register_metadata_getter(clazz, getter_class):
-    check.check_class(getter_class, bfile_attr_factory_base)
+    check.check_class(getter_class, bfile_metadata_factory_base)
 
     domain = getter_class.domain()
     if not check.is_string(domain):

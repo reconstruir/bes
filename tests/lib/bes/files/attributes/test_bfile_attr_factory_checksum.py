@@ -4,7 +4,7 @@
 import os.path as path
 
 from bes.testing.unit_test import unit_test
-from bes.files.attributes.bfile_attr_factory_registry import bfile_attr_factory_registry
+from bes.files.attributes.bfile_metadata_factory_registry import bfile_metadata_factory_registry
 from bes.files.attributes.bfile_attr_factory_checksum import bfile_attr_factory_checksum
 from bes.files.attributes.bfile_attr_metadata import bfile_attr_metadata
 from bes.files.bfile_checksum import bfile_checksum
@@ -16,7 +16,7 @@ class test_bfile_attr_factory_checksum(unit_test):
   _TMP_DIR = path.join(path.dirname(__file__), '.tmp')
   
   def test_factory_checksum(self):
-    bfile_attr_factory_registry.register_factory(bfile_attr_factory_checksum)
+    bfile_metadata_factory_registry.register_factory(bfile_attr_factory_checksum)
 
     tmp_kiwi = self.make_temp_file(dir = self._TMP_DIR, content = 'this is kiwi')
     tmp_lemon = self.make_temp_file(dir = self._TMP_DIR, content = 'this is lemon')
@@ -59,7 +59,7 @@ class test_bfile_attr_factory_checksum(unit_test):
     self.assertEqual( kiwi_checksums['sha256'],
                       bfile_attr_metadata.get_cached_metadata(tmp_lemon, 'bes', 'checksum', 'sha256', '0.0') )
       
-    bfile_attr_factory_registry.clear_all()
+    bfile_metadata_factory_registry.clear_all()
 
 if __name__ == '__main__':
   unit_test.main()

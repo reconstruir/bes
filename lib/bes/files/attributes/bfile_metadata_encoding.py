@@ -7,7 +7,7 @@ from bes.common.number_util import number_util
 #from bes.system.compat import with_metaclass
 from bes.system.check import check
 
-class bfile_attr_encoding(object):
+class bfile_metadata_encoding(object):
 
   @classmethod
   def decode_int(clazz, value):

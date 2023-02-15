@@ -2,13 +2,13 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.files.attributes.bfile_attr_factory_registry import bfile_attr_factory_registry
-from bes.files.attributes.bfile_attr_factory_base import bfile_attr_factory_base
+from bes.files.attributes.bfile_metadata_factory_registry import bfile_metadata_factory_registry
+from bes.files.attributes.bfile_metadata_factory_base import bfile_metadata_factory_base
 
-class test_bfile_attr_factory_registry(unit_test):
+class test_bfile_metadata_factory_registry(unit_test):
   
   def test_register_attr_factory(self):
-    class _test_fruits_factory(bfile_attr_factory_base):
+    class _test_fruits_factory(bfile_metadata_factory_base):
       
       @classmethod
       #@abstractmethod
@@ -34,12 +34,12 @@ class test_bfile_attr_factory_registry(unit_test):
       def _decode_cherry_2_0(clazz, value):
         return clazz.decode_float(value)
         
-    bfile_attr_factory_registry.register_factory(_test_fruits_factory)
-    self.assertEqual( True, bfile_attr_factory_registry.has_handler('acme', 'fruit', 'kiwi', '1.0') )
-    self.assertEqual( False, bfile_attr_factory_registry.has_handler('acme', 'fruit', 'kiwi', '2.0') )
-    self.assertEqual( False, bfile_attr_factory_registry.has_handler('acme', 'fruit', 'cherry', '1.0') )
-    self.assertEqual( True, bfile_attr_factory_registry.has_handler('acme', 'fruit', 'cherry', '2.0') )
-    bfile_attr_factory_registry.clear_all()
+    bfile_metadata_factory_registry.register_factory(_test_fruits_factory)
+    self.assertEqual( True, bfile_metadata_factory_registry.has_handler('acme', 'fruit', 'kiwi', '1.0') )
+    self.assertEqual( False, bfile_metadata_factory_registry.has_handler('acme', 'fruit', 'kiwi', '2.0') )
+    self.assertEqual( False, bfile_metadata_factory_registry.has_handler('acme', 'fruit', 'cherry', '1.0') )
+    self.assertEqual( True, bfile_metadata_factory_registry.has_handler('acme', 'fruit', 'cherry', '2.0') )
+    bfile_metadata_factory_registry.clear_all()
                                                                     
 if __name__ == '__main__':
   unit_test.main()

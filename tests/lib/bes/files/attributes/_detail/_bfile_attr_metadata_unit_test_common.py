@@ -4,8 +4,8 @@ import os
 
 import os.path as path
 
-from bes.files.attributes.bfile_attr_factory_base import bfile_attr_factory_base
-from bes.files.attributes.bfile_attr_factory_registry import bfile_attr_factory_registry
+from bes.files.attributes.bfile_metadata_factory_base import bfile_metadata_factory_base
+from bes.files.attributes.bfile_metadata_factory_registry import bfile_metadata_factory_registry
 from bes.files.bfile_date import bfile_date
 from bes.testing.unit_test import unit_test
 
@@ -20,7 +20,7 @@ def make_test_case(impl):
     _TMP_DIR = path.join(path.dirname(__file__), '.tmp')
     
     def test_get_cached_metadata(self):
-      class _test_fruits_factory(bfile_attr_factory_base):
+      class _test_fruits_factory(bfile_metadata_factory_base):
       
         @classmethod
         #@abstractmethod
@@ -50,7 +50,7 @@ def make_test_case(impl):
         def _decode_cherry_2_0(clazz, value):
           return clazz.decode_float(value)
         
-      bfile_attr_factory_registry.register_factory(_test_fruits_factory)
+      bfile_metadata_factory_registry.register_factory(_test_fruits_factory)
       tmp = self.make_temp_file(dir = self._TMP_DIR, content = b'12345', suffix = '.data')
 
       self.assertEqual( 0, _test_fruits_factory._kiwi_1_0_count )
@@ -110,6 +110,6 @@ def make_test_case(impl):
         'acme/fruit/kiwi/1.0': b'10',
       }, impl.get_all(tmp) )
       
-      bfile_attr_factory_registry.clear_all()
+      bfile_metadata_factory_registry.clear_all()
       
   return _bfile_attr_metadata_test_case

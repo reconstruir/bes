@@ -7,7 +7,7 @@ from ..bfile_date import bfile_date
 from ..bfile_check import bfile_check
 
 from .bfile_attr_error import bfile_attr_error
-from .bfile_attr_factory_registry import bfile_attr_factory_registry
+from .bfile_metadata_factory_registry import bfile_metadata_factory_registry
 from .bfile_attr_mtime_cached import bfile_attr_mtime_cached
 
 class bfile_attr_metadata(bfile_attr_mtime_cached):
@@ -20,7 +20,7 @@ class bfile_attr_metadata(bfile_attr_mtime_cached):
     clazz.check_part(name)
     clazz.check_part(version)
 
-    handler = bfile_attr_factory_registry.get_handler(domain, group, name, version)
+    handler = bfile_metadata_factory_registry.get_handler(domain, group, name, version)
     item = clazz._get_cached_metadata_item(filename, handler.factory_key)
     current_mtime = bfile_date.get_modification_date(filename)
     clazz._log.log_d(f'get_cached_metadata: filename={filename} current_mtime={current_mtime} last_mtime={item._last_mtime}')

@@ -5,9 +5,9 @@ from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 from bes.system.check import check
 
-from .bfile_attr_encoding import bfile_attr_encoding
+from .bfile_metadata_encoding import bfile_metadata_encoding
 
-class bfile_attr_factory_base(with_metaclass(ABCMeta, bfile_attr_encoding)):
+class bfile_metadata_factory_base(with_metaclass(ABCMeta, bfile_metadata_encoding)):
 
   @classmethod
   @abstractmethod
@@ -15,4 +15,4 @@ class bfile_attr_factory_base(with_metaclass(ABCMeta, bfile_attr_encoding)):
     'Return a list of handlers this factory supports.'
     raise NotImplemented('handlers')
   
-check.register_class(bfile_attr_factory_base, name = 'bfile_attr_factory', include_seq = False)
+check.register_class(bfile_metadata_factory_base, name = 'bfile_attr_factory', include_seq = False)
