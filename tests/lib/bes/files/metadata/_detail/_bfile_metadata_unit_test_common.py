@@ -19,7 +19,7 @@ def make_test_case(impl):
     # issue that on some platforms the tmp dir filesystem might have attributes disabled.
     _TMP_DIR = path.join(path.dirname(__file__), '.tmp')
     
-    def test_get_cached_metadata(self):
+    def test_get_metadata(self):
       class _test_fruits_factory(bfile_metadata_factory_base):
       
         @classmethod
@@ -54,16 +54,16 @@ def make_test_case(impl):
       tmp = self.make_temp_file(dir = self._TMP_DIR, content = b'12345', suffix = '.data')
 
       self.assertEqual( 0, _test_fruits_factory._kiwi_1_0_count )
-      self.assertEqual( 5, impl.get_cached_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 5, impl.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
       self.assertEqual( 1, _test_fruits_factory._kiwi_1_0_count )
-      self.assertEqual( 5, impl.get_cached_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 5, impl.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
       self.assertEqual( 1, _test_fruits_factory._kiwi_1_0_count )
       kiwi_mtime = bfile_date.get_modification_date(tmp)
 
       self.assertEqual( 0, _test_fruits_factory._cherry_2_0_count )
-      self.assertEqual( 2.5, impl.get_cached_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 2.5, impl.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
       self.assertEqual( 1, _test_fruits_factory._cherry_2_0_count )
-      self.assertEqual( 2.5, impl.get_cached_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 2.5, impl.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
       self.assertEqual( 1, _test_fruits_factory._cherry_2_0_count )
       cherry_mtime = bfile_date.get_modification_date(tmp)
 
@@ -79,9 +79,9 @@ def make_test_case(impl):
         f.flush()
 
       self.assertEqual( 1, _test_fruits_factory._kiwi_1_0_count )
-      self.assertEqual( 10, impl.get_cached_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 10, impl.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
       self.assertEqual( 2, _test_fruits_factory._kiwi_1_0_count )
-      self.assertEqual( 10, impl.get_cached_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 10, impl.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
       self.assertEqual( 2, _test_fruits_factory._kiwi_1_0_count )
       kiwi_mtime = bfile_date.get_modification_date(tmp)
 
@@ -97,9 +97,9 @@ def make_test_case(impl):
         f.flush()
       
       self.assertEqual( 1, _test_fruits_factory._cherry_2_0_count )
-      self.assertEqual( 1, impl.get_cached_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 1, impl.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
       self.assertEqual( 2, _test_fruits_factory._cherry_2_0_count )
-      self.assertEqual( 1, impl.get_cached_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 1, impl.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
       self.assertEqual( 2, _test_fruits_factory._cherry_2_0_count )
       cherry_mtime = bfile_date.get_modification_date(tmp)
 

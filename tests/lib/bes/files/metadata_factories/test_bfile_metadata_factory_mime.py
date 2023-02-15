@@ -28,7 +28,7 @@ class test_bfile_metadata_factory_mime(unit_test, unit_test_media_files):
   
   def test_get_mime_type_jpeg(self):
     self.assertEqual( 'image/jpeg',
-                      bfile_metadata.get_cached_metadata(self.jpg_file, 'bes', 'mime', 'mime_type', '1.0') )
+                      bfile_metadata.get_metadata(self.jpg_file, 'bes', 'mime', 'mime_type', '1.0') )
 
   def xtest_get_mime_type_png(self):
     self.assertEqual( 'image/png', file_attributes_metadata.get_mime_type(self.png_file) )
