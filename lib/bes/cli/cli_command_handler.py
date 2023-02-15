@@ -99,4 +99,16 @@ class cli_command_handler(object):
       if base_clazz != cli_options:
         result.extend(clazz._options_clazz_attributes(base_clazz))
     return result
+
+  @property
+  def blurber(self):
+    blurber = getattr(self.options, 'blurber', None)
+    if not blurber:
+      raise RuntimeError(f'ERROR: no blurber in self.options')
+    return blurber
   
+  def blurb(self, *args, **kargs):
+    self.blurber.blurb(*args, **kargs)
+
+  def blurb_verbose(self, *args, **kargs):
+    self.blurber.blurb_verbose(*args, **kargs)

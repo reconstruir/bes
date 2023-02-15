@@ -25,10 +25,14 @@ class _file_mime_type_detector_puremagic(_file_mime_type_detector_base):
     filename = file_check.check_file(filename)
 
     import puremagic
-    rv = puremagic.magic_file(filename)
-    if not rv:
+    try:
+      rv = puremagic.magic_file(filename)
+      if not rv:
+        return None
+      return clazz._find_mime_type(rv)
+    except Exception as ex:
+      print(f'ERROR: caught: {ex} for {filename}')
       return None
-    return clazz._find_mime_type(rv)
 
   @classmethod
   def _find_mime_type(clazz, puremagic_result):

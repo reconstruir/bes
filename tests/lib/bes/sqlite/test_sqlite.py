@@ -67,6 +67,24 @@ class test_sqlite(unit_test):
     self.assertEqual( True, db.has_index('fruits_index') )
     self.assertEqual( False, db.has_index('cheese_index') )
 
+  def test_has_row(self):
+    db = self._make_tmp_db()
+    db.execute('''create table fruits (fruit_id integer primary key not null, name text)''')
+    db.execute('''insert into fruits (fruit_id, name) values (42, 'kiwi')''')
+    db.execute('''insert into fruits (fruit_id, name) values (666, 'lemon')''')
+    db.commit()
+    
+    self.assertEqual( True, db.has_row('fruits', 'fruit_id', 42) )
+    self.assertEqual( False, db.has_row('fruits', 'fruit_id', 43) )
+
+    db.execute('''create table people (name text primary key not null, nickname text)''')
+    db.execute('''insert into people (name, nickname) values ('Richard', 'dick')''')
+    db.execute('''insert into people (name, nickname) values ('Bill', 'bubba')''')
+    db.commit()
+
+    self.assertEqual( True, db.has_row('people', 'name', 'Bill') )
+    self.assertEqual( False, db.has_row('people', 'name', 'Nunya') )
+    
   def test_user_version(self):
     db = self._make_tmp_db()
     self.assertEqual( 0, db.user_version )

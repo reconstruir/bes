@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import itertools
+import random
+
 from bes.compat.StringIO import StringIO
 from bes.compat.cmp import cmp
 from bes.compat.zip import zip
@@ -27,24 +29,29 @@ class type_checked_list(object):
   
   def __repr__(self):
     return repr(self._values)
-    
+
+  def _check_value(self, v):
+    check_method = None
+    value_type_name = getattr(self._value_type, '__name__', None)
+    if value_type_name:
+      check_method_name = f'check_{value_type_name}'
+      check_method = getattr(check, check_method_name, None)
+    if check_method:
+      v = check_method(v)
+    else:
+      v = self.cast_value(v)
+      v = check.check(v, self._value_type)
+    return v
+  
   def _assign(self, values):
     self._values = []
     for v in values or []:
-      check_method = None
-      value_type_name = getattr(self._value_type, '__name__', None)
-      if value_type_name:
-        check_method_name = f'check_{value_type_name}'
-        check_method = getattr(check, check_method_name, None)
-      if check_method:
-        v = check_method(v)
-      else:
-        v = self.cast_value(v)
-        v = check.check(v, self._value_type)
+      v = self._check_value(v)
       self._values.append(v)
 
   def compare(self, other):
     check.check(other, ( type_checked_list, list, tuple ), allow_none = True)
+
     if other == None:
       return -1
     len_cmp = cmp(len(self), len(other))
@@ -68,6 +75,8 @@ class type_checked_list(object):
       return obj
   
   def __eq__(self, other):
+    if other == None:
+      return False
     return self.compare(other) == 0
 
   def __ne__(self, other):
@@ -97,36 +106,48 @@ class type_checked_list(object):
     return self._values[i]
   
   def __setitem__(self, i, v):
-    check.check(v, self._value_type)
+    check.check_int(i)
+    v = self._check_value(v)
+
     self._values[i] = v
 
   def __contains__(self, v):
     return v in self._values
     
   def __add__(self, other):
-    check.check(other, ( type_checked_list, list, tuple ))
     result = self.__class__()
-    for s in self._values:
-      result.append(s)
-    for s in self._get_values(other):
-      result.append(s)
+    result.extend(self)
+    result.extend(other)
     return result
     
   def extend(self, other):
-    check.check(other, ( type_checked_list, list, tuple ))
-    self._values.extend(self._get_values(other))
-
+    if isinstance(other, self.__class__):
+      self._values.extend(other._values)
+    elif check.is_seq(other):
+      for v in other:
+        v = self._check_value(v)
+        self._values.append(v)
+    else:
+      raise TypeError(f'Unknown type for other: {type(other)} - "{other}"')
+    
   def append(self, v):
-    check.check(v, self._value_type)
+    v = self._check_value(v)
+
     self._values.append(v)
 
   def remove(self, v):
-    check.check(v, self._value_type)
+    v = self._check_value(v)
+
     self._values.remove(v)
 
   def remove_dups(self):
     self._values = algorithm.unique(self._values)
 
+  def remove_in_set(self, s):
+    check.check_set(s, self._value_type)
+
+    self._values = [ item for item in self._values if item not in s ]
+    
   def to_list(self):
     return self._values[:]
   
@@ -139,6 +160,9 @@ class type_checked_list(object):
   def sort(self, key = None, reverse = False):
     self._values = sorted(self._values, key = key, reverse = reverse)
 
+  def sorted_(self, key = None, reverse = False):
+    return self.__class__(sorted(self._values, key = key, reverse = reverse))
+    
   def to_string(self, delimiter = ' '):
     buf = StringIO()
     first = True
@@ -149,6 +173,9 @@ class type_checked_list(object):
       buf.write(str(item))
     return buf.getvalue()
 
+  def pop(self, index = -1):
+    return self._values.pop(index)
+
   @classmethod
   def check_cast_func(clazz, obj):
     if isinstance(obj, clazz):
@@ -156,3 +183,11 @@ class type_checked_list(object):
     if check.is_seq(obj):
       return clazz([ x for x in obj ])
     return obj
+
+  def shuffle(self):
+    random.shuffle(self._values)
+    
+  def shuffled(self):
+    values = self._values[:]
+    random.shuffle(values)
+    return self.__class__(values)

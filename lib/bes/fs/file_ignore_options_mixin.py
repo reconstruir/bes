@@ -17,4 +17,7 @@ class file_ignore_options_mixin(object):
   def should_ignore_file(self, ford):
     ford = file_check.check_file_or_dir(ford)
     
+#    r = self.file_ignorer.should_ignore(ford)
+#    from bes.system.log import log
+#    log.console(f'CONO: should_ignore_file({ford}) => {r}')
     return self.file_ignorer.should_ignore(ford)

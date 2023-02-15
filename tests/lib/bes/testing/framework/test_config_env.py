@@ -7,20 +7,29 @@ from bes.system.env_override import env_override
 from bes.testing.unit_test import unit_test
 from bes.testing.framework.config_env import config_env as CE
 from bes.docker.docker import docker
-  
-class test_config_env(unit_test):
 
-  __unit_test_data_dir__ = '${BES_TEST_DATA_DIR}/lib/bes/testing/framework'
+from example_data import example_data
+
+class test_config_env(unit_test):
 
   @classmethod
   def setUpClass(clazz):
     docker.raise_skip_if_running_under_docker()
   
-  def test_complete(self):
-    a = CE(self.data_dir())
-    print(a.dependency_map)
+  def test_dependency_map(self):
+    tmp_dir = example_data.make_temp_content(delete = not self.DEBUG)
+    a = CE(tmp_dir)
+    self.assertEqual( {
+      'citrus': set(),
+      'fiber': set(),
+      'fruit': {'water'},
+      'kiwi': {'fruit'},
+      'orange': {'fruit', 'citrus'},
+      'water': set()
+    }, a.dependency_map )
 
   def test_find_config_files(self):
+    tmp_dir = example_data.make_temp_content(delete = not self.DEBUG)
     expected_files = [
       self.native_filename('citrus/env/citrus.bescfg'),
       self.native_filename('fiber/env/fiber.bescfg'),
@@ -30,8 +39,8 @@ class test_config_env(unit_test):
       self.native_filename('water/env/water.bescfg')
     ]
     with env_override.clean_env() as ctx:
-      actual = CE._find_config_files(self.data_dir())
-      expected = [ path.join(self.data_dir(), x) for x in expected_files ]
+      actual = CE._find_config_files(tmp_dir)
+      expected = [ path.join(tmp_dir, x) for x in expected_files ]
       self.assertEqual( expected, actual )
     
 if __name__ == '__main__':

@@ -53,6 +53,7 @@ class file_mime(object):
   _MEDIA_TYPE_PATTERNS = OrderedDict( [
     ( 'video', 'video/*' ),
     ( 'image', 'image/*' ),
+    ( 'document', 'application/pdf' ),
   ])
 
   MEDIA_TYPES = frozenset(_MEDIA_TYPE_PATTERNS.keys())

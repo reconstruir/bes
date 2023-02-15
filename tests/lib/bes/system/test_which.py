@@ -20,7 +20,7 @@ class test_which(unit_test):
     content = '!#/bin/bash\nechoecho kiwi\nexit 0\n'
     temp_exe = file_util.save(path.join(bin_dir, 'fruit_kiwi_tool'), content = content, mode = 0o0755)
     self.assertEqual( None, which.which('fruit_kiwi_tool') )
-    with env_override.path_append(bin_dir) as env:
+    with env_override.path_append([ bin_dir ]) as env:
       expected_path = path.join(bin_dir, 'fruit_kiwi_tool')
       self.assertEqual( expected_path, which.which('fruit_kiwi_tool') )
 
@@ -32,7 +32,7 @@ class test_which(unit_test):
     content = '@echo off\n\recho kiwi\n\rexit 0\n\r'
     temp_bat = file_util.save(path.join(bin_dir, 'fruit_kiwi_tool.bat'), content = content, mode = 0o0755)
     self.assertEqual( None, which.which('fruit_kiwi_tool.bat') )
-    with env_override.path_append(bin_dir) as env:
+    with env_override.path_append([ bin_dir ]) as env:
       expected_path = path.join(bin_dir, 'fruit_kiwi_tool.bat')
       self.assertEqual( expected_path, which.which('fruit_kiwi_tool.bat') )
       self.assertEqual( expected_path, which.which('fruit_kiwi_tool') )

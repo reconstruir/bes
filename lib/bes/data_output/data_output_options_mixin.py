@@ -14,4 +14,6 @@ class data_output_options_mixin(object):
   @cached_property  
   def data_output_options(self):
     return data_output_options(output_filename = self.output_filename,
-                               style = self.output_style)
+                               style = self.output_style,
+                               limit_num_items = self.limit_num_items,
+                               raw = self.raw)

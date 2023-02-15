@@ -18,7 +18,7 @@ class dir_operation_item_list(type_checked_list):
   def __init__(self, values = None):
     super(dir_operation_item_list, self).__init__(values = values)
 
-  def move_files(self, timestamp, count, callback = None):
+  def move_files(self, timestamp, count, callback = None, touch = False):
     check.check_string(timestamp, allow_none = True)
     check.check_int(count, allow_none = True)
     check.check_callable(callback, allow_none = True)
@@ -29,14 +29,17 @@ class dir_operation_item_list(type_checked_list):
     for i, item in enumerate(resolved_items, start = 1):
       need_move = False
       if path.exists(item.dst_filename):
-        assert file_util.files_are_the_same(item.src_filename,
-                                            item.dst_filename)
+        #assert file_util.files_are_the_same(item.src_filename,
+        #                                    item.dst_filename)
+        #print(f'checking {item.src_filename} vs {item.dst_filename}')
         need_move = file_util.files_are_the_same(item.src_filename,
                                                  item.dst_filename)
       else:
         need_move = True
       if need_move:
         file_util.rename(item.src_filename, item.dst_filename)
+        if touch:
+          file_util.touch(item.dst_filename)
         result.append(item.dst_filename)
       if callback:
         callback(item, i, num)

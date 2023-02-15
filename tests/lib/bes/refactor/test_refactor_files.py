@@ -59,7 +59,7 @@ class test_refactor_files(unit_test):
       f'{tmp_dir}/fruit/src/lemon.py',
       f'{tmp_dir}/wine/bin/wscript',
       f'{tmp_dir}/wine/src/barolo.py',
-    ], refactor_files.resolve_text_files(tmp_dir).to_list() )
+    ], refactor_files.resolve_text_files([ tmp_dir ]).to_list() )
     
   def test_match_files(self):
     tmp_dir = self._make_temp_content([
@@ -96,7 +96,7 @@ class test_refactor_files(unit_test):
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
     ])
     options = refactor_options(word_boundary = False)
-    refactor_files.rename_dirs(tmp_dir, 'kiwi', 'chocolate', options = options)
+    refactor_files.rename_dirs( [ tmp_dir ], 'kiwi', 'chocolate', options = options)
     self.assert_filename_list_equal( [
       'chocolate',
       'chocolate/xdata2',
@@ -124,7 +124,7 @@ class test_refactor_files(unit_test):
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
     ])
     options = refactor_options(word_boundary = False)
-    refactor_files.rename_dirs(tmp_dir, 'kiwi', 'chocolate', options = options)
+    refactor_files.rename_dirs([ tmp_dir ], 'kiwi', 'chocolate', options = options)
     self.assert_filename_list_equal( [
       'chocolate',
       'chocolate/xdata2',
@@ -176,7 +176,7 @@ class test_refactor_files(unit_test):
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
     ])
     options = refactor_options(word_boundary = False)
-    refactor_files.rename_dirs(tmp_dir, 'fruit', 'cheese', options = options)
+    refactor_files.rename_dirs([ tmp_dir ], 'fruit', 'cheese', options = options)
     self.assert_filename_list_equal( [
       'empty_rootdir',
       'kiwi',
@@ -228,7 +228,7 @@ class test_refactor_files(unit_test):
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
     ])
     options = refactor_options(word_boundary = True)
-    refactor_files.rename_dirs(tmp_dir, 'fruit', 'cheese', options = options)
+    refactor_files.rename_dirs([ tmp_dir ], 'fruit', 'cheese', options = options)
     self.assert_filename_list_equal( [
       'empty_rootdir',
       'kiwi',
@@ -273,7 +273,7 @@ class test_refactor_files(unit_test):
       temp_content('file', 'fruit/fruit/tests/lib/fruity/test_lemonb.py', 'this is test lemon', 0o0644),
     ])
     options = refactor_options(word_boundary = False)
-    refactor_files.rename_dirs(path.join(tmp_dir, 'fruit'), 'fruit', 'cheese', options = options)
+    refactor_files.rename_dirs([ path.join(tmp_dir, 'fruit') ], 'fruit', 'cheese', options = options)
     self.assert_filename_list_equal( [
       'fruit',
       'fruit/cheese',
@@ -314,7 +314,7 @@ class test_refactor_files(unit_test):
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
     ])
     options = refactor_options(word_boundary = False)
-    refactor_files.rename_files(tmp_dir, 'kiwi', 'chocolate', options = options)
+    refactor_files.rename_files([ tmp_dir ], 'kiwi', 'chocolate', options = options)
     self.assert_filename_list_equal( [
       'chocolate',
       'chocolate/xdata2',
@@ -366,7 +366,7 @@ class test_refactor_files(unit_test):
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
     ])
     options = refactor_options(word_boundary = True)
-    refactor_files.rename_files(tmp_dir, 'kiwi', 'chocolate', options = options)
+    refactor_files.rename_files([ tmp_dir ], 'kiwi', 'chocolate', options = options)
     self.assert_filename_list_equal( [
       'chocolate',
       'chocolate/xdata2',
@@ -419,7 +419,7 @@ class test_refactor_files(unit_test):
     ])
     options = refactor_options(word_boundary = True,
                                word_boundary_chars = word_boundary.CHARS_UNDERSCORE)
-    refactor_files.rename_files(tmp_dir, 'kiwi', 'chocolate', options = options)
+    refactor_files.rename_files([ tmp_dir ], 'kiwi', 'chocolate', options = options)
     self.assert_filename_list_equal( [
       'chocolate',
       'chocolate/xdata2',
@@ -456,7 +456,7 @@ class test_refactor_files(unit_test):
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
     ])
     options = refactor_options(word_boundary = False)
-    refactor_files.rename_dirs(tmp_dir, 'kiwi', 'kiwifruit', options = options)
+    refactor_files.rename_dirs([ tmp_dir ], 'kiwi', 'kiwifruit', options = options)
     self.assert_filename_list_equal( [
       'kiwifruit',
       'kiwifruit/xdata2',
@@ -484,7 +484,7 @@ class test_refactor_files(unit_test):
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
     ])
     options = refactor_options(word_boundary = False)
-    items = refactor_files.copy_files(tmp_dir, 'kiwi', 'chocolate', False, options = options)
+    items = refactor_files.copy_files([ tmp_dir ], 'kiwi', 'chocolate', False, options = options)
     self.assert_filename_list_equal( [
       f'{tmp_dir}/kiwi/xdata2/kiwi_stuff2/kiwi2.txt',
       f'{tmp_dir}/lib/fruit/kiwi.py',
@@ -564,7 +564,7 @@ class test_refactor_files(unit_test):
       temp_content('file', 'kiwi/xdata2/kiwi_stuff2/kiwi2.txt', 'foo.txt', 0o0644),
     ])
     options = refactor_options(word_boundary = False)
-    items = refactor_files.copy_files(tmp_dir, 'fruit', 'cheese', True, options = options)
+    items = refactor_files.copy_files([ tmp_dir ], 'fruit', 'cheese', True, options = options)
     '''
     self.assert_filename_list_equal( [
       f'{tmp_dir}/kiwi/xdata2/kiwi_stuff2/kiwi2.txt',

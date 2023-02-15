@@ -1,5 +1,6 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 import locale
 import sys
 
@@ -17,7 +18,9 @@ class execute_result(namedtuple('execute_result', 'stdout_bytes, stderr_bytes, e
     check.check_bytes(stdout_bytes)
     check.check_bytes(stderr_bytes)
     check.check_int(exit_code)
-    check.check_string_seq(command)
+
+    if not (check.is_string(command) or check.is_string_seq(command)):
+      raise TypeError(f'command should be a string or string sequence instead of "{type(command)}"')
 
     return clazz.__bases__[0].__new__(clazz, stdout_bytes, stderr_bytes, exit_code, command)
 
@@ -81,5 +84,15 @@ class execute_result(namedtuple('execute_result', 'stdout_bytes, stderr_bytes, e
   @property
   def failed(self):
     return self.exit_code != 0
+
+  def save(self, filename):
+    with open(filename, 'wb') as fout:
+      fout.write(f'-----BEGIN STDOUT-----{os.linesep}'.encode('utf-8'))
+      fout.write(self.stdout_bytes)
+      fout.write(f'-----END STDOUT-------{os.linesep}'.encode('utf-8'))
+      fout.write(f'-----BEGIN STDERR-----{os.linesep}'.encode('utf-8'))
+      fout.write(self.stderr_bytes)
+      fout.write(f'-----END STDERR-------{os.linesep}'.encode('utf-8'))
+      fout.flush()
   
 check.register_class(execute_result)

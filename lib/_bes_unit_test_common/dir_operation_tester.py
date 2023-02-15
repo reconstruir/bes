@@ -48,6 +48,10 @@ class dir_operation_tester(object):
       self.src_files_before = file_find.find(self.src_dir, relative = True, file_type = file_find.ANY)
     else:
       self.src_files_before = []
+    if path.exists(self.dst_dir):
+      self.dst_files_before = file_find.find(self.dst_dir, relative = True, file_type = file_find.ANY)
+    else:
+      self.dst_files_before = []
     return self
   
   def __exit__(self, type, value, traceback):

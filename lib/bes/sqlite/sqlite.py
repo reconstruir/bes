@@ -188,3 +188,18 @@ class sqlite(object):
       for line in self._connection.iterdump():
         fout.write(line)
         fout.write(os.linesep)
+
+  def table_num_columns(self, table_name):
+    check.check_string(table_name)
+    
+    self._cursor.execute(f'pragma table_info({table_name})')
+    columns = self._cursor.fetchall()
+    return len(columns)
+
+  def has_row(self, table_name, column_name, column_value):
+    check.check_string(table_name)
+    check.check_string(column_name)
+
+    sql = f'select exists(select 1 from {table_name} where {column_name}=? limit 1)'
+    row = self.select_one(sql, ( column_value, ))
+    return bool(row[0])

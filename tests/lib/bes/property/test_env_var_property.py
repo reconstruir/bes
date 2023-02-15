@@ -3,6 +3,7 @@
 
 from os import path
 from bes.system.env_override import env_override
+from bes.system.env_override_options import env_override_options
 from bes.testing.unit_test import unit_test
 from bes.property.env_var_property import env_var_property
 from bes.system.host import host
@@ -50,14 +51,17 @@ class test_env_var_property(unit_test):
   @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_env_var_tilde(self):
     f = self.fruit('yellow', '~/tart')
-    with env_override( { 'HOME': '/tmp/foo' }) as env:
+    options = env_override_options(home_dir = '/tmp/foo')
+    with env_override(options = options) as _:
       self.assertEqual( 'yellow', f.color )
       self.assertEqual( '/tmp/foo/tart', f.flavor )
     
   @unit_test_function_skip.skip_if(not host.is_unix(), 'not unix')
   def test_env_var_tilde_and_var(self):
     f = self.fruit('yellow', '~/${FLAVOR}')
-    with env_override( { 'HOME': '/tmp/foo', 'FLAVOR': 'tart' }) as env:
+    options = env_override_options(home_dir = '/tmp/foo',
+                                   env_add = { 'FLAVOR': 'tart' } )
+    with env_override(options = options) as _:
       self.assertEqual( 'yellow', f.color )
       self.assertEqual( '/tmp/foo/tart', f.flavor )
     

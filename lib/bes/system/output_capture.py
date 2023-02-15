@@ -16,7 +16,6 @@ class output_capture(object):
     self._original_stderr = sys.stderr
 
     self._reset()
-
     
   @property
   def stdout(self):

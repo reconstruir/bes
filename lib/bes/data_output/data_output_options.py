@@ -10,6 +10,7 @@ from .data_output_style import data_output_style
 class data_output_options(object):
   
   def __init__(self, *args, **kargs):
+    self.limit_num_items = None
     self.brief_column = 0
     self.output_filename = None
     self.style = data_output_style.TABLE
@@ -19,6 +20,7 @@ class data_output_options(object):
     self.table_cell_renderers = None
     self.table_title = None
     self.table_flexible_column = None
+    self.raw = False
     for key, value in kargs.items():
       setattr(self, key, value)
     check.check(self.brief_column, check.INTEGER_OR_STRING_TYPES)

@@ -3,14 +3,11 @@
 
 from __future__ import unicode_literals
 
-import os
 import os.path as path
 from bes.testing.unit_test import unit_test
 from bes.config.simple_config import simple_config
 from bes.config.simple_config_options import simple_config_options
 from bes.system.env_override import env_override
-from bes.system.host import host
-from bes.system.user import user
 from bes.key_value.key_value_list import key_value_list as KVL
 
 class test_simple_config(unit_test):

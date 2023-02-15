@@ -20,6 +20,7 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
   
   FILE = 'file'
   DIR = 'dir'
+  LINK = 'link'
 
   def __new__(clazz, item_type, filename, content = None, mode = None):
     item_type = clazz.validate_item_type(item_type)
@@ -37,6 +38,8 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
         return clazz.FILE
       elif s in [ 'dir', 'd' ]:
         return clazz.DIR
+      elif s in [ 'link', 'l' ]:
+        return clazz.LINK
     return None
     
   @classmethod
@@ -123,6 +126,13 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
     if self.mode:
       os.chmod(p, self.mode)
 
+  def _write_link(self, root_dir):
+    content = self._determine_content()
+    p = path.join(root_dir, self.filename)
+    os.symlink(content, p)
+    if self.mode:
+      os.chmod(p, self.mode)
+      
   def _determine_content(self):
     if not self.content:
       return b''
@@ -140,6 +150,8 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
       self._write_dir(root_dir)
     elif self.item_type == self.FILE:
       self._write_file(root_dir)
+    elif self.item_type == self.LINK:
+      self._write_link(root_dir)
     else:
       assert False
       
@@ -164,9 +176,9 @@ class temp_content(namedtuple('temp_content', 'item_type, filename, content, mod
       item.write(root_dir)
 
   @classmethod
-  def write_items_to_temp_dir(clazz, items, delete = True):
+  def write_items_to_temp_dir(clazz, items, delete = True, **kargs):
     'Write temp content items to a temporary dir.'
-    root_dir = temp_file.make_temp_dir(delete = delete)
+    root_dir = temp_file.make_temp_dir(delete = delete, **kargs)
     clazz.write_items(items, root_dir)
     return root_dir
 

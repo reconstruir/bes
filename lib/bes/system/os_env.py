@@ -1,33 +1,17 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import copy, os, os.path as path, tempfile
+import copy
+import os.path as path
+import os
 
 from .host import host
 from .env_var import os_env_var
-from .execute import execute
-
-def _default_system_value(key):
-  rv = execute.execute([ 'env', '-i', 'bash', '-c', '"echo ${key}"'.format(key = key) ], raise_error = True, shell = False)
-  return rv.stdout.strip()
+from .environment import environment
 
 class os_env(object):
 
-  if host.SYSTEM in [ host.LINUX, host.MACOS ]:
-    DEFAULT_SYSTEM_PATH = _default_system_value('PATH')
-  else:
-    DEFAULT_SYSTEM_PATH = [
-      r'C:\WINDOWS\system32',
-      r'C:\WINDOWS',
-      r'C:\WINDOWS\System32\Wbem',
-    ]
+  DEFAULT_SYSTEM_PATH = environment.default_path()
     
-  # The cleanest possible unix PATH
-  CLEAN_PATH_MAP = {
-    host.LINUX: [ '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin' ],
-    host.MACOS: [ '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin' ],
-    host.WINDOWS: DEFAULT_SYSTEM_PATH,
-  }
-
   # Map of system to the runtime loader path
   LOADER_PATH_MAP = {
     host.LINUX: 'LD_LIBRARY_PATH',
@@ -39,63 +23,12 @@ class os_env(object):
 
   LD_LIBRARY_PATH_VAR_NAME = LOADER_PATH_MAP[host.SYSTEM]
 
-  _CLEAN_PATH = CLEAN_PATH_MAP[host.SYSTEM]
-  
   PATH = os_env_var('PATH')
 
   # variables to keep in a clean environment when wiping it to have deterministic results
-  # FIXME: This list might have to be system specific.
-  # FIXME: also i guessed these are important not sure what the real list is
-  if host.is_unix():
-    CLEAN_ENV_VARS = [
-      'DISPLAY',
-      'HOME',
-      'LANG',
-      'SHELL',
-      'TEMP',
-      'TERM',
-      'TERM_PROGRAM',
-      'TMOUT',
-      'TMP',
-      'TMPDIR',
-      'USER',
-      'XAUTHORITY',
-      '__CF_USER_TEXT_ENCODING',
-    ]
-  elif host.is_windows():
-    CLEAN_ENV_VARS = [
-      'ALLUSERSPROFILE',
-      'APPDATA',
-      'COMPUTERNAME',
-      'COMSPEC',
-      'DRIVERDATA',
-      'HOME',
-      'HOMEDRIVE',
-      'HOMEPATH',
-      'LOCALAPPDATA',
-      'LOGONSERVER',
-      'NUMBER_OF_PROCESSORS',
-      'OS',
-      'PATH',
-      'PATHEXT',
-      'PROCESSOR_ARCHITECTURE',
-      'PROCESSOR_IDENTIFIER',
-      'PROCESSOR_LEVEL',
-      'PROCESSOR_REVISION',
-      'SESSIONNAME',
-      'SYSTEMDRIVE',
-      'SYSTEMROOT',
-      'TEMP',
-      'TMP',
-      'TMPDIR',
-      'USERNAME',
-      'USERPROFILE',
-      'WINDIR',
-    ]
+  CLEAN_ENV_VARS = environment.clean_variables()
 
-  # variables to keep in a clean environment when wiping it to have deterministic results
-  # FIXME: This list might have to be system specific.
-  # FIXME: also i guessed these are important not sure what the real list is
+  # keys for env vars that can be interpreted as paths ala PATH or PYTHONPATH
   KEYS_THAT_ARE_PATHS = [
     'CLASSPATH',
     'DYLD_LIBRARY_PATH',
@@ -114,7 +47,7 @@ class os_env(object):
     'Return a clean environment suitable for deterministic build related tasks.'
     keep_keys = keep_keys or []
     env = { k: v for k,v in os.environ.items() if k in clazz.CLEAN_ENV_VARS }
-    env['PATH'] = os.pathsep.join(clazz._CLEAN_PATH)
+    env['PATH'] = os.pathsep.join(environment.clean_path())
     for key in keep_keys:
       if key in os.environ:
         env[key] = os.environ[key]
@@ -139,10 +72,7 @@ class os_env(object):
   @classmethod
   def path_reset(clazz):
     'Reset PATH to a very basic list of system specific defaults.'
-    value = clazz.CLEAN_PATH_MAP.get(host.SYSTEM, None)
-    if value is None:
-      raise RuntimeError('Unknown system %s' % (host.SYSTEM))
-    os_env_var('PATH').path = value
+    os_env_var('PATH').path = environment.clean_path()
 
   @classmethod
   def update(clazz, env, d, prepend = True, allow_override = False):
@@ -193,15 +123,3 @@ class os_env(object):
   def key_is_path(clazz, key):
     'Return True if the given key is a list.'
     return key in clazz.KEYS_THAT_ARE_PATHS
-
-  @classmethod
-  def call_python_script(clazz, cmd):
-    fallback_python_path = path.normpath(path.join(path.dirname(__file__), '../../..'))
-    env = clazz.make_clean_env(keep_keys = [ 'PYTHONPATH' ])
-    env['PYTHONDONTWRITEBYTECODE'] = '1'
-    env['PYTHONPATH'] = env['PYTHONPATH'] + ':' + fallback_python_path
-    return execute.execute(cmd, env = env, raise_error = False, stderr_to_stdout = True)
-
-  @classmethod
-  def default_system_value(clazz, key):
-    return _default_system_value(key)

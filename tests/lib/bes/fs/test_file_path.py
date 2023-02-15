@@ -140,7 +140,7 @@ class test_file_path(unit_test):
     content = '@echo off\n\recho kiwi\n\rexit 0\n\r'
     temp_bat = file_util.save(path.join(bin_dir, 'kiwi_tool.bat'), content = content, mode = 0o0755)
     self.assertEqual( None, file_path.which('kiwi_tool.bat') )
-    with env_override.path_append(bin_dir) as env:
+    with env_override.path_append([ bin_dir ]) as env:
       expected_path = path.join(bin_dir, 'kiwi_tool.bat')
       self.assertEqual( expected_path, file_path.which('kiwi_tool.bat') )
 
@@ -238,6 +238,26 @@ class test_file_path(unit_test):
                                                       'apple',
                                                       word_boundary = True,
                                                       word_boundary_chars = word_boundary.CHARS_UNDERSCORE) )
+
+  @classmethod
+  def _test_shorten(clazz, p, max_path_length, max_filename_length):
+    return file_path.shorten(p,
+                             max_path_length = max_path_length,
+                             max_filename_length = max_filename_length)
+  
+  def test_shorten(self):
+    self.assert_filename_equal( '/tmp/foo.jpg', self._test_shorten('/tmp/foo_bar.jpg', 12, 1000) )
+    self.assert_filename_equal( '/tmp/fo.jpg', self._test_shorten('/tmp/foo_bar.jpg', 11, 1000) )
+    self.assert_filename_equal( '/tmp/f.jpg', self._test_shorten('/tmp/foo_bar.jpg', 10, 1000) )
+
+  def test_shorten_no_extension(self):
+    self.assert_filename_equal( '/tmp/foo_bar', self._test_shorten('/tmp/foo_bar_baz', 12, 1000) )
     
+  def test_shorten_not_enough_space(self):
+    with self.assertRaises(ValueError) as _:
+      self._test_shorten('/tmp/foo_bar.jpg', 9, 1000)
+    with self.assertRaises(ValueError) as _:
+      self._test_shorten('/tmp/foo_bar.jpg', 8, 1000)
+
 if __name__ == '__main__':
   unit_test.main()

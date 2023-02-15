@@ -190,9 +190,6 @@ add file_attributes_metadata tests to cover write permissions and ownership
 2022-03-23
  - file dups (and maybe other ops) unit tests where a resolved file is removed
 
-2022-04-16
-- url_util.sanitize() is a very silly name for what it does
-
 2022-05-30
 - dir_operation_item_list.move() takes timestamp and count but resolve alreayd deals with it ?
 - dir_operation.filename should be .basename
@@ -202,3 +199,18 @@ add file_attributes_metadata tests to cover write permissions and ownership
 
 2022-06-16
 - consider using file entries for file_find
+
+
+proj env:
+  - progress during first setup
+  - progress during long operations
+  - quiet flag to disable the above
+  - move as much as possible to python including the VE checksum thing
+  - pipenv or maybe poetry ?
+  - generation of env/
+
+unit test for mime type stuff for an empty file
+
+
+- "codec" vs "encoding" in file_util json_util
+- check_string vs check_str and consistency for type names in py3

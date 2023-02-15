@@ -5,21 +5,25 @@ from os import path
 import os, unittest
 
 from bes.testing.unit_test import unit_test
+from bes.system.env_override import env_override
 from bes.system.host import host
 from bes.system.os_env import os_env
+from bes.system.environment import environment
 
 class test_os_env(unit_test):
 
   def test_path_reset(self):
-    os_env.path_reset()
-    self.assertTrue( os_env.CLEAN_PATH_MAP[host.SYSTEM], os_env.PATH.path )
+    with env_override() as _:
+      os_env.path_reset()
+      self.assertTrue( environment.clean_path(), os_env.PATH.path )
 
   def test_path_append_remove(self):
-    os_env.PATH.cleanup()
-    old_path = os_env.PATH.path
-    os_env.PATH.append('FOO')
-    os_env.PATH.remove('FOO')
-    self.assertEqual( old_path, os_env.PATH.path )
+    with env_override() as _:
+      os_env.PATH.cleanup()
+      old_path = os_env.PATH.path
+      os_env.PATH.append('FOO')
+      os_env.PATH.remove('FOO')
+      self.assertEqual( old_path, os_env.PATH.path )
 
   def test_key_is_path(self):
     self.assertTrue( os_env.key_is_path('PATH') )

@@ -3,10 +3,11 @@
 from os import path
 import pprint
 
-from bes.cli.cli_command_handler import cli_command_handler
+from ..cli.cli_command_handler import cli_command_handler
+from ..data_output.data_output import data_output
+from ..fs.file_check import file_check
 from ..system.check import check
-from bes.text.text_table import text_table
-from bes.data_output.data_output import data_output
+from ..text.text_table import text_table
 
 from .pip_error import pip_error
 from .pip_project import pip_project
@@ -56,7 +57,7 @@ class pip_project_cli_handler(cli_command_handler):
     return 0
 
   def install_requirements(self, requirements_files):
-    check.check_string_seq(requirements_files)
+    requirements_files = file_check.check_file_seq(requirements_files)
 
     project = pip_project(options = self.options)
     project.install_requirements(requirements_files)

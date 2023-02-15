@@ -84,3 +84,17 @@ class number_util(object):
     if n == 0:
       return 1
     return int(math.log10(n)) + 1
+
+  @classmethod
+  def is_odd(clazz, n):
+    'Return True if n is odd'
+    check.check_int(n)
+
+    return (n % 2) != 0
+
+  @classmethod
+  def is_even(clazz, n):
+    'Return True if n is even'
+    check.check_int(n)
+
+    return (n % 2) == 0

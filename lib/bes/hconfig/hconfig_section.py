@@ -18,6 +18,9 @@ class hconfig_section(object):
     self._root = root
     self._path = path
 
+  def to_dict(self):
+    return copy.deepcopy(super().__getattribute__('_dict'))
+    
   def __str__(self):
     return pprint.pformat(super().__getattribute__('_dict'))
 
@@ -31,6 +34,10 @@ class hconfig_section(object):
     _log.log_d(f'hconfig_section.__getattribute__({key})')
     d = super().__getattribute__('_dict')
     if key not in d:
+      try:
+        return super().__getattribute__(key)
+      except AttributeError as ex:
+        pass
       raise hconfig_error(f'No key \"{key}\" found')
     value = d.get(key)
     _path = super().__getattribute__('_path')

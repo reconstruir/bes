@@ -2,9 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
+from bes.system.environment import environment
 from bes.testing.unit_test import unit_test
 from bes.unix.shell.shell import shell
-from bes.system.user import user
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 class test_shell(unit_test):
@@ -23,7 +23,7 @@ class test_shell(unit_test):
     self.assertTrue( shell.has_shell('/bin/sh') )
 
   def test_shell_for_user(self):
-    s = shell.shell_for_user(username = user.USERNAME)
+    s = shell.shell_for_user(username = environment.username())
     self.assertTrue( s in shell.valid_shells() )
     
 if __name__ == '__main__':

@@ -29,7 +29,7 @@ class file_duplicates_options(files_cli_options, file_ignore_options_mixin):
       'prefer_prefixes': None,
       'sort_key': None,
       'include_empty_files': file_duplicates_defaults.INCLUDE_EMPTY_FILES,
-      'ignore_files': [],
+      'ignore_files': None,
       'preparation': None,
       'delete_empty_dirs': file_duplicates_defaults.DELETE_EMPTY_DIRS,
     })
@@ -56,7 +56,7 @@ class file_duplicates_options(files_cli_options, file_ignore_options_mixin):
     check.check_callable(self.sort_key, allow_none = True)
     check.check_bool(self.include_empty_files)
     check.check_blurber(self.blurber)
-    check.check_string_seq(self.ignore_files)
+    check.check_string_seq(self.ignore_files, allow_none = True)
     check.check_file_duplicates_setup(self.preparation, allow_none = True)
     check.check_bool(self.delete_empty_dirs)
 
