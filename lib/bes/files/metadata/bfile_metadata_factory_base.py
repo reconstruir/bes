@@ -4,11 +4,18 @@ from abc import abstractmethod, ABCMeta
 
 from bes.system.compat import with_metaclass
 from bes.system.check import check
+from bes.property.cached_class_property import cached_class_property
 
 from .bfile_metadata_encoding import bfile_metadata_encoding
 
 class bfile_metadata_factory_base(with_metaclass(ABCMeta, bfile_metadata_encoding)):
 
+  @cached_class_property
+  def metadata_class(clazz):
+    'Provide a property that returns the main metadata class so handler can use it.'
+    from .bfile_metadata import bfile_metadata
+    return bfile_metadata
+  
   @classmethod
   @abstractmethod
   def handlers(clazz):

@@ -12,6 +12,10 @@ class test_bfile_metadata_with_factories(unit_test):
   # Use a temporary directory in the same filesystem as the code to avoid the
   # issue that on some platforms the tmp dir filesystem might have attributes disabled.
   _TMP_DIR = path.join(path.dirname(__file__), '.tmp')
+
+  @classmethod
+  def tearDownClass(clazz):
+    bfile_metadata_with_factories.clear_all_factories()
   
   def test_factory_checksum(self):
     tmp_kiwi = self.make_temp_file(dir = self._TMP_DIR, content = 'this is kiwi')
@@ -54,8 +58,6 @@ class test_bfile_metadata_with_factories(unit_test):
                       bfile_metadata_with_factories.get_cached_metadata(tmp_lemon, 'bes', 'checksum', 'sha1', '0.0') )
     self.assertEqual( kiwi_checksums['sha256'],
                       bfile_metadata_with_factories.get_cached_metadata(tmp_lemon, 'bes', 'checksum', 'sha256', '0.0') )
-      
-    bfile_metadata_with_factories.clear_all_factories()
 
 if __name__ == '__main__':
   unit_test.main()
