@@ -1,7 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from ..system.check import check
-from bes.fs.file_check import file_check
+from bes.system.check import check
+from bes.files.bfile_check import bfile_check
 
 from ._detail._bfile_mime_type_detector_base import _bfile_mime_type_detector_base
 from ._detail._bfile_mime_type_detector_cheesy  import _bfile_mime_type_detector_cheesy
@@ -32,7 +32,7 @@ class bfile_mime_type_detector(_bfile_mime_type_detector_base):
   #@abstractmethod
   def detect_mime_type(clazz, filename):
     'Detect the mime type for file.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
 
     mime_type = None
     for next_detector in clazz._POSSIBLE_DETECTORS:

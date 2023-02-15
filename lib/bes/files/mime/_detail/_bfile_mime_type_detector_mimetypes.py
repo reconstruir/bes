@@ -3,7 +3,7 @@
 from os import path
 
 from bes.system.check import check
-from bes.fs.file_check import file_check
+from bes.files.bfile_check import bfile_check
 
 from ._bfile_mime_type_detector_base import _bfile_mime_type_detector_base
 
@@ -24,7 +24,7 @@ class _bfile_mime_type_detector_mimetypes(_bfile_mime_type_detector_base):
   #@abstractmethod
   def detect_mime_type(clazz, filename):
     'Detect the mime type for file.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
 
     import mimetypes      
     mime_type, _ = mimetypes.guess_type(filename)

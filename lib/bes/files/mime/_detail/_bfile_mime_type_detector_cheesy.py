@@ -4,7 +4,7 @@ from collections import namedtuple
 from os import path
 
 from bes.system.check import check
-from bes.fs.file_check import file_check
+from bes.files.bfile_check import bfile_check
 from bes.system.compat import compat
 from bes.system.python import python
 
@@ -27,7 +27,7 @@ class _bfile_mime_type_detector_cheesy(_bfile_mime_type_detector_base):
   #@abstractmethod
   def detect_mime_type(clazz, filename):
     'Detect the mime type for file.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
 
     return clazz._guess_mime_type(filename)
 

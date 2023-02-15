@@ -7,7 +7,7 @@ from bes.system.host import host
 
 from _bfile_mime_type_detector_tester import make_test_case
 
-from bes.fs._detail._bfile_mime_type_detector_puremagic import _bfile_mime_type_detector_puremagic
+from bes.files.mime._detail._bfile_mime_type_detector_puremagic import _bfile_mime_type_detector_puremagic
 class test__bfile_mime_type_detector_puremagic(make_test_case(_bfile_mime_type_detector_puremagic)):
 
   @classmethod

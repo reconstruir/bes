@@ -8,7 +8,7 @@ from bes.system.host import host
 from _bfile_mime_type_detector_tester import make_test_case
 
 if host.is_unix():
-  from bes.fs._detail._bfile_mime_type_detector_file_exe import _bfile_mime_type_detector_file_exe
+  from bes.files.mime._detail._bfile_mime_type_detector_file_exe import _bfile_mime_type_detector_file_exe
   class test__bfile_mime_type_detector_file_exe(make_test_case(_bfile_mime_type_detector_file_exe)):
 
     @classmethod

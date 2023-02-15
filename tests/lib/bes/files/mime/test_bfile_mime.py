@@ -5,8 +5,8 @@ import sys
 from os import path
 
 from bes.testing.unit_test import unit_test
-from bes.fs.bfile_mime import bfile_mime
-from bes.fs.file_symlink import file_symlink
+from bes.files.mime.bfile_mime import bfile_mime
+from bes.files.bfile_symlink import bfile_symlink
 from bes.testing.unit_test_function_skip import unit_test_function_skip
 from bes.property.cached_property import cached_property
 
@@ -23,7 +23,7 @@ class test_bfile_mime(unit_test, unit_test_media_files):
     
   @unit_test_function_skip.skip_if_not_unix()
   def test_is_binary_unix(self):
-    self.assertTrue( bfile_mime.is_binary(file_symlink.resolve('/bin/sh')) )
+    self.assertTrue( bfile_mime.is_binary(bfile_symlink.resolve('/bin/sh')) )
     
   @unit_test_function_skip.skip_if_not_windows()
   def test_is_binary_windows(self):

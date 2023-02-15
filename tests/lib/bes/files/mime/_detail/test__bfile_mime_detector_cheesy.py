@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.fs._detail._bfile_mime_type_detector_cheesy import _bfile_mime_type_detector_cheesy
+from bes.files.mime._detail._bfile_mime_type_detector_cheesy import _bfile_mime_type_detector_cheesy
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 
 from _bes_unit_test_common.unit_test_media import unit_test_media

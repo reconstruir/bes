@@ -4,7 +4,7 @@ from os import path
 
 from bes.common.string_util import string_util
 from bes.system.check import check
-from bes.fs.file_check import file_check
+from bes.files.bfile_check import bfile_check
 from bes.system.execute import execute
 from bes.system.host import host
 from bes.system.which import which
@@ -23,7 +23,7 @@ class _bfile_mime_type_detector_file_exe(_bfile_mime_type_detector_base):
   #@abstractmethod
   def detect_mime_type(clazz, filename):
     'Detect the mime type for file.'
-    filename = file_check.check_file(filename)
+    filename = bfile_check.check_file(filename)
 
     cmd = [ 'file', '--brief', '--mime', string_util.quote_if_needed(filename) ]
     if not path.isfile(filename):
