@@ -4,7 +4,8 @@ from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
 
-from .bfile_attr_error import bfile_attr_error
+from ..attributes.bfile_attr_error import bfile_attr_error
+
 from .bfile_metadata_factory_base import bfile_metadata_factory_base
 from .bfile_metadata_handler import bfile_metadata_handler
 from .bfile_metadata_handler_list import bfile_metadata_handler_list

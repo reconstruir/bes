@@ -2,8 +2,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.files.attributes.bfile_metadata_factory_registry import bfile_metadata_factory_registry
-from bes.files.attributes.bfile_metadata_factory_base import bfile_metadata_factory_base
+from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
+from bes.files.metadata.bfile_metadata_factory_base import bfile_metadata_factory_base
 
 class test_bfile_metadata_factory_registry(unit_test):
   

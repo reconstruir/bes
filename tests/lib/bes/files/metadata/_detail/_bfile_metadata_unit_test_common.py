@@ -4,8 +4,8 @@ import os
 
 import os.path as path
 
-from bes.files.attributes.bfile_metadata_factory_base import bfile_metadata_factory_base
-from bes.files.attributes.bfile_metadata_factory_registry import bfile_metadata_factory_registry
+from bes.files.metadata.bfile_metadata_factory_base import bfile_metadata_factory_base
+from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
 from bes.files.bfile_date import bfile_date
 from bes.testing.unit_test import unit_test
 
