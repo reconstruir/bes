@@ -44,8 +44,13 @@ class bfile_attr_factory_registry(object):
     clazz._factories = {}
       
   @classmethod
-  def get_handler(clazz, domain, key, version, raise_error = True):
-    handler_key = bfile_attr_handler.make_factory_key(domain, key, version)
+  def get_handler(clazz, domain, group, name, version, raise_error = True):
+    check.check_string(domain)
+    check.check_string(group)
+    check.check_string(name)
+    version = check.check_semantic_version(version)
+    
+    handler_key = bfile_attr_handler.make_factory_key(domain, group, name, version)
     handler = clazz._factories.get(handler_key, None)
     clazz._log.log_d(f'handler_key={handler_key} handler={handler}')
     if raise_error and not handler:
@@ -53,5 +58,10 @@ class bfile_attr_factory_registry(object):
     return handler
 
   @classmethod
-  def has_handler(clazz, domain, key, version):
-    return clazz.get_handler(domain, key, version, raise_error = False) != None
+  def has_handler(clazz, domain, group, name, version):
+    check.check_string(domain)
+    check.check_string(group)
+    check.check_string(name)
+    version = check.check_semantic_version(version)
+
+    return clazz.get_handler(domain, group, name, version, raise_error = False) != None

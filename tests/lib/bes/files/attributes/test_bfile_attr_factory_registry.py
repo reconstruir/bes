@@ -14,8 +14,8 @@ class test_bfile_attr_factory_registry(unit_test):
       #@abstractmethod
       def handlers(clazz):
         return [
-          ( 'fruit', 'kiwi', '1.0', clazz._get_kiwi_1_0, clazz._decode_kiwi_1_0, False ),
-          ( 'fruit', 'cherry', '2.0', clazz._get_cherry_2_0, clazz._decode_cherry_2_0, False ),
+          ( 'acme', 'fruit', 'kiwi', '1.0', clazz._get_kiwi_1_0, clazz._decode_kiwi_1_0, False ),
+          ( 'acme', 'fruit', 'cherry', '2.0', clazz._get_cherry_2_0, clazz._decode_cherry_2_0, False ),
         ]
 
       @classmethod
@@ -35,10 +35,10 @@ class test_bfile_attr_factory_registry(unit_test):
         return clazz.decode_float(value)
         
     bfile_attr_factory_registry.register_factory(_test_fruits_factory)
-    self.assertEqual( True, bfile_attr_factory_registry.has_handler('fruit', 'kiwi', '1.0') )
-    self.assertEqual( False, bfile_attr_factory_registry.has_handler('fruit', 'kiwi', '2.0') )
-    self.assertEqual( False, bfile_attr_factory_registry.has_handler('fruit', 'cherry', '1.0') )
-    self.assertEqual( True, bfile_attr_factory_registry.has_handler('fruit', 'cherry', '2.0') )
+    self.assertEqual( True, bfile_attr_factory_registry.has_handler('acme', 'fruit', 'kiwi', '1.0') )
+    self.assertEqual( False, bfile_attr_factory_registry.has_handler('acme', 'fruit', 'kiwi', '2.0') )
+    self.assertEqual( False, bfile_attr_factory_registry.has_handler('acme', 'fruit', 'cherry', '1.0') )
+    self.assertEqual( True, bfile_attr_factory_registry.has_handler('acme', 'fruit', 'cherry', '2.0') )
     bfile_attr_factory_registry.clear_all()
                                                                     
 if __name__ == '__main__':

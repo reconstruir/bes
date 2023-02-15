@@ -9,25 +9,26 @@ from bes.property.cached_property import cached_property
 
 from .bfile_attr_encoding import bfile_attr_encoding
 
-class bfile_attr_handler(namedtuple('bfile_attr_handler', 'domain, name, version, getter, decoder, memory_only')):
+class bfile_attr_handler(namedtuple('bfile_attr_handler', 'domain, group, name, version, getter, decoder, memory_only')):
 
-  def __new__(clazz, domain, name, version, getter, decoder, memory_only):
+  def __new__(clazz, domain, group, name, version, getter, decoder, memory_only):
     check.check_string(domain)
+    check.check_string(group)
     check.check_string(name)
     version = check.check_semantic_version(version)
     check.check_callable(getter)
     check.check_callable(decoder)
     check.check_bool(memory_only)
 
-    return clazz.__bases__[0].__new__(clazz, domain, name, version, getter, decoder, memory_only)
+    return clazz.__bases__[0].__new__(clazz, domain, group, name, version, getter, decoder, memory_only)
 
   @cached_property
   def factory_key(self):
-    return self.make_factory_key(self.domain, self.name, self.version)
+    return self.make_factory_key(self.domain, self.group, self.name, self.version)
 
   @classmethod
-  def make_factory_key(clazz, domain, name, version):
-    return f'{domain}.{name}.{version}'
+  def make_factory_key(clazz, domain, group, name, version):
+    return f'{domain}/{group}/{name}/{version}'
   
   @classmethod
   def _check_cast_func(clazz, obj):
