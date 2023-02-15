@@ -11,10 +11,6 @@ from bes.files.bfile_checksum import bfile_checksum
 
 class test_bfile_metadata_factory_checksum(unit_test):
 
-  # Use a temporary directory in the same filesystem as the code to avoid the
-  # issue that on some platforms the tmp dir filesystem might have attributes disabled.
-  _TMP_DIR = path.join(path.dirname(__file__), '.tmp')
-
   @classmethod
   def setUpClass(clazz):
     bfile_metadata_factory_registry.register_factory(bfile_metadata_factory_checksum)
@@ -24,8 +20,8 @@ class test_bfile_metadata_factory_checksum(unit_test):
     bfile_metadata_factory_registry.clear_all()
   
   def test_factory_checksum(self):
-    tmp_kiwi = self.make_temp_file(dir = self._TMP_DIR, content = 'this is kiwi')
-    tmp_lemon = self.make_temp_file(dir = self._TMP_DIR, content = 'this is lemon')
+    tmp_kiwi = self.make_temp_file(dir = __file__, content = 'this is kiwi')
+    tmp_lemon = self.make_temp_file(dir = __file__, content = 'this is lemon')
     kiwi_checksums = {
       'md5': bfile_checksum.checksum(tmp_kiwi, 'md5'),
       'sha1': bfile_checksum.checksum(tmp_kiwi, 'sha1'),

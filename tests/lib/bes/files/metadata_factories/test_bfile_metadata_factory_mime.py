@@ -14,10 +14,6 @@ from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
 
 class test_bfile_metadata_factory_mime(unit_test, unit_test_media_files):
 
-  # Use a temporary directory in the same filesystem as the code to avoid the
-  # issue that on some platforms the tmp dir filesystem might have attributes disabled.
-  _TMP_DIR = path.join(path.dirname(__file__), '.tmp')
-
   @classmethod
   def setUpClass(clazz):
     bfile_metadata_factory_registry.register_factory(bfile_metadata_factory_mime)
@@ -27,40 +23,53 @@ class test_bfile_metadata_factory_mime(unit_test, unit_test_media_files):
     bfile_metadata_factory_registry.clear_all()
   
   def test_get_mime_type_jpeg(self):
+    tmp = self.make_temp_file(dir = __file__, content = self.jpg_file, suffix = '.jpg')
     self.assertEqual( 'image/jpeg',
-                      bfile_metadata.get_metadata(self.jpg_file, 'bes', 'mime', 'mime_type', '1.0') )
+                      bfile_metadata.get_metadata(tmp, 'bes', 'mime', 'mime_type', '1.0') )
 
-  def xtest_get_mime_type_png(self):
-    self.assertEqual( 'image/png', file_attributes_metadata.get_mime_type(self.png_file) )
+  def test_get_mime_type_png(self):
+    tmp = self.make_temp_file(dir = __file__, content = self.png_file, suffix = '.png')
+    self.assertEqual( 'image/png', bfile_metadata.get_metadata(tmp, 'bes', 'mime', 'mime_type', '1.0') )
 
-  def xtest_get_media_type(self):
-    self.assertEqual( 'image', file_attributes_metadata.get_media_type(self.jpg_file) )
-    self.assertEqual( 'image', file_attributes_metadata.get_media_type(self.png_file) )
-    self.assertEqual( 'video', file_attributes_metadata.get_media_type(self.mp4_file) )
-    self.assertEqual( 'unknown', file_attributes_metadata.get_media_type(self.unknown_file) )
+  def test_get_media_type_image_jpg(self):
+    tmp = self.make_temp_file(dir = __file__, content = self.jpg_file, suffix = '.jpg')
+    self.assertEqual( 'image', bfile_metadata.get_metadata(tmp, 'bes', 'mime', 'media_type', '1.0') )
+
+  def test_get_media_type_image_png(self):
+    tmp = self.make_temp_file(dir = __file__, content = self.png_file, suffix = '.png')
+    self.assertEqual( 'image', bfile_metadata.get_metadata(tmp, 'bes', 'mime', 'media_type', '1.0') )
+
+  def test_get_media_type_video_mp4(self):
+    tmp = self.make_temp_file(dir = __file__, content = self.mp4_file, suffix = '.mp4')
+    self.assertEqual( 'video', bfile_metadata.get_metadata(tmp, 'bes', 'mime', 'media_type', '1.0') )
+
+  def test_get_media_type_unknown(self):
+    tmp = self.make_temp_file(dir = __file__, content = self.unknown_file, suffix = '.unknown')
+    self.assertEqual( 'unknown', bfile_metadata.get_metadata(tmp, 'bes', 'mime', 'media_type', '1.0') )
     
-  def xtest_get_mime_type_change(self):
-    tmp_file = self.make_temp_file(suffix = '.png')
-    file_util.copy(self.png_file, tmp_file)
-    self.assertEqual( 'image/png', file_attributes_metadata.get_mime_type(tmp_file) )
-    with open(tmp_file, 'wb') as to_file:
+  def test_get_mime_type_change(self):
+    tmp = self.make_temp_file(dir = __file__, content = self.png_file, suffix = '.png')
+    self.assertEqual( 'image/png', bfile_metadata.get_metadata(tmp, 'bes', 'mime', 'mime_type', '1.0') )
+    with open(tmp, 'wb') as to_file:
       with open(self.jpg_file, 'rb') as from_file:
         to_file.write(from_file.read())
-        to_file.flush()
-        # for some reason on some linuxes the modification date does not change
-        # when we clobber the png file with jpg content
-        if host.is_linux():
-          file_util.set_modification_date(tmp_file, datetime.now())
-    self.assertEqual( 'image/jpeg', file_attributes_metadata.get_mime_type(tmp_file) )
+      to_file.flush()
+#
+#    # for some reason on some linuxes the modification date does not change
+#    # when we clobber the png file with jpg content
+#    if host.is_linux():
+#      file_util.set_modification_date(tmp, datetime.now())
+#      
+    self.assertEqual( 'image/jpeg', bfile_metadata.get_metadata(tmp, 'bes', 'mime', 'mime_type', '1.0') )
 
   def xtest_get_mime_type_cached(self):
     tmp_file = self.make_temp_file(suffix = '.png')
     file_util.copy(self.png_file, tmp_file)
-    self.assertEqual( 'image/png', file_attributes_metadata.get_mime_type(tmp_file, cached = True) )
+    self.assertEqual( 'image/png', bfile_metadata.get_metadata(tmp_file, cached = True) )
     file_util.copy(self.jpg_file, tmp_file)
     if host.is_linux():
       file_util.set_modification_date(tmp_file, datetime.now())
-    self.assertEqual( 'image/jpeg', file_attributes_metadata.get_mime_type(tmp_file, cached = True) )
+    self.assertEqual( 'image/jpeg', bfile_metadata.get_metadata(tmp_file, cached = True) )
     
     bfile_metadata_factory_registry.clear_all()
 

@@ -3,6 +3,7 @@
 from collections import namedtuple
 
 from bes.system.filesystem import filesystem
+from bes.system.compat import compat
 
 import os, os.path as path, sys, tempfile
 from .file_util import file_util
@@ -39,7 +40,13 @@ class temp_file(object):
                                       mode = mode,
                                       delete = False)
     if content:
-      if not isinstance(content, bytes):
+      if compat.is_string(content):
+        if path.isfile(content):
+          with open(content, 'rb') as f:
+            content = f.read()
+        else:
+          content = content.encode('utf-8')
+      elif not isinstance(content, bytes):
         content = content.encode('utf-8')
       tmp.write(content)
     tmp.flush()
