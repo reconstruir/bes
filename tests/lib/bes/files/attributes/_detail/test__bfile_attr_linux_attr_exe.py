@@ -6,7 +6,7 @@ from bes.docker.docker import docker
 from bes.testing.unit_test_class_skip import unit_test_class_skip
 from bes.system.host import host
 
-from bfile_attr_tester import make_test_case
+from _bfile_attr_unit_test_common import make_test_case
 
 if host.is_linux():
   from bes.files.attributes._detail._bfile_attr_linux_attr_exe import _bfile_attr_linux_attr_exe
