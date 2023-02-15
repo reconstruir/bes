@@ -68,37 +68,37 @@ class test_bfile_entry(unit_test, unit_test_media_files):
   # issue that on some platforms the tmp dir filesystem might have attributes disabled.
   _TMP_DIR = path.join(path.dirname(__file__), '.tmp')
     
-  def test_has_key_false(self):
+  def test_attr_has_key_false(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, content = 'foo')
     self.assertFalse( tmp.attr_has_key('foo') )
   
-  def test_has_key_true(self):
+  def test_attr_has_key_true(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, content = 'foo')
     tmp.attr_set_bytes('foo', 'hi'.encode('utf-8'))
     self.assertTrue( tmp.attr_has_key('foo') )
     
-  def test_get_bytes_never_set(self):
+  def test_attr_get_bytes_never_set(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, content = 'foo')
     self.assertEqual( None, tmp.attr_get_bytes('foo') )
   
-  def test_set_bytes_get_bytes(self):
+  def test_attr_set_bytes_get_bytes(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, content = 'foo')
     tmp.attr_set_bytes('foo', 'hi'.encode('utf-8'))
     self.assertEqual( 'hi', tmp.attr_get_bytes('foo').decode('utf-8') )
     tmp.attr_set_bytes('bar', '99'.encode('utf-8'))
     self.assertEqual( '99', tmp.attr_get_bytes('bar').decode('utf-8') )
 
-  def test_empty_keys(self):
+  def test_attr_empty_keys(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, content = 'foo')
     self.assertEqual( [], self._munge_attr_keys(tmp.attr_keys()) )
 
-  def test_keys(self):
+  def test_attr_keys(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, content = 'foo')
     tmp.attr_set_bytes('foo', 'hi'.encode('utf-8'))
     tmp.attr_set_bytes('bar', '99'.encode('utf-8'))
     self.assertEqual( [ 'bar', 'foo' ], self._munge_attr_keys(tmp.attr_keys()) )
     
-  def test_clear(self):
+  def test_attr_clear(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, content = 'foo')
     tmp.attr_set_bytes('foo', 'hi'.encode('utf-8'))
     tmp.attr_set_bytes('bar', '99'.encode('utf-8'))
@@ -106,24 +106,24 @@ class test_bfile_entry(unit_test, unit_test_media_files):
     tmp.attr_clear()
     self.assertEqual( [], self._munge_attr_keys(tmp.attr_keys()) )
 
-  def test_set_png_get_png(self):
+  def test_attr_set_png_get_png(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, content = 'foo')
     data = unit_test_media.PNG_SMALLEST_POSSIBLE
     tmp.attr_set_bytes('picture', data)
     self.assertEqual( data, tmp.attr_get_bytes('picture') )
 
-  def test_set_string_get_string(self):
+  def test_attr_set_string_get_string(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, content = 'foo')
     tmp.attr_set_string('foo', 'hi')
     self.assertEqual( 'hi', tmp.attr_get_string('foo') )
       
-  def test_set_date_get_date(self):
+  def test_attr_set_date_get_date(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, content = 'foo')
     now = datetime.now()
     tmp.attr_set_date('foo', now)
     self.assertEqual( now, tmp.attr_get_date('foo') )
 
-  def test_set_all_get_all(self):
+  def test_attr_set_all_get_all(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, content = 'foo')
     d = {
       'foo': b'hi',
@@ -132,31 +132,31 @@ class test_bfile_entry(unit_test, unit_test_media_files):
     tmp.attr_set_all(d)
     self.assertEqual( d, tmp.attr_get_all() )
 
-  def test_set_bool_get_bool(self):
+  def test_attr_set_bool_get_bool(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, content = 'foo')
     tmp.attr_set_bool('foo', True)
     tmp.attr_set_bool('bar', False)
     self.assertEqual( True, tmp.attr_get_bool('foo') )
     self.assertEqual( False, tmp.attr_get_bool('bar') )
       
-  def test_set_int_get_int(self):
+  def test_attr_set_int_get_int(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, content = 'foo')
     tmp.attr_set_int('foo', 666)
     tmp.attr_set_int('bar', -1024)
     self.assertEqual( 666, tmp.attr_get_int('foo') )
     self.assertEqual( -1024, tmp.attr_get_int('bar') )
       
-  def test_set_no_write_permission_unix(self):
+  def test_attr_set_no_write_permission_unix(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, perm = 0o0400)
     with self.assertRaises(bfile_permission_error) as ctx:
       tmp.attr_set_string('foo', 'hi')
 
-  def test_remove_no_write_permission_unix(self):
+  def test_attr_remove_no_write_permission_unix(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, perm = 0o0400)
     with self.assertRaises(bfile_permission_error) as ctx:
       tmp.attr_remove('foo')
 
-  def test_clear_no_write_permission_unix(self):
+  def test_attr_clear_no_write_permission_unix(self):
     tmp = self._make_test_entry(dir = self._TMP_DIR, perm = 0o0400)
     with self.assertRaises(bfile_permission_error) as ctx:
       tmp.attr_clear()
