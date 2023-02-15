@@ -2,12 +2,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.testing.unit_test import unit_test
-from bes.files.attributes.bfile_mtime_cached_attr import bfile_mtime_cached_attr
+from bes.files.attributes.bfile_attr_mtime_cached import bfile_attr_mtime_cached
 from bes.docker.docker import docker
 
-from _detail._bfile_mtime_cached_attr_unit_test_common import make_test_case
+from _detail._bfile_attr_mtime_cached_unit_test_common import make_test_case
 
-class test_bfile_mtime_cached_attr(make_test_case(bfile_mtime_cached_attr)):
+class test_bfile_attr_mtime_cached(make_test_case(bfile_attr_mtime_cached)):
   
   @classmethod
   def setUpClass(clazz):

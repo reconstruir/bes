@@ -10,7 +10,7 @@ from bes.files.attributes.bfile_attr_factory_base import bfile_attr_factory_base
 from bes.files.attributes.bfile_attr_factory_base import bfile_attr_factory_base
 from bes.files.attributes.bfile_attr_factory_registry import bfile_attr_factory_registry
 from bes.files.attributes.bfile_attr_handler import bfile_attr_handler
-from bes.files.attributes.bfile_mtime_cached_attr import bfile_mtime_cached_attr
+from bes.files.attributes.bfile_attr_mtime_cached import bfile_attr_mtime_cached
 from bes.files.bfile_date import bfile_date
 from bes.testing.unit_test import unit_test
 
@@ -18,7 +18,7 @@ from _bes_unit_test_common.unit_test_media import unit_test_media
 
 def make_test_case(impl):
   
-  class _bfile_mtime_cached_attr_test_case(unit_test):
+  class _bfile_attr_mtime_cached_test_case(unit_test):
 
     # Use a temporary directory in the same filesystem as the code to avoid the
     # issue that on some platforms the tmp dir filesystem might have attributes disabled.
@@ -173,4 +173,4 @@ def make_test_case(impl):
       
       bfile_attr_factory_registry.clear_all()
       
-  return _bfile_mtime_cached_attr_test_case
+  return _bfile_attr_mtime_cached_test_case

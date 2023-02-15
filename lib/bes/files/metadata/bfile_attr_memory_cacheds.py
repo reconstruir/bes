@@ -10,9 +10,9 @@ from bes.system.log import logger
 from ..bfile_permission_error import bfile_permission_error
 from ..bfile_error import bfile_error
 
-class bfile_mtime_cached_attributes(object):
+class bfile_attr_memory_cacheds(object):
 
-  _log = logger('bfile_mtime_cached_attributes')
+  _log = logger('bfile_attr_memory_cacheds')
   
   def __init__(self, filename):
     self._filename = filename
@@ -59,6 +59,6 @@ class bfile_mtime_cached_attributes(object):
   def register_common_value_makers(clazz):
     clazz.register_value_maker('stat', lambda filename: os.stat(filename, follow_symlinks = True))
 
-bfile_mtime_cached_attributes.register_common_value_makers()
+bfile_attr_memory_cacheds.register_common_value_makers()
 
-check.register_class(bfile_mtime_cached_attributes, include_seq = False)
+check.register_class(bfile_attr_memory_cacheds, include_seq = False)

@@ -22,7 +22,7 @@ from .bfile_attr_factory_registry import bfile_attr_factory_registry
 from .bfile_attr_handler import bfile_attr_handler
 from .bfile_attr_handler_list import bfile_attr_handler_list
 
-class bfile_mtime_cached_attr(bfile_attr):
+class bfile_attr_mtime_cached(bfile_attr):
 
   @classmethod
   def get_cached_bytes(clazz, filename, key, value_maker):
