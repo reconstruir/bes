@@ -10,7 +10,7 @@ from .bfile_attr_error import bfile_attr_error
 from .bfile_metadata_factory_registry import bfile_metadata_factory_registry
 from .bfile_attr_mtime_cached import bfile_attr_mtime_cached
 
-class bfile_attr_metadata(bfile_attr_mtime_cached):
+class bfile_metadata(bfile_attr_mtime_cached):
 
   @classmethod
   def get_cached_metadata(clazz, filename, domain, group, name, version):
