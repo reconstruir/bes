@@ -5,7 +5,7 @@ from bes.testing.unit_test import unit_test
 from bes.files.attributes.bfile_mtime_cached_attr import bfile_mtime_cached_attr
 from bes.docker.docker import docker
 
-from _detail.bfile_mtime_cached_attr_tester import make_test_case
+from _detail._bfile_mtime_cached_attr_unit_test_common import make_test_case
 
 class test_bfile_mtime_cached_attr(make_test_case(bfile_mtime_cached_attr)):
   
