@@ -99,7 +99,7 @@ class argument_resolver(object):
   @num_iterations.setter
   def num_iterations(self, n):
     check.check_int(n)
-    if not n in range(1, 110):
+    if not n in range(1, 1001):
       raise ValueError('Iterations needs to be between 1 and 10: %d' % (n))
     self._num_iterations = n
 
