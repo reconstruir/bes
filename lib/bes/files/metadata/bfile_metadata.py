@@ -39,6 +39,12 @@ class bfile_metadata(bfile_attr_mtime_cached):
     assert item._value != None
     return item._value
 
+  @classmethod
+  def get_metadata_getter_count(clazz, filename, domain, group, name, version):
+    handler = bfile_metadata_factory_registry.get_handler(domain, group, name, version)
+    item = clazz._get_item(filename, handler.factory_key)
+    return item._count
+  
   _items = {}
   class _items_item(object):
 
