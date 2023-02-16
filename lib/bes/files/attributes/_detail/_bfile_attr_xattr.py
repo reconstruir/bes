@@ -108,3 +108,12 @@ class _bfile_attr_xattr(_bfile_attr_base):
     if host.is_linux():
       key = string_util.remove_head(key, 'user.')
     return key
+
+#    @classmethod
+#    def _munge_attr_keys(clazz, keys):
+#      'On some linux systems, there is an extra selinux key in many attr results'
+#      # FIXME: move this to the linux implementation and perhaps add a show system
+#      # attributes boolean somewhere
+#      assert isinstance(keys, list)
+#      return [ key for key in keys if key != 'selinux' ]
+  

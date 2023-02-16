@@ -34,21 +34,21 @@ def make_test_case(impl):
 
     def test_empty_keys(self):
       tmp = self.make_temp_file(dir = __file__, content = 'foo')
-      self.assertEqual( [], self._munge_attr_keys(impl.keys(tmp)) )
+      self.assertEqual( [], impl.keys(tmp) )
 
     def test_keys(self):
       tmp = self.make_temp_file(dir = __file__, content = 'foo')
       impl.set_bytes(tmp, 'foo', 'hi'.encode('utf-8'))
       impl.set_bytes(tmp, 'bar', '99'.encode('utf-8'))
-      self.assertEqual( [ 'bar', 'foo' ], self._munge_attr_keys(impl.keys(tmp)) )
+      self.assertEqual( [ 'bar', 'foo' ], impl.keys(tmp) )
     
     def test_clear(self):
       tmp = self.make_temp_file(dir = __file__, content = 'foo')
       impl.set_bytes(tmp, 'foo', 'hi'.encode('utf-8'))
       impl.set_bytes(tmp, 'bar', '99'.encode('utf-8'))
-      self.assertEqual( [ 'bar', 'foo' ], self._munge_attr_keys(impl.keys(tmp)) )
+      self.assertEqual( [ 'bar', 'foo' ], impl.keys(tmp) )
       impl.clear(tmp)
-      self.assertEqual( [], self._munge_attr_keys(impl.keys(tmp)) )
+      self.assertEqual( [], impl.keys(tmp) )
 
     def test_set_png_get_png(self):
       tmp = self.make_temp_file(dir = __file__, content = 'foo')
@@ -105,12 +105,4 @@ def make_test_case(impl):
       with self.assertRaises(bfile_permission_error) as ctx:
         impl.clear(tmp)
 
-    @classmethod
-    def _munge_attr_keys(clazz, keys):
-      'On some linux systems, there is an extra selinux key in many attr results'
-      # FIXME: move this to the linux implementation and perhaps add a show system
-      # attributes boolean somewhere
-      assert isinstance(keys, list)
-      return [ key for key in keys if key != 'selinux' ]
-      
   return _bfile_attr_test_case
