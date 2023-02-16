@@ -12,10 +12,10 @@ if host.is_linux():
   from bes.files.attributes._detail._bfile_attr_linux_attr_exe import _bfile_attr_linux_attr_exe
   from bes.files.attributes.bfile_attr import _bfile_attr_mixin
 
-  class _test_super_class_linux_xattr_exe(_bfile_attr_linux_xattr_exe, _bfile_attr_mixin):
+  class _test_super_class_linux_attr_exe(_bfile_attr_linux_attr_exe, _bfile_attr_mixin):
     pass
   
-  class test__bfile_attr_linux_attr_exe(make_test_case(_test_super_class_linux_xattr_exe)):
+  class test__bfile_attr_linux_attr_exe(make_test_case(_test_super_class_linux_attr_exe)):
 
     @classmethod
     def setUpClass(clazz):
