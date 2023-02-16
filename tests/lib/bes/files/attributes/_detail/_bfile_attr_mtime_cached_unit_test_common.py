@@ -15,12 +15,8 @@ def make_test_case(impl):
   
   class _bfile_attr_mtime_cached_test_case(unit_test):
 
-    # Use a temporary directory in the same filesystem as the code to avoid the
-    # issue that on some platforms the tmp dir filesystem might have attributes disabled.
-    _TMP_DIR = path.join(path.dirname(__file__), '.tmp')
-    
     def test_get_cached_bytes(self):
-      tmp = self.make_temp_file(dir = self._TMP_DIR, content = 'foo')
+      tmp = self.make_temp_file(dir = __file__, content = 'foo')
       value = '666'.encode('utf-8')
       def _value_maker(f):
         return value
@@ -29,7 +25,7 @@ def make_test_case(impl):
       self.assertEqual( '666', impl.get_string(tmp, 'foo') )
 
     def test_get_cached_bytes_with_change(self):
-      tmp = self.make_temp_file(dir = self._TMP_DIR, content = 'this is foo', suffix = '.txt')
+      tmp = self.make_temp_file(dir = __file__, content = 'this is foo', suffix = '.txt')
       yesterday = datetime.now() - timedelta(days = 1)
       bfile_date.set_modification_date(tmp, yesterday)
 

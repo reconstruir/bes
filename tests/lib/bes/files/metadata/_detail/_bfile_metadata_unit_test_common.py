@@ -15,10 +15,6 @@ def make_test_case(impl):
   
   class _bfile_metadata_test_case(unit_test):
 
-    # Use a temporary directory in the same filesystem as the code to avoid the
-    # issue that on some platforms the tmp dir filesystem might have attributes disabled.
-    _TMP_DIR = path.join(path.dirname(__file__), '.tmp')
-    
     def test_get_metadata(self):
       class _test_fruits_factory(bfile_metadata_factory_base):
       
@@ -51,7 +47,7 @@ def make_test_case(impl):
           return clazz.decode_float(value)
         
       bfile_metadata_factory_registry.register_factory(_test_fruits_factory)
-      tmp = self.make_temp_file(dir = self._TMP_DIR, content = b'12345', suffix = '.data')
+      tmp = self.make_temp_file(dir = __file__, content = b'12345', suffix = '.data')
 
       self.assertEqual( 0, _test_fruits_factory._kiwi_1_0_count )
       self.assertEqual( 5, impl.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
