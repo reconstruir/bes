@@ -214,3 +214,7 @@ unit test for mime type stuff for an empty file
 
 - "codec" vs "encoding" in file_util json_util
 - check_string vs check_str and consistency for type names in py3
+
+
+_munge_attr_keys
+_TMP_DIR

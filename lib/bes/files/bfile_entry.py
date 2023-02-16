@@ -16,8 +16,8 @@ from .bfile_filename import bfile_filename
 from .bfile_mtime_cached_info import bfile_mtime_cached_info
 from .bfile_permission_error import bfile_permission_error
 
-from .attributes.bfile_attr import bfile_attr
-from .metadata.bfile_metadata import bfile_metadata
+from .attributes.bfile_attr_file import bfile_attr_file
+from .metadata_factories.bfile_metadata_file import bfile_metadata_file
 
 class bfile_entry(object):
 
@@ -27,7 +27,7 @@ class bfile_entry(object):
     self._filename = filename
     self._stat = bfile_mtime_cached_info(self._filename, lambda f: os.stat(filename, follow_symlinks = True))
 
-  @cached_property
+  @property
   def filename(self):
     return self._filename
 
@@ -123,62 +123,12 @@ class bfile_entry(object):
   def modification_date_timestamp(self):
     return time_util.timestamp(when = self.modification_date, milliseconds = False)
 
-  def attr_has_key(self, key):
-    check.check_string(key)
+  @cached_property
+  def attributes(self):
+    return bfile_attr_file(self._filename)
 
-    return bfile_attr.has_key(self._filename, key)
+  @cached_property
+  def metadata(self):
+    return bfile_metadata_file(self._filename)
 
-  def attr_get_bytes(self, key):
-    check.check_string(key)
-
-    return bfile_attr.get_bytes(self._filename, key)
-
-  def attr_set_bytes(self, key, value):
-    check.check_string(key)
-    check.check_bytes(value)
-
-    bfile_attr.set_bytes(self._filename, key, value)
-
-  def attr_remove(self, key):
-    check.check_string(key)
-
-    bfile_attr.remove(self._filename, key)
-
-  def attr_keys(self):
-    return bfile_attr.keys(self._filename)
-
-  def attr_clear(self):
-    bfile_attr.clear(self._filename)
-
-  def attr_get_all(self):
-    return bfile_attr.get_all(self._filename)
-
-  def attr_set_all(self, attributes):
-    bfile_attr.set_all(self._filename, attributes)
-
-  def attr_get_string(self, key):
-    return bfile_attr.get_string(self._filename, key)
-
-  def attr_set_string(self, key, value):
-    bfile_attr.set_string(self._filename, key, value)
-
-  def attr_get_date(self, key):
-    return bfile_attr.get_date(self._filename, key)
-
-  def attr_set_date(self, key, value):
-    bfile_attr.set_date(self._filename, key, value)
-
-  def attr_get_bool(self, key):
-    return bfile_attr.get_bool(self._filename, key)
-
-  def attr_set_bool(self, key, value):
-    bfile_attr.set_bool(self._filename, key, value)
-    
-  def attr_get_int(self, key):
-    return bfile_attr.get_int(self._filename, key)
-
-  def attr_set_int(self, key, value):
-    bfile_attr.set_int(self._filename, key, value)
-
-    
 check.register_class(bfile_entry, include_seq = False)
