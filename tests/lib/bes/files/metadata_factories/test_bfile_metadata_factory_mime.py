@@ -8,6 +8,7 @@ from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_fa
 from bes.files.metadata.bfile_metadata import bfile_metadata
 from bes.files.metadata_factories.bfile_metadata_factory_mime import bfile_metadata_factory_mime
 from bes.files.mime.bfile_mime import bfile_mime
+from bes.files.bfile_date import bfile_date
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
@@ -54,12 +55,7 @@ class test_bfile_metadata_factory_mime(unit_test, unit_test_media_files):
       with open(self.jpg_file, 'rb') as from_file:
         to_file.write(from_file.read())
       to_file.flush()
-#
-#    # for some reason on some linuxes the modification date does not change
-#    # when we clobber the png file with jpg content
-#    if host.is_linux():
-#      file_util.set_modification_date(tmp, datetime.now())
-#      
+    bfile_date.touch(tmp)
     self.assertEqual( 'image/jpeg', bfile_metadata.get_metadata(tmp, 'bes', 'mime', 'mime_type', '1.0') )
 
 if __name__ == '__main__':

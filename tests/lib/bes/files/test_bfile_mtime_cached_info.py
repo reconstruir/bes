@@ -5,6 +5,7 @@ import os
 import os.path as path
 
 from bes.files.bfile_mtime_cached_info import bfile_mtime_cached_info
+from bes.files.bfile_date import bfile_date
 from bes.testing.unit_test import unit_test
 from bes.system.filesystem import filesystem
   
@@ -27,9 +28,15 @@ class test_bfile_mtime_cached_info(unit_test):
     self.assertEqual( 1, a.count )
     self.assertEqual( 4, a.value )
     self.assertEqual( 1, a.count )
+    old_mtime = path.getmtime(tmp)
     with open(tmp, 'w') as fout:
       fout.write('kiwikiwi')
+      fout.flush()
     filesystem.sync()
+    bfile_date.touch(tmp)
+    new_mtime = path.getmtime(tmp)
+    self.assertEqual( True, new_mtime != old_mtime )
+    self.assertEqual( True, new_mtime > old_mtime )
     self.assertEqual( 8, a.value )
     self.assertEqual( 2, a.count )
     self.assertEqual( 8, a.value )
@@ -37,4 +44,3 @@ class test_bfile_mtime_cached_info(unit_test):
     
 if __name__ == '__main__':
   unit_test.main()
-    
