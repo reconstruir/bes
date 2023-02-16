@@ -19,7 +19,7 @@ class _bfile_attr_macos_xattr_exe(_bfile_attr_base):
   def has_key(clazz, filename, key):
     'Return True if filename has an attributed with key.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     bfile_check.check_file_is_readable(filename)
     
     return xattr_exe.has_key(filename, key)
@@ -29,7 +29,7 @@ class _bfile_attr_macos_xattr_exe(_bfile_attr_base):
   def get_bytes(clazz, filename, key):
     'Return the attribute value with key for filename.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     bfile_check.check_file_is_readable(filename)
 
     if not xattr_exe.has_key(filename, key):
@@ -42,7 +42,7 @@ class _bfile_attr_macos_xattr_exe(_bfile_attr_base):
   def set_bytes(clazz, filename, key, value):
     'Set the value of attribute with key to value for filename.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     check.check_bytes(value)
     bfile_check.check_file_is_writable(filename)
 
@@ -54,7 +54,7 @@ class _bfile_attr_macos_xattr_exe(_bfile_attr_base):
   def remove(clazz, filename, key):
     'Remove the attirbute with key from filename.'
     filename = bfile_check.check_file(filename)
-    key = clazz._check_key(key)
+    key = clazz.check_key(key)
     bfile_check.check_file_is_writable(filename)
     
     xattr_exe.remove(filename, key)

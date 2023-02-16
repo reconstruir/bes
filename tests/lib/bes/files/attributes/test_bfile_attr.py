@@ -5,7 +5,7 @@ from bes.testing.unit_test import unit_test
 from bes.files.attributes.bfile_attr import bfile_attr
 from bes.docker.docker import docker
 
-from _detail.bfile_attr_tester import make_test_case
+from _detail._bfile_attr_unit_test_common import make_test_case
 
 class test_bfile_attr(make_test_case(bfile_attr)):
   
