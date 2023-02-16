@@ -20,7 +20,7 @@ class test_bfile_metadata_factory_mime(unit_test, unit_test_media_files):
 
   @classmethod
   def tearDownClass(clazz):
-    bfile_metadata_factory_registry.clear_all()
+    bfile_metadata_factory_registry.unregister_factory(bfile_metadata_factory_mime)
   
   def test_get_mime_type_jpeg(self):
     tmp = self.make_temp_file(dir = __file__, content = self.jpg_file, suffix = '.jpg')

@@ -15,52 +15,60 @@ def make_test_case(impl):
   
   class _bfile_metadata_test_case(unit_test):
 
-    def test_get_metadata(self):
-      class _test_fruits_factory(bfile_metadata_factory_base):
+    class _test_fruits_factory(bfile_metadata_factory_base):
       
-        @classmethod
-        #@abstractmethod
-        def handlers(clazz):
-          return [
-            ( 'acme', 'fruit', 'kiwi', '1.0', clazz._get_kiwi_1_0, clazz._decode_kiwi_1_0, False ),
-            ( 'acme', 'fruit', 'cherry', '2.0', clazz._get_cherry_2_0, clazz._decode_cherry_2_0, False ),
-          ]
+      @classmethod
+      #@abstractmethod
+      def handlers(clazz):
+        return [
+          ( 'acme', 'fruit', 'kiwi', '1.0', clazz._get_kiwi_1_0, clazz._decode_kiwi_1_0, False ),
+          ( 'acme', 'fruit', 'cherry', '2.0', clazz._get_cherry_2_0, clazz._decode_cherry_2_0, False ),
+        ]
 
-        _kiwi_1_0_count = 0
-        @classmethod
-        def _get_kiwi_1_0(clazz, filename):
-          clazz._kiwi_1_0_count += 1
-          return clazz.encode_int(os.stat(filename).st_size)
+      _kiwi_1_0_count = 0
+      @classmethod
+      def _get_kiwi_1_0(clazz, filename):
+        clazz._kiwi_1_0_count += 1
+        return clazz.encode_int(os.stat(filename).st_size)
 
-        @classmethod
-        def _decode_kiwi_1_0(clazz, value):
-          return clazz.decode_int(value)
+      @classmethod
+      def _decode_kiwi_1_0(clazz, value):
+        return clazz.decode_int(value)
         
-        _cherry_2_0_count = 0
-        @classmethod
-        def _get_cherry_2_0(clazz, filename):
-          clazz._cherry_2_0_count += 1
-          return clazz.encode_float(os.stat(filename).st_size / 2.0)
+      _cherry_2_0_count = 0
+      @classmethod
+      def _get_cherry_2_0(clazz, filename):
+        clazz._cherry_2_0_count += 1
+        return clazz.encode_float(os.stat(filename).st_size / 2.0)
 
-        @classmethod
-        def _decode_cherry_2_0(clazz, value):
-          return clazz.decode_float(value)
-        
-      bfile_metadata_factory_registry.register_factory(_test_fruits_factory)
+      @classmethod
+      def _decode_cherry_2_0(clazz, value):
+        return clazz.decode_float(value)
+  
+#    @classmethod
+#    def setUpClass(clazz):
+#      bfile_metadata_factory_registry.register_factory(clazz._test_fruits_factory)
+
+#    @classmethod
+#    def tearDownClass(clazz):
+#      bfile_metadata_factory_registry.unregister_factory(clazz._test_fruits_factory)
+    
+    def test_get_metadata(self):
+      bfile_metadata_factory_registry.register_factory(self._test_fruits_factory)
       tmp = self.make_temp_file(dir = __file__, content = b'12345', suffix = '.data')
 
-      self.assertEqual( 0, _test_fruits_factory._kiwi_1_0_count )
+      self.assertEqual( 0, self._test_fruits_factory._kiwi_1_0_count )
       self.assertEqual( 5, impl.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-      self.assertEqual( 1, _test_fruits_factory._kiwi_1_0_count )
+      self.assertEqual( 1, self._test_fruits_factory._kiwi_1_0_count )
       self.assertEqual( 5, impl.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-      self.assertEqual( 1, _test_fruits_factory._kiwi_1_0_count )
+      self.assertEqual( 1, self._test_fruits_factory._kiwi_1_0_count )
       kiwi_mtime = bfile_date.get_modification_date(tmp)
 
-      self.assertEqual( 0, _test_fruits_factory._cherry_2_0_count )
+      self.assertEqual( 0, self._test_fruits_factory._cherry_2_0_count )
       self.assertEqual( 2.5, impl.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-      self.assertEqual( 1, _test_fruits_factory._cherry_2_0_count )
+      self.assertEqual( 1, self._test_fruits_factory._cherry_2_0_count )
       self.assertEqual( 2.5, impl.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-      self.assertEqual( 1, _test_fruits_factory._cherry_2_0_count )
+      self.assertEqual( 1, self._test_fruits_factory._cherry_2_0_count )
       cherry_mtime = bfile_date.get_modification_date(tmp)
 
       self.assertEqual( {
@@ -74,11 +82,11 @@ def make_test_case(impl):
         f.write(b'1234567890')
         f.flush()
 
-      self.assertEqual( 1, _test_fruits_factory._kiwi_1_0_count )
+      self.assertEqual( 1, self._test_fruits_factory._kiwi_1_0_count )
       self.assertEqual( 10, impl.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-      self.assertEqual( 2, _test_fruits_factory._kiwi_1_0_count )
+      self.assertEqual( 2, self._test_fruits_factory._kiwi_1_0_count )
       self.assertEqual( 10, impl.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-      self.assertEqual( 2, _test_fruits_factory._kiwi_1_0_count )
+      self.assertEqual( 2, self._test_fruits_factory._kiwi_1_0_count )
       kiwi_mtime = bfile_date.get_modification_date(tmp)
 
       self.assertEqual( {
@@ -92,11 +100,11 @@ def make_test_case(impl):
         f.write(b'12')
         f.flush()
       
-      self.assertEqual( 1, _test_fruits_factory._cherry_2_0_count )
+      self.assertEqual( 1, self._test_fruits_factory._cherry_2_0_count )
       self.assertEqual( 1, impl.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-      self.assertEqual( 2, _test_fruits_factory._cherry_2_0_count )
+      self.assertEqual( 2, self._test_fruits_factory._cherry_2_0_count )
       self.assertEqual( 1, impl.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-      self.assertEqual( 2, _test_fruits_factory._cherry_2_0_count )
+      self.assertEqual( 2, self._test_fruits_factory._cherry_2_0_count )
       cherry_mtime = bfile_date.get_modification_date(tmp)
 
       self.assertEqual( {
@@ -105,7 +113,6 @@ def make_test_case(impl):
         'acme/fruit/cherry/2.0': b'1.0',
         'acme/fruit/kiwi/1.0': b'10',
       }, impl.get_all(tmp) )
-      
-      bfile_metadata_factory_registry.clear_all()
+      bfile_metadata_factory_registry.unregister_factory(self._test_fruits_factory)
       
   return _bfile_metadata_test_case

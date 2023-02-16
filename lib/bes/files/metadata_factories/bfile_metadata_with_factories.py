@@ -15,5 +15,5 @@ class bfile_metadata_with_factories(bfile_metadata):
   bfile_metadata_factory_registry.register_factory(bfile_metadata_factory_mime)
 
   @classmethod
-  def clear_all_factories(clazz):
-    bfile_metadata_factory_registry.clear_all()
+  def unregister_all_factories(clazz):
+    bfile_metadata_factory_registry.unregister_all()

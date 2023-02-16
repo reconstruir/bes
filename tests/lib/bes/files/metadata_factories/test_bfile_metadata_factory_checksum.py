@@ -17,7 +17,7 @@ class test_bfile_metadata_factory_checksum(unit_test):
 
   @classmethod
   def tearDownClass(clazz):
-    bfile_metadata_factory_registry.clear_all()
+    bfile_metadata_factory_registry.unregister_factory(bfile_metadata_factory_checksum)
   
   def test_factory_checksum(self):
     tmp_kiwi = self.make_temp_file(dir = __file__, content = 'this is kiwi')
