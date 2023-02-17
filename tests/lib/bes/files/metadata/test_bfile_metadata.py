@@ -92,6 +92,7 @@ class test_bfile_metadata(unit_test):
       self.assertEqual( cherry_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/cherry/2.0__') )
       self.assertEqual( 2.5, bfile_metadata.get_float(tmp, 'acme/fruit/cherry/2.0') )
 
+      time.sleep(.01)
       fout.seek(0)
       fout.truncate(0)
       fout.write(b'1234567890')
