@@ -7,14 +7,14 @@ import time
 from bes.docker.docker import docker
 from bes.files.bfile_date import bfile_date
 from bes.files.metadata.bfile_metadata import bfile_metadata
-from bes.files.metadata.bfile_metadata_poto import bfile_metadata_poto
+from bes.files.metadata.bfile_metadata_item import bfile_metadata_item
 from bes.files.metadata.bfile_metadata_factory_base import bfile_metadata_factory_base
 from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
 from bes.testing.unit_test import unit_test
 
 from _test_fruits_factory import _test_fruits_factory
 
-class test_bfile_metadata_poto(unit_test):
+class test_bfile_metadata_item(unit_test):
 
   @classmethod
   def setUpClass(clazz):
@@ -27,7 +27,7 @@ class test_bfile_metadata_poto(unit_test):
 
   def test___getitem__(self):
     tmp = self.make_temp_file(dir = __file__, non_existent = True, suffix = '.data')
-    tmp_poto = bfile_metadata_poto(tmp)
+    tmp_poto = bfile_metadata_item(tmp)
 
     with open(tmp, 'wb') as fout:
       fout.write(b'12345')
