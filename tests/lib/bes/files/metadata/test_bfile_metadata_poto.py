@@ -12,7 +12,7 @@ from bes.files.metadata.bfile_metadata_factory_base import bfile_metadata_factor
 from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
 from bes.testing.unit_test import unit_test
 
-class test_bfile_metadata_file(unit_test):
+class test_bfile_metadata_poto(unit_test):
 
   class _test_fruits_factory(bfile_metadata_factory_base):
       
@@ -20,8 +20,9 @@ class test_bfile_metadata_file(unit_test):
     #@abstractmethod
     def handlers(clazz):
       return [
-        ( 'acme/fruit/kiwi/1.0', clazz._get_kiwi_1_0, clazz._decode_kiwi_1_0, False ),
-        ( 'acme/fruit/cherry/2.0', clazz._get_cherry_2_0, clazz._decode_cherry_2_0, False ),
+        ( 'acme/fruit/kiwi/1.0', clazz._get_kiwi_1_0, clazz.decode_int, None ),
+        ( 'acme/fruit/cherry/2.0', clazz._get_cherry_2_0, clazz.decode_float, None ),
+        ( 'acme/fruit/price/1.0', None, clazz.decode_int, clazz.encode_int ),
       ]
 
     @classmethod
@@ -29,16 +30,8 @@ class test_bfile_metadata_file(unit_test):
       return clazz.encode_int(os.stat(filename).st_size)
 
     @classmethod
-    def _decode_kiwi_1_0(clazz, value):
-      return clazz.decode_int(value)
-      
-    @classmethod
     def _get_cherry_2_0(clazz, filename):
       return clazz.encode_float(os.stat(filename).st_size / 2.0)
-
-    @classmethod
-    def _decode_cherry_2_0(clazz, value):
-      return clazz.decode_float(value)
   
   @classmethod
   def setUpClass(clazz):

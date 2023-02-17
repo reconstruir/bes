@@ -14,8 +14,8 @@ class bfile_metadata_factory_mime(bfile_metadata_factory_base):
   #@abstractmethod
   def handlers(clazz):
     return [
-      ( 'bes/mime/mime_type/1.0', lambda f: clazz.encode_string(bfile_mime.mime_type(f)), clazz.decode_string, False ),
-      ( 'bes/mime/media_type/1.0', lambda f: clazz._media_type_1_0(f), clazz.decode_string, False ),
+      ( 'bes/mime/mime_type/1.0', lambda f: clazz.encode_string(bfile_mime.mime_type(f)), clazz.decode_string, None ),
+      ( 'bes/mime/media_type/1.0', lambda f: clazz._media_type_1_0(f), clazz.decode_string, None ),
     ]
   
   @classmethod

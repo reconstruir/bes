@@ -19,8 +19,8 @@ class test_bfile_metadata_file(unit_test):
     #@abstractmethod
     def handlers(clazz):
       return [
-        ( 'acme/fruit/kiwi/1.0', clazz._get_kiwi_1_0, clazz._decode_kiwi_1_0, False ),
-        ( 'acme/fruit/cherry/2.0', clazz._get_cherry_2_0, clazz._decode_cherry_2_0, False ),
+        ( 'acme/fruit/kiwi/1.0', clazz._get_kiwi_1_0, clazz._decode_kiwi_1_0, None ),
+        ( 'acme/fruit/cherry/2.0', clazz._get_cherry_2_0, clazz._decode_cherry_2_0, None ),
       ]
 
     @classmethod

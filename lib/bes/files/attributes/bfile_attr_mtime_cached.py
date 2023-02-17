@@ -13,6 +13,8 @@ from .bfile_attr_error import bfile_attr_error
 
 class bfile_attr_mtime_cached(bfile_attr):
 
+  _log = logger('attr_mtime_cached')
+  
   @classmethod
   def get_cached_bytes(clazz, filename, key, value_maker):
     'Return the attribute value with key for filename as bytes.'
@@ -39,13 +41,13 @@ class bfile_attr_mtime_cached(bfile_attr):
   def _make_mtime_key(clazz, key):
     return f'__bes_mtime_{key}__'
 
-  _get_cached_bytes_result = namedtuple('_get_cached_bytes_result', 'value, mtime, is_cached')
+  _get_cached_bytes_result = namedtuple('_get_cached_bytes_result', 'value, mtime, mtime_key, is_cached')
   @classmethod
   def _do_get_cached_bytes(clazz, filename, key, value_maker):
     'Return the attribute value with key for filename as bytes.'
     filename = bfile_check.check_file(filename)
     key = clazz.check_key(key)
-    check.check_callable(value_maker)
+    check.check_callable(value_maker, allow_none = True)
 
     clazz._log.log_method_d()
 
@@ -58,8 +60,11 @@ class bfile_attr_mtime_cached(bfile_attr):
 
     if file_mtime == attr_mtime:
       value = clazz.get_bytes(filename, key)
-      return clazz._get_cached_bytes_result(value, file_mtime, True)
-    
+      return clazz._get_cached_bytes_result(value, file_mtime, mtime_key, True)
+
+    if not value_maker:
+      return clazz._get_cached_bytes_result(None, file_mtime, mtime_key, False)
+      
     value = value_maker(filename)
     if value == None:
       raise bfile_attr_error(f'value should never be None')
@@ -73,4 +78,13 @@ class bfile_attr_mtime_cached(bfile_attr):
     # which is in the past (usually microseconds) but guaranteed
     # to match what what was set in set_date()
     bfile_date.set_modification_date(filename, file_mtime)
-    return clazz._get_cached_bytes_result(value, file_mtime, False)
+    return clazz._get_cached_bytes_result(value, file_mtime, mtime_key, False)
+
+  @classmethod
+  def remove_mtime_key(clazz, filename, key):
+    filename = bfile_check.check_file(filename)
+    key = clazz.check_key(key)
+    mtime_key = clazz._make_mtime_key(key)
+
+    if clazz.has_key(filename, mtime_key):
+      clazz.remove(filename, mtime_key)

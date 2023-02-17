@@ -6,6 +6,7 @@ import os.path as path
 from bes.files.bfile_checksum import bfile_checksum
 from bes.files.bfile_date import bfile_date
 from bes.files.metadata.bfile_metadata import bfile_metadata
+from bes.files.metadata.bfile_metadata_error import bfile_metadata_error
 from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
 from bes.files.metadata_factories.bfile_metadata_factory_checksum import bfile_metadata_factory_checksum
 from bes.testing.unit_test import unit_test
@@ -21,7 +22,7 @@ class test_bfile_metadata_factory_checksum(unit_test):
   def tearDownClass(clazz):
     bfile_metadata_factory_registry.unregister_factory(bfile_metadata_factory_checksum)
   
-  def test_factory_checksum(self):
+  def test_get_metadata(self):
     tmp_kiwi = self.make_temp_file(dir = __file__, content = 'this is kiwi')
     tmp_lemon = self.make_temp_file(dir = __file__, content = 'this is lemon')
     kiwi_checksums = {
@@ -64,6 +65,18 @@ class test_bfile_metadata_factory_checksum(unit_test):
                       bfile_metadata.get_metadata(tmp_lemon, 'bes/checksum/sha1/0.0') )
     self.assertEqual( kiwi_checksums['sha256'],
                       bfile_metadata.get_metadata(tmp_lemon, 'bes/checksum/sha256/0.0') )
-      
+
+  def test_set_metadata_read_only(self):
+    tmp = self.make_temp_file(dir = __file__, content = 'this is kiwi')
+    self.assertEqual( bfile_checksum.checksum(tmp, 'sha256'), 
+                      bfile_metadata.get_metadata(tmp, 'bes/checksum/sha256/0.0') )
+    with self.assertRaises(bfile_metadata_error) as ex:
+      bfile_metadata.set_metadata(tmp, 'bes/checksum/sha256/0.0', 'lime')
+
+  def test_set_metadata(self):
+    tmp = self.make_temp_file(dir = __file__, content = 'this is kiwi')
+    self.assertEqual( bfile_checksum.checksum(tmp, 'sha256'), 
+                      bfile_metadata.get_metadata(tmp, 'bes/checksum/sha256/0.0') )
+    
 if __name__ == '__main__':
   unit_test.main()

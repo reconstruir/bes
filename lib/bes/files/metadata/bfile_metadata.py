@@ -14,13 +14,15 @@ from .bfile_metadata_key import bfile_metadata_key
 
 class bfile_metadata(bfile_attr_mtime_cached):
 
+  _log = logger('metadata')
+  
   @classmethod
   def get_metadata(clazz, filename, key):
     filename = bfile_check.check_file(filename)
     key = check.check_bfile_metadata_key(key)
     handler = bfile_metadata_factory_registry.get_handler(key)
     assert handler.key == key
-    item = clazz._get_item(filename, handler.key)
+    item = clazz._get_item(filename, key)
     current_mtime = bfile_date.get_modification_date(filename)
     clazz._log.log_d(f'get_metadata: filename={filename} current_mtime={current_mtime} last_mtime={item._last_mtime}')
     if item._last_mtime != None:
@@ -28,7 +30,13 @@ class bfile_metadata(bfile_attr_mtime_cached):
       if current_mtime <= item._last_mtime:
         assert item._value != None
         return item._value
-    value_bytes, mtime, _ = clazz._do_get_cached_bytes(filename, str(handler.key), handler.getter)
+    value_bytes, mtime, mtime_key, is_cached = clazz._do_get_cached_bytes(filename, str(key), handler.getter)
+    clazz._log.log_d(f'get_metadata: value_bytes={value_bytes} mtime={mtime} mtime_key={mtime_key} getter={handler.getter}')
+    if not handler.getter:
+      value_bytes = clazz.get_bytes(filename, str(key))
+      if value_bytes == None:
+        return None
+      clazz.set_date(filename, mtime_key, mtime)
     value = handler.decoder(value_bytes)
     item._last_mtime = mtime
     item._value = value
@@ -37,6 +45,25 @@ class bfile_metadata(bfile_attr_mtime_cached):
     assert item._value != None
     return item._value
 
+  @classmethod
+  def set_metadata(clazz, filename, key, value):
+    filename = bfile_check.check_file(filename)
+    key = check.check_bfile_metadata_key(key)
+    handler = bfile_metadata_factory_registry.get_handler(key)
+    assert handler.key == key
+    item = clazz._get_item(filename, key)
+    if not handler.encoder:
+      raise bfile_metadata_error(f'value is read only: "{key}"')
+    assert handler.key == key
+    encoded_value = handler.encode(value)
+    if not check.is_bytes(encoded_value):
+      raise bfile_metadata_error(f'encoded value should be bytes: "{encoded_value}" - {type(encoded_value)}')
+    clazz.remove_mtime_key(filename, str(key))
+    clazz.set_bytes(filename, str(key), encoded_value)
+    item._last_mtime = None
+    item._value = None
+    #item._count += 1
+  
   @classmethod
   def get_metadata_getter_count(clazz, filename, key):
     filename = bfile_check.check_file(filename)
