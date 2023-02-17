@@ -65,6 +65,7 @@ class bfile_attr_mtime_cached(bfile_attr):
       raise bfile_attr_error(f'value should never be None')
 
     clazz.set_bytes(filename, key, value)
+    file_mtime = bfile_date.get_modification_date(filename)
     clazz.set_date(filename, mtime_key, file_mtime)
     # setting the date in the line above has the side effect
     # of changing the mtime in some implementations.  so we
