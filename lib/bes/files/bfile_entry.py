@@ -17,7 +17,7 @@ from .bfile_mtime_cached_info import bfile_mtime_cached_info
 from .bfile_permission_error import bfile_permission_error
 
 from .attributes.bfile_attr_file import bfile_attr_file
-from .metadata.bfile_metadata_file_item import bfile_metadata_file_item
+from .metadata.bfile_metadata_item import bfile_metadata_item
 
 class bfile_entry(object):
 
@@ -33,7 +33,7 @@ class bfile_entry(object):
 
   @cached_property
   def metadata(self):
-    return bfile_metadata_file_item(self._filename)
+    return bfile_metadata_item(self._filename)
 
   @property
   def filename(self):
