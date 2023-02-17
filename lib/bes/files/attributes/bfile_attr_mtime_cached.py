@@ -22,7 +22,7 @@ class bfile_attr_mtime_cached(bfile_attr):
     key = clazz.check_key(key)
     check.check_callable(value_maker)
 
-    value, _, _ = clazz._do_get_cached_bytes(filename, key, value_maker)
+    value, _, _, _ = clazz._do_get_cached_bytes(filename, key, value_maker)
     return value
 
   @classmethod

@@ -11,42 +11,18 @@ from bes.files.metadata.bfile_metadata_factory_base import bfile_metadata_factor
 from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
 from bes.testing.unit_test import unit_test
 
+from _test_fruits_factory import _test_fruits_factory
+
 class test_bfile_metadata_file(unit_test):
-
-  class _test_fruits_factory(bfile_metadata_factory_base):
-      
-    @classmethod
-    #@abstractmethod
-    def handlers(clazz):
-      return [
-        ( 'acme/fruit/kiwi/1.0', clazz._get_kiwi_1_0, clazz._decode_kiwi_1_0, None ),
-        ( 'acme/fruit/cherry/2.0', clazz._get_cherry_2_0, clazz._decode_cherry_2_0, None ),
-      ]
-
-    @classmethod
-    def _get_kiwi_1_0(clazz, filename):
-      return clazz.encode_int(os.stat(filename).st_size)
-
-    @classmethod
-    def _decode_kiwi_1_0(clazz, value):
-      return clazz.decode_int(value)
-      
-    @classmethod
-    def _get_cherry_2_0(clazz, filename):
-      return clazz.encode_float(os.stat(filename).st_size / 2.0)
-
-    @classmethod
-    def _decode_cherry_2_0(clazz, value):
-      return clazz.decode_float(value)
   
   @classmethod
   def setUpClass(clazz):
     docker.raise_skip_if_running_under_docker()
-    bfile_metadata_factory_registry.register_factory(clazz._test_fruits_factory)
+    bfile_metadata_factory_registry.register_factory(_test_fruits_factory)
 
   @classmethod
   def tearDownClass(clazz):
-    bfile_metadata_factory_registry.unregister_factory(clazz._test_fruits_factory)
+    bfile_metadata_factory_registry.unregister_factory(_test_fruits_factory)
 
   def test_get_metadata(self):
     tmp = bfile_metadata_file(self.make_temp_file(dir = __file__, non_existent = True, suffix = '.data'))

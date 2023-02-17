@@ -12,35 +12,18 @@ from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_fa
 from bes.files.metadata.bfile_metadata_error import bfile_metadata_error
 from bes.testing.unit_test import unit_test
 
+from _test_fruits_factory import _test_fruits_factory
+
 class test_bfile_metadata(unit_test):
-
-  class _test_fruits_factory(bfile_metadata_factory_base):
-      
-    @classmethod
-    #@abstractmethod
-    def handlers(clazz):
-      return [
-        ( 'acme/fruit/kiwi/1.0', clazz._get_kiwi_1_0, clazz.decode_int, None ),
-        ( 'acme/fruit/cherry/2.0', clazz._get_cherry_2_0, clazz.decode_float, None ),
-        ( 'acme/fruit/price/1.0', None, clazz.decode_int, clazz.encode_int ),
-      ]
-
-    @classmethod
-    def _get_kiwi_1_0(clazz, filename):
-      return clazz.encode_int(os.stat(filename).st_size)
-
-    @classmethod
-    def _get_cherry_2_0(clazz, filename):
-      return clazz.encode_float(os.stat(filename).st_size / 2.0)
 
   @classmethod
   def setUpClass(clazz):
     docker.raise_skip_if_running_under_docker()
-    bfile_metadata_factory_registry.register_factory(clazz._test_fruits_factory)
+    bfile_metadata_factory_registry.register_factory(_test_fruits_factory)
 
   @classmethod
   def tearDownClass(clazz):
-    bfile_metadata_factory_registry.unregister_factory(clazz._test_fruits_factory)
+    bfile_metadata_factory_registry.unregister_factory(_test_fruits_factory)
 
   def test_get_metadata(self):
     tmp = self.make_temp_file(dir = __file__, non_existent = True, suffix = '.data')
