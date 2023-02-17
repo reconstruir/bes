@@ -2,6 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os
+import time
 
 from bes.docker.docker import docker
 from bes.files.bfile_date import bfile_date
@@ -22,10 +23,8 @@ class test_bfile_metadata(unit_test):
         ( 'acme', 'fruit', 'cherry', '2.0', clazz._get_cherry_2_0, clazz._decode_cherry_2_0, False ),
       ]
 
-    _kiwi_1_0_count = 0
     @classmethod
     def _get_kiwi_1_0(clazz, filename):
-      clazz._kiwi_1_0_count += 1
       return clazz.encode_int(os.stat(filename).st_size)
 
     @classmethod
@@ -52,65 +51,78 @@ class test_bfile_metadata(unit_test):
     bfile_metadata_factory_registry.unregister_factory(clazz._test_fruits_factory)
 
   def test_get_metadata(self):
-    tmp = self.make_temp_file(dir = __file__, content = b'12345', suffix = '.data')
+    tmp = self.make_temp_file(dir = __file__, non_existent = True, suffix = '.data')
 
-    self.assertEqual( 0, self._test_fruits_factory._kiwi_1_0_count )
-    #self.assertEqual( 0, impl.get_metadata_getter_count('acme', 'fruit', 'kiwi', '1.0') )
-    self.assertEqual( 5,  bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-    self.assertEqual( 1, self._test_fruits_factory._kiwi_1_0_count )
-    self.assertEqual( 5, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-    self.assertEqual( 1, self._test_fruits_factory._kiwi_1_0_count )
-    kiwi_mtime = bfile_date.get_modification_date(tmp)
+    with open(tmp, 'wb') as fout:
+      fout.write(b'12345')
+      fout.flush()
+      os.fsync(fout.fileno())
 
-    self.assertEqual( 0, self._test_fruits_factory._cherry_2_0_count )
-    self.assertEqual( 2.5, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-    self.assertEqual( 1, self._test_fruits_factory._cherry_2_0_count )
-    self.assertEqual( 2.5, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-    self.assertEqual( 1, self._test_fruits_factory._cherry_2_0_count )
-    cherry_mtime = bfile_date.get_modification_date(tmp)
-
-    self.assertEqual( {
-      '__bes_mtime_acme/fruit/cherry/2.0__': str(cherry_mtime.timestamp()).encode('utf-8'),
-      '__bes_mtime_acme/fruit/kiwi/1.0__': str(kiwi_mtime.timestamp()).encode('utf-8'),
-      'acme/fruit/cherry/2.0': b'2.5',
-      'acme/fruit/kiwi/1.0': b'5',
-    }, bfile_metadata.get_all(tmp) )
+      self.assertEqual( 0, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 0, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 5,  bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 5, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      kiwi_mtime = bfile_date.get_modification_date(tmp)
+      self.assertEqual( [
+        '__bes_mtime_acme/fruit/kiwi/1.0__',
+        'acme/fruit/kiwi/1.0',
+      ], bfile_metadata.keys(tmp) )
       
-    with open(tmp, 'wb') as f:
-      f.write(b'1234567890')
-      f.flush()
-
-    self.assertEqual( 1, self._test_fruits_factory._kiwi_1_0_count )
-    self.assertEqual( 10, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-    self.assertEqual( 2, self._test_fruits_factory._kiwi_1_0_count )
-    self.assertEqual( 10, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-    self.assertEqual( 2, self._test_fruits_factory._kiwi_1_0_count )
-    kiwi_mtime = bfile_date.get_modification_date(tmp)
-
-    self.assertEqual( {
-      '__bes_mtime_acme/fruit/cherry/2.0__': str(cherry_mtime.timestamp()).encode('utf-8'),
-      '__bes_mtime_acme/fruit/kiwi/1.0__': str(kiwi_mtime.timestamp()).encode('utf-8'),
-      'acme/fruit/cherry/2.0': b'2.5',
-      'acme/fruit/kiwi/1.0': b'10',
-    }, bfile_metadata.get_all(tmp) )
-      
-    with open(tmp, 'wb') as f:
-      f.write(b'12')
-      f.flush()
-      
-    self.assertEqual( 1, self._test_fruits_factory._cherry_2_0_count )
-    self.assertEqual( 1, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-    self.assertEqual( 2, self._test_fruits_factory._cherry_2_0_count )
-    self.assertEqual( 1, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-    self.assertEqual( 2, self._test_fruits_factory._cherry_2_0_count )
-    cherry_mtime = bfile_date.get_modification_date(tmp)
-
-    self.assertEqual( {
-      '__bes_mtime_acme/fruit/cherry/2.0__': str(cherry_mtime.timestamp()).encode('utf-8'),
-      '__bes_mtime_acme/fruit/kiwi/1.0__': str(kiwi_mtime.timestamp()).encode('utf-8'),
-      'acme/fruit/cherry/2.0': b'1.0',
-      'acme/fruit/kiwi/1.0': b'10',
-    }, bfile_metadata.get_all(tmp) )
+      self.assertEqual( kiwi_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/kiwi/1.0__') )
+      self.assertEqual( 5, bfile_metadata.get_int(tmp, 'acme/fruit/kiwi/1.0') )
     
+      self.assertEqual( 0, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 2.5, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 2.5, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      cherry_mtime = bfile_date.get_modification_date(tmp)
+
+      self.assertEqual( [
+        '__bes_mtime_acme/fruit/cherry/2.0__',
+        '__bes_mtime_acme/fruit/kiwi/1.0__',
+        'acme/fruit/cherry/2.0',
+        'acme/fruit/kiwi/1.0',
+      ], bfile_metadata.keys(tmp) )
+      
+      self.assertEqual( kiwi_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/kiwi/1.0__') )
+      self.assertEqual( 5, bfile_metadata.get_int(tmp, 'acme/fruit/kiwi/1.0') )
+      self.assertEqual( cherry_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/cherry/2.0__') )
+      self.assertEqual( 2.5, bfile_metadata.get_float(tmp, 'acme/fruit/cherry/2.0') )
+
+      fout.seek(0)
+      fout.truncate(0)
+      fout.write(b'1234567890')
+      fout.flush()
+      os.fsync(fout.fileno())
+
+      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 10, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 10, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      kiwi_mtime = bfile_date.get_modification_date(tmp)
+
+      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 5, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 5, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      cherry_mtime = bfile_date.get_modification_date(tmp)
+      
+      self.assertEqual( [
+        '__bes_mtime_acme/fruit/cherry/2.0__',
+        '__bes_mtime_acme/fruit/kiwi/1.0__',
+        'acme/fruit/cherry/2.0',
+        'acme/fruit/kiwi/1.0',
+      ], bfile_metadata.keys(tmp) )
+
+      self.assertEqual( kiwi_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/kiwi/1.0__') )
+      self.assertEqual( 10, bfile_metadata.get_int(tmp, 'acme/fruit/kiwi/1.0') )
+      self.assertEqual( cherry_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/cherry/2.0__') )
+      self.assertEqual( 5, bfile_metadata.get_float(tmp, 'acme/fruit/cherry/2.0') )
+      
 if __name__ == '__main__':
   unit_test.main()
