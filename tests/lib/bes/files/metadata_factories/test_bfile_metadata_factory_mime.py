@@ -17,6 +17,7 @@ class test_bfile_metadata_factory_mime(unit_test, unit_test_media_files):
 
   @classmethod
   def setUpClass(clazz):
+    bfile_metadata_factory_registry.unregister_factory(bfile_metadata_factory_mime)
     bfile_metadata_factory_registry.register_factory(bfile_metadata_factory_mime)
 
   @classmethod

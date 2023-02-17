@@ -14,6 +14,7 @@ class test_bfile_metadata_factory_checksum(unit_test):
 
   @classmethod
   def setUpClass(clazz):
+    bfile_metadata_factory_registry.unregister_factory(bfile_metadata_factory_checksum)
     bfile_metadata_factory_registry.register_factory(bfile_metadata_factory_checksum)
 
   @classmethod

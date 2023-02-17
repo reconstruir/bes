@@ -17,7 +17,7 @@ from .bfile_mtime_cached_info import bfile_mtime_cached_info
 from .bfile_permission_error import bfile_permission_error
 
 from .attributes.bfile_attr_file import bfile_attr_file
-from .metadata_factories.bfile_metadata_file import bfile_metadata_file
+from .metadata.bfile_metadata_file import bfile_metadata_file
 
 class bfile_entry(object):
 
@@ -26,6 +26,14 @@ class bfile_entry(object):
   def __init__(self, filename):
     self._filename = filename
     self._stat = bfile_mtime_cached_info(self._filename, lambda f: os.stat(filename, follow_symlinks = True))
+
+  @cached_property
+  def attributes(self):
+    return bfile_attr_file(self._filename)
+
+  @cached_property
+  def metadata(self):
+    return bfile_metadata_file(self._filename)
 
   @property
   def filename(self):
@@ -122,13 +130,5 @@ class bfile_entry(object):
   @property
   def modification_date_timestamp(self):
     return time_util.timestamp(when = self.modification_date, milliseconds = False)
-
-  @cached_property
-  def attributes(self):
-    return bfile_attr_file(self._filename)
-
-  @cached_property
-  def metadata(self):
-    return bfile_metadata_file(self._filename)
 
 check.register_class(bfile_entry, include_seq = False)

@@ -88,3 +88,14 @@ class bfile_attr_file(object):
     bfile_attr.check_key(key)
 
     bfile_attr.set_int(self._filename, key, value)
+
+  def get_float(self, key):
+    bfile_attr.check_key(key)
+
+    return bfile_attr.get_float(self._filename, key)
+
+  def set_float(self, key, value):
+    bfile_attr.check_key(key)
+
+    bfile_attr.set_float(self._filename, key, value)
+    
