@@ -133,7 +133,7 @@ class test_bfile_metadata_item(unit_test):
     self.assertEqual( 42, tmp_item['acme/fruit/price/1.0'] )
     #self.assertEqual( 3, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/price/1.0') )
 
-  def xtest_set_metadata_read_only(self):
+  def test_set_metadata_read_only(self):
     tmp = self.make_temp_file(dir = __file__, content = b'12345', suffix = '.data')
     tmp_item = bfile_metadata_item(tmp)
     with self.assertRaises(bfile_metadata_error) as ex:
