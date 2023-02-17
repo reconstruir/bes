@@ -1,11 +1,14 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system.check import check
+from bes.system.log import logger
 from bes.files.bfile_check import bfile_check
 
 from ._bfile_mime_type_detector_base import _bfile_mime_type_detector_base
 
 class _bfile_mime_type_detector_puremagic(_bfile_mime_type_detector_base):
+
+  _log = logger('_bfile_mime_type_detector_puremagic')
 
   @classmethod
   #@abstractmethod
@@ -13,8 +16,10 @@ class _bfile_mime_type_detector_puremagic(_bfile_mime_type_detector_base):
     'Return True if this class is supported on the current platform.'
     try:
       import puremagic
+      clazz._log.log_d(f'"import puremagic" succeeds')
       return True
     except ModuleNotFoundError as ex:
+      clazz._log.log_d(f'puremagic module not found')
       pass
     return False
   
@@ -27,7 +32,9 @@ class _bfile_mime_type_detector_puremagic(_bfile_mime_type_detector_base):
     import puremagic
     try:
       rv = puremagic.magic_file(filename)
+      clazz._log.log_d(f'rv={rv}')
       if not rv:
+        clazz._log.log_d(f'rv is none')
         return None
       return clazz._find_mime_type(rv)
     except Exception as ex:
