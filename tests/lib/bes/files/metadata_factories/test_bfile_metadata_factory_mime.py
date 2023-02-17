@@ -57,6 +57,7 @@ class test_bfile_metadata_factory_mime(unit_test, unit_test_media_files):
                       bfile_metadata.get_metadata(tmp, 'bes/mime/media_type/1.0') )
     
   def test_get_mime_type_change(self):
+    tmp = self.make_temp_file(dir = __file__, non_existent = True, suffix = '.png')
     with open(tmp, 'wb') as fout:
       with open(self.png_file, 'rb') as png_file:
         fout.write(png_file.read())
