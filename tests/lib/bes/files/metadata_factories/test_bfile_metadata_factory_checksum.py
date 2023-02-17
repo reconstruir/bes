@@ -34,11 +34,11 @@ class test_bfile_metadata_factory_checksum(unit_test):
       'sha256': bfile_checksum.checksum(tmp_lemon, 'sha256'),
     }
     self.assertEqual( kiwi_checksums['md5'],
-                      bfile_metadata.get_metadata(tmp_kiwi, 'bes', 'checksum', 'md5', '0.0') )
+                      bfile_metadata.get_metadata(tmp_kiwi, 'bes/checksum/md5/0.0') )
     self.assertEqual( kiwi_checksums['sha1'],
-                      bfile_metadata.get_metadata(tmp_kiwi, 'bes', 'checksum', 'sha1', '0.0') )
+                      bfile_metadata.get_metadata(tmp_kiwi, 'bes/checksum/sha1/0.0') )
     self.assertEqual( kiwi_checksums['sha256'],
-                      bfile_metadata.get_metadata(tmp_kiwi, 'bes', 'checksum', 'sha256', '0.0') )
+                      bfile_metadata.get_metadata(tmp_kiwi, 'bes/checksum/sha256/0.0') )
 
     with open(tmp_kiwi, 'wb') as f:
       f.write(b'this is lemon')
@@ -46,11 +46,11 @@ class test_bfile_metadata_factory_checksum(unit_test):
     bfile_date.touch(tmp_kiwi)
     
     self.assertEqual( lemon_checksums['md5'],
-                      bfile_metadata.get_metadata(tmp_kiwi, 'bes', 'checksum', 'md5', '0.0') )
+                      bfile_metadata.get_metadata(tmp_kiwi, 'bes/checksum/md5/0.0') )
     self.assertEqual( lemon_checksums['sha1'],
-                      bfile_metadata.get_metadata(tmp_kiwi, 'bes', 'checksum', 'sha1', '0.0') )
+                      bfile_metadata.get_metadata(tmp_kiwi, 'bes/checksum/sha1/0.0') )
     self.assertEqual( lemon_checksums['sha256'],
-                      bfile_metadata.get_metadata(tmp_kiwi, 'bes', 'checksum', 'sha256', '0.0') )
+                      bfile_metadata.get_metadata(tmp_kiwi, 'bes/checksum/sha256/0.0') )
 
     with open(tmp_lemon, 'wb') as f:
       f.write(b'this is kiwi')
@@ -58,11 +58,11 @@ class test_bfile_metadata_factory_checksum(unit_test):
     bfile_date.touch(tmp_lemon)
     
     self.assertEqual( kiwi_checksums['md5'],
-                      bfile_metadata.get_metadata(tmp_lemon, 'bes', 'checksum', 'md5', '0.0') )
+                      bfile_metadata.get_metadata(tmp_lemon, 'bes/checksum/md5/0.0') )
     self.assertEqual( kiwi_checksums['sha1'],
-                      bfile_metadata.get_metadata(tmp_lemon, 'bes', 'checksum', 'sha1', '0.0') )
+                      bfile_metadata.get_metadata(tmp_lemon, 'bes/checksum/sha1/0.0') )
     self.assertEqual( kiwi_checksums['sha256'],
-                      bfile_metadata.get_metadata(tmp_lemon, 'bes', 'checksum', 'sha256', '0.0') )
+                      bfile_metadata.get_metadata(tmp_lemon, 'bes/checksum/sha256/0.0') )
       
 if __name__ == '__main__':
   unit_test.main()

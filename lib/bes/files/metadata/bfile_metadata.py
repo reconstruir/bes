@@ -7,22 +7,20 @@ from ..bfile_date import bfile_date
 from ..bfile_check import bfile_check
 
 from ..attributes.bfile_attr_mtime_cached import bfile_attr_mtime_cached
-from ..attributes.bfile_attr_error import bfile_attr_error
 
+from .bfile_metadata_error import bfile_metadata_error
 from .bfile_metadata_factory_registry import bfile_metadata_factory_registry
+from .bfile_metadata_key import bfile_metadata_key
 
 class bfile_metadata(bfile_attr_mtime_cached):
 
   @classmethod
-  def get_metadata(clazz, filename, domain, group, name, version):
+  def get_metadata(clazz, filename, key):
     filename = bfile_check.check_file(filename)
-    clazz.check_part(domain)
-    clazz.check_part(group)
-    clazz.check_part(name)
-    clazz.check_part(version)
-
-    handler = bfile_metadata_factory_registry.get_handler(domain, group, name, version)
-    item = clazz._get_item(filename, handler.factory_key)
+    key = check.check_bfile_metadata_key(key)
+    handler = bfile_metadata_factory_registry.get_handler(key)
+    assert handler.key == key
+    item = clazz._get_item(filename, handler.key)
     current_mtime = bfile_date.get_modification_date(filename)
     clazz._log.log_d(f'get_metadata: filename={filename} current_mtime={current_mtime} last_mtime={item._last_mtime}')
     if item._last_mtime != None:
@@ -30,7 +28,7 @@ class bfile_metadata(bfile_attr_mtime_cached):
       if current_mtime <= item._last_mtime:
         assert item._value != None
         return item._value
-    value_bytes, mtime, _ = clazz._do_get_cached_bytes(filename, handler.factory_key, handler.getter)
+    value_bytes, mtime, _ = clazz._do_get_cached_bytes(filename, str(handler.key), handler.getter)
     value = handler.decoder(value_bytes)
     item._last_mtime = mtime
     item._value = value
@@ -40,9 +38,12 @@ class bfile_metadata(bfile_attr_mtime_cached):
     return item._value
 
   @classmethod
-  def get_metadata_getter_count(clazz, filename, domain, group, name, version):
-    handler = bfile_metadata_factory_registry.get_handler(domain, group, name, version)
-    item = clazz._get_item(filename, handler.factory_key)
+  def get_metadata_getter_count(clazz, filename, key):
+    filename = bfile_check.check_file(filename)
+    key = check.check_bfile_metadata_key(key)
+
+    handler = bfile_metadata_factory_registry.get_handler(key)
+    item = clazz._get_item(filename, handler.key)
     return item._count
   
   _items = {}
@@ -54,17 +55,10 @@ class bfile_metadata(bfile_attr_mtime_cached):
       self._count = 0
 
   @classmethod
-  def _get_item(clazz, filename, factory_key):
+  def _get_item(clazz, filename, key):
     if filename not in clazz._items:
       clazz._items[filename] = {}
     file_dict = clazz._items[filename]
-    if not factory_key in file_dict:
-      file_dict[factory_key] = clazz._items_item()
-    return file_dict[factory_key]
-
-  @classmethod
-  def check_part(clazz, part):
-    clazz.check_key(part)
-    
-    if '/' in part:
-      raise bfile_attr_error(f'"/" not supported in part: "{part}"')
+    if not key in file_dict:
+      file_dict[key] = clazz._items_item()
+    return file_dict[key]

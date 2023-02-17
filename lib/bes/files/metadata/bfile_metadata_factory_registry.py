@@ -9,6 +9,7 @@ from ..attributes.bfile_attr_error import bfile_attr_error
 from .bfile_metadata_factory_base import bfile_metadata_factory_base
 from .bfile_metadata_handler import bfile_metadata_handler
 from .bfile_metadata_handler_list import bfile_metadata_handler_list
+from .bfile_metadata_key import bfile_metadata_key
 
 class bfile_metadata_factory_registry(object):
 
@@ -35,10 +36,10 @@ class bfile_metadata_factory_registry(object):
     except TypeError as ex:
       raise bfile_attr_error(f'handlers should be a sequence of "bfile_metadata_handler" or tuples: "{raw_handlers_list}" - {type(raw_handlers_list)}')
     for handler in handlers:
-      if handler.factory_key in clazz._factories:
-        raise bfile_attr_error(f'getter already registered: "{handler.factory_key}"')
-      clazz._factories[handler.factory_key] = handler
-      clazz._log.log_d(f'registered handler {handler.factory_key} {handler.getter}')
+      if handler.key in clazz._factories:
+        raise bfile_attr_error(f'getter already registered: "{handler.key}"')
+      clazz._factories[handler.key] = handler
+      clazz._log.log_d(f'registered handler {handler.key} {handler.getter}')
 
   @classmethod
   def unregister_factory(clazz, factory_class):
@@ -51,33 +52,26 @@ class bfile_metadata_factory_registry(object):
     except TypeError as ex:
       raise bfile_attr_error(f'handlers should be a sequence of "bfile_metadata_handler" or tuples: "{raw_handlers_list}" - {type(raw_handlers_list)}')
     for handler in handlers:
-      if handler.factory_key in clazz._factories:
-        del clazz._factories[handler.factory_key]
-        clazz._log.log_d(f'unregistered handler {handler.factory_key}')
+      if handler.key in clazz._factories:
+        del clazz._factories[handler.key]
+        clazz._log.log_d(f'unregistered handler {handler.key}')
       
   @classmethod
   def unregister_all(clazz):
     clazz._factories = {}
       
   @classmethod
-  def get_handler(clazz, domain, group, name, version, raise_error = True):
-    check.check_string(domain)
-    check.check_string(group)
-    check.check_string(name)
-    version = check.check_semantic_version(version)
-    
-    handler_key = bfile_metadata_handler.make_factory_key(domain, group, name, version)
-    handler = clazz._factories.get(handler_key, None)
-    clazz._log.log_d(f'handler_key={handler_key} handler={handler}')
+  def get_handler(clazz, key, raise_error = True):
+    key = check.check_bfile_metadata_key(key)
+
+    handler = clazz._factories.get(key, None)
+    clazz._log.log_d(f'key={key} handler={handler}')
     if raise_error and not handler:
-      raise bfile_attr_error(f'no handler registered for: "{handler_key}"')
+      raise bfile_attr_error(f'no handler registered for: "{key}"')
     return handler
 
   @classmethod
-  def has_handler(clazz, domain, group, name, version):
-    check.check_string(domain)
-    check.check_string(group)
-    check.check_string(name)
-    version = check.check_semantic_version(version)
+  def has_handler(clazz, key):
+    key = check.check_bfile_metadata_key(key)
 
-    return clazz.get_handler(domain, group, name, version, raise_error = False) != None
+    return clazz.get_handler(key, raise_error = False) != None

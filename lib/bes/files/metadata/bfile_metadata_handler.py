@@ -8,28 +8,18 @@ from bes.common.tuple_util import tuple_util
 from bes.property.cached_property import cached_property
 
 from .bfile_metadata_encoding import bfile_metadata_encoding
+from .bfile_metadata_key import bfile_metadata_key
 
-class bfile_metadata_handler(namedtuple('bfile_metadata_handler', 'domain, group, name, version, getter, decoder, memory_only')):
+class bfile_metadata_handler(namedtuple('bfile_metadata_handler', 'key, getter, decoder, memory_only')):
 
-  def __new__(clazz, domain, group, name, version, getter, decoder, memory_only):
-    check.check_string(domain)
-    check.check_string(group)
-    check.check_string(name)
-    version = check.check_semantic_version(version)
+  def __new__(clazz, key, getter, decoder, memory_only):
+    key = check.check_bfile_metadata_key(key)
     check.check_callable(getter)
     check.check_callable(decoder)
     check.check_bool(memory_only)
 
-    return clazz.__bases__[0].__new__(clazz, domain, group, name, version, getter, decoder, memory_only)
+    return clazz.__bases__[0].__new__(clazz, key, getter, decoder, memory_only)
 
-  @cached_property
-  def factory_key(self):
-    return self.make_factory_key(self.domain, self.group, self.name, self.version)
-
-  @classmethod
-  def make_factory_key(clazz, domain, group, name, version):
-    return f'{domain}/{group}/{name}/{version}'
-  
   @classmethod
   def _check_cast_func(clazz, obj):
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)

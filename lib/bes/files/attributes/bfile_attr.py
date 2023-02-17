@@ -23,11 +23,14 @@ class _bfile_attr_mixin:
   @classmethod
   def check_key(clazz, key):
     check.check_string(key)
-    
-    if ' ' in key:
-      raise bfile_attr_error(f'space not supported in key: "{key}"')
-    if ':' in key:
-      raise bfile_attr_error(f'colon not supported in key: "{key}"')
+
+    for c in ( ' ', ':' ):
+      if c in key:
+        if c == ' ':
+          label = 'space'
+        else:
+          label = c
+        raise bfile_attr_error(f'"{label}" not supported in key: "{key}"')
     return key
 
   @classmethod

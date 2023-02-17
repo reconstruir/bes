@@ -14,13 +14,13 @@ class bfile_metadata_factory_mime(bfile_metadata_factory_base):
   #@abstractmethod
   def handlers(clazz):
     return [
-      ( 'bes', 'mime', 'mime_type', '1.0', lambda f: clazz.encode_string(bfile_mime.mime_type(f)), clazz.decode_string, False ),
-      ( 'bes', 'mime', 'media_type', '1.0', lambda f: clazz._media_type_1_0(f), clazz.decode_string, False ),
+      ( 'bes/mime/mime_type/1.0', lambda f: clazz.encode_string(bfile_mime.mime_type(f)), clazz.decode_string, False ),
+      ( 'bes/mime/media_type/1.0', lambda f: clazz._media_type_1_0(f), clazz.decode_string, False ),
     ]
   
   @classmethod
   def _media_type_1_0(clazz, filename):
-    mime_type = clazz.metadata_class.get_metadata(filename, 'bes', 'mime', 'mime_type', '1.0')
+    mime_type = clazz.metadata_class.get_metadata(filename, 'bes/mime/mime_type/1.0')
     media_type = bfile_mime.media_type_for_mime_type(mime_type)
     if media_type == None:
       media_type = 'unknown'

@@ -19,8 +19,8 @@ class test_bfile_metadata(unit_test):
     #@abstractmethod
     def handlers(clazz):
       return [
-        ( 'acme', 'fruit', 'kiwi', '1.0', clazz._get_kiwi_1_0, clazz._decode_kiwi_1_0, False ),
-        ( 'acme', 'fruit', 'cherry', '2.0', clazz._get_cherry_2_0, clazz._decode_cherry_2_0, False ),
+        ( 'acme/fruit/kiwi/1.0', clazz._get_kiwi_1_0, clazz._decode_kiwi_1_0, False ),
+        ( 'acme/fruit/cherry/2.0', clazz._get_cherry_2_0, clazz._decode_cherry_2_0, False ),
       ]
 
     @classmethod
@@ -31,10 +31,8 @@ class test_bfile_metadata(unit_test):
     def _decode_kiwi_1_0(clazz, value):
       return clazz.decode_int(value)
       
-    _cherry_2_0_count = 0
     @classmethod
     def _get_cherry_2_0(clazz, filename):
-      clazz._cherry_2_0_count += 1
       return clazz.encode_float(os.stat(filename).st_size / 2.0)
 
     @classmethod
@@ -58,12 +56,12 @@ class test_bfile_metadata(unit_test):
       fout.flush()
       os.fsync(fout.fileno())
 
-      self.assertEqual( 0, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-      self.assertEqual( 0, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-      self.assertEqual( 5,  bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-      self.assertEqual( 5, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 0, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/kiwi/1.0') )
+      self.assertEqual( 0, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/kiwi/1.0') )
+      self.assertEqual( 5,  bfile_metadata.get_metadata(tmp, 'acme/fruit/kiwi/1.0') )
+      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/kiwi/1.0') )
+      self.assertEqual( 5, bfile_metadata.get_metadata(tmp, 'acme/fruit/kiwi/1.0') )
+      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/kiwi/1.0') )
       kiwi_mtime = bfile_date.get_modification_date(tmp)
       self.assertEqual( [
         '__bes_mtime_acme/fruit/kiwi/1.0__',
@@ -73,11 +71,11 @@ class test_bfile_metadata(unit_test):
       self.assertEqual( kiwi_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/kiwi/1.0__') )
       self.assertEqual( 5, bfile_metadata.get_int(tmp, 'acme/fruit/kiwi/1.0') )
     
-      self.assertEqual( 0, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-      self.assertEqual( 2.5, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-      self.assertEqual( 2.5, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 0, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/cherry/2.0') )
+      self.assertEqual( 2.5, bfile_metadata.get_metadata(tmp, 'acme/fruit/cherry/2.0') )
+      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/cherry/2.0') )
+      self.assertEqual( 2.5, bfile_metadata.get_metadata(tmp, 'acme/fruit/cherry/2.0') )
+      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/cherry/2.0') )
       cherry_mtime = bfile_date.get_modification_date(tmp)
 
       self.assertEqual( [
@@ -99,18 +97,18 @@ class test_bfile_metadata(unit_test):
       fout.flush()
       os.fsync(fout.fileno())
 
-      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-      self.assertEqual( 10, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-      self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-      self.assertEqual( 10, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
-      self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'kiwi', '1.0') )
+      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/kiwi/1.0') )
+      self.assertEqual( 10, bfile_metadata.get_metadata(tmp, 'acme/fruit/kiwi/1.0') )
+      self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/kiwi/1.0') )
+      self.assertEqual( 10, bfile_metadata.get_metadata(tmp, 'acme/fruit/kiwi/1.0') )
+      self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/kiwi/1.0') )
       kiwi_mtime = bfile_date.get_modification_date(tmp)
 
-      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-      self.assertEqual( 5, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-      self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-      self.assertEqual( 5, bfile_metadata.get_metadata(tmp, 'acme', 'fruit', 'cherry', '2.0') )
-      self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme', 'fruit', 'cherry', '2.0') )
+      self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/cherry/2.0') )
+      self.assertEqual( 5, bfile_metadata.get_metadata(tmp, 'acme/fruit/cherry/2.0') )
+      self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/cherry/2.0') )
+      self.assertEqual( 5, bfile_metadata.get_metadata(tmp, 'acme/fruit/cherry/2.0') )
+      self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/cherry/2.0' ) )
       cherry_mtime = bfile_date.get_modification_date(tmp)
       
       self.assertEqual( [
