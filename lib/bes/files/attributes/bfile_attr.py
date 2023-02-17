@@ -121,6 +121,26 @@ class _bfile_attr_mixin:
     check.check_int(value)
     
     clazz.set_string(filename, key, str(value))
+
+  @classmethod
+  def get_float(clazz, filename, key):
+    'Return the attribute value with key for filename as string.'
+    filename = bfile_check.check_file(filename)
+    key = clazz.check_key(key)
+    
+    value = clazz.get_string(filename, key)
+    if value == None:
+      return None
+    return float(value)
+
+  @classmethod
+  def set_float(clazz, filename, key, value, encoding = 'utf-8'):
+    'Set the value of attribute with key to value for filename as string.'
+    filename = bfile_check.check_file(filename)
+    key = clazz.check_key(key)
+    check.check_float(value)
+    
+    clazz.set_string(filename, key, str(value))
     
 class bfile_attr(_bfile_attr_super_class, _bfile_attr_mixin):
   pass
