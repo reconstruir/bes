@@ -26,18 +26,6 @@ class bfile_attr_mtime_cached(bfile_attr):
     return value
 
   @classmethod
-  def get_cached_string(clazz, filename, key, value_maker, encoding = 'utf-8'):
-    filename = bfile_check.check_file(filename)
-    key = clazz.check_key(key)
-    check.check_callable(value_maker)
-    clazz.check_string(encoding)
-    
-    value = clazz.get_cached_bytes(filename, key, value_maker)
-    if value == None:
-      return None
-    return value.decode(encoding)
-
-  @classmethod
   def _make_mtime_key(clazz, key):
     return f'__bes_mtime_{key}__'
 
