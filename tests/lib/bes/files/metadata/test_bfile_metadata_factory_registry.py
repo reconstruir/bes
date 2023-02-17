@@ -3,7 +3,6 @@
 
 from bes.testing.unit_test import unit_test
 from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
-from bes.files.metadata.bfile_metadata_factory_base import bfile_metadata_factory_base
 
 from _test_fruits_factory import _test_fruits_factory
 
@@ -11,6 +10,7 @@ class test_bfile_metadata_factory_registry(unit_test):
 
   @classmethod
   def setUpClass(clazz):
+    bfile_metadata_factory_registry.unregister_factory(_test_fruits_factory)
     bfile_metadata_factory_registry.register_factory(_test_fruits_factory)
 
   @classmethod

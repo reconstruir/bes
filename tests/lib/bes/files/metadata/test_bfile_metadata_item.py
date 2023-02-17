@@ -8,7 +8,6 @@ from bes.docker.docker import docker
 from bes.files.bfile_date import bfile_date
 from bes.files.metadata.bfile_metadata import bfile_metadata
 from bes.files.metadata.bfile_metadata_item import bfile_metadata_item
-from bes.files.metadata.bfile_metadata_factory_base import bfile_metadata_factory_base
 from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
 from bes.testing.unit_test import unit_test
 
@@ -19,6 +18,7 @@ class test_bfile_metadata_item(unit_test):
   @classmethod
   def setUpClass(clazz):
     docker.raise_skip_if_running_under_docker()
+    bfile_metadata_factory_registry.unregister_factory(_test_fruits_factory)
     bfile_metadata_factory_registry.register_factory(_test_fruits_factory)
 
   @classmethod

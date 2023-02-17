@@ -8,6 +8,7 @@ from os import path
 
 from bes.files.bfile_permission_error import bfile_permission_error
 from bes.files.bfile_entry import bfile_entry
+from bes.files.bfile_checksum import bfile_checksum
 from bes.system.filesystem import filesystem
 from bes.system.check import check
 from bes.testing.unit_test import unit_test
@@ -156,6 +157,27 @@ class test_bfile_entry(unit_test, unit_test_media_files):
     tmp = self._make_test_entry(dir = __file__, perm = 0o0400)
     with self.assertRaises(bfile_permission_error) as ctx:
       tmp.attributes.clear()
-        
+
+  def test_metadata_checksum_md5(self):
+    tmp = self._make_test_entry(dir = __file__, content = 'this is kiwi')
+    self.assertEqual( bfile_checksum.checksum(tmp.filename, 'md5'), tmp.checksum_md5 )
+      
+  def test_metadata_checksum_sha1(self):
+    tmp = self._make_test_entry(dir = __file__, content = 'this is kiwi')
+    self.assertEqual( bfile_checksum.checksum(tmp.filename, 'sha1'), tmp.checksum_sha1 )
+
+  def test_metadata_checksum_sha256(self):
+    tmp = self._make_test_entry(dir = __file__, content = 'this is kiwi')
+    self.assertEqual( bfile_checksum.checksum(tmp.filename, 'sha256'), tmp.checksum_sha256 )
+
+  def test_metadata_mime_type(self):
+    tmp = self._make_test_entry(dir = __file__, content = unit_test_media.PNG_SMALLEST_POSSIBLE, suffix = '.png')
+    self.assertEqual( 'image/png', tmp.mime_type )
+
+  def test_metadata_media_type(self):
+    tmp = self._make_test_entry(dir = __file__, content = unit_test_media.PNG_SMALLEST_POSSIBLE, suffix = '.png')
+    self.assertEqual( 'image', tmp.media_type )
+    self.assertEqual( True, tmp.is_image )
+    
 if __name__ == '__main__':
   unit_test.main()

@@ -7,8 +7,19 @@ from bes.system.check import check
 from bes.property.cached_class_property import cached_class_property
 
 from .bfile_metadata_encoding import bfile_metadata_encoding
+from bes.system.compat import with_metaclass
 
-class bfile_metadata_factory_base(with_metaclass(ABCMeta, bfile_metadata_encoding)):
+class _bfile_metadata_factory_meta(ABCMeta):
+  
+  def __new__(meta, name, bases, class_dict):
+    clazz = ABCMeta.__new__(meta, name, bases, class_dict)
+    if name != 'bfile_metadata_factory_base':
+      from .bfile_metadata_factory_registry import bfile_metadata_factory_registry
+      #print(f'CACA: register: name={name} __name__={clazz.__name__}')
+      bfile_metadata_factory_registry.register_factory(clazz)
+    return clazz
+
+class bfile_metadata_factory_base(with_metaclass(_bfile_metadata_factory_meta, bfile_metadata_encoding)):
 
   @cached_class_property
   def metadata_class(clazz):

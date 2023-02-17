@@ -27,14 +27,6 @@ class bfile_entry(object):
     self._filename = filename
     self._stat = bfile_mtime_cached_info(self._filename, lambda f: os.stat(filename, follow_symlinks = True))
 
-  @cached_property
-  def attributes(self):
-    return bfile_attr_file(self._filename)
-
-  @cached_property
-  def metadata(self):
-    return bfile_metadata_item(self._filename)
-
   @property
   def filename(self):
     return self._filename
@@ -131,4 +123,50 @@ class bfile_entry(object):
   def modification_date_timestamp(self):
     return time_util.timestamp(when = self.modification_date, milliseconds = False)
 
+  @cached_property
+  def attributes(self):
+    return bfile_attr_file(self._filename)
+
+  @cached_property
+  def metadata(self):
+    from .metadata_factories.bfile_metadata_factory_checksum import bfile_metadata_factory_checksum
+    from .metadata_factories.bfile_metadata_factory_mime import bfile_metadata_factory_mime
+    return bfile_metadata_item(self._filename)
+
+  @property
+  def media_type(self):
+    return self.metadata['bes/mime/media_type/1.0']
+
+  @property
+  def mime_type(self):
+    return self.metadata['bes/mime/mime_type/1.0']
+
+  @property
+  def mime_type(self):
+    return self.metadata['bes/mime/mime_type/1.0']
+
+  @property
+  def checksum_md5(self):
+    return self.metadata['bes/checksum/md5/0.0']
+  
+  @property
+  def checksum_sha1(self):
+    return self.metadata['bes/checksum/sha1/0.0']
+
+  @property
+  def checksum_sha256(self):
+    return self.metadata['bes/checksum/sha256/0.0']
+  
+  @property
+  def is_media(self):
+    return self.is_file and self.media_type in ( 'image', 'video' )
+
+  @property
+  def is_image(self):
+    return self.is_file and self.media_type in ( 'image' )
+
+  @property
+  def is_video(self):
+    return self.is_file and self.media_type in ( 'video' )
+  
 check.register_class(bfile_entry, include_seq = False)
