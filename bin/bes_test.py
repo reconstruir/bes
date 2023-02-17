@@ -560,7 +560,7 @@ def _test_data_dir(filename):
   return data_dir or ''
 
 def _test_execute(python_exe, test_map, filename, tests, options, index, total_files, cwd, env):
-  python_exe = 'python3.10'
+  python_exe = file_path.which('python3') or file_path.which('python')
   
   short_filename = file_util.remove_head(filename, cwd)
 
