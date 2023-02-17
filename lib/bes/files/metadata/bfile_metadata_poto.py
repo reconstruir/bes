@@ -6,21 +6,24 @@ from bes.system.log import logger
 
 from ..attributes.bfile_attr_file import bfile_attr_file
 
-from .bfile_metadata import bfile_metadata
+from .bfile_metadata_file import bfile_metadata_file
 
 class bfile_metadata_poto(object):
 
   _log = logger('bfile_metadata_poto')
 
   def __init__(self, filename):
-    self._metadata = bfile_metadata(filename)
+    self._metadata = bfile_metadata_file(filename)
 
   @property
   def filename(self):
     return self._metadata.filename
   
-  def __getattr__(self, key):
-    print(f'__getattr__.key={key}')
+  def __getitem__(self, key):
+    return self._metadata.get_metadata(key)
+
+  def __setitem__(self, key, value):
+    print(f'__setitem__: key={key} value={value}')
     return 666
   
 #  def get_metadata(self, key):
