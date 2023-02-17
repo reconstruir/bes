@@ -23,13 +23,4 @@ class bfile_metadata_poto(object):
     return self._metadata.get_metadata(key)
 
   def __setitem__(self, key, value):
-    print(f'__setitem__: key={key} value={value}')
-    return 666
-  
-#  def get_metadata(self, key):
-#    key = check.check_bfile_metadata_key(key)
-#    return bfile_metadata.get_metadata(self._filename, key)
-
-#  def get_metadata_getter_count(self, key):
-#    key = check.check_bfile_metadata_key(key)
-#    return bfile_metadata.get_metadata_getter_count(self._filename, key)
+    self._metadata.set_metadata(key, value)

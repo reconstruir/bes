@@ -30,7 +30,13 @@ class bfile_metadata(bfile_attr_mtime_cached):
       if current_mtime <= item._last_mtime:
         assert item._value != None
         return item._value
-    value_bytes, mtime, mtime_key, is_cached = clazz._do_get_cached_bytes(filename, str(key), handler.getter)
+    if handler.getter:
+      value_maker = lambda f__: handler.encode(handler.getter(f__))
+    else:
+      value_maker = None
+    value_bytes, mtime, mtime_key, is_cached = clazz._do_get_cached_bytes(filename,
+                                                                          str(key),
+                                                                          value_maker)
     clazz._log.log_d(f'get_metadata: value_bytes={value_bytes} mtime={mtime} mtime_key={mtime_key} getter={handler.getter}')
     if not handler.getter:
       value_bytes = clazz.get_bytes(filename, str(key))
@@ -52,7 +58,7 @@ class bfile_metadata(bfile_attr_mtime_cached):
     handler = bfile_metadata_factory_registry.get_handler(key)
     assert handler.key == key
     item = clazz._get_item(filename, key)
-    if not handler.encoder:
+    if handler.read_only:
       raise bfile_metadata_error(f'value is read only: "{key}"')
     assert handler.key == key
     encoded_value = handler.encode(value)

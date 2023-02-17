@@ -10,15 +10,7 @@ class _test_fruits_factory(bfile_metadata_factory_base):
   #@abstractmethod
   def handlers(clazz):
     return [
-      ( 'acme/fruit/kiwi/1.0', clazz._get_kiwi_1_0, clazz.decode_int, None ),
-      ( 'acme/fruit/cherry/2.0', clazz._get_cherry_2_0, clazz.decode_float, None ),
-      ( 'acme/fruit/price/1.0', None, clazz.decode_int, clazz.encode_int ),
+      ( 'acme/fruit/kiwi/1.0', lambda f: os.stat(f).st_size, clazz.decode_int, clazz.encode_int, True ),
+      ( 'acme/fruit/cherry/2.0', lambda f: float(os.stat(f).st_size / 2.0), clazz.decode_float, clazz.encode_float, True ),
+      ( 'acme/fruit/price/1.0', None, clazz.decode_int, clazz.encode_int, False ),
     ]
-
-  @classmethod
-  def _get_kiwi_1_0(clazz, filename):
-    return clazz.encode_int(os.stat(filename).st_size)
-
-  @classmethod
-  def _get_cherry_2_0(clazz, filename):
-    return clazz.encode_float(os.stat(filename).st_size / 2.0)

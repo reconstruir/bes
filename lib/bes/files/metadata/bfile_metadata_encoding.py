@@ -31,7 +31,7 @@ class bfile_metadata_encoding(object):
   @classmethod
   def encode_float(clazz, value):
     'Decode an float'
-    check.check_float(value)
+    check.check_number(value)
 
     return str(value).encode('utf-8')
   

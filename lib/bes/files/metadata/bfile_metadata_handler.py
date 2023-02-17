@@ -11,15 +11,16 @@ from .bfile_metadata_encoding import bfile_metadata_encoding
 from .bfile_metadata_error import bfile_metadata_error
 from .bfile_metadata_key import bfile_metadata_key
 
-class bfile_metadata_handler(namedtuple('bfile_metadata_handler', 'key, getter, decoder, encoder')):
+class bfile_metadata_handler(namedtuple('bfile_metadata_handler', 'key, getter, decoder, encoder, read_only')):
 
-  def __new__(clazz, key, getter, decoder, encoder):
+  def __new__(clazz, key, getter, decoder, encoder, read_only):
     key = check.check_bfile_metadata_key(key)
     check.check_callable(getter, allow_none = True)
     check.check_callable(decoder)
     check.check_callable(encoder, allow_none = True)
+    check.check_bool(read_only)
 
-    return clazz.__bases__[0].__new__(clazz, key, getter, decoder, encoder)
+    return clazz.__bases__[0].__new__(clazz, key, getter, decoder, encoder, read_only)
 
   @classmethod
   def _check_cast_func(clazz, obj):
