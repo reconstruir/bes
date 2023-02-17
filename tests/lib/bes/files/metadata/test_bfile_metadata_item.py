@@ -7,6 +7,7 @@ import time
 from bes.docker.docker import docker
 from bes.files.bfile_date import bfile_date
 from bes.files.metadata.bfile_metadata import bfile_metadata
+from bes.files.metadata.bfile_metadata_error import bfile_metadata_error
 from bes.files.metadata.bfile_metadata_item import bfile_metadata_item
 from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
 from bes.testing.unit_test import unit_test
@@ -99,6 +100,44 @@ class test_bfile_metadata_item(unit_test):
       self.assertEqual( 10, tmp_item['acme/fruit/kiwi/1.0'] )
       self.assertEqual( cherry_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/cherry/2.0__') )
       self.assertEqual( 5.0, tmp_item['acme/fruit/cherry/2.0'] )
+
+  def test_set_metadata(self):
+    tmp = self.make_temp_file(dir = __file__, content = b'12345', suffix = '.data')
+    tmp_item = bfile_metadata_item(tmp)
+    self.assertEqual( None, tmp_item['acme/fruit/price/1.0'] )
+    self.assertEqual( [], bfile_metadata.keys(tmp) )
+    tmp_item['acme/fruit/price/1.0'] = 666
+    self.assertEqual( [ 'acme/fruit/price/1.0' ], bfile_metadata.keys(tmp) )
+    self.assertEqual( 0, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/price/1.0') )
+    self.assertEqual( 666, tmp_item['acme/fruit/price/1.0'] )
+    self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/price/1.0') )
+    self.assertEqual( 666, tmp_item['acme/fruit/price/1.0'] )
+    self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/price/1.0') )
+    self.assertEqual( [
+      '__bes_mtime_acme/fruit/price/1.0__',
+      'acme/fruit/price/1.0',
+    ], bfile_metadata.keys(tmp) )
+    tmp_item['acme/fruit/price/1.0'] = 42
+    self.assertEqual( 42, bfile_metadata.get_int(tmp, 'acme/fruit/price/1.0') )
+    self.assertEqual( [
+      'acme/fruit/price/1.0',
+    ], bfile_metadata.keys(tmp) )
+    self.assertEqual( 42, tmp_item['acme/fruit/price/1.0'] )
+    self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/price/1.0') )
+    kiwi_mtime = bfile_date.get_modification_date(tmp)
+    self.assertEqual( [
+      '__bes_mtime_acme/fruit/price/1.0__',
+      'acme/fruit/price/1.0',
+    ], bfile_metadata.keys(tmp) )
+    self.assertEqual( kiwi_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/price/1.0__') )
+    self.assertEqual( 42, tmp_item['acme/fruit/price/1.0'] )
+    #self.assertEqual( 3, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/price/1.0') )
+
+  def xtest_set_metadata_read_only(self):
+    tmp = self.make_temp_file(dir = __file__, content = b'12345', suffix = '.data')
+    tmp_item = bfile_metadata_item(tmp)
+    with self.assertRaises(bfile_metadata_error) as ex:
+      tmp_item['acme/fruit/cherry/2.0'] = 666
       
 if __name__ == '__main__':
   unit_test.main()

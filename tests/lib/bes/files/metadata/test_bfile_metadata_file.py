@@ -8,6 +8,7 @@ from bes.docker.docker import docker
 from bes.files.bfile_date import bfile_date
 from bes.files.metadata.bfile_metadata_file import bfile_metadata_file
 from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
+from bes.files.metadata.bfile_metadata_error import bfile_metadata_error
 from bes.testing.unit_test import unit_test
 
 from _test_fruits_factory import _test_fruits_factory
@@ -130,6 +131,11 @@ class test_bfile_metadata_file(unit_test):
     self.assertEqual( kiwi_mtime, tmp.get_date('__bes_mtime_acme/fruit/price/1.0__') )
     self.assertEqual( 42, tmp.get_metadata('acme/fruit/price/1.0') )
     #self.assertEqual( 3, tmp.get_metadata_getter_count('acme/fruit/price/1.0') )
-      
+
+  def test_set_metadata_read_only(self):
+    tmp = bfile_metadata_file(self.make_temp_file(dir = __file__, content = b'12345', suffix = '.data'))
+    with self.assertRaises(bfile_metadata_error) as ex:
+      tmp.set_metadata('acme/fruit/cherry/2.0', 666)
+    
 if __name__ == '__main__':
   unit_test.main()
