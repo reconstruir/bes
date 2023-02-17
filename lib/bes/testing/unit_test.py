@@ -398,8 +398,6 @@ class unit_test(unittest.TestCase):
         content = content.encode('utf-8')
       tmp.write(content)
     tmp.flush()
-      
-    tmp.flush()
     if perm:
       os.chmod(tmp.name, perm)
     os.fsync(tmp.fileno())
