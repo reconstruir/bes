@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 import os.path as path
+import time
 
 from bes.testing.unit_test import unit_test
 from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
@@ -55,16 +57,22 @@ class test_bfile_metadata_factory_mime(unit_test, unit_test_media_files):
                       bfile_metadata.get_metadata(tmp, 'bes/mime/media_type/1.0') )
     
   def test_get_mime_type_change(self):
-    tmp = self.make_temp_file(dir = __file__, content = self.png_file, suffix = '.png')
-    self.assertEqual( 'image/png',
-                      bfile_metadata.get_metadata(tmp, 'bes/mime/mime_type/1.0') )
-    with open(tmp, 'wb') as to_file:
-      with open(self.jpg_file, 'rb') as from_file:
-        to_file.write(from_file.read())
-      to_file.flush()
-    bfile_date.touch(tmp)
-    self.assertEqual( 'image/jpeg',
-                      bfile_metadata.get_metadata(tmp, 'bes/mime/mime_type/1.0') )
+    with open(tmp, 'wb') as fout:
+      with open(self.png_file, 'rb') as png_file:
+        fout.write(png_file.read())
+      fout.flush()
+      os.fsync(fout.fileno())
+      self.assertEqual( 'image/png', bfile_metadata.get_metadata(tmp, 'bes/mime/mime_type/1.0') )
+
+      time.sleep(0.01)
+      with open(self.jpg_file, 'rb') as jpg_file:
+        fout.seek(0)
+        fout.truncate(0)
+        fout.write(jpg_file.read())
+        fout.flush()
+        os.fsync(fout.fileno())
+      
+      self.assertEqual( 'image/jpeg', bfile_metadata.get_metadata(tmp, 'bes/mime/mime_type/1.0') )
 
 if __name__ == '__main__':
   unit_test.main()
