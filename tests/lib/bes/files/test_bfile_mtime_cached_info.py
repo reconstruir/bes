@@ -2,12 +2,13 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os
+import time
 import os.path as path
 
 from bes.files.bfile_mtime_cached_info import bfile_mtime_cached_info
-from bes.files.bfile_date import bfile_date
+#from bes.files.bfile_date import bfile_date
 from bes.testing.unit_test import unit_test
-from bes.system.filesystem import filesystem
+#from bes.system.filesystem import filesystem
   
 class test_bfile_mtime_cached_info(unit_test):
 
@@ -29,11 +30,13 @@ class test_bfile_mtime_cached_info(unit_test):
     self.assertEqual( 4, a.value )
     self.assertEqual( 1, a.count )
     old_mtime = path.getmtime(tmp)
+    time.sleep(0.01)
     with open(tmp, 'w') as fout:
       fout.write('kiwikiwi')
       fout.flush()
-    filesystem.sync()
-    bfile_date.touch(tmp)
+#      os.fsync(fout.fileno())
+#    filesystem.sync()
+#    bfile_date.touch(tmp)
     new_mtime = path.getmtime(tmp)
     self.assertEqual( True, new_mtime != old_mtime )
     self.assertEqual( True, new_mtime > old_mtime )
