@@ -4,6 +4,8 @@ import os.path as path
 from bes.system.check import check
 from bes.system.log import logger
 
+from .bfile_date import bfile_date
+
 class bfile_mtime_cached_info(object):
 
   _log = logger('bfile_mtime_cached_info')
@@ -19,7 +21,8 @@ class bfile_mtime_cached_info(object):
 
   @property
   def value(self):
-    current_mtime = path.getmtime(self._filename)
+    current_mtime = bfile_date.get_modification_date(self._filename)
+    self._log.log_d(f'value: current_mtime={current_mtime} last_mtime={self._last_mtime}')
     if self._last_mtime != None:
       assert not self._last_mtime > current_mtime
       if current_mtime <= self._last_mtime:
@@ -29,6 +32,7 @@ class bfile_mtime_cached_info(object):
     self._value = self._info_getter(self._filename)
     self._count += 1
     assert self._value != None
+    self._log.log_d(f'value: value={self._value} count={self._count}')
     return self._value
 
   @property
