@@ -99,5 +99,37 @@ class test_bfile_metadata_file(unit_test):
       self.assertEqual( cherry_mtime, tmp.get_date('__bes_mtime_acme/fruit/cherry/2.0__') )
       self.assertEqual( 5, tmp.get_float('acme/fruit/cherry/2.0') )
 
+  def test_set_metadata(self):
+    tmp = bfile_metadata_file(self.make_temp_file(dir = __file__, content = b'12345', suffix = '.data'))
+
+    self.assertEqual( None,  tmp.get_metadata('acme/fruit/price/1.0') )
+    self.assertEqual( [], tmp.keys() )
+    tmp.set_metadata('acme/fruit/price/1.0', 666)
+    self.assertEqual( [ 'acme/fruit/price/1.0' ], tmp.keys() )
+    self.assertEqual( 0, tmp.get_metadata_getter_count('acme/fruit/price/1.0') )
+    self.assertEqual( 666, tmp.get_metadata('acme/fruit/price/1.0') )
+    self.assertEqual( 1, tmp.get_metadata_getter_count('acme/fruit/price/1.0') )
+    self.assertEqual( 666, tmp.get_metadata('acme/fruit/price/1.0') )
+    self.assertEqual( 1, tmp.get_metadata_getter_count('acme/fruit/price/1.0') )
+    self.assertEqual( [
+      '__bes_mtime_acme/fruit/price/1.0__',
+      'acme/fruit/price/1.0',
+    ], tmp.keys() )
+    tmp.set_metadata('acme/fruit/price/1.0', 42)
+    self.assertEqual( 42, tmp.get_int('acme/fruit/price/1.0') )
+    self.assertEqual( [
+      'acme/fruit/price/1.0',
+    ], tmp.keys() )
+    self.assertEqual( 42, tmp.get_metadata('acme/fruit/price/1.0') )
+    self.assertEqual( 2, tmp.get_metadata_getter_count('acme/fruit/price/1.0') )
+    kiwi_mtime = bfile_date.get_modification_date(tmp.filename)
+    self.assertEqual( [
+      '__bes_mtime_acme/fruit/price/1.0__',
+      'acme/fruit/price/1.0',
+    ], tmp.keys() )
+    self.assertEqual( kiwi_mtime, tmp.get_date('__bes_mtime_acme/fruit/price/1.0__') )
+    self.assertEqual( 42, tmp.get_metadata('acme/fruit/price/1.0') )
+    #self.assertEqual( 3, tmp.get_metadata_getter_count('acme/fruit/price/1.0') )
+      
 if __name__ == '__main__':
   unit_test.main()

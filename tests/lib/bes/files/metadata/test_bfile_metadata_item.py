@@ -27,7 +27,7 @@ class test_bfile_metadata_item(unit_test):
 
   def test___getitem__(self):
     tmp = self.make_temp_file(dir = __file__, non_existent = True, suffix = '.data')
-    tmp_poto = bfile_metadata_item(tmp)
+    tmp_item = bfile_metadata_item(tmp)
 
     with open(tmp, 'wb') as fout:
       fout.write(b'12345')
@@ -35,9 +35,9 @@ class test_bfile_metadata_item(unit_test):
       os.fsync(fout.fileno())
 
       self.assertEqual( 0, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/kiwi/1.0') )
-      self.assertEqual( 5, tmp_poto['acme/fruit/kiwi/1.0'] )
+      self.assertEqual( 5, tmp_item['acme/fruit/kiwi/1.0'] )
       self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/kiwi/1.0') )
-      self.assertEqual( 5, tmp_poto['acme/fruit/kiwi/1.0'] )
+      self.assertEqual( 5, tmp_item['acme/fruit/kiwi/1.0'] )
       self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/kiwi/1.0') )
       kiwi_mtime = bfile_date.get_modification_date(tmp)
       self.assertEqual( [
@@ -46,7 +46,7 @@ class test_bfile_metadata_item(unit_test):
       ], bfile_metadata.keys(tmp) )
       
       self.assertEqual( kiwi_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/kiwi/1.0__') )
-      self.assertEqual( 5, tmp_poto['acme/fruit/kiwi/1.0'] )
+      self.assertEqual( 5, tmp_item['acme/fruit/kiwi/1.0'] )
     
       self.assertEqual( 0, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/cherry/2.0') )
       self.assertEqual( 2.5, bfile_metadata.get_metadata(tmp, 'acme/fruit/cherry/2.0') )
@@ -63,9 +63,9 @@ class test_bfile_metadata_item(unit_test):
       ], bfile_metadata.keys(tmp) )
       
       self.assertEqual( kiwi_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/kiwi/1.0__') )
-      self.assertEqual( 5, tmp_poto['acme/fruit/kiwi/1.0'] )
+      self.assertEqual( 5, tmp_item['acme/fruit/kiwi/1.0'] )
       self.assertEqual( cherry_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/cherry/2.0__') )
-      self.assertEqual( 2.5, tmp_poto['acme/fruit/cherry/2.0'] )
+      self.assertEqual( 2.5, tmp_item['acme/fruit/cherry/2.0'] )
 
       time.sleep(.01)
       fout.seek(0)
@@ -75,9 +75,9 @@ class test_bfile_metadata_item(unit_test):
       os.fsync(fout.fileno())
 
       self.assertEqual( 1, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/kiwi/1.0') )
-      self.assertEqual( 10, tmp_poto['acme/fruit/kiwi/1.0'] )
+      self.assertEqual( 10, tmp_item['acme/fruit/kiwi/1.0'] )
       self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/kiwi/1.0') )
-      self.assertEqual( 10, tmp_poto['acme/fruit/kiwi/1.0'] )
+      self.assertEqual( 10, tmp_item['acme/fruit/kiwi/1.0'] )
       self.assertEqual( 2, bfile_metadata.get_metadata_getter_count(tmp, 'acme/fruit/kiwi/1.0') )
       kiwi_mtime = bfile_date.get_modification_date(tmp)
 
@@ -96,9 +96,9 @@ class test_bfile_metadata_item(unit_test):
       ], bfile_metadata.keys(tmp) )
 
       self.assertEqual( kiwi_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/kiwi/1.0__') )
-      self.assertEqual( 10, tmp_poto['acme/fruit/kiwi/1.0'] )
+      self.assertEqual( 10, tmp_item['acme/fruit/kiwi/1.0'] )
       self.assertEqual( cherry_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/cherry/2.0__') )
-      self.assertEqual( 5.0, tmp_poto['acme/fruit/cherry/2.0'] )
+      self.assertEqual( 5.0, tmp_item['acme/fruit/cherry/2.0'] )
       
 if __name__ == '__main__':
   unit_test.main()
