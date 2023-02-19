@@ -9,7 +9,6 @@ from collections import OrderedDict
 from ..common.algorithm import algorithm
 from ..common.number_util import number_util
 from ..common.type_checked_list import type_checked_list
-from ..fs.file_util import file_util
 from ..system.check import check
 from ..text.string_list import string_list
 
