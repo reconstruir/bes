@@ -9,8 +9,8 @@ from bes.system.host import host
 from _bfile_attr_unit_test_common import make_test_case
 
 if host.is_linux():
-  from bes.files.attributes._detail._bfile_attr_linux_attr_exe import _bfile_attr_linux_attr_exe
-  from bes.files.attributes.bfile_attr import _bfile_attr_mixin
+  from bes.files.attr._detail._bfile_attr_linux_attr_exe import _bfile_attr_linux_attr_exe
+  from bes.files.attr.bfile_attr import _bfile_attr_mixin
 
   class _test_super_class_linux_attr_exe(_bfile_attr_linux_attr_exe, _bfile_attr_mixin):
     pass

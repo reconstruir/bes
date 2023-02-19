@@ -9,8 +9,8 @@ from bes.system.host import host
 from _bfile_attr_unit_test_common import make_test_case
     
 if host.is_macos():
-  from bes.files.attributes._detail._bfile_attr_macos_xattr_exe import _bfile_attr_macos_xattr_exe
-  from bes.files.attributes.bfile_attr import _bfile_attr_mixin
+  from bes.files.attr._detail._bfile_attr_macos_xattr_exe import _bfile_attr_macos_xattr_exe
+  from bes.files.attr.bfile_attr import _bfile_attr_mixin
 
   class _test_super_class_macos_xattr_exe(_bfile_attr_macos_xattr_exe, _bfile_attr_mixin):
     pass

@@ -4,13 +4,13 @@ from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
 
-from ..attributes.bfile_attr_file import bfile_attr_file
+from ..attr.bfile_attr_file import bfile_attr_file
 
 from .bfile_metadata import bfile_metadata
 
 class bfile_metadata_file(bfile_attr_file):
 
-  _log = logger('bfile_metadata_file')
+  _log = logger('metadata')
 
   def get_metadata(self, key):
     key = check.check_bfile_metadata_key(key)

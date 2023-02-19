@@ -4,7 +4,7 @@
 from datetime import datetime
 
 from bes.files.bfile_permission_error import bfile_permission_error
-from bes.files.attributes.bfile_attr_file import bfile_attr_file
+from bes.files.attr.bfile_attr_file import bfile_attr_file
 from bes.system.check import check
 from bes.testing.unit_test import unit_test
 

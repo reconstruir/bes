@@ -13,7 +13,7 @@ from bes.testing.unit_test import unit_test
 from _bes_unit_test_common.unit_test_media import unit_test_media
 
 from bes.testing.unit_test import unit_test
-from bes.files.attributes.bfile_attr_mtime_cached import bfile_attr_mtime_cached
+from bes.files.attr.bfile_attr_mtime_cached import bfile_attr_mtime_cached
 from bes.docker.docker import docker
 
 class test_bfile_attr_mtime_cached(unit_test):

@@ -10,7 +10,7 @@ from .bfile_metadata_key_error import bfile_metadata_key_error
 
 class bfile_metadata_item(object):
 
-  _log = logger('bfile_metadata_item')
+  _log = logger('metadata')
 
   def __init__(self, filename):
     self._metadata = bfile_metadata_file(filename)

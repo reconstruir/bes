@@ -16,7 +16,7 @@ from .bfile_filename import bfile_filename
 from .bfile_mtime_cached_info import bfile_mtime_cached_info
 from .bfile_permission_error import bfile_permission_error
 
-from .attributes.bfile_attr_file import bfile_attr_file
+from .attr.bfile_attr_file import bfile_attr_file
 from .metadata.bfile_metadata_item import bfile_metadata_item
 
 class bfile_entry(object):

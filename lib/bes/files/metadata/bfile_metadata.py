@@ -6,7 +6,7 @@ from bes.system.log import logger
 from ..bfile_date import bfile_date
 from ..bfile_check import bfile_check
 
-from ..attributes.bfile_attr_mtime_cached import bfile_attr_mtime_cached
+from ..attr.bfile_attr_mtime_cached import bfile_attr_mtime_cached
 
 from .bfile_metadata_error import bfile_metadata_error
 from .bfile_metadata_factory_registry import bfile_metadata_factory_registry
