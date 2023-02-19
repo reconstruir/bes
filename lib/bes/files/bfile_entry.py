@@ -156,6 +156,18 @@ class bfile_entry(object):
   @property
   def checksum_sha256(self):
     return self.metadata['bes/checksum/sha256/0.0']
+
+  @property
+  def has_checksum_md5(self):
+    return 'bes/checksum/md5/0.0' in self.metadata
+
+  @property
+  def has_checksum_sha1(self):
+    return 'bes/checksum/sha1/0.0' in self.metadata
+  
+  @property
+  def has_checksum_sha256(self):
+    return 'bes/checksum/sha256/0.0' in self.metadata
   
   @property
   def is_media(self):
