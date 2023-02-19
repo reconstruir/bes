@@ -9,6 +9,22 @@ class hash_util(object):
   'Hash util'
 
   @classmethod
+  def hash_string_md5(clazz, s, encoding = 'utf-8'):
+    'Return true if the given object can be encoded as json.'
+    check.check_string(s)
+    check.check_string(s, encoding)
+    
+    return hashlib.md5(s.encode(encoding)).hexdigest()
+  
+  @classmethod
+  def hash_string_sha1(clazz, s, encoding = 'utf-8'):
+    'Return true if the given object can be encoded as json.'
+    check.check_string(s)
+    check.check_string(s, encoding)
+    
+    return hashlib.sha1(s.encode(encoding)).hexdigest()
+
+  @classmethod
   def hash_string_sha256(clazz, s, encoding = 'utf-8'):
     'Return true if the given object can be encoded as json.'
     check.check_string(s)

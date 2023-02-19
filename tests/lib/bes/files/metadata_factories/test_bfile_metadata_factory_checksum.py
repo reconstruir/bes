@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
 import os.path as path
 
 from bes.files.bfile_checksum import bfile_checksum
@@ -9,6 +10,7 @@ from bes.files.metadata.bfile_metadata import bfile_metadata
 from bes.files.metadata.bfile_metadata_error import bfile_metadata_error
 from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
 from bes.files.metadata_factories.bfile_metadata_factory_checksum import bfile_metadata_factory_checksum
+from bes.common.hash_util import hash_util
 from bes.testing.unit_test import unit_test
 
 class test_bfile_metadata_factory_checksum(unit_test):
@@ -23,8 +25,38 @@ class test_bfile_metadata_factory_checksum(unit_test):
     bfile_metadata_factory_registry.unregister_factory(bfile_metadata_factory_checksum)
   
   def test_get_metadata(self):
-    tmp_kiwi = self.make_temp_file(dir = __file__, content = 'this is kiwi')
-    tmp_lemon = self.make_temp_file(dir = __file__, content = 'this is lemon')
+    tmp = self.make_temp_file(dir = __file__, non_existent = True)
+    #tmp_kiwi = self.make_temp_file(dir = __file__, content = 'this is kiwi')
+    #tmp_lemon = self.make_temp_file(dir = __file__, content = 'this is lemon')
+
+    with open(tmp, 'w') as fout:
+      fout.write('kiwi')
+      fout.flush()
+      os.fsync(fout.fileno())
+
+      self.assertEqual( hash_util.hash_string_md5('kiwi'),
+                        bfile_metadata.get_metadata(tmp, 'bes/checksum/md5/0.0') )
+      self.assertEqual( hash_util.hash_string_sha1('kiwi'),
+                        bfile_metadata.get_metadata(tmp, 'bes/checksum/sha1/0.0') )
+      self.assertEqual( hash_util.hash_string_sha256('kiwi'),
+                        bfile_metadata.get_metadata(tmp, 'bes/checksum/sha256/0.0') )
+
+      fout.seek(0)
+      fout.truncate(0)
+      fout.write('lemon')
+      fout.flush()
+      os.fsync(fout.fileno())
+
+      self.assertEqual( hash_util.hash_string_md5('lemon'),
+                        bfile_metadata.get_metadata(tmp, 'bes/checksum/md5/0.0') )
+      self.assertEqual( hash_util.hash_string_sha1('lemon'),
+                        bfile_metadata.get_metadata(tmp, 'bes/checksum/sha1/0.0') )
+      self.assertEqual( hash_util.hash_string_sha256('lemon'),
+                        bfile_metadata.get_metadata(tmp, 'bes/checksum/sha256/0.0') )
+      
+    return
+#    hash_util.hash_string_md5()
+      
     kiwi_checksums = {
       'md5': bfile_checksum.checksum(tmp_kiwi, 'md5'),
       'sha1': bfile_checksum.checksum(tmp_kiwi, 'sha1'),

@@ -8,6 +8,7 @@ from bes.docker.docker import docker
 from bes.files.bfile_date import bfile_date
 from bes.files.metadata.bfile_metadata import bfile_metadata
 from bes.files.metadata.bfile_metadata_error import bfile_metadata_error
+from bes.files.metadata.bfile_metadata_key_error import bfile_metadata_key_error
 from bes.files.metadata.bfile_metadata_item import bfile_metadata_item
 from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
 from bes.testing.unit_test import unit_test
@@ -140,10 +141,24 @@ class test_bfile_metadata_item(unit_test):
     with self.assertRaises(bfile_metadata_error) as ex:
       tmp_item['acme/fruit/cherry/2.0'] = 666
 
-  def xtest__contains__(self):
+  def test__contains__(self):
     tmp_item = self._make_test_item(content = b'12345', suffix = '.data')
-    with self.assertRaises(bfile_metadata_error) as ex:
-      tmp_item['acme/fruit/cherry/2.0'] = 666
+    self.assertEqual( False, 'acme/fruit/kiwi/1.0' in tmp_item )
+    self.assertEqual( 5, tmp_item['acme/fruit/kiwi/1.0'] )
+    self.assertEqual( True, 'acme/fruit/kiwi/1.0' in tmp_item )
+    del tmp_item['acme/fruit/kiwi/1.0']
+    self.assertEqual( False, 'acme/fruit/kiwi/1.0' in tmp_item )
+
+#  def test__contains__not_found(self):
+#    tmp_item = self._make_test_item(content = b'12345', suffix = '.data')
+#    with self.assertRaises(bfile_metadata_key_error) as ctx:
+#      del tmp_item['acme/fruit/notfound/1.0']
       
+  def test__delitem__not_found(self):
+    tmp_item = self._make_test_item(content = b'12345', suffix = '.data')
+
+    with self.assertRaises(bfile_metadata_key_error) as ctx:
+      del tmp_item['acme/fruit/notfound/1.0']
+    
 if __name__ == '__main__':
   unit_test.main()

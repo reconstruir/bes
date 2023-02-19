@@ -39,26 +39,33 @@ class bfile_attr_mtime_cached(bfile_attr):
 
     clazz._log.log_method_d()
 
+    
     mtime_key = clazz._make_mtime_key(key)
     attr_mtime = clazz.get_date(filename, mtime_key)
     file_mtime = bfile_date.get_modification_date(filename)
     value = None
     
-    label = f'get_cached_bytes:{filename}:{key}'
+    label = f'_do_get_cached_bytes:{filename}:{key}'
 
+    clazz._log.log_d(f'{label}: attr_mtime={attr_mtime} file_mtime={file_mtime}')
+    
     if file_mtime == attr_mtime:
       value = clazz.get_bytes(filename, key)
+      clazz._log.log_d(f'{label}: 1: value={value}')
       return clazz._get_cached_bytes_result(value, file_mtime, mtime_key, True)
 
     if not value_maker:
+      clazz._log.log_d(f'{label}: 2: value={None}')
       return clazz._get_cached_bytes_result(None, file_mtime, mtime_key, False)
       
     value = value_maker(filename)
     if value == None:
       raise bfile_attr_error(f'value should never be None')
 
+    clazz._log.log_d(f'{label}: 3: value={value}')
     clazz.set_bytes(filename, key, value)
     file_mtime = bfile_date.get_modification_date(filename)
+    clazz._log.log_d(f'{label}: 3: file_mtime={file_mtime}')
     clazz.set_date(filename, mtime_key, file_mtime)
     # setting the date in the line above has the side effect
     # of changing the mtime in some implementations.  so we

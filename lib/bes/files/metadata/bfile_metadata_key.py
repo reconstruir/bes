@@ -22,13 +22,13 @@ class bfile_metadata_key(namedtuple('bfile_metadata_key', 'domain, group, name, 
     return clazz.__bases__[0].__new__(clazz, domain, group, name, version)
 
   def __hash__(self):
-    return hash(self._as_str)
+    return hash(self.as_string)
   
   def __str__(self):
-    return self._as_str
+    return self.as_string
 
   @cached_property
-  def _as_str(self):
+  def as_string(self):
     return self.DELIMITER.join([ self.domain, self.group, self.name, str(self.version) ])
 
   @classmethod

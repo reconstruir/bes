@@ -23,3 +23,13 @@ class bfile_metadata_file(bfile_attr_file):
   def get_metadata_getter_count(self, key):
     key = check.check_bfile_metadata_key(key)
     return bfile_metadata.get_metadata_getter_count(self._filename, key)
+
+  def has_metadata(self, key):
+    key = check.check_bfile_metadata_key(key)
+
+    return bfile_metadata.has_metadata(self._filename, key)
+
+  def metadata_delete(self, key):
+    key = check.check_bfile_metadata_key(key)
+
+    return bfile_metadata.metadata_delete(self._filename, key)

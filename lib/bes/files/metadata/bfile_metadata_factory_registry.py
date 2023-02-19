@@ -4,12 +4,11 @@ from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
 
-from ..attributes.bfile_attr_error import bfile_attr_error
-
 from .bfile_metadata_factory_base import bfile_metadata_factory_base
 from .bfile_metadata_handler import bfile_metadata_handler
 from .bfile_metadata_handler_list import bfile_metadata_handler_list
 from .bfile_metadata_key import bfile_metadata_key
+from .bfile_metadata_error import bfile_metadata_error
 
 class bfile_metadata_factory_registry(object):
 
@@ -34,10 +33,10 @@ class bfile_metadata_factory_registry(object):
     try:
       handlers = check.check_bfile_metadata_handler_list(raw_handlers_list)
     except TypeError as ex:
-      raise bfile_attr_error(f'handlers should be a sequence of "bfile_metadata_handler" or tuples: "{raw_handlers_list}" - {type(raw_handlers_list)}')
+      raise bfile_metadata_error(f'handlers should be a sequence of "bfile_metadata_handler" or tuples: "{raw_handlers_list}" - {type(raw_handlers_list)}')
     for handler in handlers:
       if handler.key in clazz._factories:
-        raise bfile_attr_error(f'getter already registered: "{handler.key}"')
+        raise bfile_metadata_error(f'getter already registered: "{handler.key}"')
       clazz._factories[handler.key] = handler
       clazz._log.log_d(f'registered handler {handler.key} {handler.getter}')
 
@@ -50,7 +49,7 @@ class bfile_metadata_factory_registry(object):
     try:
       handlers = check.check_bfile_metadata_handler_list(raw_handlers_list)
     except TypeError as ex:
-      raise bfile_attr_error(f'handlers should be a sequence of "bfile_metadata_handler" or tuples: "{raw_handlers_list}" - {type(raw_handlers_list)}')
+      raise bfile_metadata_error(f'handlers should be a sequence of "bfile_metadata_handler" or tuples: "{raw_handlers_list}" - {type(raw_handlers_list)}')
     for handler in handlers:
       if handler.key in clazz._factories:
         del clazz._factories[handler.key]
@@ -67,7 +66,7 @@ class bfile_metadata_factory_registry(object):
     handler = clazz._factories.get(key, None)
     clazz._log.log_d(f'key={key} handler={handler}')
     if raise_error and not handler:
-      raise bfile_attr_error(f'no handler registered for: "{key}"')
+      raise bfile_metadata_error(f'no handler registered for: "{key}"')
     return handler
 
   @classmethod

@@ -35,11 +35,11 @@ class bfile_metadata(bfile_attr_mtime_cached):
     else:
       value_maker = None
     value_bytes, mtime, mtime_key, is_cached = clazz._do_get_cached_bytes(filename,
-                                                                          str(key),
+                                                                          key.as_string,
                                                                           value_maker)
     clazz._log.log_d(f'get_metadata: value_bytes={value_bytes} mtime={mtime} mtime_key={mtime_key} getter={handler.getter}')
     if not handler.getter:
-      value_bytes = clazz.get_bytes(filename, str(key))
+      value_bytes = clazz.get_bytes(filename, key.as_string)
       if value_bytes == None:
         return None
       clazz.set_date(filename, mtime_key, mtime)
@@ -64,12 +64,20 @@ class bfile_metadata(bfile_attr_mtime_cached):
     encoded_value = handler.encode(value)
     if not check.is_bytes(encoded_value):
       raise bfile_metadata_error(f'encoded value should be bytes: "{encoded_value}" - {type(encoded_value)}')
-    clazz.remove_mtime_key(filename, str(key))
-    clazz.set_bytes(filename, str(key), encoded_value)
+    clazz.remove_mtime_key(filename, key.as_string)
+    clazz.set_bytes(filename, key.as_string, encoded_value)
     item._last_mtime = None
     item._value = None
     #item._count += 1
-  
+
+  @classmethod
+  def metadata_delete(clazz, filename, key):
+    filename = bfile_check.check_file(filename)
+    key = check.check_bfile_metadata_key(key)
+
+    clazz.remove_mtime_key(filename, key.as_string)
+    clazz.remove(filename, key.as_string)
+    
   @classmethod
   def get_metadata_getter_count(clazz, filename, key):
     filename = bfile_check.check_file(filename)
@@ -78,7 +86,14 @@ class bfile_metadata(bfile_attr_mtime_cached):
     handler = bfile_metadata_factory_registry.get_handler(key)
     item = clazz._get_item(filename, handler.key)
     return item._count
-  
+
+  @classmethod
+  def has_metadata(clazz, filename, key):
+    filename = bfile_check.check_file(filename)
+    key = check.check_bfile_metadata_key(key)
+
+    return clazz.has_key(filename, key.as_string)
+    
   _items = {}
   class _items_item(object):
 

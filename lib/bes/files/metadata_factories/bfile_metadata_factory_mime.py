@@ -13,8 +13,16 @@ class bfile_metadata_factory_mime(bfile_metadata_factory_base):
   @classmethod
   #@abstractmethod
   def handlers(clazz):
+    def fuck(f):
+      if clazz.metadata_class.has_key(f, 'bes/mime/mime_type/1.0'):
+        return clazz.metadata_class.get_string(f, 'bes/mime/mime_type/1.0')
+      elif clazz.metadata_class.has_key(f, 'bes_mime_type'):
+        return clazz.metadata_class.get_string(f, 'bes_mime_type')
+      return bfile_mime.mime_type(f)
+    
     return [
-      ( 'bes/mime/mime_type/1.0', lambda f: bfile_mime.mime_type(f), clazz.decode_string, clazz.encode_string, True ),
+      #( 'bes/mime/mime_type/1.0', lambda f: bfile_mime.mime_type(f), clazz.decode_string, clazz.encode_string, True ),
+      ( 'bes/mime/mime_type/1.0', fuck, clazz.decode_string, clazz.encode_string, True ),
       ( 'bes/mime/media_type/1.0', lambda f: clazz._media_type_1_0(f), clazz.decode_string, clazz.encode_string, True ),
     ]
   
