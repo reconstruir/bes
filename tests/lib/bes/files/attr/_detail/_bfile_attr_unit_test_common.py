@@ -8,6 +8,8 @@ from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 
+from _bes_unit_test_common.files.attr.fruits_factory import fruits_factory as _test_fruits_factory
+
 def make_test_case(impl):
   
   class _bfile_attr_test_case(unit_test):
@@ -105,4 +107,23 @@ def make_test_case(impl):
       with self.assertRaises(bfile_permission_error) as ctx:
         impl.clear(tmp)
 
+    def test_get_value_int(self):
+      tmp = self.make_temp_file(dir = __file__, content = 'foo')
+      self.assertEqual( None, impl.get_value(tmp, 'acme/fruit/kiwi/1.0') )
+      impl.set_int(tmp, 'acme/fruit/kiwi/1.0', 666)
+      self.assertEqual( 666, impl.get_value(tmp, 'acme/fruit/kiwi/1.0') )
+
+    def test_get_value_float(self):
+      tmp = self.make_temp_file(dir = __file__, content = 'foo')
+      self.assertEqual( None, impl.get_value(tmp, 'acme/fruit/cherry/2.0') )
+      impl.set_float(tmp, 'acme/fruit/cherry/2.0', 42.3)
+      self.assertEqual( 42.3, impl.get_value(tmp, 'acme/fruit/cherry/2.0') )
+
+    def test_get_value_date(self):
+      tmp = self.make_temp_file(dir = __file__, content = 'foo')
+      self.assertEqual( None, impl.get_value(tmp, 'acme/fruit/birthday/1.0') )
+      now = datetime.now()
+      impl.set_date(tmp, 'acme/fruit/birthday/1.0', now)
+      self.assertEqual( now, impl.get_value(tmp, 'acme/fruit/birthday/1.0') )
+      
   return _bfile_attr_test_case

@@ -5,16 +5,15 @@ from collections import namedtuple
 from bes.system.check import check
 from bes.common.tuple_util import tuple_util
 
-from .bfile_attr_error import bfile_attr_error
+class bfile_attr_value(namedtuple('bfile_attr_value', 'key, decoder, encoder, checker')):
 
-class bfile_attr_value_desc(namedtuple('bfile_attr_value_desc', 'key, decoder, encoder')):
-
-  def __new__(clazz, key, decoder, encoder):
+  def __new__(clazz, key, decoder, encoder, checker):
     check.check_string(key)
     check.check_callable(decoder)
     check.check_callable(encoder)
+    check.check_callable(checker)
 
-    return clazz.__bases__[0].__new__(clazz, key, decoder, encoder)
+    return clazz.__bases__[0].__new__(clazz, key, decoder, encoder, checker)
 
   @classmethod
   def _check_cast_func(clazz, obj):
@@ -25,5 +24,8 @@ class bfile_attr_value_desc(namedtuple('bfile_attr_value_desc', 'key, decoder, e
 
   def encode(self, value):
     return self.encoder(value)
+
+  def check(self, value):
+    return self.checker(value)
   
-check.register_class(bfile_attr_value_desc, include_seq = False, cast_func = bfile_attr_value_desc._check_cast_func)
+check.register_class(bfile_attr_value, include_seq = False, cast_func = bfile_attr_value._check_cast_func)

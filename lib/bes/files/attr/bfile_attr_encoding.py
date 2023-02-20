@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from datetime import datetime
+
 from bes.common.number_util import number_util
 from bes.common.bool_util import bool_util
 
@@ -62,3 +64,19 @@ class bfile_attr_encoding(object):
     check.check_bool(value)
 
     return str(value).encode('utf-8')
+
+  @classmethod
+  def decode_datetime(clazz, value):
+    'Decode a date'
+    check.check_bytes(value)
+
+    string_value = clazz.decode_string(value)
+    timestamp = float(string_value)
+    return datetime.fromtimestamp(timestamp)
+    
+  @classmethod
+  def encode_datetime(clazz, value):
+    'Decode an date'
+    check.check_datetime(value)
+
+    return clazz.encode_string(str(value.timestamp()))

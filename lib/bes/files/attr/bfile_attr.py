@@ -1,10 +1,5 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os
-import time
-
-from datetime import datetime
-
 from bes.system.check import check
 from bes.common.bool_util import bool_util
 from bes.system.log import logger
@@ -14,7 +9,9 @@ from ..bfile_date import bfile_date
 
 from ._detail._bfile_attr_super_class import _bfile_attr_super_class
 
+from .bfile_attr_encoding import bfile_attr_encoding
 from .bfile_attr_error import bfile_attr_error
+from .bfile_attr_value_registry import bfile_attr_value_registry
 
 class _bfile_attr_mixin:
 
@@ -71,20 +68,21 @@ class _bfile_attr_mixin:
     'Return the attribute value with key for filename as string.'
     filename = bfile_check.check_file(filename)
     key = clazz.check_key(key)
-    value = clazz.get_string(filename, key)
-    if value == None:
+
+    if not clazz.has_key(filename, key):
       return None
-    timestamp = float(value)
-    return datetime.fromtimestamp(timestamp)
+    value = clazz.get_bytes(filename, key)
+    return bfile_attr_encoding.decode_datetime(value)
 
   @classmethod
   def set_date(clazz, filename, key, value, encoding = 'utf-8'):
     'Set the value of attribute with key to value for filename as string.'
     filename = bfile_check.check_file(filename)
     key = clazz.check_key(key)
-    check.check(value, datetime)
-    
-    clazz.set_string(filename, key, str(value.timestamp()))
+    check.check_datetime(value)
+
+    encoded_value = bfile_attr_encoding.encode_datetime(value)
+    clazz.set_bytes(filename, key, encoded_value)
 
   @classmethod
   def get_bool(clazz, filename, key):
@@ -144,6 +142,37 @@ class _bfile_attr_mixin:
     check.check_float(value)
     
     clazz.set_string(filename, key, str(value))
+
+  @classmethod
+  def get_value(clazz, filename, key):
+    filename = bfile_check.check_file(filename)
+    key = clazz.check_key(key)
+
+    handler = bfile_attr_value_registry.get_handler(key, raise_error = False)
+    if not handler:
+      raise bfile_attr_error(f'No value registered: "{key}"')
+      
+    if not clazz.has_key(filename, key):
+      return None
+
+    value_bytes = clazz.get_bytes(filename, key)
+    return handler.decode(value_bytes)
+
+  @classmethod
+  def set_value(clazz, filename, key, value):
+    filename = bfile_check.check_file(filename)
+    key = clazz.check_key(key)
+
+    handler = bfile_attr_value_registry.get_handler(key, raise_error = False)
+    if not handler:
+      raise bfile_attr_error(f'No value registered: "{key}"')
     
+    if value == None:
+      clazz.remove(key)
+      
+    checked_value = handler.check(value)
+    encoded_value = handler.encode(checked_value)
+    clazz.set_bytes(filename, key, encoded_value)
+  
 class bfile_attr(_bfile_attr_super_class, _bfile_attr_mixin):
   pass
