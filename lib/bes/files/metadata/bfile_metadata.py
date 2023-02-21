@@ -30,10 +30,7 @@ class bfile_metadata(bfile_attr_mtime_cached):
       if current_mtime <= item._last_mtime:
         assert item._value != None
         return item._value
-    if handler.getter:
-      value_maker = lambda f__: handler.encode(handler.getter(f__))
-    else:
-      value_maker = None
+    value_maker = lambda f__: handler.encode(handler.getter(f__))
     value_bytes, mtime, mtime_key, is_cached = clazz._do_get_cached_bytes(filename,
                                                                           key.as_string,
                                                                           value_maker)
@@ -50,25 +47,6 @@ class bfile_metadata(bfile_attr_mtime_cached):
     item._count += 1
     assert item._value != None
     return item._value
-
-  @classmethod
-  def set_metadata(clazz, filename, key, value):
-    filename = bfile_check.check_file(filename)
-    key = check.check_bfile_metadata_key(key)
-    handler = bfile_metadata_factory_registry.get_handler(key)
-    assert handler.key == key
-    item = clazz._get_item(filename, key)
-    if handler.read_only:
-      raise bfile_metadata_error(f'value is read only: "{key}"')
-    assert handler.key == key
-    encoded_value = handler.encode(value)
-    if not check.is_bytes(encoded_value):
-      raise bfile_metadata_error(f'encoded value should be bytes: "{encoded_value}" - {type(encoded_value)}')
-    clazz.remove_mtime_key(filename, key.as_string)
-    clazz.set_bytes(filename, key.as_string, encoded_value)
-    item._last_mtime = None
-    item._value = None
-    #item._count += 1
 
   @classmethod
   def metadata_delete(clazz, filename, key):

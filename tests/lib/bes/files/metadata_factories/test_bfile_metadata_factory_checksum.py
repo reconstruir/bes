@@ -97,18 +97,6 @@ class test_bfile_metadata_factory_checksum(unit_test):
                       bfile_metadata.get_metadata(tmp_lemon, 'bes/checksum/sha1/0.0') )
     self.assertEqual( kiwi_checksums['sha256'],
                       bfile_metadata.get_metadata(tmp_lemon, 'bes/checksum/sha256/0.0') )
-
-  def test_set_metadata_read_only(self):
-    tmp = self.make_temp_file(dir = __file__, content = 'this is kiwi')
-    self.assertEqual( bfile_checksum.checksum(tmp, 'sha256'), 
-                      bfile_metadata.get_metadata(tmp, 'bes/checksum/sha256/0.0') )
-    with self.assertRaises(bfile_metadata_error) as ex:
-      bfile_metadata.set_metadata(tmp, 'bes/checksum/sha256/0.0', 'lime')
-
-  def test_set_metadata(self):
-    tmp = self.make_temp_file(dir = __file__, content = 'this is kiwi')
-    self.assertEqual( bfile_checksum.checksum(tmp, 'sha256'), 
-                      bfile_metadata.get_metadata(tmp, 'bes/checksum/sha256/0.0') )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -35,7 +35,7 @@ class bfile_attr_mtime_cached(bfile_attr):
     'Return the attribute value with key for filename as bytes.'
     filename = bfile_check.check_file(filename)
     key = clazz.check_key(key)
-    check.check_callable(value_maker, allow_none = True)
+    check.check_callable(value_maker)
 
     clazz._log.log_method_d()
 
@@ -54,17 +54,13 @@ class bfile_attr_mtime_cached(bfile_attr):
       clazz._log.log_d(f'{label}: 1: value={value}')
       return clazz._get_cached_bytes_result(value, file_mtime, mtime_key, True)
 
-    if not value_maker:
-      clazz._log.log_d(f'{label}: 2: value={None}')
-      return clazz._get_cached_bytes_result(None, file_mtime, mtime_key, False)
-      
     value = value_maker(filename)
     if value == None:
       raise bfile_attr_error(f'value should never be None')
 
     clazz._log.log_d(f'{label}: 3: value={value}')
     clazz.set_bytes(filename, key, value)
-    file_mtime = bfile_date.get_modification_date(filename)
+    #file_mtime = bfile_date.get_modification_date(filename)
     clazz._log.log_d(f'{label}: 3: file_mtime={file_mtime}')
     clazz.set_date(filename, mtime_key, file_mtime)
     # setting the date in the line above has the side effect
@@ -72,7 +68,7 @@ class bfile_attr_mtime_cached(bfile_attr):
     # force it to be what it was right after setting the value
     # which is in the past (usually microseconds) but guaranteed
     # to match what what was set in set_date()
-    bfile_date.set_modification_date(filename, file_mtime)
+    #bfile_date.set_modification_date(filename, file_mtime)
     return clazz._get_cached_bytes_result(value, file_mtime, mtime_key, False)
 
   @classmethod

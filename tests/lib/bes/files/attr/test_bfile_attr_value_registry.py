@@ -19,10 +19,10 @@ class test_bfile_attr_value_registry(unit_test):
     bfile_attr_value_registry.unregister_factory(_test_fruits_factory)
   
   def test_register_attr_value_handler_factory(self):
-    self.assertEqual( True, bfile_attr_value_registry.has_handler('acme/fruit/kiwi/1.0') )
-    self.assertEqual( False, bfile_attr_value_registry.has_handler('acme/fruit/kiwi/2.0') )
-    self.assertEqual( False, bfile_attr_value_registry.has_handler('acme/fruit/cherry/1.0') )
-    self.assertEqual( True, bfile_attr_value_registry.has_handler('acme/fruit/cherry/2.0') )
+    self.assertEqual( True, bfile_attr_value_registry.has_value('acme/fruit/kiwi/1.0') )
+    self.assertEqual( False, bfile_attr_value_registry.has_value('acme/fruit/kiwi/2.0') )
+    self.assertEqual( False, bfile_attr_value_registry.has_value('acme/fruit/cherry/1.0') )
+    self.assertEqual( True, bfile_attr_value_registry.has_value('acme/fruit/cherry/2.0') )
                                                                     
 if __name__ == '__main__':
   unit_test.main()

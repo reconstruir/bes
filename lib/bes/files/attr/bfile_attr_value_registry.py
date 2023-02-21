@@ -28,48 +28,48 @@ class bfile_attr_value_registry(object):
     check.check_class(factory_class, bfile_attr_value_factory_base)
 
     clazz._log.log_method_d()
-    raw_handlers_list = factory_class.handlers()
+    raw_values_list = factory_class.values()
     try:
-      handlers = check.check_bfile_attr_value_list(raw_handlers_list)
+      values = check.check_bfile_attr_value_list(raw_values_list)
     except TypeError as ex:
-      raise bfile_attr_error(f'handlers should be a sequence of "bfile_attr_value" or tuples: "{raw_handlers_list}" - {type(raw_handlers_list)}')
-    for handler in handlers:
-      if handler.key in clazz._factories:
-        raise bfile_attr_error(f'handler already registered: "{handler.key}"')
-      clazz._factories[handler.key] = handler
-      clazz._log.log_d(f'registered handler {handler.key}')
+      raise bfile_attr_error(f'values should be a sequence of "bfile_attr_value" or tuples: "{raw_values_list}" - {type(raw_values_list)}')
+    for next_value in values:
+      if next_value.key in clazz._factories:
+        raise bfile_attr_error(f'value already registered: "{next_value.key}"')
+      clazz._factories[next_value.key] = next_value
+      clazz._log.log_d(f'registered next_value {next_value.key}')
 
   @classmethod
   def unregister_factory(clazz, factory_class):
     check.check_class(factory_class, bfile_attr_value_factory_base)
 
     clazz._log.log_method_d()
-    raw_handlers_list = factory_class.handlers()
+    raw_values_list = factory_class.values()
     try:
-      handlers = check.check_bfile_attr_value_list(raw_handlers_list)
+      values = check.check_bfile_attr_value_list(raw_values_list)
     except TypeError as ex:
-      raise bfile_attr_error(f'handlers should be a sequence of "bfile_attr_value" or tuples: "{raw_handlers_list}" - {type(raw_handlers_list)}')
-    for handler in handlers:
-      if handler.key in clazz._factories:
-        del clazz._factories[handler.key]
-        clazz._log.log_d(f'unregistered handler {handler.key}')
+      raise bfile_attr_error(f'values should be a sequence of "bfile_attr_value" or tuples: "{raw_values_list}" - {type(raw_values_list)}')
+    for next_value in values:
+      if next_value.key in clazz._factories:
+        del clazz._factories[next_value.key]
+        clazz._log.log_d(f'unregistered next_value {next_value.key}')
       
   @classmethod
   def unregister_all(clazz):
     clazz._factories = {}
       
   @classmethod
-  def get_handler(clazz, key, raise_error = True):
+  def get_value(clazz, key, raise_error = True):
     check.check_string(key)
 
-    handler = clazz._factories.get(key, None)
-    clazz._log.log_d(f'key={key} handler={handler}')
-    if raise_error and not handler:
-      raise bfile_attr_error(f'no handler registered for: "{key}"')
-    return handler
+    value = clazz._factories.get(key, None)
+    clazz._log.log_d(f'key={key} value={value}')
+    if raise_error and not value:
+      raise bfile_attr_error(f'no value registered for: "{key}"')
+    return value
 
   @classmethod
-  def has_handler(clazz, key):
+  def has_value(clazz, key):
     check.check_string(key)
 
-    return clazz.get_handler(key, raise_error = False) != None
+    return clazz.get_value(key, raise_error = False) != None

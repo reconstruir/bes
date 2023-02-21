@@ -16,10 +16,6 @@ class bfile_metadata_file(bfile_attr_file):
     key = check.check_bfile_metadata_key(key)
     return bfile_metadata.get_metadata(self._filename, key)
 
-  def set_metadata(self, key, value):
-    key = check.check_bfile_metadata_key(key)
-    return bfile_metadata.set_metadata(self._filename, key, value)
-  
   def get_metadata_getter_count(self, key):
     key = check.check_bfile_metadata_key(key)
     return bfile_metadata.get_metadata_getter_count(self._filename, key)

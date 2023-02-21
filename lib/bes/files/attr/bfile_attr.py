@@ -148,7 +148,7 @@ class _bfile_attr_mixin:
     filename = bfile_check.check_file(filename)
     key = clazz.check_key(key)
 
-    handler = bfile_attr_value_registry.get_handler(key, raise_error = False)
+    handler = bfile_attr_value_registry.get_value(key, raise_error = False)
     if not handler:
       raise bfile_attr_error(f'No value registered: "{key}"')
       
@@ -163,7 +163,7 @@ class _bfile_attr_mixin:
     filename = bfile_check.check_file(filename)
     key = clazz.check_key(key)
 
-    handler = bfile_attr_value_registry.get_handler(key, raise_error = False)
+    handler = bfile_attr_value_registry.get_value(key, raise_error = False)
     if not handler:
       raise bfile_attr_error(f'No value registered: "{key}"')
     

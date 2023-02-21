@@ -34,4 +34,4 @@ class bfile_metadata_item(object):
       raise bfile_metadata_key_error(f'No key "{key}" found for "{self.filename}"')
 
   def __setitem__(self, key, value):
-    self._metadata.set_metadata(key, value)
+    raise bfile_metadata_error(f'metadata "{key}" is read-only.')

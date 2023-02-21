@@ -28,8 +28,8 @@ class bfile_attr_value_factory_base(with_metaclass(_bfile_attr_value_factory_met
   
   @classmethod
   @abstractmethod
-  def handlers(clazz):
-    'Return a list of handlers this factory supports.'
-    raise NotImplemented('handlers')
+  def values(clazz):
+    'Return a list of values this factory supports.'
+    raise NotImplemented('values')
   
 check.register_class(bfile_attr_value_factory_base, name = 'bfile_attr_handler_factory', include_seq = False)
