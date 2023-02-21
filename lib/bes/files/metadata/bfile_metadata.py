@@ -28,18 +28,14 @@ class bfile_metadata(bfile_attr_mtime_cached):
     if item._last_mtime != None:
       assert not item._last_mtime > current_mtime
       if current_mtime <= item._last_mtime:
+        clazz._log.log_d(f'get_metadata: returning fresh value')
         assert item._value != None
         return item._value
     value_maker = lambda f__: handler.encode(handler.getter(f__))
-    value_bytes, mtime, mtime_key, is_cached = clazz._do_get_cached_bytes(filename,
-                                                                          key.as_string,
-                                                                          value_maker)
-    clazz._log.log_d(f'get_metadata: value_bytes={value_bytes} mtime={mtime} mtime_key={mtime_key} getter={handler.getter}')
-    if not handler.getter:
-      value_bytes = clazz.get_bytes(filename, key.as_string)
-      if value_bytes == None:
-        return None
-      clazz.set_date(filename, mtime_key, mtime)
+    value_bytes, mtime, _, _ = clazz._do_get_cached_bytes(filename,
+                                                          key.as_string,
+                                                          value_maker)
+    clazz._log.log_d(f'get_metadata: value_bytes={value_bytes} mtime={mtime}')
     value = handler.decoder(value_bytes)
     item._last_mtime = mtime
     item._value = value

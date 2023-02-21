@@ -13,9 +13,7 @@ class bfile_metadata_factory_checksum(bfile_metadata_factory_base):
   #@abstractmethod
   def handlers(clazz):
     def fuck(f):
-      if clazz.metadata_class.has_key(f, 'bes/checksum/sha256/0.0'):
-        return clazz.metadata_class.get_string(f, 'bes/checksum/sha256/0.0')
-      elif clazz.metadata_class.has_key(f, 'bes_checksum_sha256'):
+      if clazz.metadata_class.has_key(f, 'bes_checksum_sha256'):
         return clazz.metadata_class.get_string(f, 'bes_checksum_sha256')
       return bfile_checksum.checksum(f, 'sha256')
     

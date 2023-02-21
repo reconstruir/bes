@@ -14,9 +14,7 @@ class bfile_metadata_factory_mime(bfile_metadata_factory_base):
   #@abstractmethod
   def handlers(clazz):
     def fuck(f):
-      if clazz.metadata_class.has_key(f, 'bes/mime/mime_type/1.0'):
-        return clazz.metadata_class.get_string(f, 'bes/mime/mime_type/1.0')
-      elif clazz.metadata_class.has_key(f, 'bes_mime_type'):
+      if clazz.metadata_class.has_key(f, 'bes_mime_type'):
         return clazz.metadata_class.get_string(f, 'bes_mime_type')
       return bfile_mime.mime_type(f)
     
