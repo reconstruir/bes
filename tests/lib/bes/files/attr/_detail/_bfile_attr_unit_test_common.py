@@ -125,5 +125,14 @@ def make_test_case(impl):
       now = datetime.now()
       impl.set_date(tmp, 'acme/fruit/birthday/1.0', now)
       self.assertEqual( now, impl.get_value(tmp, 'acme/fruit/birthday/1.0') )
+
+    def test_get_value_with_old_keys(self):
+      tmp = self.make_temp_file(dir = __file__, content = 'foo')
+      self.assertEqual( False, impl.has_key(tmp, 'acme/fruit/is_favorite/1.0') )
+      impl.set_bool(tmp, 'old_is_favorite1', True)
+      self.assertEqual( True, impl.get_value(tmp, 'acme/fruit/is_favorite/1.0') )
+      self.assertEqual( True, impl.has_key(tmp, 'acme/fruit/is_favorite/1.0') )
+      impl.set_bool(tmp, 'old_is_favorite1', False)
+      self.assertEqual( True, impl.get_value(tmp, 'acme/fruit/is_favorite/1.0') )
       
   return _bfile_attr_test_case
