@@ -35,7 +35,9 @@ class bfile_attr_value_registry(object):
       raise bfile_attr_error(f'values should be a sequence of "bfile_attr_value" or tuples: "{raw_values_list}" - {type(raw_values_list)}')
     for next_value in values:
       if next_value.key in clazz._factories:
-        raise bfile_attr_error(f'value already registered: "{next_value.key}"')
+        old_value = clazz._factories[next_value.key]
+        if next_value != old_value:
+          raise bfile_attr_error(f'value already registered: "{next_value.key}"')
       clazz._factories[next_value.key] = next_value
       clazz._log.log_d(f'registered next_value {next_value.key}')
 
