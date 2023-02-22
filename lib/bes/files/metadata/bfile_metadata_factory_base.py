@@ -26,6 +26,10 @@ class bfile_metadata_factory_base(with_metaclass(_bfile_metadata_factory_meta, b
     'Provide a property that returns the main metadata class so handler can use it.'
     from .bfile_metadata import bfile_metadata
     return bfile_metadata
+
+  @cached_class_property
+  def cached_handlers(clazz):
+    return clazz.handlers()
   
   @classmethod
   @abstractmethod

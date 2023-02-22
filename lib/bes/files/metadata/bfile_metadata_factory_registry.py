@@ -29,7 +29,7 @@ class bfile_metadata_factory_registry(object):
     check.check_class(factory_class, bfile_metadata_factory_base)
 
     clazz._log.log_method_d()
-    raw_handlers_list = factory_class.handlers()
+    raw_handlers_list = factory_class.cached_handlers
     try:
       handlers = check.check_bfile_metadata_handler_list(raw_handlers_list)
     except TypeError as ex:
@@ -45,7 +45,7 @@ class bfile_metadata_factory_registry(object):
     check.check_class(factory_class, bfile_metadata_factory_base)
 
     clazz._log.log_method_d()
-    raw_handlers_list = factory_class.handlers()
+    raw_handlers_list = factory_class.cached_handlers
     try:
       handlers = check.check_bfile_metadata_handler_list(raw_handlers_list)
     except TypeError as ex:
