@@ -28,7 +28,7 @@ class bfile_attr_value_registry(object):
     check.check_class(factory_class, bfile_attr_value_factory_base)
 
     clazz._log.log_method_d()
-    raw_values_list = factory_class.values()
+    raw_values_list = factory_class.cached_descriptions
     try:
       values = check.check_bfile_attr_value_list(raw_values_list)
     except TypeError as ex:
@@ -44,7 +44,7 @@ class bfile_attr_value_registry(object):
     check.check_class(factory_class, bfile_attr_value_factory_base)
 
     clazz._log.log_method_d()
-    raw_values_list = factory_class.values()
+    raw_values_list = factory_class.cached_descriptions
     try:
       values = check.check_bfile_attr_value_list(raw_values_list)
     except TypeError as ex:
