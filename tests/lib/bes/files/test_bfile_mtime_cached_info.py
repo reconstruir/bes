@@ -6,9 +6,7 @@ import time
 import os.path as path
 
 from bes.files.bfile_mtime_cached_info import bfile_mtime_cached_info
-#from bes.files.bfile_date import bfile_date
 from bes.testing.unit_test import unit_test
-#from bes.system.filesystem import filesystem
   
 class test_bfile_mtime_cached_info(unit_test):
 
