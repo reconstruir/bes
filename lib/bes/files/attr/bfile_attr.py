@@ -196,7 +196,7 @@ class _bfile_attr_mixin:
     return value
 
   @classmethod
-  def _make_mtime_key(clazz, key):
+  def make_mtime_key(clazz, key):
     return f'__bes_mtime_{key}__'
 
   _get_cached_bytes_result = namedtuple('_get_cached_bytes_result', 'value, mtime, mtime_key, is_cached')
@@ -209,7 +209,7 @@ class _bfile_attr_mixin:
 
     clazz._log.log_method_d()
 
-    mtime_key = clazz._make_mtime_key(key)
+    mtime_key = clazz.make_mtime_key(key)
     attr_mtime = clazz.get_date(filename, mtime_key)
     file_mtime = bfile_date.get_modification_date(filename)
     value = None
@@ -244,7 +244,7 @@ class _bfile_attr_mixin:
   def remove_mtime_key(clazz, filename, key):
     filename = bfile_check.check_file(filename)
     key = clazz.check_key(key)
-    mtime_key = clazz._make_mtime_key(key)
+    mtime_key = clazz.make_mtime_key(key)
 
     if clazz.has_key(filename, mtime_key):
       clazz.remove(filename, mtime_key)

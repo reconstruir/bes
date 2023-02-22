@@ -99,12 +99,13 @@ class test_bfile_metadata(unit_test):
       self.assertEqual( cherry_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/cherry/2.0__') )
       self.assertEqual( 5.0, bfile_metadata.get_metadata(tmp, 'acme/fruit/cherry/2.0') )
 
-  def xtest_get_metadata_old_keys(self):
+  def test_get_metadata_old_keys(self):
     tmp = self.make_temp_file(dir = __file__, content = b'1234567890', suffix = '.data')
-
     mtime = bfile_date.get_modification_date(tmp)
-    bfile_metadata.set_date(tmp, '__bes_mtime_bes_double_size__', mtime)
-    bfile_metadata.set_int(tmp, 'bes_double_size', 666)
+    old_key = 'bes_double_size'
+    mtime_key = bfile_metadata.make_mtime_key(old_key)
+    bfile_metadata.set_date(tmp, mtime_key, mtime)
+    bfile_metadata.set_int(tmp, old_key, 666)
     bfile_date.set_modification_date(tmp, mtime)
     self.assertEqual( 666, bfile_metadata.get_metadata(tmp, 'acme/fruit/melon/1.0') )
       

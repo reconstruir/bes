@@ -32,7 +32,14 @@ class bfile_metadata(bfile_attr):
         clazz._log.log_d(f'get_metadata: returning fresh value')
         assert item._value != None
         return item._value
-    value_maker = lambda f__: handler.encode(handler.getter(f__))
+    value_maker = None
+    if not clazz.has_key(filename, key.as_string) and handler.old_keys:
+      old_value = clazz._find_old_value(filename, handler)
+      if old_value != None:
+        check.check_bytes(old_value)
+        value_maker = lambda f__: old_value
+    if not value_maker:
+      value_maker = lambda f__: handler.encode(handler.getter(f__))
     value_bytes, mtime, _, _ = clazz._do_get_cached_bytes(filename,
                                                           key.as_string,
                                                           value_maker)
@@ -45,6 +52,22 @@ class bfile_metadata(bfile_attr):
     assert item._value != None
     return item._value
 
+  @classmethod
+  def _find_old_value(clazz, filename, handler):
+    clazz._log.log_d(f'_find_old_value: filename={filename}')
+    assert handler.old_keys
+    for old_key in handler.old_keys:
+      if clazz.has_key(filename, old_key):
+        mtime_key = clazz.make_mtime_key(old_key)
+        if clazz.has_key(filename, mtime_key):
+          attr_mtime = clazz.get_date(filename, mtime_key)
+          file_mtime = bfile_date.get_modification_date(filename)
+          clazz._log.log_d(f'_find_old_value: old_key={old_key} mtime_key={mtime_key} attr_mtime={attr_mtime} file_mtime={file_mtime}')
+          if file_mtime == attr_mtime:
+            value_bytes = clazz.get_bytes(filename, old_key)
+            return value_bytes
+    return None
+  
   @classmethod
   def metadata_delete(clazz, filename, key):
     filename = bfile_check.check_file(filename)
