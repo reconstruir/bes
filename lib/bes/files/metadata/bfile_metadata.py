@@ -23,9 +23,10 @@ class bfile_metadata(bfile_attr):
     handler = bfile_metadata_factory_registry.get_handler(key)
     assert handler.key == key
     item = clazz._get_item(filename, key)
-    current_mtime = bfile_date.get_modification_date(filename)
-    clazz._log.log_d(f'get_metadata: filename={filename} current_mtime={current_mtime} last_mtime={item._last_mtime}')
+    clazz._log.log_d(f'get_metadata: filename={filename} last_mtime={item._last_mtime}')
     if item._last_mtime != None:
+      current_mtime = bfile_date.get_modification_date(filename)
+      clazz._log.log_d(f'get_metadata: current_mtime={current_mtime}')
       assert not item._last_mtime > current_mtime
       if current_mtime <= item._last_mtime:
         clazz._log.log_d(f'get_metadata: returning fresh value')
