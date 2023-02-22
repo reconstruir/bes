@@ -155,7 +155,13 @@ class _bfile_attr_mixin:
     if not clazz.has_key(filename, key):
       return None
 
-    value_bytes = clazz.get_bytes(filename, key)
+    if handler.old_keys and not clazz.has_key(key):
+      for old_key in handler.old_keys:
+        if clazz.has_key(old_key):
+          value_bytes = clazz.get_bytes(filename, old_key)
+          break
+    else:
+      value_bytes = clazz.get_bytes(filename, key)
     return handler.decode(value_bytes)
 
   @classmethod

@@ -113,10 +113,10 @@ class test_bfile_metadata_item(unit_test):
     del tmp_item['acme/fruit/kiwi/1.0']
     self.assertEqual( False, 'acme/fruit/kiwi/1.0' in tmp_item )
 
-#  def test__contains__not_found(self):
-#    tmp_item = self._make_test_item(content = b'12345', suffix = '.data')
-#    with self.assertRaises(bfile_metadata_key_error) as ctx:
-#      del tmp_item['acme/fruit/notfound/1.0']
+  def test__contains__not_found(self):
+    tmp_item = self._make_test_item(content = b'12345', suffix = '.data')
+    with self.assertRaises(bfile_metadata_key_error) as ctx:
+      del tmp_item['acme/fruit/notfound/1.0']
       
   def test__delitem__not_found(self):
     tmp_item = self._make_test_item(content = b'12345', suffix = '.data')

@@ -5,11 +5,13 @@ from datetime import datetime
 
 from bes.files.bfile_permission_error import bfile_permission_error
 from bes.files.attr.bfile_attr_file import bfile_attr_file
+from bes.files.attr.bfile_attr_error import bfile_attr_error
 from bes.system.check import check
 from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
+from _bes_unit_test_common.files.attr.fruits_factory import fruits_factory as _test_fruits_factory
 
 class test_bfile_attr_file(unit_test, unit_test_media_files):
 
@@ -109,6 +111,60 @@ class test_bfile_attr_file(unit_test, unit_test_media_files):
     tmp = self._make_test_entry(perm = 0o0400)
     with self.assertRaises(bfile_permission_error) as ctx:
       tmp.clear()
-        
+
+  def test_get_value_int(self):
+    tmp = self._make_test_entry(content = 'foo')
+    self.assertEqual( None, tmp.get_value('acme/fruit/kiwi/1.0') )
+    tmp.set_int('acme/fruit/kiwi/1.0', 666)
+    self.assertEqual( 666, tmp.get_value('acme/fruit/kiwi/1.0') )
+
+  def test_get_value_float(self):
+    tmp = self._make_test_entry(content = 'foo')
+    self.assertEqual( None, tmp.get_value('acme/fruit/cherry/2.0') )
+    tmp.set_float('acme/fruit/cherry/2.0', 42.3)
+    self.assertEqual( 42.3, tmp.get_value('acme/fruit/cherry/2.0') )
+
+  def test_get_value_date(self):
+    tmp = self._make_test_entry(content = 'foo')
+    self.assertEqual( None, tmp.get_value('acme/fruit/birthday/1.0') )
+    now = datetime.now()
+    tmp.set_date('acme/fruit/birthday/1.0', now)
+    self.assertEqual( now, tmp.get_value('acme/fruit/birthday/1.0') )
+
+  def test___getitem___int(self):
+    tmp = self._make_test_entry(content = 'foo')
+    self.assertEqual( None, tmp['acme/fruit/kiwi/1.0'] )
+    tmp['acme/fruit/kiwi/1.0'] = 666
+    self.assertEqual( 666, tmp['acme/fruit/kiwi/1.0'] )
+
+  def test___getitem___float(self):
+    tmp = self._make_test_entry(content = 'foo')
+    self.assertEqual( None, tmp['acme/fruit/cherry/2.0'] )
+    tmp['acme/fruit/cherry/2.0'] = 42.3
+    self.assertEqual( 42.3, tmp['acme/fruit/cherry/2.0'] )
+
+  def test___getitem___date(self):
+    tmp = self._make_test_entry(content = 'foo')
+    self.assertEqual( None, tmp['acme/fruit/birthday/1.0'] )
+    now = datetime.now()
+    tmp['acme/fruit/birthday/1.0'] = now
+    self.assertEqual( now, tmp['acme/fruit/birthday/1.0'] )
+
+  def test__contains__(self):
+    tmp = self._make_test_entry(content = 'foo')
+    self.assertEqual( False, 'acme/fruit/kiwi/1.0' in tmp )
+    self.assertEqual( None, tmp['acme/fruit/kiwi/1.0'] )
+    tmp['acme/fruit/kiwi/1.0'] = 5
+    self.assertEqual( 5, tmp['acme/fruit/kiwi/1.0'] )
+    self.assertEqual( True, 'acme/fruit/kiwi/1.0' in tmp )
+    del tmp['acme/fruit/kiwi/1.0']
+    self.assertEqual( False, 'acme/fruit/kiwi/1.0' in tmp )
+    self.assertEqual( None, tmp['acme/fruit/kiwi/1.0'] )
+    
+  def test__delitem__not_found(self):
+    tmp = self._make_test_entry(content = 'foo')
+    with self.assertRaises(bfile_attr_error) as ctx:
+      del tmp['acme/fruit/notfound/1.0']
+    
 if __name__ == '__main__':
   unit_test.main()

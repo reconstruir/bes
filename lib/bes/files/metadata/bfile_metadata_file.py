@@ -29,3 +29,20 @@ class bfile_metadata_file(bfile_attr_file):
     key = check.check_bfile_metadata_key(key)
 
     return bfile_metadata.metadata_delete(self._filename, key)
+
+  def __delitem__(self, key):
+    if not self.has_metadata(key):
+      raise bfile_metadata_key_error(f'No key "{key}" found for "{self.filename}"')
+    self.metadata_delete(key)
+  
+  def __contains__(self, key):
+    return self.has_metadata(key)
+  
+  def __getitem__(self, key):
+    try:
+      return self.get_metadata(key)
+    except bfile_metadata_error as ex:
+      raise bfile_metadata_key_error(f'No key "{key}" found for "{self.filename}"')
+
+  def __setitem__(self, key, value):
+    raise bfile_metadata_error(f'metadata "{key}" is read-only.')

@@ -17,7 +17,7 @@ from .bfile_mtime_cached_info import bfile_mtime_cached_info
 from .bfile_permission_error import bfile_permission_error
 
 from .attr.bfile_attr_file import bfile_attr_file
-from .metadata.bfile_metadata_item import bfile_metadata_item
+from .metadata.bfile_metadata_file import bfile_metadata_file
 
 class bfile_entry(object):
 
@@ -131,7 +131,7 @@ class bfile_entry(object):
   def metadata(self):
     from .metadata_factories.bfile_metadata_factory_checksum import bfile_metadata_factory_checksum
     from .metadata_factories.bfile_metadata_factory_mime import bfile_metadata_factory_mime
-    return bfile_metadata_item(self._filename)
+    return bfile_metadata_file(self._filename)
 
   @property
   def media_type(self):
