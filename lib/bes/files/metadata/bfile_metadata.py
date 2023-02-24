@@ -39,9 +39,9 @@ class bfile_metadata(bfile_attr):
         value_maker = lambda f__: old_value
     if not value_maker:
       value_maker = lambda f__: handler.encode(handler.getter(f__))
-    value_bytes, mtime, _, _ = clazz._do_get_cached_bytes(filename,
-                                                          key.as_string,
-                                                          value_maker)
+    value_bytes, mtime = clazz._do_get_cached_bytes(filename,
+                                                    key.as_string,
+                                                    value_maker)
     clazz._log.log_d(f'get_metadata: value_bytes={value_bytes} mtime={mtime}')
     value = handler.decoder(value_bytes)
     item._last_mtime = mtime

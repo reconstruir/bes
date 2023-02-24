@@ -192,17 +192,16 @@ class _bfile_attr_mixin:
     key = clazz.check_key(key)
     check.check_callable(value_maker)
 
-    value, _, _, _ = clazz._do_get_cached_bytes(filename, key, value_maker)
+    value, _ = clazz._do_get_cached_bytes(filename, key, value_maker)
     return value
 
   @classmethod
   def make_mtime_key(clazz, key):
     return f'__bes_mtime_{key}__'
 
-  _get_cached_bytes_result = namedtuple('_get_cached_bytes_result', 'value, mtime, mtime_key, is_cached')
+  _get_cached_bytes_result = namedtuple('_get_cached_bytes_result', 'value, mtime')
   @classmethod
   def _do_get_cached_bytes(clazz, filename, key, value_maker):
-    'Return the attribute value with key for filename as bytes.'
     filename = bfile_check.check_file(filename)
     key = clazz.check_key(key)
     check.check_callable(value_maker)
@@ -221,7 +220,7 @@ class _bfile_attr_mixin:
     if file_mtime == attr_mtime:
       value = clazz.get_bytes(filename, key)
       clazz._log.log_d(f'{label}: 1: value={value}')
-      return clazz._get_cached_bytes_result(value, file_mtime, mtime_key, True)
+      return clazz._get_cached_bytes_result(value, file_mtime)
 
     value = value_maker(filename)
     if value == None:
@@ -238,10 +237,11 @@ class _bfile_attr_mixin:
     # which is in the past (usually microseconds) but guaranteed
     # to match what what was set in set_date()
     bfile_date.set_modification_date(filename, file_mtime)
-    return clazz._get_cached_bytes_result(value, file_mtime, mtime_key, False)
+    return clazz._get_cached_bytes_result(value, file_mtime)
 
   @classmethod
   def remove_mtime_key(clazz, filename, key):
+    'Remove the mtime key for key.'
     filename = bfile_check.check_file(filename)
     key = clazz.check_key(key)
     mtime_key = clazz.make_mtime_key(key)
@@ -251,6 +251,7 @@ class _bfile_attr_mixin:
 
   @classmethod
   def get_cached_bytes_if_fresh(clazz, filename, key):
+    'Return the mtime cached bytes but only if they are fresh.  Otherwise return None.'
     if not clazz.has_key(filename, key):
       return None
     mtime_key = clazz.make_mtime_key(key)
