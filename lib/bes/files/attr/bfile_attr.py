@@ -248,6 +248,20 @@ class _bfile_attr_mixin:
 
     if clazz.has_key(filename, mtime_key):
       clazz.remove(filename, mtime_key)
-    
+
+  @classmethod
+  def get_cached_bytes_if_fresh(clazz, filename, key):
+    if not clazz.has_key(filename, key):
+      return None
+    mtime_key = clazz.make_mtime_key(key)
+    if not clazz.has_key(filename, mtime_key):
+      return None
+    attr_mtime = clazz.get_date(filename, mtime_key)
+    file_mtime = bfile_date.get_modification_date(filename)
+    clazz._log.log_d(f'get_cached_bytes_if_fresh: key={key} mtime_key={mtime_key} attr_mtime={attr_mtime} file_mtime={file_mtime}')
+    if file_mtime == attr_mtime:
+      return clazz.get_bytes(filename, key)
+    return None
+      
 class bfile_attr(_bfile_attr_super_class, _bfile_attr_mixin):
   pass

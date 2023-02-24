@@ -54,15 +54,9 @@ class bfile_metadata(bfile_attr):
     clazz._log.log_d(f'_find_old_value: filename={filename}')
     assert handler.old_keys
     for old_key in handler.old_keys:
-      if clazz.has_key(filename, old_key):
-        mtime_key = clazz.make_mtime_key(old_key)
-        if clazz.has_key(filename, mtime_key):
-          attr_mtime = clazz.get_date(filename, mtime_key)
-          file_mtime = bfile_date.get_modification_date(filename)
-          clazz._log.log_d(f'_find_old_value: old_key={old_key} mtime_key={mtime_key} attr_mtime={attr_mtime} file_mtime={file_mtime}')
-          if file_mtime == attr_mtime:
-            value_bytes = clazz.get_bytes(filename, old_key)
-            return value_bytes
+      value_bytes = clazz.get_cached_bytes_if_fresh(filename, old_key)
+      if value_bytes != None:
+        return value_bytes
     return None
   
   @classmethod
