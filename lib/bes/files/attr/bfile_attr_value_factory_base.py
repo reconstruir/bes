@@ -6,8 +6,6 @@ from bes.system.compat import with_metaclass
 from bes.system.check import check
 from bes.property.cached_class_property import cached_class_property
 
-from .bfile_attr_encoding import bfile_attr_encoding
-
 class _bfile_attr_value_factory_meta(ABCMeta):
   
   def __new__(meta, name, bases, class_dict):
@@ -17,14 +15,20 @@ class _bfile_attr_value_factory_meta(ABCMeta):
       bfile_attr_value_registry.register_factory(clazz)
     return clazz
 
-class bfile_attr_value_factory_base(with_metaclass(_bfile_attr_value_factory_meta, bfile_attr_encoding)):
+class bfile_attr_value_factory_base(with_metaclass(_bfile_attr_value_factory_meta)):
 
   @cached_class_property
-  def attr_class(clazz):
+  def attr(clazz):
     'Provide a property that returns the main attr class so handler can use it.'
     from .bfile_attr import bfile_attr
     return bfile_attr
 
+  @cached_class_property
+  def encoding(clazz):
+    'Provide a property that returns the encoding class so handler can use it.'
+    from .bfile_attr_encoding import bfile_attr_encoding
+    return bfile_attr_encoding
+  
   @cached_class_property
   def cached_descriptions(clazz):
     return clazz.descriptions()

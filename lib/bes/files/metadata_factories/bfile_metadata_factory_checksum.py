@@ -13,7 +13,28 @@ class bfile_metadata_factory_checksum(bfile_metadata_factory_base):
   #@abstractmethod
   def handlers(clazz):
     return [
-      ( 'bes/checksum/md5/0.0', lambda f: bfile_checksum.checksum(f, 'md5'), clazz.decode_string, clazz.encode_string, check.check_string, ( 'bes_checksum_md5', ) ),
-      ( 'bes/checksum/sha1/0.0', lambda f: bfile_checksum.checksum(f, 'sha1'), clazz.decode_string, clazz.encode_string, check.check_string, ( 'bes_checksum_sha1', ) ),
-      ( 'bes/checksum/sha256/0.0', lambda f: bfile_checksum.checksum(f, 'sha256'), clazz.decode_string, clazz.encode_string, check.check_string, ( 'bes_checksum_sha256', ) ),
+      (
+        'bes/checksum/md5/0.0',
+        lambda f: bfile_checksum.checksum(f, 'md5'),
+        clazz.encoding.decode_string,
+        clazz.encoding.encode_string,
+        check.check_string,
+        ( 'bes_checksum_md5', )
+      ),
+      (
+        'bes/checksum/sha1/0.0',
+        lambda f: bfile_checksum.checksum(f, 'sha1'),
+        clazz.encoding.decode_string,
+        clazz.encoding.encode_string,
+        check.check_string,
+        ( 'bes_checksum_sha1', )
+      ),
+      (
+        'bes/checksum/sha256/0.0',
+        lambda f: bfile_checksum.checksum(f, 'sha256'),
+        clazz.encoding.decode_string,
+        clazz.encoding.encode_string,
+        check.check_string,
+        ( 'bes_checksum_sha256', )
+      ),
     ]
