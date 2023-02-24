@@ -76,7 +76,7 @@ class check(object):
     return isinstance(o, tuple)
   
   @classmethod
-  def is_function(clazz, o):
+  def is_callable(clazz, o):
     return isinstance(o, clazz.CALLABLE_TYPES)
   
   @classmethod
@@ -499,3 +499,15 @@ class check(object):
     for i in range(0, depth + 1):
       frame = frame.f_back
     return frame
+
+  @classmethod
+  def check_checker(clazz, checker):
+    #print(type(checker))
+    #print(type(checker.__class__))
+    #print(type(check._check_helper))
+    if check.is_callable(checker):
+      return checker
+    if checker.__class__ == check._check_helper:
+      return checker
+    type_blurb = clazz._make_type_blurb(checker.__class__)
+    raise TypeError(f'checker should be callable or type or registered checker instead of \"{type(checker)}\"')

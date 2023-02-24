@@ -447,7 +447,7 @@ class git_repo(object):
     of type "git_repo"
     '''
 
-    if check.is_function(operation):
+    if check.is_callable(operation):
       operation_spec = inspect_util.getargspec(operation)
       if len(operation_spec[0]) != 1:
         raise git_error('operation should take exactly one argument.')
@@ -502,7 +502,7 @@ class git_repo(object):
     raise save_ex
 
   def _call_operation(self, operation):
-    if check.is_function(operation):
+    if check.is_callable(operation):
       operation(self)
     elif isinstance(operation, git_operation_base):
       operation.run(self)
