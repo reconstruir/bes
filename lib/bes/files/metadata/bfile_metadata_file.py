@@ -7,6 +7,8 @@ from bes.system.log import logger
 from ..attr.bfile_attr_file import bfile_attr_file
 
 from .bfile_metadata import bfile_metadata
+from .bfile_metadata_error import bfile_metadata_error
+from .bfile_metadata_key_error import bfile_metadata_key_error
 
 class bfile_metadata_file(bfile_attr_file):
 

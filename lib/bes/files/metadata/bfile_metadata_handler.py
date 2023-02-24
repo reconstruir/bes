@@ -9,7 +9,6 @@ from bes.property.cached_property import cached_property
 
 from ..attr.bfile_attr_value import bfile_attr_value
 
-from .bfile_metadata_encoding import bfile_metadata_encoding
 from .bfile_metadata_error import bfile_metadata_error
 from .bfile_metadata_key import bfile_metadata_key
 
@@ -20,7 +19,7 @@ class bfile_metadata_handler(namedtuple('bfile_metadata_handler', 'key, getter, 
     check.check_callable(getter)
     check.check_callable(decoder)
     check.check_callable(encoder)
-    check.check_callable(checker)
+    check.check_checker(checker)
     check.check_string_seq(old_keys, allow_none = True)
 
     return clazz.__bases__[0].__new__(clazz, key, getter, decoder, encoder, checker, old_keys)

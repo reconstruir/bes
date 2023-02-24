@@ -52,19 +52,36 @@ class bfile_attr_encoding(object):
     return value.encode('utf-8')
   
   @classmethod
-  def decode_bool(clazz, value):
+  def decode_bool(clazz, value, allow_none = False):
     'Decode an bool'
     check.check_bytes(value)
+    check.check_bool(allow_none)
     
-    return bool_util.parse_bool(value.decode('utf-8'))
+    s = value.decode('utf-8')
+    if allow_none and s == '':
+      return None
+    return bool_util.parse_bool(s)
 
   @classmethod
-  def encode_bool(clazz, value):
+  def decode_bool_with_none(clazz, value):
     'Decode an bool'
-    check.check_bool(value)
+    return clazz._decode_bool(value, allow_none = True)
+  
+  @classmethod
+  def encode_bool(clazz, value, allow_none = False):
+    'Decode an bool'
+    check.check_bool(allow_none)
+    check.check_bool(value, allow_none = allow_none)
 
+    if value == None:
+      return clazz.encode_string('')
     return str(value).encode('utf-8')
 
+  @classmethod
+  def encode_bool_with_none(clazz, value):
+    'Decode an bool'
+    return clazz.encode_bool(value, allow_none = True)
+  
   @classmethod
   def decode_datetime(clazz, value):
     'Decode a date'

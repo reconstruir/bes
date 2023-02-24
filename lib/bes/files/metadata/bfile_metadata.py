@@ -29,8 +29,7 @@ class bfile_metadata(bfile_attr):
       clazz._log.log_d(f'get_metadata: current_mtime={current_mtime}')
       assert not item._last_mtime > current_mtime
       if current_mtime <= item._last_mtime:
-        clazz._log.log_d(f'get_metadata: returning fresh value')
-        assert item._value != None
+        clazz._log.log_d(f'get_metadata: returning cached value')
         return item._value
     value_maker = None
     if not clazz.has_key(filename, key.as_string) and handler.old_keys:
@@ -47,9 +46,7 @@ class bfile_metadata(bfile_attr):
     value = handler.decoder(value_bytes)
     item._last_mtime = mtime
     item._value = value
-    assert item._value != None
     item._count += 1
-    assert item._value != None
     return item._value
 
   @classmethod

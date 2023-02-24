@@ -29,11 +29,8 @@ class bfile_metadata_factory_registry(object):
     check.check_class(factory_class, bfile_metadata_factory_base)
 
     clazz._log.log_method_d()
-    raw_handlers_list = factory_class.cached_handlers
-    try:
-      handlers = check.check_bfile_metadata_handler_list(raw_handlers_list)
-    except TypeError as ex:
-      raise bfile_metadata_error(f'handlers should be a sequence of "bfile_metadata_handler" or tuples: "{raw_handlers_list}" - {type(raw_handlers_list)}')
+
+    handlers = clazz.check_handlers(factory_class.cached_handlers)
     for handler in handlers:
       if handler.key in clazz._factories:
         raise bfile_metadata_error(f'getter already registered: "{handler.key}"')
@@ -41,15 +38,22 @@ class bfile_metadata_factory_registry(object):
       clazz._log.log_d(f'registered handler {handler.key} {handler.getter}')
 
   @classmethod
+  def check_handlers(clazz, raw_handlers):
+    handlers = []
+    try:
+      for raw_handler in raw_handlers:
+        handler = check.check_bfile_metadata_handler(raw_handler)
+        handlers.append(handler)
+    except TypeError as ex:
+      raise bfile_metadata_error(f'handler should be a sequence of "bfile_metadata_handler" or tuples: "{raw_handler}" - {type(raw_handler)}\n{str(ex)}')
+    return handlers
+      
+  @classmethod
   def unregister_factory(clazz, factory_class):
     check.check_class(factory_class, bfile_metadata_factory_base)
 
     clazz._log.log_method_d()
-    raw_handlers_list = factory_class.cached_handlers
-    try:
-      handlers = check.check_bfile_metadata_handler_list(raw_handlers_list)
-    except TypeError as ex:
-      raise bfile_metadata_error(f'handlers should be a sequence of "bfile_metadata_handler" or tuples: "{raw_handlers_list}" - {type(raw_handlers_list)}')
+    handlers = clazz.check_handlers(factory_class.cached_handlers)
     for handler in handlers:
       if handler.key in clazz._factories:
         del clazz._factories[handler.key]
