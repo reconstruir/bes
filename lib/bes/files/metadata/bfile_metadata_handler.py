@@ -12,17 +12,17 @@ from ..attr.bfile_attr_value import bfile_attr_value
 from .bfile_metadata_error import bfile_metadata_error
 from .bfile_metadata_key import bfile_metadata_key
 
-class bfile_metadata_handler(namedtuple('bfile_metadata_handler', 'key, getter, decoder, encoder, checker, old_keys')):
+class bfile_metadata_handler(namedtuple('bfile_metadata_handler', 'key, getter, decoder, encoder, checker, old_getter')):
 
-  def __new__(clazz, key, getter, decoder, encoder, checker, old_keys):
+  def __new__(clazz, key, getter, decoder, encoder, checker, old_getter):
     key = check.check_bfile_metadata_key(key)
     check.check_callable(getter)
     check.check_callable(decoder)
     check.check_callable(encoder)
     check.check_checker(checker)
-    check.check_string_seq(old_keys, allow_none = True)
+    check.check_callable(old_getter, allow_none = True)
 
-    return clazz.__bases__[0].__new__(clazz, key, getter, decoder, encoder, checker, old_keys)
+    return clazz.__bases__[0].__new__(clazz, key, getter, decoder, encoder, checker, old_getter)
 
   @cached_property
   def attr_value(self):
@@ -41,9 +41,6 @@ class bfile_metadata_handler(namedtuple('bfile_metadata_handler', 'key, getter, 
   def encode(self, value):
     return self.encoder(value)
   
-  def get_and_decode(self, filename):
-    return self.decoder(self.get(filename))
-
   def check(self, value):
     return self.checker(value)
   

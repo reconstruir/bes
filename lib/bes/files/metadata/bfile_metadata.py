@@ -32,7 +32,7 @@ class bfile_metadata(bfile_attr):
         clazz._log.log_d(f'get_metadata: returning cached value')
         return item._value
     value_maker = None
-    if not clazz.has_key(filename, key.as_string) and handler.old_keys:
+    if not clazz.has_key(filename, key.as_string) and handler.old_getter:
       old_value = clazz._find_old_value(filename, handler)
       if old_value != None:
         check.check_bytes(old_value)
@@ -52,12 +52,8 @@ class bfile_metadata(bfile_attr):
   @classmethod
   def _find_old_value(clazz, filename, handler):
     clazz._log.log_d(f'_find_old_value: filename={filename}')
-    assert handler.old_keys
-    for old_key in handler.old_keys:
-      value_bytes = clazz.get_cached_bytes_if_fresh(filename, old_key)
-      if value_bytes != None:
-        return value_bytes
-    return None
+    assert handler.old_getter
+    return handler.old_getter(filename)
   
   @classmethod
   def metadata_delete(clazz, filename, key):

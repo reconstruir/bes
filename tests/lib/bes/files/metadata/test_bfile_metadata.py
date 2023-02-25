@@ -99,7 +99,7 @@ class test_bfile_metadata(unit_test):
       self.assertEqual( cherry_mtime, bfile_metadata.get_date(tmp, '__bes_mtime_acme/fruit/cherry/2.0__') )
       self.assertEqual( 5.0, bfile_metadata.get_metadata(tmp, 'acme/fruit/cherry/2.0') )
 
-  def test_get_metadata_old_keys(self):
+  def test_get_metadata_old_getter(self):
     tmp = self.make_temp_file(dir = __file__, content = b'1234567890', suffix = '.data')
     mtime = bfile_date.get_modification_date(tmp)
     old_key = 'bes_double_size'

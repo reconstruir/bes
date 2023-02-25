@@ -33,5 +33,6 @@ class _test_fruits_factory(bfile_metadata_factory_base):
         clazz.encoding.decode_int,
         clazz.encoding.encode_int,
         check.check_int,
-        ( 'bes_double_size', ) ),
+        lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_double_size')
+      )
     ]

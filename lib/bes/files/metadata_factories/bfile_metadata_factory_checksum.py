@@ -19,7 +19,7 @@ class bfile_metadata_factory_checksum(bfile_metadata_factory_base):
         clazz.encoding.decode_string,
         clazz.encoding.encode_string,
         check.check_string,
-        ( 'bes_checksum_md5', )
+        lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_checksum_md5')
       ),
       (
         'bes/checksum/sha1/0.0',
@@ -27,7 +27,7 @@ class bfile_metadata_factory_checksum(bfile_metadata_factory_base):
         clazz.encoding.decode_string,
         clazz.encoding.encode_string,
         check.check_string,
-        ( 'bes_checksum_sha1', )
+        lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_checksum_sha1')
       ),
       (
         'bes/checksum/sha256/0.0',
@@ -35,6 +35,10 @@ class bfile_metadata_factory_checksum(bfile_metadata_factory_base):
         clazz.encoding.decode_string,
         clazz.encoding.encode_string,
         check.check_string,
-        ( 'bes_checksum_sha256', )
+        lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_checksum_sha256')
       ),
     ]
+
+  @classmethod
+  def caca(clazz, filename):
+    pass

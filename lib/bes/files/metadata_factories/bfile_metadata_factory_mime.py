@@ -20,14 +20,16 @@ class bfile_metadata_factory_mime(bfile_metadata_factory_base):
         clazz.encoding.decode_string,
         clazz.encoding.encode_string,
         check.check_string,
-        ( 'bes_mime_type', ) ),
+        lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_mime_type')
+      ),
       (
         'bes/mime/media_type/1.0',
         lambda f: clazz._media_type_1_0(f),
         clazz.encoding.decode_string,
         clazz.encoding.encode_string,
         check.check_string,
-        ( 'bes_media_type', ) ),
+        lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_media_type')
+      )
     ]
   
   @classmethod
