@@ -1,9 +1,12 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import json
+
 from datetime import datetime
 
 from bes.common.number_util import number_util
 from bes.common.bool_util import bool_util
+from bes.common.json_util import json_util
 
 from bes.system.check import check
 
@@ -63,11 +66,6 @@ class bfile_attr_encoding(object):
     return bool_util.parse_bool(s)
 
   @classmethod
-  def decode_bool_with_none(clazz, value):
-    'Decode an bool'
-    return clazz._decode_bool(value, allow_none = True)
-  
-  @classmethod
   def encode_bool(clazz, value, allow_none = False):
     'Decode an bool'
     check.check_bool(allow_none)
@@ -77,11 +75,6 @@ class bfile_attr_encoding(object):
       return clazz.encode_string('')
     return str(value).encode('utf-8')
 
-  @classmethod
-  def encode_bool_with_none(clazz, value):
-    'Decode an bool'
-    return clazz.encode_bool(value, allow_none = True)
-  
   @classmethod
   def decode_datetime(clazz, value):
     'Decode a date'
@@ -97,3 +90,20 @@ class bfile_attr_encoding(object):
     check.check_datetime(value)
 
     return clazz.encode_string(str(value.timestamp()))
+
+  @classmethod
+  def decode_json(clazz, value):
+    'Decode bytes as json'
+    check.check_bytes(value)
+
+    string_value = clazz.decode_string(value)
+    return json.loads(string_value)
+    
+  @classmethod
+  def encode_json(clazz, value):
+    'Encode a dict as json'
+    check.check_dict(value)
+
+    string_value = json_util.to_json(value, indent = 2, sort_keys = False)
+    return clazz.encode_string(string_value)
+  
