@@ -12,6 +12,7 @@ function main()
   
   ${_python} ${_best} pip_project install_requirements \
              --root-dir "${_root_dir}/VE/bes" \
+             --python-version 3.9 \
              $@
   return 0
 }
