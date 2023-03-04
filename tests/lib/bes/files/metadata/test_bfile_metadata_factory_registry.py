@@ -4,18 +4,18 @@
 from bes.testing.unit_test import unit_test
 from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_factory_registry
 
-from _test_fruits_factory import _test_fruits_factory
+from _bes_unit_test_common.files.metadata.example_metadata_fruits_factory import example_metadata_fruits_factory
 
 class test_bfile_metadata_factory_registry(unit_test):
 
-  @classmethod
-  def setUpClass(clazz):
-    bfile_metadata_factory_registry.unregister_factory(_test_fruits_factory)
-    bfile_metadata_factory_registry.register_factory(_test_fruits_factory)
+#  @classmethod
+#  def setUpClass(clazz):
+#    bfile_metadata_factory_registry.unregister_factory(_test_fruits_factory)
+#    bfile_metadata_factory_registry.register_factory(_test_fruits_factory)
 
-  @classmethod
-  def tearDownClass(clazz):
-    bfile_metadata_factory_registry.unregister_factory(_test_fruits_factory)
+#  @classmethod
+#  def tearDownClass(clazz):
+#    bfile_metadata_factory_registry.unregister_factory(_test_fruits_factory)
   
   def test_register_attr_factory(self):
     self.assertEqual( True, bfile_metadata_factory_registry.has_handler('acme/fruit/kiwi/1.0') )

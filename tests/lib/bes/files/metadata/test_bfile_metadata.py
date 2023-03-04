@@ -11,19 +11,19 @@ from bes.files.metadata.bfile_metadata_factory_registry import bfile_metadata_fa
 from bes.files.metadata.bfile_metadata_error import bfile_metadata_error
 from bes.testing.unit_test import unit_test
 
-from _test_fruits_factory import _test_fruits_factory
+from _bes_unit_test_common.files.metadata.example_metadata_fruits_factory import example_metadata_fruits_factory
 
 class test_bfile_metadata(unit_test):
 
   @classmethod
   def setUpClass(clazz):
     docker.raise_skip_if_running_under_docker()
-    bfile_metadata_factory_registry.unregister_factory(_test_fruits_factory)
-    bfile_metadata_factory_registry.register_factory(_test_fruits_factory)
+    #bfile_metadata_factory_registry.unregister_factory(_test_fruits_factory)
+    #bfile_metadata_factory_registry.register_factory(_test_fruits_factory)
 
-  @classmethod
-  def tearDownClass(clazz):
-    bfile_metadata_factory_registry.unregister_factory(_test_fruits_factory)
+  #@classmethod
+  #def tearDownClass(clazz):
+  #  bfile_metadata_factory_registry.unregister_factory(_test_fruits_factory)
 
   def test_get_metadata(self):
     tmp = self.make_temp_file(dir = __file__, non_existent = True, suffix = '.data')

@@ -11,7 +11,7 @@ from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
-from _bes_unit_test_common.files.attr.fruits_factory import fruits_factory as _test_fruits_factory
+from _bes_unit_test_common.files.attr.fruits_factory import fruits_factory
 
 class test_bfile_attr_file(unit_test, unit_test_media_files):
 
