@@ -3,6 +3,8 @@
 from bes.cli.cli_options import cli_options
 from bes.system.check import check
 
+from .bfile_filename_match_type import bfile_filename_match_type
+
 class bfile_filename_matcher_options(cli_options):
 
   def __init__(self, **kargs):
@@ -15,6 +17,7 @@ class bfile_filename_matcher_options(cli_options):
     return {
       'ignore_case': False,
       'basename_only': False,
+      'match_type': bfile_filename_match_type.ANY,
     }
   
   @classmethod
@@ -56,5 +59,6 @@ class bfile_filename_matcher_options(cli_options):
     'Check the type of each option.'
     check.check_bool(self.ignore_case)
     check.check_bool(self.basename_only)
+    self.match_type = check.check_bfile_filename_match_type(self.match_type)
     
 check.register_class(bfile_filename_matcher_options)

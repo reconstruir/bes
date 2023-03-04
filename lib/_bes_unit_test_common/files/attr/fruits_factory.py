@@ -43,5 +43,13 @@ class fruits_factory(bfile_attr_value_factory_base):
         clazz.encoding.decode_bool,
         clazz.encoding.encode_bool,
         check.check_bool,
-        ( 'old_is_favorite1', 'old_is_favorite2' ) ),
+        ( 'old_is_favorite1', 'old_is_favorite2' )
+      ),
+      (
+        'acme/fruit/name/1.0',
+        clazz.encoding.decode_string,
+        clazz.encoding.encode_string,
+        check.check_string,
+        None,
+      ),
     ]
