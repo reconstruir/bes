@@ -12,17 +12,12 @@ from _bes_unit_test_common.files.metadata.example_metadata_fruits_factory import
 
 class test_bfile_matcher_metadata(unit_test):
   
-  def xtest_match_one_metadata_any(self):
+  def test_match_one_metadata_any(self):
     tmp1 = self.make_temp_file(dir = __file__, content = b'1234')
     tmp2 = self.make_temp_file(dir = __file__, content = b'123456')
 
-#    bfile_attr.set_int(tmp1, 'acme/fruit/kiwi/1.0', 666)
-#    bfile_attr.set_int(tmp2, 'acme/fruit/kiwi/1.0', 42)
-
-    #self.assertEqual( 5.0, bfile_metadata.get_metadata(tmp, 'acme/fruit/cherry/2.0') )
-    
-    self.assertEquals( True, self._match({ 'acme/fruit/kiwi/1.0': 666 }, tmp1, match_type = 'ANY') )
-    self.assertEquals( False, self._match({ 'acme/fruit/kiwi/1.0': 666 }, tmp2, match_type = 'ANY') )
+    self.assertEquals( True, self._match({ 'acme/fruit/kiwi/1.0': 4 }, tmp1, match_type = 'ANY') )
+    self.assertEquals( False, self._match({ 'acme/fruit/kiwi/1.0': 4 }, tmp2, match_type = 'ANY') )
 
   def xtest_match_two_metadata_all(self):
     tmp1 = self.make_temp_file(dir = __file__, content = 'brie')
@@ -42,10 +37,10 @@ class test_bfile_matcher_metadata(unit_test):
       'acme/fruit/name/1.0': 'fred',
     }, tmp2, match_type = 'ALL') )
 
-  def _match(self, attrs, filename, **options_args):
+  def _match(self, metadata, filename, **options_args):
     entry = bfile_entry(filename)
     options = bfile_filename_matcher_options(**options_args)
-    matcher = bfile_matcher_attr(attrs, options)
+    matcher = bfile_matcher_metadata(metadata, options)
     return matcher.match(entry)
                                      
 if __name__ == '__main__':

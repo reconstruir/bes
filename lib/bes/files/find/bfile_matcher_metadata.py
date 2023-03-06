@@ -27,4 +27,4 @@ class bfile_matcher_metadata(bfile_matcher_sequence):
   @staticmethod
   def _match_function(entry, item):
     key, value = item
-    return key in entry.metadata and entry.metadata[key] == value
+    return entry.metadata[key] == value
