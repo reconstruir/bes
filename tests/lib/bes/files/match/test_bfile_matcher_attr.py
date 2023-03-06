@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.files.find.bfile_matcher_attr import bfile_matcher_attr
-from bes.files.find.bfile_filename_matcher_options import bfile_filename_matcher_options
+from bes.files.match.bfile_matcher_attr import bfile_matcher_attr
+from bes.files.match.bfile_filename_matcher_options import bfile_filename_matcher_options
 from bes.files.bfile_entry import bfile_entry
 from bes.files.attr.bfile_attr import bfile_attr
 
