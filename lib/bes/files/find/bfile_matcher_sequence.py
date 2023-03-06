@@ -41,4 +41,3 @@ class bfile_matcher_sequence(bfile_matcher_base):
       if match_function(entry, next_item):
         return False
     return True
-  

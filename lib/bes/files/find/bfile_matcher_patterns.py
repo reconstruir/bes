@@ -33,16 +33,19 @@ class bfile_matcher_patterns(bfile_matcher_sequence):
     else:
       return self.patterns
   
-  def _match_patterns(self, entry, match_function):
+  def _match_patterns(self, entry, match_function, dont_ignore_case = False):
     check.check_bfile_entry(entry)
     check.check_callable(match_function)
 
+    ignore_case = self._options.ignore_case and not dont_ignore_case
+    basename_only = self._options.basename_only
+    
     def _match_function(entry, pattern):
-      if self._options.ignore_case and self._options.basename_only:
+      if ignore_case and basename_only:
         filename = entry.basename_lowercase
-      elif self._options.ignore_case:
+      elif ignore_case:
         filename = entry.filename_lowercase
-      elif self._options.basename_only:
+      elif basename_only:
         filename = entry.basename
       else:
         filename = entry.filename
