@@ -1,19 +1,16 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import re
-
 from bes.system.check import check
-from bes.property.cached_property import cached_property
 
 from .bfile_matcher_base import bfile_matcher_base
 from .bfile_filename_matcher_options import bfile_filename_matcher_options
 
-class bfile_matcher_re(bfile_matcher_base):
+class bfile_matcher_callable(bfile_matcher_base):
 
-  def __init__(self, expressions, options):
+  def __init__(self, callables, options):
     check.check_bfile_filename_matcher_options(options)
 
-    self._expressions = self.check_sequence(expressions)
+    self._callables = self.check_callables(callables)
     self._options = options
 
   #@abstractmethod
@@ -22,18 +19,20 @@ class bfile_matcher_re(bfile_matcher_base):
     check.check_bfile_entry(entry)
 
     return self._match_sequence(entry,
-                                self._expressions,
+                                self._callables,
                                 self._options.match_type,
                                 self._match_function,
                                 self._options)
 
   @classmethod
-  def _match_function(clazz, entry, expression, options):
-    flags = 0
-    if options.ignore_case:
-      flags = re.IGNORECASE
+  def _match_function(clazz, entry, callable_, options):
     filename = clazz.filename_for_match(entry, False, options.basename_only)
-    for next_entry in re.finditer(expression, filename, flags):
-      if next_entry:
-        return True
-    return False
+    return callable_(filename)
+
+  @classmethod
+  def check_callables(clazz, seq):
+    if check.is_callable_seq(seq):
+      return [ c for c in seq ]
+    elif check.is_callable(seq):
+      return [ seq ]
+    raise TypeError(f'seq should be either be callable or sequence of callable: "{seq}" - {type(seq)}')

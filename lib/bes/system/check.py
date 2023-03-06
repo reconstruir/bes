@@ -78,6 +78,10 @@ class check(object):
   @classmethod
   def is_callable(clazz, o):
     return isinstance(o, clazz.CALLABLE_TYPES)
+
+  @classmethod
+  def is_callable_seq(clazz, o):
+    return clazz.is_seq(o, clazz.CALLABLE_TYPES)
   
   @classmethod
   def is_seq(clazz, o, t = None):

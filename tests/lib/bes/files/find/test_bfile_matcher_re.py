@@ -9,23 +9,23 @@ from bes.testing.unit_test import unit_test
 
 class test_bfile_matcher_re(unit_test):
   
-  def test_match_one_pattern_all(self):
+  def test_match_one_expression_all(self):
     self.assertEquals( True, self._match(r'.*\.py', 'kiwi.py', match_type = 'ALL') )
     self.assertEquals( False, self._match('.*\.py', 'KIWI.PY', match_type = 'ALL') )
     self.assertEquals( True, self._match('.*\.py', '/tmp/x/lemon.py', match_type = 'ALL') )
 
-  def test_match_two_patterns_all(self):
+  def test_match_two_expressions_all(self):
     self.assertEquals( True, self._match( ( 'k.*', '.*\.py' ), 'kiwi.py', match_type = 'ALL') )
     self.assertEquals( False, self._match( ( 'k.*', '.*\.py' ), 'lemon.py', match_type = 'ALL') )
 
-  def test_match_two_patterns_any(self):
+  def test_match_two_expressions_any(self):
     self.assertEquals( True, self._match( ( 'k.*', '.*\.py' ), 'kiwi.py', match_type = 'ANY') )
     self.assertEquals( True, self._match( ( 'k.*', '.*\.py' ), 'lemon.py', match_type = 'ANY') )
     
-  def _match(self, patterns, filename, **options_args):
+  def _match(self, expressions, filename, **options_args):
     entry = bfile_entry(filename)
     options = bfile_filename_matcher_options(**options_args)
-    matcher = bfile_matcher_re(patterns, options)
+    matcher = bfile_matcher_re(expressions, options)
     return matcher.match(entry)
                                      
 if __name__ == '__main__':
