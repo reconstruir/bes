@@ -194,3 +194,75 @@ class bfile_filename(object):
       len_hash_part = len(hash_part)
       basename_no_ext = basename_no_ext[0:available - 1 - len_hash_part] + hash_part
     return clazz.add_extension(basename_no_ext, ext)
+
+
+  @classmethod
+  def lstrip_sep(clazz, filename):
+    'Return the filename without a leading path separator.'
+    return clazz._strip_sep(filename, True, False)
+
+  @classmethod
+  def rstrip_sep(clazz, filename):
+    'Return the filename without a trailing path separator.'
+    return clazz._strip_sep(filename, False, True)
+
+  @classmethod
+  def strip_sep(clazz, filename):
+    'Return the filename without either leading or trailing path separator.'
+    return clazz._strip_sep(filename, True, True)
+
+  @classmethod
+  def _strip_sep(clazz, filename, leading, trailing):
+    'Return the filename without a trailing path separator.'
+
+    leading = leading and filename.startswith(path.sep)
+    trailing = trailing and filename.endswith(path.sep)
+    if not leading and not trailing:
+      return filename
+    start = 0
+    end = len(filename)
+    if leading:
+      start = len(path.sep)
+    if trailing:
+      end = -len(path.sep)
+    return filename[start:end]
+
+  @classmethod
+  def ensure_rsep(clazz, filename):
+    'Ensure that the given filename has a trailing separator.'
+    if not filename.endswith(os.sep):
+      return filename + os.sep
+    return filename
+
+  @classmethod
+  def ensure_lsep(clazz, filename):
+    'Ensure that the given filename has a leading separator.'
+    if not filename.startswith(os.sep):
+      return os.sep + filename
+    return filename
+
+  @classmethod
+  def remove_head(clazz, filename, head):
+    'Return filename without head.'
+    head = clazz.ensure_rsep(path.normpath(head))
+    result = clazz._str_remove_head(filename, head)
+    return result
+
+  @classmethod
+  def remove_tail(clazz, filename, tail):
+    'Return filename without tail.'
+    tail = clazz.ensure_lsep(path.normpath(tail))
+    result = clazz._str_remove_tail(filename, tail)
+    return result
+
+  @classmethod
+  def _str_remove_head(clazz, s, head):
+    if s.startswith(head):
+      return s[len(head):]
+    return s
+
+  @classmethod
+  def _str_remove_tail(clazz, s, tail):
+    if s.endswith(tail):
+      return s[0:-len(tail)]
+    return s

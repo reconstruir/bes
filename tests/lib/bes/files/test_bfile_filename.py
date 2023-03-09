@@ -101,6 +101,59 @@ class test_bfile_filename(unit_test):
   def test_shorten_with_hash_not_enough_space(self):
     with self.assertRaises(ValueError) as _:
       self._test_shorten('foo12345678901234567890.jpg', 12, True, 8)
+
+  def test_lstrip_sep(self):
+    self.assertEqual( self.native_filename('foo'), bfile_filename.lstrip_sep('foo') )
+    self.assertEqual( self.native_filename('foo'), bfile_filename.lstrip_sep(self.native_filename('/foo')) )
+    self.assertEqual( self.native_filename('foo/'), bfile_filename.lstrip_sep(self.native_filename('/foo/')) )
+    self.assertEqual( self.native_filename(''), bfile_filename.lstrip_sep(self.native_filename('/')) )
+    self.assertEqual( self.native_filename('foo.txt'), bfile_filename.lstrip_sep(self.native_filename('/foo.txt')) )
+
+  def test_rstrip_sep(self):
+    self.assertEqual( self.native_filename('foo'), bfile_filename.rstrip_sep(self.native_filename('foo')) )
+    self.assertEqual( self.native_filename('/foo'), bfile_filename.rstrip_sep(self.native_filename('/foo')) )
+    self.assertEqual( self.native_filename('/foo'), bfile_filename.rstrip_sep(self.native_filename('/foo/')) )
+    self.assertEqual( self.native_filename(''), bfile_filename.rstrip_sep(self.native_filename('/')) )
+
+  def test_strip_sep(self):
+    self.assertEqual( self.native_filename('foo'), bfile_filename.strip_sep(self.native_filename('foo')) )
+    self.assertEqual( self.native_filename('foo'), bfile_filename.strip_sep(self.native_filename('/foo')) )
+    self.assertEqual( self.native_filename('foo'), bfile_filename.strip_sep(self.native_filename('/foo/')) )
+    self.assertEqual( self.native_filename(''), bfile_filename.strip_sep(self.native_filename('/')) )
+
+  def test_ensure_rsep(self):
+    self.assertEqual( self.native_filename('bar/'), bfile_filename.ensure_rsep(self.native_filename('bar')) )
+    self.assertEqual( self.native_filename('bar/'), bfile_filename.ensure_rsep(self.native_filename('bar/')) )
+    self.assertEqual( self.native_filename('/bar/'), bfile_filename.ensure_rsep(self.native_filename('/bar/')) )
+    self.assertEqual( self.native_filename('/'), bfile_filename.ensure_rsep(self.native_filename('')) )
+    self.assertEqual( self.native_filename('/'), bfile_filename.ensure_rsep(self.native_filename('/')) )
+    self.assertEqual( self.native_filename('foo/bar/'), bfile_filename.ensure_rsep(self.native_filename('foo/bar')) )
+    self.assertEqual( self.native_filename('/foo/bar/'), bfile_filename.ensure_rsep(self.native_filename('/foo/bar')) )
+    self.assertEqual( self.native_filename('foo/bar/'), bfile_filename.ensure_rsep(self.native_filename('foo/bar/')) )
+    self.assertEqual( self.native_filename('/foo/bar/'), bfile_filename.ensure_rsep(self.native_filename('/foo/bar/')) )
+
+  def test_ensure_lsep(self):
+    self.assertEqual( self.native_filename('/bar'), bfile_filename.ensure_lsep(self.native_filename('bar')) )
+    self.assertEqual( self.native_filename('/bar/'), bfile_filename.ensure_lsep(self.native_filename('bar/')) )
+    self.assertEqual( self.native_filename('/bar'), bfile_filename.ensure_lsep(self.native_filename('/bar')) )
+    self.assertEqual( self.native_filename('/bar/'), bfile_filename.ensure_lsep(self.native_filename('/bar/')) )
+    self.assertEqual( self.native_filename('/'), bfile_filename.ensure_lsep(self.native_filename('')) )
+    self.assertEqual( self.native_filename('/'), bfile_filename.ensure_lsep(self.native_filename('/')) )
+    self.assertEqual( self.native_filename('/foo/bar'), bfile_filename.ensure_lsep(self.native_filename('foo/bar')) )
+    self.assertEqual( self.native_filename('/foo/bar/'), bfile_filename.ensure_lsep(self.native_filename('foo/bar/')) )
+
+  def test_remove_head(self):
+    self.assertEqual( self.native_filename('bar'), bfile_filename.remove_head(self.native_filename('foo/bar'), self.native_filename('foo')) )
+    self.assertEqual( self.native_filename('bar/baz'), bfile_filename.remove_head(self.native_filename('foo/bar/baz'), self.native_filename('foo')) )
+    self.assertEqual( self.native_filename('foo'), bfile_filename.remove_head(self.native_filename('foo'), self.native_filename('foo/')) )
+    self.assertEqual( self.native_filename('foo'), bfile_filename.remove_head(self.native_filename('foo'), self.native_filename('foo')) )
+    self.assertEqual( self.native_filename(''), bfile_filename.remove_head(self.native_filename('foo/'), self.native_filename('foo/')) )
+
+  def test_remove_tail(self):
+    self.assertEqual( self.native_filename('/foo'), bfile_filename.remove_tail(self.native_filename('/foo/bar'), self.native_filename('bar')) )
+    self.assertEqual( self.native_filename('foo'), bfile_filename.remove_tail(self.native_filename('foo/bar'), self.native_filename('bar')) )
+    self.assertEqual( self.native_filename('foo'), bfile_filename.remove_tail(self.native_filename('foo/bar'), self.native_filename('/bar')) )
+    
     
 if __name__ == '__main__':
   unit_test.main()
