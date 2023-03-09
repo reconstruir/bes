@@ -12,14 +12,14 @@ class bfile_date(object):
 
   @classmethod
   def get_modification_date(clazz, filename):
-    filename = bfile_check.check_file(filename)
+    filename = bfile_check.check_file_or_dir(filename)
     
     ts = path.getmtime(filename)
     return datetime.fromtimestamp(ts)
 
   @classmethod
   def set_modification_date(clazz, filename, mtime):
-    filename = bfile_check.check_file(filename)
+    filename = bfile_check.check_file_or_dir(filename)
     check.check_datetime(mtime)
 
     ts = mtime.timestamp()
