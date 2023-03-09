@@ -14,6 +14,7 @@ class test_checked_enum(unit_test):
     
   def test_value_is_valid(self):
     self.assertTrue( self._fruit.value_is_valid('lemon') )
+    self.assertTrue( self._fruit.value_is_valid('LEMON') )
     self.assertTrue( self._fruit.value_is_valid('peach') )
     self.assertFalse( self._fruit.value_is_valid('fig') )
 

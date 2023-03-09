@@ -2,9 +2,9 @@
 
 import enum
 
-from bes.common.string_util import string_util
-from bes.property.cached_class_property import cached_class_property
-from bes.system.check import check
+from ..common.string_util import string_util
+from ..property.cached_class_property import cached_class_property
+from ..system.check import check
 
 class checked_enum_mixin:
   'An Enum or IntEnum mixin with with methods for checking and parsing values'
@@ -13,17 +13,12 @@ class checked_enum_mixin:
   def is_valid(clazz, what):
     'Return True if what is a valid value or name.'
 
-    if isinstance(what, clazz):
-        return True
-    elif issubclass(clazz, enum.IntEnum):
-      if check.is_int(what):
-        return clazz.value_is_valid(what)
-      elif check.is_string(what):
-        return clazz.name_is_valid(what)
-    elif issubclass(clazz, enum.Enum):
-      if check.is_string(what):
-        return clazz.value_is_valid(what) or clazz.name_is_valid(what)
-    raise ValueError(f'{clazz.__name__}: Invalid enumeration value: {value} - {type(value)}')
+    try:
+      clazz.parse(what, ignore_case = True)
+      return True
+    except ValueError as ex:
+      pass
+    return False
   
   @classmethod
   def is_valid_seq(clazz, seq):
@@ -37,15 +32,7 @@ class checked_enum_mixin:
   def value_is_valid(clazz, value):
     'Return True if value is valid.'
 
-    if isinstance(value, clazz):
-        return True
-    elif issubclass(clazz, enum.IntEnum):
-      if check.is_int(value):
-        return value in clazz.values
-    elif issubclass(clazz, enum.Enum):
-      if check.is_string(value):
-        return value in clazz.values
-    raise ValueError(f'{clazz.__name__}: Invalid enumeration value: {value} - {type(value)}')
+    return clazz.is_valid(value)
   
   @cached_class_property
   def values(clazz):
@@ -58,6 +45,11 @@ class checked_enum_mixin:
     return set([ item.name for item in clazz ])
 
   @cached_class_property
+  def names_lowercase(clazz):
+    'Return a set all names.'
+    return set([ item.name.lower() for item in clazz ])
+  
+  @cached_class_property
   def name_to_item_dict(clazz):
     'Return a dict of names to items.'
     result = {}
@@ -66,6 +58,14 @@ class checked_enum_mixin:
     return result
 
   @cached_class_property
+  def name_to_item_dict_lowercase(clazz):
+    'Return a dict of names to items.'
+    result = {}
+    for item in clazz:
+      result[item.name.lower()] = item
+    return result
+  
+  @cached_class_property
   def name_to_value_dict(clazz):
     'Return a dict of names to enum values.'
     result = {}
@@ -73,6 +73,14 @@ class checked_enum_mixin:
       result[item.name] = item.value
     return result
 
+  @cached_class_property
+  def name_to_value_dict_lowercase(clazz):
+    'Return a dict of names to enum values.'
+    result = {}
+    for item in clazz:
+      result[item.name.lower()] = item.value
+    return result
+  
   @cached_class_property
   def value_to_name_dict(clazz):
     'Return a dict of names to enum values.'
@@ -91,25 +99,15 @@ class checked_enum_mixin:
     return name in clazz.names
 
   @classmethod
-  def parse(clazz, what):
+  def parse(clazz, what, ignore_case = True):
     'Parse a string, int or enum return an enum item or raise an error if name is invalid.'
     
-    try:
-      if isinstance(what, clazz):
-        return what
-      elif issubclass(clazz, enum.IntEnum):
-        if check.is_string(what):
-          return clazz[what]
-        elif check.is_int(what):
-          return clazz(what)
-      elif issubclass(clazz, enum.Enum):
-        if check.is_string(what):
-          if what in clazz.values:
-            return clazz(what)
-          elif what in clazz.name_to_item_dict:
-            return clazz.name_to_item_dict[what]
-    except ValueError as ex:
-      pass
+    if isinstance(what, clazz):
+      return what
+    if check.is_string(what):
+      return clazz.parse_string(what, ignore_case = ignore_case)
+    else:
+      return clazz.parse_non_string(what)
     raise ValueError(f'{clazz.__name__}: Invalid enumeration value: {what} - {type(what)}')
 
   @classmethod
@@ -119,6 +117,20 @@ class checked_enum_mixin:
     
     strings = string_util.split_by_white_space(s, strip = True)
     return [ clazz.parse(x) for x in strings ]
+
+  @classmethod
+  def parse_one_string(clazz, s, ignore_case):
+    'Parse a single string.'
+
+    s2 = s.lower() if ignore_case else s
+    print(f's={s} s2={s2}')
+    print(f'values={clazz.values}')
+    if s2 in clazz.values:
+      return clazz(s2)
+    d = clazz.name_to_item_dict_lowercase if ignore_case else clazz.name_to_item_dict
+    if s2 in d:
+      return d[s2]
+    return None
   
   @classmethod
   def register_check_class(clazz):
