@@ -123,8 +123,6 @@ class checked_enum_mixin:
     'Parse a single string.'
 
     s2 = s.lower() if ignore_case else s
-    print(f's={s} s2={s2}')
-    print(f'values={clazz.values}')
     if s2 in clazz.values:
       return clazz(s2)
     d = clazz.name_to_item_dict_lowercase if ignore_case else clazz.name_to_item_dict
