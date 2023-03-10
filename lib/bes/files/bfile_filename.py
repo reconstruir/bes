@@ -195,7 +195,6 @@ class bfile_filename(object):
       basename_no_ext = basename_no_ext[0:available - 1 - len_hash_part] + hash_part
     return clazz.add_extension(basename_no_ext, ext)
 
-
   @classmethod
   def lstrip_sep(clazz, filename):
     'Return the filename without a leading path separator.'

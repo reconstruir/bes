@@ -2,12 +2,16 @@
 
 from bes.enum_util.checked_int_flag_enum import checked_int_flag_enum
 
-class bfile_find_file_type(checked_int_flag_enum):
+class bfile_type(checked_int_flag_enum):
   FILE = 0x02
   DIR = 0x04
   LINK = 0x08
   DEVICE = 0x10
   ANY = FILE | DIR | LINK | DEVICE
   FILE_OR_LINK = FILE | LINK
+  NOT_DIR = FILE | LINK | DEVICE
+
+  def mask_matches(self, mask):
+    return (self & mask) != 0
   
-bfile_find_file_type.register_check_class()
+bfile_type.register_check_class()

@@ -4,11 +4,13 @@
 from datetime import datetime
 from datetime import timedelta
 
+import os
 from os import path
 
 from bes.files.bfile_permission_error import bfile_permission_error
 from bes.files.bfile_entry import bfile_entry
 from bes.files.bfile_checksum import bfile_checksum
+from bes.files.bfile_symlink import bfile_symlink
 from bes.system.filesystem import filesystem
 from bes.system.check import check
 from bes.testing.unit_test import unit_test
@@ -25,6 +27,13 @@ class test_bfile_entry(unit_test, unit_test_media_files):
   def _make_test_entry_dir(self, *args, **kargs):
     tmp = self.make_temp_dir(*args, **kargs)
     return bfile_entry(tmp)
+
+  def _make_test_entry_link(self, *args, **kargs):
+    tmp1 = self.make_temp_file(*args, **kargs)
+    tmp2 = self.make_temp_file(suffix = '-two')
+    filesystem.remove(tmp2)
+    os.symlink(tmp1, tmp2)
+    return bfile_entry(tmp2)
   
   def test_exits_true(self):
     self.assertEquals( True, self._make_test_entry().exists )
@@ -40,10 +49,16 @@ class test_bfile_entry(unit_test, unit_test_media_files):
 
   def test_is_file(self):
     self.assertEquals( True, self._make_test_entry().is_file )
+    self.assertEquals( 'file', self._make_test_entry().file_type )
 
   def test_is_dir(self):
     self.assertEquals( True, self._make_test_entry_dir().is_dir )
+    self.assertEquals( 'dir', self._make_test_entry_dir().file_type )
 
+  def test_is_link(self):
+    self.assertEquals( True, self._make_test_entry_link().is_link )
+    self.assertEquals( 'link', self._make_test_entry_link().file_type )
+    
   def test_size(self):
     self.assertEquals( 4, self._make_test_entry(content = 'kiwi').size )
 

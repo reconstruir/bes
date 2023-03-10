@@ -1,6 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os
+import stat
+
 from os import path
 from collections import namedtuple
 
@@ -15,6 +17,8 @@ from .bfile_error import bfile_error
 from .bfile_filename import bfile_filename
 from .bfile_mtime_cached_info import bfile_mtime_cached_info
 from .bfile_permission_error import bfile_permission_error
+from .bfile_symlink import bfile_symlink
+from .bfile_type import bfile_type
 
 from .attr.bfile_attr_file import bfile_attr_file
 from .metadata.bfile_metadata_file import bfile_metadata_file
@@ -25,12 +29,19 @@ class bfile_entry(object):
   
   def __init__(self, filename):
     self._filename = filename
-    self._stat = bfile_mtime_cached_info(self._filename, lambda f: os.stat(filename, follow_symlinks = True))
 
   @property
   def filename(self):
     return self._filename
 
+  @cached_property
+  def _cached_stat(self):
+    return bfile_mtime_cached_info(self._filename, lambda f_: os.stat(f_, follow_symlinks = True))
+  
+  @cached_property
+  def _cached_lstat(self):
+    return bfile_mtime_cached_info(self._filename, lambda f_: os.stat(f_, follow_symlinks = False))
+  
   @cached_property
   def filename_lowercase(self):
     return self.filename.lower()
@@ -87,8 +98,32 @@ class bfile_entry(object):
   
   @property
   def stat(self):
-    return self._stat.value
+    return self._cached_stat.value
 
+  @property
+  def lstat(self):
+    return self._cached_lstat.value
+  
+  @property
+  def is_link(self):
+    return stat.S_ISLNK(self.lstat.st_mode)
+
+  @cached_property
+  def _cached_is_broken_link(self):
+    return bfile_mtime_cached_info(self._filename, lambda f_: bfile_symlink.is_broken(f_))
+
+  @property
+  def is_broken_link(self):
+    return self._cached_is_broken_link.value
+
+  @cached_property
+  def _cached_resolved_link(self):
+    return bfile_mtime_cached_info(self._filename, lambda f_: bfile_symlink.resolve(f_))
+  
+  @property
+  def resolved_link(self):
+    return self._cached_resolved_link.value
+  
   @cached_property
   def hashed_filename_sha256(self):
     return hash_util.hash_string_sha256(self._filename)
@@ -99,11 +134,40 @@ class bfile_entry(object):
 
   @property
   def is_dir(self):
-    return path.isdir(self._filename)
+    return stat.S_ISDIR(self.stat.st_mode)
   
   @property
   def is_file(self):
-    return path.isfile(self._filename)
+    return stat.S_ISREG(self.stat.st_mode)
+
+  @property
+  def is_block_device(self):
+    return stat.S_ISBLK(self.stat.st_mode)
+
+  @property
+  def is_char_device(self):
+    return stat.S_ISCHR(self.stat.st_mode)
+  
+  @property
+  def is_device(self):
+    return self.is_block_device or self.is_char_device
+
+  @property
+  def file_type(self):
+    if self.is_link:
+      return bfile_type.LINK
+    elif self.is_file:
+      return bfile_type.FILE
+    elif self.is_dir:
+      return bfile_type.DIR
+    elif self.is_device:
+      return bfile_type.DEVICE
+    raise bfile_error(f'unexpected file type: "{self._filename}"')
+
+  def file_type_matches(self, mask):
+    mask = check.check_bfile_type(mask)
+
+    return (self.file_type & mask) != 0
   
   @property
   def size(self):

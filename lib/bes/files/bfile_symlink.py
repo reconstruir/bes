@@ -5,6 +5,8 @@ import os.path as path
 
 from bes.system.filesystem import filesystem
 
+from .bfile_error import bfile_error
+
 class bfile_symlink(object):
   'Class to deal with symlinks.'
 
@@ -34,8 +36,7 @@ class bfile_symlink(object):
     next_filename = filename
     while True:
       if next_filename in seen:
-        raise IOError('Cyclic error in symlink "{}": "{}"'.format(filename,
-                                                                  next_filename))
+        raise bfile_error(f'Cyclic error in symlink "{filename}": "{next_filename}"')
       seen.add(next_filename)
       if not path.islink(next_filename):
         break

@@ -154,6 +154,5 @@ class test_bfile_filename(unit_test):
     self.assertEqual( self.native_filename('foo'), bfile_filename.remove_tail(self.native_filename('foo/bar'), self.native_filename('bar')) )
     self.assertEqual( self.native_filename('foo'), bfile_filename.remove_tail(self.native_filename('foo/bar'), self.native_filename('/bar')) )
     
-    
 if __name__ == '__main__':
   unit_test.main()

@@ -4,6 +4,7 @@
 import os, os.path as path, tempfile
 from bes.testing.unit_test import unit_test
 from bes.files.bfile_symlink import bfile_symlink
+from bes.files.bfile_error import bfile_error
 from bes.system.filesystem import filesystem
 
 from bes.testing.unit_test_class_skip import unit_test_class_skip
@@ -56,7 +57,7 @@ class test_bfile_symlink(unit_test):
     os.symlink(tmp1, tmp2)
     filesystem.remove(tmp1)
     os.symlink(tmp2, tmp1)
-    with self.assertRaises(IOError) as ctx:
+    with self.assertRaises(bfile_error) as ctx:
       bfile_symlink.resolve(tmp1)
     self.assertTrue( 'Cyclic error' in str(ctx.exception) )
       

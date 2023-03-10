@@ -3,7 +3,9 @@
 from bes.cli.cli_options import cli_options
 from bes.system.check import check
 
-#from .bfile_filename_match_type import bfile_filename_match_type
+from bes.files.match.bfile_match import bfile_match
+
+from ..bfile_type import bfile_type
 
 class bfile_finder_options(cli_options):
 
@@ -19,7 +21,9 @@ class bfile_finder_options(cli_options):
       'min_depth': None,
       'max_depth': None,
       'basename_only': False,
-      'match_type': bfile_filename_match_type.ANY,
+      'follow_links': False,
+      'file_type': bfile_type.ANY,
+      'file_match': None,
     }
 
 #  @classmethod
@@ -38,10 +42,12 @@ class bfile_finder_options(cli_options):
   #@abstractmethod
   def value_type_hints(clazz):
     return {
+      'relative': bool,
       'ignore_case': bool,
       'basename_only': bool,
       'min_depth': int,
       'max_depth': int,
+      'follow_links': bool,
     }
 
   @classmethod
@@ -67,10 +73,35 @@ class bfile_finder_options(cli_options):
   #@abstractmethod
   def check_value_types(self):
     'Check the type of each option.'
+    check.check_bool(self.relative)
     check.check_bool(self.ignore_case)
     check.check_bool(self.basename_only)
     check.check_int(self.min_depth, allow_none = True)
     check.check_int(self.max_depth, allow_none = True)
-    self.match_type = check.check_bfile_filename_match_type(self.match_type)
+    check.check_bool(self.follow_links)
+    self.file_type = check.check_bfile_type(self.file_type)
+    check.check_bfile_match(self.file_match, allow_none = True)
+
+    if self.max_depth and self.min_depth and not (self.max_depth >= self.min_depth):
+      raise RuntimeError('max_depth needs to be >= min_depth.')
+
+    if self.min_depth and self.min_depth < 1:
+      raise RuntimeError('min_depth needs to be >= 1.')
+
+  def depth_in_range(self, depth):
+    if self.min_depth and self.max_depth:
+      return depth >= self.min_depth and depth <= self.max_depth
+    elif self.min_depth:
+      return depth >= self.min_depth
+    elif self.max_depth:
+      return depth <= self.max_depth
+    return True
+
+  def file_match_matches(self, entry):
+    check.check_bfile_entry(entry)
+    
+    if not self.file_match:
+      return True
+    return options.file_match.match(entry)
     
 check.register_class(bfile_finder_options)
