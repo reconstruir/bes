@@ -45,8 +45,10 @@ class test_bfile_matcher_fnmatch(unit_test):
     self.assertEqual( True, m.match(bfile_entry('/tmp/x/lemon.py')) )
     
   def test_match_entries_fnmatch_one_matcher_any(self):
-    m = bfile_match()
-    m.add_matcher_fnmatch([ '*.txt', '*.pdf' ])
+    patterns = [
+      '*.txt',
+      '*.pdf',
+    ]
     filenames = [
       'notes.txt',
       'report.pdf',
@@ -54,29 +56,14 @@ class test_bfile_matcher_fnmatch(unit_test):
       'vaca.png',
       '/foo/bar/vaca.txt',
     ]
-    expected_filenames = [
-      'notes.txt',
-      'report.pdf',
-      '/foo/bar/vaca.txt',
-    ]
-    entries = [ bfile_entry(f) for f in filenames ]
-    expected = [ bfile_entry(f) for f in expected_filenames ]
-    actual = m.match_entries(entries)
-    self.assertEqual( expected, m.match_entries(entries) )
-#    self.assertEqual( False, m.match(bfile_entry('KIWI.PY')) )
-#    self.assertEqual( True, m.match(bfile_entry('/tmp/x/lemon.py')) )
-    
-  def xtest_match_fnmatch_any(self):
-    patterns = [
-      '*.txt',
-      '*.pdf',
-    ]
     expected = [
       'notes.txt',
       'report.pdf',
       '/foo/bar/vaca.txt',
     ]
-    self.assertEqual( sorted(expected), file_match.match_fnmatch(filenames, patterns, file_match.ANY) )
+    m = bfile_match()
+    m.add_matcher_fnmatch(patterns)
+    self.assertEqual( bfile_entry_list(expected), m.match_entries(filenames) )
     
 if __name__ == '__main__':
   unit_test.main()

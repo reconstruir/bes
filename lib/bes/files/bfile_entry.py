@@ -33,7 +33,7 @@ class bfile_entry(object):
   def __str__(self):
     return self._filename
     
-  def __eq__(self, other):
+  def z__eq__(self, other):
     if check.is_bfile_entry(other):
       return self._filename == other._filename
     elif check.is_string(other):
@@ -41,7 +41,7 @@ class bfile_entry(object):
     else:
       raise ValueError(f'Trying to compare against unknown type: "{other}" - {type(other)}')
 
-  def __lt__(self, other):
+  def z__lt__(self, other):
     if check.is_bfile_entry(other):
       return self._filename < other._filename
     elif check.is_string(other):
@@ -263,5 +263,14 @@ class bfile_entry(object):
   @property
   def is_video(self):
     return self.is_file and self.media_type in ( 'video' )
+
+  @classmethod
+  def _cast_func(clazz, o):
+    if check.is_bfile_entry(o):
+      return 0
+    elif check.is_string(o):
+      return bfile_entry(o)
+    else:
+      raise TypeError(f'unknown cast type for bfile_entry: "{o}" - {type(o)}')
   
-check.register_class(bfile_entry, include_seq = False)
+check.register_class(bfile_entry, include_seq = False, cast_func = bfile_entry._cast_func)

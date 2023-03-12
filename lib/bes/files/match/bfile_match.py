@@ -53,7 +53,7 @@ class bfile_match(object):
     return func(entry, self._matchers)
 
   def match_entries(self, entries, match_type = bfile_filename_match_type.ANY):
-    check.check_bfile_entry_list(entries)
+    entries = check.check_bfile_entry_list(entries)
     match_type = check.check_bfile_filename_match_type(match_type)
 
     if not self._matchers:
