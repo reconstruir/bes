@@ -11,6 +11,33 @@ class test_checked_enum(unit_test):
     LEMON = 'lemon'
     PEACH = 'peach'
     ORANGE = 'orange'
+
+  def test_parse_name_str_value(self):
+    class _E(checked_enum):
+      A = 'a'
+      C = 'c'
+    self.assertEqual( _E.A, _E.parse_name('a') )
+    self.assertEqual( _E.A, _E.parse_name('A') )
+    self.assertEqual( _E.C, _E.parse_name('c') )
+    self.assertEqual( _E.C, _E.parse_name('c') )
+    self.assertEqual( None, _E.parse_name('d') )
+
+  def test_parse_name_int_value(self):
+    class _E(checked_enum):
+      A = 1
+      C = 2
+    self.assertEqual( _E.A, _E.parse_name('a') )
+    self.assertEqual( _E.A, _E.parse_name('A') )
+    self.assertEqual( _E.C, _E.parse_name('c') )
+    self.assertEqual( _E.C, _E.parse_name('c') )
+    self.assertEqual( None, _E.parse_name('d') )
+
+  def test_parse_name_str_value_with_name_conflict(self):
+    class _E(checked_enum):
+      A = 'A'
+      a = 'a'
+    with self.assertRaises(ValueError) as _:
+      _E.parse_name('a')
     
   def test_value_is_valid(self):
     self.assertTrue( self._fruit.value_is_valid('lemon') )

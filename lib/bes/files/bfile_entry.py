@@ -30,6 +30,25 @@ class bfile_entry(object):
   def __init__(self, filename):
     self._filename = filename
 
+  def __str__(self):
+    return self._filename
+    
+  def __eq__(self, other):
+    if check.is_bfile_entry(other):
+      return self._filename == other._filename
+    elif check.is_string(other):
+      return self._filename == other
+    else:
+      raise ValueError(f'Trying to compare against unknown type: "{other}" - {type(other)}')
+
+  def __lt__(self, other):
+    if check.is_bfile_entry(other):
+      return self._filename < other._filename
+    elif check.is_string(other):
+      return self._filename < other
+    else:
+      raise ValueError(f'Trying to compare against unknown type: "{other}" - {type(other)}')
+    
   @property
   def filename(self):
     return self._filename

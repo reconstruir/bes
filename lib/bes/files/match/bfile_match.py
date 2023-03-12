@@ -3,6 +3,7 @@
 from bes.system.check import check
 
 from ..bfile_entry import bfile_entry
+from ..bfile_entry_list import bfile_entry_list
 
 from .bfile_filename_match_type import bfile_filename_match_type
 from .bfile_filename_matcher_options import bfile_filename_matcher_options
@@ -50,7 +51,20 @@ class bfile_match(object):
     }
     func = func_map[match_type]
     return func(entry, self._matchers)
-    
+
+  def match_entries(self, entries, match_type = bfile_filename_match_type.ANY):
+    check.check_bfile_entry_list(entries)
+    match_type = check.check_bfile_filename_match_type(match_type)
+
+    if not self._matchers:
+      return entries[:]
+
+    result = bfile_entry_list()
+    for entry in entries:
+      if self.match(entry, match_type = match_type):
+        result.append(entry)
+    return result
+  
   @staticmethod
   def _match_any(entry, matchers):
     for next_matcher in matchers:

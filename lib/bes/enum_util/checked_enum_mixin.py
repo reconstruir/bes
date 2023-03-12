@@ -58,6 +58,28 @@ class checked_enum_mixin:
     return result
 
   @cached_class_property
+  def new_name_to_item_dict(clazz):
+    'Return a dict of names to items.'
+    result = {}
+    for item in clazz:
+      name_lower = item.name.lower()
+      if name_lower in result:
+        exisiting_item = result[name_lower]
+        raise ValueError(f'{clazz.__name__}: Enumeration names are case insensitive: "{item.name}" "{exisiting_item.name}"')
+      result[name_lower] = item
+    return result
+
+  @cached_class_property
+  def new_value_to_item_dict(clazz):
+    'Return a dict of values to item.'
+    result = {}
+    for item in clazz:
+      if not item.value in result:
+        result[item.value] = []
+      result[item.value].append(item)
+    return result
+  
+  @cached_class_property
   def name_to_item_dict_lowercase(clazz):
     'Return a dict of names to items.'
     result = {}
@@ -119,16 +141,31 @@ class checked_enum_mixin:
     return [ clazz.parse(x) for x in strings ]
 
   @classmethod
+  def parse_name(clazz, s):
+    'Parse name.'
+
+    item = clazz.new_name_to_item_dict.get(s.lower(), None)
+    if item == None:
+      return None
+    return clazz(item)
+
+  @classmethod
+  def parse_value(clazz, value):
+    'Parse name.'
+
+    items = clazz.new_value_to_item_dict.get(value, None)
+    if items == None:
+      return None
+    return clazz(items[0])
+  
+  @classmethod
   def parse_one_string(clazz, s, ignore_case):
     'Parse a single string.'
 
-    s2 = s.lower() if ignore_case else s
-    if s2 in clazz.values:
-      return clazz(s2)
-    d = clazz.name_to_item_dict_lowercase if ignore_case else clazz.name_to_item_dict
-    if s2 in d:
-      return d[s2]
-    return None
+    value = clazz.parse_name(s)
+    if value != None:
+      return value
+    return clazz.parse_value(s)
   
   @classmethod
   def register_check_class(clazz):

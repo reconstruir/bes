@@ -62,7 +62,7 @@ class git_status(namedtuple('git_status', 'action, filename, renamed_filename'))
     
     v = string_util.split_by_white_space(s)
     #print(f'v={v}')
-    action = git_status_action.parse(v.pop(0))
+    action = git_status_action.parse(v.pop(0), ignore_case = True)
     filename = v.pop(0)
     renamed_filename = None
     if v:
