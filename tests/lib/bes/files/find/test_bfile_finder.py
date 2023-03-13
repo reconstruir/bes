@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
 from collections import namedtuple
 
 from bes.files.match.bfile_match import bfile_match
@@ -35,6 +36,27 @@ class test_bfile_finder(unit_test):
       'subdir/subberdir',
       'subdir/subberdir/baz.txt'
     ], self._find(content).filenames )
+
+  def test_find_absolute(self):
+    content = [
+      'file foo.txt "foo.txt\n"',
+      'file subdir/bar.txt "bar.txt\n"',
+      'file subdir/subberdir/baz.txt "baz.txt\n"',
+      'file emptyfile.txt',
+      'dir emptydir',
+    ]
+    rv = self._find(content, relative = False)
+    expected_relative = [
+      'foo.txt',
+      'emptyfile.txt',
+      'subdir',
+      'emptydir',
+      'subdir/bar.txt',
+      'subdir/subberdir',
+      'subdir/subberdir/baz.txt'
+    ]    
+    expected = [ path.join(rv.tmp_dir, f) for f in expected_relative ]
+    self.assert_filename_list_equal( expected, rv.filenames )
 
   def test_find_with_files_only(self):
     content = [
