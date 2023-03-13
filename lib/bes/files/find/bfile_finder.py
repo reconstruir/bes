@@ -49,6 +49,7 @@ class bfile_finder(object):
         to_check += links
       for name in to_check:
         f = path.normpath(path.join(root, name))
+        print(f'f={f} root={root} name={name}')
         entry = bfile_entry(f)
         depth = f.count(os.sep) - where_sep_count
         if self._options.depth_in_range(depth):

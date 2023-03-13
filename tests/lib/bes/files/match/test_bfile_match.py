@@ -21,6 +21,29 @@ class test_bfile_matcher_fnmatch(unit_test):
     self.assertEqual( False, m.match(bfile_entry('KIWI.PY')) )
     self.assertEqual( True, m.match(bfile_entry('/tmp/x/lemon.py')) )
 
+  def test_match_fnmatch_one_matcher_any_with_ignore_case(self):
+    m = bfile_match()
+    m.add_matcher_fnmatch('*.py', ignore_case = True)
+    self.assertEqual( True, m.match(bfile_entry('kiwi.py')) )
+    self.assertEqual( True, m.match(bfile_entry('KIWI.PY')) )
+    self.assertEqual( True, m.match(bfile_entry('/tmp/x/lemon.py')) )
+
+  def test_match_fnmatch_one_matcher_any_with_basename_only(self):
+    m = bfile_match()
+    m.add_matcher_fnmatch('f*', basename_only = True)
+    self.assertEqual( False, m.match(bfile_entry('fruit/kiwi.py')) )
+    self.assertEqual( True, m.match(bfile_entry('fruit/fig.py')) )
+    self.assertEqual( False, m.match(bfile_entry('FIG.PY')) )
+    self.assertEqual( False, m.match(bfile_entry('/tmp/x/lemon.py')) )
+
+  def test_match_fnmatch_one_matcher_any_with_ignore_case_and_basename_only(self):
+    m = bfile_match()
+    m.add_matcher_fnmatch('f*', ignore_case = True, basename_only = True)
+    self.assertEqual( False, m.match(bfile_entry('fruit/kiwi.py')) )
+    self.assertEqual( True, m.match(bfile_entry('fruit/fig.py')) )
+    self.assertEqual( True, m.match(bfile_entry('FIG.PY')) )
+    self.assertEqual( False, m.match(bfile_entry('/tmp/x/lemon.py')) )
+    
   def test_match_fnmatch_two_matchers_all(self):
     m = bfile_match()
     m.add_matcher_fnmatch('*.py')

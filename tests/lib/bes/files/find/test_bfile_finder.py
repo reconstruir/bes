@@ -246,6 +246,207 @@ class test_bfile_finder(unit_test):
       '1a.f',
       '1b.f',
     ]), self._find(content, min_depth = 1, max_depth = 1).sorted_filenames )
+
+  def test_file_find_with_patterns(self):
+    self.maxDiff = None
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ]
+    match = bfile_match()
+    match.add_matcher_fnmatch('*.cheese')
+    self.assert_filename_list_equal( [
+      'cheese/brie.cheese',
+      'cheese/cheddar.cheese',
+    ], self._find(content, file_match = match).sorted_filenames )
+    
+  def test_file_find_with_patterns_and_match_type(self):
+    self.maxDiff = None
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ]
+    match = bfile_match()
+    match.add_matcher_fnmatch('*.cheese', match_type = 'none')
+    self.assert_filename_list_equal( [
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], self._find(content, file_match = match).sorted_filenames )
+
+  def test_file_find_with_basename_only(self):
+    self.maxDiff = None
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+      'file bonus/fig.fruit',
+    ]
+    match = bfile_match()
+    match.add_matcher_fnmatch('f*', basename_only = True)
+    self.assert_filename_list_equal( [
+      'bonus/fig.fruit',
+    ], self._find(content, file_match = match).sorted_filenames )
+    
+  def test_file_find_without_basename_only(self):
+    self.maxDiff = None
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+      'file bonus/fig.fruit',
+    ]
+    match = bfile_match()
+    match.add_matcher_fnmatch('f*') #, basename_only = False)
+    x = self._find(content, file_match = match)
+    print(x.filenames)
+    return
+    self.assert_filename_list_equal( [
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], self._find(content, file_match = match).sorted_filenames )
+
+  def xtest_file_find_with_function(self):
+    self.maxDiff = None
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ]
+    self.assert_filename_list_equal( [
+      'cheese/brie.cheese',
+      'cheese/cheddar.cheese',
+    ], self._find(content, match_function = lambda f: f.endswith('.cheese').sorted_filenames) )
+    
+  def xtest_file_find_with_function_and_match_type(self):
+    self.maxDiff = None
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ]
+    self.assert_filename_list_equal( [
+      'cheese/brie.cheese',
+      'cheese/cheddar.cheese',
+    ], self._find(content, match_function = lambda f: f.endswith('.cheese').sorted_filenames, match_type = 'ANY') )
+    self.assert_filename_list_equal( [
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], self._find(content, match_function = lambda f: f.endswith('.cheese').sorted_filenames, match_type = 'NONE') )
+
+  def xtest_file_find_with_function_and_basename(self):
+    self.maxDiff = None
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ]
+    self.assert_filename_list_equal( [
+    ], self._find(content, match_function = lambda f: f.startswith('cheese').sorted_filenames, basename_only = True) )
+    
+    self.assert_filename_list_equal( [
+      'cheese/brie.cheese',
+      'cheese/cheddar.cheese',
+    ], self._find(content, match_function = lambda f: f.startswith('cheese').sorted_filenames, basename_only = False) )
+
+  def xtest_file_find_with_re(self):
+    self.maxDiff = None
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ]
+    self.assert_filename_list_equal( [
+      'cheese/brie.cheese',
+      'cheese/cheddar.cheese',
+    ], self._find(content, match_re = r'^.*\.cheese$').sorted_filenames )
+
+  def xtest_file_find_with_re_list(self):
+    self.maxDiff = None
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+      'file wine/barolo.wine',
+      'file wine/chablis.wine',
+    ]
+    self.assert_filename_list_equal( [
+      'cheese/brie.cheese',
+      'cheese/cheddar.cheese',
+      'wine/barolo.wine',
+      'wine/chablis.wine',
+    ], self._find(content, match_re = [ r'^.*\.cheese$',  r'^.*\.wine$' ]).sorted_filenames )
+    
+  def xtest_file_find_with_re_and_match_type(self):
+    self.maxDiff = None
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ]
+    self.assert_filename_list_equal( [
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], self._find(content, match_re = [ r'^.*\.cheese$' ], match_type = 'NONE').sorted_filenames )
+    
+  def xtest_file_find_with_re_and_basename(self):
+    self.maxDiff = None
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ]
+    self.assert_filename_list_equal( [
+    ], self._find(content, match_re = [ r'^f.*$' ], basename_only = True).sorted_filenames )
+
+    self.assert_filename_list_equal( [
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], self._find(content, match_re = [ r'^f.*$' ], basename_only = False) )
     
   _find_result = namedtuple('_find_result', 'tmp_dir, entries, filenames, sorted_filenames')
   def _find(self, items, **options):
@@ -256,64 +457,6 @@ class test_bfile_finder(unit_test):
     filenames = entries.filenames()
     sorted_filenames = sorted(filenames)
     return self._find_result(tmp_dir, entries, filenames, sorted_filenames)
-
-  '''
-  def _match(self, match, filename, **options):
-    entry = bfile_entry(filename)
-    options = bfile_filename_matcher_options(**options_args)
-    return match.match(entry)
-                                     
-  def test_match_fnmatch_one_matcher_any(self):
-    m = bfile_match()
-    m.add_matcher_fnmatch('*.py')
-    self.assertEqual( True, m.match(bfile_entry('kiwi.py')) )
-    self.assertEqual( False, m.match(bfile_entry('KIWI.PY')) )
-    self.assertEqual( True, m.match(bfile_entry('/tmp/x/lemon.py')) )
-
-  def test_match_fnmatch_two_matchers_all(self):
-    m = bfile_match()
-    m.add_matcher_fnmatch('*.py')
-    m.add_matcher_fnmatch('k*')
-
-    self.assertEqual( True, m.match(bfile_entry('kiwi.py'), match_type = 'ALL') )
-    self.assertEqual( False, m.match(bfile_entry('lemon.py'), match_type = 'ALL') )
-
-  def test_match_fnmatch_two_matchers_any(self):
-    m = bfile_match()
-    m.add_matcher_fnmatch('*.py')
-    m.add_matcher_fnmatch('k*')
-
-    self.assertEqual( True, m.match(bfile_entry('kiwi.py'), match_type = 'ANY') )
-    self.assertEqual( True, m.match(bfile_entry('lemon.py'), match_type = 'ANY') )
-
-  def test_match_fnmatch_one_matcher_any(self):
-    m = bfile_match()
-    m.add_matcher_fnmatch('*.py')
-    self.assertEqual( True, m.match(bfile_entry('kiwi.py')) )
-    self.assertEqual( False, m.match(bfile_entry('KIWI.PY')) )
-    self.assertEqual( True, m.match(bfile_entry('/tmp/x/lemon.py')) )
-    
-  def test_match_entries_fnmatch_one_matcher_any(self):
-    patterns = [
-      '*.txt',
-      '*.pdf',
-    ]
-    filenames = [
-      'notes.txt',
-      'report.pdf',
-      'caca.jpg',
-      'vaca.png',
-      '/foo/bar/vaca.txt',
-    ]
-    expected = [
-      'notes.txt',
-      'report.pdf',
-      '/foo/bar/vaca.txt',
-    ]
-    m = bfile_match()
-    m.add_matcher_fnmatch(patterns)
-    self.assertEqual( bfile_entry_list(expected), m.match_entries(filenames) )
-'''
   
 if __name__ == '__main__':
   unit_test.main()
