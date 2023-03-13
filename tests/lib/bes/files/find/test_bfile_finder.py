@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+
 from bes.files.match.bfile_match import bfile_match
 from bes.files.find.bfile_finder import bfile_finder
+from bes.files.find.bfile_finder_options import bfile_finder_options
 from bes.files.bfile_entry import bfile_entry
 from bes.files.bfile_entry_list import bfile_entry_list
 from bes.fs.testing.temp_content import temp_content
@@ -15,15 +18,14 @@ class test_bfile_finder(unit_test):
   def _make_temp_content(clazz, items):
     return temp_content.write_items_to_temp_dir(items, delete = not clazz.DEBUG)
 
-  def test_find_with_none_options(self):
-    tmp_dir = self._make_temp_content([
+  def test_find_with_no_options(self):
+    content = [
       'file foo.txt "foo.txt\n"',
       'file subdir/bar.txt "bar.txt\n"',
       'file subdir/subberdir/baz.txt "baz.txt\n"',
       'file emptyfile.txt',
       'dir emptydir',
-    ])
-    f = bfile_finder()
+    ]
     self.assert_filename_list_equal( [
       'foo.txt',
       'emptyfile.txt',
@@ -32,7 +34,44 @@ class test_bfile_finder(unit_test):
       'subdir/bar.txt',
       'subdir/subberdir',
       'subdir/subberdir/baz.txt'
-    ], f.find(tmp_dir).filenames() )
+    ], self._find(content).filenames )
+
+  def test_find_with_files_only(self):
+    content = [
+      'file foo.txt "foo.txt\n"',
+      'file subdir/bar.txt "bar.txt\n"',
+      'file subdir/subberdir/baz.txt "baz.txt\n"',
+      'file emptyfile.txt',
+      'dir emptydir',
+    ]
+    self.assert_filename_list_equal( [
+      'foo.txt',
+      'emptyfile.txt',
+      'subdir/bar.txt',
+      'subdir/subberdir/baz.txt'
+    ], self._find(content, file_type = 'file').filenames )
+
+  def test_find_with_dirs_only(self):
+    content = [
+      'file foo.txt "foo.txt\n"',
+      'file subdir/bar.txt "bar.txt\n"',
+      'file subdir/subberdir/baz.txt "baz.txt\n"',
+      'file emptyfile.txt',
+      'dir emptydir',
+    ]
+    self.assert_filename_list_equal( [
+      'subdir',
+      'emptydir',
+      'subdir/subberdir',
+    ], self._find(content, file_type = 'dir').filenames )
+    
+  _find_result = namedtuple('_find_result', 'tmp_dir, entries, filenames')
+  def _find(self, items, **options):
+    ff_options = bfile_finder_options(**options)
+    tmp_dir = self._make_temp_content(items)
+    f = bfile_finder(options = ff_options)
+    entries = f.find(tmp_dir)
+    return self._find_result(tmp_dir, entries, entries.filenames())
 
   '''
   def _match(self, match, filename, **options):
