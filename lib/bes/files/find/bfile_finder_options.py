@@ -19,7 +19,7 @@ class bfile_finder_options(cli_options):
     return {
       'basename_only': False,
       'file_match': None,
-      'file_type': bfile_type.ANY,
+      'file_type': bfile_type.FILE_OR_LINK,
       'follow_links': False,
       'ignore_case': False,
       'max_depth': None,

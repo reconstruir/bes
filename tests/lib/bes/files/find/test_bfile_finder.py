@@ -30,10 +30,7 @@ class test_bfile_finder(unit_test):
     self.assert_filename_list_equal( [
       'foo.txt',
       'emptyfile.txt',
-      'subdir',
-      'emptydir',
       'subdir/bar.txt',
-      'subdir/subberdir',
       'subdir/subberdir/baz.txt'
     ], self._find(content).filenames )
 
@@ -49,10 +46,7 @@ class test_bfile_finder(unit_test):
     expected_relative = [
       'foo.txt',
       'emptyfile.txt',
-      'subdir',
-      'emptydir',
       'subdir/bar.txt',
-      'subdir/subberdir',
       'subdir/subberdir/baz.txt'
     ]    
     expected = [ path.join(rv.tmp_dir, f) for f in expected_relative ]
@@ -103,14 +97,165 @@ class test_bfile_finder(unit_test):
       'kiwi.py',
       'subdir/subberdir/melon.py',
     ], self._find(content, file_match = match).filenames )
+
+  def test_find_with_max_depth(self):
+    self.maxDiff = None
+    content = [
+      'file 1a.f',
+      'file 1b.f',
+      'file 1.d/2a.f',
+      'file 1.d/2b.f',
+      'file 1.d/2.d/3a.f',
+      'file 1.d/2.d/3b.f',
+      'file 1.d/2.d/3.d/4a.f',
+      'file 1.d/2.d/3.d/4b.f',
+      'file 1.d/2.d/3.d/4.d/5a.f',
+      'file 1.d/2.d/3.d/4.d/5b.f',
+    ]
+
+    self.assert_filename_list_equal( sorted([
+      '1a.f',
+      '1b.f',
+    ]), self._find(content, max_depth = 1).sorted_filenames )
+    self.assert_filename_list_equal( sorted([
+      '1a.f',
+      '1b.f',
+      '1.d/2a.f',
+      '1.d/2b.f',
+    ]), self._find(content, max_depth = 2).sorted_filenames )
+    self.assert_filename_list_equal( sorted([
+      '1a.f',
+      '1b.f',
+      '1.d/2a.f',
+      '1.d/2b.f',
+      '1.d/2.d/3a.f',
+      '1.d/2.d/3b.f',
+    ]), self._find(content, max_depth = 3).sorted_filenames )
+    self.assert_filename_list_equal( sorted([
+      '1a.f',
+      '1b.f',
+      '1.d/2a.f',
+      '1.d/2b.f',
+      '1.d/2.d/3a.f',
+      '1.d/2.d/3b.f',
+      '1.d/2.d/3.d/4a.f',
+      '1.d/2.d/3.d/4b.f',
+    ]), self._find(content, max_depth = 4).sorted_filenames )
+    self.assert_filename_list_equal( sorted([
+      '1a.f',
+      '1b.f',
+      '1.d/2a.f',
+      '1.d/2b.f',
+      '1.d/2.d/3a.f',
+      '1.d/2.d/3b.f',
+      '1.d/2.d/3.d/4a.f',
+      '1.d/2.d/3.d/4b.f',
+      '1.d/2.d/3.d/4.d/5a.f',
+      '1.d/2.d/3.d/4.d/5b.f',
+    ]), self._find(content, max_depth = 5).sorted_filenames )
+
+  def test_find_with_min_depth(self):
+    self.maxDiff = None
+    content = [
+      'file 1a.f',
+      'file 1b.f',
+      'file 1.d/2a.f',
+      'file 1.d/2b.f',
+      'file 1.d/2.d/3a.f',
+      'file 1.d/2.d/3b.f',
+      'file 1.d/2.d/3.d/4a.f',
+      'file 1.d/2.d/3.d/4b.f',
+      'file 1.d/2.d/3.d/4.d/5a.f',
+      'file 1.d/2.d/3.d/4.d/5b.f',
+    ]
+
+    self.assert_filename_list_equal( sorted([
+      '1a.f',
+      '1b.f',
+      '1.d/2a.f',
+      '1.d/2b.f',
+      '1.d/2.d/3a.f',
+      '1.d/2.d/3b.f',
+      '1.d/2.d/3.d/4a.f',
+      '1.d/2.d/3.d/4b.f',
+      '1.d/2.d/3.d/4.d/5a.f',
+      '1.d/2.d/3.d/4.d/5b.f',
+    ]), self._find(content, min_depth = 1).sorted_filenames )
+    self.assert_filename_list_equal( sorted([
+      '1.d/2a.f',
+      '1.d/2b.f',
+      '1.d/2.d/3a.f',
+      '1.d/2.d/3b.f',
+      '1.d/2.d/3.d/4a.f',
+      '1.d/2.d/3.d/4b.f',
+      '1.d/2.d/3.d/4.d/5a.f',
+      '1.d/2.d/3.d/4.d/5b.f',
+    ]), self._find(content, min_depth = 2).sorted_filenames )
+    self.assert_filename_list_equal( sorted([
+      '1.d/2.d/3a.f',
+      '1.d/2.d/3b.f',
+      '1.d/2.d/3.d/4a.f',
+      '1.d/2.d/3.d/4b.f',
+      '1.d/2.d/3.d/4.d/5a.f',
+      '1.d/2.d/3.d/4.d/5b.f',
+    ]), self._find(content, min_depth = 3).sorted_filenames )
+    self.assert_filename_list_equal( sorted([
+      '1.d/2.d/3.d/4a.f',
+      '1.d/2.d/3.d/4b.f',
+      '1.d/2.d/3.d/4.d/5a.f',
+      '1.d/2.d/3.d/4.d/5b.f',
+    ]), self._find(content, min_depth = 4).sorted_filenames )
+    self.assert_filename_list_equal( sorted([
+      '1.d/2.d/3.d/4.d/5a.f',
+      '1.d/2.d/3.d/4.d/5b.f',
+    ]), self._find(content, min_depth = 5).sorted_filenames )
+    self.assert_filename_list_equal( sorted([]), self._find(content, min_depth = 6).sorted_filenames )
+
+  def test_find_with_min_and_max_depth(self):
+    self.maxDiff = None
+    content = [
+      'file 1a.f',
+      'file 1b.f',
+      'file 1.d/2a.f',
+      'file 1.d/2b.f',
+      'file 1.d/2.d/3a.f',
+      'file 1.d/2.d/3b.f',
+      'file 1.d/2.d/3.d/4a.f',
+      'file 1.d/2.d/3.d/4b.f',
+      'file 1.d/2.d/3.d/4.d/5a.f',
+      'file 1.d/2.d/3.d/4.d/5b.f',
+    ]
+
+    self.assert_filename_list_equal( sorted([
+      '1a.f',
+      '1b.f',
+      '1.d/2a.f',
+      '1.d/2b.f',
+    ]), self._find(content, min_depth = 1, max_depth = 2).sorted_filenames )
+    self.assert_filename_list_equal( sorted([
+      '1.d/2a.f',
+      '1.d/2b.f',
+      '1.d/2.d/3a.f',
+      '1.d/2.d/3b.f',
+    ]), self._find(content, min_depth = 2, max_depth = 3).sorted_filenames )
+    self.assert_filename_list_equal( sorted([
+      '1.d/2a.f',
+      '1.d/2b.f',
+    ]), self._find(content, min_depth = 2, max_depth = 2).sorted_filenames )
+    self.assert_filename_list_equal( sorted([
+      '1a.f',
+      '1b.f',
+    ]), self._find(content, min_depth = 1, max_depth = 1).sorted_filenames )
     
-  _find_result = namedtuple('_find_result', 'tmp_dir, entries, filenames')
+  _find_result = namedtuple('_find_result', 'tmp_dir, entries, filenames, sorted_filenames')
   def _find(self, items, **options):
     ff_options = bfile_finder_options(**options)
     tmp_dir = self._make_temp_content(items)
     f = bfile_finder(options = ff_options)
     entries = f.find(tmp_dir)
-    return self._find_result(tmp_dir, entries, entries.filenames())
+    filenames = entries.filenames()
+    sorted_filenames = sorted(filenames)
+    return self._find_result(tmp_dir, entries, filenames, sorted_filenames)
 
   '''
   def _match(self, match, filename, **options):
