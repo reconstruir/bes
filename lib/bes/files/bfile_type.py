@@ -9,7 +9,7 @@ class bfile_type(checked_int_flag_enum):
   DEVICE = 0x10
   ANY = FILE | DIR | LINK | DEVICE
   FILE_OR_LINK = FILE | LINK
-  NOT_DIR = FILE | LINK | DEVICE
+  ANY_FILE = FILE | LINK | DEVICE
 
   def mask_matches(self, mask):
     return (self & mask) != 0

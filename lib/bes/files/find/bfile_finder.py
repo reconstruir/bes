@@ -1,5 +1,8 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os.path as path
+import os
+
 #import errno, os.path as path, os, stat
 #
 #from .dir_util import dir_util
@@ -8,8 +11,11 @@
 #from .file_util import file_util
 #from .temp_file import temp_file
 
+from bes.system.check import check
+
 from ..bfile_check import bfile_check
 from ..bfile_entry import bfile_entry
+from ..bfile_entry_list import bfile_entry_list
 from ..bfile_filename import bfile_filename
 from ..bfile_type import bfile_type
 
@@ -18,25 +24,25 @@ from .bfile_finder_options import bfile_finder_options
 class bfile_finder(object):
 
   def __init__(self, options = None):
-    check.check_bfile_finder_options(options)
+    check.check_bfile_finder_options(options, allow_none = True)
 
-    self._options = options
+    self._options = options or bfile_finder_options()
 
-  def find(self, root_dir):
+  def find(self, where):
     where = bfile_check.check_dir(where)    
       
-    result = []
+    result = bfile_entry_list()
 
-    root_dir = path.normpath(root_dir)
-    root_dir_count = root_dir.count(os.sep)
+    where = path.normpath(where)
+    where_sep_count = where.count(os.sep)
 
-    for root, dirs, files in clazz.walk_with_depth(root_dir,
-                                                   max_depth = options.max_depth,
-                                                   follow_links = options.follow_links):
+    for root, dirs, files in self.walk_with_depth(where,
+                                                  max_depth = self._options.max_depth,
+                                                  follow_links = self._options.follow_links):
       to_check = []
-      if options.file_type.mask_matches(bfile_type.ANY_FILE):
+      if self._options.file_type.mask_matches(bfile_type.ANY_FILE):
         to_check += files
-      if options.file_type.mask_matches(bfile_type.DIR):
+      if self._options.file_type.mask_matches(bfile_type.DIR):
         to_check += dirs
       else:
         links = [ d for d in dirs if path.islink(path.normpath(path.join(root, d))) ]
@@ -44,12 +50,12 @@ class bfile_finder(object):
       for name in to_check:
         f = path.normpath(path.join(root, name))
         entry = bfile_entry(f)
-        depth = f.count(os.sep) - root_dir_count
-        if options.depth_in_range(depth):
-          if entry.file_type_matches(options.file_type):
-            if options.file_match_matches(entry):
-              if options.relative:
-                relative_filename = bfile_filename.remove_head(f, root_dir)
+        depth = f.count(os.sep) - where_sep_count
+        if self._options.depth_in_range(depth):
+          if entry.file_type_matches(self._options.file_type):
+            if self._options.file_match_matches(entry):
+              if self._options.relative:
+                relative_filename = bfile_filename.remove_head(f, where)
                 result.append(bfile_entry(relative_filename))
               else:
                 result.append(entry)

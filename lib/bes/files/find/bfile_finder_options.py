@@ -17,13 +17,14 @@ class bfile_finder_options(cli_options):
   def default_values(clazz):
     'Return a dict of defaults for these options.'
     return {
-      'relative': True,
-      'min_depth': None,
-      'max_depth': None,
       'basename_only': False,
-      'follow_links': False,
-      'file_type': bfile_type.ANY,
       'file_match': None,
+      'file_type': bfile_type.ANY,
+      'follow_links': False,
+      'ignore_case': False,
+      'max_depth': None,
+      'min_depth': None,
+      'relative': True,
     }
 
 #  @classmethod
