@@ -103,6 +103,6 @@ class bfile_finder_options(cli_options):
     
     if not self.file_match:
       return True
-    return options.file_match.match(entry)
+    return self.file_match.match(entry)
     
 check.register_class(bfile_finder_options)

@@ -86,6 +86,23 @@ class test_bfile_finder(unit_test):
       'emptydir',
       'subdir/subberdir',
     ], self._find(content, file_type = 'dir').filenames )
+
+  def test_find_with_match(self):
+    content = [
+      'file kiwi.py "kiwi.py\n"',
+      'file foo.txt "foo.txt\n"',
+      'file subdir/bar.txt "bar.txt\n"',
+      'file subdir/subberdir/baz.txt "baz.txt\n"',
+      'file subdir/subberdir/melon.py "melon.py\n"',
+      'file emptyfile.txt',
+      'dir emptydir',
+    ]
+    match = bfile_match()
+    match.add_matcher_fnmatch('*.py')
+    self.assert_filename_list_equal( [
+      'kiwi.py',
+      'subdir/subberdir/melon.py',
+    ], self._find(content, file_match = match).filenames )
     
   _find_result = namedtuple('_find_result', 'tmp_dir, entries, filenames')
   def _find(self, items, **options):
