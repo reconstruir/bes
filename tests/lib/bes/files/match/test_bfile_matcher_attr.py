@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.files.match.bfile_matcher_attr import bfile_matcher_attr
-from bes.files.match.bfile_filename_matcher_options import bfile_filename_matcher_options
+from bes.files.match.bfile_matcher_options import bfile_matcher_options
 from bes.files.bfile_entry import bfile_entry
 from bes.files.attr.bfile_attr import bfile_attr
 
@@ -42,7 +42,7 @@ class test_bfile_matcher_attr(unit_test):
 
   def _match(self, attrs, filename, **options_args):
     entry = bfile_entry(filename)
-    options = bfile_filename_matcher_options(**options_args)
+    options = bfile_matcher_options(**options_args)
     matcher = bfile_matcher_attr(attrs, options)
     return matcher.match(entry)
                                      

@@ -3,12 +3,12 @@
 from bes.system.check import check
 
 from .bfile_matcher_base import bfile_matcher_base
-from .bfile_filename_matcher_options import bfile_filename_matcher_options
+from .bfile_matcher_options import bfile_matcher_options
 
 class bfile_matcher_callable(bfile_matcher_base):
 
   def __init__(self, callables, options):
-    check.check_bfile_filename_matcher_options(options)
+    check.check_bfile_matcher_options(options)
 
     self._callables = self.check_callables(callables)
     self._options = options

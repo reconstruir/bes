@@ -3,7 +3,7 @@
 from bes.system.check import check
 
 from .bfile_matcher_base import bfile_matcher_base
-from .bfile_filename_match_type import bfile_filename_match_type
+from .bfile_matcher_match_type import bfile_matcher_match_type
 
 from ..bfile_entry import bfile_entry
 
@@ -14,9 +14,9 @@ class bfile_matcher_sequence(bfile_matcher_base):
     check.check_callable(match_function)
 
     func_map = {
-      bfile_filename_match_type.ALL: self._match_all,
-      bfile_filename_match_type.ANY: self._match_any,
-      bfile_filename_match_type.NONE: self._match_none,
+      bfile_matcher_match_type.ALL: self._match_all,
+      bfile_matcher_match_type.ANY: self._match_any,
+      bfile_matcher_match_type.NONE: self._match_none,
     }
     func = func_map[match_type]
     return func(match_function, entry, items)

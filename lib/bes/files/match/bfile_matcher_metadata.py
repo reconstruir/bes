@@ -3,13 +3,13 @@
 from bes.system.check import check
 
 from .bfile_matcher_sequence import bfile_matcher_sequence
-from .bfile_filename_matcher_options import bfile_filename_matcher_options
+from .bfile_matcher_options import bfile_matcher_options
 
 class bfile_matcher_metadata(bfile_matcher_sequence):
 
   def __init__(self, metadata, options):
     check.check_dict(metadata)
-    check.check_bfile_filename_matcher_options(options)
+    check.check_bfile_matcher_options(options)
 
     self._metadata = metadata
     self._options = options

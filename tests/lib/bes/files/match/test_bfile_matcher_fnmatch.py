@@ -2,7 +2,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.files.match.bfile_matcher_fnmatch import bfile_matcher_fnmatch
-from bes.files.match.bfile_filename_matcher_options import bfile_filename_matcher_options
+from bes.files.match.bfile_matcher_options import bfile_matcher_options
 from bes.files.bfile_entry import bfile_entry
 
 from bes.testing.unit_test import unit_test
@@ -24,7 +24,7 @@ class test_bfile_matcher_fnmatch(unit_test):
     
   def _match(self, patterns, filename, **options_args):
     entry = bfile_entry(filename)
-    options = bfile_filename_matcher_options(**options_args)
+    options = bfile_matcher_options(**options_args)
     matcher = bfile_matcher_fnmatch(patterns, options)
     return matcher.match(entry)
                                      

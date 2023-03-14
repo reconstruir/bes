@@ -5,8 +5,8 @@ from bes.system.check import check
 from ..bfile_entry import bfile_entry
 from ..bfile_entry_list import bfile_entry_list
 
-from .bfile_filename_match_type import bfile_filename_match_type
-from .bfile_filename_matcher_options import bfile_filename_matcher_options
+from .bfile_matcher_match_type import bfile_matcher_match_type
+from .bfile_matcher_options import bfile_matcher_options
 from .bfile_matcher_base import bfile_matcher_base
 from .bfile_matcher_fnmatch import bfile_matcher_fnmatch
 from .bfile_matcher_re import bfile_matcher_re
@@ -23,38 +23,38 @@ class bfile_match(object):
     self._matchers.append(matcher)
 
   def add_matcher_fnmatch(self, patterns, **options):
-    match_options = bfile_filename_matcher_options(**options)
+    match_options = bfile_matcher_options(**options)
     matcher = bfile_matcher_fnmatch(patterns, match_options)
     self.add_matcher(matcher)
 
   def add_matcher_re(self, expressions, **options):
-    match_options = bfile_filename_matcher_options(**options)
+    match_options = bfile_matcher_options(**options)
     matcher = bfile_matcher_re(expressions, match_options)
     self.add_matcher(matcher)
 
   def add_matcher_callable(self, callables, **options):
-    match_options = bfile_filename_matcher_options(**options)
+    match_options = bfile_matcher_options(**options)
     matcher = bfile_matcher_callable(callables, match_options)
     self.add_matcher(matcher)
     
-  def match(self, entry, match_type = bfile_filename_match_type.ANY):
+  def match(self, entry, match_type = bfile_matcher_match_type.ANY):
     check.check_bfile_entry(entry)
-    match_type = check.check_bfile_filename_match_type(match_type)
+    match_type = check.check_bfile_matcher_match_type(match_type)
 
     if not self._matchers:
       return True
     
     func_map = {
-      bfile_filename_match_type.ALL: self._match_all,
-      bfile_filename_match_type.ANY: self._match_any,
-      bfile_filename_match_type.NONE: self._match_none,
+      bfile_matcher_match_type.ALL: self._match_all,
+      bfile_matcher_match_type.ANY: self._match_any,
+      bfile_matcher_match_type.NONE: self._match_none,
     }
     func = func_map[match_type]
     return func(entry, self._matchers)
 
-  def match_entries(self, entries, match_type = bfile_filename_match_type.ANY):
+  def match_entries(self, entries, match_type = bfile_matcher_match_type.ANY):
     entries = check.check_bfile_entry_list(entries)
-    match_type = check.check_bfile_filename_match_type(match_type)
+    match_type = check.check_bfile_matcher_match_type(match_type)
 
     if not self._matchers:
       return entries[:]

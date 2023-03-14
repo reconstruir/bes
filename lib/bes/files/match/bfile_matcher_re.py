@@ -6,12 +6,12 @@ from bes.system.check import check
 from bes.property.cached_property import cached_property
 
 from .bfile_matcher_base import bfile_matcher_base
-from .bfile_filename_matcher_options import bfile_filename_matcher_options
+from .bfile_matcher_options import bfile_matcher_options
 
 class bfile_matcher_re(bfile_matcher_base):
 
   def __init__(self, expressions, options):
-    check.check_bfile_filename_matcher_options(options)
+    check.check_bfile_matcher_options(options)
 
     self._expressions = self.check_sequence(expressions)
     self._options = options

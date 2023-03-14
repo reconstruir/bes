@@ -11,7 +11,7 @@ class test_bfile_matcher_fnmatch(unit_test):
 
   def _match(self, match, filename, **options):
     entry = bfile_entry(filename)
-    options = bfile_filename_matcher_options(**options_args)
+    options = bfile_matcher_options(**options_args)
     return match.match(entry)
                                      
   def test_match_fnmatch_one_matcher_any(self):
