@@ -39,7 +39,7 @@ class bfile_matcher_fnmatch(bfile_matcher_base):
   @classmethod
   def _match_function(clazz, entry, pattern, options):
     filename = clazz.filename_for_match(entry, options.ignore_case, options.basename_only)
-    r = fnmatch.fnmatch(filename, pattern)
-    print(f'only={options.basename_only} pattern={pattern} filename={entry.filename} for_match={filename} r={r}')
+    #r = fnmatch.fnmatch(filename, pattern)
+    #print(f'only={options.basename_only} pattern={pattern} filename={entry.filename} for_match={filename} r={r}')
     return fnmatch.fnmatch(filename, pattern)
   

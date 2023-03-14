@@ -320,7 +320,7 @@ class unit_test(unittest.TestCase):
   def xp_filename_list(clazz, l, sep = None):
     if l == None:
       return None
-    assert isinstance(l, list)
+    assert isinstance(l, list), f'not a list: "{l}" - {type(l)}'
     return [ clazz.xp_filename(n, sep = sep) for n in l ]
 
   @classmethod
