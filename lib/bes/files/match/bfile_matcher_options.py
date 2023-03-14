@@ -4,6 +4,7 @@ from bes.cli.cli_options import cli_options
 from bes.system.check import check
 
 from .bfile_matcher_match_type import bfile_matcher_match_type
+from .bfile_matcher_path_type import bfile_matcher_path_type
 
 class bfile_matcher_options(cli_options):
 
@@ -18,6 +19,7 @@ class bfile_matcher_options(cli_options):
       'ignore_case': False,
       'basename_only': False,
       'match_type': bfile_matcher_match_type.ANY,
+      'path_type': bfile_matcher_path_type.ABSOLUTE,
     }
   
   @classmethod
@@ -60,5 +62,6 @@ class bfile_matcher_options(cli_options):
     check.check_bool(self.ignore_case)
     check.check_bool(self.basename_only)
     self.match_type = check.check_bfile_matcher_match_type(self.match_type)
+    self.path_type = check.check_bfile_matcher_path_type(self.path_type)
     
 check.register_class(bfile_matcher_options)

@@ -32,7 +32,7 @@ class bfile_entry(object):
 
     self._filename = path.normpath(filename)
 
-  @cached_property
+  @property
   def filename(self):
     return self._filename
 
