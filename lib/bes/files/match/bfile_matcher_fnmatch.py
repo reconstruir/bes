@@ -10,36 +10,32 @@ from .bfile_matcher_options import bfile_matcher_options
 
 class bfile_matcher_fnmatch(bfile_matcher_base):
 
-  def __init__(self, patterns, options):
-    check.check_bfile_matcher_options(options)
-
+  def __init__(self, patterns):
     self._patterns = self.check_sequence(patterns)
-    self._options = options
 
   @cached_property
   def _patterns_lowercase(self):
     return [ p.lower() for p in self._patterns ]
 
   #@abstractmethod
-  def match(self, entry):
+  def match(self, entry, options):
     'Return True if filename matches.'
     check.check_bfile_entry(entry)
+    check.check_bfile_matcher_options(options)
 
-    if self._options.ignore_case:
+    if options.ignore_case:
       patterns = self._patterns_lowercase
     else:
       patterns = self._patterns
 
     return self._match_sequence(entry,
                                 patterns,
-                                self._options.match_type,
+                                options.match_type,
                                 self._match_function,
-                                self._options)
+                                options)
 
   @classmethod
   def _match_function(clazz, entry, pattern, options):
-    filename = clazz.filename_for_match(entry, options.ignore_case, options.basename_only)
-    #r = fnmatch.fnmatch(filename, pattern)
-    #print(f'only={options.basename_only} pattern={pattern} filename={entry.filename} for_match={filename} r={r}')
+    filename = entry.filename_for_matcher(options.path_type, options.ignore_case)
     return fnmatch.fnmatch(filename, pattern)
   

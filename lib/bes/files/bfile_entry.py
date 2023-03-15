@@ -16,6 +16,7 @@ from .bfile_date import bfile_date
 from .bfile_error import bfile_error
 from .bfile_filename import bfile_filename
 from .bfile_mtime_cached_info import bfile_mtime_cached_info
+from .bfile_path_type import bfile_path_type
 from .bfile_permission_error import bfile_permission_error
 from .bfile_symlink import bfile_symlink
 from .bfile_type import bfile_type
@@ -27,15 +28,33 @@ class bfile_entry(object):
 
   _log = logger('bfile_entry')
   
-  def __init__(self, filename):
+  def __init__(self, filename, root_dir = None):
     check.check_string(filename)
+    check.check_string(root_dir, allow_none = True)
 
     self._filename = path.normpath(filename)
+    self._root_dir = path.normpath(root_dir) if root_dir else None
 
   @property
   def filename(self):
     return self._filename
 
+  @property
+  def root_dir(self):
+    return self._root_dir
+
+  @cached_property
+  def relative_filename(self):
+    if not self._root_dir:
+      return None
+    return bfile_filename.remove_head(self._filename, self._root_dir)
+
+  @cached_property
+  def relative_filename_lowercase(self):
+    if not self._root_dir:
+      return None
+    return self.relative_filename.lower()
+  
   def __str__(self):
     return self.filename
     
@@ -278,5 +297,21 @@ class bfile_entry(object):
       return bfile_entry(o)
     else:
       raise TypeError(f'unknown cast type for bfile_entry: "{o}" - {type(o)}')
-  
+
+  def filename_for_matcher(self, path_type, ignore_case):
+    path_type = check.check_bfile_path_type(path_type)
+    check.check_bool(ignore_case)
+    
+    filename = None
+    if path_type == bfile_path_type.ABSOLUTE:
+      filename = self.filename_lowercase if ignore_case else self.filename
+    elif path_type == bfile_path_type.BASENAME:
+      filename = self.basename_lowercase if ignore_case else self.basename
+    elif path_type == bfile_path_type.RELATIVE:
+      filename = self.relative_filename_lowercase if ignore_case else self.relative_filename
+    else:
+      assert False, f'unknown path_type: "{path_type}"'
+    assert filename != None
+    return filename
+    
 check.register_class(bfile_entry, include_seq = False, cast_func = bfile_entry._cast_func)

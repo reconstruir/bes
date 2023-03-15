@@ -4,7 +4,7 @@ from bes.cli.cli_options import cli_options
 from bes.system.check import check
 
 from .bfile_matcher_match_type import bfile_matcher_match_type
-from .bfile_matcher_path_type import bfile_matcher_path_type
+from ..bfile_path_type import bfile_path_type
 
 class bfile_matcher_options(cli_options):
 
@@ -17,9 +17,8 @@ class bfile_matcher_options(cli_options):
     'Return a dict of defaults for these options.'
     return {
       'ignore_case': False,
-      'basename_only': False,
       'match_type': bfile_matcher_match_type.ANY,
-      'path_type': bfile_matcher_path_type.ABSOLUTE,
+      'path_type': bfile_path_type.ABSOLUTE,
     }
   
   @classmethod
@@ -33,7 +32,6 @@ class bfile_matcher_options(cli_options):
   def value_type_hints(clazz):
     return {
       'ignore_case': bool,
-      'basename_only': bool,
     }
 
   @classmethod
@@ -60,8 +58,7 @@ class bfile_matcher_options(cli_options):
   def check_value_types(self):
     'Check the type of each option.'
     check.check_bool(self.ignore_case)
-    check.check_bool(self.basename_only)
     self.match_type = check.check_bfile_matcher_match_type(self.match_type)
-    self.path_type = check.check_bfile_matcher_path_type(self.path_type)
+    self.path_type = check.check_bfile_path_type(self.path_type)
     
 check.register_class(bfile_matcher_options)

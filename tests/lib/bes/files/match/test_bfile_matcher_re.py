@@ -21,12 +21,11 @@ class test_bfile_matcher_re(unit_test):
   def test_match_two_expressions_any(self):
     self.assertEquals( True, self._match( ( 'k.*', '.*\.py' ), 'kiwi.py', match_type = 'ANY') )
     self.assertEquals( True, self._match( ( 'k.*', '.*\.py' ), 'lemon.py', match_type = 'ANY') )
-    
-  def _match(self, expressions, filename, **options_args):
+
+  def _match(self, patterns, filename, **options):
     entry = bfile_entry(filename)
-    options = bfile_matcher_options(**options_args)
-    matcher = bfile_matcher_re(expressions, options)
-    return matcher.match(entry)
-                                     
+    matcher = bfile_matcher_re(patterns)
+    return matcher.match(entry, bfile_matcher_options(**options))
+  
 if __name__ == '__main__':
   unit_test.main()

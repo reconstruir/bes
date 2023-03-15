@@ -34,6 +34,13 @@ class test_bfile_entry(unit_test, unit_test_media_files):
     filesystem.remove(tmp2)
     os.symlink(tmp1, tmp2)
     return bfile_entry(tmp2)
+
+  def _make_tmp_dir(self):
+    return self.make_temp_dir(prefix = 'test_bfile_entry_', suffix = '.dir')
+
+  def _make_test_entry_root_dir(self, root_dir, fragment, basename):
+    filename = path.join(root_dir, fragment, basename)
+    return bfile_entry(filename, root_dir = root_dir)
   
   def test_exits_true(self):
     self.assertEquals( True, self._make_test_entry().exists )
@@ -193,6 +200,23 @@ class test_bfile_entry(unit_test, unit_test_media_files):
     tmp = self._make_test_entry(dir = __file__, content = unit_test_media.PNG_SMALLEST_POSSIBLE, suffix = '.png')
     self.assertEqual( 'image', tmp.media_type )
     self.assertEqual( True, tmp.is_image )
+
+  def test_relative_filename(self):
+    tmp_dir = self._make_tmp_dir()
+    e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/kiwi.fruit')
+    self.assert_filename_equal( 'stuff/fruits/kiwi.fruit', e.relative_filename )
+
+  def test_filename_for_matcher(self):
+    tmp_dir = self._make_tmp_dir()
+    e = self._make_test_entry_root_dir(tmp_dir, 'stuff', 'fruits/Kiwi.fruit')
+    self.assert_filename_equal( path.join(tmp_dir, 'stuff/fruits/Kiwi.fruit'),
+                                e.filename_for_matcher('absolute', False) )
+    self.assert_filename_equal( 'stuff/fruits/Kiwi.fruit',
+                                e.filename_for_matcher('relative', False) )
+    self.assert_filename_equal( 'Kiwi.fruit',
+                                e.filename_for_matcher('basename', False) )
+    self.assert_filename_equal( 'stuff/fruits/kiwi.fruit',
+                                e.filename_for_matcher('relative', True) )
     
 if __name__ == '__main__':
   unit_test.main()

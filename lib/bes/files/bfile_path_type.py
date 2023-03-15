@@ -2,9 +2,9 @@
 
 from bes.enum_util.checked_enum import checked_enum
 
-class bfile_matcher_path_type(checked_enum):
+class bfile_path_type(checked_enum):
   ABSOLUTE = 'absolute'
   BASENAME = 'basename'
   RELATIVE = 'relative'
   
-bfile_matcher_path_type.register_check_class()
+bfile_path_type.register_check_class()

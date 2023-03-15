@@ -12,7 +12,7 @@ from .bfile_matcher_match_type import bfile_matcher_match_type
 class bfile_matcher_base(with_metaclass(ABCMeta, object)):
 
   @abstractmethod
-  def match(self, entry):
+  def match(self, entry, options):
     'Return True if entry matches.'
     raise NotImplemented('match')
 
@@ -57,18 +57,4 @@ class bfile_matcher_base(with_metaclass(ABCMeta, object)):
       return [ seq ]
     raise TypeError(f'seq should be a string or string sequence: "{seq}" - {type(seq)}')
 
-  @classmethod
-  def filename_for_match(clazz, entry, ignore_case, basename_only):
-    check.check_bfile_entry(entry)
-    check.check_bool(ignore_case)
-    check.check_bool(basename_only)
-
-    if ignore_case and basename_only:
-      return entry.basename_lowercase
-    elif ignore_case:
-      return entry.filename_lowercase
-    elif basename_only:
-      return entry.basename
-    return entry.filename
-      
-check.register_class(bfile_matcher_base, name = 'bfile_matcher')
+check.register_class(bfile_matcher_base, name = 'bfile_matcher', include_seq = False)

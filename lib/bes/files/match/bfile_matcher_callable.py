@@ -7,26 +7,24 @@ from .bfile_matcher_options import bfile_matcher_options
 
 class bfile_matcher_callable(bfile_matcher_base):
 
-  def __init__(self, callables, options):
-    check.check_bfile_matcher_options(options)
-
+  def __init__(self, callables):
     self._callables = self.check_callables(callables)
-    self._options = options
 
   #@abstractmethod
-  def match(self, entry):
+  def match(self, entry, options):
     'Return True if filename matches.'
     check.check_bfile_entry(entry)
+    check.check_bfile_matcher_options(options)
 
     return self._match_sequence(entry,
                                 self._callables,
-                                self._options.match_type,
+                                options.match_type,
                                 self._match_function,
-                                self._options)
+                                options)
 
   @classmethod
   def _match_function(clazz, entry, callable_, options):
-    filename = clazz.filename_for_match(entry, False, options.basename_only)
+    filename = entry.filename_for_matcher(options.path_type, options.ignore_case)
     return callable_(filename)
 
   @classmethod

@@ -48,17 +48,16 @@ class bfile_finder(object):
         links = [ d for d in dirs if path.islink(path.normpath(path.join(root, d))) ]
         to_check += links
       for name in to_check:
-        f = path.normpath(path.join(root, name))
-        entry = bfile_entry(f)
-        depth = f.count(os.sep) - where_sep_count
+        abs_filename = path.normpath(path.join(root, name))
+        entry = bfile_entry(abs_filename, root_dir = root)
+        depth = abs_filename.count(os.sep) - where_sep_count
         if self._options.depth_in_range(depth):
           if entry.file_type_matches(self._options.file_type):
             if self._options.file_match_matches(entry):
               if self._options.relative:
-                relative_filename = bfile_filename.remove_head(f, where)
-                result.append(bfile_entry(relative_filename))
-              else:
-                result.append(entry)
+                relative_filename = bfile_filename.remove_head(abs_filename, where)
+                entry = bfile_entry(relative_filename, root_dir = root)
+              result.append(entry)
     return result
 
   #: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below

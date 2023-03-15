@@ -22,23 +22,18 @@ class bfile_match(object):
 
     self._matchers.append(matcher)
 
-  def add_matcher_fnmatch(self, patterns, **options):
-    match_options = bfile_matcher_options(**options)
-    matcher = bfile_matcher_fnmatch(patterns, match_options)
-    self.add_matcher(matcher)
+  def add_matcher_fnmatch(self, patterns):
+    self.add_matcher(bfile_matcher_fnmatch(patterns))
 
-  def add_matcher_re(self, expressions, **options):
-    match_options = bfile_matcher_options(**options)
-    matcher = bfile_matcher_re(expressions, match_options)
-    self.add_matcher(matcher)
+  def add_matcher_re(self, expressions):
+    self.add_matcher(bfile_matcher_re(expressions))
 
   def add_matcher_callable(self, callables, **options):
-    match_options = bfile_matcher_options(**options)
-    matcher = bfile_matcher_callable(callables, match_options)
-    self.add_matcher(matcher)
+    self.add_matcher(bfile_matcher_callable(callables))
     
-  def match(self, entry, match_type = bfile_matcher_match_type.ANY):
+  def match(self, entry, options = None, match_type = bfile_matcher_match_type.ANY):
     check.check_bfile_entry(entry)
+    options = check.check_bfile_matcher_options(options, allow_none = True) or bfile_matcher_options()
     match_type = check.check_bfile_matcher_match_type(match_type)
 
     if not self._matchers:
@@ -50,10 +45,11 @@ class bfile_match(object):
       bfile_matcher_match_type.NONE: self._match_none,
     }
     func = func_map[match_type]
-    return func(entry, self._matchers)
+    return func(entry, self._matchers, options)
 
-  def match_entries(self, entries, match_type = bfile_matcher_match_type.ANY):
+  def match_entries(self, entries, options = None, match_type = bfile_matcher_match_type.ANY):
     entries = check.check_bfile_entry_list(entries)
+    options = check.check_bfile_matcher_options(options, allow_none = True) or bfile_matcher_options()
     match_type = check.check_bfile_matcher_match_type(match_type)
 
     if not self._matchers:
@@ -61,29 +57,29 @@ class bfile_match(object):
 
     result = bfile_entry_list()
     for entry in entries:
-      if self.match(entry, match_type = match_type):
+      if self.match(entry, options = options, match_type = match_type):
         result.append(entry)
     return result
   
   @staticmethod
-  def _match_any(entry, matchers):
+  def _match_any(entry, matchers, options):
     for next_matcher in matchers:
-      if next_matcher.match(entry):
+      if next_matcher.match(entry, options):
         return True
     return False
 
   @staticmethod
-  def _match_all(entry, matchers):
+  def _match_all(entry, matchers, options):
     for next_matcher in matchers:
-      if not next_matcher.match(entry):
+      if not next_matcher.match(entry, options):
         return False
     return True
 
   @staticmethod
-  def _match_none(entry, matchers):
+  def _match_none(entry, matchers, options):
     for next_matcher in matchers:
-      if next_matcher.match(entry):
+      if next_matcher.match(entry, options):
         return True
     return False
       
-check.register_class(bfile_match)
+check.register_class(bfile_match, include_seq = False)

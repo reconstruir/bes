@@ -3,8 +3,8 @@
 from bes.enum_util.checked_enum import checked_enum
 
 class bfile_matcher_match_type(checked_enum):
-  ALL = 'ALL'
-  ANY = 'ANY'
-  NONE = 'NONE'
+  ALL = 'all'
+  ANY = 'any'
+  NONE = 'none'
   
 bfile_matcher_match_type.register_check_class()
