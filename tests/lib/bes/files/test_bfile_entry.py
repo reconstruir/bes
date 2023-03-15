@@ -43,34 +43,34 @@ class test_bfile_entry(unit_test, unit_test_media_files):
     return bfile_entry(filename, root_dir = root_dir)
   
   def test_exits_true(self):
-    self.assertEquals( True, self._make_test_entry().exists )
+    self.assertEqual( True, self._make_test_entry().exists )
 
   def test_exits_false(self):
     e = self._make_test_entry()
-    self.assertEquals( True, e.exists )
+    self.assertEqual( True, e.exists )
     filesystem.remove(e.filename)
-    self.assertEquals( False, e.exists )
+    self.assertEqual( False, e.exists )
 
   def test_access(self):
-    self.assertEquals( ( True, True, True, False ), self._make_test_entry().access )
+    self.assertEqual( ( True, True, True, False ), self._make_test_entry().access )
 
   def test_is_file(self):
-    self.assertEquals( True, self._make_test_entry().is_file )
-    self.assertEquals( 'file', self._make_test_entry().file_type )
+    self.assertEqual( True, self._make_test_entry().is_file )
+    self.assertEqual( 'file', self._make_test_entry().file_type )
 
   def test_is_dir(self):
-    self.assertEquals( True, self._make_test_entry_dir().is_dir )
-    self.assertEquals( 'dir', self._make_test_entry_dir().file_type )
+    self.assertEqual( True, self._make_test_entry_dir().is_dir )
+    self.assertEqual( 'dir', self._make_test_entry_dir().file_type )
 
   def test_is_link(self):
-    self.assertEquals( True, self._make_test_entry_link().is_link )
-    self.assertEquals( 'link', self._make_test_entry_link().file_type )
+    self.assertEqual( True, self._make_test_entry_link().is_link )
+    self.assertEqual( 'link', self._make_test_entry_link().file_type )
     
   def test_size(self):
-    self.assertEquals( 4, self._make_test_entry(content = 'kiwi').size )
+    self.assertEqual( 4, self._make_test_entry(content = 'kiwi').size )
 
   def test_extension(self):
-    self.assertEquals( 'kiwi', self._make_test_entry(suffix = '.kiwi').extension )
+    self.assertEqual( 'kiwi', self._make_test_entry(suffix = '.kiwi').extension )
     
   def test_modification_date_get(self):
     e = self._make_test_entry()

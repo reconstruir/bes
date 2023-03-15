@@ -10,17 +10,17 @@ from bes.testing.unit_test import unit_test
 class test_bfile_matcher_fnmatch(unit_test):
   
   def test_match_one_pattern_all(self):
-    self.assertEquals( True, self._match('*.py', 'kiwi.py', match_type = 'ALL') )
-    self.assertEquals( False, self._match('*.py', 'KIWI.PY', match_type = 'ALL') )
-    self.assertEquals( True, self._match('*.py', '/tmp/x/lemon.py', match_type = 'ALL') )
+    self.assertEqual( True, self._match('*.py', 'kiwi.py', match_type = 'ALL') )
+    self.assertEqual( False, self._match('*.py', 'KIWI.PY', match_type = 'ALL') )
+    self.assertEqual( True, self._match('*.py', '/tmp/x/lemon.py', match_type = 'ALL') )
 
   def test_match_two_patterns_all(self):
-    self.assertEquals( True, self._match( ( 'k*', '*.py' ), 'kiwi.py', match_type = 'ALL') )
-    self.assertEquals( False, self._match( ('k*', '*.py' ), 'lemon.py', match_type = 'ALL') )
+    self.assertEqual( True, self._match( ( 'k*', '*.py' ), 'kiwi.py', match_type = 'ALL') )
+    self.assertEqual( False, self._match( ('k*', '*.py' ), 'lemon.py', match_type = 'ALL') )
 
   def test_match_two_patterns_any(self):
-    self.assertEquals( True, self._match( ( 'k*', '*.py' ), 'kiwi.py', match_type = 'ANY') )
-    self.assertEquals( True, self._match( ( 'k*', '*.py' ), 'lemon.py', match_type = 'ANY') )
+    self.assertEqual( True, self._match( ( 'k*', '*.py' ), 'kiwi.py', match_type = 'ANY') )
+    self.assertEqual( True, self._match( ( 'k*', '*.py' ), 'lemon.py', match_type = 'ANY') )
     
   def _match(self, patterns, filename, **options):
     entry = bfile_entry(filename)

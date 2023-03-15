@@ -19,8 +19,8 @@ class test_bfile_matcher_attr(unit_test):
     bfile_attr.set_int(tmp1, 'acme/fruit/kiwi/1.0', 666)
     bfile_attr.set_int(tmp2, 'acme/fruit/kiwi/1.0', 42)
 
-    self.assertEquals( True, self._match({ 'acme/fruit/kiwi/1.0': 666 }, tmp1, match_type = 'ANY') )
-    self.assertEquals( False, self._match({ 'acme/fruit/kiwi/1.0': 666 }, tmp2, match_type = 'ANY') )
+    self.assertEqual( True, self._match({ 'acme/fruit/kiwi/1.0': 666 }, tmp1, match_type = 'ANY') )
+    self.assertEqual( False, self._match({ 'acme/fruit/kiwi/1.0': 666 }, tmp2, match_type = 'ANY') )
 
   def test_match_two_attr_all(self):
     tmp1 = self.make_temp_file(dir = __file__, content = 'brie')
@@ -31,11 +31,11 @@ class test_bfile_matcher_attr(unit_test):
     bfile_attr.set_int(tmp2, 'acme/fruit/kiwi/1.0', 42)
     bfile_attr.set_string(tmp2, 'acme/fruit/name/1.0', 'joe')
 
-    self.assertEquals( True, self._match({
+    self.assertEqual( True, self._match({
       'acme/fruit/kiwi/1.0': 666,
       'acme/fruit/name/1.0': 'fred',
     }, tmp1, match_type = 'ALL') )
-    self.assertEquals( False, self._match({
+    self.assertEqual( False, self._match({
       'acme/fruit/kiwi/1.0': 666,
       'acme/fruit/name/1.0': 'fred',
     }, tmp2, match_type = 'ALL') )
