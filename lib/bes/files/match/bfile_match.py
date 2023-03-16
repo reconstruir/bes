@@ -43,6 +43,7 @@ class bfile_match(object):
       bfile_matcher_match_type.ANY: self._match_any,
       bfile_matcher_match_type.NONE: self._match_none,
     }
+    print(f'match_type={options.match_type}')
     func = func_map[options.match_type]
     return func(entry, self._matchers, options)
 

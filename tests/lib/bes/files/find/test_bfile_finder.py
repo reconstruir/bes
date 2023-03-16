@@ -423,7 +423,7 @@ class test_bfile_finder(unit_test):
       'wine/chablis.wine',
     ], self._find(content, file_match = match).sorted_filenames )
     
-  def xtest_file_find_with_re_and_match_type(self):
+  def test_file_find_with_re_and_match_type_none(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',

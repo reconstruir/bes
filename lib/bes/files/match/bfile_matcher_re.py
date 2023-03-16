@@ -27,5 +27,6 @@ class bfile_matcher_re(bfile_matcher_base):
     filename = entry.filename_for_matcher(options.path_type, False)
     for next_entry in re.finditer(self._expression, filename, flags):
       if next_entry:
+        print(f'matched {entry.filename} for {self._expression}')
         return True
     return False

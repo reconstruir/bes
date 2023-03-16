@@ -22,10 +22,10 @@ class test_bfile_matcher_re(unit_test):
   def test_match_path_type_basename(self):
     self.assertEqual( True, self._match('k.*\.py', '/foo/bar/kiwi.py', path_type = 'basename') )
     self.assertEqual( False, self._match('k.*\.py', 'koo/bar/melon.py', path_type = 'basename') )
-    
-  def _match(self, patterns, filename, **options):
+
+  def _match(self, pattern, filename, **options):
     entry = bfile_entry(filename)
-    matcher = bfile_matcher_re(patterns)
+    matcher = bfile_matcher_re(pattern)
     return matcher.match(entry, bfile_matcher_options(**options))
   
 if __name__ == '__main__':
