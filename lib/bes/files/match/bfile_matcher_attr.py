@@ -2,29 +2,25 @@
 
 from bes.system.check import check
 
-from .bfile_matcher_sequence import bfile_matcher_sequence
+from .bfile_matcher_base import bfile_matcher_base
 from .bfile_matcher_options import bfile_matcher_options
 
-class bfile_matcher_attr(bfile_matcher_sequence):
+class bfile_matcher_attr(bfile_matcher_base):
 
-  def __init__(self, attrs, options):
+  def __init__(self, attrs):
     check.check_dict(attrs)
-    check.check_bfile_matcher_options(options)
 
     self._attrs = attrs
-    self._options = options
 
   #@abstractmethod
-  def match(self, entry):
+  def match(self, entry, options):
     'Return True if entry matches.'
     check.check_bfile_entry(entry)
+    check.check_bfile_matcher_options(options)
 
-    return self._match_sequence(entry,
-                                self._attrs.items(),
-                                self._options.match_type,
-                                self._match_function)
-
-  @staticmethod
-  def _match_function(entry, item):
-    key, value = item
-    return key in entry.attributes and entry.attributes[key] == value
+    for key, value in self._attrs.items():
+      if not key entry.attributes:
+        return False
+      if entry.attributes[key] != value:
+        return False
+    return True

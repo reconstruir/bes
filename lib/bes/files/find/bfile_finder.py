@@ -30,12 +30,10 @@ class bfile_finder(object):
 
   def find(self, where):
     where = bfile_check.check_dir(where)    
-      
     result = bfile_entry_list()
-
     where = path.normpath(where)
     where_sep_count = where.count(os.sep)
-
+    
     for root, dirs, files in self.walk_with_depth(where,
                                                   max_depth = self._options.max_depth,
                                                   follow_links = self._options.follow_links):

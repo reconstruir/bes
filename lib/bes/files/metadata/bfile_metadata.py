@@ -27,7 +27,9 @@ class bfile_metadata(bfile_attr):
     if item._last_mtime != None:
       current_mtime = bfile_date.get_modification_date(filename)
       clazz._log.log_d(f'get_metadata: current_mtime={current_mtime}')
-      assert not item._last_mtime > current_mtime
+      if item._last_mtime > current_mtime:
+        print(f'FUCK: {filename} _last_mtime={item._last_mtime} current_mtime={current_mtime}')
+#      assert not item._last_mtime > current_mtime, f'_last_mtime={item._last_mtime} current_mtime={current_mtime}'
       if current_mtime <= item._last_mtime:
         clazz._log.log_d(f'get_metadata: returning cached value')
         return item._value

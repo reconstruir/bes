@@ -10,12 +10,14 @@ from .bfile_matcher_options import bfile_matcher_options
 
 class bfile_matcher_fnmatch(bfile_matcher_base):
 
-  def __init__(self, patterns):
-    self._patterns = self.check_sequence(patterns)
+  def __init__(self, pattern):
+    check.check_string(pattern)
+
+    self._pattern = pattern
 
   @cached_property
-  def _patterns_lowercase(self):
-    return [ p.lower() for p in self._patterns ]
+  def _pattern_lowercase(self):
+    return self._pattern.lower()
 
   #@abstractmethod
   def match(self, entry, options):
@@ -23,19 +25,6 @@ class bfile_matcher_fnmatch(bfile_matcher_base):
     check.check_bfile_entry(entry)
     check.check_bfile_matcher_options(options)
 
-    if options.ignore_case:
-      patterns = self._patterns_lowercase
-    else:
-      patterns = self._patterns
-
-    return self._match_sequence(entry,
-                                patterns,
-                                options.match_type,
-                                self._match_function,
-                                options)
-
-  @classmethod
-  def _match_function(clazz, entry, pattern, options):
+    pattern = self._pattern_lowercase if options.ignore_case else self._pattern
     filename = entry.filename_for_matcher(options.path_type, options.ignore_case)
     return fnmatch.fnmatch(filename, pattern)
-  

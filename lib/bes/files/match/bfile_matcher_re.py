@@ -10,8 +10,10 @@ from .bfile_matcher_options import bfile_matcher_options
 
 class bfile_matcher_re(bfile_matcher_base):
 
-  def __init__(self, expressions):
-    self._expressions = self.check_sequence(expressions)
+  def __init__(self, expression):
+    check.check_string(expression)
+
+    self._expression = expression
 
   #@abstractmethod
   def match(self, entry, options):
@@ -19,19 +21,11 @@ class bfile_matcher_re(bfile_matcher_base):
     check.check_bfile_entry(entry)
     check.check_bfile_matcher_options(options)
 
-    return self._match_sequence(entry,
-                                self._expressions,
-                                options.match_type,
-                                self._match_function,
-                                options)
-
-  @classmethod
-  def _match_function(clazz, entry, expression, options):
     flags = 0
     if options.ignore_case:
       flags = re.IGNORECASE
     filename = entry.filename_for_matcher(options.path_type, False)
-    for next_entry in re.finditer(expression, filename, flags):
+    for next_entry in re.finditer(self._expression, filename, flags):
       if next_entry:
         return True
     return False

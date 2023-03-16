@@ -9,22 +9,23 @@ from bes.testing.unit_test import unit_test
 
 class test_bfile_matcher_fnmatch(unit_test):
   
-  def test_match_one_pattern_all(self):
-    self.assertEqual( True, self._match('*.py', 'kiwi.py', match_type = 'ALL') )
-    self.assertEqual( False, self._match('*.py', 'KIWI.PY', match_type = 'ALL') )
-    self.assertEqual( True, self._match('*.py', '/tmp/x/lemon.py', match_type = 'ALL') )
+  def test_match_no_options(self):
+    self.assertEqual( True, self._match('*.py', 'kiwi.py') )
+    self.assertEqual( False, self._match('*.py', 'KIWI.PY') )
+    self.assertEqual( True, self._match('*.py', '/tmp/x/lemon.py') )
 
-  def test_match_two_patterns_all(self):
-    self.assertEqual( True, self._match( ( 'k*', '*.py' ), 'kiwi.py', match_type = 'ALL') )
-    self.assertEqual( False, self._match( ('k*', '*.py' ), 'lemon.py', match_type = 'ALL') )
+  def test_match_ignore_case(self):
+    self.assertEqual( True, self._match('*.py', 'kiwi.py', ignore_case = True) )
+    self.assertEqual( True, self._match('*.py', 'KIWI.PY', ignore_case = True) )
+    self.assertEqual( True, self._match('*.py', '/tmp/x/lemon.py', ignore_case = True) )
 
-  def test_match_two_patterns_any(self):
-    self.assertEqual( True, self._match( ( 'k*', '*.py' ), 'kiwi.py', match_type = 'ANY') )
-    self.assertEqual( True, self._match( ( 'k*', '*.py' ), 'lemon.py', match_type = 'ANY') )
+  def test_match_path_type_basename(self):
+    self.assertEqual( True, self._match('k*.py', '/foo/bar/kiwi.py', path_type = 'basename') )
+    self.assertEqual( False, self._match('k*.py', 'koo/bar/melon.py', path_type = 'basename') )
     
-  def _match(self, patterns, filename, **options):
+  def _match(self, pattern, filename, **options):
     entry = bfile_entry(filename)
-    matcher = bfile_matcher_fnmatch(patterns)
+    matcher = bfile_matcher_fnmatch(pattern)
     return matcher.match(entry, bfile_matcher_options(**options))
                                      
 if __name__ == '__main__':

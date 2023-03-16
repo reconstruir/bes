@@ -2,9 +2,12 @@
 
 from bes.cli.cli_options import cli_options
 from bes.system.check import check
+from bes.property.cached_property import cached_property
 
-from bes.files.match.bfile_match import bfile_match
+from ..match.bfile_matcher_match_type import bfile_matcher_match_type
+from ..match.bfile_matcher_options import bfile_matcher_options
 
+from ..bfile_path_type import bfile_path_type
 from ..bfile_type import bfile_type
 
 class bfile_finder_options(cli_options):
@@ -17,14 +20,16 @@ class bfile_finder_options(cli_options):
   def default_values(clazz):
     'Return a dict of defaults for these options.'
     return {
-      'basename_only': False,
-      'file_match': None,
+      'ignore_case': False,
+      'match_type': bfile_matcher_match_type.ANY,
+      'path_type': bfile_path_type.ABSOLUTE,
       'file_type': bfile_type.FILE_OR_LINK,
       'follow_links': False,
       'ignore_case': False,
       'max_depth': None,
       'min_depth': None,
       'relative': True,
+      'file_match': None,
     }
 
 #  @classmethod
@@ -45,7 +50,6 @@ class bfile_finder_options(cli_options):
     return {
       'relative': bool,
       'ignore_case': bool,
-      'basename_only': bool,
       'min_depth': int,
       'max_depth': int,
       'follow_links': bool,
@@ -76,7 +80,8 @@ class bfile_finder_options(cli_options):
     'Check the type of each option.'
     check.check_bool(self.relative)
     check.check_bool(self.ignore_case)
-    check.check_bool(self.basename_only)
+    self.match_type = check.check_bfile_matcher_match_type(self.match_type)
+    self.path_type = check.check_bfile_path_type(self.path_type)
     check.check_int(self.min_depth, allow_none = True)
     check.check_int(self.max_depth, allow_none = True)
     check.check_bool(self.follow_links)
@@ -98,11 +103,17 @@ class bfile_finder_options(cli_options):
       return depth <= self.max_depth
     return True
 
+  @cached_property
+  def matcher_options(self):
+    return bfile_matcher_options(ignore_case = self.ignore_case,
+                                 match_type = self.match_type,
+                                 path_type = self.path_type)
+  
   def file_match_matches(self, entry):
     check.check_bfile_entry(entry)
     
     if not self.file_match:
       return True
-    return self.file_match.match(entry)
+    return self.file_match.match(entry, self.matcher_options)
     
 check.register_class(bfile_finder_options)
