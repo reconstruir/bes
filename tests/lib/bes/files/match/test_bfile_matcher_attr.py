@@ -43,8 +43,8 @@ class test_bfile_matcher_attr(unit_test):
   def _match(self, attrs, filename, **options_args):
     entry = bfile_entry(filename)
     options = bfile_matcher_options(**options_args)
-    matcher = bfile_matcher_attr(attrs, options)
-    return matcher.match(entry)
+    matcher = bfile_matcher_attr(attrs)
+    return matcher.match(entry, options)
                                      
 if __name__ == '__main__':
   unit_test.main()

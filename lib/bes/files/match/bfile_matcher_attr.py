@@ -19,7 +19,7 @@ class bfile_matcher_attr(bfile_matcher_base):
     check.check_bfile_matcher_options(options)
 
     for key, value in self._attrs.items():
-      if not key entry.attributes:
+      if not key in entry.attributes:
         return False
       if entry.attributes[key] != value:
         return False

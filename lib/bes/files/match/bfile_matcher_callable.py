@@ -19,4 +19,4 @@ class bfile_matcher_callable(bfile_matcher_base):
     check.check_bfile_matcher_options(options)
 
     filename = entry.filename_for_matcher(options.path_type, options.ignore_case)
-    return callable_(filename)
+    return self._callable(filename)
