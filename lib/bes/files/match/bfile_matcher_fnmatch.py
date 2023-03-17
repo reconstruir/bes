@@ -15,6 +15,9 @@ class bfile_matcher_fnmatch(bfile_matcher_base):
 
     self._pattern = pattern
 
+  def __str__(self):
+    return f'bfile_matcher_fnmatch("{self._pattern}")'
+    
   @cached_property
   def _pattern_lowercase(self):
     return self._pattern.lower()

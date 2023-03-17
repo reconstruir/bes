@@ -62,6 +62,16 @@ class test_bfile_match(unit_test):
     self.assertEqual( False, self._match(setup, 'lemon.py', None, match_type = 'all') )
     self.assertEqual( False, self._match(setup, 'melon.txt', None, match_type = 'all') )
 
+    
+  def test_match_fnmatch_two_matchers_none(self):
+    def setup(m):
+      m.add_matcher_fnmatch('*.py')
+      m.add_matcher_fnmatch('k*')
+    
+    self.assertEqual( False, self._match(setup, 'kiwi.py', None, match_type = 'none') )
+    self.assertEqual( False, self._match(setup, 'lemon.py', None, match_type = 'none') )
+    self.assertEqual( True, self._match(setup, 'melon.txt', None, match_type = 'none') )
+    
   def test_match_fnmatch_two_matchers_any(self):
     def setup(m):
       m.add_matcher_fnmatch('*.py')

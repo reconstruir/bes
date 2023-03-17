@@ -15,6 +15,9 @@ class bfile_matcher_re(bfile_matcher_base):
 
     self._expression = expression
 
+  def __str__(self):
+    return f'bfile_matcher_re("{self._expression}")'
+    
   #@abstractmethod
   def match(self, entry, options):
     'Return True if filename matches.'
@@ -27,6 +30,5 @@ class bfile_matcher_re(bfile_matcher_base):
     filename = entry.filename_for_matcher(options.path_type, False)
     for next_entry in re.finditer(self._expression, filename, flags):
       if next_entry:
-        print(f'matched {entry.filename} for {self._expression}')
         return True
     return False

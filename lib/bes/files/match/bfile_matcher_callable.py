@@ -12,6 +12,9 @@ class bfile_matcher_callable(bfile_matcher_base):
     
     self._callable = callable_
 
+  def __str__(self):
+    return f'bfile_matcher_callable("{self._callable}")'
+    
   #@abstractmethod
   def match(self, entry, options):
     'Return True if filename matches.'
