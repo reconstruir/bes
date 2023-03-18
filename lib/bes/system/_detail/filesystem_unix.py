@@ -3,6 +3,7 @@
 import os
 import shutil
 import subprocess
+import os.path as path
 
 from bes.system.compat import compat
 
@@ -50,3 +51,11 @@ class filesystem_unix(filesystem_base):
   def max_path_length(clazz):
     'Return the maximum allowed length for a path.'
     return os.pathconf('/', 'PC_PATH_MAX')
+
+  @classmethod
+  #@abstractmethod
+  def file_is_hidden(clazz, filename):
+    'Return True if filename is a hidden file.'
+    normalized_filename = path.normpath(path.abspath(filename))
+    basename = path.basename(normalized_filename)
+    return basename.startswith('.')

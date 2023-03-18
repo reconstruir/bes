@@ -11,6 +11,7 @@ from bes.common.time_util import time_util
 from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
+from bes.system.filesystem import filesystem
 
 from .bfile_date import bfile_date
 from .bfile_error import bfile_error
@@ -216,6 +217,22 @@ class bfile_entry(object):
   @property
   def size(self):
     return self.stat.st_size
+
+  @property
+  def is_empty(self):
+    return self.size == 0
+
+  @property
+  def device_id(self):
+    return self.stat.st_dev
+
+  @property
+  def inode_number(self):
+    return self.stat.st_ino
+
+  @property
+  def mtime(self):
+    return self.stat.mtime
   
   @property
   def modification_date(self):
@@ -231,6 +248,10 @@ class bfile_entry(object):
   def modification_date_timestamp(self):
     return time_util.timestamp(when = self.modification_date, milliseconds = False)
 
+  @property
+  def is_hidden(self):
+    return filesystem.file_is_hidden(self.filename)
+  
   @cached_property
   def attributes(self):
     return bfile_attr_file(self.filename)

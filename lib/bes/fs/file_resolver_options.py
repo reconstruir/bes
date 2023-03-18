@@ -10,7 +10,7 @@ from .file_sort_order import file_sort_order
 class file_resolver_options(cli_options, file_ignore_options_mixin):
 
   def __init__(self, **kargs):
-    super(file_resolver_options, self).__init__(**kargs)
+    super().__init__(**kargs)
 
   @classmethod
   #@abstractmethod

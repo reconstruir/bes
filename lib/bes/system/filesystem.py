@@ -67,6 +67,12 @@ class filesystem(filesystem_base):
   def max_path_length(clazz):
     'Return the maximum allowed length for a path.'
     return clazz._impl_class.max_path_length()
+
+  @classmethod
+  #@abstractmethod
+  def file_is_hidden(clazz, filename):
+    'Return True if filename is a hidden file.'
+    return clazz._impl_class.file_is_hidden(filename)
   
   @classmethod
   def remove(clazz, files, raise_not_found_error = False):

@@ -1,35 +1,26 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
-import glob
 from os import path
 import os
 import re
 
 from ..common.algorithm import algorithm
 from ..common.object_util import object_util
-from ..common.object_util import object_util
-from ..common.string_util import string_util
 from ..system.check import check
 from ..system.filesystem import filesystem
-from ..system.os_env import os_env_var
-from ..system.which import which
+from ..system.check import check
 from ..text.text_replace import text_replace
 
-from .filename_util import filename_util
+from .bfile_filename import bfile_filename
 
-class file_path(object):
-  'file_path'
+class bfile_path(object):
+  'bfile_path'
 
   @classmethod
   def is_executable(clazz, p):
     'Return True if the path is executable.'
     return path.exists(p) and os.access(p, os.X_OK)
-
-  @classmethod
-  def which(clazz, program, raise_error = False):
-    'Same as unix which.'
-    return which.which(program)
 
   @classmethod
   def split(clazz, p):
@@ -39,7 +30,7 @@ class file_path(object):
     if p == '/':
       return [ '' ]
     p = path.normpath(p)
-    assert string_util.is_string(p)
+    assert check.is_string(p)
     return p.split(os.sep)
 
   @classmethod
@@ -135,27 +126,6 @@ class file_path(object):
       return None
     return path.normpath(path.join(d, os.pardir))
   
-#  @classmethod
-#  def parent_dir(clazz, p, levels = 1):
-#    check.check_string(p)
-#    check.check_int(levels)
-#
-#    if p == path.sep:
-#      return None
-#    
-#    add_sep = ''
-#    if p.endswith(path.sep):
-#      add_sep = path.sep
-#    p = path.normpath(p) + add_sep
-#    
-#    for i in range(0, levels):
-#      dirname = path.dirname(p)
-#      if dirname == path.sep:
-#        return None
-#      parent = path.join(dirname, path.pardir)
-#      p = path.normpath(parent)
-#    return p
-
   @classmethod
   def common_ancestor(clazz, filenames):
     'Return a common ancestor for all the given filenames or None if there is not one.'
@@ -194,47 +164,6 @@ class file_path(object):
     
     result = os.sep.join(ancestor_parts)
     return result
-  
-  @classmethod
-  def glob(clazz, paths, patterns):
-    'Like glob but handles one or more paths and one or more patterns'
-    patterns = object_util.listify(patterns)
-    result = []
-    for pattern in patterns:
-      result.extend(clazz._glob_one_pattern(paths, pattern))
-    return sorted(algorithm.unique(result))
-
-  @classmethod
-  def _glob_one_pattern(clazz, paths, pattern):
-    paths = object_util.listify(paths)
-    paths = [ path.join(p, pattern) for p in paths ]
-    result = []
-    for p in paths:
-      result.extend(glob.glob(p))
-    return sorted(algorithm.unique(result))
-  
-  _GLOB_CHARS = { '*', '?', '[', ']' }
-  @classmethod
-  def has_glob_pattern(clazz, filename):
-    'Return True if filename has any glob character pattern.'
-    check.check_string(filename)
-    
-    for c in filename:
-      if c in clazz._GLOB_CHARS:
-        return True
-    return False
-
-  @classmethod
-  def glob_paths(clazz, paths):
-    'Glob a list of paths if needed'
-    paths = object_util.listify(paths)
-    result = []
-    for p in paths:
-      if clazz.has_glob_pattern(p):
-        result.extend(glob.glob(p))
-      else:
-        result.append(p)
-    return sorted(algorithm.unique(result))
   
   @classmethod
   def decompose(clazz, p):
@@ -318,12 +247,12 @@ class file_path(object):
         raise ValueError(f'Path part "{next_part}" is too long ({next_part_length}).  Should be no more than {max_filename_length}')
       
     basename = path.basename(p)
-    short_basename = filename_util.shorten(basename,
-                                           max_length = max_filename_length,
-                                           include_hash = include_hash,
-                                           hash_length = hash_length)
-    ext = filename_util.extension(short_basename)
-    basename_no_ext = filename_util.without_extension(short_basename)
+    short_basename = bfile_filename.shorten(basename,
+                                            max_length = max_filename_length,
+                                            include_hash = include_hash,
+                                            hash_length = hash_length)
+    ext = bfile_filename.extension(short_basename)
+    basename_no_ext = bfile_filename.without_extension(short_basename)
     len_basename_no_ext = len(basename_no_ext)
 
     if ext:
@@ -341,5 +270,5 @@ class file_path(object):
     if available < len_basename_no_ext:
       basename_no_ext = basename_no_ext[0:available-1]
 
-    new_basename = filename_util.add_extension(basename_no_ext, ext)
+    new_basename = bfile_filename.add_extension(basename_no_ext, ext)
     return path.join(dirname, new_basename)

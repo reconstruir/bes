@@ -41,3 +41,9 @@ class filesystem_base(with_metaclass(ABCMeta, object)):
   def max_path_length(clazz):
     'Return the maximum allowed length for a path.'
     raise NotImplemented('max_path_length')
+
+  @classmethod
+  @abstractmethod
+  def file_is_hidden(clazz, filename):
+    'Return True if filename is a hidden file.'
+    raise NotImplemented('file_is_hidden')

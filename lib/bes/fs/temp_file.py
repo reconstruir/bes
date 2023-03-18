@@ -2,8 +2,8 @@
 
 from collections import namedtuple
 
-from bes.system.filesystem import filesystem
-from bes.system.compat import compat
+from ..system.filesystem import filesystem
+from ..system.check import check
 
 import os, os.path as path, sys, tempfile
 from .file_util import file_util
@@ -40,7 +40,7 @@ class temp_file(object):
                                       mode = mode,
                                       delete = False)
     if content:
-      if compat.is_string(content):
+      if check.is_string(content):
         if path.isfile(content):
           with open(content, 'rb') as f:
             content = f.read()

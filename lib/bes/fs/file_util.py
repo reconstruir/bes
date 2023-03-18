@@ -248,7 +248,7 @@ class file_util(object):
   @classmethod
   def read_as_lines(clazz, filename, ignore_empty = True):
     'Read a file as a list of lines.'
-    lines = clazz.read(filename).split('\n')
+    lines = clazz.read(filename).split(os.sep)
     if ignore_empty:
       return [ line for line in lines if line ]
     else:
