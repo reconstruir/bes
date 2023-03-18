@@ -29,7 +29,8 @@ class bfile_finder(object):
     self._options = options or bfile_finder_options()
 
   def find(self, where):
-    where = bfile_check.check_dir(where)    
+    where = bfile_check.check_dir(where)
+    where = path.normpath(where)
     result = bfile_entry_list()
     where = path.normpath(where)
     where_sep_count = where.count(os.sep)
@@ -47,7 +48,7 @@ class bfile_finder(object):
         to_check += links
       for name in to_check:
         abs_filename = path.normpath(path.join(root, name))
-        entry = bfile_entry(abs_filename, root_dir = root)
+        entry = bfile_entry(abs_filename, root_dir = where)
         depth = abs_filename.count(os.sep) - where_sep_count
         if self._options.depth_in_range(depth):
           if entry.file_type_matches(self._options.file_type):

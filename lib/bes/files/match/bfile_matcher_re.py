@@ -3,6 +3,7 @@
 import re
 
 from bes.system.check import check
+from bes.system.log import logger
 from bes.property.cached_property import cached_property
 
 from .bfile_matcher_base import bfile_matcher_base
@@ -10,6 +11,8 @@ from .bfile_matcher_options import bfile_matcher_options
 
 class bfile_matcher_re(bfile_matcher_base):
 
+  _log = logger('match')
+  
   def __init__(self, expression):
     check.check_string(expression)
 
@@ -28,7 +31,10 @@ class bfile_matcher_re(bfile_matcher_base):
     if options.ignore_case:
       flags = re.IGNORECASE
     filename = entry.filename_for_matcher(options.path_type, False)
+    matched = False
     for next_entry in re.finditer(self._expression, filename, flags):
       if next_entry:
-        return True
-    return False
+        matched = True
+        break
+    self._log.log_d(f'{self}: match({entry.filename}) filename={filename} expression="{self._expression}" => {matched}')
+    return matched

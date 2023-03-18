@@ -3,6 +3,7 @@
 import fnmatch
 
 from bes.system.check import check
+from bes.system.log import logger
 from bes.property.cached_property import cached_property
 
 from .bfile_matcher_base import bfile_matcher_base
@@ -10,6 +11,8 @@ from .bfile_matcher_options import bfile_matcher_options
 
 class bfile_matcher_fnmatch(bfile_matcher_base):
 
+  _log = logger('match')
+  
   def __init__(self, pattern):
     check.check_string(pattern)
 
@@ -30,4 +33,6 @@ class bfile_matcher_fnmatch(bfile_matcher_base):
 
     pattern = self._pattern_lowercase if options.ignore_case else self._pattern
     filename = entry.filename_for_matcher(options.path_type, options.ignore_case)
-    return fnmatch.fnmatch(filename, pattern)
+    matched = fnmatch.fnmatch(filename, pattern)
+    self._log.log_d(f'{self}: match({entry.filename}) filename={filename} pattern="{pattern}" => {matched}')
+    return matched

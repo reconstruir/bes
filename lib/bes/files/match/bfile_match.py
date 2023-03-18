@@ -15,7 +15,7 @@ from .bfile_matcher_re import bfile_matcher_re
 
 class bfile_match(object):
 
-  _log = logger('bfile_match')
+  _log = logger('match')
   
   def __init__(self):
     self._matchers = []

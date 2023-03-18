@@ -265,7 +265,7 @@ class test_bfile_finder(unit_test):
       'cheese/cheddar.cheese',
     ], self._find(content, file_match = match).sorted_filenames )
     
-  def xtest_file_find_with_pattern_and_match_type(self):
+  def test_file_find_with_pattern_and_match_type(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -335,7 +335,7 @@ class test_bfile_finder(unit_test):
       'cheese/cheddar.cheese',
     ], self._find(content, file_match = match).sorted_filenames )
     
-  def xtest_file_find_with_callable_and_match_type(self):
+  def test_file_find_with_callable_and_match_type_any(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -351,16 +351,8 @@ class test_bfile_finder(unit_test):
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
     ], self._find(content, file_match = match, match_type = 'any').sorted_filenames )
-    match = bfile_match()
-    match.add_matcher_callable(lambda f_: f_.endswith('.cheese'))
-    self.assert_filename_list_equal( [
-      'fruit/blueberry.fruit',
-      'fruit/kiwi.fruit',
-      'fruit/lemon.fruit',
-      'fruit/strawberry.fruit',
-    ], self._find(content, file_match = match, match_type = 'none').sorted_filenames )
 
-  def xtest_file_find_with_callable_and_basename(self):
+  def test_file_find_with_callable_and_match_type_none(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -371,18 +363,46 @@ class test_bfile_finder(unit_test):
       'file cheese/cheddar.cheese',
     ]
     match = bfile_match()
-    match.add_matcher_callable(lambda f_: f_.startswith('brie'), path_type_basename = True)
+    match.add_matcher_callable(lambda f_: f_.endswith('.cheese'))
+    self.assert_filename_list_equal( [
+      'fruit/blueberry.fruit',
+      'fruit/kiwi.fruit',
+      'fruit/lemon.fruit',
+      'fruit/strawberry.fruit',
+    ], self._find(content, file_match = match, match_type = 'none').sorted_filenames )
+    
+  def test_file_find_with_callable_and_path_type_basename(self):
+    self.maxDiff = None
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ]
+    match = bfile_match()
+    match.add_matcher_callable(lambda f_: f_.startswith('brie'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
-    ], self._find(content, file_match = match).sorted_filenames )
-    return
-    # FIXME HERE
+    ], self._find(content, file_match = match, path_type = 'basename').sorted_filenames )
+
+  def test_file_find_with_callable_and_path_type_relative(self):
+    self.maxDiff = None
+    content = [
+      'file fruit/kiwi.fruit',
+      'file fruit/lemon.fruit',
+      'file fruit/strawberry.fruit',
+      'file fruit/blueberry.fruit',
+      'file cheese/brie.cheese',
+      'file cheese/cheddar.cheese',
+    ]
     match = bfile_match()
-    match.add_matcher_callable(lambda f_: f_.startswith('cheese'), path_type_basename = False)
+    match.add_matcher_callable(lambda f_: f_.startswith('cheese'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
       'cheese/cheddar.cheese',
-    ], self._find(content, file_match = match).sorted_filenames )
+    ], self._find(content, file_match = match, path_type = 'relative').sorted_filenames )
 
   def test_file_find_with_re(self):
     self.maxDiff = None
@@ -442,7 +462,7 @@ class test_bfile_finder(unit_test):
       'fruit/strawberry.fruit',
     ], self._find(content, file_match = match, match_type = 'none').sorted_filenames )
     
-  def xtest_file_find_with_re_and_basename(self):
+  def test_file_find_with_re_and_basename(self):
     self.maxDiff = None
     content = [
       'file fruit/kiwi.fruit',
@@ -452,15 +472,16 @@ class test_bfile_finder(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ]
-    self.assert_filename_list_equal( [
-    ], self._find(content, match_re = [ r'^f.*$' ], path_type_basename = True).sorted_filenames )
-
+    match = bfile_match()
+    match.add_matcher_re(r'^f.*$')
     self.assert_filename_list_equal( [
       'fruit/blueberry.fruit',
       'fruit/kiwi.fruit',
       'fruit/lemon.fruit',
       'fruit/strawberry.fruit',
-    ], self._find(content, match_re = [ r'^f.*$' ], path_type_basename = False) )
+    ], self._find(content, file_match = match, path_type = 'relative').sorted_filenames )
+    self.assert_filename_list_equal( [
+    ], self._find(content, file_match = match, path_type = 'absolute').sorted_filenames )
     
   _find_result = namedtuple('_find_result', 'tmp_dir, entries, filenames, sorted_filenames')
   def _find(self, items, **options):
