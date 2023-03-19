@@ -29,11 +29,11 @@ class test_bfile_finder(unit_test):
       'dir emptydir',
     ]
     self.assert_filename_list_equal( [
-      'foo.txt',
       'emptyfile.txt',
+      'foo.txt',
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt'
-    ], self._find(content).filenames )
+    ], self._find(content).sorted_filenames )
 
   def test_find_absolute(self):
     content = [
@@ -45,13 +45,13 @@ class test_bfile_finder(unit_test):
     ]
     rv = self._find(content, relative = False)
     expected_relative = [
-      'foo.txt',
       'emptyfile.txt',
+      'foo.txt',
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt'
     ]    
     expected = [ path.join(rv.tmp_dir, f) for f in expected_relative ]
-    self.assert_filename_list_equal( expected, rv.filenames )
+    self.assert_filename_list_equal( expected, rv.sorted_filenames )
 
   def test_find_with_files_only(self):
     content = [
@@ -62,11 +62,11 @@ class test_bfile_finder(unit_test):
       'dir emptydir',
     ]
     self.assert_filename_list_equal( [
-      'foo.txt',
       'emptyfile.txt',
+      'foo.txt',
       'subdir/bar.txt',
       'subdir/subberdir/baz.txt'
-    ], self._find(content, file_type = 'file').filenames )
+    ], self._find(content, file_type = 'file').sorted_filenames )
 
   def test_find_with_dirs_only(self):
     content = [
@@ -77,10 +77,10 @@ class test_bfile_finder(unit_test):
       'dir emptydir',
     ]
     self.assert_filename_list_equal( [
-      'subdir',
       'emptydir',
+      'subdir',
       'subdir/subberdir',
-    ], self._find(content, file_type = 'dir').filenames )
+    ], self._find(content, file_type = 'dir').sorted_filenames )
 
   def test_find_with_match(self):
     content = [
@@ -97,7 +97,7 @@ class test_bfile_finder(unit_test):
     self.assert_filename_list_equal( [
       'kiwi.py',
       'subdir/subberdir/melon.py',
-    ], self._find(content, file_match = match).filenames )
+    ], self._find(content, file_match = match).sorted_filenames )
 
   def test_find_with_max_depth(self):
     self.maxDiff = None

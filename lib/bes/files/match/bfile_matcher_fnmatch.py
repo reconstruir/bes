@@ -33,6 +33,6 @@ class bfile_matcher_fnmatch(bfile_matcher_base):
 
     pattern = self._pattern_lowercase if options.ignore_case else self._pattern
     filename = entry.filename_for_matcher(options.path_type, options.ignore_case)
-    matched = fnmatch.fnmatch(filename, pattern)
+    matched = fnmatch.fnmatchcase(filename, pattern)
     self._log.log_d(f'{self}: match({entry.filename}) filename={filename} pattern="{pattern}" => {matched}')
     return matched
