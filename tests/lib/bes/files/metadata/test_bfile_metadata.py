@@ -70,6 +70,7 @@ class test_bfile_metadata(unit_test):
       fout.seek(0)
       fout.truncate(0)
       fout.write(b'1234567890')
+      time.sleep(10.0)
       fout.flush()
       os.fsync(fout.fileno())
 
