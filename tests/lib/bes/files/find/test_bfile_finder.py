@@ -313,7 +313,7 @@ class test_bfile_finder(unit_test):
       'file bonus/fig.fruit',
     ]
     match = bfile_match()
-    match.add_matcher_fnmatch('*fruit/kiwi.fruit')
+    match.add_matcher_fnmatch(self.native_filename('*fruit/kiwi.fruit'))
     self.assert_filename_list_equal( [
       'fruit/kiwi.fruit',
     ], self._find(content, file_match = match, path_type = 'absolute').sorted_filenames )
