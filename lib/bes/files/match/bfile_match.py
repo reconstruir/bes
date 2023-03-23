@@ -7,22 +7,29 @@ from bes.common.object_util import object_util
 from ..bfile_entry import bfile_entry
 from ..bfile_entry_list import bfile_entry_list
 
+from .bfile_matcher_attr import bfile_matcher_attr
 from .bfile_matcher_base import bfile_matcher_base
 from .bfile_matcher_callable import bfile_matcher_callable
+from .bfile_matcher_datetime import bfile_matcher_datetime
 from .bfile_matcher_fnmatch import bfile_matcher_fnmatch
 from .bfile_matcher_match_type import bfile_matcher_match_type
+from .bfile_matcher_metadata import bfile_matcher_metadata
 from .bfile_matcher_options import bfile_matcher_options
 from .bfile_matcher_re import bfile_matcher_re
+from .bfile_matcher_timedelta import bfile_matcher_timedelta
 
 class bfile_match(object):
 
   _log = logger('match')
   
-  def __init__(self, patterns = None, expressions = None, callables = None):
+  def __init__(self, patterns = None, expressions = None, callables = None,
+               attrs = None, metadatas = None):
     patterns = check.check_string_seq(patterns, allow_none = True, default_value = [])
     expressions = check.check_string_seq(expressions, allow_none = True, default_value = [])
     callables = check.check_callable_seq(callables, allow_none = True, default_value = [])
-
+    check.check_dict(attrs, allow_none = True)
+    check.check_dict(metadatas, allow_none = True)
+    
     self._matchers = []
     for pattern in patterns:
       self.add_matcher_fnmatch(pattern)
@@ -30,6 +37,10 @@ class bfile_match(object):
       self.add_matcher_re(expression)
     for callable_ in callables:
       self.add_matcher_callable(callable_)
+    if attrs:
+      self.add_matcher_attr(attrs)
+    if metadatas:
+      self.add_matcher_metadata(metadatas)
 
   @property
   def empty(self):
@@ -46,8 +57,20 @@ class bfile_match(object):
   def add_matcher_re(self, expression):
     self.add_matcher(bfile_matcher_re(expression))
 
-  def add_matcher_callable(self, callable_, **options):
+  def add_matcher_callable(self, callable_):
     self.add_matcher(bfile_matcher_callable(callable_))
+
+  def add_matcher_datetime(self, date, comparison_type):
+    self.add_matcher(bfile_matcher_datetime(date, comparison_type))
+
+  def add_matcher_timedelta(self, delta, comparison_type):
+    self.add_matcher(bfile_matcher_timedelta(delta, comparison_type))
+
+  def add_matcher_attr(self, attrs):
+    self.add_matcher(bfile_matcher_attr(attrs))
+
+  def add_matcher_metadata(self, metadatas):
+    self.add_matcher(bfile_matcher_metadata(metadatas))
     
   def match(self, entry, options = None):
     check.check_bfile_entry(entry)
