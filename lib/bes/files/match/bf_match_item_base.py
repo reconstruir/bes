@@ -7,11 +7,11 @@ from bes.system.check import check
 
 from ..bfile_entry import bfile_entry
 
-class bfile_matcher_base(with_metaclass(ABCMeta, object)):
+class bf_match_item_base(with_metaclass(ABCMeta, object)):
 
   @abstractmethod
   def match(self, entry, options):
     'Return True if entry matches.'
     raise NotImplemented('match')
   
-check.register_class(bfile_matcher_base, name = 'bfile_matcher', include_seq = False)
+check.register_class(bf_match_item_base, name = 'bf_matcher', include_seq = False)
