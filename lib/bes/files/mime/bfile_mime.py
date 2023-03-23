@@ -21,6 +21,7 @@ class bfile_mime(object):
     'application/x-mach-binary', # This is new in macos sierra
     'application/x-msdownload',
     'application/java', # both java class files and mach-o binaries share the same CAFEBABE magic
+    'application/x-dosexec',
   ]
 
   @classmethod

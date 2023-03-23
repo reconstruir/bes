@@ -7,13 +7,14 @@ from datetime import timedelta
 import os
 from os import path
 
-from bes.files.bfile_permission_error import bfile_permission_error
-from bes.files.bfile_entry import bfile_entry
 from bes.files.bfile_checksum import bfile_checksum
+from bes.files.bfile_entry import bfile_entry
+from bes.files.bfile_permission_error import bfile_permission_error
 from bes.files.bfile_symlink import bfile_symlink
-from bes.system.filesystem import filesystem
 from bes.system.check import check
+from bes.system.filesystem import filesystem
 from bes.testing.unit_test import unit_test
+from bes.testing.unit_test_function_skip import unit_test_function_skip
 
 from _bes_unit_test_common.unit_test_media import unit_test_media
 from _bes_unit_test_common.unit_test_media_files import unit_test_media_files
@@ -51,9 +52,14 @@ class test_bfile_entry(unit_test, unit_test_media_files):
     filesystem.remove(e.filename)
     self.assertEqual( False, e.exists )
 
-  def test_access(self):
+  @unit_test_function_skip.skip_if_not_unix()
+  def test_access_unix(self):
     self.assertEqual( ( True, True, True, False ), self._make_test_entry().access )
 
+  @unit_test_function_skip.skip_if_not_windows()
+  def test_access_windows(self):
+    self.assertEqual( ( True, True, True, True ), self._make_test_entry().access )
+    
   def test_is_file(self):
     self.assertEqual( True, self._make_test_entry().is_file )
     self.assertEqual( 'file', self._make_test_entry().file_type )
@@ -62,6 +68,7 @@ class test_bfile_entry(unit_test, unit_test_media_files):
     self.assertEqual( True, self._make_test_entry_dir().is_dir )
     self.assertEqual( 'dir', self._make_test_entry_dir().file_type )
 
+  @unit_test_function_skip.skip_if_not_unix()
   def test_is_link(self):
     self.assertEqual( True, self._make_test_entry_link().is_link )
     self.assertEqual( 'link', self._make_test_entry_link().file_type )

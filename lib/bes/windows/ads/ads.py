@@ -1,11 +1,13 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+import os.path as path
 import pickle
-from os import path
 
 from bes.system.check import check
 from bes.fs.file_check import file_check
 from bes.fs.file_util import file_util
+from bes.system.log import logger
 from bes.system.log import logger
 
 from .ads_error import ads_error
@@ -45,11 +47,12 @@ class ads(object):
     check.check_bytes(value)
     
     ads_filename = clazz._make_ads_filename(filename, stream_name)
-    clazz._log.log_d('write_stream: ads_filename={}'.format(ads_filename))
-    clazz._log.log_d('write_stream: value={}'.format(value))
+    clazz._log.log_d(f'write_stream: ads_filename={ads_filename} value={value}')
     with open(ads_filename, 'wb') as fp:
       fp.write(value)
       fp.flush()
+      os.fsync(fp.fileno())
+
     assert value == clazz.read_stream(filename, stream_name)
 
   @classmethod
