@@ -265,3 +265,11 @@ class bfile_filename(object):
     if s.endswith(tail):
       return s[0:-len(tail)]
     return s
+
+  @classmethod
+  def un_expanduser(clazz, p):
+    return p.replace(path.expanduser('~'), '~')
+
+  @classmethod
+  def is_basename(clazz, filename):
+    return path.basename(filename) == filename

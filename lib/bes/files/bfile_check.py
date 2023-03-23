@@ -26,7 +26,7 @@ class bfile_check(object):
       raise exception_class(f'File not found: {filename}')
     if not path.isfile(filename):
       raise exception_class(f'Not a file: {filename}')
-    return path.abspath(filename)
+    return path.normpath(path.abspath(filename))
 
   @classmethod
   def check_dir(clazz, dirname, exception_class = None, allow_none = False):
@@ -44,7 +44,7 @@ class bfile_check(object):
       raise exception_class(f'Directory not found: {dirname}')
     if not path.isdir(dirname):
       raise exception_class(f'Not a directory: {dirname}')
-    return path.abspath(dirname)
+    return path.normpath(path.abspath(dirname))
 
   @classmethod
   def check_file_seq(clazz, files, exception_class = None):
@@ -84,7 +84,7 @@ class bfile_check(object):
       raise exception_class(f'File not found: {ford}')
     if not (path.isfile(ford) or path.isdir(ford)):
       raise exception_class(f'Not a file or directory: {ford}')
-    return path.abspath(ford)
+    return path.normpath(path.abspath(ford))
 
   @classmethod
   def check_file_or_dir_seq(clazz, fords, exception_class = None):

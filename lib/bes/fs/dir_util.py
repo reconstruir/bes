@@ -82,7 +82,7 @@ class dir_util(object):
   @classmethod
   def remove(clazz, d):
     if path.isfile(d):
-      raise ValueError('Not a directory: "{}"'.format(d))
+      raise ValueError(f'Not a directory: "{d}"')
     if not path.exists(d):
-      raise ValueError('Directory does not exits: "{}"'.format(d))
+      raise ValueError(f'Directory does not exist: "{d}"')
     os.rmdir(d)

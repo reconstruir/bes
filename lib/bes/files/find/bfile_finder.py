@@ -28,7 +28,7 @@ class bfile_finder(object):
 
     self._options = options or bfile_finder_options()
 
-  def find(self, where):
+  def find_gen(self, where):
     where = bfile_check.check_dir(where)
     where = path.normpath(where)
     result = bfile_entry_list()
@@ -50,15 +50,28 @@ class bfile_finder(object):
         abs_filename = path.normpath(path.join(root, name))
         entry = bfile_entry(abs_filename, root_dir = where)
         depth = abs_filename.count(os.sep) - where_sep_count
-        if self._options.depth_in_range(depth):
-          if entry.file_type_matches(self._options.file_type):
-            if self._options.file_match_matches(entry):
-              if self._options.relative:
-                relative_filename = bfile_filename.remove_head(abs_filename, where)
-                entry = bfile_entry(relative_filename, root_dir = root)
-              result.append(entry)
-    return result
+        if self._entry_matches(entry, depth, self._options):
+          if self._options.relative:
+            relative_filename = bfile_filename.remove_head(abs_filename, where)
+            entry = bfile_entry(relative_filename, root_dir = root)
+          yield entry
 
+  def find(self, where):
+    result = bfile_entry_list()
+    for entry in self.find_gen(where):
+      result.append(entry)
+    return result
+          
+  @classmethod
+  def _entry_matches(clazz, entry, depth, options):
+    if not options.depth_in_range(depth):
+      return False
+    if not entry.file_type_matches(options.file_type):
+      return False
+    if not options.file_match_matches(entry):
+      return False
+    return True
+              
   #: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
   @classmethod
   def walk_with_depth(clazz, root_dir, max_depth = None, follow_links = False):

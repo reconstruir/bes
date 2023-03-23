@@ -3,6 +3,7 @@
 import os
 import os.path as path
 from datetime import datetime
+from datetime import timedelta
 
 from bes.system.check import check
 
@@ -29,3 +30,4 @@ class bfile_date(object):
   def touch(clazz, filename):
     'Update the modification date of filename to be now'
     clazz.set_modification_date(filename, datetime.now())
+    

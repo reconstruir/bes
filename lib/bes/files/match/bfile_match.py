@@ -2,6 +2,7 @@
 
 from bes.system.check import check
 from bes.system.log import logger
+from bes.common.object_util import object_util
 
 from ..bfile_entry import bfile_entry
 from ..bfile_entry_list import bfile_entry_list
@@ -17,8 +18,22 @@ class bfile_match(object):
 
   _log = logger('match')
   
-  def __init__(self):
+  def __init__(self, patterns = None, expressions = None, callables = None):
+    patterns = check.check_string_seq(patterns, allow_none = True, default_value = [])
+    expressions = check.check_string_seq(expressions, allow_none = True, default_value = [])
+    callables = check.check_callable_seq(callables, allow_none = True, default_value = [])
+
     self._matchers = []
+    for pattern in patterns:
+      self.add_matcher_fnmatch(pattern)
+    for expression in expressions:
+      self.add_matcher_re(expression)
+    for callable_ in callables:
+      self.add_matcher_callable(callable_)
+
+  @property
+  def empty(self):
+    return len(self._matchers) == 0
     
   def add_matcher(self, matcher):
     check.check_bfile_matcher(matcher)
@@ -40,7 +55,7 @@ class bfile_match(object):
 
     self._log.log_d(f'match: entry={entry.filename} options={options}')
     
-    if not self._matchers:
+    if self.empty:
       self._log.log_d(f'match: no matchers found')
       return True
     
@@ -56,7 +71,7 @@ class bfile_match(object):
     entries = check.check_bfile_entry_list(entries)
     options = check.check_bfile_matcher_options(options, allow_none = True) or bfile_matcher_options()
 
-    if not self._matchers:
+    if self.empty:
       return entries[:]
 
     result = bfile_entry_list()

@@ -18,11 +18,6 @@ class bfile_path(object):
   'bfile_path'
 
   @classmethod
-  def is_executable(clazz, p):
-    'Return True if the path is executable.'
-    return path.exists(p) and os.access(p, os.X_OK)
-
-  @classmethod
   def split(clazz, p):
     'Split a path.'
     if not p:
@@ -92,7 +87,7 @@ class bfile_path(object):
   def check_part(clazz, part):
     'Check that a part has only valid basename chars.'
     if not clazz.part_is_valid(part):
-      raise ValueError('Invalid part: "{}"'.format(part))
+      raise ValueError(f'Invalid part: "{part}"')
   
   @classmethod
   def replace_all(clazz, p, src, dst, word_boundary = False, word_boundary_chars = None):

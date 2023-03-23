@@ -217,6 +217,73 @@ class test_bfile_entry(unit_test, unit_test_media_files):
                                 e.filename_for_matcher('basename', False) )
     self.assert_filename_equal( 'stuff/fruits/kiwi.fruit',
                                 e.filename_for_matcher('relative', True) )
+
+  def test_compare_modification_date(self):
+    e = self._make_test_entry()
+    dold = datetime(year = 2000, month = 1, day = 1, hour = 1, second = 1)
+    d = datetime(year = 2000, month = 2, day = 1, hour = 1, second = 1)
+    dnew = datetime(year = 2000, month = 3, day = 1, hour = 1, second = 1)
+    e.modification_date = d
+    self.assertEqual( 0, e.compare_modification_date(d) )
+    self.assertEqual( 1, e.compare_modification_date(dold) )
+    self.assertEqual( -1, e.compare_modification_date(dnew) )
+
+  def test_modification_date_matches(self):
+    e = self._make_test_entry()
+    dold = datetime(year = 2000, month = 1, day = 1, hour = 1, second = 1)
+    d = datetime(year = 2000, month = 2, day = 1, hour = 1, second = 1)
+    dnew = datetime(year = 2000, month = 3, day = 1, hour = 1, second = 1)
+    e.modification_date = d
+    
+    self.assertEqual( True, e.modification_date_matches(d, 'eq') )
+    self.assertEqual( True, e.modification_date_matches(d, 'le') )
+    self.assertEqual( True, e.modification_date_matches(d, 'ge') )
+    self.assertEqual( False, e.modification_date_matches(d, 'ne') )
+    self.assertEqual( False, e.modification_date_matches(d, 'gt') )
+    self.assertEqual( False, e.modification_date_matches(d, 'lt') )
+
+    self.assertEqual( False, e.modification_date_matches(dold, 'eq') )
+    self.assertEqual( False, e.modification_date_matches(dold, 'le') )
+    self.assertEqual( True, e.modification_date_matches(dold, 'ge') )
+    self.assertEqual( True, e.modification_date_matches(dold, 'ne') )
+    self.assertEqual( True, e.modification_date_matches(dold, 'gt') )
+    self.assertEqual( False, e.modification_date_matches(dold, 'lt') )
+
+    self.assertEqual( False, e.modification_date_matches(dnew, 'eq') )
+    self.assertEqual( True, e.modification_date_matches(dnew, 'le') )
+    self.assertEqual( False, e.modification_date_matches(dnew, 'ge') )
+    self.assertEqual( True, e.modification_date_matches(dnew, 'ne') )
+    self.assertEqual( False, e.modification_date_matches(dnew, 'gt') )
+    self.assertEqual( True, e.modification_date_matches(dnew, 'lt') )
+
+  def test_modification_date_matches_delta(self):
+    e = self._make_test_entry()
+    d = datetime(year = 2000, month = 2, day = 1, hour = 1, second = 1)
+    e.modification_date = d
+    t = timedelta()
+    told = -timedelta(days = 42)
+    tnew = timedelta(days = 42)
+    
+    self.assertEqual( True, e.modification_date_matches_delta(t, 'eq') )
+    self.assertEqual( True, e.modification_date_matches_delta(t, 'le') )
+    self.assertEqual( True, e.modification_date_matches_delta(t, 'ge') )
+    self.assertEqual( False, e.modification_date_matches_delta(t, 'ne') )
+    self.assertEqual( False, e.modification_date_matches_delta(t, 'gt') )
+    self.assertEqual( False, e.modification_date_matches_delta(t, 'lt') )
+
+    self.assertEqual( False, e.modification_date_matches_delta(told, 'eq') )
+    self.assertEqual( False, e.modification_date_matches_delta(told, 'le') )
+    self.assertEqual( True, e.modification_date_matches_delta(told, 'ge') )
+    self.assertEqual( True, e.modification_date_matches_delta(told, 'ne') )
+    self.assertEqual( True, e.modification_date_matches_delta(told, 'gt') )
+    self.assertEqual( False, e.modification_date_matches_delta(told, 'lt') )
+
+    self.assertEqual( False, e.modification_date_matches_delta(tnew, 'eq') )
+    self.assertEqual( True, e.modification_date_matches_delta(tnew, 'le') )
+    self.assertEqual( False, e.modification_date_matches_delta(tnew, 'ge') )
+    self.assertEqual( True, e.modification_date_matches_delta(tnew, 'ne') )
+    self.assertEqual( False, e.modification_date_matches_delta(tnew, 'gt') )
+    self.assertEqual( True, e.modification_date_matches_delta(tnew, 'lt') )
     
 if __name__ == '__main__':
   unit_test.main()

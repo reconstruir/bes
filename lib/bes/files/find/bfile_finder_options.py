@@ -31,12 +31,6 @@ class bfile_finder_options(cli_options):
       'relative': True,
       'file_match': None,
     }
-
-#  @classmethod
-#  def find(clazz, root_dir, relative = True, min_depth = None,
-#           max_depth = None, file_type = FILE, follow_links = False,
-#           match_patterns = None, match_type = None, match_basename = True,
-#           match_function = None, match_re = None):
   
   @classmethod
   #@abstractmethod

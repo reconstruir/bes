@@ -96,31 +96,34 @@ class check(object):
       return False
   
   @classmethod
-  def check(clazz, o, t, allow_none = False, default_value = None):
+  def check(clazz, o, t, allow_none = False, default_value = None, default_value_class = None):
     return clazz._check(o,
                         t,
                         2,
                         allow_none = allow_none,
-                        default_value = default_value)
+                        default_value = default_value,
+                        default_value_class = default_value_class)
   
   @classmethod
-  def check_module(clazz, o, allow_none = False, default_value = None):
+  def check_module(clazz, o, allow_none = False, default_value = None, default_value_class = None):
     return clazz._check(o,
                         types.ModuleType,
                         2,
                         allow_none = allow_none,
-                        default_value = default_value)
+                        default_value = default_value,
+                        default_value_class = default_value_class)
 
   @classmethod
-  def check_string(clazz, o, allow_none = False, default_value = None):
+  def check_string(clazz, o, allow_none = False, default_value = None, default_value_class = None):
     return clazz._check(o,
                         clazz.STRING_TYPES,
                         2,
                         allow_none = allow_none,
-                        default_value = default_value)
+                        default_value = default_value,
+                        default_value_class = default_value_class)
 
   @classmethod
-  def check_string_seq(clazz, o, allow_none = False, allow_item_none = False, default_value = None):
+  def check_string_seq(clazz, o, allow_none = False, allow_item_none = False, default_value = None, default_value_class = None):
     if o != None and clazz.is_string(o):
       _, filename, line_number, _, _, _ = inspect.stack()[1]
       name = clazz._previous_frame_object_name(o, 1)
@@ -132,80 +135,91 @@ class check(object):
                             2,
                             allow_none = allow_none,
                             allow_item_none = allow_item_none,
-                            default_value = default_value)
+                            default_value = default_value,
+                            default_value_class = default_value_class)
 
   @classmethod
-  def check_tuple_seq(clazz, o, allow_none = False, allow_item_none = False, default_value = None):
+  def check_tuple_seq(clazz, o, allow_none = False, allow_item_none = False, default_value = None, default_value_class = None):
     return clazz._check_seq(o,
                             tuple,
                             2,
                             allow_none = allow_none,
                             allow_item_none = allow_item_none,
-                            default_value = default_value)
+                            default_value = default_value,
+                            default_value_class = default_value_class)
 
   @classmethod
-  def check_int(clazz, o, allow_none = False, default_value = None):
+  def check_int(clazz, o, allow_none = False, default_value = None, default_value_class = None):
     return clazz._check(o,
                         clazz.INTEGER_TYPES,
                         2,
                         allow_none = allow_none,
-                        default_value = default_value)
+                        default_value = default_value,
+                        default_value_class = default_value_class)
 
   @classmethod
-  def check_int_seq(clazz, o, allow_none = False, allow_item_none = False, default_value = None):
+  def check_int_seq(clazz, o, allow_none = False, allow_item_none = False, default_value = None, default_value_class = None):
     return clazz._check_seq(o,
                             clazz.INTEGER_TYPES,
                             2,
                             allow_none = allow_none,
                             allow_item_none = allow_item_none,
-                            default_value = default_value)
+                            default_value = default_value,
+                            default_value_class = default_value_class)
 
   @classmethod
-  def check_bool(clazz, o, allow_none = False, default_value = None):
+  def check_bool(clazz, o, allow_none = False, default_value = None, default_value_class = None):
     return clazz._check(o,
                         bool,
                         2,
                         allow_none = allow_none,
-                        default_value = default_value)
+                        default_value = default_value,
+                        default_value_class = default_value_class)
 
   @classmethod
-  def check_bytes(clazz, o, allow_none = False, default_value = None):
+  def check_bytes(clazz, o, allow_none = False, default_value = None, default_value_class = None):
     return clazz._check(o,
                         bytes,
                         2,
                         allow_none = allow_none,
-                        default_value = default_value)
+                        default_value = default_value,
+                        default_value_class = default_value_class)
 
   @classmethod
-  def check_float(clazz, o, allow_none = False, default_value = None):
+  def check_float(clazz, o, allow_none = False, default_value = None, default_value_class = None):
     return clazz._check(o,
                         float,
                         2,
                         allow_none = allow_none,
-                        default_value = default_value)
+                        default_value = default_value,
+                        default_value_class = default_value_class)
 
   @classmethod
-  def check_number(clazz, o, allow_none = False, default_value = None):
+  def check_number(clazz, o, allow_none = False, default_value = None, default_value_class = None):
     return clazz._check(o,
                         check.INTEGER_TYPES + ( float, ),
                         2,
                         allow_none = allow_none,
-                        default_value = default_value)
+                        default_value = default_value,
+                        default_value_class = default_value_class)
 
   @classmethod
-  def check_number_seq(clazz, o, allow_none = False, allow_item_none = False, default_value = None):
+  def check_number_seq(clazz, o, allow_none = False, allow_item_none = False, default_value = None, default_value_class = None):
     return clazz._check_seq(o,
                             clazz.NUMBER_TYPES,
                             2,
                             allow_none = allow_none,
                             allow_item_none = allow_item_none,
-                            default_value = default_value)
+                            default_value = default_value,
+                            default_value_class = default_value_class)
   
   @classmethod
-  def check_tuple(clazz, o, allow_none = False, value_type = None, default_value = None):
+  def check_tuple(clazz, o, allow_none = False, value_type = None, default_value = None, default_value_class = None):
     if allow_none and o is None:
       if default_value is not None:
         return default_value
+      if default_value_class is not None:
+        return default_value_class()
       return o
     o = clazz._check(o, tuple, 2, allow_none = allow_none)
     if value_type:
@@ -214,10 +228,12 @@ class check(object):
     return o
 
   @classmethod
-  def check_dict(clazz, o, key_type = None, value_type = None, allow_none = False, default_value = None):
+  def check_dict(clazz, o, key_type = None, value_type = None, allow_none = False, default_value = None, default_value_class = None):
     if allow_none and o is None:
       if default_value is not None:
         return default_value
+      if default_value_class is not None:
+        return default_value_class()
       return o
     o = clazz._check(o, dict, 2, allow_none = allow_none)
     if key_type or value_type:
@@ -229,58 +245,65 @@ class check(object):
     return o
   
   @classmethod
-  def check_set(clazz, o, entry_type = None, allow_none = False, allow_item_none = False, default_value = None):
+  def check_set(clazz, o, entry_type = None, allow_none = False, allow_item_none = False, default_value = None, default_value_class = None):
     o = clazz._check(o, set, 2, allow_none = allow_none)
     if allow_none and o is None:
       if default_value is not None:
         return default_value
+      if default_value_class is not None:
+        return default_value_class()
       return o
     if entry_type:
       clazz._check_seq(o, entry_type, 2, allow_item_none = allow_item_none)
     return o
 
   @classmethod
-  def check_list(clazz, o, entry_type = None, allow_none = False, allow_item_none = False, default_value = None):
+  def check_list(clazz, o, entry_type = None, allow_none = False, allow_item_none = False, default_value = None, default_value_class = None):
     o = clazz._check(o, list, 2, allow_none = allow_none)
     if allow_none and o is None:
       if default_value is not None:
         return default_value
+      if default_value_class is not None:
+        return default_value_class()
       return o
     if entry_type:
       clazz._check_seq(o, entry_type, 2, allow_item_none = allow_item_none)
     return o
 
   @classmethod
-  def check_class(clazz, o, allow_none = False, default_value = None):
+  def check_class(clazz, o, allow_none = False, default_value = None, default_value_class = None):
     return clazz._check(o,
                         clazz.CLASS_TYPES,
                         2,
                         allow_none = allow_none,
-                        default_value = default_value)
+                        default_value = default_value,
+                        default_value_class = default_value_class)
 
   @classmethod
   def is_datetime(clazz, o):
     return isinstance(o, datetime)
 
   @classmethod
-  def check_datetime(clazz, o, allow_none = False, default_value = None):
+  def check_datetime(clazz, o, allow_none = False, default_value = None, default_value_class = None):
     return clazz._check(o,
                         datetime,
                         2,
                         allow_none = allow_none,
-                        default_value = default_value)
+                        default_value = default_value,
+                        default_value_class = default_value_class)
 
   @classmethod
   def is_timedelta(clazz, o):
     return isinstance(o, timedelta)
 
   @classmethod
-  def check_timedelta(clazz, o, allow_none = False, default_value = None):
+  def check_timedelta(clazz, o, allow_none = False, default_value = None, default_value_class = None):
     return clazz._check(o,
                         timedelta,
                         2,
                         allow_none = allow_none,
-                        default_value = default_value)
+                        default_value = default_value,
+                        default_value_class = default_value_class)
 
   @classmethod
   def is_file_like(clazz, o):
@@ -294,27 +317,31 @@ class check(object):
                         allow_none = allow_none)
   
   @classmethod
-  def check_callable(clazz, o, allow_none = False, default_value = None):
+  def check_callable(clazz, o, allow_none = False, default_value = None, default_value_class = None):
     return clazz._check(o,
                         clazz.CALLABLE_TYPES,
                         2,
                         allow_none = allow_none,
-                        default_value = default_value)
+                        default_value = default_value,
+                        default_value_class = default_value_class)
 
   @classmethod
-  def check_callable_seq(clazz, o, allow_none = False, allow_item_none = False, default_value = None):
+  def check_callable_seq(clazz, o, allow_none = False, allow_item_none = False, default_value = None, default_value_class = None):
     return clazz._check_seq(o,
                             clazz.CALLABLE_TYPES,
                             2,
                             allow_none = allow_none,
                             allow_item_none = allow_item_none,
-                            default_value = default_value)
+                            default_value = default_value,
+                            default_value_class = default_value_class)
 
   @classmethod
-  def _check(clazz, o, t, depth, type_blurb = None, allow_none = False, default_value = None):
+  def _check(clazz, o, t, depth, type_blurb = None, allow_none = False, default_value = None, default_value_class = None):
     if allow_none and o is None:
       if default_value is not None:
         return default_value
+      if default_value_class is not None:
+        return default_value_class()
       return o
     if isinstance(o, t):
       return o
@@ -328,7 +355,13 @@ class check(object):
     raise TypeError(f'\"{name}\" should be of type \"{type_blurb}\" instead of \"{typeo}\" at {fp}:{line_number}')
   
   @classmethod
-  def check_seq(clazz, o, t, allow_none = False, allow_item_none = False, default_value = None):
+  def check_seq(clazz,
+                o,
+                t,
+                allow_none = False,
+                allow_item_none = False,
+                default_value = None,
+                default_value_class = None):
     return clazz._check_seq(o,
                             t,
                             2,
@@ -336,7 +369,15 @@ class check(object):
                             allow_item_none = allow_item_none)
 
   @classmethod
-  def _check_seq(clazz, o, t, depth, type_blurb = None, allow_none = False, allow_item_none = False, default_value = None):
+  def _check_seq(clazz,
+                 o,
+                 t,
+                 depth,
+                 type_blurb = None,
+                 allow_none = False,
+                 allow_item_none = False,
+                 default_value = None,
+                 default_value_class = None):
     if allow_none and o is None:
       if default_value is not None:
         return default_value
@@ -374,10 +415,13 @@ class check(object):
       assert len(args) == 1
       obj = args[0]
       default_value = kwargs.get('default_value', None)
+      default_value_class = kwargs.get('default_value_class', None)
       allow_none = kwargs.get('allow_none', False)
       if allow_none and obj is None:
         if default_value is not None:
           return default_value
+        if default_value_class is not None:
+          return default_value_class()
         return None
       if not isinstance(obj, self.object_type) and self.cast_func:
         obj = self.cast_func(obj)
@@ -387,7 +431,8 @@ class check(object):
                           2,
                           type_blurb = type_blurb,
                           allow_none = allow_none,
-                          default_value = default_value)
+                          default_value = default_value,
+                          default_value_class = default_value_class)
     
   class _is_type_helper(object):
     'Helper class to make check.is_foo() methods work.'
@@ -412,13 +457,15 @@ class check(object):
       allow_none = kwargs.get('allow_none', False)
       allow_item_none = kwargs.get('allow_item_none', False)
       default_value = kwargs.get('default_value', None)
+      default_value_class = kwargs.get('default_value_class', None)
       return check._check_seq(obj,
                               self.object_type,
                               2,
                               type_blurb = None,
                               allow_none = allow_none,
                               allow_item_none = allow_item_none,
-                              default_value = default_value)
+                              default_value = default_value,
+                              default_value_class = default_value_class)
     
   class _is_seq_helper(object):
     'Helper class to make check.is_foo_seq() methods work.'

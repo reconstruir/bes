@@ -14,6 +14,7 @@ from bes.system.log import logger
 from bes.system.filesystem import filesystem
 
 from .bfile_date import bfile_date
+from .bfile_date_comparison_type import bfile_date_comparison_type
 from .bfile_error import bfile_error
 from .bfile_filename import bfile_filename
 from .bfile_mtime_cached_info import bfile_mtime_cached_info
@@ -233,6 +234,11 @@ class bfile_entry(object):
   @property
   def mtime(self):
     return self.stat.mtime
+
+  @property
+  def mode(self):
+    'Return only the lower bits of a inode mode (permissions)'
+    return self.stat.st_mode & 0o777
   
   @property
   def modification_date(self):
@@ -248,9 +254,52 @@ class bfile_entry(object):
   def modification_date_timestamp(self):
     return time_util.timestamp(when = self.modification_date, milliseconds = False)
 
+  def compare_modification_date(self, other_date):
+    check.check_datetime(other_date)
+
+    date = self.modification_date
+    if date < other_date:
+      return -1
+    elif date > other_date:
+      return 1
+    else:
+      pass
+    assert date == other_date
+    return 0
+
+  def modification_date_matches(self, date, comparison_type):
+    check.check_datetime(date)
+    comparison_type = check.check_bfile_date_comparison_type(comparison_type)
+
+    cmp_rv = self.compare_modification_date(date)
+    if comparison_type == bfile_date_comparison_type.EQ:
+      return cmp_rv == 0
+    elif comparison_type == bfile_date_comparison_type.GE:
+      return cmp_rv in ( 0, 1 )
+    elif comparison_type == bfile_date_comparison_type.GT:
+      return cmp_rv == 1
+    elif comparison_type == bfile_date_comparison_type.LE:
+      return cmp_rv in ( 0, -1 )
+    elif comparison_type == bfile_date_comparison_type.LT:
+      return cmp_rv == -1
+    elif comparison_type == bfile_date_comparison_type.NE:
+      return cmp_rv != 0
+    else:
+      assert False, f'Not reached'
+
+  def modification_date_matches_delta(self, delta, comparison_type):
+    check.check_timedelta(delta)
+    comparison_type = check.check_bfile_date_comparison_type(comparison_type)
+
+    date = self.modification_date + delta
+    return self.modification_date_matches(date, comparison_type)
+      
+  def touch(self):
+    bfile_date.touch(self.filename)
+  
   @property
   def is_hidden(self):
-    return filesystem.file_is_hidden(self.filename)
+   return filesystem.file_is_hidden(self.filename)
   
   @cached_property
   def attributes(self):
@@ -334,5 +383,5 @@ class bfile_entry(object):
       assert False, f'unknown path_type: "{path_type}"'
     assert filename != None
     return filename
-    
+
 check.register_class(bfile_entry, include_seq = False, cast_func = bfile_entry._cast_func)

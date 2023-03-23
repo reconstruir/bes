@@ -6,7 +6,6 @@ import os, os.path as path, unittest
 from bes.testing.unit_test import unit_test
 
 from bes.files.bfile_path import bfile_path
-from bes.fs.file_util import file_util
 from bes.system.env_override import env_override
 from bes.text.word_boundary import word_boundary
 
