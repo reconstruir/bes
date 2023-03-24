@@ -21,7 +21,7 @@ class bf_match_item_callable(bf_match_item_base):
   #@abstractmethod
   def match(self, entry, options):
     'Return True if filename matches.'
-    check.check_bfile_entry(entry)
+    check.check_bf_entry(entry)
     check.check_bf_match_options(options)
 
     filename = entry.filename_for_matcher(options.path_type, options.ignore_case)

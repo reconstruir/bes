@@ -4,8 +4,8 @@ from bes.system.check import check
 from bes.system.log import logger
 from bes.common.object_util import object_util
 
-from ..bfile_entry import bfile_entry
-from ..bfile_entry_list import bfile_entry_list
+from ..bf_entry import bf_entry
+from ..bf_entry_list import bf_entry_list
 
 from .bf_match_item_attr import bf_match_item_attr
 from .bf_match_item_base import bf_match_item_base
@@ -73,7 +73,7 @@ class bf_match(object):
     self.add_matcher(bf_match_item_metadata(metadatas))
     
   def match(self, entry, options = None):
-    check.check_bfile_entry(entry)
+    check.check_bf_entry(entry)
     options = check.check_bf_match_options(options, allow_none = True) or bf_match_options()
 
     self._log.log_d(f'match: entry={entry.filename} options={options}')
@@ -91,13 +91,13 @@ class bf_match(object):
     return func(entry, self._matchers, options)
 
   def match_entries(self, entries, options = None):
-    entries = check.check_bfile_entry_list(entries)
+    entries = check.check_bf_entry_list(entries)
     options = check.check_bf_match_options(options, allow_none = True) or bf_match_options()
 
     if self.empty:
       return entries[:]
 
-    result = bfile_entry_list()
+    result = bf_entry_list()
     for entry in entries:
       if self.match(entry, options = options):
         result.append(entry)

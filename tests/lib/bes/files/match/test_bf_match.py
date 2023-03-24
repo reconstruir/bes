@@ -3,8 +3,8 @@
 
 from bes.files.match.bf_match import bf_match
 from bes.files.match.bf_match_options import bf_match_options
-from bes.files.bfile_entry import bfile_entry
-from bes.files.bfile_entry_list import bfile_entry_list
+from bes.files.bf_entry import bf_entry
+from bes.files.bf_entry_list import bf_entry_list
 
 from bes.testing.unit_test import unit_test
 
@@ -13,7 +13,7 @@ class test_bf_match(unit_test):
   def _match(self, setup, filename, root_dir, **options_kargs):
     matcher = bf_match()
     setup(matcher)
-    entry = bfile_entry(filename, root_dir = root_dir)
+    entry = bf_entry(filename, root_dir = root_dir)
     options = bf_match_options(**options_kargs)
     return matcher.match(entry, options = options)
 
@@ -97,7 +97,7 @@ class test_bf_match(unit_test):
     m = bf_match()
     m.add_matcher_fnmatch('*.txt')
     m.add_matcher_fnmatch('*.pdf')
-    self.assertEqual( bfile_entry_list(expected), m.match_entries(filenames) )
+    self.assertEqual( bf_entry_list(expected), m.match_entries(filenames) )
     
 if __name__ == '__main__':
   unit_test.main()

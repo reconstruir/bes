@@ -5,7 +5,7 @@ from bes.system.compat import with_metaclass
 
 from bes.system.check import check
 
-from ..bfile_entry import bfile_entry
+from ..bf_entry import bf_entry
 
 class bf_match_item_base(with_metaclass(ABCMeta, object)):
 

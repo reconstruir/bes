@@ -4,7 +4,7 @@ from bes.cli.cli_options import cli_options
 from bes.system.check import check
 
 from .bf_match_type import bf_match_type
-from ..bfile_path_type import bfile_path_type
+from ..bf_path_type import bf_path_type
 
 class bf_match_options(cli_options):
 
@@ -18,7 +18,7 @@ class bf_match_options(cli_options):
     return {
       'ignore_case': False,
       'match_type': bf_match_type.ANY,
-      'path_type': bfile_path_type.ABSOLUTE,
+      'path_type': bf_path_type.ABSOLUTE,
     }
   
   @classmethod
@@ -59,6 +59,6 @@ class bf_match_options(cli_options):
     'Check the type of each option.'
     check.check_bool(self.ignore_case)
     self.match_type = check.check_bf_match_type(self.match_type)
-    self.path_type = check.check_bfile_path_type(self.path_type)
+    self.path_type = check.check_bf_path_type(self.path_type)
     
 check.register_class(bf_match_options)

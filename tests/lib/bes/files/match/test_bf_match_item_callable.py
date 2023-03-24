@@ -3,7 +3,7 @@
 
 from bes.files.match.bf_match_item_callable import bf_match_item_callable
 from bes.files.match.bf_match_options import bf_match_options
-from bes.files.bfile_entry import bfile_entry
+from bes.files.bf_entry import bf_entry
 
 from bes.testing.unit_test import unit_test
 
@@ -24,7 +24,7 @@ class test_bf_match_item_callable(unit_test):
     self.assertEqual( True, self._match( ( lambda f: f.startswith('k'), f ), 'lemon.py', match_type = 'ANY') )
 
   def _match(self, patterns, filename, **options):
-    entry = bfile_entry(filename)
+    entry = bf_entry(filename)
     matcher = bf_match_item_callable(patterns)
     return matcher.match(entry, bf_match_options(**options))
   

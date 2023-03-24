@@ -24,7 +24,7 @@ class bf_match_item_re(bf_match_item_base):
   #@abstractmethod
   def match(self, entry, options):
     'Return True if filename matches.'
-    check.check_bfile_entry(entry)
+    check.check_bf_entry(entry)
     check.check_bf_match_options(options)
 
     flags = 0
