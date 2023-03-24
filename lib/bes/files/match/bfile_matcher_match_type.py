@@ -2,9 +2,9 @@
 
 from bes.enum_util.checked_enum import checked_enum
 
-class bf_match_type(checked_enum):
+class bfile_matcher_match_type(checked_enum):
   ALL = 'all'
   ANY = 'any'
   NONE = 'none'
   
-bf_match_type.register_check_class()
+bfile_matcher_match_type.register_check_class()

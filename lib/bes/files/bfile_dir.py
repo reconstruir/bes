@@ -5,8 +5,8 @@ import datetime
 
 from ..system.check import check
 
-from .match.bf_match import bf_match
-from .match.bf_match_options import bf_match_options
+from .match.bfile_match import bfile_match
+from .match.bfile_matcher_options import bfile_matcher_options
 from .bfile_filename import bfile_filename
 from .bfile_check import bfile_check
 from .bfile_entry import bfile_entry
@@ -26,8 +26,8 @@ class bfile_dir(object):
     'Return a list of where contents.  Returns absolute paths unless relative is True.'
     where = bfile_check.check_dir(where)
     check.check_bool(relative)
-    file_match = check.check_bf_match(file_match, allow_none = True, default_value_class = bf_match)
-    options = check.check_bf_match_options(options, allow_none = True, default_value_class = bf_match_options)
+    file_match = check.check_bfile_match(file_match, allow_none = True, default_value_class = bfile_match)
+    options = check.check_bfile_matcher_options(options, allow_none = True, default_value_class = bfile_matcher_options)
 
     entries = bfile_entry_list.listdir(where)
     matched_entries = file_match.match_entries(entries, options = options)
@@ -43,22 +43,22 @@ class bfile_dir(object):
     patterns = check.check_string_seq(patterns, allow_none = True, default_value = [])
     path_type = check.check_bfile_path_type(path_type)
     
-    match = bf_match(patterns = patterns)
+    match = bfile_match(patterns = patterns)
     match.add_matcher_callable(path.isdir)
-    options = bf_match_options(path_type = path_type)
+    options = bfile_matcher_options(path_type = path_type)
     return clazz.list(where, relative = relative, file_match = match, options = options)
 
   @classmethod
   def list_files(clazz, where, relative = False, patterns = None, basename = False):
     'Like list() but only returns files.'
-    match = bf_match(patterns = patterns)
+    match = bfile_match(patterns = patterns)
     match.add_matcher_callable(path.isfile)
-    options = bf_match_options(path_type = path_type)
+    options = bfile_matcher_options(path_type = path_type)
     return clazz.list(where, relative = relative, file_match = match, options = options)
   
   @classmethod
   def empty_dirs(clazz, where):
-    match = bf_match(patterns = patterns)
+    match = bfile_match(patterns = patterns)
     match.add_matcher_callable(path.isdir)
     match.add_matcher_callable(clazz.is_empty)
     return clazz.list(where, relative = relative, file_match = match)

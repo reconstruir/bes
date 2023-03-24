@@ -2,10 +2,10 @@
 
 from bes.system.check import check
 
-from .bf_match_item_base import bf_match_item_base
-from .bf_match_options import bf_match_options
+from .bfile_matcher_base import bfile_matcher_base
+from .bfile_matcher_options import bfile_matcher_options
 
-class bf_match_item_metadata(bf_match_item_base):
+class bfile_matcher_metadata(bfile_matcher_base):
 
   def __init__(self, metadatas):
     check.check_dict(metadatas)
@@ -16,7 +16,7 @@ class bf_match_item_metadata(bf_match_item_base):
   def match(self, entry, options):
     'Return True if entry matches.'
     check.check_bfile_entry(entry)
-    check.check_bf_match_options(options)
+    check.check_bfile_matcher_options(options)
 
     for key, value in self._metadatas.items():
       if not entry.metadata[key] == value:

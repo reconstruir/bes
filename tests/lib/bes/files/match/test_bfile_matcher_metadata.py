@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.files.match.bf_match_item_metadata import bf_match_item_metadata
-from bes.files.match.bf_match_options import bf_match_options
+from bes.files.match.bfile_matcher_metadata import bfile_matcher_metadata
+from bes.files.match.bfile_matcher_options import bfile_matcher_options
 from bes.files.bfile_entry import bfile_entry
 from bes.files.metadata.bfile_metadata import bfile_metadata
 
@@ -10,7 +10,7 @@ from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.files.metadata.example_metadata_fruits_factory import example_metadata_fruits_factory
 
-class test_bf_match_item_metadata(unit_test):
+class test_bfile_matcher_metadata(unit_test):
   
   def test_match_one_metadata_any(self):
     tmp1 = self.make_temp_file(dir = __file__, content = b'1234')
@@ -39,8 +39,8 @@ class test_bf_match_item_metadata(unit_test):
 
   def _match(self, metadata, filename, **options_args):
     entry = bfile_entry(filename)
-    options = bf_match_options(**options_args)
-    matcher = bf_match_item_metadata(metadata)
+    options = bfile_matcher_options(**options_args)
+    matcher = bfile_matcher_metadata(metadata)
     return matcher.match(entry, options)
                                      
 if __name__ == '__main__':

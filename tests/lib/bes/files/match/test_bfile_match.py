@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.files.match.bf_match import bf_match
-from bes.files.match.bf_match_options import bf_match_options
+from bes.files.match.bfile_match import bfile_match
+from bes.files.match.bfile_matcher_options import bfile_matcher_options
 from bes.files.bfile_entry import bfile_entry
 from bes.files.bfile_entry_list import bfile_entry_list
 
 from bes.testing.unit_test import unit_test
 
-class test_bf_match(unit_test):
+class test_bfile_match(unit_test):
 
   def _match(self, setup, filename, root_dir, **options_kargs):
-    matcher = bf_match()
+    matcher = bfile_match()
     setup(matcher)
     entry = bfile_entry(filename, root_dir = root_dir)
-    options = bf_match_options(**options_kargs)
+    options = bfile_matcher_options(**options_kargs)
     return matcher.match(entry, options = options)
 
   def test_match_fnmatch_one_matcher_any(self):
@@ -37,7 +37,7 @@ class test_bf_match(unit_test):
     def setup(m):
       m.add_matcher_fnmatch('f*')
       
-    options = bf_match_options(path_type = 'basename')
+    options = bfile_matcher_options(path_type = 'basename')
     #self.assertEqual( False, self._match(setup, 'fruit/kiwi.py', None, path_type = 'basename') )
     #self.assertEqual( True, self._match(setup, 'fruit/fig.py', None, path_type = 'basename') )
     self.assertEqual( False, self._match(setup, 'FIG.PY', None, path_type = 'basename') )
@@ -94,7 +94,7 @@ class test_bf_match(unit_test):
       'report.pdf',
       '/foo/bar/vaca.txt',
     ]
-    m = bf_match()
+    m = bfile_match()
     m.add_matcher_fnmatch('*.txt')
     m.add_matcher_fnmatch('*.pdf')
     self.assertEqual( bfile_entry_list(expected), m.match_entries(filenames) )

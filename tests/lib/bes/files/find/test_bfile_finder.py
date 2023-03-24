@@ -4,8 +4,8 @@
 import os.path as path
 from collections import namedtuple
 
-from bes.files.match.bf_match import bf_match
-from bes.files.match.bf_match_options import bf_match_options
+from bes.files.match.bfile_match import bfile_match
+from bes.files.match.bfile_matcher_options import bfile_matcher_options
 from bes.files.find.bfile_finder import bfile_finder
 from bes.files.find.bfile_finder_options import bfile_finder_options
 from bes.files.bfile_entry import bfile_entry
@@ -92,7 +92,7 @@ class test_bfile_finder(unit_test):
       'file emptyfile.txt',
       'dir emptydir',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_fnmatch('*.py')
     self.assert_filename_list_equal( [
       'kiwi.py',
@@ -258,7 +258,7 @@ class test_bfile_finder(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_fnmatch('*.cheese')
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
@@ -275,7 +275,7 @@ class test_bfile_finder(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_fnmatch('*.cheese')
     self.assert_filename_list_equal( [
       'fruit/blueberry.fruit',
@@ -295,7 +295,7 @@ class test_bfile_finder(unit_test):
       'file cheese/cheddar.cheese',
       'file bonus/fig.fruit',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_fnmatch('f*')
     self.assert_filename_list_equal( [
       'bonus/fig.fruit',
@@ -312,7 +312,7 @@ class test_bfile_finder(unit_test):
       'file cheese/cheddar.cheese',
       'file bonus/fig.fruit',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_fnmatch(self.native_filename('*fruit/kiwi.fruit'))
     self.assert_filename_list_equal( [
       'fruit/kiwi.fruit',
@@ -328,7 +328,7 @@ class test_bfile_finder(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_callable(lambda f_: f_.endswith('.cheese'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
@@ -345,7 +345,7 @@ class test_bfile_finder(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_callable(lambda f_: f_.endswith('.cheese'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
@@ -362,7 +362,7 @@ class test_bfile_finder(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_callable(lambda f_: f_.endswith('.cheese'))
     self.assert_filename_list_equal( [
       'fruit/blueberry.fruit',
@@ -381,7 +381,7 @@ class test_bfile_finder(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_callable(lambda f_: f_.startswith('brie'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
@@ -397,7 +397,7 @@ class test_bfile_finder(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_callable(lambda f_: f_.startswith('cheese'))
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
@@ -414,7 +414,7 @@ class test_bfile_finder(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_re(r'^.*\.cheese$')
     self.assert_filename_list_equal( [
       'cheese/brie.cheese',
@@ -433,7 +433,7 @@ class test_bfile_finder(unit_test):
       'file wine/barolo.wine',
       'file wine/chablis.wine',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_re(r'^.*\.cheese$')
     match.add_matcher_re(r'^.*\.wine$')
     self.assert_filename_list_equal( [
@@ -453,7 +453,7 @@ class test_bfile_finder(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_re(r'^.*\.cheese$')
     self.assert_filename_list_equal( [
       'fruit/blueberry.fruit',
@@ -472,7 +472,7 @@ class test_bfile_finder(unit_test):
       'file cheese/brie.cheese',
       'file cheese/cheddar.cheese',
     ]
-    match = bf_match()
+    match = bfile_match()
     match.add_matcher_re(r'^f.*$')
     self.assert_filename_list_equal( [
       'fruit/blueberry.fruit',

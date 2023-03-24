@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.files.match.bf_match_item_attr import bf_match_item_attr
-from bes.files.match.bf_match_options import bf_match_options
+from bes.files.match.bfile_matcher_attr import bfile_matcher_attr
+from bes.files.match.bfile_matcher_options import bfile_matcher_options
 from bes.files.bfile_entry import bfile_entry
 from bes.files.attr.bfile_attr import bfile_attr
 
@@ -10,7 +10,7 @@ from bes.testing.unit_test import unit_test
 
 from _bes_unit_test_common.files.attr.fruits_factory import fruits_factory
 
-class test_bf_match_item_attr(unit_test):
+class test_bfile_matcher_attr(unit_test):
   
   def test_match_one_attr_any(self):
     tmp1 = self.make_temp_file(dir = __file__, content = 'brie')
@@ -42,8 +42,8 @@ class test_bf_match_item_attr(unit_test):
 
   def _match(self, attrs, filename, **options_args):
     entry = bfile_entry(filename)
-    options = bf_match_options(**options_args)
-    matcher = bf_match_item_attr(attrs)
+    options = bfile_matcher_options(**options_args)
+    matcher = bfile_matcher_attr(attrs)
     return matcher.match(entry, options)
                                      
 if __name__ == '__main__':
