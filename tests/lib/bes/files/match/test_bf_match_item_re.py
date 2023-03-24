@@ -3,7 +3,7 @@
 
 from bes.files.match.bf_match_item_re import bf_match_item_re
 from bes.files.match.bf_match_options import bf_match_options
-from bes.files.bfile_entry import bfile_entry
+from bes.files.bf_entry import bf_entry
 
 from bes.testing.unit_test import unit_test
 
@@ -24,7 +24,7 @@ class test_bf_match_item_re(unit_test):
     self.assertEqual( False, self._match('k.*\.py', 'koo/bar/melon.py', path_type = 'basename') )
 
   def _match(self, pattern, filename, **options):
-    entry = bfile_entry(filename)
+    entry = bf_entry(filename)
     matcher = bf_match_item_re(pattern)
     return matcher.match(entry, bf_match_options(**options))
   

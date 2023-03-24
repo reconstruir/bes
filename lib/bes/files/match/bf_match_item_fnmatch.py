@@ -28,7 +28,7 @@ class bf_match_item_fnmatch(bf_match_item_base):
   #@abstractmethod
   def match(self, entry, options):
     'Return True if filename matches.'
-    check.check_bfile_entry(entry)
+    check.check_bf_entry(entry)
     check.check_bf_match_options(options)
 
     pattern = self._pattern_lowercase if options.ignore_case else self._pattern

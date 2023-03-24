@@ -15,7 +15,7 @@ class bf_match_item_metadata(bf_match_item_base):
   #@abstractmethod
   def match(self, entry, options):
     'Return True if entry matches.'
-    check.check_bfile_entry(entry)
+    check.check_bf_entry(entry)
     check.check_bf_match_options(options)
 
     for key, value in self._metadatas.items():

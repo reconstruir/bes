@@ -3,8 +3,8 @@
 
 from bes.files.match.bf_match_item_metadata import bf_match_item_metadata
 from bes.files.match.bf_match_options import bf_match_options
-from bes.files.bfile_entry import bfile_entry
-from bes.files.metadata.bfile_metadata import bfile_metadata
+from bes.files.bf_entry import bf_entry
+from bes.files.metadata.bf_metadata import bf_metadata
 
 from bes.testing.unit_test import unit_test
 
@@ -23,10 +23,10 @@ class test_bf_match_item_metadata(unit_test):
     tmp1 = self.make_temp_file(dir = __file__, content = 'brie')
     tmp2 = self.make_temp_file(dir = __file__, content = 'manchego')
 
-    bfile_attr.set_int(tmp1, 'acme/fruit/kiwi/1.0', 666)
-    bfile_attr.set_string(tmp1, 'acme/fruit/name/1.0', 'fred')
-    bfile_attr.set_int(tmp2, 'acme/fruit/kiwi/1.0', 42)
-    bfile_attr.set_string(tmp2, 'acme/fruit/name/1.0', 'joe')
+    bf_attr.set_int(tmp1, 'acme/fruit/kiwi/1.0', 666)
+    bf_attr.set_string(tmp1, 'acme/fruit/name/1.0', 'fred')
+    bf_attr.set_int(tmp2, 'acme/fruit/kiwi/1.0', 42)
+    bf_attr.set_string(tmp2, 'acme/fruit/name/1.0', 'joe')
 
     self.assertEqual( True, self._match({
       'acme/fruit/kiwi/1.0': 666,
@@ -38,7 +38,7 @@ class test_bf_match_item_metadata(unit_test):
     }, tmp2, match_type = 'ALL') )
 
   def _match(self, metadata, filename, **options_args):
-    entry = bfile_entry(filename)
+    entry = bf_entry(filename)
     options = bf_match_options(**options_args)
     matcher = bf_match_item_metadata(metadata)
     return matcher.match(entry, options)

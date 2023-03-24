@@ -2,10 +2,10 @@
 
 import os
 
-from bes.files.metadata.bfile_metadata_factory_base import bfile_metadata_factory_base
+from bes.files.metadata.bf_metadata_factory_base import bf_metadata_factory_base
 from bes.system.check import check
 
-class example_metadata_fruits_factory(bfile_metadata_factory_base):
+class example_metadata_fruits_factory(bf_metadata_factory_base):
       
   @classmethod
   #@abstractmethod
