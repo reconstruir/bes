@@ -3,10 +3,10 @@
 from bes.system.check import check
 from bes.system.log import logger
 
-from .bfile_matcher_base import bfile_matcher_base
-from .bfile_matcher_options import bfile_matcher_options
+from .bf_match_item_base import bf_match_item_base
+from .bf_match_options import bf_match_options
 
-class bfile_matcher_callable(bfile_matcher_base):
+class bf_match_item_callable(bf_match_item_base):
 
   _log = logger('match')
   
@@ -16,13 +16,13 @@ class bfile_matcher_callable(bfile_matcher_base):
     self._callable = callable_
 
   def __str__(self):
-    return f'bfile_matcher_callable("{self._callable}")'
+    return f'bf_match_item_callable("{self._callable}")'
     
   #@abstractmethod
   def match(self, entry, options):
     'Return True if filename matches.'
     check.check_bfile_entry(entry)
-    check.check_bfile_matcher_options(options)
+    check.check_bf_match_options(options)
 
     filename = entry.filename_for_matcher(options.path_type, options.ignore_case)
     matched = self._callable(filename)

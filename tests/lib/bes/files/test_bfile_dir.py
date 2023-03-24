@@ -3,8 +3,8 @@
 
 import os.path as path
 from bes.files.bfile_dir import bfile_dir
-from bes.files.match.bfile_match import bfile_match
-from bes.files.match.bfile_matcher_options import bfile_matcher_options
+from bes.files.match.bf_match import bf_match
+from bes.files.match.bf_match_options import bf_match_options
 from bes.fs.testing.temp_content import temp_content
 from bes.testing.unit_test import unit_test
 
@@ -128,10 +128,10 @@ class test_bfile_dir(unit_test):
     self.assertEqual( [ '/', '/usr', '/usr/lib' ], bfile_dir.all_parents('/usr/lib/foo' ) )
 
   def _list(self, where, relative = True, patterns = None, expressions = None, callables = None, path_type = 'absolute'):
-    match = bfile_match(patterns = patterns,
+    match = bf_match(patterns = patterns,
                         expressions = expressions,
                         callables = callables)
-    options = bfile_matcher_options(path_type = path_type)
+    options = bf_match_options(path_type = path_type)
     entries = bfile_dir.list(where, relative = relative, file_match = match, options = options)
     return entries.filenames()
     
