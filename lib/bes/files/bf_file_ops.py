@@ -2,6 +2,7 @@
 
 import contextlib, codecs, errno, subprocess
 import os.path as path, os, shutil, sys, tempfile
+import locale
 
 from ..common.object_util import object_util
 from ..system.check import check
@@ -12,7 +13,7 @@ from ..system.which import which
 
 from .bf_check import bf_check
 
-class bfile_util(object):
+class bf_file_ops(object):
 
   @classmethod
   def mkdir(clazz, p, mode = None):
@@ -36,26 +37,40 @@ class bfile_util(object):
     filesystem.remove(files, raise_not_found_error = False)
 
   @classmethod
-  def save(clazz, filename, content = None, mode = None, codec = 'utf-8'):
+  def save(clazz, filename, content = None, perm = None, encoding = None):
     'Atomically save content to filename using an intermediate temporary file.'
+    check.check_string(filename)
+    check.check_int(perm, allow_none = True)
+
+    open_mode = None
+    if content != None:
+      if check.is_string(content):
+        open_mode = 'w+t'
+        encoding = check.check_string(encoding, allow_none = True) or locale.getpreferredencoding()
+      elif check.is_bytes(content):
+        open_mode = 'w+b'
+        if encoding:
+          raise ValueError(f'encoding should be None when the content is bytes')
+        encoding = None
+      else:
+        raise TypeError(f'content should be None, string or bytes: "{content}" - {type(content)}')
+    if not open_mode:
+      open_mode = 'w+t'
+      
     dirname, basename = os.path.split(filename)
     dirname = dirname or None
     if dirname:
       clazz.mkdir(path.dirname(filename))
-    if path.exists(filename):
-      clazz.remove(filename)
-    tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = 'w+b')
+#    if path.exists(filename):
+#      clazz.remove(filename)
+    tmp = tempfile.NamedTemporaryFile(prefix = basename, dir = dirname, delete = False, mode = open_mode, encoding = encoding)
     if content:
-      if compat.IS_PYTHON3 and check.is_string(content) and codec is not None:
-        content_data = codecs.encode(content, codec)
-      else:
-        content_data = content
-      tmp.write(content_data)
+      tmp.write(content)
     tmp.flush()
     os.fsync(tmp.fileno())
     tmp.close()
-    if mode:
-      os.chmod(tmp.name, mode)
+    if perm:
+      os.chmod(tmp.name, perm)
     clazz._cross_device_safe_rename(tmp.name, filename)
     return filename
 
@@ -197,7 +212,7 @@ class bfile_util(object):
     filename1 = bf_check.check_file(filename1)
     filename2 = bf_check.check_file(filename2)
 
-    if clazz.size(filename1) != clazz.size(filename2):
+    if os.stat(filename1).st_size != os.stat(filename2).st_size:
       return False
 
     with open(filename1, 'rb') as f1:

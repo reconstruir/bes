@@ -5,7 +5,7 @@ from ..system.check import check
 from .bf_check import bf_check
 
 class bf_size(object):
-
+  
   # from https://gist.github.com/cbwar/d2dfbc19b140bd599daccbe0fe925597
   @classmethod
   def format_size(clazz, num, suffix = None):

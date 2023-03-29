@@ -384,4 +384,17 @@ class bf_entry(object):
     assert filename != None
     return filename
 
+  def content_is_same(self, other, read_size = 1024 * 1024):
+    check.check_bf_entry(other)
+    check.check_int(read_size)
+    
+    if self.size != other.size:
+      return False
+
+    with open(self.filename, 'rb') as f1:
+      with open(other.filename, 'rb') as f2:
+        if f1.read(read_size) != f2.read(read_size):
+          return False
+    return True
+  
 check.register_class(bf_entry, include_seq = False, cast_func = bf_entry._cast_func)

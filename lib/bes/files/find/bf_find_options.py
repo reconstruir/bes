@@ -10,6 +10,10 @@ from ..match.bf_match_options import bf_match_options
 from ..bf_path_type import bf_path_type
 from ..bf_file_type import bf_file_type
 
+from .bf_find_error import bf_find_error
+from .bf_find_progress import bf_find_progress
+from .bf_find_progress_state import bf_find_progress_state
+
 class bf_find_options(cli_options):
 
   def __init__(self, **kargs):
@@ -30,6 +34,10 @@ class bf_find_options(cli_options):
       'min_depth': None,
       'relative': True,
       'file_match': None,
+      'limit': None,
+      'stop_function': None,
+      'progress_function': None,
+      'progress_interval_percent': 5.0,
     }
   
   @classmethod
@@ -47,6 +55,10 @@ class bf_find_options(cli_options):
       'min_depth': int,
       'max_depth': int,
       'follow_links': bool,
+      'limit': int,
+      'stop_function': callable,
+      'progress_function': callable,
+      'progress_interval_percent': float,
     }
 
   @classmethod
@@ -81,6 +93,10 @@ class bf_find_options(cli_options):
     check.check_bool(self.follow_links)
     self.file_type = check.check_bf_file_type(self.file_type)
     check.check_bf_match(self.file_match, allow_none = True)
+    check.check_int(self.limit, allow_none = True)
+    check.check_callable(self.stop_function, allow_none = True)
+    check.check_callable(self.progress_function, allow_none = True)
+    check.check_number(self.progress_interval_percent)
 
     if self.max_depth and self.min_depth and not (self.max_depth >= self.min_depth):
       raise RuntimeError('max_depth needs to be >= min_depth.')
@@ -100,8 +116,8 @@ class bf_find_options(cli_options):
   @cached_property
   def matcher_options(self):
     return bf_match_options(ignore_case = self.ignore_case,
-                                 match_type = self.match_type,
-                                 path_type = self.path_type)
+                            match_type = self.match_type,
+                            path_type = self.path_type)
   
   def file_match_matches(self, entry):
     check.check_bf_entry(entry)
@@ -110,4 +126,22 @@ class bf_find_options(cli_options):
       return True
     return self.file_match.match(entry, self.matcher_options)
     
+  def call_stop_function(self):
+    if not self.stop_function:
+      return False
+    result = self.stop_function()
+    if not check.is_bool(result):
+      raise bf_find_error(f'result from stop_function should be bool: "{result}" - {type(result)}')
+    return result
+
+  def call_progress_function(self, state, index, total):
+    state = check.check_bf_find_progress_state(state)
+    check.check_int(index, allow_none = True)
+    check.check_int(total, allow_none = True)
+    
+    if not self.progress_function:
+      return
+    progress = bf_find_progress(state, index, total)
+    self.progress_function(progress)
+  
 check.register_class(bf_find_options)

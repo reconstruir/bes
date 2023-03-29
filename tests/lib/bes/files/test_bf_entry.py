@@ -291,6 +291,16 @@ class test_bf_entry(unit_test, unit_test_media_files):
     self.assertEqual( True, e.modification_date_matches_delta(tnew, 'ne') )
     self.assertEqual( False, e.modification_date_matches_delta(tnew, 'gt') )
     self.assertEqual( True, e.modification_date_matches_delta(tnew, 'lt') )
+
+  def test_files_are_the_same_true(self):
+    f1 = self._make_test_entry(content = f'abcdefghijklmnopqrstuvwxyz')
+    f2 = self._make_test_entry(content = f'abcdefghijklmnopqrstuvwxyz')
+    self.assertEqual( True, f1.content_is_same(f2) )
+
+  def test_files_are_the_same_false(self):
+    f1 = self._make_test_entry(content = f'abcdefghijklmnopqrstuvwxyz')
+    f2 = self._make_test_entry(content = f'abcdefghijklmnopqrstuvwxy')
+    self.assertEqual( False, f1.content_is_same(f2) )
     
 if __name__ == '__main__':
   unit_test.main()
