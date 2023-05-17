@@ -2,6 +2,7 @@
 
 import shlex
 from .compat import compat
+from .check import check
 from .host import host
 
 class command_line(object):
@@ -15,7 +16,7 @@ class command_line(object):
       return clazz._parse_args_windows(args, quote = quote)
     elif system in ( host.MACOS, host.LINUX ):
       return clazz._parse_args_unix(args, quote = quote)
-    elif system in ( host.MACOS, host.LINUX ):
+    else:
       host.raise_unsupported_system(system = system)
     
   @classmethod
@@ -25,18 +26,19 @@ class command_line(object):
     if compat.is_string(args):
       flat_args = args
     elif isinstance(args, ( list, tuple )):
-      for i, arg in enumerate(args, 1):
+      for i, arg in enumerate(args, start = 1):
         if arg == None:
-          raise TypeError('arg number {} cannot be "None":  "{}"'.format(i, args))
+          raise TypeError(f'arg {i} cannot be "None"')
         if not compat.is_string(arg):
-          raise TypeError('arg should be a string instead of: "{}" - {}'.format(args, type(arg)))
+          raise TypeError(f'arg should be a string instead of: "{arg}" - {type(arg)}')
       flat_args = ' '.join(args)
     else:
       raise TypeError('args should be a string or list of strings instead of: "{}" - {}'.format(args, type(args)))
     assert flat_args != None
 
     if quote:
-      args = clazz.shell_quote(flat_args)
+      #assert False
+      xflat_args = clazz.shell_quote(flat_args)
     return shlex.split(flat_args)
     
   @classmethod
@@ -79,8 +81,8 @@ class command_line(object):
     
   @classmethod
   def check_args_type(clazz, args):
-    if compat.is_string(args):
-      return
-    if isinstance(args, ( list, tuple )):
-      return
-    raise TypeError('args should be a string, list or tuple: "{}" - {}'.format(args, type(args)))
+    if check.is_string(args):
+      return args
+    if check.is_string_seq(args):
+      return args
+    raise TypeError(f'args should be a string, list or tuple: "{args}" - {type(args)}')

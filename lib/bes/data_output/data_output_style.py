@@ -7,6 +7,7 @@ class data_output_style(checked_enum):
   CSV = 'csv'
   JSON = 'json'
   PLAIN_TABLE = 'plain_table'
+  RAW = 'raw'
   TABLE = 'table'
 
 data_output_style.register_check_class()

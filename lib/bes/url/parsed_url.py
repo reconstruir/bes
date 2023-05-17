@@ -3,9 +3,12 @@
 from collections import namedtuple
 
 from ..common.tuple_util import tuple_util
+from ..common.object_util import object_util
 from ..common.string_util import string_util
 from ..property.cached_property import cached_property
 from ..system.check import check
+from ..key_value.key_value_list import key_value_list
+from ..key_value.key_value import key_value
 
 from urllib import parse as urllib_parse
 from urllib.parse import unquote as urllib_unquote
@@ -64,6 +67,14 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
   def query_attributes(self):
     return urllib_parse.parse_qs(self.query)
 
+  @cached_property
+  def query_dict(self):
+    return urllib_parse.parse_qs(self.query)
+  
+  @cached_property
+  def query_key_values(self):
+    return key_value_list(urllib_parse.parse_qsl(self.query))
+  
   def to_string(self):
     return urllib_parse.urlunparse(self.to_parse_result())
 
@@ -97,9 +108,24 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
     return urllib_unquote(self.path)
   
   def remove_query(self):
-    r = self.clone(mutations = { 'query': '' })
     return self.clone(mutations = { 'query': '' })
 
+  def remove_query_fields(self, callable_):
+    check.check_callable(callable_)
+
+    new_kvl = self.query_key_values
+    new_kvl.remove_by_callable(callable_)
+    query = new_kvl.to_string(delimiter = '=', value_delimiter = '&')
+    return self.clone(mutations = { 'query': query })
+
+  def keep_query_fields(self, callable_):
+    check.check_callable(callable_)
+
+    new_kvl = self.query_key_values
+    new_kvl.keep_by_callable(callable_)
+    query = new_kvl.to_string(delimiter = '=', value_delimiter = '&')
+    return self.clone(mutations = { 'query': query })
+  
   _COMMON_SUFFIXES = set([
     'au',
     'ca',
@@ -143,5 +169,14 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
   def base_url(self):
     'Return just the base url without path or anything else'
     return parsed_url(self.scheme, self.netloc, '', '', '', '')
+
+  def replace_base_url(self, url):
+    check.check_string(url)
+
+    purl = self.parse(url)
+    return self.clone(mutations = {
+      'scheme': purl.scheme,
+      'netloc': purl.netloc,
+    })
   
 check.register_class(parsed_url, include_seq = False)

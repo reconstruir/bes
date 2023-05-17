@@ -29,6 +29,13 @@ class test_parsed_url(unit_test):
     self.assertEqual( 'http://www.example.com/foo.cgi', _t('http://www.example.com/foo.cgi?a=6&b=7&foo=666') )
     self.assertEqual( 'http://www.example.com/foo.cgi', _t('http://www.example.com/foo.cgi') )
 
+  def test_remove_query_fields(self):
+    def _t(s, c):
+      return parsed_url.parse(s).remove_query_fields(c)
+    self.assertEqual( 'http://www.example.com/foo.cgi?a=6&b=7',
+                      _t('http://www.example.com/foo.cgi?a=6&b=7&foo=666', lambda kv: kv.key == 'foo') )
+#    self.assertEqual( 'http://www.example.com/foo.cgi', _t('http://www.example.com/foo.cgi') )
+    
   def test_normalized(self):
     def _t(s):
       return parsed_url.parse(s).normalized()
@@ -46,5 +53,15 @@ class test_parsed_url(unit_test):
     self.assertEqual( 'foo.cgi?x=42&y=666', _t('http://www.example.com/foo.cgi?x=42&y=666') )
     self.assertEqual( 'foo.cgi?x=42&y=666', _t('foo.cgi?x=42&y=666') )
 
+  def test_query_dict(self):
+    def _t(s):
+      return parsed_url.parse(s).query_dict
+    self.assertEqual( { 'a': [ '6' ], 'b': [ '7' ], 'foo': [ '666' ] }, _t('http://www.example.com/foo.cgi?a=6&b=7&foo=666') )
+
+  def test_query_key_values(self):
+    def _t(s):
+      return parsed_url.parse(s).query_key_values
+    self.assertEqual( [ ( 'a', '6' ), ( 'b', '7' ), ( 'foo', '666' ) ], _t('http://www.example.com/foo.cgi?a=6&b=7&foo=666') )
+    
 if __name__ == '__main__':
   unit_test.main()

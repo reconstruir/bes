@@ -145,6 +145,16 @@ class type_checked_list(object):
     check.check_set(s, self._value_type)
 
     self._values = [ item for item in self._values if item not in s ]
+
+  def remove_by_callable(self, callable_):
+    check.check_callable(callable_)
+
+    self._values = [ item for item in self._values if not callable_(item) ]
+
+  def keep_by_callable(self, callable_):
+    check.check_callable(callable_)
+
+    self._values = [ item for item in self._values if callable_(item) ]
     
   def to_list(self):
     return self._values[:]
