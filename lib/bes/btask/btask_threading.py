@@ -33,4 +33,10 @@ class btask_threading(object):
       current = threading.current_thread()
       raise btask_error(f'{label}Can only be called from the main thread instead of "{current}"')
 
-assert threading.current_thread() is threading.main_thread()    
+  @classmethod
+  def current_process_pid(clazz):
+    return multiprocessing.current_process().pid
+
+  @classmethod
+  def current_thread_id(clazz):
+    return threading.current_thread().ident

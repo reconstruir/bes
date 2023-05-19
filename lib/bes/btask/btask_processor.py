@@ -3,7 +3,6 @@
 from collections import namedtuple
 from datetime import datetime
 import multiprocessing
-import time
 
 from bes.system.log import logger
 from bes.system.check import check
@@ -94,7 +93,7 @@ class btask_processor(object):
       error = ex
     end_time = datetime.now()
     clazz._log.log_d(f'_function: task_id={task_id} data={data}')
-    metadata = btask_result_metadata(multiprocessing.current_process().pid,
+    metadata = btask_result_metadata(btask_threading.current_process_pid(),
                                      add_time,
                                      start_time,
                                      end_time)
