@@ -38,8 +38,8 @@ class tester(object):
     self._count += 1
     self._after_callback()
       
-  def add_task(self, category, priority, function, callback, *args, **kwargs):
-    self._processor.add_task(category, priority, function, callback, *args, **kwargs)
+  def add_task(self, category, priority, function, callback, debug, *args, **kwargs):
+    self._processor.add_task(category, priority, function, callback, debug, *args, **kwargs)
     self._num_tasks += 1
 
   def results(self):
