@@ -12,6 +12,7 @@ from .btask_priority import btask_priority
 from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata
 from .btask_threading import btask_threading
+from .btask_config import btask_config
 
 class btask_pool(object):
 
@@ -29,16 +30,18 @@ class btask_pool(object):
   def queue(self):
     return self._queue
     
-  _task_item = namedtuple('_task_item', 'task_id, callback')
+  _task_item = namedtuple('_task_item', 'task_id, config, callback, progress_callback')
   _tasks = {}
   _task_id = 1
-  def add_task(self, category, priority, function, callback, debug, *args, **kwargs):
-    check.check_string(category)
-    priority = check.check_btask_priority(priority)
+  def add_task(self, function, callback = None, progress_callback = None, config = None, args = None):
     check.check_callable(function)
     check.check_callable(callback, allow_none = True)
-    check.check_bool(debug)
+    check.check_callable(progress_callback, allow_none = True)
+    config = check.check_btask_config(config, allow_none = True)
+    check.check_dict(args, allow_none = True)
 
+    config = config or btask_config(function.__name__)
+    
     btask_threading.check_main_process(label = 'btask.add_task')
 
     add_time = datetime.now()
@@ -46,14 +49,13 @@ class btask_pool(object):
     with self._lock as lock:
       task_id = self._task_id
       self._task_id += 1
-      item = self._task_item(task_id, callback)
+      item = self._task_item(task_id, config, callback, progress_callback)
       self._tasks[task_id] = item
 
-    task_args = tuple([ task_id, function, add_time, debug ] + list(args))
+    task_args = tuple([ task_id, function, add_time, config.debug, args ])
     self._log.log_d(f'add_task: task_args={task_args}')
     self._pool.apply_async(self._function,
                            args = task_args,
-                           kwds = kwargs,
                            callback = self._callback,
                            error_callback = self._error_callback)
     return task_id
@@ -75,15 +77,15 @@ class btask_pool(object):
     self._log.log_d(f'complete: callback={callback}')
     
     return callback
-    
+
   @classmethod
-  def _function(clazz, task_id, function, add_time, debug, *args, **kwargs):
-    clazz._log.log_d(f'_function: task_id={task_id} function={function} args={args} kwargs={kwargs}')
+  def _function(clazz, task_id, function, add_time, debug, args):
+    clazz._log.log_d(f'_function: task_id={task_id} function={function} args={args}')
     start_time = datetime.now()
     error = None
     data = None
     try:
-      data = function(*args, **kwargs)
+      data = function(args)
       clazz._log.log_d(f'_function: task_id={task_id} data={data}')
       if not check.is_dict(data):
         raise btask_error(f'Function "{function}" should return a dict: "{data}" - {type(data)}')
@@ -108,8 +110,7 @@ class btask_pool(object):
     self._queue.put(result)
     
   def _error_callback(self, error):
-    self._log.log_d(f'_error_callback: error={error}')
     self._log.log_exception(error)
-    assert False
+    raise btask_error(f'unexpected error: "{error}"')
     
 check.register_class(btask_pool, include_seq = False)

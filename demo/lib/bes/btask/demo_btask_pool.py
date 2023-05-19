@@ -3,16 +3,19 @@
 
 import queue as py_queue
 
-from bes.btask.btask_pool import btask_pool
-from bes.btask.btask_main_thread_runner_py import btask_main_thread_runner_py
-from bes.btask.btask_result_collector_py import btask_result_collector_py
-from bes.system.log import logger
-from bes.system.execute import execute
 from bes.system.check import check
+from bes.system.execute import execute
+from bes.system.log import logger
+
+from bes.btask.btask_config import btask_config
+from bes.btask.btask_main_thread_runner_py import btask_main_thread_runner_py
+from bes.btask.btask_pool import btask_pool
+from bes.btask.btask_result_collector_py import btask_result_collector_py
+
 
 log = logger('demo')
 
-class btask_pool_tester(object):
+class pool_tester(object):
 
   _log = logger('btask')
   
@@ -43,8 +46,12 @@ class btask_pool_tester(object):
     self._num_completed_tasks += 1
     self._after_callback()
       
-  def add_task(self, category, priority, function, callback, debug, *args, **kwargs):
-    self._pool.add_task(category, priority, function, callback, debug, *args, **kwargs)
+  def add_task(self, function, callback = None, progress_callback = None, config = None, args = None):
+    self._pool.add_task(function,
+                        callback = callback,
+                        progress_callback = progress_callback,
+                        config = config,
+                        args = args)
     self._num_added_tasks += 1
 
   def results(self):
@@ -66,13 +73,12 @@ class demo_handler(object):
     self._tester = tester
   
   @classmethod
-  def _kiwi_function(clazz, *args, **kwargs):
-    log.log_d(f'_kiwi_function: args={args} kwargs={kwargs}')
+  def _kiwi_function(clazz, args):
+    log.log_d(f'_kiwi_function: args={args}')
     return {
       'fruit': 'kiwi',
       'color': 'green',
       'args': args,
-      'kwargs': kwargs,
     }
 
   def _kiwi_callback(self, result):
@@ -80,13 +86,12 @@ class demo_handler(object):
     self._tester.on_callback(result)
 
   @classmethod
-  def _lemon_function(clazz, *args, **kwargs):
-    log.log_d(f'_lemon_function: args={args} kwargs={kwargs}')
+  def _lemon_function(clazz, args):
+    log.log_d(f'_lemon_function: args={args}')
     return {
       'fruit': 'lemon',
       'color': 'yellow',
       'args': args,
-      'kwargs': kwargs,
     }
 
   def _lemon_callback(self, result):
@@ -94,8 +99,8 @@ class demo_handler(object):
     self._tester.on_callback(result)
 
   @classmethod
-  def _grape_function(clazz, *args, **kwargs):
-    log.log_d(f'_grape_function: args={args} kwargs={kwargs}')
+  def _grape_function(clazz, args):
+    log.log_d(f'_grape_function: args={args}')
     raise RuntimeError(f'_grape_function failed')
     assert False
 
@@ -104,8 +109,8 @@ class demo_handler(object):
     self._tester.on_callback(result)
 
   @classmethod
-  def _blackberry_function(clazz, *args, **kwargs):
-    log.log_d(f'_blackberry_function: args={args} kwargs={kwargs}')
+  def _blackberry_function(clazz, args):
+    log.log_d(f'_blackberry_function: args={args}')
     rv = execute.execute('true')
     return { 'rv': rv }
 
@@ -114,8 +119,8 @@ class demo_handler(object):
     self._tester.on_callback(result)
 
   @classmethod
-  def _olive_function(clazz, *args, **kwargs):
-    log.log_d(f'_olive_function: args={args} kwargs={kwargs}')
+  def _olive_function(clazz, args):
+    log.log_d(f'_olive_function: args={args}')
     execute.execute('false')
     assert False
 
@@ -126,30 +131,39 @@ class demo_handler(object):
 def main():
   log.log_d(f'main() starts')
 
-  tester = btask_pool_tester(8)
+  tester = pool_tester(8)
   handler = demo_handler(tester)
 
   debug = False
-  kiwi_id = tester.add_task('poto', 'low',
-                            handler._kiwi_function,
-                            handler._kiwi_callback,
-                            debug, 42, flavor = 'sweet')
-  lemon_id = tester.add_task('poto', 'low',
-                             handler._lemon_function,
-                             handler._lemon_callback,
-                             debug, 666, flavor = 'tart')
-  grape_id = tester.add_task('poto', 'low',
-                             handler._grape_function,
-                             handler._grape_callback,
-                             debug, 667, flavor = 'prune')
-  blackberry_id = tester.add_task('poto', 'low',
-                                  handler._blackberry_function,
-                                  handler._blackberry_callback,
-                                  debug, 668, flavor = 'juicy')
-  olive_id = tester.add_task('poto', 'low',
-                             handler._olive_function,
-                             handler._olive_callback,
-                             debug, 669, flavor = 'black')
+  kiwi_config = btask_config('kiwi', 'low', 2, debug)
+  kiwi_id = tester.add_task(handler._kiwi_function,
+                            callback = handler._kiwi_callback,
+                            config = kiwi_config,
+                            args = {
+                              'number': 42,
+                              'flavor': 'sweet',
+                              }
+                            )
+  lemon_config = btask_config('lemon', 'low', 2, debug)
+  lemon_id = tester.add_task(handler._lemon_function,
+                             callback = handler._lemon_callback,
+                             config = lemon_config,
+                             args = {
+                               'number': 666,
+                               'flavor': 'tart',
+                             })
+  grape_id = tester.add_task(handler._grape_function,
+                             callback = handler._grape_callback)
+  blackberry_config = btask_config('blackberry', 'low', 2, debug)
+  blackberry_id = tester.add_task(handler._blackberry_function,
+                                  callback = handler._blackberry_callback,
+                                  config = blackberry_config,
+                                  args = {
+                                    'number': 666,
+                                    'flavor': 'tart',
+                                  })
+  olive_id = tester.add_task(handler._olive_function,
+                             callback = handler._olive_callback)
 
   tester.start()
 
