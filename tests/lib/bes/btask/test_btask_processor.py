@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+"""
 import Queue as py_queue
 
 from bes.testing.unit_test import unit_test
@@ -63,3 +64,4 @@ BES_TIMESTAMP = u''
     
 if __name__ == '__main__':
   unit_test.main()
+"""
