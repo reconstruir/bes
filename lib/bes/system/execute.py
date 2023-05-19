@@ -36,20 +36,22 @@ class execute(object):
               env = None,
               shell = False,
               input_data = None,
-              print_failure = True,
+              print_error = False,
               quote = False,
               check_python_script = True,
               output_encoding = None,
               output_function = None,
-              env_options = None):
+              env_options = None,
+              log_error = False):
     'Execute a command'
     check.check_bytes(input_data, allow_none = True)
-    check.check_bool(print_failure)
+    check.check_bool(print_error)
     check.check_bool(quote)
     check.check_bool(check_python_script)
     check.check_string(output_encoding, allow_none = True)
     check.check_callable(output_function, allow_none = True)
     check.check_env_override_options(env_options, allow_none = True)
+    check.check_bool(log_error)
 
     output_encoding = output_encoding or execute_result.DEFAULT_ENCODING
     
@@ -87,7 +89,7 @@ class execute(object):
                             env = env,
                             shell = shell,
                             input_data = input_data,
-                            print_failure = print_failure,
+                            print_error = print_error,
                             quote = quote,
                             check_python_script = check_python_script,
                             env_options = env_options)
@@ -121,7 +123,7 @@ class execute(object):
       rv = execute_result(stdout_bytes, stderr_bytes, exit_code, parsed_args)
       if raise_error:
         if rv.exit_code != 0:
-          rv.raise_error(log_error = True, print_error = True)
+          rv.raise_error(log_error = log_error, print_error = print_error)
       return rv
 
   @classmethod
@@ -132,13 +134,13 @@ class execute(object):
             env = None,
             shell = False,
             input_data = None,
-            print_failure = True,
+            print_error = False,
             quote = False,
             check_python_script = True,
             env_options = None):
     'Call subprocess.Popen'
     check.check_bytes(input_data, allow_none = True)
-    check.check_bool(print_failure)
+    check.check_bool(print_error)
     check.check_bool(quote)
     check.check_bool(check_python_script)
     check.check_env_override_options(env_options, allow_none = True)
@@ -180,7 +182,7 @@ class execute(object):
                                 cwd = cwd,
                                 env = env)
       except OSError as ex:
-        if print_failure:
+        if print_error:
           message = 'failed: {} - {}'.format(str(parsed_args), str(ex))
           sys.stderr.write(message)
           sys.stderr.write('\n')

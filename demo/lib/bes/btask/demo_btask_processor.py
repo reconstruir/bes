@@ -7,6 +7,7 @@ from bes.btask.btask_processor import btask_processor
 from bes.btask.btask_main_thread_runner_py import btask_main_thread_runner_py
 from bes.btask.btask_result_collector_py import btask_result_collector_py
 from bes.system.log import logger
+from bes.system.execute import execute
 
 log = logger('demo')
 
@@ -91,10 +92,30 @@ class handler(object):
   def _grape_function(clazz, *args, **kwargs):
     log.log_d(f'_grape_function: args={args} kwargs={kwargs}')
     raise RuntimeError(f'_grape_function failed')
-    return {}
+    assert False
 
   def _grape_callback(self, result):
     log.log_d(f'_grape_callback: result={result} count={self._tester._count}')
+    self._tester.on_callback(result)
+
+  @classmethod
+  def _blackberry_function(clazz, *args, **kwargs):
+    log.log_d(f'_blackberry_function: args={args} kwargs={kwargs}')
+    rv = execute.execute('true')
+    return { 'rv': rv }
+
+  def _blackberry_callback(self, result):
+    log.log_d(f'_blackberry_callback: result={result} count={self._tester._count}')
+    self._tester.on_callback(result)
+
+  @classmethod
+  def _olive_function(clazz, *args, **kwargs):
+    log.log_d(f'_olive_function: args={args} kwargs={kwargs}')
+    execute.execute('false')
+    assert False
+
+  def _olive_callback(self, result):
+    log.log_d(f'_olive_callback: result={result} count={self._tester._count}')
     self._tester.on_callback(result)
     
 def main():
@@ -103,15 +124,18 @@ def main():
   t = tester()
   h = handler(t)
 
-  t.add_task('poto', 'low', h._kiwi_function, h._kiwi_callback, True, 42, flavor = 'sweet')
-  t.add_task('poto', 'low', h._lemon_function, h._lemon_callback, True, 666, flavor = 'tart')
-  t.add_task('poto', 'low', h._grape_function, h._grape_callback, True, 666, flavor = 'prune')
+  debug = False
+  kiwi_id = t.add_task('poto', 'low', h._kiwi_function, h._kiwi_callback, debug, 42, flavor = 'sweet')
+  lemon_id = t.add_task('poto', 'low', h._lemon_function, h._lemon_callback, debug, 666, flavor = 'tart')
+  grape_id = t.add_task('poto', 'low', h._grape_function, h._grape_callback, debug, 667, flavor = 'prune')
+  blackberry_id = t.add_task('poto', 'low', h._blackberry_function, h._blackberry_callback, debug, 668, flavor = 'juicy')
+  olive_id = t.add_task('poto', 'low', h._olive_function, h._olive_callback, debug, 669, flavor = 'black')
 
   t.start()
 
   results = t.results()
   for task_id, result in results.items():
-    print(f'main: task_id={task_id} pid={result.metadata.pid} data={result.data} error={result.error}')
+    print(f'main: task_id={task_id} pid={result.metadata.pid} data={result.data} error={result.error} - {type(result.error)}')
     
   return 0
 
