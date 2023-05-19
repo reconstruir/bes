@@ -2,15 +2,20 @@
 
 import queue as py_queue
 
+from bes.system.log import logger
+
 from .btask_main_thread_runner_i import btask_main_thread_runner_i
 
 class btask_main_thread_runner_py(btask_main_thread_runner_i):
 
+  _log = logger('btask')
+  
   def __init__(self):
     self._queue = py_queue.Queue()
   
   #@abstractmethod
   def call_in_main_thread(self, function, *args, **kwargs):
+    self._log.log_d(f'call_in_main_thread: function={function} args={args} kwargs={kwargs}')
     self._queue.put(( function, args, kwargs) )
 
   def main_loop_stop(self):
@@ -20,6 +25,7 @@ class btask_main_thread_runner_py(btask_main_thread_runner_i):
     while True:
 #      try:
       function, args, kwargs = self._queue.get(True)
+      self._log.log_d(f'main_loop_start: function={function} args={args} kwargs={kwargs}')
       if function == None:
         return
       function(*args, **kwargs)

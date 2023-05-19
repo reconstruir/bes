@@ -1,0 +1,36 @@
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+from bes.system.log import logger
+from bes.system.check import check
+
+from .btask_result_collector_i import btask_result_collector_i
+from .btask_main_thread_runner_py import btask_main_thread_runner_py
+from .btask_result import btask_result
+from .btask_processor import btask_processor
+
+class btask_result_collector_py(btask_result_collector_i):
+
+  _log = logger('btask')
+  
+  def __init__(self, processor, runner):
+    super().__init__(processor.queue)
+    self._runner = runner
+    self._processor = processor
+  
+  #@abstractmethod
+  def handle_result(self, result):
+    check.check_btask_result(result)
+
+#    def x(result_):
+#      callback = btask_processor.complete(result.task_id)
+#      callback(result)
+      
+    
+    self._log.log_d(f'btask_main_thread_runner_py.handle_result: task_id={result.task_id}')
+    self._runner.call_in_main_thread(self._handle_result_in_main_thread, result)
+
+  def _handle_result_in_main_thread(self, result):
+    check.check_btask_result(result)
+    self._log.log_d(f'btask_main_thread_runner_py._handle_result_in_main_thread: task_id={result.task_id}')
+    callback = self._processor.complete(result.task_id)
+    callback(result)
