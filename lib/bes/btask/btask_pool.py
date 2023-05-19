@@ -13,7 +13,7 @@ from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata
 from .btask_threading import btask_threading
 
-class btask_processor(object):
+class btask_pool(object):
 
   _log = logger('btask')
 
@@ -112,4 +112,4 @@ class btask_processor(object):
     self._log.log_exception(error)
     assert False
     
-check.register_class(btask_processor, include_seq = False)
+check.register_class(btask_pool, include_seq = False)

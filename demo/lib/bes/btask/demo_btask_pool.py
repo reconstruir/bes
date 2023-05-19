@@ -3,7 +3,7 @@
 
 import queue as py_queue
 
-from bes.btask.btask_processor import btask_processor
+from bes.btask.btask_pool import btask_pool
 from bes.btask.btask_main_thread_runner_py import btask_main_thread_runner_py
 from bes.btask.btask_result_collector_py import btask_result_collector_py
 from bes.system.log import logger
@@ -18,7 +18,7 @@ class tester(object):
     self._num_added_tasks = 0
 
     self._runner = btask_main_thread_runner_py()
-    self._pool = btask_processor(8)
+    self._pool = btask_pool(8)
     self._collector = btask_result_collector_py(self._pool, self._runner)
     self._result_queue = py_queue.Queue()
 

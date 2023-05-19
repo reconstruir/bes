@@ -6,7 +6,7 @@ from bes.system.check import check
 from .btask_result_collector_i import btask_result_collector_i
 from .btask_main_thread_runner_py import btask_main_thread_runner_py
 from .btask_result import btask_result
-from .btask_processor import btask_processor
+from .btask_pool import btask_pool
 
 class btask_result_collector_py(btask_result_collector_i):
 
@@ -22,7 +22,7 @@ class btask_result_collector_py(btask_result_collector_i):
     check.check_btask_result(result)
 
 #    def x(result_):
-#      callback = btask_processor.complete(result.task_id)
+#      callback = btask_pool.complete(result.task_id)
 #      callback(result)
       
     
