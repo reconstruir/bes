@@ -33,11 +33,12 @@ class btask_processor(object):
   _task_item = namedtuple('_task_item', 'task_id, callback')
   _tasks = {}
   _task_id = 1
-  def add_task(self, category, priority, function, callback, *args, **kwargs):
+  def add_task(self, category, priority, function, callback, debug, *args, **kwargs):
     check.check_string(category)
     priority = check.check_btask_priority(priority)
     check.check_callable(function)
     check.check_callable(callback, allow_none = True)
+    check.check_bool(debug)
 
     btask_threading.check_main_process(label = 'btask.add_task')
 
@@ -49,7 +50,7 @@ class btask_processor(object):
       item = self._task_item(task_id, callback)
       self._tasks[task_id] = item
 
-    task_args = tuple([ task_id, function, add_time ] + list(args))
+    task_args = tuple([ task_id, function, add_time, debug ] + list(args))
     self._log.log_d(f'add_task: task_args={task_args}')
     self._pool.apply_async(self._function,
                            args = task_args,
@@ -77,7 +78,7 @@ class btask_processor(object):
     return callback
     
   @classmethod
-  def _function(clazz, task_id, function, add_time, *args, **kwargs):
+  def _function(clazz, task_id, function, add_time, debug, *args, **kwargs):
     clazz._log.log_d(f'_function: task_id={task_id} function={function} args={args} kwargs={kwargs}')
     start_time = datetime.now()
     error = None
@@ -88,8 +89,8 @@ class btask_processor(object):
       if not check.is_dict(data):
         raise btask_error(f'Function "{function}" should return a dict: "{data}" - {type(data)}')
     except Exception as ex:
-      clazz._log.log_d(f'_function: CACA: caught exception "{ex}"')
-      clazz._log.log_exception(ex)
+      if debug:
+        clazz._log.log_exception(ex)
       error = ex
     end_time = datetime.now()
     clazz._log.log_d(f'_function: task_id={task_id} data={data}')

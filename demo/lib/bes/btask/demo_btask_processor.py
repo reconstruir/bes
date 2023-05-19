@@ -90,8 +90,7 @@ class handler(object):
   @classmethod
   def _grape_function(clazz, *args, **kwargs):
     log.log_d(f'_grape_function: args={args} kwargs={kwargs}')
-    assert False
-#    raise RuntimeError(f'failed')
+    raise RuntimeError(f'_grape_function failed')
     return {}
 
   def _grape_callback(self, result):
@@ -104,15 +103,15 @@ def main():
   t = tester()
   h = handler(t)
 
-  t.add_task('poto', 'low', h._kiwi_function, h._kiwi_callback, 42, flavor = 'sweet')
-  t.add_task('poto', 'low', h._lemon_function, h._lemon_callback, 666, flavor = 'tart')
-  t.add_task('poto', 'low', h._grape_function, h._grape_callback, 666, flavor = 'prune')
+  t.add_task('poto', 'low', h._kiwi_function, h._kiwi_callback, True, 42, flavor = 'sweet')
+  t.add_task('poto', 'low', h._lemon_function, h._lemon_callback, True, 666, flavor = 'tart')
+  t.add_task('poto', 'low', h._grape_function, h._grape_callback, True, 666, flavor = 'prune')
 
   t.start()
 
   results = t.results()
   for task_id, result in results.items():
-    print(f'main: task_id={task_id} pid={result.metadata.pid} result={result.data}')
+    print(f'main: task_id={task_id} pid={result.metadata.pid} data={result.data} error={result.error}')
     
   return 0
 
