@@ -14,12 +14,12 @@ log = logger('demo')
 class tester(object):
 
   def __init__(self):
-    self._count = 0
-    self._num_tasks = 0
+    self._num_completed_tasks = 0
+    self._num_added_tasks = 0
 
     self._runner = btask_main_thread_runner_py()
-    self._processor = btask_processor(8)
-    self._collector = btask_result_collector_py(self._processor, self._runner)
+    self._pool = btask_processor(8)
+    self._collector = btask_result_collector_py(self._pool, self._runner)
     self._result_queue = py_queue.Queue()
 
   def start(self):
@@ -30,17 +30,17 @@ class tester(object):
     self._collector.stop()
 
   def _after_callback(self):
-    if self._count == self._num_tasks:
+    if self._num_completed_tasks == self._num_added_tasks:
       self._runner.main_loop_stop()
 
   def on_callback(self, result):
     self._result_queue.put(result)
-    self._count += 1
+    self._num_completed_tasks += 1
     self._after_callback()
       
   def add_task(self, category, priority, function, callback, debug, *args, **kwargs):
-    self._processor.add_task(category, priority, function, callback, debug, *args, **kwargs)
-    self._num_tasks += 1
+    self._pool.add_task(category, priority, function, callback, debug, *args, **kwargs)
+    self._num_added_tasks += 1
 
   def results(self):
     results = {}
@@ -51,7 +51,7 @@ class tester(object):
       count += 1
       assert result.task_id not in results
       results[result.task_id] = result
-      if count == self._num_tasks:
+      if count == self._num_added_tasks:
         break
     return results
 
@@ -71,7 +71,7 @@ class handler(object):
     }
 
   def _kiwi_callback(self, result):
-    log.log_d(f'_kiwi_callback: result={result} count={self._tester._count}')
+    log.log_d(f'_kiwi_callback: result={result}')
     self._tester.on_callback(result)
 
   @classmethod
@@ -85,7 +85,7 @@ class handler(object):
     }
 
   def _lemon_callback(self, result):
-    log.log_d(f'_lemon_callback: result={result} count={self._tester._count}')
+    log.log_d(f'_lemon_callback: result={result}')
     self._tester.on_callback(result)
 
   @classmethod
@@ -95,7 +95,7 @@ class handler(object):
     assert False
 
   def _grape_callback(self, result):
-    log.log_d(f'_grape_callback: result={result} count={self._tester._count}')
+    log.log_d(f'_grape_callback: result={result}')
     self._tester.on_callback(result)
 
   @classmethod
@@ -105,7 +105,7 @@ class handler(object):
     return { 'rv': rv }
 
   def _blackberry_callback(self, result):
-    log.log_d(f'_blackberry_callback: result={result} count={self._tester._count}')
+    log.log_d(f'_blackberry_callback: result={result}')
     self._tester.on_callback(result)
 
   @classmethod
@@ -115,7 +115,7 @@ class handler(object):
     assert False
 
   def _olive_callback(self, result):
-    log.log_d(f'_olive_callback: result={result} count={self._tester._count}')
+    log.log_d(f'_olive_callback: result={result}')
     self._tester.on_callback(result)
     
 def main():
