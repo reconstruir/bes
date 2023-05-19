@@ -8,25 +8,30 @@ from bes.btask.btask_main_thread_runner_py import btask_main_thread_runner_py
 from bes.btask.btask_result_collector_py import btask_result_collector_py
 from bes.system.log import logger
 from bes.system.execute import execute
+from bes.system.check import check
 
 log = logger('demo')
 
-class tester(object):
+class btask_pool_tester(object):
 
-  def __init__(self):
+  _log = logger('btask')
+  
+  def __init__(self, num_processes):
+    check.check_int(num_processes)
+    
     self._num_completed_tasks = 0
     self._num_added_tasks = 0
 
     self._runner = btask_main_thread_runner_py()
-    self._pool = btask_pool(8)
+    self._pool = btask_pool(num_processes)
     self._collector = btask_result_collector_py(self._pool, self._runner)
     self._result_queue = py_queue.Queue()
 
   def start(self):
     self._collector.start()
-    log.log_d(f'main: calling main_loop_start')
+    self._log.log_d(f'main: calling main_loop_start')
     self._runner.main_loop_start()
-    log.log_d(f'main: main_loop_start returns')
+    self._log.log_d(f'main: main_loop_start returns')
     self._collector.stop()
 
   def _after_callback(self):
@@ -47,7 +52,7 @@ class tester(object):
     count = 0
     while True:
       result = self._result_queue.get()
-      log.log_d(f'main: result={result}')
+      self._log.log_d(f'main: result={result}')
       count += 1
       assert result.task_id not in results
       results[result.task_id] = result
@@ -55,7 +60,7 @@ class tester(object):
         break
     return results
 
-class handler(object):
+class demo_handler(object):
 
   def __init__(self, tester):
     self._tester = tester
@@ -121,19 +126,34 @@ class handler(object):
 def main():
   log.log_d(f'main() starts')
 
-  t = tester()
-  h = handler(t)
+  tester = btask_pool_tester(8)
+  handler = demo_handler(tester)
 
   debug = False
-  kiwi_id = t.add_task('poto', 'low', h._kiwi_function, h._kiwi_callback, debug, 42, flavor = 'sweet')
-  lemon_id = t.add_task('poto', 'low', h._lemon_function, h._lemon_callback, debug, 666, flavor = 'tart')
-  grape_id = t.add_task('poto', 'low', h._grape_function, h._grape_callback, debug, 667, flavor = 'prune')
-  blackberry_id = t.add_task('poto', 'low', h._blackberry_function, h._blackberry_callback, debug, 668, flavor = 'juicy')
-  olive_id = t.add_task('poto', 'low', h._olive_function, h._olive_callback, debug, 669, flavor = 'black')
+  kiwi_id = tester.add_task('poto', 'low',
+                            handler._kiwi_function,
+                            handler._kiwi_callback,
+                            debug, 42, flavor = 'sweet')
+  lemon_id = tester.add_task('poto', 'low',
+                             handler._lemon_function,
+                             handler._lemon_callback,
+                             debug, 666, flavor = 'tart')
+  grape_id = tester.add_task('poto', 'low',
+                             handler._grape_function,
+                             handler._grape_callback,
+                             debug, 667, flavor = 'prune')
+  blackberry_id = tester.add_task('poto', 'low',
+                                  handler._blackberry_function,
+                                  handler._blackberry_callback,
+                                  debug, 668, flavor = 'juicy')
+  olive_id = tester.add_task('poto', 'low',
+                             handler._olive_function,
+                             handler._olive_callback,
+                             debug, 669, flavor = 'black')
 
-  t.start()
+  tester.start()
 
-  results = t.results()
+  results = tester.results()
   for task_id, result in results.items():
     print(f'main: task_id={task_id} pid={result.metadata.pid} data={result.data} error={result.error} - {type(result.error)}')
     
