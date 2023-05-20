@@ -1,16 +1,11 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import queue as py_queue
-
 from bes.system.check import check
 from bes.system.execute import execute
 from bes.system.log import logger
 
 from bes.btask.btask_config import btask_config
-from bes.btask.btask_main_thread_runner_py import btask_main_thread_runner_py
-from bes.btask.btask_pool import btask_pool
-from bes.btask.btask_result_collector_py import btask_result_collector_py
 from bes.btask.btask_pool_tester_py import btask_pool_tester_py
 
 log = logger('demo')
