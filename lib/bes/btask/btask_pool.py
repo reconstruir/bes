@@ -30,7 +30,7 @@ class btask_pool(object):
   def queue(self):
     return self._queue
     
-  _task_item = namedtuple('_task_item', 'task_id, config, callback, progress_callback')
+  _task_item = namedtuple('_task_item', 'task_id, config, callback, progress_callback, interrupted_value')
   _tasks = {}
   _task_id = 1
   def add_task(self, function, callback = None, progress_callback = None, config = None, args = None):
@@ -46,10 +46,15 @@ class btask_pool(object):
 
     add_time = datetime.now()
 
+    interruped = self._manager.Value(bool, False)
     with self._lock as lock:
       task_id = self._task_id
       self._task_id += 1
-      item = self._task_item(task_id, config, callback, progress_callback)
+      item = self._task_item(task_id,
+                             config,
+                             callback,
+                             progress_callback,
+                             interruped)
       self._tasks[task_id] = item
 
     task_args = tuple([ task_id, function, add_time, config.debug, args ])
@@ -69,7 +74,7 @@ class btask_pool(object):
     
     with self._lock as lock:
       if not task_id in self._tasks:
-        btask_error(f'No task_id "{task_id}" found')
+        btask_error(f'No task_id "{task_id}" found to complete')
       item = self._tasks[task_id]
       callback = item.callback
       del self._tasks[task_id]
@@ -78,6 +83,36 @@ class btask_pool(object):
     
     return callback
 
+  def interrupt(self, task_id, raise_error = True):
+    check.check_int(task_id)
+    check.check_bool(raise_error)
+
+    self._log.log_d(f'interrupt: task_id={task_id}')
+    
+    btask_threading.check_main_process(label = 'btask.interrupt')
+    
+    with self._lock as lock:
+      if not task_id in self._tasks:
+        if not raise_error:
+          return
+        btask_error(f'No task_id "{task_id}" found to interrupt')
+      item = self._tasks[task_id]
+      item.interruped.value = True
+
+  def is_interrupted(self, task_id, raise_error = True):
+    check.check_int(task_id)
+    check.check_bool(raise_error)
+
+    self._log.log_d(f'is_interrupted: task_id={task_id}')
+    
+    with self._lock as lock:
+      if not task_id in self._tasks:
+        if not raise_error:
+          return False
+        btask_error(f'No task_id "{task_id}" found to check for interruption')
+      item = self._tasks[task_id]
+      return item.interruped.value
+      
   @classmethod
   def _function(clazz, task_id, function, add_time, debug, args):
     clazz._log.log_d(f'_function: task_id={task_id} function={function} args={args}')
