@@ -12,25 +12,37 @@ class btask_result_collector_py(btask_result_collector_i):
 
   _log = logger('btask')
   
-  def __init__(self, processor, runner):
-    super().__init__(processor.queue)
+  def __init__(self, pool, runner):
+    check.check_btask_pool(pool)
+    check.check_btask_main_thread_runner(runner)
+    
+    super().__init__(pool.queue)
+    
+    self._pool = pool
     self._runner = runner
-    self._processor = processor
   
   #@abstractmethod
   def handle_result(self, result):
     check.check_btask_result(result)
 
-#    def x(result_):
-#      callback = btask_pool.complete(result.task_id)
-#      callback(result)
-      
-    
     self._log.log_d(f'btask_main_thread_runner_py.handle_result: task_id={result.task_id}')
     self._runner.call_in_main_thread(self._handle_result_in_main_thread, result)
 
+  #@abstractmethod
+  def handle_progress(self, progress):
+    check.check_btask_progress(progress)
+
+    self._log.log_d(f'btask_main_thread_runner_py.handle_progress: task_id={progress.task_id}')
+    self._runner.call_in_main_thread(self._handle_progress_in_main_thread, progress)
+    
   def _handle_result_in_main_thread(self, result):
     check.check_btask_result(result)
     self._log.log_d(f'btask_main_thread_runner_py._handle_result_in_main_thread: task_id={result.task_id}')
-    callback = self._processor.complete(result.task_id)
+    callback = self._pool.complete(result.task_id)
     callback(result)
+
+  def _handle_progress_in_main_thread(self, progress):
+    check.check_btask_progress(progress)
+    self._log.log_d(f'btask_main_thread_runner_py._handle_progress_in_main_thread: task_id={progress.task_id}')
+    self._pool.report_progress(task_id, progress)
+    

@@ -7,6 +7,10 @@ from bes.system.check import check
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 
+from .btask_result import btask_result
+from .btask_progress import btask_progress
+from .btask_error import btask_error
+
 class btask_result_collector_i(with_metaclass(ABCMeta, object)):
 
   _log = logger('btask')
@@ -18,13 +22,23 @@ class btask_result_collector_i(with_metaclass(ABCMeta, object)):
   @abstractmethod
   def handle_result(self, result):
     raise NotImplemented('handle_result')
-    
+
+  @abstractmethod
+  def handle_progress(self, progress):
+    raise NotImplemented('handle_progress')
+  
   def _thread_main(self):
     while True:
-      result = self._queue.get()
-      if result == None:
+      item = self._queue.get()
+      if item == None:
         break
-      self.handle_result(result)
+      if isinstance(item, btask_result):
+        self.handle_result(item)
+      elif isinstance(item, btask_progress):
+        self.handle_progress(item)
+      else:
+        raise btask_error(f'got unexpected item from queue: "{item}" - {type(item)}')
+        
     return 0
   
   def start(self):

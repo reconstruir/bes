@@ -99,6 +99,24 @@ class btask_pool(object):
       item = self._tasks[task_id]
       item.interruped.value = True
 
+  def report_progress(self, progress, raise_error = True):
+    check.check_btask_progress(progress)
+    check.check_bool(raise_error)
+
+    self._log.log_d(f'report_progress: task_id={task_id}')
+    
+    btask_threading.check_main_process(label = 'btask.report_progress')
+    
+    with self._lock as lock:
+      if not progress.task_id in self._tasks:
+        if not raise_error:
+          return
+        btask_error(f'No task_id "{progress.task_id}" found to interrupt')
+      item = self._tasks[progress.task_id]
+      progress_callback = item.progress_callback
+      if progress_callback:
+        progress_callback(progress)
+      
   def is_interrupted(self, task_id, raise_error = True):
     check.check_int(task_id)
     check.check_bool(raise_error)
