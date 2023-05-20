@@ -5,9 +5,9 @@ import queue as py_queue
 from bes.system.check import check
 from bes.system.log import logger
 
-from bes.btask.btask_main_thread_runner_py import btask_main_thread_runner_py
-from bes.btask.btask_pool import btask_pool
-from bes.btask.btask_result_collector_py import btask_result_collector_py
+from .btask_main_thread_runner_py import btask_main_thread_runner_py
+from .btask_pool import btask_pool
+from .btask_result_collector_py import btask_result_collector_py
 
 class btask_pool_tester_py(object):
 
