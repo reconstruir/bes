@@ -111,6 +111,7 @@ def main():
   tester.start()
 
   results = tester.results()
+  tester.stop()
   for task_id, result in results.items():
     print(f'main: task_id={task_id} pid={result.metadata.pid} data={result.data} error={result.error} - {type(result.error)}')
     

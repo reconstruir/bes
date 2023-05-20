@@ -31,6 +31,9 @@ class btask_pool_tester_py(object):
     self._log.log_d(f'main: main_loop_start returns')
     self._collector.stop()
 
+  def stop(self):
+    self._pool.close()
+    
   def _after_callback(self):
     if self._num_completed_tasks == self._num_added_tasks:
       self._runner.main_loop_stop()

@@ -110,9 +110,8 @@ class test_btask_pool_py(unit_test):
                                callback = handler._olive_callback)
   
     tester.start()
-
     results = tester.results()
-    del tester
+    tester.stop()
     for task_id, result in results.items():
       print(f'main: task_id={task_id} pid={result.metadata.pid} data={result.data} error={result.error} - {type(result.error)}')
       

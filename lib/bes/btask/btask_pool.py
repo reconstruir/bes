@@ -29,6 +29,12 @@ class btask_pool(object):
   @property
   def queue(self):
     return self._queue
+
+  def close(self):
+    if not self._pool:
+      return
+    self._pool.close()
+    self._pool.join()
     
   _task_item = namedtuple('_task_item', 'task_id, config, callback, progress_callback, interrupted_value')
   _tasks = {}
