@@ -138,7 +138,7 @@ class btask_pool(object):
     error = None
     data = None
     try:
-      data = function(args)
+      data = function(task_id, args)
       clazz._log.log_d(f'_function: task_id={task_id} data={data}')
       if not check.is_dict(data):
         raise btask_error(f'Function "{function}" should return a dict: "{data}" - {type(data)}')

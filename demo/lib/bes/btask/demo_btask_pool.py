@@ -73,8 +73,8 @@ class demo_handler(object):
     self._tester = tester
   
   @classmethod
-  def _kiwi_function(clazz, args):
-    log.log_d(f'_kiwi_function: args={args}')
+  def _kiwi_function(clazz, task_id, args):
+    log.log_d(f'_kiwi_function: task_id={task_id} args={args}')
     return {
       'fruit': 'kiwi',
       'color': 'green',
@@ -86,8 +86,8 @@ class demo_handler(object):
     self._tester.on_callback(result)
 
   @classmethod
-  def _lemon_function(clazz, args):
-    log.log_d(f'_lemon_function: args={args}')
+  def _lemon_function(clazz, task_id, args):
+    log.log_d(f'_lemon_function: task_id={task_id} args={args}')
     return {
       'fruit': 'lemon',
       'color': 'yellow',
@@ -99,8 +99,8 @@ class demo_handler(object):
     self._tester.on_callback(result)
 
   @classmethod
-  def _grape_function(clazz, args):
-    log.log_d(f'_grape_function: args={args}')
+  def _grape_function(clazz, task_id, args):
+    log.log_d(f'_grape_function: task_id={task_id} args={args}')
     raise RuntimeError(f'_grape_function failed')
     assert False
 
@@ -109,8 +109,8 @@ class demo_handler(object):
     self._tester.on_callback(result)
 
   @classmethod
-  def _blackberry_function(clazz, args):
-    log.log_d(f'_blackberry_function: args={args}')
+  def _blackberry_function(clazz, task_id, args):
+    log.log_d(f'_blackberry_function: task_id={task_id} args={args}')
     rv = execute.execute('true')
     return { 'rv': rv }
 
@@ -119,8 +119,8 @@ class demo_handler(object):
     self._tester.on_callback(result)
 
   @classmethod
-  def _olive_function(clazz, args):
-    log.log_d(f'_olive_function: args={args}')
+  def _olive_function(clazz, task_id, args):
+    log.log_d(f'_olive_function: task_id={task_id} args={args}')
     execute.execute('false')
     assert False
 
