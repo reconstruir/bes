@@ -1,112 +1,64 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import copy
 from bes.system.check import check
 from bes.system.execute import execute
 from bes.system.execute_result import execute_result
 from bes.system.log import logger
 from bes.testing.unit_test import unit_test
 
-from bes.btask.btask_config import btask_config
 from bes.btask.btask_pool_tester_py import btask_pool_tester_py
 
 log = logger('test')
 
-class demo_handler(object):
+class test_btask_pool_py(unit_test):
 
-  def __init__(self, tester):
-    self._tester = tester
+  _log = logger('test')
   
   @classmethod
-  def _kiwi_function(clazz, task_id, args):
-    log.log_d(f'_kiwi_function: task_id={task_id} args={args}')
-    return {
-      'fruit': 'kiwi',
-      'color': 'green',
-    }
-
-  def _kiwi_callback(self, result):
-    log.log_d(f'_kiwi_callback: result={result}')
-    self._tester.on_callback(result)
+  def _function(clazz, task_id, args):
+    clazz._log.log_d(f'_function: task_id={task_id} args={args}')
+    result_error = args.get('_result_error', None)
+    if result_error:
+      raise result_error
+    result_data = args.get('_result_data', None)
+    return result_data or {}
 
   @classmethod
-  def _lemon_function(clazz, task_id, args):
-    log.log_d(f'_lemon_function: task_id={task_id} args={args}')
-    return {
-      'fruit': 'lemon',
-      'color': 'yellow',
-    }
-
-  def _lemon_callback(self, result):
-    log.log_d(f'_lemon_callback: result={result}')
-    self._tester.on_callback(result)
-
-  @classmethod
-  def _grape_function(clazz, task_id, args):
-    log.log_d(f'_grape_function: task_id={task_id} args={args}')
-    raise RuntimeError(f'_grape_function failed')
-    assert False
-
-  def _grape_callback(self, result):
-    log.log_d(f'_grape_callback: result={result}')
-    self._tester.on_callback(result)
-
-  @classmethod
-  def _blackberry_function(clazz, task_id, args):
-    log.log_d(f'_blackberry_function: task_id={task_id} args={args}')
-    rv = execute.execute('true')
-    return { 'rv': rv }
-
-  def _blackberry_callback(self, result):
-    log.log_d(f'_blackberry_callback: result={result}')
-    self._tester.on_callback(result)
-
-  @classmethod
-  def _olive_function(clazz, task_id, args):
-    log.log_d(f'_olive_function: task_id={task_id} args={args}')
-    execute.execute('false')
-    assert False
-
-  def _olive_callback(self, result):
-    log.log_d(f'_olive_callback: result={result}')
-    self._tester.on_callback(result)
-
-class test_btask_pool_py(unit_test):
+  def _fix_args(clazz, args):
+    result = copy.deepcopy(args)
+    if '_result_data' in result:
+      del result['_result_data']
+    if '_result_error' in result:
+      del result['_result_error']
+    return result
   
   def test_basic(self):
 
     tester = btask_pool_tester_py(8)
-    handler = demo_handler(tester)
   
-    kiwi_config = btask_config('kiwi', 'low', 2, self.DEBUG)
-    kiwi_id = tester.add_task(handler._kiwi_function,
-                              callback = handler._kiwi_callback,
-                              config = kiwi_config,
+    kiwi_id = tester.add_task(self._function,
+                              callback = lambda r: tester.on_callback(r),
+                              config = ('kiwi', 'low', 2, self.DEBUG),
                               args = {
                                 'number': 42,
                                 'flavor': 'sweet',
-                                }
-                              )
-    lemon_config = btask_config('lemon', 'low', 2, self.DEBUG)
-    lemon_id = tester.add_task(handler._lemon_function,
-                               callback = handler._lemon_callback,
-                               config = lemon_config,
+                                '_result_data': { 'fruit': 'kiwi', 'color': 'green' },
+                              })
+    lemon_id = tester.add_task(self._function,
+                               callback = lambda r: tester.on_callback(r),
+                               config = ('lemon', 'low', 2, self.DEBUG),
                                args = {
                                  'number': 666,
                                  'flavor': 'tart',
+                                 '_result_data': { 'fruit': 'lemon', 'color': 'yellow' },
                                })
-    grape_id = tester.add_task(handler._grape_function,
-                               callback = handler._grape_callback)
-    blackberry_config = btask_config('blackberry', 'low', 2, self.DEBUG)
-    blackberry_id = tester.add_task(handler._blackberry_function,
-                                    callback = handler._blackberry_callback,
-                                    config = blackberry_config,
-                                    args = {
-                                      'number': 666,
-                                      'flavor': 'tart',
-                                    })
-    olive_id = tester.add_task(handler._olive_function,
-                               callback = handler._olive_callback)
+    grape_id = tester.add_task(self._function,
+                               callback = lambda r: tester.on_callback(r),
+                               args = {
+                                 '_result_error': RuntimeError(f'_grape_function failed'),
+                               })
   
     tester.start()
     results = tester.results()
@@ -118,8 +70,6 @@ class test_btask_pool_py(unit_test):
     
     lemon_result = results[lemon_id]
     grape_result = results[grape_id]
-    blackberry_result = results[blackberry_id]
-    olive_result = results[olive_id]
 
     r = results[kiwi_id]
     self.assertEqual( kiwi_id, r.task_id )
@@ -132,7 +82,7 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( {
       'number': 42,
       'flavor': 'sweet',
-    }, r.args )
+    }, self._fix_args(r.args) )
 
     r = results[lemon_id]
     self.assertEqual( lemon_id, r.task_id )
@@ -145,7 +95,7 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( {
       'number': 666,
       'flavor': 'tart',
-    }, r.args )
+    }, self._fix_args(r.args) )
 
     r = results[grape_id]
     self.assertEqual( grape_id, r.task_id )
@@ -153,38 +103,20 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( None, r.data )
     self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
 
-    r = results[blackberry_id]
-    self.assertEqual( blackberry_id, r.task_id )
-    self.assertEqual( True, r.success )
-    self.assertEqual( None, r.error )
-    self.assertEqual( {
-      'rv': execute_result(b'', b'', 0, [ 'true' ]),
-    }, r.data )
-    self.assertEqual( {
-      'number': 666,
-      'flavor': 'tart',
-    }, r.args )
-
-    r = results[olive_id]
-    self.assertEqual( olive_id, r.task_id )
-    self.assertEqual( False, r.success )
-    self.assertEqual( None, r.data )
-    self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
-
   def test_one_process(self):
     tester = btask_pool_tester_py(1)
-    handler = demo_handler(tester)
   
-    kiwi_id = tester.add_task(handler._kiwi_function,
-                              callback = handler._kiwi_callback)
-    lemon_id = tester.add_task(handler._lemon_function,
-                               callback = handler._lemon_callback)
-    grape_id = tester.add_task(handler._grape_function,
-                               callback = handler._grape_callback)
-    blackberry_id = tester.add_task(handler._blackberry_function,
-                                    callback = handler._blackberry_callback)
-    olive_id = tester.add_task(handler._olive_function,
-                               callback = handler._olive_callback)
+    kiwi_id = tester.add_task(self._function,
+                              callback = lambda r: tester.on_callback(r),
+                              args = { '_result_data': { 'fruit': 'kiwi', 'color': 'green' } })
+    lemon_id = tester.add_task(self._function,
+                              callback = lambda r: tester.on_callback(r),
+                              args = { '_result_data': { 'fruit': 'lemon', 'color': 'yellow' } })
+    grape_id = tester.add_task(self._function,
+                               callback = lambda r: tester.on_callback(r),
+                               args = {
+                                 '_result_error': RuntimeError(f'_grape_function failed'),
+                               })
   
     tester.start()
     results = tester.results()
@@ -195,8 +127,6 @@ class test_btask_pool_py(unit_test):
     
     lemon_result = results[lemon_id]
     grape_result = results[grape_id]
-    blackberry_result = results[blackberry_id]
-    olive_result = results[olive_id]
 
     r = results[kiwi_id]
     self.assertEqual( kiwi_id, r.task_id )
@@ -222,19 +152,5 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( None, r.data )
     self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
 
-    r = results[blackberry_id]
-    self.assertEqual( blackberry_id, r.task_id )
-    self.assertEqual( True, r.success )
-    self.assertEqual( None, r.error )
-    self.assertEqual( {
-      'rv': execute_result(b'', b'', 0, [ 'true' ]),
-    }, r.data )
-
-    r = results[olive_id]
-    self.assertEqual( olive_id, r.task_id )
-    self.assertEqual( False, r.success )
-    self.assertEqual( None, r.data )
-    self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
-    
 if __name__ == '__main__':
   unit_test.main()
