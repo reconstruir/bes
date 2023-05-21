@@ -24,13 +24,13 @@ class btask_pool(object):
 
     self._pool = multiprocessing.Pool(num_processes)
     self._manager = multiprocessing.Manager()
-    self._queue = self._manager.Queue()
+    self._result_queue = self._manager.Queue()
     self._lock = self._manager.Lock()
     self._tasks = {}
 
   @property
-  def queue(self):
-    return self._queue
+  def result_queue(self):
+    return self._result_queue
 
   def close(self):
     if not self._pool:
@@ -112,8 +112,8 @@ class btask_pool(object):
   def _callback(self, result):
     check.check_btask_result(result)
 
-    self._log.log_d(f'_callback: result={result} queue={self._queue}')
-    self._queue.put(result)
+    self._log.log_d(f'_callback: result={result} queue={self._result_queue}')
+    self._result_queue.put(result)
     
   def _error_callback(self, error):
     self._log.log_exception(error)

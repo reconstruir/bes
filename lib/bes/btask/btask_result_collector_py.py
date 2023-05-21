@@ -15,7 +15,7 @@ class btask_result_collector_py(btask_result_collector_i):
     check.check_btask_pool(pool)
     check.check_btask_main_thread_runner(runner)
     
-    super().__init__(pool.queue)
+    super().__init__(pool.result_queue)
     
     self._pool = pool
     self._runner = runner
