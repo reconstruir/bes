@@ -26,6 +26,7 @@ class btask_pool(object):
     self._manager = multiprocessing.Manager()
     self._queue = self._manager.Queue()
     self._lock = self._manager.Lock()
+    self._tasks = {}
 
   @property
   def queue(self):
@@ -37,7 +38,6 @@ class btask_pool(object):
     self._pool.close()
     self._pool.join()
     
-  _tasks = {}
   _task_id = 1
   _category_limits = {}
   _task_queues = {}
@@ -81,6 +81,9 @@ class btask_pool(object):
                              error_callback = self._error_callback)
       return task_id
 
+  def _pump_i(self):
+    pass
+    
   @classmethod
   def _function(clazz, task_id, function, add_time, debug, args):
     clazz._log.log_d(f'_function: task_id={task_id} function={function} args={args}')
