@@ -13,6 +13,7 @@ from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata
 from .btask_threading import btask_threading
 from .btask_config import btask_config
+from .btask_pool_item import btask_pool_item
 
 class btask_pool(object):
 
@@ -37,7 +38,6 @@ class btask_pool(object):
     self._pool.close()
     self._pool.join()
     
-  _task_item = namedtuple('_task_item', 'task_id, task_args, config, callback, progress_callback, interrupted_value')
   _tasks = {}
   _task_id = 1
   _category_limits = {}
@@ -67,9 +67,11 @@ class btask_pool(object):
       task_id = self._task_id
       self._task_id += 1
       task_args = tuple([ task_id, function, add_time, config.debug, args ])
-      item = self._task_item(task_id,
+      item = btask_pool_item(task_id,
+                             add_time,
                              task_args,
                              config,
+                             function,
                              callback,
                              progress_callback,
                              interruped)
