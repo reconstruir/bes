@@ -163,29 +163,29 @@ class test_btask_pool_py(unit_test):
     tester = btask_pool_tester_py(8)
 
     sleep_time_ms = 250
-    kiwi_ids = []
-    kiwi_ids.append(tester.add_task(self._function,
+    task_ids = []
+    task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 1, 'fruit': 'kiwi', 'color': 'green' },
                                       '__f_sleet_time_ms': sleep_time_ms,
                                     }))
-    kiwi_ids.append(tester.add_task(self._function,
+    task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 2, 'fruit': 'kiwi', 'color': 'green' },
                                       '__f_sleet_time_ms': sleep_time_ms,
                                     }))
-    kiwi_ids.append(tester.add_task(self._function,
+    task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 3, 'fruit': 'kiwi', 'color': 'green' },
                                       '__f_sleet_time_ms': sleep_time_ms,
                                     }))
-    kiwi_ids.append(tester.add_task(self._function,
+    task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
@@ -213,29 +213,29 @@ class test_btask_pool_py(unit_test):
 
     sleep_time_ms = 250
 
-    kiwi_ids = []
-    kiwi_ids.append(tester.add_task(self._function,
+    task_ids = []
+    task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 1, 'fruit': 'kiwi', 'color': 'green' },
                                       '__f_sleet_time_ms': sleep_time_ms,
                                     }))
-    kiwi_ids.append(tester.add_task(self._function,
+    task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 2, 'fruit': 'kiwi', 'color': 'green' },
                                       '__f_sleet_time_ms': sleep_time_ms,
                                     }))
-    kiwi_ids.append(tester.add_task(self._function,
+    task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 3, 'fruit': 'kiwi', 'color': 'green' },
                                       '__f_sleet_time_ms': sleep_time_ms,
                                     }))
-    kiwi_ids.append(tester.add_task(self._function,
+    task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'high', 1, self.DEBUG ),
                                     args = {
