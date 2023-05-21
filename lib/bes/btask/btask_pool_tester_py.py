@@ -44,12 +44,13 @@ class btask_pool_tester_py(object):
     self._after_callback()
       
   def add_task(self, function, callback = None, progress_callback = None, config = None, args = None):
-    self._pool.add_task(function,
-                        callback = callback,
-                        progress_callback = progress_callback,
-                        config = config,
-                        args = args)
+    task_id = self._pool.add_task(function,
+                                  callback = callback,
+                                  progress_callback = progress_callback,
+                                  config = config,
+                                  args = args)
     self._num_added_tasks += 1
+    return task_id
 
   def results(self):
     results = {}

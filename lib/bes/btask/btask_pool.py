@@ -39,8 +39,8 @@ class btask_pool(object):
   _task_item = namedtuple('_task_item', 'task_id, task_args, config, callback, progress_callback, interrupted_value')
   _tasks = {}
   _task_id = 1
-
   _category_limits = {}
+  _task_queues = {}
 
   def add_task(self, function, callback = None, progress_callback = None, config = None, args = None):
     check.check_callable(function)
@@ -58,7 +58,6 @@ class btask_pool(object):
     else:
       if self._category_limits[config.category] != config.limit:
         btask_error(f'Trying to change the No task_id "{task_id}" found to interrupt')
-        
     
     add_time = datetime.now()
 
