@@ -34,7 +34,7 @@ class test_btask_pool_py(unit_test):
       del result['_result_error']
     return result
   
-  def test_basic(self):
+  def test_8_processes(self):
 
     tester = btask_pool_tester_py(8)
   
@@ -103,7 +103,7 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( None, r.data )
     self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
 
-  def test_one_process(self):
+  def test_1_process(self):
     tester = btask_pool_tester_py(1)
   
     kiwi_id = tester.add_task(self._function,
