@@ -21,6 +21,7 @@ class btask_pool(object):
   def __init__(self, num_processes):
     check.check_int(num_processes)
 
+    print(f'num_processes={num_processes}')
     self._pool = multiprocessing.Pool(num_processes)
     self._manager = multiprocessing.Manager()
     self._queue = self._manager.Queue()

@@ -73,7 +73,7 @@ class demo_handler(object):
 
 class test_btask_pool_py(unit_test):
 
-  def test_basci(self):
+  def test_basic(self):
     tester = btask_pool_tester_py(8)
     handler = demo_handler(tester)
   
@@ -163,6 +163,71 @@ class test_btask_pool_py(unit_test):
       'number': 666,
       'flavor': 'tart',
     }, r.args )
+
+    r = results[olive_id]
+    self.assertEqual( olive_id, r.task_id )
+    self.assertEqual( False, r.success )
+    self.assertEqual( None, r.data )
+    self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
+
+  def test_one_process(self):
+    tester = btask_pool_tester_py(1)
+    handler = demo_handler(tester)
+  
+    kiwi_id = tester.add_task(handler._kiwi_function,
+                              callback = handler._kiwi_callback)
+    lemon_id = tester.add_task(handler._lemon_function,
+                               callback = handler._lemon_callback)
+    grape_id = tester.add_task(handler._grape_function,
+                               callback = handler._grape_callback)
+    blackberry_id = tester.add_task(handler._blackberry_function,
+                                    callback = handler._blackberry_callback)
+    olive_id = tester.add_task(handler._olive_function,
+                               callback = handler._olive_callback)
+  
+    tester.start()
+    results = tester.results()
+    tester.stop()
+
+    pids = [ r.metadata.pid for r in results.values() ]
+    self.assertEqual( 1, len(set(pids)) )
+    
+    lemon_result = results[lemon_id]
+    grape_result = results[grape_id]
+    blackberry_result = results[blackberry_id]
+    olive_result = results[olive_id]
+
+    r = results[kiwi_id]
+    self.assertEqual( kiwi_id, r.task_id )
+    self.assertEqual( True, r.success )
+    self.assertEqual( {
+      'fruit': 'kiwi',
+      'color': 'green',
+    }, r.data )
+    self.assertEqual( None, r.error )
+
+    r = results[lemon_id]
+    self.assertEqual( lemon_id, r.task_id )
+    self.assertEqual( True, r.success )
+    self.assertEqual( {
+      'fruit': 'lemon',
+      'color': 'yellow',
+    }, r.data )
+    self.assertEqual( None, r.error )
+
+    r = results[grape_id]
+    self.assertEqual( grape_id, r.task_id )
+    self.assertEqual( False, r.success )
+    self.assertEqual( None, r.data )
+    self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
+
+    r = results[blackberry_id]
+    self.assertEqual( blackberry_id, r.task_id )
+    self.assertEqual( True, r.success )
+    self.assertEqual( None, r.error )
+    self.assertEqual( {
+      'rv': execute_result(b'', b'', 0, [ 'true' ]),
+    }, r.data )
 
     r = results[olive_id]
     self.assertEqual( olive_id, r.task_id )
