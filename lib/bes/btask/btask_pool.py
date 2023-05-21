@@ -9,13 +9,14 @@ import multiprocessing
 from bes.system.log import logger
 from bes.system.check import check
 
+from .btask_config import btask_config
 from .btask_error import btask_error
+from .btask_pool_item import btask_pool_item
+from .btask_pool_queue import btask_pool_queue
 from .btask_priority import btask_priority
 from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata
 from .btask_threading import btask_threading
-from .btask_config import btask_config
-from .btask_pool_item import btask_pool_item
 
 class btask_pool(object):
 
@@ -28,8 +29,8 @@ class btask_pool(object):
     self._manager = multiprocessing.Manager()
     self._result_queue = self._manager.Queue()
     self._lock = self._manager.Lock()
-    self._tasks = {}
-    self._task_queue = py_queue.Queue()
+    self._waiting_queue = btask_pool_queue()
+    self._in_progress_queue = btask_pool_queue()
     self._category_limits = {}
 
   @property
@@ -58,8 +59,9 @@ class btask_pool(object):
     if not config.category in self._category_limits:
       self._category_limits[config.category] = config.limit
     else:
-      if self._category_limits[config.category] != config.limit:
-        btask_error(f'Trying to change the No task_id "{task_id}" found to interrupt')
+      old_limit = self._category_limits[config.category]
+      if old_limit != config.limit:
+        btask_error(f'Trying to change the category limit for "{config.category}" from  {old_limit} to {config.limit}')
     
     add_time = datetime.now()
 
@@ -75,22 +77,23 @@ class btask_pool(object):
                              callback,
                              progress_callback,
                              interruped)
-      task_args = item.task_args # + tuple([ args ])
-      self._tasks[task_id] = item
-      self._log.log_d(f'add_task: task_args={task_args}')
-      self._pool.apply_async(self._function,
-                             args = task_args,
-                             callback = self._callback,
-                             error_callback = self._error_callback)
-      return task_id
+      self._waiting_queue.add(item)
+    self._pump()
+    return task_id
 
-  def _pump_i(self):
-    pass
+  def _pump(self):
+    with self._lock as lock:
+      for category, limit in self._category_limits.items():
+        waiting_count = self._waiting_queue.category_count(category)
+        if waiting_count < limit:
+          item = self._waiting_queue.remove_by_category(category)
+          if item:
+            self._in_progress_queue.add(item)
+            self._apply_item_i(item)
 
-  def _apply_task(self, item):
-    task_args = item.task_args + tuple([ args ])
-    self._tasks[task_id] = item
-    self._log.log_d(f'add_task: task_args={task_args}')
+  def _apply_item_i(self, item):
+    task_args = item.task_args
+    self._log.log_d(f'_apply_task: task_args={task_args}')
     self._pool.apply_async(self._function,
                            args = task_args,
                            callback = self._callback,
@@ -126,6 +129,7 @@ class btask_pool(object):
 
     self._log.log_d(f'_callback: result={result} queue={self._result_queue}')
     self._result_queue.put(result)
+    self._pump()
     
   def _error_callback(self, error):
     self._log.log_exception(error)
@@ -139,14 +143,11 @@ class btask_pool(object):
     btask_threading.check_main_process(label = 'btask.complete')
     
     with self._lock as lock:
-      if not task_id in self._tasks:
+      item = self._in_progress_queue.remove_by_task_id(task_id)
+      if not item:
         btask_error(f'No task_id "{task_id}" found to complete')
-      item = self._tasks[task_id]
       callback = item.callback
-      del self._tasks[task_id]
-      
     self._log.log_d(f'complete: callback={callback}')
-    
     return callback
 
   def interrupt(self, task_id, raise_error = True):
@@ -158,12 +159,15 @@ class btask_pool(object):
     btask_threading.check_main_process(label = 'btask.interrupt')
     
     with self._lock as lock:
-      if not task_id in self._tasks:
+      waiting_item = self._waiting_queue.remove_by_task_id(task_id)
+      if waiting_item:
+        return
+      in_progress_item = self._in_progress_queue.remove_by_task_id(task_id)
+      if not in_progress_item:
         if not raise_error:
           return
         btask_error(f'No task_id "{task_id}" found to interrupt')
-      item = self._tasks[task_id]
-      item.interruped.value = True
+      in_progress_item.interruped.value = True
 
   def report_progress(self, progress, raise_error = True):
     check.check_btask_progress(progress)
@@ -174,11 +178,11 @@ class btask_pool(object):
     btask_threading.check_main_process(label = 'btask.report_progress')
     
     with self._lock as lock:
-      if not progress.task_id in self._tasks:
+      item = self._in_progress_queue.find_by_task_id(progress.task_id)
+      if not imte:
         if not raise_error:
           return
         btask_error(f'No task_id "{progress.task_id}" found to interrupt')
-      item = self._tasks[progress.task_id]
       progress_callback = item.progress_callback
       if progress_callback:
         progress_callback(progress)
@@ -190,11 +194,11 @@ class btask_pool(object):
     self._log.log_d(f'is_interrupted: task_id={task_id}')
     
     with self._lock as lock:
-      if not task_id in self._tasks:
+      item = self._in_progress_queue.find_by_task_id(task_id)
+      if not item:
         if not raise_error:
           return False
         btask_error(f'No task_id "{task_id}" found to check for interruption')
-      item = self._tasks[task_id]
       return item.interruped.value
       
 check.register_class(btask_pool, include_seq = False)

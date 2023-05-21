@@ -72,8 +72,9 @@ class demo_handler(object):
     self._tester.on_callback(result)
 
 class test_btask_pool_py(unit_test):
-
+  
   def test_basic(self):
+
     tester = btask_pool_tester_py(8)
     handler = demo_handler(tester)
   
