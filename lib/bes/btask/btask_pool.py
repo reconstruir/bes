@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import queue as py_queue
+
 from collections import namedtuple
 from datetime import datetime
 import multiprocessing
@@ -27,6 +29,8 @@ class btask_pool(object):
     self._result_queue = self._manager.Queue()
     self._lock = self._manager.Lock()
     self._tasks = {}
+    self._task_queue = py_queue.Queue()
+    self._category_limits = {}
 
   @property
   def result_queue(self):
@@ -39,8 +43,6 @@ class btask_pool(object):
     self._pool.join()
     
   _task_id = 1
-  _category_limits = {}
-  _task_queues = {}
 
   def add_task(self, function, callback = None, progress_callback = None, config = None, args = None):
     check.check_callable(function)
@@ -69,10 +71,11 @@ class btask_pool(object):
                              add_time,
                              config,
                              function,
+                             args,
                              callback,
                              progress_callback,
                              interruped)
-      task_args = item.task_args + tuple([ args ])
+      task_args = item.task_args # + tuple([ args ])
       self._tasks[task_id] = item
       self._log.log_d(f'add_task: task_args={task_args}')
       self._pool.apply_async(self._function,
@@ -83,7 +86,16 @@ class btask_pool(object):
 
   def _pump_i(self):
     pass
-    
+
+  def _apply_task(self, item):
+    task_args = item.task_args + tuple([ args ])
+    self._tasks[task_id] = item
+    self._log.log_d(f'add_task: task_args={task_args}')
+    self._pool.apply_async(self._function,
+                           args = task_args,
+                           callback = self._callback,
+                           error_callback = self._error_callback)
+  
   @classmethod
   def _function(clazz, task_id, function, add_time, debug, args):
     clazz._log.log_d(f'_function: task_id={task_id} function={function} args={args}')
