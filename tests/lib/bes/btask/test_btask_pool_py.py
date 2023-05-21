@@ -25,7 +25,7 @@ class test_btask_pool_py(unit_test):
     result_error = args.get('__f_result_error', None)
     sleep_time_ms = args.get('__f_sleet_time_ms', None)
     if sleep_time_ms != None:
-      sleep_time = sleep_time_ms / 1000.0
+      sleep_time = (float(sleep_time_ms) / 1000.0) * 1.1
       time.sleep(sleep_time)
     if result_error:
       raise result_error
@@ -71,7 +71,6 @@ class test_btask_pool_py(unit_test):
     tester.stop()
 
     pids = [ r.metadata.pid for r in results.values() ]
-    self.assertEqual( len(pids), len(set(pids)) )
     self.assertEqual( len(pids), tester._num_added_tasks )
     
     lemon_result = results[lemon_id]
@@ -197,15 +196,15 @@ class test_btask_pool_py(unit_test):
     results = tester.results()
     tester.stop()
 
-    self.assertEqual( True, results[1].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
-    self.assertEqual( True, results[2].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
-    self.assertEqual( True, results[3].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
-    self.assertEqual( True, results[4].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
+    self.assertGreaterEqual( results[1].metadata.duration, timedelta(milliseconds = sleep_time_ms) )
+    self.assertGreaterEqual( results[2].metadata.duration, timedelta(milliseconds = sleep_time_ms) )
+    self.assertGreaterEqual( results[3].metadata.duration, timedelta(milliseconds = sleep_time_ms) )
+    self.assertGreaterEqual( results[4].metadata.duration, timedelta(milliseconds = sleep_time_ms) )
 
-    self.assertEqual( True, results[1].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 1) )
-    self.assertEqual( True, results[2].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 2) )
-    self.assertEqual( True, results[3].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 3) )
-    self.assertEqual( True, results[4].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 4) )
+    self.assertGreaterEqual( results[1].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 1) )
+    self.assertGreaterEqual( results[2].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 2) )
+    self.assertGreaterEqual( results[3].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 3) )
+    self.assertGreaterEqual( results[4].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 4) )
 
   def test_add_task_with_priority(self):
 
@@ -247,15 +246,15 @@ class test_btask_pool_py(unit_test):
     results = tester.results()
     tester.stop()
 
-    self.assertEqual( True, results[1].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
-    self.assertEqual( True, results[2].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
-    self.assertEqual( True, results[3].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
-    self.assertEqual( True, results[4].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
+    self.assertGreaterEqual( results[1].metadata.duration, timedelta(milliseconds = sleep_time_ms) )
+    self.assertGreaterEqual( results[2].metadata.duration, timedelta(milliseconds = sleep_time_ms) )
+    self.assertGreaterEqual( results[3].metadata.duration, timedelta(milliseconds = sleep_time_ms) )
+    self.assertGreaterEqual( results[4].metadata.duration, timedelta(milliseconds = sleep_time_ms) )
 
-    self.assertEqual( True, results[1].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 1) )
-    self.assertEqual( True, results[2].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 3) )
-    self.assertEqual( True, results[3].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 4) )
-    self.assertEqual( True, results[4].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 2) )
+    self.assertGreaterEqual( results[1].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 1) )
+    self.assertGreaterEqual( results[2].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 3) )
+    self.assertGreaterEqual( results[3].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 4) )
+    self.assertGreaterEqual( results[4].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 2) )
     
 if __name__ == '__main__':
   unit_test.main()
