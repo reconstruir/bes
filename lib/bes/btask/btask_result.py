@@ -7,15 +7,16 @@ from ..system.check import check
 from .btask_error import btask_error
 from .btask_result_metadata import btask_result_metadata
 
-class btask_result(namedtuple('btask_result', 'task_id, success, data, metadata, error')):
+class btask_result(namedtuple('btask_result', 'task_id, success, data, metadata, error, args')):
   
-  def __new__(clazz, task_id, success, data, metadata, error):
+  def __new__(clazz, task_id, success, data, metadata, error, args):
     check.check_int(task_id)
     check.check_bool(success)
     check.check_dict(data, allow_none = True)
     check.check_btask_result_metadata(metadata)
+    check.check_dict(args, allow_none = True)
 
-    return clazz.__bases__[0].__new__(clazz, task_id, success, data, metadata, error)
+    return clazz.__bases__[0].__new__(clazz, task_id, success, data, metadata, error, args)
 
   @classmethod
   def from_dict(clazz, d):
@@ -34,7 +35,8 @@ class btask_result(namedtuple('btask_result', 'task_id, success, data, metadata,
                         d['success'],
                         d['data'],
                         d['metadata'],
-                        d.get('error', None))
+                        d.get('error', None),
+                        d.get('args', None))
   
 check.register_class(btask_result, include_seq = False)
   

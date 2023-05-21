@@ -36,9 +36,12 @@ class btask_pool(object):
     self._pool.close()
     self._pool.join()
     
-  _task_item = namedtuple('_task_item', 'task_id, config, callback, progress_callback, interrupted_value')
+  _task_item = namedtuple('_task_item', 'task_id, task_args, config, callback, progress_callback, interrupted_value')
   _tasks = {}
   _task_id = 1
+
+  _category_limits = {}
+
   def add_task(self, function, callback = None, progress_callback = None, config = None, args = None):
     check.check_callable(function)
     check.check_callable(callback, allow_none = True)
@@ -50,26 +53,34 @@ class btask_pool(object):
     
     btask_threading.check_main_process(label = 'btask.add_task')
 
+    if not config.category in self._category_limits:
+      self._category_limits[config.category] = config.limit
+    else:
+      if self._category_limits[config.category] != config.limit:
+        btask_error(f'Trying to change the No task_id "{task_id}" found to interrupt')
+        
+    
     add_time = datetime.now()
 
     interruped = self._manager.Value(bool, False)
     with self._lock as lock:
       task_id = self._task_id
       self._task_id += 1
+      task_args = tuple([ task_id, function, add_time, config.debug, args ])
       item = self._task_item(task_id,
+                             task_args,
                              config,
                              callback,
                              progress_callback,
                              interruped)
       self._tasks[task_id] = item
 
-    task_args = tuple([ task_id, function, add_time, config.debug, args ])
-    self._log.log_d(f'add_task: task_args={task_args}')
-    self._pool.apply_async(self._function,
-                           args = task_args,
-                           callback = self._callback,
-                           error_callback = self._error_callback)
-    return task_id
+      self._log.log_d(f'add_task: task_args={task_args}')
+      self._pool.apply_async(self._function,
+                             args = task_args,
+                             callback = self._callback,
+                             error_callback = self._error_callback)
+      return task_id
     
   def complete(self, task_id):
     check.check_int(task_id)
@@ -158,7 +169,7 @@ class btask_pool(object):
                                      add_time,
                                      start_time,
                                      end_time)
-    result = btask_result(task_id, error != None, data, metadata, error)
+    result = btask_result(task_id, error == None, data, metadata, error, args)
     clazz._log.log_d(f'_function: result={result}')
     return result
 
