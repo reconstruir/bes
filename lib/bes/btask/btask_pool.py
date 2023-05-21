@@ -53,7 +53,7 @@ class btask_pool(object):
     check.check_dict(args, allow_none = True)
 
     config = config or btask_config(function.__name__)
-    
+
     btask_threading.check_main_process(label = 'btask.add_task')
 
     if not config.category in self._category_limits:
@@ -61,10 +61,9 @@ class btask_pool(object):
     else:
       old_limit = self._category_limits[config.category]
       if old_limit != config.limit:
-        btask_error(f'Trying to change the category limit for "{config.category}" from  {old_limit} to {config.limit}')
-    
-    add_time = datetime.now()
+        raise btask_error(f'Trying to change the category limit for "{config.category}" from  {old_limit} to {config.limit}')
 
+    add_time = datetime.now()
     interruped = self._manager.Value(bool, False)
     with self._lock as lock:
       task_id = self._task_id
@@ -78,27 +77,33 @@ class btask_pool(object):
                              progress_callback,
                              interruped)
       self._waiting_queue.add(item)
+    self._log.log_d(f'add: calling pump for task_id={task_id}')
     self._pump()
     return task_id
 
+  _pump_iteration = 0
   def _pump(self):
     with self._lock as lock:
-      for category, limit in self._category_limits.items():
-        waiting_count = self._waiting_queue.category_count(category)
-        if waiting_count < limit:
-          item = self._waiting_queue.remove_by_category(category)
-          if item:
-            self._in_progress_queue.add(item)
-            self._apply_item_i(item)
+      self._pump_i()
 
-  def _apply_item_i(self, item):
-    task_args = item.task_args
-    self._log.log_d(f'_apply_task: task_args={task_args}')
-    self._pool.apply_async(self._function,
-                           args = task_args,
-                           callback = self._callback,
-                           error_callback = self._error_callback)
-  
+  def _pump_i(self):
+    self._pump_iteration += 1
+    label = f'_pump:{self._pump_iteration}'
+    for category, limit in self._category_limits.items():
+      #waiting_count = self._waiting_queue.category_count(category)
+      in_progress_count = self._in_progress_queue.category_count(category)
+      self._log.log_d(f'{label}: category={category} limit={limit} in_progress_count={in_progress_count}')
+      if in_progress_count < limit:
+        item = self._waiting_queue.remove_by_category(category)
+        if item:
+          self._log.log_d(f'{label}: got item task_id={item.task_id}')
+          self._in_progress_queue.add(item)
+          self._log.log_d(f'{label}: calling apply_async for task_id={item.task_id}')
+          self._pool.apply_async(self._function,
+                                 args = item.task_args,
+                                 callback = self._callback,
+                                 error_callback = self._error_callback)
+            
   @classmethod
   def _function(clazz, task_id, function, add_time, debug, args):
     clazz._log.log_d(f'_function: task_id={task_id} function={function} args={args}')
@@ -129,6 +134,7 @@ class btask_pool(object):
 
     self._log.log_d(f'_callback: result={result} queue={self._result_queue}')
     self._result_queue.put(result)
+    self._log.log_d(f'_callback: calling pump for task_id={result.task_id}')
     self._pump()
     
   def _error_callback(self, error):
@@ -146,7 +152,9 @@ class btask_pool(object):
       item = self._in_progress_queue.remove_by_task_id(task_id)
       if not item:
         btask_error(f'No task_id "{task_id}" found to complete')
+      self._log.log_d(f'pump: removed task_id={task_id}')
       callback = item.callback
+      self._pump_i()
     self._log.log_d(f'complete: callback={callback}')
     return callback
 

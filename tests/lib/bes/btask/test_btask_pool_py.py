@@ -2,6 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import copy
+import time
+from datetime import timedelta
+
 from bes.system.check import check
 from bes.system.execute import execute
 from bes.system.execute_result import execute_result
@@ -19,22 +22,25 @@ class test_btask_pool_py(unit_test):
   @classmethod
   def _function(clazz, task_id, args):
     clazz._log.log_d(f'_function: task_id={task_id} args={args}')
-    result_error = args.get('_result_error', None)
+    result_error = args.get('__f_result_error', None)
+    sleep_time_ms = args.get('__f_sleet_time_ms', None)
+    if sleep_time_ms != None:
+      sleep_time = sleep_time_ms / 1000.0
+      time.sleep(sleep_time)
     if result_error:
       raise result_error
-    result_data = args.get('_result_data', None)
+    result_data = args.get('__f_result_data', None)
     return result_data or {}
 
   @classmethod
   def _fix_args(clazz, args):
-    result = copy.deepcopy(args)
-    if '_result_data' in result:
-      del result['_result_data']
-    if '_result_error' in result:
-      del result['_result_error']
+    result = {}
+    for key, value in args.items():
+      if not key.startswith('__f_'):
+        result[key] = value
     return result
   
-  def test_8_processes(self):
+  def test_add_task_with_8_processes(self):
 
     tester = btask_pool_tester_py(8)
   
@@ -44,7 +50,7 @@ class test_btask_pool_py(unit_test):
                               args = {
                                 'number': 42,
                                 'flavor': 'sweet',
-                                '_result_data': { 'fruit': 'kiwi', 'color': 'green' },
+                                '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' },
                               })
     lemon_id = tester.add_task(self._function,
                                callback = lambda r: tester.on_callback(r),
@@ -52,12 +58,12 @@ class test_btask_pool_py(unit_test):
                                args = {
                                  'number': 666,
                                  'flavor': 'tart',
-                                 '_result_data': { 'fruit': 'lemon', 'color': 'yellow' },
+                                 '__f_result_data': { 'fruit': 'lemon', 'color': 'yellow' },
                                })
     grape_id = tester.add_task(self._function,
                                callback = lambda r: tester.on_callback(r),
                                args = {
-                                 '_result_error': RuntimeError(f'_grape_function failed'),
+                                 '__f_result_error': RuntimeError(f'_grape_function failed'),
                                })
   
     tester.start()
@@ -103,19 +109,19 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( None, r.data )
     self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
 
-  def test_1_process(self):
+  def test_add_task_with_1_process(self):
     tester = btask_pool_tester_py(1)
   
     kiwi_id = tester.add_task(self._function,
                               callback = lambda r: tester.on_callback(r),
-                              args = { '_result_data': { 'fruit': 'kiwi', 'color': 'green' } })
+                              args = { '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' } })
     lemon_id = tester.add_task(self._function,
                               callback = lambda r: tester.on_callback(r),
-                              args = { '_result_data': { 'fruit': 'lemon', 'color': 'yellow' } })
+                              args = { '__f_result_data': { 'fruit': 'lemon', 'color': 'yellow' } })
     grape_id = tester.add_task(self._function,
                                callback = lambda r: tester.on_callback(r),
                                args = {
-                                 '_result_error': RuntimeError(f'_grape_function failed'),
+                                 '__f_result_error': RuntimeError(f'_grape_function failed'),
                                })
   
     tester.start()
@@ -152,5 +158,104 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( None, r.data )
     self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
 
+  def test_add_task_with_categories(self):
+
+    tester = btask_pool_tester_py(8)
+
+    sleep_time_ms = 250
+    kiwi_ids = []
+    kiwi_ids.append(tester.add_task(self._function,
+                                    callback = lambda r: tester.on_callback(r),
+                                    config = ( 'kiwi', 'low', 1, self.DEBUG ),
+                                    args = {
+                                      '__f_result_data': { 'num': 1, 'fruit': 'kiwi', 'color': 'green' },
+                                      '__f_sleet_time_ms': sleep_time_ms,
+                                    }))
+    kiwi_ids.append(tester.add_task(self._function,
+                                    callback = lambda r: tester.on_callback(r),
+                                    config = ( 'kiwi', 'low', 1, self.DEBUG ),
+                                    args = {
+                                      '__f_result_data': { 'num': 2, 'fruit': 'kiwi', 'color': 'green' },
+                                      '__f_sleet_time_ms': sleep_time_ms,
+                                    }))
+    kiwi_ids.append(tester.add_task(self._function,
+                                    callback = lambda r: tester.on_callback(r),
+                                    config = ( 'kiwi', 'low', 1, self.DEBUG ),
+                                    args = {
+                                      '__f_result_data': { 'num': 3, 'fruit': 'kiwi', 'color': 'green' },
+                                      '__f_sleet_time_ms': sleep_time_ms,
+                                    }))
+    kiwi_ids.append(tester.add_task(self._function,
+                                    callback = lambda r: tester.on_callback(r),
+                                    config = ( 'kiwi', 'low', 1, self.DEBUG ),
+                                    args = {
+                                      '__f_result_data': { 'num': 4, 'fruit': 'kiwi', 'color': 'green' },
+                                      '__f_sleet_time_ms': sleep_time_ms,
+                                    }))
+
+    tester.start()
+    results = tester.results()
+    tester.stop()
+
+    self.assertEqual( True, results[1].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
+    self.assertEqual( True, results[2].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
+    self.assertEqual( True, results[3].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
+    self.assertEqual( True, results[4].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
+
+    self.assertEqual( True, results[1].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 1) )
+    self.assertEqual( True, results[2].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 2) )
+    self.assertEqual( True, results[3].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 3) )
+    self.assertEqual( True, results[4].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 4) )
+
+  def test_add_task_with_priority(self):
+
+    tester = btask_pool_tester_py(8)
+
+    sleep_time_ms = 250
+
+    kiwi_ids = []
+    kiwi_ids.append(tester.add_task(self._function,
+                                    callback = lambda r: tester.on_callback(r),
+                                    config = ( 'kiwi', 'low', 1, self.DEBUG ),
+                                    args = {
+                                      '__f_result_data': { 'num': 1, 'fruit': 'kiwi', 'color': 'green' },
+                                      '__f_sleet_time_ms': sleep_time_ms,
+                                    }))
+    kiwi_ids.append(tester.add_task(self._function,
+                                    callback = lambda r: tester.on_callback(r),
+                                    config = ( 'kiwi', 'low', 1, self.DEBUG ),
+                                    args = {
+                                      '__f_result_data': { 'num': 2, 'fruit': 'kiwi', 'color': 'green' },
+                                      '__f_sleet_time_ms': sleep_time_ms,
+                                    }))
+    kiwi_ids.append(tester.add_task(self._function,
+                                    callback = lambda r: tester.on_callback(r),
+                                    config = ( 'kiwi', 'low', 1, self.DEBUG ),
+                                    args = {
+                                      '__f_result_data': { 'num': 3, 'fruit': 'kiwi', 'color': 'green' },
+                                      '__f_sleet_time_ms': sleep_time_ms,
+                                    }))
+    kiwi_ids.append(tester.add_task(self._function,
+                                    callback = lambda r: tester.on_callback(r),
+                                    config = ( 'kiwi', 'high', 1, self.DEBUG ),
+                                    args = {
+                                      '__f_result_data': { 'num': 4, 'fruit': 'kiwi', 'color': 'green' },
+                                      '__f_sleet_time_ms': sleep_time_ms,
+                                    }))
+
+    tester.start()
+    results = tester.results()
+    tester.stop()
+
+    self.assertEqual( True, results[1].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
+    self.assertEqual( True, results[2].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
+    self.assertEqual( True, results[3].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
+    self.assertEqual( True, results[4].metadata.duration >= timedelta(milliseconds = sleep_time_ms) )
+
+    self.assertEqual( True, results[1].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 1) )
+    self.assertEqual( True, results[2].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 3) )
+    self.assertEqual( True, results[3].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 4) )
+    self.assertEqual( True, results[4].metadata.total_duration >= timedelta(milliseconds = sleep_time_ms * 2) )
+    
 if __name__ == '__main__':
   unit_test.main()
