@@ -22,7 +22,6 @@ class btask_pool(object):
   def __init__(self, num_processes):
     check.check_int(num_processes)
 
-    print(f'num_processes={num_processes}')
     self._pool = multiprocessing.Pool(num_processes)
     self._manager = multiprocessing.Manager()
     self._queue = self._manager.Queue()
@@ -66,23 +65,56 @@ class btask_pool(object):
     with self._lock as lock:
       task_id = self._task_id
       self._task_id += 1
-      task_args = tuple([ task_id, function, add_time, config.debug, args ])
       item = btask_pool_item(task_id,
                              add_time,
-                             task_args,
                              config,
                              function,
                              callback,
                              progress_callback,
                              interruped)
+      task_args = item.task_args + tuple([ args ])
       self._tasks[task_id] = item
-
       self._log.log_d(f'add_task: task_args={task_args}')
       self._pool.apply_async(self._function,
                              args = task_args,
                              callback = self._callback,
                              error_callback = self._error_callback)
       return task_id
+
+  @classmethod
+  def _function(clazz, task_id, function, add_time, debug, args):
+    clazz._log.log_d(f'_function: task_id={task_id} function={function} args={args}')
+    start_time = datetime.now()
+    error = None
+    data = None
+    try:
+      data = function(task_id, args)
+      clazz._log.log_d(f'_function: task_id={task_id} data={data}')
+      if not check.is_dict(data):
+        raise btask_error(f'Function "{function}" should return a dict: "{data}" - {type(data)}')
+    except Exception as ex:
+      if debug:
+        clazz._log.log_exception(ex)
+      error = ex
+    end_time = datetime.now()
+    clazz._log.log_d(f'_function: task_id={task_id} data={data}')
+    metadata = btask_result_metadata(btask_threading.current_process_pid(),
+                                     add_time,
+                                     start_time,
+                                     end_time)
+    result = btask_result(task_id, error == None, data, metadata, error, args)
+    clazz._log.log_d(f'_function: result={result}')
+    return result
+
+  def _callback(self, result):
+    check.check_btask_result(result)
+
+    self._log.log_d(f'_callback: result={result} queue={self._queue}')
+    self._queue.put(result)
+    
+  def _error_callback(self, error):
+    self._log.log_exception(error)
+    raise btask_error(f'unexpected error: "{error}"')
     
   def complete(self, task_id):
     check.check_int(task_id)
@@ -150,39 +182,4 @@ class btask_pool(object):
       item = self._tasks[task_id]
       return item.interruped.value
       
-  @classmethod
-  def _function(clazz, task_id, function, add_time, debug, args):
-    clazz._log.log_d(f'_function: task_id={task_id} function={function} args={args}')
-    start_time = datetime.now()
-    error = None
-    data = None
-    try:
-      data = function(task_id, args)
-      clazz._log.log_d(f'_function: task_id={task_id} data={data}')
-      if not check.is_dict(data):
-        raise btask_error(f'Function "{function}" should return a dict: "{data}" - {type(data)}')
-    except Exception as ex:
-      if debug:
-        clazz._log.log_exception(ex)
-      error = ex
-    end_time = datetime.now()
-    clazz._log.log_d(f'_function: task_id={task_id} data={data}')
-    metadata = btask_result_metadata(btask_threading.current_process_pid(),
-                                     add_time,
-                                     start_time,
-                                     end_time)
-    result = btask_result(task_id, error == None, data, metadata, error, args)
-    clazz._log.log_d(f'_function: result={result}')
-    return result
-
-  def _callback(self, result):
-    check.check_btask_result(result)
-
-    self._log.log_d(f'_callback: result={result} queue={self._queue}')
-    self._queue.put(result)
-    
-  def _error_callback(self, error):
-    self._log.log_exception(error)
-    raise btask_error(f'unexpected error: "{error}"')
-    
 check.register_class(btask_pool, include_seq = False)
