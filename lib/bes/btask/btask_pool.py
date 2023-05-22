@@ -11,6 +11,7 @@ from bes.system.check import check
 
 from .btask_config import btask_config
 from .btask_error import btask_error
+from .btask_function_context import btask_function_context
 from .btask_pool_item import btask_pool_item
 from .btask_pool_queue import btask_pool_queue
 from .btask_priority import btask_priority
@@ -64,7 +65,7 @@ class btask_pool(object):
         raise btask_error(f'Trying to change the category limit for "{config.category}" from  {old_limit} to {config.limit}')
 
     add_time = datetime.now()
-    interruped = self._manager.Value(bool, False)
+    interrupted = self._manager.Value(bool, False)
     with self._lock as lock:
       task_id = self._task_id
       self._task_id += 1
@@ -75,7 +76,7 @@ class btask_pool(object):
                              args,
                              callback,
                              progress_callback,
-                             interruped)
+                             interrupted)
       self._waiting_queue.add(item)
     self._log.log_d(f'add: calling pump for task_id={task_id}')
     self._pump()
@@ -106,6 +107,7 @@ class btask_pool(object):
             item.config.debug,
             item.args,
             self._result_queue,
+            item.interrupted,
           )
           self._pool.apply_async(self._function,
                                  args = args,
@@ -113,13 +115,14 @@ class btask_pool(object):
                                  error_callback = self._error_callback)
             
   @classmethod
-  def _function(clazz, task_id, function, add_time, debug, args, progress_queue):
+  def _function(clazz, task_id, function, add_time, debug, args, progress_queue, interrupted):
     clazz._log.log_d(f'_function: task_id={task_id} function={function} args={args}')
     start_time = datetime.now()
     error = None
     data = None
     try:
-      data = function(task_id, args, progress_queue)
+      context = btask_function_context(task_id, progress_queue, interrupted)
+      data = function(context, args)
       clazz._log.log_d(f'_function: task_id={task_id} data={data}')
       if not check.is_dict(data):
         raise btask_error(f'Function "{function}" should return a dict: "{data}" - {type(data)}')
@@ -160,7 +163,8 @@ class btask_pool(object):
     with self._lock as lock:
       item = self._in_progress_queue.remove_by_task_id(task_id)
       if not item:
-        btask_error(f'No task_id "{task_id}" found to complete')
+        self._log.log_d(f'No task_id "{task_id}" found to complete')
+        return
       self._log.log_d(f'pump: removed task_id={task_id}')
       callback = item.callback
       self._pump_i()
@@ -184,7 +188,7 @@ class btask_pool(object):
         if not raise_error:
           return
         btask_error(f'No task_id "{task_id}" found to interrupt')
-      in_progress_item.interruped.value = True
+      in_progress_item.interrupted.value = True
 
   def report_progress(self, progress, raise_error = True):
     check.check_btask_progress(progress)
@@ -216,6 +220,6 @@ class btask_pool(object):
         if not raise_error:
           return False
         btask_error(f'No task_id "{task_id}" found to check for interruption')
-      return item.interruped.value
+      return item.interrupted.value
       
 check.register_class(btask_pool, include_seq = False)

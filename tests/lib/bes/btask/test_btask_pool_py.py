@@ -19,8 +19,8 @@ class test_btask_pool_py(unit_test):
   _log = logger('test')
   
   @classmethod
-  def _function(clazz, task_id, args, progress_queue):
-    clazz._log.log_d(f'_function: task_id={task_id} args={args}')
+  def _function(clazz, context, args):
+    clazz._log.log_d(f'_function: task_id={context.task_id} args={args}')
     result_error = args.get('__f_result_error', None)
     sleep_time_ms = args.get('__f_sleet_time_ms', None)
     if sleep_time_ms != None:
@@ -256,15 +256,15 @@ class test_btask_pool_py(unit_test):
     self.assertGreaterEqual( results[4].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 2) )
 
   @classmethod
-  def _function_with_progress(clazz, task_id, args, progress_queue):
-    clazz._log.log_d(f'_function_with_progress: task_id={task_id} args={args}')
+  def _function_with_progress(clazz, context, args):
+    clazz._log.log_d(f'_function_with_progress: task_id={context.task_id} args={args}')
 
     total = 5
     for i in range(1, total + 1):
       time.sleep(0.100)
-      progress = btask_progress(task_id, i, total, f'doing stuff {i}')
+      progress = btask_progress(context.task_id, i, total, f'doing stuff {i}')
       clazz._log.log_d(f'_function_with_progress: progress={progress}')
-      progress_queue.put(progress)      
+      context.progress_queue.put(progress)
     clazz._log.log_d(f'_function_with_progress: done')
     return {}
     
@@ -297,6 +297,36 @@ class test_btask_pool_py(unit_test):
       ( 1, 4, 5, 'doing stuff 4' ),
       ( 1, 5, 5, 'doing stuff 5' ),
     ], pl )
+
+  def test_add_task_with_interrupt_waiting(self):
+    tester = btask_pool_tester_py(1)
+      
+    task_id1 = tester.add_task(self._function,
+                              callback = lambda r: tester.on_callback(r),
+                              args = {
+                                '__f_result_data': { 'num': 1, 'fruit': 'kiwi' },
+                                '__f_sleet_time_ms': 500,
+                              })
+    task_id2 = tester.add_task(self._function,
+                              callback = lambda r: tester.on_callback(r),
+                              args = {
+                                '__f_result_data': { 'num': 1, 'fruit': 'lemon' },
+                                '__f_sleet_time_ms': 0,
+                              })
+    tester.pool.interrupt(task_id2)
+    tester._num_added_tasks -= 1
     
+    tester.start()
+    results = tester.results()
+    tester.stop()
+
+    self.assertEqual( 1, len(results) )
+    
+    r = results[task_id1]
+    self.assertEqual( task_id1, r.task_id )
+    self.assertEqual( True, r.success )
+    self.assertEqual( { 'fruit': 'kiwi', 'num': 1 }, r.data )
+    self.assertEqual( None, r.error )
+
 if __name__ == '__main__':
   unit_test.main()

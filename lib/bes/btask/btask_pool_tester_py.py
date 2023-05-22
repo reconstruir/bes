@@ -24,6 +24,10 @@ class btask_pool_tester_py(object):
     self._collector = btask_result_collector_py(self._pool, self._runner)
     self._result_queue = py_queue.Queue()
 
+  @property
+  def pool(self):
+    return self._pool
+  
   def start(self):
     self._collector.start()
     self._log.log_d(f'main: calling main_loop_start')
