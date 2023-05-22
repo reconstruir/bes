@@ -12,8 +12,7 @@ from bes.system.log import logger
 from bes.testing.unit_test import unit_test
 
 from bes.btask.btask_pool_tester_py import btask_pool_tester_py
-
-log = logger('test')
+from bes.btask.btask_progress import btask_progress
 
 class test_btask_pool_py(unit_test):
 
@@ -257,24 +256,29 @@ class test_btask_pool_py(unit_test):
     self.assertGreaterEqual( results[4].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 2) )
 
   @classmethod
-  def _function_with_progress(clazz, task_id, args):
+  def _function_with_progress(clazz, task_id, args, progress_queue):
     clazz._log.log_d(f'_function_with_progress: task_id={task_id} args={args}')
 
-    for i in range(0, 10):
+    total = 5
+    for i in range(1, total + 1):
       time.sleep(0.100)
-    #result_error = args.get('__f_result_error', None)
-    #sleep_time_ms = args.get('__f_sleet_time_ms', None)
-    #if sleep_time_ms != None:
-    #  sleep_time = (float(sleep_time_ms) / 1000.0) * 1.1
-    #  time.sleep(sleep_time)
-    #if result_error:
-    #  raise result_error
-    #result_data = args.get('__f_result_data', None)
+      progress = btask_progress(task_id, i, total, f'doing stuff {i}')
+      clazz._log.log_d(f'_function_with_progress: progress={progress}')
+      progress_queue.put(progress)      
+    clazz._log.log_d(f'_function_with_progress: done')
     return {}
     
-  def xtest_add_task_with_no_callback(self):
+  def test_add_task_with_progress(self):
     tester = btask_pool_tester_py(1)
-    task_id = tester.add_task(self._function)
+
+    pl = []
+    def _progress_callback(progress):
+      self._log.log_d(f'_progress_callback: progress={progress}')
+      pl.append(progress)
+      
+    task_id = tester.add_task(self._function_with_progress,
+                              callback = lambda r: tester.on_callback(r),
+                              progress_callback = _progress_callback)
   
     tester.start()
     results = tester.results()
@@ -285,6 +289,14 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( True, r.success )
     self.assertEqual( {}, r.data )
     self.assertEqual( None, r.error )
+
+    self.assertEqual( [
+      ( 1, 1, 5, 'doing stuff 1' ),
+      ( 1, 2, 5, 'doing stuff 2' ),
+      ( 1, 3, 5, 'doing stuff 3' ),
+      ( 1, 4, 5, 'doing stuff 4' ),
+      ( 1, 5, 5, 'doing stuff 5' ),
+    ], pl )
     
 if __name__ == '__main__':
   unit_test.main()

@@ -44,5 +44,5 @@ class btask_result_collector_py(btask_result_collector_i):
   def _handle_progress_in_main_thread(self, progress):
     check.check_btask_progress(progress)
     self._log.log_d(f'btask_result_collector_py._handle_progress_in_main_thread: task_id={progress.task_id}')
-    self._pool.report_progress(task_id, progress)
+    self._pool.report_progress(progress)
     

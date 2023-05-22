@@ -190,13 +190,13 @@ class btask_pool(object):
     check.check_btask_progress(progress)
     check.check_bool(raise_error)
 
-    self._log.log_d(f'report_progress: task_id={task_id}')
+    self._log.log_d(f'report_progress: task_id={progress.task_id}')
     
     btask_threading.check_main_process(label = 'btask.report_progress')
     
     with self._lock as lock:
       item = self._in_progress_queue.find_by_task_id(progress.task_id)
-      if not imte:
+      if not item:
         if not raise_error:
           return
         btask_error(f'No task_id "{progress.task_id}" found to interrupt')
