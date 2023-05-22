@@ -153,23 +153,24 @@ class btask_pool(object):
     self._log.log_exception(error)
     raise btask_error(f'unexpected error: "{error}"')
     
-  def complete(self, task_id):
-    check.check_int(task_id)
+  def complete(self, result):
+    check.check_btask_result(result)
 
-    self._log.log_d(f'complete: task_id={task_id}')
+    self._log.log_d(f'complete: task_id={result.task_id}')
     
     btask_threading.check_main_process(label = 'btask.complete')
     
     with self._lock as lock:
-      item = self._in_progress_queue.remove_by_task_id(task_id)
+      item = self._in_progress_queue.remove_by_task_id(result.task_id)
       if not item:
-        self._log.log_d(f'No task_id "{task_id}" found to complete')
+        self._log.log_d(f'No task_id "{result.task_id}" found to complete')
         return
-      self._log.log_d(f'pump: removed task_id={task_id}')
+      self._log.log_d(f'pump: removed task_id={result.task_id}')
       callback = item.callback
       self._pump_i()
     self._log.log_d(f'complete: callback={callback}')
-    return callback
+    if callback:
+      callback(result)
 
   def interrupt(self, task_id, raise_error = True):
     check.check_int(task_id)
@@ -177,7 +178,7 @@ class btask_pool(object):
 
     self._log.log_d(f'interrupt: task_id={task_id}')
     
-    btask_threading.check_main_process(label = 'btask.interrupt')
+#    btask_threading.check_main_process(label = 'btask.interrupt')
     
     with self._lock as lock:
       waiting_item = self._waiting_queue.remove_by_task_id(task_id)
