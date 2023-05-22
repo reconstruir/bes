@@ -38,7 +38,8 @@ class btask_result_collector_py(btask_result_collector_i):
     check.check_btask_result(result)
     self._log.log_d(f'btask_result_collector_py._handle_result_in_main_thread: task_id={result.task_id}')
     callback = self._pool.complete(result.task_id)
-    callback(result)
+    if callback:
+      callback(result)
 
   def _handle_progress_in_main_thread(self, progress):
     check.check_btask_progress(progress)

@@ -40,7 +40,7 @@ class btask_pool(object):
   def close(self):
     if not self._pool:
       return
-    self._pool.close()
+    self._pool.terminate()
     self._pool.join()
     
   _task_id = 1
@@ -99,19 +99,27 @@ class btask_pool(object):
           self._log.log_d(f'{label}: got item task_id={item.task_id}')
           self._in_progress_queue.add(item)
           self._log.log_d(f'{label}: calling apply_async for task_id={item.task_id}')
+          args = (
+            item.task_id,
+            item.function,
+            item.add_time,
+            item.config.debug,
+            item.args,
+            self._result_queue,
+          )
           self._pool.apply_async(self._function,
-                                 args = item.task_args,
+                                 args = args,
                                  callback = self._callback,
                                  error_callback = self._error_callback)
             
   @classmethod
-  def _function(clazz, task_id, function, add_time, debug, args):
+  def _function(clazz, task_id, function, add_time, debug, args, progress_queue):
     clazz._log.log_d(f'_function: task_id={task_id} function={function} args={args}')
     start_time = datetime.now()
     error = None
     data = None
     try:
-      data = function(task_id, args)
+      data = function(task_id, args, progress_queue)
       clazz._log.log_d(f'_function: task_id={task_id} data={data}')
       if not check.is_dict(data):
         raise btask_error(f'Function "{function}" should return a dict: "{data}" - {type(data)}')
@@ -138,6 +146,7 @@ class btask_pool(object):
     self._pump()
     
   def _error_callback(self, error):
+    self._log.log_e(f'unexpected error: "{error}"')
     self._log.log_exception(error)
     raise btask_error(f'unexpected error: "{error}"')
     

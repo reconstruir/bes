@@ -20,7 +20,7 @@ class test_btask_pool_py(unit_test):
   _log = logger('test')
   
   @classmethod
-  def _function(clazz, task_id, args):
+  def _function(clazz, task_id, args, progress_queue):
     clazz._log.log_d(f'_function: task_id={task_id} args={args}')
     result_error = args.get('__f_result_error', None)
     sleep_time_ms = args.get('__f_sleet_time_ms', None)
@@ -255,6 +255,36 @@ class test_btask_pool_py(unit_test):
     self.assertGreaterEqual( results[2].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 3) )
     self.assertGreaterEqual( results[3].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 4) )
     self.assertGreaterEqual( results[4].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 2) )
+
+  @classmethod
+  def _function_with_progress(clazz, task_id, args):
+    clazz._log.log_d(f'_function_with_progress: task_id={task_id} args={args}')
+
+    for i in range(0, 10):
+      time.sleep(0.100)
+    #result_error = args.get('__f_result_error', None)
+    #sleep_time_ms = args.get('__f_sleet_time_ms', None)
+    #if sleep_time_ms != None:
+    #  sleep_time = (float(sleep_time_ms) / 1000.0) * 1.1
+    #  time.sleep(sleep_time)
+    #if result_error:
+    #  raise result_error
+    #result_data = args.get('__f_result_data', None)
+    return {}
+    
+  def xtest_add_task_with_no_callback(self):
+    tester = btask_pool_tester_py(1)
+    task_id = tester.add_task(self._function)
+  
+    tester.start()
+    results = tester.results()
+    tester.stop()
+
+    r = results[task_id]
+    self.assertEqual( task_id, r.task_id )
+    self.assertEqual( True, r.success )
+    self.assertEqual( {}, r.data )
+    self.assertEqual( None, r.error )
     
 if __name__ == '__main__':
   unit_test.main()

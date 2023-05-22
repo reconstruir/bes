@@ -28,8 +28,4 @@ class btask_pool_item(namedtuple('btask_pool_item', 'task_id, add_time, config, 
                                       progress_callback,
                                       interrupted)
 
-  @property
-  def task_args(self):
-    return ( self.task_id, self.function, self.add_time, self.config.debug, self.args )
-
 check.register_class(btask_pool_item, include_seq = False)
