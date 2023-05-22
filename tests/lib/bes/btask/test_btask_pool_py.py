@@ -11,6 +11,7 @@ from bes.system.execute_result import execute_result
 from bes.system.log import logger
 from bes.testing.unit_test import unit_test
 
+from bes.btask.btask_interrupted_error import btask_interrupted_error
 from bes.btask.btask_pool_tester_py import btask_pool_tester_py
 from bes.btask.btask_progress import btask_progress
 
@@ -328,5 +329,57 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( { 'fruit': 'kiwi', 'num': 1 }, r.data )
     self.assertEqual( None, r.error )
 
+  @classmethod
+  def _function_with_interrupt(clazz, context, args):
+    clazz._log.log_d(f'_function_with_interrupt: task_id={context.task_id} args={args}')
+
+    total = 10
+    for i in range(1, total + 1):
+      time.sleep(0.100)
+      clazz._log.log_d(f'_function_with_interrupt: i={i}')
+      if context.interrupted:
+        raise btask_interrupted_error(f'interrupted')
+    clazz._log.log_d(f'_function_with_interrupt: done')
+    return {}
+    
+  def xtest_add_task_with_interrupt_in_progress(self):
+    tester = btask_pool_tester_py(1)
+      
+    task_id1 = tester.add_task(self._function_with_interrupt,
+                               callback = lambda r: tester.on_callback(r),
+                               args = {
+                                 #'__f_result_data': { 'num': 1, 'fruit': 'kiwi' },
+                                 '__f_sleet_time_ms': 500,
+                               })
+    
+    task_id2 = tester.add_task(self._function,
+                              callback = lambda r: tester.on_callback(r),
+                              args = {
+                                '__f_result_data': { 'num': 1, 'fruit': 'lemon' },
+                                '__f_sleet_time_ms': 0,
+                              })
+#    time.sleep(.200)
+    tester.pool.interrupt(task_id1)
+#    tester._num_added_tasks -= 1
+    
+    tester.start()
+    results = tester.results()
+    tester.stop()
+
+    self.assertEqual( 2, len(results) )
+    
+#    self.assertEqual( True, task_id1 not in results )
+#    self.assertEqual( True, task_id2 in results )
+    r = results[task_id1]
+    self.assertEqual( task_id1, r.task_id )
+    self.assertEqual( False, r.success )
+    self.assertEqual( btask_interrupted_error(f'interrupted'), r.error )
+
+    r = results[task_id2]
+    self.assertEqual( task_id2, r.task_id )
+    self.assertEqual( True, r.success )
+    self.assertEqual( { 'num': 1, 'fruit': 'lemon' }, r.data )
+    self.assertEqual( None, r.error )
+    
 if __name__ == '__main__':
   unit_test.main()
