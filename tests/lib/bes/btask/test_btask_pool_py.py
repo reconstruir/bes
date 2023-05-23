@@ -41,7 +41,7 @@ class test_btask_pool_py(unit_test):
         result[key] = value
     return result
   
-  def xtest_add_task_with_8_processes(self):
+  def test_add_task_with_8_processes(self):
 
     tester = btask_pool_tester_py(8)
   
@@ -79,7 +79,7 @@ class test_btask_pool_py(unit_test):
 
     r = results[kiwi_id]
     self.assertEqual( kiwi_id, r.task_id )
-    self.assertEqual( True, r.success )
+    self.assertEqual( 'success', r.state )
     self.assertEqual( {
       'fruit': 'kiwi',
       'color': 'green',
@@ -92,7 +92,7 @@ class test_btask_pool_py(unit_test):
 
     r = results[lemon_id]
     self.assertEqual( lemon_id, r.task_id )
-    self.assertEqual( True, r.success )
+    self.assertEqual( 'success', r.state )
     self.assertEqual( {
       'fruit': 'lemon',
       'color': 'yellow',
@@ -105,11 +105,11 @@ class test_btask_pool_py(unit_test):
 
     r = results[grape_id]
     self.assertEqual( grape_id, r.task_id )
-    self.assertEqual( False, r.success )
+    self.assertEqual( 'failed', r.state )
     self.assertEqual( None, r.data )
     self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
 
-  def xtest_add_task_with_1_process(self):
+  def test_add_task_with_1_process(self):
     tester = btask_pool_tester_py(1)
   
     kiwi_id = tester.add_task(self._function,
@@ -136,7 +136,7 @@ class test_btask_pool_py(unit_test):
 
     r = results[kiwi_id]
     self.assertEqual( kiwi_id, r.task_id )
-    self.assertEqual( True, r.success )
+    self.assertEqual( 'success', r.state )
     self.assertEqual( {
       'fruit': 'kiwi',
       'color': 'green',
@@ -145,7 +145,7 @@ class test_btask_pool_py(unit_test):
 
     r = results[lemon_id]
     self.assertEqual( lemon_id, r.task_id )
-    self.assertEqual( True, r.success )
+    self.assertEqual( 'success', r.state )
     self.assertEqual( {
       'fruit': 'lemon',
       'color': 'yellow',
@@ -154,11 +154,11 @@ class test_btask_pool_py(unit_test):
 
     r = results[grape_id]
     self.assertEqual( grape_id, r.task_id )
-    self.assertEqual( False, r.success )
+    self.assertEqual( 'failed', r.state )
     self.assertEqual( None, r.data )
     self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
 
-  def xtest_add_task_with_categories(self):
+  def test_add_task_with_categories(self):
 
     tester = btask_pool_tester_py(8)
 
@@ -207,7 +207,7 @@ class test_btask_pool_py(unit_test):
     self.assertGreaterEqual( results[3].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 3) )
     self.assertGreaterEqual( results[4].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 4) )
 
-  def xtest_add_task_with_priority(self):
+  def test_add_task_with_priority(self):
 
     tester = btask_pool_tester_py(8)
 
@@ -270,7 +270,7 @@ class test_btask_pool_py(unit_test):
     clazz._log.log_d(f'_function_with_progress: done')
     return {}
     
-  def xtest_add_task_with_progress(self):
+  def test_add_task_with_progress(self):
     tester = btask_pool_tester_py(1)
 
     pl = []
@@ -288,7 +288,7 @@ class test_btask_pool_py(unit_test):
 
     r = results[task_id]
     self.assertEqual( task_id, r.task_id )
-    self.assertEqual( True, r.success )
+    self.assertEqual( 'success', r.state )
     self.assertEqual( {}, r.data )
     self.assertEqual( None, r.error )
 
@@ -300,7 +300,7 @@ class test_btask_pool_py(unit_test):
       ( 1, 5, 5, 'doing stuff 5' ),
     ], pl )
 
-  def xtest_add_task_with_cancel_waiting(self):
+  def test_add_task_with_cancel_waiting(self):
     tester = btask_pool_tester_py(1)
       
     task_id1 = tester.add_task(self._function,
@@ -326,7 +326,7 @@ class test_btask_pool_py(unit_test):
     
     r = results[task_id1]
     self.assertEqual( task_id1, r.task_id )
-    self.assertEqual( True, r.success )
+    self.assertEqual( 'success', r.state )
     self.assertEqual( { 'fruit': 'kiwi', 'num': 1 }, r.data )
     self.assertEqual( None, r.error )
 
@@ -377,12 +377,12 @@ class test_btask_pool_py(unit_test):
     
     r = results[task_id1]
     self.assertEqual( task_id1, r.task_id )
-    self.assertEqual( False, r.success )
-    self.assertEqual( 'btask_cancelled_error', r.error.__class__.__name__ )
+    self.assertEqual( 'cancelled', r.state )
+    self.assertEqual( None, r.error )
 
     r = results[task_id2]
     self.assertEqual( task_id2, r.task_id )
-    self.assertEqual( True, r.success )
+    self.assertEqual( 'success', r.state )
     self.assertEqual( { 'num': 1, 'fruit': 'lemon' }, r.data )
     self.assertEqual( None, r.error )
     

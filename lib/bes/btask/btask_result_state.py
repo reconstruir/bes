@@ -3,8 +3,8 @@
 from bes.enum_util.checked_enum import checked_enum
 
 class btask_result_state(checked_enum):
-  SUCCESS = 'success'
   CANCELLED = 'cancelled'
   FAILED = 'failed'
+  SUCCESS = 'success'
 
 btask_result_state.register_check_class()

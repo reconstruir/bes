@@ -9,6 +9,7 @@ import multiprocessing
 from bes.system.log import logger
 from bes.system.check import check
 
+from .btask_cancelled_error import btask_cancelled_error
 from .btask_config import btask_config
 from .btask_error import btask_error
 from .btask_function_context import btask_function_context
@@ -17,6 +18,7 @@ from .btask_pool_queue import btask_pool_queue
 from .btask_priority import btask_priority
 from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata
+from .btask_result_state import btask_result_state
 from .btask_threading import btask_threading
 
 class btask_pool(object):
@@ -126,17 +128,23 @@ class btask_pool(object):
       #clazz._log.log_d(f'_function: task_id={task_id} data={data}')
       if not check.is_dict(data):
         raise btask_error(f'Function "{function}" should return a dict: "{data}" - {type(data)}')
+      state = btask_result_state.SUCCESS
     except Exception as ex:
       if debug:
         clazz._log.log_exception(ex)
-      error = ex
+      if isinstance(ex, btask_cancelled_error):
+        state = btask_result_state.CANCELLED
+        error = None
+      else:
+        state = btask_result_state.FAILED
+        error = ex
     end_time = datetime.now()
-    #clazz._log.log_d(f'_function: task_id={task_id} data={data}')
+    clazz._log.log_d(f'_function: task_id={task_id} state={state}')
     metadata = btask_result_metadata(btask_threading.current_process_pid(),
                                      add_time,
                                      start_time,
                                      end_time)
-    result = btask_result(task_id, error == None, data, metadata, error, args)
+    result = btask_result(task_id, state, data, metadata, error, args)
     #clazz._log.log_d(f'_function: result={result}')
     return result
 
