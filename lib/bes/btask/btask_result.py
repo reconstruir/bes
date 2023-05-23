@@ -37,6 +37,10 @@ class btask_result(namedtuple('btask_result', 'task_id, success, data, metadata,
                         d['metadata'],
                         d.get('error', None),
                         d.get('args', None))
+
+  @property
+  def was_interrupted(self):
+    return isinstance(self.error, btask_interrupted_error)
   
 check.register_class(btask_result, include_seq = False)
   

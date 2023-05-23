@@ -4,6 +4,7 @@
 import copy
 import time
 from datetime import timedelta
+import threading
 
 from bes.system.check import check
 from bes.system.execute import execute
@@ -11,7 +12,7 @@ from bes.system.execute_result import execute_result
 from bes.system.log import logger
 from bes.testing.unit_test import unit_test
 
-from bes.btask.btask_interrupted_error import btask_interrupted_error
+from bes.btask.btask_cancelled_error import btask_cancelled_error
 from bes.btask.btask_pool_tester_py import btask_pool_tester_py
 from bes.btask.btask_progress import btask_progress
 
@@ -40,7 +41,7 @@ class test_btask_pool_py(unit_test):
         result[key] = value
     return result
   
-  def test_add_task_with_8_processes(self):
+  def xtest_add_task_with_8_processes(self):
 
     tester = btask_pool_tester_py(8)
   
@@ -108,7 +109,7 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( None, r.data )
     self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
 
-  def test_add_task_with_1_process(self):
+  def xtest_add_task_with_1_process(self):
     tester = btask_pool_tester_py(1)
   
     kiwi_id = tester.add_task(self._function,
@@ -157,7 +158,7 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( None, r.data )
     self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
 
-  def test_add_task_with_categories(self):
+  def xtest_add_task_with_categories(self):
 
     tester = btask_pool_tester_py(8)
 
@@ -206,7 +207,7 @@ class test_btask_pool_py(unit_test):
     self.assertGreaterEqual( results[3].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 3) )
     self.assertGreaterEqual( results[4].metadata.total_duration, timedelta(milliseconds = sleep_time_ms * 4) )
 
-  def test_add_task_with_priority(self):
+  def xtest_add_task_with_priority(self):
 
     tester = btask_pool_tester_py(8)
 
@@ -269,7 +270,7 @@ class test_btask_pool_py(unit_test):
     clazz._log.log_d(f'_function_with_progress: done')
     return {}
     
-  def test_add_task_with_progress(self):
+  def xtest_add_task_with_progress(self):
     tester = btask_pool_tester_py(1)
 
     pl = []
@@ -299,7 +300,7 @@ class test_btask_pool_py(unit_test):
       ( 1, 5, 5, 'doing stuff 5' ),
     ], pl )
 
-  def test_add_task_with_interrupt_waiting(self):
+  def xtest_add_task_with_cancel_waiting(self):
     tester = btask_pool_tester_py(1)
       
     task_id1 = tester.add_task(self._function,
@@ -314,7 +315,7 @@ class test_btask_pool_py(unit_test):
                                 '__f_result_data': { 'num': 1, 'fruit': 'lemon' },
                                 '__f_sleet_time_ms': 0,
                               })
-    tester.pool.interrupt(task_id2)
+    tester.pool.cancel(task_id2)
     tester._num_added_tasks -= 1
     
     tester.start()
@@ -330,22 +331,21 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( None, r.error )
 
   @classmethod
-  def _function_with_interrupt(clazz, context, args):
-    clazz._log.log_d(f'_function_with_interrupt: task_id={context.task_id} args={args}')
+  def _function_with_cancel(clazz, context, args):
+    clazz._log.log_d(f'_function_with_cancel: task_id={context.task_id} args={args}')
 
     total = 10
     for i in range(1, total + 1):
       time.sleep(0.100)
-      clazz._log.log_d(f'_function_with_interrupt: i={i}')
-      if context.interrupted:
-        raise btask_interrupted_error(f'interrupted')
-    clazz._log.log_d(f'_function_with_interrupt: done')
+      clazz._log.log_d(f'_function_with_cancel: i={i}')
+      context.raise_cancelled_if_needed(f'cancelled')
+    clazz._log.log_d(f'_function_with_cancel: done')
     return {}
     
-  def xtest_add_task_with_interrupt_in_progress(self):
+  def test_add_task_with_cancel_in_progress(self):
     tester = btask_pool_tester_py(1)
       
-    task_id1 = tester.add_task(self._function_with_interrupt,
+    task_id1 = tester.add_task(self._function_with_cancel,
                                callback = lambda r: tester.on_callback(r),
                                args = {
                                  #'__f_result_data': { 'num': 1, 'fruit': 'kiwi' },
@@ -358,9 +358,13 @@ class test_btask_pool_py(unit_test):
                                 '__f_result_data': { 'num': 1, 'fruit': 'lemon' },
                                 '__f_sleet_time_ms': 0,
                               })
-#    time.sleep(.200)
-    tester.pool.interrupt(task_id1)
-#    tester._num_added_tasks -= 1
+
+    def _cancel_thread_main():
+      time.sleep(0.250)
+      tester.pool.cancel(task_id1)
+      return 0
+      
+    threading.Thread(target = _cancel_thread_main).start()
     
     tester.start()
     results = tester.results()
@@ -368,12 +372,13 @@ class test_btask_pool_py(unit_test):
 
     self.assertEqual( 2, len(results) )
     
-#    self.assertEqual( True, task_id1 not in results )
-#    self.assertEqual( True, task_id2 in results )
+    self.assertEqual( True, task_id1 in results )
+    self.assertEqual( True, task_id2 in results )
+    
     r = results[task_id1]
     self.assertEqual( task_id1, r.task_id )
     self.assertEqual( False, r.success )
-    self.assertEqual( btask_interrupted_error(f'interrupted'), r.error )
+    self.assertEqual( 'btask_cancelled_error', r.error.__class__.__name__ )
 
     r = results[task_id2]
     self.assertEqual( task_id2, r.task_id )

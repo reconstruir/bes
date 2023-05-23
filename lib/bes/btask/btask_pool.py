@@ -65,7 +65,7 @@ class btask_pool(object):
         raise btask_error(f'Trying to change the category limit for "{config.category}" from  {old_limit} to {config.limit}')
 
     add_time = datetime.now()
-    interrupted = self._manager.Value(bool, False)
+    cancelled = self._manager.Value(bool, False)
     with self._lock as lock:
       task_id = self._task_id
       self._task_id += 1
@@ -76,7 +76,7 @@ class btask_pool(object):
                              args,
                              callback,
                              progress_callback,
-                             interrupted)
+                             cancelled)
       self._waiting_queue.add(item)
     self._log.log_d(f'add: calling pump for task_id={task_id}')
     self._pump()
@@ -107,7 +107,7 @@ class btask_pool(object):
             item.config.debug,
             item.args,
             self._result_queue,
-            item.interrupted,
+            item.cancelled,
           )
           self._pool.apply_async(self._function,
                                  args = args,
@@ -115,15 +115,15 @@ class btask_pool(object):
                                  error_callback = self._error_callback)
             
   @classmethod
-  def _function(clazz, task_id, function, add_time, debug, args, progress_queue, interrupted):
-    clazz._log.log_d(f'_function: task_id={task_id} function={function} args={args}')
+  def _function(clazz, task_id, function, add_time, debug, args, progress_queue, cancelled):
+    clazz._log.log_d(f'_function: task_id={task_id} function={function}')
     start_time = datetime.now()
     error = None
     data = None
     try:
-      context = btask_function_context(task_id, progress_queue, interrupted)
+      context = btask_function_context(task_id, progress_queue, cancelled)
       data = function(context, args)
-      clazz._log.log_d(f'_function: task_id={task_id} data={data}')
+      #clazz._log.log_d(f'_function: task_id={task_id} data={data}')
       if not check.is_dict(data):
         raise btask_error(f'Function "{function}" should return a dict: "{data}" - {type(data)}')
     except Exception as ex:
@@ -131,13 +131,13 @@ class btask_pool(object):
         clazz._log.log_exception(ex)
       error = ex
     end_time = datetime.now()
-    clazz._log.log_d(f'_function: task_id={task_id} data={data}')
+    #clazz._log.log_d(f'_function: task_id={task_id} data={data}')
     metadata = btask_result_metadata(btask_threading.current_process_pid(),
                                      add_time,
                                      start_time,
                                      end_time)
     result = btask_result(task_id, error == None, data, metadata, error, args)
-    clazz._log.log_d(f'_function: result={result}')
+    #clazz._log.log_d(f'_function: result={result}')
     return result
 
   def _callback(self, result):
@@ -172,24 +172,25 @@ class btask_pool(object):
     if callback:
       callback(result)
 
-  def interrupt(self, task_id, raise_error = True):
+  def cancel(self, task_id):
     check.check_int(task_id)
-    check.check_bool(raise_error)
 
-    self._log.log_d(f'interrupt: task_id={task_id}')
+    self._log.log_d(f'cancel: task_id={task_id}')
     
-#    btask_threading.check_main_process(label = 'btask.interrupt')
-    
+    btask_threading.check_main_process(label = 'btask.cancel')
+
+    cancelled = None
     with self._lock as lock:
       waiting_item = self._waiting_queue.remove_by_task_id(task_id)
       if waiting_item:
+        self._log.log_d(f'cancel: task {task_id} removed from waiting queue')
         return
-      in_progress_item = self._in_progress_queue.remove_by_task_id(task_id)
+      in_progress_item = self._in_progress_queue.find_by_task_id(task_id)
       if not in_progress_item:
-        if not raise_error:
-          return
-        btask_error(f'No task_id "{task_id}" found to interrupt')
-      in_progress_item.interrupted.value = True
+        self._log.log_d(f'cancel: no task {task_id} found in either waiting or in_progress queues')
+        return
+      self._log.log_d(f'cancel: task {task_id} removed from in_progress queue')
+      in_progress_item.cancelled.value = True
 
   def report_progress(self, progress, raise_error = True):
     check.check_btask_progress(progress)
@@ -204,16 +205,16 @@ class btask_pool(object):
       if not item:
         if not raise_error:
           return
-        btask_error(f'No task_id "{progress.task_id}" found to interrupt')
+        btask_error(f'No task_id "{progress.task_id}" found to cancel')
       progress_callback = item.progress_callback
       if progress_callback:
         progress_callback(progress)
       
-  def is_interrupted(self, task_id, raise_error = True):
+  def is_cancelled(self, task_id, raise_error = True):
     check.check_int(task_id)
     check.check_bool(raise_error)
 
-    self._log.log_d(f'is_interrupted: task_id={task_id}')
+    self._log.log_d(f'is_cancelled: task_id={task_id}')
     
     with self._lock as lock:
       item = self._in_progress_queue.find_by_task_id(task_id)
@@ -221,6 +222,6 @@ class btask_pool(object):
         if not raise_error:
           return False
         btask_error(f'No task_id "{task_id}" found to check for interruption')
-      return item.interrupted.value
+      return item.cancelled.value
       
 check.register_class(btask_pool, include_seq = False)
