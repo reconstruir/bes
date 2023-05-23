@@ -171,6 +171,8 @@ class btask_pool(object):
     with self._lock as lock:
       item = self._in_progress_queue.remove_by_task_id(result.task_id)
       if not item:
+        item = self._waiting_queue.remove_by_task_id(result.task_id)
+      if not item:
         self._log.log_d(f'No task_id "{result.task_id}" found to complete')
         return
       self._log.log_d(f'pump: removed task_id={result.task_id}')
@@ -189,10 +191,15 @@ class btask_pool(object):
 
     cancelled = None
     with self._lock as lock:
-      waiting_item = self._waiting_queue.remove_by_task_id(task_id)
+      waiting_item = self._waiting_queue.find_by_task_id(task_id)
       if waiting_item:
         self._log.log_d(f'cancel: task {task_id} removed from waiting queue')
-        return
+        metadata = btask_result_metadata(None,
+                                         waiting_item.add_time,
+                                         None,
+                                         datetime.now())
+        result = btask_result(waiting_item.task_id, btask_result_state.CANCELLED, None, metadata, None, waiting_item.args)
+        self._result_queue.put(result)
       in_progress_item = self._in_progress_queue.find_by_task_id(task_id)
       if not in_progress_item:
         self._log.log_d(f'cancel: no task {task_id} found in either waiting or in_progress queues')

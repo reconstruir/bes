@@ -304,25 +304,31 @@ class test_btask_pool_py(unit_test):
     tester = btask_pool_tester_py(1)
       
     task_id1 = tester.add_task(self._function,
-                              callback = lambda r: tester.on_callback(r),
-                              args = {
-                                '__f_result_data': { 'num': 1, 'fruit': 'kiwi' },
-                                '__f_sleet_time_ms': 500,
-                              })
+                               callback = lambda r: tester.on_callback(r),
+                               config = ('kiwi', 'low', 1, self.DEBUG),
+                               args = {
+                                 '__f_result_data': { 'num': 1, 'fruit': 'kiwi' },
+                                 '__f_sleet_time_ms': 500,
+                               })
     task_id2 = tester.add_task(self._function,
-                              callback = lambda r: tester.on_callback(r),
-                              args = {
-                                '__f_result_data': { 'num': 1, 'fruit': 'lemon' },
-                                '__f_sleet_time_ms': 0,
-                              })
-    tester.pool.cancel(task_id2)
-    tester._num_added_tasks -= 1
+                               callback = lambda r: tester.on_callback(r),
+                               config = ('kiwi', 'low', 1, self.DEBUG),
+                               args = {
+                                 '__f_result_data': { 'num': 1, 'fruit': 'lemon' },
+                                 '__f_sleet_time_ms': 0,
+                               })
+    
+    def _cancel_thread_main():
+      time.sleep(0.100)
+      tester.pool.cancel(task_id2)
+      return 0
+    threading.Thread(target = _cancel_thread_main).start()
     
     tester.start()
     results = tester.results()
     tester.stop()
 
-    self.assertEqual( 1, len(results) )
+    self.assertEqual( 2, len(results) )
     
     r = results[task_id1]
     self.assertEqual( task_id1, r.task_id )
@@ -330,6 +336,11 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( { 'fruit': 'kiwi', 'num': 1 }, r.data )
     self.assertEqual( None, r.error )
 
+    r = results[task_id2]
+    self.assertEqual( task_id2, r.task_id )
+    self.assertEqual( 'cancelled', r.state )
+    self.assertEqual( None, r.error )
+    
   @classmethod
   def _function_with_cancel(clazz, context, args):
     clazz._log.log_d(f'_function_with_cancel: task_id={context.task_id} args={args}')
@@ -347,23 +358,24 @@ class test_btask_pool_py(unit_test):
       
     task_id1 = tester.add_task(self._function_with_cancel,
                                callback = lambda r: tester.on_callback(r),
+                               config = ('kiwi', 'low', 1, self.DEBUG),
                                args = {
-                                 #'__f_result_data': { 'num': 1, 'fruit': 'kiwi' },
+                                 '__f_result_data': { 'num': 1, 'fruit': 'kiwi' },
                                  '__f_sleet_time_ms': 500,
                                })
     
     task_id2 = tester.add_task(self._function,
-                              callback = lambda r: tester.on_callback(r),
-                              args = {
-                                '__f_result_data': { 'num': 1, 'fruit': 'lemon' },
-                                '__f_sleet_time_ms': 0,
-                              })
+                               callback = lambda r: tester.on_callback(r),
+                               config = ('kiwi', 'low', 1, self.DEBUG),
+                               args = {
+                                 '__f_result_data': { 'num': 1, 'fruit': 'lemon' },
+                                 '__f_sleet_time_ms': 0,
+                               })
 
     def _cancel_thread_main():
       time.sleep(0.250)
       tester.pool.cancel(task_id1)
       return 0
-      
     threading.Thread(target = _cancel_thread_main).start()
     
     tester.start()
