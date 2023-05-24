@@ -264,9 +264,7 @@ class test_btask_pool_py(unit_test):
     total = 5
     for i in range(1, total + 1):
       time.sleep(0.100)
-      progress = btask_progress(context.task_id, i, total, f'doing stuff {i}')
-      clazz._log.log_d(f'_function_with_progress: progress={progress}')
-      context.progress_queue.put(progress)
+      context.report_progress(i, total, f'doing stuff {i}')
     clazz._log.log_d(f'_function_with_progress: done')
     return {}
     
