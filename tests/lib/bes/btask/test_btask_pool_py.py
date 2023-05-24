@@ -261,10 +261,11 @@ class test_btask_pool_py(unit_test):
   def _function_with_progress(clazz, context, args):
     clazz._log.log_d(f'_function_with_progress: task_id={context.task_id} args={args}')
 
-    total = 5
-    for i in range(1, total + 1):
+    maximum = 5
+    minimum = 1
+    for value in range(minimum, maximum + 1):
       time.sleep(0.100)
-      context.report_progress(i, total, f'doing stuff {i}')
+      context.report_progress(minimum, maximum, value, f'doing stuff {value} of {maximum}')
     clazz._log.log_d(f'_function_with_progress: done')
     return {}
     
@@ -279,7 +280,7 @@ class test_btask_pool_py(unit_test):
     task_id = tester.add_task(self._function_with_progress,
                               callback = lambda r: tester.on_callback(r),
                               progress_callback = _progress_callback)
-  
+    
     tester.start()
     results = tester.results()
     tester.stop()
@@ -291,11 +292,11 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( None, r.error )
 
     self.assertEqual( [
-      ( 1, 1, 5, 'doing stuff 1' ),
-      ( 1, 2, 5, 'doing stuff 2' ),
-      ( 1, 3, 5, 'doing stuff 3' ),
-      ( 1, 4, 5, 'doing stuff 4' ),
-      ( 1, 5, 5, 'doing stuff 5' ),
+      ( 1, 1, 5, 1, 'doing stuff 1 of 5' ),
+      ( 1, 1, 5, 2, 'doing stuff 2 of 5' ),
+      ( 1, 1, 5, 3, 'doing stuff 3 of 5' ),
+      ( 1, 1, 5, 4, 'doing stuff 4 of 5' ),
+      ( 1, 1, 5, 5, 'doing stuff 5 of 5' ),
     ], pl )
 
   def test_add_task_with_cancel_waiting(self):

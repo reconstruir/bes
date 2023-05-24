@@ -22,9 +22,8 @@ class btask_function_context(namedtuple('btask_function_context', 'task_id, prog
     if self.was_cancelled():
       raise btask_cancelled_error(message)
 
-  def report_progress(self, current, total, message):
-    progress = btask_progress(self.task_id, current, total, message)
-    #clazz._log.log_d(f'_function_with_progress: progress={progress}')
+  def report_progress(self, minimum, maximum, value, message):
+    progress = btask_progress(self.task_id, minimum, maximum, value, message)
     self.progress_queue.put(progress)
     
 check.register_class(btask_function_context, include_seq = False)

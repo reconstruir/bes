@@ -5,31 +5,42 @@ from collections import namedtuple
 from ..system.check import check
 from ..property.cached_property import cached_property
 
-class btask_progress(namedtuple('btask_progress', 'task_id, current, total, message')):
+class btask_progress(namedtuple('btask_progress', 'task_id, minimum, maximum, value, message')):
   
-  def __new__(clazz, task_id, current, total, message):
+  def __new__(clazz, task_id, minimum, maximum, value, message):
     check.check_int(task_id)
-    check.check_int(current)
-    check.check_int(total, allow_none = True)
+    check.check_int(minimum, allow_none = True)
+    check.check_int(maximum, allow_none = True)
+    check.check_int(value)
     check.check_string(message, allow_none = True)
 
-    if total == None:
-      if current not in ( 0, 1 ):
-        raise ValueError(f'current should be either 0 or 1 when total is None: "{current}"')
-    else:
-      if total <= 0:
-        raise ValueError(f'total should be greater than 0: "{total}"')
+    if maximum == None:
+      if minimum != None:
+        raise ValueError(f'"minimum" ({minimum}) should be None when maximum is None')
       
-      if current <= 0:
-        raise ValueError(f'current should be greater than 0: "{current}"')
+      if value not in ( 0, 1 ):
+        raise ValueError(f'"value" should be either 0 or 1 when maximum is None: value="{value}"')
+    else:
+      if minimum == None:
+        raise ValueError(f'"minimum" should be given if "maximum" ({maximum}) is given')
 
-      if current > total:
-        raise ValueError(f'current should be <= total: "{current}"')
+      if maximum < minimum:
+        raise ValueError(f'"maximum" should be >= "minimum" : maximum="{maximum}" maximum="{maximum}"')
+
+      if value < minimum:
+        raise ValueError(f'"value" ({value}) should be >/ "minimum" {minimum}')
+
+      if value > maximum:
+        raise ValueError(f'"value" ({value}) should be <= "maximum" {maximum}')
     
-    return clazz.__bases__[0].__new__(clazz, task_id, current, total, message)
+    return clazz.__bases__[0].__new__(clazz, task_id, minimum, maximum, value, message)
 
   @cached_property
   def percent_done(self):
-    return float(self.current) / float(total)
+    if self.maximum == None:
+      raise ValueError('cannot compute percent done because maximum is not given.')
+    left = float(self.value - self.minimum)
+    delta = float(self.maximum - self.minimum)
+    return (left * 100.0) / delta
   
 check.register_class(btask_progress, include_seq = False)
