@@ -5,6 +5,7 @@ import inspect
 
 from datetime import datetime
 import threading
+import multiprocessing
 
 from .add_method import add_method
 from .check import check
@@ -28,12 +29,14 @@ class log(object):
   DEFAULT_LEVEL = ERROR
 
   FORMAT_FULL = '${timestamp}${space}[${process_id}.${thread_id}]${space}(${tag}.${level})${padding}${space}${message}'
+  FORMAT_NOTIME = '${space}[${process_id}.${thread_id}]${space}(${tag}.${level})${padding}${space}${message}'
   FORMAT_BRIEF = '${timestamp_brief}${space}(${tag}.${level})${padding}${space}${message}'
   FORMAT_VERY_BRIEF = '(${tag}.${level})${padding}${space}${message}'
 
   _PADDING_CHAR = ' '
   _DEFAULT_FORMAT = FORMAT_FULL
   _FORMATS = {
+    'notime': FORMAT_NOTIME,
     'full': FORMAT_FULL,
     'brief': FORMAT_BRIEF,
     'very_brief': FORMAT_VERY_BRIEF,
@@ -120,10 +123,11 @@ class log(object):
     max_width = clazz._longest_level_length + longest_tag_length
     delta = max_width - current_width
     delta = 1
+    process_name = multiprocessing.current_process().name
     values = {
       'timestamp': clazz._format_timestamp(timestamp),
       'timestamp_brief': clazz._format_timestamp_brief(timestamp),
-      'process_id': str(os.getpid()),
+      'process_id': process_name, #str(os.getpid()),
       'thread_id': str(thread_id.thread_id()),
       'tag': tag,
       'level': level,

@@ -21,6 +21,16 @@ class btask_result(namedtuple('btask_result', 'task_id, state, data, metadata, e
 
     return clazz.__bases__[0].__new__(clazz, task_id, state, data, metadata, error, args)
 
+  def __str__(self):
+    if self.data:
+      data_str = f'{len(self.data)} bytes'
+    else:
+      data_str = f'None'
+    return f'{{ task_id={self.task_id} state={self.state.name} data={data_str} error="{self.error}" args="{self.args}" }}'
+
+  def __repr__(self):
+    return self.__str__()
+  
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
   

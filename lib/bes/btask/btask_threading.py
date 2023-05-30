@@ -38,5 +38,22 @@ class btask_threading(object):
     return multiprocessing.current_process().pid
 
   @classmethod
+  def current_process_name(clazz):
+    return multiprocessing.current_process().pid
+
+  @classmethod
+  def set_current_process_name(clazz, name):
+    check.check_string(name, allow_none = True)
+
+    multiprocessing.current_process().name = name
+    assert multiprocessing.current_process().name == name
+    #print(f'name={name} caca={multiprocessing.current_process().name}')
+  
+  @classmethod
   def current_thread_id(clazz):
     return threading.current_thread().ident
+
+  @classmethod
+  def current_thread_name(clazz):
+    return threading.current_thread().name
+  

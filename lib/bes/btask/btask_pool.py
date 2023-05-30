@@ -1,7 +1,5 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import queue as py_queue
-
 from collections import namedtuple
 from datetime import datetime
 import multiprocessing
@@ -28,8 +26,12 @@ class btask_pool(object):
   def __init__(self, num_processes):
     check.check_int(num_processes)
 
-    self._pool = multiprocessing.Pool(num_processes)
     self._manager = multiprocessing.Manager()
+    self._worker_number_lock = self._manager.Lock()
+    self._worker_number_value = self._manager.Value(int, 1)
+    self._pool = multiprocessing.Pool(num_processes,
+                                      initializer = self._worker_initializer,
+                                      initargs = ( self._worker_number_lock, self._worker_number_value ))
     self._result_queue = self._manager.Queue()
     self._lock = self._manager.Lock()
     self._waiting_queue = btask_pool_queue()
@@ -40,6 +42,15 @@ class btask_pool(object):
   def result_queue(self):
     return self._result_queue
 
+  @classmethod
+  def _worker_initializer(clazz, worker_number_lock, worker_number_value):
+    with worker_number_lock as lock:
+      worker_number = worker_number_value.value
+      worker_number_value.value += 1
+    worker_name = f'btask_worker_{worker_number}'
+    btask_threading.set_current_process_name(worker_name)
+    process_name = btask_threading.current_process_name()
+  
   def close(self):
     if not self._pool:
       return
@@ -178,7 +189,8 @@ class btask_pool(object):
       self._log.log_d(f'pump: removed task_id={result.task_id}')
       callback = item.callback
       self._pump_i()
-    self._log.log_d(f'complete: callback={callback}')
+    callback_name = callback.__name__ if callback else 'None'
+    self._log.log_d(f'complete: callback={callback_name}')
     if callback:
       callback(result)
 

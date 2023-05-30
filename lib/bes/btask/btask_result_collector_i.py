@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import threading
+import time
 
 from bes.system.log import logger
 from bes.system.check import check
@@ -15,9 +16,10 @@ class btask_result_collector_i(with_metaclass(ABCMeta, object)):
 
   _log = logger('btask')
 
-  def __init__(self, queue):
+  def __init__(self, queue, progress_sleep_time = 0):#.025):
     self._queue = queue
     self._thread = None
+    self._progress_sleep_time = progress_sleep_time
 
   @abstractmethod
   def handle_result(self, result):
@@ -29,13 +31,17 @@ class btask_result_collector_i(with_metaclass(ABCMeta, object)):
   
   def _thread_main(self):
     while True:
-      item = self._queue.get()
+      try:
+        item = self._queue.get()
+      except Exception as ex:
+        assert False
       if item == None:
         break
       if isinstance(item, btask_result):
         self.handle_result(item)
       elif isinstance(item, btask_progress):
         self.handle_progress(item)
+        time.sleep(self._progress_sleep_time)
       else:
         raise btask_error(f'got unexpected item from queue: "{item}" - {type(item)}')
         
@@ -44,7 +50,9 @@ class btask_result_collector_i(with_metaclass(ABCMeta, object)):
   def start(self):
     if self._thread:
       return
-    self._thread = threading.Thread(target = self._thread_main, args = ())
+    self._thread = threading.Thread(target = self._thread_main,
+                                    args = (),
+                                    name = 'btask_collector')
     self._thread.start()
 
   def stop(self):
