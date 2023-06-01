@@ -4,11 +4,11 @@ import queue as py_queue
 
 from bes.system.log import logger
 
-from .btask_main_thread_runner_i import btask_main_thread_runner_i
+from .bprocess_main_thread_runner_i import bprocess_main_thread_runner_i
 
-class btask_main_thread_runner_py(btask_main_thread_runner_i):
+class bprocess_main_thread_runner_py(bprocess_main_thread_runner_i):
 
-  _log = logger('btask')
+  _log = logger('bprocess')
   
   def __init__(self):
     self._queue = py_queue.Queue()

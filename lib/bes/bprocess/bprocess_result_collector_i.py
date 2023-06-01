@@ -8,13 +8,13 @@ from bes.system.check import check
 from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 
-from .btask_result import btask_result
-from .btask_progress import btask_progress
-from .btask_error import btask_error
+from .bprocess_result import bprocess_result
+from .bprocess_progress import bprocess_progress
+from .bprocess_error import bprocess_error
 
-class btask_result_collector_i(with_metaclass(ABCMeta, object)):
+class bprocess_result_collector_i(with_metaclass(ABCMeta, object)):
 
-  _log = logger('btask')
+  _log = logger('bprocess')
 
   def __init__(self, queue, progress_sleep_time = 0):#.025):
     self._queue = queue
@@ -43,13 +43,13 @@ class btask_result_collector_i(with_metaclass(ABCMeta, object)):
   def _handle_item(self, item):
     if item == None:
       return True
-    if isinstance(item, btask_result):
+    if isinstance(item, bprocess_result):
       self.handle_result(item)
-    elif isinstance(item, btask_progress):
+    elif isinstance(item, bprocess_progress):
       self.handle_progress(item)
       time.sleep(self._progress_sleep_time)
     else:
-      raise btask_error(f'got unexpected item from queue: "{item}" - {type(item)}')
+      raise bprocess_error(f'got unexpected item from queue: "{item}" - {type(item)}')
       return False
   
   def start(self):
@@ -57,7 +57,7 @@ class btask_result_collector_i(with_metaclass(ABCMeta, object)):
       return
     self._thread = threading.Thread(target = self._result_collector_thread_main,
                                     args = (),
-                                    name = 'btask_collector')
+                                    name = 'bprocess_collector')
     self._thread.start()
 
   def stop(self):
@@ -67,4 +67,4 @@ class btask_result_collector_i(with_metaclass(ABCMeta, object)):
     self._thread.join()
     self._thread = None
     
-check.register_class(btask_result_collector_i, name = 'btask_result_collector', include_seq = False)
+check.register_class(bprocess_result_collector_i, name = 'bprocess_result_collector', include_seq = False)

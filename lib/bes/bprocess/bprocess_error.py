@@ -1,6 +1,6 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-class btask_error(Exception):
+class bprocess_error(Exception):
   def __init__(self, message, status_code = None):
     super().__init__(message)
     

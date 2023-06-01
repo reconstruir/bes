@@ -5,13 +5,13 @@ import queue as py_queue
 from bes.system.check import check
 from bes.system.log import logger
 
-from .btask_main_thread_runner_py import btask_main_thread_runner_py
-from .btask_pool import btask_pool
-from .btask_result_collector_py import btask_result_collector_py
+from .bprocess_main_thread_runner_py import bprocess_main_thread_runner_py
+from .bprocess_pool import bprocess_pool
+from .bprocess_result_collector_py import bprocess_result_collector_py
 
-class btask_pool_tester_py(object):
+class bprocess_pool_tester_py(object):
 
-  _log = logger('btask')
+  _log = logger('bprocess')
   
   def __init__(self, num_processes):
     check.check_int(num_processes)
@@ -19,9 +19,9 @@ class btask_pool_tester_py(object):
     self._num_completed_tasks = 0
     self._num_added_tasks = 0
 
-    self._runner = btask_main_thread_runner_py()
-    self._pool = btask_pool(num_processes)
-    self._collector = btask_result_collector_py(self._pool, self._runner)
+    self._runner = bprocess_main_thread_runner_py()
+    self._pool = bprocess_pool(num_processes)
+    self._collector = bprocess_result_collector_py(self._pool, self._runner)
     self._result_queue = py_queue.Queue()
 
   @property

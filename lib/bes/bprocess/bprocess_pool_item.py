@@ -5,14 +5,14 @@ from collections import namedtuple
 from bes.system.log import logger
 from bes.system.check import check
 
-from .btask_config import btask_config
+from .bprocess_config import bprocess_config
 
-class btask_pool_item(namedtuple('btask_pool_item', 'task_id, add_time, config, function, args, callback, progress_callback, cancelled')):
+class bprocess_pool_item(namedtuple('bprocess_pool_item', 'task_id, add_time, config, function, args, callback, progress_callback, cancelled')):
   
   def __new__(clazz, task_id, add_time, config, function, args, callback, progress_callback, cancelled):
     check.check_int(task_id)
     check.check_datetime(add_time)
-    check.check_btask_config(config)
+    check.check_bprocess_config(config)
     check.check_callable(function)
     check.check_dict(args, allow_none = True)
     check.check_callable(callback, allow_none = True)
@@ -28,4 +28,4 @@ class btask_pool_item(namedtuple('btask_pool_item', 'task_id, add_time, config, 
                                       progress_callback,
                                       cancelled)
 
-check.register_class(btask_pool_item, include_seq = False)
+check.register_class(bprocess_pool_item, include_seq = False)

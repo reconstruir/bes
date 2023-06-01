@@ -5,18 +5,18 @@ from collections import namedtuple
 from bes.system.log import logger
 from bes.system.check import check
 
-from .btask_error import btask_error
-from .btask_pool_item import btask_pool_item
+from .bprocess_error import bprocess_error
+from .bprocess_pool_item import bprocess_pool_item
 
-class btask_pool_queue(object):
+class bprocess_pool_queue(object):
 
-  _log = logger('btask')
+  _log = logger('bprocess')
 
   def __init__(self):
     self._tasks = {}
 
   def add(self, item):
-    check.check_btask_pool_item(item)
+    check.check_bprocess_pool_item(item)
 
     category = item.config.category
     self._ensure_category(category)
@@ -66,4 +66,4 @@ class btask_pool_queue(object):
       return
     self._tasks[category] = []
     
-check.register_class(btask_pool_queue, include_seq = False)
+check.register_class(bprocess_pool_queue, include_seq = False)

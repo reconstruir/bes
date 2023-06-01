@@ -5,7 +5,7 @@ import threading
 
 from bes.system.check import check
 
-class btask_threading(object):
+class bprocess_threading(object):
 
   @classmethod
   def is_main_process(clazz):
@@ -18,7 +18,7 @@ class btask_threading(object):
     label = f'{label}: ' if label else ''
     if not clazz.is_main_process():
       current = multiprocessing.current_process()
-      raise btask_error(f'{label}Can only be called from the main process instead of "{current}"')
+      raise bprocess_error(f'{label}Can only be called from the main process instead of "{current}"')
 
   @classmethod
   def is_main_thread(clazz):
@@ -31,7 +31,7 @@ class btask_threading(object):
     label = f'{label}: ' if label else ''
     if not clazz.is_main_thread():
       current = threading.current_thread()
-      raise btask_error(f'{label}Can only be called from the main thread instead of "{current}"')
+      raise bprocess_error(f'{label}Can only be called from the main thread instead of "{current}"')
 
   @classmethod
   def current_process_pid(clazz):

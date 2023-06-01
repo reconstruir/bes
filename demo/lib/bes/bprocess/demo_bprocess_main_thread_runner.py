@@ -7,7 +7,7 @@ import threading
 
 import queue as py_queue
 
-from bes.btask.btask_main_thread_runner_py import btask_main_thread_runner_py
+from bes.bprocess.bprocess_main_thread_runner_py import bprocess_main_thread_runner_py
 from bes.system.log import logger
 
 log = logger('demo')
@@ -15,7 +15,7 @@ log = logger('demo')
 def main():
   log.log_d(f'main() starts')
   
-  runner = btask_main_thread_runner_py()
+  runner = bprocess_main_thread_runner_py()
   
   def spawn(function, *args, **kwargs):
     def _spawn_main(*args, **kwargs):
@@ -58,10 +58,10 @@ def main():
   return 0
 
 '''
-class test_btask_main_thread_runner_py(unit_test):
+class test_bprocess_main_thread_runner_py(unit_test):
 
   def test_call_in_main_thread(self):
-    runner = btask_main_thread_runner()
+    runner = bprocess_main_thread_runner()
 
     q = py_queue()
     

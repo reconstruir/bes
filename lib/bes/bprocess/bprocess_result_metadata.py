@@ -5,9 +5,9 @@ from collections import namedtuple
 from ..system.check import check
 from ..property.cached_property import cached_property
 
-from .btask_error import btask_error
+from .bprocess_error import bprocess_error
 
-class btask_result_metadata(namedtuple('btask_result_metadata', 'pid, add_time, start_time, end_time')):
+class bprocess_result_metadata(namedtuple('bprocess_result_metadata', 'pid, add_time, start_time, end_time')):
   
   def __new__(clazz, pid, add_time, start_time, end_time):
     check.check_int(pid, allow_none = True)
@@ -20,12 +20,12 @@ class btask_result_metadata(namedtuple('btask_result_metadata', 'pid, add_time, 
   @cached_property
   def duration(self):
     if not self.start_time:
-      raise btask_error(f'task was never started')
+      raise bprocess_error(f'task was never started')
     return self.end_time - self.start_time
 
   @cached_property
   def total_duration(self):
     return self.end_time - self.add_time
   
-check.register_class(btask_result_metadata, include_seq = False)
+check.register_class(bprocess_result_metadata, include_seq = False)
   

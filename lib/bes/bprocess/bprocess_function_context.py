@@ -5,10 +5,10 @@ from collections import namedtuple
 from bes.system.log import logger
 from bes.system.check import check
 
-from .btask_cancelled_error import btask_cancelled_error
-from .btask_progress import btask_progress
+from .bprocess_cancelled_error import bprocess_cancelled_error
+from .bprocess_progress import bprocess_progress
 
-class btask_function_context(namedtuple('btask_function_context', 'task_id, progress_queue, cancelled_value')):
+class bprocess_function_context(namedtuple('bprocess_function_context', 'task_id, progress_queue, cancelled_value')):
   
   def __new__(clazz, task_id, progress_queue, cancelled_value):
     check.check_int(task_id)
@@ -20,10 +20,10 @@ class btask_function_context(namedtuple('btask_function_context', 'task_id, prog
 
   def raise_cancelled_if_needed(self, message):
     if self.was_cancelled():
-      raise btask_cancelled_error(message)
+      raise bprocess_cancelled_error(message)
 
   def report_progress(self, minimum, maximum, value, message):
-    progress = btask_progress(self.task_id, minimum, maximum, value, message)
+    progress = bprocess_progress(self.task_id, minimum, maximum, value, message)
     self.progress_queue.put(progress)
     
-check.register_class(btask_function_context, include_seq = False)
+check.register_class(bprocess_function_context, include_seq = False)

@@ -7,21 +7,21 @@ import multiprocessing
 from bes.system.log import logger
 from bes.system.check import check
 
-from .btask_cancelled_error import btask_cancelled_error
-from .btask_config import btask_config
-from .btask_error import btask_error
-from .btask_function_context import btask_function_context
-from .btask_pool_item import btask_pool_item
-from .btask_pool_queue import btask_pool_queue
-from .btask_priority import btask_priority
-from .btask_result import btask_result
-from .btask_result_metadata import btask_result_metadata
-from .btask_result_state import btask_result_state
-from .btask_threading import btask_threading
+from .bprocess_cancelled_error import bprocess_cancelled_error
+from .bprocess_config import bprocess_config
+from .bprocess_error import bprocess_error
+from .bprocess_function_context import bprocess_function_context
+from .bprocess_pool_item import bprocess_pool_item
+from .bprocess_pool_queue import bprocess_pool_queue
+from .bprocess_priority import bprocess_priority
+from .bprocess_result import bprocess_result
+from .bprocess_result_metadata import bprocess_result_metadata
+from .bprocess_result_state import bprocess_result_state
+from .bprocess_threading import bprocess_threading
 
-class btask_pool(object):
+class bprocess_pool(object):
 
-  _log = logger('btask')
+  _log = logger('bprocess')
 
   def __init__(self, num_processes):
     check.check_int(num_processes)
@@ -34,8 +34,8 @@ class btask_pool(object):
                                       initargs = ( self._worker_number_lock, self._worker_number_value ))
     self._result_queue = self._manager.Queue()
     self._lock = self._manager.Lock()
-    self._waiting_queue = btask_pool_queue()
-    self._in_progress_queue = btask_pool_queue()
+    self._waiting_queue = bprocess_pool_queue()
+    self._in_progress_queue = bprocess_pool_queue()
     self._category_limits = {}
 
   @property
@@ -47,9 +47,9 @@ class btask_pool(object):
     with worker_number_lock as lock:
       worker_number = worker_number_value.value
       worker_number_value.value += 1
-    worker_name = f'btask_worker_{worker_number}'
-    btask_threading.set_current_process_name(worker_name)
-    process_name = btask_threading.current_process_name()
+    worker_name = f'bprocess_worker_{worker_number}'
+    bprocess_threading.set_current_process_name(worker_name)
+    process_name = bprocess_threading.current_process_name()
   
   def close(self):
     if not self._pool:
@@ -63,26 +63,26 @@ class btask_pool(object):
     check.check_callable(function)
     check.check_callable(callback, allow_none = True)
     check.check_callable(progress_callback, allow_none = True)
-    config = check.check_btask_config(config, allow_none = True)
+    config = check.check_bprocess_config(config, allow_none = True)
     check.check_dict(args, allow_none = True)
 
-    config = config or btask_config(function.__name__)
+    config = config or bprocess_config(function.__name__)
 
-    btask_threading.check_main_process(label = 'btask.add_task')
+    bprocess_threading.check_main_process(label = 'bprocess.add_task')
 
     if not config.category in self._category_limits:
       self._category_limits[config.category] = config.limit
     else:
       old_limit = self._category_limits[config.category]
       if old_limit != config.limit:
-        raise btask_error(f'Trying to change the category limit for "{config.category}" from  {old_limit} to {config.limit}')
+        raise bprocess_error(f'Trying to change the category limit for "{config.category}" from  {old_limit} to {config.limit}')
 
     add_time = datetime.now()
     cancelled = self._manager.Value(bool, False)
     with self._lock as lock:
       task_id = self._task_id
       self._task_id += 1
-      item = btask_pool_item(task_id,
+      item = bprocess_pool_item(task_id,
                              add_time,
                              config,
                              function,
@@ -134,33 +134,33 @@ class btask_pool(object):
     error = None
     data = None
     try:
-      context = btask_function_context(task_id, progress_queue, cancelled)
+      context = bprocess_function_context(task_id, progress_queue, cancelled)
       data = function(context, args)
       #clazz._log.log_d(f'_function: task_id={task_id} data={data}')
       if not check.is_dict(data):
-        raise btask_error(f'Function "{function}" should return a dict: "{data}" - {type(data)}')
-      state = btask_result_state.SUCCESS
+        raise bprocess_error(f'Function "{function}" should return a dict: "{data}" - {type(data)}')
+      state = bprocess_result_state.SUCCESS
     except Exception as ex:
       if debug:
         clazz._log.log_exception(ex)
-      if isinstance(ex, btask_cancelled_error):
-        state = btask_result_state.CANCELLED
+      if isinstance(ex, bprocess_cancelled_error):
+        state = bprocess_result_state.CANCELLED
         error = None
       else:
-        state = btask_result_state.FAILED
+        state = bprocess_result_state.FAILED
         error = ex
     end_time = datetime.now()
     clazz._log.log_d(f'_function: task_id={task_id} state={state}')
-    metadata = btask_result_metadata(btask_threading.current_process_pid(),
+    metadata = bprocess_result_metadata(bprocess_threading.current_process_pid(),
                                      add_time,
                                      start_time,
                                      end_time)
-    result = btask_result(task_id, state, data, metadata, error, args)
+    result = bprocess_result(task_id, state, data, metadata, error, args)
     #clazz._log.log_d(f'_function: result={result}')
     return result
 
   def _callback(self, result):
-    check.check_btask_result(result)
+    check.check_bprocess_result(result)
 
     self._log.log_d(f'_callback: result={result} queue={self._result_queue}')
     self._result_queue.put(result)
@@ -170,14 +170,14 @@ class btask_pool(object):
   def _error_callback(self, error):
     self._log.log_e(f'unexpected error: "{error}"')
     self._log.log_exception(error)
-    raise btask_error(f'unexpected error: "{error}"')
+    raise bprocess_error(f'unexpected error: "{error}"')
     
   def complete(self, result):
-    check.check_btask_result(result)
+    check.check_bprocess_result(result)
 
     self._log.log_d(f'complete: task_id={result.task_id}')
     
-    btask_threading.check_main_process(label = 'btask.complete')
+    bprocess_threading.check_main_process(label = 'bprocess.complete')
     
     with self._lock as lock:
       item = self._in_progress_queue.remove_by_task_id(result.task_id)
@@ -199,18 +199,18 @@ class btask_pool(object):
 
     self._log.log_d(f'cancel: task_id={task_id}')
     
-    btask_threading.check_main_process(label = 'btask.cancel')
+    bprocess_threading.check_main_process(label = 'bprocess.cancel')
 
     cancelled = None
     with self._lock as lock:
       waiting_item = self._waiting_queue.find_by_task_id(task_id)
       if waiting_item:
         self._log.log_d(f'cancel: task {task_id} removed from waiting queue')
-        metadata = btask_result_metadata(None,
+        metadata = bprocess_result_metadata(None,
                                          waiting_item.add_time,
                                          None,
                                          datetime.now())
-        result = btask_result(waiting_item.task_id, btask_result_state.CANCELLED, None, metadata, None, waiting_item.args)
+        result = bprocess_result(waiting_item.task_id, bprocess_result_state.CANCELLED, None, metadata, None, waiting_item.args)
         self._result_queue.put(result)
       in_progress_item = self._in_progress_queue.find_by_task_id(task_id)
       if not in_progress_item:
@@ -220,19 +220,19 @@ class btask_pool(object):
       in_progress_item.cancelled.value = True
 
   def report_progress(self, progress, raise_error = True):
-    check.check_btask_progress(progress)
+    check.check_bprocess_progress(progress)
     check.check_bool(raise_error)
 
     self._log.log_d(f'report_progress: task_id={progress.task_id}')
     
-    btask_threading.check_main_process(label = 'btask.report_progress')
+    bprocess_threading.check_main_process(label = 'bprocess.report_progress')
     
     with self._lock as lock:
       item = self._in_progress_queue.find_by_task_id(progress.task_id)
       if not item:
         if not raise_error:
           return
-        btask_error(f'No task_id "{progress.task_id}" found to cancel')
+        bprocess_error(f'No task_id "{progress.task_id}" found to cancel')
       progress_callback = item.progress_callback
       if progress_callback:
         progress_callback(progress)
@@ -248,7 +248,7 @@ class btask_pool(object):
       if not item:
         if not raise_error:
           return False
-        btask_error(f'No task_id "{task_id}" found to check for interruption')
+        bprocess_error(f'No task_id "{task_id}" found to check for interruption')
       return item.cancelled.value
       
-check.register_class(btask_pool, include_seq = False)
+check.register_class(bprocess_pool, include_seq = False)

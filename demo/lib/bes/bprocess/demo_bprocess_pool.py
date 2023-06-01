@@ -5,8 +5,8 @@ from bes.system.check import check
 from bes.system.execute import execute
 from bes.system.log import logger
 
-from bes.btask.btask_config import btask_config
-from bes.btask.btask_pool_tester_py import btask_pool_tester_py
+from bes.bprocess.bprocess_config import bprocess_config
+from bes.bprocess.bprocess_pool_tester_py import bprocess_pool_tester_py
 
 log = logger('demo')
 
@@ -74,11 +74,11 @@ class demo_handler(object):
 def main():
   log.log_d(f'main() starts')
 
-  tester = btask_pool_tester_py(8)
+  tester = bprocess_pool_tester_py(8)
   handler = demo_handler(tester)
 
   debug = False
-  kiwi_config = btask_config('kiwi', 'low', 2, debug)
+  kiwi_config = bprocess_config('kiwi', 'low', 2, debug)
   kiwi_id = tester.add_task(handler._kiwi_function,
                             callback = handler._kiwi_callback,
                             config = kiwi_config,
@@ -87,7 +87,7 @@ def main():
                               'flavor': 'sweet',
                               }
                             )
-  lemon_config = btask_config('lemon', 'low', 2, debug)
+  lemon_config = bprocess_config('lemon', 'low', 2, debug)
   lemon_id = tester.add_task(handler._lemon_function,
                              callback = handler._lemon_callback,
                              config = lemon_config,
@@ -97,7 +97,7 @@ def main():
                              })
   grape_id = tester.add_task(handler._grape_function,
                              callback = handler._grape_callback)
-  blackberry_config = btask_config('blackberry', 'low', 2, debug)
+  blackberry_config = bprocess_config('blackberry', 'low', 2, debug)
   blackberry_id = tester.add_task(handler._blackberry_function,
                                   callback = handler._blackberry_callback,
                                   config = blackberry_config,

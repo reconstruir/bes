@@ -4,7 +4,7 @@ from abc import abstractmethod, ABCMeta
 from bes.system.compat import with_metaclass
 from bes.system.check import check
 
-class btask_i(with_metaclass(ABCMeta, object)):
+class bprocess_i(with_metaclass(ABCMeta, object)):
 
   @abstractmethod
   def category(self):
