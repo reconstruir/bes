@@ -29,28 +29,33 @@ class btask_result_collector_i(with_metaclass(ABCMeta, object)):
   def handle_progress(self, progress):
     raise NotImplemented('handle_progress')
   
-  def _thread_main(self):
+  def _result_collector_thread_main(self):
+    i = 0
     while True:
-      try:
-        item = self._queue.get()
-      except Exception as ex:
-        assert False
-      if item == None:
+      self._log.log_d(f'_result_collector_thread_main:{i} calling get...')
+      item = self._queue.get()
+      task_id = item.task_id if item else 'None'
+      self._log.log_d(f'_result_collector_thread_main:{i} got item task_id={task_id} - {type(item)}')
+      if self._handle_item(item):
         break
-      if isinstance(item, btask_result):
-        self.handle_result(item)
-      elif isinstance(item, btask_progress):
-        self.handle_progress(item)
-        time.sleep(self._progress_sleep_time)
-      else:
-        raise btask_error(f'got unexpected item from queue: "{item}" - {type(item)}')
-        
-    return 0
+      i += 1
+
+  def _handle_item(self, item):
+    if item == None:
+      return True
+    if isinstance(item, btask_result):
+      self.handle_result(item)
+    elif isinstance(item, btask_progress):
+      self.handle_progress(item)
+      time.sleep(self._progress_sleep_time)
+    else:
+      raise btask_error(f'got unexpected item from queue: "{item}" - {type(item)}')
+      return False
   
   def start(self):
     if self._thread:
       return
-    self._thread = threading.Thread(target = self._thread_main,
+    self._thread = threading.Thread(target = self._result_collector_thread_main,
                                     args = (),
                                     name = 'btask_collector')
     self._thread.start()

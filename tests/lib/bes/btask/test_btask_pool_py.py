@@ -259,13 +259,17 @@ class test_btask_pool_py(unit_test):
 
   @classmethod
   def _function_with_progress(clazz, context, args):
+    sleep_time_before = args.get('sleep_time_before', 0.0)
+    sleep_time_after = args.get('sleep_time_after', 0.0)
+    minimum = args.get('minimum', 1)
+    maximum = args.get('maximum', 5)
+
     clazz._log.log_d(f'_function_with_progress: task_id={context.task_id} args={args}')
 
-    maximum = 5
-    minimum = 1
     for value in range(minimum, maximum + 1):
-      time.sleep(0.100)
+      time.sleep(sleep_time_before)
       context.report_progress(minimum, maximum, value, f'doing stuff {value} of {maximum}')
+      time.sleep(sleep_time_after)
     clazz._log.log_d(f'_function_with_progress: done')
     return {}
     
@@ -276,8 +280,14 @@ class test_btask_pool_py(unit_test):
     def _progress_callback(progress):
       self._log.log_d(f'_progress_callback: progress={progress}')
       pl.append(progress)
+      time.sleep(0.250)
       
     task_id = tester.add_task(self._function_with_progress,
+                              args = {
+                                'sleep_time_before': 0.100,
+                                'minimum': 1,
+                                'maximum': 5,
+                              },
                               callback = lambda r: tester.on_callback(r),
                               progress_callback = _progress_callback)
     
