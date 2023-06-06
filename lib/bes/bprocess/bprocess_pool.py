@@ -194,22 +194,24 @@ class bprocess_pool(object):
     if callback:
       callback(result)
 
+  _cancel_count = 1
   def cancel(self, task_id):
     check.check_int(task_id)
-
-    self._log.log_d(f'cancel: task_id={task_id}')
     
     bprocess_threading.check_main_process(label = 'bprocess.cancel')
 
     cancelled = None
     with self._lock as lock:
+      self._log.log_d(f'cancel: task_id={task_id} cancel_count={self._cancel_count}')
+      self._cancel_count += 1
+      #assert self._cancel_count == 2
       waiting_item = self._waiting_queue.find_by_task_id(task_id)
       if waiting_item:
         self._log.log_d(f'cancel: task {task_id} removed from waiting queue')
         metadata = bprocess_result_metadata(None,
-                                         waiting_item.add_time,
-                                         None,
-                                         datetime.now())
+                                            waiting_item.add_time,
+                                            None,
+                                            datetime.now())
         result = bprocess_result(waiting_item.task_id, bprocess_result_state.CANCELLED, None, metadata, None, waiting_item.args)
         self._result_queue.put(result)
       in_progress_item = self._in_progress_queue.find_by_task_id(task_id)
