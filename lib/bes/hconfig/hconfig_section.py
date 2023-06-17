@@ -14,9 +14,13 @@ class hconfig_section(object):
 
   def __init__(self, d, root, path):
     _log.log_d(f'hconfig_section.__init__({pprint.pformat(d)})')
-    self._dict = d
-    self._root = root
-    self._path = path
+    super().__setattr__('_dict', d)
+    super().__setattr__('_root', root)
+    super().__setattr__('_path', path)
+    
+#    self._dict = d
+#    self._root = root
+#    self._path = path
 
   def to_dict(self):
     return copy.deepcopy(super().__getattribute__('_dict'))
@@ -29,6 +33,14 @@ class hconfig_section(object):
 
   def _super_getattribute(self, key):
     return super().__getattribute__(key)
+
+  def _super_setattr(self, key, value):
+    return super().__setattr__(key, value)
+  
+  def __setattr__(self, key, value):
+    self._dict[key] = value
+#    d = super().__getattribute__('_dict')
+#    d[key] = value
   
   def __getattribute__(self, key):
     _log.log_d(f'hconfig_section.__getattribute__({key})')

@@ -30,6 +30,18 @@ class test_hconfig_section(unit_test):
       'kiwi': { 'color': 'green', 'flavor': 'tart' },
       'lemon': { 'color': 'yellow', 'flavor': 'tart' },
     }, s.to_dict() )
+
+  def test_set(self):
+    foo = {
+      'cost': 42,
+    }
+    s = hconfig_section(foo, hconfig({}), None)
+    self.assertEqual( {
+      'cost': 42,
+    }, s.to_dict() )
+    self.assertEqual( 42, s.cost )
+    s.cost = 43
+    self.assertEqual( 43, s.cost )
     
 if __name__ == '__main__':
   unit_test.main()
