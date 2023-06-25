@@ -2,9 +2,9 @@
 
 from bes.system.check import check
 
-from bes.files.attr.bf_attr_value_factory_base import bf_attr_value_factory_base
+from bes.files.attr.bf_attr_handler_factory_base import bf_attr_handler_factory_base
 
-class fruits_factory(bf_attr_value_factory_base):
+class fruits_factory(bf_attr_handler_factory_base):
       
   @classmethod
   #@abstractmethod
