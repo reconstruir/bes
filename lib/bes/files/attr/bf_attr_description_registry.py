@@ -5,11 +5,11 @@ from bes.system.check import check
 from bes.system.log import logger
 
 from .bf_attr_handler_factory_base import bf_attr_handler_factory_base
-from .bf_attr_value import bf_attr_value
-from .bf_attr_value_list import bf_attr_value_list
+from .bf_attr_description import bf_attr_description
+from .bf_attr_description_list import bf_attr_description_list
 from .bf_attr_error import bf_attr_error
 
-class bf_attr_value_registry(object):
+class bf_attr_description_registry(object):
 
   _log = logger('attr')
   
@@ -30,9 +30,9 @@ class bf_attr_value_registry(object):
     clazz._log.log_method_d()
     raw_values_list = factory_class.cached_descriptions
     try:
-      values = check.check_bf_attr_value_list(raw_values_list)
+      values = check.check_bf_attr_description_list(raw_values_list)
     except TypeError as ex:
-      raise bf_attr_error(f'values should be a sequence of "bf_attr_value" or tuples: "{raw_values_list}" - {type(raw_values_list)}')
+      raise bf_attr_error(f'values should be a sequence of "bf_attr_description" or tuples: "{raw_values_list}" - {type(raw_values_list)}')
     for next_value in values:
       if next_value.key in clazz._factories:
         old_value = clazz._factories[next_value.key]
@@ -48,9 +48,9 @@ class bf_attr_value_registry(object):
     clazz._log.log_method_d()
     raw_values_list = factory_class.cached_descriptions
     try:
-      values = check.check_bf_attr_value_list(raw_values_list)
+      values = check.check_bf_attr_description_list(raw_values_list)
     except TypeError as ex:
-      raise bf_attr_error(f'values should be a sequence of "bf_attr_value" or tuples: "{raw_values_list}" - {type(raw_values_list)}')
+      raise bf_attr_error(f'values should be a sequence of "bf_attr_description" or tuples: "{raw_values_list}" - {type(raw_values_list)}')
     for next_value in values:
       if next_value.key in clazz._factories:
         del clazz._factories[next_value.key]

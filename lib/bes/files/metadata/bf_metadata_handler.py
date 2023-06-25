@@ -7,7 +7,7 @@ from bes.version.semantic_version import semantic_version
 from bes.common.tuple_util import tuple_util
 from bes.property.cached_property import cached_property
 
-from ..attr.bf_attr_value import bf_attr_value
+from ..attr.bf_attr_description import bf_attr_description
 
 from .bf_metadata_error import bf_metadata_error
 from .bf_metadata_key import bf_metadata_key
@@ -26,7 +26,7 @@ class bf_metadata_handler(namedtuple('bf_metadata_handler', 'key, getter, decode
 
   @cached_property
   def attr_value(self):
-    return bf_attr_value(self.key.as_string, self.decoder, self.encoder, self.checker)
+    return bf_attr_description(self.key.as_string, self.decoder, self.encoder, self.checker)
   
   @classmethod
   def _check_cast_func(clazz, obj):

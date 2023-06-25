@@ -11,8 +11,8 @@ class _bf_attr_handler_factory_meta(ABCMeta):
   def __new__(meta, name, bases, class_dict):
     clazz = ABCMeta.__new__(meta, name, bases, class_dict)
     if name != 'bf_attr_handler_factory_base':
-      from .bf_attr_value_registry import bf_attr_value_registry
-      bf_attr_value_registry.register_factory(clazz)
+      from .bf_attr_description_registry import bf_attr_description_registry
+      bf_attr_description_registry.register_factory(clazz)
     return clazz
 
 class bf_attr_handler_factory_base(with_metaclass(_bf_attr_handler_factory_meta)):

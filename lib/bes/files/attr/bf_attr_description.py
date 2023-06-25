@@ -5,7 +5,7 @@ from collections import namedtuple
 from bes.system.check import check
 from bes.common.tuple_util import tuple_util
 
-class bf_attr_value(namedtuple('bf_attr_value', 'key, decoder, encoder, checker, old_keys')):
+class bf_attr_description(namedtuple('bf_attr_description', 'key, decoder, encoder, checker, old_keys')):
 
   def __new__(clazz, key, decoder, encoder, checker, old_keys):
     check.check_string(key)
@@ -29,4 +29,4 @@ class bf_attr_value(namedtuple('bf_attr_value', 'key, decoder, encoder, checker,
   def check(self, value):
     return self.checker(value)
   
-check.register_class(bf_attr_value, include_seq = False, cast_func = bf_attr_value._check_cast_func)
+check.register_class(bf_attr_description, include_seq = False, cast_func = bf_attr_description._check_cast_func)
