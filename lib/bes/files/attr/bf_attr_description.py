@@ -5,11 +5,14 @@ from collections import namedtuple
 from bes.system.check import check
 from bes.common.tuple_util import tuple_util
 
+from .bf_attr_type_description_base import bf_attr_type_description_base
+
 class bf_attr_description(namedtuple('bf_attr_description', 'key, name, decoder, encoder, checker, old_keys')):
 
   def __new__(clazz, key, name, decoder, encoder, checker, old_keys):
     check.check_string(key)
     check.check_string(name)
+    check.check_bf_attr_type_description(type_description)
     check.check_callable(decoder)
     check.check_callable(encoder)
     check.check_callable(checker)
