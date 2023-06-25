@@ -47,5 +47,17 @@ class bf_attr_type_desc_base(with_metaclass(_bf_attr_type_desc_meta)):
   def description(clazz):
     'Return a description for this type.'
     raise NotImplemented('description')
+
+  @classmethod
+  def decode(clazz, value):
+    return clazz.decoder()(value)
+
+  @classmethod
+  def encode(clazz, value):
+    return clazz.encoder()(value)
+
+  @classmethod
+  def check(clazz, value):
+    return clazz.checker()(value)
   
 check.register_class(bf_attr_type_desc_base, name = 'bf_attr_type_desc', include_seq = False)

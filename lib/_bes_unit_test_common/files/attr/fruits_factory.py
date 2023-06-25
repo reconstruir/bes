@@ -4,6 +4,12 @@ from bes.system.check import check
 
 from bes.files.attr.bf_attr_handler_factory_base import bf_attr_handler_factory_base
 
+from bes.files.attr.bf_attr_type_desc_bool import bf_attr_type_desc_bool
+from bes.files.attr.bf_attr_type_desc_datetime import bf_attr_type_desc_datetime
+from bes.files.attr.bf_attr_type_desc_float import bf_attr_type_desc_float
+from bes.files.attr.bf_attr_type_desc_int import bf_attr_type_desc_int
+from bes.files.attr.bf_attr_type_desc_string import bf_attr_type_desc_string
+
 class fruits_factory(bf_attr_handler_factory_base):
       
   @classmethod
@@ -13,49 +19,37 @@ class fruits_factory(bf_attr_handler_factory_base):
       (
         'acme/fruit/kiwi/1.0',
         'Kiwi',
-        clazz.encoding.decode_int,
-        clazz.encoding.encode_int,
-        check.check_int,
+        bf_attr_type_desc_int,
         None
       ),
       (
         'acme/fruit/cherry/2.0',
         'Cherry',
-        clazz.encoding.decode_float,
-        clazz.encoding.encode_float,
-        check.check_float,
+        bf_attr_type_desc_float,
         None
       ),
       (
         'acme/fruit/price/1.0',
         'Price',
-        clazz.encoding.decode_int,
-        clazz.encoding.encode_int,
-        check.check_int,
+        bf_attr_type_desc_int,
         None
       ),
       (
         'acme/fruit/birthday/1.0',
         'Birthday',
-        clazz.encoding.decode_datetime,
-        clazz.encoding.encode_datetime,
-        check.check_datetime,
+        bf_attr_type_desc_datetime,
         None
       ),
       (
         'acme/fruit/is_favorite/1.0',
         'Is Favorite',
-        clazz.encoding.decode_bool,
-        clazz.encoding.encode_bool,
-        check.check_bool,
+        bf_attr_type_desc_bool,
         ( 'old_is_favorite1', 'old_is_favorite2' )
       ),
       (
         'acme/fruit/name/1.0',
         'Name',
-        clazz.encoding.decode_string,
-        clazz.encoding.encode_string,
-        check.check_string,
+        bf_attr_type_desc_string,
         None,
       ),
     ]
