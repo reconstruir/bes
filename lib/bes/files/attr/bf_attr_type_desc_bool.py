@@ -2,10 +2,10 @@
 
 from bes.system.check import check
 
-from .bf_attr_type_description_base import bf_attr_type_description_base
+from .bf_attr_type_desc_base import bf_attr_type_desc_base
 from .bf_attr_encoding import bf_attr_encoding
 
-class bf_attr_type_description_bool(bf_attr_type_description_base):
+class bf_attr_type_desc_bool(bf_attr_type_desc_base):
 
   @classmethod
   #@abstractmethod

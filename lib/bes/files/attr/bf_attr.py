@@ -13,7 +13,7 @@ from ._detail._bf_attr_super_class import _bf_attr_super_class
 
 from .bf_attr_encoding import bf_attr_encoding
 from .bf_attr_error import bf_attr_error
-from .bf_attr_description_registry import bf_attr_description_registry
+from .bf_attr_desc_registry import bf_attr_desc_registry
 
 class _bf_attr_mixin:
 
@@ -150,7 +150,7 @@ class _bf_attr_mixin:
     filename = bf_check.check_file(filename)
     key = clazz.check_key(key)
 
-    handler = bf_attr_description_registry.get_value(key, raise_error = False)
+    handler = bf_attr_desc_registry.get_value(key, raise_error = False)
     if not handler:
       raise bf_attr_error(f'No value registered: "{key}"')
       
@@ -174,7 +174,7 @@ class _bf_attr_mixin:
     filename = bf_check.check_file(filename)
     key = clazz.check_key(key)
 
-    handler = bf_attr_description_registry.get_value(key, raise_error = False)
+    handler = bf_attr_desc_registry.get_value(key, raise_error = False)
     if not handler:
       raise bf_attr_error(f'No value registered: "{key}"')
     

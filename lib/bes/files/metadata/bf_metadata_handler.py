@@ -7,26 +7,27 @@ from bes.version.semantic_version import semantic_version
 from bes.common.tuple_util import tuple_util
 from bes.property.cached_property import cached_property
 
-from ..attr.bf_attr_description import bf_attr_description
+from ..attr.bf_attr_desc import bf_attr_desc
 
 from .bf_metadata_error import bf_metadata_error
 from .bf_metadata_key import bf_metadata_key
 
-class bf_metadata_handler(namedtuple('bf_metadata_handler', 'key, getter, decoder, encoder, checker, old_getter')):
+class bf_metadata_handler(namedtuple('bf_metadata_handler', 'key, name, getter, decoder, encoder, checker, old_getter')):
 
-  def __new__(clazz, key, getter, decoder, encoder, checker, old_getter):
+  def __new__(clazz, key, name, getter, decoder, encoder, checker, old_getter):
     key = check.check_bf_metadata_key(key)
+    check.check_string(name)
     check.check_callable(getter)
     check.check_callable(decoder)
     check.check_callable(encoder)
     check.check_checker(checker)
     check.check_callable(old_getter, allow_none = True)
 
-    return clazz.__bases__[0].__new__(clazz, key, getter, decoder, encoder, checker, old_getter)
+    return clazz.__bases__[0].__new__(clazz, key, name, getter, decoder, encoder, checker, old_getter)
 
   @cached_property
   def attr_value(self):
-    return bf_attr_description(self.key.as_string, self.decoder, self.encoder, self.checker)
+    return bf_attr_desc(self.key.as_string, self.name, self.decoder, self.encoder, self.checker)
   
   @classmethod
   def _check_cast_func(clazz, obj):

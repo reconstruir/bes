@@ -6,17 +6,17 @@ from bes.system.compat import with_metaclass
 from bes.system.check import check
 from bes.property.cached_class_property import cached_class_property
 
-class _bf_attr_type_description_meta(ABCMeta):
+class _bf_attr_type_desc_meta(ABCMeta):
   
   def __new__(meta, name, bases, class_dict):
     clazz = ABCMeta.__new__(meta, name, bases, class_dict)
-    if name != 'bf_attr_type_description_base':
+    if name != 'bf_attr_type_desc_base':
       pass
-      #from .bf_attr_description_registry import bf_attr_description_registry
-      #bf_attr_description_registry.register_factory(clazz)
+      #from .bf_attr_desc_registry import bf_attr_desc_registry
+      #bf_attr_desc_registry.register_factory(clazz)
     return clazz
 
-class bf_attr_type_description_base(with_metaclass(_bf_attr_type_description_meta)):
+class bf_attr_type_desc_base(with_metaclass(_bf_attr_type_desc_meta)):
 
   @classmethod
   @abstractmethod
@@ -48,4 +48,4 @@ class bf_attr_type_description_base(with_metaclass(_bf_attr_type_description_met
     'Return a description for this type.'
     raise NotImplemented('description')
   
-check.register_class(bf_attr_type_description_base, name = 'bf_attr_type_description', include_seq = False)
+check.register_class(bf_attr_type_desc_base, name = 'bf_attr_type_desc', include_seq = False)

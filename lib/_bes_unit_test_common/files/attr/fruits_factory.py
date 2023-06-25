@@ -12,6 +12,7 @@ class fruits_factory(bf_attr_handler_factory_base):
     return [
       (
         'acme/fruit/kiwi/1.0',
+        'Kiwi',
         clazz.encoding.decode_int,
         clazz.encoding.encode_int,
         check.check_int,
@@ -19,6 +20,7 @@ class fruits_factory(bf_attr_handler_factory_base):
       ),
       (
         'acme/fruit/cherry/2.0',
+        'Cherry',
         clazz.encoding.decode_float,
         clazz.encoding.encode_float,
         check.check_float,
@@ -26,6 +28,7 @@ class fruits_factory(bf_attr_handler_factory_base):
       ),
       (
         'acme/fruit/price/1.0',
+        'Price',
         clazz.encoding.decode_int,
         clazz.encoding.encode_int,
         check.check_int,
@@ -33,6 +36,7 @@ class fruits_factory(bf_attr_handler_factory_base):
       ),
       (
         'acme/fruit/birthday/1.0',
+        'Birthday',
         clazz.encoding.decode_datetime,
         clazz.encoding.encode_datetime,
         check.check_datetime,
@@ -40,6 +44,7 @@ class fruits_factory(bf_attr_handler_factory_base):
       ),
       (
         'acme/fruit/is_favorite/1.0',
+        'Is Favorite',
         clazz.encoding.decode_bool,
         clazz.encoding.encode_bool,
         check.check_bool,
@@ -47,6 +52,7 @@ class fruits_factory(bf_attr_handler_factory_base):
       ),
       (
         'acme/fruit/name/1.0',
+        'Name',
         clazz.encoding.decode_string,
         clazz.encoding.encode_string,
         check.check_string,

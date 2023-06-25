@@ -16,6 +16,7 @@ class bf_metadata_factory_mime(bf_metadata_factory_base):
     return [
       (
         'bes/mime/mime_type/1.0',
+        'Mime Type',
         lambda f: bf_mime.mime_type(f),
         clazz.encoding.decode_string,
         clazz.encoding.encode_string,
@@ -24,6 +25,7 @@ class bf_metadata_factory_mime(bf_metadata_factory_base):
       ),
       (
         'bes/mime/media_type/1.0',
+        'Media Type',
         lambda f: clazz._media_type_1_0(f),
         clazz.encoding.decode_string,
         clazz.encoding.encode_string,

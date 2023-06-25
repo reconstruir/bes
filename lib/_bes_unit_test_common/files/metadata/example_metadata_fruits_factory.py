@@ -13,6 +13,7 @@ class example_metadata_fruits_factory(bf_metadata_factory_base):
     return [
       (
         'acme/fruit/kiwi/1.0',
+        'Kiwi',
         lambda f: os.stat(f).st_size,
         clazz.encoding.decode_int,
         clazz.encoding.encode_int,
@@ -21,6 +22,7 @@ class example_metadata_fruits_factory(bf_metadata_factory_base):
       ),
       (
         'acme/fruit/cherry/2.0',
+        'Cherry',
         lambda f: float(os.stat(f).st_size / 2.0),
         clazz.encoding.decode_float,
         clazz.encoding.encode_float,
@@ -29,6 +31,7 @@ class example_metadata_fruits_factory(bf_metadata_factory_base):
       ),
       (
         'acme/fruit/melon/1.0',
+        'Melon',
         lambda f: os.stat(f).st_size * 2,
         clazz.encoding.decode_int,
         clazz.encoding.encode_int,
