@@ -12,7 +12,7 @@ from ..attr.bf_attr_desc import bf_attr_desc
 from .bf_metadata_error import bf_metadata_error
 from .bf_metadata_key import bf_metadata_key
 
-class bf_metadata_handler(namedtuple('bf_metadata_handler', 'key, name, getter, decoder, encoder, checker, old_getter')):
+class bf_metadata_desc(namedtuple('bf_metadata_desc', 'key, name, getter, decoder, encoder, checker, old_getter')):
 
   def __new__(clazz, key, name, getter, decoder, encoder, checker, old_getter):
     key = check.check_bf_metadata_key(key)
@@ -45,4 +45,4 @@ class bf_metadata_handler(namedtuple('bf_metadata_handler', 'key, name, getter, 
   def check(self, value):
     return self.checker(value)
   
-check.register_class(bf_metadata_handler, include_seq = False, cast_func = bf_metadata_handler._check_cast_func)
+check.register_class(bf_metadata_desc, include_seq = False, cast_func = bf_metadata_desc._check_cast_func)

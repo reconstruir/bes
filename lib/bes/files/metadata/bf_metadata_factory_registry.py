@@ -5,8 +5,8 @@ from bes.system.check import check
 from bes.system.log import logger
 
 from .bf_metadata_factory_base import bf_metadata_factory_base
-from .bf_metadata_handler import bf_metadata_handler
-from .bf_metadata_handler_list import bf_metadata_handler_list
+from .bf_metadata_desc import bf_metadata_desc
+from .bf_metadata_desc_list import bf_metadata_desc_list
 from .bf_metadata_key import bf_metadata_key
 from .bf_metadata_error import bf_metadata_error
 
@@ -42,10 +42,10 @@ class bf_metadata_factory_registry(object):
     handlers = []
     try:
       for raw_handler in raw_handlers:
-        handler = check.check_bf_metadata_handler(raw_handler)
+        handler = check.check_bf_metadata_desc(raw_handler)
         handlers.append(handler)
     except TypeError as ex:
-      raise bf_metadata_error(f'handler should be a sequence of "bf_metadata_handler" or tuples: "{raw_handler}" - {type(raw_handler)}\n{str(ex)}')
+      raise bf_metadata_error(f'handler should be a sequence of "bf_metadata_desc" or tuples: "{raw_handler}" - {type(raw_handler)}\n{str(ex)}')
     return handlers
       
   @classmethod
