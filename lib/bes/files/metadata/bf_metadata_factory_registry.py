@@ -30,51 +30,51 @@ class bf_metadata_factory_registry(object):
 
     clazz._log.log_method_d()
 
-    handlers = clazz.check_handlers(factory_class.cached_handlers)
-    for handler in handlers:
-      if handler.key in clazz._factories:
-        raise bf_metadata_error(f'getter already registered: "{handler.key}"')
-      clazz._factories[handler.key] = handler
-      clazz._log.log_d(f'registered handler {handler.key} {handler.getter}')
+    descriptions = clazz.check_descriptions(factory_class.cached_descriptions)
+    for description in descriptions:
+      if description.key in clazz._factories:
+        raise bf_metadata_error(f'getter already registered: "{description.key}"')
+      clazz._factories[description.key] = description
+      clazz._log.log_d(f'registered description {description.key} {description.getter}')
 
   @classmethod
-  def check_handlers(clazz, raw_handlers):
-    handlers = []
+  def check_descriptions(clazz, raw_descriptions):
+    descriptions = []
     try:
-      for raw_handler in raw_handlers:
-        handler = check.check_bf_metadata_desc(raw_handler)
-        handlers.append(handler)
+      for raw_description in raw_descriptions:
+        description = check.check_bf_metadata_desc(raw_description)
+        descriptions.append(description)
     except TypeError as ex:
-      raise bf_metadata_error(f'handler should be a sequence of "bf_metadata_desc" or tuples: "{raw_handler}" - {type(raw_handler)}\n{str(ex)}')
-    return handlers
+      raise bf_metadata_error(f'description should be a sequence of "bf_metadata_desc" or tuples: "{raw_description}" - {type(raw_description)}\n{str(ex)}')
+    return descriptions
       
   @classmethod
   def unregister_factory(clazz, factory_class):
     check.check_class(factory_class, bf_metadata_factory_base)
 
     clazz._log.log_method_d()
-    handlers = clazz.check_handlers(factory_class.cached_handlers)
-    for handler in handlers:
-      if handler.key in clazz._factories:
-        del clazz._factories[handler.key]
-        clazz._log.log_d(f'unregistered handler {handler.key}')
+    descriptions = clazz.check_descriptions(factory_class.cached_descriptions)
+    for description in descriptions:
+      if description.key in clazz._factories:
+        del clazz._factories[description.key]
+        clazz._log.log_d(f'unregistered description {description.key}')
       
   @classmethod
   def unregister_all(clazz):
     clazz._factories = {}
       
   @classmethod
-  def get_handler(clazz, key, raise_error = True):
+  def get_description(clazz, key, raise_error = True):
     key = check.check_bf_metadata_key(key)
 
-    handler = clazz._factories.get(key, None)
-    clazz._log.log_d(f'key={key} handler={handler}')
-    if raise_error and not handler:
-      raise bf_metadata_error(f'no handler registered for: "{key}"')
-    return handler
+    description = clazz._factories.get(key, None)
+    clazz._log.log_d(f'key={key} description={description}')
+    if raise_error and not description:
+      raise bf_metadata_error(f'no description registered for: "{key}"')
+    return description
 
   @classmethod
-  def has_handler(clazz, key):
+  def has_description(clazz, key):
     key = check.check_bf_metadata_key(key)
 
-    return clazz.get_handler(key, raise_error = False) != None
+    return clazz.get_description(key, raise_error = False) != None

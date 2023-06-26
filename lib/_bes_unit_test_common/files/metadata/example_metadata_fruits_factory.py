@@ -15,7 +15,7 @@ class example_metadata_fruits_factory(bf_metadata_factory_base):
       
   @classmethod
   #@abstractmethod
-  def handlers(clazz):
+  def descriptions(clazz):
     return [
       (
         'acme/fruit/kiwi/1.0',

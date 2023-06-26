@@ -4,7 +4,7 @@ from bes.property.cached_property import cached_property
 from bes.system.check import check
 from bes.system.log import logger
 
-from .bf_attr_handler_factory_base import bf_attr_handler_factory_base
+from .bf_attr_desc_factory_base import bf_attr_desc_factory_base
 from .bf_attr_desc import bf_attr_desc
 from .bf_attr_desc_list import bf_attr_desc_list
 from .bf_attr_error import bf_attr_error
@@ -25,7 +25,7 @@ class bf_attr_desc_registry(object):
   _factories = {}
   @classmethod
   def register_factory(clazz, factory_class):
-    check.check_class(factory_class, bf_attr_handler_factory_base)
+    check.check_class(factory_class, bf_attr_desc_factory_base)
 
     clazz._log.log_method_d()
     raw_values_list = factory_class.cached_descriptions
@@ -43,7 +43,7 @@ class bf_attr_desc_registry(object):
 
   @classmethod
   def unregister_factory(clazz, factory_class):
-    check.check_class(factory_class, bf_attr_handler_factory_base)
+    check.check_class(factory_class, bf_attr_desc_factory_base)
 
     clazz._log.log_method_d()
     raw_values_list = factory_class.cached_descriptions

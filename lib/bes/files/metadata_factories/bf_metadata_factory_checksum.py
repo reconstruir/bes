@@ -13,7 +13,7 @@ class bf_metadata_factory_checksum(bf_metadata_factory_base):
       
   @classmethod
   #@abstractmethod
-  def handlers(clazz):
+  def descriptions(clazz):
     return [
       (
         'bes/checksum/md5/0.0',
@@ -37,7 +37,3 @@ class bf_metadata_factory_checksum(bf_metadata_factory_base):
         lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_checksum_sha256')
       ),
     ]
-
-#  @classmethod
-#  def caca(clazz, filename):
-#    pass

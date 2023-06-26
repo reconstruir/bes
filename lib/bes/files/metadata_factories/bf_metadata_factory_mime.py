@@ -14,7 +14,7 @@ class bf_metadata_factory_mime(bf_metadata_factory_base):
       
   @classmethod
   #@abstractmethod
-  def handlers(clazz):
+  def descriptions(clazz):
     return [
       (
         'bes/mime/mime_type/1.0',

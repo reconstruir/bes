@@ -150,39 +150,39 @@ class _bf_attr_mixin:
     filename = bf_check.check_file(filename)
     key = clazz.check_key(key)
 
-    handler = bf_attr_desc_registry.get_value(key, raise_error = False)
-    if not handler:
-      raise bf_attr_error(f'No value registered: "{key}"')
+    desc = bf_attr_desc_registry.get_value(key, raise_error = False)
+    if not desc:
+      raise bf_attr_error(f'No description registered for key: "{key}"')
       
     if clazz.has_key(filename, key):
       value_bytes = clazz.get_bytes(filename, key)
     else:
-      if not handler.old_keys:
+      if not desc.old_keys:
         return None
       value_bytes = None
-      for old_key in handler.old_keys:
+      for old_key in desc.old_keys:
         if clazz.has_key(filename, old_key):
           value_bytes = clazz.get_bytes(filename, old_key)
           clazz.set_bytes(filename, key, value_bytes)
           break
     if value_bytes == None:
       return None
-    return handler.decode(value_bytes)
+    return desc.decode(value_bytes)
 
   @classmethod
   def set_value(clazz, filename, key, value):
     filename = bf_check.check_file(filename)
     key = clazz.check_key(key)
 
-    handler = bf_attr_desc_registry.get_value(key, raise_error = False)
-    if not handler:
-      raise bf_attr_error(f'No value registered: "{key}"')
+    desc = bf_attr_desc_registry.get_value(key, raise_error = False)
+    if not desc:
+      raise bf_attr_error(f'No description registered for key: "{key}"')
     
     if value == None:
       clazz.remove(key)
       
-    checked_value = handler.check(value)
-    encoded_value = handler.encode(checked_value)
+    checked_value = desc.check(value)
+    encoded_value = desc.encode(checked_value)
     clazz.set_bytes(filename, key, encoded_value)
 
   @classmethod

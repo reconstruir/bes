@@ -2,7 +2,7 @@
 
 from bes.system.check import check
 
-from bes.files.attr.bf_attr_handler_factory_base import bf_attr_handler_factory_base
+from bes.files.attr.bf_attr_desc_factory_base import bf_attr_desc_factory_base
 
 from bes.files.attr.bf_attr_type_desc_bool import bf_attr_type_desc_bool
 from bes.files.attr.bf_attr_type_desc_datetime import bf_attr_type_desc_datetime
@@ -10,7 +10,7 @@ from bes.files.attr.bf_attr_type_desc_float import bf_attr_type_desc_float
 from bes.files.attr.bf_attr_type_desc_int import bf_attr_type_desc_int
 from bes.files.attr.bf_attr_type_desc_string import bf_attr_type_desc_string
 
-class fruits_factory(bf_attr_handler_factory_base):
+class fruits_factory(bf_attr_desc_factory_base):
       
   @classmethod
   #@abstractmethod
