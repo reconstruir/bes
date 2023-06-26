@@ -18,6 +18,11 @@ class _bf_attr_type_desc_meta(ABCMeta):
 
 class bf_attr_type_desc_base(with_metaclass(_bf_attr_type_desc_meta)):
 
+  @cached_class_property
+  def encoding(clazz):
+    from .bf_attr_encoding import bf_attr_encoding
+    return bf_attr_encoding
+  
   @classmethod
   @abstractmethod
   def name(clazz):

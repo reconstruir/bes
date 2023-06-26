@@ -5,6 +5,12 @@ import os
 from bes.files.metadata.bf_metadata_factory_base import bf_metadata_factory_base
 from bes.system.check import check
 
+from bes.files.attr.bf_attr_type_desc_bool import bf_attr_type_desc_bool
+from bes.files.attr.bf_attr_type_desc_datetime import bf_attr_type_desc_datetime
+from bes.files.attr.bf_attr_type_desc_float import bf_attr_type_desc_float
+from bes.files.attr.bf_attr_type_desc_int import bf_attr_type_desc_int
+from bes.files.attr.bf_attr_type_desc_string import bf_attr_type_desc_string
+
 class example_metadata_fruits_factory(bf_metadata_factory_base):
       
   @classmethod
@@ -15,27 +21,21 @@ class example_metadata_fruits_factory(bf_metadata_factory_base):
         'acme/fruit/kiwi/1.0',
         'Kiwi',
         lambda f: os.stat(f).st_size,
-        clazz.encoding.decode_int,
-        clazz.encoding.encode_int,
-        check.check_int,
+        bf_attr_type_desc_int,
         None
       ),
       (
         'acme/fruit/cherry/2.0',
         'Cherry',
         lambda f: float(os.stat(f).st_size / 2.0),
-        clazz.encoding.decode_float,
-        clazz.encoding.encode_float,
-        check.check_float,
+        bf_attr_type_desc_float,
         None
       ),
       (
         'acme/fruit/melon/1.0',
         'Melon',
         lambda f: os.stat(f).st_size * 2,
-        clazz.encoding.decode_int,
-        clazz.encoding.encode_int,
-        check.check_int,
+        bf_attr_type_desc_int,
         lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_double_size')
       )
     ]

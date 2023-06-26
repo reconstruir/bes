@@ -8,6 +8,8 @@ from ..mime.bf_mime import bf_mime
 
 from ..metadata.bf_metadata_factory_base import bf_metadata_factory_base
 
+from ..attr.bf_attr_type_desc_string import bf_attr_type_desc_string
+
 class bf_metadata_factory_mime(bf_metadata_factory_base):
       
   @classmethod
@@ -18,18 +20,14 @@ class bf_metadata_factory_mime(bf_metadata_factory_base):
         'bes/mime/mime_type/1.0',
         'Mime Type',
         lambda f: bf_mime.mime_type(f),
-        clazz.encoding.decode_string,
-        clazz.encoding.encode_string,
-        check.check_string,
+        bf_attr_type_desc_string,
         lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_mime_type')
       ),
       (
         'bes/mime/media_type/1.0',
         'Media Type',
         lambda f: clazz._media_type_1_0(f),
-        clazz.encoding.decode_string,
-        clazz.encoding.encode_string,
-        check.check_string,
+        bf_attr_type_desc_string,
         lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_media_type')
       )
     ]

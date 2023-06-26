@@ -7,6 +7,8 @@ from ..bf_checksum import bf_checksum
 
 from ..metadata.bf_metadata_factory_base import bf_metadata_factory_base
 
+from ..attr.bf_attr_type_desc_string import bf_attr_type_desc_string
+
 class bf_metadata_factory_checksum(bf_metadata_factory_base):
       
   @classmethod
@@ -17,31 +19,25 @@ class bf_metadata_factory_checksum(bf_metadata_factory_base):
         'bes/checksum/md5/0.0',
         'MD5 Checksum',
         lambda f: bf_checksum.checksum(f, 'md5'),
-        clazz.encoding.decode_string,
-        clazz.encoding.encode_string,
-        check.check_string,
+        bf_attr_type_desc_string,
         lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_checksum_md5')
       ),
       (
         'bes/checksum/sha1/0.0',
         'SHA1 Checksum',
         lambda f: bf_checksum.checksum(f, 'sha1'),
-        clazz.encoding.decode_string,
-        clazz.encoding.encode_string,
-        check.check_string,
+        bf_attr_type_desc_string,
         lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_checksum_sha1')
       ),
       (
         'bes/checksum/sha256/0.0',
         'SHA256 Checksum',
         lambda f: bf_checksum.checksum(f, 'sha256'),
-        clazz.encoding.decode_string,
-        clazz.encoding.encode_string,
-        check.check_string,
+        bf_attr_type_desc_string,
         lambda f: clazz.metadata.get_cached_bytes_if_fresh(f, 'bes_checksum_sha256')
       ),
     ]
 
-  @classmethod
-  def caca(clazz, filename):
-    pass
+#  @classmethod
+#  def caca(clazz, filename):
+#    pass

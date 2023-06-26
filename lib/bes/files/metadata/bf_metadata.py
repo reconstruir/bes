@@ -45,7 +45,7 @@ class bf_metadata(bf_attr):
                                                     key.as_string,
                                                     value_maker)
     clazz._log.log_d(f'get_metadata: value_bytes={value_bytes} mtime={mtime}')
-    value = handler.decoder(value_bytes)
+    value = handler.decode(value_bytes)
     item._last_mtime = mtime
     item._value = value
     item._count += 1
