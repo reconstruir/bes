@@ -21,7 +21,7 @@ class bf_metadata(bf_attr):
     filename = bf_check.check_file(filename)
     key = check.check_bf_metadata_key(key)
     desc = bf_metadata_factory_registry.get_description(key)
-    clazz._log.log_e(f'get_metadata: desc={type(desc)}')
+    clazz._log.log_d(f'get_metadata: desc={type(desc)}')
     assert desc.key == key
     item = clazz._get_item(filename, key)
     clazz._log.log_d(f'get_metadata: filename={filename} last_mtime={item._last_mtime}')
