@@ -18,18 +18,6 @@ class _bf_attr_desc_factory_meta(ABCMeta):
 class bf_attr_desc_factory_base(with_metaclass(_bf_attr_desc_factory_meta)):
 
   @cached_class_property
-  def attr(clazz):
-    'Provide a property that returns the main attr class so subclasses can use it.'
-    from .bf_attr import bf_attr
-    return bf_attr
-
-  @cached_class_property
-  def encoding(clazz):
-    'Provide a property that returns the encoding class so subclasses can use it.'
-    from .bf_attr_encoding import bf_attr_encoding
-    return bf_attr_encoding
-  
-  @cached_class_property
   def cached_descriptions(clazz):
     return clazz.descriptions()
   
