@@ -35,13 +35,13 @@ class bf_metadata_desc(namedtuple('bf_metadata_desc', 'key, name, getter, type_d
   def get(self, filename):
     return self.getter(filename)
 
-  def decode(self, value):
-    return self.attr_desc.decode(value)
+  def decode(self, value, allow_none = False):
+    return self.attr_desc.decode(value, allow_none = allow_none)
 
-  def encode(self, value):
-    return self.attr_desc.encode(value)
+  def encode(self, value, allow_none = False):
+    return self.attr_desc.encode(value, allow_none = allow_none)
   
-  def check(self, value):
-    return self.attr_desc.check(value)
+  def check(self, value, allow_none = False):
+    return self.attr_desc.check(value, allow_none = allow_none)
   
 check.register_class(bf_metadata_desc, include_seq = False, cast_func = bf_metadata_desc._check_cast_func)

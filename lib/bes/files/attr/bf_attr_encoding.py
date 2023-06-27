@@ -13,42 +13,42 @@ from bes.system.check import check
 class bf_attr_encoding(object):
 
   @classmethod
-  def decode_int(clazz, value):
+  def decode_int(clazz, value, allow_none = False):
     'Decode an int'
     check.check_bytes(value)
     
     return number_util.to_int(value.decode('utf-8'))
 
   @classmethod
-  def encode_int(clazz, value):
+  def encode_int(clazz, value, allow_none = False):
     'Decode an int'
     check.check_int(value)
 
     return str(value).encode('utf-8')
   
   @classmethod
-  def decode_float(clazz, value):
+  def decode_float(clazz, value, allow_none = False):
     'Decode an int'
     check.check_bytes(value)
     
     return number_util.to_float(value.decode('utf-8'))
 
   @classmethod
-  def encode_float(clazz, value):
+  def encode_float(clazz, value, allow_none = False):
     'Decode an float'
     check.check_number(value)
 
     return str(value).encode('utf-8')
   
   @classmethod
-  def decode_string(clazz, value):
+  def decode_string(clazz, value, allow_none = False):
     'Decode a string'
     check.check_bytes(value)
     
     return value.decode('utf-8')
 
   @classmethod
-  def encode_string(clazz, value):
+  def encode_string(clazz, value, allow_none = False):
     'Decode an string'
     check.check_string(value)
 
@@ -76,7 +76,7 @@ class bf_attr_encoding(object):
     return str(value).encode('utf-8')
 
   @classmethod
-  def decode_datetime(clazz, value):
+  def decode_datetime(clazz, value, allow_none = False):
     'Decode a date'
     check.check_bytes(value)
 
@@ -85,14 +85,14 @@ class bf_attr_encoding(object):
     return datetime.fromtimestamp(timestamp)
     
   @classmethod
-  def encode_datetime(clazz, value):
+  def encode_datetime(clazz, value, allow_none = False):
     'Decode an date'
     check.check_datetime(value)
 
     return clazz.encode_string(str(value.timestamp()))
 
   @classmethod
-  def decode_json(clazz, value):
+  def decode_json(clazz, value, allow_none = False):
     'Decode bytes as json'
     check.check_bytes(value)
 
@@ -100,7 +100,7 @@ class bf_attr_encoding(object):
     return json.loads(string_value)
     
   @classmethod
-  def encode_json(clazz, value):
+  def encode_json(clazz, value, allow_none = False):
     'Encode a dict as json'
     check.check_dict(value)
 

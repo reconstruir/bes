@@ -18,10 +18,10 @@ class _bf_attr_type_desc_meta(ABCMeta):
 
 class bf_attr_type_desc_base(with_metaclass(_bf_attr_type_desc_meta)):
 
-  @cached_class_property
-  def encoding(clazz):
-    from .bf_attr_encoding import bf_attr_encoding
-    return bf_attr_encoding
+#  @cached_class_property
+#  def encoding(clazz):
+#    from .bf_attr_encoding import bf_attr_encoding
+#    return bf_attr_encoding
   
   @classmethod
   @abstractmethod
@@ -31,38 +31,20 @@ class bf_attr_type_desc_base(with_metaclass(_bf_attr_type_desc_meta)):
 
   @classmethod
   @abstractmethod
-  def encoder(clazz):
-    'Return encoder function for this type'
-    raise NotImplemented('encoder')
+  def encode(clazz, value, allow_none):
+    'Encode value into bytes'
+    raise NotImplemented('encode')
 
   @classmethod
   @abstractmethod
-  def decoder(clazz):
-    'Return decoder function for this type'
-    raise NotImplemented('decoder')
+  def decode(clazz, value_bytes, allow_none):
+    'Decode value_bytes into a value'
+    raise NotImplemented('decode')
 
   @classmethod
   @abstractmethod
-  def checker(clazz):
-    'Return checker function for this type'
-    raise NotImplemented('checker')
-  
-  @classmethod
-  @abstractmethod
-  def description(clazz):
-    'Return a description for this type.'
-    raise NotImplemented('description')
-
-  @classmethod
-  def decode(clazz, value):
-    return clazz.decoder()(value)
-
-  @classmethod
-  def encode(clazz, value):
-    return clazz.encoder()(value)
-
-  @classmethod
-  def check(clazz, value):
-    return clazz.checker()(value)
+  def check(clazz, value, allow_none):
+    'Check type of value'
+    raise NotImplemented('check')
   
 check.register_class(bf_attr_type_desc_base, name = 'bf_attr_type_desc', include_seq = False)

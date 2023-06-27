@@ -15,24 +15,18 @@ class bf_attr_type_desc_bool(bf_attr_type_desc_base):
 
   @classmethod
   #@abstractmethod
-  def encoder(clazz):
+  def encode(clazz, value, allow_none):
     'Return encoder function for this type'
-    return bf_attr_encoding.encode_bool
+    return bf_attr_encoding.encode_bool(value, allow_none = allow_none)
 
   @classmethod
   #@abstractmethod
-  def decoder(clazz):
+  def decode(clazz, value_bytes, allow_none):
     'Return decoder function for this type'
-    return bf_attr_encoding.decode_bool
+    return bf_attr_encoding.decode_bool(value_bytes, allow_none = allow_none)
 
   @classmethod
   #@abstractmethod
-  def checker(clazz):
+  def check(clazz, value, allow_none):
     'Return checker function for this type'
-    return check.check_bool
-  
-  @classmethod
-  #@abstractmethod
-  def description(clazz):
-    'Return a description for this type.'
-    return 'bool'
+    return check.check_bool(value, allow_none = allow_none)

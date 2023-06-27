@@ -21,13 +21,13 @@ class bf_attr_desc(namedtuple('bf_attr_desc', 'key, name, type_desc, old_keys'))
   def _check_cast_func(clazz, obj):
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)
   
-  def decode(self, value):
-    return self.type_desc.decode(value)
+  def decode(self, value, allow_none = False):
+    return self.type_desc.decode(value, allow_none)
 
-  def encode(self, value):
-    return self.type_desc.encode(value)
+  def encode(self, value, allow_none = False):
+    return self.type_desc.encode(value, allow_none)
 
-  def check(self, value):
-    return self.type_desc.check(value)
+  def check(self, value, allow_none = False):
+    return self.type_desc.check(value, allow_none)
   
 check.register_class(bf_attr_desc, include_seq = False, cast_func = bf_attr_desc._check_cast_func)
