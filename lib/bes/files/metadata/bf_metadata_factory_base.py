@@ -30,12 +30,6 @@ class bf_metadata_factory_base(with_metaclass(_bf_metadata_factory_meta)):
     return bf_metadata
 
   @cached_class_property
-  def encoding(clazz):
-    'Provide a property that returns the encoding class so subclasses can use it.'
-    from ..attr.bf_attr_encoding import bf_attr_encoding
-    return bf_attr_encoding
-  
-  @cached_class_property
   def cached_descriptions(clazz):
     return clazz.descriptions()
   
