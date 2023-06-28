@@ -54,6 +54,11 @@ class python_exe(object):
     return clazz.full_version(exe).version
 
   @classmethod
+  def semantic_version(clazz, exe):
+    'Return the semantic major.minor version of a python executable'
+    return semantic_version(str(clazz.version(exe)))
+  
+  @classmethod
   def major_version(clazz, exe):
     'Return the major version of a python executable'
     return clazz.full_version(exe).major_version
@@ -255,6 +260,11 @@ class python_exe(object):
       return None
     return clazz.version(exe).version
 
+  @classmethod
+  def _exe_version_is_good(clazz, exe):
+    sv = clazz.semantic_version(exe)
+    return sv >= '3.7'
+  
   _all_exes_cache = {}
   @classmethod
   #@timed_function(python_debug.timer)
@@ -270,12 +280,13 @@ class python_exe(object):
         sanitized_env_path = env_path
       result = file_path.glob(sanitized_env_path, exe_patterns)
       result = [ f for f in result if not file_symlink.is_broken(f) ]
+      result = [ f for f in result if clazz._exe_version_is_good(f) ]
       clazz._log.log_d('      exe_patterns={}'.format(exe_patterns))
       clazz._log.log_d('          env_path={}'.format(env_path))
       clazz._log.log_d('        extra_path={}'.format(extra_path))
       clazz._log.log_d('sanitized_env_path={}'.format(sanitized_env_path))
       clazz._log.log_d('            result={}'.format(result))
-      clazz._all_exes_cache[sanitize_path] = sorted(result, key = lambda exe: semantic_version(str(clazz.version(exe)))._tokens, reverse = True)
+      clazz._all_exes_cache[sanitize_path] = sorted(result, key = lambda exe: clazz.semantic_version(exe)._tokens, reverse = True)
     return clazz._all_exes_cache[sanitize_path]
 
   @classmethod
