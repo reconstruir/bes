@@ -17,17 +17,17 @@ class bf_attr_type_desc_int(bf_attr_type_desc_base):
 
   @classmethod
   #@abstractmethod
-  def encode(clazz, value, allow_none):
+  def encode(clazz, value):
     'Encode value into bytes'
-    clazz.check(value, True)
+    clazz.check(value)
 
     if value == None:
       return b''
-    return bf_attr_type_desc_string.encode(str(value), True)
+    return bf_attr_type_desc_string.encode(str(value))
 
   @classmethod
   #@abstractmethod
-  def decode(clazz, value_bytes, allow_none):
+  def decode(clazz, value_bytes):
     'Decode value_bytes into a value'
     check.check_bytes(value_bytes)
     
@@ -38,6 +38,6 @@ class bf_attr_type_desc_int(bf_attr_type_desc_base):
 
   @classmethod
   #@abstractmethod
-  def check(clazz, value, allow_none):
+  def check(clazz, value):
     'Return checker function for this type'
-    return check.check_int(value, allow_none = allow_none)
+    return check.check_int(value, allow_none = True)

@@ -17,26 +17,26 @@ class bf_attr_type_desc_datetime(bf_attr_type_desc_base):
 
   @classmethod
   #@abstractmethod
-  def encode(clazz, value, allow_none):
+  def encode(clazz, value):
     'Encode value into bytes'
-    clazz.check(value, True)
+    clazz.check(value)
 
     if value == None:
       return b''
-    return bf_attr_type_desc_string.encode(str(value.timestamp()), True)
+    return bf_attr_type_desc_string.encode(str(value.timestamp()))
 
   @classmethod
   #@abstractmethod
-  def decode(clazz, value_bytes, allow_none):
+  def decode(clazz, value_bytes):
     'Return decoder function for this type'
     check.check_bytes(value_bytes)
 
-    s = bf_attr_type_desc_string.decode(value_bytes, True)
+    s = bf_attr_type_desc_string.decode(value_bytes)
     timestamp = float(s)
     return datetime.fromtimestamp(timestamp)
 
   @classmethod
   #@abstractmethod
-  def check(clazz, value, allow_none):
+  def check(clazz, value):
     'Return checker function for this type'
     return check.check_datetime(value, allow_none = True)

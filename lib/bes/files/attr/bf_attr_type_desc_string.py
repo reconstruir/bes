@@ -14,9 +14,9 @@ class bf_attr_type_desc_string(bf_attr_type_desc_base):
 
   @classmethod
   #@abstractmethod
-  def encode(clazz, value, allow_none):
+  def encode(clazz, value):
     'Return encoder function for this type'
-    clazz.check(value, True)
+    clazz.check(value)
 
     if value == None:
       return b''
@@ -24,7 +24,7 @@ class bf_attr_type_desc_string(bf_attr_type_desc_base):
 
   @classmethod
   #@abstractmethod
-  def decode(clazz, value_bytes, allow_none):
+  def decode(clazz, value_bytes):
     'Decode value_bytes into a value'
     check.check_bytes(value_bytes)
 
@@ -32,6 +32,6 @@ class bf_attr_type_desc_string(bf_attr_type_desc_base):
 
   @classmethod
   #@abstractmethod
-  def check(clazz, value, allow_none):
+  def check(clazz, value):
     'Return checker function for this type'
-    return check.check_string(value, allow_none = allow_none)
+    return check.check_string(value, allow_none = True)

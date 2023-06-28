@@ -26,19 +26,19 @@ class bf_attr_type_desc_base(with_metaclass(_bf_attr_type_desc_meta)):
 
   @classmethod
   @abstractmethod
-  def encode(clazz, value, allow_none):
+  def encode(clazz, value):
     'Encode value into bytes'
     raise NotImplemented('encode')
 
   @classmethod
   @abstractmethod
-  def decode(clazz, value_bytes, allow_none):
+  def decode(clazz, value_bytes):
     'Decode value_bytes into a value'
     raise NotImplemented('decode')
 
   @classmethod
   @abstractmethod
-  def check(clazz, value, allow_none):
+  def check(clazz, value):
     'Check type of value'
     raise NotImplemented('check')
   
