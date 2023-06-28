@@ -1,9 +1,11 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.system.check import check
+from bes.common.bool_util import bool_util
 
 from .bf_attr_type_desc_base import bf_attr_type_desc_base
-from .bf_attr_encoding import bf_attr_encoding
+
+from .bf_attr_type_desc_string import bf_attr_type_desc_string
 
 class bf_attr_type_desc_bool(bf_attr_type_desc_base):
 
@@ -16,14 +18,23 @@ class bf_attr_type_desc_bool(bf_attr_type_desc_base):
   @classmethod
   #@abstractmethod
   def encode(clazz, value, allow_none):
-    'Return encoder function for this type'
-    return bf_attr_encoding.encode_bool(value, allow_none = allow_none)
+    'Encode value into bytes'
+    check.check_bool(value)
+
+    if value == None:
+      return b''
+    return bf_attr_type_desc_string.encode(str(value))
 
   @classmethod
   #@abstractmethod
   def decode(clazz, value_bytes, allow_none):
-    'Return decoder function for this type'
-    return bf_attr_encoding.decode_bool(value_bytes, allow_none = allow_none)
+    'Decode value_bytes into a value'
+    check.check_bytes(value_bytes)
+    
+    s = value_bytes.decode('utf-8')
+    if s == '':
+      return None
+    return bool_util.parse_bool(s)
 
   @classmethod
   #@abstractmethod
