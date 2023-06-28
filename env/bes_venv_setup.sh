@@ -11,7 +11,7 @@ function main()
   local _python_exe="$(bes_python_find_default)"
   local _python_version=$(bes_python_exe_version "${_python_exe}")
   
-  ${_python} ${_best} pip_project install_requirements \
+  ${_python_exe} ${_best} pip_project install_requirements \
              --root-dir "${_root_dir}/VE/bes" \
              --python-version ${_python_version} \
              $@
