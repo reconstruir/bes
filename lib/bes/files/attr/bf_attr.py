@@ -11,7 +11,7 @@ from ..bf_date import bf_date
 
 from ._detail._bf_attr_super_class import _bf_attr_super_class
 
-from .bf_attr_encoding import bf_attr_encoding
+from .bf_attr_type_desc_datetime import bf_attr_type_desc_datetime
 from .bf_attr_error import bf_attr_error
 from .bf_attr_desc_registry import bf_attr_desc_registry
 
@@ -74,7 +74,7 @@ class _bf_attr_mixin:
     if not clazz.has_key(filename, key):
       return None
     value = clazz.get_bytes(filename, key)
-    return bf_attr_encoding.decode_datetime(value)
+    return bf_attr_type_desc_datetime.decode(value, True)
 
   @classmethod
   def set_date(clazz, filename, key, value, encoding = 'utf-8'):
@@ -83,7 +83,7 @@ class _bf_attr_mixin:
     key = clazz.check_key(key)
     check.check_datetime(value)
 
-    encoded_value = bf_attr_encoding.encode_datetime(value)
+    encoded_value = bf_attr_type_desc_datetime.encode(value, True)
     clazz.set_bytes(filename, key, encoded_value)
 
   @classmethod

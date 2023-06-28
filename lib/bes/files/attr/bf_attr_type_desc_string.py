@@ -3,7 +3,6 @@
 from bes.system.check import check
 
 from .bf_attr_type_desc_base import bf_attr_type_desc_base
-from .bf_attr_encoding import bf_attr_encoding
 
 class bf_attr_type_desc_string(bf_attr_type_desc_base):
 
@@ -17,13 +16,19 @@ class bf_attr_type_desc_string(bf_attr_type_desc_base):
   #@abstractmethod
   def encode(clazz, value, allow_none):
     'Return encoder function for this type'
-    return bf_attr_encoding.encode_string(value, allow_none = allow_none)
+    clazz.check(value, True)
+
+    if value == None:
+      return b''
+    return value.encode('utf-8')
 
   @classmethod
   #@abstractmethod
   def decode(clazz, value_bytes, allow_none):
-    'Return decoder function for this type'
-    return bf_attr_encoding.decode_string(value_bytes, allow_none = allow_none)
+    'Decode value_bytes into a value'
+    check.check_bytes(value_bytes)
+
+    return value_bytes.decode('utf-8')
 
   @classmethod
   #@abstractmethod

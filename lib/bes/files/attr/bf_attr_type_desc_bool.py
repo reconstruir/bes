@@ -23,7 +23,7 @@ class bf_attr_type_desc_bool(bf_attr_type_desc_base):
 
     if value == None:
       return b''
-    return bf_attr_type_desc_string.encode(str(value))
+    return bf_attr_type_desc_string.encode(str(value), True)
 
   @classmethod
   #@abstractmethod
