@@ -249,7 +249,7 @@ class python_exe(object):
     all_info = clazz.find_all_exes_info()
     if not all_info:
       return None
-    items = [ item for _, item in all_info.items() ]
+    items = sorted([ item for _, item in all_info.items() ], key = lambda item: item.version, reverse = True)
     return items[0].exe
 
   @classmethod
@@ -263,7 +263,8 @@ class python_exe(object):
   @classmethod
   def _exe_version_is_good(clazz, exe):
     sv = clazz.semantic_version(exe)
-    return sv >= '3.7'
+    #print(f'checking {exe} {sv}')
+    return sv >= '3.7' and sv < '3.11'
   
   _all_exes_cache = {}
   @classmethod
@@ -280,7 +281,16 @@ class python_exe(object):
         sanitized_env_path = env_path
       result = file_path.glob(sanitized_env_path, exe_patterns)
       result = [ f for f in result if not file_symlink.is_broken(f) ]
-      result = [ f for f in result if clazz._exe_version_is_good(f) ]
+
+      seen = set()
+      c = []
+      for exe in result:
+        inode = file_util.inode_number(exe)
+        if not inode in seen:
+          seen.add(inode)
+          if clazz._exe_version_is_good(exe):
+            c.append(exe)
+      result = c
       clazz._log.log_d('      exe_patterns={}'.format(exe_patterns))
       clazz._log.log_d('          env_path={}'.format(env_path))
       clazz._log.log_d('        extra_path={}'.format(extra_path))
