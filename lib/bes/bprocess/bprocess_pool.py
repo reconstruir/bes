@@ -29,7 +29,8 @@ class bprocess_pool(object):
     self._manager = multiprocessing.Manager()
     self._worker_number_lock = self._manager.Lock()
     self._worker_number_value = self._manager.Value(int, 1)
-    self._pool = multiprocessing.Pool(num_processes,
+    self._num_processes = num_processes
+    self._pool = multiprocessing.Pool(self._num_processes,
                                       initializer = self._worker_initializer,
                                       initargs = ( self._worker_number_lock, self._worker_number_value ))
     self._result_queue = self._manager.Queue()
@@ -38,6 +39,10 @@ class bprocess_pool(object):
     self._in_progress_queue = bprocess_pool_queue()
     self._category_limits = {}
 
+  @property
+  def num_processes(self):
+    return self._num_processes
+    
   @property
   def result_queue(self):
     return self._result_queue
