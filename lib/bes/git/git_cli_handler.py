@@ -176,7 +176,11 @@ class git_cli_handler(cli_command_handler):
     check.check_int(limit, allow_none = True)
     
     where = git_ref_where.determine_where(local, remote)
-    if not no_fetch:
+
+    do_fetch = not no_fetch
+    if local and not remote:
+      do_fetch = False
+    if do_fetch:
       git.fetch(self.options.root_dir)
     branches = git.list_branches(self.options.root_dir, where, limit = limit)
     if not branches:
