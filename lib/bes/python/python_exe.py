@@ -264,7 +264,7 @@ class python_exe(object):
   def _exe_version_is_good(clazz, exe):
     sv = clazz.semantic_version(exe)
     #print(f'checking {exe} {sv}')
-    return sv >= '3.7' and sv < '3.11'
+    return sv >= '3.7' and sv <= '3.11'
   
   _all_exes_cache = {}
   @classmethod
