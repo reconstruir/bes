@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import os
+
 from collections import namedtuple
 from datetime import datetime
 import multiprocessing
@@ -18,27 +20,60 @@ from .bprocess_result import bprocess_result
 from .bprocess_result_metadata import bprocess_result_metadata
 from .bprocess_result_state import bprocess_result_state
 from .bprocess_threading import bprocess_threading
+from .bprocess_dedicated_category_config import bprocess_dedicated_category_config
 
 class bprocess_pool(object):
 
   _log = logger('bprocess')
 
-  def __init__(self, num_processes):
+  def __init__(self, num_processes, dedicated_categories = None):
     check.check_int(num_processes)
+    check.check_dict(dedicated_categories, allow_none = True)
 
+    dedicated_categories = self._check_dedicated_categories(dedicated_categories)
+    if dedicated_categories:
+      sum_category_processes = 0
+      for category, config in dedicated_categories.items():
+        sum_category_processes += config.num_processes
+      if sum_category_processes > num_processes:
+        raise ValueError(f'The sum of dedicated category number of process ({sum_category_processes}) is more than num_processes ({num_processes})')
+    
+    self._num_processes = num_processes
+    self._dedicated_categories = dedicated_categories
     self._manager = multiprocessing.Manager()
     self._worker_number_lock = self._manager.Lock()
     self._worker_number_value = self._manager.Value(int, 1)
-    self._num_processes = num_processes
-    self._pool = multiprocessing.Pool(self._num_processes,
-                                      initializer = self._worker_initializer,
-                                      initargs = ( self._worker_number_lock, self._worker_number_value ))
+    self._pools = {}
+    count = self._num_processes
+    if dedicated_categories:
+      for category, config in dedicated_categories.items():
+        config = check.check_bprocess_dedicated_category_config(config)
+        self._pools[category] = multiprocessing.Pool(config.num_processes,
+                                                     initializer = self._worker_initializer,
+                                                     initargs = ( self._worker_number_lock, self._worker_number_value, config.nice ))
+        count = count - config.num_processes
+        assert count >= 0
+    if count > 0:
+      self._pools['__main'] = multiprocessing.Pool(count,
+                                                   initializer = self._worker_initializer,
+                                                   initargs = ( self._worker_number_lock, self._worker_number_value, None ))
     self._result_queue = self._manager.Queue()
     self._lock = self._manager.Lock()
     self._waiting_queue = bprocess_pool_queue()
     self._in_progress_queue = bprocess_pool_queue()
     self._category_limits = {}
 
+  @classmethod
+  def _check_dedicated_categories(clazz, d):
+    if not d:
+      return None
+    result = {}
+    for category, v in d.items():
+      check.check_string(category)
+      config = check.check_bprocess_dedicated_category_config(v)
+      result[category] = config
+    return result
+  
   @property
   def num_processes(self):
     return self._num_processes
@@ -48,22 +83,34 @@ class bprocess_pool(object):
     return self._result_queue
 
   @classmethod
-  def _worker_initializer(clazz, worker_number_lock, worker_number_value):
+  def _worker_initializer(clazz, worker_number_lock, worker_number_value, nice):
     with worker_number_lock as lock:
       worker_number = worker_number_value.value
       worker_number_value.value += 1
     worker_name = f'bprocess_worker_{worker_number}'
     bprocess_threading.set_current_process_name(worker_name)
     process_name = bprocess_threading.current_process_name()
+    if nice != None:
+      old_nice = os.nice(0)
+      new_nice = os.nice(nice)
+      clazz._log.log_i(f'{worker_name}: changed nice from {old_nice} to {new_nice}')
   
   def close(self):
-    if not self._pool:
+    if not self._pools:
       return
-    self._pool.terminate()
-    self._pool.join()
+    for _, pool in self._pools.items():
+      pool.terminate()
+      pool.join()
+
+  def _pool_for_category(self, category):
+    target_category = '__main'
+    if self._dedicated_categories and category in self._dedicated_categories:
+      target_category = category
+    # FIXME: its possible for there not to be a main category
+    assert target_category in self._pools
+    return self._pools[target_category]
     
   _task_id = 1
-
   def add_task(self, function, callback = None, progress_callback = None, config = None, args = None):
     check.check_callable(function)
     check.check_callable(callback, allow_none = True)
@@ -88,13 +135,13 @@ class bprocess_pool(object):
       task_id = self._task_id
       self._task_id += 1
       item = bprocess_pool_item(task_id,
-                             add_time,
-                             config,
-                             function,
-                             args,
-                             callback,
-                             progress_callback,
-                             cancelled)
+                                add_time,
+                                config,
+                                function,
+                                args,
+                                callback,
+                                progress_callback,
+                                cancelled)
       self._waiting_queue.add(item)
     self._log.log_d(f'add: calling pump for task_id={task_id}')
     self._pump()
@@ -127,10 +174,11 @@ class bprocess_pool(object):
             self._result_queue,
             item.cancelled,
           )
-          self._pool.apply_async(self._function,
-                                 args = args,
-                                 callback = self._callback,
-                                 error_callback = self._error_callback)
+          pool = self._pool_for_category(category)
+          pool.apply_async(self._function,
+                           args = args,
+                           callback = self._callback,
+                           error_callback = self._error_callback)
             
   @classmethod
   def _function(clazz, task_id, function, add_time, debug, args, progress_queue, cancelled):

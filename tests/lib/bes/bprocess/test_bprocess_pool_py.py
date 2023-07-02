@@ -24,7 +24,7 @@ class test_bprocess_pool_py(unit_test):
   def _function(clazz, context, args):
     clazz._log.log_d(f'_function: task_id={context.task_id} args={args}')
     result_error = args.get('__f_result_error', None)
-    sleep_time_ms = args.get('__f_sleet_time_ms', None)
+    sleep_time_ms = args.get('__f_sleep_time_ms', None)
     if sleep_time_ms != None:
       sleep_time = (float(sleep_time_ms) / 1000.0) * 1.1
       time.sleep(sleep_time)
@@ -169,28 +169,28 @@ class test_bprocess_pool_py(unit_test):
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 1, 'fruit': 'kiwi', 'color': 'green' },
-                                      '__f_sleet_time_ms': sleep_time_ms,
+                                      '__f_sleep_time_ms': sleep_time_ms,
                                     }))
     task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 2, 'fruit': 'kiwi', 'color': 'green' },
-                                      '__f_sleet_time_ms': sleep_time_ms,
+                                      '__f_sleep_time_ms': sleep_time_ms,
                                     }))
     task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 3, 'fruit': 'kiwi', 'color': 'green' },
-                                      '__f_sleet_time_ms': sleep_time_ms,
+                                      '__f_sleep_time_ms': sleep_time_ms,
                                     }))
     task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 4, 'fruit': 'kiwi', 'color': 'green' },
-                                      '__f_sleet_time_ms': sleep_time_ms,
+                                      '__f_sleep_time_ms': sleep_time_ms,
                                     }))
 
     tester.start()
@@ -219,28 +219,28 @@ class test_bprocess_pool_py(unit_test):
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 1, 'fruit': 'kiwi', 'color': 'green' },
-                                      '__f_sleet_time_ms': sleep_time_ms,
+                                      '__f_sleep_time_ms': sleep_time_ms,
                                     }))
     task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 2, 'fruit': 'kiwi', 'color': 'green' },
-                                      '__f_sleet_time_ms': sleep_time_ms,
+                                      '__f_sleep_time_ms': sleep_time_ms,
                                     }))
     task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'low', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 3, 'fruit': 'kiwi', 'color': 'green' },
-                                      '__f_sleet_time_ms': sleep_time_ms,
+                                      '__f_sleep_time_ms': sleep_time_ms,
                                     }))
     task_ids.append(tester.add_task(self._function,
                                     callback = lambda r: tester.on_callback(r),
                                     config = ( 'kiwi', 'high', 1, self.DEBUG ),
                                     args = {
                                       '__f_result_data': { 'num': 4, 'fruit': 'kiwi', 'color': 'green' },
-                                      '__f_sleet_time_ms': sleep_time_ms,
+                                      '__f_sleep_time_ms': sleep_time_ms,
                                     }))
 
     tester.start()
@@ -317,14 +317,14 @@ class test_bprocess_pool_py(unit_test):
                                config = ('kiwi', 'low', 1, self.DEBUG),
                                args = {
                                  '__f_result_data': { 'num': 1, 'fruit': 'kiwi' },
-                                 '__f_sleet_time_ms': 500,
+                                 '__f_sleep_time_ms': 500,
                                })
     task_id2 = tester.add_task(self._function,
                                callback = lambda r: tester.on_callback(r),
                                config = ('kiwi', 'low', 1, self.DEBUG),
                                args = {
                                  '__f_result_data': { 'num': 1, 'fruit': 'lemon' },
-                                 '__f_sleet_time_ms': 0,
+                                 '__f_sleep_time_ms': 0,
                                })
     
     def _cancel_thread_main():
@@ -370,7 +370,7 @@ class test_bprocess_pool_py(unit_test):
                                config = ('kiwi', 'low', 1, self.DEBUG),
                                args = {
                                  '__f_result_data': { 'num': 1, 'fruit': 'kiwi' },
-                                 '__f_sleet_time_ms': 500,
+                                 '__f_sleep_time_ms': 500,
                                })
     
     task_id2 = tester.add_task(self._function,
@@ -378,7 +378,7 @@ class test_bprocess_pool_py(unit_test):
                                config = ('kiwi', 'low', 1, self.DEBUG),
                                args = {
                                  '__f_result_data': { 'num': 1, 'fruit': 'lemon' },
-                                 '__f_sleet_time_ms': 0,
+                                 '__f_sleep_time_ms': 0,
                                })
 
     def _cancel_thread_main():
@@ -406,6 +406,47 @@ class test_bprocess_pool_py(unit_test):
     self.assertEqual( 'success', r.state )
     self.assertEqual( { 'num': 1, 'fruit': 'lemon' }, r.data )
     self.assertEqual( None, r.error )
+
+  @classmethod
+  def _function_many_tasks(clazz, context, args):
+    clazz._log.log_d(f'_function_many_tasks: task_id={context.task_id} args={args}')
+    sleep_time_ms = args.get('__f_sleep_time_ms', None)
+    time.sleep(sleep_time_ms)
+    return {}
+  
+    total = 10
+    for i in range(1, total + 1):
+      time.sleep(0.100)
+      clazz._log.log_d(f'_function_with_cancel: i={i}')
+      context.raise_cancelled_if_needed(f'cancelled')
+    clazz._log.log_d(f'_function_with_cancel: done')
+    return {}
+    
+  def xtest_add_and_cancel_many_tasks(self):
+    tester = bprocess_pool_tester_py(8)
+
+    task_ids = []
+    for i in range(0, 1000):
+      task_id = tester.add_task(self._function_many_tasks,
+                                callback = lambda r: tester.on_callback(r),
+                                config = ('kiwi', 'low', 1, self.DEBUG),
+                                args = {
+                                  '__f_result_data': { 'num': i, 'fruit': 'kiwi' },
+                                  '__f_sleep_time_ms': 10,
+                                })
+      task_ids.append(task_id)
+    def _cancel_thread_main():
+      time.sleep(0.250)
+      for task_id in task_ids:
+        tester.pool.cancel(task_id)
+      return 0
+    threading.Thread(target = _cancel_thread_main).start()
+    
+    tester.start()
+    results = tester.results()
+    tester.stop()
+
+    self.assertEqual( len(task_ids), len(results) )
     
 if __name__ == '__main__':
   unit_test.main()
