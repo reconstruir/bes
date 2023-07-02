@@ -178,5 +178,18 @@ class parsed_url(namedtuple('parsed_url', 'scheme, netloc, path, params, query, 
       'scheme': purl.scheme,
       'netloc': purl.netloc,
     })
+
+  def replace_path(self, new_path):
+    check.check_string(new_path)
+
+    self_ends_in_slash = self.path_parts[-1] == ''
+    new_path_ends_in_slash = new_path.endswith('/')
+    if self_ends_in_slash and not new_path_ends_in_slash:
+      new_path = new_path + '/'
+    if not self_ends_in_slash and new_path_ends_in_slash:
+      new_path = string_util.remove_tail(new_path, '/')
+    return self.clone(mutations = {
+      'path': new_path,
+    })
   
 check.register_class(parsed_url, include_seq = False)

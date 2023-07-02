@@ -62,6 +62,14 @@ class test_parsed_url(unit_test):
     def _t(s):
       return parsed_url.parse(s).query_key_values
     self.assertEqual( [ ( 'a', '6' ), ( 'b', '7' ), ( 'foo', '666' ) ], _t('http://www.example.com/foo.cgi?a=6&b=7&foo=666') )
+
+  def test_replace_path(self):
+    def _t(url, new_path):
+      return str(parsed_url.parse(url).replace_path(new_path))
+    self.assertEqual( 'http://www.example.com/coconut/', _t('http://www.example.com/kiwi/lemon/apple/', 'coconut') )
+    self.assertEqual( 'http://www.example.com/coconut/', _t('http://www.example.com/kiwi/lemon/apple/', 'coconut/') )
+    self.assertEqual( 'http://www.example.com/coconut', _t('http://www.example.com/kiwi/lemon/apple', 'coconut') )
+    self.assertEqual( 'http://www.example.com/coconut', _t('http://www.example.com/kiwi/lemon/apple', 'coconut/') )
     
 if __name__ == '__main__':
   unit_test.main()
