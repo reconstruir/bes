@@ -12,7 +12,7 @@ from .pip_error import pip_error
 class pip_project_options(cli_options, data_output_options_mixin):
 
   def __init__(self, **kargs):
-    super(pip_project_options, self).__init__(**kargs)
+    super().__init__(**kargs)
 
   @classmethod
   #@abstractmethod
@@ -27,6 +27,7 @@ class pip_project_options(cli_options, data_output_options_mixin):
       'python_version': None,
       'root_dir': None,
       'verbose': False,
+      'limit_num_items': None,
     }
   
   @classmethod
@@ -41,6 +42,7 @@ class pip_project_options(cli_options, data_output_options_mixin):
     return {
       'verbose': bool,
       'debug': bool,
+      'limit_num_items': int,
     }
 
   @classmethod
@@ -74,6 +76,7 @@ class pip_project_options(cli_options, data_output_options_mixin):
     check.check_string(self.python_exe, allow_none = True)
     check.check_string(self.output_filename, allow_none = True)
     check.check_data_output_style(self.output_style, allow_none = True)
+    check.check_int(self.limit_num_items, allow_none = True)
 
   def resolve_python_exe(self):
     if self.python_exe:

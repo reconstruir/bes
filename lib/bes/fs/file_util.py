@@ -183,12 +183,12 @@ class file_util(object):
     return result
 
   @classmethod
-  def rename(clazz, src, dst):
-    d = path.dirname(dst)
-    if d:
-      clazz.mkdir(path.dirname(dst))
-    shutil.move(src, dst)
-
+  def rename(clazz, src, dst, sync = False):
+    clazz.ensure_file_dir(dst)
+    clazz._cross_device_safe_rename(src, dst)
+    if sync:
+      filesystem.sync()
+    
   @classmethod
   def copy(clazz, src, dst, use_hard_link = False):
     if src == dst:

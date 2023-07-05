@@ -76,6 +76,9 @@ class pip_project_cli_args(object):
                    dest = 'output_style',
                    choices = data_output_style.values,
                    help = 'Output style [ TABLE ]')
+    p.add_argument('--limit', action = 'store', default = None,
+                   dest = 'limit_num_items',
+                   help = 'Limit the number of response items shown [ None ]')
      
   def _command_pip_project(self, command, *args, **kargs):
     from .pip_project_cli_handler import pip_project_cli_handler

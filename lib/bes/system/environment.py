@@ -31,6 +31,12 @@ class environment(environment_base):
   def home_dir(clazz):
     'Return the current users home dir.'
     return clazz._impl_class.home_dir()
+
+  @classmethod
+  #@abstractmethod
+  def username(clazz):
+    'Return the current users username.'
+    return clazz._impl_class.username()
   
   @classmethod
   #@abstractmethod

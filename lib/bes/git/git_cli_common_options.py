@@ -9,7 +9,7 @@ from .git_error import git_error
 class git_cli_common_options(cli_options, data_output_options_mixin):
 
   def __init__(self, **kargs):
-    super(git_cli_common_options, self).__init__(**kargs)
+    super().__init__(**kargs)
 
   @classmethod
   #@abstractmethod
