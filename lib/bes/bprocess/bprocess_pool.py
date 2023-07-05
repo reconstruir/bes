@@ -50,13 +50,13 @@ class bprocess_pool(object):
         config = check.check_bprocess_dedicated_category_config(config)
         self._pools[category] = multiprocessing.Pool(config.num_processes,
                                                      initializer = self._worker_initializer,
-                                                     initargs = ( self._worker_number_lock, self._worker_number_value, config.nice ))
+                                                     initargs = ( self._worker_number_lock, self._worker_number_value, config.nice, config.initializer ))
         count = count - config.num_processes
         assert count >= 0
     if count > 0:
       self._pools['__main'] = multiprocessing.Pool(count,
                                                    initializer = self._worker_initializer,
-                                                   initargs = ( self._worker_number_lock, self._worker_number_value, None ))
+                                                   initargs = ( self._worker_number_lock, self._worker_number_value, None, None ))
     self._result_queue = self._manager.Queue()
     self._lock = self._manager.Lock()
     self._waiting_queue = bprocess_pool_queue()
@@ -83,7 +83,7 @@ class bprocess_pool(object):
     return self._result_queue
 
   @classmethod
-  def _worker_initializer(clazz, worker_number_lock, worker_number_value, nice):
+  def _worker_initializer(clazz, worker_number_lock, worker_number_value, nice, initializer):
     with worker_number_lock as lock:
       worker_number = worker_number_value.value
       worker_number_value.value += 1
@@ -94,6 +94,8 @@ class bprocess_pool(object):
       old_nice = os.nice(0)
       new_nice = os.nice(nice)
       clazz._log.log_i(f'{worker_name}: changed nice from {old_nice} to {new_nice}')
+    if initializer:
+      initializer()
   
   def close(self):
     if not self._pools:
