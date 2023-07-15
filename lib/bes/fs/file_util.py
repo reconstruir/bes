@@ -395,4 +395,9 @@ class file_util(object):
   @classmethod
   def touch(clazz, filename):
     'Update the modification date of filename to be now'
+    if not path.exists(filename):
+      clazz.ensure_file_dir(filename)
+      with open(filename, 'w') as f:
+        f.flush()
+        f.close()
     clazz.set_modification_date(filename, datetime.now())
