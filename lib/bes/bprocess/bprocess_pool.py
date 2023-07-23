@@ -84,6 +84,8 @@ class bprocess_pool(object):
 
   @classmethod
   def _worker_initializer(clazz, worker_number_lock, worker_number_value, nice, initializer):
+    #import warnings
+    #warnings.filterwarnings('ignore', category = DeprecationWarning)
     with worker_number_lock as lock:
       worker_number = worker_number_value.value
       worker_number_value.value += 1
@@ -96,12 +98,21 @@ class bprocess_pool(object):
       clazz._log.log_i(f'{worker_name}: changed nice from {old_nice} to {new_nice}')
     if initializer:
       initializer()
-  
+
   def close(self):
+    self._terminate()
+    self.join()
+
+  def _terminate(self):
     if not self._pools:
       return
     for _, pool in self._pools.items():
       pool.terminate()
+      
+  def join(self):
+    if not self._pools:
+      return
+    for _, pool in self._pools.items():
       pool.join()
 
   def _pool_for_category(self, category):
