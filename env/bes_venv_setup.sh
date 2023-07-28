@@ -8,7 +8,10 @@ function main()
   local _this_dir="$(_bes_venv_setup_this_dir)"
   local _root_dir="$(bes_path_abs_dir ${_this_dir}/..)"
   local _best="${_root_dir}/bin/best.py"
-  local _python_exe="$(bes_python_find_default)"
+  local _python_exe="$(which python3.11)"
+  if [ -z "${_python_exe}" ]; then
+    _python_exe="$(bes_python_find_default)"
+  fi
   local _python_version=$(bes_python_exe_version "${_python_exe}")
   
   ${_python_exe} ${_best} pip_project install_requirements \
