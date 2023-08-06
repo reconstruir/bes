@@ -48,15 +48,29 @@ class bprocess_pool(object):
     if dedicated_categories:
       for category, config in dedicated_categories.items():
         config = check.check_bprocess_dedicated_category_config(config)
+        initargs = (
+          self._worker_number_lock,
+          self._worker_number_value,
+          config.nice,
+          config.initializer,
+          config.initializer_args
+        )
         self._pools[category] = multiprocessing.Pool(config.num_processes,
                                                      initializer = self._worker_initializer,
-                                                     initargs = ( self._worker_number_lock, self._worker_number_value, config.nice, config.initializer ))
+                                                     initargs = initargs)
         count = count - config.num_processes
         assert count >= 0
     if count > 0:
+      initargs = (
+        self._worker_number_lock,
+        self._worker_number_value,
+        None,
+        None,
+        None
+      )
       self._pools['__main'] = multiprocessing.Pool(count,
                                                    initializer = self._worker_initializer,
-                                                   initargs = ( self._worker_number_lock, self._worker_number_value, None, None ))
+                                                     initargs = initargs)
     self._result_queue = self._manager.Queue()
     self._lock = self._manager.Lock()
     self._waiting_queue = bprocess_pool_queue()
@@ -83,9 +97,7 @@ class bprocess_pool(object):
     return self._result_queue
 
   @classmethod
-  def _worker_initializer(clazz, worker_number_lock, worker_number_value, nice, initializer):
-    #import warnings
-    #warnings.filterwarnings('ignore', category = DeprecationWarning)
+  def _worker_initializer(clazz, worker_number_lock, worker_number_value, nice, initializer, initializer_args):
     with worker_number_lock as lock:
       worker_number = worker_number_value.value
       worker_number_value.value += 1
@@ -97,7 +109,7 @@ class bprocess_pool(object):
       new_nice = os.nice(nice)
       clazz._log.log_i(f'{worker_name}: changed nice from {old_nice} to {new_nice}')
     if initializer:
-      initializer()
+      initializer(*(initializer_args or ()))
 
   def close(self):
     self._terminate()

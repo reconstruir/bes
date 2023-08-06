@@ -7,14 +7,15 @@ from ..common.tuple_util import tuple_util
 
 from .bprocess_priority import bprocess_priority
 
-class bprocess_dedicated_category_config(namedtuple('bprocess_dedicated_category_config', 'num_processes, nice, initializer')):
+class bprocess_dedicated_category_config(namedtuple('bprocess_dedicated_category_config', 'num_processes, nice, initializer, initializer_args')):
   
-  def __new__(clazz, num_processes, nice, initializer):
+  def __new__(clazz, num_processes, nice = None, initializer = None, initializer_args = None):
     check.check_int(num_processes)
     check.check_int(nice, allow_none = True)
     check.check_callable(initializer, allow_none = True)
+    check.check_tuple(initializer_args, allow_none = True)
 
-    return clazz.__bases__[0].__new__(clazz, num_processes, nice, initializer)
+    return clazz.__bases__[0].__new__(clazz, num_processes, nice, initializer, initializer_args)
 
   @classmethod
   def _check_cast_func(clazz, obj):
