@@ -233,7 +233,7 @@ class bf_entry(object):
 
   @property
   def mtime(self):
-    return self.stat.mtime
+    return self.stat.st_mtime
 
   @property
   def mode(self):
