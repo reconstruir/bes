@@ -15,6 +15,10 @@ class test_url_util(unit_test):
     self.assertEqual( 'http://www.example.com/foo.cgi', f('http://www.example.com/foo.cgi') )
     self.assertEqual( 'http://www.example.com/', f('http://www.example.com') )
     self.assertEqual( 'http://www.example.com/', f('http://www.example.com/') )
+
+  def test_make_file_url(self):
+    f = url_util.make_file_url
+    self.assertEqual( 'file:///foo/bar/kiwi.txt', f('/foo/bar/kiwi.txt') )
     
 if __name__ == '__main__':
   unit_test.main()

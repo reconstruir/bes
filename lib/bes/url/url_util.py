@@ -12,6 +12,7 @@ from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
 
 from urllib import parse as urllib_parse
+from urllib import request as urllib_request
 
 class url_util(object):
   'Url util'
@@ -183,3 +184,10 @@ class url_util(object):
     l[4] = ''
     return urllib_parse.urlunparse(urllib_parse.ParseResult(*l))
   
+  @classmethod
+  def make_file_url(clazz, filename):
+    check.check_string(filename)
+    
+    if not path.isabs(filename):
+      filename = path.abspath(filename)
+    return 'file://' + urllib_request.pathname2url(filename)
