@@ -36,7 +36,9 @@ class bprocess_result_collector_i(with_metaclass(ABCMeta, object)):
       item = self._queue.get()
       task_id = item.task_id if item else 'None'
       self._log.log_d(f'_result_collector_thread_main:{i} got item task_id={task_id} - {type(item)}')
-      if self._handle_item(item):
+      should_stop = self._handle_item(item)
+      item = self._queue.task_done()
+      if should_stop:
         break
       i += 1
 
