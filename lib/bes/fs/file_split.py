@@ -17,6 +17,7 @@ from .file_resolver_options import file_resolver_options
 from .file_split_error import file_split_error
 from .file_split_options import file_split_options
 from .file_util import file_util
+from .file_match import file_match
 from .filename_util import filename_util
 from .temp_file import temp_file
 
@@ -222,3 +223,9 @@ class file_split(object):
               break
             fout.write(data)
   
+  @classmethod
+  def is_split_filename(clazz, filename):
+    check.check_string(filename)
+    
+    pattern = '*.[0-9][0-9][0-9]'
+    return file_match.match_fnmatch(filename, pattern, basename = True) != []

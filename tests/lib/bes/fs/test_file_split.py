@@ -283,7 +283,7 @@ class test_file_split(unit_test, unit_test_media_files):
     file_split.unsplit_files(unsplit_tmp_archive, files)
     self.assertEqual( file_util.checksum('sha256', tmp_archive), file_util.checksum('sha256', unsplit_tmp_archive) )
     file_util.remove(files)
-    
+
   @classmethod
   def _make_content(clazz, size):
     chars = [ c for c in string.ascii_letters ]
@@ -312,6 +312,12 @@ class test_file_split(unit_test, unit_test_media_files):
       files = files or [ test.src_dir ]
       test.result = file_split.find_and_unsplit(files, options = options)
     return test
-    
+
+  def test_is_split_filename(self):
+    self.assertEqual( True, file_split.is_split_filename('kiwi.001') )
+    self.assertEqual( False, file_split.is_split_filename('kiwi.jpg') )
+    self.assertEqual( True, file_split.is_split_filename('/tmp/kiwi.001') )
+    self.assertEqual( False, file_split.is_split_filename('/tmp/kiwi.jpg') )
+  
 if __name__ == '__main__':
   unit_test.main()
