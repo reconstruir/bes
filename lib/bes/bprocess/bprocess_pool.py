@@ -181,30 +181,35 @@ class bprocess_pool(object):
     self._pump_iteration += 1
     label = f'_pump:{self._pump_iteration}'
     for category, limit in self._category_limits.items():
-      #waiting_count = self._waiting_queue.category_count(category)
-      in_progress_count = self._in_progress_queue.category_count(category)
-      self._log.log_d(f'{label}: category={category} limit={limit} in_progress_count={in_progress_count}')
-      if in_progress_count < limit:
-        item = self._waiting_queue.remove_by_category(category)
-        if item:
-          self._log.log_d(f'{label}: got item task_id={item.task_id}')
-          self._in_progress_queue.add(item)
-          self._log.log_d(f'{label}: calling apply_async for task_id={item.task_id}')
-          args = (
-            item.task_id,
-            item.function,
-            item.add_time,
-            item.config.debug,
-            item.args,
-            self._result_queue,
-            item.cancelled,
-          )
-          pool = self._pool_for_category(category)
-          pool.apply_async(self._function,
-                           args = args,
-                           callback = self._callback,
-                           error_callback = self._error_callback)
-            
+      self._pump_item_i(label, category, limit)
+
+  def _pump_item_i(self, label, category, limit):
+    in_progress_count = self._in_progress_queue.category_count(category)
+    self._log.log_d(f'{label}: category={category} limit={limit} in_progress_count={in_progress_count}')
+    if in_progress_count >= limit:
+      return False
+    item = self._waiting_queue.remove_by_category(category)
+    if not item:
+      return False
+    self._log.log_d(f'{label}: got item task_id={item.task_id}')
+    self._in_progress_queue.add(item)
+    self._log.log_d(f'{label}: calling apply_async for task_id={item.task_id}')
+    args = (
+      item.task_id,
+      item.function,
+      item.add_time,
+      item.config.debug,
+      item.args,
+      self._result_queue,
+      item.cancelled,
+    )
+    pool = self._pool_for_category(category)
+    pool.apply_async(self._function,
+                     args = args,
+                     callback = self._callback,
+                     error_callback = self._error_callback)
+    return True
+          
   @classmethod
   def _function(clazz, task_id, function, add_time, debug, args, progress_queue, cancelled):
     clazz._log.log_d(f'_function: task_id={task_id} function={function}')
