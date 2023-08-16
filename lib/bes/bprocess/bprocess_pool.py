@@ -181,7 +181,8 @@ class bprocess_pool(object):
     self._pump_iteration += 1
     label = f'_pump:{self._pump_iteration}'
     for category, limit in self._category_limits.items():
-      self._pump_item_i(label, category, limit)
+      while self._pump_item_i(label, category, limit):
+        pass
 
   def _pump_item_i(self, label, category, limit):
     in_progress_count = self._in_progress_queue.category_count(category)
