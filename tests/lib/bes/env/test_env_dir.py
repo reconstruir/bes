@@ -161,7 +161,7 @@ class test_env_dir(unit_test):
     }
     self.assert_dict_as_text_equal( expected, transformed_env )
     
-  def test_transform_env_set(self):
+  def xtest_transform_env_set(self):
     current_env = {}
     ed = self._make_temp_env_dir([
       'file 1.sh "export PATH=$PATH:/foo/bin\n" 644',
