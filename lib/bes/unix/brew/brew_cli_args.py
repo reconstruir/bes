@@ -37,10 +37,6 @@ class brew_cli_args(object):
     p.add_argument('package_name', action = 'store', default = None,
                    help = 'The package to print files for []')
     
-    # available
-    p = subparser.add_parser('available', help = 'Print packages available to install.')
-    self.__brew_add_common_args(p)
-
     # install
     p = subparser.add_parser('install', help = 'Install a package.')
     self.__brew_add_common_args(p)
