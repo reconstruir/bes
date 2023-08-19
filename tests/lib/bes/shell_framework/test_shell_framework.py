@@ -95,10 +95,11 @@ bes_env_path_append PATH /foo/bin
     file_util.save(my_script_path, content = my_script_content, mode = 0o755)
     
     ed = env_dir(test.tmp_dir, files = [ 'my_script.sh' ])
+    flat_system_path = path.pathsep.join(os_env.DEFAULT_SYSTEM_PATH)
     expected = {
-      'PATH': '%s:/foo/bin' % (os_env.DEFAULT_SYSTEM_PATH),
+      'PATH': f'{flat_system_path}:/foo/bin',
     }
-    actual = ed.transform_env({ 'PATH': os_env.DEFAULT_SYSTEM_PATH })
+    actual = ed.transform_env({ 'PATH': flat_system_path })
     self.assertEqual( expected, actual )
 
   @classmethod
