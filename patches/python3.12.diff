@@ -1,0 +1,21 @@
+diff --git a/bin/bes_test.py b/bin/bes_test.py
+index 364b5132..0a6ebac5 100755
+--- a/bin/bes_test.py
++++ b/bin/bes_test.py
+@@ -199,7 +199,7 @@ def main():
+   args = parser.parse_args()
+ 
+   args.python = _resolve_python_exe_list(args.python)
+-
++  
+   if not args.python:
+     python_exe = python.find_python_exe()
+     if python_exe:
+@@ -632,6 +632,7 @@ def _test_execute(python_exe, test_map, filename, tests, options, index, total_f
+     _LOG.log_d(f'cmd={" ".join(cmd)}')
+     #print(f'cmd={" ".join(cmd)}')
+     env = None
++    cmd[0] = '/Users/test1/cpython/3.12.0rc1/bin/python3.12'
+     process = subprocess.Popen(' '.join(cmd),
+                                stdout = subprocess.PIPE,
+                                stderr = subprocess.STDOUT,
