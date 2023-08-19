@@ -1,0 +1,25 @@
+# -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+from collections import namedtuple
+
+from ..system.check import check
+from ..common.tuple_util import tuple_util
+
+from .btask_priority import btask_priority
+
+class btask_dedicated_category_config(namedtuple('btask_dedicated_category_config', 'num_processes, nice, initializer, initializer_args')):
+  
+  def __new__(clazz, num_processes, nice = None, initializer = None, initializer_args = None):
+    check.check_int(num_processes)
+    check.check_int(nice, allow_none = True)
+    check.check_callable(initializer, allow_none = True)
+    check.check_tuple(initializer_args, allow_none = True)
+
+    return clazz.__bases__[0].__new__(clazz, num_processes, nice, initializer, initializer_args)
+
+  @classmethod
+  def _check_cast_func(clazz, obj):
+    return tuple_util.cast_seq_to_namedtuple(clazz, obj)
+  
+check.register_class(btask_dedicated_category_config, include_seq = False, cast_func = btask_dedicated_category_config._check_cast_func)
+  
