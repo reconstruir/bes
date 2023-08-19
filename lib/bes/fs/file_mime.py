@@ -21,6 +21,7 @@ class file_mime(object):
     'application/x-msdownload',
     'application/x-pie-executable',
     'application/x-sharedlib', # -pie vs -no-pie issue in gcc 7.3
+    'application/java', # needed because java and nextstep used "0xcafebabe" for binary magic
   ])
 
   @classmethod
