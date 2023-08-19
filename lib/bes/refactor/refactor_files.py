@@ -17,6 +17,7 @@ from bes.fs.filename_util import filename_util
 from bes.system.check import check
 from bes.system.log import logger
 from bes.system.python import python
+from bes.text.text_detect import text_detect
 
 from .refactor_error import refactor_error
 from .refactor_item import refactor_item
@@ -30,9 +31,9 @@ class refactor_files(object):
   def resolve_python_files(clazz, files):
     'Resolve python files.'
     check.check_string_seq(files)
-    
+
     def _match_python_files(filename):
-      if not file_mime.is_text(filename):
+      if not text_detect.file_is_text(filename):
         return False
       if python.is_python_script(filename):
         return True
@@ -53,7 +54,7 @@ class refactor_files(object):
         return False
       if file_util.is_empty(filename):
         return False
-      return file_mime.is_text(filename)
+      return text_detect.file_is_text(filename)
     resolver_options = file_resolver_options(recursive = True,
                                              match_function = _match_text_files,
                                              match_basename = False)

@@ -11,6 +11,9 @@ class test_text_detect(unit_test, unit_test_media_files):
   def test_file_is_text_true(self):
     self.assertTrue( text_detect.file_is_text(self.make_temp_file(content = 'this is text\n', suffix = '.txt')) )
 
+  def test_file_is_text_false_binary(self):
+    self.assertFalse( text_detect.file_is_text(self.make_temp_file(content = b'\x00\xde\xad\xbe\xef\x00', suffix = '.txt')) )
+    
   def test_file_is_text_false(self):
     self.assertFalse( text_detect.file_is_text(self.png_file) )
     self.assertFalse( text_detect.file_is_text(self.windows_exe_file) )
