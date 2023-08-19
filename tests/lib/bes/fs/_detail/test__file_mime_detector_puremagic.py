@@ -16,7 +16,7 @@ class test__file_mime_type_detector_puremagic(make_test_case(_file_mime_type_det
 
   def test_text_plain(self):
     tmp = self.make_temp_file(content = 'this is text\n', suffix = '.txt')
-    self.assertEqual( None, _file_mime_type_detector_puremagic.detect_mime_type(tmp) )
+    self.assertEqual( 'text/plain', _file_mime_type_detector_puremagic.detect_mime_type(tmp) )
       
 if __name__ == '__main__':
   unit_test.main()
