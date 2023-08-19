@@ -59,7 +59,7 @@ class execute_result(namedtuple('execute_result', 'stdout_bytes, stderr_bytes, e
     raise ex
 
   def print_error(self):
-    sys.stdout.write('  command: {}'.format(self._command_to_string()))
+    sys.stdout.write('  command: {}\n'.format(self._command_to_string()))
     sys.stdout.write('exit_code: {}\n'.format(self.exit_code))
     sys.stdout.write('   stderr: {}\n'.format(self.stderr))
     sys.stdout.write('   stdout: {}\n'.format(self.stdout))
