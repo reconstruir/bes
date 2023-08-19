@@ -70,7 +70,7 @@ class bprocess_pool(object):
       )
       self._pools['__main'] = multiprocessing.Pool(count,
                                                    initializer = self._worker_initializer,
-                                                     initargs = initargs)
+                                                   initargs = initargs)
     self._result_queue = self._manager.Queue()
     self._lock = self._manager.Lock()
     self._waiting_queue = bprocess_pool_queue()
@@ -128,10 +128,10 @@ class bprocess_pool(object):
       pool.join()
 
   def _pool_for_category(self, category):
-    target_category = '__main'
     if self._dedicated_categories and category in self._dedicated_categories:
       target_category = category
-    # FIXME: its possible for there not to be a main category
+    else:
+      target_category = '__main'
     assert target_category in self._pools
     return self._pools[target_category]
     

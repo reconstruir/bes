@@ -2,6 +2,8 @@
 
 import threading
 import time
+import multiprocessing
+import queue
 
 from bes.system.log import logger
 from bes.system.check import check
@@ -33,18 +35,27 @@ class bprocess_result_collector_i(with_metaclass(ABCMeta, object)):
     i = 0
     while True:
       self._log.log_d(f'_result_collector_thread_main:{i} calling get...')
-      item = self._queue.get()
+      valid, item = self._get_item()
+      if not valid:
+        continue
+      if not item:
+        break
       task_id = item.task_id if item else 'None'
       self._log.log_d(f'_result_collector_thread_main:{i} got item task_id={task_id} - {type(item)}')
-      should_stop = self._handle_item(item)
-      item = self._queue.task_done()
-      if should_stop:
-        break
+      self._handle_item(item)
+      self._queue.task_done()
       i += 1
 
+  def _get_item(self):
+    try:
+      #item = self._queue.get(timeout = 0.001)
+      item = self._queue.get()
+      return True, item
+    except Exception as ex:
+      return False, None
+      
   def _handle_item(self, item):
-    if item == None:
-      return True
+    assert item != None
     if isinstance(item, bprocess_result):
       self.handle_result(item)
     elif isinstance(item, bprocess_progress):
@@ -52,7 +63,6 @@ class bprocess_result_collector_i(with_metaclass(ABCMeta, object)):
       time.sleep(self._progress_sleep_time)
     else:
       raise bprocess_error(f'got unexpected item from queue: "{item}" - {type(item)}')
-      return False
   
   def start(self):
     if self._thread:
