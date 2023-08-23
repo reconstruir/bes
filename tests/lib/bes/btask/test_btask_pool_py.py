@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import copy
 import time
 from datetime import timedelta
 import threading
 
 from bes.system.check import check
-from bes.system.execute import execute
-from bes.system.execute_result import execute_result
 from bes.system.log import logger
 from bes.testing.unit_test import unit_test
 
