@@ -10,9 +10,14 @@ import time
 from bes.system.log import logger
 from bes.system.check import check
 
+from .btask_cancelled_error import btask_cancelled_error
+from .btask_function_context import btask_function_context
+from .btask_pool_item import btask_pool_item
 from .btask_process_data import btask_process_data
+from .btask_result import btask_result
+from .btask_result_metadata import btask_result_metadata
+from .btask_result_state import btask_result_state
 from .btask_threading import btask_threading
-from .btask_task import btask_task
 
 class btask_process(object):
 
@@ -53,10 +58,10 @@ class btask_process(object):
     while True:
       task = input_queue.get()
       if task == None:
-        clazz._log.log_e(f'{name}: unexpected task type instead of btask_task: "{task}" - {type(task)}')
+        clazz._log.log_e(f'{name}: got termination sentinel.')
         break
-      if not isinstance(task, btask_task):
-        clazz._log.log_e(f'{name}: unexpected task type instead of btask_task: "{task}" - {type(task)}')
+      if not isinstance(task, btask_pool_item):
+        clazz._log.log_e(f'{name}: unexpected task type instead of btask_pool_item: "{task}" - {type(task)}')
         continue
       clazz._task_handle(name, task, output_queue)
     return 0
@@ -76,12 +81,42 @@ class btask_process(object):
 
   @classmethod
   def _task_handle(clazz, name, task, output_queue):
-    clazz._log.log_d(f'{name}: _task_handle: task={task}')
-    from datetime import datetime
-    import time
-    import os
-#    time.sleep(.250)
-    output_queue.put({ 'foo': datetime.now(), 'pid': os.getpid() })
+    clazz._log.log_d(f'{name}: _task_handle: task_id={task.task_id}')
+
+#  def __new__(clazz, task_id, add_time, config, function, args, callback, progress_callback, cancelled):
+#class btask_function_context(namedtuple('btask_function_context', 'task_id, progress_queue, cancelled_value')):
+    start_time = datetime.now()
+    add_time = start_time
+    error = None
+    result_data = None
+
+    context = btask_function_context(task.task_id, output_queue, task.cancelled_value)
+    debug = False
+    try:
+      result_data = task.function(context, task.args)
+      #clazz._log.log_d(f'{name}: _task_handle:: task_id={task.task_id} data={result_data}')
+      if not check.is_dict(result_data):
+        raise btask_error(f'Function "{function}" should return a dict: "{result_data}" - {type(result_data)}')
+      state = btask_result_state.SUCCESS
+    except Exception as ex:
+      if debug:
+        clazz._log.log_exception(ex)
+      if isinstance(ex, btask_cancelled_error):
+        state = btask_result_state.CANCELLED
+        error = None
+      else:
+        state = btask_result_state.FAILED
+        error = ex
+
+    end_time = datetime.now()
+    clazz._log.log_d(f'{name}: _task_handle:: task_id={task.task_id} state={state}')
+    metadata = btask_result_metadata(btask_threading.current_process_pid(),
+                                     add_time,
+                                     start_time,
+                                     end_time)
+    result = btask_result(task.task_id, state, result_data, metadata, error, task.args)
+        
+    output_queue.put(result)
     
   def start(self):
     if self._process:

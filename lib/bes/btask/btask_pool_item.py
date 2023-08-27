@@ -7,9 +7,9 @@ from bes.system.check import check
 
 from .btask_config import btask_config
 
-class btask_pool_item(namedtuple('btask_pool_item', 'task_id, add_time, config, function, args, callback, progress_callback, cancelled')):
-  
-  def __new__(clazz, task_id, add_time, config, function, args, callback, progress_callback, cancelled):
+class btask_pool_item(namedtuple('btask_pool_item', 'task_id, add_time, config, function, args, callback, progress_callback, cancelled_value')):
+
+  def __new__(clazz, task_id, add_time, config, function, args, callback, progress_callback, cancelled_value):
     check.check_int(task_id)
     check.check_datetime(add_time)
     check.check_btask_config(config)
@@ -26,6 +26,6 @@ class btask_pool_item(namedtuple('btask_pool_item', 'task_id, add_time, config, 
                                       args,
                                       callback,
                                       progress_callback,
-                                      cancelled)
+                                      cancelled_value)
 
 check.register_class(btask_pool_item, include_seq = False)

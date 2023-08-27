@@ -4,6 +4,7 @@
 import copy
 import time
 from datetime import timedelta
+from datetime import datetime
 import threading
 import multiprocessing
 
@@ -19,6 +20,7 @@ from bes.btask.btask_pool_tester_py import btask_pool_tester_py
 from bes.btask.btask_process_data import btask_process_data
 from bes.btask.btask_process import btask_process
 from bes.btask.btask_task import btask_task
+from bes.btask.btask_pool_item import btask_pool_item
 
 class test_btask_process(unit_test):
 
@@ -47,9 +49,10 @@ class test_btask_process(unit_test):
 
   @classmethod
   def _callback(clazz, result):
-    print(f'_callback: result={result}')
+    clazz._log.log_d(f'_callback: result={result}')
   
   def test_process_one_process(self):
+    self._log.log_d(f'test_process_one_process:')
 
     manager = multiprocessing.Manager()
     input_queue = manager.Queue()
@@ -58,14 +61,20 @@ class test_btask_process(unit_test):
     data = btask_process_data('kiwi1', input_queue, output_queue)
     process = btask_process(data)
     process.start()
-    
-    task = btask_task(self._function, self._callback,
-                      config = ('kiwi', 'low', 2, self.DEBUG),
-                      args = {
-                        'number': 42,
-                        'flavor': 'sweet',
-                        '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' },
-                      })
+
+    cancelled_value = manager.Value(bool, False)
+    task = btask_pool_item(42,
+                           datetime.now(),
+                           ( 'kiwi', 'low', 2, self.DEBUG ),
+                           self._function,
+                           {
+                             'number': 42,
+                            'flavor': 'sweet',
+                             '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' },
+                           },
+                           self._callback,
+                           None,
+                           cancelled_value)
     input_queue.put(task)
 
     result = output_queue.get()
@@ -89,13 +98,19 @@ class test_btask_process(unit_test):
       process.start()
 
     for i in range(1, num_tasks + 1):
-      task = btask_task(self._function, self._callback,
-                        config = ('kiwi', 'low', 2, self.DEBUG),
-                        args = {
-                          'number': i,
-                          'flavor': 'sweet',
-                          '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' },
-                        })
+      cancelled_value = manager.Value(bool, False)
+      task = btask_pool_item(42,
+                             datetime.now(),
+                             ( 'kiwi', 'low', 2, self.DEBUG ),
+                             self._function,
+                             {
+                               'number': i,
+                               'flavor': 'sweet',
+                               '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' },
+                             },
+                             self._callback,
+                             None,
+                             cancelled_value)
       input_queue.put(task)
 
     results = []

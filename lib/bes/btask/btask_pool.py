@@ -160,13 +160,13 @@ class btask_pool(object):
       task_id = self._task_id
       self._task_id += 1
       item = btask_pool_item(task_id,
-                                add_time,
-                                config,
-                                function,
-                                args,
-                                callback,
-                                progress_callback,
-                                cancelled)
+                             add_time,
+                             config,
+                             function,
+                             args,
+                             callback,
+                             progress_callback,
+                             cancelled)
       self._waiting_queue.add(item)
     self._log.log_d(f'add: calling pump for task_id={task_id}')
     self._pump()
@@ -202,7 +202,7 @@ class btask_pool(object):
       item.config.debug,
       item.args,
       self._result_queue,
-      item.cancelled,
+      item.cancelled_value,
     )
     pool = self._pool_for_category(category)
     pool.apply_async(self._function,
@@ -303,7 +303,7 @@ class btask_pool(object):
         self._log.log_d(f'cancel: no task {task_id} found in either waiting or in_progress queues')
         return
       self._log.log_d(f'cancel: task {task_id} removed from in_progress queue')
-      in_progress_item.cancelled.value = True
+      in_progress_item.cancelled_value.value = True
 
   def report_progress(self, progress, raise_error = True):
     check.check_btask_progress(progress)
@@ -335,6 +335,6 @@ class btask_pool(object):
         if not raise_error:
           return False
         btask_error(f'No task_id "{task_id}" found to check for interruption')
-      return item.cancelled.value
+      return item.cancelled_value.value
       
 check.register_class(btask_pool, include_seq = False)
