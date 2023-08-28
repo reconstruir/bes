@@ -10,7 +10,6 @@ import threading
 import multiprocessing
 
 from bes.system.check import check
-#from bes.system.execute import execute
 from bes.system.execute_result import execute_result
 from bes.system.log import logger
 from bes.testing.unit_test import unit_test
@@ -20,7 +19,6 @@ from bes.btask.btask_pool_tester_py import btask_pool_tester_py
 
 from bes.btask.btask_process_data import btask_process_data
 from bes.btask.btask_process import btask_process
-from bes.btask.btask_task import btask_task
 from bes.btask.btask_pool_item import btask_pool_item
 
 class test_btask_process(unit_test):
