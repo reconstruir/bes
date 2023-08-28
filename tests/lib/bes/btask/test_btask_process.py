@@ -3,6 +3,7 @@
 
 import copy
 import time
+import os
 from datetime import timedelta
 from datetime import datetime
 import threading
@@ -36,8 +37,9 @@ class test_btask_process(unit_test):
       time.sleep(sleep_time)
     if result_error:
       raise result_error
-    result_data = args.get('__f_result_data', None)
-    return result_data or {}
+    result_data = args.get('__f_result_data', None) or {}
+    result_data['pid'] = os.getpid()
+    return result_data
 
   @classmethod
   def _fix_args(clazz, args):
@@ -69,7 +71,7 @@ class test_btask_process(unit_test):
                            self._function,
                            {
                              'number': 42,
-                            'flavor': 'sweet',
+                             'flavor': 'sweet',
                              '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' },
                            },
                            self._callback,
@@ -99,7 +101,7 @@ class test_btask_process(unit_test):
 
     for i in range(1, num_tasks + 1):
       cancelled_value = manager.Value(bool, False)
-      task = btask_pool_item(42,
+      task = btask_pool_item(42 + i,
                              datetime.now(),
                              ( 'kiwi', 'low', 2, self.DEBUG ),
                              self._function,
@@ -123,6 +125,9 @@ class test_btask_process(unit_test):
 
     for process in processes:
       process.join()
-    
+
+    for result in results:
+      print(result.to_json())
+      
 if __name__ == '__main__':
   unit_test.main()

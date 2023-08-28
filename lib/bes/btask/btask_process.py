@@ -58,7 +58,7 @@ class btask_process(object):
     while True:
       task = input_queue.get()
       if task == None:
-        clazz._log.log_e(f'{name}: got termination sentinel.')
+        clazz._log.log_i(f'{name}: got termination sentinel.')
         break
       if not isinstance(task, btask_pool_item):
         clazz._log.log_e(f'{name}: unexpected task type instead of btask_pool_item: "{task}" - {type(task)}')

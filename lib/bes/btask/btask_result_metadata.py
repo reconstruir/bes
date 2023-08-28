@@ -2,6 +2,7 @@
 
 from collections import namedtuple
 
+from ..common.json_util import json_util
 from ..system.check import check
 from ..property.cached_property import cached_property
 
@@ -17,6 +18,17 @@ class btask_result_metadata(namedtuple('btask_result_metadata', 'pid, add_time, 
 
     return clazz.__bases__[0].__new__(clazz, pid, add_time, start_time, end_time)
 
+  def to_dict(self):
+    return {
+      'pid': self.pid,
+      'add_time': str(self.add_time),
+      'start_time': str(self.start_time),
+      'end_time': str(self.end_time),
+    }
+  
+  def to_json(self):
+    return json_util.to_json(self.to_dict(), indent = 2, sort_keys = True)
+  
   @cached_property
   def duration(self):
     if not self.start_time:

@@ -2,8 +2,9 @@
 
 from collections import namedtuple
 
-from ..system.check import check
+from ..common.json_util import json_util
 from ..common.tuple_util import tuple_util
+from ..system.check import check
 
 from .btask_cancelled_error import btask_cancelled_error
 from .btask_error import btask_error
@@ -30,6 +31,19 @@ class btask_result(namedtuple('btask_result', 'task_id, state, data, metadata, e
 
   def __repr__(self):
     return self.__str__()
+
+  def to_dict(self):
+    return {
+      'task_id': self.task_id,
+      'state': self.state.name,
+      'data': self.data,
+      'metadata': self.metadata.to_dict(),
+      'error': self.error,
+      'args': self.args,
+    }
+  
+  def to_json(self):
+    return json_util.to_json(self.to_dict(), indent = 2, sort_keys = False)
   
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
