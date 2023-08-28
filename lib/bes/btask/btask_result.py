@@ -1,5 +1,6 @@
 # -*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import copy
 from collections import namedtuple
 
 from ..common.json_util import json_util
@@ -20,7 +21,13 @@ class btask_result(namedtuple('btask_result', 'task_id, state, data, metadata, e
     check.check_btask_result_metadata(metadata)
     check.check_dict(args, allow_none = True)
 
-    return clazz.__bases__[0].__new__(clazz, task_id, state, data, metadata, error, args)
+    return clazz.__bases__[0].__new__(clazz,
+                                      task_id,
+                                      state,
+                                      copy.deepcopy(data),
+                                      metadata,
+                                      error,
+                                      copy.deepcopy(args))
 
   def __str__(self):
     if self.data:

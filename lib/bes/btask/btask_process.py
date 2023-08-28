@@ -54,7 +54,7 @@ class btask_process(object):
     initializer(*initializer_args)
 
   @classmethod
-  def _process_main_loop(clazz, name, input_queue, output_queue):
+  def _process_main_loop(clazz, name, input_queue, result_queue):
     while True:
       task = input_queue.get()
       if task == None:
@@ -63,7 +63,7 @@ class btask_process(object):
       if not isinstance(task, btask_pool_item):
         clazz._log.log_e(f'{name}: unexpected task type instead of btask_pool_item: "{task}" - {type(task)}')
         continue
-      clazz._task_handle(name, task, output_queue)
+      clazz._task_handle(name, task, result_queue)
     return 0
     
   @classmethod
@@ -76,11 +76,11 @@ class btask_process(object):
     clazz._process_set_name(name)
     clazz._process_set_nice_level(name, task_data.nice_level)
     clazz._process_run_initializer(name, task_data.initializer, task_data.initializer_args)
-    clazz._process_main_loop(name, task_data.input_queue, task_data.output_queue)
+    clazz._process_main_loop(name, task_data.input_queue, task_data.result_queue)
     return 0
 
   @classmethod
-  def _task_handle(clazz, name, task, output_queue):
+  def _task_handle(clazz, name, task, result_queue):
     clazz._log.log_d(f'{name}: _task_handle: task_id={task.task_id}')
 
 #  def __new__(clazz, task_id, add_time, config, function, args, callback, progress_callback, cancelled):
@@ -90,7 +90,7 @@ class btask_process(object):
     error = None
     result_data = None
 
-    context = btask_function_context(task.task_id, output_queue, task.cancelled_value)
+    context = btask_function_context(task.task_id, result_queue, task.cancelled_value)
     debug = False
     try:
       result_data = task.function(context, task.args)
@@ -116,7 +116,7 @@ class btask_process(object):
                                      end_time)
     result = btask_result(task.task_id, state, result_data, metadata, error, task.args)
         
-    output_queue.put(result)
+    result_queue.put(result)
     
   def start(self):
     if self._process:
@@ -139,17 +139,17 @@ class btask_process(object):
       self._log.log_d(f'stop: process not started')
       return
     input_queue = task_data.input_queue
-
+    # drain the queue first ?
     
-#  task_data = btask_data(_init, ( 'large', 10.2 ), input_queue, output_queue)
+#  task_data = btask_data(_init, ( 'large', 10.2 ), input_queue, result_queue)
     
 
 #self._data    
     '''
   manager = multiprocessing.Manager()
   input_queue = manager.Queue()
-  output_queue = manager.Queue()
-  task_data = btask_data(_init, ( 'large', 10.2 ), input_queue, output_queue)
+  result_queue = manager.Queue()
+  task_data = btask_data(_init, ( 'large', 10.2 ), input_queue, result_queue)
   data = {
     'color': 'green',
     'flavor': 'tart',
@@ -157,7 +157,7 @@ class btask_process(object):
     'init': _init,
     'init_args': ( 'large', 10.2 ),
     'input_queue': input_queue,
-    'output_queue': output_queue,
+    'result_queue': result_queue,
   }
 
   item = bprocess_pool_item(1, datetime.now(), None, function, args, callback, progress_callback, cancelled)

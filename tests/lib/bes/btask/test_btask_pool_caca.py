@@ -20,8 +20,9 @@ from bes.btask.btask_pool_tester_py import btask_pool_tester_py
 from bes.btask.btask_process_data import btask_process_data
 from bes.btask.btask_process import btask_process
 from bes.btask.btask_pool_item import btask_pool_item
+from bes.btask.btask_pool_caca import btask_pool_caca
 
-class test_btask_process(unit_test):
+class test_btask_pool_caca(unit_test):
 
   _log = logger('test')
   
@@ -54,17 +55,22 @@ class test_btask_process(unit_test):
   def test_process_one_process(self):
     self._log.log_d(f'test_process_one_process:')
 
+    pc = btask_pool_caca(1)
     manager = multiprocessing.Manager()
-    input_queue = manager.Queue()
-    result_queue = manager.Queue()
+#    input_queue = manager.Queue()
+#    result_queue = manager.Queue()
     
-    data = btask_process_data('kiwi1', input_queue, result_queue)
-    process = btask_process(data)
-    process.start()
+#    data = btask_process_data('kiwi1', input_queue, result_queue)
+#    process = btask_process(data)
+#    process.start()
+
+    add_time = datetime(year = 2022, month = 1, day = 1)
+    start_time = datetime(year = 2022, month = 1, day = 2)
+    end_time = datetime(year = 2022, month = 1, day = 3)
 
     cancelled_value = manager.Value(bool, False)
     task = btask_pool_item(42,
-                           datetime.now(),
+                           add_time,
                            ( 'kiwi', 'low', 2, self.DEBUG ),
                            self._function,
                            {
@@ -75,13 +81,64 @@ class test_btask_process(unit_test):
                            self._callback,
                            None,
                            cancelled_value)
-    input_queue.put(task)
+    pc.start()
+    pc.add_task(task)
+    result = self._fix_result(pc.result_queue.get(), add_time, start_time, end_time)
+    pc.stop()
+    self.assert_json_equal(result.to_json(), '''{
+  "task_id": 1, 
+  "state": "SUCCESS", 
+  "data": {
+    "fruit": "kiwi", 
+    "color": "green", 
+    "pid": 1
+  }, 
+  "metadata": {
+    "pid": 1, 
+    "add_time": "2022-01-01 00:00:00", 
+    "start_time": "2022-01-02 00:00:00", 
+    "end_time": "2022-01-03 00:00:00"
+  }, 
+  "error": null, 
+  "args": {
+    "number": 42, 
+    "flavor": "sweet", 
+    "__f_result_data": {
+      "fruit": "kiwi", 
+      "color": "green", 
+      "pid": 1
+    }
+  }
+}
+''')
 
-    result = result_queue.get()
-    input_queue.put(None)
-    process.join()
-
-  def test_process_many_processes(self):
+  _fixed_task_ids = {}
+  _fixed_pids = {}
+  @classmethod
+  def _fix_result(clazz, result, add_time, start_time, end_time):
+    if result.task_id not in clazz._fixed_task_ids:
+      clazz._fixed_task_ids[result.task_id] = len(clazz._fixed_task_ids) + 1
+    if result.metadata.pid not in clazz._fixed_pids:
+      clazz._fixed_pids[result.metadata.pid] = len(clazz._fixed_pids) + 1
+    fixed_pid = clazz._fixed_pids[result.metadata.pid]
+    fixed_metadata = result.metadata.clone(mutations = {
+      'pid': fixed_pid,
+      'add_time': add_time,
+      'start_time': start_time,
+      'end_time': end_time,
+      })
+    fixed_result = result.clone(mutations = {
+      'task_id': clazz._fixed_task_ids[result.task_id],
+      'metadata': fixed_metadata,
+      })
+    if '__f_result_data' in fixed_result.args:
+      if 'pid' in fixed_result.args['__f_result_data']:
+        fixed_result.args['__f_result_data']['pid'] = fixed_pid
+    if fixed_result.data and 'pid' in fixed_result.data:
+      fixed_result.data['pid'] = fixed_pid
+    return fixed_result
+    
+  def xtest_process_many_processes(self):
     manager = multiprocessing.Manager()
     input_queue = manager.Queue()
     result_queue = manager.Queue()

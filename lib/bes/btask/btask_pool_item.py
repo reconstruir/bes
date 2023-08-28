@@ -2,8 +2,9 @@
 
 from collections import namedtuple
 
-from bes.system.log import logger
-from bes.system.check import check
+from ..common.tuple_util import tuple_util
+from ..system.log import logger
+from ..system.check import check
 
 from .btask_config import btask_config
 
@@ -28,4 +29,7 @@ class btask_pool_item(namedtuple('btask_pool_item', 'task_id, add_time, config, 
                                       progress_callback,
                                       cancelled_value)
 
+  def clone(self, mutations = None):
+    return tuple_util.clone(self, mutations = mutations)
+  
 check.register_class(btask_pool_item, include_seq = False)

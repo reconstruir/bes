@@ -3,6 +3,7 @@
 from collections import namedtuple
 
 from ..common.json_util import json_util
+from ..common.tuple_util import tuple_util
 from ..system.check import check
 from ..property.cached_property import cached_property
 
@@ -25,6 +26,9 @@ class btask_result_metadata(namedtuple('btask_result_metadata', 'pid, add_time, 
       'start_time': str(self.start_time),
       'end_time': str(self.end_time),
     }
+
+  def clone(self, mutations = None):
+    return tuple_util.clone(self, mutations = mutations)
   
   def to_json(self):
     return json_util.to_json(self.to_dict(), indent = 2, sort_keys = True)
