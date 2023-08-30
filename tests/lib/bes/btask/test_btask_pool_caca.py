@@ -17,7 +17,6 @@ from bes.testing.unit_test import unit_test
 from bes.btask.btask_cancelled_error import btask_cancelled_error
 from bes.btask.btask_pool_tester_py import btask_pool_tester_py
 
-from bes.btask.btask_process_data import btask_process_data
 from bes.btask.btask_process import btask_process
 from bes.btask.btask_pool_item import btask_pool_item
 from bes.btask.btask_pool_caca import btask_pool_caca

@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from datetime import datetime
+from collections import namedtuple
 
 import pickle
 import multiprocessing
@@ -17,7 +18,20 @@ from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata
 from .btask_result_state import btask_result_state
 from .btask_threading import btask_threading
-from .btask_process_data import btask_process_data
+from .btask_initializer import btask_initializer
+
+class _process_data(namedtuple('_process_data', 'name, input_queue, result_queue, nice_level, initializer')):
+  
+  def __new__(clazz, name, input_queue, result_queue, nice_level = None,
+              initializer = None):
+    assert input_queue != None
+    assert result_queue != None
+    check.check_string(name)
+    check.check_int(nice_level, allow_none = True)
+    initializer = check.check_btask_initializer(initializer, allow_none = True)
+
+    return clazz.__bases__[0].__new__(clazz, name, input_queue, result_queue,
+                                      nice_level, initializer)
 
 class btask_process(object):
 
@@ -31,11 +45,11 @@ class btask_process(object):
     check.check_int(nice_level, allow_none = True)
     initializer = check.check_btask_initializer(initializer, allow_none = True)
 
-    self._data = btask_process_data(name,
-                                    input_queue,
-                                    result_queue,
-                                    nice_level = nice_level,
-                                    initializer = initializer)
+    self._data = _process_data(name,
+                               input_queue,
+                               result_queue,
+                               nice_level = nice_level,
+                               initializer = initializer)
     self._process = None
 
   @classmethod
