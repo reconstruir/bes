@@ -46,12 +46,11 @@ class btask_process(object):
     clazz._log.log_i(f'_process_set_name: changed process name from "{old_name}" to "{new_name}"')
 
   @classmethod
-  def _process_run_initializer(clazz, name, initializer, initializer_args):
+  def _process_run_initializer(clazz, name, initializer):
     if not initializer:
       return
-    initializer_args = initializer_args or ()
-    clazz._log.log_d(f'{name} calling initializer "{initializer}" with "{initializer_args}"')
-    initializer(*initializer_args)
+    clazz._log.log_d(f'{name} calling initializer "{initializer}"')
+    initializer.call()
 
   @classmethod
   def _process_main_loop(clazz, name, input_queue, result_queue):
@@ -75,7 +74,7 @@ class btask_process(object):
     clazz._log.log_d(f'{name}: task_data={task_data}')
     clazz._process_set_name(name)
     clazz._process_set_nice_level(name, task_data.nice_level)
-    clazz._process_run_initializer(name, task_data.initializer, task_data.initializer_args)
+    clazz._process_run_initializer(name, task_data.initializer)
     clazz._process_main_loop(name, task_data.input_queue, task_data.result_queue)
     return 0
 
