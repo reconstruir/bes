@@ -13,20 +13,29 @@ from bes.system.check import check
 from .btask_cancelled_error import btask_cancelled_error
 from .btask_function_context import btask_function_context
 from .btask_pool_item import btask_pool_item
-from .btask_process_data import btask_process_data
 from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata
 from .btask_result_state import btask_result_state
 from .btask_threading import btask_threading
+from .btask_process_data import btask_process_data
 
 class btask_process(object):
 
   _log = logger('btask')
   
-  def __init__(self, data):
-    check.check_btask_process_data(data)
+  def __init__(self, name, input_queue, result_queue, nice_level = None,
+               initializer = None):
+    assert input_queue != None
+    assert result_queue != None
+    check.check_string(name)
+    check.check_int(nice_level, allow_none = True)
+    initializer = check.check_btask_initializer(initializer, allow_none = True)
 
-    self._data = data
+    self._data = btask_process_data(name,
+                                    input_queue,
+                                    result_queue,
+                                    nice_level = nice_level,
+                                    initializer = initializer)
     self._process = None
 
   @classmethod

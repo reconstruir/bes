@@ -1,0 +1,315 @@
+diff --git a/lib/bes/btask/btask_pool.py b/lib/bes/btask/btask_pool.py
+index 990d81d4..c11bdc38 100644
+--- a/lib/bes/btask/btask_pool.py
++++ b/lib/bes/btask/btask_pool.py
+@@ -21,6 +21,7 @@ from .btask_result_metadata import btask_result_metadata
+ from .btask_result_state import btask_result_state
+ from .btask_threading import btask_threading
+ from .btask_dedicated_category_config import btask_dedicated_category_config
++from .btask_pool_caca import btask_pool_caca
+ 
+ class btask_pool(object):
+ 
+@@ -41,6 +42,7 @@ class btask_pool(object):
+     self._num_processes = num_processes
+     self._dedicated_categories = dedicated_categories
+     self._manager = multiprocessing.Manager()
++    self._result_queue = self._manager.Queue()
+     self._worker_number_lock = self._manager.Lock()
+     self._worker_number_value = self._manager.Value(int, 1)
+     self._pools = {}
+@@ -48,30 +50,37 @@ class btask_pool(object):
+     if dedicated_categories:
+       for category, config in dedicated_categories.items():
+         config = check.check_btask_dedicated_category_config(config)
+-        initargs = (
++        initializer_args = (
+           self._worker_number_lock,
+           self._worker_number_value,
+           config.nice,
+           config.initializer,
+           config.initializer_args
+         )
+-        self._pools[category] = multiprocessing.Pool(config.num_processes,
+-                                                     initializer = self._worker_initializer,
+-                                                     initargs = initargs)
++        pool = btask_pool_caca(config.num_processes,
++                               initializer = self._worker_initializer,
++                               initializer_args = initializer_args,
++                               manager = self._manager,
++                               result_queue = self._result_queue)
++        self._pools[category] = pool
++        pool.start()
+         count = count - config.num_processes
+         assert count >= 0
+     if count > 0:
+-      initargs = (
++      initializer_args = (
+         self._worker_number_lock,
+         self._worker_number_value,
+         None,
+         None,
+         None
+       )
+-      self._pools['__main'] = multiprocessing.Pool(count,
+-                                                   initializer = self._worker_initializer,
+-                                                   initargs = initargs)
+-    self._result_queue = self._manager.Queue()
++      pool = btask_pool_caca(count,
++                             initializer = self._worker_initializer,
++                             initializer_args = initializer_args,
++                             manager = self._manager,
++                             result_queue = self._result_queue)
++      self._pools['__main'] = pool
++      pool.start()
+     self._lock = self._manager.Lock()
+     self._waiting_queue = btask_pool_queue()
+     self._in_progress_queue = btask_pool_queue()
+@@ -112,20 +121,11 @@ class btask_pool(object):
+       initializer(*(initializer_args or ()))
+ 
+   def close(self):
+-    self._terminate()
+-    self.join()
+-
+-  def _terminate(self):
+-    if not self._pools:
+-      return
+-    for _, pool in self._pools.items():
+-      pool.terminate()
+-      
+-  def join(self):
+     if not self._pools:
+       return
+     for _, pool in self._pools.items():
+-      pool.join()
++      pool.stop()
++    self._pools = None
+ 
+   def _pool_for_category(self, category):
+     if self._dedicated_categories and category in self._dedicated_categories:
+@@ -195,67 +195,68 @@ class btask_pool(object):
+     self._log.log_d(f'{label}: got item task_id={item.task_id}')
+     self._in_progress_queue.add(item)
+     self._log.log_d(f'{label}: calling apply_async for task_id={item.task_id}')
+-    args = (
+-      item.task_id,
+-      item.function,
+-      item.add_time,
+-      item.config.debug,
+-      item.args,
+-      self._result_queue,
+-      item.cancelled_value,
+-    )
++#    args = (
++#      item.task_id,
++#      item.function,
++#      item.add_time,
++#      item.config.debug,
++#      item.args,
++#      self._result_queue,
++#      item.cancelled_value,
++#    )
+     pool = self._pool_for_category(category)
+-    pool.apply_async(self._function,
+-                     args = args,
+-                     callback = self._callback,
+-                     error_callback = self._error_callback)
++    pool.add_task(item)
++#    pool.apply_async(self._function,
++#                     args = args,
++#                     callback = self._callback,
++#                     error_callback = self._error_callback)
+     return True
+           
+-  @classmethod
+-  def _function(clazz, task_id, function, add_time, debug, args, progress_queue, cancelled):
+-    clazz._log.log_d(f'_function: task_id={task_id} function={function}')
+-    start_time = datetime.now()
+-    error = None
+-    data = None
+-    try:
+-      context = btask_function_context(task_id, progress_queue, cancelled)
+-      data = function(context, args)
+-      #clazz._log.log_d(f'_function: task_id={task_id} data={data}')
+-      if not check.is_dict(data):
+-        raise btask_error(f'Function "{function}" should return a dict: "{data}" - {type(data)}')
+-      state = btask_result_state.SUCCESS
+-    except Exception as ex:
+-      if debug:
+-        clazz._log.log_exception(ex)
+-      if isinstance(ex, btask_cancelled_error):
+-        state = btask_result_state.CANCELLED
+-        error = None
+-      else:
+-        state = btask_result_state.FAILED
+-        error = ex
+-    end_time = datetime.now()
+-    clazz._log.log_d(f'_function: task_id={task_id} state={state}')
+-    metadata = btask_result_metadata(btask_threading.current_process_pid(),
+-                                     add_time,
+-                                     start_time,
+-                                     end_time)
+-    result = btask_result(task_id, state, data, metadata, error, args)
+-    #clazz._log.log_d(f'_function: result={result}')
+-    return result
+-
+-  def _callback(self, result):
+-    check.check_btask_result(result)
+-
+-    self._log.log_d(f'_callback: result={result} queue={self._result_queue}')
+-    self._result_queue.put(result)
+-    self._log.log_d(f'_callback: calling pump for task_id={result.task_id}')
+-    self._pump()
+-    
+-  def _error_callback(self, error):
+-    self._log.log_e(f'unexpected error: "{error}"')
+-    self._log.log_exception(error)
+-    raise btask_error(f'unexpected error: "{error}"')
+-    
++#  @classmethod
++#  def _function(clazz, task_id, function, add_time, debug, args, progress_queue, cancelled):
++#    clazz._log.log_d(f'_function: task_id={task_id} function={function}')
++#    start_time = datetime.now()
++#    error = None
++#    data = None
++#    try:
++#      context = btask_function_context(task_id, progress_queue, cancelled)
++#      data = function(context, args)
++#      #clazz._log.log_d(f'_function: task_id={task_id} data={data}')
++#      if not check.is_dict(data):
++#        raise btask_error(f'Function "{function}" should return a dict: "{data}" - {type(data)}')
++#      state = btask_result_state.SUCCESS
++#    except Exception as ex:
++#      if debug:
++#        clazz._log.log_exception(ex)
++#      if isinstance(ex, btask_cancelled_error):
++#        state = btask_result_state.CANCELLED
++#        error = None
++#      else:
++#        state = btask_result_state.FAILED
++#        error = ex
++#    end_time = datetime.now()
++#    clazz._log.log_d(f'_function: task_id={task_id} state={state}')
++#    metadata = btask_result_metadata(btask_threading.current_process_pid(),
++#                                     add_time,
++#                                     start_time,
++#                                     end_time)
++#    result = btask_result(task_id, state, data, metadata, error, args)
++#    #clazz._log.log_d(f'_function: result={result}')
++#    return result
++#
++#  def _callback(self, result):
++#    check.check_btask_result(result)
++#
++#    self._log.log_d(f'_callback: result={result} queue={self._result_queue}')
++#    self._result_queue.put(result)
++#    self._log.log_d(f'_callback: calling pump for task_id={result.task_id}')
++#    self._pump()
++#    
++#  def _error_callback(self, error):
++#    self._log.log_e(f'unexpected error: "{error}"')
++#    self._log.log_exception(error)
++#    raise btask_error(f'unexpected error: "{error}"')
++#    
+   def complete(self, result):
+     check.check_btask_result(result)
+ 
+diff --git a/lib/bes/btask/btask_pool_caca.py b/lib/bes/btask/btask_pool_caca.py
+index 6f2fc0bd..1beef409 100644
+--- a/lib/bes/btask/btask_pool_caca.py
++++ b/lib/bes/btask/btask_pool_caca.py
+@@ -5,6 +5,7 @@ import os
+ from collections import namedtuple
+ from datetime import datetime
+ import multiprocessing
++import threading
+ 
+ from bes.system.log import logger
+ from bes.system.check import check
+@@ -28,17 +29,35 @@ class btask_pool_caca(object):
+ 
+   _log = logger('btask')
+ 
+-  def __init__(self, num_processes):
++  def __init__(self, num_processes, initializer = None, initializer_args = None, manager = None, result_queue = None):
+     check.check_int(num_processes)
+     
+     self._num_processes = num_processes
+-    self._manager = multiprocessing.Manager()
++    self._initializer = initializer
++    self._initializer_args = initializer_args
++    self._manager = manager or multiprocessing.Manager()
+     self._input_queue = self._manager.Queue()
+-    self._result_queue = self._manager.Queue()
++    self._caca_result_queue = result_queue or self._manager.Queue()
+     self._worker_number_lock = self._manager.Lock()
+     self._worker_number_value = self._manager.Value(int, 1)
+     self._processes = None
++    self._result_queue = self._manager.Queue()
+ 
++  def _caca_thread_main(clazz, caca_result_queue):
++    self._log.log_d(f'_caca_thread_main: ')
++    while True:
++      next_item = caca_result_queue.get()
++      if next_item == None:
++        break
++
++  def _caca_callback(self, result):
++    check.check_btask_result(result)
++
++    self._log.log_d(f'_caca_callback: result={result} queue={self._caca_result_queue}')
++    self._result_queue.put(result)
++    self._log.log_d(f'_caca_callback: calling pump for task_id={result.task_id}')
++    self._pump()
++    
+   def start(self):
+     if self._processes:
+       self._log.log_d(f'start: pool_caca already started')
+@@ -46,7 +65,12 @@ class btask_pool_caca(object):
+     processes = []
+     for i in range(1, self._num_processes + 1):
+       name = f'worker-{i}'
+-      data = btask_process_data(name, self._input_queue, self._result_queue, None, None, None)
++      data = btask_process_data(name,
++                                self._input_queue,
++                                self._caca_result_queue,
++                                None,
++                                self._initializer,
++                                self._initializer_args)
+       process = btask_process(data)
+       processes.append(process)
+     for process in processes:
+@@ -182,7 +206,7 @@ class btask_pool_caca(object):
+       item.add_time,
+       item.config.debug,
+       item.args,
+-      self._result_queue,
++      self._caca_result_queue,
+       item.cancelled_value,
+     )
+     pool = self._pool_for_category(category)
+@@ -224,14 +248,6 @@ class btask_pool_caca(object):
+     #clazz._log.log_d(f'_function: result={result}')
+     return result
+ 
+-  def _callback(self, result):
+-    check.check_btask_result(result)
+-
+-    self._log.log_d(f'_callback: result={result} queue={self._result_queue}')
+-    self._result_queue.put(result)
+-    self._log.log_d(f'_callback: calling pump for task_id={result.task_id}')
+-    self._pump()
+-    
+   def _error_callback(self, error):
+     self._log.log_e(f'unexpected error: "{error}"')
+     self._log.log_exception(error)
+@@ -278,7 +294,7 @@ class btask_pool_caca(object):
+                                             None,
+                                             datetime.now())
+         result = btask_result(waiting_item.task_id, btask_result_state.CANCELLED, None, metadata, None, waiting_item.args)
+-        self._result_queue.put(result)
++        self._caca_result_queue.put(result)
+       in_progress_item = self._in_progress_queue.find_by_task_id(task_id)
+       if not in_progress_item:
+         self._log.log_d(f'cancel: no task {task_id} found in either waiting or in_progress queues')

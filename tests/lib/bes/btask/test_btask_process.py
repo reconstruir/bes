@@ -17,7 +17,6 @@ from bes.testing.unit_test import unit_test
 from bes.btask.btask_cancelled_error import btask_cancelled_error
 from bes.btask.btask_pool_tester_py import btask_pool_tester_py
 
-from bes.btask.btask_process_data import btask_process_data
 from bes.btask.btask_process import btask_process
 from bes.btask.btask_pool_item import btask_pool_item
 
@@ -58,8 +57,7 @@ class test_btask_process(unit_test):
     input_queue = manager.Queue()
     result_queue = manager.Queue()
     
-    data = btask_process_data('kiwi1', input_queue, result_queue)
-    process = btask_process(data)
+    process = btask_process('kiwi1', input_queue, result_queue)
     process.start()
 
     cancelled_value = manager.Value(bool, False)
@@ -92,8 +90,7 @@ class test_btask_process(unit_test):
     processes = []
     for i in range(1, num_processes + 1):
       name = f'kiwi{i}'
-      data = btask_process_data(name, input_queue, result_queue)
-      process = btask_process(data)
+      process = btask_process(name, input_queue, result_queue)
       processes.append(process)
       process.start()
 

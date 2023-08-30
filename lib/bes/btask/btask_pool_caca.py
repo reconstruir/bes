@@ -22,7 +22,6 @@ from .btask_result_state import btask_result_state
 from .btask_threading import btask_threading
 from .btask_dedicated_category_config import btask_dedicated_category_config
 from .btask_process import btask_process
-from .btask_process_data import btask_process_data
 
 class btask_pool_caca(object):
 
@@ -46,8 +45,7 @@ class btask_pool_caca(object):
     processes = []
     for i in range(1, self._num_processes + 1):
       name = f'worker-{i}'
-      data = btask_process_data(name, self._input_queue, self._result_queue, None, None, None)
-      process = btask_process(data)
+      process = btask_process(name, self._input_queue, self._result_queue, None, None)
       processes.append(process)
     for process in processes:
       process.start()

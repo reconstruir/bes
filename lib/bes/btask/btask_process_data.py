@@ -9,7 +9,7 @@ from .btask_initializer import btask_initializer
 class btask_process_data(namedtuple('btask_process_data', 'name, input_queue, result_queue, nice_level, initializer')):
   
   def __new__(clazz, name, input_queue, result_queue, nice_level = None,
-              initializer = None, initializer_args = None):
+              initializer = None):
     assert input_queue != None
     assert result_queue != None
     check.check_string(name)
