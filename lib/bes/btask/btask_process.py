@@ -110,7 +110,7 @@ class btask_process(object):
     clazz._log.log_d(f'{name}: _task_handle: task_id={task.task_id}')
 
     start_time = datetime.now()
-    add_time = start_time
+    add_time = task.add_time
     error = None
     result_data = None
 
