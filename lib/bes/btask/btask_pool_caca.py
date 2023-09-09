@@ -5,6 +5,7 @@ import os
 from collections import namedtuple
 from datetime import datetime
 import multiprocessing
+import threading
 
 from bes.system.log import logger
 from bes.system.check import check
@@ -37,11 +38,16 @@ class btask_pool_caca(object):
     self._worker_number_lock = self._manager.Lock()
     self._worker_number_value = self._manager.Value(int, 1)
     self._processes = None
+    self._result_thread = None
 
-  def start(self):
-    if self._processes:
-      self._log.log_d(f'start: pool_caca already started')
-      return
+  def _caca_thread_main(clazz, caca_result_queue):
+    self._log.log_d(f'_caca_thread_main: ')
+    while True:
+      next_item = caca_result_queue.get()
+      if next_item == None:
+        break
+
+  def _processes_start(self):
     processes = []
     for i in range(1, self._num_processes + 1):
       name = f'worker-{i}'
@@ -49,16 +55,27 @@ class btask_pool_caca(object):
       processes.append(process)
     for process in processes:
       process.start()
-      self._processes = processes
+    return processes
+
+  @classmethod
+  def _processes_stop(self, processes, input_queue):
+    for _ in processes:
+      input_queue.put(None)
+    for process in processes:
+      self._log.log_i(f'_processes_stop: joining process {process.name}')
+      process.join()
+  
+  def start(self):
+    if self._processes:
+      self._log.log_d(f'start: pool_caca already started')
+      return
+    self._processes = self._processes_start()
 
   def stop(self):
     if not self._processes:
       self._log.log_d(f'stop: pool_caca not started')
       return
-    for i in range(1, self._num_processes + 1):
-      self._input_queue.put(None)
-    for process in self._processes:
-      process.join()
+    self._processes_stop(self._processes, self._input_queue)
     self._processes = None
       
   @property

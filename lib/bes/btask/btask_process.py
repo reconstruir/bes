@@ -52,6 +52,10 @@ class btask_process(object):
                                initializer = initializer)
     self._process = None
 
+  @property
+  def name(self):
+    return self._data.name
+  
   @classmethod
   def _process_set_nice_level(clazz, name, nice_level):
     if nice_level == None:
