@@ -10,7 +10,7 @@ from bes.system.log import logger
 from bes.testing.unit_test import unit_test
 
 from bes.btask.btask_cancelled_error import btask_cancelled_error
-from bes.btask.btask_pool_tester_py import btask_pool_tester_py
+from bes.btask.btask_processor_tester_py import btask_processor_tester_py
 from bes.btask.btask_progress import btask_progress
 
 class test_btask_pool_py(unit_test):
@@ -40,7 +40,7 @@ class test_btask_pool_py(unit_test):
   
   def test_add_task_with_8_processes(self):
 
-    tester = btask_pool_tester_py(8)
+    tester = btask_processor_tester_py(8)
   
     kiwi_id = tester.add_task(self._function,
                               callback = lambda r: tester.on_callback(r),
@@ -107,7 +107,7 @@ class test_btask_pool_py(unit_test):
     self.assertEqual( 'RuntimeError', r.error.__class__.__name__ )
 
   def test_add_task_with_1_process(self):
-    tester = btask_pool_tester_py(1)
+    tester = btask_processor_tester_py(1)
   
     kiwi_id = tester.add_task(self._function,
                               callback = lambda r: tester.on_callback(r),
@@ -157,7 +157,7 @@ class test_btask_pool_py(unit_test):
 
   def test_add_task_with_categories(self):
 
-    tester = btask_pool_tester_py(8)
+    tester = btask_processor_tester_py(8)
 
     sleep_time_ms = 250
     task_ids = []
@@ -206,7 +206,7 @@ class test_btask_pool_py(unit_test):
 
   def test_add_task_with_priority(self):
 
-    tester = btask_pool_tester_py(8)
+    tester = btask_processor_tester_py(8)
 
     sleep_time_ms = 250
 
@@ -271,7 +271,7 @@ class test_btask_pool_py(unit_test):
     return {}
     
   def test_add_task_with_progress(self):
-    tester = btask_pool_tester_py(1)
+    tester = btask_processor_tester_py(1)
 
     pl = []
     def _progress_callback(progress):
@@ -307,7 +307,7 @@ class test_btask_pool_py(unit_test):
     ], pl )
 
   def test_add_task_with_cancel_waiting(self):
-    tester = btask_pool_tester_py(1)
+    tester = btask_processor_tester_py(1)
       
     task_id1 = tester.add_task(self._function,
                                callback = lambda r: tester.on_callback(r),
@@ -360,7 +360,7 @@ class test_btask_pool_py(unit_test):
     return {}
     
   def test_add_task_with_cancel_in_progress(self):
-    tester = btask_pool_tester_py(1)
+    tester = btask_processor_tester_py(1)
       
     task_id1 = tester.add_task(self._function_with_cancel,
                                callback = lambda r: tester.on_callback(r),
@@ -420,7 +420,7 @@ class test_btask_pool_py(unit_test):
     return {}
     
   def xtest_add_and_cancel_many_tasks(self):
-    tester = btask_pool_tester_py(8)
+    tester = btask_processor_tester_py(8)
 
     task_ids = []
     for i in range(0, 1000):

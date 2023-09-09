@@ -9,7 +9,7 @@ from .btask_main_thread_runner_py import btask_main_thread_runner_py
 from .btask_pool import btask_pool
 from .btask_result_collector_py import btask_result_collector_py
 
-class btask_pool_tester_py(object):
+class btask_processor_tester_py(object):
 
   _log = logger('btask')
   

@@ -15,7 +15,7 @@ from .btask_config import btask_config
 from .btask_error import btask_error
 from .btask_function_context import btask_function_context
 from .btask_pool_item import btask_pool_item
-from .btask_pool_queue import btask_pool_queue
+from .btask_processor_queue import btask_processor_queue
 from .btask_priority import btask_priority
 from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata

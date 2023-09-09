@@ -14,7 +14,7 @@ from .btask_config import btask_config
 from .btask_error import btask_error
 from .btask_function_context import btask_function_context
 from .btask_pool_item import btask_pool_item
-from .btask_pool_queue import btask_pool_queue
+from .btask_processor_queue import btask_processor_queue
 from .btask_priority import btask_priority
 from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata
@@ -73,8 +73,8 @@ class btask_pool(object):
                                                    initargs = initargs)
     self._result_queue = self._manager.Queue()
     self._lock = self._manager.Lock()
-    self._waiting_queue = btask_pool_queue()
-    self._in_progress_queue = btask_pool_queue()
+    self._waiting_queue = btask_processor_queue()
+    self._in_progress_queue = btask_processor_queue()
     self._category_limits = {}
 
   @classmethod

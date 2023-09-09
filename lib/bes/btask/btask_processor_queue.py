@@ -8,7 +8,7 @@ from bes.system.check import check
 from .btask_error import btask_error
 from .btask_pool_item import btask_pool_item
 
-class btask_pool_queue(object):
+class btask_processor_queue(object):
 
   _log = logger('btask')
 
@@ -66,4 +66,4 @@ class btask_pool_queue(object):
       return
     self._tasks[category] = []
     
-check.register_class(btask_pool_queue, include_seq = False)
+check.register_class(btask_processor_queue, include_seq = False)
