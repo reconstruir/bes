@@ -14,11 +14,8 @@ from bes.system.execute_result import execute_result
 from bes.system.log import logger
 from bes.testing.unit_test import unit_test
 
-from bes.btask.btask_cancelled_error import btask_cancelled_error
-from bes.btask.btask_processor_tester_py import btask_processor_tester_py
-
 from bes.btask.btask_process import btask_process
-from bes.btask.btask_task import btask_task
+from bes.btask.btask_process_task import btask_process_task
 
 class test_btask_process(unit_test):
 
@@ -46,10 +43,6 @@ class test_btask_process(unit_test):
         result[key] = value
     return result
 
-  @classmethod
-  def _callback(clazz, result):
-    clazz._log.log_d(f'_callback: result={result}')
-  
   def test_process_one_process(self):
     self._log.log_d(f'test_process_one_process:')
 
@@ -61,18 +54,16 @@ class test_btask_process(unit_test):
     process.start()
 
     cancelled_value = manager.Value(bool, False)
-    task = btask_task(42,
-                           datetime.now(),
-                           ( 'kiwi', 'low', 2, self.DEBUG ),
-                           self._function,
-                           {
-                             'number': 42,
-                             'flavor': 'sweet',
-                             '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' },
-                           },
-                           self._callback,
-                           None,
-                           cancelled_value)
+    task = btask_process_task(42,
+                              datetime.now(),
+                              ( 'kiwi', 'low', 2, self.DEBUG ),
+                              self._function,
+                              {
+                                'number': 42,
+                                'flavor': 'sweet',
+                                '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' },
+                              },
+                              cancelled_value)
     input_queue.put(task)
 
     result = result_queue.get()
@@ -96,18 +87,16 @@ class test_btask_process(unit_test):
 
     for i in range(1, num_tasks + 1):
       cancelled_value = manager.Value(bool, False)
-      task = btask_task(42 + i,
-                             datetime.now(),
-                             ( 'kiwi', 'low', 2, self.DEBUG ),
-                             self._function,
-                             {
-                               'number': i,
-                               'flavor': 'sweet',
-                               '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' },
-                             },
-                             self._callback,
-                             None,
-                             cancelled_value)
+      task = btask_process_task(42 + i,
+                                datetime.now(),
+                                ( 'kiwi', 'low', 2, self.DEBUG ),
+                                self._function,
+                                {
+                                  'number': i,
+                                  'flavor': 'sweet',
+                                  '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' },
+                                },
+                                cancelled_value)
       input_queue.put(task)
 
     results = []

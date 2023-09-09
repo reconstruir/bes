@@ -13,7 +13,7 @@ from bes.system.check import check
 
 from .btask_cancelled_error import btask_cancelled_error
 from .btask_function_context import btask_function_context
-from .btask_task import btask_task
+from .btask_process_task import btask_process_task
 from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata
 from .btask_result_state import btask_result_state
@@ -86,8 +86,8 @@ class btask_process(object):
       if task == None:
         clazz._log.log_i(f'{name}: got termination sentinel.')
         break
-      if not isinstance(task, btask_task):
-        clazz._log.log_e(f'{name}: unexpected task type instead of btask_task: "{task}" - {type(task)}')
+      if not isinstance(task, btask_process_task):
+        clazz._log.log_e(f'{name}: unexpected task type instead of btask_process_task: "{task}" - {type(task)}')
         continue
       clazz._task_handle(name, task, result_queue)
     return 0
@@ -109,15 +109,13 @@ class btask_process(object):
   def _task_handle(clazz, name, task, result_queue):
     clazz._log.log_d(f'{name}: _task_handle: task_id={task.task_id}')
 
-#  def __new__(clazz, task_id, add_time, config, function, args, callback, progress_callback, cancelled):
-#class btask_function_context(namedtuple('btask_function_context', 'task_id, progress_queue, cancelled_value')):
     start_time = datetime.now()
     add_time = start_time
     error = None
     result_data = None
 
     context = btask_function_context(task.task_id, result_queue, task.cancelled_value)
-    debug = False
+    debug = task.config.debug
     try:
       result_data = task.function(context, task.args)
       #clazz._log.log_d(f'{name}: _task_handle:: task_id={task.task_id} data={result_data}')
@@ -167,37 +165,6 @@ class btask_process(object):
     input_queue = task_data.input_queue
     # drain the queue first ?
     
-#  task_data = btask_data(_init, ( 'large', 10.2 ), input_queue, result_queue)
-    
-
-#self._data    
-    '''
-  manager = multiprocessing.Manager()
-  input_queue = manager.Queue()
-  result_queue = manager.Queue()
-  task_data = btask_data(_init, ( 'large', 10.2 ), input_queue, result_queue)
-  data = {
-    'color': 'green',
-    'flavor': 'tart',
-    'price': 6.66,
-    'init': _init,
-    'init_args': ( 'large', 10.2 ),
-    'input_queue': input_queue,
-    'result_queue': result_queue,
-  }
-
-  item = bprocess_pool_item(1, datetime.now(), None, function, args, callback, progress_callback, cancelled)
-  
-  encoded_task_data = pickle.dumps(task_data)
-  p = multiprocessing.Process (name = 'ppp',
-                              target = _process,
-                              args = ( encoded_task_data, ))
-  p.start()
-  p.join()
-  exit_code = p.exitcode
-  _log.log_d(f'exit_code={exit_code}')
-  return 0
-'''  
   def stop(self):
     pass
   
