@@ -14,7 +14,7 @@ from .btask_cancelled_error import btask_cancelled_error
 from .btask_config import btask_config
 from .btask_error import btask_error
 from .btask_function_context import btask_function_context
-from .btask_pool_item import btask_pool_item
+from .btask_task import btask_task
 from .btask_processor_queue import btask_processor_queue
 from .btask_priority import btask_priority
 from .btask_result import btask_result
@@ -87,7 +87,7 @@ class btask_pool_caca(object):
     return self._result_queue
 
   def add_task(self, task):
-    check.check_btask_pool_item(task)
+    check.check_btask_task(task)
 
     self._input_queue.put(task)
   
@@ -155,7 +155,7 @@ class btask_pool_caca(object):
     with self._lock as lock:
       task_id = self._task_id
       self._task_id += 1
-      item = btask_pool_item(task_id,
+      item = btask_task(task_id,
                              add_time,
                              config,
                              function,

@@ -18,7 +18,7 @@ from bes.btask.btask_cancelled_error import btask_cancelled_error
 from bes.btask.btask_processor_tester_py import btask_processor_tester_py
 
 from bes.btask.btask_process import btask_process
-from bes.btask.btask_pool_item import btask_pool_item
+from bes.btask.btask_task import btask_task
 from bes.btask.btask_pool_caca import btask_pool_caca
 
 class test_btask_pool_caca(unit_test):
@@ -68,7 +68,7 @@ class test_btask_pool_caca(unit_test):
     end_time = datetime(year = 2022, month = 1, day = 3)
 
     cancelled_value = manager.Value(bool, False)
-    task = btask_pool_item(42,
+    task = btask_task(42,
                            add_time,
                            ( 'kiwi', 'low', 2, self.DEBUG ),
                            self._function,
@@ -155,7 +155,7 @@ class test_btask_pool_caca(unit_test):
 
     for i in range(1, num_tasks + 1):
       cancelled_value = manager.Value(bool, False)
-      task = btask_pool_item(42 + i,
+      task = btask_task(42 + i,
                              datetime.now(),
                              ( 'kiwi', 'low', 2, self.DEBUG ),
                              self._function,

@@ -13,7 +13,7 @@ from bes.system.check import check
 
 from .btask_cancelled_error import btask_cancelled_error
 from .btask_function_context import btask_function_context
-from .btask_pool_item import btask_pool_item
+from .btask_task import btask_task
 from .btask_result import btask_result
 from .btask_result_metadata import btask_result_metadata
 from .btask_result_state import btask_result_state
@@ -86,8 +86,8 @@ class btask_process(object):
       if task == None:
         clazz._log.log_i(f'{name}: got termination sentinel.')
         break
-      if not isinstance(task, btask_pool_item):
-        clazz._log.log_e(f'{name}: unexpected task type instead of btask_pool_item: "{task}" - {type(task)}')
+      if not isinstance(task, btask_task):
+        clazz._log.log_e(f'{name}: unexpected task type instead of btask_task: "{task}" - {type(task)}')
         continue
       clazz._task_handle(name, task, result_queue)
     return 0

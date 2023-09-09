@@ -6,7 +6,7 @@ from bes.system.log import logger
 from bes.system.check import check
 
 from .btask_error import btask_error
-from .btask_pool_item import btask_pool_item
+from .btask_task import btask_task
 
 class btask_processor_queue(object):
 
@@ -16,7 +16,7 @@ class btask_processor_queue(object):
     self._tasks = {}
 
   def add(self, item):
-    check.check_btask_pool_item(item)
+    check.check_btask_task(item)
 
     category = item.config.category
     self._ensure_category(category)

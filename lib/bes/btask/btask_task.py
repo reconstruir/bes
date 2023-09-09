@@ -8,7 +8,7 @@ from ..system.check import check
 
 from .btask_config import btask_config
 
-class btask_pool_item(namedtuple('btask_pool_item', 'task_id, add_time, config, function, args, callback, progress_callback, cancelled_value')):
+class btask_task(namedtuple('btask_task', 'task_id, add_time, config, function, args, callback, progress_callback, cancelled_value')):
 
   def __new__(clazz, task_id, add_time, config, function, args, callback, progress_callback, cancelled_value):
     check.check_int(task_id)
@@ -32,4 +32,4 @@ class btask_pool_item(namedtuple('btask_pool_item', 'task_id, add_time, config, 
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
   
-check.register_class(btask_pool_item, include_seq = False)
+check.register_class(btask_task, include_seq = False)
