@@ -26,28 +26,13 @@ from .btask_dedicated_category_config import btask_dedicated_category_config
 from .btask_process import btask_process
 from .btask_initializer import btask_initializer
 
-'''
-class _process_pool_item(namedtuple('_process_pool_item', 'task_id, callback, progress_callback, cancelled_value')):
+class _process_pool_item(namedtuple('_process_pool_item', 'task, callback')):
 
-  def __new__(clazz, task_id, add_time, config, function, args, callback, progress_callback, cancelled_value):
-    check.check_int(task_id)
-    check.check_datetime(add_time)
-    check.check_btask_config(config)
-    check.check_callable(function)
-    check.check_dict(args, allow_none = True)
+  def __new__(clazz, task, callback):
+    check.check_btask_task(task)
     check.check_callable(callback)
-    check.check_callable(progress_callback, allow_none = True)
     
-    return clazz.__bases__[0].__new__(clazz,
-                                      task_id,
-                                      add_time,
-                                      config,
-                                      function,
-                                      args,
-                                      callback,
-                                      progress_callback,
-                                      cancelled_value)
-'''
+    return clazz.__bases__[0].__new__(clazz, task, callback)
 
 class btask_process_pool(object):
 
@@ -66,11 +51,11 @@ class btask_process_pool(object):
     self._worker_number_value = self._manager.Value(int, 1)
     self._processes = None
     self._result_thread = None
-    self._in_process_tasks = {}
-    self._in_process_tasks_lock = multiprocessing.Lock()
+    self._task_callbacks = {}
+    self._task_callbacks_lock = multiprocessing.Lock()
 
   @classmethod
-  def _result_thread_main(clazz, result_queue, in_process_tasks, in_process_tasks_lock):
+  def _result_thread_main(clazz, result_queue, task_callbacks, task_callbacks_lock):
     clazz._log.log_d(f'_result_thread_main:')
     while True:
       next_result = result_queue.get()
@@ -81,26 +66,24 @@ class btask_process_pool(object):
       clazz._log.log_d(f'_result_thread_main: got next_result with task_id={task_id}')
       if not isinstance(next_result, btask_result):
         clazz._log.log_e(f'_result_thread_main: got unexpected type "{type(next_result)}" instead of btask_error for task {task_id}')
-        with in_process_tasks_lock as lock:
-          if task_id in in_process_tasks:
-            del in_process_tasks[task_id]
+        with task_callbacks_lock as lock:
+          if task_id in task_callbacks:
+            del task_callbacks[task_id]
         continue
 
-      task = None
-      with in_process_tasks_lock as lock:
-        if not task_id in in_process_tasks:
+      callback = None
+      with task_callbacks_lock as lock:
+        if not task_id in task_callbacks:
           clazz._log.log_e(f'_result_thread_main: task {task_id} not found.')
           continue
-        task = in_process_tasks[task_id]
-        del in_process_tasks[task_id]
-      assert task != None
-      callback = task.callback
-      assert callback
+        callback = task_callbacks[task_id]
+        del task_callbacks[task_id]
+      assert callback != None
       callback(next_result)
 
   @classmethod
-  def _result_thread_start(clazz, target, result_queue, in_process_tasks, in_process_tasks_lock):
-    args = ( result_queue, in_process_tasks, in_process_tasks_lock )
+  def _result_thread_start(clazz, target, result_queue, task_callbacks, task_callbacks_lock):
+    args = ( result_queue, task_callbacks, task_callbacks_lock )
     thread = threading.Thread(target = target, args = args)
     thread.start()
     return thread
@@ -139,8 +122,8 @@ class btask_process_pool(object):
     self._processes = self._processes_start()
     self._result_thread = self._result_thread_start(self._result_thread_main,
                                                     self._process_result_queue,
-                                                    self._in_process_tasks,
-                                                    self._in_process_tasks_lock)
+                                                    self._task_callbacks,
+                                                    self._task_callbacks_lock)
 
   def stop(self):
     if not self._processes:
@@ -155,14 +138,14 @@ class btask_process_pool(object):
   def num_processes(self):
     return self._num_processes
 
-  def add_task(self, task):
+  def add_task(self, task, callback):
     check.check_btask_task(task)
 
     task_id = task.task_id
-    with self._in_process_tasks_lock as lock:
-      if task_id in self._in_process_tasks:
+    with self._task_callbacks_lock as lock:
+      if task_id in self._task_callbacks:
         raise btask_error(f'Task {task_id} is already in process.')
-      self._in_process_tasks[task_id] = task
+      self._task_callbacks[task_id] = callback
     process_task = btask_process_task(task.task_id,
                                       task.add_time,
                                       task.config,

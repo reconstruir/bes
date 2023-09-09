@@ -57,7 +57,6 @@ class test_btask_process_pool(unit_test):
     pc = btask_process_pool(1)
     manager = multiprocessing.Manager()
 #    input_queue = manager.Queue()
-    result_queue = manager.Queue()
     
 #    data = btask_process_data('kiwi1', input_queue, result_queue)
 #    process = btask_process(data)
@@ -69,10 +68,6 @@ class test_btask_process_pool(unit_test):
 
     cancelled_value = manager.Value(bool, False)
 
-    def _callback(result):
-      self._log.log_d(f'_callback: result={result}')
-      result_queue.put(result)
-    
     task = btask_task(42,
                       add_time,
                       ( 'kiwi', 'low', 2, self.DEBUG ),
@@ -82,11 +77,16 @@ class test_btask_process_pool(unit_test):
                         'flavor': 'sweet',
                         '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' },
                       },
-                      _callback,
+                      lambda result: True,
                       None,
                       cancelled_value)
     pc.start()
-    pc.add_task(task)
+    result_queue = manager.Queue()
+    def _callback(result):
+      self._log.log_d(f'_callback: result={result}')
+      result_queue.put(result)
+    
+    pc.add_task(task, _callback)
     result = result_queue.get()
     result = self._fix_result(result, add_time, start_time, end_time)
     pc.stop()
