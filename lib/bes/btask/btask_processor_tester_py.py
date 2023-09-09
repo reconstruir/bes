@@ -6,7 +6,7 @@ from bes.system.check import check
 from bes.system.log import logger
 
 from .btask_main_thread_runner_py import btask_main_thread_runner_py
-from .btask_pool import btask_pool
+from .btask_processor import btask_processor
 from .btask_result_collector_py import btask_result_collector_py
 
 class btask_processor_tester_py(object):
@@ -20,7 +20,7 @@ class btask_processor_tester_py(object):
     self._num_added_tasks = 0
 
     self._runner = btask_main_thread_runner_py()
-    self._pool = btask_pool(num_processes)
+    self._pool = btask_processor(num_processes)
     self._collector = btask_result_collector_py(self._pool, self._runner)
     self._result_queue = py_queue.Queue()
 

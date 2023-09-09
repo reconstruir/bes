@@ -5,14 +5,14 @@ from bes.system.check import check
 
 from .btask_result_collector_i import btask_result_collector_i
 from .btask_result import btask_result
-from .btask_pool import btask_pool
+from .btask_processor import btask_processor
 
 class btask_result_collector_py(btask_result_collector_i):
 
   _log = logger('btask')
   
   def __init__(self, pool, runner):
-    check.check_btask_pool(pool)
+    check.check_btask_processor(pool)
     check.check_btask_main_thread_runner(runner)
     
     super().__init__(pool.result_queue)

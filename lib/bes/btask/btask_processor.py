@@ -22,7 +22,7 @@ from .btask_result_state import btask_result_state
 from .btask_threading import btask_threading
 from .btask_dedicated_category_config import btask_dedicated_category_config
 
-class btask_pool(object):
+class btask_processor(object):
 
   _log = logger('btask')
 
@@ -337,4 +337,4 @@ class btask_pool(object):
         btask_error(f'No task_id "{task_id}" found to check for interruption')
       return item.cancelled_value.value
       
-check.register_class(btask_pool, include_seq = False)
+check.register_class(btask_processor, include_seq = False)

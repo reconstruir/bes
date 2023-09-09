@@ -13,7 +13,7 @@ from bes.btask.btask_cancelled_error import btask_cancelled_error
 from bes.btask.btask_processor_tester_py import btask_processor_tester_py
 from bes.btask.btask_progress import btask_progress
 
-class test_btask_pool_py(unit_test):
+class test_btask_processor_py(unit_test):
 
   _log = logger('test')
   
