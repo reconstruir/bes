@@ -24,7 +24,7 @@ from .btask_threading import btask_threading
 from .btask_dedicated_category_config import btask_dedicated_category_config
 from .btask_process import btask_process
 
-class btask_pool_caca(object):
+class btask_process_pool(object):
 
   _log = logger('btask')
 
@@ -334,4 +334,4 @@ class btask_pool_caca(object):
       return item.cancelled_value.value
 '''
   
-check.register_class(btask_pool_caca, include_seq = False)
+check.register_class(btask_process_pool, include_seq = False)

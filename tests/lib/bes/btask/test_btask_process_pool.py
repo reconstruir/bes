@@ -19,9 +19,9 @@ from bes.btask.btask_processor_tester_py import btask_processor_tester_py
 
 from bes.btask.btask_process import btask_process
 from bes.btask.btask_task import btask_task
-from bes.btask.btask_pool_caca import btask_pool_caca
+from bes.btask.btask_process_pool import btask_process_pool
 
-class test_btask_pool_caca(unit_test):
+class test_btask_process_pool(unit_test):
 
   _log = logger('test')
   
@@ -54,7 +54,7 @@ class test_btask_pool_caca(unit_test):
   def test_process_one_process(self):
     self._log.log_d(f'test_process_one_process:')
 
-    pc = btask_pool_caca(1)
+    pc = btask_process_pool(1)
     manager = multiprocessing.Manager()
 #    input_queue = manager.Queue()
 #    result_queue = manager.Queue()
