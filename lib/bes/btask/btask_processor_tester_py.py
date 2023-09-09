@@ -36,7 +36,7 @@ class btask_processor_tester_py(object):
     self._collector.stop()
 
   def stop(self):
-    self._pool.close()
+    self._pool.stop()
     
   def _after_callback(self):
     if self._num_completed_tasks == self._num_added_tasks:
