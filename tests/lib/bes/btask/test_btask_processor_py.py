@@ -326,7 +326,7 @@ class test_btask_processor_py(unit_test):
     
     def _cancel_thread_main():
       time.sleep(0.100)
-      tester.pool.cancel(task_id2)
+      tester.processor.cancel(task_id2)
       return 0
     threading.Thread(target = _cancel_thread_main).start()
     
@@ -380,7 +380,7 @@ class test_btask_processor_py(unit_test):
 
     def _cancel_thread_main():
       time.sleep(0.250)
-      tester.pool.cancel(task_id1)
+      tester.processor.cancel(task_id1)
       return 0
     threading.Thread(target = _cancel_thread_main).start()
     
@@ -435,7 +435,7 @@ class test_btask_processor_py(unit_test):
     def _cancel_thread_main():
       time.sleep(0.250)
       for task_id in task_ids:
-        tester.pool.cancel(task_id)
+        tester.processor.cancel(task_id)
       return 0
     threading.Thread(target = _cancel_thread_main).start()
     

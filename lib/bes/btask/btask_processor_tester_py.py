@@ -20,13 +20,13 @@ class btask_processor_tester_py(object):
     self._num_added_tasks = 0
 
     self._runner = btask_main_thread_runner_py()
-    self._pool = btask_processor(num_processes)
-    self._collector = btask_result_collector_py(self._pool, self._runner)
+    self._processor = btask_processor(num_processes)
+    self._collector = btask_result_collector_py(self._processor, self._runner)
     self._result_queue = py_queue.Queue()
 
   @property
-  def pool(self):
-    return self._pool
+  def processor(self):
+    return self._processor
   
   def start(self):
     self._collector.start()
@@ -36,7 +36,7 @@ class btask_processor_tester_py(object):
     self._collector.stop()
 
   def stop(self):
-    self._pool.stop()
+    self._processor.stop()
     
   def _after_callback(self):
     if self._num_completed_tasks == self._num_added_tasks:
@@ -48,11 +48,11 @@ class btask_processor_tester_py(object):
     self._after_callback()
       
   def add_task(self, function, callback = None, progress_callback = None, config = None, args = None):
-    task_id = self._pool.add_task(function,
-                                  callback = callback,
-                                  progress_callback = progress_callback,
-                                  config = config,
-                                  args = args)
+    task_id = self._processor.add_task(function,
+                                       callback = callback,
+                                       progress_callback = progress_callback,
+                                       config = config,
+                                       args = args)
     self._num_added_tasks += 1
     return task_id
 
