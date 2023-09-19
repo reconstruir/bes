@@ -94,8 +94,11 @@ class btask_process(object):
     
   @classmethod
   def _process_main(clazz, encoded_task_data):
+    #import signal
+    #signal.signal(signal.SIGINT, signal.SIG_IGN)
+    
     check.check_bytes(encoded_task_data)
-
+    
     task_data = pickle.loads(encoded_task_data)
     name = task_data.name
     clazz._log.log_d(f'{name}: task_data={task_data}')
