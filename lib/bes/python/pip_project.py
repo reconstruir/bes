@@ -94,6 +94,7 @@ class pip_project(object):
     
   @cached_property
   def virtual_env(self):
+    self._log.log_d(f'_original_python_exe={self._original_python_exe}')
     return python_virtual_env(self._original_python_exe, self.root_dir)
 
   @cached_property

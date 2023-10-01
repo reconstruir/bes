@@ -80,8 +80,8 @@ class python_virtual_env(object):
     with dir_cleanup(tempfile.gettempdir()) as ctx:
       rv = execute.execute(cmd, env = env, raise_error = False)
     if rv.exit_code != 0:
-      raise python_error('failed to init virtual env: "{}" - {}'.format(' '.join(cmd),
-                                                                        rv.stderr))
+      flat_cmd = ' '.join(cmd)
+      raise python_error(f'failed to init virtual env: "{flat_cmd}" - {rv.stdout}')
     clazz._ensure_versioned_python_exe(root_dir, exe)
     
   @classmethod

@@ -39,6 +39,7 @@ class python_installation(object):
       raise python_error('exe is not executable: "{}"'.format(exe))
     
     stuff = self._determine_stuff(exe, system = self.system)
+    self._log.log_d(f'stuff={stuff}')
     self.root_dir = stuff.root_dir
     self.python_exe = stuff.python_exe
     self.pip_exe = stuff.pip_exe

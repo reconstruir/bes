@@ -45,6 +45,10 @@ class python_testing(object):
       return python_discovery.find_by_version('3.10')
 
     @cached_property
+    def PYTHON_311(self):
+      return python_discovery.find_by_version('3.11')
+    
+    @cached_property
     def ALL_PYTHONS(self):
       return python_discovery.all_exes()
     
@@ -67,12 +71,13 @@ class python_testing(object):
     _log.log_d('  PYTHON_38: {}'.format(_PYTHONS.PYTHON_38))
     _log.log_d('  PYTHON_39: {}'.format(_PYTHONS.PYTHON_39))
     _log.log_d(' PYTHON_310: {}'.format(_PYTHONS.PYTHON_310))
+    _log.log_d(' PYTHON_311: {}'.format(_PYTHONS.PYTHON_311))
     _log.log_d('ALL_PYTHONS: {}'.format(' '.join(_PYTHONS.ALL_PYTHONS)))
     _log.log_d(' ANY_PYTHON: {}'.format(_PYTHONS.ANY_PYTHON))
     _log.log_d('ANY_PYTHON2: {}'.format(_PYTHONS.ANY_PYTHON2))
     _log.log_d('ANY_PYTHON3: {}'.format(_PYTHONS.ANY_PYTHON3))
 
-  PYTHON_VERSIONS = ( '2.7', '3.7', '3.8', '3.9', '3.10' )
+  PYTHON_VERSIONS = ( '2.7', '3.7', '3.8', '3.9', '3.10', '3.11' )
   @classmethod
   def make_fake_python_installation(clazz, root_dir, py_version, pip_version,
                                     source, system = None):

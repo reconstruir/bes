@@ -122,6 +122,7 @@ class bes_project(object):
     assert version in infos
     info = infos[version]
     pp_root_dir = self._dir_for_version(version)
+    self._log.log_d(f'python_exe={info.exe}')
     pp_options = pip_project_options(debug = self._options.debug,
                                      verbose = self._options.verbose,
                                      blurber = self._options.blurber,
