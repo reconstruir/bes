@@ -75,7 +75,7 @@ class filesystem(filesystem_base):
     return clazz._impl_class.file_is_hidden(filename)
   
   @classmethod
-  def remove(clazz, files, raise_not_found_error = False):
+  def remove(clazz, files, raise_not_found_error = False, raise_permission_error = False):
     '''
     Remove a mixutre of files, directories or a list of files and directories.
     Errors are propagated unless its file not found in which case it is
@@ -90,9 +90,14 @@ class filesystem(filesystem_base):
         else:
           os.remove(f)
       except OSError as ex:
-        if ex.errno != errno.ENOENT:
-          raise
-        if raise_not_found_error:
+        do_raise = False
+        if ex.errno == errno.ENOENT:
+          do_raise = raise_not_found_error
+        elif ex.errno == errno.EPERM:
+          do_raise = raise_permission_error
+        else:
+          do_raise = True
+        if do_raise:
           raise
       except Exception as ex:
         clazz._log.log_e('file_util.remove: Caught exception {}:{} removing "{}"'.format(str(ex), type(ex), f))
