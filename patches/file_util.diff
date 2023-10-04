@@ -1,0 +1,15 @@
+diff --git a/lib/bes/fs/file_util.py b/lib/bes/fs/file_util.py
+index 7368bd74..d50a7c33 100644
+--- a/lib/bes/fs/file_util.py
++++ b/lib/bes/fs/file_util.py
+@@ -66,7 +66,9 @@ class file_util(object):
+ 
+   @classmethod
+   def _cross_device_safe_rename(clazz, src, dst):
+-    'Rename that deals with cross device link issues.' 
++    'Rename that deals with cross device link issues.'
++    shutil.move(src, dst)
++    return
+     try:
+       os.rename(src, dst)
+     except OSError as ex:
