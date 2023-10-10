@@ -17,9 +17,9 @@ class vmware_cli_handler(cli_command_handler):
   _log = logger('vmware_cli_handler')
   
   def __init__(self, cli_args):
-    super(vmware_cli_handler, self).__init__(cli_args,
-                                             options_class = vmware_options,
-                                             delegate = self._comand_handler_delegate)
+    super().__init__(cli_args,
+                     options_class = vmware_options,
+                     delegate = self._comand_handler_delegate)
     check.check_vmware_options(self.options)
     self._vmware = vmware(self.options)
 

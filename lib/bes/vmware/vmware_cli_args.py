@@ -211,6 +211,9 @@ class vmware_cli_args(object):
     p.add_argument('-i', '--info', action = 'store_true', default = False,
                    dest = 'show_info',
                    help = 'Show as all known info about a vm [ False ]')
+    p.add_argument('-b', '--brief', action = 'store_true', default = False,
+                   dest = 'show_brief',
+                   help = 'Brief output [ False ]')
     vmware_options_cli_args.add_arguments(p)
     
   def __vmware_add_common_run_program_args(self, p):

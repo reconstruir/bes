@@ -589,13 +589,14 @@ class vmware(object):
     for snapshot in snapshots:
       print(snapshot)
 
-  def vms(self, show_info):
+  def vms(self, show_info, show_brief):
     check.check_bool(show_info)
-    
+    check.check_bool(show_brief)
+
     self._log.log_method_d()
     vms = self.local_vms.items()
     if show_info:
-      data = [ self._make_vm_data(vm) for _, vm in self.local_vms.items() ]
+      data = [ self._make_vm_data(vm, show_brief) for _, vm in self.local_vms.items() ]
       data = sorted(data, key = lambda row: row[0])
       tt = text_table(data = data)
       tt.set_labels(self._INFO_LABELS)
@@ -610,15 +611,15 @@ class vmware(object):
 
     self._log.log_method_d()
     vm = self._resolve_vmx_to_local_vm(vm_id)
-    tt = text_table(data = [ self._make_vm_data(vm) ])
+    tt = text_table(data = [ self._make_vm_data(vm, False) ])
     tt.set_labels(self._INFO_LABELS)
     print(tt)
 
-  def _make_vm_data(self, vm):
+  def _make_vm_data(self, vm, show_brief):
     info = vm.info
     return (
       info.nickname,
-      info.vmx_filename,
+      path.basename(info.vmx_filename) if show_brief else info.vmx_filename,
       info.ip_address,
       info.is_running,
       info.can_run_programs,
