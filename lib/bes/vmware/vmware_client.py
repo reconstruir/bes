@@ -223,7 +223,6 @@ class vmware_client(object):
   
   def _make_request(self, method, url, params = None, json = None, data = None):
     auth = self._auth.to_tuple('username', 'password')
-    print('auth={}'.format(auth))
     func = getattr(requests, method)
     self._log.log_d('_make_request() method={} url={} params={} json={} data={}'.format(method,
                                                                                         url,

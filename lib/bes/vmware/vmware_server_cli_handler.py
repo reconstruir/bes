@@ -13,7 +13,7 @@ class vmware_server_cli_handler(cli_command_handler):
   'vmware server cli handler.'
 
   def __init__(self, cli_args):
-    super(vmware_server_cli_handler, self).__init__(cli_args, options_class = vmware_server_options)
+    super().__init__(cli_args, options_class = vmware_server_options)
     check.check_vmware_server_options(self.options)
 
   def shell(self, shell_args):

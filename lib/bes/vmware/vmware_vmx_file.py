@@ -18,7 +18,7 @@ class vmware_vmx_file(vmware_properties_file):
   'Class do deal with vmware vmx files'
 
   def __init__(self, filename = None, backup = False):
-    super(vmware_vmx_file, self).__init__(filename, backup = backup)
+    super().__init__(filename, backup = backup)
                       
   @cached_property
   def nickname(self):
@@ -47,7 +47,10 @@ class vmware_vmx_file(vmware_properties_file):
   @cached_property
   def display_name(self):
     'Return the display name of the vm in the vmware gui'
-    return self.get_value('displayName')
+    for key in ( 'displayName', 'displayname' ):
+      if self.has_value(key):
+        return self.get_value(key)
+    raise vmware_error('No displayname found: {self.filename}')
 
   @cached_property
   def uuid(self):

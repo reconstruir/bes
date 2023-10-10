@@ -50,10 +50,10 @@ class vmware_system_info(object):
     handler_name = '_system_info_{}'.format(family_name)
     handler = getattr(clazz, handler_name, None)
     if not handler:
-      raise vmware_error('Unknown guest os: "{}" - "{}"'.format(guest_os, details))
+      raise vmware_error(f'Unknown guest os: "{family_name}" - "{details}"')
     result = handler(details)
     if not result:
-      raise vmware_error('Unknown guest os: "{}" - "{}"'.format(guest_os, details))
+      raise vmware_error(f'Unknown guest os: "{family_name}" - "{details}"')
     return result
 
   @classmethod
@@ -69,6 +69,16 @@ class vmware_system_info(object):
     assert distro_version
     version_parts = distro_version.split('.')
     return host_info('linux', version_parts[0], version_parts[1], arch, distro_name.lower(), None, None)
+
+  @classmethod
+  def _system_info_windows(clazz, details):
+    arch = clazz._determine_arch(details)
+    distro_name = details.get('distroName', None)
+    assert distro_name
+    distro_version = details.get('distroVersion', None)
+    assert distro_version
+    version_parts = distro_version.split('.')
+    return host_info('windows', version_parts[0], version_parts[1], arch, distro_name.lower(), None, None)
 
   @classmethod
   def _system_info_darwin(clazz, details):

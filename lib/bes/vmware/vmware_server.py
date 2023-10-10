@@ -42,9 +42,9 @@ class vmware_server(object):
     self.pid = process.pid
     self._log.log_d('pid={}'.format(self.pid))
     while True:
-      next_line = process.stdout.readline().strip()
+      next_line = process.stdout.readline().strip().decode()
       if next_line:
-        self._log.log_d('next_line="{}"'.format(next_line))
+        self._log.log_d(f'next_line="{next_line}"')
       else:
         continue
       if 'Failed to launch vmrest' in next_line:
