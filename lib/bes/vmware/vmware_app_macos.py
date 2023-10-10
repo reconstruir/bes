@@ -46,7 +46,7 @@ class vmware_app_macos(vmware_app_base):
     'Ensure vmware is running.'
     if clazz.is_running():
       return
-    execute.execute(r'open -g "{clazz._APP_PATH}"')
+    execute.execute(f'open -g "{clazz._APP_PATH}"')
 
   @classmethod
   #@abstractmethod

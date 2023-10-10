@@ -56,7 +56,6 @@ class system_command(with_metaclass(ABCMeta, object)):
   @classmethod
   def _find_exe(clazz):
     'Find the exe'
-    extra_path = clazz.extra_path()
     exe_name = clazz.exe_name()
     if path.isabs(exe_name):
       exe = exe_name

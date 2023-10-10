@@ -9,27 +9,40 @@ class vmware_app_cli_args(object):
 
     # is_installed
     p = subparser.add_parser('is_installed', help = 'Check if vmware is installed.')
+    self.__vmware_app_add_common_args(p)
     
     # is_running
     p = subparser.add_parser('is_running', help = 'Check if vmware is running.')
+    self.__vmware_app_add_common_args(p)
 
     # ensure_running
     p = subparser.add_parser('ensure_running', help = 'Ensure vmware is running.')
+    self.__vmware_app_add_common_args(p)
 
     # ensure_stopped
     p = subparser.add_parser('ensure_stopped', help = 'Ensure vmware is stopped.')
+    self.__vmware_app_add_common_args(p)
 
     # install_path
     p = subparser.add_parser('install_path', help = 'Print the app installation path.')
+    self.__vmware_app_add_common_args(p)
 
     # vmrun
     p = subparser.add_parser('vmrun', help = 'Print the vmrun exe path.')
+    self.__vmware_app_add_common_args(p)
 
     # vmrest
     p = subparser.add_parser('vmrest', help = 'Print the vmrest exe path.')
+    self.__vmware_app_add_common_args(p)
     
     # ovftool
     p = subparser.add_parser('ovftool', help = 'Print the ovftool exe path.')
+    self.__vmware_app_add_common_args(p)
+
+  def __vmware_app_add_common_args(self, p):
+    'Add argument common to all commands that run programs and scripts'
+    p.add_argument('-v', '--verbose', action = 'store_true', default = False,
+                   help = 'Verbose output [ False ]')
     
   def _command_vmware_app(self, command, *args, **kargs):
     from .vmware_app_cli_handler import vmware_app_cli_handler
