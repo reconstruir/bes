@@ -19,6 +19,12 @@ def _find_impl_class():
 class vmware_app(vmware_app_base):
 
   _impl = _find_impl_class()
+
+  @classmethod
+  #@abstractmethod
+  def install_path(clazz):
+    'The full path to where vmware is installed.'
+    return clazz._impl.install_path()
   
   @classmethod
   #@abstractmethod
@@ -73,3 +79,16 @@ class vmware_app(vmware_app_base):
   def vmrun_exe_path(clazz):
     'The full path to the vmrun executable.'
     return clazz._impl.vmrun_exe_path()
+
+  @classmethod
+  #@abstractmethod
+  def vmrest_exe_path(clazz):
+    'The full path to the vmrest executable.'
+    return clazz._impl.vmrest_exe_path()
+  
+  @classmethod
+  #@abstractmethod
+  def ovftool_exe_path(clazz):
+    'The full path to the ovftool executable.'
+    return clazz._impl.ovftool_exe_path()
+  

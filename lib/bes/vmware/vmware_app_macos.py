@@ -3,8 +3,10 @@
 import os.path as path
 import time
 
+from bes.fs.file_find import file_find
 from bes.fs.file_util import file_util
 from bes.fs.temp_file import temp_file
+from bes.property.cached_class_property import cached_class_property
 from bes.system.execute import execute
 from bes.system.process_lister import process_lister
 from bes.system.which import which
@@ -13,17 +15,25 @@ from .vmware_app_base import vmware_app_base
 
 class vmware_app_macos(vmware_app_base):
 
+  _APP_PATH = '/Applications/VMware Fusion.app'
+
+  @classmethod
+  #@abstractmethod
+  def install_path(clazz):
+    'The full path to where vmware is installed.'
+    return clazz._APP_PATH
+  
   @classmethod
   #@abstractmethod
   def is_installed(clazz):
     'Return True if vmware is installed.'
-    return path.exists('/Applications/VMware Fusion.app/Contents/Public/vmrun')
+    return path.exists(f'{clazz._APP_PATH}/Contents/Public/vmrun')
 
   @classmethod
   #@abstractmethod
   def is_running(clazz):
     'Return True if vmware is installed.'
-    vmware_command_name = '/Applications/VMware Fusion.app/Contents/MacOS/VMware Fusion'
+    vmware_command_name = f'{clazz._APP_PATH}/Contents/MacOS/VMware Fusion'
     processes = process_lister().list_processes()
     for process in processes:
       if vmware_command_name in process.command:
@@ -36,7 +46,7 @@ class vmware_app_macos(vmware_app_base):
     'Ensure vmware is running.'
     if clazz.is_running():
       return
-    execute.execute(r'open -g /Applications/VMware\ Fusion.app')
+    execute.execute(r'open -g "{clazz._APP_PATH}"')
 
   @classmethod
   #@abstractmethod
@@ -76,5 +86,37 @@ end tell
   #@abstractmethod
   def vmrun_exe_path(clazz):
     'The full path to the vmrun executable.'
-    return which.which('vmrun')
+    return clazz._found_vmrun_exe_path
+
+  @classmethod
+  #@abstractmethod
+  def vmrest_exe_path(clazz):
+    'The full path to the vmrest executable.'
+    return clazz._found_vmrest_exe_path
+
+  @classmethod
+  #@abstractmethod
+  def ovftool_exe_path(clazz):
+    'The full path to the ovftool executable.'
+    return clazz._found_ovftool_exe_path
+  
+  @classmethod
+  def _find_exe(clazz, root_dir, exe_name):
+    files = file_find.find(root_dir, relative = False, match_patterns = exe_name)
+    if not files:
+      return None
+    assert len(files) == 1
+    return files[0]
+
+  @cached_class_property
+  def _found_vmrun_exe_path(clazz):
+    return clazz._find_exe(clazz._APP_PATH, 'vmrun')
+
+  @cached_class_property
+  def _found_vmrest_exe_path(clazz):
+    return clazz._find_exe(clazz._APP_PATH, 'vmrest')
+
+  @cached_class_property
+  def _found_ovftool_exe_path(clazz):
+    return clazz._find_exe(clazz._APP_PATH, 'ovftool')
   

@@ -25,3 +25,19 @@ class vmware_app_cli_handler(cli_command_handler):
     vmware_app.ensure_stopped()
     return 0
   
+  def install_path(self):
+    print(vmware_app.install_path())
+    return 0
+  
+  def vmrun(self):
+    print(vmware_app.vmrun_exe_path())
+    return 0
+
+  def vmrest(self):
+    print(vmware_app.vmrest_exe_path())
+    return 0
+  
+  def ovftool(self):
+    print(vmware_app.ovftool_exe_path())
+    return 0
+  
