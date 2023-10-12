@@ -164,7 +164,7 @@ class string_lexer_state(object):
   
 class string_lexer_state_begin(string_lexer_state):
   def __init__(self, lexer):
-    super(string_lexer_state_begin, self).__init__(lexer)
+    super().__init__(lexer)
 
   def handle_char(self, c):
     self.log_handle_char(c)
@@ -195,14 +195,14 @@ class string_lexer_state_begin(string_lexer_state):
     
 class string_lexer_state_done(string_lexer_state):
   def __init__(self, lexer):
-    super(string_lexer_state_done, self).__init__(lexer)
+    super().__init__(lexer)
 
   def handle_char(self, c):
     self.log_handle_char(c)
   
 class string_lexer_state_space(string_lexer_state):
   def __init__(self, lexer):
-    super(string_lexer_state_space, self).__init__(lexer)
+    super().__init__(lexer)
 
   def handle_char(self, c):
     self.log_handle_char(c)
@@ -235,7 +235,7 @@ class string_lexer_state_space(string_lexer_state):
 
 class string_lexer_state_string(string_lexer_state):
   def __init__(self, lexer):
-    super(string_lexer_state_string, self).__init__(lexer)
+    super().__init__(lexer)
 
   def handle_char(self, c):
     self.log_handle_char(c)
@@ -269,7 +269,7 @@ class string_lexer_state_string(string_lexer_state):
 
 class _state_quoted_string_base(string_lexer_state):
   def __init__(self, lexer, quote_char):
-    super(_state_quoted_string_base, self).__init__(lexer)
+    super().__init__(lexer)
     self.quote_char = quote_char
 
   def handle_char(self, c):
@@ -290,15 +290,15 @@ class _state_quoted_string_base(string_lexer_state):
 
 class string_lexer_state_single_quoted_string(_state_quoted_string_base):
   def __init__(self, lexer):
-    super(string_lexer_state_single_quoted_string, self).__init__(lexer, lexer.SINGLE_QUOTE_CHAR)
+    super().__init__(lexer, lexer.SINGLE_QUOTE_CHAR)
 
 class string_lexer_state_double_quoted_string(_state_quoted_string_base):
   def __init__(self, lexer):
-    super(string_lexer_state_double_quoted_string, self).__init__(lexer, lexer.DOUBLE_QUOTE_CHAR)
+    super().__init__(lexer, lexer.DOUBLE_QUOTE_CHAR)
 
 class string_lexer_state_comment(string_lexer_state):
   def __init__(self, lexer):
-    super(string_lexer_state_comment, self).__init__(lexer)
+    super().__init__(lexer)
 
   def handle_char(self, c):
     self.log_handle_char(c)

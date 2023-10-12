@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import string
@@ -8,7 +7,7 @@ from bes.text.lexer_token import lexer_token
 
 class _state_begin(string_lexer_state):
   def __init__(self, lexer):
-    super(_state_begin, self).__init__(lexer)
+    super().__init__(lexer)
 
   def handle_char(self, c):
     self.log_handle_char(c)
@@ -42,7 +41,7 @@ class _state_begin(string_lexer_state):
     
 class _state_space(string_lexer_state):
   def __init__(self, lexer):
-    super(_state_space, self).__init__(lexer)
+    super().__init__(lexer)
 
   def handle_char(self, c):
     self.log_handle_char(c)
@@ -80,7 +79,7 @@ class _state_space(string_lexer_state):
 
 class _state_string(string_lexer_state):
   def __init__(self, lexer):
-    super(_state_string, self).__init__(lexer)
+    super().__init__(lexer)
 
   def handle_char(self, c):
     self.log_handle_char(c)
@@ -128,7 +127,7 @@ class key_value_lexer(string_lexer):
   IGNORE_SPACES = 0x08
   
   def __init__(self, delimiter, kv_delimiters, options):
-    super(key_value_lexer, self).__init__('key_value_lexer', options)
+    super().__init__('key_value_lexer', options)
 
     kv_delimiters = kv_delimiters or self.DEFAULT_KV_DELIMITERS
 

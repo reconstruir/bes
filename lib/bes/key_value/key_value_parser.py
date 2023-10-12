@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 # FIXME: add an exception class that handles all the state info attributes
@@ -105,7 +104,7 @@ class _state(object):
   
 class _state_expecting_key(_state):
   def __init__(self, parser):
-    super(_state_expecting_key, self).__init__(parser)
+    super().__init__(parser)
 
   def handle_token(self, token):
     self.log_d('handle_token(%s)' % (str(token)))
@@ -126,7 +125,7 @@ class _state_expecting_key(_state):
     
 class _state_done(_state):
   def __init__(self, parser):
-    super(_state_done, self).__init__(parser)
+    super().__init__(parser)
 
   def handle_token(self, token):
     self.log_d('handle_token(%s)' % (str(token)))
@@ -137,7 +136,7 @@ class _state_done(_state):
   
 class _state_expecting_delimiter(_state):
   def __init__(self, parser):
-    super(_state_expecting_delimiter, self).__init__(parser)
+    super().__init__(parser)
 
   def handle_token(self, token):
     self.log_d('handle_token(%s)' % (str(token)))
@@ -161,7 +160,7 @@ class _state_expecting_delimiter(_state):
 
 class _state_value(_state):
   def __init__(self, parser):
-    super(_state_value, self).__init__(parser)
+    super().__init__(parser)
 
   def handle_token(self, token):
     self.log_d('handle_token(%s)' % (str(token)))
