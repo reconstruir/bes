@@ -16,12 +16,14 @@ class bc_ini_lexer(object):
   TOKEN_DONE = 'done'
   TOKEN_SPACE = 'space'
   TOKEN_STRING = 'string'
+  TOKEN_START_SECTION = 'start_section'
+  TOKEN_END_SECTION = 'end_section'
 
   EOS = '\0'
 
   SINGLE_QUOTE_CHAR = '\''
   DOUBLE_QUOTE_CHAR = "\""
-  COMMENT_CHAR = '#'
+  COMMENT_CHAR = ';'
 
   def __init__(self, log_tag, options):
     log.add_logging(self, tag = log_tag)
@@ -72,7 +74,7 @@ class bc_ini_lexer(object):
         self.position = point(self.position.x + 0, self.position.y)
         
     assert self.state == self.STATE_DONE
-    yield bc_ini_lexer_token(self.TOKEN_DONE, None, self.position)
+#    yield bc_ini_lexer_token(self.TOKEN_DONE, None, self.position)
       
   @classmethod
   def tokenize(clazz, text, log_tag, options = None):
