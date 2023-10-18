@@ -13,8 +13,11 @@ class bc_ini_lexer_token(namedtuple('bc_ini_lexer_token', 'token_type, value, po
     return clazz.__bases__[0].__new__(clazz, token_type, value, position)
 
   def __str__(self):
-    return '{},{},{}'.format(self.token_type, self.value, self.position)
+    return f'{self.token_type},{self.value},{self.position}'
 
+  def __repr__(self):
+    return str(self)
+  
   def clone(self, mutations = None):
     mutations = mutations or {}
     if 'position' in mutations:
