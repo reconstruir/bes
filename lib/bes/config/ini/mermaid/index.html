@@ -2,11 +2,12 @@
 <html>
 <head>
   <script type="module">
-    import mermaid from 'mermaid';
-    mermaid.initialize({ startOnLoad: true });
+    import { initialize, render } from 'mermaid';
+
+    initialize({ startOnLoad: true });
 
     document.addEventListener('DOMContentLoaded', () => {
-      mermaid.render('mermaid-diagram', 'graph TD\nA --> B\nB --> C');
+      render('mermaid-diagram', 'graph TD\nA --> B\nB --> C');
     });
   </script>
 </head>
