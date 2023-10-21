@@ -1,12 +1,19 @@
 stateDiagram-v2
   direction LR
   [*] --> Start
-  Start --> [*]
+  Start --> [*]: eos
   Start --> Comment: [#0059;]
   Start --> Space: [\t␠]
-  Start --> Space: [\t␠]
+  Start --> CR: [␍]
   Space --> Space: [\t␠]
-  Space --> Crash
+  Space --> [*]: eos
+  Space --> CR: [␍]
+  Space --> Start: [␤]
+  Space --> Start: [.]
+  CR --> Start: [␤] 
+  CR --> Error: eos
+  CR --> Error: [.]
   Comment --> Comment: [.]
-  Comment --> [*]: EOS
-  Crash --> [*]
+  Comment --> CR: [␍]
+  Comment --> Start: [␤]
+  Comment --> [*]: eos
