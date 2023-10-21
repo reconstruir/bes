@@ -1,0 +1,11 @@
+- brew install node@18
+- bes_env_path_append PATH /usr/local/opt/node@18/bin
+- ~/proj/bes/lib/bes/config/ini/mermaid
+- cd ~/proj/bes/lib/bes/config/ini/mermaid
+- npm init
+- git add package.json
+- npm install mermaid
+- git add package-lock.json
+- echo node_modules > .gitignore
+- git add .gitignore
+
