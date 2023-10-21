@@ -1,7 +1,12 @@
 stateDiagram-v2
-  [*] --> Still
-  Still --> [*]
-  Still --> Moving
-  Moving --> Still
-  Moving --> Crash
+  direction LR
+  [*] --> Start
+  Start --> [*]
+  Start --> Comment: [#0059;]
+  Start --> Space: [\t␠]
+  Start --> Space: [\t␠]
+  Space --> Space: [\t␠]
+  Space --> Crash
+  Comment --> Comment: [.]
+  Comment --> [*]: EOS
   Crash --> [*]
