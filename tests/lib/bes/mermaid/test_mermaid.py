@@ -86,8 +86,20 @@ stateDiagram-v2
   value --> [*]: eos
     '''
     self.assertEqual( [
-      'start',
+      '__end',
+      '__start',
+      'comment',
+      'cr',
+      'cr_error',
+      'expecting_value',
+      'key',
+      'section_name',
+      'section_name_error',
       'space',
+      'start',
+      'start_error',
+      'value',
+      'value_space',
     ], mermaid.parse_state_diagram_text(text) )
     
 if __name__ == '__main__':

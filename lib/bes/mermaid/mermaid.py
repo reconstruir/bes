@@ -15,16 +15,36 @@ class mermaid(object):
     check.check_string(text)
     check.check_int(indent)
 
+    tokens = clazz._state_diagram_tokenize(text, indent)
+    states = set()
+    for token in tokens:
+      if token.token_type == 'transition':
+        to_state = token.value.to_state
+        from_state = token.value.from_state
+        if to_state == '[*]':
+          to_state = '__end'
+        if from_state == '[*]':
+          from_state = '__start'
+        #print(f'{from_state} --> {to_state}')
+        states.add(to_state)
+        states.add(from_state)
+    return sorted(list(states))
+
+  @classmethod
+  def _state_diagram_tokenize(clazz, text, indent):
+    check.check_string(text)
+    check.check_int(indent)
+
     lines = text_line_parser.parse_lines(text,
                                          strip_comments = False,
                                          strip_text = False,
                                          remove_empties = False)
-
+    tokens = []
     for line_number, line in enumerate(lines, start = 1):
       token = clazz._parse_state_diagram_line(line, line_number, indent)
-      print(token)
-    return []
-
+      tokens.append(token)  
+    return tokens
+  
   @classmethod
   def _parse_state_diagram_line(clazz, line, line_number, indent):
     count = white_space.count_leading_spaces(line)
