@@ -1,6 +1,6 @@
 THEME=forest #dark
-WIDTH=1280
-HEIGHT=1024
+WIDTH=2000
+HEIGHT=1600
 
 all: ini.svg
 

@@ -5,7 +5,7 @@ stateDiagram-v2
   start --> comment: [#0059;]
   start --> space: [\t ␠]
   start --> cr: [␍]
-  start --> section_name_start: [
+  start --> section_name: [
   start --> key: [_ a-z A-Z 0-9]
   space --> space: [\t ␠]
   space --> [*]: eos
@@ -13,32 +13,20 @@ stateDiagram-v2
   space --> start: [␤]
   space --> key: [_ a-z A-Z 0-9]
   cr --> start: [␤] 
-  cr --> error1: [.] eos
-  note right of error1
+  cr --> cr_error: [.] eos
+  note right of cr_error
     Expecting "␤" instead of "."
   end note
   comment --> comment: [.]
   comment --> cr: [␍]
   comment --> start: [␤]
   comment --> [*]: eos
-  section_name_start --> section_name: [.]
-  section_name_start --> error2: [\t ␠ ␍ ␤] eos
-  note left of error2
+  section_name --> section_name: [_ a-z A-Z 0-9 \.]
+  section_name --> start: ]
+  section_name --> section_name_error: [\t ␠ ␍ ␤] eos
+  note left of section_name_error
     Unexpected char in section name
   end note
-  section_name --> section_name: [_ a-z A-Z 0-9 \.]
-  section_name --> section_name_end: ]
-  section_name --> error3: [\t ␠ ␍ ␤] eos
-  section_name_end --> cr: [␍]
-  section_name_end --> start: [␤]
-  section_name_end --> comment: [#0059;]
-  section_name_end --> section_name_space: [\t ␠]
-  section_name_end --> [*]: eos
-  section_name_space --> section_name_space: [\t ␠]
-  section_name_space --> [*]: eos
-  section_name_space --> cr: [␍]
-  section_name_space --> start: [␤]
-  section_name_space --> error4: [.]
   key --> key: [_ a-z A-Z 0-9 \.]
   key --> key_space: [\t ␠]
   key --> value_space: [=]
