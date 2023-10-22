@@ -14,12 +14,18 @@ stateDiagram-v2
   space --> key: [_ a-z A-Z 0-9]
   cr --> start: [␤] 
   cr --> error1: [.] eos
+  note right of error1
+    Expecting "␤" instead of "."
+  end note
   comment --> comment: [.]
   comment --> cr: [␍]
   comment --> start: [␤]
   comment --> [*]: eos
   section_name_start --> section_name: [.]
   section_name_start --> error2: [\t ␠ ␍ ␤] eos
+  note left of error2
+    Unexpected char in section name
+  end note
   section_name --> section_name: [_ a-z A-Z 0-9 \.]
   section_name --> section_name_end: ]
   section_name --> error3: [\t ␠ ␍ ␤] eos
