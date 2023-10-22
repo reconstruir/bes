@@ -1,19 +1,49 @@
 stateDiagram-v2
   direction LR
-  [*] --> Start
-  Start --> [*]: eos
-  Start --> Comment: [#0059;]
-  Start --> Space: [\t␠]
-  Start --> CR: [␍]
-  Space --> Space: [\t␠]
-  Space --> [*]: eos
-  Space --> CR: [␍]
-  Space --> Start: [␤]
-  Space --> Start: [.]
-  CR --> Start: [␤] 
-  CR --> Error: eos
-  CR --> Error: [.]
-  Comment --> Comment: [.]
-  Comment --> CR: [␍]
-  Comment --> Start: [␤]
-  Comment --> [*]: eos
+  [*] --> start
+  start --> [*]: eos
+  start --> comment: [#0059;]
+  start --> space: [\t ␠]
+  start --> cr: [␍]
+  start --> section_name_start: [
+  start --> key: [_ a-z A-Z 0-9]
+  space --> space: [\t ␠]
+  space --> [*]: eos
+  space --> cr: [␍]
+  space --> start: [␤]
+  space --> key: [_ a-z A-Z 0-9]
+  cr --> start: [␤] 
+  cr --> error1: [.] eos
+  comment --> comment: [.]
+  comment --> cr: [␍]
+  comment --> start: [␤]
+  comment --> [*]: eos
+  section_name_start --> section_name: [.]
+  section_name_start --> error2: [\t ␠ ␍ ␤] eos
+  section_name --> section_name: [_ a-z A-Z 0-9 \.]
+  section_name --> section_name_end: ]
+  section_name --> error3: [\t ␠ ␍ ␤] eos
+  section_name_end --> cr: [␍]
+  section_name_end --> start: [␤]
+  section_name_end --> comment: [#0059;]
+  section_name_end --> section_name_space: [\t ␠]
+  section_name_end --> [*]: eos
+  section_name_space --> section_name_space: [\t ␠]
+  section_name_space --> [*]: eos
+  section_name_space --> cr: [␍]
+  section_name_space --> start: [␤]
+  section_name_space --> error4: [.]
+  key --> key: [_ a-z A-Z 0-9 \.]
+  key --> key_space: [\t ␠]
+  key --> value_space: [=]
+  key_space --> key_space: [\t ␠]
+  key_space --> error5: [␍␤] eos
+  key_space --> value_space: [=]
+  value_space --> value_space: [\t ␠]
+  value_space --> error6: [␍␤] eos
+  value_space --> value: [.]
+  value --> value: [.]
+  value --> space: [\t ␠]
+  value --> cr: [␍]
+  value --> start: [␤]
+  value --> [*]: eos
