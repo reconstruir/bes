@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from collections import namedtuple
+import os
 import os.path as path
 
 from ..common.point import point
@@ -21,21 +22,20 @@ class mermaid(object):
     text = file_util.read(filename, codec = 'utf-8')
     return clazz.state_diagram_parse_text(text, indent = indent)
 
-  _HEADER = '''
+  _HEADER = '''\
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.text.text_lexer_base import text_lexer_base
 from bes.text.text_lexer_state_base import text_lexer_state_base
 '''
 
-  _LEXER_CLASS_TEMPLATE = '''
+  _LEXER_CLASS_TEMPLATE = '''\
 class {namespace}_{name}_lexer_base(text_lexer_base):
   def __init__(self, {name}, source = None):
     super().__init__(log_tag, source = source)
-
 '''
 
-  _STATE_CLASS_TEMPLATE = '''
+  _STATE_CLASS_TEMPLATE = '''\
 class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
   def __init__(self, lexer):
     super().__init__(lexer)
@@ -58,24 +58,26 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
     file_util.mkdir(output_directory)
     with open(output_filename, 'w') as stream:
       stream.write(clazz._HEADER)
-      stream.write('\n')
+      stream.write(os.linesep)
       caca = []
       for state in states:
         state_class_code = clazz._STATE_CLASS_TEMPLATE.format(namespace = namespace,
                                                               name = name,
                                                               state = state)
         stream.write(state_class_code)
-        stream.write('\n')
+        stream.write(os.linesep)
         state_class_name = f'{namespace}_{name}_lexer_state_{state}'
         state_instance_code = f'self.{state} = {state_class_name}(self)'
         caca.append(state_instance_code)
       lexer_class_code = clazz._LEXER_CLASS_TEMPLATE.format(namespace = namespace,
                                                             name = name,
                                                             state = state)
+      stream.write(lexer_class_code)
+      stream.write(os.linesep)
       for c in caca:
         stream.write('    ')
         stream.write(c)
-        stream.write('\n')
+        stream.write(os.linesep)
     return output_filename
 
   @classmethod
