@@ -1,40 +1,40 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from ..common.string_util import string_util
-from ..system.log import log
+#from bes.compat.StringIO import StringIO
+#from bes.common.string_util import string_util
+#from bes.common.point import point
+from bes.system.log import log
+#from bes.text.line_break import line_break
 
-from .text_lexer_error import text_lexer_error
+#from .bc_ini_lexer_token import bc_ini_lexer_token
+#from .bc_ini_lexer_options import bc_ini_lexer_options
+#from .bc_ini_error import bc_ini_error
+
+#from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_begin
+#from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_comment
+#from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_done
+#from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_double_quoted_string
+#from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_single_quoted_string
+#from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_space
+#from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_string
 
 class text_lexer_base(object):
 
-  def __init__(self, lexer):
-    self.name = self.__class__.__name__[1:]
-    tag = f'{lexer.__class__.__name__}.{self.name}'
-    log.add_logging(self, tag = tag)
-    self.lexer = lexer
-  
-  def handle_char(self, c):
-    cs = self.lexer.char_to_string(c)
-    raise RuntimeError(f'unhandled handle_char |{cs}| in state {self.name}')
+  #EOS = '\0'
+  #
+  #SINGLE_QUOTE_CHAR = '\''
+  #DOUBLE_QUOTE_CHAR = "\""
+  #COMMENT_CHAR = ';'
 
-  def log_handle_char(self, c):
-    try:
-      buffer_value = string_util.quote(self.lexer.buffer_value())
-    except AttributeError as ex:
-      buffer_value = 'None'
-    attrs = self._make_log_attributes(c)
-    self.log_d(f'handle_char: {attrs}')
-  
-  def _make_log_attributes(self, c, include_state = True):
-    attributes = []
-    if include_state:
-      attributes.append(f'state={self.name}')
-    cs = self.lexer.char_to_string(c)
-    attributes.append(f'c=|{cs}|')
-    try:
-      bs = string_util.quote(self.lexer.buffer_value())
-      attributes.append(f'buffer={bs}')
-    except AttributeError as ex:
-      attributes.append('buffer=None')
-    attributes.append('is_escaping={self.lexer.is_escaping}')
-    return ' '.join(attributes)
+  def __init__(self, log_tag, source = None):
+    log.add_logging(self, tag = log_tag)
+
+#    self._options = options or bc_ini_lexer_options.DEFAULT_OPTIONS
+    self._source = source or '<unknown>'
+#    self._keep_quotes = (self._options & bc_ini_lexer_options.KEEP_QUOTES) != 0
+#    self._escape_quotes = (self._options & bc_ini_lexer_options.ESCAPE_QUOTES) != 0
+#    self._ignore_comments = (self._options & bc_ini_lexer_options.IGNORE_COMMENTS) != 0
+#    self._buffer = None
+#    self._is_escaping = False
+#    self._last_char = None
+    

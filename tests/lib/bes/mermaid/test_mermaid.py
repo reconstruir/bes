@@ -6,7 +6,7 @@ from bes.mermaid.mermaid import mermaid
 
 class test_mermaid(unit_test):
 
-  def test_parse_state_diagram_text(self):
+  def test_state_diagram_parse_text(self):
     text = '''
 stateDiagram-v2
   direction LR
@@ -100,7 +100,27 @@ stateDiagram-v2
       'start_error',
       'value',
       'value_space',
-    ], mermaid.parse_state_diagram_text(text) )
+    ], mermaid.state_diagram_parse_text(text) )
+
+  def test_state_diagram_generate_code(self):
+    text = '''
+stateDiagram-v2
+  direction LR
+  
+  %% start state
+  [*] --> start
+  start --> [*]: eos
+  start --> comment: [#0059;]
+  comment --> comment: [.]
+  comment --> cr: [␍]
+  comment --> start: [␤]
+  comment --> [*]: eos
+    '''
+
+    tmp_mmd = self.make_temp_file(content = text)
+    tmp_dir = self.make_temp_dir()
+    f = mermaid.state_diagram_generate_code(tmp_mmd, '_fruit', 'kiwi', tmp_dir)
+    print(f'f={f}')
     
 if __name__ == '__main__':
   unit_test.main()

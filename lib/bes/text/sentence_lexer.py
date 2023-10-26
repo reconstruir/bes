@@ -3,7 +3,7 @@
 import string
 from .string_lexer import *
 from .lexer_token import lexer_token
-from .text_lexer_base import text_lexer_base
+from .text_lexer_state_base import text_lexer_state_base
 
 class sentence_lexer(string_lexer):
 

@@ -7,9 +7,11 @@ from bes.compat.StringIO import StringIO
 from bes.common.string_util import string_util
 from bes.common.point import point
 from bes.system.log import log
+from bes.text.line_break import line_break
 
 from .bc_ini_lexer_token import bc_ini_lexer_token
 from .bc_ini_lexer_options import bc_ini_lexer_options
+from .bc_ini_error import bc_ini_error
 
 from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_begin
 from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_comment
@@ -24,8 +26,9 @@ class bc_ini_lexer(object):
   TOKEN_DONE = 'done'
   TOKEN_SPACE = 'space'
   TOKEN_STRING = 'string'
-  TOKEN_START_SECTION = 'start_section'
-  TOKEN_END_SECTION = 'end_section'
+  TOKEN_SECTION_BEGIN = 'section_begin'
+  TOKEN_SECTION_END = 'section_end'
+  TOKEN_LINE_BREAK = 'line_break'
 
   EOS = '\0'
 
@@ -33,10 +36,11 @@ class bc_ini_lexer(object):
   DOUBLE_QUOTE_CHAR = "\""
   COMMENT_CHAR = ';'
 
-  def __init__(self, log_tag, options):
+  def __init__(self, log_tag, options, source = None):
     log.add_logging(self, tag = log_tag)
 
     self._options = options or bc_ini_lexer_options.DEFAULT_OPTIONS
+    self._source = source or ''
     self._keep_quotes = (self._options & bc_ini_lexer_options.KEEP_QUOTES) != 0
     self._escape_quotes = (self._options & bc_ini_lexer_options.ESCAPE_QUOTES) != 0
     self._ignore_comments = (self._options & bc_ini_lexer_options.IGNORE_COMMENTS) != 0
@@ -51,6 +55,8 @@ class bc_ini_lexer(object):
     self.STATE_SINGLE_QUOTED_STRING = _bc_ini_lexer_state_single_quoted_string(self)
     self.STATE_DOUBLE_QUOTED_STRING = _bc_ini_lexer_state_double_quoted_string(self)
     self.STATE_COMMENT = _bc_ini_lexer_state_comment(self)
+    self.STATE_SECTION_NAME = _bc_ini_lexer_state_section_name(self)
+    self.STATE_LINE_BREAK = _bc_ini_lexer_state_line_break(self)
 
     self.state = self.STATE_BEGIN
 
@@ -63,7 +69,7 @@ class bc_ini_lexer(object):
     return self._is_escaping
 
   def _run(self, text):
-    self.log_d('_run() text=\"%s\" options=%s)' % (text, str(bc_ini_lexer_options(self._options))))
+    self.log_d(f'_run() text=\"{test}\" source={self._source} options={options}')
     assert self.EOS not in text
     self.position = point(1, 1)
     for c in self._chars_plus_eos(text):
@@ -118,7 +124,18 @@ class bc_ini_lexer(object):
       
   def make_token_comment(self):
     return bc_ini_lexer_token(self.TOKEN_COMMENT, self.buffer_value(), self.position)
-      
+
+#  TOKEN_LINE_BREAK = 'line_break'
+  
+  def make_token_section_begin(self):
+    return bc_ini_lexer_token(self.TOKEN_SECTION_BEGIN, '[', self.position)
+
+  def make_token_section_end(self):
+    return bc_ini_lexer_token(self.TOKEN_SECTION_END, ']', self.position)
+
+  def make_token_section_line_break(self, lb):
+    return bc_ini_lexer_token(self.TOKEN_SECTION_END, lb, self.position)
+
   def buffer_reset(self, c = None):
     self._buffer = StringIO()
     if c:
@@ -142,3 +159,7 @@ class bc_ini_lexer(object):
       if self._escape_quotes:
         self.buffer_write('\\')
       self.buffer_write(c)
+
+  def raise_error(self, message):
+    source_blurb = f'{self._source}:line={self.position.y}:col={self.position.x}'
+    raise bc_ini_error(f'{message} - {source_blurb}')

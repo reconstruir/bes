@@ -40,6 +40,11 @@ class _bc_ini_lexer_state_begin(_bc_ini_lexer_state):
     self.log_handle_char(c)
     new_state = None
     tokens = []
+
+    if c == '[':
+      new_state = self.STATE_SECTION_NAME
+      tokens.append(self.lexer.make_token_section_begin())
+      new_state = self.lexer.STATE_SECTION_NAME
     if self.lexer.is_escaping:
       self.lexer.buffer_reset(c)
       new_state = self.lexer.STATE_STRING
@@ -177,6 +182,41 @@ class _bc_ini_lexer_state_comment(_bc_ini_lexer_state):
     if c == self.lexer.EOS:
       tokens.append(self.lexer.make_token_comment())
       new_state = self.lexer.STATE_DONE
+    else:
+      self.lexer.buffer_write(c)
+      new_state = self.lexer.STATE_COMMENT
+    self.lexer.change_state(new_state, c)
+    return tokens
+
+class _bc_ini_lexer_state_line_break(_bc_ini_lexer_state):
+  def __init__(self, lexer):
+    super().__init__(lexer)
+
+  def handle_char(self, c):
+    self.log_handle_char(c)
+    new_state = None
+    tokens = []
+    if c == self.lexer.EOS:
+      tokens.append(self.lexer.make_token_comment())
+      new_state = self.lexer.STATE_DONE
+    else:
+      self.lexer.buffer_write(c)
+      new_state = self.lexer.STATE_COMMENT
+    self.lexer.change_state(new_state, c)
+    return tokens
+  
+class _bc_ini_lexer_state_section_name(_bc_ini_lexer_state):
+  def __init__(self, lexer):
+    super().__init__(lexer)
+
+  def handle_char(self, c):
+    self.log_handle_char(c)
+    new_state = None
+    tokens = []
+#    if c == ']':
+      
+    if c == self.lexer.EOS:
+      self.lexer.raise_error(f'Unexpected end-of-string while expecting section name')
     else:
       self.lexer.buffer_write(c)
       new_state = self.lexer.STATE_COMMENT

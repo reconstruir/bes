@@ -185,7 +185,7 @@ class test_bc_ini_lexer(unit_test):
   def assertEqual(self, expected, actual):
     assert isinstance(expected, list)
     expected = [ bc_ini_lexer_token(*t) for t in expected ]
-    super(test_bc_ini_lexer, self).assertEqual(expected, actual)
+    super().assertEqual(expected, actual)
 
 if __name__ == '__main__':
   unit_test.main()

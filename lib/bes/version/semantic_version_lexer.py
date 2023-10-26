@@ -9,6 +9,7 @@ from bes.common.string_util import string_util
 from bes.common.point import point
 from bes.system.log import log
 from bes.text.lexer_token import lexer_token
+from ..text.text_lexer_state_base import text_lexer_state_base
 
 from .semantic_version_error import semantic_version_error
 
@@ -154,33 +155,10 @@ class semantic_version_lexer(object):
     else:
       return clazz._char_result(clazz._char_to_string(c), clazz._lexer_char_types.UNKNOWN)
       
-class _state(object):
+class _state(text_lexer_state_base):
 
   def __init__(self, lexer):
-    self.name = self.__class__.__name__[1:]
-    log.add_logging(self, tag = '%s.%s' % (lexer.__class__.__name__, self.name))
-    self.lexer = lexer
-  
-  def handle_char(self, c):
-    raise semantic_version_error('unhandled handle_char "{}" in state "{}"'.format(c, self.name))
-
-  def log_handle_char(self, cr):
-    try:
-      buffer_value = string_util.quote(self.lexer.buffer_value())
-    except AttributeError as ex:
-      buffer_value = 'None'
-    self.log_d('handle_char() %s' % (self._make_log_attributes(cr)))
-  
-  def _make_log_attributes(self, cr, include_state = True):
-    attributes = []
-    if include_state:
-      attributes.append('state=%s' % (self.name))
-    attributes.append('c=|%s(%s)|' % (cr.char, cr.ctype.name))
-    try:
-      attributes.append('buffer=%s' % (string_util.quote(self.lexer.buffer_value())))
-    except AttributeError as ex:
-      attributes.append('buffer=None')
-    return ' '.join(attributes)
+    super().__init__(lexer)
 
   def _raise_unexpected_char_error(self, cr):
     assert isinstance(cr, self.lexer._char_result)

@@ -21,6 +21,7 @@ from bes.git.git_projects_cli_args import git_projects_cli_args
 from bes.git.git_repo_cli_args import git_repo_cli_args
 from bes.git.git_repo_document_cli_args import git_repo_document_cli_args
 from bes.git.git_repo_script_cli_args import git_repo_script_cli_args
+from bes.mermaid.mermaid_cli_args import mermaid_cli_args
 from bes.native_package.native_package_cli_args import native_package_cli_args
 from bes.pipenv_project.pipenv_project_cli_args import pipenv_project_cli_args
 from bes.properties_file_v2.properties_file_cli_args import properties_file_cli_args
@@ -62,6 +63,7 @@ COMMON_COMMAND_GROUPS = [
   cli_command('git_repo', 'git_repo_add_args', 'Deal with git repos', git_repo_cli_args),
   cli_command('git_repo_document', 'git_repo_document_add_args', 'Deal with git documents', git_repo_document_cli_args),
   cli_command('git_repo_script', 'git_repo_script_add_args', 'Deal with git repo scipts', git_repo_script_cli_args),
+  cli_command('mermaid', 'mermaid_add_args', 'Mermaid python code', mermaid_cli_args),
   cli_command('native_package', 'native_package_add_args', 'Deal with native packages', native_package_cli_args),
   cli_command('pip', 'pip_add_args', 'Pip stuff', pip_cli_args),
   cli_command('pip_installer', 'pip_installer_add_args', 'Pip installer stuff', pip_installer_cli_args),

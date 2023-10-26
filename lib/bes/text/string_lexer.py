@@ -10,7 +10,7 @@ from bes.system.log import log
 
 from .lexer_token import lexer_token
 from .string_lexer_options import string_lexer_options
-from .text_lexer_base import text_lexer_base
+from .text_lexer_state_base import text_lexer_state_base
 
 class string_lexer(object):
   TOKEN_COMMENT = 'comment'
@@ -134,7 +134,7 @@ class string_lexer(object):
         self.buffer_write('\\')
       self.buffer_write(c)
 
-class string_lexer_state(text_lexer_base):
+class string_lexer_state(text_lexer_state_base):
 
   def __init__(self, lexer):
     super().__init__(lexer)
