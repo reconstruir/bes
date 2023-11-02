@@ -3,7 +3,7 @@ stateDiagram-v2
   
   %% start state
   [*] --> start
-  start --> [*]: eos
+  start --> end: eos
   start --> comment: [#0059;]
   start --> space: [\t ␠]
   start --> cr: [␍]
@@ -18,7 +18,7 @@ stateDiagram-v2
   
   %% space state
   space --> space: [\t ␠]
-  space --> [*]: eos
+  space --> end: eos
   space --> cr: [␍]
   space --> start: [␤]
   space --> key: [_ a-z A-Z 0-9]
@@ -36,7 +36,7 @@ stateDiagram-v2
   comment --> comment: [.]
   comment --> cr: [␍]
   comment --> start: [␤]
-  comment --> [*]: eos
+  comment --> end: eos
   
   %% section_name state
   section_name --> section_name: [_ a-z A-Z 0-9 \.]
@@ -52,20 +52,20 @@ stateDiagram-v2
   key --> cr: [␍]
   key --> start: [␤]
   key --> expecting_value: [=]
-  key --> [*]: eos
+  key --> end: eos
   
   %% expecting_value state
   expecting_value --> value_space: [\t ␠]
   expecting_value --> cr: [␍]
   expecting_value --> start: [␤]
-  expecting_value --> [*]: eos
+  expecting_value --> end: eos
   expecting_value --> value: [.]
 
   %% value_space state
   value_space --> value_space: [\t ␠]
   value_space --> cr: [␍]
   value_space --> start: [␤]
-  value_space --> [*]: eos
+  value_space --> end: eos
   value_space --> value: [.]
   
   %% value state
@@ -73,4 +73,7 @@ stateDiagram-v2
 %%  value --> space: [\t ␠]
   value --> cr: [␍]
   value --> start: [␤]
-  value --> [*]: eos
+  value --> end: eos
+
+  %% end state
+  end --> [*]
