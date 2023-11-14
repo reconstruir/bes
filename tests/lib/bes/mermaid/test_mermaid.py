@@ -3,6 +3,7 @@
 
 from bes.testing.unit_test import unit_test
 from bes.mermaid.mermaid import mermaid
+from bes.mermaid.mmd_document import mmd_document
 from bes.fs.file_util import file_util
 
 class test_mermaid(unit_test):
@@ -11,6 +12,14 @@ class test_mermaid(unit_test):
     text = '''
 stateDiagram-v2
   direction LR
+
+  %%LEXER_TOKEN comment
+  %%LEXER_TOKEN done
+  %%LEXER_TOKEN space
+  %%LEXER_TOKEN string
+  %%LEXER_TOKEN section_begin
+  %%LEXER_TOKEN section_end
+  %%LEXER_TOKEN line_break
   
   %% start state
   [*] --> start
@@ -34,7 +43,6 @@ stateDiagram-v2
   space --> start: [␤]
   space --> key: [_ a-z A-Z 0-9]
   space --> expecting_value: [=]
-  
   
   %% cr state
   cr --> start: [␤] 
@@ -86,22 +94,32 @@ stateDiagram-v2
   value --> start: [␤]
   value --> [*]: eos
     '''
-    self.assertEqual( [
-      '__end',
-      '__start',
-      'comment',
-      'cr',
-      'cr_error',
-      'expecting_value',
-      'key',
-      'section_name',
-      'section_name_error',
-      'space',
-      'start',
-      'start_error',
-      'value',
-      'value_space',
-    ], mermaid.state_diagram_parse_text(text) )
+    self.assertEqual( 
+      mmd_document([
+        '__end',
+        '__start',
+        'comment',
+        'cr',
+        'cr_error',
+        'expecting_value',
+        'key',
+        'section_name',
+        'section_name_error',
+        'space',
+        'start',
+        'start_error',
+        'value',
+        'value_space',
+      ],
+      [
+        'comment',
+        'done',
+        'line_break',
+        'section_begin',
+        'section_end',
+        'space',
+        'string',
+      ]), mermaid.state_diagram_parse_text(text) )
 
   def test_state_diagram_generate_code(self):
     text = '''

@@ -12,6 +12,8 @@ from ..text.lexer_token import lexer_token
 from ..text.text_line_parser import text_line_parser
 from ..text.white_space import white_space
 
+from .mmd_document import mmd_document
+
 class mermaid(object):
 
   @classmethod
@@ -52,7 +54,8 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
     check.check_string(output_directory)
     check.check_int(indent)
 
-    states = clazz.state_diagram_parse_file(filename, indent = indent)
+    mmd_doc = clazz.state_diagram_parse_file(filename, indent = indent)
+    states = mmd_doc.states
     basename = f'{namespace}_{name}_lexer_detail.py'
     output_filename = path.join(output_directory, basename)
     file_util.mkdir(output_directory)
@@ -87,6 +90,7 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
 
     tokens = clazz._state_diagram_tokenize(text, indent)
     states = set()
+    lexer_tokens = set()
     for token in tokens:
       if token.token_type == 'transition':
         to_state = token.value.to_state
@@ -98,7 +102,15 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
         #print(f'{from_state} --> {to_state}')
         states.add(to_state)
         states.add(from_state)
-    return sorted(list(states))
+      elif token.token_type == 'comment':
+        value = token.value.strip()
+        if value.startswith('%%LEXER_TOKEN'):
+          _, _, lexer_token_name = value.partition(' ')
+          lexer_token_name = lexer_token_name.strip()
+          lexer_tokens.add(lexer_token_name)
+    mmd_states = sorted(list(states))
+    mmd_tokens = sorted(list(lexer_tokens))
+    return mmd_document(mmd_states, mmd_tokens)
 
   @classmethod
   def _state_diagram_tokenize(clazz, text, indent):
