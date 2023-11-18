@@ -22,7 +22,8 @@ class test_mmd_transition_list(unit_test):
       "SEMICOLON"
     ], 
     "space": [
-      "TAB SPACE"
+      "TAB", 
+      "SPACE"
     ], 
     "cr": [
       "CR"
@@ -34,7 +35,10 @@ class test_mmd_transition_list(unit_test):
       "OPEN_BRACKET"
     ], 
     "key": [
-      "UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT"
+      "UNDERSCORE", 
+      "LOWER_LETTER", 
+      "UPPER_LETTER", 
+      "DIGIT"
     ], 
     "expecting_value": [
       "EQUAL"
@@ -45,7 +49,8 @@ class test_mmd_transition_list(unit_test):
   }, 
   "space": {
     "space": [
-      "TAB SPACE"
+      "TAB", 
+      "SPACE"
     ], 
     "end": [
       "EOS"
@@ -57,7 +62,10 @@ class test_mmd_transition_list(unit_test):
       "NL"
     ], 
     "key": [
-      "UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT"
+      "UNDERSCORE", 
+      "LOWER_LETTER", 
+      "UPPER_LETTER", 
+      "DIGIT"
     ], 
     "expecting_value": [
       "EQUAL"
@@ -68,7 +76,8 @@ class test_mmd_transition_list(unit_test):
       "NL]"
     ], 
     "cr_error": [
-      "ANY EOS"
+      "ANY", 
+      "EOS"
     ]
   }, 
   "comment": {
@@ -87,21 +96,34 @@ class test_mmd_transition_list(unit_test):
   }, 
   "section_name": {
     "section_name": [
-      "UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT PERIOD"
+      "UNDERSCORE", 
+      "LOWER_LETTER", 
+      "UPPER_LETTER", 
+      "DIGIT", 
+      "PERIOD"
     ], 
     "start": [
       "]"
     ], 
     "section_name_error": [
-      "TAB SPACE CR NL EOS"
+      "TAB", 
+      "SPACE", 
+      "CR", 
+      "NL", 
+      "EOS"
     ]
   }, 
   "key": {
     "key": [
-      "UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT PERIOD"
+      "UNDERSCORE", 
+      "LOWER_LETTER", 
+      "UPPER_LETTER", 
+      "DIGIT", 
+      "PERIOD"
     ], 
     "space": [
-      "TAB SPACE"
+      "TAB", 
+      "SPACE"
     ], 
     "cr": [
       "CR"
@@ -118,7 +140,8 @@ class test_mmd_transition_list(unit_test):
   }, 
   "expecting_value": {
     "value_space": [
-      "TAB SPACE"
+      "TAB", 
+      "SPACE"
     ], 
     "cr": [
       "CR"
@@ -135,7 +158,8 @@ class test_mmd_transition_list(unit_test):
   }, 
   "value_space": {
     "value_space": [
-      "TAB SPACE"
+      "TAB", 
+      "SPACE"
     ], 
     "cr": [
       "CR"

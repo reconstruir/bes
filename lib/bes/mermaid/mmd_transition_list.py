@@ -4,8 +4,8 @@ import json
 
 from bes.common.json_util import json_util
 from bes.common.type_checked_list import type_checked_list
+from bes.common.string_util import string_util
 from bes.system.check import check
-from bes.text.text_line_parser import text_line_parser
 
 from .mmd_transition import mmd_transition
 
@@ -39,7 +39,7 @@ class mmd_transition_list(type_checked_list):
       else:
         to_list = []
         from_dict[transition.to_state] = to_list
-      events = text_line_parser.parse_lines(transition.event, strip_text = True, remove_empties = True)
+      events = string_util.split_by_white_space(transition.event, strip = True)
       for event in events:
         assert event not in to_list
         to_list.append(event)

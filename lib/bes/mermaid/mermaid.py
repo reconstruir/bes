@@ -34,15 +34,6 @@ from bes.text.lexer_token import lexer_token
 from bes.text.text_lexer_state_base import text_lexer_state_base
 '''
   
-  _STATE_CLASS_TEMPLATE = '''\
-class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
-  def __init__(self, lexer):
-    super().__init__(lexer)
-
-  def handle_char(self, c):
-    self.log_handle_char(c)
-'''
-
   _LEXER_CLASS_TEMPLATE = '''\
 class {namespace}_{name}_lexer_base(text_lexer_base):
 
@@ -68,20 +59,21 @@ class {namespace}_{name}_lexer_base(text_lexer_base):
     with open(output_filename, 'w') as stream:
       stream.write(clazz._HEADER)
       stream.write(os.linesep)
-      caca = []
+      state_instance_code_list = []
       for state in mmd_doc.states:
         if skip_start_state and state == '__start':
           continue
         if skip_end_state and state == '__end':
           continue
-        state_class_code = clazz._STATE_CLASS_TEMPLATE.format(namespace = namespace,
-                                                              name = name,
-                                                              state = state)
+        state_class_code = clazz._make_state_class_code(namespace,
+                                                        name,
+                                                        state,
+                                                        mmd_doc.transitions.from_transitions())
         stream.write(state_class_code)
         stream.write(os.linesep)
         state_class_name = f'{namespace}_{name}_lexer_state_{state}'
         state_instance_code = f'self.{state} = {state_class_name}(self)'
-        caca.append(state_instance_code)
+        state_instance_code_list.append(state_instance_code)
       token_class_code = clazz._make_token_class_code(namespace,
                                                       name,
                                                       mmd_doc.tokens)
@@ -92,9 +84,9 @@ class {namespace}_{name}_lexer_base(text_lexer_base):
                                                             state = state)
       stream.write(lexer_class_code)
       stream.write(os.linesep)
-      for c in caca:
+      for state_instance_code in state_instance_code_list:
         stream.write('    ')
-        stream.write(c)
+        stream.write(state_instance_code)
         stream.write(os.linesep)
     return output_filename
 
@@ -228,3 +220,21 @@ class {namespace}_{name}_lexer_token(object):
                                                              token_name_upper = token_name.upper())
       stream.write(method_code)
     return stream.getvalue()
+
+  _STATE_CLASS_TEMPLATE = '''\
+class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
+  def __init__(self, lexer):
+    super().__init__(lexer)
+
+  def handle_char(self, c):
+    self.log_handle_char(c)
+'''
+  @classmethod
+  def _make_state_class_code(clazz, namespace, name, state, from_transitions):
+    state_class_code = clazz._STATE_CLASS_TEMPLATE.format(namespace = namespace,
+                                                          name = name,
+                                                          state = state)
+    for from_transition, to_transitions in sorted(from_transitions.items()):
+      print(f'from_transition={from_transition} to_transitions={to_transitions}')
+    return state_class_code
+  
