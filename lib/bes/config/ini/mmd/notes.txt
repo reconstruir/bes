@@ -9,3 +9,8 @@
 - echo node_modules > .gitignore
 - git add .gitignore
 - ./node_modules/.bin/mmdc -i ini.mmd -o ini.svg
+
+
+ubuntu
+- install node 18
+- https://github.com/nodesource/distributions#ubuntu-versions
