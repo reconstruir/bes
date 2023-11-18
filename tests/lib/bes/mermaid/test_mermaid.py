@@ -7,10 +7,12 @@ from bes.mermaid.mmd_document import mmd_document
 from bes.mermaid.mmd_transition_list import mmd_transition_list
 from bes.fs.file_util import file_util
 
+from example_mmd import INI_MMD
+
 class test_mermaid(unit_test):
 
   def test_state_diagram_parse_text(self):
-    self.assert_string_equal_fuzzy('''
+    expected = '''
 {
   "states": [
     "__end", 
@@ -317,10 +319,13 @@ class test_mermaid(unit_test):
     }
   ]
 }
-''', mermaid.state_diagram_parse_text(self._EXAMPLE_MMD).to_json() )
+'''
+    doc = mermaid.state_diagram_parse_text(INI_MMD)
+    actual = doc.to_json()
+    self.assert_string_equal_fuzzy( expected, actual )
 
   def test_state_diagram_generate_code(self):
-    tmp_mmd = self.make_temp_file(content = self._EXAMPLE_MMD)
+    tmp_mmd = self.make_temp_file(content = INI_MMD)
     tmp_dir = self.make_temp_dir()
     tmp_py = mermaid.state_diagram_generate_code(tmp_mmd, '_fruit', 'kiwi', tmp_dir)
     expected_code = '''\
@@ -506,95 +511,6 @@ class _fruit_kiwi_lexer_token(object):
                                             'kiwi',
                                             [ 'a', 'b', 'c' ])
     self.assert_string_equal_fuzzy( expected, actual, ignore_white_space = False )
-
-  _EXAMPLE_MMD = '''
-stateDiagram-v2
-  direction LR
-
-  %%LEXER_TOKEN comment
-  %%LEXER_TOKEN done
-  %%LEXER_TOKEN space
-  %%LEXER_TOKEN string
-  %%LEXER_TOKEN section_begin
-  %%LEXER_TOKEN section_end
-  %%LEXER_TOKEN line_break
-
-  %% start state
-  [*] --> start
-  start --> end: EOS
-  start --> comment: SEMICOLON
-  start --> space: TAB SPACE
-  start --> cr: CR
-  start --> start: NL
-  start --> section_name: OPEN_BRACKET
-  start --> key: UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT
-  start --> expecting_value: EQUAL
-  start --> start_error: ANY
-  note right of start_error
-    Unexpected "."
-  end note
-  
-  %% space state
-  space --> space: TAB SPACE
-  space --> end: EOS
-  space --> cr: CR
-  space --> start: NL
-  space --> key: UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT
-  space --> expecting_value: EQUAL
-  
-  %% cr state
-  cr --> start: NL]
-  cr --> cr_error: ANY EOS
-  note right of cr_error
-    Expecting "NL" instead of "."
-  end note
-
-  %% comment state
-  comment --> comment: ANY
-  comment --> cr: CR
-  comment --> start: NL
-  comment --> end: EOS
-  
-  %% section_name state
-  section_name --> section_name: UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT PERIOD
-  section_name --> start: ]
-  section_name --> section_name_error: TAB SPACE CR NL EOS
-  note left of section_name_error
-    Unexpected char in section name
-  end note
-  
-  %% key state
-  key --> key: UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT PERIOD
-  key --> space: TAB SPACE
-  key --> cr: CR
-  key --> start: NL
-  key --> expecting_value: EQUAL
-  key --> end: EOS
-  
-  %% expecting_value state
-  expecting_value --> value_space: TAB SPACE
-  expecting_value --> cr: CR
-  expecting_value --> start: NL
-  expecting_value --> end: EOS
-  expecting_value --> value: ANY
-
-  %% value_space state
-  value_space --> value_space: TAB SPACE
-  value_space --> cr: CR
-  value_space --> start: NL
-  value_space --> end: EOS
-  value_space --> value: ANY
-  
-  %% value state
-  value --> value: ANY
-%%  value --> space: TAB SPACE
-  value --> cr: CR
-  value --> start: NL
-  value --> end: EOS
-
-  %% end state
-  end --> [*]
-'''
   
 if __name__ == '__main__':
   unit_test.main()
