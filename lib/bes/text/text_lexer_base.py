@@ -18,6 +18,8 @@ from bes.system.log import log
 #from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_space
 #from ._detail._bc_ini_lexer_state import _bc_ini_lexer_state_string
 
+from .text_lexer_char import text_lexer_char
+
 class text_lexer_base(object):
 
   #EOS = '\0'
@@ -38,3 +40,4 @@ class text_lexer_base(object):
 #    self._is_escaping = False
 #    self._last_char = None
     
+check.register_class(text_lexer_base, include_seq = False, name = 'text_lexer')

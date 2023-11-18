@@ -3,7 +3,7 @@
 from collections import namedtuple
 import os
 import os.path as path
-
+import io
 from ..common.point import point
 from ..fs.file_check import file_check
 from ..fs.file_util import file_util
@@ -13,6 +13,8 @@ from ..text.text_line_parser import text_line_parser
 from ..text.white_space import white_space
 
 from .mmd_document import mmd_document
+from .mmd_transition_list import mmd_transition_list
+from .mmd_transition import mmd_transition
 
 class mermaid(object):
 
@@ -28,15 +30,10 @@ class mermaid(object):
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.text.text_lexer_base import text_lexer_base
+from bes.text.lexer_token import lexer_token
 from bes.text.text_lexer_state_base import text_lexer_state_base
 '''
-
-  _LEXER_CLASS_TEMPLATE = '''\
-class {namespace}_{name}_lexer_base(text_lexer_base):
-  def __init__(self, {name}, source = None):
-    super().__init__(log_tag, source = source)
-'''
-
+  
   _STATE_CLASS_TEMPLATE = '''\
 class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
   def __init__(self, lexer):
@@ -45,9 +42,19 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
   def handle_char(self, c):
     self.log_handle_char(c)
 '''
-  
+
+  _LEXER_CLASS_TEMPLATE = '''\
+class {namespace}_{name}_lexer_base(text_lexer_base):
+
+  def __init__(self, {name}, source = None):
+    super().__init__(log_tag, source = source)
+
+    self.token = {namespace}_{name}_lexer_token(self)
+'''
+
   @classmethod
-  def state_diagram_generate_code(clazz, filename, namespace, name, output_directory, indent = 2):
+  def state_diagram_generate_code(clazz, filename, namespace, name, output_directory,
+                                  indent = 2, skip_start_state = True, skip_end_state = True):
     filename = file_check.check_file(filename)
     check.check_string(namespace)
     check.check_string(name)
@@ -55,7 +62,6 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
     check.check_int(indent)
 
     mmd_doc = clazz.state_diagram_parse_file(filename, indent = indent)
-    states = mmd_doc.states
     basename = f'{namespace}_{name}_lexer_detail.py'
     output_filename = path.join(output_directory, basename)
     file_util.mkdir(output_directory)
@@ -63,7 +69,11 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
       stream.write(clazz._HEADER)
       stream.write(os.linesep)
       caca = []
-      for state in states:
+      for state in mmd_doc.states:
+        if skip_start_state and state == '__start':
+          continue
+        if skip_end_state and state == '__end':
+          continue
         state_class_code = clazz._STATE_CLASS_TEMPLATE.format(namespace = namespace,
                                                               name = name,
                                                               state = state)
@@ -72,6 +82,11 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
         state_class_name = f'{namespace}_{name}_lexer_state_{state}'
         state_instance_code = f'self.{state} = {state_class_name}(self)'
         caca.append(state_instance_code)
+      token_class_code = clazz._make_token_class_code(namespace,
+                                                      name,
+                                                      mmd_doc.tokens)
+      stream.write(token_class_code)
+      stream.write(os.linesep)
       lexer_class_code = clazz._LEXER_CLASS_TEMPLATE.format(namespace = namespace,
                                                             name = name,
                                                             state = state)
@@ -91,17 +106,19 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
     tokens = clazz._state_diagram_tokenize(text, indent)
     states = set()
     lexer_tokens = set()
+    transitions = mmd_transition_list()
     for token in tokens:
       if token.token_type == 'transition':
         to_state = token.value.to_state
         from_state = token.value.from_state
-        if to_state == '[*]':
-          to_state = '__end'
-        if from_state == '[*]':
-          from_state = '__start'
+#        if to_state == '[*]':
+#          to_state = '__end'
+#        if from_state == '[*]':
+#          from_state = '__start'
         #print(f'{from_state} --> {to_state}')
         states.add(to_state)
         states.add(from_state)
+        transitions.append(token.value)
       elif token.token_type == 'comment':
         value = token.value.strip()
         if value.startswith('%%LEXER_TOKEN'):
@@ -110,7 +127,7 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
           lexer_tokens.add(lexer_token_name)
     mmd_states = sorted(list(states))
     mmd_tokens = sorted(list(lexer_tokens))
-    return mmd_document(mmd_states, mmd_tokens)
+    return mmd_document(mmd_states, mmd_tokens, transitions)
 
   @classmethod
   def _state_diagram_tokenize(clazz, text, indent):
@@ -164,17 +181,50 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
                          value = line,
                          position = point(count, line_number))
     
-  _transition = namedtuple('_transition', 'line, from_state, to_state')
   @classmethod
   def _state_diagram_parse_transition(clazz, line):
     left, delimiter, right = line.partition('-->')
     assert delimiter == '-->'
     from_state = left.strip()
-    to_state = clazz._state_diagram_parse_transition_to_state(right)
-    return clazz._transition(line, from_state, to_state)
+    to_state, event = clazz._state_diagram_parse_transition_to_state(right)
+    return mmd_transition(line, from_state, to_state, event)
 
   @classmethod
   def _state_diagram_parse_transition_to_state(clazz, line):
     left, delimiter, right = line.partition(':')
-    assert delimiter in ( ':', '' )
-    return left.strip()
+    assert delimiter in ( ':' )
+    return left.strip(), right.strip()
+
+  _TOKEN_CLASS_TEMPLATE = '''\
+class {namespace}_{name}_lexer_token(object):
+
+  def __init__(self, lexer):
+    check.check_text_lexer(lexer)
+
+    self._lexer = lexer
+'''
+
+  _MAKE_TOKEN_METHOD_TEMPLATE = '''\
+  def make_{token_name}(self, value, position):
+    return lexer_token(self.{token_name_upper}, value, self._lexer.position)
+'''
+  
+  @classmethod
+  def _make_token_class_code(clazz, namespace, name, tokens):
+    token_class_code = clazz._TOKEN_CLASS_TEMPLATE.format(namespace = namespace,
+                                                          name = name)
+    stream = io.StringIO()
+    stream.write(token_class_code)
+    stream.write(os.linesep)
+    for i, token_name in enumerate(tokens):
+      if i != 0:
+        stream.write(os.linesep)
+      stream.write(f"  {token_name.upper()} = '{token_name}'")
+    stream.write(2 * os.linesep)
+    for i, token_name in enumerate(tokens):
+      if i != 0:
+        stream.write(os.linesep)
+      method_code = clazz._MAKE_TOKEN_METHOD_TEMPLATE.format(token_name = token_name,
+                                                             token_name_upper = token_name.upper())
+      stream.write(method_code)
+    return stream.getvalue()

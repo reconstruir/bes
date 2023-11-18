@@ -6,6 +6,7 @@ from collections import namedtuple
 
 from bes.common.point import point
 from bes.common.tuple_util import tuple_util
+from bes.system.check import check
 
 class lexer_token(namedtuple('lexer_token', 'token_type, value, position')):
 
