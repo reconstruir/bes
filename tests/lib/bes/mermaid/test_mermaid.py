@@ -331,8 +331,9 @@ class test_mermaid(unit_test):
     expected_code = '''\
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.text.text_lexer_base import text_lexer_base
 from bes.text.lexer_token import lexer_token
+from bes.text.text_lexer_base import text_lexer_base
+from bes.text.text_lexer_char import text_lexer_char
 from bes.text.text_lexer_state_base import text_lexer_state_base
 
 class _fruit_kiwi_lexer_state_comment(text_lexer_state_base):
@@ -468,6 +469,7 @@ class _fruit_kiwi_lexer_base(text_lexer_base):
     super().__init__(log_tag, source = source)
 
     self.token = _fruit_kiwi_lexer_token(self)
+    self.char = text_lexer_char
 
     self.comment = _fruit_kiwi_lexer_state_comment(self)
     self.cr = _fruit_kiwi_lexer_state_cr(self)

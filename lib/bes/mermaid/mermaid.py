@@ -29,8 +29,9 @@ class mermaid(object):
   _HEADER = '''\
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-from bes.text.text_lexer_base import text_lexer_base
 from bes.text.lexer_token import lexer_token
+from bes.text.text_lexer_base import text_lexer_base
+from bes.text.text_lexer_char import text_lexer_char
 from bes.text.text_lexer_state_base import text_lexer_state_base
 '''
   
@@ -41,6 +42,7 @@ class {namespace}_{name}_lexer_base(text_lexer_base):
     super().__init__(log_tag, source = source)
 
     self.token = {namespace}_{name}_lexer_token(self)
+    self.char = text_lexer_char
 '''
 
   @classmethod
@@ -235,6 +237,6 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
                                                           name = name,
                                                           state = state)
     for from_transition, to_transitions in sorted(from_transitions.items()):
-      print(f'from_transition={from_transition} to_transitions={to_transitions}')
+      pass #print(f'from_transition={from_transition} to_transitions={to_transitions}')
     return state_class_code
   
