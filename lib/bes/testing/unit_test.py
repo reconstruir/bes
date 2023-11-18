@@ -100,11 +100,11 @@ class unit_test(unittest.TestCase):
     lines = [ line.strip() for line in lines if line.strip() ]
     return os.linesep.join(lines).strip()
       
-  def assert_string_equal_fuzzy(self, s1, s2):
+  def assert_string_equal_fuzzy(self, s1, s2, ignore_white_space = True):
     return self.assert_string_equal(s1, s2,
                                     strip = True,
                                     multi_line = True,
-                                    ignore_white_space = True,
+                                    ignore_white_space = ignore_white_space,
                                     native_line_breaks = True)
     
   def assertEqualIgnoreWhiteSpace(self, s1, s2):
@@ -160,13 +160,16 @@ class unit_test(unittest.TestCase):
                                native_line_breaks = native_line_breaks)
 
   def assert_text_file_equal_fuzzy(self, expected, filename, codec = 'utf-8',
-                                   preprocess_func = None):
+                                   preprocess_func = None,
+                                   ignore_white_space = True):
     with open(filename, 'rb') as fin:
       actual = fin.read().decode(codec)
       if preprocess_func:
         actual = preprocess_func(actual)
         expected = preprocess_func(expected)
-      self.assert_string_equal_fuzzy(expected, actual)
+      self.assert_string_equal_fuzzy(expected,
+                                     actual,
+                                     ignore_white_space = ignore_white_space)
       
   def assert_json_file_equal(self, expected, filename):
     self.assert_text_file_equal(expected, filename,
