@@ -54,13 +54,8 @@ class test_btask_process_pool(unit_test):
   def test_process_one_process(self):
     self._log.log_d(f'test_process_one_process:')
 
-    pc = btask_process_pool(1)
     manager = multiprocessing.Manager()
-#    input_queue = manager.Queue()
-    
-#    data = btask_process_data('kiwi1', input_queue, result_queue)
-#    process = btask_process(data)
-#    process.start()
+    pc = btask_process_pool('test', 1, manager)
 
     add_time = datetime(year = 2022, month = 1, day = 1)
     start_time = datetime(year = 2022, month = 1, day = 2)
@@ -143,51 +138,5 @@ class test_btask_process_pool(unit_test):
       fixed_result.data['pid'] = fixed_pid
     return fixed_result
     
-  def xtest_process_many_processes(self):
-    manager = multiprocessing.Manager()
-    input_queue = manager.Queue()
-    result_queue = manager.Queue()
-
-    num_processes = 10
-    num_tasks = 100
-    
-    processes = []
-    for i in range(1, num_processes + 1):
-      name = f'kiwi{i}'
-      data = btask_process_data(name, input_queue, result_queue)
-      process = btask_process(data)
-      processes.append(process)
-      process.start()
-
-    for i in range(1, num_tasks + 1):
-      cancelled_value = manager.Value(bool, False)
-      task = btask_task(42 + i,
-                             datetime.now(),
-                             ( 'kiwi', 'low', 2, self.DEBUG ),
-                             self._function,
-                             {
-                               'number': i,
-                               'flavor': 'sweet',
-                               '__f_result_data': { 'fruit': 'kiwi', 'color': 'green' },
-                             },
-                             self._callback,
-                             None,
-                             cancelled_value)
-      input_queue.put(task)
-
-    results = []
-    for i in range(1, num_tasks + 1):
-      result = result_queue.get()
-      results.append(result)
-
-    for i in range(1, num_processes + 1):
-      input_queue.put(None)
-
-    for process in processes:
-      process.join()
-
-    for result in results:
-      print(result.to_json())
-      
 if __name__ == '__main__':
   unit_test.main()

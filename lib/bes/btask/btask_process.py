@@ -70,7 +70,7 @@ class btask_process(object):
     old_name = btask_threading.current_process_name()
     btask_threading.set_current_process_name(name)
     new_name = btask_threading.current_process_name()
-    clazz._log.log_i(f'_process_set_name: changed process name from "{old_name}" to "{new_name}"')
+    clazz._log.log_d(f'_process_set_name: changed process name from "{old_name}" to "{new_name}"')
 
   @classmethod
   def _process_run_initializer(clazz, name, initializer):
@@ -152,6 +152,7 @@ class btask_process(object):
 
     encoded_task_data = pickle.dumps(self._data)
     self._process = multiprocessing.Process(target = self._process_main,
+                                            name = self._data.name,
                                             args = ( encoded_task_data, ))
     self._process.start()
 

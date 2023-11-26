@@ -5,6 +5,11 @@ import threading
 
 from bes.system.check import check
 
+try:
+  import setproctitle
+except ModuleNotFoundError as ex:
+  setproctitle = None
+
 class btask_threading(object):
 
   @classmethod
@@ -39,16 +44,17 @@ class btask_threading(object):
 
   @classmethod
   def current_process_name(clazz):
-    return multiprocessing.current_process().pid
+    return multiprocessing.current_process().name
 
   @classmethod
   def set_current_process_name(clazz, name):
-    check.check_string(name, allow_none = True)
+    check.check_string(name)
 
     multiprocessing.current_process().name = name
     assert multiprocessing.current_process().name == name
-    #print(f'name={name} caca={multiprocessing.current_process().name}')
-  
+    if setproctitle:
+      setproctitle.setproctitle(name)
+
   @classmethod
   def current_thread_id(clazz):
     return threading.current_thread().ident
@@ -57,3 +63,11 @@ class btask_threading(object):
   def current_thread_name(clazz):
     return threading.current_thread().name
   
+  @classmethod
+  def set_current_thread_name(clazz, name):
+    check.check_string(name)
+
+    threading.current_thread().name = name
+    assert threading.current_thread().name == name
+    if setproctitle:
+      setproctitle.setthreadtitle(name)

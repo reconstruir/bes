@@ -13,14 +13,15 @@ class btask_processor_tester_py(object):
 
   _log = logger('btask')
   
-  def __init__(self, num_processes):
+  def __init__(self, name, num_processes):
+    check.check_string(name)
     check.check_int(num_processes)
     
     self._num_completed_tasks = 0
     self._num_added_tasks = 0
 
     self._runner = btask_main_thread_runner_py()
-    self._processor = btask_processor(num_processes)
+    self._processor = btask_processor(name, num_processes)
     self._collector = btask_result_collector_py(self._processor, self._runner)
     self._result_queue = py_queue.Queue()
 

@@ -31,13 +31,15 @@ class btask_process_pool(object):
 
   _log = logger('btask')
 
-  def __init__(self, num_processes, initializer = None):
+  def __init__(self, name, num_processes, manager, initializer = None):
+    check.check_string(name)
     check.check_int(num_processes)
     initializer = check.check_btask_initializer(initializer, allow_none = True)
-    
+    self._log.log_method_d()
+    self._name = name
     self._num_processes = num_processes
     self._initializer = initializer
-    self._manager = multiprocessing.Manager()
+    self._manager = manager
     self._input_queue = self._manager.Queue()
     self._process_result_queue = self._manager.Queue()
     self._worker_number_lock = self._manager.Lock()
@@ -45,10 +47,11 @@ class btask_process_pool(object):
     self._processes = None
     self._result_thread = None
     self._task_callbacks = {}
-    self._task_callbacks_lock = multiprocessing.Lock()
+    self._task_callbacks_lock = threading.Lock()
 
   @classmethod
-  def _result_thread_main(clazz, result_queue, task_callbacks, task_callbacks_lock):
+  def _result_thread_main(clazz, result_queue, task_callbacks, task_callbacks_lock, name):
+    btask_threading.set_current_thread_name(f'{name}_result_thread')
     clazz._log.log_d(f'_result_thread_main:')
     while True:
       next_result = result_queue.get()
@@ -61,7 +64,7 @@ class btask_process_pool(object):
       type_name = type(next_result).__name__
       clazz._log.log_d(f'_result_thread_main: got next_result with task_id={task_id} type={type_name}')
       if not (is_result or is_progress):
-        clazz._log.log_e(f'_result_thread_main: got unexpected type "type_name" instead of btask_result or btask_progress task_id={task_id}')
+        clazz._log.log_e(f'_result_thread_main: got unexpected type "{type_name}" instead of btask_result or btask_progress task_id={task_id}')
         continue
       callback = None
       with task_callbacks_lock as lock:
@@ -75,8 +78,8 @@ class btask_process_pool(object):
       callback(next_result)
 
   @classmethod
-  def _result_thread_start(clazz, target, result_queue, task_callbacks, task_callbacks_lock):
-    args = ( result_queue, task_callbacks, task_callbacks_lock )
+  def _result_thread_start(clazz, target, result_queue, task_callbacks, task_callbacks_lock, name):
+    args = ( result_queue, task_callbacks, task_callbacks_lock, name )
     thread = threading.Thread(target = target, args = args)
     thread.start()
     return thread
@@ -89,8 +92,8 @@ class btask_process_pool(object):
   def _processes_start(self):
     processes = []
     for i in range(1, self._num_processes + 1):
-      name = f'worker-{i}'
-      process = btask_process(name,
+      process_name = f'{self._name}_worker_{i}'
+      process = btask_process(process_name,
                               self._input_queue,
                               self._process_result_queue,
                               nice_level = None,
@@ -116,7 +119,8 @@ class btask_process_pool(object):
     self._result_thread = self._result_thread_start(self._result_thread_main,
                                                     self._process_result_queue,
                                                     self._task_callbacks,
-                                                    self._task_callbacks_lock)
+                                                    self._task_callbacks_lock,
+                                                    self._name)
 
   def stop(self):
     if not self._processes:

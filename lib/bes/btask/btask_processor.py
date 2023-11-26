@@ -29,7 +29,8 @@ class btask_processor(object):
 
   _log = logger('btask')
 
-  def __init__(self, num_processes, dedicated_categories = None):
+  def __init__(self, name, num_processes, dedicated_categories = None):
+    check.check_string(name)
     check.check_int(num_processes)
     check.check_dict(dedicated_categories, allow_none = True)
 
@@ -41,6 +42,7 @@ class btask_processor(object):
       if sum_category_processes > num_processes:
         raise ValueError(f'The sum of dedicated category number of process ({sum_category_processes}) is more than num_processes ({num_processes})')
     
+    self._name = name
     self._num_processes = num_processes
     self._dedicated_categories = dedicated_categories
     self._manager = multiprocessing.Manager()
@@ -59,7 +61,8 @@ class btask_processor(object):
           config.initializer_args
         )
         initializer = btask_initializer(self._worker_initializer, initializer_args)
-        pool = btask_process_pool(config.num_processes, initializer = initializer)
+        pool_name = f'{name}_{category}_pool'
+        pool = btask_process_pool(pool_name, config.num_processes, self._manager, initializer = initializer)
         self._pools[category] = pool
         count = count - config.num_processes
         assert count >= 0
@@ -72,8 +75,8 @@ class btask_processor(object):
         None
       )
       initializer = btask_initializer(self._worker_initializer, initializer_args)
-      pool = btask_process_pool(count, initializer = initializer)
-      self._pools['__main'] = btask_process_pool(count, initializer = initializer)
+      pool = btask_process_pool(f'{name}_main_pool', count, self._manager, initializer = initializer)
+      self._pools['__main'] = pool
     self._result_queue = self._manager.Queue()
     self._lock = self._manager.Lock()
     self._waiting_queue = btask_processor_queue()
