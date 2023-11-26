@@ -230,13 +230,24 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
 
   def handle_char(self, c):
     self.log_handle_char(c)
+
+    new_state = None
+    tokens = []
+
+    {check_event_logic_code}
+
+    self.lexer.change_state(new_state, c)
+    return tokens
+
 '''
   @classmethod
   def _make_state_class_code(clazz, namespace, name, state, from_transitions):
-    state_class_code = clazz._STATE_CLASS_TEMPLATE.format(namespace = namespace,
-                                                          name = name,
-                                                          state = state)
     for from_transition, to_transitions in sorted(from_transitions.items()):
       pass #print(f'from_transition={from_transition} to_transitions={to_transitions}')
+    check_event_logic_code = ''
+    state_class_code = clazz._STATE_CLASS_TEMPLATE.format(namespace = namespace,
+                                                          name = name,
+                                                          state = state,
+                                                          check_event_logic_code = check_event_logic_code)
     return state_class_code
   

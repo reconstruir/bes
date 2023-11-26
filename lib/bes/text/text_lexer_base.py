@@ -36,8 +36,30 @@ class text_lexer_base(object):
 #    self._keep_quotes = (self._options & bc_ini_lexer_options.KEEP_QUOTES) != 0
 #    self._escape_quotes = (self._options & bc_ini_lexer_options.ESCAPE_QUOTES) != 0
 #    self._ignore_comments = (self._options & bc_ini_lexer_options.IGNORE_COMMENTS) != 0
-#    self._buffer = None
+    self._buffer = None
+    self.buffer_reset()
 #    self._is_escaping = False
 #    self._last_char = None
-    
+
+  def change_state(self, new_state, c):
+    assert new_state
+    if new_state == self.state:
+      return
+    self.log_d('transition: %20s -> %-20s; %s'  % (self.state.__class__.__name__,
+                                                   new_state.__class__.__name__,
+                                                   new_state._make_log_attributes(c, include_state = False)))
+    self.state = new_state
+
+  def buffer_reset(self, c = None):
+    self._buffer = StringIO()
+    if c:
+      self.buffer_write(c)
+
+  def buffer_write(self, c):
+    assert c != self.EOS
+    self._buffer.write(c)
+
+  def buffer_value(self):
+    return self._buffer.getvalue()
+  
 check.register_class(text_lexer_base, include_seq = False, name = 'text_lexer')

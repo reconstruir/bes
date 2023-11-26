@@ -31,7 +31,8 @@ class json_util(object):
      - same white space results on both python 2 and 3
      - __dict__ is used when object is not json encodable
     '''
-    def default(o): return o.__dict__
+    def default(o):
+      return o.__dict__
     js = json.dumps(o, indent = indent, default = default, sort_keys = sort_keys, separators = (', ', ': '))
     if not ensure_last_line_sep:
       return js

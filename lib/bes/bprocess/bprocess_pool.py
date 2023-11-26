@@ -98,6 +98,7 @@ class bprocess_pool(object):
 
   @classmethod
   def _worker_initializer(clazz, worker_number_lock, worker_number_value, nice, initializer, initializer_args):
+    assert False
     with worker_number_lock as lock:
       worker_number = worker_number_value.value
       worker_number_value.value += 1
