@@ -33,6 +33,20 @@ melon
     melon
 '''
     self.assertEqual( expected, bindent.indent(text, 4) )
+
+  def test_indent_zero(self):
+    text = '''\
+kiwi
+orange
+melon
+'''
+
+    expected = '''\
+kiwi
+orange
+melon
+'''
+    self.assertEqual( expected, bindent.indent(text, 0) )
     
 if __name__ == '__main__':
   unit_test.main()
