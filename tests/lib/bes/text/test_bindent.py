@@ -34,8 +34,8 @@ class test_bindent(unit_test):
     self.assertEqual( expected, self._test(text, 2, True) )
 
   def test_indent_with_fix_empty_lines_false(self):
-    text = f'kiwi{os.linesep}  {os.linesep}orange{os.linesep}'
-    expected = f'__kiwi{os.linesep}____{os.linesep}__orange{os.linesep}'
+    text = f'kiwi{os.linesep}  {os.linesep}orange{os.linesep}  {os.linesep}'
+    expected = f'__kiwi{os.linesep}____{os.linesep}__orange{os.linesep}____{os.linesep}'
     self.assertEqual( expected, self._test(text, 2, False) )
 
   def _test(self, text, indent_width, fix_empty_lines):
