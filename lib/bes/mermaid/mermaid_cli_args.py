@@ -18,6 +18,17 @@ class mermaid_cli_args(object):
                    help = 'The namespace of the lexer')
     p.add_argument('output_directory', action = 'store', default = None,
                    help = 'The output filename')
+
+    # make
+    p = subparser.add_parser('make', help = 'Make a diagram jpeg from an mmd file.')
+    self.__mermaid_cli_add_add_common_args(p)
+    p.add_argument('-f', '--format', action = 'store', default = 'svg',
+                   dest = 'output_format', choices = ( 'svg', 'jpg' ),
+                   help = 'The output format.  svg or jpg [ svg ]')
+    p.add_argument('filename', action = 'store', default = None,
+                   help = 'The mmd filename')
+    p.add_argument('output_filename', action = 'store', default = None,
+                   help = 'The output jpeg filename')
     
   @classmethod
   def __mermaid_cli_add_add_common_args(clazz, p):

@@ -4,13 +4,16 @@ from collections import namedtuple
 import os
 import os.path as path
 import io
+import pprint
 from ..common.point import point
 from ..fs.file_check import file_check
 from ..fs.file_util import file_util
 from ..system.check import check
+from ..system.log import logger
 from ..text.lexer_token import lexer_token
 from ..text.text_line_parser import text_line_parser
 from ..text.white_space import white_space
+from ..text.bindent import bindent
 
 from .mmd_document import mmd_document
 from .mmd_transition_list import mmd_transition_list
@@ -18,6 +21,7 @@ from .mmd_transition import mmd_transition
 
 class mermaid(object):
 
+  _log = logger('mermaid')
   @classmethod
   def state_diagram_parse_file(clazz, filename, indent = 2):
     filename = file_check.check_file(filename)
@@ -204,7 +208,7 @@ class {namespace}_{name}_lexer_token(object):
 '''
   
   @classmethod
-  def _make_token_class_code(clazz, namespace, name, tokens):
+  def _make_token_class_code(clazz, namespace, name, tokens, indent = 0):
     token_class_code = clazz._TOKEN_CLASS_TEMPLATE.format(namespace = namespace,
                                                           name = name)
     stream = io.StringIO()
@@ -221,7 +225,7 @@ class {namespace}_{name}_lexer_token(object):
       method_code = clazz._MAKE_TOKEN_METHOD_TEMPLATE.format(token_name = token_name,
                                                              token_name_upper = token_name.upper())
       stream.write(method_code)
-    return stream.getvalue()
+    return bindent.indent(stream.getvalue(), indent)
 
   _STATE_CLASS_TEMPLATE = '''\
 class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
@@ -242,9 +246,19 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
 '''
   @classmethod
   def _make_state_class_code(clazz, namespace, name, state, from_transitions):
-    for from_transition, to_transitions in sorted(from_transitions.items()):
-      pass #print(f'from_transition={from_transition} to_transitions={to_transitions}')
+    clazz._log.log_d(f'from_transitions={pprint.pformat(from_transitions)}')
+    titems = sorted(from_transitions.items())
     check_event_logic_code = ''
+    for i, item in enumerate(sorted(from_transitions.items())):
+      if_identifier = 'if' if i == 0 else 'elif'
+      from_transition, to_transitions = item
+      for j, events in enumerate(sorted(to_transitions.items())):
+        print(f'events={events} - {type(events)}')
+        for event in events:
+          print(f'FUCK: event={event}')
+#          if_code = f'{if_identifier} c in {chars}:\n  # to_state={to_state}\n'
+#      print(f'{i}: from_transition={from_transition} to_transitions={to_transitions}')
+    check_event_logic_code = check_event_logic_code + if_code
     state_class_code = clazz._STATE_CLASS_TEMPLATE.format(namespace = namespace,
                                                           name = name,
                                                           state = state,

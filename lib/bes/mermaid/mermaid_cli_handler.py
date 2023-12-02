@@ -8,12 +8,10 @@ from ..system.check import check
 from bes.fs.file_util import file_util
 from bes.fs.file_check import file_check
 from bes.script.blurber import blurber
-#from bes.text.word_boundary import word_boundary
 
 from .mermaid import mermaid
-#from .mermaid_files import mermaid_files
 from .mermaid_options import mermaid_options
-#from .mermaid_ast import mermaid_ast
+from .mermaid_ink import mermaid_ink
 
 class mermaid_cli_handler(cli_command_handler):
   'mermaid cli handler.'
@@ -32,4 +30,15 @@ class mermaid_cli_handler(cli_command_handler):
 
     mermaid.state_diagram_generate_code(filename, namespace, name, output_directory)
     
+    return 0
+
+  def make(self, filename, output_filename, output_format):
+    filename = file_check.check_file(filename)
+    check.check_string(output_filename)
+    check.check_string(output_format)
+
+    mmd_content = file_util.read(filename, codec = 'utf-8')
+    output_bytes = mermaid_ink.img_request(mmd_content, output_format)
+    with open(output_filename, 'wb') as f:
+      f.write(output_bytes)
     return 0
