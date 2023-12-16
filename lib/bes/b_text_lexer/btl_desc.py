@@ -24,18 +24,43 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, chars, states')):
     return clazz.__bases__[0].__new__(clazz, header, tokens, errors, chars, states)
 
   @classmethod
+  def _parse_tokens(clazz, n, source):
+    result = set()
+    for child in n.children:
+      token_name = child.data.text.strip()
+      if token_name in result:
+        raise btl_error(f'Duplicate token "{token_name}" at {source}:{child.data.line_number}')
+      result.add(token_name)
+    return result
+  
+  @classmethod
   def parse_text(clazz, text, source = '<unknown>'):
     check.check_string(text)
     check.check_string(source)
 
     root = tree_text_parser.parse(text, strip_comments = True, root_name = 'btl_desc')
-    lexer_node = root.find_child_by_text('lexer')
-    if not lexer_node:
-      raise btl_error(f'Missing section "lexer" from "{source}"')
-    header = btl_desc_header.parse_node(lexer_node)
+
+    lexer_node = clazz._find_section(root, 'lexer', source)
+    header = btl_desc_header.parse_node(lexer_node, source)
     print(header)
+
+    tokens_node = clazz._find_section(root, 'tokens', source)
+    tokens = clazz._parse_tokens(tokens_node, source)
+    print(tokens)
+
+    errors_node = clazz._find_section(root, 'errors', source)
+    errors = btl_desc_error_list.parse_node(errors_node, source)
+    print(errors)
+    
     return None
 
+  @classmethod
+  def _find_section(clazz, root, name, source):
+    section_node = root.find_child_by_text(name)
+    if not section_node:
+      raise btl_error(f'Missing section "{section_node}" from "{source}"')
+    return section_node
+  
   @classmethod
   def parse_file(clazz, filename):
     filename = file_check.check_file(filename)
