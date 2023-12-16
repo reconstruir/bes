@@ -28,6 +28,10 @@ class check(object):
     return not clazz.is_string(o) and clazz.is_seq(o, clazz.STRING_TYPES)
 
   @classmethod
+  def is_string_set(clazz, o):
+    return not clazz.is_string(o) and clazz.is_set(o, clazz.STRING_TYPES)
+  
+  @classmethod
   def is_int(clazz, o):
     return isinstance(o, clazz.INTEGER_TYPES)
 
@@ -35,6 +39,14 @@ class check(object):
   def is_int_seq(clazz, o):
     return clazz.is_seq(o, clazz.INTEGER_TYPES)
 
+  @classmethod
+  def is_int_set(clazz, o):
+    return clazz.is_set(o, clazz.INTEGER_TYPES)
+
+  @classmethod
+  def is_number_set_set(clazz, o):
+    return clazz.is_set(o, clazz.NUMBER_TYPES)
+  
   @classmethod
   def is_number(clazz, o):
     return isinstance(o, clazz.NUMBER_TYPES)
@@ -64,9 +76,16 @@ class check(object):
     return isinstance(o, dict)
 
   @classmethod
-  def is_set(clazz, o):
-    return isinstance(o, set)
-
+  def is_set(clazz, o, t = None):
+    'Return True if o is a set with optional checking the type of each element.'
+    if not isinstance(o, set):
+      return False
+    for x in iter(o):
+      if t != None:
+        if not isinstance(x, t):
+          return False
+    return True
+  
   @classmethod
   def is_class(clazz, o):
     return isinstance(o, clazz.CLASS_TYPES)
@@ -167,6 +186,26 @@ class check(object):
                             default_value = default_value,
                             default_value_class = default_value_class)
 
+  @classmethod
+  def check_string_set(clazz, o, allow_none = False, allow_item_none = False, default_value = None, default_value_class = None):
+    return clazz._check_set(o,
+                            clazz.STRING_TYPES,
+                            2,
+                            allow_none = allow_none,
+                            allow_item_none = allow_item_none,
+                            default_value = default_value,
+                            default_value_class = default_value_class)
+
+  @classmethod
+  def check_int_set(clazz, o, allow_none = False, allow_item_none = False, default_value = None, default_value_class = None):
+    return clazz._check_set(o,
+                            clazz.INTEGER_TYPES,
+                            2,
+                            allow_none = allow_none,
+                            allow_item_none = allow_item_none,
+                            default_value = default_value,
+                            default_value_class = default_value_class)
+  
   @classmethod
   def check_bool(clazz, o, allow_none = False, default_value = None, default_value_class = None):
     return clazz._check(o,
