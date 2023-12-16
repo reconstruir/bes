@@ -1,0 +1,55 @@
+#
+# Key Value pair lexer
+#
+lexer
+  name: keyval
+  description: A Key Value pair lexer
+  version: 1.0
+
+tokens
+  done
+  space",
+    "key",
+    "value",
+    "line_break",
+  ]
+
+  errors = [
+    "unexpected_char",
+  ]
+
+[chars]
+  key_first = "underscore|alpha"
+  key = "key_first|alpha"
+
+[state.expecting_key]
+  transitions = [
+    { end = {
+      x = "poto", event = "caca"
+    }
+  },
+    { expecting_key = { x = "poto2", event = "caca2" } },
+  ]
+
+#  [[state.expecting_key.end.EOS]]
+#  yield = "done"
+
+#[[state.expecting_key.expecting_key]]
+#  yield = "line_break"
+#
+#[state.expecting_key.expecting_key.WHITE_SPACE]
+#  yield = "space"
+
+#  caca = "EOS"
+#  caca = "POTO"
+
+#  %% expecting_key state
+#  [*] --> expecting_key
+#  expecting_key --> end: EOS
+#  expecting_key --> expecting_key: NL           %% yield line_break
+#  expecting_key --> expecting_key: WHITE_SPACE  %% yield space
+#  expecting_key --> key: KEY_FIRST              %% 
+#  expecting_key --> expecting_key_error: ANY    %% raise unexpected_char
+#  note right of expecting_key_error
+#    Unexpected "."
+#  end note
