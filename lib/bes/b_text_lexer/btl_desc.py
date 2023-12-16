@@ -8,6 +8,7 @@ from ..fs.file_check import file_check
 from ..fs.file_util import file_util
 from ..text.tree_text_parser import tree_text_parser
 
+from .btl_error import btl_error
 from .btl_desc_header import btl_desc_header
 from .btl_desc_error_list import btl_desc_error_list
 from .btl_desc_char_list import btl_desc_char_list
@@ -28,7 +29,11 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, chars, states')):
     check.check_string(source)
 
     root = tree_text_parser.parse(text, strip_comments = True, root_name = 'btl_desc')
-    print(root)
+    lexer_node = root.find_child_by_text('lexer')
+    if not lexer_node:
+      raise btl_error(f'Missing section "lexer" from "{source}"')
+    header = btl_desc_header.parse_node(lexer_node)
+    print(header)
     return None
 
   @classmethod
