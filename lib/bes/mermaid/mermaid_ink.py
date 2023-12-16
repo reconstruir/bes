@@ -27,5 +27,5 @@ class mermaid_ink(object):
     url = f'{clazz._BASE_URL}{img_fragment}/{b64_str}?theme=forest'
     response = requests.get(url)
     if response.status_code != 200:
-      raise mermaid_error(f'Failed to get url {url}')
+      raise mermaid_error(f'Failed to get url {url}\n{response.content}')
     return response.content
