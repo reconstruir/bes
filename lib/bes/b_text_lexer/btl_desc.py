@@ -42,15 +42,17 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, chars, states')):
 
     lexer_node = clazz._find_section(root, 'lexer', source)
     header = btl_desc_header.parse_node(lexer_node, source)
-    print(header)
+    #print(header)
 
     tokens_node = clazz._find_section(root, 'tokens', source)
     tokens = clazz._parse_tokens(tokens_node, source)
-    print(tokens)
+    #print(tokens)
 
     errors_node = clazz._find_section(root, 'errors', source)
     errors = btl_desc_error_list.parse_node(errors_node, source)
-    print(errors)
+    #print(errors)
+
+#    btl_desc_state_transition_list
     
     return None
 
