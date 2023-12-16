@@ -6,6 +6,7 @@ from bes.mermaid.mermaid import mermaid
 from bes.mermaid.mmd_document import mmd_document
 from bes.mermaid.mmd_transition_list import mmd_transition_list
 from bes.fs.file_util import file_util
+from bes.text.bindent import bindent
 
 from example_mmd import INI_MMD
 
@@ -487,7 +488,7 @@ class _fruit_kiwi_lexer_base(text_lexer_base):
 '''
     self.assert_text_file_equal_fuzzy( expected_code, tmp_py, ignore_white_space = False )
 
-  def test__make_token_class_code(self):
+  def test__make_token_class_code_indent_0(self):
     expected = '''\
 class _fruit_kiwi_lexer_token(object):
 
@@ -511,8 +512,37 @@ class _fruit_kiwi_lexer_token(object):
 '''
     actual = mermaid._make_token_class_code('_fruit',
                                             'kiwi',
-                                            [ 'a', 'b', 'c' ])
-    self.assert_string_equal_fuzzy( expected, actual, ignore_white_space = False )
-  
+                                            [ 'a', 'b', 'c' ],
+                                            indent = 0)
+    self.assertEqual( expected, actual )
+
+  def test__make_token_class_code_indent_2(self):
+    expected = '''\
+  class _fruit_kiwi_lexer_token(object):
+
+    def __init__(self, lexer):
+      check.check_text_lexer(lexer)
+
+      self._lexer = lexer
+
+    A = 'a'
+    B = 'b'
+    C = 'c'
+
+    def make_a(self, value, position):
+      return lexer_token(self.A, value, self._lexer.position)
+
+    def make_b(self, value, position):
+      return lexer_token(self.B, value, self._lexer.position)
+
+    def make_c(self, value, position):
+      return lexer_token(self.C, value, self._lexer.position)
+'''
+    actual = mermaid._make_token_class_code('_fruit',
+                                            'kiwi',
+                                            [ 'a', 'b', 'c' ],
+                                            indent = 2)
+    self.assertEqual( expected, actual )
+    
 if __name__ == '__main__':
   unit_test.main()

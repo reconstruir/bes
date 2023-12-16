@@ -1,6 +1,17 @@
+%%{
+  init: {
+    'theme': 'forest',
+    'themeVariables': {
+      'noteBkgColor': '#ff3344'
+    }
+  }
+}%%
+
 stateDiagram-v2
   direction LR
 
+  %%classDef caca fill:white,color:blue,font-weight:bold,stroke-width
+  
   %%LEXER_TOKEN comment
   %%LEXER_TOKEN done
   %%LEXER_TOKEN space
@@ -44,7 +55,9 @@ stateDiagram-v2
   comment --> cr: CR
   comment --> start: NL
   comment --> end: EOS
-  
+
+  %%class comment caca
+
   %% section_name state
   section_name --> section_name: UNDERSCORE LOWER_LETTER UPPER_LETTER DIGIT PERIOD
   section_name --> start: ]
