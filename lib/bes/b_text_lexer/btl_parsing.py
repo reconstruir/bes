@@ -7,12 +7,18 @@ from .btl_error import btl_error
 class btl_parsing(object):
   
   @classmethod
-  def parse_key_value(clazz, n, source, delimiter = ':'):
+  def parse_key_value(clazz, n, source, result_class = None, delimiter = ':'):
     check.check_node(n)
     check.check_string(source)
     check.check_string(delimiter)
+    check.check_class(result_class, allow_none = True)
 
     key, delim, value = n.data.text.partition(delimiter)
     if delim != delimiter:
       raise btl_error(f'Invalid key value "{n.data.text}" at {source}:{n.data.line_number}')
-    return key.strip(), value.strip()
+    key = key.strip()
+    value = value.strip()
+    
+    if result_class:
+      return result_class(key, value)
+    return key, value

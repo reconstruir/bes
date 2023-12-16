@@ -7,12 +7,12 @@ from ..version.semantic_version import semantic_version
 
 from .btl_parsing import btl_parsing
 
-class btl_desc_error(namedtuple('btl_desc_error', 'name, message')):
+class btl_desc_transition_command(namedtuple('btl_desc_transition_command', 'name, arg')):
   
-  def __new__(clazz, name, message):
+  def __new__(clazz, name, arg):
     check.check_string(name)
-    check.check_string(message)
-    return clazz.__bases__[0].__new__(clazz, name, message)
+    check.check_string(arg)
+    return clazz.__bases__[0].__new__(clazz, name, arg)
 
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
@@ -21,6 +21,7 @@ class btl_desc_error(namedtuple('btl_desc_error', 'name, message')):
 
     return btl_parsing.parse_key_value(n,
                                        source,
-                                       result_class = btl_desc_error)
+                                       result_class = btl_desc_transition_command,
+                                       delimiter = ' ')
   
-check.register_class(btl_desc_error)
+check.register_class(btl_desc_transition_command)
