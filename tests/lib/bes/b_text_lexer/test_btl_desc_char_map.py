@@ -3,6 +3,7 @@
 
 from bes.b_text_lexer.btl_desc_char import btl_desc_char
 from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
+from bes.b_text_lexer.btl_error import btl_error
 from bes.testing.unit_test import unit_test
 
 class test_test_btl_desc_char_map(unit_test):
@@ -23,6 +24,11 @@ class test_test_btl_desc_char_map(unit_test):
     self.assertEqual( self._NUMERIC, m.parse_union('c_numeric') )
     self.assertEqual( self._NUMERIC | { ord('_') }, m.parse_union('c_numeric|c_underscore') )
     self.assertEqual( self._NUMERIC | { ord('_') }, m.parse_union('c_numeric|_') )
+
+  def test_parse_union_unknown_char(self):
+    m = btl_desc_char_map()
+    with self.assertRaises(btl_error) as _:
+      m.parse_union('c_not_there')
     
 if __name__ == '__main__':
   unit_test.main()

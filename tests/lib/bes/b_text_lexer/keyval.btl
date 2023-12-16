@@ -1,0 +1,53 @@
+#
+# Key Value pair lexer
+#
+lexer
+  name: keyval
+  description: A Key Value pair lexer
+  version: 1.0
+  start_state: s_expecting_key
+  end_state: s_done
+
+tokens
+  t_done
+  t_key
+  t_expecting_key
+  t_line_break
+  t_space
+  t_value
+
+errors
+  unexpected_char "In state {state} unexpected character {char} instead of key"
+
+chars
+  c_keyval_key_first: c_underscore | c_alpha
+  c_keyval_key: c_keyval_key_first | c_numeric
+
+states
+  s_expecting_key
+    c_eos: s_done
+      yield t_done
+    c_new_line: s_expecting_key
+      yield t_line_break
+    c_white_space: s_expecting_key
+      yield t_space 
+    c_keyval_key_first: s_key
+      buffer
+    default: s_expecting_key_error
+      raise unexpected_char
+  s_key
+    c_keyval_key: s_key
+      buffer
+    c_equal: s_value
+      yield t_key
+    c_eos: s_done
+      yield t_done
+  s_value
+    c_new_line: s_expecting_key
+      yield t_line_break
+      yield t_value
+    c_eos: s_done
+      yield t_done
+    default: s_value
+      buffer
+  s_done
