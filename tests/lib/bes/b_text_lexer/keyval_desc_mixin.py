@@ -18,14 +18,13 @@ class keyval_desc_mixin:
   def _keyval_desc_text(self):
     return file_util.read(self._keyval_desc_filename, codec = 'utf-8')
 
-  @cached_property
   def _keyval_desc_tree(self):
     return tree_text_parser.parse(self._keyval_desc_text,
                                   strip_comments = True,
                                   root_name = 'btl_desc')
 
   def _keyval_desc_tree_section(self, section_name):
-    root = self._keyval_desc_tree
+    root = self._keyval_desc_tree()
     for child in root.children:
       if child.data.text == section_name:
         return child
