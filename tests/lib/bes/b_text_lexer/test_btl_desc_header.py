@@ -29,6 +29,13 @@ class test_btl_desc_header(keyval_desc_mixin, unit_test):
     with self.assertRaises(btl_error) as ctx:
       btl_desc_header.parse_node(lexer_node)
     self.assertEqual( 'Invalid header key "kiwi" at <unknown>:5', ctx.exception.message )
+
+  def test_parse_node_missing_key(self):
+    lexer_node = self._keyval_desc_tree_section('lexer')
+    lexer_node.children = lexer_node.children[0:-2]
+    with self.assertRaises(btl_error) as ctx:
+      btl_desc_header.parse_node(lexer_node)
+    self.assertEqual( 'Missing key "start_state" at <unknown>:4', ctx.exception.message )
     
 if __name__ == '__main__':
   unit_test.main()
