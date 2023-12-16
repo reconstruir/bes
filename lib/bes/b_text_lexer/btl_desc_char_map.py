@@ -32,7 +32,7 @@ class btl_desc_char_map(object):
   _BASIC_CHARS = {
     '&': '&',
     '_': '_',
-    
+    # FIXME add the rest
     'c_amp': '&',
     'c_at': '@',
     'c_back_slash': '\\',
