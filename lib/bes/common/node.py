@@ -47,7 +47,7 @@ class node(object):
     func = lambda node: node.data == data
     return self.find_child(func, recurse = recurse)
   
-  find_result = namedtuple('find_result', 'depth,child')
+  find_result = namedtuple('find_result', 'depth, child')
 
   def find_children(self, func, recurse = True):
     return self._find_children(func, 0, recurse)
