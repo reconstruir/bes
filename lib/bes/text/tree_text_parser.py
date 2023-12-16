@@ -151,7 +151,7 @@ class _text_node(node):
 
   def __init__(self, data):
     self._ensure_enum()
-    super(_text_node, self).__init__(data)
+    super().__init__(data)
 
   @classmethod
   def _ensure_enum(clazz):
