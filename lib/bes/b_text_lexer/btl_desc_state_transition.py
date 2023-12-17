@@ -22,16 +22,8 @@ class btl_desc_state_transition(namedtuple('btl_desc_state_transition', 'char, c
   def parse_node(clazz, n, source = '<unknown>'):
     check.check_node(n)
 
-    print(f'n={n.data.text}')
-    return None
-    for child in n.children:
-      key, value = btl_parsing.parse_key_value(child, source)
-      if key not in d:
-        raise btl_error(f'Invalid header key "{key}" at {source}:{child.data.line_number}')
-      d[key] = value
-    for key, value in d.items():
-      if value == None:
-        raise btl_error(f'Missing key "{key}" at {source}:{n.data.line_number}')
-    return btl_desc_state_transition(*[ item[1] for item in d.items() ])
+    char = n.data.text
+    commands = btl_desc_state_command_list.parse_node(n, source = source)
+    return btl_desc_state_transition(char, commands)
 
 check.register_class(btl_desc_state_transition, include_seq = False)

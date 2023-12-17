@@ -8,11 +8,12 @@ from ..fs.file_check import file_check
 from ..fs.file_util import file_util
 from ..text.tree_text_parser import tree_text_parser
 
-from .btl_error import btl_error
-from .btl_desc_header import btl_desc_header
-from .btl_desc_error_list import btl_desc_error_list
 from .btl_desc_char_list import btl_desc_char_list
 from .btl_desc_char_map import btl_desc_char_map
+from .btl_desc_error_list import btl_desc_error_list
+from .btl_desc_header import btl_desc_header
+from .btl_desc_state_list import btl_desc_state_list
+from .btl_error import btl_error
 
 class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, chars, states')):
   
@@ -21,6 +22,7 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, chars, states')):
     check.check_string_seq(tokens)
     errors = check.btl_desc_error_list(errors)
     chars = check.btl_desc_char_list(chars)
+    states = check.btl_desc_state_list(chars)
     return clazz.__bases__[0].__new__(clazz, header, tokens, errors, chars, states)
 
   @classmethod
@@ -52,7 +54,9 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, chars, states')):
     errors = btl_desc_error_list.parse_node(errors_node, source)
     #print(errors)
 
-#    btl_desc_state_transition_list
+    states_node = clazz._find_section(root, 'states', source)
+    states = btl_desc_state_list.parse_node(states_node, source)
+    print(states)
     
     return None
 

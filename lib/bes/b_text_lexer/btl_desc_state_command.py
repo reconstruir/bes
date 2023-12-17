@@ -11,7 +11,7 @@ class btl_desc_state_command(namedtuple('btl_desc_state_command', 'name, arg')):
   
   def __new__(clazz, name, arg):
     check.check_string(name)
-    check.check_string(arg)
+    check.check_string(arg, allow_none = True)
     return clazz.__bases__[0].__new__(clazz, name, arg)
 
   @classmethod
