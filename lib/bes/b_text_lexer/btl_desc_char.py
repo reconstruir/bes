@@ -36,7 +36,9 @@ class btl_desc_char(namedtuple('btl_desc_char', 'name, chars')):
   
   @cached_property
   def chars_as_string(self):
-    return ' '.join(self.chars)
+    x = [ chr(c) for c in self.chars ]
+    print(f'x={x}')
+    return ' '.join([ chr(c) for c in self.chars ])
   
   @classmethod
   def _parse_chars(clazz, chars):

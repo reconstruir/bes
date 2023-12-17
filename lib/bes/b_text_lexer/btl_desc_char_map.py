@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import pprint
+
 from ..system.check import check
 
 from .btl_error import btl_error
@@ -9,14 +11,17 @@ class btl_desc_char_map(object):
   
   def __init__(self):
     self._map = {}
-    for key, value in self._BASIC_CHARS.items():
-      assert key not in self._map
-      self._map[key] = btl_desc_char(key, value)
+    for name, chars in self._BASIC_CHARS.items():
+      desc_char = btl_desc_char(name, chars)
+      self._do_add(desc_char)
 
-  def parse_union(self, s):
-    check.check_string(s)
+  def __str__(self):
+    return pprint.pformat(self._map)
+  
+  def parse_union(self, chars):
+    check.check_string(chars)
     
-    parts = [ part.strip() for part in s.split('|') ]
+    parts = [ part.strip() for part in chars.split('|') ]
     parts = [ part for part in parts if part ]
     result = set()
     for part in parts:
@@ -26,6 +31,21 @@ class btl_desc_char_map(object):
       result = result | cd.chars
     return result
 
+  def parse_and_add(self, name, chars):
+    check.check_string(name)
+    check.check_string(chars)
+
+    parsed_chars = self.parse_union(chars)
+    desc_char = btl_desc_char(name, parsed_chars)
+    self._do_add(desc_char)
+
+  def _do_add(self, desc_char):
+    check.check_btl_desc_char(desc_char)
+
+    if desc_char.name in self._map:
+      raise btl_error(f'Already in map: "{desc_char.name}"')
+    self._map[desc_char.name] = desc_char
+    
   def __getitem__(self, key):
     return self._map[key]
 
