@@ -17,6 +17,12 @@ class btl_desc_state(namedtuple('btl_desc_state', 'name, transitions')):
     transitions = check.check_btl_desc_state_transition_list(transitions)
     return clazz.__bases__[0].__new__(clazz, name, transitions)
 
+  def to_dict(self):
+    return {
+      'name': self.name,
+      'transitions': self.transitions.to_dict_list(),
+    }
+  
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
     check.check_node(n)

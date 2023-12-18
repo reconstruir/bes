@@ -14,4 +14,11 @@ class btl_desc_char_list(type_checked_list):
   def __init__(self, values = None):
     super().__init__(values = values)
 
+  def to_dict_list(self):
+    result = []
+    for char in self:
+      char_dict = char.to_dict()
+      result.append(char_dict)
+    return result
+    
 check.register_class(btl_desc_char_list, include_seq = False)

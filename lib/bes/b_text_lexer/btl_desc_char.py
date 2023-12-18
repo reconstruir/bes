@@ -20,6 +20,12 @@ class btl_desc_char(namedtuple('btl_desc_char', 'name, chars')):
       raise btl_error(f'Invalid chars: {chars} - {type(chars)}')
     return clazz.__bases__[0].__new__(clazz, name, parsed_chars)
 
+  def to_dict(self):
+    return {
+      'name': self.name,
+      'chars': [ char for char in self.chars ],
+    }
+  
   @classmethod
   def _check_cast_func(clazz, obj):
     return tuple_util.cast_seq_to_namedtuple(clazz, obj)

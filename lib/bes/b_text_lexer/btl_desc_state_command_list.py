@@ -15,6 +15,13 @@ class btl_desc_state_command_list(type_checked_list):
   def __init__(self, values = None):
     super().__init__(values = values)
 
+  def to_dict_list(self):
+    result = []
+    for command in self:
+      command_dict = command.to_dict()
+      result.append(command_dict)
+    return result
+    
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
     check.check_node(n)

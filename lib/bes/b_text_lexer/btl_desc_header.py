@@ -19,6 +19,11 @@ class btl_desc_header(namedtuple('btl_desc_header', 'name, description, version,
     check.check_string(end_state)
     return clazz.__bases__[0].__new__(clazz, name, description, version, start_state, end_state)
 
+  def to_dict(self):
+    d = dict(self._asdict())
+    d['version'] = str(self.version)
+    return d
+    
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
     check.check_node(n)

@@ -14,6 +14,9 @@ class btl_desc_error(namedtuple('btl_desc_error', 'name, message')):
     check.check_string(message)
     return clazz.__bases__[0].__new__(clazz, name, message)
 
+  def to_dict(self):
+    return dict(self._asdict())
+  
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
     check.check_node(n)

@@ -17,6 +17,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
 
   def test_parse_text(self):
     d = btl_desc.parse_text(self._keyval_desc_text)
+    print(d.to_json())
     
 if __name__ == '__main__':
   unit_test.main()

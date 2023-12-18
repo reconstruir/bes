@@ -17,6 +17,12 @@ class btl_desc_char_map(object):
 
   def __str__(self):
     return pprint.pformat(self._map)
+
+  def to_dict(self):
+    result = {}
+    for name, char in self._map.items():
+      result[name] = char.to_dict()
+    return result
   
   def parse_union(self, chars):
     check.check_string(chars)

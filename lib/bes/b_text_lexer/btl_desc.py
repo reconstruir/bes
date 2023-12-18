@@ -2,11 +2,12 @@
 
 from collections import namedtuple
 
-from ..system.check import check
-from ..version.semantic_version import semantic_version
+from ..common.json_util import json_util
 from ..fs.file_check import file_check
 from ..fs.file_util import file_util
+from ..system.check import check
 from ..text.tree_text_parser import tree_text_parser
+from ..version.semantic_version import semantic_version
 
 from .btl_desc_char import btl_desc_char
 from .btl_desc_char_map import btl_desc_char_map
@@ -26,6 +27,18 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
     states = check.check_btl_desc_state_list(states)
     return clazz.__bases__[0].__new__(clazz, header, tokens, errors, char_map, states)
 
+  def to_dict(self):
+    return {
+      'header': self.header.to_dict(),
+      'tokens': [ token for token in self.tokens ],
+      'errors': self.errors.to_dict_list(),
+      'char_map': self.char_map.to_dict(),
+      'states': self.states.to_dict_list(),
+    }
+
+  def to_json(self):
+    return json_util.to_json(self.to_dict(), indent = 2, sort_keys = True)
+  
   @classmethod
   def _parse_tokens(clazz, n, source):
     result = set()
@@ -85,6 +98,5 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
     filename = file_check.check_file(filename)
     text = file_util.read(filename, codec = 'utf-8')
     return clazz.parse_text(text, source = filename)
-    
     
 check.register_class(btl_desc)

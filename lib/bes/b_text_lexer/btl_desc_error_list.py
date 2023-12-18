@@ -15,6 +15,13 @@ class btl_desc_error_list(type_checked_list):
   def __init__(self, values = None):
     super().__init__(values = values)
 
+  def to_dict_list(self):
+    result = []
+    for error in self:
+      error_dict = error.to_dict()
+      result.append(error_dict)
+    return result
+    
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
     check.check_node(n)

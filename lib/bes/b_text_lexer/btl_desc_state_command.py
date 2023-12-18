@@ -14,6 +14,9 @@ class btl_desc_state_command(namedtuple('btl_desc_state_command', 'name, arg')):
     check.check_string(arg, allow_none = True)
     return clazz.__bases__[0].__new__(clazz, name, arg)
 
+  def to_dict(self):
+    return dict(self._asdict())
+  
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
     check.check_node(n)

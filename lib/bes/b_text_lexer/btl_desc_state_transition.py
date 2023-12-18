@@ -18,6 +18,12 @@ class btl_desc_state_transition(namedtuple('btl_desc_state_transition', 'char, c
     commands = check.check_btl_desc_state_command_list(commands)
     return clazz.__bases__[0].__new__(clazz, char, commands)
 
+  def to_dict(self):
+    return {
+      'char': self.char,
+      'commands': self.commands.to_dict_list(),
+    }
+  
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
     check.check_node(n)
