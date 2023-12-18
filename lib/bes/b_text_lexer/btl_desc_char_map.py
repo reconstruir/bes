@@ -22,6 +22,8 @@ class btl_desc_char_map(object):
     result = {}
     for name, char in self._map.items():
       result[name] = char.to_dict()
+    for name in self._BASIC_CHARS.keys():
+      del result[name]
     return result
   
   def parse_union(self, chars):

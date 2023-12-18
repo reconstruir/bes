@@ -30,14 +30,14 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
   def to_dict(self):
     return {
       'header': self.header.to_dict(),
-      'tokens': [ token for token in self.tokens ],
+      'tokens': sorted([ token for token in self.tokens ]),
       'errors': self.errors.to_dict_list(),
       'char_map': self.char_map.to_dict(),
       'states': self.states.to_dict_list(),
     }
 
   def to_json(self):
-    return json_util.to_json(self.to_dict(), indent = 2, sort_keys = True)
+    return json_util.to_json(self.to_dict(), indent = 2, sort_keys = False)
   
   @classmethod
   def _parse_tokens(clazz, n, source):
