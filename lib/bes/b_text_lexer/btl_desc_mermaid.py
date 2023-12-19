@@ -19,24 +19,30 @@ class btl_desc_mermaid(object):
 
     for state in desc.states:
       b.write(clazz._state_to_mermaid(desc, state))
-      
-    return b.getvalue()
+      b.write(os.linesep)
+
+    return b.getvalue().strip() + os.linesep
 
   @classmethod
   def _state_to_mermaid(clazz, desc, state):
     b = io.StringIO()
     b.write(f'%% {state.name} state' + os.linesep)
+
     if state.name == desc.header.start_state:
       b.write(f'[*] --> {state.name}' + os.linesep)
+    elif state.name == desc.header.end_state:
+      b.write(f'{state.name} --> [*]' + os.linesep)
+
+    for transition in state.transitions:
+      b.write(clazz._transition_to_mermaid(desc, state, transition))
+      
     return bindent.indent(b.getvalue(), 2)
 
   @classmethod
-  def _transition_to_mermaid(clazz, desc, transition):
+  def _transition_to_mermaid(clazz, desc, state, transition):
     b = io.StringIO()
-    b.write(f'%% {state.name} state' + os.linesep)
-    if state.name == desc.header.start_state:
-      b.write(f'[*] --> {state.name}' + os.linesep)
-    return bindent.indent(b.getvalue(), 2)
+    b.write(f'{state.name} --> {transition.to_state}: {transition.char}' + os.linesep)
+    return b.getvalue()
   
 '''    
   %% start state

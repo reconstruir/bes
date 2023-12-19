@@ -306,7 +306,32 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
 ''', btl_desc.parse_text(self._keyval_desc_text).to_json() )
 
   def test_to_mermaid_diagram(self):
-    self.assertEqual( r'''
+    #print(btl_desc.parse_text(self._keyval_desc_text).to_mermaid_diagram())
+    #return
+    self.assertEqual( '''\
+stateDiagram-v2
+  direction LR
+
+  %% s_expecting_key state
+  [*] --> s_expecting_key
+  s_expecting_key --> s_done: c_eos
+  s_expecting_key --> s_expecting_key: c_new_line
+  s_expecting_key --> s_expecting_key: c_white_space
+  s_expecting_key --> s_key: c_keyval_key_first
+  s_expecting_key --> s_expecting_key_error: default
+
+  %% s_key state
+  s_key --> s_key: c_keyval_key
+  s_key --> s_value: c_equal
+  s_key --> s_done: c_eos
+
+  %% s_value state
+  s_value --> s_expecting_key: c_new_line
+  s_value --> s_done: c_eos
+  s_value --> s_value: default
+
+  %% s_done state
+  s_done --> [*]
 ''', btl_desc.parse_text(self._keyval_desc_text).to_mermaid_diagram() )
     
 if __name__ == '__main__':
