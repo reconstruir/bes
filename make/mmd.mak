@@ -6,3 +6,6 @@ _MMD_BEST_BIN=$(realpath $(_BES_ROOT_DIR)/../bin/best.sh)
 
 %.jpg: %.mmd Makefile
 	@$(_MMD_BEST_BIN) mermaid make --format jpg $< $@
+
+%.mmd: %.btl Makefile
+	@$(_MMD_BEST_BIN) btl make_mmd $< $@
