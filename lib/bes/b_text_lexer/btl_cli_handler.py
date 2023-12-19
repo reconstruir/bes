@@ -43,9 +43,8 @@ class btl_cli_handler(cli_command_handler):
     check.check_string(output_filename)
     check.check_string(output_format)
 
-    tmp = temp_file.make_temp_file(suffix = '.mmd')
-    self.make_mmd(filename, tmp)
-    mmd_content = file_util.read(tmp, codec = 'utf-8')
+    desc = btl_desc.parse_file(filename)
+    mmd_content = desc.to_mermaid_diagram()
     output_bytes = mermaid_ink.img_request(mmd_content, output_format)
     with open(output_filename, 'wb') as f:
       f.write(output_bytes)

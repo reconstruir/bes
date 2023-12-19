@@ -92,6 +92,9 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
 
   @classmethod
   def _find_section(clazz, root, name, source):
+    assert root
+    assert name
+    assert source
     section_node = root.find_child_by_text(name)
     if not section_node:
       raise btl_error(f'Missing section "{section_node}" from "{source}"')
