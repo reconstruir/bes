@@ -13,6 +13,7 @@ from .btl_desc_char import btl_desc_char
 from .btl_desc_char_map import btl_desc_char_map
 from .btl_desc_error_list import btl_desc_error_list
 from .btl_desc_header import btl_desc_header
+from .btl_desc_mermaid import btl_desc_mermaid
 from .btl_desc_state_list import btl_desc_state_list
 from .btl_error import btl_error
 from .btl_parsing import btl_parsing
@@ -38,6 +39,9 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
 
   def to_json(self):
     return json_util.to_json(self.to_dict(), indent = 2, sort_keys = False)
+
+  def to_mermaid_diagram(self):
+    return btl_desc_mermaid.desc_to_mermain_diagram(self)
   
   @classmethod
   def _parse_tokens(clazz, n, source):

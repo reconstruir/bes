@@ -15,7 +15,7 @@ from keyval_desc_mixin import keyval_desc_mixin
 
 class test_btl_desc(keyval_desc_mixin, unit_test):
 
-  def test_parse_text(self):
+  def test_parse_text_to_json(self):
     self.assert_string_equal_fuzzy( r'''
 {
   "header": {
@@ -172,7 +172,8 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
       "name": "s_expecting_key", 
       "transitions": [
         {
-          "char": "c_eos: s_done", 
+          "to_state": "s_done", 
+          "char": "c_eos", 
           "commands": [
             {
               "name": "yield", 
@@ -181,7 +182,8 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           ]
         }, 
         {
-          "char": "c_new_line: s_expecting_key", 
+          "to_state": "s_expecting_key", 
+          "char": "c_new_line", 
           "commands": [
             {
               "name": "yield", 
@@ -190,7 +192,8 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           ]
         }, 
         {
-          "char": "c_white_space: s_expecting_key", 
+          "to_state": "s_expecting_key", 
+          "char": "c_white_space", 
           "commands": [
             {
               "name": "yield", 
@@ -199,7 +202,8 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           ]
         }, 
         {
-          "char": "c_keyval_key_first: s_key", 
+          "to_state": "s_key", 
+          "char": "c_keyval_key_first", 
           "commands": [
             {
               "name": "buffer", 
@@ -208,7 +212,8 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           ]
         }, 
         {
-          "char": "default: s_expecting_key_error", 
+          "to_state": "s_expecting_key_error", 
+          "char": "default", 
           "commands": [
             {
               "name": "raise", 
@@ -222,7 +227,8 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
       "name": "s_key", 
       "transitions": [
         {
-          "char": "c_keyval_key: s_key", 
+          "to_state": "s_key", 
+          "char": "c_keyval_key", 
           "commands": [
             {
               "name": "buffer", 
@@ -231,7 +237,8 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           ]
         }, 
         {
-          "char": "c_equal: s_value", 
+          "to_state": "s_value", 
+          "char": "c_equal", 
           "commands": [
             {
               "name": "yield", 
@@ -240,7 +247,8 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           ]
         }, 
         {
-          "char": "c_eos: s_done", 
+          "to_state": "s_done", 
+          "char": "c_eos", 
           "commands": [
             {
               "name": "yield", 
@@ -254,7 +262,8 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
       "name": "s_value", 
       "transitions": [
         {
-          "char": "c_new_line: s_expecting_key", 
+          "to_state": "s_expecting_key", 
+          "char": "c_new_line", 
           "commands": [
             {
               "name": "yield", 
@@ -267,7 +276,8 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           ]
         }, 
         {
-          "char": "c_eos: s_done", 
+          "to_state": "s_done", 
+          "char": "c_eos", 
           "commands": [
             {
               "name": "yield", 
@@ -276,7 +286,8 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           ]
         }, 
         {
-          "char": "default: s_value", 
+          "to_state": "s_value", 
+          "char": "default", 
           "commands": [
             {
               "name": "buffer", 
@@ -293,6 +304,10 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
   ]
 }
 ''', btl_desc.parse_text(self._keyval_desc_text).to_json() )
+
+  def test_to_mermaid_diagram(self):
+    self.assertEqual( r'''
+''', btl_desc.parse_text(self._keyval_desc_text).to_mermaid_diagram() )
     
 if __name__ == '__main__':
   unit_test.main()

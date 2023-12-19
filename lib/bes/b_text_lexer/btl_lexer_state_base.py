@@ -4,13 +4,10 @@ from ..common.string_util import string_util
 from ..system.log import log
 
 from .text_lexer_error import text_lexer_error
-from .text_lexer_char import text_lexer_char
 
-class text_lexer_state_base(object):
+class btl_lexer_state_base(object):
 
   EOS = '\0'
-
-  char = text_lexer_char
   
   def __init__(self, lexer):
     self.name = self.__class__.__name__[1:]
