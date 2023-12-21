@@ -302,10 +302,15 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
 
     b = btl_code_gen_buffer()
 
-    print(f'command={command}')
-
     if command.name == 'yield':
       b.write_line(f'tokens.append(self.make_token({command.arg}, self.buffer_value(), self.position)')
+    elif command.name == 'buffer':
+      if command.arg == 'write':
+        b.write_line(f'self.lexer.buffer_write(c)')
+      elif command.arg == 'reset':
+        b.write_line(f'self.lexer.buffer_reset()')
+      else:
+        b.write_line(f'''raise btl_lexer_error('Unknown buffer command: "{command.arg}"')''')
     
     return b.get_value()
   

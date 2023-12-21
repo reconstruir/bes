@@ -33,6 +33,27 @@ potopo
 tokens.append(self.make_token(t_done, self.buffer_value(), self.position)
 ''', btl_code_gen._make_state_command_code(desc, cmd) )
 
+  def test__make_state_command_code_buffer_write(self):
+    desc = btl_desc.parse_text(self._keyval_desc_text)
+    cmd = btl_desc_state_command('buffer', 'write')
+    self.assert_code_equal( '''
+self.lexer.buffer_write(c)
+''', btl_code_gen._make_state_command_code(desc, cmd) )
+
+  def test__make_state_command_code_buffer_reset(self):
+    desc = btl_desc.parse_text(self._keyval_desc_text)
+    cmd = btl_desc_state_command('buffer', 'reset')
+    self.assert_code_equal( '''
+self.lexer.buffer_reset()
+''', btl_code_gen._make_state_command_code(desc, cmd) )
+
+  def test__make_state_command_code_buffer_error(self):
+    desc = btl_desc.parse_text(self._keyval_desc_text)
+    cmd = btl_desc_state_command('buffer', 'notthere')
+    self.assert_code_equal( '''
+raise btl_lexer_error('Unknown buffer command: "notthere"')
+''', btl_code_gen._make_state_command_code(desc, cmd) )
+    
   def assert_code_equal(self, expected, actual):
     return self.assert_string_equal(expected, actual,
                                     strip = True,

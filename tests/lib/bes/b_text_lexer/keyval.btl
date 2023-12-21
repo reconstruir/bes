@@ -33,12 +33,12 @@ states
     c_white_space: s_expecting_key
       yield t_space 
     c_keyval_key_first: s_key
-      buffer
+      buffer write
     default: s_expecting_key_error
       raise unexpected_char
   s_key
     c_keyval_key: s_key
-      buffer
+      buffer write
     c_equal: s_value
       yield t_key
     c_eos: s_done
@@ -50,5 +50,5 @@ states
     c_eos: s_done
       yield t_done
     default: s_value
-      buffer
+      buffer write
   s_done
