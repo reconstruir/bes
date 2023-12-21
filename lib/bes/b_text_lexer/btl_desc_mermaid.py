@@ -41,7 +41,7 @@ class btl_desc_mermaid(object):
   @classmethod
   def _transition_to_mermaid(clazz, desc, state, transition):
     b = io.StringIO()
-    b.write(f'{state.name} --> {transition.to_state}: {transition.char}' + os.linesep)
+    b.write(f'{state.name} --> {transition.to_state}: {transition.char_name}' + os.linesep)
     return b.getvalue()
   
 '''    

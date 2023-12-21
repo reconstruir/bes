@@ -18,6 +18,15 @@ class btl_desc_char_map(object):
   def __str__(self):
     return pprint.pformat(self._map)
 
+  def __getitem__(self, char_name):
+    return self._map[char_name]
+
+  def __len__(self):
+    len(self._map)
+  
+  def __contains__(self, char_name):
+    return char_name in self._map
+  
   def to_dict(self):
     result = {}
     for name, char in self._map.items():
@@ -54,9 +63,6 @@ class btl_desc_char_map(object):
       raise btl_error(f'Already in map: "{desc_char.name}"')
     self._map[desc_char.name] = desc_char
     
-  def __getitem__(self, key):
-    return self._map[key]
-
   _BASIC_CHARS = {
     '&': '&',
     '_': '_',

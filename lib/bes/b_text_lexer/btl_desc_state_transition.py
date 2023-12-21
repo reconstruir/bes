@@ -11,18 +11,18 @@ from .btl_parsing import btl_parsing
 
 from .btl_desc_state_command_list import btl_desc_state_command_list
 
-class btl_desc_state_transition(namedtuple('btl_desc_state_transition', 'to_state, char, commands')):
+class btl_desc_state_transition(namedtuple('btl_desc_state_transition', 'to_state, char_name, commands')):
   
-  def __new__(clazz, to_state, char, commands):
+  def __new__(clazz, to_state, char_name, commands):
     check.check_string(to_state)
-    check.check_string(char)
+    check.check_string(char_name)
     commands = check.check_btl_desc_state_command_list(commands)
-    return clazz.__bases__[0].__new__(clazz, to_state, char, commands)
+    return clazz.__bases__[0].__new__(clazz, to_state, char_name, commands)
 
   def to_dict(self):
     return {
       'to_state': self.to_state,
-      'char': self.char,
+      'char_name': self.char_name,
       'commands': self.commands.to_dict_list(),
     }
   
@@ -30,8 +30,8 @@ class btl_desc_state_transition(namedtuple('btl_desc_state_transition', 'to_stat
   def parse_node(clazz, n, source = '<unknown>'):
     check.check_node(n)
 
-    char, to_state = btl_parsing.parse_key_value(n, source, delimiter = ':')
+    char_name, to_state = btl_parsing.parse_key_value(n, source, delimiter = ':')
     commands = btl_desc_state_command_list.parse_node(n, source = source)
-    return btl_desc_state_transition(to_state, char, commands)
+    return btl_desc_state_transition(to_state, char_name, commands)
 
 check.register_class(btl_desc_state_transition, include_seq = False)

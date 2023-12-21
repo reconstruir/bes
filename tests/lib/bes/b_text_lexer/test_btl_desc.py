@@ -8,8 +8,6 @@ from bes.b_text_lexer.btl_desc_char import btl_desc_char
 from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
 from bes.b_text_lexer.btl_error import btl_error
 from bes.testing.unit_test import unit_test
-from bes.property.cached_property import cached_property
-from bes.fs.file_util import file_util
 
 from keyval_desc_mixin import keyval_desc_mixin
 
@@ -173,7 +171,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
       "transitions": [
         {
           "to_state": "s_done", 
-          "char": "c_eos", 
+          "char_name": "c_eos", 
           "commands": [
             {
               "name": "yield", 
@@ -183,7 +181,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
         }, 
         {
           "to_state": "s_expecting_key", 
-          "char": "c_new_line", 
+          "char_name": "c_new_line", 
           "commands": [
             {
               "name": "yield", 
@@ -193,7 +191,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
         }, 
         {
           "to_state": "s_expecting_key", 
-          "char": "c_white_space", 
+          "char_name": "c_white_space", 
           "commands": [
             {
               "name": "yield", 
@@ -203,7 +201,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
         }, 
         {
           "to_state": "s_key", 
-          "char": "c_keyval_key_first", 
+          "char_name": "c_keyval_key_first", 
           "commands": [
             {
               "name": "buffer", 
@@ -213,7 +211,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
         }, 
         {
           "to_state": "s_expecting_key_error", 
-          "char": "default", 
+          "char_name": "default", 
           "commands": [
             {
               "name": "raise", 
@@ -228,7 +226,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
       "transitions": [
         {
           "to_state": "s_key", 
-          "char": "c_keyval_key", 
+          "char_name": "c_keyval_key", 
           "commands": [
             {
               "name": "buffer", 
@@ -238,7 +236,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
         }, 
         {
           "to_state": "s_value", 
-          "char": "c_equal", 
+          "char_name": "c_equal", 
           "commands": [
             {
               "name": "yield", 
@@ -248,7 +246,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
         }, 
         {
           "to_state": "s_done", 
-          "char": "c_eos", 
+          "char_name": "c_eos", 
           "commands": [
             {
               "name": "yield", 
@@ -263,7 +261,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
       "transitions": [
         {
           "to_state": "s_expecting_key", 
-          "char": "c_new_line", 
+          "char_name": "c_new_line", 
           "commands": [
             {
               "name": "yield", 
@@ -277,7 +275,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
         }, 
         {
           "to_state": "s_done", 
-          "char": "c_eos", 
+          "char_name": "c_eos", 
           "commands": [
             {
               "name": "yield", 
@@ -287,7 +285,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
         }, 
         {
           "to_state": "s_value", 
-          "char": "default", 
+          "char_name": "default", 
           "commands": [
             {
               "name": "buffer", 
