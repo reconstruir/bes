@@ -243,37 +243,34 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
     return tokens
 
 '''
+
   @classmethod
-  def make_state_class_code(clazz, desc, state):
-    check.check_btl_desc(desc)
+  def _make_state_code(clazz, namespace, name, char_map, state):
+    check.check_string(namespace)
+    check.check_string(name)
+    check.check_btl_desc_char_map(char_map)
     check.check_btl_desc_state(state)
 
-    print(f'state={state.name}')
+    b = btl_code_gen_buffer()
+
+    b.write(f'''
+class {namespace}_{name}_lexer_state_{state.name}(btl_lexer_state_base):
+  def __init__(self, lexer):
+    super().__init__(lexer)
+
+  def handle_char(self, c):
+    self.log_handle_char(c)
+
+    new_state = None
+    tokens = []
+''')
     
     for transition in state.transitions:
-      print(f'transition={transition}')
+      transition_code = clazz._make_transition_code(char_map, transition)
+      b.write_line(transition_code, indent_depth = 1)
 
-    return 'foo'
-    clazz._log.log_d(f'from_transitions={pprint.pformat(from_transitions)}')
-    titems = sorted(from_transitions.items())
-    check_event_logic_code = ''
-    for i, item in enumerate(sorted(from_transitions.items())):
-      if_identifier = 'if' if i == 0 else 'elif'
-      from_transition, to_transitions = item
-      for j, events in enumerate(sorted(to_transitions.items())):
-        print(f'events={events} - {type(events)}')
-        for event in events:
-          print(f'FUCK: event={event}')
-#          if_code = f'{if_identifier} c in {chars}:\n  # to_state={to_state}\n'
-#      print(f'{i}: from_transition={from_transition} to_transitions={to_transitions}')
-    check_event_logic_code = check_event_logic_code + if_code
-    state_class_code = clazz._STATE_CLASS_TEMPLATE.format(namespace = namespace,
-                                                          name = name,
-                                                          state = state,
-                                                          check_event_logic_code = check_event_logic_code)
-    return state_class_code
-  
-
+    return b.get_value()
+    
   @classmethod
   def _make_transition_code(clazz, char_map, transition):
     check.check_btl_desc_char_map(char_map)

@@ -3,12 +3,13 @@
 
 import os.path as path
 
-from bes.b_text_lexer.btl_desc import btl_desc
 from bes.b_text_lexer.btl_code_gen import btl_code_gen
-from bes.b_text_lexer.btl_desc_state_transition import btl_desc_state_transition
+from bes.b_text_lexer.btl_desc import btl_desc
+from bes.b_text_lexer.btl_desc_char import btl_desc_char
 from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
-#from bes.b_text_lexer.btl_desc_char import btl_desc_char
+from bes.b_text_lexer.btl_desc_state import btl_desc_state
 from bes.b_text_lexer.btl_desc_state_command import btl_desc_state_command
+from bes.b_text_lexer.btl_desc_state_transition import btl_desc_state_transition
 from bes.b_text_lexer.btl_error import btl_error
 from bes.testing.unit_test import unit_test
 
@@ -16,12 +17,15 @@ from keyval_desc_mixin import keyval_desc_mixin
 
 class test_btl_code_gen(keyval_desc_mixin, unit_test):
 
-  def xtest_make_state_class_code(self):
-    desc = btl_desc.parse_text(self._keyval_desc_text)
-    self.assertEqual('''
-caca
-''', btl_code_gen.make_state_class_code(desc, desc.states[0]) )
+  def xtest__make_state_code(self):
+    char_map = btl_desc_char_map()
+    cmd = btl_desc_state_command('yield', 't_cheese')
+    transition = btl_desc_state_transition('s_juice', 'c_equal', [ cmd ])
+    state = btl_desc_state('s_juice', [ transition ])
 
+    self.assert_code_equal('''
+''', btl_code_gen._make_state_code('fruit', 'kiwi', char_map, state) )
+    
   def test__make_transition_code(self):
     char_map = btl_desc_char_map()
     cmd = btl_desc_state_command('yield', 't_cheese')
@@ -52,7 +56,6 @@ self.lexer.buffer_reset()
 ''', btl_code_gen._make_state_command_code(cmd) )
 
   def test__make_state_command_code_buffer_error(self):
-    #desc = btl_desc.parse_text(self._keyval_desc_text)
     cmd = btl_desc_state_command('buffer', 'notthere')
     self.assert_code_equal( '''
 raise btl_lexer_error('Unknown buffer command: "notthere"')
