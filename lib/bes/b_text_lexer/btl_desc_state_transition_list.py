@@ -33,4 +33,4 @@ class btl_desc_state_transition_list(type_checked_list):
       result.append(next_desc_state_transition)
     return result
     
-check.register_class(btl_desc_state_transition_list, include_seq = False)
+btl_desc_state_transition_list.register_check_class()

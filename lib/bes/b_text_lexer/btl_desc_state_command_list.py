@@ -32,5 +32,5 @@ class btl_desc_state_command_list(type_checked_list):
       next_desc_error = btl_desc_state_command.parse_node(child, source)
       result.append(next_desc_error)
     return result
-    
-check.register_class(btl_desc_state_command_list, include_seq = False)
+
+btl_desc_state_command_list.register_check_class()

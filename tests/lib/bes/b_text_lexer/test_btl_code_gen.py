@@ -5,6 +5,7 @@ import os.path as path
 
 from bes.b_text_lexer.btl_desc import btl_desc
 from bes.b_text_lexer.btl_code_gen import btl_code_gen
+from bes.b_text_lexer.btl_desc_state_transition import btl_desc_state_transition
 #from bes.b_text_lexer.btl_desc_char import btl_desc_char
 from bes.b_text_lexer.btl_desc_state_command import btl_desc_state_command
 from bes.b_text_lexer.btl_error import btl_error
@@ -20,17 +21,22 @@ class test_btl_code_gen(keyval_desc_mixin, unit_test):
 caca
 ''', btl_code_gen.make_state_class_code(desc, desc.states[0]) )
 
-  def xtest__make_transition_code(self):
+  def test__make_transition_code(self):
     desc = btl_desc.parse_text(self._keyval_desc_text)
-    self.assertEqual('''
-potopo
-''', btl_code_gen._make_transition_code(desc, desc.states[0].transitions[0]) )
+    cmd = btl_desc_state_command('yield', 't_cheese')
+    transition = btl_desc_state_transition('s_kiwi', 'c_equal', [ cmd ])
+    
+    self.assert_code_equal('''
+if c in {61}:
+  new_state = s_kiwi
+  tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
+''', btl_code_gen._make_transition_code(desc, transition) )
 
   def test__make_state_command_code_yield(self):
     desc = btl_desc.parse_text(self._keyval_desc_text)
-    cmd = btl_desc_state_command('yield', 't_done')
+    cmd = btl_desc_state_command('yield', 't_cheese')
     self.assert_code_equal( '''
-tokens.append(self.make_token(t_done, self.buffer_value(), self.position)
+tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
 ''', btl_code_gen._make_state_command_code(desc, cmd) )
 
   def test__make_state_command_code_buffer_write(self):

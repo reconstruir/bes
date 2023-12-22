@@ -289,10 +289,14 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
     if char_name != 'default' and char_name not in desc.char_map:
       raise btl_code_gen_error(f'char not found in char_map: "{char_name}"')
     char = desc.char_map[char_name]
-    
+
     b.write_line(f'if c in {char.chars}:')
     b.write_line(f'  new_state = {transition.to_state}')
-    
+
+    for command in transition.commands:
+      command_code = clazz._make_state_command_code(desc, command)
+      b.write_line(command_code, indent_depth = 1)
+
     return b.get_value()
 
   @classmethod
