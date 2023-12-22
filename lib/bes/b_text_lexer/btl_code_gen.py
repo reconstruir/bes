@@ -15,10 +15,6 @@ from ..text.text_line_parser import text_line_parser
 from ..text.white_space import white_space
 from ..text.bindent import bindent
 
-#from .mmd_document import mmd_document
-#from .mmd_transition_list import mmd_transition_list
-#from .mmd_transition import mmd_transition
-
 from .btl_code_gen_error import btl_code_gen_error
 from .btl_code_gen_buffer import btl_code_gen_buffer
 
@@ -279,29 +275,28 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
   
 
   @classmethod
-  def _make_transition_code(clazz, desc, transition):
-    check.check_btl_desc(desc)
+  def _make_transition_code(clazz, char_map, transition):
+    check.check_btl_desc_char_map(char_map)
     check.check_btl_desc_state_transition(transition)
 
     b = btl_code_gen_buffer()
     
     char_name = transition.char_name
-    if char_name != 'default' and char_name not in desc.char_map:
+    if char_name != 'default' and char_name not in char_map:
       raise btl_code_gen_error(f'char not found in char_map: "{char_name}"')
-    char = desc.char_map[char_name]
+    char = char_map[char_name]
 
     b.write_line(f'if c in {char.chars}:')
     b.write_line(f'  new_state = {transition.to_state}')
 
     for command in transition.commands:
-      command_code = clazz._make_state_command_code(desc, command)
+      command_code = clazz._make_state_command_code(command)
       b.write_line(command_code, indent_depth = 1)
 
     return b.get_value()
 
   @classmethod
-  def _make_state_command_code(clazz, desc, command):
-    check.check_btl_desc(desc)
+  def _make_state_command_code(clazz, command):
     check.check_btl_desc_state_command(command)
 
     b = btl_code_gen_buffer()
