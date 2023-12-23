@@ -221,14 +221,11 @@ class {namespace}_{name}_lexer_token(object):
 ''')
     
     with buf.indent_pusher() as _1:
-      print(f'1: indent_depth={buf.indent_depth} indent_spaces="{buf.indent_spaces}"')
       for i, token_name in enumerate(tokens):
         token_name_upper = token_name.upper()
         buf.write_line(f"{token_name_upper} = '{token_name}'")
     
-      with buf.indent_pusher() as _2:
-        print(f'2: indent_depth={buf.indent_depth} indent_spaces="{buf.indent_spaces}"')
-        buf.write_line(f'''
+      buf.write_lines(f'''
 def __init__(self, lexer):
   check.check_text_lexer(lexer)
 
@@ -237,7 +234,7 @@ def __init__(self, lexer):
 
       for i, token_name in enumerate(tokens):
         token_name_upper = token_name.upper()
-        buf.write_line(f'''
+        buf.write_lines(f'''
 def make_{token_name}(self, value, position):
   return lexer_token(self.{token_name_upper}, value, self._lexer.position)
 ''')
@@ -250,7 +247,7 @@ def make_{token_name}(self, value, position):
     check.check_btl_desc_char_map(char_map)
     check.check_btl_desc_state(state)
 
-    buf.write_line(f'''
+    buf.write_lines(f'''
 class {namespace}_{name}_lexer_state_{state.name}(btl_lexer_state_base):
   def __init__(self, lexer):
     super().__init__(lexer)
@@ -260,6 +257,7 @@ class {namespace}_{name}_lexer_state_{state.name}(btl_lexer_state_base):
 
     new_state = None
     tokens = []
+
 ''')
 
     with buf.indent_pusher() as _:

@@ -49,6 +49,16 @@ class test_btl_code_gen_buffer(unit_test):
         b.write_line('melon')
       b.write_line('apple')
     self.assertEqual( f'kiwi{os.linesep}  lemon{os.linesep}    melon{os.linesep}  apple{os.linesep}', b.get_value() )
+  def test_write_lines(self):
+    b = btl_code_gen_buffer(indent_width = 2)
+    b.write_lines(f'kiwi{os.linesep}lemon{os.linesep}')
+    self.assertEqual( f'kiwi{os.linesep}lemon{os.linesep}', b.get_value() )
+
+  def test_write_lines_with_indent(self):
+    b = btl_code_gen_buffer(indent_width = 2)
+    with b.indent_pusher() as _:
+      b.write_lines(f'kiwi{os.linesep}lemon{os.linesep}')
+    self.assertEqual( f'  kiwi{os.linesep}  lemon{os.linesep}', b.get_value() )
     
 if __name__ == '__main__':
   unit_test.main()

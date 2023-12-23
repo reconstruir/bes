@@ -110,10 +110,23 @@ raise btl_lexer_error('Unknown buffer command: "notthere"')
     self.assert_code_equal('''
 class fruit_kiwi_lexer_token(object):
 
+  MELON = 'melon'
+  LEMON = 'lemon'
+  KIWI = 'kiwi'
+  
   def __init__(self, lexer):
     check.check_text_lexer(lexer)
-
+  
     self._lexer = lexer
+  
+  def make_melon(self, value, position):
+    return lexer_token(self.MELON, value, self._lexer.position)
+  
+  def make_lemon(self, value, position):
+    return lexer_token(self.LEMON, value, self._lexer.position)
+  
+  def make_kiwi(self, value, position):
+    return lexer_token(self.KIWI, value, self._lexer.position)
 ''', self._call__make_token_class_code('fruit', 'kiwi', { 'kiwi', 'lemon', 'melon' }) )
     
 if __name__ == '__main__':
