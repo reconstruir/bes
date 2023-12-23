@@ -69,24 +69,6 @@ from bes.text.text_lexer_state_base import text_lexer_state_base
         stream.write(os.linesep)
     return output_filename
 
-  _STATE_CLASS_TEMPLATE = '''\
-class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
-  def __init__(self, lexer):
-    super().__init__(lexer)
-
-  def handle_char(self, c):
-    self.log_handle_char(c)
-
-    new_state = None
-    tokens = []
-
-    {check_event_logic_code}
-
-    self.lexer.change_state(new_state, c)
-    return tokens
-
-'''
-
   @classmethod
   def _make_token_class_code(clazz, buf, namespace, name, tokens):
     check.check_btl_code_gen_buffer(buf)
@@ -98,7 +80,7 @@ class {namespace}_{name}_lexer_token(object):
 ''')
     
     with buf.indent_pusher() as _1:
-      for i, token_name in enumerate(tokens):
+      for i, token_name in enumerate(sorted(tokens)):
         token_name_upper = token_name.upper()
         buf.write_line(f"{token_name_upper} = '{token_name}'")
     
@@ -109,7 +91,7 @@ def __init__(self, lexer):
   self._lexer = lexer
 ''')
 
-      for i, token_name in enumerate(tokens):
+      for i, token_name in enumerate(sorted(tokens)):
         token_name_upper = token_name.upper()
         buf.write_lines(f'''
 def make_{token_name}(self, value, position):
@@ -137,10 +119,17 @@ class {namespace}_{name}_lexer_state_{state.name}(btl_lexer_state_base):
 
 ''')
 
-    with buf.indent_pusher() as _:
+    with buf.indent_pusher(depth = 2) as _:
       for transition in state.transitions:
         clazz._make_transition_code(buf, char_map, transition)
 
+#    {check_event_logic_code}
+
+      buf.write_lines(f'''
+self.lexer.change_state(new_state, c)
+return tokens
+''')
+        
   @classmethod
   def _make_transition_code(clazz, buf, char_map, transition):
     check.check_btl_code_gen_buffer(buf)

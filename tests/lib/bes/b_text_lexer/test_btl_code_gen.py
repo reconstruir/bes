@@ -58,9 +58,12 @@ class fruit_kiwi_lexer_state_s_juice(btl_lexer_state_base):
     new_state = None
     tokens = []
 
-  if c in {61}:
-    new_state = s_juice
-    tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)    
+    if c in {61}:
+      new_state = s_juice
+      tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
+    
+    self.lexer.change_state(new_state, c)
+    return tokens
 ''', self._call__make_state_class_code('fruit', 'kiwi', char_map, state) )
     
   def test__make_transition_code(self):
@@ -100,33 +103,26 @@ raise btl_lexer_error('Unknown buffer command: "notthere"')
 ''', self._call__make_state_command_code(cmd) )
 
   def test__make_token_class_code(self):
-    print(self._call__make_token_class_code('fruit', 'kiwi', { 'kiwi', 'lemon', 'melon' }))
-    return
-#    char_map = btl_desc_char_map()
-#    cmd = btl_desc_state_command('yield', 't_cheese')
-#    transition = btl_desc_state_transition('s_juice', 'c_equal', [ cmd ])
-#    state = btl_desc_state('s_juice', [ transition ])
-
     self.assert_code_equal('''
 class fruit_kiwi_lexer_token(object):
 
-  MELON = 'melon'
-  LEMON = 'lemon'
   KIWI = 'kiwi'
+  LEMON = 'lemon'
+  MELON = 'melon'
   
   def __init__(self, lexer):
     check.check_text_lexer(lexer)
   
     self._lexer = lexer
   
-  def make_melon(self, value, position):
-    return lexer_token(self.MELON, value, self._lexer.position)
+  def make_kiwi(self, value, position):
+    return lexer_token(self.KIWI, value, self._lexer.position)
   
   def make_lemon(self, value, position):
     return lexer_token(self.LEMON, value, self._lexer.position)
   
-  def make_kiwi(self, value, position):
-    return lexer_token(self.KIWI, value, self._lexer.position)
+  def make_melon(self, value, position):
+    return lexer_token(self.MELON, value, self._lexer.position)
 ''', self._call__make_token_class_code('fruit', 'kiwi', { 'kiwi', 'lemon', 'melon' }) )
     
 if __name__ == '__main__':

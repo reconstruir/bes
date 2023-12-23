@@ -61,29 +61,30 @@ class btl_code_gen_buffer(object):
     for line in lines:
       self.write_line(line)
     
-  def push_indent(self):
-    self._indent_depth += 1
+  def push_indent(self, depth = 1):
+    self._indent_depth += depth
   
-  def pop_indent(self):
-    if self._indent_depth == 0:
-      raise btl_code_gen_error(f'Current indent depth is already 0')
-    self._indent_depth -= 1
+  def pop_indent(self, depth = 1):
+    self._indent_depth -= depth
+    if self._indent_depth < 0:
+      raise btl_code_gen_error(f'Current indent depth popping underflow')
 
   class _indent_pusher(object):
 
-    def __init__(self, buf):
+    def __init__(self, buf, depth = 1):
       check.check_btl_code_gen_buffer(buf)
+      self._depth = depth
       self._buf = buf
     
     def __enter__(self):
-      self._buf.push_indent()
+      self._buf.push_indent(depth = self._depth)
       return self
   
     def __exit__(self, exception_type, exception_value, traceback):
-      self._buf.pop_indent()
+      self._buf.pop_indent(depth = self._depth)
       return False
 
-  def indent_pusher(self):
-    return self._indent_pusher(self)
+  def indent_pusher(self, depth = 1):
+    return self._indent_pusher(self, depth = depth)
     
 check.register_class(btl_code_gen_buffer, include_seq = False)
