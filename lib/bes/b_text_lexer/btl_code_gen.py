@@ -263,12 +263,11 @@ class {namespace}_{name}_lexer_state_{state.name}(btl_lexer_state_base):
     new_state = None
     tokens = []
 ''')
-    
-    for transition in state.transitions:
-      clazz._make_transition_code(buf, char_map, transition)
 
-    return buf.get_value()
-    
+    with buf.indent_pusher() as _:
+      for transition in state.transitions:
+        clazz._make_transition_code(buf, char_map, transition)
+
   @classmethod
   def _make_transition_code(clazz, buf, char_map, transition):
     check.check_btl_code_gen_buffer(buf)
@@ -286,8 +285,6 @@ class {namespace}_{name}_lexer_state_{state.name}(btl_lexer_state_base):
 
       for command in transition.commands:
         clazz._make_state_command_code(buf, command)
-
-    return buf.get_value()
 
   @classmethod
   def _make_state_command_code(clazz, buf, command):
