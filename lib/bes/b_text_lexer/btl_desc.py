@@ -106,4 +106,4 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
     text = file_util.read(filename, codec = 'utf-8')
     return clazz.parse_text(text, source = filename)
     
-check.register_class(btl_desc)
+check.register_class(btl_desc, include_seq = False)

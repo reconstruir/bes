@@ -17,7 +17,7 @@ from keyval_desc_mixin import keyval_desc_mixin
 
 class test_btl_code_gen(keyval_desc_mixin, unit_test):
 
-  def xtest__make_state_code(self):
+  def test__make_state_code(self):
     char_map = btl_desc_char_map()
     cmd = btl_desc_state_command('yield', 't_cheese')
     transition = btl_desc_state_transition('s_juice', 'c_equal', [ cmd ])

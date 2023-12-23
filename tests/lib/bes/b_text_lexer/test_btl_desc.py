@@ -205,7 +205,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           "commands": [
             {
               "name": "buffer", 
-              "arg": null
+              "arg": "write" 
             }
           ]
         }, 
@@ -230,7 +230,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           "commands": [
             {
               "name": "buffer", 
-              "arg": null
+              "arg": "write" 
             }
           ]
         }, 
@@ -289,7 +289,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           "commands": [
             {
               "name": "buffer", 
-              "arg": null
+              "arg": "write" 
             }
           ]
         }

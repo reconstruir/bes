@@ -267,7 +267,8 @@ class {namespace}_{name}_lexer_state_{state.name}(btl_lexer_state_base):
     
     for transition in state.transitions:
       transition_code = clazz._make_transition_code(char_map, transition)
-      b.write_line(transition_code, indent_depth = 1)
+      with b.indent_pusher() as _:
+        b.write_line(transition_code)
 
     return b.get_value()
     
@@ -288,7 +289,8 @@ class {namespace}_{name}_lexer_state_{state.name}(btl_lexer_state_base):
 
     for command in transition.commands:
       command_code = clazz._make_state_command_code(command)
-      b.write_line(command_code, indent_depth = 1)
+      with b.indent_pusher() as _:
+        b.write_line(command_code)
 
     return b.get_value()
 
