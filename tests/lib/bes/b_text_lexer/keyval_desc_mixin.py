@@ -8,6 +8,13 @@ from bes.text.tree_text_parser import tree_text_parser
 
 class keyval_desc_mixin:
 
+  def assert_code_equal(self, expected, actual):
+    return self.assert_string_equal(expected, actual,
+                                    strip = True,
+                                    multi_line = True,
+                                    ignore_white_space = False,
+                                    native_line_breaks = True)
+  
   @cached_property
   def _keyval_desc_filename(self):
     here = path.dirname(__file__)

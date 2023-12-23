@@ -192,40 +192,6 @@ class {namespace}_{name}_lexer_base(text_lexer_base):
     assert delimiter in ( ':' )
     return left.strip(), right.strip()
 
-  _TOKEN_CLASS_TEMPLATE = '''\
-class {namespace}_{name}_lexer_token(object):
-
-  def __init__(self, lexer):
-    check.check_text_lexer(lexer)
-
-    self._lexer = lexer
-'''
-
-  _MAKE_TOKEN_METHOD_TEMPLATE = '''\
-  def make_{token_name}(self, value, position):
-    return lexer_token(self.{token_name_upper}, value, self._lexer.position)
-'''
-  
-  @classmethod
-  def _make_token_class_code(clazz, namespace, name, tokens, indent = 0):
-    token_class_code = clazz._TOKEN_CLASS_TEMPLATE.format(namespace = namespace,
-                                                          name = name)
-    stream = io.StringIO()
-    stream.write(token_class_code)
-    stream.write(os.linesep)
-    for i, token_name in enumerate(tokens):
-      if i != 0:
-        stream.write(os.linesep)
-      stream.write(f"  {token_name.upper()} = '{token_name}'")
-    stream.write(2 * os.linesep)
-    for i, token_name in enumerate(tokens):
-      if i != 0:
-        stream.write(os.linesep)
-      method_code = clazz._MAKE_TOKEN_METHOD_TEMPLATE.format(token_name = token_name,
-                                                             token_name_upper = token_name.upper())
-      stream.write(method_code)
-    return bindent.indent(stream.getvalue(), indent)
-
   _STATE_CLASS_TEMPLATE = '''\
 class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
   def __init__(self, lexer):
@@ -245,7 +211,39 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
 '''
 
   @classmethod
-  def _make_state_code(clazz, buf, namespace, name, char_map, state):
+  def _make_token_class_code(clazz, buf, namespace, name, tokens):
+    check.check_btl_code_gen_buffer(buf)
+    check.check_string(namespace)
+    check.check_string(name)
+
+    buf.write_line(f'''
+class {namespace}_{name}_lexer_token(object):
+''')
+    
+    with buf.indent_pusher() as _1:
+      print(f'1: indent_depth={buf.indent_depth} indent_spaces="{buf.indent_spaces}"')
+      for i, token_name in enumerate(tokens):
+        token_name_upper = token_name.upper()
+        buf.write_line(f"{token_name_upper} = '{token_name}'")
+    
+      with buf.indent_pusher() as _2:
+        print(f'2: indent_depth={buf.indent_depth} indent_spaces="{buf.indent_spaces}"')
+        buf.write_line(f'''
+def __init__(self, lexer):
+  check.check_text_lexer(lexer)
+
+  self._lexer = lexer
+''')
+
+      for i, token_name in enumerate(tokens):
+        token_name_upper = token_name.upper()
+        buf.write_line(f'''
+def make_{token_name}(self, value, position):
+  return lexer_token(self.{token_name_upper}, value, self._lexer.position)
+''')
+  
+  @classmethod
+  def _make_state_class_code(clazz, buf, namespace, name, char_map, state):
     check.check_btl_code_gen_buffer(buf)
     check.check_string(namespace)
     check.check_string(name)
