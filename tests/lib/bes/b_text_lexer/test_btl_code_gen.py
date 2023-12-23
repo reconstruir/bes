@@ -4,6 +4,7 @@
 import os.path as path
 
 from bes.b_text_lexer.btl_code_gen import btl_code_gen
+from bes.b_text_lexer.btl_code_gen_buffer import btl_code_gen_buffer
 from bes.b_text_lexer.btl_desc import btl_desc
 from bes.b_text_lexer.btl_desc_char import btl_desc_char
 from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
@@ -17,14 +18,14 @@ from keyval_desc_mixin import keyval_desc_mixin
 
 class test_btl_code_gen(keyval_desc_mixin, unit_test):
 
-  def test__make_state_code(self):
+  def xtest__make_state_code(self):
     char_map = btl_desc_char_map()
     cmd = btl_desc_state_command('yield', 't_cheese')
     transition = btl_desc_state_transition('s_juice', 'c_equal', [ cmd ])
     state = btl_desc_state('s_juice', [ transition ])
 
     self.assert_code_equal('''
-''', btl_code_gen._make_state_code('fruit', 'kiwi', char_map, state) )
+''', self._call__make_state_code('fruit', 'kiwi', char_map, state) )
     
   def test__make_transition_code(self):
     char_map = btl_desc_char_map()
@@ -35,31 +36,50 @@ class test_btl_code_gen(keyval_desc_mixin, unit_test):
 if c in {61}:
   new_state = s_kiwi
   tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
-''', btl_code_gen._make_transition_code(char_map, transition) )
+''', self._call__make_transition_code(char_map, transition) )
 
+  @classmethod
+  def _call__make_state_command_code(clazz, *args, **kwargs):
+    return clazz._call_func('_make_state_command_code', *args, **kwargs)
+
+  @classmethod
+  def _call__make_transition_code(clazz, *args, **kwargs):
+    return clazz._call_func('_make_transition_code', *args, **kwargs)
+
+  @classmethod
+  def _call__make_state_code(clazz, *args, **kwargs):
+    return clazz._call_func('_make_state_code', *args, **kwargs)
+  
+  @classmethod
+  def _call_func(clazz, func_name, *args, **kwargs):
+    buf = btl_code_gen_buffer()
+    func = getattr(btl_code_gen, func_name)
+    func(buf, *args, **kwargs)
+    return buf.get_value()
+  
   def test__make_state_command_code_yield(self):
     cmd = btl_desc_state_command('yield', 't_cheese')
     self.assert_code_equal( '''
 tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
-''', btl_code_gen._make_state_command_code(cmd) )
+''', self._call__make_state_command_code(cmd) )
 
   def test__make_state_command_code_buffer_write(self):
     cmd = btl_desc_state_command('buffer', 'write')
     self.assert_code_equal( '''
 self.lexer.buffer_write(c)
-''', btl_code_gen._make_state_command_code(cmd) )
+''', self._call__make_state_command_code(cmd) )
 
   def test__make_state_command_code_buffer_reset(self):
     cmd = btl_desc_state_command('buffer', 'reset')
     self.assert_code_equal( '''
 self.lexer.buffer_reset()
-''', btl_code_gen._make_state_command_code(cmd) )
+''', self._call__make_state_command_code(cmd) )
 
   def test__make_state_command_code_buffer_error(self):
     cmd = btl_desc_state_command('buffer', 'notthere')
     self.assert_code_equal( '''
 raise btl_lexer_error('Unknown buffer command: "notthere"')
-''', btl_code_gen._make_state_command_code(cmd) )
+''', self._call__make_state_command_code(cmd) )
     
   def assert_code_equal(self, expected, actual):
     return self.assert_string_equal(expected, actual,

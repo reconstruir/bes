@@ -245,15 +245,14 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
 '''
 
   @classmethod
-  def _make_state_code(clazz, namespace, name, char_map, state):
+  def _make_state_code(clazz, buf, namespace, name, char_map, state):
+    check.check_btl_code_gen_buffer(buf)
     check.check_string(namespace)
     check.check_string(name)
     check.check_btl_desc_char_map(char_map)
     check.check_btl_desc_state(state)
 
-    b = btl_code_gen_buffer()
-
-    b.write(f'''
+    buf.write_line(f'''
 class {namespace}_{name}_lexer_state_{state.name}(btl_lexer_state_base):
   def __init__(self, lexer):
     super().__init__(lexer)
@@ -266,49 +265,41 @@ class {namespace}_{name}_lexer_state_{state.name}(btl_lexer_state_base):
 ''')
     
     for transition in state.transitions:
-      transition_code = clazz._make_transition_code(char_map, transition)
-      with b.indent_pusher() as _:
-        b.write_line(transition_code)
+      clazz._make_transition_code(buf, char_map, transition)
 
-    return b.get_value()
+    return buf.get_value()
     
   @classmethod
-  def _make_transition_code(clazz, char_map, transition):
+  def _make_transition_code(clazz, buf, char_map, transition):
+    check.check_btl_code_gen_buffer(buf)
     check.check_btl_desc_char_map(char_map)
     check.check_btl_desc_state_transition(transition)
 
-    b = btl_code_gen_buffer()
-    
     char_name = transition.char_name
     if char_name != 'default' and char_name not in char_map:
       raise btl_code_gen_error(f'char not found in char_map: "{char_name}"')
     char = char_map[char_name]
 
-    b.write_line(f'if c in {char.chars}:')
-    b.write_line(f'  new_state = {transition.to_state}')
+    buf.write_line(f'if c in {char.chars}:')
+    with buf.indent_pusher() as _1:
+      buf.write_line(f'new_state = {transition.to_state}')
 
-    for command in transition.commands:
-      command_code = clazz._make_state_command_code(command)
-      with b.indent_pusher() as _:
-        b.write_line(command_code)
+      for command in transition.commands:
+        clazz._make_state_command_code(buf, command)
 
-    return b.get_value()
+    return buf.get_value()
 
   @classmethod
-  def _make_state_command_code(clazz, command):
+  def _make_state_command_code(clazz, buf, command):
+    check.check_btl_code_gen_buffer(buf)
     check.check_btl_desc_state_command(command)
 
-    b = btl_code_gen_buffer()
-
     if command.name == 'yield':
-      b.write_line(f'tokens.append(self.make_token({command.arg}, self.buffer_value(), self.position)')
+      buf.write_line(f'tokens.append(self.make_token({command.arg}, self.buffer_value(), self.position)')
     elif command.name == 'buffer':
       if command.arg == 'write':
-        b.write_line(f'self.lexer.buffer_write(c)')
+        buf.write_line(f'self.lexer.buffer_write(c)')
       elif command.arg == 'reset':
-        b.write_line(f'self.lexer.buffer_reset()')
+        buf.write_line(f'self.lexer.buffer_reset()')
       else:
-        b.write_line(f'''raise btl_lexer_error('Unknown buffer command: "{command.arg}"')''')
-    
-    return b.get_value()
-  
+        buf.write_line(f'''raise btl_lexer_error('Unknown buffer command: "{command.arg}"')''')
