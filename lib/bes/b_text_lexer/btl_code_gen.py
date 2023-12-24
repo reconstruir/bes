@@ -110,7 +110,7 @@ def make_{token_name}(self, value, position):
   return lexer_token(self.{token_name_upper}, value, self._lexer.position)
 ''')
 
-    buf.write_nl()
+    buf.write_linesep()
     
   @classmethod
   def _make_state_class_code(clazz, buf, namespace, name, char_map, state):
