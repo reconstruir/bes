@@ -84,6 +84,9 @@ from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
 ''')
 
     clazz._make_token_class_code(buf, namespace, name, desc.tokens)
+
+    for state in desc.states:
+      clazz._make_state_class_code(buf, namespace, name, desc.char_map, state)
     
   @classmethod
   def _make_token_class_code(clazz, buf, namespace, name, tokens):
@@ -136,8 +139,8 @@ class {namespace}_{name}_lexer_state_{state.name}(btl_lexer_state_base):
 ''')
 
     with buf.indent_pusher(depth = 2) as _:
-      for transition in state.transitions:
-        clazz._make_transition_code(buf, char_map, transition)
+      for index, transition in enumerate(state.transitions):
+        clazz._make_transition_code(buf, char_map, index, transition)
 
       buf.write_lines(f'''
 self.lexer.change_state(new_state, c)
@@ -145,17 +148,23 @@ return tokens
 ''')
         
   @classmethod
-  def _make_transition_code(clazz, buf, char_map, transition):
+  def _make_transition_code(clazz, buf, char_map, index, transition):
     check.check_btl_code_gen_buffer(buf)
     check.check_btl_desc_char_map(char_map)
+    check.check_int(index)
     check.check_btl_desc_state_transition(transition)
 
+    if_statement = 'if' if index == 0 else 'elif'
+    
     char_name = transition.char_name
-    if char_name != 'default' and char_name not in char_map:
-      raise btl_code_gen_error(f'char not found in char_map: "{char_name}"')
-    char = char_map[char_name]
-
-    buf.write_line(f'if c in {char.chars}:')
+    if char_name == 'default':
+      buf.write_line(f'else:')
+    else:
+      if char_name not in char_map:
+        raise btl_code_gen_error(f'char not found in char_map: "{char_name}"')
+      char = char_map[char_name]
+      buf.write_line(f'{if_statement} c in {char.chars}:')
+      
     with buf.indent_pusher() as _1:
       buf.write_line(f'new_state = {transition.to_state}')
 

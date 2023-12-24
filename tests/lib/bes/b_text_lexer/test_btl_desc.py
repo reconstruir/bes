@@ -181,7 +181,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
         }, 
         {
           "to_state": "s_expecting_key", 
-          "char_name": "c_new_line", 
+          "char_name": "c_nl", 
           "commands": [
             {
               "name": "yield", 
@@ -261,7 +261,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
       "transitions": [
         {
           "to_state": "s_expecting_key", 
-          "char_name": "c_new_line", 
+          "char_name": "c_nl", 
           "commands": [
             {
               "name": "yield", 
@@ -313,7 +313,7 @@ stateDiagram-v2
   %% s_expecting_key state
   [*] --> s_expecting_key
   s_expecting_key --> s_done: c_eos
-  s_expecting_key --> s_expecting_key: c_new_line
+  s_expecting_key --> s_expecting_key: c_nl
   s_expecting_key --> s_expecting_key: c_white_space
   s_expecting_key --> s_key: c_keyval_key_first
   s_expecting_key --> s_expecting_key_error: default
@@ -324,7 +324,7 @@ stateDiagram-v2
   s_key --> s_done: c_eos
 
   %% s_value state
-  s_value --> s_expecting_key: c_new_line
+  s_value --> s_expecting_key: c_nl
   s_value --> s_done: c_eos
   s_value --> s_value: default
 
