@@ -40,6 +40,10 @@ class test_btl_code_gen(keyval_desc_mixin, unit_test):
     return clazz._call_func('_make_state_machine_code', *args, **kwargs)
   
   @classmethod
+  def _call__make_lexer_class_code(clazz, *args, **kwargs):
+    return clazz._call_func('_make_lexer_class_code', *args, **kwargs)
+
+  @classmethod
   def _call_func(clazz, func_name, *args, **kwargs):
     buf = btl_code_gen_buffer()
     func = getattr(btl_code_gen, func_name)
@@ -129,6 +133,25 @@ class fruit_kiwi_lexer_token(object):
   def make_melon(self, value, position):
     return lexer_token(self.MELON, value, self._lexer.position)
 ''', self._call__make_token_class_code('fruit', 'kiwi', { 'kiwi', 'lemon', 'melon' }) )
+
+  def test__make_lexer_class_code(self):
+    char_map = btl_desc_char_map()
+    cmd = btl_desc_state_command('yield', 't_cheese')
+    transition = btl_desc_state_transition('s_juice', 'c_equal', [ cmd ])
+    state = btl_desc_state('s_juice', [ transition ])
+    states = [ state ]
+    
+    self.assert_code_equal('''
+class fruit_kiwi_lexer_base(text_lexer_base):
+
+  def __init__(self, kiwi, source = None):
+    super().__init__(log_tag, source = source)
+
+    self.token = fruit_kiwi_lexer_token(self)
+    self.char = text_lexer_char
+    
+    self.s_juice = fruit_kiwi_lexer_state_s_juice(self)
+''', self._call__make_lexer_class_code('fruit', 'kiwi', states) )
 
   def test__make_state_machine_code(self):
     desc = btl_desc.parse_text(self._keyval_desc_text)

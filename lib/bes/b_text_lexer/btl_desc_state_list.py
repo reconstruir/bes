@@ -32,5 +32,5 @@ class btl_desc_state_list(type_checked_list):
       next_desc_state = btl_desc_state.parse_node(child, source)
       result.append(next_desc_state)
     return result
-    
-check.register_class(btl_desc_state_list, include_seq = False)
+
+btl_desc_state_list.register_check_class()  

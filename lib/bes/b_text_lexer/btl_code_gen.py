@@ -13,15 +13,6 @@ class btl_code_gen(object):
 
   _log = logger('btl')
   
-  _HEADER = '''\
-#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
-
-from bes.text.lexer_token import lexer_token
-from bes.text.text_lexer_base import text_lexer_base
-from bes.text.text_lexer_char import text_lexer_char
-from bes.text.text_lexer_state_base import text_lexer_state_base
-'''
-  
   @classmethod
   def state_diagram_generate_code(clazz, filename, namespace, name, output_directory,
                                   indent = 2, skip_start_state = True, skip_end_state = True):
@@ -185,3 +176,26 @@ return tokens
         buf.write_line(f'self.lexer.buffer_reset()')
       else:
         buf.write_line(f'''raise btl_lexer_error('Unknown buffer command: "{command.arg}"')''')
+
+  @classmethod
+  def _make_lexer_class_code(clazz, buf, namespace, name, states):
+    check.check_btl_code_gen_buffer(buf)
+    check.check_string(namespace)
+    check.check_string(name)
+    states = check.check_btl_desc_state_list(states)
+
+    buf.write_lines(f'''
+class {namespace}_{name}_lexer_base(text_lexer_base):
+
+  def __init__(self, {name}, source = None):
+    super().__init__(log_tag, source = source)
+
+    self.token = {namespace}_{name}_lexer_token(self)
+    self.char = text_lexer_char
+    
+''')
+
+    with buf.indent_pusher(depth = 2) as _:
+      for state in states:
+        state_class_name = f'{namespace}_{name}_lexer_state_{state.name}'
+        buf.write_line(f'self.{state.name} = {state_class_name}(self)')

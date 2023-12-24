@@ -265,3 +265,14 @@ class {namespace}_{name}_lexer_state_{state}(text_lexer_state_base):
                                                           check_event_logic_code = check_event_logic_code)
     return state_class_code
   
+  @classmethod
+  def _make_lexer_class_code(clazz, namespace, name, states):
+  _LEXER_CLASS_TEMPLATE = '''\
+class {namespace}_{name}_lexer_base(text_lexer_base):
+
+  def __init__(self, {name}, source = None):
+    super().__init__(log_tag, source = source)
+
+    self.token = {namespace}_{name}_lexer_token(self)
+    self.char = text_lexer_char
+'''
