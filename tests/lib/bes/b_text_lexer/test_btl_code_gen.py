@@ -150,7 +150,9 @@ class fruit_kiwi_lexer_base(text_lexer_base):
     self.token = fruit_kiwi_lexer_token(self)
     self.char = text_lexer_char
     
-    self.s_juice = fruit_kiwi_lexer_state_s_juice(self)
+    self._states = {
+      's_juice': fruit_kiwi_lexer_state_s_juice(self),
+    }
 ''', self._call__make_lexer_class_code('fruit', 'kiwi', states) )
 
   def test__make_state_machine_code(self):

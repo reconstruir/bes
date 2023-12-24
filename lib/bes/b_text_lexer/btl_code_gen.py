@@ -196,6 +196,9 @@ class {namespace}_{name}_lexer_base(text_lexer_base):
 ''')
 
     with buf.indent_pusher(depth = 2) as _:
-      for state in states:
-        state_class_name = f'{namespace}_{name}_lexer_state_{state.name}'
-        buf.write_line(f'self.{state.name} = {state_class_name}(self)')
+      buf.write_line('self._states = {')
+      with buf.indent_pusher() as _42:
+        for state in states:
+          state_class_name = f'{namespace}_{name}_lexer_state_{state.name}'
+          buf.write_line(f'\'{state.name}\': {state_class_name}(self),')
+      buf.write_line('}')
