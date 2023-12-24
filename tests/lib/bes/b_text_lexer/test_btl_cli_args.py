@@ -27,7 +27,7 @@ stateDiagram-v2
   [*] --> s_expecting_key
   s_expecting_key --> s_done: c_eos
   s_expecting_key --> s_expecting_key: c_nl
-  s_expecting_key --> s_expecting_key: c_white_space
+  s_expecting_key --> s_expecting_key: c_ws
   s_expecting_key --> s_key: c_keyval_key_first
   s_expecting_key --> s_expecting_key_error: default
     
@@ -122,7 +122,7 @@ stateDiagram-v2
             <rect rx="0" ry="0" width="105.4375" height="19"/>
             <foreignObject width="105.4375" height="19">
               <div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">
-                <span class="edgeLabel">c_white_space</span>
+                <span class="edgeLabel">c_ws</span>
               </div>
             </foreignObject>
           </g>

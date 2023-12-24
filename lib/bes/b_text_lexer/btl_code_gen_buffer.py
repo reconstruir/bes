@@ -60,7 +60,10 @@ class btl_code_gen_buffer(object):
     lines = s.splitlines()
     for line in lines:
       self.write_line(line)
-    
+
+  def write_nl(self):
+    self.write(os.linesep)
+      
   def push_indent(self, depth = 1):
     self._indent_depth += depth
   

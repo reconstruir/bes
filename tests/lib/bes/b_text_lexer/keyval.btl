@@ -30,7 +30,7 @@ states
       yield t_done
     c_nl: s_expecting_key
       yield t_line_break
-    c_white_space: s_expecting_key
+    c_ws: s_expecting_key
       yield t_space 
     c_keyval_key_first: s_key
       buffer write

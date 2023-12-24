@@ -67,6 +67,8 @@ class btl_desc_char_map(object):
     '&': '&',
     '_': '_',
     # FIXME add the rest
+    'c_alpha': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    'c_alpha_numeric': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
     'c_amp': '&',
     'c_at': '@',
     'c_back_slash': '\\',
@@ -89,6 +91,7 @@ class btl_desc_char_map(object):
     'c_lower_letter': 'abcdefghijklmnopqrstuvwxyz',
     'c_minus': '-',
     'c_nl': '\n',
+    'c_numeric': '0123456789',
     'c_open_bracket': '[',
     'c_open_curly_bracket': '{',
     'c_open_parenthesis': '(',
@@ -103,12 +106,9 @@ class btl_desc_char_map(object):
     'c_space': ' ',
     'c_star': '*',
     'c_tab': '\t',
-    'c_white_space': ' \t',
     'c_tilde': '~',
     'c_underscore': '_',
     'c_upper_letter': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-    'c_alpha_numeric': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
-    'c_alpha': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-    'c_numeric': '0123456789',
+    'c_ws': ' \t',
 }
 check.register_class(btl_desc_char_map)

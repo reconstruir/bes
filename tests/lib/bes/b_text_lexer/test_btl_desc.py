@@ -191,7 +191,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
         }, 
         {
           "to_state": "s_expecting_key", 
-          "char_name": "c_white_space", 
+          "char_name": "c_ws", 
           "commands": [
             {
               "name": "yield", 
@@ -314,7 +314,7 @@ stateDiagram-v2
   [*] --> s_expecting_key
   s_expecting_key --> s_done: c_eos
   s_expecting_key --> s_expecting_key: c_nl
-  s_expecting_key --> s_expecting_key: c_white_space
+  s_expecting_key --> s_expecting_key: c_ws
   s_expecting_key --> s_key: c_keyval_key_first
   s_expecting_key --> s_expecting_key_error: default
 

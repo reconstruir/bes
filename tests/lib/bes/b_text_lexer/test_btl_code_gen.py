@@ -286,6 +286,21 @@ class fruit_kiwi_lexer_state_s_done(btl_lexer_state_base):
     
     self.lexer.change_state(new_state, c)
     return tokens
+
+class fruit_kiwi_lexer_base(text_lexer_base):
+
+  def __init__(self, kiwi, source = None):
+    super().__init__(log_tag, source = source)
+
+    self.token = fruit_kiwi_lexer_token(self)
+    self.char = text_lexer_char
+    
+    self._states = {
+      's_expecting_key': fruit_kiwi_lexer_state_s_expecting_key(self),
+      's_key': fruit_kiwi_lexer_state_s_key(self),
+      's_value': fruit_kiwi_lexer_state_s_value(self),
+      's_done': fruit_kiwi_lexer_state_s_done(self),
+    }
 ''', self._call__make_state_machine_code('fruit', 'kiwi', desc) )
     
 if __name__ == '__main__':

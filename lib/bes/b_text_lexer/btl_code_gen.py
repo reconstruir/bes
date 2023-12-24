@@ -78,7 +78,9 @@ from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
 
     for state in desc.states:
       clazz._make_state_class_code(buf, namespace, name, desc.char_map, state)
-    
+
+    clazz._make_lexer_class_code(buf, namespace, name, desc.states)
+      
   @classmethod
   def _make_token_class_code(clazz, buf, namespace, name, tokens):
     check.check_btl_code_gen_buffer(buf)
@@ -107,7 +109,9 @@ def __init__(self, lexer):
 def make_{token_name}(self, value, position):
   return lexer_token(self.{token_name_upper}, value, self._lexer.position)
 ''')
-  
+
+    buf.write_nl()
+    
   @classmethod
   def _make_state_class_code(clazz, buf, namespace, name, char_map, state):
     check.check_btl_code_gen_buffer(buf)
