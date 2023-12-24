@@ -132,11 +132,44 @@ class fruit_kiwi_lexer_token(object):
 
   def test__make_state_machine_code(self):
     desc = btl_desc.parse_text(self._keyval_desc_text)
-    self.assert_code_equal('''\
+    self.assert_code_equal('''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.b_text_lexer.btl_lexer_base import btl_lexer_base
 from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
+
+
+class fruit_kiwi_lexer_token(object):
+
+  T_DONE = 't_done'
+  T_EXPECTING_KEY = 't_expecting_key'
+  T_KEY = 't_key'
+  T_LINE_BREAK = 't_line_break'
+  T_SPACE = 't_space'
+  T_VALUE = 't_value'
+  
+  def __init__(self, lexer):
+    check.check_text_lexer(lexer)
+  
+    self._lexer = lexer
+  
+  def make_t_done(self, value, position):
+    return lexer_token(self.T_DONE, value, self._lexer.position)
+  
+  def make_t_expecting_key(self, value, position):
+    return lexer_token(self.T_EXPECTING_KEY, value, self._lexer.position)
+  
+  def make_t_key(self, value, position):
+    return lexer_token(self.T_KEY, value, self._lexer.position)
+  
+  def make_t_line_break(self, value, position):
+    return lexer_token(self.T_LINE_BREAK, value, self._lexer.position)
+  
+  def make_t_space(self, value, position):
+    return lexer_token(self.T_SPACE, value, self._lexer.position)
+  
+  def make_t_value(self, value, position):
+    return lexer_token(self.T_VALUE, value, self._lexer.position)
 ''', self._call__make_state_machine_code('fruit', 'kiwi', desc) )
     
 if __name__ == '__main__':

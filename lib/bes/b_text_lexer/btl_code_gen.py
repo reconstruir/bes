@@ -82,6 +82,8 @@ from bes.text.text_lexer_state_base import text_lexer_state_base
 from bes.b_text_lexer.btl_lexer_base import btl_lexer_base
 from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
 ''')
+
+    clazz._make_token_class_code(buf, namespace, name, desc.tokens)
     
   @classmethod
   def _make_token_class_code(clazz, buf, namespace, name, tokens):
