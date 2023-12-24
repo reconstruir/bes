@@ -106,7 +106,7 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
     text = file_util.read(filename, codec = 'utf-8')
     return clazz.parse_text(text, source = filename)
 
-  def write_to_buffer(self, buf, namespace, name):
+  def generate_code(self, buf, namespace, name):
     check.check_btl_code_gen_buffer(buf)
     check.check_string(namespace)
     check.check_string(name)

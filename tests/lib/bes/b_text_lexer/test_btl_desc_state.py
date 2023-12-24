@@ -15,7 +15,7 @@ from keyval_desc_mixin import keyval_desc_mixin
 
 class test_btl_desc_state(keyval_desc_mixin, unit_test):
 
-  def test_write_to_buffer(self):
+  def test_generate_code(self):
     char_map = btl_desc_char_map()
     cmd = btl_desc_state_command('yield', 't_cheese')
     transition = btl_desc_state_transition('s_juice', 'c_equal', [ cmd ])
@@ -38,7 +38,7 @@ class _fruit_kiwi_lexer_state_s_juice(btl_lexer_state_base):
     
     self.lexer.change_state(new_state, c)
     return tokens
-''', self.call_buf_func(state, 'write_to_buffer', '_fruit', 'kiwi', char_map) )
+''', self.call_buf_func(state, 'generate_code', '_fruit', 'kiwi', char_map) )
   
 if __name__ == '__main__':
   unit_test.main()

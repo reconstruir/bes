@@ -12,7 +12,7 @@ from keyval_desc_mixin import keyval_desc_mixin
 
 class test_btl_desc_state_transition(keyval_desc_mixin, unit_test):
 
-  def test_write_to_buffer(self):
+  def test_generate_code(self):
     char_map = btl_desc_char_map()
     cmd = btl_desc_state_command('yield', 't_cheese')
     transition = btl_desc_state_transition('s_kiwi', 'c_equal', [ cmd ])
@@ -21,9 +21,9 @@ class test_btl_desc_state_transition(keyval_desc_mixin, unit_test):
 if c in {61}:
   new_state = s_kiwi
   tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
-''', self.call_buf_func(transition, 'write_to_buffer', char_map, 0) )
+''', self.call_buf_func(transition, 'generate_code', char_map, 0) )
 
-  def test_write_to_buffer_with_index_non_zero(self):
+  def test_generate_code_with_index_non_zero(self):
     char_map = btl_desc_char_map()
     cmd = btl_desc_state_command('yield', 't_cheese')
     transition = btl_desc_state_transition('s_kiwi', 'c_equal', [ cmd ])
@@ -32,7 +32,7 @@ if c in {61}:
 elif c in {61}:
   new_state = s_kiwi
   tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
-''', self.call_buf_func(transition, 'write_to_buffer', char_map, 1) )
+''', self.call_buf_func(transition, 'generate_code', char_map, 1) )
     
 if __name__ == '__main__':
   unit_test.main()

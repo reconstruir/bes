@@ -27,7 +27,7 @@ class btl_desc_state_command(namedtuple('btl_desc_state_command', 'name, arg')):
                                        result_class = btl_desc_state_command,
                                        delimiter = ' ')
 
-  def write_to_buffer(self, buf):
+  def generate_code(self, buf):
     check.check_btl_code_gen_buffer(buf)
 
     if self.name == 'yield':

@@ -33,11 +33,11 @@ class btl_desc_state_transition_list(type_checked_list):
       result.append(next_desc_state_transition)
     return result
 
-  def write_to_buffer(self, buf, char_map):
+  def generate_code(self, buf, char_map):
     check.check_btl_code_gen_buffer(buf)
     check.check_btl_desc_char_map(char_map)
 
     for index, transition in enumerate(self):
-      transition.write_to_buffer(buf, char_map, index)
+      transition.generate_code(buf, char_map, index)
   
 btl_desc_state_transition_list.register_check_class()

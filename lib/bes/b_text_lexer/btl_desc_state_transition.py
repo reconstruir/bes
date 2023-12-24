@@ -34,7 +34,7 @@ class btl_desc_state_transition(namedtuple('btl_desc_state_transition', 'to_stat
     commands = btl_desc_state_command_list.parse_node(n, source = source)
     return btl_desc_state_transition(to_state, char_name, commands)
 
-  def write_to_buffer(self, buf, char_map, index):
+  def generate_code(self, buf, char_map, index):
     check.check_btl_code_gen_buffer(buf)
     check.check_btl_desc_char_map(char_map)
     check.check_int(index)
@@ -52,6 +52,6 @@ class btl_desc_state_transition(namedtuple('btl_desc_state_transition', 'to_stat
       
     with buf.indent_pusher() as _1:
       buf.write_line(f'new_state = {self.to_state}')
-      self.commands.write_to_buffer(buf)
+      self.commands.generate_code(buf)
   
 check.register_class(btl_desc_state_transition, include_seq = False)

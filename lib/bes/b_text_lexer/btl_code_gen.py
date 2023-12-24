@@ -76,7 +76,7 @@ from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
 
     clazz._make_token_class_code(buf, namespace, name, desc.tokens)
 
-    desc.states.write_to_buffer(buf, namespace, name, desc.char_map)
+    desc.states.generate_code(buf, namespace, name, desc.char_map)
 
     clazz._make_lexer_class_code(buf, namespace, name, desc.states)
       
@@ -119,7 +119,7 @@ def make_{token_name}(self, value, position):
     check.check_btl_desc_char_map(char_map)
     check.check_btl_desc_state(state)
 
-    state.write_to_buffer(buf, namespace, name, char_map)
+    state.generate_code(buf, namespace, name, char_map)
         
   @classmethod
   def _make_lexer_class_code(clazz, buf, namespace, name, states):

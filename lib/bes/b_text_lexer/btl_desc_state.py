@@ -35,7 +35,7 @@ class btl_desc_state(namedtuple('btl_desc_state', 'name, transitions, is_end_sta
     transitions = btl_desc_state_transition_list.parse_node(n, source = source)
     return btl_desc_state(name, transitions, name == end_state)
 
-  def write_to_buffer(self, buf, namespace, name, char_map):
+  def generate_code(self, buf, namespace, name, char_map):
     check.check_btl_code_gen_buffer(buf)
     check.check_string(namespace)
     check.check_string(name)
@@ -55,7 +55,7 @@ class {namespace}_{name}_lexer_state_{self.name}(btl_lexer_state_base):
 ''')
 
     with buf.indent_pusher(depth = 2) as _:
-      self.transitions.write_to_buffer(buf, char_map)
+      self.transitions.generate_code(buf, char_map)
 
       buf.write_lines(f'''
 self.lexer.change_state(new_state, c)
