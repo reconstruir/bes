@@ -34,4 +34,24 @@ class btl_desc_state_transition(namedtuple('btl_desc_state_transition', 'to_stat
     commands = btl_desc_state_command_list.parse_node(n, source = source)
     return btl_desc_state_transition(to_state, char_name, commands)
 
+  def write_to_buffer(self, buf, char_map, index):
+    check.check_btl_code_gen_buffer(buf)
+    check.check_btl_desc_char_map(char_map)
+    check.check_int(index)
+
+    if_statement = 'if' if index == 0 else 'elif'
+    
+    char_name = self.char_name
+    if char_name == 'default':
+      buf.write_line(f'else:')
+    else:
+      if char_name not in char_map:
+        raise btl_code_gen_error(f'char not found in char_map: "{char_name}"')
+      char = char_map[char_name]
+      buf.write_line(f'{if_statement} c in {char.chars}:')
+      
+    with buf.indent_pusher() as _1:
+      buf.write_line(f'new_state = {self.to_state}')
+      self.commands.write_to_buffer(buf)
+  
 check.register_class(btl_desc_state_transition, include_seq = False)

@@ -20,14 +20,6 @@ from keyval_desc_mixin import keyval_desc_mixin
 class test_btl_code_gen(keyval_desc_mixin, unit_test):
   
   @classmethod
-  def _call__make_state_command_code(clazz, *args, **kwargs):
-    return clazz._call_func('_make_state_command_code', *args, **kwargs)
-
-  @classmethod
-  def _call__make_transition_code(clazz, *args, **kwargs):
-    return clazz._call_func('_make_transition_code', *args, **kwargs)
-
-  @classmethod
   def _call__make_state_class_code(clazz, *args, **kwargs):
     return clazz._call_func('_make_state_class_code', *args, **kwargs)
 
@@ -75,27 +67,6 @@ class _fruit_kiwi_lexer_state_s_juice(btl_lexer_state_base):
     return tokens
 ''', self._call__make_state_class_code('_fruit', 'kiwi', char_map, state) )
     
-  def test__make_transition_code(self):
-    char_map = btl_desc_char_map()
-    cmd = btl_desc_state_command('yield', 't_cheese')
-    transition = btl_desc_state_transition('s_kiwi', 'c_equal', [ cmd ])
-    
-    self.assert_code_equal('''
-if c in {61}:
-  new_state = s_kiwi
-  tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
-''', self._call__make_transition_code(char_map, 0, transition) )
-
-  def test__make_transition_code_with_index_non_zero(self):
-    char_map = btl_desc_char_map()
-    cmd = btl_desc_state_command('yield', 't_cheese')
-    transition = btl_desc_state_transition('s_kiwi', 'c_equal', [ cmd ])
-    
-    self.assert_code_equal('''
-elif c in {61}:
-  new_state = s_kiwi
-  tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
-''', self._call__make_transition_code(char_map, 1, transition) )
   
 
   def test__make_token_class_code(self):
