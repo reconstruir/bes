@@ -6,6 +6,7 @@ import os.path as path
 from bes.b_text_lexer.btl_code_gen import btl_code_gen
 from bes.b_text_lexer.btl_code_gen_buffer import btl_code_gen_buffer
 from bes.b_text_lexer.btl_desc import btl_desc
+from bes.b_text_lexer.btl_desc import btl_desc
 from bes.b_text_lexer.btl_desc_char import btl_desc_char
 from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
 from bes.b_text_lexer.btl_desc_state import btl_desc_state
@@ -33,6 +34,10 @@ class test_btl_code_gen(keyval_desc_mixin, unit_test):
   @classmethod
   def _call__make_token_class_code(clazz, *args, **kwargs):
     return clazz._call_func('_make_token_class_code', *args, **kwargs)
+  
+  @classmethod
+  def _call__make_state_machine_code(clazz, *args, **kwargs):
+    return clazz._call_func('_make_state_machine_code', *args, **kwargs)
   
   @classmethod
   def _call_func(clazz, func_name, *args, **kwargs):
@@ -124,6 +129,15 @@ class fruit_kiwi_lexer_token(object):
   def make_melon(self, value, position):
     return lexer_token(self.MELON, value, self._lexer.position)
 ''', self._call__make_token_class_code('fruit', 'kiwi', { 'kiwi', 'lemon', 'melon' }) )
+
+  def test__make_state_machine_code(self):
+    desc = btl_desc.parse_text(self._keyval_desc_text)
+    self.assert_code_equal('''\
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+from bes.b_text_lexer.btl_lexer_base import btl_lexer_base
+from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
+''', self._call__make_state_machine_code('fruit', 'kiwi', desc) )
     
 if __name__ == '__main__':
   unit_test.main()

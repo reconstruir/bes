@@ -70,6 +70,20 @@ from bes.text.text_lexer_state_base import text_lexer_state_base
     return output_filename
 
   @classmethod
+  def _make_state_machine_code(clazz, buf, namespace, name, desc):
+    check.check_btl_code_gen_buffer(buf)
+    check.check_string(namespace)
+    check.check_string(name)
+    check.check_btl_desc(desc)
+
+    buf.write_line(f'''
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+from bes.b_text_lexer.btl_lexer_base import btl_lexer_base
+from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
+''')
+    
+  @classmethod
   def _make_token_class_code(clazz, buf, namespace, name, tokens):
     check.check_btl_code_gen_buffer(buf)
     check.check_string(namespace)
@@ -122,8 +136,6 @@ class {namespace}_{name}_lexer_state_{state.name}(btl_lexer_state_base):
     with buf.indent_pusher(depth = 2) as _:
       for transition in state.transitions:
         clazz._make_transition_code(buf, char_map, transition)
-
-#    {check_event_logic_code}
 
       buf.write_lines(f'''
 self.lexer.change_state(new_state, c)
