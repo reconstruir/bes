@@ -5,6 +5,7 @@ import os.path as path
 from bes.property.cached_property import cached_property
 from bes.fs.file_util import file_util
 from bes.text.tree_text_parser import tree_text_parser
+from bes.b_text_lexer.btl_code_gen_buffer import btl_code_gen_buffer
 
 class keyval_desc_mixin:
 
@@ -36,6 +37,13 @@ class keyval_desc_mixin:
       if child.data.text == section_name:
         return child
     return None
+
+  @classmethod
+  def call_buf_func(clazz, o, func_name, *args, **kwargs):
+    buf = btl_code_gen_buffer()
+    func = getattr(o, func_name)
+    func(buf, *args, **kwargs)
+    return buf.get_value()
   
 if __name__ == '__main__':
   unit_test.main()

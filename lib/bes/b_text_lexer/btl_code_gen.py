@@ -164,23 +164,14 @@ return tokens
     with buf.indent_pusher() as _1:
       buf.write_line(f'new_state = {transition.to_state}')
 
-      for command in transition.commands:
-        clazz._make_state_command_code(buf, command)
+      transition.commands.write_to_buffer(buf)
 
   @classmethod
   def _make_state_command_code(clazz, buf, command):
     check.check_btl_code_gen_buffer(buf)
     check.check_btl_desc_state_command(command)
 
-    if command.name == 'yield':
-      buf.write_line(f'tokens.append(self.make_token({command.arg}, self.buffer_value(), self.position)')
-    elif command.name == 'buffer':
-      if command.arg == 'write':
-        buf.write_line(f'self.lexer.buffer_write(c)')
-      elif command.arg == 'reset':
-        buf.write_line(f'self.lexer.buffer_reset()')
-      else:
-        buf.write_line(f'''raise btl_lexer_error('Unknown buffer command: "{command.arg}"')''')
+    command.write_to_buffer(buf)
 
   @classmethod
   def _make_lexer_class_code(clazz, buf, namespace, name, states):

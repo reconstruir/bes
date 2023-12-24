@@ -33,4 +33,10 @@ class btl_desc_state_command_list(type_checked_list):
       result.append(next_desc_error)
     return result
 
+  def write_to_buffer(self, buf):
+    check.check_btl_code_gen_buffer(buf)
+
+    for command in self:
+      command.write_to_buffer(buf)
+    
 btl_desc_state_command_list.register_check_class()

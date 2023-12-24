@@ -97,29 +97,6 @@ elif c in {61}:
   tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
 ''', self._call__make_transition_code(char_map, 1, transition) )
   
-  def test__make_state_command_code_yield(self):
-    cmd = btl_desc_state_command('yield', 't_cheese')
-    self.assert_code_equal( '''
-tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
-''', self._call__make_state_command_code(cmd) )
-
-  def test__make_state_command_code_buffer_write(self):
-    cmd = btl_desc_state_command('buffer', 'write')
-    self.assert_code_equal( '''
-self.lexer.buffer_write(c)
-''', self._call__make_state_command_code(cmd) )
-
-  def test__make_state_command_code_buffer_reset(self):
-    cmd = btl_desc_state_command('buffer', 'reset')
-    self.assert_code_equal( '''
-self.lexer.buffer_reset()
-''', self._call__make_state_command_code(cmd) )
-
-  def test__make_state_command_code_buffer_error(self):
-    cmd = btl_desc_state_command('buffer', 'notthere')
-    self.assert_code_equal( '''
-raise btl_lexer_error('Unknown buffer command: "notthere"')
-''', self._call__make_state_command_code(cmd) )
 
   def test__make_token_class_code(self):
     self.assert_code_equal('''
