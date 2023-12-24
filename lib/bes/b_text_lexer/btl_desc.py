@@ -105,5 +105,29 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
     filename = file_check.check_file(filename)
     text = file_util.read(filename, codec = 'utf-8')
     return clazz.parse_text(text, source = filename)
+
+  def write_to_buffer(self, buf, namespace, name):
+    check.check_btl_code_gen_buffer(buf)
+    check.check_string(namespace)
+    check.check_string(name)
+
+    buf.write_lines(f'''
+class {namespace}_{name}_lexer_base(text_lexer_base):
+
+  def __init__(self, {name}, source = None):
+    super().__init__(log_tag, source = source)
+
+    self.token = {namespace}_{name}_lexer_token(self)
+    self.char = text_lexer_char
     
+''')
+
+    with buf.indent_pusher(depth = 2) as _:
+      buf.write_line('self._states = {')
+      with buf.indent_pusher() as _42:
+        for state in self.states:
+          state_class_name = f'{namespace}_{name}_lexer_state_{state.name}'
+          buf.write_line(f'\'{state.name}\': {state_class_name}(self),')
+      buf.write_line('}')
+  
 check.register_class(btl_desc, include_seq = False)

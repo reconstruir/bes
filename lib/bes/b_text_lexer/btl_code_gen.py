@@ -76,9 +76,7 @@ from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
 
     clazz._make_token_class_code(buf, namespace, name, desc.tokens)
 
-    for state in desc.states:
-      #is_end_state = state.name == desc.header.end_state
-      clazz._make_state_class_code(buf, namespace, name, desc.char_map, state)
+    desc.states.write_to_buffer(buf, namespace, name, desc.char_map)
 
     clazz._make_lexer_class_code(buf, namespace, name, desc.states)
       
@@ -121,43 +119,8 @@ def make_{token_name}(self, value, position):
     check.check_btl_desc_char_map(char_map)
     check.check_btl_desc_state(state)
 
-    buf.write_lines(f'''
-class {namespace}_{name}_lexer_state_{state.name}(btl_lexer_state_base):
-  def __init__(self, lexer):
-    super().__init__(lexer)
-
-  def handle_char(self, c):
-    self.log_handle_char(c)
-
-    new_state = None
-    tokens = []
-
-''')
-
-    with buf.indent_pusher(depth = 2) as _:
-      state.transitions.write_to_buffer(buf, char_map)
-
-      buf.write_lines(f'''
-self.lexer.change_state(new_state, c)
-return tokens
-''')
+    state.write_to_buffer(buf, namespace, name, char_map)
         
-  @classmethod
-  def _make_transition_code(clazz, buf, char_map, index, transition):
-    check.check_btl_code_gen_buffer(buf)
-    check.check_btl_desc_char_map(char_map)
-    check.check_int(index)
-    check.check_btl_desc_state_transition(transition)
-
-    transition.write_to_buffer(buf, char_map, index)
-
-  @classmethod
-  def _make_state_command_code(clazz, buf, command):
-    check.check_btl_code_gen_buffer(buf)
-    check.check_btl_desc_state_command(command)
-
-    command.write_to_buffer(buf)
-
   @classmethod
   def _make_lexer_class_code(clazz, buf, namespace, name, states):
     check.check_btl_code_gen_buffer(buf)

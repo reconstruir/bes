@@ -20,10 +20,6 @@ from keyval_desc_mixin import keyval_desc_mixin
 class test_btl_code_gen(keyval_desc_mixin, unit_test):
   
   @classmethod
-  def _call__make_state_class_code(clazz, *args, **kwargs):
-    return clazz._call_func('_make_state_class_code', *args, **kwargs)
-
-  @classmethod
   def _call__make_token_class_code(clazz, *args, **kwargs):
     return clazz._call_func('_make_token_class_code', *args, **kwargs)
   
@@ -41,32 +37,6 @@ class test_btl_code_gen(keyval_desc_mixin, unit_test):
     func = getattr(btl_code_gen, func_name)
     func(buf, *args, **kwargs)
     return buf.get_value()
-  
-  def test__make_state_class_code(self):
-    char_map = btl_desc_char_map()
-    cmd = btl_desc_state_command('yield', 't_cheese')
-    transition = btl_desc_state_transition('s_juice', 'c_equal', [ cmd ])
-    state = btl_desc_state('s_juice', [ transition ], False)
-
-    self.assert_code_equal('''
-class _fruit_kiwi_lexer_state_s_juice(btl_lexer_state_base):
-  def __init__(self, lexer):
-    super().__init__(lexer)
-
-  def handle_char(self, c):
-    self.log_handle_char(c)
-
-    new_state = None
-    tokens = []
-
-    if c in {61}:
-      new_state = s_juice
-      tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
-    
-    self.lexer.change_state(new_state, c)
-    return tokens
-''', self._call__make_state_class_code('_fruit', 'kiwi', char_map, state) )
-    
   
 
   def test__make_token_class_code(self):

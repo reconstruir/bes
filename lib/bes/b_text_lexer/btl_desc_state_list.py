@@ -34,4 +34,13 @@ class btl_desc_state_list(type_checked_list):
       result.append(next_desc_state)
     return result
 
+  def write_to_buffer(self, buf, namespace, name, char_map):
+    check.check_btl_code_gen_buffer(buf)
+    check.check_string(namespace)
+    check.check_string(name)
+    check.check_btl_desc_char_map(char_map)
+
+    for state in self:
+      state.write_to_buffer(buf, namespace, name, char_map)
+  
 btl_desc_state_list.register_check_class()  
