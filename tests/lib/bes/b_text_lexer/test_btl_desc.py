@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+ #!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
@@ -14,6 +14,8 @@ from keyval_desc_mixin import keyval_desc_mixin
 class test_btl_desc(keyval_desc_mixin, unit_test):
 
   def test_parse_text_to_json(self):
+    #print(btl_desc.parse_text(self._keyval_desc_text).to_json())
+    #return
     self.assert_string_equal_fuzzy( r'''
 {
   "header": {
@@ -205,7 +207,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           "commands": [
             {
               "name": "buffer", 
-              "arg": "write" 
+              "arg": "write"
             }
           ]
         }, 
@@ -219,7 +221,8 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
             }
           ]
         }
-      ]
+      ], 
+      "is_end_state": false
     }, 
     {
       "name": "s_key", 
@@ -230,7 +233,7 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           "commands": [
             {
               "name": "buffer", 
-              "arg": "write" 
+              "arg": "write"
             }
           ]
         }, 
@@ -254,7 +257,8 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
             }
           ]
         }
-      ]
+      ], 
+      "is_end_state": false
     }, 
     {
       "name": "s_value", 
@@ -289,15 +293,17 @@ class test_btl_desc(keyval_desc_mixin, unit_test):
           "commands": [
             {
               "name": "buffer", 
-              "arg": "write" 
+              "arg": "write"
             }
           ]
         }
-      ]
+      ], 
+      "is_end_state": false
     }, 
     {
       "name": "s_done", 
-      "transitions": []
+      "transitions": [], 
+      "is_end_state": false
     }
   ]
 }

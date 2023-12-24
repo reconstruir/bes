@@ -77,6 +77,7 @@ from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
     clazz._make_token_class_code(buf, namespace, name, desc.tokens)
 
     for state in desc.states:
+      #is_end_state = state.name == desc.header.end_state
       clazz._make_state_class_code(buf, namespace, name, desc.char_map, state)
 
     clazz._make_lexer_class_code(buf, namespace, name, desc.states)

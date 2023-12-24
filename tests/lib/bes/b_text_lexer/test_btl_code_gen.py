@@ -54,7 +54,7 @@ class test_btl_code_gen(keyval_desc_mixin, unit_test):
     char_map = btl_desc_char_map()
     cmd = btl_desc_state_command('yield', 't_cheese')
     transition = btl_desc_state_transition('s_juice', 'c_equal', [ cmd ])
-    state = btl_desc_state('s_juice', [ transition ])
+    state = btl_desc_state('s_juice', [ transition ], False)
 
     self.assert_code_equal('''
 class _fruit_kiwi_lexer_state_s_juice(btl_lexer_state_base):
@@ -148,7 +148,7 @@ class _fruit_kiwi_lexer_token(object):
     char_map = btl_desc_char_map()
     cmd = btl_desc_state_command('yield', 't_cheese')
     transition = btl_desc_state_transition('s_juice', 'c_equal', [ cmd ])
-    state = btl_desc_state('s_juice', [ transition ])
+    state = btl_desc_state('s_juice', [ transition ], False)
     states = [ state ]
     
     self.assert_code_equal('''
