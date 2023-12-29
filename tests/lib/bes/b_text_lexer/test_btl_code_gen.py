@@ -21,10 +21,6 @@ from keyval_desc_mixin import keyval_desc_mixin
 class test_btl_code_gen(keyval_desc_mixin, unit_test):
   
   @classmethod
-  def _call__make_token_class_code(clazz, *args, **kwargs):
-    return clazz._call_func('_make_token_class_code', *args, **kwargs)
-  
-  @classmethod
   def _call__make_state_machine_code(clazz, *args, **kwargs):
     return clazz._call_func('_make_state_machine_code', *args, **kwargs)
   
@@ -39,34 +35,6 @@ class test_btl_code_gen(keyval_desc_mixin, unit_test):
     func(buf, *args, **kwargs)
     return buf.get_value()
   
-
-  def test__make_token_class_code(self):
-    tokens = btl_desc_token_list([
-      btl_desc_token('kiwi'),
-      btl_desc_token('lemon'),
-      btl_desc_token('melon')
-    ])
-    self.assert_code_equal('''
-class _fruit_kiwi_lexer_token(object):
-
-  def __init__(self, lexer):
-    check.check_text_lexer(lexer)
-  
-    self._lexer = lexer
-  
-  KIWI = 'kiwi'
-  def make_kiwi(self, value, position):
-    return lexer_token(self.KIWI, value, self._lexer.position)
-  
-  LEMON = 'lemon'
-  def make_lemon(self, value, position):
-    return lexer_token(self.LEMON, value, self._lexer.position)
-  
-  MELON = 'melon'
-  def make_melon(self, value, position):
-    return lexer_token(self.MELON, value, self._lexer.position)
-''', self._call__make_token_class_code('_fruit', 'kiwi', tokens) )
-
   def test__make_lexer_class_code(self):
     char_map = btl_desc_char_map()
     cmd = btl_desc_state_command('yield', 't_cheese')
