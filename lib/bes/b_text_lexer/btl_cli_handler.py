@@ -15,10 +15,6 @@ from ..mermaid.mermaid_ink import mermaid_ink
 
 from .btl_cli_options import btl_cli_options
 
-#from .mermaid import mermaid
-#from .mermaid_options import mermaid_options
-
-
 class btl_cli_handler(cli_command_handler):
   'btl cli handler.'
 
@@ -59,3 +55,12 @@ class btl_cli_handler(cli_command_handler):
       f.write(desc.to_mermaid_diagram())
     return 0
   
+  def make_code(self, filename, namespace, name, output_filename):
+    filename = file_check.check_file(filename)
+    check.check_string(namespace)
+    check.check_string(name)
+    check.check_string(output_filename)
+
+    desc = btl_desc.parse_file(filename)
+    desc.write_code(output_filename, namespace, name)
+    return 0

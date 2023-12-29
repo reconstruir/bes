@@ -9,6 +9,7 @@ from ..system.check import check
 from ..text.tree_text_parser import tree_text_parser
 from ..version.semantic_version import semantic_version
 
+from .btl_code_gen_buffer import btl_code_gen_buffer
 from .btl_desc_char import btl_desc_char
 from .btl_desc_char_map import btl_desc_char_map
 from .btl_desc_error_list import btl_desc_error_list
@@ -130,5 +131,15 @@ class {namespace}_{name}_lexer_base(text_lexer_base):
           state_class_name = f'{namespace}_{name}_lexer_state_{state.name}'
           buf.write_line(f'\'{state.name}\': {state_class_name}(self),')
       buf.write_line('}')
-  
+
+  def write_code(self, output_filename, namespace, name, indent_width = 2):
+    check.check_string(output_filename)
+    check.check_string(namespace)
+    check.check_string(name)
+    check.check_int(indent_width)
+
+    buf = btl_code_gen_buffer(indent_width = indent_width)
+    self.generate_code(buf, namespace, name)
+    file_util.save(output_filename, content = buf.get_value())
+      
 check.register_class(btl_desc, include_seq = False)

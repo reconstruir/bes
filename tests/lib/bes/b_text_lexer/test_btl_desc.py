@@ -3,6 +3,7 @@
 
 import os.path as path
 
+from bes.fs.file_util import file_util
 from bes.b_text_lexer.btl_desc import btl_desc
 from bes.b_text_lexer.btl_desc_char import btl_desc_char
 from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
@@ -344,8 +345,19 @@ stateDiagram-v2
 
   def test_generate_code(self):
     desc = btl_desc.parse_text(self._keyval_desc_text)
+    self.assert_code_equal(
+      self._EXPECTED_CODE,
+      self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi')
+    )
+
+  def test_write_code(self):
+    tmp = self.make_temp_file(suffix = '.py')
+    desc = btl_desc.parse_text(self._keyval_desc_text)
+    desc.write_code(tmp, '_fruit', 'kiwi')
+
+    self.assert_code_equal( self._EXPECTED_CODE, file_util.read(tmp, codec = 'utf-8') )
     
-    self.assert_code_equal('''
+  _EXPECTED_CODE = '''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.b_text_lexer.btl_lexer_base import btl_lexer_base
@@ -486,7 +498,7 @@ class _fruit_kiwi_lexer_base(text_lexer_base):
       's_value': _fruit_kiwi_lexer_state_s_value(self),
       's_done': _fruit_kiwi_lexer_state_s_done(self),
     }
-''', self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi') )
-    
+'''
+  
 if __name__ == '__main__':
   unit_test.main()
