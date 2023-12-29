@@ -16,7 +16,7 @@ class btl_desc_token(namedtuple('btl_desc_token', 'name')):
     return clazz.__bases__[0].__new__(clazz, name)
 
   @cached_property
-  def name_uppercase(self):
+  def name_upper(self):
     return self.name.upper()
   
   def to_dict(self):
@@ -34,11 +34,9 @@ class btl_desc_token(namedtuple('btl_desc_token', 'name')):
     check.check_btl_code_gen_buffer(buf)
 
     buf.write_lines(f'''
-{self.name_uppercase} = '{self.name}'
+{self.name_upper} = '{self.name}'
 def make_{self.name}(self, value, position):
-  return lexer_token(self.{self.name_uppercase}, value, self._lexer.position)
+  return lexer_token(self.{self.name_upper}, value, self._lexer.position)
 ''')
-
-    buf.write_linesep()
     
 check.register_class(btl_desc_token, include_seq = False)

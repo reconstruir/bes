@@ -85,31 +85,9 @@ from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
     check.check_btl_code_gen_buffer(buf)
     check.check_string(namespace)
     check.check_string(name)
+    tokens = check.check_btl_desc_token_list(tokens)
 
-    buf.write_line(f'''
-class {namespace}_{name}_lexer_token(object):
-''')
-    
-    with buf.indent_pusher() as _1:
-      for i, token_name in enumerate(sorted(tokens)):
-        token_name_upper = token_name.upper()
-        buf.write_line(f"{token_name_upper} = '{token_name}'")
-    
-      buf.write_lines(f'''
-def __init__(self, lexer):
-  check.check_text_lexer(lexer)
-
-  self._lexer = lexer
-''')
-
-      for i, token_name in enumerate(sorted(tokens)):
-        token_name_upper = token_name.upper()
-        buf.write_lines(f'''
-def make_{token_name}(self, value, position):
-  return lexer_token(self.{token_name_upper}, value, self._lexer.position)
-''')
-
-    buf.write_linesep()
+    tokens.generate_code(buf, namespace, name)
     
   @classmethod
   def _make_state_class_code(clazz, buf, namespace, name, char_map, state):

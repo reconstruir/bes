@@ -6,7 +6,8 @@ import os.path as path
 from bes.b_text_lexer.btl_code_gen import btl_code_gen
 from bes.b_text_lexer.btl_code_gen_buffer import btl_code_gen_buffer
 from bes.b_text_lexer.btl_desc import btl_desc
-from bes.b_text_lexer.btl_desc import btl_desc
+from bes.b_text_lexer.btl_desc_token import btl_desc_token
+from bes.b_text_lexer.btl_desc_token_list import btl_desc_token_list
 from bes.b_text_lexer.btl_desc_char import btl_desc_char
 from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
 from bes.b_text_lexer.btl_desc_state import btl_desc_state
@@ -40,27 +41,31 @@ class test_btl_code_gen(keyval_desc_mixin, unit_test):
   
 
   def test__make_token_class_code(self):
+    tokens = btl_desc_token_list([
+      btl_desc_token('kiwi'),
+      btl_desc_token('lemon'),
+      btl_desc_token('melon')
+    ])
     self.assert_code_equal('''
 class _fruit_kiwi_lexer_token(object):
 
-  KIWI = 'kiwi'
-  LEMON = 'lemon'
-  MELON = 'melon'
-  
   def __init__(self, lexer):
     check.check_text_lexer(lexer)
   
     self._lexer = lexer
   
+  KIWI = 'kiwi'
   def make_kiwi(self, value, position):
     return lexer_token(self.KIWI, value, self._lexer.position)
   
+  LEMON = 'lemon'
   def make_lemon(self, value, position):
     return lexer_token(self.LEMON, value, self._lexer.position)
   
+  MELON = 'melon'
   def make_melon(self, value, position):
     return lexer_token(self.MELON, value, self._lexer.position)
-''', self._call__make_token_class_code('_fruit', 'kiwi', { 'kiwi', 'lemon', 'melon' }) )
+''', self._call__make_token_class_code('_fruit', 'kiwi', tokens) )
 
   def test__make_lexer_class_code(self):
     char_map = btl_desc_char_map()
@@ -94,36 +99,34 @@ from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
 
 class _fruit_kiwi_lexer_token(object):
 
-  T_DONE = 't_done'
-  T_EXPECTING_KEY = 't_expecting_key'
-  T_KEY = 't_key'
-  T_LINE_BREAK = 't_line_break'
-  T_SPACE = 't_space'
-  T_VALUE = 't_value'
-  
   def __init__(self, lexer):
     check.check_text_lexer(lexer)
   
     self._lexer = lexer
   
+  T_DONE = 't_done'
   def make_t_done(self, value, position):
     return lexer_token(self.T_DONE, value, self._lexer.position)
   
+  T_EXPECTING_KEY = 't_expecting_key'
   def make_t_expecting_key(self, value, position):
     return lexer_token(self.T_EXPECTING_KEY, value, self._lexer.position)
   
+  T_KEY = 't_key'
   def make_t_key(self, value, position):
     return lexer_token(self.T_KEY, value, self._lexer.position)
   
+  T_LINE_BREAK = 't_line_break'
   def make_t_line_break(self, value, position):
     return lexer_token(self.T_LINE_BREAK, value, self._lexer.position)
   
+  T_SPACE = 't_space'
   def make_t_space(self, value, position):
     return lexer_token(self.T_SPACE, value, self._lexer.position)
   
+  T_VALUE = 't_value'
   def make_t_value(self, value, position):
     return lexer_token(self.T_VALUE, value, self._lexer.position)
-
 
 class _fruit_kiwi_lexer_state_s_expecting_key(btl_lexer_state_base):
   def __init__(self, lexer):

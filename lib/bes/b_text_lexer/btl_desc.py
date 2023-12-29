@@ -15,6 +15,7 @@ from .btl_desc_error_list import btl_desc_error_list
 from .btl_desc_header import btl_desc_header
 from .btl_desc_mermaid import btl_desc_mermaid
 from .btl_desc_state_list import btl_desc_state_list
+from .btl_desc_token_list import btl_desc_token_list
 from .btl_error import btl_error
 from .btl_parsing import btl_parsing
 
@@ -22,7 +23,7 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
   
   def __new__(clazz, header, tokens, errors, char_map, states):
     header = check.check_btl_desc_header(header)
-    check.check_string_seq(tokens)
+    tokens = check.check_btl_desc_token_list(tokens)
     errors = check.check_btl_desc_error_list(errors)
     check.check_btl_desc_char_map(char_map)
     states = check.check_btl_desc_state_list(states)
@@ -31,7 +32,7 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
   def to_dict(self):
     return {
       'header': self.header.to_dict(),
-      'tokens': sorted([ token for token in self.tokens ]),
+      'tokens': self.tokens.as_sorted_list,
       'errors': self.errors.to_dict_list(),
       'char_map': self.char_map.to_dict(),
       'states': self.states.to_dict_list(),
@@ -43,16 +44,6 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
   def to_mermaid_diagram(self):
     return btl_desc_mermaid.desc_to_mermain_diagram(self)
   
-  @classmethod
-  def _parse_tokens(clazz, n, source):
-    result = set()
-    for child in n.children:
-      token_name = child.data.text.strip()
-      if token_name in result:
-        raise btl_error(f'Duplicate token "{token_name}" at {source}:{child.data.line_number}')
-      result.add(token_name)
-    return result
-
   @classmethod
   def _parse_char_map(clazz, n, source):
     result = btl_desc_char_map()
@@ -73,7 +64,7 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
     #print(header)
 
     tokens_node = clazz._find_section(root, 'tokens', source)
-    tokens = clazz._parse_tokens(tokens_node, source)
+    tokens = btl_desc_token_list.parse_node(tokens_node, source)
     #print(tokens)
 
     errors_node = clazz._find_section(root, 'errors', source)
