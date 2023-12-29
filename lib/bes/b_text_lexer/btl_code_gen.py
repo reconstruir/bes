@@ -59,21 +59,3 @@ class btl_code_gen(object):
         stream.write(state_instance_code)
         stream.write(os.linesep)
     return output_filename
-
-  @classmethod
-  def _make_state_machine_code(clazz, buf, namespace, name, desc):
-    check.check_btl_code_gen_buffer(buf)
-    check.check_string(namespace)
-    check.check_string(name)
-    check.check_btl_desc(desc)
-
-    buf.write_line(f'''
-#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
-
-from bes.b_text_lexer.btl_lexer_base import btl_lexer_base
-from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
-''')
-
-    desc.tokens.generate_code(buf, namespace, name)
-    desc.states.generate_code(buf, namespace, name, desc.char_map)
-    desc.generate_code(buf, namespace, name)
