@@ -2,6 +2,7 @@
 
 import pprint
 
+from ..common.json_util import json_util
 from ..system.check import check
 
 from .btl_error import btl_error
@@ -13,7 +14,7 @@ class btl_desc_char_map(object):
     self._map = {}
     for name, chars in self._BASIC_CHARS.items():
       desc_char = btl_desc_char(name, chars)
-      self._do_add(desc_char)
+      self.add(desc_char)
 
   def __str__(self):
     return pprint.pformat(self._map)
@@ -27,13 +28,17 @@ class btl_desc_char_map(object):
   def __contains__(self, char_name):
     return char_name in self._map
   
-  def to_dict(self):
+  def to_dict(self, without_basic = True):
     result = {}
     for name, char in self._map.items():
       result[name] = char.to_dict()
-    for name in self._BASIC_CHARS.keys():
-      del result[name]
+    if without_basic:
+      for name in self._BASIC_CHARS.keys():
+        del result[name]
     return result
+
+  def to_json(self):
+    return json_util.to_json(self.to_dict(), indent = 2, sort_keys = False)
   
   def parse_union(self, chars):
     check.check_string(chars)
@@ -54,9 +59,9 @@ class btl_desc_char_map(object):
 
     parsed_chars = self.parse_union(chars)
     desc_char = btl_desc_char(name, parsed_chars)
-    self._do_add(desc_char)
+    self.add(desc_char)
 
-  def _do_add(self, desc_char):
+  def add(self, desc_char):
     check.check_btl_desc_char(desc_char)
 
     if desc_char.name in self._map:

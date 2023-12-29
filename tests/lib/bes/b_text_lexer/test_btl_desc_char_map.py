@@ -29,6 +29,21 @@ class test_test_btl_desc_char_map(unit_test):
     m = btl_desc_char_map()
     with self.assertRaises(btl_error) as _:
       m.parse_union('c_not_there')
-    
+
+  def test_add(self):
+    m = btl_desc_char_map()
+    m.add(btl_desc_char('kiwi', [ 65, 66 ]))
+    self.assert_json_equal('''
+{
+  "kiwi": {
+    "name": "kiwi",
+    "chars": [
+      65,
+      66
+    ]
+  }    
+}    
+''', m.to_json() )
+      
 if __name__ == '__main__':
   unit_test.main()

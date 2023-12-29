@@ -80,16 +80,6 @@ from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
     clazz._make_lexer_class_code(buf, namespace, name, desc.states)
       
   @classmethod
-  def _make_state_class_code(clazz, buf, namespace, name, char_map, state):
-    check.check_btl_code_gen_buffer(buf)
-    check.check_string(namespace)
-    check.check_string(name)
-    check.check_btl_desc_char_map(char_map)
-    check.check_btl_desc_state(state)
-
-    state.generate_code(buf, namespace, name, char_map)
-        
-  @classmethod
   def _make_lexer_class_code(clazz, buf, namespace, name, states):
     check.check_btl_code_gen_buffer(buf)
     check.check_string(namespace)
