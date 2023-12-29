@@ -76,7 +76,6 @@ from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
 
     desc.tokens.generate_code(buf, namespace, name)
     desc.states.generate_code(buf, namespace, name, desc.char_map)
-
     clazz._make_lexer_class_code(buf, namespace, name, desc.states)
       
   @classmethod
