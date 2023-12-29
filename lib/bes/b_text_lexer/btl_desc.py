@@ -108,13 +108,14 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
 
 from bes.b_text_lexer.btl_lexer_base import btl_lexer_base
 from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
+from bes.system.check import check
 ''')
 
     self.tokens.generate_code(buf, namespace, name)
     self.states.generate_code(buf, namespace, name, self.char_map)
     
     buf.write_lines(f'''
-class {namespace}_{name}_lexer_base(text_lexer_base):
+class {namespace}_{name}_lexer(btl_lexer_base):
 
   def __init__(self, {name}, source = None):
     super().__init__(log_tag, source = source)

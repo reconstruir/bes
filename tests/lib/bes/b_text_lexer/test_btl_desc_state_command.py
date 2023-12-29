@@ -15,7 +15,7 @@ class test_btl_desc_state_command(keyval_desc_mixin, unit_test):
   def test_generate_code_with_yield(self):
     cmd = btl_desc_state_command('yield', 't_cheese')
     self.assert_code_equal( '''
-tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
+tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position))
 ''', self.call_buf_func(cmd, 'generate_code') )
 
   def test_generate_code_with_buffer_write(self):

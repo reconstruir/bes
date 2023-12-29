@@ -4,6 +4,9 @@
 import os.path as path
 
 from bes.fs.file_util import file_util
+from bes.testing.unit_test import unit_test
+from bes.text.text_line_parser import text_line_parser
+
 from bes.b_text_lexer.btl_desc import btl_desc
 from bes.b_text_lexer.btl_desc_char import btl_desc_char
 from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
@@ -12,7 +15,6 @@ from bes.b_text_lexer.btl_desc_state import btl_desc_state
 from bes.b_text_lexer.btl_desc_state_command import btl_desc_state_command
 from bes.b_text_lexer.btl_desc_state_transition import btl_desc_state_transition
 from bes.b_text_lexer.btl_error import btl_error
-from bes.testing.unit_test import unit_test
 
 from keyval_desc_mixin import keyval_desc_mixin
 
@@ -356,12 +358,24 @@ stateDiagram-v2
     desc.write_code(tmp, '_fruit', 'kiwi')
 
     self.assert_code_equal( self._EXPECTED_CODE, file_util.read(tmp, codec = 'utf-8') )
+
+  def test_exec_code(self):
+    desc = btl_desc.parse_text(self._keyval_desc_text)
+    code = self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi')
+    try:
+      exec(code)
+    except Exception as ex:
+      p = text_line_parser(code)
+      p.add_line_numbers()
+      print(str(p))
+      raise
     
   _EXPECTED_CODE = '''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.b_text_lexer.btl_lexer_base import btl_lexer_base
 from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
+from bes.system.check import check
 
 
 class _fruit_kiwi_lexer_token(object):
@@ -407,13 +421,13 @@ class _fruit_kiwi_lexer_state_s_expecting_key(btl_lexer_state_base):
 
     if c in {0}:
       new_state = s_done
-      tokens.append(self.make_token(t_done, self.buffer_value(), self.position)
+      tokens.append(self.make_token(t_done, self.buffer_value(), self.position))
     elif c in {10}:
       new_state = s_expecting_key
-      tokens.append(self.make_token(t_line_break, self.buffer_value(), self.position)
+      tokens.append(self.make_token(t_line_break, self.buffer_value(), self.position))
     elif c in {32, 9}:
       new_state = s_expecting_key
-      tokens.append(self.make_token(t_space, self.buffer_value(), self.position)
+      tokens.append(self.make_token(t_space, self.buffer_value(), self.position))
     elif c in {65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 95, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122}:
       new_state = s_key
       self.lexer.buffer_write(c)
@@ -438,10 +452,10 @@ class _fruit_kiwi_lexer_state_s_key(btl_lexer_state_base):
       self.lexer.buffer_write(c)
     elif c in {61}:
       new_state = s_value
-      tokens.append(self.make_token(t_key, self.buffer_value(), self.position)
+      tokens.append(self.make_token(t_key, self.buffer_value(), self.position))
     elif c in {0}:
       new_state = s_done
-      tokens.append(self.make_token(t_done, self.buffer_value(), self.position)
+      tokens.append(self.make_token(t_done, self.buffer_value(), self.position))
     
     self.lexer.change_state(new_state, c)
     return tokens
@@ -458,11 +472,11 @@ class _fruit_kiwi_lexer_state_s_value(btl_lexer_state_base):
 
     if c in {10}:
       new_state = s_expecting_key
-      tokens.append(self.make_token(t_line_break, self.buffer_value(), self.position)
-      tokens.append(self.make_token(t_value, self.buffer_value(), self.position)
+      tokens.append(self.make_token(t_line_break, self.buffer_value(), self.position))
+      tokens.append(self.make_token(t_value, self.buffer_value(), self.position))
     elif c in {0}:
       new_state = s_done
-      tokens.append(self.make_token(t_done, self.buffer_value(), self.position)
+      tokens.append(self.make_token(t_done, self.buffer_value(), self.position))
     else:
       new_state = s_value
       self.lexer.buffer_write(c)
@@ -484,7 +498,7 @@ class _fruit_kiwi_lexer_state_s_done(btl_lexer_state_base):
     self.lexer.change_state(new_state, c)
     return tokens
 
-class _fruit_kiwi_lexer_base(text_lexer_base):
+class _fruit_kiwi_lexer(btl_lexer_base):
 
   def __init__(self, kiwi, source = None):
     super().__init__(log_tag, source = source)

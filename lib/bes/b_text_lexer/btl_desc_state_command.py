@@ -31,7 +31,7 @@ class btl_desc_state_command(namedtuple('btl_desc_state_command', 'name, arg')):
     check.check_btl_code_gen_buffer(buf)
 
     if self.name == 'yield':
-      buf.write_line(f'tokens.append(self.make_token({self.arg}, self.buffer_value(), self.position)')
+      buf.write_line(f'tokens.append(self.make_token({self.arg}, self.buffer_value(), self.position))')
     elif self.name == 'buffer':
       if self.arg == 'write':
         buf.write_line(f'self.lexer.buffer_write(c)')

@@ -20,7 +20,7 @@ class test_btl_desc_state_transition(keyval_desc_mixin, unit_test):
     self.assert_code_equal('''
 if c in {61}:
   new_state = s_kiwi
-  tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
+  tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position))
 ''', self.call_buf_func(transition, 'generate_code', char_map, 0) )
 
   def test_generate_code_with_index_non_zero(self):
@@ -31,7 +31,7 @@ if c in {61}:
     self.assert_code_equal('''
 elif c in {61}:
   new_state = s_kiwi
-  tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position)
+  tokens.append(self.make_token(t_cheese, self.buffer_value(), self.position))
 ''', self.call_buf_func(transition, 'generate_code', char_map, 1) )
     
 if __name__ == '__main__':

@@ -3,7 +3,7 @@
 from ..common.string_util import string_util
 from ..system.log import log
 
-from .text_lexer_error import text_lexer_error
+from .btl_lexer_error import btl_lexer_error
 
 class btl_lexer_state_base(object):
 

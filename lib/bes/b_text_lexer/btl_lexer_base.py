@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from ..system.log import log
+from ..system.check import check
 
 from .btl_lexer_error import btl_lexer_error
 from .btl_desc_char_map import btl_desc_char_map
