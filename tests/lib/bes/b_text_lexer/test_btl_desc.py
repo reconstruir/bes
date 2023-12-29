@@ -6,6 +6,10 @@ import os.path as path
 from bes.b_text_lexer.btl_desc import btl_desc
 from bes.b_text_lexer.btl_desc_char import btl_desc_char
 from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
+from bes.b_text_lexer.btl_desc_char_map import btl_desc_char_map
+from bes.b_text_lexer.btl_desc_state import btl_desc_state
+from bes.b_text_lexer.btl_desc_state_command import btl_desc_state_command
+from bes.b_text_lexer.btl_desc_state_transition import btl_desc_state_transition
 from bes.b_text_lexer.btl_error import btl_error
 from bes.testing.unit_test import unit_test
 
@@ -337,6 +341,26 @@ stateDiagram-v2
   %% s_done state
   s_done --> [*]
 ''', btl_desc.parse_text(self._keyval_desc_text).to_mermaid_diagram() )
+
+  def test_generate_code(self):
+    desc = btl_desc.parse_text(self._keyval_desc_text)
+    
+    self.assert_code_equal('''
+class _fruit_kiwi_lexer_base(text_lexer_base):
+
+  def __init__(self, kiwi, source = None):
+    super().__init__(log_tag, source = source)
+
+    self.token = _fruit_kiwi_lexer_token(self)
+    self.char = text_lexer_char
+    
+    self._states = {
+      's_expecting_key': _fruit_kiwi_lexer_state_s_expecting_key(self),
+      's_key': _fruit_kiwi_lexer_state_s_key(self),
+      's_value': _fruit_kiwi_lexer_state_s_value(self),
+      's_done': _fruit_kiwi_lexer_state_s_done(self),
+    }
+''', self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi') )
     
 if __name__ == '__main__':
   unit_test.main()
