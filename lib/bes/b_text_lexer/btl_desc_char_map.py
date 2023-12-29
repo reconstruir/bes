@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import pprint
+import json
 
 from ..common.json_util import json_util
 from ..system.check import check
@@ -67,6 +68,21 @@ class btl_desc_char_map(object):
     if desc_char.name in self._map:
       raise btl_error(f'Already in map: "{desc_char.name}"')
     self._map[desc_char.name] = desc_char
+
+  @classmethod
+  def from_json(clazz, text):
+    check.check_string(text)
+
+    result = btl_desc_char_map()
+    d = json.loads(text)
+    for name, char_dict in d.items():
+      assert 'name' in char_dict
+      assert 'chars' in char_dict
+      name = char_dict['name']
+      chars = char_dict['chars']
+      desc_char = btl_desc_char(name, chars)
+      result.add(desc_char)
+    return result
     
   _BASIC_CHARS = {
     '&': '&',

@@ -33,17 +33,47 @@ class test_test_btl_desc_char_map(unit_test):
   def test_add(self):
     m = btl_desc_char_map()
     m.add(btl_desc_char('kiwi', [ 65, 66 ]))
+    m.add(btl_desc_char('lemon', [ 67, 68 ]))
+    print(m.to_json())
     self.assert_json_equal('''
 {
   "kiwi": {
-    "name": "kiwi",
+    "name": "kiwi", 
     "chars": [
-      65,
+      65, 
       66
     ]
-  }    
-}    
+  }, 
+  "lemon": {
+    "name": "lemon", 
+    "chars": [
+      67, 
+      68
+    ]
+  }
+}
 ''', m.to_json() )
-      
+
+  def test_from_json(self):
+    expected = '''
+{
+  "kiwi": {
+    "name": "kiwi", 
+    "chars": [
+      65, 
+      66
+    ]
+  }, 
+  "lemon": {
+    "name": "lemon", 
+    "chars": [
+      67, 
+      68
+    ]
+  }
+}
+'''
+    self.assert_json_equal( expected, btl_desc_char_map.from_json(expected).to_json() )
+    
 if __name__ == '__main__':
   unit_test.main()
