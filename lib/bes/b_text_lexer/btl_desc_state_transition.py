@@ -51,7 +51,7 @@ class btl_desc_state_transition(namedtuple('btl_desc_state_transition', 'to_stat
       buf.write_line(f'{if_statement} c in {char.chars}:')
       
     with buf.indent_pusher() as _1:
-      buf.write_line(f'new_state = {self.to_state}')
+      buf.write_line(f'new_state = \'{self.to_state}\'')
       self.commands.generate_code(buf)
   
 check.register_class(btl_desc_state_transition, include_seq = False)

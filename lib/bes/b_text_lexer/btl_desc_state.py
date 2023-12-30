@@ -58,7 +58,6 @@ class {prefix}_state_{self.name}(btl_lexer_state_base):
 
     with buf.indent_pusher(depth = 2) as _:
       self.transitions.generate_code(buf, char_map)
-
       buf.write_lines(f'''
 self.lexer.change_state(new_state, c)
 return tokens

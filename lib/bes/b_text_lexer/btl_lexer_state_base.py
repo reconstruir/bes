@@ -38,7 +38,6 @@ class btl_lexer_state_base(object):
       attributes.append(f'buffer={bs}')
     except AttributeError as ex:
       attributes.append('buffer=None')
-    attributes.append('is_escaping={self.lexer.is_escaping}')
     return ' '.join(attributes)
 
   @classmethod
@@ -47,3 +46,6 @@ class btl_lexer_state_base(object):
       return 'EOS'
     else:
       return c
+
+  def make_token(self, *a, **aa):
+    assert False

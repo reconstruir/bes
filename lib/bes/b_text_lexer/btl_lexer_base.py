@@ -23,7 +23,7 @@ class btl_lexer_base(object):
     self._states = states
     self._buffer = None
     self._last_char = None
-    self._state = self._states[self._desc.header.start_state]
+    self._state = self._find_state(self._desc.header.start_state)
     self.position = point(1, 1)
     self.buffer_reset()
 
@@ -34,9 +34,18 @@ class btl_lexer_base(object):
   @property
   def token(self):
     return self._token
+
+  def _find_state(self, state_name):
+    return self._states[state_name]
   
-  def change_state(self, new_state, c):
-    assert new_state
+  def change_state(self, new_state_name, c):
+    check.check_string(new_state_name)
+    check.check_string(c)
+
+    import pprint
+    print(pprint.pformat(self._states))
+    
+    new_state = self._find_state(new_state_name)
     if new_state == self._state:
       return
     self.log_d('transition: %20s -> %-20s; %s'  % (self._state.__class__.__name__,
@@ -67,7 +76,8 @@ class btl_lexer_base(object):
       #self._is_escaping = self._last_char == '\\'
       #should_handle_char = (self._is_escaping and c == '\\') or (c != '\\')
       #if should_handle_char:
-      tokens = self._state.handle_char(c)
+      ord_c = ord(c)
+      tokens = self._state.handle_char(ord_c)
       for token in tokens:
         self.log_d('tokenize: new token: %s' % (str(token)))
         yield token
@@ -77,7 +87,8 @@ class btl_lexer_base(object):
       else:
         self.position = point(self.position.x + 0, self.position.y)
 
-    assert self._state == self._states[self._desc.header.end_state]
+    end_state = self._find_state(self._desc.header.end_state)
+    assert self._state == end_state
         
   @classmethod
   def _chars_plus_eos(self, text):

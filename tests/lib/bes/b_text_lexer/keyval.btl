@@ -36,6 +36,7 @@ states
       buffer write
     default: s_expecting_key_error
       raise unexpected_char
+  s_expecting_key_error
   s_key
     c_keyval_key: s_key
       buffer write

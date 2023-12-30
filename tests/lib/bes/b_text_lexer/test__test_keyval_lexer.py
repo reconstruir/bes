@@ -7,8 +7,14 @@ from _test_keyval_lexer import _test_keyval_lexer
 
 class test__test_keyval_lexer(unit_test):
 
-  def test_foo(self):
+  def test_run(self):
     l = _test_keyval_lexer()
+    text = '''
+fruit = kiwi
+color = green
+taste = tart
+'''
+    tokens = [ token for token in l.run(text) ]
 
 if __name__ == '__main__':
   unit_test.main()
