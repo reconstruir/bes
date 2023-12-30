@@ -141,11 +141,9 @@ class {namespace}_{name}_lexer(btl_lexer_base):
 
     with buf.indent_pusher(depth = 1) as _:
       desc_text = self.source_text or ''
-      buf.write_lines(f'''
-_DESC_TEXT = """
-{self.source_text}
-"""''')
-      
+      buf.write_line(f'_DESC_TEXT = """')
+    buf.write_line(f'{self.source_text}')
+    buf.write_line(f'"""')
     buf.write_line(f'check.register_class({namespace}_{name}_lexer, include_seq = False)')
       
   def write_code(self, output_filename, namespace, name, indent_width = 2):

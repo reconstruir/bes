@@ -2,7 +2,6 @@
 
 import os.path as path
 
-from bes.property.cached_property import cached_property
 from bes.property.cached_class_property import cached_class_property
 from bes.fs.file_util import file_util
 from bes.text.tree_text_parser import tree_text_parser

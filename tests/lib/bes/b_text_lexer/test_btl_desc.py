@@ -1,12 +1,10 @@
- #!/usr/bin/env python
+#!/usr/bin/env python
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
-import os.path as path
-import pprint
-
+from bes.fs.file_util import file_util
+from bes.property.cached_class_property import cached_class_property
 from bes.system.check import check
 from bes.system.execute import execute
-from bes.fs.file_util import file_util
 from bes.testing.unit_test import unit_test
 from bes.text.text_line_parser import text_line_parser
 
@@ -701,7 +699,11 @@ if __name__ == '__main__':
 }
 ''', desc.to_json() )
 
-  _EXPECTED_CODE = '''
+  @cached_class_property
+  def _EXPECTED_CODE(clazz):
+    return clazz._EXPECTED_CODE_TEMPLATE.replace('@@@_DESC_TEXT@@@', clazz._keyval_desc_text)
+    
+  _EXPECTED_CODE_TEMPLATE = '''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 from bes.b_text_lexer.btl_lexer_base import btl_lexer_base
@@ -843,64 +845,9 @@ class _fruit_kiwi_lexer(btl_lexer_base):
       's_value': self._fruit_kiwi_lexer_state_s_value(self),
       's_done': self._fruit_kiwi_lexer_state_s_done(self),
     }
-  
   _DESC_TEXT = """
-  #BTL
-  #
-  # Key Value pair lexer
-  #
-  lexer
-    name: keyval
-    description: A Key Value pair lexer
-    version: 1.0
-    start_state: s_expecting_key
-    end_state: s_done
-  
-  tokens
-    t_done
-    t_key
-    t_expecting_key
-    t_line_break
-    t_space
-    t_value
-  
-  errors
-    unexpected_char: In state {state} unexpected character {char} instead of key
-  
-  chars
-    c_keyval_key_first: c_underscore | c_alpha
-    c_keyval_key: c_keyval_key_first | c_numeric
-  
-  states
-    s_expecting_key
-      c_eos: s_done
-        yield t_done
-      c_nl: s_expecting_key
-        yield t_line_break
-      c_ws: s_expecting_key
-        yield t_space 
-      c_keyval_key_first: s_key
-        buffer write
-      default: s_expecting_key_error
-        raise unexpected_char
-    s_key
-      c_keyval_key: s_key
-        buffer write
-      c_equal: s_value
-        yield t_key
-      c_eos: s_done
-        yield t_done
-    s_value
-      c_nl: s_expecting_key
-        yield t_line_break
-        yield t_value
-      c_eos: s_done
-        yield t_done
-      default: s_value
-        buffer write
-    s_done
-  
-  """
+@@@_DESC_TEXT@@@
+"""
 check.register_class(_fruit_kiwi_lexer, include_seq = False)
 '''
   
