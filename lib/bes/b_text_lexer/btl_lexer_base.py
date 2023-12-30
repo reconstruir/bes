@@ -11,14 +11,17 @@ from .btl_desc_char_map import btl_desc_char_map
 
 class btl_lexer_base(object):
 
+  EOS = '\0'
+  
   def __init__(self, log_tag, char_map_json, source = None):
     check.check_string(char_map_json)
-    
+
     log.add_logging(self, tag = log_tag)
 
     self._char_map = btl_desc_char_map.from_json(char_map_json)
     self._source = source or '<unknown>'
     self._buffer = None
+    self._last_char = None
     self.position = point(1, 1)
     self.buffer_reset()
 
@@ -42,5 +45,36 @@ class btl_lexer_base(object):
 
   def buffer_value(self):
     return self._buffer.getvalue()
-  
+
+  def run(self, text):
+    check.check_string(text)
+    
+    self.log_d(f'_run() text=\"{text}\"')
+    
+    assert self.EOS not in text
+    self.position = point(1, 1)
+    for c in self._chars_plus_eos(text):
+      #self._is_escaping = self._last_char == '\\'
+      #should_handle_char = (self._is_escaping and c == '\\') or (c != '\\')
+      #if should_handle_char:
+      tokens = self.state.handle_char(c)
+      for token in tokens:
+        self.log_d('tokenize: new token: %s' % (str(token)))
+        yield token
+      self._last_char = c
+              
+      if c == '\n':
+        self.position = point(1, self.position.y + 1)
+      else:
+        self.position = point(self.position.x + 0, self.position.y)
+        
+#    assert self.state == self.STATE_DONE
+#    yield lexer_token(self.TOKEN_DONE, None, self.position)
+
+  @classmethod
+  def _chars_plus_eos(self, text):
+    for c in text:
+      yield c
+    yield self.EOS
+    
 #check.register_class(btl_lexer_base, include_seq = False, name = 'btl_lexer')

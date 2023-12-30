@@ -150,5 +150,5 @@ class {namespace}_{name}_lexer(btl_lexer_base):
     buf = btl_code_gen_buffer(indent_width = indent_width)
     self.generate_code(buf, namespace, name)
     file_util.save(output_filename, content = buf.get_value())
-      
+
 check.register_class(btl_desc, include_seq = False)

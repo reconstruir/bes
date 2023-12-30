@@ -374,9 +374,9 @@ stateDiagram-v2
     desc = btl_desc.parse_text(self._keyval_desc_text)
     lexer_code = self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi')
     use_code = '''
-from bes.testing.unit_test import unit_test
+import unittest
 
-class _test_use_code_unit_test(unit_test):
+class _test_use_code_unit_test(unittest.TestCase):
 
   def test_foo(self):
     l = _fruit_kiwi_lexer()
@@ -384,8 +384,17 @@ class _test_use_code_unit_test(unit_test):
     print(l._states)
     print(l.token.make_t_done('x'))
 
+    text = f"""
+fruit = kiwi
+color = green
+taste = sour
+"""
+    #tokens = l.run(text)
+    #for i, token in enumerate(tokens):
+    #  print(f'{i}: {token}')
+
 if __name__ == '__main__':
-  unit_test.main()
+  unittest.main()
 '''
     code = lexer_code + use_code
     tmp = self.make_temp_file(suffix = '.py', content = code, perm = 0o0755)
@@ -395,6 +404,301 @@ if __name__ == '__main__':
       code_with_line_numbers = self._add_line_numbers(code)
       print(code_with_line_numbers, flush = True)
     self.assertEqual( 0, rv.exit_code )
+
+  def test_to_json(self):
+    desc = btl_desc.parse_text(self._keyval_desc_text)
+    self.assert_json_equal( '''
+{
+  "header": {
+    "name": "keyval",
+    "description": "A Key Value pair lexer",
+    "version": "1.0",
+    "start_state": "s_expecting_key",
+    "end_state": "s_done"
+  },
+  "tokens": [
+    "t_done",
+    "t_expecting_key",
+    "t_key",
+    "t_line_break",
+    "t_space",
+    "t_value"
+  ],
+  "errors": [
+    {
+      "name": "unexpected_char",
+      "message": "In state {state} unexpected character {char} instead of key"
+    }
+  ],
+  "char_map": {
+    "c_keyval_key_first": {
+      "name": "c_keyval_key_first",
+      "chars": [
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        95,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122
+      ]
+    },
+    "c_keyval_key": {
+      "name": "c_keyval_key",
+      "chars": [
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        95,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122
+      ]
+    }
+  },
+  "states": [
+    {
+      "name": "s_expecting_key",
+      "transitions": [
+        {
+          "to_state": "s_done",
+          "char_name": "c_eos",
+          "commands": [
+            {
+              "name": "yield",
+              "arg": "t_done"
+            }
+          ]
+        },
+        {
+          "to_state": "s_expecting_key",
+          "char_name": "c_nl",
+          "commands": [
+            {
+              "name": "yield",
+              "arg": "t_line_break"
+            }
+          ]
+        },
+        {
+          "to_state": "s_expecting_key",
+          "char_name": "c_ws",
+          "commands": [
+            {
+              "name": "yield",
+              "arg": "t_space"
+            }
+          ]
+        },
+        {
+          "to_state": "s_key",
+          "char_name": "c_keyval_key_first",
+          "commands": [
+            {
+              "name": "buffer",
+              "arg": "write"
+            }
+          ]
+        },
+        {
+          "to_state": "s_expecting_key_error",
+          "char_name": "default",
+          "commands": [
+            {
+              "name": "raise",
+              "arg": "unexpected_char"
+            }
+          ]
+        }
+      ],
+      "is_end_state": false
+    },
+    {
+      "name": "s_key",
+      "transitions": [
+        {
+          "to_state": "s_key",
+          "char_name": "c_keyval_key",
+          "commands": [
+            {
+              "name": "buffer",
+              "arg": "write"
+            }
+          ]
+        },
+        {
+          "to_state": "s_value",
+          "char_name": "c_equal",
+          "commands": [
+            {
+              "name": "yield",
+              "arg": "t_key"
+            }
+          ]
+        },
+        {
+          "to_state": "s_done",
+          "char_name": "c_eos",
+          "commands": [
+            {
+              "name": "yield",
+              "arg": "t_done"
+            }
+          ]
+        }
+      ],
+      "is_end_state": false
+    },
+    {
+      "name": "s_value",
+      "transitions": [
+        {
+          "to_state": "s_expecting_key",
+          "char_name": "c_nl",
+          "commands": [
+            {
+              "name": "yield",
+              "arg": "t_line_break"
+            },
+            {
+              "name": "yield",
+              "arg": "t_value"
+            }
+          ]
+        },
+        {
+          "to_state": "s_done",
+          "char_name": "c_eos",
+          "commands": [
+            {
+              "name": "yield",
+              "arg": "t_done"
+            }
+          ]
+        },
+        {
+          "to_state": "s_value",
+          "char_name": "default",
+          "commands": [
+            {
+              "name": "buffer",
+              "arg": "write"
+            }
+          ]
+        }
+      ],
+      "is_end_state": false
+    },
+    {
+      "name": "s_done",
+      "transitions": [],
+      "is_end_state": false
+    }
+  ]
+}
+''', desc.to_json() )
 
   _EXPECTED_CODE = '''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
