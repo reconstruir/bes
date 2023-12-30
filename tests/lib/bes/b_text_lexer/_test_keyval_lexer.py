@@ -51,13 +51,13 @@ class _test_keyval_lexer(btl_lexer_base):
   
       if c in {0}:
         new_state = 's_done'
-        tokens.append(self.make_token(t_done, self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
       elif c in {10}:
         new_state = 's_expecting_key'
-        tokens.append(self.make_token(t_line_break, self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_line_break', self.buffer_value(), self.position))
       elif c in {32, 9}:
         new_state = 's_expecting_key'
-        tokens.append(self.make_token(t_space, self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_space', self.buffer_value(), self.position))
       elif c in {65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 95, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122}:
         new_state = 's_key'
         self.lexer.buffer_write(c)
@@ -77,6 +77,8 @@ class _test_keyval_lexer(btl_lexer_base):
       new_state = None
       tokens = []
   
+      if True:
+        new_state = 's_done'
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -96,10 +98,10 @@ class _test_keyval_lexer(btl_lexer_base):
         self.lexer.buffer_write(c)
       elif c in {61}:
         new_state = 's_value'
-        tokens.append(self.make_token(t_key, self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_key', self.buffer_value(), self.position))
       elif c in {0}:
         new_state = 's_done'
-        tokens.append(self.make_token(t_done, self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -116,11 +118,11 @@ class _test_keyval_lexer(btl_lexer_base):
   
       if c in {10}:
         new_state = 's_expecting_key'
-        tokens.append(self.make_token(t_line_break, self.buffer_value(), self.position))
-        tokens.append(self.make_token(t_value, self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_line_break', self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_value', self.buffer_value(), self.position))
       elif c in {0}:
         new_state = 's_done'
-        tokens.append(self.make_token(t_done, self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
       else:
         new_state = 's_value'
         self.lexer.buffer_write(c)
@@ -194,6 +196,7 @@ states
     default: s_expecting_key_error
       raise unexpected_char
   s_expecting_key_error
+    default: s_done
   s_key
     c_keyval_key: s_key
       buffer write

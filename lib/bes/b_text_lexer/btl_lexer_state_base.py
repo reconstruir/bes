@@ -4,6 +4,7 @@ from ..common.string_util import string_util
 from ..system.log import log
 
 from .btl_lexer_error import btl_lexer_error
+from .btl_lexer_token import btl_lexer_token
 
 class btl_lexer_state_base(object):
 
@@ -13,7 +14,7 @@ class btl_lexer_state_base(object):
     self.name = self.__class__.__name__ #[1:]
     tag = f'{lexer.__class__.__name__}.{self.name}'
     log.add_logging(self, tag = tag)
-    self.lexer = lexer
+    self._lexer = lexer
   
   def handle_char(self, c):
     cs = self.char_to_string(c)
@@ -21,7 +22,7 @@ class btl_lexer_state_base(object):
 
   def log_handle_char(self, c):
     try:
-      buffer_value = string_util.quote(self.lexer.buffer_value())
+      buffer_value = string_util.quote(self._lexer.buffer_value())
     except AttributeError as ex:
       buffer_value = 'None'
     attrs = self._make_log_attributes(c)
@@ -34,7 +35,7 @@ class btl_lexer_state_base(object):
     cs = self.char_to_string(c)
     attributes.append(f'c=|{cs}|')
     try:
-      bs = string_util.quote(self.lexer.buffer_value())
+      bs = string_util.quote(self._lexer.buffer_value())
       attributes.append(f'buffer={bs}')
     except AttributeError as ex:
       attributes.append('buffer=None')
@@ -47,5 +48,21 @@ class btl_lexer_state_base(object):
     else:
       return c
 
-  def make_token(self, *a, **aa):
-    assert False
+  def make_token(self, a, b, c):
+    return btl_lexer_token(a, b, c)
+
+  def buffer_reset(self, c = None):
+    self._lexer.buffer_reset(c = c)
+
+  def buffer_write(self, c):
+    self._lexer.buffer_write(c)
+
+  def buffer_value(self):
+    return self._lexer.buffer_value()
+
+  def position(self):
+    return self._lexer.position
+
+  @property
+  def lexer(self):
+    return self._lexer

@@ -28,6 +28,10 @@ class btl_lexer_base(object):
     self.buffer_reset()
 
   @property
+  def lexer(self):
+    return self._lexer
+    
+  @property
   def desc(self):
     return self._desc
 
@@ -39,9 +43,13 @@ class btl_lexer_base(object):
     return self._states[state_name]
   
   def change_state(self, new_state_name, c):
-    check.check_string(new_state_name)
+    check.check_string(new_state_name, allow_none = True)
+    if not new_state_name:
+      return
+    if check.is_int(c):
+      c = chr(c)
     check.check_string(c)
-
+    
     import pprint
     print(pprint.pformat(self._states))
     
@@ -59,6 +67,9 @@ class btl_lexer_base(object):
       self.buffer_write(c)
 
   def buffer_write(self, c):
+    if check.is_int(c):
+      c = chr(c)
+    check.check_string(c)
     assert c != self.EOS
     self._buffer.write(c)
 

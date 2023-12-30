@@ -37,6 +37,7 @@ states
     default: s_expecting_key_error
       raise unexpected_char
   s_expecting_key_error
+    default: s_done
   s_key
     c_keyval_key: s_key
       buffer write
