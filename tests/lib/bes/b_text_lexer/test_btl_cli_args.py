@@ -30,6 +30,9 @@ stateDiagram-v2
   s_expecting_key --> s_expecting_key: c_ws
   s_expecting_key --> s_key: c_keyval_key_first
   s_expecting_key --> s_expecting_key_error: default
+
+  %% s_expecting_key_error state
+  s_expecting_key_error --> s_done: default
     
   %% s_key state
   s_key --> s_key: c_keyval_key

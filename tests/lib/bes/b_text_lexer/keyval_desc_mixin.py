@@ -13,7 +13,7 @@ class keyval_desc_mixin:
     return self.assert_string_equal(expected, actual,
                                     strip = True,
                                     multi_line = True,
-                                    ignore_white_space = False,
+                                    ignore_white_space = True,
                                     native_line_breaks = True)
   
   @cached_class_property

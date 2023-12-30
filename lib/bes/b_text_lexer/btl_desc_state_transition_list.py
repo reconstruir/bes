@@ -38,6 +38,6 @@ class btl_desc_state_transition_list(type_checked_list):
     check.check_btl_desc_char_map(char_map)
 
     for index, transition in enumerate(self):
-      transition.generate_code(buf, char_map, index)
+      transition.generate_code(buf, char_map, index, len(self))
   
 btl_desc_state_transition_list.register_check_class()

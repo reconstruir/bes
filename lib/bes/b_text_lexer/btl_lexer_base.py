@@ -44,8 +44,7 @@ class btl_lexer_base(object):
   
   def change_state(self, new_state_name, c):
     check.check_string(new_state_name, allow_none = True)
-    if not new_state_name:
-      return
+    assert new_state_name
     if check.is_int(c):
       c = chr(c)
     check.check_string(c)
