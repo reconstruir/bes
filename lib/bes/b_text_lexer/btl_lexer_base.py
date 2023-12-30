@@ -13,26 +13,36 @@ class btl_lexer_base(object):
 
   EOS = '\0'
   
-  def __init__(self, log_tag, desc_text, source = None):
+  def __init__(self, log_tag, desc_text, token, states, source = None):
     check.check_string(desc_text)
 
     log.add_logging(self, tag = log_tag)
-
     self._source = source or '<unknown>'
     self._desc = btl_desc.parse_text(desc_text, source = self._source)
+    self._token = token
+    self._states = states
     self._buffer = None
     self._last_char = None
+    self._state = self._states[self._desc.header.start_state]
     self.position = point(1, 1)
     self.buffer_reset()
 
+  @property
+  def desc(self):
+    return self._desc
+
+  @property
+  def token(self):
+    return self._token
+  
   def change_state(self, new_state, c):
     assert new_state
-    if new_state == self.state:
+    if new_state == self._state:
       return
-    self.log_d('transition: %20s -> %-20s; %s'  % (self.state.__class__.__name__,
+    self.log_d('transition: %20s -> %-20s; %s'  % (self._state.__class__.__name__,
                                                    new_state.__class__.__name__,
                                                    new_state._make_log_attributes(c, include_state = False)))
-    self.state = new_state
+    self._state = new_state
 
   def buffer_reset(self, c = None):
     self._buffer = io.StringIO()
@@ -57,20 +67,18 @@ class btl_lexer_base(object):
       #self._is_escaping = self._last_char == '\\'
       #should_handle_char = (self._is_escaping and c == '\\') or (c != '\\')
       #if should_handle_char:
-      tokens = self.state.handle_char(c)
+      tokens = self._state.handle_char(c)
       for token in tokens:
         self.log_d('tokenize: new token: %s' % (str(token)))
         yield token
       self._last_char = c
-              
       if c == '\n':
         self.position = point(1, self.position.y + 1)
       else:
         self.position = point(self.position.x + 0, self.position.y)
-        
-#    assert self.state == self.STATE_DONE
-#    yield lexer_token(self.TOKEN_DONE, None, self.position)
 
+    assert self._state == self._states[self._desc.header.end_state]
+        
   @classmethod
   def _chars_plus_eos(self, text):
     for c in text:

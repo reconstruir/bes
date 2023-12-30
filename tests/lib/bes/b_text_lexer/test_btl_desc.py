@@ -387,6 +387,17 @@ fruit = kiwi
 color = green
 taste = sour
 """
+    self.assertEqual( 's_expecting_key', l.desc.header.start_state )
+    self.assertEqual( 's_done', l.desc.header.end_state )
+    self.assertEqual( '_fruit_kiwi_lexer_state_s_expecting_key', l._states['s_expecting_key'].name )
+
+#    self._states = {
+#      's_expecting_key': self._fruit_kiwi_lexer_state_s_expecting_key(self),
+#      's_key': self._fruit_kiwi_lexer_state_s_key(self),
+#      's_value': self._fruit_kiwi_lexer_state_s_value(self),
+#      's_done': self._fruit_kiwi_lexer_state_s_done(self),
+#    }
+    
     #tokens = l.run(text)
     #for i, token in enumerate(tokens):
     #  print(f'{i}: {token}')
@@ -397,11 +408,11 @@ if __name__ == '__main__':
     code = lexer_code + use_code
     tmp = self.make_temp_file(suffix = '.py', content = code, perm = 0o0755)
     rv = execute.execute(tmp, stderr_to_stdout = True, raise_error = False)
-    if self.DEBUG or rv.exit_code != 0:
-      print(rv.stdout, flush = True)
     if rv.exit_code != 0:
       code_with_line_numbers = self._add_line_numbers(code)
       print(code_with_line_numbers, flush = True)
+    if self.DEBUG or rv.exit_code != 0:
+      print(rv.stdout, flush = True)
     self.assertEqual( 0, rv.exit_code )
 
   def test_to_json(self):
@@ -835,16 +846,15 @@ class _fruit_kiwi_lexer(btl_lexer_base):
 
   def __init__(self, source = None):
     log_tag = f'_fruit_kiwi'
-    super().__init__(log_tag, self._DESC_TEXT, source = source)
-
-    self.token = self._fruit_kiwi_lexer_token(self)
-    
-    self._states = {
+    desc_text = self._DESC_TEXT
+    token = self._fruit_kiwi_lexer_token(self)
+    states = {
       's_expecting_key': self._fruit_kiwi_lexer_state_s_expecting_key(self),
       's_key': self._fruit_kiwi_lexer_state_s_key(self),
       's_value': self._fruit_kiwi_lexer_state_s_value(self),
       's_done': self._fruit_kiwi_lexer_state_s_done(self),
     }
+    super().__init__(log_tag, desc_text, token, states, source = source)
   _DESC_TEXT = """
 @@@_DESC_TEXT@@@
 """

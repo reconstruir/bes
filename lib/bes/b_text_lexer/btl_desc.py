@@ -125,19 +125,17 @@ class {namespace}_{name}_lexer(btl_lexer_base):
     buf.write_lines(f'''
   def __init__(self, source = None):
     log_tag = f'{namespace}_{name}'
-    super().__init__(log_tag, self._DESC_TEXT, source = source)
-
-    self.token = self.{namespace}_{name}_lexer_token(self)
-    
+    desc_text = self._DESC_TEXT
+    token = self.{namespace}_{name}_lexer_token(self)
 ''')
-
     with buf.indent_pusher(depth = 2) as _:
-      buf.write_line('self._states = {')
+      buf.write_line('states = {')
       with buf.indent_pusher() as _42:
         for state in self.states:
           state_class_name = f'{namespace}_{name}_lexer_state_{state.name}'
           buf.write_line(f'\'{state.name}\': self.{state_class_name}(self),')
       buf.write_line('}')
+      buf.write_lines(f'super().__init__(log_tag, desc_text, token, states, source = source)')
 
     with buf.indent_pusher(depth = 1) as _:
       desc_text = self.source_text or ''
