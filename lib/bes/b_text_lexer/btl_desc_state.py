@@ -41,8 +41,10 @@ class btl_desc_state(namedtuple('btl_desc_state', 'name, transitions, is_end_sta
     check.check_string(name)
     check.check_btl_desc_char_map(char_map)
 
+    prefix = f'{namespace}_{name}_lexer'
+    
     buf.write_lines(f'''
-class {namespace}_{name}_lexer_state_{self.name}(btl_lexer_state_base):
+class {prefix}_state_{self.name}(btl_lexer_state_base):
   def __init__(self, lexer):
     super().__init__(lexer)
 

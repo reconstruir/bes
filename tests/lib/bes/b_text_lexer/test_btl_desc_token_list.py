@@ -19,25 +19,29 @@ class test_btl_desc_token_list(keyval_desc_mixin, unit_test):
       btl_desc_token('melon')
     ])
     token = btl_desc_token('kiwi')
+
+    #s = self.call_buf_func(tokens, 'generate_code', '_fruit', 'kiwi')
+    #print(s)
+    #return
+    
     self.assert_code_equal('''
 class _fruit_kiwi_lexer_token(object):
-
   def __init__(self, lexer):
     check.check__fruit_kiwi_lexer(lexer)
   
     self._lexer = lexer
   
   KIWI = 'kiwi'
-  def make_kiwi(self, value, position):
-    return lexer_token(self.KIWI, value, self._lexer.position)
+  def make_kiwi(self, value):
+    return btl_lexer_token(self.KIWI, value, self._lexer.position)
   
   LEMON = 'lemon'
-  def make_lemon(self, value, position):
-    return lexer_token(self.LEMON, value, self._lexer.position)
+  def make_lemon(self, value):
+    return btl_lexer_token(self.LEMON, value, self._lexer.position)
   
   MELON = 'melon'
-  def make_melon(self, value, position):
-    return lexer_token(self.MELON, value, self._lexer.position)
+  def make_melon(self, value):
+    return btl_lexer_token(self.MELON, value, self._lexer.position)
 ''', self.call_buf_func(tokens, 'generate_code', '_fruit', 'kiwi') )
     
 if __name__ == '__main__':

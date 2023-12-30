@@ -4,6 +4,7 @@ import io
 
 from ..system.log import log
 from ..system.check import check
+from ..common.point import point
 
 from .btl_lexer_error import btl_lexer_error
 from .btl_desc_char_map import btl_desc_char_map
@@ -18,6 +19,7 @@ class btl_lexer_base(object):
     self._char_map = btl_desc_char_map.from_json(char_map_json)
     self._source = source or '<unknown>'
     self._buffer = None
+    self.position = point(1, 1)
     self.buffer_reset()
 
   def change_state(self, new_state, c):

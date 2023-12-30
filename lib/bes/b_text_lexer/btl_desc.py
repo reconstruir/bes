@@ -108,24 +108,26 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
 
 from bes.b_text_lexer.btl_lexer_base import btl_lexer_base
 from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
+from bes.b_text_lexer.btl_lexer_token import btl_lexer_token
 from bes.system.check import check
 ''')
-
-    self.tokens.generate_code(buf, namespace, name)
-    self.states.generate_code(buf, namespace, name, self.char_map)
 
     char_map_json = self.char_map.to_json()
     
     buf.write_lines(f'''
 class {namespace}_{name}_lexer(btl_lexer_base):
+''')
+    with buf.indent_pusher(depth = 1) as _:
+      self.tokens.generate_code(buf, namespace, name)
+      self.states.generate_code(buf, namespace, name, self.char_map)
 
+    buf.write_lines(f'''
   def __init__(self, source = None):
     log_tag = f'{namespace}_{name}'
     char_map_json = "{{}}"
     super().__init__(log_tag, char_map_json, source = source)
 
-    self.token = {namespace}_{name}_lexer_token(self)
-    self.char = text_lexer_char
+    self.token = self.{namespace}_{name}_lexer_token(self)
     
 ''')
 
@@ -134,7 +136,7 @@ class {namespace}_{name}_lexer(btl_lexer_base):
       with buf.indent_pusher() as _42:
         for state in self.states:
           state_class_name = f'{namespace}_{name}_lexer_state_{state.name}'
-          buf.write_line(f'\'{state.name}\': {state_class_name}(self),')
+          buf.write_line(f'\'{state.name}\': self.{state_class_name}(self),')
       buf.write_line('}')
 
     buf.write_line(f'check.register_class({namespace}_{name}_lexer, include_seq = False)')
