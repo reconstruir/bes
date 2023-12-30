@@ -7,19 +7,19 @@ from ..system.check import check
 from ..common.point import point
 
 from .btl_lexer_error import btl_lexer_error
-from .btl_desc_char_map import btl_desc_char_map
+from .btl_desc import btl_desc
 
 class btl_lexer_base(object):
 
   EOS = '\0'
   
-  def __init__(self, log_tag, char_map_json, source = None):
-    check.check_string(char_map_json)
+  def __init__(self, log_tag, desc_text, source = None):
+    check.check_string(desc_text)
 
     log.add_logging(self, tag = log_tag)
 
-    self._char_map = btl_desc_char_map.from_json(char_map_json)
     self._source = source or '<unknown>'
+    self._desc = btl_desc.parse_text(desc_text, source = self._source)
     self._buffer = None
     self._last_char = None
     self.position = point(1, 1)

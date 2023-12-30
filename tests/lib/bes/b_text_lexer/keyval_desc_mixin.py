@@ -3,6 +3,7 @@
 import os.path as path
 
 from bes.property.cached_property import cached_property
+from bes.property.cached_class_property import cached_class_property
 from bes.fs.file_util import file_util
 from bes.text.tree_text_parser import tree_text_parser
 from bes.b_text_lexer.btl_code_gen_buffer import btl_code_gen_buffer
@@ -16,23 +17,25 @@ class keyval_desc_mixin:
                                     ignore_white_space = False,
                                     native_line_breaks = True)
   
-  @cached_property
-  def _keyval_desc_filename(self):
+  @cached_class_property
+  def _keyval_desc_filename(clazz):
     here = path.dirname(__file__)
     filename = path.join(here, 'keyval.btl')
     return path.abspath(filename)
   
-  @cached_property
-  def _keyval_desc_text(self):
-    return file_util.read(self._keyval_desc_filename, codec = 'utf-8')
+  @cached_class_property
+  def _keyval_desc_text(clazz):
+    return file_util.read(clazz._keyval_desc_filename, codec = 'utf-8')
 
-  def _keyval_desc_tree(self):
-    return tree_text_parser.parse(self._keyval_desc_text,
+  @classmethod
+  def _keyval_desc_tree(clazz):
+    return tree_text_parser.parse(clazz._keyval_desc_text,
                                   strip_comments = True,
                                   root_name = 'btl_desc')
 
-  def _keyval_desc_tree_section(self, section_name):
-    root = self._keyval_desc_tree()
+  @classmethod
+  def _keyval_desc_tree_section(clazz, section_name):
+    root = clazz._keyval_desc_tree()
     for child in root.children:
       if child.data.text == section_name:
         return child

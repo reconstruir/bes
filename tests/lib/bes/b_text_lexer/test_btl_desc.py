@@ -399,8 +399,9 @@ if __name__ == '__main__':
     code = lexer_code + use_code
     tmp = self.make_temp_file(suffix = '.py', content = code, perm = 0o0755)
     rv = execute.execute(tmp, stderr_to_stdout = True, raise_error = False)
-    if rv.exit_code != 0:
+    if self.DEBUG or rv.exit_code != 0:
       print(rv.stdout, flush = True)
+    if rv.exit_code != 0:
       code_with_line_numbers = self._add_line_numbers(code)
       print(code_with_line_numbers, flush = True)
     self.assertEqual( 0, rv.exit_code )
@@ -832,8 +833,7 @@ class _fruit_kiwi_lexer(btl_lexer_base):
 
   def __init__(self, source = None):
     log_tag = f'_fruit_kiwi'
-    char_map_json = "{}"
-    super().__init__(log_tag, char_map_json, source = source)
+    super().__init__(log_tag, self._DESC_TEXT, source = source)
 
     self.token = self._fruit_kiwi_lexer_token(self)
     
@@ -843,6 +843,64 @@ class _fruit_kiwi_lexer(btl_lexer_base):
       's_value': self._fruit_kiwi_lexer_state_s_value(self),
       's_done': self._fruit_kiwi_lexer_state_s_done(self),
     }
+  
+  _DESC_TEXT = """
+  #BTL
+  #
+  # Key Value pair lexer
+  #
+  lexer
+    name: keyval
+    description: A Key Value pair lexer
+    version: 1.0
+    start_state: s_expecting_key
+    end_state: s_done
+  
+  tokens
+    t_done
+    t_key
+    t_expecting_key
+    t_line_break
+    t_space
+    t_value
+  
+  errors
+    unexpected_char: In state {state} unexpected character {char} instead of key
+  
+  chars
+    c_keyval_key_first: c_underscore | c_alpha
+    c_keyval_key: c_keyval_key_first | c_numeric
+  
+  states
+    s_expecting_key
+      c_eos: s_done
+        yield t_done
+      c_nl: s_expecting_key
+        yield t_line_break
+      c_ws: s_expecting_key
+        yield t_space 
+      c_keyval_key_first: s_key
+        buffer write
+      default: s_expecting_key_error
+        raise unexpected_char
+    s_key
+      c_keyval_key: s_key
+        buffer write
+      c_equal: s_value
+        yield t_key
+      c_eos: s_done
+        yield t_done
+    s_value
+      c_nl: s_expecting_key
+        yield t_line_break
+        yield t_value
+      c_eos: s_done
+        yield t_done
+      default: s_value
+        buffer write
+    s_done
+  
+  """
 check.register_class(_fruit_kiwi_lexer, include_seq = False)
 '''
   

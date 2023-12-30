@@ -20,15 +20,18 @@ from .btl_desc_token_list import btl_desc_token_list
 from .btl_error import btl_error
 from .btl_parsing import btl_parsing
 
-class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states')):
+class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states, source_text')):
   
-  def __new__(clazz, header, tokens, errors, char_map, states):
+  def __new__(clazz, header, tokens, errors, char_map, states, source_text = None):
     header = check.check_btl_desc_header(header)
     tokens = check.check_btl_desc_token_list(tokens)
     errors = check.check_btl_desc_error_list(errors)
     check.check_btl_desc_char_map(char_map)
     states = check.check_btl_desc_state_list(states)
-    return clazz.__bases__[0].__new__(clazz, header, tokens, errors, char_map, states)
+    check.check_string(source_text, allow_none = True)
+
+    source_text = source_text or ''
+    return clazz.__bases__[0].__new__(clazz, header, tokens, errors, char_map, states, source_text)
 
   def to_dict(self):
     return {
@@ -80,7 +83,7 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states'
     char_map = clazz._parse_char_map(chars_node, source)
     #print(char_map)
     
-    return btl_desc(header, tokens, errors, char_map, states)
+    return btl_desc(header, tokens, errors, char_map, states, source_text = text)
 
   @classmethod
   def _find_section(clazz, root, name, source):
@@ -112,8 +115,6 @@ from bes.b_text_lexer.btl_lexer_token import btl_lexer_token
 from bes.system.check import check
 ''')
 
-    char_map_json = self.char_map.to_json()
-    
     buf.write_lines(f'''
 class {namespace}_{name}_lexer(btl_lexer_base):
 ''')
@@ -124,8 +125,7 @@ class {namespace}_{name}_lexer(btl_lexer_base):
     buf.write_lines(f'''
   def __init__(self, source = None):
     log_tag = f'{namespace}_{name}'
-    char_map_json = "{{}}"
-    super().__init__(log_tag, char_map_json, source = source)
+    super().__init__(log_tag, self._DESC_TEXT, source = source)
 
     self.token = self.{namespace}_{name}_lexer_token(self)
     
@@ -139,6 +139,13 @@ class {namespace}_{name}_lexer(btl_lexer_base):
           buf.write_line(f'\'{state.name}\': self.{state_class_name}(self),')
       buf.write_line('}')
 
+    with buf.indent_pusher(depth = 1) as _:
+      desc_text = self.source_text or ''
+      buf.write_lines(f'''
+_DESC_TEXT = """
+{self.source_text}
+"""''')
+      
     buf.write_line(f'check.register_class({namespace}_{name}_lexer, include_seq = False)')
       
   def write_code(self, output_filename, namespace, name, indent_width = 2):
