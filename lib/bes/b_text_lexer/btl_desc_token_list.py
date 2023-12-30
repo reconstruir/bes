@@ -46,7 +46,7 @@ class {namespace}_{name}_lexer_token(object):
     
     with buf.indent_pusher() as _:
       buf.write_lines(f'''def __init__(self, lexer):
-  check.check_text_lexer(lexer)
+  check.check_{namespace}_{name}_lexer(lexer)
 
   self._lexer = lexer
 ''')      

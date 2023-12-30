@@ -12,7 +12,7 @@ from keyval_desc_mixin import keyval_desc_mixin
 
 class test_btl_desc_token_list(keyval_desc_mixin, unit_test):
 
-  def test__make_token_class_code(self):
+  def test_generate_code(self):
     tokens = btl_desc_token_list([
       btl_desc_token('kiwi'),
       btl_desc_token('lemon'),
@@ -23,7 +23,7 @@ class test_btl_desc_token_list(keyval_desc_mixin, unit_test):
 class _fruit_kiwi_lexer_token(object):
 
   def __init__(self, lexer):
-    check.check_text_lexer(lexer)
+    check.check__fruit_kiwi_lexer(lexer)
   
     self._lexer = lexer
   

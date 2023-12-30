@@ -2,7 +2,9 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import os.path as path
+import pprint
 
+from bes.system.check import check
 from bes.fs.file_util import file_util
 from bes.testing.unit_test import unit_test
 from bes.text.text_line_parser import text_line_parser
@@ -359,17 +361,57 @@ stateDiagram-v2
 
     self.assert_code_equal( self._EXPECTED_CODE, file_util.read(tmp, codec = 'utf-8') )
 
+  @classmethod
+  def _add_line_numbers(clazz, code):
+    p = text_line_parser(code)
+    p.add_line_numbers()
+    return str(p)
+      
   def test_exec_code(self):
     desc = btl_desc.parse_text(self._keyval_desc_text)
     code = self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi')
+    code_with_line_numbers = self._add_line_numbers(code)
     try:
       exec(code)
     except Exception as ex:
-      p = text_line_parser(code)
-      p.add_line_numbers()
-      print(str(p))
+      if not self.DEBUG:
+        print(code_with_line_numbers)
       raise
-    
+
+    if self.DEBUG:
+      print(pprint.pformat(globals()))
+      print(code_with_line_numbers)
+
+  def xtest_use_code(self):
+    desc = btl_desc.parse_text(self._keyval_desc_text)
+    code = self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi')
+    code_with_line_numbers = self._add_line_numbers(code)
+    xglobals = {}
+    xlocals = {}
+    try:
+      exec(code, xglobals, xlocals)
+    except Exception as ex:
+      if not self.DEBUG:
+        print(code_with_line_numbers)
+      raise
+
+    if self.DEBUG:
+      print(pprint.pformat(globals()))
+      print(code_with_line_numbers)
+
+    globals().update(xlocals)
+#    real_globals = globals()
+#    for k, v in xlocals.items():
+#      assert k not in real_globals
+#      real_globals[k] = v
+
+#    if self.DEBUG:
+#      print(pprint.pformat(real_globals()))
+#      print(code_with_line_numbers)
+    x = _fruit_kiwi_lexer_token(None)      
+    l = _fruit_kiwi_lexer()
+#  def __init__(self, log_tag, char_map_json, source = None):
+
   _EXPECTED_CODE = '''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
@@ -381,7 +423,7 @@ from bes.system.check import check
 class _fruit_kiwi_lexer_token(object):
 
   def __init__(self, lexer):
-    check.check_text_lexer(lexer)
+    check.check__fruit_kiwi_lexer(lexer)
   
     self._lexer = lexer
   
@@ -500,8 +542,10 @@ class _fruit_kiwi_lexer_state_s_done(btl_lexer_state_base):
 
 class _fruit_kiwi_lexer(btl_lexer_base):
 
-  def __init__(self, kiwi, source = None):
-    super().__init__(log_tag, source = source)
+  def __init__(self, source = None):
+    log_tag = f'_fruit_kiwi'
+    char_map_json = "{}"
+    super().__init__(log_tag, char_map_json, source = source)
 
     self.token = _fruit_kiwi_lexer_token(self)
     self.char = text_lexer_char
@@ -512,6 +556,7 @@ class _fruit_kiwi_lexer(btl_lexer_base):
       's_value': _fruit_kiwi_lexer_state_s_value(self),
       's_done': _fruit_kiwi_lexer_state_s_done(self),
     }
+check.register_class(_fruit_kiwi_lexer, include_seq = False)
 '''
   
 if __name__ == '__main__':

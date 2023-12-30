@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+import io
+
 from ..system.log import log
 from ..system.check import check
 
@@ -28,7 +30,7 @@ class btl_lexer_base(object):
     self.state = new_state
 
   def buffer_reset(self, c = None):
-    self._buffer = StringIO()
+    self._buffer = io.StringIO()
     if c:
       self.buffer_write(c)
 
@@ -39,4 +41,4 @@ class btl_lexer_base(object):
   def buffer_value(self):
     return self._buffer.getvalue()
   
-check.register_class(btl_lexer_base, include_seq = False, name = 'lexer')
+#check.register_class(btl_lexer_base, include_seq = False, name = 'btl_lexer')
