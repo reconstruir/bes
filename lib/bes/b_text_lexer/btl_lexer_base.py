@@ -7,6 +7,7 @@ from ..system.check import check
 from ..common.point import point
 
 from .btl_lexer_error import btl_lexer_error
+from .btl_lexer_token_list import btl_lexer_token_list
 from .btl_desc import btl_desc
 
 class btl_lexer_base(object):
@@ -94,11 +95,12 @@ class btl_lexer_base(object):
 
     end_state = self._find_state(self._desc.header.end_state)
     assert self._state == end_state
-        
+
+  def tokenize(self, text):
+    return btl_lexer_token_list([ token for token in self.run(text) ])
+    
   @classmethod
   def _chars_plus_eos(self, text):
     for c in text:
       yield c
     yield self.EOS
-    
-#check.register_class(btl_lexer_base, include_seq = False, name = 'btl_lexer')

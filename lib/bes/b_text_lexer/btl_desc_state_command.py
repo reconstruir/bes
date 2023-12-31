@@ -34,9 +34,9 @@ class btl_desc_state_command(namedtuple('btl_desc_state_command', 'name, arg')):
       buf.write_line(f'tokens.append(self.make_token(\'{self.arg}\', self.buffer_value(), self.position))')
     elif self.name == 'buffer':
       if self.arg == 'write':
-        buf.write_line(f'self.lexer.buffer_write(c)')
+        buf.write_line(f'self.buffer_write(c)')
       elif self.arg == 'reset':
-        buf.write_line(f'self.lexer.buffer_reset()')
+        buf.write_line(f'self.buffer_reset()')
       else:
         buf.write_line(f'''raise btl_lexer_error('Unknown buffer command: "{self.arg}"')''')
   

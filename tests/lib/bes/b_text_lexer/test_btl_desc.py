@@ -22,8 +22,8 @@ from keyval_desc_mixin import keyval_desc_mixin
 class test_btl_desc(keyval_desc_mixin, unit_test):
 
   def test_parse_text_to_json(self):
-    #print(btl_desc.parse_text(self._keyval_desc_text).to_json())
-    #return
+    print(btl_desc.parse_text(self._keyval_desc_text).to_json())
+    return
     self.assert_string_equal_fuzzy(
       self._DESC_JSON,
       btl_desc.parse_text(self._keyval_desc_text).to_json()
@@ -191,7 +191,7 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_space', self.buffer_value(), self.position))
       elif self.char_in(c, 'c_keyval_key_first'):
         new_state = 's_key'
-        self.lexer.buffer_write(c)
+        self.buffer_write(c)
       else:
         new_state = 's_expecting_key_error'
       
@@ -226,10 +226,11 @@ class _fruit_kiwi_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_keyval_key'):
         new_state = 's_key'
-        self.lexer.buffer_write(c)
+        self.buffer_write(c)
       elif self.char_in(c, 'c_equal'):
         new_state = 's_value'
         tokens.append(self.make_token('t_key', self.buffer_value(), self.position))
+        self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
@@ -249,14 +250,15 @@ class _fruit_kiwi_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_nl'):
         new_state = 's_expecting_key'
-        tokens.append(self.make_token('t_line_break', self.buffer_value(), self.position))
         tokens.append(self.make_token('t_value', self.buffer_value(), self.position))
+        self.buffer_reset()
+        tokens.append(self.make_token('t_line_break', self.buffer_value(), self.position))
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
       else:
         new_state = 's_value'
-        self.lexer.buffer_write(c)
+        self.buffer_write(c)
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -532,6 +534,10 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "yield", 
               "arg": "t_key"
+            }, 
+            {
+              "name": "buffer", 
+              "arg": "reset"
             }
           ]
         }, 
@@ -557,11 +563,15 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "yield", 
-              "arg": "t_line_break"
+              "arg": "t_value"
+            }, 
+            {
+              "name": "buffer", 
+              "arg": "reset"
             }, 
             {
               "name": "yield", 
-              "arg": "t_value"
+              "arg": "t_line_break"
             }
           ]
         }, 

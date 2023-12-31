@@ -60,7 +60,7 @@ class _test_keyval_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_space', self.buffer_value(), self.position))
       elif self.char_in(c, 'c_keyval_key_first'):
         new_state = 's_key'
-        self.lexer.buffer_write(c)
+        self.buffer_write(c)
       else:
         new_state = 's_expecting_key_error'
       
@@ -95,15 +95,14 @@ class _test_keyval_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_keyval_key'):
         new_state = 's_key'
-        self.lexer.buffer_write(c)
+        self.buffer_write(c)
       elif self.char_in(c, 'c_equal'):
         new_state = 's_value'
         tokens.append(self.make_token('t_key', self.buffer_value(), self.position))
+        self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
-      else:
-        assert False
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -120,14 +119,15 @@ class _test_keyval_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_nl'):
         new_state = 's_expecting_key'
-        tokens.append(self.make_token('t_line_break', self.buffer_value(), self.position))
         tokens.append(self.make_token('t_value', self.buffer_value(), self.position))
+        self.buffer_reset()
+        tokens.append(self.make_token('t_line_break', self.buffer_value(), self.position))
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
       else:
         new_state = 's_value'
-        self.lexer.buffer_write(c)
+        self.buffer_write(c)
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -204,12 +204,14 @@ states
       buffer write
     c_equal: s_value
       yield t_key
+      buffer reset
     c_eos: s_done
       yield t_done
   s_value
     c_nl: s_expecting_key
-      yield t_line_break
       yield t_value
+      buffer reset
+      yield t_line_break
     c_eos: s_done
       yield t_done
     default: s_value

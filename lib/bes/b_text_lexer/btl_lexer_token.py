@@ -26,3 +26,10 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position')):
     copied_mutations = copy.deepcopy(mutations)
     copied_mutations['position'] = position.clone()
     return tuple_util.clone(self, mutations = copied_mutations)
+
+  @classmethod
+  def _check_cast_func(clazz, obj):
+    return tuple_util.cast_seq_to_namedtuple(clazz, obj)
+  
+check.register_class(btl_lexer_token, include_seq = False, cast_func = btl_lexer_token._check_cast_func)
+  

@@ -43,12 +43,14 @@ states
       buffer write
     c_equal: s_value
       yield t_key
+      buffer reset
     c_eos: s_done
       yield t_done
   s_value
     c_nl: s_expecting_key
-      yield t_line_break
       yield t_value
+      buffer reset
+      yield t_line_break
     c_eos: s_done
       yield t_done
     default: s_value

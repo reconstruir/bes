@@ -21,13 +21,13 @@ tokens.append(self.make_token('t_cheese', self.buffer_value(), self.position))
   def test_generate_code_with_buffer_write(self):
     cmd = btl_desc_state_command('buffer', 'write')
     self.assert_code_equal( '''
-self.lexer.buffer_write(c)
+self.buffer_write(c)
 ''', self.call_buf_func(cmd, 'generate_code') )
 
   def test_generate_code_with_buffer_reset(self):
     cmd = btl_desc_state_command('buffer', 'reset')
     self.assert_code_equal( '''
-self.lexer.buffer_reset()
+self.buffer_reset()
 ''', self.call_buf_func(cmd, 'generate_code') )
 
   def test_generate_code_with_buffer_error(self):

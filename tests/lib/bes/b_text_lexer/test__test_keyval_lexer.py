@@ -7,14 +7,18 @@ from _test_keyval_lexer import _test_keyval_lexer
 
 class test__test_keyval_lexer(unit_test):
 
-  def test_run(self):
+  def test_tokenize(self):
     l = _test_keyval_lexer()
     text = '''
 fruit=kiwi
 '''
-    tokens = [ token for token in l.run(text) ]
-    for i, token in enumerate(tokens):
-      print(f'{i}: {token}')
+    self.assertEqual( [
+      ( 't_line_break', '', (1, 1) ),
+      ( 't_key', 'fruit', (1, 2) ),
+      ( 't_value', 'kiwi', (1, 2) ),
+      ( 't_line_break', '', (1, 2) ),
+      ( 't_done', '', (1, 3) ),
+    ], l.tokenize(text) )
 
 if __name__ == '__main__':
   unit_test.main()
