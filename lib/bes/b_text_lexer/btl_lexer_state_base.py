@@ -12,11 +12,19 @@ class btl_lexer_state_base(object):
   EOS = '\0'
   
   def __init__(self, lexer):
-    self.name = self.__class__.__name__ #[1:]
+    self.name = self.__class__.__name__
     tag = f'{lexer.__class__.__name__}.{self.name}'
     log.add_logging(self, tag = tag)
     self._lexer = lexer
 
+  @property
+  def position(self):
+    return self._lexer.position
+
+  @property
+  def lexer(self):
+    return self._lexer
+    
   def char_in(self, c, char_name):
     check.check_string(c)
     check.check_string(char_name)
@@ -67,9 +75,3 @@ class btl_lexer_state_base(object):
   def buffer_value(self):
     return self._lexer.buffer_value()
 
-  def position(self):
-    return self._lexer.position
-
-  @property
-  def lexer(self):
-    return self._lexer

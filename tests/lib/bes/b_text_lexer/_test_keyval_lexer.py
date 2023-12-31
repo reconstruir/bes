@@ -102,6 +102,8 @@ class _test_keyval_lexer(btl_lexer_base):
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
+      else:
+        assert False
       
       self.lexer.change_state(new_state, c)
       return tokens

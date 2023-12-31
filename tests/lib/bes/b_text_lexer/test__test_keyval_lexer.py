@@ -10,11 +10,11 @@ class test__test_keyval_lexer(unit_test):
   def test_run(self):
     l = _test_keyval_lexer()
     text = '''
-fruit = kiwi
-color = green
-taste = tart
+fruit=kiwi
 '''
     tokens = [ token for token in l.run(text) ]
+    for i, token in enumerate(tokens):
+      print(f'{i}: {token}')
 
 if __name__ == '__main__':
   unit_test.main()

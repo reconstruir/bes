@@ -8,13 +8,13 @@ from bes.common.point import point
 from bes.common.tuple_util import tuple_util
 from bes.system.check import check
 
-class btl_lexer_token(namedtuple('btl_lexer_token', 'token_type, value, position')):
+class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position')):
 
-  def __new__(clazz, token_type = None, value = None, position = point(1, 1)):
-    return clazz.__bases__[0].__new__(clazz, token_type, value, position)
+  def __new__(clazz, name = None, value = None, position = point(1, 1)):
+    return clazz.__bases__[0].__new__(clazz, name, value, position)
 
   def __str__(self):
-    return '{},{},{}'.format(self.token_type, self.value, self.position)
+    return f'{self.name}:{self.value}:{self.position}'
 
   def clone(self, mutations = None):
     mutations = mutations or {}

@@ -84,7 +84,7 @@ class btl_lexer_base(object):
       #if should_handle_char:
       tokens = self._state.handle_char(c)
       for token in tokens:
-        self.log_d('tokenize: new token: %s' % (str(token)))
+        self.log_d(f'run: new token: {token}')
         yield token
       self._last_char = c
       if c == '\n':
