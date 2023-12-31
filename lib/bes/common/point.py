@@ -17,7 +17,7 @@ class point(namedtuple('point', 'x, y')):
     return clazz.__bases__[0].__new__(clazz, x, y)
 
   def __str__(self):
-    return '{},{}'.format(self.x, self.y)
+    return f'{self.x},{self.y}'
 
   def to_dict(self):
     return dict(self._asdict())

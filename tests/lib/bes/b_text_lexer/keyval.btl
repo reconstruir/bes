@@ -11,8 +11,8 @@ lexer
 
 tokens
   t_done
+  t_equal
   t_key
-  t_expecting_key
   t_line_break
   t_space
   t_value
@@ -44,6 +44,7 @@ states
     c_equal: s_value
       yield t_key
       buffer reset
+      yield t_equal
     c_eos: s_done
       yield t_done
   s_value

@@ -16,8 +16,6 @@ class test_btl_desc_token(keyval_desc_mixin, unit_test):
     token = btl_desc_token('kiwi')
     self.assert_code_equal( '''
 KIWI = 'kiwi'
-def make_kiwi(self, value):
-  return btl_lexer_token(self.KIWI, value, self._lexer.position)
 ''', self.call_buf_func(token, 'generate_code') )
 
 if __name__ == '__main__':

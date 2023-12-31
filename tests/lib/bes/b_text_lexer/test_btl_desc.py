@@ -22,8 +22,8 @@ from keyval_desc_mixin import keyval_desc_mixin
 class test_btl_desc(keyval_desc_mixin, unit_test):
 
   def test_parse_text_to_json(self):
-    print(btl_desc.parse_text(self._keyval_desc_text).to_json())
-    return
+    #print(btl_desc.parse_text(self._keyval_desc_text).to_json())
+    #return
     self.assert_string_equal_fuzzy(
       self._DESC_JSON,
       btl_desc.parse_text(self._keyval_desc_text).to_json()
@@ -93,7 +93,6 @@ class _test_use_code_unit_test(unittest.TestCase):
     l = _fruit_kiwi_lexer()
     print(l.token)
     print(l._states)
-    print(l.token.make_t_done('x'))
 
     text = f"""
 fruit = kiwi
@@ -137,38 +136,16 @@ from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
 from bes.b_text_lexer.btl_lexer_token import btl_lexer_token
 from bes.system.check import check
 
-
 class _fruit_kiwi_lexer(btl_lexer_base):
-  
-  class _fruit_kiwi_lexer_token(object):
-    def __init__(self, lexer):
-      check.check__fruit_kiwi_lexer(lexer)
-    
-      self._lexer = lexer
-    
+
+  class _fruit_kiwi_lexer_token:
+
     T_DONE = 't_done'
-    def make_t_done(self, value):
-      return btl_lexer_token(self.T_DONE, value, self._lexer.position)
-    
-    T_EXPECTING_KEY = 't_expecting_key'
-    def make_t_expecting_key(self, value):
-      return btl_lexer_token(self.T_EXPECTING_KEY, value, self._lexer.position)
-    
+    T_EQUAL = 't_equal'
     T_KEY = 't_key'
-    def make_t_key(self, value):
-      return btl_lexer_token(self.T_KEY, value, self._lexer.position)
-    
     T_LINE_BREAK = 't_line_break'
-    def make_t_line_break(self, value):
-      return btl_lexer_token(self.T_LINE_BREAK, value, self._lexer.position)
-    
     T_SPACE = 't_space'
-    def make_t_space(self, value):
-      return btl_lexer_token(self.T_SPACE, value, self._lexer.position)
-    
     T_VALUE = 't_value'
-    def make_t_value(self, value):
-      return btl_lexer_token(self.T_VALUE, value, self._lexer.position)
   
   class _fruit_kiwi_lexer_state_s_expecting_key(btl_lexer_state_base):
     def __init__(self, lexer):
@@ -231,6 +208,7 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         new_state = 's_value'
         tokens.append(self.make_token('t_key', self.buffer_value(), self.position))
         self.buffer_reset()
+        tokens.append(self.make_token('t_equal', self.buffer_value(), self.position))
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
@@ -282,7 +260,7 @@ class _fruit_kiwi_lexer(btl_lexer_base):
   def __init__(self, source = None):
     log_tag = f'_fruit_kiwi'
     desc_text = self._DESC_TEXT
-    token = self._fruit_kiwi_lexer_token(self)
+    token = self._fruit_kiwi_lexer_token
     states = {
       's_expecting_key': self._fruit_kiwi_lexer_state_s_expecting_key(self),
       's_expecting_key_error': self._fruit_kiwi_lexer_state_s_expecting_key_error(self),
@@ -308,7 +286,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
   }, 
   "tokens": [
     "t_done", 
-    "t_expecting_key", 
+    "t_equal", 
     "t_key", 
     "t_line_break", 
     "t_space", 
@@ -540,6 +518,10 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "buffer", 
               "arg": "reset"
+            },
+            {
+              "name": "yield",
+              "arg": "t_equal"
             }
           ]
         }, 

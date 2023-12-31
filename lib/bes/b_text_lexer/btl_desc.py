@@ -115,10 +115,10 @@ from bes.b_text_lexer.btl_lexer_token import btl_lexer_token
 from bes.system.check import check
 ''')
 
-    buf.write_lines(f'''
-class {namespace}_{name}_lexer(btl_lexer_base):
-''')
+    buf.write_line(f'class {namespace}_{name}_lexer(btl_lexer_base):')
+    buf.write_linesep()
     with buf.indent_pusher(depth = 1) as _:
+      
       self.tokens.generate_code(buf, namespace, name)
       self.states.generate_code(buf, namespace, name, self.char_map)
 
@@ -126,7 +126,7 @@ class {namespace}_{name}_lexer(btl_lexer_base):
   def __init__(self, source = None):
     log_tag = f'{namespace}_{name}'
     desc_text = self._DESC_TEXT
-    token = self.{namespace}_{name}_lexer_token(self)
+    token = self.{namespace}_{name}_lexer_token
 ''')
     with buf.indent_pusher(depth = 2) as _:
       buf.write_line('states = {')

@@ -8,36 +8,14 @@ from bes.system.check import check
 
 
 class _test_keyval_lexer(btl_lexer_base):
-  
-  class _test_keyval_lexer_token(object):
-    def __init__(self, lexer):
-      check.check__test_keyval_lexer(lexer)
-    
-      self._lexer = lexer
-    
+  class _test_keyval_lexer_token:
+
     T_DONE = 't_done'
-    def make_t_done(self, value):
-      return btl_lexer_token(self.T_DONE, value, self._lexer.position)
-    
-    T_EXPECTING_KEY = 't_expecting_key'
-    def make_t_expecting_key(self, value):
-      return btl_lexer_token(self.T_EXPECTING_KEY, value, self._lexer.position)
-    
+    T_EQUAL = 't_equal'
     T_KEY = 't_key'
-    def make_t_key(self, value):
-      return btl_lexer_token(self.T_KEY, value, self._lexer.position)
-    
     T_LINE_BREAK = 't_line_break'
-    def make_t_line_break(self, value):
-      return btl_lexer_token(self.T_LINE_BREAK, value, self._lexer.position)
-    
     T_SPACE = 't_space'
-    def make_t_space(self, value):
-      return btl_lexer_token(self.T_SPACE, value, self._lexer.position)
-    
     T_VALUE = 't_value'
-    def make_t_value(self, value):
-      return btl_lexer_token(self.T_VALUE, value, self._lexer.position)
   
   class _test_keyval_lexer_state_s_expecting_key(btl_lexer_state_base):
     def __init__(self, lexer):
@@ -100,6 +78,7 @@ class _test_keyval_lexer(btl_lexer_base):
         new_state = 's_value'
         tokens.append(self.make_token('t_key', self.buffer_value(), self.position))
         self.buffer_reset()
+        tokens.append(self.make_token('t_equal', self.buffer_value(), self.position))
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
@@ -151,7 +130,7 @@ class _test_keyval_lexer(btl_lexer_base):
   def __init__(self, source = None):
     log_tag = f'_test_keyval'
     desc_text = self._DESC_TEXT
-    token = self._test_keyval_lexer_token(self)
+    token = self._test_keyval_lexer_token
     states = {
       's_expecting_key': self._test_keyval_lexer_state_s_expecting_key(self),
       's_expecting_key_error': self._test_keyval_lexer_state_s_expecting_key_error(self),
@@ -174,8 +153,8 @@ lexer
 
 tokens
   t_done
+  t_equal
   t_key
-  t_expecting_key
   t_line_break
   t_space
   t_value
@@ -207,6 +186,7 @@ states
     c_equal: s_value
       yield t_key
       buffer reset
+      yield t_equal
     c_eos: s_done
       yield t_done
   s_value

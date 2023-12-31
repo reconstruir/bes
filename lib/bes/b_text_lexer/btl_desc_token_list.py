@@ -41,20 +41,11 @@ class btl_desc_token_list(type_checked_list):
     check.check_string(name)
 
     prefix = f'{namespace}_{name}_lexer'
-    
-    buf.write_lines(f'''
-class {prefix}_token(object):
-''')
-    
-    with buf.indent_pusher() as _:
-      buf.write_lines(f'''def __init__(self, lexer):
-  check.check_{prefix}(lexer)
-
-  self._lexer = lexer
-''')      
-    
+    buf.write_line(f'class {prefix}_token:')
+    buf.write_linesep()
     with buf.indent_pusher() as _:
       for token in self:
         token.generate_code(buf)
+#    buf.write_linesep()
     
 btl_desc_token_list.register_check_class()

@@ -33,10 +33,6 @@ class btl_desc_token(namedtuple('btl_desc_token', 'name')):
   def generate_code(self, buf):
     check.check_btl_code_gen_buffer(buf)
 
-    buf.write_lines(f'''
-{self.name_upper} = '{self.name}'
-def make_{self.name}(self, value):
-  return btl_lexer_token(self.{self.name_upper}, value, self._lexer.position)
-''')
+    buf.write_line(f'{self.name_upper} = \'{self.name}\'')
     
 check.register_class(btl_desc_token, include_seq = False)

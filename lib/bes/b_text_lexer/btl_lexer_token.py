@@ -21,7 +21,7 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position')):
     return {
       'name': self.name,
       'value': self.value,
-      'position': self.position.to_dict(),
+      'position': str(self.position),
     }
 
   def to_json(self):
