@@ -12,13 +12,53 @@ class test__test_keyval_lexer(unit_test):
     text = '''
 fruit=kiwi
 '''
-    self.assertEqual( [
-      ( 't_line_break', '', (1, 1) ),
-      ( 't_key', 'fruit', (1, 2) ),
-      ( 't_value', 'kiwi', (1, 2) ),
-      ( 't_line_break', '', (1, 2) ),
-      ( 't_done', '', (1, 3) ),
-    ], l.tokenize(text) )
+    actual = l.tokenize(text).to_json()
+    #print(actual)
+    #return
+    self.assert_string_equal_fuzzy( '''
+[
+  {
+    "name": "t_line_break", 
+    "value": "", 
+    "position": {
+      "x": 1, 
+      "y": 1
+    }
+  }, 
+  {
+    "name": "t_key", 
+    "value": "fruit", 
+    "position": {
+      "x": 1, 
+      "y": 2
+    }
+  }, 
+  {
+    "name": "t_value", 
+    "value": "kiwi", 
+    "position": {
+      "x": 1, 
+      "y": 2
+    }
+  }, 
+  {
+    "name": "t_line_break", 
+    "value": "", 
+    "position": {
+      "x": 1, 
+      "y": 2
+    }
+  }, 
+  {
+    "name": "t_done", 
+    "value": "", 
+    "position": {
+      "x": 1, 
+      "y": 3
+    }
+  }
+]
+''', actual )
 
 if __name__ == '__main__':
   unit_test.main()

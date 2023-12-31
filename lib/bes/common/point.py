@@ -19,6 +19,9 @@ class point(namedtuple('point', 'x, y')):
   def __str__(self):
     return '{},{}'.format(self.x, self.y)
 
+  def to_dict(self):
+    return dict(self._asdict())
+  
   def move(self, delta_x, delta_y):
     return point(self.x + delta_x, self.y + delta_y)
 

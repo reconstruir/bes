@@ -22,8 +22,8 @@ from keyval_desc_mixin import keyval_desc_mixin
 class test_btl_desc(keyval_desc_mixin, unit_test):
 
   def test_parse_text_to_json(self):
-    print(btl_desc.parse_text(self._keyval_desc_text).to_json())
-    return
+    #print(btl_desc.parse_text(self._keyval_desc_text).to_json())
+    #return
     self.assert_string_equal_fuzzy(
       self._DESC_JSON,
       btl_desc.parse_text(self._keyval_desc_text).to_json()

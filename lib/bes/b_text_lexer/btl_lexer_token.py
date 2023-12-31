@@ -4,9 +4,10 @@ import copy
 
 from collections import namedtuple
 
-from bes.common.point import point
-from bes.common.tuple_util import tuple_util
-from bes.system.check import check
+from ..common.json_util import json_util
+from ..common.point import point
+from ..common.tuple_util import tuple_util
+from ..system.check import check
 
 class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position')):
 
@@ -16,6 +17,16 @@ class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position')):
   def __str__(self):
     return f'{self.name}:{self.value}:{self.position}'
 
+  def to_dict(self):
+    return {
+      'name': self.name,
+      'value': self.value,
+      'position': self.position.to_dict(),
+    }
+
+  def to_json(self):
+    return json_util.to_json(self.to_dict(), indent = 2, sort_keys = False)
+  
   def clone(self, mutations = None):
     mutations = mutations or {}
     if 'position' in mutations:
