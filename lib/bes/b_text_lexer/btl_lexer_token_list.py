@@ -1,0 +1,15 @@
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+from ..system.check import check
+from ..common.type_checked_list import type_checked_list
+
+from .btl_lexer_token import btl_lexer_token
+
+class btl_lexer_token_list(type_checked_list):
+
+  __value_type__ = btl_lexer_token
+  
+  def __init__(self, values = None):
+    super().__init__(values = values)
+
+btl_lexer_token_list.register_check_class()
