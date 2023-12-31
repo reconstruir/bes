@@ -6,8 +6,8 @@ from bes.b_text_lexer.btl_lexer_state_base import btl_lexer_state_base
 from bes.b_text_lexer.btl_lexer_token import btl_lexer_token
 from bes.system.check import check
 
-
 class _test_keyval_lexer(btl_lexer_base):
+
   class _test_keyval_lexer_token:
 
     T_DONE = 't_done'
