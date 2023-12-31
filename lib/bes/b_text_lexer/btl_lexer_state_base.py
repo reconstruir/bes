@@ -2,6 +2,7 @@
 
 from ..common.string_util import string_util
 from ..system.log import log
+from ..system.check import check
 
 from .btl_lexer_error import btl_lexer_error
 from .btl_lexer_token import btl_lexer_token
@@ -15,6 +16,12 @@ class btl_lexer_state_base(object):
     tag = f'{lexer.__class__.__name__}.{self.name}'
     log.add_logging(self, tag = tag)
     self._lexer = lexer
+
+  def char_in(self, c, char_name):
+    check.check_string(c)
+    check.check_string(char_name)
+    
+    return ord(c) in self._lexer.desc.char_map[char_name].chars
   
   def handle_char(self, c):
     cs = self.char_to_string(c)

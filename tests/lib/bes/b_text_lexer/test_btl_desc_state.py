@@ -32,7 +32,7 @@ class _fruit_kiwi_lexer_state_s_juice(btl_lexer_state_base):
     new_state = None
     tokens = []
 
-    if c in {61}:
+    if self.char_in(c, 'c_equal'):
       new_state = 's_juice'
       tokens.append(self.make_token('t_cheese', self.buffer_value(), self.position))
     

@@ -44,13 +44,11 @@ class btl_lexer_base(object):
   
   def change_state(self, new_state_name, c):
     check.check_string(new_state_name, allow_none = True)
-    assert new_state_name
-    if check.is_int(c):
-      c = chr(c)
     check.check_string(c)
-    
-    import pprint
-    print(pprint.pformat(self._states))
+
+    assert new_state_name
+    #import pprint
+    #print(pprint.pformat(self._states))
     
     new_state = self._find_state(new_state_name)
     if new_state == self._state:
@@ -66,8 +64,6 @@ class btl_lexer_base(object):
       self.buffer_write(c)
 
   def buffer_write(self, c):
-    if check.is_int(c):
-      c = chr(c)
     check.check_string(c)
     assert c != self.EOS
     self._buffer.write(c)
@@ -86,8 +82,7 @@ class btl_lexer_base(object):
       #self._is_escaping = self._last_char == '\\'
       #should_handle_char = (self._is_escaping and c == '\\') or (c != '\\')
       #if should_handle_char:
-      ord_c = ord(c)
-      tokens = self._state.handle_char(ord_c)
+      tokens = self._state.handle_char(c)
       for token in tokens:
         self.log_d('tokenize: new token: %s' % (str(token)))
         yield token

@@ -49,16 +49,16 @@ class _test_keyval_lexer(btl_lexer_base):
       new_state = None
       tokens = []
   
-      if c in {0}:
+      if self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
-      elif c in {10}:
+      elif self.char_in(c, 'c_nl'):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_line_break', self.buffer_value(), self.position))
-      elif c in {32, 9}:
+      elif self.char_in(c, 'c_ws'):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_space', self.buffer_value(), self.position))
-      elif c in {65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 95, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122}:
+      elif self.char_in(c, 'c_keyval_key_first'):
         new_state = 's_key'
         self.lexer.buffer_write(c)
       else:
@@ -93,13 +93,13 @@ class _test_keyval_lexer(btl_lexer_base):
       new_state = None
       tokens = []
   
-      if c in {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 95, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122}:
+      if self.char_in(c, 'c_keyval_key'):
         new_state = 's_key'
         self.lexer.buffer_write(c)
-      elif c in {61}:
+      elif self.char_in(c, 'c_equal'):
         new_state = 's_value'
         tokens.append(self.make_token('t_key', self.buffer_value(), self.position))
-      elif c in {0}:
+      elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
       
@@ -116,11 +116,11 @@ class _test_keyval_lexer(btl_lexer_base):
       new_state = None
       tokens = []
   
-      if c in {10}:
+      if self.char_in(c, 'c_nl'):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_line_break', self.buffer_value(), self.position))
         tokens.append(self.make_token('t_value', self.buffer_value(), self.position))
-      elif c in {0}:
+      elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
       else:

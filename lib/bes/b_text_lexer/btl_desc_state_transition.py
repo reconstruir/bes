@@ -52,8 +52,7 @@ class btl_desc_state_transition(namedtuple('btl_desc_state_transition', 'to_stat
       if char_name not in char_map:
         raise btl_code_gen_error(f'char not found in char_map: "{char_name}"')
       char = char_map[char_name]
-      buf.write_line(f'{if_statement} c in {char.chars}:')
-      
+      buf.write_line(f'{if_statement} self.char_in(c, \'{char_name}\'):')
     with buf.indent_pusher() as _1:
       buf.write_line(f'new_state = \'{self.to_state}\'')
       self.commands.generate_code(buf)
