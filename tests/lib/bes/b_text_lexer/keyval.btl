@@ -52,6 +52,8 @@ states
       buffer reset
       yield t_line_break
     c_eos: s_done
+      yield t_value
+      buffer reset
       yield t_done
     default: s_value
       buffer write

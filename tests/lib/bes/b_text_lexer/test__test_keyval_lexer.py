@@ -9,6 +9,40 @@ class test__test_keyval_lexer(unit_test):
 
   def test_tokenize(self):
     l = _test_keyval_lexer()
+    text = 'a=b'
+    actual = l.tokenize(text).to_json()
+    #print(actual)
+    #return
+    self.assert_string_equal_fuzzy( '''
+[
+  {
+    "name": "t_key", 
+    "value": "a", 
+    "position": {
+      "x": 1, 
+      "y": 1
+    }
+  }, 
+  {
+    "name": "t_value", 
+    "value": "b", 
+    "position": {
+      "x": 1, 
+      "y": 1
+    }
+  }, 
+  {
+    "name": "t_done", 
+    "value": "", 
+    "position": {
+      "x": 1, 
+      "y": 1
+    }
+  }
+]''', actual )
+
+  def test_tokenize_with_line_breaks(self):
+    l = _test_keyval_lexer()
     text = '''
 fruit=kiwi
 '''
@@ -59,6 +93,6 @@ fruit=kiwi
   }
 ]
 ''', actual )
-
+    
 if __name__ == '__main__':
   unit_test.main()

@@ -22,8 +22,8 @@ from keyval_desc_mixin import keyval_desc_mixin
 class test_btl_desc(keyval_desc_mixin, unit_test):
 
   def test_parse_text_to_json(self):
-    #print(btl_desc.parse_text(self._keyval_desc_text).to_json())
-    #return
+    print(btl_desc.parse_text(self._keyval_desc_text).to_json())
+    return
     self.assert_string_equal_fuzzy(
       self._DESC_JSON,
       btl_desc.parse_text(self._keyval_desc_text).to_json()
@@ -255,6 +255,8 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_line_break', self.buffer_value(), self.position))
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
+        tokens.append(self.make_token('t_value', self.buffer_value(), self.position))
+        self.buffer_reset()
         tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
       else:
         new_state = 's_value'
@@ -579,6 +581,14 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "to_state": "s_done", 
           "char_name": "c_eos", 
           "commands": [
+            {
+              "name": "yield", 
+              "arg": "t_value"
+            }, 
+            {
+              "name": "buffer", 
+              "arg": "reset"
+            }, 
             {
               "name": "yield", 
               "arg": "t_done"

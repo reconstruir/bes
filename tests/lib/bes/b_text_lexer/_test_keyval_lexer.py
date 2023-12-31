@@ -124,6 +124,8 @@ class _test_keyval_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_line_break', self.buffer_value(), self.position))
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
+        tokens.append(self.make_token('t_value', self.buffer_value(), self.position))
+        self.buffer_reset()
         tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
       else:
         new_state = 's_value'
@@ -213,6 +215,8 @@ states
       buffer reset
       yield t_line_break
     c_eos: s_done
+      yield t_value
+      buffer reset
       yield t_done
     default: s_value
       buffer write
