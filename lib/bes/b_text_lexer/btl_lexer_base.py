@@ -16,7 +16,7 @@ class btl_lexer_base(object):
   
   def __init__(self, log_tag, desc_text, token, states, source = None):
     check.check_string(desc_text)
-
+    print(f'log_tag={log_tag}')
     log.add_logging(self, tag = log_tag)
     self._source = source or '<unknown>'
     self._desc = btl_desc.parse_text(desc_text, source = self._source)
@@ -25,7 +25,8 @@ class btl_lexer_base(object):
     self._buffer = None
     self._last_char = None
     self._state = self._find_state(self._desc.header.start_state)
-    self.position = point(1, 1)
+    self._position = point(1, 1)
+    self._buffer_position = point(1, 1)
     self.buffer_reset()
 
   @property
@@ -63,6 +64,7 @@ class btl_lexer_base(object):
     self._buffer = io.StringIO()
     if c:
       self.buffer_write(c)
+    self._buffer_position = self._position
 
   def buffer_write(self, c):
     check.check_string(c)
@@ -78,7 +80,7 @@ class btl_lexer_base(object):
     self.log_d(f'_run() text=\"{text}\"')
     
     assert self.EOS not in text
-    self.position = point(1, 1)
+    self._position = point(0, 1)
     for c in self._chars_plus_eos(text):
       #self._is_escaping = self._last_char == '\\'
       #should_handle_char = (self._is_escaping and c == '\\') or (c != '\\')
@@ -89,9 +91,9 @@ class btl_lexer_base(object):
         yield token
       self._last_char = c
       if c == '\n':
-        self.position = point(1, self.position.y + 1)
+        self._position = point(self._position.x, self._position.y + 1)
       else:
-        self.position = point(self.position.x + 0, self.position.y)
+        self._position = point(self._position.x + 1, self._position.y)
 
     end_state = self._find_state(self._desc.header.end_state)
     assert self._state == end_state
@@ -104,3 +106,9 @@ class btl_lexer_base(object):
     for c in text:
       yield c
     yield self.EOS
+
+  def make_token(self, name):
+    check.check_string(name)
+    
+    return btl_lexer_token(name, self.buffer_value(), self._lexer._buffer_position)
+    

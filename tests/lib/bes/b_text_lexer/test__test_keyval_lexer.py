@@ -3,10 +3,34 @@
 
 from bes.testing.unit_test import unit_test
 
+from bes.b_text_lexer.btl_lexer_token_list import btl_lexer_token_list
+
 from _test_keyval_lexer import _test_keyval_lexer
 
 class test__test_keyval_lexer(unit_test):
 
+  def test_empty_string(self):
+    self._test('',
+      [
+        ( 't_done', '', ( 1, 1 ) ),
+      ])
+
+  def test_just_key(self):
+    self._test('a',
+      [
+        ( 't_key', 'a', ( 1, 1 ) ),
+        ( 't_done', '', ( 1, 1 ) ),
+      ])
+    
+  def test_just_key_and_equal(self):
+    self._test('ab=',
+      [
+        ( 't_key', 'ab', ( 1, 1 ) ),
+        ( 't_equal', '=', ( 3, 1 ) ),
+        ( 't_value', '', ( 3, 1 ) ),
+        ( 't_done', '', ( 4, 1 ) ),
+      ])
+    
   def test_tokenize(self):
     l = _test_keyval_lexer()
     text = 'a=b'
@@ -90,6 +114,22 @@ fruit=kiwi
   }
 ]
 ''', actual )
+
+
+  def _test(self, text, expected):
+    actual_tokens = _test_keyval_lexer().tokenize(text)
+    actual_json = actual_tokens.to_json()
+    expected_tokens = btl_lexer_token_list(expected)
+    expected_json = btl_lexer_token_list(expected).to_json()
+
+    expected_string = '\n'.join([ str(token) for token in expected_tokens ])
+    actual_string = '\n'.join([ str(token) for token in actual_tokens ])
+
+    if self.DEBUG:
+      for i, token in enumerate(actual_tokens, start = 1):
+        print(f'{i}: {token}', flush = True)
+      
+    self.assertMultiLineEqual( expected_string, actual_string )
     
 if __name__ == '__main__':
   unit_test.main()

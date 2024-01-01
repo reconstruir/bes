@@ -12,6 +12,10 @@ from ..system.check import check
 class btl_lexer_token(namedtuple('btl_lexer_token', 'name, value, position')):
 
   def __new__(clazz, name = None, value = None, position = point(1, 1)):
+    check.check_string(name)
+    check.check_string(value)
+    position = check.check_point(position)
+    
     return clazz.__bases__[0].__new__(clazz, name, value, position)
 
   def __str__(self):

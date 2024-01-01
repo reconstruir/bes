@@ -63,9 +63,12 @@ class btl_lexer_state_base(object):
     else:
       return c
 
-  def make_token(self, a, b, c):
-    return btl_lexer_token(a, b, c)
+#  def make_token(self, name, value, position):
+#    return btl_lexer_token(name, value, position)
 
+  def make_token(self, name):
+    return btl_lexer_token(name, self.buffer_value(), self._lexer._buffer_position)
+  
   def buffer_reset(self, c = None):
     self._lexer.buffer_reset(c = c)
 

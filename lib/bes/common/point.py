@@ -2,8 +2,7 @@
 
 from collections import namedtuple
 
-from bes.common.tuple_util import tuple_util
-
+from ..common.tuple_util import tuple_util
 from ..system.check import check
 
 class point(namedtuple('point', 'x, y')):
@@ -28,4 +27,8 @@ class point(namedtuple('point', 'x, y')):
   def clone(self, mutations = None):
     return tuple_util.clone(self, mutations = mutations)
 
-check.register_class(point)
+  @classmethod
+  def _check_cast_func(clazz, obj):
+    return tuple_util.cast_seq_to_namedtuple(clazz, obj)
+  
+check.register_class(point, cast_func = point._check_cast_func)

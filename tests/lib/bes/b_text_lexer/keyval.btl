@@ -44,8 +44,12 @@ states
     c_equal: s_value
       yield t_key
       buffer reset
+      buffer write
       yield t_equal
+      buffer reset
     c_eos: s_done
+      yield t_key
+      buffer reset
       yield t_done
   s_value
     c_nl: s_expecting_key
