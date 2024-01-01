@@ -45,8 +45,9 @@ class btl_desc_state(namedtuple('btl_desc_state', 'name, transitions, is_end_sta
     
     buf.write_lines(f'''
 class {prefix}_state_{self.name}(btl_lexer_state_base):
-  def __init__(self, lexer):
-    super().__init__(lexer)
+  def __init__(self, lexer, log_tag):
+    name = '{self.name}'
+    super().__init__(lexer, name, log_tag)
 
   def handle_char(self, c):
     self.log_handle_char(c)

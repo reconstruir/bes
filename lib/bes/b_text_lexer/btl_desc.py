@@ -133,7 +133,7 @@ from bes.system.check import check
       with buf.indent_pusher() as _42:
         for state in self.states:
           state_class_name = f'{namespace}_{name}_lexer_state_{state.name}'
-          buf.write_line(f'\'{state.name}\': self.{state_class_name}(self),')
+          buf.write_line(f'\'{state.name}\': self.{state_class_name}(self, log_tag),')
       buf.write_line('}')
       buf.write_lines(f'super().__init__(log_tag, desc_text, token, states, source = source)')
 

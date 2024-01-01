@@ -11,10 +11,12 @@ class btl_lexer_state_base(object):
 
   EOS = '\0'
   
-  def __init__(self, lexer):
-    self.name = self.__class__.__name__
-    tag = f'{lexer.__class__.__name__}.{self.name}'
-    log.add_logging(self, tag = tag)
+  def __init__(self, lexer, name, log_tag):
+    check.check_string(name)
+    check.check_string(log_tag)
+    
+    self.name = name
+    log.add_logging(self, tag = log_tag)
     self._lexer = lexer
 
   @property
@@ -36,22 +38,16 @@ class btl_lexer_state_base(object):
     raise RuntimeError(f'unhandled handle_char |{cs}| in state {self.name}')
 
   def log_handle_char(self, c):
-    try:
-      buffer_value = string_util.quote(self._lexer.buffer_value())
-    except AttributeError as ex:
-      buffer_value = 'None'
     attrs = self._make_log_attributes(c)
-    self.log_d(f'handle_char: {attrs}')
+    self.log_d(f'{self.name}: handle_char: {attrs}')
   
-  def _make_log_attributes(self, c, include_state = True):
+  def _make_log_attributes(self, c):
     attributes = []
-    if include_state:
-      attributes.append(f'state={self.name}')
     cs = self.char_to_string(c)
-    attributes.append(f'c=|{cs}|')
+    attributes.append(f'c=▒{cs}▒')
     try:
-      bs = string_util.quote(self._lexer.buffer_value())
-      attributes.append(f'buffer={bs}')
+      bs = self._lexer.buffer_value()
+      attributes.append(f'buffer=▒{bs}▒')
     except AttributeError as ex:
       attributes.append('buffer=None')
     return ' '.join(attributes)

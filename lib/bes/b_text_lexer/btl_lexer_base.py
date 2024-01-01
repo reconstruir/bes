@@ -15,9 +15,12 @@ class btl_lexer_base(object):
   EOS = '\0'
   
   def __init__(self, log_tag, desc_text, token, states, source = None):
+    check.check_string(log_tag)
     check.check_string(desc_text)
-    print(f'log_tag={log_tag}')
-    log.add_logging(self, tag = log_tag)
+    check.check_string(source, allow_none = True)
+    
+    self._log_tag = log_tag
+    log.add_logging(self, tag = self._log_tag)
     self._source = source or '<unknown>'
     self._desc = btl_desc.parse_text(desc_text, source = self._source)
     self._token = token
@@ -28,11 +31,16 @@ class btl_lexer_base(object):
     self._position = point(1, 1)
     self._buffer_position = point(1, 1)
     self.buffer_reset()
+    self._max_state_name_length = max([ len(state.name) for state in self._states.values() ])
 
   @property
-  def lexer(self):
-    return self._lexer
-    
+  def position(self):
+    return self._position
+
+  @property
+  def buffer_position(self):
+    return self._buffer_position
+  
   @property
   def desc(self):
     return self._desc
@@ -41,6 +49,10 @@ class btl_lexer_base(object):
   def token(self):
     return self._token
 
+  @property
+  def log_tag(self):
+    return self._log_tag
+  
   def _find_state(self, state_name):
     return self._states[state_name]
   
@@ -55,9 +67,11 @@ class btl_lexer_base(object):
     new_state = self._find_state(new_state_name)
     if new_state == self._state:
       return
-    self.log_d('transition: %20s -> %-20s; %s'  % (self._state.__class__.__name__,
-                                                   new_state.__class__.__name__,
-                                                   new_state._make_log_attributes(c, include_state = False)))
+#    x = self._state.name.zfill(self._max_state_name_length)
+    attrs = new_state._make_log_attributes(c)
+    max_length = self._max_state_name_length
+    msg = f'lexer: transition: ▒{self._state.name:>{max_length}} -> {new_state.name:<{max_length}}▒ {attrs}'
+    self.log_d(msg)
     self._state = new_state
 
   def buffer_reset(self, c = None):
@@ -77,7 +91,7 @@ class btl_lexer_base(object):
   def run(self, text):
     check.check_string(text)
     
-    self.log_d(f'_run() text=\"{text}\"')
+    self.log_d(f'lexer: run: text=\"{text}\"')
     
     assert self.EOS not in text
     self._position = point(0, 1)
@@ -87,7 +101,7 @@ class btl_lexer_base(object):
       #if should_handle_char:
       tokens = self._state.handle_char(c)
       for token in tokens:
-        self.log_d(f'run: new token: {token}')
+        self.log_d(f'lexer: run: new token: {token}')
         yield token
       self._last_char = c
       if c == '\n':
@@ -110,5 +124,5 @@ class btl_lexer_base(object):
   def make_token(self, name):
     check.check_string(name)
     
-    return btl_lexer_token(name, self.buffer_value(), self._lexer._buffer_position)
+    return btl_lexer_token(name, self.buffer_value(), self.buffer_position)
     
