@@ -5,7 +5,6 @@ from ..system.log import log
 from ..system.check import check
 
 from .btl_lexer_error import btl_lexer_error
-from .btl_lexer_token import btl_lexer_token
 
 class btl_lexer_state_base(object):
 
@@ -60,7 +59,7 @@ class btl_lexer_state_base(object):
       return c
 
   def make_token(self, name):
-    return btl_lexer_token(name, self.buffer_value(), self._lexer._buffer_position)
+    return self._lexer.make_token(name)
   
   def buffer_reset(self):
     self._lexer.buffer_reset()

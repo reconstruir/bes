@@ -6,9 +6,10 @@ from ..system.log import log
 from ..system.check import check
 from ..common.point import point
 
-from .btl_lexer_error import btl_lexer_error
-from .btl_lexer_token_list import btl_lexer_token_list
 from .btl_desc import btl_desc
+from .btl_lexer_error import btl_lexer_error
+from .btl_lexer_token import btl_lexer_token
+from .btl_lexer_token_list import btl_lexer_token_list
 
 class btl_lexer_base(object):
 
@@ -28,18 +29,18 @@ class btl_lexer_base(object):
     self._buffer = None
     self._last_char = None
     self._state = self._find_state(self._desc.header.start_state)
-    self._position = point(0, 0)
-    self._buffer_position = None
-    self.buffer_reset()
     self._max_state_name_length = max([ len(state.name) for state in self._states.values() ])
+    self._position = point(1, 1)
+    self._buffer_start_position = None
+    self.buffer_reset()
 
   @property
   def position(self):
     return self._position
 
   @property
-  def buffer_position(self):
-    return self._buffer_position
+  def buffer_start_position(self):
+    return self._buffer_start_position
   
   @property
   def desc(self):
@@ -74,17 +75,28 @@ class btl_lexer_base(object):
     self._state = new_state
 
   def buffer_reset(self):
-    self.log_d(f'lexer: buffer_reset()')
+    old_buffer_position = point(*self._buffer_start_position) if self._buffer_start_position != None else 'None'
+    old_buffer_value = self.buffer_value()
     self._buffer = io.StringIO()
-    self._buffer_position = self._position
+    if self._buffer_start_position == None:
+      self._buffer_start_position = point(1, 1)
+    self._buffer_start_position = point(*self._position)
+    self.log_d(f'lexer: buffer_reset: old_value=▒{old_buffer_value}▒ old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')
 
   def buffer_write(self, c):
     check.check_string(c)
     
+    old_buffer_position = point(*self._buffer_start_position)
+    old_value = self.buffer_value()
     assert c != self.EOS
     self._buffer.write(c)
+    if len(old_value) == 0:
+      self._buffer_start_position = point(*self._position)
+    self.log_d(f'lexer: buffer_write: old_position={old_buffer_position} new_position={self._buffer_start_position} pos={self._position}')    
 
   def buffer_value(self):
+    if self._buffer == None:
+      return None
     return self._buffer.getvalue()
 
   def run(self, text):
@@ -95,22 +107,26 @@ class btl_lexer_base(object):
     assert self.EOS not in text
     self._position = point(0, 1)
     for c in self._chars_plus_eos(text):
-      #self._is_escaping = self._last_char == '\\'
-      #should_handle_char = (self._is_escaping and c == '\\') or (c != '\\')
-      #if should_handle_char:
+      self._position = self._update_position(self._position, c)
+      attrs = self._state._make_log_attributes(c)
+      self.log_d(f'lexer: position={self._position} {attrs}')
       tokens = self._state.handle_char(c)
       for token in tokens:
         self.log_d(f'lexer: run: new token: {token}')
         yield token
       self._last_char = c
-      if c == '\n':
-        self._position = point(self._position.x, self._position.y + 1)
-      else:
-        self._position = point(self._position.x + 1, self._position.y)
 
     end_state = self._find_state(self._desc.header.end_state)
     assert self._state == end_state
 
+  @classmethod
+  def _update_position(clazz, old_position, c):
+    if c == '\n':
+      new_position = point(1, old_position.y + 1)
+    else:
+      new_position = point(old_position.x + 1, old_position.y)
+    return new_position
+    
   def tokenize(self, text):
     return btl_lexer_token_list([ token for token in self.run(text) ])
     
@@ -123,6 +139,7 @@ class btl_lexer_base(object):
   def make_token(self, name):
     check.check_string(name)
 
-    assert self.buffer_position != None
-    return btl_lexer_token(name, self.buffer_value(), self.buffer_position)
+    assert self.buffer_start_position != None
+    token = btl_lexer_token(name, self.buffer_value(), self.buffer_start_position)
+    return token
     

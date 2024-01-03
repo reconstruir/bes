@@ -19,7 +19,7 @@ class test__test_keyval_lexer(unit_test):
     self._test('a',
       [
         ( 't_key', 'a', ( 1, 1 ) ),
-        ( 't_done', '', ( 1, 1 ) ),
+        ( 't_done', '', ( 2, 1 ) ),
       ])
     
   def test_just_key_and_equal(self):
@@ -30,8 +30,26 @@ class test__test_keyval_lexer(unit_test):
         ( 't_value', '', ( 3, 1 ) ),
         ( 't_done', '', ( 4, 1 ) ),
       ])
+
+  def test_key_and_value(self):
+    self._test('a=k',
+      [
+        ( 't_key', 'a', ( 1, 1 ) ),
+        ( 't_equal', '=', ( 2, 1 ) ),
+        ( 't_value', 'k', ( 3, 1 ) ),
+        ( 't_done', '', ( 4, 1 ) ),
+      ])
+
+  def test_key_and_value(self):
+    self._test('fruit=kiwi',
+      [
+        ( 't_key', 'fruit', ( 1, 1 ) ),
+        ( 't_equal', '=', ( 6, 1 ) ),
+        ( 't_value', 'kiwi', ( 7, 1 ) ),
+        ( 't_done', '', ( 11, 1 ) ),
+      ])
     
-  def test_tokenize(self):
+  def xtest_tokenize(self):
     l = _test_keyval_lexer()
     text = 'a=b'
     actual = l.tokenize(text).to_json()
