@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import namedtuple
+
 import os.path as path
 
 from ..cli.cli_command_handler import cli_command_handler
@@ -9,6 +11,7 @@ from ..fs.file_util import file_util
 from ..fs.temp_file import temp_file
 from ..script.blurber import blurber
 from ..system.check import check
+from ..files.bf_filename import bf_filename
 
 from ..b_text_lexer.btl_desc import btl_desc
 from ..mermaid.mermaid_ink import mermaid_ink
@@ -61,6 +64,25 @@ class btl_cli_handler(cli_command_handler):
     check.check_string(name)
     check.check_string(output_filename)
 
+    xnamespace, xname = self._parse_code_filename(output_filename)
+    assert xnamespace == namespace
+    assert xname == name
     desc = btl_desc.parse_file(filename)
     desc.write_code(output_filename, namespace, name)
     return 0
+
+  _parsed_code_filename = namedtuple('_parsed_code_filename', 'namespace, name')
+  @classmethod
+  def _parse_code_filename(clazz, filename):
+    basename = bf_filename.without_extension(path.basename(filename))
+
+    has_underscore = basename.startswith('_')
+
+    if has_underscore:
+      basename = basename[1:]
+    parts = basename.split('_')
+    namespace = parts.pop(0)
+    name = '_'.join(parts)
+    if has_underscore:
+      namespace = '_' + namespace
+    return clazz._parsed_code_filename(namespace, name)

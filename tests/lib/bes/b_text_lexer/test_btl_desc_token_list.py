@@ -20,16 +20,16 @@ class test_btl_desc_token_list(keyval_desc_mixin, unit_test):
     ])
     token = btl_desc_token('kiwi', {})
 
-    #s = self.call_buf_func(tokens, 'generate_code', '_fruit', 'kiwi')
+    #s = self.call_buf_func(tokens, 'generate_code')
     #print(s)
     #return
     
-    self.assert_code_equal('''class _fruit_kiwi_lexer_token:
+    self.assert_code_equal('''class _token:
 
   KIWI = 'kiwi'
   LEMON = 'lemon'
   MELON = 'melon'
-''', self.call_buf_func(tokens, 'generate_code', '_fruit', 'kiwi') )
+''', self.call_buf_func(tokens, 'generate_code') )
     
 if __name__ == '__main__':
   unit_test.main()

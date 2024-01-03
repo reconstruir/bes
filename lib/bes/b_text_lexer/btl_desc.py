@@ -106,8 +106,6 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states,
     check.check_string(namespace)
     check.check_string(name)
 
-    print(f'CACA: namespace={namespace} name={name}', flush = True)
-    
     buf.write_line(f'''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
@@ -117,24 +115,24 @@ from bes.b_text_lexer.btl_lexer_token import btl_lexer_token
 from bes.system.check import check
 ''')
 
-    buf.write_line(f'class {namespace}_{name}_lexer(btl_lexer_base):')
+    buf.write_line(f'class {namespace}_{name}(btl_lexer_base):')
     buf.write_linesep()
     with buf.indent_pusher(depth = 1) as _:
       
-      self.tokens.generate_code(buf, namespace, name)
-      self.states.generate_code(buf, namespace, name, self.char_map)
+      self.tokens.generate_code(buf)
+      self.states.generate_code(buf, self.char_map)
 
     buf.write_lines(f'''
   def __init__(self, source = None):
     log_tag = f'{namespace}_{name}'
     desc_text = self._DESC_TEXT
-    token = self.{namespace}_{name}_lexer_token
+    token = self._token
 ''')
     with buf.indent_pusher(depth = 2) as _:
       buf.write_line('states = {')
       with buf.indent_pusher() as _42:
         for state in self.states:
-          state_class_name = f'{namespace}_{name}_lexer_state_{state.name}'
+          state_class_name = f'_state_{state.name}'
           buf.write_line(f'\'{state.name}\': self.{state_class_name}(self, log_tag),')
       buf.write_line('}')
       buf.write_lines(f'super().__init__(log_tag, desc_text, token, states, source = source)')
@@ -144,7 +142,7 @@ from bes.system.check import check
       buf.write_line(f'_DESC_TEXT = """')
     buf.write_line(f'{self.source_text}')
     buf.write_line(f'"""')
-    buf.write_line(f'check.register_class({namespace}_{name}_lexer, include_seq = False)')
+    buf.write_line(f'check.register_class({namespace}_{name}, include_seq = False)')
       
   def write_code(self, output_filename, namespace, name, indent_width = 2):
     check.check_string(output_filename)

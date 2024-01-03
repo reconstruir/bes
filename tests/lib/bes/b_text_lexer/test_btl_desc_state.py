@@ -22,7 +22,7 @@ class test_btl_desc_state(keyval_desc_mixin, unit_test):
     state = btl_desc_state('s_juice', [ transition ], False)
 
     self.assert_code_equal('''
-class _fruit_kiwi_lexer_state_s_juice(btl_lexer_state_base):
+class _state_s_juice(btl_lexer_state_base):
   def __init__(self, lexer, log_tag):
     name = 's_juice'
     super().__init__(lexer, name, log_tag)
@@ -39,7 +39,7 @@ class _fruit_kiwi_lexer_state_s_juice(btl_lexer_state_base):
     
     self.lexer.change_state(new_state, c)
     return tokens
-''', self.call_buf_func(state, 'generate_code', '_fruit', 'kiwi', char_map) )
+''', self.call_buf_func(state, 'generate_code', char_map) )
   
 if __name__ == '__main__':
   unit_test.main()

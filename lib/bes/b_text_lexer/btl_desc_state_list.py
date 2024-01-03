@@ -34,13 +34,11 @@ class btl_desc_state_list(type_checked_list):
       result.append(next_desc_state)
     return result
 
-  def generate_code(self, buf, namespace, name, char_map):
+  def generate_code(self, buf, char_map):
     check.check_btl_code_gen_buffer(buf)
-    check.check_string(namespace)
-    check.check_string(name)
     check.check_btl_desc_char_map(char_map)
 
     for state in self:
-      state.generate_code(buf, namespace, name, char_map)
+      state.generate_code(buf, char_map)
   
 btl_desc_state_list.register_check_class()  

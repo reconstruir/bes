@@ -45,17 +45,13 @@ class btl_desc_token_list(type_checked_list):
       result.append(next_desc_token)
     return sorted(result, key = lambda token: token.name)
 
-  def generate_code(self, buf, namespace, name):
+  def generate_code(self, buf):
     check.check_btl_code_gen_buffer(buf)
-    check.check_string(namespace)
-    check.check_string(name)
 
-    prefix = f'{namespace}_{name}_lexer'
-    buf.write_line(f'class {prefix}_token:')
+    buf.write_line(f'class _token:')
     buf.write_linesep()
     with buf.indent_pusher() as _:
       for token in self:
         token.generate_code(buf)
-#    buf.write_linesep()
     
 btl_desc_token_list.register_check_class()

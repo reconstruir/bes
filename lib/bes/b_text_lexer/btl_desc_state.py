@@ -35,16 +35,12 @@ class btl_desc_state(namedtuple('btl_desc_state', 'name, transitions, is_end_sta
     transitions = btl_desc_state_transition_list.parse_node(n, source = source)
     return btl_desc_state(name, transitions, name == end_state)
 
-  def generate_code(self, buf, namespace, name, char_map):
+  def generate_code(self, buf, char_map):
     check.check_btl_code_gen_buffer(buf)
-    check.check_string(namespace)
-    check.check_string(name)
     check.check_btl_desc_char_map(char_map)
 
-    prefix = f'{namespace}_{name}_lexer'
-    
     buf.write_lines(f'''
-class {prefix}_state_{self.name}(btl_lexer_state_base):
+class _state_{self.name}(btl_lexer_state_base):
   def __init__(self, lexer, log_tag):
     name = '{self.name}'
     super().__init__(lexer, name, log_tag)

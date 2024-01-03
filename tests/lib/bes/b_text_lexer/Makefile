@@ -1,9 +1,9 @@
 include $(CURDIR)/../../../../make/mmd.mak
 
-all: keyval1.mmd keyval1.svg _test_keyval1_lexer.py
+all: _test_keyval1_lexer.mmd _test_keyval1_lexer.svg _test_keyval1_lexer.py
 
 clean:
-	rm -f keyval1.mmd keyval1.svg _test_keyval1_lexer.py
+	rm -f _test_keyval1_lexer.mmd _test_keyval1_lexer.svg _test_keyval1_lexer.py
 
-_test_keyval1_lexer.py: keyval1.btl Makefile
-	@$(_MMD_BEST_BIN) btl make_code $< _test keyval1 $@
+_test_keyval1_lexer.py: _test_keyval1_lexer.btl Makefile
+	@$(_MMD_BEST_BIN) btl make_code $< _test keyval1_lexer $@
