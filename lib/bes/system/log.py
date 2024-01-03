@@ -122,7 +122,7 @@ class log(object):
     longest_tag_length = clazz._tag_width or clazz._longest_tag_length
     max_width = clazz._longest_level_length + longest_tag_length
     delta = max_width - current_width
-    delta = 1
+    delta = 1  # FIXME ?
     process_name = multiprocessing.current_process().name
     values = {
       'timestamp': clazz._format_timestamp(timestamp),
@@ -366,7 +366,7 @@ class log(object):
     'Add logging capabilities to obj via its class.'
     if type(obj) == type:
       object_class = obj
-      tag = object_class.__name__
+      tag = tag or object_class.__name__
     else:
       object_class = obj.__class__
 

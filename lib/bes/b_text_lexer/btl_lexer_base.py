@@ -28,8 +28,8 @@ class btl_lexer_base(object):
     self._buffer = None
     self._last_char = None
     self._state = self._find_state(self._desc.header.start_state)
-    self._position = point(1, 1)
-    self._buffer_position = point(1, 1)
+    self._position = point(0, 0)
+    self._buffer_position = None
     self.buffer_reset()
     self._max_state_name_length = max([ len(state.name) for state in self._states.values() ])
 
@@ -67,21 +67,20 @@ class btl_lexer_base(object):
     new_state = self._find_state(new_state_name)
     if new_state == self._state:
       return
-#    x = self._state.name.zfill(self._max_state_name_length)
     attrs = new_state._make_log_attributes(c)
     max_length = self._max_state_name_length
     msg = f'lexer: transition: ▒{self._state.name:>{max_length}} -> {new_state.name:<{max_length}}▒ {attrs}'
     self.log_d(msg)
     self._state = new_state
 
-  def buffer_reset(self, c = None):
+  def buffer_reset(self):
+    self.log_d(f'lexer: buffer_reset()')
     self._buffer = io.StringIO()
-    if c:
-      self.buffer_write(c)
     self._buffer_position = self._position
 
   def buffer_write(self, c):
     check.check_string(c)
+    
     assert c != self.EOS
     self._buffer.write(c)
 
@@ -123,6 +122,7 @@ class btl_lexer_base(object):
 
   def make_token(self, name):
     check.check_string(name)
-    
+
+    assert self.buffer_position != None
     return btl_lexer_token(name, self.buffer_value(), self.buffer_position)
     
