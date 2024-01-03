@@ -20,24 +20,24 @@ class keyval_desc_mixin:
                                     native_line_breaks = True)
   
   @cached_class_property
-  def _keyval_desc_filename(clazz):
+  def _keyval1_desc_filename(clazz):
     here = path.dirname(__file__)
-    filename = path.join(here, 'keyval.btl')
+    filename = path.join(here, 'keyval1.btl')
     return path.abspath(filename)
   
   @cached_class_property
-  def _keyval_desc_text(clazz):
-    return file_util.read(clazz._keyval_desc_filename, codec = 'utf-8')
+  def _keyval1_desc_text(clazz):
+    return file_util.read(clazz._keyval1_desc_filename, codec = 'utf-8')
 
   @classmethod
-  def _keyval_desc_tree(clazz):
-    return tree_text_parser.parse(clazz._keyval_desc_text,
+  def _keyval1_desc_tree(clazz):
+    return tree_text_parser.parse(clazz._keyval1_desc_text,
                                   strip_comments = True,
                                   root_name = 'btl_desc')
 
   @classmethod
-  def _keyval_desc_tree_section(clazz, section_name):
-    root = clazz._keyval_desc_tree()
+  def _keyval1_desc_tree_section(clazz, section_name):
+    root = clazz._keyval1_desc_tree()
     for child in root.children:
       if child.data.text == section_name:
         return child

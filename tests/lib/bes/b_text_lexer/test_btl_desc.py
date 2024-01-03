@@ -22,15 +22,15 @@ from keyval_desc_mixin import keyval_desc_mixin
 class test_btl_desc(keyval_desc_mixin, unit_test):
 
   def test_parse_text_to_json(self):
-    #print(btl_desc.parse_text(self._keyval_desc_text).to_json())
+    #print(btl_desc.parse_text(self._keyval1_desc_text).to_json())
     #return
     self.assert_string_equal_fuzzy(
       self._DESC_JSON,
-      btl_desc.parse_text(self._keyval_desc_text).to_json()
+      btl_desc.parse_text(self._keyval1_desc_text).to_json()
     )
 
   def test_to_mermaid_diagram(self):
-    #print(btl_desc.parse_text(self._keyval_desc_text).to_mermaid_diagram())
+    #print(btl_desc.parse_text(self._keyval1_desc_text).to_mermaid_diagram())
     #return
     self.assertEqual( '''\
 stateDiagram-v2
@@ -59,10 +59,10 @@ stateDiagram-v2
 
   %% s_done state
   s_done --> [*]
-''', btl_desc.parse_text(self._keyval_desc_text).to_mermaid_diagram() )
+''', btl_desc.parse_text(self._keyval1_desc_text).to_mermaid_diagram() )
 
   def test_generate_code(self):
-    desc = btl_desc.parse_text(self._keyval_desc_text)
+    desc = btl_desc.parse_text(self._keyval1_desc_text)
     actual = self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi')
     #print(actual)
     #return
@@ -70,7 +70,7 @@ stateDiagram-v2
 
   def test_write_code(self):
     tmp = self.make_temp_file(suffix = '.py')
-    desc = btl_desc.parse_text(self._keyval_desc_text)
+    desc = btl_desc.parse_text(self._keyval1_desc_text)
     desc.write_code(tmp, '_fruit', 'kiwi')
 
     self.assert_code_equal( self._EXPECTED_CODE, file_util.read(tmp, codec = 'utf-8') )
@@ -82,7 +82,7 @@ stateDiagram-v2
     return str(p)
       
   def test_use_code(self):
-    desc = btl_desc.parse_text(self._keyval_desc_text)
+    desc = btl_desc.parse_text(self._keyval1_desc_text)
     lexer_code = self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi')
     use_code = '''
 import unittest
@@ -121,12 +121,12 @@ if __name__ == '__main__':
     self.assertEqual( 0, rv.exit_code )
 
   def test_to_json(self):
-    desc = btl_desc.parse_text(self._keyval_desc_text)
+    desc = btl_desc.parse_text(self._keyval1_desc_text)
     self.assert_json_equal( self._DESC_JSON, desc.to_json() )
 
   @cached_class_property
   def _EXPECTED_CODE(clazz):
-    return clazz._EXPECTED_CODE_TEMPLATE.replace('@@@_DESC_TEXT@@@', clazz._keyval_desc_text)
+    return clazz._EXPECTED_CODE_TEMPLATE.replace('@@@_DESC_TEXT@@@', clazz._keyval1_desc_text)
     
   _EXPECTED_CODE_TEMPLATE = '''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-

@@ -14,7 +14,7 @@ class test_btl_cli_args(keyval_desc_mixin, program_unit_test):
     args = [
       'btl',
       'make_mmd',
-      self._keyval_desc_filename,
+      self._keyval1_desc_filename,
       tmp,
     ]
     rv = self.run_program(self._program, args)
@@ -54,7 +54,7 @@ stateDiagram-v2
       'btl',
       'make_diagram',
       '--format', 'svg',
-      self._keyval_desc_filename,
+      self._keyval1_desc_filename,
       tmp,
     ]
     rv = self.run_program(self._program, args)
