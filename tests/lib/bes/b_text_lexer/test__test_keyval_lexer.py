@@ -49,6 +49,28 @@ class test__test_keyval_lexer(unit_test):
         ( 't_done', '', ( 0, 0 ) ),
       ])
 
+  def xtest_one_space(self):
+    self._test(' fruit=kiwi ',
+      [
+        ( 't_space', ' ', ( 1, 1 ) ),
+        ( 't_key', 'fruit', ( 2, 1 ) ),
+        ( 't_equal', '=', ( 7, 1 ) ),
+        ( 't_value', 'kiwi', ( 8, 1 ) ),
+        ( 't_space', ' ', ( 12, 1 ) ),
+        ( 't_done', '', ( 0, 0 ) ),
+      ])
+
+  def xtest_two_spaces(self):
+    self._test('  fruit=kiwi  ',
+      [
+        ( 't_space', '  ', ( 1, 1 ) ),
+        ( 't_key', 'fruit', ( 3, 1 ) ),
+        ( 't_equal', '=', ( 8, 1 ) ),
+        ( 't_value', 'kiwi', ( 9, 1 ) ),
+        ( 't_space', '  ', ( 13, 1 ) ),
+        ( 't_done', '', ( 0, 0 ) ),
+      ])
+    
   def test_multi_line(self):
     self._test('''
 fruit=kiwi
