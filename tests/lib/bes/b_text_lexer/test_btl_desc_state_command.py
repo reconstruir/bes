@@ -13,25 +13,25 @@ from keyval_desc_mixin import keyval_desc_mixin
 class test_btl_desc_state_command(keyval_desc_mixin, unit_test):
 
   def test_generate_code_with_yield(self):
-    cmd = btl_desc_state_command('yield', 't_cheese')
+    cmd = btl_desc_state_command('yield', 't_cheese', {})
     self.assert_code_equal( '''
-tokens.append(self.make_token('t_cheese', self.buffer_value(), self.position))
+tokens.append(self.make_token('t_cheese', args = {}))
 ''', self.call_buf_func(cmd, 'generate_code') )
 
   def test_generate_code_with_buffer_write(self):
-    cmd = btl_desc_state_command('buffer', 'write')
+    cmd = btl_desc_state_command('buffer', 'write', {})
     self.assert_code_equal( '''
 self.buffer_write(c)
 ''', self.call_buf_func(cmd, 'generate_code') )
 
   def test_generate_code_with_buffer_reset(self):
-    cmd = btl_desc_state_command('buffer', 'reset')
+    cmd = btl_desc_state_command('buffer', 'reset', {})
     self.assert_code_equal( '''
 self.buffer_reset()
 ''', self.call_buf_func(cmd, 'generate_code') )
 
   def test_generate_code_with_buffer_error(self):
-    cmd = btl_desc_state_command('buffer', 'notthere')
+    cmd = btl_desc_state_command('buffer', 'notthere', {})
     self.assert_code_equal( '''
 raise btl_lexer_error('Unknown buffer command: "notthere"')
 ''', self.call_buf_func(cmd, 'generate_code') )

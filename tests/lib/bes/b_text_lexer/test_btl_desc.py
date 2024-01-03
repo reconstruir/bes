@@ -159,13 +159,13 @@ class _fruit_kiwi_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_eos'):
         new_state = 's_done'
-        tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_done', args = {'type_hint': 'done'}))
       elif self.char_in(c, 'c_nl'):
         new_state = 's_expecting_key'
-        tokens.append(self.make_token('t_line_break', self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_line_break', args = {'type_hint': 'line_break'}))
       elif self.char_in(c, 'c_ws'):
         new_state = 's_expecting_key'
-        tokens.append(self.make_token('t_space', self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_space', args = {}))
       elif self.char_in(c, 'c_keyval_key_first'):
         new_state = 's_key'
         self.buffer_write(c)
@@ -206,12 +206,12 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         self.buffer_write(c)
       elif self.char_in(c, 'c_equal'):
         new_state = 's_value'
-        tokens.append(self.make_token('t_key', self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_key', args = {}))
         self.buffer_reset()
-        tokens.append(self.make_token('t_equal', self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_equal', args = {}))
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
-        tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_done', args = {'type_hint': 'done'}))
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -228,14 +228,14 @@ class _fruit_kiwi_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_nl'):
         new_state = 's_expecting_key'
-        tokens.append(self.make_token('t_value', self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
-        tokens.append(self.make_token('t_line_break', self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_line_break', args = {'type_hint': 'line_break'}))
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
-        tokens.append(self.make_token('t_value', self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
-        tokens.append(self.make_token('t_done', self.buffer_value(), self.position))
+        tokens.append(self.make_token('t_done', args = {'type_hint': 'done'}))
       else:
         new_state = 's_value'
         self.buffer_write(c)

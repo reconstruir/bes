@@ -17,14 +17,15 @@ class test_btl_desc_state(keyval_desc_mixin, unit_test):
 
   def test_generate_code(self):
     char_map = btl_desc_char_map()
-    cmd = btl_desc_state_command('yield', 't_cheese')
+    cmd = btl_desc_state_command('yield', 't_cheese', {})
     transition = btl_desc_state_transition('s_juice', 'c_equal', [ cmd ])
     state = btl_desc_state('s_juice', [ transition ], False)
 
     self.assert_code_equal('''
 class _fruit_kiwi_lexer_state_s_juice(btl_lexer_state_base):
-  def __init__(self, lexer):
-    super().__init__(lexer)
+  def __init__(self, lexer, log_tag):
+    name = 's_juice'
+    super().__init__(lexer, name, log_tag)
 
   def handle_char(self, c):
     self.log_handle_char(c)
@@ -34,7 +35,7 @@ class _fruit_kiwi_lexer_state_s_juice(btl_lexer_state_base):
 
     if self.char_in(c, 'c_equal'):
       new_state = 's_juice'
-      tokens.append(self.make_token('t_cheese', self.buffer_value(), self.position))
+      tokens.append(self.make_token('t_cheese', args = {}))
     
     self.lexer.change_state(new_state, c)
     return tokens
