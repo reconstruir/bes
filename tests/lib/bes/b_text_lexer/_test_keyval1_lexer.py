@@ -137,7 +137,7 @@ class _test_keyval1_lexer(btl_lexer_base):
       return tokens
 
   def __init__(self, source = None):
-    log_tag = f'_test_keyval'
+    log_tag = f'_test_keyval1'
     desc_text = self._DESC_TEXT
     token = self._test_keyval1_lexer_token
     states = {
