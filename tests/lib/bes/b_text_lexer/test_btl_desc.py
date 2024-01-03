@@ -101,7 +101,7 @@ taste = sour
 """
     self.assertEqual( 's_expecting_key', l.desc.header.start_state )
     self.assertEqual( 's_done', l.desc.header.end_state )
-    self.assertEqual( '_fruit_kiwi_lexer_state_s_expecting_key', l._states['s_expecting_key'].name )
+    self.assertEqual( 's_expecting_key', l._states['s_expecting_key'].name )
 
     #tokens = l.run(text)
     #for i, token in enumerate(tokens):
@@ -148,8 +148,9 @@ class _fruit_kiwi_lexer(btl_lexer_base):
     T_VALUE = 't_value'
   
   class _fruit_kiwi_lexer_state_s_expecting_key(btl_lexer_state_base):
-    def __init__(self, lexer):
-      super().__init__(lexer)
+    def __init__(self, lexer, log_tag):
+      name = 's_expecting_key'
+      super().__init__(lexer, name, log_tag)
   
     def handle_char(self, c):
       self.log_handle_char(c)
@@ -176,8 +177,9 @@ class _fruit_kiwi_lexer(btl_lexer_base):
       return tokens
   
   class _fruit_kiwi_lexer_state_s_expecting_key_error(btl_lexer_state_base):
-    def __init__(self, lexer):
-      super().__init__(lexer)
+    def __init__(self, lexer, log_tag):
+      name = 's_expecting_key_error'
+      super().__init__(lexer, name, log_tag)
   
     def handle_char(self, c):
       self.log_handle_char(c)
@@ -192,8 +194,9 @@ class _fruit_kiwi_lexer(btl_lexer_base):
       return tokens
   
   class _fruit_kiwi_lexer_state_s_key(btl_lexer_state_base):
-    def __init__(self, lexer):
-      super().__init__(lexer)
+    def __init__(self, lexer, log_tag):
+      name = 's_key'
+      super().__init__(lexer, name, log_tag)
   
     def handle_char(self, c):
       self.log_handle_char(c)
@@ -208,17 +211,22 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         new_state = 's_value'
         tokens.append(self.make_token('t_key', args = {}))
         self.buffer_reset()
+        self.buffer_write(c)
         tokens.append(self.make_token('t_equal', args = {}))
+        self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
+        tokens.append(self.make_token('t_key', args = {}))
+        self.buffer_reset()
         tokens.append(self.make_token('t_done', args = {'type_hint': 'done'}))
       
       self.lexer.change_state(new_state, c)
       return tokens
   
   class _fruit_kiwi_lexer_state_s_value(btl_lexer_state_base):
-    def __init__(self, lexer):
-      super().__init__(lexer)
+    def __init__(self, lexer, log_tag):
+      name = 's_value'
+      super().__init__(lexer, name, log_tag)
   
     def handle_char(self, c):
       self.log_handle_char(c)
@@ -244,8 +252,9 @@ class _fruit_kiwi_lexer(btl_lexer_base):
       return tokens
   
   class _fruit_kiwi_lexer_state_s_done(btl_lexer_state_base):
-    def __init__(self, lexer):
-      super().__init__(lexer)
+    def __init__(self, lexer, log_tag):
+      name = 's_done'
+      super().__init__(lexer, name, log_tag)
   
     def handle_char(self, c):
       self.log_handle_char(c)
@@ -262,11 +271,11 @@ class _fruit_kiwi_lexer(btl_lexer_base):
     desc_text = self._DESC_TEXT
     token = self._fruit_kiwi_lexer_token
     states = {
-      's_expecting_key': self._fruit_kiwi_lexer_state_s_expecting_key(self),
-      's_expecting_key_error': self._fruit_kiwi_lexer_state_s_expecting_key_error(self),
-      's_key': self._fruit_kiwi_lexer_state_s_key(self),
-      's_value': self._fruit_kiwi_lexer_state_s_value(self),
-      's_done': self._fruit_kiwi_lexer_state_s_done(self),
+      's_expecting_key': self._fruit_kiwi_lexer_state_s_expecting_key(self, log_tag),
+      's_expecting_key_error': self._fruit_kiwi_lexer_state_s_expecting_key_error(self, log_tag),
+      's_key': self._fruit_kiwi_lexer_state_s_key(self, log_tag),
+      's_value': self._fruit_kiwi_lexer_state_s_value(self, log_tag),
+      's_done': self._fruit_kiwi_lexer_state_s_done(self, log_tag),
     }
     super().__init__(log_tag, desc_text, token, states, source = source)
   _DESC_TEXT = """
@@ -436,7 +445,10 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "yield", 
-              "arg": "t_done"
+              "command": "t_done", 
+              "args": {
+                "type_hint": "done"
+              }
             }
           ]
         }, 
@@ -446,7 +458,10 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "yield", 
-              "arg": "t_line_break"
+              "command": "t_line_break", 
+              "args": {
+                "type_hint": "line_break"
+              }
             }
           ]
         }, 
@@ -456,7 +471,8 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "yield", 
-              "arg": "t_space"
+              "command": "t_space", 
+              "args": {}
             }
           ]
         }, 
@@ -466,7 +482,8 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "buffer", 
-              "arg": "write"
+              "command": "write", 
+              "args": {}
             }
           ]
         }, 
@@ -476,7 +493,8 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "raise", 
-              "arg": "unexpected_char"
+              "command": "unexpected_char", 
+              "args": {}
             }
           ]
         }
@@ -503,7 +521,8 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "buffer", 
-              "arg": "write"
+              "command": "write", 
+              "args": {}
             }
           ]
         }, 
@@ -513,15 +532,28 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "yield", 
-              "arg": "t_key"
+              "command": "t_key", 
+              "args": {}
             }, 
             {
               "name": "buffer", 
-              "arg": "reset"
-            },
+              "command": "reset", 
+              "args": {}
+            }, 
             {
-              "name": "yield",
-              "arg": "t_equal"
+              "name": "buffer", 
+              "command": "write", 
+              "args": {}
+            }, 
+            {
+              "name": "yield", 
+              "command": "t_equal", 
+              "args": {}
+            }, 
+            {
+              "name": "buffer", 
+              "command": "reset", 
+              "args": {}
             }
           ]
         }, 
@@ -531,7 +563,20 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "yield", 
-              "arg": "t_done"
+              "command": "t_key", 
+              "args": {}
+            }, 
+            {
+              "name": "buffer", 
+              "command": "reset", 
+              "args": {}
+            }, 
+            {
+              "name": "yield", 
+              "command": "t_done", 
+              "args": {
+                "type_hint": "done"
+              }
             }
           ]
         }
@@ -547,15 +592,20 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "yield", 
-              "arg": "t_value"
+              "command": "t_value", 
+              "args": {}
             }, 
             {
               "name": "buffer", 
-              "arg": "reset"
+              "command": "reset", 
+              "args": {}
             }, 
             {
               "name": "yield", 
-              "arg": "t_line_break"
+              "command": "t_line_break", 
+              "args": {
+                "type_hint": "line_break"
+              }
             }
           ]
         }, 
@@ -565,15 +615,20 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "yield", 
-              "arg": "t_value"
+              "command": "t_value", 
+              "args": {}
             }, 
             {
               "name": "buffer", 
-              "arg": "reset"
+              "command": "reset", 
+              "args": {}
             }, 
             {
               "name": "yield", 
-              "arg": "t_done"
+              "command": "t_done", 
+              "args": {
+                "type_hint": "done"
+              }
             }
           ]
         }, 
@@ -583,7 +638,8 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
           "commands": [
             {
               "name": "buffer", 
-              "arg": "write"
+              "command": "write", 
+              "args": {}
             }
           ]
         }
@@ -598,6 +654,6 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
   ]
 }
 '''
-
+  
 if __name__ == '__main__':
   unit_test.main()
