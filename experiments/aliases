@@ -1,0 +1,1 @@
+alias go='make -C tests/lib/bes/b_text_lexer/ all ; DEBUG=1 BES_LOG=_test_keyval=debug t tests/lib/bes/b_text_lexer/test__test_keyval_lexer.py :test_just_key_and_equal  >& log ; more log' 
