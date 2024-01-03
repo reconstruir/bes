@@ -15,13 +15,23 @@ stateDiagram-v2
   s_before_key_space --> s_key: c_keyval_key_first
   s_before_key_space --> s_expecting_key_error: default
 
+  %% s_after_key_space state
+  s_after_key_space --> s_after_key_space: c_ws
+  s_after_key_space --> s_value: c_equal
+  s_after_key_space --> s_done: c_eos
+  s_after_key_space --> s_expecting_equal_error: default
+
   %% s_expecting_key_error state
   s_expecting_key_error --> s_done: default
+
+  %% s_expecting_equal_error state
+  s_expecting_equal_error --> s_done: default
 
   %% s_key state
   s_key --> s_key: c_keyval_key
   s_key --> s_value: c_equal
   s_key --> s_done: c_eos
+  s_key --> s_after_key_space: c_ws
 
   %% s_value state
   s_value --> s_expecting_key: c_nl
