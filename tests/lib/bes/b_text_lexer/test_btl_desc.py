@@ -86,7 +86,7 @@ stateDiagram-v2
   def test_use_code(self):
     desc = btl_desc.parse_text(self._keyval1_desc_text)
     lexer_code = self.call_buf_func(desc, 'generate_code', '_fruit', 'kiwi_lexer')
-    use_code = f'''
+    use_code = '''
 import unittest
 
 class _test_use_code_unit_test(unittest.TestCase):
@@ -104,26 +104,28 @@ taste=sour
     self.assertEqual( 's_expecting_key', l._states['s_expecting_key'].name )
 
     tokens = l.run(text)
-#    def _hack_token(token_):
-#      retrun token_.clone(mutations = 
-    tokens = [ 
+    def _hack_token(token_):
+      if token_.name == 't_line_break':
+        return token_.clone(mutations = { 'value': '\\n' })
+      return token_
+    hacked_tokens = [ _hack_token(token) for token in tokens ]
     expected = [
-      '0: t_line_break:{os.linesep}:1,1',
+      '0: t_line_break:\\n:1,1',
       '1: t_key:fruit:1,2',
       '2: t_equal:=:6,2',
       '3: t_value:kiwi:7,2',
-      '4: t_line_break:{os.linesep}:11,2',
+      '4: t_line_break:\\n:11,2',
       '5: t_key:color:1,3',
       '6: t_equal:=:6,3',
       '7: t_value:green:7,3',
-      '8: t_line_break:{os.linesep}:12,3',
+      '8: t_line_break:\\n:12,3',
       '9: t_key:taste:1,4',
       '10: t_equal:=:6,4',
       '11: t_value:sour:7,4',
-      '12: t_line_break:{os.linesep}:11,4',
+      '12: t_line_break:\\n:11,4',
       '13: t_done::0,0',
     ]
-    actual = [ f'{{i}}: {{str(token)}}' for i, token in enumerate(tokens) ]
+    actual = [ f'{i}: {str(token)}' for i, token in enumerate(hacked_tokens) ]
     self.assertEqual( expected, actual )
 
 if __name__ == '__main__':
