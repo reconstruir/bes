@@ -48,6 +48,23 @@ class test__test_keyval_lexer(unit_test):
         ( 't_value', 'kiwi', ( 7, 1 ) ),
         ( 't_done', '', ( 11, 1 ) ),
       ])
+
+  def test_multi_line(self):
+    self._test('''fruit=kiwi
+color=green
+''', 
+      [
+#        ( 't_line_break', '', ( 1, 1 ) ),
+        ( 't_key', 'fruit', ( 1, 1 ) ),
+        ( 't_equal', '=', ( 6, 1 ) ),
+        ( 't_value', 'kiwi', ( 7, 1 ) ),
+        ( 't_line_break', '', ( 11, 1 ) ),
+        ( 't_key', 'color', ( 1, 2 ) ),
+        ( 't_equal', '=', ( 6, 2 ) ),
+        ( 't_value', 'green', ( 7, 2 ) ),
+        ( 't_line_break', '', ( 12, 2 ) ),
+        ( 't_done', '', ( 1, 3 ) ),
+      ])
     
   def xtest_tokenize(self):
     l = _test_keyval_lexer()
