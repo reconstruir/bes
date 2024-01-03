@@ -19,9 +19,9 @@ from bes.b_text_lexer.btl_desc_state_command import btl_desc_state_command
 from bes.b_text_lexer.btl_desc_state_transition import btl_desc_state_transition
 from bes.b_text_lexer.btl_error import btl_error
 
-from keyval_desc_mixin import keyval_desc_mixin
+from _test_desc_mixin import _test_desc_mixin
 
-class test_btl_desc(keyval_desc_mixin, unit_test):
+class test_btl_desc(_test_desc_mixin, unit_test):
 
   def test_parse_text_to_json(self):
     #print(btl_desc.parse_text(self._keyval1_desc_text).to_json())

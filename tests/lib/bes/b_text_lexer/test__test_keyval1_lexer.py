@@ -6,9 +6,9 @@ import os
 from bes.testing.unit_test import unit_test
 
 from _test_keyval1_lexer import _test_keyval1_lexer
-from _lexer_tester_mixin import _lexer_tester_mixin
+from _test_lexer_mixin import _test_lexer_mixin
 
-class test__test_keyval1_lexer(_lexer_tester_mixin, unit_test):
+class test__test_keyval1_lexer(_test_lexer_mixin, unit_test):
 
   def test_empty_string(self):
     t = self._test_tokenize(_test_keyval1_lexer, '',

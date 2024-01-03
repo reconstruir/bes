@@ -8,9 +8,9 @@ from bes.b_text_lexer.btl_error import btl_error
 from bes.testing.unit_test import unit_test
 from bes.text.tree_text_parser import _text_node_data
 
-from keyval_desc_mixin import keyval_desc_mixin
+from _test_desc_mixin import _test_desc_mixin
 
-class test_btl_desc_state_command(keyval_desc_mixin, unit_test):
+class test_btl_desc_state_command(_test_desc_mixin, unit_test):
 
   def test_generate_code_with_yield(self):
     cmd = btl_desc_state_command('yield', 't_cheese', {})

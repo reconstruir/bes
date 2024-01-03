@@ -8,7 +8,7 @@ from bes.text.tree_text_parser import tree_text_parser
 from bes.b_text_lexer.btl_code_gen_buffer import btl_code_gen_buffer
 from bes.text.text_replace import text_replace
 
-class keyval_desc_mixin:
+class _test_desc_mixin:
 
   def assert_code_equal(self, expected, actual, replacements = {}):
     expected2 = text_replace.replace(expected, replacements)

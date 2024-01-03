@@ -8,9 +8,9 @@ from bes.b_text_lexer.btl_desc_token_list import btl_desc_token_list
 from bes.b_text_lexer.btl_error import btl_error
 from bes.testing.unit_test import unit_test
 
-from keyval_desc_mixin import keyval_desc_mixin
+from _test_desc_mixin import _test_desc_mixin
 
-class test_btl_desc_token_list(keyval_desc_mixin, unit_test):
+class test_btl_desc_token_list(_test_desc_mixin, unit_test):
 
   def test_generate_code(self):
     tokens = btl_desc_token_list([

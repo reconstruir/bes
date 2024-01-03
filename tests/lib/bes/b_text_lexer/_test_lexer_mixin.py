@@ -4,7 +4,7 @@ from collections import namedtuple
 
 from bes.b_text_lexer.btl_lexer_token_list import btl_lexer_token_list
 
-class _lexer_tester_mixin:
+class _test_lexer_mixin:
 
   _test_result = namedtuple('_test_result', 'expected, actual, expected_source_string, actual_source_string')
   def _test_tokenize(self, lexer_class, text, expected):
