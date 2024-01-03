@@ -1,5 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
+from collections import OrderedDict
+
 from os import path
 
 from ..system.check import check
@@ -17,10 +19,18 @@ class btl_desc_token_list(type_checked_list):
   def __init__(self, values = None):
     super().__init__(values = values)
 
-  @cached_property
-  def as_sorted_list(self):
-    return sorted([ token.name for token in self ])
+  def to_sorted_list(self):
+    return sorted(self._values, key = lambda token: token.name)
     
+  def to_dict_list(self):
+    return [ token for token in self.to_sorted_list() ]
+
+  def find_token(self, name):
+    for token in self:
+      if token.name == name:
+        return token
+    return None
+  
   @classmethod
   def parse_node(clazz, n, source = '<unknown>'):
     check.check_node(n)

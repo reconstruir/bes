@@ -141,11 +141,12 @@ class btl_lexer_base(object):
   def make_token(self, name, args = None):
     check.check_string(name)
     check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
-    args = args or {}
 
+    token_args = self._make_token_args(name, args)
+    
     assert self.buffer_start_position != None
     token_position = self.buffer_start_position
-    type_hint = args.get('type_hint', None)
+    type_hint = token_args.get('type_hint', None)
     if type_hint:
       if type_hint == 'line_break':
         token_position = point(self._last_position.x + 1, self._last_position.y)
@@ -153,3 +154,15 @@ class btl_lexer_base(object):
         token_position = point(0, 0)
     token = btl_lexer_token(name, self.buffer_value(), token_position)
     return token
+
+  def _make_token_args(self, name, args):
+    check.check_string(name)
+    check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
+
+    result = {}
+    token_args = args or {}
+    desc_args = self._desc.tokens.find_token(name).args or {}
+    print(f'CACA1: token_args={token_args} desc_args={desc_args}', flush = True) 
+    result.update(desc_args)
+    result.update(token_args)
+    return result

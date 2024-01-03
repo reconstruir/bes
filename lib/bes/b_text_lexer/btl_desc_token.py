@@ -8,12 +8,13 @@ from ..property.cached_property import cached_property
 
 from .btl_parsing import btl_parsing
 
-class btl_desc_token(namedtuple('btl_desc_token', 'name')):
+class btl_desc_token(namedtuple('btl_desc_token', 'name, args')):
   
-  def __new__(clazz, name):
+  def __new__(clazz, name, args):
     check.check_string(name)
+    check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
 
-    return clazz.__bases__[0].__new__(clazz, name)
+    return clazz.__bases__[0].__new__(clazz, name, args)
 
   @cached_property
   def name_upper(self):
@@ -28,7 +29,11 @@ class btl_desc_token(namedtuple('btl_desc_token', 'name')):
     check.check_string(source)
 
     name = n.data.text.strip()
-    return btl_desc_token(name)
+    args = {}
+    for child in n.children:
+      key, value = btl_parsing.parse_key_value(child, source)
+      args[key] = value
+    return btl_desc_token(name, args)
 
   def generate_code(self, buf):
     check.check_btl_code_gen_buffer(buf)

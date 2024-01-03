@@ -36,7 +36,7 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states,
   def to_dict(self):
     return {
       'header': self.header.to_dict(),
-      'tokens': self.tokens.as_sorted_list,
+      'tokens': self.tokens.to_dict_list(),
       'errors': self.errors.to_dict_list(),
       'char_map': self.char_map.to_dict(),
       'states': self.states.to_dict_list(),
@@ -106,6 +106,8 @@ class btl_desc(namedtuple('btl_desc', 'header, tokens, errors, char_map, states,
     check.check_string(namespace)
     check.check_string(name)
 
+    print(f'CACA: namespace={namespace} name={name}', flush = True)
+    
     buf.write_line(f'''
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 

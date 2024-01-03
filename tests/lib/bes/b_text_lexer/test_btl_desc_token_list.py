@@ -14,11 +14,11 @@ class test_btl_desc_token_list(keyval_desc_mixin, unit_test):
 
   def test_generate_code(self):
     tokens = btl_desc_token_list([
-      btl_desc_token('kiwi'),
-      btl_desc_token('lemon'),
-      btl_desc_token('melon')
+      btl_desc_token('kiwi', {}),
+      btl_desc_token('lemon', {}),
+      btl_desc_token('melon', {})
     ])
-    token = btl_desc_token('kiwi')
+    token = btl_desc_token('kiwi', {})
 
     #s = self.call_buf_func(tokens, 'generate_code', '_fruit', 'kiwi')
     #print(s)

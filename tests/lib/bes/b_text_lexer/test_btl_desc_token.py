@@ -13,7 +13,7 @@ from keyval_desc_mixin import keyval_desc_mixin
 class test_btl_desc_token(keyval_desc_mixin, unit_test):
 
   def test_generate_code_with_yield(self):
-    token = btl_desc_token('kiwi')
+    token = btl_desc_token('kiwi', {})
     self.assert_code_equal( '''
 KIWI = 'kiwi'
 ''', self.call_buf_func(token, 'generate_code') )

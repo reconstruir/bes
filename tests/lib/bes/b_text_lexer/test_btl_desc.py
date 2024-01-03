@@ -160,10 +160,10 @@ class _fruit_kiwi_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_eos'):
         new_state = 's_done'
-        tokens.append(self.make_token('t_done', args = {'type_hint': 'done'}))
+        tokens.append(self.make_token('t_done', args = {}))
       elif self.char_in(c, 'c_nl'):
         new_state = 's_expecting_key'
-        tokens.append(self.make_token('t_line_break', args = {'type_hint': 'line_break'}))
+        tokens.append(self.make_token('t_line_break', args = {}))
       elif self.char_in(c, 'c_ws'):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_space', args = {}))
@@ -218,7 +218,7 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         new_state = 's_done'
         tokens.append(self.make_token('t_key', args = {}))
         self.buffer_reset()
-        tokens.append(self.make_token('t_done', args = {'type_hint': 'done'}))
+        tokens.append(self.make_token('t_done', args = {}))
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -238,12 +238,12 @@ class _fruit_kiwi_lexer(btl_lexer_base):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
-        tokens.append(self.make_token('t_line_break', args = {'type_hint': 'line_break'}))
+        tokens.append(self.make_token('t_line_break', args = {}))
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
-        tokens.append(self.make_token('t_done', args = {'type_hint': 'done'}))
+        tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_value'
         self.buffer_write(c)
@@ -294,12 +294,34 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
     "end_state": "s_done"
   }, 
   "tokens": [
-    "t_done", 
-    "t_equal", 
-    "t_key", 
-    "t_line_break", 
-    "t_space", 
-    "t_value"
+    [
+      "t_done", 
+      {
+        "type_hint": "done"
+      }
+    ], 
+    [
+      "t_equal", 
+      {}
+    ], 
+    [
+      "t_key", 
+      {}
+    ], 
+    [
+      "t_line_break", 
+      {
+        "type_hint": "line_break"
+      }
+    ], 
+    [
+      "t_space", 
+      {}
+    ], 
+    [
+      "t_value", 
+      {}
+    ]
   ], 
   "errors": [
     {
@@ -446,9 +468,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "yield", 
               "command": "t_done", 
-              "args": {
-                "type_hint": "done"
-              }
+              "args": {}
             }
           ]
         }, 
@@ -459,9 +479,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "yield", 
               "command": "t_line_break", 
-              "args": {
-                "type_hint": "line_break"
-              }
+              "args": {}
             }
           ]
         }, 
@@ -574,9 +592,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "yield", 
               "command": "t_done", 
-              "args": {
-                "type_hint": "done"
-              }
+              "args": {}
             }
           ]
         }
@@ -603,9 +619,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "yield", 
               "command": "t_line_break", 
-              "args": {
-                "type_hint": "line_break"
-              }
+              "args": {}
             }
           ]
         }, 
@@ -626,9 +640,7 @@ check.register_class(_fruit_kiwi_lexer, include_seq = False)
             {
               "name": "yield", 
               "command": "t_done", 
-              "args": {
-                "type_hint": "done"
-              }
+              "args": {}
             }
           ]
         }, 

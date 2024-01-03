@@ -30,10 +30,10 @@ class _test_keyval1_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_eos'):
         new_state = 's_done'
-        tokens.append(self.make_token('t_done', args = {'type_hint': 'done'}))
+        tokens.append(self.make_token('t_done', args = {}))
       elif self.char_in(c, 'c_nl'):
         new_state = 's_expecting_key'
-        tokens.append(self.make_token('t_line_break', args = {'type_hint': 'line_break'}))
+        tokens.append(self.make_token('t_line_break', args = {}))
       elif self.char_in(c, 'c_ws'):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_space', args = {}))
@@ -88,7 +88,7 @@ class _test_keyval1_lexer(btl_lexer_base):
         new_state = 's_done'
         tokens.append(self.make_token('t_key', args = {}))
         self.buffer_reset()
-        tokens.append(self.make_token('t_done', args = {'type_hint': 'done'}))
+        tokens.append(self.make_token('t_done', args = {}))
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -108,12 +108,12 @@ class _test_keyval1_lexer(btl_lexer_base):
         new_state = 's_expecting_key'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
-        tokens.append(self.make_token('t_line_break', args = {'type_hint': 'line_break'}))
+        tokens.append(self.make_token('t_line_break', args = {}))
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
         tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
-        tokens.append(self.make_token('t_done', args = {'type_hint': 'done'}))
+        tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_value'
         self.buffer_write(c)
@@ -162,9 +162,11 @@ lexer
 
 tokens
   t_done
+    type_hint: done
   t_equal
   t_key
   t_line_break
+    type_hint: line_break
   t_space
   t_value
 
@@ -176,19 +178,22 @@ chars
   c_keyval_key: c_keyval_key_first | c_numeric
 
 states
+
   s_expecting_key
     c_eos: s_done
-      yield t_done type_hint=done
+      yield t_done
     c_nl: s_expecting_key
-      yield t_line_break type_hint=line_break type_hint=line_break
+      yield t_line_break
     c_ws: s_expecting_key
       yield t_space 
     c_keyval_key_first: s_key
       buffer write
     default: s_expecting_key_error
       raise unexpected_char
+      
   s_expecting_key_error
     default: s_done
+    
   s_key
     c_keyval_key: s_key
       buffer write
@@ -201,18 +206,20 @@ states
     c_eos: s_done
       yield t_key
       buffer reset
-      yield t_done type_hint=done
+      yield t_done
+      
   s_value
     c_nl: s_expecting_key
       yield t_value
       buffer reset
-      yield t_line_break type_hint=line_break
+      yield t_line_break
     c_eos: s_done
       yield t_value
       buffer reset
-      yield t_done type_hint=done
+      yield t_done
     default: s_value
       buffer write
+      
   s_done
 
 """
