@@ -162,7 +162,6 @@ class btl_lexer_base(object):
     result = {}
     token_args = args or {}
     desc_args = self._desc.tokens.find_token(name).args or {}
-    print(f'CACA1: token_args={token_args} desc_args={desc_args}', flush = True) 
     result.update(desc_args)
     result.update(token_args)
     return result
