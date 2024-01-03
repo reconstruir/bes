@@ -30,13 +30,13 @@ class _test_keyval_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_eos'):
         new_state = 's_done'
-        tokens.append(self.make_token('t_done'))
+        tokens.append(self.make_token('t_done', args = {'type_hint': 'done'}))
       elif self.char_in(c, 'c_nl'):
         new_state = 's_expecting_key'
-        tokens.append(self.make_token('t_line_break'))
+        tokens.append(self.make_token('t_line_break', args = {'type_hint': 'line_break'}))
       elif self.char_in(c, 'c_ws'):
         new_state = 's_expecting_key'
-        tokens.append(self.make_token('t_space'))
+        tokens.append(self.make_token('t_space', args = {}))
       elif self.char_in(c, 'c_keyval_key_first'):
         new_state = 's_key'
         self.buffer_write(c)
@@ -79,16 +79,16 @@ class _test_keyval_lexer(btl_lexer_base):
         self.buffer_write(c)
       elif self.char_in(c, 'c_equal'):
         new_state = 's_value'
-        tokens.append(self.make_token('t_key'))
+        tokens.append(self.make_token('t_key', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
-        tokens.append(self.make_token('t_equal'))
+        tokens.append(self.make_token('t_equal', args = {}))
         self.buffer_reset()
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
-        tokens.append(self.make_token('t_key'))
+        tokens.append(self.make_token('t_key', args = {}))
         self.buffer_reset()
-        tokens.append(self.make_token('t_done'))
+        tokens.append(self.make_token('t_done', args = {'type_hint': 'done'}))
       
       self.lexer.change_state(new_state, c)
       return tokens
@@ -106,14 +106,14 @@ class _test_keyval_lexer(btl_lexer_base):
   
       if self.char_in(c, 'c_nl'):
         new_state = 's_expecting_key'
-        tokens.append(self.make_token('t_value'))
+        tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
-        tokens.append(self.make_token('t_line_break'))
+        tokens.append(self.make_token('t_line_break', args = {'type_hint': 'line_break'}))
       elif self.char_in(c, 'c_eos'):
         new_state = 's_done'
-        tokens.append(self.make_token('t_value'))
+        tokens.append(self.make_token('t_value', args = {}))
         self.buffer_reset()
-        tokens.append(self.make_token('t_done'))
+        tokens.append(self.make_token('t_done', args = {'type_hint': 'done'}))
       else:
         new_state = 's_value'
         self.buffer_write(c)
@@ -178,9 +178,9 @@ chars
 states
   s_expecting_key
     c_eos: s_done
-      yield t_done
+      yield t_done type_hint=done
     c_nl: s_expecting_key
-      yield t_line_break
+      yield t_line_break type_hint=line_break type_hint=line_break
     c_ws: s_expecting_key
       yield t_space 
     c_keyval_key_first: s_key
@@ -201,16 +201,16 @@ states
     c_eos: s_done
       yield t_key
       buffer reset
-      yield t_done
+      yield t_done type_hint=done
   s_value
     c_nl: s_expecting_key
       yield t_value
       buffer reset
-      yield t_line_break
+      yield t_line_break type_hint=line_break
     c_eos: s_done
       yield t_value
       buffer reset
-      yield t_done
+      yield t_done type_hint=done
     default: s_value
       buffer write
   s_done

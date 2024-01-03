@@ -31,6 +31,7 @@ class btl_lexer_base(object):
     self._state = self._find_state(self._desc.header.start_state)
     self._max_state_name_length = max([ len(state.name) for state in self._states.values() ])
     self._position = point(1, 1)
+    self._last_position = point(0, 1)
     self._buffer_start_position = None
     self.buffer_reset()
 
@@ -115,6 +116,7 @@ class btl_lexer_base(object):
         self.log_d(f'lexer: run: new token: {token}')
         yield token
       self._last_char = c
+      self._last_position = self._position
 
     end_state = self._find_state(self._desc.header.end_state)
     assert self._state == end_state
@@ -122,7 +124,7 @@ class btl_lexer_base(object):
   @classmethod
   def _update_position(clazz, old_position, c):
     if c == '\n':
-      new_position = point(1, old_position.y + 1)
+      new_position = point(0, old_position.y + 1)
     else:
       new_position = point(old_position.x + 1, old_position.y)
     return new_position
@@ -136,10 +138,18 @@ class btl_lexer_base(object):
       yield c
     yield self.EOS
 
-  def make_token(self, name):
+  def make_token(self, name, args = None):
     check.check_string(name)
+    check.check_dict(args, check.STRING_TYPES, check.STRING_TYPES, allow_none = True)
+    args = args or {}
 
     assert self.buffer_start_position != None
-    token = btl_lexer_token(name, self.buffer_value(), self.buffer_start_position)
+    token_position = self.buffer_start_position
+    type_hint = args.get('type_hint', None)
+    if type_hint:
+      if type_hint == 'line_break':
+        token_position = point(self._last_position.x + 1, self._last_position.y)
+      elif type_hint == 'done':
+        token_position = point(0, 0)
+    token = btl_lexer_token(name, self.buffer_value(), token_position)
     return token
-    

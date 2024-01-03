@@ -58,8 +58,8 @@ class btl_lexer_state_base(object):
     else:
       return c
 
-  def make_token(self, name):
-    return self._lexer.make_token(name)
+  def make_token(self, name, args = None):
+    return self._lexer.make_token(name, args = args)
   
   def buffer_reset(self):
     self._lexer.buffer_reset()

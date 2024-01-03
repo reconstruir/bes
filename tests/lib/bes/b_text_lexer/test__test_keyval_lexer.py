@@ -12,14 +12,14 @@ class test__test_keyval_lexer(unit_test):
   def test_empty_string(self):
     self._test('',
       [
-        ( 't_done', '', ( 1, 1 ) ),
+        ( 't_done', '', ( 0, 0 ) ),
       ])
 
   def test_just_key(self):
     self._test('a',
       [
         ( 't_key', 'a', ( 1, 1 ) ),
-        ( 't_done', '', ( 2, 1 ) ),
+        ( 't_done', '', ( 0, 0 ) ),
       ])
     
   def test_just_key_and_equal(self):
@@ -28,16 +28,16 @@ class test__test_keyval_lexer(unit_test):
         ( 't_key', 'ab', ( 1, 1 ) ),
         ( 't_equal', '=', ( 3, 1 ) ),
         ( 't_value', '', ( 3, 1 ) ),
-        ( 't_done', '', ( 4, 1 ) ),
+        ( 't_done', '', ( 0, 0 ) ),
       ])
 
-  def test_key_and_value(self):
+  def test_key_and_value_short(self):
     self._test('a=k',
       [
         ( 't_key', 'a', ( 1, 1 ) ),
         ( 't_equal', '=', ( 2, 1 ) ),
         ( 't_value', 'k', ( 3, 1 ) ),
-        ( 't_done', '', ( 4, 1 ) ),
+        ( 't_done', '', ( 0, 0 ) ),
       ])
 
   def test_key_and_value(self):
@@ -46,110 +46,26 @@ class test__test_keyval_lexer(unit_test):
         ( 't_key', 'fruit', ( 1, 1 ) ),
         ( 't_equal', '=', ( 6, 1 ) ),
         ( 't_value', 'kiwi', ( 7, 1 ) ),
-        ( 't_done', '', ( 11, 1 ) ),
+        ( 't_done', '', ( 0, 0 ) ),
       ])
 
   def test_multi_line(self):
-    self._test('''fruit=kiwi
+    self._test('''
+fruit=kiwi
 color=green
 ''', 
       [
-#        ( 't_line_break', '', ( 1, 1 ) ),
-        ( 't_key', 'fruit', ( 1, 1 ) ),
-        ( 't_equal', '=', ( 6, 1 ) ),
-        ( 't_value', 'kiwi', ( 7, 1 ) ),
-        ( 't_line_break', '', ( 11, 1 ) ),
-        ( 't_key', 'color', ( 1, 2 ) ),
+        ( 't_line_break', '', ( 1, 1 ) ),
+        ( 't_key', 'fruit', ( 1, 2 ) ),
         ( 't_equal', '=', ( 6, 2 ) ),
-        ( 't_value', 'green', ( 7, 2 ) ),
-        ( 't_line_break', '', ( 12, 2 ) ),
-        ( 't_done', '', ( 1, 3 ) ),
+        ( 't_value', 'kiwi', ( 7, 2 ) ),
+        ( 't_line_break', '', ( 11, 2 ) ),
+        ( 't_key', 'color', ( 1, 3 ) ),
+        ( 't_equal', '=', ( 6, 3 ) ),
+        ( 't_value', 'green', ( 7, 3 ) ),
+        ( 't_line_break', '', ( 12, 3 ) ),
+        ( 't_done', '', ( 0, 0 ) ),
       ])
-    
-  def xtest_tokenize(self):
-    l = _test_keyval_lexer()
-    text = 'a=b'
-    actual = l.tokenize(text).to_json()
-    #print(actual)
-    #return
-    self.assert_string_equal_fuzzy( '''
-[
-  {
-    "name": "t_key", 
-    "value": "a", 
-    "position": "1,1"
-  }, 
-  {
-    "name": "t_equal", 
-    "value": "", 
-    "position": "1,1"
-  }, 
-  {
-    "name": "t_value", 
-    "value": "b", 
-    "position": "1,1"
-  }, 
-  {
-    "name": "t_done", 
-    "value": "", 
-    "position": "1,1"
-  }
-]
-''', actual )
-
-  def xtest_tokenize_with_line_breaks(self):
-    l = _test_keyval_lexer()
-    text = '''
-fruit=kiwi
-'''
-    #actual = l.tokenize(text).to_json()
-    #print(actual)
-    return
-    self.assert_string_equal_fuzzy( '''
-[
-  {
-    "name": "t_line_break", 
-    "value": "", 
-    "position": {
-      "x": 1, 
-      "y": 1
-    }
-  }, 
-  {
-    "name": "t_key", 
-    "value": "fruit", 
-    "position": {
-      "x": 1, 
-      "y": 2
-    }
-  }, 
-  {
-    "name": "t_value", 
-    "value": "kiwi", 
-    "position": {
-      "x": 1, 
-      "y": 2
-    }
-  }, 
-  {
-    "name": "t_line_break", 
-    "value": "", 
-    "position": {
-      "x": 1, 
-      "y": 2
-    }
-  }, 
-  {
-    "name": "t_done", 
-    "value": "", 
-    "position": {
-      "x": 1, 
-      "y": 3
-    }
-  }
-]
-''', actual )
-
 
   def _test(self, text, expected):
     actual_tokens = _test_keyval_lexer().tokenize(text)
