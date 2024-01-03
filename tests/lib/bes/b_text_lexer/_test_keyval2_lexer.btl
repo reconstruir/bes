@@ -33,8 +33,21 @@ states
       yield t_done
     c_nl: s_expecting_key
       yield t_line_break
-    c_ws: s_expecting_key
-      yield t_space 
+    c_ws: s_before_key_space
+      buffer write
+#      yield t_space 
+    c_keyval_key_first: s_key
+      buffer write
+    default: s_expecting_key_error
+      raise unexpected_char
+
+  s_before_key_space
+    c_ws: s_before_key_space
+      buffer write
+    c_nl: s_expecting_key
+      yield t_space
+      buffer reset
+      yield t_line_break
     c_keyval_key_first: s_key
       buffer write
     default: s_expecting_key_error

@@ -58,15 +58,15 @@ class btl_cli_handler(cli_command_handler):
       f.write(desc.to_mermaid_diagram())
     return 0
   
-  def make_code(self, filename, namespace, name, output_filename):
+  def make_code(self, filename, output_filename, namespace, name):
     filename = file_check.check_file(filename)
-    check.check_string(namespace)
-    check.check_string(name)
     check.check_string(output_filename)
+    check.check_string(namespace, allow_none = True)
+    check.check_string(name, allow_none = True)
 
-    xnamespace, xname = self._parse_code_filename(output_filename)
-    assert xnamespace == namespace
-    assert xname == name
+    parsed_namespace, parsed_name = self._parse_code_filename(output_filename)
+    namespace = namespace or parsed_namespace
+    name = name or parsed_name
     desc = btl_desc.parse_file(filename)
     desc.write_code(output_filename, namespace, name)
     return 0

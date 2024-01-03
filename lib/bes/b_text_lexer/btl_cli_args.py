@@ -31,12 +31,12 @@ class btl_cli_args(object):
     self.__btl_cli_add_add_common_args(p)
     p.add_argument('filename', action = 'store', default = None,
                    help = 'The btl filename')
-    p.add_argument('namespace', action = 'store', default = None,
-                   help = 'The namespace')
-    p.add_argument('name', action = 'store', default = None,
-                   help = 'The name')
     p.add_argument('output_filename', action = 'store', default = None,
                    help = 'The output python filename')
+    p.add_argument('--namespace', action = 'store', default = None,
+                   help = 'The namespace')
+    p.add_argument('--name', action = 'store', default = None,
+                   help = 'The name')
     
   @classmethod
   def __btl_cli_add_add_common_args(clazz, p):

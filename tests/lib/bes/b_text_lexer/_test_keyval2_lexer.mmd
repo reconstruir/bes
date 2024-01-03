@@ -1,0 +1,32 @@
+stateDiagram-v2
+  direction LR
+
+  %% s_expecting_key state
+  [*] --> s_expecting_key
+  s_expecting_key --> s_done: c_eos
+  s_expecting_key --> s_expecting_key: c_nl
+  s_expecting_key --> s_before_key_space: c_ws
+  s_expecting_key --> s_key: c_keyval_key_first
+  s_expecting_key --> s_expecting_key_error: default
+
+  %% s_before_key_space state
+  s_before_key_space --> s_before_key_space: c_ws
+  s_before_key_space --> s_expecting_key: c_nl
+  s_before_key_space --> s_key: c_keyval_key_first
+  s_before_key_space --> s_expecting_key_error: default
+
+  %% s_expecting_key_error state
+  s_expecting_key_error --> s_done: default
+
+  %% s_key state
+  s_key --> s_key: c_keyval_key
+  s_key --> s_value: c_equal
+  s_key --> s_done: c_eos
+
+  %% s_value state
+  s_value --> s_expecting_key: c_nl
+  s_value --> s_done: c_eos
+  s_value --> s_value: default
+
+  %% s_done state
+  s_done --> [*]
