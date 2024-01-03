@@ -5,9 +5,9 @@ from bes.testing.unit_test import unit_test
 
 from bes.b_text_lexer.btl_lexer_token_list import btl_lexer_token_list
 
-from _test_keyval_lexer import _test_keyval_lexer
+from _test_keyval1_lexer import _test_keyval1_lexer
 
-class test__test_keyval_lexer(unit_test):
+class test__test_keyval1_lexer(unit_test):
 
   def test_empty_string(self):
     self._test('',
@@ -90,7 +90,7 @@ color=green
       ])
 
   def _test(self, text, expected):
-    actual_tokens = _test_keyval_lexer().tokenize(text)
+    actual_tokens = _test_keyval1_lexer().tokenize(text)
     actual_json = actual_tokens.to_json()
     expected_tokens = btl_lexer_token_list(expected)
     expected_json = btl_lexer_token_list(expected).to_json()
