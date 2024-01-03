@@ -49,6 +49,8 @@ states
       buffer reset
       yield t_line_break
     c_keyval_key_first: s_key
+      yield t_space
+      buffer reset
       buffer write
     default: s_expecting_key_error
       raise unexpected_char

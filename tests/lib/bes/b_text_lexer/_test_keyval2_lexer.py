@@ -67,6 +67,8 @@ class _test_keyval2_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_line_break', args = {}))
       elif self.char_in(c, 'c_keyval_key_first'):
         new_state = 's_key'
+        tokens.append(self.make_token('t_space', args = {}))
+        self.buffer_reset()
         self.buffer_write(c)
       else:
         new_state = 's_expecting_key_error'
@@ -229,6 +231,8 @@ states
       buffer reset
       yield t_line_break
     c_keyval_key_first: s_key
+      yield t_space
+      buffer reset
       buffer write
     default: s_expecting_key_error
       raise unexpected_char
