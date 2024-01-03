@@ -49,6 +49,3 @@ class keyval_desc_mixin:
     func = getattr(o, func_name)
     func(buf, *args, **kwargs)
     return buf.get_value()
-  
-if __name__ == '__main__':
-  unit_test.main()

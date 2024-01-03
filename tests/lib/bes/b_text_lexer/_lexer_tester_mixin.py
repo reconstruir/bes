@@ -1,0 +1,26 @@
+#-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
+
+from collections import namedtuple
+
+from bes.b_text_lexer.btl_lexer_token_list import btl_lexer_token_list
+
+class _lexer_tester_mixin:
+
+  _test_result = namedtuple('_test_result', 'expected, actual, expected_source_string, actual_source_string')
+  def _test_tokenize(self, lexer_class, text, expected):
+    lexer = lexer_class()
+    actual_tokens = lexer.tokenize(text)
+    actual_json = actual_tokens.to_json()
+    expected_tokens = btl_lexer_token_list(expected)
+    expected_json = btl_lexer_token_list(expected).to_json()
+
+    expected_string = '\n'.join([ str(token) for token in expected_tokens ])
+    actual_string = '\n'.join([ str(token) for token in actual_tokens ])
+
+    if self.DEBUG:
+      for i, token in enumerate(actual_tokens, start = 1):
+        print(f'{i}: {token}', flush = True)
+
+    return self._test_result(expected_string, actual_string,
+                             text,
+                             actual_tokens.to_source_string())

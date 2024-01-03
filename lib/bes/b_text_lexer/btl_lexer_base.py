@@ -1,6 +1,7 @@
 #-*- coding:utf-8; mode:python; indent-tabs-mode: nil; c-basic-offset: 2; tab-width: 2 -*-
 
 import io
+import os
 
 from ..system.log import log
 from ..system.check import check
@@ -146,13 +147,16 @@ class btl_lexer_base(object):
     
     assert self.buffer_start_position != None
     token_position = self.buffer_start_position
+    buffer_value = self.buffer_value()
     type_hint = token_args.get('type_hint', None)
     if type_hint:
       if type_hint == 'line_break':
         token_position = point(self._last_position.x + 1, self._last_position.y)
+        buffer_value = os.linesep
       elif type_hint == 'done':
         token_position = point(0, 0)
-    token = btl_lexer_token(name, self.buffer_value(), token_position)
+        buffer_value = '' #None
+    token = btl_lexer_token(name, buffer_value, token_position)
     return token
 
   def _make_token_args(self, name, args):
