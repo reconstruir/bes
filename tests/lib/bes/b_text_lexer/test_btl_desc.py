@@ -91,21 +91,37 @@ class _test_use_code_unit_test(unittest.TestCase):
 
   def test_foo(self):
     l = _fruit_kiwi_lexer()
-    print(l.token)
-    print(l._states)
 
     text = f"""
-fruit = kiwi
-color = green
-taste = sour
+fruit=kiwi
+color=green
+taste=sour
 """
     self.assertEqual( 's_expecting_key', l.desc.header.start_state )
     self.assertEqual( 's_done', l.desc.header.end_state )
     self.assertEqual( 's_expecting_key', l._states['s_expecting_key'].name )
 
-    #tokens = l.run(text)
-    #for i, token in enumerate(tokens):
-    #  print(f'{i}: {token}')
+    tokens = l.run(text)
+    expected = [
+      '0: t_line_break::1,1',
+      '1: t_key:fruit:1,2',
+      '2: t_equal:=:6,2',
+      '3: t_value:kiwi:7,2',
+      '4: t_line_break::11,2',
+      '5: t_key:color:1,3',
+      '6: t_equal:=:6,3',
+      '7: t_value:green:7,3',
+      '8: t_line_break::12,3',
+      '9: t_key:taste:1,4',
+      '10: t_equal:=:6,4',
+      '11: t_value:sour:7,4',
+      '12: t_line_break::11,4',
+      '13: t_done::0,0',
+    ]
+    actual = [ f'{i}: {str(token)}' for i, token in enumerate(tokens) ]
+    self.assertEqual( expected, actual )
+#    for i, token in enumerate(tokens):
+#      print(f'{i}: {token}')
 
 if __name__ == '__main__':
   unittest.main()
