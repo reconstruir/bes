@@ -39,7 +39,7 @@ class test__test_keyval2_lexer(_test_lexer_mixin, unit_test):
     self.assertMultiLineEqual( t.expected, t.actual )
     self.assertMultiLineEqual( t.expected_source_string, t.actual_source_string )
 
-  def xtest_just_key_and_equal_with_trailing_white_space(self):
+  def test_just_key_and_equal_with_trailing_white_space(self):
     t = self._test_tokenize(_test_keyval2_lexer, 'ab= ',
       [
         ( 't_key', 'ab', ( 1, 1 ) ),

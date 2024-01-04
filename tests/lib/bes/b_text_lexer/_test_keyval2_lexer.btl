@@ -79,6 +79,9 @@ states
       yield t_space
       buffer reset
       buffer write
+    c_eos: s_done
+      yield t_space
+      yield t_done
     default: s_expecting_value_error
       raise unexpected_char
 

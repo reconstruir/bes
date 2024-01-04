@@ -25,6 +25,7 @@ stateDiagram-v2
   s_before_value_space --> s_value_key_space: c_ws
   s_before_value_space --> s_expecting_key: c_nl
   s_before_value_space --> s_value: c_keyval_key_first
+  s_before_value_space --> s_done: c_eos
   s_before_value_space --> s_expecting_value_error: default
 
   %% s_expecting_value state

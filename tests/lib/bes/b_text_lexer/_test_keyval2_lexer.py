@@ -130,6 +130,10 @@ class _test_keyval2_lexer(btl_lexer_base):
         tokens.append(self.make_token('t_space', args = {}))
         self.buffer_reset()
         self.buffer_write(c)
+      elif self.char_in(c, 'c_eos'):
+        new_state = 's_done'
+        tokens.append(self.make_token('t_space', args = {}))
+        tokens.append(self.make_token('t_done', args = {}))
       else:
         new_state = 's_expecting_value_error'
       
@@ -395,6 +399,9 @@ states
       yield t_space
       buffer reset
       buffer write
+    c_eos: s_done
+      yield t_space
+      yield t_done
     default: s_expecting_value_error
       raise unexpected_char
 
